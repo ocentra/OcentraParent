@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingDeviceReachability, LanPairingProductionDiscoveryState, LanPairingTrustState,
-    LanSelectedRouteTarget,
+    LanPairingDeviceReachability, LanPairingProductionDiscoveryState, LanPairingText,
+    LanPairingTrustState, LanSelectedRouteTarget,
 };
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanBrowserAddDeviceReadModel, LanSelectedDeviceReadiness,
@@ -22,14 +22,14 @@ pub(crate) fn selected_device_readiness(
 ) -> LanSelectedDeviceReadiness {
     match selected {
         Some(target) => {
-            let route_id = non_empty_text(&target.route_id);
+            let route_id = non_empty_text(LanPairingText(target.route_id.clone()));
             let ready_for_control = route_id.is_some()
                 && target.trust_state == LanPairingTrustState::Paired
                 && target.reachability == LanPairingDeviceReachability::Online;
             LanSelectedDeviceReadiness {
                 schema_version: constants::lan_pairing::SCHEMA_VERSION,
                 selected_child_device_id: Some(target.selected_child_device_id),
-                route_id,
+                route_id: route_id.map(|value| value.0),
                 pairing_id: target.pairing_id,
                 trust_state: target.trust_state,
                 reachability: target.reachability,
@@ -52,9 +52,9 @@ pub(crate) fn selected_device_readiness(
     }
 }
 
-fn non_empty_text(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    (!trimmed.is_empty()).then(|| trimmed.to_string())
+fn non_empty_text(value: LanPairingText) -> Option<LanPairingText> {
+    let trimmed = value.0.trim();
+    (!trimmed.is_empty()).then(|| LanPairingText(trimmed.to_string()))
 }
 
 pub(super) fn discovery_state_for(state: &str) -> LanPairingProductionDiscoveryState {
@@ -102,21 +102,21 @@ pub(super) fn expired_pairing_count(model: &LanBrowserAddDeviceReadModel) -> usi
         .count()
 }
 
-pub(super) fn serialized_enum_label<T: serde::Serialize>(value: &T) -> String {
+pub(super) fn serialized_enum_label(value: impl serde::Serialize) -> LanPairingText {
     serde_json::to_value(value)
         .ok()
-        .and_then(|json| json.as_str().map(ToOwned::to_owned))
-        .unwrap_or_default()
+        .and_then(|json| json.as_str().map(|value| LanPairingText(value.to_owned())))
+        .unwrap_or_else(|| LanPairingText(constants::value::EMPTY.to_string()))
 }
 
 pub(super) fn pairing_request_state(
     accepted: bool,
-    observed_at: &str,
-    expires_at: &str,
+    observed_at: LanPairingText,
+    expires_at: LanPairingText,
 ) -> LanPairingProductionDiscoveryState {
     if accepted {
         LanPairingProductionDiscoveryState::Paired
-    } else if observed_at > expires_at {
+    } else if observed_at.0 > expires_at.0 {
         LanPairingProductionDiscoveryState::Expired
     } else {
         LanPairingProductionDiscoveryState::Pending

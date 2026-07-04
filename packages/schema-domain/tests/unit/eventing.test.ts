@@ -2,17 +2,15 @@ import { describe, expect, it } from 'vitest';
 
 import {
   EventingEventContractSchema,
-  EventingEventPriority,
+  EventingDeliveryRouteKindSchema,
   EventingEventTypeSchema,
-  EventingRequestCompletionOutcome,
   EventingRequestCompletionReportSchema,
   EventingStoredEnvelopeHeaderSchema,
   EventingTopologyManifestSchema,
-  EventingTopologyStatus,
 } from '../../src/eventing';
 import { TrackingEventName } from '../../src/agent-tracking-retention-settings-write-command';
 
-describe('event-domain eventing taxonomy and envelopes', () => {
+describe('schema-domain eventing taxonomy and envelopes', () => {
   it('rejects malformed eventing taxonomy values through the shared schema owner', () => {
     expect(EventingEventTypeSchema.safeParse(TrackingEventName.LocationObserved).success).toBe(true);
     expect(EventingEventTypeSchema.safeParse(`.${TrackingEventName.LocationObserved}`).success).toBe(false);
@@ -44,7 +42,7 @@ describe('event-domain eventing taxonomy and envelopes', () => {
         },
         observedAt: '2026-06-12T10:00:00.000Z',
         targetHandler: null,
-        priority: EventingEventPriority.Normal,
+        priority: 'normal',
         deadline: null,
       },
       journalHash: 'journal-hash-1',
@@ -53,6 +51,7 @@ describe('event-domain eventing taxonomy and envelopes', () => {
     expect(header.contract.eventType).toBe(TrackingEventName.LocationObserved);
     expect(header.contract.schemaVersion).toBe(2);
     expect(header.metadata.source.component).toBe('tracking-runtime-flow');
+    expect(header.metadata.priority).toBe('normal');
     expect(header.journalHash).toBe('journal-hash-1');
   });
 
@@ -77,7 +76,7 @@ describe('event-domain eventing taxonomy and envelopes', () => {
         },
         observedAt: '2026-06-12T10:00:00.000Z',
         targetHandler: null,
-        priority: EventingEventPriority.Normal,
+        priority: 'normal',
         deadline: null,
       },
       journalHash: 'journal-hash-1',
@@ -87,7 +86,7 @@ describe('event-domain eventing taxonomy and envelopes', () => {
   });
 });
 
-describe('event-domain eventing manifests and reports', () => {
+describe('schema-domain eventing manifests and reports', () => {
   it('parses event topology manifests with subscriber targets from the common schema', () => {
     const manifest = EventingTopologyManifestSchema.parse({
       entries: [
@@ -105,22 +104,27 @@ describe('event-domain eventing manifests and reports', () => {
             },
           ],
           families: ['tracking'],
-          status: EventingTopologyStatus.Covered,
+          status: 'covered',
         },
       ],
     });
 
     expect(manifest.entries[0]?.subscribers[0]?.subscriberId).toBe('child-ai-core');
-    expect(manifest.entries[0]?.status).toBe(EventingTopologyStatus.Covered);
+    expect(manifest.entries[0]?.status).toBe('covered');
   });
 
   it('parses request completion reports with the Rust eventing outcome vocabulary', () => {
     const report = EventingRequestCompletionReportSchema.parse({
       requestId: 'request-1',
-      outcome: EventingRequestCompletionOutcome.Completed,
+      outcome: 'completed',
     });
 
     expect(report.requestId).toBe('request-1');
-    expect(report.outcome).toBe(EventingRequestCompletionOutcome.Completed);
+    expect(report.outcome).toBe('completed');
+  });
+
+  it('rejects unknown delivery route kinds at the shared schema boundary', () => {
+    expect(EventingDeliveryRouteKindSchema.safeParse('local-in-process').success).toBe(true);
+    expect(EventingDeliveryRouteKindSchema.safeParse('external-tunnel').success).toBe(false);
   });
 });

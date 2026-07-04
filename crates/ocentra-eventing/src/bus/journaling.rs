@@ -4,7 +4,7 @@ use crate::{
 };
 
 use super::{
-    reports::{empty_publish_report, DeadLetter, PublishReport},
+    reports::{dead_letter::DeadLetter, empty_publish_report, handler::PublishReport},
     EventBus,
 };
 

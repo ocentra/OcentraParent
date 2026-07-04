@@ -22,17 +22,11 @@ fn dev_log_test_lock() -> &'static Mutex<()> {
 }
 
 fn require_ok<T, E>(result: Result<T, E>, message: &str) -> T {
-    match result {
-        Ok(value) => value,
-        Err(_error) => unreachable!("{message}"),
-    }
+    result.expect(message)
 }
 
 fn require_some<T>(value: Option<T>, message: &str) -> T {
-    match value {
-        Some(value) => value,
-        None => unreachable!("{message}"),
-    }
+    value.expect(message)
 }
 
 fn temp_dev_log_dir() -> PathBuf {

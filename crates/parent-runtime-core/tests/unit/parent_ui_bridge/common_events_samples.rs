@@ -1,4 +1,25 @@
 use super::super::super::*;
+
+struct PayloadField(String);
+
+macro_rules! payload_field {
+    ($value:expr) => {
+        PayloadField($value.to_string())
+    };
+}
+
+struct NetworkFlowResponsePayload(std::collections::BTreeMap<String, LogFieldValue>);
+
+impl NetworkFlowResponsePayload {
+    fn new() -> Self {
+        Self(std::collections::BTreeMap::new())
+    }
+
+    fn insert(&mut self, field: PayloadField, value: LogFieldValue) {
+        self.0.insert(field.0, value);
+    }
+}
+
 pub(crate) fn sample_screen_read_model() -> ActivityScreenReadModel {
     ActivityScreenReadModel {
         schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
@@ -89,7 +110,7 @@ pub(crate) fn screen_read_model_response_event() -> AgentEventEnvelope {
         },
         event: AgentEventName::AgentActivityScreenReadModelReported,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }
@@ -123,7 +144,7 @@ pub(crate) fn network_flow_response_event() -> AgentEventEnvelope {
         },
         event: AgentEventName::AgentNetworkFlowReadModelReported,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.0.into(),
         snapshot: None,
     }
 }
@@ -132,8 +153,8 @@ fn network_flow_response_event_payload(
     read_model: &ActivityNetworkFlowReadModel,
     row: &ActivityNetworkFlowObservation,
     digest: &ActivityNetworkFlowDigest,
-) -> std::collections::BTreeMap<String, LogFieldValue> {
-    let mut payload = std::collections::BTreeMap::new();
+) -> NetworkFlowResponsePayload {
+    let mut payload = NetworkFlowResponsePayload::new();
     insert_network_flow_response_event_summary_fields(&mut payload, read_model, row, digest);
     insert_network_flow_response_event_endpoint_fields(&mut payload, row);
     insert_network_flow_response_event_product_path_fields(&mut payload);
@@ -141,65 +162,65 @@ fn network_flow_response_event_payload(
 }
 
 fn insert_network_flow_response_event_summary_fields(
-    payload: &mut std::collections::BTreeMap<String, LogFieldValue>,
+    payload: &mut NetworkFlowResponsePayload,
     read_model: &ActivityNetworkFlowReadModel,
     row: &ActivityNetworkFlowObservation,
     digest: &ActivityNetworkFlowDigest,
 ) {
     payload.insert(
-        constants::field::GENERATED_AT.to_string(),
+        payload_field!(constants::field::GENERATED_AT),
         LogFieldValue::String(read_model.generated_at.clone()),
     );
     payload.insert(
-        constants::field::CUSTODY.to_string(),
+        payload_field!(constants::field::CUSTODY),
         LogFieldValue::String(read_model.custody.clone()),
     );
     payload.insert(
-        constants::field::LIMIT.to_string(),
+        payload_field!(constants::field::LIMIT),
         LogFieldValue::Number(read_model.limit as f64),
     );
     payload.insert(
-        constants::field::RETURNED.to_string(),
+        payload_field!(constants::field::RETURNED),
         LogFieldValue::Number(read_model.returned as f64),
     );
     payload.insert(
-        NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS.to_string(),
+        payload_field!(NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS),
         LogFieldValue::Number(read_model.active_rows as f64),
     );
     payload.insert(
-        NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS.to_string(),
+        payload_field!(NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS),
         LogFieldValue::Number(read_model.tombstone_rows as f64),
     );
     payload.insert(
-        NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS.to_string(),
+        payload_field!(NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS),
         LogFieldValue::Number(read_model.exportable_rows as f64),
     );
     payload.insert(
-        constants::field::CAPABILITY_STATUS.to_string(),
+        payload_field!(constants::field::CAPABILITY_STATUS),
         LogFieldValue::String(read_model.capability_status.clone()),
     );
     payload.insert(
-        constants::field::LATEST_EVENT_ID.to_string(),
+        payload_field!(constants::field::LATEST_EVENT_ID),
         LogFieldValue::String(row.event_id.clone()),
     );
     payload.insert(
-        constants::field::LATEST_OBSERVED_AT.to_string(),
+        payload_field!(constants::field::LATEST_OBSERVED_AT),
         LogFieldValue::String(row.observed_at.clone()),
     );
     payload.insert(
-        NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID.to_string(),
+        payload_field!(NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID),
         LogFieldValue::String(String::new()),
     );
     payload.insert(
-        NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT.to_string(),
+        payload_field!(NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT),
         LogFieldValue::String(String::new()),
     );
     payload.insert(
-        NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS.to_string(),
+        payload_field!(NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS),
         LogFieldValue::String(read_model.deleted_evidence_reference_ids.join(",")),
     );
     payload.insert(
-        constants::field::ACTIVITY_DIGEST.to_string(),
+        payload_field!(constants::field::ACTIVITY_DIGEST),
         LogFieldValue::String(require_ok(
             serde_json::to_string(&digest),
             "network flow digest serializes",
@@ -208,96 +229,96 @@ fn insert_network_flow_response_event_summary_fields(
 }
 
 fn insert_network_flow_response_event_endpoint_fields(
-    payload: &mut std::collections::BTreeMap<String, LogFieldValue>,
+    payload: &mut NetworkFlowResponsePayload,
     row: &ActivityNetworkFlowObservation,
 ) {
     payload.insert(
-        constants::field::OBSERVER.to_string(),
+        payload_field!(constants::field::OBSERVER),
         LogFieldValue::String(row.observer.clone()),
     );
     payload.insert(
-        constants::field::ADAPTER_ID.to_string(),
+        payload_field!(constants::field::ADAPTER_ID),
         LogFieldValue::String(row.adapter_id.clone()),
     );
     payload.insert(
-        constants::field::NETWORK_PROTOCOL.to_string(),
+        payload_field!(constants::field::NETWORK_PROTOCOL),
         LogFieldValue::String(row.protocol.clone().unwrap_or_default()),
     );
     payload.insert(
-        constants::field::TCP_STATE.to_string(),
+        payload_field!(constants::field::TCP_STATE),
         LogFieldValue::String(row.tcp_state.clone().unwrap_or_default()),
     );
     payload.insert(
-        constants::field::LOCAL_IP.to_string(),
+        payload_field!(constants::field::LOCAL_IP),
         LogFieldValue::String(row.local_endpoint.ip.clone().unwrap_or_default()),
     );
     payload.insert(
-        constants::field::LOCAL_PORT.to_string(),
+        payload_field!(constants::field::LOCAL_PORT),
         LogFieldValue::Number(row.local_endpoint.port.unwrap_or_default() as f64),
     );
     payload.insert(
-        constants::field::DESTINATION_IP.to_string(),
+        payload_field!(constants::field::DESTINATION_IP),
         LogFieldValue::String(row.destination_endpoint.ip.clone().unwrap_or_default()),
     );
     payload.insert(
-        constants::field::DESTINATION_PORT.to_string(),
+        payload_field!(constants::field::DESTINATION_PORT),
         LogFieldValue::Number(row.destination_endpoint.port.unwrap_or_default() as f64),
     );
     payload.insert(
-        constants::field::DESTINATION_DOMAIN.to_string(),
+        payload_field!(constants::field::DESTINATION_DOMAIN),
         LogFieldValue::String(row.destination_domain.clone().unwrap_or_default()),
     );
     payload.insert(
-        constants::field::DOMAIN_ATTRIBUTION_STATUS.to_string(),
+        payload_field!(constants::field::DOMAIN_ATTRIBUTION_STATUS),
         LogFieldValue::String(row.domain_attribution_status.clone()),
     );
     payload.insert(
-        constants::field::PROCESS_ATTRIBUTION_STATUS.to_string(),
+        payload_field!(constants::field::PROCESS_ATTRIBUTION_STATUS),
         LogFieldValue::String(row.process_attribution_status.clone()),
     );
     payload.insert(
-        constants::field::PROCESS_ID.to_string(),
+        payload_field!(constants::field::PROCESS_ID),
         LogFieldValue::Number(row.process_id.unwrap_or_default() as f64),
     );
     payload.insert(
-        constants::field::PROCESS_NAME.to_string(),
+        payload_field!(constants::field::PROCESS_NAME),
         LogFieldValue::String(row.process_name.clone().unwrap_or_default()),
     );
     payload.insert(
-        constants::field::CONNECTION_COUNT.to_string(),
+        payload_field!(constants::field::CONNECTION_COUNT),
         LogFieldValue::Number(row.counters.connection_count as f64),
     );
     payload.insert(
-        constants::field::BYTES_SENT.to_string(),
+        payload_field!(constants::field::BYTES_SENT),
         LogFieldValue::Number(row.counters.bytes_sent.unwrap_or_default() as f64),
     );
     payload.insert(
-        constants::field::BYTES_RECEIVED.to_string(),
+        payload_field!(constants::field::BYTES_RECEIVED),
         LogFieldValue::Number(row.counters.bytes_received.unwrap_or_default() as f64),
     );
     payload.insert(
-        constants::field::FIRST_SEEN_AT.to_string(),
+        payload_field!(constants::field::FIRST_SEEN_AT),
         LogFieldValue::String(row.counters.first_seen_at.clone().unwrap_or_default()),
     );
     payload.insert(
-        constants::field::LAST_SEEN_AT.to_string(),
+        payload_field!(constants::field::LAST_SEEN_AT),
         LogFieldValue::String(row.counters.last_seen_at.clone().unwrap_or_default()),
     );
 }
 
 fn insert_network_flow_response_event_product_path_fields(
-    payload: &mut std::collections::BTreeMap<String, LogFieldValue>,
+    payload: &mut NetworkFlowResponsePayload,
 ) {
     payload.insert(
-        constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS.to_string(),
+        payload_field!(constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS),
         LogFieldValue::String("event.network.analyzer.alert.1".to_string()),
     );
     payload.insert(
-        constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS.to_string(),
+        payload_field!(constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS),
         LogFieldValue::String("event.network.detection.result.1".to_string()),
     );
     payload.insert(
-        constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS.to_string(),
+        payload_field!(constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS),
         LogFieldValue::String("event.network.risk-budget.1".to_string()),
     );
 }

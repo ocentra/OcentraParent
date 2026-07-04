@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { BillingSupportAdminDisputesResponseSchema } from '../../../../packages/billing-domain/src/billing-support-admin-api-boundary.js';
+import { BillingSupportAdminDisputesResponseSchema } from '../../src/generated/billing-contracts.js';
 import { createHmacSignature, createTestHarness, executeRequest, readJson } from '../../src/testing.js';
 
 interface ProviderWebhookResponse {

@@ -36,12 +36,13 @@ use ocentra_storage_custody_core::storage_custody::{
 };
 
 trait ResultRequiredExt<T, E> {
-    fn required(self, context: &str) -> T;
+    fn required(self, context: impl std::fmt::Display) -> T;
 }
 
 impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
-    fn required(self, context: &str) -> T {
-        self.unwrap_or_else(|error| unreachable!("{context}: {error:?}"))
+    fn required(self, context: impl std::fmt::Display) -> T {
+        let context = context.to_string();
+        self.expect(&context)
     }
 }
 
@@ -247,7 +248,8 @@ fn child_runtime_preflight_request_records_typed_decision_event() {
         input: valid_child_runtime_preflight_input(),
     };
 
-    let decision = ocentra_child_runtime::record_child_runtime_preflight_decision(&request);
+    let decision = ocentra_child_runtime::record_child_runtime_preflight_decision(&request)
+        .required("child runtime preflight decision recorded");
 
     assert_eq!(decision.aggregate_id, request.aggregate_id);
     assert_eq!(decision.source_request_id, request.request_id);

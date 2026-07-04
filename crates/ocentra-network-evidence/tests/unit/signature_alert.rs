@@ -1,9 +1,5 @@
-use crate::{
-    ingest_network_signature_alerts, NetworkSignatureAlertFixtureRow,
-    NetworkSignatureAlertIngestionError, NetworkSignatureAlertIngestionInput,
-    NetworkSignatureAlertSeverity, NetworkSignatureAlertSource, NetworkSignatureAlertState,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::signature_alert::*;
 
 #[test]
 fn signature_alert_ingestion_converts_suricata_and_snort_rows_to_typed_records() {

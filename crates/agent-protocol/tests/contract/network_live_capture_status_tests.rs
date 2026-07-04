@@ -8,9 +8,8 @@ use constants::network_flow as flow;
 
 #[test]
 fn network_live_capture_status_serializes_row13_service_readiness_without_live_capture_claims() {
-    let serialized = serde_json::to_value(live_capture_status_fixture()).unwrap_or_else(|error| {
-        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(live_capture_status_fixture())
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["statusRef"], flow::TEST_LIVE_CAPTURE_STATUS_REF);
     assert_eq!(

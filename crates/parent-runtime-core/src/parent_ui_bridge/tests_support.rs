@@ -1,5 +1,4 @@
 use std::collections::{BTreeMap, VecDeque};
-use std::fmt::Display;
 use std::net::TcpListener;
 use std::sync::{mpsc, Arc, Mutex, OnceLock};
 use std::thread;
@@ -29,11 +28,8 @@ use tungstenite::{
     Message,
 };
 
-pub(super) fn require_ok<T, E: Display>(result: Result<T, E>, context: &str) -> T {
-    match result {
-        Ok(value) => value,
-        Err(error) => unreachable!("{context}: {error}"),
-    }
+pub(super) fn require_ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &'static str) -> T {
+    result.expect(context)
 }
 
 fn env_lock() -> &'static Mutex<()> {
@@ -41,11 +37,19 @@ fn env_lock() -> &'static Mutex<()> {
     LOCK.get_or_init(|| Mutex::new(()))
 }
 
+pub(super) fn with_isolated_agent_addr<T>(action: impl FnOnce() -> T) -> T {
+    let _guard = require_ok(env_lock().lock(), "agent env lock remains available");
+    let previous = std::env::var(constants::env_var::AGENT_ADDR).ok();
+    std::env::remove_var(constants::env_var::AGENT_ADDR);
+    let result = action();
+    if let Some(value) = previous {
+        std::env::set_var(constants::env_var::AGENT_ADDR, value);
+    }
+    result
+}
+
 pub(super) fn with_agent_addr<T>(address: &str, action: impl FnOnce() -> T) -> T {
-    let _guard = match env_lock().lock() {
-        Ok(guard) => guard,
-        Err(_) => unreachable!("agent env lock remains available"),
-    };
+    let _guard = require_ok(env_lock().lock(), "agent env lock remains available");
     let previous = std::env::var(constants::env_var::AGENT_ADDR).ok();
     std::env::set_var(constants::env_var::AGENT_ADDR, address);
     let result = action();
@@ -100,10 +104,10 @@ fn start_local_server_with_capture_responses_inner(
     let response_queue_for_thread = Arc::clone(&response_queue);
     thread::spawn(move || loop {
         let next_response = {
-            let mut queue = match response_queue_for_thread.lock() {
-                Ok(guard) => guard,
-                Err(_) => unreachable!("response queue lock remains available"),
-            };
+            let mut queue = require_ok(
+                response_queue_for_thread.lock(),
+                "response queue lock remains available",
+            );
             queue.pop_front()
         };
         if next_response.is_none() && !accept_without_response {
@@ -111,52 +115,67 @@ fn start_local_server_with_capture_responses_inner(
         }
         let (stream, _) = require_ok(listener.accept(), "local listener accepts");
         let header_origin = Arc::clone(&observed_origin);
-        let mut socket = match accept_hdr(stream, move |request: &Request, response: Response| {
-            let origin = request
-                .headers()
-                .get("origin")
-                .and_then(|value| value.to_str().ok())
-                .map(ToOwned::to_owned);
-            *match header_origin.lock() {
-                Ok(guard) => guard,
-                Err(_) => unreachable!("captured header origin lock remains available"),
-            } = origin;
+        let socket = accept_hdr(stream, move |request: &Request, response: Response| {
+            *require_ok(
+                header_origin.lock(),
+                "captured header origin lock remains available",
+            ) = request_origin(request);
             Ok(response)
-        }) {
-            Ok(socket) => socket,
-            Err(error) => unreachable!("local websocket handshake succeeds: {error}"),
-        };
-        socket
-            .send(Message::Text(require_ok(
-                serde_json::to_string(&ready_event()),
-                "ready event serializes",
-            )))
-            .unwrap_or_else(|error| unreachable!("ready event sends: {error}"));
-        let command_text = match require_ok(socket.read(), "command reads") {
-            Message::Text(text) => text,
-            other => unreachable!("local agent receives one text command: {other:?}"),
-        };
+        });
+        let mut socket = require_ok(socket, "local websocket handshake succeeds");
+        send_json_message(&mut socket, &ready_event(), "ready event sends");
+        let command_text = expect_text_message(require_ok(socket.read(), "command reads"));
         let command: Value = require_ok(serde_json::from_str(&command_text), "command parses");
         let _ = tx.send(CapturedLanRequest {
-            origin: match observed_origin.lock() {
-                Ok(guard) => guard.clone(),
-                Err(_) => unreachable!("captured origin lock remains available"),
-            },
+            origin: require_ok(
+                observed_origin.lock(),
+                "captured origin lock remains available",
+            )
+            .clone(),
             command,
         });
         if let Some(response_event) = next_response {
-            socket
-                .send(Message::Text(require_ok(
-                    serde_json::to_string(&response_event),
-                    "response event serializes",
-                )))
-                .unwrap_or_else(|error| unreachable!("response event sends: {error}"));
+            send_json_message(&mut socket, &response_event, "response event sends");
         } else {
             thread::sleep(Duration::from_millis(750));
             break;
         }
     });
     (address.to_string(), rx)
+}
+
+fn request_origin(request: &Request) -> Option<String> {
+    request
+        .headers()
+        .get("origin")
+        .and_then(|value| value.to_str().ok())
+        .map(ToOwned::to_owned)
+}
+
+fn send_json_message(
+    socket: &mut tungstenite::WebSocket<std::net::TcpStream>,
+    value: &AgentEventEnvelope,
+    context: &'static str,
+) {
+    require_ok(
+        socket.send(Message::Text(require_ok(
+            serde_json::to_string(value),
+            "agent event serializes",
+        ))),
+        context,
+    );
+}
+
+fn expect_text_message(message: Message) -> String {
+    let is_text = matches!(message, Message::Text(_));
+    assert!(
+        is_text,
+        "local agent receives one text command as text frame"
+    );
+    match message {
+        Message::Text(text) => text,
+        _ => String::new(),
+    }
 }
 
 #[derive(Debug)]
@@ -181,7 +200,7 @@ fn ready_event() -> AgentEventEnvelope {
         },
         event: AgentEventName::AgentConnectionReady,
         severity: LogLevel::Info,
-        payload: BTreeMap::new(),
+        payload: BTreeMap::new().into(),
         snapshot: None,
     }
 }
@@ -213,7 +232,7 @@ pub(super) fn lan_event(
         },
         event: event_name,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }
@@ -259,7 +278,7 @@ pub(super) fn signed_child_agent_reported_event(
         },
         event: AgentEventName::AgentLanPairingSignedChildAgentReported,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }

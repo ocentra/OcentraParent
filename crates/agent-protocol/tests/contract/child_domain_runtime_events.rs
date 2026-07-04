@@ -25,12 +25,8 @@ fn child_domain_events_expose_eventing_contract_keys_without_local_shape_duplica
     let violation = child_domain_policy_violation_detected_event(&policy_requested);
     let notification = child_domain_notification_requested_event(&violation);
 
-    let observed_contract = observed
-        .contract()
-        .unwrap_or_else(|error| unreachable!("observed contract: {error}"));
-    let notification_contract = notification
-        .contract()
-        .unwrap_or_else(|error| unreachable!("notification contract: {error}"));
+    let observed_contract = observed.contract().expect("observed contract");
+    let notification_contract = notification.contract().expect("notification contract");
 
     assert_eq!(
         observed_contract.event_type.as_str(),
@@ -68,12 +64,12 @@ fn child_domain_events_expose_eventing_contract_keys_without_local_shape_duplica
     );
     assert!(observed
         .aggregate_key()
-        .unwrap_or_else(|error| unreachable!("observed aggregate: {error}"))
+        .expect("observed aggregate")
         .as_str()
         .contains(ChildRuntimeDomain::Browser.as_contract_text()));
     assert!(notification
         .idempotency_key()
-        .unwrap_or_else(|error| unreachable!("notification idempotency: {error}"))
+        .expect("notification idempotency")
         .as_str()
         .contains(notification.notification_id.as_str()));
     assert_eq!(
@@ -107,7 +103,7 @@ fn child_domain_policy_and_notification_helpers_canonicalize_evidence_refs() {
     let duplicate = policy_requested
         .evidence_refs
         .first()
-        .unwrap_or_else(|| unreachable!("policy evidence ref"))
+        .expect("policy evidence ref")
         .clone();
     policy_requested.evidence_refs.push(duplicate);
 
@@ -134,10 +130,8 @@ fn child_domain_event_type_deserialization_rejects_unknown_protocol_text() {
         "policyEvaluationRequirement": "required"
     });
 
-    let error = match serde_json::from_value::<ChildDomainObservedEvent>(payload) {
-        Ok(_) => unreachable!("unknown protocol text must fail deserialization"),
-        Err(error) => error,
-    };
+    let error = serde_json::from_value::<ChildDomainObservedEvent>(payload)
+        .expect_err("unknown protocol text must fail deserialization");
 
     assert_eq!(error.classify(), serde_json::error::Category::Data);
 }

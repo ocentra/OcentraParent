@@ -11,8 +11,6 @@ pub const LOG_RUN_ID_ENV: &str = "OCENTRA_PARENT_LOG_RUN_ID";
 pub const DEV_LOG_DIR_ENV: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
 pub const LEDGER_LANE_ENV: &str = "LEDGER_LANE";
 pub const LANE_ID_ENV: &str = "OCENTRA_PARENT_LANE_ID";
-const LEGACY_CODEX_RUN_ID_ENV: &str = "OCENTRA_PARENT_CODEX_RUN_ID";
-const LEGACY_CODEX_LANE_ID_ENV: &str = "OCENTRA_PARENT_CODEX_LANE_ID";
 pub const DEFAULT_SCOPE: &str = "parent-agent";
 
 pub fn resolve_log_root() -> io::Result<PathBuf> {
@@ -33,11 +31,11 @@ pub fn resolve_log_scope() -> String {
 }
 
 pub fn resolve_log_run_id() -> Option<String> {
-    first_non_empty_env_value(&[LOG_RUN_ID_ENV, LEGACY_CODEX_RUN_ID_ENV])
+    first_non_empty_env_value(&[LOG_RUN_ID_ENV])
 }
 
 pub fn resolve_lane_id() -> Option<String> {
-    first_non_empty_env_value(&[LEDGER_LANE_ENV, LANE_ID_ENV, LEGACY_CODEX_LANE_ID_ENV])
+    first_non_empty_env_value(&[LEDGER_LANE_ENV, LANE_ID_ENV])
 }
 
 pub fn sanitize_segment(segment: &str) -> io::Result<String> {

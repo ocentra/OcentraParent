@@ -1,22 +1,106 @@
-
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanBrowserAddDeviceReadModel, LanDiscoveryEventHistory, LanDiscoveryEventHistoryState,
     LanDiscoveryEventKind, LanDiscoveryEventRow,
 };
 use ocentra_schema::parent_ui_bridge::{
-    ParentRouteLiveActivitySnapshot, ParentRoutePeerRole,
+    ParentRouteContext, ParentRouteLiveActivitySnapshot, ParentRoutePeerRole,
 };
 use serde_json::{json, Value};
 
 use super::super::tests_support::sample_lan_read_model;
 use super::super::LAN_DISCOVERY_REPORTED_EVENT;
 
-pub(crate) fn require_some<T>(value: Option<T>, context: &str) -> T {
-    match value {
-        Some(value) => value,
-        None => unreachable!("{context}: expected Some(_)"),
-    }
+pub(crate) struct TestContext(pub(crate) &'static str);
+
+pub(crate) struct TestLabel(pub(crate) &'static str);
+
+pub(crate) struct TestValue(pub(crate) &'static str);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct CommandText(pub(crate) String);
+
+pub(crate) fn require_some<T>(value: Option<T>, context: TestContext) -> T {
+    value.expect(context.0)
+}
+
+pub(crate) fn require_route_snapshot<'a>(
+    value: &'a Option<super::super::ParentRouteSnapshot>,
+    context: TestContext,
+) -> &'a super::super::ParentRouteSnapshot {
+    value.as_ref().expect(context.0)
+}
+
+pub(crate) fn require_snapshot_live_activity<'a>(
+    value: &'a Option<super::super::ParentRouteSnapshot>,
+    snapshot_context: TestContext,
+    live_activity_context: TestContext,
+) -> &'a ParentRouteLiveActivitySnapshot {
+    require_route_snapshot(value, snapshot_context)
+        .live_activity
+        .as_ref()
+        .expect(live_activity_context.0)
+}
+
+pub(crate) fn require_result_live_activity<'a>(
+    value: &'a super::super::ParentUiActionResult,
+    snapshot_context: TestContext,
+    live_activity_context: TestContext,
+) -> &'a ParentRouteLiveActivitySnapshot {
+    require_snapshot_live_activity(&value.snapshot, snapshot_context, live_activity_context)
+}
+
+pub(crate) fn command_text(value: &Value, context: TestContext) -> CommandText {
+    CommandText(require_some(value.as_str().map(ToOwned::to_owned), context))
+}
+
+pub(crate) fn serialize_json<T: serde::Serialize>(value: &T, context: TestContext) -> Value {
+    super::super::tests_support::require_ok(serde_json::to_value(value), context.0)
+}
+
+pub(crate) fn route_snapshot_json(
+    route: super::super::ParentRouteId,
+    context: Option<&ParentRouteContext>,
+    label: TestContext,
+) -> Value {
+    super::super::tests_support::require_ok(
+        serde_json::to_value(super::super::load_parent_route_snapshot(route, context)),
+        label.0,
+    )
+}
+
+pub(crate) fn subscription_event_json(
+    route: super::super::ParentRouteId,
+    context: Option<&ParentRouteContext>,
+    label: TestContext,
+) -> Value {
+    super::super::tests_support::require_ok(
+        serde_json::to_value(super::super::load_parent_subscription_event(route, context)),
+        label.0,
+    )
+}
+
+pub(crate) fn live_activity_json(
+    result: &super::super::ParentUiActionResult,
+    snapshot_context: TestContext,
+    live_activity_context: TestContext,
+    serialize_context: TestContext,
+) -> Value {
+    serialize_json(
+        require_result_live_activity(result, snapshot_context, live_activity_context),
+        serialize_context,
+    )
+}
+
+pub(crate) fn last_event_payload_field<'a>(
+    result: &'a super::super::ParentUiActionResult,
+    field: TestLabel,
+) -> Option<&'a Value> {
+    result
+        .events
+        .last()
+        .and_then(|value| value.payload.as_ref())
+        .and_then(|payload| payload.get(field.0))
 }
 
 pub(crate) fn assert_snapshot_field_is_none(
@@ -38,7 +122,7 @@ pub(crate) fn assert_lan_scan_snapshot(result: &super::super::ParentUiActionResu
         .as_ref()
         .and_then(|snapshot| snapshot.live_activity.as_ref())
         .and_then(|live_activity| live_activity.lan_pairing_browser_discovery_event.as_ref())
-        .unwrap_or_else(|| unreachable!("LAN scan snapshot includes discovery event"));
+        .expect("LAN scan snapshot includes discovery event");
 
     assert_eq!(
         result.message,
@@ -85,27 +169,27 @@ pub(crate) fn assert_lan_scan_snapshot(result: &super::super::ParentUiActionResu
     );
 }
 
-pub(crate) fn assert_json_field_eq(value: Option<&Value>, field: &str, expected: &str) {
+pub(crate) fn assert_json_field_eq(value: Option<&Value>, field: TestLabel, expected: TestValue) {
     assert_eq!(
         value
-            .and_then(|value| value.get(field))
+            .and_then(|value| value.get(field.0))
             .and_then(|value| value.as_str()),
-        Some(expected),
+        Some(expected.0),
     );
 }
 
-pub(crate) fn assert_panel_detail_value(details: &Value, label: &str, expected: &str) {
+pub(crate) fn assert_panel_detail_value(details: &Value, label: TestLabel, expected: TestValue) {
     let detail = details
         .as_array()
         .and_then(|details| {
-            details
-                .iter()
-                .find(|detail| detail.get("label").and_then(|value| value.as_str()) == Some(label))
+            details.iter().find(|detail| {
+                detail.get("label").and_then(|value| value.as_str()) == Some(label.0)
+            })
         })
         .expect("expected matching panel detail");
     assert_eq!(
         detail.get("value").and_then(|value| value.as_str()),
-        Some(expected),
+        Some(expected.0),
     );
 }
 

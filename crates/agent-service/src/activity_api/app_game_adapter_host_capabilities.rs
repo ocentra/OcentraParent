@@ -1,9 +1,20 @@
-use std::{env, path::PathBuf};
-
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
 };
 use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
+
+use super::app_game_adapter_host_capabilities_paths::{
+    android_sdk_adb_available, executable_available, EnvironmentName, ExecutableName,
+};
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct CapabilityState(pub(super) &'static str);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct EvidenceRefs(pub(super) Vec<String>);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct ProbeRefs(pub(super) Vec<String>);
 
 pub(super) struct HostCapabilitySignals {
     pub(super) android_adb: bool,
@@ -15,125 +26,84 @@ pub(super) struct HostCapabilitySignals {
 
 impl HostCapabilitySignals {
     pub(super) fn detect() -> Self {
-        let android_adb_path = executable_available(proof::EXE_ADB);
-        let android_adb_sdk = android_sdk_adb_available(proof::ENV_ANDROID_HOME)
-            || android_sdk_adb_available(proof::ENV_ANDROID_SDK_ROOT);
+        let android_adb_path = executable_available(ExecutableName(proof::EXE_ADB));
+        let android_adb_sdk = android_sdk_adb_available(EnvironmentName(proof::ENV_ANDROID_HOME))
+            || android_sdk_adb_available(EnvironmentName(proof::ENV_ANDROID_SDK_ROOT));
         Self {
             android_adb: android_adb_path || android_adb_sdk,
             android_adb_path,
             android_adb_sdk,
-            linux_wsl: executable_available(proof::EXE_WSL),
-            linux_docker: executable_available(proof::EXE_DOCKER),
+            linux_wsl: executable_available(ExecutableName(proof::EXE_WSL)),
+            linux_docker: executable_available(ExecutableName(proof::EXE_DOCKER)),
         }
     }
 
-    pub(super) fn android_evidence_refs(&self) -> Vec<&'static str> {
-        if self.android_adb {
-            return vec![proof::REF_ANDROID_ADB_HOST_TOOLCHAIN];
-        }
-        Vec::new()
-    }
-
-    pub(super) fn android_probe_refs(&self) -> Vec<&'static str> {
-        let mut refs = Vec::new();
-        if self.android_adb_path {
-            refs.push(proof::REF_ANDROID_ADB_PATH_PROBE);
-        }
-        if self.android_adb_sdk {
-            refs.push(proof::REF_ANDROID_ADB_SDK_PROBE);
-        }
-        refs
-    }
-
-    pub(super) fn android_state(&self) -> &'static str {
-        if self.android_adb {
-            return APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
-        }
-        APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED
-    }
-
-    pub(super) fn linux_evidence_refs(&self) -> Vec<&'static str> {
-        let mut refs = Vec::new();
-        if self.linux_wsl {
-            refs.push(proof::REF_LINUX_WSL_HOST_TOOLCHAIN);
-        }
-        if self.linux_docker {
-            refs.push(proof::REF_LINUX_DOCKER_HOST_TOOLCHAIN);
-        }
-        refs
-    }
-
-    pub(super) fn linux_probe_refs(&self) -> Vec<&'static str> {
-        let mut refs = Vec::new();
-        if self.linux_wsl {
-            refs.push(proof::REF_LINUX_WSL_PATH_PROBE);
-        }
-        if self.linux_docker {
-            refs.push(proof::REF_LINUX_DOCKER_PATH_PROBE);
-        }
-        refs
-    }
-
-    pub(super) fn linux_state(&self) -> &'static str {
-        if self.linux_wsl || self.linux_docker {
-            return APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
-        }
-        APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED
-    }
-}
-
-fn android_sdk_adb_available(env_name: &str) -> bool {
-    match env::var_os(env_name) {
-        Some(root) => {
-            let platform_tools = PathBuf::from(root).join(proof::ANDROID_PLATFORM_TOOLS_DIR);
-            executable_candidate_names(proof::EXE_ADB)
+    pub(super) fn android_evidence_refs(&self) -> EvidenceRefs {
+        EvidenceRefs(
+            self.android_adb
+                .then_some(proof::REF_ANDROID_ADB_HOST_TOOLCHAIN.to_string())
                 .into_iter()
-                .any(|candidate| platform_tools.join(candidate).is_file())
-        }
-        None => false,
+                .collect(),
+        )
     }
-}
 
-fn executable_available(executable: &str) -> bool {
-    match env::var_os(proof::ENV_PATH) {
-        Some(paths) => env::split_paths(&paths).any(|path| {
-            executable_candidate_names(executable)
-                .into_iter()
-                .any(|candidate| path.join(candidate).is_file())
-        }),
-        None => false,
+    pub(super) fn android_probe_refs(&self) -> ProbeRefs {
+        ProbeRefs(
+            [
+                self.android_adb_path
+                    .then_some(proof::REF_ANDROID_ADB_PATH_PROBE.to_string()),
+                self.android_adb_sdk
+                    .then_some(proof::REF_ANDROID_ADB_SDK_PROBE.to_string()),
+            ]
+            .into_iter()
+            .flatten()
+            .collect(),
+        )
     }
-}
 
-fn executable_candidate_names(executable: &str) -> Vec<String> {
-    let mut names = vec![executable.to_string()];
-    if cfg!(windows) {
-        names.extend(windows_executable_candidate_names(executable));
+    pub(super) fn android_state(&self) -> CapabilityState {
+        CapabilityState(
+            [
+                APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
+                APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+            ][self.android_adb as usize],
+        )
     }
-    names
-}
 
-#[cfg(windows)]
-fn windows_executable_candidate_names(executable: &str) -> Vec<String> {
-    if executable.ends_with(proof::WINDOWS_EXE_EXTENSION) {
-        return Vec::new();
+    pub(super) fn linux_evidence_refs(&self) -> EvidenceRefs {
+        EvidenceRefs(
+            [
+                self.linux_wsl
+                    .then_some(proof::REF_LINUX_WSL_HOST_TOOLCHAIN.to_string()),
+                self.linux_docker
+                    .then_some(proof::REF_LINUX_DOCKER_HOST_TOOLCHAIN.to_string()),
+            ]
+            .into_iter()
+            .flatten()
+            .collect(),
+        )
     }
-    let mut executable_name = executable.to_string();
-    executable_name.push_str(proof::WINDOWS_EXE_EXTENSION);
-    let mut names = vec![executable_name];
-    if let Some(path_ext) = env::var_os(proof::ENV_PATHEXT) {
-        names.extend(env::split_paths(&path_ext).filter_map(|extension| {
-            extension.to_str().map(|value| {
-                let mut candidate = executable.to_string();
-                candidate.push_str(value);
-                candidate
-            })
-        }));
-    }
-    names
-}
 
-#[cfg(not(windows))]
-fn windows_executable_candidate_names(_executable: &str) -> Vec<String> {
-    Vec::new()
+    pub(super) fn linux_probe_refs(&self) -> ProbeRefs {
+        ProbeRefs(
+            [
+                self.linux_wsl
+                    .then_some(proof::REF_LINUX_WSL_PATH_PROBE.to_string()),
+                self.linux_docker
+                    .then_some(proof::REF_LINUX_DOCKER_PATH_PROBE.to_string()),
+            ]
+            .into_iter()
+            .flatten()
+            .collect(),
+        )
+    }
+
+    pub(super) fn linux_state(&self) -> CapabilityState {
+        CapabilityState(
+            [
+                APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
+                APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+            ][(self.linux_wsl || self.linux_docker) as usize],
+        )
+    }
 }

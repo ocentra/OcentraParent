@@ -1,8 +1,9 @@
 use ocentra_eventing::{
-    delivery::decide_event_delivery_route, delivery::EventDeliveryBackpressurePolicy,
-    delivery::EventDeliveryDecisionError, delivery::EventDeliveryDecisionInput,
-    delivery::EventDeliveryDecisionState, delivery::EventDeliveryRouteKind,
-    delivery::EventDeliverySubscriberFilter, error::EventingError, ids::EventNamespace,
+    delivery::decide_event_delivery_route, delivery::validation::EventDeliveryBackpressurePolicy,
+    delivery::validation::EventDeliveryDecisionError,
+    delivery::validation::EventDeliveryDecisionInput,
+    delivery::validation::EventDeliveryDecisionState, delivery::validation::EventDeliveryRouteKind,
+    delivery::validation::EventDeliverySubscriberFilter, error::EventingError, ids::EventNamespace,
     ids::EventType, ids::SourceComponent, ids::SubscriberId, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::activity_capture::{

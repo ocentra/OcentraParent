@@ -17,12 +17,12 @@ import {
   getGeneratedDefaultDuckDbFileName,
   rowToGeneratedStats,
   rowToGeneratedStoredLog,
-} from '../generated/duckdb-log-query';
+} from '../duckdb-log-query';
 import {
   type StoredTestLogLine,
   type TestLogScope as TestLogScopeType,
   type TestLogStats,
-} from '@ocentra-parent/schema-domain/test-log/types';
+} from './types';
 
 const require = createRequire(import.meta.url);
 

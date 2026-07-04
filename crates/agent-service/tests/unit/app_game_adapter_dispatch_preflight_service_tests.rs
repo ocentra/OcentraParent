@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameAdapterDispatchPreflightReadModel;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -15,9 +18,10 @@ const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 #[tokio::test]
 async fn app_game_adapter_dispatch_preflight_command_reports_service_backed_read_model() {
     let body = serialize_test_json(&command_envelope());
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let read_model = adapter_dispatch_preflight_payload(
-        &event.payload[constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL],
+        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
     );
 
     assert_eq!(

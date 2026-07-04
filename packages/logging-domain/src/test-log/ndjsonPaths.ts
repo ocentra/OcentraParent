@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { RunType, TestLogScope, TestSuiteType } from '@ocentra-parent/schema-domain/test-log/types';
+import type { RunType, TestLogScope, TestSuiteType } from './types';
 import {
   GeneratedLocalLogRootEnv,
   getGeneratedAppLogScopeDir,
@@ -12,7 +12,7 @@ import {
   getGeneratedTestLogScopeDir,
   resolveGeneratedLocalLogRoot,
   sanitizeGeneratedTestNameForNdjson,
-} from '../generated/local-test-log';
+} from '../local-test-log';
 
 function getPackageRoot(): string {
   const filename = fileURLToPath(import.meta.url);

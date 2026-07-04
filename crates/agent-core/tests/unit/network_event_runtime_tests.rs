@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use ocentra_parent_agent_protocol::activity_capture::{
     ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
@@ -9,6 +9,7 @@ use ocentra_parent_agent_protocol::network_flow::{
     NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
 };
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::network_capture::NetworkObservation;
 use ocentra_parent_agent_core::network_event_runtime::review::{
     request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
@@ -18,14 +19,14 @@ use ocentra_parent_agent_core::network_event_runtime::{
     publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload, NetworkRuntimeReport,
 };
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestText>;
 
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+fn ok<T, E: Debug>(result: Result<T, E>, context: impl Display) -> Result<T, TestText> {
+    result.map_err(|error| TestText::from_display(format!("{context}: {error:?}")))
 }
 
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| context.to_string())
+fn some<T>(value: Option<T>, context: impl Display) -> Result<T, TestText> {
+    value.ok_or_else(|| TestText::from_display(context))
 }
 
 #[tokio::test]
@@ -142,11 +143,14 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
     let audit_entry = payload_for_phase(&payloads, NetworkRuntimePhase::AuditEntryCommitted)?;
     assert_eq!(
         audit_entry.previous_phase_ref,
-        Some(expected_phase_ref(
-            &ActivityCaptureCapabilityStatus::Available,
-            constants::activity_store::TEST_FIRST_OBSERVED_AT,
-            NetworkRuntimePhase::PolicyDecisionCompleted
-        ))
+        Some(
+            expected_phase_ref(
+                &ActivityCaptureCapabilityStatus::Available,
+                constants::activity_store::TEST_FIRST_OBSERVED_AT,
+                NetworkRuntimePhase::PolicyDecisionCompleted
+            )
+            .to_string()
+        )
     );
     assert_eq!(audit_entry.adapter_capability_ref, None);
     assert_eq!(audit_entry.enforcement_command_ref, None);
@@ -241,7 +245,7 @@ async fn network_runtime_review_request_resolves_associated_response() -> TestRe
 
 fn decode_payloads(
     report: &NetworkRuntimeReport,
-) -> Result<Vec<NetworkRuntimeEventPayload>, String> {
+) -> Result<Vec<NetworkRuntimeEventPayload>, TestText> {
     report
         .stored_events
         .iter()
@@ -255,36 +259,45 @@ fn decode_payloads(
         .collect()
 }
 
-fn count_event_type(report: &NetworkRuntimeReport, event_type: &str) -> usize {
+fn count_event_type(report: &NetworkRuntimeReport, event_type: impl Display) -> usize {
+    let event_type = TestText::from_display(event_type);
     report
         .stored_events
         .iter()
-        .filter(|event| event.contract.event_type.as_str() == event_type)
+        .filter(|event| event.contract.event_type.as_str() == event_type.0.as_str())
         .count()
 }
 
 fn assert_ai_request_refs(
     payloads: &[NetworkRuntimeEventPayload],
-    observed_at: &str,
+    observed_at: impl Display,
 ) -> TestResult {
+    let observed_at = TestText::from_display(observed_at);
     let ai_request = payload_for_phase(payloads, NetworkRuntimePhase::AiAnalysisRequested)?;
     assert_eq!(
         ai_request.previous_phase_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::ActivityClassified
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::ActivityClassified
+            )
+            .to_string()
+        )
     );
     assert_eq!(
         ai_request.evidence_ref,
-        expected_available_ref(observed_at, NetworkRuntimePhase::FlowObserved)
+        expected_available_ref(observed_at.0.as_str(), NetworkRuntimePhase::FlowObserved)
+            .to_string()
     );
     assert_eq!(
         ai_request.ai_request_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::AiAnalysisRequested
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::AiAnalysisRequested
+            )
+            .to_string()
+        )
     );
     assert_eq!(ai_request.ai_analysis_ref, None);
     assert_eq!(ai_request.policy_decision_ref, None);
@@ -295,37 +308,50 @@ fn assert_ai_request_refs(
 
 fn assert_policy_evaluation_refs(
     payloads: &[NetworkRuntimeEventPayload],
-    observed_at: &str,
+    observed_at: impl Display,
 ) -> TestResult {
+    let observed_at = TestText::from_display(observed_at);
     let policy_evaluation =
         payload_for_phase(payloads, NetworkRuntimePhase::PolicyEvaluationRequested)?;
     assert_eq!(
         policy_evaluation.previous_phase_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::AiAnalysisCompleted
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::AiAnalysisCompleted
+            )
+            .to_string()
+        )
     );
     assert_eq!(
         policy_evaluation.ai_request_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::AiAnalysisRequested
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::AiAnalysisRequested
+            )
+            .to_string()
+        )
     );
     assert_eq!(
         policy_evaluation.ai_analysis_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::AiAnalysisCompleted
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::AiAnalysisCompleted
+            )
+            .to_string()
+        )
     );
     assert_eq!(
         policy_evaluation.policy_evaluation_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::PolicyEvaluationRequested
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::PolicyEvaluationRequested
+            )
+            .to_string()
+        )
     );
     assert_eq!(policy_evaluation.policy_decision_ref, None);
     assert_eq!(policy_evaluation.enforcement_command_ref, None);
@@ -335,28 +361,38 @@ fn assert_policy_evaluation_refs(
 
 fn assert_enforcement_command_refs(
     payloads: &[NetworkRuntimeEventPayload],
-    observed_at: &str,
+    observed_at: impl Display,
 ) -> TestResult {
+    let observed_at = TestText::from_display(observed_at);
     let enforcement_command =
         payload_for_phase(payloads, NetworkRuntimePhase::EnforcementCommandIssued)?;
-    let mut adapter_ref =
-        expected_correlation_ref(&ActivityCaptureCapabilityStatus::Available, observed_at);
+    let mut adapter_ref = expected_correlation_ref(
+        &ActivityCaptureCapabilityStatus::Available,
+        observed_at.0.as_str(),
+    )
+    .to_string();
     adapter_ref.push(constants::delimiter::HYPHEN);
     adapter_ref.push_str(constants::network_flow::TARGET_ENFORCEMENT_DRY_RUN);
 
     assert_eq!(
         enforcement_command.previous_phase_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::PolicyDecisionCompleted
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::PolicyDecisionCompleted
+            )
+            .to_string()
+        )
     );
     assert_eq!(
         enforcement_command.policy_decision_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::PolicyDecisionCompleted
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::PolicyDecisionCompleted
+            )
+            .to_string()
+        )
     );
     assert_eq!(
         enforcement_command.adapter_capability_ref,
@@ -364,10 +400,13 @@ fn assert_enforcement_command_refs(
     );
     assert_eq!(
         enforcement_command.enforcement_command_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::EnforcementCommandIssued
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::EnforcementCommandIssued
+            )
+            .to_string()
+        )
     );
     assert_eq!(enforcement_command.enforcement_result_ref, None);
     assert!(!enforcement_command.claim_boundary.adapter_action_executed);
@@ -377,44 +416,60 @@ fn assert_enforcement_command_refs(
 
 fn assert_audit_and_portal_refs(
     payloads: &[NetworkRuntimeEventPayload],
-    observed_at: &str,
+    observed_at: impl Display,
 ) -> TestResult {
+    let observed_at = TestText::from_display(observed_at);
     let audit_entry = payload_for_phase(payloads, NetworkRuntimePhase::AuditEntryCommitted)?;
     assert_eq!(
         audit_entry.previous_phase_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::EnforcementResultObserved
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::EnforcementResultObserved
+            )
+            .to_string()
+        )
     );
     assert_eq!(
         audit_entry.enforcement_result_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::EnforcementResultObserved
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::EnforcementResultObserved
+            )
+            .to_string()
+        )
     );
     assert_eq!(
         audit_entry.audit_entry_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::AuditEntryCommitted
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::AuditEntryCommitted
+            )
+            .to_string()
+        )
     );
     let portal_update = payload_for_phase(payloads, NetworkRuntimePhase::PortalReadModelUpdated)?;
     assert_eq!(
         portal_update.previous_phase_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::AuditEntryCommitted
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::AuditEntryCommitted
+            )
+            .to_string()
+        )
     );
     assert_eq!(
         portal_update.audit_entry_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::AuditEntryCommitted
-        ))
+        Some(
+            expected_available_ref(
+                observed_at.0.as_str(),
+                NetworkRuntimePhase::AuditEntryCommitted
+            )
+            .to_string()
+        )
     );
 
     Ok(())
@@ -423,7 +478,7 @@ fn assert_audit_and_portal_refs(
 fn payload_for_phase(
     payloads: &[NetworkRuntimeEventPayload],
     phase: NetworkRuntimePhase,
-) -> Result<NetworkRuntimeEventPayload, String> {
+) -> Result<NetworkRuntimeEventPayload, TestText> {
     some(
         payloads
             .iter()
@@ -435,16 +490,16 @@ fn payload_for_phase(
 
 fn expected_phase_ref(
     status: &ActivityCaptureCapabilityStatus,
-    observed_at: &str,
+    observed_at: impl Display,
     phase: NetworkRuntimePhase,
-) -> String {
-    let mut value = expected_correlation_ref(status, observed_at);
+) -> TestText {
+    let mut value = expected_correlation_ref(status, observed_at).to_string();
     value.push(constants::delimiter::HYPHEN);
     value.push_str(phase.event_type());
-    value
+    TestText::from_display(value)
 }
 
-fn expected_available_ref(observed_at: &str, phase: NetworkRuntimePhase) -> String {
+fn expected_available_ref(observed_at: impl Display, phase: NetworkRuntimePhase) -> TestText {
     expected_phase_ref(
         &ActivityCaptureCapabilityStatus::Available,
         observed_at,
@@ -452,12 +507,16 @@ fn expected_available_ref(observed_at: &str, phase: NetworkRuntimePhase) -> Stri
     )
 }
 
-fn expected_correlation_ref(status: &ActivityCaptureCapabilityStatus, observed_at: &str) -> String {
+fn expected_correlation_ref(
+    status: &ActivityCaptureCapabilityStatus,
+    observed_at: impl Display,
+) -> TestText {
+    let observed_at = TestText::from_display(observed_at);
     let mut value = String::from(constants::network_flow::CORRELATION_NETWORK_RUNTIME_PREFIX);
     value.push_str(status.as_protocol_str());
     value.push(constants::delimiter::HYPHEN);
-    value.push_str(observed_at);
-    value
+    value.push_str(observed_at.0.as_str());
+    TestText::from_display(value)
 }
 
 fn complete_domain_observation() -> NetworkObservation {

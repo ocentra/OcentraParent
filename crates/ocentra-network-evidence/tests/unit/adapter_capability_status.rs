@@ -1,10 +1,6 @@
-use crate::{
-    build_network_adapter_capability_status, NetworkAdapterCapabilityStatusInput,
-    NetworkAdapterCapabilityStatusState, NetworkPlatformClaimEntry,
-    NetworkPlatformClaimManifestProof, NetworkPlatformClaimManualFollowup,
-    NetworkPlatformClaimState, NetworkPlatformClaimTarget,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::adapter_capability_status::*;
+use ocentra_network_evidence::platform_claims::*;
 
 #[test]
 fn adapter_capability_status_derives_specific_states_from_platform_manifest() {

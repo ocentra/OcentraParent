@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
+import type { TestLogScope } from './types';
 import { ensureDirectory, getDefaultLogRoot, listNdjsonFiles } from './ndjsonPaths';
 import {
   buildGeneratedManifest,
@@ -9,7 +9,7 @@ import {
   getGeneratedManifestPath,
   type GeneratedIngestManifest,
   type GeneratedObservedFileState,
-} from '../generated/local-test-log';
+} from '../local-test-log';
 
 export interface ManifestEntry {
   readonly size: number;

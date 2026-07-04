@@ -35,7 +35,14 @@ use crate::{
     time::timestamp_now,
 };
 
-type FieldPair = (&'static str, LogFieldValue);
+#[derive(Clone, Debug, PartialEq)]
+struct FieldPairs(Vec<(&'static str, LogFieldValue)>);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct RequestedAtText(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ClaimLabels(Vec<String>);
 
 pub fn social_source_custody_mutation_from_command(
     command: &AgentCommandEnvelope,
@@ -45,7 +52,7 @@ pub fn social_source_custody_mutation_from_command(
     SocialSourceCustodyMutationSnapshot {
         schema_version: SOCIAL_SOURCE_CUSTODY_MUTATION_SCHEMA_VERSION.to_string(),
         mutation_id: SOCIAL_SOURCE_CUSTODY_MUTATION_ID.to_string(),
-        requested_at,
+        requested_at: requested_at.0,
         applied_at: applied_at.clone(),
         mutation_state: SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED.to_string(),
         settings: SocialSourceCustodySettingsSnapshot {
@@ -68,7 +75,7 @@ pub fn social_source_custody_mutation_from_command(
             parent_review_refs: Vec::new(),
             connector_authorization_refs: Vec::new(),
             manual_proof_requirements: Vec::new(),
-            no_claim_labels: no_claim_labels(),
+            no_claim_labels: no_claim_labels().0,
             raw_message_content_allowed: false,
             raw_video_content_allowed: false,
             screenshot_custody_allowed: false,
@@ -94,7 +101,7 @@ pub fn social_source_custody_mutation_from_command(
 pub fn social_source_custody_mutation_payload(
     mutation: &SocialSourceCustodyMutationSnapshot,
 ) -> LogFields {
-    fields_from_pairs(mutation_pairs(mutation))
+    fields_from_pairs(mutation_pairs(mutation).0)
 }
 
 pub async fn build_browser_social_source_custody_mutation_report(
@@ -112,8 +119,8 @@ pub async fn build_browser_social_source_custody_mutation_report(
     )
 }
 
-fn mutation_pairs(mutation: &SocialSourceCustodyMutationSnapshot) -> Vec<FieldPair> {
-    vec![
+fn mutation_pairs(mutation: &SocialSourceCustodyMutationSnapshot) -> FieldPairs {
+    FieldPairs(vec![
         (
             constants::field::GENERATED_AT,
             LogFieldValue::String(mutation.applied_at.clone()),
@@ -130,18 +137,18 @@ fn mutation_pairs(mutation: &SocialSourceCustodyMutationSnapshot) -> Vec<FieldPa
             constants::field::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION,
             LogFieldValue::String(serialize_json_string(mutation)),
         ),
-    ]
+    ])
 }
 
-fn requested_at(command: &AgentCommandEnvelope) -> String {
+fn requested_at(command: &AgentCommandEnvelope) -> RequestedAtText {
     match command.payload.get(constants::field::REQUESTED_AT) {
-        Some(LogFieldValue::String(value)) if !value.is_empty() => value.clone(),
-        _ => command.sent_at.clone(),
+        Some(LogFieldValue::String(value)) if !value.is_empty() => RequestedAtText(value.clone()),
+        _ => RequestedAtText(command.sent_at.clone()),
     }
 }
 
-fn no_claim_labels() -> Vec<String> {
-    vec![
+fn no_claim_labels() -> ClaimLabels {
+    ClaimLabels(vec![
         SOCIAL_SOURCE_CUSTODY_NO_RAW_MESSAGE.to_string(),
         SOCIAL_SOURCE_CUSTODY_NO_RAW_VIDEO.to_string(),
         SOCIAL_SOURCE_CUSTODY_NO_SCREENSHOT.to_string(),
@@ -151,5 +158,5 @@ fn no_claim_labels() -> Vec<String> {
         SOCIAL_SOURCE_CUSTODY_NO_RUNTIME_CUSTODY_CLAIM.to_string(),
         SOCIAL_SOURCE_CUSTODY_NO_FINAL_POLICY.to_string(),
         SOCIAL_SOURCE_CUSTODY_NO_ENFORCEMENT.to_string(),
-    ]
+    ])
 }

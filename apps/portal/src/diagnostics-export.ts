@@ -1,9 +1,7 @@
-import {
-  AgentEvent,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { PortalDiagnostics } from '@ocentra-parent/portal-domain/diagnostics';
 import {
+  ParentAgentEvent as AgentEvent,
+  ParentAgentProtocolField,
   decodeParentPortalClipboardText,
   ParentRouteDataSource,
   type ParentRouteEventSnapshot,
@@ -86,7 +84,7 @@ function healthSummary(event: ParentRouteEventSnapshot | null) {
   return {
     [PortalDiagnostics.Field.EventId]: event.eventId,
     [PortalDiagnostics.Field.SentAt]: event.sentAt,
-    [PortalDiagnostics.Field.Online]: payload[AgentProtocolDefaults.Field.Online],
-    [PortalDiagnostics.Field.Transport]: payload[AgentProtocolDefaults.Field.Transport],
+    [PortalDiagnostics.Field.Online]: payload[ParentAgentProtocolField.Online],
+    [PortalDiagnostics.Field.Transport]: payload[ParentAgentProtocolField.Transport],
   };
 }

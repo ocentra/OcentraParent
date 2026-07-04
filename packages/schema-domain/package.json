@@ -9,10 +9,6 @@
       "import": "./dist/activity-capture.js",
       "types": "./dist/activity-capture.d.ts"
     },
-    "./activity-family-aggregation": {
-      "import": "./dist/activity-family-aggregation.js",
-      "types": "./dist/activity-family-aggregation.d.ts"
-    },
     "./activity-journal": {
       "import": "./dist/activity-journal.js",
       "types": "./dist/activity-journal.d.ts"
@@ -32,10 +28,6 @@
     "./activity-surface": {
       "import": "./dist/activity-surface.js",
       "types": "./dist/activity-surface.d.ts"
-    },
-    "./agent-activity-surface-adapter-manifest": {
-      "import": "./dist/agent-activity-surface-adapter-manifest.js",
-      "types": "./dist/agent-activity-surface-adapter-manifest.d.ts"
     },
     "./agent-browser-runtime-events": {
       "import": "./dist/agent-browser-runtime-events.js",
@@ -68,18 +60,6 @@
     "./agent-network-linux-nftables-status": {
       "import": "./dist/agent-network-linux-nftables-status.js",
       "types": "./dist/agent-network-linux-nftables-status.d.ts"
-    },
-    "./agent-network-live-capture-status": {
-      "import": "./dist/agent-network-live-capture-status.js",
-      "types": "./dist/agent-network-live-capture-status.d.ts"
-    },
-    "./agent-network-remote-delivery-status": {
-      "import": "./dist/agent-network-remote-delivery-status.js",
-      "types": "./dist/agent-network-remote-delivery-status.d.ts"
-    },
-    "./agent-network-runtime-events": {
-      "import": "./dist/agent-network-runtime-events.js",
-      "types": "./dist/agent-network-runtime-events.d.ts"
     },
     "./agent-network-windows-firewall-status": {
       "import": "./dist/agent-network-windows-firewall-status.js",
@@ -168,22 +148,6 @@
     "./ai-runtime": {
       "import": "./dist/ai-runtime.js",
       "types": "./dist/ai-runtime.d.ts"
-    },
-    "./app-control-catalog": {
-      "import": "./dist/app-control-catalog.js",
-      "types": "./dist/app-control-catalog.d.ts"
-    },
-    "./app-control-catalog-data": {
-      "import": "./dist/app-control-catalog-data.js",
-      "types": "./dist/app-control-catalog-data.d.ts"
-    },
-    "./app-control-catalog-schema": {
-      "import": "./dist/app-control-catalog-schema.js",
-      "types": "./dist/app-control-catalog-schema.d.ts"
-    },
-    "./app-control-guide-catalog-data": {
-      "import": "./dist/app-control-guide-catalog-data.js",
-      "types": "./dist/app-control-guide-catalog-data.d.ts"
     },
     "./app-game": {
       "import": "./dist/app-game.js",
@@ -428,18 +392,6 @@
     "./app-game-identity-primitives": {
       "import": "./dist/app-game-identity-primitives.js",
       "types": "./dist/app-game-identity-primitives.d.ts"
-    },
-    "./app-game-install-store-handoff": {
-      "import": "./dist/app-game-install-store-handoff.js",
-      "types": "./dist/app-game-install-store-handoff.d.ts"
-    },
-    "./app-game-install-store-handoff-proof": {
-      "import": "./dist/app-game-install-store-handoff-proof.js",
-      "types": "./dist/app-game-install-store-handoff-proof.d.ts"
-    },
-    "./app-game-install-store-handoff-rules": {
-      "import": "./dist/app-game-install-store-handoff-rules.js",
-      "types": "./dist/app-game-install-store-handoff-rules.d.ts"
     },
     "./app-game-inventory": {
       "import": "./dist/app-game-inventory.js",
@@ -897,198 +849,6 @@
       "import": "./dist/app-game-windows-local-policy-evidence-proof.js",
       "types": "./dist/app-game-windows-local-policy-evidence-proof.d.ts"
     },
-    "./app-install-purchase-approval": {
-      "import": "./dist/app-install-purchase-approval.js",
-      "types": "./dist/app-install-purchase-approval.d.ts"
-    },
-    "./app-install-purchase-approval-package-sources": {
-      "import": "./dist/app-install-purchase-approval-package-sources.js",
-      "types": "./dist/app-install-purchase-approval-package-sources.d.ts"
-    },
-    "./app-install-purchase-approval-platform-sources": {
-      "import": "./dist/app-install-purchase-approval-platform-sources.js",
-      "types": "./dist/app-install-purchase-approval-platform-sources.d.ts"
-    },
-    "./app-install-purchase-approval-proof": {
-      "import": "./dist/app-install-purchase-approval-proof.js",
-      "types": "./dist/app-install-purchase-approval-proof.d.ts"
-    },
-    "./app-install-purchase-approval-proof-states": {
-      "import": "./dist/app-install-purchase-approval-proof-states.js",
-      "types": "./dist/app-install-purchase-approval-proof-states.d.ts"
-    },
-    "./app-install-purchase-approval-report-domain-proof": {
-      "import": "./dist/app-install-purchase-approval-report-domain-proof.js",
-      "types": "./dist/app-install-purchase-approval-report-domain-proof.d.ts"
-    },
-    "./app-install-purchase-approval-rules": {
-      "import": "./dist/app-install-purchase-approval-rules.js",
-      "types": "./dist/app-install-purchase-approval-rules.d.ts"
-    },
-    "./app-install-purchase-approved-api-entitlement-proof": {
-      "import": "./dist/app-install-purchase-approved-api-entitlement-proof.js",
-      "types": "./dist/app-install-purchase-approved-api-entitlement-proof.d.ts"
-    },
-    "./app-install-purchase-child-artifact-delivery-proof": {
-      "import": "./dist/app-install-purchase-child-artifact-delivery-proof.js",
-      "types": "./dist/app-install-purchase-child-artifact-delivery-proof.d.ts"
-    },
-    "./app-install-purchase-child-device-delivery-readiness-proof": {
-      "import": "./dist/app-install-purchase-child-device-delivery-readiness-proof.js",
-      "types": "./dist/app-install-purchase-child-device-delivery-readiness-proof.d.ts"
-    },
-    "./app-install-purchase-child-device-delivery-runtime-writer-proof": {
-      "import": "./dist/app-install-purchase-child-device-delivery-runtime-writer-proof.js",
-      "types": "./dist/app-install-purchase-child-device-delivery-runtime-writer-proof.d.ts"
-    },
-    "./app-install-purchase-limitation-summary-proof": {
-      "import": "./dist/app-install-purchase-limitation-summary-proof.js",
-      "types": "./dist/app-install-purchase-limitation-summary-proof.d.ts"
-    },
-    "./app-install-purchase-package-source-adapter-execution-proof": {
-      "import": "./dist/app-install-purchase-package-source-adapter-execution-proof.js",
-      "types": "./dist/app-install-purchase-package-source-adapter-execution-proof.d.ts"
-    },
-    "./app-install-purchase-package-source-capture-status-proof": {
-      "import": "./dist/app-install-purchase-package-source-capture-status-proof.js",
-      "types": "./dist/app-install-purchase-package-source-capture-status-proof.d.ts"
-    },
-    "./app-install-purchase-parent-action-delivery-readiness-proof": {
-      "import": "./dist/app-install-purchase-parent-action-delivery-readiness-proof.js",
-      "types": "./dist/app-install-purchase-parent-action-delivery-readiness-proof.d.ts"
-    },
-    "./app-install-purchase-parent-action-runtime-handoff-proof": {
-      "import": "./dist/app-install-purchase-parent-action-runtime-handoff-proof.js",
-      "types": "./dist/app-install-purchase-parent-action-runtime-handoff-proof.d.ts"
-    },
-    "./app-install-purchase-parent-review-action-proof": {
-      "import": "./dist/app-install-purchase-parent-review-action-proof.js",
-      "types": "./dist/app-install-purchase-parent-review-action-proof.d.ts"
-    },
-    "./app-install-purchase-platform-adapter-boundary-proof": {
-      "import": "./dist/app-install-purchase-platform-adapter-boundary-proof.js",
-      "types": "./dist/app-install-purchase-platform-adapter-boundary-proof.d.ts"
-    },
-    "./app-install-purchase-platform-adapter-evidence-gap-proof": {
-      "import": "./dist/app-install-purchase-platform-adapter-evidence-gap-proof.js",
-      "types": "./dist/app-install-purchase-platform-adapter-evidence-gap-proof.d.ts"
-    },
-    "./app-install-purchase-platform-artifact-proof": {
-      "import": "./dist/app-install-purchase-platform-artifact-proof.js",
-      "types": "./dist/app-install-purchase-platform-artifact-proof.d.ts"
-    },
-    "./app-install-purchase-platform-limitation-action-proof": {
-      "import": "./dist/app-install-purchase-platform-limitation-action-proof.js",
-      "types": "./dist/app-install-purchase-platform-limitation-action-proof.d.ts"
-    },
-    "./app-install-purchase-platform-proof-readiness": {
-      "import": "./dist/app-install-purchase-platform-proof-readiness.js",
-      "types": "./dist/app-install-purchase-platform-proof-readiness.d.ts"
-    },
-    "./app-install-purchase-product-claim-gate-proof": {
-      "import": "./dist/app-install-purchase-product-claim-gate-proof.js",
-      "types": "./dist/app-install-purchase-product-claim-gate-proof.d.ts"
-    },
-    "./app-install-purchase-product-claim-platform-limitation-fallback-proof": {
-      "import": "./dist/app-install-purchase-product-claim-platform-limitation-fallback-proof.js",
-      "types": "./dist/app-install-purchase-product-claim-platform-limitation-fallback-proof.d.ts"
-    },
-    "./app-install-purchase-product-claim-platform-preclaim-proof": {
-      "import": "./dist/app-install-purchase-product-claim-platform-preclaim-proof.js",
-      "types": "./dist/app-install-purchase-product-claim-platform-preclaim-proof.d.ts"
-    },
-    "./app-install-purchase-product-claim-portal-test-readiness-proof": {
-      "import": "./dist/app-install-purchase-product-claim-portal-test-readiness-proof.js",
-      "types": "./dist/app-install-purchase-product-claim-portal-test-readiness-proof.d.ts"
-    },
-    "./app-install-purchase-product-claim-provider-store-proof": {
-      "import": "./dist/app-install-purchase-product-claim-provider-store-proof.js",
-      "types": "./dist/app-install-purchase-product-claim-provider-store-proof.d.ts"
-    },
-    "./app-install-purchase-product-claim-safe-parent-workflow-proof": {
-      "import": "./dist/app-install-purchase-product-claim-safe-parent-workflow-proof.js",
-      "types": "./dist/app-install-purchase-product-claim-safe-parent-workflow-proof.d.ts"
-    },
-    "./app-install-purchase-product-claim-store-handoff-proof": {
-      "import": "./dist/app-install-purchase-product-claim-store-handoff-proof.js",
-      "types": "./dist/app-install-purchase-product-claim-store-handoff-proof.d.ts"
-    },
-    "./app-install-purchase-product-claim-store-upgrade-readiness-proof": {
-      "import": "./dist/app-install-purchase-product-claim-store-upgrade-readiness-proof.js",
-      "types": "./dist/app-install-purchase-product-claim-store-upgrade-readiness-proof.d.ts"
-    },
-    "./app-install-purchase-provider-store-api-execution-proof": {
-      "import": "./dist/app-install-purchase-provider-store-api-execution-proof.js",
-      "types": "./dist/app-install-purchase-provider-store-api-execution-proof.d.ts"
-    },
-    "./app-install-purchase-provider-store-execution-preflight-proof": {
-      "import": "./dist/app-install-purchase-provider-store-execution-preflight-proof.js",
-      "types": "./dist/app-install-purchase-provider-store-execution-preflight-proof.d.ts"
-    },
-    "./app-install-purchase-provider-store-execution-readiness-proof": {
-      "import": "./dist/app-install-purchase-provider-store-execution-readiness-proof.js",
-      "types": "./dist/app-install-purchase-provider-store-execution-readiness-proof.d.ts"
-    },
-    "./app-install-purchase-provider-store-manual-evidence-packet-proof": {
-      "import": "./dist/app-install-purchase-provider-store-manual-evidence-packet-proof.js",
-      "types": "./dist/app-install-purchase-provider-store-manual-evidence-packet-proof.d.ts"
-    },
-    "./app-install-purchase-provider-store-platform-evidence-proof": {
-      "import": "./dist/app-install-purchase-provider-store-platform-evidence-proof.js",
-      "types": "./dist/app-install-purchase-provider-store-platform-evidence-proof.d.ts"
-    },
-    "./app-install-purchase-provider-store-report-status-proof": {
-      "import": "./dist/app-install-purchase-provider-store-report-status-proof.js",
-      "types": "./dist/app-install-purchase-provider-store-report-status-proof.d.ts"
-    },
-    "./app-install-purchase-provider-store-report-status-runtime-proof": {
-      "import": "./dist/app-install-purchase-provider-store-report-status-runtime-proof.js",
-      "types": "./dist/app-install-purchase-provider-store-report-status-runtime-proof.d.ts"
-    },
-    "./app-install-purchase-report-runtime-proof": {
-      "import": "./dist/app-install-purchase-report-runtime-proof.js",
-      "types": "./dist/app-install-purchase-report-runtime-proof.d.ts"
-    },
-    "./app-install-purchase-report-status-read-model-handoff-proof": {
-      "import": "./dist/app-install-purchase-report-status-read-model-handoff-proof.js",
-      "types": "./dist/app-install-purchase-report-status-read-model-handoff-proof.d.ts"
-    },
-    "./app-install-purchase-runtime-proof": {
-      "import": "./dist/app-install-purchase-runtime-proof.js",
-      "types": "./dist/app-install-purchase-runtime-proof.d.ts"
-    },
-    "./app-install-purchase-runtime-proof-rules": {
-      "import": "./dist/app-install-purchase-runtime-proof-rules.js",
-      "types": "./dist/app-install-purchase-runtime-proof-rules.d.ts"
-    },
-    "./app-install-purchase-runtime-report-writer-delivery-proof": {
-      "import": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.js",
-      "types": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.d.ts"
-    },
-    "./app-install-purchase-runtime-writer-delivery-proof": {
-      "import": "./dist/app-install-purchase-runtime-writer-delivery-proof.js",
-      "types": "./dist/app-install-purchase-runtime-writer-delivery-proof.d.ts"
-    },
-    "./app-install-purchase-runtime-writer-execution-delivery-proof": {
-      "import": "./dist/app-install-purchase-runtime-writer-execution-delivery-proof.js",
-      "types": "./dist/app-install-purchase-runtime-writer-execution-delivery-proof.d.ts"
-    },
-    "./app-install-purchase-store-manual-evidence-proof": {
-      "import": "./dist/app-install-purchase-store-manual-evidence-proof.js",
-      "types": "./dist/app-install-purchase-store-manual-evidence-proof.d.ts"
-    },
-    "./app-install-purchase-store-status-handoff-proof": {
-      "import": "./dist/app-install-purchase-store-status-handoff-proof.js",
-      "types": "./dist/app-install-purchase-store-status-handoff-proof.d.ts"
-    },
-    "./app-install-purchase-windows-package-source-adapter-evidence": {
-      "import": "./dist/app-install-purchase-windows-package-source-adapter-evidence.js",
-      "types": "./dist/app-install-purchase-windows-package-source-adapter-evidence.d.ts"
-    },
-    "./app-log/types": {
-      "import": "./dist/app-log/types.js",
-      "types": "./dist/app-log/types.d.ts"
-    },
     "./app-riskdetection": {
       "import": "./dist/app-riskdetection.js",
       "types": "./dist/app-riskdetection.d.ts"
@@ -1096,10 +856,6 @@
     "./app-riskdetection-data": {
       "import": "./dist/app-riskdetection-data.js",
       "types": "./dist/app-riskdetection-data.d.ts"
-    },
-    "./app-riskdetection-rules": {
-      "import": "./dist/app-riskdetection-rules.js",
-      "types": "./dist/app-riskdetection-rules.d.ts"
     },
     "./authority": {
       "import": "./dist/authority.js",
@@ -2077,21 +1833,9 @@
       "import": "./dist/local-ai-text-llm-adapter-boundary-proof.js",
       "types": "./dist/local-ai-text-llm-adapter-boundary-proof.d.ts"
     },
-    "./local-api-contracts": {
-      "import": "./dist/local-api-contracts.js",
-      "types": "./dist/local-api-contracts.d.ts"
-    },
-    "./logging-contracts": {
-      "import": "./dist/logging-contracts.js",
-      "types": "./dist/logging-contracts.d.ts"
-    },
     "./generated/logging-contracts": {
       "import": "./dist/generated/logging-contracts.js",
       "types": "./dist/generated/logging-contracts.d.ts"
-    },
-    "./generated/app-install-purchase-approval-contracts": {
-      "import": "./dist/generated/app-install-purchase-approval-contracts.js",
-      "types": "./dist/generated/app-install-purchase-approval-contracts.d.ts"
     },
     "./generated/portal-contracts": {
       "import": "./dist/generated/portal-contracts.js",
@@ -2189,10 +1933,6 @@
       "import": "./dist/notification-v3-provider-retry.js",
       "types": "./dist/notification-v3-provider-retry.d.ts"
     },
-    "./package-info": {
-      "import": "./dist/package-info.js",
-      "types": "./dist/package-info.d.ts"
-    },
     "./parent-assistant": {
       "import": "./dist/parent-assistant.js",
       "types": "./dist/parent-assistant.d.ts"
@@ -2277,10 +2017,6 @@
       "import": "./dist/policy-literal-contracts.js",
       "types": "./dist/policy-literal-contracts.d.ts"
     },
-    "./portal-contracts": {
-      "import": "./dist/portal-contracts.js",
-      "types": "./dist/portal-contracts.d.ts"
-    },
     "./privacy-legal-disclosure-status": {
       "import": "./dist/privacy-legal-disclosure-status.js",
       "types": "./dist/privacy-legal-disclosure-status.d.ts"
@@ -2292,274 +2028,6 @@
     "./privacy-legal-disclosure-status-read-model": {
       "import": "./dist/privacy-legal-disclosure-status-read-model.js",
       "types": "./dist/privacy-legal-disclosure-status-read-model.d.ts"
-    },
-    "./production-incident-support-status-proof": {
-      "import": "./dist/production-incident-support-status-proof.js",
-      "types": "./dist/production-incident-support-status-proof.d.ts"
-    },
-    "./production-incident-support-status-read-model": {
-      "import": "./dist/production-incident-support-status-read-model.js",
-      "types": "./dist/production-incident-support-status-read-model.d.ts"
-    },
-    "./production-incident-support-status-values": {
-      "import": "./dist/production-incident-support-status-values.js",
-      "types": "./dist/production-incident-support-status-values.d.ts"
-    },
-    "./production-proof-shape": {
-      "import": "./dist/production-proof-shape.js",
-      "types": "./dist/production-proof-shape.d.ts"
-    },
-    "./production-release-public-docs-freshness-proof": {
-      "import": "./dist/production-release-public-docs-freshness-proof.js",
-      "types": "./dist/production-release-public-docs-freshness-proof.d.ts"
-    },
-    "./production-release-public-docs-freshness-values": {
-      "import": "./dist/production-release-public-docs-freshness-values.js",
-      "types": "./dist/production-release-public-docs-freshness-values.d.ts"
-    },
-    "./production-release-public-docs-status": {
-      "import": "./dist/production-release-public-docs-status.js",
-      "types": "./dist/production-release-public-docs-status.d.ts"
-    },
-    "./production-release-public-docs-status-read-model": {
-      "import": "./dist/production-release-public-docs-status-read-model.js",
-      "types": "./dist/production-release-public-docs-status-read-model.d.ts"
-    },
-    "./production-release-public-docs-status-values": {
-      "import": "./dist/production-release-public-docs-status-values.js",
-      "types": "./dist/production-release-public-docs-status-values.d.ts"
-    },
-    "./production-release-public-runtime-handoff": {
-      "import": "./dist/production-release-public-runtime-handoff.js",
-      "types": "./dist/production-release-public-runtime-handoff.d.ts"
-    },
-    "./production-release-public-runtime-handoff-read-model": {
-      "import": "./dist/production-release-public-runtime-handoff-read-model.js",
-      "types": "./dist/production-release-public-runtime-handoff-read-model.d.ts"
-    },
-    "./production-release-public-runtime-handoff-values": {
-      "import": "./dist/production-release-public-runtime-handoff-values.js",
-      "types": "./dist/production-release-public-runtime-handoff-values.d.ts"
-    },
-    "./production-release-public-status-freshness-proof": {
-      "import": "./dist/production-release-public-status-freshness-proof.js",
-      "types": "./dist/production-release-public-status-freshness-proof.d.ts"
-    },
-    "./production-release-public-status-freshness-values": {
-      "import": "./dist/production-release-public-status-freshness-values.js",
-      "types": "./dist/production-release-public-status-freshness-values.d.ts"
-    },
-    "./production-release-public-status-proof": {
-      "import": "./dist/production-release-public-status-proof.js",
-      "types": "./dist/production-release-public-status-proof.d.ts"
-    },
-    "./production-release-public-status-proof-values": {
-      "import": "./dist/production-release-public-status-proof-values.js",
-      "types": "./dist/production-release-public-status-proof-values.d.ts"
-    },
-    "./production-support-account-sla-status-proof": {
-      "import": "./dist/production-support-account-sla-status-proof.js",
-      "types": "./dist/production-support-account-sla-status-proof.d.ts"
-    },
-    "./production-support-account-sla-status-read-model": {
-      "import": "./dist/production-support-account-sla-status-read-model.js",
-      "types": "./dist/production-support-account-sla-status-read-model.d.ts"
-    },
-    "./production-support-account-sla-status-values": {
-      "import": "./dist/production-support-account-sla-status-values.js",
-      "types": "./dist/production-support-account-sla-status-values.d.ts"
-    },
-    "./production-support-data-export-delete-lifecycle-proof": {
-      "import": "./dist/production-support-data-export-delete-lifecycle-proof.js",
-      "types": "./dist/production-support-data-export-delete-lifecycle-proof.d.ts"
-    },
-    "./production-support-data-export-delete-lifecycle-read-model": {
-      "import": "./dist/production-support-data-export-delete-lifecycle-read-model.js",
-      "types": "./dist/production-support-data-export-delete-lifecycle-read-model.d.ts"
-    },
-    "./production-support-data-export-delete-lifecycle-values": {
-      "import": "./dist/production-support-data-export-delete-lifecycle-values.js",
-      "types": "./dist/production-support-data-export-delete-lifecycle-values.d.ts"
-    },
-    "./production-support-legal-provider-readiness-proof": {
-      "import": "./dist/production-support-legal-provider-readiness-proof.js",
-      "types": "./dist/production-support-legal-provider-readiness-proof.d.ts"
-    },
-    "./production-support-legal-provider-readiness-read-model": {
-      "import": "./dist/production-support-legal-provider-readiness-read-model.js",
-      "types": "./dist/production-support-legal-provider-readiness-read-model.d.ts"
-    },
-    "./production-support-legal-provider-readiness-values": {
-      "import": "./dist/production-support-legal-provider-readiness-values.js",
-      "types": "./dist/production-support-legal-provider-readiness-values.d.ts"
-    },
-    "./production-support-process-runtime-status-proof": {
-      "import": "./dist/production-support-process-runtime-status-proof.js",
-      "types": "./dist/production-support-process-runtime-status-proof.d.ts"
-    },
-    "./production-support-process-runtime-status-read-model": {
-      "import": "./dist/production-support-process-runtime-status-read-model.js",
-      "types": "./dist/production-support-process-runtime-status-read-model.d.ts"
-    },
-    "./production-support-process-runtime-status-values": {
-      "import": "./dist/production-support-process-runtime-status-values.js",
-      "types": "./dist/production-support-process-runtime-status-values.d.ts"
-    },
-    "./production-support-proof-status-matrix-closure-proof": {
-      "import": "./dist/production-support-proof-status-matrix-closure-proof.js",
-      "types": "./dist/production-support-proof-status-matrix-closure-proof.d.ts"
-    },
-    "./production-support-proof-status-matrix-closure-read-model": {
-      "import": "./dist/production-support-proof-status-matrix-closure-read-model.js",
-      "types": "./dist/production-support-proof-status-matrix-closure-read-model.d.ts"
-    },
-    "./production-support-proof-status-matrix-closure-values": {
-      "import": "./dist/production-support-proof-status-matrix-closure-values.js",
-      "types": "./dist/production-support-proof-status-matrix-closure-values.d.ts"
-    },
-    "./production-support-publication-execution-status-proof": {
-      "import": "./dist/production-support-publication-execution-status-proof.js",
-      "types": "./dist/production-support-publication-execution-status-proof.d.ts"
-    },
-    "./production-support-publication-execution-status-read-model": {
-      "import": "./dist/production-support-publication-execution-status-read-model.js",
-      "types": "./dist/production-support-publication-execution-status-read-model.d.ts"
-    },
-    "./production-support-publication-execution-status-values": {
-      "import": "./dist/production-support-publication-execution-status-values.js",
-      "types": "./dist/production-support-publication-execution-status-values.d.ts"
-    },
-    "./production-support-publication-runtime-readiness-proof": {
-      "import": "./dist/production-support-publication-runtime-readiness-proof.js",
-      "types": "./dist/production-support-publication-runtime-readiness-proof.d.ts"
-    },
-    "./production-support-publication-runtime-readiness-read-model": {
-      "import": "./dist/production-support-publication-runtime-readiness-read-model.js",
-      "types": "./dist/production-support-publication-runtime-readiness-read-model.d.ts"
-    },
-    "./production-support-publication-runtime-readiness-values": {
-      "import": "./dist/production-support-publication-runtime-readiness-values.js",
-      "types": "./dist/production-support-publication-runtime-readiness-values.d.ts"
-    },
-    "./production-support-publication-status-freshness-proof": {
-      "import": "./dist/production-support-publication-status-freshness-proof.js",
-      "types": "./dist/production-support-publication-status-freshness-proof.d.ts"
-    },
-    "./production-support-publication-status-freshness-read-model": {
-      "import": "./dist/production-support-publication-status-freshness-read-model.js",
-      "types": "./dist/production-support-publication-status-freshness-read-model.d.ts"
-    },
-    "./production-support-publication-status-freshness-values": {
-      "import": "./dist/production-support-publication-status-freshness-values.js",
-      "types": "./dist/production-support-publication-status-freshness-values.d.ts"
-    },
-    "./production-support-publication-workflow": {
-      "import": "./dist/production-support-publication-workflow.js",
-      "types": "./dist/production-support-publication-workflow.d.ts"
-    },
-    "./production-support-publication-workflow-read-model": {
-      "import": "./dist/production-support-publication-workflow-read-model.js",
-      "types": "./dist/production-support-publication-workflow-read-model.d.ts"
-    },
-    "./production-support-publication-workflow-values": {
-      "import": "./dist/production-support-publication-workflow-values.js",
-      "types": "./dist/production-support-publication-workflow-values.d.ts"
-    },
-    "./production-support-status-backend-dead-letter-proof": {
-      "import": "./dist/production-support-status-backend-dead-letter-proof.js",
-      "types": "./dist/production-support-status-backend-dead-letter-proof.d.ts"
-    },
-    "./production-support-status-backend-dead-letter-read-model": {
-      "import": "./dist/production-support-status-backend-dead-letter-read-model.js",
-      "types": "./dist/production-support-status-backend-dead-letter-read-model.d.ts"
-    },
-    "./production-support-status-backend-dead-letter-values": {
-      "import": "./dist/production-support-status-backend-dead-letter-values.js",
-      "types": "./dist/production-support-status-backend-dead-letter-values.d.ts"
-    },
-    "./production-support-status-backend-durable-queue-runtime-proof": {
-      "import": "./dist/production-support-status-backend-durable-queue-runtime-proof.js",
-      "types": "./dist/production-support-status-backend-durable-queue-runtime-proof.d.ts"
-    },
-    "./production-support-status-backend-durable-queue-runtime-read-model": {
-      "import": "./dist/production-support-status-backend-durable-queue-runtime-read-model.js",
-      "types": "./dist/production-support-status-backend-durable-queue-runtime-read-model.d.ts"
-    },
-    "./production-support-status-backend-durable-queue-runtime-values": {
-      "import": "./dist/production-support-status-backend-durable-queue-runtime-values.js",
-      "types": "./dist/production-support-status-backend-durable-queue-runtime-values.d.ts"
-    },
-    "./production-support-status-backend-execution-continuation-proof": {
-      "import": "./dist/production-support-status-backend-execution-continuation-proof.js",
-      "types": "./dist/production-support-status-backend-execution-continuation-proof.d.ts"
-    },
-    "./production-support-status-backend-execution-continuation-read-model": {
-      "import": "./dist/production-support-status-backend-execution-continuation-read-model.js",
-      "types": "./dist/production-support-status-backend-execution-continuation-read-model.d.ts"
-    },
-    "./production-support-status-backend-execution-continuation-values": {
-      "import": "./dist/production-support-status-backend-execution-continuation-values.js",
-      "types": "./dist/production-support-status-backend-execution-continuation-values.d.ts"
-    },
-    "./production-support-status-backend-execution-queue-proof": {
-      "import": "./dist/production-support-status-backend-execution-queue-proof.js",
-      "types": "./dist/production-support-status-backend-execution-queue-proof.d.ts"
-    },
-    "./production-support-status-backend-execution-queue-read-model": {
-      "import": "./dist/production-support-status-backend-execution-queue-read-model.js",
-      "types": "./dist/production-support-status-backend-execution-queue-read-model.d.ts"
-    },
-    "./production-support-status-backend-execution-queue-values": {
-      "import": "./dist/production-support-status-backend-execution-queue-values.js",
-      "types": "./dist/production-support-status-backend-execution-queue-values.d.ts"
-    },
-    "./production-support-status-backend-public-runtime-followthrough-proof": {
-      "import": "./dist/production-support-status-backend-public-runtime-followthrough-proof.js",
-      "types": "./dist/production-support-status-backend-public-runtime-followthrough-proof.d.ts"
-    },
-    "./production-support-status-backend-public-runtime-followthrough-read-model": {
-      "import": "./dist/production-support-status-backend-public-runtime-followthrough-read-model.js",
-      "types": "./dist/production-support-status-backend-public-runtime-followthrough-read-model.d.ts"
-    },
-    "./production-support-status-backend-public-runtime-followthrough-values": {
-      "import": "./dist/production-support-status-backend-public-runtime-followthrough-values.js",
-      "types": "./dist/production-support-status-backend-public-runtime-followthrough-values.d.ts"
-    },
-    "./production-support-status-backend-queue-audit-persistence-proof": {
-      "import": "./dist/production-support-status-backend-queue-audit-persistence-proof.js",
-      "types": "./dist/production-support-status-backend-queue-audit-persistence-proof.d.ts"
-    },
-    "./production-support-status-backend-queue-audit-persistence-read-model": {
-      "import": "./dist/production-support-status-backend-queue-audit-persistence-read-model.js",
-      "types": "./dist/production-support-status-backend-queue-audit-persistence-read-model.d.ts"
-    },
-    "./production-support-status-backend-queue-audit-persistence-values": {
-      "import": "./dist/production-support-status-backend-queue-audit-persistence-values.js",
-      "types": "./dist/production-support-status-backend-queue-audit-persistence-values.d.ts"
-    },
-    "./production-support-status-backend-runtime-closure-proof": {
-      "import": "./dist/production-support-status-backend-runtime-closure-proof.js",
-      "types": "./dist/production-support-status-backend-runtime-closure-proof.d.ts"
-    },
-    "./production-support-status-backend-runtime-closure-read-model": {
-      "import": "./dist/production-support-status-backend-runtime-closure-read-model.js",
-      "types": "./dist/production-support-status-backend-runtime-closure-read-model.d.ts"
-    },
-    "./production-support-status-backend-runtime-closure-values": {
-      "import": "./dist/production-support-status-backend-runtime-closure-values.js",
-      "types": "./dist/production-support-status-backend-runtime-closure-values.d.ts"
-    },
-    "./production-support-status-backend-runtime-execution-proof": {
-      "import": "./dist/production-support-status-backend-runtime-execution-proof.js",
-      "types": "./dist/production-support-status-backend-runtime-execution-proof.d.ts"
-    },
-    "./production-support-status-backend-runtime-execution-read-model": {
-      "import": "./dist/production-support-status-backend-runtime-execution-read-model.js",
-      "types": "./dist/production-support-status-backend-runtime-execution-read-model.d.ts"
-    },
-    "./production-support-status-backend-runtime-execution-values": {
-      "import": "./dist/production-support-status-backend-runtime-execution-values.js",
-      "types": "./dist/production-support-status-backend-runtime-execution-values.d.ts"
     },
     "./provider-secret-custody-status": {
       "import": "./dist/provider-secret-custody-status.js",
@@ -3073,14 +2541,6 @@
       "import": "./dist/tamper-uninstall-artifact-status.js",
       "types": "./dist/tamper-uninstall-artifact-status.d.ts"
     },
-    "./test-log/ndjsonBrands": {
-      "import": "./dist/test-log/ndjsonBrands.js",
-      "types": "./dist/test-log/ndjsonBrands.d.ts"
-    },
-    "./test-log/types": {
-      "import": "./dist/test-log/types.js",
-      "types": "./dist/test-log/types.d.ts"
-    },
     "./text-app-game-child-ux": {
       "import": "./dist/text-app-game-child-ux.js",
       "types": "./dist/text-app-game-child-ux.d.ts"
@@ -3476,10 +2936,6 @@
     "./tracking-unsupported-platform-manual-proof": {
       "import": "./dist/tracking-unsupported-platform-manual-proof.js",
       "types": "./dist/tracking-unsupported-platform-manual-proof.d.ts"
-    },
-    "./transport/bridgeLogPayload": {
-      "import": "./dist/transport/bridgeLogPayload.js",
-      "types": "./dist/transport/bridgeLogPayload.d.ts"
     },
     "./v0-8-broad-os-adapter-proof": {
       "import": "./dist/v0-8-broad-os-adapter-proof.js",

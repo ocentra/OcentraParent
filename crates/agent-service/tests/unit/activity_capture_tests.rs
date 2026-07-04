@@ -30,15 +30,26 @@ fn startup_activity_capture_can_be_suppressed_for_isolated_service_proofs() {
 
 #[test]
 fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() -> TestResult {
-    let journal_path = temp_path(
+    let build_path = |suffix: &str, extension: &str| {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(suffix);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
+    let journal_path = build_path(
         constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
     );
-    let key_path = temp_path(
+    let key_path = build_path(
         constants::activity_store::TEST_CAPTURE_KEY_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let store_path = temp_path(
+    let store_path = build_path(
         constants::activity_store::TEST_CAPTURE_STORE_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
@@ -210,23 +221,14 @@ fn record_process_snapshot_rejects_invalid_journal_key() -> TestResult {
     result
 }
 
-fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
-
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path.set_extension(extension);
-    path
-}
-
 fn cleanup_paths(
-    journal_path: &std::path::PathBuf,
-    key_path: &std::path::PathBuf,
-    store_path: &std::path::PathBuf,
+    journal_path: impl AsRef<std::path::Path>,
+    key_path: impl AsRef<std::path::Path>,
+    store_path: impl AsRef<std::path::Path>,
 ) {
+    let journal_path = journal_path.as_ref();
+    let key_path = key_path.as_ref();
+    let store_path = store_path.as_ref();
     let _ = remove_file(journal_path);
     let _ = remove_file(key_path);
     let _ = remove_file(store_path);

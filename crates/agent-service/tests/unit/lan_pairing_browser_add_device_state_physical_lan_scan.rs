@@ -155,7 +155,7 @@ fn localhost_status_prefers_recent_cached_scan_snapshot() {
         Some(&snapshot),
         now,
     )
-    .unwrap_or_else(|| unreachable!());
+    .expect("localhost status cache should return cached devices");
 
     assert_eq!(devices.len(), 1);
     assert_eq!(devices[0].ip_address, constants::lan_pairing::TEST_LAN_IP);
@@ -168,7 +168,7 @@ fn localhost_status_without_cache_returns_without_physical_refresh() {
         &status_command_for_route(AgentRoute::Localhost),
     );
 
-    assert!(result.devices.is_empty());
+    assert_eq!(result.devices.len(), 0);
     assert!(!result.reused_recent_snapshot);
     assert!(result.current_scan_snapshot.is_none());
 }
@@ -195,9 +195,9 @@ fn localhost_status_with_stale_cache_reports_previous_snapshot_without_reusing_i
         Some(snapshot),
         now,
     )
-    .unwrap_or_else(|| unreachable!());
+    .expect("localhost status cache should return a stale snapshot wrapper");
 
-    assert!(result.devices.is_empty());
+    assert_eq!(result.devices.len(), 0);
     assert!(!result.reused_recent_snapshot);
     assert!(result.previous_scan_snapshot.is_some());
     assert!(result.current_scan_snapshot.is_none());
@@ -295,7 +295,10 @@ fn stored_known_router_truth_suppresses_scan_work_without_scan_history() {
 fn stored_known_child_agent_truth_feeds_identity_and_scan_context_without_scan_history() {
     let runtime = LanPairingRuntime::empty();
     {
-        let mut registry = runtime.registry.lock().unwrap_or_else(|_| unreachable!());
+        let mut registry = runtime
+            .registry
+            .lock()
+            .expect("registry lock remains available");
         let changed = registry.merge_known_household_devices(vec![stored_known_child_agent()]);
         assert!(changed);
     }
@@ -323,7 +326,10 @@ fn stored_known_child_agent_truth_feeds_identity_and_scan_context_without_scan_h
 async fn scan_truth_context_reuses_registry_and_history_truth_without_agentless_devices() {
     let runtime = paired_runtime().await;
     {
-        let mut registry = runtime.registry.lock().unwrap_or_else(|_| unreachable!());
+        let mut registry = runtime
+            .registry
+            .lock()
+            .expect("registry lock remains available");
         let changed = registry.merge_known_household_devices(vec![stored_known_router()]);
         assert!(changed);
     }

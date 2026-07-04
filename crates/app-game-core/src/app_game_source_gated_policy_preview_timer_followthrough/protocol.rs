@@ -1,5 +1,14 @@
+use super::helpers::{
+    count_state, protocol_command_handoff_state_for_read_model,
+    protocol_read_model_state_for_handoff, read_api_response_consumer_state_for_response_handoff,
+    read_api_response_state_for_read_api_handoff, service_handler_state_for_command_handoff,
+    service_read_api_state_for_service_handler_handoff,
+};
 use super::*;
-use crate::app_game_source_gated_policy_preview_timer_chain::AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoff;
+use crate::app_game_source_gated_policy_preview_timer_chain::{
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoff,
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffRow,
+};
 
 fn build_protocol_read_model_row(
     options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelOptions,
@@ -15,9 +24,7 @@ fn build_protocol_read_model_row(
         )
         .to_string(),
         required_protocol_proof_refs: row.required_protocol_proof_refs.clone(),
-        inherited_service_readiness_proof_refs: row
-            .inherited_service_readiness_proof_refs
-            .clone(),
+        inherited_service_readiness_proof_refs: row.inherited_service_readiness_proof_refs.clone(),
         source_evidence_refs: row.source_evidence_refs.clone(),
         service_read_api_ref: row.service_read_api_ref.clone(),
         protocol_summary_ref: options.protocol_summary_ref.clone(),
@@ -135,9 +142,7 @@ fn build_protocol_command_handoff_row(
         } else {
             vec![]
         },
-        inherited_service_readiness_proof_refs: row
-            .inherited_service_readiness_proof_refs
-            .clone(),
+        inherited_service_readiness_proof_refs: row.inherited_service_readiness_proof_refs.clone(),
         source_evidence_refs: row.source_evidence_refs.clone(),
         service_read_api_ref: row.service_read_api_ref.clone(),
         command_summary_ref: options.command_summary_ref.clone(),
@@ -242,9 +247,7 @@ fn build_service_handler_handoff_row(
         target_domain: row.target_domain.clone(),
         service_handler_handoff_state: state.to_string(),
         inherited_protocol_proof_refs: row.required_protocol_proof_refs.clone(),
-        inherited_agent_protocol_command_refs: row
-            .required_agent_protocol_command_refs
-            .clone(),
+        inherited_agent_protocol_command_refs: row.required_agent_protocol_command_refs.clone(),
         inherited_agent_protocol_event_refs: row.required_agent_protocol_event_refs.clone(),
         required_service_handler_refs: if required {
             row.required_service_handler_refs.clone()
@@ -256,9 +259,7 @@ fn build_service_handler_handoff_row(
         } else {
             vec![]
         },
-        inherited_service_readiness_proof_refs: row
-            .inherited_service_readiness_proof_refs
-            .clone(),
+        inherited_service_readiness_proof_refs: row.inherited_service_readiness_proof_refs.clone(),
         source_evidence_refs: row.source_evidence_refs.clone(),
         service_read_api_ref: row.service_read_api_ref.clone(),
         service_handler_summary_ref: options.service_handler_summary_ref.clone(),
@@ -352,7 +353,8 @@ fn build_service_read_api_handoff_row(
     options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffOptions,
     row: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoffRow,
 ) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffRow {
-    let state = service_read_api_state_for_service_handler_handoff(&row.service_handler_handoff_state);
+    let state =
+        service_read_api_state_for_service_handler_handoff(&row.service_handler_handoff_state);
     let required = state == SERVICE_READ_API_PROOF_REQUIRED;
     AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffRow {
         schema_version: options.schema_version.clone(),
@@ -361,9 +363,7 @@ fn build_service_read_api_handoff_row(
         target_domain: row.target_domain.clone(),
         service_read_api_handoff_state: state.to_string(),
         inherited_protocol_proof_refs: row.inherited_protocol_proof_refs.clone(),
-        inherited_agent_protocol_command_refs: row
-            .inherited_agent_protocol_command_refs
-            .clone(),
+        inherited_agent_protocol_command_refs: row.inherited_agent_protocol_command_refs.clone(),
         inherited_agent_protocol_event_refs: row.inherited_agent_protocol_event_refs.clone(),
         inherited_service_handler_refs: row.required_service_handler_refs.clone(),
         required_service_read_api_proof_refs: if required {
@@ -371,9 +371,7 @@ fn build_service_read_api_handoff_row(
         } else {
             vec![]
         },
-        inherited_service_readiness_proof_refs: row
-            .inherited_service_readiness_proof_refs
-            .clone(),
+        inherited_service_readiness_proof_refs: row.inherited_service_readiness_proof_refs.clone(),
         source_evidence_refs: row.source_evidence_refs.clone(),
         service_read_api_ref: row.service_read_api_ref.clone(),
         service_read_api_summary_ref: options.service_read_api_summary_ref.clone(),
@@ -478,24 +476,16 @@ fn build_read_api_response_handoff_row(
         target_domain: row.target_domain.clone(),
         read_api_response_handoff_state: state.to_string(),
         inherited_protocol_proof_refs: row.inherited_protocol_proof_refs.clone(),
-        inherited_agent_protocol_command_refs: row
-            .inherited_agent_protocol_command_refs
-            .clone(),
-        inherited_agent_protocol_event_refs: row
-            .inherited_agent_protocol_event_refs
-            .clone(),
+        inherited_agent_protocol_command_refs: row.inherited_agent_protocol_command_refs.clone(),
+        inherited_agent_protocol_event_refs: row.inherited_agent_protocol_event_refs.clone(),
         inherited_service_handler_refs: row.inherited_service_handler_refs.clone(),
-        inherited_service_read_api_proof_refs: row
-            .required_service_read_api_proof_refs
-            .clone(),
+        inherited_service_read_api_proof_refs: row.required_service_read_api_proof_refs.clone(),
         required_read_api_response_proof_refs: if required {
             options.read_api_response_proof_refs.clone()
         } else {
             vec![]
         },
-        inherited_service_readiness_proof_refs: row
-            .inherited_service_readiness_proof_refs
-            .clone(),
+        inherited_service_readiness_proof_refs: row.inherited_service_readiness_proof_refs.clone(),
         source_evidence_refs: row.source_evidence_refs.clone(),
         service_read_api_ref: row.service_read_api_ref.clone(),
         read_api_response_summary_ref: options.read_api_response_summary_ref.clone(),
@@ -660,9 +650,8 @@ fn build_read_api_response_consumer_handoff_row(
     options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffOptions,
     row: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseHandoffRow,
 ) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffRow {
-    let state = read_api_response_consumer_state_for_response_handoff(
-        &row.read_api_response_handoff_state,
-    );
+    let state =
+        read_api_response_consumer_state_for_response_handoff(&row.read_api_response_handoff_state);
     let required = state == READ_API_RESPONSE_CONSUMER_PROOF_REQUIRED;
     AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffRow {
         schema_version: options.schema_version.clone(),
@@ -671,25 +660,17 @@ fn build_read_api_response_consumer_handoff_row(
         target_domain: row.target_domain.clone(),
         read_api_response_consumer_handoff_state: state.to_string(),
         inherited_protocol_proof_refs: row.inherited_protocol_proof_refs.clone(),
-        inherited_agent_protocol_command_refs: row
-            .inherited_agent_protocol_command_refs
-            .clone(),
+        inherited_agent_protocol_command_refs: row.inherited_agent_protocol_command_refs.clone(),
         inherited_agent_protocol_event_refs: row.inherited_agent_protocol_event_refs.clone(),
         inherited_service_handler_refs: row.inherited_service_handler_refs.clone(),
-        inherited_service_read_api_proof_refs: row
-            .inherited_service_read_api_proof_refs
-            .clone(),
-        inherited_read_api_response_proof_refs: row
-            .required_read_api_response_proof_refs
-            .clone(),
+        inherited_service_read_api_proof_refs: row.inherited_service_read_api_proof_refs.clone(),
+        inherited_read_api_response_proof_refs: row.required_read_api_response_proof_refs.clone(),
         required_read_api_response_consumer_proof_refs: if required {
             options.read_api_response_consumer_proof_refs.clone()
         } else {
             vec![]
         },
-        inherited_service_readiness_proof_refs: row
-            .inherited_service_readiness_proof_refs
-            .clone(),
+        inherited_service_readiness_proof_refs: row.inherited_service_readiness_proof_refs.clone(),
         source_evidence_refs: row.source_evidence_refs.clone(),
         service_read_api_ref: row.service_read_api_ref.clone(),
         read_api_response_consumer_summary_ref: options

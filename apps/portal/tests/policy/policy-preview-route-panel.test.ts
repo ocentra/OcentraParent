@@ -54,84 +54,17 @@ describe('policy preview portal route panel', () => {
 
 function activeControllerPolicyPreviewPanel(): ParentPolicyPreviewPanelSnapshot {
   return {
-    title: 'Policy preview parent authoring',
-    body: 'Preview stays advisory until a parent confirms the request and a child-device contract applies it.',
-    summary: 'Preview remains advisory and not enforced.',
-    summaryDetails: [
-      { label: 'Decision status', value: 'Preview remains advisory and not enforced.' },
-      { label: 'Policy check', value: 'policy-preview-latest' },
-      { label: 'Parent rule context references', value: '1' },
-      { label: 'Parent rule context ref IDs', value: 'parent-rule-context-1' },
-      { label: 'Parent access', value: 'Active controller' },
-    ],
-    cards: [
-      {
-        title: 'Preview state',
-        summary: 'Preview remains advisory and not enforced.',
-        details: [
-          { label: 'Target value', value: 'https://example.test/latest' },
-          { label: 'Request status', value: 'Approved' },
-        ],
-      },
-      {
-        title: 'Source lifecycle',
-        summary: 'Delivered is reported, but active enforcement is separate.',
-        details: [{ label: 'Source status', value: 'Confirmed' }],
-      },
-      {
-        title: 'Approval authority',
-        summary: 'Controller confirmation is recorded, but delivery and enforcement remain separate states.',
-        details: [
-          { label: 'Parent access', value: 'Active controller' },
-          {
-            label: 'Write authority',
-            value: 'Preview-only route; no typed write command is exposed from this surface.',
-          },
-        ],
-      },
-    ],
-    emptyMessage: 'No policy preview has been reported yet.',
-    productClaim:
-      'Policy preview is advisory parent-surface state only. It does not claim enforcement, adapter execution, provider delivery, or child-device application.',
+    ...policyPreviewPanelIdentity(),
+    summaryDetails: policyPreviewSummaryDetails('Active controller', 'policy-preview-latest'),
+    cards: policyPreviewCards('https://example.test/latest', 'Confirmed'),
   };
 }
 
 function observerPolicyPreviewPanel(): ParentPolicyPreviewPanelSnapshot {
   return {
-    ...activeControllerPolicyPreviewPanel(),
-    summaryDetails: [
-      { label: 'Decision status', value: 'Preview remains advisory and not enforced.' },
-      { label: 'Policy check', value: 'policy-preview-observer' },
-      { label: 'Parent rule context references', value: '1' },
-      { label: 'Parent rule context ref IDs', value: 'parent-rule-context-1' },
-      { label: 'Parent access', value: 'Observer only' },
-    ],
-    cards: [
-      {
-        title: 'Preview state',
-        summary: 'Preview remains advisory and not enforced.',
-        details: [
-          { label: 'Target value', value: 'https://example.test/observer' },
-          { label: 'Request status', value: 'Approved' },
-        ],
-      },
-      {
-        title: 'Source lifecycle',
-        summary: 'Delivered is reported, but active enforcement is separate.',
-        details: [{ label: 'Source status', value: 'Delivered' }],
-      },
-      {
-        title: 'Approval authority',
-        summary: 'Observer-only parents can review policy explanation but cannot confirm or save writes.',
-        details: [
-          { label: 'Parent access', value: 'Observer only' },
-          {
-            label: 'Write authority',
-            value: 'Observer scope is read-only and cannot confirm or save policy writes.',
-          },
-        ],
-      },
-    ],
+    ...policyPreviewPanelIdentity(),
+    summaryDetails: policyPreviewSummaryDetails('Observer only', 'policy-preview-observer'),
+    cards: policyPreviewCards('https://example.test/observer', 'Delivered'),
   };
 }
 
@@ -142,4 +75,66 @@ function policyPreviewActions() {
     sendCommand: async () => null,
     refreshRouteSnapshot: async () => null,
   };
+}
+
+function policyPreviewPanelIdentity(): Pick<
+  ParentPolicyPreviewPanelSnapshot,
+  'title' | 'body' | 'summary' | 'emptyMessage' | 'productClaim'
+> {
+  return {
+    title: 'Policy preview parent authoring',
+    body: 'Preview stays advisory until a parent confirms the request and a child-device contract applies it.',
+    summary: 'Preview remains advisory and not enforced.',
+    emptyMessage: 'No policy preview has been reported yet.',
+    productClaim:
+      'Policy preview is advisory parent-surface state only. It does not claim enforcement, adapter execution, provider delivery, or child-device application.',
+  };
+}
+
+function policyPreviewSummaryDetails(parentAccess: string, policyCheck: string): ParentPolicyPreviewPanelSnapshot['summaryDetails'] {
+  return [
+    { label: 'Decision status', value: 'Preview remains advisory and not enforced.' },
+    { label: 'Policy check', value: policyCheck },
+    { label: 'Parent rule context references', value: '1' },
+    { label: 'Parent rule context ref IDs', value: 'parent-rule-context-1' },
+    { label: 'Parent access', value: parentAccess },
+  ];
+}
+
+function policyPreviewCards(
+  targetValue: string,
+  sourceStatus: 'Confirmed' | 'Delivered'
+): ParentPolicyPreviewPanelSnapshot['cards'] {
+  return [
+    {
+      title: 'Preview state',
+      summary: 'Preview remains advisory and not enforced.',
+      details: [
+        { label: 'Target value', value: targetValue },
+        { label: 'Request status', value: 'Approved' },
+      ],
+    },
+    {
+      title: 'Source lifecycle',
+      summary: 'Delivered is reported, but active enforcement is separate.',
+      details: [{ label: 'Source status', value: sourceStatus }],
+    },
+    {
+      title: 'Approval authority',
+      summary:
+        sourceStatus === 'Delivered'
+          ? 'Observer-only parents can review policy explanation but cannot confirm or save writes.'
+          : 'Controller confirmation is recorded, but delivery and enforcement remain separate states.',
+      details: [
+        { label: 'Parent access', value: sourceStatus === 'Delivered' ? 'Observer only' : 'Active controller' },
+        {
+          label: 'Write authority',
+          value:
+            sourceStatus === 'Delivered'
+              ? 'Observer scope is read-only and cannot confirm or save policy writes.'
+              : 'Preview-only route; no typed write command is exposed from this surface.',
+        },
+      ],
+    },
+  ];
 }

@@ -1,4 +1,4 @@
-use crate::support::{ErrorOrUnreachable as _, ValueOrUnreachable as _};
+use crate::support::{module_specifiers, ErrorOrUnreachable as _, ValueOrUnreachable as _};
 use ocentra_schema::child_ios_entitlement_capability_proof as contracts;
 use ocentra_schema::child_ios_entitlement_capability_proof_ts::child_ios_entitlement_capability_proof_contracts_typescript;
 use serde_json::json;
@@ -6,7 +6,8 @@ use serde_json::json;
 #[test]
 fn child_ios_entitlement_capability_round_trips_through_rust_owned_shape() {
     let proof = contracts::sample_child_ios_entitlement_capability_read_model();
-    let encoded = serde_json::to_value(&proof).value_or_unreachable("proof serializes");
+    let encoded = serde_json::to_value(&proof)
+        .value_or_unreachable(crate::assert_context!("proof serializes"));
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -34,7 +35,8 @@ fn child_ios_entitlement_capability_round_trips_through_rust_owned_shape() {
     assert!(encoded.get("schema_version").is_none());
 
     let decoded: contracts::ChildIosEntitlementCapabilityReadModel =
-        serde_json::from_value(encoded).value_or_unreachable("proof deserializes");
+        serde_json::from_value(encoded)
+            .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
 }
 
@@ -69,17 +71,17 @@ fn child_ios_entitlement_capability_keeps_manual_and_no_claim_boundaries_explici
 fn child_ios_entitlement_capability_rejects_missing_surface_field() {
     let mut encoded =
         serde_json::to_value(contracts::sample_child_ios_entitlement_capability_read_model())
-            .value_or_unreachable("proof serializes");
+            .value_or_unreachable(crate::assert_context!("proof serializes"));
     encoded["surfaceProofs"][2]
         .as_object_mut()
-        .value_or_unreachable("surface object")
+        .value_or_unreachable(crate::assert_context!("surface object"))
         .remove("runtimeOwner");
 
     let decoded =
         serde_json::from_value::<contracts::ChildIosEntitlementCapabilityReadModel>(encoded);
     assert_eq!(
         decoded
-            .error_or_unreachable("missing runtimeOwner should fail")
+            .error_or_unreachable(crate::assert_context!("missing runtimeOwner should fail"))
             .to_string(),
         "missing field `runtimeOwner`"
     );
@@ -141,26 +143,11 @@ fn child_ios_entitlement_capability_adapter_stays_thin_and_generated_backed() {
         Some("/* thin adapter over Rust-generated child iOS entitlement capability contracts */")
     );
     assert_eq!(
-        module_specifiers(adapter),
-        vec![
+        module_specifiers(crate::contract_text!(adapter)),
+        crate::module_specifiers!(
             "./effect",
             "./family-reference-primitives",
             "./generated/child-ios-entitlement-capability-proof-contracts",
-        ]
+        )
     );
-}
-
-fn module_specifiers(source: &str) -> Vec<&str> {
-    let mut specifiers = Vec::new();
-    let mut rest = source;
-
-    while let Some((_, after_from)) = rest.split_once(" from '") {
-        let Some((specifier, after_specifier)) = after_from.split_once('\'') else {
-            break;
-        };
-        specifiers.push(specifier);
-        rest = after_specifier;
-    }
-
-    specifiers
 }

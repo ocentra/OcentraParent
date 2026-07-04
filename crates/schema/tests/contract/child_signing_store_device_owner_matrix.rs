@@ -1,4 +1,4 @@
-use crate::support::{ErrorOrUnreachable as _, ValueOrUnreachable as _};
+use crate::support::{module_specifiers, ErrorOrUnreachable as _, ValueOrUnreachable as _};
 use ocentra_schema::child_signing_store_device_owner_matrix as contracts;
 use ocentra_schema::child_signing_store_device_owner_matrix_ts::child_signing_store_device_owner_matrix_contracts_typescript;
 use serde_json::json;
@@ -6,7 +6,8 @@ use serde_json::json;
 #[test]
 fn child_signing_store_device_owner_matrix_round_trips_through_rust_owned_shape() {
     let proof = contracts::sample_child_signing_store_device_owner_matrix_proof();
-    let encoded = serde_json::to_value(&proof).value_or_unreachable("proof serializes");
+    let encoded = serde_json::to_value(&proof)
+        .value_or_unreachable(crate::assert_context!("proof serializes"));
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -31,7 +32,8 @@ fn child_signing_store_device_owner_matrix_round_trips_through_rust_owned_shape(
     assert!(encoded.get("schema_version").is_none());
 
     let decoded: contracts::ChildSigningStoreDeviceOwnerMatrixProof =
-        serde_json::from_value(encoded).value_or_unreachable("proof deserializes");
+        serde_json::from_value(encoded)
+            .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
 }
 
@@ -59,17 +61,17 @@ fn child_signing_store_device_owner_matrix_keeps_manual_required_boundaries_expl
 fn child_signing_store_device_owner_matrix_rejects_missing_claim_boundary() {
     let mut encoded =
         serde_json::to_value(contracts::sample_child_signing_store_device_owner_matrix_proof())
-            .value_or_unreachable("proof serializes");
+            .value_or_unreachable(crate::assert_context!("proof serializes"));
     encoded["rows"][1]
         .as_object_mut()
-        .value_or_unreachable("row object")
+        .value_or_unreachable(crate::assert_context!("row object"))
         .remove("claimBoundary");
 
     let decoded =
         serde_json::from_value::<contracts::ChildSigningStoreDeviceOwnerMatrixProof>(encoded);
     assert_eq!(
         decoded
-            .error_or_unreachable("missing claimBoundary should fail")
+            .error_or_unreachable(crate::assert_context!("missing claimBoundary should fail"))
             .to_string(),
         "missing field `claimBoundary`"
     );
@@ -108,7 +110,7 @@ fn generated_child_signing_store_device_owner_matrix_contracts_stay_checked_in()
         .position(|line| {
             *line == "export type GeneratedChildSigningStoreDeviceOwnerMatrixSchemaVersion ="
         })
-        .value_or_unreachable("schema version type declaration");
+        .value_or_unreachable(crate::assert_context!("schema version type declaration"));
     assert_eq!(
         generated_lines[schema_version_key + 1],
         schema_version_line.as_str()
@@ -133,25 +135,10 @@ fn child_signing_store_device_owner_matrix_adapter_stays_thin_and_generated_back
         Some("/* thin adapter over Rust-generated child signing/store/device-owner matrix contracts */")
     );
     assert_eq!(
-        module_specifiers(adapter),
-        vec![
+        module_specifiers(crate::contract_text!(adapter)),
+        crate::module_specifiers!(
             "./effect",
             "./generated/child-signing-store-device-owner-matrix-contracts"
-        ]
+        )
     );
-}
-
-fn module_specifiers(source: &str) -> Vec<&str> {
-    let mut specifiers = Vec::new();
-    let mut rest = source;
-
-    while let Some((_, after_from)) = rest.split_once(" from '") {
-        let Some((specifier, after_specifier)) = after_from.split_once('\'') else {
-            break;
-        };
-        specifiers.push(specifier);
-        rest = after_specifier;
-    }
-
-    specifiers
 }

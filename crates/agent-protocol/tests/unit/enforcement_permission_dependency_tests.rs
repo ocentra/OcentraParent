@@ -14,20 +14,12 @@ use super::{
 fn permission_and_dependency_unavailable_events_serialize_typed_recovery_data() {
     for (capability, reason, expected_reason) in [
         (
-            unavailable_capability(
-                EnforcementPermissionState::MissingPermission,
-                EnforcementDependencyState::Installed,
-                enforcement::UNAVAILABLE_MISSING_PERMISSION,
-            ),
+            unavailable_capability_missing_permission(),
             EnforcementUnavailableReason::MissingPermission,
             enforcement::UNAVAILABLE_MISSING_PERMISSION,
         ),
         (
-            unavailable_capability(
-                EnforcementPermissionState::Allowed,
-                EnforcementDependencyState::Missing,
-                enforcement::UNAVAILABLE_MISSING_DEPENDENCY,
-            ),
+            unavailable_capability_missing_dependency(),
             EnforcementUnavailableReason::MissingDependency,
             enforcement::UNAVAILABLE_MISSING_DEPENDENCY,
         ),
@@ -64,29 +56,35 @@ fn serialized_unavailable_events(
     let timer = enforcement_timer(action, reason);
 
     (
-        serde_json::to_value(audit).unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        }),
-        serde_json::to_value(timer).unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        }),
+        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES),
     )
 }
 
-fn unavailable_capability(
-    permission_state: EnforcementPermissionState,
-    dependency_state: EnforcementDependencyState,
-    reason: &str,
-) -> EnforcementCapabilityStatus {
+fn unavailable_capability_missing_permission() -> EnforcementCapabilityStatus {
     EnforcementCapabilityStatus {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         platform: ParentPlatform::Windows,
         adapter_kind: EnforcementAdapterKind::ProcessControl,
         capability_state: EnforcementCapabilityState::Unavailable,
-        permission_state,
-        dependency_state,
+        permission_state: EnforcementPermissionState::MissingPermission,
+        dependency_state: EnforcementDependencyState::Installed,
         supported_actions: Vec::new(),
-        degraded_reason: Some(reason.to_string()),
+        degraded_reason: Some(enforcement::UNAVAILABLE_MISSING_PERMISSION.to_string()),
+        last_checked_at: policy::TEST_EVALUATED_AT.to_string(),
+    }
+}
+
+fn unavailable_capability_missing_dependency() -> EnforcementCapabilityStatus {
+    EnforcementCapabilityStatus {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        platform: ParentPlatform::Windows,
+        adapter_kind: EnforcementAdapterKind::ProcessControl,
+        capability_state: EnforcementCapabilityState::Unavailable,
+        permission_state: EnforcementPermissionState::Allowed,
+        dependency_state: EnforcementDependencyState::Missing,
+        supported_actions: Vec::new(),
+        degraded_reason: Some(enforcement::UNAVAILABLE_MISSING_DEPENDENCY.to_string()),
         last_checked_at: policy::TEST_EVALUATED_AT.to_string(),
     }
 }

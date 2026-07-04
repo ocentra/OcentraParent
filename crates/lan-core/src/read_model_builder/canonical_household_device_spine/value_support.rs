@@ -1,3 +1,6 @@
+#[path = "classification_scores.rs"]
+mod classification_scores;
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingDeviceRef,
@@ -20,17 +23,12 @@ const SERVICE_PROBE_WEAK_HINT_WEIGHT: u16 = 3;
 const SERVICE_PROBE_STRONG_HINT_WEIGHT: u16 = 5;
 const MIN_DECISIVE_SCORE_MARGIN: u16 = 2;
 
+use classification_scores::classification_scores;
+
 #[derive(Clone)]
 struct WeightedHintText {
     text: String,
     weight: u16,
-}
-
-#[derive(Clone)]
-struct ClassificationScore {
-    classification: LanCanonicalHouseholdDeviceClassification,
-    total: u16,
-    strongest_signal: u16,
 }
 
 pub(super) fn option_overlaps(first: Option<&String>, second: Option<&String>) -> bool {
@@ -159,143 +157,6 @@ fn service_probe_hint_weight(kind: &LanServiceIdentityProbeEvidenceKind) -> u16 
     }
 }
 
-fn classification_scores(texts: &[WeightedHintText]) -> [ClassificationScore; 10] {
-    let mut scores = [
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::Printer,
-            total: 0,
-            strongest_signal: 0,
-        },
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::Television,
-            total: 0,
-            strongest_signal: 0,
-        },
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::GameConsole,
-            total: 0,
-            strongest_signal: 0,
-        },
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::NetworkAttachedStorage,
-            total: 0,
-            strongest_signal: 0,
-        },
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::Camera,
-            total: 0,
-            strongest_signal: 0,
-        },
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::Phone,
-            total: 0,
-            strongest_signal: 0,
-        },
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::Tablet,
-            total: 0,
-            strongest_signal: 0,
-        },
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::Laptop,
-            total: 0,
-            strongest_signal: 0,
-        },
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::Desktop,
-            total: 0,
-            strongest_signal: 0,
-        },
-        ClassificationScore {
-            classification: LanCanonicalHouseholdDeviceClassification::InternetOfThings,
-            total: 0,
-            strongest_signal: 0,
-        },
-    ];
-    for text in texts {
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::Printer,
-            PRINTER_HINTS,
-            text,
-        );
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::Television,
-            TELEVISION_HINTS,
-            text,
-        );
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::GameConsole,
-            GAME_CONSOLE_HINTS,
-            text,
-        );
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::NetworkAttachedStorage,
-            NAS_HINTS,
-            text,
-        );
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::Camera,
-            CAMERA_HINTS,
-            text,
-        );
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::Phone,
-            PHONE_HINTS,
-            text,
-        );
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::Tablet,
-            TABLET_HINTS,
-            text,
-        );
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::Laptop,
-            LAPTOP_HINTS,
-            text,
-        );
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::Desktop,
-            DESKTOP_HINTS,
-            text,
-        );
-        accumulate_classification_score(
-            &mut scores,
-            &LanCanonicalHouseholdDeviceClassification::InternetOfThings,
-            IOT_HINTS,
-            text,
-        );
-    }
-    scores
-}
-
-fn accumulate_classification_score(
-    scores: &mut [ClassificationScore],
-    classification: &LanCanonicalHouseholdDeviceClassification,
-    hints: &[&str],
-    text: &WeightedHintText,
-) {
-    if !hints.iter().any(|hint| text.text.contains(hint)) {
-        return;
-    }
-    let Some(score) = scores
-        .iter_mut()
-        .find(|score| score.classification == *classification)
-    else {
-        return;
-    };
-    score.total += text.weight;
-    score.strongest_signal = score.strongest_signal.max(text.weight);
-}
-
 pub(super) fn stale_at_for(
     reachability: &LanPairingDeviceReachability,
     observed_at: &str,
@@ -361,44 +222,3 @@ pub(super) fn confidence_for_mac_identity(
         confidence
     }
 }
-
-const PHONE_HINTS: &[&str] = &["iphone", "android", "pixel", "galaxy", "phone"];
-const TABLET_HINTS: &[&str] = &["ipad", "tablet", "kindle"];
-const LAPTOP_HINTS: &[&str] = &["laptop", "macbook", "thinkpad", "notebook"];
-const DESKTOP_HINTS: &[&str] = &["desktop", "workstation", "imac", "mac mini", " pc", "tower"];
-const PRINTER_HINTS: &[&str] = &[
-    "_ipp._tcp.local",
-    "printer",
-    "jetdirect",
-    "laserjet",
-    "officejet",
-    "epson",
-    "brother",
-    "canon",
-    "cups",
-];
-const TELEVISION_HINTS: &[&str] = &[
-    "_googlecast._tcp.local",
-    "_airplay._tcp.local",
-    "mediarenderer",
-    "media-renderer",
-    "chromecast",
-    "bravia",
-    "roku",
-    "appletv",
-    "fire tv",
-    " tv",
-];
-const GAME_CONSOLE_HINTS: &[&str] = &["xbox", "playstation", "ps4", "ps5", "nintendo", "switch"];
-const CAMERA_HINTS: &[&str] = &["camera", " cam", "arlo", "wyze", "ring", "nest cam"];
-const NAS_HINTS: &[&str] = &["nas", "synology", "qnap", "diskstation", "my cloud"];
-const IOT_HINTS: &[&str] = &[
-    "thermostat",
-    "bulb",
-    "plug",
-    "sensor",
-    "homepod",
-    "echo",
-    "speaker",
-    "outlet",
-];

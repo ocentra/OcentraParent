@@ -1,128 +1,236 @@
 import type {
-  ActivitySurfaceAdapterResult,
-  ActivityServiceUiSpine,
-} from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
-import type { AgentNetworkAndroidVpnServiceGateStatusParseResult } from '@ocentra-parent/agent-protocol-domain/network-android-vpnservice-gate-status';
-import type { AgentNetworkAppleNetworkExtensionGateStatusParseResult } from '@ocentra-parent/agent-protocol-domain/network-apple-network-extension-gate-status';
-import type { AgentNetworkLinuxNftablesLabStatusParseResult } from '@ocentra-parent/agent-protocol-domain/network-linux-nftables-lab-status';
-import type { AgentNetworkLiveCaptureStatusParseResult } from '@ocentra-parent/agent-protocol-domain/network-live-capture-status';
-import type { AgentNetworkRemoteDeliveryStatusParseResult } from '@ocentra-parent/agent-protocol-domain/network-remote-delivery-status';
-import type { AgentNetworkRuntimeEventResult } from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
-import type { AgentNetworkWindowsFirewallLabStatusParseResult } from '@ocentra-parent/agent-protocol-domain/network-windows-firewall-lab-status';
-import type { AgentNetworkWindowsWfpGateStatusParseResult } from '@ocentra-parent/agent-protocol-domain/network-windows-wfp-gate-status';
-import type { AgentTrackingRetentionSettingsWriteResultParseResult } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
-import type { AgentActivityTrackingReadModel } from '@ocentra-parent/schema-domain/agent-tracking-read-model';
-import type { ActivityIngestStatus, ActivityRecentSummary } from '@ocentra-parent/schema-domain/activity-query';
-import type {
-  ActivityAppUseReadModel,
-  ActivityBrowserReadModel,
-  ActivityGamesReadModel,
-  ActivityHistoricalReportList,
-  ActivityNetworkReadModel,
-  ActivityReportDocument,
-  ActivityScreenReadModel,
-} from '@ocentra-parent/schema-domain/activity-surface';
-import type {
-  BrowserEvidenceReadModel,
-  BrowserManagedSessionStatus,
-} from '@ocentra-parent/schema-domain/browser-schemas';
-import type { BrowserInterventionReadModel } from '@ocentra-parent/schema-domain/browser-intervention-schemas';
-import type { BrowserInventoryReadModel } from '@ocentra-parent/schema-domain/browser-inventory-schemas';
-import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/schema-domain/network-flow';
+  GeneratedPortalAgentActivitySurfaceAdapterFailureReason,
+  GeneratedPortalActivityHistoricalReportListSnapshot,
+  GeneratedPortalActivityIngestStatusSnapshot,
+  GeneratedPortalActivityReadModelState,
+  GeneratedPortalActivityRecentSummarySnapshot,
+  GeneratedPortalActivityReportDocumentSnapshot,
+  GeneratedPortalActivitySurfaceReadModelSnapshot,
+  GeneratedPortalBrowserEvidenceReadModelSnapshot,
+  GeneratedPortalBrowserInterventionReadModelSnapshot,
+  GeneratedPortalBrowserInventoryReadModelSnapshot,
+  GeneratedPortalBrowserManagedSessionStatusSnapshot,
+  GeneratedPortalNetworkLiveCaptureStatusSnapshot,
+  GeneratedPortalNetworkPlatformGateStatusSnapshot,
+  GeneratedPortalNetworkRemoteDeliveryStatusSnapshot,
+  GeneratedPortalNetworkRuntimeEventPayload,
+  GeneratedPortalNetworkRuntimeEventType,
+} from './generated/portal-contracts';
 import type { PortalActivityMemoryGraphReadModel } from './activity-memory-graph';
 import type { PortalLanAddDeviceReadModel } from './live-activity-lan-add-device';
+import type { networkEvidenceDrawerSummary } from './network-evidence-drawer';
 import type { PortalRouteEventRecord } from './portal-contract-adapter';
+import type { ParsedPayloadResult, ReadModelResult } from './read-model-result';
+import { GeneratedPortalTrackingContracts as GeneratedPortalTrackingContractsValue } from './generated/portal-contracts';
 
-type ActivitySurfaceReadModel =
-  | ActivityScreenReadModel
-  | ActivityAppUseReadModel
-  | ActivityBrowserReadModel
-  | ActivityGamesReadModel
-  | ActivityNetworkReadModel;
+type ActivitySurfaceReadModel = GeneratedPortalActivitySurfaceReadModelSnapshot;
+void GeneratedPortalTrackingContractsValue;
+type PortalActivitySurfaceAdapterState = GeneratedPortalActivityReadModelState;
+type PortalActivitySurfaceAdapterResult<TValue> =
+  | {
+      readonly ok: true;
+      readonly state: PortalActivitySurfaceAdapterState;
+      readonly value: TValue;
+    }
+  | {
+      readonly ok: false;
+      readonly state: PortalActivitySurfaceAdapterState;
+      readonly reason: string;
+    };
+type PortalActivityServiceUiSpine = {
+  readonly dataOwner: 'rust-service-read-model';
+  readonly uiConsumer: 'c-owned-activity-ui';
+  readonly viteDataOwner: false;
+  readonly currentState: PortalActivitySurfaceAdapterState;
+  readonly report: PortalActivitySurfaceAdapterResult<GeneratedPortalActivityReportDocumentSnapshot> | null;
+  readonly reportHistory: PortalActivitySurfaceAdapterResult<GeneratedPortalActivityHistoricalReportListSnapshot> | null;
+  readonly screen: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly appUse: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly browser: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly games: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly network: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+};
+type PortalNetworkRuntimeEventResult =
+  | {
+      readonly ok: true;
+      readonly eventType: GeneratedPortalNetworkRuntimeEventType;
+      readonly value: GeneratedPortalNetworkRuntimeEventPayload;
+    }
+  | {
+      readonly ok: false;
+      readonly reason: string;
+    };
+type PortalStatusParseResult<TStatus> =
+  | {
+      readonly ok: true;
+      readonly status: TStatus;
+    }
+  | {
+      readonly ok: false;
+      readonly reason: string;
+    };
+type PortalNetworkFlowReadModel = NonNullable<Parameters<typeof networkEvidenceDrawerSummary>[0]>;
+type PortalActivityTrackingReadModelSnapshot = NonNullable<
+  ReturnType<typeof GeneratedPortalTrackingContractsValue.ActivityTrackingReadModel.decode>
+>;
+type PortalTrackingRetentionSettingsWriteResultSnapshot = NonNullable<
+  ReturnType<typeof GeneratedPortalTrackingContractsValue.RetentionSettingsWrite.Result.decode>
+>;
+type PortalTrackingRetentionSettingsWriteResultParseResult =
+  ParsedPayloadResult<PortalTrackingRetentionSettingsWriteResultSnapshot>;
 
 export interface PortalNetworkRuntimeEventChainStream {
   readonly streamedEventCount: number | null;
-  readonly events: readonly AgentNetworkRuntimeEventResult[];
+  readonly events: readonly PortalNetworkRuntimeEventResult[];
   readonly invalidEventCount: number;
 }
 
 export type PortalActivityTrackingReadModelFailureReason =
-  | 'wrong-event'
-  | 'missing-json-field'
-  | 'invalid-json'
-  | 'invalid-payload';
+  GeneratedPortalAgentActivitySurfaceAdapterFailureReason;
 
-export type PortalActivityTrackingReadModelResult =
-  | {
-      readonly ok: true;
-      readonly value: AgentActivityTrackingReadModel;
-    }
-  | {
-      readonly ok: false;
-      readonly reason: PortalActivityTrackingReadModelFailureReason;
-    };
+export type PortalActivityTrackingReadModelResult = ReadModelResult<
+  PortalActivityTrackingReadModelSnapshot,
+  PortalActivityTrackingReadModelFailureReason
+>;
 
 export interface PortalLiveActivityState {
-  readonly activityServiceUiSpine: ActivityServiceUiSpine;
+  readonly activityServiceUiSpine: PortalActivityServiceUiSpine;
   readonly ingestEvent: PortalRouteEventRecord | null;
-  readonly ingestStatus: ActivityIngestStatus | null;
+  readonly ingestStatus: GeneratedPortalActivityIngestStatusSnapshot | null;
   readonly recentSummaryEvent: PortalRouteEventRecord | null;
-  readonly recentSummary: ActivityRecentSummary | null;
+  readonly recentSummary: GeneratedPortalActivityRecentSummarySnapshot | null;
   readonly browserEvidenceEvent: PortalRouteEventRecord | null;
-  readonly browserEvidenceReadModel: BrowserEvidenceReadModel | null;
+  readonly browserEvidenceReadModel: GeneratedPortalBrowserEvidenceReadModelSnapshot | null;
   readonly browserInventoryEvent: PortalRouteEventRecord | null;
-  readonly browserInventoryReadModel: BrowserInventoryReadModel | null;
+  readonly browserInventoryReadModel: GeneratedPortalBrowserInventoryReadModelSnapshot | null;
   readonly browserManagedEvent: PortalRouteEventRecord | null;
-  readonly browserManagedStatus: BrowserManagedSessionStatus | null;
+  readonly browserManagedStatus: GeneratedPortalBrowserManagedSessionStatusSnapshot | null;
   readonly localAiRuntimeStatusEvent: PortalRouteEventRecord | null;
   readonly lanAiJobEvent: PortalRouteEventRecord | null;
   readonly parentAssistantBoundaryEvent: PortalRouteEventRecord | null;
   readonly activityMemoryGraphEvent: PortalRouteEventRecord | null;
   readonly activityMemoryGraphReadModel: PortalActivityMemoryGraphReadModel | null;
   readonly activityReportEvent: PortalRouteEventRecord | null;
-  readonly activityReport: ActivitySurfaceAdapterResult<ActivityReportDocument> | null;
+  readonly activityReport: PortalActivitySurfaceAdapterResult<GeneratedPortalActivityReportDocumentSnapshot> | null;
   readonly activityReportHistoryEvent: PortalRouteEventRecord | null;
-  readonly activityReportHistory: ActivitySurfaceAdapterResult<ActivityHistoricalReportList> | null;
+  readonly activityReportHistory: PortalActivitySurfaceAdapterResult<GeneratedPortalActivityHistoricalReportListSnapshot> | null;
   readonly activityScreenReadModelEvent: PortalRouteEventRecord | null;
-  readonly activityScreenReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityScreenReadModel: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly activityAppUseReadModelEvent: PortalRouteEventRecord | null;
-  readonly activityAppUseReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityAppUseReadModel: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly activityBrowserReadModelEvent: PortalRouteEventRecord | null;
-  readonly activityBrowserReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityBrowserReadModel: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly activityGamesReadModelEvent: PortalRouteEventRecord | null;
-  readonly activityGamesReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityGamesReadModel: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly appGameNotificationParentSurfacePanel: unknown | null;
   readonly appGamePlatformProofStatusPanel: unknown | null;
   readonly appGameChildRuntimeTransportReceiptPanel: unknown | null;
   readonly activityNetworkReadModelEvent: PortalRouteEventRecord | null;
-  readonly activityNetworkReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityNetworkReadModel: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly browserInterventionEvent: PortalRouteEventRecord | null;
-  readonly browserInterventionReadModel: BrowserInterventionReadModel | null;
+  readonly browserInterventionReadModel: GeneratedPortalBrowserInterventionReadModelSnapshot | null;
   readonly networkFlowEvent: PortalRouteEventRecord | null;
-  readonly networkFlowReadModel: ActivityNetworkFlowReadModel | null;
+  readonly networkFlowReadModel: PortalNetworkFlowReadModel | null;
   readonly networkRuntimeEventChainEvent: PortalRouteEventRecord | null;
   readonly networkRuntimeEventChainStream: PortalNetworkRuntimeEventChainStream | null;
   readonly networkRemoteDeliveryStatusEvent: PortalRouteEventRecord | null;
-  readonly networkRemoteDeliveryStatusResult: AgentNetworkRemoteDeliveryStatusParseResult | null;
+  readonly networkRemoteDeliveryStatusResult: PortalStatusParseResult<GeneratedPortalNetworkRemoteDeliveryStatusSnapshot> | null;
   readonly networkLiveCaptureStatusEvent: PortalRouteEventRecord | null;
-  readonly networkLiveCaptureStatusResult: AgentNetworkLiveCaptureStatusParseResult | null;
+  readonly networkLiveCaptureStatusResult: PortalStatusParseResult<GeneratedPortalNetworkLiveCaptureStatusSnapshot> | null;
   readonly networkLinuxNftablesLabStatusEvent: PortalRouteEventRecord | null;
-  readonly networkLinuxNftablesLabStatusResult: AgentNetworkLinuxNftablesLabStatusParseResult | null;
+  readonly networkLinuxNftablesLabStatusResult: PortalStatusParseResult<GeneratedPortalNetworkPlatformGateStatusSnapshot> | null;
   readonly networkWindowsFirewallLabStatusEvent: PortalRouteEventRecord | null;
-  readonly networkWindowsFirewallLabStatusResult: AgentNetworkWindowsFirewallLabStatusParseResult | null;
+  readonly networkWindowsFirewallLabStatusResult: PortalStatusParseResult<GeneratedPortalNetworkPlatformGateStatusSnapshot> | null;
   readonly networkWindowsWfpGateStatusEvent: PortalRouteEventRecord | null;
-  readonly networkWindowsWfpGateStatusResult: AgentNetworkWindowsWfpGateStatusParseResult | null;
+  readonly networkWindowsWfpGateStatusResult: PortalStatusParseResult<GeneratedPortalNetworkPlatformGateStatusSnapshot> | null;
   readonly networkAndroidVpnServiceGateStatusEvent: PortalRouteEventRecord | null;
-  readonly networkAndroidVpnServiceGateStatusResult: AgentNetworkAndroidVpnServiceGateStatusParseResult | null;
+  readonly networkAndroidVpnServiceGateStatusResult: PortalStatusParseResult<GeneratedPortalNetworkPlatformGateStatusSnapshot> | null;
   readonly networkAppleNetworkExtensionGateStatusEvent: PortalRouteEventRecord | null;
-  readonly networkAppleNetworkExtensionGateStatusResult: AgentNetworkAppleNetworkExtensionGateStatusParseResult | null;
+  readonly networkAppleNetworkExtensionGateStatusResult: PortalStatusParseResult<GeneratedPortalNetworkPlatformGateStatusSnapshot> | null;
   readonly activityTrackingReadModelEvent: PortalRouteEventRecord | null;
   readonly activityTrackingReadModel: PortalActivityTrackingReadModelResult | null;
   readonly activityTrackingPanel: unknown | null;
   readonly activityTrackingRetentionSettingsWriteEvent: PortalRouteEventRecord | null;
-  readonly activityTrackingRetentionSettingsWriteResult: AgentTrackingRetentionSettingsWriteResultParseResult | null;
+  readonly activityTrackingRetentionSettingsWriteResult: PortalTrackingRetentionSettingsWriteResultParseResult | null;
   readonly lanPairingStatusEvent: PortalRouteEventRecord | null;
   readonly lanPairingBrowserDiscoveryEvent: PortalRouteEventRecord | null;
   readonly lanAddDeviceReadModel: PortalLanAddDeviceReadModel | null;
   readonly appGamePolicyReadinessPanel: unknown | null;
 }
+
+export const EMPTY_PORTAL_LIVE_ACTIVITY_STATE = {
+  activityServiceUiSpine: {
+    dataOwner: 'rust-service-read-model',
+    uiConsumer: 'c-owned-activity-ui',
+    viteDataOwner: false,
+    currentState: 'unavailable',
+    report: null,
+    reportHistory: null,
+    screen: null,
+    appUse: null,
+    browser: null,
+    games: null,
+    network: null,
+  },
+  ingestEvent: null,
+  ingestStatus: null,
+  recentSummaryEvent: null,
+  recentSummary: null,
+  browserEvidenceEvent: null,
+  browserEvidenceReadModel: null,
+  browserInventoryEvent: null,
+  browserInventoryReadModel: null,
+  browserManagedEvent: null,
+  browserManagedStatus: null,
+  localAiRuntimeStatusEvent: null,
+  lanAiJobEvent: null,
+  parentAssistantBoundaryEvent: null,
+  activityMemoryGraphEvent: null,
+  activityMemoryGraphReadModel: null,
+  activityReportEvent: null,
+  activityReport: null,
+  activityReportHistoryEvent: null,
+  activityReportHistory: null,
+  activityScreenReadModelEvent: null,
+  activityScreenReadModel: null,
+  activityAppUseReadModelEvent: null,
+  activityAppUseReadModel: null,
+  activityBrowserReadModelEvent: null,
+  activityBrowserReadModel: null,
+  activityGamesReadModelEvent: null,
+  activityGamesReadModel: null,
+  appGameNotificationParentSurfacePanel: null,
+  appGamePlatformProofStatusPanel: null,
+  appGameChildRuntimeTransportReceiptPanel: null,
+  activityNetworkReadModelEvent: null,
+  activityNetworkReadModel: null,
+  browserInterventionEvent: null,
+  browserInterventionReadModel: null,
+  networkFlowEvent: null,
+  networkFlowReadModel: null,
+  networkRuntimeEventChainEvent: null,
+  networkRuntimeEventChainStream: null,
+  networkRemoteDeliveryStatusEvent: null,
+  networkRemoteDeliveryStatusResult: null,
+  networkLiveCaptureStatusEvent: null,
+  networkLiveCaptureStatusResult: null,
+  networkLinuxNftablesLabStatusEvent: null,
+  networkLinuxNftablesLabStatusResult: null,
+  networkWindowsFirewallLabStatusEvent: null,
+  networkWindowsFirewallLabStatusResult: null,
+  networkWindowsWfpGateStatusEvent: null,
+  networkWindowsWfpGateStatusResult: null,
+  networkAndroidVpnServiceGateStatusEvent: null,
+  networkAndroidVpnServiceGateStatusResult: null,
+  networkAppleNetworkExtensionGateStatusEvent: null,
+  networkAppleNetworkExtensionGateStatusResult: null,
+  activityTrackingReadModelEvent: null,
+  activityTrackingReadModel: null,
+  activityTrackingPanel: null,
+  activityTrackingRetentionSettingsWriteEvent: null,
+  activityTrackingRetentionSettingsWriteResult: null,
+  lanPairingStatusEvent: null,
+  lanPairingBrowserDiscoveryEvent: null,
+  lanAddDeviceReadModel: null,
+  appGamePolicyReadinessPanel: null,
+} satisfies PortalLiveActivityState;

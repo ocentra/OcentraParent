@@ -1,3 +1,4 @@
+use chrono::{DateTime, SecondsFormat};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
@@ -21,15 +22,28 @@ fn screen_ai_runtime_clippy_linkage_keeps_entrypoints_live() {
         screen_ai_foreground_runtime_config::ScreenAiForegroundRuntimeConfig::scheduler_settings;
 
     let analysis_clock = config::ScreenAiAnalysisCycleClock::from_system_time();
-    assert!(!analysis_clock.timestamp.is_empty());
+    let analysis_clock_parsed = DateTime::parse_from_rfc3339(&analysis_clock.timestamp).unwrap();
+    assert_eq!(
+        analysis_clock_parsed.to_rfc3339_opts(SecondsFormat::Millis, true),
+        analysis_clock.timestamp
+    );
 
     let capture_clock = ScreenAiServiceCaptureClock::from_system_time();
-    assert!(!capture_clock.timestamp.is_empty());
+    let capture_clock_parsed = DateTime::parse_from_rfc3339(&capture_clock.timestamp).unwrap();
+    assert_eq!(
+        capture_clock_parsed.to_rfc3339_opts(SecondsFormat::Millis, true),
+        capture_clock.timestamp
+    );
 
-    let runtime =
-        crate::screen_ai_analysis_runtime::adapter_runtime_status(None, "2026-06-29T00:00:00Z");
+    let runtime = crate::screen_ai_analysis_runtime::adapter_runtime_status(
+        None::<std::path::PathBuf>,
+        "2026-06-29T00:00:00Z",
+    );
     assert_eq!(runtime.last_checked_at, "2026-06-29T00:00:00Z");
-    assert!(runtime.unavailable_reason.is_some());
+    assert_eq!(
+        runtime.unavailable_reason.as_deref(),
+        Some(constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_BINARY_UNCONFIGURED)
+    );
 
     let payload = serde_json::json!({"screen": "runtime"});
     assert_eq!(

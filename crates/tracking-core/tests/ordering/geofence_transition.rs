@@ -77,18 +77,19 @@ fn geofence_transition_detects_enter_exit_dwell_unchanged_ambiguous_and_stale_or
 fn detect_transition(
     previous_inside_state: TrackingGeofenceInsideState,
     current_inside_state: TrackingGeofenceInsideState,
-    capability_status: &'static str,
+    capability_status: impl core::fmt::Display,
     distance_meters: Option<u32>,
     low_accuracy_near_boundary: bool,
 ) -> TrackingGeofenceTransitionDetectedEvent {
+    let capability_status = capability_status.to_string();
     let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
     ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
         ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
             previous_inside_state: Some(previous_inside_state),
             current_inside_state,
-            capability_status: TrackingCapabilityStatus::parse(capability_status)
-                .unwrap_or_else(|_| unreachable!("{}", capability_status)),
+            capability_status: TrackingCapabilityStatus::parse(&capability_status)
+                .expect(&capability_status),
             distance_meters,
             low_accuracy_near_boundary,
             grace_period_active: false,

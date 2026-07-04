@@ -1,3 +1,4 @@
+use ocentra_eventing::bus::reports::handler::EventMetricsSnapshot;
 use ocentra_eventing::{bus::subscriber::SubscriptionReport, bus::EventBus, error::EventingError};
 use ocentra_lan_core::lan_pairing;
 use ocentra_network_core::network_runtime;
@@ -90,7 +91,7 @@ impl ChildDomainRuntimeEventFlow {
         self.report()
     }
 
-    pub async fn metrics_snapshot(&self) -> ocentra_eventing::bus::reports::EventMetricsSnapshot {
+    pub async fn metrics_snapshot(&self) -> EventMetricsSnapshot {
         self.bus.metrics_snapshot().await
     }
 

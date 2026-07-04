@@ -11,21 +11,12 @@ use ocentra_parent_agent_protocol::tracking::runtime_event::{
 };
 
 #[test]
-fn expected_place_event_uses_tracking_contract_and_idempotency() {
-    let event = expected_place_fixture(None);
+fn expected_place_event_uses_tracking_contract_and_idempotency(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let event = expected_place_fixture(None)?;
 
-    let contract = event.contract().unwrap_or_else(|error| {
-        unreachable!(
-            "{}: {error:?}",
-            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
-        )
-    });
-    let idempotency = event.idempotency_key().unwrap_or_else(|error| {
-        unreachable!(
-            "{}: {error:?}",
-            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
-        )
-    });
+    let contract = event.contract()?;
+    let idempotency = event.idempotency_key()?;
 
     assert_eq!(
         contract.event_type.as_str(),
@@ -39,15 +30,15 @@ fn expected_place_event_uses_tracking_contract_and_idempotency() {
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EVALUATION_ID
         )
     );
+    Ok(())
 }
 
 #[test]
-fn expected_place_event_serializes_grace_tolerance_and_exception_citations() {
-    let event = expected_place_fixture(Some(TrackingExpectedPlaceExceptionState::HolidayMode));
+fn expected_place_event_serializes_grace_tolerance_and_exception_citations(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let event = expected_place_fixture(Some(TrackingExpectedPlaceExceptionState::HolidayMode))?;
 
-    let serialized = serde_json::to_value(&event).unwrap_or_else(|error| {
-        unreachable!("tracking expected-place event serializes: {error:?}")
-    });
+    let serialized = serde_json::to_value(&event)?;
 
     assert_eq!(
         serialized["expectedPlaceRef"],
@@ -66,84 +57,37 @@ fn expected_place_event_serializes_grace_tolerance_and_exception_citations() {
         constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EARLY_EXIT_GRACE_SECONDS
     );
     assert_eq!(serialized["exceptionState"], "holiday-mode");
+    Ok(())
 }
 
 fn expected_place_fixture(
     exception_state: Option<TrackingExpectedPlaceExceptionState>,
-) -> TrackingExpectedPlaceStateEvaluatedEvent {
-    TrackingExpectedPlaceStateEvaluatedEvent {
+) -> Result<TrackingExpectedPlaceStateEvaluatedEvent, Box<dyn std::error::Error>> {
+    Ok(TrackingExpectedPlaceStateEvaluatedEvent {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID
-            )
-        }),
+        )?,
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID
-            )
-        }),
+        )?,
         evaluation_id: TrackingEvaluationId::parse(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EVALUATION_ID,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EVALUATION_ID
-            )
-        }),
+        )?,
         schedule_id: TrackingScheduleId::parse(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_SCHEDULE_ID,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_SCHEDULE_ID
-            )
-        }),
+        )?,
         expected_place_ref: TrackingExpectedPlaceRef::parse(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF
-            )
-        }),
+        )?,
         source_observation_id: TrackingObservationId::parse(
             constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::tracking_runtime::DEFAULT_OBSERVATION_ID
-            )
-        }),
+        )?,
         source_observed_at: TrackingTimestamp::parse(
             constants::tracking_runtime::DEFAULT_OBSERVED_AT,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::tracking_runtime::DEFAULT_OBSERVED_AT
-            )
-        }),
+        )?,
         expected_place_state: TrackingExpectedPlaceState::parse(
             constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED
-            )
-        }),
+        )?,
         distance_tolerance_meters: Some(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_DISTANCE_TOLERANCE_METERS,
         ),
@@ -154,13 +98,7 @@ fn expected_place_fixture(
         reason_codes: vec![],
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::tracking_runtime::DEFAULT_EVIDENCE_REF
-            )
-        })],
+        )?],
         parent_action_requirement: TrackingParentActionRequirement::NotRequired,
-    }
+    })
 }

@@ -63,6 +63,14 @@ const AdapterDispatchPanel: ParentAppGameAdapterDispatchPanelSnapshot = {
   executeActionLabel: 'Execute scoped adapter dispatch',
 };
 
+const NoopPortalRenderActions: PortalRenderActions = {
+  reconnect() {},
+  selectCommandResult() {},
+  async sendCommand() {
+    return null;
+  },
+};
+
 describe('app-game adapter dispatch route panel', () => {
   it('attaches only to App/Game Sessions', () => {
     expect(shouldRenderAppGameAdapterDispatchRoute(ParentRoute.AppGameSessions)).toBe(true);
@@ -72,11 +80,7 @@ describe('app-game adapter dispatch route panel', () => {
   it('sends the explicit scoped execute action through the typed command path', () => {
     let requested = 0;
     const actions: PortalRenderActions = {
-      reconnect() {},
-      selectCommandResult() {},
-      async sendCommand() {
-        return null;
-      },
+      ...NoopPortalRenderActions,
       async requestAppGameAdapterDispatchExecute() {
         requested += 1;
         return null;
@@ -91,13 +95,7 @@ describe('app-game adapter dispatch route panel', () => {
   it('renders Rust-owned preflight and result panels without TS intent builders', () => {
     const html = renderToStaticMarkup(
       <AppGameAdapterDispatchRoutePanel
-        actions={{
-          reconnect() {},
-          selectCommandResult() {},
-          async sendCommand() {
-            return null;
-          },
-        }}
+        actions={NoopPortalRenderActions}
         commandEnabled={true}
         panel={AdapterDispatchPanel}
       />

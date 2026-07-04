@@ -1,14 +1,21 @@
-use crate::{
-    map_network_evidence_grade_to_policy, plan_network_windows_firewall_adapter_proof,
-    NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
-    NetworkEvidencePolicyMappingInput, NetworkWindowsFirewallAdapterAction,
-    NetworkWindowsFirewallAdapterProof, NetworkWindowsFirewallAdapterProofInput,
-    NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallLabCommandEvidence,
-    NetworkWindowsFirewallLabCommandKind, NetworkWindowsFirewallLabExecutionInput,
-    NetworkWindowsFirewallLabUnsupportedClaims, NetworkWindowsFirewallProofState,
-    NetworkWindowsFirewallTargetKind,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::{
+    dns::types::NetworkEvidenceGrade,
+    policy::{
+        map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+        NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
+    },
+    windows_firewall_adapter::{
+        plan_network_windows_firewall_adapter_proof, NetworkWindowsFirewallAdapterAction,
+        NetworkWindowsFirewallAdapterProof, NetworkWindowsFirewallAdapterProofInput,
+        NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallProofState,
+        NetworkWindowsFirewallTargetKind,
+    },
+    windows_firewall_lab_execution::types::{
+        NetworkWindowsFirewallLabCommandEvidence, NetworkWindowsFirewallLabCommandKind,
+        NetworkWindowsFirewallLabExecutionInput, NetworkWindowsFirewallLabUnsupportedClaims,
+    },
+};
 
 pub fn lab_execution_input() -> NetworkWindowsFirewallLabExecutionInput {
     NetworkWindowsFirewallLabExecutionInput {

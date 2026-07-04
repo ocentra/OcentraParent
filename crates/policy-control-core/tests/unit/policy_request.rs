@@ -21,16 +21,16 @@ const REQUESTED_AT: &str = "2026-06-13T20:00:00Z";
 const EXPIRES_AT: &str = "2026-06-13T22:00:00Z";
 const MODIFIED_EXPIRES_AT: &str = "2026-06-13T21:00:00Z";
 
-fn timestamp(value: &str) -> TestResult<PolicyRequestTimestamp> {
+fn timestamp(value: impl std::fmt::Display) -> TestResult<PolicyRequestTimestamp> {
     Ok(test_ok!(
-        PolicyRequestTimestamp::parse(value),
+        PolicyRequestTimestamp::parse(value.to_string()),
         "policy request timestamp"
     ))
 }
 
-fn audit_ref(value: &str) -> TestResult<PolicyAuditReferenceId> {
+fn audit_ref(value: impl std::fmt::Display) -> TestResult<PolicyAuditReferenceId> {
     Ok(test_ok!(
-        PolicyAuditReferenceId::parse(value),
+        PolicyAuditReferenceId::parse(value.to_string()),
         "policy audit ref"
     ))
 }
@@ -159,8 +159,9 @@ fn approval(
 fn assert_active_override_minutes(
     resolution: &PolicyRequestResolution,
     expected_minutes: u16,
-    expected_expires_at: &str,
+    expected_expires_at: impl std::fmt::Display,
 ) -> TestResult {
+    let expected_expires_at = expected_expires_at.to_string();
     let temporary_override =
         test_some!(resolution.temporary_override.as_ref(), "temporary override");
 

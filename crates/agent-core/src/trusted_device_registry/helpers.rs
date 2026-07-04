@@ -1,42 +1,45 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{LanPairingDeviceRef, LanPairingTrustState};
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceClassification;
 
 use super::known_household_devices::upsert_known_household_device;
 
 pub(super) fn household_scan_truth_device(
     device: &LanCanonicalHouseholdDevice,
 ) -> Option<LanPairingDeviceRef> {
-    if !household_device_should_suppress_redundant_scan_work(device) {
-        return None;
-    }
-
-    let platform = scan_truth_platform(device);
-    let mut truth_device = LanPairingDeviceRef::new(
-        device.canonical_device_id.clone(),
-        None,
-        device.display_name.clone(),
-        platform,
-    );
-    truth_device.ip_address = device.network_identity.ip_addresses.first().cloned();
-    truth_device.mac_address = device.network_identity.mac_address.clone();
-    truth_device.hostname = device.network_identity.hostname.clone();
-    truth_device.network_interface = device.network_identity.network_interfaces.first().cloned();
-    (truth_device.ip_address.is_some() || truth_device.mac_address.is_some())
-        .then_some(truth_device)
+    (!household_device_should_suppress_redundant_scan_work(device))
+        .then(|| {
+            let platform = scan_truth_platform(device);
+            let mut truth_device = LanPairingDeviceRef::new(
+                device.canonical_device_id.clone(),
+                None,
+                device.display_name.clone(),
+                platform,
+            );
+            truth_device.ip_address = device.network_identity.ip_addresses.first().cloned();
+            truth_device.mac_address = device.network_identity.mac_address.clone();
+            truth_device.hostname = device.network_identity.hostname.clone();
+            truth_device.network_interface =
+                device.network_identity.network_interfaces.first().cloned();
+            truth_device
+        })
+        .and_then(|truth_device| {
+            (truth_device.ip_address.is_some() || truth_device.mac_address.is_some())
+                .then_some(truth_device)
+        })
 }
 
 pub(super) fn household_device_should_suppress_redundant_scan_work(
     device: &LanCanonicalHouseholdDevice,
 ) -> bool {
-    matches!(
-        device.classification,
-        ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceClassification::NetworkInfrastructure
-            | ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceClassification::ChildAgent
-    ) || matches!(
-        device.trust_state,
-        LanPairingTrustState::Paired | LanPairingTrustState::Revoked
-    ) || device.child_agent_inventory.is_some()
+    let suppress_by_classification =
+        [LanCanonicalHouseholdDeviceClassification::ChildAgent].contains(&device.classification);
+    let suppress_by_trust =
+        [LanPairingTrustState::Paired, LanPairingTrustState::Revoked].contains(&device.trust_state);
+    let suppress_by_inventory = device.child_agent_inventory.is_some();
+
+    suppress_by_classification || suppress_by_trust || suppress_by_inventory
 }
 
 pub(super) fn scan_truth_platform(device: &LanCanonicalHouseholdDevice) -> String {

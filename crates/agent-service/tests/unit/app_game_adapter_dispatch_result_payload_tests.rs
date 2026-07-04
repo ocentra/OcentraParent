@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::{
     AppGameAdapterDispatchResultRow, APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_BLOCKED,
     APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING,

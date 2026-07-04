@@ -79,9 +79,9 @@ fn collect_arp_raw_socket_passive_updates(
 ) -> LanPassiveDiscoveryRawSocketCaptureOutcome {
     let sources = current_platform_local_neighbor_sources();
     if sources.is_empty() {
-        return LanPassiveDiscoveryRawSocketCaptureOutcome::Unsupported(raw_socket_protocol_support(
-            LanPassiveDiscoveryRawSocketProtocol::Arp,
-        ));
+        return LanPassiveDiscoveryRawSocketCaptureOutcome::Unsupported(
+            raw_socket_protocol_support(LanPassiveDiscoveryRawSocketProtocol::Arp),
+        );
     }
 
     let collector_labels = local_neighbor_source_labels(&sources);

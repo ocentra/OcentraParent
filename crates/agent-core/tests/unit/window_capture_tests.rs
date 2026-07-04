@@ -67,5 +67,5 @@ fn foreground_window_observation_event_maps_degraded_status_contract() {
         event.fields.get(constants::field::FOREGROUND),
         Some(&LogFieldValue::Boolean(false))
     );
-    assert!(!event.fields.contains_key(constants::field::WINDOW_TITLE));
+    assert!(event.fields.get(constants::field::WINDOW_TITLE).is_none());
 }

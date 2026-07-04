@@ -17,8 +17,11 @@ use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::network_apple_network_extension_gate_status::{
-    NetworkAppleNetworkExtensionGateCapabilityStatusState, NetworkAppleNetworkExtensionGateStatus,
-    NetworkAppleNetworkExtensionGateStatusState, NetworkAppleNetworkExtensionPlatformStatus,
+    NetworkAppleNetworkExtensionGateBoundaryReason as ProtocolNetworkAppleNetworkExtensionGateBoundaryReason,
+    NetworkAppleNetworkExtensionGateCapabilityStatusState,
+    NetworkAppleNetworkExtensionGateRequiredArtifact as ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact,
+    NetworkAppleNetworkExtensionGateStatus, NetworkAppleNetworkExtensionGateStatusState,
+    NetworkAppleNetworkExtensionPlatformStatus,
 };
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
@@ -238,62 +241,64 @@ fn protocol_gate_state(
     }
 }
 
-fn boundary_reason(reason: &NetworkAppleNetworkExtensionGateBoundaryReason) -> String {
+fn boundary_reason(
+    reason: &NetworkAppleNetworkExtensionGateBoundaryReason,
+) -> ProtocolNetworkAppleNetworkExtensionGateBoundaryReason {
     match reason {
         NetworkAppleNetworkExtensionGateBoundaryReason::ResearchOnlyRequested => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_BOUNDARY_RESEARCH_ONLY_REQUESTED
+            ProtocolNetworkAppleNetworkExtensionGateBoundaryReason::ResearchOnlyRequested
         }
         NetworkAppleNetworkExtensionGateBoundaryReason::CapabilityManualRequired => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_BOUNDARY_CAPABILITY_MANUAL_REQUIRED
+            ProtocolNetworkAppleNetworkExtensionGateBoundaryReason::CapabilityManualRequired
         }
         NetworkAppleNetworkExtensionGateBoundaryReason::CapabilityUnavailable => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_BOUNDARY_CAPABILITY_UNAVAILABLE
+            ProtocolNetworkAppleNetworkExtensionGateBoundaryReason::CapabilityUnavailable
         }
         NetworkAppleNetworkExtensionGateBoundaryReason::EvidenceGradeBelowProofThreshold => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_BOUNDARY_EVIDENCE_GRADE_BELOW_PROOF_THRESHOLD
+            ProtocolNetworkAppleNetworkExtensionGateBoundaryReason::EvidenceGradeBelowProofThreshold
         }
         NetworkAppleNetworkExtensionGateBoundaryReason::PolicyNotNetworkExtensionApproved => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_BOUNDARY_POLICY_NOT_NETWORK_EXTENSION_APPROVED
+            ProtocolNetworkAppleNetworkExtensionGateBoundaryReason::PolicyNotNetworkExtensionApproved
         }
         NetworkAppleNetworkExtensionGateBoundaryReason::MissingRequiredArtifact => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_BOUNDARY_MISSING_REQUIRED_ARTIFACT
+            ProtocolNetworkAppleNetworkExtensionGateBoundaryReason::MissingRequiredArtifact
         }
     }
-    .to_string()
 }
 
-fn required_artifact(artifact: &NetworkAppleNetworkExtensionRequiredArtifact) -> String {
+fn required_artifact(
+    artifact: &NetworkAppleNetworkExtensionRequiredArtifact,
+) -> ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact {
     match artifact {
         NetworkAppleNetworkExtensionRequiredArtifact::DeveloperTeamProof => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_DEVELOPER_TEAM_PROOF
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::DeveloperTeamProof
         }
         NetworkAppleNetworkExtensionRequiredArtifact::EntitlementApprovalProof => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_ENTITLEMENT_APPROVAL_PROOF
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::EntitlementApprovalProof
         }
         NetworkAppleNetworkExtensionRequiredArtifact::ProvisioningProfileProof => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_PROVISIONING_PROFILE_PROOF
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::ProvisioningProfileProof
         }
         NetworkAppleNetworkExtensionRequiredArtifact::SigningProof => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_SIGNING_PROOF
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::SigningProof
         }
         NetworkAppleNetworkExtensionRequiredArtifact::DeviceOrTestFlightProof => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_DEVICE_OR_TESTFLIGHT_PROOF
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::DeviceOrTestflightProof
         }
         NetworkAppleNetworkExtensionRequiredArtifact::NetworkExtensionDeclaration => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_NETWORK_EXTENSION_DECLARATION
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::NetworkExtensionDeclaration
         }
         NetworkAppleNetworkExtensionRequiredArtifact::ExtensionConfigurationProof => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_EXTENSION_CONFIGURATION_PROOF
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::ExtensionConfigurationProof
         }
         NetworkAppleNetworkExtensionRequiredArtifact::RollbackPlan => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_ROLLBACK_PLAN
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::RollbackPlan
         }
         NetworkAppleNetworkExtensionRequiredArtifact::AuditEvent => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_AUDIT_EVENT
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::AuditEvent
         }
         NetworkAppleNetworkExtensionRequiredArtifact::SupervisionOrMdmProof => {
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_SUPERVISION_OR_MDM_PROOF
+            ProtocolNetworkAppleNetworkExtensionGateRequiredArtifact::SupervisionOrMdmProof
         }
     }
-    .to_string()
 }

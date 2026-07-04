@@ -6,6 +6,7 @@ use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAl
 use ocentra_parent_agent_protocol::policy_constants;
 
 use super::integrity_alert_status_bridge_read_model::v08_integrity_alert_status_bridge_read_model;
+use super::test_text::TestText;
 
 #[test]
 fn integrity_alert_status_bridge_read_model_covers_required_parent_visible_states() {
@@ -70,7 +71,7 @@ fn integrity_alert_status_bridge_read_model_preserves_non_claims_and_refs() {
     }));
 }
 
-fn count_states(entries: &[V08IntegrityAlertStatusBridgeEntry]) -> BTreeMap<&'static str, usize> {
+fn count_states(entries: &[V08IntegrityAlertStatusBridgeEntry]) -> BTreeMap<TestText, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
             .entry(state_name(entry.integrity_alert_state))
@@ -79,15 +80,23 @@ fn count_states(entries: &[V08IntegrityAlertStatusBridgeEntry]) -> BTreeMap<&'st
     })
 }
 
-fn state_name(state: V08IntegrityAlertState) -> &'static str {
+fn state_name(state: V08IntegrityAlertState) -> TestText {
     match state {
-        V08IntegrityAlertState::PermissionLoss => bridge::STATE_PERMISSION_LOSS,
-        V08IntegrityAlertState::StaleHeartbeat => bridge::STATE_STALE_HEARTBEAT,
-        V08IntegrityAlertState::StoppedOrRemoved => bridge::STATE_STOPPED_OR_REMOVED,
-        V08IntegrityAlertState::TamperManualRequired => bridge::STATE_TAMPER_MANUAL_REQUIRED,
+        V08IntegrityAlertState::PermissionLoss => {
+            TestText::from_display(bridge::STATE_PERMISSION_LOSS)
+        }
+        V08IntegrityAlertState::StaleHeartbeat => {
+            TestText::from_display(bridge::STATE_STALE_HEARTBEAT)
+        }
+        V08IntegrityAlertState::StoppedOrRemoved => {
+            TestText::from_display(bridge::STATE_STOPPED_OR_REMOVED)
+        }
+        V08IntegrityAlertState::TamperManualRequired => {
+            TestText::from_display(bridge::STATE_TAMPER_MANUAL_REQUIRED)
+        }
     }
 }
 
-fn state_count(counts: &BTreeMap<&'static str, usize>, state: &'static str) -> usize {
-    *counts.get(state).unwrap_or(&0)
+fn state_count(counts: &BTreeMap<TestText, usize>, state: impl std::fmt::Display) -> usize {
+    *counts.get(&TestText::from_display(state)).unwrap_or(&0)
 }

@@ -3,8 +3,8 @@ import { describe, it } from 'node:test';
 import {
   BillingCheckoutSessionResponseSchema,
   BillingPortalSessionResponseSchema,
-} from '../../../../packages/billing-domain/src/billing-checkout-portal-boundary.js';
-import { BillingSupportAdminAuditEventsResponseSchema } from '../../../../packages/billing-domain/src/billing-support-admin-api-boundary.js';
+  BillingSupportAdminAuditEventsResponseSchema,
+} from '../../src/generated/billing-contracts.js';
 import { createTestHarness, executeRequest, readJson } from '../../src/testing.js';
 
 const interactiveHeaders = {

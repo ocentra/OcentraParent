@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::deserialize_lan_schema_version_text;
+use super::{deserialize_lan_schema_version_text, LanPairingText};
 use crate::{
     LanPairingDeviceReachability, LanPairingProductionDiscoveryState, LanPairingRejectionReason,
     LanPairingTrustState,
@@ -100,7 +100,7 @@ pub enum V09ProductionDiscoveryHouseholdManualProofGate {
 #[serde(rename_all = "camelCase")]
 pub struct V09ProductionDiscoveryHouseholdStateEvidence {
     #[serde(deserialize_with = "deserialize_lan_schema_version_text")]
-    pub schema_version: String,
+    pub schema_version: LanPairingText,
     pub check: V09ProductionDiscoveryHouseholdCheck,
     pub source_state: V09ProductionDiscoveryHouseholdSourceState,
     pub route_id: String,
@@ -118,7 +118,7 @@ pub struct V09ProductionDiscoveryHouseholdStateEvidence {
 #[serde(rename_all = "camelCase")]
 pub struct V09ProductionDiscoveryHouseholdManualChecklistItem {
     #[serde(deserialize_with = "deserialize_lan_schema_version_text")]
-    pub schema_version: String,
+    pub schema_version: LanPairingText,
     pub gate: V09ProductionDiscoveryHouseholdManualProofGate,
     pub state: V09ProductionDiscoveryHouseholdProofState,
     pub required_artifact_summary: String,
@@ -129,7 +129,7 @@ pub struct V09ProductionDiscoveryHouseholdManualChecklistItem {
 #[serde(rename_all = "camelCase")]
 pub struct V09ProductionDiscoveryHouseholdProofReadModel {
     #[serde(deserialize_with = "deserialize_lan_schema_version_text")]
-    pub schema_version: String,
+    pub schema_version: LanPairingText,
     pub checked_at: String,
     pub proof_boundary: V09ProductionDiscoveryHouseholdProofBoundary,
     pub product_readiness_decision: V09ProductionDiscoveryHouseholdReadinessDecision,

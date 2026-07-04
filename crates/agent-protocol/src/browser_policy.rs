@@ -18,13 +18,14 @@ pub enum BrowserPolicyUpdateKind {
 
 impl BrowserPolicyUpdateKind {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Get => crate::constants::browser_policy::UPDATE_KIND_GET,
-            Self::Preview => crate::constants::browser_policy::UPDATE_KIND_PREVIEW,
-            Self::Patch => crate::constants::browser_policy::UPDATE_KIND_PATCH,
-            Self::Replace => crate::constants::browser_policy::UPDATE_KIND_REPLACE,
-            Self::Rollback => crate::constants::browser_policy::UPDATE_KIND_ROLLBACK,
-        }
+        const PROTOCOL_STRINGS: [&str; 5] = [
+            crate::constants::browser_policy::UPDATE_KIND_GET,
+            crate::constants::browser_policy::UPDATE_KIND_PREVIEW,
+            crate::constants::browser_policy::UPDATE_KIND_PATCH,
+            crate::constants::browser_policy::UPDATE_KIND_REPLACE,
+            crate::constants::browser_policy::UPDATE_KIND_ROLLBACK,
+        ];
+        PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -70,28 +71,6 @@ pub enum BrowserPolicyUpdateRequest {
     Patch(BrowserPolicyPatchRequest),
     Replace(BrowserPolicyReplaceRequest),
     Rollback(BrowserPolicyRollbackRequest),
-}
-
-impl BrowserPolicyUpdateRequest {
-    pub fn request_id(&self) -> &str {
-        match self {
-            Self::Get(request) => &request.request_id,
-            Self::Preview(request) => &request.request_id,
-            Self::Patch(request) => &request.request_id,
-            Self::Replace(request) => &request.request_id,
-            Self::Rollback(request) => &request.request_id,
-        }
-    }
-
-    pub fn kind(&self) -> BrowserPolicyUpdateKind {
-        match self {
-            Self::Get(_) => BrowserPolicyUpdateKind::Get,
-            Self::Preview(_) => BrowserPolicyUpdateKind::Preview,
-            Self::Patch(_) => BrowserPolicyUpdateKind::Patch,
-            Self::Replace(_) => BrowserPolicyUpdateKind::Replace,
-            Self::Rollback(_) => BrowserPolicyUpdateKind::Rollback,
-        }
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

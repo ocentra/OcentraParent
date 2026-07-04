@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiModelCacheUnavailableReason {
     #[serde(rename = "model-source-unconfigured")]
     ModelSourceUnconfigured,
@@ -21,34 +22,23 @@ pub enum LocalAiModelCacheUnavailableReason {
 }
 
 impl LocalAiModelCacheUnavailableReason {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        constants::local_ai_runtime::CACHE_UNAVAILABLE_MODEL_SOURCE_UNCONFIGURED,
+        constants::local_ai_runtime::CACHE_UNAVAILABLE_ARTIFACT_NOT_INSTALLED,
+        constants::local_ai_runtime::CACHE_UNAVAILABLE_MANIFEST_UNAVAILABLE,
+        constants::local_ai_runtime::CACHE_UNAVAILABLE_DOWNLOAD_DISABLED,
+        constants::local_ai_runtime::CACHE_UNAVAILABLE_STORAGE_UNAVAILABLE,
+        constants::local_ai_runtime::CACHE_UNAVAILABLE_INTEGRITY_UNVERIFIED,
+        constants::local_ai_runtime::CACHE_UNAVAILABLE_CORRUPTION_DETECTED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ModelSourceUnconfigured => {
-                constants::local_ai_runtime::CACHE_UNAVAILABLE_MODEL_SOURCE_UNCONFIGURED
-            }
-            Self::ArtifactNotInstalled => {
-                constants::local_ai_runtime::CACHE_UNAVAILABLE_ARTIFACT_NOT_INSTALLED
-            }
-            Self::ManifestUnavailable => {
-                constants::local_ai_runtime::CACHE_UNAVAILABLE_MANIFEST_UNAVAILABLE
-            }
-            Self::DownloadDisabled => {
-                constants::local_ai_runtime::CACHE_UNAVAILABLE_DOWNLOAD_DISABLED
-            }
-            Self::CacheStorageUnavailable => {
-                constants::local_ai_runtime::CACHE_UNAVAILABLE_STORAGE_UNAVAILABLE
-            }
-            Self::IntegrityUnverified => {
-                constants::local_ai_runtime::CACHE_UNAVAILABLE_INTEGRITY_UNVERIFIED
-            }
-            Self::CorruptionDetected => {
-                constants::local_ai_runtime::CACHE_UNAVAILABLE_CORRUPTION_DETECTED
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiModelCacheStorageErrorCode {
     #[serde(rename = "cache-root-unavailable")]
     CacheRootUnavailable,
@@ -65,29 +55,22 @@ pub enum LocalAiModelCacheStorageErrorCode {
 }
 
 impl LocalAiModelCacheStorageErrorCode {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        constants::local_ai_runtime::CACHE_STORAGE_ROOT_UNAVAILABLE,
+        constants::local_ai_runtime::CACHE_STORAGE_MANIFEST_READ_FAILED,
+        constants::local_ai_runtime::CACHE_STORAGE_ARTIFACT_READ_FAILED,
+        constants::local_ai_runtime::CACHE_STORAGE_METADATA_WRITE_DISABLED,
+        constants::local_ai_runtime::CACHE_STORAGE_PERMISSION_DENIED,
+        constants::local_ai_runtime::CACHE_STORAGE_QUOTA_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::CacheRootUnavailable => {
-                constants::local_ai_runtime::CACHE_STORAGE_ROOT_UNAVAILABLE
-            }
-            Self::ManifestReadFailed => {
-                constants::local_ai_runtime::CACHE_STORAGE_MANIFEST_READ_FAILED
-            }
-            Self::ArtifactReadFailed => {
-                constants::local_ai_runtime::CACHE_STORAGE_ARTIFACT_READ_FAILED
-            }
-            Self::MetadataWriteDisabled => {
-                constants::local_ai_runtime::CACHE_STORAGE_METADATA_WRITE_DISABLED
-            }
-            Self::StoragePermissionDenied => {
-                constants::local_ai_runtime::CACHE_STORAGE_PERMISSION_DENIED
-            }
-            Self::QuotaUnavailable => constants::local_ai_runtime::CACHE_STORAGE_QUOTA_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiModelCacheCorruptionReasonCode {
     #[serde(rename = "manifest-missing")]
     ManifestMissing,
@@ -104,22 +87,16 @@ pub enum LocalAiModelCacheCorruptionReasonCode {
 }
 
 impl LocalAiModelCacheCorruptionReasonCode {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        constants::local_ai_runtime::CACHE_CORRUPTION_MANIFEST_MISSING,
+        constants::local_ai_runtime::CACHE_CORRUPTION_CHECKSUM_MISMATCH,
+        constants::local_ai_runtime::CACHE_CORRUPTION_SIGNATURE_INVALID,
+        constants::local_ai_runtime::CACHE_CORRUPTION_ARTIFACT_MISSING,
+        constants::local_ai_runtime::CACHE_CORRUPTION_MANIFEST_ARTIFACT_MISMATCH,
+        constants::local_ai_runtime::CACHE_CORRUPTION_UNKNOWN_INTEGRITY,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ManifestMissing => constants::local_ai_runtime::CACHE_CORRUPTION_MANIFEST_MISSING,
-            Self::ChecksumMismatch => {
-                constants::local_ai_runtime::CACHE_CORRUPTION_CHECKSUM_MISMATCH
-            }
-            Self::SignatureInvalid => {
-                constants::local_ai_runtime::CACHE_CORRUPTION_SIGNATURE_INVALID
-            }
-            Self::ArtifactMissing => constants::local_ai_runtime::CACHE_CORRUPTION_ARTIFACT_MISSING,
-            Self::ManifestArtifactMismatch => {
-                constants::local_ai_runtime::CACHE_CORRUPTION_MANIFEST_ARTIFACT_MISMATCH
-            }
-            Self::UnknownIntegrity => {
-                constants::local_ai_runtime::CACHE_CORRUPTION_UNKNOWN_INTEGRITY
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }

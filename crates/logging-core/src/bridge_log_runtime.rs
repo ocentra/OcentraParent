@@ -5,6 +5,16 @@ const DEFAULT_RUN_TYPE: &str = "single";
 const TEST_LOG_SCHEMA_VERSION: u32 = 1;
 const TEST_LOG_ENTRY_TYPE: &str = "log";
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum TestLogOrigin {
+    Test,
+    Worker,
+    Portal,
+    AgentService,
+    Codex,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BridgeLogPayload {
     pub log_timestamp: u64,
@@ -21,7 +31,7 @@ pub struct BridgeLogPayload {
     pub tags: Vec<String>,
     pub stack: Option<String>,
     pub suite_type: Option<String>,
-    pub origin: Option<String>,
+    pub origin: Option<TestLogOrigin>,
     pub environment: Option<String>,
 }
 
@@ -72,7 +82,7 @@ pub struct StoredTestLogLine {
     pub correlation_id: Option<String>,
     pub tags: Vec<String>,
     pub stack: Option<String>,
-    pub origin: Option<String>,
+    pub origin: Option<TestLogOrigin>,
     pub environment: Option<String>,
 }
 
@@ -186,9 +196,12 @@ pub fn bridge_log_runtime_typescript() -> &'static str {
 
 const BRIDGE_LOG_RUNTIME_TYPESCRIPT: &str = r#"/* generated from crates/logging-core/src/bridge_log_runtime.rs */
 
-export interface GeneratedBridgeLogPayload {
+import { LogLevelSchema, type LogLevel } from './logging-contracts';
+import type { RunType, StoredTestLogLine, TestLogOrigin, TestLogScope, TestSuiteType } from './test-log/types';
+
+export interface BridgeLogPayload {
   readonly log_timestamp: number;
-  readonly level: string;
+  readonly level: LogLevel;
   readonly source: string | null;
   readonly context: string | null;
   readonly message: string;
@@ -200,62 +213,32 @@ export interface GeneratedBridgeLogPayload {
   readonly correlation_id: string | null;
   readonly tags: readonly string[];
   readonly stack: string | null;
-  readonly suite_type: string | null;
-  readonly origin: string | null;
+  readonly suite_type: TestSuiteType | null;
+  readonly origin: TestLogOrigin | null;
   readonly environment: string | null;
 }
 
-export interface GeneratedBridgeEntry {
+export interface BridgeEntry {
   readonly testName: string;
   readonly runId: string;
-  readonly runType: string;
-  readonly consumer: string | null;
-  readonly log: GeneratedBridgeLogPayload;
+  readonly log: BridgeLogPayload;
+  readonly consumer: TestLogScope | null;
+  readonly runType: RunType;
 }
 
-export interface GeneratedBridgePayloadToStoredLogOptions {
+export type GeneratedBridgePayloadToStoredLogOptions = {
   readonly testName: string;
   readonly runId: string;
-  readonly consumer?: string | null;
-  readonly runType?: string | null;
-}
+  readonly consumer?: TestLogScope | null;
+  readonly runType?: RunType;
+};
 
-export interface GeneratedStoredTestLogLine {
-  readonly schemaVersion: number;
-  readonly type: 'log';
-  readonly scope: string;
-  readonly runId: string;
-  readonly runType: string;
-  readonly suiteType: string | null;
-  readonly testName: string;
-  readonly timestamp: number;
-  readonly level: string;
-  readonly source: string | null;
-  readonly context: string | null;
-  readonly message: string;
-  readonly data: string | null;
-  readonly file: string | null;
-  readonly filePath: string | null;
-  readonly line: number | null;
-  readonly column: number | null;
-  readonly correlationId: string | null;
-  readonly tags: readonly string[];
-  readonly stack: string | null;
-  readonly origin: string | null;
-  readonly environment: string | null;
-}
-
-export interface GeneratedBridgeEntryOverrides {
-  readonly testName?: string;
-  readonly runId?: string;
-  readonly runType?: string;
-  readonly consumer?: string | null;
-}
+export type GeneratedBridgeEntryOverrides = Partial<Pick<BridgeEntry, 'consumer' | 'runId' | 'runType' | 'testName'>>;
 
 export function bridgePayloadToGeneratedStoredLog(
-  payload: GeneratedBridgeLogPayload,
+  payload: BridgeLogPayload,
   options: GeneratedBridgePayloadToStoredLogOptions
-): GeneratedStoredTestLogLine {
+): StoredTestLogLine {
   return {
     schemaVersion: 1,
     type: 'log',
@@ -282,7 +265,7 @@ export function bridgePayloadToGeneratedStoredLog(
   };
 }
 
-export function bridgeEntryToGeneratedStoredLog(entry: GeneratedBridgeEntry): GeneratedStoredTestLogLine {
+export function bridgeEntryToGeneratedStoredLog(entry: BridgeEntry): StoredTestLogLine {
   return bridgePayloadToGeneratedStoredLog(entry.log, {
     testName: entry.testName,
     runId: entry.runId,
@@ -291,10 +274,10 @@ export function bridgeEntryToGeneratedStoredLog(entry: GeneratedBridgeEntry): Ge
   });
 }
 
-export function storedGeneratedLogToBridgePayload(log: GeneratedStoredTestLogLine): GeneratedBridgeLogPayload {
+export function storedGeneratedLogToBridgePayload(log: StoredTestLogLine): BridgeLogPayload {
   return {
     log_timestamp: log.timestamp,
-    level: log.level,
+    level: LogLevelSchema.parse(log.level),
     source: log.source,
     context: log.context,
     message: log.message,
@@ -312,7 +295,7 @@ export function storedGeneratedLogToBridgePayload(log: GeneratedStoredTestLogLin
   };
 }
 
-export function storedGeneratedLogToBridgeEntry(log: GeneratedStoredTestLogLine): GeneratedBridgeEntry {
+export function storedGeneratedLogToBridgeEntry(log: StoredTestLogLine): BridgeEntry {
   return {
     testName: log.testName,
     runId: log.runId,
@@ -323,9 +306,9 @@ export function storedGeneratedLogToBridgeEntry(log: GeneratedStoredTestLogLine)
 }
 
 export function createGeneratedBridgeEntryFromStoredLog(
-  log: GeneratedStoredTestLogLine,
+  log: StoredTestLogLine,
   overrides: GeneratedBridgeEntryOverrides = {}
-): GeneratedBridgeEntry {
+): BridgeEntry {
   return {
     testName: overrides.testName ?? log.testName,
     runId: overrides.runId ?? log.runId,

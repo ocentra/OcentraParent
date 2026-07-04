@@ -7,15 +7,13 @@ use ocentra_tracking_core::local_place_store::{
 };
 
 trait TrackingLocalPlaceTestResultExt<T, E> {
-    fn value_or_unreachable(self, context: &str) -> T;
+    fn value_or_expect(self, context: impl core::fmt::Display) -> T;
 }
 
-impl<T, E> TrackingLocalPlaceTestResultExt<T, E> for Result<T, E> {
-    fn value_or_unreachable(self, context: &str) -> T {
-        match self {
-            Ok(value) => value,
-            Err(_) => unreachable!("{context}"),
-        }
+impl<T, E: core::fmt::Debug> TrackingLocalPlaceTestResultExt<T, E> for Result<T, E> {
+    fn value_or_expect(self, context: impl core::fmt::Display) -> T {
+        let context = context.to_string();
+        self.expect(&context)
     }
 }
 
@@ -132,7 +130,7 @@ fn assert_local_place_store_matches(
         0.9,
         vec!["parent-defined-restricted-zone-match".to_owned()],
     )
-    .value_or_unreachable("restricted place match");
+    .value_or_expect("restricted place match");
     let safe_match = build_tracking_local_parent_defined_place_match(
         store,
         "safe-library",
@@ -141,7 +139,7 @@ fn assert_local_place_store_matches(
         0.88,
         vec!["parent-defined-safe-zone-match".to_owned()],
     )
-    .value_or_unreachable("safe place match");
+    .value_or_expect("safe place match");
 
     assert_eq!(
         restricted_match.place_match.policy_signal,
@@ -163,17 +161,21 @@ fn assert_local_place_store_matches(
 }
 
 fn place(
-    place_id: &str,
-    label: &str,
+    place_id: impl core::fmt::Display,
+    label: impl core::fmt::Display,
     place_kind: TrackingLocalPlaceKind,
-    updated_at: &str,
-    audit_ref: &str,
+    updated_at: impl core::fmt::Display,
+    audit_ref: impl core::fmt::Display,
 ) -> TrackingLocalParentDefinedPlace {
+    let place_id = place_id.to_string();
+    let label = label.to_string();
+    let updated_at = updated_at.to_string();
+    let audit_ref = audit_ref.to_string();
     TrackingLocalParentDefinedPlace {
-        place_id: place_id.to_owned(),
-        label: label.to_owned(),
+        place_id,
+        label,
         place_kind,
-        updated_at: updated_at.to_owned(),
-        audit_refs: vec![audit_ref.to_owned()],
+        updated_at,
+        audit_refs: vec![audit_ref],
     }
 }

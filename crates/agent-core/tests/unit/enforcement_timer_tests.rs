@@ -18,15 +18,7 @@ use ocentra_parent_agent_protocol::enforcement::{
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
 
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| format!("{context}: missing value"))
-}
+use crate::test_text::{test_ok as ok, test_some as some, TestResult, TestText};
 
 #[test]
 fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states() -> TestResult {
@@ -39,7 +31,7 @@ fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states()
     assert_timer(
         &restart_outcome,
         enforcement::TIMER_RESTART_RECOVERED,
-        Some(policy::TEST_EXPIRES_AT),
+        Some(TestText::from_display(policy::TEST_EXPIRES_AT)),
         None,
         &EnforcementResultStatus::WouldEnforce,
     )?;
@@ -55,7 +47,9 @@ fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states()
         &unavailable_outcome,
         enforcement::TIMER_UNAVAILABLE,
         None,
-        Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM),
+        Some(TestText::from_display(
+            enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM,
+        )),
         &EnforcementResultStatus::Unavailable,
     )?;
 
@@ -71,7 +65,9 @@ fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states()
         &recovery_outcome,
         enforcement::TIMER_RECOVERY_NEEDED,
         None,
-        Some(enforcement::UNAVAILABLE_ADAPTER_ERROR),
+        Some(TestText::from_display(
+            enforcement::UNAVAILABLE_ADAPTER_ERROR,
+        )),
         &EnforcementResultStatus::Failed,
     )?;
 
@@ -86,7 +82,7 @@ fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states()
     assert_timer(
         &expired_outcome,
         enforcement::TIMER_EXPIRED,
-        Some(policy::TEST_EXPIRES_AT),
+        Some(TestText::from_display(policy::TEST_EXPIRES_AT)),
         None,
         &EnforcementResultStatus::Expired,
     )?;
@@ -121,7 +117,7 @@ fn explicit_timer_transition_builds_extended_and_cancelled_events() -> TestResul
     assert_timer(
         &extended_outcome,
         enforcement::TIMER_EXTENDED,
-        Some(policy::TEST_EXPIRES_AT),
+        Some(TestText::from_display(policy::TEST_EXPIRES_AT)),
         None,
         &EnforcementResultStatus::WouldEnforce,
     )?;
@@ -145,9 +141,9 @@ fn explicit_timer_transition_builds_extended_and_cancelled_events() -> TestResul
 
 fn assert_timer(
     outcome: &EnforcementBoundaryOutcome,
-    expected_kind: &str,
-    expected_effective_at: Option<&str>,
-    expected_reason: Option<&str>,
+    expected_kind: impl std::fmt::Display,
+    expected_effective_at: Option<TestText>,
+    expected_reason: Option<TestText>,
     expected_result_status: &EnforcementResultStatus,
 ) -> TestResult {
     let timer = some(
@@ -162,14 +158,20 @@ fn assert_timer(
         outcome.action.evidence_references
     );
     assert_eq!(timer.rollback_token, outcome.action.rollback_token);
-    assert_eq!(timer.timer_event_kind.as_protocol_str(), expected_kind);
-    assert_eq!(timer.effective_at.as_deref(), expected_effective_at);
+    assert_eq!(
+        timer.timer_event_kind.as_protocol_str(),
+        expected_kind.to_string()
+    );
+    assert_eq!(
+        timer.effective_at.as_ref().map(|value| value.to_string()),
+        expected_effective_at.map(|value| value.to_string())
+    );
     assert_eq!(
         timer
             .unavailable_reason
             .as_ref()
-            .map(|reason| reason.as_protocol_str()),
-        expected_reason
+            .map(|reason| reason.as_protocol_str().to_string()),
+        expected_reason.map(|value| value.to_string())
     );
 
     Ok(())

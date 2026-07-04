@@ -26,7 +26,7 @@ pub(crate) fn tracking_read_model_response_event() -> AgentEventEnvelope {
         },
         event: AgentEventName::AgentActivityTrackingReadModelReported,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }

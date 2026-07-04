@@ -4,10 +4,37 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from './family-reference-primitives';
-import {
-  ProductionSupportStatusBackendDurableQueueRuntimeProofSchema,
-  type ProductionSupportStatusBackendDurableQueueRuntimeProof,
-} from './production-support-status-backend-durable-queue-runtime-proof';
+
+const ProductionSupportDurableQueueRuntimeReferenceSchema = brandedNonEmptyStringSchema(
+  'ProductionSupportDurableQueueRuntimeReference'
+);
+const ProductionSupportDurableQueueRuntimeRowSchema = Schema.Struct({
+  target: brandedNonEmptyStringSchema('ProductionSupportDurableQueueRuntimeTarget'),
+  runtimeBoundaryState: brandedNonEmptyStringSchema('ProductionSupportDurableQueueRuntimeState'),
+});
+const ManualOrNotImplementedClaimSchema = Schema.Literal('manual-required', 'not-implemented');
+const ProductionSupportStatusBackendDurableQueueRuntimeProofSchema = withParser(
+  Schema.Struct({
+    rows: Schema.Array(ProductionSupportDurableQueueRuntimeRowSchema),
+    sourceContractRefs: Schema.Array(ProductionSupportDurableQueueRuntimeReferenceSchema),
+    nonClaims: Schema.Array(brandedNonEmptyStringSchema('ProductionSupportDurableQueueRuntimeNonClaim')),
+    statusBackendExecutionClaim: ManualOrNotImplementedClaimSchema,
+    durableQueueStorageClaim: ManualOrNotImplementedClaimSchema,
+    retryWorkerExecutionClaim: ManualOrNotImplementedClaimSchema,
+    auditPersistenceClaim: ManualOrNotImplementedClaimSchema,
+    deadLetterPayloadCustodyClaim: ManualOrNotImplementedClaimSchema,
+    publicRuntimeExecutionClaim: ManualOrNotImplementedClaimSchema,
+    providerExecutionClaim: ManualOrNotImplementedClaimSchema,
+    supportBackendUploadExecutionClaim: ManualOrNotImplementedClaimSchema,
+    accountLookupExecutionClaim: ManualOrNotImplementedClaimSchema,
+    billingProviderContactClaim: ManualOrNotImplementedClaimSchema,
+    legalDisclosureExecutionClaim: ManualOrNotImplementedClaimSchema,
+    remoteSupportSessionClaim: ManualOrNotImplementedClaimSchema,
+    productionSlaClaim: ManualOrNotImplementedClaimSchema,
+    providerSecretCustodyClaim: ManualOrNotImplementedClaimSchema,
+    childActivityCustodyClaim: ManualOrNotImplementedClaimSchema,
+  })
+);
 
 export const TrackingProductionDurableWorkersReadinessBlockerIdSchema = withParser(
   Schema.Literal(
@@ -120,9 +147,13 @@ type TrackingProductionDurableWorkersReadinessBlockerProofInput = Infer<
   typeof TrackingProductionDurableWorkersReadinessBlockerProofBaseSchema
 >;
 
+type ProductionSupportDurableQueueRuntimeProof = Infer<
+  typeof ProductionSupportStatusBackendDurableQueueRuntimeProofSchema
+>;
+
 export function buildTrackingProductionDurableWorkersReadinessBlockerProof(
   options: TrackingProductionDurableWorkersReadinessBlockerProofOptions,
-  productionSupportDurableQueueProof: ProductionSupportStatusBackendDurableQueueRuntimeProof
+  productionSupportDurableQueueProof: ProductionSupportDurableQueueRuntimeProof
 ): TrackingProductionDurableWorkersReadinessBlockerProof {
   const parsedProductionSupportProof = ProductionSupportStatusBackendDurableQueueRuntimeProofSchema.parse(
     productionSupportDurableQueueProof
@@ -233,7 +264,7 @@ function trackingProductionDurableWorkersReadinessProofIsHonest(
   );
 }
 
-function productionSupportManualClaimCount(proof: ProductionSupportStatusBackendDurableQueueRuntimeProof): number {
+function productionSupportManualClaimCount(proof: ProductionSupportDurableQueueRuntimeProof): number {
   return Object.entries(proof)
     .filter(([key]) => key.endsWith('Claim'))
     .filter(([, value]) => value === 'manual-required' || value === 'not-implemented').length;

@@ -95,15 +95,13 @@ Forbidden Rust:
 Required validation before claiming completion when the touched scope includes
 TypeScript/JavaScript or Rust source:
 
-- `npm run lint:architecture -- --files <touched-file-or-dir> [more files or dirs]` or `npm run lint:architecture -- --base <base> --head <head>`;
-- `cargo lint-architecture <touched-rs-file-or-dir> [more files or dirs]` or `cargo lint-architecture --base <base> --head <head>`.
+- `npm run lint:architecture -- --files <touched-file-or-dir> [more files or dirs]` or `npm run lint:architecture -- --base <base> --head <head>`.
 
 Use directory paths to run the same architecture gate per module, crate, or domain before escalating to repo-wide validation.
 
 For a full debt sweep instead of focused change validation:
 
-- `npm run lint:architecture:all`;
-- `cargo lint-architecture --all`.
+- `npm run lint:architecture:all`.
 
 Do not add inline lint disables, bypass knobs, or new barrel-like export shims.
 

@@ -28,6 +28,14 @@ use ocentra_family_identity_core::setup_lifecycle::{
 };
 use serde::{Deserialize, Serialize};
 
+mod family_account;
+mod family_context;
+mod family_pairing;
+mod family_recovery;
+mod readiness_actions;
+mod readiness_blockers;
+mod readiness_logic;
+
 pub const CRATE_NAME: &str = "ocentra-provisioning-core";
 const PROVISIONING_SCHEMA_VERSION: u16 = 1;
 const PROVISIONING_READINESS_EVALUATED_EVENT_TYPE: &str = "provisioning.readiness.evaluated";
@@ -427,11 +435,7 @@ macro_rules! provisioning_text_id {
 
         impl $name {
             pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
+                parse_provisioning_text_id(value, $field).map(Self)
             }
 
             pub fn as_str(&self) -> &str {
@@ -459,6 +463,17 @@ macro_rules! provisioning_text_id {
             }
         }
     };
+}
+
+fn parse_provisioning_text_id(
+    value: impl Into<String>,
+    field: &'static str,
+) -> Result<String, EventingError> {
+    let value = value.into();
+    if value.trim().is_empty() {
+        return Err(EventingError::EmptyValue { field });
+    }
+    Ok(value)
 }
 
 provisioning_text_id!(
@@ -523,8 +538,8 @@ impl DomainEvent for ProvisioningActionPlannedEvent {
 pub fn evaluate_provisioning_readiness(
     input: ProvisioningReadinessInput,
 ) -> ProvisioningReadinessDecision {
-    let blocker_reason = provisioning_blocker_reason(input);
-    let overall_state = provisioning_overall_state(blocker_reason);
+    let blocker_reason = readiness_logic::provisioning_blocker_reason(input);
+    let overall_state = readiness_logic::provisioning_overall_state(blocker_reason);
 
     ProvisioningReadinessDecision {
         child_runtime_readiness_state: if blocker_reason.is_none() {
@@ -545,48 +560,7 @@ pub fn evaluate_provisioning_readiness(
 pub fn derive_provisioning_readiness_input_from_family_context(
     input: ProvisioningFamilyContextInput,
 ) -> ProvisioningReadinessInput {
-    let authority_decision = authorize_household_action(input.household_authority_input);
-    let session_decision = authorize_session_token_action(input.pairing_session_input);
-    let recovery_decision = input.recovery_operation.map(evaluate_recovery_operation);
-
-    ProvisioningReadinessInput {
-        membership_state: input.household_authority_input.membership_state,
-        account_readiness_state: provisioning_account_state_from_family_context(
-            input,
-            authority_decision,
-            recovery_decision,
-            session_decision.failure_reason,
-        ),
-        parent_app_readiness_state: input.parent_app_readiness_state,
-        parent_device_registration_state: input.parent_device_registration_state,
-        child_install_state: input.child_install_state,
-        child_service_state: input.child_service_state,
-        child_app_readiness_state: provisioning_child_app_readiness_state(
-            input.child_install_state,
-            input.child_service_state,
-        ),
-        child_device_ownership_scope: input.household_authority_input.device_ownership_scope,
-        device_trust_state: input
-            .recovery_operation
-            .map(device_trust_state_for_recovery_operation)
-            .unwrap_or(input.household_authority_input.device_trust_state),
-        permission_readiness_state: input.permission_readiness_state,
-        pairing_lifecycle_state: provisioning_pairing_state_from_family_context(
-            input,
-            authority_decision,
-            session_decision.failure_reason,
-        ),
-        policy_baseline_state: input.policy_baseline_state,
-        data_custody_sync_state: provisioning_custody_state_from_family_context(
-            input,
-            recovery_decision,
-        ),
-        network_reachability_state: input.network_reachability_state,
-        recovery_state: provisioning_recovery_state_from_family_context(
-            input,
-            session_decision.failure_reason,
-        ),
-    }
+    family_context::derive_provisioning_readiness_input_from_family_context(input)
 }
 
 pub fn evaluate_provisioning_readiness_from_family_context(
@@ -629,7 +603,7 @@ pub fn plan_provisioning_actions(input: ProvisioningReadinessInput) -> Provision
         } else {
             ProvisioningChildRuntimeStartAction::DoNotStart
         },
-        recovery_action: provisioning_recovery_action(decision.blocker_reason),
+        recovery_action: readiness_logic::provisioning_recovery_action(decision.blocker_reason),
         audit_state: ProvisioningAuditState::Record,
     }
 }
@@ -642,285 +616,6 @@ pub fn provisioning_action_planned_event(
         action_plan_id: ProvisioningActionPlanId(provisioning_action_ref(&event.evaluation_id)),
         source_evaluation_id: event.evaluation_id,
         action_plan: plan_provisioning_actions(event.input),
-    }
-}
-
-fn provisioning_blocker_reason(
-    input: ProvisioningReadinessInput,
-) -> Option<ProvisioningBlockerReason> {
-    if input.membership_state != HouseholdMembershipState::Active {
-        return Some(ProvisioningBlockerReason::HouseholdMemberRequired);
-    }
-
-    match input.account_readiness_state {
-        AccountReadinessState::Ready => {}
-        AccountReadinessState::WrongAccount => {
-            return Some(ProvisioningBlockerReason::WrongAccount);
-        }
-        AccountReadinessState::RecoveryRequired => {
-            return Some(ProvisioningBlockerReason::AccountRecoveryRequired);
-        }
-    }
-
-    match input.parent_app_readiness_state {
-        ParentAppReadinessState::Ready => {}
-        ParentAppReadinessState::Missing => {
-            return Some(ProvisioningBlockerReason::ParentAppMissing);
-        }
-        ParentAppReadinessState::Offline => {
-            return Some(ProvisioningBlockerReason::ParentAppOffline);
-        }
-        ParentAppReadinessState::Stale => {
-            return Some(ProvisioningBlockerReason::ParentAppStale);
-        }
-    }
-
-    if input.parent_device_registration_state == ParentDeviceRegistrationState::Missing {
-        return Some(ProvisioningBlockerReason::ParentDeviceRegistrationRequired);
-    }
-
-    match input.pairing_lifecycle_state {
-        PairingLifecycleState::WrongDevice => {
-            return Some(ProvisioningBlockerReason::PairingWrongDevice);
-        }
-        PairingLifecycleState::AnonymousDevice => {
-            return Some(ProvisioningBlockerReason::PairingAnonymousDevice);
-        }
-        PairingLifecycleState::ParentRoleRequired => {
-            return Some(ProvisioningBlockerReason::PairingParentRoleRequired);
-        }
-        PairingLifecycleState::StaleSignedHello => {
-            return Some(ProvisioningBlockerReason::PairingStaleSignedHello);
-        }
-        _ => {}
-    }
-
-    if input.child_device_ownership_scope != DeviceOwnershipScope::ChildProfileDevice {
-        return Some(ProvisioningBlockerReason::ChildDeviceScopeRequired);
-    }
-
-    if input.device_trust_state != DeviceTrustState::Trusted {
-        return Some(ProvisioningBlockerReason::ChildDeviceTrustRequired);
-    }
-
-    match input.permission_readiness_state {
-        PermissionReadinessState::Granted => {}
-        PermissionReadinessState::Missing => {
-            return Some(ProvisioningBlockerReason::PermissionMissing);
-        }
-        PermissionReadinessState::Revoked => {
-            return Some(ProvisioningBlockerReason::PermissionRevoked);
-        }
-    }
-
-    match input.pairing_lifecycle_state {
-        PairingLifecycleState::Generated | PairingLifecycleState::Displayed => {
-            return Some(ProvisioningBlockerReason::PairingPendingDisplay);
-        }
-        PairingLifecycleState::Accepted => {
-            return Some(ProvisioningBlockerReason::PairingPendingAcceptance);
-        }
-        PairingLifecycleState::Expired => {
-            return Some(ProvisioningBlockerReason::PairingExpired);
-        }
-        PairingLifecycleState::Revoked => {
-            return Some(ProvisioningBlockerReason::PairingRevoked);
-        }
-        PairingLifecycleState::Replayed => {
-            return Some(ProvisioningBlockerReason::PairingReplayRejected);
-        }
-        PairingLifecycleState::WrongHousehold => {
-            return Some(ProvisioningBlockerReason::PairingWrongHousehold);
-        }
-        PairingLifecycleState::WrongDevice => {
-            return Some(ProvisioningBlockerReason::PairingWrongDevice);
-        }
-        PairingLifecycleState::AnonymousDevice => {
-            return Some(ProvisioningBlockerReason::PairingAnonymousDevice);
-        }
-        PairingLifecycleState::ParentRoleRequired => {
-            return Some(ProvisioningBlockerReason::PairingParentRoleRequired);
-        }
-        PairingLifecycleState::StaleSignedHello => {
-            return Some(ProvisioningBlockerReason::PairingStaleSignedHello);
-        }
-        PairingLifecycleState::Untrusted => {
-            return Some(ProvisioningBlockerReason::PairingTrustRequired);
-        }
-        PairingLifecycleState::Trusted | PairingLifecycleState::Recovered => {}
-    }
-
-    match input.policy_baseline_state {
-        PolicyBaselineState::Applied => {}
-        PolicyBaselineState::Missing => {
-            return Some(ProvisioningBlockerReason::PolicyBaselineMissing);
-        }
-        PolicyBaselineState::Stale => {
-            return Some(ProvisioningBlockerReason::PolicyBaselineStale);
-        }
-    }
-
-    match input.data_custody_sync_state {
-        DataCustodySyncState::Synced => {}
-        DataCustodySyncState::SyncPending => {
-            return Some(ProvisioningBlockerReason::DataCustodySyncPending);
-        }
-        DataCustodySyncState::Blocked => {
-            return Some(ProvisioningBlockerReason::DataCustodySyncBlocked);
-        }
-    }
-
-    match input.child_install_state {
-        ChildInstallState::NotInstalled => {
-            return Some(ProvisioningBlockerReason::ChildInstallNotInstalled);
-        }
-        ChildInstallState::Installed => {}
-        ChildInstallState::ReinstallRequired => {
-            return Some(ProvisioningBlockerReason::ChildAppReinstallRequired);
-        }
-    }
-
-    match input.child_service_state {
-        ChildServiceState::NotStarted => {
-            return Some(ProvisioningBlockerReason::ChildServiceNotStarted);
-        }
-        ChildServiceState::ServiceStarted => {}
-        ChildServiceState::Offline => {
-            return Some(ProvisioningBlockerReason::ChildAppOffline);
-        }
-        ChildServiceState::Revoked => {
-            return Some(ProvisioningBlockerReason::ChildAppRevoked);
-        }
-    }
-
-    match input.network_reachability_state {
-        NetworkReachabilityState::Reachable => {}
-        NetworkReachabilityState::OfflineChild => {
-            return Some(ProvisioningBlockerReason::NetworkOfflineChild);
-        }
-        NetworkReachabilityState::LanUnavailable => {
-            return Some(ProvisioningBlockerReason::NetworkLanUnavailable);
-        }
-        NetworkReachabilityState::DirectEntryRequired => {
-            return Some(ProvisioningBlockerReason::NetworkDirectEntryRequired);
-        }
-    }
-
-    match input.recovery_state {
-        RecoveryState::Normal | RecoveryState::Recovered => None,
-        RecoveryState::LostParentDevice => {
-            Some(ProvisioningBlockerReason::LostParentDeviceRecovery)
-        }
-        RecoveryState::ChildReinstall => Some(ProvisioningBlockerReason::ChildReinstallRecovery),
-        RecoveryState::RevokedChild => Some(ProvisioningBlockerReason::RevokedChildRecovery),
-        RecoveryState::WrongAccount => Some(ProvisioningBlockerReason::WrongAccountRecovery),
-        RecoveryState::OfflineDevice => Some(ProvisioningBlockerReason::OfflineDeviceRecovery),
-        RecoveryState::PermissionLoss => Some(ProvisioningBlockerReason::PermissionLossRecovery),
-        RecoveryState::StaleCode => Some(ProvisioningBlockerReason::StaleCodeRecovery),
-    }
-}
-
-fn provisioning_overall_state(
-    blocker_reason: Option<ProvisioningBlockerReason>,
-) -> ProvisioningOverallState {
-    match blocker_reason {
-        None => ProvisioningOverallState::Ready,
-        Some(
-            ProvisioningBlockerReason::DataCustodySyncPending
-            | ProvisioningBlockerReason::ChildAppOffline
-            | ProvisioningBlockerReason::NetworkOfflineChild
-            | ProvisioningBlockerReason::OfflineDeviceRecovery,
-        ) => ProvisioningOverallState::Degraded,
-        Some(_) => ProvisioningOverallState::Blocked,
-    }
-}
-
-fn provisioning_recovery_action(
-    blocker_reason: Option<ProvisioningBlockerReason>,
-) -> ProvisioningRecoveryAction {
-    match blocker_reason {
-        None => ProvisioningRecoveryAction::Continue,
-        Some(ProvisioningBlockerReason::HouseholdMemberRequired) => {
-            ProvisioningRecoveryAction::CompleteHouseholdMembership
-        }
-        Some(
-            ProvisioningBlockerReason::WrongAccount
-            | ProvisioningBlockerReason::WrongAccountRecovery,
-        ) => ProvisioningRecoveryAction::SwitchToCorrectAccount,
-        Some(
-            ProvisioningBlockerReason::AccountRecoveryRequired
-            | ProvisioningBlockerReason::LostParentDeviceRecovery,
-        ) => ProvisioningRecoveryAction::RestoreParentSession,
-        Some(
-            ProvisioningBlockerReason::ParentAppMissing
-            | ProvisioningBlockerReason::ParentAppOffline
-            | ProvisioningBlockerReason::ParentAppStale,
-        ) => ProvisioningRecoveryAction::RepairParentApp,
-        Some(ProvisioningBlockerReason::ParentDeviceRegistrationRequired) => {
-            ProvisioningRecoveryAction::ReRegisterParentDevice
-        }
-        Some(ProvisioningBlockerReason::ChildDeviceScopeRequired) => {
-            ProvisioningRecoveryAction::RePairChildDevice
-        }
-        Some(
-            ProvisioningBlockerReason::ChildDeviceTrustRequired
-            | ProvisioningBlockerReason::PairingTrustRequired
-            | ProvisioningBlockerReason::PairingPendingAcceptance,
-        ) => ProvisioningRecoveryAction::TrustChildDevice,
-        Some(ProvisioningBlockerReason::PermissionMissing) => {
-            ProvisioningRecoveryAction::RequestMissingPermissions
-        }
-        Some(
-            ProvisioningBlockerReason::PermissionRevoked
-            | ProvisioningBlockerReason::PermissionLossRecovery,
-        ) => ProvisioningRecoveryAction::RegrantPermissions,
-        Some(
-            ProvisioningBlockerReason::PairingPendingDisplay
-            | ProvisioningBlockerReason::PairingExpired
-            | ProvisioningBlockerReason::PairingReplayRejected
-            | ProvisioningBlockerReason::PairingStaleSignedHello
-            | ProvisioningBlockerReason::StaleCodeRecovery,
-        ) => ProvisioningRecoveryAction::ReissuePairingCode,
-        Some(
-            ProvisioningBlockerReason::PairingRevoked
-            | ProvisioningBlockerReason::PairingWrongHousehold
-            | ProvisioningBlockerReason::PairingWrongDevice
-            | ProvisioningBlockerReason::PairingAnonymousDevice
-            | ProvisioningBlockerReason::RevokedChildRecovery,
-        ) => ProvisioningRecoveryAction::RePairChildDevice,
-        Some(ProvisioningBlockerReason::PairingParentRoleRequired) => {
-            ProvisioningRecoveryAction::SwitchToCorrectAccount
-        }
-        Some(
-            ProvisioningBlockerReason::PolicyBaselineMissing
-            | ProvisioningBlockerReason::PolicyBaselineStale,
-        ) => ProvisioningRecoveryAction::ApplyPolicyBaseline,
-        Some(
-            ProvisioningBlockerReason::DataCustodySyncPending
-            | ProvisioningBlockerReason::DataCustodySyncBlocked,
-        ) => ProvisioningRecoveryAction::RepairCustodySync,
-        Some(ProvisioningBlockerReason::ChildInstallNotInstalled) => {
-            ProvisioningRecoveryAction::InstallChildApp
-        }
-        Some(ProvisioningBlockerReason::ChildServiceNotStarted) => {
-            ProvisioningRecoveryAction::StartChildService
-        }
-        Some(
-            ProvisioningBlockerReason::ChildAppOffline
-            | ProvisioningBlockerReason::NetworkOfflineChild
-            | ProvisioningBlockerReason::NetworkLanUnavailable
-            | ProvisioningBlockerReason::OfflineDeviceRecovery,
-        ) => ProvisioningRecoveryAction::WaitForChildConnectivity,
-        Some(ProvisioningBlockerReason::NetworkDirectEntryRequired) => {
-            ProvisioningRecoveryAction::EnterDirectChildAddress
-        }
-        Some(
-            ProvisioningBlockerReason::ChildAppReinstallRequired
-            | ProvisioningBlockerReason::ChildReinstallRecovery,
-        ) => ProvisioningRecoveryAction::ReinstallChildApp,
-        Some(ProvisioningBlockerReason::ChildAppRevoked) => {
-            ProvisioningRecoveryAction::RePairChildDevice
-        }
     }
 }
 
@@ -947,295 +642,4 @@ fn provisioning_action_ref(evaluation_id: &ProvisioningReadinessEvaluationId) ->
     let mut value = String::from(PROVISIONING_ACTION_PREFIX);
     value.push_str(evaluation_id.as_str());
     value
-}
-
-fn provisioning_child_app_readiness_state(
-    child_install_state: ChildInstallState,
-    child_service_state: ChildServiceState,
-) -> ChildAppReadinessState {
-    match child_install_state {
-        ChildInstallState::NotInstalled => ChildAppReadinessState::NotInstalled,
-        ChildInstallState::ReinstallRequired => ChildAppReadinessState::ReinstallRequired,
-        ChildInstallState::Installed => match child_service_state {
-            ChildServiceState::NotStarted => ChildAppReadinessState::Installed,
-            ChildServiceState::ServiceStarted => ChildAppReadinessState::Ready,
-            ChildServiceState::Offline => ChildAppReadinessState::Offline,
-            ChildServiceState::Revoked => ChildAppReadinessState::Revoked,
-        },
-    }
-}
-
-fn provisioning_account_state_from_family_context(
-    input: ProvisioningFamilyContextInput,
-    authority_decision: HouseholdAuthorityDecision,
-    recovery_decision: Option<RecoveryDecision>,
-    session_failure_reason: Option<SessionTokenFailureReason>,
-) -> AccountReadinessState {
-    if !input.account_matches_invite_target {
-        return AccountReadinessState::WrongAccount;
-    }
-
-    if matches!(
-        authority_decision.failure_reason,
-        Some(HouseholdAuthorizationFailureReason::AccountNotActive)
-    ) || matches!(
-        session_failure_reason,
-        Some(
-            SessionTokenFailureReason::SessionLoggedOut
-                | SessionTokenFailureReason::SessionRevoked
-                | SessionTokenFailureReason::SessionGloballyRevoked
-                | SessionTokenFailureReason::SessionNotFresh
-        )
-    ) {
-        return AccountReadinessState::RecoveryRequired;
-    }
-
-    if matches!(
-        input.recovery_operation,
-        Some(operation) if operation.state != FamilyRecoveryState::Completed
-    ) {
-        let recovery_blocks_custody_first = matches!(
-            recovery_decision,
-            Some(decision)
-                if decision.data_custody_handoff_state != RecoveryDataCustodyHandoffState::None
-        ) || matches!(
-            input.recovery_operation,
-            Some(operation)
-                if operation.support_channel == RecoverySupportChannel::SupportAssisted
-        );
-
-        if !recovery_blocks_custody_first {
-            return AccountReadinessState::RecoveryRequired;
-        }
-    }
-
-    AccountReadinessState::Ready
-}
-
-fn provisioning_pairing_state_from_family_context(
-    input: ProvisioningFamilyContextInput,
-    authority_decision: HouseholdAuthorityDecision,
-    session_failure_reason: Option<SessionTokenFailureReason>,
-) -> PairingLifecycleState {
-    let invite_failure_reason = provisioning_setup_invite_failure_reason(input.setup_invite_input);
-    let awaiting_parent_trust_confirmation = input.setup_invite_input.invite_state
-        == SetupInviteState::Accepted
-        && input.household_authority_input.device_trust_state == DeviceTrustState::Pending;
-
-    if matches!(
-        session_failure_reason,
-        Some(SessionTokenFailureReason::TokenReplayRejected)
-    ) || matches!(
-        invite_failure_reason,
-        Some(SetupInviteFailureReason::InviteReplayRejected)
-    ) {
-        return PairingLifecycleState::Replayed;
-    }
-
-    if matches!(
-        session_failure_reason,
-        Some(SessionTokenFailureReason::TokenExpired | SessionTokenFailureReason::TokenNotYetValid)
-    ) {
-        return PairingLifecycleState::StaleSignedHello;
-    }
-
-    if input.setup_invite_input.invite_state == SetupInviteState::Expired {
-        return PairingLifecycleState::Expired;
-    }
-
-    if input.setup_invite_input.invite_state == SetupInviteState::Revoked
-        || (matches!(
-            authority_decision.failure_reason,
-            Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
-        ) && !awaiting_parent_trust_confirmation)
-    {
-        return PairingLifecycleState::Revoked;
-    }
-
-    if !input.account_matches_invite_target {
-        return PairingLifecycleState::Untrusted;
-    }
-
-    if matches!(
-        invite_failure_reason,
-        Some(SetupInviteFailureReason::WrongHousehold)
-    ) || matches!(
-        authority_decision.failure_reason,
-        Some(HouseholdAuthorizationFailureReason::ExternalHousehold)
-    ) {
-        return PairingLifecycleState::WrongHousehold;
-    }
-
-    if matches!(
-        authority_decision.failure_reason,
-        Some(HouseholdAuthorizationFailureReason::WrongDeviceScope)
-    ) {
-        return PairingLifecycleState::WrongDevice;
-    }
-
-    if matches!(
-        authority_decision.failure_reason,
-        Some(HouseholdAuthorizationFailureReason::ChildProfileNotBound)
-    ) {
-        return PairingLifecycleState::AnonymousDevice;
-    }
-
-    if matches!(
-        authority_decision.failure_reason,
-        Some(HouseholdAuthorizationFailureReason::RoleNotAuthorized)
-    ) {
-        return PairingLifecycleState::ParentRoleRequired;
-    }
-
-    if authority_decision.authorization_state == HouseholdAuthorizationState::Rejected {
-        if awaiting_parent_trust_confirmation {
-            return PairingLifecycleState::Accepted;
-        }
-        return PairingLifecycleState::Untrusted;
-    }
-
-    if matches!(
-        input.recovery_operation,
-        Some(operation) if operation.state == FamilyRecoveryState::Completed
-    ) {
-        return PairingLifecycleState::Recovered;
-    }
-
-    if matches!(
-        input.recovery_operation,
-        Some(operation)
-            if operation.state == FamilyRecoveryState::PendingIdentityProof
-                || operation.state == FamilyRecoveryState::OwnerApprovalRequired
-                || operation.state == FamilyRecoveryState::Approved
-    ) {
-        return PairingLifecycleState::Trusted;
-    }
-
-    if input.setup_invite_input.invite_state == SetupInviteState::Accepted {
-        return PairingLifecycleState::Trusted;
-    }
-
-    PairingLifecycleState::Displayed
-}
-
-fn provisioning_custody_state_from_family_context(
-    input: ProvisioningFamilyContextInput,
-    recovery_decision: Option<RecoveryDecision>,
-) -> DataCustodySyncState {
-    if matches!(
-        recovery_decision,
-        Some(decision)
-            if decision.data_custody_handoff_state != RecoveryDataCustodyHandoffState::None
-    ) {
-        return DataCustodySyncState::Blocked;
-    }
-
-    if matches!(
-        input.recovery_operation,
-        Some(operation)
-            if operation.support_channel == RecoverySupportChannel::SupportAssisted
-                && operation.state != FamilyRecoveryState::Completed
-    ) {
-        return DataCustodySyncState::Blocked;
-    }
-
-    input.data_custody_sync_state
-}
-
-fn provisioning_recovery_state_from_family_context(
-    input: ProvisioningFamilyContextInput,
-    session_failure_reason: Option<SessionTokenFailureReason>,
-) -> RecoveryState {
-    let child_app_readiness_state = provisioning_child_app_readiness_state(
-        input.child_install_state,
-        input.child_service_state,
-    );
-
-    if let Some(recovery_operation) = input.recovery_operation {
-        if recovery_operation.state == FamilyRecoveryState::Completed {
-            return RecoveryState::Recovered;
-        }
-
-        return match recovery_operation.kind {
-            FamilyRecoveryKind::ForgotLogin => RecoveryState::WrongAccount,
-            FamilyRecoveryKind::LostParentDevice => RecoveryState::LostParentDevice,
-            FamilyRecoveryKind::CompromisedAccount => RecoveryState::PermissionLoss,
-            FamilyRecoveryKind::ChildReinstall => RecoveryState::ChildReinstall,
-            FamilyRecoveryKind::HouseholdTransfer => RecoveryState::RevokedChild,
-        };
-    }
-
-    if matches!(
-        session_failure_reason,
-        Some(SessionTokenFailureReason::TokenExpired | SessionTokenFailureReason::TokenNotYetValid)
-    ) || input.setup_invite_input.invite_state == SetupInviteState::Expired
-    {
-        return RecoveryState::StaleCode;
-    }
-
-    if !input.account_matches_invite_target {
-        return RecoveryState::WrongAccount;
-    }
-
-    match child_app_readiness_state {
-        ChildAppReadinessState::NotInstalled | ChildAppReadinessState::Installed => {}
-        ChildAppReadinessState::Revoked => return RecoveryState::RevokedChild,
-        ChildAppReadinessState::ReinstallRequired => return RecoveryState::ChildReinstall,
-        ChildAppReadinessState::Offline => return RecoveryState::OfflineDevice,
-        ChildAppReadinessState::Ready => {}
-    }
-
-    if input.permission_readiness_state != PermissionReadinessState::Granted {
-        return RecoveryState::PermissionLoss;
-    }
-
-    if input.network_reachability_state != NetworkReachabilityState::Reachable {
-        return RecoveryState::OfflineDevice;
-    }
-
-    RecoveryState::Normal
-}
-
-fn provisioning_setup_invite_failure_reason(
-    input: SetupInviteInput,
-) -> Option<SetupInviteFailureReason> {
-    if input.invite_state == SetupInviteState::Pending {
-        return authorize_setup_invite(input).failure_reason;
-    }
-
-    if !input.single_use {
-        return Some(SetupInviteFailureReason::InviteNotSingleUse);
-    }
-
-    if !provisioning_setup_purpose_matches_target_role(input.purpose, input.target_role) {
-        return Some(SetupInviteFailureReason::WrongTargetRole);
-    }
-
-    if !input.same_family {
-        return Some(SetupInviteFailureReason::WrongHousehold);
-    }
-
-    None
-}
-
-fn provisioning_setup_purpose_matches_target_role(
-    purpose: SetupInvitePurpose,
-    target_role: SetupInviteTargetRole,
-) -> bool {
-    matches!(
-        (purpose, target_role),
-        (
-            SetupInvitePurpose::CoParentInvite,
-            SetupInviteTargetRole::CoParentGuardian
-        ) | (
-            SetupInvitePurpose::ObserverInvite,
-            SetupInviteTargetRole::Observer
-        ) | (
-            SetupInvitePurpose::ChildDevicePairing,
-            SetupInviteTargetRole::ChildDeviceAgent
-        ) | (
-            SetupInvitePurpose::HouseholdTransfer,
-            SetupInviteTargetRole::ParentOwner
-        )
-    )
 }

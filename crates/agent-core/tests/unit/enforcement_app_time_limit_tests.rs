@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+use crate::test_text::{test_err as err, test_ok as ok, test_some as some, TestResult, TestText};
 use crate::*;
 use ocentra_parent_agent_core::enforcement_timer_state::{
     active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
@@ -24,23 +25,6 @@ use ocentra_parent_agent_protocol::enforcement::{
     EnforcementUnavailableReason, ParentActionReference, ParentPlatform,
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
-
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
-    match result {
-        Ok(_) => Err(format!("{context}: expected error")),
-        Err(error) => Ok(error),
-    }
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| format!("{context}: missing value"))
-}
 
 #[test]
 fn app_time_limit_capability_reports_platform_status_without_claiming_other_adapters() -> TestResult
@@ -131,7 +115,7 @@ fn app_time_limit_policy_handoff_creates_timer_state_without_immediate_adapter_e
     assert_eq!(timer.timer_event_kind, EnforcementTimerEventKind::Created);
     assert_eq!(
         active_timer_state_from_outcome(&outcome, policy::TEST_EVALUATED_AT)
-            .ok_or_else(|| enforcement::TEST_TIMER_STATE_ID.to_string())?
+            .ok_or_else(|| TestText::from_display(enforcement::TEST_TIMER_STATE_ID))?
             .action
             .policy_decision_id,
         policy::TEST_DECISION_ID
@@ -195,7 +179,7 @@ fn app_time_limit_expiry_cancel_and_restart_preserve_audit_identity() -> TestRes
         enforcement::TIMER_CREATED,
     )?;
     let state = active_timer_state_from_outcome(&outcome, policy::TEST_EVALUATED_AT)
-        .ok_or_else(|| enforcement::TEST_TIMER_STATE_ID.to_string())?;
+        .ok_or_else(|| TestText::from_display(enforcement::TEST_TIMER_STATE_ID))?;
 
     let recovered = restart_recovered_timer_outcome(&state, transition_ids());
     let recovered_timer = some(
@@ -213,7 +197,7 @@ fn app_time_limit_expiry_cancel_and_restart_preserve_audit_identity() -> TestRes
     );
     assert_eq!(
         active_timer_state_from_outcome(&recovered, policy::TEST_EVALUATED_AT)
-            .ok_or_else(|| enforcement::TEST_TIMER_STATE_ID.to_string())?
+            .ok_or_else(|| TestText::from_display(enforcement::TEST_TIMER_STATE_ID))?
             .action
             .action_id,
         outcome.action.action_id
@@ -278,7 +262,7 @@ fn app_time_limit_unavailable_expiry_reports_typed_unavailable_reason() -> TestR
         enforcement::TIMER_CREATED,
     )?;
     let state = active_timer_state_from_outcome(&outcome, policy::TEST_EVALUATED_AT)
-        .ok_or_else(|| enforcement::TEST_TIMER_STATE_ID.to_string())?;
+        .ok_or_else(|| TestText::from_display(enforcement::TEST_TIMER_STATE_ID))?;
     let unavailable = expired_timer_outcome(
         &state,
         transition_ids(),

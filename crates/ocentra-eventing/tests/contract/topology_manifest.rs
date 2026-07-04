@@ -1,4 +1,4 @@
-use super::support::{test_event_for_type, OTHER_EVENT_TYPE, TEST_EVENT_TYPE};
+use super::support::{test_event_for_type, TestText, OTHER_EVENT_TYPE, TEST_EVENT_TYPE};
 use ocentra_eventing::contract_registry::EventContractRegistry;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{
@@ -28,34 +28,50 @@ fn topology_manifest_classifies_covered_orphan_and_accepted_states() {
     let manifest = EventTopologyManifest::from_registry(
         &registry,
         &[
-            publisher(TEST_EVENT_TYPE, COVERED_PUBLISHER),
-            publisher(NO_SUBSCRIBER_EVENT_TYPE, ORPHAN_PUBLISHER),
+            publisher(
+                TestText(TEST_EVENT_TYPE.to_owned()),
+                TestText(COVERED_PUBLISHER.to_owned()),
+            ),
+            publisher(
+                TestText(NO_SUBSCRIBER_EVENT_TYPE.to_owned()),
+                TestText(ORPHAN_PUBLISHER.to_owned()),
+            ),
         ],
         &[
-            subscriber(TEST_EVENT_TYPE, COVERED_SUBSCRIBER),
-            subscriber(ACCEPTED_NO_PUBLISHER_EVENT_TYPE, ACCEPTED_SUBSCRIBER),
+            subscriber(
+                TestText(TEST_EVENT_TYPE.to_owned()),
+                TestText(COVERED_SUBSCRIBER.to_owned()),
+            ),
+            subscriber(
+                TestText(ACCEPTED_NO_PUBLISHER_EVENT_TYPE.to_owned()),
+                TestText(ACCEPTED_SUBSCRIBER.to_owned()),
+            ),
         ],
         &[
-            family_variant(TEST_EVENT_TYPE),
-            family_variant(NO_SUBSCRIBER_EVENT_TYPE),
+            family_variant(TestText(TEST_EVENT_TYPE.to_owned())),
+            family_variant(TestText(NO_SUBSCRIBER_EVENT_TYPE.to_owned())),
         ],
         &[accepted_event],
     );
 
     assert_eq!(
-        entry(&manifest, TEST_EVENT_TYPE).status,
+        entry(&manifest, TestText(TEST_EVENT_TYPE.to_owned())).status,
         EventTopologyStatus::Covered
     );
     assert_eq!(
-        entry(&manifest, NO_SUBSCRIBER_EVENT_TYPE).status,
+        entry(&manifest, TestText(NO_SUBSCRIBER_EVENT_TYPE.to_owned())).status,
         EventTopologyStatus::NoSubscriber
     );
     assert_eq!(
-        entry(&manifest, OTHER_EVENT_TYPE).status,
+        entry(&manifest, TestText(OTHER_EVENT_TYPE.to_owned())).status,
         EventTopologyStatus::NoPublisher
     );
     assert_eq!(
-        entry(&manifest, ACCEPTED_NO_PUBLISHER_EVENT_TYPE).status,
+        entry(
+            &manifest,
+            TestText(ACCEPTED_NO_PUBLISHER_EVENT_TYPE.to_owned())
+        )
+        .status,
         EventTopologyStatus::AcceptedOneSided
     );
     assert_eq!(
@@ -73,11 +89,14 @@ fn topology_manifest_records_family_variants_and_sorted_descriptors() {
     let registry = topology_registry();
     let manifest = EventTopologyManifest::from_registry(
         &registry,
-        &[publisher(NO_SUBSCRIBER_EVENT_TYPE, ORPHAN_PUBLISHER)],
+        &[publisher(
+            TestText(NO_SUBSCRIBER_EVENT_TYPE.to_owned()),
+            TestText(ORPHAN_PUBLISHER.to_owned()),
+        )],
         &[],
         &[
-            family_variant(TEST_EVENT_TYPE),
-            family_variant(NO_SUBSCRIBER_EVENT_TYPE),
+            family_variant(TestText(TEST_EVENT_TYPE.to_owned())),
+            family_variant(TestText(NO_SUBSCRIBER_EVENT_TYPE.to_owned())),
         ],
         &[],
     );
@@ -97,7 +116,7 @@ fn topology_manifest_records_family_variants_and_sorted_descriptors() {
         ]
     );
     assert_eq!(
-        entry(&manifest, NO_SUBSCRIBER_EVENT_TYPE).families[0].as_str(),
+        entry(&manifest, TestText(NO_SUBSCRIBER_EVENT_TYPE.to_owned())).families[0].as_str(),
         FAMILY_ID
     );
 }
@@ -107,9 +126,15 @@ fn topology_manifest_renders_deterministic_markdown() {
     let registry = topology_registry();
     let manifest = EventTopologyManifest::from_registry(
         &registry,
-        &[publisher(TEST_EVENT_TYPE, COVERED_PUBLISHER)],
-        &[subscriber(TEST_EVENT_TYPE, COVERED_SUBSCRIBER)],
-        &[family_variant(TEST_EVENT_TYPE)],
+        &[publisher(
+            TestText(TEST_EVENT_TYPE.to_owned()),
+            TestText(COVERED_PUBLISHER.to_owned()),
+        )],
+        &[subscriber(
+            TestText(TEST_EVENT_TYPE.to_owned()),
+            TestText(COVERED_SUBSCRIBER.to_owned()),
+        )],
+        &[family_variant(TestText(TEST_EVENT_TYPE.to_owned()))],
         &[],
     );
 
@@ -134,14 +159,22 @@ fn topology_manifest_serializes_canonical_eventing_entry_keys() {
     let registry = topology_registry();
     let manifest = EventTopologyManifest::from_registry(
         &registry,
-        &[publisher(TEST_EVENT_TYPE, COVERED_PUBLISHER)],
-        &[subscriber(TEST_EVENT_TYPE, COVERED_SUBSCRIBER)],
-        &[family_variant(TEST_EVENT_TYPE)],
+        &[publisher(
+            TestText(TEST_EVENT_TYPE.to_owned()),
+            TestText(COVERED_PUBLISHER.to_owned()),
+        )],
+        &[subscriber(
+            TestText(TEST_EVENT_TYPE.to_owned()),
+            TestText(COVERED_SUBSCRIBER.to_owned()),
+        )],
+        &[family_variant(TestText(TEST_EVENT_TYPE.to_owned()))],
         &[],
     );
 
     let manifest_json = serde_json::to_value(&manifest).expect_value("manifest serializes");
-    let entry = manifest_entry(&manifest_json, TEST_EVENT_TYPE);
+    let entry = manifest_entry(&manifest_json, TestText(TEST_EVENT_TYPE.to_owned()))
+        .as_object()
+        .expect_value("manifest entry");
     let subscriber_target = entry["subscribers"][0]
         .as_object()
         .expect_value("subscriber target object");
@@ -166,47 +199,57 @@ fn topology_manifest_serializes_canonical_eventing_entry_keys() {
 fn topology_registry() -> EventContractRegistry {
     let mut registry = EventContractRegistry::new();
     registry
-        .register_event(&test_event_for_type("covered", TEST_EVENT_TYPE))
+        .register_event(&test_event_for_type(
+            TestText("covered".to_owned()),
+            TestText(TEST_EVENT_TYPE.to_owned()),
+        ))
         .expect_value("covered registers");
     registry
-        .register_event(&test_event_for_type("other", OTHER_EVENT_TYPE))
+        .register_event(&test_event_for_type(
+            TestText("other".to_owned()),
+            TestText(OTHER_EVENT_TYPE.to_owned()),
+        ))
         .expect_value("other registers");
     registry
         .register_event(&test_event_for_type(
-            "accepted",
-            ACCEPTED_NO_PUBLISHER_EVENT_TYPE,
+            TestText("accepted".to_owned()),
+            TestText(ACCEPTED_NO_PUBLISHER_EVENT_TYPE.to_owned()),
         ))
         .expect_value("accepted registers");
     registry
-        .register_event(&test_event_for_type("orphan", NO_SUBSCRIBER_EVENT_TYPE))
+        .register_event(&test_event_for_type(
+            TestText("orphan".to_owned()),
+            TestText(NO_SUBSCRIBER_EVENT_TYPE.to_owned()),
+        ))
         .expect_value("orphan registers");
     registry
 }
 
-fn publisher(event_type: &str, component: &str) -> EventTopologyPublisher {
+fn publisher(event_type: TestText, component: TestText) -> EventTopologyPublisher {
     EventTopologyPublisher {
-        event_type: EventType::parse(event_type).expect_value("publisher event type parses"),
-        source_component: SourceComponent::parse(component)
+        event_type: EventType::parse(event_type.0).expect_value("publisher event type parses"),
+        source_component: SourceComponent::parse(component.0)
             .expect_value("publisher component parses"),
     }
 }
 
-fn subscriber(event_type: &str, subscriber_id: &str) -> EventTopologySubscriber {
+fn subscriber(event_type: TestText, subscriber_id: TestText) -> EventTopologySubscriber {
     EventTopologySubscriber {
-        event_type: EventType::parse(event_type).expect_value("subscriber event type parses"),
-        subscriber_id: SubscriberId::parse(subscriber_id).expect_value("subscriber id parses"),
+        event_type: EventType::parse(event_type.0).expect_value("subscriber event type parses"),
+        subscriber_id: SubscriberId::parse(subscriber_id.0).expect_value("subscriber id parses"),
         target_handler: TargetHandler::parse(TOPOLOGY_TARGET).expect_value("target parses"),
     }
 }
 
-fn family_variant(event_type: &str) -> EventTopologyFamilyVariant {
+fn family_variant(event_type: TestText) -> EventTopologyFamilyVariant {
     EventTopologyFamilyVariant {
         family: EventNamespace::parse(FAMILY_ID).expect_value("family parses"),
-        event_type: EventType::parse(event_type).expect_value("family event type parses"),
+        event_type: EventType::parse(event_type.0).expect_value("family event type parses"),
     }
 }
 
-fn entry<'a>(manifest: &'a EventTopologyManifest, event_type: &str) -> &'a EventTopologyEntry {
+fn entry<'a>(manifest: &'a EventTopologyManifest, event_type: TestText) -> &'a EventTopologyEntry {
+    let event_type = event_type.0;
     manifest
         .entries()
         .iter()
@@ -214,17 +257,12 @@ fn entry<'a>(manifest: &'a EventTopologyManifest, event_type: &str) -> &'a Event
         .expect_value("topology entry exists")
 }
 
-fn manifest_entry<'a>(
-    manifest_json: &'a Value,
-    event_type: &str,
-) -> &'a serde_json::Map<String, Value> {
+fn manifest_entry<'a>(manifest_json: &'a Value, event_type: TestText) -> &'a Value {
+    let event_type = event_type.0;
     manifest_json["entries"]
         .as_array()
         .expect_value("entries array")
         .iter()
-        .find_map(|entry| {
-            let entry = entry.as_object()?;
-            (entry["contract"]["eventType"] == event_type).then_some(entry)
-        })
+        .find(|entry| entry["contract"]["eventType"] == event_type)
         .expect_value("manifest entry exists")
 }

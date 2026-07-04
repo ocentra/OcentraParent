@@ -13,7 +13,6 @@ import {
   GeneratedChildArtifactMatrixStoreDistributionStates,
   GeneratedChildSigningStoreDeviceOwnerMatrixProof,
   type GeneratedChildArtifactMatrixPlatform,
-  type GeneratedChildSigningStoreDeviceOwnerMatrixProof as GeneratedChildSigningStoreDeviceOwnerMatrixProofShape,
 } from './generated/child-signing-store-device-owner-matrix-contracts';
 
 export const ChildSigningStoreDeviceOwnerMatrixSchemaVersionSchema = withParser(
@@ -50,6 +49,10 @@ const ChildArtifactMatrixManagementStateSchema = withParser(
 const ChildArtifactMatrixPathSchema = brandedNonEmptyStringSchema('ChildArtifactMatrixPath');
 const ChildArtifactMatrixBoundarySchema = brandedNonEmptyStringSchema('ChildArtifactMatrixBoundary');
 const ChildArtifactMatrixTimestampSchema = brandedNonEmptyStringSchema('ChildArtifactMatrixTimestamp');
+
+export type ChildArtifactMatrixPath = typeof ChildArtifactMatrixPathSchema.Type;
+export type ChildArtifactMatrixBoundary = typeof ChildArtifactMatrixBoundarySchema.Type;
+export type ChildArtifactMatrixTimestamp = typeof ChildArtifactMatrixTimestampSchema.Type;
 
 function hasExactPlatformCoverage(
   rows: ReadonlyArray<{ platform: GeneratedChildArtifactMatrixPlatform }>
@@ -118,10 +121,7 @@ export const ChildSigningStoreDeviceOwnerMatrixSchema = withParser(
 
 export type ChildArtifactMatrixRow = Infer<typeof ChildArtifactMatrixRowSchema>;
 export type ChildArtifactMatrixClaimBoundaries = Infer<typeof ChildArtifactMatrixClaimBoundariesSchema>;
-export type ChildSigningStoreDeviceOwnerMatrixProof = Infer<
-  typeof ChildSigningStoreDeviceOwnerMatrixSchema
-> &
-  GeneratedChildSigningStoreDeviceOwnerMatrixProofShape;
+export type ChildSigningStoreDeviceOwnerMatrixProof = Infer<typeof ChildSigningStoreDeviceOwnerMatrixSchema>;
 
 export const ChildSigningStoreDeviceOwnerMatrixProofReadModel =
   ChildSigningStoreDeviceOwnerMatrixSchema.parse(GeneratedChildSigningStoreDeviceOwnerMatrixProof);

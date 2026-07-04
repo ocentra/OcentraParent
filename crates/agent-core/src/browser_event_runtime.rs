@@ -1,3 +1,5 @@
+use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
+use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
     envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
@@ -8,6 +10,9 @@ use ocentra_parent_agent_protocol::browser::{
     BrowserRuntimeEventPayload as ProtocolBrowserRuntimeEventPayload, BrowserRuntimePhase,
 };
 use ocentra_parent_agent_protocol::constants;
+
+#[path = "browser_event_runtime/helpers.rs"]
+mod helpers;
 
 pub mod action_handoff;
 pub mod action_handoff_child_status;
@@ -194,9 +199,9 @@ impl BrowserRuntimeInput {
 
 #[derive(Clone, Debug)]
 pub struct BrowserRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::bus::reports::PublishReport>,
+    pub publish_reports: Vec<PublishReport>,
     pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
+    pub dead_letters: Vec<DeadLetter>,
 }
 
 impl BrowserRuntimeReport {
@@ -272,21 +277,7 @@ pub(crate) fn should_publish_phase(
     phase: BrowserRuntimePhase,
     input: &BrowserRuntimeInput,
 ) -> bool {
-    match phase {
-        BrowserRuntimePhase::AiAnalysisRequested => input.ai_request_ref.is_some(),
-        BrowserRuntimePhase::AiAnalysisCompleted => input.ai_analysis_ref.is_some(),
-        BrowserRuntimePhase::PolicyEvaluationRequested => input.policy_evaluation_ref.is_some(),
-        BrowserRuntimePhase::PolicyDecisionCompleted => input.policy_decision_ref.is_some(),
-        BrowserRuntimePhase::InterventionCommandIssued => {
-            input.intervention_command_allowed && input.intervention_command_ref.is_some()
-        }
-        BrowserRuntimePhase::InterventionResultObserved => {
-            input.intervention_command_allowed && input.intervention_result_ref.is_some()
-        }
-        BrowserRuntimePhase::AuditEntryCommitted => input.audit_entry_ref.is_some(),
-        BrowserRuntimePhase::ReadModelProjected => input.read_model_ref.is_some(),
-        BrowserRuntimePhase::EvidenceObserved | BrowserRuntimePhase::EvidenceJournaled => true,
-    }
+    helpers::should_publish_phase(phase, input)
 }
 
 fn browser_runtime_event_payload_from_input(

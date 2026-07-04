@@ -31,29 +31,60 @@ use ocentra_policy_control_core::policy_source::{
 };
 
 trait ResultRequiredExt<T, E> {
-    fn required(self, context: &str) -> T;
-    fn required_err(self, context: &str) -> E;
+    fn required(self, context: impl std::fmt::Display) -> T;
+    fn required_err(self, context: impl std::fmt::Display) -> E;
 }
 
 impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
-    fn required(self, context: &str) -> T {
-        self.unwrap_or_else(|error| unreachable!("{context}: {error:?}"))
+    fn required(self, context: impl std::fmt::Display) -> T {
+        let context = context.to_string();
+        self.expect(&context)
     }
 
-    fn required_err(self, context: &str) -> E {
-        match self {
-            Ok(_) => unreachable!("{context}"),
-            Err(error) => error,
-        }
+    fn required_err(self, context: impl std::fmt::Display) -> E {
+        let context = context.to_string();
+        self.err().expect(&context)
     }
 }
 
-fn timestamp(value: &str) -> PolicyRequestTimestamp {
+fn timestamp(value: impl std::fmt::Display) -> PolicyRequestTimestamp {
+    let value = value.to_string();
     PolicyRequestTimestamp::parse(value).required("policy request timestamp")
 }
 
-fn audit_ref(value: &str) -> PolicyAuditReferenceId {
+fn audit_ref(value: impl std::fmt::Display) -> PolicyAuditReferenceId {
+    let value = value.to_string();
     PolicyAuditReferenceId::parse(value).required("policy audit ref")
+}
+
+#[derive(Clone, Copy, Debug)]
+enum PolicyApprovalDecisionSuffix {
+    Grant,
+    Deny,
+    Modify,
+    Expire,
+}
+
+impl std::fmt::Display for PolicyApprovalDecisionSuffix {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(match self {
+            Self::Grant => "grant",
+            Self::Deny => "deny",
+            Self::Modify => "modify",
+            Self::Expire => "expire",
+        })
+    }
+}
+
+fn policy_approval_decision_suffix(
+    decision: PolicyApprovalDecision,
+) -> PolicyApprovalDecisionSuffix {
+    match decision {
+        PolicyApprovalDecision::Grant => PolicyApprovalDecisionSuffix::Grant,
+        PolicyApprovalDecision::Deny => PolicyApprovalDecisionSuffix::Deny,
+        PolicyApprovalDecision::Modify => PolicyApprovalDecisionSuffix::Modify,
+        PolicyApprovalDecision::Expire => PolicyApprovalDecisionSuffix::Expire,
+    }
 }
 
 fn request_scope(kind: PolicyRequestKind, minutes: Option<u16>) -> PolicyRequestScope {
@@ -124,12 +155,7 @@ fn approval(
         approval_id: PolicyApprovalId::parse(format!(
             "{}-{}",
             request.request_id.as_str(),
-            match decision {
-                PolicyApprovalDecision::Grant => "grant",
-                PolicyApprovalDecision::Deny => "deny",
-                PolicyApprovalDecision::Modify => "modify",
-                PolicyApprovalDecision::Expire => "expire",
-            }
+            policy_approval_decision_suffix(decision)
         ))
         .required("policy approval id"),
         request_id: request.request_id.clone(),
@@ -163,47 +189,8 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
             PolicyChildProfileId::parse("child-primary").required("child profile id")
         ],
         device_ids: vec![PolicyDeviceId::parse("device-laptop").required("policy device id")],
-        rules: vec![ParentPolicyRule {
-            rule_id: PolicyRuleId::parse("rule-school-night-block").required("policy rule id"),
-            target: PolicyRuleTarget {
-                kind: PolicyTargetKind::Category,
-                reference_id: PolicyTargetReferenceId::parse("category-gaming")
-                    .required("policy target reference"),
-            },
-            action: PolicyRuleAction::Block,
-            schedule_id: Some(
-                PolicyScheduleId::parse("schedule-school-night").required("policy schedule id"),
-            ),
-            priority: 100,
-            reason_code: PolicyReasonCode::parse("school-night").required("policy reason code"),
-            enabled: true,
-        }],
-        schedules: vec![PolicyScheduleWindow {
-            schedule_id: PolicyScheduleId::parse("schedule-school-night")
-                .required("policy schedule id"),
-            timezone_name: PolicyTimezoneName::parse("America/Toronto")
-                .required("policy timezone name"),
-            starts_at: "21:00".to_string(),
-            ends_at: "07:00".to_string(),
-            time_budget: PolicyScheduleTimeBudget {
-                budget_window_minutes: 120,
-                reset: PolicyScheduleBudgetResetRule {
-                    kind: PolicyScheduleBudgetResetKind::Daily,
-                    local_time: "00:00".to_string(),
-                    day: None,
-                },
-                carryover: PolicyScheduleBudgetCarryoverRule {
-                    mode: PolicyScheduleBudgetCarryoverMode::DiscardUnused,
-                    max_minutes: None,
-                },
-                grace_period_minutes: 5,
-                effective_from: "2026-01-01T00:00:00Z".to_string(),
-                effective_until: None,
-                bonus_expiry_minutes: 30,
-                clock_source: PolicyScheduleClockSource::TrustedService,
-                offline_recovery: PolicyScheduleOfflineRecovery::RecomputeFromJournal,
-            },
-        }],
+        rules: vec![sample_policy_rule()],
+        schedules: vec![sample_policy_schedule_window()],
         audit_reference_ids: vec![audit_ref("audit-policy-confirmed")],
         superseded_by_policy_version: None,
         rollback_ref: None,
@@ -212,6 +199,65 @@ fn sample_policy_source_document() -> ParentPolicySourceDocument {
             delete_allowed: true,
             sync_allowed: false,
         },
+    }
+}
+
+fn sample_policy_rule() -> ParentPolicyRule {
+    ParentPolicyRule {
+        rule_id: PolicyRuleId::parse("rule-school-night-block").required("policy rule id"),
+        target: PolicyRuleTarget {
+            kind: PolicyTargetKind::Category,
+            reference_id: PolicyTargetReferenceId::parse("category-gaming")
+                .required("policy target reference"),
+        },
+        action: PolicyRuleAction::Block,
+        schedule_id: Some(
+            PolicyScheduleId::parse("schedule-school-night").required("policy schedule id"),
+        ),
+        priority: 100,
+        reason_code: PolicyReasonCode::parse("school-night").required("policy reason code"),
+        enabled: true,
+    }
+}
+
+fn sample_policy_schedule_window() -> PolicyScheduleWindow {
+    PolicyScheduleWindow {
+        schedule_id: PolicyScheduleId::parse("schedule-school-night")
+            .required("policy schedule id"),
+        timezone_name: PolicyTimezoneName::parse("America/Toronto")
+            .required("policy timezone name"),
+        starts_at: "21:00".to_string(),
+        ends_at: "07:00".to_string(),
+        time_budget: sample_policy_schedule_time_budget(),
+    }
+}
+
+fn sample_policy_schedule_time_budget() -> PolicyScheduleTimeBudget {
+    PolicyScheduleTimeBudget {
+        budget_window_minutes: 120,
+        reset: sample_policy_schedule_budget_reset_rule(),
+        carryover: sample_policy_schedule_budget_carryover_rule(),
+        grace_period_minutes: 5,
+        effective_from: "2026-01-01T00:00:00Z".to_string(),
+        effective_until: None,
+        bonus_expiry_minutes: 30,
+        clock_source: PolicyScheduleClockSource::TrustedService,
+        offline_recovery: PolicyScheduleOfflineRecovery::RecomputeFromJournal,
+    }
+}
+
+fn sample_policy_schedule_budget_reset_rule() -> PolicyScheduleBudgetResetRule {
+    PolicyScheduleBudgetResetRule {
+        kind: PolicyScheduleBudgetResetKind::Daily,
+        local_time: "00:00".to_string(),
+        day: None,
+    }
+}
+
+fn sample_policy_schedule_budget_carryover_rule() -> PolicyScheduleBudgetCarryoverRule {
+    PolicyScheduleBudgetCarryoverRule {
+        mode: PolicyScheduleBudgetCarryoverMode::DiscardUnused,
+        max_minutes: None,
     }
 }
 

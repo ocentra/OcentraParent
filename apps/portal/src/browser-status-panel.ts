@@ -1,8 +1,11 @@
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { decodeParentPortalDetailValue, type ParentPortalDetailValue } from '../generated/parent-ui-bridge';
+import {
+  ParentAgentProtocolField,
+  decodeParentPortalDetailValue,
+  type ParentPortalDetailValue,
+} from '../generated/parent-ui-bridge';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 
@@ -68,7 +71,7 @@ function eventReason(event: PortalLiveActivityState['browserManagedEvent']): Par
   if (event === null) {
     return notReported();
   }
-  return detailFromValue(event.payload?.[AgentProtocolDefaults.Field.Reason]);
+  return detailFromValue(event.payload?.[ParentAgentProtocolField.Reason]);
 }
 
 function detailFromValue(value: unknown): ParentPortalDetailValue {

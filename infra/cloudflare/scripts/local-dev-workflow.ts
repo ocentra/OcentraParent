@@ -55,13 +55,7 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const cloudflareDir = path.resolve(scriptDir, '..');
 const repoRoot = path.resolve(cloudflareDir, '..', '..');
 const rootPackageJsonPath = path.join(repoRoot, 'package.json');
-const knownRuntimeDependencyPaths = [
-  'packages/billing-domain/src/billing-checkout-portal-boundary.js',
-  'packages/billing-domain/src/billing-referral-boundary.js',
-  'packages/billing-domain/src/billing-support-admin-api-boundary.js',
-  'packages/billing-domain/src/billing-account-runtime-boundary.js',
-  'packages/billing-domain/src/billing-support-admin-runtime-boundary.js',
-] as const;
+const knownRuntimeDependencyPaths = ['src/generated/billing-contracts.ts'] as const;
 
 interface CommandProbeResult {
   command: string;

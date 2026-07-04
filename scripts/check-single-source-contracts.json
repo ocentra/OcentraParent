@@ -1,4 +1,5 @@
 {
+  "requiredMirrorRoots": ["crates/agent-protocol/src/constants"],
   "contracts": [
     {
       "name": "network-evidence-drawer-proof",
@@ -128,63 +129,33 @@
     },
     {
       "name": "tracking-config-update-event-types",
-      "ownerPath": "packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts",
+      "ownerPath": "crates/agent-protocol/src/constants/tracking_config_update.rs",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
-      "mirrors": [
-        {
-          "path": "crates/agent-protocol/src/constants/tracking_config_update.rs",
-          "values": [
-            {
-              "name": "parent",
-              "rustConst": "PARENT_EVENT_TYPE"
-            },
-            {
-              "name": "child",
-              "rustConst": "CHILD_EVENT_TYPE"
-            },
-            {
-              "name": "applied",
-              "rustConst": "APPLIED_EVENT_TYPE"
-            },
-            {
-              "name": "changeRequested",
-              "rustConst": "CHANGE_REQUESTED_EVENT_TYPE"
-            },
-            {
-              "name": "changeApproved",
-              "rustConst": "CHANGE_APPROVED_EVENT_TYPE"
-            },
-            {
-              "name": "changeRejected",
-              "rustConst": "CHANGE_REJECTED_EVENT_TYPE"
-            }
-          ]
-        }
-      ],
+      "allowedPaths": ["packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts"],
       "values": [
         {
           "name": "parent",
-          "sourceObjectPath": "AgentTrackingConfigUpdateEventType.Parent"
+          "rustConst": "PARENT_EVENT_TYPE"
         },
         {
           "name": "child",
-          "sourceObjectPath": "AgentTrackingConfigUpdateEventType.Child"
+          "rustConst": "CHILD_EVENT_TYPE"
         },
         {
           "name": "applied",
-          "sourceObjectPath": "AgentTrackingConfigUpdateEventType.Applied"
+          "rustConst": "APPLIED_EVENT_TYPE"
         },
         {
           "name": "changeRequested",
-          "sourceObjectPath": "AgentTrackingConfigCommandFlowEventType.ChangeRequested"
+          "rustConst": "CHANGE_REQUESTED_EVENT_TYPE"
         },
         {
           "name": "changeApproved",
-          "sourceObjectPath": "AgentTrackingConfigCommandFlowEventType.ChangeApproved"
+          "rustConst": "CHANGE_APPROVED_EVENT_TYPE"
         },
         {
           "name": "changeRejected",
-          "sourceObjectPath": "AgentTrackingConfigCommandFlowEventType.ChangeRejected"
+          "rustConst": "CHANGE_REJECTED_EVENT_TYPE"
         }
       ]
     },
@@ -542,7 +513,8 @@
         "crates/agent-protocol/src/constants/value.rs",
         "crates/agent-protocol/src/constants/windows_adapter_artifact_gate.rs",
         "crates/agent-protocol/src/constants/windows_adapter_artifact_ingestion.rs",
-        "crates/agent-protocol/src/constants/windows_adapter_capability.rs"
+        "crates/agent-protocol/src/constants/windows_adapter_capability.rs",
+        "packages/schema-domain/src/evidence-kinds.ts"
       ],
       "values": [
         {
@@ -612,81 +584,6 @@
         {
           "name": "network_retention_deleted",
           "rustConst": "NETWORK_RETENTION_DELETED"
-        }
-      ],
-      "mirrors": [
-        {
-          "path": "packages/schema-domain/src/evidence-kinds.ts",
-          "values": [
-            {
-              "name": "process_observed",
-              "sourceObjectPath": "ActivityEventKindDefinition.ProcessObserved"
-            },
-            {
-              "name": "window_focused",
-              "sourceObjectPath": "ActivityEventKindDefinition.WindowFocused"
-            },
-            {
-              "name": "domain_observed",
-              "sourceObjectPath": "ActivityEventKindDefinition.DomainObserved"
-            },
-            {
-              "name": "url_observed",
-              "sourceObjectPath": "ActivityEventKindDefinition.UrlObserved"
-            },
-            {
-              "name": "video_observed",
-              "sourceObjectPath": "ActivityEventKindDefinition.VideoObserved"
-            },
-            {
-              "name": "browser_intervention_applied",
-              "sourceObjectPath": "ActivityEventKindDefinition.BrowserInterventionApplied"
-            },
-            {
-              "name": "enforcement_audit_recorded",
-              "sourceObjectPath": "ActivityEventKindDefinition.EnforcementAuditRecorded"
-            },
-            {
-              "name": "device_idle_state_observed",
-              "sourceObjectPath": "ActivityEventKindDefinition.DeviceIdleStateObserved"
-            },
-            {
-              "name": "screen_analysis_summarized",
-              "sourceObjectPath": "ActivityEventKindDefinition.ScreenAnalysisSummarized"
-            },
-            {
-              "name": "location_observed",
-              "sourceObjectPath": "ActivityEventKindDefinition.LocationObserved"
-            },
-            {
-              "name": "tracking_alert_evaluated",
-              "sourceObjectPath": "ActivityEventKindDefinition.TrackingAlertEvaluated"
-            },
-            {
-              "name": "tracking_geofence_transition_evaluated",
-              "sourceObjectPath": "ActivityEventKindDefinition.TrackingGeofenceTransitionEvaluated"
-            },
-            {
-              "name": "tracking_expected_place_evaluated",
-              "sourceObjectPath": "ActivityEventKindDefinition.TrackingExpectedPlaceEvaluated"
-            },
-            {
-              "name": "tracking_child_check_in_responded",
-              "sourceObjectPath": "ActivityEventKindDefinition.TrackingChildCheckInResponded"
-            },
-            {
-              "name": "tracking_parent_notification_requested",
-              "sourceObjectPath": "ActivityEventKindDefinition.TrackingParentNotificationRequested"
-            },
-            {
-              "name": "tracking_retention_deleted",
-              "sourceObjectPath": "ActivityEventKindDefinition.TrackingRetentionDeleted"
-            },
-            {
-              "name": "network_retention_deleted",
-              "sourceObjectPath": "ActivityEventKindDefinition.NetworkRetentionDeleted"
-            }
-          ]
         }
       ]
     },
@@ -829,6 +726,7 @@
       "name": "tracking-retention-settings-write-rust-constants",
       "ownerPath": "crates/agent-protocol/src/constants/tracking_retention_settings_write.rs",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "allowedPaths": ["packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts"],
       "values": [
         {
           "name": "command_id",
@@ -881,57 +779,6 @@
         {
           "name": "durable_settings_store_file_name",
           "rustConst": "DURABLE_SETTINGS_STORE_FILE_NAME"
-        }
-      ],
-      "mirrors": [
-        {
-          "path": "packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts",
-          "values": [
-            {
-              "name": "command_id",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.CommandId"
-            },
-            {
-              "name": "accepted_at",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.AcceptedAt"
-            },
-            {
-              "name": "settings_kind_retention_window",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow"
-            },
-            {
-              "name": "write_state_accepted",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted"
-            },
-            {
-              "name": "write_state_rejected",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.WriteStateRejected"
-            },
-            {
-              "name": "mutation_proof_ref",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.MutationProofRef"
-            },
-            {
-              "name": "writer_intent_ref",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef"
-            },
-            {
-              "name": "read_model_proof_ref",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[0]"
-            },
-            {
-              "name": "journal_read_model_proof_ref",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[1]"
-            },
-            {
-              "name": "local_service_state_snapshot_ref",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef"
-            },
-            {
-              "name": "durable_settings_store_ref",
-              "sourceObjectPath": "AgentTrackingRetentionSettingsWriteDefaults.DurableSettingsStoreRef"
-            }
-          ]
         }
       ]
     }

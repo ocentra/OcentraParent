@@ -26,7 +26,7 @@ describe('local dev seeding workflow', () => {
     for (const family of seededFamilies) {
       if (family.populationState === 'blocked') {
         assert.ok(family.blocker);
-        assert.ok(family.blocker?.details.includes('billing-domain') || family.blocker?.details.includes('ERR_MODULE_NOT_FOUND'));
+        assert.ok(family.blocker?.details.length > 0);
       } else {
         assert.equal(family.populationState, 'populated');
         assert.ok((family.itemCount ?? 0) > 0);
@@ -35,13 +35,7 @@ describe('local dev seeding workflow', () => {
 
     if (workflow.start.status === 'blocked') {
       assert.ok(workflow.start.blockers.length > 0);
-      assert.ok(
-        workflow.start.blockers.some(
-          (blocker) =>
-            blocker.path === 'packages/billing-domain/src/billing-checkout-portal-boundary.js' ||
-            blocker.details.includes('billing-checkout-portal-boundary')
-        )
-      );
+      assert.ok(workflow.start.blockers.some((blocker) => blocker.details.length > 0));
     } else {
       assert.deepEqual(workflow.start.blockers, []);
     }

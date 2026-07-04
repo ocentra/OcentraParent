@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use crate::{
     constants::{self, v08_os_adapter_product_proof as proof_constants},
     EnforcementCapabilityState, EnforcementReadinessState, EnforcementResultStatus,
@@ -24,14 +22,13 @@ fn product_proof_surfaces_have_stable_protocol_strings() {
         V08OsAdapterProductProofSurface::AuditCustody,
         V08OsAdapterProductProofSurface::RollbackArtifactGate,
     ];
-    let serialized = serde_json::to_value(surfaces).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized
             .as_array()
-            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
             .len(),
         12
     );
@@ -69,30 +66,77 @@ fn product_proof_read_model_serializes_claim_flags_for_runtime_preview() {
         generated_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
         source_read_model_ids: vec![proof_constants::READ_MODEL_ID.to_string()],
         entries: vec![
-            product_entry(
-                proof_constants::ENTRY_ID_OWNED_PROCESS_TERMINATE,
-                V08OsAdapterProductProofSurface::OwnedProcessTerminate,
-                EnforcementReadinessState::Implemented,
-                EnforcementCapabilityState::Supported,
-                EnforcementResultStatus::ActuallyEnforced,
-            ),
-            product_entry(
-                proof_constants::ENTRY_ID_BROAD_APP_BLOCKING,
-                V08OsAdapterProductProofSurface::BroadAppBlocking,
-                EnforcementReadinessState::ManualRequired,
-                EnforcementCapabilityState::ManualRequired,
-                EnforcementResultStatus::Unavailable,
-            ),
+            V08OsAdapterProductProofEntry {
+                schema_version: crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+                proof_entry_id: proof_constants::ENTRY_ID_OWNED_PROCESS_TERMINATE.to_string(),
+                surface: V08OsAdapterProductProofSurface::OwnedProcessTerminate,
+                platform: crate::ParentPlatform::Windows,
+                adapter_kind: crate::EnforcementAdapterKind::ProcessControl,
+                capability_state: EnforcementCapabilityState::Supported,
+                readiness_state: EnforcementReadinessState::Implemented,
+                proof_level: crate::EnforcementReadinessProofLevel::RealServiceProof,
+                runtime_owner: crate::EnforcementReadinessRuntimeOwner::RustService,
+                supported_modes: Vec::new(),
+                result_status: EnforcementResultStatus::ActuallyEnforced,
+                rollback_state: EnforcementRollbackState::NotRequired,
+                timer_recovery_state: V08OsAdapterProductProofTimerRecoveryState::NotRequired,
+                audit_state: V08OsAdapterProductProofAuditState::Journaled,
+                parent_override_state: V08OsAdapterProductProofParentOverrideState::NotRequired,
+                linked_readiness_ids: Vec::new(),
+                linked_capability_entry_ids: Vec::new(),
+                linked_artifact_gate_entry_ids: Vec::new(),
+                capability_requirement: proof_constants::CAPABILITY_OWNED_PROCESS.to_string(),
+                proof_requirement: proof_constants::PROOF_OWNED_PROCESS.to_string(),
+                claim_boundary: proof_constants::CLAIM_OWNED_PROCESS.to_string(),
+                fallback_behavior: proof_constants::FALLBACK_OWNED_PROCESS.to_string(),
+                claim_upgrade_allowed: false,
+                broad_blocking_claimed: false,
+                exact_url_claimed: false,
+                last_checked_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
+            },
+            V08OsAdapterProductProofEntry {
+                schema_version: crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+                proof_entry_id: proof_constants::ENTRY_ID_BROAD_APP_BLOCKING.to_string(),
+                surface: V08OsAdapterProductProofSurface::BroadAppBlocking,
+                platform: crate::ParentPlatform::Windows,
+                adapter_kind: crate::EnforcementAdapterKind::ProcessControl,
+                capability_state: EnforcementCapabilityState::ManualRequired,
+                readiness_state: EnforcementReadinessState::ManualRequired,
+                proof_level: crate::EnforcementReadinessProofLevel::RealServiceProof,
+                runtime_owner: crate::EnforcementReadinessRuntimeOwner::RustService,
+                supported_modes: Vec::new(),
+                result_status: EnforcementResultStatus::Unavailable,
+                rollback_state: EnforcementRollbackState::NotRequired,
+                timer_recovery_state: V08OsAdapterProductProofTimerRecoveryState::NotRequired,
+                audit_state: V08OsAdapterProductProofAuditState::Journaled,
+                parent_override_state: V08OsAdapterProductProofParentOverrideState::NotRequired,
+                linked_readiness_ids: Vec::new(),
+                linked_capability_entry_ids: Vec::new(),
+                linked_artifact_gate_entry_ids: Vec::new(),
+                capability_requirement: proof_constants::CAPABILITY_OWNED_PROCESS.to_string(),
+                proof_requirement: proof_constants::PROOF_OWNED_PROCESS.to_string(),
+                claim_boundary: proof_constants::CLAIM_OWNED_PROCESS.to_string(),
+                fallback_behavior: proof_constants::FALLBACK_OWNED_PROCESS.to_string(),
+                claim_upgrade_allowed: false,
+                broad_blocking_claimed: false,
+                exact_url_claimed: false,
+                last_checked_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
+            },
         ],
     };
-    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
     let reparsed = serde_json::from_value::<V08OsAdapterProductProofReadModel>(serialized)
-        .unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let readiness_counts: std::collections::BTreeMap<&'static str, usize> = reparsed
+        .entries
+        .iter()
+        .fold(std::collections::BTreeMap::new(), |mut counts, entry| {
+            *counts
+                .entry(entry.readiness_state.as_protocol_str())
+                .or_default() += 1;
+            counts
         });
-    let readiness_counts = count_readiness(&reparsed.entries);
 
     assert_eq!(reparsed.read_model_id, proof_constants::READ_MODEL_ID);
     assert_eq!(
@@ -111,50 +155,4 @@ fn product_proof_read_model_serializes_claim_flags_for_runtime_preview() {
         .entries
         .iter()
         .all(|entry| !entry.broad_blocking_claimed && !entry.exact_url_claimed));
-}
-
-fn product_entry(
-    proof_entry_id: &str,
-    surface: V08OsAdapterProductProofSurface,
-    readiness_state: EnforcementReadinessState,
-    capability_state: EnforcementCapabilityState,
-    result_status: EnforcementResultStatus,
-) -> V08OsAdapterProductProofEntry {
-    V08OsAdapterProductProofEntry {
-        schema_version: crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-        proof_entry_id: proof_entry_id.to_string(),
-        surface,
-        platform: crate::ParentPlatform::Windows,
-        adapter_kind: crate::EnforcementAdapterKind::ProcessControl,
-        capability_state,
-        readiness_state,
-        proof_level: crate::EnforcementReadinessProofLevel::RealServiceProof,
-        runtime_owner: crate::EnforcementReadinessRuntimeOwner::RustService,
-        supported_modes: Vec::new(),
-        result_status,
-        rollback_state: EnforcementRollbackState::NotRequired,
-        timer_recovery_state: V08OsAdapterProductProofTimerRecoveryState::NotRequired,
-        audit_state: V08OsAdapterProductProofAuditState::Journaled,
-        parent_override_state: V08OsAdapterProductProofParentOverrideState::NotRequired,
-        linked_readiness_ids: Vec::new(),
-        linked_capability_entry_ids: Vec::new(),
-        linked_artifact_gate_entry_ids: Vec::new(),
-        capability_requirement: proof_constants::CAPABILITY_OWNED_PROCESS.to_string(),
-        proof_requirement: proof_constants::PROOF_OWNED_PROCESS.to_string(),
-        claim_boundary: proof_constants::CLAIM_OWNED_PROCESS.to_string(),
-        fallback_behavior: proof_constants::FALLBACK_OWNED_PROCESS.to_string(),
-        claim_upgrade_allowed: false,
-        broad_blocking_claimed: false,
-        exact_url_claimed: false,
-        last_checked_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
-    }
-}
-
-fn count_readiness(entries: &[V08OsAdapterProductProofEntry]) -> BTreeMap<&'static str, usize> {
-    entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts
-            .entry(entry.readiness_state.as_protocol_str())
-            .or_default() += 1;
-        counts
-    })
 }

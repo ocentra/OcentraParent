@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use crate::test_invariants::{require_json_decode, require_log_string_field};
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameAdapterDispatchPreflightReadModel;
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::{
@@ -21,7 +24,8 @@ fn app_game_adapter_dispatch_preflight_reports_one_scoped_dispatch_eligible_row(
         string_payload(
             &payload,
             constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL,
-        ),
+        )
+        .as_ref(),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
 
@@ -88,10 +92,11 @@ fn app_game_adapter_dispatch_preflight_reports_one_scoped_dispatch_eligible_row(
 
 fn string_payload<'a>(
     payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
-    field_name: &str,
-) -> &'a str {
-    require_log_string_field(
-        payload.get(field_name),
+    field_name: impl std::fmt::Display,
+) -> TestText {
+    let field_name = field_name.to_string();
+    TestText::from_display(require_log_string_field(
+        payload.get(field_name.as_str()),
         constants::error::AGENT_EVENT_SERIALIZES,
-    )
+    ))
 }

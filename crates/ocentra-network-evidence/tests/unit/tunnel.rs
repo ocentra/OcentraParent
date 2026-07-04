@@ -1,9 +1,5 @@
-use crate::{
-    classify_vpn_proxy_tunnel_activity, NetworkTunnelBasis, NetworkTunnelClassification,
-    NetworkTunnelClassifierError, NetworkTunnelClassifierInput, NetworkTunnelIndicator,
-    NetworkTunnelIndicatorEvidence, NetworkTunnelKind,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::tunnel::*;
 
 #[test]
 fn tunnel_classifier_flags_vpn_adapter_indicator_without_hidden_destination_claim() {

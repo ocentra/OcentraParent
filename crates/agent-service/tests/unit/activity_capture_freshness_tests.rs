@@ -1,5 +1,11 @@
+#[macro_use]
+#[path = "../support/unit_root_basic_harness.rs"]
+mod unit_root_basic_harness;
+declare_agent_service_unit_root_basic_harness!();
+
 use std::fs::{read, remove_file};
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::{
     journal::ActivityJournal,
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
@@ -7,20 +13,31 @@ use ocentra_parent_agent_core::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_service::test_support::record_activity_capture_freshness_to_paths_for_test;
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestText>;
 
 #[test]
 fn recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_without_content_claim(
 ) -> TestResult {
-    let journal_path = temp_path(
+    let build_path = |suffix: &str, extension: &str| {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(suffix);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
+    let journal_path = build_path(
         constants::activity_store::TEST_CAPTURE_FRESHNESS_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
     );
-    let key_path = temp_path(
+    let key_path = build_path(
         constants::activity_store::TEST_CAPTURE_FRESHNESS_KEY_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let store_path = temp_path(
+    let store_path = build_path(
         constants::activity_store::TEST_CAPTURE_FRESHNESS_STORE_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
@@ -50,23 +67,14 @@ fn recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_wit
     Ok(())
 }
 
-fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
-
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path.set_extension(extension);
-    path
-}
-
 fn cleanup_paths(
-    journal_path: &std::path::PathBuf,
-    key_path: &std::path::PathBuf,
-    store_path: &std::path::PathBuf,
+    journal_path: impl AsRef<std::path::Path>,
+    key_path: impl AsRef<std::path::Path>,
+    store_path: impl AsRef<std::path::Path>,
 ) {
+    let journal_path = journal_path.as_ref();
+    let key_path = key_path.as_ref();
+    let store_path = store_path.as_ref();
     let _ = remove_file(journal_path);
     let _ = remove_file(key_path);
     let _ = remove_file(store_path);

@@ -1,3 +1,8 @@
+#[macro_use]
+#[path = "../support/unit_root_basic_harness.rs"]
+mod unit_root_basic_harness;
+declare_agent_service_unit_root_basic_harness!();
+
 use ocentra_parent_agent_protocol::activity::{
     policy::ParentEvidenceReference, policy::ParentEvidenceReferenceKind,
     policy_context::ParentDeviceReference,
@@ -15,18 +20,23 @@ use ocentra_parent_agent_protocol::ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE;
 use ocentra_parent_agent_protocol::ACTIVITY_MEMORY_GRAPH_INDEX_VERSION;
 use ocentra_parent_agent_protocol::ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::activity_memory_graph_payload_for_test;
+use crate::test_text::TestText;
 
 #[test]
-fn activity_memory_graph_payload_contains_contract_digest_json() -> Result<(), String> {
+fn activity_memory_graph_payload_contains_contract_digest_json() -> Result<(), TestText> {
     let read_model = read_model();
 
     let payload = activity_memory_graph_payload_for_test(&read_model);
     let digest_json = match payload.get(constants::field::ACTIVITY_DIGEST) {
         Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => return Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
+        _ => {
+            return Err(TestText::from_display(constants::error::AGENT_EVENT_SERIALIZES))
+        }
     };
     let digest = serde_json::from_str::<ActivityMemoryGraphReadModel>(digest_json)
-        .map_err(|error| format!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES))?;
+        .map_err(|error| {
+            TestText::from_display(format!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES))
+        })?;
 
     assert_eq!(
         payload.get(constants::field::RETURNED),

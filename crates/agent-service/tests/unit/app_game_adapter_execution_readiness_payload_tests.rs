@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use crate::test_invariants::{require_json_decode, require_log_string_field, require_some};
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     AppGameAdapterExecutionReadinessReadModel, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,

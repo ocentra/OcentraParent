@@ -13,6 +13,8 @@ use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::AgentCommandName;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
+use crate::test_text::TestText;
+
 use crate::{
     app::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test},
     lan_pairing_test_commands::{
@@ -25,13 +27,15 @@ use crate::{
 async fn authorized_lan_ai_job_submit_reports_child_owned_mesh_route_metadata() {
     let runtime = lan_ai_provider_runtime().await;
     let event = handle_command_text_for_test(
-        &serialize_command(command_for_target(
+        serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload(constants::local_ai_runtime::CAPABILITY_SUMMARIZATION),
+            lan_ai_job_payload(),
         )),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -55,11 +59,11 @@ async fn authorized_lan_ai_job_submit_reports_child_owned_mesh_route_metadata() 
     assert_child_owned_custody_fields(&event.payload);
     assert_eq!(
         event.payload.get(constants::field::LAN_AI_CLAIM_ID),
-        Some(&LogFieldValue::String(lan_ai_claim_id()))
+        Some(&LogFieldValue::String(lan_ai_claim_id().0))
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_AI_LEASE_ID),
-        Some(&LogFieldValue::String(lan_ai_lease_id()))
+        Some(&LogFieldValue::String(lan_ai_lease_id().0))
     );
     assert_no_raw_lan_ai_markers(&event.payload);
 }
@@ -85,7 +89,7 @@ fn assert_child_owned_custody_fields(payload: &LogFields) {
     );
 }
 
-fn lan_ai_job_payload(capability: &str) -> LogFields {
+fn lan_ai_job_payload() -> LogFields {
     let mut payload = intent_payload_for_kind(
         constants::lan_pairing::LAN_AI_JOB_INTENT_ID,
         constants::lan_pairing::CHILD_DEVICE_ID,
@@ -103,7 +107,7 @@ fn lan_ai_job_payload(capability: &str) -> LogFields {
     );
     payload.insert(
         constants::field::LOCAL_AI_CAPABILITY_FLAGS.to_string(),
-        LogFieldValue::String(capability.to_string()),
+        LogFieldValue::String(constants::local_ai_runtime::CAPABILITY_SUMMARIZATION.to_string()),
     );
     payload
 }
@@ -111,7 +115,9 @@ fn lan_ai_job_payload(capability: &str) -> LogFields {
 async fn lan_ai_provider_runtime() -> LanPairingRuntime {
     let mut runtime = paired_runtime().await;
     runtime.device_roles = DeviceRoleRuntimeReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT
+            .to_string()
+            .into(),
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: DeviceRuntimeSurface::ParentDesktop,
         platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),
@@ -141,18 +147,16 @@ fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
     }
 }
 
-fn lan_ai_claim_id() -> String {
-    prefixed_id(constants::lan_pairing::LAN_AI_CLAIM_ID_PREFIX)
-}
-
-fn lan_ai_lease_id() -> String {
-    prefixed_id(constants::lan_pairing::LAN_AI_LEASE_ID_PREFIX)
-}
-
-fn prefixed_id(prefix: &str) -> String {
-    let mut value = String::from(prefix);
+fn lan_ai_claim_id() -> TestText {
+    let mut value = String::from(constants::lan_pairing::LAN_AI_CLAIM_ID_PREFIX);
     value.push_str(constants::lan_pairing::LAN_AI_JOB_ID);
-    value
+    TestText(value)
+}
+
+fn lan_ai_lease_id() -> TestText {
+    let mut value = String::from(constants::lan_pairing::LAN_AI_LEASE_ID_PREFIX);
+    value.push_str(constants::lan_pairing::LAN_AI_JOB_ID);
+    TestText(value)
 }
 
 fn assert_no_raw_lan_ai_markers(payload: &LogFields) {
@@ -167,18 +171,9 @@ fn assert_no_raw_lan_ai_markers(payload: &LogFields) {
         constants::lan_pairing::RAW_MARKER_RAW_TOKEN,
         constants::lan_pairing::RAW_MARKER_SQLITE_PATH,
     ] {
-        assert!(!payload_contains_marker(payload, marker));
+        assert!(!payload.iter().any(|(key, value)| {
+            key.contains(marker)
+                || matches!(value, LogFieldValue::String(value) if value.contains(marker))
+        }));
     }
-}
-
-fn payload_contains_marker(payload: &LogFields, marker: &str) -> bool {
-    payload.iter().any(|(key, value)| {
-        key.contains(marker)
-            || match value {
-                LogFieldValue::String(value) => value.contains(marker),
-                LogFieldValue::Number(_) | LogFieldValue::Boolean(_) | LogFieldValue::Null(_) => {
-                    false
-                }
-            }
-    })
 }

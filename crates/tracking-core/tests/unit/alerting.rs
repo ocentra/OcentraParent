@@ -21,17 +21,13 @@ fn review_policy_violation_maps_to_watch_alert_when_notification_is_allowed() {
     assert_eq!(
         decision.severity,
         TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
-            .unwrap_or_else(|_| unreachable!(
-                "{}",
-                constants::tracking_runtime::ALERT_SEVERITY_WATCH
-            ))
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
     );
     assert_eq!(
         decision.parent_notification_state,
         TrackingParentNotificationDecisionState::Allowed
     );
 }
-
 #[test]
 fn duplicate_alert_suppression_preserves_urgent_severity() {
     let decision = evaluate_tracking_alert(
@@ -45,17 +41,13 @@ fn duplicate_alert_suppression_preserves_urgent_severity() {
     assert_eq!(
         decision.severity,
         TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_URGENT)
-            .unwrap_or_else(|_| unreachable!(
-                "{}",
-                constants::tracking_runtime::ALERT_SEVERITY_URGENT
-            ))
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_URGENT)
     );
     assert_eq!(
         decision.parent_notification_state,
         TrackingParentNotificationDecisionState::SuppressedDuplicate
     );
 }
-
 #[test]
 fn missing_evidence_is_downgraded_to_info_and_suppressed() {
     let decision = evaluate_tracking_alert(
@@ -69,10 +61,7 @@ fn missing_evidence_is_downgraded_to_info_and_suppressed() {
     assert_eq!(
         decision.severity,
         TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_INFO)
-            .unwrap_or_else(|_| unreachable!(
-                "{}",
-                constants::tracking_runtime::ALERT_SEVERITY_INFO
-            ))
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_INFO)
     );
     assert_eq!(
         decision.parent_notification_state,
@@ -100,67 +89,45 @@ fn warning_and_critical_policy_severities_map_through_to_alert_severity() {
     assert_eq!(
         warning.severity,
         TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WARNING)
-            .unwrap_or_else(|_| unreachable!(
-                "{}",
-                constants::tracking_runtime::ALERT_SEVERITY_WARNING
-            ))
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_WARNING)
     );
     assert_eq!(
         critical.severity,
         TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_CRITICAL)
-            .unwrap_or_else(|_| unreachable!(
-                "{}",
-                constants::tracking_runtime::ALERT_SEVERITY_CRITICAL
-            ))
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_CRITICAL)
     );
 }
 
 fn tracking_policy_violation(
-    severity: &'static str,
+    severity: impl core::fmt::Display,
     evidence_refs: Vec<TrackingEvidenceRef>,
 ) -> TrackingPolicyViolationDetectedEvent {
+    let severity = severity.to_string();
     TrackingPolicyViolationDetectedEvent {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .unwrap_or_else(|_| {
-            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        }),
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .unwrap_or_else(|_| {
-            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID)
-        }),
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
         violation_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .unwrap_or_else(|_| {
-            unreachable!(
-                "{}",
-                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
-            )
-        }),
+        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
         policy_rule_ref: TrackingPolicyRuleRef::parse(
             constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
         )
-        .unwrap_or_else(|_| {
-            unreachable!(
-                "{}",
-                constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
-            )
-        }),
-        severity: TrackingPolicySeverity::parse(severity)
-            .unwrap_or_else(|_| unreachable!("{}", severity)),
+        .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE),
+        severity: TrackingPolicySeverity::parse(&severity).expect(&severity),
         detected_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            .unwrap_or_else(|_| {
-                unreachable!("{}", constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            }),
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
         evidence_refs,
     }
 }
 
 fn tracking_evidence_ref() -> TrackingEvidenceRef {
     TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-        .unwrap_or_else(|_| unreachable!("{}", constants::tracking_runtime::DEFAULT_EVIDENCE_REF))
+        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
 }

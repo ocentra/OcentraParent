@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 import { TestLogDuckDb } from '../../src/test-log/testLogDuckDb';
-import { RunType, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
+import { RunType, TestLogScope } from '../../src/test-log/types';
 
 async function removeDirWithRetries(dirPath: string): Promise<void> {
   for (let attempt = 0; attempt < 40; attempt += 1) {

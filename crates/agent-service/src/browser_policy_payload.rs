@@ -6,6 +6,20 @@ use ocentra_parent_agent_protocol::logging::LogFields;
 
 use crate::{fields::fields_from_pairs, json_contract::serialize_json_string};
 
+const BROWSER_POLICY_REJECTION_REASON_PROTOCOL_STRINGS: [&str; 11] = [
+    constants::browser_policy::REJECTION_INVALID_REQUEST,
+    constants::browser_policy::REJECTION_UNKNOWN_WRITES_TO,
+    constants::browser_policy::REJECTION_UNKNOWN_FIELD,
+    constants::browser_policy::REJECTION_INVALID_ENUM_VALUE,
+    constants::browser_policy::REJECTION_MISSING_BUDGET_OR_FALLBACK,
+    constants::browser_policy::REJECTION_MISSING_MANAGED_PROOF_OR_FALLBACK,
+    constants::browser_policy::REJECTION_CAPABILITY_UNAVAILABLE,
+    constants::browser_policy::REJECTION_STORAGE_UNAVAILABLE,
+    constants::browser_policy::REJECTION_STALE_REVISION,
+    constants::browser_policy::REJECTION_SCAFFOLD_UNAVAILABLE,
+    constants::browser_policy::REJECTION_REVISION_NOT_FOUND,
+];
+
 pub(crate) fn browser_policy_response_payload(response: &BrowserPolicyUpdateResponse) -> LogFields {
     let mut fields = fields_from_pairs(vec![
         (
@@ -20,7 +34,9 @@ pub(crate) fn browser_policy_response_payload(response: &BrowserPolicyUpdateResp
     if let Some(reason) = response.rejection_reason {
         fields.insert(
             constants::field::BROWSER_POLICY_REJECTION_REASON.to_string(),
-            LogFieldValue::String(rejection_reason_protocol_str(reason).to_string()),
+            LogFieldValue::String(
+                BROWSER_POLICY_REJECTION_REASON_PROTOCOL_STRINGS[reason as usize].to_string(),
+            ),
         );
     }
     if let Some(effective_policy) = &response.effective_policy {
@@ -36,42 +52,4 @@ pub(crate) fn browser_policy_response_payload(response: &BrowserPolicyUpdateResp
         );
     }
     fields
-}
-
-fn rejection_reason_protocol_str(reason: BrowserPolicyRejectionReason) -> &'static str {
-    match reason {
-        BrowserPolicyRejectionReason::InvalidRequest => {
-            constants::browser_policy::REJECTION_INVALID_REQUEST
-        }
-        BrowserPolicyRejectionReason::StorageUnavailable => {
-            constants::browser_policy::REJECTION_STORAGE_UNAVAILABLE
-        }
-        BrowserPolicyRejectionReason::StaleRevision => {
-            constants::browser_policy::REJECTION_STALE_REVISION
-        }
-        BrowserPolicyRejectionReason::ScaffoldUnavailable => {
-            constants::browser_policy::REJECTION_SCAFFOLD_UNAVAILABLE
-        }
-        BrowserPolicyRejectionReason::RevisionNotFound => {
-            constants::browser_policy::REJECTION_REVISION_NOT_FOUND
-        }
-        BrowserPolicyRejectionReason::UnknownWritesTo => {
-            constants::browser_policy::REJECTION_UNKNOWN_WRITES_TO
-        }
-        BrowserPolicyRejectionReason::UnknownField => {
-            constants::browser_policy::REJECTION_UNKNOWN_FIELD
-        }
-        BrowserPolicyRejectionReason::InvalidEnumValue => {
-            constants::browser_policy::REJECTION_INVALID_ENUM_VALUE
-        }
-        BrowserPolicyRejectionReason::MissingBudgetOrFallback => {
-            constants::browser_policy::REJECTION_MISSING_BUDGET_OR_FALLBACK
-        }
-        BrowserPolicyRejectionReason::MissingManagedProofOrFallback => {
-            constants::browser_policy::REJECTION_MISSING_MANAGED_PROOF_OR_FALLBACK
-        }
-        BrowserPolicyRejectionReason::CapabilityUnavailable => {
-            constants::browser_policy::REJECTION_CAPABILITY_UNAVAILABLE
-        }
-    }
 }

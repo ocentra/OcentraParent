@@ -25,19 +25,17 @@ import {
   type BillingStateMutation,
 } from './billing-binding-read-model.js';
 import {
+  BillingHostedReturnRoute,
   BillingCheckoutSessionRequestSchema,
   BillingCheckoutSessionResponseSchema,
-  BillingHostedReturnRoute,
   BillingPortalSessionRequestSchema,
   BillingPortalSessionResponseSchema,
-} from '../../../packages/billing-domain/src/billing-checkout-portal-boundary.js';
-import {
   BillingSupportAdminAccountsResponseSchema,
   BillingSupportAdminAuditEventsResponseSchema,
   BillingSupportAdminDisputesResponseSchema,
   BillingSupportAdminInvoicesResponseSchema,
   BillingSupportAdminReferralsResponseSchema,
-} from '../../../packages/billing-domain/src/billing-support-admin-api-boundary.js';
+} from './generated/billing-contracts.js';
 import {
   signatureHeaderName,
   verifyAuthState,
@@ -171,7 +169,11 @@ type QueueFailureReason = 'reconciliation-queue-missing' | 'reconciliation-queue
 const CHECKOUT_SUCCESS_PATH = BillingHostedReturnRoute.CheckoutSuccess.relativePath;
 const CHECKOUT_CANCEL_PATH = BillingHostedReturnRoute.CheckoutCancel.relativePath;
 const PORTAL_RETURN_PATH = BillingHostedReturnRoute.PortalReturn.relativePath;
-const ALLOWLISTED_RETURN_PATHS = new Set([CHECKOUT_SUCCESS_PATH, CHECKOUT_CANCEL_PATH, PORTAL_RETURN_PATH]);
+const ALLOWLISTED_RETURN_PATHS: ReadonlySet<string> = new Set([
+  CHECKOUT_SUCCESS_PATH,
+  CHECKOUT_CANCEL_PATH,
+  PORTAL_RETURN_PATH,
+]);
 const ACCEPTED_ABUSE_GATE_STATES = new Set(['passed-turnstile', 'trusted-authenticated-session']);
 
 function json(status: number, body: unknown, headers: HeadersInit = {}): Response {
@@ -308,6 +310,7 @@ function rejectionResponse(
   requestId: string,
   rejectionReason: HostedSessionRejectionReason
 ): Response {
+  const pendingEntitlementConfirmation = kind === 'checkout-session-create';
   if (kind === 'checkout-session-create') {
     return json(
       200,
@@ -320,6 +323,9 @@ function rejectionResponse(
         hostedUrl: null,
         expiresAt: null,
         rejectionReason,
+        provider: 'stripe',
+        ownerSubject: 'unknown',
+        pendingEntitlementConfirmation,
       })
     );
   }
@@ -335,6 +341,9 @@ function rejectionResponse(
       hostedUrl: null,
       expiresAt: null,
       rejectionReason,
+      provider: 'stripe',
+      ownerSubject: 'unknown',
+      pendingEntitlementConfirmation,
     })
   );
 }
@@ -359,18 +368,22 @@ function hostedSessionAuditReference(kind: HostedSessionKind, subject: string, r
 
 function acceptedResponseBody(kind: HostedSessionKind, requestId: string, subject: string): Record<string, unknown> {
   const hostedUrl = hostedSessionUrlFor(kind, requestId);
+  const pendingEntitlementConfirmation = kind === 'checkout-session-create';
   const contractResponse =
     kind === 'checkout-session-create'
       ? BillingCheckoutSessionResponseSchema.parse({
-          schemaVersion: 'billing-checkout-portal-boundary',
-          requestId,
+        schemaVersion: 'billing-checkout-portal-boundary',
+        requestId,
           kind,
-          status: 'accepted',
-          hostedSessionId: hostedSessionIdFor(kind, requestId),
-          hostedUrl,
-          expiresAt: '2026-06-14T01:00:00.000Z',
-          rejectionReason: null,
-        })
+        status: 'accepted',
+        hostedSessionId: hostedSessionIdFor(kind, requestId),
+        hostedUrl,
+        expiresAt: '2026-06-14T01:00:00.000Z',
+        rejectionReason: null,
+        provider: 'stripe',
+        ownerSubject: subject,
+        pendingEntitlementConfirmation,
+      })
       : BillingPortalSessionResponseSchema.parse({
           schemaVersion: 'billing-checkout-portal-boundary',
           requestId,
@@ -380,14 +393,12 @@ function acceptedResponseBody(kind: HostedSessionKind, requestId: string, subjec
           hostedUrl,
           expiresAt: '2026-06-14T01:00:00.000Z',
           rejectionReason: null,
+          provider: 'stripe',
+          ownerSubject: subject,
+          pendingEntitlementConfirmation,
         });
 
-  return {
-    ...contractResponse,
-    provider: 'stripe',
-    ownerSubject: subject,
-    pendingEntitlementConfirmation: kind === 'checkout-session-create',
-  };
+  return contractResponse;
 }
 
 async function readJsonObject<T extends Record<string, unknown>>(request: Request): Promise<T | null> {
@@ -759,8 +770,8 @@ async function executeIdempotentWrite(
     return json(envelope.responseStatus, responseBody);
   }
 
-  const stub = namespace.get(namespace.idFromName(objectName));
-  const doResponse = await stub.fetch(
+  const durableObject = namespace.get(namespace.idFromName(objectName));
+  const doResponse = await durableObject.fetch(
     new Request('https://durable-object.local/idempotency/execute', {
       method: 'POST',
       headers: {

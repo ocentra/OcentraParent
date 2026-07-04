@@ -13,7 +13,7 @@ fn lan_plan_fixture(name: &str) -> String {
         env!("CARGO_MANIFEST_DIR"),
         name
     ))
-    .value_or_unreachable("fixture loads")
+    .value_or_unreachable()
 }
 
 fn fixture_name_evidence(
@@ -83,7 +83,7 @@ fn name_evidence_tracks_source_confidence_timing_and_interface() {
         "2026-06-26T00:00:00Z",
         Some(" Wi-Fi "),
     )
-    .value_or_unreachable("llmnr evidence");
+    .value_or_unreachable();
 
     assert_eq!(evidence.source, LanDiscoveryEvidenceSource::Llmnr);
     assert_eq!(evidence.confidence, LanDiscoveryEvidenceConfidence::Weak);
@@ -133,7 +133,7 @@ fn all_supported_name_sources_normalize_to_weak_evidence_with_trimmed_interface(
     ];
 
     for (evidence, expected_source, expected_interface) in cases {
-        let evidence = evidence.value_or_unreachable("name evidence");
+        let evidence = evidence.value_or_unreachable();
         assert_eq!(evidence.source, expected_source);
         assert_eq!(evidence.confidence, LanDiscoveryEvidenceConfidence::Weak);
         assert_eq!(evidence.first_seen_at, "2026-06-26T00:00:00Z");
@@ -168,8 +168,8 @@ fn duplicate_name_observations_stay_weak_and_time_scoped() {
     ];
 
     for (first, second, expected_source) in cases {
-        let first = first.value_or_unreachable("first duplicate name evidence");
-        let second = second.value_or_unreachable("second duplicate name evidence");
+        let first = first.value_or_unreachable();
+        let second = second.value_or_unreachable();
 
         assert_eq!(first.source, expected_source);
         assert_eq!(second.source, expected_source);

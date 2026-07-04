@@ -1,12 +1,7 @@
-use crate::{
-    map_network_evidence_grade_to_policy, plan_network_android_vpn_service_gate,
-    NetworkAndroidVpnServiceCapabilityState, NetworkAndroidVpnServiceGateBoundaryReason,
-    NetworkAndroidVpnServiceGateError, NetworkAndroidVpnServiceGateInput,
-    NetworkAndroidVpnServiceGateState, NetworkAndroidVpnServiceRequiredArtifact,
-    NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
-    NetworkEvidencePolicyMappingInput,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::android_vpn_service_gate::*;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::policy::*;
 
 #[test]
 fn android_vpn_service_gate_allows_physical_device_ready_without_device_owner_claim() {

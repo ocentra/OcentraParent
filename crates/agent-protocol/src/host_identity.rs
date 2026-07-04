@@ -7,6 +7,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum HostIdentityEvidenceKind {
     #[serde(rename = "installed-app-inventory")]
     InstalledAppInventory,
@@ -29,22 +30,25 @@ pub enum HostIdentityEvidenceKind {
 }
 
 impl HostIdentityEvidenceKind {
+    const PROTOCOL_STRINGS: [&'static str; 9] = [
+        host_identity_constants::KIND_INSTALLED_APP_INVENTORY,
+        host_identity_constants::KIND_PROCESS_LINEAGE,
+        host_identity_constants::KIND_EXECUTABLE_IDENTITY,
+        host_identity_constants::KIND_PACKAGE_IDENTITY,
+        host_identity_constants::KIND_PUBLISHER_SIGNATURE,
+        host_identity_constants::KIND_INVENTORY_PROCESS_LINK,
+        host_identity_constants::KIND_UNSUPPORTED_IDENTITY,
+        host_identity_constants::KIND_ROLLBACK_READINESS,
+        host_identity_constants::KIND_AUDIT_CUSTODY,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::InstalledAppInventory => host_identity_constants::KIND_INSTALLED_APP_INVENTORY,
-            Self::ProcessLineage => host_identity_constants::KIND_PROCESS_LINEAGE,
-            Self::ExecutableIdentity => host_identity_constants::KIND_EXECUTABLE_IDENTITY,
-            Self::PackageIdentity => host_identity_constants::KIND_PACKAGE_IDENTITY,
-            Self::PublisherSignature => host_identity_constants::KIND_PUBLISHER_SIGNATURE,
-            Self::InventoryProcessLink => host_identity_constants::KIND_INVENTORY_PROCESS_LINK,
-            Self::UnsupportedIdentity => host_identity_constants::KIND_UNSUPPORTED_IDENTITY,
-            Self::RollbackReadiness => host_identity_constants::KIND_ROLLBACK_READINESS,
-            Self::AuditCustody => host_identity_constants::KIND_AUDIT_CUSTODY,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum HostIdentityEvidenceClass {
     #[serde(rename = "inventory")]
     Inventory,
@@ -63,16 +67,18 @@ pub enum HostIdentityEvidenceClass {
 }
 
 impl HostIdentityEvidenceClass {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        host_identity_constants::CLASS_INVENTORY,
+        host_identity_constants::CLASS_PROCESS,
+        host_identity_constants::CLASS_EXECUTABLE,
+        host_identity_constants::CLASS_PACKAGE,
+        host_identity_constants::CLASS_PUBLISHER_SIGNATURE,
+        host_identity_constants::CLASS_ROLLBACK,
+        host_identity_constants::CLASS_AUDIT,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Inventory => host_identity_constants::CLASS_INVENTORY,
-            Self::Process => host_identity_constants::CLASS_PROCESS,
-            Self::Executable => host_identity_constants::CLASS_EXECUTABLE,
-            Self::Package => host_identity_constants::CLASS_PACKAGE,
-            Self::PublisherSignature => host_identity_constants::CLASS_PUBLISHER_SIGNATURE,
-            Self::Rollback => host_identity_constants::CLASS_ROLLBACK,
-            Self::Audit => host_identity_constants::CLASS_AUDIT,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 

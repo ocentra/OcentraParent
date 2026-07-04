@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import {
-  screenControlSettingsPortalProof,
-  type ScreenControlSettingsPortalGate,
-  type ScreenControlSettingsPortalMetric,
-} from '@ocentra-parent/schema-domain/screen-control-settings-portal-proof';
+  parentScreenControlSettingsPortalProof as screenControlSettingsPortalProof,
+  type ParentScreenControlSettingsPortalGate as ScreenControlSettingsPortalGate,
+  type ParentScreenControlSettingsPortalMetric as ScreenControlSettingsPortalMetric,
+} from '../generated/parent-ui-screen-bridge';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { type PortalDisplayText } from './portal-display-text';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { isParentScreenSettingsRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';

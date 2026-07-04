@@ -16,6 +16,17 @@ use ocentra_screen_core::{
     screen_policy_evaluation_requested_event, ScreenObservationIntent,
 };
 
+#[derive(Debug)]
+struct TestError(String);
+
+impl std::fmt::Display for TestError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for TestError {}
+
 #[test]
 fn suppressed_capture_stays_idle_without_handoffs() {
     let input = screen_runtime_input_from_capture(
@@ -48,7 +59,7 @@ fn suppressed_capture_stays_idle_without_handoffs() {
 }
 
 #[test]
-fn degraded_capture_requires_policy_without_ai() -> Result<(), String> {
+fn degraded_capture_requires_policy_without_ai() -> Result<(), TestError> {
     let degraded = ScreenCaptureAttempt::Degraded(ScreenCaptureMetadata {
         status: ActivityCaptureCapabilityStatus::AccessDenied,
         scope: ScreenCaptureScope::ActiveWindow,
@@ -81,14 +92,17 @@ fn degraded_capture_requires_policy_without_ai() -> Result<(), String> {
         ScreenRuntimeActionState::RecordDegradedCapture
     );
     assert_eq!(screen_ai_analysis_requested_event(&evidence), None);
-    let policy_request = screen_policy_evaluation_requested_event(&evidence)
-        .ok_or_else(|| String::from("degraded capture should publish policy evidence"))?;
+    let policy_request = screen_policy_evaluation_requested_event(&evidence).ok_or_else(|| {
+        TestError(String::from(
+            "degraded capture should publish policy evidence",
+        ))
+    })?;
     assert_eq!(policy_request.evidence_refs, vec![evidence.evidence_ref]);
     Ok(())
 }
 
 #[test]
-fn available_ambiguous_capture_routes_to_ai_boundary() -> Result<(), String> {
+fn available_ambiguous_capture_routes_to_ai_boundary() -> Result<(), TestError> {
     let captured = captured_attempt();
     let input = screen_runtime_input_from_capture(
         ScreenCaptureScheduleDecision::EnqueueCapture {
@@ -113,13 +127,13 @@ fn available_ambiguous_capture_routes_to_ai_boundary() -> Result<(), String> {
     );
     assert_eq!(screen_policy_evaluation_requested_event(&evidence), None);
     let ai_request = screen_ai_analysis_requested_event(&evidence)
-        .ok_or_else(|| String::from("ambiguous capture should request AI"))?;
+        .ok_or_else(|| TestError(String::from("ambiguous capture should request AI")))?;
     assert_eq!(ai_request.evidence_refs, vec![evidence.evidence_ref]);
     Ok(())
 }
 
 #[test]
-fn available_known_policy_capture_publishes_policy_without_ai() -> Result<(), String> {
+fn available_known_policy_capture_publishes_policy_without_ai() -> Result<(), TestError> {
     let captured = captured_attempt();
     let input = screen_runtime_input_from_capture(
         ScreenCaptureScheduleDecision::EnqueueCapture {
@@ -139,14 +153,17 @@ fn available_known_policy_capture_publishes_policy_without_ai() -> Result<(), St
         ScreenObservationIntent::KnownPolicyStateRequiresPolicy
     );
     assert_eq!(screen_ai_analysis_requested_event(&evidence), None);
-    let policy_request = screen_policy_evaluation_requested_event(&evidence)
-        .ok_or_else(|| String::from("known policy capture should publish policy evidence"))?;
+    let policy_request = screen_policy_evaluation_requested_event(&evidence).ok_or_else(|| {
+        TestError(String::from(
+            "known policy capture should publish policy evidence",
+        ))
+    })?;
     assert_eq!(policy_request.evidence_refs, vec![evidence.evidence_ref]);
     Ok(())
 }
 
 #[test]
-fn runtime_decision_recorded_event_preserves_input_and_decision() -> Result<(), String> {
+fn runtime_decision_recorded_event_preserves_input_and_decision() -> Result<(), TestError> {
     let input = screen_runtime_input_from_capture(
         ScreenCaptureScheduleDecision::EnqueueCapture {
             reason: ScreenCaptureScheduleTrigger::TimedCadence,
@@ -156,9 +173,9 @@ fn runtime_decision_recorded_event_preserves_input_and_decision() -> Result<(), 
         ScreenContentSignalState::ObservationOnly,
     );
     let aggregate_id = ScreenAggregateId::parse("screen.aggregate.1")
-        .map_err(|error| format!("aggregate id should parse: {error}"))?;
+        .map_err(|error| TestError(format!("aggregate id should parse: {error}")))?;
     let decision_id = ScreenRuntimeDecisionId::parse("screen.runtime-decision.1")
-        .map_err(|error| format!("decision id should parse: {error}"))?;
+        .map_err(|error| TestError(format!("decision id should parse: {error}")))?;
     let event = screen_runtime_decision_recorded_event(aggregate_id, decision_id, &input);
 
     assert_eq!(

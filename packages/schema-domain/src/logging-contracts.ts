@@ -17,25 +17,8 @@ import {
   GeneratedLoggerRuntimeDefaults,
   GeneratedLoggerRuntimeEnvironment,
   GeneratedLogLevel,
-  type GeneratedLogLevel as GeneratedLogLevelValue,
-  type GeneratedLogMessage,
   GeneratedLogSource,
-  type GeneratedLogSource as GeneratedLogSourceValue,
-  type GeneratedStackTrace,
   LoggingContractRuntime,
-  type GeneratedAgentIdentity,
-  type GeneratedAgentLogEntry,
-  type GeneratedAgentLogSnapshot,
-  type GeneratedAgentDeviceId,
-  type GeneratedAgentHostname,
-  type GeneratedAgentPlatform,
-  type GeneratedAgentServiceVersion,
-  type GeneratedDevLogEntry,
-  type GeneratedLogEntryId,
-  type GeneratedLogFieldValue,
-  type GeneratedLogFields,
-  type GeneratedLogSnapshotState,
-  type GeneratedLogTimestamp,
 } from './generated/logging-contracts';
 
 export const AgentDeviceIdSchema = EventAgentDeviceIdSchema;
@@ -102,23 +85,24 @@ export const AgentLogSnapshotSchema = withParser(
 );
 export const DevLogEntrySchema = createLogEntrySchema();
 
-export type LogFieldValue = Infer<typeof LogFieldValueSchema> & GeneratedLogFieldValue;
-export type LogFields = Infer<typeof LogFieldsSchema> & GeneratedLogFields;
-export type LogLevel = Infer<typeof LogLevelSchema> & GeneratedLogLevelValue;
-export type LogSource = Infer<typeof LogSourceSchema> & GeneratedLogSourceValue;
-export type AgentDeviceId = typeof AgentDeviceIdSchema.Type & GeneratedAgentDeviceId;
-export type AgentHostname = typeof AgentHostnameSchema.Type & GeneratedAgentHostname;
-export type AgentPlatform = typeof AgentPlatformSchema.Type & GeneratedAgentPlatform;
-export type AgentServiceVersion = typeof AgentServiceVersionSchema.Type & GeneratedAgentServiceVersion;
-export type LogEntryId = typeof LogEntryIdSchema.Type & GeneratedLogEntryId;
-export type LogTimestamp = typeof LogTimestampSchema.Type & GeneratedLogTimestamp;
-export type LogMessage = typeof LogMessageSchema.Type & GeneratedLogMessage;
-export type StackTrace = typeof StackTraceSchema.Type & GeneratedStackTrace;
-export type AgentIdentity = Infer<typeof AgentIdentitySchema> & GeneratedAgentIdentity;
-export type AgentLogEntry = Infer<typeof AgentLogEntrySchema> & GeneratedAgentLogEntry;
-export type AgentLogSnapshot = Infer<typeof AgentLogSnapshotSchema> & GeneratedAgentLogSnapshot;
-export type DevLogEntry = Infer<typeof DevLogEntrySchema> & GeneratedDevLogEntry;
-export type LogSnapshotState = string & GeneratedLogSnapshotState;
+export type LogFieldValue = Infer<typeof LogFieldValueSchema>;
+export type LogFields = Infer<typeof LogFieldsSchema>;
+export type LogLevel = Infer<typeof LogLevelSchema>;
+export type LogSource = Infer<typeof LogSourceSchema>;
+export type AgentDeviceId = typeof AgentDeviceIdSchema.Type;
+export type AgentHostname = typeof AgentHostnameSchema.Type;
+export type AgentPlatform = typeof AgentPlatformSchema.Type;
+export type AgentServiceVersion = typeof AgentServiceVersionSchema.Type;
+export type LogEntryId = typeof LogEntryIdSchema.Type;
+export type LogTimestamp = typeof LogTimestampSchema.Type;
+export type LogMessage = typeof LogMessageSchema.Type;
+export type StackTrace = typeof StackTraceSchema.Type;
+export type AgentIdentity = Infer<typeof AgentIdentitySchema>;
+export type AgentLogEntry = Infer<typeof AgentLogEntrySchema>;
+export type AgentLogSnapshot = Infer<typeof AgentLogSnapshotSchema>;
+export type DevLogEntry = Infer<typeof DevLogEntrySchema>;
+export const LogSnapshotStateSchema = brandedNonEmptyStringSchema('LogSnapshotState');
+export type LogSnapshotState = typeof LogSnapshotStateSchema.Type;
 
 export const decodeLogEntryId = Schema.decodeUnknownSync(LogEntryIdSchema);
 export const decodeLogMessage = Schema.decodeUnknownSync(LogMessageSchema);

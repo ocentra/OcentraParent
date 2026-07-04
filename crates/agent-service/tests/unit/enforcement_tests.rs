@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::fs::{read, remove_file};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -19,6 +22,7 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
+use crate::test_text::{optional_log_string, TestText};
 use crate::test_invariants::{require_json_decode, require_ok, require_some};
 
 const ENFORCEMENT_TEST_PATH_PREFIX: &str = "enforcement-tests";
@@ -53,11 +57,12 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
     assert_eq!(
         journal_event_ids,
         vec![
-            prefixed(
+            TestText::from_display(format!(
+                "{}{}",
                 constants::enforcement::JOURNAL_BEFORE_ACTION_ID_PREFIX,
                 constants::enforcement::TEST_AUDIT_EVENT_ID
-            ),
-            constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()
+            )),
+            TestText::from_display(constants::enforcement::TEST_AUDIT_EVENT_ID)
         ]
     );
     #[cfg(windows)]
@@ -248,39 +253,43 @@ async fn enforcement_execute_reports_manual_required_service_states_for_unwired_
 
 fn assert_unwired_adapter_readiness(
     event: &AgentEventEnvelope,
-    expected_kind: &str,
-    readiness_id: &str,
+    expected_kind: impl std::fmt::Display,
+    readiness_id: impl std::fmt::Display,
 ) {
+    let expected_kind = TestText::from_display(expected_kind);
+    let readiness_id = TestText::from_display(readiness_id);
     let action: ocentra_parent_agent_protocol::enforcement::EnforcementAction = require_json_decode(
         require_some(
-            payload_string(&event.payload, constants::field::ENFORCEMENT_ACTION),
+            optional_log_string(&event.payload, constants::field::ENFORCEMENT_ACTION),
             constants::error::AGENT_EVENT_SERIALIZES,
-        ),
+        )
+        .to_string(),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
     let result: ocentra_parent_agent_protocol::enforcement::EnforcementResult = require_json_decode(
         require_some(
-            payload_string(&event.payload, constants::field::ENFORCEMENT_RESULT),
+            optional_log_string(&event.payload, constants::field::ENFORCEMENT_RESULT),
             constants::error::AGENT_EVENT_SERIALIZES,
-        ),
+        )
+        .to_string(),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
     let readiness = require_some(
         broad_os_adapter_readiness(policy_constants::TEST_EVALUATED_AT)
             .entries
             .into_iter()
-            .find(|entry| entry.readiness_id == readiness_id),
-        readiness_id,
+            .find(|entry| entry.readiness_id == readiness_id.to_string()),
+        &readiness_id,
     );
 
-    assert_eq!(action.adapter_kind.as_protocol_str(), expected_kind);
+    assert_eq!(TestText::from_display(action.adapter_kind.as_protocol_str()), expected_kind);
     assert_eq!(
-        readiness.adapter_kind.as_protocol_str(),
-        action.adapter_kind.as_protocol_str()
+        TestText::from_display(readiness.adapter_kind.as_protocol_str()),
+        TestText::from_display(action.adapter_kind.as_protocol_str())
     );
     assert_eq!(
-        readiness.readiness_state.as_protocol_str(),
-        result.capability.capability_state.as_protocol_str()
+        TestText::from_display(readiness.readiness_state.as_protocol_str()),
+        TestText::from_display(result.capability.capability_state.as_protocol_str())
     );
     assert_manual_or_unavailable_result(&result);
 }
@@ -328,10 +337,15 @@ fn command(dry_run: bool) -> AgentCommandEnvelope {
     }
 }
 
-fn command_for_target(target_type: &str, suffix: &str) -> AgentCommandEnvelope {
+fn command_for_target(
+    target_type: impl std::fmt::Display,
+    suffix: impl std::fmt::Display,
+) -> AgentCommandEnvelope {
+    let target_type = target_type.to_string();
+    let suffix = suffix.to_string();
     let mut command = command(false);
     command.message_id = suffix.to_string();
-    command.payload = payload_for_target(target_type, suffix);
+    command.payload = payload_for_target(&target_type, &suffix);
     command
 }
 
@@ -408,32 +422,30 @@ fn payload(dry_run: bool) -> LogFields {
     fields
 }
 
-fn payload_for_target(target_type: &str, suffix: &str) -> LogFields {
+fn payload_for_target(
+    target_type: impl std::fmt::Display,
+    suffix: impl std::fmt::Display,
+) -> LogFields {
+    let target_type = target_type.to_string();
+    let suffix = suffix.to_string();
     let mut fields = payload(false);
     fields.insert(
         constants::field::POLICY_TARGET_TYPE.to_string(),
-        LogFieldValue::String(target_type.to_string()),
+        LogFieldValue::String(target_type),
     );
     fields.insert(
         constants::field::TARGET_ID.to_string(),
-        LogFieldValue::String(suffix.to_string()),
+        LogFieldValue::String(suffix.clone()),
     );
     fields.insert(
         constants::field::POLICY_TARGET_VALUE.to_string(),
-        LogFieldValue::String(suffix.to_string()),
+        LogFieldValue::String(suffix),
     );
     fields.remove(constants::field::PROCESS_ID);
     fields
 }
 
-fn payload_string<'a>(payload: &'a LogFields, field: &str) -> Option<&'a str> {
-    match payload.get(field) {
-        Some(LogFieldValue::String(value)) => Some(value.as_str()),
-        _ => None,
-    }
-}
-
-fn journal_event_ids(paths: &EnforcementJournalPaths) -> Vec<String> {
+fn journal_event_ids(paths: &EnforcementJournalPaths) -> Vec<TestText> {
     let key_bytes = require_ok(read(&paths.key_path), constants::error::JOURNAL_READS);
     let key: [u8; JOURNAL_KEY_BYTES] =
         require_ok(key_bytes.try_into(), constants::error::JOURNAL_READS);
@@ -443,54 +455,44 @@ fn journal_event_ids(paths: &EnforcementJournalPaths) -> Vec<String> {
     );
     require_ok(journal.lines(), constants::error::JOURNAL_READS)
         .into_iter()
-        .map(|line| line.event_id)
+        .map(|line| TestText::from_display(line.event_id))
         .collect()
 }
 
-fn prefixed(prefix: &str, value: &str) -> String {
-    let mut output = String::from(prefix);
-    output.push_str(value);
-    output
-}
-
-fn temp_paths(suffix: &str) -> EnforcementJournalPaths {
+fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
+    let suffix = suffix.to_string();
+    let build_path = |role, extension| {
+        let mut name = String::from(constants::journal::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(ENFORCEMENT_TEST_PATH_PREFIX);
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(&suffix);
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(role);
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
     EnforcementJournalPaths {
-        journal_path: temp_path(
-            suffix,
+        journal_path: build_path(
             constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX,
             constants::journal::FILE_EXTENSION,
         ),
-        key_path: temp_path(
-            suffix,
+        key_path: build_path(
             constants::activity_store::TEST_CAPTURE_KEY_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
-        store_path: temp_path(
-            suffix,
+        store_path: build_path(
             constants::activity_store::TEST_STORE_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
-        timer_state_path: temp_path(
-            suffix,
+        timer_state_path: build_path(
             constants::enforcement::TIMER_STATE_ID_PREFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
     }
-}
-
-fn temp_path(suffix: &str, role: &str, extension: &str) -> std::path::PathBuf {
-    let mut name = String::from(constants::journal::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(ENFORCEMENT_TEST_PATH_PREFIX);
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(role);
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path.set_extension(extension);
-    path
 }
 
 fn cleanup_paths(paths: &EnforcementJournalPaths) {

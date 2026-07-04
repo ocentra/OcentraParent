@@ -1,8 +1,5 @@
-use crate::{
-    build_network_adapter_capability_status, NetworkAdapterCapabilityStatusError,
-    NetworkAdapterCapabilityStatusInput, NetworkPlatformClaimEntry,
-    NetworkPlatformClaimManifestProof, NetworkPlatformClaimState, NetworkPlatformClaimTarget,
-};
+use ocentra_network_evidence::adapter_capability_status::*;
+use ocentra_network_evidence::platform_claims::*;
 
 #[test]
 fn adapter_capability_status_rejects_parallel_or_live_authority_claims() {

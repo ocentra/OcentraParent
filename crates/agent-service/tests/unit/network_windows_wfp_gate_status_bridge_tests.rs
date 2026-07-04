@@ -31,7 +31,8 @@ fn network_windows_wfp_gate_status_payload_reports_lab_ready_without_execution_c
 async fn websocket_network_windows_wfp_gate_status_command_reports_payload(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let body = serde_json::to_string(&command_envelope())?;
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let status: NetworkWindowsWfpGateStatus = status_value(
         &event.payload,
         constants::network_flow::FIELD_NETWORK_WINDOWS_WFP_GATE_STATUS,

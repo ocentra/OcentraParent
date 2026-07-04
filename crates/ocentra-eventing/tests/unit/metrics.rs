@@ -2,10 +2,10 @@ use crate::ExpectValue;
 use std::time::Duration;
 
 use super::fixtures::{
-    metadata, metadata_with_event_id, subscriber, test_event_with_idempotency, TestEvent,
+    metadata, metadata_with_event_id, subscriber, test_event_with_idempotency, TestEvent, TestText,
     TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
-use crate::bus::reports::DeadLetterReason;
+use crate::bus::reports::dead_letter::DeadLetterReason;
 use crate::bus::EventBus;
 use crate::error::EventingError;
 use crate::queue::policy::EventQueuePolicy;
@@ -22,14 +22,26 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
         .with_idempotency_registry();
     let bus = EventBus::with_queue_policy(policy);
     bus.publish(
-        test_event_with_idempotency(TEST_LABEL, "metrics-queued-idempotency"),
-        metadata_with_event_id(TEST_TARGET, "metrics-event-1"),
+        test_event_with_idempotency(
+            TestText(TEST_LABEL.to_owned()),
+            TestText("metrics-queued-idempotency".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("metrics-event-1".to_owned()),
+        ),
     )
     .await
     .expect_value("first event queues");
     bus.publish(
-        test_event_with_idempotency("overflow", "metrics-overflow-idempotency"),
-        metadata_with_event_id(TEST_TARGET, "metrics-event-2"),
+        test_event_with_idempotency(
+            TestText("overflow".to_owned()),
+            TestText("metrics-overflow-idempotency".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("metrics-event-2".to_owned()),
+        ),
     )
     .await
     .expect_value("overflow drops oldest and keeps newest");
@@ -44,9 +56,13 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
     assert_eq!(queued.queue.completed_idempotency_key_count, 1);
     assert_eq!(queued.queue.capacity, Some(1));
 
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), |_| async {
-        Ok(())
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        |_| async { Ok(()) },
+    )
     .await
     .expect_value("subscriber drains queue");
     let drained = bus.metrics_snapshot().await;
@@ -57,7 +73,7 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
     let timeout = bus
         .publish_request(
             SlowMetricsRequest::new(),
-            metadata(TEST_TARGET),
+            metadata(TestText(TEST_TARGET.to_owned())),
             RequestOptions::with_timeout(Duration::from_millis(1)).expect_value("timeout parses"),
         )
         .await;
@@ -80,8 +96,14 @@ async fn metrics_snapshot_reports_bounded_in_memory_event_retention() {
     let bus = EventBus::new();
     for index in 0..IN_MEMORY_RETENTION_PROBE_COUNT {
         bus.publish(
-            test_event_with_idempotency(TEST_LABEL, &format!("retention-key-{index}")),
-            metadata_with_event_id(TEST_TARGET, &format!("retention-event-{index}")),
+            test_event_with_idempotency(
+                TestText(TEST_LABEL.to_owned()),
+                TestText(format!("retention-key-{index}").to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText(format!("retention-event-{index}").to_owned()),
+            ),
         )
         .await
         .expect_value("retention probe event publishes");

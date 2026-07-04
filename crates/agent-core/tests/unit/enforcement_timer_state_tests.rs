@@ -25,17 +25,8 @@ use ocentra_parent_agent_protocol::enforcement::{
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
 
+use crate::test_text::{test_ok as ok, test_some as some, TestResult, TestText};
 use ocentra_parent_agent_core::enforcement_adapter::EnforcementAdapterOutcome;
-
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| format!("{context}: missing value"))
-}
 
 #[test]
 fn active_timer_state_recovers_and_cancels_with_original_identity() -> TestResult {
@@ -184,7 +175,9 @@ fn expiry_transition_surfaces_rollback_unavailable_state() -> TestResult {
         adapter_outcome(
             EnforcementResultStatus::Unavailable,
             EnforcementAdapterResultCode::AdapterUnavailable,
-            Some(enforcement::UNAVAILABLE_ADAPTER_UNAVAILABLE.to_string()),
+            Some(TestText::from_display(
+                enforcement::UNAVAILABLE_ADAPTER_UNAVAILABLE,
+            )),
             None,
             EnforcementRollbackState::Unavailable,
         ),
@@ -240,7 +233,7 @@ fn failed_expiry_transition_requests_recovery() -> TestResult {
             EnforcementResultStatus::Failed,
             EnforcementAdapterResultCode::AdapterFailed,
             None,
-            Some(enforcement::ADAPTER_FAILED.to_string()),
+            Some(TestText::from_display(enforcement::ADAPTER_FAILED)),
             EnforcementRollbackState::Failed,
         ),
     );
@@ -272,7 +265,7 @@ fn failed_expiry_transition_requests_recovery() -> TestResult {
     Ok(())
 }
 
-fn active_state() -> Result<EnforcementActiveTimerState, String> {
+fn active_state() -> Result<EnforcementActiveTimerState, TestText> {
     let outcome = ok(
         evaluate_enforcement_boundary(boundary_input()),
         enforcement::TEST_TIMER_EVENT_ID,
@@ -286,16 +279,16 @@ fn active_state() -> Result<EnforcementActiveTimerState, String> {
 fn adapter_outcome(
     status: EnforcementResultStatus,
     adapter_result_code: EnforcementAdapterResultCode,
-    unavailable_reason: Option<String>,
-    failed_reason: Option<String>,
+    unavailable_reason: Option<TestText>,
+    failed_reason: Option<TestText>,
     rollback_state: EnforcementRollbackState,
 ) -> EnforcementAdapterOutcome {
     EnforcementAdapterOutcome {
         status,
         adapter_result_code,
         completed_at: Some(policy::TEST_EVALUATED_AT.to_string()),
-        unavailable_reason,
-        failed_reason,
+        unavailable_reason: unavailable_reason.map(|reason| reason.to_string()),
+        failed_reason: failed_reason.map(|reason| reason.to_string()),
         rollback_token: Some(enforcement::TEST_ROLLBACK_TOKEN.to_string()),
         rollback_state,
     }

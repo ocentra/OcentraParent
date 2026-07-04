@@ -8,17 +8,17 @@ import {
   type RunType as RunTypeValue,
   type TestLogScope as TestLogScopeValue,
   type TestSuiteType,
-} from '@ocentra-parent/schema-domain/test-log/types';
+} from '../test-log/types';
 import { clearDirectory, getDefaultLogRoot } from '../test-log/ndjsonPaths';
 import { appendTestLogEntries } from '../test-log/ndjsonWriter';
 import { wipeNdjsonScope } from '../test-log/wipeNdjsonScope';
 import { bridgeEntryToStoredLog } from '../test-log/bridgeConvert';
-import { BridgeEntryArraySchema } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
+import { BridgeEntryArraySchema } from './bridgeLogPayload';
 import {
   generatedHasRunInfoConflict,
   generatedStaleRunInfoWarning,
   resolveGeneratedBridgeRoute,
-} from '../generated/parent-log-runtime';
+} from '../parent-log-runtime';
 
 export interface BridgeServerOptions {
   readonly host?: string;
@@ -58,6 +58,12 @@ function sendJson(response: http.ServerResponse, statusCode: number, body: objec
   response.statusCode = statusCode;
   response.setHeader('Content-Type', 'application/json');
   response.end(JSON.stringify(body));
+}
+
+function applyCorsHeaders(response: http.ServerResponse): void {
+  response.setHeader('Access-Control-Allow-Origin', '*');
+  response.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
 function sendBadRequest(response: http.ServerResponse, error: string): void {
@@ -132,6 +138,49 @@ function resolveRoute(method: string, pathname: string): BridgeRoute {
   return resolveGeneratedBridgeRoute(method, pathname);
 }
 
+function sendHealthResponse(response: http.ServerResponse): void {
+  sendJson(response, 200, { ok: true });
+}
+
+function sendRunInfoResponse(response: http.ServerResponse, runInfo: BridgeRunInfoState): void {
+  sendJson(response, 200, {
+    ok: runInfo.runId != null,
+    runId: runInfo.runId,
+    runType: runInfo.runType,
+    suiteType: runInfo.suiteType,
+    scope: runInfo.scope,
+    startedAt: runInfo.startedAt,
+  });
+}
+
+function sendFlushResponse(response: http.ServerResponse, runInfo: BridgeRunInfoState): void {
+  sendJson(response, 200, {
+    ok: true,
+    runId: runInfo.runId,
+    flushed: 0,
+  });
+}
+
+function sendNotFoundResponse(response: http.ServerResponse): void {
+  sendJson(response, 404, { ok: false, error: 'not found' });
+}
+
+function createBridgeRouteHandlers(
+  request: http.IncomingMessage,
+  response: http.ServerResponse,
+  rootDir: string,
+  runInfo: BridgeRunInfoState
+): Record<BridgeRoute, () => Promise<void> | void> {
+  return {
+    health: () => sendHealthResponse(response),
+    'run-info': () => sendRunInfoResponse(response, runInfo),
+    'run-started': () => handleRunStarted(request, response, rootDir, runInfo),
+    logs: () => handleLogs(request, response, rootDir, runInfo),
+    flush: () => sendFlushResponse(response, runInfo),
+    'not-found': () => sendNotFoundResponse(response),
+  };
+}
+
 async function handleRunStarted(
   request: http.IncomingMessage,
   response: http.ServerResponse,
@@ -184,39 +233,17 @@ export function createBridgeServer(options: BridgeServerOptions = {}): http.Serv
 
   return http.createServer(async (request, response) => {
     const method = request.method ?? 'GET';
+    applyCorsHeaders(response);
+    if (method === 'OPTIONS') {
+      response.statusCode = 204;
+      response.end();
+      return;
+    }
+
     const url = new URL(request.url ?? '/', `http://${request.headers.host ?? '127.0.0.1'}`);
     const route = resolveRoute(method, url.pathname);
+    const routeHandlers = createBridgeRouteHandlers(request, response, rootDir, runInfo);
 
-    switch (route) {
-      case 'health':
-        sendJson(response, 200, { ok: true });
-        return;
-      case 'run-info':
-        sendJson(response, 200, {
-          ok: runInfo.runId != null,
-          runId: runInfo.runId,
-          runType: runInfo.runType,
-          suiteType: runInfo.suiteType,
-          scope: runInfo.scope,
-          startedAt: runInfo.startedAt,
-        });
-        return;
-      case 'run-started':
-        await handleRunStarted(request, response, rootDir, runInfo);
-        return;
-      case 'logs':
-        await handleLogs(request, response, rootDir, runInfo);
-        return;
-      case 'flush':
-        sendJson(response, 200, {
-          ok: true,
-          runId: runInfo.runId,
-          flushed: 0,
-        });
-        return;
-      default:
-        sendJson(response, 404, { ok: false, error: 'not found' });
-        return;
-    }
+    await routeHandlers[route]();
   });
 }

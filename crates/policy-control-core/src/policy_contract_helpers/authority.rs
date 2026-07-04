@@ -13,7 +13,6 @@ use super::{
         assert_resolution_has_no_review_or_override_artifacts,
         assert_resolution_has_no_review_override_or_replay_artifacts, assert_utc_timestamp,
         validate_policy_schedule_boundary, PolicyContractScheduleBoundary,
-        PolicyContractScheduleBoundaryState,
     },
     PolicyContractValidationResult,
 };
@@ -194,7 +193,7 @@ fn validate_policy_approval_resolution_review_timestamp(
     if let Some(reviewed_at) = &resolution.reviewed_at {
         assert_utc_timestamp(reviewed_at, "reviewedAt")?;
         if reviewed_at > &resolution.evaluated_at {
-            return Err("reviewedAt cannot be after evaluatedAt");
+            return Err("reviewedAt cannot be after evaluatedAt".into());
         }
     }
 
@@ -235,7 +234,9 @@ fn validate_policy_approval_resolution_pending_state(
         || resolution.override_grant.is_some()
         || resolution.replay_of_approval_id.is_some()
     {
-        return Err("pending approvals cannot include review, replay, or override artifacts");
+        return Err(
+            "pending approvals cannot include review, replay, or override artifacts".into(),
+        );
     }
 
     Ok(())
@@ -245,7 +246,7 @@ fn validate_policy_approval_resolution_preview_only_state(
     resolution: &PolicyContractApprovalResolution,
 ) -> PolicyContractValidationResult {
     if resolution.approval.origin != PolicyContractApprovalOrigin::AssistantDraft {
-        return Err("preview-only approvals require assistant-draft origin");
+        return Err("preview-only approvals require assistant-draft origin".into());
     }
     assert_resolution_has_no_review_override_or_replay_artifacts(
         resolution,
@@ -257,7 +258,9 @@ fn validate_policy_approval_resolution_expired_request_state(
     resolution: &PolicyContractApprovalResolution,
 ) -> PolicyContractValidationResult {
     if resolution.evaluated_at < resolution.approval.expires_at {
-        return Err("expired-request state requires evaluatedAt on or after approval.expiresAt");
+        return Err(
+            "expired-request state requires evaluatedAt on or after approval.expiresAt".into(),
+        );
     }
     assert_resolution_has_no_review_override_or_replay_artifacts(
         resolution,
@@ -269,7 +272,7 @@ fn validate_policy_approval_resolution_replay_rejected_state(
     resolution: &PolicyContractApprovalResolution,
 ) -> PolicyContractValidationResult {
     if resolution.replay_of_approval_id.is_none() {
-        return Err("replay-rejected state requires replayOfApprovalId");
+        return Err("replay-rejected state requires replayOfApprovalId".into());
     }
     assert_resolution_has_no_review_or_override_artifacts(
         resolution,
@@ -284,10 +287,10 @@ fn validate_policy_approval_resolution_denied_state(
         || resolution.reviewed_at.is_none()
         || resolution.audit_reference_id.is_none()
     {
-        return Err("denied approvals require review and audit artifacts");
+        return Err("denied approvals require review and audit artifacts".into());
     }
     if resolution.override_grant.is_some() || resolution.replay_of_approval_id.is_some() {
-        return Err("denied approvals cannot include overrides or replay pointers");
+        return Err("denied approvals cannot include overrides or replay pointers".into());
     }
 
     Ok(())
@@ -302,20 +305,20 @@ fn validate_policy_approval_resolution_reviewed_state(
         || resolution.override_grant.is_none()
     {
         return Err(
-            "approved and modified approvals require review, audit, and override artifacts",
+            "approved and modified approvals require review, audit, and override artifacts".into(),
         );
     }
     if resolution.replay_of_approval_id.is_some() {
-        return Err("approved and modified approvals cannot point at replayOfApprovalId");
+        return Err("approved and modified approvals cannot point at replayOfApprovalId".into());
     }
     if resolution.reviewed_by_actor_id.as_deref()
         == Some(resolution.approval.child_profile_id.as_str())
     {
-        return Err("child requests cannot self-approve or self-modify");
+        return Err("child requests cannot self-approve or self-modify".into());
     }
     let Some(override_grant) = resolution.override_grant.as_ref() else {
         return Err(
-            "approved and modified approvals require review, audit, and override artifacts",
+            "approved and modified approvals require review, audit, and override artifacts".into(),
         );
     };
     validate_policy_override_grant(
@@ -325,38 +328,13 @@ fn validate_policy_approval_resolution_reviewed_state(
     )
 }
 
-fn validate_policy_schedule_boundary_optional_sections(
-    boundary: &PolicyContractScheduleBoundary,
-) -> PolicyContractValidationResult {
-    if let Some(exception) = &boundary.exception {
-        assert_utc_timestamp(&exception.starts_at, "exception.startsAt")?;
-        assert_utc_timestamp(&exception.expires_at, "exception.expiresAt")?;
-        if exception.expires_at <= exception.starts_at {
-            return Err("schedule exceptions must expire after they start");
-        }
-    }
-    if let Some(expiry) = &boundary.expiry {
-        assert_utc_timestamp(&expiry.expires_at, "expiry.expiresAt")?;
-        assert_utc_timestamp(&expiry.expired_at, "expiry.expiredAt")?;
-        if expiry.expired_at < expiry.expires_at {
-            return Err("expiry.expiredAt must be on or after expiry.expiresAt");
-        }
-        if boundary.state != PolicyContractScheduleBoundaryState::Expired
-            && boundary.evaluated_at >= expiry.expires_at
-        {
-            return Err("non-expired schedule boundaries cannot be evaluated after expiry");
-        }
-    }
-    Ok(())
-}
-
 fn validate_policy_approval_request(
     request: &PolicyContractApprovalRequest,
 ) -> PolicyContractValidationResult {
     assert_utc_timestamp(&request.requested_at, "approval.requestedAt")?;
     assert_utc_timestamp(&request.expires_at, "approval.expiresAt")?;
     if request.expires_at <= request.requested_at {
-        return Err("approval.expiresAt must be after approval.requestedAt");
+        return Err("approval.expiresAt must be after approval.requestedAt".into());
     }
 
     if let Some(schedule_boundary) = &request.schedule_boundary {
@@ -367,19 +345,24 @@ fn validate_policy_approval_request(
         PolicyContractApprovalKind::BonusTime => {
             if request.requested_bonus_time_minutes.unwrap_or(0) == 0 {
                 return Err(
-                    "bonus-time requests must include a positive requestedBonusTimeMinutes value",
+                    "bonus-time requests must include a positive requestedBonusTimeMinutes value"
+                        .into(),
                 );
             }
             let Some(schedule_boundary) = &request.schedule_boundary else {
-                return Err("bonus-time requests must include scheduleBoundary details");
+                return Err("bonus-time requests must include scheduleBoundary details".into());
             };
             if schedule_boundary.time_budget.is_none() {
-                return Err("bonus-time requests must include scheduleBoundary.timeBudget details");
+                return Err(
+                    "bonus-time requests must include scheduleBoundary.timeBudget details".into(),
+                );
             }
         }
         PolicyContractApprovalKind::AskParent | PolicyContractApprovalKind::TemporaryOverride => {
             if request.requested_bonus_time_minutes.is_some() {
-                return Err("only bonus-time requests may include requestedBonusTimeMinutes");
+                return Err(
+                    "only bonus-time requests may include requestedBonusTimeMinutes".into(),
+                );
             }
         }
     }
@@ -395,29 +378,35 @@ fn validate_policy_override_grant(
     assert_utc_timestamp(&grant.effective_from, "override.effectiveFrom")?;
     assert_utc_timestamp(&grant.effective_until, "override.effectiveUntil")?;
     if grant.effective_until <= grant.effective_from {
-        return Err("override.effectiveUntil must be after override.effectiveFrom");
+        return Err("override.effectiveUntil must be after override.effectiveFrom".into());
     }
 
     match grant.override_type {
         PolicyContractOverrideType::TemporaryAllow => {
             if grant.action != PolicyContractAction::Allow || grant.bonus_time_minutes.is_some() {
-                return Err("temporary-allow overrides must resolve to allow without bonus time");
+                return Err(
+                    "temporary-allow overrides must resolve to allow without bonus time".into(),
+                );
             }
         }
         PolicyContractOverrideType::TemporaryBlock => {
             if grant.action != PolicyContractAction::Block || grant.bonus_time_minutes.is_some() {
-                return Err("temporary-block overrides must resolve to block without bonus time");
+                return Err(
+                    "temporary-block overrides must resolve to block without bonus time".into(),
+                );
             }
         }
         PolicyContractOverrideType::BonusTime => {
             if approval.kind != PolicyContractApprovalKind::BonusTime {
-                return Err("bonus-time overrides require a bonus-time approval request");
+                return Err("bonus-time overrides require a bonus-time approval request".into());
             }
             if !matches!(
                 grant.action,
                 PolicyContractAction::Allow | PolicyContractAction::TimeLimit
             ) {
-                return Err("bonus-time overrides must keep the action within allow or time-limit");
+                return Err(
+                    "bonus-time overrides must keep the action within allow or time-limit".into(),
+                );
             }
         }
     }
@@ -427,17 +416,21 @@ fn validate_policy_override_grant(
             if evaluated_at < grant.effective_from.as_str()
                 || evaluated_at >= grant.effective_until.as_str()
             {
-                return Err("active overrides require evaluatedAt within the effective window");
+                return Err(
+                    "active overrides require evaluatedAt within the effective window".into(),
+                );
             }
         }
         PolicyContractOverrideState::Expired => {
             if evaluated_at < grant.effective_until.as_str() {
-                return Err("expired overrides require evaluatedAt on or after effectiveUntil");
+                return Err(
+                    "expired overrides require evaluatedAt on or after effectiveUntil".into(),
+                );
             }
         }
         PolicyContractOverrideState::Revoked => {
             if evaluated_at < grant.effective_from.as_str() {
-                return Err("revoked overrides require an effectiveFrom boundary");
+                return Err("revoked overrides require an effectiveFrom boundary".into());
             }
         }
     }

@@ -1,12 +1,12 @@
-use crate::android_physical_target::prove_network_android_physical_target;
-use crate::android_physical_target::types::{
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::android_physical_target::prove_network_android_physical_target;
+use ocentra_network_evidence::android_physical_target::types::{
     NetworkAndroidPhysicalTargetBoundaryReason, NetworkAndroidPhysicalTargetError,
     NetworkAndroidPhysicalTargetExpected, NetworkAndroidPhysicalTargetField,
     NetworkAndroidPhysicalTargetInput, NetworkAndroidPhysicalTargetMismatch,
     NetworkAndroidPhysicalTargetObserved, NetworkAndroidPhysicalTargetState,
     NetworkAndroidPhysicalTargetUnsupportedClaims,
 };
-use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn android_physical_target_proves_matching_physical_device_identity_without_live_claims() {

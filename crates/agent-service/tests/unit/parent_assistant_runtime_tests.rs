@@ -1,8 +1,15 @@
+#[macro_use]
+#[path = "../support/unit_root_basic_harness.rs"]
+mod unit_root_basic_harness;
+declare_agent_service_unit_root_basic_harness!();
+
+use crate::test_text::TestText;
+use std::string::String as TestString;
 use std::{
     error::Error,
     fs,
     io::Error as IoError,
-    path::PathBuf,
+    path::{Path as TestPath, PathBuf as TestPathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -336,7 +343,7 @@ fn parent_assistant_request_preserves_thread_and_message_ids_from_command() {
     );
 }
 
-fn expected_activity_context_summary() -> String {
+fn expected_activity_context_summary() -> TestString {
     let mut summary = constants::parent_assistant::ACTIVITY_CONTEXT_PREFIX.to_string();
     summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_RECENT_LABEL);
     summary.push('1');
@@ -351,7 +358,7 @@ fn expected_activity_context_summary() -> String {
     summary
 }
 
-fn expected_report_context_summary() -> String {
+fn expected_report_context_summary() -> TestString {
     let raw_child_evidence_flag = false.to_string();
     let mut summary = constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_PREFIX.to_string();
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_ID_LABEL);
@@ -401,7 +408,7 @@ fn expected_report_context_summary() -> String {
     summary
 }
 
-fn request(model_id: Option<String>) -> ParentAssistantGenerateRequest {
+fn request(model_id: Option<TestString>) -> ParentAssistantGenerateRequest {
     ParentAssistantGenerateRequest {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         request_id: constants::parent_assistant::DEFAULT_REQUEST_ID.to_string(),
@@ -518,7 +525,7 @@ fn saved_report_document() -> ActivityReportDocument {
                 ActivityReportSourceReachabilityState::Offline,
                 ActivityReadModelState::Offline,
                 constants::activity_surface::SUMMARY_FAMILY_SOURCE_UNREACHABLE,
-                None,
+                None::<TestString>,
                 ActivityReportSourceLabel::FamilyFanoutSourceState,
             ),
             report_source_state(
@@ -534,7 +541,7 @@ fn saved_report_document() -> ActivityReportDocument {
                 ActivityReportSourceReachabilityState::Error,
                 ActivityReadModelState::Unavailable,
                 constants::activity_surface::SUMMARY_FAMILY_SOURCE_ERROR,
-                None,
+                None::<TestString>,
                 ActivityReportSourceLabel::FamilyFanoutSourceState,
             ),
         ],
@@ -549,20 +556,28 @@ fn saved_report_document() -> ActivityReportDocument {
     }
 }
 
-fn report_source_state(
-    source_device_identifier: &str,
+fn report_source_state<S1, S2, S3>(
+    source_device_identifier: S1,
     reachability_state: ActivityReportSourceReachabilityState,
     state: ActivityReadModelState,
-    reason: &str,
-    last_updated_at: Option<&str>,
+    reason: S2,
+    last_updated_at: Option<S3>,
     source_label: ActivityReportSourceLabel,
-) -> ActivityReportSourceState {
+) -> ActivityReportSourceState
+where
+    S1: Into<TestText>,
+    S2: Into<TestText>,
+    S3: Into<TestText>,
+{
+    let source_device_identifier = source_device_identifier;
+    let reason = reason;
+    let last_updated_at = last_updated_at.map(Into::into);
     ActivityReportSourceState {
-        device_id: source_device_identifier.to_string(),
+        device_id: source_device_identifier.as_ref().to_string(),
         reachability_state,
         state,
-        reason: Some(reason.to_string()),
-        last_updated_at: last_updated_at.map(str::to_string),
+        reason: Some(reason.as_ref().to_string()),
+        last_updated_at: last_updated_at.map(|value| value.as_ref().to_string()),
         custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
         source_label,
         raw_child_evidence_included: false,
@@ -590,7 +605,7 @@ fn command_with_payload(
     }
 }
 
-fn write_temp_file(prefix: &str) -> Result<PathBuf, IoError> {
+fn write_temp_file(prefix: TestText) -> Result<TestPathBuf, IoError> {
     let path = unique_temp_path(prefix);
     fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT).map_err(|error| {
         IoError::other(format!(
@@ -601,8 +616,9 @@ fn write_temp_file(prefix: &str) -> Result<PathBuf, IoError> {
     Ok(path)
 }
 
-fn unique_temp_path(prefix: &str) -> PathBuf {
-    let mut name = prefix.to_string();
+fn unique_temp_path(prefix: TestText) -> TestPathBuf {
+    let prefix = prefix;
+    let mut name = prefix.as_ref().to_string();
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
@@ -618,6 +634,6 @@ fn nanos_now() -> u128 {
         .map_or(0, |duration| duration.as_nanos())
 }
 
-fn remove_temp_file(path: PathBuf) {
-    let _ = fs::remove_file(path);
+fn remove_temp_file(path: impl AsRef<TestPath>) {
+    let _ = fs::remove_file(path.as_ref());
 }

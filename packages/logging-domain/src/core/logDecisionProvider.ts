@@ -1,4 +1,4 @@
-import type { GeneratedLogLevel as LogLevelValue } from '@ocentra-parent/schema-domain/generated/logging-contracts';
+import type { GeneratedLogLevel as LogLevelValue } from '../generated/logging-contracts';
 import {
   createParentLogConfig,
   isDevOrTestEnvironment,
@@ -8,7 +8,7 @@ import {
   matchesGeneratedDebugSelection,
   shouldGeneratedLogToConsole,
   shouldGeneratedStoreLog,
-} from '../generated/parent-log-runtime';
+} from '../parent-log-runtime';
 
 export interface ParentLogDecisionContext {
   readonly filePath?: string | null;

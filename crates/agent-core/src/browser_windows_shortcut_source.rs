@@ -5,6 +5,13 @@ use std::{
 
 use ocentra_parent_agent_protocol::constants;
 
+#[path = "browser_windows_shortcut_source_parse.rs"]
+mod browser_windows_shortcut_source_parse;
+#[path = "browser_windows_shortcut_source_paths.rs"]
+mod browser_windows_shortcut_source_paths;
+#[path = "browser_windows_shortcut_source_scan.rs"]
+mod browser_windows_shortcut_source_scan;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct BrowserWindowsLiveShortcutTarget {
     pub shortcut_path: PathBuf,
@@ -43,23 +50,11 @@ pub fn browser_windows_shortcut_target_from_bytes(bytes: &[u8]) -> Option<String
 }
 
 fn live_windows_shortcut_roots() -> Vec<PathBuf> {
-    [
-        constants::env_var::PROGRAM_DATA,
-        constants::env_var::APP_DATA,
-    ]
-    .iter()
-    .filter_map(std::env::var_os)
-    .map(start_menu_programs_root)
-    .collect()
+    browser_windows_shortcut_source_paths::live_windows_shortcut_roots()
 }
 
 fn start_menu_programs_root(root: std::ffi::OsString) -> PathBuf {
-    let mut path = PathBuf::from(root);
-    path.push(constants::browser::PATH_SEGMENT_MICROSOFT);
-    path.push(constants::browser::PATH_SEGMENT_WINDOWS);
-    path.push(constants::browser::PATH_SEGMENT_START_MENU);
-    path.push(constants::browser::PATH_SEGMENT_PROGRAMS);
-    path
+    browser_windows_shortcut_source_paths::start_menu_programs_root(root)
 }
 
 fn collect_shortcut_targets(
@@ -67,85 +62,45 @@ fn collect_shortcut_targets(
     limit: usize,
     targets: &mut Vec<BrowserWindowsLiveShortcutTarget>,
 ) {
-    if targets.len() >= limit {
-        return;
-    }
-    let Ok(entries) = fs::read_dir(root) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        let Ok(file_type) = entry.file_type() else {
-            continue;
-        };
-        if file_type.is_dir() {
-            collect_shortcut_targets(&path, limit, targets);
-        } else if is_shortcut_path(&path) {
-            if let Some(target) = shortcut_target_from_path(&path) {
-                targets.push(BrowserWindowsLiveShortcutTarget {
-                    shortcut_path: path,
-                    target,
-                });
-            }
-        }
-        if targets.len() >= limit {
-            break;
-        }
-    }
+    browser_windows_shortcut_source_scan::collect_shortcut_targets(root, limit, targets)
 }
 
 fn is_shortcut_path(path: &Path) -> bool {
-    path.extension().is_some_and(|extension| {
-        extension
-            .to_string_lossy()
-            .eq_ignore_ascii_case(constants::browser::WINDOWS_SHORTCUT_EXTENSION)
-    })
+    browser_windows_shortcut_source_scan::is_shortcut_path(path)
 }
 
 fn shortcut_target_from_path(path: &Path) -> Option<String> {
-    let bytes = fs::read(path).ok()?;
-    browser_windows_shortcut_target_from_bytes(&bytes)
+    browser_windows_shortcut_source_parse::shortcut_target_from_path(path)
 }
 
 fn link_info_target(bytes: &[u8], offset: usize) -> Option<String> {
-    let size = read_u32(
-        bytes,
-        offset + constants::browser::SHORTCUT_LINK_INFO_SIZE_OFFSET,
-    )? as usize;
-    if size < constants::browser::SHORTCUT_LINK_INFO_MIN_SIZE {
-        return None;
-    }
-    let end = offset.checked_add(size)?;
-    if end > bytes.len() {
-        return None;
-    }
-    let flags = read_u32(
-        bytes,
-        offset + constants::browser::SHORTCUT_LINK_INFO_FLAGS_OFFSET,
-    )?;
-    if flags & constants::browser::SHORTCUT_LINK_INFO_LOCAL_BASE_PATH_FLAG == 0 {
-        return None;
-    }
-    let local_base_path_offset = read_u32(
-        bytes,
-        offset + constants::browser::SHORTCUT_LINK_INFO_LOCAL_BASE_PATH_OFFSET,
-    )? as usize;
-    let target_offset = offset.checked_add(local_base_path_offset)?;
-    if target_offset >= end {
-        return None;
-    }
-    read_null_terminated_ansi(&bytes[target_offset..end])
+    browser_windows_shortcut_source_parse::link_info_target(bytes, offset)
 }
 
 fn read_u32(bytes: &[u8], offset: usize) -> Option<u32> {
-    let slice = bytes.get(offset..offset.checked_add(4)?)?;
-    Some(u32::from_le_bytes(slice.try_into().ok()?))
+    browser_windows_shortcut_source_parse::read_u32(bytes, offset)
 }
 
 fn read_null_terminated_ansi(bytes: &[u8]) -> Option<String> {
-    let end = bytes.iter().position(|byte| *byte == 0)?;
-    if end == 0 {
-        return None;
-    }
-    String::from_utf8(bytes[..end].to_vec()).ok()
+    browser_windows_shortcut_source_parse::read_null_terminated_ansi(bytes)
+}
+
+fn executable_target_path(target: &str) -> Option<PathBuf> {
+    browser_windows_shortcut_source_paths::executable_target_path(target)
+}
+
+fn expand_leading_windows_env_var(path: &str) -> String {
+    browser_windows_shortcut_source_paths::expand_leading_windows_env_var(path)
+}
+
+fn unquoted_known_executable_target(target: &str) -> &str {
+    browser_windows_shortcut_source_paths::unquoted_known_executable_target(target)
+}
+
+fn push_install_location_candidates(paths: &mut Vec<PathBuf>, install_location: &Path) {
+    browser_windows_shortcut_source_paths::push_install_location_candidates(paths, install_location)
+}
+
+fn push_known_executable_target(paths: &mut Vec<PathBuf>, target: &str) {
+    browser_windows_shortcut_source_paths::push_known_executable_target(paths, target)
 }

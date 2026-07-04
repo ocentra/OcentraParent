@@ -2,8 +2,61 @@ use serde::{
     de::{self, Deserializer},
     Deserialize, Serialize,
 };
+use std::fmt::{Display, Formatter};
 
 use crate::{constants, LanPairingParentAuthority, ParentEvidenceReference};
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LanPairingText(pub String);
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct LanPairingOptionalText(pub Option<String>);
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[repr(u8)]
+enum LanMdnsField {
+    AdvertisementId,
+    OpaqueDeviceId,
+    ProtocolVersion,
+    FamilyHash,
+    Platform,
+    AgentVersion,
+    TxtKey,
+    TxtValue,
+}
+
+impl LanMdnsField {
+    const FIELD_NAMES: [&'static str; 8] = [
+        constants::lan_pairing::MDNS_ADVERTISEMENT_ID_FIELD,
+        constants::lan_pairing::MDNS_OPAQUE_DEVICE_ID_FIELD,
+        constants::lan_pairing::MDNS_PROTOCOL_VERSION_FIELD,
+        constants::lan_pairing::MDNS_FAMILY_HASH_FIELD,
+        constants::lan_pairing::MDNS_PLATFORM_FIELD,
+        constants::lan_pairing::MDNS_AGENT_VERSION_FIELD,
+        constants::lan_pairing::MDNS_TXT_KEY_FIELD,
+        constants::lan_pairing::MDNS_TXT_VALUE_FIELD,
+    ];
+
+    fn as_str(self) -> &'static str {
+        Self::FIELD_NAMES[self as usize]
+    }
+}
+
+impl Display for LanPairingText {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.0)
+    }
+}
+
+impl Display for LanPairingOptionalText {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        match &self.0 {
+            Some(value) => formatter.write_str(value),
+            None => Ok(()),
+        }
+    }
+}
 
 #[path = "lan_pairing/device_roles.rs"]
 mod device_roles;
@@ -52,23 +105,23 @@ where
     D: Deserializer<'de>,
 {
     let version = u16::deserialize(deserializer)?;
-    if version == constants::lan_pairing::SCHEMA_VERSION {
-        Ok(version)
-    } else {
-        Err(de::Error::custom(format!(
-            "unsupported LAN schema version {version}; expected {}",
-            constants::lan_pairing::SCHEMA_VERSION
-        )))
-    }
+    (version == constants::lan_pairing::SCHEMA_VERSION)
+        .then_some(version)
+        .ok_or_else(|| {
+            de::Error::custom(format!(
+                "unsupported LAN schema version {version}; expected {}",
+                constants::lan_pairing::SCHEMA_VERSION
+            ))
+        })
 }
 
-fn deserialize_lan_schema_version_text<'de, D>(deserializer: D) -> Result<String, D::Error>
+fn deserialize_lan_schema_version_text<'de, D>(deserializer: D) -> Result<LanPairingText, D::Error>
 where
     D: Deserializer<'de>,
 {
     let version = String::deserialize(deserializer)?;
     if version == constants::lan_pairing::SCHEMA_VERSION_TEXT {
-        Ok(version)
+        Ok(LanPairingText(version))
     } else {
         Err(de::Error::custom(format!(
             "unsupported LAN schema version {version}; expected {}",
@@ -76,14 +129,14 @@ where
         )))
     }
 }
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanPairingNetworkMode {
     Loopback,
     LocalNetwork,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanPairingTrustState {
     Unpaired,
@@ -93,15 +146,17 @@ pub enum LanPairingTrustState {
     Expired,
 }
 
+const LAN_PAIRING_TRUST_STATE_STRINGS: [&str; 5] = [
+    constants::value::LAN_PAIRING_UNPAIRED,
+    constants::value::LAN_PAIRING_PAIRING,
+    constants::value::LAN_PAIRING_PAIRED,
+    constants::value::LAN_PAIRING_REVOKED,
+    constants::value::LAN_PAIRING_EXPIRED,
+];
+
 impl LanPairingTrustState {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Unpaired => constants::value::LAN_PAIRING_UNPAIRED,
-            Self::Pairing => constants::value::LAN_PAIRING_PAIRING,
-            Self::Paired => constants::value::LAN_PAIRING_PAIRED,
-            Self::Revoked => constants::value::LAN_PAIRING_REVOKED,
-            Self::Expired => constants::value::LAN_PAIRING_EXPIRED,
-        }
+    pub fn as_str(&self) -> LanPairingText {
+        LanPairingText(LAN_PAIRING_TRUST_STATE_STRINGS[*self as usize].to_string())
     }
 }
 
@@ -233,12 +288,17 @@ pub struct LanPairingDeviceRef {
 }
 
 impl LanPairingDeviceRef {
-    pub fn new(
-        device_id: String,
-        child_profile_id: Option<String>,
-        label: String,
-        platform: String,
-    ) -> Self {
+    pub fn new<D, C, L, P>(device_id: D, child_profile_id: C, label: L, platform: P) -> Self
+    where
+        D: Into<LanPairingText>,
+        C: Into<LanPairingOptionalText>,
+        L: Into<LanPairingText>,
+        P: Into<LanPairingText>,
+    {
+        let device_id = device_id.into().0;
+        let child_profile_id = child_profile_id.into().0;
+        let label = label.into().0;
+        let platform = platform.into().0;
         Self {
             device_id,
             child_profile_id,
@@ -282,7 +342,8 @@ pub struct LanPairingDiscoveryDevice {
     pub discovery_state: LanPairingProductionDiscoveryState,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanMdnsAdvertisementLifecycleState {
     Start,
@@ -292,17 +353,20 @@ pub enum LanMdnsAdvertisementLifecycleState {
 }
 
 impl LanMdnsAdvertisementLifecycleState {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Start => constants::lan_pairing::MDNS_TXT_VALUE_START,
-            Self::Update => constants::lan_pairing::MDNS_TXT_VALUE_UPDATE,
-            Self::Stop => constants::lan_pairing::MDNS_TXT_VALUE_STOP,
-            Self::Degraded => constants::lan_pairing::MDNS_TXT_VALUE_DEGRADED,
-        }
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        constants::lan_pairing::MDNS_TXT_VALUE_START,
+        constants::lan_pairing::MDNS_TXT_VALUE_UPDATE,
+        constants::lan_pairing::MDNS_TXT_VALUE_STOP,
+        constants::lan_pairing::MDNS_TXT_VALUE_DEGRADED,
+    ];
+
+    pub fn as_str(&self) -> LanPairingText {
+        LanPairingText(Self::PROTOCOL_STRINGS[*self as usize].to_string())
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanMdnsAdvertisementSupportState {
     Supported,
@@ -311,26 +375,27 @@ pub enum LanMdnsAdvertisementSupportState {
 }
 
 impl LanMdnsAdvertisementSupportState {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Supported => constants::lan_pairing::MDNS_TXT_VALUE_SUPPORTED,
-            Self::Degraded => constants::lan_pairing::MDNS_TXT_VALUE_DEGRADED,
-            Self::UnsupportedPlatform => {
-                constants::lan_pairing::MDNS_TXT_VALUE_UNSUPPORTED_PLATFORM
-            }
-        }
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::lan_pairing::MDNS_TXT_VALUE_SUPPORTED,
+        constants::lan_pairing::MDNS_TXT_VALUE_DEGRADED,
+        constants::lan_pairing::MDNS_TXT_VALUE_UNSUPPORTED_PLATFORM,
+    ];
+
+    pub fn as_str(&self) -> LanPairingText {
+        LanPairingText(Self::PROTOCOL_STRINGS[*self as usize].to_string())
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanMdnsAdvertisementConfirmationState {
     HintOnly,
 }
 
 impl LanMdnsAdvertisementConfirmationState {
-    pub fn as_str(&self) -> &'static str {
-        constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY
+    pub fn as_str(&self) -> LanPairingText {
+        LanPairingText(constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY.to_string())
     }
 }
 
@@ -342,15 +407,19 @@ pub struct LanMdnsTxtRecord {
 }
 
 impl LanMdnsTxtRecord {
-    pub fn new(
-        key: impl Into<String>,
-        value: impl Into<String>,
-    ) -> Result<Self, ocentra_eventing::error::EventingError> {
+    pub fn new<K, V>(key: K, value: V) -> Result<Self, ocentra_eventing::error::EventingError>
+    where
+        K: Into<LanPairingText>,
+        V: Into<LanPairingText>,
+    {
         let key = key.into();
         let value = value.into();
-        validate_mdns_atom(constants::lan_pairing::MDNS_TXT_KEY_FIELD, &key)?;
-        validate_mdns_atom(constants::lan_pairing::MDNS_TXT_VALUE_FIELD, &value)?;
-        Ok(Self { key, value })
+        validate_mdns_atom(LanMdnsField::TxtKey, &key)?;
+        validate_mdns_atom(LanMdnsField::TxtValue, &value)?;
+        Ok(Self {
+            key: key.0,
+            value: value.0,
+        })
     }
 }
 
@@ -371,26 +440,25 @@ pub struct LanParentMdnsAdvertisement {
 }
 
 impl LanParentMdnsAdvertisement {
-    pub fn new(
-        advertisement_id: impl Into<String>,
-        protocol_version: impl Into<String>,
-        family_hash: impl Into<String>,
+    pub fn new<A, P, F>(
+        advertisement_id: A,
+        protocol_version: P,
+        family_hash: F,
         pairing_state: LanPairingTrustState,
         lifecycle_state: LanMdnsAdvertisementLifecycleState,
         support_state: LanMdnsAdvertisementSupportState,
-    ) -> Result<Self, ocentra_eventing::error::EventingError> {
+    ) -> Result<Self, ocentra_eventing::error::EventingError>
+    where
+        A: Into<LanPairingText>,
+        P: Into<LanPairingText>,
+        F: Into<LanPairingText>,
+    {
         let advertisement_id = advertisement_id.into();
         let protocol_version = protocol_version.into();
         let family_hash = family_hash.into();
-        validate_mdns_atom(
-            constants::lan_pairing::MDNS_ADVERTISEMENT_ID_FIELD,
-            &advertisement_id,
-        )?;
-        validate_mdns_atom(
-            constants::lan_pairing::MDNS_PROTOCOL_VERSION_FIELD,
-            &protocol_version,
-        )?;
-        validate_mdns_atom(constants::lan_pairing::MDNS_FAMILY_HASH_FIELD, &family_hash)?;
+        validate_mdns_atom(LanMdnsField::AdvertisementId, &advertisement_id)?;
+        validate_mdns_atom(LanMdnsField::ProtocolVersion, &protocol_version)?;
+        validate_mdns_atom(LanMdnsField::FamilyHash, &family_hash)?;
         let txt_records = vec![
             LanMdnsTxtRecord::new(
                 constants::lan_pairing::MDNS_TXT_KEY_SCHEMA_VERSION,
@@ -425,9 +493,9 @@ impl LanParentMdnsAdvertisement {
         Ok(Self {
             schema_version: constants::lan_pairing::SCHEMA_VERSION,
             service_type: constants::lan_pairing::MDNS_PARENT_SERVICE_TYPE.to_string(),
-            advertisement_id,
-            protocol_version,
-            family_hash,
+            advertisement_id: advertisement_id.0,
+            protocol_version: protocol_version.0,
+            family_hash: family_hash.0,
             pairing_state,
             lifecycle_state,
             support_state,
@@ -474,6 +542,7 @@ impl LanChildMdnsAdvertisement {
         input: LanChildMdnsAdvertisementInput,
     ) -> Result<Self, ocentra_eventing::error::EventingError> {
         validate_mdns_advertisement_input(&input)?;
+        let txt_records = mdns_advertisement_txt_records(&input)?;
         let LanChildMdnsAdvertisementInput {
             advertisement_id,
             opaque_device_id,
@@ -485,16 +554,6 @@ impl LanChildMdnsAdvertisement {
             lifecycle_state,
             support_state,
         } = input;
-        let txt_records = mdns_advertisement_txt_records(
-            &opaque_device_id,
-            &protocol_version,
-            &family_hash,
-            &platform,
-            &agent_version,
-            &pairing_state,
-            &lifecycle_state,
-            &support_state,
-        )?;
 
         Ok(Self {
             schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -518,37 +577,33 @@ fn validate_mdns_advertisement_input(
     input: &LanChildMdnsAdvertisementInput,
 ) -> Result<(), ocentra_eventing::error::EventingError> {
     validate_mdns_atom(
-        constants::lan_pairing::MDNS_ADVERTISEMENT_ID_FIELD,
-        &input.advertisement_id,
+        LanMdnsField::AdvertisementId,
+        &LanPairingText(input.advertisement_id.clone()),
     )?;
     validate_mdns_atom(
-        constants::lan_pairing::MDNS_OPAQUE_DEVICE_ID_FIELD,
-        &input.opaque_device_id,
+        LanMdnsField::OpaqueDeviceId,
+        &LanPairingText(input.opaque_device_id.clone()),
     )?;
     validate_mdns_atom(
-        constants::lan_pairing::MDNS_PROTOCOL_VERSION_FIELD,
-        &input.protocol_version,
+        LanMdnsField::ProtocolVersion,
+        &LanPairingText(input.protocol_version.clone()),
     )?;
     validate_mdns_atom(
-        constants::lan_pairing::MDNS_FAMILY_HASH_FIELD,
-        &input.family_hash,
+        LanMdnsField::FamilyHash,
+        &LanPairingText(input.family_hash.clone()),
     )?;
-    validate_mdns_atom(constants::lan_pairing::MDNS_PLATFORM_FIELD, &input.platform)?;
     validate_mdns_atom(
-        constants::lan_pairing::MDNS_AGENT_VERSION_FIELD,
-        &input.agent_version,
+        LanMdnsField::Platform,
+        &LanPairingText(input.platform.clone()),
+    )?;
+    validate_mdns_atom(
+        LanMdnsField::AgentVersion,
+        &LanPairingText(input.agent_version.clone()),
     )
 }
 
 fn mdns_advertisement_txt_records(
-    opaque_device_id: &str,
-    protocol_version: &str,
-    family_hash: &str,
-    platform: &str,
-    agent_version: &str,
-    pairing_state: &LanPairingTrustState,
-    lifecycle_state: &LanMdnsAdvertisementLifecycleState,
-    support_state: &LanMdnsAdvertisementSupportState,
+    input: &LanChildMdnsAdvertisementInput,
 ) -> Result<Vec<LanMdnsTxtRecord>, ocentra_eventing::error::EventingError> {
     Ok(vec![
         LanMdnsTxtRecord::new(
@@ -557,35 +612,35 @@ fn mdns_advertisement_txt_records(
         )?,
         LanMdnsTxtRecord::new(
             constants::lan_pairing::MDNS_TXT_KEY_PROTOCOL_VERSION,
-            protocol_version.to_string(),
+            input.protocol_version.as_str(),
         )?,
         LanMdnsTxtRecord::new(
             constants::lan_pairing::MDNS_TXT_KEY_OPAQUE_DEVICE_ID,
-            opaque_device_id.to_string(),
+            input.opaque_device_id.as_str(),
         )?,
         LanMdnsTxtRecord::new(
             constants::lan_pairing::MDNS_TXT_KEY_FAMILY_HASH,
-            family_hash.to_string(),
+            input.family_hash.as_str(),
         )?,
         LanMdnsTxtRecord::new(
             constants::lan_pairing::MDNS_TXT_KEY_PLATFORM,
-            platform.to_string(),
+            input.platform.as_str(),
         )?,
         LanMdnsTxtRecord::new(
             constants::lan_pairing::MDNS_TXT_KEY_AGENT_VERSION,
-            agent_version.to_string(),
+            input.agent_version.as_str(),
         )?,
         LanMdnsTxtRecord::new(
             constants::lan_pairing::MDNS_TXT_KEY_PAIRING_STATE,
-            pairing_state.as_str(),
+            input.pairing_state.as_str(),
         )?,
         LanMdnsTxtRecord::new(
             constants::lan_pairing::MDNS_TXT_KEY_LIFECYCLE_STATE,
-            lifecycle_state.as_str(),
+            input.lifecycle_state.as_str(),
         )?,
         LanMdnsTxtRecord::new(
             constants::lan_pairing::MDNS_TXT_KEY_SUPPORT_STATE,
-            support_state.as_str(),
+            input.support_state.as_str(),
         )?,
         LanMdnsTxtRecord::new(
             constants::lan_pairing::MDNS_TXT_KEY_CONFIRMATION_STATE,
@@ -595,20 +650,21 @@ fn mdns_advertisement_txt_records(
 }
 
 fn validate_mdns_atom(
-    field: &'static str,
-    value: &str,
+    field: LanMdnsField,
+    value: &LanPairingText,
 ) -> Result<(), ocentra_eventing::error::EventingError> {
-    if value.trim().is_empty() {
+    let field = field.as_str();
+    if value.0.trim().is_empty() {
         return Err(ocentra_eventing::error::EventingError::EmptyValue { field });
     }
-    if value.chars().all(|character| {
+    if value.0.chars().all(|character| {
         character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | '.' | ':')
     }) {
         return Ok(());
     }
     Err(ocentra_eventing::error::EventingError::InvalidValue {
         field,
-        value: value.to_string(),
+        value: value.0.clone(),
     })
 }
 

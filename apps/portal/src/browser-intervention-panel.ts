@@ -1,16 +1,18 @@
-import type {
-  BrowserInterventionReadModel,
-  BrowserInterventionRow,
-} from '@ocentra-parent/schema-domain/browser-intervention-schemas';
-import type { ActivityEvidenceId } from '@ocentra-parent/schema-domain/evidence-primitives';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { decodeParentPortalDetailValue, type ParentPortalDetailValue } from '../generated/parent-ui-bridge';
+import {
+  decodeParentPortalDetailValue,
+  ParentAgentProtocolDelimiter,
+  ParentAgentProtocolField,
+  type ParentPortalDetailValue,
+} from '../generated/parent-ui-bridge';
 import { appendDetail } from './detail-list';
+import { type PortalDisplayText } from './portal-display-text';
 import type { PortalLiveActivityState } from './live-activity-state';
+
+type BrowserInterventionReadModel = NonNullable<PortalLiveActivityState['browserInterventionReadModel']>;
+type BrowserInterventionRow = BrowserInterventionReadModel['rows'][number];
 
 export function renderBrowserIntervention(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const panel = panelWithTitle(resolvePortalDevText(PortalDevTextToken.BrowserIntervention));
@@ -124,7 +126,7 @@ function eventReason(event: PortalLiveActivityState['browserInterventionEvent'])
   if (event === null) {
     return notReported();
   }
-  return detailFromValue(event.payload?.[AgentProtocolDefaults.Field.Reason]);
+  return detailFromValue(event.payload?.[ParentAgentProtocolField.Reason]);
 }
 
 function detailFromValue(value: unknown): ParentPortalDetailValue {
@@ -134,11 +136,11 @@ function detailFromValue(value: unknown): ParentPortalDetailValue {
   return decodeParentPortalDetailValue(String(value));
 }
 
-function detailFromList(values: readonly ActivityEvidenceId[] | undefined): ParentPortalDetailValue {
+function detailFromList(values: readonly string[] | undefined): ParentPortalDetailValue {
   if (values === undefined || values.length === 0) {
     return notReported();
   }
-  return decodeParentPortalDetailValue(values.join(AgentProtocolDefaults.Delimiter.List));
+  return decodeParentPortalDetailValue(values.join(ParentAgentProtocolDelimiter.List));
 }
 
 function notReported(): ParentPortalDetailValue {

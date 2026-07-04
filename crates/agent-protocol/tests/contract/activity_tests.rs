@@ -42,8 +42,7 @@ fn activity_event_serializes_to_typescript_contract_shape() {
         }],
     };
 
-    let serialized = serde_json::to_value(event)
-        .unwrap_or_else(|error| unreachable!("activity event serializes: {error}"));
+    let serialized = serde_json::to_value(event).expect("activity event serializes");
 
     assert_eq!(serialized["schemaVersion"], 1);
     assert_eq!(serialized["source"]["observer"], "windows-process");
@@ -56,14 +55,10 @@ fn activity_event_serializes_to_typescript_contract_shape() {
 
 #[test]
 fn capture_status_values_serialize_to_typescript_contract_shape() {
-    let mode =
-        serde_json::to_value(ActivityObservationMode::ActiveWindow).unwrap_or_else(|error| {
-            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+    let mode = serde_json::to_value(ActivityObservationMode::ActiveWindow)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let status = serde_json::to_value(ActivityCaptureCapabilityStatus::NoActiveWindow)
-        .unwrap_or_else(|error| {
-            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         mode,
@@ -89,21 +84,14 @@ fn capture_status_values_serialize_to_typescript_contract_shape() {
 
 #[test]
 fn network_domain_values_serialize_to_typescript_contract_shape() {
-    let protocol = serde_json::to_value(ActivityNetworkProtocol::Tcp).unwrap_or_else(|error| {
-        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    let tcp_state =
-        serde_json::to_value(ActivityNetworkTcpState::Established).unwrap_or_else(|error| {
-            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+    let protocol = serde_json::to_value(ActivityNetworkProtocol::Tcp)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let tcp_state = serde_json::to_value(ActivityNetworkTcpState::Established)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let domain_status = serde_json::to_value(ActivityDomainAttributionStatus::IpOnly)
-        .unwrap_or_else(|error| {
-            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let process_status = serde_json::to_value(ActivityProcessAttributionStatus::ProcessAttributed)
-        .unwrap_or_else(|error| {
-            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(protocol, constants::activity_capture::NETWORK_PROTOCOL_TCP);
     assert_eq!(
@@ -122,28 +110,18 @@ fn network_domain_values_serialize_to_typescript_contract_shape() {
 
 #[test]
 fn browser_evidence_values_serialize_to_typescript_contract_shape() {
-    let family = serde_json::to_value(BrowserFamily::Edge).unwrap_or_else(|error| {
-        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    let channel = serde_json::to_value(BrowserChannel::Stable).unwrap_or_else(|error| {
-        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    let active_state =
-        serde_json::to_value(BrowserActiveTabState::Unknown).unwrap_or_else(|error| {
-            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+    let family =
+        serde_json::to_value(BrowserFamily::Edge).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let channel = serde_json::to_value(BrowserChannel::Stable)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let active_state = serde_json::to_value(BrowserActiveTabState::Unknown)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let active_proof_source = serde_json::to_value(BrowserActiveProofSource::TargetListOnly)
-        .unwrap_or_else(|error| {
-            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
-    let capability =
-        serde_json::to_value(BrowserCapabilityStatus::TabListOnly).unwrap_or_else(|error| {
-            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
-    let custody =
-        serde_json::to_value(BrowserCustodyLabel::ChildDeviceLocal).unwrap_or_else(|error| {
-            unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let capability = serde_json::to_value(BrowserCapabilityStatus::TabListOnly)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let custody = serde_json::to_value(BrowserCustodyLabel::ChildDeviceLocal)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(family, constants::browser::FAMILY_EDGE);
     assert_eq!(channel, constants::browser::CHANNEL_STABLE);
@@ -253,9 +231,7 @@ fn browser_evidence_recent_summary_serializes_to_contract_shape() {
         custody_label: Some(constants::browser::CUSTODY_CHILD_DEVICE_LOCAL.to_string()),
     };
 
-    let serialized = serde_json::to_value(summary).unwrap_or_else(|error| {
-        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(summary).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], BROWSER_EVIDENCE_SCHEMA_VERSION);
     assert_eq!(serialized["browserFamily"], constants::browser::FAMILY_EDGE);

@@ -32,6 +32,19 @@ type ParentPortalRouteProps = {
 };
 
 type ParentPortalSurfaceActivityState = NonNullable<ComponentProps<typeof ParentPortalSvgSurface>['activityState']> | null;
+type ParentPortalRouteContext = ReturnType<typeof parentPortalRouteContext>;
+type ParentPortalServiceState = ReturnType<typeof resolveParentPortalServiceState>;
+type ParentPortalLiveActivity = ReturnType<typeof resolveSnapshotLiveActivityState>;
+type ParentBrowserPanelKey =
+  | 'browserParentExplanation'
+  | 'socialAuditExplanation'
+  | 'socialDashboard'
+  | 'socialAlertReport'
+  | 'socialAlertReportParentSurface'
+  | 'socialParentNotificationDelivery'
+  | 'browserActionIntentStreamStatus'
+  | 'browserSocialProviderReceiptStreamStatus'
+  | 'browserSocialProviderReceiptIngestionReadinessStatus';
 
 export function ParentPortalRoute({
   actions,
@@ -51,119 +64,173 @@ export function ParentPortalRoute({
     snapshotRows: state.routeSnapshot?.parentPortalRows ?? null,
   });
   const commandEnabled = state.commandEnabled;
-  const networkEvidenceSummary = activityState.networkEvidenceSummary ?? null;
-  const policyPreviewPanel = activityState.policyPreviewPanel ?? null;
-  const appGameNotificationParentSurfacePanel = activityState.appGameNotificationParentSurfacePanel ?? null;
-  const appGamePolicyReadinessPanel = activityState.appGamePolicyReadinessPanel ?? null;
-  const appGamePlatformProofStatusPanel = activityState.appGamePlatformProofStatusPanel ?? null;
-  const appGameChildRuntimeTransportReceiptPanel = activityState.appGameChildRuntimeTransportReceiptPanel ?? null;
-  const appGameAdapterDispatchPanel = activityState.appGameAdapterDispatchPanel ?? null;
-  const appGameTimerParentSurfacePanel = activityState.appGameTimerParentSurfacePanel ?? null;
-  const browserParentExplanationPanel =
-    (state.routeSnapshot?.browserPanels?.browserParentExplanation as ParentBrowserPanelSnapshot | null | undefined) ??
-    null;
-  const socialAuditExplanationPanel =
-    (state.routeSnapshot?.browserPanels?.socialAuditExplanation as ParentBrowserPanelSnapshot | null | undefined) ??
-    null;
-  const socialDashboardPanel =
-    (state.routeSnapshot?.browserPanels?.socialDashboard as ParentBrowserPanelSnapshot | null | undefined) ?? null;
-  const socialAlertReportPanel =
-    (state.routeSnapshot?.browserPanels?.socialAlertReport as ParentBrowserPanelSnapshot | null | undefined) ?? null;
-  const socialAlertReportParentSurfacePanel =
-    (state.routeSnapshot?.browserPanels?.socialAlertReportParentSurface as
-      | ParentBrowserPanelSnapshot
-      | null
-      | undefined) ?? null;
-  const socialParentNotificationDeliveryPanel =
-    (state.routeSnapshot?.browserPanels?.socialParentNotificationDelivery as
-      | ParentBrowserPanelSnapshot
-      | null
-      | undefined) ?? null;
-  const browserActionIntentStreamStatusPanel =
-    (state.routeSnapshot?.browserPanels?.browserActionIntentStreamStatus as
-      | ParentBrowserPanelSnapshot
-      | null
-      | undefined) ?? null;
-  const browserSocialProviderReceiptStreamStatusPanel =
-    (state.routeSnapshot?.browserPanels?.browserSocialProviderReceiptStreamStatus as
-      | ParentBrowserPanelSnapshot
-      | null
-      | undefined) ?? null;
-  const browserSocialProviderReceiptIngestionReadinessStatusPanel =
-    (state.routeSnapshot?.browserPanels?.browserSocialProviderReceiptIngestionReadinessStatus as
-      | ParentBrowserPanelSnapshot
-      | null
-      | undefined) ?? null;
-  const setupFirstRunPanel =
-    (state.routeSnapshot?.setupFirstRunPanel as ParentSetupFirstRunPanelSnapshot | null | undefined) ?? null;
+  const panels = parentPortalRoutePanels(state, activityState);
   return (
     <div className={PARENT_PORTAL_ROUTE.ClassName}>
-      <ParentPortalSvgSurface
-        pageMode={routeContext.pageMode}
-        controlCode={1}
-        seasonId={state.routeSnapshot?.seasonLabel ?? seasonLabelForConnection(state.connectionState)}
-        lastUpdated={state.routeSnapshot?.lastUpdated ?? latestReportedAt(state)}
-        parentPortalRows={serviceState.parentPortalRows}
-        userEntry={serviceState.userEntry}
-        nearbyAbove={[]}
-        nearbyBelow={[]}
-        content={serviceState.content}
-        controls={controls}
-        initialNavLabel={routeContext.navLabel}
-        initialSelectedControlId={routeContext.selectedControlId}
-        assistantRouteActive={route === ParentRoute.Assistant}
-        assistantRoutePath={parentRouteHashPath(ParentRoute.Assistant)}
-        assistantReturnRoutePath={parentRouteHashPath(ParentRoute.Overview)}
+      <ParentPortalRouteSurface
+        actions={actions}
         activityState={surfaceActivityState}
+        controls={controls}
         lanPairingAutoScanSequence={lanPairingAutoScanSequence}
-        onInitialLayoutReady={onProductSurfaceReady}
-        onRefreshParentPortal={actions.reconnect}
-        onMatchmaking={actions.reconnect}
-        onNavigate={(routePath) => {
-          if (!routePath.startsWith(ParentHostBridgeRuntime.RouteHashPrefix)) {
-            return;
-          }
-          if (routePath === parentRouteHashPath(ParentRoute.FrameTuner)) {
-            void openPortalFrameTunerWindow();
-            return;
-          }
-          window.location.hash = routePath;
-        }}
-        onAssistantCommand={actions.sendCommand}
+        onProductSurfaceReady={onProductSurfaceReady}
+        route={route}
+        routeContext={routeContext}
+        serviceState={serviceState}
+        state={state}
       />
       {route === ParentRoute.Diagnostics ? <PortalDiagnosticsRoutePanel state={state} /> : null}
-      {route === ParentRoute.ProofPanels ? (
-        <PortalProofPanelsRoutePanel
-          actions={actions}
-          commandEnabled={commandEnabled}
-          liveActivity={activityState}
-          networkEvidenceSummary={networkEvidenceSummary}
-          policyPreviewPanel={policyPreviewPanel}
-          appGameNotificationParentSurfacePanel={appGameNotificationParentSurfacePanel}
-          appGamePolicyReadinessPanel={appGamePolicyReadinessPanel}
-          appGamePlatformProofStatusPanel={appGamePlatformProofStatusPanel}
-          appGameChildRuntimeTransportReceiptPanel={appGameChildRuntimeTransportReceiptPanel}
-          appGameAdapterDispatchPanel={appGameAdapterDispatchPanel}
-          appGameTimerParentSurfacePanel={appGameTimerParentSurfacePanel}
-          browserParentExplanationPanel={browserParentExplanationPanel}
-          socialAuditExplanationPanel={socialAuditExplanationPanel}
-          socialDashboardPanel={socialDashboardPanel}
-          socialAlertReportPanel={socialAlertReportPanel}
-          socialAlertReportParentSurfacePanel={socialAlertReportParentSurfacePanel}
-          socialParentNotificationDeliveryPanel={socialParentNotificationDeliveryPanel}
-          browserActionIntentStreamStatusPanel={browserActionIntentStreamStatusPanel}
-          browserSocialProviderReceiptStreamStatusPanel={browserSocialProviderReceiptStreamStatusPanel}
-          browserSocialProviderReceiptIngestionReadinessStatusPanel={
-            browserSocialProviderReceiptIngestionReadinessStatusPanel
-          }
-        />
-      ) : null}
+      <ParentPortalProofPanels
+        actions={actions}
+        commandEnabled={commandEnabled}
+        liveActivity={activityState}
+        panels={panels}
+        route={route}
+      />
       {shouldRenderPortalDeveloperRoute(route) ? (
         <PortalDeveloperRoutePanel actions={actions} route={route} state={state} />
       ) : null}
-      {shouldRenderSetupFirstRunRoute(route) ? <SetupFirstRunRoutePanel panel={setupFirstRunPanel} /> : null}
+      {shouldRenderSetupFirstRunRoute(route) ? <SetupFirstRunRoutePanel panel={panels.setupFirstRunPanel} /> : null}
     </div>
   );
+}
+
+function ParentPortalRouteSurface({
+  actions,
+  activityState,
+  controls,
+  lanPairingAutoScanSequence,
+  onProductSurfaceReady,
+  route,
+  routeContext,
+  serviceState,
+  state,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly activityState: ParentPortalSurfaceActivityState;
+  readonly controls: ParentPortalSvgControls;
+  readonly lanPairingAutoScanSequence: number;
+  readonly onProductSurfaceReady: () => void;
+  readonly route: ParentRouteId;
+  readonly routeContext: ParentPortalRouteContext;
+  readonly serviceState: ParentPortalServiceState;
+  readonly state: PortalRuntimeState;
+}): ReactElement {
+  return (
+    <ParentPortalSvgSurface
+      pageMode={routeContext.pageMode}
+      controlCode={1}
+      seasonId={state.routeSnapshot?.seasonLabel ?? seasonLabelForConnection(state.connectionState)}
+      lastUpdated={state.routeSnapshot?.lastUpdated ?? latestReportedAt(state)}
+      parentPortalRows={serviceState.parentPortalRows}
+      userEntry={serviceState.userEntry}
+      nearbyAbove={[]}
+      nearbyBelow={[]}
+      content={serviceState.content}
+      controls={controls}
+      initialNavLabel={routeContext.navLabel}
+      initialSelectedControlId={routeContext.selectedControlId}
+      assistantRouteActive={route === ParentRoute.Assistant}
+      assistantRoutePath={parentRouteHashPath(ParentRoute.Assistant)}
+      assistantReturnRoutePath={parentRouteHashPath(ParentRoute.Overview)}
+      activityState={activityState}
+      lanPairingAutoScanSequence={lanPairingAutoScanSequence}
+      onInitialLayoutReady={onProductSurfaceReady}
+      onRefreshParentPortal={actions.reconnect}
+      onMatchmaking={actions.reconnect}
+      onNavigate={handleParentRouteNavigate}
+      onAssistantCommand={actions.sendCommand}
+    />
+  );
+}
+
+function ParentPortalProofPanels({
+  actions,
+  commandEnabled,
+  liveActivity,
+  panels,
+  route,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
+  readonly liveActivity: ParentPortalLiveActivity;
+  readonly panels: ReturnType<typeof parentPortalRoutePanels>;
+  readonly route: ParentRouteId;
+}): ReactElement | null {
+  if (route !== ParentRoute.ProofPanels) {
+    return null;
+  }
+  return (
+    <PortalProofPanelsRoutePanel
+      actions={actions}
+      commandEnabled={commandEnabled}
+      liveActivity={liveActivity}
+      networkEvidenceSummary={panels.networkEvidenceSummary}
+      policyPreviewPanel={panels.policyPreviewPanel}
+      appGameNotificationParentSurfacePanel={panels.appGameNotificationParentSurfacePanel}
+      appGamePolicyReadinessPanel={panels.appGamePolicyReadinessPanel}
+      appGamePlatformProofStatusPanel={panels.appGamePlatformProofStatusPanel}
+      appGameChildRuntimeTransportReceiptPanel={panels.appGameChildRuntimeTransportReceiptPanel}
+      appGameAdapterDispatchPanel={panels.appGameAdapterDispatchPanel}
+      appGameTimerParentSurfacePanel={panels.appGameTimerParentSurfacePanel}
+      browserParentExplanationPanel={panels.browserParentExplanationPanel}
+      socialAuditExplanationPanel={panels.socialAuditExplanationPanel}
+      socialDashboardPanel={panels.socialDashboardPanel}
+      socialAlertReportPanel={panels.socialAlertReportPanel}
+      socialAlertReportParentSurfacePanel={panels.socialAlertReportParentSurfacePanel}
+      socialParentNotificationDeliveryPanel={panels.socialParentNotificationDeliveryPanel}
+      browserActionIntentStreamStatusPanel={panels.browserActionIntentStreamStatusPanel}
+      browserSocialProviderReceiptStreamStatusPanel={panels.browserSocialProviderReceiptStreamStatusPanel}
+      browserSocialProviderReceiptIngestionReadinessStatusPanel={
+        panels.browserSocialProviderReceiptIngestionReadinessStatusPanel
+      }
+    />
+  );
+}
+
+function parentPortalRoutePanels(state: PortalRuntimeState, activityState: ParentPortalLiveActivity) {
+  return {
+    networkEvidenceSummary: activityState.networkEvidenceSummary ?? null,
+    policyPreviewPanel: activityState.policyPreviewPanel ?? null,
+    appGameNotificationParentSurfacePanel: activityState.appGameNotificationParentSurfacePanel ?? null,
+    appGamePolicyReadinessPanel: activityState.appGamePolicyReadinessPanel ?? null,
+    appGamePlatformProofStatusPanel: activityState.appGamePlatformProofStatusPanel ?? null,
+    appGameChildRuntimeTransportReceiptPanel: activityState.appGameChildRuntimeTransportReceiptPanel ?? null,
+    appGameAdapterDispatchPanel: activityState.appGameAdapterDispatchPanel ?? null,
+    appGameTimerParentSurfacePanel: activityState.appGameTimerParentSurfacePanel ?? null,
+    browserParentExplanationPanel: browserPanelSnapshot(state, 'browserParentExplanation'),
+    socialAuditExplanationPanel: browserPanelSnapshot(state, 'socialAuditExplanation'),
+    socialDashboardPanel: browserPanelSnapshot(state, 'socialDashboard'),
+    socialAlertReportPanel: browserPanelSnapshot(state, 'socialAlertReport'),
+    socialAlertReportParentSurfacePanel: browserPanelSnapshot(state, 'socialAlertReportParentSurface'),
+    socialParentNotificationDeliveryPanel: browserPanelSnapshot(state, 'socialParentNotificationDelivery'),
+    browserActionIntentStreamStatusPanel: browserPanelSnapshot(state, 'browserActionIntentStreamStatus'),
+    browserSocialProviderReceiptStreamStatusPanel: browserPanelSnapshot(state, 'browserSocialProviderReceiptStreamStatus'),
+    browserSocialProviderReceiptIngestionReadinessStatusPanel: browserPanelSnapshot(
+      state,
+      'browserSocialProviderReceiptIngestionReadinessStatus'
+    ),
+    setupFirstRunPanel:
+      (state.routeSnapshot?.setupFirstRunPanel as ParentSetupFirstRunPanelSnapshot | null | undefined) ?? null,
+  };
+}
+
+function browserPanelSnapshot(state: PortalRuntimeState, key: ParentBrowserPanelKey): ParentBrowserPanelSnapshot | null {
+  const browserPanels = state.routeSnapshot?.browserPanels as
+    | Record<ParentBrowserPanelKey, ParentBrowserPanelSnapshot | null | undefined>
+    | null
+    | undefined;
+  return browserPanels?.[key] ?? null;
+}
+
+function handleParentRouteNavigate(routePath: string): void {
+  if (!routePath.startsWith(ParentHostBridgeRuntime.RouteHashPrefix)) {
+    return;
+  }
+  if (routePath === parentRouteHashPath(ParentRoute.FrameTuner)) {
+    void openPortalFrameTunerWindow();
+    return;
+  }
+  window.location.hash = routePath;
 }
 
 function latestReportedAt(state: PortalRuntimeState): string {

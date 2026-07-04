@@ -3,8 +3,7 @@ import {
   decodeParentPortalDetailValue,
   type ParentPortalDetailValue,
 } from '../generated/parent-ui-bridge';
-import { decodeDisplayText, type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
@@ -17,6 +16,7 @@ import {
 } from '@ocentra-parent/portal-domain/live-activity-lan-add-device';
 import type { ParentNetworkEvidenceSummarySnapshot, ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalLiveActivityState } from './live-activity-state';
+import { decodeDisplayText, type PortalDisplayText } from './portal-display-text';
 import { isInlineNetworkEvidenceDrawerRoute, isNetworkEvidenceDrawerRoute } from './portal-route-refresh';
 
 export function shouldRenderNetworkEvidenceDrawerRoute(route: ParentRouteId): boolean {
@@ -137,6 +137,20 @@ function NetworkEvidenceLanSourceMatrixCard({
   return (
     <article className={networkEvidenceDrawerCardClassName()}>
       <h2>{LAN_SOURCE_MATRIX_TEXT.title}</h2>
+      <NetworkEvidenceLanSourceMatrixDetails matrix={matrix} diagnostics={diagnostics} />
+      <NetworkEvidenceLanSourceMatrixRows matrix={matrix} diagnostics={diagnostics} />
+    </article>
+  );
+}
+
+function NetworkEvidenceLanSourceMatrixDetails({
+  matrix,
+  diagnostics,
+}: {
+  readonly matrix: LanDiscoverySourceMatrixViewModel | null;
+  readonly diagnostics: PortalLanDiagnosticsViewModel | null;
+}): ReactElement {
+  return (
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <NetworkEvidenceDrawerDetail label={PortalDetails.GeneratedAt} value={detailFromValue(matrix?.generatedAt)} />
         <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.matrixCoverage} value={detailFromValue(matrix?.rowSummary)} />
@@ -198,6 +212,18 @@ function NetworkEvidenceLanSourceMatrixCard({
           value={detailFromValue(diagnostics?.relayCacheSummary)}
         />
       </dl>
+  );
+}
+
+function NetworkEvidenceLanSourceMatrixRows({
+  matrix,
+  diagnostics,
+}: {
+  readonly matrix: LanDiscoverySourceMatrixViewModel | null;
+  readonly diagnostics: PortalLanDiagnosticsViewModel | null;
+}): ReactElement {
+  return (
+    <>
       <NetworkEvidenceDrawerRowSection title={LAN_SOURCE_MATRIX_TEXT.workpacks} rows={matrix?.workpackRows ?? []} />
       <NetworkEvidenceDrawerRowSection
         title={LAN_SOURCE_MATRIX_TEXT.implementedSources}
@@ -220,7 +246,7 @@ function NetworkEvidenceLanSourceMatrixCard({
         title={LAN_SOURCE_MATRIX_TEXT.householdDecisions}
         rows={diagnostics?.decisionRows ?? []}
       />
-    </article>
+    </>
   );
 }
 

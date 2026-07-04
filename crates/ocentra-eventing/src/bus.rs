@@ -29,9 +29,9 @@ use subscriber::{insert_subscriber, record_for, remove_subscriber, SubscriberRec
 use active_dispatch::ActiveDispatchTracker;
 
 use publisher::{EventContext, EventPublisher};
-use reports::{
-    DeadLetter, EventMetricsSnapshot, HandlerOutcome, HandlerReport, PublishReport,
-    QueueDrainReport,
+use reports::dead_letter::DeadLetter;
+use reports::handler::{
+    EventMetricsSnapshot, HandlerOutcome, HandlerReport, PublishReport, QueueDrainReport,
 };
 use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport};
 

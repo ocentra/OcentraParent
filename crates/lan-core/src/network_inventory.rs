@@ -5,6 +5,7 @@ pub mod linux_neighbors;
 pub mod macos_neighbors;
 pub mod mdns_dns_sd;
 pub mod name_evidence;
+mod neighbor_merge;
 pub mod neighbor_support;
 pub mod passive_discovery;
 pub mod service_identity;
@@ -16,11 +17,14 @@ use std::collections::HashMap;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingDeviceRef,
 };
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanServiceIdentityProbeEvidence;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
+    LanDiscoveryEvidenceSource, LanServiceIdentityProbeEvidence,
+};
 use serde::{Deserialize, Serialize};
 
 use self::helpers::{normalized_lookup_key, trimmed_non_empty};
 use self::service_identity::trusted_device_matches_network_identity;
+use self::service_identity::AllowedSnmpResponseObserver;
 use crate::network_inventory_hardware::LocalNetworkIdentity;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -86,101 +90,7 @@ pub struct LanNeighborObservation {
 pub fn merge_neighbor_observations_by_mac(
     observations: Vec<LanNeighborObservation>,
 ) -> Vec<LanNeighborObservation> {
-    let mut merged: Vec<LanNeighborObservation> = Vec::new();
-    for observation in observations {
-        if let Some(existing) = merged.iter_mut().find(|candidate| {
-            candidate
-                .mac_address
-                .eq_ignore_ascii_case(&observation.mac_address)
-        }) {
-            merge_neighbor_observation(existing, observation);
-        } else {
-            merged.push(observation);
-        }
-    }
-    merged
-}
-
-fn merge_neighbor_observation(
-    existing: &mut LanNeighborObservation,
-    incoming: LanNeighborObservation,
-) {
-    let replace_primary_identity = should_replace_primary_observation(existing, &incoming);
-    if replace_primary_identity {
-        existing.ip_address = incoming.ip_address.clone();
-        if incoming.network_interface.is_some() {
-            existing.network_interface = incoming.network_interface.clone();
-        }
-        if incoming.hostname.is_some() {
-            existing.hostname = incoming.hostname.clone();
-        }
-    } else {
-        if existing.network_interface.is_none() {
-            existing.network_interface = incoming.network_interface.clone();
-        }
-        if existing.hostname.is_none() {
-            existing.hostname = incoming.hostname.clone();
-        }
-    }
-    if reachability_rank(&incoming.reachability) > reachability_rank(&existing.reachability) {
-        existing.reachability = incoming.reachability.clone();
-    }
-    merge_observed_at(&mut existing.observed_at, &incoming.observed_at);
-    for scan_source in incoming.scan_sources {
-        push_unique_scan_source(&mut existing.scan_sources, &scan_source);
-    }
-}
-
-fn should_replace_primary_observation(
-    existing: &LanNeighborObservation,
-    incoming: &LanNeighborObservation,
-) -> bool {
-    let existing_is_private_ipv4 = parse_private_ipv4(&existing.ip_address).is_some();
-    let incoming_is_private_ipv4 = parse_private_ipv4(&incoming.ip_address).is_some();
-    if !existing_is_private_ipv4 && incoming_is_private_ipv4 {
-        return true;
-    }
-    if existing.ip_address.is_empty() {
-        return true;
-    }
-    if existing
-        .ip_address
-        .eq_ignore_ascii_case(&incoming.ip_address)
-    {
-        return false;
-    }
-    existing_is_private_ipv4
-        && incoming_is_private_ipv4
-        && reachability_rank(&incoming.reachability) > reachability_rank(&existing.reachability)
-}
-
-fn parse_private_ipv4(value: &str) -> Option<std::net::Ipv4Addr> {
-    let ip = value.parse::<std::net::Ipv4Addr>().ok()?;
-    ip.is_private().then_some(ip)
-}
-
-fn reachability_rank(reachability: &LanPairingDeviceReachability) -> u8 {
-    match reachability {
-        LanPairingDeviceReachability::Online => 3,
-        LanPairingDeviceReachability::Stale => 2,
-        LanPairingDeviceReachability::Offline => 1,
-    }
-}
-
-fn push_unique_scan_source(scan_sources: &mut Vec<String>, value: &str) {
-    if scan_sources.iter().any(|existing| existing == value) {
-        return;
-    }
-    scan_sources.push(value.to_string());
-}
-
-fn merge_observed_at(existing: &mut String, incoming: &str) {
-    if incoming.is_empty() {
-        return;
-    }
-    if existing.is_empty() || incoming < existing.as_str() {
-        *existing = incoming.to_string();
-    }
+    neighbor_merge::merge_neighbor_observations_by_mac(observations)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -262,9 +172,6 @@ impl LanManualInterfaceSelection {
     }
 }
 
-pub type LanNetworkInventoryDeviceIdentifier = String;
-pub type LanNetworkInventoryDisplayLabel = String;
-
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanTargetedArpRefreshOutcome {
@@ -289,8 +196,8 @@ pub struct LanTargetedArpRefreshEvidence {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanNetworkInventoryDevice {
-    pub device_id: LanNetworkInventoryDeviceIdentifier,
-    pub label: LanNetworkInventoryDisplayLabel,
+    pub device_id: String,
+    pub label: String,
     pub platform: String,
     pub ip_address: String,
     pub mac_address: String,
@@ -332,4 +239,64 @@ impl LanPassiveRuntimeLocalNetworkIdentity {
             default_gateway: identity.default_gateway,
         }
     }
+}
+
+pub fn passive_runtime_local_network_identity() -> LanPassiveRuntimeLocalNetworkIdentity {
+    api::passive_runtime_local_network_identity()
+}
+
+pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer(
+    identity_hint_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+    refresh_mode: LanDiscoveryRefreshMode,
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+    probe_suppression_devices: &[LanPairingDeviceRef],
+    selected_interface_scope: Option<&str>,
+    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+) -> Vec<LanNetworkInventoryDevice> {
+    api::discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer(
+        identity_hint_devices,
+        previous_devices,
+        refresh_mode,
+        active_refresh_suppression_devices,
+        probe_suppression_devices,
+        selected_interface_scope,
+        allowed_snmp_response_observer,
+    )
+}
+
+pub fn plan_lan_discovery_scan_with_active_refresh_suppression(
+    identity_hint_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+    refresh_mode: LanDiscoveryRefreshMode,
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+) -> LanDiscoveryScanPlan {
+    api::plan_lan_discovery_scan_with_active_refresh_suppression(
+        identity_hint_devices,
+        previous_devices,
+        refresh_mode,
+        active_refresh_suppression_devices,
+    )
+}
+
+pub fn targeted_arp_refresh_evidence_for_scan(
+    previous_devices: &[LanNetworkInventoryDevice],
+    refresh_mode: LanDiscoveryRefreshMode,
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+) -> Vec<LanTargetedArpRefreshEvidence> {
+    api::targeted_arp_refresh_evidence_for_scan(
+        previous_devices,
+        refresh_mode,
+        active_refresh_suppression_devices,
+    )
+}
+
+pub fn local_agent_device_ref(local_device_id: String, platform: String) -> LanPairingDeviceRef {
+    api::local_agent_device_ref(local_device_id, platform)
+}
+
+pub fn discovery_evidence_sources_for_network_device(
+    device: &LanNetworkInventoryDevice,
+) -> Vec<LanDiscoveryEvidenceSource> {
+    api::discovery_evidence_sources_for_network_device(device)
 }

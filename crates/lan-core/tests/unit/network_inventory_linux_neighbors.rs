@@ -4,7 +4,14 @@ use std::fs;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 
-use ocentra_lan_core::network_inventory::linux_neighbors::*;
+use ocentra_lan_core::network_inventory::linux_neighbors::identity::{
+    network_device_from_neighbor_observation, reverse_dns_hostname_from_getent_line,
+};
+use ocentra_lan_core::network_inventory::linux_neighbors::merge::merge_neighbor_observations;
+use ocentra_lan_core::network_inventory::linux_neighbors::observations::{
+    current_linux_neighbor_ipv4_observations_from_observations,
+    linux_ip_neigh_observation_with_observed_at, linux_proc_net_arp_observation_with_observed_at,
+};
 use ocentra_lan_core::network_inventory::neighbor_support::filter_neighbor_observations_for_selected_interface;
 use ocentra_lan_core::network_inventory::{
     LanIdentityHintInventory, LanNeighborObservation, LanPreviousNetworkInventory,
@@ -18,11 +25,11 @@ fn lan_plan_fixture(name: &str) -> String {
         env!("CARGO_MANIFEST_DIR"),
         name
     ))
-    .value_or_unreachable("fixture loads")
+    .value_or_unreachable()
 }
 
 fn lan_plan_fixture_records(name: &str) -> Vec<serde_json::Value> {
-    serde_json::from_str(&lan_plan_fixture(name)).value_or_unreachable("fixture parses")
+    serde_json::from_str(&lan_plan_fixture(name)).value_or_unreachable()
 }
 
 #[test]
@@ -172,7 +179,7 @@ fn linux_ip_neigh_parser_accepts_ipv6_neighbors() {
         }),
         TEST_NEIGHBOR_OBSERVED_AT,
     );
-    let parsed = parsed.value_or_unreachable("linux ip neigh IPv6 row should parse");
+    let parsed = parsed.value_or_unreachable();
 
     assert_eq!(parsed.ip_address, "fe80::abcd");
     assert_eq!(parsed.mac_address, "00-11-22-33-44-77");
@@ -243,7 +250,7 @@ fn duplicate_hostname_fixtures_stay_separate_by_mac() {
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
     )
-    .value_or_unreachable("first record parses");
+    .value_or_unreachable();
     let second = network_device_from_neighbor_observation(
         LanNeighborObservation {
             ip_address: "192.168.2.82".to_string(),
@@ -257,7 +264,7 @@ fn duplicate_hostname_fixtures_stay_separate_by_mac() {
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
     )
-    .value_or_unreachable("second record parses");
+    .value_or_unreachable();
 
     assert_ne!(first.device_id, second.device_id);
     assert_eq!(
@@ -287,7 +294,7 @@ fn hostname_only_neighbor_evidence_stays_below_previous_scan_trust() {
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
     )
-    .value_or_unreachable("hostname-only record parses");
+    .value_or_unreachable();
 
     assert_eq!(
         device.hostname.as_deref(),

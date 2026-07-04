@@ -25,8 +25,7 @@ type DispatchStates = (
 #[test]
 fn serializes_policy_dispatch_read_model_with_stable_fields() {
     let read_model = proof_read_model();
-    let json = serde_json::to_value(&read_model)
-        .unwrap_or_else(|error| unreachable!("read model serializes: {error:?}"));
+    let json = serde_json::to_value(&read_model).expect("read model serializes: {error:?}");
 
     assert_eq!(json["readModelId"], dispatch::READ_MODEL_ID);
     assert_eq!(
@@ -54,10 +53,9 @@ fn serializes_policy_dispatch_read_model_with_stable_fields() {
 #[test]
 fn deserializes_report_only_and_scaffold_states_without_claim_upgrade() {
     let read_model = proof_read_model();
-    let encoded = serde_json::to_string(&read_model)
-        .unwrap_or_else(|error| unreachable!("read model serializes: {error:?}"));
-    let decoded: EnforcementPolicyDispatchReadModel = serde_json::from_str(&encoded)
-        .unwrap_or_else(|error| unreachable!("read model deserializes: {error:?}"));
+    let encoded = serde_json::to_string(&read_model).expect("read model serializes: {error:?}");
+    let decoded: EnforcementPolicyDispatchReadModel =
+        serde_json::from_str(&encoded).expect("read model deserializes: {error:?}");
 
     assert_eq!(
         decoded.entries[0].matrix_row.proof_level,
@@ -79,121 +77,33 @@ fn proof_read_model() -> EnforcementPolicyDispatchReadModel {
         read_model_id: dispatch::READ_MODEL_ID.to_string(),
         generated_at: dispatch::GENERATED_AT.to_string(),
         entries: vec![
-            entry(
-                "dispatch-owned-process-time-limit",
-                "matrix-owned-process-implemented",
-                V08EnforcementProductControlSurface::WindowsOwnedProcessTimeLimit,
-                EnforcementAdapterKind::ProcessControl,
-                V08EnforcementProductControlParentAction::BlockScopedProcess,
-                (
-                    EnforcementMode::TerminateProcess,
-                    EnforcementCapabilityState::Supported,
-                    EnforcementPolicyDispatchProofLevel::Implemented,
-                    EnforcementPolicyDispatchOutcomeState::DispatchReady,
-                    EnforcementPolicyDispatchRejectionReason::None,
-                    EnforcementPolicyDispatchSourceState::Ready,
-                    EnforcementPolicyDispatchApprovalState::NotRequired,
-                    EnforcementPolicyDispatchTimerState::Active,
-                ),
-                dispatch::CHILD_REASON_TIME_LIMIT,
-            ),
-            entry(
-                "dispatch-network-domain-manual-required",
-                "matrix-network-domain-manual-required",
-                V08EnforcementProductControlSurface::WindowsNetworkDomainBlocking,
-                EnforcementAdapterKind::NetworkControl,
-                V08EnforcementProductControlParentAction::ReportOnly,
-                (
-                    EnforcementMode::TemporaryBlock,
-                    EnforcementCapabilityState::ManualRequired,
-                    EnforcementPolicyDispatchProofLevel::ManualRequired,
-                    EnforcementPolicyDispatchOutcomeState::ManualRequired,
-                    EnforcementPolicyDispatchRejectionReason::AdapterManualRequired,
-                    EnforcementPolicyDispatchSourceState::Ready,
-                    EnforcementPolicyDispatchApprovalState::ManualRequired,
-                    EnforcementPolicyDispatchTimerState::NotRequired,
-                ),
-                dispatch::CHILD_REASON_MANUAL_REQUIRED,
-            ),
+            EnforcementPolicyDispatchReadModelEntry {
+                schema_version: "v0.6".to_string(),
+                intent: dispatch_owned_process_time_limit_intent(),
+                matrix_row: dispatch_owned_process_time_limit_matrix_row(),
+                approval_state: EnforcementPolicyDispatchApprovalState::NotRequired,
+                timer_state: EnforcementPolicyDispatchTimerState::Active,
+                audit_refs: vec!["audit-dispatch-owned-process-time-limit".to_string()],
+                timer_refs: vec!["timer-dispatch-owned-process-time-limit".to_string()],
+                child_reason_code: dispatch::CHILD_REASON_TIME_LIMIT.to_string(),
+                reason_codes: vec![dispatch::CHILD_REASON_TIME_LIMIT.to_string()],
+                dispatched_at: Some(dispatch::GENERATED_AT.to_string()),
+                next_check_at: Some(dispatch::GENERATED_AT.to_string()),
+            },
+            EnforcementPolicyDispatchReadModelEntry {
+                schema_version: "v0.6".to_string(),
+                intent: dispatch_network_domain_manual_required_intent(),
+                matrix_row: dispatch_network_domain_manual_required_matrix_row(),
+                approval_state: EnforcementPolicyDispatchApprovalState::ManualRequired,
+                timer_state: EnforcementPolicyDispatchTimerState::NotRequired,
+                audit_refs: vec!["audit-dispatch-network-domain-manual-required".to_string()],
+                timer_refs: vec!["timer-dispatch-network-domain-manual-required".to_string()],
+                child_reason_code: dispatch::CHILD_REASON_MANUAL_REQUIRED.to_string(),
+                reason_codes: vec![dispatch::CHILD_REASON_MANUAL_REQUIRED.to_string()],
+                dispatched_at: Some(dispatch::GENERATED_AT.to_string()),
+                next_check_at: Some(dispatch::GENERATED_AT.to_string()),
+            },
         ],
-    }
-}
-
-fn entry(
-    intent_id: &str,
-    matrix_id: &str,
-    surface: V08EnforcementProductControlSurface,
-    adapter_kind: EnforcementAdapterKind,
-    requested_action: V08EnforcementProductControlParentAction,
-    states: DispatchStates,
-    child_reason_code: &str,
-) -> EnforcementPolicyDispatchReadModelEntry {
-    let (
-        mode,
-        capability_state,
-        proof_level,
-        outcome_state,
-        rejection_reason,
-        source_state,
-        approval_state,
-        timer_state,
-    ) = states;
-    let intent = dispatch_intent(intent_id, requested_action, approval_state, source_state);
-    let matrix_row = dispatch_matrix_row(
-        matrix_id,
-        surface,
-        adapter_kind,
-        requested_action,
-        (
-            mode,
-            capability_state,
-            proof_level,
-            outcome_state,
-            rejection_reason,
-            source_state,
-            child_reason_code,
-        ),
-    );
-
-    EnforcementPolicyDispatchReadModelEntry {
-        schema_version: "v0.6".to_string(),
-        intent,
-        matrix_row,
-        approval_state,
-        timer_state,
-        audit_refs: vec![format!("audit-{intent_id}")],
-        timer_refs: vec![format!("timer-{intent_id}")],
-        child_reason_code: child_reason_code.to_string(),
-        reason_codes: vec![child_reason_code.to_string()],
-        dispatched_at: Some(dispatch::GENERATED_AT.to_string()),
-        next_check_at: Some(dispatch::GENERATED_AT.to_string()),
-    }
-}
-
-fn dispatch_intent(
-    intent_id: &str,
-    requested_action: V08EnforcementProductControlParentAction,
-    approval_state: EnforcementPolicyDispatchApprovalState,
-    source_state: EnforcementPolicyDispatchSourceState,
-) -> crate::EnforcementPolicyDispatchIntent {
-    crate::EnforcementPolicyDispatchIntent {
-        schema_version: "v0.6".to_string(),
-        intent_id: intent_id.to_string(),
-        actor: parent_actor(),
-        device: dispatch_device(),
-        policy_decision_id: format!("policy-{intent_id}"),
-        policy_decision_ref: format!("decision-{intent_id}"),
-        policy_version: "policy-version-v0-8-dispatch".to_string(),
-        target: dispatch_target(intent_id),
-        requested_policy_action: PolicyAction::Block,
-        requested_parent_action: requested_action,
-        schedule_ref: format!("schedule-{intent_id}"),
-        evidence_references: vec![dispatch_evidence()],
-        approval_ref: approval_reference(approval_state),
-        route_ref: "route-localhost-agent-service".to_string(),
-        source_state,
-        dry_run: false,
-        requested_at: dispatch::GENERATED_AT.to_string(),
     }
 }
 
@@ -206,59 +116,11 @@ fn dispatch_device() -> ParentDeviceReference {
     }
 }
 
-fn dispatch_target(intent_id: &str) -> PolicyTarget {
-    PolicyTarget {
-        target_id: format!("target-{intent_id}"),
-        target_type: PolicyTargetType::App,
-        target_value: "owned-process:ocentra-child-demo.exe".to_string(),
-    }
-}
-
 fn dispatch_evidence() -> ParentEvidenceReference {
     ParentEvidenceReference {
         evidence_reference_id: "evidence-app-session-owned-process".to_string(),
         kind: ParentEvidenceReferenceKind::ActivityEvent,
         observed_at: dispatch::GENERATED_AT.to_string(),
-    }
-}
-
-fn dispatch_matrix_row(
-    matrix_id: &str,
-    surface: V08EnforcementProductControlSurface,
-    adapter_kind: EnforcementAdapterKind,
-    requested_action: V08EnforcementProductControlParentAction,
-    states: (
-        EnforcementMode,
-        EnforcementCapabilityState,
-        EnforcementPolicyDispatchProofLevel,
-        EnforcementPolicyDispatchOutcomeState,
-        EnforcementPolicyDispatchRejectionReason,
-        EnforcementPolicyDispatchSourceState,
-        &str,
-    ),
-) -> EnforcementPolicyDispatchCapabilityMatrixRow {
-    let (
-        mode,
-        capability_state,
-        proof_level,
-        outcome_state,
-        rejection_reason,
-        source_state,
-        child_reason_code,
-    ) = states;
-    EnforcementPolicyDispatchCapabilityMatrixRow {
-        matrix_id: matrix_id.to_string(),
-        surface,
-        platform: ParentPlatform::Windows,
-        adapter_kind,
-        requested_action,
-        mode,
-        capability_state,
-        proof_level,
-        outcome_state,
-        rejection_reason,
-        source_state,
-        child_reason_code: child_reason_code.to_string(),
     }
 }
 
@@ -275,6 +137,101 @@ fn approval_reference(
         policy_version: "policy-version-v0-8-dispatch".to_string(),
         created_at: dispatch::GENERATED_AT.to_string(),
     })
+}
+
+fn dispatch_owned_process_time_limit_intent() -> crate::EnforcementPolicyDispatchIntent {
+    crate::EnforcementPolicyDispatchIntent {
+        schema_version: "v0.6".to_string(),
+        intent_id: "dispatch-owned-process-time-limit".to_string(),
+        actor: parent_actor(),
+        device: dispatch_device(),
+        policy_decision_id: "policy-dispatch-owned-process-time-limit".to_string(),
+        policy_decision_ref: "decision-dispatch-owned-process-time-limit".to_string(),
+        policy_version: "policy-version-v0-8-dispatch".to_string(),
+        target: dispatch_owned_process_time_limit_target(),
+        requested_policy_action: PolicyAction::Block,
+        requested_parent_action: V08EnforcementProductControlParentAction::BlockScopedProcess,
+        schedule_ref: "schedule-dispatch-owned-process-time-limit".to_string(),
+        evidence_references: vec![dispatch_evidence()],
+        approval_ref: None,
+        route_ref: "route-localhost-agent-service".to_string(),
+        source_state: EnforcementPolicyDispatchSourceState::Ready,
+        dry_run: false,
+        requested_at: dispatch::GENERATED_AT.to_string(),
+    }
+}
+
+fn dispatch_network_domain_manual_required_intent() -> crate::EnforcementPolicyDispatchIntent {
+    crate::EnforcementPolicyDispatchIntent {
+        schema_version: "v0.6".to_string(),
+        intent_id: "dispatch-network-domain-manual-required".to_string(),
+        actor: parent_actor(),
+        device: dispatch_device(),
+        policy_decision_id: "policy-dispatch-network-domain-manual-required".to_string(),
+        policy_decision_ref: "decision-dispatch-network-domain-manual-required".to_string(),
+        policy_version: "policy-version-v0-8-dispatch".to_string(),
+        target: dispatch_network_domain_manual_required_target(),
+        requested_policy_action: PolicyAction::Block,
+        requested_parent_action: V08EnforcementProductControlParentAction::ReportOnly,
+        schedule_ref: "schedule-dispatch-network-domain-manual-required".to_string(),
+        evidence_references: vec![dispatch_evidence()],
+        approval_ref: approval_reference(EnforcementPolicyDispatchApprovalState::ManualRequired),
+        route_ref: "route-localhost-agent-service".to_string(),
+        source_state: EnforcementPolicyDispatchSourceState::Ready,
+        dry_run: false,
+        requested_at: dispatch::GENERATED_AT.to_string(),
+    }
+}
+
+fn dispatch_owned_process_time_limit_target() -> PolicyTarget {
+    PolicyTarget {
+        target_id: "target-dispatch-owned-process-time-limit".to_string(),
+        target_type: PolicyTargetType::App,
+        target_value: "owned-process:ocentra-child-demo.exe".to_string(),
+    }
+}
+
+fn dispatch_network_domain_manual_required_target() -> PolicyTarget {
+    PolicyTarget {
+        target_id: "target-dispatch-network-domain-manual-required".to_string(),
+        target_type: PolicyTargetType::App,
+        target_value: "owned-process:ocentra-child-demo.exe".to_string(),
+    }
+}
+
+fn dispatch_owned_process_time_limit_matrix_row() -> EnforcementPolicyDispatchCapabilityMatrixRow {
+    EnforcementPolicyDispatchCapabilityMatrixRow {
+        matrix_id: "matrix-owned-process-implemented".to_string(),
+        surface: V08EnforcementProductControlSurface::WindowsOwnedProcessTimeLimit,
+        platform: ParentPlatform::Windows,
+        adapter_kind: EnforcementAdapterKind::ProcessControl,
+        requested_action: V08EnforcementProductControlParentAction::BlockScopedProcess,
+        mode: EnforcementMode::TerminateProcess,
+        capability_state: EnforcementCapabilityState::Supported,
+        proof_level: EnforcementPolicyDispatchProofLevel::Implemented,
+        outcome_state: EnforcementPolicyDispatchOutcomeState::DispatchReady,
+        rejection_reason: EnforcementPolicyDispatchRejectionReason::None,
+        source_state: EnforcementPolicyDispatchSourceState::Ready,
+        child_reason_code: dispatch::CHILD_REASON_TIME_LIMIT.to_string(),
+    }
+}
+
+fn dispatch_network_domain_manual_required_matrix_row(
+) -> EnforcementPolicyDispatchCapabilityMatrixRow {
+    EnforcementPolicyDispatchCapabilityMatrixRow {
+        matrix_id: "matrix-network-domain-manual-required".to_string(),
+        surface: V08EnforcementProductControlSurface::WindowsNetworkDomainBlocking,
+        platform: ParentPlatform::Windows,
+        adapter_kind: EnforcementAdapterKind::NetworkControl,
+        requested_action: V08EnforcementProductControlParentAction::ReportOnly,
+        mode: EnforcementMode::TemporaryBlock,
+        capability_state: EnforcementCapabilityState::ManualRequired,
+        proof_level: EnforcementPolicyDispatchProofLevel::ManualRequired,
+        outcome_state: EnforcementPolicyDispatchOutcomeState::ManualRequired,
+        rejection_reason: EnforcementPolicyDispatchRejectionReason::AdapterManualRequired,
+        source_state: EnforcementPolicyDispatchSourceState::Ready,
+        child_reason_code: dispatch::CHILD_REASON_MANUAL_REQUIRED.to_string(),
+    }
 }
 
 fn parent_actor() -> ParentActorReference {

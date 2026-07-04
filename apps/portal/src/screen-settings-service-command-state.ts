@@ -1,66 +1,41 @@
-import { type ScreenAnalysisParentSetting } from '@ocentra-parent/schema-domain/screen-evidence-settings';
 import {
-  ScreenSettingsGetRequestSchema,
-  ScreenSettingsReplaceRequestSchema,
-  ScreenSettingsSchemaVersion,
-  ScreenSettingsUpdateKindValue,
-  ScreenSettingsUpdateRequestSchema,
-  ScreenSettingsUpdateStatus,
-  ScreenSettingsUpdateResponseSchema,
-  type ScreenSettingsGetRequest,
-  type ScreenSettingsReplaceRequest,
-  type ScreenSettingsUpdateRequest,
-  type ScreenSettingsUpdateResponse,
-} from '@ocentra-parent/schema-domain/agent-screen-settings';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { type ScreenEvidenceSettingsUiProof } from '@ocentra-parent/schema-domain/screen-evidence-settings-ui-proof';
-import { ParentUiActionKind, type ParentUiActionPayload } from '../generated/parent-ui-bridge';
+  ParentScreenSettingsUpdateKind,
+  parentScreenSettingsGetCommandDraft,
+  parentScreenSettingsReplaceCommandDraft,
+  type ParentScreenSettingsServiceBridgeAction,
+  type ParentScreenSettingsServiceCommandDraft,
+  type ParentScreenSettingsServiceRequestId,
+} from '../generated/parent-ui-bridge';
+import {
+  ParentScreenSettingsUpdateStatus,
+  decodeParentScreenSettingsUpdateResponse,
+  type ParentScreenAnalysisParentSetting,
+  type ParentScreenEvidenceSettingsUiProof,
+  type ParentScreenSettingsUpdateResponse,
+} from '../generated/parent-ui-screen-bridge';
 
-export type ScreenSettingsServiceRequestId = ReturnType<typeof createScreenSettingsPortalRequestId>;
-export type ScreenSettingsServiceBridgeAction =
-  | typeof ParentUiActionKind.ScreenSettingsGetRequested
-  | typeof ParentUiActionKind.ScreenSettingsReplaceRequested;
+export type ScreenSettingsServiceRequestId = ParentScreenSettingsServiceRequestId;
+export type ScreenSettingsServiceBridgeAction = ParentScreenSettingsServiceBridgeAction;
+export type ScreenSettingsServiceCommandDraft = ParentScreenSettingsServiceCommandDraft;
 
-export type ScreenSettingsServiceCommandDraft = {
-  readonly action: ScreenSettingsServiceBridgeAction;
-  readonly payload: ParentUiActionPayload;
-  readonly requestId: ScreenSettingsServiceRequestId;
-};
-
-export type ScreenSettingsServiceResponse = ScreenSettingsUpdateResponse | null;
-const SCREEN_SETTINGS_REQUEST_ID_PREFIX = 'screen-settings-request-';
+export type ScreenSettingsServiceResponse = ParentScreenSettingsUpdateResponse | null;
 
 export function createScreenSettingsGetCommandDraft(sequence: number): ScreenSettingsServiceCommandDraft {
-  const requestId = createScreenSettingsPortalRequestId(sequence);
-  return {
-    action: ParentUiActionKind.ScreenSettingsGetRequested,
-    payload: createScreenSettingsCommandPayload(createScreenSettingsGetRequest(requestId)),
-    requestId,
-  };
+  return parentScreenSettingsGetCommandDraft(sequence);
 }
 
 export function createScreenSettingsReplaceCommandDraft(input: {
   readonly baseSettingVersion: number | null;
   readonly sequence: number;
-  readonly setting: ScreenAnalysisParentSetting;
+  readonly setting: ParentScreenAnalysisParentSetting;
 }): ScreenSettingsServiceCommandDraft {
-  const requestId = createScreenSettingsPortalRequestId(input.sequence);
-  return {
-    action: ParentUiActionKind.ScreenSettingsReplaceRequested,
-    payload: createScreenSettingsCommandPayload(
-      createScreenSettingsReplaceRequest({
-        requestId,
-        baseSettingVersion: input.baseSettingVersion,
-        setting: input.setting,
-      })
-    ),
-    requestId,
-  };
+  return parentScreenSettingsReplaceCommandDraft(input);
 }
 
-export function decodeScreenSettingsServiceResponseSnapshot(snapshot: unknown): ScreenSettingsServiceResponse {
-  const parsed = ScreenSettingsUpdateResponseSchema.safeParse(snapshot);
-  return parsed.success ? parsed.data : null;
+export function decodeScreenSettingsServiceResponseSnapshot(
+  snapshot: unknown
+): ScreenSettingsServiceResponse {
+  return decodeParentScreenSettingsUpdateResponse(snapshot);
 }
 
 export function matchingScreenSettingsServiceResponse(
@@ -76,10 +51,12 @@ export function matchingScreenSettingsServiceResponse(
   return null;
 }
 
-export function screenSettingsBaseVersionForReplace(response: ScreenSettingsUpdateResponse | null): number | null {
+export function screenSettingsBaseVersionForReplace(
+  response: ParentScreenSettingsUpdateResponse | null
+): number | null {
   if (
-    response?.kind !== ScreenSettingsUpdateKindValue.Replace ||
-    response.status !== ScreenSettingsUpdateStatus.Accepted ||
+    response?.kind !== ParentScreenSettingsUpdateKind.Replace ||
+    response.status !== ParentScreenSettingsUpdateStatus.Accepted ||
     response.setting === null
   ) {
     return null;
@@ -90,57 +67,20 @@ export function screenSettingsBaseVersionForReplace(response: ScreenSettingsUpda
 export function screenSettingsServiceStatusText(input: {
   readonly commandEnabled: boolean;
   readonly pendingRequestId: ScreenSettingsServiceRequestId | null;
-  readonly proof: ScreenEvidenceSettingsUiProof;
-  readonly response: ScreenSettingsUpdateResponse | null;
+  readonly proof: ParentScreenEvidenceSettingsUiProof;
+  readonly response: ParentScreenSettingsUpdateResponse | null;
 }) {
   if (!input.commandEnabled) {
     return input.proof.serviceDisconnectedStatus;
   }
-  if (input.response?.status === ScreenSettingsUpdateStatus.Accepted) {
+  if (input.response?.status === ParentScreenSettingsUpdateStatus.Accepted) {
     return input.proof.serviceAcceptedStatus;
   }
-  if (input.response?.status === ScreenSettingsUpdateStatus.Rejected) {
+  if (input.response?.status === ParentScreenSettingsUpdateStatus.Rejected) {
     return input.proof.serviceRejectedStatus;
   }
   if (input.pendingRequestId !== null) {
     return input.proof.servicePendingStatus;
   }
   return input.proof.serviceNoResponseStatus;
-}
-
-function createScreenSettingsPortalRequestId(sequence: number) {
-  return `${SCREEN_SETTINGS_REQUEST_ID_PREFIX}${sequence}`;
-}
-
-function createScreenSettingsGetRequest(requestId: string): ScreenSettingsGetRequest {
-  return ScreenSettingsGetRequestSchema.parse({
-    schemaVersion: ScreenSettingsSchemaVersion,
-    requestId,
-    kind: 'get',
-  });
-}
-
-function createScreenSettingsReplaceRequest(input: {
-  readonly requestId: string;
-  readonly baseSettingVersion: number | null;
-  readonly setting: ScreenAnalysisParentSetting;
-}): ScreenSettingsReplaceRequest {
-  return ScreenSettingsReplaceRequestSchema.parse({
-    schemaVersion: ScreenSettingsSchemaVersion,
-    requestId: input.requestId,
-    kind: 'replace',
-    baseSettingVersion: input.baseSettingVersion,
-    setting: input.setting,
-  });
-}
-
-function createScreenSettingsCommandPayload(request: ScreenSettingsUpdateRequest): ParentUiActionPayload {
-  const parsed = ScreenSettingsUpdateRequestSchema.safeParse(request);
-  if (!parsed.success || parsed.data === undefined) {
-    throw new Error('invalid screen settings request');
-  }
-  return {
-    [AgentProtocolDefaults.Field.ScreenSettingsRequest]: JSON.stringify(parsed.data),
-    [AgentProtocolDefaults.Field.ScreenSettingsUpdateKind]: parsed.data.kind,
-  };
 }

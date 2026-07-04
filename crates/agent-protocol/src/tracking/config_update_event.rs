@@ -2,8 +2,7 @@ use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion};
 use ocentra_eventing::request::{EventResponseContract, RequestEvent};
-use serde::de::Error;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
 use super::identifiers::{
     TrackingAcceptedAt, TrackingPolicyRuleRef, TrackingReadModelEventId,
@@ -19,23 +18,13 @@ use crate::{constants, AgentCommandEnvelope, AgentRoute, AGENT_PROTOCOL_SCHEMA_V
 
 pub const TRACKING_CONFIG_UPDATE_SCHEMA_VERSION: u16 = crate::AGENT_PROTOCOL_SCHEMA_VERSION;
 
-fn parse_or_panic<T, E>(result: Result<T, E>, message: &'static str) -> T {
-    match result {
-        Ok(value) => value,
-        Err(_) => unreachable!("{}", message),
-    }
+fn parse_or_panic<T, E: std::fmt::Debug>(result: Result<T, E>, message: &'static str) -> T {
+    result.expect(message)
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum TrackingConfigUpdateTargetScope {
-    Family,
-    ChildProfile,
-    ChildDevice,
-    DeviceGroup,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[repr(u8)]
 pub enum TrackingConfigUpdateEventName {
     Parent,
     Child,
@@ -43,43 +32,14 @@ pub enum TrackingConfigUpdateEventName {
 }
 
 impl TrackingConfigUpdateEventName {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::tracking_config_update::PARENT_EVENT_TYPE,
+        constants::tracking_config_update::CHILD_EVENT_TYPE,
+        constants::tracking_config_update::APPLIED_EVENT_TYPE,
+    ];
+
     pub fn as_contract_text(&self) -> &'static str {
-        match self {
-            Self::Parent => constants::tracking_config_update::PARENT_EVENT_TYPE,
-            Self::Child => constants::tracking_config_update::CHILD_EVENT_TYPE,
-            Self::Applied => constants::tracking_config_update::APPLIED_EVENT_TYPE,
-        }
-    }
-}
-
-impl Serialize for TrackingConfigUpdateEventName {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str(self.as_contract_text())
-    }
-}
-
-impl<'de> Deserialize<'de> for TrackingConfigUpdateEventName {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let value = String::deserialize(deserializer)?;
-        match value.as_str() {
-            constants::tracking_config_update::PARENT_EVENT_TYPE => Ok(Self::Parent),
-            constants::tracking_config_update::CHILD_EVENT_TYPE => Ok(Self::Child),
-            constants::tracking_config_update::APPLIED_EVENT_TYPE => Ok(Self::Applied),
-            _ => Err(D::Error::unknown_variant(
-                value.as_str(),
-                &[
-                    constants::tracking_config_update::PARENT_EVENT_TYPE,
-                    constants::tracking_config_update::CHILD_EVENT_TYPE,
-                    constants::tracking_config_update::APPLIED_EVENT_TYPE,
-                ],
-            )),
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -101,14 +61,25 @@ pub enum TrackingConfigEffectiveState {
     Degraded,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum TrackingConfigUpdateTargetScope {
+    Family,
+    ChildProfile,
+    ChildDevice,
+    DeviceGroup,
+}
+
 impl TrackingConfigUpdateTargetScope {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        constants::tracking_config_update::TARGET_SCOPE_FAMILY,
+        constants::tracking_config_update::TARGET_SCOPE_CHILD_PROFILE,
+        constants::tracking_config_update::TARGET_SCOPE_CHILD_DEVICE,
+        constants::tracking_config_update::TARGET_SCOPE_DEVICE_GROUP,
+    ];
+
     fn as_contract_text(&self) -> &'static str {
-        match self {
-            Self::Family => constants::tracking_config_update::TARGET_SCOPE_FAMILY,
-            Self::ChildProfile => constants::tracking_config_update::TARGET_SCOPE_CHILD_PROFILE,
-            Self::ChildDevice => constants::tracking_config_update::TARGET_SCOPE_CHILD_DEVICE,
-            Self::DeviceGroup => constants::tracking_config_update::TARGET_SCOPE_DEVICE_GROUP,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -270,10 +241,9 @@ pub struct TrackingConfigUpdateResponse {
 
 impl EventResponseContract for TrackingConfigUpdateResponse {
     fn validate(&self) -> Result<(), EventingError> {
-        if self.schema_version != AGENT_PROTOCOL_SCHEMA_VERSION {
-            return Err(EventingError::InvalidVersion);
-        }
-        Ok(())
+        (self.schema_version == AGENT_PROTOCOL_SCHEMA_VERSION)
+            .then_some(())
+            .ok_or(EventingError::InvalidVersion)
     }
 }
 

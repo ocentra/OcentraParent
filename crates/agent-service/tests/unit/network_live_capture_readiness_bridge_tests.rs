@@ -31,7 +31,8 @@ fn network_live_capture_status_payload_reports_row13_and_row03a_readiness_withou
 async fn websocket_network_live_capture_status_command_reports_payload(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let body = serde_json::to_string(&command_envelope())?;
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let status: NetworkLiveCaptureStatus = status_value(
         &event.payload,
         constants::network_flow::FIELD_NETWORK_LIVE_CAPTURE_STATUS,

@@ -54,7 +54,26 @@ use self::social_report_writer_delivery_event_handoff::{
     social_report_writer_delivery_read_model_from_service,
 };
 
-type FieldPair = (&'static str, LogFieldValue);
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct RequestedAtText(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct CreatedAtText(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct CorrelationIdText(pub(crate) String);
+
+#[derive(Clone, Debug, PartialEq)]
+struct FieldPairs(Vec<(&'static str, LogFieldValue)>);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct NonClaims(Vec<String>);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct StateText(&'static str);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct NotificationStates(pub(crate) (&'static str, &'static str, &'static str));
 
 pub fn social_parent_notification_delivery_read_model_from_service(
 ) -> SocialParentNotificationDeliveryReadinessSnapshot {
@@ -70,7 +89,10 @@ fn social_parent_notification_delivery_read_model_from_report_writer(
         .rows
         .iter()
         .map(|report_writer_row| {
-            notification_row_from_report_writer(report_writer_row, &generated_at)
+            notification_row_from_report_writer(
+                report_writer_row,
+                CreatedAtText(generated_at.clone()),
+            )
         })
         .collect::<Vec<_>>();
     SocialParentNotificationDeliveryReadinessSnapshot {
@@ -80,15 +102,18 @@ fn social_parent_notification_delivery_read_model_from_report_writer(
         source_report_writer_proof_ref: report_writer_read_model.proof_ref.clone(),
         parent_report_status_ready_count: count_rows(
             &rows,
-            SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
+            StateText(SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY),
         ),
         manual_required_count: count_rows(
             &rows,
-            SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
+            StateText(SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED),
         ),
-        unavailable_count: count_rows(&rows, SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE),
+        unavailable_count: count_rows(
+            &rows,
+            StateText(SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE),
+        ),
         rows,
-        non_claims: non_claims(),
+        non_claims: non_claims().0,
         parent_notification_ui_delivery_claimed: false,
         external_runtime_report_delivery_claimed: report_writer_read_model
             .external_runtime_report_delivery_claimed,
@@ -131,9 +156,9 @@ pub async fn request_social_parent_notification_delivery_read_model_from_service
 
     let requested_at = timestamp_now();
     let request = SocialParentNotificationDeliveryReadModelRequest {
-        request_id: RequestId::parse(social_parent_notification_delivery_request_id(
-            &requested_at,
-        ))?,
+        request_id: RequestId::parse(
+            social_parent_notification_delivery_request_id(RequestedAtText(requested_at.clone())).0,
+        )?,
         requested_at,
     };
     let metadata = social_parent_notification_delivery_metadata(&request)?;
@@ -153,7 +178,7 @@ pub async fn request_social_parent_notification_delivery_read_model_from_service
 pub fn social_parent_notification_delivery_read_model_payload(
     read_model: &SocialParentNotificationDeliveryReadinessSnapshot,
 ) -> LogFields {
-    fields_from_pairs(read_model_pairs(read_model))
+    fields_from_pairs(read_model_pairs(read_model).0)
 }
 
 pub async fn build_browser_social_parent_notification_delivery_read_model_report(
@@ -178,9 +203,12 @@ fn social_parent_notification_delivery_metadata(
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         ocentra_eventing::ids::EventId::generated(),
-        CorrelationId::parse(social_parent_notification_delivery_correlation_id(
-            &request.requested_at,
-        ))?,
+        CorrelationId::parse(
+            social_parent_notification_delivery_correlation_id(RequestedAtText(
+                request.requested_at.clone(),
+            ))
+            .0,
+        )?,
         EventSource::new(
             ocentra_eventing::ids::EventCustody::parse(
                 constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE,
@@ -197,24 +225,26 @@ fn social_parent_notification_delivery_metadata(
     ))
 }
 
-fn social_parent_notification_delivery_request_id(requested_at: &str) -> String {
+fn social_parent_notification_delivery_request_id(
+    requested_at: RequestedAtText,
+) -> RequestedAtText {
     let mut value = String::from(
         constants::browser::REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX,
     );
-    value.push_str(requested_at);
-    value
+    value.push_str(&requested_at.0);
+    RequestedAtText(value)
 }
 
-fn social_parent_notification_delivery_correlation_id(requested_at: &str) -> String {
+fn social_parent_notification_delivery_correlation_id(
+    requested_at: RequestedAtText,
+) -> CorrelationIdText {
     let mut value = String::from(constants::browser::CORRELATION_BROWSER_RUNTIME_PREFIX);
-    value.push_str(requested_at);
-    value
+    value.push_str(&requested_at.0);
+    CorrelationIdText(value)
 }
 
-fn read_model_pairs(
-    read_model: &SocialParentNotificationDeliveryReadinessSnapshot,
-) -> Vec<FieldPair> {
-    vec![
+fn read_model_pairs(read_model: &SocialParentNotificationDeliveryReadinessSnapshot) -> FieldPairs {
+    FieldPairs(vec![
         (
             constants::field::GENERATED_AT,
             LogFieldValue::String(read_model.generated_at.clone()),
@@ -231,14 +261,14 @@ fn read_model_pairs(
             constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL,
             LogFieldValue::String(serialize_json_string(read_model)),
         ),
-    ]
+    ])
 }
 
 fn notification_row_from_report_writer(
     report_writer_row: &SocialReportWriterDeliveryReadModelRow,
-    created_at: &str,
+    created_at: CreatedAtText,
 ) -> SocialParentNotificationDeliveryReadinessRow {
-    let (row_id, readiness_state, execution_state) =
+    let NotificationStates((row_id, readiness_state, execution_state)) =
         notification_states_from_report_writer(report_writer_row);
     SocialParentNotificationDeliveryReadinessRow {
         notification_delivery_readiness_row_id: row_id.to_string(),
@@ -268,52 +298,52 @@ fn notification_row_from_report_writer(
         provider_receipt_ingested: report_writer_row.provider_receipt_ingested,
         final_policy_decision_claimed: report_writer_row.final_policy_decision_claimed,
         enforcement_claimed: report_writer_row.enforcement_claimed,
-        created_at: created_at.to_string(),
+        created_at: created_at.0,
     }
 }
 
 fn notification_states_from_report_writer(
     report_writer_row: &SocialReportWriterDeliveryReadModelRow,
-) -> (&'static str, &'static str, &'static str) {
+) -> NotificationStates {
     if report_writer_row.delivery_state == SOCIAL_REPORT_WRITER_DELIVERY_STATE_REPORT_READY
         && report_writer_row.receipt_state == SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_RECORDED
     {
-        (
+        NotificationStates((
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_REPORT_READY,
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXECUTION_REPORT_READY,
-        )
+        ))
     } else if report_writer_row.delivery_state
         == SOCIAL_REPORT_WRITER_DELIVERY_STATE_MANUAL_REQUIRED
         || report_writer_row.receipt_state == SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_MANUAL_REQUIRED
     {
-        (
+        NotificationStates((
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_MANUAL_REQUIRED,
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
-        )
+        ))
     } else {
-        (
+        NotificationStates((
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_UNAVAILABLE,
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
-        )
+        ))
     }
 }
 
-fn non_claims() -> Vec<String> {
-    vec![
+fn non_claims() -> NonClaims {
+    NonClaims(vec![
         SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PARENT_NOTIFICATION_UI.to_string(),
         SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_EXTERNAL_RUNTIME.to_string(),
         SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_DELIVERY.to_string(),
         SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_RECEIPT.to_string(),
         SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_FINAL_POLICY.to_string(),
         SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_ENFORCEMENT.to_string(),
-    ]
+    ])
 }
 
-fn count_rows(rows: &[SocialParentNotificationDeliveryReadinessRow], state: &str) -> usize {
+fn count_rows(rows: &[SocialParentNotificationDeliveryReadinessRow], state: StateText) -> usize {
     rows.iter()
-        .filter(|row| row.notification_delivery_readiness_state == state)
+        .filter(|row| row.notification_delivery_readiness_state == state.0)
         .count()
 }

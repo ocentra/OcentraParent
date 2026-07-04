@@ -20,8 +20,11 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 };
 
 use super::scan_history::{LanScanHistoryMetadata, LanScanHistorySnapshot};
+use super::{discovery_event_history_state, ordered_discovery_event_rows};
+
+type TestText = String;
 use super::{
-    discovery_event_history_state, network_neighbor_child_device, ordered_discovery_event_rows,
+    network_neighbor_child_device,
     platform_data_available_for_scan_result_with_manual_required_override,
     LanNetworkDeviceScanResult,
 };
@@ -178,7 +181,7 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
         "office-agent.local",
         "10.0.0.88",
         "00-11-22-33-44-77",
-        Some(constants::lan_pairing::LOCAL_AGENT_STATUS),
+        Some(constants::lan_pairing::LOCAL_AGENT_STATUS.to_string()),
     );
     let scan_result = LanNetworkDeviceScanResult {
         devices: vec![discovered_device.clone()],
@@ -196,41 +199,64 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
     let scan_started = rows
         .iter()
         .find(|row| row.event_kind == LanDiscoveryEventKind::ScanStarted)
-        .unwrap_or_else(|| unreachable!("scan started row should be emitted"));
+        .expect("scan started row should be emitted");
     assert_eq!(
         scan_started.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
     );
     assert!(scan_started.affected_device_id.is_none());
-    assert!(!scan_started.event_id.is_empty());
-    assert!(!scan_started.occurred_at.is_empty());
+    assert_eq!(
+        scan_started.event_id.as_str(),
+        format!("lan-discovery-scan-started-{}", current_metadata.scan_id)
+    );
+    assert_eq!(
+        scan_started.occurred_at.as_str(),
+        "2026-06-26T20:45:47.000Z"
+    );
 
     let scan_finished = rows
         .iter()
         .find(|row| row.event_kind == LanDiscoveryEventKind::ScanFinished)
-        .unwrap_or_else(|| unreachable!("scan finished row should be emitted"));
+        .expect("scan finished row should be emitted");
     assert_eq!(
         scan_finished.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
     );
     assert!(scan_finished.affected_device_id.is_none());
-    assert!(!scan_finished.event_id.is_empty());
-    assert!(!scan_finished.occurred_at.is_empty());
+    assert_eq!(
+        scan_finished.event_id.as_str(),
+        format!("lan-discovery-scan-finished-{}", current_metadata.scan_id)
+    );
+    assert_eq!(
+        scan_finished.occurred_at.as_str(),
+        "2026-06-26T20:45:47.000Z"
+    );
 
     let interface_changed = rows
         .iter()
         .find(|row| row.event_kind == LanDiscoveryEventKind::InterfaceChanged)
-        .unwrap_or_else(|| unreachable!("interface change row should be emitted"));
+        .expect("interface change row should be emitted");
     assert_eq!(
         interface_changed.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
     );
     assert!(interface_changed.affected_device_id.is_none());
+    assert_eq!(
+        interface_changed.event_id.as_str(),
+        format!(
+            "lan-discovery-interface-changed-{}",
+            current_metadata.scan_id
+        )
+    );
+    assert_eq!(
+        interface_changed.occurred_at.as_str(),
+        "2026-06-26T20:45:47.000Z"
+    );
 
     let device_found = rows
         .iter()
         .find(|row| row.event_kind == LanDiscoveryEventKind::DeviceFound)
-        .unwrap_or_else(|| unreachable!("device found row should be emitted"));
+        .expect("device found row should be emitted");
     assert_eq!(
         device_found.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
@@ -240,11 +266,22 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
         Some(discovered_device.device_id.as_str())
     );
     assert!(device_found.evidence_id.is_none());
+    assert_eq!(
+        device_found.event_id.as_str(),
+        format!(
+            "lan-discovery-device-found-{}-{}",
+            current_metadata.scan_id, discovered_device.device_id
+        )
+    );
+    assert_eq!(
+        device_found.occurred_at.as_str(),
+        "2026-06-26T20:45:47.000Z"
+    );
 
     let agent_discovered = rows
         .iter()
         .find(|row| row.event_kind == LanDiscoveryEventKind::AgentDiscovered)
-        .unwrap_or_else(|| unreachable!("agent discovered row should be emitted"));
+        .expect("agent discovered row should be emitted");
     assert_eq!(
         agent_discovered.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
@@ -253,8 +290,17 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
         agent_discovered.affected_device_id.as_deref(),
         Some(discovered_device.device_id.as_str())
     );
-    assert!(!agent_discovered.event_id.is_empty());
-    assert!(!agent_discovered.occurred_at.is_empty());
+    assert_eq!(
+        agent_discovered.event_id.as_str(),
+        format!(
+            "lan-discovery-agent-discovered-{}-{}",
+            current_metadata.scan_id, discovered_device.device_id
+        )
+    );
+    assert_eq!(
+        agent_discovered.occurred_at.as_str(),
+        "2026-06-26T20:45:47.000Z"
+    );
 }
 
 #[test]
@@ -324,7 +370,7 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
     let device_updated = rows
         .iter()
         .find(|row| row.event_kind == LanDiscoveryEventKind::DeviceUpdated)
-        .unwrap_or_else(|| unreachable!("device updated row should be emitted"));
+        .expect("device updated row should be emitted");
     assert_eq!(
         device_updated.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
@@ -332,6 +378,17 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
     assert_eq!(
         device_updated.affected_device_id.as_deref(),
         Some(currently_online_with_update.device_id.as_str())
+    );
+    assert_eq!(
+        device_updated.event_id.as_str(),
+        format!(
+            "lan-discovery-device-updated-{}-{}",
+            current_metadata.scan_id, currently_online_with_update.device_id
+        )
+    );
+    assert_eq!(
+        device_updated.occurred_at.as_str(),
+        "2026-06-26T20:45:47.000Z"
     );
 
     let device_online = rows
@@ -341,10 +398,21 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
                 && row.affected_device_id.as_deref()
                     == Some(currently_online_with_update.device_id.as_str())
         })
-        .unwrap_or_else(|| unreachable!("device online row should be emitted"));
+        .expect("device online row should be emitted");
     assert_eq!(
         device_online.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
+    );
+    assert_eq!(
+        device_online.event_id.as_str(),
+        format!(
+            "lan-discovery-device-online-{}-{}",
+            current_metadata.scan_id, currently_online_with_update.device_id
+        )
+    );
+    assert_eq!(
+        device_online.occurred_at.as_str(),
+        "2026-06-26T20:45:47.000Z"
     );
 
     let device_offline = rows
@@ -353,10 +421,21 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
             row.event_kind == LanDiscoveryEventKind::DeviceOffline
                 && row.affected_device_id.as_deref() == Some(currently_offline.device_id.as_str())
         })
-        .unwrap_or_else(|| unreachable!("device offline row should be emitted"));
+        .expect("device offline row should be emitted");
     assert_eq!(
         device_offline.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
+    );
+    assert_eq!(
+        device_offline.event_id.as_str(),
+        format!(
+            "lan-discovery-device-offline-{}-{}",
+            current_metadata.scan_id, currently_offline.device_id
+        )
+    );
+    assert_eq!(
+        device_offline.occurred_at.as_str(),
+        "2026-06-26T20:45:47.000Z"
     );
 }
 
@@ -391,10 +470,21 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
                 && row.affected_device_id.as_deref() == Some("lan-canonical-child-agent")
                 && row.evidence_id.as_deref() == Some("lan-child-agent-evidence")
         })
-        .unwrap_or_else(|| unreachable!("canonical evidence row should be emitted"));
+        .expect("canonical evidence row should be emitted");
     assert_eq!(
         evidence_found.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
+    );
+    assert_eq!(
+        evidence_found.event_id.as_str(),
+        format!(
+            "lan-discovery-evidence-found-{}-{}",
+            current_metadata.scan_id, "lan-child-agent-evidence"
+        )
+    );
+    assert_eq!(
+        evidence_found.occurred_at.as_str(),
+        "2026-06-26T20:45:44.000Z"
     );
 
     let unknown_detected = rows
@@ -403,10 +493,21 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
             row.event_kind == LanDiscoveryEventKind::UnknownDetected
                 && row.affected_device_id.as_deref() == Some("lan-canonical-unknown")
         })
-        .unwrap_or_else(|| unreachable!("unknown device row should be emitted"));
+        .expect("unknown device row should be emitted");
     assert_eq!(
         unknown_detected.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
+    );
+    assert_eq!(
+        unknown_detected.event_id.as_str(),
+        format!(
+            "lan-discovery-unknown-detected-{}-{}",
+            current_metadata.scan_id, "lan-canonical-unknown"
+        )
+    );
+    assert_eq!(
+        unknown_detected.occurred_at.as_str(),
+        "2026-06-26T20:45:49.000Z"
     );
 
     let agent_confirmed = rows
@@ -415,10 +516,21 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
             row.event_kind == LanDiscoveryEventKind::AgentConfirmed
                 && row.affected_device_id.as_deref() == Some("lan-canonical-child-agent")
         })
-        .unwrap_or_else(|| unreachable!("child agent confirmation row should be emitted"));
+        .expect("child agent confirmation row should be emitted");
     assert_eq!(
         agent_confirmed.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
+    );
+    assert_eq!(
+        agent_confirmed.event_id.as_str(),
+        format!(
+            "lan-discovery-agent-confirmed-{}-{}",
+            current_metadata.scan_id, "lan-canonical-child-agent"
+        )
+    );
+    assert_eq!(
+        agent_confirmed.occurred_at.as_str(),
+        "2026-06-26T20:45:44.000Z"
     );
 
     let device_offline = rows
@@ -427,12 +539,22 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
             row.event_kind == LanDiscoveryEventKind::DeviceOffline
                 && row.affected_device_id.as_deref() == Some("lan-canonical-router")
         })
-        .unwrap_or_else(|| unreachable!("canonical offline device row should be emitted"));
+        .expect("canonical offline device row should be emitted");
     assert_eq!(
         device_offline.scan_session_id.as_deref(),
         Some(current_metadata.scan_id.as_str())
     );
-    assert_eq!(device_offline.occurred_at, "2026-06-26T20:45:46.000Z");
+    assert_eq!(
+        device_offline.event_id.as_str(),
+        format!(
+            "lan-discovery-device-offline-{}-{}",
+            current_metadata.scan_id, "lan-canonical-router"
+        )
+    );
+    assert_eq!(
+        device_offline.occurred_at.as_str(),
+        "2026-06-26T20:45:46.000Z"
+    );
 
     for row_pair in rows.windows(2) {
         assert_eq!(
@@ -498,12 +620,16 @@ fn scan_history_snapshot_with_devices(
 }
 
 fn inventory_device(
-    device_id: &str,
-    hostname: &str,
-    ip_address: &str,
-    mac_address: &str,
-    agent_status: Option<&str>,
+    device_id: TestText,
+    hostname: TestText,
+    ip_address: TestText,
+    mac_address: TestText,
+    agent_status: Option<TestText>,
 ) -> LanNetworkInventoryDevice {
+    let device_id: TestText = device_id.into();
+    let hostname: TestText = hostname.into();
+    let ip_address: TestText = ip_address.into();
+    let mac_address: TestText = mac_address.into();
     inventory_device_with_reachability(
         device_id,
         hostname,
@@ -515,24 +641,28 @@ fn inventory_device(
 }
 
 fn inventory_device_with_reachability(
-    device_id: &str,
-    hostname: &str,
-    ip_address: &str,
-    mac_address: &str,
+    device_id: TestText,
+    hostname: TestText,
+    ip_address: TestText,
+    mac_address: TestText,
     reachability: LanPairingDeviceReachability,
-    agent_status: Option<&str>,
+    agent_status: Option<TestText>,
 ) -> LanNetworkInventoryDevice {
+    let device_id: TestText = device_id.into();
+    let hostname: TestText = hostname.into();
+    let ip_address: TestText = ip_address.into();
+    let mac_address: TestText = mac_address.into();
     LanNetworkInventoryDevice {
-        device_id: device_id.to_string(),
-        label: hostname.to_string(),
+        device_id: device_id.clone(),
+        label: hostname.clone(),
         platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
-        ip_address: ip_address.to_string(),
-        mac_address: mac_address.to_string(),
-        hostname: Some(hostname.to_string()),
+        ip_address: ip_address.clone(),
+        mac_address: mac_address.clone(),
+        hostname: Some(hostname.clone()),
         network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
         observed_at: "2026-06-26T20:45:47.000Z".to_string(),
         reachability,
-        agent_status: agent_status.map(str::to_string),
+        agent_status,
         scan_sources: vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
         used_previous_scan_hint: false,
         service_identity_probe_evidence: Vec::new(),
@@ -668,7 +798,7 @@ fn canonical_offline_router_household_device() -> LanCanonicalHouseholdDevice {
             "00-11-22-33-44-01",
             LanPairingDeviceReachability::Offline,
             LanCanonicalHouseholdDeviceConfidence::NetworkNeighbor,
-            Some("2026-06-26T20:45:46.000Z"),
+            Some("2026-06-26T20:45:46.000Z".into()),
             Vec::new(),
         ),
         child_agent_inventory: None,
@@ -680,24 +810,27 @@ fn canonical_offline_router_household_device() -> LanCanonicalHouseholdDevice {
 }
 
 fn canonical_network_identity(
-    hostname: &str,
-    ip_address: &str,
-    mac_address: &str,
+    hostname: TestText,
+    ip_address: TestText,
+    mac_address: TestText,
     reachability: LanPairingDeviceReachability,
     confidence: LanCanonicalHouseholdDeviceConfidence,
-    offline_at: Option<&str>,
+    offline_at: Option<TestText>,
     evidence_records: Vec<LanDiscoveryEvidenceRecord>,
 ) -> LanCanonicalHouseholdNetworkIdentity {
+    let hostname: TestText = hostname.into();
+    let ip_address: TestText = ip_address.into();
+    let mac_address: TestText = mac_address.into();
     LanCanonicalHouseholdNetworkIdentity {
-        hostname: Some(hostname.to_string()),
-        ip_addresses: vec![ip_address.to_string()],
-        mac_address: Some(mac_address.to_string()),
+        hostname: Some(hostname.clone()),
+        ip_addresses: vec![ip_address.clone()],
+        mac_address: Some(mac_address.clone()),
         mac_vendor: None,
         network_interfaces: vec![constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()],
         reachability,
         confidence,
         stale_at: None,
-        offline_at: offline_at.map(str::to_string),
+        offline_at,
         evidence_records,
     }
 }

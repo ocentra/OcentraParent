@@ -3,7 +3,10 @@ use ocentra_parent_agent_protocol::activity_surface::{
 };
 use ocentra_parent_agent_protocol::constants;
 
-pub(crate) fn report_file_name(report: &ActivityReportDocument) -> String {
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ReportFileName(pub(crate) String);
+
+pub(crate) fn report_file_name(report: &ActivityReportDocument) -> ReportFileName {
     let (scope_name, scope_id) = match report.scope.scope_kind {
         ActivitySurfaceScopeKind::Family => (
             constants::activity_surface::SCOPE_FAMILY,
@@ -46,5 +49,5 @@ pub(crate) fn report_file_name(report: &ActivityReportDocument) -> String {
     }
     safe_file_name.push(constants::delimiter::DOT);
     safe_file_name.push_str(constants::activity_surface::REPORT_FILE_EXTENSION);
-    safe_file_name
+    ReportFileName(safe_file_name)
 }

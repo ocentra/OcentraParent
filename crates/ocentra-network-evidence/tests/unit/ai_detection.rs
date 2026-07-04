@@ -1,42 +1,76 @@
-use crate::{
-    evaluate_network_ai_detection_fixtures, NetworkAiDetectionDriftState,
-    NetworkAiDetectionEvaluationError, NetworkAiDetectionEvaluationInput,
-    NetworkAiDetectionEvaluationState, NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind,
-    NetworkAiDetectionLabel, NetworkAiDetectionPrecisionState, NetworkAiDetectionRecallState,
-    NetworkAiDetectionRiskLevel, NetworkAiDetectionUncertaintyCode,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::ai_detection::*;
 
 #[test]
 fn ai_detection_fixture_evaluation_meets_precision_recall_and_drift_thresholds() {
+    let vpn_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-vpn-1".to_owned(),
+        fixture_ref: "fixture-detect-vpn-1".to_owned(),
+        summary_ref: "summary-detect-vpn-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-vpn-1".to_owned()],
+        analyzer_alert_refs: Vec::new(),
+        expected_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+        predicted_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+        confidence_basis_points: 8_700,
+        baseline_confidence_basis_points: 8_500,
+        risk_level: NetworkAiDetectionRiskLevel::High,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
+    let signature_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-signature-1".to_owned(),
+        fixture_ref: "fixture-detect-signature-1".to_owned(),
+        summary_ref: "summary-detect-signature-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-signature-1".to_owned()],
+        analyzer_alert_refs: vec!["analyzer-alert-critical".to_owned()],
+        expected_label: NetworkAiDetectionLabel::SignatureThreat,
+        predicted_label: NetworkAiDetectionLabel::SignatureThreat,
+        confidence_basis_points: 9_100,
+        baseline_confidence_basis_points: 8_900,
+        risk_level: NetworkAiDetectionRiskLevel::Critical,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+            NetworkAiDetectionInputKind::AnalyzerAlertRefs,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
+    let update_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-update-1".to_owned(),
+        fixture_ref: "fixture-detect-update-1".to_owned(),
+        summary_ref: "summary-detect-update-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-update-1".to_owned()],
+        analyzer_alert_refs: Vec::new(),
+        expected_label: NetworkAiDetectionLabel::BenignExpected,
+        predicted_label: NetworkAiDetectionLabel::BenignExpected,
+        confidence_basis_points: 8_200,
+        baseline_confidence_basis_points: 8_100,
+        risk_level: NetworkAiDetectionRiskLevel::Low,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
     let proof = evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
-        fixture_case(
-            "detect-vpn-1",
-            NetworkAiDetectionLabel::VpnProxyTunnel,
-            NetworkAiDetectionLabel::VpnProxyTunnel,
-            8_700,
-            8_500,
-            NetworkAiDetectionRiskLevel::High,
-            vec![],
-        ),
-        fixture_case(
-            "detect-signature-1",
-            NetworkAiDetectionLabel::SignatureThreat,
-            NetworkAiDetectionLabel::SignatureThreat,
-            9_100,
-            8_900,
-            NetworkAiDetectionRiskLevel::Critical,
-            vec!["analyzer-alert-critical"],
-        ),
-        fixture_case(
-            "detect-update-1",
-            NetworkAiDetectionLabel::BenignExpected,
-            NetworkAiDetectionLabel::BenignExpected,
-            8_200,
-            8_100,
-            NetworkAiDetectionRiskLevel::Low,
-            vec![],
-        ),
+        vpn_case,
+        signature_case,
+        update_case,
     ]))
     .expect_value("fixture gate should pass");
 
@@ -82,35 +116,71 @@ fn ai_detection_fixture_evaluation_meets_precision_recall_and_drift_thresholds()
 
 #[test]
 fn ai_detection_fixture_evaluation_flags_precision_and_drift_regressions() {
-    let mut input = evaluation_input(vec![
-        fixture_case(
-            "detect-vpn-fp",
-            NetworkAiDetectionLabel::BenignExpected,
-            NetworkAiDetectionLabel::VpnProxyTunnel,
-            8_600,
-            2_100,
-            NetworkAiDetectionRiskLevel::High,
-            vec![],
-        ),
-        fixture_case(
-            "detect-signature-tp",
-            NetworkAiDetectionLabel::SignatureThreat,
-            NetworkAiDetectionLabel::SignatureThreat,
-            8_500,
-            8_500,
-            NetworkAiDetectionRiskLevel::Critical,
-            vec!["signature-alert-ref"],
-        ),
-        fixture_case(
-            "detect-social-fn",
-            NetworkAiDetectionLabel::SocialVideo,
-            NetworkAiDetectionLabel::BenignExpected,
-            6_300,
-            8_500,
-            NetworkAiDetectionRiskLevel::Low,
-            vec![],
-        ),
-    ]);
+    let vpn_fp_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-vpn-fp".to_owned(),
+        fixture_ref: "fixture-detect-vpn-fp".to_owned(),
+        summary_ref: "summary-detect-vpn-fp".to_owned(),
+        evidence_refs: vec!["evidence-detect-vpn-fp".to_owned()],
+        analyzer_alert_refs: Vec::new(),
+        expected_label: NetworkAiDetectionLabel::BenignExpected,
+        predicted_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+        confidence_basis_points: 8_600,
+        baseline_confidence_basis_points: 2_100,
+        risk_level: NetworkAiDetectionRiskLevel::High,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
+    let signature_tp_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-signature-tp".to_owned(),
+        fixture_ref: "fixture-detect-signature-tp".to_owned(),
+        summary_ref: "summary-detect-signature-tp".to_owned(),
+        evidence_refs: vec!["evidence-detect-signature-tp".to_owned()],
+        analyzer_alert_refs: vec!["signature-alert-ref".to_owned()],
+        expected_label: NetworkAiDetectionLabel::SignatureThreat,
+        predicted_label: NetworkAiDetectionLabel::SignatureThreat,
+        confidence_basis_points: 8_500,
+        baseline_confidence_basis_points: 8_500,
+        risk_level: NetworkAiDetectionRiskLevel::Critical,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+            NetworkAiDetectionInputKind::AnalyzerAlertRefs,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
+    let social_fn_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-social-fn".to_owned(),
+        fixture_ref: "fixture-detect-social-fn".to_owned(),
+        summary_ref: "summary-detect-social-fn".to_owned(),
+        evidence_refs: vec!["evidence-detect-social-fn".to_owned()],
+        analyzer_alert_refs: Vec::new(),
+        expected_label: NetworkAiDetectionLabel::SocialVideo,
+        predicted_label: NetworkAiDetectionLabel::BenignExpected,
+        confidence_basis_points: 6_300,
+        baseline_confidence_basis_points: 8_500,
+        risk_level: NetworkAiDetectionRiskLevel::Low,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
+    let mut input = evaluation_input(vec![vpn_fp_case, signature_tp_case, social_fn_case]);
     input.minimum_precision_basis_points = 8_000;
     input.minimum_recall_basis_points = 8_000;
     input.maximum_average_drift_basis_points = 1_000;
@@ -152,16 +222,29 @@ fn ai_detection_fixture_evaluation_flags_precision_and_drift_regressions() {
 
 #[test]
 fn ai_detection_fixture_evaluation_preserves_unknown_and_low_confidence_states() {
-    let proof = evaluate_network_ai_detection_fixtures(&evaluation_input(vec![fixture_case(
-        "detect-unknown-1",
-        NetworkAiDetectionLabel::UnknownHighVolume,
-        NetworkAiDetectionLabel::Unknown,
-        4_200,
-        4_100,
-        NetworkAiDetectionRiskLevel::Unknown,
-        vec![],
-    )]))
-    .expect_value("unknown prediction should remain explicit");
+    let unknown_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-unknown-1".to_owned(),
+        fixture_ref: "fixture-detect-unknown-1".to_owned(),
+        summary_ref: "summary-detect-unknown-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-unknown-1".to_owned()],
+        analyzer_alert_refs: Vec::new(),
+        expected_label: NetworkAiDetectionLabel::UnknownHighVolume,
+        predicted_label: NetworkAiDetectionLabel::Unknown,
+        confidence_basis_points: 4_200,
+        baseline_confidence_basis_points: 4_100,
+        risk_level: NetworkAiDetectionRiskLevel::Unknown,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
+    let proof = evaluate_network_ai_detection_fixtures(&evaluation_input(vec![unknown_case]))
+        .expect_value("unknown prediction should remain explicit");
     let result = &proof.results[0];
 
     assert_eq!(proof.precision_basis_points, None);
@@ -239,7 +322,27 @@ fn ai_detection_fixture_evaluation_rejects_invalid_refs_and_duplicate_fixtures()
     assert_eq!(
         evaluate_network_ai_detection_fixtures(&NetworkAiDetectionEvaluationInput {
             evaluation_run_ref: " ".to_owned(),
-            ..evaluation_input(vec![passing_case()])
+            ..evaluation_input(vec![NetworkAiDetectionFixtureCase {
+                detection_ref: "detect-vpn-1".to_owned(),
+                fixture_ref: "fixture-detect-vpn-1".to_owned(),
+                summary_ref: "summary-detect-vpn-1".to_owned(),
+                evidence_refs: vec!["evidence-detect-vpn-1".to_owned()],
+                analyzer_alert_refs: Vec::new(),
+                expected_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                predicted_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                confidence_basis_points: 8_700,
+                baseline_confidence_basis_points: 8_500,
+                risk_level: NetworkAiDetectionRiskLevel::High,
+                input_kinds: vec![
+                    NetworkAiDetectionInputKind::SummaryRefs,
+                    NetworkAiDetectionInputKind::EvidenceRefs,
+                    NetworkAiDetectionInputKind::FixtureLabel,
+                ],
+                raw_pcap_input_claimed: false,
+                decrypted_payload_claimed: false,
+                page_content_claimed: false,
+                exact_url_claimed: false,
+            }])
         }),
         Err(NetworkAiDetectionEvaluationError::EmptyEvaluationRunRef)
     );
@@ -251,7 +354,24 @@ fn ai_detection_fixture_evaluation_rejects_invalid_refs_and_duplicate_fixtures()
         evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
             NetworkAiDetectionFixtureCase {
                 evidence_refs: vec![],
-                ..passing_case()
+                detection_ref: "detect-vpn-1".to_owned(),
+                fixture_ref: "fixture-detect-vpn-1".to_owned(),
+                summary_ref: "summary-detect-vpn-1".to_owned(),
+                analyzer_alert_refs: Vec::new(),
+                expected_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                predicted_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                confidence_basis_points: 8_700,
+                baseline_confidence_basis_points: 8_500,
+                risk_level: NetworkAiDetectionRiskLevel::High,
+                input_kinds: vec![
+                    NetworkAiDetectionInputKind::SummaryRefs,
+                    NetworkAiDetectionInputKind::EvidenceRefs,
+                    NetworkAiDetectionInputKind::FixtureLabel,
+                ],
+                raw_pcap_input_claimed: false,
+                decrypted_payload_claimed: false,
+                page_content_claimed: false,
+                exact_url_claimed: false,
             }
         ])),
         Err(NetworkAiDetectionEvaluationError::EmptyEvidenceRefs)
@@ -260,17 +380,67 @@ fn ai_detection_fixture_evaluation_rejects_invalid_refs_and_duplicate_fixtures()
         evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
             NetworkAiDetectionFixtureCase {
                 input_kinds: vec![],
-                ..passing_case()
+                detection_ref: "detect-vpn-1".to_owned(),
+                fixture_ref: "fixture-detect-vpn-1".to_owned(),
+                summary_ref: "summary-detect-vpn-1".to_owned(),
+                evidence_refs: vec!["evidence-detect-vpn-1".to_owned()],
+                analyzer_alert_refs: Vec::new(),
+                expected_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                predicted_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                confidence_basis_points: 8_700,
+                baseline_confidence_basis_points: 8_500,
+                risk_level: NetworkAiDetectionRiskLevel::High,
+                raw_pcap_input_claimed: false,
+                decrypted_payload_claimed: false,
+                page_content_claimed: false,
+                exact_url_claimed: false,
             }
         ])),
         Err(NetworkAiDetectionEvaluationError::EmptyInputKinds)
     );
     assert_eq!(
         evaluate_network_ai_detection_fixtures(&evaluation_input(vec![
-            passing_case(),
+            NetworkAiDetectionFixtureCase {
+                detection_ref: "detect-vpn-1".to_owned(),
+                fixture_ref: "fixture-detect-vpn-1".to_owned(),
+                summary_ref: "summary-detect-vpn-1".to_owned(),
+                evidence_refs: vec!["evidence-detect-vpn-1".to_owned()],
+                analyzer_alert_refs: Vec::new(),
+                expected_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                predicted_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                confidence_basis_points: 8_700,
+                baseline_confidence_basis_points: 8_500,
+                risk_level: NetworkAiDetectionRiskLevel::High,
+                input_kinds: vec![
+                    NetworkAiDetectionInputKind::SummaryRefs,
+                    NetworkAiDetectionInputKind::EvidenceRefs,
+                    NetworkAiDetectionInputKind::FixtureLabel,
+                ],
+                raw_pcap_input_claimed: false,
+                decrypted_payload_claimed: false,
+                page_content_claimed: false,
+                exact_url_claimed: false,
+            },
             NetworkAiDetectionFixtureCase {
                 fixture_ref: "fixture-duplicate".to_owned(),
-                ..passing_case()
+                detection_ref: "detect-vpn-1".to_owned(),
+                summary_ref: "summary-detect-vpn-1".to_owned(),
+                evidence_refs: vec!["evidence-detect-vpn-1".to_owned()],
+                analyzer_alert_refs: Vec::new(),
+                expected_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                predicted_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+                confidence_basis_points: 8_700,
+                baseline_confidence_basis_points: 8_500,
+                risk_level: NetworkAiDetectionRiskLevel::High,
+                input_kinds: vec![
+                    NetworkAiDetectionInputKind::SummaryRefs,
+                    NetworkAiDetectionInputKind::EvidenceRefs,
+                    NetworkAiDetectionInputKind::FixtureLabel,
+                ],
+                raw_pcap_input_claimed: false,
+                decrypted_payload_claimed: false,
+                page_content_claimed: false,
+                exact_url_claimed: false,
             },
         ])),
         Err(NetworkAiDetectionEvaluationError::DuplicateDetectionRef)
@@ -303,50 +473,22 @@ fn evaluation_input(
 }
 
 fn passing_case() -> NetworkAiDetectionFixtureCase {
-    fixture_case(
-        "detect-vpn-1",
-        NetworkAiDetectionLabel::VpnProxyTunnel,
-        NetworkAiDetectionLabel::VpnProxyTunnel,
-        8_700,
-        8_500,
-        NetworkAiDetectionRiskLevel::High,
-        vec![],
-    )
-}
-
-fn fixture_case(
-    detection_ref: &str,
-    expected_label: NetworkAiDetectionLabel,
-    predicted_label: NetworkAiDetectionLabel,
-    confidence_basis_points: u16,
-    baseline_confidence_basis_points: u16,
-    risk_level: NetworkAiDetectionRiskLevel,
-    analyzer_alert_refs: Vec<&str>,
-) -> NetworkAiDetectionFixtureCase {
-    let mut input_kinds = vec![
-        NetworkAiDetectionInputKind::SummaryRefs,
-        NetworkAiDetectionInputKind::EvidenceRefs,
-        NetworkAiDetectionInputKind::FixtureLabel,
-    ];
-    if !analyzer_alert_refs.is_empty() {
-        input_kinds.push(NetworkAiDetectionInputKind::AnalyzerAlertRefs);
-    }
-
     NetworkAiDetectionFixtureCase {
-        detection_ref: detection_ref.to_owned(),
-        fixture_ref: format!("fixture-{detection_ref}"),
-        summary_ref: format!("summary-{detection_ref}"),
-        evidence_refs: vec![
-            format!("evidence-{detection_ref}"),
-            format!("evidence-{detection_ref}"),
+        detection_ref: "detect-vpn-1".to_owned(),
+        fixture_ref: "fixture-detect-vpn-1".to_owned(),
+        summary_ref: "summary-detect-vpn-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-vpn-1".to_owned()],
+        analyzer_alert_refs: Vec::new(),
+        expected_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+        predicted_label: NetworkAiDetectionLabel::VpnProxyTunnel,
+        confidence_basis_points: 8_700,
+        baseline_confidence_basis_points: 8_500,
+        risk_level: NetworkAiDetectionRiskLevel::High,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
         ],
-        analyzer_alert_refs: analyzer_alert_refs.into_iter().map(str::to_owned).collect(),
-        expected_label,
-        predicted_label,
-        confidence_basis_points,
-        baseline_confidence_basis_points,
-        risk_level,
-        input_kinds,
         raw_pcap_input_claimed: false,
         decrypted_payload_claimed: false,
         page_content_claimed: false,

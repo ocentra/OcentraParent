@@ -35,6 +35,18 @@ use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_STATE_UNAVAILAB
 
 use crate::time::timestamp_now;
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct RequestedAtText(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct CreatedAtText(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct RequestIdText(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct CorrelationIdText(String);
+
 pub fn social_report_writer_delivery_read_model_from_service() -> SocialReportWriterDeliveryReadModel
 {
     let generated_at = timestamp_now();
@@ -42,11 +54,11 @@ pub fn social_report_writer_delivery_read_model_from_service() -> SocialReportWr
         generated_at: generated_at.clone(),
         proof_ref: SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_REPORT_WRITER_PROOF_REF.to_string(),
         rows: vec![
-            report_writer_ready_row(&generated_at),
-            report_writer_manual_required_row(&generated_at),
-            report_writer_unavailable_row(&generated_at),
+            report_writer_ready_row(CreatedAtText(generated_at.clone())),
+            report_writer_manual_required_row(CreatedAtText(generated_at.clone())),
+            report_writer_unavailable_row(CreatedAtText(generated_at)),
         ],
-        non_claims: super::non_claims(),
+        non_claims: super::non_claims().0,
         external_runtime_report_delivery_claimed: false,
         final_policy_execution_claimed: false,
         enforcement_claimed: false,
@@ -81,7 +93,9 @@ pub async fn request_social_report_writer_delivery_read_model_from_service(
 
     let requested_at = timestamp_now();
     let request = SocialReportWriterDeliveryReadModelRequest {
-        request_id: RequestId::parse(social_report_writer_delivery_request_id(&requested_at))?,
+        request_id: RequestId::parse(
+            social_report_writer_delivery_request_id(RequestedAtText(requested_at.clone())).0,
+        )?,
         requested_at,
     };
     let metadata = social_report_writer_delivery_metadata(&request)?;
@@ -103,9 +117,12 @@ fn social_report_writer_delivery_metadata(
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         ocentra_eventing::ids::EventId::generated(),
-        CorrelationId::parse(social_report_writer_delivery_correlation_id(
-            &request.requested_at,
-        ))?,
+        CorrelationId::parse(
+            social_report_writer_delivery_correlation_id(RequestedAtText(
+                request.requested_at.clone(),
+            ))
+            .0,
+        )?,
         EventSource::new(
             ocentra_eventing::ids::EventCustody::parse(
                 constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE,
@@ -122,21 +139,23 @@ fn social_report_writer_delivery_metadata(
     ))
 }
 
-fn social_report_writer_delivery_request_id(requested_at: &str) -> String {
+fn social_report_writer_delivery_request_id(requested_at: RequestedAtText) -> RequestIdText {
     let mut value = String::from(
         constants::browser::REQUEST_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX,
     );
-    value.push_str(requested_at);
-    value
+    value.push_str(&requested_at.0);
+    RequestIdText(value)
 }
 
-fn social_report_writer_delivery_correlation_id(requested_at: &str) -> String {
+fn social_report_writer_delivery_correlation_id(
+    requested_at: RequestedAtText,
+) -> CorrelationIdText {
     let mut value = String::from(constants::browser::CORRELATION_BROWSER_RUNTIME_PREFIX);
-    value.push_str(requested_at);
-    value
+    value.push_str(&requested_at.0);
+    CorrelationIdText(value)
 }
 
-fn report_writer_ready_row(created_at: &str) -> SocialReportWriterDeliveryReadModelRow {
+fn report_writer_ready_row(created_at: CreatedAtText) -> SocialReportWriterDeliveryReadModelRow {
     report_writer_row(SocialReportWriterDeliveryRowParts {
         row_id: SOCIAL_REPORT_WRITER_DELIVERY_ROW_REPORT_READY,
         parent_visible_report_status_ref: Some(
@@ -154,7 +173,9 @@ fn report_writer_ready_row(created_at: &str) -> SocialReportWriterDeliveryReadMo
     })
 }
 
-fn report_writer_manual_required_row(created_at: &str) -> SocialReportWriterDeliveryReadModelRow {
+fn report_writer_manual_required_row(
+    created_at: CreatedAtText,
+) -> SocialReportWriterDeliveryReadModelRow {
     report_writer_row(SocialReportWriterDeliveryRowParts {
         row_id: SOCIAL_REPORT_WRITER_DELIVERY_ROW_MANUAL_REQUIRED,
         parent_visible_report_status_ref: Some(
@@ -174,7 +195,9 @@ fn report_writer_manual_required_row(created_at: &str) -> SocialReportWriterDeli
     })
 }
 
-fn report_writer_unavailable_row(created_at: &str) -> SocialReportWriterDeliveryReadModelRow {
+fn report_writer_unavailable_row(
+    created_at: CreatedAtText,
+) -> SocialReportWriterDeliveryReadModelRow {
     report_writer_row(SocialReportWriterDeliveryRowParts {
         row_id: SOCIAL_REPORT_WRITER_DELIVERY_ROW_UNAVAILABLE,
         parent_visible_report_status_ref: None,
@@ -192,7 +215,7 @@ fn report_writer_unavailable_row(created_at: &str) -> SocialReportWriterDelivery
     })
 }
 
-struct SocialReportWriterDeliveryRowParts<'a> {
+struct SocialReportWriterDeliveryRowParts {
     row_id: &'static str,
     parent_visible_report_status_ref: Option<String>,
     parent_report_ref: Option<String>,
@@ -203,11 +226,11 @@ struct SocialReportWriterDeliveryRowParts<'a> {
     receipt_state: &'static str,
     parent_owned_report_artifact_written: bool,
     parent_owned_report_receipt_recorded: bool,
-    created_at: &'a str,
+    created_at: CreatedAtText,
 }
 
 fn report_writer_row(
-    parts: SocialReportWriterDeliveryRowParts<'_>,
+    parts: SocialReportWriterDeliveryRowParts,
 ) -> SocialReportWriterDeliveryReadModelRow {
     SocialReportWriterDeliveryReadModelRow {
         row_id: parts.row_id.to_string(),
@@ -229,6 +252,6 @@ fn report_writer_row(
         provider_receipt_ingested: false,
         final_policy_decision_claimed: false,
         enforcement_claimed: false,
-        created_at: parts.created_at.to_string(),
+        created_at: parts.created_at.0,
     }
 }

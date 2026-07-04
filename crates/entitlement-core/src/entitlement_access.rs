@@ -143,48 +143,6 @@ pub struct EntitlementDecision {
     pub rejection_reason: Option<EntitlementCapabilityRejectionReason>,
 }
 
-macro_rules! entitlement_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
-
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
-}
-
 entitlement_text_id!(EntitlementEvaluationId, "entitlement.evaluation_id");
 entitlement_text_id!(EntitlementDecisionId, "entitlement.decision_id");
 entitlement_text_id!(EntitlementAggregateId, "entitlement.aggregate_id");
@@ -239,7 +197,7 @@ impl DomainEvent for EntitlementCapabilityDecisionRecordedEvent {
 }
 
 pub fn evaluate_entitlement_capability(input: EntitlementCapabilityInput) -> EntitlementDecision {
-    let rejection_reason = entitlement_rejection_reason(&input);
+    let rejection_reason = crate::entitlement_access_reasons::entitlement_rejection_reason(&input);
     let allowed = rejection_reason.is_none();
 
     EntitlementDecision {
@@ -290,71 +248,4 @@ fn entitlement_decision_ref(evaluation_id: &EntitlementEvaluationId) -> String {
     let mut value = String::from(ENTITLEMENT_DECISION_PREFIX);
     value.push_str(evaluation_id.as_str());
     value
-}
-
-fn entitlement_rejection_reason(
-    input: &EntitlementCapabilityInput,
-) -> Option<EntitlementCapabilityRejectionReason> {
-    match input.snapshot_context.signature_state {
-        EntitlementSnapshotSignatureState::Missing => {
-            return Some(EntitlementCapabilityRejectionReason::MissingSignature);
-        }
-        EntitlementSnapshotSignatureState::Invalid => {
-            return Some(EntitlementCapabilityRejectionReason::InvalidSignature);
-        }
-        EntitlementSnapshotSignatureState::Trusted => {}
-    }
-
-    match input.snapshot_context.freshness_state {
-        EntitlementSnapshotFreshnessState::Stale => {
-            return Some(EntitlementCapabilityRejectionReason::StaleSnapshot);
-        }
-        EntitlementSnapshotFreshnessState::Expired => {
-            return Some(EntitlementCapabilityRejectionReason::ExpiredSnapshot);
-        }
-        EntitlementSnapshotFreshnessState::Revoked => {
-            return Some(EntitlementCapabilityRejectionReason::RevokedSnapshot);
-        }
-        EntitlementSnapshotFreshnessState::Fresh => {}
-    }
-
-    if input.snapshot_context.household_binding_state == EntitlementSnapshotBindingState::Mismatched
-    {
-        return Some(EntitlementCapabilityRejectionReason::WrongHousehold);
-    }
-
-    if input.snapshot_context.device_binding_state == EntitlementSnapshotBindingState::Mismatched {
-        return Some(EntitlementCapabilityRejectionReason::WrongDevice);
-    }
-
-    if input.snapshot_context.device_trust_requirement_state
-        == EntitlementDeviceTrustRequirementState::Required
-        && input.snapshot_context.device_trust_state == EntitlementDeviceTrustState::Missing
-    {
-        return Some(EntitlementCapabilityRejectionReason::MissingDeviceTrust);
-    }
-
-    if input.snapshot_context.package_build_state == EntitlementPackageBuildState::Invalid {
-        return Some(EntitlementCapabilityRejectionReason::InvalidPackageBuild);
-    }
-
-    if input.family_setup_state == FamilySetupState::Incomplete {
-        return Some(EntitlementCapabilityRejectionReason::IncompleteFamilySetup);
-    }
-
-    if input.policy_state == EntitlementPolicyState::PaymentDispute {
-        return Some(EntitlementCapabilityRejectionReason::PaymentDispute);
-    }
-
-    if input.capability_scope == EntitlementCapabilityScope::ParentPortalOnly {
-        return Some(EntitlementCapabilityRejectionReason::ParentPortalOnlyScope);
-    }
-
-    if input.subscription_state == SubscriptionState::Inactive
-        && input.offline_grace_state == OfflineGraceState::Inactive
-    {
-        return Some(EntitlementCapabilityRejectionReason::InactiveSubscription);
-    }
-
-    None
 }

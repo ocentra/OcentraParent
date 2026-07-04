@@ -43,6 +43,158 @@ use crate::{
 
 use crate::activity_store_policy_preview_targets::targets_from_row;
 
+const POLICY_PREVIEW_TARGET_STATE_RULES: &[(&[&str], PolicyPreviewTargetState)] = &[
+    (
+        &[
+            constants::browser::CAPABILITY_STATUS_STALE,
+            constants::tracking_runtime::CAPABILITY_STATUS_STALE,
+            APP_GAME_CAPABILITY_STATUS_STALE,
+        ],
+        PolicyPreviewTargetState::Stale,
+    ),
+    (
+        &[constants::tracking_runtime::CAPABILITY_STATUS_OFFLINE_LAST_KNOWN_ONLY],
+        PolicyPreviewTargetState::Offline,
+    ),
+    (
+        &[
+            constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER,
+            APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM,
+        ],
+        PolicyPreviewTargetState::Unsupported,
+    ),
+    (
+        &[
+            constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING,
+            constants::browser::CAPABILITY_STATUS_MANAGED_PROFILE_MISSING,
+            constants::browser::CAPABILITY_STATUS_PERMISSION_LIMITED,
+            constants::browser::CAPABILITY_STATUS_ADAPTER_ERROR,
+            constants::browser::CAPABILITY_STATUS_UNMANAGED_BROWSER,
+            constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED,
+            APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED,
+        ],
+        PolicyPreviewTargetState::ManualRequired,
+    ),
+];
+
+const POLICY_PREVIEW_TARGET_FINDING_KIND_RULES: &[(
+    PolicyPreviewTargetState,
+    PolicyPreviewFindingKind,
+)] = &[
+    (
+        PolicyPreviewTargetState::Unsupported,
+        PolicyPreviewFindingKind::UnsupportedTarget,
+    ),
+    (
+        PolicyPreviewTargetState::ManualRequired,
+        PolicyPreviewFindingKind::ManualRequiredTarget,
+    ),
+    (
+        PolicyPreviewTargetState::Offline,
+        PolicyPreviewFindingKind::OfflineTarget,
+    ),
+    (
+        PolicyPreviewTargetState::Stale,
+        PolicyPreviewFindingKind::StaleTarget,
+    ),
+];
+
+const NETWORK_EVIDENCE_GRADE_TABLE: [NetworkEvidenceGrade; 8] = [
+    NetworkEvidenceGrade::D,
+    NetworkEvidenceGrade::D,
+    NetworkEvidenceGrade::D,
+    NetworkEvidenceGrade::D,
+    NetworkEvidenceGrade::D,
+    NetworkEvidenceGrade::D,
+    NetworkEvidenceGrade::C,
+    NetworkEvidenceGrade::B,
+];
+
+const NETWORK_EVIDENCE_GRADE_PROTOCOL_RULES: &[(NetworkEvidenceGrade, &str)] = &[
+    (NetworkEvidenceGrade::A, policy::NETWORK_EVIDENCE_GRADE_A),
+    (NetworkEvidenceGrade::B, policy::NETWORK_EVIDENCE_GRADE_B),
+    (NetworkEvidenceGrade::C, policy::NETWORK_EVIDENCE_GRADE_C),
+    (NetworkEvidenceGrade::D, policy::NETWORK_EVIDENCE_GRADE_D),
+];
+
+const NETWORK_POLICY_ACTION_RULES: &[(NetworkEvidencePolicyAction, PolicyAction)] = &[
+    (NetworkEvidencePolicyAction::None, PolicyAction::Unknown),
+    (
+        NetworkEvidencePolicyAction::AskParent,
+        PolicyAction::AskParent,
+    ),
+    (NetworkEvidencePolicyAction::WarnChild, PolicyAction::Warn),
+    (NetworkEvidencePolicyAction::Monitor, PolicyAction::Unknown),
+    (NetworkEvidencePolicyAction::Limit, PolicyAction::TimeLimit),
+    (NetworkEvidencePolicyAction::Block, PolicyAction::Block),
+];
+
+const NETWORK_POLICY_ACTION_PROTOCOL_RULES: &[(NetworkEvidencePolicyAction, &str)] = &[
+    (
+        NetworkEvidencePolicyAction::AskParent,
+        policy::ACTION_ASK_PARENT,
+    ),
+    (NetworkEvidencePolicyAction::WarnChild, policy::ACTION_WARN),
+    (
+        NetworkEvidencePolicyAction::Monitor,
+        policy::NETWORK_POLICY_ACTION_MONITOR,
+    ),
+    (
+        NetworkEvidencePolicyAction::Limit,
+        policy::ACTION_TIME_LIMIT,
+    ),
+    (NetworkEvidencePolicyAction::Block, policy::ACTION_BLOCK),
+    (
+        NetworkEvidencePolicyAction::None,
+        policy::NETWORK_POLICY_ACTION_NONE,
+    ),
+];
+
+const POLICY_TO_NETWORK_ACTION_RULES: &[(PolicyAction, NetworkEvidencePolicyAction)] = &[
+    (PolicyAction::Warn, NetworkEvidencePolicyAction::WarnChild),
+    (PolicyAction::Block, NetworkEvidencePolicyAction::Block),
+    (PolicyAction::TimeLimit, NetworkEvidencePolicyAction::Limit),
+    (
+        PolicyAction::AskParent,
+        NetworkEvidencePolicyAction::AskParent,
+    ),
+];
+
+const NETWORK_POLICY_MODE_PROTOCOL_RULES: &[(NetworkEvidencePolicyMode, &str)] = &[
+    (
+        NetworkEvidencePolicyMode::ObserveOnly,
+        policy::NETWORK_POLICY_MAPPING_MODE_OBSERVE_ONLY,
+    ),
+    (
+        NetworkEvidencePolicyMode::DryRun,
+        policy::NETWORK_POLICY_MAPPING_MODE_DRY_RUN,
+    ),
+    (
+        NetworkEvidencePolicyMode::ParentReview,
+        policy::NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW,
+    ),
+];
+
+const POLICY_PREVIEW_FINDING_KIND_CSV_RULES: &[(
+    PolicyPreviewTargetState,
+    PolicyPreviewFindingKind,
+)] = POLICY_PREVIEW_TARGET_FINDING_KIND_RULES;
+
+const POLICY_MAPPING_REASON_RULES: &[(NetworkEvidencePolicyMode, &str)] = &[
+    (
+        NetworkEvidencePolicyMode::ParentReview,
+        policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW,
+    ),
+    (
+        NetworkEvidencePolicyMode::ObserveOnly,
+        policy::REASON_NETWORK_EVIDENCE_GRADE_OBSERVE_ONLY,
+    ),
+    (
+        NetworkEvidencePolicyMode::DryRun,
+        policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW,
+    ),
+];
+
 pub(crate) fn policy_preview_read_model(
     connection: &Connection,
     limit: u64,
@@ -162,27 +314,27 @@ fn policy_lifecycle_projection_from_row(row: &PolicyPreviewStoreRow) -> PolicyLi
         policy_source_status: protocol_field(
             &row.fields,
             constants::field::POLICY_SOURCE_STATUS,
-            PolicySourceStatus::from_protocol_str,
+            |value| PolicySourceStatus::from_protocol_str(value),
         ),
         policy_source_surface: protocol_field(
             &row.fields,
             constants::field::POLICY_SOURCE_SURFACE,
-            PolicySourceSurface::from_protocol_str,
+            |value| PolicySourceSurface::from_protocol_str(value),
         ),
         policy_request_origin: protocol_field(
             &row.fields,
             constants::field::POLICY_REQUEST_ORIGIN,
-            PolicyRequestOrigin::from_protocol_str,
+            |value| PolicyRequestOrigin::from_protocol_str(value),
         ),
         policy_assistant_confirmation_state: protocol_field(
             &row.fields,
             constants::field::POLICY_ASSISTANT_CONFIRMATION_STATE,
-            PolicyAssistantConfirmationState::from_protocol_str,
+            |value| PolicyAssistantConfirmationState::from_protocol_str(value),
         ),
         policy_request_status: protocol_field(
             &row.fields,
             constants::field::POLICY_REQUEST_STATUS,
-            PolicyRequestStatus::from_protocol_str,
+            |value| PolicyRequestStatus::from_protocol_str(value),
         ),
         policy_approval_id: string_field(&row.fields, constants::field::POLICY_APPROVAL_ID),
         policy_override_id: string_field(&row.fields, constants::field::POLICY_OVERRIDE_ID),
@@ -250,26 +402,21 @@ fn grade_mapped_network_decision(
 }
 
 fn network_evidence_grade(row: &PolicyPreviewStoreRow) -> Option<NetworkEvidenceGrade> {
-    if row.kind != constants::activity_event_kind::DOMAIN_OBSERVED {
-        return None;
-    }
-    if string_field(&row.fields, constants::field::CAPABILITY_STATUS).as_deref()
-        != Some(constants::activity_capture::CAPABILITY_STATUS_AVAILABLE)
-    {
-        return Some(NetworkEvidenceGrade::D);
-    }
-    if string_field(&row.fields, constants::field::DOMAIN_ATTRIBUTION_STATUS).as_deref()
-        != Some(constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_DOMAIN_OBSERVED)
-    {
-        return Some(NetworkEvidenceGrade::D);
-    }
-    if string_field(&row.fields, constants::field::PROCESS_ATTRIBUTION_STATUS).as_deref()
-        == Some(constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED)
-    {
-        Some(NetworkEvidenceGrade::B)
-    } else {
-        Some(NetworkEvidenceGrade::C)
-    }
+    (row.kind == constants::activity_event_kind::DOMAIN_OBSERVED).then_some(())?;
+    let capability_status_available =
+        string_field(&row.fields, constants::field::CAPABILITY_STATUS).as_deref()
+            == Some(constants::activity_capture::CAPABILITY_STATUS_AVAILABLE);
+    let domain_observed = string_field(&row.fields, constants::field::DOMAIN_ATTRIBUTION_STATUS)
+        .as_deref()
+        == Some(constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_DOMAIN_OBSERVED);
+    let process_attributed =
+        string_field(&row.fields, constants::field::PROCESS_ATTRIBUTION_STATUS).as_deref()
+            == Some(constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED);
+    Some(
+        NETWORK_EVIDENCE_GRADE_TABLE[((capability_status_available as usize) << 2)
+            | ((domain_observed as usize) << 1)
+            | (process_attributed as usize)],
+    )
 }
 
 fn network_policy_mapping(
@@ -308,76 +455,43 @@ fn preview_network_evidence_mapping(
 }
 
 fn network_evidence_grade_protocol(grade: NetworkEvidenceGrade) -> &'static str {
-    match grade {
-        NetworkEvidenceGrade::A => policy::NETWORK_EVIDENCE_GRADE_A,
-        NetworkEvidenceGrade::B => policy::NETWORK_EVIDENCE_GRADE_B,
-        NetworkEvidenceGrade::C => policy::NETWORK_EVIDENCE_GRADE_C,
-        NetworkEvidenceGrade::D => policy::NETWORK_EVIDENCE_GRADE_D,
-    }
+    NETWORK_EVIDENCE_GRADE_PROTOCOL_RULES
+        .iter()
+        .find_map(|(candidate, protocol)| (*candidate == grade).then_some(*protocol))
+        .unwrap_or(policy::NETWORK_EVIDENCE_GRADE_D)
 }
 
 fn network_policy_action_protocol(action: NetworkEvidencePolicyAction) -> &'static str {
-    match action {
-        NetworkEvidencePolicyAction::None => policy::NETWORK_POLICY_ACTION_NONE,
-        NetworkEvidencePolicyAction::AskParent => policy::ACTION_ASK_PARENT,
-        NetworkEvidencePolicyAction::WarnChild => policy::ACTION_WARN,
-        NetworkEvidencePolicyAction::Monitor => policy::NETWORK_POLICY_ACTION_MONITOR,
-        NetworkEvidencePolicyAction::Limit => policy::ACTION_TIME_LIMIT,
-        NetworkEvidencePolicyAction::Block => policy::ACTION_BLOCK,
-    }
+    NETWORK_POLICY_ACTION_PROTOCOL_RULES
+        .iter()
+        .find_map(|(candidate, protocol)| (*candidate == action).then_some(*protocol))
+        .unwrap_or(policy::NETWORK_POLICY_ACTION_NONE)
 }
 
 fn network_policy_mode_protocol(mode: NetworkEvidencePolicyMode) -> &'static str {
-    match mode {
-        NetworkEvidencePolicyMode::ObserveOnly => policy::NETWORK_POLICY_MAPPING_MODE_OBSERVE_ONLY,
-        NetworkEvidencePolicyMode::DryRun => policy::NETWORK_POLICY_MAPPING_MODE_DRY_RUN,
-        NetworkEvidencePolicyMode::ParentReview => {
-            policy::NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW
-        }
-    }
+    NETWORK_POLICY_MODE_PROTOCOL_RULES
+        .iter()
+        .find_map(|(candidate, protocol)| (*candidate == mode).then_some(*protocol))
+        .unwrap_or(policy::NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW)
 }
 
 fn network_policy_action(action: PolicyAction) -> Option<NetworkEvidencePolicyAction> {
-    match action {
-        PolicyAction::Warn => Some(NetworkEvidencePolicyAction::WarnChild),
-        PolicyAction::Block => Some(NetworkEvidencePolicyAction::Block),
-        PolicyAction::TimeLimit => Some(NetworkEvidencePolicyAction::Limit),
-        PolicyAction::AskParent => Some(NetworkEvidencePolicyAction::AskParent),
-        PolicyAction::Allow | PolicyAction::Unknown => None,
-    }
+    POLICY_TO_NETWORK_ACTION_RULES
+        .iter()
+        .find_map(|(candidate, mapped)| (*candidate == action).then_some(*mapped))
 }
 
 fn policy_preview_target_state_from_row(
     row: &PolicyPreviewStoreRow,
 ) -> Option<PolicyPreviewTargetState> {
-    let capability_status = string_field(&row.fields, constants::field::CAPABILITY_STATUS);
-    let capability_status = capability_status.as_deref();
-
-    if capability_status == Some(constants::browser::CAPABILITY_STATUS_STALE)
-        || capability_status == Some(constants::tracking_runtime::CAPABILITY_STATUS_STALE)
-        || capability_status == Some(APP_GAME_CAPABILITY_STATUS_STALE)
-    {
-        Some(PolicyPreviewTargetState::Stale)
-    } else if capability_status
-        == Some(constants::tracking_runtime::CAPABILITY_STATUS_OFFLINE_LAST_KNOWN_ONLY)
-    {
-        Some(PolicyPreviewTargetState::Offline)
-    } else if capability_status == Some(constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER)
-        || capability_status == Some(APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM)
-    {
-        Some(PolicyPreviewTargetState::Unsupported)
-    } else if capability_status == Some(constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING)
-        || capability_status == Some(constants::browser::CAPABILITY_STATUS_MANAGED_PROFILE_MISSING)
-        || capability_status == Some(constants::browser::CAPABILITY_STATUS_PERMISSION_LIMITED)
-        || capability_status == Some(constants::browser::CAPABILITY_STATUS_ADAPTER_ERROR)
-        || capability_status == Some(constants::browser::CAPABILITY_STATUS_UNMANAGED_BROWSER)
-        || capability_status == Some(constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED)
-        || capability_status == Some(APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED)
-    {
-        Some(PolicyPreviewTargetState::ManualRequired)
-    } else {
-        None
-    }
+    let capability_status = string_field(&row.fields, constants::field::CAPABILITY_STATUS)?;
+    POLICY_PREVIEW_TARGET_STATE_RULES
+        .iter()
+        .find_map(|(statuses, state)| {
+            statuses
+                .contains(&capability_status.as_str())
+                .then_some(*state)
+        })
 }
 
 fn policy_preview_target_explanation_code_from_row(
@@ -393,53 +507,32 @@ fn policy_preview_target_explanation_code_from_row(
 fn policy_preview_target_finding_kinds(
     target_state: Option<PolicyPreviewTargetState>,
 ) -> Option<String> {
-    match target_state {
-        Some(PolicyPreviewTargetState::Unsupported) => {
-            policy_preview_finding_kinds_csv(&[PolicyPreviewFindingKind::UnsupportedTarget])
-        }
-        Some(PolicyPreviewTargetState::ManualRequired) => {
-            policy_preview_finding_kinds_csv(&[PolicyPreviewFindingKind::ManualRequiredTarget])
-        }
-        Some(PolicyPreviewTargetState::Offline) => {
-            policy_preview_finding_kinds_csv(&[PolicyPreviewFindingKind::OfflineTarget])
-        }
-        Some(PolicyPreviewTargetState::Stale) => {
-            policy_preview_finding_kinds_csv(&[PolicyPreviewFindingKind::StaleTarget])
-        }
-        Some(PolicyPreviewTargetState::Supported) | None => None,
-    }
+    target_state.and_then(|target_state| {
+        POLICY_PREVIEW_FINDING_KIND_CSV_RULES
+            .iter()
+            .find_map(|(candidate, kind)| (*candidate == target_state).then_some(*kind))
+            .and_then(|kind| policy_preview_finding_kinds_csv(&[kind]))
+    })
 }
 
 fn policy_action(action: NetworkEvidencePolicyAction) -> PolicyAction {
-    match action {
-        NetworkEvidencePolicyAction::AskParent => PolicyAction::AskParent,
-        NetworkEvidencePolicyAction::WarnChild => PolicyAction::Warn,
-        NetworkEvidencePolicyAction::Limit => PolicyAction::TimeLimit,
-        NetworkEvidencePolicyAction::Block => PolicyAction::Block,
-        NetworkEvidencePolicyAction::Monitor | NetworkEvidencePolicyAction::None => {
-            PolicyAction::Unknown
-        }
-    }
+    NETWORK_POLICY_ACTION_RULES
+        .iter()
+        .find_map(|(candidate, mapped)| (*candidate == action).then_some(*mapped))
+        .unwrap_or(PolicyAction::Unknown)
 }
 
 fn grade_mapping_reason(mode: NetworkEvidencePolicyMode) -> String {
-    match mode {
-        NetworkEvidencePolicyMode::ParentReview => {
-            policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW.to_string()
-        }
-        NetworkEvidencePolicyMode::ObserveOnly => {
-            policy::REASON_NETWORK_EVIDENCE_GRADE_OBSERVE_ONLY.to_string()
-        }
-        NetworkEvidencePolicyMode::DryRun => {
-            policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW.to_string()
-        }
-    }
+    POLICY_MAPPING_REASON_RULES
+        .iter()
+        .find_map(|(candidate, reason)| (*candidate == mode).then_some(*reason))
+        .unwrap_or(policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW)
+        .to_string()
 }
 
 fn push_unique_reason(reason_codes: &mut Vec<String>, reason_code: String) {
-    if !reason_codes.iter().any(|existing| existing == &reason_code) {
-        reason_codes.push(reason_code);
-    }
+    (!reason_codes.iter().any(|existing| existing == &reason_code))
+        .then(|| reason_codes.push(reason_code));
 }
 
 fn evidence_references_from_row(row: &PolicyPreviewStoreRow) -> Vec<ParentEvidenceReference> {
@@ -462,11 +555,7 @@ fn evidence_reference_from_activity(
     evidence: &ActivityEvidenceRef,
     observed_at: &str,
 ) -> Option<ParentEvidenceReference> {
-    let kind = match &evidence.kind {
-        ActivityEvidenceKind::JournalEntry => ParentEvidenceReferenceKind::JournalEvent,
-        ActivityEvidenceKind::LocalDbRow => ParentEvidenceReferenceKind::QueryStoreSummary,
-        ActivityEvidenceKind::Screenshot | ActivityEvidenceKind::StorageObject => return None,
-    };
+    let kind = evidence_reference_kind(&evidence.kind)?;
 
     Some(ParentEvidenceReference {
         evidence_reference_id: evidence.evidence_id.clone(),
@@ -475,16 +564,31 @@ fn evidence_reference_from_activity(
     })
 }
 
+fn evidence_reference_kind(kind: &ActivityEvidenceKind) -> Option<ParentEvidenceReferenceKind> {
+    const RULES: &[(ActivityEvidenceKind, ParentEvidenceReferenceKind)] = &[
+        (
+            ActivityEvidenceKind::JournalEntry,
+            ParentEvidenceReferenceKind::JournalEvent,
+        ),
+        (
+            ActivityEvidenceKind::LocalDbRow,
+            ParentEvidenceReferenceKind::QueryStoreSummary,
+        ),
+    ];
+
+    RULES
+        .iter()
+        .find_map(|(candidate, mapped)| (*candidate == *kind).then_some(*mapped))
+}
+
 fn push_unique_reference(
     references: &mut Vec<ParentEvidenceReference>,
     reference: ParentEvidenceReference,
 ) {
-    if !references
+    (!references
         .iter()
-        .any(|existing| existing.evidence_reference_id == reference.evidence_reference_id)
-    {
-        references.push(reference);
-    }
+        .any(|existing| existing.evidence_reference_id == reference.evidence_reference_id))
+    .then(|| references.push(reference));
 }
 
 fn prefixed_id(prefix: &str, source_id: &str) -> String {
@@ -503,7 +607,7 @@ fn string_field(fields: &LogFields, key: &str) -> Option<String> {
 fn protocol_field<T>(
     fields: &LogFields,
     key: &str,
-    parse: impl FnOnce(&str) -> Option<T>,
+    parse: impl for<'a> Fn(&'a str) -> Option<T>,
 ) -> Option<T> {
     string_field(fields, key).and_then(|value| parse(&value))
 }

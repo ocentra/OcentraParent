@@ -1,23 +1,25 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use ocentra_eventing::{
-    delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
+    delivery::validation::EventDeliveryDecisionState,
+    delivery::validation::EventDeliveryRequiredArtifact,
 };
 use ocentra_parent_agent_protocol::constants;
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::network_event_runtime::broker_delivery::{
     prove_network_runtime_broker_delivery_semantics, NetworkRuntimeBrokerDeliverySemantics,
     NetworkRuntimeBrokerDeliverySemanticsReport,
 };
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestText>;
 
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+fn ok<T, E: Debug>(result: Result<T, E>, context: impl Display) -> Result<T, TestText> {
+    result.map_err(|error| TestText::from_display(format!("{context}: {error:?}")))
 }
 
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| context.to_string())
+fn some<T>(value: Option<T>, context: impl Display) -> Result<T, TestText> {
+    value.ok_or_else(|| TestText::from_display(context))
 }
 
 #[tokio::test]

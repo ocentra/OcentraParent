@@ -1,4 +1,10 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::fs::{remove_file, write};
+use std::path::{Path as TestPath, PathBuf as TestPathBuf};
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -49,8 +55,10 @@ use ocentra_parent_agent_service::test_support::handle_local_command_text_for_te
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK,
     test_invariants::{
-        require_json_decode, require_log_string_field, require_ok, serialize_test_json,
+        require_json_decode, require_log_string_field, require_ok, require_some,
+        serialize_test_json,
     },
+    test_text::TestText,
 };
 
 const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
@@ -77,9 +85,9 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
     );
 
     let body = serialize_test_json(&command_envelope());
-    let event = handle_local_command_text_for_test(&body).await;
+    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let read_model = timer_parent_surface_payload(
-        &event.payload[constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL],
+        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
     );
 
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
@@ -146,12 +154,13 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
         store.ingest_events(&[evidence_claim_activity_event()]),
         constants::error::ACTIVITY_STORE_INGESTS,
     );
+    drop(store);
     write_active_timer_state_fixture(&timer_state_path);
 
     let body = serialize_test_json(&command_envelope());
-    let event = handle_local_command_text_for_test(&body).await;
+    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let read_model = timer_parent_surface_payload(
-        &event.payload[constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL],
+        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
     );
 
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
@@ -176,7 +185,9 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
 }
 
 #[tokio::test]
-async fn app_game_timer_parent_surface_timer_state_helpers_are_linked() -> Result<(), String> {
+async fn app_game_timer_parent_surface_timer_state_helpers_are_linked()
+    -> Result<(), TestString>
+{
     let _guard = REPORT_ENV_LOCK.lock().await;
     let timer_state_path = temp_path(constants::enforcement::TIMER_STATE_ID_PREFIX);
     cleanup_path(&timer_state_path);
@@ -197,7 +208,8 @@ async fn app_game_timer_parent_surface_timer_state_helpers_are_linked() -> Resul
     )
     .await
     .map_err(|error| format!("{error:?}"))?;
-    assert!(stored.is_some());
+    let stored = require_some(stored, constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(stored.state_id, constants::enforcement::TEST_TIMER_STATE_ID);
 
     crate::enforcement_timer_state_file::remove_active_timer_state(&timer_state_path)
         .await
@@ -336,9 +348,10 @@ fn evidence_claim() -> AppGameEvidenceClaim {
     }
 }
 
-fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
+fn local_db_ref(evidence_id: TestText) -> ActivityEvidenceRef {
+    let evidence_id = evidence_id;
     ActivityEvidenceRef {
-        evidence_id: evidence_id.to_string(),
+        evidence_id: evidence_id.as_ref().to_string(),
         kind: ActivityEvidenceKind::LocalDbRow,
         digest: None,
         uri: None,
@@ -523,11 +536,12 @@ fn parent_evidence_fixture() -> ParentEvidenceReference {
     }
 }
 
-fn temp_path(suffix: &str) -> std::path::PathBuf {
+fn temp_path(suffix: TestText) -> TestPathBuf {
+    let suffix = suffix;
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(suffix.as_ref());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&unique_suffix());
 
@@ -537,19 +551,20 @@ fn temp_path(suffix: &str) -> std::path::PathBuf {
     path
 }
 
-fn unique_suffix() -> String {
+fn unique_suffix() -> TestString {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|duration| duration.as_nanos().to_string())
         .unwrap_or_else(|_| String::from("0"))
 }
 
-fn cleanup_path(path: &std::path::PathBuf) {
+fn cleanup_path(path: impl AsRef<TestPath>) {
+    let path = path.as_ref();
     let _ = remove_file(path);
-    let mut wal_path = path.clone();
+    let mut wal_path = path.to_path_buf();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(wal_path);
-    let mut shm_path = path.clone();
+    let mut shm_path = path.to_path_buf();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }

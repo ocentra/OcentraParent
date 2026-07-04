@@ -6,18 +6,71 @@ use ocentra_parent_agent_protocol::{
 use ocentra_parent_desktop::{
     agent_service_connects, parent_platform_proof_state_for_address,
     parent_route_subscription_event_name, ParentRouteSubscriptionRegistry,
+    ParentDesktopAgentAddress,
+    ParentRouteSubscriptionId,
 };
 use serde_json::Value;
 
-fn proof_state_json(agent_address: String) -> Value {
+fn proof_state_json(agent_address: ParentDesktopAgentAddress) -> Value {
     serde_json::to_value(parent_platform_proof_state_for_address(agent_address))
         .expect("parent desktop proof state serializes")
 }
 
 #[test]
 fn parent_platform_proof_state_uses_rust_service_connection_for_package_runtime() {
-    let state = proof_state_json(constants::test_network::LOOPBACK_ANY_PORT.to_string());
+    let state = proof_state_json(ParentDesktopAgentAddress(
+        constants::test_network::LOOPBACK_ANY_PORT.to_string(),
+    ));
 
+    assert_parent_platform_proof_state_shell_identity(&state);
+    assert_parent_platform_proof_state_runtime_truth(&state);
+    assert_parent_platform_proof_state_package_operations_truth(&state);
+    assert_parent_platform_proof_state_package_distribution_truth(&state);
+}
+
+#[test]
+fn parent_platform_proof_state_reports_ready_when_rust_service_socket_accepts() {
+    let listener =
+        TcpListener::bind((constants::test_network::LOOPBACK_IP, 0)).expect("bind listener");
+    let address = ParentDesktopAgentAddress(listener.local_addr().expect("listener address").to_string());
+
+    assert!(agent_service_connects(&address));
+
+    let state = proof_state_json(address);
+    assert_eq!(
+        state["serviceState"],
+        constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
+    );
+    assert_eq!(
+        state["runtimeReadinessState"],
+        constants::value::PARENT_DESKTOP_RUNTIME_READY
+    );
+    assert_eq!(
+        state["activityAdapterState"],
+        constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
+    );
+}
+
+#[test]
+fn parent_route_subscription_registry_unregisters_active_subscriptions() {
+    let registry = ParentRouteSubscriptionRegistry::default();
+    let (subscription_id, active) = registry.register();
+
+    assert!(active.load(Ordering::SeqCst));
+    assert!(registry.unregister(&subscription_id));
+    assert!(!active.load(Ordering::SeqCst));
+    assert!(!registry.unregister(&subscription_id));
+}
+
+#[test]
+fn parent_route_subscription_event_name_uses_stable_prefix() {
+    assert_eq!(
+        parent_route_subscription_event_name(&ParentRouteSubscriptionId("42".to_string())).0,
+        "parent-route-subscription-42"
+    );
+}
+
+fn assert_parent_platform_proof_state_shell_identity(state: &Value) {
     assert_eq!(
         state["serviceState"],
         constants::value::PARENT_DESKTOP_SERVICE_UNAVAILABLE
@@ -31,30 +84,9 @@ fn parent_platform_proof_state_uses_rust_service_connection_for_package_runtime(
         state["backendKind"],
         constants::value::PARENT_DESKTOP_BACKEND_RUST_SERVICE
     );
-    assert_eq!(state["routeState"], serde_json::json!(DeviceRuntimeRouteState::LocalNetwork));
-    assert_eq!(
-        state["routeSourceState"],
-        serde_json::json!(DeviceRuntimeRouteState::LocalNetwork)
-    );
-    assert_eq!(
-        state["lanAiProviderState"],
-        serde_json::json!(DeviceRuntimeAiProviderState::Degraded)
-    );
-    assert_eq!(
-        state["degradedSourceState"],
-        serde_json::json!(DeviceRuntimeAiProviderState::Degraded)
-    );
     assert_eq!(
         state["activityAdapterState"],
         constants::value::PARENT_DESKTOP_SERVICE_UNAVAILABLE
-    );
-    assert_eq!(
-        state["parentAssistantProviderState"],
-        serde_json::json!(DeviceRuntimeAiProviderState::Degraded)
-    );
-    assert_eq!(
-        state["deviceRoleState"]["localAiRuntimeClaim"],
-        serde_json::json!(DeviceRuntimeLocalAiClaim::SharedPhysicalDeviceSingleton)
     );
     assert_eq!(
         state["packageFrontendState"],
@@ -76,6 +108,37 @@ fn parent_platform_proof_state_uses_rust_service_connection_for_package_runtime(
         state["observerReadOnlyState"],
         constants::value::PARENT_DESKTOP_OBSERVER_READ_ONLY
     );
+}
+
+fn assert_parent_platform_proof_state_runtime_truth(state: &Value) {
+    assert_eq!(state["routeState"], serde_json::json!(DeviceRuntimeRouteState::LocalNetwork));
+    assert_eq!(
+        state["routeSourceState"],
+        serde_json::json!(DeviceRuntimeRouteState::LocalNetwork)
+    );
+    assert_eq!(
+        state["lanAiProviderState"],
+        serde_json::json!(DeviceRuntimeAiProviderState::Degraded)
+    );
+    assert_eq!(
+        state["degradedSourceState"],
+        serde_json::json!(DeviceRuntimeAiProviderState::Degraded)
+    );
+    assert_eq!(
+        state["parentAssistantProviderState"],
+        serde_json::json!(DeviceRuntimeAiProviderState::Degraded)
+    );
+    assert_eq!(
+        state["deviceRoleState"]["localAiRuntimeClaim"],
+        serde_json::json!(DeviceRuntimeLocalAiClaim::SharedPhysicalDeviceSingleton)
+    );
+    assert_eq!(
+        state["serviceConnectTimeoutMs"],
+        serde_json::json!(250)
+    );
+}
+
+fn assert_parent_platform_proof_state_package_operations_truth(state: &Value) {
     assert_eq!(
         state["sourceCustodyState"],
         constants::value::PARENT_DESKTOP_SOURCE_CUSTODY_LIVE_LOCAL_NETWORK
@@ -100,7 +163,9 @@ fn parent_platform_proof_state_uses_rust_service_connection_for_package_runtime(
         state["serviceLaunchStrategyState"],
         constants::value::PARENT_DESKTOP_SERVICE_LAUNCH_STRATEGY_CONNECT_OR_DEGRADE
     );
-    assert_eq!(state["serviceConnectTimeoutMs"], serde_json::json!(250));
+}
+
+fn assert_parent_platform_proof_state_package_distribution_truth(state: &Value) {
     assert_eq!(
         state["packageServiceManagerState"],
         constants::value::PARENT_DESKTOP_PACKAGE_SERVICE_AUTO_START
@@ -164,47 +229,5 @@ fn parent_platform_proof_state_uses_rust_service_connection_for_package_runtime(
     assert_eq!(
         state["artifactProofState"],
         constants::value::PARENT_DESKTOP_ARTIFACT_PROOF_CI_PREVIEW
-    );
-}
-
-#[test]
-fn parent_platform_proof_state_reports_ready_when_rust_service_socket_accepts() {
-    let listener =
-        TcpListener::bind((constants::test_network::LOOPBACK_IP, 0)).expect("bind listener");
-    let address = listener.local_addr().expect("listener address").to_string();
-
-    assert!(agent_service_connects(address.as_str()));
-
-    let state = proof_state_json(address);
-    assert_eq!(
-        state["serviceState"],
-        constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
-    );
-    assert_eq!(
-        state["runtimeReadinessState"],
-        constants::value::PARENT_DESKTOP_RUNTIME_READY
-    );
-    assert_eq!(
-        state["activityAdapterState"],
-        constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
-    );
-}
-
-#[test]
-fn parent_route_subscription_registry_unregisters_active_subscriptions() {
-    let registry = ParentRouteSubscriptionRegistry::default();
-    let (subscription_id, active) = registry.register();
-
-    assert!(active.load(Ordering::SeqCst));
-    assert!(registry.unregister(subscription_id.as_str()));
-    assert!(!active.load(Ordering::SeqCst));
-    assert!(!registry.unregister(subscription_id.as_str()));
-}
-
-#[test]
-fn parent_route_subscription_event_name_uses_stable_prefix() {
-    assert_eq!(
-        parent_route_subscription_event_name("42"),
-        "parent-route-subscription-42"
     );
 }

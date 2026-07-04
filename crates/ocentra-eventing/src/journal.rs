@@ -8,7 +8,6 @@ pub(crate) mod hash_chain;
 pub mod ndjson;
 pub mod policy;
 
-use hash_chain::verify_hash_chain_entry;
 use policy::JournalDispatchPhase;
 
 pub type JournalAppendFuture<'a> =

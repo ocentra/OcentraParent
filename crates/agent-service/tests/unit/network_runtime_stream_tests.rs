@@ -1,5 +1,6 @@
 use std::fs::remove_file;
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore, network_capture::NetworkObservation,
     network_capture_event::network_observation_event,
@@ -148,7 +149,8 @@ async fn websocket_network_runtime_stream_command_reports_store_backed_chain(
         .ingest_events(&[network_activity_event()])
         .map_err(|error| std::io::Error::other(format!("{error:?}")))?;
     let body = serde_json::to_string(&command_envelope())?;
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let entries = stream_entries(&event.payload);
 
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
@@ -193,7 +195,8 @@ async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_de
         ])
         .map_err(|error| std::io::Error::other(format!("{error:?}")))?;
     let body = serde_json::to_string(&command_envelope())?;
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let entries = stream_entries(&event.payload);
 
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
@@ -392,11 +395,12 @@ fn stream_entries(payload: &LogFields) -> Vec<Value> {
     }
 }
 
-fn temp_path(suffix: &str) -> std::path::PathBuf {
+fn temp_path(suffix: TestText) -> std::path::PathBuf {
+    let suffix = suffix;
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(suffix.as_ref());
 
     let mut path = std::env::temp_dir();
     path.push(name);

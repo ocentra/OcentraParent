@@ -1,10 +1,6 @@
-use crate::{
-    correlate_process_app_activity, NetworkAppInventoryEntry, NetworkEvidenceGrade,
-    NetworkFlowProcessObservation, NetworkProcessAppCorrelation, NetworkProcessAppCorrelationInput,
-    NetworkProcessCorrelationBasis, NetworkProcessCorrelationError, NetworkProcessCorrelationState,
-    NetworkProcessCorrelationUncertainty, NetworkProcessSnapshot,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::process::*;
 
 #[test]
 fn process_correlation_attributes_flow_to_pid_snapshot() {

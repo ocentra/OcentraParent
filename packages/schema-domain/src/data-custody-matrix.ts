@@ -2,7 +2,7 @@
 
 import { ParentContractSchemaVersionSchema } from './family-reference-primitives';
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
-import { countProductionProofValues } from './production-proof-shape';
+import { countProductionProofValues } from './proof-shape';
 import {
   DataCustodyAuthoritySchema,
   DataCustodyClassId,

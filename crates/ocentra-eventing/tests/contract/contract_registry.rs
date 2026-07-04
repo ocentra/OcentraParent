@@ -1,4 +1,6 @@
-use super::support::{test_event, test_event_for_type, OTHER_EVENT_TYPE, TEST_EVENT_TYPE};
+use super::support::{
+    test_event, test_event_for_type, TestText as SupportText, OTHER_EVENT_TYPE, TEST_EVENT_TYPE,
+};
 use ocentra_eventing::contract_registry::EventContractRegistry;
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
@@ -8,10 +10,13 @@ use ocentra_eventing::ids::EventType;
 fn contract_registry_generates_markdown_in_event_type_order() {
     let mut registry = EventContractRegistry::new();
     registry
-        .register_event(&test_event_for_type("second", OTHER_EVENT_TYPE))
+        .register_event(&test_event_for_type(
+            SupportText("second".to_owned()),
+            SupportText(OTHER_EVENT_TYPE.to_owned()),
+        ))
         .expect_value("other event registers");
     registry
-        .register_event(&test_event("first"))
+        .register_event(&test_event(SupportText("first".to_owned())))
         .expect_value("test event registers");
 
     let descriptors = registry
@@ -50,10 +55,11 @@ fn contract_registry_generates_markdown_in_event_type_order() {
 fn contract_registry_rejects_duplicate_event_type() {
     let mut registry = EventContractRegistry::new();
     registry
-        .register_event(&test_event("first"))
+        .register_event(&test_event(SupportText("first".to_owned())))
         .expect_value("first event registers");
 
-    let duplicate = match registry.register_event(&test_event("duplicate")) {
+    let duplicate = match registry.register_event(&test_event(SupportText("duplicate".to_owned())))
+    {
         Ok(_) => std::process::abort(),
         Err(error) => error,
     };

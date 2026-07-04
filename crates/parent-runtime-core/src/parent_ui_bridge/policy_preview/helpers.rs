@@ -1,6 +1,58 @@
 use super::*;
 use std::fmt::Display;
 
+const POLICY_PREVIEW_READABLE_LABELS: &[(&str, &str)] = &[
+    ("preview-required", "Preview required"),
+    ("ready-to-save", "Ready to save"),
+    ("blocked", "Blocked"),
+    ("required", "Required"),
+    ("not-required", "Not required"),
+    ("supported", "Supported"),
+    ("unsupported", "Unsupported"),
+    ("manual-required", "Manual required"),
+    ("offline", "Offline"),
+    ("stale", "Stale"),
+    ("draft", "Draft"),
+    ("preview", "Preview"),
+    ("confirmed", "Confirmed"),
+    ("queued", "Queued"),
+    ("delivered", "Delivered"),
+    ("acknowledged", "Acknowledged"),
+    ("active", "Active"),
+    ("partially-active", "Partially active"),
+    ("rejected", "Rejected"),
+    ("superseded", "Superseded"),
+    ("rolled-back", "Rolled back"),
+    ("expired", "Expired"),
+    ("parent-portal", "Parent portal"),
+    ("parent-companion", "Parent companion"),
+    ("ai-preview", "AI preview"),
+    ("domain-cache", "Domain cache"),
+    ("child", "Child"),
+    ("assistant-draft", "Assistant draft"),
+    (
+        "parent-confirmation-required",
+        "Parent confirmation required",
+    ),
+    ("parent-confirmed", "Parent confirmed"),
+    ("preview-only", "Preview only"),
+    ("pending-parent-review", "Pending parent review"),
+    ("approved", "Approved"),
+    ("denied", "Denied"),
+    ("modified", "Modified"),
+    ("replay-rejected", "Replay rejected"),
+    ("unavailable", "Unavailable"),
+    ("disabled", "Off"),
+    ("local-only", "Local only"),
+    ("local-adapter-unavailable", "Local adapter not connected"),
+];
+const POLICY_PREVIEW_PARENT_ACCESS_LABELS: &[(&str, &str)] = &[
+    ("active-controller", "Active controller"),
+    ("observer-only", "Observer only"),
+    ("unauthenticated", "Unauthenticated"),
+    ("proof-missing", "Proof missing"),
+];
+
 pub(super) fn policy_preview_unavailable_summary(
     event: Option<&ParentRouteEventSnapshot>,
 ) -> String {
@@ -72,12 +124,12 @@ pub(super) fn policy_preview_has_conflict_finding(
 pub(super) fn policy_preview_parent_access_readable_value(
     parent_access_state: &ParentPortalParentAccessState,
 ) -> String {
-    match parent_access_state {
-        ParentPortalParentAccessState::ActiveController => "Active controller".to_string(),
-        ParentPortalParentAccessState::ObserverOnly => "Observer only".to_string(),
-        ParentPortalParentAccessState::Unauthenticated => "Unauthenticated".to_string(),
-        ParentPortalParentAccessState::ProofMissing => "Proof missing".to_string(),
-    }
+    let value = serialized_enum_label(parent_access_state);
+    POLICY_PREVIEW_PARENT_ACCESS_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == value)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or(value)
 }
 
 pub(super) fn policy_preview_readable_value(value: Option<&str>) -> String {
@@ -118,49 +170,10 @@ pub(super) fn policy_preview_required_readable_value(key: &str) -> String {
 }
 
 pub(super) fn policy_preview_readable_label(value: &str) -> Option<&'static str> {
-    match value {
-        "preview-required" => Some("Preview required"),
-        "ready-to-save" => Some("Ready to save"),
-        "blocked" => Some("Blocked"),
-        "required" => Some("Required"),
-        "not-required" => Some("Not required"),
-        "supported" => Some("Supported"),
-        "unsupported" => Some("Unsupported"),
-        "manual-required" => Some("Manual required"),
-        "offline" => Some("Offline"),
-        "stale" => Some("Stale"),
-        "draft" => Some("Draft"),
-        "preview" => Some("Preview"),
-        "confirmed" => Some("Confirmed"),
-        "queued" => Some("Queued"),
-        "delivered" => Some("Delivered"),
-        "acknowledged" => Some("Acknowledged"),
-        "active" => Some("Active"),
-        "partially-active" => Some("Partially active"),
-        "rejected" => Some("Rejected"),
-        "superseded" => Some("Superseded"),
-        "rolled-back" => Some("Rolled back"),
-        "expired" => Some("Expired"),
-        "parent-portal" => Some("Parent portal"),
-        "parent-companion" => Some("Parent companion"),
-        "ai-preview" => Some("AI preview"),
-        "domain-cache" => Some("Domain cache"),
-        "child" => Some("Child"),
-        "assistant-draft" => Some("Assistant draft"),
-        "parent-confirmation-required" => Some("Parent confirmation required"),
-        "parent-confirmed" => Some("Parent confirmed"),
-        "preview-only" => Some("Preview only"),
-        "pending-parent-review" => Some("Pending parent review"),
-        "approved" => Some("Approved"),
-        "denied" => Some("Denied"),
-        "modified" => Some("Modified"),
-        "replay-rejected" => Some("Replay rejected"),
-        "unavailable" => Some("Unavailable"),
-        "disabled" => Some("Off"),
-        "local-only" => Some("Local only"),
-        "local-adapter-unavailable" => Some("Local adapter not connected"),
-        _ => None,
-    }
+    POLICY_PREVIEW_READABLE_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == value)
+        .map(|(_, label)| *label)
 }
 
 pub(super) fn policy_preview_reviewed_by_value(

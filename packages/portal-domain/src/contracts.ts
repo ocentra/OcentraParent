@@ -1,20 +1,33 @@
-import { decodeDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { decodeDisplayText } from './display-text';
 import {
-  decodePortalClipboardText,
-  decodePortalDetailValue,
-  decodeTrackingStatusProofArtifact,
+  PortalAgentCommand,
+  type PortalAgentCommandName,
+  PortalAgentLanHouseholdActionDeviceKindField,
+  PortalAgentLanHouseholdActionKind,
+  PortalAgentLanHouseholdDeviceKindValues,
+  PortalAgentLanIntentKind,
+  PortalAgentLanParentAuthority,
+  PortalAgentPeerDefaults,
+  PortalAgentProtocolField,
+  PortalAgentTargetDefaults,
   PortalConnectionState,
-  type PortalDetailValue,
   PortalRoute,
   PortalRouteHashPrefix,
   PortalRouteHashQuerySeparator,
   PortalRouteLiteral,
   PortalRouteSchema,
-  type TrackingStatusProofArtifact,
 } from './portal-contract-adapter';
+import {
+  decodePortalClipboardText,
+  decodePortalDetailValue,
+  decodeTrackingStatusProofArtifact,
+  type PortalDetailValue,
+  type TrackingStatusProofArtifact,
+} from './portal-contract-text-contracts';
 import { PortalFormatting } from './formatting';
 import { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 import { PortalDiagnostics } from './diagnostics';
+import { GeneratedPortalTrackingContracts } from './generated/portal-contracts';
 import {
   createLocalAiRuntimePanelIntent,
   type LocalAiRuntimePanelCard,
@@ -436,6 +449,9 @@ const PortalTiming = {
   CopyFeedbackMs: 1200,
 } as const;
 
+const PortalTrackingRetentionSettingsWriteDefaults =
+  GeneratedPortalTrackingContracts.RetentionSettingsWrite.Defaults;
+
 const PortalEnvironment = {
   AgentWebSocketUrl: 'VITE_AGENT_WS_URL',
   ParentDevBridgeUrl: 'VITE_PARENT_DEV_BRIDGE_URL',
@@ -500,12 +516,22 @@ export {
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
+  PortalTrackingRetentionSettingsWriteDefaults,
   TrackingEvidenceDrawerHostedUiProofDetails,
   trackingEvidenceDrawerHostedUiProof,
   trackingRetentionSettingsHostedUiProof,
   PARENT_PORTAL_NAV_LABELS,
   parseActivityMemoryGraphReadModel,
   PortalClipboard,
+  PortalAgentCommand,
+  PortalAgentLanHouseholdActionDeviceKindField,
+  PortalAgentLanHouseholdActionKind,
+  PortalAgentLanHouseholdDeviceKindValues,
+  PortalAgentLanIntentKind,
+  PortalAgentLanParentAuthority,
+  PortalAgentPeerDefaults,
+  PortalAgentProtocolField,
+  PortalAgentTargetDefaults,
   PortalConnectionState,
   PortalDevToolWindow,
   PortalAiRuntimeRoutes,
@@ -608,6 +634,7 @@ export {
   type PortalActivityMemoryGraphNodeId,
   type PortalActivityMemoryGraphReadModel,
   type PortalDetailValue,
+  type PortalAgentCommandName,
   type PortalRouteHashPath,
   type PortalRouteHashQueryPath,
   type PortalRouteDescriptor,

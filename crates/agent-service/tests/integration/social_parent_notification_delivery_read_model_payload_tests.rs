@@ -1,13 +1,14 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::SocialParentNotificationDeliveryReadinessSnapshot;
 use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXTERNAL_RUNTIME_UNAVAILABLE;
 use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_MANUAL_UI_PROOF_REQUIRED;
 use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED;
 use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY;
 use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE;
-use serde::de::DeserializeOwned;
+use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_PARENT_REPORT_REF;
+use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_REPORT_ARTIFACT_REF;
+use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_REPORT_RECEIPT_REF;
 
 use super::social_parent_notification_delivery_read_model_payload::{
     request_social_parent_notification_delivery_read_model_from_service,
@@ -18,12 +19,15 @@ use super::social_parent_notification_delivery_read_model_payload::social_report
     request_social_report_writer_delivery_read_model_from_service,
     social_report_writer_delivery_read_model_from_service,
 };
+#[path = "../support/log_payload.rs"]
+mod log_payload;
+use log_payload::payload_json;
 
 #[test]
 fn social_parent_notification_delivery_payload_reports_honest_service_rows() {
     let read_model = social_parent_notification_delivery_read_model_from_service();
     let payload = social_parent_notification_delivery_read_model_payload(&read_model);
-    let decoded: SocialParentNotificationDeliveryReadinessSnapshot = string_payload(
+    let decoded: SocialParentNotificationDeliveryReadinessSnapshot = payload_json(
         &payload,
         constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL,
     );
@@ -44,9 +48,18 @@ fn social_parent_notification_delivery_payload_reports_honest_service_rows() {
         decoded.rows[2].notification_delivery_readiness_state,
         SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE
     );
-    assert!(decoded.rows[0].parent_report_ref.is_some());
-    assert!(decoded.rows[0].report_artifact_ref.is_some());
-    assert!(decoded.rows[0].report_receipt_ref.is_some());
+    assert_eq!(
+        decoded.rows[0].parent_report_ref.as_deref(),
+        Some(SOCIAL_REPORT_WRITER_DELIVERY_PARENT_REPORT_REF)
+    );
+    assert_eq!(
+        decoded.rows[0].report_artifact_ref.as_deref(),
+        Some(SOCIAL_REPORT_WRITER_DELIVERY_REPORT_ARTIFACT_REF)
+    );
+    assert_eq!(
+        decoded.rows[0].report_receipt_ref.as_deref(),
+        Some(SOCIAL_REPORT_WRITER_DELIVERY_REPORT_RECEIPT_REF)
+    );
     assert!(decoded.rows[1].parent_report_ref.is_none());
     assert_eq!(
         decoded.rows[1].manual_proof_requirements,
@@ -161,16 +174,4 @@ async fn social_report_writer_event_request_feeds_parent_notification_projection
         .rows
         .iter()
         .all(|row| !row.parent_notification_ui_delivered && !row.provider_delivery_attempted));
-}
-
-fn string_payload<T>(payload: &ocentra_parent_agent_protocol::logging::LogFields, field: &str) -> T
-where
-    T: DeserializeOwned,
-{
-    match &payload[field] {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::process::abort(),
-    }
 }

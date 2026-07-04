@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {

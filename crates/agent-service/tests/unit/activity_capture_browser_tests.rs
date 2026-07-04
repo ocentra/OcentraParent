@@ -1,9 +1,15 @@
+#[macro_use]
+#[path = "../support/unit_root_basic_harness.rs"]
+mod unit_root_basic_harness;
+declare_agent_service_unit_root_basic_harness!();
+
 use std::{
     fs::read,
     fs::remove_file,
     path::{Path, PathBuf},
 };
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeTargetObservation,
@@ -19,7 +25,7 @@ use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_service::test_support::record_activity_events_to_paths_for_test;
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestText>;
 
 #[test]
 fn record_browser_events_replays_appended_journal_lines_into_sqlite_read_model() -> TestResult {
@@ -83,17 +89,20 @@ fn assert_browser_row_is_journal_replayed(read_model: &BrowserEvidenceReadModel)
     );
 }
 
-fn browser_read_model_from_store(store_path: &Path) -> Result<BrowserEvidenceReadModel, String> {
-    let store = ActivityStore::open(store_path).map_err(|error| format!("{error:?}"))?;
+fn browser_read_model_from_store(
+    store_path: impl AsRef<Path>,
+) -> Result<BrowserEvidenceReadModel, TestText> {
+    let store = ActivityStore::open(store_path.as_ref())
+        .map_err(|error| TestText::from_display(format!("{error:?}")))?;
     store
         .browser_evidence_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
         )
-        .map_err(|error| format!("{error:?}"))
+        .map_err(|error| TestText::from_display(format!("{error:?}")))
 }
 
-fn browser_event() -> Result<ActivityEvent, String> {
+fn browser_event() -> Result<ActivityEvent, TestText> {
     browser_tab_observation_event(
         BrowserBridgeTargetObservation {
             browser_family: BrowserFamily::Edge,
@@ -117,7 +126,7 @@ fn browser_event() -> Result<ActivityEvent, String> {
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         0,
     )
-    .map_err(|error| format!("{error:?}"))
+    .map_err(|error| TestText::from_display(format!("{error:?}")))
 }
 
 struct BrowserCapturePaths {
@@ -127,32 +136,31 @@ struct BrowserCapturePaths {
 }
 
 fn browser_capture_paths() -> BrowserCapturePaths {
+    let build_path = |suffix: &str, extension: &str| {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(suffix);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
     BrowserCapturePaths {
-        journal_path: temp_path(
+        journal_path: build_path(
             constants::activity_store::TEST_CAPTURE_BROWSER_JOURNAL_SUFFIX,
             constants::journal::FILE_EXTENSION,
         ),
-        key_path: temp_path(
+        key_path: build_path(
             constants::activity_store::TEST_CAPTURE_BROWSER_KEY_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
-        store_path: temp_path(
+        store_path: build_path(
             constants::activity_store::TEST_CAPTURE_BROWSER_STORE_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
     }
-}
-
-fn temp_path(suffix: &str, extension: &str) -> PathBuf {
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
-
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path.set_extension(extension);
-    path
 }
 
 fn cleanup_paths(paths: &BrowserCapturePaths) {

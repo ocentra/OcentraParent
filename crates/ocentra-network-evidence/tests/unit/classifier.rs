@@ -1,11 +1,13 @@
-use crate::{
-    classify_social_video_game_activity, lookup_domain_category,
-    normalize_domain_with_public_suffix, BrowserClassifierConfirmation, CategorySourceCustody,
-    CdnClassifierHint, DomainCategoryDatabase, DomainCategoryRecord, DomainCategorySource,
-    NetworkActivityClassifierInput, NetworkCategory, NetworkClassifierBasis,
-    NetworkClassifierError, ProcessClassifierHint, PublicSuffixModel,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::category::{
+    lookup_domain_category, CategorySourceCustody, DomainCategoryDatabase, DomainCategoryRecord,
+    DomainCategorySource, NetworkCategory,
+};
+use ocentra_network_evidence::classifier::NetworkClassifierBasis;
+use ocentra_network_evidence::classifier::*;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::domain::{normalize_domain_with_public_suffix, PublicSuffixModel};
+use ocentra_network_evidence::process::*;
 
 #[test]
 fn classifier_uses_fresh_domain_category_for_video() {

@@ -1,13 +1,16 @@
 use crate::{
     constants,
     network_android_vpn_service_gate_status::{
-        NetworkAndroidVpnServiceGateCapabilityStatusState, NetworkAndroidVpnServiceGateStatus,
+        NetworkAndroidVpnServiceGateBoundaryReason,
+        NetworkAndroidVpnServiceGateCapabilityStatusState,
+        NetworkAndroidVpnServiceGateRequiredArtifact, NetworkAndroidVpnServiceGateStatus,
         NetworkAndroidVpnServiceGateStatusState,
     },
 };
 
 #[test]
-fn android_vpn_service_gate_status_serializes_to_camel_case_contract_shape() {
+fn android_vpn_service_gate_status_serializes_to_camel_case_contract_shape(
+) -> Result<(), serde_json::Error> {
     let status = NetworkAndroidVpnServiceGateStatus {
         status_ref: constants::network_flow::TEST_ANDROID_VPN_SERVICE_GATE_STATUS_REF.to_string(),
         android_vpn_service_gate_ref: constants::network_flow::TEST_ANDROID_VPN_SERVICE_GATE_REF
@@ -27,18 +30,16 @@ fn android_vpn_service_gate_status_serializes_to_camel_case_contract_shape() {
         capability_state: NetworkAndroidVpnServiceGateCapabilityStatusState::PhysicalDeviceReady,
         gate_state: NetworkAndroidVpnServiceGateStatusState::ManualRequired,
         boundary_reasons: vec![
-            constants::network_flow::ANDROID_VPN_BOUNDARY_POLICY_NOT_VPN_SERVICE_APPROVED
-                .to_string(),
+            NetworkAndroidVpnServiceGateBoundaryReason::PolicyNotVpnServiceApproved,
         ],
         missing_required_artifacts: vec![
-            constants::network_flow::ANDROID_VPN_ARTIFACT_DEVICE_OWNER_PROOF.to_string(),
+            NetworkAndroidVpnServiceGateRequiredArtifact::DeviceOwnerProof,
         ],
         device_owner_required: true,
         ..NetworkAndroidVpnServiceGateStatus::default()
     };
 
-    let serialized = serde_json::to_value(status)
-        .unwrap_or_else(|error| unreachable!("status serializes: {error}"));
+    let serialized = serde_json::to_value(status)?;
 
     assert_eq!(
         serialized["statusRef"],
@@ -56,4 +57,6 @@ fn android_vpn_service_gate_status_serializes_to_camel_case_contract_shape() {
     );
     assert_eq!(serialized["deviceOwnerRequired"], true);
     assert_eq!(serialized["liveVpnTunnelClaimed"], false);
+
+    Ok(())
 }

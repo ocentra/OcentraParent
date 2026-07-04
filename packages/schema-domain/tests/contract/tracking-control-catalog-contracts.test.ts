@@ -8,9 +8,7 @@ import {
   TrackingControlSourceOptionCount,
   buildTrackingControlEffectivePolicyPlan,
   decodeTrackingControlUpdateCommandForCatalog,
-  trackingControlCatalogCanRender,
-  trackingControlCatalogKnownSettingIds,
-  trackingControlCatalogSettingCount,
+  trackingControlCatalogSettings,
 } from '@ocentra-parent/schema-domain/tracking-control-catalog';
 
 describe('tracking control catalog contracts', () => {
@@ -23,7 +21,8 @@ function generatedSurfaceProof(): void {
     const catalogSource = readFileSync(new URL('../../src/tracking-control-catalog.ts', import.meta.url), 'utf8');
     const schemaSource = readFileSync(new URL('../../src/tracking-control-catalog-schema.ts', import.meta.url), 'utf8');
     const metadataSource = readFileSync(new URL('../../src/tracking-control-catalog-metadata.ts', import.meta.url), 'utf8');
-    const knownSettingIds = trackingControlCatalogKnownSettingIds();
+    const catalogSettings = trackingControlCatalogSettings(BaselineTrackingControlCatalog);
+    const knownSettingIds = new Set(catalogSettings.map((setting) => String(setting.settingId)));
     const capabilitySettingsOutsideCatalog = TrackingControlCapabilities.flatMap((capability) =>
       capability.affectsSettings
         .filter((settingId) => !knownSettingIds.has(String(settingId)))
@@ -41,12 +40,27 @@ function generatedSurfaceProof(): void {
     ).toBe(true);
     expect(catalogSource).not.toContain("./tracking-control-catalog-data");
     expect(catalogSource).not.toContain("./tracking-control-catalog-metadata");
-    expect(trackingControlCatalogSettingCount()).toBe(BaselineTrackingControlCatalog.settingCount);
+    expect(catalogSettings.length).toBe(BaselineTrackingControlCatalog.settingCount);
     expect(TrackingControlProposalSettingCount + TrackingControlGuideSettingCount).toBe(
-      trackingControlCatalogSettingCount()
+      BaselineTrackingControlCatalog.settingCount
     );
     expect(TrackingControlSourceOptionCount).toBeGreaterThan(0);
-    expect(trackingControlCatalogCanRender()).toBe(true);
+    expect(BaselineTrackingControlCatalog.sidePanelCategory).toBe('tracking');
+    expect(BaselineTrackingControlCatalog.tabs.length).toBeGreaterThan(0);
+    expect(
+      catalogSettings.every(
+        (setting) =>
+          setting.policyLane.length > 0 &&
+          setting.controlKind.length > 0 &&
+          setting.cardKind.length > 0 &&
+          setting.layoutHints.preferredColumnSpan > 0 &&
+          setting.targetScopeOptions.length > 0 &&
+          setting.effectModeOptions.length > 0 &&
+          setting.visibilityConditions.length > 0 &&
+          setting.enabledConditions.length > 0 &&
+          setting.validationRules.length > 0
+      )
+    ).toBe(true);
     expect(capabilitySettingsOutsideCatalog).toEqual([
       'android-precise-location:reports.showExactCoordinateRequiresReveal',
       'parent-owned-storage-sync:custody.allowedUses',

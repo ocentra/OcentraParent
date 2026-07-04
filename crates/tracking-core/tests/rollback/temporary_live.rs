@@ -12,11 +12,8 @@ use ocentra_tracking_core::temporary_live::{
 
 fn child_device_id() -> TrackingChildDeviceId {
     TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        .unwrap_or_else(|_| {
-            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        })
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
 }
-
 #[test]
 fn temporary_live_tracking_auto_stops_without_authority_or_disclosure() {
     let decision = evaluate_temporary_live_tracking_session(TrackingTemporaryLiveSessionInput {
@@ -32,10 +29,7 @@ fn temporary_live_tracking_auto_stops_without_authority_or_disclosure() {
         TrackingTemporaryLiveState::parse(
             constants::tracking_runtime::TEMPORARY_LIVE_STATE_AUTO_STOPPED,
         )
-        .unwrap_or_else(|_| unreachable!(
-            "{}",
-            constants::tracking_runtime::TEMPORARY_LIVE_STATE_AUTO_STOPPED
-        ))
+        .expect(constants::tracking_runtime::TEMPORARY_LIVE_STATE_AUTO_STOPPED)
     );
     assert_eq!(
         decision.high_cadence_state,
@@ -46,7 +40,6 @@ fn temporary_live_tracking_auto_stops_without_authority_or_disclosure() {
         tracking_temporary_live_session_id_from_child_device_id(&child_device_id())
     );
 }
-
 #[test]
 fn temporary_live_tracking_expires_at_duration_boundary() {
     let decision = evaluate_temporary_live_tracking_session(TrackingTemporaryLiveSessionInput {
@@ -62,10 +55,7 @@ fn temporary_live_tracking_expires_at_duration_boundary() {
         TrackingTemporaryLiveState::parse(
             constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED
         )
-        .unwrap_or_else(|_| unreachable!(
-            "{}",
-            constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED
-        ))
+        .expect(constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED)
     );
     assert_eq!(
         decision.high_cadence_state,

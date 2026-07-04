@@ -1,11 +1,8 @@
-use crate::{
-    build_network_cross_slice_evidence_bundle, plan_network_local_ai_queue,
-    NetworkCascadeSignalStrength, NetworkCascadeSourceKind, NetworkCrossSliceEvidenceBundle,
-    NetworkCrossSliceEvidenceBundleInput, NetworkCrossSliceEvidenceSource, NetworkEvidenceGrade,
-    NetworkLocalAiQueueError, NetworkLocalAiQueueInput, NetworkLocalAiQueueInputKind,
-    NetworkLocalAiQueueStatus,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::bundle::*;
+use ocentra_network_evidence::cascade::*;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::local_ai_queue::*;
 
 #[test]
 fn local_ai_queue_enqueues_weak_network_bundle_with_refs_only() {

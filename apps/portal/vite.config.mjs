@@ -7,7 +7,7 @@ import react from '@vitejs/plugin-react';
 import {
   GeneratedDevLogField as DevLogField,
   GeneratedDevLogMessage as DevLogMessage,
-} from '@ocentra-parent/schema-domain/generated/logging-contracts';
+} from '@ocentra-parent/logging-domain/generated/logging-contracts';
 
 import { setupDevLogMiddleware, writeDevServerLog } from '../../scripts/dev/dev-log-writer.mjs';
 
@@ -50,32 +50,51 @@ function setupBackgroundConfigMiddleware(middlewares) {
 async function handleJsonFileRequest(request, response, readPath, writePaths, defaultReadPath) {
   try {
     if (request.method === 'GET') {
-      const json = await readFile(readPath, 'utf8').catch(() =>
-        defaultReadPath === undefined ? '{}' : readFile(defaultReadPath, 'utf8').catch(() => '{}')
-      );
-      response.setHeader('Content-Type', 'application/json');
-      response.end(json);
+      await handleJsonGetRequest(response, readPath, defaultReadPath);
       return;
     }
     if (request.method === 'PUT') {
-      const body = await readRequestBody(request);
-      JSON.parse(body);
-      await Promise.all(
-        writePaths.map(async (filePath) => {
-          await mkdir(dirname(filePath), { recursive: true });
-          await writeFile(filePath, `${body}\n`, 'utf8');
-        })
-      );
-      response.setHeader('Content-Type', 'application/json');
-      response.end(JSON.stringify({ ok: true }));
+      await handleJsonPutRequest(request, response, writePaths);
       return;
     }
-    response.statusCode = 405;
-    response.end();
+    handleJsonMethodNotAllowed(response);
   } catch {
-    response.statusCode = 400;
-    response.end();
+    handleJsonBadRequest(response);
   }
+}
+
+async function handleJsonGetRequest(response, readPath, defaultReadPath) {
+  const json = await readFile(readPath, 'utf8').catch(async () => {
+    if (defaultReadPath === undefined) {
+      return '{}';
+    }
+    return readFile(defaultReadPath, 'utf8').catch(() => '{}');
+  });
+  response.setHeader('Content-Type', 'application/json');
+  response.end(json);
+}
+
+async function handleJsonPutRequest(request, response, writePaths) {
+  const body = await readRequestBody(request);
+  JSON.parse(body);
+  await Promise.all(
+    writePaths.map(async (filePath) => {
+      await mkdir(dirname(filePath), { recursive: true });
+      await writeFile(filePath, `${body}\n`, 'utf8');
+    })
+  );
+  response.setHeader('Content-Type', 'application/json');
+  response.end(JSON.stringify({ ok: true }));
+}
+
+function handleJsonMethodNotAllowed(response) {
+  response.statusCode = 405;
+  response.end();
+}
+
+function handleJsonBadRequest(response) {
+  response.statusCode = 400;
+  response.end();
 }
 
 export default defineConfig({
@@ -91,7 +110,7 @@ export default defineConfig({
         '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-common.ts'
       ),
       '@ocentra-parent/vendor-schema/effect-builder': vendorModule(
-        '../../vendor/ocentra-parent-core-ui/schema-domain/effect-builder.ts'
+        '../../vendor/ocentra-parent-core-ui/shims/effect-builder.ts'
       ),
       '@ocentra-parent/portal-content-schema': vendorModule(
         '../../vendor/ocentra-parent-core-ui/parent-portal-content-domain/schemas/parent-portal-page-content-schema.ts'

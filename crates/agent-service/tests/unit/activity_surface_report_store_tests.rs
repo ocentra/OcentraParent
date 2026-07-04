@@ -1,3 +1,8 @@
+#[macro_use]
+#[path = "../support/unit_root_basic_harness.rs"]
+mod unit_root_basic_harness;
+declare_agent_service_unit_root_basic_harness!();
+
 use std::{
     fs::{remove_dir_all, remove_file, write},
     path::PathBuf,
@@ -25,11 +30,11 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
     let report_dir = TempReportDir::new();
     let family_saved = save_activity_report_document_to_dir_for_test(
         report(family_scope(), family_source_states()),
-        &report_dir.path(),
+        report_dir.path(),
     );
     let device_saved = save_activity_report_document_to_dir_for_test(
         report(device_scope(), device_source_states()),
-        &report_dir.path(),
+        report_dir.path(),
     );
 
     let family_metadata = family_saved
@@ -133,7 +138,7 @@ fn activity_report_history_marks_partial_parse_failures_as_degraded() {
     let report_dir = TempReportDir::new();
     save_activity_report_document_to_dir_for_test(
         report(family_scope(), family_source_states()),
-        &report_dir.path(),
+        report_dir.path(),
     );
     let mut rejected = report_dir.path();
     rejected.push(constants::activity_surface::REPORT_ID_FALLBACK);
@@ -326,10 +331,10 @@ fn device_source_states() -> Vec<ActivityReportSourceState> {
 }
 
 fn source_record(
-    source_device_ref: &str,
+    source_device_ref: impl std::fmt::Display,
     reachability_state: ActivityReportSourceReachabilityState,
     state: ActivityReadModelState,
-    reason: &str,
+    reason: impl std::fmt::Display,
 ) -> ActivityReportSourceState {
     ActivityReportSourceState {
         device_id: source_device_ref.to_string(),
@@ -368,8 +373,8 @@ impl TempReportDir {
         Self { path }
     }
 
-    fn path(&self) -> PathBuf {
-        self.path.clone()
+    fn path(&self) -> &std::path::Path {
+        self.path.as_path()
     }
 }
 

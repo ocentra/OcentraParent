@@ -1,12 +1,10 @@
-use crate::{
-    build_network_cross_slice_evidence_bundle, plan_network_screen_summary_trigger,
-    NetworkCascadeNextCheck, NetworkCascadeSignalStrength, NetworkCascadeSourceKind,
-    NetworkCrossSliceEvidenceBundle, NetworkCrossSliceEvidenceBundleInput,
-    NetworkCrossSliceEvidenceSource, NetworkEvidenceGrade, NetworkScreenSummaryPrivacyMode,
-    NetworkScreenSummaryTriggerError, NetworkScreenSummaryTriggerInput,
-    NetworkScreenSummaryTriggerPlan, NetworkScreenSummaryTriggerStatus,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::bundle::*;
+use ocentra_network_evidence::cascade::{
+    NetworkCascadeNextCheck, NetworkCascadeSignalStrength, NetworkCascadeSourceKind,
+};
+use ocentra_network_evidence::dns::types::NetworkEvidenceGrade;
+use ocentra_network_evidence::screen_summary::*;
 
 #[test]
 fn screen_summary_trigger_queues_when_recommended_enabled_and_custody_ready() {

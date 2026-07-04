@@ -29,66 +29,20 @@ export const EventingSchemaVersionSchema = EventingSchemaVersionNumberSchema.pip
   Schema.brand('EventingSchemaVersion')
 );
 
-export const EventingEventPriorityLiteral = {
-  Low: 'low',
-  Normal: 'normal',
-  High: 'high',
-  Critical: 'critical',
-} as const;
-
-export const EventingTopologyStatusLiteral = {
-  Covered: 'covered',
-  NoPublisher: 'no-publisher',
-  NoSubscriber: 'no-subscriber',
-  AcceptedOneSided: 'accepted-one-sided',
-} as const;
-
-export const EventingDeliveryRouteKindLiteral = {
-  LocalInProcess: 'local-in-process',
-  LocalService: 'local-service',
-  ExternalTransport: 'external-transport',
-  ExternalRelay: 'external-relay',
-} as const;
-
-export const EventingRequestCompletionOutcomeLiteral = {
-  Completed: 'completed',
-  Duplicate: 'duplicate',
-  Late: 'late',
-} as const;
-
 export const EventingEventPrioritySchema = withParser(
-  Schema.Literal(
-    EventingEventPriorityLiteral.Low,
-    EventingEventPriorityLiteral.Normal,
-    EventingEventPriorityLiteral.High,
-    EventingEventPriorityLiteral.Critical
-  )
+  Schema.Literal('low', 'normal', 'high', 'critical')
 );
 
 export const EventingTopologyStatusSchema = withParser(
-  Schema.Literal(
-    EventingTopologyStatusLiteral.Covered,
-    EventingTopologyStatusLiteral.NoPublisher,
-    EventingTopologyStatusLiteral.NoSubscriber,
-    EventingTopologyStatusLiteral.AcceptedOneSided
-  )
+  Schema.Literal('covered', 'no-publisher', 'no-subscriber', 'accepted-one-sided')
 );
 
 export const EventingDeliveryRouteKindSchema = withParser(
-  Schema.Literal(
-    EventingDeliveryRouteKindLiteral.LocalInProcess,
-    EventingDeliveryRouteKindLiteral.LocalService,
-    EventingDeliveryRouteKindLiteral.ExternalTransport,
-    EventingDeliveryRouteKindLiteral.ExternalRelay
-  )
+  Schema.Literal('local-in-process', 'local-service', 'external-transport', 'external-relay')
 );
 
 export const EventingRequestCompletionOutcomeSchema = withParser(
-  Schema.Literal(
-    EventingRequestCompletionOutcomeLiteral.Completed,
-    EventingRequestCompletionOutcomeLiteral.Duplicate,
-    EventingRequestCompletionOutcomeLiteral.Late
-  )
+  Schema.Literal('completed', 'duplicate', 'late')
 );
 
 export const EventingEventContractSchema = withParser(
@@ -193,33 +147,6 @@ export type EventingTopologySubscriberTarget = Infer<typeof EventingTopologySubs
 export type EventingTopologyEntry = Infer<typeof EventingTopologyEntrySchema>;
 export type EventingTopologyManifest = Infer<typeof EventingTopologyManifestSchema>;
 export type EventingRequestCompletionReport = Infer<typeof EventingRequestCompletionReportSchema>;
-
-export const EventingEventPriority = {
-  Low: EventingEventPrioritySchema.parse(EventingEventPriorityLiteral.Low),
-  Normal: EventingEventPrioritySchema.parse(EventingEventPriorityLiteral.Normal),
-  High: EventingEventPrioritySchema.parse(EventingEventPriorityLiteral.High),
-  Critical: EventingEventPrioritySchema.parse(EventingEventPriorityLiteral.Critical),
-} as const;
-
-export const EventingTopologyStatus = {
-  Covered: EventingTopologyStatusSchema.parse(EventingTopologyStatusLiteral.Covered),
-  NoPublisher: EventingTopologyStatusSchema.parse(EventingTopologyStatusLiteral.NoPublisher),
-  NoSubscriber: EventingTopologyStatusSchema.parse(EventingTopologyStatusLiteral.NoSubscriber),
-  AcceptedOneSided: EventingTopologyStatusSchema.parse(EventingTopologyStatusLiteral.AcceptedOneSided),
-} as const;
-
-export const EventingDeliveryRouteKind = {
-  LocalInProcess: EventingDeliveryRouteKindSchema.parse(EventingDeliveryRouteKindLiteral.LocalInProcess),
-  LocalService: EventingDeliveryRouteKindSchema.parse(EventingDeliveryRouteKindLiteral.LocalService),
-  ExternalTransport: EventingDeliveryRouteKindSchema.parse(EventingDeliveryRouteKindLiteral.ExternalTransport),
-  ExternalRelay: EventingDeliveryRouteKindSchema.parse(EventingDeliveryRouteKindLiteral.ExternalRelay),
-} as const;
-
-export const EventingRequestCompletionOutcome = {
-  Completed: EventingRequestCompletionOutcomeSchema.parse(EventingRequestCompletionOutcomeLiteral.Completed),
-  Duplicate: EventingRequestCompletionOutcomeSchema.parse(EventingRequestCompletionOutcomeLiteral.Duplicate),
-  Late: EventingRequestCompletionOutcomeSchema.parse(EventingRequestCompletionOutcomeLiteral.Late),
-} as const;
 
 function isEventingTaxonomyText(value: string): boolean {
   let previousWasSeparator = false;

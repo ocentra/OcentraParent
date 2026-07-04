@@ -1,6 +1,6 @@
 use super::*;
 
-fn tiktok_shape(parsed: &ParsedBrowserUrl) -> ParsedUrlShape {
+pub(super) fn tiktok_shape(parsed: &ParsedBrowserUrl) -> ParsedUrlShape {
     let segments = path_segments(parsed);
     if matches!(segments.first().map(String::as_str), Some("upload")) {
         return social_route_shape(
@@ -40,7 +40,7 @@ fn tiktok_shape(parsed: &ParsedBrowserUrl) -> ParsedUrlShape {
     )
 }
 
-fn instagram_shape(parsed: &ParsedBrowserUrl) -> ParsedUrlShape {
+pub(super) fn instagram_shape(parsed: &ParsedBrowserUrl) -> ParsedUrlShape {
     let segments = path_segments(parsed);
     instagram_feed_shape(&segments)
         .or_else(|| instagram_create_shape(&segments))
@@ -144,5 +144,3 @@ fn instagram_dynamic_feed_shape() -> ParsedUrlShape {
         vec!["parsed-url", "dynamic-feed", "parsed-social-route"],
     )
 }
-
-

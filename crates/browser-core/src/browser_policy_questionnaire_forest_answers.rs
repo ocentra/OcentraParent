@@ -1,17 +1,17 @@
 use super::*;
 
-fn selected<'a>(answers: &'a BrowserPolicyAnswerMap, question_id: &str) -> &'a [String] {
+pub(super) fn selected<'a>(answers: &'a BrowserPolicyAnswerMap, question_id: &str) -> &'a [String] {
     answers.get(question_id).map(Vec::as_slice).unwrap_or(&[])
 }
 
-fn browser_policy_root_answer(answers: &BrowserPolicyAnswerMap) -> &str {
+pub(super) fn browser_policy_root_answer(answers: &BrowserPolicyAnswerMap) -> &str {
     selected(answers, "1.1")
         .first()
         .map(String::as_str)
         .unwrap_or("off")
 }
 
-fn browser_policy_has(
+pub(super) fn browser_policy_has(
     answers: &BrowserPolicyAnswerMap,
     question_id: &str,
     option_id: &str,
@@ -21,7 +21,7 @@ fn browser_policy_has(
         .any(|value| value == option_id)
 }
 
-fn browser_policy_has_any(
+pub(super) fn browser_policy_has_any(
     answers: &BrowserPolicyAnswerMap,
     question_id: &str,
     option_ids: &[&str],
@@ -31,19 +31,22 @@ fn browser_policy_has_any(
         .any(|option_id| browser_policy_has(answers, question_id, option_id))
 }
 
-fn browser_policy_count(answers: &BrowserPolicyAnswerMap, question_id: &str) -> usize {
+pub(super) fn browser_policy_count(answers: &BrowserPolicyAnswerMap, question_id: &str) -> usize {
     selected(answers, question_id).len()
 }
 
-fn browser_policy_emergency_override_active(answers: &BrowserPolicyAnswerMap) -> bool {
+pub(super) fn browser_policy_emergency_override_active(answers: &BrowserPolicyAnswerMap) -> bool {
     browser_policy_has_any_root(answers, &["emergency-allow", "emergency-block"])
 }
 
-fn browser_policy_has_any_root(answers: &BrowserPolicyAnswerMap, root_values: &[&str]) -> bool {
+pub(super) fn browser_policy_has_any_root(
+    answers: &BrowserPolicyAnswerMap,
+    root_values: &[&str],
+) -> bool {
     root_values.contains(&browser_policy_root_answer(answers))
 }
 
-fn browser_policy_ask_parent_exists(answers: &BrowserPolicyAnswerMap) -> bool {
+pub(super) fn browser_policy_ask_parent_exists(answers: &BrowserPolicyAnswerMap) -> bool {
     browser_policy_has_any_ask_parent_trigger(answers)
         || browser_policy_has_any(answers, "10.2", &["allow-once", "custom-window"])
         || browser_policy_has(answers, "11.2", "extension")
@@ -64,18 +67,18 @@ fn browser_policy_has_any_ask_parent_trigger(answers: &BrowserPolicyAnswerMap) -
         || browser_policy_has_any(answers, "15.2", &["parent-review"])
 }
 
-fn browser_policy_exact_evidence_selected(answers: &BrowserPolicyAnswerMap) -> bool {
+pub(super) fn browser_policy_exact_evidence_selected(answers: &BrowserPolicyAnswerMap) -> bool {
     browser_policy_has_any(answers, "5.1", &["exact-url", "search-terms"])
         || browser_policy_has_any(answers, "13.1", &["exact-url", "search-term"])
         || browser_policy_has(answers, "3.1", "managed-exact")
 }
 
-fn browser_policy_managed_browser_required(answers: &BrowserPolicyAnswerMap) -> bool {
+pub(super) fn browser_policy_managed_browser_required(answers: &BrowserPolicyAnswerMap) -> bool {
     browser_policy_has_any(answers, "3.1", &["managed-exact", "managed-all"])
         || browser_policy_has(answers, "6.1", "require-managed")
 }
 
-fn browser_policy_setup_relevant(answers: &BrowserPolicyAnswerMap) -> bool {
+pub(super) fn browser_policy_setup_relevant(answers: &BrowserPolicyAnswerMap) -> bool {
     browser_policy_has_any(
         answers,
         "3.1",
@@ -84,5 +87,3 @@ fn browser_policy_setup_relevant(answers: &BrowserPolicyAnswerMap) -> bool {
         || browser_policy_has_any(answers, "2.3", &["parent-review", "block-until-approved"])
         || browser_policy_computed_flag("unsupportedCapabilityRelevant", answers)
 }
-
-

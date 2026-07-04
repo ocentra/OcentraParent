@@ -4,7 +4,7 @@ import {
   type GeneratedParentPortalServiceConnectionState,
   type GeneratedParentPortalServiceDegradationReasonCode,
   type GeneratedParentPortalServiceReachability,
-} from './generated/portal-route-state';
+} from './portal-route-state.generated';
 import PARENT_PORTAL_SERVICE_STATE from './parent-portal-service-state-constants';
 import type { PortalRouteEventRecord } from './portal-contract-adapter';
 
@@ -52,6 +52,15 @@ export type ParentPortalServiceState = {
   readonly userEntry: ParentPortalRow | null;
 };
 
+const SERVICE_DEGRADATION_REASON_TEXT: Readonly<
+  Record<GeneratedParentPortalServiceDegradationReasonCode, string>
+> = {
+  'missing-snapshot-rows': 'Connected to the local service, but no Rust-owned route rows were supplied.',
+  connecting: 'The local service bridge is still connecting.',
+  'stale-snapshot-rows': 'Stale route rows remain visible while the service is not connected.',
+  'service-unavailable': 'The local service bridge is unavailable.',
+};
+
 export function resolveParentPortalServiceState(input: ParentPortalServiceStateInput): ParentPortalServiceState {
   const parentPortalRows = input.snapshotRows === null || input.snapshotRows === undefined ? [] : [...input.snapshotRows];
   const { serviceReachability, serviceDegradationReasonCode } = generatedResolveParentPortalServiceReachability(
@@ -64,22 +73,8 @@ export function resolveParentPortalServiceState(input: ParentPortalServiceStateI
     content: SERVICE_BACKED_CONTENT,
     parentPortalRows,
     serviceReachability,
-    serviceDegradationReason: serviceDegradationReasonCode === null ? null : serviceDegradationReasonText(serviceDegradationReasonCode),
+    serviceDegradationReason:
+      serviceDegradationReasonCode === null ? null : SERVICE_DEGRADATION_REASON_TEXT[serviceDegradationReasonCode],
     userEntry: parentPortalRows[0] ?? null,
   };
-}
-
-function serviceDegradationReasonText(
-  reasonCode: GeneratedParentPortalServiceDegradationReasonCode
-): string {
-  switch (reasonCode) {
-    case 'missing-snapshot-rows':
-      return 'Connected to the local service, but no Rust-owned route rows were supplied.';
-    case 'connecting':
-      return 'The local service bridge is still connecting.';
-    case 'stale-snapshot-rows':
-      return 'Stale route rows remain visible while the service is not connected.';
-    case 'service-unavailable':
-      return 'The local service bridge is unavailable.';
-  }
 }

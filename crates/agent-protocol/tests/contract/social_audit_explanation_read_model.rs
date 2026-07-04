@@ -28,48 +28,12 @@ fn social_audit_explanation_snapshot_serializes_without_runtime_claims() {
         child_profile_id: SOCIAL_AUDIT_EXPLANATION_CHILD_PROFILE_ID.to_string(),
         captured_at: constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT
             .to_string(),
-        entries: vec![SocialAuditExplanationEntry {
-            event_id: SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE.to_string(),
-            subject_kind: SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE.to_string(),
-            status: SOCIAL_AUDIT_EXPLANATION_STATUS_READY_FOR_PARENT.to_string(),
-            decision_state: SOCIAL_AUDIT_EXPLANATION_DECISION_CANDIDATE_ONLY.to_string(),
-            audience: SOCIAL_AUDIT_EXPLANATION_AUDIENCE_PARENT.to_string(),
-            policy_version_ref: Some(SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION.to_string()),
-            action_candidate: SOCIAL_AUDIT_EXPLANATION_ACTION_WARN.to_string(),
-            policy_reason_codes: vec![
-                SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_SOCIAL_RISK_HIGH.to_string()
-            ],
-            explanation_reasons: vec![SOCIAL_AUDIT_EXPLANATION_REASON_EVIDENCE_LINKED.to_string()],
-            evidence_links: vec![
-                evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_ROUTE_EVIDENCE),
-                evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE),
-            ],
-            audit_refs: vec![
-                constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string(),
-            ],
-            parent_approval_request_ref: None,
-            parent_approval_decision_ref: None,
-            decision_memory_ref: None,
-            connector_boundary_ref: None,
-            native_capability_ref: None,
-            manual_required_ref: None,
-            runtime_audit_store_claimed: false,
-            rendered_explanation_ui_claimed: false,
-            notification_delivered_claimed: false,
-            raw_account_data_included: false,
-            raw_video_content_included: false,
-            raw_message_content_included: false,
-            connector_authorization_claimed: false,
-            native_app_control_claimed: false,
-            final_policy_decision_claimed: false,
-            enforcement_claimed: false,
-        }],
+        entries: vec![social_audit_explanation_entry()],
         claim_boundaries: not_claimed_boundaries(),
     };
 
-    let serialized = serde_json::to_value(snapshot).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(snapshot).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["schemaVersion"],
@@ -86,13 +50,6 @@ fn social_audit_explanation_snapshot_serializes_without_runtime_claims() {
     assert_eq!(serialized["entries"][0]["runtimeAuditStoreClaimed"], false);
 }
 
-fn evidence_link(kind: &str) -> SocialAuditExplanationEvidenceLink {
-    SocialAuditExplanationEvidenceLink {
-        evidence_kind: kind.to_string(),
-        evidence_ref: format!("parent-evidence-{kind}"),
-    }
-}
-
 fn not_claimed_boundaries() -> SocialAuditExplanationClaimBoundaries {
     SocialAuditExplanationClaimBoundaries {
         runtime_audit_store: SOCIAL_AUDIT_EXPLANATION_CLAIM_NOT_CLAIMED.to_string(),
@@ -104,4 +61,59 @@ fn not_claimed_boundaries() -> SocialAuditExplanationClaimBoundaries {
         final_policy_decision: SOCIAL_AUDIT_EXPLANATION_CLAIM_NOT_CLAIMED.to_string(),
         enforcement: SOCIAL_AUDIT_EXPLANATION_CLAIM_NOT_CLAIMED.to_string(),
     }
+}
+
+fn social_audit_explanation_entry() -> SocialAuditExplanationEntry {
+    SocialAuditExplanationEntry {
+        event_id: SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE.to_string(),
+        subject_kind: SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_GATE.to_string(),
+        status: SOCIAL_AUDIT_EXPLANATION_STATUS_READY_FOR_PARENT.to_string(),
+        decision_state: SOCIAL_AUDIT_EXPLANATION_DECISION_CANDIDATE_ONLY.to_string(),
+        audience: SOCIAL_AUDIT_EXPLANATION_AUDIENCE_PARENT.to_string(),
+        policy_version_ref: Some(SOCIAL_AUDIT_EXPLANATION_POLICY_VERSION.to_string()),
+        action_candidate: SOCIAL_AUDIT_EXPLANATION_ACTION_WARN.to_string(),
+        policy_reason_codes: vec![
+            SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_SOCIAL_RISK_HIGH.to_string()
+        ],
+        explanation_reasons: vec![SOCIAL_AUDIT_EXPLANATION_REASON_EVIDENCE_LINKED.to_string()],
+        evidence_links: social_audit_explanation_evidence_links(),
+        audit_refs: vec![
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string(),
+        ],
+        parent_approval_request_ref: None,
+        parent_approval_decision_ref: None,
+        decision_memory_ref: None,
+        connector_boundary_ref: None,
+        native_capability_ref: None,
+        manual_required_ref: None,
+        runtime_audit_store_claimed: false,
+        rendered_explanation_ui_claimed: false,
+        notification_delivered_claimed: false,
+        raw_account_data_included: false,
+        raw_video_content_included: false,
+        raw_message_content_included: false,
+        connector_authorization_claimed: false,
+        native_app_control_claimed: false,
+        final_policy_decision_claimed: false,
+        enforcement_claimed: false,
+    }
+}
+
+fn social_audit_explanation_evidence_links() -> Vec<SocialAuditExplanationEvidenceLink> {
+    vec![
+        SocialAuditExplanationEvidenceLink {
+            evidence_kind: SOCIAL_AUDIT_EXPLANATION_EVIDENCE_ROUTE_EVIDENCE.to_string(),
+            evidence_ref: format!(
+                "parent-evidence-{}",
+                SOCIAL_AUDIT_EXPLANATION_EVIDENCE_ROUTE_EVIDENCE
+            ),
+        },
+        SocialAuditExplanationEvidenceLink {
+            evidence_kind: SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE.to_string(),
+            evidence_ref: format!(
+                "parent-evidence-{}",
+                SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE
+            ),
+        },
+    ]
 }

@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { FileKey, NdjsonSummaryContent, TestName } from '@ocentra-parent/schema-domain/test-log/ndjsonBrands';
+import type { FileKey, NdjsonSummaryContent, TestName } from './ndjsonBrands';
 import { ensureDirectory, getDefaultLogRoot, sanitizeTestNameForNdjson } from './ndjsonPaths';
 import { refreshLogsTree, type LogsTreeScope } from './logsTree';
-import { getGeneratedRunDirPath } from '../generated/local-test-log';
+import { getGeneratedRunDirPath } from '../local-test-log';
 
 function hasErrorCode(error: unknown, code: string): boolean {
   return typeof error === 'object' && error !== null && 'code' in error && (error as { code?: unknown }).code === code;

@@ -12,6 +12,7 @@ use ocentra_parent_agent_protocol::transport::{
     AgentPeerRole, AgentRoute,
 };
 
+use crate::test_text::TestText;
 use crate::{
     local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_chat_generation_request::LocalAiChatGenerationRequest,
@@ -122,7 +123,7 @@ async fn local_ai_chat_generation_report_links_request_and_payload_helpers() {
     );
 }
 
-fn write_temp_file(prefix: &str) -> PathBuf {
+fn write_temp_file(prefix: TestText) -> PathBuf {
     let path = unique_temp_path(prefix);
     require_ok(
         fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT),
@@ -131,8 +132,9 @@ fn write_temp_file(prefix: &str) -> PathBuf {
     path
 }
 
-fn unique_temp_path(prefix: &str) -> PathBuf {
-    let mut name = prefix.to_string();
+fn unique_temp_path(prefix: TestText) -> PathBuf {
+    let prefix = prefix;
+    let mut name = prefix.as_ref().to_string();
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

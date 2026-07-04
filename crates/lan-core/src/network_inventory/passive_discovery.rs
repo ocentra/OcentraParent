@@ -1,5 +1,4 @@
 use std::collections::VecDeque;
-use std::ops::Deref;
 
 use serde::{Deserialize, Serialize};
 
@@ -11,6 +10,7 @@ pub mod packet;
 pub mod raw_socket;
 pub mod snmp;
 pub mod ssdp;
+mod state;
 pub mod summaries;
 pub mod text;
 pub mod udp_multicast;
@@ -48,10 +48,8 @@ macro_rules! passive_discovery_text_id {
             }
         }
 
-        impl Deref for $name {
-            type Target = str;
-
-            fn deref(&self) -> &Self::Target {
+        impl AsRef<str> for $name {
+            fn as_ref(&self) -> &str {
                 self.as_str()
             }
         }
@@ -229,7 +227,7 @@ pub enum LanPassiveDiscoveryLocalNeighborSource {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) enum LanPassiveDiscoveryLocalNeighborCollectionOutcome {
+pub enum LanPassiveDiscoveryLocalNeighborCollectionOutcome {
     Captured {
         source: LanPassiveDiscoveryLocalNeighborSource,
         source_label: &'static str,
@@ -280,188 +278,39 @@ pub struct LanPassiveDiscoveryListenerState {
     rows: VecDeque<LanPassiveDiscoveryEventRow>,
 }
 
-struct PassiveDiscoveryEventInput<'a> {
-    event_kind: LanPassiveDiscoveryEventKind,
-    source: Option<LanPassiveDiscoverySource>,
-    trigger_reason: LanPassiveDiscoveryTriggerReason,
-    observed_at: &'a str,
-    device_id: Option<&'a str>,
-    scan_session_id: Option<&'a str>,
-    summary: String,
+pub fn collect_raw_socket_protocol_passive_updates(
+    state: &mut LanPassiveDiscoveryListenerState,
+    protocol: LanPassiveDiscoveryRawSocketProtocol,
+    read_timeout: std::time::Duration,
+) -> LanPassiveDiscoveryRawSocketCaptureOutcome {
+    raw_socket::collect_raw_socket_protocol_passive_updates(state, protocol, read_timeout)
 }
 
-impl LanPassiveDiscoveryListenerState {
-    pub const SCHEMA_VERSION: u16 = 1;
-    pub const DEFAULT_MAX_ROWS: usize = 128;
+pub fn collect_udp_multicast_passive_packets(
+    state: &mut LanPassiveDiscoveryListenerState,
+    source: LanPassiveDiscoverySource,
+    max_datagram_count: usize,
+    read_timeout: std::time::Duration,
+) -> LanPassiveDiscoveryUdpMulticastCaptureOutcome {
+    udp_multicast::collect_udp_multicast_passive_packets(
+        state,
+        source,
+        max_datagram_count,
+        read_timeout,
+    )
+}
 
-    pub fn running(generated_at: String) -> Self {
-        Self::with_capacity(generated_at, Self::DEFAULT_MAX_ROWS)
-    }
+pub fn ingest_allowed_snmp_response_packet(
+    state: &mut LanPassiveDiscoveryListenerState,
+    payload: &[u8],
+) -> LanPassiveDiscoveryPacketIngestOutcome {
+    udp_multicast::ingest_allowed_snmp_response_packet(state, payload)
+}
 
-    pub fn with_capacity(generated_at: String, max_rows: usize) -> Self {
-        Self {
-            generated_at,
-            lifecycle_state: LanPassiveDiscoveryListenerLifecycleState::Running,
-            max_rows: max_rows.max(1),
-            dropped_row_count: 0,
-            rows: VecDeque::new(),
-        }
-    }
-
-    pub fn lifecycle_state(&self) -> LanPassiveDiscoveryListenerLifecycleState {
-        self.lifecycle_state.clone()
-    }
-
-    pub fn is_running(&self) -> bool {
-        self.lifecycle_state == LanPassiveDiscoveryListenerLifecycleState::Running
-    }
-
-    pub fn stop(&mut self) {
-        self.lifecycle_state = LanPassiveDiscoveryListenerLifecycleState::Stopped;
-    }
-
-    pub fn ingest_udp_packet(&mut self, payload: &[u8]) -> LanPassiveDiscoveryPacketIngestOutcome {
-        if !self.is_running() {
-            return LanPassiveDiscoveryPacketIngestOutcome::Stopped;
-        }
-
-        match packet::parse_passive_discovery_packet(payload) {
-            Ok(packet) => match self.record_passive_packet(packet) {
-                LanPassiveDiscoveryRecordOutcome::Recorded => {
-                    LanPassiveDiscoveryPacketIngestOutcome::Recorded
-                }
-                LanPassiveDiscoveryRecordOutcome::Deduplicated => {
-                    LanPassiveDiscoveryPacketIngestOutcome::Deduplicated
-                }
-                LanPassiveDiscoveryRecordOutcome::Stopped => {
-                    LanPassiveDiscoveryPacketIngestOutcome::Stopped
-                }
-            },
-            Err(error) => LanPassiveDiscoveryPacketIngestOutcome::Rejected(error),
-        }
-    }
-
-    pub fn record_passive_packet(
-        &mut self,
-        packet: LanPassiveDiscoveryPacket,
-    ) -> LanPassiveDiscoveryRecordOutcome {
-        self.record_passive_update(
-            packet.source,
-            packet.trigger_reason,
-            &packet.observed_at,
-            packet.device_id.as_deref(),
-            packet.scan_session_id.as_deref(),
-            packet.summary,
-        )
-    }
-
-    pub fn record_passive_update(
-        &mut self,
-        source: LanPassiveDiscoverySource,
-        trigger_reason: LanPassiveDiscoveryTriggerReason,
-        observed_at: &str,
-        device_id: Option<&str>,
-        scan_session_id: Option<&str>,
-        summary: impl Into<String>,
-    ) -> LanPassiveDiscoveryRecordOutcome {
-        self.record_event(PassiveDiscoveryEventInput {
-            event_kind: LanPassiveDiscoveryEventKind::PassiveUpdate,
-            source: Some(source),
-            trigger_reason,
-            observed_at,
-            device_id,
-            scan_session_id,
-            summary: summary.into(),
-        })
-    }
-
-    pub fn record_rescan_trigger(
-        &mut self,
-        trigger_reason: LanPassiveDiscoveryTriggerReason,
-        observed_at: &str,
-        summary: impl Into<String>,
-    ) -> LanPassiveDiscoveryRecordOutcome {
-        self.record_event(PassiveDiscoveryEventInput {
-            event_kind: LanPassiveDiscoveryEventKind::RescanTrigger,
-            source: None,
-            trigger_reason,
-            observed_at,
-            device_id: None,
-            scan_session_id: None,
-            summary: summary.into(),
-        })
-    }
-
-    pub fn snapshot(&self) -> LanPassiveDiscoveryEventHistory {
-        let latest = self.rows.back();
-        LanPassiveDiscoveryEventHistory {
-            schema_version: Self::SCHEMA_VERSION,
-            generated_at: self.generated_at.clone(),
-            lifecycle_state: self.lifecycle_state.clone(),
-            max_rows: self.max_rows,
-            dropped_row_count: self.dropped_row_count,
-            latest_event_id: latest.map(|row| row.event_id.clone()),
-            latest_observed_at: latest.map(|row| row.observed_at.clone()),
-            rows: self.rows.iter().cloned().collect(),
-        }
-    }
-
-    pub fn rows(&self) -> Vec<LanPassiveDiscoveryEventRow> {
-        self.rows.iter().cloned().collect()
-    }
-
-    fn record_event(
-        &mut self,
-        input: PassiveDiscoveryEventInput<'_>,
-    ) -> LanPassiveDiscoveryRecordOutcome {
-        let PassiveDiscoveryEventInput {
-            event_kind,
-            source,
-            trigger_reason,
-            observed_at,
-            device_id,
-            scan_session_id,
-            summary,
-        } = input;
-        if !self.is_running() {
-            return LanPassiveDiscoveryRecordOutcome::Stopped;
-        }
-
-        let event_id = labels::passive_event_id(
-            &event_kind,
-            source.as_ref(),
-            &trigger_reason,
-            observed_at,
-            device_id,
-            scan_session_id,
-        );
-
-        if self
-            .rows
-            .iter()
-            .any(|row| row.event_id.eq_ignore_ascii_case(&event_id))
-        {
-            return LanPassiveDiscoveryRecordOutcome::Deduplicated;
-        }
-
-        if self.rows.len() >= self.max_rows {
-            let _ = self.rows.pop_front();
-            self.dropped_row_count = self.dropped_row_count.saturating_add(1);
-        }
-
-        let previous_event_id = self.rows.back().map(|row| row.event_id.clone());
-        self.rows.push_back(LanPassiveDiscoveryEventRow {
-            schema_version: Self::SCHEMA_VERSION,
-            event_id: event_id.into(),
-            event_kind,
-            observed_at: observed_at.to_string(),
-            previous_event_id,
-            source,
-            trigger_reason,
-            device_id: device_id.map(LanPassiveDiscoveryDeviceId::from),
-            scan_session_id: scan_session_id.map(LanPassiveDiscoveryScanSessionId::from),
-            summary,
-        });
-        LanPassiveDiscoveryRecordOutcome::Recorded
-    }
+pub fn collect_allowed_snmp_response_packets(
+    socket: &std::net::UdpSocket,
+    state: &mut LanPassiveDiscoveryListenerState,
+    max_datagram_count: usize,
+) -> usize {
+    udp_multicast::collect_allowed_snmp_response_packets(socket, state, max_datagram_count)
 }

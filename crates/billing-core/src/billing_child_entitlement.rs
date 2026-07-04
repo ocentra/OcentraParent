@@ -21,57 +21,50 @@ const BILLING_IDEMPOTENCY_SEPARATOR: &str = ":";
 const BILLING_CHILD_CONSUMPTION_PREFIX: &str = "billing-child-consumption:";
 const ERROR_BILLING_CHILD_CONSUMPTION_ID: &str = "billing child consumption id";
 
-macro_rules! billing_child_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct BillingChildTextId(String);
 
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
+impl BillingChildTextId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        let value = value.into();
+        if value.trim().is_empty() {
+            Err(EventingError::EmptyValue {
+                field: "billing child text id",
+            })
+        } else {
+            Ok(Self(value))
         }
+    }
 
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
-billing_child_text_id!(
-    BillingEntitlementSnapshotId,
-    "billing.entitlement_snapshot_id"
-);
-billing_child_text_id!(BillingChildDeviceId, "billing.child_device_id");
-billing_child_text_id!(
-    BillingChildEntitlementConsumptionId,
-    "billing.child_entitlement_consumption_id"
-);
+impl TryFrom<String> for BillingChildTextId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<BillingChildTextId> for String {
+    fn from(value: BillingChildTextId) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for BillingChildTextId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
+
+pub type BillingEntitlementSnapshotId = BillingChildTextId;
+pub type BillingChildDeviceId = BillingChildTextId;
+pub type BillingChildEntitlementConsumptionId = BillingChildTextId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BillingChildSnapshotSignatureState {
@@ -204,32 +197,7 @@ impl DomainEvent for BillingChildEntitlementConsumptionRecordedEvent {
 pub fn decide_child_entitlement_snapshot(
     snapshot: BillingChildEntitlementSnapshot,
 ) -> BillingChildEntitlementConsumptionDecision {
-    if let Some(rejection_reason) = child_entitlement_snapshot_rejection_reason(&snapshot) {
-        return BillingChildEntitlementConsumptionDecision {
-            snapshot_id: snapshot.snapshot_id,
-            child_device_id: snapshot.child_device_id,
-            decision_state: BillingChildEntitlementConsumptionState::Rejected,
-            subscription_status: snapshot.subscription_status,
-            access_state: BillingChildEntitlementAccessState::NoChange,
-            write_state: BillingEntitlementWriteState::DoNotWrite,
-            manual_review_requirement: BillingManualReviewRequirement::Required,
-            rejection_reason: Some(rejection_reason),
-        };
-    }
-
-    let (access_state, manual_review_requirement) =
-        accepted_child_entitlement_access(snapshot.subscription_status);
-
-    BillingChildEntitlementConsumptionDecision {
-        snapshot_id: snapshot.snapshot_id,
-        child_device_id: snapshot.child_device_id,
-        decision_state: BillingChildEntitlementConsumptionState::Accepted,
-        subscription_status: snapshot.subscription_status,
-        access_state,
-        write_state: BillingEntitlementWriteState::WriteRequired,
-        manual_review_requirement,
-        rejection_reason: None,
-    }
+    crate::billing_child_entitlement_decision::decide_child_entitlement_snapshot(snapshot)
 }
 
 pub fn record_child_entitlement_consumption_event(
@@ -245,71 +213,6 @@ pub fn record_child_entitlement_consumption_event(
         ))
         .expect_value(ERROR_BILLING_CHILD_CONSUMPTION_ID),
         decision: decide_child_entitlement_snapshot(event.snapshot),
-    }
-}
-
-fn accepted_child_entitlement_access(
-    subscription_status: BillingSubscriptionStatus,
-) -> (
-    BillingChildEntitlementAccessState,
-    BillingManualReviewRequirement,
-) {
-    match subscription_status {
-        BillingSubscriptionStatus::Trialing | BillingSubscriptionStatus::Active => (
-            BillingChildEntitlementAccessState::FullAccess,
-            BillingManualReviewRequirement::NotRequired,
-        ),
-        BillingSubscriptionStatus::Grace => (
-            BillingChildEntitlementAccessState::GraceAccess,
-            BillingManualReviewRequirement::NotRequired,
-        ),
-        BillingSubscriptionStatus::PastDue => (
-            BillingChildEntitlementAccessState::LimitedAccess,
-            BillingManualReviewRequirement::NotRequired,
-        ),
-        BillingSubscriptionStatus::Cancelled | BillingSubscriptionStatus::Expired => (
-            BillingChildEntitlementAccessState::Revoked,
-            BillingManualReviewRequirement::NotRequired,
-        ),
-        BillingSubscriptionStatus::Unknown | BillingSubscriptionStatus::Unavailable => {
-            unreachable!(
-                "child entitlement acceptance requires a resolved billing subscription status"
-            )
-        }
-    }
-}
-
-fn child_entitlement_snapshot_rejection_reason(
-    snapshot: &BillingChildEntitlementSnapshot,
-) -> Option<BillingChildEntitlementRejectionReason> {
-    match snapshot.signature_state {
-        BillingChildSnapshotSignatureState::Missing => {
-            return Some(BillingChildEntitlementRejectionReason::MissingSignature);
-        }
-        BillingChildSnapshotSignatureState::Invalid => {
-            return Some(BillingChildEntitlementRejectionReason::InvalidSignature);
-        }
-        BillingChildSnapshotSignatureState::Trusted => {}
-    }
-
-    match snapshot.freshness_state {
-        BillingChildSnapshotFreshnessState::Stale => {
-            Some(BillingChildEntitlementRejectionReason::StaleSnapshot)
-        }
-        BillingChildSnapshotFreshnessState::Expired => {
-            Some(BillingChildEntitlementRejectionReason::ExpiredSnapshot)
-        }
-        BillingChildSnapshotFreshnessState::Fresh
-            if snapshot.subscription_status == BillingSubscriptionStatus::Unknown =>
-        {
-            Some(BillingChildEntitlementRejectionReason::UnknownSubscriptionStatus)
-        }
-        BillingChildSnapshotFreshnessState::Fresh
-            if snapshot.subscription_status == BillingSubscriptionStatus::Unavailable =>
-        {
-            Some(BillingChildEntitlementRejectionReason::UnavailableSubscriptionStatus)
-        }
-        BillingChildSnapshotFreshnessState::Fresh => None,
     }
 }
 

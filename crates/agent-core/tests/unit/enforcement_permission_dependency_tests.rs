@@ -1,5 +1,4 @@
-use std::fmt::Debug;
-
+use crate::test_text::{test_ok as ok, test_some as some, TestResult, TestText};
 use crate::*;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
@@ -16,16 +15,6 @@ use ocentra_parent_agent_protocol::enforcement::{
     EnforcementPermissionState, EnforcementUnavailableReason, ParentPlatform,
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
-
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| format!("{context}: missing value"))
-}
 
 #[test]
 fn permission_and_dependency_unavailable_capabilities_stop_before_adapter() -> TestResult {
@@ -140,7 +129,7 @@ fn intent(action: PolicyAction) -> EnforcementIntent {
 fn unavailable_capability(
     permission_state: EnforcementPermissionState,
     dependency_state: EnforcementDependencyState,
-    reason: &str,
+    reason: impl std::fmt::Display,
 ) -> EnforcementCapabilityStatus {
     EnforcementCapabilityStatus {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),

@@ -14,6 +14,7 @@ pub mod parent_acknowledgement;
 pub mod read_model;
 pub mod read_model_guard;
 mod read_model_rows;
+mod read_model_rows_aggregate;
 pub mod retention_runtime;
 pub mod retention_settings;
 pub mod runtime_flow;

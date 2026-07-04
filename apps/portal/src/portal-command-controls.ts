@@ -1,4 +1,4 @@
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
 import { PortalCommandButtons } from '@ocentra-parent/portal-domain/commands';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { renderCommandResultPanel } from './command-result-panel';

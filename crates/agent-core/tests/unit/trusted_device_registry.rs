@@ -14,12 +14,14 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 };
 use ocentra_parent_agent_protocol::policy_constants;
 
+use crate::test_text::TestText;
 use crate::trusted_device_registry_support::{
     agent_event_option, agent_event_result, child_device, household_decision, intent,
     intent_for_pairing, intent_with_route, parent_device, proof, proof_for, second_child_device,
     selected_registry, temp_registry_path,
 };
 use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
+use std::fmt::Display;
 
 #[test]
 fn trusted_device_registry_accepts_pairing_and_validates_intent() {
@@ -337,7 +339,7 @@ fn trusted_device_registry_reports_revoked_stale_and_offline_selected_state() {
 #[test]
 fn trusted_device_registry_can_survive_restart_or_fail_closed_when_missing() {
     let path = temp_registry_path();
-    let _ = remove_file(&path);
+    let _ = remove_file(path.as_ref());
     let mut registry = TrustedDeviceRegistry::empty();
     registry.accept_pairing_proof(
         &proof(constants::lan_pairing::EXPIRES_AT),
@@ -345,13 +347,13 @@ fn trusted_device_registry_can_survive_restart_or_fail_closed_when_missing() {
         parent_device(),
         constants::lan_pairing::ISSUED_AT,
     );
-    agent_event_result(registry.save_json(&path));
+    agent_event_result(registry.save_json(path.as_ref()));
 
-    let loaded = TrustedDeviceRegistry::load_json(&path);
+    let loaded = TrustedDeviceRegistry::load_json(path.as_ref());
     let missing_path = temp_registry_path();
-    let _ = remove_file(&path);
-    let _ = remove_file(&missing_path);
-    let missing = TrustedDeviceRegistry::load_json(&missing_path);
+    let _ = remove_file(path.as_ref());
+    let _ = remove_file(missing_path.as_ref());
+    let missing = TrustedDeviceRegistry::load_json(missing_path.as_ref());
 
     assert_eq!(loaded.entries().len(), 1);
     assert_eq!(loaded.selected_target(), None);
@@ -363,9 +365,10 @@ fn trusted_device_registry_can_survive_restart_or_fail_closed_when_missing() {
 }
 
 #[test]
-fn trusted_device_registry_loads_legacy_entry_array_for_migration() {
+fn trusted_device_registry_loads_legacy_entry_array_for_migration(
+) -> Result<(), Box<dyn std::error::Error>> {
     let path = temp_registry_path();
-    let _ = remove_file(&path);
+    let _ = remove_file(path.as_ref());
     let mut registry = TrustedDeviceRegistry::empty();
     registry.accept_pairing_proof(
         &proof(constants::lan_pairing::EXPIRES_AT),
@@ -373,13 +376,11 @@ fn trusted_device_registry_loads_legacy_entry_array_for_migration() {
         parent_device(),
         constants::lan_pairing::ISSUED_AT,
     );
-    let legacy_entries = serde_json::to_string_pretty(registry.entries())
-        .unwrap_or_else(|error| unreachable!("legacy entries serialize: {error:?}"));
-    write(&path, legacy_entries)
-        .unwrap_or_else(|error| unreachable!("legacy registry writes: {error:?}"));
+    let legacy_entries = serde_json::to_string_pretty(registry.entries())?;
+    write(&path, legacy_entries)?;
 
-    let loaded = TrustedDeviceRegistry::load_json(&path);
-    let _ = remove_file(&path);
+    let loaded = TrustedDeviceRegistry::load_json(path.as_ref());
+    let _ = remove_file(path.as_ref());
 
     assert_eq!(loaded.entries().len(), 1);
     assert_eq!(loaded.household_device_decisions().len(), 0);
@@ -388,12 +389,14 @@ fn trusted_device_registry_loads_legacy_entry_array_for_migration() {
         loaded.authentication_state(),
         LanPairingAuthenticationState::Unpaired
     );
+    Ok(())
 }
 
 #[test]
-fn trusted_device_registry_keeps_entries_when_optional_household_sections_are_malformed() {
+fn trusted_device_registry_keeps_entries_when_optional_household_sections_are_malformed(
+) -> Result<(), Box<dyn std::error::Error>> {
     let path = temp_registry_path();
-    let _ = remove_file(&path);
+    let _ = remove_file(path.as_ref());
     let mut registry = TrustedDeviceRegistry::empty();
     registry.accept_pairing_proof(
         &proof(constants::lan_pairing::EXPIRES_AT),
@@ -407,22 +410,23 @@ fn trusted_device_registry_keeps_entries_when_optional_household_sections_are_ma
         constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS: "malformed-decisions",
         constants::lan_pairing::REGISTRY_KEY_KNOWN_HOUSEHOLD_DEVICES: {"malformed": true},
     });
-    write(&path, registry_json.to_string())
-        .unwrap_or_else(|error| unreachable!("registry writes: {error:?}"));
+    write(&path, registry_json.to_string())?;
 
-    let loaded = TrustedDeviceRegistry::load_json(&path);
-    let _ = remove_file(&path);
+    let loaded = TrustedDeviceRegistry::load_json(path.as_ref());
+    let _ = remove_file(path.as_ref());
 
     assert_eq!(loaded.entries().len(), 1);
     assert_eq!(loaded.household_device_decisions().len(), 0);
     assert_eq!(loaded.known_household_devices().len(), 0);
     assert_eq!(loaded.selected_target(), None);
+    Ok(())
 }
 
 #[test]
-fn trusted_device_registry_fails_closed_when_core_entries_are_missing() {
+fn trusted_device_registry_fails_closed_when_core_entries_are_missing(
+) -> Result<(), Box<dyn std::error::Error>> {
     let path = temp_registry_path();
-    let _ = remove_file(&path);
+    let _ = remove_file(path.as_ref());
     let registry_json = serde_json::json!({
         constants::field::SCHEMA_VERSION: 1,
         constants::lan_pairing::REGISTRY_KEY_KNOWN_HOUSEHOLD_DEVICES: [
@@ -432,11 +436,10 @@ fn trusted_device_registry_fails_closed_when_core_entries_are_missing() {
             )
         ],
     });
-    write(&path, registry_json.to_string())
-        .unwrap_or_else(|error| unreachable!("registry writes: {error:?}"));
+    write(&path, registry_json.to_string())?;
 
-    let loaded = TrustedDeviceRegistry::load_json(&path);
-    let _ = remove_file(&path);
+    let loaded = TrustedDeviceRegistry::load_json(path.as_ref());
+    let _ = remove_file(path.as_ref());
 
     assert_eq!(loaded.entries().len(), 0);
     assert_eq!(loaded.known_household_devices().len(), 0);
@@ -444,17 +447,18 @@ fn trusted_device_registry_fails_closed_when_core_entries_are_missing() {
         loaded.authentication_state(),
         LanPairingAuthenticationState::Unpaired
     );
+    Ok(())
 }
 
 #[test]
 fn trusted_device_registry_persists_selected_route_for_restart_recovery() {
     let path = temp_registry_path();
-    let _ = remove_file(&path);
+    let _ = remove_file(path.as_ref());
     let registry = selected_registry(constants::lan_pairing::EXPIRES_AT);
-    agent_event_result(registry.save_json(&path));
+    agent_event_result(registry.save_json(path.as_ref()));
 
-    let mut loaded = TrustedDeviceRegistry::load_json(&path);
-    let _ = remove_file(&path);
+    let mut loaded = TrustedDeviceRegistry::load_json(path.as_ref());
+    let _ = remove_file(path.as_ref());
     let selected =
         agent_event_option(loaded.selected_target_at(constants::lan_pairing::OBSERVED_AT));
 
@@ -521,13 +525,13 @@ fn trusted_device_registry_clears_selected_route_reachability_without_dropping_s
 #[test]
 fn trusted_device_registry_persists_household_device_decisions_for_restart_recovery() {
     let path = temp_registry_path();
-    let _ = remove_file(&path);
+    let _ = remove_file(path.as_ref());
     let mut registry = TrustedDeviceRegistry::empty();
     registry.apply_household_device_decision(household_decision());
-    agent_event_result(registry.save_json(&path));
+    agent_event_result(registry.save_json(path.as_ref()));
 
-    let loaded = TrustedDeviceRegistry::load_json(&path);
-    let _ = remove_file(&path);
+    let loaded = TrustedDeviceRegistry::load_json(path.as_ref());
+    let _ = remove_file(path.as_ref());
 
     assert_eq!(loaded.household_device_decisions().len(), 1);
     assert_eq!(
@@ -547,7 +551,7 @@ fn trusted_device_registry_persists_household_device_decisions_for_restart_recov
 #[test]
 fn trusted_device_registry_persists_known_household_devices_for_restart_recovery() {
     let path = temp_registry_path();
-    let _ = remove_file(&path);
+    let _ = remove_file(path.as_ref());
     let mut registry = TrustedDeviceRegistry::empty();
     assert!(
         registry.merge_known_household_devices(vec![known_household_device(
@@ -555,10 +559,10 @@ fn trusted_device_registry_persists_known_household_devices_for_restart_recovery
             constants::lan_pairing::OBSERVED_AT,
         )])
     );
-    agent_event_result(registry.save_json(&path));
+    agent_event_result(registry.save_json(path.as_ref()));
 
-    let loaded = TrustedDeviceRegistry::load_json(&path);
-    let _ = remove_file(&path);
+    let loaded = TrustedDeviceRegistry::load_json(path.as_ref());
+    let _ = remove_file(path.as_ref());
 
     assert_eq!(loaded.known_household_devices().len(), 1);
     assert_eq!(
@@ -639,6 +643,64 @@ fn known_household_device_merge_preserves_distinct_source_backed_evidence_histor
 #[test]
 fn known_household_device_merge_preserves_stronger_paired_child_truth() {
     let mut registry = TrustedDeviceRegistry::empty();
+    let paired_child = paired_child_device();
+    let weaker_neighbor = weaker_neighbor_device();
+
+    assert!(registry.merge_known_household_devices(vec![paired_child]));
+    assert!(registry.merge_known_household_devices(vec![weaker_neighbor]));
+
+    let device = &registry.known_household_devices()[0];
+    assert_eq!(
+        device.discovery_state,
+        LanPairingProductionDiscoveryState::Paired
+    );
+    assert_eq!(device.trust_state, LanPairingTrustState::Paired);
+    assert_eq!(
+        device.route_id.as_deref(),
+        Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK)
+    );
+    assert_eq!(
+        device.route_state,
+        LanCanonicalHouseholdRouteState::LocalNetwork
+    );
+    assert_eq!(
+        device.network_identity.confidence,
+        LanCanonicalHouseholdDeviceConfidence::AgentConfirmed
+    );
+    assert_eq!(device.display_name, "Family Laptop");
+    assert_eq!(
+        device.network_identity.hostname.as_deref(),
+        Some("family-tablet")
+    );
+    assert_eq!(
+        device
+            .child_agent_inventory
+            .as_ref()
+            .map(|inventory| inventory.device_name.as_str()),
+        Some("Family Laptop")
+    );
+    assert_eq!(
+        device
+            .child_agent_inventory
+            .as_ref()
+            .map(|inventory| inventory.platform.as_str()),
+        Some(constants::lan_pairing::PLATFORM_WINDOWS)
+    );
+    assert_eq!(device.network_identity.evidence_records.len(), 2);
+    assert!(device
+        .source_labels
+        .contains(&LanCanonicalHouseholdDeviceSource::LocalService));
+    assert!(device
+        .source_labels
+        .contains(&LanCanonicalHouseholdDeviceSource::NetworkNeighbor));
+    assert!(device
+        .network_identity
+        .ip_addresses
+        .iter()
+        .any(|ip_address| ip_address == "192.168.0.44"));
+}
+
+fn paired_child_device() -> LanCanonicalHouseholdDevice {
     let mut paired_child = known_household_device("2026-06-01T00:00:00Z", "2026-06-01T00:00:00Z");
     paired_child.canonical_device_id = constants::lan_pairing::CHILD_DEVICE_ID.to_string();
     paired_child.display_name = "Family Laptop".to_string();
@@ -668,7 +730,10 @@ fn known_household_device_merge_preserves_stronger_paired_child_truth() {
             route_state: LanCanonicalHouseholdRouteState::LocalNetwork,
             pairing_trust_state: LanPairingTrustState::Paired,
         });
+    paired_child
+}
 
+fn weaker_neighbor_device() -> LanCanonicalHouseholdDevice {
     let mut weaker_neighbor =
         known_household_device("2026-06-02T00:00:00Z", "2026-06-03T00:00:00Z");
     weaker_neighbor.canonical_device_id = constants::lan_pairing::CHILD_DEVICE_ID.to_string();
@@ -700,46 +765,7 @@ fn known_household_device_merge_preserves_stronger_paired_child_truth() {
         constants::lan_pairing::LOCAL_AGENT_STATUS.to_ascii_lowercase();
     weaker_neighbor.network_identity.evidence_records[0].device_id =
         constants::lan_pairing::CHILD_DEVICE_ID.to_string();
-
-    assert!(registry.merge_known_household_devices(vec![paired_child]));
-    assert!(registry.merge_known_household_devices(vec![weaker_neighbor]));
-
-    let device = &registry.known_household_devices()[0];
-    assert_eq!(
-        device.discovery_state,
-        LanPairingProductionDiscoveryState::Paired
-    );
-    assert_eq!(device.trust_state, LanPairingTrustState::Paired);
-    assert_eq!(
-        device.route_id.as_deref(),
-        Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK)
-    );
-    assert_eq!(
-        device.route_state,
-        LanCanonicalHouseholdRouteState::LocalNetwork
-    );
-    assert_eq!(
-        device.network_identity.confidence,
-        LanCanonicalHouseholdDeviceConfidence::AgentConfirmed
-    );
-    assert_eq!(device.display_name, "Family Laptop");
-    assert_eq!(
-        device.network_identity.hostname.as_deref(),
-        Some("family-tablet")
-    );
-    assert!(device.child_agent_inventory.is_some());
-    assert_eq!(device.network_identity.evidence_records.len(), 2);
-    assert!(device
-        .source_labels
-        .contains(&LanCanonicalHouseholdDeviceSource::LocalService));
-    assert!(device
-        .source_labels
-        .contains(&LanCanonicalHouseholdDeviceSource::NetworkNeighbor));
-    assert!(device
-        .network_identity
-        .ip_addresses
-        .iter()
-        .any(|ip_address| ip_address == "192.168.0.44"));
+    weaker_neighbor
 }
 
 #[test]
@@ -819,13 +845,19 @@ fn merge_known_household_devices_keeps_conflicting_canonical_ids_separate() {
     assert!(registry.merge_known_household_devices(vec![router, child]));
 
     assert_eq!(registry.known_household_devices().len(), 2);
-    let device_ids = registry
+    let mut device_ids = registry
         .known_household_devices()
         .iter()
         .map(|device| device.canonical_device_id.as_str())
         .collect::<Vec<_>>();
-    assert!(device_ids.contains(&"lan-physical-router-001122334455"));
-    assert!(device_ids.contains(&"lan-physical-child-aabbccddeeff"));
+    device_ids.sort_unstable();
+    assert_eq!(
+        device_ids,
+        vec![
+            "lan-physical-child-aabbccddeeff",
+            "lan-physical-router-001122334455",
+        ]
+    );
 }
 
 #[test]
@@ -872,7 +904,12 @@ fn scan_truth_devices_keep_router_visible_and_dedupe_paired_child_truth() {
     }));
 }
 
-fn known_household_device(first_seen_at: &str, last_seen_at: &str) -> LanCanonicalHouseholdDevice {
+fn known_household_device(
+    first_seen_at: impl Display,
+    last_seen_at: impl Display,
+) -> LanCanonicalHouseholdDevice {
+    let first_seen_at = TestText::from_display(first_seen_at);
+    let last_seen_at = TestText::from_display(last_seen_at);
     LanCanonicalHouseholdDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         canonical_device_id: "lan-physical-mac-001122334455".to_string(),

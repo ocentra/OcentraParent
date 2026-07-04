@@ -94,7 +94,7 @@ fn provider_selection_read_model_refuses_unpaired_or_missing_provider_routes() {
 #[tokio::test]
 async fn provider_selection_read_model_marks_stale_selected_provider_route_blocked() {
     let runtime = lan_ai_provider_runtime().await;
-    assert!(runtime.mark_selected_stale_for_test(constants::lan_pairing::EXPIRED_AT));
+    assert!(runtime.mark_selected_stale_for_test());
     let read_model = provider_selection_read_model(&runtime);
 
     assert_eq!(read_model.selected_provider_route_id, None);
@@ -109,7 +109,7 @@ async fn provider_selection_read_model_marks_stale_selected_provider_route_block
 #[tokio::test]
 async fn provider_selection_read_model_degrades_stale_provider_heartbeat() {
     let runtime = lan_ai_provider_runtime().await;
-    runtime.mark_lan_ai_provider_heartbeat_stale_for_test(constants::lan_pairing::EXPIRED_AT);
+    runtime.mark_lan_ai_provider_heartbeat_stale_for_test();
     let read_model = provider_selection_read_model(&runtime);
 
     assert_eq!(read_model.selected_provider_route_id, None);
@@ -124,7 +124,9 @@ async fn provider_selection_read_model_degrades_stale_provider_heartbeat() {
 async fn lan_ai_provider_runtime() -> LanPairingRuntime {
     let mut runtime = paired_runtime().await;
     runtime.device_roles = DeviceRoleRuntimeReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT
+            .to_string()
+            .into(),
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: DeviceRuntimeSurface::ParentDesktop,
         platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),

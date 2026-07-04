@@ -1,7 +1,9 @@
+pub(super) mod child_profile;
 mod evidence;
 #[path = "value_support.rs"]
 mod value_support;
 
+use self::child_profile::child_profile_device_id;
 use self::evidence::{evidence_records_for, EvidenceRecordsInput};
 use self::value_support::{
     child_agent_capabilities, compact_identifier, confidence_for_mac_identity,
@@ -32,13 +34,9 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanServ
 use crate::mac_identity::assess_mac_address;
 use crate::network_inventory::api::is_confirmed_agent_status;
 
-const CHILD_PROFILE_DEVICE_PREFIX: &str = "lan-child-profile-";
-
 pub fn canonical_device_id(device: &LanPairingDeviceRef) -> String {
     if let Some(child_profile_id) = child_profile_device_id(device).as_deref() {
-        let mut id = String::from(CHILD_PROFILE_DEVICE_PREFIX);
-        id.push_str(child_profile_id);
-        return id;
+        return child_profile::canonical_child_profile_device_id(child_profile_id);
     }
     if let Some(mac) = preferred_mac_identity(device).as_deref() {
         let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
@@ -375,17 +373,4 @@ fn stable_mac_evidence_value(value: &str) -> bool {
     assess_mac_address(Some(value))
         .map(|assessment| assessment.stable_identity_key_allowed())
         .unwrap_or(false)
-}
-
-pub fn child_profile_device_id(device: &LanPairingDeviceRef) -> Option<String> {
-    device
-        .child_profile_id
-        .as_deref()
-        .map(str::trim)
-        .filter(|child_profile_id| !child_profile_id.is_empty())
-        .map(compact_identifier)
-}
-
-pub fn child_profile_identity_from_canonical(canonical_device_id: &str) -> Option<&str> {
-    canonical_device_id.strip_prefix(CHILD_PROFILE_DEVICE_PREFIX)
 }

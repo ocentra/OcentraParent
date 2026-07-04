@@ -1,11 +1,7 @@
-use crate::{
-    map_network_evidence_grade_to_policy, plan_network_windows_wfp_gate, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
-    NetworkWindowsWfpGateBoundaryReason, NetworkWindowsWfpGateCapabilityState,
-    NetworkWindowsWfpGateError, NetworkWindowsWfpGateInput, NetworkWindowsWfpGateState,
-    NetworkWindowsWfpRequiredArtifact,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::policy::*;
+use ocentra_network_evidence::windows_wfp_gate::*;
 
 #[test]
 fn windows_wfp_gate_allows_lab_proof_ready_with_signed_permissioned_artifacts() {

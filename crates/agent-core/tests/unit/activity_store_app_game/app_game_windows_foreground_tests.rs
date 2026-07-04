@@ -1,5 +1,6 @@
 use ocentra_parent_agent_protocol::app_game::*;
 use ocentra_parent_agent_protocol::constants;
+use std::fmt::Display;
 
 use super::{
     app_game_windows_foreground::{
@@ -241,9 +242,9 @@ fn runtime_summaries(running_duration_ms: u64) -> Vec<AppGameSessionSummary> {
 }
 
 fn running_app_record(
-    runtime_evidence_id: &str,
-    observed_at: &str,
-    observation_mode: &str,
+    runtime_evidence_id: impl Display,
+    observed_at: impl Display,
+    observation_mode: impl Display,
     running_duration_ms: u64,
 ) -> WindowsProcessRuntimeRecord {
     WindowsProcessRuntimeRecord {
@@ -271,9 +272,9 @@ fn running_app_record(
 }
 
 fn active_window_record(
-    foreground_evidence_id: &str,
-    observed_at: &str,
-    foreground_state: &str,
+    foreground_evidence_id: impl Display,
+    observed_at: impl Display,
+    foreground_state: impl Display,
     foreground_duration_ms: u64,
 ) -> WindowsForegroundWindowRecord {
     WindowsForegroundWindowRecord {

@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeAiProviderState;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 
 use crate::lan_pairing::LanPairingRuntime;
 
@@ -13,13 +14,17 @@ impl LanPairingRuntime {
             == Some(constants::value::TRUE)
     }
 
-    pub(crate) fn lan_ai_provider_status_value(&self) -> &'static str {
+    pub(crate) fn lan_ai_provider_status_value(&self) -> LanPairingText {
         match self.lan_ai_provider_heartbeat_reachability() {
             Some(LanPairingDeviceReachability::Offline) => {
-                return constants::value::LAN_AI_PROVIDER_STATUS_UNAVAILABLE;
+                return constants::value::LAN_AI_PROVIDER_STATUS_UNAVAILABLE
+                    .to_string()
+                    .into();
             }
             Some(LanPairingDeviceReachability::Stale) => {
-                return constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED;
+                return constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED
+                    .to_string()
+                    .into();
             }
             Some(LanPairingDeviceReachability::Online) | None => {}
         }
@@ -28,7 +33,9 @@ impl LanPairingRuntime {
             && self.device_role_read_model().lan_ai_provider_state
                 == DeviceRuntimeAiProviderState::Available
         {
-            return constants::value::LAN_AI_PROVIDER_STATUS_BUSY;
+            return constants::value::LAN_AI_PROVIDER_STATUS_BUSY
+                .to_string()
+                .into();
         }
 
         match self.device_role_read_model().lan_ai_provider_state {
@@ -36,28 +43,42 @@ impl LanPairingRuntime {
                 if !self.lan_ai_provider_capabilities.is_empty() =>
             {
                 constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE
+                    .to_string()
+                    .into()
             }
             DeviceRuntimeAiProviderState::Degraded => {
                 constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED
+                    .to_string()
+                    .into()
             }
             DeviceRuntimeAiProviderState::Available | DeviceRuntimeAiProviderState::Unavailable => {
                 constants::value::LAN_AI_PROVIDER_STATUS_UNAVAILABLE
+                    .to_string()
+                    .into()
             }
         }
     }
 
-    pub(crate) fn lan_ai_provider_routing_state(&self) -> &'static str {
-        match self.lan_ai_provider_status_value() {
+    pub(crate) fn lan_ai_provider_routing_state(&self) -> LanPairingText {
+        match self.lan_ai_provider_status_value().0.as_str() {
             constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE => {
                 constants::value::LAN_AI_PROVIDER_ROUTING_AUTHORIZED_RESULT
+                    .to_string()
+                    .into()
             }
             constants::value::LAN_AI_PROVIDER_STATUS_BUSY => {
                 constants::value::LAN_AI_PROVIDER_ROUTING_BUSY
+                    .to_string()
+                    .into()
             }
             constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED => {
                 constants::value::LAN_AI_PROVIDER_ROUTING_DEGRADED
+                    .to_string()
+                    .into()
             }
-            _ => constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE,
+            _ => constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE
+                .to_string()
+                .into(),
         }
     }
 }

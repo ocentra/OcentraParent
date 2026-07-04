@@ -1,6 +1,6 @@
 use ocentra_eventing::{
-    bus::reports::DeadLetter, envelope::StoredEventEnvelope, request::EventResponseContract,
-    request::RequestReport,
+    bus::reports::dead_letter::DeadLetter, envelope::StoredEventEnvelope,
+    request::EventResponseContract, request::RequestReport,
 };
 use serde::{Deserialize, Serialize};
 

@@ -1,14 +1,17 @@
-use crate::support::{ErrorOrUnreachable as _, ValueOrUnreachable as _};
+use crate::support::{error_or_unreachable, result_or_unreachable};
 use ocentra_schema::setup_device_trust_handoff as contracts;
 use serde_json::json;
 
-fn timestamp(value: &str) -> contracts::SetupDeviceTrustHandoffTimestamp {
-    contracts::SetupDeviceTrustHandoffTimestamp::parse(value).value_or_unreachable("timestamp")
+macro_rules! timestamp {
+    ($value:expr $(,)?) => {
+        contracts::SetupDeviceTrustHandoffTimestamp::parse($value).expect("timestamp")
+    };
 }
 
-fn claim_boundary(value: &str) -> contracts::SetupDeviceTrustHandoffClaimBoundary {
-    contracts::SetupDeviceTrustHandoffClaimBoundary::parse(value)
-        .value_or_unreachable("claim boundary")
+macro_rules! claim_boundary {
+    ($value:expr $(,)?) => {
+        contracts::SetupDeviceTrustHandoffClaimBoundary::parse($value).expect("claim boundary")
+    };
 }
 
 fn artifact_requirement() -> contracts::SetupDeviceTrustHandoffArtifactRequirement {
@@ -16,12 +19,12 @@ fn artifact_requirement() -> contracts::SetupDeviceTrustHandoffArtifactRequireme
         requirement_ref: contracts::SetupDeviceTrustHandoffArtifactRequirementRef::parse(
             "child-package-artifact-required",
         )
-        .value_or_unreachable("artifact requirement ref"),
+        .expect("artifact requirement ref"),
         external_artifact_path: contracts::SetupDeviceTrustHandoffExternalArtifactPath::parse(
             "output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/artifacts/windows/child-agent-service.msi",
         )
-        .value_or_unreachable("artifact path"),
-        claim_boundary: claim_boundary(
+        .expect("artifact path"),
+        claim_boundary: claim_boundary!(
             "package artifact path only; no package readiness; no install/runtime readiness",
         ),
     }
@@ -31,29 +34,29 @@ fn request() -> contracts::SetupDeviceTrustHandoffRequest {
     contracts::SetupDeviceTrustHandoffRequest {
         schema_version: contracts::SETUP_DEVICE_TRUST_HANDOFF_SCHEMA_VERSION.to_string(),
         handoff_id: contracts::SetupDeviceTrustHandoffId::parse("handoff-setup-device-trust-1")
-            .value_or_unreachable("handoff id"),
+            .expect("handoff id"),
         household_ref: contracts::SetupDeviceTrustHandoffHouseholdRef::parse("household-alpha")
-            .value_or_unreachable("household ref"),
+            .expect("household ref"),
         child_profile_ref: contracts::SetupDeviceTrustHandoffChildProfileRef::parse(
             "child-profile-alpha",
         )
-        .value_or_unreachable("child profile ref"),
+        .expect("child profile ref"),
         target_device_ref: contracts::SetupDeviceTrustHandoffTargetDeviceRef::parse(
             "target-device-windows-alpha",
         )
-        .value_or_unreachable("target device ref"),
+        .expect("target device ref"),
         setup_session_ref: contracts::SetupDeviceTrustHandoffSetupSessionRef::parse(
             "setup-session-alpha",
         )
-        .value_or_unreachable("setup session ref"),
+        .expect("setup session ref"),
         trust_bootstrap_ref: contracts::SetupDeviceTrustHandoffTrustBootstrapRef::parse(
             "trust-bootstrap-alpha",
         )
-        .value_or_unreachable("trust bootstrap ref"),
+        .expect("trust bootstrap ref"),
         child_package_target_ref: contracts::SetupDeviceTrustHandoffChildPackageTargetRef::parse(
             "child-package-target-windows-service",
         )
-        .value_or_unreachable("child package target ref"),
+        .expect("child package target ref"),
         platform: contracts::SetupDeviceTrustHandoffPlatform::Windows,
         setup_state: contracts::SetupDeviceTrustHandoffSetupState::TrustBootstrapIssued,
         trust_bootstrap_state:
@@ -63,8 +66,8 @@ fn request() -> contracts::SetupDeviceTrustHandoffRequest {
             contracts::SetupDeviceTrustHandoffExpiryOrReplayGuardRef::parse(
                 "setup-session-alpha:trust-bootstrap-alpha:nonce-001",
             )
-            .value_or_unreachable("expiry or replay guard ref"),
-        requested_at: timestamp("2026-06-28T17:55:00Z"),
+            .expect("expiry or replay guard ref"),
+        requested_at: timestamp!("2026-06-28T17:55:00Z"),
         no_claim: vec![
             contracts::SetupDeviceTrustHandoffNoClaim::NotParentBootstrapProof,
             contracts::SetupDeviceTrustHandoffNoClaim::NotChildPairingCode,
@@ -104,7 +107,7 @@ fn response() -> contracts::SetupDeviceTrustHandoffResponse {
             contracts::SetupDeviceTrustHandoffNoClaim::NotServiceHealthProof,
             contracts::SetupDeviceTrustHandoffNoClaim::NotParentClientParity,
         ],
-        updated_at: timestamp("2026-06-28T18:00:00Z"),
+        updated_at: timestamp!("2026-06-28T18:00:00Z"),
     }
 }
 
@@ -113,14 +116,14 @@ fn route_sync() -> Vec<contracts::SetupDeviceTrustHandoffRouteSyncRequirement> {
         contracts::SetupDeviceTrustHandoffRouteSyncRequirement {
             plan: contracts::SetupDeviceTrustHandoffRouteSyncPlan::SetupInstallProvisioningPlan,
             status: contracts::SetupDeviceTrustHandoffRouteSyncStatus::NamedExternalOwner,
-            claim_boundary: claim_boundary(
+            claim_boundary: claim_boundary!(
                 "setup journey success stays in setup-install-provisioning-plan",
             ),
         },
         contracts::SetupDeviceTrustHandoffRouteSyncRequirement {
             plan: contracts::SetupDeviceTrustHandoffRouteSyncPlan::DeviceTrustBootstrapPlan,
             status: contracts::SetupDeviceTrustHandoffRouteSyncStatus::RequiredForRuntimeProof,
-            claim_boundary: claim_boundary(
+            claim_boundary: claim_boundary!(
                 "trusted-device bootstrap ownership stays in device-trust-bootstrap-plan",
             ),
         },
@@ -133,14 +136,17 @@ fn proof() -> contracts::SetupDeviceTrustHandoffContractProof {
         request: request(),
         response: response(),
         route_sync: route_sync(),
-        updated_at: timestamp("2026-06-28T18:00:00Z"),
+        updated_at: timestamp!("2026-06-28T18:00:00Z"),
     }
 }
 
 #[test]
 fn setup_device_trust_handoff_contract_round_trips_through_rust_owned_shape() {
     let proof = proof();
-    let encoded = serde_json::to_value(&proof).value_or_unreachable("proof serializes");
+    let encoded = result_or_unreachable(
+        serde_json::to_value(&proof),
+        crate::assert_context!("proof serializes"),
+    );
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -178,8 +184,10 @@ fn setup_device_trust_handoff_contract_round_trips_through_rust_owned_shape() {
     );
     assert!(encoded.get("schema_version").is_none());
 
-    let decoded: contracts::SetupDeviceTrustHandoffContractProof =
-        serde_json::from_value(encoded).value_or_unreachable("proof deserializes");
+    let decoded: contracts::SetupDeviceTrustHandoffContractProof = result_or_unreachable(
+        serde_json::from_value(encoded),
+        crate::assert_context!("proof deserializes"),
+    );
     assert_eq!(decoded, proof);
 }
 
@@ -212,14 +220,20 @@ fn setup_device_trust_handoff_proof_keeps_no_claim_boundaries_explicit() {
 
 #[test]
 fn setup_device_trust_handoff_contract_rejects_missing_target_package_field() {
-    let mut encoded = serde_json::to_value(proof()).value_or_unreachable("proof serializes");
-    encoded["response"]
+    let mut encoded = result_or_unreachable(
+        serde_json::to_value(proof()),
+        crate::assert_context!("proof serializes"),
+    );
+    let response = encoded["response"]
         .as_object_mut()
-        .value_or_unreachable("response object")
-        .remove("childPackageTargetRef");
+        .expect("response object");
+    response.remove("childPackageTargetRef");
 
     let decoded =
         serde_json::from_value::<contracts::SetupDeviceTrustHandoffContractProof>(encoded);
-    let err = decoded.error_or_unreachable("missing childPackageTargetRef should fail validation");
+    let err = error_or_unreachable(
+        decoded,
+        crate::assert_context!("missing childPackageTargetRef should fail validation"),
+    );
     assert_eq!(err.to_string(), "missing field `childPackageTargetRef`");
 }

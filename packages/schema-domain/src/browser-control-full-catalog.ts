@@ -9,11 +9,6 @@ import { BrowserControlFullCatalogData2 } from './browser-control-full-catalog-d
 import { BrowserControlFullCatalogData3 } from './browser-control-full-catalog-data-3';
 import { BrowserControlFullCatalogData4 } from './browser-control-full-catalog-data-4';
 import {
-  BrowserControlFullCatalogEffectModeOptions,
-  BrowserControlFullCatalogSidePanelCategory,
-  BrowserControlFullCatalogSourceDocument,
-  BrowserControlFullCatalogSourceDocuments,
-  BrowserControlFullCatalogTargetScopeOptions,
   capabilityRequirementFor,
   capabilityStateForSection,
   cardKindFor,
@@ -32,6 +27,11 @@ import {
   visibilityConditionsFor,
 } from './browser-control-full-catalog-metadata';
 import {
+  GeneratedBrowserControlFullCatalogEffectModeOptions,
+  GeneratedBrowserControlFullCatalogSidePanelCategory,
+  GeneratedBrowserControlFullCatalogSourceDocument,
+  GeneratedBrowserControlFullCatalogSourceDocuments,
+  GeneratedBrowserControlFullCatalogTargetScopeOptions,
   sectionKindForTitleGenerated,
   GeneratedBrowserControlFullCatalogTabOrder,
   GeneratedBrowserControlFullCatalogTabTitles,
@@ -48,6 +48,7 @@ import {
   type BrowserControlFullCatalogUiTab,
 } from './browser-control-full-catalog-schema';
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import { BrowserControlOptionIdSchema } from './browser-control-identifiers';
 
 type GroupDraft = Omit<BrowserControlFullCatalogGroup, 'settings'> & {
   readonly settings: BrowserControlFullCatalogSetting[];
@@ -69,12 +70,19 @@ export const BrowserControlFullCatalogSettingSeeds: readonly BrowserControlFullC
   ...BrowserControlFullCatalogData4,
 ];
 
+const BrowserControlFullCatalogTargetScopeOptions = GeneratedBrowserControlFullCatalogTargetScopeOptions.map(
+  parseCatalogOption
+);
+const BrowserControlFullCatalogEffectModeOptions = GeneratedBrowserControlFullCatalogEffectModeOptions.map(
+  parseCatalogOption
+);
+
 export const BaselineBrowserControlFullCatalog: BrowserControlFullCatalog = BrowserControlFullCatalogSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,
   catalogId: BrowserControlManifestIdSchema.parse('browser-control-full-catalog-v1'),
-  sidePanelCategory: BrowserControlFullCatalogSidePanelCategory,
-  sourceDocument: BrowserControlFullCatalogSourceDocument,
-  sourceDocuments: BrowserControlFullCatalogSourceDocuments,
+  sidePanelCategory: GeneratedBrowserControlFullCatalogSidePanelCategory,
+  sourceDocument: GeneratedBrowserControlFullCatalogSourceDocument,
+  sourceDocuments: GeneratedBrowserControlFullCatalogSourceDocuments,
   settingCount: BrowserControlFullCatalogSettingSeeds.length,
   targetScopeOptions: BrowserControlFullCatalogTargetScopeOptions,
   effectModeOptions: BrowserControlFullCatalogEffectModeOptions,
@@ -120,11 +128,11 @@ function buildSetting(seed: BrowserControlFullCatalogSettingSeed): BrowserContro
   const question = questionFromSourceText(sourceText);
   const uiTab = uiTabForSectionGenerated(sectionTitle) as BrowserControlFullCatalogUiTab;
   return {
-    sidePanelCategory: BrowserControlFullCatalogSidePanelCategory,
+    sidePanelCategory: GeneratedBrowserControlFullCatalogSidePanelCategory,
     sectionId: BrowserControlSectionIdSchema.parse(sectionId),
     groupId: BrowserControlSectionIdSchema.parse(groupId),
     settingId: BrowserControlFieldIdSchema.parse(settingId),
-    sourceDocument: BrowserControlFullCatalogSourceDocument,
+    sourceDocument: GeneratedBrowserControlFullCatalogSourceDocument,
     sourceHeadingPath: [sectionTitle, groupTitle],
     sourceSection: BrowserControlSectionIdSchema.parse(sectionId),
     sourceGroup: BrowserControlSectionIdSchema.parse(groupId),
@@ -237,6 +245,19 @@ function finalizeGroup(group: GroupDraft): BrowserControlFullCatalogGroup {
   };
 }
 
+function parseCatalogOption(option: {
+  readonly optionId: string;
+  readonly label: string;
+  readonly value: string;
+  readonly originalSourceText: string;
+  readonly meaning: string | null;
+  readonly defaultSelected: boolean;
+}): BrowserControlFullCatalogSetting['options'][number] {
+  return {
+    ...option,
+    optionId: BrowserControlOptionIdSchema.parse(option.optionId),
+  };
+}
 
 function bySourceOrder<T extends { readonly sourceOrder: number }>(left: T, right: T): number {
   return left.sourceOrder - right.sourceOrder;

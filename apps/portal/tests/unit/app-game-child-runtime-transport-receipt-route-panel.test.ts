@@ -74,6 +74,7 @@ describe('app-game child runtime transport receipt portal route panel', () => {
 
     expect(html).toContain('No app/game child runtime transport receipt panel has been reported yet.');
     expect(html).toContain('Runtime transport, runtime receipt, and provider delivery remain unclaimed.');
+    expect(html).toContain('unavailable');
     expect(html).toContain('disabled=""');
   });
 });

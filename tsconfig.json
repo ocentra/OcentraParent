@@ -8,9 +8,6 @@
       "path": "./packages/logging-domain"
     },
     {
-      "path": "./packages/agent-protocol-domain"
-    },
-    {
       "path": "./packages/portal-domain"
     }
   ],

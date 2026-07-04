@@ -1,6 +1,6 @@
+use super::super::service_identity::snmp::parse_allowed_snmp_response;
 use super::labels::compact_identifier;
 use super::text::compact_summary;
-use super::super::service_identity::snmp::parse_allowed_snmp_response;
 
 pub fn passive_allowed_snmp_response_summary(payload: &[u8]) -> Option<String> {
     let observation = parse_allowed_snmp_response(payload)?;

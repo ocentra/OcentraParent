@@ -9,7 +9,7 @@ import {
   RequiredStatelessReportCompilerStatuses,
   StatelessReportCompilerKnownGaps,
 } from './stateless-report-compiler-status-values';
-import { countProductionProofValues } from './production-proof-shape';
+import { countProductionProofValues } from './proof-shape';
 import {
   FamilyReferenceSchema,
   ParentAccountReferenceSchema,

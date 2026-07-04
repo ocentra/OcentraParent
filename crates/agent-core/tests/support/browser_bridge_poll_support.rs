@@ -13,15 +13,38 @@ use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
-pub type TestResult = Result<(), String>;
+#[derive(Debug)]
+pub struct TestError(String);
 
-pub fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+impl std::fmt::Display for TestError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.0)
+    }
 }
 
-pub fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
+impl std::error::Error for TestError {}
+
+#[derive(Clone)]
+pub struct DevtoolsBodies {
+    pub version_body: String,
+    pub list_body: String,
+}
+
+pub type TestResult = Result<(), TestError>;
+
+pub fn ok<T, E: Debug>(
+    result: Result<T, E>,
+    context: impl std::fmt::Display,
+) -> Result<T, TestError> {
+    result.map_err(|error| TestError(format!("{context}: {error:?}")))
+}
+
+pub fn err<T, E: Debug>(
+    result: Result<T, E>,
+    context: impl std::fmt::Display,
+) -> Result<E, TestError> {
     match result {
-        Ok(_) => Err(format!("{context}: expected error")),
+        Ok(_) => Err(TestError(format!("{context}: expected error"))),
         Err(error) => Ok(error),
     }
 }
@@ -50,10 +73,7 @@ pub fn field_value_contains_raw_debugger_url(value: &LogFieldValue) -> bool {
     matches!(value, LogFieldValue::String(text) if text.contains(constants::browser::DEVTOOLS_TEST_RAW_DEBUGGER_URL))
 }
 
-pub fn serve_keep_alive_devtools(
-    version_body: &'static str,
-    list_body: &'static str,
-) -> Result<SocketAddr, String> {
+pub fn serve_keep_alive_devtools(bodies: DevtoolsBodies) -> Result<SocketAddr, TestError> {
     let listener = ok(
         TcpListener::bind(constants::test_network::LOOPBACK_ANY_PORT),
         constants::error::LOCALHOST_BIND_SUCCEEDS,
@@ -64,14 +84,20 @@ pub fn serve_keep_alive_devtools(
     )?;
 
     thread::spawn(move || {
-        for body in [version_body, list_body] {
+        for body in [bodies.version_body, bodies.list_body] {
             let Ok((mut stream, _)) = listener.accept() else {
                 return;
             };
             thread::spawn(move || {
                 let mut request = [0; 1024];
                 let _ = stream.read(&mut request);
-                let response = devtools_content_length_response(body);
+                let mut response = String::from(constants::browser::HTTP_OK_PREFIX);
+                response.push_str(constants::browser::HTTP_LINE_SEPARATOR);
+                response.push_str(constants::browser::HTTP_HEADER_CONTENT_LENGTH);
+                response.push(' ');
+                response.push_str(&body.len().to_string());
+                response.push_str(constants::browser::HTTP_BODY_SEPARATOR);
+                response.push_str(&body);
                 let _ = stream.write_all(response.as_bytes());
                 thread::sleep(Duration::from_millis(
                     constants::browser::DEVTOOLS_TIMEOUT_MS + 250,
@@ -83,18 +109,15 @@ pub fn serve_keep_alive_devtools(
     Ok(endpoint)
 }
 
-pub fn serve_devtools(version_body: &'static str, list_body: &'static str) -> SocketAddr {
-    let Ok(endpoint) = try_serve_devtools(version_body, list_body) else {
+pub fn serve_devtools(bodies: DevtoolsBodies) -> SocketAddr {
+    let Ok(endpoint) = try_serve_devtools(bodies) else {
         std::process::abort();
     };
 
     endpoint
 }
 
-pub fn try_serve_devtools(
-    version_body: &'static str,
-    list_body: &'static str,
-) -> Result<SocketAddr, String> {
+pub fn try_serve_devtools(bodies: DevtoolsBodies) -> Result<SocketAddr, TestError> {
     let listener = ok(
         TcpListener::bind(constants::test_network::LOOPBACK_ANY_PORT),
         constants::error::LOCALHOST_BIND_SUCCEEDS,
@@ -105,13 +128,15 @@ pub fn try_serve_devtools(
     )?;
 
     thread::spawn(move || {
-        for body in [version_body, list_body] {
+        for body in [bodies.version_body, bodies.list_body] {
             let Ok((mut stream, _)) = listener.accept() else {
                 return;
             };
             let mut request = [0; 1024];
             let _ = stream.read(&mut request);
-            let response = devtools_response(body);
+            let mut response = String::from(constants::browser::HTTP_OK_PREFIX);
+            response.push_str(constants::browser::HTTP_BODY_SEPARATOR);
+            response.push_str(&body);
             let _ = stream.write_all(response.as_bytes());
         }
     });
@@ -119,18 +144,15 @@ pub fn try_serve_devtools(
     Ok(endpoint)
 }
 
-pub fn serve_devtools_owned(version_body: String, list_body: String) -> SocketAddr {
-    let Ok(endpoint) = try_serve_devtools_owned(version_body, list_body) else {
+pub fn serve_devtools_owned(bodies: DevtoolsBodies) -> SocketAddr {
+    let Ok(endpoint) = try_serve_devtools_owned(bodies) else {
         std::process::abort();
     };
 
     endpoint
 }
 
-pub fn try_serve_devtools_owned(
-    version_body: String,
-    list_body: String,
-) -> Result<SocketAddr, String> {
+pub fn try_serve_devtools_owned(bodies: DevtoolsBodies) -> Result<SocketAddr, TestError> {
     let listener = ok(
         TcpListener::bind(constants::test_network::LOOPBACK_ANY_PORT),
         constants::error::LOCALHOST_BIND_SUCCEEDS,
@@ -141,13 +163,15 @@ pub fn try_serve_devtools_owned(
     )?;
 
     thread::spawn(move || {
-        for body in [version_body, list_body] {
+        for body in [bodies.version_body, bodies.list_body] {
             let Ok((mut stream, _)) = listener.accept() else {
                 return;
             };
             let mut request = [0; 1024];
             let _ = stream.read(&mut request);
-            let response = devtools_response(&body);
+            let mut response = String::from(constants::browser::HTTP_OK_PREFIX);
+            response.push_str(constants::browser::HTTP_BODY_SEPARATOR);
+            response.push_str(&body);
             let _ = stream.write_all(response.as_bytes());
         }
     });
@@ -163,7 +187,7 @@ pub fn serve_unresponsive_devtools() -> SocketAddr {
     endpoint
 }
 
-pub fn try_serve_unresponsive_devtools() -> Result<SocketAddr, String> {
+pub fn try_serve_unresponsive_devtools() -> Result<SocketAddr, TestError> {
     let listener = ok(
         TcpListener::bind(constants::test_network::LOOPBACK_ANY_PORT),
         constants::error::LOCALHOST_BIND_SUCCEEDS,
@@ -185,22 +209,4 @@ pub fn try_serve_unresponsive_devtools() -> Result<SocketAddr, String> {
     });
 
     Ok(endpoint)
-}
-
-fn devtools_response(body: &str) -> String {
-    let mut response = String::from(constants::browser::HTTP_OK_PREFIX);
-    response.push_str(constants::browser::HTTP_BODY_SEPARATOR);
-    response.push_str(body);
-    response
-}
-
-fn devtools_content_length_response(body: &str) -> String {
-    let mut response = String::from(constants::browser::HTTP_OK_PREFIX);
-    response.push_str(constants::browser::HTTP_LINE_SEPARATOR);
-    response.push_str(constants::browser::HTTP_HEADER_CONTENT_LENGTH);
-    response.push(' ');
-    response.push_str(&body.len().to_string());
-    response.push_str(constants::browser::HTTP_BODY_SEPARATOR);
-    response.push_str(body);
-    response
 }

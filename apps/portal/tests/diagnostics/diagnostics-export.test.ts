@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityEventKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 import { applyParentRouteSnapshot, createPortalRuntimeState } from '../../src/portal-state';
 import { buildDiagnosticsExport } from '../../src/diagnostics-export';
 import {
@@ -127,7 +126,6 @@ function recentSummaryEvent() {
       firstObservedAt: '2026-05-20T20:44:59Z',
       lastObservedAt: '2026-05-20T20:44:59Z',
       lastEventId: 'activity-event-1',
-      mostRecentKind: ActivityEventKind.ProcessObserved,
       mostRecentObserver: 'windows-process',
       mostRecentSubjectKind: 'process',
       mostRecentSubjectId: 'process-1',

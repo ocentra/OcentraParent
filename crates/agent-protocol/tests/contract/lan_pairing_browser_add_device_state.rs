@@ -31,6 +31,11 @@ use ocentra_parent_agent_protocol::LanServiceIdentityProbeEvidence;
 use ocentra_parent_agent_protocol::LanServiceIdentityProbeEvidenceKind;
 use ocentra_parent_agent_protocol::LAN_PAIRING_SCHEMA_VERSION;
 
+struct LanDiscoveryEvidenceTextParts {
+    value: String,
+    merge_key: String,
+}
+
 #[path = "lan_pairing_browser_add_device_state/production_household_proof_test_support.rs"]
 mod production_household_proof_test_support;
 #[path = "lan_pairing_browser_add_device_state/signed_discovery_relay_spine_test_support.rs"]
@@ -39,31 +44,32 @@ mod signed_discovery_relay_spine_test_support;
 mod source_matrix_test_support;
 
 #[test]
-fn browser_add_device_read_model_serializes_honest_states() {
+fn browser_add_device_read_model_serializes_honest_states() -> Result<(), Box<dyn std::error::Error>>
+{
     let model = production_household_proof_test_support::browser_add_device_read_model_fixture();
 
-    let json = serde_json::to_string(&model)
-        .unwrap_or_else(|error| unreachable!("read model serializes: {error:?}"));
-    let value: serde_json::Value = serde_json::from_str(&json)
-        .unwrap_or_else(|error| unreachable!("read model parses: {error:?}"));
+    let json = serde_json::to_string(&model)?;
+    let value: serde_json::Value = serde_json::from_str(&json)?;
     production_household_proof_test_support::assert_browser_add_device_read_model_json(&value);
+    Ok(())
 }
 
 #[test]
-fn signed_discovery_relay_spine_serializes_adapter_rejection_and_relay_boundaries() {
+fn signed_discovery_relay_spine_serializes_adapter_rejection_and_relay_boundaries(
+) -> Result<(), Box<dyn std::error::Error>> {
     let spine = signed_discovery_relay_spine_test_support::signed_discovery_relay_spine_fixture();
 
-    let json = serde_json::to_value(&spine)
-        .unwrap_or_else(|error| unreachable!("signed discovery relay spine serializes: {error:?}"));
+    let json = serde_json::to_value(&spine)?;
     signed_discovery_relay_spine_test_support::assert_signed_discovery_relay_spine_json(&json);
+    Ok(())
 }
 
 #[test]
-fn lan_discovery_source_matrix_serializes_workpack_and_source_boundaries() {
+fn lan_discovery_source_matrix_serializes_workpack_and_source_boundaries(
+) -> Result<(), Box<dyn std::error::Error>> {
     let matrix = source_matrix_test_support::source_matrix_fixture();
 
-    let json = serde_json::to_value(&matrix)
-        .unwrap_or_else(|error| unreachable!("LAN source matrix serializes: {error:?}"));
+    let json = serde_json::to_value(&matrix)?;
     source_matrix_test_support::assert_source_matrix_json(&json);
     assert_eq!(
         json[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS][15]["title"],
@@ -90,10 +96,12 @@ fn lan_discovery_source_matrix_serializes_workpack_and_source_boundaries() {
             constants::lan_pairing::LAN_SOURCE_MATRIX_CLAIM_WEAK_SOURCES
         ])
     );
+    Ok(())
 }
 
 #[test]
-fn discovered_device_serializes_network_and_hardware_details() {
+fn discovered_device_serializes_network_and_hardware_details(
+) -> Result<(), Box<dyn std::error::Error>> {
     let mut child_device = LanPairingDeviceRef::new(
         constants::lan_pairing::LOCAL_AGENT_DEVICE_ID.to_string(),
         None,
@@ -139,8 +147,7 @@ fn discovered_device_serializes_network_and_hardware_details() {
         hint_sources: Vec::new(),
     };
 
-    let json = serde_json::to_value(&device)
-        .unwrap_or_else(|error| unreachable!("device serializes: {error:?}"));
+    let json = serde_json::to_value(&device)?;
     assert_eq!(
         json["childDevice"]["ipAddress"],
         serde_json::json!("192.168.2.42")
@@ -169,10 +176,12 @@ fn discovered_device_serializes_network_and_hardware_details() {
         json[constants::field::LAN_SERVICE_IDENTITY_PROBE_EVIDENCE][0]["selectedInterface"],
         serde_json::json!("Wi-Fi")
     );
+    Ok(())
 }
 
 #[test]
-fn service_identity_probe_evidence_serializes_wsd_metadata_variants() {
+fn service_identity_probe_evidence_serializes_wsd_metadata_variants(
+) -> Result<(), Box<dyn std::error::Error>> {
     let evidence = vec![
         LanServiceIdentityProbeEvidence {
             evidence_kind: LanServiceIdentityProbeEvidenceKind::WsdEndpointAddress,
@@ -186,9 +195,7 @@ fn service_identity_probe_evidence_serializes_wsd_metadata_variants() {
         },
     ];
 
-    let json = serde_json::to_value(&evidence).unwrap_or_else(|error| {
-        unreachable!("wsd service identity evidence serializes: {error:?}")
-    });
+    let json = serde_json::to_value(&evidence)?;
 
     assert_eq!(
         json[0]["evidenceKind"],
@@ -202,10 +209,12 @@ fn service_identity_probe_evidence_serializes_wsd_metadata_variants() {
     );
     assert_eq!(json[0]["selectedInterface"], serde_json::json!("Wi-Fi"));
     assert!(json[1].get("selectedInterface").is_none());
+    Ok(())
 }
 
 #[test]
-fn service_identity_probe_evidence_serializes_snmp_metadata_variants() {
+fn service_identity_probe_evidence_serializes_snmp_metadata_variants(
+) -> Result<(), Box<dyn std::error::Error>> {
     let evidence = vec![
         LanServiceIdentityProbeEvidence {
             evidence_kind: LanServiceIdentityProbeEvidenceKind::SnmpSysDescr,
@@ -219,9 +228,7 @@ fn service_identity_probe_evidence_serializes_snmp_metadata_variants() {
         },
     ];
 
-    let json = serde_json::to_value(&evidence).unwrap_or_else(|error| {
-        unreachable!("snmp service identity evidence serializes: {error:?}")
-    });
+    let json = serde_json::to_value(&evidence)?;
 
     assert_eq!(json[0]["evidenceKind"], serde_json::json!("snmp-sys-descr"));
     assert_eq!(
@@ -232,33 +239,37 @@ fn service_identity_probe_evidence_serializes_snmp_metadata_variants() {
     assert_eq!(json[1]["value"], serde_json::json!("cam-1"));
     assert_eq!(json[0]["selectedInterface"], serde_json::json!("Ethernet"));
     assert!(json[1].get("selectedInterface").is_none());
+    Ok(())
 }
 
 #[test]
-fn expanded_household_classification_variants_serialize_with_stable_wire_names() {
+fn expanded_household_classification_variants_serialize_with_stable_wire_names(
+) -> Result<(), Box<dyn std::error::Error>> {
     let mut device = canonical_child_agent_device();
     device.classification = LanCanonicalHouseholdDeviceClassification::Television;
     device.enrollable = false;
     device.child_agent_inventory = None;
 
-    let json = serde_json::to_value(&device)
-        .unwrap_or_else(|error| unreachable!("canonical device serializes: {error:?}"));
+    let json = serde_json::to_value(&device)?;
 
     assert_eq!(json["classification"], serde_json::json!("television"));
+    Ok(())
 }
 
 #[test]
-fn discovery_evidence_records_keep_device_and_timestamp_fields_explicit() {
+fn discovery_evidence_records_keep_device_and_timestamp_fields_explicit(
+) -> Result<(), Box<dyn std::error::Error>> {
     let record = evidence_record(
         LanDiscoveryEvidenceSource::LocalService,
         LanDiscoveryEvidenceKind::ChildAgentPresence,
-        constants::lan_pairing::LOCAL_AGENT_STATUS,
-        "agent:lan-physical-mac-54271e97c331",
+        LanDiscoveryEvidenceTextParts {
+            value: constants::lan_pairing::LOCAL_AGENT_STATUS.to_string(),
+            merge_key: "agent:lan-physical-mac-54271e97c331".to_string(),
+        },
         LanDiscoveryEvidenceConfidence::Confirmed,
     );
 
-    let json = serde_json::to_value(record)
-        .unwrap_or_else(|error| unreachable!("evidence record serializes: {error:?}"));
+    let json = serde_json::to_value(record)?;
 
     assert_eq!(
         json[constants::field::EVIDENCE_ID],
@@ -280,10 +291,12 @@ fn discovery_evidence_records_keep_device_and_timestamp_fields_explicit() {
         json["mergeKey"],
         serde_json::json!("agent:lan-physical-mac-54271e97c331")
     );
+    Ok(())
 }
 
 #[test]
-fn discovery_event_rows_keep_event_session_and_device_fields_explicit() {
+fn discovery_event_rows_keep_event_session_and_device_fields_explicit(
+) -> Result<(), Box<dyn std::error::Error>> {
     let history = LanDiscoveryEventHistory {
         schema_version: LAN_PAIRING_SCHEMA_VERSION,
         generated_at: "2026-06-01T15:20:00.000Z".to_string(),
@@ -303,8 +316,7 @@ fn discovery_event_rows_keep_event_session_and_device_fields_explicit() {
         }],
     };
 
-    let json = serde_json::to_value(history)
-        .unwrap_or_else(|error| unreachable!("event history serializes: {error:?}"));
+    let json = serde_json::to_value(history)?;
 
     assert_eq!(json["state"], serde_json::json!("ready"));
     assert_eq!(
@@ -327,41 +339,45 @@ fn discovery_event_rows_keep_event_session_and_device_fields_explicit() {
         json["rows"][0]["affectedDeviceId"],
         serde_json::json!(constants::lan_pairing::LOCAL_AGENT_DEVICE_ID)
     );
+    Ok(())
 }
 
 #[test]
-fn discovery_evidence_and_event_payloads_reject_missing_required_fields() {
-    let evidence_error = result_error_or_unreachable(
-        serde_json::from_value::<LanDiscoveryEvidenceRecord>(serde_json::json!({
-            "schemaVersion": LAN_PAIRING_SCHEMA_VERSION,
-            "evidenceId": "lan-evidence-1"
-        })),
-        "discovery evidence must reject missing required fields",
-    );
-    let event_error = result_error_or_unreachable(
-        serde_json::from_value::<LanDiscoveryEventRow>(serde_json::json!({
-            "schemaVersion": LAN_PAIRING_SCHEMA_VERSION,
-            "eventId": "lan-discovery-scan-1"
-        })),
-        "discovery events must reject missing required fields",
-    );
+fn discovery_evidence_and_event_payloads_reject_missing_required_fields(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let evidence_error = serde_json::from_value::<LanDiscoveryEvidenceRecord>(serde_json::json!({
+        "schemaVersion": LAN_PAIRING_SCHEMA_VERSION,
+        "evidenceId": "lan-evidence-1"
+    }))
+    .err()
+    .ok_or_else(|| {
+        std::io::Error::other("discovery evidence must reject missing required fields")
+    })?;
+    let event_error = serde_json::from_value::<LanDiscoveryEventRow>(serde_json::json!({
+        "schemaVersion": LAN_PAIRING_SCHEMA_VERSION,
+        "eventId": "lan-discovery-scan-1"
+    }))
+    .err()
+    .ok_or_else(|| std::io::Error::other("discovery events must reject missing required fields"))?;
 
     assert_eq!(evidence_error.classify(), serde_json::error::Category::Data);
     assert_eq!(event_error.classify(), serde_json::error::Category::Data);
+    Ok(())
 }
 
 #[test]
-fn browser_add_device_contracts_reject_wrong_schema_versions() {
+fn browser_add_device_contracts_reject_wrong_schema_versions(
+) -> Result<(), Box<dyn std::error::Error>> {
     let mut read_model_json = serde_json::to_value(
         production_household_proof_test_support::browser_add_device_read_model_fixture(),
-    )
-    .unwrap_or_else(|error| unreachable!("read model serializes: {error:?}"));
+    )?;
     read_model_json["schemaVersion"] = serde_json::json!(LAN_PAIRING_SCHEMA_VERSION + 1);
 
-    let read_model_error = result_error_or_unreachable(
-        serde_json::from_value::<LanBrowserAddDeviceReadModel>(read_model_json),
-        "future LAN browser schema version must fail closed",
-    );
+    let read_model_error = serde_json::from_value::<LanBrowserAddDeviceReadModel>(read_model_json)
+        .err()
+        .ok_or_else(|| {
+            std::io::Error::other("future LAN browser schema version must fail closed")
+        })?;
     assert!(read_model_error
         .to_string()
         .contains("unsupported LAN schema version"));
@@ -369,24 +385,28 @@ fn browser_add_device_contracts_reject_wrong_schema_versions() {
     let mut evidence_json = serde_json::to_value(evidence_record(
         LanDiscoveryEvidenceSource::LocalService,
         LanDiscoveryEvidenceKind::Vendor,
-        "AzureWave Technology Inc.",
-        "vendor:azurewavetechnologyinc",
+        LanDiscoveryEvidenceTextParts {
+            value: "AzureWave Technology Inc.".to_string(),
+            merge_key: "vendor:azurewavetechnologyinc".to_string(),
+        },
         LanDiscoveryEvidenceConfidence::Strong,
-    ))
-    .unwrap_or_else(|error| unreachable!("evidence record serializes: {error:?}"));
+    ))?;
     evidence_json["schemaVersion"] = serde_json::json!(LAN_PAIRING_SCHEMA_VERSION + 1);
 
-    let evidence_error = result_error_or_unreachable(
-        serde_json::from_value::<LanDiscoveryEvidenceRecord>(evidence_json),
-        "nested LAN browser schema version must fail closed",
-    );
+    let evidence_error = serde_json::from_value::<LanDiscoveryEvidenceRecord>(evidence_json)
+        .err()
+        .ok_or_else(|| {
+            std::io::Error::other("nested LAN browser schema version must fail closed")
+        })?;
     assert!(evidence_error
         .to_string()
         .contains("unsupported LAN schema version"));
+    Ok(())
 }
 
 #[test]
-fn browser_add_device_contracts_reject_unknown_enum_variants() {
+fn browser_add_device_contracts_reject_unknown_enum_variants(
+) -> Result<(), Box<dyn std::error::Error>> {
     let mut event_json = serde_json::to_value(LanDiscoveryEventRow {
         schema_version: LAN_PAIRING_SCHEMA_VERSION,
         event_id: "lan-discovery-event-unknown-kind".to_string(),
@@ -397,16 +417,17 @@ fn browser_add_device_contracts_reject_unknown_enum_variants() {
         affected_device_id: Some(constants::lan_pairing::LOCAL_AGENT_DEVICE_ID.to_string()),
         evidence_id: Some("agent-lan-physical-mac-54271e97c331".to_string()),
         summary: "LAN scan started".to_string(),
-    })
-    .unwrap_or_else(|error| unreachable!("event row serializes: {error:?}"));
+    })?;
     event_json["eventKind"] = serde_json::json!("future-lan-discovery-kind");
 
-    let error = result_error_or_unreachable(
-        serde_json::from_value::<LanDiscoveryEventRow>(event_json),
-        "unknown LAN browser enum variant must be rejected",
-    );
+    let error = serde_json::from_value::<LanDiscoveryEventRow>(event_json)
+        .err()
+        .ok_or_else(|| {
+            std::io::Error::other("unknown LAN browser enum variant must be rejected")
+        })?;
 
     assert!(error.is_data());
+    Ok(())
 }
 
 fn scan_summary() -> LanBrowserAddDeviceScanSummary {
@@ -470,43 +491,55 @@ fn canonical_evidence_records() -> Vec<LanDiscoveryEvidenceRecord> {
         evidence_record(
             LanDiscoveryEvidenceSource::LocalService,
             LanDiscoveryEvidenceKind::IpAddress,
-            "192.168.2.42",
-            "ip:192.168.2.42",
+            LanDiscoveryEvidenceTextParts {
+                value: "192.168.2.42".to_string(),
+                merge_key: "ip:192.168.2.42".to_string(),
+            },
             LanDiscoveryEvidenceConfidence::Confirmed,
         ),
         evidence_record(
             LanDiscoveryEvidenceSource::LocalService,
             LanDiscoveryEvidenceKind::MacAddress,
-            "54-27-1e-97-c3-31",
-            "mac:54271e97c331",
+            LanDiscoveryEvidenceTextParts {
+                value: "54-27-1e-97-c3-31".to_string(),
+                merge_key: "mac:54271e97c331".to_string(),
+            },
             LanDiscoveryEvidenceConfidence::Confirmed,
         ),
         evidence_record(
             LanDiscoveryEvidenceSource::LocalService,
             LanDiscoveryEvidenceKind::Vendor,
-            "AzureWave Technology Inc.",
-            "vendor:azurewavetechnologyinc",
+            LanDiscoveryEvidenceTextParts {
+                value: "AzureWave Technology Inc.".to_string(),
+                merge_key: "vendor:azurewavetechnologyinc".to_string(),
+            },
             LanDiscoveryEvidenceConfidence::Strong,
         ),
         evidence_record(
             LanDiscoveryEvidenceSource::LocalService,
             LanDiscoveryEvidenceKind::Hostname,
-            "GAMEDEV",
-            "hostname:gamedev",
+            LanDiscoveryEvidenceTextParts {
+                value: "GAMEDEV".to_string(),
+                merge_key: "hostname:gamedev".to_string(),
+            },
             LanDiscoveryEvidenceConfidence::Confirmed,
         ),
         evidence_record(
             LanDiscoveryEvidenceSource::LocalService,
             LanDiscoveryEvidenceKind::Interface,
-            "Ethernet 2",
-            "interface:ethernet2",
+            LanDiscoveryEvidenceTextParts {
+                value: "Ethernet 2".to_string(),
+                merge_key: "interface:ethernet2".to_string(),
+            },
             LanDiscoveryEvidenceConfidence::Confirmed,
         ),
         evidence_record(
             LanDiscoveryEvidenceSource::LocalService,
             LanDiscoveryEvidenceKind::ChildAgentPresence,
-            constants::lan_pairing::LOCAL_AGENT_STATUS,
-            "agent:lan-physical-mac-54271e97c331",
+            LanDiscoveryEvidenceTextParts {
+                value: constants::lan_pairing::LOCAL_AGENT_STATUS.to_string(),
+                merge_key: "agent:lan-physical-mac-54271e97c331".to_string(),
+            },
             LanDiscoveryEvidenceConfidence::Confirmed,
         ),
     ]
@@ -539,23 +572,22 @@ fn canonical_inventory_packet() -> LanChildAgentInventoryPacket {
 fn evidence_record(
     source: LanDiscoveryEvidenceSource,
     evidence_kind: LanDiscoveryEvidenceKind,
-    value: &str,
-    merge_key: &str,
+    text: LanDiscoveryEvidenceTextParts,
     confidence: LanDiscoveryEvidenceConfidence,
 ) -> LanDiscoveryEvidenceRecord {
     LanDiscoveryEvidenceRecord {
         schema_version: LAN_PAIRING_SCHEMA_VERSION,
-        evidence_id: merge_key.replace(':', "-"),
+        evidence_id: text.merge_key.replace(':', "-"),
         source,
         evidence_kind,
         device_id: "lan-physical-mac-54271e97c331".to_string(),
-        value: value.to_string(),
-        normalized_value: value.to_ascii_lowercase(),
+        normalized_value: text.value.to_ascii_lowercase(),
         first_seen_at: "2026-06-01T15:20:00.000Z".to_string(),
         last_seen_at: "2026-06-01T15:20:00.000Z".to_string(),
         expires_at: None,
         confidence,
-        merge_key: merge_key.to_string(),
+        value: text.value,
+        merge_key: text.merge_key,
         note: None,
     }
 }
@@ -572,14 +604,4 @@ fn all_child_agent_surfaces() -> Vec<LanCanonicalHouseholdSurface> {
         LanCanonicalHouseholdSurface::Tracking,
         LanCanonicalHouseholdSurface::Ai,
     ]
-}
-
-fn result_error_or_unreachable<T>(
-    result: serde_json::Result<T>,
-    context: &str,
-) -> serde_json::Error {
-    match result {
-        Ok(_) => unreachable!("{context}"),
-        Err(error) => error,
-    }
 }

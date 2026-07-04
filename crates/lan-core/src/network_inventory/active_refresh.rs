@@ -5,17 +5,17 @@ use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
 use crate::network_inventory_hardware::{local_network_identity, LocalNetworkIdentity};
 
-use super::service_identity::runtime_service_identity_probe_settings;
-use super::{
-    LanDiscoveryRefreshMode, LanDiscoveryScanPlan, LanNetworkInventoryDevice,
-    LanTargetedArpRefreshEvidence,
-};
 use self::evidence::{
     probe_targeted_arp_refresh_target_until, targeted_arp_refresh_targets_with_evidence,
 };
 use self::observations::current_active_refresh_ipv4_observations_by_ip_until;
 use self::target_builders::targeted_arp_refresh_targets;
 use self::targets::{refresh_metrics, saturating_u32};
+use super::service_identity::runtime_service_identity_probe_settings;
+use super::{
+    LanDiscoveryRefreshMode, LanDiscoveryScanPlan, LanNetworkInventoryDevice,
+    LanTargetedArpRefreshEvidence,
+};
 
 pub mod evidence;
 pub mod observations;

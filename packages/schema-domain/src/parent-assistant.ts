@@ -282,6 +282,33 @@ const ParentAssistantProviderRouteExpectations = {
   ParentAssistantProviderRouteExpectation
 >;
 
+const ParentAssistantAnswerStateCheckers = {
+  answered: answeredParentAssistantAnswerIsConsistent,
+  unavailable: unavailableParentAssistantAnswerIsConsistent,
+  degraded: degradedParentAssistantAnswerIsConsistent,
+  queued: queuedParentAssistantAnswerIsConsistent,
+} as const satisfies Record<
+  ParentAssistantAnswerCandidate['answerState'],
+  (answer: ParentAssistantAnswerCandidate) => boolean
+>;
+
+const ParentAssistantProviderRouteApiStateExpectations = {
+  'not-authorized': 'unavailable',
+  'authorized-unavailable': 'unavailable',
+  'authorized-degraded': 'degraded',
+} as const satisfies Record<
+  ParentAssistantProviderRouteCandidate['apiAccessState'],
+  ParentAssistantProviderRouteCandidate['apiProviderState']
+>;
+
+const ParentAssistantActionConfirmStateCheckers = {
+  rejected: parentAssistantRejectedActionConfirmIsSafe,
+  'contract-required': parentAssistantContractRequiredActionConfirmIsSafe,
+} as const satisfies Record<
+  ParentAssistantActionConfirmResultCandidate['confirmState'],
+  (result: ParentAssistantActionConfirmResultCandidate) => boolean
+>;
+
 const ParentAssistantProviderRouteSchema = withParser(
   ParentAssistantProviderRouteBaseSchema.pipe(
     Schema.filter(
@@ -431,18 +458,7 @@ function parentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidat
     return false;
   }
 
-  switch (answer.answerState) {
-    case 'answered':
-      return answeredParentAssistantAnswerIsConsistent(answer);
-    case 'unavailable':
-      return unavailableParentAssistantAnswerIsConsistent(answer);
-    case 'degraded':
-      return degradedParentAssistantAnswerIsConsistent(answer);
-    case 'queued':
-      return queuedParentAssistantAnswerIsConsistent(answer);
-  }
-
-  return false;
+  return ParentAssistantAnswerStateCheckers[answer.answerState](answer);
 }
 
 function answeredParentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidate): boolean {
@@ -565,11 +581,7 @@ function optionalParentAssistantProviderRouteValueMatches<Value>(actual: Value, 
 }
 
 function parentAssistantProviderRouteApiStateIsConsistent(route: ParentAssistantProviderRouteCandidate): boolean {
-  if (route.apiAccessState === 'authorized-degraded') {
-    return route.apiProviderState === 'degraded';
-  }
-
-  return route.apiProviderState === 'unavailable';
+  return route.apiProviderState === ParentAssistantProviderRouteApiStateExpectations[route.apiAccessState];
 }
 
 function parentAssistantProviderRouteMatchesAnswer(answer: ParentAssistantAnswerCandidate): boolean {
@@ -629,9 +641,7 @@ function parentAssistantActionConfirmResultIsSafe(result: ParentAssistantActionC
     return false;
   }
 
-  return result.confirmState === 'rejected'
-    ? parentAssistantRejectedActionConfirmIsSafe(result)
-    : parentAssistantContractRequiredActionConfirmIsSafe(result);
+  return ParentAssistantActionConfirmStateCheckers[result.confirmState](result);
 }
 
 function parentAssistantActionConfirmBaseIsSafe(result: ParentAssistantActionConfirmResultCandidate): boolean {
@@ -664,11 +674,7 @@ function parentAssistantContractRequiredActionConfirmIsSafe(
 }
 
 function parentAssistantActionPreviewResultIsSafe(result: ParentAssistantActionPreviewResultCandidate): boolean {
-  if (!parentAssistantActionPreviewBaseIsSafe(result)) {
-    return false;
-  }
-
-  return parentAssistantActionPreviewEvidenceIsSafe(result);
+  return parentAssistantActionPreviewBaseIsSafe(result) && parentAssistantActionPreviewEvidenceIsSafe(result);
 }
 
 function parentAssistantActionPreviewBaseIsSafe(result: ParentAssistantActionPreviewResultCandidate): boolean {

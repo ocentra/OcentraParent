@@ -77,8 +77,6 @@ fn temporary_live_session_id(
 }
 
 fn temporary_live_state(value: &'static str) -> TrackingTemporaryLiveState {
-    match TrackingTemporaryLiveState::parse(value) {
-        Ok(parsed_state) => parsed_state,
-        Err(_) => unreachable!("canonical tracking live-session state failed to parse: {value}"),
-    }
+    TrackingTemporaryLiveState::parse(value)
+        .expect("canonical tracking live-session state failed to parse")
 }

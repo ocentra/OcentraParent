@@ -251,10 +251,7 @@ pub fn parent_runtime_tracking_dispatch_evaluated_event_from_origin(
     origin_state: ParentRuntimeOriginState,
 ) -> ParentRuntimeTrackingDispatchEvaluatedEvent {
     ParentRuntimeTrackingDispatchEvaluatedEvent {
-        dispatch_id: ParentRuntimeDispatchId::parse(parent_runtime_dispatch_ref(event))
-            .unwrap_or_else(|error| {
-                unreachable!("{PARENT_RUNTIME_TRACKING_DISPATCH_PREFIX}: {error:?}")
-            }),
+        dispatch_id: ParentRuntimeDispatchId(parent_runtime_dispatch_ref(event)),
         source_event: event.clone(),
         child_acknowledgement_state,
         decision: route_parent_tracking_config_update_event_from_origin(

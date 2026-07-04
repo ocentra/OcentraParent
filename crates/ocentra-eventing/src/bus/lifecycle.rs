@@ -1,7 +1,7 @@
 use crate::{DispatchMode, EventingError, ExpectValue};
 
 use super::{
-    reports::{DeadLetter, DeadLetterReason},
+    reports::dead_letter::{DeadLetter, DeadLetterReason},
     EventBus, EventBusClearReport, EventBusShutdownReport, ShutdownMode,
 };
 

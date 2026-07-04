@@ -186,7 +186,5 @@ fn base_intervention_row() -> BrowserInterventionRow {
 }
 
 fn serialized_read_model(read_model: BrowserInterventionReadModel) -> Value {
-    serde_json::to_value(read_model).unwrap_or_else(|error| {
-        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+    serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
 }

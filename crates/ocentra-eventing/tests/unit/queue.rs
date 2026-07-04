@@ -7,13 +7,35 @@ use tokio::sync::{Mutex, Notify};
 use super::fixtures::{
     metadata, metadata_with_event_id, subscriber, subscriber_for_event, test_event,
     test_event_for_type_with_aggregate_and_idempotency, test_event_with_idempotency, TestEvent,
-    OTHER_EVENT_TYPE, OTHER_SUBSCRIBER, OTHER_TARGET, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
+    TestText, OTHER_EVENT_TYPE, OTHER_SUBSCRIBER, OTHER_TARGET, TEST_LABEL, TEST_SUBSCRIBER,
+    TEST_TARGET,
 };
 use crate::{
-    DeadLetterReason, DispatchMode, DomainEvent, EventBus, EventJournal, EventQueuePolicy,
-    EventingError, JournalAppend, JournalPolicy, JournalSelector, QueueDisposition,
-    StoredEventEnvelope,
+    DispatchMode, DomainEvent, EventBus, EventJournal, EventQueuePolicy, EventingError,
+    JournalAppend, JournalPolicy, JournalSelector, QueueDisposition, StoredEventEnvelope,
 };
+use ocentra_eventing::bus::reports::dead_letter::DeadLetterReason;
+
+fn failing_journal_result(
+    call: usize,
+    fail_once_on: usize,
+) -> Result<JournalAppend, EventingError> {
+    if call == fail_once_on {
+        return Err(EventingError::JournalIo {
+            path: String::from("failing-journal"),
+            reason: String::from("intentional one-shot append failure"),
+        });
+    }
+
+    Ok(JournalAppend {
+        sequence: call as u64,
+        previous_hash: None,
+        current_hash: Some(
+            crate::JournalHash::parse(format!("journal-hash-{call}"))
+                .expect_value("journal hash parses"),
+        ),
+    })
+}
 
 #[tokio::test]
 async fn no_subscriber_queue_drains_after_subscriber_registers() {
@@ -21,19 +43,28 @@ async fn no_subscriber_queue_drains_after_subscriber_registers() {
         EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid"),
     );
     let queued_report = bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
         .await
         .expect_value("no-subscriber publish queues");
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
     let subscription = bus
-        .subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
-            let handled = Arc::clone(&handled_clone);
-            async move {
-                handled.lock().await.push(context.payload().label.clone());
-                Ok(())
-            }
-        })
+        .subscribe::<TestEvent, _, _>(
+            subscriber(
+                TestText(TEST_SUBSCRIBER.to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            move |context| {
+                let handled = Arc::clone(&handled_clone);
+                async move {
+                    handled.lock().await.push(context.payload().label.clone());
+                    Ok(())
+                }
+            },
+        )
         .await
         .expect_value("subscriber registers and drains queue");
     let empty_drain = bus
@@ -62,19 +93,28 @@ async fn subscriber_auto_drain_only_drains_matching_event_type() {
         EventQueuePolicy::no_subscriber_queue(4).expect_value("queue policy is valid"),
     );
     bus.publish(
-        test_event_with_idempotency("primary queued", "queue-scope-primary-key"),
-        metadata_with_event_id(TEST_TARGET, "queue-scope-primary-event"),
+        test_event_with_idempotency(
+            TestText("primary queued".to_owned()),
+            TestText("queue-scope-primary-key".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("queue-scope-primary-event".to_owned()),
+        ),
     )
     .await
     .expect_value("primary event queues");
     bus.publish(
         test_event_for_type_with_aggregate_and_idempotency(
-            "other queued",
-            "queue-scope-other-aggregate",
-            OTHER_EVENT_TYPE,
-            "queue-scope-other-key",
+            TestText("other queued".to_owned()),
+            TestText("queue-scope-other-aggregate".to_owned()),
+            TestText(OTHER_EVENT_TYPE.to_owned()),
+            TestText("queue-scope-other-key".to_owned()),
         ),
-        metadata_with_event_id(OTHER_TARGET, "queue-scope-other-event"),
+        metadata_with_event_id(
+            TestText(OTHER_TARGET.to_owned()),
+            TestText("queue-scope-other-event".to_owned()),
+        ),
     )
     .await
     .expect_value("other event queues");
@@ -83,7 +123,11 @@ async fn subscriber_auto_drain_only_drains_matching_event_type() {
     let handled_other_clone = Arc::clone(&handled_other);
     let other_subscription = bus
         .subscribe::<TestEvent, _, _>(
-            subscriber_for_event(OTHER_SUBSCRIBER, OTHER_TARGET, OTHER_EVENT_TYPE),
+            subscriber_for_event(
+                TestText(OTHER_SUBSCRIBER.to_owned()),
+                TestText(OTHER_TARGET.to_owned()),
+                TestText(OTHER_EVENT_TYPE.to_owned()),
+            ),
             move |context| {
                 let handled = Arc::clone(&handled_other_clone);
                 async move {
@@ -107,13 +151,19 @@ async fn subscriber_auto_drain_only_drains_matching_event_type() {
 
     let handled_primary = Arc::new(Mutex::new(Vec::new()));
     let handled_primary_clone = Arc::clone(&handled_primary);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
-        let handled = Arc::clone(&handled_primary_clone);
-        async move {
-            handled.lock().await.push(context.payload().label.clone());
-            Ok(())
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |context| {
+            let handled = Arc::clone(&handled_primary_clone);
+            async move {
+                handled.lock().await.push(context.payload().label.clone());
+                Ok(())
+            }
+        },
+    )
     .await
     .expect_value("primary subscriber drains remaining primary queued event");
 
@@ -130,15 +180,27 @@ async fn bounded_queue_overflow_dead_letters_oldest_event_and_keeps_newest() {
         EventQueuePolicy::no_subscriber_queue(1).expect_value("queue policy is valid"),
     );
     bus.publish(
-        test_event_with_idempotency("first", "queue-overflow-first"),
-        metadata_with_event_id(TEST_TARGET, "queue-overflow-event-1"),
+        test_event_with_idempotency(
+            TestText("first".to_owned()),
+            TestText("queue-overflow-first".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("queue-overflow-event-1".to_owned()),
+        ),
     )
     .await
     .expect_value("first event queues");
     let report = bus
         .publish(
-            test_event_with_idempotency("second", "queue-overflow-second"),
-            metadata_with_event_id(TEST_TARGET, "queue-overflow-event-2"),
+            test_event_with_idempotency(
+                TestText("second".to_owned()),
+                TestText("queue-overflow-second".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("queue-overflow-event-2".to_owned()),
+            ),
         )
         .await
         .expect_value("overflow drops oldest and queues newest");
@@ -172,13 +234,19 @@ async fn bounded_queue_overflow_dead_letters_oldest_event_and_keeps_newest() {
 
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
-        let handled = Arc::clone(&handled_clone);
-        async move {
-            handled.lock().await.push(context.payload().label.clone());
-            Ok(())
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |context| {
+            let handled = Arc::clone(&handled_clone);
+            async move {
+                handled.lock().await.push(context.payload().label.clone());
+                Ok(())
+            }
+        },
+    )
     .await
     .expect_value("subscriber drains newest queued event");
     assert_eq!(handled.lock().await.as_slice(), &["second".to_string()]);
@@ -191,13 +259,20 @@ async fn queued_event_expires_before_dispatch_when_ttl_elapsed() {
         .with_ttl(Duration::from_millis(5))
         .expect_value("ttl policy is valid");
     let bus = EventBus::with_queue_policy(policy);
-    bus.publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
-        .await
-        .expect_value("event queues");
+    bus.publish(
+        test_event(TestText(TEST_LABEL.to_owned())),
+        metadata(TestText(TEST_TARGET.to_owned())),
+    )
+    .await
+    .expect_value("event queues");
     tokio::time::sleep(Duration::from_millis(20)).await;
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), |_| async {
-        Ok(())
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        |_| async { Ok(()) },
+    )
     .await
     .expect_value("subscriber registration drains expired queue");
     let drain = bus
@@ -219,16 +294,28 @@ async fn idempotency_registry_rejects_queued_and_completed_duplicates() {
         .with_idempotency_registry();
     let bus = EventBus::with_queue_policy(policy);
     bus.publish(
-        test_event_with_idempotency(TEST_LABEL, "idempotency-queue-key"),
-        metadata_with_event_id(TEST_TARGET, "idempotency-queued-event-1"),
+        test_event_with_idempotency(
+            TestText(TEST_LABEL.to_owned()),
+            TestText("idempotency-queue-key".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("idempotency-queued-event-1".to_owned()),
+        ),
     )
     .await
     .expect_value("first event queues");
 
     let queued_duplicate = bus
         .publish(
-            test_event_with_idempotency("duplicate", "idempotency-queue-key"),
-            metadata_with_event_id(TEST_TARGET, "idempotency-queued-event-2"),
+            test_event_with_idempotency(
+                TestText("duplicate".to_owned()),
+                TestText("idempotency-queue-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("idempotency-queued-event-2".to_owned()),
+            ),
         )
         .await;
     assert!(matches!(
@@ -236,16 +323,26 @@ async fn idempotency_registry_rejects_queued_and_completed_duplicates() {
         Err(EventingError::DuplicateIdempotencyKey { .. })
     ));
 
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), |_| async {
-        Ok(())
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        |_| async { Ok(()) },
+    )
     .await
     .expect_value("subscriber drains queued event");
 
     let completed_duplicate = bus
         .publish(
-            test_event_with_idempotency("completed", "idempotency-queue-key"),
-            metadata_with_event_id(TEST_TARGET, "idempotency-completed-event"),
+            test_event_with_idempotency(
+                TestText("completed".to_owned()),
+                TestText("idempotency-queue-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("idempotency-completed-event".to_owned()),
+            ),
         )
         .await;
     assert!(matches!(
@@ -259,14 +356,20 @@ async fn in_flight_duplicate_guard_rejects_concurrent_event_id() {
     let bus = EventBus::new();
     let started = Arc::new(Notify::new());
     let started_clone = Arc::clone(&started);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |_| {
-        let started = Arc::clone(&started_clone);
-        async move {
-            started.notify_waiters();
-            tokio::time::sleep(Duration::from_millis(50)).await;
-            Ok(())
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| {
+            let started = Arc::clone(&started_clone);
+            async move {
+                started.notify_waiters();
+                tokio::time::sleep(Duration::from_millis(50)).await;
+                Ok(())
+            }
+        },
+    )
     .await
     .expect_value("subscriber registers");
 
@@ -274,16 +377,22 @@ async fn in_flight_duplicate_guard_rejects_concurrent_event_id() {
     let first = tokio::spawn(async move {
         first_bus
             .publish(
-                test_event_with_idempotency(TEST_LABEL, "in-flight-idempotency-key-1"),
-                metadata(TEST_TARGET),
+                test_event_with_idempotency(
+                    TestText(TEST_LABEL.to_owned()),
+                    TestText("in-flight-idempotency-key-1".to_owned()),
+                ),
+                metadata(TestText(TEST_TARGET.to_owned())),
             )
             .await
     });
     started.notified().await;
     let duplicate = bus
         .publish(
-            test_event_with_idempotency("duplicate", "in-flight-idempotency-key-2"),
-            metadata(TEST_TARGET),
+            test_event_with_idempotency(
+                TestText("duplicate".to_owned()),
+                TestText("in-flight-idempotency-key-2".to_owned()),
+            ),
+            metadata(TestText(TEST_TARGET.to_owned())),
         )
         .await;
     let first_report = first
@@ -308,16 +417,26 @@ async fn failed_subscribe_drain_preserves_queued_event_for_retry() {
         policy,
     );
     bus.publish(
-        test_event_with_idempotency(TEST_LABEL, "drain-preserve-idempotency"),
-        metadata_with_event_id(TEST_TARGET, "drain-preserve-event-1"),
+        test_event_with_idempotency(
+            TestText(TEST_LABEL.to_owned()),
+            TestText("drain-preserve-idempotency".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("drain-preserve-event-1".to_owned()),
+        ),
     )
     .await
     .expect_value("event queues");
 
     let failed_subscribe = bus
-        .subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), |_| async {
-            Ok(())
-        })
+        .subscribe::<TestEvent, _, _>(
+            subscriber(
+                TestText(TEST_SUBSCRIBER.to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            |_| async { Ok(()) },
+        )
         .await;
     assert!(matches!(
         failed_subscribe,
@@ -326,13 +445,19 @@ async fn failed_subscribe_drain_preserves_queued_event_for_retry() {
 
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
-        let handled = Arc::clone(&handled_clone);
-        async move {
-            handled.lock().await.push(context.payload().label.clone());
-            Ok(())
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |context| {
+            let handled = Arc::clone(&handled_clone);
+            async move {
+                handled.lock().await.push(context.payload().label.clone());
+                Ok(())
+            }
+        },
+    )
     .await
     .expect_value("retry subscriber drains preserved event");
 
@@ -349,8 +474,14 @@ async fn after_dispatch_journal_failure_does_not_replay_handler_work() {
         policy,
     );
     bus.publish(
-        test_event_with_idempotency(TEST_LABEL, "drain-after-dispatch-key"),
-        metadata_with_event_id(TEST_TARGET, "drain-after-dispatch-event"),
+        test_event_with_idempotency(
+            TestText(TEST_LABEL.to_owned()),
+            TestText("drain-after-dispatch-key".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("drain-after-dispatch-event".to_owned()),
+        ),
     )
     .await
     .expect_value("event queues");
@@ -358,13 +489,19 @@ async fn after_dispatch_journal_failure_does_not_replay_handler_work() {
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
     let failed_subscribe = bus
-        .subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
-            let handled = Arc::clone(&handled_clone);
-            async move {
-                handled.lock().await.push(context.payload().label.clone());
-                Ok(())
-            }
-        })
+        .subscribe::<TestEvent, _, _>(
+            subscriber(
+                TestText(TEST_SUBSCRIBER.to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            move |context| {
+                let handled = Arc::clone(&handled_clone);
+                async move {
+                    handled.lock().await.push(context.payload().label.clone());
+                    Ok(())
+                }
+            },
+        )
         .await;
     assert!(matches!(
         failed_subscribe,
@@ -374,13 +511,19 @@ async fn after_dispatch_journal_failure_does_not_replay_handler_work() {
     let retry_handled = Arc::new(Mutex::new(Vec::new()));
     let retry_handled_clone = Arc::clone(&retry_handled);
     let retry_subscription = bus
-        .subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
-            let handled = Arc::clone(&retry_handled_clone);
-            async move {
-                handled.lock().await.push(context.payload().label.clone());
-                Ok(())
-            }
-        })
+        .subscribe::<TestEvent, _, _>(
+            subscriber(
+                TestText(TEST_SUBSCRIBER.to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            move |context| {
+                let handled = Arc::clone(&retry_handled_clone);
+                async move {
+                    handled.lock().await.push(context.payload().label.clone());
+                    Ok(())
+                }
+            },
+        )
         .await
         .expect_value("retry subscriber registers without replaying completed work");
 
@@ -415,20 +558,7 @@ impl EventJournal for FailingJournal {
                 *calls += 1;
                 *calls
             };
-            if call == self.fail_once_on {
-                return Err(EventingError::JournalIo {
-                    path: String::from("failing-journal"),
-                    reason: String::from("intentional one-shot append failure"),
-                });
-            }
-            Ok(JournalAppend {
-                sequence: call as u64,
-                previous_hash: None,
-                current_hash: Some(
-                    crate::JournalHash::parse(format!("journal-hash-{call}"))
-                        .expect_value("journal hash parses"),
-                ),
-            })
+            failing_journal_result(call, self.fail_once_on)
         })
     }
 }

@@ -27,93 +27,138 @@ use ocentra_parent_agent_protocol::TrackingReadModelSubjectDisplayName;
 use ocentra_parent_agent_protocol::TrackingReadModelSubjectId;
 use ocentra_parent_agent_protocol::TrackingReadModelSubjectKind;
 use ocentra_parent_agent_protocol::ACTIVITY_QUERY_SCHEMA_VERSION;
+use std::error::Error;
+use std::io;
 
-#[test]
-fn tracking_read_model_payload_contains_contract_json_and_latest_citations() {
-    let payload = tracking_read_model_payload(&tracking_read_model_fixture());
-    let read_model_json = string_payload(&payload, constants::field::ACTIVITY_TRACKING_READ_MODEL);
-    let decoded: TrackingReadModel = parse_or_unreachable(serde_json::from_str(read_model_json));
-
-    assert_eq!(decoded.returned, 1);
-    assert_latest_payload_fields(&payload);
-    assert_active_count_payloads(&payload);
+macro_rules! tracking_payload_string {
+    ($payload:expr, $field:expr $(,)?) => {{
+        match payload_value($payload, $field) {
+            Some(LogFieldValue::String(text)) => Ok(text.as_str()),
+            _ => Err(io::Error::other("tracking payload missing string field")),
+        }
+    }};
 }
 
-fn tracking_read_model_fixture() -> TrackingReadModel {
-    TrackingReadModel {
+macro_rules! tracking_parse {
+    ($ty:ty, $value:expr $(,)?) => {
+        <$ty>::parse($value)?
+    };
+}
+
+#[test]
+fn tracking_read_model_payload_contains_contract_json_and_latest_citations(
+) -> Result<(), Box<dyn Error>> {
+    let payload = tracking_read_model_payload(&tracking_read_model_fixture()?);
+    let read_model_json = tracking_payload_string!(
+        &payload,
+        TrackingReadModelPayloadField::ActivityTrackingReadModel
+    )?;
+    let decoded: TrackingReadModel = serde_json::from_str(read_model_json)?;
+
+    assert_eq!(decoded.returned, 1);
+    assert_latest_payload_fields(&payload)?;
+    assert_active_count_payloads(&payload)?;
+
+    Ok(())
+}
+
+fn tracking_read_model_fixture() -> Result<TrackingReadModel, Box<dyn Error>> {
+    Ok(TrackingReadModel {
         schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
-        generated_at: generated_at(
+        generated_at: tracking_parse!(
+            TrackingReadModelGeneratedAt,
             constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
         ),
-        custody_label: custody_label(),
+        custody_label: tracking_parse!(
+            TrackingReadModelCustodyLabel,
+            TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+        ),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
         returned: 1,
         active_rows: 1,
         tombstone_rows: 0,
-        capability_status: capability_status(
+        capability_status: tracking_parse!(
+            TrackingReadModelCapabilityStatus,
             constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT,
         ),
-        latest_event_id: Some(event_id(
+        latest_event_id: Some(tracking_parse!(
+            TrackingReadModelEventId,
             constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
         )),
-        latest_observed_at: Some(observed_at(
+        latest_observed_at: Some(tracking_parse!(
+            TrackingReadModelObservedAt,
             constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
         )),
-        latest_active_event_id: Some(event_id(
+        latest_active_event_id: Some(tracking_parse!(
+            TrackingReadModelEventId,
             constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
         )),
-        latest_active_observed_at: Some(observed_at(
+        latest_active_observed_at: Some(tracking_parse!(
+            TrackingReadModelObservedAt,
             constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
         )),
         latest_tombstone_event_id: None,
         latest_tombstone_observed_at: None,
         active_kind_counts: vec![TrackingReadModelCount {
-            value: count_value(constants::activity_event_kind::LOCATION_OBSERVED),
+            value: tracking_parse!(
+                TrackingReadModelCountValue,
+                constants::activity_event_kind::LOCATION_OBSERVED,
+            ),
             count: 1,
         }],
         active_device_counts: vec![TrackingReadModelCount {
-            value: count_value(constants::activity_store::TEST_REMOTE_DEVICE_ID),
+            value: tracking_parse!(
+                TrackingReadModelCountValue,
+                constants::activity_store::TEST_REMOTE_DEVICE_ID,
+            ),
             count: 1,
         }],
         active_capability_status_counts: vec![TrackingReadModelCount {
-            value: count_value(constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT),
+            value: tracking_parse!(
+                TrackingReadModelCountValue,
+                constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT,
+            ),
             count: 1,
         }],
         deleted_evidence_reference_ids: Vec::new(),
-        rows: vec![tracking_row()],
-    }
+        rows: vec![tracking_row()?],
+    })
 }
 
-fn assert_latest_payload_fields(payload: &LogFields) {
+fn assert_latest_payload_fields(payload: &LogFields) -> Result<(), Box<dyn Error>> {
     assert_eq!(
-        string_payload(payload, constants::field::EVIDENCE_REFERENCE_IDS),
+        tracking_payload_string!(payload, TrackingReadModelPayloadField::EvidenceReferenceIds)?,
         constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
     );
     assert_eq!(
-        string_payload(payload, constants::field::LATEST_EVENT_ID),
+        tracking_payload_string!(payload, TrackingReadModelPayloadField::LatestEventId)?,
         constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID
     );
     assert_eq!(
-        string_payload(payload, TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_EVENT_ID),
+        tracking_payload_string!(payload, TrackingReadModelPayloadField::LatestActiveEventId)?,
         constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID
     );
     assert_eq!(
-        number_payload(payload, TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS),
+        payload_number(payload, TrackingReadModelPayloadField::ActiveRows)?,
         1.0
     );
     assert_eq!(
-        number_payload(payload, TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS),
+        payload_number(payload, TrackingReadModelPayloadField::TombstoneRows)?,
         0.0
     );
     assert_eq!(
-        string_payload(payload, constants::field::QUERY_VISIBILITY),
+        tracking_payload_string!(payload, TrackingReadModelPayloadField::QueryVisibility)?,
         TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE
     );
+
+    Ok(())
 }
 
-fn assert_active_count_payloads(payload: &LogFields) {
-    let kind_counts = count_payload(payload, TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS);
-    let device_counts = count_payload(payload, TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS);
+fn assert_active_count_payloads(payload: &LogFields) -> Result<(), Box<dyn Error>> {
+    let kind_counts: Vec<TrackingReadModelCount> =
+        payload_counts(payload, TrackingReadModelPayloadField::ActiveKindCounts)?;
+    let device_counts: Vec<TrackingReadModelCount> =
+        payload_counts(payload, TrackingReadModelPayloadField::ActiveDeviceCounts)?;
     assert_eq!(
         kind_counts[0].value,
         constants::activity_event_kind::LOCATION_OBSERVED
@@ -124,126 +169,117 @@ fn assert_active_count_payloads(payload: &LogFields) {
         constants::activity_store::TEST_REMOTE_DEVICE_ID
     );
     assert_eq!(device_counts[0].count, 1);
+
+    Ok(())
 }
 
-fn tracking_row() -> TrackingReadModelRow {
-    TrackingReadModelRow {
+fn tracking_row() -> Result<TrackingReadModelRow, Box<dyn Error>> {
+    Ok(TrackingReadModelRow {
         schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
-        event_id: event_id(constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID),
-        observed_at: observed_at(constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT),
-        device_id: device_id(constants::activity_store::TEST_REMOTE_DEVICE_ID),
-        platform: platform(constants::activity_store::TEST_TRACKING_PLATFORM_ANDROID),
-        observer: observer(constants::activity_observer::ANDROID_LOCATION),
-        kind: kind(constants::activity_event_kind::LOCATION_OBSERVED),
-        subject_kind: subject_kind(constants::activity_subject_kind::LOCATION),
-        subject_id: subject_id(constants::activity_store::TEST_TRACKING_SUBJECT_ID),
-        subject_display_name: Some(subject_display_name(
+        event_id: tracking_parse!(
+            TrackingReadModelEventId,
+            constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+        ),
+        observed_at: tracking_parse!(
+            TrackingReadModelObservedAt,
+            constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
+        ),
+        device_id: tracking_parse!(
+            TrackingReadModelDeviceId,
+            constants::activity_store::TEST_REMOTE_DEVICE_ID,
+        ),
+        platform: tracking_parse!(
+            TrackingReadModelPlatform,
+            constants::activity_store::TEST_TRACKING_PLATFORM_ANDROID,
+        ),
+        observer: tracking_parse!(
+            TrackingReadModelObserver,
+            constants::activity_observer::ANDROID_LOCATION,
+        ),
+        kind: tracking_parse!(
+            TrackingReadModelKind,
+            constants::activity_event_kind::LOCATION_OBSERVED,
+        ),
+        subject_kind: tracking_parse!(
+            TrackingReadModelSubjectKind,
+            constants::activity_subject_kind::LOCATION,
+        ),
+        subject_id: tracking_parse!(
+            TrackingReadModelSubjectId,
+            constants::activity_store::TEST_TRACKING_SUBJECT_ID,
+        ),
+        subject_display_name: Some(tracking_parse!(
+            TrackingReadModelSubjectDisplayName,
             constants::activity_store::TEST_TRACKING_SUBJECT_NAME,
         )),
-        capability_status: Some(capability_status(
+        capability_status: Some(tracking_parse!(
+            TrackingReadModelCapabilityStatus,
             constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT,
         )),
-        query_visibility: query_visibility(TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE),
+        query_visibility: tracking_parse!(
+            TrackingReadModelQueryVisibility,
+            TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE,
+        ),
         deleted_at: None,
-        evidence_reference_ids: vec![evidence_ref(
+        evidence_reference_ids: vec![tracking_parse!(
+            TrackingEvidenceRef,
             constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
         )],
         deleted_evidence_reference_ids: Vec::new(),
         evidence: Vec::new(),
-    }
-}
-
-fn generated_at(value: &str) -> TrackingReadModelGeneratedAt {
-    parse_or_unreachable(TrackingReadModelGeneratedAt::parse(value))
-}
-
-fn custody_label() -> TrackingReadModelCustodyLabel {
-    parse_or_unreachable(TrackingReadModelCustodyLabel::parse(
-        TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    ))
-}
-
-fn capability_status(value: &str) -> TrackingReadModelCapabilityStatus {
-    parse_or_unreachable(TrackingReadModelCapabilityStatus::parse(value))
-}
-
-fn event_id(value: &str) -> TrackingReadModelEventId {
-    parse_or_unreachable(TrackingReadModelEventId::parse(value))
-}
-
-fn observed_at(value: &str) -> TrackingReadModelObservedAt {
-    parse_or_unreachable(TrackingReadModelObservedAt::parse(value))
-}
-
-fn count_value(value: &str) -> TrackingReadModelCountValue {
-    parse_or_unreachable(TrackingReadModelCountValue::parse(value))
-}
-
-fn device_id(value: &str) -> TrackingReadModelDeviceId {
-    parse_or_unreachable(TrackingReadModelDeviceId::parse(value))
-}
-
-fn platform(value: &str) -> TrackingReadModelPlatform {
-    parse_or_unreachable(TrackingReadModelPlatform::parse(value))
-}
-
-fn observer(value: &str) -> TrackingReadModelObserver {
-    parse_or_unreachable(TrackingReadModelObserver::parse(value))
-}
-
-fn kind(value: &str) -> TrackingReadModelKind {
-    parse_or_unreachable(TrackingReadModelKind::parse(value))
-}
-
-fn subject_kind(value: &str) -> TrackingReadModelSubjectKind {
-    parse_or_unreachable(TrackingReadModelSubjectKind::parse(value))
-}
-
-fn subject_id(value: &str) -> TrackingReadModelSubjectId {
-    parse_or_unreachable(TrackingReadModelSubjectId::parse(value))
-}
-
-fn subject_display_name(value: &str) -> TrackingReadModelSubjectDisplayName {
-    parse_or_unreachable(TrackingReadModelSubjectDisplayName::parse(value))
-}
-
-fn query_visibility(value: &str) -> TrackingReadModelQueryVisibility {
-    parse_or_unreachable(TrackingReadModelQueryVisibility::parse(value))
-}
-
-fn evidence_ref(value: &str) -> TrackingEvidenceRef {
-    parse_or_unreachable(TrackingEvidenceRef::parse(value))
-}
-
-fn string_payload<'a>(payload: &'a LogFields, key: &str) -> &'a str {
-    match payload.get(key) {
-        Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => unreachable!(
-            "{}: missing string payload for {key}",
-            constants::error::AGENT_EVENT_SERIALIZES
-        ),
-    }
-}
-
-fn number_payload(payload: &LogFields, key: &str) -> f64 {
-    match payload.get(key) {
-        Some(LogFieldValue::Number(value)) => *value,
-        _ => unreachable!(
-            "{}: missing number payload for {key}",
-            constants::error::AGENT_EVENT_SERIALIZES
-        ),
-    }
-}
-
-fn count_payload(payload: &LogFields, key: &str) -> Vec<TrackingReadModelCount> {
-    parse_or_unreachable(serde_json::from_str(string_payload(payload, key)))
-}
-
-fn parse_or_unreachable<T, E>(result: Result<T, E>) -> T
-where
-    E: core::fmt::Debug,
-{
-    result.unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
     })
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum TrackingReadModelPayloadField {
+    ActivityTrackingReadModel,
+    EvidenceReferenceIds,
+    LatestEventId,
+    LatestActiveEventId,
+    ActiveRows,
+    TombstoneRows,
+    QueryVisibility,
+    ActiveKindCounts,
+    ActiveDeviceCounts,
+}
+
+impl TrackingReadModelPayloadField {
+    const KEYS: [&'static str; 9] = [
+        constants::field::ACTIVITY_TRACKING_READ_MODEL,
+        constants::field::EVIDENCE_REFERENCE_IDS,
+        constants::field::LATEST_EVENT_ID,
+        TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_EVENT_ID,
+        TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS,
+        TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
+        constants::field::QUERY_VISIBILITY,
+        TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS,
+        TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS,
+    ];
+}
+
+fn payload_counts(
+    payload: &LogFields,
+    field: TrackingReadModelPayloadField,
+) -> Result<Vec<TrackingReadModelCount>, Box<dyn Error>> {
+    Ok(serde_json::from_str(tracking_payload_string!(
+        payload, field
+    )?)?)
+}
+
+fn payload_number(
+    payload: &LogFields,
+    field: TrackingReadModelPayloadField,
+) -> Result<f64, Box<dyn Error>> {
+    match payload_value(payload, field) {
+        Some(LogFieldValue::Number(number)) => Ok(*number),
+        _ => Err(io::Error::other("tracking payload missing numeric field").into()),
+    }
+}
+
+fn payload_value(
+    payload: &LogFields,
+    field: TrackingReadModelPayloadField,
+) -> Option<&LogFieldValue> {
+    let key_ref = TrackingReadModelPayloadField::KEYS[field as usize];
+    payload.get(key_ref)
 }

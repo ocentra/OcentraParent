@@ -32,7 +32,9 @@ pub(super) fn network_domain_observed_event() -> NetworkDomainObservedEvent {
         domain_evidence_ref: constants::network_flow::TEST_DOMAIN_EVIDENCE_REF.to_string(),
         attribution: NetworkDomainAttributionKind::DnsAnswer,
         evidence_grade: NetworkEvidenceGrade::B,
-        uncertainty_codes: network_uncertainty_codes(),
+        uncertainty_codes: vec![
+            constants::network_flow::UNCERTAINTY_NETWORK_ONLY_NO_EXACT_URL.to_string(),
+        ],
         claim_boundary: no_claim_boundary(),
     }
 }
@@ -43,11 +45,16 @@ pub(super) fn network_activity_classified_event() -> NetworkActivityClassifiedEv
         classification_event_ref: constants::network_flow::TEST_CLASSIFICATION_EVENT_REF
             .to_string(),
         previous_event_ref: constants::network_flow::TEST_DOMAIN_EVENT_REF.to_string(),
-        evidence_refs: evidence_refs(),
+        evidence_refs: vec![
+            constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),
+            constants::network_flow::TEST_DOMAIN_EVIDENCE_REF.to_string(),
+        ],
         activity_kind: NetworkActivityKind::VpnProxyTunnelCandidate,
         confidence: 0.72,
         evidence_grade: NetworkEvidenceGrade::C,
-        uncertainty_codes: network_uncertainty_codes(),
+        uncertainty_codes: vec![
+            constants::network_flow::UNCERTAINTY_NETWORK_ONLY_NO_EXACT_URL.to_string(),
+        ],
     }
 }
 
@@ -56,7 +63,10 @@ pub(super) fn network_ai_analysis_requested_event() -> NetworkAiAnalysisRequeste
         schema_version: constants::network_flow::EVENT_SCHEMA_VERSION,
         ai_request_ref: constants::network_flow::TEST_AI_REQUEST_REF.to_string(),
         previous_event_ref: constants::network_flow::TEST_CLASSIFICATION_EVENT_REF.to_string(),
-        evidence_refs: evidence_refs(),
+        evidence_refs: vec![
+            constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),
+            constants::network_flow::TEST_DOMAIN_EVIDENCE_REF.to_string(),
+        ],
         prompt_template_ref: constants::network_flow::TEST_PROMPT_TEMPLATE_REF.to_string(),
         custody: NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         raw_packet_payload_included: false,
@@ -70,7 +80,10 @@ pub(super) fn network_ai_analysis_completed_event() -> NetworkAiAnalysisComplete
         ai_request_ref: constants::network_flow::TEST_AI_REQUEST_REF.to_string(),
         previous_event_ref: constants::network_flow::TEST_AI_REQUEST_REF.to_string(),
         advisory_state: NetworkAiAdvisoryState::Completed,
-        evidence_refs: evidence_refs(),
+        evidence_refs: vec![
+            constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),
+            constants::network_flow::TEST_DOMAIN_EVIDENCE_REF.to_string(),
+        ],
         unsupported_claims: vec![
             constants::network_flow::UNSUPPORTED_CLAIM_DECRYPTED_HTTPS_PAYLOAD.to_string(),
         ],
@@ -82,9 +95,12 @@ pub(super) fn network_policy_evaluation_requested_event() -> NetworkPolicyEvalua
         schema_version: constants::network_flow::EVENT_SCHEMA_VERSION,
         policy_evaluation_ref: constants::network_flow::TEST_POLICY_EVALUATION_REF.to_string(),
         previous_event_ref: constants::network_flow::TEST_AI_ANALYSIS_REF.to_string(),
-        evidence_refs: evidence_refs(),
+        evidence_refs: vec![
+            constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),
+            constants::network_flow::TEST_DOMAIN_EVIDENCE_REF.to_string(),
+        ],
         ai_analysis_ref: Some(constants::network_flow::TEST_AI_ANALYSIS_REF.to_string()),
-        parent_rule_refs: parent_rule_refs(),
+        parent_rule_refs: vec![constants::network_flow::TEST_PARENT_RULE_REF.to_string()],
         dry_run: true,
     }
 }
@@ -96,8 +112,11 @@ pub(super) fn network_policy_decision_completed_event() -> NetworkPolicyDecision
         policy_evaluation_ref: constants::network_flow::TEST_POLICY_EVALUATION_REF.to_string(),
         previous_event_ref: constants::network_flow::TEST_POLICY_EVALUATION_REF.to_string(),
         decision_action: NetworkPolicyDecisionAction::ManualReview,
-        evidence_refs: evidence_refs(),
-        parent_rule_refs: parent_rule_refs(),
+        evidence_refs: vec![
+            constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),
+            constants::network_flow::TEST_DOMAIN_EVIDENCE_REF.to_string(),
+        ],
+        parent_rule_refs: vec![constants::network_flow::TEST_PARENT_RULE_REF.to_string()],
         adapter_capability_required: true,
     }
 }
@@ -110,7 +129,10 @@ pub(super) fn network_enforcement_command_issued_event() -> NetworkEnforcementCo
         policy_decision_ref: constants::network_flow::TEST_POLICY_DECISION_REF.to_string(),
         adapter_capability_ref: constants::network_flow::TEST_ADAPTER_CAPABILITY_REF.to_string(),
         enforcement_mode: NetworkEnforcementMode::DryRun,
-        evidence_refs: evidence_refs(),
+        evidence_refs: vec![
+            constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),
+            constants::network_flow::TEST_DOMAIN_EVIDENCE_REF.to_string(),
+        ],
         rollback_ref: Some(constants::network_flow::TEST_ROLLBACK_REF.to_string()),
     }
 }
@@ -140,7 +162,10 @@ pub(super) fn network_audit_entry_committed_event() -> NetworkAuditEntryCommitte
         enforcement_result_ref: Some(
             constants::network_flow::TEST_ENFORCEMENT_RESULT_REF.to_string(),
         ),
-        evidence_refs: evidence_refs(),
+        evidence_refs: vec![
+            constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),
+            constants::network_flow::TEST_DOMAIN_EVIDENCE_REF.to_string(),
+        ],
         audit_outcome: NetworkAuditOutcome::Committed,
     }
 }
@@ -157,13 +182,6 @@ pub(super) fn network_portal_read_model_updated_event() -> NetworkPortalReadMode
     }
 }
 
-pub(super) fn evidence_refs() -> Vec<String> {
-    vec![
-        constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),
-        constants::network_flow::TEST_DOMAIN_EVIDENCE_REF.to_string(),
-    ]
-}
-
 fn no_claim_boundary() -> NetworkClaimBoundary {
     NetworkClaimBoundary {
         exact_url_available: false,
@@ -172,12 +190,4 @@ fn no_claim_boundary() -> NetworkClaimBoundary {
         search_query_available: false,
         adapter_action_executed: false,
     }
-}
-
-fn network_uncertainty_codes() -> Vec<String> {
-    vec![constants::network_flow::UNCERTAINTY_NETWORK_ONLY_NO_EXACT_URL.to_string()]
-}
-
-fn parent_rule_refs() -> Vec<String> {
-    vec![constants::network_flow::TEST_PARENT_RULE_REF.to_string()]
 }

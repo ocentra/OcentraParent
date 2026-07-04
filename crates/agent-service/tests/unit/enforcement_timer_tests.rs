@@ -16,12 +16,11 @@ use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
+use super::test_text::{optional_log_string, test_ok, test_some, TestResult, TestText};
 use crate::{
     enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
     enforcement_timer_api::build_enforcement_timer_report_with_paths,
 };
-
-type TestResult = Result<(), String>;
 
 #[tokio::test]
 async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestResult {
@@ -273,82 +272,71 @@ fn target() -> AgentMessageTarget {
     }
 }
 
-fn read_state(paths: &EnforcementJournalPaths) -> Result<EnforcementActiveTimerState, String> {
-    let text = ok(
+fn read_state(paths: &EnforcementJournalPaths) -> Result<EnforcementActiveTimerState, TestText> {
+    let text = test_ok(
         read_to_string(&paths.timer_state_path),
         constants::error::JOURNAL_READS,
     )?;
-    ok(
+    test_ok(
         serde_json::from_str(&text),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }
 
-fn payload_timer_event(payload: &LogFields) -> Result<EnforcementTimerEvent, String> {
-    let text = some(
-        payload_string(payload, constants::field::ENFORCEMENT_TIMER_EVENT),
+fn payload_timer_event(payload: &LogFields) -> Result<EnforcementTimerEvent, TestText> {
+    let text = test_some(
+        optional_log_string(payload, constants::field::ENFORCEMENT_TIMER_EVENT),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
-    ok(
-        serde_json::from_str(text),
+    test_ok(
+        serde_json::from_str(&text.to_string()),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }
 
-fn payload_audit_event(payload: &LogFields) -> Result<EnforcementAuditEvent, String> {
-    let text = some(
-        payload_string(payload, constants::field::ENFORCEMENT_AUDIT_EVENT),
+fn payload_audit_event(payload: &LogFields) -> Result<EnforcementAuditEvent, TestText> {
+    let text = test_some(
+        optional_log_string(payload, constants::field::ENFORCEMENT_AUDIT_EVENT),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
-    ok(
-        serde_json::from_str(text),
+    test_ok(
+        serde_json::from_str(&text.to_string()),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }
 
-fn payload_string<'a>(payload: &'a LogFields, field: &str) -> Option<&'a str> {
-    match payload.get(field) {
-        Some(LogFieldValue::String(value)) => Some(value.as_str()),
-        _ => None,
-    }
-}
-
-fn temp_paths(suffix: &str) -> EnforcementJournalPaths {
+fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
+    let suffix = suffix.to_string();
+    let build_path = |role, extension| {
+        let mut name = String::from(constants::journal::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(&suffix);
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(role);
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
     EnforcementJournalPaths {
-        journal_path: temp_path(
-            suffix,
+        journal_path: build_path(
             constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX,
             constants::journal::FILE_EXTENSION,
         ),
-        key_path: temp_path(
-            suffix,
+        key_path: build_path(
             constants::activity_store::TEST_CAPTURE_KEY_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
-        store_path: temp_path(
-            suffix,
+        store_path: build_path(
             constants::activity_store::TEST_STORE_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
-        timer_state_path: temp_path(
-            suffix,
+        timer_state_path: build_path(
             constants::enforcement::TIMER_STATE_ID_PREFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
     }
-}
-
-fn temp_path(suffix: &str, role: &str, extension: &str) -> std::path::PathBuf {
-    let mut name = String::from(constants::journal::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(role);
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path.set_extension(extension);
-    path
 }
 
 fn cleanup_paths(paths: &EnforcementJournalPaths) {
@@ -362,12 +350,4 @@ fn cleanup_paths(paths: &EnforcementJournalPaths) {
     let mut shm_path = paths.store_path.clone();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
-}
-
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| context.to_string())
 }

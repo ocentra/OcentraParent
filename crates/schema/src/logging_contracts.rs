@@ -148,7 +148,37 @@ pub enum LogFieldValue {
     Null(()),
 }
 
-pub type LogFields = BTreeMap<String, LogFieldValue>;
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LogFields(BTreeMap<String, LogFieldValue>);
+
+impl LogFields {
+    pub fn new() -> Self {
+        Self(BTreeMap::new())
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (&String, &LogFieldValue)> {
+        self.0.iter()
+    }
+
+    pub fn get(&self, key: &str) -> Option<&LogFieldValue> {
+        self.0.get(key)
+    }
+
+    pub fn insert(&mut self, key: String, value: LogFieldValue) -> Option<LogFieldValue> {
+        self.0.insert(key, value)
+    }
+
+    pub fn into_inner(self) -> BTreeMap<String, LogFieldValue> {
+        self.0
+    }
+}
+
+impl From<BTreeMap<String, LogFieldValue>> for LogFields {
+    fn from(value: BTreeMap<String, LogFieldValue>) -> Self {
+        Self(value)
+    }
+}
 
 impl From<&str> for LogFieldValue {
     fn from(value: &str) -> Self {
@@ -171,6 +201,30 @@ impl From<bool> for LogFieldValue {
 impl From<f64> for LogFieldValue {
     fn from(value: f64) -> Self {
         Self::Number(value)
+    }
+}
+
+impl IntoIterator for LogFields {
+    type Item = (String, LogFieldValue);
+    type IntoIter = std::collections::btree_map::IntoIter<String, LogFieldValue>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a LogFields {
+    type Item = (&'a String, &'a LogFieldValue);
+    type IntoIter = std::collections::btree_map::Iter<'a, String, LogFieldValue>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
+
+impl std::iter::FromIterator<(String, LogFieldValue)> for LogFields {
+    fn from_iter<T: IntoIterator<Item = (String, LogFieldValue)>>(iter: T) -> Self {
+        Self(iter.into_iter().collect())
     }
 }
 

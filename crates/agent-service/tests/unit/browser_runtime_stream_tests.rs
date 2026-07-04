@@ -1,5 +1,4 @@
-use std::{error::Error, fs::remove_file, io::Error as IoError};
-
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeTargetObservation,
@@ -43,6 +42,8 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 use serde_json::Value;
+use std::path::{Path as TestPath, PathBuf as TestPathBuf};
+use std::{error::Error, fs::remove_file, io::Error as IoError};
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK,
@@ -51,6 +52,7 @@ use crate::{
         stream_browser_runtime_event_chain_for_read_model_with_policy_preview,
         BrowserRuntimeServiceStreamReport,
     },
+    test_invariants::require_some,
 };
 
 #[path = "browser_runtime_stream_tests/browser_runtime_service_stream_eventing_tests.rs"]
@@ -165,7 +167,7 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
         entries[0][constants::field::PAYLOAD][constants::field::ACTION_INTENT_ID],
         Value::Null
     );
-    let last_entry = entries.last().unwrap_or(&Value::Null);
+    let last_entry = require_some(entries.last(), constants::error::AGENT_EVENT_SERIALIZES);
     assert_eq!(
         last_entry[constants::field::EVENT_TYPE],
         constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
@@ -246,13 +248,13 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
     .await;
     let payload = browser_runtime_event_chain_stream_payload(&report);
     let entries = stream_entries(&payload);
-    let policy_entry = entries
-        .iter()
-        .find(|entry| {
+    let policy_entry = require_some(
+        entries.iter().find(|entry| {
             entry[constants::field::EVENT_TYPE]
                 == constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED
-        })
-        .unwrap_or(&Value::Null);
+        }),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
 
     assert_eq!(report.action_intent_candidates, 1);
     assert_eq!(report.action_intent_dispatch_attempts, 0);
@@ -324,7 +326,7 @@ async fn service_browser_runtime_stream_keeps_unavailable_rows_manual_required()
             constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED,
         ]
     );
-    let last_entry = entries.last().unwrap_or(&Value::Null);
+    let last_entry = require_some(entries.last(), constants::error::AGENT_EVENT_SERIALIZES);
     assert_eq!(
         last_entry[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
         false
@@ -417,7 +419,9 @@ async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() -
             .ingest_events(&[browser_activity_event()?])
             .map_err(|error| IoError::other(format!("{error:?}")))?;
         let body = serde_json::to_string(&command_envelope())?;
-        let event = handle_local_command_text_for_test(&body).await;
+        let event =
+            handle_local_command_text_for_test(crate::test_text::TestText::from_display(body))
+                .await;
         let entries = stream_entries(&event.payload);
 
         assert_eq!(
@@ -631,20 +635,23 @@ pub(super) fn stream_entries(payload: &LogFields) -> Vec<Value> {
     }
 }
 
-fn first_entry_with_capability<'a>(entries: &'a [Value], capability: &str) -> &'a Value {
-    entries
-        .iter()
-        .find(|entry| {
-            entry[constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS] == capability
-        })
-        .unwrap_or(&Value::Null)
+fn first_entry_with_capability(entries: &[Value], capability: TestText) -> &Value {
+    let capability = capability;
+    require_some(
+        entries.iter().find(|entry| {
+            entry[constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS]
+                == capability.as_ref()
+        }),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
 }
 
-fn temp_path(suffix: &str) -> std::path::PathBuf {
+fn temp_path(suffix: TestText) -> TestPathBuf {
+    let suffix = suffix;
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(suffix.as_ref());
 
     let mut path = std::env::temp_dir();
     path.push(name);
@@ -652,12 +659,13 @@ fn temp_path(suffix: &str) -> std::path::PathBuf {
     path
 }
 
-fn cleanup_path(path: &std::path::PathBuf) {
+fn cleanup_path(path: impl AsRef<TestPath>) {
+    let path = path.as_ref();
     let _ = remove_file(path);
-    let mut wal_path = path.clone();
+    let mut wal_path = path.to_path_buf();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(wal_path);
-    let mut shm_path = path.clone();
+    let mut shm_path = path.to_path_buf();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }

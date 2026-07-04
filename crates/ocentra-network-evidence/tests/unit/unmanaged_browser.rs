@@ -1,10 +1,6 @@
-use crate::{
-    correlate_unmanaged_browser_activity, NetworkEvidenceGrade, UnmanagedBrowserCorrelation,
-    UnmanagedBrowserCorrelationBasis, UnmanagedBrowserCorrelationError,
-    UnmanagedBrowserCorrelationInput, UnmanagedBrowserCorrelationState,
-    UnmanagedBrowserProcessKind,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::unmanaged_browser::*;
 
 #[test]
 fn unmanaged_browser_correlation_records_known_browser_as_process_only_bypass() {

@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::{
     fs,
     path::PathBuf,
@@ -56,7 +59,7 @@ fn parent_assistant_thread_create_returns_durable_service_state() {
         )]),
     ));
     let response =
-        thread_response_payload(&event.payload[constants::parent_assistant::FIELD_THREAD_RESPONSE]);
+        thread_response_payload(&crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_THREAD_RESPONSE, constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(
         event.event,
@@ -123,7 +126,7 @@ fn parent_assistant_provider_status_reports_local_runtime_and_api_boundary() {
         Default::default(),
     ));
     let status =
-        provider_status_payload(&event.payload[constants::parent_assistant::FIELD_PROVIDER_STATUS]);
+        provider_status_payload(&crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_PROVIDER_STATUS, constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(
         event.event,
@@ -300,7 +303,7 @@ fn parent_assistant_run_cancel_reports_not_running_without_process_kill_claim() 
         )]),
     ));
     let result =
-        run_cancel_payload(&event.payload[constants::parent_assistant::FIELD_RUN_CANCEL_RESULT]);
+        run_cancel_payload(&crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_RUN_CANCEL_RESULT, constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(
         event.event,
@@ -341,7 +344,7 @@ fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforce
         ]),
     ));
     let result =
-        action_preview_payload(&event.payload[constants::field::PARENT_ASSISTANT_ACTION_PREVIEW]);
+        action_preview_payload(&crate::test_invariants::log_field(&event.payload, constants::field::PARENT_ASSISTANT_ACTION_PREVIEW, constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(
         event.event,
@@ -419,7 +422,7 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
         fields_from_pairs(vec![intent.clone(), preview.clone()]),
     ));
     let result = action_confirm_payload(
-        &event.payload[constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT],
+        &crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
     );
 
     assert_eq!(
@@ -454,7 +457,7 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
         fields_from_pairs(vec![intent.clone()]),
     ));
     let missing_preview = action_confirm_payload(
-        &missing_preview_event.payload[constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT],
+        &missing_preview_crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
     );
     assert_rejected_action_confirm!(
         missing_preview,
@@ -476,7 +479,7 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
         ]),
     ));
     let raw = action_confirm_payload(
-        &raw_event.payload[constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT],
+        &raw_crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
     );
     assert_rejected_action_confirm!(
         raw,

@@ -1,7 +1,8 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use ocentra_parent_agent_protocol::constants;
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::network_event_runtime::{
     remote_delivery_fixture_transport::{
         prove_network_runtime_remote_delivery_fixture_transport,
@@ -15,10 +16,10 @@ use ocentra_parent_agent_core::network_event_runtime::{
     remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff,
 };
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestText>;
 
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+fn ok<T, E: Debug>(result: Result<T, E>, context: impl Display) -> Result<T, TestText> {
+    result.map_err(|error| TestText::from_display(format!("{context}: {error:?}")))
 }
 
 #[tokio::test]

@@ -6,10 +6,15 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use std::path::Path;
 
+mod basic_reports;
 mod command_classifiers;
 mod policy_request_confirm;
 mod tracking_retention_settings_write;
 
+use self::basic_reports::{
+    build_dev_echo_report, build_health_report, build_log_snapshot_report,
+    build_watcher_status_report, temp_runtime_store_path,
+};
 use self::command_classifiers::{
     is_activity_command, is_browser_policy_command, is_lan_runtime_command,
 };
@@ -62,7 +67,8 @@ use crate::{
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     lan_pairing::{
-        build_lan_pairing_status_report, route_lan_command, LanCommandDecision, LanPairingRuntime,
+        build_lan_pairing_status_report, command_routing::route_lan_command, extend_log_fields,
+        LanCommandDecision, LanPairingRuntime,
     },
     lan_runtime_stream_api::build_lan_runtime_event_chain_stream_report,
     local_ai_chat_generation::build_local_ai_chat_generation_report,
@@ -81,11 +87,10 @@ use crate::{
     screen_settings_runtime::ScreenSettingsRuntime,
     snapshot::build_dev_log_snapshot,
 };
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 
 const BROWSER_POLICY_TEST_STORE_PREFIX: &str = "browser-policy";
 const SCREEN_SETTINGS_TEST_STORE_PREFIX: &str = "screen-settings";
-const TEST_RUNTIME_STORE_FILE_PREFIX: &str = "ocentra-parent-agent-service-";
-const TEST_RUNTIME_STORE_FILE_EXTENSION: &str = ".json";
 
 pub(crate) async fn handle_command_text_for_test(
     text: &str,
@@ -273,14 +278,19 @@ async fn handle_command(
     screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    let (command, audit_fields) =
-        match route_lan_command(lan_pairing.clone(), origin, command).await {
-            LanCommandDecision::Continue {
-                command,
-                audit_fields,
-            } => (command, audit_fields),
-            LanCommandDecision::Respond(event) => return event,
-        };
+    let (command, audit_fields) = match route_lan_command(
+        lan_pairing.clone(),
+        crate::lan_pairing::command_routing::LanCommandOrigin(LanPairingOptionalText(origin)),
+        command,
+    )
+    .await
+    {
+        LanCommandDecision::Continue {
+            command,
+            audit_fields,
+        } => (command, audit_fields),
+        LanCommandDecision::Respond(event) => return event,
+    };
 
     let mut event = Box::pin(build_command_event(
         command,
@@ -291,7 +301,7 @@ async fn handle_command(
     .await;
 
     if let Some(audit_fields) = audit_fields {
-        event.payload.extend(audit_fields);
+        extend_log_fields(&mut event.payload, audit_fields);
     }
     event
 }
@@ -587,86 +597,7 @@ async fn build_ai_command_report(command: AgentCommandEnvelope) -> AgentEventEnv
     }
 }
 
-fn build_dev_echo_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
-    build_event(
-        constants::event_id::DEV_ECHOED,
-        &command.message_id,
-        command.source,
-        AgentEventName::AgentDevEchoed,
-        LogLevel::Info,
-        command.payload,
-        None,
-    )
-}
-
-fn build_health_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
-    build_event(
-        constants::event_id::HEALTH_REPORTED,
-        &command.message_id,
-        command.source,
-        AgentEventName::AgentHealthReported,
-        LogLevel::Info,
-        fields_from_pairs(vec![
-            (constants::field::ONLINE, LogFieldValue::Boolean(true)),
-            (
-                constants::field::TRANSPORT,
-                LogFieldValue::String(constants::value::TRANSPORT_WEBSOCKET.to_string()),
-            ),
-        ]),
-        Some(build_dev_log_snapshot()),
-    )
-}
-
-fn build_log_snapshot_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
-    build_event(
-        constants::event_id::LOG_SNAPSHOT_REPORTED,
-        &command.message_id,
-        command.source,
-        AgentEventName::AgentLogSnapshotReported,
-        LogLevel::Info,
-        fields_from_pairs(vec![(
-            constants::field::ENTRIES,
-            LogFieldValue::Number(1.0),
-        )]),
-        Some(build_dev_log_snapshot()),
-    )
-}
-
-fn build_watcher_status_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
-    build_event(
-        constants::event_id::WATCH_STATUS_REPORTED,
-        &command.message_id,
-        command.source,
-        AgentEventName::AgentWatchStatusReported,
-        LogLevel::Info,
-        fields_from_pairs(vec![
-            (constants::field::AVAILABLE, LogFieldValue::Boolean(false)),
-            (
-                constants::field::NOTE,
-                LogFieldValue::String(constants::value::WATCHER_STATUS_ONLY.to_string()),
-            ),
-        ]),
-        None,
-    )
-}
-
 async fn send_event(socket: &mut WebSocket, event: AgentEventEnvelope) -> Result<(), axum::Error> {
     let text = serde_json::to_string(&event).map_err(axum::Error::new)?;
     socket.send(Message::Text(text.into())).await
-}
-
-fn temp_runtime_store_path(prefix: &str) -> std::path::PathBuf {
-    use std::sync::atomic::{AtomicU64, Ordering};
-
-    static TEST_RUNTIME_COUNTER: AtomicU64 = AtomicU64::new(0);
-
-    let sequence = TEST_RUNTIME_COUNTER.fetch_add(1, Ordering::Relaxed);
-    let mut file_name = String::from(TEST_RUNTIME_STORE_FILE_PREFIX);
-    file_name.push_str(prefix);
-    file_name.push('-');
-    file_name.push_str(&std::process::id().to_string());
-    file_name.push('-');
-    file_name.push_str(&sequence.to_string());
-    file_name.push_str(TEST_RUNTIME_STORE_FILE_EXTENSION);
-    std::env::temp_dir().join(file_name)
 }

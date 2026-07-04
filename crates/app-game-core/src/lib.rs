@@ -37,22 +37,38 @@ impl AppGameObservationIntent {
     fn observed_requirements(self) -> AppGameObservedRequirements {
         match self {
             AppGameObservationIntent::ForegroundUsageRequiresPolicy => {
-                AppGameObservedRequirements {
-                    observed_state: ChildDomainObservedSignal::RequiresPolicy,
-                    ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
-                    policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
-                }
+                Self::foreground_usage_requires_policy_requirements()
             }
-            AppGameObservationIntent::AmbiguousUsageRequiresAi => AppGameObservedRequirements {
-                observed_state: ChildDomainObservedSignal::RequiresAi,
-                ai_analysis_requirement: ChildDomainAiAnalysisRequirement::Required,
-                policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
-            },
-            AppGameObservationIntent::InventoryObservationOnly => AppGameObservedRequirements {
-                observed_state: ChildDomainObservedSignal::ObserveOnly,
-                ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
-                policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::NotRequired,
-            },
+            AppGameObservationIntent::AmbiguousUsageRequiresAi => {
+                Self::ambiguous_usage_requires_ai_requirements()
+            }
+            AppGameObservationIntent::InventoryObservationOnly => {
+                Self::inventory_observation_only_requirements()
+            }
+        }
+    }
+
+    fn foreground_usage_requires_policy_requirements() -> AppGameObservedRequirements {
+        AppGameObservedRequirements {
+            observed_state: ChildDomainObservedSignal::RequiresPolicy,
+            ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
+            policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+        }
+    }
+
+    fn ambiguous_usage_requires_ai_requirements() -> AppGameObservedRequirements {
+        AppGameObservedRequirements {
+            observed_state: ChildDomainObservedSignal::RequiresAi,
+            ai_analysis_requirement: ChildDomainAiAnalysisRequirement::Required,
+            policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+        }
+    }
+
+    fn inventory_observation_only_requirements() -> AppGameObservedRequirements {
+        AppGameObservedRequirements {
+            observed_state: ChildDomainObservedSignal::ObserveOnly,
+            ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
+            policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::NotRequired,
         }
     }
 }

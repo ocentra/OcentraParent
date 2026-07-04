@@ -31,6 +31,9 @@ use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::policy_constants as policy;
+use std::fmt::Display;
+
+use crate::test_text::TestText;
 
 pub fn browser_event() -> ActivityEvent {
     browser_tab_observation_event(
@@ -56,7 +59,7 @@ pub fn browser_event() -> ActivityEvent {
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         0,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::BROWSER_BRIDGE_MAPS_TARGET))
+    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET)
 }
 
 pub fn active_window_event() -> ActivityEvent {
@@ -76,7 +79,9 @@ pub fn network_flow_event() -> ActivityEvent {
     network_flow_event_at(constants::activity_store::TEST_FIRST_OBSERVED_AT, 0)
 }
 
-pub fn network_flow_event_at(observed_at: &str, sequence_index: usize) -> ActivityEvent {
+pub fn network_flow_event_at(observed_at: impl Display, sequence_index: usize) -> ActivityEvent {
+    let observed_at = TestText::from_display(observed_at);
+    let observed_at = observed_at.to_string();
     network_observation_event(
         NetworkObservation {
             status: ActivityCaptureCapabilityStatus::Available,
@@ -93,12 +98,12 @@ pub fn network_flow_event_at(observed_at: &str, sequence_index: usize) -> Activi
             process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
             associated_pid_count: 1,
         },
-        observed_at,
+        observed_at.as_str(),
         sequence_index,
     )
 }
 
-pub fn network_retention_deleted_event(deleted_event_id: &str) -> ActivityEvent {
+pub fn network_retention_deleted_event(deleted_event_id: impl Display) -> ActivityEvent {
     network_retention_deleted_event_at(
         deleted_event_id,
         constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT,
@@ -106,9 +111,11 @@ pub fn network_retention_deleted_event(deleted_event_id: &str) -> ActivityEvent 
 }
 
 pub fn network_retention_deleted_event_at(
-    deleted_event_id: &str,
-    observed_at: &str,
+    deleted_event_id: impl Display,
+    observed_at: impl Display,
 ) -> ActivityEvent {
+    let deleted_event_id = TestText::from_display(deleted_event_id);
+    let observed_at = TestText::from_display(observed_at);
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
@@ -155,17 +162,19 @@ pub fn parent_rule_context_for_event(event: &ActivityEvent) -> LocalAiParentRule
         policy::TEST_BLOCK_RULE_ID,
         PolicyAction::Block,
         policy::TEST_REASON_PARENT_BLOCK,
-        vec![event.event_id.clone()],
+        vec![TestText::from_display(event.event_id.clone())],
     )
 }
 
 pub fn parent_rule_context(
     target: PolicyTarget,
-    rule_id: &str,
+    rule_id: impl Display,
     action: PolicyAction,
-    reason_code: &str,
-    target_evidence_refs: Vec<String>,
+    reason_code: impl Display,
+    target_evidence_refs: Vec<TestText>,
 ) -> LocalAiParentRuleContextRef {
+    let rule_id = TestText::from_display(rule_id);
+    let reason_code = TestText::from_display(reason_code);
     LocalAiParentRuleContextRef {
         parent_rule_ref_id: policy::TEST_PARENT_RULE_CONTEXT_REF_ID.to_string(),
         policy_version: policy::TEST_POLICY_VERSION.to_string(),
@@ -197,7 +206,10 @@ pub fn parent_rule_context(
             effective_from: None,
             effective_until: None,
         },
-        target_evidence_refs,
+        target_evidence_refs: target_evidence_refs
+            .into_iter()
+            .map(|value| value.to_string())
+            .collect(),
         custody: policy::TEST_PARENT_RULE_CONTEXT_CUSTODY.to_string(),
         updated_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         expires_at: None,

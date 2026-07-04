@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { writeLogEntry, writeSummary } from '../../src/test-log/ndjsonLogFileWriter';
 import { getDefaultLogRoot } from '../../src/test-log/ndjsonPaths';
-import { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
+import { TestLogScope } from '../../src/test-log/types';
 
 describe('ndjson log file writer', () => {
   const tempDirs: string[] = [];

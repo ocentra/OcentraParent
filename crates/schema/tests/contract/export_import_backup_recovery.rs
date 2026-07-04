@@ -5,7 +5,8 @@ use serde_json::json;
 #[test]
 fn export_import_backup_recovery_contract_round_trips_through_rust_owned_shape() {
     let proof = contracts::sample_export_import_backup_recovery_contract_proof();
-    let encoded = serde_json::to_value(&proof).value_or_unreachable("proof serializes");
+    let encoded = serde_json::to_value(&proof)
+        .value_or_unreachable(crate::assert_context!("proof serializes"));
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -22,7 +23,8 @@ fn export_import_backup_recovery_contract_round_trips_through_rust_owned_shape()
     assert!(encoded.get("schema_version").is_none());
 
     let decoded: contracts::ExportImportBackupRecoveryContractProof =
-        serde_json::from_value(encoded).value_or_unreachable("proof deserializes");
+        serde_json::from_value(encoded)
+            .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
 }
 

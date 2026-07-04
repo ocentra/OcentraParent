@@ -1,10 +1,16 @@
 import type { CSSProperties, ReactElement } from 'react';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { type PortalDisplayText } from './portal-display-text';
+import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
+  PortalRouteDescriptors as ParentPortalRouteDescriptors,
+  PortalRouteGroup as ParentPortalRouteGroup,
+} from '@ocentra-parent/portal-domain/routes';
+import {
   ParentBridgeConnectionState,
+  ParentRouteGroup,
+  ParentRouteMetadata,
   ParentSidebarRouteGroups,
   parentRouteHashPath,
   type ParentRouteGroupId,
@@ -12,12 +18,7 @@ import {
 } from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
-import {
-  ParentPortalRouteDescriptors,
-  parentRouteGroupLabel,
-  routeDescriptor,
-  type PortalRouteDescriptor,
-} from './portal-route-descriptor';
+import type { PortalRouteDescriptor } from '@ocentra-parent/portal-domain/routes';
 import { frameContentStyle, frameHostClassName } from './portal-frame-layout-style';
 import { frameContentTarget } from './portal-frame-layout-state';
 import type { PortalFrameLayout } from './portal-frame-layout-types';
@@ -34,7 +35,7 @@ export function PortalSidebar({
   readonly route: ParentRouteId;
   readonly state: PortalRuntimeState;
 }): ReactElement {
-  const activeGroup = routeDescriptor(route).group;
+  const activeGroup = ParentRouteMetadata[route].group;
   const sideTopContent = frameContentTarget(frameLayout, PortalFrameTuner.FrameTarget.SideTop);
   const sideBottomContent = frameContentTarget(frameLayout, PortalFrameTuner.FrameTarget.SideBottom);
   return (
@@ -83,6 +84,19 @@ function RouteGroup({
       ))}
     </details>
   );
+}
+
+function parentRouteGroupLabel(group: ParentRouteGroupId): PortalDisplayText {
+  switch (group) {
+    case ParentRouteGroup.Monitor:
+      return ParentPortalRouteGroup.Monitor;
+    case ParentRouteGroup.Guide:
+      return ParentPortalRouteGroup.Guide;
+    case ParentRouteGroup.Operate:
+      return ParentPortalRouteGroup.Operate;
+    case ParentRouteGroup.DevTools:
+      return ParentPortalRouteGroup.DevTools;
+  }
 }
 
 function RouteLink({

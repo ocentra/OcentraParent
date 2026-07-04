@@ -1,12 +1,20 @@
-use crate::{
-    map_network_evidence_grade_to_policy, plan_network_linux_adapter_gate, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
-    NetworkLinuxAdapterCapabilityState, NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateProof,
-    NetworkLinuxAdapterGateState, NetworkLinuxAdapterKind, NetworkLinuxNftablesLabCommandEvidence,
-    NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionInput,
-    NetworkLinuxNftablesLabUnsupportedClaims,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::{
+    dns::types::NetworkEvidenceGrade,
+    linux_adapter_gate::{
+        plan_network_linux_adapter_gate, NetworkLinuxAdapterCapabilityState,
+        NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateProof, NetworkLinuxAdapterGateState,
+        NetworkLinuxAdapterKind,
+    },
+    linux_nftables_lab_execution::types::{
+        NetworkLinuxNftablesLabCommandEvidence, NetworkLinuxNftablesLabCommandKind,
+        NetworkLinuxNftablesLabExecutionInput, NetworkLinuxNftablesLabUnsupportedClaims,
+    },
+    policy::{
+        map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+        NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
+    },
+};
 
 pub fn lab_execution_input() -> NetworkLinuxNftablesLabExecutionInput {
     NetworkLinuxNftablesLabExecutionInput {

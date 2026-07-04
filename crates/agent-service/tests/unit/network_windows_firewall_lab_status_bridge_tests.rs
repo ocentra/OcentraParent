@@ -31,7 +31,8 @@ fn network_windows_firewall_lab_status_payload_reports_bounded_lab_execution_onl
 async fn websocket_network_windows_firewall_lab_status_command_reports_payload(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let body = serde_json::to_string(&command_envelope())?;
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let status: NetworkWindowsFirewallLabStatus = status_value(
         &event.payload,
         constants::network_flow::FIELD_NETWORK_WINDOWS_FIREWALL_LAB_STATUS,

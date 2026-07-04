@@ -66,7 +66,7 @@ async fn send_product_control_command() -> Result<AgentEventEnvelope, String> {
         serde_json::to_string(&command_envelope()),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
-    Ok(handle_local_command_text_for_test(&body).await)
+    Ok(handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await)
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

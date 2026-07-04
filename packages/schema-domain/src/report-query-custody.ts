@@ -1,7 +1,7 @@
 /* thin adapter over Rust-generated report query custody contracts */
 
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
-import { countProductionProofValues } from './production-proof-shape';
+import { countProductionProofValues } from './proof-shape';
 import {
   FamilyReferenceSchema,
   ParentAccountReferenceSchema,
@@ -9,7 +9,20 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from './family-references';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
+import {
+  ChildProfileId as ChildProfileIdType,
+  FamilyId as FamilyIdType,
+  ParentAccountId as ParentAccountIdType,
+  ParentActionReferenceId as ParentActionReferenceIdType,
+  ParentActorId as ParentActorIdType,
+  ParentDeviceId as ParentDeviceIdType,
+  ParentDeviceLabel as ParentDeviceLabelType,
+  ParentEvidenceReferenceId as ParentEvidenceReferenceIdType,
+  ParentPolicyVersion as ParentPolicyVersionType,
+  ParentTimestamp as ParentTimestampType,
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from './family-reference-primitives';
 import {
   GeneratedReportQueryCustodyContractProof,
   GeneratedReportQueryCustodyKnownGaps,
@@ -21,10 +34,8 @@ import {
   GeneratedReportQueryCustodyTombstoneStates,
   ReportQueryCustodyContractRuntime,
   type GeneratedReportQueryCustodyContractProof as GeneratedReportQueryCustodyContractProofShape,
-  type GeneratedReportQueryCustodyNonClaim,
   type GeneratedReportQueryCustodyRequest,
   type GeneratedReportQueryCustodyRow,
-  type GeneratedReportQueryCustodyState,
 } from './generated/report-query-custody-contracts';
 import {
   reportQueryCustodyProofIsHonestGenerated,
@@ -63,6 +74,24 @@ const ReportQueryCustodySourceRefSchema = brandedNonEmptyStringSchema('ReportQue
 const ReportQueryCustodyConflictRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyConflictRef');
 const ReportQueryCustodyDeletedSourceRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyDeletedSourceRef');
 const ReportQueryCustodyPositiveCountSchema = Schema.Number.pipe(Schema.int(), Schema.positive());
+
+export type ParentAccountId = ParentAccountIdType;
+export type FamilyId = FamilyIdType;
+export type ChildProfileId = ChildProfileIdType;
+export type ParentDeviceId = ParentDeviceIdType;
+export type ParentDeviceLabel = ParentDeviceLabelType;
+export type ParentActorId = ParentActorIdType;
+export type ParentPolicyVersion = ParentPolicyVersionType;
+export type ParentEvidenceReferenceId = ParentEvidenceReferenceIdType;
+export type ParentActionReferenceId = ParentActionReferenceIdType;
+export type ParentTimestamp = ParentTimestampType;
+export type ReportQueryCustodyRequestId = typeof ReportQueryCustodyRequestIdSchema.Type;
+export type ReportQueryCustodyQueryCursor = typeof ReportQueryCustodyQueryCursorSchema.Type;
+export type ReportQueryCustodyCursorRef = typeof ReportQueryCustodyCursorRefSchema.Type;
+export type ReportQueryCustodySortKey = typeof ReportQueryCustodySortKeySchema.Type;
+export type ReportQueryCustodySourceRef = typeof ReportQueryCustodySourceRefSchema.Type;
+export type ReportQueryCustodyConflictRef = typeof ReportQueryCustodyConflictRefSchema.Type;
+export type ReportQueryCustodyDeletedSourceRef = typeof ReportQueryCustodyDeletedSourceRefSchema.Type;
 
 const ReportQueryCustodyAllowedCitationRefSchema = withParser(
   ParentEvidenceReferenceSchema.pipe(
@@ -170,8 +199,10 @@ export const ReportQueryCustodyProofSchema = withParser(
   )
 );
 
-export type ReportQueryCustodyState = Infer<typeof ReportQueryCustodyStateSchema> & GeneratedReportQueryCustodyState;
-export type ReportQueryCustodyNonClaim = GeneratedReportQueryCustodyNonClaim;
+export type ReportQueryCustodyState = Infer<typeof ReportQueryCustodyStateSchema>;
+export type ReportQueryCustodyNonClaim = Infer<
+  typeof ReportQueryCustodyProofBaseSchema
+>['nonClaims'][number];
 export type ReportQueryCustodyRequest = Infer<typeof ReportQueryCustodyRequestSchema>;
 export type ReportQueryCustodyRow = Infer<typeof ReportQueryCustodyRowSchema>;
 export type ReportQueryCustodyProof = Infer<typeof ReportQueryCustodyProofSchema>;

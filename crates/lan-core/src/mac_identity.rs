@@ -94,78 +94,23 @@ pub fn assess_mac_address(value: Option<&str>) -> Option<LanMacIdentityAssessmen
     }
 
     let Some((compact, normalized)) = parse_compact_and_normalized(raw) else {
-        return Some(LanMacIdentityAssessment {
-            raw: raw.to_string(),
-            normalized: None,
-            compact: None,
-            oui_prefix: None,
-            vendor: None,
-            disposition: LanMacIdentityDisposition::RejectedMalformed,
-        });
+        return Some(rejected_mac_assessment(
+            raw,
+            LanMacIdentityDisposition::RejectedMalformed,
+        ));
     };
-
-    let Some(first_octet) = compact
-        .get(0..2)
-        .and_then(|value| u8::from_str_radix(value, 16).ok())
-    else {
-        return Some(LanMacIdentityAssessment {
-            raw: raw.to_string(),
-            normalized: None,
-            compact: None,
-            oui_prefix: None,
-            vendor: None,
-            disposition: LanMacIdentityDisposition::RejectedMalformed,
-        });
-    };
-
-    if compact == constants::lan_pairing::MAC_ZERO_COMPACT {
-        return Some(LanMacIdentityAssessment {
-            raw: raw.to_string(),
-            normalized: Some(normalized),
-            compact: Some(compact),
-            oui_prefix: None,
-            vendor: None,
-            disposition: LanMacIdentityDisposition::RejectedMalformed,
-        });
-    }
-
-    if compact == constants::lan_pairing::MAC_BROADCAST_COMPACT || (first_octet & 0x01) == 0x01 {
-        let oui_prefix = compact.get(0..6).map(str::to_string);
-        return Some(LanMacIdentityAssessment {
-            raw: raw.to_string(),
-            normalized: Some(normalized),
-            compact: Some(compact),
-            oui_prefix,
-            vendor: None,
-            disposition: LanMacIdentityDisposition::RejectedMulticast,
-        });
-    }
 
     let oui_prefix = compact.get(0..6).map(str::to_string);
-    if (first_octet & 0x02) == 0x02 {
-        return Some(LanMacIdentityAssessment {
-            raw: raw.to_string(),
-            normalized: Some(normalized),
-            compact: Some(compact),
-            oui_prefix,
-            vendor: None,
-            disposition: LanMacIdentityDisposition::LocallyAdministered,
-        });
-    }
-
+    let disposition = mac_disposition(&compact)?;
     let vendor = oui_prefix.as_deref().and_then(vendor_name_for_oui_prefix);
-    Some(LanMacIdentityAssessment {
-        raw: raw.to_string(),
-        normalized: Some(normalized),
-        compact: Some(compact),
+    Some(accepted_mac_assessment(
+        raw,
+        normalized,
+        compact,
         oui_prefix,
         vendor,
-        disposition: if vendor.is_some() {
-            LanMacIdentityDisposition::KnownVendor
-        } else {
-            LanMacIdentityDisposition::UnknownVendor
-        },
-    })
+        finalize_mac_disposition(disposition, vendor),
+    ))
 }
 
 pub fn normalize_scan_mac_address(value: &str) -> Option<String> {
@@ -195,6 +140,78 @@ fn parse_compact_and_normalized(raw: &str) -> Option<(String, String)> {
         .collect::<Option<Vec<_>>>()?
         .join(constants::lan_pairing::MAC_DASH);
     Some((compact, normalized))
+}
+
+fn rejected_mac_assessment(
+    raw: &str,
+    disposition: LanMacIdentityDisposition,
+) -> LanMacIdentityAssessment {
+    LanMacIdentityAssessment {
+        raw: raw.to_string(),
+        normalized: None,
+        compact: None,
+        oui_prefix: None,
+        vendor: None,
+        disposition,
+    }
+}
+
+fn accepted_mac_assessment(
+    raw: &str,
+    normalized: String,
+    compact: String,
+    oui_prefix: Option<String>,
+    vendor: Option<&'static str>,
+    disposition: LanMacIdentityDisposition,
+) -> LanMacIdentityAssessment {
+    LanMacIdentityAssessment {
+        raw: raw.to_string(),
+        normalized: Some(normalized),
+        compact: Some(compact),
+        oui_prefix,
+        vendor,
+        disposition,
+    }
+}
+
+fn mac_disposition(compact: &str) -> Option<LanMacIdentityDisposition> {
+    let first_octet = first_octet(compact)?;
+    if compact == constants::lan_pairing::MAC_ZERO_COMPACT {
+        return Some(LanMacIdentityDisposition::RejectedMalformed);
+    }
+    if compact == constants::lan_pairing::MAC_BROADCAST_COMPACT || is_multicast_octet(first_octet) {
+        return Some(LanMacIdentityDisposition::RejectedMulticast);
+    }
+    if is_locally_administered_octet(first_octet) {
+        return Some(LanMacIdentityDisposition::LocallyAdministered);
+    }
+    Some(LanMacIdentityDisposition::UnknownVendor)
+}
+
+fn finalize_mac_disposition(
+    disposition: LanMacIdentityDisposition,
+    vendor: Option<&'static str>,
+) -> LanMacIdentityDisposition {
+    match disposition {
+        LanMacIdentityDisposition::UnknownVendor if vendor.is_some() => {
+            LanMacIdentityDisposition::KnownVendor
+        }
+        other => other,
+    }
+}
+
+fn first_octet(compact: &str) -> Option<u8> {
+    compact
+        .get(0..2)
+        .and_then(|value| u8::from_str_radix(value, 16).ok())
+}
+
+fn is_multicast_octet(first_octet: u8) -> bool {
+    (first_octet & 0x01) == 0x01
+}
+
+fn is_locally_administered_octet(first_octet: u8) -> bool {
+    (first_octet & 0x02) == 0x02
 }
 
 fn vendor_name_for_oui_prefix(oui_prefix: &str) -> Option<&'static str> {

@@ -21,19 +21,18 @@ use crate::{
 
 #[test]
 fn activity_store_reports_typed_browser_intervention_read_model_from_ingested_events() {
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let event = browser_intervention_event();
 
     store
         .ingest_events(std::slice::from_ref(&event))
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
     let read_model = store
         .browser_intervention_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 1);
     assert_eq!(read_model.latest_event_id, Some(event.event_id));
@@ -103,21 +102,20 @@ fn activity_store_reports_typed_browser_intervention_read_model_from_ingested_ev
 
 #[test]
 fn activity_store_infers_legacy_managed_url_proof_without_overclaiming_unmanaged_rows() {
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let mut event = browser_intervention_event();
     remove_browser_claim_fields(&mut event);
     remove_browser_intervention_proof_fields(&mut event);
 
     store
         .ingest_events(std::slice::from_ref(&event))
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
     let read_model = store
         .browser_intervention_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     let row = &read_model.rows[0];
     assert_eq!(
@@ -147,26 +145,30 @@ fn activity_store_infers_legacy_managed_url_proof_without_overclaiming_unmanaged
 
 #[test]
 fn activity_store_does_not_overclaim_legacy_rows_without_managed_url_proof() {
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let mut event = browser_intervention_event();
     remove_browser_claim_fields(&mut event);
     remove_browser_intervention_proof_fields(&mut event);
-    event
+    event.fields = event
         .fields
-        .remove(constants::field::MANAGED_BROWSER_SESSION_ID);
-    event.fields.remove(constants::field::REQUESTED_URL);
-    event.fields.remove(constants::field::OBSERVED_URL);
+        .into_inner()
+        .into_iter()
+        .filter(|(key, _)| {
+            key != constants::field::MANAGED_BROWSER_SESSION_ID
+                && key != constants::field::REQUESTED_URL
+                && key != constants::field::OBSERVED_URL
+        })
+        .collect();
 
     store
         .ingest_events(std::slice::from_ref(&event))
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
     let read_model = store
         .browser_intervention_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     let row = &read_model.rows[0];
     assert_eq!(row.browser_boundary_state, BrowserBoundaryState::Unknown);
@@ -186,19 +188,18 @@ fn activity_store_does_not_overclaim_legacy_rows_without_managed_url_proof() {
 
 #[test]
 fn activity_store_reconstructs_unmanaged_fallback_action_state_without_url_claims() {
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let event = unmanaged_browser_terminate_event();
 
     store
         .ingest_events(std::slice::from_ref(&event))
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
     let read_model = store
         .browser_intervention_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     let row = &read_model.rows[0];
     assert_eq!(
@@ -219,38 +220,46 @@ fn activity_store_reconstructs_unmanaged_fallback_action_state_without_url_claim
 
 #[test]
 fn activity_store_replays_browser_interventions_from_encrypted_journal() {
-    let journal_path = temp_path(
-        constants::activity_store::TEST_BROWSER_INTERVENTION_JOURNAL_SUFFIX,
-        constants::journal::FILE_EXTENSION,
-    );
-    let store_path = temp_path(
-        constants::activity_store::TEST_BROWSER_INTERVENTION_STORE_SUFFIX,
-        constants::activity_store::FILE_EXTENSION,
-    );
+    let journal_path = {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(constants::activity_store::TEST_BROWSER_INTERVENTION_JOURNAL_SUFFIX);
+        name.push('.');
+        name.push_str(constants::journal::FILE_EXTENSION);
+        std::env::temp_dir().join(name)
+    };
+    let store_path = {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(constants::activity_store::TEST_BROWSER_INTERVENTION_STORE_SUFFIX);
+        name.push('.');
+        name.push_str(constants::activity_store::FILE_EXTENSION);
+        std::env::temp_dir().join(name)
+    };
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
     let mut journal = ActivityJournal::open(journal_path.clone(), key.clone())
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+        .expect(constants::error::JOURNAL_OPENS);
     let event = browser_intervention_event();
     journal
         .append(&event)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS));
-    let journal_bytes =
-        read(&journal_path).unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_READS));
-    let reader = ActivityJournal::open(journal_path.clone(), key)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
-    let store = ActivityStore::open(&store_path)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+        .expect(constants::error::JOURNAL_APPENDS);
+    let journal_bytes = read(&journal_path).expect(constants::error::JOURNAL_READS);
+    let reader =
+        ActivityJournal::open(journal_path.clone(), key).expect(constants::error::JOURNAL_OPENS);
+    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
 
     let status = store
         .ingest_journal(&reader)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
     let read_model = store
         .browser_intervention_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
     cleanup_paths(&journal_path, &store_path);
 
     assert_eq!(status.events_ingested, 1);
@@ -264,15 +273,14 @@ fn activity_store_replays_browser_interventions_from_encrypted_journal() {
 
 #[test]
 fn activity_store_reports_empty_browser_intervention_readiness_without_rows() {
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
 
     let read_model = store
         .browser_intervention_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.rows.len(), 0);
@@ -380,40 +388,32 @@ fn unmanaged_browser_terminate_event() -> ActivityEvent {
 }
 
 fn remove_browser_claim_fields(event: &mut ActivityEvent) {
-    event
+    event.fields = event
         .fields
-        .remove(constants::browser::INTERVENTION_FIELD_BROWSER_BOUNDARY_STATE);
-    event
-        .fields
-        .remove(constants::browser::INTERVENTION_FIELD_EXACT_URL_CLAIM_STATE);
-    event
-        .fields
-        .remove(constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE);
+        .clone()
+        .into_inner()
+        .into_iter()
+        .filter(|(key, _)| {
+            key != constants::browser::INTERVENTION_FIELD_BROWSER_BOUNDARY_STATE
+                && key != constants::browser::INTERVENTION_FIELD_EXACT_URL_CLAIM_STATE
+                && key != constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE
+        })
+        .collect();
 }
 
 fn remove_browser_intervention_proof_fields(event: &mut ActivityEvent) {
-    event
+    event.fields = event
         .fields
-        .remove(constants::field::BROWSER_INTERVENTION_ACTION_ID);
-    event
-        .fields
-        .remove(constants::field::BROWSER_INTERVENTION_AUDIT_ID);
-    event
-        .fields
-        .remove(constants::field::EVIDENCE_REFERENCE_IDS);
-    event.fields.remove(constants::field::CHILD_DELIVERY_STATE);
-}
-
-fn temp_path(suffix: &str, extension: &str) -> PathBuf {
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
-
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path.set_extension(extension);
-    path
+        .clone()
+        .into_inner()
+        .into_iter()
+        .filter(|(key, _)| {
+            key != constants::field::BROWSER_INTERVENTION_ACTION_ID
+                && key != constants::field::BROWSER_INTERVENTION_AUDIT_ID
+                && key != constants::field::EVIDENCE_REFERENCE_IDS
+                && key != constants::field::CHILD_DELIVERY_STATE
+        })
+        .collect();
 }
 
 fn cleanup_paths(journal_path: &Path, store_path: &Path) {

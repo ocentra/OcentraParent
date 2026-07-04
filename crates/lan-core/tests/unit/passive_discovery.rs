@@ -4,8 +4,11 @@ use std::time::Duration;
 #[path = "../../src/network_inventory/name_evidence.rs"]
 mod name_evidence;
 
+use ocentra_lan_core::network_inventory::passive_discovery::raw_socket::{
+    collect_raw_socket_protocol_passive_updates, raw_socket_protocol_support,
+    raw_socket_protocol_support_for_platform,
+};
 use ocentra_lan_core::network_inventory::passive_discovery::{
-    collect_raw_socket_protocol_passive_updates, raw_socket_protocol_support_for_platform,
     LanPassiveDiscoveryListenerState, LanPassiveDiscoveryRawSocketCaptureOutcome,
     LanPassiveDiscoveryRawSocketProtocol, LanPassiveDiscoveryRawSocketSupport,
     LanPassiveDiscoverySource,
@@ -123,7 +126,7 @@ fn weak_name_evidence_wrappers_stay_weak_and_normalized() {
     ];
 
     for (evidence, expected_source_label) in cases {
-        let evidence = evidence.value_or_unreachable("weak name evidence");
+        let evidence = evidence.value_or_unreachable();
         assert_eq!(evidence.source_label(), expected_source_label);
         assert_eq!(evidence.confidence_label(), "weak");
         assert_eq!(evidence.value, "Kid-Laptop.local");
@@ -189,11 +192,9 @@ fn dhcp_collection_remains_unsupported_until_a_real_listener_exists() {
             LanPassiveDiscoveryRawSocketProtocol::Dhcp,
             Duration::from_millis(50),
         ),
-        LanPassiveDiscoveryRawSocketCaptureOutcome::Unsupported(
-            ocentra_lan_core::network_inventory::passive_discovery::raw_socket_protocol_support(
-                LanPassiveDiscoveryRawSocketProtocol::Dhcp,
-            ),
-        )
+        LanPassiveDiscoveryRawSocketCaptureOutcome::Unsupported(raw_socket_protocol_support(
+            LanPassiveDiscoveryRawSocketProtocol::Dhcp
+        ),)
     );
 }
 
@@ -221,11 +222,11 @@ fn passive_listener_records_ocentra_beacon_updates_with_explicit_timestamp() {
         ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryTriggerReason::AppResumed
     );
     assert_eq!(
-        snapshot.rows[0].device_id.as_deref(),
+        snapshot.rows[0].device_id.as_ref().map(AsRef::as_ref),
         Some("device-beacon-1")
     );
     assert_eq!(
-        snapshot.rows[0].scan_session_id.as_deref(),
+        snapshot.rows[0].scan_session_id.as_ref().map(AsRef::as_ref),
         Some("scan-beacon-1")
     );
     assert_eq!(snapshot.rows[0].summary, "ocentra beacon update");
@@ -261,11 +262,11 @@ fn passive_listener_records_later_return_for_same_device_without_deduping() {
     let snapshot = state.snapshot();
     assert_eq!(snapshot.rows.len(), 2);
     assert_eq!(
-        snapshot.rows[0].device_id.as_deref(),
+        snapshot.rows[0].device_id.as_ref().map(AsRef::as_ref),
         Some("device-return-1")
     );
     assert_eq!(
-        snapshot.rows[1].device_id.as_deref(),
+        snapshot.rows[1].device_id.as_ref().map(AsRef::as_ref),
         Some("device-return-1")
     );
     assert_ne!(snapshot.rows[0].event_id, snapshot.rows[1].event_id);

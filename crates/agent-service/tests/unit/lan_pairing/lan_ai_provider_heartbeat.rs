@@ -1,3 +1,5 @@
+use crate::test_text::TestText;
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeAiProviderState;
@@ -25,14 +27,16 @@ use crate::{
 #[tokio::test]
 async fn stale_lan_ai_provider_heartbeat_degrades_job_routing_without_raw_transfer() {
     let runtime = lan_ai_provider_runtime().await;
-    runtime.mark_lan_ai_provider_heartbeat_stale_for_test(constants::lan_pairing::EXPIRED_AT);
+    runtime.mark_lan_ai_provider_heartbeat_stale_for_test();
     let event = lan_ai_job_event(runtime).await;
 
     assert_eq!(event.event, AgentEventName::AgentLanAiJobReported);
     assert_provider_status(
         &event,
-        constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED,
-        constants::value::LAN_AI_PROVIDER_ROUTING_DEGRADED,
+        LanAiProviderStatusExpectation {
+            status: constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED,
+            routing_state: constants::value::LAN_AI_PROVIDER_ROUTING_DEGRADED,
+        },
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_AI_JOB_STATE),
@@ -46,14 +50,16 @@ async fn stale_lan_ai_provider_heartbeat_degrades_job_routing_without_raw_transf
 #[tokio::test]
 async fn offline_lan_ai_provider_heartbeat_degrades_job_routing_without_raw_transfer() {
     let runtime = lan_ai_provider_runtime().await;
-    runtime.mark_lan_ai_provider_heartbeat_offline_for_test(constants::lan_pairing::EXPIRED_AT);
+    runtime.mark_lan_ai_provider_heartbeat_offline_for_test();
     let event = lan_ai_job_event(runtime).await;
 
     assert_eq!(event.event, AgentEventName::AgentLanAiJobReported);
     assert_provider_status(
         &event,
-        constants::value::LAN_AI_PROVIDER_STATUS_UNAVAILABLE,
-        constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE,
+        LanAiProviderStatusExpectation {
+            status: constants::value::LAN_AI_PROVIDER_STATUS_UNAVAILABLE,
+            routing_state: constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE,
+        },
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_AI_JOB_STATE),
@@ -66,13 +72,15 @@ async fn offline_lan_ai_provider_heartbeat_degrades_job_routing_without_raw_tran
 
 async fn lan_ai_job_event(runtime: LanPairingRuntime) -> AgentEventEnvelope {
     handle_command_text_for_test(
-        &serialize_command(command_for_target(
+        serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
             lan_ai_job_payload(),
         )),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await
 }
@@ -103,7 +111,9 @@ fn lan_ai_job_payload() -> LogFields {
 async fn lan_ai_provider_runtime() -> LanPairingRuntime {
     let mut runtime = paired_runtime().await;
     runtime.device_roles = DeviceRoleRuntimeReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT
+            .to_string()
+            .into(),
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: DeviceRuntimeSurface::ParentDesktop,
         platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),
@@ -133,16 +143,23 @@ fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
     }
 }
 
-fn assert_provider_status(event: &AgentEventEnvelope, status: &str, routing_state: &str) {
+struct LanAiProviderStatusExpectation {
+    status: &'static str,
+    routing_state: &'static str,
+}
+
+fn assert_provider_status(event: &AgentEventEnvelope, expectation: LanAiProviderStatusExpectation) {
     assert_eq!(
         event.payload.get(constants::field::LAN_AI_PROVIDER_STATUS),
-        Some(&LogFieldValue::String(status.to_string()))
+        Some(&LogFieldValue::String(expectation.status.to_string()))
     );
     assert_eq!(
         event
             .payload
             .get(constants::field::LAN_AI_PROVIDER_ROUTING_STATE),
-        Some(&LogFieldValue::String(routing_state.to_string()))
+        Some(&LogFieldValue::String(
+            expectation.routing_state.to_string()
+        ))
     );
 }
 
@@ -158,18 +175,9 @@ fn assert_no_raw_lan_ai_markers(payload: &LogFields) {
         constants::lan_pairing::RAW_MARKER_RAW_TOKEN,
         constants::lan_pairing::RAW_MARKER_SQLITE_PATH,
     ] {
-        assert!(!payload_contains_marker(payload, marker));
+        assert!(!payload.iter().any(|(key, value)| {
+            key.contains(marker)
+                || matches!(value, LogFieldValue::String(value) if value.contains(marker))
+        }));
     }
-}
-
-fn payload_contains_marker(payload: &LogFields, marker: &str) -> bool {
-    payload.iter().any(|(key, value)| {
-        key.contains(marker)
-            || match value {
-                LogFieldValue::String(value) => value.contains(marker),
-                LogFieldValue::Number(_) | LogFieldValue::Boolean(_) | LogFieldValue::Null(_) => {
-                    false
-                }
-            }
-    })
 }

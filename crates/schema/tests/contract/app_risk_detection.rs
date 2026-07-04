@@ -1,4 +1,4 @@
-use crate::support::ValueOrUnreachable as _;
+use crate::support::{module_specifiers, ValueOrUnreachable as _};
 use ocentra_schema::app_risk_detection as contracts;
 use ocentra_schema::app_risk_detection_ts::{
     app_risk_detection_contract_rules_typescript, app_risk_detection_contracts_typescript,
@@ -8,7 +8,8 @@ use serde_json::json;
 #[test]
 fn app_risk_detection_matrix_round_trips_through_rust_owned_shape() {
     let matrix = contracts::sample_app_risk_detection_matrix();
-    let encoded = serde_json::to_value(&matrix).value_or_unreachable("matrix serializes");
+    let encoded = serde_json::to_value(&matrix)
+        .value_or_unreachable(crate::assert_context!("matrix serializes"));
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -25,8 +26,8 @@ fn app_risk_detection_matrix_round_trips_through_rust_owned_shape() {
     );
     assert!(encoded.get("schema_version").is_none());
 
-    let decoded: contracts::AppRiskDetectionMatrix =
-        serde_json::from_value(encoded).value_or_unreachable("matrix deserializes");
+    let decoded: contracts::AppRiskDetectionMatrix = serde_json::from_value(encoded)
+        .value_or_unreachable(crate::assert_context!("matrix deserializes"));
     assert_eq!(decoded, matrix);
 }
 
@@ -64,9 +65,14 @@ fn generated_app_risk_detection_contracts_stay_checked_in() {
         "../../../../packages/schema-domain/src/generated/app-riskdetection-contracts.ts"
     );
     let generated = app_risk_detection_contracts_typescript();
-    let generated_lines: Vec<&str> = generated.lines().collect();
 
     assert_eq!(checked_in, generated);
+    assert_generated_app_risk_detection_contracts(crate::contract_text!(&generated));
+}
+
+fn assert_generated_app_risk_detection_contracts(generated: crate::support::ContractText<'_>) {
+    let generated_lines: Vec<&str> = generated.0.lines().collect();
+
     assert_eq!(
         generated_lines.first().copied(),
         Some("/* generated from crates/schema/src/app_risk_detection.rs */")
@@ -136,50 +142,35 @@ fn app_risk_detection_adapters_stay_thin_and_generated_backed() {
         Some("/* thin adapter over Rust-generated app risk detection contracts */")
     );
     assert_eq!(
-        module_specifiers(adapter),
-        vec![
+        module_specifiers(crate::contract_text!(adapter)),
+        crate::module_specifiers!(
             "./effect",
             "./family-references",
             "./family-reference-primitives",
             "./generated/app-riskdetection-contracts",
             "./generated/app-riskdetection-contract-rules",
-        ]
+        )
     );
     assert_eq!(
         rules.lines().next(),
         Some("/* compatibility shim over Rust-generated app risk detection contracts */")
     );
     assert_eq!(
-        module_specifiers(rules),
-        vec![
+        module_specifiers(crate::contract_text!(rules)),
+        crate::module_specifiers!(
             "./generated/app-riskdetection-contracts",
             "./generated/app-riskdetection-contract-rules",
-        ]
+        )
     );
     assert_eq!(
         data.lines().next(),
         Some("/* thin adapter over Rust-generated app risk detection proof data */")
     );
     assert_eq!(
-        module_specifiers(data),
-        vec![
+        module_specifiers(crate::contract_text!(data)),
+        crate::module_specifiers!(
             "./app-riskdetection",
             "./generated/app-riskdetection-contracts",
-        ]
+        )
     );
-}
-
-fn module_specifiers(source: &str) -> Vec<&str> {
-    let mut specifiers = Vec::new();
-    let mut rest = source;
-
-    while let Some((_, after_from)) = rest.split_once(" from '") {
-        let Some((specifier, after_specifier)) = after_from.split_once('\'') else {
-            break;
-        };
-        specifiers.push(specifier);
-        rest = after_specifier;
-    }
-
-    specifiers
 }

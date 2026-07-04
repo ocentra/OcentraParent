@@ -1,8 +1,8 @@
 pub fn social_alert_report_preference_status_handoff_typescript() -> String {
-    SocialAlertReportPreferenceStatusHandoff_TYPESCRIPT.to_string()
+    SOCIAL_ALERT_REPORT_PREFERENCE_STATUS_HANDOFF_TYPESCRIPT.to_string()
 }
 
-const SocialAlertReportPreferenceStatusHandoff_TYPESCRIPT: &str = r#"/* generated from crates/browser-core/src/social_alert_report_preference_status_handoff.rs */
+const SOCIAL_ALERT_REPORT_PREFERENCE_STATUS_HANDOFF_TYPESCRIPT: &str = r#"/* generated from crates/browser-core/src/social_alert_report_preference_status_handoff.rs */
 
 import {
   type Infer,

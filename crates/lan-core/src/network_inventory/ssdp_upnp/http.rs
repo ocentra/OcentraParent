@@ -1,17 +1,14 @@
 use std::collections::HashMap;
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::net::{IpAddr, SocketAddr};
 use std::time::Duration;
 
 use super::{AllowedHttpLocation, SsdpDiscoveryError, SSDP_MAX_MX_SECONDS};
 
 pub mod text;
 
-pub type SsdpHttpHeaders = HashMap<String, String>;
-pub type SsdpHttpResponseParts<'a> = (&'a str, SsdpHttpHeaders, &'a [u8]);
-
 pub fn split_http_headers(
     response: &[u8],
-) -> Result<SsdpHttpResponseParts<'_>, SsdpDiscoveryError> {
+) -> Result<(&str, HashMap<String, String>, &[u8]), SsdpDiscoveryError> {
     let header_end = response
         .windows(4)
         .position(|window| window == b"\r\n\r\n")
@@ -111,8 +108,12 @@ pub fn parse_authority(authority: &str) -> Result<(&str, u16), SsdpDiscoveryErro
     }
     let (host, port) = authority
         .rsplit_once(':')
-        .ok_or(SsdpDiscoveryError::MalformedResponse)?;
-    Ok((host, parse_port(port)?))
+        .map(|(host, port)| (host, parse_port(port)))
+        .unwrap_or((authority, Ok(80)));
+    if host.trim().is_empty() {
+        return Err(SsdpDiscoveryError::MalformedResponse);
+    }
+    Ok((host, port?))
 }
 
 pub fn parse_port(value: &str) -> Result<u16, SsdpDiscoveryError> {
@@ -128,7 +129,7 @@ pub fn resolve_allowed_host(host: &str, port: u16) -> Result<SocketAddr, SsdpDis
         }
         return Ok(SocketAddr::new(ip, port));
     }
-    Err(SsdpDiscoveryError::UnsupportedLocationScheme)
+    Err(SsdpDiscoveryError::ExternalLocation)
 }
 
 pub fn is_allowed_private_ip(ip: IpAddr) -> bool {
@@ -149,7 +150,7 @@ pub fn sanitize_path(path: &str) -> Result<String, SsdpDiscoveryError> {
         return Err(SsdpDiscoveryError::MalformedResponse);
     }
     if path.contains("..") {
-        return Err(SsdpDiscoveryError::ExternalLocation);
+        return Err(SsdpDiscoveryError::MalformedResponse);
     }
     Ok(path.to_string())
 }

@@ -26,6 +26,13 @@ interface McpResponse {
   };
 }
 
+type McpResponseHandler = (response: McpResponse) => void;
+
+interface ParsedMcpMessage {
+  readonly buffer: string;
+  readonly response: McpResponse;
+}
+
 interface ProofTraceSmokeResult {
   readonly proofId: string;
   readonly scope: string;
@@ -45,6 +52,76 @@ interface ProofTraceSmokeResult {
 
 const ExpectedProofTraceSteps = ['portal.route.opened', 'portal.action.clicked', 'portal.ui.rendered'] as const;
 const mcpQueryTempDirs: string[] = [];
+
+function readMcpMessage(buffer: string): ParsedMcpMessage | null {
+  const headerEnd = buffer.indexOf('\r\n\r\n');
+  if (headerEnd === -1) {
+    return null;
+  }
+
+  const header = buffer.slice(0, headerEnd);
+  const lengthMatch = header.match(/Content-Length:\s*(\d+)/i);
+  if (lengthMatch == null) {
+    return null;
+  }
+
+  const contentLength = Number(lengthMatch[1]);
+  const messageStart = headerEnd + 4;
+  if (buffer.length < messageStart + contentLength) {
+    return null;
+  }
+
+  const body = buffer.slice(messageStart, messageStart + contentLength);
+  return {
+    buffer: buffer.slice(messageStart + contentLength),
+    response: JSON.parse(body) as McpResponse,
+  };
+}
+
+function drainMcpBuffer(buffer: string, pending: Map<number, McpResponseHandler>): string {
+  while (true) {
+    const message = readMcpMessage(buffer);
+    if (message == null) {
+      return buffer;
+    }
+
+    buffer = message.buffer;
+    pending.get(message.response.id)?.(message.response);
+    pending.delete(message.response.id);
+  }
+}
+
+class McpServerSession {
+  private buffer = '';
+  private nextId = 0;
+  private readonly pending = new Map<number, McpResponseHandler>();
+
+  constructor(private readonly child: ReturnType<typeof spawn>) {
+    this.child.stdout.setEncoding('utf8');
+    this.child.stdout.on('data', this.handleStdoutData);
+    this.child.stderr.resume();
+  }
+
+  readonly call = (method: string, params?: object): Promise<McpResponse> => {
+    this.nextId += 1;
+    const id = this.nextId;
+    return new Promise((resolve) => {
+      this.pending.set(id, resolve);
+      this.child.stdin.write(encodeMcpMessage({ jsonrpc: '2.0', id, method, params }));
+    });
+  };
+
+  async stop(): Promise<void> {
+    this.child.kill();
+    await new Promise<void>((resolve) => {
+      this.child.once('exit', () => resolve());
+    });
+  }
+
+  private readonly handleStdoutData = (chunk: string): void => {
+    this.buffer = drainMcpBuffer(this.buffer + chunk, this.pending);
+  };
+}
 
 function runMcp(args: readonly string[], env: NodeJS.ProcessEnv = process.env): CliResult {
   const result = spawnSync(
@@ -80,58 +157,12 @@ async function withMcpServer<T>(
     stdio: ['pipe', 'pipe', 'pipe'],
     windowsHide: true,
   });
-  let buffer = '';
-  let nextId = 0;
-  const pending = new Map<number, (response: McpResponse) => void>();
-
-  child.stdout.setEncoding('utf8');
-  child.stdout.on('data', (chunk: string) => {
-    buffer += chunk;
-    while (true) {
-      const headerEnd = buffer.indexOf('\r\n\r\n');
-      if (headerEnd === -1) {
-        break;
-      }
-
-      const header = buffer.slice(0, headerEnd);
-      const lengthMatch = header.match(/Content-Length:\s*(\d+)/i);
-      if (lengthMatch == null) {
-        buffer = '';
-        break;
-      }
-
-      const contentLength = Number(lengthMatch[1]);
-      const messageStart = headerEnd + 4;
-      if (buffer.length < messageStart + contentLength) {
-        break;
-      }
-
-      const body = buffer.slice(messageStart, messageStart + contentLength);
-      buffer = buffer.slice(messageStart + contentLength);
-      const response = JSON.parse(body) as McpResponse;
-      pending.get(response.id)?.(response);
-      pending.delete(response.id);
-    }
-  });
-
-  child.stderr.resume();
-
-  const call = (method: string, params?: object): Promise<McpResponse> => {
-    nextId += 1;
-    const id = nextId;
-    return new Promise((resolve) => {
-      pending.set(id, resolve);
-      child.stdin.write(encodeMcpMessage({ jsonrpc: '2.0', id, method, params }));
-    });
-  };
+  const session = new McpServerSession(child);
 
   try {
-    return await work(call);
+    return await work(session.call);
   } finally {
-    child.kill();
-    await new Promise<void>((resolve) => {
-      child.once('exit', () => resolve());
-    });
+    await session.stop();
   }
 }
 
@@ -231,43 +262,142 @@ async function removeDirWithRetries(dirPath: string): Promise<void> {
 }
 
 async function expectProofTraceMcpAlignment(env: NodeJS.ProcessEnv, smoke: ProofTraceSmokeResult): Promise<void> {
-  await withMcpServer(env, async (call) => {
-    const initialize = await call('initialize', {});
-    expect(initialize.error).toBeUndefined();
+  await withMcpServer(env, async (call) => assertProofTraceMcpAlignment(call, smoke));
+}
 
-    const traceCall = await call('tools/call', {
-      name: 'get_proof_trace',
-      arguments: {
-        scope: smoke.scope,
-        proofId: smoke.proofId,
-        limit: 10,
-      },
-    });
-    expect(traceCall.error).toBeUndefined();
-    const trace = traceCall.result?.structuredContent as {
-      readonly rows: ReadonlyArray<{ readonly traceStep: string }>;
-    };
-    expect(trace.rows.map((row) => row.traceStep)).toEqual(ExpectedProofTraceSteps);
+async function assertProofTraceMcpAlignment(
+  call: (method: string, params?: object) => Promise<McpResponse>,
+  smoke: ProofTraceSmokeResult
+): Promise<void> {
+  const initialize = await call('initialize', {});
+  expect(initialize.error).toBeUndefined();
 
-    const gapCall = await call('tools/call', {
-      name: 'query_proof_trace',
-      arguments: {
-        scope: smoke.scope,
-        proofId: smoke.proofId,
-        expectedSteps: [...ExpectedProofTraceSteps],
-        limit: 10,
-      },
-    });
-    expect(gapCall.error).toBeUndefined();
-    const gapResult = gapCall.result?.structuredContent as {
-      readonly matchedSteps: ReadonlyArray<unknown>;
-      readonly missingSteps: ReadonlyArray<unknown>;
-      readonly outOfOrderSteps: ReadonlyArray<unknown>;
-    };
-    expect(gapResult.matchedSteps).toHaveLength(3);
-    expect(gapResult.missingSteps).toHaveLength(0);
-    expect(gapResult.outOfOrderSteps).toHaveLength(0);
+  const traceCall = await call('tools/call', {
+    name: 'get_proof_trace',
+    arguments: {
+      scope: smoke.scope,
+      proofId: smoke.proofId,
+      limit: 10,
+    },
   });
+  expect(traceCall.error).toBeUndefined();
+  const trace = traceCall.result?.structuredContent as {
+    readonly rows: ReadonlyArray<{ readonly traceStep: string }>;
+  };
+  expect(trace.rows.map((row) => row.traceStep)).toEqual(ExpectedProofTraceSteps);
+
+  const gapCall = await call('tools/call', {
+    name: 'query_proof_trace',
+    arguments: {
+      scope: smoke.scope,
+      proofId: smoke.proofId,
+      expectedSteps: [...ExpectedProofTraceSteps],
+      limit: 10,
+    },
+  });
+  expect(gapCall.error).toBeUndefined();
+  const gapResult = gapCall.result?.structuredContent as {
+    readonly matchedSteps: ReadonlyArray<unknown>;
+    readonly missingSteps: ReadonlyArray<unknown>;
+    readonly outOfOrderSteps: ReadonlyArray<unknown>;
+  };
+  expect(gapResult.matchedSteps).toHaveLength(3);
+  expect(gapResult.missingSteps).toHaveLength(0);
+  expect(gapResult.outOfOrderSteps).toHaveLength(0);
+}
+
+async function expectUnknownProofTraceScopeError(env: NodeJS.ProcessEnv): Promise<void> {
+  await withMcpServer(env, async (call) => assertUnknownProofTraceScopeError(call));
+}
+
+async function assertUnknownProofTraceScopeError(
+  call: (method: string, params?: object) => Promise<McpResponse>
+): Promise<void> {
+  const response = await call('tools/call', {
+    name: 'get_proof_trace',
+    arguments: {
+      scope: 'parent-missing',
+    },
+  });
+  expect(response.error?.message).toContain('No proof trace rows found for scope "parent-missing".');
+}
+
+async function expectArtifactSliceAbuseRejected(env: NodeJS.ProcessEnv): Promise<void> {
+  await withMcpServer(env, async (call) => assertArtifactSliceAbuseRejected(call));
+}
+
+async function assertArtifactSliceAbuseRejected(
+  call: (method: string, params?: object) => Promise<McpResponse>
+): Promise<void> {
+  const response = await call('tools/call', {
+    name: 'get_artifact_slice',
+    arguments: {
+      path: path.join(workspaceRoot(), 'package.json'),
+      startLine: 1,
+      maxLines: 5,
+    },
+  });
+  expect(response.error?.message).toContain('Artifact path must stay inside local logging roots.');
+}
+
+async function expectArtifactSliceClampHonest(env: NodeJS.ProcessEnv, artifactPath: string): Promise<void> {
+  await withMcpServer(env, async (call) => assertArtifactSliceClampHonest(call, artifactPath));
+}
+
+async function assertArtifactSliceClampHonest(
+  call: (method: string, params?: object) => Promise<McpResponse>,
+  artifactPath: string
+): Promise<void> {
+  const response = await call('tools/call', {
+    name: 'get_artifact_slice',
+    arguments: {
+      path: artifactPath,
+      startLine: 2,
+      endLine: 99,
+      maxLines: 2,
+    },
+  });
+  expect(response.error).toBeUndefined();
+  const slice = response.result?.structuredContent as {
+    readonly startLine: number;
+    readonly endLine: number;
+    readonly lineCount: number;
+    readonly lines: ReadonlyArray<string>;
+  };
+  expect(slice.startLine).toBe(2);
+  expect(slice.endLine).toBe(3);
+  expect(slice.lineCount).toBe(2);
+  expect(slice.lines).toEqual(['line2', 'line3']);
+}
+
+async function expectProofInventoryStatus(env: NodeJS.ProcessEnv): Promise<void> {
+  await withMcpServer(env, async (call) => assertProofInventoryStatus(call));
+}
+
+async function assertProofInventoryStatus(
+  call: (method: string, params?: object) => Promise<McpResponse>
+): Promise<void> {
+  const response = await call('tools/call', {
+    name: 'get_proof_inventory_status',
+    arguments: {},
+  });
+  expect(response.error).toBeUndefined();
+  const inventory = response.result?.structuredContent as {
+    readonly summary: { readonly blockingGapCount: number };
+    readonly gaps: ReadonlyArray<{ readonly kind: string; readonly workpackId?: string }>;
+  };
+  expect(inventory.summary.blockingGapCount).toBeGreaterThan(0);
+  expect(inventory.gaps).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'checklist-claims-proof-root-written-but-root-missing',
+        workpackId: '06',
+      }),
+      expect.objectContaining({
+        kind: 'plan-state-restored-roots-drift',
+      }),
+    ])
+  );
 }
 
 afterEach(async () => {
@@ -329,16 +459,7 @@ describe('logging-domain MCP query interface proof trace', () => {
     const structuredRoot = makeTempDir('mcp-proof-trace-missing-scope-');
     mcpQueryTempDirs.push(structuredRoot);
     const env = makeLoggingEnv(structuredRoot);
-
-    await withMcpServer(env, async (call) => {
-      const response = await call('tools/call', {
-        name: 'get_proof_trace',
-        arguments: {
-          scope: 'parent-missing',
-        },
-      });
-      expect(response.error?.message).toContain('No proof trace rows found for scope "parent-missing".');
-    });
+    await expectUnknownProofTraceScopeError(env);
   });
 });
 
@@ -347,18 +468,7 @@ describe('logging-domain MCP query interface artifact slices', () => {
     const structuredRoot = makeTempDir('mcp-artifact-slice-abuse-');
     mcpQueryTempDirs.push(structuredRoot);
     const env = makeLoggingEnv(structuredRoot);
-
-    await withMcpServer(env, async (call) => {
-      const response = await call('tools/call', {
-        name: 'get_artifact_slice',
-        arguments: {
-          path: path.join(workspaceRoot(), 'package.json'),
-          startLine: 1,
-          maxLines: 5,
-        },
-      });
-      expect(response.error?.message).toContain('Artifact path must stay inside local logging roots.');
-    });
+    await expectArtifactSliceAbuseRejected(env);
   });
 
   it('clamps artifact-slice requests to the bounded max-lines window', async () => {
@@ -367,29 +477,7 @@ describe('logging-domain MCP query interface artifact slices', () => {
     const env = makeLoggingEnv(structuredRoot);
     const artifactPath = path.join(structuredRoot, 'manual-artifact.txt');
     fs.writeFileSync(artifactPath, 'line1\nline2\nline3\nline4\nline5\n', 'utf8');
-
-    await withMcpServer(env, async (call) => {
-      const response = await call('tools/call', {
-        name: 'get_artifact_slice',
-        arguments: {
-          path: artifactPath,
-          startLine: 2,
-          endLine: 99,
-          maxLines: 2,
-        },
-      });
-      expect(response.error).toBeUndefined();
-      const slice = response.result?.structuredContent as {
-        readonly startLine: number;
-        readonly endLine: number;
-        readonly lineCount: number;
-        readonly lines: ReadonlyArray<string>;
-      };
-      expect(slice.startLine).toBe(2);
-      expect(slice.endLine).toBe(3);
-      expect(slice.lineCount).toBe(2);
-      expect(slice.lines).toEqual(['line2', 'line3']);
-    });
+    await expectArtifactSliceClampHonest(env, artifactPath);
   });
 });
 
@@ -428,28 +516,6 @@ describe('logging-domain MCP query interface proof inventory', () => {
       ])
     );
 
-    await withMcpServer(env, async (call) => {
-      const response = await call('tools/call', {
-        name: 'get_proof_inventory_status',
-        arguments: {},
-      });
-      expect(response.error).toBeUndefined();
-      const inventory = response.result?.structuredContent as {
-        readonly summary: { readonly blockingGapCount: number };
-        readonly gaps: ReadonlyArray<{ readonly kind: string; readonly workpackId?: string }>;
-      };
-      expect(inventory.summary.blockingGapCount).toBeGreaterThan(0);
-      expect(inventory.gaps).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            kind: 'checklist-claims-proof-root-written-but-root-missing',
-            workpackId: '06',
-          }),
-          expect.objectContaining({
-            kind: 'plan-state-restored-roots-drift',
-          }),
-        ])
-      );
-    });
+    await expectProofInventoryStatus(env);
   });
 });

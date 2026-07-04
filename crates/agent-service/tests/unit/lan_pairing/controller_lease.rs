@@ -10,6 +10,7 @@ use crate::{
         command_for_target, health_command, intent_payload, intent_payload_for_kind,
         local_network_target, paired_runtime, serialize_command,
     },
+    test_text::TestText,
 };
 
 #[tokio::test]
@@ -50,7 +51,7 @@ async fn lan_pairing_requires_single_active_controller_lease_before_control() {
 async fn lan_pairing_allows_observer_reads_and_rejects_observer_writes() {
     let runtime = paired_runtime().await;
     let observer_read = handle_command_text_for_test(
-        &serialize_command(health_command(with_parent_authority(
+        serialize_command(health_command(with_parent_authority(
             intent_payload_for_kind(
                 constants::lan_pairing::OBSERVER_RULE_QUERY_INTENT_ID,
                 constants::lan_pairing::CHILD_DEVICE_ID,
@@ -58,14 +59,15 @@ async fn lan_pairing_allows_observer_reads_and_rejects_observer_writes() {
                 constants::lan_pairing::EXPIRES_AT,
                 constants::value::LAN_INTENT_RULE_QUERY,
             ),
-            constants::value::LAN_PARENT_AUTHORITY_OBSERVER,
         ))),
         runtime.clone(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
     let observer_write = handle_command_text_for_test(
-        &serialize_command(health_command(with_parent_authority(
+        serialize_command(health_command(with_parent_authority(
             intent_payload_for_kind(
                 constants::lan_pairing::OBSERVER_RULE_UPDATE_INTENT_ID,
                 constants::lan_pairing::CHILD_DEVICE_ID,
@@ -73,10 +75,11 @@ async fn lan_pairing_allows_observer_reads_and_rejects_observer_writes() {
                 constants::lan_pairing::EXPIRES_AT,
                 constants::value::LAN_INTENT_RULE_UPDATE,
             ),
-            constants::value::LAN_PARENT_AUTHORITY_OBSERVER,
         ))),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -104,47 +107,67 @@ async fn lan_pairing_controller_lease_lifecycle_renews_releases_and_takes_over()
     let renewed = lease_lifecycle_command(
         runtime.clone(),
         ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseRenew,
-        constants::lan_pairing::CONTROLLER_LEASE_RENEW_INTENT_ID,
-        constants::value::LAN_INTENT_CONTROLLER_LEASE_RENEW,
-        controller_lease_payload(constants::lan_pairing::CONTROLLER_LEASE_RENEW_INTENT_ID),
+        ControllerLeaseLifecycleExpectation {
+            message_id: constants::lan_pairing::CONTROLLER_LEASE_RENEW_INTENT_ID,
+            intent_kind: constants::value::LAN_INTENT_CONTROLLER_LEASE_RENEW,
+        },
+        controller_lease_payload(ControllerLeasePayloadExpectation {
+            intent_id: constants::lan_pairing::CONTROLLER_LEASE_RENEW_INTENT_ID,
+        }),
     )
     .await;
     let released = lease_lifecycle_command(
         runtime.clone(),
         ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseRelease,
-        constants::lan_pairing::CONTROLLER_LEASE_RELEASE_INTENT_ID,
-        constants::value::LAN_INTENT_CONTROLLER_LEASE_RELEASE,
-        controller_lease_payload(constants::lan_pairing::CONTROLLER_LEASE_RELEASE_INTENT_ID),
+        ControllerLeaseLifecycleExpectation {
+            message_id: constants::lan_pairing::CONTROLLER_LEASE_RELEASE_INTENT_ID,
+            intent_kind: constants::value::LAN_INTENT_CONTROLLER_LEASE_RELEASE,
+        },
+        controller_lease_payload(ControllerLeasePayloadExpectation {
+            intent_id: constants::lan_pairing::CONTROLLER_LEASE_RELEASE_INTENT_ID,
+        }),
     )
     .await;
     let takeover = lease_lifecycle_command(
         runtime.clone(),
         ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseTakeover,
-        constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
-        constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
+        ControllerLeaseLifecycleExpectation {
+            message_id: constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
+            intent_kind: constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
+        },
         second_controller_payload_for_kind(
-            constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
-            constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
+            ControllerLeasePayloadKindExpectation {
+                intent_id: constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
+                intent_kind: constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
+            },
         ),
     )
     .await;
     let old_controller_after_takeover = rejected_controller_lease_control(
         runtime,
-        controller_lease_payload(constants::lan_pairing::OLD_CONTROLLER_AFTER_TAKEOVER_INTENT_ID),
+        controller_lease_payload(ControllerLeasePayloadExpectation {
+            intent_id: constants::lan_pairing::OLD_CONTROLLER_AFTER_TAKEOVER_INTENT_ID,
+        }),
     )
     .await;
 
     assert_audit_type(
         &renewed,
-        constants::value::LAN_AUDIT_CONTROLLER_LEASE_RENEWED,
+        AuditTypeExpectation {
+            audit_type: constants::value::LAN_AUDIT_CONTROLLER_LEASE_RENEWED,
+        },
     );
     assert_audit_type(
         &released,
-        constants::value::LAN_AUDIT_CONTROLLER_LEASE_RELEASED,
+        AuditTypeExpectation {
+            audit_type: constants::value::LAN_AUDIT_CONTROLLER_LEASE_RELEASED,
+        },
     );
     assert_audit_type(
         &takeover,
-        constants::value::LAN_AUDIT_CONTROLLER_LEASE_TAKEOVER_ACCEPTED,
+        AuditTypeExpectation {
+            audit_type: constants::value::LAN_AUDIT_CONTROLLER_LEASE_TAKEOVER_ACCEPTED,
+        },
     );
     assert_rejection(
         &old_controller_after_takeover,
@@ -158,11 +181,15 @@ async fn lan_pairing_controller_lease_takeover_is_rejected_while_active_controll
     let denied = lease_lifecycle_command(
         runtime,
         ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseTakeover,
-        constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
-        constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
+        ControllerLeaseLifecycleExpectation {
+            message_id: constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
+            intent_kind: constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
+        },
         second_controller_payload_for_kind(
-            constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
-            constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
+            ControllerLeasePayloadKindExpectation {
+                intent_id: constants::lan_pairing::CONTROLLER_LEASE_TAKEOVER_INTENT_ID,
+                intent_kind: constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER,
+            },
         ),
     )
     .await;
@@ -179,9 +206,11 @@ async fn rejected_controller_lease_control(
     payload: LogFields,
 ) -> AgentEventEnvelope {
     handle_command_text_for_test(
-        &serialize_command(health_command(payload)),
+        serialize_command(health_command(payload)),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await
 }
@@ -189,43 +218,51 @@ async fn rejected_controller_lease_control(
 async fn lease_lifecycle_command(
     runtime: crate::app::lan_pairing::LanPairingRuntime,
     command_name: ocentra_parent_agent_protocol::transport::AgentCommandName,
-    message_id: &str,
-    intent_kind: &str,
+    expectation: ControllerLeaseLifecycleExpectation,
     mut payload: LogFields,
 ) -> AgentEventEnvelope {
     payload.insert(
         constants::field::LAN_INTENT_KIND.to_string(),
-        LogFieldValue::String(intent_kind.to_string()),
+        LogFieldValue::String(expectation.intent_kind.to_string()),
     );
     let mut command = command_for_target(
         command_name,
         local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
         payload,
     );
-    command.message_id = message_id.to_string();
+    command.message_id = expectation.message_id.to_string();
     handle_command_text_for_test(
-        &serialize_command(command),
+        serialize_command(command),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await
 }
 
-fn with_parent_authority(mut payload: LogFields, authority: &str) -> LogFields {
+fn with_parent_authority(mut payload: LogFields) -> LogFields {
     payload.insert(
         constants::field::LAN_PARENT_AUTHORITY.to_string(),
-        LogFieldValue::String(authority.to_string()),
+        LogFieldValue::String(constants::value::LAN_PARENT_AUTHORITY_OBSERVER.to_string()),
     );
     payload
 }
 
-fn second_controller_payload_for_kind(intent_id: &str, intent_kind: &str) -> LogFields {
+struct ControllerLeasePayloadKindExpectation {
+    intent_id: &'static str,
+    intent_kind: &'static str,
+}
+
+fn second_controller_payload_for_kind(
+    expectation: ControllerLeasePayloadKindExpectation,
+) -> LogFields {
     let mut payload = intent_payload_for_kind(
-        intent_id,
+        expectation.intent_id,
         constants::lan_pairing::CHILD_DEVICE_ID,
         constants::lan_pairing::PROOF_DIGEST,
         constants::lan_pairing::EXPIRES_AT,
-        intent_kind,
+        expectation.intent_kind,
     );
     payload.insert(
         constants::field::LAN_CONTROLLER_LEASE_ID.to_string(),
@@ -242,29 +279,38 @@ fn second_controller_payload_for_kind(intent_id: &str, intent_kind: &str) -> Log
     payload
 }
 
-fn assert_audit_type(event: &AgentEventEnvelope, audit_type: &str) {
+struct AuditTypeExpectation {
+    audit_type: &'static str,
+}
+
+fn assert_audit_type(event: &AgentEventEnvelope, expectation: AuditTypeExpectation) {
     assert_eq!(
         event.payload.get(constants::field::LAN_AUDIT_EVENT_TYPE),
-        Some(&LogFieldValue::String(audit_type.to_string()))
+        Some(&LogFieldValue::String(expectation.audit_type.to_string()))
     );
 }
 
 fn missing_controller_lease_payload() -> LogFields {
-    let mut payload = controller_lease_payload(constants::lan_pairing::RULE_QUERY_INTENT_ID);
-    for key in [
-        constants::field::LAN_CONTROLLER_LEASE_ID,
-        constants::field::LAN_CONTROLLER_DEVICE_ID,
-        constants::field::LAN_PARENT_ACTOR_ID,
-        constants::field::LAN_CONTROLLER_LEASE_ISSUED_AT,
-        constants::field::LAN_CONTROLLER_LEASE_EXPIRES_AT,
-    ] {
-        payload.remove(key);
-    }
+    let mut payload = controller_lease_payload(ControllerLeasePayloadExpectation {
+        intent_id: constants::lan_pairing::RULE_QUERY_INTENT_ID,
+    });
+    payload = without_fields(
+        payload,
+        [
+            TestText::from_display(constants::field::LAN_CONTROLLER_LEASE_ID),
+            TestText::from_display(constants::field::LAN_CONTROLLER_DEVICE_ID),
+            TestText::from_display(constants::field::LAN_PARENT_ACTOR_ID),
+            TestText::from_display(constants::field::LAN_CONTROLLER_LEASE_ISSUED_AT),
+            TestText::from_display(constants::field::LAN_CONTROLLER_LEASE_EXPIRES_AT),
+        ],
+    );
     payload
 }
 
 fn expired_controller_lease_payload() -> LogFields {
-    let mut payload = controller_lease_payload(constants::lan_pairing::RULE_UPDATE_INTENT_ID);
+    let mut payload = controller_lease_payload(ControllerLeasePayloadExpectation {
+        intent_id: constants::lan_pairing::RULE_UPDATE_INTENT_ID,
+    });
     payload.insert(
         constants::field::LAN_CONTROLLER_LEASE_EXPIRES_AT.to_string(),
         LogFieldValue::String(constants::lan_pairing::CONTROLLER_LEASE_EXPIRED_AT.to_string()),
@@ -273,7 +319,9 @@ fn expired_controller_lease_payload() -> LogFields {
 }
 
 fn second_controller_payload() -> LogFields {
-    let mut payload = controller_lease_payload(constants::lan_pairing::APPROVAL_DECISION_INTENT_ID);
+    let mut payload = controller_lease_payload(ControllerLeasePayloadExpectation {
+        intent_id: constants::lan_pairing::APPROVAL_DECISION_INTENT_ID,
+    });
     payload.insert(
         constants::field::LAN_CONTROLLER_LEASE_ID.to_string(),
         LogFieldValue::String(constants::lan_pairing::SECOND_CONTROLLER_LEASE_ID.to_string()),
@@ -289,11 +337,33 @@ fn second_controller_payload() -> LogFields {
     payload
 }
 
-fn controller_lease_payload(intent_id: &str) -> LogFields {
+struct ControllerLeasePayloadExpectation {
+    intent_id: &'static str,
+}
+
+fn controller_lease_payload(expectation: ControllerLeasePayloadExpectation) -> LogFields {
     intent_payload(
-        intent_id,
+        expectation.intent_id,
         constants::lan_pairing::CHILD_DEVICE_ID,
         constants::lan_pairing::PROOF_DIGEST,
         constants::lan_pairing::EXPIRES_AT,
     )
+}
+
+fn without_fields<I, T>(payload: LogFields, keys: I) -> LogFields
+where
+    I: IntoIterator<Item = T>,
+    T: Into<TestText>,
+{
+    let mut inner = payload.into_inner();
+    for key in keys {
+        let key: TestText = key.into();
+        inner.remove(key.0.as_str());
+    }
+    LogFields::from(inner)
+}
+
+struct ControllerLeaseLifecycleExpectation {
+    message_id: &'static str,
+    intent_kind: &'static str,
 }

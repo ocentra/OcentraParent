@@ -1,4 +1,4 @@
-use super::title_from_token;
+use super::tokens::title_from_token;
 
 pub(crate) fn searchable_text(parts: &[&str]) -> String {
     parts.join(" ").to_lowercase()

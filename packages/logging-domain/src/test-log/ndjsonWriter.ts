@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { StoredTestLogLineSchema, type StoredTestLogLine } from '@ocentra-parent/schema-domain/test-log/types';
+import { StoredTestLogLineSchema, type StoredTestLogLine } from './types';
 import { ensureDirectory, getDefaultLogRoot } from './ndjsonPaths';
-import { groupGeneratedTestLogEntriesByFilePath, splitGeneratedNdjsonContent } from '../generated/local-test-log';
+import { groupGeneratedTestLogEntriesByFilePath, splitGeneratedNdjsonContent } from '../local-test-log';
 
 export function appendTestLogEntries(entries: readonly StoredTestLogLine[], rootDir?: string): string[] {
   const normalizedEntries = entries.map((rawEntry) => StoredTestLogLineSchema.parse(rawEntry));

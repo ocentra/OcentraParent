@@ -1,9 +1,5 @@
-use crate::{
-    classify_remote_torrent_download_activity, NetworkTransferActivityKind, NetworkTransferBasis,
-    NetworkTransferClassification, NetworkTransferClassifierError, NetworkTransferClassifierInput,
-    NetworkTransferIndicator, NetworkTransferIndicatorEvidence, NetworkTransferUncertainty,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::transfer::*;
 
 #[test]
 fn transfer_classifier_flags_remote_desktop_candidate() {

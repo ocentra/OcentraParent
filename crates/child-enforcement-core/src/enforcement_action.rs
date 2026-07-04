@@ -10,17 +10,29 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
-use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
+use ocentra_eventing::ids::{AggregateKey, IdempotencyKey};
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use serde::{Deserialize, Serialize};
 
+use crate::enforcement_action_request_id::EnforcementActionRequestId;
+use crate::enforcement_action_support::{
+    child_enforcement_event_contract as support_child_enforcement_event_contract,
+    child_enforcement_idempotency_key as support_child_enforcement_idempotency_key,
+    enforcement_adapter_execution_state as support_enforcement_adapter_execution_state,
+    enforcement_decision_ref as support_enforcement_decision_ref,
+    enforcement_rollback_requirement_state as support_enforcement_rollback_requirement_state,
+};
+use crate::enforcement_aggregate_id::EnforcementAggregateId;
+use crate::enforcement_decision_id::EnforcementDecisionId;
+
 pub const CRATE_NAME: &str = "ocentra-child-enforcement-core";
-const CHILD_ENFORCEMENT_SCHEMA_VERSION: u16 = 1;
-const ENFORCEMENT_ACTION_REQUESTED_EVENT_TYPE: &str = "child-enforcement.action.requested";
-const ENFORCEMENT_ACTION_DECISION_RECORDED_EVENT_TYPE: &str =
+pub(crate) const CHILD_ENFORCEMENT_SCHEMA_VERSION: u16 = 1;
+pub(crate) const ENFORCEMENT_ACTION_REQUESTED_EVENT_TYPE: &str =
+    "child-enforcement.action.requested";
+pub(crate) const ENFORCEMENT_ACTION_DECISION_RECORDED_EVENT_TYPE: &str =
     "child-enforcement.action-decision.recorded";
-const CHILD_ENFORCEMENT_IDEMPOTENCY_SEPARATOR: &str = ":";
-const ENFORCEMENT_DECISION_PREFIX: &str = "child-enforcement-decision:";
+pub(crate) const CHILD_ENFORCEMENT_IDEMPOTENCY_SEPARATOR: &str = ":";
+pub(crate) const ENFORCEMENT_DECISION_PREFIX: &str = "child-enforcement-decision:";
 const ERROR_ENFORCEMENT_DECISION_ID: &str = "child enforcement decision id";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -97,52 +109,6 @@ pub struct EnforcementActionDecision {
     pub rollback_requirement_state: EnforcementRollbackRequirementState,
 }
 
-macro_rules! child_enforcement_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
-
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
-}
-
-child_enforcement_text_id!(EnforcementActionRequestId, "child_enforcement.request_id");
-child_enforcement_text_id!(EnforcementDecisionId, "child_enforcement.decision_id");
-child_enforcement_text_id!(EnforcementAggregateId, "child_enforcement.aggregate_id");
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EnforcementActionRequestedEvent {
     pub aggregate_id: EnforcementAggregateId,
@@ -160,7 +126,7 @@ pub struct EnforcementActionDecisionRecordedEvent {
 
 impl DomainEvent for EnforcementActionRequestedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
-        child_enforcement_event_contract(ENFORCEMENT_ACTION_REQUESTED_EVENT_TYPE)
+        support_child_enforcement_event_contract(ENFORCEMENT_ACTION_REQUESTED_EVENT_TYPE)
     }
 
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
@@ -168,13 +134,16 @@ impl DomainEvent for EnforcementActionRequestedEvent {
     }
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        child_enforcement_idempotency_key(ENFORCEMENT_ACTION_REQUESTED_EVENT_TYPE, &self.request_id)
+        support_child_enforcement_idempotency_key(
+            ENFORCEMENT_ACTION_REQUESTED_EVENT_TYPE,
+            &self.request_id,
+        )
     }
 }
 
 impl DomainEvent for EnforcementActionDecisionRecordedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
-        child_enforcement_event_contract(ENFORCEMENT_ACTION_DECISION_RECORDED_EVENT_TYPE)
+        support_child_enforcement_event_contract(ENFORCEMENT_ACTION_DECISION_RECORDED_EVENT_TYPE)
     }
 
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
@@ -182,7 +151,7 @@ impl DomainEvent for EnforcementActionDecisionRecordedEvent {
     }
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        child_enforcement_idempotency_key(
+        support_child_enforcement_idempotency_key(
             ENFORCEMENT_ACTION_DECISION_RECORDED_EVENT_TYPE,
             &self.decision_id,
         )
@@ -190,26 +159,10 @@ impl DomainEvent for EnforcementActionDecisionRecordedEvent {
 }
 
 pub fn evaluate_enforcement_action(input: EnforcementActionInput) -> EnforcementActionDecision {
-    let execute_adapter = input.mode == EnforcementActionMode::Execute
-        && input.policy_authority_state == ParentAuthorityState::Authorized
-        && input.adapter_state == EnforcementAdapterState::Available
-        && input.rollback_state == EnforcementRollbackState::Available
-        && input.idempotency_state == EnforcementIdempotencyState::NewAction;
-
     EnforcementActionDecision {
-        adapter_execution_state: if execute_adapter {
-            EnforcementAdapterExecutionState::Execute
-        } else {
-            EnforcementAdapterExecutionState::DoNotExecute
-        },
+        adapter_execution_state: support_enforcement_adapter_execution_state(&input),
         audit_record_state: EnforcementAuditRecordState::Record,
-        rollback_requirement_state: if input.mode == EnforcementActionMode::Execute
-            && input.rollback_state != EnforcementRollbackState::Available
-        {
-            EnforcementRollbackRequirementState::RequiredBeforeExecute
-        } else {
-            EnforcementRollbackRequirementState::NotRequired
-        },
+        rollback_requirement_state: support_enforcement_rollback_requirement_state(&input),
     }
 }
 
@@ -218,32 +171,11 @@ pub fn record_enforcement_action_decision(
 ) -> EnforcementActionDecisionRecordedEvent {
     EnforcementActionDecisionRecordedEvent {
         aggregate_id: event.aggregate_id.clone(),
-        decision_id: EnforcementDecisionId::parse(enforcement_decision_ref(&event.request_id))
-            .expect_value(ERROR_ENFORCEMENT_DECISION_ID),
+        decision_id: EnforcementDecisionId::parse(support_enforcement_decision_ref(
+            &event.request_id,
+        ))
+        .expect_value(ERROR_ENFORCEMENT_DECISION_ID),
         source_request_id: event.request_id.clone(),
         decision: evaluate_enforcement_action(event.input),
     }
-}
-
-fn child_enforcement_event_contract(event_type: &str) -> Result<EventContract, EventingError> {
-    Ok(EventContract::new(
-        EventType::parse(event_type)?,
-        SchemaVersion::new(CHILD_ENFORCEMENT_SCHEMA_VERSION)?,
-    ))
-}
-
-fn child_enforcement_idempotency_key(
-    event_type: &str,
-    unique_ref: impl std::fmt::Display,
-) -> Result<IdempotencyKey, EventingError> {
-    IdempotencyKey::parse(format!(
-        "{}{}{}",
-        event_type, CHILD_ENFORCEMENT_IDEMPOTENCY_SEPARATOR, unique_ref
-    ))
-}
-
-fn enforcement_decision_ref(request_id: &EnforcementActionRequestId) -> String {
-    let mut value = String::from(ENFORCEMENT_DECISION_PREFIX);
-    value.push_str(request_id.as_str());
-    value
 }

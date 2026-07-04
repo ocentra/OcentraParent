@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use ocentra_eventing::{bus::reports::HandlerOutcome, bus::EventBus};
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
@@ -33,8 +36,12 @@ async fn screen_service_event_runtime_start_registers_subscriber_for_production_
     let publish = runtime
         .publish_row_ready(
             service_screen_row(),
-            constants::screen_flow::TEST_SCREEN_ACTION_REF,
-            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            screen_ai_service_event_subscription::ActionRefText(
+                constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
+            ),
+            screen_ai_service_event_subscription::ObservedAtText(
+                constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+            ),
         )
         .await;
     let publish = require_ok(
@@ -60,9 +67,13 @@ async fn screen_service_event_subscription_publishes_existing_runtime_chain() {
         &bus,
         ScreenAiServiceRowReadyEvent::new(
             service_screen_row(),
-            constants::screen_flow::TEST_SCREEN_ACTION_REF,
+            screen_ai_service_event_subscription::ActionRefText(
+                constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
+            ),
         ),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        screen_ai_service_event_subscription::ObservedAtText(
+            constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        ),
     )
     .await;
     let publish = require_ok(
@@ -97,9 +108,13 @@ async fn screen_service_event_subscription_publishes_degraded_runtime_chain() {
         &bus,
         ScreenAiServiceRowReadyEvent::new(
             degraded_service_screen_row(),
-            constants::screen_flow::TEST_SCREEN_ACTION_REF,
+            screen_ai_service_event_subscription::ActionRefText(
+                constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
+            ),
         ),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        screen_ai_service_event_subscription::ObservedAtText(
+            constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        ),
     )
     .await;
     let publish = require_ok(
@@ -134,8 +149,15 @@ async fn screen_service_event_subscription_rejects_unsafe_rows_before_downstream
     row.raw_image_retained = true;
     let publish = publish_screen_service_row_ready_event(
         &bus,
-        ScreenAiServiceRowReadyEvent::new(row, constants::screen_flow::TEST_SCREEN_ACTION_REF),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        ScreenAiServiceRowReadyEvent::new(
+            row,
+            screen_ai_service_event_subscription::ActionRefText(
+                constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
+            ),
+        ),
+        screen_ai_service_event_subscription::ObservedAtText(
+            constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        ),
     )
     .await;
     let publish = require_ok(

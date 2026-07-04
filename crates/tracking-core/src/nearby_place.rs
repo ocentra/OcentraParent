@@ -180,8 +180,5 @@ fn parse_contract_text<T, E>(
 where
     E: core::fmt::Debug,
 {
-    match parse(value) {
-        Ok(parsed_value) => parsed_value,
-        Err(_) => unreachable!("tracking nearby-place contract drift: {value}"),
-    }
+    parse(value).expect("tracking nearby-place contract drift")
 }

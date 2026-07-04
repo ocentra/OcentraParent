@@ -2,7 +2,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::{constants::enforcement_broad_adapter_proof as proof, ParentPlatform};
 
+macro_rules! protocol_str_lookup {
+    ($self:expr, [$($value:expr),+ $(,)?]) => {{
+        const VALUES: &[&str] = &[$($value),+];
+        VALUES[*$self as usize]
+    }};
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08BroadAdapterRuntimeSurface {
     #[serde(rename = "windows-owned-process-and-timer-runtime-boundary")]
     WindowsOwnedProcessAndTimerRuntimeBoundary,
@@ -28,26 +36,26 @@ pub enum V08BroadAdapterRuntimeSurface {
 
 impl V08BroadAdapterRuntimeSurface {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::WindowsOwnedProcessAndTimerRuntimeBoundary => proof::SURFACE_OWNED_PROCESS_TIMER,
-            Self::WindowsManagedBrowserSessionRuntimeBoundary => {
-                proof::SURFACE_MANAGED_BROWSER_SESSION
-            }
-            Self::WindowsBroadInstalledAppRuntimeGate => proof::SURFACE_BROAD_INSTALLED_APP_GATE,
-            Self::WindowsNetworkDomainRuntimeGate => proof::SURFACE_NETWORK_DOMAIN_GATE,
-            Self::WindowsManagedBrowserExactUrlRuntimeGate => proof::SURFACE_MANAGED_EXACT_URL_GATE,
-            Self::WindowsUnmanagedBrowserExactEvidenceRuntimeGap => {
-                proof::SURFACE_UNMANAGED_EXACT_EVIDENCE_GAP
-            }
-            Self::LinuxHostRuntimeUnavailable => proof::SURFACE_LINUX_UNAVAILABLE,
-            Self::MacosHostRuntimeManualGate => proof::SURFACE_MACOS_MANUAL_GATE,
-            Self::AndroidMobileRuntimeManualGate => proof::SURFACE_ANDROID_MANUAL_GATE,
-            Self::IosMobileRuntimeManualGate => proof::SURFACE_IOS_MANUAL_GATE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::SURFACE_OWNED_PROCESS_TIMER,
+                proof::SURFACE_MANAGED_BROWSER_SESSION,
+                proof::SURFACE_BROAD_INSTALLED_APP_GATE,
+                proof::SURFACE_NETWORK_DOMAIN_GATE,
+                proof::SURFACE_MANAGED_EXACT_URL_GATE,
+                proof::SURFACE_UNMANAGED_EXACT_EVIDENCE_GAP,
+                proof::SURFACE_LINUX_UNAVAILABLE,
+                proof::SURFACE_MACOS_MANUAL_GATE,
+                proof::SURFACE_ANDROID_MANUAL_GATE,
+                proof::SURFACE_IOS_MANUAL_GATE,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08BroadAdapterRuntimeClaimState {
     #[serde(rename = "implemented-boundary")]
     ImplementedBoundary,
@@ -61,16 +69,20 @@ pub enum V08BroadAdapterRuntimeClaimState {
 
 impl V08BroadAdapterRuntimeClaimState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ImplementedBoundary => proof::CLAIM_IMPLEMENTED_BOUNDARY,
-            Self::ManualRequired => proof::CLAIM_MANUAL_REQUIRED,
-            Self::Unavailable => proof::CLAIM_UNAVAILABLE,
-            Self::NotClaimed => proof::CLAIM_NOT_CLAIMED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::CLAIM_IMPLEMENTED_BOUNDARY,
+                proof::CLAIM_MANUAL_REQUIRED,
+                proof::CLAIM_UNAVAILABLE,
+                proof::CLAIM_NOT_CLAIMED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08BroadAdapterRuntimeEvidenceState {
     #[serde(rename = "composite-runtime-proof")]
     CompositeRuntimeProof,
@@ -84,12 +96,15 @@ pub enum V08BroadAdapterRuntimeEvidenceState {
 
 impl V08BroadAdapterRuntimeEvidenceState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::CompositeRuntimeProof => proof::EVIDENCE_COMPOSITE_RUNTIME_PROOF,
-            Self::ManualArtifactRequired => proof::EVIDENCE_MANUAL_ARTIFACT_REQUIRED,
-            Self::TargetUnavailable => proof::EVIDENCE_TARGET_UNAVAILABLE,
-            Self::NotImplemented => proof::EVIDENCE_NOT_IMPLEMENTED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::EVIDENCE_COMPOSITE_RUNTIME_PROOF,
+                proof::EVIDENCE_MANUAL_ARTIFACT_REQUIRED,
+                proof::EVIDENCE_TARGET_UNAVAILABLE,
+                proof::EVIDENCE_NOT_IMPLEMENTED,
+            ]
+        )
     }
 }
 

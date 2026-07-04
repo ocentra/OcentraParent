@@ -1,8 +1,6 @@
-use crate::{
-    normalize_domain_with_public_suffix, DomainNormalizationError, NetworkEvidenceGrade,
-    PublicSuffixModel,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::domain::*;
 
 #[test]
 fn domain_normalization_lowercases_and_trims_root_dot() {

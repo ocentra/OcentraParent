@@ -20,7 +20,9 @@ static ENV_LOCK: Mutex<()> = Mutex::new(());
 fn device_role_read_model_reports_dual_role_without_duplicate_ai_runtime_claims() {
     let runtime =
         LanPairingRuntime::empty_with_device_role_read_model(DeviceRoleRuntimeReadModel {
-            schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+            schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT
+                .to_string()
+                .into(),
             physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
             surface: DeviceRuntimeSurface::ParentDesktop,
             platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),
@@ -54,16 +56,8 @@ fn device_role_read_model_reports_dual_role_without_duplicate_ai_runtime_claims(
 
 #[test]
 fn device_role_read_model_defaults_child_mobile_surfaces_to_scaffold_manual_required_routes() {
-    assert_child_mobile_surface_defaults(
-        constants::value::DEVICE_RUNTIME_SURFACE_CHILD_ANDROID,
-        &DeviceRuntimeSurface::ChildAndroid,
-        constants::local_ai_runtime::PLATFORM_OS_ANDROID,
-    );
-    assert_child_mobile_surface_defaults(
-        constants::value::DEVICE_RUNTIME_SURFACE_CHILD_IOS,
-        &DeviceRuntimeSurface::ChildIos,
-        constants::value::DEVICE_RUNTIME_PLATFORM_IOS,
-    );
+    assert_child_mobile_surface_defaults(DeviceRuntimeSurface::ChildAndroid);
+    assert_child_mobile_surface_defaults(DeviceRuntimeSurface::ChildIos);
 }
 
 fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
@@ -73,11 +67,18 @@ fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
     }
 }
 
-fn assert_child_mobile_surface_defaults(
-    surface_env_value: &str,
-    expected_surface: &DeviceRuntimeSurface,
-    expected_platform: &str,
-) {
+fn assert_child_mobile_surface_defaults(expected_surface: DeviceRuntimeSurface) {
+    let (surface_env_value, expected_platform) = match expected_surface {
+        DeviceRuntimeSurface::ChildAndroid => (
+            constants::value::DEVICE_RUNTIME_SURFACE_CHILD_ANDROID,
+            constants::local_ai_runtime::PLATFORM_OS_ANDROID,
+        ),
+        DeviceRuntimeSurface::ChildIos => (
+            constants::value::DEVICE_RUNTIME_SURFACE_CHILD_IOS,
+            constants::value::DEVICE_RUNTIME_PLATFORM_IOS,
+        ),
+        _ => unreachable!("child mobile surface defaults only apply to child mobile surfaces"),
+    };
     let _guard = ENV_LOCK
         .lock()
         .unwrap_or_else(|_| unreachable!("lan device-role env lock remains available"));
@@ -112,7 +113,7 @@ fn assert_child_mobile_surface_defaults(
     let runtime = LanPairingRuntime::from_env();
     let read_model = runtime.device_role_read_model();
 
-    assert_eq!(&read_model.surface, expected_surface);
+    assert_eq!(read_model.surface, expected_surface);
     assert_eq!(read_model.platform, expected_platform);
     assert_eq!(read_model.primary_role, DeviceRuntimeRole::ChildAgent);
     assert_eq!(read_model.roles.len(), 1);
@@ -133,29 +134,40 @@ fn assert_child_mobile_surface_defaults(
         DeviceRuntimeLocalAiClaim::None
     );
 
-    restore_env_var(
-        constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH,
-        previous_registry_path,
-    );
-    restore_env_var(constants::lan_pairing::DEVICE_SURFACE_ENV, previous_surface);
-    restore_env_var(constants::lan_pairing::DEVICE_ROLES_ENV, previous_roles);
-    restore_env_var(
-        constants::lan_pairing::LOCAL_CHILD_DEVICE_ID_ENV,
-        previous_child_device_id,
-    );
-    restore_env_var(
-        constants::lan_pairing::LAN_AI_PROVIDER_CAPABILITIES_ENV,
-        previous_ai_capabilities,
-    );
-    restore_env_var(
-        constants::lan_pairing::LAN_AI_PROVIDER_OPT_IN_ENV,
-        previous_ai_opt_in,
-    );
+    restore_env_var(EnvVarSnapshot {
+        name: constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH,
+        value: previous_registry_path,
+    });
+    restore_env_var(EnvVarSnapshot {
+        name: constants::lan_pairing::DEVICE_SURFACE_ENV,
+        value: previous_surface,
+    });
+    restore_env_var(EnvVarSnapshot {
+        name: constants::lan_pairing::DEVICE_ROLES_ENV,
+        value: previous_roles,
+    });
+    restore_env_var(EnvVarSnapshot {
+        name: constants::lan_pairing::LOCAL_CHILD_DEVICE_ID_ENV,
+        value: previous_child_device_id,
+    });
+    restore_env_var(EnvVarSnapshot {
+        name: constants::lan_pairing::LAN_AI_PROVIDER_CAPABILITIES_ENV,
+        value: previous_ai_capabilities,
+    });
+    restore_env_var(EnvVarSnapshot {
+        name: constants::lan_pairing::LAN_AI_PROVIDER_OPT_IN_ENV,
+        value: previous_ai_opt_in,
+    });
 }
 
-fn restore_env_var(name: &str, value: Option<OsString>) {
-    match value {
-        Some(value) => std::env::set_var(name, value),
-        None => std::env::remove_var(name),
+struct EnvVarSnapshot {
+    name: &'static str,
+    value: Option<OsString>,
+}
+
+fn restore_env_var(snapshot: EnvVarSnapshot) {
+    match snapshot.value {
+        Some(value) => std::env::set_var(snapshot.name, value),
+        None => std::env::remove_var(snapshot.name),
     }
 }

@@ -1,14 +1,7 @@
-use crate::{
-    build_network_ai_audit_report, evaluate_network_ai_detection_fixtures,
-    evaluate_network_risk_budget_threshold, NetworkAiAuditReport, NetworkAiAuditReportInput,
-    NetworkAiDetectionEvaluationInput, NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind,
-    NetworkAiDetectionLabel, NetworkAiDetectionResult, NetworkAiDetectionRiskLevel,
-    NetworkInterventionState, NetworkRiskBudgetAdapterProofState, NetworkRiskBudgetAgeBand,
-    NetworkRiskBudgetEvidenceTier, NetworkRiskBudgetHouseholdPolicy, NetworkRiskBudgetPriorEvent,
-    NetworkRiskBudgetSignal, NetworkRiskBudgetState, NetworkRiskBudgetThresholdError,
-    NetworkRiskBudgetThresholdInput, NetworkRiskBudgetThresholds,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::ai_audit::*;
+use ocentra_network_evidence::ai_detection::*;
+use ocentra_network_evidence::risk_budget::*;
 
 #[test]
 fn risk_budget_threshold_maps_profile_prior_events_and_adapter_proof_to_block() {
@@ -285,15 +278,18 @@ fn default_policy() -> NetworkRiskBudgetHouseholdPolicy {
     }
 }
 
-fn risk_signal(
-    signal_ref: &str,
+fn risk_signal<S>(
+    signal_ref: S,
     audit_report: NetworkAiAuditReport,
     evidence_tier: NetworkRiskBudgetEvidenceTier,
     base_risk_points: u16,
     safe_behavior_credit_points: u16,
-) -> NetworkRiskBudgetSignal {
+) -> NetworkRiskBudgetSignal
+where
+    S: Into<String>,
+{
     NetworkRiskBudgetSignal {
-        signal_ref: signal_ref.to_owned(),
+        signal_ref: signal_ref.into(),
         audit_report,
         evidence_tier,
         base_risk_points,
@@ -314,14 +310,17 @@ fn low_risk_signal() -> NetworkRiskBudgetSignal {
     )
 }
 
-fn prior_event(
-    event_ref: &str,
+fn prior_event<S>(
+    event_ref: S,
     risk_points: u16,
     within_window: bool,
     same_household_rule: bool,
-) -> NetworkRiskBudgetPriorEvent {
+) -> NetworkRiskBudgetPriorEvent
+where
+    S: Into<String>,
+{
     NetworkRiskBudgetPriorEvent {
-        event_ref: event_ref.to_owned(),
+        event_ref: event_ref.into(),
         risk_points,
         within_window,
         same_household_rule,

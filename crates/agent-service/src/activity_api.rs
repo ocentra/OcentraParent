@@ -29,19 +29,26 @@ use ocentra_parent_agent_core::{
 use ocentra_parent_agent_protocol::activity_query::{ActivityIngestStatus, ActivityRecentSummary};
 use ocentra_parent_agent_protocol::browser_inventory::BrowserInventoryReadModel;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::logging::{LogFields, LogLevel};
 use ocentra_parent_agent_protocol::tracking_read_model_payload;
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
+use std::future::Future;
+
+pub(crate) mod activity_store_error_event;
+use self::activity_store_error_event::activity_store_error_event;
 
 pub(crate) mod activity_memory_graph_report;
 pub(crate) mod app_game_adapter_dispatch_execute_payload;
 pub(crate) mod app_game_adapter_dispatch_preflight_payload;
+pub(crate) mod app_game_adapter_dispatch_result_fields;
 pub(crate) mod app_game_adapter_dispatch_result_payload;
 pub(crate) mod app_game_adapter_execution_readiness_payload;
 mod app_game_adapter_host_capabilities;
+mod app_game_adapter_host_capabilities_paths;
 mod app_game_boundary_read_model_payload;
+mod app_game_boundary_read_model_payload_rows;
 pub(crate) mod app_game_child_runtime_transport_receipt_payload;
 mod app_game_notification_readiness_payload;
 pub(crate) mod app_game_platform_proof_status_payload;
@@ -72,67 +79,49 @@ use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
 use self::app_game_timer_parent_preference_setup_request_outbox::setup_outbox_has_records;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct ActivityEventId(pub(crate) &'static str);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct GeneratedAtText(pub(crate) String);
 pub async fn build_activity_ingest_status_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    match load_activity_ingest_status().await {
-        Some(status) => build_event(
-            constants::event_id::ACTIVITY_INGEST_STATUS_REPORTED,
-            &command.message_id,
-            command.source,
-            AgentEventName::AgentActivityIngestStatusReported,
-            LogLevel::Info,
-            ingest_status_payload(&status),
-            None,
-        ),
-        None => activity_store_error_event(
-            command,
-            constants::event_id::ACTIVITY_INGEST_STATUS_REPORTED,
-            AgentEventName::AgentActivityIngestStatusReported,
-        ),
-    }
+    build_optional_activity_report(
+        command,
+        ActivityEventId(constants::event_id::ACTIVITY_INGEST_STATUS_REPORTED),
+        AgentEventName::AgentActivityIngestStatusReported,
+        load_activity_ingest_status(),
+        ingest_status_payload,
+    )
+    .await
 }
 
 pub async fn build_activity_recent_summary_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    match load_activity_recent_summary().await {
-        Some(summary) => build_event(
-            constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED,
-            &command.message_id,
-            command.source,
-            AgentEventName::AgentActivityRecentSummaryReported,
-            LogLevel::Info,
-            recent_summary_payload(&summary),
-            None,
-        ),
-        None => activity_store_error_event(
-            command,
-            constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED,
-            AgentEventName::AgentActivityRecentSummaryReported,
-        ),
-    }
+    build_optional_activity_report(
+        command,
+        ActivityEventId(constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED),
+        AgentEventName::AgentActivityRecentSummaryReported,
+        load_activity_recent_summary(),
+        recent_summary_payload,
+    )
+    .await
 }
 
 pub async fn build_browser_evidence_recent_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    match load_browser_evidence_read_model().await {
-        Some(read_model) => build_event(
-            constants::event_id::BROWSER_EVIDENCE_RECENT_REPORTED,
-            &command.message_id,
-            command.source,
-            AgentEventName::AgentBrowserEvidenceRecentReported,
-            LogLevel::Info,
-            browser_evidence_read_model_payload(&read_model),
-            None,
-        ),
-        None => activity_store_error_event(
-            command,
-            constants::event_id::BROWSER_EVIDENCE_RECENT_REPORTED,
-            AgentEventName::AgentBrowserEvidenceRecentReported,
-        ),
-    }
+    build_optional_activity_report(
+        command,
+        ActivityEventId(constants::event_id::BROWSER_EVIDENCE_RECENT_REPORTED),
+        AgentEventName::AgentBrowserEvidenceRecentReported,
+        load_browser_evidence_read_model(),
+        browser_evidence_read_model_payload,
+    )
+    .await
 }
 
 pub async fn build_browser_inventory_read_model_report(
@@ -173,7 +162,7 @@ pub async fn build_network_flow_read_model_report(
         }
         None => activity_store_error_event(
             command,
-            constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED,
+            ActivityEventId(constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED),
             AgentEventName::AgentNetworkFlowReadModelReported,
         ),
     }
@@ -197,7 +186,7 @@ pub async fn build_network_runtime_event_chain_stream_report(
         }
         None => activity_store_error_event(
             command,
-            constants::event_id::NETWORK_RUNTIME_EVENT_CHAIN_STREAM_REPORTED,
+            ActivityEventId(constants::event_id::NETWORK_RUNTIME_EVENT_CHAIN_STREAM_REPORTED),
             AgentEventName::AgentNetworkRuntimeEventChainStreamReported,
         ),
     }
@@ -206,107 +195,107 @@ pub async fn build_network_runtime_event_chain_stream_report(
 pub async fn build_activity_tracking_read_model_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    match load_activity_tracking_read_model().await {
-        Some(read_model) => build_event(
-            constants::event_id::ACTIVITY_TRACKING_READ_MODEL_REPORTED,
-            &command.message_id,
-            command.source,
-            AgentEventName::AgentActivityTrackingReadModelReported,
-            LogLevel::Info,
-            tracking_read_model_payload(&read_model),
-            None,
-        ),
-        None => activity_store_error_event(
-            command,
-            constants::event_id::ACTIVITY_TRACKING_READ_MODEL_REPORTED,
-            AgentEventName::AgentActivityTrackingReadModelReported,
-        ),
-    }
+    build_optional_activity_report(
+        command,
+        ActivityEventId(constants::event_id::ACTIVITY_TRACKING_READ_MODEL_REPORTED),
+        AgentEventName::AgentActivityTrackingReadModelReported,
+        load_activity_tracking_read_model(),
+        tracking_read_model_payload,
+    )
+    .await
 }
 
 pub async fn build_activity_app_game_boundary_read_model_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    match load_app_game_model().await {
-        Some(model) => {
-            let read_model = app_game_boundary_read_model_from_service_model(model);
-            build_event(
-                constants::event_id::ACTIVITY_APP_GAME_BOUNDARY_READ_MODEL_REPORTED,
-                &command.message_id,
-                command.source,
-                AgentEventName::AgentActivityAppGameBoundaryReadModelReported,
-                LogLevel::Info,
-                app_game_boundary_read_model_payload(&read_model),
-                None,
-            )
-        }
-        None => activity_store_error_event(
-            command,
-            constants::event_id::ACTIVITY_APP_GAME_BOUNDARY_READ_MODEL_REPORTED,
-            AgentEventName::AgentActivityAppGameBoundaryReadModelReported,
-        ),
-    }
+    build_optional_activity_report(
+        command,
+        ActivityEventId(constants::event_id::ACTIVITY_APP_GAME_BOUNDARY_READ_MODEL_REPORTED),
+        AgentEventName::AgentActivityAppGameBoundaryReadModelReported,
+        async {
+            load_app_game_model()
+                .await
+                .map(app_game_boundary_read_model_from_service_model)
+        },
+        app_game_boundary_read_model_payload,
+    )
+    .await
 }
 
 pub async fn build_activity_app_game_policy_readiness_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    match load_app_game_model().await {
-        Some(model) => {
-            let read_model = app_game_policy_readiness_from_service_model(model);
-            build_event(
-                constants::event_id::ACTIVITY_APP_GAME_POLICY_READINESS_READ_MODEL_REPORTED,
-                &command.message_id,
-                command.source,
-                AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported,
-                LogLevel::Info,
-                app_game_policy_readiness_payload(&read_model),
-                None,
-            )
-        }
-        None => activity_store_error_event(
-            command,
+    build_optional_activity_report(
+        command,
+        ActivityEventId(
             constants::event_id::ACTIVITY_APP_GAME_POLICY_READINESS_READ_MODEL_REPORTED,
-            AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported,
         ),
-    }
+        AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported,
+        async {
+            load_app_game_model()
+                .await
+                .map(app_game_policy_readiness_from_service_model)
+        },
+        app_game_policy_readiness_payload,
+    )
+    .await
 }
 
 pub async fn build_activity_app_game_notification_readiness_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    match load_app_game_model().await {
-        Some(model) => {
-            let local_outbox_runtime_claimed = setup_outbox_has_records(&activity_db_path());
-            let read_model = app_game_notification_readiness_from_service_model(
-                model,
-                local_outbox_runtime_claimed,
-            );
-            build_event(
-                constants::event_id::ACTIVITY_APP_GAME_NOTIFICATION_READINESS_READ_MODEL_REPORTED,
-                &command.message_id,
-                command.source,
-                AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
-                LogLevel::Info,
-                app_game_notification_readiness_payload(&read_model),
-                None,
-            )
-        }
-        None => activity_store_error_event(
-            command,
+    build_optional_activity_report(
+        command,
+        ActivityEventId(
             constants::event_id::ACTIVITY_APP_GAME_NOTIFICATION_READINESS_READ_MODEL_REPORTED,
-            AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
         ),
+        AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
+        async {
+            load_app_game_model().await.map(|model| {
+                let local_outbox_runtime_claimed = setup_outbox_has_records(&activity_db_path());
+                app_game_notification_readiness_from_service_model(
+                    model,
+                    local_outbox_runtime_claimed,
+                )
+            })
+        },
+        app_game_notification_readiness_payload,
+    )
+    .await
+}
+
+async fn build_optional_activity_report<T, Load, Payload>(
+    command: AgentCommandEnvelope,
+    event_id: ActivityEventId,
+    event: AgentEventName,
+    load: Load,
+    payload: Payload,
+) -> AgentEventEnvelope
+where
+    Load: Future<Output = Option<T>>,
+    Payload: FnOnce(&T) -> LogFields,
+{
+    match load.await {
+        Some(value) => build_event(
+            event_id.0,
+            &command.message_id,
+            command.source,
+            event,
+            LogLevel::Info,
+            payload(&value),
+            None,
+        ),
+        None => activity_store_error_event(command, event_id, event),
     }
 }
 
 async fn load_browser_inventory_read_model() -> BrowserInventoryReadModel {
-    let generated_at = timestamp_now();
-    let fallback_generated_at = generated_at.clone();
+    let generated_at = GeneratedAtText(timestamp_now());
+    let fallback_generated_at = generated_at.clone().0;
     tokio::task::spawn_blocking(move || {
         let process_observations =
             collect_process_snapshot(constants::browser::PROCESS_SCAN_LIMIT_BROWSER_DISCOVERY);
-        browser_inventory_read_model_from_service_defaults(&generated_at, &process_observations)
+        browser_inventory_read_model_from_service_defaults(generated_at, &process_observations)
     })
     .await
     .unwrap_or_else(|_| {
@@ -315,7 +304,7 @@ async fn load_browser_inventory_read_model() -> BrowserInventoryReadModel {
 }
 
 pub(crate) fn browser_inventory_read_model_from_service_defaults(
-    generated_at: &str,
+    generated_at: GeneratedAtText,
     process_observations: &[ProcessObservation],
 ) -> BrowserInventoryReadModel {
     let candidate_paths = system_browser_candidate_paths();
@@ -325,7 +314,7 @@ pub(crate) fn browser_inventory_read_model_from_service_defaults(
         constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
     );
     observations.extend(windows_browser_package_observations(&package_identities));
-    browser_inventory_read_model_from_windows_inventory(generated_at.to_string(), &observations)
+    browser_inventory_read_model_from_windows_inventory(generated_at.0, &observations)
 }
 
 async fn load_activity_ingest_status() -> Option<ActivityIngestStatus> {
@@ -401,20 +390,4 @@ async fn load_activity_tracking_read_model(
     .await
     .ok()
     .flatten()
-}
-
-pub(crate) fn activity_store_error_event(
-    command: AgentCommandEnvelope,
-    event_id_suffix: &str,
-    event: AgentEventName,
-) -> AgentEventEnvelope {
-    build_event(
-        event_id_suffix,
-        &command.message_id,
-        command.source,
-        event,
-        LogLevel::Error,
-        activity_store_error_payload(),
-        None,
-    )
 }

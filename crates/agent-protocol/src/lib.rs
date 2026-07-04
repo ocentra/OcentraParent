@@ -28,6 +28,7 @@ pub mod browser_policy;
 pub mod browser_policy_catalog_values;
 pub mod browser_policy_model;
 pub mod browser_policy_sections;
+mod browser_policy_update_request;
 pub mod browser_policy_values;
 pub mod browser_read_model;
 pub mod browser_unmanaged_enforcement;

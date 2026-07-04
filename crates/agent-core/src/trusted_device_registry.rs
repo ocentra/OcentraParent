@@ -24,7 +24,7 @@ use self::helpers::{
 };
 use self::known_household_devices::{
     household_device_decisions_from_json, known_household_devices_from_json, optional_string,
-    restore_known_household_device, upsert_known_household_device,
+    restore_known_household_device,
 };
 
 #[derive(Clone, Debug, Default)]

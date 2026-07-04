@@ -21,6 +21,9 @@ use ocentra_parent_agent_protocol::local_ai_runtime_boundary::{
     LocalAiProviderSource,
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
+use std::fmt::Display;
+
+use crate::test_text::TestText;
 
 pub(crate) fn input_with_rules(
     parent_rules: Vec<PolicyRule>,
@@ -40,11 +43,13 @@ pub(crate) fn input_with_rules(
 }
 
 pub(crate) fn rule(
-    rule_id: &str,
+    rule_id: impl Display,
     action: PolicyAction,
-    reason_code: &str,
+    reason_code: impl Display,
     priority: i64,
 ) -> PolicyRule {
+    let rule_id = TestText::from_display(rule_id);
+    let reason_code = TestText::from_display(reason_code);
     PolicyRule {
         rule_id: rule_id.to_string(),
         target: target(),
@@ -73,8 +78,9 @@ pub(crate) fn evidence() -> ParentEvidenceReference {
 pub(crate) fn local_ai_result(
     action: PolicyAction,
     unknown_state: LocalAiUnknownState,
-    reason_code: &str,
+    reason_code: impl Display,
 ) -> LocalAiSafetyResult {
+    let reason_code = TestText::from_display(reason_code);
     LocalAiSafetyResult {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         result_id: policy::TEST_AI_RESULT_ID.to_string(),

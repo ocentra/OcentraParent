@@ -8,12 +8,12 @@ use crate::network_inventory_command::{
     command_succeeded_with_timeout, normalize_mac_address, targeted_arp_probe_commands,
 };
 
+use super::super::{LanTargetedArpRefreshEvidence, LanTargetedArpRefreshOutcome};
 use super::throttle::targeted_arp_refresh_throttled;
 use super::{
     remaining_budget_until, CommandTargetedArpRefreshPacketIo, TargetedArpRefreshObservation,
     TargetedArpRefreshPacketIo, TargetedArpRefreshTarget, TARGETED_ARP_REFRESH_SCAN_BUDGET_MS,
 };
-use super::super::{LanTargetedArpRefreshEvidence, LanTargetedArpRefreshOutcome};
 
 pub fn targeted_arp_refresh_targets_with_evidence(
     targets: &[TargetedArpRefreshTarget],

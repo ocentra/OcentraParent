@@ -12,14 +12,18 @@ use ocentra_parent_agent_protocol::network_flow::{
     NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use std::string::String as TestString;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+use crate::test_text::TestText;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NetworkBridgeTestError {
-    context: &'static str,
+    /// BRAND-INVARIANT: this is a fixed test label, not user data.
+    context: TestString,
 }
 
 impl NetworkBridgeTestError {
-    fn new(context: &'static str) -> Self {
+    fn new(context: TestString) -> Self {
         Self { context }
     }
 }
@@ -62,15 +66,15 @@ pub struct NetworkProductPathServiceProofReportForTest {
     pub adapter_action_executed_count: usize,
     pub ai_advisory_rows: usize,
     pub weak_or_unavailable_blocked_rows: usize,
-    pub analyzer_alert_refs: Vec<String>,
-    pub ai_detection_refs: Vec<String>,
-    pub risk_budget_refs: Vec<String>,
-    pub policy_decision_refs: Vec<String>,
-    pub action_result_refs: Vec<String>,
-    pub retention_refs: Vec<String>,
-    pub deletion_refs: Vec<String>,
-    pub export_refs: Vec<String>,
-    pub portal_read_model_refs: Vec<String>,
+    pub analyzer_alert_refs: Vec<TestString>,
+    pub ai_detection_refs: Vec<TestString>,
+    pub risk_budget_refs: Vec<TestString>,
+    pub policy_decision_refs: Vec<TestString>,
+    pub action_result_refs: Vec<TestString>,
+    pub retention_refs: Vec<TestString>,
+    pub deletion_refs: Vec<TestString>,
+    pub export_refs: Vec<TestString>,
+    pub portal_read_model_refs: Vec<TestString>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -83,12 +87,12 @@ pub struct NetworkRuntimeServiceStreamReportForTest {
     pub active_rows: usize,
     pub tombstone_rows: usize,
     pub exportable_rows: usize,
-    pub deleted_evidence_reference_ids: Vec<String>,
+    pub deleted_evidence_reference_ids: Vec<TestString>,
     pub entries: Vec<serde_json::Value>,
 }
 
-pub async fn handle_local_command_text_for_test(body: &str) -> AgentEventEnvelope {
-    crate::agent_service_lib::websocket::dispatch_local_command_text(body).await
+pub async fn handle_local_command_text_for_test(body: TestText) -> AgentEventEnvelope {
+    crate::agent_service_lib::websocket::dispatch_local_command_text(body.0.as_str()).await
 }
 
 pub async fn lock_activity_report_env_for_test() -> tokio::sync::MutexGuard<'static, ()> {
@@ -101,7 +105,9 @@ pub fn network_android_vpn_service_gate_status_payload_for_test(
 ) -> Result<LogFields, NetworkBridgeTestError> {
     crate::network_android_vpn_service_gate_status_bridge::network_android_vpn_service_gate_status_payload()
         .map_err(|_error| {
-            NetworkBridgeTestError::new("network_android_vpn_service_gate_status_payload_for_test")
+            NetworkBridgeTestError::new(
+                "network_android_vpn_service_gate_status_payload_for_test".to_string(),
+            )
         })
 }
 
@@ -109,7 +115,9 @@ pub fn network_apple_network_extension_gate_status_payload_for_test(
 ) -> Result<LogFields, NetworkBridgeTestError> {
     crate::network_apple_network_extension_gate_status_bridge::network_apple_network_extension_gate_status_payload()
         .map_err(|_error| {
-            NetworkBridgeTestError::new("network_apple_network_extension_gate_status_payload_for_test")
+            NetworkBridgeTestError::new(
+                "network_apple_network_extension_gate_status_payload_for_test".to_string(),
+            )
         })
 }
 
@@ -117,13 +125,17 @@ pub fn network_linux_nftables_lab_status_payload_for_test(
 ) -> Result<LogFields, NetworkBridgeTestError> {
     crate::network_linux_nftables_lab_status_bridge::network_linux_nftables_lab_status_payload()
         .map_err(|_error| {
-            NetworkBridgeTestError::new("network_linux_nftables_lab_status_payload_for_test")
+            NetworkBridgeTestError::new(
+                "network_linux_nftables_lab_status_payload_for_test".to_string(),
+            )
         })
 }
 
 pub fn network_live_capture_status_payload_for_test() -> Result<LogFields, NetworkBridgeTestError> {
     crate::network_live_capture_readiness_bridge::network_live_capture_status_payload().map_err(
-        |_error| NetworkBridgeTestError::new("network_live_capture_status_payload_for_test"),
+        |_error| {
+            NetworkBridgeTestError::new("network_live_capture_status_payload_for_test".to_string())
+        },
     )
 }
 
@@ -131,7 +143,9 @@ pub fn network_windows_firewall_lab_status_payload_for_test(
 ) -> Result<LogFields, NetworkBridgeTestError> {
     crate::network_windows_firewall_lab_status_bridge::network_windows_firewall_lab_status_payload()
         .map_err(|_error| {
-            NetworkBridgeTestError::new("network_windows_firewall_lab_status_payload_for_test")
+            NetworkBridgeTestError::new(
+                "network_windows_firewall_lab_status_payload_for_test".to_string(),
+            )
         })
 }
 
@@ -139,7 +153,9 @@ pub fn network_windows_wfp_gate_status_payload_for_test(
 ) -> Result<LogFields, NetworkBridgeTestError> {
     crate::network_windows_wfp_gate_status_bridge::network_windows_wfp_gate_status_payload()
         .map_err(|_error| {
-            NetworkBridgeTestError::new("network_windows_wfp_gate_status_payload_for_test")
+            NetworkBridgeTestError::new(
+                "network_windows_wfp_gate_status_payload_for_test".to_string(),
+            )
         })
 }
 
@@ -235,10 +251,10 @@ pub fn network_runtime_event_chain_stream_payload_for_test(
         ),
         (
             constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM,
-            LogFieldValue::String(
-                serde_json::to_string(&report.entries)
-                    .unwrap_or_else(|_| constants::value::EMPTY.to_string()),
-            ),
+            LogFieldValue::String(match serde_json::to_string(&report.entries) {
+                Ok(text) => text,
+                Err(_error) => constants::value::EMPTY.to_string(),
+            }),
         ),
     ])
 }
@@ -248,7 +264,9 @@ pub async fn network_remote_delivery_status_payload_for_test(
     crate::network_remote_delivery_status_payload::network_remote_delivery_status_payload()
         .await
         .map_err(|_error| {
-            NetworkBridgeTestError::new("network_remote_delivery_status_payload_for_test")
+            NetworkBridgeTestError::new(
+                "network_remote_delivery_status_payload_for_test".to_string(),
+            )
         })
 }
 
@@ -372,7 +390,10 @@ fn stream_report_for_test(
         entries: report
             .entries
             .into_iter()
-            .map(|entry| serde_json::to_value(entry).unwrap_or(serde_json::Value::Null))
+            .map(|entry| match serde_json::to_value(entry) {
+                Ok(value) => value,
+                Err(_error) => serde_json::Value::Null,
+            })
             .collect(),
     }
 }

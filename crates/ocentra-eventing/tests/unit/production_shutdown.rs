@@ -6,14 +6,15 @@ use tokio::sync::{Mutex, Notify};
 
 use super::fixtures::{
     metadata, metadata_with_event_id, subscriber, subscriber_for_event, test_event,
-    test_event_for_type, test_event_with_idempotency, OTHER_EVENT_TYPE, OTHER_TARGET, TEST_LABEL,
-    TEST_SUBSCRIBER, TEST_TARGET,
+    test_event_for_type, test_event_with_idempotency, TestText, OTHER_EVENT_TYPE, OTHER_TARGET,
+    TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
 use crate::{
-    AggregateKey, DeadLetterReason, DomainEvent, EventBus, EventContract, EventQueuePolicy,
-    EventResponseContract, EventingError, IdempotencyKey, RequestEvent, RequestId, RequestOptions,
-    SchemaVersion, ShutdownMode,
+    AggregateKey, DomainEvent, EventBus, EventContract, EventQueuePolicy, EventResponseContract,
+    EventingError, IdempotencyKey, RequestEvent, RequestId, RequestOptions, SchemaVersion,
+    ShutdownMode,
 };
+use ocentra_eventing::bus::reports::dead_letter::DeadLetterReason;
 
 const SHUTDOWN_REQUEST_EVENT_TYPE: &str = "eventing.shutdown.request";
 const SHUTDOWN_REQUEST_ID: &str = "eventing-shutdown-request";
@@ -26,14 +27,26 @@ async fn production_shutdown_drain_dispatches_queue_and_dead_letters_remaining()
         EventQueuePolicy::no_subscriber_queue(4).expect_value("queue policy is valid"),
     );
     bus.publish(
-        test_event_with_idempotency(TEST_LABEL, "shutdown-drain-dispatch"),
-        metadata_with_event_id(TEST_TARGET, "shutdown-drain-event-1"),
+        test_event_with_idempotency(
+            TestText(TEST_LABEL.to_owned()),
+            TestText("shutdown-drain-dispatch".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("shutdown-drain-event-1".to_owned()),
+        ),
     )
     .await
     .expect_value("first queued event queues");
     bus.publish(
-        test_event_for_type("unmatched", OTHER_EVENT_TYPE),
-        metadata_with_event_id(OTHER_TARGET, "shutdown-drain-event-2"),
+        test_event_for_type(
+            TestText("unmatched".to_owned()),
+            TestText(OTHER_EVENT_TYPE.to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(OTHER_TARGET.to_owned()),
+            TestText("shutdown-drain-event-2".to_owned()),
+        ),
     )
     .await
     .expect_value("second queued event queues");
@@ -41,7 +54,10 @@ async fn production_shutdown_drain_dispatches_queue_and_dead_letters_remaining()
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
-        subscriber(TEST_SUBSCRIBER, TEST_TARGET),
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
         move |context| {
             let handled = Arc::clone(&handled_clone);
             async move {
@@ -59,11 +75,17 @@ async fn production_shutdown_drain_dispatches_queue_and_dead_letters_remaining()
         .expect_value("shutdown drain succeeds");
     let dead_letters = bus.dead_letters().await;
     let publish_after_shutdown = bus
-        .publish(test_event("after-shutdown"), metadata(TEST_TARGET))
+        .publish(
+            test_event(TestText("after-shutdown".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
         .await;
     let subscribe_after_shutdown = bus
         .subscribe::<super::fixtures::TestEvent, _, _>(
-            subscriber("shutdown-subscriber-after", TEST_TARGET),
+            subscriber(
+                TestText("shutdown-subscriber-after".to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
             |_| async { Ok(()) },
         )
         .await;
@@ -95,8 +117,11 @@ async fn production_shutdown_dead_letters_queued_without_dispatch() {
         EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid"),
     );
     bus.publish(
-        test_event_with_idempotency(TEST_LABEL, "shutdown-dead-letter"),
-        metadata(TEST_TARGET),
+        test_event_with_idempotency(
+            TestText(TEST_LABEL.to_owned()),
+            TestText("shutdown-dead-letter".to_owned()),
+        ),
+        metadata(TestText(TEST_TARGET.to_owned())),
     )
     .await
     .expect_value("event queues");
@@ -124,7 +149,10 @@ async fn production_shutdown_waits_for_active_dispatch_before_clearing_state() {
     let release_handler_clone = Arc::clone(&release_handler);
     let handled_clone = Arc::clone(&handled);
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
-        subscriber("shutdown-active-dispatch-subscriber", TEST_TARGET),
+        subscriber(
+            TestText("shutdown-active-dispatch-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
         move |_| {
             let handler_started = Arc::clone(&handler_started_clone);
             let release_handler = Arc::clone(&release_handler_clone);
@@ -143,7 +171,10 @@ async fn production_shutdown_waits_for_active_dispatch_before_clearing_state() {
     let publish_bus = bus.clone();
     let publish = tokio::spawn(async move {
         publish_bus
-            .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+            .publish(
+                test_event(TestText(TEST_LABEL.to_owned())),
+                metadata(TestText(TEST_TARGET.to_owned())),
+            )
             .await
     });
     handler_started.notified().await;
@@ -167,8 +198,11 @@ async fn production_shutdown_waits_for_active_dispatch_before_clearing_state() {
     assert_eq!(publish_report.handled_count, 1);
     assert_eq!(*handled.lock().await, 1);
     assert!(matches!(
-        bus.publish(test_event("after-active-shutdown"), metadata(TEST_TARGET))
-            .await,
+        bus.publish(
+            test_event(TestText("after-active-shutdown".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned()))
+        )
+        .await,
         Err(EventingError::BusShutdown)
     ));
 }
@@ -179,8 +213,11 @@ async fn test_only_shutdown_drop_reports_dropped_queued_work() {
         EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid"),
     );
     bus.publish(
-        test_event_with_idempotency(TEST_LABEL, "shutdown-drop-test-only"),
-        metadata(TEST_TARGET),
+        test_event_with_idempotency(
+            TestText(TEST_LABEL.to_owned()),
+            TestText("shutdown-drop-test-only".to_owned()),
+        ),
+        metadata(TestText(TEST_TARGET.to_owned())),
     )
     .await
     .expect_value("event queues");
@@ -204,9 +241,9 @@ async fn production_shutdown_cancels_pending_request_completion() {
     let handler_seen_clone = Arc::clone(&handler_seen);
     bus.subscribe::<ShutdownRequestEvent, _, _>(
         subscriber_for_event(
-            "shutdown-request-subscriber",
-            TEST_TARGET,
-            SHUTDOWN_REQUEST_EVENT_TYPE,
+            TestText("shutdown-request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(SHUTDOWN_REQUEST_EVENT_TYPE.to_owned()),
         ),
         move |_| {
             let handler_seen = Arc::clone(&handler_seen_clone);
@@ -224,7 +261,7 @@ async fn production_shutdown_cancels_pending_request_completion() {
         request_bus
             .publish_request(
                 ShutdownRequestEvent::new(),
-                metadata(TEST_TARGET),
+                metadata(TestText(TEST_TARGET.to_owned())),
                 RequestOptions::with_timeout(Duration::from_secs(60))
                     .expect_value("request timeout is valid"),
             )

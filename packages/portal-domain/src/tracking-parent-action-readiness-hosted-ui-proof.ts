@@ -1,11 +1,10 @@
 import { PortalDetails } from './details';
-import type { DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText, type DisplayText } from './display-text';
 import {
   decodePortalDetailValue,
   type PortalDetailValue,
   type TrackingStatusProofArtifact,
-} from './portal-contract-adapter';
+} from './portal-contract-text-contracts';
 import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
 
 type PortalDisplayText = DisplayText;

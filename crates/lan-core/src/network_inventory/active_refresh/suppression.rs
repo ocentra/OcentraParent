@@ -4,9 +4,9 @@ use std::net::Ipv4Addr;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
+use super::super::LanNetworkInventoryDevice;
 use super::observations::current_active_refresh_ipv4_observations_by_ip;
 use super::targets::normalized_household_ipv4_ip;
-use super::super::LanNetworkInventoryDevice;
 
 pub fn suppressed_active_ipv4_targets(
     default_gateway: Option<&str>,

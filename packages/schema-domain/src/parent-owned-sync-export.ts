@@ -1,12 +1,23 @@
 /* thin adapter over Rust-generated parent-owned sync export contracts */
 
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
-import { countProductionProofValues } from './production-proof-shape';
+import { countProductionProofValues } from './proof-shape';
 import {
   FamilyReferenceSchema,
   ParentActionReferenceSchema,
   ParentDeviceReferenceSchema,
 } from './family-references';
+import type {
+  ChildProfileId as ChildProfileIdType,
+  FamilyId as FamilyIdType,
+  ParentActionReferenceId as ParentActionReferenceIdType,
+  ParentActorId as ParentActorIdType,
+  ParentDeviceId as ParentDeviceIdType,
+  ParentDeviceLabel as ParentDeviceLabelType,
+  ParentEvidenceReferenceId as ParentEvidenceReferenceIdType,
+  ParentPolicyVersion as ParentPolicyVersionType,
+  ParentTimestamp as ParentTimestampType,
+} from './family-reference-primitives';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   GeneratedParentOwnedSyncDeleteVisibilityStates,
@@ -26,17 +37,9 @@ import {
   GeneratedParentOwnedSyncTombstonePropagationStates,
   ParentOwnedSyncExportContractRuntime,
   type GeneratedParentOwnedSyncExportContractProof as GeneratedParentOwnedSyncExportContractProofShape,
-  type GeneratedParentOwnedSyncExportDataClass,
-  type GeneratedParentOwnedSyncExportDestinationOwnership,
-  type GeneratedParentOwnedSyncExportFormat,
-  type GeneratedParentOwnedSyncExportNonClaim,
   type GeneratedParentOwnedSyncProviderStatusRow,
-  type GeneratedParentOwnedSyncProviderMode,
-  type GeneratedParentOwnedSyncProviderStatus,
   type GeneratedParentOwnedSyncStateRow,
-  type GeneratedParentOwnedSyncState,
   type GeneratedParentOwnedSyncTombstoneRow,
-  type GeneratedParentOwnedSyncTombstonePropagationState,
 } from './generated/parent-owned-sync-export-contracts';
 import {
   syncExportContractProofIsHonestGenerated,
@@ -98,6 +101,30 @@ const ParentOwnedSyncChecksumRefSchema = brandedNonEmptyStringSchema('ParentOwne
 const ParentOwnedSyncSignatureRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncSignatureRef');
 const ParentOwnedSyncTombstoneRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncTombstoneRef');
 const ParentOwnedSyncDeleteRequestRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncDeleteRequestRef');
+
+export type FamilyId = FamilyIdType;
+export type ChildProfileId = ChildProfileIdType;
+export type ParentDeviceId = ParentDeviceIdType;
+export type ParentDeviceLabel = ParentDeviceLabelType;
+export type ParentActorId = ParentActorIdType;
+export type ParentPolicyVersion = ParentPolicyVersionType;
+export type ParentEvidenceReferenceId = ParentEvidenceReferenceIdType;
+export type ParentActionReferenceId = ParentActionReferenceIdType;
+export type ParentTimestamp = ParentTimestampType;
+export type ParentOwnedSyncManifestId = typeof ParentOwnedSyncManifestIdSchema.Type;
+export type ParentOwnedSyncItemId = typeof ParentOwnedSyncItemIdSchema.Type;
+export type ParentOwnedSyncVersionLabel = typeof ParentOwnedSyncVersionLabelSchema.Type;
+export type ParentOwnedSyncPolicyRef = typeof ParentOwnedSyncPolicyRefSchema.Type;
+export type ParentOwnedSyncProviderId = typeof ParentOwnedSyncProviderIdSchema.Type;
+export type ParentOwnedSyncProviderRef = typeof ParentOwnedSyncProviderRefSchema.Type;
+export type ParentOwnedSyncStatusRef = typeof ParentOwnedSyncStatusRefSchema.Type;
+export type ParentOwnedSyncCursorRef = typeof ParentOwnedSyncCursorRefSchema.Type;
+export type ParentOwnedSyncBatchRef = typeof ParentOwnedSyncBatchRefSchema.Type;
+export type ParentOwnedSyncConflictRef = typeof ParentOwnedSyncConflictRefSchema.Type;
+export type ParentOwnedSyncChecksumRef = typeof ParentOwnedSyncChecksumRefSchema.Type;
+export type ParentOwnedSyncSignatureRef = typeof ParentOwnedSyncSignatureRefSchema.Type;
+export type ParentOwnedSyncTombstoneRef = typeof ParentOwnedSyncTombstoneRefSchema.Type;
+export type ParentOwnedSyncDeleteRequestRef = typeof ParentOwnedSyncDeleteRequestRefSchema.Type;
 
 const ParentOwnedSyncExportEncryptionMetadataBaseSchema = Schema.Struct({
   encryptionState: ParentOwnedSyncExportEncryptionStateSchema,
@@ -258,19 +285,18 @@ export const ParentOwnedSyncExportContractProofSchema = withParser(
   )
 );
 
-export type ParentOwnedSyncExportDataClass = Infer<typeof ParentOwnedSyncExportDataClassSchema> &
-  GeneratedParentOwnedSyncExportDataClass;
-export type ParentOwnedSyncExportFormat = Infer<typeof ParentOwnedSyncExportFormatSchema> &
-  GeneratedParentOwnedSyncExportFormat;
+export type ParentOwnedSyncExportDataClass = Infer<typeof ParentOwnedSyncExportDataClassSchema>;
+export type ParentOwnedSyncExportFormat = Infer<typeof ParentOwnedSyncExportFormatSchema>;
 export type ParentOwnedSyncExportDestinationOwnership = Infer<
   typeof ParentOwnedSyncExportDestinationOwnershipSchema
-> &
-  GeneratedParentOwnedSyncExportDestinationOwnership;
-export type ParentOwnedSyncExportProviderMode = GeneratedParentOwnedSyncProviderMode;
-export type ParentOwnedSyncExportProviderStatus = GeneratedParentOwnedSyncProviderStatus;
-export type ParentOwnedSyncExportSyncState = GeneratedParentOwnedSyncState;
-export type ParentOwnedSyncExportTombstonePropagationState = GeneratedParentOwnedSyncTombstonePropagationState;
-export type ParentOwnedSyncExportNonClaim = GeneratedParentOwnedSyncExportNonClaim;
+>;
+export type ParentOwnedSyncExportProviderMode = Infer<typeof ParentOwnedSyncExportProviderModeSchema>;
+export type ParentOwnedSyncExportProviderStatus = Infer<typeof ParentOwnedSyncExportProviderStatusSchema>;
+export type ParentOwnedSyncExportSyncState = Infer<typeof ParentOwnedSyncExportSyncStateSchema>;
+export type ParentOwnedSyncExportTombstonePropagationState = Infer<
+  typeof ParentOwnedSyncExportTombstonePropagationStateSchema
+>;
+export type ParentOwnedSyncExportNonClaim = Infer<typeof ParentOwnedSyncExportNonClaimSchema>;
 export type ParentOwnedSyncExportManifestItem = GeneratedParentOwnedSyncExportManifestItem;
 export type ParentOwnedSyncExportProviderStatusRow = GeneratedParentOwnedSyncProviderStatusRow;
 export type ParentOwnedSyncExportSyncStateRow = GeneratedParentOwnedSyncStateRow;

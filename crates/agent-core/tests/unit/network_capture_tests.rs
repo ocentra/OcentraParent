@@ -9,7 +9,18 @@ use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{network_observation_event, NetworkObservation};
 
-type TestResult = Result<(), String>;
+#[derive(Debug)]
+struct TestError(String);
+
+impl std::fmt::Display for TestError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for TestError {}
+
+type TestResult = Result<(), TestError>;
 
 #[test]
 fn network_observation_event_maps_ip_only_socket_contract() {
@@ -42,31 +53,43 @@ fn network_observation_event_maps_ip_only_socket_contract() {
         event.subject.subject_id,
         constants::test_network::SUBJECT_ID
     );
-    assert_string_field(
-        &event,
-        constants::field::NETWORK_PROTOCOL,
-        constants::activity_capture::NETWORK_PROTOCOL_TCP,
+    assert_eq!(
+        event.fields.get(constants::field::NETWORK_PROTOCOL),
+        Some(&LogFieldValue::String(
+            constants::activity_capture::NETWORK_PROTOCOL_TCP.to_string()
+        ))
     );
-    assert_string_field(
-        &event,
-        constants::field::DOMAIN_ATTRIBUTION_STATUS,
-        constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_IP_ONLY,
+    assert_eq!(
+        event
+            .fields
+            .get(constants::field::DOMAIN_ATTRIBUTION_STATUS),
+        Some(&LogFieldValue::String(
+            constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_IP_ONLY.to_string()
+        ))
     );
-    assert_string_field(
-        &event,
-        constants::field::PROCESS_ATTRIBUTION_STATUS,
-        constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED,
+    assert_eq!(
+        event
+            .fields
+            .get(constants::field::PROCESS_ATTRIBUTION_STATUS),
+        Some(&LogFieldValue::String(
+            constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED.to_string()
+        ))
     );
-    assert_string_field(
-        &event,
-        constants::field::DESTINATION_IP,
-        constants::test_network::LOOPBACK_IP,
+    assert_eq!(
+        event.fields.get(constants::field::DESTINATION_IP),
+        Some(&LogFieldValue::String(
+            constants::test_network::LOOPBACK_IP.to_string()
+        ))
     );
-    assert_number_field(&event, constants::field::DESTINATION_PORT, 443.0);
-    assert_string_field(
-        &event,
-        constants::field::TCP_STATE,
-        constants::activity_capture::TCP_STATE_ESTABLISHED,
+    assert_eq!(
+        event.fields.get(constants::field::DESTINATION_PORT),
+        Some(&LogFieldValue::Number(443.0))
+    );
+    assert_eq!(
+        event.fields.get(constants::field::TCP_STATE),
+        Some(&LogFieldValue::String(
+            constants::activity_capture::TCP_STATE_ESTABLISHED.to_string()
+        ))
     );
 }
 
@@ -80,22 +103,29 @@ fn network_observation_event_maps_degraded_status_contract() {
 
     assert_eq!(event.source.observer, ActivityObserver::WindowsNetwork);
     assert_eq!(event.subject.kind, ActivitySubjectKind::Domain);
-    assert_string_field(
-        &event,
-        constants::field::CAPABILITY_STATUS,
-        constants::activity_capture::CAPABILITY_STATUS_NO_NETWORK_OBSERVATIONS,
+    assert_eq!(
+        event.fields.get(constants::field::CAPABILITY_STATUS),
+        Some(&LogFieldValue::String(
+            constants::activity_capture::CAPABILITY_STATUS_NO_NETWORK_OBSERVATIONS.to_string()
+        ))
     );
-    assert_string_field(
-        &event,
-        constants::field::DOMAIN_ATTRIBUTION_STATUS,
-        constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_UNAVAILABLE,
+    assert_eq!(
+        event
+            .fields
+            .get(constants::field::DOMAIN_ATTRIBUTION_STATUS),
+        Some(&LogFieldValue::String(
+            constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_UNAVAILABLE.to_string()
+        ))
     );
-    assert_string_field(
-        &event,
-        constants::field::PROCESS_ATTRIBUTION_STATUS,
-        constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_UNKNOWN,
+    assert_eq!(
+        event
+            .fields
+            .get(constants::field::PROCESS_ATTRIBUTION_STATUS),
+        Some(&LogFieldValue::String(
+            constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_UNKNOWN.to_string()
+        ))
     );
-    assert!(!event.fields.contains_key(constants::field::DESTINATION_IP));
+    assert!(event.fields.get(constants::field::DESTINATION_IP).is_none());
 }
 
 #[cfg(windows)]
@@ -151,17 +181,9 @@ fn collect_network_snapshot_observes_current_process_socket() -> TestResult {
     Ok(())
 }
 
-fn assert_string_field(event: &ActivityEvent, key: &str, value: &str) {
-    assert_eq!(
-        event.fields.get(key),
-        Some(&LogFieldValue::String(value.to_string()))
-    );
-}
-
-fn assert_number_field(event: &ActivityEvent, key: &str, value: f64) {
-    assert_eq!(event.fields.get(key), Some(&LogFieldValue::Number(value)));
-}
-
-fn ok<T, E: core::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+fn ok<T, E: core::fmt::Debug>(
+    result: Result<T, E>,
+    context: impl std::fmt::Display,
+) -> Result<T, TestError> {
+    result.map_err(|error| TestError(format!("{context}: {error:?}")))
 }

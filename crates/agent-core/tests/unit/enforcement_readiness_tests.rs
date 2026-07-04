@@ -1,3 +1,4 @@
+use crate::test_text::{test_some as some, TestResult, TestText};
 use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
 use ocentra_parent_agent_protocol::constants::enforcement;
 use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
@@ -8,12 +9,8 @@ use ocentra_parent_agent_protocol::enforcement_readiness::{
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
 
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| format!("{context}: missing value"))
-}
-
 #[test]
-fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() -> Result<(), String> {
+fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() -> TestResult {
     let matrix = broad_os_adapter_readiness(policy::TEST_EVALUATED_AT);
 
     assert_eq!(
@@ -62,7 +59,7 @@ fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() -> R
 }
 
 #[test]
-fn implemented_readiness_entries_stay_limited_to_supported_capabilities() -> Result<(), String> {
+fn implemented_readiness_entries_stay_limited_to_supported_capabilities() -> TestResult {
     let matrix = broad_os_adapter_readiness(policy::TEST_EVALUATED_AT);
 
     for capability in [
@@ -109,7 +106,7 @@ fn implemented_readiness_entries_stay_limited_to_supported_capabilities() -> Res
 fn entry(
     matrix: &EnforcementBroadOsAdapterReadinessMatrix,
     capability: EnforcementBroadAdapterCapability,
-) -> Result<&EnforcementBroadAdapterReadinessEntry, String> {
+) -> Result<&EnforcementBroadAdapterReadinessEntry, TestText> {
     some(
         matrix
             .entries

@@ -1,8 +1,11 @@
-import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
 import type { PortalActivityMemoryGraphReadModel } from './activity-memory-graph';
-import { decodePortalDetailValue, type PortalDetailValue, type PortalRouteEventRecord } from './portal-contract-adapter';
+import {
+  PortalAgentEvent as AgentEvent,
+  PortalAgentProtocolField,
+  type PortalRouteEventRecord,
+} from './portal-contract-adapter';
+import { decodePortalDetailValue, type PortalDetailValue } from './portal-contract-text-contracts';
+import { decodeDisplayText, type DisplayText } from './display-text';
 import { PortalDetails } from './details';
 import {
   localAiRuntimePanelTemplate,
@@ -12,7 +15,8 @@ import {
   type LocalAiRuntimePanelCardKind,
   type LocalAiRuntimePanelFieldKey,
   type LocalAiRuntimeStatusInput,
-} from './generated/local-ai-runtime-panel';
+} from './local-ai-runtime-panel.generated';
+
 
 export type LocalAiRuntimePanelDetail = {
   readonly label: DisplayText;
@@ -126,16 +130,16 @@ function normalizeRuntimeStatus(event: PortalRouteEventRecord | null): LocalAiRu
   return {
     eventId: stringOrNull(event.eventId),
     sentAt: stringOrNull(event.sentAt),
-    runtimeReference: payloadValue(event, AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId),
-    provider: payloadValue(event, AgentProtocolDefaults.Field.LocalAiProviderId),
-    model: payloadValue(event, AgentProtocolDefaults.Field.LocalAiModelId),
-    loadState: payloadValue(event, AgentProtocolDefaults.Field.LoadState),
-    capability: payloadValue(event, AgentProtocolDefaults.Field.LocalAiCapabilityFlags),
-    resourceClass: payloadValue(event, AgentProtocolDefaults.Field.LocalAiResourceClass),
-    degradedState: payloadValue(event, AgentProtocolDefaults.Field.LocalAiDegradedState),
-    privacyMode: payloadValue(event, AgentProtocolDefaults.Field.LocalAiPrivacyMode),
-    executionState: payloadValue(event, AgentProtocolDefaults.Field.LocalAiExecutionState),
-    reason: payloadValue(event, AgentProtocolDefaults.Field.LocalAiUnavailableReason),
+    runtimeReference: payloadValue(event, PortalAgentProtocolField.LocalAiRuntimeReferenceId),
+    provider: payloadValue(event, PortalAgentProtocolField.LocalAiProviderId),
+    model: payloadValue(event, PortalAgentProtocolField.LocalAiModelId),
+    loadState: payloadValue(event, PortalAgentProtocolField.LoadState),
+    capability: payloadValue(event, PortalAgentProtocolField.LocalAiCapabilityFlags),
+    resourceClass: payloadValue(event, PortalAgentProtocolField.LocalAiResourceClass),
+    degradedState: payloadValue(event, PortalAgentProtocolField.LocalAiDegradedState),
+    privacyMode: payloadValue(event, PortalAgentProtocolField.LocalAiPrivacyMode),
+    executionState: payloadValue(event, PortalAgentProtocolField.LocalAiExecutionState),
+    reason: payloadValue(event, PortalAgentProtocolField.LocalAiUnavailableReason),
   };
 }
 
@@ -146,24 +150,24 @@ function normalizeHouseholdJob(event: PortalRouteEventRecord | null): LocalAiHou
   return {
     eventId: stringOrNull(event.eventId),
     sentAt: stringOrNull(event.sentAt),
-    requestId: payloadValue(event, AgentProtocolDefaults.Field.LanAiJobId),
-    status: payloadValue(event, AgentProtocolDefaults.Field.LanAiJobStatus),
-    state: payloadValue(event, AgentProtocolDefaults.Field.LanAiJobState),
-    provider: payloadValue(event, AgentProtocolDefaults.Field.LocalAiProviderId),
-    providerSource: payloadValue(event, AgentProtocolDefaults.Field.LocalAiProviderSource),
-    capability: payloadValue(event, AgentProtocolDefaults.Field.LocalAiCapabilityFlags),
-    resourceClass: payloadValue(event, AgentProtocolDefaults.Field.LocalAiResourceClass),
-    loadState: payloadValue(event, AgentProtocolDefaults.Field.LocalAiAdapterReadinessState),
-    privacyMode: payloadValue(event, AgentProtocolDefaults.Field.LocalAiPrivacyMode),
-    custody: payloadValue(event, AgentProtocolDefaults.Field.LanAiProviderCustodyLabel),
-    policyReadiness: payloadValue(event, AgentProtocolDefaults.Field.LanAiProviderRoutingState),
-    adapterBoundary: payloadValue(event, AgentProtocolDefaults.Field.ClaimBoundary),
-    leaseId: payloadValue(event, AgentProtocolDefaults.Field.LanControllerLeaseId),
-    lastChecked: payloadValue(event, AgentProtocolDefaults.Field.LanControllerLeaseIssuedAt),
-    lastObserved: payloadValue(event, AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt),
-    decisionSource: payloadValue(event, AgentProtocolDefaults.Field.LanParentAuthority),
-    executionState: payloadValue(event, AgentProtocolDefaults.Field.LocalAiExecutionState),
-    reason: payloadValue(event, AgentProtocolDefaults.Field.Reason),
+    requestId: payloadValue(event, PortalAgentProtocolField.LanAiJobId),
+    status: payloadValue(event, PortalAgentProtocolField.LanAiJobStatus),
+    state: payloadValue(event, PortalAgentProtocolField.LanAiJobState),
+    provider: payloadValue(event, PortalAgentProtocolField.LocalAiProviderId),
+    providerSource: payloadValue(event, PortalAgentProtocolField.LocalAiProviderSource),
+    capability: payloadValue(event, PortalAgentProtocolField.LocalAiCapabilityFlags),
+    resourceClass: payloadValue(event, PortalAgentProtocolField.LocalAiResourceClass),
+    loadState: payloadValue(event, PortalAgentProtocolField.LocalAiAdapterReadinessState),
+    privacyMode: payloadValue(event, PortalAgentProtocolField.LocalAiPrivacyMode),
+    custody: payloadValue(event, PortalAgentProtocolField.LanAiProviderCustodyLabel),
+    policyReadiness: payloadValue(event, PortalAgentProtocolField.LanAiProviderRoutingState),
+    adapterBoundary: payloadValue(event, PortalAgentProtocolField.ClaimBoundary),
+    leaseId: payloadValue(event, PortalAgentProtocolField.LanControllerLeaseId),
+    lastChecked: payloadValue(event, PortalAgentProtocolField.LanControllerLeaseIssuedAt),
+    lastObserved: payloadValue(event, PortalAgentProtocolField.LanControllerLeaseExpiresAt),
+    decisionSource: payloadValue(event, PortalAgentProtocolField.LanParentAuthority),
+    executionState: payloadValue(event, PortalAgentProtocolField.LocalAiExecutionState),
+    reason: payloadValue(event, PortalAgentProtocolField.Reason),
   };
 }
 
@@ -194,16 +198,16 @@ function normalizeRemoteAssistantBoundary(event: PortalRouteEventRecord | null):
   return {
     eventId: stringOrNull(event.eventId),
     sentAt: stringOrNull(event.sentAt),
-    requestId: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantRequestId),
-    state: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantAnswerState),
-    provider: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantProviderRoute),
-    adapterBoundary: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary),
-    policyReadiness: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState),
-    custody: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel),
-    deletedEvidence: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiDeletionState),
-    privacyMode: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantApiRetentionState),
-    evidenceReferences: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary),
-    rowCount: payloadValue(event, AgentProtocolDefaults.Field.ParentAssistantCitationCount),
+    requestId: payloadValue(event, PortalAgentProtocolField.ParentAssistantRequestId),
+    state: payloadValue(event, PortalAgentProtocolField.ParentAssistantAnswerState),
+    provider: payloadValue(event, PortalAgentProtocolField.ParentAssistantProviderRoute),
+    adapterBoundary: payloadValue(event, PortalAgentProtocolField.ParentAssistantApiProviderBoundary),
+    policyReadiness: payloadValue(event, PortalAgentProtocolField.ParentAssistantApiAuthorizationState),
+    custody: payloadValue(event, PortalAgentProtocolField.ParentAssistantApiCustodyLabel),
+    deletedEvidence: payloadValue(event, PortalAgentProtocolField.ParentAssistantApiDeletionState),
+    privacyMode: payloadValue(event, PortalAgentProtocolField.ParentAssistantApiRetentionState),
+    evidenceReferences: payloadValue(event, PortalAgentProtocolField.ParentAssistantEvidenceSummary),
+    rowCount: payloadValue(event, PortalAgentProtocolField.ParentAssistantCitationCount),
   };
 }
 

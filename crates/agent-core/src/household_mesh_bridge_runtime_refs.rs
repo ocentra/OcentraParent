@@ -5,6 +5,19 @@ use ocentra_parent_agent_protocol::household_mesh::{
 
 use crate::HouseholdMeshLocalEventKind;
 
+const LOCAL_EVENT_MAPPINGS: [(&str, HouseholdMeshLocalEventKind, &str); 2] = [
+    (
+        constants::screen_flow::EVENT_SCREEN_MESH_OFFER_PUBLISHED,
+        HouseholdMeshLocalEventKind::AiWorkOffer,
+        constants::household_mesh::LAN_MESSAGE_AI_WORK_OFFER,
+    ),
+    (
+        constants::screen_flow::EVENT_SCREEN_MESH_PROVIDER_RESULT_RETURNED,
+        HouseholdMeshLocalEventKind::AiResultReturn,
+        constants::household_mesh::LAN_MESSAGE_AI_RESULT_RETURN,
+    ),
+];
+
 pub(crate) fn bridge_aggregate_key(correlation_id: &str) -> String {
     let mut value = String::from(constants::household_mesh::AGGREGATE_HOUSEHOLD_MESH_PREFIX);
     value.push_str(correlation_id);
@@ -12,29 +25,21 @@ pub(crate) fn bridge_aggregate_key(correlation_id: &str) -> String {
 }
 
 pub(crate) fn bridge_message_type_for_local_event(event_type: &str) -> Option<&'static str> {
-    match event_type {
-        constants::screen_flow::EVENT_SCREEN_MESH_OFFER_PUBLISHED => {
-            Some(constants::household_mesh::LAN_MESSAGE_AI_WORK_OFFER)
-        }
-        constants::screen_flow::EVENT_SCREEN_MESH_PROVIDER_RESULT_RETURNED => {
-            Some(constants::household_mesh::LAN_MESSAGE_AI_RESULT_RETURN)
-        }
-        _ => None,
-    }
+    LOCAL_EVENT_MAPPINGS
+        .iter()
+        .find_map(|(known_event_type, _, lan_message_type)| {
+            (*known_event_type == event_type).then_some(*lan_message_type)
+        })
 }
 
 pub(crate) fn bridge_local_event_kind_for_local_event(
     event_type: &str,
 ) -> Option<HouseholdMeshLocalEventKind> {
-    match event_type {
-        constants::screen_flow::EVENT_SCREEN_MESH_OFFER_PUBLISHED => {
-            Some(HouseholdMeshLocalEventKind::AiWorkOffer)
-        }
-        constants::screen_flow::EVENT_SCREEN_MESH_PROVIDER_RESULT_RETURNED => {
-            Some(HouseholdMeshLocalEventKind::AiResultReturn)
-        }
-        _ => None,
-    }
+    LOCAL_EVENT_MAPPINGS
+        .iter()
+        .find_map(|(known_event_type, local_event_kind, _)| {
+            (*known_event_type == event_type).then_some(*local_event_kind)
+        })
 }
 
 pub(crate) fn bridge_event_state(

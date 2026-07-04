@@ -1,10 +1,10 @@
-import { BridgeEntryArraySchema, type BridgeEntry } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
-import { RunType } from '@ocentra-parent/schema-domain/test-log/types';
+import { BridgeEntryArraySchema, type BridgeEntry } from './bridgeLogPayload';
+import { RunType } from '../test-log/types';
 import { createParentLogConfig } from '../core/logConfig';
 import {
   buildGeneratedRunStartedPayload,
   normalizeGeneratedBridgeEndpoint,
-} from '../generated/parent-log-runtime';
+} from '../parent-log-runtime';
 
 export interface BridgeRunInfo {
   readonly runId: string;

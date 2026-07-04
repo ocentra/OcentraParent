@@ -1,4 +1,7 @@
-use std::{fmt::Debug, path::PathBuf};
+use std::{
+    fmt::Debug,
+    path::{Path, PathBuf},
+};
 
 use ocentra_parent_agent_protocol::browser::{BrowserCapabilityStatus, BrowserFamily};
 use ocentra_parent_agent_protocol::browser_inventory::BrowserExactUrlCapability;
@@ -13,19 +16,10 @@ use crate::{
         windows_browser_inventory_candidate_paths_from_sources, BrowserWindowsInventoryPathSources,
         BrowserWindowsRegistryInstallEntry,
     },
+    test_text::{test_ok as ok, test_some as some, TestResult, TestText},
     windows_browser_executable_identity, windows_browser_inventory_candidate_paths,
     windows_browser_inventory_observations, ProcessObservation,
 };
-
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| format!("{context}: missing value"))
-}
 
 #[test]
 fn windows_browser_inventory_classifies_supported_managed_candidates() -> TestResult {
@@ -601,16 +595,17 @@ fn managed_discovery_identity_uses_windows_inventory_identity() {
     assert!(identity.supports_managed_cdp);
 }
 
-fn temp_inventory_root(suffix: u32) -> PathBuf {
-    let root = std::env::temp_dir()
+fn temp_inventory_root(suffix: u32) -> TestText {
+    let mut root = std::env::temp_dir()
         .join(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
         .join(std::process::id().to_string())
         .join(suffix.to_string());
     let _ = std::fs::remove_dir_all(&root);
-    root
+    TestText::from_display(root.display())
 }
 
-fn create_executable_fixture(path: &PathBuf) -> TestResult {
+fn create_executable_fixture(path: impl AsRef<Path>) -> TestResult {
+    let path = path.as_ref();
     ok(
         std::fs::create_dir_all(some(
             path.parent(),

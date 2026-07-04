@@ -30,7 +30,7 @@ output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
 ## Focused commands
 
 ```powershell
-$tests = Get-ChildItem test/device-trust-bootstrap-plan -Recurse -Filter *.test.mjs |
+$tests = Get-ChildItem tests/device-trust-bootstrap-plan -Recurse -Filter *.test.mjs |
   Sort-Object FullName |
   Select-Object -ExpandProperty FullName
 node --test $tests
@@ -38,7 +38,7 @@ npm run test --workspace @ocentra-parent/family-domain -- tests/unit/household-a
 npm run test --workspace @ocentra-parent/lan-domain -- tests/unit/lan-pairing.test.ts tests/unit/household-device-spine.test.ts tests/unit/device-roles.test.ts
 cargo test -p ocentra-parent-agent-protocol lan_pairing
 cargo test -p ocentra-parent-agent-service lan_pairing
-npm run lint:architecture -- --files packages/family-domain/src packages/lan-domain/src test/device-trust-bootstrap-plan docs/plans/device-trust-bootstrap-plan
+npm run lint:architecture -- --files packages/family-domain/src packages/lan-domain/src tests/device-trust-bootstrap-plan docs/plans/device-trust-bootstrap-plan
 cargo lint-architecture crates/agent-protocol/src/lan_pairing.rs crates/agent-service/src/lan_pairing.rs
 ```
 

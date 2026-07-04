@@ -1,5 +1,17 @@
 use super::*;
 
+const APP_GAME_TIMER_TARGET_LABELS: &[(&str, &str)] =
+    &[("native-app", "Native app"), ("native-game", "Native game")];
+const APP_GAME_TIMER_SURFACE_STATE_LABELS: &[(&str, &str)] = &[
+    ("ready-for-parent-surface", "Ready for parent surface"),
+    ("blocked-by-source-freshness", "Blocked by source freshness"),
+    (
+        "blocked-by-compiler-decision",
+        "Blocked by compiler decision",
+    ),
+    ("runtime-manual-required", "Runtime manual required"),
+];
+
 pub(super) fn app_game_timer_parent_surface_load_state(
     read_model: &AppGameTimerParentSurfaceReadModel,
 ) -> String {
@@ -20,34 +32,28 @@ pub(super) fn app_game_timer_parent_surface_product_claim(
         || read_model.durable_scheduler_storage_claimed;
     let has_control_action_results = read_model.control_action_result_count > 0;
 
-    if has_active_state && has_control_action_results {
-        return "Active timer state-store and control action-result rows are visible; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.".to_string();
+    match (has_active_state, has_control_action_results) {
+        (true, true) => "Active timer state-store and control action-result rows are visible; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.".to_string(),
+        (true, false) => "Active timer state-store is visible; live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.".to_string(),
+        (false, true) => "Control action-result rows are visible from app/game SQLite replay; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.".to_string(),
+        (false, false) => "Parent-surface rendering only; active timer state-store is shown only when reported by the service. Live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.".to_string(),
     }
-    if has_active_state {
-        return "Active timer state-store is visible; live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.".to_string();
-    }
-    if has_control_action_results {
-        return "Control action-result rows are visible from app/game SQLite replay; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.".to_string();
-    }
-    "Parent-surface rendering only; active timer state-store is shown only when reported by the service. Live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.".to_string()
 }
 
 pub(super) fn app_game_timer_target_label(target: &str) -> String {
-    match target {
-        "native-app" => "Native app".to_string(),
-        "native-game" => "Native game".to_string(),
-        _ => target.to_string(),
-    }
+    APP_GAME_TIMER_TARGET_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == target)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| target.to_string())
 }
 
 pub(super) fn app_game_timer_surface_state_label(state: &str) -> String {
-    match state {
-        "ready-for-parent-surface" => "Ready for parent surface".to_string(),
-        "blocked-by-source-freshness" => "Blocked by source freshness".to_string(),
-        "blocked-by-compiler-decision" => "Blocked by compiler decision".to_string(),
-        "runtime-manual-required" => "Runtime manual required".to_string(),
-        _ => state.to_string(),
-    }
+    APP_GAME_TIMER_SURFACE_STATE_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == state)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| state.to_string())
 }
 
 pub(super) fn app_game_timer_parent_preference_setup_payload(

@@ -3,15 +3,15 @@ use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
 use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::policy_constants as policy;
+use std::fmt::Debug;
 
+use crate::test_text::{TestResult, TestText};
 use crate::{
     activity_store_policy_preview_support::{
         active_window_event, browser_event, parent_rule_context, parent_rule_context_for_event,
     },
     ActivityStore,
 };
-
-type TestResult = Result<(), String>;
 
 #[test]
 fn policy_preview_read_model_resolves_local_parent_rule_context_for_matching_evidence() -> TestResult
@@ -82,7 +82,7 @@ fn policy_preview_read_model_resolves_site_rule_from_browser_url_alias() -> Test
             policy::TEST_ASK_PARENT_RULE_ID,
             PolicyAction::AskParent,
             policy::TEST_REASON_PARENT_ASK,
-            vec![event.event_id],
+            vec![crate::test_text::TestText::from_display(event.event_id)],
         )]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;
@@ -131,7 +131,7 @@ fn policy_preview_read_model_resolves_app_rule_from_active_window_alias() -> Tes
             policy::TEST_TIME_LIMIT_RULE_ID,
             PolicyAction::TimeLimit,
             policy::TEST_REASON_PARENT_TIME_LIMIT,
-            vec![event.event_id],
+            vec![crate::test_text::TestText::from_display(event.event_id)],
         )]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;
@@ -308,7 +308,10 @@ fn policy_preview_read_model_rejects_partially_grounded_parent_rule_context() ->
             policy::TEST_BLOCK_RULE_ID,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![event.event_id, policy::TEST_EVIDENCE_ID.to_string()],
+            vec![
+                crate::test_text::TestText::from_display(event.event_id),
+                crate::test_text::TestText::from_display(policy::TEST_EVIDENCE_ID),
+            ],
         )]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;
@@ -334,6 +337,6 @@ fn policy_preview_read_model_rejects_partially_grounded_parent_rule_context() ->
     Ok(())
 }
 
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+fn ok<T, E: Debug>(result: Result<T, E>, context: impl std::fmt::Display) -> Result<T, TestText> {
+    result.map_err(|error| TestText::from_display(format!("{}: {error:?}", context)))
 }

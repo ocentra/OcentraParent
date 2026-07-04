@@ -1,14 +1,16 @@
 use crate::{
     constants,
     network_apple_network_extension_gate_status::{
+        NetworkAppleNetworkExtensionGateBoundaryReason,
         NetworkAppleNetworkExtensionGateCapabilityStatusState,
-        NetworkAppleNetworkExtensionGateStatus, NetworkAppleNetworkExtensionGateStatusState,
-        NetworkAppleNetworkExtensionPlatformStatus,
+        NetworkAppleNetworkExtensionGateRequiredArtifact, NetworkAppleNetworkExtensionGateStatus,
+        NetworkAppleNetworkExtensionGateStatusState, NetworkAppleNetworkExtensionPlatformStatus,
     },
 };
 
 #[test]
-fn apple_network_extension_gate_status_serializes_to_camel_case_contract_shape() {
+fn apple_network_extension_gate_status_serializes_to_camel_case_contract_shape(
+) -> Result<(), serde_json::Error> {
     let status = NetworkAppleNetworkExtensionGateStatus {
         status_ref: constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_GATE_STATUS_REF
             .to_string(),
@@ -31,19 +33,16 @@ fn apple_network_extension_gate_status_serializes_to_camel_case_contract_shape()
         capability_state: NetworkAppleNetworkExtensionGateCapabilityStatusState::AppleDeviceReady,
         gate_state: NetworkAppleNetworkExtensionGateStatusState::ManualRequired,
         boundary_reasons: vec![
-            constants::network_flow::APPLE_NETWORK_EXTENSION_BOUNDARY_MISSING_REQUIRED_ARTIFACT
-                .to_string(),
+            NetworkAppleNetworkExtensionGateBoundaryReason::MissingRequiredArtifact,
         ],
         missing_required_artifacts: vec![
-            constants::network_flow::APPLE_NETWORK_EXTENSION_ARTIFACT_ENTITLEMENT_APPROVAL_PROOF
-                .to_string(),
+            NetworkAppleNetworkExtensionGateRequiredArtifact::EntitlementApprovalProof,
         ],
         supervision_required: true,
         ..NetworkAppleNetworkExtensionGateStatus::default()
     };
 
-    let serialized = serde_json::to_value(status)
-        .unwrap_or_else(|error| unreachable!("status serializes: {error}"));
+    let serialized = serde_json::to_value(status)?;
 
     assert_eq!(
         serialized["statusRef"],
@@ -62,4 +61,6 @@ fn apple_network_extension_gate_status_serializes_to_camel_case_contract_shape()
     );
     assert_eq!(serialized["supervisionRequired"], true);
     assert_eq!(serialized["liveNetworkExtensionClaimed"], false);
+
+    Ok(())
 }

@@ -26,6 +26,26 @@ use ocentra_parent_agent_protocol::tracking::runtime_event::{
     TrackingRuntimeConfig, TrackingRuntimeEnabledState, TrackingRuntimeMode,
 };
 
+#[path = "runtime_flow_contract_text.rs"]
+mod runtime_flow_contract_text;
+#[path = "runtime_flow_evaluations.rs"]
+mod runtime_flow_evaluations;
+#[path = "runtime_flow_values.rs"]
+mod runtime_flow_values;
+
+use self::runtime_flow_evaluations::{
+    default_tracking_expected_place_evaluation_from_relation,
+    default_tracking_geofence_evaluation_from_relation, infer_tracking_location_relation,
+};
+use self::runtime_flow_values::{
+    tracking_acknowledgement_id, tracking_acknowledgement_state, tracking_ai_purpose,
+    tracking_ai_request_id, tracking_check_in_id, tracking_check_in_state,
+    tracking_child_device_id, tracking_child_profile_id, tracking_evidence_ref,
+    tracking_expected_place_ref, tracking_geofence_rule_ref, tracking_location_relation,
+    tracking_notification_channel, tracking_observation_id, tracking_timestamp,
+    tracking_uncertainty_code,
+};
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackingRuntimeObservationReport {
     pub location_observed: TrackingLocationObservedEvent,
@@ -52,17 +72,6 @@ enum TrackingRuntimeRef {
     ExpectedPlace,
 }
 
-impl TrackingRuntimeRef {
-    fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::ChildDevice => constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
-            Self::ChildProfile => constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
-            Self::Observation => constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
-            Self::ExpectedPlace => constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF,
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TrackingLocationRelationKind {
     UncertainNear,
@@ -70,29 +79,9 @@ enum TrackingLocationRelationKind {
     Away,
 }
 
-impl TrackingLocationRelationKind {
-    fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::UncertainNear => {
-                constants::tracking_runtime::LOCATION_RELATION_UNCERTAIN_NEAR_EXPECTED_PLACE
-            }
-            Self::At => constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE,
-            Self::Away => constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE,
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TrackingAcknowledgementStateValue {
     Acknowledged,
-}
-
-impl TrackingAcknowledgementStateValue {
-    fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::Acknowledged => constants::tracking_runtime::ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED,
-        }
-    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -100,27 +89,9 @@ enum TrackingCheckInStateValue {
     Received,
 }
 
-impl TrackingCheckInStateValue {
-    fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::Received => constants::tracking_runtime::CHECK_IN_STATE_RECEIVED,
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TrackingAiPurposeKind {
     NearbyPlaceClassification,
-}
-
-impl TrackingAiPurposeKind {
-    fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::NearbyPlaceClassification => {
-                constants::tracking_runtime::ALLOWED_AI_PURPOSE_NEARBY_PLACE_CLASSIFICATION
-            }
-        }
-    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -128,40 +99,14 @@ enum TrackingUncertaintyKind {
     NearbyPlaceClassificationRequired,
 }
 
-impl TrackingUncertaintyKind {
-    fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::NearbyPlaceClassificationRequired => {
-                constants::tracking_runtime::UNCERTAINTY_CODE_NEARBY_PLACE_CLASSIFICATION_REQUIRED
-            }
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TrackingNotificationChannelKind {
     ParentPortal,
 }
 
-impl TrackingNotificationChannelKind {
-    fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::ParentPortal => constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL,
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TrackingTimestampKind {
     DefaultObservedAt,
-}
-
-impl TrackingTimestampKind {
-    fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::DefaultObservedAt => constants::tracking_runtime::DEFAULT_OBSERVED_AT,
-        }
-    }
 }
 
 pub fn default_child_tracking_runtime_config() -> TrackingRuntimeConfig {
@@ -355,200 +300,5 @@ pub fn tracking_observation_portal_notification_candidate_state(
         TrackingPortalNotificationCandidateState::Candidate
     } else {
         TrackingPortalNotificationCandidateState::NotCandidate
-    }
-}
-
-fn tracking_child_device_id(value: TrackingRuntimeRef) -> TrackingChildDeviceId {
-    parse_contract_text(value.as_contract_text(), TrackingChildDeviceId::parse)
-}
-
-fn tracking_child_profile_id(value: TrackingRuntimeRef) -> TrackingChildProfileId {
-    parse_contract_text(value.as_contract_text(), TrackingChildProfileId::parse)
-}
-
-fn tracking_observation_id(value: TrackingRuntimeRef) -> TrackingObservationId {
-    parse_contract_text(value.as_contract_text(), TrackingObservationId::parse)
-}
-
-fn tracking_timestamp(value: TrackingTimestampKind) -> TrackingTimestamp {
-    parse_contract_text(value.as_contract_text(), TrackingTimestamp::parse)
-}
-
-fn tracking_expected_place_ref(value: TrackingRuntimeRef) -> TrackingExpectedPlaceRef {
-    parse_contract_text(value.as_contract_text(), TrackingExpectedPlaceRef::parse)
-}
-
-fn tracking_evidence_ref(observation_id: &TrackingObservationId) -> TrackingEvidenceRef {
-    tracking_evidence_ref_from_observation_id(observation_id)
-}
-
-fn tracking_location_relation(value: TrackingLocationRelationKind) -> TrackingLocationRelation {
-    parse_contract_text(value.as_contract_text(), TrackingLocationRelation::parse)
-}
-
-fn tracking_ai_purpose(value: TrackingAiPurposeKind) -> TrackingAiPurpose {
-    parse_contract_text(value.as_contract_text(), TrackingAiPurpose::parse)
-}
-
-fn tracking_ai_request_id(evidence_ref: &TrackingEvidenceRef) -> TrackingAiRequestId {
-    tracking_ai_request_id_from_evidence_ref(evidence_ref)
-}
-
-fn tracking_uncertainty_code(value: TrackingUncertaintyKind) -> TrackingUncertaintyCode {
-    parse_contract_text(value.as_contract_text(), TrackingUncertaintyCode::parse)
-}
-
-fn tracking_notification_channel(
-    value: TrackingNotificationChannelKind,
-) -> TrackingNotificationChannel {
-    parse_contract_text(value.as_contract_text(), TrackingNotificationChannel::parse)
-}
-
-fn tracking_acknowledgement_id(
-    violation_id: &TrackingPolicyViolationId,
-) -> TrackingAcknowledgementId {
-    tracking_acknowledgement_id_from_violation_id(violation_id)
-}
-
-fn tracking_check_in_id(observation_id: &TrackingObservationId) -> TrackingCheckInId {
-    tracking_check_in_id_from_observation_id(observation_id)
-}
-
-fn tracking_capability_status(value: &'static str) -> TrackingCapabilityStatus {
-    parse_contract_text(value, TrackingCapabilityStatus::parse)
-}
-
-fn tracking_geofence_rule_ref(value: &'static str) -> TrackingGeofenceRuleRef {
-    parse_contract_text(value, TrackingGeofenceRuleRef::parse)
-}
-
-fn tracking_transition_kind(value: &'static str) -> TrackingTransitionKind {
-    parse_contract_text(value, TrackingTransitionKind::parse)
-}
-
-fn tracking_acknowledgement_state(
-    value: TrackingAcknowledgementStateValue,
-) -> TrackingAcknowledgementState {
-    parse_contract_text(
-        value.as_contract_text(),
-        TrackingAcknowledgementState::parse,
-    )
-}
-
-fn tracking_check_in_state(value: TrackingCheckInStateValue) -> TrackingCheckInState {
-    parse_contract_text(value.as_contract_text(), TrackingCheckInState::parse)
-}
-
-fn infer_tracking_location_relation(
-    event: &TrackingLocationObservedEvent,
-) -> TrackingLocationRelationKind {
-    let latitude_delta = event
-        .latitude_e7
-        .abs_diff(DEFAULT_EXPECTED_PLACE_LATITUDE_E7);
-    let longitude_delta = event
-        .longitude_e7
-        .abs_diff(DEFAULT_EXPECTED_PLACE_LONGITUDE_E7);
-    let expected_place_delta = latitude_delta.max(longitude_delta);
-
-    if expected_place_delta <= EXPECTED_PLACE_MAX_DELTA_E7 {
-        if event.horizontal_accuracy_meters <= PRECISE_EXPECTED_PLACE_ACCURACY_MAX_METERS {
-            TrackingLocationRelationKind::At
-        } else {
-            TrackingLocationRelationKind::UncertainNear
-        }
-    } else {
-        TrackingLocationRelationKind::Away
-    }
-}
-
-fn default_tracking_geofence_evaluation_from_relation(
-    relation: &TrackingLocationRelation,
-) -> TrackingGeofenceEvaluation {
-    if relation.as_str() == constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE {
-        TrackingGeofenceEvaluation {
-            previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
-            current_inside_state: TrackingGeofenceInsideState::Inside,
-            capability_status: tracking_capability_status(
-                constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
-            ),
-            distance_meters: Some(0),
-            low_accuracy_near_boundary: false,
-            grace_period_active: false,
-        }
-    } else if relation.as_str()
-        == constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE
-    {
-        TrackingGeofenceEvaluation {
-            previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
-            current_inside_state: TrackingGeofenceInsideState::Outside,
-            capability_status: tracking_capability_status(
-                constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
-            ),
-            distance_meters: Some(250),
-            low_accuracy_near_boundary: false,
-            grace_period_active: false,
-        }
-    } else {
-        TrackingGeofenceEvaluation {
-            previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
-            current_inside_state: TrackingGeofenceInsideState::Outside,
-            capability_status: tracking_capability_status(
-                constants::tracking_runtime::CAPABILITY_STATUS_RECENT,
-            ),
-            distance_meters: None,
-            low_accuracy_near_boundary: true,
-            grace_period_active: false,
-        }
-    }
-}
-
-fn default_tracking_expected_place_evaluation_from_relation(
-    relation: &TrackingLocationRelation,
-    parent_action_requirement: &TrackingParentActionRequirement,
-) -> TrackingExpectedPlaceEvaluation {
-    if relation.as_str() == constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE {
-        TrackingExpectedPlaceEvaluation {
-            transition_kind: tracking_transition_kind(
-                constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL,
-            ),
-            ..default_expected_place_evaluation()
-        }
-    } else if relation.as_str()
-        == constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE
-    {
-        let transition_kind =
-            if *parent_action_requirement == TrackingParentActionRequirement::Required {
-                constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT
-            } else {
-                constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL
-            };
-
-        TrackingExpectedPlaceEvaluation {
-            transition_kind: tracking_transition_kind(transition_kind),
-            ..default_expected_place_evaluation()
-        }
-    } else {
-        TrackingExpectedPlaceEvaluation {
-            transition_kind: tracking_transition_kind(
-                constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS,
-            ),
-            capability_status: tracking_capability_status(
-                constants::tracking_runtime::CAPABILITY_STATUS_RECENT,
-            ),
-            ..default_expected_place_evaluation()
-        }
-    }
-}
-
-fn parse_contract_text<T, E>(
-    value: &'static str,
-    parse: impl FnOnce(&'static str) -> Result<T, E>,
-) -> T
-where
-    E: core::fmt::Debug,
-{
-    match parse(value) {
-        Ok(parsed_value) => parsed_value,
-        Err(_) => unreachable!("tracking runtime contract drift: {value}"),
     }
 }

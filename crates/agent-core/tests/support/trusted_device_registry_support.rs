@@ -1,5 +1,8 @@
-use std::fmt::Debug;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::{
+    fmt::{Debug, Display},
+    path::{Path, PathBuf},
+};
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
@@ -13,26 +16,37 @@ use ocentra_parent_agent_protocol::policy_constants;
 
 use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
 
+use crate::test_text::TestText;
+
 static TEMP_REGISTRY_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub(crate) struct TestPath(pub(crate) PathBuf);
+
+impl AsRef<Path> for TestPath {
+    fn as_ref(&self) -> &Path {
+        &self.0
+    }
+}
+
+impl From<&TestPath> for TestPath {
+    fn from(value: &TestPath) -> Self {
+        value.clone()
+    }
+}
 
 pub(crate) fn agent_event_result<T, E>(result: Result<T, E>) -> T
 where
     E: Debug,
 {
-    match result {
-        Ok(value) => value,
-        Err(error) => unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES),
-    }
+    result.expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 pub(crate) fn agent_event_option<T>(result: Option<T>) -> T {
-    match result {
-        Some(value) => value,
-        None => unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES),
-    }
+    result.expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-pub(crate) fn proof(expires_at: &str) -> LanPairingProof {
+pub(crate) fn proof(expires_at: impl Display) -> LanPairingProof {
     proof_for(
         constants::lan_pairing::PAIRING_ID,
         constants::lan_pairing::CHALLENGE_ID,
@@ -43,7 +57,7 @@ pub(crate) fn proof(expires_at: &str) -> LanPairingProof {
     )
 }
 
-pub(crate) fn selected_registry(expires_at: &str) -> TrustedDeviceRegistry {
+pub(crate) fn selected_registry(expires_at: impl Display) -> TrustedDeviceRegistry {
     let mut registry = TrustedDeviceRegistry::empty();
     let active_proof = proof(expires_at);
     registry.accept_pairing_proof(
@@ -63,13 +77,19 @@ pub(crate) fn selected_registry(expires_at: &str) -> TrustedDeviceRegistry {
 }
 
 pub(crate) fn proof_for(
-    pairing_id: &str,
-    challenge_id: &str,
-    child_device_id: &str,
-    route_id: &str,
-    proof_digest: &str,
-    expires_at: &str,
+    pairing_id: impl Display,
+    challenge_id: impl Display,
+    child_device_id: impl Display,
+    route_id: impl Display,
+    proof_digest: impl Display,
+    expires_at: impl Display,
 ) -> LanPairingProof {
+    let pairing_id = TestText::from_display(pairing_id);
+    let challenge_id = TestText::from_display(challenge_id);
+    let child_device_id = TestText::from_display(child_device_id);
+    let route_id = TestText::from_display(route_id);
+    let proof_digest = TestText::from_display(proof_digest);
+    let expires_at = TestText::from_display(expires_at);
     LanPairingProof {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         pairing_id: pairing_id.to_string(),
@@ -85,10 +105,10 @@ pub(crate) fn proof_for(
 }
 
 pub(crate) fn intent(
-    intent_id: &str,
-    target_child_device_id: &str,
-    proof_digest: &str,
-    expires_at: &str,
+    intent_id: impl Display,
+    target_child_device_id: impl Display,
+    proof_digest: impl Display,
+    expires_at: impl Display,
 ) -> LanParentIntentEnvelope {
     intent_with_route(
         intent_id,
@@ -100,11 +120,11 @@ pub(crate) fn intent(
 }
 
 pub(crate) fn intent_with_route(
-    intent_id: &str,
-    target_child_device_id: &str,
-    route_id: &str,
-    proof_digest: &str,
-    expires_at: &str,
+    intent_id: impl Display,
+    target_child_device_id: impl Display,
+    route_id: impl Display,
+    proof_digest: impl Display,
+    expires_at: impl Display,
 ) -> LanParentIntentEnvelope {
     intent_for_pairing(
         intent_id,
@@ -117,13 +137,19 @@ pub(crate) fn intent_with_route(
 }
 
 pub(crate) fn intent_for_pairing(
-    intent_id: &str,
-    pairing_id: &str,
-    target_child_device_id: &str,
-    route_id: &str,
-    proof_digest: &str,
-    expires_at: &str,
+    intent_id: impl Display,
+    pairing_id: impl Display,
+    target_child_device_id: impl Display,
+    route_id: impl Display,
+    proof_digest: impl Display,
+    expires_at: impl Display,
 ) -> LanParentIntentEnvelope {
+    let intent_id = TestText::from_display(intent_id);
+    let pairing_id = TestText::from_display(pairing_id);
+    let target_child_device_id = TestText::from_display(target_child_device_id);
+    let route_id = TestText::from_display(route_id);
+    let proof_digest = TestText::from_display(proof_digest);
+    let expires_at = TestText::from_display(expires_at);
     LanParentIntentEnvelope {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         intent_id: intent_id.to_string(),
@@ -188,7 +214,7 @@ pub(crate) fn household_decision() -> LanHouseholdDeviceDecision {
     }
 }
 
-pub(crate) fn temp_registry_path() -> std::path::PathBuf {
+pub(crate) fn temp_registry_path() -> TestPath {
     let mut name = String::from(constants::lan_pairing::REGISTRY_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push_str(
@@ -199,5 +225,5 @@ pub(crate) fn temp_registry_path() -> std::path::PathBuf {
     let mut path = std::env::temp_dir();
     path.push(name);
     path.set_extension(constants::lan_pairing::REGISTRY_FILE_EXTENSION);
-    path
+    TestPath(path)
 }

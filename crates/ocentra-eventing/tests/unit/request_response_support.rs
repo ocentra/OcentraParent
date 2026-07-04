@@ -6,6 +6,9 @@ use crate::{
     RequestEvent, RequestId, SchemaVersion,
 };
 
+#[derive(Clone)]
+pub(super) struct TestText(pub(super) String);
+
 pub(super) const REQUEST_EVENT_TYPE: &str = "eventing.test.requested";
 pub(super) const RESULT_EVENT_TYPE: &str = "eventing.test.completed";
 const REQUEST_AGGREGATE: &str = "request-aggregate";
@@ -134,14 +137,14 @@ impl DomainEvent for TestResultEvent {
     }
 }
 
-pub(super) fn test_request(label: &str) -> TestRequestEvent {
-    test_request_with_id(label, REQUEST_ID)
+pub(super) fn test_request(label: TestText) -> TestRequestEvent {
+    test_request_with_id(label, TestText(REQUEST_ID.to_owned()))
 }
 
-pub(super) fn test_request_with_id(label: &str, request_id: &str) -> TestRequestEvent {
+pub(super) fn test_request_with_id(label: TestText, request_id: TestText) -> TestRequestEvent {
     TestRequestEvent {
-        label: label.to_string(),
-        request_id: RequestId::parse(request_id).expect_value("request id parses"),
+        label: label.0,
+        request_id: RequestId::parse(request_id.0).expect_value("request id parses"),
     }
 }
 

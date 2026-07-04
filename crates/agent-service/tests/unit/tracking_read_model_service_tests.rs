@@ -33,9 +33,11 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() -> Tes
         seed_tracking_store(&store_path)?;
 
         let body = serde_json::to_string(&command_envelope())?;
-        let event = handle_local_command_text_for_test(&body).await;
+        let event =
+            handle_local_command_text_for_test(crate::test_text::TestText::from_display(body))
+                .await;
         let read_model = tracking_read_model_payload(
-            &event.payload[constants::field::ACTIVITY_TRACKING_READ_MODEL],
+            &crate::test_invariants::log_field(&event.payload, constants::field::ACTIVITY_TRACKING_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
         )?;
 
         assert_eq!(
@@ -280,7 +282,8 @@ fn assert_count(
     assert_eq!(actual, Some(count));
 }
 
-fn temp_path(suffix: &str) -> std::path::PathBuf {
+fn temp_path(suffix: impl AsRef<str>) -> std::path::PathBuf {
+    let suffix = suffix.as_ref();
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

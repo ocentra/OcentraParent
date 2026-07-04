@@ -1,5 +1,5 @@
-import { decodePortalDetailValue, type PortalDetailValue } from './portal-contract-adapter';
-import { networkEvidenceDrawerSummaryTemplate } from './generated/network-evidence-drawer';
+import { decodePortalDetailValue, type PortalDetailValue } from './portal-contract-text-contracts';
+import { networkEvidenceDrawerSummaryTemplate } from './network-evidence-drawer.generated';
 
 export type NetworkEvidenceDrawerSummary = {
   readonly evidenceId: PortalDetailValue;

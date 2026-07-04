@@ -15,6 +15,15 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanServiceIdentityProbeEvidence, LanServiceIdentityProbeEvidenceKind,
 };
 
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+struct LanText(String);
+
+macro_rules! lt {
+    ($value:expr) => {
+        LanText(($value).to_string())
+    };
+}
+
 #[test]
 fn service_probe_and_mdns_evidence_classify_television_devices() {
     let mut device = discovery_device("scanner-only-device");
@@ -45,49 +54,54 @@ fn service_probe_and_mdns_evidence_classify_television_devices() {
 }
 
 #[test]
-fn iphone_hostname_classifies_phone() {
-    let mut device = discovery_device("kid-phone");
-    device.hostname = Some("kid-iphone.local".to_string());
+fn basic_label_and_hostname_hints_map_to_expected_device_classes() {
+    for (device_id, hostname, expected) in [
+        (
+            "kid-phone",
+            Some("kid-iphone.local"),
+            LanCanonicalHouseholdDeviceClassification::Phone,
+        ),
+        (
+            "family-ipad-tablet",
+            None,
+            LanCanonicalHouseholdDeviceClassification::Tablet,
+        ),
+        (
+            "living-room-thinkpad",
+            None,
+            LanCanonicalHouseholdDeviceClassification::Laptop,
+        ),
+        (
+            "office-desktop-workstation",
+            None,
+            LanCanonicalHouseholdDeviceClassification::Desktop,
+        ),
+        (
+            "console-device",
+            Some("family-xbox.local"),
+            LanCanonicalHouseholdDeviceClassification::GameConsole,
+        ),
+        (
+            "driveway-camera",
+            Some("arlo-camera.local"),
+            LanCanonicalHouseholdDeviceClassification::Camera,
+        ),
+        (
+            "storage-device",
+            Some("synology-nas.local"),
+            LanCanonicalHouseholdDeviceClassification::NetworkAttachedStorage,
+        ),
+        (
+            "hallway-thermostat-sensor",
+            None,
+            LanCanonicalHouseholdDeviceClassification::InternetOfThings,
+        ),
+    ] {
+        let mut device = discovery_device(device_id);
+        device.hostname = hostname.map(str::to_string);
 
-    let classification = classification_for_discovery(&device, &[], &[]);
-
-    assert_eq!(
-        classification,
-        LanCanonicalHouseholdDeviceClassification::Phone
-    );
-}
-
-#[test]
-fn ipad_label_classifies_tablet() {
-    let classification =
-        classification_for_discovery(&discovery_device("family-ipad-tablet"), &[], &[]);
-
-    assert_eq!(
-        classification,
-        LanCanonicalHouseholdDeviceClassification::Tablet
-    );
-}
-
-#[test]
-fn thinkpad_label_classifies_laptop() {
-    let classification =
-        classification_for_discovery(&discovery_device("living-room-thinkpad"), &[], &[]);
-
-    assert_eq!(
-        classification,
-        LanCanonicalHouseholdDeviceClassification::Laptop
-    );
-}
-
-#[test]
-fn workstation_label_classifies_desktop() {
-    let classification =
-        classification_for_discovery(&discovery_device("office-desktop-workstation"), &[], &[]);
-
-    assert_eq!(
-        classification,
-        LanCanonicalHouseholdDeviceClassification::Desktop
-    );
+        assert_eq!(classification_for_discovery(&device, &[], &[]), expected);
+    }
 }
 
 #[test]
@@ -192,7 +206,7 @@ fn weak_name_and_service_probe_evidence_stay_explainable_and_weak() {
         .evidence_records
         .iter()
         .find(|record| record.evidence_kind == LanDiscoveryEvidenceKind::ServiceProbeHint)
-        .value_or_unreachable("service probe hint");
+        .value_or_unreachable();
     assert_eq!(
         probe_record.source,
         LanDiscoveryEvidenceSource::ServiceIdentityProbe
@@ -242,7 +256,7 @@ fn mdns_airplay_hint_classifies_television_and_records_strong_reason() {
         .evidence_records
         .iter()
         .find(|record| record.evidence_kind == LanDiscoveryEvidenceKind::ServiceProbeHint)
-        .value_or_unreachable("mdns service hint");
+        .value_or_unreachable();
     assert_eq!(record.confidence, LanDiscoveryEvidenceConfidence::Strong);
     assert_eq!(record.value, "mdns-service-type:_airplay._tcp.local");
 }
@@ -285,7 +299,7 @@ fn mdns_google_cast_hint_classifies_television_and_records_strong_reason() {
         .evidence_records
         .iter()
         .find(|record| record.evidence_kind == LanDiscoveryEvidenceKind::ServiceProbeHint)
-        .value_or_unreachable("google cast mdns hint");
+        .value_or_unreachable();
     assert_eq!(record.confidence, LanDiscoveryEvidenceConfidence::Strong);
     assert_eq!(record.value, "mdns-service-type:_googlecast._tcp.local");
 }
@@ -328,7 +342,7 @@ fn mdns_ipp_printer_hint_classifies_printer_and_records_strong_reason() {
         .evidence_records
         .iter()
         .find(|record| record.evidence_kind == LanDiscoveryEvidenceKind::ServiceProbeHint)
-        .value_or_unreachable("ipp printer mdns hint");
+        .value_or_unreachable();
     assert_eq!(record.confidence, LanDiscoveryEvidenceConfidence::Strong);
     assert_eq!(record.value, "mdns-service-type:_ipp._tcp.local");
 }
@@ -483,7 +497,7 @@ fn ssdp_media_renderer_hint_classifies_television_and_records_strong_reason() {
         .evidence_records
         .iter()
         .find(|record| record.evidence_kind == LanDiscoveryEvidenceKind::ServiceProbeHint)
-        .value_or_unreachable("ssdp device type hint");
+        .value_or_unreachable();
     assert_eq!(record.confidence, LanDiscoveryEvidenceConfidence::Strong);
     assert_eq!(
         record.value,
@@ -529,59 +543,9 @@ fn jetdirect_banner_hint_classifies_printer_and_records_weak_reason() {
         .evidence_records
         .iter()
         .find(|record| record.evidence_kind == LanDiscoveryEvidenceKind::ServiceProbeHint)
-        .value_or_unreachable("jetdirect banner hint");
+        .value_or_unreachable();
     assert_eq!(record.confidence, LanDiscoveryEvidenceConfidence::Weak);
     assert_eq!(record.value, "banner:HP JetDirect");
-}
-
-#[test]
-fn xbox_hostname_classifies_game_console() {
-    let mut device = discovery_device("console-device");
-    device.hostname = Some("family-xbox.local".to_string());
-
-    let classification = classification_for_discovery(&device, &[], &[]);
-
-    assert_eq!(
-        classification,
-        LanCanonicalHouseholdDeviceClassification::GameConsole
-    );
-}
-
-#[test]
-fn camera_hostname_classifies_camera() {
-    let mut device = discovery_device("driveway-camera");
-    device.hostname = Some("arlo-camera.local".to_string());
-
-    let classification = classification_for_discovery(&device, &[], &[]);
-
-    assert_eq!(
-        classification,
-        LanCanonicalHouseholdDeviceClassification::Camera
-    );
-}
-
-#[test]
-fn synology_hostname_classifies_network_attached_storage() {
-    let mut device = discovery_device("storage-device");
-    device.hostname = Some("synology-nas.local".to_string());
-
-    let classification = classification_for_discovery(&device, &[], &[]);
-
-    assert_eq!(
-        classification,
-        LanCanonicalHouseholdDeviceClassification::NetworkAttachedStorage
-    );
-}
-
-#[test]
-fn thermostat_label_classifies_internet_of_things() {
-    let classification =
-        classification_for_discovery(&discovery_device("hallway-thermostat-sensor"), &[], &[]);
-
-    assert_eq!(
-        classification,
-        LanCanonicalHouseholdDeviceClassification::InternetOfThings
-    );
 }
 
 #[test]
@@ -606,7 +570,7 @@ fn router_evidence_is_classified_and_explained_as_infrastructure() {
         .evidence_records
         .iter()
         .find(|record| record.evidence_kind == LanDiscoveryEvidenceKind::RouterClassification)
-        .value_or_unreachable("router classification evidence");
+        .value_or_unreachable();
     assert_eq!(
         router_record.source,
         LanDiscoveryEvidenceSource::SsdpUpnpQuery
@@ -665,24 +629,24 @@ fn device_without_platform_or_lan_identity_stays_unsupported() {
     );
 }
 
-fn discovery_device(device_id: &str) -> LanPairingDeviceRef {
+fn discovery_device(device_id: impl std::fmt::Display) -> LanPairingDeviceRef {
     discovery_device_with_platform(device_id, constants::lan_pairing::PLATFORM_UNKNOWN)
 }
 
-fn discovery_device_with_platform(device_id: &str, platform: &str) -> LanPairingDeviceRef {
-    let mut device = LanPairingDeviceRef::new(
-        device_id.to_string(),
-        None,
-        device_id.to_string(),
-        platform.to_string(),
-    );
+fn discovery_device_with_platform(
+    device_id: impl std::fmt::Display,
+    platform: impl std::fmt::Display,
+) -> LanPairingDeviceRef {
+    let device_id = device_id.to_string();
+    let platform = platform.to_string();
+    let mut device = LanPairingDeviceRef::new(device_id.clone(), None, device_id, platform);
     device.mac_address = Some(constants::lan_pairing::TEST_LAN_MAC.to_string());
     device
 }
 
 fn service_probe(
     evidence_kind: LanServiceIdentityProbeEvidenceKind,
-    value: &str,
+    value: impl std::fmt::Display,
 ) -> LanServiceIdentityProbeEvidence {
     LanServiceIdentityProbeEvidence {
         evidence_kind,

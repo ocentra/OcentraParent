@@ -20,9 +20,7 @@ fn windows_adapter_artifact_gate_serializes_refusal_boundaries() {
         entries: vec![app_gate_entry()],
     };
 
-    let serialized = serde_json::to_value(proof).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(proof).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized[constants::field::READ_MODEL_ID],
@@ -80,9 +78,8 @@ fn windows_adapter_artifact_evidence_serializes_custody_event_refs() {
         verified_at: artifact_ingestion::TEST_INGESTED_AT.to_string(),
     };
 
-    let serialized = serde_json::to_value(evidence).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(evidence).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["artifactKind"],

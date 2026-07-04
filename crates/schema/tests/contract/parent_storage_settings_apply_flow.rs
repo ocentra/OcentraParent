@@ -6,24 +6,29 @@ use ocentra_schema::parent_storage_settings_apply_flow_ts::{
 };
 use serde_json::json;
 
-fn generated_line<'a>(generated: &'a str, line_start: &str) -> &'a str {
+fn generated_line<'a>(generated: &'a [u8], line_start: &[u8]) -> &'a [u8] {
     generated
-        .lines()
-        .find(|line| line.trim_start().starts_with(line_start))
-        .value_or_unreachable("expected generated line to exist")
+        .split(|byte| *byte == b'\n')
+        .find(|line| {
+            let line = std::str::from_utf8(line)
+                .value_or_unreachable(crate::assert_context!("generated line is valid utf-8"));
+            line.trim_start().as_bytes().starts_with(line_start)
+        })
+        .value_or_unreachable(crate::assert_context!("expected generated line to exist"))
 }
 
-fn line_containing<'a>(generated: &'a str, snippet: &str) -> &'a str {
+fn line_containing<'a>(generated: &'a [u8], snippet: &[u8]) -> &'a [u8] {
     generated
-        .lines()
-        .find(|line| line.contains(snippet))
-        .value_or_unreachable("expected generated line to exist")
+        .split(|byte| *byte == b'\n')
+        .find(|line| line.windows(snippet.len()).any(|window| window == snippet))
+        .value_or_unreachable(crate::assert_context!("expected generated line to exist"))
 }
 
 #[test]
 fn parent_storage_settings_apply_flow_contract_round_trips_through_rust_owned_shape() {
     let proof = contracts::sample_parent_storage_settings_apply_flow_contract_proof();
-    let encoded = serde_json::to_value(&proof).value_or_unreachable("proof serializes");
+    let encoded = serde_json::to_value(&proof)
+        .value_or_unreachable(crate::assert_context!("proof serializes"));
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -48,7 +53,8 @@ fn parent_storage_settings_apply_flow_contract_round_trips_through_rust_owned_sh
     assert!(encoded.get("schema_version").is_none());
 
     let decoded: contracts::ParentStorageSettingsApplyFlowContractProof =
-        serde_json::from_value(encoded).value_or_unreachable("proof deserializes");
+        serde_json::from_value(encoded)
+            .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
 }
 
@@ -117,24 +123,24 @@ fn generated_parent_storage_settings_apply_flow_contracts_stay_checked_in() {
     assert_eq!(checked_in, generated);
     assert_eq!(
         generated_line(
-            &generated,
-            "export interface GeneratedParentStorageSettingsApplyFlowContractProof"
+            generated.as_bytes(),
+            b"export interface GeneratedParentStorageSettingsApplyFlowContractProof"
         ),
-        "export interface GeneratedParentStorageSettingsApplyFlowContractProof {"
+        b"export interface GeneratedParentStorageSettingsApplyFlowContractProof {"
     );
     assert_eq!(
         generated_line(
-            &generated,
-            "export const GeneratedParentStorageKnownGaps = ["
+            generated.as_bytes(),
+            b"export const GeneratedParentStorageKnownGaps = ["
         ),
-        "export const GeneratedParentStorageKnownGaps = ["
+        b"export const GeneratedParentStorageKnownGaps = ["
     );
     assert_eq!(
         generated_line(
-            &generated,
-            "export const GeneratedParentStorageModeLabels = ["
+            generated.as_bytes(),
+            b"export const GeneratedParentStorageModeLabels = ["
         ),
-        "export const GeneratedParentStorageModeLabels = ["
+        b"export const GeneratedParentStorageModeLabels = ["
     );
 }
 
@@ -147,19 +153,25 @@ fn generated_parent_storage_settings_apply_flow_contract_rules_stay_checked_in()
 
     assert_eq!(checked_in, generated);
     assert_eq!(
-        generated_line(&generated, "export function parentStorageModeCardIsHonestGenerated("),
-        "export function parentStorageModeCardIsHonestGenerated(card: GeneratedParentStorageModeCard): boolean {"
-    );
-    assert_eq!(
-        generated_line(&generated, "export function parentStorageApplyDecisionIsHonestGenerated("),
-        "export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedParentStorageApplyDecision): boolean {"
+        generated_line(
+            generated.as_bytes(),
+            b"export function parentStorageModeCardIsHonestGenerated("
+        ),
+        b"export function parentStorageModeCardIsHonestGenerated(card: GeneratedParentStorageModeCard): boolean {"
     );
     assert_eq!(
         generated_line(
-            &generated,
-            "export function parentStorageSettingsApplyFlowProofIsHonestGenerated("
+            generated.as_bytes(),
+            b"export function parentStorageApplyDecisionIsHonestGenerated("
         ),
-        "export function parentStorageSettingsApplyFlowProofIsHonestGenerated("
+        b"export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedParentStorageApplyDecision): boolean {"
+    );
+    assert_eq!(
+        generated_line(
+            generated.as_bytes(),
+            b"export function parentStorageSettingsApplyFlowProofIsHonestGenerated("
+        ),
+        b"export function parentStorageSettingsApplyFlowProofIsHonestGenerated("
     );
 }
 
@@ -171,23 +183,23 @@ fn parent_storage_settings_apply_flow_adapter_stays_thin_and_generated_backed() 
 
     assert_eq!(
         generated_line(
-            adapter,
-            "/* thin adapter over Rust-generated parent storage settings apply flow contracts */"
+            adapter.as_bytes(),
+            b"/* thin adapter over Rust-generated parent storage settings apply flow contracts */"
         ),
-        "/* thin adapter over Rust-generated parent storage settings apply flow contracts */"
+        b"/* thin adapter over Rust-generated parent storage settings apply flow contracts */"
     );
     assert_eq!(
         line_containing(
-            adapter,
-            "from './generated/parent-storage-settings-apply-flow-contracts'"
+            adapter.as_bytes(),
+            b"from './generated/parent-storage-settings-apply-flow-contracts'"
         ),
-        "} from './generated/parent-storage-settings-apply-flow-contracts';"
+        b"} from './generated/parent-storage-settings-apply-flow-contracts';"
     );
     assert_eq!(
         line_containing(
-            adapter,
-            "from './generated/parent-storage-settings-apply-flow-contract-rules'"
+            adapter.as_bytes(),
+            b"from './generated/parent-storage-settings-apply-flow-contract-rules'"
         ),
-        "} from './generated/parent-storage-settings-apply-flow-contract-rules';"
+        b"} from './generated/parent-storage-settings-apply-flow-contract-rules';"
     );
 }

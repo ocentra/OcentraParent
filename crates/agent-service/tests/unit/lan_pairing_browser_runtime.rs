@@ -1,4 +1,3 @@
-use std::fs::{read_to_string, remove_file};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
@@ -18,6 +17,15 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventName,
 };
 use serde_json::Value;
+use std::path::PathBuf as TestPathBuf;
+use std::string::String as TestString;
+
+#[macro_use]
+#[path = "../support/lan_root_harness.rs"]
+mod lan_root_harness;
+declare_lan_root_harness!();
+#[path = "../unit/lan_pairing_test_commands.rs"]
+mod lan_pairing_test_commands;
 
 use crate::{
     app::{
@@ -28,16 +36,22 @@ use crate::{
         command_for_target, intent_payload, local_network_target, paired_runtime, pairing_command,
         proof_payload, route_select_command, serialize_command,
     },
+    test_text::TestText,
 };
 
 const STORED_OFFLINE_AT: &str = "2026-06-02T00:00:00Z";
 
+#[path = "lan_pairing_browser_runtime/persistent_read_model.rs"]
+mod persistent_read_model_tests;
+
 #[tokio::test]
 async fn browser_discovery_scan_reports_real_local_service_state() {
     let event = handle_command_text_for_test(
-        &serialize_command(browser_discovery_scan_command(LogFields::new())),
+        serialize_command(browser_discovery_scan_command(LogFields::new())),
         LanPairingRuntime::empty(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -47,7 +61,8 @@ async fn browser_discovery_scan_reports_real_local_service_state() {
     );
     assert!(event
         .payload
-        .contains_key(constants::field::LAN_DISCOVERY_SOURCE));
+        .get(constants::field::LAN_DISCOVERY_SOURCE)
+        .is_some());
     assert!(matches!(
         event.payload.get(constants::field::LAN_DISCOVERY_SOURCE),
         Some(LogFieldValue::String(value))
@@ -88,13 +103,15 @@ async fn browser_discovery_scan_returns_before_active_refresh_completes() {
     let event = tokio::time::timeout(
         Duration::from_secs(5),
         handle_command_text_for_test(
-            &serialize_command(browser_discovery_scan_command(LogFields::new())),
+            serialize_command(browser_discovery_scan_command(LogFields::new())),
             LanPairingRuntime::empty(),
-            Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+            Some(TestText::from_display(
+                constants::lan_pairing::ALLOWED_ORIGIN,
+            )),
         ),
     )
     .await
-    .unwrap_or_else(|_| unreachable!("browser scan dispatch must not block on physical LAN IO"));
+    .expect("browser scan dispatch must not block on physical LAN IO");
 
     assert_eq!(
         event.event,
@@ -102,15 +119,18 @@ async fn browser_discovery_scan_returns_before_active_refresh_completes() {
     );
     assert!(event
         .payload
-        .contains_key(constants::field::LAN_ADD_DEVICE_READ_MODEL));
+        .get(constants::field::LAN_ADD_DEVICE_READ_MODEL)
+        .is_some());
 }
 
 #[tokio::test]
 async fn add_device_request_issues_pending_challenge_event() {
     let event = handle_command_text_for_test(
-        &serialize_command(add_device_request_command(challenge_request_payload())),
+        serialize_command(add_device_request_command(challenge_request_payload())),
         LanPairingRuntime::empty(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -143,9 +163,9 @@ async fn add_device_request_issues_pending_challenge_event() {
 #[tokio::test]
 async fn add_device_request_rejects_wrong_origin_without_trusting_device() {
     let event = handle_command_text_for_test(
-        &serialize_command(add_device_request_command(challenge_request_payload())),
+        serialize_command(add_device_request_command(challenge_request_payload())),
         LanPairingRuntime::empty(),
-        Some(constants::lan_pairing::WRONG_ORIGIN.to_string()),
+        Some(TestText::from_display(constants::lan_pairing::WRONG_ORIGIN)),
     )
     .await;
 
@@ -161,9 +181,11 @@ async fn add_device_request_rejects_wrong_origin_without_trusting_device() {
 #[tokio::test]
 async fn add_device_request_persists_household_decision_in_read_model() {
     let event = handle_command_text_for_test(
-        &serialize_command(add_device_request_command(household_decision_payload())),
+        serialize_command(add_device_request_command(household_decision_payload())),
         LanPairingRuntime::empty(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -187,14 +209,16 @@ async fn add_device_request_persists_household_decision_in_read_model() {
 #[tokio::test]
 async fn add_device_request_persists_household_revocation_in_read_model() {
     let event = handle_command_text_for_test(
-        &serialize_command(add_device_request_command(
+        serialize_command(add_device_request_command(
             household_decision_payload_with_action(
                 constants::lan_pairing::HOUSEHOLD_ACTION_REVOKE,
-                Some(constants::lan_pairing::OBSERVED_AT),
+                Some(constants::lan_pairing::OBSERVED_AT.to_string()),
             ),
         )),
         LanPairingRuntime::empty(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -216,130 +240,13 @@ async fn add_device_request_persists_household_revocation_in_read_model() {
 }
 
 #[tokio::test]
-async fn persistent_runtime_restores_selected_route_and_household_rename_into_read_model() {
-    let registry_path = temp_registry_path();
-    let _ = remove_file(&registry_path);
-    let runtime = LanPairingRuntime::persistent_json(&registry_path);
-    let _ = handle_command_text_for_test(
-        &serialize_command(pairing_command(proof_payload())),
-        runtime.clone(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
-    )
-    .await;
-    let _ = handle_command_text_for_test(
-        &serialize_command(route_select_command(intent_payload(
-            constants::lan_pairing::SELECT_INTENT_ID,
-            constants::lan_pairing::CHILD_DEVICE_ID,
-            constants::lan_pairing::PROOF_DIGEST,
-            constants::lan_pairing::EXPIRES_AT,
-        ))),
-        runtime.clone(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
-    )
-    .await;
-    let initial_scan = handle_command_text_for_test(
-        &serialize_command(browser_discovery_scan_command(LogFields::new())),
-        runtime.clone(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
-    )
-    .await;
-    assert_eq!(
-        initial_scan.event,
-        AgentEventName::AgentLanPairingBrowserDiscoveryReported
-    );
-    let initial_read_model = typed_read_model_payload(&initial_scan.payload);
-    let selected_canonical_device_id = initial_read_model
-        .canonical_household_devices
-        .iter()
-        .find(|device| {
-            device.classification == LanCanonicalHouseholdDeviceClassification::ChildAgent
-                && device.trust_state == LanPairingTrustState::Paired
-                && device.route_id.as_deref()
-                    == Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK)
-        })
-        .map(|device| device.canonical_device_id.clone())
-        .unwrap_or_else(|| {
-            let available_ids = initial_read_model
-                .canonical_household_devices
-                .iter()
-                .map(|device| device.canonical_device_id.as_str())
-                .collect::<Vec<_>>()
-                .join(", ");
-            unreachable!(
-                "selected paired child device present before restart: available [{}]",
-                available_ids
-            )
-        });
-    let _ = handle_command_text_for_test(
-        &serialize_command(add_device_request_command(
-            household_decision_payload_for_device(&selected_canonical_device_id),
-        )),
-        runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
-    )
-    .await;
-
-    let event = handle_command_text_for_test(
-        &serialize_command(browser_discovery_scan_command(LogFields::new())),
-        LanPairingRuntime::persistent_json(&registry_path),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
-    )
-    .await;
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentLanPairingBrowserDiscoveryReported
-    );
-    let read_model = typed_read_model_payload(&event.payload);
-    assert_eq!(
-        read_model
-            .selected_device_readiness
-            .selected_child_device_id
-            .as_deref(),
-        Some(constants::lan_pairing::CHILD_DEVICE_ID)
-    );
-    assert_eq!(
-        read_model.selected_device_readiness.route_id.as_deref(),
-        Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK)
-    );
-    assert!(read_model.selected_device_readiness.ready_for_control);
-    assert_eq!(
-        read_model.household_device_decisions.len(),
-        1,
-        "rename decision should survive persistent restart"
-    );
-    let device = read_model
-        .canonical_household_devices
-        .iter()
-        .find(|device| device.canonical_device_id == selected_canonical_device_id)
-        .unwrap_or_else(|| {
-            let available_ids = read_model
-                .canonical_household_devices
-                .iter()
-                .map(|device| device.canonical_device_id.as_str())
-                .collect::<Vec<_>>()
-                .join(", ");
-            unreachable!(
-                "selected child canonical device restored into read model: expected {}, available [{}]",
-                selected_canonical_device_id,
-                available_ids
-            )
-        });
-    assert_eq!(
-        device.display_name,
-        constants::lan_pairing::HOUSEHOLD_RENAMED_DEVICE_LABEL
-    );
-    assert_eq!(device.trust_state, LanPairingTrustState::Paired);
-
-    let _ = remove_file(&registry_path);
-}
-
-#[tokio::test]
 async fn paired_runtime_scan_exposes_registry_and_selected_readiness() {
     let event = handle_command_text_for_test(
-        &serialize_command(browser_discovery_scan_command(LogFields::new())),
+        serialize_command(browser_discovery_scan_command(LogFields::new())),
         paired_runtime().await,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -360,162 +267,25 @@ async fn paired_runtime_scan_exposes_registry_and_selected_readiness() {
     );
 }
 
-#[tokio::test]
-async fn persistent_runtime_scan_persists_known_household_device_store() {
-    let registry_path = temp_registry_path();
-    let _ = remove_file(&registry_path);
-    let runtime = LanPairingRuntime::persistent_json(&registry_path);
-    let event = handle_command_text_for_test(
-        &serialize_command(browser_discovery_scan_command(LogFields::new())),
-        runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
-    )
-    .await;
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentLanPairingBrowserDiscoveryReported
-    );
-    let registry_json = read_to_string(&registry_path).unwrap_or_default();
-    let registry_value: Value = serde_json::from_str(&registry_json)
-        .unwrap_or_else(|error| unreachable!("persistent registry json parses: {error:?}"));
-    assert!(
-        registry_value[constants::lan_pairing::REGISTRY_KEY_KNOWN_HOUSEHOLD_DEVICES]
-            .as_array()
-            .map(|devices| !devices.is_empty())
-            .unwrap_or(false)
-    );
-
-    let _ = remove_file(&registry_path);
-}
-
-#[tokio::test]
-async fn persistent_runtime_restores_known_household_device_into_read_model_as_stale() {
-    let registry_path = temp_registry_path();
-    let _ = remove_file(&registry_path);
-    let runtime = LanPairingRuntime::persistent_json(&registry_path);
-    {
-        let mut registry = runtime
-            .registry
-            .lock()
-            .unwrap_or_else(|_| unreachable!("registry lock available for test"));
-        let changed = registry.merge_known_household_devices(vec![stored_known_router()]);
-        assert!(changed);
-        assert!(runtime.persist_registry(&registry));
-    }
-
-    let event = handle_command_text_for_test(
-        &serialize_command(browser_discovery_scan_command(LogFields::new())),
-        LanPairingRuntime::persistent_json(&registry_path),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
-    )
-    .await;
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentLanPairingBrowserDiscoveryReported
-    );
-    let read_model = typed_read_model_payload(&event.payload);
-    let device = read_model
-        .canonical_household_devices
-        .iter()
-        .find(|device| {
-            device.canonical_device_id
-                == canonical_device_id_for_mac(constants::lan_pairing::TEST_ROUTER_MAC)
-        })
-        .unwrap_or_else(|| unreachable!("stored known router restored into read model"));
-
-    assert_eq!(
-        device.discovery_state,
-        LanPairingProductionDiscoveryState::Stale
-    );
-    assert_eq!(
-        device.network_identity.reachability,
-        LanPairingDeviceReachability::Stale
-    );
-    assert_eq!(
-        device.network_identity.stale_at.as_deref(),
-        Some(read_model.generated_at.as_str())
-    );
-
-    let _ = remove_file(&registry_path);
-}
-
-#[tokio::test]
-async fn persistent_runtime_restores_offline_known_household_device_as_offline() {
-    let registry_path = temp_registry_path();
-    let _ = remove_file(&registry_path);
-    let runtime = LanPairingRuntime::persistent_json(&registry_path);
-    {
-        let mut registry = runtime
-            .registry
-            .lock()
-            .unwrap_or_else(|_| unreachable!("registry lock available for test"));
-        let changed = registry.merge_known_household_devices(vec![stored_offline_known_router()]);
-        assert!(changed);
-        assert!(runtime.persist_registry(&registry));
-    }
-
-    let event = handle_command_text_for_test(
-        &serialize_command(browser_discovery_scan_command(LogFields::new())),
-        LanPairingRuntime::persistent_json(&registry_path),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
-    )
-    .await;
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentLanPairingBrowserDiscoveryReported
-    );
-    let read_model = typed_read_model_payload(&event.payload);
-    let device = read_model
-        .canonical_household_devices
-        .iter()
-        .find(|device| {
-            device.canonical_device_id
-                == canonical_device_id_for_mac(constants::lan_pairing::TEST_ROUTER_MAC)
-        })
-        .unwrap_or_else(|| unreachable!("stored offline known router restored into read model"));
-
-    assert_eq!(
-        device.discovery_state,
-        LanPairingProductionDiscoveryState::Offline
-    );
-    assert_eq!(
-        device.network_identity.reachability,
-        LanPairingDeviceReachability::Offline
-    );
-    assert_eq!(
-        device.network_identity.offline_at.as_deref(),
-        Some(STORED_OFFLINE_AT)
-    );
-    assert_eq!(device.network_identity.stale_at, None);
-
-    let _ = remove_file(&registry_path);
-}
-
 fn read_model_payload(payload: &LogFields) -> Value {
     match payload.get(constants::field::LAN_ADD_DEVICE_READ_MODEL) {
-        Some(LogFieldValue::String(value)) => serde_json::from_str(value).unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
-            )
-        }),
+        Some(LogFieldValue::String(value)) => {
+            serde_json::from_str(value).expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+        }
         _ => serde_json::json!({}),
     }
 }
 
 fn typed_read_model_payload(payload: &LogFields) -> LanBrowserAddDeviceReadModel {
-    match payload.get(constants::field::LAN_ADD_DEVICE_READ_MODEL) {
-        Some(LogFieldValue::String(value)) => serde_json::from_str(value).unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
-            )
-        }),
-        _ => unreachable!("{}", constants::value::LAN_READ_MODEL_JSON_EXPECTATION),
-    }
+    let value = payload
+        .get(constants::field::LAN_ADD_DEVICE_READ_MODEL)
+        .and_then(|field| match field {
+            LogFieldValue::String(value) => Some(value.as_str()),
+            _ => None,
+        })
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
+
+    serde_json::from_str(value).expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
 }
 
 fn browser_discovery_scan_command(payload: LogFields) -> AgentCommandEnvelope {
@@ -571,7 +341,7 @@ fn household_decision_payload() -> LogFields {
     )
 }
 
-fn household_decision_payload_for_device(canonical_device_id: &str) -> LogFields {
+fn household_decision_payload_for_device(canonical_device_id: impl Into<TestString>) -> LogFields {
     household_decision_payload_for_device_with_action(
         canonical_device_id,
         constants::lan_pairing::HOUSEHOLD_ACTION_RENAME,
@@ -580,21 +350,23 @@ fn household_decision_payload_for_device(canonical_device_id: &str) -> LogFields
 }
 
 fn household_decision_payload_with_action(
-    action_kind: &str,
-    revoked_at: Option<&str>,
+    action_kind: impl Into<TestString>,
+    revoked_at: Option<TestString>,
 ) -> LogFields {
     household_decision_payload_for_device_with_action(
-        &local_agent_canonical_device_id(),
+        local_agent_canonical_device_id(),
         action_kind,
         revoked_at,
     )
 }
 
 fn household_decision_payload_for_device_with_action(
-    canonical_device_id: &str,
-    action_kind: &str,
-    revoked_at: Option<&str>,
+    canonical_device_id: impl Into<TestString>,
+    action_kind: impl Into<TestString>,
+    revoked_at: Option<TestString>,
 ) -> LogFields {
+    let canonical_device_id = canonical_device_id;
+    let action_kind = action_kind;
     let mut pairs = vec![
         (
             constants::lan_pairing::HOUSEHOLD_ACTION_ID_FIELD,
@@ -602,11 +374,11 @@ fn household_decision_payload_for_device_with_action(
         ),
         (
             constants::lan_pairing::HOUSEHOLD_ACTION_KIND_FIELD,
-            LogFieldValue::String(action_kind.to_string()),
+            LogFieldValue::String(action_kind),
         ),
         (
             constants::field::LAN_CANONICAL_DEVICE_ID,
-            LogFieldValue::String(canonical_device_id.to_string()),
+            LogFieldValue::String(canonical_device_id),
         ),
         (
             constants::lan_pairing::HOUSEHOLD_ACTION_DISPLAY_NAME_FIELD,
@@ -632,13 +404,13 @@ fn household_decision_payload_for_device_with_action(
     if let Some(revoked_at) = revoked_at {
         pairs.push((
             constants::lan_pairing::HOUSEHOLD_ACTION_REVOKED_AT_FIELD,
-            LogFieldValue::String(revoked_at.to_string()),
+            LogFieldValue::String(revoked_at),
         ));
     }
     fields_from_pairs(pairs)
 }
 
-fn local_agent_canonical_device_id() -> String {
+fn local_agent_canonical_device_id() -> TestString {
     let mut canonical_device_id = canonical_device_id_for_mac(constants::lan_pairing::TEST_LAN_MAC);
     canonical_device_id.push('-');
     canonical_device_id.push_str(
@@ -651,14 +423,15 @@ fn local_agent_canonical_device_id() -> String {
     canonical_device_id
 }
 
-fn serialized_discovery_source(source: LanPairingDiscoverySource) -> String {
+fn serialized_discovery_source(source: LanPairingDiscoverySource) -> TestString {
     serde_json::to_value(source)
-        .ok()
-        .and_then(|value| value.as_str().map(ToOwned::to_owned))
-        .unwrap_or_default()
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+        .as_str()
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+        .to_owned()
 }
 
-fn temp_registry_path() -> std::path::PathBuf {
+fn temp_registry_path() -> TestPathBuf {
     static REGISTRY_COUNTER: AtomicUsize = AtomicUsize::new(0);
     std::env::temp_dir().join(format!(
         "ocentra-lan-known-household-registry-{}-{}.json",
@@ -667,7 +440,8 @@ fn temp_registry_path() -> std::path::PathBuf {
     ))
 }
 
-fn canonical_device_id_for_mac(mac_address: &str) -> String {
+fn canonical_device_id_for_mac(mac_address: impl Into<TestString>) -> TestString {
+    let mac_address = mac_address;
     let mut canonical_device_id = String::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
     canonical_device_id.push_str(
         &mac_address

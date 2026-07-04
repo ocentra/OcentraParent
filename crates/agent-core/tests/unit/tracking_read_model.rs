@@ -12,7 +12,9 @@ use ocentra_parent_agent_protocol::tracking::{
         TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
     },
 };
+use std::fmt::Display;
 
+use crate::test_text::TestText;
 use crate::{activity_store::ActivityStore, tracking::tracking_read_model_for_store};
 
 #[test]
@@ -26,8 +28,7 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
 }
 
 fn tracking_read_model_with_mixed_events() -> TrackingReadModel {
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let events = [
         tracking_activity_event(
             constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
@@ -60,13 +61,13 @@ fn tracking_read_model_with_mixed_events() -> TrackingReadModel {
     ];
     store
         .ingest_events(&events)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
     tracking_read_model_for_store(
         &store,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES))
+    .expect(constants::error::ACTIVITY_STORE_QUERIES)
 }
 
 fn assert_mixed_read_model_counts(read_model: &TrackingReadModel) {
@@ -80,29 +81,29 @@ fn assert_mixed_read_model_latest_events(read_model: &TrackingReadModel) {
         read_model
             .latest_event_id
             .as_ref()
-            .map(|value| value.as_str()),
-        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
+            .map(|value| value.to_string()),
+        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID.to_string())
     );
     assert_eq!(
         read_model
             .latest_tombstone_event_id
             .as_ref()
-            .map(|value| value.as_str()),
-        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
+            .map(|value| value.to_string()),
+        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID.to_string())
     );
     assert_eq!(
         read_model
             .latest_active_event_id
             .as_ref()
-            .map(|value| value.as_str()),
-        Some(constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_EVENT_ID)
+            .map(|value| value.to_string()),
+        Some(constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_EVENT_ID.to_string())
     );
     assert_eq!(
         read_model
             .latest_active_observed_at
             .as_ref()
-            .map(|value| value.as_str()),
-        Some(constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_OBSERVED_AT)
+            .map(|value| value.to_string()),
+        Some(constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_OBSERVED_AT.to_string())
     );
     assert_eq!(
         read_model.capability_status,
@@ -135,8 +136,8 @@ fn assert_mixed_read_model_tombstone_row(read_model: &TrackingReadModel) {
         read_model.rows[0]
             .deleted_at
             .as_ref()
-            .map(|value| value.as_str()),
-        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT)
+            .map(|value| value.to_string()),
+        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT.to_string())
     );
 }
 
@@ -174,15 +175,14 @@ fn assert_mixed_read_model_active_product_surface_counts(read_model: &TrackingRe
 
 #[test]
 fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
 
     let read_model = tracking_read_model_for_store(
         &store,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.active_rows, 0);
@@ -200,30 +200,36 @@ fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
     );
 }
 
-fn tracking_evidence_ref(value: &str) -> TrackingEvidenceRef {
-    TrackingEvidenceRef::parse(value)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+fn tracking_evidence_ref(value: impl Display) -> TrackingEvidenceRef {
+    let value = TestText::from_display(value);
+    TrackingEvidenceRef::parse(value.to_string()).expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-fn assert_count(counts: &[TrackingReadModelCount], value: &str, count: u64) {
+fn assert_count(counts: &[TrackingReadModelCount], value: impl Display, count: u64) {
+    let value = TestText::from_display(value);
     let actual = counts
         .iter()
-        .find(|entry| entry.value == value)
+        .find(|entry| entry.value.to_string() == value.to_string())
         .map(|entry| entry.count);
     assert_eq!(actual, Some(count));
 }
 
-fn assert_no_count(counts: &[TrackingReadModelCount], value: &str) {
-    assert!(!counts.iter().any(|entry| entry.value == value));
+fn assert_no_count(counts: &[TrackingReadModelCount], value: impl Display) {
+    let value = TestText::from_display(value);
+    assert!(!counts
+        .iter()
+        .any(|entry| entry.value.to_string() == value.to_string()));
 }
 
 fn tracking_activity_event(
-    event_id: &str,
-    observed_at: &str,
+    event_id: impl Display,
+    observed_at: impl Display,
     kind: ActivityEventKind,
     observer: ActivityObserver,
     subject_kind: ActivitySubjectKind,
 ) -> ActivityEvent {
+    let event_id = TestText::from_display(event_id);
+    let observed_at = TestText::from_display(observed_at);
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::CAPABILITY_STATUS.to_string(),

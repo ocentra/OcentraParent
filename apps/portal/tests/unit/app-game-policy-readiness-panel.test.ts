@@ -62,7 +62,13 @@ describe('app-game policy readiness portal route panel', () => {
 
     expect(html).toContain('App/game policy readiness');
     expect(html).toContain('Capability');
+    expect(html).toContain('Not claimed');
+    expect(html).toContain('Adapter dispatch');
     expect(html).toContain('Manual review');
+    expect(html).toContain('Category candidate rows');
+    expect(html).toContain('Unknown review rows');
+    expect(html).toContain('Category routing');
+    expect(html).toContain('Unknown review');
     expect(html).toContain('Policy evidence');
     expect(html).toContain('AI classifier context');
     expect(html).toContain('AI classifier context requires manual review');

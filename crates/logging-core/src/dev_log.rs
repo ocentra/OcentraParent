@@ -31,15 +31,15 @@ pub struct DevLogger {
 
 enum DevLogTarget {
     Scoped { writer: NdjsonWriter, scope: String },
-    LegacyFile { directory: PathBuf },
+    CompatFile { directory: PathBuf },
 }
 
 impl DevLogger {
     pub fn from_env(source: LogSource) -> io::Result<Self> {
         let run_id = resolve_log_run_id();
         let lane_id = resolve_lane_id();
-        let target = match legacy_dev_log_directory() {
-            Some(directory) => DevLogTarget::LegacyFile {
+        let target = match compat_dev_log_directory() {
+            Some(directory) => DevLogTarget::CompatFile {
                 directory: ensure_directory(directory)?,
             },
             None => DevLogTarget::Scoped {
@@ -76,7 +76,7 @@ impl DevLogger {
         let timestamp = timestamp_now();
         let event = ParentLogEvent {
             schema_version: LOG_SCHEMA_VERSION,
-            entry_id: create_log_id(&timestamp, &self.source, message),
+            entry_id: create_log_id(&timestamp, &self.source, message)?,
             timestamp: timestamp.clone(),
             level,
             source: self.source.clone(),
@@ -95,7 +95,7 @@ impl DevLogger {
             DevLogTarget::Scoped { writer, scope } => {
                 writer.append_event(scope, DEV_LOG_STREAM, &event)
             }
-            DevLogTarget::LegacyFile { directory } => append_legacy_event(directory, &event),
+            DevLogTarget::CompatFile { directory } => append_compat_event(directory, &event),
         }
     }
 }
@@ -108,7 +108,7 @@ pub fn write_agent_info(
     DevLogger::from_env(source)?.info(message, fields)
 }
 
-fn legacy_dev_log_directory() -> Option<PathBuf> {
+fn compat_dev_log_directory() -> Option<PathBuf> {
     if env::var_os(LOG_ROOT_ENV).is_some() {
         return None;
     }
@@ -122,32 +122,23 @@ fn ensure_directory(directory: PathBuf) -> io::Result<PathBuf> {
     Ok(directory)
 }
 
-fn log_entry_id_or_unreachable(value: Option<LogEntryId>, context: &str) -> LogEntryId {
-    match value {
-        Some(value) => value,
-        None => unreachable!("{context}"),
-    }
-}
-
-fn create_log_id(timestamp: &str, source: &LogSource, message: &str) -> LogEntryId {
+fn create_log_id(timestamp: &str, source: &LogSource, message: &str) -> io::Result<LogEntryId> {
     let digest = Sha256::digest(
         format!("{}:{}:{message}", source.compat_file_prefix(), timestamp).as_bytes(),
     );
-    log_entry_id_or_unreachable(
-        LogEntryId::parse(format!(
-            "parent-log-{}-{}",
-            timestamp
-                .chars()
-                .filter(char::is_ascii_alphanumeric)
-                .collect::<String>(),
-            &format!("{digest:x}")[..8]
-        )),
-        "generated log id is always valid",
-    )
+    LogEntryId::parse(format!(
+        "parent-log-{}-{}",
+        timestamp
+            .chars()
+            .filter(char::is_ascii_alphanumeric)
+            .collect::<String>(),
+        &format!("{digest:x}")[..8]
+    ))
+    .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "generated log id is invalid"))
 }
 
-fn append_legacy_event(directory: &Path, event: &ParentLogEvent) -> io::Result<PathBuf> {
-    let path = legacy_dev_log_path(directory.to_path_buf(), &event.source, &event.timestamp)?;
+fn append_compat_event(directory: &Path, event: &ParentLogEvent) -> io::Result<PathBuf> {
+    let path = compat_dev_log_path(directory.to_path_buf(), &event.source, &event.timestamp)?;
     let mut file = OpenOptions::new().create(true).append(true).open(&path)?;
     serde_json::to_writer(&mut file, event)
         .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
@@ -155,7 +146,7 @@ fn append_legacy_event(directory: &Path, event: &ParentLogEvent) -> io::Result<P
     Ok(path)
 }
 
-fn legacy_dev_log_path(
+fn compat_dev_log_path(
     mut directory: PathBuf,
     source: &LogSource,
     timestamp: &str,

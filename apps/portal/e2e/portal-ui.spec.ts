@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { PortalTheme } from '@ocentra-parent/portal-domain/contracts';
+import { ParentAgentEvent } from '../generated/parent-ui-bridge';
 import { collectBrowserFailures } from './browser-failures';
 import { assertLanRouteScaffolds } from './portal-route-scaffold-assertions';
 
@@ -111,7 +111,7 @@ async function assertCommandControls(page: Page): Promise<void> {
 
 async function assertInitialCommandRouteDrain(page: Page): Promise<void> {
   const commandResult = page.locator('.command-result-panel');
-  await expect(commandResult.getByText(AgentEvent.LogSnapshotReported)).toHaveCount(1, {
+  await expect(commandResult.getByText(ParentAgentEvent.LogSnapshotReported)).toHaveCount(1, {
     timeout: portalShellReadyTimeoutMs,
   });
   await expect(commandResult.locator('.log')).toHaveCount(1);

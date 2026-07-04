@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
-import { RunType, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
+import { RunType, TestLogScope } from '../../src/test-log/types';
 import { createBridgeServer } from '../../src/transport/bridgeServer';
 import { BridgeTransport, sendToBridge } from '../../src/transport/bridgeTransport';
 import { getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
@@ -17,6 +17,18 @@ async function listen(server: ReturnType<typeof createBridgeServer>): Promise<Ad
     server.listen(0, '127.0.0.1', () => resolve());
   });
   return server.address() as AddressInfo;
+}
+
+async function closeServer(server: ReturnType<typeof createBridgeServer>): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    server.close((error) => {
+      if (error != null) {
+        reject(error);
+        return;
+      }
+      resolve();
+    });
+  });
 }
 
 function createBridgeEntry() {
@@ -75,20 +87,7 @@ describe('bridge transport', () => {
   const servers: Array<ReturnType<typeof createBridgeServer>> = [];
 
   afterEach(async () => {
-    await Promise.all(
-      servers.splice(0, servers.length).map(
-        (server) =>
-          new Promise<void>((resolve, reject) => {
-            server.close((error) => {
-              if (error != null) {
-                reject(error);
-                return;
-              }
-              resolve();
-            });
-          })
-      )
-    );
+    await Promise.all(servers.splice(0, servers.length).map(closeServer));
 
     for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
       fs.rmSync(tempDir, { force: true, recursive: true });

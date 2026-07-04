@@ -7,9 +7,10 @@ use std::{
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tokio::sync::oneshot;
 
-use crate::{
-    DomainEvent, EventRequestMetrics, EventingError, ExpectValue, PublishReport, RequestId,
-};
+use crate::bus::reports::EventRequestMetrics;
+use crate::{DomainEvent, EventingError, ExpectValue, PublishReport, RequestId};
+
+mod request_helpers;
 
 const TERMINAL_REQUEST_RETENTION_LIMIT: usize = 4096;
 
@@ -111,31 +112,7 @@ impl RequestRegistry {
         };
         match entry.state {
             RequestState::Pending => {
-                entry.state = RequestState::Completed;
-                if let Some(sender) = entry.sender.take() {
-                    if sender.send(payload).is_ok() {
-                        mark_terminal(&mut state, &request_id);
-                        trim_terminal_requests(&mut state);
-                        Ok(completion_report(
-                            request_id,
-                            RequestCompletionOutcome::Completed,
-                        ))
-                    } else {
-                        mark_terminal(&mut state, &request_id);
-                        trim_terminal_requests(&mut state);
-                        Ok(completion_report(
-                            request_id,
-                            RequestCompletionOutcome::Late,
-                        ))
-                    }
-                } else {
-                    mark_terminal(&mut state, &request_id);
-                    trim_terminal_requests(&mut state);
-                    Ok(completion_report(
-                        request_id,
-                        RequestCompletionOutcome::Late,
-                    ))
-                }
+                request_helpers::complete_pending_request(&mut state, request_id, payload)
             }
             RequestState::Completed => Ok(completion_report(
                 request_id,
@@ -154,10 +131,10 @@ impl RequestRegistry {
             if entry.state == RequestState::Pending {
                 entry.state = RequestState::TimedOut;
                 entry.sender.take();
-                mark_terminal(&mut state, request_id);
+                request_helpers::mark_terminal(&mut state, request_id);
             }
         }
-        trim_terminal_requests(&mut state);
+        request_helpers::trim_terminal_requests(&mut state);
     }
 
     pub(crate) fn cancel(&self, request_id: &RequestId) -> bool {
@@ -202,23 +179,7 @@ impl RequestRegistry {
 
     fn clear_entries(&self) -> RequestRegistryClearReport {
         let mut state = self.state.lock().expect_value("request registry lock");
-        let report = RequestRegistryClearReport {
-            pending_request_count: state
-                .entries
-                .values()
-                .filter(|entry| entry.state == RequestState::Pending)
-                .count(),
-            completed_request_count: state
-                .entries
-                .values()
-                .filter(|entry| entry.state == RequestState::Completed)
-                .count(),
-            timed_out_request_count: state
-                .entries
-                .values()
-                .filter(|entry| entry.state == RequestState::TimedOut)
-                .count(),
-        };
+        let report = request_helpers::request_registry_report(&state);
         state.entries.clear();
         state.terminal_order.clear();
         report
@@ -292,36 +253,12 @@ impl RequestPayload {
     }
 }
 
-fn completion_report(
+pub(super) fn completion_report(
     request_id: RequestId,
     outcome: RequestCompletionOutcome,
 ) -> RequestCompletionReport {
     RequestCompletionReport {
         request_id,
         outcome,
-    }
-}
-
-fn mark_terminal(state: &mut RequestRegistryState, request_id: &RequestId) {
-    if !state
-        .terminal_order
-        .iter()
-        .any(|terminal_id| terminal_id == request_id)
-    {
-        state.terminal_order.push_back(request_id.clone());
-    }
-}
-
-fn trim_terminal_requests(state: &mut RequestRegistryState) {
-    while state.terminal_order.len() > TERMINAL_REQUEST_RETENTION_LIMIT {
-        if let Some(request_id) = state.terminal_order.pop_front() {
-            if state
-                .entries
-                .get(&request_id)
-                .is_some_and(|entry| entry.state != RequestState::Pending)
-            {
-                state.entries.remove(&request_id);
-            }
-        }
     }
 }

@@ -18,6 +18,12 @@ use crate::screen_ai_service_event_bridge::{
     ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
 };
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ActionRefText(pub(crate) String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ObservedAtText(pub(crate) String);
+
 #[path = "screen_ai_service_event_subscription/live_view_service_runtime.rs"]
 pub(crate) mod live_view_service_runtime;
 
@@ -36,9 +42,9 @@ impl ScreenAiServiceEventRuntime {
     pub(crate) async fn publish_row_ready(
         &self,
         row: ActivityScreenReadModelRow,
-        action_ref: impl Into<String>,
-        observed_at: &str,
-    ) -> Result<ocentra_eventing::bus::reports::PublishReport, EventingError> {
+        action_ref: ActionRefText,
+        observed_at: ObservedAtText,
+    ) -> Result<ocentra_eventing::bus::reports::handler::PublishReport, EventingError> {
         publish_screen_service_row_ready_event(
             &self.bus,
             ScreenAiServiceRowReadyEvent::new(row, action_ref),
@@ -55,10 +61,10 @@ pub(crate) struct ScreenAiServiceRowReadyEvent {
 }
 
 impl ScreenAiServiceRowReadyEvent {
-    pub(crate) fn new(row: ActivityScreenReadModelRow, action_ref: impl Into<String>) -> Self {
+    pub(crate) fn new(row: ActivityScreenReadModelRow, action_ref: ActionRefText) -> Self {
         Self {
             row,
-            action_ref: action_ref.into(),
+            action_ref: action_ref.0,
         }
     }
 }
@@ -134,7 +140,7 @@ pub(crate) async fn subscribe_screen_service_row_ready_events(
             async move {
                 handle_screen_service_row_ready_event(
                     context.payload().clone(),
-                    context.envelope().observed_at.as_str(),
+                    ObservedAtText(context.envelope().observed_at.as_str().to_string()),
                     state,
                 )
                 .await
@@ -147,15 +153,15 @@ pub(crate) async fn subscribe_screen_service_row_ready_events(
 pub(crate) async fn publish_screen_service_row_ready_event(
     bus: &EventBus,
     event: ScreenAiServiceRowReadyEvent,
-    observed_at: &str,
-) -> Result<ocentra_eventing::bus::reports::PublishReport, EventingError> {
+    observed_at: ObservedAtText,
+) -> Result<ocentra_eventing::bus::reports::handler::PublishReport, EventingError> {
     bus.publish(event, screen_service_row_ready_metadata(observed_at)?)
         .await
 }
 
 async fn handle_screen_service_row_ready_event(
     event: ScreenAiServiceRowReadyEvent,
-    observed_at: &str,
+    observed_at: ObservedAtText,
     state: ScreenAiServiceEventSubscriptionState,
 ) -> Result<(), EventingError> {
     let queue_job_id = event.row.queue_job_id.clone();
@@ -191,14 +197,14 @@ async fn handle_screen_service_row_ready_event(
 
 async fn publish_screen_runtime_chain_for_row(
     event: ScreenAiServiceRowReadyEvent,
-    observed_at: &str,
+    observed_at: ObservedAtText,
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
     if screen_service_row_is_degraded(&event.row) {
-        return publish_screen_degraded_event_chain(event.row, observed_at).await;
+        return publish_screen_degraded_event_chain(event.row, observed_at.0.as_str()).await;
     }
     publish_screen_service_row_event_chain(
         event.row,
-        observed_at,
+        observed_at.0.as_str(),
         ScreenAiServiceEventBridgeRefs {
             action_ref: event.action_ref,
         },
@@ -211,12 +217,14 @@ fn screen_service_row_is_degraded(row: &ActivityScreenReadModelRow) -> bool {
         && !row.policy_eligible
 }
 
-fn screen_service_row_ready_metadata(observed_at: &str) -> Result<EventMetadata, EventingError> {
+fn screen_service_row_ready_metadata(
+    observed_at: ObservedAtText,
+) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
         CorrelationId::parse(constants::screen_flow::CORRELATION_SCREEN_RUNTIME_PREFIX)?,
         screen_service_row_ready_source()?,
-        RecordedAt::parse(observed_at)?,
+        RecordedAt::parse(observed_at.0.as_str())?,
         Some(TargetHandler::parse(
             constants::screen_flow::TARGET_SCREEN_SERVICE_EVENT_SUBSCRIBER,
         )?),

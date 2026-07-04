@@ -41,10 +41,10 @@ fn lan_pairing_transport_envelopes_keep_message_and_event_fields_explicit() {
         snapshot: None,
     };
 
-    let command_json = serde_json::to_value(command)
-        .unwrap_or_else(|error| unreachable!("lan pairing command envelope serializes: {error:?}"));
-    let event_json = serde_json::to_value(event)
-        .unwrap_or_else(|error| unreachable!("lan pairing event envelope serializes: {error:?}"));
+    let command_json =
+        serde_json::to_value(command).expect("lan pairing command envelope serializes: {error:?}");
+    let event_json =
+        serde_json::to_value(event).expect("lan pairing event envelope serializes: {error:?}");
 
     assert_eq!(
         command_json[constants::field::COMMAND],
@@ -78,32 +78,18 @@ fn lan_pairing_transport_envelopes_keep_message_and_event_fields_explicit() {
 
 #[test]
 fn lan_pairing_transport_envelopes_reject_missing_required_fields() {
-    let command_error = result_error_or_unreachable(
-        serde_json::from_value::<AgentCommandEnvelope>(serde_json::json!({
-            "schemaVersion": AGENT_TRANSPORT_SCHEMA_VERSION,
-            "messageId": constants::lan_pairing::INTENT_ID,
-            "sentAt": constants::lan_pairing::ISSUED_AT
-        })),
-        "transport command envelopes must reject missing required fields",
-    );
-    let event_error = result_error_or_unreachable(
-        serde_json::from_value::<AgentEventEnvelope>(serde_json::json!({
-            "schemaVersion": AGENT_TRANSPORT_SCHEMA_VERSION,
-            "eventId": constants::lan_pairing::AUDIT_EVENT_ID
-        })),
-        "transport event envelopes must reject missing required fields",
-    );
+    let command_error = serde_json::from_value::<AgentCommandEnvelope>(serde_json::json!({
+        "schemaVersion": AGENT_TRANSPORT_SCHEMA_VERSION,
+        "messageId": constants::lan_pairing::INTENT_ID,
+        "sentAt": constants::lan_pairing::ISSUED_AT
+    }))
+    .expect_err("transport command envelopes must reject missing required fields");
+    let event_error = serde_json::from_value::<AgentEventEnvelope>(serde_json::json!({
+        "schemaVersion": AGENT_TRANSPORT_SCHEMA_VERSION,
+        "eventId": constants::lan_pairing::AUDIT_EVENT_ID
+    }))
+    .expect_err("transport event envelopes must reject missing required fields");
 
     assert_eq!(command_error.classify(), serde_json::error::Category::Data);
     assert_eq!(event_error.classify(), serde_json::error::Category::Data);
-}
-
-fn result_error_or_unreachable<T>(
-    result: serde_json::Result<T>,
-    context: &str,
-) -> serde_json::Error {
-    match result {
-        Ok(_) => unreachable!("{context}"),
-        Err(error) => error,
-    }
 }

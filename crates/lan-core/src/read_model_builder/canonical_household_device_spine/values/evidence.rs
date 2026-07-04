@@ -1,3 +1,10 @@
+#[path = "evidence_record.rs"]
+mod evidence_record;
+#[path = "evidence_service_probe.rs"]
+mod evidence_service_probe;
+#[path = "evidence_weak_name.rs"]
+mod evidence_weak_name;
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceSource;
@@ -6,11 +13,16 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDisc
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanServiceIdentityProbeEvidence;
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanServiceIdentityProbeEvidenceKind;
 
 use super::{compact_identifier, known_hostname};
 use crate::mac_identity::{LanMacIdentityAssessment, LanMacIdentityDisposition};
 use crate::network_inventory::api::{is_confirmed_agent_status, is_service_identity_probe_status};
+use evidence_record::{
+    push_evidence_record, push_optional_evidence, push_optional_evidence_with_confidence,
+    EvidenceRecordInput, OptionalEvidenceInput,
+};
+use evidence_service_probe::push_service_probe_evidence;
+use evidence_weak_name::push_weak_name_evidence;
 
 const LAN_EVIDENCE_KEY_INSTALL_ID_PREFIX: &str = "install:";
 const LAN_EVIDENCE_KEY_PAIRING_ID_PREFIX: &str = "pairing:";
@@ -29,27 +41,6 @@ pub(super) struct EvidenceRecordsInput<'a> {
     pub(super) service_identity_probe_evidence: &'a [LanServiceIdentityProbeEvidence],
     pub(super) observed_at: &'a str,
     pub(super) mac_assessment: Option<&'a LanMacIdentityAssessment>,
-}
-
-struct EvidenceRecordInput<'a> {
-    device: &'a LanPairingDeviceRef,
-    source: LanDiscoveryEvidenceSource,
-    evidence_kind: LanDiscoveryEvidenceKind,
-    value: &'a str,
-    merge_key_prefix: &'a str,
-    confidence: LanDiscoveryEvidenceConfidence,
-    observed_at: &'a str,
-    note: Option<String>,
-}
-
-struct OptionalEvidenceInput<'a> {
-    device: &'a LanPairingDeviceRef,
-    source: LanDiscoveryEvidenceSource,
-    evidence_kind: LanDiscoveryEvidenceKind,
-    value: Option<&'a str>,
-    merge_key_prefix: &'a str,
-    confidence: LanDiscoveryEvidenceConfidence,
-    observed_at: &'a str,
 }
 
 pub(super) fn evidence_records_for(
@@ -121,109 +112,6 @@ fn push_strong_identity_evidence(
             observed_at,
         },
     );
-}
-
-fn push_service_probe_evidence(
-    records: &mut Vec<LanDiscoveryEvidenceRecord>,
-    device: &LanPairingDeviceRef,
-    service_identity_probe_evidence: &[LanServiceIdentityProbeEvidence],
-    observed_at: &str,
-) {
-    for evidence in service_identity_probe_evidence {
-        let value = service_probe_evidence_value(evidence);
-        push_evidence_record(
-            records,
-            EvidenceRecordInput {
-                device,
-                source: LanDiscoveryEvidenceSource::ServiceIdentityProbe,
-                evidence_kind: LanDiscoveryEvidenceKind::ServiceProbeHint,
-                value: &value,
-                merge_key_prefix: constants::lan_pairing::LAN_EVIDENCE_KEY_SERVICE_PROBE_PREFIX,
-                confidence: service_probe_evidence_confidence(&evidence.evidence_kind),
-                observed_at,
-                note: service_probe_evidence_note(&evidence.evidence_kind),
-            },
-        );
-    }
-}
-
-fn service_probe_evidence_value(evidence: &LanServiceIdentityProbeEvidence) -> String {
-    let mut value = String::from(service_probe_kind_value(&evidence.evidence_kind));
-    value.push(':');
-    value.push_str(&evidence.value);
-    value
-}
-
-fn service_probe_kind_value(kind: &LanServiceIdentityProbeEvidenceKind) -> &'static str {
-    match kind {
-        LanServiceIdentityProbeEvidenceKind::HttpStatus => "http-status",
-        LanServiceIdentityProbeEvidenceKind::HtmlTitle => "html-title",
-        LanServiceIdentityProbeEvidenceKind::ServerHeader => "server-header",
-        LanServiceIdentityProbeEvidenceKind::Banner => "banner",
-        LanServiceIdentityProbeEvidenceKind::RedirectLocation => "redirect-location",
-        LanServiceIdentityProbeEvidenceKind::CertificateSubject => "certificate-subject",
-        LanServiceIdentityProbeEvidenceKind::DescriptorLink => "descriptor-link",
-        LanServiceIdentityProbeEvidenceKind::WsdEndpointAddress => "wsd-endpoint-address",
-        LanServiceIdentityProbeEvidenceKind::WsdTypes => "wsd-types",
-        LanServiceIdentityProbeEvidenceKind::SnmpSysDescr => "snmp-sys-descr",
-        LanServiceIdentityProbeEvidenceKind::SnmpSysName => "snmp-sys-name",
-        LanServiceIdentityProbeEvidenceKind::MdnsServiceType => "mdns-service-type",
-        LanServiceIdentityProbeEvidenceKind::MdnsInstanceName => "mdns-instance-name",
-        LanServiceIdentityProbeEvidenceKind::SsdpUdn => "ssdp-udn",
-        LanServiceIdentityProbeEvidenceKind::SsdpDeviceType => "ssdp-device-type",
-    }
-}
-
-fn service_probe_evidence_confidence(
-    kind: &LanServiceIdentityProbeEvidenceKind,
-) -> LanDiscoveryEvidenceConfidence {
-    match kind {
-        LanServiceIdentityProbeEvidenceKind::MdnsServiceType
-        | LanServiceIdentityProbeEvidenceKind::MdnsInstanceName
-        | LanServiceIdentityProbeEvidenceKind::SsdpUdn
-        | LanServiceIdentityProbeEvidenceKind::SsdpDeviceType => {
-            LanDiscoveryEvidenceConfidence::Strong
-        }
-        LanServiceIdentityProbeEvidenceKind::HttpStatus
-        | LanServiceIdentityProbeEvidenceKind::HtmlTitle
-        | LanServiceIdentityProbeEvidenceKind::ServerHeader
-        | LanServiceIdentityProbeEvidenceKind::Banner
-        | LanServiceIdentityProbeEvidenceKind::RedirectLocation
-        | LanServiceIdentityProbeEvidenceKind::CertificateSubject
-        | LanServiceIdentityProbeEvidenceKind::DescriptorLink
-        | LanServiceIdentityProbeEvidenceKind::WsdEndpointAddress
-        | LanServiceIdentityProbeEvidenceKind::WsdTypes
-        | LanServiceIdentityProbeEvidenceKind::SnmpSysDescr
-        | LanServiceIdentityProbeEvidenceKind::SnmpSysName => LanDiscoveryEvidenceConfidence::Weak,
-    }
-}
-
-fn service_probe_evidence_note(kind: &LanServiceIdentityProbeEvidenceKind) -> Option<String> {
-    match kind {
-        LanServiceIdentityProbeEvidenceKind::MdnsServiceType
-        | LanServiceIdentityProbeEvidenceKind::MdnsInstanceName
-        | LanServiceIdentityProbeEvidenceKind::SsdpUdn
-        | LanServiceIdentityProbeEvidenceKind::SsdpDeviceType => {
-            Some("network discovery identity hint".to_string())
-        }
-        LanServiceIdentityProbeEvidenceKind::HttpStatus
-        | LanServiceIdentityProbeEvidenceKind::HtmlTitle
-        | LanServiceIdentityProbeEvidenceKind::ServerHeader
-        | LanServiceIdentityProbeEvidenceKind::Banner
-        | LanServiceIdentityProbeEvidenceKind::RedirectLocation
-        | LanServiceIdentityProbeEvidenceKind::CertificateSubject
-        | LanServiceIdentityProbeEvidenceKind::DescriptorLink => {
-            Some(constants::lan_pairing::LAN_SERVICE_PROBE_HINT_NOTE.to_string())
-        }
-        LanServiceIdentityProbeEvidenceKind::WsdEndpointAddress
-        | LanServiceIdentityProbeEvidenceKind::WsdTypes => {
-            Some("ws-discovery metadata hint".to_string())
-        }
-        LanServiceIdentityProbeEvidenceKind::SnmpSysDescr
-        | LanServiceIdentityProbeEvidenceKind::SnmpSysName => {
-            Some("snmp metadata hint".to_string())
-        }
-    }
 }
 
 fn push_hint_evidence(
@@ -298,62 +186,6 @@ fn push_network_identity_evidence(
     );
 }
 
-fn push_weak_name_evidence(
-    records: &mut Vec<LanDiscoveryEvidenceRecord>,
-    device: &LanPairingDeviceRef,
-    evidence_sources: &[LanDiscoveryEvidenceSource],
-    observed_at: &str,
-) {
-    let Some(hostname) = known_hostname(device) else {
-        return;
-    };
-    if evidence_sources.contains(&LanDiscoveryEvidenceSource::DnsCache) {
-        push_evidence_record(
-            records,
-            EvidenceRecordInput {
-                device,
-                source: LanDiscoveryEvidenceSource::DnsCache,
-                evidence_kind: LanDiscoveryEvidenceKind::Hostname,
-                value: &hostname,
-                merge_key_prefix: constants::lan_pairing::LAN_EVIDENCE_KEY_DNS_CACHE_PREFIX,
-                confidence: LanDiscoveryEvidenceConfidence::Weak,
-                observed_at,
-                note: None,
-            },
-        );
-    }
-    if evidence_sources.contains(&LanDiscoveryEvidenceSource::Netbios) {
-        push_evidence_record(
-            records,
-            EvidenceRecordInput {
-                device,
-                source: LanDiscoveryEvidenceSource::Netbios,
-                evidence_kind: LanDiscoveryEvidenceKind::Hostname,
-                value: &hostname,
-                merge_key_prefix: constants::lan_pairing::LAN_EVIDENCE_KEY_NETBIOS_PREFIX,
-                confidence: LanDiscoveryEvidenceConfidence::Weak,
-                observed_at,
-                note: None,
-            },
-        );
-    }
-    if evidence_sources.contains(&LanDiscoveryEvidenceSource::Llmnr) {
-        push_evidence_record(
-            records,
-            EvidenceRecordInput {
-                device,
-                source: LanDiscoveryEvidenceSource::Llmnr,
-                evidence_kind: LanDiscoveryEvidenceKind::Hostname,
-                value: &hostname,
-                merge_key_prefix: constants::lan_pairing::LAN_EVIDENCE_KEY_LLMNR_PREFIX,
-                confidence: LanDiscoveryEvidenceConfidence::Weak,
-                observed_at,
-                note: None,
-            },
-        );
-    }
-}
-
 fn has_weak_name_source(evidence_sources: &[LanDiscoveryEvidenceSource]) -> bool {
     evidence_sources.contains(&LanDiscoveryEvidenceSource::DnsCache)
         || evidence_sources.contains(&LanDiscoveryEvidenceSource::Netbios)
@@ -386,62 +218,6 @@ fn push_vendor_evidence(
             note,
         },
     );
-}
-
-fn push_optional_evidence(
-    records: &mut Vec<LanDiscoveryEvidenceRecord>,
-    device: &LanPairingDeviceRef,
-    context: &EvidenceContext,
-    evidence_kind: LanDiscoveryEvidenceKind,
-    value: Option<&str>,
-    merge_key_prefix: &str,
-    observed_at: &str,
-) {
-    if let Some(value) = value {
-        push_evidence_record(
-            records,
-            EvidenceRecordInput {
-                device,
-                source: context.source.clone(),
-                evidence_kind,
-                value,
-                merge_key_prefix,
-                confidence: context.confidence.clone(),
-                observed_at,
-                note: None,
-            },
-        );
-    }
-}
-
-fn push_optional_evidence_with_confidence(
-    records: &mut Vec<LanDiscoveryEvidenceRecord>,
-    input: OptionalEvidenceInput<'_>,
-) {
-    let OptionalEvidenceInput {
-        device,
-        source,
-        evidence_kind,
-        value,
-        merge_key_prefix,
-        confidence,
-        observed_at,
-    } = input;
-    if let Some(value) = value {
-        push_evidence_record(
-            records,
-            EvidenceRecordInput {
-                device,
-                source,
-                evidence_kind,
-                value,
-                merge_key_prefix,
-                confidence,
-                observed_at,
-                note: None,
-            },
-        );
-    }
 }
 
 fn push_agent_evidence(
@@ -632,92 +408,4 @@ fn vendor_evidence_confidence(
         LanMacIdentityDisposition::RejectedMulticast
         | LanMacIdentityDisposition::RejectedMalformed => LanDiscoveryEvidenceConfidence::Rejected,
     }
-}
-
-fn push_evidence_record(
-    records: &mut Vec<LanDiscoveryEvidenceRecord>,
-    input: EvidenceRecordInput<'_>,
-) {
-    let EvidenceRecordInput {
-        device,
-        source,
-        evidence_kind,
-        value,
-        merge_key_prefix,
-        confidence,
-        observed_at,
-        note,
-    } = input;
-    let normalized_value = normalized_evidence_value(value);
-    let merge_key = evidence_key(merge_key_prefix, &normalized_value);
-    if records.iter().any(|record| {
-        same_evidence_record_identity(
-            record,
-            &source,
-            &evidence_kind,
-            &merge_key,
-            &device.device_id,
-        )
-    }) {
-        return;
-    }
-    let identity_key =
-        evidence_identity_key(&source, &evidence_kind, &device.device_id, &merge_key);
-    records.push(LanDiscoveryEvidenceRecord {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        evidence_id: evidence_id(&identity_key),
-        source,
-        evidence_kind,
-        device_id: device.device_id.clone(),
-        value: value.to_string(),
-        normalized_value,
-        first_seen_at: observed_at.to_string(),
-        last_seen_at: observed_at.to_string(),
-        expires_at: None,
-        confidence,
-        merge_key,
-        note,
-    });
-}
-
-fn same_evidence_record_identity(
-    record: &LanDiscoveryEvidenceRecord,
-    source: &LanDiscoveryEvidenceSource,
-    evidence_kind: &LanDiscoveryEvidenceKind,
-    merge_key: &str,
-    device_id: &str,
-) -> bool {
-    record.source == *source
-        && record.evidence_kind == *evidence_kind
-        && record.merge_key.eq_ignore_ascii_case(merge_key)
-        && record.device_id.eq_ignore_ascii_case(device_id)
-}
-
-fn evidence_key(prefix: &str, normalized_value: &str) -> String {
-    let mut key = String::from(prefix);
-    key.push_str(normalized_value);
-    key
-}
-
-fn evidence_identity_key(
-    source: &LanDiscoveryEvidenceSource,
-    evidence_kind: &LanDiscoveryEvidenceKind,
-    device_id: &str,
-    merge_key: &str,
-) -> String {
-    format!("{source:?}:{evidence_kind:?}:{device_id}:{merge_key}")
-}
-
-fn evidence_id(merge_key: &str) -> String {
-    let mut id = String::from(constants::lan_pairing::LAN_EVIDENCE_ID_PREFIX);
-    id.push_str(&compact_identifier(merge_key));
-    id
-}
-
-fn normalized_evidence_value(value: &str) -> String {
-    value
-        .chars()
-        .filter(|character| character.is_ascii_alphanumeric() || *character == '.')
-        .flat_map(char::to_lowercase)
-        .collect()
 }

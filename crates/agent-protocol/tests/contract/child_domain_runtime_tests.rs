@@ -32,12 +32,7 @@ fn child_domain_event_type_accepts_known_event_name() {
     let event_type = ChildDomainEventType::parse(
         constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
     )
-    .unwrap_or_else(|error| {
-        unreachable!(
-            "{}: {error:?}",
-            constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE
-        )
-    });
+    .expect(constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE);
 
     assert_eq!(
         event_type,
@@ -143,12 +138,7 @@ fn child_domain_ai_completion_is_a_named_boundary_event_before_policy() {
     let ai_completed = child_domain_ai_analysis_completed_event(&ai_request);
     let policy_request =
         child_domain_policy_evaluation_requested_from_ai_result_event_if_required(&ai_completed)
-            .unwrap_or_else(|| {
-                unreachable!(
-                    "{}",
-                    constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED
-                )
-            });
+            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
 
     assert_eq!(
         ai_completed.event_type,

@@ -82,8 +82,8 @@ Proof root: `output/child-agent-runtime-distribution-plan-proof/04-child-linux-s
 
 - `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
 - `cmd /c npm run test:child-linux-service-package-proof`
-- `node --test scripts/release/linux/linux-package-baseline.test.mjs`
-- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/child-linux-service-package-proof.ts packages/schema-domain/tests/proof/child-linux-service-package-proof.test.ts scripts/test/child-linux-service-package-proof.mjs scripts/release/linux/build-agent-package.sh scripts/release/linux/linux-package-baseline.test.mjs`
+- `node --test tests/release/linux/linux-package-baseline.test.mjs`
+- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/child-linux-service-package-proof.ts packages/schema-domain/tests/proof/child-linux-service-package-proof.test.ts scripts/test/child-linux-service-package-proof.mjs scripts/release/linux/build-agent-package.sh tests/release/linux/linux-package-baseline.test.mjs`
 - `cmd /c npm run release:package:linux`
 - `bash scripts/smoke/linux-deb-smoke.sh target/release-packages/linux/ocentra-parent-agent-linux-amd64-v0.1.1.deb`
 

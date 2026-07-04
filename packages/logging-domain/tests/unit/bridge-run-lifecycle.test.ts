@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
-import { RunType, TestLogScope, TestLogSchemaVersion } from '@ocentra-parent/schema-domain/test-log/types';
+import { RunType, TestLogScope, TestLogSchemaVersion } from '../../src/test-log/types';
 import { createBridgeServer } from '../../src/transport/bridgeServer';
 import {
   fetchRunInfoFromBridge,

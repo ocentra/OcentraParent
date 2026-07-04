@@ -113,7 +113,7 @@ fn preview_budget_boundary_and_schedule_validation_follow_rust_owned_rules() {
         ..sample_time_budget()
     });
 
-    assert!(validate_policy_schedule_boundary(&boundary).is_ok());
+    assert_eq!(validate_policy_schedule_boundary(&boundary), Ok(()));
     assert_eq!(
         resolve_policy_preview_budget_boundary_state(Some(&boundary)),
         PolicyContractPreviewBudgetBoundaryState::ManualRequired
@@ -124,7 +124,14 @@ fn preview_budget_boundary_and_schedule_validation_follow_rust_owned_rules() {
         expires_at: "2026-06-29T13:00:00Z".to_string(),
         expired_at: "2026-06-29T13:00:00Z".to_string(),
     });
-    assert!(validate_policy_schedule_boundary(&invalid_boundary).is_err());
+    assert_eq!(
+        validate_policy_schedule_boundary(&invalid_boundary),
+        Err(
+            ocentra_policy_control_core::policy_contract_helpers::PolicyContractValidationError(
+                "non-expired schedule boundaries cannot be evaluated after expiry",
+            )
+        )
+    );
 }
 
 #[test]
@@ -161,11 +168,18 @@ fn authority_and_approval_lifecycle_move_to_rust_owner() {
         replay_of_approval_id: None,
     };
 
-    assert!(validate_policy_approval_resolution(&resolution).is_ok());
+    assert_eq!(validate_policy_approval_resolution(&resolution), Ok(()));
 
     let mut invalid_resolution = resolution;
     invalid_resolution.reviewed_by_actor_id = Some("child-001".to_string());
-    assert!(validate_policy_approval_resolution(&invalid_resolution).is_err());
+    assert_eq!(
+        validate_policy_approval_resolution(&invalid_resolution),
+        Err(
+            ocentra_policy_control_core::policy_contract_helpers::PolicyContractValidationError(
+                "child requests cannot self-approve or self-modify",
+            )
+        )
+    );
 }
 
 #[test]
@@ -230,9 +244,16 @@ fn preview_validation_keeps_confirmation_and_dry_run_rules_rust_owned() {
         confirmed_at: Some("2026-06-29T14:00:00Z".to_string()),
         decision: sample_decision(PolicyContractAction::Warn),
     };
-    assert!(validate_policy_preview(&preview).is_ok());
+    assert_eq!(validate_policy_preview(&preview), Ok(()));
 
     let mut invalid_preview = preview;
     invalid_preview.decision.dry_run = false;
-    assert!(validate_policy_preview(&invalid_preview).is_err());
+    assert_eq!(
+        validate_policy_preview(&invalid_preview),
+        Err(
+            ocentra_policy_control_core::policy_contract_helpers::PolicyContractValidationError(
+                "preview decisions must remain dry-run",
+            )
+        )
+    );
 }

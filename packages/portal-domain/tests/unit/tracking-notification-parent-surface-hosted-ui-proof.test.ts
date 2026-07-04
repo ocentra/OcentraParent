@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { RequiredTrackingNotificationParentSurfaceHistoryNonClaims } from '@ocentra-parent/schema-domain/tracking-notification-parent-surface-history-proof';
+import { GeneratedPortalTrackingContracts } from '../../src/generated/portal-contracts';
 import {
   trackingNotificationParentSurfaceHostedUiProof,
   trackingNotificationParentSurfaceHostedUiProofFromReadModel,
@@ -120,7 +120,7 @@ function customHistoryReadModel() {
     historyIntentReadyCount: 1,
     manualActionRequiredCount: 1,
     providerUnavailableCount: 1,
-    proofNonClaims: RequiredTrackingNotificationParentSurfaceHistoryNonClaims,
+    proofNonClaims: GeneratedPortalTrackingContracts.NotificationParentSurfaceHistory.RequiredNonClaims,
     renderedParentNotificationUiClaimed: false,
     parentPreferenceMutationRuntimeClaimed: false,
     parentFrequencyControlUiClaimed: false,

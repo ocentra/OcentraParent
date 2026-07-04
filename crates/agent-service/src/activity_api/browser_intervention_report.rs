@@ -10,7 +10,7 @@ use crate::{
 };
 
 use super::{
-    activity_store_error_event,
+    activity_store_error_event::activity_store_error_event,
     browser_intervention_payload::browser_intervention_read_model_payload,
 };
 
@@ -29,7 +29,9 @@ pub async fn build_browser_intervention_read_model_report(
         ),
         None => activity_store_error_event(
             command,
-            constants::browser::INTERVENTION_READ_MODEL_REPORTED_EVENT_ID,
+            crate::activity_api::ActivityEventId(
+                constants::browser::INTERVENTION_READ_MODEL_REPORTED_EVENT_ID,
+            ),
             AgentEventName::AgentBrowserInterventionReadModelReported,
         ),
     }

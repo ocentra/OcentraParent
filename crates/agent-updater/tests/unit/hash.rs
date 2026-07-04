@@ -2,26 +2,11 @@ use ocentra_parent_agent_maintenance::hash::sha256_file;
 
 #[test]
 fn sha256_file_matches_known_payload() {
-    let dir_result = tempfile::tempdir();
-    assert!(dir_result.is_ok(), "temp dir failed: {dir_result:?}");
-    let Ok(dir) = dir_result else {
-        return;
-    };
+    let dir = tempfile::tempdir().expect("temp dir failed");
     let path = dir.path().join("payload.bin");
-    let write_result = std::fs::write(&path, b"ocentra");
-    assert!(
-        write_result.is_ok(),
-        "payload write failed: {write_result:?}"
-    );
-    if write_result.is_err() {
-        return;
-    }
+    std::fs::write(&path, b"ocentra").expect("payload write failed");
 
-    let hash_result = sha256_file(&path);
-    assert!(hash_result.is_ok(), "payload hash failed: {hash_result:?}");
-    let Ok(hash) = hash_result else {
-        return;
-    };
+    let hash = sha256_file(&path).expect("payload hash failed");
 
     assert_eq!(
         hash,

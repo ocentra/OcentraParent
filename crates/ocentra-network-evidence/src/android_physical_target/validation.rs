@@ -3,6 +3,7 @@ use super::types::{
     NetworkAndroidPhysicalTargetField, NetworkAndroidPhysicalTargetObserved,
     NetworkAndroidPhysicalTargetUnsupportedClaims,
 };
+mod claims;
 
 pub(super) fn normalize_expected(
     expected: NetworkAndroidPhysicalTargetExpected,
@@ -62,40 +63,7 @@ pub(super) fn normalize_observed(
 pub(super) fn reject_unsupported_claims(
     claims: &NetworkAndroidPhysicalTargetUnsupportedClaims,
 ) -> Result<(), NetworkAndroidPhysicalTargetError> {
-    if claims.exact_url_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::ExactUrlClaimRejected);
-    }
-    if claims.decrypted_payload_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::DecryptedPayloadClaimRejected);
-    }
-    if claims.page_content_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::PageContentClaimRejected);
-    }
-    if claims.emulator_only_product_support_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::EmulatorOnlyProductSupportClaimRejected);
-    }
-    if claims.live_vpn_service_execution_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::LiveVpnServiceExecutionClaimRejected);
-    }
-    if claims.packet_capture_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::PacketCaptureClaimRejected);
-    }
-    if claims.packet_block_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::PacketBlockClaimRejected);
-    }
-    if claims.app_package_correlation_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::AppPackageCorrelationClaimRejected);
-    }
-    if claims.adapter_authority_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::AdapterAuthorityClaimRejected);
-    }
-    if claims.enforcement_command_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::EnforcementCommandClaimRejected);
-    }
-    if claims.production_android_support_claimed {
-        return Err(NetworkAndroidPhysicalTargetError::ProductionAndroidSupportClaimRejected);
-    }
-    Ok(())
+    claims::reject_unsupported_claims(claims)
 }
 
 fn normalize_evidence_refs(

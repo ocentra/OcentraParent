@@ -9,7 +9,7 @@ use std::{
 use serde::{Deserialize, Serialize};
 use tokio::sync::oneshot;
 
-use crate::ExpectValue;
+mod manual;
 
 pub type EventClockSleep<'a> = Pin<Box<dyn Future<Output = ()> + Send + 'a>>;
 pub type SharedEventClock = Arc<dyn EventClock>;
@@ -78,81 +78,6 @@ impl EventClock for SystemEventClock {
 #[derive(Clone, Debug, Default)]
 pub struct ManualEventClock {
     state: Arc<Mutex<ManualEventClockState>>,
-}
-
-impl ManualEventClock {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn shared(&self) -> SharedEventClock {
-        Arc::new(self.clone())
-    }
-
-    pub fn advance(&self, duration: Duration) {
-        let ready_sleepers = {
-            let mut state = self.state.lock().expect_value("manual event clock lock");
-            state.now = state
-                .now
-                .checked_add(duration)
-                .expect_value("manual event clock duration overflow");
-            let ready_targets = state
-                .sleepers
-                .keys()
-                .copied()
-                .take_while(|target| *target <= state.now)
-                .collect::<Vec<_>>();
-            let mut ready_sleepers = Vec::new();
-            for target in ready_targets {
-                if let Some(mut sleepers) = state.sleepers.remove(&target) {
-                    ready_sleepers.append(&mut sleepers);
-                }
-            }
-            ready_sleepers
-        };
-        for sleeper in ready_sleepers {
-            let _ = sleeper.send(());
-        }
-    }
-
-    pub fn pending_sleep_count(&self) -> usize {
-        self.state
-            .lock()
-            .expect_value("manual event clock lock")
-            .sleepers
-            .values()
-            .map(Vec::len)
-            .sum()
-    }
-}
-
-impl EventClock for ManualEventClock {
-    fn now(&self) -> EventClockInstant {
-        EventClockInstant::from(
-            self.state
-                .lock()
-                .expect_value("manual event clock lock")
-                .now,
-        )
-    }
-
-    fn sleep<'a>(&'a self, duration: Duration) -> EventClockSleep<'a> {
-        let receiver = {
-            let mut state = self.state.lock().expect_value("manual event clock lock");
-            let Some(target) = state.now.checked_add(duration) else {
-                return Box::pin(async {});
-            };
-            if target <= state.now {
-                return Box::pin(async {});
-            }
-            let (sender, receiver) = oneshot::channel();
-            state.sleepers.entry(target).or_default().push(sender);
-            receiver
-        };
-        Box::pin(async move {
-            let _ = receiver.await;
-        })
-    }
 }
 
 #[derive(Default, Debug)]

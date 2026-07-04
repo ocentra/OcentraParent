@@ -27,13 +27,16 @@ use crate::{
     activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
     activity_surface_read_models::activity_screen_row_from_result,
     local_ai_provider_scheduler::local_ai_provider_scheduler,
-    screen_ai_service_event_subscription::ScreenAiServiceEventRuntime,
+    screen_ai_service_event_subscription::{
+        ActionRefText, ObservedAtText, ScreenAiServiceEventRuntime,
+    },
 };
 
 use config::{
     ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenAiAnalysisRuntimeConfig,
 };
 use event_record::{analysis_event_record, outcome_for_generation, screen_analysis_event};
+use queue::QueuedScreenImage;
 use queue::{first_queued_screen_image, load_existing_screen_key, metadata_result_for_queue_job};
 
 pub(crate) fn spawn_screen_ai_analysis_runtime() {
@@ -120,13 +123,13 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
     )?;
     if let (Some(runtime), Some(row)) = (
         event_runtime,
-        latest_analysis_row_for_queue_job(config, &image.queue_job_id, &clock.timestamp)?,
+        latest_analysis_row_for_queue_job(config, &image, &clock)?,
     ) {
         let _ = runtime
             .publish_row_ready(
                 row,
-                constants::screen_flow::SCREEN_ACTION_EVENT_REF,
-                &clock.timestamp,
+                ActionRefText(constants::screen_flow::SCREEN_ACTION_EVENT_REF.to_string()),
+                ObservedAtText(clock.timestamp.clone()),
             )
             .await;
     }
@@ -136,19 +139,19 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
 
 fn latest_analysis_row_for_queue_job(
     config: &ScreenAiAnalysisRuntimeConfig,
-    queue_job_id: &str,
-    generated_at: &str,
+    image: &QueuedScreenImage,
+    clock: &ScreenAiAnalysisCycleClock,
 ) -> Result<Option<ActivityScreenReadModelRow>, ActivityCaptureError> {
     let store = ActivityStore::open(&config.store_path)?;
     let summary = store.screen_evidence_recent_summary(
         constants::activity_store::DEFAULT_RECENT_LIMIT,
-        generated_at,
+        clock.timestamp.as_str(),
     )?;
     Ok(summary
         .results
         .into_iter()
         .find(|result| {
-            result.queue_job_id == queue_job_id
+            result.queue_job_id == image.queue_job_id.as_str()
                 && result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA
         })
         .map(activity_screen_row_from_result))

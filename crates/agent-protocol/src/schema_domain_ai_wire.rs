@@ -2,13 +2,47 @@ use serde::{Deserialize, Serialize};
 
 use crate::schema_domain_mirrors::{ai::*, family::*, policy::*};
 
-pub type LocalAiEvidenceContextRefId = String;
-pub type LocalAiEvidenceSourceId = String;
-pub type LocalAiEvidenceAdapterId = String;
-pub type LocalAiParentRuleContextRefId = String;
-pub type LocalAiEvidenceContextId = String;
-pub type LocalAiEvidenceContextSummary = String;
-pub type LocalAiRejectedField = String;
+macro_rules! text_identifier {
+    ($name:ident) => {
+        #[derive(
+            Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize,
+        )]
+        #[serde(transparent)]
+        pub struct $name(String);
+
+        impl $name {
+            pub fn as_str(&self) -> &str {
+                &self.0
+            }
+        }
+
+        impl From<String> for $name {
+            fn from(value: String) -> Self {
+                Self(value)
+            }
+        }
+
+        impl From<&str> for $name {
+            fn from(value: &str) -> Self {
+                Self(value.to_owned())
+            }
+        }
+
+        impl AsRef<str> for $name {
+            fn as_ref(&self) -> &str {
+                self.as_str()
+            }
+        }
+    };
+}
+
+text_identifier!(LocalAiEvidenceContextRefId);
+text_identifier!(LocalAiEvidenceSourceId);
+text_identifier!(LocalAiEvidenceAdapterId);
+text_identifier!(LocalAiParentRuleContextRefId);
+text_identifier!(LocalAiEvidenceContextId);
+text_identifier!(LocalAiEvidenceContextSummary);
+text_identifier!(LocalAiRejectedField);
 
 pub type LocalAiProviderPrivacyMode = crate::local_ai_runtime_boundary::LocalAiProviderPrivacyMode;
 pub type LocalAiAdapterBoundary = crate::local_ai_runtime_boundary::LocalAiAdapterBoundary;

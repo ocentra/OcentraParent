@@ -9,6 +9,7 @@ use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilitySurface;
 use ocentra_parent_agent_protocol::policy_constants;
 
+use super::test_text::TestText;
 use crate::{
     enforcement_cross_platform_capability_proof_read_model::v08_cross_platform_enforcement_capability_proof_read_model,
     test_invariants::{require_ok, require_some},
@@ -133,28 +134,34 @@ fn entry_for(
 
 fn count_claims(
     entries: &[V08CrossPlatformEnforcementCapabilityProofEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<TestText, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
-            .entry(entry.product_claim_state.as_protocol_str())
+            .entry(TestText::from_display(
+                entry.product_claim_state.as_protocol_str(),
+            ))
             .or_default() += 1;
         counts
     })
 }
 
-fn claim_count(counts: &BTreeMap<&'static str, usize>, claim: &'static str) -> usize {
-    *counts.get(claim).unwrap_or(&0)
+fn claim_count(counts: &BTreeMap<TestText, usize>, claim: impl std::fmt::Display) -> usize {
+    *counts.get(&TestText::from_display(claim)).unwrap_or(&0)
 }
 
 fn count_platforms(
     entries: &[V08CrossPlatformEnforcementCapabilityProofEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<TestText, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts.entry(entry.platform.as_protocol_str()).or_default() += 1;
+        *counts
+            .entry(TestText::from_display(entry.platform.as_protocol_str()))
+            .or_default() += 1;
         counts
     })
 }
 
-fn platform_count(counts: &BTreeMap<&'static str, usize>, platform: ParentPlatform) -> usize {
-    *counts.get(platform.as_protocol_str()).unwrap_or(&0)
+fn platform_count(counts: &BTreeMap<TestText, usize>, platform: ParentPlatform) -> usize {
+    *counts
+        .get(&TestText::from_display(platform.as_protocol_str()))
+        .unwrap_or(&0)
 }

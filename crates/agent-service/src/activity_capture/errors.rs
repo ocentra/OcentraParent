@@ -8,6 +8,7 @@ use ocentra_parent_agent_core::{
     journal_error::JournalError,
 };
 use ocentra_parent_agent_protocol::constants;
+use std::fmt;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ActivityCaptureError {
@@ -19,14 +20,46 @@ pub enum ActivityCaptureError {
 }
 
 impl ActivityCaptureError {
-    pub fn reason(&self) -> &'static str {
-        match self {
-            Self::Store => constants::value::ACTIVITY_CAPTURE_STORE_ERROR,
-            Self::Journal => constants::value::ACTIVITY_CAPTURE_JOURNAL_ERROR,
-            Self::Io => constants::value::ACTIVITY_CAPTURE_IO_ERROR,
-            Self::InvalidKeyLength => constants::value::ACTIVITY_CAPTURE_INVALID_KEY_LENGTH,
-            Self::AppGameRuntime => constants::value::ACTIVITY_CAPTURE_APP_GAME_ERROR,
-        }
+    pub fn reason(&self) -> ActivityCaptureReasonText {
+        const REASONS: &[(ActivityCaptureError, &str)] = &[
+            (
+                ActivityCaptureError::Store,
+                constants::value::ACTIVITY_CAPTURE_STORE_ERROR,
+            ),
+            (
+                ActivityCaptureError::Journal,
+                constants::value::ACTIVITY_CAPTURE_JOURNAL_ERROR,
+            ),
+            (
+                ActivityCaptureError::Io,
+                constants::value::ACTIVITY_CAPTURE_IO_ERROR,
+            ),
+            (
+                ActivityCaptureError::InvalidKeyLength,
+                constants::value::ACTIVITY_CAPTURE_INVALID_KEY_LENGTH,
+            ),
+            (
+                ActivityCaptureError::AppGameRuntime,
+                constants::value::ACTIVITY_CAPTURE_APP_GAME_ERROR,
+            ),
+        ];
+
+        REASONS
+            .iter()
+            .find(|(error, _)| error == self)
+            .map(|(_, reason)| ActivityCaptureReasonText(*reason))
+            .unwrap_or(ActivityCaptureReasonText(
+                constants::value::ACTIVITY_CAPTURE_APP_GAME_ERROR,
+            ))
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ActivityCaptureReasonText(pub &'static str);
+
+impl fmt::Display for ActivityCaptureReasonText {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0)
     }
 }
 

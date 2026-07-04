@@ -122,38 +122,7 @@ pub(super) fn ignored_interface_name(interface_name: &str) -> bool {
 
 pub fn ignored_interface_reason(interface_name: &str) -> Option<LocalNetworkInterfaceIgnoreReason> {
     let normalized = interface_name.trim().to_ascii_lowercase();
-    if normalized.is_empty() {
-        return Some(LocalNetworkInterfaceIgnoreReason::EmptyName);
-    }
-    if normalized == "lo" || normalized.contains("loopback") {
-        return Some(LocalNetworkInterfaceIgnoreReason::Loopback);
-    }
-    if normalized.starts_with("vethernet") {
-        return Some(LocalNetworkInterfaceIgnoreReason::VirtualEthernet);
-    }
-    if normalized.starts_with("docker")
-        || normalized.starts_with("veth")
-        || normalized.starts_with("br-")
-    {
-        return Some(LocalNetworkInterfaceIgnoreReason::ContainerBridge);
-    }
-    if normalized.starts_with("virbr") || normalized.starts_with("vboxnet") {
-        return Some(LocalNetworkInterfaceIgnoreReason::VirtualMachineBridge);
-    }
-    if normalized.starts_with("tailscale")
-        || normalized.starts_with("wg")
-        || normalized.starts_with("tun")
-        || normalized.starts_with("tap")
-    {
-        return Some(LocalNetworkInterfaceIgnoreReason::VpnOrTunnel);
-    }
-    if normalized.starts_with("zt") {
-        return Some(LocalNetworkInterfaceIgnoreReason::ZeroTier);
-    }
-    if normalized.contains("wsl") {
-        return Some(LocalNetworkInterfaceIgnoreReason::Wsl);
-    }
-    None
+    interface_ignore_reason(&normalized)
 }
 
 pub(super) fn default_gateway_preference(default_gateway: Option<&str>) -> u8 {
@@ -162,4 +131,64 @@ pub(super) fn default_gateway_preference(default_gateway: Option<&str>) -> u8 {
     } else {
         1
     }
+}
+
+fn interface_ignore_reason(normalized: &str) -> Option<LocalNetworkInterfaceIgnoreReason> {
+    [
+        (
+            normalized.is_empty(),
+            LocalNetworkInterfaceIgnoreReason::EmptyName,
+        ),
+        (
+            is_loopback_interface(normalized),
+            LocalNetworkInterfaceIgnoreReason::Loopback,
+        ),
+        (
+            normalized.starts_with("vethernet"),
+            LocalNetworkInterfaceIgnoreReason::VirtualEthernet,
+        ),
+        (
+            is_container_bridge_interface(normalized),
+            LocalNetworkInterfaceIgnoreReason::ContainerBridge,
+        ),
+        (
+            is_virtual_machine_bridge_interface(normalized),
+            LocalNetworkInterfaceIgnoreReason::VirtualMachineBridge,
+        ),
+        (
+            is_vpn_or_tunnel_interface(normalized),
+            LocalNetworkInterfaceIgnoreReason::VpnOrTunnel,
+        ),
+        (
+            normalized.starts_with("zt"),
+            LocalNetworkInterfaceIgnoreReason::ZeroTier,
+        ),
+        (
+            normalized.contains("wsl"),
+            LocalNetworkInterfaceIgnoreReason::Wsl,
+        ),
+    ]
+    .into_iter()
+    .find_map(|(matched, reason)| matched.then_some(reason))
+}
+
+fn is_loopback_interface(normalized: &str) -> bool {
+    normalized == "lo" || normalized.contains("loopback")
+}
+
+fn is_container_bridge_interface(normalized: &str) -> bool {
+    normalized.starts_with("docker")
+        || normalized.starts_with("veth")
+        || normalized.starts_with("br-")
+}
+
+fn is_virtual_machine_bridge_interface(normalized: &str) -> bool {
+    normalized.starts_with("virbr") || normalized.starts_with("vboxnet")
+}
+
+fn is_vpn_or_tunnel_interface(normalized: &str) -> bool {
+    normalized.starts_with("tailscale")
+        || normalized.starts_with("wg")
+        || normalized.starts_with("tun")
+        || normalized.starts_with("tap")
 }

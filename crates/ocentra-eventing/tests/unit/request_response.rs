@@ -4,10 +4,11 @@ use std::{future, sync::Arc, time::Duration};
 use tokio::sync::Mutex;
 
 use super::{
-    fixtures::{metadata, metadata_with_event_id, subscriber_for_event, TEST_TARGET},
+    fixtures::{metadata, metadata_with_event_id, subscriber_for_event, TestText, TEST_TARGET},
     request_response_support::{
         test_request, test_request_with_id, test_result_event, InvalidContractRequestEvent,
-        TestRequestEvent, TestResponse, REQUEST_EVENT_TYPE, REQUEST_ID, RESULT_EVENT_TYPE,
+        TestRequestEvent, TestResponse, TestText as RequestText, REQUEST_EVENT_TYPE, REQUEST_ID,
+        RESULT_EVENT_TYPE,
     },
 };
 use crate::{EventPublisher, EventingError, RequestCompletionOutcome, RequestId, RequestOptions};
@@ -18,7 +19,11 @@ const REQUEST_TERMINAL_RETENTION_PROBE_COUNT: usize = 4097;
 async fn publish_request_resolves_associated_response_type() {
     let bus = crate::EventBus::new();
     bus.subscribe::<TestRequestEvent, _, _>(
-        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        subscriber_for_event(
+            TestText("request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
         |context| async move {
             context.complete_request(TestResponse::approved()).await?;
             Ok(())
@@ -29,8 +34,8 @@ async fn publish_request_resolves_associated_response_type() {
 
     let report = bus
         .publish_request(
-            test_request("resolve-associated-response"),
-            metadata(TEST_TARGET),
+            test_request(RequestText("resolve-associated-response".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
             RequestOptions::with_timeout(Duration::from_millis(50))
                 .expect_value("request options valid"),
         )
@@ -49,9 +54,9 @@ async fn request_terminal_retention_uses_completion_order_not_request_id_sort_or
     let captured_publisher_clone = Arc::clone(&captured_publisher);
     bus.subscribe::<TestRequestEvent, _, _>(
         subscriber_for_event(
-            "request-retention-subscriber",
-            TEST_TARGET,
-            REQUEST_EVENT_TYPE,
+            TestText("request-retention-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
         ),
         move |context| {
             let captured_publisher = Arc::clone(&captured_publisher_clone);
@@ -68,9 +73,9 @@ async fn request_terminal_retention_uses_completion_order_not_request_id_sort_or
     let oldest = RequestId::parse("request-z-oldest").expect_value("oldest request id parses");
     publish_retention_probe_request(
         &bus,
-        "request-z-oldest",
-        "request-z-oldest",
-        "request-retention-event-oldest",
+        TestText("request-z-oldest".to_owned()),
+        TestText("request-z-oldest".to_owned()),
+        TestText("request-retention-event-oldest".to_owned()),
     )
     .await;
 
@@ -78,7 +83,13 @@ async fn request_terminal_retention_uses_completion_order_not_request_id_sort_or
     for index in 0..(REQUEST_TERMINAL_RETENTION_PROBE_COUNT - 1) {
         let request_id = format!("request-a-{index:04}");
         let event_id = format!("request-retention-event-{index:04}");
-        publish_retention_probe_request(&bus, &request_id, &request_id, &event_id).await;
+        publish_retention_probe_request(
+            &bus,
+            TestText(request_id.clone()),
+            TestText(request_id.clone()),
+            TestText(event_id.clone()),
+        )
+        .await;
     }
 
     let publisher = captured_publisher
@@ -113,13 +124,22 @@ async fn request_terminal_retention_uses_completion_order_not_request_id_sort_or
 
 async fn publish_retention_probe_request(
     bus: &crate::EventBus,
-    label: &str,
-    request_id: &str,
-    event_id: &str,
+    label: TestText,
+    request_id: TestText,
+    event_id: TestText,
 ) {
+    let label = label.0;
+    let request_id = request_id.0;
+    let event_id = event_id.0;
     bus.publish_request(
-        test_request_with_id(label, request_id),
-        metadata_with_event_id(TEST_TARGET, event_id),
+        test_request_with_id(
+            RequestText(label.to_owned()),
+            RequestText(request_id.to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText(event_id.to_owned()),
+        ),
         RequestOptions::with_timeout(Duration::from_millis(50))
             .expect_value("request options valid"),
     )
@@ -133,7 +153,11 @@ async fn invalid_response_validation_does_not_settle_request() {
     let invalid_rejected = Arc::new(Mutex::new(false));
     let invalid_rejected_clone = Arc::clone(&invalid_rejected);
     bus.subscribe::<TestRequestEvent, _, _>(
-        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        subscriber_for_event(
+            TestText("request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
         move |context| {
             let invalid_rejected = Arc::clone(&invalid_rejected_clone);
             async move {
@@ -149,8 +173,8 @@ async fn invalid_response_validation_does_not_settle_request() {
 
     let report = bus
         .publish_request(
-            test_request("validate-before-settle"),
-            metadata(TEST_TARGET),
+            test_request(RequestText("validate-before-settle".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
             RequestOptions::with_timeout(Duration::from_millis(50))
                 .expect_value("request options valid"),
         )
@@ -167,7 +191,11 @@ async fn request_timeout_reports_late_response_without_mutating_result() {
     let outcomes = Arc::new(Mutex::new(Vec::new()));
     let outcomes_clone = Arc::clone(&outcomes);
     bus.subscribe::<TestRequestEvent, _, _>(
-        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        subscriber_for_event(
+            TestText("request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
         move |context| {
             let outcomes = Arc::clone(&outcomes_clone);
             async move {
@@ -188,8 +216,8 @@ async fn request_timeout_reports_late_response_without_mutating_result() {
 
     let result = bus
         .publish_request(
-            test_request("timeout"),
-            metadata(TEST_TARGET),
+            test_request(RequestText("timeout".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
             RequestOptions::with_timeout(Duration::from_millis(5))
                 .expect_value("request options valid"),
         )
@@ -209,7 +237,11 @@ async fn request_timeout_covers_slow_handler_dispatch() {
     let outcomes = Arc::new(Mutex::new(Vec::new()));
     let outcomes_clone = Arc::clone(&outcomes);
     bus.subscribe::<TestRequestEvent, _, _>(
-        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        subscriber_for_event(
+            TestText("request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
         move |context| {
             let outcomes = Arc::clone(&outcomes_clone);
             async move {
@@ -225,8 +257,8 @@ async fn request_timeout_covers_slow_handler_dispatch() {
 
     let result = bus
         .publish_request(
-            test_request("slow-handler-timeout"),
-            metadata(TEST_TARGET),
+            test_request(RequestText("slow-handler-timeout".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
             RequestOptions::with_timeout(Duration::from_millis(5))
                 .expect_value("request options valid"),
         )
@@ -245,7 +277,11 @@ async fn request_timeout_covers_slow_handler_dispatch() {
 async fn request_timeout_aborts_never_completing_publish_and_releases_in_flight() {
     let bus = crate::EventBus::new();
     bus.subscribe::<TestRequestEvent, _, _>(
-        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        subscriber_for_event(
+            TestText("request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
         |_context| async move { future::pending::<Result<(), EventingError>>().await },
     )
     .await
@@ -253,8 +289,11 @@ async fn request_timeout_aborts_never_completing_publish_and_releases_in_flight(
 
     let result = bus
         .publish_request(
-            test_request("never-completing-handler-timeout"),
-            metadata_with_event_id(TEST_TARGET, "request-never-completing-event"),
+            test_request(RequestText("never-completing-handler-timeout".to_owned())),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("request-never-completing-event".to_owned()),
+            ),
             RequestOptions::with_timeout(Duration::from_millis(5))
                 .expect_value("request options valid"),
         )
@@ -273,7 +312,7 @@ async fn publish_request_cancels_registry_entry_when_publish_fails() {
     let failed = bus
         .publish_request(
             InvalidContractRequestEvent::new(),
-            metadata(TEST_TARGET),
+            metadata(TestText(TEST_TARGET.to_owned())),
             RequestOptions::with_timeout(Duration::from_millis(50))
                 .expect_value("request options valid"),
         )
@@ -281,7 +320,11 @@ async fn publish_request_cancels_registry_entry_when_publish_fails() {
     assert!(matches!(failed, Err(EventingError::InvalidVersion)));
 
     bus.subscribe::<TestRequestEvent, _, _>(
-        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        subscriber_for_event(
+            TestText("request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
         |context| async move {
             context.complete_request(TestResponse::approved()).await?;
             Ok(())
@@ -291,8 +334,8 @@ async fn publish_request_cancels_registry_entry_when_publish_fails() {
     .expect_value("request subscriber registers");
     let report = bus
         .publish_request(
-            test_request("retry-after-publish-failure"),
-            metadata(TEST_TARGET),
+            test_request(RequestText("retry-after-publish-failure".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
             RequestOptions::with_timeout(Duration::from_millis(50))
                 .expect_value("request options valid"),
         )
@@ -308,7 +351,11 @@ async fn double_completion_is_ignored_and_reported() {
     let outcomes = Arc::new(Mutex::new(Vec::new()));
     let outcomes_clone = Arc::clone(&outcomes);
     bus.subscribe::<TestRequestEvent, _, _>(
-        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        subscriber_for_event(
+            TestText("request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
         move |context| {
             let outcomes = Arc::clone(&outcomes_clone);
             async move {
@@ -327,8 +374,8 @@ async fn double_completion_is_ignored_and_reported() {
 
     let report = bus
         .publish_request(
-            test_request("double-completion"),
-            metadata(TEST_TARGET),
+            test_request(RequestText("double-completion".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
             RequestOptions::with_timeout(Duration::from_millis(50))
                 .expect_value("request options valid"),
         )
@@ -349,13 +396,20 @@ async fn double_completion_is_ignored_and_reported() {
 async fn durable_result_event_pattern_remains_separate_from_local_completion() {
     let bus = crate::EventBus::new();
     bus.subscribe::<TestRequestEvent, _, _>(
-        subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
+        subscriber_for_event(
+            TestText("request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
         move |context| async move {
             context
                 .publisher()
                 .publish(
                     test_result_event(),
-                    metadata_with_event_id(TEST_TARGET, "request-result-event-1"),
+                    metadata_with_event_id(
+                        TestText(TEST_TARGET.to_owned()),
+                        TestText("request-result-event-1".to_owned()),
+                    ),
                 )
                 .await?;
             context.complete_request(TestResponse::approved()).await?;
@@ -367,8 +421,8 @@ async fn durable_result_event_pattern_remains_separate_from_local_completion() {
 
     let report = bus
         .publish_request(
-            test_request("durable-result-event"),
-            metadata(TEST_TARGET),
+            test_request(RequestText("durable-result-event".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
             RequestOptions::with_timeout(Duration::from_millis(50))
                 .expect_value("request options valid"),
         )

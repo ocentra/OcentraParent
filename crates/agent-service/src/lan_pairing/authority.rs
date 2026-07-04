@@ -1,5 +1,6 @@
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingIntentKind;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 
@@ -7,20 +8,27 @@ use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
 pub(crate) fn validate_registry_selection_intent(
     runtime: &LanPairingRuntime,
-    origin: Option<&str>,
+    origin: Option<impl Into<LanPairingText>>,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     let observed_at = timestamp_now();
     runtime
         .registry
         .lock()
-        .map(|mut registry| registry.validate_selection_intent(intent, origin, &observed_at))
+        .map(|mut registry| {
+            let origin = origin.map(Into::into);
+            registry.validate_selection_intent(
+                intent,
+                origin.as_ref().map(|value| value.0.as_str()),
+                &observed_at,
+            )
+        })
         .unwrap_or(Err(LanPairingRejectionReason::Malformed))
 }
 
 pub(crate) fn validate_authorized_lan_ai_job(
     runtime: &LanPairingRuntime,
-    origin: Option<&str>,
+    origin: Option<impl Into<LanPairingText>>,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     validate_write_authority(intent)?;
@@ -30,7 +38,7 @@ pub(crate) fn validate_authorized_lan_ai_job(
 
 pub(crate) fn validate_observer_read_intent(
     runtime: &LanPairingRuntime,
-    origin: Option<&str>,
+    origin: Option<impl Into<LanPairingText>>,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     validate_registry_selection_intent(runtime, origin, intent)
@@ -38,14 +46,21 @@ pub(crate) fn validate_observer_read_intent(
 
 pub(crate) fn validate_registry_control_intent(
     runtime: &LanPairingRuntime,
-    origin: Option<&str>,
+    origin: Option<impl Into<LanPairingText>>,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     let observed_at = timestamp_now();
     runtime
         .registry
         .lock()
-        .map(|mut registry| registry.validate_intent(intent, origin, &observed_at))
+        .map(|mut registry| {
+            let origin = origin.map(Into::into);
+            registry.validate_intent(
+                intent,
+                origin.as_ref().map(|value| value.0.as_str()),
+                &observed_at,
+            )
+        })
         .unwrap_or(Err(LanPairingRejectionReason::Malformed))
 }
 

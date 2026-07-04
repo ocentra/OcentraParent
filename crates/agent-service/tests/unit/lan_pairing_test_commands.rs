@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
@@ -14,24 +16,29 @@ use crate::app::{
     fields::fields_from_pairs, lan_pairing::LanPairingRuntime,
     websocket::handle_command_text_for_test,
 };
+use crate::test_text::TestText;
 
 pub(crate) async fn paired_runtime() -> LanPairingRuntime {
     let runtime = LanPairingRuntime::empty();
     let _ = handle_command_text_for_test(
-        &serialize_command(pairing_command(proof_payload())),
+        serialize_command(pairing_command(proof_payload())),
         runtime.clone(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
     let _ = handle_command_text_for_test(
-        &serialize_command(route_select_command(intent_payload(
+        serialize_command(route_select_command(intent_payload(
             constants::lan_pairing::SELECT_INTENT_ID,
             constants::lan_pairing::CHILD_DEVICE_ID,
             constants::lan_pairing::PROOF_DIGEST,
             constants::lan_pairing::EXPIRES_AT,
         ))),
         runtime.clone(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
     runtime
@@ -42,7 +49,7 @@ pub(crate) fn pairing_command(payload: LogFields) -> AgentCommandEnvelope {
 }
 
 pub(crate) fn pairing_command_for_target(
-    device_id: &str,
+    device_id: impl Display,
     payload: LogFields,
 ) -> AgentCommandEnvelope {
     command_for_target(
@@ -57,7 +64,7 @@ pub(crate) fn health_command(payload: LogFields) -> AgentCommandEnvelope {
 }
 
 pub(crate) fn health_command_for_target(
-    device_id: &str,
+    device_id: impl Display,
     payload: LogFields,
 ) -> AgentCommandEnvelope {
     command_for_target(
@@ -80,7 +87,7 @@ pub(crate) fn route_revoke_command(payload: LogFields) -> AgentCommandEnvelope {
 }
 
 pub(crate) fn route_select_command_for_target(
-    device_id: &str,
+    device_id: impl Display,
     payload: LogFields,
 ) -> AgentCommandEnvelope {
     command_for_target(
@@ -117,7 +124,8 @@ pub(crate) fn command_for_target(
     }
 }
 
-pub(crate) fn local_network_target(device_id: &str) -> AgentMessageTarget {
+pub(crate) fn local_network_target(device_id: impl Display) -> AgentMessageTarget {
+    let device_id = TestText::from_display(device_id);
     AgentMessageTarget {
         device_id: device_id.to_string(),
         platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
@@ -146,12 +154,17 @@ pub(crate) fn second_proof_payload() -> LogFields {
 }
 
 pub(crate) fn proof_payload_for_pairing(
-    pairing_id: &str,
-    challenge_id: &str,
-    child_device_id: &str,
-    route_id: &str,
-    proof_digest: &str,
+    pairing_id: impl Display,
+    challenge_id: impl Display,
+    child_device_id: impl Display,
+    route_id: impl Display,
+    proof_digest: impl Display,
 ) -> LogFields {
+    let pairing_id = TestText::from_display(pairing_id);
+    let challenge_id = TestText::from_display(challenge_id);
+    let child_device_id = TestText::from_display(child_device_id);
+    let route_id = TestText::from_display(route_id);
+    let proof_digest = TestText::from_display(proof_digest);
     fields_from_pairs(vec![
         (
             constants::field::LAN_PAIRING_ID,
@@ -197,10 +210,10 @@ pub(crate) fn proof_payload_for_pairing(
 }
 
 pub(crate) fn intent_payload(
-    intent_id: &str,
-    target_device_id: &str,
-    proof_digest: &str,
-    expires_at: &str,
+    intent_id: impl Display,
+    target_device_id: impl Display,
+    proof_digest: impl Display,
+    expires_at: impl Display,
 ) -> LogFields {
     intent_payload_for_kind(
         intent_id,
@@ -212,11 +225,11 @@ pub(crate) fn intent_payload(
 }
 
 pub(crate) fn intent_payload_for_kind(
-    intent_id: &str,
-    target_device_id: &str,
-    proof_digest: &str,
-    expires_at: &str,
-    intent_kind: &str,
+    intent_id: impl Display,
+    target_device_id: impl Display,
+    proof_digest: impl Display,
+    expires_at: impl Display,
+    intent_kind: impl Display,
 ) -> LogFields {
     intent_payload_for_pairing(
         intent_id,
@@ -230,14 +243,21 @@ pub(crate) fn intent_payload_for_kind(
 }
 
 pub(crate) fn intent_payload_for_pairing(
-    intent_id: &str,
-    pairing_id: &str,
-    target_device_id: &str,
-    route_id: &str,
-    proof_digest: &str,
-    expires_at: &str,
-    intent_kind: &str,
+    intent_id: impl Display,
+    pairing_id: impl Display,
+    target_device_id: impl Display,
+    route_id: impl Display,
+    proof_digest: impl Display,
+    expires_at: impl Display,
+    intent_kind: impl Display,
 ) -> LogFields {
+    let intent_id = TestText::from_display(intent_id);
+    let pairing_id = TestText::from_display(pairing_id);
+    let target_device_id = TestText::from_display(target_device_id);
+    let route_id = TestText::from_display(route_id);
+    let proof_digest = TestText::from_display(proof_digest);
+    let expires_at = TestText::from_display(expires_at);
+    let intent_kind = TestText::from_display(intent_kind);
     fields_from_pairs(vec![
         (
             constants::field::LAN_INTENT_ID,
@@ -308,11 +328,10 @@ pub(crate) fn intent_payload_for_pairing(
     ])
 }
 
-pub(crate) fn serialize_command(command: AgentCommandEnvelope) -> String {
-    let command_value = serde_json::to_value(command).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    serde_json::to_string(&command_value).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    })
+pub(crate) fn serialize_command(command: AgentCommandEnvelope) -> TestText {
+    let command_value =
+        serde_json::to_value(command).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    TestText::from_display(
+        serde_json::to_string(&command_value).expect(constants::error::AGENT_EVENT_SERIALIZES),
+    )
 }

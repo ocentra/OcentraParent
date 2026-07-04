@@ -27,6 +27,9 @@ pub(super) const OTHER_SUBSCRIBER: &str = "eventing-other-subscriber";
 const TEST_OBSERVED_AT: &str = "2026-06-03T22:30:00Z";
 pub(super) const TEST_LABEL: &str = "typed envelope proof";
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct TestText(pub(super) String);
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub(super) struct TestEvent {
     pub(super) label: String,
@@ -52,57 +55,58 @@ impl DomainEvent for TestEvent {
     }
 }
 
-pub(super) fn test_event(label: &str) -> TestEvent {
-    test_event_with_aggregate(label, TEST_AGGREGATE)
+pub(super) fn test_event(label: TestText) -> TestEvent {
+    test_event_with_aggregate(label, TestText(TEST_AGGREGATE.to_owned()))
 }
 
-pub(super) fn test_event_with_aggregate(label: &str, aggregate_key: &str) -> TestEvent {
-    test_event_for_type_with_aggregate(label, aggregate_key, TEST_EVENT_TYPE)
+pub(super) fn test_event_with_aggregate(label: TestText, aggregate_key: TestText) -> TestEvent {
+    test_event_for_type_with_aggregate(label, aggregate_key, TestText(TEST_EVENT_TYPE.to_owned()))
 }
 
-pub(super) fn test_event_for_type(label: &str, event_type: &str) -> TestEvent {
-    test_event_for_type_with_aggregate(label, TEST_AGGREGATE, event_type)
+pub(super) fn test_event_for_type(label: TestText, event_type: TestText) -> TestEvent {
+    test_event_for_type_with_aggregate(label, TestText(TEST_AGGREGATE.to_owned()), event_type)
 }
 
 fn test_event_for_type_with_aggregate(
-    label: &str,
-    aggregate_key: &str,
-    event_type: &str,
+    label: TestText,
+    aggregate_key: TestText,
+    event_type: TestText,
 ) -> TestEvent {
     test_event_for_type_with_aggregate_and_idempotency(
         label,
         aggregate_key,
         event_type,
-        TEST_IDEMPOTENCY,
+        TestText(TEST_IDEMPOTENCY.to_owned()),
     )
 }
 
 pub(super) fn test_event_for_type_with_aggregate_and_idempotency(
-    label: &str,
-    aggregate_key: &str,
-    event_type: &str,
-    idempotency_key: &str,
+    label: TestText,
+    aggregate_key: TestText,
+    event_type: TestText,
+    idempotency_key: TestText,
 ) -> TestEvent {
     TestEvent {
-        label: label.to_string(),
-        aggregate_key: AggregateKey::parse(aggregate_key).expect_value("aggregate key parses"),
-        idempotency_key: IdempotencyKey::parse(idempotency_key)
+        label: label.0,
+        aggregate_key: AggregateKey::parse(aggregate_key.0.as_str())
+            .expect_value("aggregate key parses"),
+        idempotency_key: IdempotencyKey::parse(idempotency_key.0.as_str())
             .expect_value("idempotency key parses"),
-        event_type: EventType::parse(event_type).expect_value("event type parses"),
+        event_type: EventType::parse(event_type.0.as_str()).expect_value("event type parses"),
     }
 }
 
-pub(super) fn metadata(target: &str) -> EventMetadata {
-    metadata_with_event_id(target, TEST_EVENT_ID)
+pub(super) fn metadata(target: TestText) -> EventMetadata {
+    metadata_with_event_id(target, TestText(TEST_EVENT_ID.to_owned()))
 }
 
-pub(super) fn metadata_with_event_id(target: &str, event_id: &str) -> EventMetadata {
+pub(super) fn metadata_with_event_id(target: TestText, event_id: TestText) -> EventMetadata {
     EventMetadata::from_parts(
-        EventId::parse(event_id).expect_value("event id parses"),
+        EventId::parse(event_id.0).expect_value("event id parses"),
         CorrelationId::parse(TEST_CORRELATION_ID).expect_value("correlation id parses"),
         source(),
         RecordedAt::parse(TEST_OBSERVED_AT).expect_value("recorded at parses"),
-        Some(TargetHandler::parse(target).expect_value("target handler parses")),
+        Some(TargetHandler::parse(target.0.as_str()).expect_value("target handler parses")),
     )
 }
 
@@ -116,14 +120,18 @@ fn source() -> EventSource {
     )
 }
 
-pub(super) fn subscriber(id: &str, target: &str) -> EventSubscriber {
-    subscriber_for_event(id, target, TEST_EVENT_TYPE)
+pub(super) fn subscriber(id: TestText, target: TestText) -> EventSubscriber {
+    subscriber_for_event(id, target, TestText(TEST_EVENT_TYPE.to_owned()))
 }
 
-pub(super) fn subscriber_for_event(id: &str, target: &str, event_type: &str) -> EventSubscriber {
+pub(super) fn subscriber_for_event(
+    id: TestText,
+    target: TestText,
+    event_type: TestText,
+) -> EventSubscriber {
     EventSubscriber::new(
-        SubscriberId::parse(id).expect_value("subscriber id parses"),
-        EventType::parse(event_type).expect_value("event type parses"),
-        TargetHandler::parse(target).expect_value("target handler parses"),
+        SubscriberId::parse(id.0.as_str()).expect_value("subscriber id parses"),
+        EventType::parse(event_type.0.as_str()).expect_value("event type parses"),
+        TargetHandler::parse(target.0.as_str()).expect_value("target handler parses"),
     )
 }

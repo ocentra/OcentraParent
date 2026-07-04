@@ -42,14 +42,10 @@ impl ParentMember {
         invite_state: crate::family_identity::HouseholdMembershipState,
         joined_at: impl Into<String>,
     ) -> Result<Self, EventingError> {
-        if !matches!(
-            role,
-            HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian | HouseholdRole::Observer
-        ) {
-            return Err(EventingError::InvalidValue {
-                field: "family_identity.parent_member.role",
-                value: format!("{role:?}"),
-            });
+        if let Some(error) =
+            crate::family_identity_profiles_validation::parent_member_role_failure(role)
+        {
+            return Err(error);
         }
 
         Ok(Self {
@@ -114,18 +110,13 @@ impl DeviceRegistration {
         &self,
         child_profile: &ChildProfile,
     ) -> Result<(), EventingError> {
-        if self.child_id != child_profile.child_id {
-            return Err(EventingError::InvalidValue {
-                field: "family_identity.device_registration.child_id",
-                value: self.child_id.to_string(),
-            });
-        }
-
-        if self.household_id != child_profile.household_id {
-            return Err(EventingError::InvalidValue {
-                field: "family_identity.device_registration.household_id",
-                value: self.household_id.to_string(),
-            });
+        if let Some(error) =
+            crate::family_identity_profiles_validation::device_registration_child_profile_failure(
+                self,
+                child_profile,
+            )
+        {
+            return Err(error);
         }
 
         Ok(())
@@ -158,11 +149,12 @@ impl ParentControllerLease {
     }
 
     pub fn ensure_reusable(&self) -> Result<(), EventingError> {
-        if self.revocation_state != ParentControllerLeaseState::Active {
-            return Err(EventingError::InvalidValue {
-                field: "family_identity.parent_controller_lease.revocation_state",
-                value: format!("{:?}", self.revocation_state),
-            });
+        if let Some(error) =
+            crate::family_identity_profiles_validation::parent_controller_lease_reusable_failure(
+                self,
+            )
+        {
+            return Err(error);
         }
 
         Ok(())
@@ -177,31 +169,13 @@ impl ObserverPermission {
         granted_scopes: Vec<HouseholdAuthorityAction>,
         is_write_blocked: bool,
     ) -> Result<Self, EventingError> {
-        if granted_scopes.is_empty() {
-            return Err(EventingError::EmptyValue {
-                field: "family_identity.observer_permission.granted_scopes",
-            });
-        }
-
-        if !is_write_blocked {
-            return Err(EventingError::InvalidValue {
-                field: "family_identity.observer_permission.is_write_blocked",
-                value: String::from("false"),
-            });
-        }
-
-        if granted_scopes
-            .iter()
-            .any(|scope| !observer_scope_allowed(*scope))
+        if let Some(error) =
+            crate::family_identity_profiles_validation::observer_permission_failure_reason(
+                &granted_scopes,
+                is_write_blocked,
+            )
         {
-            return Err(EventingError::InvalidValue {
-                field: "family_identity.observer_permission.granted_scopes",
-                value: granted_scopes
-                    .iter()
-                    .map(|scope| format!("{scope:?}"))
-                    .collect::<Vec<_>>()
-                    .join(","),
-            });
+            return Err(error);
         }
 
         Ok(Self {
@@ -212,11 +186,4 @@ impl ObserverPermission {
             is_write_blocked,
         })
     }
-}
-
-fn observer_scope_allowed(scope: HouseholdAuthorityAction) -> bool {
-    matches!(
-        scope,
-        HouseholdAuthorityAction::ViewChildStatus | HouseholdAuthorityAction::StartRemoteView
-    )
 }

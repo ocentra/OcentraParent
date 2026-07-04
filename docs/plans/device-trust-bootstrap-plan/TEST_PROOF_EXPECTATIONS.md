@@ -22,7 +22,7 @@ output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
 ## Test layout
 
 ```text
-test/device-trust-bootstrap-plan/<major-category>/
+tests/device-trust-bootstrap-plan/<major-category>/
 ```
 
 Major categories:
@@ -35,9 +35,9 @@ Major categories:
 
 Current device-trust coverage starts in:
 
-- `test/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs`
-- `test/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs`
-- `test/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
+- `tests/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs`
+- `tests/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs`
+- `tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
 
 These plan-local tests currently prove document and route alignment only. They do not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle execution, or child uninstall execution by themselves.
 
@@ -58,7 +58,7 @@ Implementation-adjacent coverage currently lives in:
 Docs-only truth sync:
 
 ```powershell
-$tests = Get-ChildItem test/device-trust-bootstrap-plan -Recurse -Filter *.test.mjs |
+$tests = Get-ChildItem tests/device-trust-bootstrap-plan -Recurse -Filter *.test.mjs |
   Sort-Object FullName |
   Select-Object -ExpandProperty FullName
 node --test $tests
@@ -86,7 +86,7 @@ cargo test -p ocentra-parent-agent-service lan_pairing
 Scoped architecture gates:
 
 ```powershell
-npm run lint:architecture -- --files packages/family-domain/src packages/lan-domain/src test/device-trust-bootstrap-plan docs/plans/device-trust-bootstrap-plan
+npm run lint:architecture -- --files packages/family-domain/src packages/lan-domain/src tests/device-trust-bootstrap-plan docs/plans/device-trust-bootstrap-plan
 cargo lint-architecture crates/agent-protocol/src/lan_pairing.rs crates/agent-service/src/lan_pairing.rs
 ```
 
@@ -184,11 +184,11 @@ wrong household/device blocked
 wrong key blocked
 revoked/expired state visible
 manual-required state visible
-mock proof not product proof
+surrogate proof not product proof
 ```
 
-## No fake-green rule
+## No surrogate-green rule
 
 - Document assertions and route-alignment tests may prove plan honesty, but they do not close runtime workpacks.
-- Use mocks only when justified by the workpack risk surface and call them out explicitly in proof notes.
-- Prefer real contract, integration, and end-to-end behavior over mock-only coverage whenever the plan risk requires it.
+- Use local surrogates only when justified by the workpack risk surface and call them out explicitly in proof notes.
+- Prefer real contract, integration, and end-to-end behavior over surrogate-only coverage whenever the plan risk requires it.

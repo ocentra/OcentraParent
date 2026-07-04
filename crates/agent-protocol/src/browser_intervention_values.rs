@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserInterventionDecisionSource {
     #[serde(rename = "parent-rule")]
     ParentRule,
@@ -19,19 +19,21 @@ pub enum BrowserInterventionDecisionSource {
 }
 
 impl BrowserInterventionDecisionSource {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        constants::browser::INTERVENTION_DECISION_SOURCE_PARENT_RULE,
+        constants::browser::INTERVENTION_DECISION_SOURCE_PARENT_PORTAL,
+        constants::browser::INTERVENTION_DECISION_SOURCE_LOCAL_AI,
+        constants::browser::INTERVENTION_DECISION_SOURCE_SYSTEM,
+        constants::browser::INTERVENTION_DECISION_SOURCE_MANUAL_TEST,
+        constants::browser::INTERVENTION_DECISION_SOURCE_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ParentRule => constants::browser::INTERVENTION_DECISION_SOURCE_PARENT_RULE,
-            Self::ParentPortal => constants::browser::INTERVENTION_DECISION_SOURCE_PARENT_PORTAL,
-            Self::LocalAi => constants::browser::INTERVENTION_DECISION_SOURCE_LOCAL_AI,
-            Self::System => constants::browser::INTERVENTION_DECISION_SOURCE_SYSTEM,
-            Self::ManualTest => constants::browser::INTERVENTION_DECISION_SOURCE_MANUAL_TEST,
-            Self::Unknown => constants::browser::INTERVENTION_DECISION_SOURCE_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserInterventionAction {
     #[serde(rename = "allow")]
     Allow,
@@ -60,25 +62,27 @@ pub enum BrowserInterventionAction {
 }
 
 impl BrowserInterventionAction {
+    const PROTOCOL_STRINGS: [&'static str; 12] = [
+        constants::browser::INTERVENTION_ACTION_ALLOW,
+        constants::browser::INTERVENTION_ACTION_WARN,
+        constants::browser::INTERVENTION_ACTION_BLOCK,
+        constants::browser::INTERVENTION_ACTION_REDIRECT,
+        constants::browser::INTERVENTION_ACTION_TIME_LIMIT,
+        constants::browser::INTERVENTION_ACTION_ASK_PARENT,
+        constants::browser::INTERVENTION_ACTION_APPROVAL_HOLD,
+        constants::browser::INTERVENTION_ACTION_CHECKING_HOLD,
+        constants::browser::INTERVENTION_ACTION_TERMINATE_PROCESS,
+        constants::browser::INTERVENTION_ACTION_RELAUNCH_MANAGED,
+        constants::browser::INTERVENTION_ACTION_MONITOR,
+        constants::browser::INTERVENTION_ACTION_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Allow => constants::browser::INTERVENTION_ACTION_ALLOW,
-            Self::Warn => constants::browser::INTERVENTION_ACTION_WARN,
-            Self::Block => constants::browser::INTERVENTION_ACTION_BLOCK,
-            Self::Redirect => constants::browser::INTERVENTION_ACTION_REDIRECT,
-            Self::TimeLimit => constants::browser::INTERVENTION_ACTION_TIME_LIMIT,
-            Self::AskParent => constants::browser::INTERVENTION_ACTION_ASK_PARENT,
-            Self::ApprovalHold => constants::browser::INTERVENTION_ACTION_APPROVAL_HOLD,
-            Self::CheckingHold => constants::browser::INTERVENTION_ACTION_CHECKING_HOLD,
-            Self::TerminateProcess => constants::browser::INTERVENTION_ACTION_TERMINATE_PROCESS,
-            Self::RelaunchManaged => constants::browser::INTERVENTION_ACTION_RELAUNCH_MANAGED,
-            Self::Monitor => constants::browser::INTERVENTION_ACTION_MONITOR,
-            Self::Unknown => constants::browser::INTERVENTION_ACTION_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserInterventionTargetType {
     #[serde(rename = "site")]
     Site,
@@ -123,45 +127,35 @@ pub enum BrowserInterventionTargetType {
 }
 
 impl BrowserInterventionTargetType {
+    const PROTOCOL_STRINGS: [&'static str; 20] = [
+        constants::browser::INTERVENTION_TARGET_TYPE_SITE,
+        constants::browser::INTERVENTION_TARGET_TYPE_DOMAIN,
+        constants::browser::INTERVENTION_TARGET_TYPE_URL,
+        constants::browser::INTERVENTION_TARGET_TYPE_VIDEO,
+        constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_ACCOUNT_CREATION,
+        constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_FEED,
+        constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_SHORT_VIDEO_FEED,
+        constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_MESSAGING,
+        constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_UPLOAD_POST,
+        constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_LIVESTREAM,
+        constants::browser::INTERVENTION_TARGET_TYPE_UNKNOWN_SOCIAL_SITE,
+        constants::browser::INTERVENTION_TARGET_TYPE_BROWSER_GAME,
+        constants::browser::INTERVENTION_TARGET_TYPE_GAME_ACCOUNT,
+        constants::browser::INTERVENTION_TARGET_TYPE_GAME_PURCHASE,
+        constants::browser::INTERVENTION_TARGET_TYPE_CLOUD_GAMING,
+        constants::browser::INTERVENTION_TARGET_TYPE_UNKNOWN_GAME,
+        constants::browser::INTERVENTION_TARGET_TYPE_UNBLOCKED_GAME_SITE,
+        constants::browser::INTERVENTION_TARGET_TYPE_BROWSER_PROCESS,
+        constants::browser::INTERVENTION_TARGET_TYPE_BROWSER_SESSION,
+        constants::browser::INTERVENTION_TARGET_TYPE_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Site => constants::browser::INTERVENTION_TARGET_TYPE_SITE,
-            Self::Domain => constants::browser::INTERVENTION_TARGET_TYPE_DOMAIN,
-            Self::Url => constants::browser::INTERVENTION_TARGET_TYPE_URL,
-            Self::Video => constants::browser::INTERVENTION_TARGET_TYPE_VIDEO,
-            Self::SocialAccountCreation => {
-                constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_ACCOUNT_CREATION
-            }
-            Self::SocialFeed => constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_FEED,
-            Self::SocialShortVideoFeed => {
-                constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_SHORT_VIDEO_FEED
-            }
-            Self::SocialMessaging => constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_MESSAGING,
-            Self::SocialUploadPost => {
-                constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_UPLOAD_POST
-            }
-            Self::SocialLivestream => {
-                constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_LIVESTREAM
-            }
-            Self::UnknownSocialSite => {
-                constants::browser::INTERVENTION_TARGET_TYPE_UNKNOWN_SOCIAL_SITE
-            }
-            Self::BrowserGame => constants::browser::INTERVENTION_TARGET_TYPE_BROWSER_GAME,
-            Self::GameAccount => constants::browser::INTERVENTION_TARGET_TYPE_GAME_ACCOUNT,
-            Self::GamePurchase => constants::browser::INTERVENTION_TARGET_TYPE_GAME_PURCHASE,
-            Self::CloudGaming => constants::browser::INTERVENTION_TARGET_TYPE_CLOUD_GAMING,
-            Self::UnknownGame => constants::browser::INTERVENTION_TARGET_TYPE_UNKNOWN_GAME,
-            Self::UnblockedGameSite => {
-                constants::browser::INTERVENTION_TARGET_TYPE_UNBLOCKED_GAME_SITE
-            }
-            Self::BrowserProcess => constants::browser::INTERVENTION_TARGET_TYPE_BROWSER_PROCESS,
-            Self::BrowserSession => constants::browser::INTERVENTION_TARGET_TYPE_BROWSER_SESSION,
-            Self::Unknown => constants::browser::INTERVENTION_TARGET_TYPE_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserInterventionMechanism {
     #[serde(rename = "chromium-cdp-fetch")]
     ChromiumCdpFetch,
@@ -186,25 +180,25 @@ pub enum BrowserInterventionMechanism {
 }
 
 impl BrowserInterventionMechanism {
+    const PROTOCOL_STRINGS: [&'static str; 10] = [
+        constants::browser::INTERVENTION_MECHANISM_CHROMIUM_CDP_FETCH,
+        constants::browser::INTERVENTION_MECHANISM_WEBDRIVER_BIDI_NETWORK,
+        constants::browser::INTERVENTION_MECHANISM_MANAGED_EXTENSION,
+        constants::browser::INTERVENTION_MECHANISM_MANAGED_BLOCK_PAGE,
+        constants::browser::INTERVENTION_MECHANISM_APPROVAL_HOLD_PAGE,
+        constants::browser::INTERVENTION_MECHANISM_CHECKING_HOLD_PAGE,
+        constants::browser::INTERVENTION_MECHANISM_OS_APP_CONTROL,
+        constants::browser::INTERVENTION_MECHANISM_OWNED_WEBVIEW,
+        constants::browser::INTERVENTION_MECHANISM_MONITOR_ONLY,
+        constants::browser::INTERVENTION_MECHANISM_NONE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ChromiumCdpFetch => constants::browser::INTERVENTION_MECHANISM_CHROMIUM_CDP_FETCH,
-            Self::WebDriverBidiNetwork => {
-                constants::browser::INTERVENTION_MECHANISM_WEBDRIVER_BIDI_NETWORK
-            }
-            Self::ManagedExtension => constants::browser::INTERVENTION_MECHANISM_MANAGED_EXTENSION,
-            Self::ManagedBlockPage => constants::browser::INTERVENTION_MECHANISM_MANAGED_BLOCK_PAGE,
-            Self::ApprovalHoldPage => constants::browser::INTERVENTION_MECHANISM_APPROVAL_HOLD_PAGE,
-            Self::CheckingHoldPage => constants::browser::INTERVENTION_MECHANISM_CHECKING_HOLD_PAGE,
-            Self::OsAppControl => constants::browser::INTERVENTION_MECHANISM_OS_APP_CONTROL,
-            Self::OwnedWebView => constants::browser::INTERVENTION_MECHANISM_OWNED_WEBVIEW,
-            Self::MonitorOnly => constants::browser::INTERVENTION_MECHANISM_MONITOR_ONLY,
-            Self::None => constants::browser::INTERVENTION_MECHANISM_NONE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserInterventionOutcome {
     #[serde(rename = "applied")]
     Applied,
@@ -235,26 +229,28 @@ pub enum BrowserInterventionOutcome {
 }
 
 impl BrowserInterventionOutcome {
+    const PROTOCOL_STRINGS: [&'static str; 13] = [
+        constants::browser::INTERVENTION_OUTCOME_APPLIED,
+        constants::browser::INTERVENTION_OUTCOME_ALLOWED,
+        constants::browser::INTERVENTION_OUTCOME_WARNED,
+        constants::browser::INTERVENTION_OUTCOME_BLOCKED,
+        constants::browser::INTERVENTION_OUTCOME_REDIRECTED,
+        constants::browser::INTERVENTION_OUTCOME_APPROVAL_REQUIRED,
+        constants::browser::INTERVENTION_OUTCOME_HELD,
+        constants::browser::INTERVENTION_OUTCOME_TERMINATED,
+        constants::browser::INTERVENTION_OUTCOME_RELAUNCH_STARTED,
+        constants::browser::INTERVENTION_OUTCOME_MANUAL_REQUIRED,
+        constants::browser::INTERVENTION_OUTCOME_FAILED,
+        constants::browser::INTERVENTION_OUTCOME_UNSUPPORTED,
+        constants::browser::INTERVENTION_OUTCOME_MONITOR_ONLY,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Applied => constants::browser::INTERVENTION_OUTCOME_APPLIED,
-            Self::Allowed => constants::browser::INTERVENTION_OUTCOME_ALLOWED,
-            Self::Warned => constants::browser::INTERVENTION_OUTCOME_WARNED,
-            Self::Blocked => constants::browser::INTERVENTION_OUTCOME_BLOCKED,
-            Self::Redirected => constants::browser::INTERVENTION_OUTCOME_REDIRECTED,
-            Self::ApprovalRequired => constants::browser::INTERVENTION_OUTCOME_APPROVAL_REQUIRED,
-            Self::Held => constants::browser::INTERVENTION_OUTCOME_HELD,
-            Self::Terminated => constants::browser::INTERVENTION_OUTCOME_TERMINATED,
-            Self::RelaunchStarted => constants::browser::INTERVENTION_OUTCOME_RELAUNCH_STARTED,
-            Self::ManualRequired => constants::browser::INTERVENTION_OUTCOME_MANUAL_REQUIRED,
-            Self::Failed => constants::browser::INTERVENTION_OUTCOME_FAILED,
-            Self::Unsupported => constants::browser::INTERVENTION_OUTCOME_UNSUPPORTED,
-            Self::MonitorOnly => constants::browser::INTERVENTION_OUTCOME_MONITOR_ONLY,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserInterventionCapabilityState {
     #[serde(rename = "ready")]
     Ready,
@@ -273,30 +269,22 @@ pub enum BrowserInterventionCapabilityState {
 }
 
 impl BrowserInterventionCapabilityState {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        constants::browser::INTERVENTION_CAPABILITY_READY,
+        constants::browser::INTERVENTION_CAPABILITY_NEEDS_MANAGED_SESSION,
+        constants::browser::INTERVENTION_CAPABILITY_NEEDS_MANAGED_EXTENSION,
+        constants::browser::INTERVENTION_CAPABILITY_NEEDS_OS_APP_CONTROL,
+        constants::browser::INTERVENTION_CAPABILITY_UNSUPPORTED_BROWSER,
+        constants::browser::INTERVENTION_CAPABILITY_DISABLED_BY_PARENT,
+        constants::browser::INTERVENTION_CAPABILITY_ADAPTER_ERROR,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Ready => constants::browser::INTERVENTION_CAPABILITY_READY,
-            Self::NeedsManagedSession => {
-                constants::browser::INTERVENTION_CAPABILITY_NEEDS_MANAGED_SESSION
-            }
-            Self::NeedsManagedExtension => {
-                constants::browser::INTERVENTION_CAPABILITY_NEEDS_MANAGED_EXTENSION
-            }
-            Self::NeedsOsAppControl => {
-                constants::browser::INTERVENTION_CAPABILITY_NEEDS_OS_APP_CONTROL
-            }
-            Self::UnsupportedBrowser => {
-                constants::browser::INTERVENTION_CAPABILITY_UNSUPPORTED_BROWSER
-            }
-            Self::DisabledByParent => {
-                constants::browser::INTERVENTION_CAPABILITY_DISABLED_BY_PARENT
-            }
-            Self::AdapterError => constants::browser::INTERVENTION_CAPABILITY_ADAPTER_ERROR,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserUnmanagedFallbackActionState {
     #[serde(rename = "report-only")]
     ReportOnly,
@@ -327,33 +315,25 @@ impl Default for BrowserUnmanagedFallbackActionState {
 }
 
 impl BrowserUnmanagedFallbackActionState {
+    const PROTOCOL_STRINGS: [&'static str; 10] = [
+        constants::browser::UNMANAGED_FALLBACK_ACTION_REPORT_ONLY,
+        constants::browser::UNMANAGED_FALLBACK_ACTION_WARN_CHILD,
+        constants::browser::UNMANAGED_FALLBACK_ACTION_ASK_PARENT,
+        constants::browser::UNMANAGED_FALLBACK_ACTION_TERMINATE_PROCESS,
+        constants::browser::UNMANAGED_FALLBACK_ACTION_RELAUNCH_MANAGED_BROWSER,
+        constants::browser::UNMANAGED_FALLBACK_ACTION_OS_BLOCK_CONFIGURED,
+        constants::browser::UNMANAGED_FALLBACK_ACTION_OS_BLOCK_MANUAL_REQUIRED,
+        constants::browser::UNMANAGED_FALLBACK_ACTION_ALLOWED_UNMANAGED_EXCEPTION,
+        constants::browser::UNMANAGED_FALLBACK_ACTION_DEGRADED,
+        constants::browser::UNMANAGED_FALLBACK_ACTION_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ReportOnly => constants::browser::UNMANAGED_FALLBACK_ACTION_REPORT_ONLY,
-            Self::WarnChild => constants::browser::UNMANAGED_FALLBACK_ACTION_WARN_CHILD,
-            Self::AskParent => constants::browser::UNMANAGED_FALLBACK_ACTION_ASK_PARENT,
-            Self::TerminateProcess => {
-                constants::browser::UNMANAGED_FALLBACK_ACTION_TERMINATE_PROCESS
-            }
-            Self::RelaunchManagedBrowser => {
-                constants::browser::UNMANAGED_FALLBACK_ACTION_RELAUNCH_MANAGED_BROWSER
-            }
-            Self::OsBlockConfigured => {
-                constants::browser::UNMANAGED_FALLBACK_ACTION_OS_BLOCK_CONFIGURED
-            }
-            Self::OsBlockManualRequired => {
-                constants::browser::UNMANAGED_FALLBACK_ACTION_OS_BLOCK_MANUAL_REQUIRED
-            }
-            Self::AllowedUnmanagedException => {
-                constants::browser::UNMANAGED_FALLBACK_ACTION_ALLOWED_UNMANAGED_EXCEPTION
-            }
-            Self::Degraded => constants::browser::UNMANAGED_FALLBACK_ACTION_DEGRADED,
-            Self::Unavailable => constants::browser::UNMANAGED_FALLBACK_ACTION_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserBoundaryState {
     #[serde(rename = "managed-session")]
     ManagedSession,
@@ -368,22 +348,20 @@ pub enum BrowserBoundaryState {
 }
 
 impl BrowserBoundaryState {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::browser::INTERVENTION_BOUNDARY_MANAGED_SESSION,
+        constants::browser::INTERVENTION_BOUNDARY_UNMANAGED_BROWSER_PROCESS,
+        constants::browser::INTERVENTION_BOUNDARY_BROWSER_LIKE_PROCESS,
+        constants::browser::INTERVENTION_BOUNDARY_UNSUPPORTED,
+        constants::browser::INTERVENTION_BOUNDARY_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ManagedSession => constants::browser::INTERVENTION_BOUNDARY_MANAGED_SESSION,
-            Self::UnmanagedBrowserProcess => {
-                constants::browser::INTERVENTION_BOUNDARY_UNMANAGED_BROWSER_PROCESS
-            }
-            Self::BrowserLikeProcess => {
-                constants::browser::INTERVENTION_BOUNDARY_BROWSER_LIKE_PROCESS
-            }
-            Self::Unsupported => constants::browser::INTERVENTION_BOUNDARY_UNSUPPORTED,
-            Self::Unknown => constants::browser::INTERVENTION_BOUNDARY_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserExactUrlClaimState {
     #[serde(rename = "exact-url-proven")]
     ExactUrlProven,
@@ -394,16 +372,18 @@ pub enum BrowserExactUrlClaimState {
 }
 
 impl BrowserExactUrlClaimState {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::browser::INTERVENTION_EXACT_URL_PROVEN,
+        constants::browser::INTERVENTION_EXACT_URL_NOT_CLAIMED,
+        constants::browser::INTERVENTION_EXACT_URL_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ExactUrlProven => constants::browser::INTERVENTION_EXACT_URL_PROVEN,
-            Self::NotClaimed => constants::browser::INTERVENTION_EXACT_URL_NOT_CLAIMED,
-            Self::Unavailable => constants::browser::INTERVENTION_EXACT_URL_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserUnmanagedDetectionState {
     #[serde(rename = "none")]
     None,
@@ -419,7 +399,7 @@ pub enum BrowserUnmanagedDetectionState {
     Unavailable,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserInterventionDeliveryState {
     #[serde(rename = "not-delivered")]
     NotDelivered,
@@ -444,36 +424,32 @@ impl Default for BrowserInterventionDeliveryState {
 }
 
 impl BrowserInterventionDeliveryState {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        constants::browser::INTERVENTION_DELIVERY_NOT_DELIVERED,
+        constants::browser::INTERVENTION_DELIVERY_WARN_PAGE_RENDERED,
+        constants::browser::INTERVENTION_DELIVERY_BLOCK_PAGE_RENDERED,
+        constants::browser::INTERVENTION_DELIVERY_APPROVAL_HOLD_RENDERED,
+        constants::browser::INTERVENTION_DELIVERY_CHECKING_HOLD_RENDERED,
+        constants::browser::INTERVENTION_DELIVERY_PORTAL_ROW_ONLY,
+        constants::browser::INTERVENTION_DELIVERY_MANUAL_REQUIRED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::NotDelivered => constants::browser::INTERVENTION_DELIVERY_NOT_DELIVERED,
-            Self::WarnPageRendered => constants::browser::INTERVENTION_DELIVERY_WARN_PAGE_RENDERED,
-            Self::BlockPageRendered => {
-                constants::browser::INTERVENTION_DELIVERY_BLOCK_PAGE_RENDERED
-            }
-            Self::ApprovalHoldRendered => {
-                constants::browser::INTERVENTION_DELIVERY_APPROVAL_HOLD_RENDERED
-            }
-            Self::CheckingHoldRendered => {
-                constants::browser::INTERVENTION_DELIVERY_CHECKING_HOLD_RENDERED
-            }
-            Self::PortalRowOnly => constants::browser::INTERVENTION_DELIVERY_PORTAL_ROW_ONLY,
-            Self::ManualRequired => constants::browser::INTERVENTION_DELIVERY_MANUAL_REQUIRED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 impl BrowserUnmanagedDetectionState {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        constants::browser::INTERVENTION_UNMANAGED_DETECTION_NONE,
+        constants::browser::INTERVENTION_UNMANAGED_DETECTION_DETECTED,
+        constants::browser::INTERVENTION_UNMANAGED_DETECTION_WARNED,
+        constants::browser::INTERVENTION_UNMANAGED_DETECTION_TERMINATED,
+        constants::browser::INTERVENTION_UNMANAGED_DETECTION_MANUAL_REQUIRED,
+        constants::browser::INTERVENTION_UNMANAGED_DETECTION_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::None => constants::browser::INTERVENTION_UNMANAGED_DETECTION_NONE,
-            Self::Detected => constants::browser::INTERVENTION_UNMANAGED_DETECTION_DETECTED,
-            Self::Warned => constants::browser::INTERVENTION_UNMANAGED_DETECTION_WARNED,
-            Self::Terminated => constants::browser::INTERVENTION_UNMANAGED_DETECTION_TERMINATED,
-            Self::ManualRequired => {
-                constants::browser::INTERVENTION_UNMANAGED_DETECTION_MANUAL_REQUIRED
-            }
-            Self::Unavailable => constants::browser::INTERVENTION_UNMANAGED_DETECTION_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }

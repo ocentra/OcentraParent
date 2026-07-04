@@ -4,7 +4,7 @@ import {
   generatedParentPortalRouteState,
   type GeneratedParentPortalManageLane,
   type GeneratedParentPortalPageMode,
-} from './generated/portal-route-state';
+} from './portal-route-state.generated';
 import { portalRouteHashPath } from './routes';
 import { PortalRoutes } from './routes';
 import {

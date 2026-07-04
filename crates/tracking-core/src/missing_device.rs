@@ -34,12 +34,8 @@ pub fn evaluate_missing_device_mode(
 
     TrackingMissingDeviceDecision {
         evaluation_id: tracking_missing_device_evaluation_id_from_child_device_id(&child_device_id),
-        missing_device_state: match TrackingMissingDeviceState::parse(missing_device_state) {
-            Ok(parsed_state) => parsed_state,
-            Err(_) => {
-                unreachable!("tracking missing-device contract drift: {missing_device_state}")
-            }
-        },
+        missing_device_state: TrackingMissingDeviceState::parse(missing_device_state)
+            .expect("tracking missing-device contract drift"),
         parent_visibility_state: if missing {
             TrackingLastKnownVisibilityState::LastKnownOnly
         } else {

@@ -16,24 +16,14 @@ fn app_game_adapter_execution_readiness_command_and_event_names_are_stable() {
         serde_json::to_value(
             AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet
         )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error}",
-                ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES
-            )
-        }),
+        .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.adapter-execution-readiness.read-model.get"
     );
     assert_eq!(
         serde_json::to_value(
             AgentEventName::AgentActivityAppGameAdapterExecutionReadinessReadModelReported
         )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error}",
-                ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES
-            )
-        }),
+        .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.adapter-execution-readiness.read-model.reported"
     );
 }
@@ -102,19 +92,10 @@ fn app_game_adapter_execution_readiness_serializes_no_claim_upgrades() {
     };
 
     let reparsed = serde_json::from_value::<AppGameAdapterExecutionReadinessReadModel>(
-        serde_json::to_value(read_model).unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error}",
-                ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES
-            )
-        }),
+        serde_json::to_value(read_model)
+            .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
     )
-    .unwrap_or_else(|error| {
-        unreachable!(
-            "{}: {error}",
-            ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES
-        )
-    });
+    .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         reparsed.read_model_id,

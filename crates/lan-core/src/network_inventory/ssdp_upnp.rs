@@ -1,6 +1,6 @@
 pub mod http;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::io::{Read, Write};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, TcpStream, UdpSocket};
 use std::time::{Duration, Instant};
@@ -11,14 +11,13 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanServiceIdentityProbeEvidence, LanServiceIdentityProbeEvidenceKind,
 };
 
-use super::LanNetworkInventoryDevice;
-use self::http::{
-    header_value, io_error, is_infrastructure_device, mx_seconds_for_timeout,
-    normalize_http_header_value, normalize_search_target, normalized_header_value,
-    parse_allowed_http_location, parse_device_type, parse_http_status_code, parse_port,
-    resolve_allowed_host, sanitize_path, split_http_headers,
-};
 use self::http::text::{extract_xml_text, parse_udn, short_ssdp_label};
+use self::http::{
+    io_error, is_infrastructure_device, mx_seconds_for_timeout, normalize_search_target,
+    normalized_header_value, parse_allowed_http_location, parse_device_type,
+    parse_http_status_code, split_http_headers,
+};
+use super::LanNetworkInventoryDevice;
 
 pub const SSDP_MAX_RESPONSE_BYTES: usize = 16 * 1024;
 pub const SSDP_MAX_DESCRIPTION_BYTES: usize = 64 * 1024;
@@ -308,13 +307,19 @@ pub fn parse_device_description_xml(
     if xml.contains("<!DOCTYPE") || xml.contains("<!ENTITY") {
         return Err(SsdpDiscoveryError::InvalidDescription);
     }
+    let bounded_text = |tag| match extract_xml_text(xml, tag) {
+        Some(value) if value.len() > SSDP_MAX_DESCRIPTION_TEXT_BYTES => {
+            Err(SsdpDiscoveryError::InvalidDescription)
+        }
+        value => Ok(value),
+    };
     let friendly_name =
-        extract_xml_text(xml, "friendlyName").ok_or(SsdpDiscoveryError::InvalidDescription)?;
-    let device_type = extract_xml_text(xml, "deviceType")
-        .and_then(|value| parse_device_type(&value).or(Some(value)));
-    let manufacturer = extract_xml_text(xml, "manufacturer");
-    let model_name = extract_xml_text(xml, "modelName");
-    let udn = extract_xml_text(xml, "UDN").and_then(|value| parse_udn(&value));
+        bounded_text("friendlyName")?.ok_or(SsdpDiscoveryError::InvalidDescription)?;
+    let device_type =
+        bounded_text("deviceType")?.and_then(|value| parse_device_type(&value).or(Some(value)));
+    let manufacturer = bounded_text("manufacturer")?;
+    let model_name = bounded_text("modelName")?;
+    let udn = bounded_text("UDN")?.and_then(|value| parse_udn(&value));
     Ok(SsdpDeviceDescription {
         friendly_name,
         manufacturer,

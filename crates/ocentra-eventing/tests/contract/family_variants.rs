@@ -1,3 +1,4 @@
+use super::support::{test_event_for_type, TestText, OTHER_EVENT_TYPE, TEST_EVENT_TYPE};
 use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::contract_registry::EventContractRegistry;
@@ -71,22 +72,21 @@ impl DomainEvent for DecisionFamilyEvent {
 #[tokio::test]
 async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
     let bus = EventBus::new();
-    let received = Arc::new(Mutex::new(Vec::new()));
+    let received = Arc::new(Mutex::new(Vec::<TestText>::new()));
 
     let approved_seen = Arc::clone(&received);
     bus.subscribe::<DecisionFamilyEvent, _, _>(
-        family_subscriber(APPROVED_SUBSCRIBER, APPROVED_EVENT_TYPE),
+        family_subscriber(
+            TestText(APPROVED_SUBSCRIBER.to_owned()),
+            TestText(APPROVED_EVENT_TYPE.to_owned()),
+        ),
         move |context| {
             let approved_seen = Arc::clone(&approved_seen);
             async move {
-                match context.payload() {
-                    DecisionFamilyEvent::Approved(payload) => {
-                        approved_seen
-                            .lock()
-                            .expect_value("received lock")
-                            .push(payload.label.clone());
-                    }
-                    DecisionFamilyEvent::Rejected(_) => std::process::abort(),
+                if let DecisionFamilyEvent::Approved(payload) = context.payload() {
+                    record_payload(&approved_seen, payload);
+                } else {
+                    std::process::abort();
                 }
                 Ok(())
             }
@@ -97,18 +97,17 @@ async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
 
     let rejected_seen = Arc::clone(&received);
     bus.subscribe::<DecisionFamilyEvent, _, _>(
-        family_subscriber(REJECTED_SUBSCRIBER, REJECTED_EVENT_TYPE),
+        family_subscriber(
+            TestText(REJECTED_SUBSCRIBER.to_owned()),
+            TestText(REJECTED_EVENT_TYPE.to_owned()),
+        ),
         move |context| {
             let rejected_seen = Arc::clone(&rejected_seen);
             async move {
-                match context.payload() {
-                    DecisionFamilyEvent::Approved(_) => std::process::abort(),
-                    DecisionFamilyEvent::Rejected(payload) => {
-                        rejected_seen
-                            .lock()
-                            .expect_value("received lock")
-                            .push(payload.label.clone());
-                    }
+                if let DecisionFamilyEvent::Rejected(payload) = context.payload() {
+                    record_payload(&rejected_seen, payload);
+                } else {
+                    std::process::abort();
                 }
                 Ok(())
             }
@@ -126,7 +125,10 @@ async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
 
     assert_eq!(
         received.lock().expect_value("received lock").as_slice(),
-        [APPROVED_LABEL.to_string(), REJECTED_LABEL.to_string()]
+        [
+            TestText(APPROVED_LABEL.to_string()),
+            TestText(REJECTED_LABEL.to_string())
+        ]
     );
 }
 
@@ -193,6 +195,13 @@ fn decision_payload(event: &DecisionFamilyEvent) -> &DecisionPayload {
     }
 }
 
+fn record_payload(received: &Arc<Mutex<Vec<TestText>>>, payload: &DecisionPayload) {
+    received
+        .lock()
+        .expect_value("received lock")
+        .push(TestText(payload.label.clone()));
+}
+
 fn family_metadata() -> EventMetadata {
     EventMetadata::from_parts(
         ocentra_eventing::ids::EventId::parse(FAMILY_EVENT_ID).expect_value("event id parses"),
@@ -209,10 +218,10 @@ fn family_metadata() -> EventMetadata {
     )
 }
 
-fn family_subscriber(id: &str, event_type: &str) -> EventSubscriber {
+fn family_subscriber(id: TestText, event_type: TestText) -> EventSubscriber {
     EventSubscriber::new(
-        SubscriberId::parse(id).expect_value("subscriber id parses"),
-        EventType::parse(event_type).expect_value("event type parses"),
+        SubscriberId::parse(id.0).expect_value("subscriber id parses"),
+        EventType::parse(event_type.0).expect_value("event type parses"),
         TargetHandler::parse(FAMILY_TARGET).expect_value("target handler parses"),
     )
 }

@@ -17,6 +17,18 @@ use ocentra_parent_runtime_core::tracking_dispatch::{
     ChildAcknowledgementState, ChildRuntimePublishState, ParentRuntimeOriginState,
 };
 
+macro_rules! result_or_unreachable {
+    ($result:expr, $context:expr $(,)?) => {
+        $result.expect($context)
+    };
+}
+
+macro_rules! option_or_unreachable {
+    ($option:expr, $context:expr $(,)?) => {
+        $option.expect($context)
+    };
+}
+
 #[tokio::test]
 async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_runtime_ack() {
     let event = parent_tracking_config_event(TrackingConfigUpdateTargetScope::ChildDevice);
@@ -28,7 +40,7 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
         ParentRuntimeOriginState::TrustedLocalUi,
     )
     .await;
-    let flow_report = result_or_unreachable(flow_report, constants::error::AGENT_EVENT_SERIALIZES);
+    let flow_report = result_or_unreachable!(flow_report, constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         flow_report.change_requested_event.previous_event_ref,
@@ -46,7 +58,7 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
         ChildRuntimePublishState::Publish
     );
     assert_eq!(
-        option_or_unreachable(
+        option_or_unreachable!(
             flow_report.change_approved_event.as_ref(),
             "approved flow should emit a change-approved event",
         )
@@ -54,7 +66,7 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
         flow_report.policy_decision_event.policy_decision_ref
     );
     assert!(
-        option_or_unreachable(
+        option_or_unreachable!(
             flow_report.change_approved_event.as_ref(),
             "approved flow should emit a change-approved event",
         )
@@ -74,7 +86,7 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
         TrackingConfigUpdateResponseState::Applied
     );
     assert_eq!(
-        option_or_unreachable(
+        option_or_unreachable!(
             flow_report.child_runtime_flow.as_ref(),
             "approved flow should emit a child runtime flow",
         )
@@ -96,7 +108,7 @@ async fn parent_runtime_tracking_config_flow_rejects_untrusted_origin_without_ch
         ParentRuntimeOriginState::Untrusted,
     )
     .await;
-    let flow_report = result_or_unreachable(flow_report, constants::error::AGENT_EVENT_SERIALIZES);
+    let flow_report = result_or_unreachable!(flow_report, constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         flow_report.policy_decision_event.decision_state,
@@ -111,7 +123,7 @@ async fn parent_runtime_tracking_config_flow_rejects_untrusted_origin_without_ch
     );
     assert!(flow_report.change_approved_event.is_none());
     assert_eq!(
-        option_or_unreachable(
+        option_or_unreachable!(
             flow_report.change_rejected_event.as_ref(),
             constants::error::AGENT_EVENT_SERIALIZES,
         )
@@ -157,22 +169,5 @@ fn tracking_config_command() -> AgentCommandEnvelope {
         },
         command: AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
         payload: LogFields::new(),
-    }
-}
-
-fn result_or_unreachable<T, E>(result: Result<T, E>, context: &'static str) -> T
-where
-    E: std::fmt::Debug,
-{
-    match result {
-        Ok(value) => value,
-        Err(error) => unreachable!("{context}: {error:?}"),
-    }
-}
-
-fn option_or_unreachable<T>(option: Option<T>, context: &'static str) -> T {
-    match option {
-        Some(value) => value,
-        None => unreachable!("{context}"),
     }
 }

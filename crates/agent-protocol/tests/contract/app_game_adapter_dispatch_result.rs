@@ -63,8 +63,7 @@ fn app_game_adapter_dispatch_result_serializes_parent_safe_command_result_rows()
         rows: vec![scoped_command_result_row()],
     };
 
-    let serialized = serde_json::to_value(&read_model)
-        .unwrap_or_else(|error| unreachable!("dispatch result serializes: {error}"));
+    let serialized = serde_json::to_value(&read_model).expect("dispatch result serializes");
 
     assert_eq!(
         serialized["readModelId"],

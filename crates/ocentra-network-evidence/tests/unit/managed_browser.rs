@@ -1,9 +1,6 @@
-use crate::{
-    correlate_managed_browser_activity, ManagedBrowserCorrelation, ManagedBrowserCorrelationBasis,
-    ManagedBrowserCorrelationError, ManagedBrowserCorrelationInput, ManagedBrowserCorrelationState,
-    ManagedBrowserPageEvidence, NetworkEvidenceGrade, NetworkManagedBrowserFlowEvidence,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::managed_browser::*;
 
 #[test]
 fn managed_browser_correlation_uses_browser_url_for_matching_domain() {

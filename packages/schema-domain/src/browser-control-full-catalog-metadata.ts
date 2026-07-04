@@ -13,11 +13,6 @@ import type {
   BrowserControlFullCatalogSelectionMode,
 } from './browser-control-full-catalog-schema';
 import {
-  GeneratedBrowserControlFullCatalogEffectModeOptions,
-  GeneratedBrowserControlFullCatalogSidePanelCategory,
-  GeneratedBrowserControlFullCatalogSourceDocument,
-  GeneratedBrowserControlFullCatalogSourceDocuments,
-  GeneratedBrowserControlFullCatalogTargetScopeOptions,
   capabilityRequirementForGenerated,
   capabilityStateForSectionGenerated,
   cardKindForGenerated,
@@ -35,16 +30,6 @@ import {
   validationRulesForGenerated,
   visibilityConditionsForGenerated,
 } from './generated/browser-policy-control-catalog-helpers';
-
-export const BrowserControlFullCatalogSourceDocument = GeneratedBrowserControlFullCatalogSourceDocument;
-export const BrowserControlFullCatalogSourceDocuments = GeneratedBrowserControlFullCatalogSourceDocuments;
-export const BrowserControlFullCatalogSidePanelCategory = GeneratedBrowserControlFullCatalogSidePanelCategory;
-export const BrowserControlFullCatalogTargetScopeOptions = GeneratedBrowserControlFullCatalogTargetScopeOptions.map(
-  parseCatalogOption
-);
-export const BrowserControlFullCatalogEffectModeOptions = GeneratedBrowserControlFullCatalogEffectModeOptions.map(
-  parseCatalogOption
-);
 
 export function optionsFromSourceText(sourceText: string): BrowserControlFullCatalogOption[] {
   return optionsFromSourceTextGenerated(sourceText).map(parseCatalogOption);

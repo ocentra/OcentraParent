@@ -199,8 +199,8 @@ pub fn network_device_from_windows_neighbor_with_observed_at(
         reachability_from_windows_state(record.get(constants::lan_pairing::JSON_KEY_STATE));
     let trusted_device = identity_hint_inventory.find(&mac_address, &ip_address);
     let previous_device = previous_inventory.find(&mac_address, &ip_address);
-    let resolved_identity = identity::resolved_windows_neighbor_identity(
-        identity::WindowsNeighborIdentityInput {
+    let resolved_identity =
+        identity::resolved_windows_neighbor_identity(identity::WindowsNeighborIdentityInput {
             ip_address: &ip_address,
             mac_address: &mac_address,
             platform,
@@ -211,8 +211,7 @@ pub fn network_device_from_windows_neighbor_with_observed_at(
             netbios_cache_hostname: netbios_names.get(&ip_address).cloned(),
             trusted_device,
             previous_device,
-        },
-    );
+        });
     let mut device_id = String::from(constants::lan_pairing::NETWORK_NEIGHBOR_DEVICE_PREFIX);
     device_id.push_str(
         &mac_address

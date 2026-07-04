@@ -1,11 +1,7 @@
-use crate::{
-    map_network_evidence_grade_to_policy, plan_network_linux_adapter_gate, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
-    NetworkLinuxAdapterCapabilityState, NetworkLinuxAdapterGateBoundaryReason,
-    NetworkLinuxAdapterGateError, NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateState,
-    NetworkLinuxAdapterKind, NetworkLinuxAdapterRequiredArtifact,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::linux_adapter_gate::*;
+use ocentra_network_evidence::policy::*;
 
 #[test]
 fn linux_adapter_gate_allows_distro_proof_ready_with_rollback_and_audit_refs() {

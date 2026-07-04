@@ -5,7 +5,8 @@ use serde_json::json;
 #[test]
 fn encryption_key_custody_contract_round_trips_through_rust_owned_shape() {
     let proof = contracts::sample_encryption_key_custody_contract_proof();
-    let encoded = serde_json::to_value(&proof).value_or_unreachable("proof serializes");
+    let encoded = serde_json::to_value(&proof)
+        .value_or_unreachable(crate::assert_context!("proof serializes"));
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -23,8 +24,8 @@ fn encryption_key_custody_contract_round_trips_through_rust_owned_shape() {
     assert_eq!(encoded["universalOcentraKeyPresent"], json!(false));
     assert!(encoded.get("schema_version").is_none());
 
-    let decoded: contracts::EncryptionKeyCustodyContractProof =
-        serde_json::from_value(encoded).value_or_unreachable("proof deserializes");
+    let decoded: contracts::EncryptionKeyCustodyContractProof = serde_json::from_value(encoded)
+        .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
 }
 

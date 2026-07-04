@@ -13,6 +13,7 @@ use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
+use crate::browser_runtime_stream_events::BrowserRuntimeText;
 use crate::browser_runtime_stream_payload::{
     stream_browser_runtime_event_chain_for_read_model_with_policy_preview,
     BrowserRuntimeServiceStreamReport,
@@ -119,27 +120,35 @@ fn browser_runtime_stream_metadata(
     ))
 }
 
-fn browser_runtime_stream_request_id(read_model: &BrowserEvidenceReadModel) -> String {
+fn browser_runtime_stream_request_id(read_model: &BrowserEvidenceReadModel) -> BrowserRuntimeText {
     let mut value = String::from(constants::browser::REQUEST_BROWSER_RUNTIME_STREAM_REPORT_PREFIX);
-    value.push_str(&browser_runtime_stream_read_model_ref(read_model));
-    value
+    value.push_str(&browser_runtime_stream_read_model_ref(read_model).0);
+    BrowserRuntimeText(value)
 }
 
-fn browser_runtime_stream_correlation_id(read_model: &BrowserEvidenceReadModel) -> String {
+fn browser_runtime_stream_correlation_id(
+    read_model: &BrowserEvidenceReadModel,
+) -> BrowserRuntimeText {
     let mut value = String::from(constants::browser::CORRELATION_BROWSER_RUNTIME_PREFIX);
-    value.push_str(&browser_runtime_stream_read_model_ref(read_model));
-    value
+    value.push_str(&browser_runtime_stream_read_model_ref(read_model).0);
+    BrowserRuntimeText(value)
 }
 
-fn browser_runtime_stream_aggregate_key(read_model: &BrowserEvidenceReadModel) -> String {
+fn browser_runtime_stream_aggregate_key(
+    read_model: &BrowserEvidenceReadModel,
+) -> BrowserRuntimeText {
     let mut value = String::from(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX);
-    value.push_str(&browser_runtime_stream_read_model_ref(read_model));
-    value
+    value.push_str(&browser_runtime_stream_read_model_ref(read_model).0);
+    BrowserRuntimeText(value)
 }
 
-fn browser_runtime_stream_read_model_ref(read_model: &BrowserEvidenceReadModel) -> String {
-    read_model
-        .latest_event_id
-        .clone()
-        .unwrap_or_else(|| read_model.generated_at.clone())
+fn browser_runtime_stream_read_model_ref(
+    read_model: &BrowserEvidenceReadModel,
+) -> BrowserRuntimeText {
+    BrowserRuntimeText(
+        read_model
+            .latest_event_id
+            .clone()
+            .unwrap_or_else(|| read_model.generated_at.clone()),
+    )
 }

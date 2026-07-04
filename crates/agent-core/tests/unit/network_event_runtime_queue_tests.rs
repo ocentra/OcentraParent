@@ -1,8 +1,9 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::time::Duration;
 
 use ocentra_eventing::{
-    bus::reports::DeadLetterReason, error::EventingError, queue::policy::QueueDisposition,
+    bus::reports::dead_letter::DeadLetterReason, error::EventingError,
+    queue::policy::QueueDisposition,
 };
 use ocentra_parent_agent_protocol::activity_capture::{
     ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
@@ -10,6 +11,7 @@ use ocentra_parent_agent_protocol::activity_capture::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{NetworkEvidenceScope, NetworkRuntimePhase};
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::network_capture::NetworkObservation;
 use ocentra_parent_agent_core::network_event_runtime::queue::{
     queue_network_runtime_flow_expires_before_drain,
@@ -21,10 +23,10 @@ use ocentra_parent_agent_core::network_event_runtime::queue::{
 };
 use ocentra_parent_agent_core::network_event_runtime::NetworkRuntimeEventPayload;
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestText>;
 
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+fn ok<T, E: Debug>(result: Result<T, E>, context: impl Display) -> Result<T, TestText> {
+    result.map_err(|error| TestText::from_display(format!("{context}: {error:?}")))
 }
 
 #[tokio::test]
@@ -191,7 +193,7 @@ fn complete_domain_observation() -> NetworkObservation {
 
 fn decode_stored_payloads(
     stored_events: &[ocentra_eventing::envelope::StoredEventEnvelope],
-) -> Result<Vec<NetworkRuntimeEventPayload>, String> {
+) -> Result<Vec<NetworkRuntimeEventPayload>, TestText> {
     stored_events
         .iter()
         .map(|event| {

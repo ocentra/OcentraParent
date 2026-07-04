@@ -12,6 +12,7 @@ import {
   type ParentRouteSubscriptionId,
   type ParentSubscriptionEvent,
   type ParentUiActionResult,
+  type ParentUiAction,
   parentDevBridgeDispatchUnavailableMessage,
   parentDevBridgeHttpError,
   parentRouteSubscriptionEventName,
@@ -39,37 +40,9 @@ export function createHostBridge(): HostBridge {
 
 function createTauriHostBridge(): HostBridge {
   return {
-    loadRoute(route, context) {
-      return invokeParentBridgeCommand<ParentRouteSnapshot>(ParentBridgeCommand.LoadRoute, {
-        route,
-        context: context ?? null,
-      });
-    },
-    dispatch(action) {
-      return invokeParentBridgeCommand<ParentUiActionResult>(ParentBridgeCommand.Dispatch, { action });
-    },
-    async subscribe(route, context, onEvent) {
-      const subscriptionId = await invokeParentBridgeCommand<ParentRouteSubscriptionId>(
-        ParentBridgeCommand.Subscribe,
-        {
-          route,
-          context: context ?? null,
-        }
-      );
-      const tauriEvent = await loadTauriEventModule();
-      const unlisten = await tauriEvent.listen<ParentSubscriptionEvent>(
-        parentRouteSubscriptionEventName(subscriptionId),
-        (event) => {
-          onEvent(event.payload);
-        }
-      );
-      return () => {
-        unlisten();
-        void invokeParentBridgeCommand<boolean>(ParentBridgeCommand.Unsubscribe, {
-          subscriptionId,
-        });
-      };
-    },
+    loadRoute: createTauriLoadRouteAction(),
+    dispatch: createTauriDispatchAction(),
+    subscribe: createTauriSubscribeAction(),
   };
 }
 
@@ -78,69 +51,10 @@ export function createDevWebHostBridge(parentDevBridgeUrl = resolveParentDevBrid
     return createUnavailableDevWebHostBridge();
   }
 
-  const loadSnapshot = async (
-    route: ParentRouteId,
-    context?: ParentRouteContext
-  ): Promise<ParentRouteSnapshot> => {
-    return invokeParentDevBridgeCommandOrThrow<ParentRouteSnapshot>(
-      parentDevBridgeUrl,
-      ParentDevBridgeRoute.LoadRoute,
-      {
-        route,
-        context: context ?? null,
-      }
-    );
-  };
-
   return {
-    async loadRoute(route, context) {
-      return loadSnapshot(route, context);
-    },
-    async dispatch(action) {
-      return invokeParentDevBridgeCommandOrThrow<ParentUiActionResult>(
-        parentDevBridgeUrl,
-        ParentDevBridgeRoute.Dispatch,
-        {
-          action,
-        }
-      );
-    },
-    async subscribe(route, context, onEvent) {
-      let active = true;
-      let lastSnapshotJson = JSON.stringify(null);
-
-      const emitNextSnapshot = async (): Promise<void> => {
-        if (!active) {
-          return;
-        }
-        let snapshot: ParentRouteSnapshot;
-        try {
-          snapshot = await loadSnapshot(route, context);
-        } catch {
-          return;
-        }
-        const snapshotJson = JSON.stringify(snapshot);
-        if (snapshotJson === lastSnapshotJson) {
-          return;
-        }
-        lastSnapshotJson = snapshotJson;
-        onEvent({
-          schemaVersion: ParentHostBridgeRuntime.SchemaVersion,
-          route,
-          snapshot,
-        });
-      };
-
-      void emitNextSnapshot();
-      const intervalId = globalThis.setInterval(() => {
-        void emitNextSnapshot();
-      }, ParentHostBridgeRuntime.DevRouteSubscriptionPollMs);
-
-      return () => {
-        active = false;
-        globalThis.clearInterval(intervalId);
-      };
-    },
+    loadRoute: createDevWebLoadRouteAction(parentDevBridgeUrl),
+    dispatch: createDevWebDispatchAction(parentDevBridgeUrl),
+    subscribe: createDevWebSubscribeAction(parentDevBridgeUrl),
   };
 }
 
@@ -148,15 +62,9 @@ function createUnavailableDevWebHostBridge(): HostBridge {
   const message = presentationOnlyDevWebHostBridgeMessage();
   const unavailable = async <T>(): Promise<T> => Promise.reject(new Error(message));
   return {
-    async loadRoute() {
-      return unavailable();
-    },
-    async dispatch() {
-      return unavailable();
-    },
-    async subscribe() {
-      return unavailable();
-    },
+    loadRoute: createUnavailableLoadRouteAction(unavailable),
+    dispatch: createUnavailableDispatchAction(unavailable),
+    subscribe: createUnavailableSubscribeAction(unavailable),
   };
 }
 
@@ -189,11 +97,170 @@ async function invokeParentDevBridgeCommandOrThrow<TResult>(
   try {
     return await invokeParentDevBridgeCommand<TResult>(parentDevBridgeUrl, route, payload);
   } catch (error) {
-    if (error instanceof Error && error.message.startsWith('parent dev bridge ')) {
+    if (error instanceof TypeError) {
+      throw new Error(parentDevBridgeDispatchUnavailableMessage(parentDevBridgeUrl));
+    }
+    if (error instanceof Error) {
       throw error;
     }
     throw new Error(parentDevBridgeDispatchUnavailableMessage(parentDevBridgeUrl));
   }
+}
+
+async function loadDevWebRouteSnapshot(
+  parentDevBridgeUrl: ParentDevBridgeUrl,
+  route: ParentRouteId,
+  context?: ParentRouteContext
+): Promise<ParentRouteSnapshot> {
+  return invokeParentDevBridgeCommandOrThrow<ParentRouteSnapshot>(parentDevBridgeUrl, ParentDevBridgeRoute.LoadRoute, {
+    route,
+    context: context ?? null,
+  });
+}
+
+function createTauriLoadRouteAction(): (route: ParentRouteId, context?: ParentRouteContext) => Promise<ParentRouteSnapshot> {
+  return (route, context) =>
+    invokeParentBridgeCommand<ParentRouteSnapshot>(ParentBridgeCommand.LoadRoute, {
+      route,
+      context: context ?? null,
+    });
+}
+
+function createTauriDispatchAction(): (action: ParentUiAction) => Promise<ParentUiActionResult> {
+  return (action) => invokeParentBridgeCommand<ParentUiActionResult>(ParentBridgeCommand.Dispatch, { action });
+}
+
+function createTauriSubscribeAction(): (
+  route: ParentRouteId,
+  context: ParentRouteContext | undefined,
+  onEvent: (event: ParentSubscriptionEvent) => void
+) => Promise<() => void> {
+  return async (route, context, onEvent) => {
+    const subscriptionId = await invokeParentBridgeCommand<ParentRouteSubscriptionId>(
+      ParentBridgeCommand.Subscribe,
+      {
+        route,
+        context: context ?? null,
+      }
+    );
+    const tauriEvent = await loadTauriEventModule();
+    const unlisten = await tauriEvent.listen<ParentSubscriptionEvent>(
+      parentRouteSubscriptionEventName(subscriptionId),
+      (event) => {
+        onEvent(event.payload);
+      }
+    );
+    return () => {
+      unlisten();
+      void invokeParentBridgeCommand<boolean>(ParentBridgeCommand.Unsubscribe, {
+        subscriptionId,
+      });
+    };
+  };
+}
+
+function createDevWebLoadRouteAction(
+  parentDevBridgeUrl: ParentDevBridgeUrl
+): (route: ParentRouteId, context?: ParentRouteContext) => Promise<ParentRouteSnapshot> {
+  return (route, context) => loadDevWebRouteSnapshot(parentDevBridgeUrl, route, context);
+}
+
+function createDevWebDispatchAction(
+  parentDevBridgeUrl: ParentDevBridgeUrl
+): (action: ParentUiAction) => Promise<ParentUiActionResult> {
+  return (action) =>
+    invokeParentDevBridgeCommandOrThrow<ParentUiActionResult>(parentDevBridgeUrl, ParentDevBridgeRoute.Dispatch, {
+      action,
+    });
+}
+
+function createDevWebSubscribeAction(
+  parentDevBridgeUrl: ParentDevBridgeUrl
+): (
+  route: ParentRouteId,
+  context: ParentRouteContext | undefined,
+  onEvent: (event: ParentSubscriptionEvent) => void
+) => Promise<() => void> {
+  return async (route, context, onEvent) => createDevWebRouteSubscription(parentDevBridgeUrl, route, context, onEvent);
+}
+
+function createUnavailableLoadRouteAction(
+  unavailable: <TResult>() => Promise<TResult>
+): (route?: ParentRouteId, context?: ParentRouteContext) => Promise<ParentRouteSnapshot> {
+  return async () => unavailable<ParentRouteSnapshot>();
+}
+
+function createUnavailableDispatchAction(
+  unavailable: <TResult>() => Promise<TResult>
+): (action?: ParentUiAction) => Promise<ParentUiActionResult> {
+  return async () => unavailable<ParentUiActionResult>();
+}
+
+function createUnavailableSubscribeAction(
+  unavailable: <TResult>() => Promise<TResult>
+): (route?: ParentRouteId, context?: ParentRouteContext, onEvent?: (event: ParentSubscriptionEvent) => void) => Promise<() => void> {
+  return async () => unavailable<() => void>();
+}
+
+function createDevWebRouteSubscription(
+  parentDevBridgeUrl: ParentDevBridgeUrl,
+  route: ParentRouteId,
+  context: ParentRouteContext | undefined,
+  onEvent: (event: ParentSubscriptionEvent) => void
+): () => void {
+  const subscriptionState = {
+    active: true,
+    lastSnapshotJson: JSON.stringify(null),
+  };
+  const emitNextSnapshot = createDevWebEmitNextSnapshot(
+    subscriptionState,
+    parentDevBridgeUrl,
+    route,
+    context,
+    onEvent
+  );
+  void emitNextSnapshot();
+  const intervalId = globalThis.setInterval(() => {
+    void emitNextSnapshot();
+  }, ParentHostBridgeRuntime.DevRouteSubscriptionPollMs);
+
+  return () => {
+    subscriptionState.active = false;
+    globalThis.clearInterval(intervalId);
+  };
+}
+
+function createDevWebEmitNextSnapshot(
+  subscriptionState: {
+    active: boolean;
+    lastSnapshotJson: string;
+  },
+  parentDevBridgeUrl: ParentDevBridgeUrl,
+  route: ParentRouteId,
+  context: ParentRouteContext | undefined,
+  onEvent: (event: ParentSubscriptionEvent) => void
+): () => Promise<void> {
+  return async function emitNextSnapshot(): Promise<void> {
+    if (!subscriptionState.active) {
+      return;
+    }
+    let snapshot: ParentRouteSnapshot;
+    try {
+      snapshot = await loadDevWebRouteSnapshot(parentDevBridgeUrl, route, context);
+    } catch {
+      return;
+    }
+    const snapshotJson = JSON.stringify(snapshot);
+    if (snapshotJson === subscriptionState.lastSnapshotJson) {
+      return;
+    }
+    subscriptionState.lastSnapshotJson = snapshotJson;
+    onEvent({
+      schemaVersion: ParentHostBridgeRuntime.SchemaVersion,
+      route,
+      snapshot,
+    });
+  };
 }
 
 async function invokeParentBridgeCommand<TResult>(

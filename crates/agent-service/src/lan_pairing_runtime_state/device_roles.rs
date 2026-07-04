@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleEntry;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleState;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRouteState;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeSurface;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
@@ -35,31 +36,36 @@ impl LanPairingRuntime {
             && !self.lan_ai_provider_busy()
     }
 
-    pub(crate) fn lan_ai_provider_capability_flags(&self) -> String {
+    pub(crate) fn lan_ai_provider_capability_flags(&self) -> LanPairingText {
         if self.lan_ai_provider_capabilities.is_empty() {
-            constants::local_ai_runtime::CAPABILITY_FLAGS_NONE.to_string()
+            LanPairingText(constants::local_ai_runtime::CAPABILITY_FLAGS_NONE.to_string())
         } else {
-            self.lan_ai_provider_capabilities
-                .join(&constants::delimiter::LIST.to_string())
+            LanPairingText(
+                self.lan_ai_provider_capabilities
+                    .join(&constants::delimiter::LIST.to_string()),
+            )
         }
     }
 
-    pub(crate) fn lan_ai_provider_supports_capability(&self, capability: &str) -> bool {
+    pub(crate) fn lan_ai_provider_supports_capability(&self, capability: &LanPairingText) -> bool {
         self.lan_ai_provider_capabilities
             .iter()
-            .any(|candidate| candidate == capability)
+            .any(|candidate| candidate == &capability.0)
     }
 }
 
 pub(super) fn device_role_read_model_from_env() -> DeviceRoleRuntimeReadModel {
-    let surface = non_empty_env(constants::lan_pairing::DEVICE_SURFACE_ENV)
-        .as_deref()
-        .map(device_runtime_surface)
-        .unwrap_or(DeviceRuntimeSurface::ChildDesktop);
-    let roles = non_empty_env(constants::lan_pairing::DEVICE_ROLES_ENV)
-        .map(|value| device_role_entries(&value))
-        .filter(|entries| !entries.is_empty())
-        .unwrap_or_else(|| default_roles_for_surface(&surface));
+    let surface = non_empty_env(LanPairingText(
+        constants::lan_pairing::DEVICE_SURFACE_ENV.to_string(),
+    ))
+    .map(|value| device_runtime_surface(&value))
+    .unwrap_or(DeviceRuntimeSurface::ChildDesktop);
+    let roles = non_empty_env(LanPairingText(
+        constants::lan_pairing::DEVICE_ROLES_ENV.to_string(),
+    ))
+    .map(|value| device_role_entries(&value))
+    .filter(|entries| !entries.is_empty())
+    .unwrap_or_else(|| default_roles_for_surface(&surface));
     default_device_role_read_model(Some((surface, roles)))
 }
 
@@ -83,7 +89,9 @@ pub(super) fn default_device_role_read_model(
         .iter()
         .any(|entry| entry.role == DeviceRuntimeRole::AiProvider);
     DeviceRoleRuntimeReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT
+            .to_string()
+            .into(),
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: surface.clone(),
         platform: platform_for_surface(&surface).to_string(),
@@ -116,22 +124,26 @@ pub(super) fn default_device_role_read_model(
     }
 }
 
-pub(super) fn lan_ai_provider_capabilities_from_env() -> Vec<String> {
-    match non_empty_env(constants::lan_pairing::LAN_AI_PROVIDER_CAPABILITIES_ENV) {
+pub(super) fn lan_ai_provider_capabilities_from_env() -> Vec<LanPairingText> {
+    match non_empty_env(LanPairingText(
+        constants::lan_pairing::LAN_AI_PROVIDER_CAPABILITIES_ENV.to_string(),
+    )) {
         Some(value) => value
+            .0
             .split(constants::delimiter::LIST)
             .map(str::trim)
             .filter(|value| !value.is_empty())
-            .map(ToOwned::to_owned)
+            .map(|value| LanPairingText(value.to_owned()))
             .collect(),
         None => Vec::new(),
     }
 }
 
-pub(super) fn non_empty_env(env_var_name: &str) -> Option<String> {
-    std::env::var(env_var_name)
+pub(super) fn non_empty_env(env_var_name: LanPairingText) -> Option<LanPairingText> {
+    std::env::var(env_var_name.0)
         .ok()
         .filter(|value| !value.is_empty())
+        .map(LanPairingText)
 }
 
 fn default_roles_for_surface(surface: &DeviceRuntimeSurface) -> Vec<DeviceRuntimeRoleEntry> {
@@ -159,10 +171,11 @@ fn default_child_agent_roles() -> Vec<DeviceRuntimeRoleEntry> {
     )]
 }
 
-fn device_role_entries(value: &str) -> Vec<DeviceRuntimeRoleEntry> {
+fn device_role_entries(value: &LanPairingText) -> Vec<DeviceRuntimeRoleEntry> {
     value
+        .0
         .split(constants::delimiter::LIST)
-        .filter_map(|role| device_runtime_role(role.trim()))
+        .filter_map(|role| device_runtime_role(&LanPairingText(role.trim().to_string())))
         .map(|role| role_entry(role, DeviceRuntimeRoleState::Implemented))
         .collect()
 }
@@ -171,8 +184,8 @@ fn role_entry(role: DeviceRuntimeRole, state: DeviceRuntimeRoleState) -> DeviceR
     DeviceRuntimeRoleEntry { role, state }
 }
 
-fn device_runtime_role(value: &str) -> Option<DeviceRuntimeRole> {
-    match value {
+fn device_runtime_role(value: &LanPairingText) -> Option<DeviceRuntimeRole> {
+    match value.0.as_str() {
         constants::value::DEVICE_ROLE_PARENT_CONTROLLER => {
             Some(DeviceRuntimeRole::ParentController)
         }
@@ -183,8 +196,8 @@ fn device_runtime_role(value: &str) -> Option<DeviceRuntimeRole> {
     }
 }
 
-fn device_runtime_surface(value: &str) -> DeviceRuntimeSurface {
-    match value {
+fn device_runtime_surface(value: &LanPairingText) -> DeviceRuntimeSurface {
+    match value.0.as_str() {
         constants::value::DEVICE_RUNTIME_SURFACE_PARENT_DESKTOP => {
             DeviceRuntimeSurface::ParentDesktop
         }
@@ -199,14 +212,16 @@ fn device_runtime_surface(value: &str) -> DeviceRuntimeSurface {
     }
 }
 
-fn platform_for_surface(surface: &DeviceRuntimeSurface) -> &'static str {
+fn platform_for_surface(surface: &DeviceRuntimeSurface) -> LanPairingText {
     match surface {
         DeviceRuntimeSurface::ParentMobile | DeviceRuntimeSurface::ChildAndroid => {
-            constants::local_ai_runtime::PLATFORM_OS_ANDROID
+            LanPairingText(constants::local_ai_runtime::PLATFORM_OS_ANDROID.to_string())
         }
-        DeviceRuntimeSurface::ChildIos => constants::value::DEVICE_RUNTIME_PLATFORM_IOS,
+        DeviceRuntimeSurface::ChildIos => {
+            LanPairingText(constants::value::DEVICE_RUNTIME_PLATFORM_IOS.to_string())
+        }
         DeviceRuntimeSurface::ParentDesktop | DeviceRuntimeSurface::ChildDesktop => {
-            constants::local_ai_runtime::PLATFORM_OS_WINDOWS
+            LanPairingText(constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string())
         }
     }
 }
@@ -225,7 +240,11 @@ fn route_state_for_surface(surface: &DeviceRuntimeSurface) -> DeviceRuntimeRoute
 fn ai_provider_state(has_ai_provider: bool) -> DeviceRuntimeAiProviderState {
     match (
         has_ai_provider,
-        non_empty_env(constants::lan_pairing::LAN_AI_PROVIDER_OPT_IN_ENV).as_deref(),
+        non_empty_env(LanPairingText(
+            constants::lan_pairing::LAN_AI_PROVIDER_OPT_IN_ENV.to_string(),
+        ))
+        .as_ref()
+        .map(|value| value.0.as_str()),
     ) {
         (true, Some(constants::value::TRUE)) => DeviceRuntimeAiProviderState::Available,
         (true, _) => DeviceRuntimeAiProviderState::Degraded,

@@ -1,4 +1,4 @@
-import { PolicyAction } from './policy';
+import type { PolicyAction } from './policy';
 import {
   generatedAppGameCategoryRiskPolicyRouteActionMatchesCandidate,
   generatedAppGameCategoryRiskPolicyRouteKeepsSoftBoundary,
@@ -7,7 +7,7 @@ import {
   generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily,
   generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof,
 } from './generated/policy-control-helpers';
-import {
+import type {
   AppGamePolicyCompilerEvidenceState,
   AppGamePolicyCompilerProofKind,
   AppGamePolicyCompilerRequestedAction,

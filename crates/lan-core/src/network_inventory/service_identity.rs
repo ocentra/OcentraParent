@@ -9,15 +9,17 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::lan_pairing::{LanPairingDeviceReachability, LanPairingDeviceRef};
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanPairingDeviceReachability, LanPairingDeviceRef,
+};
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanServiceIdentityProbeEvidence, LanServiceIdentityProbeEvidenceKind,
 };
 use serde::{Deserialize, Serialize};
 
-use super::LanNetworkInventoryDevice;
 use self::probe::probe_service_identity;
 use self::targets::service_identity_probe_targets;
+use super::LanNetworkInventoryDevice;
 
 pub type AllowedSnmpResponseObserver<'a> = Option<&'a (dyn Fn(&[u8]) + Send + Sync)>;
 pub type HttpResponseParts<'a> = (u16, Vec<(String, String)>, &'a [u8]);

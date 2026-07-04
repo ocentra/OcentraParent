@@ -8,6 +8,7 @@ use crate::{
         health_command, intent_payload, paired_runtime, serialize_command,
     },
     test_invariants::require_ok,
+    test_text::TestText,
 };
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -33,13 +34,15 @@ async fn concurrent_duplicate_lan_intents_accept_once_and_reject_replay_once() {
 
 fn spawn_control(
     runtime: crate::app::lan_pairing::LanPairingRuntime,
-    command: String,
+    command: TestText,
 ) -> tokio::task::JoinHandle<ocentra_parent_agent_protocol::transport::AgentEventEnvelope> {
     tokio::spawn(async move {
         handle_command_text_for_test(
-            &command,
+            command,
             runtime,
-            Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+            Some(TestText::from_display(
+                constants::lan_pairing::ALLOWED_ORIGIN,
+            )),
         )
         .await
     })

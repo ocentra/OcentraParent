@@ -11,17 +11,19 @@ use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAd
 use ocentra_parent_agent_protocol::enforcement_readiness::EnforcementReadinessState;
 use ocentra_parent_agent_protocol::policy_constants;
 
+use self::test_text::{count_for_display, test_ok, TestResult, TestText};
 use crate::{
     enforcement_os_adapter_product_proof_read_model::v08_os_adapter_product_proof_read_model,
     test_invariants::require_some,
 };
 
+#[path = "../support/test_text.rs"]
+mod test_text;
+
 #[path = "enforcement_os_adapter_product_proof_read_model_tests/product_control_api_tests.rs"]
 mod product_control_api_tests;
 #[path = "enforcement_os_adapter_product_proof_read_model_tests/product_control_spine_tests.rs"]
 mod product_control_spine_tests;
-
-type TestResult = Result<(), String>;
 
 #[test]
 fn product_proof_read_model_captures_v0_8_adapter_boundaries() {
@@ -98,11 +100,11 @@ fn product_proof_read_model_preserves_lifecycle_and_audit_states() {
 #[test]
 fn product_proof_read_model_serializes_for_runtime_preview() -> TestResult {
     let read_model = v08_os_adapter_product_proof_read_model(policy_constants::TEST_EVALUATED_AT);
-    let serialized = ok(
+    let serialized = test_ok(
         serde_json::to_value(read_model),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
-    let reparsed = ok(serde_json::from_value::<
+    let reparsed = test_ok(serde_json::from_value::<
         ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofReadModel,
     >(serialized),
     constants::error::AGENT_EVENT_SERIALIZES,
@@ -138,17 +140,19 @@ fn entry_for(
     )
 }
 
-fn count_readiness(entries: &[V08OsAdapterProductProofEntry]) -> BTreeMap<&'static str, usize> {
+fn count_readiness(entries: &[V08OsAdapterProductProofEntry]) -> BTreeMap<TestText, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
-            .entry(entry.readiness_state.as_protocol_str())
+            .entry(TestText::from_display(
+                entry.readiness_state.as_protocol_str(),
+            ))
             .or_default() += 1;
         counts
     })
 }
 
-fn readiness_count(counts: &BTreeMap<&'static str, usize>, state: &'static str) -> usize {
-    *counts.get(state).unwrap_or(&0)
+fn readiness_count(counts: &BTreeMap<TestText, usize>, state: impl std::fmt::Display) -> usize {
+    count_for_display(counts, state)
 }
 
 #[cfg(windows)]
@@ -209,8 +213,4 @@ fn expected_audit_state() -> V08OsAdapterProductProofAuditState {
 #[cfg(not(windows))]
 fn expected_audit_state() -> V08OsAdapterProductProofAuditState {
     V08OsAdapterProductProofAuditState::Unavailable
-}
-
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
 }

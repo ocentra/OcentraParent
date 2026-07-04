@@ -10,13 +10,24 @@ use ocentra_parent_agent_protocol::parent_controller_events::{
     ParentReadModelProjectedEvent,
 };
 use ocentra_parent_agent_protocol::transport::parent_child_runtime_input::ParentChildRuntimeInput;
-use ocentra_parent_agent_protocol::transport::{
-    ParentChildRuntimeEventPayload, ParentChildRuntimePhase, ParentChildRuntimeReport,
-};
+use ocentra_parent_agent_protocol::transport::ParentChildRuntimePhase;
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::parent_child_event_runtime::publish_parent_child_runtime_for_validated_intent;
+mod parent_child_event_runtime_child_command;
+mod parent_child_event_runtime_child_state;
+mod parent_child_event_runtime_decode;
+mod parent_child_event_runtime_parent;
+mod parent_child_event_runtime_parent_read_model;
+use parent_child_event_runtime_child_command::{child_accepted, child_received};
+use parent_child_event_runtime_child_state::{child_capability, child_health};
+use parent_child_event_runtime_decode::{decode_payloads, ok};
+use parent_child_event_runtime_parent::{
+    parent_action, parent_forward_requested, parent_forwarded, parent_validated,
+};
+use parent_child_event_runtime_parent_read_model::parent_read_model;
 
-type TestResult = Result<(), String>;
+type TestResult = Result<(), TestText>;
 
 #[tokio::test]
 async fn parent_child_runtime_publishes_validated_intent_before_child_handoff() -> TestResult {
@@ -195,144 +206,4 @@ async fn browser_action_intent_handoff_uses_parent_child_event_sequence_without_
     assert_eq!(report.dead_letters.len(), 0);
 
     Ok(())
-}
-
-fn decode_payloads(
-    report: &ParentChildRuntimeReport,
-) -> Result<Vec<ParentChildRuntimeEventPayload>, String> {
-    report
-        .stored_events
-        .iter()
-        .map(|event| {
-            let envelope: ocentra_eventing::envelope::EventEnvelope<
-                ParentChildRuntimeEventPayload,
-            > = ok(
-                event.decode(),
-                constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-            )?;
-            Ok(envelope.payload)
-        })
-        .collect()
-}
-
-fn parent_action(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> Result<ParentActionReceivedEvent, String> {
-    some(
-        payloads.iter().find_map(|payload| match payload {
-            ParentChildRuntimeEventPayload::ParentActionReceived(event) => Some(event.clone()),
-            _ => None,
-        }),
-        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-    )
-}
-
-fn parent_validated(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> Result<ParentCommandValidatedEvent, String> {
-    some(
-        payloads.iter().find_map(|payload| match payload {
-            ParentChildRuntimeEventPayload::ParentCommandValidated(event) => Some(event.clone()),
-            _ => None,
-        }),
-        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-    )
-}
-
-fn parent_forward_requested(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> Result<ParentChildCommandForwardRequestedEvent, String> {
-    some(
-        payloads.iter().find_map(|payload| match payload {
-            ParentChildRuntimeEventPayload::ParentChildCommandForwardRequested(event) => {
-                Some(event.clone())
-            }
-            _ => None,
-        }),
-        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-    )
-}
-
-fn parent_forwarded(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> Result<ParentChildCommandForwardedEvent, String> {
-    some(
-        payloads.iter().find_map(|payload| match payload {
-            ParentChildRuntimeEventPayload::ParentChildCommandForwarded(event) => {
-                Some(event.clone())
-            }
-            _ => None,
-        }),
-        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-    )
-}
-
-fn child_received(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> Result<ChildCommandReceivedEvent, String> {
-    some(
-        payloads.iter().find_map(|payload| match payload {
-            ParentChildRuntimeEventPayload::ChildCommandReceived(event) => Some(event.clone()),
-            _ => None,
-        }),
-        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-    )
-}
-
-fn child_accepted(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> Result<ChildCommandAcceptedEvent, String> {
-    some(
-        payloads.iter().find_map(|payload| match payload {
-            ParentChildRuntimeEventPayload::ChildCommandAccepted(event) => Some(event.clone()),
-            _ => None,
-        }),
-        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-    )
-}
-
-fn child_capability(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> Result<ChildCapabilityStateUpdatedEvent, String> {
-    some(
-        payloads.iter().find_map(|payload| match payload {
-            ParentChildRuntimeEventPayload::ChildCapabilityStateUpdated(event) => {
-                Some(event.clone())
-            }
-            _ => None,
-        }),
-        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-    )
-}
-
-fn child_health(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> Result<ChildRuntimeHealthUpdatedEvent, String> {
-    some(
-        payloads.iter().find_map(|payload| match payload {
-            ParentChildRuntimeEventPayload::ChildRuntimeHealthUpdated(event) => Some(event.clone()),
-            _ => None,
-        }),
-        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-    )
-}
-
-fn parent_read_model(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> Result<ParentReadModelProjectedEvent, String> {
-    some(
-        payloads.iter().find_map(|payload| match payload {
-            ParentChildRuntimeEventPayload::ParentReadModelProjected(event) => Some(event.clone()),
-            _ => None,
-        }),
-        constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
-    )
-}
-
-fn ok<T, E: core::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| context.to_string())
 }

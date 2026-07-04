@@ -7,7 +7,7 @@ use ocentra_lan_core::network_inventory::{
 use ocentra_lan_core::read_model::discovered_devices_from_network_inventory;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingDeviceRef, LanPairingTrustState, LanTrustedDeviceRegistryEntry,
+    LanPairingDeviceRef, LanPairingText, LanPairingTrustState, LanTrustedDeviceRegistryEntry,
 };
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
@@ -19,11 +19,13 @@ use ocentra_parent_agent_protocol::transport::{
 
 use crate::lan_pairing::LanPairingRuntime;
 
+use super::registry_projection::{
+    household_device_decisions, known_household_devices, trusted_device_registry,
+};
 use super::scan_history::{
     load_scan_history_snapshot, recent_previous_scan_agent_truth_devices, save_scan_history,
     scan_history_is_recent, LanScanHistoryMetadata, LanScanHistorySnapshot,
 };
-use super::{household_device_decisions, known_household_devices, trusted_device_registry};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct LanNetworkDeviceScanResult {
@@ -133,7 +135,7 @@ pub(crate) fn cached_localhost_status_scan_result(
     let Some(snapshot) = previous_scan_snapshot else {
         return Some(LanNetworkDeviceScanResult::default());
     };
-    if !scan_history_is_recent(&snapshot.updated_at, now) {
+    if !scan_history_is_recent(LanPairingText(snapshot.updated_at.clone()), now) {
         return Some(LanNetworkDeviceScanResult {
             previous_scan_snapshot: Some(snapshot),
             ..LanNetworkDeviceScanResult::default()
@@ -159,8 +161,11 @@ pub(crate) fn cached_status_snapshot_devices(
         return None;
     }
     let previous_scan_snapshot = previous_scan_snapshot?;
-    scan_history_is_recent(&previous_scan_snapshot.updated_at, now)
-        .then(|| previous_scan_snapshot.devices.clone())
+    scan_history_is_recent(
+        LanPairingText(previous_scan_snapshot.updated_at.clone()),
+        now,
+    )
+    .then(|| previous_scan_snapshot.devices.clone())
 }
 
 pub(crate) struct LanScanTruthContext {

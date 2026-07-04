@@ -1,4 +1,5 @@
 use std::fs::{read_to_string, remove_file};
+use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity::{
@@ -15,14 +16,23 @@ use crate::{
     journal_error::JournalError,
 };
 
-type TestResult = Result<(), String>;
+use crate::test_text::{test_ok as ok, TestResult, TestText};
+
+#[derive(Clone)]
+struct TestPath(PathBuf);
+
+impl AsRef<Path> for TestPath {
+    fn as_ref(&self) -> &Path {
+        self.0.as_ref()
+    }
+}
 
 #[test]
 fn journal_appends_encrypted_activity_without_plaintext_payload() -> TestResult {
     let path = temp_journal_path(constants::journal::TEST_APPEND_SUFFIX);
     cleanup_journal_files(&path);
     let mut journal = ok(
-        ActivityJournal::open(path.clone(), test_key()),
+        ActivityJournal::open(path.0.clone(), test_key()),
         constants::error::JOURNAL_OPENS,
     )?;
     let event = activity_event(constants::event_id::HEALTH_REPORTED);
@@ -56,13 +66,13 @@ fn journal_replays_decrypted_activity_event() -> TestResult {
     let key = test_key();
     let event = activity_event(constants::event_id::HEALTH_REPORTED);
     let mut journal = ok(
-        ActivityJournal::open(path.clone(), key.clone()),
+        ActivityJournal::open(path.0.clone(), key.clone()),
         constants::error::JOURNAL_OPENS,
     )?;
 
     ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
     let reader = ok(
-        ActivityJournal::open(path.clone(), key),
+        ActivityJournal::open(path.0.clone(), key),
         constants::error::JOURNAL_OPENS,
     )?;
     let lines = ok(reader.lines(), constants::error::JOURNAL_READS)?;
@@ -90,7 +100,7 @@ fn journal_rotates_and_replays_segments_in_write_order() -> TestResult {
     let first = activity_event(constants::event_id::HEALTH_REPORTED);
     let second = activity_event(constants::event_id::LOG_SNAPSHOT_REPORTED);
     let mut journal = ok(
-        ActivityJournal::open_with_policy(path.clone(), key.clone(), policy),
+        ActivityJournal::open_with_policy(path.0.clone(), key.clone(), policy),
         constants::error::JOURNAL_OPENS,
     )?;
 
@@ -98,7 +108,7 @@ fn journal_rotates_and_replays_segments_in_write_order() -> TestResult {
     ok(journal.append(&second), constants::error::JOURNAL_APPENDS)?;
     let reader = ok(
         ActivityJournal::open_with_policy(
-            path.clone(),
+            path.0.clone(),
             key,
             ActivityJournalRotationPolicy {
                 max_segment_bytes: constants::journal::TEST_ROTATION_BYTES,
@@ -131,7 +141,7 @@ fn journal_rejects_tampered_ciphertext() -> TestResult {
     let path = temp_journal_path(constants::journal::TEST_TAMPER_SUFFIX);
     cleanup_journal_files(&path);
     let mut journal = ok(
-        ActivityJournal::open(path.clone(), test_key()),
+        ActivityJournal::open(path.0.clone(), test_key()),
         constants::error::JOURNAL_OPENS,
     )?;
 
@@ -148,7 +158,8 @@ fn journal_rejects_tampered_ciphertext() -> TestResult {
     Ok(())
 }
 
-fn activity_event(event_id: &str) -> ActivityEvent {
+fn activity_event(event_id: impl std::fmt::Display) -> ActivityEvent {
+    let event_id = TestText::from_display(event_id);
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::ONLINE.to_string(),
@@ -176,22 +187,23 @@ fn activity_event(event_id: &str) -> ActivityEvent {
     }
 }
 
-fn temp_journal_path(suffix: &str) -> std::path::PathBuf {
+fn temp_journal_path(suffix: impl std::fmt::Display) -> TestPath {
     let mut name = String::from(constants::journal::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(&suffix.to_string());
 
     let mut path = std::env::temp_dir();
     path.push(name);
     path.set_extension(constants::journal::FILE_EXTENSION);
-    path
+    TestPath(path)
 }
 
-fn cleanup_journal_files(path: &std::path::PathBuf) {
+fn cleanup_journal_files(path: impl AsRef<Path>) {
+    let path = path.as_ref();
     let _ = remove_file(path);
     for index in 1..=3 {
-        let mut rotated_path = path.clone();
+        let mut rotated_path = path.to_path_buf();
         let mut extension = index.to_string();
         extension.push(constants::delimiter::DOT);
         extension.push_str(constants::journal::FILE_EXTENSION);
@@ -202,8 +214,4 @@ fn cleanup_journal_files(path: &std::path::PathBuf) {
 
 fn test_key() -> JournalKey {
     JournalKey::from_bytes([7; JOURNAL_KEY_BYTES])
-}
-
-fn ok<T, E: core::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
 }

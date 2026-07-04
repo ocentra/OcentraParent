@@ -31,7 +31,8 @@ use self::snapshots_network::{
 use self::snapshots_policy::policy_preview_read_model_from_payload;
 use self::transport::{parent_route_peer_role, rejection_message};
 use self::types::{
-    AgentServiceCommandResult, AppGameAdapterDispatchPreflightAgentServiceSnapshot,
+    AgentCommandText, AgentServiceCommandResult, AgentServiceResult,
+    AppGameAdapterDispatchPreflightAgentServiceSnapshot,
     AppGameAdapterDispatchResultAgentServiceSnapshot,
     AppGameChildRuntimeTransportReceiptAgentServiceSnapshot,
     AppGameNotificationReadinessAgentServiceSnapshot,
@@ -42,6 +43,7 @@ use self::types::{
     TrackingReadModelAgentServiceSnapshot,
 };
 
+mod command_result_projection;
 pub(crate) mod loaders;
 mod payload_fields;
 pub(crate) mod snapshots_app_game;
@@ -55,93 +57,93 @@ pub(crate) mod types;
 
 pub(crate) fn load_lan_status_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::LanAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::LanAgentServiceSnapshot> {
     loaders::load_lan_status_snapshot(context)
 }
 
 pub(crate) fn request_lan_browser_discovery_scan(
     context: Option<&ParentRouteContext>,
-) -> Result<types::LanAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::LanAgentServiceSnapshot> {
     loaders::request_lan_browser_discovery_scan(context)
 }
 
 pub(crate) fn load_network_flow_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::NetworkFlowAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::NetworkFlowAgentServiceSnapshot> {
     loaders::load_network_flow_read_model_snapshot(context)
 }
 
 pub(crate) fn load_network_runtime_event_chain_stream_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::NetworkRuntimeEventChainAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::NetworkRuntimeEventChainAgentServiceSnapshot> {
     loaders::load_network_runtime_event_chain_stream_snapshot(context)
 }
 
 pub(crate) fn load_policy_preview_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::PolicyPreviewAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::PolicyPreviewAgentServiceSnapshot> {
     loaders::load_policy_preview_read_model_snapshot(context)
 }
 
 pub(crate) fn load_tracking_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::TrackingReadModelAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::TrackingReadModelAgentServiceSnapshot> {
     loaders::load_tracking_read_model_snapshot(context)
 }
 
 pub(crate) fn load_activity_screen_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::ScreenReadModelAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::ScreenReadModelAgentServiceSnapshot> {
     loaders::load_activity_screen_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_notification_readiness_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::AppGameNotificationReadinessAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::AppGameNotificationReadinessAgentServiceSnapshot> {
     loaders::load_app_game_notification_readiness_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_policy_readiness_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::AppGamePolicyReadinessAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::AppGamePolicyReadinessAgentServiceSnapshot> {
     loaders::load_app_game_policy_readiness_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_platform_proof_status_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::AppGamePlatformProofStatusAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::AppGamePlatformProofStatusAgentServiceSnapshot> {
     loaders::load_app_game_platform_proof_status_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_child_runtime_transport_receipt_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::AppGameChildRuntimeTransportReceiptAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::AppGameChildRuntimeTransportReceiptAgentServiceSnapshot> {
     loaders::load_app_game_child_runtime_transport_receipt_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_adapter_dispatch_preflight_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::AppGameAdapterDispatchPreflightAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::AppGameAdapterDispatchPreflightAgentServiceSnapshot> {
     loaders::load_app_game_adapter_dispatch_preflight_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_adapter_dispatch_result_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::AppGameAdapterDispatchResultAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::AppGameAdapterDispatchResultAgentServiceSnapshot> {
     loaders::load_app_game_adapter_dispatch_result_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_timer_parent_surface_read_model_snapshot(
     context: Option<&ParentRouteContext>,
-) -> Result<types::AppGameTimerParentSurfaceAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::AppGameTimerParentSurfaceAgentServiceSnapshot> {
     loaders::load_app_game_timer_parent_surface_read_model_snapshot(context)
 }
 
 pub(crate) fn dispatch_agent_command(
-    command_name: &str,
+    command_name: AgentCommandText<'_>,
     payload: &Value,
     context: Option<&ParentRouteContext>,
-) -> Result<types::AgentServiceCommandResult, String> {
+) -> AgentServiceResult<types::AgentServiceCommandResult> {
     loaders::dispatch_agent_command(command_name, payload, context)
 }
 
@@ -149,14 +151,14 @@ pub(crate) fn dispatch_known_agent_command(
     command: AgentCommandName,
     payload: &Value,
     context: Option<&ParentRouteContext>,
-) -> Result<types::AgentServiceCommandResult, String> {
+) -> AgentServiceResult<types::AgentServiceCommandResult> {
     loaders::dispatch_known_agent_command(command, payload, context)
 }
 
 pub(crate) fn dispatch_lan_agent_command(
-    command_name: &str,
+    command_name: AgentCommandText<'_>,
     payload: &Value,
     context: Option<&ParentRouteContext>,
-) -> Result<types::LanAgentServiceSnapshot, String> {
+) -> AgentServiceResult<types::LanAgentServiceSnapshot> {
     loaders::dispatch_lan_agent_command(command_name, payload, context)
 }

@@ -1,24 +1,10 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-  type Dispatch,
-  type MutableRefObject,
-  type ReactElement,
-  type SetStateAction,
-} from 'react';
-import { AgentEventIdSchema, type AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
-import { safeParseUnknown } from '@ocentra-parent/schema-domain/effect';
-import { PortalDom, PortalLanPairingScan, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
+import { useMemo, type CSSProperties, type ReactElement } from 'react';
+import { PortalDom, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
+import { PortalRouteDescriptors } from '@ocentra-parent/portal-domain/routes';
 import { ParentRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
+import { usePortalAppBehavior, type PortalAppBehavior } from './portal-app-behavior';
 import type { PortalRenderActions } from './portal-actions';
-import { routeDescriptor } from './portal-route-descriptor';
-import { renderRouteContent } from './portal-route-content';
-import { resolveSnapshotLiveActivityState } from './route-live-activity-state';
 import type { PortalRuntimeState } from './portal-state';
 import { ParentPortalRoute } from './ParentPortalRoute';
 import { PortalAuthDialog } from './PortalAuthDialog';
@@ -29,9 +15,8 @@ import { PortalSidebar } from './PortalSidebar';
 import { PortalUnifiedShell } from './PortalUnifiedChrome';
 import { carouselStyle, frameContentStyle, frameHostClassName, goldenCardStyle } from './portal-frame-layout-style';
 import { frameContentTarget } from './portal-frame-layout-state';
+import { PortalRouteContentMount } from './portal-route-content';
 import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout-types';
-import { usePortalNetworkActivityRefresh } from './use-portal-network-activity-refresh';
-import { usePortalFrameLayout } from './use-portal-frame-layout';
 
 type PortalAppProps = {
   readonly actions: PortalRenderActions;
@@ -44,114 +29,36 @@ type PortalAppProps = {
   readonly onProductSurfaceReady: () => void;
 };
 
-const PORTAL_HEADER_ROUTE_TRANSITION_MS = 1040;
-
 export function PortalApp(props: PortalAppProps): ReactElement {
-  const [authOpen, setAuthOpen] = useState(false);
-  const [headerRouteTransitionActive, setHeaderRouteTransitionActive] = useState(false);
-  const [lanPairingAutoScanSequence, setLanPairingAutoScanSequence] = useState(0);
-  const previousRouteRef = useRef<ParentRouteId>(props.route);
-  const autoLanScanRequestedForRouteRef = useRef(false);
-  const autoLanScanStartedAfterEventIdRef = useRef<AgentEventId | null>(null);
-  const networkActivityRefreshRequestedForRouteRef = useRef(false);
-  const isFrameTuner = props.route === ParentRoute.AppLayout || props.route === ParentRoute.FrameTuner;
-  const isDevProtocolRoute = isParentDevProtocolRoute(props.route);
-  const isProductRoute = !isFrameTuner;
-  const [frameLayout, setFrameLayout] = usePortalFrameLayout(!isFrameTuner && import.meta.env.DEV);
-  const routeFrameLayout = useMemo(
-    () => frameLayoutVisibleForProtocolRoute(frameLayout, isDevProtocolRoute),
-    [frameLayout, isDevProtocolRoute]
-  );
-  const routeLiveActivity = resolveSnapshotLiveActivityState(props.state.routeSnapshot?.liveActivity ?? null);
-  const latestLanPairingScanEventId = decodeSnapshotEventId(routeLiveActivity?.lanPairingBrowserDiscoveryEvent?.eventId);
-  const hasNetworkFlowReadModelEvent =
-    routeLiveActivity?.networkFlowReadModel !== null && routeLiveActivity?.networkFlowReadModel !== undefined;
-  const openAuthDialog = (): void => setAuthOpen(true);
-  const closeAuthDialog = (): void => setAuthOpen(false);
-  usePortalProductReady(isProductRoute, props.onProductSurfaceReady);
-  usePortalRouteTransition({
-    autoLanScanRequestedForRouteRef,
-    autoLanScanStartedAfterEventIdRef,
-    previousRouteRef,
-    route: props.route,
-    setHeaderRouteTransitionActive,
-  });
-  usePortalDeviceAutoScan({
+  const behavior = usePortalAppBehavior({
     actions: props.actions,
-    autoLanScanRequestedForRouteRef,
-    autoLanScanStartedAfterEventIdRef,
-    commandEnabled: props.state.commandEnabled,
-    latestLanPairingScanEventId,
+    onProductSurfaceReady: props.onProductSurfaceReady,
     route: props.route,
-    setHeaderRouteTransitionActive,
-    setLanPairingAutoScanSequence,
+    state: props.state,
   });
-  usePortalDeviceScanCompletion({
-    autoLanScanStartedAfterEventIdRef,
-    latestLanPairingScanEventId,
-    route: props.route,
-    setHeaderRouteTransitionActive,
-  });
-  usePortalNetworkActivityRefresh({
-    actions: props.actions,
-    connectionState: props.state.connectionState,
-    hasNetworkFlowReadModelEvent,
-    networkActivityRefreshRequestedForRouteRef,
-    route: props.route,
-  });
-  if (isFrameTuner) {
-    return <PortalFrameTunerRoute layout={frameLayout} onLayoutChange={setFrameLayout} />;
+
+  if (behavior.isFrameTuner) {
+    return <PortalFrameTunerRoute layout={behavior.frameLayout} onLayoutChange={behavior.setFrameLayout} />;
   }
-  if (isProductRoute) {
-    return (
-      <PortalProductRouteShell
-        {...props}
-        authOpen={authOpen}
-        frameLayout={frameLayout}
-        headerRouteTransitionActive={headerRouteTransitionActive}
-        lanPairingAutoScanSequence={lanPairingAutoScanSequence}
-        onAuthClose={closeAuthDialog}
-        onAuthOpen={openAuthDialog}
-      />
-    );
+
+  if (behavior.isProductRoute) {
+    return <PortalProductRouteShell {...props} behavior={behavior} />;
   }
-  return (
-    <PortalProtocolRouteShell
-      {...props}
-      authOpen={authOpen}
-      headerRouteTransitionActive={headerRouteTransitionActive}
-      onAuthClose={closeAuthDialog}
-      onAuthOpen={openAuthDialog}
-      routeFrameLayout={routeFrameLayout}
-    />
-  );
+
+  return <PortalProtocolRouteShell {...props} behavior={behavior} />;
 }
 
 type PortalProductRouteShellProps = PortalAppProps & {
-  readonly authOpen: boolean;
-  readonly frameLayout: PortalFrameLayout;
-  readonly headerRouteTransitionActive: boolean;
-  readonly lanPairingAutoScanSequence: number;
-  readonly onAuthClose: () => void;
-  readonly onAuthOpen: () => void;
+  readonly behavior: PortalAppBehavior;
 };
 
 type PortalProtocolRouteShellProps = PortalAppProps & {
-  readonly authOpen: boolean;
-  readonly headerRouteTransitionActive: boolean;
-  readonly onAuthClose: () => void;
-  readonly onAuthOpen: () => void;
-  readonly routeFrameLayout: PortalFrameLayout;
+  readonly behavior: PortalAppBehavior;
 };
 
 function PortalProductRouteShell({
   actions,
-  authOpen,
-  frameLayout,
-  headerRouteTransitionActive,
-  lanPairingAutoScanSequence,
-  onAuthClose,
-  onAuthOpen,
+  behavior,
   onProductSurfaceReady,
   onThemeChange,
   route,
@@ -159,61 +66,72 @@ function PortalProductRouteShell({
   theme,
 }: PortalProductRouteShellProps): ReactElement {
   const controls =
-    route === ParentRoute.Assistant ? frameLayout.parentPortal.chatInterface : frameLayout.parentPortal.mainApp;
-  const screenSummaryPanel = resolveSnapshotLiveActivityState(state.routeSnapshot?.liveActivity ?? null).screenSummaryPanel ?? null;
+    route === ParentRoute.Assistant ? behavior.frameLayout.parentPortal.chatInterface : behavior.frameLayout.parentPortal.mainApp;
   return (
     <>
       <PortalUnifiedShell
-        onAuthOpen={onAuthOpen}
+        onAuthOpen={behavior.openAuthDialog}
         onThemeChange={onThemeChange}
-        routeTransitionActive={headerRouteTransitionActive}
+        routeTransitionActive={behavior.headerRouteTransitionActive}
         theme={theme}
       >
         <ParentPortalRoute
           actions={actions}
           controls={controls}
-          lanPairingAutoScanSequence={lanPairingAutoScanSequence}
+          lanPairingAutoScanSequence={behavior.lanPairingAutoScanSequence}
           onProductSurfaceReady={onProductSurfaceReady}
           route={route}
           state={state}
         />
-        {route === ParentRoute.ScreenAnalysis ? <ScreenSummaryRoutePanel panel={screenSummaryPanel} /> : null}
+        {route === ParentRoute.ScreenAnalysis ? <ScreenSummaryRoutePanel panel={behavior.screenSummaryPanel} /> : null}
       </PortalUnifiedShell>
-      <PortalAuthDialogMount open={authOpen} onClose={onAuthClose} />
+      <PortalAuthDialogMount open={behavior.authOpen} onClose={behavior.closeAuthDialog} />
     </>
   );
 }
 
-function PortalProtocolRouteShell(props: PortalProtocolRouteShellProps): ReactElement {
+function PortalProtocolRouteShell({
+  actions,
+  behavior,
+  onProductSurfaceReady,
+  onThemeChange,
+  route,
+  state,
+  rerender,
+  revision,
+  theme,
+}: PortalProtocolRouteShellProps): ReactElement {
   const { appFrameStyle, appMainClassName, appMainStyle, mainContent } = usePortalProtocolFrameState(
-    props.routeFrameLayout
+    behavior.routeFrameLayout
   );
   return (
     <>
       <PortalUnifiedShell
-        onAuthOpen={props.onAuthOpen}
-        onThemeChange={props.onThemeChange}
-        routeTransitionActive={props.headerRouteTransitionActive}
-        theme={props.theme}
+        onAuthOpen={behavior.openAuthDialog}
+        onThemeChange={onThemeChange}
+        routeTransitionActive={behavior.headerRouteTransitionActive}
+        theme={theme}
       >
         <div className={PortalDom.Classes.AppFrame} style={appFrameStyle}>
-          <PortalSidebar
-            actions={props.actions}
-            frameLayout={props.routeFrameLayout}
-            route={props.route}
-            state={props.state}
-          />
+          <PortalSidebar actions={actions} frameLayout={behavior.routeFrameLayout} route={route} state={state} />
           <main aria-label={PortalFrameTuner.Text.TargetMain} className={appMainClassName} style={appMainStyle}>
-            <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.PreviewMain} controls={props.routeFrameLayout.main} />
+            <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.PreviewMain} controls={behavior.routeFrameLayout.main} />
             <PortalFrameBoundsOverlay content={mainContent} />
             <div className={PortalFrameTuner.Classes.FrameContent}>
-              <PageHeader route={props.route} />
-              <RouteContentMount {...props} />
+              <PageHeader route={route} />
+              <PortalRouteContentMount
+                actions={actions}
+                rerender={rerender}
+                revision={revision}
+                route={route}
+                state={state}
+                theme={theme}
+              />
             </div>
           </main>
         </div>
       </PortalUnifiedShell>
-      <PortalAuthDialogMount open={props.authOpen} onClose={props.onAuthClose} />
+      <PortalAuthDialogMount open={behavior.authOpen} onClose={behavior.closeAuthDialog} />
     </>
   );
 }
@@ -265,152 +183,6 @@ function PortalAuthDialogMount({
   return open ? <PortalAuthDialog onClose={onClose} /> : null;
 }
 
-type PortalRouteTransitionHook = {
-  readonly autoLanScanRequestedForRouteRef: MutableRefObject<boolean>;
-  readonly autoLanScanStartedAfterEventIdRef: MutableRefObject<AgentEventId | null>;
-  readonly previousRouteRef: MutableRefObject<ParentRouteId>;
-  readonly route: ParentRouteId;
-  readonly setHeaderRouteTransitionActive: Dispatch<SetStateAction<boolean>>;
-};
-
-type PortalDeviceAutoScanHook = {
-  readonly actions: PortalRenderActions;
-  readonly autoLanScanRequestedForRouteRef: MutableRefObject<boolean>;
-  readonly autoLanScanStartedAfterEventIdRef: MutableRefObject<AgentEventId | null>;
-  readonly commandEnabled: boolean;
-  readonly latestLanPairingScanEventId: AgentEventId | null;
-  readonly route: ParentRouteId;
-  readonly setHeaderRouteTransitionActive: Dispatch<SetStateAction<boolean>>;
-  readonly setLanPairingAutoScanSequence: Dispatch<SetStateAction<number>>;
-};
-
-type PortalDeviceScanCompletionHook = {
-  readonly autoLanScanStartedAfterEventIdRef: MutableRefObject<AgentEventId | null>;
-  readonly latestLanPairingScanEventId: AgentEventId | null;
-  readonly route: ParentRouteId;
-  readonly setHeaderRouteTransitionActive: Dispatch<SetStateAction<boolean>>;
-};
-
-function usePortalProductReady(isProductRoute: boolean, onProductSurfaceReady: () => void): void {
-  useLayoutEffect(() => {
-    if (!isProductRoute) {
-      onProductSurfaceReady();
-    }
-  }, [isProductRoute, onProductSurfaceReady]);
-}
-
-function isParentDevProtocolRoute(route: ParentRouteId): boolean {
-  return route === ParentRoute.Commands || route === ParentRoute.Events || route === ParentRoute.Logs;
-}
-
-function usePortalRouteTransition({
-  autoLanScanRequestedForRouteRef,
-  autoLanScanStartedAfterEventIdRef,
-  previousRouteRef,
-  route,
-  setHeaderRouteTransitionActive,
-}: PortalRouteTransitionHook): void {
-  useEffect(() => {
-    if (previousRouteRef.current === route) {
-      return;
-    }
-    previousRouteRef.current = route;
-    autoLanScanRequestedForRouteRef.current = false;
-    autoLanScanStartedAfterEventIdRef.current = null;
-    setHeaderRouteTransitionActive(true);
-    const timeout = window.setTimeout(() => setHeaderRouteTransitionActive(false), PORTAL_HEADER_ROUTE_TRANSITION_MS);
-    return () => window.clearTimeout(timeout);
-  }, [
-    autoLanScanRequestedForRouteRef,
-    autoLanScanStartedAfterEventIdRef,
-    previousRouteRef,
-    route,
-    setHeaderRouteTransitionActive,
-  ]);
-}
-
-function usePortalDeviceAutoScan({
-  actions,
-  autoLanScanRequestedForRouteRef,
-  autoLanScanStartedAfterEventIdRef,
-  commandEnabled,
-  latestLanPairingScanEventId,
-  route,
-  setHeaderRouteTransitionActive,
-  setLanPairingAutoScanSequence,
-}: PortalDeviceAutoScanHook): void {
-  useEffect(() => {
-    if (route !== ParentRoute.Devices) {
-      autoLanScanRequestedForRouteRef.current = false;
-      autoLanScanStartedAfterEventIdRef.current = null;
-      return undefined;
-    }
-    if (autoLanScanRequestedForRouteRef.current || !commandEnabled) {
-      return undefined;
-    }
-    autoLanScanRequestedForRouteRef.current = true;
-    autoLanScanStartedAfterEventIdRef.current = latestLanPairingScanEventId;
-    setHeaderRouteTransitionActive(true);
-    setLanPairingAutoScanSequence((sequence) => sequence + 1);
-    void actions.requestLanPairingBrowserDiscoveryScan?.();
-    const timeout = window.setTimeout(
-      () => setHeaderRouteTransitionActive(false),
-      PortalLanPairingScan.PendingIndicatorMs
-    );
-    return () => window.clearTimeout(timeout);
-  }, [
-    actions,
-    autoLanScanRequestedForRouteRef,
-    autoLanScanStartedAfterEventIdRef,
-    commandEnabled,
-    latestLanPairingScanEventId,
-    route,
-    setHeaderRouteTransitionActive,
-    setLanPairingAutoScanSequence,
-  ]);
-}
-
-function usePortalDeviceScanCompletion({
-  autoLanScanStartedAfterEventIdRef,
-  latestLanPairingScanEventId,
-  route,
-  setHeaderRouteTransitionActive,
-}: PortalDeviceScanCompletionHook): void {
-  useEffect(() => {
-    if (
-      route !== ParentRoute.Devices ||
-      latestLanPairingScanEventId === null ||
-      latestLanPairingScanEventId === autoLanScanStartedAfterEventIdRef.current
-    ) {
-      return;
-    }
-    setHeaderRouteTransitionActive(false);
-  }, [autoLanScanStartedAfterEventIdRef, latestLanPairingScanEventId, route, setHeaderRouteTransitionActive]);
-}
-
-function frameLayoutVisibleForProtocolRoute(layout: PortalFrameLayout, isDevProtocolRoute: boolean): PortalFrameLayout {
-  if (!isDevProtocolRoute) {
-    return layout;
-  }
-  return {
-    ...layout,
-    content: {
-      sideTop: visibleContentTarget(layout.content.sideTop),
-      sideBottom: visibleContentTarget(layout.content.sideBottom),
-      main: visibleContentTarget(layout.content.main),
-    },
-  };
-}
-
-function visibleContentTarget(content: PortalFrameContentTargetLayout): PortalFrameContentTargetLayout {
-  return content.showContent ? content : { ...content, showContent: true };
-}
-
-function decodeSnapshotEventId(eventId: string | null | undefined): AgentEventId | null {
-  const parsed = safeParseUnknown(AgentEventIdSchema, eventId);
-  return parsed.success ? parsed.data : null;
-}
-
 function PageHeader({ route }: { readonly route: ParentRouteId }): ReactElement {
   const descriptor = routeDescriptor(route);
   return (
@@ -423,22 +195,10 @@ function PageHeader({ route }: { readonly route: ParentRouteId }): ReactElement 
   );
 }
 
-function RouteContentMount(props: PortalAppProps): ReactElement {
-  const hostRef = useRef<HTMLElement | null>(null);
-  useLayoutEffect(() => {
-    const host = hostRef.current;
-    if (host === null) {
-      return;
-    }
-    clear(host);
-    renderRouteContent(host, props.route, props.state, props.actions, props.theme, props.rerender);
-    return () => clear(host);
-  }, [props.actions, props.rerender, props.revision, props.route, props.state, props.theme]);
-  return <section className={PortalDom.Classes.State} ref={hostRef} />;
-}
-
-function clear(element: HTMLElement): void {
-  while (element.firstChild !== null) {
-    element.firstChild.remove();
+function routeDescriptor(route: ParentRouteId) {
+  const descriptor = PortalRouteDescriptors.find((candidate) => candidate.route === route);
+  if (descriptor === undefined) {
+    return PortalRouteDescriptors[0]!;
   }
+  return descriptor;
 }

@@ -12,7 +12,10 @@ use super::read_model::{
 };
 use crate::{constants, LogFieldValue, LogFields};
 
-type FieldPair = (&'static str, LogFieldValue);
+struct FieldPair {
+    key: &'static str,
+    value: LogFieldValue,
+}
 
 pub fn tracking_read_model_payload(read_model: &TrackingReadModel) -> LogFields {
     let latest = read_model.rows.first();
@@ -26,80 +29,80 @@ fn read_model_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
     pairs.extend(read_model_latest_pairs(read_model));
     pairs.extend(read_model_retention_pairs(read_model));
     pairs.extend(read_model_active_count_pairs(read_model));
-    pairs.push((
-        constants::field::ACTIVITY_TRACKING_READ_MODEL,
-        LogFieldValue::String(tracking_read_model_json(read_model)),
-    ));
+    pairs.push(FieldPair {
+        key: constants::field::ACTIVITY_TRACKING_READ_MODEL,
+        value: LogFieldValue::String(tracking_read_model_json(read_model)),
+    });
     pairs
 }
 
 fn read_model_summary_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
     vec![
-        (
-            constants::field::GENERATED_AT,
-            LogFieldValue::String(read_model.generated_at.to_string()),
-        ),
-        (
-            constants::field::CUSTODY_LABEL,
-            LogFieldValue::String(read_model.custody_label.to_string()),
-        ),
-        (
-            constants::field::LIMIT,
-            LogFieldValue::Number(read_model.limit as f64),
-        ),
-        (
-            constants::field::RETURNED,
-            LogFieldValue::Number(read_model.returned as f64),
-        ),
-        (
-            TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS,
-            LogFieldValue::Number(read_model.active_rows as f64),
-        ),
-        (
-            TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
-            LogFieldValue::Number(read_model.tombstone_rows as f64),
-        ),
-        (
-            constants::field::CAPABILITY_STATUS,
-            LogFieldValue::String(read_model.capability_status.to_string()),
-        ),
+        FieldPair {
+            key: constants::field::GENERATED_AT,
+            value: LogFieldValue::String(read_model.generated_at.to_string()),
+        },
+        FieldPair {
+            key: constants::field::CUSTODY_LABEL,
+            value: LogFieldValue::String(read_model.custody_label.to_string()),
+        },
+        FieldPair {
+            key: constants::field::LIMIT,
+            value: LogFieldValue::Number(read_model.limit as f64),
+        },
+        FieldPair {
+            key: constants::field::RETURNED,
+            value: LogFieldValue::Number(read_model.returned as f64),
+        },
+        FieldPair {
+            key: TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS,
+            value: LogFieldValue::Number(read_model.active_rows as f64),
+        },
+        FieldPair {
+            key: TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
+            value: LogFieldValue::Number(read_model.tombstone_rows as f64),
+        },
+        FieldPair {
+            key: constants::field::CAPABILITY_STATUS,
+            value: LogFieldValue::String(read_model.capability_status.to_string()),
+        },
     ]
 }
 
 fn read_model_latest_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
     vec![
-        (
-            constants::field::LATEST_EVENT_ID,
-            optional_string(read_model.latest_event_id.as_ref()),
-        ),
-        (
-            constants::field::LATEST_OBSERVED_AT,
-            optional_string(read_model.latest_observed_at.as_ref()),
-        ),
-        (
-            TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_EVENT_ID,
-            optional_string(read_model.latest_active_event_id.as_ref()),
-        ),
-        (
-            TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_OBSERVED_AT,
-            optional_string(read_model.latest_active_observed_at.as_ref()),
-        ),
-        (
-            TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
-            optional_string(read_model.latest_tombstone_event_id.as_ref()),
-        ),
-        (
-            TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
-            optional_string(read_model.latest_tombstone_observed_at.as_ref()),
-        ),
+        FieldPair {
+            key: constants::field::LATEST_EVENT_ID,
+            value: optional_string(read_model.latest_event_id.as_ref()),
+        },
+        FieldPair {
+            key: constants::field::LATEST_OBSERVED_AT,
+            value: optional_string(read_model.latest_observed_at.as_ref()),
+        },
+        FieldPair {
+            key: TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_EVENT_ID,
+            value: optional_string(read_model.latest_active_event_id.as_ref()),
+        },
+        FieldPair {
+            key: TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_OBSERVED_AT,
+            value: optional_string(read_model.latest_active_observed_at.as_ref()),
+        },
+        FieldPair {
+            key: TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
+            value: optional_string(read_model.latest_tombstone_event_id.as_ref()),
+        },
+        FieldPair {
+            key: TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
+            value: optional_string(read_model.latest_tombstone_observed_at.as_ref()),
+        },
     ]
 }
 
 fn read_model_retention_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
     let separator = constants::delimiter::LIST.to_string();
-    vec![(
-        TRACKING_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
-        LogFieldValue::String(
+    vec![FieldPair {
+        key: TRACKING_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+        value: LogFieldValue::String(
             read_model
                 .deleted_evidence_reference_ids
                 .iter()
@@ -107,87 +110,81 @@ fn read_model_retention_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> 
                 .collect::<Vec<_>>()
                 .join(&separator),
         ),
-    )]
+    }]
 }
 
 fn read_model_active_count_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
     vec![
-        (
-            TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS,
-            LogFieldValue::String(active_counts_json(&read_model.active_kind_counts)),
-        ),
-        (
-            TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS,
-            LogFieldValue::String(active_counts_json(&read_model.active_device_counts)),
-        ),
-        (
-            TRACKING_READ_MODEL_FIELD_ACTIVE_CAPABILITY_STATUS_COUNTS,
-            LogFieldValue::String(active_counts_json(
+        FieldPair {
+            key: TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS,
+            value: LogFieldValue::String(active_counts_json(&read_model.active_kind_counts)),
+        },
+        FieldPair {
+            key: TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS,
+            value: LogFieldValue::String(active_counts_json(&read_model.active_device_counts)),
+        },
+        FieldPair {
+            key: TRACKING_READ_MODEL_FIELD_ACTIVE_CAPABILITY_STATUS_COUNTS,
+            value: LogFieldValue::String(active_counts_json(
                 &read_model.active_capability_status_counts,
             )),
-        ),
+        },
     ]
 }
 
 fn active_counts_json(counts: &[TrackingReadModelCount]) -> String {
-    match serde_json::to_string(counts) {
-        Ok(value) => value,
-        Err(_) => unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES),
-    }
+    serde_json::to_string(counts).expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn tracking_read_model_json(read_model: &TrackingReadModel) -> String {
-    match serde_json::to_string(read_model) {
-        Ok(value) => value,
-        Err(_) => unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES),
-    }
+    serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn latest_row_pairs(row: Option<&TrackingReadModelRow>) -> Vec<FieldPair> {
     vec![
-        (
-            constants::field::DEVICE_ID,
-            optional_string(row.map(|value| &value.device_id)),
-        ),
-        (
-            constants::field::OBSERVER,
-            optional_string(row.map(|value| &value.observer)),
-        ),
-        (
-            constants::field::MOST_RECENT_KIND,
-            optional_string(row.map(|value| &value.kind)),
-        ),
-        (
-            constants::field::MOST_RECENT_SUBJECT_KIND,
-            optional_string(row.map(|value| &value.subject_kind)),
-        ),
-        (
-            constants::field::MOST_RECENT_SUBJECT_ID,
-            optional_string(row.map(|value| &value.subject_id)),
-        ),
-        (
-            constants::field::MOST_RECENT_SUBJECT_NAME,
-            optional_string(row.and_then(|value| value.subject_display_name.as_ref())),
-        ),
-        (
-            constants::field::EVIDENCE_REFERENCE_IDS,
-            LogFieldValue::String(join_evidence_ids(row)),
-        ),
-        (
-            constants::field::QUERY_VISIBILITY,
-            optional_string(row.map(|value| &value.query_visibility)),
-        ),
-        (
-            constants::field::DELETED_AT,
-            optional_string(row.and_then(|value| value.deleted_at.as_ref())),
-        ),
+        FieldPair {
+            key: constants::field::DEVICE_ID,
+            value: optional_string(row.map(|value| &value.device_id)),
+        },
+        FieldPair {
+            key: constants::field::OBSERVER,
+            value: optional_string(row.map(|value| &value.observer)),
+        },
+        FieldPair {
+            key: constants::field::MOST_RECENT_KIND,
+            value: optional_string(row.map(|value| &value.kind)),
+        },
+        FieldPair {
+            key: constants::field::MOST_RECENT_SUBJECT_KIND,
+            value: optional_string(row.map(|value| &value.subject_kind)),
+        },
+        FieldPair {
+            key: constants::field::MOST_RECENT_SUBJECT_ID,
+            value: optional_string(row.map(|value| &value.subject_id)),
+        },
+        FieldPair {
+            key: constants::field::MOST_RECENT_SUBJECT_NAME,
+            value: optional_string(row.and_then(|value| value.subject_display_name.as_ref())),
+        },
+        FieldPair {
+            key: constants::field::EVIDENCE_REFERENCE_IDS,
+            value: LogFieldValue::String(join_evidence_ids(row)),
+        },
+        FieldPair {
+            key: constants::field::QUERY_VISIBILITY,
+            value: optional_string(row.map(|value| &value.query_visibility)),
+        },
+        FieldPair {
+            key: constants::field::DELETED_AT,
+            value: optional_string(row.and_then(|value| value.deleted_at.as_ref())),
+        },
     ]
 }
 
 fn fields_from_pairs(pairs: Vec<FieldPair>) -> LogFields {
     let mut fields = LogFields::new();
-    for (key, value) in pairs {
-        fields.insert(key.to_string(), value);
+    for pair in pairs {
+        fields.insert(pair.key.to_string(), pair.value);
     }
     fields
 }

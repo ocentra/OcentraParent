@@ -71,7 +71,7 @@ fn tracking_nearby_place_fixture(
 }
 
 fn tracking_expected_place_fixture(
-    expected_place_state: &'static str,
+    expected_place_state: TrackingExpectedPlaceState,
     parent_action_requirement: TrackingParentActionRequirement,
 ) -> TrackingExpectedPlaceStateEvaluatedEvent {
     let observation_id =
@@ -101,8 +101,7 @@ fn tracking_expected_place_fixture(
             constants::tracking_runtime::DEFAULT_OBSERVED_AT,
         )
         .expect_value(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
-        expected_place_state: TrackingExpectedPlaceState::parse(expected_place_state)
-            .expect_value(expected_place_state),
+        expected_place_state,
         distance_tolerance_meters: Some(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_DISTANCE_TOLERANCE_METERS,
         ),
@@ -196,7 +195,10 @@ fn tracking_policy_does_not_emit_violation_for_ambiguous_nearby_place() {
 #[test]
 fn tracking_policy_emits_review_violation_for_left_expected_place() {
     let evaluated = tracking_expected_place_fixture(
-        constants::tracking_runtime::EXPECTED_PLACE_STATE_LEFT_EXPECTED_PLACE,
+        TrackingExpectedPlaceState::parse(
+            constants::tracking_runtime::EXPECTED_PLACE_STATE_LEFT_EXPECTED_PLACE,
+        )
+        .expect_value(constants::tracking_runtime::EXPECTED_PLACE_STATE_LEFT_EXPECTED_PLACE),
         TrackingParentActionRequirement::Required,
     );
 
@@ -233,7 +235,10 @@ fn tracking_policy_emits_review_violation_for_left_expected_place() {
 #[test]
 fn tracking_policy_does_not_emit_expected_place_violation_when_parent_action_is_not_required() {
     let evaluated = tracking_expected_place_fixture(
-        constants::tracking_runtime::EXPECTED_PLACE_STATE_LATE_ARRIVAL,
+        TrackingExpectedPlaceState::parse(
+            constants::tracking_runtime::EXPECTED_PLACE_STATE_LATE_ARRIVAL,
+        )
+        .expect_value(constants::tracking_runtime::EXPECTED_PLACE_STATE_LATE_ARRIVAL),
         TrackingParentActionRequirement::NotRequired,
     );
 
@@ -252,7 +257,10 @@ fn tracking_policy_does_not_emit_expected_place_violation_when_parent_action_is_
 #[test]
 fn tracking_policy_does_not_emit_expected_place_violation_when_child_is_where_expected() {
     let evaluated = tracking_expected_place_fixture(
-        constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED,
+        TrackingExpectedPlaceState::parse(
+            constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED,
+        )
+        .expect_value(constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED),
         TrackingParentActionRequirement::Required,
     );
 

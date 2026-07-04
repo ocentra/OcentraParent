@@ -18,7 +18,9 @@ use ocentra_parent_agent_protocol::activity::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::policy_constants as policy;
+use std::fmt::Debug;
 
+use crate::test_text::{TestResult, TestText};
 use crate::{
     activity_store_policy_preview_support::{
         browser_event, network_flow_event, network_flow_event_at, network_retention_deleted_event,
@@ -26,8 +28,6 @@ use crate::{
     },
     ActivityStore,
 };
-
-type TestResult = Result<(), String>;
 
 #[test]
 fn policy_preview_read_model_evaluates_stored_browser_evidence_without_enforcement() -> TestResult {
@@ -140,7 +140,10 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
             policy::TEST_BLOCK_RULE_ID,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![event.event_id.clone(), network_evidence_id.clone()],
+            vec![
+                crate::test_text::TestText::from_display(event.event_id.clone()),
+                crate::test_text::TestText::from_display(network_evidence_id.clone()),
+            ],
         )]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;
@@ -189,7 +192,11 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
     Ok(())
 }
 
-fn assert_network_evidence_refs(row: &PolicyPreviewReadModelRow, network_evidence_id: &str) {
+fn assert_network_evidence_refs(
+    row: &PolicyPreviewReadModelRow,
+    network_evidence_id: impl std::fmt::Display,
+) {
+    let network_evidence_id = network_evidence_id.to_string();
     assert_eq!(row.evidence_references.len(), 2);
     assert_eq!(
         row.evidence_references[0].kind,
@@ -209,7 +216,11 @@ fn assert_network_evidence_refs(row: &PolicyPreviewReadModelRow, network_evidenc
     );
 }
 
-fn assert_network_parent_rule_refs(row: &PolicyPreviewReadModelRow, network_evidence_id: &str) {
+fn assert_network_parent_rule_refs(
+    row: &PolicyPreviewReadModelRow,
+    network_evidence_id: impl std::fmt::Display,
+) {
+    let network_evidence_id = network_evidence_id.to_string();
     assert_eq!(row.parent_rule_context_references.len(), 1);
     assert_eq!(
         row.parent_rule_context_references[0].target_evidence_refs,
@@ -326,7 +337,7 @@ fn policy_preview_read_model_fails_closed_when_network_mapping_refs_are_malforme
             constants::value::EMPTY,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![event.event_id],
+            vec![crate::test_text::TestText::from_display(event.event_id)],
         )]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;
@@ -386,7 +397,12 @@ fn policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombston
     let event = network_flow_event();
     let deleted_event_id = event.event_id.clone();
     ok(
-        store.ingest_events(&[event, network_retention_deleted_event(&deleted_event_id)]),
+        store.ingest_events(&[
+            event,
+            network_retention_deleted_event(crate::test_text::TestText::from_display(
+                deleted_event_id.clone(),
+            )),
+        ]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;
     ok(
@@ -399,7 +415,9 @@ fn policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombston
             policy::TEST_BLOCK_RULE_ID,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![deleted_event_id],
+            vec![crate::test_text::TestText::from_display(
+                deleted_event_id.clone(),
+            )],
         )]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;
@@ -430,7 +448,7 @@ fn policy_preview_read_model_applies_retention_tombstones_before_limit() -> Test
     let event = network_flow_event_at(constants::activity_store::TEST_THIRD_OBSERVED_AT, 1);
     let deleted_event_id = event.event_id.clone();
     let tombstone = network_retention_deleted_event_at(
-        &deleted_event_id,
+        crate::test_text::TestText::from_display(deleted_event_id.clone()),
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     );
     ok(
@@ -447,7 +465,9 @@ fn policy_preview_read_model_applies_retention_tombstones_before_limit() -> Test
             policy::TEST_BLOCK_RULE_ID,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![deleted_event_id],
+            vec![crate::test_text::TestText::from_display(
+                deleted_event_id.clone(),
+            )],
         )]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;
@@ -490,12 +510,12 @@ fn policy_preview_read_model_reports_empty_store_without_inventing_rows() -> Tes
     Ok(())
 }
 
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+fn ok<T, E: Debug>(result: Result<T, E>, context: impl std::fmt::Display) -> Result<T, TestText> {
+    result.map_err(|error| TestText::from_display(format!("{}: {error:?}", context)))
 }
 
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| context.to_string())
+fn some<T>(value: Option<T>, context: impl std::fmt::Display) -> Result<T, TestText> {
+    value.ok_or_else(|| TestText::from_display(context))
 }
 
 fn policy_preview_confirmed_target_event() -> ActivityEvent {

@@ -5,11 +5,8 @@ use ocentra_parent_agent_maintenance::crypto::{generate_key_pair, sign_bytes, ve
 fn generated_key_pair_signs_and_verifies_payload() {
     let keys = generate_key_pair();
     let payload = b"ocentra-parent-update-payload";
-    let sign_result = sign_bytes(payload, &keys.private_key_base64);
-    assert!(sign_result.is_ok(), "payload signs failed: {sign_result:?}");
-    let Ok((signature, key_id)) = sign_result else {
-        return;
-    };
+    let (signature, key_id) =
+        sign_bytes(payload, &keys.private_key_base64).expect("payload signs failed");
 
     let verification = verify_bytes(
         payload,
@@ -27,11 +24,8 @@ fn generated_key_pair_signs_and_verifies_payload() {
 #[test]
 fn verification_rejects_tampered_payload() {
     let keys = generate_key_pair();
-    let sign_result = sign_bytes(b"trusted", &keys.private_key_base64);
-    assert!(sign_result.is_ok(), "payload signs failed: {sign_result:?}");
-    let Ok((signature, key_id)) = sign_result else {
-        return;
-    };
+    let (signature, key_id) =
+        sign_bytes(b"trusted", &keys.private_key_base64).expect("payload signs failed");
 
     let result = verify_bytes(
         b"tampered",
@@ -41,5 +35,11 @@ fn verification_rejects_tampered_payload() {
         ED25519_ALGORITHM,
     );
 
-    assert!(result.is_err());
+    match result {
+        Err(error) => assert!(
+            error.to_string().contains("verification"),
+            "unexpected verification error: {error}"
+        ),
+        Ok(_) => panic!("tampered payload should fail verification"),
+    }
 }

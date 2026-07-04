@@ -26,10 +26,8 @@ pub fn evaluate_parent_defined_place(
     } else {
         constants::tracking_runtime::PARENT_DEFINED_PLACE_STATE_ACCEPTED
     };
-    let parsed_place_state = match TrackingParentDefinedPlaceState::parse(place_state) {
-        Ok(parsed_state) => parsed_state,
-        Err(_) => unreachable!("tracking parent-defined place contract drift: {place_state}"),
-    };
+    let parsed_place_state = TrackingParentDefinedPlaceState::parse(place_state)
+        .expect("tracking parent-defined place contract drift");
 
     TrackingParentDefinedPlaceDecision {
         place_id: tracking_parent_defined_place_id_from_evidence_ref(&input.source_evidence_ref),

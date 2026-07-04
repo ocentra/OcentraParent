@@ -5,9 +5,7 @@ use chrono::Utc;
 
 use super::accumulator::parse_mdns_packets;
 use super::packet::{encode_mdns_query, mdns_query_names};
-use super::{
-    MdnsDnsSdDiscovery, MDNS_IPV4_MULTICAST, MDNS_PORT, MDNS_RESPONSE_TIMEOUT_MS,
-};
+use super::{MdnsDnsSdDiscovery, MDNS_IPV4_MULTICAST, MDNS_PORT, MDNS_RESPONSE_TIMEOUT_MS};
 
 pub fn query_mdns_dns_sd() -> Option<MdnsDnsSdDiscovery> {
     let socket = UdpSocket::bind(("0.0.0.0", 0)).ok()?;

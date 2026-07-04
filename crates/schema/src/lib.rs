@@ -7,27 +7,23 @@
 //! this crate owns serializable DTO shape.
 
 pub(crate) fn schema_option_or_unreachable<T>(value: Option<T>, context: &str) -> T {
-    match value {
-        Some(value) => value,
-        None => unreachable!("{context}"),
-    }
+    value.expect(context)
 }
 
-pub(crate) fn schema_result_or_unreachable<T, E>(value: Result<T, E>, context: &str) -> T {
-    match value {
-        Ok(value) => value,
-        Err(_) => unreachable!("{context}"),
-    }
+pub(crate) fn schema_result_or_unreachable<T, E: std::fmt::Debug>(
+    value: Result<T, E>,
+    context: &str,
+) -> T {
+    value.expect(context)
 }
 
 pub mod app_game_preview_source_freshness;
 pub mod app_game_preview_source_freshness_ts;
 pub mod app_game_timer_service_readiness;
 pub mod app_game_timer_service_readiness_ts;
-pub mod app_install_purchase_approval;
-pub mod app_install_purchase_approval_ts;
 pub mod app_risk_detection;
 pub mod app_risk_detection_ts;
+pub mod billing_contracts_ts;
 pub mod browser_policy_control_catalog_ts;
 pub mod child_ios_entitlement_capability_proof;
 pub mod child_ios_entitlement_capability_proof_ts;
@@ -39,6 +35,7 @@ pub mod encryption_key_custody;
 pub mod export_import_backup_recovery;
 pub mod logging_contracts;
 pub mod logging_contracts_ts;
+mod parent_agent_protocol_bridge_ts;
 pub mod parent_owned_sync_export;
 pub mod parent_owned_sync_export_ts;
 pub mod parent_storage_settings_apply_flow;

@@ -71,52 +71,6 @@ export function trackingControlCatalogSettings(catalog = BaselineTrackingControl
   );
 }
 
-export function trackingControlCatalogSettingCount(catalog = BaselineTrackingControlCatalog) {
-  return trackingControlCatalogSettings(catalog).length;
-}
-
-export function trackingControlCatalogSectionCount(catalog = BaselineTrackingControlCatalog) {
-  return catalog.tabs.reduce((count, tab) => count + tab.sections.length, 0);
-}
-
-export function trackingControlCatalogGroupCount(catalog = BaselineTrackingControlCatalog) {
-  return catalog.tabs.reduce(
-    (count, tab) => count + tab.sections.reduce((sectionCount, section) => sectionCount + section.groups.length, 0),
-    0
-  );
-}
-
-export function trackingControlCatalogAcceptedOptionCount(catalog = BaselineTrackingControlCatalog) {
-  return trackingControlCatalogSettings(catalog).reduce((count, setting) => count + setting.acceptedOptions.length, 0);
-}
-
-export function trackingControlCatalogSourceOptionCount() {
-  return TrackingControlSourceOptionCount;
-}
-
-export function trackingControlCatalogCanRender(catalog = BaselineTrackingControlCatalog) {
-  if (catalog.sidePanelCategory !== 'tracking' || catalog.tabs.length === 0) {
-    return false;
-  }
-
-  return trackingControlCatalogSettings(catalog).every(
-    (setting) =>
-      setting.policyLane.length > 0 &&
-      setting.controlKind.length > 0 &&
-      setting.cardKind.length > 0 &&
-      setting.layoutHints.preferredColumnSpan > 0 &&
-      setting.targetScopeOptions.length > 0 &&
-      setting.effectModeOptions.length > 0 &&
-      setting.visibilityConditions.length > 0 &&
-      setting.enabledConditions.length > 0 &&
-      setting.validationRules.length > 0
-  );
-}
-
-export function trackingControlCatalogKnownSettingIds(catalog = BaselineTrackingControlCatalog) {
-  return new Set(trackingControlCatalogSettings(catalog).map((setting) => String(setting.settingId)));
-}
-
 export function decodeTrackingControlCatalog(input: unknown) {
   return TrackingControlCatalogSchema.parse(input);
 }
@@ -130,7 +84,7 @@ export function decodeTrackingControlPolicyValueForCatalog(
   catalog = BaselineTrackingControlCatalog
 ): TrackingControlPolicyValue {
   const parsed = decodeTrackingControlPolicyValue(input);
-  const knownSettingIds = trackingControlCatalogKnownSettingIds(catalog);
+  const knownSettingIds = new Set(trackingControlCatalogSettings(catalog).map((setting) => String(setting.settingId)));
   const seenSettingIds = new Set<string>();
 
   for (const setting of parsed.settings) {

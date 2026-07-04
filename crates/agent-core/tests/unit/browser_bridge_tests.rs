@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::Display;
 
 use ocentra_parent_agent_protocol::activity::{
     ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySubjectKind,
@@ -12,21 +12,10 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{
-    browser_tab_observation_event, BrowserBridgeEventError, BrowserBridgeTargetObservation,
+    browser_tab_observation_event,
+    test_text::{test_err as err, test_ok as ok, TestResult, TestText},
+    BrowserBridgeEventError, BrowserBridgeTargetObservation,
 };
-
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
-    match result {
-        Ok(_) => Err(format!("{context}: expected error")),
-        Err(error) => Ok(error),
-    }
-}
 
 #[test]
 fn browser_target_observation_maps_to_managed_url_activity_event() -> TestResult {
@@ -90,9 +79,9 @@ fn browser_target_observation_maps_stable_identity_and_custody_fields() -> TestR
 
     assert_eq!(
         event.fields.get(constants::field::BROWSER_EVIDENCE_ID),
-        Some(&LogFieldValue::String(expected_bridge_id(
-            constants::browser::EVIDENCE_ID_PREFIX
-        )))
+        Some(&LogFieldValue::String(
+            expected_bridge_id(constants::browser::EVIDENCE_ID_PREFIX).to_string()
+        ))
     );
     assert_eq!(
         event.fields.get(constants::field::SOURCE_ID),
@@ -271,7 +260,7 @@ fn browser_target_observation_rejects_empty_target_id() -> TestResult {
     Ok(())
 }
 
-fn mapped_event(observation: BrowserBridgeTargetObservation) -> Result<ActivityEvent, String> {
+fn mapped_event(observation: BrowserBridgeTargetObservation) -> Result<ActivityEvent, TestText> {
     ok(
         browser_tab_observation_event(
             observation,
@@ -304,12 +293,12 @@ fn browser_observation() -> BrowserBridgeTargetObservation {
     }
 }
 
-fn expected_bridge_id(prefix: &str) -> String {
-    let mut value = String::from(prefix);
+fn expected_bridge_id(prefix: impl Display) -> TestText {
+    let mut value = prefix.to_string();
     value.push_str(&0.to_string());
     value.push(constants::delimiter::HYPHEN);
     value.push_str(constants::activity_store::TEST_BROWSER_TARGET_ID);
     value.push(constants::delimiter::HYPHEN);
     value.push_str(constants::activity_store::TEST_FIRST_OBSERVED_AT);
-    value
+    TestText::from_display(value)
 }

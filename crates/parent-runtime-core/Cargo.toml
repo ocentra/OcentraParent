@@ -10,6 +10,14 @@ workspace = true
 [lib]
 path = "src/lib.rs"
 
+[[test]]
+name = "unit"
+path = "tests/unit/main.rs"
+
+[[test]]
+name = "integration"
+path = "tests/integration/main.rs"
+
 [dependencies]
 ocentra-child-runtime = { path = "../child-runtime" }
 ocentra-eventing = { path = "../ocentra-eventing" }

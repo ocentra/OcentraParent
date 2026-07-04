@@ -227,7 +227,7 @@ pub(super) async fn subscribe_child_tracking_check_in_request_events(
                     &request,
                     &metadata,
                     state.has_seen_parent_requested_check_in(&request.check_in_id),
-                );
+                )?;
                 if receipt.delivery_state == TrackingChildCheckInDeliveryState::Requested {
                     state.mark_parent_requested_check_in_seen(request.check_in_id.clone());
                 }

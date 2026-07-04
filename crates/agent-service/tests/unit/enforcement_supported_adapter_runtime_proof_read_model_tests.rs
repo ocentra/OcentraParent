@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::constants;
@@ -22,9 +25,10 @@ use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
 use super::enforcement_supported_adapter_runtime_proof_read_model::v08_supported_adapter_runtime_proof_read_model;
+use super::test_text::{
+    count_for_display, optional_log_string, test_ok, test_some, TestResult, TestText,
+};
 use crate::test_invariants::require_some;
-
-type TestResult = Result<(), String>;
 
 #[test]
 fn supported_adapter_runtime_proof_read_model_preserves_honest_states() {
@@ -180,7 +184,11 @@ async fn supported_adapter_runtime_proof_websocket_command_returns_service_read_
         AgentEventName::AgentEnforcementSupportedAdapterRuntimeProofReported
     );
     assert_eq!(
-        string_payload_field(&event, constants::field::READ_MODEL_ID)?,
+        test_some(
+            optional_log_string(&event.payload, constants::field::READ_MODEL_ID),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        )?
+        .to_string(),
         proof::READ_MODEL_ID
     );
     assert_eq!(
@@ -188,11 +196,17 @@ async fn supported_adapter_runtime_proof_websocket_command_returns_service_read_
         13.0
     );
 
-    let read_model: V08SupportedAdapterRuntimeProofReadModel = ok(
-        serde_json::from_str(string_payload_field(
-            &event,
-            constants::field::ENFORCEMENT_SUPPORTED_ADAPTER_RUNTIME_PROOF_READ_MODEL,
-        )?),
+    let read_model: V08SupportedAdapterRuntimeProofReadModel = test_ok(
+        serde_json::from_str(
+            &test_some(
+                optional_log_string(
+                    &event.payload,
+                    constants::field::ENFORCEMENT_SUPPORTED_ADAPTER_RUNTIME_PROOF_READ_MODEL,
+                ),
+                constants::error::AGENT_EVENT_SERIALIZES,
+            )?
+            .to_string(),
+        ),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
     let host_network = entry_for(
@@ -223,12 +237,12 @@ async fn supported_adapter_runtime_proof_websocket_command_returns_service_read_
     Ok(())
 }
 
-async fn send_supported_adapter_runtime_proof_command() -> Result<AgentEventEnvelope, String> {
-    let body = ok(
+async fn send_supported_adapter_runtime_proof_command() -> Result<AgentEventEnvelope, TestText> {
+    let body = test_ok(
         serde_json::to_string(&command_envelope()),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
-    Ok(handle_local_command_text_for_test(&body).await)
+    Ok(handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await)
 }
 
 fn command_envelope() -> AgentCommandEnvelope {
@@ -272,46 +286,43 @@ fn assert_boundary_state(
     assert_eq!(entry.runtime_state, runtime_state);
 }
 
-fn count_states(entries: &[V08SupportedAdapterRuntimeProofEntry]) -> BTreeMap<&'static str, usize> {
+fn count_states(entries: &[V08SupportedAdapterRuntimeProofEntry]) -> BTreeMap<TestText, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
-            .entry(entry.runtime_state.as_protocol_str())
+            .entry(TestText::from_display(
+                entry.runtime_state.as_protocol_str(),
+            ))
             .or_default() += 1;
         counts
     })
 }
 
-fn state_count(counts: &BTreeMap<&'static str, usize>, state: &'static str) -> usize {
-    *counts.get(state).unwrap_or(&0)
+fn state_count(counts: &BTreeMap<TestText, usize>, state: impl std::fmt::Display) -> usize {
+    count_for_display(counts, state)
 }
 
-fn count_platforms(
-    entries: &[V08SupportedAdapterRuntimeProofEntry],
-) -> BTreeMap<&'static str, usize> {
+fn count_platforms(entries: &[V08SupportedAdapterRuntimeProofEntry]) -> BTreeMap<TestText, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts.entry(entry.platform.as_protocol_str()).or_default() += 1;
+        *counts
+            .entry(TestText::from_display(entry.platform.as_protocol_str()))
+            .or_default() += 1;
         counts
     })
 }
 
-fn platform_count(counts: &BTreeMap<&'static str, usize>, platform: &str) -> usize {
-    *counts.get(platform).unwrap_or(&0)
+fn platform_count(counts: &BTreeMap<TestText, usize>, platform: impl std::fmt::Display) -> usize {
+    count_for_display(counts, platform)
 }
 
-fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> Result<&'a str, String> {
-    match event.payload.get(field) {
-        Some(LogFieldValue::String(value)) => Ok(value.as_str()),
-        _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
-    }
-}
-
-fn number_payload_field(event: &AgentEventEnvelope, field: &str) -> Result<f64, String> {
-    match event.payload.get(field) {
+fn number_payload_field(
+    event: &AgentEventEnvelope,
+    field: impl std::fmt::Display,
+) -> Result<f64, TestText> {
+    let field_name = field.to_string();
+    match event.payload.get(field_name.as_str()) {
         Some(LogFieldValue::Number(value)) => Ok(*value),
-        _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
+        _ => Err(TestText::from_display(
+            constants::error::AGENT_EVENT_SERIALIZES,
+        )),
     }
-}
-
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
 }

@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { RunType, TestLogScope, TestSuiteType } from '@ocentra-parent/schema-domain/test-log/types';
+import type { RunType, TestLogScope, TestSuiteType } from './types';
 import { getDefaultLogRoot, getRunNdjsonFilePath } from './ndjsonPaths';
-import { GeneratedLocalLogDirs, buildGeneratedLogsTreeKey, getGeneratedRunDirPath } from '../generated/local-test-log';
+import { GeneratedLocalLogDirs, buildGeneratedLogsTreeKey, getGeneratedRunDirPath } from '../local-test-log';
 
 export type LogsTree = Map<string, string> & { readonly __brand: 'LogsTree' };
 

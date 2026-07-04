@@ -39,6 +39,7 @@ fn write_agent_log(level: &LogLevel, message: &str, fields: LogFields) -> std::i
 
 fn into_core_fields(fields: LogFields) -> CoreLogFields {
     fields
+        .into_inner()
         .into_iter()
         .map(|(key, value)| (key, into_core_field_value(value)))
         .collect()

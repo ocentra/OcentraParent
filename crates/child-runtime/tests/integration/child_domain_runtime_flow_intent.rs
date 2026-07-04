@@ -8,22 +8,24 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
 use ocentra_parent_agent_protocol::constants;
 
 trait OptionRequiredExt<T> {
-    fn required(self, context: &str) -> T;
+    fn required(self, context: impl std::fmt::Display) -> T;
 }
 
 impl<T> OptionRequiredExt<T> for Option<T> {
-    fn required(self, context: &str) -> T {
-        self.unwrap_or_else(|| unreachable!("{context}"))
+    fn required(self, context: impl std::fmt::Display) -> T {
+        let context = context.to_string();
+        self.expect(&context)
     }
 }
 
 trait ResultRequiredExt<T, E> {
-    fn required(self, context: &str) -> T;
+    fn required(self, context: impl std::fmt::Display) -> T;
 }
 
 impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
-    fn required(self, context: &str) -> T {
-        self.unwrap_or_else(|error| unreachable!("{context}: {error:?}"))
+    fn required(self, context: impl std::fmt::Display) -> T {
+        let context = context.to_string();
+        self.expect(&context)
     }
 }
 

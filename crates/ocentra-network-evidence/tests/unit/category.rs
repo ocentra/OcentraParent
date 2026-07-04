@@ -1,10 +1,7 @@
-use crate::{
-    evaluate_category_source_update, lookup_domain_category, normalize_domain_with_public_suffix,
-    CategoryFreshnessState, CategoryMatchKind, CategorySourceCustody, CategoryUpdateDecision,
-    DomainCategoryDatabase, DomainCategoryRecord, DomainCategorySource, NetworkCategory,
-    PublicSuffixModel,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::category::*;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::domain::{normalize_domain_with_public_suffix, PublicSuffixModel};
 
 #[test]
 fn category_database_matches_registrable_domain_with_fresh_source() {

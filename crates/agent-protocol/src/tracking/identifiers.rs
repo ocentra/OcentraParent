@@ -10,11 +10,7 @@ macro_rules! tracking_text_identifier {
 
         impl $name {
             pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
+                parse_tracking_identifier(value, $field).map(Self)
             }
 
             pub fn as_str(&self) -> &str {
@@ -189,11 +185,22 @@ fn derived_tracking_identifier_value(prefix: &str, segments: &[&str]) -> String 
     value
 }
 
-fn parse_or_panic<T, E>(result: Result<T, E>, message: &'static str) -> T {
-    match result {
-        Ok(value) => value,
-        Err(_) => unreachable!("{}", message),
+fn parse_tracking_identifier(
+    value: impl Into<String>,
+    field: &'static str,
+) -> Result<String, EventingError> {
+    let value = value.into();
+    if value.trim().is_empty() {
+        return Err(EventingError::EmptyValue { field });
     }
+    Ok(value)
+}
+
+fn parse_or_expect<T, E>(result: Result<T, E>, message: &'static str) -> T
+where
+    E: std::fmt::Debug,
+{
+    result.expect(message)
 }
 
 fn tracking_policy_violation_id_from_source_and_rule_ref(
@@ -204,7 +211,7 @@ fn tracking_policy_violation_id_from_source_and_rule_ref(
         constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE,
         &[source_ref, policy_rule_ref.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingPolicyViolationId::parse(value),
         constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE,
     )
@@ -217,7 +224,7 @@ pub fn tracking_evidence_ref_from_observation_id(
         constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE,
         &[observation_id.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingEvidenceRef::parse(value),
         constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE,
     )
@@ -230,7 +237,7 @@ pub fn tracking_ai_request_id_from_evidence_ref(
         constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
         &[evidence_ref.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingAiRequestId::parse(value),
         constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
     )
@@ -243,7 +250,7 @@ pub fn tracking_nearby_place_request_id_from_evidence_ref(
         constants::tracking_runtime::TRACKING_NEARBY_PLACE_PROVIDER_REQUEST_ID_PREFIX,
         &[evidence_ref.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingNearbyPlaceRequestId::parse(value),
         constants::tracking_runtime::TRACKING_NEARBY_PLACE_PROVIDER_REQUEST_ID_PREFIX,
     )
@@ -256,7 +263,7 @@ pub fn tracking_transition_id_from_observation_id(
         constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE,
         &[observation_id.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingTransitionId::parse(value),
         constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE,
     )
@@ -269,7 +276,7 @@ pub fn tracking_evaluation_id_from_observation_id(
         constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
         &[observation_id.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingEvaluationId::parse(value),
         constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
     )
@@ -282,7 +289,7 @@ pub fn tracking_check_in_id_from_observation_id(
         constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE,
         &[observation_id.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingCheckInId::parse(value),
         constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE,
     )
@@ -295,7 +302,7 @@ pub fn tracking_temporary_live_session_id_from_child_device_id(
         constants::tracking_runtime::TRACKING_TEMPORARY_LIVE_SESSION_ID_PREFIX,
         &[child_device_id.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingTemporaryLiveSessionId::parse(value),
         constants::tracking_runtime::TRACKING_TEMPORARY_LIVE_SESSION_ID_PREFIX,
     )
@@ -308,7 +315,7 @@ pub fn tracking_missing_device_evaluation_id_from_child_device_id(
         constants::tracking_runtime::TRACKING_MISSING_DEVICE_EVALUATION_ID_PREFIX,
         &[child_device_id.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingMissingDeviceEvaluationId::parse(value),
         constants::tracking_runtime::TRACKING_MISSING_DEVICE_EVALUATION_ID_PREFIX,
     )
@@ -321,7 +328,7 @@ pub fn tracking_parent_defined_place_id_from_evidence_ref(
         constants::tracking_runtime::TRACKING_PARENT_DEFINED_PLACE_ID_PREFIX,
         &[evidence_ref.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingParentDefinedPlaceId::parse(value),
         constants::tracking_runtime::TRACKING_PARENT_DEFINED_PLACE_ID_PREFIX,
     )
@@ -348,7 +355,7 @@ pub fn tracking_notification_id_from_violation_id(
         constants::tracking_runtime::PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE,
         &[violation_id.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingNotificationId::parse(value),
         constants::tracking_runtime::PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE,
     )
@@ -361,7 +368,7 @@ pub fn tracking_acknowledgement_id_from_violation_id(
         constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE,
         &[violation_id.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingAcknowledgementId::parse(value),
         constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE,
     )
@@ -374,7 +381,7 @@ pub fn tracking_alert_evaluation_id_from_violation_id(
         constants::tracking_runtime::TRACKING_ALERT_EVALUATED_EVENT_TYPE,
         &[violation_id.as_str()],
     );
-    parse_or_panic(
+    parse_or_expect(
         TrackingAlertEvaluationId::parse(value),
         constants::tracking_runtime::TRACKING_ALERT_EVALUATED_EVENT_TYPE,
     )

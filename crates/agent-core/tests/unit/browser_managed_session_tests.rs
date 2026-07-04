@@ -1,4 +1,7 @@
-use std::{fmt::Debug, path::PathBuf};
+use std::{
+    fmt::Debug,
+    path::{Path, PathBuf},
+};
 
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
 use ocentra_parent_agent_protocol::browser_managed::{
@@ -11,27 +14,11 @@ use crate::{
     create_or_repair_managed_browser_profile_store, delete_managed_browser_profile_store,
     installed_managed_browser_candidates, launch_managed_browser,
     load_managed_browser_profile_store, managed_browser_executable_identity,
-    managed_browser_launch_plan, reserve_managed_browser_bridge_port, unmanaged_browser_processes,
-    BrowserManagedLaunchConfig, BrowserManagedLaunchError, BrowserManagedProfileStoreConfig,
-    BrowserManagedProfileStoreError, ProcessObservation,
+    managed_browser_launch_plan, reserve_managed_browser_bridge_port,
+    test_text::{test_err as err, test_ok as ok, test_some as some, TestResult, TestText},
+    unmanaged_browser_processes, BrowserManagedLaunchConfig, BrowserManagedLaunchError,
+    BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError, ProcessObservation,
 };
-
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
-    match result {
-        Ok(_) => Err(format!("{context}: expected error")),
-        Err(error) => Ok(error),
-    }
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| format!("{context}: missing value"))
-}
 
 #[test]
 fn managed_browser_launch_plan_uses_owned_profile_and_loopback_bridge() -> TestResult {
@@ -295,7 +282,8 @@ fn managed_browser_profile_store_rejects_default_and_unowned_paths() -> TestResu
         create_or_repair_managed_browser_profile_store(&BrowserManagedProfileStoreConfig {
             profile_root_dir: profile_store_root(
                 constants::browser::PROFILE_STORE_TEST_REJECT_SUFFIX,
-            ),
+            )
+            .to_path_buf(),
             profile_id: constants::browser::DEVTOOLS_TEST_UNOWNED_PROFILE_DIR.to_string(),
             profile_scope_id: constants::browser::PROFILE_SCOPE_ID_DEV.to_string(),
             device_id: constants::browser::PROFILE_STORE_TEST_DEVICE_ID.to_string(),
@@ -531,16 +519,20 @@ fn installed_managed_browser_candidates_require_existing_supported_executables()
     Ok(())
 }
 
-fn profile_store_root(suffix: &str) -> PathBuf {
-    std::env::temp_dir()
-        .join(constants::browser::PROFILE_STORE_TEST_ROOT_DIR)
-        .join(suffix)
-        .join(std::process::id().to_string())
+fn profile_store_root(suffix: impl std::fmt::Display) -> TestText {
+    let mut root = std::env::temp_dir();
+    root.push(constants::browser::PROFILE_STORE_TEST_ROOT_DIR);
+    root.push(suffix.to_string());
+    root.push(std::process::id().to_string());
+    TestText::from_display(root.display())
 }
 
-fn profile_store_config(root: PathBuf, now: &str) -> BrowserManagedProfileStoreConfig {
+fn profile_store_config(
+    root: impl AsRef<Path>,
+    now: impl std::fmt::Display,
+) -> BrowserManagedProfileStoreConfig {
     BrowserManagedProfileStoreConfig {
-        profile_root_dir: root,
+        profile_root_dir: root.as_ref().to_path_buf(),
         profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
         profile_scope_id: constants::browser::PROFILE_SCOPE_ID_DEV.to_string(),
         device_id: constants::browser::PROFILE_STORE_TEST_DEVICE_ID.to_string(),

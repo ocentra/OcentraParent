@@ -1,12 +1,7 @@
-use crate::{
-    map_network_evidence_grade_to_policy, plan_network_action_result_state,
-    NetworkActionResultAdapterProofState, NetworkActionResultBoundaryReason,
-    NetworkActionResultCapabilityState, NetworkActionResultError, NetworkActionResultInput,
-    NetworkActionResultRequestedAction, NetworkActionResultRequiredArtifact,
-    NetworkActionResultState, NetworkActionResultTargetKind, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::action_result::*;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::policy::*;
 
 #[test]
 fn action_result_accepts_blocked_state_from_policy_and_adapter_result_refs() {

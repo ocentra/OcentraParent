@@ -1,5 +1,5 @@
-import { decodeTrackingStatusProofArtifact } from './portal-contract-adapter';
-import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/schema-domain/tracking-retention-settings-read-model-proof';
+import { decodeTrackingStatusProofArtifact } from './portal-contract-text-contracts';
+import { GeneratedPortalTrackingContracts } from './generated/portal-contracts';
 
 const artifact = decodeTrackingStatusProofArtifact;
 
@@ -24,7 +24,9 @@ export const TrackingStatusProofArtifacts = {
   FamilyDashboardRollup: artifact(
     'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json'
   ),
-  RetentionSettingsReadModel: artifact(AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[1]),
+  RetentionSettingsReadModel: artifact(
+    GeneratedPortalTrackingContracts.RetentionSettingsWrite.Defaults.ReadModelProofRefs[1]
+  ),
   ReportExportReadModel: artifact(
     'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json'
   ),

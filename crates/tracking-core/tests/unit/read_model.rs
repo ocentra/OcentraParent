@@ -26,7 +26,7 @@ fn tracking_read_model_includes_alert_and_parent_notification_rows() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 4);
     assert_eq!(read_model.active_rows, 3);
@@ -91,7 +91,7 @@ fn tracking_read_model_excludes_non_tracking_activity_rows() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.active_rows, 0);
@@ -102,19 +102,18 @@ fn tracking_read_model_excludes_non_tracking_activity_rows() {
 }
 
 fn tracking_connection() -> Connection {
-    let connection = Connection::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let connection = Connection::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     connection
         .execute_batch(constants::sqlite::INITIALIZE_ACTIVITY_STORE)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+        .expect(constants::error::ACTIVITY_STORE_OPENS);
     connection
 }
 
 fn insert_tracking_row(connection: &Connection, row: TrackingRowSeed) {
-    let fields_json = serde_json::to_string(&tracking_fields())
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+    let fields_json =
+        serde_json::to_string(&tracking_fields()).expect(constants::error::AGENT_EVENT_SERIALIZES);
     let evidence_json = serde_json::to_string(&tracking_evidence())
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     connection
         .execute(
@@ -133,7 +132,7 @@ fn insert_tracking_row(connection: &Connection, row: TrackingRowSeed) {
                 evidence_json
             ],
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
 }
 
 fn insert_tracking_rows(connection: &Connection, rows: &[TrackingRowSeed]) {
@@ -209,26 +208,34 @@ fn tracking_evidence() -> Vec<ActivityEvidenceRef> {
     }]
 }
 
-fn assert_count(read_model: &TrackingReadModel, kind: &str, count: u64) {
+fn assert_count(read_model: &TrackingReadModel, kind: impl core::fmt::Display, count: u64) {
+    let kind = kind.to_string();
     let actual = read_model
         .active_kind_counts
         .iter()
-        .find(|entry| entry.value == kind)
+        .find(|entry| entry.value.as_str() == kind)
         .map(|entry| entry.count);
     assert_eq!(actual, Some(count));
 }
 
-fn assert_row_kind(read_model: &TrackingReadModel, row_index: usize, expected_kind: &str) {
-    assert_eq!(read_model.rows[row_index].kind, expected_kind);
+fn assert_row_kind(
+    read_model: &TrackingReadModel,
+    row_index: usize,
+    expected_kind: impl core::fmt::Display,
+) {
+    assert_eq!(
+        read_model.rows[row_index].kind.as_str(),
+        expected_kind.to_string()
+    );
 }
 
 fn assert_row_evidence_reference_id(
     read_model: &TrackingReadModel,
     row_index: usize,
-    expected_evidence_reference_id: &str,
+    expected_evidence_reference_id: impl core::fmt::Display,
 ) {
     assert_eq!(
-        read_model.rows[row_index].evidence_reference_ids[0],
-        expected_evidence_reference_id
+        read_model.rows[row_index].evidence_reference_ids[0].as_str(),
+        expected_evidence_reference_id.to_string()
     );
 }

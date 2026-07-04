@@ -16,7 +16,10 @@ use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     APP_GAME_CONTROL_AUTHORITY_ACTIVE, APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
 };
 
-use super::{activity_event, fields_for_row, ActivityEventInput, AppGameJournalSqliteIngestError};
+use super::app_game_journal_sqlite_ingest_event::{
+    activity_event, fields_for_row, ActivityEventInput,
+};
+use super::AppGameJournalSqliteIngestError;
 
 pub fn app_game_evidence_claim_journal_event(
     device_id: &str,

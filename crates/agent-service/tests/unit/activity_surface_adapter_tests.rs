@@ -14,6 +14,11 @@ use ocentra_parent_agent_protocol::activity::{
     ActivitySubjectKind,
 };
 use ocentra_parent_agent_protocol::activity_query::ActivityRecentSummary;
+#[macro_use]
+#[path = "../support/unit_root_basic_harness.rs"]
+mod unit_root_basic_harness;
+declare_agent_service_unit_root_basic_harness!();
+
 use ocentra_parent_agent_protocol::activity_surface::{
     ActivityReadModelState, ActivityReportFrequency, ActivityReportRequest, ActivitySurfaceRequest,
     ActivitySurfaceScope, ActivitySurfaceScopeKind,
@@ -41,6 +46,22 @@ mod activity_surface_report_command_tests;
 
 static TEMP_PATH_COUNTER: AtomicU64 = AtomicU64::new(0);
 
+struct TempPath {
+    path: PathBuf,
+}
+
+impl TempPath {
+    fn path(&self) -> &Path {
+        self.path.as_path()
+    }
+}
+
+impl AsRef<Path> for TempPath {
+    fn as_ref(&self) -> &Path {
+        self.path()
+    }
+}
+
 #[tokio::test]
 async fn activity_surface_report_uses_real_activity_store_snapshot() {
     let store_path = temp_store_path();
@@ -48,13 +69,16 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
     write_process_event(&store_path);
 
     let report =
-        build_activity_report_document_from_store_path_for_test(report_request(), &store_path)
+        build_activity_report_document_from_store_path_for_test(
+            report_request(),
+            store_path.as_ref(),
+        )
             .await
             .expect(constants::error::ACTIVITY_STORE_QUERIES);
     let report_dir = temp_report_dir();
     cleanup_report_dir(&report_dir);
-    let saved = save_activity_report_document_to_dir_for_test(report.clone(), &report_dir);
-    let history = history_list_from_dir_for_test(surface_request(), &report_dir);
+    let saved = save_activity_report_document_to_dir_for_test(report.clone(), report_dir.as_ref());
+    let history = history_list_from_dir_for_test(surface_request(), report_dir.as_ref());
 
     cleanup_store(&store_path);
     cleanup_report_dir(&report_dir);
@@ -98,7 +122,8 @@ async fn activity_tab_read_models_map_service_backed_ready_and_unavailable_state
     let store_path = temp_store_path();
     cleanup_store(&store_path);
     write_process_event(&store_path);
-    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store =
+        ActivityStore::open(store_path.as_ref()).expect(constants::error::ACTIVITY_STORE_OPENS);
     let browser_event = browser_tab_observation_event(
         BrowserBridgeTargetObservation {
             browser_family: BrowserFamily::Edge,
@@ -188,14 +213,17 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
     write_process_event(&store_path);
 
     let report =
-        build_activity_report_document_from_store_path_for_test(report_request(), &store_path)
+        build_activity_report_document_from_store_path_for_test(
+            report_request(),
+            store_path.as_ref(),
+        )
             .await
             .expect(constants::error::ACTIVITY_STORE_QUERIES);
     let report_dir = temp_report_dir();
     cleanup_report_dir(&report_dir);
-    let saved = save_activity_report_document_to_dir_for_test(report.clone(), &report_dir);
-    write_invalid_report_file(&report_dir);
-    let history = history_list_from_dir_for_test(surface_request(), &report_dir);
+    let saved = save_activity_report_document_to_dir_for_test(report.clone(), report_dir.as_ref());
+    write_invalid_report_file(report_dir.as_ref());
+    let history = history_list_from_dir_for_test(surface_request(), report_dir.as_ref());
 
     cleanup_store(&store_path);
     cleanup_report_dir(&report_dir);
@@ -221,8 +249,8 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
     assert_eq!(history.reports[0].parsed_report.report_id, report.report_id);
 }
 
-fn write_process_event(store_path: &PathBuf) {
-    let store = ActivityStore::open(store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+fn write_process_event(store_path: impl AsRef<Path>) {
+    let store = ActivityStore::open(store_path.as_ref()).expect(constants::error::ACTIVITY_STORE_OPENS);
     store
         .ingest_events(&[process_event()])
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
@@ -316,27 +344,9 @@ fn remote_device_scope() -> ActivitySurfaceScope {
     }
 }
 
-fn temp_store_path() -> PathBuf {
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&temp_path_suffix());
-    name.push_str(constants::activity_store::TEST_STORE_SUFFIX);
-
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path.set_extension(constants::activity_store::FILE_EXTENSION);
-    path
-}
-
-fn temp_report_dir() -> PathBuf {
+fn temp_store_path() -> TempPath {
     let mut path = std::env::temp_dir();
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&temp_path_suffix());
-    name.push_str(constants::activity_surface::REPORT_STORAGE_DIR);
-    path.push(name);
-    path
-}
-
-fn temp_path_suffix() -> String {
     let mut suffix = String::new();
     suffix.push_str(&std::process::id().to_string());
     suffix.push(constants::delimiter::HYPHEN);
@@ -352,25 +362,54 @@ fn temp_path_suffix() -> String {
         .as_nanos();
     suffix.push_str(&nanos.to_string());
     suffix.push(constants::delimiter::HYPHEN);
-    suffix
+    name.push_str(&suffix);
+    name.push_str(constants::activity_store::TEST_STORE_SUFFIX);
+    path.push(name);
+    path.set_extension(constants::activity_store::FILE_EXTENSION);
+    TempPath { path }
 }
 
-fn cleanup_store(store_path: &PathBuf) {
+fn temp_report_dir() -> TempPath {
+    let mut path = std::env::temp_dir();
+    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    let mut suffix = String::new();
+    suffix.push_str(&std::process::id().to_string());
+    suffix.push(constants::delimiter::HYPHEN);
+    suffix.push_str(
+        &TEMP_PATH_COUNTER
+            .fetch_add(1, Ordering::Relaxed)
+            .to_string(),
+    );
+    suffix.push(constants::delimiter::HYPHEN);
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .as_nanos();
+    suffix.push_str(&nanos.to_string());
+    suffix.push(constants::delimiter::HYPHEN);
+    name.push_str(&suffix);
+    name.push_str(constants::activity_surface::REPORT_STORAGE_DIR);
+    path.push(name);
+    TempPath { path }
+}
+
+fn cleanup_store(store_path: impl AsRef<Path>) {
+    let store_path = store_path.as_ref();
     let _ = remove_file(store_path);
-    let mut wal_path = store_path.clone();
+    let mut wal_path = store_path.to_path_buf();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(wal_path);
-    let mut shm_path = store_path.clone();
+    let mut shm_path = store_path.to_path_buf();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
 
-pub(crate) fn cleanup_report_dir(path: &PathBuf) {
-    let _ = remove_dir_all(path);
+pub(crate) fn cleanup_report_dir(path: impl AsRef<Path>) {
+    let _ = remove_dir_all(path.as_ref());
 }
 
-fn write_invalid_report_file(report_dir: &Path) {
-    let mut path = report_dir.to_path_buf();
+fn write_invalid_report_file(report_dir: impl AsRef<Path>) {
+    let mut path = report_dir.as_ref().to_path_buf();
     path.push(constants::activity_surface::REPORT_ID_FALLBACK);
     path.set_extension(constants::activity_surface::REPORT_FILE_EXTENSION);
     assert!(

@@ -1,9 +1,9 @@
 use chrono::Utc;
 
-use super::text::compact_summary;
 use super::super::name_evidence::{
     llmnr_name_evidence, netbios_name_evidence, LanNeighborNameEvidence,
 };
+use super::text::compact_summary;
 
 pub fn passive_llmnr_summary(payload: &[u8]) -> Option<String> {
     let (header, evidence) = passive_llmnr_name_evidence(payload)?;

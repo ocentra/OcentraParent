@@ -1,12 +1,35 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { parseActivityMemoryGraphReadModel } from '@ocentra-parent/portal-domain/contracts';
-import { ParentRoute } from '../../generated/parent-ui-bridge';
+import {
+  ParentActivityMemoryGraphEdgeKind,
+  ParentActivityMemoryGraphEntryStatus,
+  ParentActivityMemoryGraphNodeKind,
+  type ParentActivityMemoryGraphReadModelSnapshot,
+  ParentAgentEvent,
+  type ParentAgentEventName,
+  ParentAgentProtocolField,
+  type ParentAgentProtocolPayload,
+  ParentRoute,
+  type ParentRouteEventSnapshot,
+} from '../../generated/parent-ui-bridge';
 import { AiRuntimeRoutePanel, shouldRenderAiRuntimeRoute } from '../../src/AiRuntimeRoutePanel';
 import { EMPTY_ROUTE_LIVE_ACTIVITY_STATE } from '../../src/route-live-activity-state';
+
+type AiRuntimeRouteEventFixture = ParentRouteEventSnapshot & {
+  readonly correlationId: string;
+  readonly event: ParentAgentEventName;
+  readonly eventId: string;
+  readonly payload: ParentAgentProtocolPayload;
+  readonly sentAt: string;
+  readonly severity: string;
+  readonly sourcePeerId: string;
+  readonly sourceRole: NonNullable<ParentRouteEventSnapshot['sourceRole']>;
+  readonly snapshot: null;
+  readonly targetPeerId: string;
+  readonly targetRole: NonNullable<ParentRouteEventSnapshot['targetRole']>;
+};
 
 describe('AI runtime route panel', () => {
   it('renders only on the AI runtime route', () => {
@@ -61,104 +84,88 @@ function aiRuntimeActions() {
 }
 
 function localAiRuntimeStatusEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+  return routeEvent({
     eventId: 'evt-local-ai-runtime',
     correlationId: 'cmd-local-ai-runtime',
     sentAt: '2026-06-07T19:15:00Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: AgentEvent.LocalAiRuntimeStatusReported,
-    severity: 'info',
+    event: ParentAgentEvent.LocalAiRuntimeStatusReported,
     payload: {
-      [AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId]: 'runtime-child-device-1',
-      [AgentProtocolDefaults.Field.LocalAiProviderId]: 'local-provider-1',
-      [AgentProtocolDefaults.Field.LocalAiModelId]: 'screen-local-vlm-v1',
-      [AgentProtocolDefaults.Field.LoadState]: 'loaded',
+      [ParentAgentProtocolField.LocalAiRuntimeReferenceId]: 'runtime-child-device-1',
+      [ParentAgentProtocolField.LocalAiProviderId]: 'local-provider-1',
+      [ParentAgentProtocolField.LocalAiModelId]: 'screen-local-vlm-v1',
+      [ParentAgentProtocolField.LoadState]: 'loaded',
     },
-    snapshot: null,
   });
 }
 
 function lanAiJobEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+  return routeEvent({
     eventId: 'evt-lan-ai-job',
     correlationId: 'cmd-lan-ai-job',
     sentAt: '2026-06-07T19:15:02Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: AgentEvent.LanAiJobReported,
-    severity: 'info',
+    event: ParentAgentEvent.LanAiJobReported,
     payload: {
-      [AgentProtocolDefaults.Field.LanAiJobId]: 'lan-ai-job-1',
-      [AgentProtocolDefaults.Field.LanAiJobStatus]: 'claimed',
-      [AgentProtocolDefaults.Field.LanAiJobState]: 'worker-running',
+      [ParentAgentProtocolField.LanAiJobId]: 'lan-ai-job-1',
+      [ParentAgentProtocolField.LanAiJobStatus]: 'claimed',
+      [ParentAgentProtocolField.LanAiJobState]: 'worker-running',
     },
-    snapshot: null,
   });
 }
 
 function parentAssistantBoundaryEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+  return routeEvent({
     eventId: 'evt-parent-assistant-boundary',
     correlationId: 'cmd-parent-assistant-provider',
     sentAt: '2026-06-07T19:17:00Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: AgentEvent.ParentAssistantAnswerReported,
-    severity: 'info',
+    event: ParentAgentEvent.ParentAssistantAnswerReported,
     payload: {
-      [AgentProtocolDefaults.Field.ParentAssistantRequestId]: 'remote-assistant-request-1',
-      [AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary]: 'parent-authorized-report-bundle',
+      [ParentAgentProtocolField.ParentAssistantRequestId]: 'remote-assistant-request-1',
+      [ParentAgentProtocolField.ParentAssistantApiProviderBoundary]: 'parent-authorized-report-bundle',
     },
-    snapshot: null,
   });
 }
 
 function memoryGraphEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+  return routeEvent({
     eventId: 'evt-memory-graph',
     correlationId: 'cmd-memory-graph',
     sentAt: '2026-06-07T19:16:00Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: AgentEvent.ActivityMemoryGraphReported,
-    severity: 'info',
+    event: ParentAgentEvent.ActivityMemoryGraphReported,
     payload: {
-      [AgentProtocolDefaults.Field.ActivityDigest]: JSON.stringify(memoryGraphDigest()),
+      [ParentAgentProtocolField.ActivityDigest]: JSON.stringify(memoryGraphDigest()),
     },
-    snapshot: null,
   });
 }
 
-function memoryGraphDigest() {
+function routeEvent({
+  correlationId,
+  event,
+  eventId,
+  payload,
+  sentAt,
+}: {
+  readonly correlationId: string;
+  readonly event: ParentAgentEventName;
+  readonly eventId: string;
+  readonly payload: ParentAgentProtocolPayload;
+  readonly sentAt: string;
+}): AiRuntimeRouteEventFixture {
+  return {
+    correlationId,
+    event,
+    eventId,
+    payload,
+    sentAt,
+    severity: 'info',
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    snapshot: null,
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+  };
+}
+
+function memoryGraphDigest(): ParentActivityMemoryGraphReadModelSnapshot {
   return {
     schemaVersion: 1,
     generatedAt: '2026-06-07T19:16:00Z',
@@ -198,7 +205,7 @@ function memoryGraphNode() {
   return {
     graphId: 'activity-memory-v1',
     nodeId: 'node-device',
-    nodeKind: 'device',
+    nodeKind: ParentActivityMemoryGraphNodeKind.Device,
     label: 'Child desktop',
     childProfile: null,
     device: null,
@@ -210,7 +217,7 @@ function memoryGraphEdge() {
   return {
     graphId: 'activity-memory-v1',
     edgeId: 'edge-screen-summary-1',
-    edgeKind: 'derived-from-evidence',
+    edgeKind: ParentActivityMemoryGraphEdgeKind.DerivedFromEvidence,
     fromNodeId: 'node-device',
     toNodeId: 'node-device',
     observedFrom: '2026-06-07T19:00:00Z',
@@ -222,7 +229,7 @@ function memoryGraphEdge() {
 
 function memoryGraphTrace() {
   return {
-    entryStatus: 'usable',
+    entryStatus: ParentActivityMemoryGraphEntryStatus.Usable,
     sourceEvidenceReferences: [
       {
         evidenceReferenceId: 'evidence-screen-summary-1',

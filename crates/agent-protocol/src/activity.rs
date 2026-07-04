@@ -16,7 +16,7 @@ use crate::LogFields;
 
 pub const ACTIVITY_SCHEMA_VERSION: u16 = crate::ACTIVITY_SCHEMA_VERSION;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityObserver {
     #[serde(rename = "agent-service")]
     AgentService,
@@ -38,7 +38,7 @@ pub enum ActivityObserver {
     AndroidLocation,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityEventKind {
     #[serde(rename = "activity.process.observed")]
     ProcessObserved,
@@ -76,7 +76,7 @@ pub enum ActivityEventKind {
     NetworkRetentionDeleted,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivitySubjectKind {
     #[serde(rename = "process")]
     Process,

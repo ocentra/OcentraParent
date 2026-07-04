@@ -14,15 +14,15 @@ use super::{
 
 #[tokio::test]
 async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
-    let path = journal_path("hash-chain");
+    let path = journal_path(TestText("hash-chain".to_owned()));
     let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
-    let first = stored_event(test_event(TEST_LABEL));
-    let second = stored_event(test_event_for_type("second event", OTHER_EVENT_TYPE));
+    let first = stored_event(test_event(TestText(TEST_LABEL.to_owned())));
+    let second = stored_event(test_event_for_type(TestText("second event".to_owned()), TestText(OTHER_EVENT_TYPE.to_owned())));
 
     let first_append = journal.append(&first).await.expect_value("first append");
     let second_append = journal.append(&second).await.expect_value("second append");
 
-    let lines = read_lines(&path).await;
+    let lines = read_lines(path.clone()).await;
     let first_entry: NdjsonJournalEntry =
         serde_json::from_str(&lines[0]).expect_value("first line decodes");
     let second_entry: NdjsonJournalEntry =
@@ -40,14 +40,14 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
         first_entry.envelope.contract.schema_version,
         first.contract.schema_version
     );
-    cleanup(&path).await;
+    cleanup(path).await;
 }
 
 #[tokio::test]
 async fn ndjson_journal_reopen_continues_sequence_and_hash_chain() {
-    let path = journal_path("reopen-hash-chain");
+    let path = journal_path(TestText("reopen-hash-chain".to_owned()));
     let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
-    let first = stored_event(test_event(TEST_LABEL));
+    let first = stored_event(test_event(TestText(TEST_LABEL.to_owned())));
     let first_append = first_journal
         .append(&first)
         .await
@@ -55,9 +55,9 @@ async fn ndjson_journal_reopen_continues_sequence_and_hash_chain() {
     drop(first_journal);
 
     let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
-    let second = stored_event(test_event_for_type("second event", OTHER_EVENT_TYPE));
+    let second = stored_event(test_event_for_type(TestText("second event".to_owned()), TestText(OTHER_EVENT_TYPE.to_owned())));
     let second_append = reopened.append(&second).await.expect_value("second append");
-    let lines = read_lines(&path).await;
+    let lines = read_lines(path.clone()).await;
     let second_entry: NdjsonJournalEntry =
         serde_json::from_str(&lines[1]).expect_value("second line decodes");
 
@@ -67,32 +67,32 @@ async fn ndjson_journal_reopen_continues_sequence_and_hash_chain() {
     assert_eq!(second_append.previous_hash, first_append.current_hash);
     assert_eq!(second_entry.append.previous_hash, first_append.current_hash);
     assert_eq!(second_entry.append.current_hash, second_append.current_hash);
-    cleanup(&path).await;
+    cleanup(path).await;
 }
 
 #[tokio::test]
 async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
-    let path = journal_path("reopen-tampered-hash-chain");
+    let path = journal_path(TestText("reopen-tampered-hash-chain".to_owned()));
     let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
     first_journal
-        .append(&stored_event(test_event(TEST_LABEL)))
+        .append(&stored_event(test_event(TestText(TEST_LABEL.to_owned()))))
         .await
         .expect_value("first append");
     first_journal
         .append(&stored_event(test_event_for_type(
-            "second event",
-            OTHER_EVENT_TYPE,
+            TestText("second event".to_owned()),
+            TestText(OTHER_EVENT_TYPE.to_owned()),
         )))
         .await
         .expect_value("second append");
     drop(first_journal);
-    tamper_first_journal_payload_label(&path, "tampered event").await;
+    tamper_first_journal_payload_label(path.clone(), TestText("tampered event".to_owned())).await;
     let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
 
     let result = reopened
         .append(&stored_event(test_event_for_type(
-            "third event",
-            OTHER_EVENT_TYPE,
+            TestText("third event".to_owned()),
+            TestText(OTHER_EVENT_TYPE.to_owned()),
         )))
         .await;
 
@@ -105,20 +105,20 @@ async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
         }
         _other => std::process::abort(),
     }
-    cleanup(&path).await;
+    cleanup(path).await;
 }
 
 #[tokio::test]
 async fn concurrent_ndjson_appends_do_not_hold_state_lock_across_file_write() {
-    let path = journal_path("concurrent-hash-chain");
+    let path = journal_path(TestText("concurrent-hash-chain".to_owned()));
     let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
     let handles = (0..4)
         .map(|index| {
             let journal = journal.clone();
             tokio::spawn(async move {
                 let event = stored_event(test_event_for_type(
-                    &format!("parallel event {index}"),
-                    OTHER_EVENT_TYPE,
+                    TestText(format!("parallel event {index}").to_owned()),
+                    TestText(OTHER_EVENT_TYPE.to_owned()),
                 ));
                 journal.append(&event).await.expect_value("append succeeds")
             })
@@ -129,7 +129,7 @@ async fn concurrent_ndjson_appends_do_not_hold_state_lock_across_file_write() {
         handle.await.expect_value("append task joins");
     }
 
-    let lines = read_lines(&path).await;
+    let lines = read_lines(path.clone()).await;
     let entries = lines
         .iter()
         .map(|line| serde_json::from_str::<NdjsonJournalEntry>(line).expect_value("line decodes"))
@@ -147,5 +147,5 @@ async fn concurrent_ndjson_appends_do_not_hold_state_lock_across_file_write() {
             );
         }
     }
-    cleanup(&path).await;
+    cleanup(path).await;
 }

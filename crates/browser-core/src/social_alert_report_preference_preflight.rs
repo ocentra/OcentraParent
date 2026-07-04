@@ -1,8 +1,8 @@
 pub fn social_alert_report_preference_preflight_typescript() -> String {
-    SocialAlertReportPreferencePreflight_TYPESCRIPT.to_string()
+    SOCIAL_ALERT_REPORT_PREFERENCE_PREFLIGHT_TYPESCRIPT.to_string()
 }
 
-const SocialAlertReportPreferencePreflight_TYPESCRIPT: &str = r#"/* generated from crates/browser-core/src/social_alert_report_preference_preflight.rs */
+const SOCIAL_ALERT_REPORT_PREFERENCE_PREFLIGHT_TYPESCRIPT: &str = r#"/* generated from crates/browser-core/src/social_alert_report_preference_preflight.rs */
 
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import {

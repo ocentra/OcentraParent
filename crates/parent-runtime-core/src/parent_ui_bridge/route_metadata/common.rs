@@ -1,5 +1,36 @@
 use super::*;
 
+const DATA_SOURCE_LABELS: &[(&str, &str)] = &[
+    ("rust-read-model", "available"),
+    ("host-bridge", "available"),
+    ("dev-diagnostics", "diagnostic-only"),
+    ("unavailable", "unavailable"),
+];
+const DATA_SOURCE_TONES: &[(&str, ParentPortalTone)] = &[
+    ("rust-read-model", ParentPortalTone::Cyan),
+    ("host-bridge", ParentPortalTone::Gold),
+    ("dev-diagnostics", ParentPortalTone::Muted),
+    ("unavailable", ParentPortalTone::Muted),
+];
+const CONNECTION_SEASON_LABELS: &[(&str, &str)] = &[
+    ("connected", "live"),
+    ("connecting", "checking"),
+    ("disconnected", "offline"),
+    ("error", "offline"),
+];
+const CONNECTION_GLOBAL_LABELS: &[(&str, &str)] = &[
+    ("connected", "connected"),
+    ("connecting", "connecting"),
+    ("disconnected", "offline"),
+    ("error", "offline"),
+];
+const CONNECTION_TONES: &[(&str, ParentPortalTone)] = &[
+    ("connected", ParentPortalTone::Cyan),
+    ("connecting", ParentPortalTone::Gold),
+    ("disconnected", ParentPortalTone::Red),
+    ("error", ParentPortalTone::Red),
+];
+
 pub(super) fn portal_row_snapshot(
     label: &str,
     order: u16,
@@ -36,10 +67,8 @@ pub(super) fn parse_identifier<T>(
     parse: impl FnOnce(String) -> Option<T>,
 ) -> T {
     let value = value.into();
-    match parse(value.clone()) {
-        Some(parsed) => parsed,
-        None => unreachable!("invalid {field_name} identifier: {value}"),
-    }
+    let _ = field_name;
+    parse(value).expect("invalid parent UI bridge identifier")
 }
 
 pub(super) fn parse_optional_identifier<T>(
@@ -62,52 +91,49 @@ pub(super) fn parse_identifier_list<T>(
 }
 
 pub(super) fn data_source_label(data_source: &ParentRouteDataSource) -> &'static str {
-    match data_source {
-        ParentRouteDataSource::RustReadModel => "rust-read-model",
-        ParentRouteDataSource::HostBridge => "host-bridge",
-        ParentRouteDataSource::DevDiagnostics => "dev-diagnostics",
-        ParentRouteDataSource::Unavailable => "unavailable",
-    }
+    let value = serialized_enum_label(data_source);
+    DATA_SOURCE_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == value)
+        .map(|(_, label)| *label)
+        .unwrap_or("unavailable")
 }
 
 pub(super) fn route_capability_state_for_data_source(
     data_source: &ParentRouteDataSource,
 ) -> &'static str {
-    match data_source {
-        ParentRouteDataSource::RustReadModel | ParentRouteDataSource::HostBridge => "available",
-        ParentRouteDataSource::DevDiagnostics => "diagnostic-only",
-        ParentRouteDataSource::Unavailable => "unavailable",
-    }
+    data_source_label(data_source)
 }
 
 pub(super) fn season_label_for_connection(
     connection_state: &ParentBridgeConnectionState,
 ) -> &'static str {
-    match connection_state {
-        ParentBridgeConnectionState::Connected => "live",
-        ParentBridgeConnectionState::Connecting => "checking",
-        ParentBridgeConnectionState::Disconnected | ParentBridgeConnectionState::Error => "offline",
-    }
+    let value = serialized_enum_label(connection_state);
+    CONNECTION_SEASON_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == value)
+        .map(|(_, label)| *label)
+        .unwrap_or("offline")
 }
 
 pub(super) fn global_connection_state_for_connection(
     connection_state: &ParentBridgeConnectionState,
 ) -> &'static str {
-    match connection_state {
-        ParentBridgeConnectionState::Connected => "connected",
-        ParentBridgeConnectionState::Connecting => "connecting",
-        ParentBridgeConnectionState::Disconnected | ParentBridgeConnectionState::Error => "offline",
-    }
+    let value = serialized_enum_label(connection_state);
+    CONNECTION_GLOBAL_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == value)
+        .map(|(_, label)| *label)
+        .unwrap_or("offline")
 }
 
 pub(super) fn connection_tone(connection_state: &ParentBridgeConnectionState) -> ParentPortalTone {
-    match connection_state {
-        ParentBridgeConnectionState::Connected => ParentPortalTone::Cyan,
-        ParentBridgeConnectionState::Connecting => ParentPortalTone::Gold,
-        ParentBridgeConnectionState::Disconnected | ParentBridgeConnectionState::Error => {
-            ParentPortalTone::Red
-        }
-    }
+    let value = serialized_enum_label(connection_state);
+    CONNECTION_TONES
+        .iter()
+        .find(|(raw, _)| *raw == value)
+        .map(|(_, tone)| tone.clone())
+        .unwrap_or(ParentPortalTone::Red)
 }
 
 pub(super) fn route_capability_tone(data_source: &ParentRouteDataSource) -> ParentPortalTone {
@@ -122,24 +148,19 @@ pub(super) fn route_capability_tone(data_source: &ParentRouteDataSource) -> Pare
 }
 
 pub(super) fn data_source_tone(data_source: &ParentRouteDataSource) -> ParentPortalTone {
-    match data_source {
-        ParentRouteDataSource::RustReadModel => ParentPortalTone::Cyan,
-        ParentRouteDataSource::HostBridge => ParentPortalTone::Gold,
-        ParentRouteDataSource::DevDiagnostics | ParentRouteDataSource::Unavailable => {
-            ParentPortalTone::Muted
-        }
-    }
+    let value = serialized_enum_label(data_source);
+    DATA_SOURCE_TONES
+        .iter()
+        .find(|(raw, _)| *raw == value)
+        .map(|(_, tone)| tone.clone())
+        .unwrap_or(ParentPortalTone::Muted)
 }
 
 pub(super) fn parent_portal_shell_status_card_id(
     value: &'static str,
 ) -> ParentPortalShellStatusCardId {
-    match ParentPortalShellStatusCardId::parse(value) {
-        Some(card_id) => card_id,
-        None => {
-            unreachable!("parent portal shell status card identifiers are static and non-empty")
-        }
-    }
+    ParentPortalShellStatusCardId::parse(value)
+        .expect("parent portal shell status card identifiers are static and non-empty")
 }
 
 pub(super) fn current_lan_add_device_read_model_value(

@@ -173,7 +173,7 @@ pub fn ingest_passive_datagram_with_observed_at(
         *source,
         LanPassiveDiscoveryTriggerReason::PassivePacketObserved,
         observed_at,
-        device_id.as_deref(),
+        device_id.as_ref().map(String::as_str),
         None,
         summary,
     ) {
@@ -259,14 +259,18 @@ fn join_passive_multicast_group(
             },
         ));
     };
-    socket.join_multicast_v4(&multicast_group, &interface).map_err(|error| {
-        LanPassiveDiscoveryUdpMulticastCaptureOutcome::Unsupported(
-            LanPassiveDiscoveryUdpMulticastSupport::Unsupported {
-                source,
-                reason: format!("failed to join multicast group for passive discovery: {error}"),
-            },
-        )
-    })
+    socket
+        .join_multicast_v4(&multicast_group, &interface)
+        .map_err(|error| {
+            LanPassiveDiscoveryUdpMulticastCaptureOutcome::Unsupported(
+                LanPassiveDiscoveryUdpMulticastSupport::Unsupported {
+                    source,
+                    reason: format!(
+                        "failed to join multicast group for passive discovery: {error}"
+                    ),
+                },
+            )
+        })
 }
 
 fn multicast_available(

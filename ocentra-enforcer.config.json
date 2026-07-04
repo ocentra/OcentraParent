@@ -19,21 +19,65 @@
   ],
   "ignoreFileGlobs": [
     "ocentra-enforcer/**",
-    "scripts/test/cross-platform-script-commands.test.mjs",
-    "scripts/test/no-test-doubles-policy.test.mjs",
+    "tests/repo-tooling/cross-platform-script-commands.test.mjs",
+    "tests/repo-tooling/no-test-doubles-policy.test.mjs",
     "infra/cloudflare/tests/property/billing-idempotency.property.test.ts"
   ],
-  "generatedArtifactsMode": "tracked",
   "singleSourceRequiredMirrorRoots": ["crates/agent-protocol/src/constants"],
+  "generatedArtifactsMode": "tracked",
+  "sourceShapePolicies": [
+    {
+      "roots": ["src", "apps"],
+      "extensions": [".ts", ".tsx"],
+      "kind": "typescript",
+      "maxClasses": 1,
+      "maxExports": 35,
+      "maxFunctionLines": 80,
+      "maxLines": 1000
+    },
+    {
+      "roots": ["packages"],
+      "extensions": [".ts", ".tsx"],
+      "kind": "typescript",
+      "maxClasses": 1,
+      "maxExports": 45,
+      "maxFunctionLines": 80,
+      "maxLines": 1000
+    },
+    {
+      "roots": ["src", "crates"],
+      "extensions": [".rs"],
+      "kind": "rust",
+      "maxFunctionLines": 80,
+      "maxFunctions": 18,
+      "maxLines": 1000,
+      "maxTypes": 24
+    },
+    {
+      "roots": ["src", "apps", "packages", "tools"],
+      "extensions": [".py"],
+      "kind": "python",
+      "maxClasses": 4,
+      "maxFunctionLines": 80,
+      "maxFunctions": 30,
+      "maxLines": 800
+    }
+  ],
   "sourceShapeOverrides": [
     {
-      "glob": "packages/schema-domain/src/**/*.ts",
+      "globs": [
+        "packages/schema-domain/src/*.ts",
+        "packages/schema-domain/src/**/*.ts"
+      ],
       "maxExports": 140,
       "maxLines": 1500,
       "note": "Central schema ownership carries a wider public contract surface."
     },
     {
-      "glob": "packages/schema-domain/src/generated/**/*.ts",
+      "globs": [
+        "packages/schema-domain/src/generated/*.ts",
+        "packages/schema-domain/src/generated/**/*.ts"
+      ],
       "maxExports": 220,
       "maxLines": 3000,
       "maxFunctionLines": 180,

@@ -17,7 +17,7 @@ pub mod social_provider_receipt;
 pub mod social_provider_receipt_durable;
 pub mod social_report_writer_delivery_handoff;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserFamily {
     #[serde(rename = "edge")]
     Edge,
@@ -36,20 +36,22 @@ pub enum BrowserFamily {
 }
 
 impl BrowserFamily {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        constants::browser::FAMILY_EDGE,
+        constants::browser::FAMILY_CHROME,
+        constants::browser::FAMILY_BRAVE,
+        constants::browser::FAMILY_FIREFOX,
+        constants::browser::FAMILY_OPERA,
+        constants::browser::FAMILY_UNKNOWN_CHROMIUM,
+        constants::browser::FAMILY_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Edge => constants::browser::FAMILY_EDGE,
-            Self::Chrome => constants::browser::FAMILY_CHROME,
-            Self::Brave => constants::browser::FAMILY_BRAVE,
-            Self::Firefox => constants::browser::FAMILY_FIREFOX,
-            Self::Opera => constants::browser::FAMILY_OPERA,
-            Self::UnknownChromium => constants::browser::FAMILY_UNKNOWN_CHROMIUM,
-            Self::Unknown => constants::browser::FAMILY_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserChannel {
     #[serde(rename = "stable")]
     Stable,
@@ -64,18 +66,20 @@ pub enum BrowserChannel {
 }
 
 impl BrowserChannel {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::browser::CHANNEL_STABLE,
+        constants::browser::CHANNEL_BETA,
+        constants::browser::CHANNEL_DEV,
+        constants::browser::CHANNEL_CANARY,
+        constants::browser::CHANNEL_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Stable => constants::browser::CHANNEL_STABLE,
-            Self::Beta => constants::browser::CHANNEL_BETA,
-            Self::Dev => constants::browser::CHANNEL_DEV,
-            Self::Canary => constants::browser::CHANNEL_CANARY,
-            Self::Unknown => constants::browser::CHANNEL_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserActiveTabState {
     #[serde(rename = "known-active")]
     KnownActive,
@@ -86,16 +90,18 @@ pub enum BrowserActiveTabState {
 }
 
 impl BrowserActiveTabState {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::browser::ACTIVE_STATE_KNOWN_ACTIVE,
+        constants::browser::ACTIVE_STATE_KNOWN_INACTIVE,
+        constants::browser::ACTIVE_STATE_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::KnownActive => constants::browser::ACTIVE_STATE_KNOWN_ACTIVE,
-            Self::KnownInactive => constants::browser::ACTIVE_STATE_KNOWN_INACTIVE,
-            Self::Unknown => constants::browser::ACTIVE_STATE_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserActiveProofSource {
     #[serde(rename = "target-list-only")]
     TargetListOnly,
@@ -110,24 +116,20 @@ pub enum BrowserActiveProofSource {
 }
 
 impl BrowserActiveProofSource {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY,
+        constants::browser::ACTIVE_PROOF_SOURCE_CDP_FOCUS_ACTIVATION,
+        constants::browser::ACTIVE_PROOF_SOURCE_MANAGED_EXTENSION_EVENT,
+        constants::browser::ACTIVE_PROOF_SOURCE_FOREGROUND_CORRELATION,
+        constants::browser::ACTIVE_PROOF_SOURCE_OWNED_SHELL_EVENT,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::TargetListOnly => constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY,
-            Self::CdpFocusActivation => {
-                constants::browser::ACTIVE_PROOF_SOURCE_CDP_FOCUS_ACTIVATION
-            }
-            Self::ManagedExtensionEvent => {
-                constants::browser::ACTIVE_PROOF_SOURCE_MANAGED_EXTENSION_EVENT
-            }
-            Self::ForegroundCorrelation => {
-                constants::browser::ACTIVE_PROOF_SOURCE_FOREGROUND_CORRELATION
-            }
-            Self::OwnedShellEvent => constants::browser::ACTIVE_PROOF_SOURCE_OWNED_SHELL_EVENT,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserCapabilityStatus {
     #[serde(rename = "available")]
     Available,
@@ -152,25 +154,25 @@ pub enum BrowserCapabilityStatus {
 }
 
 impl BrowserCapabilityStatus {
+    const PROTOCOL_STRINGS: [&'static str; 10] = [
+        constants::browser::CAPABILITY_STATUS_AVAILABLE,
+        constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY,
+        constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER,
+        constants::browser::CAPABILITY_STATUS_UNMANAGED_BROWSER,
+        constants::browser::CAPABILITY_STATUS_MANAGED_PROFILE_MISSING,
+        constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING,
+        constants::browser::CAPABILITY_STATUS_PERMISSION_LIMITED,
+        constants::browser::CAPABILITY_STATUS_STALE,
+        constants::browser::CAPABILITY_STATUS_ADAPTER_ERROR,
+        constants::browser::CAPABILITY_STATUS_DISABLED_BY_PARENT,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Available => constants::browser::CAPABILITY_STATUS_AVAILABLE,
-            Self::TabListOnly => constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY,
-            Self::UnsupportedBrowser => constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER,
-            Self::UnmanagedBrowser => constants::browser::CAPABILITY_STATUS_UNMANAGED_BROWSER,
-            Self::ManagedProfileMissing => {
-                constants::browser::CAPABILITY_STATUS_MANAGED_PROFILE_MISSING
-            }
-            Self::BridgeMissing => constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING,
-            Self::PermissionLimited => constants::browser::CAPABILITY_STATUS_PERMISSION_LIMITED,
-            Self::Stale => constants::browser::CAPABILITY_STATUS_STALE,
-            Self::AdapterError => constants::browser::CAPABILITY_STATUS_ADAPTER_ERROR,
-            Self::DisabledByParent => constants::browser::CAPABILITY_STATUS_DISABLED_BY_PARENT,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserCustodyLabel {
     #[serde(rename = "child-device-local")]
     ChildDeviceLocal,
@@ -185,14 +187,16 @@ pub enum BrowserCustodyLabel {
 }
 
 impl BrowserCustodyLabel {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::browser::CUSTODY_CHILD_DEVICE_LOCAL,
+        constants::browser::CUSTODY_LOCAL_NETWORK_CHILD_AGENT,
+        constants::browser::CUSTODY_PARENT_CACHE,
+        constants::browser::CUSTODY_PARENT_OWNED_EXPORT,
+        constants::browser::CUSTODY_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ChildDeviceLocal => constants::browser::CUSTODY_CHILD_DEVICE_LOCAL,
-            Self::LocalNetworkChildAgent => constants::browser::CUSTODY_LOCAL_NETWORK_CHILD_AGENT,
-            Self::ParentCache => constants::browser::CUSTODY_PARENT_CACHE,
-            Self::ParentOwnedExport => constants::browser::CUSTODY_PARENT_OWNED_EXPORT,
-            Self::Unavailable => constants::browser::CUSTODY_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -246,93 +250,76 @@ pub enum BrowserRuntimePhase {
 }
 
 impl BrowserRuntimePhase {
+    const EVENT_TYPES: [&'static str; 10] = [
+        constants::browser::EVENT_BROWSER_EVIDENCE_OBSERVED,
+        constants::browser::EVENT_BROWSER_EVIDENCE_JOURNALED,
+        constants::browser::EVENT_BROWSER_AI_ANALYSIS_REQUESTED,
+        constants::browser::EVENT_BROWSER_AI_ANALYSIS_COMPLETED,
+        constants::browser::EVENT_BROWSER_POLICY_EVALUATION_REQUESTED,
+        constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED,
+        constants::browser::EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED,
+        constants::browser::EVENT_BROWSER_INTERVENTION_RESULT_OBSERVED,
+        constants::browser::EVENT_BROWSER_AUDIT_ENTRY_COMMITTED,
+        constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED,
+    ];
+
+    const SUBSCRIBERS: [&'static str; 10] = [
+        constants::browser::SUBSCRIBER_BROWSER_EVIDENCE_OBSERVER,
+        constants::browser::SUBSCRIBER_BROWSER_EVIDENCE_JOURNAL,
+        constants::browser::SUBSCRIBER_BROWSER_AI_REQUEST,
+        constants::browser::SUBSCRIBER_BROWSER_AI_COMPLETE,
+        constants::browser::SUBSCRIBER_BROWSER_POLICY_REQUEST,
+        constants::browser::SUBSCRIBER_BROWSER_POLICY_DECISION,
+        constants::browser::SUBSCRIBER_BROWSER_INTERVENTION_COMMAND,
+        constants::browser::SUBSCRIBER_BROWSER_INTERVENTION_RESULT,
+        constants::browser::SUBSCRIBER_BROWSER_AUDIT_ENTRY,
+        constants::browser::SUBSCRIBER_BROWSER_READ_MODEL,
+    ];
+
+    const TARGET_HANDLERS: [&'static str; 10] = [
+        constants::browser::TARGET_BROWSER_EVIDENCE_OBSERVER,
+        constants::browser::TARGET_BROWSER_EVIDENCE_JOURNAL,
+        constants::browser::TARGET_BROWSER_AI_ANALYZER,
+        constants::browser::TARGET_BROWSER_AI_ANALYZER,
+        constants::browser::TARGET_BROWSER_POLICY_ENGINE,
+        constants::browser::TARGET_BROWSER_POLICY_ENGINE,
+        constants::browser::TARGET_BROWSER_INTERVENTION_ADAPTER,
+        constants::browser::TARGET_BROWSER_INTERVENTION_ADAPTER,
+        constants::browser::TARGET_BROWSER_AUDIT_WRITER,
+        constants::browser::TARGET_BROWSER_READ_MODEL,
+    ];
+
+    const ROLE_STRINGS: [&'static str; 10] = [
+        constants::eventing_source::ROLE_AGENT,
+        constants::eventing_source::ROLE_AGENT,
+        constants::eventing_source::ROLE_ANALYZER,
+        constants::eventing_source::ROLE_ANALYZER,
+        constants::eventing_source::ROLE_DECISION_ENGINE,
+        constants::eventing_source::ROLE_DECISION_ENGINE,
+        constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER,
+        constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER,
+        constants::eventing_source::ROLE_AUDIT_WRITER,
+        constants::eventing_source::ROLE_READ_MODEL,
+    ];
+
     pub fn ordered_chain() -> &'static [Self] {
         &BROWSER_RUNTIME_PHASES
     }
 
     pub fn event_type(self) -> &'static str {
-        match self {
-            Self::EvidenceObserved => constants::browser::EVENT_BROWSER_EVIDENCE_OBSERVED,
-            Self::EvidenceJournaled => constants::browser::EVENT_BROWSER_EVIDENCE_JOURNALED,
-            Self::AiAnalysisRequested => constants::browser::EVENT_BROWSER_AI_ANALYSIS_REQUESTED,
-            Self::AiAnalysisCompleted => constants::browser::EVENT_BROWSER_AI_ANALYSIS_COMPLETED,
-            Self::PolicyEvaluationRequested => {
-                constants::browser::EVENT_BROWSER_POLICY_EVALUATION_REQUESTED
-            }
-            Self::PolicyDecisionCompleted => {
-                constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED
-            }
-            Self::InterventionCommandIssued => {
-                constants::browser::EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED
-            }
-            Self::InterventionResultObserved => {
-                constants::browser::EVENT_BROWSER_INTERVENTION_RESULT_OBSERVED
-            }
-            Self::AuditEntryCommitted => constants::browser::EVENT_BROWSER_AUDIT_ENTRY_COMMITTED,
-            Self::ReadModelProjected => constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED,
-        }
+        Self::EVENT_TYPES[self as usize]
     }
 
     pub fn subscriber_id(self) -> &'static str {
-        match self {
-            Self::EvidenceObserved => constants::browser::SUBSCRIBER_BROWSER_EVIDENCE_OBSERVER,
-            Self::EvidenceJournaled => constants::browser::SUBSCRIBER_BROWSER_EVIDENCE_JOURNAL,
-            Self::AiAnalysisRequested => constants::browser::SUBSCRIBER_BROWSER_AI_REQUEST,
-            Self::AiAnalysisCompleted => constants::browser::SUBSCRIBER_BROWSER_AI_COMPLETE,
-            Self::PolicyEvaluationRequested => {
-                constants::browser::SUBSCRIBER_BROWSER_POLICY_REQUEST
-            }
-            Self::PolicyDecisionCompleted => constants::browser::SUBSCRIBER_BROWSER_POLICY_DECISION,
-            Self::InterventionCommandIssued => {
-                constants::browser::SUBSCRIBER_BROWSER_INTERVENTION_COMMAND
-            }
-            Self::InterventionResultObserved => {
-                constants::browser::SUBSCRIBER_BROWSER_INTERVENTION_RESULT
-            }
-            Self::AuditEntryCommitted => constants::browser::SUBSCRIBER_BROWSER_AUDIT_ENTRY,
-            Self::ReadModelProjected => constants::browser::SUBSCRIBER_BROWSER_READ_MODEL,
-        }
+        Self::SUBSCRIBERS[self as usize]
     }
 
     pub fn target_handler(self) -> &'static str {
-        match self {
-            Self::EvidenceObserved => constants::browser::TARGET_BROWSER_EVIDENCE_OBSERVER,
-            Self::EvidenceJournaled => constants::browser::TARGET_BROWSER_EVIDENCE_JOURNAL,
-            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
-                constants::browser::TARGET_BROWSER_AI_ANALYZER
-            }
-            Self::PolicyEvaluationRequested | Self::PolicyDecisionCompleted => {
-                constants::browser::TARGET_BROWSER_POLICY_ENGINE
-            }
-            Self::InterventionCommandIssued | Self::InterventionResultObserved => {
-                constants::browser::TARGET_BROWSER_INTERVENTION_ADAPTER
-            }
-            Self::AuditEntryCommitted => constants::browser::TARGET_BROWSER_AUDIT_WRITER,
-            Self::ReadModelProjected => constants::browser::TARGET_BROWSER_READ_MODEL,
-        }
+        Self::TARGET_HANDLERS[self as usize]
     }
 
     pub fn runtime_role(self) -> RuntimeRole {
-        let value = match self {
-            Self::EvidenceObserved | Self::EvidenceJournaled => {
-                constants::eventing_source::ROLE_AGENT
-            }
-            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
-                constants::eventing_source::ROLE_ANALYZER
-            }
-            Self::PolicyEvaluationRequested | Self::PolicyDecisionCompleted => {
-                constants::eventing_source::ROLE_DECISION_ENGINE
-            }
-            Self::InterventionCommandIssued | Self::InterventionResultObserved => {
-                constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER
-            }
-            Self::AuditEntryCommitted => constants::eventing_source::ROLE_AUDIT_WRITER,
-            Self::ReadModelProjected => constants::eventing_source::ROLE_READ_MODEL,
-        };
-        match RuntimeRole::parse(value) {
-            Ok(role) => role,
-            Err(_) => std::process::abort(),
-        }
+        RuntimeRole::parse(Self::ROLE_STRINGS[self as usize]).expect("browser runtime role parses")
     }
 }
 
@@ -389,7 +376,8 @@ impl DomainEvent for BrowserRuntimeEventPayload {
     }
 }
 
-fn browser_runtime_aggregate_key(source_ref: &str) -> String {
+fn browser_runtime_aggregate_key(source_ref: impl AsRef<str>) -> String {
+    let source_ref = source_ref.as_ref();
     let mut value = String::from(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX);
     value.push_str(source_ref);
     value

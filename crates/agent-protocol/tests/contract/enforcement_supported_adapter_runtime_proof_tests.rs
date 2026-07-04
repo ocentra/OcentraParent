@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use crate::{
     constants::{self, v08_supported_adapter_runtime_proof as proof},
     policy_constants, AgentCommandName, AgentEventName, ParentPlatform,
@@ -12,25 +10,22 @@ use crate::{
 };
 
 #[test]
-fn supported_adapter_runtime_command_and_event_names_are_stable() {
+fn supported_adapter_runtime_command_and_event_names_are_stable(
+) -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(
-        serde_json::to_value(AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet)
-            .unwrap_or_else(|error| {
-                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-            }),
+        serde_json::to_value(AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet)?,
         "agent.enforcement.supported-adapter-runtime-proof.get"
     );
     assert_eq!(
-        serde_json::to_value(AgentEventName::AgentEnforcementSupportedAdapterRuntimeProofReported)
-            .unwrap_or_else(|error| {
-                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-            }),
+        serde_json::to_value(AgentEventName::AgentEnforcementSupportedAdapterRuntimeProofReported)?,
         "agent.enforcement.supported-adapter-runtime-proof.reported"
     );
+    Ok(())
 }
 
 #[test]
-fn supported_adapter_runtime_states_have_stable_protocol_strings() {
+fn supported_adapter_runtime_states_have_stable_protocol_strings(
+) -> Result<(), Box<dyn std::error::Error>> {
     let boundaries = [
         V08SupportedAdapterRuntimeBoundary::WindowsAppGameOwnedProcessTimeLimit,
         V08SupportedAdapterRuntimeBoundary::WindowsNetworkFlowObservePolicyHandoff,
@@ -46,17 +41,12 @@ fn supported_adapter_runtime_states_have_stable_protocol_strings() {
         V08SupportedAdapterRuntimeBoundary::AndroidMobileControlManualGate,
         V08SupportedAdapterRuntimeBoundary::IosMobileControlManualGate,
     ];
-    let serialized = serde_json::to_value(boundaries).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(boundaries)?;
 
-    assert_eq!(
-        serialized
-            .as_array()
-            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
-            .len(),
-        13
-    );
+    let serialized = serialized
+        .as_array()
+        .ok_or_else(|| std::io::Error::other(constants::error::AGENT_EVENT_SERIALIZES))?;
+    assert_eq!(serialized.len(), 13);
     assert_eq!(
         boundaries[0].as_protocol_str(),
         proof::ENTRY_ID_APP_GAME_TIMER
@@ -90,26 +80,41 @@ fn supported_adapter_runtime_states_have_stable_protocol_strings() {
         V08SupportedAdapterCapability::ManagedBrowserArtifactStatus.as_protocol_str(),
         proof::CAPABILITY_MANAGED_BROWSER_ARTIFACT_STATUS
     );
+    Ok(())
 }
 
 #[test]
-fn supported_adapter_runtime_read_model_serializes_honest_non_claims() {
+fn supported_adapter_runtime_read_model_serializes_honest_non_claims(
+) -> Result<(), Box<dyn std::error::Error>> {
     let read_model = read_model_fixture();
     let reparsed = serde_json::from_value::<V08SupportedAdapterRuntimeProofReadModel>(
-        serde_json::to_value(read_model).unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        }),
-    )
-    .unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+        serde_json::to_value(read_model)?,
+    )?;
     let state_counts = count_runtime_states(&reparsed.entries);
 
     assert_eq!(reparsed.read_model_id, proof::READ_MODEL_ID);
-    assert_eq!(state_counts[proof::STATE_IMPLEMENTED_BOUNDARY], 1);
-    assert_eq!(state_counts[proof::STATE_MANUAL_REQUIRED], 1);
-    assert_eq!(state_counts[proof::STATE_NOT_CLAIMED], 1);
-    assert_eq!(state_counts[proof::STATE_DEGRADED], 1);
+    assert_eq!(
+        runtime_state_count(
+            &state_counts,
+            V08SupportedAdapterRuntimeState::ImplementedBoundary
+        ),
+        1
+    );
+    assert_eq!(
+        runtime_state_count(
+            &state_counts,
+            V08SupportedAdapterRuntimeState::ManualRequired
+        ),
+        1
+    );
+    assert_eq!(
+        runtime_state_count(&state_counts, V08SupportedAdapterRuntimeState::NotClaimed),
+        1
+    );
+    assert_eq!(
+        runtime_state_count(&state_counts, V08SupportedAdapterRuntimeState::Degraded),
+        1
+    );
     assert!(reparsed
         .entries
         .iter()
@@ -138,6 +143,7 @@ fn supported_adapter_runtime_read_model_serializes_honest_non_claims() {
         .entries
         .iter()
         .all(|entry| !entry.unsupported_platform_behavior_claimed));
+    Ok(())
 }
 
 fn read_model_fixture() -> V08SupportedAdapterRuntimeProofReadModel {
@@ -148,7 +154,6 @@ fn read_model_fixture() -> V08SupportedAdapterRuntimeProofReadModel {
         source_read_model_ids: vec![proof::SOURCE_BROAD_ADAPTER_PROOF.to_string()],
         entries: vec![
             entry(
-                proof::ENTRY_ID_APP_GAME_TIMER,
                 V08SupportedAdapterRuntimeBoundary::WindowsAppGameOwnedProcessTimeLimit,
                 ParentPlatform::Windows,
                 V08SupportedAdapterCapability::AppGameOwnedProcessTimeLimit,
@@ -156,7 +161,6 @@ fn read_model_fixture() -> V08SupportedAdapterRuntimeProofReadModel {
                 V08SupportedAdapterResult::SupportedBoundaryProved,
             ),
             entry(
-                proof::ENTRY_ID_BROAD_APP_MANUAL,
                 V08SupportedAdapterRuntimeBoundary::WindowsBroadInstalledAppBlockingManualGate,
                 ParentPlatform::Windows,
                 V08SupportedAdapterCapability::BroadInstalledAppBlocking,
@@ -164,7 +168,6 @@ fn read_model_fixture() -> V08SupportedAdapterRuntimeProofReadModel {
                 V08SupportedAdapterResult::ManualProofRequired,
             ),
             entry(
-                proof::ENTRY_ID_EXACT_ACTIVE_TAB_NOT_CLAIMED,
                 V08SupportedAdapterRuntimeBoundary::WindowsManagedExactActiveTabNotClaimed,
                 ParentPlatform::Windows,
                 V08SupportedAdapterCapability::ManagedExactActiveTabEnforcement,
@@ -172,7 +175,6 @@ fn read_model_fixture() -> V08SupportedAdapterRuntimeProofReadModel {
                 V08SupportedAdapterResult::NotClaimed,
             ),
             entry(
-                proof::ENTRY_ID_PERMISSION_DEGRADED,
                 V08SupportedAdapterRuntimeBoundary::WindowsAdapterPermissionDependencyDegraded,
                 ParentPlatform::Windows,
                 V08SupportedAdapterCapability::AdapterPermissionDependency,
@@ -184,7 +186,6 @@ fn read_model_fixture() -> V08SupportedAdapterRuntimeProofReadModel {
 }
 
 fn entry(
-    proof_entry_id: &str,
     runtime_boundary: V08SupportedAdapterRuntimeBoundary,
     platform: ParentPlatform,
     adapter_capability: V08SupportedAdapterCapability,
@@ -193,7 +194,7 @@ fn entry(
 ) -> V08SupportedAdapterRuntimeProofEntry {
     V08SupportedAdapterRuntimeProofEntry {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-        proof_entry_id: proof_entry_id.to_string(),
+        proof_entry_id: runtime_boundary.as_protocol_str().to_string(),
         runtime_boundary,
         platform,
         adapter_capability,
@@ -223,11 +224,27 @@ fn entry(
 
 fn count_runtime_states(
     entries: &[V08SupportedAdapterRuntimeProofEntry],
-) -> BTreeMap<&'static str, usize> {
-    entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts
-            .entry(entry.runtime_state.as_protocol_str())
-            .or_default() += 1;
+) -> Vec<(V08SupportedAdapterRuntimeState, usize)> {
+    entries.iter().fold(Vec::new(), |mut counts, entry| {
+        if let Some((_, count)) = counts
+            .iter_mut()
+            .find(|(state, _)| *state == entry.runtime_state)
+        {
+            *count += 1;
+        } else {
+            counts.push((entry.runtime_state.clone(), 1));
+        }
         counts
     })
+}
+
+fn runtime_state_count(
+    counts: &[(V08SupportedAdapterRuntimeState, usize)],
+    state: V08SupportedAdapterRuntimeState,
+) -> usize {
+    counts
+        .iter()
+        .find(|(entry_state, _)| *entry_state == state)
+        .map(|(_, count)| *count)
+        .unwrap_or_default()
 }

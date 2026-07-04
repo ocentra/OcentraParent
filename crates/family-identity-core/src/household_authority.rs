@@ -162,85 +162,19 @@ pub struct ParentStepUpValidationDecision {
 }
 
 pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAuthorityDecision {
-    if !input.same_family {
-        return rejected(
-            HouseholdAuthorizationFailureReason::ExternalHousehold,
-            input.action,
-        );
-    }
-
-    if input.membership_state != HouseholdMembershipState::Active {
-        return rejected(
-            HouseholdAuthorizationFailureReason::MembershipNotActive,
-            input.action,
-        );
-    }
-
-    if input.actor_account_state != ActorAccountState::Active {
-        return rejected(
-            HouseholdAuthorizationFailureReason::AccountNotActive,
-            input.action,
-        );
-    }
-
-    if input.device_trust_state != DeviceTrustState::Trusted {
-        return rejected(
-            HouseholdAuthorizationFailureReason::DeviceNotTrusted,
-            input.action,
-        );
-    }
-
-    if requires_fresh_session(input.action)
-        && input.session_freshness_state != SessionFreshnessState::Fresh
-    {
-        return rejected(
-            HouseholdAuthorizationFailureReason::SessionNotFresh,
-            input.action,
-        );
-    }
-
-    if requires_bound_child_scope(input.action)
-        && input.child_profile_binding_state != ChildProfileBindingState::Bound
-    {
-        return rejected(
-            HouseholdAuthorizationFailureReason::ChildProfileNotBound,
-            input.action,
-        );
-    }
-
-    if requires_child_profile_device_scope(input.action)
-        && input.device_ownership_scope != DeviceOwnershipScope::ChildProfileDevice
-    {
-        return rejected(
-            HouseholdAuthorizationFailureReason::WrongDeviceScope,
-            input.action,
-        );
-    }
-
-    if requires_capability_grant(input.action) && !input.capability_granted {
-        return rejected(
-            HouseholdAuthorizationFailureReason::MissingCapabilityGrant,
-            input.action,
-        );
-    }
-
-    if !role_can_authorize(input.actor_role, input.action) {
-        return rejected(
-            HouseholdAuthorizationFailureReason::RoleNotAuthorized,
-            input.action,
-        );
-    }
-
     if let Some(failure_reason) =
-        controller_lease_failure_reason(input.action, input.controller_lease_state)
+        crate::household_authority_validation::household_authority_failure_reason(&input)
     {
         return rejected(failure_reason, input.action);
     }
 
     HouseholdAuthorityDecision {
         authorization_state: HouseholdAuthorizationState::Authorized,
-        audit_requirement_state: audit_requirement_state(input.action),
-        elevated_confirmation_state: elevated_confirmation_state(input.action),
+        audit_requirement_state: crate::household_authority_validation::audit_requirement_state(
+            input.action,
+        ),
+        elevated_confirmation_state:
+            crate::household_authority_validation::elevated_confirmation_state(input.action),
         failure_reason: None,
     }
 }
@@ -260,56 +194,16 @@ pub fn requires_parent_step_up(action: HouseholdAuthorityAction) -> bool {
 pub fn validate_parent_step_up_assertion(
     input: ParentStepUpValidationInput,
 ) -> ParentStepUpValidationDecision {
-    let Some(assertion) = input.assertion else {
+    let Some(assertion) = input.assertion.as_ref() else {
         return rejected_parent_step_up_validation(ParentStepUpValidationFailureReason::Required);
     };
 
-    if assertion.expires_at < input.observed_at {
-        return rejected_parent_step_up_validation(ParentStepUpValidationFailureReason::Expired);
-    }
-
-    if assertion.family_id != input.family_id {
-        return rejected_parent_step_up_validation(
-            ParentStepUpValidationFailureReason::WrongHousehold,
-        );
-    }
-
-    if assertion.parent_account_id != input.parent_account_id {
-        return rejected_parent_step_up_validation(
-            ParentStepUpValidationFailureReason::WrongAccount,
-        );
-    }
-
-    if assertion.action != input.action {
-        return rejected_parent_step_up_validation(
-            ParentStepUpValidationFailureReason::WrongAction,
-        );
-    }
-
-    if assertion.action_device_id != input.action_device_id
-        || assertion.action_device_child_profile_id != input.action_device_child_profile_id
+    if let Some(failure_reason) =
+        crate::household_authority_validation::parent_step_up_validation_failure_reason(
+            &input, assertion,
+        )
     {
-        return rejected_parent_step_up_validation(
-            ParentStepUpValidationFailureReason::WrongDevice,
-        );
-    }
-
-    if !matches_target_child_profile(
-        assertion.target_child_profile_id.as_deref(),
-        input.target_child_profile_id.as_deref(),
-    ) {
-        return rejected_parent_step_up_validation(
-            ParentStepUpValidationFailureReason::WrongTarget,
-        );
-    }
-
-    if input
-        .expected_nonce
-        .is_some_and(|nonce| assertion.nonce != nonce)
-    {
-        return rejected_parent_step_up_validation(
-            ParentStepUpValidationFailureReason::ReplayRejected,
-        );
+        return rejected_parent_step_up_validation(failure_reason);
     }
 
     ParentStepUpValidationDecision {
@@ -324,8 +218,11 @@ fn rejected(
 ) -> HouseholdAuthorityDecision {
     HouseholdAuthorityDecision {
         authorization_state: HouseholdAuthorizationState::Rejected,
-        audit_requirement_state: audit_requirement_state(action),
-        elevated_confirmation_state: elevated_confirmation_state(action),
+        audit_requirement_state: crate::household_authority_validation::audit_requirement_state(
+            action,
+        ),
+        elevated_confirmation_state:
+            crate::household_authority_validation::elevated_confirmation_state(action),
         failure_reason: Some(failure_reason),
     }
 }
@@ -336,134 +233,5 @@ fn rejected_parent_step_up_validation(
     ParentStepUpValidationDecision {
         valid: false,
         failure_reason: Some(failure_reason),
-    }
-}
-
-fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> bool {
-    match action {
-        HouseholdAuthorityAction::PairChildDevice
-        | HouseholdAuthorityAction::RevokeChildDevice
-        | HouseholdAuthorityAction::ChangePolicy => {
-            matches!(
-                role,
-                HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
-            )
-        }
-        HouseholdAuthorityAction::ViewChildStatus => matches!(
-            role,
-            HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian | HouseholdRole::Observer
-        ),
-        HouseholdAuthorityAction::StartRemoteView => matches!(
-            role,
-            HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian | HouseholdRole::Observer
-        ),
-        HouseholdAuthorityAction::StartRemoteControl => {
-            matches!(
-                role,
-                HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
-            )
-        }
-        HouseholdAuthorityAction::ExportDeleteData | HouseholdAuthorityAction::ManageBilling => {
-            matches!(role, HouseholdRole::ParentOwner)
-        }
-    }
-}
-
-fn matches_target_child_profile(asserted: Option<&str>, expected: Option<&str>) -> bool {
-    asserted == expected
-}
-
-fn requires_capability_grant(action: HouseholdAuthorityAction) -> bool {
-    matches!(
-        action,
-        HouseholdAuthorityAction::StartRemoteView | HouseholdAuthorityAction::StartRemoteControl
-    )
-}
-
-fn controller_lease_failure_reason(
-    action: HouseholdAuthorityAction,
-    controller_lease_state: Option<ParentControllerLeaseState>,
-) -> Option<HouseholdAuthorizationFailureReason> {
-    if !requires_controller_lease(action) {
-        return None;
-    }
-
-    match controller_lease_state {
-        Some(ParentControllerLeaseState::Active) => None,
-        Some(ParentControllerLeaseState::Expired) => {
-            Some(HouseholdAuthorizationFailureReason::ControllerLeaseExpired)
-        }
-        Some(ParentControllerLeaseState::Revoked) => {
-            Some(HouseholdAuthorizationFailureReason::ControllerLeaseRevoked)
-        }
-        None => Some(HouseholdAuthorizationFailureReason::ControllerLeaseRequired),
-    }
-}
-
-fn requires_fresh_session(action: HouseholdAuthorityAction) -> bool {
-    matches!(
-        action,
-        HouseholdAuthorityAction::ChangePolicy
-            | HouseholdAuthorityAction::StartRemoteView
-            | HouseholdAuthorityAction::StartRemoteControl
-            | HouseholdAuthorityAction::ExportDeleteData
-            | HouseholdAuthorityAction::ManageBilling
-    )
-}
-
-fn requires_bound_child_scope(action: HouseholdAuthorityAction) -> bool {
-    matches!(
-        action,
-        HouseholdAuthorityAction::PairChildDevice
-            | HouseholdAuthorityAction::RevokeChildDevice
-            | HouseholdAuthorityAction::ViewChildStatus
-            | HouseholdAuthorityAction::ChangePolicy
-            | HouseholdAuthorityAction::StartRemoteView
-            | HouseholdAuthorityAction::StartRemoteControl
-    )
-}
-
-fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool {
-    matches!(
-        action,
-        HouseholdAuthorityAction::PairChildDevice
-            | HouseholdAuthorityAction::RevokeChildDevice
-            | HouseholdAuthorityAction::ViewChildStatus
-            | HouseholdAuthorityAction::ChangePolicy
-            | HouseholdAuthorityAction::StartRemoteView
-            | HouseholdAuthorityAction::StartRemoteControl
-    )
-}
-
-fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {
-    matches!(
-        action,
-        HouseholdAuthorityAction::StartRemoteView | HouseholdAuthorityAction::StartRemoteControl
-    )
-}
-
-fn audit_requirement_state(action: HouseholdAuthorityAction) -> AuditRequirementState {
-    match action {
-        HouseholdAuthorityAction::ViewChildStatus => AuditRequirementState::NotRequired,
-        HouseholdAuthorityAction::PairChildDevice
-        | HouseholdAuthorityAction::RevokeChildDevice
-        | HouseholdAuthorityAction::ChangePolicy
-        | HouseholdAuthorityAction::StartRemoteView
-        | HouseholdAuthorityAction::StartRemoteControl
-        | HouseholdAuthorityAction::ExportDeleteData
-        | HouseholdAuthorityAction::ManageBilling => AuditRequirementState::Required,
-    }
-}
-
-fn elevated_confirmation_state(action: HouseholdAuthorityAction) -> ElevatedConfirmationState {
-    match action {
-        HouseholdAuthorityAction::RevokeChildDevice
-        | HouseholdAuthorityAction::StartRemoteControl
-        | HouseholdAuthorityAction::ExportDeleteData
-        | HouseholdAuthorityAction::ManageBilling => ElevatedConfirmationState::Required,
-        HouseholdAuthorityAction::PairChildDevice
-        | HouseholdAuthorityAction::ViewChildStatus
-        | HouseholdAuthorityAction::ChangePolicy
-        | HouseholdAuthorityAction::StartRemoteView => ElevatedConfirmationState::NotRequired,
     }
 }

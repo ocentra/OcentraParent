@@ -1,17 +1,22 @@
+#[path = "merge_evidence.rs"]
+mod merge_evidence;
+#[path = "merge_ranking.rs"]
+mod merge_ranking;
+
 use std::collections::HashSet;
 
 use super::values::surfaces_for;
+use merge_evidence::merge_evidence_records;
+use merge_ranking::{
+    stronger_classification, stronger_discovery_state, stronger_route_state, stronger_trust_state,
+};
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice;
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceClassification;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceConfidence;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceSource;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdNetworkIdentity;
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdRouteState;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdSurface;
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceConfidence;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceKind;
 
 pub(super) fn merge_device(
@@ -50,103 +55,6 @@ pub(super) fn merge_device(
             || existing.child_agent_inventory.is_none())
     {
         existing.child_agent_inventory = incoming.child_agent_inventory;
-    }
-}
-
-fn stronger_classification(
-    existing: LanCanonicalHouseholdDeviceClassification,
-    incoming: LanCanonicalHouseholdDeviceClassification,
-) -> LanCanonicalHouseholdDeviceClassification {
-    if classification_rank(&incoming) > classification_rank(&existing) {
-        incoming
-    } else {
-        existing
-    }
-}
-
-fn classification_rank(classification: &LanCanonicalHouseholdDeviceClassification) -> u8 {
-    match classification {
-        LanCanonicalHouseholdDeviceClassification::ChildAgent => 13,
-        LanCanonicalHouseholdDeviceClassification::NetworkInfrastructure => 12,
-        LanCanonicalHouseholdDeviceClassification::Phone
-        | LanCanonicalHouseholdDeviceClassification::Tablet
-        | LanCanonicalHouseholdDeviceClassification::Laptop
-        | LanCanonicalHouseholdDeviceClassification::Desktop
-        | LanCanonicalHouseholdDeviceClassification::Printer
-        | LanCanonicalHouseholdDeviceClassification::Television
-        | LanCanonicalHouseholdDeviceClassification::GameConsole
-        | LanCanonicalHouseholdDeviceClassification::Camera
-        | LanCanonicalHouseholdDeviceClassification::NetworkAttachedStorage
-        | LanCanonicalHouseholdDeviceClassification::InternetOfThings => 11,
-        LanCanonicalHouseholdDeviceClassification::UnknownLanDevice => 2,
-        LanCanonicalHouseholdDeviceClassification::UnsupportedLanDevice => 1,
-    }
-}
-
-fn stronger_discovery_state(
-    existing: LanPairingProductionDiscoveryState,
-    incoming: LanPairingProductionDiscoveryState,
-) -> LanPairingProductionDiscoveryState {
-    if discovery_state_rank(&incoming) > discovery_state_rank(&existing) {
-        incoming
-    } else {
-        existing
-    }
-}
-
-fn discovery_state_rank(state: &LanPairingProductionDiscoveryState) -> u8 {
-    match state {
-        LanPairingProductionDiscoveryState::Revoked => 8,
-        LanPairingProductionDiscoveryState::Rejected => 7,
-        LanPairingProductionDiscoveryState::Expired => 6,
-        LanPairingProductionDiscoveryState::Paired => 5,
-        LanPairingProductionDiscoveryState::Discovered => 4,
-        LanPairingProductionDiscoveryState::Stale => 3,
-        LanPairingProductionDiscoveryState::Offline => 2,
-        LanPairingProductionDiscoveryState::ManualRequired => 1,
-        LanPairingProductionDiscoveryState::Pending
-        | LanPairingProductionDiscoveryState::Unavailable => 0,
-    }
-}
-
-fn stronger_trust_state(
-    existing: LanPairingTrustState,
-    incoming: LanPairingTrustState,
-) -> LanPairingTrustState {
-    if trust_state_rank(&incoming) > trust_state_rank(&existing) {
-        incoming
-    } else {
-        existing
-    }
-}
-
-fn trust_state_rank(state: &LanPairingTrustState) -> u8 {
-    match state {
-        LanPairingTrustState::Revoked => 5,
-        LanPairingTrustState::Expired => 4,
-        LanPairingTrustState::Paired => 3,
-        LanPairingTrustState::Pairing => 2,
-        LanPairingTrustState::Unpaired => 1,
-    }
-}
-
-fn stronger_route_state(
-    existing: LanCanonicalHouseholdRouteState,
-    incoming: LanCanonicalHouseholdRouteState,
-) -> LanCanonicalHouseholdRouteState {
-    if route_state_rank(&incoming) > route_state_rank(&existing) {
-        incoming
-    } else {
-        existing
-    }
-}
-
-fn route_state_rank(state: &LanCanonicalHouseholdRouteState) -> u8 {
-    match state {
-        LanCanonicalHouseholdRouteState::LocalNetwork => 4,
-        LanCanonicalHouseholdRouteState::Localhost => 3,
-        LanCanonicalHouseholdRouteState::ManualRequired => 2,
-        LanCanonicalHouseholdRouteState::Unavailable => 1,
     }
 }
 
@@ -328,54 +236,5 @@ fn merge_strings(existing: &mut Vec<String>, incoming: Vec<String>) {
         {
             existing.push(value);
         }
-    }
-}
-
-fn merge_evidence_records(
-    existing: &mut Vec<ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord>,
-    incoming: Vec<ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord>,
-) {
-    for record in incoming {
-        if let Some(existing_record) = existing
-            .iter_mut()
-            .find(|entry| same_evidence_record_identity(entry, &record))
-        {
-            if record.first_seen_at < existing_record.first_seen_at {
-                existing_record.first_seen_at = record.first_seen_at.clone();
-            }
-            if record.last_seen_at > existing_record.last_seen_at {
-                existing_record.last_seen_at = record.last_seen_at.clone();
-            }
-            if evidence_confidence_rank(&record.confidence)
-                > evidence_confidence_rank(&existing_record.confidence)
-            {
-                existing_record.confidence = record.confidence.clone();
-            }
-            if existing_record.note.is_none() {
-                existing_record.note = record.note.clone();
-            }
-            continue;
-        }
-        existing.push(record);
-    }
-}
-
-fn same_evidence_record_identity(
-    existing: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord,
-    incoming: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord,
-) -> bool {
-    existing.source == incoming.source
-        && existing.evidence_kind == incoming.evidence_kind
-        && existing.merge_key.eq_ignore_ascii_case(&incoming.merge_key)
-        && existing.device_id.eq_ignore_ascii_case(&incoming.device_id)
-}
-
-fn evidence_confidence_rank(confidence: &LanDiscoveryEvidenceConfidence) -> u8 {
-    match confidence {
-        LanDiscoveryEvidenceConfidence::Confirmed => 5,
-        LanDiscoveryEvidenceConfidence::Strong => 4,
-        LanDiscoveryEvidenceConfidence::Weak => 3,
-        LanDiscoveryEvidenceConfidence::ManualRequired => 2,
-        LanDiscoveryEvidenceConfidence::Rejected => 1,
     }
 }

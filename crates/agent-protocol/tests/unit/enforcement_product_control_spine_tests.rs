@@ -29,14 +29,13 @@ fn product_control_surfaces_have_stable_protocol_strings() {
         V08EnforcementProductControlSurface::WindowsPermissionLossAlerts,
         V08EnforcementProductControlSurface::WindowsTamperUninstallAlerts,
     ];
-    let serialized = serde_json::to_value(surfaces).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized
             .as_array()
-            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
             .len(),
         15
     );
@@ -129,14 +128,20 @@ fn product_control_read_model_serializes_parent_visible_action_states() {
             }),
         ],
     };
-    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
     let reparsed = serde_json::from_value::<V08EnforcementProductControlSpineReadModel>(serialized)
-        .unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
-    let claim_counts = count_claim_states(&reparsed.entries);
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let claim_counts: BTreeMap<&'static str, usize> =
+        reparsed
+            .entries
+            .iter()
+            .fold(BTreeMap::new(), |mut counts, entry| {
+                *counts
+                    .entry(entry.product_claim_state.as_protocol_str())
+                    .or_default() += 1;
+                counts
+            });
 
     assert_eq!(reparsed.read_model_id, spine::READ_MODEL_ID);
     assert_eq!(claim_counts[spine::CLAIM_IMPLEMENTED_BOUNDARY], 1);
@@ -193,15 +198,4 @@ fn entry(fixture: EntryFixture) -> V08EnforcementProductControlSpineEntry {
         notification_delivery_claimed: false,
         last_checked_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
     }
-}
-
-fn count_claim_states(
-    entries: &[V08EnforcementProductControlSpineEntry],
-) -> BTreeMap<&'static str, usize> {
-    entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts
-            .entry(entry.product_claim_state.as_protocol_str())
-            .or_default() += 1;
-        counts
-    })
 }

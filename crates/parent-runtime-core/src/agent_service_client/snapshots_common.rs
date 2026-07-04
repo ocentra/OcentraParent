@@ -96,5 +96,6 @@ pub(super) fn parent_route_event_snapshot(event: &AgentEventEnvelope) -> ParentR
             .snapshot
             .as_ref()
             .and_then(|snapshot| serde_json::to_value(snapshot).ok()),
+        command_result_projection: command_result_projection::command_result_projection(event),
     }
 }

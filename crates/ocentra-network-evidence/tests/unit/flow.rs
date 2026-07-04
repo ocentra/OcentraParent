@@ -1,8 +1,7 @@
-use crate::{
-    aggregate_network_flows, aggregate_pcap_flows, dns_query_pcap_fixture, NetworkEvidenceGrade,
-    NetworkFlowPacket, NetworkFlowProtocol,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::fixtures::dns_query_pcap_fixture;
+use ocentra_network_evidence::flow::*;
 
 #[test]
 fn flow_aggregation_merges_reverse_direction_into_single_session() {

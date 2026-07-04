@@ -41,6 +41,10 @@ use crate::tracking_dispatch::{
     ParentRuntimeTrackingDispatchEvaluatedEvent,
 };
 
+#[path = "tracking_config_update_flow/policy_rules.rs"]
+mod policy_rules;
+use self::policy_rules::tracking_policy_rule_refs;
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ParentTrackingConfigUpdateEventFlowReport {
     pub parent_subscription_report: SubscriptionReport,
@@ -324,135 +328,145 @@ async fn subscribe_tracking_config_policy_decision_events(
                 let parent_event = state.parent_event()?;
 
                 if decision.decision_state == TrackingConfigPolicyDecisionState::Approved {
-                    let change_approved = tracking_config_change_approved_event(&decision);
-                    state.record_change_approved_event(change_approved.clone());
-                    context
-                        .publisher()
-                        .publish(
-                            change_approved.clone(),
-                            tracking_config_controller_metadata(
-                                decision.source_command_id.as_str(),
-                            )?,
-                        )
-                        .await?;
-
-                    let child_runtime_flow = publish_parent_tracking_config_updated_event(
+                    handle_approved_tracking_config_decision(
+                        context.publisher(),
+                        state.clone(),
+                        &decision,
                         &parent_event,
                     )
-                    .await
-                    .ok();
-                    state.record_child_runtime_flow(child_runtime_flow.clone());
-
-                    let (audit_outcome, update_kind, visible_manual_required, visible_unavailable) =
-                        if let Some(flow_report) = child_runtime_flow.as_ref() {
-                            state.record_final_response(
-                                flow_report.parent_request_report.response.clone(),
-                            );
-                            (
-                                TrackingConfigAuditOutcome::Committed,
-                                TrackingConfigPortalUpdateKind::TrackingConfigState,
-                                false,
-                                false,
-                            )
-                        } else {
-                            state.record_final_response(rejected_tracking_config_update_response(
-                                &parent_event,
-                            ));
-                            (
-                                TrackingConfigAuditOutcome::Failed,
-                                TrackingConfigPortalUpdateKind::ManualRequiredState,
-                                true,
-                                true,
-                            )
-                        };
-
-                    let audit_event = tracking_config_audit_entry_committed_event(
-                        &decision,
-                        change_approved.change_approved_event_ref.clone(),
-                        audit_outcome,
-                    );
-                    state.record_audit_event(audit_event.clone());
-                    context
-                        .publisher()
-                        .publish(
-                            audit_event.clone(),
-                            tracking_config_audit_entry_committed_metadata(
-                                decision.source_command_id.as_str(),
-                            )?,
-                        )
-                        .await?;
-
-                    let portal_event = tracking_config_portal_read_model_updated_event(
-                        &audit_event,
-                        update_kind,
-                        visible_manual_required,
-                        visible_unavailable,
-                    );
-                    state.record_portal_event(portal_event.clone());
-                    context
-                        .publisher()
-                        .publish(
-                            portal_event,
-                            tracking_config_portal_read_model_updated_metadata(
-                                decision.source_command_id.as_str(),
-                            )?,
-                        )
-                        .await?;
+                    .await?;
                 } else {
-                    let change_rejected = tracking_config_change_rejected_event(
+                    handle_rejected_tracking_config_decision(
+                        context.publisher(),
+                        state.clone(),
                         &decision,
-                        constants::tracking_config_update::REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED,
-                    );
-                    state.record_change_rejected_event(change_rejected.clone());
-                    context
-                        .publisher()
-                        .publish(
-                            change_rejected.clone(),
-                            tracking_config_controller_metadata(
-                                decision.source_command_id.as_str(),
-                            )?,
-                        )
-                        .await?;
-                    let audit_event = tracking_config_audit_entry_committed_event(
-                        &decision,
-                        change_rejected.change_rejected_event_ref.clone(),
-                        TrackingConfigAuditOutcome::Failed,
-                    );
-                    state.record_audit_event(audit_event.clone());
-                    context
-                        .publisher()
-                        .publish(
-                            audit_event.clone(),
-                            tracking_config_audit_entry_committed_metadata(
-                                decision.source_command_id.as_str(),
-                            )?,
-                        )
-                        .await?;
-                    let portal_event = tracking_config_portal_read_model_updated_event(
-                        &audit_event,
-                        TrackingConfigPortalUpdateKind::ManualRequiredState,
-                        true,
-                        true,
-                    );
-                    state.record_portal_event(portal_event.clone());
-                    context
-                        .publisher()
-                        .publish(
-                            portal_event,
-                            tracking_config_portal_read_model_updated_metadata(
-                                decision.source_command_id.as_str(),
-                            )?,
-                        )
-                        .await?;
-                    state.record_final_response(rejected_tracking_config_update_response(
                         &parent_event,
-                    ));
+                    )
+                    .await?;
                 }
                 Ok(())
             }
         },
     )
     .await
+}
+
+async fn handle_approved_tracking_config_decision(
+    publisher: &ocentra_eventing::bus::publisher::EventPublisher,
+    state: ParentTrackingConfigUpdateEventState,
+    decision: &TrackingConfigPolicyDecisionCompletedEvent,
+    parent_event: &ParentTrackingConfigUpdatedEvent,
+) -> Result<(), EventingError> {
+    let change_approved = tracking_config_change_approved_event(decision);
+    state.record_change_approved_event(change_approved.clone());
+    publisher
+        .publish(
+            change_approved.clone(),
+            tracking_config_controller_metadata(decision.source_command_id.as_str())?,
+        )
+        .await?;
+
+    let child_runtime_flow = publish_parent_tracking_config_updated_event(parent_event)
+        .await
+        .ok();
+    state.record_child_runtime_flow(child_runtime_flow.clone());
+
+    let (audit_outcome, update_kind, visible_manual_required, visible_unavailable) =
+        if let Some(flow_report) = child_runtime_flow.as_ref() {
+            state.record_final_response(flow_report.parent_request_report.response.clone());
+            (
+                TrackingConfigAuditOutcome::Committed,
+                TrackingConfigPortalUpdateKind::TrackingConfigState,
+                false,
+                false,
+            )
+        } else {
+            state.record_final_response(rejected_tracking_config_update_response(parent_event));
+            (
+                TrackingConfigAuditOutcome::Failed,
+                TrackingConfigPortalUpdateKind::ManualRequiredState,
+                true,
+                true,
+            )
+        };
+
+    let audit_event = tracking_config_audit_entry_committed_event(
+        decision,
+        change_approved.change_approved_event_ref.clone(),
+        audit_outcome,
+    );
+    state.record_audit_event(audit_event.clone());
+    publisher
+        .publish(
+            audit_event.clone(),
+            tracking_config_audit_entry_committed_metadata(decision.source_command_id.as_str())?,
+        )
+        .await?;
+
+    let portal_event = tracking_config_portal_read_model_updated_event(
+        &audit_event,
+        update_kind,
+        visible_manual_required,
+        visible_unavailable,
+    );
+    state.record_portal_event(portal_event.clone());
+    publisher
+        .publish(
+            portal_event,
+            tracking_config_portal_read_model_updated_metadata(
+                decision.source_command_id.as_str(),
+            )?,
+        )
+        .await?;
+    Ok(())
+}
+
+async fn handle_rejected_tracking_config_decision(
+    publisher: &ocentra_eventing::bus::publisher::EventPublisher,
+    state: ParentTrackingConfigUpdateEventState,
+    decision: &TrackingConfigPolicyDecisionCompletedEvent,
+    parent_event: &ParentTrackingConfigUpdatedEvent,
+) -> Result<(), EventingError> {
+    let change_rejected = tracking_config_change_rejected_event(
+        decision,
+        constants::tracking_config_update::REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED,
+    );
+    state.record_change_rejected_event(change_rejected.clone());
+    publisher
+        .publish(
+            change_rejected.clone(),
+            tracking_config_controller_metadata(decision.source_command_id.as_str())?,
+        )
+        .await?;
+    let audit_event = tracking_config_audit_entry_committed_event(
+        decision,
+        change_rejected.change_rejected_event_ref.clone(),
+        TrackingConfigAuditOutcome::Failed,
+    );
+    state.record_audit_event(audit_event.clone());
+    publisher
+        .publish(
+            audit_event.clone(),
+            tracking_config_audit_entry_committed_metadata(decision.source_command_id.as_str())?,
+        )
+        .await?;
+    let portal_event = tracking_config_portal_read_model_updated_event(
+        &audit_event,
+        TrackingConfigPortalUpdateKind::ManualRequiredState,
+        true,
+        true,
+    );
+    state.record_portal_event(portal_event.clone());
+    publisher
+        .publish(
+            portal_event,
+            tracking_config_portal_read_model_updated_metadata(
+                decision.source_command_id.as_str(),
+            )?,
+        )
+        .await?;
+    state.record_final_response(rejected_tracking_config_update_response(parent_event));
+    Ok(())
 }
 
 #[derive(Clone, Debug, Default)]
@@ -616,31 +630,10 @@ impl ParentTrackingConfigUpdateEventState {
     }
 }
 
-fn tracking_policy_rule_refs(request: &TrackingConfigUpdateRequest) -> Vec<TrackingPolicyRuleRef> {
-    let mut rule_refs = vec![tracking_policy_rule_ref(
-        constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
-    )];
-    if request.retention_settings.requested_remote_sync_state == TrackingRemoteSyncState::Disabled {
-        rule_refs.push(tracking_policy_rule_ref(
-            constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED,
-        ));
-    }
-    if request.retention_settings.requested_remote_ai_state == TrackingRemoteAiState::Disabled {
-        rule_refs.push(tracking_policy_rule_ref(
-            constants::tracking_config_update::POLICY_RULE_REMOTE_AI_DISABLED,
-        ));
-    }
-    rule_refs
-}
-
 fn lock_recover<T>(value: &Arc<Mutex<T>>) -> MutexGuard<'_, T> {
     value
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner())
-}
-
-fn tracking_policy_rule_ref(value: &str) -> TrackingPolicyRuleRef {
-    TrackingPolicyRuleRef::parse(value).unwrap_or_else(|error| unreachable!("{value}: {error:?}"))
 }
 
 fn rejected_tracking_config_update_response(

@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::{
     sync::{
         atomic::{AtomicUsize, Ordering},

@@ -1,49 +1,50 @@
-import { AgentEvent, isAgentProtocolLogText } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
-  SocialAlertReportParentSurfaceReadModelSnapshotSchema,
-  type SocialAlertReportParentSurfaceReadModelSnapshot,
-} from '@ocentra-parent/schema-domain/agent-social-alert-report-parent-surface-read-model';
+  PortalAgentEvent,
+  type PortalRouteEventRecord,
+} from './portal-contract-adapter';
 import {
-  SocialAlertReportReadModelSnapshotSchema,
-  type SocialAlertReportReadModelSnapshot,
-} from '@ocentra-parent/schema-domain/agent-social-alert-report-read-model';
-import {
-  SocialDashboardUxSnapshotSchema,
-  type SocialDashboardUxSnapshot,
-} from '@ocentra-parent/schema-domain/social-dashboard-ux';
-import {
-  SocialParentNotificationDeliveryReadinessReadModelSchema,
-  type SocialParentNotificationDeliveryReadinessReadModel,
-} from '@ocentra-parent/schema-domain/social-parent-notification-delivery-readiness';
-import type { PortalRouteEventRecord } from './portal-contract-adapter';
-
-const SocialReadModelFailureReason = {
-  WrongEvent: 'wrong-event',
-  MissingJsonField: 'missing-json-field',
-  InvalidJson: 'invalid-json',
-  InvalidPayload: 'invalid-payload',
-} as const;
+  type GeneratedPortalAgentActivitySurfaceAdapterFailureReason,
+  GeneratedPortalSocialReadModelPayloadField,
+  type GeneratedPortalSocialAlertReportParentSurfaceReadModelSnapshot,
+  type GeneratedPortalSocialAlertReportReadModelSnapshot,
+  type GeneratedPortalSocialDashboardUxSnapshot,
+  type GeneratedPortalSocialParentNotificationDeliveryReadModelSnapshot,
+  type GeneratedPortalSocialReadModelPayloadFieldName,
+} from './generated/portal-contracts';
+import type { ReadModelResult } from './read-model-result';
 
 export type SocialReadModelFailureReason =
-  (typeof SocialReadModelFailureReason)[keyof typeof SocialReadModelFailureReason];
+  GeneratedPortalAgentActivitySurfaceAdapterFailureReason;
 
-export type SocialReadModelResult<T> =
+export type SocialReadModelResult<T> = ReadModelResult<T, SocialReadModelFailureReason>;
+
+type JsonPayloadParseResult =
+  | {
+      readonly state: 'parsed';
+      readonly value: unknown;
+    }
+  | {
+      readonly state: 'invalid-json';
+    }
+  | {
+      readonly state: 'missing-json-field';
+    };
+
+type JsonParseResult =
   | {
       readonly ok: true;
-      readonly value: T;
+      readonly value: unknown;
     }
   | {
       readonly ok: false;
-      readonly reason: SocialReadModelFailureReason;
     };
 
-type SafeParseSchema<T> = {
-  safeParse(input: unknown): {
-    readonly success: boolean;
-    readonly data?: T;
-  };
-};
+export type SocialAlertReportReadModelSnapshot = GeneratedPortalSocialAlertReportReadModelSnapshot;
+export type SocialAlertReportParentSurfaceReadModelSnapshot =
+  GeneratedPortalSocialAlertReportParentSurfaceReadModelSnapshot;
+export type SocialParentNotificationDeliveryReadModelSnapshot =
+  GeneratedPortalSocialParentNotificationDeliveryReadModelSnapshot;
+export type SocialDashboardUxSnapshot = GeneratedPortalSocialDashboardUxSnapshot;
 
 export type AgentSocialAlertReportReadModelFailureReason = SocialReadModelFailureReason;
 export type AgentSocialAlertReportReadModelResult = SocialReadModelResult<SocialAlertReportReadModelSnapshot>;
@@ -52,7 +53,6 @@ export type AgentSocialAlertReportParentSurfaceReadModelFailureReason = SocialRe
 export type AgentSocialAlertReportParentSurfaceReadModelResult =
   SocialReadModelResult<SocialAlertReportParentSurfaceReadModelSnapshot>;
 
-export type SocialParentNotificationDeliveryReadModelSnapshot = SocialParentNotificationDeliveryReadinessReadModel;
 export type AgentSocialParentNotificationDeliveryReadModelFailureReason = SocialReadModelFailureReason;
 export type AgentSocialParentNotificationDeliveryReadModelResult =
   SocialReadModelResult<SocialParentNotificationDeliveryReadModelSnapshot>;
@@ -65,9 +65,8 @@ export function parseAgentSocialAlertReportReadModelEvent(
 ): AgentSocialAlertReportReadModelResult {
   return parseAgentReadModelEvent(
     event,
-    AgentEvent.BrowserSocialAlertReportReadModelReported,
-    AgentProtocolDefaults.Field.BrowserSocialAlertReportReadModel,
-    SocialAlertReportReadModelSnapshotSchema
+    PortalAgentEvent.BrowserSocialAlertReportReadModelReported,
+    GeneratedPortalSocialReadModelPayloadField.AlertReport
   );
 }
 
@@ -76,9 +75,8 @@ export function parseAgentSocialAlertReportParentSurfaceReadModelEvent(
 ): AgentSocialAlertReportParentSurfaceReadModelResult {
   return parseAgentReadModelEvent(
     event,
-    AgentEvent.BrowserSocialAlertReportParentSurfaceReadModelReported,
-    AgentProtocolDefaults.Field.BrowserSocialAlertReportParentSurfaceReadModel,
-    SocialAlertReportParentSurfaceReadModelSnapshotSchema
+    PortalAgentEvent.BrowserSocialAlertReportParentSurfaceReadModelReported,
+    GeneratedPortalSocialReadModelPayloadField.AlertReportParentSurface
   );
 }
 
@@ -87,9 +85,8 @@ export function parseAgentSocialParentNotificationDeliveryReadModelEvent(
 ): AgentSocialParentNotificationDeliveryReadModelResult {
   return parseAgentReadModelEvent(
     event,
-    AgentEvent.BrowserSocialParentNotificationDeliveryReadModelReported,
-    AgentProtocolDefaults.Field.BrowserSocialParentNotificationDeliveryReadModel,
-    SocialParentNotificationDeliveryReadinessReadModelSchema
+    PortalAgentEvent.BrowserSocialParentNotificationDeliveryReadModelReported,
+    GeneratedPortalSocialReadModelPayloadField.ParentNotificationDelivery
   );
 }
 
@@ -98,49 +95,73 @@ export function parseAgentSocialDashboardReadModelEvent(
 ): AgentSocialDashboardReadModelResult {
   return parseAgentReadModelEvent(
     event,
-    AgentEvent.BrowserSocialDashboardReadModelReported,
-    AgentProtocolDefaults.Field.BrowserSocialDashboardReadModel,
-    SocialDashboardUxSnapshotSchema
+    PortalAgentEvent.BrowserSocialDashboardReadModelReported,
+    GeneratedPortalSocialReadModelPayloadField.Dashboard
   );
 }
 
-function parseAgentReadModelEvent<T>(
+function parseAgentReadModelEvent<T extends Readonly<Record<string, unknown>>>(
   event: PortalRouteEventRecord,
   expectedEvent: PortalRouteEventRecord['event'],
-  payloadField: string,
-  schema: SafeParseSchema<T>
+  payloadField: GeneratedPortalSocialReadModelPayloadFieldName
 ): SocialReadModelResult<T> {
   if (event.event !== expectedEvent) {
-    return failure(SocialReadModelFailureReason.WrongEvent);
+    return failure('wrong-event');
   }
 
-  const raw = event.payload?.[payloadField];
-  if (!isAgentProtocolLogText(raw)) {
-    return failure(SocialReadModelFailureReason.MissingJsonField);
+  const decoded = parseJsonPayloadField(event.payload, payloadField);
+  if (decoded.state === 'missing-json-field') {
+    return failure('missing-json-field');
+  }
+  if (decoded.state === 'invalid-json') {
+    return failure('invalid-json');
   }
 
-  const decoded = parseJson(raw);
-  if (decoded === null) {
-    return failure(SocialReadModelFailureReason.InvalidJson);
-  }
-
-  const parsed = schema.safeParse(decoded);
-  if (!parsed.success || parsed.data === undefined) {
-    return failure(SocialReadModelFailureReason.InvalidPayload);
+  if (!isRecord(decoded.value)) {
+    return failure('invalid-payload');
   }
 
   return {
     ok: true,
-    value: parsed.data,
+    value: decoded.value as T,
   };
 }
 
-function parseJson(raw: string): unknown | null {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
+function parseJsonPayloadField(
+  payload: PortalRouteEventRecord['payload'],
+  payloadField: GeneratedPortalSocialReadModelPayloadFieldName
+): JsonPayloadParseResult {
+  if (payload === undefined) {
+    return { state: 'missing-json-field' };
   }
+
+  const value = payload[payloadField];
+  if (typeof value !== 'string') {
+    return { state: 'missing-json-field' };
+  }
+
+  const parsed = parseJson(value);
+  return parsed.ok
+    ? {
+        state: 'parsed',
+        value: parsed.value,
+      }
+    : { state: 'invalid-json' };
+}
+
+function parseJson(raw: string): JsonParseResult {
+  try {
+    return {
+      ok: true,
+      value: JSON.parse(raw),
+    };
+  } catch {
+    return { ok: false };
+  }
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function failure(reason: SocialReadModelFailureReason): SocialReadModelResult<never> {

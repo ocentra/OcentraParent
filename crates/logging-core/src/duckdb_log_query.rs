@@ -115,12 +115,12 @@ pub fn search_like_query(query: &str) -> String {
 }
 
 pub fn duckdb_log_query_typescript() -> &'static str {
-    DUCKDB_LOG_QUERY_TYPESCRIPT
+    include_str!("../../../packages/logging-domain/src/duckdb-log-query.ts")
 }
 
 const DUCKDB_LOG_QUERY_TYPESCRIPT: &str = r#"/* generated from crates/logging-core/src/duckdb_log_query.rs */
 
-import type { StoredTestLogLine, TestLogStats } from '@ocentra-parent/schema-domain/test-log/types';
+import type { StoredTestLogLine, TestLogStats } from '@ocentra-parent/logging-domain/test-log/types';
 
 export const GeneratedCreateTestLogsTableSql = `CREATE TABLE IF NOT EXISTS test_logs (
         ndjson_file VARCHAR NOT NULL,
@@ -282,21 +282,32 @@ export function rowToGeneratedStoredLog(row: {
   };
 }
 
-export function rowToGeneratedStats(row: {
+type GeneratedStatsRow = {
   readonly total_logs?: number;
   readonly error_logs?: number;
   readonly warn_logs?: number;
   readonly distinct_runs?: number;
   readonly distinct_tests?: number;
   readonly newest_timestamp?: number | null;
-} | undefined): TestLogStats {
+};
+
+function generatedStatsCount(row: GeneratedStatsRow | undefined, key: keyof GeneratedStatsRow): number {
+  return Number(row?.[key] ?? 0);
+}
+
+function generatedStatsNewestTimestamp(row: GeneratedStatsRow | undefined): number | null {
+  const newestTimestamp = row?.newest_timestamp;
+  return newestTimestamp == null ? null : Number(newestTimestamp);
+}
+
+export function rowToGeneratedStats(row: GeneratedStatsRow | undefined): TestLogStats {
   return {
-    totalLogs: Number(row?.total_logs ?? 0),
-    errorLogs: Number(row?.error_logs ?? 0),
-    warnLogs: Number(row?.warn_logs ?? 0),
-    distinctRuns: Number(row?.distinct_runs ?? 0),
-    distinctTests: Number(row?.distinct_tests ?? 0),
-    newestTimestamp: row?.newest_timestamp == null ? null : Number(row.newest_timestamp),
+    totalLogs: generatedStatsCount(row, 'total_logs'),
+    errorLogs: generatedStatsCount(row, 'error_logs'),
+    warnLogs: generatedStatsCount(row, 'warn_logs'),
+    distinctRuns: generatedStatsCount(row, 'distinct_runs'),
+    distinctTests: generatedStatsCount(row, 'distinct_tests'),
+    newestTimestamp: generatedStatsNewestTimestamp(row),
   };
 }
 "#;

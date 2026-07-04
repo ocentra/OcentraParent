@@ -3,19 +3,21 @@ use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionRead
 use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionRow;
 use ocentra_parent_agent_protocol::browser_intervention::BROWSER_INTERVENTION_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::browser_intervention_values::{
-    BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionAction,
-    BrowserInterventionCapabilityState, BrowserInterventionDeliveryState,
-    BrowserInterventionOutcome, BrowserUnmanagedDetectionState,
+    BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionCapabilityState,
+    BrowserInterventionDeliveryState, BrowserUnmanagedDetectionState,
     BrowserUnmanagedFallbackActionState,
 };
 use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
 use ocentra_parent_agent_protocol::browser_unmanaged_enforcement::BrowserUnmanagedEnforcementState;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::{BrowserInterventionAction, BrowserInterventionOutcome};
 use rusqlite::{params, Connection, Row};
 
 use crate::{ActivityStore, ActivityStoreError};
 
+#[path = "activity_store_browser_intervention_fallback.rs"]
+mod activity_store_browser_intervention_fallback;
 mod fields;
 use fields::{
     browser_boundary_state_field, browser_channel_field, browser_family_field, custody_label_field,
@@ -54,7 +56,7 @@ pub(crate) fn browser_intervention_read_model(
         .map(|row| row.unmanaged_browser_enforcement.clone())
         .unwrap_or(BrowserUnmanagedEnforcementState::RequiresOsAppControl);
     let unmanaged_fallback_action = latest
-        .map(top_level_unmanaged_fallback_action)
+        .map(activity_store_browser_intervention_fallback::top_level_unmanaged_fallback_action)
         .unwrap_or(BrowserUnmanagedFallbackActionState::OsBlockManualRequired);
     let latest_event_id = latest.map(|row| row.event_id.clone());
     let latest_observed_at = latest.map(|row| row.observed_at.clone());
@@ -306,101 +308,17 @@ fn inferred_unmanaged_fallback_action(
     intervention_action: &Option<BrowserInterventionAction>,
     intervention_outcome: &Option<BrowserInterventionOutcome>,
 ) -> BrowserUnmanagedFallbackActionState {
-    if !matches!(
+    activity_store_browser_intervention_fallback::inferred_unmanaged_fallback_action(
         browser_boundary_state,
-        BrowserBoundaryState::UnmanagedBrowserProcess | BrowserBoundaryState::BrowserLikeProcess
-    ) {
-        return BrowserUnmanagedFallbackActionState::Unavailable;
-    }
-
-    if matches!(
+        unmanaged_browser_enforcement,
         unmanaged_detection_state,
-        BrowserUnmanagedDetectionState::Terminated
-    ) {
-        return BrowserUnmanagedFallbackActionState::TerminateProcess;
-    }
-
-    match intervention_action {
-        Some(BrowserInterventionAction::Allow) => {
-            BrowserUnmanagedFallbackActionState::AllowedUnmanagedException
-        }
-        Some(BrowserInterventionAction::Warn) => BrowserUnmanagedFallbackActionState::WarnChild,
-        Some(BrowserInterventionAction::AskParent)
-        | Some(BrowserInterventionAction::ApprovalHold) => {
-            BrowserUnmanagedFallbackActionState::AskParent
-        }
-        Some(BrowserInterventionAction::TerminateProcess) => {
-            BrowserUnmanagedFallbackActionState::TerminateProcess
-        }
-        Some(BrowserInterventionAction::RelaunchManaged) => {
-            BrowserUnmanagedFallbackActionState::RelaunchManagedBrowser
-        }
-        Some(BrowserInterventionAction::Monitor) => BrowserUnmanagedFallbackActionState::ReportOnly,
-        _ => fallback_action_for_unmanaged_enforcement(unmanaged_browser_enforcement)
-            .or_else(|| {
-                intervention_outcome.as_ref().map(|outcome| match outcome {
-                    BrowserInterventionOutcome::Unsupported => {
-                        BrowserUnmanagedFallbackActionState::Unavailable
-                    }
-                    BrowserInterventionOutcome::ManualRequired => {
-                        BrowserUnmanagedFallbackActionState::OsBlockManualRequired
-                    }
-                    _ => BrowserUnmanagedFallbackActionState::Unavailable,
-                })
-            })
-            .unwrap_or(BrowserUnmanagedFallbackActionState::Unavailable),
-    }
+        intervention_action,
+        intervention_outcome,
+    )
 }
 
 fn top_level_unmanaged_fallback_action(
     row: &BrowserInterventionReadRow,
 ) -> BrowserUnmanagedFallbackActionState {
-    if matches!(
-        row.intervention.browser_boundary_state,
-        BrowserBoundaryState::UnmanagedBrowserProcess | BrowserBoundaryState::BrowserLikeProcess
-    ) {
-        return row.unmanaged_fallback_action.clone();
-    }
-    fallback_action_for_unmanaged_enforcement(&row.unmanaged_browser_enforcement)
-        .unwrap_or(BrowserUnmanagedFallbackActionState::OsBlockManualRequired)
-}
-
-fn fallback_action_for_unmanaged_enforcement(
-    unmanaged_browser_enforcement: &BrowserUnmanagedEnforcementState,
-) -> Option<BrowserUnmanagedFallbackActionState> {
-    match unmanaged_browser_enforcement {
-        BrowserUnmanagedEnforcementState::ReportOnly
-        | BrowserUnmanagedEnforcementState::MonitorOnly => {
-            Some(BrowserUnmanagedFallbackActionState::ReportOnly)
-        }
-        BrowserUnmanagedEnforcementState::WarnChild => {
-            Some(BrowserUnmanagedFallbackActionState::WarnChild)
-        }
-        BrowserUnmanagedEnforcementState::AskParent => {
-            Some(BrowserUnmanagedFallbackActionState::AskParent)
-        }
-        BrowserUnmanagedEnforcementState::TerminateProcess
-        | BrowserUnmanagedEnforcementState::ReadyToBlock => {
-            Some(BrowserUnmanagedFallbackActionState::TerminateProcess)
-        }
-        BrowserUnmanagedEnforcementState::RelaunchManagedBrowser
-        | BrowserUnmanagedEnforcementState::BlockedAndRelaunchedManaged => {
-            Some(BrowserUnmanagedFallbackActionState::RelaunchManagedBrowser)
-        }
-        BrowserUnmanagedEnforcementState::OsBlockConfigured => {
-            Some(BrowserUnmanagedFallbackActionState::OsBlockConfigured)
-        }
-        BrowserUnmanagedEnforcementState::RequiresOsAppControl
-        | BrowserUnmanagedEnforcementState::OsBlockManualRequired => {
-            Some(BrowserUnmanagedFallbackActionState::OsBlockManualRequired)
-        }
-        BrowserUnmanagedEnforcementState::AllowedUnmanagedException => {
-            Some(BrowserUnmanagedFallbackActionState::AllowedUnmanagedException)
-        }
-        BrowserUnmanagedEnforcementState::Degraded => {
-            Some(BrowserUnmanagedFallbackActionState::Degraded)
-        }
-        BrowserUnmanagedEnforcementState::Unavailable
-        | BrowserUnmanagedEnforcementState::Unsupported => None,
-    }
+    activity_store_browser_intervention_fallback::top_level_unmanaged_fallback_action(row)
 }

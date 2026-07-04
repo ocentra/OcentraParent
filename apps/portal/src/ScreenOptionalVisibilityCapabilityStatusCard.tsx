@@ -1,12 +1,12 @@
 import { useMemo, type ReactElement, type ReactNode } from 'react';
 import {
-  screenOptionalVisibilityCapabilityStatusProof,
-  ScreenOptionalVisibilityCapabilityProofGeneratedAt,
-} from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-proof';
-import type { ScreenOptionalVisibilityCapabilityStatus } from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-status';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+  ParentScreenOptionalVisibilityCapabilityProofGeneratedAt as ScreenOptionalVisibilityCapabilityProofGeneratedAt,
+  parentScreenOptionalVisibilityCapabilityStatusProof as screenOptionalVisibilityCapabilityStatusProof,
+  type ParentScreenOptionalVisibilityCapabilityStatus as ScreenOptionalVisibilityCapabilityStatus,
+} from '../generated/parent-ui-screen-bridge';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails, PortalReadableValues } from '@ocentra-parent/portal-domain/details';
+import { type PortalDisplayText } from './portal-display-text';
 
 type OptionalVisibilityStatusValue = ReactNode;
 

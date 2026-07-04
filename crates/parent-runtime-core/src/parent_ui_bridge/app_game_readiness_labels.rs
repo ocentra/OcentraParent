@@ -1,5 +1,47 @@
 use super::*;
 
+const APP_GAME_POLICY_KIND_LABELS: &[(&str, &str)] = &[
+    (
+        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE,
+        "Policy evidence",
+    ),
+    (
+        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_APPROVAL_AUTHORITY,
+        "Approval authority",
+    ),
+    (
+        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT,
+        "Approval action result",
+    ),
+    (
+        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY,
+        "Platform authority",
+    ),
+    (
+        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT,
+        "AI classifier context",
+    ),
+    (
+        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE,
+        "Category candidate",
+    ),
+    (
+        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW,
+        "Unknown review",
+    ),
+];
+const APP_GAME_PARENT_ACCESS_LABELS: &[(&str, ParentPortalParentAccessState)] = &[
+    (
+        "active-controller",
+        ParentPortalParentAccessState::ActiveController,
+    ),
+    ("observer", ParentPortalParentAccessState::ObserverOnly),
+    (
+        "unauthenticated",
+        ParentPortalParentAccessState::Unauthenticated,
+    ),
+];
+
 pub(super) fn app_game_notification_load_state(
     read_model: &AppGameNotificationReadinessReadModel,
 ) -> String {
@@ -76,30 +118,11 @@ pub(super) fn app_game_join_notification_refs(row: &AppGameNotificationReadiness
 }
 
 pub(super) fn app_game_policy_kind_label(kind: &str) -> String {
-    match kind {
-        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE => {
-            "Policy evidence".to_string()
-        }
-        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_APPROVAL_AUTHORITY => {
-            "Approval authority".to_string()
-        }
-        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT => {
-            "Approval action result".to_string()
-        }
-        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY => {
-            "Platform authority".to_string()
-        }
-        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT => {
-            "AI classifier context".to_string()
-        }
-        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE => {
-            "Category candidate".to_string()
-        }
-        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW => {
-            "Unknown review".to_string()
-        }
-        _ => kind.to_string(),
-    }
+    APP_GAME_POLICY_KIND_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == kind)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| kind.to_string())
 }
 
 pub(super) fn app_game_policy_row_reason(row: &AppGamePolicyReadinessRow) -> String {
@@ -126,12 +149,12 @@ pub(super) fn parent_access_summary(read_model: &LanBrowserAddDeviceReadModel) -
 pub(super) fn parent_access_state_for_read_model(
     read_model: Option<&LanBrowserAddDeviceReadModel>,
 ) -> ParentPortalParentAccessState {
-    match read_model.map(parent_access_summary).as_deref() {
-        Some("active-controller") => ParentPortalParentAccessState::ActiveController,
-        Some("observer") => ParentPortalParentAccessState::ObserverOnly,
-        Some("unauthenticated") => ParentPortalParentAccessState::Unauthenticated,
-        _ => ParentPortalParentAccessState::ProofMissing,
-    }
+    let value = read_model.map(parent_access_summary);
+    APP_GAME_PARENT_ACCESS_LABELS
+        .iter()
+        .find(|(raw, _)| value.as_deref() == Some(*raw))
+        .map(|(_, state)| state.clone())
+        .unwrap_or(ParentPortalParentAccessState::ProofMissing)
 }
 
 pub(super) fn parent_access_detail(read_model: Option<&LanBrowserAddDeviceReadModel>) -> String {

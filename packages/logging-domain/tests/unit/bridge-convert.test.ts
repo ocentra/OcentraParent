@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { RunType, TestLogScope, TestLogSchemaVersion } from '@ocentra-parent/schema-domain/test-log/types';
+import { RunType, TestLogScope, TestLogSchemaVersion } from '../../src/test-log/types';
 import {
   bridgeEntryToStoredLog,
   bridgePayloadToStoredLog,
@@ -9,11 +9,10 @@ import {
 } from '../../src/test-log/bridgeConvert';
 import {
   bridgeEntryToGeneratedStoredLog,
-  bridgePayloadToGeneratedStoredLog,
   createGeneratedBridgeEntryFromStoredLog,
   storedGeneratedLogToBridgeEntry,
   storedGeneratedLogToBridgePayload,
-} from '../../src/generated/bridge-log-runtime';
+} from '../../src/bridge-log-runtime';
 
 function createBridgeEntry() {
   return {

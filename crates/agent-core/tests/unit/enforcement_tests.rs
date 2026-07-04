@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+use crate::test_text::{TestResult, TestText};
 use crate::*;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
@@ -18,21 +19,19 @@ use ocentra_parent_agent_protocol::enforcement::{
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
 
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+fn ok<T, E: Debug>(result: Result<T, E>, context: impl std::fmt::Display) -> Result<T, TestText> {
+    result.map_err(|error| TestText::from_display(format!("{}: {error:?}", context)))
 }
 
-fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
+fn err<T, E: Debug>(result: Result<T, E>, context: impl std::fmt::Display) -> Result<E, TestText> {
     match result {
-        Ok(_) => Err(format!("{context}: expected error")),
+        Ok(_) => Err(TestText::from_display(format!("{context}: expected error"))),
         Err(error) => Ok(error),
     }
 }
 
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| format!("{context}: missing value"))
+fn some<T>(value: Option<T>, context: impl std::fmt::Display) -> Result<T, TestText> {
+    value.ok_or_else(|| TestText::from_display(context))
 }
 
 #[test]
@@ -71,7 +70,7 @@ fn dry_run_decision_never_requests_adapter_execution() -> TestResult {
         outcome
             .timer_event
             .as_ref()
-            .ok_or_else(|| policy::TEST_EXPIRES_AT.to_string())?
+            .ok_or_else(|| TestText::from_display(policy::TEST_EXPIRES_AT))?
             .timer_event_kind
             .as_protocol_str(),
         enforcement::TIMER_CREATED
@@ -170,7 +169,7 @@ fn unavailable_capability_returns_auditable_unavailable_result() -> TestResult {
             .audit_event
             .unavailable_status
             .as_ref()
-            .ok_or_else(|| enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM.to_string())?
+            .ok_or_else(|| TestText::from_display(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM))?
             .unavailable_reason
             .as_protocol_str(),
         enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM
@@ -202,7 +201,7 @@ fn unsupported_action_returns_typed_unavailable_status_without_adapter_execution
             .result
             .unavailable_status
             .as_ref()
-            .ok_or_else(|| enforcement::UNAVAILABLE_UNSUPPORTED_ACTION.to_string())?
+            .ok_or_else(|| TestText::from_display(enforcement::UNAVAILABLE_UNSUPPORTED_ACTION))?
             .unavailable_reason
             .as_protocol_str(),
         enforcement::UNAVAILABLE_UNSUPPORTED_ACTION
@@ -286,7 +285,7 @@ fn supported_non_dry_run_requires_adapter_outcome_for_process_control() -> TestR
         authorization
             .adapter_request
             .as_ref()
-            .ok_or_else(|| enforcement::TEST_ACTION_ID.to_string())?
+            .ok_or_else(|| TestText::from_display(enforcement::TEST_ACTION_ID))?
             .mode
             .as_protocol_str(),
         enforcement::MODE_TERMINATE_PROCESS

@@ -20,8 +20,17 @@ use crate::activity_surface_read_model_states::{
 
 use super::shared::{
     app_game_boundary_row_counts, app_game_source_status_rows, push_app_game_boundary_evidence,
-    push_evidence, row_device_id, row_state,
+    push_evidence, row_device_id, row_state, CapabilityStatus,
 };
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct GameText(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct GameMaybeText(Option<String>);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ClassificationText(String);
 
 pub(crate) fn games_read_model(
     request: ActivitySurfaceRequest,
@@ -62,35 +71,20 @@ fn game_rows(
     request: &ActivitySurfaceRequest,
     model: &AppGameServiceReadModel,
 ) -> Vec<ActivityGamesReadModelRow> {
-    let inventory = model
-        .inventory_rows
-        .iter()
-        .find(|row| is_game_inventory(row));
-    let running = model
-        .running_now_rows
-        .iter()
-        .find(|row| is_game_runtime(row));
-    let foreground = model
-        .foreground_now_rows
-        .iter()
-        .find(|row| is_game_foreground(row));
-    let launcher = model.launcher_rows.first();
-    let rollup = model
-        .daily_rollups
-        .iter()
-        .find(|rollup| is_game_classification(&rollup.classification_state));
+    let (inventory, running, foreground, launcher, rollup) = game_sources(model);
     if !has_game_source(inventory, running, foreground, launcher, rollup) {
         return Vec::new();
     }
 
     let boundary_counts = app_game_boundary_row_counts(model);
     vec![ActivityGamesReadModelRow {
-        row_id: game_row_id(inventory, running, foreground, launcher, rollup),
-        display_name: game_label(inventory, running, foreground, launcher),
-        device_id: row_device_id(request),
-        state: row_state(&model.capability_status),
-        product_kind: game_product_kind(inventory, launcher),
-        classification_state: game_classification(inventory, running, foreground, launcher, rollup),
+        row_id: game_row_id(inventory, running, foreground, launcher, rollup).0,
+        display_name: game_label(inventory, running, foreground, launcher).0,
+        device_id: row_device_id(request).0,
+        state: row_state(CapabilityStatus(model.capability_status.clone())),
+        product_kind: game_product_kind(inventory, launcher).0,
+        classification_state: game_classification(inventory, running, foreground, launcher, rollup)
+            .0,
         inventory_state: inventory
             .map(|row| row.inventory_state.clone())
             .unwrap_or_else(|| APP_GAME_INVENTORY_STATE_UNAVAILABLE.to_string()),
@@ -106,7 +100,7 @@ fn game_rows(
             .or_else(|| inventory.map(|row| row.foreground_state.clone()))
             .unwrap_or_else(|| APP_GAME_FOREGROUND_NOT_CLAIMED.to_string()),
         capability_status: model.capability_status.clone(),
-        last_observed_at: game_last_observed_at(inventory, running, foreground, launcher),
+        last_observed_at: game_last_observed_at(inventory, running, foreground, launcher).0,
         total_ms: game_total_ms(model),
         session_count: game_session_count(model),
         launcher_row_count: model.launcher_returned,
@@ -123,7 +117,9 @@ fn game_rows(
         daily_rollup_count: model
             .daily_rollups
             .iter()
-            .filter(|rollup| is_game_classification(&rollup.classification_state))
+            .filter(|rollup| {
+                is_game_classification(ClassificationText(rollup.classification_state.clone()))
+            })
             .count() as u64,
         evidence_claim_row_count: boundary_counts.evidence_claim_row_count,
         identity_row_count: boundary_counts.identity_row_count,
@@ -157,16 +153,16 @@ fn is_game_inventory(row: &AppGameInventoryEvidenceRow) -> bool {
 }
 
 fn is_game_runtime(row: &AppGameRuntimeEvidenceRow) -> bool {
-    is_game_classification(&row.classification_state)
+    is_game_classification(ClassificationText(row.classification_state.clone()))
 }
 
 fn is_game_foreground(row: &AppGameForegroundEvidenceRow) -> bool {
-    is_game_classification(&row.classification_state)
+    is_game_classification(ClassificationText(row.classification_state.clone()))
 }
 
-fn is_game_classification(classification: &str) -> bool {
+fn is_game_classification(classification: ClassificationText) -> bool {
     matches!(
-        classification,
+        classification.0.as_str(),
         APP_GAME_CLASSIFICATION_KNOWN_GAME
             | APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER
             | APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE
@@ -194,14 +190,16 @@ fn game_row_id(
     foreground: Option<&AppGameForegroundEvidenceRow>,
     launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
     rollup: Option<&ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
-) -> String {
-    rollup
-        .and_then(|row| row.session_ids.first().cloned())
-        .or_else(|| launcher.map(|row| row.launcher_evidence_id.clone()))
-        .or_else(|| foreground.map(|row| row.foreground_evidence_id.clone()))
-        .or_else(|| running.map(|row| row.runtime_evidence_id.clone()))
-        .or_else(|| inventory.map(|row| row.inventory_entry_id.clone()))
-        .unwrap_or_else(|| constants::activity_surface::READ_MODEL_GAMES.to_string())
+) -> GameText {
+    GameText(
+        rollup
+            .and_then(|row| row.session_ids.first().cloned())
+            .or_else(|| launcher.map(|row| row.launcher_evidence_id.clone()))
+            .or_else(|| foreground.map(|row| row.foreground_evidence_id.clone()))
+            .or_else(|| running.map(|row| row.runtime_evidence_id.clone()))
+            .or_else(|| inventory.map(|row| row.inventory_entry_id.clone()))
+            .unwrap_or_else(|| constants::activity_surface::READ_MODEL_GAMES.to_string()),
+    )
 }
 
 fn game_label(
@@ -209,17 +207,19 @@ fn game_label(
     running: Option<&AppGameRuntimeEvidenceRow>,
     foreground: Option<&AppGameForegroundEvidenceRow>,
     launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
-) -> String {
-    foreground
-        .map(|row| row.process_name.clone())
-        .or_else(|| running.map(|row| row.process_name.clone()))
-        .or_else(|| {
-            launcher
-                .and_then(|row| row.launcher_process_name.clone())
-                .or_else(|| launcher.map(|row| row.launcher_ref.clone()))
-        })
-        .or_else(|| inventory.map(|row| row.display_label.clone()))
-        .unwrap_or_else(|| constants::activity_surface::SECTION_GAMES.to_string())
+) -> GameText {
+    GameText(
+        foreground
+            .map(|row| row.process_name.clone())
+            .or_else(|| running.map(|row| row.process_name.clone()))
+            .or_else(|| {
+                launcher
+                    .and_then(|row| row.launcher_process_name.clone())
+                    .or_else(|| launcher.map(|row| row.launcher_ref.clone()))
+            })
+            .or_else(|| inventory.map(|row| row.display_label.clone()))
+            .unwrap_or_else(|| constants::activity_surface::SECTION_GAMES.to_string()),
+    )
 }
 
 fn game_classification(
@@ -228,24 +228,28 @@ fn game_classification(
     foreground: Option<&AppGameForegroundEvidenceRow>,
     launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
     rollup: Option<&ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
-) -> String {
-    rollup
-        .map(|row| row.classification_state.clone())
-        .or_else(|| launcher.map(|row| row.classification_state.clone()))
-        .or_else(|| foreground.map(|row| row.classification_state.clone()))
-        .or_else(|| running.map(|row| row.classification_state.clone()))
-        .or_else(|| inventory.map(|row| row.classification_state.clone()))
-        .unwrap_or_else(|| APP_GAME_CLASSIFICATION_POSSIBLY_GAME.to_string())
+) -> GameText {
+    GameText(
+        rollup
+            .map(|row| row.classification_state.clone())
+            .or_else(|| launcher.map(|row| row.classification_state.clone()))
+            .or_else(|| foreground.map(|row| row.classification_state.clone()))
+            .or_else(|| running.map(|row| row.classification_state.clone()))
+            .or_else(|| inventory.map(|row| row.classification_state.clone()))
+            .unwrap_or_else(|| APP_GAME_CLASSIFICATION_POSSIBLY_GAME.to_string()),
+    )
 }
 
 fn game_product_kind(
     inventory: Option<&AppGameInventoryEvidenceRow>,
     launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
-) -> String {
-    inventory
-        .map(|row| row.product_kind.clone())
-        .or_else(|| launcher.map(|_| APP_GAME_PRODUCT_LAUNCHER.to_string()))
-        .unwrap_or_else(|| APP_GAME_PRODUCT_NATIVE_GAME.to_string())
+) -> GameText {
+    GameText(
+        inventory
+            .map(|row| row.product_kind.clone())
+            .or_else(|| launcher.map(|_| APP_GAME_PRODUCT_LAUNCHER.to_string()))
+            .unwrap_or_else(|| APP_GAME_PRODUCT_NATIVE_GAME.to_string()),
+    )
 }
 
 fn game_last_observed_at(
@@ -253,19 +257,23 @@ fn game_last_observed_at(
     running: Option<&AppGameRuntimeEvidenceRow>,
     foreground: Option<&AppGameForegroundEvidenceRow>,
     launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
-) -> Option<String> {
-    launcher
-        .map(|row| row.observed_at.clone())
-        .or_else(|| foreground.map(|row| row.observed_at.clone()))
-        .or_else(|| running.map(|row| row.observed_at.clone()))
-        .or_else(|| inventory.map(|row| row.observed_at.clone()))
+) -> GameMaybeText {
+    GameMaybeText(
+        launcher
+            .map(|row| row.observed_at.clone())
+            .or_else(|| foreground.map(|row| row.observed_at.clone()))
+            .or_else(|| running.map(|row| row.observed_at.clone()))
+            .or_else(|| inventory.map(|row| row.observed_at.clone())),
+    )
 }
 
 fn game_total_ms(model: &AppGameServiceReadModel) -> u64 {
     model
         .daily_rollups
         .iter()
-        .filter(|rollup| is_game_classification(&rollup.classification_state))
+        .filter(|rollup| {
+            is_game_classification(ClassificationText(rollup.classification_state.clone()))
+        })
         .map(|rollup| rollup.running_duration_ms)
         .sum()
 }
@@ -274,7 +282,9 @@ fn game_session_count(model: &AppGameServiceReadModel) -> u64 {
     model
         .daily_rollups
         .iter()
-        .filter(|rollup| is_game_classification(&rollup.classification_state))
+        .filter(|rollup| {
+            is_game_classification(ClassificationText(rollup.classification_state.clone()))
+        })
         .map(|rollup| rollup.session_count)
         .sum::<u64>()
         .max(model.launcher_returned)
@@ -309,10 +319,39 @@ fn game_evidence(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
     for row in model
         .daily_rollups
         .iter()
-        .filter(|row| is_game_classification(&row.classification_state))
+        .filter(|row| is_game_classification(ClassificationText(row.classification_state.clone())))
     {
         push_evidence(&mut evidence, &row.evidence);
     }
     push_app_game_boundary_evidence(&mut evidence, model);
     evidence
+}
+
+fn game_sources(
+    model: &AppGameServiceReadModel,
+) -> (
+    Option<&AppGameInventoryEvidenceRow>,
+    Option<&AppGameRuntimeEvidenceRow>,
+    Option<&AppGameForegroundEvidenceRow>,
+    Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
+    Option<&ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
+) {
+    (
+        model
+            .inventory_rows
+            .iter()
+            .find(|row| is_game_inventory(row)),
+        model
+            .running_now_rows
+            .iter()
+            .find(|row| is_game_runtime(row)),
+        model
+            .foreground_now_rows
+            .iter()
+            .find(|row| is_game_foreground(row)),
+        model.launcher_rows.first(),
+        model.daily_rollups.iter().find(|rollup| {
+            is_game_classification(ClassificationText(rollup.classification_state.clone()))
+        }),
+    )
 }

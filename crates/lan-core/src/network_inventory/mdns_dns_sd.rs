@@ -111,6 +111,10 @@ pub fn enrich_mdns_dns_sd_devices(
     );
 }
 
+pub fn parse_dns_name(payload: &[u8], offset: usize) -> Option<(String, usize)> {
+    packet::parse_dns_name(payload, offset)
+}
+
 pub fn passive_mdns_dns_sd_summary(payload: &[u8]) -> Option<String> {
     accumulator::passive_mdns_dns_sd_summary(payload)
 }

@@ -1,14 +1,16 @@
 import { expect } from 'vitest';
-import {
-  type AgentLanDiscoveryEvidenceRecord,
-} from '@ocentra-parent/schema-domain/agent-lan-add-device';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { projectPortalLanDiagnosticsViewModel } from '@ocentra-parent/portal-domain/live-activity-lan-add-device';
+import type { ParentLanDiscoveryEvidenceRecordSnapshot } from '../../generated/parent-ui-bridge';
 import { projectLanDiscoverySourceMatrixViewModel } from '../../src/NetworkEvidenceDrawerRoutePanel';
 import { lanNeighborHouseholdDecision } from '../fixtures/activity-ui-lan-pairing-fixtures';
 
 type LanSourceMatrixProjection = NonNullable<ReturnType<typeof projectLanDiscoverySourceMatrixViewModel>>;
 type LanDiagnosticsProjection = NonNullable<ReturnType<typeof projectPortalLanDiagnosticsViewModel>>;
+type LanEvidenceSource = ParentLanDiscoveryEvidenceRecordSnapshot['source'];
+type LanEvidenceKind = ParentLanDiscoveryEvidenceRecordSnapshot['evidenceKind'];
+type LanEvidenceConfidence = ParentLanDiscoveryEvidenceRecordSnapshot['confidence'];
+
+const LAN_SCHEMA_VERSION = 1;
 
 export function expectLanSourceMatrixProjection(): void {
   const projection = requireProjection(
@@ -368,14 +370,14 @@ const LAN_SOURCE_MATRIX_READ_MODEL = {
 } as const;
 
 function lanEvidenceRecord(
-  source: AgentLanDiscoveryEvidenceRecord['source'],
-  evidenceKind: AgentLanDiscoveryEvidenceRecord['evidenceKind'],
+  source: LanEvidenceSource,
+  evidenceKind: LanEvidenceKind,
   value: string,
   mergeKey: string,
-  confidence: AgentLanDiscoveryEvidenceRecord['confidence']
+  confidence: LanEvidenceConfidence
 ) {
   return {
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    schemaVersion: LAN_SCHEMA_VERSION,
     evidenceId: `lan-evidence-${source}-${evidenceKind}-${value.toLowerCase().replace(/[^a-z0-9]/gu, '')}`,
     source,
     evidenceKind,

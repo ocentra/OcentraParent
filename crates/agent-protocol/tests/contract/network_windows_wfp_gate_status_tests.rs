@@ -27,8 +27,7 @@ fn windows_wfp_gate_status_serializes_to_camel_case_contract_shape() {
         ..NetworkWindowsWfpGateStatus::default()
     };
 
-    let serialized = serde_json::to_value(status)
-        .unwrap_or_else(|error| unreachable!("status serializes: {error}"));
+    let serialized = serde_json::to_value(status).expect("status serializes: {error}");
 
     assert_eq!(
         serialized["statusRef"],

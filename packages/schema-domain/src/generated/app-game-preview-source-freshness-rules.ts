@@ -1,5 +1,6 @@
 /* generated from crates/schema/src/app_game_preview_source_freshness.rs */
 
+import { Schema } from '../effect';
 import { AppGamePolicyCompilerOutcomeState, AppGamePolicyTargetKind } from '../app-game-policy-target-compiler-rules';
 import { PolicyDecisionHandoffState } from '../policy-contracts';
 import {
@@ -21,20 +22,37 @@ import {
 } from './app-game-preview-source-freshness-values';
 
 type AppGamePolicyTargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
-type AppGamePolicyPreviewTargetDomainValue = string;
-type AppGamePolicyPreviewStatusValue = string;
+export const AppGamePolicyPreviewTargetDomainSchema = Schema.String;
+export const AppGamePolicyPreviewStatusSchema = Schema.String;
 type AppGamePolicyCompilerOutcomeStateValue =
   (typeof AppGamePolicyCompilerOutcomeState)[keyof typeof AppGamePolicyCompilerOutcomeState];
 type AppGameSourceFreshnessPolicyTargetKindValue = string;
 type AppGameSourceFreshnessRequirementKindValue = string;
 type AppGameSourceFreshnessSourceKindValue = string;
 type AppGameSourceFreshnessReadModelStateValue = string;
-type AppGameSourceFreshnessCapabilityStatusValue = string;
+export const AppGameSourceFreshnessCapabilityStatusSchema = Schema.String;
 type AppGameSourceFreshnessRequirementStateValue = string;
 type AppGameSourceFreshnessReasonCodeValue = string;
-type AppGameSourceFreshnessPreviewGateStatusValue = string;
-type AppGameSourceFreshnessPreviewGateStateValue = string;
-type AppGameSourceGatedPolicyPreviewProjectionStateValue = string;
+export const AppGameSourceFreshnessPreviewGateStatusSchema = Schema.String;
+export const AppGameSourceFreshnessPreviewGateStateSchema = Schema.String;
+export const AppGameSourceGatedPolicyPreviewProjectionStateSchema = Schema.String;
+
+type AppGamePolicyPreviewTargetDomainValue = typeof AppGamePolicyPreviewTargetDomainSchema.Type;
+type AppGamePolicyPreviewStatusValue = typeof AppGamePolicyPreviewStatusSchema.Type;
+type AppGameSourceFreshnessCapabilityStatusValue = typeof AppGameSourceFreshnessCapabilityStatusSchema.Type;
+type AppGameSourceFreshnessPreviewGateStatusValue = typeof AppGameSourceFreshnessPreviewGateStatusSchema.Type;
+type AppGameSourceFreshnessPreviewGateStateValue = typeof AppGameSourceFreshnessPreviewGateStateSchema.Type;
+type AppGameSourceGatedPolicyPreviewProjectionStateValue =
+  typeof AppGameSourceGatedPolicyPreviewProjectionStateSchema.Type;
+
+export const GeneratedAppGamePreviewSourceFreshnessStringSchemas = {
+  targetDomain: AppGamePolicyPreviewTargetDomainSchema,
+  status: AppGamePolicyPreviewStatusSchema,
+  capabilityStatus: AppGameSourceFreshnessCapabilityStatusSchema,
+  previewGateStatus: AppGameSourceFreshnessPreviewGateStatusSchema,
+  previewGateState: AppGameSourceFreshnessPreviewGateStateSchema,
+  projectionState: AppGameSourceGatedPolicyPreviewProjectionStateSchema,
+} as const;
 
 type PreviewRowLike = {
   readonly targetDomain: AppGamePolicyPreviewTargetDomainValue;

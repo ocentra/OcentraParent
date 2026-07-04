@@ -1,6 +1,5 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::SocialDashboardUxSnapshot;
 use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_CAPABILITY_READY;
 use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_CLAIM_NOT_CLAIMED;
@@ -14,17 +13,18 @@ use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_SCHEMA_VERSION;
 use super::social_dashboard_read_model_payload::{
     social_dashboard_read_model_from_service, social_dashboard_read_model_payload,
 };
+#[path = "../support/log_payload.rs"]
+mod log_payload;
+use log_payload::{payload_json, payload_number, payload_text};
 
 #[test]
 fn social_dashboard_payload_reports_seven_honest_service_rows() {
     let read_model = social_dashboard_read_model_from_service();
     let payload = social_dashboard_read_model_payload(&read_model);
-    let read_model_json = string_payload(
+    let decoded: SocialDashboardUxSnapshot = payload_json(
         &payload,
         constants::field::BROWSER_SOCIAL_DASHBOARD_READ_MODEL,
     );
-    let decoded: SocialDashboardUxSnapshot = serde_json::from_str(read_model_json)
-        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(decoded.schema_version, SOCIAL_DASHBOARD_SCHEMA_VERSION);
     assert_eq!(decoded.panels.len(), 7);
@@ -52,32 +52,15 @@ fn social_dashboard_payload_reports_seven_honest_service_rows() {
         SOCIAL_DASHBOARD_CLAIM_NOT_CLAIMED
     );
     assert_eq!(
-        string_payload(&payload, constants::field::CUSTODY_LABEL),
+        payload_text(&payload, constants::field::CUSTODY_LABEL).to_string(),
         SOCIAL_DASHBOARD_CUSTODY_CHILD_DEVICE_QUERY_STORE
     );
     assert_eq!(
-        string_payload(&payload, constants::field::CAPABILITY_STATUS),
+        payload_text(&payload, constants::field::CAPABILITY_STATUS),
         SOCIAL_DASHBOARD_CAPABILITY_READY
     );
     assert_eq!(
-        number_payload(&payload, constants::field::RETURNED),
+        payload_number(&payload, constants::field::RETURNED),
         decoded.panels.len() as f64
     );
-}
-
-fn string_payload<'a>(
-    payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
-    field: &str,
-) -> &'a str {
-    match &payload[field] {
-        LogFieldValue::String(text) => text,
-        _ => std::process::abort(),
-    }
-}
-
-fn number_payload(payload: &ocentra_parent_agent_protocol::logging::LogFields, field: &str) -> f64 {
-    match &payload[field] {
-        LogFieldValue::Number(value) => *value,
-        _ => std::process::abort(),
-    }
 }

@@ -7,7 +7,7 @@ fn app_game_control_authority_serializes_parent_approval_and_action_result_shape
         schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
         authority_id: APP_GAME_TEST_AUTHORITY_ID.to_string(),
         actor: parent_actor(),
-        device: child_device(APP_GAME_PARENT_PLATFORM_WINDOWS),
+        device: child_device_windows(),
         policy_version: APP_GAME_TEST_POLICY_VERSION.to_string(),
         authority_state: APP_GAME_CONTROL_AUTHORITY_ACTIVE.to_string(),
         allowed_policy_kinds: vec![
@@ -23,12 +23,10 @@ fn app_game_control_authority_serializes_parent_approval_and_action_result_shape
     };
     let action_result = approved_action_result();
 
-    let authority_json = serde_json::to_value(authority).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    let result_json = serde_json::to_value(action_result).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let authority_json =
+        serde_json::to_value(authority).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let result_json =
+        serde_json::to_value(action_result).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         authority_json["schemaVersion"],
@@ -66,9 +64,7 @@ fn app_game_platform_authority_matrix_serializes_proof_gated_rows() {
         generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
     };
 
-    let serialized = serde_json::to_value(matrix).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(matrix).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["matrixId"], APP_GAME_TEST_PLATFORM_MATRIX_ID);
     assert_eq!(
@@ -101,29 +97,13 @@ fn app_game_platform_authority_matrix_serializes_proof_gated_rows() {
 
 #[test]
 fn app_game_ai_classifier_result_serializes_evidence_only_policy_handoff() {
-    let candidate = classifier_result(
-        APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_GAME,
-        APP_GAME_AI_CLASSIFIER_CANDIDATE_GAME_CONTEXT,
-        APP_GAME_AI_CLASSIFIER_STATE_CANDIDATE,
-        APP_GAME_AI_CLASSIFIER_FALLBACK_NOT_NEEDED,
-        APP_GAME_AI_CLASSIFIER_HANDOFF_PARENT_REVIEW,
-        0.64,
-    );
-    let unavailable = classifier_result(
-        APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_APP,
-        APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY,
-        APP_GAME_AI_CLASSIFIER_STATE_PROVIDER_UNAVAILABLE,
-        APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE,
-        APP_GAME_AI_CLASSIFIER_HANDOFF_MANUAL_REVIEW,
-        0.0,
-    );
+    let candidate = classifier_result_candidate();
+    let unavailable = classifier_result_unavailable();
 
-    let candidate_json = serde_json::to_value(candidate).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    let unavailable_json = serde_json::to_value(unavailable).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let candidate_json =
+        serde_json::to_value(candidate).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let unavailable_json =
+        serde_json::to_value(unavailable).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(candidate_json["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -202,7 +182,7 @@ fn approval_request() -> AppGameControlApprovalRequest {
         schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
         request_id: APP_GAME_TEST_REQUEST_ID.to_string(),
         policy_kind: APP_GAME_CONTROL_POLICY_KIND_APP.to_string(),
-        device: child_device(APP_GAME_PARENT_PLATFORM_WINDOWS),
+        device: child_device_windows(),
         target: AppGamePolicyTarget {
             target_id: APP_GAME_TEST_TARGET_ID.to_string(),
             target_type: APP_GAME_POLICY_TARGET_TYPE_APP.to_string(),
@@ -268,16 +248,7 @@ fn android_hide_row() -> AppGamePlatformAuthorityRow {
         parent_visible_limitation: APP_GAME_TEST_ANDROID_LIMITATION.to_string(),
         can_execute_adapter: true,
         supported_modes: vec![APP_GAME_ENFORCEMENT_MODE_BLOCK_PROCESS.to_string()],
-        proof_references: vec![
-            proof(
-                APP_GAME_PLATFORM_PROOF_KIND_DEVICE_OWNER,
-                APP_GAME_TEST_DEVICE_OWNER_PROOF_REF,
-            ),
-            proof(
-                APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK,
-                APP_GAME_TEST_ROLLBACK_PROOF_REF,
-            ),
-        ],
+        proof_references: vec![proof_device_owner(), proof_rollback()],
         proof_needed_to_claim: vec![
             APP_GAME_PLATFORM_PROOF_KIND_DEVICE_OWNER.to_string(),
             APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK.to_string(),
@@ -316,32 +287,51 @@ fn windows_manual_block_row() -> AppGamePlatformAuthorityRow {
     }
 }
 
-fn classifier_result(
-    product_kind: &str,
-    candidate_kind: &str,
-    classifier_state: &str,
-    fallback_state: &str,
-    handoff: &str,
-    confidence: f64,
-) -> AppGameAiClassifierResult {
+fn classifier_result_candidate() -> AppGameAiClassifierResult {
     AppGameAiClassifierResult {
         schema_version: APP_GAME_SCHEMA_VERSION,
         classifier_run_id: APP_GAME_TEST_CLASSIFIER_RUN_ID.to_string(),
-        product_kind: product_kind.to_string(),
+        product_kind: APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_GAME.to_string(),
         digest_ref: APP_GAME_TEST_CLASSIFIER_DIGEST_REF.to_string(),
         source_digest_kind: APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY.to_string(),
         source_evidence_refs: vec![APP_GAME_TEST_CLASSIFIER_EVIDENCE_REF.to_string()],
         source_session_refs: vec![APP_GAME_TEST_CLASSIFIER_SESSION_REF.to_string()],
-        candidate_kind: candidate_kind.to_string(),
+        candidate_kind: APP_GAME_AI_CLASSIFIER_CANDIDATE_GAME_CONTEXT.to_string(),
         candidate_label: APP_GAME_TEST_CLASSIFIER_LABEL.to_string(),
-        classifier_state: classifier_state.to_string(),
-        confidence,
+        classifier_state: APP_GAME_AI_CLASSIFIER_STATE_CANDIDATE.to_string(),
+        confidence: 0.64,
         uncertainty_reason_codes: vec![APP_GAME_TEST_CLASSIFIER_REASON_CODE.to_string()],
         model_runtime_ref: APP_GAME_TEST_CLASSIFIER_RUNTIME_REF.to_string(),
         prompt_template_ref: APP_GAME_TEST_CLASSIFIER_PROMPT_REF.to_string(),
         prompt_version: APP_GAME_TEST_CLASSIFIER_PROMPT_REF.to_string(),
-        fallback_state: fallback_state.to_string(),
-        policy_handoff: handoff.to_string(),
+        fallback_state: APP_GAME_AI_CLASSIFIER_FALLBACK_NOT_NEEDED.to_string(),
+        policy_handoff: APP_GAME_AI_CLASSIFIER_HANDOFF_PARENT_REVIEW.to_string(),
+        generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
+        direct_action_requested: false,
+        raw_scan_included: false,
+        content_claim_included: false,
+    }
+}
+
+fn classifier_result_unavailable() -> AppGameAiClassifierResult {
+    AppGameAiClassifierResult {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        classifier_run_id: APP_GAME_TEST_CLASSIFIER_RUN_ID.to_string(),
+        product_kind: APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_APP.to_string(),
+        digest_ref: APP_GAME_TEST_CLASSIFIER_DIGEST_REF.to_string(),
+        source_digest_kind: APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY.to_string(),
+        source_evidence_refs: vec![APP_GAME_TEST_CLASSIFIER_EVIDENCE_REF.to_string()],
+        source_session_refs: vec![APP_GAME_TEST_CLASSIFIER_SESSION_REF.to_string()],
+        candidate_kind: APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY.to_string(),
+        candidate_label: APP_GAME_TEST_CLASSIFIER_LABEL.to_string(),
+        classifier_state: APP_GAME_AI_CLASSIFIER_STATE_PROVIDER_UNAVAILABLE.to_string(),
+        confidence: 0.0,
+        uncertainty_reason_codes: vec![APP_GAME_TEST_CLASSIFIER_REASON_CODE.to_string()],
+        model_runtime_ref: APP_GAME_TEST_CLASSIFIER_RUNTIME_REF.to_string(),
+        prompt_template_ref: APP_GAME_TEST_CLASSIFIER_PROMPT_REF.to_string(),
+        prompt_version: APP_GAME_TEST_CLASSIFIER_PROMPT_REF.to_string(),
+        fallback_state: APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE.to_string(),
+        policy_handoff: APP_GAME_AI_CLASSIFIER_HANDOFF_MANUAL_REVIEW.to_string(),
         generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         direct_action_requested: false,
         raw_scan_included: false,
@@ -370,12 +360,12 @@ fn parent_actor() -> AppGameParentActorReference {
     }
 }
 
-fn child_device(platform: &str) -> AppGameParentDeviceReference {
+fn child_device_windows() -> AppGameParentDeviceReference {
     AppGameParentDeviceReference {
         device_id: APP_GAME_TEST_DEVICE_ID.to_string(),
         child_profile_id: Some(APP_GAME_TEST_CHILD_PROFILE_ID.to_string()),
         label: APP_GAME_TEST_DEVICE_LABEL.to_string(),
-        platform: platform.to_string(),
+        platform: APP_GAME_PARENT_PLATFORM_WINDOWS.to_string(),
     }
 }
 
@@ -387,9 +377,16 @@ fn evidence_ref() -> AppGameParentEvidenceReference {
     }
 }
 
-fn proof(proof_kind: &str, artifact_ref: &str) -> AppGamePlatformProofReference {
+fn proof_device_owner() -> AppGamePlatformProofReference {
     AppGamePlatformProofReference {
-        proof_kind: proof_kind.to_string(),
-        artifact_ref: artifact_ref.to_string(),
+        proof_kind: APP_GAME_PLATFORM_PROOF_KIND_DEVICE_OWNER.to_string(),
+        artifact_ref: APP_GAME_TEST_DEVICE_OWNER_PROOF_REF.to_string(),
+    }
+}
+
+fn proof_rollback() -> AppGamePlatformProofReference {
+    AppGamePlatformProofReference {
+        proof_kind: APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK.to_string(),
+        artifact_ref: APP_GAME_TEST_ROLLBACK_PROOF_REF.to_string(),
     }
 }

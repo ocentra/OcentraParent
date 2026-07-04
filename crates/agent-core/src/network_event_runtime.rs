@@ -1,9 +1,11 @@
 use crate::{
     network_event_runtime_state::{
-        ai_audit_state, evidence_grade, evidence_scope, intervention_state, risk_budget_state,
+        ai_audit_state, evidence_grade, evidence_scope, risk_budget_state,
     },
     NetworkObservation,
 };
+use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
+use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
     envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
@@ -13,11 +15,13 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
-    NetworkInterventionState, NetworkRuntimeClaimBoundary,
+    NetworkInterventionState, NetworkRiskBudgetState, NetworkRuntimeClaimBoundary,
     NetworkRuntimeEventPayload as ProtocolNetworkRuntimeEventPayload, NetworkRuntimePhase,
 };
 
 pub mod broker_delivery;
+#[path = "network_event_runtime/helpers.rs"]
+mod helpers;
 pub mod queue;
 mod refs;
 pub mod remote_delivery_cross_process_custody_readiness;
@@ -56,9 +60,9 @@ pub type NetworkRuntimeEventPayload = ProtocolNetworkRuntimeEventPayload;
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::bus::reports::PublishReport>,
+    pub publish_reports: Vec<PublishReport>,
     pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
+    pub dead_letters: Vec<DeadLetter>,
 }
 
 impl NetworkRuntimeReport {
@@ -80,6 +84,7 @@ fn network_runtime_event_payload_from_observation(
     observed_at: &str,
 ) -> NetworkRuntimeEventPayload {
     let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at);
+    let risk_budget_state = risk_budget_state(observation);
     NetworkRuntimeEventPayload {
         phase,
         capability_status: observation.status.clone(),
@@ -97,8 +102,8 @@ fn network_runtime_event_payload_from_observation(
         evidence_scope: evidence_scope(observation),
         evidence_grade: evidence_grade(observation),
         ai_audit_state: ai_audit_state(phase),
-        risk_budget_state: risk_budget_state(observation),
-        intervention_state: intervention_state(observation),
+        risk_budget_state: risk_budget_state.clone(),
+        intervention_state: helpers::intervention_state_from_budget(&risk_budget_state),
         claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
         previous_phase_ref: chain_refs.previous_phase_ref,
         evidence_ref: chain_refs.evidence_ref,
@@ -112,6 +117,24 @@ fn network_runtime_event_payload_from_observation(
         audit_entry_ref: chain_refs.audit_entry_ref,
         observed_at: observed_at.to_string(),
     }
+}
+
+pub(super) fn should_publish_phase(
+    phase: NetworkRuntimePhase,
+    observation: &NetworkObservation,
+) -> bool {
+    helpers::should_publish_phase(phase, observation)
+}
+
+pub(super) fn network_correlation_id(
+    observation: &NetworkObservation,
+    observed_at: &str,
+) -> String {
+    helpers::network_correlation_id(observation, observed_at)
+}
+
+pub(super) fn network_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
+    helpers::network_aggregate_key(payload)
 }
 
 pub async fn publish_network_runtime_chain_for_observation(
@@ -154,7 +177,7 @@ impl NetworkRuntimeSpine {
         for phase in NetworkRuntimePhase::ordered_chain()
             .iter()
             .copied()
-            .filter(|phase| should_publish_phase(*phase, &observation))
+            .filter(|phase| helpers::should_publish_phase(*phase, &observation))
         {
             let payload =
                 network_runtime_event_payload_from_observation(phase, &observation, observed_at);
@@ -178,24 +201,11 @@ fn network_event_metadata(
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
-        CorrelationId::parse(network_correlation_id(observation, observed_at))?,
+        CorrelationId::parse(helpers::network_correlation_id(observation, observed_at))?,
         network_event_source(phase, observation)?,
         RecordedAt::parse(observed_at)?,
         Some(TargetHandler::parse(target_handler)?),
     ))
-}
-
-fn should_publish_phase(phase: NetworkRuntimePhase, observation: &NetworkObservation) -> bool {
-    match intervention_state(observation) {
-        NetworkInterventionState::DryRunOnly => true,
-        NetworkInterventionState::ManualRequired | NetworkInterventionState::Unavailable => {
-            !matches!(
-                phase,
-                NetworkRuntimePhase::EnforcementCommandIssued
-                    | NetworkRuntimePhase::EnforcementResultObserved
-            )
-        }
-    }
 }
 
 fn network_event_source(
@@ -203,48 +213,10 @@ fn network_event_source(
     observation: &NetworkObservation,
 ) -> Result<EventSource, EventingError> {
     Ok(EventSource::new(
-        event_custody(observation),
+        helpers::event_custody(observation),
         phase.runtime_role(),
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(constants::network_flow::RUNTIME_COMPONENT_NETWORK_SPINE)?,
         RuntimeInstanceId::parse(constants::network_flow::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,
     ))
-}
-
-fn event_custody(observation: &NetworkObservation) -> EventCustody {
-    let value = if observation.status == ActivityCaptureCapabilityStatus::Available {
-        constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE
-    } else {
-        constants::eventing_source::CUSTODY_UNAVAILABLE
-    };
-    match EventCustody::parse(value) {
-        Ok(custody) => custody,
-        Err(_) => std::process::abort(),
-    }
-}
-
-fn network_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
-    let mut value = String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
-    if let Some(domain) = &payload.destination_domain {
-        value.push_str(domain);
-        return value;
-    }
-    if let Some(ip) = &payload.destination_ip {
-        value.push_str(ip);
-        if let Some(port) = payload.destination_port {
-            value.push(constants::delimiter::HYPHEN);
-            value.push_str(&port.to_string());
-        }
-        return value;
-    }
-    value.push_str(payload.capability_status.as_protocol_str());
-    value
-}
-
-fn network_correlation_id(observation: &NetworkObservation, observed_at: &str) -> String {
-    let mut value = String::from(constants::network_flow::CORRELATION_NETWORK_RUNTIME_PREFIX);
-    value.push_str(observation.status.as_protocol_str());
-    value.push(constants::delimiter::HYPHEN);
-    value.push_str(observed_at);
-    value
 }

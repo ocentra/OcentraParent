@@ -1,20 +1,15 @@
-import { AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { ParentAgentEvent as AgentEvent, type ParentRouteEventSnapshot } from '../../generated/parent-ui-bridge';
 
-export function emptyBrowserEvidenceEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+export function emptyBrowserEvidenceEvent(): ParentRouteEventSnapshot {
+  return {
     eventId: 'evt-browser',
     correlationId: 'cmd-browser',
     sentAt: '2026-05-21T01:00:01Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: 'agent.browser.evidence.recent.reported',
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    event: AgentEvent.BrowserEvidenceRecentReported,
     severity: 'info',
     payload: {
       generatedAt: '2026-05-21T01:00:01Z',
@@ -38,28 +33,23 @@ export function emptyBrowserEvidenceEvent() {
       queryVisibility: null,
     },
     snapshot: null,
-  });
+  };
 }
 
-export function unavailableRecentSummaryEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+export function unavailableRecentSummaryEvent(): ParentRouteEventSnapshot {
+  return {
     eventId: 'evt-recent',
     correlationId: 'cmd-recent',
     sentAt: '2026-05-20T18:45:01Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: 'agent.activity.recent.summary.reported',
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    event: AgentEvent.ActivityRecentSummaryReported,
     severity: 'error',
     payload: {
       reason: 'Activity store is unavailable.',
     },
     snapshot: null,
-  });
+  };
 }

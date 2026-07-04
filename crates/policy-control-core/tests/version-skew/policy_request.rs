@@ -14,9 +14,9 @@ use ocentra_policy_control_core::policy_source::{
     PolicySourceActorState, PolicyTargetKind, PolicyTargetReferenceId, PolicyVersion,
 };
 
-fn timestamp(value: &str) -> TestResult<PolicyRequestTimestamp> {
+fn timestamp(value: impl std::fmt::Display) -> TestResult<PolicyRequestTimestamp> {
     Ok(test_ok!(
-        PolicyRequestTimestamp::parse(value),
+        PolicyRequestTimestamp::parse(value.to_string()),
         "policy request timestamp"
     ))
 }

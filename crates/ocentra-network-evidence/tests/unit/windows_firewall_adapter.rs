@@ -1,13 +1,7 @@
-use crate::{
-    map_network_evidence_grade_to_policy, plan_network_windows_firewall_adapter_proof,
-    NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
-    NetworkEvidencePolicyMappingInput, NetworkWindowsFirewallAdapterAction,
-    NetworkWindowsFirewallAdapterProofError, NetworkWindowsFirewallAdapterProofInput,
-    NetworkWindowsFirewallBoundaryReason, NetworkWindowsFirewallCapabilityState,
-    NetworkWindowsFirewallProofState, NetworkWindowsFirewallRequiredArtifact,
-    NetworkWindowsFirewallTargetKind,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::policy::*;
+use ocentra_network_evidence::windows_firewall_adapter::*;
 
 #[test]
 fn windows_firewall_adapter_allows_apply_ready_with_policy_capability_artifacts_and_audit_refs() {

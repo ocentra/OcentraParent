@@ -1,9 +1,9 @@
-use crate::{
-    detect_encrypted_dns_candidate, detect_quic_http3_limitation, http_host_request_fixture,
-    parse_http_host, parse_tls_client_hello_sni, quic_initial_payload_fixture,
-    tls_client_hello_no_sni_fixture, tls_client_hello_sni_fixture, EncryptedDnsProtocol,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::encrypted_dns::*;
+use ocentra_network_evidence::fixtures::visibility::*;
+use ocentra_network_evidence::http::*;
+use ocentra_network_evidence::tls::*;
 
 #[test]
 fn tls_parser_extracts_visible_sni_without_content_claims() {

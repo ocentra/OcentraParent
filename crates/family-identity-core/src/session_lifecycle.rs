@@ -169,45 +169,8 @@ pub struct SessionCredentialIssuanceDecision {
 }
 
 pub fn authorize_session_token_action(input: SessionTokenInput) -> SessionTokenDecision {
-    if input.replay_state != TokenReplayState::Fresh {
-        return rejected(input.action, SessionTokenFailureReason::TokenReplayRejected);
-    }
-
-    match input.validity_window_state {
-        TokenValidityWindowState::Valid
-        | TokenValidityWindowState::ValidWithinClockSkewTolerance => {}
-        TokenValidityWindowState::Expired => {
-            return rejected(input.action, SessionTokenFailureReason::TokenExpired);
-        }
-        TokenValidityWindowState::NotYetValid => {
-            return rejected(input.action, SessionTokenFailureReason::TokenNotYetValid);
-        }
-    }
-
-    match input.activity_state {
-        SessionActivityState::Active => {}
-        SessionActivityState::LoggedOut => {
-            return rejected(input.action, SessionTokenFailureReason::SessionLoggedOut);
-        }
-        SessionActivityState::Revoked => {
-            return rejected(input.action, SessionTokenFailureReason::SessionRevoked);
-        }
-        SessionActivityState::GloballyRevoked => {
-            return rejected(
-                input.action,
-                SessionTokenFailureReason::SessionGloballyRevoked,
-            );
-        }
-    }
-
-    if requires_fresh_session(input.action)
-        && input.session_freshness_state != SessionFreshnessState::Fresh
-    {
-        return rejected(input.action, SessionTokenFailureReason::SessionNotFresh);
-    }
-
-    if !credential_kind_matches_action(input.credential_kind, input.action) {
-        return rejected(input.action, SessionTokenFailureReason::WrongCredentialKind);
+    if let Some(failure_reason) = session_token_failure_reason(&input) {
+        return rejected(input.action, failure_reason);
     }
 
     SessionTokenDecision {
@@ -221,11 +184,8 @@ pub fn authorize_session_token_action(input: SessionTokenInput) -> SessionTokenD
 pub fn authorize_session_credential_issuance(
     input: SessionCredentialIssuanceInput,
 ) -> SessionCredentialIssuanceDecision {
-    if !credential_kind_matches_issuance_action(input.issued_credential_kind, input.issuance_action)
-    {
-        return rejected_session_credential_issuance(
-            SessionTokenFailureReason::WrongCredentialKind,
-        );
+    if let Some(failure_reason) = session_credential_issuance_failure_reason(&input) {
+        return rejected_session_credential_issuance(failure_reason);
     }
 
     if input.issuance_action == SessionCredentialIssuanceAction::CreateBrowserSession {
@@ -237,15 +197,9 @@ pub fn authorize_session_credential_issuance(
         };
     }
 
-    let source_session = match input.source_session {
-        Some(source_session) => source_session,
-        None => {
-            return rejected_session_credential_issuance(
-                SessionTokenFailureReason::SessionLoggedOut,
-            );
-        }
-    };
-
+    let source_session = input
+        .source_session
+        .expect("session credential issuance source session is validated");
     let source_session_decision = authorize_session_token_action(SessionTokenInput {
         action: source_session_action_for_issuance(input.issuance_action),
         ..source_session
@@ -290,6 +244,75 @@ fn rejected_session_credential_issuance(
         audit_redaction_state: TokenAuditRedactionState::Redacted,
         failure_reason: Some(failure_reason),
     }
+}
+
+fn session_token_failure_reason(input: &SessionTokenInput) -> Option<SessionTokenFailureReason> {
+    [
+        (
+            input.replay_state != TokenReplayState::Fresh,
+            SessionTokenFailureReason::TokenReplayRejected,
+        ),
+        (
+            matches!(
+                input.validity_window_state,
+                TokenValidityWindowState::Expired
+            ),
+            SessionTokenFailureReason::TokenExpired,
+        ),
+        (
+            matches!(
+                input.validity_window_state,
+                TokenValidityWindowState::NotYetValid
+            ),
+            SessionTokenFailureReason::TokenNotYetValid,
+        ),
+        (
+            matches!(input.activity_state, SessionActivityState::LoggedOut),
+            SessionTokenFailureReason::SessionLoggedOut,
+        ),
+        (
+            matches!(input.activity_state, SessionActivityState::Revoked),
+            SessionTokenFailureReason::SessionRevoked,
+        ),
+        (
+            matches!(input.activity_state, SessionActivityState::GloballyRevoked),
+            SessionTokenFailureReason::SessionGloballyRevoked,
+        ),
+        (
+            requires_fresh_session(input.action)
+                && input.session_freshness_state != SessionFreshnessState::Fresh,
+            SessionTokenFailureReason::SessionNotFresh,
+        ),
+        (
+            !credential_kind_matches_action(input.credential_kind, input.action),
+            SessionTokenFailureReason::WrongCredentialKind,
+        ),
+    ]
+    .into_iter()
+    .find_map(|(failed, reason)| failed.then_some(reason))
+}
+
+fn session_credential_issuance_failure_reason(
+    input: &SessionCredentialIssuanceInput,
+) -> Option<SessionTokenFailureReason> {
+    if !credential_kind_matches_issuance_action(input.issued_credential_kind, input.issuance_action)
+    {
+        return Some(SessionTokenFailureReason::WrongCredentialKind);
+    }
+
+    if input.issuance_action == SessionCredentialIssuanceAction::CreateBrowserSession {
+        return None;
+    }
+
+    let Some(source_session) = input.source_session else {
+        return Some(SessionTokenFailureReason::SessionLoggedOut);
+    };
+
+    authorize_session_token_action(SessionTokenInput {
+        action: source_session_action_for_issuance(input.issuance_action),
+        ..source_session
+    })
+    .failure_reason
 }
 
 fn credential_kind_matches_action(

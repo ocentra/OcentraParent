@@ -18,7 +18,7 @@ Purpose: enumerate the proof families and the validation shape expected for each
 
 ## Current real validation owners
 
-- Plan-local `test/device-trust-bootstrap-plan/` currently proves document and route alignment.
+- Plan-local `tests/device-trust-bootstrap-plan/` currently proves document and route alignment.
 - `packages/family-domain` currently owns the strongest real typed coverage for trust-adjacent authority and recovery.
 - `packages/lan-domain` plus Rust LAN pairing tests currently own the strongest real typed coverage for trusted-device registry, selection, route recovery, and explicit manual-proof gaps.
 - `packages/parent-domain` is not a reliable proof owner for this slice until the current re-export architecture violations are resolved.

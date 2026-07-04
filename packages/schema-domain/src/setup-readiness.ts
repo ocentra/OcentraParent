@@ -113,6 +113,44 @@ export const SetupChildInstallJourneyStageLiteral = {
   Paired: 'paired',
 } as const;
 
+const SetupChildServiceChecklistStateByState = {
+  [SetupChildServiceStateLiteral.NotStarted]: SetupReadinessChecklistItemStateLiteral.ActionRequired,
+  [SetupChildServiceStateLiteral.ServiceStarted]: SetupReadinessChecklistItemStateLiteral.Complete,
+  [SetupChildServiceStateLiteral.Offline]: SetupReadinessChecklistItemStateLiteral.Degraded,
+  [SetupChildServiceStateLiteral.Revoked]: SetupReadinessChecklistItemStateLiteral.ActionRequired,
+} as const satisfies Record<
+  SetupChildServiceState,
+  (typeof SetupReadinessChecklistItemStateLiteral)[keyof typeof SetupReadinessChecklistItemStateLiteral]
+>;
+
+const SetupDataCustodySyncChecklistStateByState = {
+  [SetupDataCustodySyncStateLiteral.Synced]: SetupReadinessChecklistItemStateLiteral.Complete,
+  [SetupDataCustodySyncStateLiteral.SyncPending]: SetupReadinessChecklistItemStateLiteral.Degraded,
+  [SetupDataCustodySyncStateLiteral.Blocked]: SetupReadinessChecklistItemStateLiteral.ActionRequired,
+} as const satisfies Record<
+  SetupDataCustodySyncState,
+  (typeof SetupReadinessChecklistItemStateLiteral)[keyof typeof SetupReadinessChecklistItemStateLiteral]
+>;
+
+const SetupNetworkChecklistStateByState = {
+  [SetupNetworkReachabilityStateLiteral.Reachable]: SetupReadinessChecklistItemStateLiteral.Complete,
+  [SetupNetworkReachabilityStateLiteral.OfflineChild]: SetupReadinessChecklistItemStateLiteral.Degraded,
+  [SetupNetworkReachabilityStateLiteral.LanUnavailable]: SetupReadinessChecklistItemStateLiteral.ActionRequired,
+  [SetupNetworkReachabilityStateLiteral.DirectEntryRequired]: SetupReadinessChecklistItemStateLiteral.ActionRequired,
+} as const satisfies Record<
+  SetupNetworkReachabilityState,
+  (typeof SetupReadinessChecklistItemStateLiteral)[keyof typeof SetupReadinessChecklistItemStateLiteral]
+>;
+
+const SetupOverallChecklistStateByState = {
+  [SetupReadinessOverallStateLiteral.Ready]: SetupReadinessChecklistItemStateLiteral.Complete,
+  [SetupReadinessOverallStateLiteral.Degraded]: SetupReadinessChecklistItemStateLiteral.Degraded,
+  [SetupReadinessOverallStateLiteral.Blocked]: SetupReadinessChecklistItemStateLiteral.ActionRequired,
+} as const satisfies Record<
+  SetupReadinessOverallState,
+  (typeof SetupReadinessChecklistItemStateLiteral)[keyof typeof SetupReadinessChecklistItemStateLiteral]
+>;
+
 export const SetupAccountReadinessStateSchema = withParser(
   Schema.Literal(
     SetupAccountReadinessStateLiteral.Ready,
@@ -469,39 +507,19 @@ function isSetupPairingReady(state: SetupPairingState): boolean {
 }
 
 function setupChildServiceChecklistState(state: SetupChildServiceState): SetupReadinessChecklistItemState {
-  if (state === SetupChildServiceState.ServiceStarted) {
-    return SetupReadinessChecklistItemState.Complete;
-  }
-  return state === SetupChildServiceState.Offline
-    ? SetupReadinessChecklistItemState.Degraded
-    : SetupReadinessChecklistItemState.ActionRequired;
+  return SetupChildServiceChecklistStateByState[state];
 }
 
 function setupCustodySyncChecklistState(state: SetupDataCustodySyncState): SetupReadinessChecklistItemState {
-  if (state === SetupDataCustodySyncState.Synced) {
-    return SetupReadinessChecklistItemState.Complete;
-  }
-  return state === SetupDataCustodySyncState.SyncPending
-    ? SetupReadinessChecklistItemState.Degraded
-    : SetupReadinessChecklistItemState.ActionRequired;
+  return SetupDataCustodySyncChecklistStateByState[state];
 }
 
 function setupNetworkChecklistState(state: SetupNetworkReachabilityState): SetupReadinessChecklistItemState {
-  if (state === SetupNetworkReachabilityState.Reachable) {
-    return SetupReadinessChecklistItemState.Complete;
-  }
-  return state === SetupNetworkReachabilityState.OfflineChild
-    ? SetupReadinessChecklistItemState.Degraded
-    : SetupReadinessChecklistItemState.ActionRequired;
+  return SetupNetworkChecklistStateByState[state];
 }
 
 function setupOverallChecklistState(state: SetupReadinessOverallState): SetupReadinessChecklistItemState {
-  if (state === SetupReadinessOverallState.Ready) {
-    return SetupReadinessChecklistItemState.Complete;
-  }
-  return state === SetupReadinessOverallState.Degraded
-    ? SetupReadinessChecklistItemState.Degraded
-    : SetupReadinessChecklistItemState.ActionRequired;
+  return SetupOverallChecklistStateByState[state];
 }
 
 function createSetupReadinessCoreChecklistItems(

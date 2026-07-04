@@ -4,8 +4,6 @@ import {
   BillingReferralInviteResultSchema,
   BillingReferralSummarySchema,
   type BillingReferralSummary,
-} from '../../../../packages/billing-domain/src/billing-referral-boundary.js';
-import {
   BillingSupportAdminAccountsResponseSchema,
   type BillingSupportAdminAccountsResponse,
   BillingSupportAdminAuditEventsResponseSchema,
@@ -13,11 +11,9 @@ import {
   BillingSupportAdminDisputesResponseSchema,
   BillingSupportAdminInvoicesResponseSchema,
   BillingSupportAdminReferralsResponseSchema,
-} from '../../../../packages/billing-domain/src/billing-support-admin-api-boundary.js';
-import {
   BillingSupportAdminReconciliationSummarySchema,
   BillingSupportAdminRefundResultSchema,
-} from '../../../../packages/billing-domain/src/billing-support-admin-runtime-boundary.js';
+} from '../../src/generated/billing-contracts.js';
 import { createTestHarness, executeRequest, readJson } from '../../src/testing.js';
 
 interface BillingInvoicesResponse {

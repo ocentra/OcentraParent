@@ -1,3 +1,10 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
+use std::path::{Path as TestPath, PathBuf as TestPathBuf};
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
+
 use ocentra_parent_agent_protocol::browser_policy_sections::BrowserPolicyRuleActionPlan;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -166,13 +173,17 @@ fn browser_policy_compiler_direct_smoke_links_assessment_and_registry_helpers() 
     let effective_policy = require_ok(
         crate::browser_policy_compiler::compile_browser_policy(
             &policy,
-            constants::browser_policy::REVISION_ID,
-            constants::browser_policy::TEST_SENT_AT,
+            crate::browser_policy_compiler::BrowserPolicyCompileRequest {
+                revision_id: constants::browser_policy::REVISION_ID,
+                compiled_at: constants::browser_policy::TEST_SENT_AT,
+            },
         ),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
     let capability_registry = crate::browser_policy_compiler::browser_policy_capability_registry(
-        constants::browser_policy::TEST_SENT_AT,
+        crate::browser_policy_compiler::BrowserPolicyCapabilityRegistryRequest {
+            generated_at: constants::browser_policy::TEST_SENT_AT,
+        },
     );
     let assessment = crate::browser_policy_compiler_assessment::compile_rule_assessment(
         &policy,
@@ -289,7 +300,7 @@ fn social_target_case(target_type: BrowserPolicyUrlTargetType) -> CompilerTarget
 
 fn policy_for_target_case(target_case: CompilerTargetCase) -> BrowserPolicyValue {
     let mut policy =
-        default_browser_policy_for_test(constants::browser_policy::POLICY_ID.to_string());
+        default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
     policy.enabled = true;
     policy.execution_mode = BrowserPolicyExecutionMode::Enforce;
     policy.default_posture = BrowserPolicyDefaultPosture::Warn;
@@ -442,21 +453,25 @@ where
     }
 }
 
-fn serialize_test_json<T>(value: &T) -> String
+fn serialize_test_json<T>(value: &T) -> TestString
 where
     T: serde::Serialize + ?Sized,
 {
     crate::test_invariants::serialize_test_json(value)
 }
 
-fn parse_test_json<T>(text: &str) -> T
+fn parse_test_json<T>(text: TestText) -> T
 where
     T: serde::de::DeserializeOwned,
 {
-    crate::test_invariants::require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
+    crate::test_invariants::require_json_decode(
+        text.as_ref().as_bytes(),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
 }
 
-fn temp_policy_store_path(store_path_suffix: &str) -> std::path::PathBuf {
+fn temp_policy_store_path(store_path_suffix: TestText) -> TestPathBuf {
+    let store_path_suffix = store_path_suffix.as_ref();
     let millis = require_ok(
         std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH),
         constants::error::AGENT_EVENT_SERIALIZES,

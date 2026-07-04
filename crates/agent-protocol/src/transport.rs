@@ -22,9 +22,9 @@ pub const AGENT_TRANSPORT_SCHEMA_VERSION: u16 = crate::AGENT_PROTOCOL_SCHEMA_VER
 
 #[derive(Clone, Debug)]
 pub struct ParentChildRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::bus::reports::PublishReport>,
+    pub publish_reports: Vec<ocentra_eventing::bus::reports::handler::PublishReport>,
     pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
+    pub dead_letters: Vec<ocentra_eventing::bus::reports::dead_letter::DeadLetter>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -648,6 +648,82 @@ const PARENT_CHILD_RUNTIME_PHASES: [ParentChildRuntimePhase; 9] = [
     ParentChildRuntimePhase::ParentReadModelProjected,
 ];
 
+const PARENT_CHILD_RUNTIME_PHASE_EVENT_TYPES: [&str; 9] = [
+    crate::constants::parent_controller::EVENT_PARENT_ACTION_RECEIVED,
+    crate::constants::parent_controller::EVENT_COMMAND_VALIDATED,
+    crate::constants::parent_controller::EVENT_CHILD_COMMAND_FORWARD_REQUESTED,
+    crate::constants::parent_controller::EVENT_CHILD_COMMAND_FORWARDED,
+    crate::constants::child_agent::EVENT_COMMAND_RECEIVED,
+    crate::constants::child_agent::EVENT_COMMAND_ACCEPTED,
+    crate::constants::child_agent::EVENT_CAPABILITY_STATE_UPDATED,
+    crate::constants::child_agent::EVENT_RUNTIME_HEALTH_UPDATED,
+    crate::constants::parent_controller::EVENT_READ_MODEL_PROJECTED,
+];
+
+const PARENT_CHILD_RUNTIME_PHASE_SCHEMA_VERSIONS: [u16; 9] = [
+    crate::constants::parent_controller::EVENT_SCHEMA_VERSION,
+    crate::constants::parent_controller::EVENT_SCHEMA_VERSION,
+    crate::constants::parent_controller::EVENT_SCHEMA_VERSION,
+    crate::constants::parent_controller::EVENT_SCHEMA_VERSION,
+    crate::constants::child_agent::EVENT_SCHEMA_VERSION,
+    crate::constants::child_agent::EVENT_SCHEMA_VERSION,
+    crate::constants::child_agent::EVENT_SCHEMA_VERSION,
+    crate::constants::child_agent::EVENT_SCHEMA_VERSION,
+    crate::constants::parent_controller::EVENT_SCHEMA_VERSION,
+];
+
+const PARENT_CHILD_RUNTIME_PHASE_SUBSCRIBER_IDS: [&str; 9] = [
+    crate::constants::parent_controller::SUBSCRIBER_PARENT_ACTION_VALIDATOR,
+    crate::constants::parent_controller::SUBSCRIBER_PARENT_COMMAND_VALIDATOR,
+    crate::constants::parent_controller::SUBSCRIBER_PARENT_CHILD_TRANSPORT,
+    crate::constants::parent_controller::SUBSCRIBER_PARENT_CHILD_TRANSPORT,
+    crate::constants::child_agent::SUBSCRIBER_CHILD_COMMAND_RECEIVER,
+    crate::constants::child_agent::SUBSCRIBER_CHILD_COMMAND_DECIDER,
+    crate::constants::child_agent::SUBSCRIBER_CHILD_CAPABILITY_PROJECTOR,
+    crate::constants::child_agent::SUBSCRIBER_CHILD_HEALTH_PROJECTOR,
+    crate::constants::parent_controller::SUBSCRIBER_PARENT_READ_MODEL_PROJECTOR,
+];
+
+const PARENT_CHILD_RUNTIME_PHASE_TARGET_HANDLERS: [&str; 9] = [
+    crate::constants::parent_controller::TARGET_PARENT_ACTION_VALIDATOR,
+    crate::constants::parent_controller::TARGET_PARENT_COMMAND_VALIDATOR,
+    crate::constants::parent_controller::TARGET_PARENT_CHILD_TRANSPORT,
+    crate::constants::parent_controller::TARGET_PARENT_CHILD_TRANSPORT,
+    crate::constants::child_agent::TARGET_CHILD_COMMAND_RECEIVER,
+    crate::constants::child_agent::TARGET_CHILD_COMMAND_DECIDER,
+    crate::constants::child_agent::TARGET_CHILD_CAPABILITY_PROJECTOR,
+    crate::constants::child_agent::TARGET_CHILD_HEALTH_PROJECTOR,
+    crate::constants::parent_controller::TARGET_PARENT_READ_MODEL_PROJECTOR,
+];
+
+const PARENT_CHILD_RUNTIME_PHASE_RUNTIME_ROLES: [&str; 9] = [
+    crate::constants::eventing_source::ROLE_CONTROLLER,
+    crate::constants::eventing_source::ROLE_CONTROLLER,
+    crate::constants::eventing_source::ROLE_CONTROLLER,
+    crate::constants::eventing_source::ROLE_CONTROLLER,
+    crate::constants::eventing_source::ROLE_AGENT,
+    crate::constants::eventing_source::ROLE_AGENT,
+    crate::constants::eventing_source::ROLE_AGENT,
+    crate::constants::eventing_source::ROLE_AGENT,
+    crate::constants::eventing_source::ROLE_READ_MODEL,
+];
+
+const PARENT_CHILD_RUNTIME_PHASE_CUSTODY: [&str; 9] = [
+    crate::constants::eventing_source::CUSTODY_COORDINATOR_CACHE,
+    crate::constants::eventing_source::CUSTODY_COORDINATOR_CACHE,
+    crate::constants::eventing_source::CUSTODY_COORDINATOR_CACHE,
+    crate::constants::eventing_source::CUSTODY_COORDINATOR_CACHE,
+    crate::constants::eventing_source::CUSTODY_LOCAL_JOURNAL,
+    crate::constants::eventing_source::CUSTODY_LOCAL_JOURNAL,
+    crate::constants::eventing_source::CUSTODY_LOCAL_JOURNAL,
+    crate::constants::eventing_source::CUSTODY_LOCAL_JOURNAL,
+    crate::constants::eventing_source::CUSTODY_COORDINATOR_CACHE,
+];
+
+const PARENT_CHILD_RUNTIME_PHASE_CHILD_AGENT_FLAGS: [bool; 9] =
+    [false, false, false, false, true, true, true, true, false];
+
+#[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentChildRuntimePhase {
     ParentActionReceived,
@@ -667,133 +743,33 @@ impl ParentChildRuntimePhase {
     }
 
     pub fn event_type(self) -> &'static str {
-        match self {
-            Self::ParentActionReceived => {
-                crate::constants::parent_controller::EVENT_PARENT_ACTION_RECEIVED
-            }
-            Self::ParentCommandValidated => {
-                crate::constants::parent_controller::EVENT_COMMAND_VALIDATED
-            }
-            Self::ParentChildCommandForwardRequested => {
-                crate::constants::parent_controller::EVENT_CHILD_COMMAND_FORWARD_REQUESTED
-            }
-            Self::ParentChildCommandForwarded => {
-                crate::constants::parent_controller::EVENT_CHILD_COMMAND_FORWARDED
-            }
-            Self::ChildCommandReceived => crate::constants::child_agent::EVENT_COMMAND_RECEIVED,
-            Self::ChildCommandAccepted => crate::constants::child_agent::EVENT_COMMAND_ACCEPTED,
-            Self::ChildCapabilityStateUpdated => {
-                crate::constants::child_agent::EVENT_CAPABILITY_STATE_UPDATED
-            }
-            Self::ChildRuntimeHealthUpdated => {
-                crate::constants::child_agent::EVENT_RUNTIME_HEALTH_UPDATED
-            }
-            Self::ParentReadModelProjected => {
-                crate::constants::parent_controller::EVENT_READ_MODEL_PROJECTED
-            }
-        }
+        PARENT_CHILD_RUNTIME_PHASE_EVENT_TYPES[self as usize]
     }
 
     pub fn schema_version(self) -> u16 {
-        if self.is_child_agent_phase() {
-            crate::constants::child_agent::EVENT_SCHEMA_VERSION
-        } else {
-            crate::constants::parent_controller::EVENT_SCHEMA_VERSION
-        }
+        PARENT_CHILD_RUNTIME_PHASE_SCHEMA_VERSIONS[self as usize]
     }
 
     pub fn subscriber_id(self) -> &'static str {
-        match self {
-            Self::ParentActionReceived => {
-                crate::constants::parent_controller::SUBSCRIBER_PARENT_ACTION_VALIDATOR
-            }
-            Self::ParentCommandValidated => {
-                crate::constants::parent_controller::SUBSCRIBER_PARENT_COMMAND_VALIDATOR
-            }
-            Self::ParentChildCommandForwardRequested | Self::ParentChildCommandForwarded => {
-                crate::constants::parent_controller::SUBSCRIBER_PARENT_CHILD_TRANSPORT
-            }
-            Self::ChildCommandReceived => {
-                crate::constants::child_agent::SUBSCRIBER_CHILD_COMMAND_RECEIVER
-            }
-            Self::ChildCommandAccepted => {
-                crate::constants::child_agent::SUBSCRIBER_CHILD_COMMAND_DECIDER
-            }
-            Self::ChildCapabilityStateUpdated => {
-                crate::constants::child_agent::SUBSCRIBER_CHILD_CAPABILITY_PROJECTOR
-            }
-            Self::ChildRuntimeHealthUpdated => {
-                crate::constants::child_agent::SUBSCRIBER_CHILD_HEALTH_PROJECTOR
-            }
-            Self::ParentReadModelProjected => {
-                crate::constants::parent_controller::SUBSCRIBER_PARENT_READ_MODEL_PROJECTOR
-            }
-        }
+        PARENT_CHILD_RUNTIME_PHASE_SUBSCRIBER_IDS[self as usize]
     }
 
     pub fn target_handler(self) -> &'static str {
-        match self {
-            Self::ParentActionReceived => {
-                crate::constants::parent_controller::TARGET_PARENT_ACTION_VALIDATOR
-            }
-            Self::ParentCommandValidated => {
-                crate::constants::parent_controller::TARGET_PARENT_COMMAND_VALIDATOR
-            }
-            Self::ParentChildCommandForwardRequested | Self::ParentChildCommandForwarded => {
-                crate::constants::parent_controller::TARGET_PARENT_CHILD_TRANSPORT
-            }
-            Self::ChildCommandReceived => {
-                crate::constants::child_agent::TARGET_CHILD_COMMAND_RECEIVER
-            }
-            Self::ChildCommandAccepted => {
-                crate::constants::child_agent::TARGET_CHILD_COMMAND_DECIDER
-            }
-            Self::ChildCapabilityStateUpdated => {
-                crate::constants::child_agent::TARGET_CHILD_CAPABILITY_PROJECTOR
-            }
-            Self::ChildRuntimeHealthUpdated => {
-                crate::constants::child_agent::TARGET_CHILD_HEALTH_PROJECTOR
-            }
-            Self::ParentReadModelProjected => {
-                crate::constants::parent_controller::TARGET_PARENT_READ_MODEL_PROJECTOR
-            }
-        }
+        PARENT_CHILD_RUNTIME_PHASE_TARGET_HANDLERS[self as usize]
     }
 
     pub fn runtime_role(self) -> RuntimeRole {
-        let value = if self.is_child_agent_phase() {
-            crate::constants::eventing_source::ROLE_AGENT
-        } else if self == Self::ParentReadModelProjected {
-            crate::constants::eventing_source::ROLE_READ_MODEL
-        } else {
-            crate::constants::eventing_source::ROLE_CONTROLLER
-        };
-        match RuntimeRole::parse(value) {
-            Ok(role) => role,
-            Err(_) => std::process::abort(),
-        }
+        RuntimeRole::parse(PARENT_CHILD_RUNTIME_PHASE_RUNTIME_ROLES[self as usize])
+            .expect("parent child runtime phase role is a valid runtime role")
     }
 
     pub fn custody(self) -> EventCustody {
-        let value = if self.is_child_agent_phase() {
-            crate::constants::eventing_source::CUSTODY_LOCAL_JOURNAL
-        } else {
-            crate::constants::eventing_source::CUSTODY_COORDINATOR_CACHE
-        };
-        match EventCustody::parse(value) {
-            Ok(custody) => custody,
-            Err(_) => std::process::abort(),
-        }
+        EventCustody::parse(PARENT_CHILD_RUNTIME_PHASE_CUSTODY[self as usize])
+            .expect("parent child runtime phase custody is a valid event custody")
     }
 
     pub fn is_child_agent_phase(self) -> bool {
-        matches!(
-            self,
-            Self::ChildCommandReceived
-                | Self::ChildCommandAccepted
-                | Self::ChildCapabilityStateUpdated
-                | Self::ChildRuntimeHealthUpdated
-        )
+        PARENT_CHILD_RUNTIME_PHASE_CHILD_AGENT_FLAGS[self as usize]
     }
 }
 
@@ -811,40 +787,53 @@ pub enum ParentChildRuntimeEventPayload {
 }
 
 impl ParentChildRuntimeEventPayload {
-    pub fn phase(&self) -> ParentChildRuntimePhase {
+    fn parts(&self) -> (ParentChildRuntimePhase, &str) {
         match self {
-            Self::ParentActionReceived(_) => ParentChildRuntimePhase::ParentActionReceived,
-            Self::ParentCommandValidated(_) => ParentChildRuntimePhase::ParentCommandValidated,
-            Self::ParentChildCommandForwardRequested(_) => {
-                ParentChildRuntimePhase::ParentChildCommandForwardRequested
-            }
-            Self::ParentChildCommandForwarded(_) => {
-                ParentChildRuntimePhase::ParentChildCommandForwarded
-            }
-            Self::ChildCommandReceived(_) => ParentChildRuntimePhase::ChildCommandReceived,
-            Self::ChildCommandAccepted(_) => ParentChildRuntimePhase::ChildCommandAccepted,
-            Self::ChildCapabilityStateUpdated(_) => {
-                ParentChildRuntimePhase::ChildCapabilityStateUpdated
-            }
-            Self::ChildRuntimeHealthUpdated(_) => {
-                ParentChildRuntimePhase::ChildRuntimeHealthUpdated
-            }
-            Self::ParentReadModelProjected(_) => ParentChildRuntimePhase::ParentReadModelProjected,
+            Self::ParentActionReceived(event) => (
+                ParentChildRuntimePhase::ParentActionReceived,
+                &event.parent_action_event_ref,
+            ),
+            Self::ParentCommandValidated(event) => (
+                ParentChildRuntimePhase::ParentCommandValidated,
+                &event.command_validated_event_ref,
+            ),
+            Self::ParentChildCommandForwardRequested(event) => (
+                ParentChildRuntimePhase::ParentChildCommandForwardRequested,
+                &event.forward_requested_event_ref,
+            ),
+            Self::ParentChildCommandForwarded(event) => (
+                ParentChildRuntimePhase::ParentChildCommandForwarded,
+                &event.forwarded_event_ref,
+            ),
+            Self::ChildCommandReceived(event) => (
+                ParentChildRuntimePhase::ChildCommandReceived,
+                &event.command_received_event_ref,
+            ),
+            Self::ChildCommandAccepted(event) => (
+                ParentChildRuntimePhase::ChildCommandAccepted,
+                &event.command_accepted_event_ref,
+            ),
+            Self::ChildCapabilityStateUpdated(event) => (
+                ParentChildRuntimePhase::ChildCapabilityStateUpdated,
+                &event.capability_state_event_ref,
+            ),
+            Self::ChildRuntimeHealthUpdated(event) => (
+                ParentChildRuntimePhase::ChildRuntimeHealthUpdated,
+                &event.runtime_health_event_ref,
+            ),
+            Self::ParentReadModelProjected(event) => (
+                ParentChildRuntimePhase::ParentReadModelProjected,
+                &event.read_model_projected_event_ref,
+            ),
         }
     }
 
+    pub fn phase(&self) -> ParentChildRuntimePhase {
+        self.parts().0
+    }
+
     pub fn event_ref(&self) -> &str {
-        match self {
-            Self::ParentActionReceived(event) => &event.parent_action_event_ref,
-            Self::ParentCommandValidated(event) => &event.command_validated_event_ref,
-            Self::ParentChildCommandForwardRequested(event) => &event.forward_requested_event_ref,
-            Self::ParentChildCommandForwarded(event) => &event.forwarded_event_ref,
-            Self::ChildCommandReceived(event) => &event.command_received_event_ref,
-            Self::ChildCommandAccepted(event) => &event.command_accepted_event_ref,
-            Self::ChildCapabilityStateUpdated(event) => &event.capability_state_event_ref,
-            Self::ChildRuntimeHealthUpdated(event) => &event.runtime_health_event_ref,
-            Self::ParentReadModelProjected(event) => &event.read_model_projected_event_ref,
-        }
+        self.parts().1
     }
 }
 

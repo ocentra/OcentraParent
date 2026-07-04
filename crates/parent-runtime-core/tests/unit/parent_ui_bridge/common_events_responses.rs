@@ -1,4 +1,15 @@
 use super::super::super::*;
+
+const SCREEN_SETTINGS_STATUS_ACCEPTED: &str = "accepted";
+
+pub(crate) struct PayloadText(pub(crate) String);
+
+macro_rules! payload_text {
+    ($value:expr) => {
+        PayloadText($value.to_string())
+    };
+}
+
 pub(crate) fn network_runtime_event_chain_response_event() -> AgentEventEnvelope {
     let entries = json!([
         {
@@ -48,31 +59,35 @@ pub(crate) fn network_runtime_event_chain_response_event() -> AgentEventEnvelope
         },
         event: AgentEventName::AgentNetworkRuntimeEventChainStreamReported,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }
 
 pub(crate) fn screen_settings_response_event(
-    request_id: &str,
-    kind: &str,
+    request_id: PayloadText,
+    kind: PayloadText,
     event: AgentEventName,
-    status: &str,
-    rejection_reason: Option<&str>,
+    status: PayloadText,
+    rejection_reason: Option<PayloadText>,
 ) -> AgentEventEnvelope {
+    let PayloadText(request_id) = request_id;
+    let PayloadText(kind) = kind;
+    let PayloadText(status) = status;
+    let rejection_reason = rejection_reason.map(|PayloadText(value)| value);
     let mut payload = std::collections::BTreeMap::new();
     payload.insert(
         constants::field::SCREEN_SETTINGS_RESPONSE.to_string(),
         LogFieldValue::String(require_ok(
             serde_json::to_string(&json!({
                 "schemaVersion": 1,
-                "requestId": request_id,
-                "kind": kind,
-                "status": status,
+                "requestId": request_id.as_str(),
+                "kind": kind.as_str(),
+                "status": status.as_str(),
                 "setting": Value::Null,
                 "auditEventId": Value::Null,
-                "rejectionReason": rejection_reason,
-                "message": if status == "accepted" {
+                "rejectionReason": rejection_reason.as_deref(),
+                "message": if status == SCREEN_SETTINGS_STATUS_ACCEPTED {
                     "Screen settings state reported."
                 } else {
                     "Screen settings update rejected."
@@ -83,9 +98,9 @@ pub(crate) fn screen_settings_response_event(
     );
     payload.insert(
         constants::field::SCREEN_SETTINGS_UPDATE_KIND.to_string(),
-        LogFieldValue::String(kind.to_string()),
+        LogFieldValue::String(kind.clone()),
     );
-    if let Some(rejection_reason) = rejection_reason {
+    if let Some(rejection_reason) = rejection_reason.as_deref() {
         payload.insert(
             constants::field::SCREEN_SETTINGS_REJECTION_REASON.to_string(),
             LogFieldValue::String(rejection_reason.to_string()),
@@ -95,7 +110,7 @@ pub(crate) fn screen_settings_response_event(
     AgentEventEnvelope {
         schema_version: 1,
         event_id: format!("screen-settings-{kind}-{status}"),
-        correlation_id: request_id.to_string(),
+        correlation_id: request_id,
         sent_at: "2026-06-23T00:00:03Z".to_string(),
         source: AgentPeer {
             peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
@@ -107,7 +122,7 @@ pub(crate) fn screen_settings_response_event(
         },
         event,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }
@@ -170,21 +185,22 @@ pub(crate) fn tracking_retention_settings_write_response_event() -> AgentEventEn
         },
         event: AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }
 
 pub(crate) fn app_game_adapter_dispatch_execute_response_event(
-    command_id: &str,
+    command_id: PayloadText,
 ) -> AgentEventEnvelope {
+    let PayloadText(command_id) = command_id;
     let mut payload = std::collections::BTreeMap::new();
     payload.insert(
         constants::field::APP_GAME_ADAPTER_DISPATCH_EXECUTE_RESULT.to_string(),
         LogFieldValue::String(require_ok(
             serde_json::to_string(&json!({
                 "schemaVersion": 1,
-                "commandId": command_id,
+                "commandId": command_id.as_str(),
                 "generatedAt": "2026-06-08T12:45:00Z",
                 "sourceReadModelId": "app-game-adapter-dispatch-result",
                 "sourceDispatchRowId": "app-game-adapter-dispatch-result-windows-app-game-owned-process-time-limit",
@@ -210,7 +226,7 @@ pub(crate) fn app_game_adapter_dispatch_execute_response_event(
     AgentEventEnvelope {
         schema_version: 1,
         event_id: "evt-app-game-dispatch-executed-latest".to_string(),
-        correlation_id: command_id.to_string(),
+        correlation_id: command_id,
         sent_at: "2026-06-08T12:45:01Z".to_string(),
         source: AgentPeer {
             peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
@@ -222,7 +238,7 @@ pub(crate) fn app_game_adapter_dispatch_execute_response_event(
         },
         event: AgentEventName::AgentActivityAppGameAdapterDispatchExecuted,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }
@@ -233,37 +249,7 @@ pub(crate) fn app_game_timer_parent_preference_setup_requested_response_event() 
     payload.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
         LogFieldValue::String(require_ok(
-            serde_json::to_string(&json!({
-                "schemaVersion": "app-game-timer-parent-preference-setup-request-proof",
-                "requestId": "request-1",
-                "requestedAt": "2026-06-08T02:18:00Z",
-                "acceptedAt": "2026-06-08T02:18:01Z",
-                "requestStatus": "accepted",
-                "parentSurfaceIntentReferenceId": "app-game-child-ux-parent-surface-action-result-app-game-1",
-                "parentPreferenceSetupReferenceId": "app-game-child-ux-parent-preference-setup-action-result-app-game-1",
-                "requestReferenceIds": [
-                    "app-game-child-ux-local-handoff-action-result-app-game-1",
-                    "parent-approved",
-                    "child-status-limit-reached"
-                ],
-                "actionResultReferenceId": "app-game-parent-preference-setup-action-result::request-1",
-                "actionResultReferenceIds": ["app-game-parent-preference-setup-action-result::request-1"],
-                "actionResultPersistenceStatus": "persisted",
-                "parentPreferenceMutationReceiptId": "app-game-parent-preference-setup-mutation-receipt::request-1",
-                "parentPreferenceMutationReceiptIds": ["app-game-parent-preference-setup-mutation-receipt::request-1"],
-                "parentPreferenceMutationReceiptStatus": "persisted",
-                "parentPreferenceMutationReceiptClaimed": false,
-                "childRuntimeDeliveryHandoffId": "app-game-parent-preference-setup-child-runtime-handoff::request-1",
-                "childRuntimeDeliveryHandoffIds": ["app-game-parent-preference-setup-child-runtime-handoff::request-1"],
-                "childRuntimeDeliveryHandoffStatus": "handoff-ready",
-                "childRuntimeDeliveryHandoffClaimed": false,
-                "adapterDispatchClaimed": false,
-                "broadBlockingClaimed": false,
-                "platformEnforcementClaimed": false,
-                "rawPrivateSourceRowsClaimed": false,
-                "rawTargetValuesClaimed": false,
-                "privateDiagnosticsClaimed": false
-            })),
+            serde_json::to_string(&app_game_timer_parent_preference_setup_result_payload()),
             "app-game timer parent preference setup result serializes",
         )),
     );
@@ -283,9 +269,118 @@ pub(crate) fn app_game_timer_parent_preference_setup_requested_response_event() 
         },
         event: AgentEventName::AgentActivityAppGameTimerParentPreferenceSetupRequested,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
+}
+
+fn app_game_timer_parent_preference_setup_result_payload() -> Value {
+    let provider_readiness = "app-game-parent-preference-setup-provider-readiness::request-1";
+    let provider_attempt = "app-game-parent-preference-setup-provider-attempt::request-1";
+    let provider_adapter = "app-game-parent-preference-setup-provider-adapter::request-1";
+    let provider_credential = "app-game-parent-preference-setup-provider-credential::request-1";
+    let provider_receipt_required =
+        "app-game-parent-preference-setup-provider-receipt-required::request-1";
+    let provider_receipt_pending =
+        "app-game-parent-preference-setup-provider-receipt-pending::request-1";
+    let provider_receipt_ingested =
+        "app-game-parent-preference-setup-provider-receipt-ingested::request-1";
+
+    json!({
+        "schemaVersion": "app-game-timer-parent-preference-setup-request-proof",
+        "requestId": "request-1",
+        "requestedAt": "2026-06-08T02:18:00Z",
+        "acceptedAt": "2026-06-08T02:18:01Z",
+        "requestStatus": "accepted",
+        "parentSurfaceIntentReferenceId": "app-game-child-ux-parent-surface-action-result-app-game-1",
+        "parentPreferenceSetupReferenceId": "app-game-child-ux-parent-preference-setup-action-result-app-game-1",
+        "requestReferenceIds": [
+            "app-game-child-ux-local-handoff-action-result-app-game-1",
+            "parent-approved",
+            "child-status-limit-reached"
+        ],
+        "actionResultReferenceId": "app-game-parent-preference-setup-action-result::request-1",
+        "actionResultReferenceIds": ["app-game-parent-preference-setup-action-result::request-1"],
+        "actionResultPersistenceStatus": "persisted",
+        "parentPreferenceMutationReceiptId": "app-game-parent-preference-setup-mutation-receipt::request-1",
+        "parentPreferenceMutationReceiptIds": ["app-game-parent-preference-setup-mutation-receipt::request-1"],
+        "parentPreferenceMutationReceiptStatus": "persisted",
+        "parentPreferenceMutationReceiptClaimed": false,
+        "childRuntimeDeliveryHandoffId": "app-game-parent-preference-setup-child-runtime-handoff::request-1",
+        "childRuntimeDeliveryHandoffIds": ["app-game-parent-preference-setup-child-runtime-handoff::request-1"],
+        "childRuntimeDeliveryHandoffStatus": "handoff-ready",
+        "childRuntimeDeliveryHandoffClaimed": false,
+        "childRuntimeDeliveryQueueId": "app-game-parent-preference-setup-child-runtime-queue::request-1",
+        "childRuntimeDeliveryQueueIds": ["app-game-parent-preference-setup-child-runtime-queue::request-1"],
+        "childRuntimeDeliveryQueueStatus": "queued",
+        "childRuntimeDeliveryQueueClaimed": false,
+        "childRuntimeDeliveryDispatchId": "app-game-parent-preference-setup-child-runtime-dispatch::request-1",
+        "childRuntimeDeliveryDispatchIds": ["app-game-parent-preference-setup-child-runtime-dispatch::request-1"],
+        "childRuntimeDeliveryDispatchStatus": "dispatch-ready",
+        "childRuntimeDeliveryDispatchClaimed": false,
+        "childRuntimeDeliveryReceiptRequirementId": "app-game-parent-preference-setup-child-runtime-receipt-required::request-1",
+        "childRuntimeDeliveryReceiptRequirementIds": ["app-game-parent-preference-setup-child-runtime-receipt-required::request-1"],
+        "childRuntimeDeliveryReceiptRequirementStatus": "receipt-required",
+        "childRuntimeDeliveryReceiptRequirementClaimed": false,
+        "childRuntimeDeliveryReceiptPendingId": "app-game-parent-preference-setup-child-runtime-receipt-pending::request-1",
+        "childRuntimeDeliveryReceiptPendingIds": ["app-game-parent-preference-setup-child-runtime-receipt-pending::request-1"],
+        "childRuntimeDeliveryReceiptPendingStatus": "receipt-pending",
+        "childRuntimeDeliveryReceiptPendingClaimed": false,
+        "childRuntimeDeliveryReceiptIngestedId": "app-game-parent-preference-setup-child-runtime-receipt-ingested::request-1",
+        "childRuntimeDeliveryReceiptIngestedIds": ["app-game-parent-preference-setup-child-runtime-receipt-ingested::request-1"],
+        "childRuntimeDeliveryReceiptIngestedStatus": "receipt-ingested",
+        "childRuntimeDeliveryReceiptIngestedClaimed": false,
+        "durableOutboxRecordId": "app-game-parent-preference-setup-outbox::request-1",
+        "durableOutboxRecordIds": ["app-game-parent-preference-setup-outbox::request-1"],
+        "durableOutboxStatus": "outbox-recorded",
+        "providerDeliveryReadinessId": provider_readiness,
+        "providerDeliveryReadinessIds": [provider_readiness],
+        "providerDeliveryReadinessStatus": "provider-manual-required",
+        "providerDeliveryAttemptId": provider_attempt,
+        "providerDeliveryAttemptIds": [provider_attempt],
+        "providerDeliveryAttemptStatus": "provider-delivery-manual-required",
+        "providerDeliveryAdapterRequirementId": provider_adapter,
+        "providerDeliveryAdapterRequirementIds": [provider_adapter],
+        "providerDeliveryAdapterRequirementStatus": "provider-adapter-required",
+        "providerDeliveryCredentialRequirementId": provider_credential,
+        "providerDeliveryCredentialRequirementIds": [provider_credential],
+        "providerDeliveryCredentialRequirementStatus": "provider-credential-proof-required",
+        "providerDeliveryQueueId": "app-game-parent-preference-setup-provider-queue::request-1",
+        "providerDeliveryQueueIds": ["app-game-parent-preference-setup-provider-queue::request-1"],
+        "providerDeliveryQueueStatus": "provider-delivery-queued",
+        "providerDeliveryReceiptRequirementId": provider_receipt_required,
+        "providerDeliveryReceiptRequirementIds": [provider_receipt_required],
+        "providerDeliveryReceiptRequirementStatus": "provider-delivery-receipt-required",
+        "providerDeliveryReceiptPendingId": provider_receipt_pending,
+        "providerDeliveryReceiptPendingIds": [provider_receipt_pending],
+        "providerDeliveryReceiptPendingStatus": "provider-delivery-receipt-pending",
+        "providerDeliveryReceiptIngestedId": provider_receipt_ingested,
+        "providerDeliveryReceiptIngestedIds": [provider_receipt_ingested],
+        "providerDeliveryReceiptIngestedStatus": "provider-delivery-receipt-ingested",
+        "commandBoundaryClaimed": true,
+        "actionResultHandoffClaimed": true,
+        "actionResultPersistenceClaimed": true,
+        "parentPreferenceMutationClaimed": false,
+        "notificationRuleMutationClaimed": false,
+        "providerDeliveryReadinessClaimed": false,
+        "providerDeliveryAttemptClaimed": false,
+        "providerDeliveryAdapterRequirementClaimed": false,
+        "providerDeliveryCredentialRequirementClaimed": false,
+        "providerDeliveryQueueClaimed": false,
+        "providerDeliveryReceiptRequirementClaimed": false,
+        "providerDeliveryReceiptPendingClaimed": false,
+        "providerDeliveryReceiptIngestedClaimed": false,
+        "providerDeliveryClaimed": false,
+        "providerReceiptIngestionClaimed": false,
+        "childRuntimeDeliveryClaimed": false,
+        "durableOutboxClaimed": true,
+        "adapterDispatchClaimed": false,
+        "broadBlockingClaimed": false,
+        "platformEnforcementClaimed": false,
+        "rawPrivateSourceRowsClaimed": false,
+        "rawTargetValuesClaimed": false,
+        "privateDiagnosticsClaimed": false
+    })
 }
 
 pub(crate) fn policy_request_assistant_preview_confirmed_response_event() -> AgentEventEnvelope {
@@ -334,7 +429,7 @@ pub(crate) fn policy_request_assistant_preview_confirmed_response_event() -> Age
         },
         event: AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }
@@ -385,10 +480,10 @@ pub(crate) fn app_game_notification_readiness_response_event() -> AgentEventEnve
         }],
     };
     app_game_read_model_response_event(
-        "app-game-notification-readiness-1",
-        "app-game-notification",
+        payload_text!("app-game-notification-readiness-1"),
+        payload_text!("app-game-notification"),
         AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
-        constants::field::APP_GAME_NOTIFICATION_READINESS_READ_MODEL,
+        payload_text!(constants::field::APP_GAME_NOTIFICATION_READINESS_READ_MODEL),
         &read_model,
     )
 }
@@ -429,10 +524,10 @@ pub(crate) fn app_game_policy_readiness_response_event() -> AgentEventEnvelope {
         }],
     };
     app_game_read_model_response_event(
-        "app-game-policy-readiness-1",
-        "app-game-policy",
+        payload_text!("app-game-policy-readiness-1"),
+        payload_text!("app-game-policy"),
         AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported,
-        constants::field::APP_GAME_POLICY_READINESS_READ_MODEL,
+        payload_text!(constants::field::APP_GAME_POLICY_READINESS_READ_MODEL),
         &read_model,
     )
 }
@@ -479,10 +574,10 @@ pub(crate) fn app_game_platform_proof_status_response_event() -> AgentEventEnvel
         }],
     };
     app_game_read_model_response_event(
-        "app-game-platform-proof-status-1",
-        "app-game-platform",
+        payload_text!("app-game-platform-proof-status-1"),
+        payload_text!("app-game-platform"),
         AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported,
-        constants::field::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL,
+        payload_text!(constants::field::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL),
         &read_model,
     )
 }
@@ -522,10 +617,10 @@ pub(crate) fn app_game_child_runtime_transport_receipt_response_event() -> Agent
         }],
     };
     app_game_read_model_response_event(
-        "app-game-child-runtime-transport-receipt-1",
-        "app-game-child-runtime-transport",
+        payload_text!("app-game-child-runtime-transport-receipt-1"),
+        payload_text!("app-game-child-runtime-transport"),
         AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported,
-        constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL,
+        payload_text!(constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL),
         &read_model,
     )
 }
@@ -555,10 +650,10 @@ pub(crate) fn app_game_adapter_dispatch_preflight_response_event() -> AgentEvent
         rows: Vec::new(),
     };
     app_game_read_model_response_event(
-        "app-game-adapter-dispatch-preflight-1",
-        "app-game-adapter-dispatch-preflight",
+        payload_text!("app-game-adapter-dispatch-preflight-1"),
+        payload_text!("app-game-adapter-dispatch-preflight"),
         AgentEventName::AgentActivityAppGameAdapterDispatchPreflightReadModelReported,
-        constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL,
+        payload_text!(constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL),
         &read_model,
     )
 }
@@ -590,10 +685,10 @@ pub(crate) fn app_game_adapter_dispatch_result_response_event() -> AgentEventEnv
         rows: Vec::new(),
     };
     app_game_read_model_response_event(
-        "app-game-adapter-dispatch-result-1",
-        "app-game-adapter-dispatch-result",
+        payload_text!("app-game-adapter-dispatch-result-1"),
+        payload_text!("app-game-adapter-dispatch-result"),
         AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported,
-        constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL,
+        payload_text!(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL),
         &read_model,
     )
 }
@@ -648,24 +743,27 @@ pub(crate) fn app_game_timer_parent_surface_response_event() -> AgentEventEnvelo
         rows: Vec::new(),
     };
     app_game_read_model_response_event(
-        "app-game-timer-parent-surface-1",
-        "app-game-timer-parent-surface",
+        payload_text!("app-game-timer-parent-surface-1"),
+        payload_text!("app-game-timer-parent-surface"),
         AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
-        constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
+        payload_text!(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL),
         &read_model,
     )
 }
 
 pub(crate) fn app_game_read_model_response_event(
-    event_id: &str,
-    correlation_id: &str,
+    event_id: PayloadText,
+    correlation_id: PayloadText,
     event: AgentEventName,
-    field_name: &str,
+    field_name: PayloadText,
     read_model: &impl serde::Serialize,
 ) -> AgentEventEnvelope {
+    let PayloadText(event_id) = event_id;
+    let PayloadText(correlation_id) = correlation_id;
+    let PayloadText(field_name) = field_name;
     let mut payload = std::collections::BTreeMap::new();
     payload.insert(
-        field_name.to_string(),
+        field_name,
         LogFieldValue::String(require_ok(
             serde_json::to_string(read_model),
             "app-game read model serializes",
@@ -674,8 +772,8 @@ pub(crate) fn app_game_read_model_response_event(
 
     AgentEventEnvelope {
         schema_version: 1,
-        event_id: event_id.to_string(),
-        correlation_id: correlation_id.to_string(),
+        event_id,
+        correlation_id,
         sent_at: "2026-06-08T12:45:07Z".to_string(),
         source: AgentPeer {
             peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
@@ -687,102 +785,13 @@ pub(crate) fn app_game_read_model_response_event(
         },
         event,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
 }
 
 pub(crate) fn policy_preview_response_event() -> AgentEventEnvelope {
-    let mut payload = std::collections::BTreeMap::new();
-    payload.insert(
-        constants::field::SCHEMA_VERSION.to_string(),
-        LogFieldValue::String("1".to_string()),
-    );
-    payload.insert(
-        constants::field::GENERATED_AT.to_string(),
-        LogFieldValue::String("2026-05-21T02:00:03Z".to_string()),
-    );
-    payload.insert(
-        constants::field::CUSTODY.to_string(),
-        LogFieldValue::String("child-device-query-store".to_string()),
-    );
-    payload.insert(
-        constants::field::LIMIT.to_string(),
-        LogFieldValue::Number(10.0),
-    );
-    payload.insert(
-        constants::field::RETURNED.to_string(),
-        LogFieldValue::Number(1.0),
-    );
-    payload.insert(
-        constants::field::CAPABILITY_STATUS.to_string(),
-        LogFieldValue::String("preview-ready".to_string()),
-    );
-    payload.insert(
-        constants::field::POLICY_PREVIEW_ID.to_string(),
-        LogFieldValue::String("policy-preview.network.1".to_string()),
-    );
-    payload.insert(
-        constants::field::LATEST_EVENT_ID.to_string(),
-        LogFieldValue::String("policy-preview.network.event.1".to_string()),
-    );
-    payload.insert(
-        constants::field::LATEST_OBSERVED_AT.to_string(),
-        LogFieldValue::String("2026-05-21T02:00:02Z".to_string()),
-    );
-    payload.insert(
-        constants::field::POLICY_TARGET_TYPE.to_string(),
-        LogFieldValue::String("network-domain".to_string()),
-    );
-    payload.insert(
-        constants::field::POLICY_TARGET_VALUE.to_string(),
-        LogFieldValue::String("example.test".to_string()),
-    );
-    payload.insert(
-        constants::field::POLICY_DECISION_ID.to_string(),
-        LogFieldValue::String("policy-decision.network.preview.1".to_string()),
-    );
-    payload.insert(
-        constants::field::POLICY_ACTION.to_string(),
-        LogFieldValue::String("block".to_string()),
-    );
-    payload.insert(
-        constants::field::LOCAL_AI_RESULT_ID.to_string(),
-        LogFieldValue::String("local-ai-result.network.preview.1".to_string()),
-    );
-    payload.insert(
-        constants::field::POLICY_DRY_RUN.to_string(),
-        LogFieldValue::Boolean(true),
-    );
-    payload.insert(
-        constants::field::POLICY_HANDOFF_STATE.to_string(),
-        LogFieldValue::String("disabled-preview-only".to_string()),
-    );
-    payload.insert(
-        constants::field::NETWORK_EVIDENCE_GRADE.to_string(),
-        LogFieldValue::String("A".to_string()),
-    );
-    payload.insert(
-        constants::field::NETWORK_REQUESTED_POLICY_ACTION.to_string(),
-        LogFieldValue::String("block".to_string()),
-    );
-    payload.insert(
-        constants::field::NETWORK_MAPPED_POLICY_ACTION.to_string(),
-        LogFieldValue::String("block".to_string()),
-    );
-    payload.insert(
-        constants::field::NETWORK_POLICY_MAPPING_MODE.to_string(),
-        LogFieldValue::String("dry-run".to_string()),
-    );
-    payload.insert(
-        constants::field::NETWORK_ADAPTER_ACTION_AUTHORIZED.to_string(),
-        LogFieldValue::Boolean(false),
-    );
-    payload.insert(
-        constants::field::NETWORK_ENFORCEMENT_COMMAND_AUTHORIZED.to_string(),
-        LogFieldValue::Boolean(false),
-    );
-
+    let payload = policy_preview_response_payload!();
     AgentEventEnvelope {
         schema_version: 1,
         event_id: "agent.policy.preview.read-model.reported-1".to_string(),
@@ -798,9 +807,104 @@ pub(crate) fn policy_preview_response_event() -> AgentEventEnvelope {
         },
         event: AgentEventName::AgentPolicyPreviewReadModelReported,
         severity: LogLevel::Info,
-        payload,
+        payload: payload.into(),
         snapshot: None,
     }
+}
+
+macro_rules! policy_preview_response_payload {
+    () => {{
+        let mut payload = std::collections::BTreeMap::new();
+        payload.insert(
+            constants::field::SCHEMA_VERSION.to_string(),
+            LogFieldValue::String("1".to_string()),
+        );
+        payload.insert(
+            constants::field::GENERATED_AT.to_string(),
+            LogFieldValue::String("2026-05-21T02:00:03Z".to_string()),
+        );
+        payload.insert(
+            constants::field::CUSTODY.to_string(),
+            LogFieldValue::String("child-device-query-store".to_string()),
+        );
+        payload.insert(
+            constants::field::LIMIT.to_string(),
+            LogFieldValue::Number(10.0),
+        );
+        payload.insert(
+            constants::field::RETURNED.to_string(),
+            LogFieldValue::Number(1.0),
+        );
+        payload.insert(
+            constants::field::CAPABILITY_STATUS.to_string(),
+            LogFieldValue::String("preview-ready".to_string()),
+        );
+        payload.insert(
+            constants::field::POLICY_PREVIEW_ID.to_string(),
+            LogFieldValue::String("policy-preview.network.1".to_string()),
+        );
+        payload.insert(
+            constants::field::LATEST_EVENT_ID.to_string(),
+            LogFieldValue::String("policy-preview.network.event.1".to_string()),
+        );
+        payload.insert(
+            constants::field::LATEST_OBSERVED_AT.to_string(),
+            LogFieldValue::String("2026-05-21T02:00:02Z".to_string()),
+        );
+        payload.insert(
+            constants::field::POLICY_TARGET_TYPE.to_string(),
+            LogFieldValue::String("network-domain".to_string()),
+        );
+        payload.insert(
+            constants::field::POLICY_TARGET_VALUE.to_string(),
+            LogFieldValue::String("example.test".to_string()),
+        );
+        payload.insert(
+            constants::field::POLICY_DECISION_ID.to_string(),
+            LogFieldValue::String("policy-decision.network.preview.1".to_string()),
+        );
+        payload.insert(
+            constants::field::POLICY_ACTION.to_string(),
+            LogFieldValue::String("block".to_string()),
+        );
+        payload.insert(
+            constants::field::LOCAL_AI_RESULT_ID.to_string(),
+            LogFieldValue::String("local-ai-result.network.preview.1".to_string()),
+        );
+        payload.insert(
+            constants::field::POLICY_DRY_RUN.to_string(),
+            LogFieldValue::Boolean(true),
+        );
+        payload.insert(
+            constants::field::POLICY_HANDOFF_STATE.to_string(),
+            LogFieldValue::String("disabled-preview-only".to_string()),
+        );
+        payload.insert(
+            constants::field::NETWORK_EVIDENCE_GRADE.to_string(),
+            LogFieldValue::String("A".to_string()),
+        );
+        payload.insert(
+            constants::field::NETWORK_REQUESTED_POLICY_ACTION.to_string(),
+            LogFieldValue::String("block".to_string()),
+        );
+        payload.insert(
+            constants::field::NETWORK_MAPPED_POLICY_ACTION.to_string(),
+            LogFieldValue::String("block".to_string()),
+        );
+        payload.insert(
+            constants::field::NETWORK_POLICY_MAPPING_MODE.to_string(),
+            LogFieldValue::String("dry-run".to_string()),
+        );
+        payload.insert(
+            constants::field::NETWORK_ADAPTER_ACTION_AUTHORIZED.to_string(),
+            LogFieldValue::Boolean(false),
+        );
+        payload.insert(
+            constants::field::NETWORK_ENFORCEMENT_COMMAND_AUTHORIZED.to_string(),
+            LogFieldValue::Boolean(false),
+        );
+        payload
+    }};
 }
 
 pub(crate) fn policy_preview_confirmed_response_event() -> AgentEventEnvelope {

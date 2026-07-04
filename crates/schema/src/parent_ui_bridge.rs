@@ -3,6 +3,15 @@ use std::fmt::{Display, Formatter};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+fn parse_parent_ui_bridge_text_identifier(value: impl Into<String>) -> Option<String> {
+    let value = value.into();
+    if value.trim().is_empty() {
+        None
+    } else {
+        Some(value)
+    }
+}
+
 macro_rules! parent_ui_bridge_text_identifier {
     ($name:ident) => {
         #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -11,12 +20,7 @@ macro_rules! parent_ui_bridge_text_identifier {
 
         impl $name {
             pub fn parse(value: impl Into<String>) -> Option<Self> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
+                parse_parent_ui_bridge_text_identifier(value).map(Self)
             }
 
             pub fn as_str(&self) -> &str {
@@ -94,6 +98,549 @@ pub const PARENT_ROUTE_HASH_PREFIX: &str = "#";
 pub const PARENT_ROUTE_HASH_QUERY_SEPARATOR: &str = "?";
 pub const PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX: &str = "parent-route-subscription-";
 pub const PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS: u64 = 1000;
+pub const PARENT_SCREEN_SETTINGS_COMMAND_SCHEMA_VERSION: u16 = 1;
+pub const PARENT_SCREEN_SETTINGS_REQUEST_ID_PREFIX: &str = "screen-settings-request-";
+pub const PARENT_SCREEN_SETTINGS_UPDATE_KIND_GET: &str = "get";
+pub const PARENT_SCREEN_SETTINGS_UPDATE_KIND_REPLACE: &str = "replace";
+pub const PARENT_SCREEN_SETTINGS_UPDATE_STATUS_ACCEPTED: &str = "accepted";
+pub const PARENT_SCREEN_SETTINGS_UPDATE_STATUS_REJECTED: &str = "rejected";
+pub const PARENT_SCREEN_OPTIONAL_VISIBILITY_CAPABILITY_PROOF_GENERATED_AT: &str =
+    "2026-06-07T05:55:00Z";
+pub const PARENT_SCREEN_EVIDENCE_SETTINGS_WRITABLE_UI_PROOF_JSON: &str = r#"{
+  "title": "Writable screen settings proof",
+  "note": "Parent Settings can build a schema-valid local screen-summary intent and submit it to the child service command path.",
+  "intentLegend": "Intent",
+  "draftHeading": "Draft mode",
+  "draftTriggerHeading": "Triggers and custody",
+  "retentionHeading": "Remote boundary",
+  "serviceCommandHeading": "Service command",
+  "serviceApplyActionLabel": "Save selected screen setting",
+  "serviceRefreshActionLabel": "Refresh persisted screen setting",
+  "servicePendingStatus": "waiting for service response",
+  "serviceAcceptedStatus": "service accepted persisted setting",
+  "serviceRejectedStatus": "service rejected setting",
+  "serviceDisconnectedStatus": "service command unavailable while disconnected",
+  "serviceNoResponseStatus": "no service settings response yet",
+  "validationStatusLabel": "Parser status",
+  "validationStatusValue": "schema-valid local parent intent",
+  "defaultIntentKey": "disabledLocalSummary",
+  "intents": [
+    {
+      "intentKey": "disabledLocalSummary",
+      "label": "Keep screen analysis disabled",
+      "detail": "No cadence capture, trigger capture, strict mode, or policy use can run while disabled.",
+      "setting": {
+        "schemaVersion": 1,
+        "screenAnalysisEnabled": false,
+        "analysisMode": "observeOnly",
+        "cadenceCaptureEnabled": false,
+        "cadenceSeconds": 300,
+        "strictModeEnabled": false,
+        "triggerCaptureEnabled": false,
+        "enabledTriggers": [],
+        "allowedCaptureScope": "unsupported",
+        "ocrTextEnabled": false,
+        "ocrTextSnippetLimit": 0,
+        "redactionMode": "disabled",
+        "ocrTextRetentionMode": "disabled",
+        "credentialSuppressionEnabled": true,
+        "piiRedactionEnabled": false,
+        "temporaryImageTtlSeconds": 300,
+        "maxRetryCount": 0,
+        "deleteAfterSuccess": true,
+        "deleteAfterExpiry": true,
+        "retainRawImage": false,
+        "policyUseEnabled": false,
+        "changedByParentRef": "screen-settings-ui-parent-disabled",
+        "changedAt": "2026-06-04T23:50:00Z",
+        "settingVersion": 1,
+        "reason": "parent kept local screen summaries disabled"
+      },
+      "remoteBoundarySetting": {
+        "schemaVersion": 1,
+        "parentSettingRef": "screen-settings-ui-parent-disabled",
+        "settingVersion": 1,
+        "rawScreenshotRetentionMode": "disabled",
+        "liveViewMode": "disabled",
+        "rawScreenshotRemoteUploadEnabled": false,
+        "remoteSummaryMode": "disabled",
+        "remoteSummaryRedactedOnly": true,
+        "parentApprovedRemoteSummary": false,
+        "remoteSummaryApprovalRef": null,
+        "remoteSummaryDestinationCustodyState": "unavailable",
+        "changedByParentRef": "screen-settings-ui-parent-disabled",
+        "changedAt": "2026-06-04T23:50:00Z",
+        "reason": "local screen summary settings do not enable raw retention or live view"
+      }
+    },
+    {
+      "intentKey": "observeOnlyLocalSummary",
+      "label": "Enable observe-only summaries",
+      "detail": "Five-minute local summaries can be reviewed by the parent, but policy handoff remains disabled.",
+      "setting": {
+        "schemaVersion": 1,
+        "screenAnalysisEnabled": true,
+        "analysisMode": "observeOnly",
+        "cadenceCaptureEnabled": true,
+        "cadenceSeconds": 300,
+        "strictModeEnabled": false,
+        "triggerCaptureEnabled": true,
+        "enabledTriggers": ["foregroundAppChange", "policyAmbiguity"],
+        "allowedCaptureScope": "activeWindow",
+        "ocrTextEnabled": true,
+        "ocrTextSnippetLimit": 3,
+        "redactionMode": "localSensitiveText",
+        "ocrTextRetentionMode": "redactedSnippets",
+        "credentialSuppressionEnabled": true,
+        "piiRedactionEnabled": true,
+        "temporaryImageTtlSeconds": 300,
+        "maxRetryCount": 2,
+        "deleteAfterSuccess": true,
+        "deleteAfterExpiry": true,
+        "retainRawImage": false,
+        "policyUseEnabled": false,
+        "changedByParentRef": "screen-settings-ui-parent-observe",
+        "changedAt": "2026-06-04T23:50:00Z",
+        "settingVersion": 2,
+        "reason": "parent enabled observe-only local screen summaries"
+      },
+      "remoteBoundarySetting": {
+        "schemaVersion": 1,
+        "parentSettingRef": "screen-settings-ui-parent-observe",
+        "settingVersion": 2,
+        "rawScreenshotRetentionMode": "disabled",
+        "liveViewMode": "disabled",
+        "rawScreenshotRemoteUploadEnabled": false,
+        "remoteSummaryMode": "disabled",
+        "remoteSummaryRedactedOnly": true,
+        "parentApprovedRemoteSummary": false,
+        "remoteSummaryApprovalRef": null,
+        "remoteSummaryDestinationCustodyState": "unavailable",
+        "changedByParentRef": "screen-settings-ui-parent-observe",
+        "changedAt": "2026-06-04T23:50:00Z",
+        "reason": "local screen summary settings do not enable raw retention or live view"
+      }
+    },
+    {
+      "intentKey": "strictDryRunLocalSummary",
+      "label": "Enable strict dry-run review",
+      "detail": "One-minute cadence, selected triggers, local OCR, redaction, and policy dry-run become explicit parent intent.",
+      "setting": {
+        "schemaVersion": 1,
+        "screenAnalysisEnabled": true,
+        "analysisMode": "policyDryRun",
+        "cadenceCaptureEnabled": true,
+        "cadenceSeconds": 60,
+        "strictModeEnabled": true,
+        "triggerCaptureEnabled": true,
+        "enabledTriggers": [
+          "foregroundAppChange",
+          "managedBrowserUrlChange",
+          "appGameForegroundStart",
+          "policyAmbiguity"
+        ],
+        "allowedCaptureScope": "activeWindow",
+        "ocrTextEnabled": true,
+        "ocrTextSnippetLimit": 5,
+        "redactionMode": "localSensitiveText",
+        "ocrTextRetentionMode": "redactedSnippets",
+        "credentialSuppressionEnabled": true,
+        "piiRedactionEnabled": true,
+        "temporaryImageTtlSeconds": 300,
+        "maxRetryCount": 2,
+        "deleteAfterSuccess": true,
+        "deleteAfterExpiry": true,
+        "retainRawImage": false,
+        "policyUseEnabled": true,
+        "changedByParentRef": "screen-settings-ui-parent-strict",
+        "changedAt": "2026-06-04T23:50:00Z",
+        "settingVersion": 3,
+        "reason": "parent enabled strict local screen summary dry run"
+      },
+      "remoteBoundarySetting": {
+        "schemaVersion": 1,
+        "parentSettingRef": "screen-settings-ui-parent-strict",
+        "settingVersion": 3,
+        "rawScreenshotRetentionMode": "disabled",
+        "liveViewMode": "disabled",
+        "rawScreenshotRemoteUploadEnabled": false,
+        "remoteSummaryMode": "disabled",
+        "remoteSummaryRedactedOnly": true,
+        "parentApprovedRemoteSummary": false,
+        "remoteSummaryApprovalRef": null,
+        "remoteSummaryDestinationCustodyState": "unavailable",
+        "changedByParentRef": "screen-settings-ui-parent-strict",
+        "changedAt": "2026-06-04T23:50:00Z",
+        "reason": "local screen summary settings do not enable raw retention or live view"
+      }
+    },
+    {
+      "intentKey": "approvedRawRetentionLocalTtl",
+      "label": "Approve local short-TTL retention",
+      "detail": "Parent-approved local raw screenshot retention uses a short TTL and keeps delete-after-success and delete-after-expiry required.",
+      "setting": {
+        "schemaVersion": 1,
+        "screenAnalysisEnabled": true,
+        "analysisMode": "policyDryRun",
+        "cadenceCaptureEnabled": true,
+        "cadenceSeconds": 60,
+        "strictModeEnabled": true,
+        "triggerCaptureEnabled": true,
+        "enabledTriggers": [
+          "foregroundAppChange",
+          "managedBrowserUrlChange",
+          "appGameForegroundStart",
+          "policyAmbiguity"
+        ],
+        "allowedCaptureScope": "activeWindow",
+        "ocrTextEnabled": true,
+        "ocrTextSnippetLimit": 5,
+        "redactionMode": "localSensitiveText",
+        "ocrTextRetentionMode": "redactedSnippets",
+        "credentialSuppressionEnabled": true,
+        "piiRedactionEnabled": true,
+        "temporaryImageTtlSeconds": 120,
+        "maxRetryCount": 2,
+        "deleteAfterSuccess": true,
+        "deleteAfterExpiry": true,
+        "retainRawImage": true,
+        "policyUseEnabled": true,
+        "changedByParentRef": "screen-settings-ui-parent-raw-retention-local-ttl",
+        "changedAt": "2026-06-04T23:50:00Z",
+        "settingVersion": 4,
+        "reason": "parent approved local short TTL raw screenshot retention"
+      },
+      "remoteBoundarySetting": {
+        "schemaVersion": 1,
+        "parentSettingRef": "screen-settings-ui-parent-raw-retention-local-ttl",
+        "settingVersion": 4,
+        "rawScreenshotRetentionMode": "parentApprovedLocalShortTtl",
+        "liveViewMode": "disabled",
+        "rawScreenshotRemoteUploadEnabled": false,
+        "remoteSummaryMode": "disabled",
+        "remoteSummaryRedactedOnly": true,
+        "parentApprovedRemoteSummary": false,
+        "remoteSummaryApprovalRef": null,
+        "remoteSummaryDestinationCustodyState": "unavailable",
+        "changedByParentRef": "screen-settings-ui-parent-raw-retention-local-ttl",
+        "changedAt": "2026-06-04T23:50:00Z",
+        "reason": "parent approved local short TTL raw screenshot retention without raw remote upload"
+      }
+    }
+  ]
+}"#;
+pub const PARENT_SCREEN_CONTROL_SETTINGS_PORTAL_PROOF_JSON: &str = r#"{
+  "title": "Screen settings and capability proof",
+  "note": "Read-only Settings proof from the Screen control catalog; child runtime owns capture, queue, local analysis, policy handoff, and audit.",
+  "metrics": [
+    {
+      "label": "Catalog settings",
+      "value": "474",
+      "detail": "Screen settings parsed from the current capability guide and schema proposal."
+    },
+    {
+      "label": "Catalog tabs",
+      "value": "11",
+      "detail": "Parent-facing Screen categories available for read-only rendering."
+    },
+    {
+      "label": "Proof-required controls",
+      "value": "68",
+      "detail": "Strict behavior requires platform capture, local analysis, deletion, or policy proof before use."
+    },
+    {
+      "label": "Unavailable sensitive modes",
+      "value": "9",
+      "detail": "Raw retention, hosted processing, hidden capture, continuous recording, and unsupported sensitive states fail closed."
+    }
+  ],
+  "gates": [
+    {
+      "label": "Allow Ocentra-hosted processing of child screen images?",
+      "status": "unavailable",
+      "statusText": "unavailable / unavailable",
+      "capabilityState": "unavailable",
+      "runtimeOwner": "parent-owned-storage",
+      "detail": "Disable or reject this state; do not retain raw capture or use hosted child screen processing by default.",
+      "sourceDocument": "docs/screen-evidence-analysis-schema-proposal.md"
+    },
+    {
+      "label": "Show raw screenshots in parent reports by default?",
+      "status": "unavailable",
+      "statusText": "unavailable / unavailable",
+      "capabilityState": "unavailable",
+      "runtimeOwner": "portal-only",
+      "detail": "Disable or reject this state; do not retain raw capture or use hosted child screen processing by default.",
+      "sourceDocument": "docs/screen-evidence-analysis-schema-proposal.md"
+    },
+    {
+      "label": "Retain raw screenshots or recordings?",
+      "status": "unavailable",
+      "statusText": "unavailable / unavailable",
+      "capabilityState": "unavailable",
+      "runtimeOwner": "parent-owned-storage",
+      "detail": "Disable or reject this state; do not retain raw capture or use hosted child screen processing by default.",
+      "sourceDocument": "docs/screen-evidence-analysis-schema-proposal.md"
+    },
+    {
+      "label": "Allow screen summaries to be used by policy?",
+      "status": "proof-required",
+      "statusText": "proof-required / available",
+      "capabilityState": "available",
+      "runtimeOwner": "os-adapter",
+      "detail": "Require validated summary, evidence refs, deletion proof, and deterministic policy before policy use.",
+      "sourceDocument": "docs/screen-evidence-analysis-schema-proposal.md"
+    },
+    {
+      "label": "Use local OCR/vision returns schema-valid output;?",
+      "status": "needs-effect-wiring",
+      "statusText": "needs-effect-wiring / available",
+      "capabilityState": "available",
+      "runtimeOwner": "local-ai-runtime",
+      "detail": "Portal renders authored intent; child agent owns capture gating, queue, analysis, compile, and audit.",
+      "sourceDocument": "docs/screen-evidence-analysis-capability-guide.md"
+    }
+  ]
+}"#;
+pub const PARENT_SCREEN_OPTIONAL_VISIBILITY_CAPABILITY_STATUS_PROOF_JSON: &str = r#"{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-07T05:55:00Z",
+  "proofId": "screen-optional-visibility-capability-status-proof",
+  "rows": [
+    {
+      "schemaVersion": 1,
+      "checkedAt": "2026-06-07T05:55:00Z",
+      "capabilityKind": "rawScreenshotRetention",
+      "parentSettingRef": "screen-parent-retention-capability-disabled",
+      "readinessState": "disabled",
+      "rawRetentionSetting": {
+        "schemaVersion": 1,
+        "settingId": "screen-retention-capability-disabled",
+        "parentSettingRef": "screen-parent-retention-capability-disabled",
+        "settingVersion": 1,
+        "changedAt": "2026-06-07T05:55:00Z",
+        "mode": "disabled",
+        "explicitParentApproval": false,
+        "approvalRef": null,
+        "disclosureState": "notRequired",
+        "auditRef": null,
+        "ttlSeconds": null,
+        "custodyState": "unavailable",
+        "exportRef": null,
+        "sourceLabel": "unavailable",
+        "retentionBehavior": "noRawRetention",
+        "deleteAfterTtl": false,
+        "deleteOnParentDisable": true,
+        "deleteProofRequired": false,
+        "rawScreenshotRemoteUploadEnabled": false,
+        "reason": "raw screenshot retention is disabled by default"
+      },
+      "liveViewSetting": null,
+      "liveViewPermissionGate": null,
+      "runtimeProofRef": null,
+      "deletionProofRef": null,
+      "transportProofRef": null,
+      "childDisclosureReady": false,
+      "childDeviceCapabilityReady": false,
+      "productModeReady": false,
+      "rawFramesRetained": false,
+      "rawRemoteUploadAllowed": false,
+      "remoteInputAllowed": false,
+      "reason": "raw screenshot retention is disabled by default"
+    },
+    {
+      "schemaVersion": 1,
+      "checkedAt": "2026-06-07T05:55:00Z",
+      "capabilityKind": "rawScreenshotRetention",
+      "parentSettingRef": "screen-parent-retention-capability-local-ttl",
+      "readinessState": "manualRequired",
+      "rawRetentionSetting": {
+        "schemaVersion": 1,
+        "settingId": "screen-retention-capability-local-ttl",
+        "parentSettingRef": "screen-parent-retention-capability-local-ttl",
+        "settingVersion": 1,
+        "changedAt": "2026-06-07T05:55:00Z",
+        "mode": "localShortTtl",
+        "explicitParentApproval": true,
+        "approvalRef": "screen-retention-capability-approval",
+        "disclosureState": "requiredShown",
+        "auditRef": "screen-retention-capability-audit",
+        "ttlSeconds": 300,
+        "custodyState": "child-device-temp-queue",
+        "exportRef": null,
+        "sourceLabel": "rawScreenshotRetention",
+        "retentionBehavior": "deleteAfterTtl",
+        "deleteAfterTtl": true,
+        "deleteOnParentDisable": true,
+        "deleteProofRequired": true,
+        "rawScreenshotRemoteUploadEnabled": false,
+        "reason": "parent approved local short TTL raw screenshot retention"
+      },
+      "liveViewSetting": null,
+      "liveViewPermissionGate": null,
+      "runtimeProofRef": null,
+      "deletionProofRef": null,
+      "transportProofRef": null,
+      "childDisclosureReady": false,
+      "childDeviceCapabilityReady": false,
+      "productModeReady": false,
+      "rawFramesRetained": false,
+      "rawRemoteUploadAllowed": false,
+      "remoteInputAllowed": false,
+      "reason": "raw screenshot retention needs runtime and deletion proof before product readiness"
+    },
+    {
+      "schemaVersion": 1,
+      "checkedAt": "2026-06-07T05:55:00Z",
+      "capabilityKind": "rawScreenshotRetention",
+      "parentSettingRef": "screen-parent-retention-capability-local-ttl-runtime",
+      "readinessState": "ready",
+      "rawRetentionSetting": {
+        "schemaVersion": 1,
+        "settingId": "screen-retention-capability-local-ttl-runtime",
+        "parentSettingRef": "screen-parent-retention-capability-local-ttl-runtime",
+        "settingVersion": 2,
+        "changedAt": "2026-06-07T05:55:00Z",
+        "mode": "localShortTtl",
+        "explicitParentApproval": true,
+        "approvalRef": "screen-retention-runtime-approval",
+        "disclosureState": "requiredShown",
+        "auditRef": "screen-retention-runtime-audit",
+        "ttlSeconds": 120,
+        "custodyState": "child-device-temp-queue",
+        "exportRef": null,
+        "sourceLabel": "rawScreenshotRetention",
+        "retentionBehavior": "deleteAfterTtl",
+        "deleteAfterTtl": true,
+        "deleteOnParentDisable": true,
+        "deleteProofRequired": true,
+        "rawScreenshotRemoteUploadEnabled": false,
+        "reason": "parent approved local short TTL raw screenshot retention with runtime and deletion proof"
+      },
+      "liveViewSetting": null,
+      "liveViewPermissionGate": null,
+      "runtimeProofRef": "output/screen-plan-proof/screen-settings-service-command/proof-summary.json",
+      "deletionProofRef": "output/screen-plan-proof/screen-service-deletion-event-producer/proof-summary.json",
+      "transportProofRef": null,
+      "childDisclosureReady": true,
+      "childDeviceCapabilityReady": true,
+      "productModeReady": true,
+      "rawFramesRetained": false,
+      "rawRemoteUploadAllowed": false,
+      "remoteInputAllowed": false,
+      "reason": "raw screenshot retention is ready only with parent approval, runtime proof, deletion proof, child disclosure, and child device readiness"
+    },
+    {
+      "schemaVersion": 1,
+      "checkedAt": "2026-06-07T05:55:00Z",
+      "capabilityKind": "liveView",
+      "parentSettingRef": "screen-parent-live-capability-disabled",
+      "readinessState": "disabled",
+      "rawRetentionSetting": null,
+      "liveViewSetting": {
+        "schemaVersion": 1,
+        "settingId": "screen-live-capability-disabled",
+        "parentSettingRef": "screen-parent-live-capability-disabled",
+        "settingVersion": 1,
+        "changedAt": "2026-06-07T05:55:00Z",
+        "liveViewMode": "disabled",
+        "transportMode": "none",
+        "explicitParentApproval": false,
+        "approvalRef": null,
+        "disclosureState": "notRequired",
+        "viewerAuditRef": null,
+        "platformProofState": "notRequired",
+        "platformProofRef": null,
+        "custodyState": "unavailable",
+        "sourceLabel": "unavailable",
+        "frameRetentionBehavior": "noFrameRetention",
+        "cacheRawFrames": false,
+        "sessionRecordingAllowed": false,
+        "remoteInputControlAllowed": false,
+        "stopOrRevokeAuditRequired": true,
+        "reason": "live view is disabled by default"
+      },
+      "liveViewPermissionGate": null,
+      "runtimeProofRef": null,
+      "deletionProofRef": null,
+      "transportProofRef": null,
+      "childDisclosureReady": false,
+      "childDeviceCapabilityReady": false,
+      "productModeReady": false,
+      "rawFramesRetained": false,
+      "rawRemoteUploadAllowed": false,
+      "remoteInputAllowed": false,
+      "reason": "live view is disabled by default"
+    },
+    {
+      "schemaVersion": 1,
+      "checkedAt": "2026-06-07T05:55:00Z",
+      "capabilityKind": "liveView",
+      "parentSettingRef": "screen-parent-live-capability-lan",
+      "readinessState": "blocked",
+      "rawRetentionSetting": null,
+      "liveViewSetting": {
+        "schemaVersion": 1,
+        "settingId": "screen-live-capability-lan",
+        "parentSettingRef": "screen-parent-live-capability-lan",
+        "settingVersion": 1,
+        "changedAt": "2026-06-07T05:55:00Z",
+        "liveViewMode": "lanOnlyView",
+        "transportMode": "lanMutualAuth",
+        "explicitParentApproval": true,
+        "approvalRef": "screen-live-capability-approval",
+        "disclosureState": "requiredShown",
+        "viewerAuditRef": "screen-live-capability-audit",
+        "platformProofState": "operatorVerified",
+        "platformProofRef": "screen-live-capability-platform-proof",
+        "custodyState": "live-lan-child-agent",
+        "sourceLabel": "liveView",
+        "frameRetentionBehavior": "noFrameRetention",
+        "cacheRawFrames": false,
+        "sessionRecordingAllowed": false,
+        "remoteInputControlAllowed": false,
+        "stopOrRevokeAuditRequired": true,
+        "reason": "parent approved LAN live view but capture-only evidence is insufficient"
+      },
+      "liveViewPermissionGate": {
+        "schemaVersion": 1,
+        "checkedAt": "2026-06-07T05:55:00Z",
+        "platform": "android-mediaprojection",
+        "liveViewMode": "lanOnlyView",
+        "transportMode": "lanMutualAuth",
+        "permissionEvidenceKind": "screen-capture-only",
+        "platformProofState": "operatorVerified",
+        "platformProofRef": "screen-live-capability-capture-only-proof",
+        "viewerAuditRef": "screen-live-capability-audit",
+        "sourceLabel": "liveView",
+        "custodyState": "live-lan-child-agent",
+        "frameRetentionBehavior": "noFrameRetention",
+        "liveTransportProofRef": null,
+        "explicitViewerDisclosure": true,
+        "cacheRawFrames": false,
+        "sessionRecordingAllowed": false,
+        "remoteInputControlAllowed": false,
+        "productLiveViewReady": false,
+        "reason": "capture-only permission cannot satisfy live-view readiness"
+      },
+      "runtimeProofRef": null,
+      "deletionProofRef": null,
+      "transportProofRef": null,
+      "childDisclosureReady": false,
+      "childDeviceCapabilityReady": false,
+      "productModeReady": false,
+      "rawFramesRetained": false,
+      "rawRemoteUploadAllowed": false,
+      "remoteInputAllowed": false,
+      "reason": "live view remains blocked until live-view permission and transport proof are present"
+    }
+  ],
+  "nonClaims": [
+    "This proof proves raw screenshot retention readiness only after explicit parent approval, runtime proof, deletion proof, child disclosure readiness, and child device readiness.",
+    "This proof does not enable live-view transport, relay, cache, or remote input.",
+    "This proof does not satisfy privacy/legal approval or physical platform live-view prompt screenshots."
+  ]
+}"#;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -226,6 +773,20 @@ pub struct ParentPortalShellStatusSnapshot {
     pub cards: Vec<ParentPortalShellStatusCardSnapshot>,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentCommandResultDetailSnapshot {
+    pub label: String,
+    pub value: String,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentCommandResultProjectionSnapshot {
+    pub projection_kind: String,
+    pub details: Vec<ParentCommandResultDetailSnapshot>,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentRouteEventSnapshot {
@@ -240,6 +801,7 @@ pub struct ParentRouteEventSnapshot {
     pub severity: Option<String>,
     pub payload: Option<Value>,
     pub snapshot: Option<Value>,
+    pub command_result_projection: Option<ParentCommandResultProjectionSnapshot>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

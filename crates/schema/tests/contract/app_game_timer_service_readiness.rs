@@ -1,42 +1,11 @@
 use std::collections::BTreeSet;
 
+use crate::support::{ContractNames, assert_exports_include};
 use ocentra_schema::app_game_timer_service_readiness::APP_GAME_TIMER_SERVICE_READINESS_GENERATED_MARKER;
 use ocentra_schema::app_game_timer_service_readiness_ts::{
     app_game_timer_service_readiness_rules_typescript,
     app_game_timer_service_readiness_values_typescript,
 };
-
-fn exported_names(source: &str) -> BTreeSet<String> {
-    source
-        .lines()
-        .filter_map(|line| {
-            let trimmed = line.trim_start();
-            for prefix in [
-                "export const ",
-                "export function ",
-                "export interface ",
-                "export type ",
-            ] {
-                if let Some(rest) = trimmed.strip_prefix(prefix) {
-                    let name = rest
-                        .split(|ch: char| ch.is_whitespace() || ch == '(' || ch == '=' || ch == '{')
-                        .next()
-                        .unwrap_or_default();
-                    return (!name.is_empty()).then(|| name.to_owned());
-                }
-            }
-
-            None
-        })
-        .collect()
-}
-
-fn assert_exports_include(source: &str, expected: &[&str]) {
-    let expected = expected.iter().map(|name| (*name).to_owned()).collect::<BTreeSet<_>>();
-    let actual = exported_names(source);
-
-    assert!(expected.is_subset(&actual));
-}
 
 #[test]
 fn generated_typescript_app_game_timer_service_readiness_values_stay_checked_in() {
@@ -47,8 +16,8 @@ fn generated_typescript_app_game_timer_service_readiness_values_stay_checked_in(
 
     assert_eq!(checked_in, generated);
     assert_exports_include(
-        &generated,
-        &[
+        crate::contract_text!(&generated),
+        ContractNames(BTreeSet::from([
             "AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated",
             "RequiredAppGameSourceGatedPolicyPreviewTimerHandoffNonClaimsGenerated",
             "AppGameSourceGatedPolicyPreviewTimerHandoffNoClaimFlagsGenerated",
@@ -69,7 +38,8 @@ fn generated_typescript_app_game_timer_service_readiness_values_stay_checked_in(
             "AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated",
             "RequiredAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelNonClaimsGenerated",
             "AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelNoClaimFlagsGenerated",
-        ],
+        ]
+        .map(str::to_owned))),
     );
     assert_eq!(APP_GAME_TIMER_SERVICE_READINESS_GENERATED_MARKER, "app-game-timer-service-readiness");
 }
@@ -83,8 +53,8 @@ fn generated_typescript_app_game_timer_service_readiness_rules_stay_checked_in()
 
     assert_eq!(checked_in, generated);
     assert_exports_include(
-        &generated,
-        &[
+        crate::contract_text!(&generated),
+        ContractNames(BTreeSet::from([
             "appGameSourceGatedPolicyPreviewTimerStateMatchesProjectionGenerated",
             "appGameSourceGatedPolicyPreviewTimerHandoffStateForProjectionGenerated",
             "countAppGameSourceGatedPolicyPreviewTimerHandoffRowsGenerated",
@@ -118,6 +88,7 @@ fn generated_typescript_app_game_timer_service_readiness_rules_stay_checked_in()
             "countAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRowsGenerated",
             "appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelCountsMatchGenerated",
             "appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelHasNoRuntimeClaimsGenerated",
-        ],
+        ]
+        .map(str::to_owned))),
     );
 }

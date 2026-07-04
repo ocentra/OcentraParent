@@ -12,9 +12,7 @@ use super::{
 #[test]
 fn screen_analysis_queue_job_serializes_temp_encrypted_queue_shape() {
     let job = queue_job();
-    let serialized = serde_json::to_value(job).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(job).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["queueJobId"],
@@ -31,9 +29,7 @@ fn screen_analysis_queue_job_serializes_delete_failed_custody_state() {
     job.status = SCREEN_QUEUE_STATUS_FAILED.to_string();
     job.deletion_status = SCREEN_DELETION_DELETE_FAILED.to_string();
     job.failure_reason = Some(constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string());
-    let serialized = serde_json::to_value(job).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(job).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["status"], SCREEN_QUEUE_STATUS_FAILED);
     assert_eq!(serialized["deletionStatus"], SCREEN_DELETION_DELETE_FAILED);
@@ -44,9 +40,7 @@ fn screen_analysis_queue_job_serializes_delete_failed_custody_state() {
 #[test]
 fn screen_analysis_result_serializes_without_raw_image_payload() {
     let result = analysis_result(Vec::new());
-    let serialized = serde_json::to_value(result).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(result).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["screenAnalysisResultId"],
@@ -91,9 +85,7 @@ fn screen_evidence_recent_summary_serializes_flat_read_model() {
         evidence: evidence.clone(),
         results: vec![analysis_result(evidence)],
     };
-    let serialized = serde_json::to_value(summary).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(summary).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["returned"], 1);
     assert_eq!(serialized["latestPrimaryCategory"], SCREEN_CATEGORY_SCHOOL);

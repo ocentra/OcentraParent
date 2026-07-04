@@ -116,8 +116,11 @@ pub(crate) fn record_activity_capture_to_paths_at(
     network_limit: usize,
     observed_at: &str,
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
-    let events =
-        capture_events::activity_capture_events(observed_at, process_limit, network_limit)?;
+    let events = capture_events::activity_capture_events(
+        capture_events::ObservedAtText(Box::leak(observed_at.to_string().into_boxed_str())),
+        capture_events::CaptureLimit(process_limit),
+        capture_events::CaptureLimit(network_limit),
+    )?;
     record_activity_events_to_paths(journal_path, key_path, store_path, &events)
 }
 

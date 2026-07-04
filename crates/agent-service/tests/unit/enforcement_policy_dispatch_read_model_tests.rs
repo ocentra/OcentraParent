@@ -19,15 +19,14 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
+use super::test_text::{optional_log_string, test_ok, test_some, TestResult, TestText};
 use crate::enforcement_policy_dispatch_read_model::v08_enforcement_policy_dispatch_read_model;
-
-type TestResult = Result<(), String>;
 
 #[test]
 fn policy_dispatch_read_model_exposes_validation_and_non_claim_states() -> TestResult {
     let read_model =
         v08_enforcement_policy_dispatch_read_model(policy_constants::TEST_EVALUATED_AT);
-    let validation = ok(
+    let validation = test_ok(
         validate_enforcement_policy_dispatch_read_model(&read_model),
         constants::v08_enforcement_policy_dispatch::READ_MODEL_ID,
     )?;
@@ -79,7 +78,11 @@ async fn policy_dispatch_websocket_command_returns_service_read_model() -> TestR
         AgentEventName::AgentEnforcementPolicyDispatchReported
     );
     assert_eq!(
-        string_payload_field(&event, constants::field::READ_MODEL_ID)?,
+        test_some(
+            optional_log_string(&event.payload, constants::field::READ_MODEL_ID),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        )?
+        .to_string(),
         constants::v08_enforcement_policy_dispatch::READ_MODEL_ID
     );
     assert_eq!(
@@ -87,11 +90,17 @@ async fn policy_dispatch_websocket_command_returns_service_read_model() -> TestR
         8.0
     );
 
-    let read_model: EnforcementPolicyDispatchReadModel = ok(
-        serde_json::from_str(string_payload_field(
-            &event,
-            constants::field::ENFORCEMENT_POLICY_DISPATCH_READ_MODEL,
-        )?),
+    let read_model: EnforcementPolicyDispatchReadModel = test_ok(
+        serde_json::from_str(
+            &test_some(
+                optional_log_string(
+                    &event.payload,
+                    constants::field::ENFORCEMENT_POLICY_DISPATCH_READ_MODEL,
+                ),
+                constants::error::AGENT_EVENT_SERIALIZES,
+            )?
+            .to_string(),
+        ),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
 
@@ -103,14 +112,14 @@ async fn policy_dispatch_websocket_command_returns_service_read_model() -> TestR
         read_model.entries[0].intent.device.device_id,
         constants::peer::LOCAL_DEV_AGENT
     );
-    let manual_required_entry = some(
+    let manual_required_entry = test_some(
         read_model.entries.iter().find(|entry| {
             entry.matrix_row.rejection_reason
                 == EnforcementPolicyDispatchRejectionReason::AdapterManualRequired
         }),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
-    let stale_entry = some(
+    let stale_entry = test_some(
         read_model.entries.iter().find(|entry| {
             entry.matrix_row.rejection_reason
                 == EnforcementPolicyDispatchRejectionReason::StalePolicyVersion
@@ -133,12 +142,12 @@ async fn policy_dispatch_websocket_command_returns_service_read_model() -> TestR
     Ok(())
 }
 
-async fn send_policy_dispatch_command() -> Result<AgentEventEnvelope, String> {
-    let body = ok(
+async fn send_policy_dispatch_command() -> Result<AgentEventEnvelope, TestText> {
+    let body = test_ok(
         serde_json::to_string(&command_envelope()),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
-    Ok(handle_local_command_text_for_test(&body).await)
+    Ok(handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await)
 }
 
 fn command_envelope() -> AgentCommandEnvelope {
@@ -160,24 +169,15 @@ fn command_envelope() -> AgentCommandEnvelope {
     }
 }
 
-fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &str) -> Result<&'a str, String> {
-    match event.payload.get(field) {
-        Some(LogFieldValue::String(value)) => Ok(value.as_str()),
-        _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
-    }
-}
-
-fn number_payload_field(event: &AgentEventEnvelope, field: &str) -> Result<f64, String> {
-    match event.payload.get(field) {
+fn number_payload_field(
+    event: &AgentEventEnvelope,
+    field: impl std::fmt::Display,
+) -> Result<f64, TestText> {
+    let field_name = field.to_string();
+    match event.payload.get(field_name.as_str()) {
         Some(LogFieldValue::Number(value)) => Ok(*value),
-        _ => Err(constants::error::AGENT_EVENT_SERIALIZES.to_string()),
+        _ => Err(TestText::from_display(
+            constants::error::AGENT_EVENT_SERIALIZES,
+        )),
     }
-}
-
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| context.to_string())
 }

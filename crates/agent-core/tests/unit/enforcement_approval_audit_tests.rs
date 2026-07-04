@@ -1,5 +1,4 @@
-use std::fmt::Debug;
-
+use crate::test_text::{test_ok as ok, TestResult, TestText};
 use crate::{evaluate_enforcement_boundary, EnforcementBoundaryInput};
 use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
@@ -18,12 +17,6 @@ use ocentra_parent_agent_protocol::enforcement::{
     EnforcementPermissionState, ParentActionReference, ParentPlatform,
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
-
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
 
 #[test]
 fn parent_approval_survives_action_and_audit_boundary_as_reference_data() -> TestResult {

@@ -13,6 +13,9 @@ use crate::enforcement_adapter::{
     OwnedProcessTerminationTarget,
 };
 
+#[path = "enforcement_app_time_limit_platform.rs"]
+mod enforcement_app_time_limit_platform;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AppTimeLimitAdapterTarget {
     pub pid: u32,
@@ -138,11 +141,5 @@ fn time_limit_outcome_from_process_outcome(
 
 #[cfg(not(windows))]
 fn current_platform() -> ParentPlatform {
-    match std::env::consts::OS {
-        enforcement_constants::PLATFORM_LINUX => ParentPlatform::Linux,
-        enforcement_constants::PLATFORM_MACOS => ParentPlatform::Macos,
-        enforcement_constants::PLATFORM_ANDROID => ParentPlatform::Android,
-        enforcement_constants::PLATFORM_IOS => ParentPlatform::Ios,
-        _ => ParentPlatform::Linux,
-    }
+    enforcement_app_time_limit_platform::current_platform()
 }

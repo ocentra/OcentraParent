@@ -1,7 +1,7 @@
 /* thin adapter over Rust-generated parent storage settings apply flow contracts */
 
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
-import { countProductionProofValues } from './production-proof-shape';
+import { countProductionProofValues } from './proof-shape';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   ParentOwnedSyncExportDataClassSchema,
@@ -25,11 +25,7 @@ import {
   GeneratedParentStorageSettingsApplyFlowContractProof,
   GeneratedParentStorageUiStates,
   ParentStorageSettingsApplyFlowContractRuntime,
-  type GeneratedParentStorageApplyState,
   type GeneratedParentStorageClaimSafeCopyRow,
-  type GeneratedParentStorageDeleteActionKind,
-  type GeneratedParentStorageModeLabel,
-  type GeneratedParentStorageNoClaim,
   type GeneratedParentStorageSettingsApplyFlowContractProof as GeneratedParentStorageSettingsApplyFlowContractProofShape,
 } from './generated/parent-storage-settings-apply-flow-contracts';
 import {
@@ -66,6 +62,16 @@ const ParentStoragePreviewIdSchema = brandedNonEmptyStringSchema('ParentStorageP
 const ParentStorageApplyIdSchema = brandedNonEmptyStringSchema('ParentStorageApplyId');
 const ParentStorageActionIdSchema = brandedNonEmptyStringSchema('ParentStorageActionId');
 const ParentStorageTextSchema = brandedNonEmptyStringSchema('ParentStorageText');
+
+export type ParentStorageSettingsRowId = typeof ParentStorageSettingsRowIdSchema.Type;
+export type ParentStoragePreviewId = typeof ParentStoragePreviewIdSchema.Type;
+export type ParentStorageApplyId = typeof ParentStorageApplyIdSchema.Type;
+export type ParentStorageActionId = typeof ParentStorageActionIdSchema.Type;
+export type ParentStorageTimestamp = typeof ParentTimestampSchema.Type;
+export type ParentStorageModeLabel = Infer<typeof ParentStorageModeLabelSchema>;
+export type ParentStorageApplyState = Infer<typeof ParentStorageApplyStateSchema>;
+export type ParentStorageDeleteActionKind = Infer<typeof ParentStorageDeleteActionKindSchema>;
+export type ParentStorageNoClaim = Infer<typeof ParentStorageNoClaimSchema>;
 
 export const ParentStorageModeCardSchema = withParser(
   Schema.Struct({
@@ -216,11 +222,6 @@ export const ParentStorageSettingsApplyFlowContractProofSchema = withParser(
   )
 );
 
-export type ParentStorageModeLabel = Infer<typeof ParentStorageModeLabelSchema> & GeneratedParentStorageModeLabel;
-export type ParentStorageApplyState = Infer<typeof ParentStorageApplyStateSchema> & GeneratedParentStorageApplyState;
-export type ParentStorageDeleteActionKind =
-  Infer<typeof ParentStorageDeleteActionKindSchema> & GeneratedParentStorageDeleteActionKind;
-export type ParentStorageNoClaim = Infer<typeof ParentStorageNoClaimSchema> & GeneratedParentStorageNoClaim;
 export type ParentStorageSettingsApplyFlowContractProof = Infer<typeof ParentStorageSettingsApplyFlowContractProofSchema>;
 
 export const ParentStorageSettingsApplyFlowContractProofReadModel =

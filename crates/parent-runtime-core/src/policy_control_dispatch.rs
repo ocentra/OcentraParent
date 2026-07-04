@@ -11,6 +11,13 @@ use ocentra_policy_control_core::policy_delivery::{
 };
 use serde::{Deserialize, Serialize};
 
+#[path = "policy_control_dispatch/helpers.rs"]
+mod helpers;
+use self::helpers::{
+    parent_runtime_policy_control_dispatch_ref, parent_visible_state_when_dispatch_is_blocked,
+    parent_visible_state_while_dispatching,
+};
+
 const PARENT_RUNTIME_POLICY_CONTROL_SCHEMA_VERSION: u16 = 1;
 pub const PARENT_RUNTIME_POLICY_CONTROL_DISPATCH_EVALUATED_EVENT_TYPE: &str =
     "parent-runtime.policy-control-dispatch.evaluated";
@@ -227,12 +234,9 @@ pub fn parent_runtime_policy_control_dispatch_evaluated_event_from_origin(
     origin_state: ParentRuntimePolicyControlOriginState,
 ) -> ParentRuntimePolicyControlDispatchEvaluatedEvent {
     ParentRuntimePolicyControlDispatchEvaluatedEvent {
-        dispatch_id: ParentRuntimePolicyControlDispatchId::parse(
+        dispatch_id: ParentRuntimePolicyControlDispatchId(
             parent_runtime_policy_control_dispatch_ref(delivery, decision_event),
-        )
-        .unwrap_or_else(|error| {
-            unreachable!("{PARENT_RUNTIME_POLICY_CONTROL_DISPATCH_PREFIX}: {error:?}")
-        }),
+        ),
         source_delivery: delivery.clone(),
         source_decision: decision_event.clone(),
         child_acknowledgement_state,
@@ -262,48 +266,4 @@ pub fn route_parent_policy_control_delivery_from_origin(
         conflict_resolution_state: decision_event.conflict_decision.resolution_state,
         conflict_manual_review_state: decision_event.conflict_decision.manual_review_state,
     })
-}
-
-fn parent_visible_state_while_dispatching(
-    state: PolicyDeliveryState,
-) -> PolicyDeliveryParentVisibleState {
-    match state {
-        PolicyDeliveryState::Degraded | PolicyDeliveryState::Offline => {
-            PolicyDeliveryParentVisibleState::Degraded
-        }
-        PolicyDeliveryState::Superseded => PolicyDeliveryParentVisibleState::Superseded,
-        _ => PolicyDeliveryParentVisibleState::Pending,
-    }
-}
-
-fn parent_visible_state_when_dispatch_is_blocked(
-    state: PolicyDeliveryState,
-    current_parent_visible_state: PolicyDeliveryParentVisibleState,
-) -> PolicyDeliveryParentVisibleState {
-    match state {
-        PolicyDeliveryState::Degraded | PolicyDeliveryState::Offline => {
-            PolicyDeliveryParentVisibleState::Degraded
-        }
-        PolicyDeliveryState::Superseded => PolicyDeliveryParentVisibleState::Superseded,
-        _ => match current_parent_visible_state {
-            PolicyDeliveryParentVisibleState::Superseded => {
-                PolicyDeliveryParentVisibleState::Superseded
-            }
-            PolicyDeliveryParentVisibleState::Degraded => {
-                PolicyDeliveryParentVisibleState::Degraded
-            }
-            _ => PolicyDeliveryParentVisibleState::ManualRequired,
-        },
-    }
-}
-
-fn parent_runtime_policy_control_dispatch_ref(
-    delivery: &PolicyDeliveryRecord,
-    decision_event: &PolicyDecisionResolvedEvent,
-) -> String {
-    let mut value = String::from(PARENT_RUNTIME_POLICY_CONTROL_DISPATCH_PREFIX);
-    value.push_str(delivery.delivery_id.as_str());
-    value.push_str(PARENT_RUNTIME_POLICY_CONTROL_IDEMPOTENCY_SEPARATOR);
-    value.push_str(decision_event.source_request_id.as_str());
-    value
 }

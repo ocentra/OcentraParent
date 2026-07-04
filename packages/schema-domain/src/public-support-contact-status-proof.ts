@@ -1,6 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { countProductionProofValues } from './production-proof-shape';
+import { countProductionProofValues } from './proof-shape';
 import {
   ForbiddenPublicSupportContactStatusDataClasses,
   PublicSupportContactStatusDataClassSchema,

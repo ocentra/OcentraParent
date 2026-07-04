@@ -1,8 +1,6 @@
-use crate::{
-    plan_network_live_capture_proof, NetworkLiveCapturePlatform, NetworkLiveCaptureProofError,
-    NetworkLiveCaptureProofInput, NetworkLiveCaptureProofState, NetworkLiveCaptureRequiredArtifact,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::live_capture::*;
+use ocentra_network_evidence::live_capture_execution::*;
 
 #[test]
 fn live_capture_gate_allows_proof_ready_with_driver_permission_custody_and_quota_refs() {

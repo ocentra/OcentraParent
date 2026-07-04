@@ -1,13 +1,15 @@
-use crate::support::ResultTestExt as _;
+use crate::support::{OptionTestExt as _, ResultTestExt as _};
 use ocentra_lan_core::network_inventory::api::{
     discovered_devices_from_network_inventory,
     plan_lan_discovery_scan_with_manual_interface_selection,
 };
-use ocentra_lan_core::network_inventory::passive_discovery::{
+use ocentra_lan_core::network_inventory::passive_discovery::collection::{
     local_neighbor_collection_support_for_platform,
-    record_local_neighbor_passive_updates_from_observations, LanPassiveDiscoveryListenerState,
-    LanPassiveDiscoveryLocalNeighborSource, LanPassiveDiscoverySource,
-    LanPassiveDiscoveryTriggerReason,
+    record_local_neighbor_passive_updates_from_observations,
+};
+use ocentra_lan_core::network_inventory::passive_discovery::{
+    LanPassiveDiscoveryListenerState, LanPassiveDiscoveryLocalNeighborSource,
+    LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
 };
 use ocentra_lan_core::network_inventory::{
     LanDiscoveryRefreshMode, LanManualInterfaceSelection, LanNetworkInventoryDevice,
@@ -24,69 +26,83 @@ use serde_json::{Map, Value};
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 
-pub(crate) fn neighbor_record(hostname: Option<&str>) -> Value {
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct LanText(pub(crate) String);
+
+pub(crate) fn neighbor_record(hostname: Option<impl Into<Value>>) -> Value {
     neighbor_record_with_values(
         constants::lan_pairing::TEST_LAN_IP,
         constants::lan_pairing::TEST_LAN_MAC,
         constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE,
-        None,
-        hostname,
+        None::<Value>,
+        hostname.map(Into::into),
     )
 }
 
 pub(crate) fn neighbor_record_with_values(
-    ip_address: &str,
-    mac_address: &str,
-    state: &str,
-    interface_alias: Option<&str>,
-    hostname: Option<&str>,
+    ip_address: impl Into<Value>,
+    mac_address: impl Into<Value>,
+    state: impl Into<Value>,
+    interface_alias: Option<impl Into<Value>>,
+    hostname: Option<impl Into<Value>>,
 ) -> Value {
+    let ip_address = ip_address.into();
+    let mac_address = mac_address.into();
+    let state = state.into();
     let mut record = Map::new();
     record.insert(
         constants::lan_pairing::JSON_KEY_IP_ADDRESS.to_string(),
-        Value::String(ip_address.to_string()),
+        Value::String(ip_address.as_str().unwrap_or_default().to_owned()),
     );
     record.insert(
         constants::lan_pairing::JSON_KEY_LINK_LAYER_ADDRESS.to_string(),
-        Value::String(mac_address.to_string()),
+        Value::String(mac_address.as_str().unwrap_or_default().to_owned()),
     );
     record.insert(
         constants::lan_pairing::JSON_KEY_STATE.to_string(),
-        Value::String(state.to_string()),
+        Value::String(state.as_str().unwrap_or_default().to_owned()),
     );
     if let Some(interface_alias) = interface_alias {
         record.insert(
             constants::lan_pairing::JSON_KEY_INTERFACE_ALIAS.to_string(),
-            Value::String(interface_alias.to_string()),
+            Value::String(
+                interface_alias
+                    .into()
+                    .as_str()
+                    .unwrap_or_default()
+                    .to_owned(),
+            ),
         );
     }
     if let Some(hostname) = hostname {
         record.insert(
             constants::lan_pairing::JSON_KEY_HOSTNAME.to_string(),
-            Value::String(hostname.to_string()),
+            Value::String(hostname.into().as_str().unwrap_or_default().to_owned()),
         );
     }
     Value::Object(record)
 }
 
 pub(crate) fn trusted_device(
-    mac_address: &str,
-    ip_address: Option<&str>,
-    hostname: Option<&str>,
-    label: &str,
-    platform: &str,
+    mac_address: impl Into<Value>,
+    ip_address: Option<impl Into<Value>>,
+    hostname: Option<impl Into<Value>>,
+    label: impl Into<Value>,
+    platform: impl Into<Value>,
 ) -> LanPairingDeviceRef {
-    let mut device = LanPairingDeviceRef::new(
-        "trusted-child".to_string(),
-        None,
-        label.to_string(),
-        platform.to_string(),
-    );
+    let mac_address = mac_address.into().as_str().unwrap_or_default().to_owned();
+    let label = label.into().as_str().unwrap_or_default().to_owned();
+    let platform = platform.into().as_str().unwrap_or_default().to_owned();
+    let mut device = LanPairingDeviceRef::new("trusted-child".to_string(), None, label, platform);
     if !mac_address.is_empty() {
-        device.mac_address = Some(mac_address.to_string());
+        device.mac_address = Some(mac_address);
     }
-    device.ip_address = ip_address.map(str::to_string);
-    device.hostname = hostname.map(str::to_string);
+    device.ip_address = ip_address
+        .map(Into::into)
+        .map(|value: Value| value.as_str().unwrap_or_default().to_owned());
+    device.hostname = hostname
+        .map(Into::into)
+        .map(|value: Value| value.as_str().unwrap_or_default().to_owned());
     device
 }
 
@@ -95,7 +111,7 @@ fn optional_probe_env_lock() -> std::sync::MutexGuard<'static, ()> {
     OPTIONAL_PROBE_ENV_LOCK
         .get_or_init(|| Mutex::new(()))
         .lock()
-        .value_or_unreachable("optional probe env lock")
+        .value_or_unreachable()
 }
 
 #[test]
@@ -141,7 +157,7 @@ fn manual_interface_selection_trims_into_identity_before_planning() {
         ipv6_prefixes: vec![" fd00::10/64 ".to_string()],
     }
     .into_identity()
-    .unwrap_or_else(|| unreachable!("manual interface selection should yield an identity"));
+    .value_or_unreachable();
 
     assert_eq!(identity.network_interface.as_deref(), Some("en7"));
     assert_eq!(identity.ip_address.as_deref(), Some("192.168.50.10"));
@@ -192,14 +208,20 @@ fn scan_plan_carries_runtime_optional_query_settings() {
     assert!(plan.allow_snmp_identity_query);
     assert!(!plan.allow_os_fingerprint);
 
-    restore_optional_probe_env(
-        constants::lan_pairing::LAN_ALLOW_WSD_IDENTITY_QUERY_ENV,
-        previous_wsd.as_deref(),
-    );
-    restore_optional_probe_env(
-        constants::lan_pairing::LAN_ALLOW_SNMP_IDENTITY_QUERY_ENV,
-        previous_snmp.as_deref(),
-    );
+    match previous_wsd.as_deref() {
+        Some(value) => std::env::set_var(
+            constants::lan_pairing::LAN_ALLOW_WSD_IDENTITY_QUERY_ENV,
+            value,
+        ),
+        None => std::env::remove_var(constants::lan_pairing::LAN_ALLOW_WSD_IDENTITY_QUERY_ENV),
+    }
+    match previous_snmp.as_deref() {
+        Some(value) => std::env::set_var(
+            constants::lan_pairing::LAN_ALLOW_SNMP_IDENTITY_QUERY_ENV,
+            value,
+        ),
+        None => std::env::remove_var(constants::lan_pairing::LAN_ALLOW_SNMP_IDENTITY_QUERY_ENV),
+    }
 }
 
 #[test]
@@ -208,7 +230,7 @@ fn local_neighbor_collection_support_reports_explicit_platform_blockers() {
         LanPassiveDiscoveryLocalNeighborSource::WindowsNeighborTable,
         "linux",
     )
-    .error_or_unreachable("windows collector should be blocked on linux");
+    .error_or_unreachable();
     assert_eq!(
         blocked,
         "windows-neighbor-table passive collection is only available on windows; current platform is linux"
@@ -218,7 +240,7 @@ fn local_neighbor_collection_support_reports_explicit_platform_blockers() {
         LanPassiveDiscoveryLocalNeighborSource::LinuxIpNeigh,
         "linux",
     )
-    .value_or_unreachable("linux collector should be available on linux");
+    .value_or_unreachable();
     assert_eq!(
         allowed,
         constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH
@@ -256,7 +278,7 @@ fn local_neighbor_observations_record_weak_hints_with_source_labels() {
         LanPassiveDiscoveryTriggerReason::PassivePacketObserved
     );
     assert_eq!(
-        snapshot.rows[0].device_id.as_deref(),
+        snapshot.rows[0].device_id.as_ref().map(AsRef::as_ref),
         Some("11:22:33:44:55:66")
     );
     assert_eq!(
@@ -264,7 +286,7 @@ fn local_neighbor_observations_record_weak_hints_with_source_labels() {
         "linux-ip-neigh weak hint: ip=192.168.50.10; mac=11:22:33:44:55:66"
     );
     assert_eq!(
-        snapshot.rows[1].device_id.as_deref(),
+        snapshot.rows[1].device_id.as_ref().map(AsRef::as_ref),
         Some("aa:bb:cc:dd:ee:ff")
     );
     assert_eq!(
@@ -337,11 +359,4 @@ fn discovered_devices_preserve_selected_interface_on_service_identity_evidence()
         Some("Wi-Fi")
     );
     assert_eq!(discovered[0].discovered_at, "2026-06-28T00:00:15Z");
-}
-
-fn restore_optional_probe_env(name: &str, value: Option<&str>) {
-    match value {
-        Some(value) => std::env::set_var(name, value),
-        None => std::env::remove_var(name),
-    }
 }

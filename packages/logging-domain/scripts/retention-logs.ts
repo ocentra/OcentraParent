@@ -2,7 +2,7 @@
 
 import { pruneAppLogSessions } from '../src/app-log/appNdjsonWriter';
 import { pruneTestLogRuns } from '../src/test-log/testLogRetention';
-import { parseTestLogScopeOrDefault } from '@ocentra-parent/schema-domain/test-log/types';
+import { parseTestLogScopeOrDefault } from '../src/test-log/types';
 
 function getFlag(name: string): string | undefined {
   const prefix = `--${name}=`;

@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -14,9 +17,10 @@ use ocentra_parent_agent_service::test_support::handle_local_command_text_for_te
 async fn social_source_custody_mutation_command_returns_applied_service_snapshot() {
     let body = serde_json::to_string(&command_envelope())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let mutation =
-        mutation_payload(&event.payload[constants::field::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION]);
+        mutation_payload(&crate::test_invariants::log_field(&event.payload, constants::field::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION, constants::error::AGENT_EVENT_SERIALIZES));
 
     assert_eq!(
         event.event,

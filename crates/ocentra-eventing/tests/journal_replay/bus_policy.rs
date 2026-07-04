@@ -24,13 +24,13 @@ async fn assert_before_dispatch_selected_type() {
     let before_log = shared_log();
     let before_bus = bus_with_recording_journal(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type(
-            TEST_EVENT_TYPE,
+            TestText(TEST_EVENT_TYPE.to_owned()),
         )])),
         Arc::clone(&before_log),
     );
     subscribe_log_handler(&before_bus, Arc::clone(&before_log)).await;
     before_bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(test_event(TestText(TEST_LABEL.to_owned())), metadata(TestText(TEST_TARGET.to_owned())))
         .await
         .expect_value("before dispatch publish");
     assert_eq!(
@@ -53,7 +53,7 @@ async fn assert_after_dispatch_selected_namespace() {
     );
     subscribe_log_handler(&after_bus, Arc::clone(&after_log)).await;
     after_bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(test_event(TestText(TEST_LABEL.to_owned())), metadata(TestText(TEST_TARGET.to_owned())))
         .await
         .expect_value("after dispatch publish");
     assert_eq!(
@@ -69,20 +69,20 @@ async fn assert_before_and_after_dispatch_allowlist() {
     let both_log = shared_log();
     let both_bus = bus_with_recording_journal(
         JournalPolicy::before_and_after_dispatch(JournalSelector::ContractAllowlist(vec![
-            event_type(TEST_EVENT_TYPE),
+            event_type(TestText(TEST_EVENT_TYPE.to_owned())),
         ])),
         Arc::clone(&both_log),
     );
     subscribe_log_handler(&both_bus, Arc::clone(&both_log)).await;
     both_bus
         .publish(
-            test_event_for_type(TEST_LABEL, OTHER_EVENT_TYPE),
-            metadata(TEST_TARGET),
+            test_event_for_type(TestText(TEST_LABEL.to_owned()), TestText(OTHER_EVENT_TYPE.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
         )
         .await
         .expect_value("unselected publish");
     both_bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(test_event(TestText(TEST_LABEL.to_owned())), metadata(TestText(TEST_TARGET.to_owned())))
         .await
         .expect_value("selected publish");
     assert_eq!(

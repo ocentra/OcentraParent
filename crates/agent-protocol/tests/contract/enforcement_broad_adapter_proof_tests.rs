@@ -21,14 +21,13 @@ fn broad_adapter_runtime_surfaces_have_stable_protocol_strings() {
         V08BroadAdapterRuntimeSurface::AndroidMobileRuntimeManualGate,
         V08BroadAdapterRuntimeSurface::IosMobileRuntimeManualGate,
     ];
-    let serialized = serde_json::to_value(surfaces).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized
             .as_array()
-            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
             .len(),
         10
     );
@@ -70,106 +69,110 @@ fn broad_adapter_runtime_read_model_serializes_honest_non_claims() {
         generated_at: policy_constants::TEST_EVALUATED_AT.to_string(),
         source_read_model_ids: vec![proof::SOURCE_BROAD_OS_ADAPTER_PROOF.to_string()],
         entries: vec![
-            entry(
-                proof::ENTRY_ID_OWNED_PROCESS_TIMER,
-                V08BroadAdapterRuntimeSurface::WindowsOwnedProcessAndTimerRuntimeBoundary,
-                ParentPlatform::Windows,
-                V08BroadAdapterRuntimeClaimState::ImplementedBoundary,
-                V08BroadAdapterRuntimeEvidenceState::CompositeRuntimeProof,
-            ),
-            entry(
-                proof::ENTRY_ID_NETWORK_DOMAIN_GATE,
-                V08BroadAdapterRuntimeSurface::WindowsNetworkDomainRuntimeGate,
-                ParentPlatform::Windows,
-                V08BroadAdapterRuntimeClaimState::ManualRequired,
-                V08BroadAdapterRuntimeEvidenceState::ManualArtifactRequired,
-            ),
-            entry(
-                proof::ENTRY_ID_UNMANAGED_EXACT_EVIDENCE_GAP,
-                V08BroadAdapterRuntimeSurface::WindowsUnmanagedBrowserExactEvidenceRuntimeGap,
-                ParentPlatform::Windows,
-                V08BroadAdapterRuntimeClaimState::NotClaimed,
-                V08BroadAdapterRuntimeEvidenceState::NotImplemented,
-            ),
+            V08BroadAdapterRuntimeProofEntry {
+                schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+                proof_entry_id: proof::ENTRY_ID_OWNED_PROCESS_TIMER.to_string(),
+                runtime_surface:
+                    V08BroadAdapterRuntimeSurface::WindowsOwnedProcessAndTimerRuntimeBoundary,
+                platform: ParentPlatform::Windows,
+                product_claim_state: V08BroadAdapterRuntimeClaimState::ImplementedBoundary,
+                evidence_state: V08BroadAdapterRuntimeEvidenceState::CompositeRuntimeProof,
+                source_proof_ids: vec![proof::SOURCE_BROAD_OS_ADAPTER_PROOF.to_string()],
+                linked_proof_commands: vec![proof::COMMAND_BROAD_OS_ADAPTER_PROOF.to_string()],
+                linked_proof_artifacts: vec![proof::ARTIFACT_BROAD_OS_ADAPTER_PROOF.to_string()],
+                manual_proof_requirements: vec![proof::REQUIREMENT_ROLLBACK.to_string()],
+                claim_boundary: proof::CLAIM_NETWORK_DOMAIN_GATE.to_string(),
+                fallback_behavior: proof::FALLBACK_NETWORK_DOMAIN_GATE.to_string(),
+                broad_installed_app_blocking_claimed: false,
+                network_domain_blocking_claimed: false,
+                managed_browser_exact_url_claimed: false,
+                unmanaged_browser_exact_evidence_claimed: false,
+                unsupported_platform_claimed: false,
+                mobile_privilege_claimed: false,
+                last_checked_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+            },
+            V08BroadAdapterRuntimeProofEntry {
+                schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+                proof_entry_id: proof::ENTRY_ID_NETWORK_DOMAIN_GATE.to_string(),
+                runtime_surface: V08BroadAdapterRuntimeSurface::WindowsNetworkDomainRuntimeGate,
+                platform: ParentPlatform::Windows,
+                product_claim_state: V08BroadAdapterRuntimeClaimState::ManualRequired,
+                evidence_state: V08BroadAdapterRuntimeEvidenceState::ManualArtifactRequired,
+                source_proof_ids: vec![proof::SOURCE_BROAD_OS_ADAPTER_PROOF.to_string()],
+                linked_proof_commands: vec![proof::COMMAND_BROAD_OS_ADAPTER_PROOF.to_string()],
+                linked_proof_artifacts: vec![proof::ARTIFACT_BROAD_OS_ADAPTER_PROOF.to_string()],
+                manual_proof_requirements: vec![proof::REQUIREMENT_ROLLBACK.to_string()],
+                claim_boundary: proof::CLAIM_NETWORK_DOMAIN_GATE.to_string(),
+                fallback_behavior: proof::FALLBACK_NETWORK_DOMAIN_GATE.to_string(),
+                broad_installed_app_blocking_claimed: false,
+                network_domain_blocking_claimed: false,
+                managed_browser_exact_url_claimed: false,
+                unmanaged_browser_exact_evidence_claimed: false,
+                unsupported_platform_claimed: false,
+                mobile_privilege_claimed: false,
+                last_checked_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+            },
+            V08BroadAdapterRuntimeProofEntry {
+                schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+                proof_entry_id: proof::ENTRY_ID_UNMANAGED_EXACT_EVIDENCE_GAP.to_string(),
+                runtime_surface:
+                    V08BroadAdapterRuntimeSurface::WindowsUnmanagedBrowserExactEvidenceRuntimeGap,
+                platform: ParentPlatform::Windows,
+                product_claim_state: V08BroadAdapterRuntimeClaimState::NotClaimed,
+                evidence_state: V08BroadAdapterRuntimeEvidenceState::NotImplemented,
+                source_proof_ids: vec![proof::SOURCE_BROAD_OS_ADAPTER_PROOF.to_string()],
+                linked_proof_commands: vec![proof::COMMAND_BROAD_OS_ADAPTER_PROOF.to_string()],
+                linked_proof_artifacts: vec![proof::ARTIFACT_BROAD_OS_ADAPTER_PROOF.to_string()],
+                manual_proof_requirements: vec![proof::REQUIREMENT_ROLLBACK.to_string()],
+                claim_boundary: proof::CLAIM_NETWORK_DOMAIN_GATE.to_string(),
+                fallback_behavior: proof::FALLBACK_NETWORK_DOMAIN_GATE.to_string(),
+                broad_installed_app_blocking_claimed: false,
+                network_domain_blocking_claimed: false,
+                managed_browser_exact_url_claimed: false,
+                unmanaged_browser_exact_evidence_claimed: false,
+                unsupported_platform_claimed: false,
+                mobile_privilege_claimed: false,
+                last_checked_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+            },
         ],
     };
     let reparsed = serde_json::from_value::<V08BroadAdapterRuntimeProofReadModel>(
-        serde_json::to_value(read_model).unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        }),
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
     )
-    .unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    let claim_counts = count_claim_states(&reparsed.entries);
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let claim_counts: BTreeMap<&'static str, usize> =
+        reparsed
+            .entries
+            .iter()
+            .fold(BTreeMap::new(), |mut counts, entry| {
+                *counts
+                    .entry(entry.product_claim_state.as_protocol_str())
+                    .or_default() += 1;
+                counts
+            });
 
     assert_eq!(reparsed.read_model_id, proof::READ_MODEL_ID);
     assert_eq!(claim_counts[proof::CLAIM_IMPLEMENTED_BOUNDARY], 1);
     assert_eq!(claim_counts[proof::CLAIM_MANUAL_REQUIRED], 1);
     assert_eq!(claim_counts[proof::CLAIM_NOT_CLAIMED], 1);
-    assert!(reparsed
-        .entries
+    assert_broad_adapter_runtime_honest_non_claims(&reparsed.entries);
+}
+
+fn assert_broad_adapter_runtime_honest_non_claims(entries: &[V08BroadAdapterRuntimeProofEntry]) {
+    assert!(entries
         .iter()
         .all(|entry| !entry.broad_installed_app_blocking_claimed));
-    assert!(reparsed
-        .entries
+    assert!(entries
         .iter()
         .all(|entry| !entry.network_domain_blocking_claimed));
-    assert!(reparsed
-        .entries
+    assert!(entries
         .iter()
         .all(|entry| !entry.managed_browser_exact_url_claimed));
-    assert!(reparsed
-        .entries
+    assert!(entries
         .iter()
         .all(|entry| !entry.unmanaged_browser_exact_evidence_claimed));
-    assert!(reparsed
-        .entries
+    assert!(entries
         .iter()
         .all(|entry| !entry.unsupported_platform_claimed));
-    assert!(reparsed
-        .entries
-        .iter()
-        .all(|entry| !entry.mobile_privilege_claimed));
-}
-
-fn entry(
-    proof_entry_id: &str,
-    runtime_surface: V08BroadAdapterRuntimeSurface,
-    platform: ParentPlatform,
-    product_claim_state: V08BroadAdapterRuntimeClaimState,
-    evidence_state: V08BroadAdapterRuntimeEvidenceState,
-) -> V08BroadAdapterRuntimeProofEntry {
-    V08BroadAdapterRuntimeProofEntry {
-        schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-        proof_entry_id: proof_entry_id.to_string(),
-        runtime_surface,
-        platform,
-        product_claim_state,
-        evidence_state,
-        source_proof_ids: vec![proof::SOURCE_BROAD_OS_ADAPTER_PROOF.to_string()],
-        linked_proof_commands: vec![proof::COMMAND_BROAD_OS_ADAPTER_PROOF.to_string()],
-        linked_proof_artifacts: vec![proof::ARTIFACT_BROAD_OS_ADAPTER_PROOF.to_string()],
-        manual_proof_requirements: vec![proof::REQUIREMENT_ROLLBACK.to_string()],
-        claim_boundary: proof::CLAIM_NETWORK_DOMAIN_GATE.to_string(),
-        fallback_behavior: proof::FALLBACK_NETWORK_DOMAIN_GATE.to_string(),
-        broad_installed_app_blocking_claimed: false,
-        network_domain_blocking_claimed: false,
-        managed_browser_exact_url_claimed: false,
-        unmanaged_browser_exact_evidence_claimed: false,
-        unsupported_platform_claimed: false,
-        mobile_privilege_claimed: false,
-        last_checked_at: policy_constants::TEST_EVALUATED_AT.to_string(),
-    }
-}
-
-fn count_claim_states(
-    entries: &[V08BroadAdapterRuntimeProofEntry],
-) -> BTreeMap<&'static str, usize> {
-    entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts
-            .entry(entry.product_claim_state.as_protocol_str())
-            .or_default() += 1;
-        counts
-    })
+    assert!(entries.iter().all(|entry| !entry.mobile_privilege_claimed));
 }

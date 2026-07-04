@@ -7,6 +7,10 @@ use crate::cascade::{
 };
 use crate::dns::types::NetworkEvidenceGrade;
 
+mod normalize;
+mod refs;
+mod validation;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkCrossSliceEvidenceSource {
     pub source_kind: NetworkCascadeSourceKind,
@@ -58,9 +62,9 @@ pub fn build_network_cross_slice_evidence_bundle(
         trigger_ref,
         sources,
     } = input;
-    let trigger_ref =
-        normalize_ref(&trigger_ref).ok_or(NetworkCrossSliceEvidenceBundleError::EmptyTriggerRef)?;
-    validate_bundle_sources(&sources)?;
+    let trigger_ref = normalize::normalize_ref(&trigger_ref)
+        .ok_or(NetworkCrossSliceEvidenceBundleError::EmptyTriggerRef)?;
+    validation::validate_bundle_sources(&sources)?;
 
     let cascade_sources = sources
         .iter()
@@ -68,7 +72,7 @@ pub fn build_network_cross_slice_evidence_bundle(
             source_kind: source.source_kind,
             signal_strength: source.signal_strength,
             evidence_grade: source.evidence_grade,
-            source_ref: normalize_ref(&source.evidence_ref).unwrap_or_default(),
+            source_ref: normalize::normalize_ref(&source.evidence_ref).unwrap_or_default(),
             exact_url_available: source.exact_url_available,
             decrypted_payload_available: source.decrypted_payload_available,
             policy_action_authority: source.policy_action_authority,
@@ -89,8 +93,8 @@ pub fn build_network_cross_slice_evidence_bundle(
         }
     })?;
 
-    let evidence_refs = unique_evidence_refs(&sources);
-    let exact_url_evidence_refs = exact_url_evidence_refs(&sources);
+    let evidence_refs = refs::unique_evidence_refs(&sources);
+    let exact_url_evidence_refs = refs::exact_url_evidence_refs(&sources);
     let exact_url_available = !exact_url_evidence_refs.is_empty();
     let local_ai_review_recommended = cascade
         .next_checks
@@ -110,65 +114,4 @@ pub fn build_network_cross_slice_evidence_bundle(
         decrypted_payload_available: false,
         evidence_grade: cascade.evidence_grade,
     })
-}
-
-fn validate_bundle_sources(
-    sources: &[NetworkCrossSliceEvidenceSource],
-) -> Result<(), NetworkCrossSliceEvidenceBundleError> {
-    for source in sources {
-        if normalize_ref(&source.evidence_ref).is_none() {
-            return Err(NetworkCrossSliceEvidenceBundleError::EmptyEvidenceRef);
-        }
-        if source.decrypted_payload_available {
-            return Err(NetworkCrossSliceEvidenceBundleError::UnsupportedDecryptedPayloadClaim);
-        }
-        if source.exact_url_available
-            && source.source_kind != NetworkCascadeSourceKind::ManagedBrowserExactUrl
-        {
-            return Err(
-                NetworkCrossSliceEvidenceBundleError::UnsupportedNetworkExactUrlClaim(
-                    source.source_kind,
-                ),
-            );
-        }
-        if source.policy_action_authority {
-            return Err(NetworkCrossSliceEvidenceBundleError::UnsupportedPolicyAuthorityClaim);
-        }
-        if source.adapter_action_authority {
-            return Err(NetworkCrossSliceEvidenceBundleError::UnsupportedAdapterAuthorityClaim);
-        }
-    }
-    Ok(())
-}
-
-fn unique_evidence_refs(sources: &[NetworkCrossSliceEvidenceSource]) -> Vec<String> {
-    let mut refs = Vec::new();
-    for source in sources {
-        if let Some(evidence_ref) = normalize_ref(&source.evidence_ref) {
-            if !refs.contains(&evidence_ref) {
-                refs.push(evidence_ref);
-            }
-        }
-    }
-    refs
-}
-
-fn exact_url_evidence_refs(sources: &[NetworkCrossSliceEvidenceSource]) -> Vec<String> {
-    sources
-        .iter()
-        .filter(|source| {
-            source.source_kind == NetworkCascadeSourceKind::ManagedBrowserExactUrl
-                && source.exact_url_available
-        })
-        .filter_map(|source| normalize_ref(&source.evidence_ref))
-        .collect()
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_owned())
-    }
 }

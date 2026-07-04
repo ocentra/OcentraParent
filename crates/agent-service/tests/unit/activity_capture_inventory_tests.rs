@@ -35,19 +35,39 @@ type TestResult = Result<(), Box<dyn Error>>;
 
 #[test]
 fn record_capture_with_inventory_root_writes_inventory_journal_and_sqlite_rows() -> TestResult {
-    let journal_path = temp_path(
+    let build_path = |suffix: &str, extension: &str| {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(suffix);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
+    let journal_path = build_path(
         constants::activity_store::TEST_CAPTURE_APP_GAME_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
     );
-    let key_path = temp_path(
+    let key_path = build_path(
         constants::activity_store::TEST_CAPTURE_APP_GAME_KEY_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let store_path = temp_path(
+    let store_path = build_path(
         constants::activity_store::TEST_CAPTURE_APP_GAME_STORE_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let inventory_root = temp_inventory_root();
+    let inventory_root = {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(APP_GAME_TEST_LIVE_INVENTORY_SUFFIX);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path
+    };
     cleanup_paths(&journal_path, &key_path, &store_path);
     cleanup_inventory_root(&inventory_root);
     let result = (|| -> TestResult {
@@ -107,19 +127,39 @@ fn record_capture_with_inventory_root_writes_inventory_journal_and_sqlite_rows()
 
 #[test]
 fn record_capture_with_store_package_root_writes_inventory_journal_and_sqlite_rows() -> TestResult {
-    let journal_path = temp_path(
+    let build_path = |suffix: &str, extension: &str| {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(suffix);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
+    let journal_path = build_path(
         constants::activity_store::TEST_CAPTURE_STORE_PACKAGE_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
     );
-    let key_path = temp_path(
+    let key_path = build_path(
         constants::activity_store::TEST_CAPTURE_STORE_PACKAGE_KEY_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let store_path = temp_path(
+    let store_path = build_path(
         constants::activity_store::TEST_CAPTURE_STORE_PACKAGE_STORE_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let store_package_root = temp_store_package_root();
+    let store_package_root = {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(constants::activity_store::TEST_APP_GAME_STORE_PACKAGE_MANIFEST_SUFFIX);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path
+    };
     cleanup_paths(&journal_path, &key_path, &store_path);
     cleanup_inventory_root(&store_package_root);
     let result = (|| -> TestResult {
@@ -184,19 +224,39 @@ fn record_capture_with_store_package_root_writes_inventory_journal_and_sqlite_ro
 
 #[test]
 fn record_capture_with_registry_root_writes_inventory_journal_and_sqlite_rows() -> TestResult {
-    let journal_path = temp_path(
+    let build_path = |suffix: &str, extension: &str| {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(suffix);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
+    let journal_path = build_path(
         constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
     );
-    let key_path = temp_path(
+    let key_path = build_path(
         constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_KEY_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let store_path = temp_path(
+    let store_path = build_path(
         constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_STORE_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let registry_root = temp_registry_inventory_root();
+    let registry_root = {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_STORE_SUFFIX);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path
+    };
     cleanup_paths(&journal_path, &key_path, &store_path);
     cleanup_inventory_root(&registry_root);
     let result = (|| -> TestResult {
@@ -255,51 +315,6 @@ fn record_capture_with_registry_root_writes_inventory_journal_and_sqlite_rows() 
     result
 }
 
-fn temp_path(suffix: &str, extension: &str) -> PathBuf {
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
-
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path.set_extension(extension);
-    path
-}
-
-fn temp_inventory_root() -> PathBuf {
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(APP_GAME_TEST_LIVE_INVENTORY_SUFFIX);
-
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path
-}
-
-fn temp_store_package_root() -> PathBuf {
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(constants::activity_store::TEST_APP_GAME_STORE_PACKAGE_MANIFEST_SUFFIX);
-
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path
-}
-
-fn temp_registry_inventory_root() -> PathBuf {
-    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_STORE_SUFFIX);
-
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path
-}
-
 fn decrypted_events(journal_path: &Path, key_path: &Path) -> Result<Vec<ActivityEvent>, IoError> {
     let key_bytes = read(key_path)?;
     let mut key = [0; JOURNAL_KEY_BYTES];
@@ -349,59 +364,52 @@ fn write_store_package_manifest(root: &Path) -> Result<(), IoError> {
 
 fn write_registry_inventory_export(root: &Path) -> Result<(), IoError> {
     create_dir_all(root)?;
-    write(registry_export_path(root), registry_inventory_export())?;
-    Ok(())
-}
-
-fn registry_export_path(root: &Path) -> PathBuf {
     let mut path = root.to_path_buf();
     path.push(constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_STORE_SUFFIX);
     path.set_extension(APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION);
-    path
-}
 
-fn registry_inventory_export() -> String {
     let mut export = String::from(APP_GAME_WINDOWS_REGISTRY_EXPORT_HEADER);
     export.push(constants::delimiter::NEWLINE);
-    export.push_str(&registry_key());
+    export.push(constants::delimiter::OPEN_BRACKET);
+    export.push_str(APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE);
+    export.push(constants::delimiter::BACKSLASH);
+    export.push_str(APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH);
+    export.push(constants::delimiter::BACKSLASH);
+    export.push_str(constants::activity_store::TEST_APP_GAME_SESSION_ID);
+    export.push(constants::delimiter::CLOSE_BRACKET);
     export.push(constants::delimiter::NEWLINE);
+
+    let mut push_registry_value = |registry_value_name: &str, value: &str| {
+        export.push(constants::delimiter::QUOTE);
+        export.push_str(registry_value_name);
+        export.push(constants::delimiter::QUOTE);
+        export.push(constants::delimiter::EQUALS);
+        export.push(constants::delimiter::QUOTE);
+        export.push_str(value);
+        export.push(constants::delimiter::QUOTE);
+        export.push(constants::delimiter::NEWLINE);
+    };
+
     push_registry_value(
-        &mut export,
         APP_GAME_WINDOWS_REGISTRY_DISPLAY_NAME_VALUE,
         APP_GAME_TEST_DISPLAY_LABEL,
     );
     push_registry_value(
-        &mut export,
         APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE,
         constants::activity_store::TEST_APP_GAME_PROCESS_PATH,
     );
-    export
+    write(path, export)?;
+    Ok(())
 }
 
-fn registry_key() -> String {
-    let mut key = String::new();
-    key.push(constants::delimiter::OPEN_BRACKET);
-    key.push_str(APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE);
-    key.push(constants::delimiter::BACKSLASH);
-    key.push_str(APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH);
-    key.push(constants::delimiter::BACKSLASH);
-    key.push_str(constants::activity_store::TEST_APP_GAME_SESSION_ID);
-    key.push(constants::delimiter::CLOSE_BRACKET);
-    key
-}
-
-fn push_registry_value(export: &mut String, registry_value_name: &str, value: &str) {
-    export.push(constants::delimiter::QUOTE);
-    export.push_str(registry_value_name);
-    export.push(constants::delimiter::QUOTE);
-    export.push(constants::delimiter::EQUALS);
-    export.push(constants::delimiter::QUOTE);
-    export.push_str(value);
-    export.push(constants::delimiter::QUOTE);
-    export.push(constants::delimiter::NEWLINE);
-}
-
-fn cleanup_paths(journal_path: &Path, key_path: &Path, store_path: &Path) {
+fn cleanup_paths(
+    journal_path: impl AsRef<Path>,
+    key_path: impl AsRef<Path>,
+    store_path: impl AsRef<Path>,
+) {
+    let journal_path = journal_path.as_ref();
+    let key_path = key_path.as_ref();
+    let store_path = store_path.as_ref();
     let _ = remove_file(journal_path);
     let _ = remove_file(key_path);
     let _ = remove_file(store_path);

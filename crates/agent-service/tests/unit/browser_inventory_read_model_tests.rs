@@ -196,12 +196,14 @@ async fn browser_inventory_support_helpers_link_policy_store_and_runtime_paths()
 
 async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
     let _ = browser_policy_store_path_from_env();
-    let policy = default_browser_policy_for_test(constants::browser_policy::POLICY_ID.to_string());
+    let policy = default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
     let effective_policy = require_ok(
         compile_browser_policy(
             &policy,
-            constants::browser_policy::REVISION_ID,
-            constants::browser_policy::TEST_SENT_AT,
+            crate::browser_policy_compiler::BrowserPolicyCompileRequest {
+                revision_id: constants::browser_policy::REVISION_ID,
+                compiled_at: constants::browser_policy::TEST_SENT_AT,
+            },
         ),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
@@ -211,7 +213,9 @@ async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
         ocentra_parent_agent_protocol::BrowserPolicyRuleAction::Block,
     );
     let capability_registry = crate::browser_policy_compiler::browser_policy_capability_registry(
-        constants::browser_policy::TEST_SENT_AT,
+        crate::browser_policy_compiler::BrowserPolicyCapabilityRegistryRequest {
+            generated_at: constants::browser_policy::TEST_SENT_AT,
+        },
     );
     let base_state = BrowserPolicyStoredState::empty();
     assert!(base_revision_matches(&base_state, None).is_ok());
@@ -321,8 +325,10 @@ fn browser_inventory_status_helpers_assertions(
 
 #[tokio::test]
 async fn browser_inventory_read_model_command_reports_replayable_service_event() {
-    let event =
-        handle_local_command_text_for_test(&serialize_test_json(&inventory_command())).await;
+    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(
+        serialize_test_json(&inventory_command()),
+    ))
+    .await;
 
     assert_eq!(
         event.event,
@@ -332,7 +338,11 @@ async fn browser_inventory_read_model_command_reports_replayable_service_event()
         .event_id
         .starts_with(constants::event_id::BROWSER_INVENTORY_READ_MODEL_REPORTED));
     assert!(matches!(
-        event.payload[constants::field::RETURNED],
+        crate::test_invariants::log_field(
+            &event.payload,
+            constants::field::RETURNED,
+            constants::error::AGENT_EVENT_SERIALIZES,
+        ),
         LogFieldValue::Number(_)
     ));
     assert_eq!(event.payload.get(constants::field::URL), None);

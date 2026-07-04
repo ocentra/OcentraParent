@@ -1,5 +1,5 @@
-use super::text::compact_summary;
 use super::super::ssdp_upnp::parse_ssdp_response;
+use super::text::compact_summary;
 
 pub fn passive_ssdp_device_id(payload: &[u8]) -> Option<String> {
     if let Ok(response) = parse_ssdp_response(payload) {

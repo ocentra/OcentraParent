@@ -17,7 +17,8 @@ use ocentra_eventing::expect_value::ExpectValue;
 
 fn provider_event() -> BillingProviderWebhookEvent {
     provider_event_with(
-        "billing-provider-event-1",
+        BillingProviderEventId::parse("billing-provider-event-1")
+            .expect_value("provider event ids are non-empty at the boundary"),
         BillingSubscriptionStatus::Active,
         BillingCollectionRecoveryState::Active,
         BillingRefundLifecycleState::None,
@@ -27,7 +28,7 @@ fn provider_event() -> BillingProviderWebhookEvent {
 }
 
 fn provider_event_with(
-    event_id: &str,
+    event_id: BillingProviderEventId,
     subscription_status: BillingSubscriptionStatus,
     collection_recovery_state: BillingCollectionRecoveryState,
     refund_state: BillingRefundLifecycleState,
@@ -35,8 +36,7 @@ fn provider_event_with(
     idempotency_state: BillingProviderIdempotencyState,
 ) -> BillingProviderWebhookEvent {
     BillingProviderWebhookEvent {
-        event_id: BillingProviderEventId::parse(event_id)
-            .expect_value("provider event ids are non-empty at the boundary"),
+        event_id,
         provider: BillingProviderChannel::Stripe,
         mode: BillingProviderMode::Live,
         event_kind: BillingProviderEventKind::SubscriptionUpdated,
@@ -461,7 +461,8 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
     let fresh_received = BillingProviderWebhookReceivedEvent {
         aggregate_id: aggregate_id.clone(),
         provider_event: provider_event_with(
-            "billing-provider-event-replay",
+            BillingProviderEventId::parse("billing-provider-event-replay")
+                .expect_value("provider event ids are non-empty at the boundary"),
             BillingSubscriptionStatus::Active,
             BillingCollectionRecoveryState::Active,
             BillingRefundLifecycleState::None,
@@ -472,7 +473,8 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
     let replayed_received = BillingProviderWebhookReceivedEvent {
         aggregate_id,
         provider_event: provider_event_with(
-            "billing-provider-event-replay",
+            BillingProviderEventId::parse("billing-provider-event-replay")
+                .expect_value("provider event ids are non-empty at the boundary"),
             BillingSubscriptionStatus::Active,
             BillingCollectionRecoveryState::Active,
             BillingRefundLifecycleState::None,

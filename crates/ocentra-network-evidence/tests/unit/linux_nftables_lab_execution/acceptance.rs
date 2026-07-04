@@ -1,11 +1,11 @@
-use crate::linux_nftables_lab_execution::{
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::linux_nftables_lab_execution::{
     prove_network_linux_nftables_lab_execution,
     types::{
         NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionInput,
         NetworkLinuxNftablesLabExecutionState,
     },
 };
-use ocentra_eventing::expect_value::ExpectValue;
 
 use super::fixtures::{command, lab_execution_input};
 

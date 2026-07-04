@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
-import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/schema-domain/generated/logging-contracts';
+import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/logging-domain/generated/logging-contracts';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { createBridgeServer } from '@ocentra-parent/logging-domain/transport/bridgeServer';
 import { getProofTrace, getProofTraceGaps } from '../../../../scripts/dev/lib/log-query-service.mjs';

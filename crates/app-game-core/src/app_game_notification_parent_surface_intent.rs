@@ -284,5 +284,5 @@ fn count_preference_rows(
 }
 
 pub fn app_game_notification_parent_surface_intent_typescript() -> String {
-    include_str!("generated/app-game-notification-parent-surface-intent.ts").to_string()
+    include_str!("../tests/generated/app-game-notification-parent-surface-intent.ts").to_string()
 }

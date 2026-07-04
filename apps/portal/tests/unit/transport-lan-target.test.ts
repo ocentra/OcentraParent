@@ -1,7 +1,8 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { AgentCommand } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
+  ParentAgentCommand,
+  ParentAgentProtocolField,
+  ParentAgentTargetDefaults,
   ParentRoute,
   ParentUiActionKind,
   presentationOnlyDevWebHostBridgeMessage,
@@ -144,9 +145,9 @@ it('HostBridge dev adapter: dispatches through the Rust-owned local dev bridge w
   const result = await bridge.dispatch({
     action: 'agent-command-requested',
     route: 'devices',
-    command: AgentCommand.LanPairingBrowserDiscoveryScan,
+    command: ParentAgentCommand.LanPairingBrowserDiscoveryScan,
     payload: {
-      [AgentProtocolDefaults.Field.LanRouteId]: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+      [ParentAgentProtocolField.LanRouteId]: ParentAgentTargetDefaults.LocalNetworkWindowsAgent.route,
     },
   });
 

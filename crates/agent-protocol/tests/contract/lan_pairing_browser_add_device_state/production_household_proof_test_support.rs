@@ -234,14 +234,8 @@ fn production_status_rows() -> Vec<LanProductionHouseholdProofStatus> {
 
 fn production_discovery_status_rows() -> Vec<LanProductionHouseholdProofStatus> {
     vec![
-        manual_production_status(
-            LanProductionHouseholdProofCapability::SignedLanHello,
-            constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_SIGNED_HELLO,
-        ),
-        manual_production_status(
-            LanProductionHouseholdProofCapability::SignedLanHeartbeat,
-            constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_SIGNED_HEARTBEAT,
-        ),
+        manual_production_status(LanProductionHouseholdProofCapability::SignedLanHello),
+        manual_production_status(LanProductionHouseholdProofCapability::SignedLanHeartbeat),
         ci_production_status(
             LanProductionHouseholdProofCapability::PassiveNeighborDiscovery,
             LanPairingProductionDiscoveryState::Discovered,
@@ -250,18 +244,9 @@ fn production_discovery_status_rows() -> Vec<LanProductionHouseholdProofStatus> 
             LanProductionHouseholdProofCapability::RouterNeighborDiscovery,
             LanPairingProductionDiscoveryState::Discovered,
         ),
-        manual_production_status(
-            LanProductionHouseholdProofCapability::MdnsNameDiscovery,
-            constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_MDNS,
-        ),
-        manual_production_status(
-            LanProductionHouseholdProofCapability::SsdpNameDiscovery,
-            constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_SSDP,
-        ),
-        manual_production_status(
-            LanProductionHouseholdProofCapability::RouterDhcpNameDiscovery,
-            constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_ROUTER_DHCP,
-        ),
+        manual_production_status(LanProductionHouseholdProofCapability::MdnsNameDiscovery),
+        manual_production_status(LanProductionHouseholdProofCapability::SsdpNameDiscovery),
+        manual_production_status(LanProductionHouseholdProofCapability::RouterDhcpNameDiscovery),
         ci_production_status(
             LanProductionHouseholdProofCapability::TrustedRegistry,
             LanPairingProductionDiscoveryState::Paired,
@@ -311,35 +296,21 @@ fn production_route_status_rows() -> Vec<LanProductionHouseholdProofStatus> {
 
 fn production_manual_platform_status_rows() -> Vec<LanProductionHouseholdProofStatus> {
     vec![
-        manual_production_status(
-            LanProductionHouseholdProofCapability::SecondPhysicalChildAgent,
-            constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_SECOND_PHYSICAL_AGENT,
-        ),
-        manual_production_status(
-            LanProductionHouseholdProofCapability::AndroidChildAgentParity,
-            constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_ANDROID_PARITY,
-        ),
-        manual_production_status(
-            LanProductionHouseholdProofCapability::IosChildAgentParity,
-            constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_IOS_PARITY,
-        ),
-        manual_production_status(
-            LanProductionHouseholdProofCapability::StoreSigning,
-            constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_STORE_SIGNING,
-        ),
+        manual_production_status(LanProductionHouseholdProofCapability::SecondPhysicalChildAgent),
+        manual_production_status(LanProductionHouseholdProofCapability::AndroidChildAgentParity),
+        manual_production_status(LanProductionHouseholdProofCapability::IosChildAgentParity),
+        manual_production_status(LanProductionHouseholdProofCapability::StoreSigning),
     ]
 }
 
 fn manual_production_status(
     capability: LanProductionHouseholdProofCapability,
-    required_artifact_summary: &str,
 ) -> LanProductionHouseholdProofStatus {
     production_status(
         capability,
         LanPairingProductionDiscoveryState::ManualRequired,
         V09ProductionDiscoveryHouseholdProofState::ManualRequired,
         V09ProductionDiscoveryHouseholdRuntimeOwner::ManualProof,
-        required_artifact_summary,
     )
 }
 
@@ -352,7 +323,6 @@ fn ci_production_status(
         discovery_state,
         V09ProductionDiscoveryHouseholdProofState::CiMechanicalProof,
         V09ProductionDiscoveryHouseholdRuntimeOwner::RustServiceReadModel,
-        constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR,
     )
 }
 
@@ -364,7 +334,6 @@ fn not_implemented_status(
         LanPairingProductionDiscoveryState::Unavailable,
         V09ProductionDiscoveryHouseholdProofState::NotImplemented,
         V09ProductionDiscoveryHouseholdRuntimeOwner::ManualProof,
-        constants::lan_pairing::PRODUCTION_PROOF_LABEL_RELAY_ROUTE,
     )
 }
 
@@ -373,8 +342,32 @@ fn production_status(
     discovery_state: LanPairingProductionDiscoveryState,
     proof_state: V09ProductionDiscoveryHouseholdProofState,
     runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner,
-    required_artifact_summary: &str,
 ) -> LanProductionHouseholdProofStatus {
+    let required_artifact_summary = match (&capability, &proof_state) {
+        (
+            LanProductionHouseholdProofCapability::SecondPhysicalChildAgent,
+            V09ProductionDiscoveryHouseholdProofState::ManualRequired,
+        ) => constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_SECOND_PHYSICAL_AGENT,
+        (
+            LanProductionHouseholdProofCapability::AndroidChildAgentParity,
+            V09ProductionDiscoveryHouseholdProofState::ManualRequired,
+        ) => constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_ANDROID_PARITY,
+        (
+            LanProductionHouseholdProofCapability::IosChildAgentParity,
+            V09ProductionDiscoveryHouseholdProofState::ManualRequired,
+        ) => constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_IOS_PARITY,
+        (
+            LanProductionHouseholdProofCapability::StoreSigning,
+            V09ProductionDiscoveryHouseholdProofState::ManualRequired,
+        ) => constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_STORE_SIGNING,
+        (_, V09ProductionDiscoveryHouseholdProofState::CiMechanicalProof) => {
+            constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR
+        }
+        (_, V09ProductionDiscoveryHouseholdProofState::NotImplemented) => {
+            constants::lan_pairing::PRODUCTION_PROOF_LABEL_RELAY_ROUTE
+        }
+        _ => constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR,
+    };
     LanProductionHouseholdProofStatus {
         schema_version: LAN_PAIRING_SCHEMA_VERSION,
         capability,

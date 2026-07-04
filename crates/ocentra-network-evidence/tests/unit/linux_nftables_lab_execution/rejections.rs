@@ -1,8 +1,13 @@
-use crate::{
-    prove_network_linux_nftables_lab_execution, NetworkLinuxAdapterCapabilityState,
-    NetworkLinuxAdapterGateInput, NetworkLinuxAdapterKind, NetworkLinuxNftablesLabCommandEvidence,
-    NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionError,
-    NetworkLinuxNftablesLabExecutionInput, NetworkLinuxNftablesLabUnsupportedClaims,
+use ocentra_network_evidence::linux_adapter_gate::{
+    NetworkLinuxAdapterCapabilityState, NetworkLinuxAdapterGateInput, NetworkLinuxAdapterKind,
+};
+use ocentra_network_evidence::linux_nftables_lab_execution::{
+    prove_network_linux_nftables_lab_execution,
+    types::{
+        NetworkLinuxNftablesLabCommandEvidence, NetworkLinuxNftablesLabCommandKind,
+        NetworkLinuxNftablesLabExecutionError, NetworkLinuxNftablesLabExecutionInput,
+        NetworkLinuxNftablesLabUnsupportedClaims,
+    },
 };
 
 use super::fixtures::{command, gate_input, gate_proof, lab_execution_input, unsupported_claims};

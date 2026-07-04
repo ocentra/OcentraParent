@@ -6,8 +6,8 @@ use tokio::sync::Notify;
 
 use super::fixtures::{
     metadata, metadata_with_event_id, subscriber, subscriber_for_event, test_event_for_type,
-    test_event_with_idempotency, OTHER_EVENT_TYPE, OTHER_SUBSCRIBER, OTHER_TARGET, TEST_SUBSCRIBER,
-    TEST_TARGET,
+    test_event_with_idempotency, TestText, OTHER_EVENT_TYPE, OTHER_SUBSCRIBER, OTHER_TARGET,
+    TEST_SUBSCRIBER, TEST_TARGET,
 };
 use crate::{
     AggregateKey, DispatchMode, DomainEvent, EventBus, EventContract, EventQueuePolicy,
@@ -26,13 +26,20 @@ async fn clear_for_test_reports_and_resets_local_bus_state() {
         EventQueuePolicy::no_subscriber_queue(4).expect_value("queue policy is valid");
     let bus = EventBus::with_policies(HandlerExecutionPolicy::default(), queue_policy);
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
-        subscriber(TEST_SUBSCRIBER, TEST_TARGET),
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
         |_| async { Ok(()) },
     )
     .await
     .expect_value("subscriber registers");
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
-        subscriber_for_event(OTHER_SUBSCRIBER, OTHER_TARGET, OTHER_EVENT_TYPE),
+        subscriber_for_event(
+            TestText(OTHER_SUBSCRIBER.to_owned()),
+            TestText(OTHER_TARGET.to_owned()),
+            TestText(OTHER_EVENT_TYPE.to_owned()),
+        ),
         |_| async {
             Err(EventingError::EmptyValue {
                 field: "lifecycle_clear_failure",
@@ -42,14 +49,26 @@ async fn clear_for_test_reports_and_resets_local_bus_state() {
     .await
     .expect_value("failing subscriber registers");
     bus.publish(
-        test_event_with_idempotency("queued", "lifecycle-clear-queued"),
-        metadata_with_event_id(OTHER_TARGET, "lifecycle-clear-event-1"),
+        test_event_with_idempotency(
+            TestText("queued".to_owned()),
+            TestText("lifecycle-clear-queued".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(OTHER_TARGET.to_owned()),
+            TestText("lifecycle-clear-event-1".to_owned()),
+        ),
     )
     .await
     .expect_value("wrong target queues event");
     bus.publish_with_mode(
-        test_event_for_type("failed", OTHER_EVENT_TYPE),
-        metadata_with_event_id(OTHER_TARGET, "lifecycle-clear-event-2"),
+        test_event_for_type(
+            TestText("failed".to_owned()),
+            TestText(OTHER_EVENT_TYPE.to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(OTHER_TARGET.to_owned()),
+            TestText("lifecycle-clear-event-2".to_owned()),
+        ),
         DispatchMode::OrderedByAggregateKey,
     )
     .await
@@ -59,15 +78,21 @@ async fn clear_for_test_reports_and_resets_local_bus_state() {
     let dead_letters_after_clear = bus.dead_letters().await;
     let journal_after_clear = bus.journal().await;
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
-        subscriber(TEST_SUBSCRIBER, TEST_TARGET),
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
         |_| async { Ok(()) },
     )
     .await
     .expect_value("subscriber can re-register after test clear");
     let publish_after_clear = bus
         .publish(
-            test_event_with_idempotency("after-clear", "lifecycle-clear-after"),
-            metadata(TEST_TARGET),
+            test_event_with_idempotency(
+                TestText("after-clear".to_owned()),
+                TestText("lifecycle-clear-after".to_owned()),
+            ),
+            metadata(TestText(TEST_TARGET.to_owned())),
         )
         .await
         .expect_value("publish after clear succeeds");
@@ -91,9 +116,9 @@ async fn clear_for_test_cancels_pending_request_completion() {
     let handler_seen_clone = Arc::clone(&handler_seen);
     bus.subscribe::<ClearRequestEvent, _, _>(
         subscriber_for_event(
-            "lifecycle-clear-request-subscriber",
-            TEST_TARGET,
-            CLEAR_REQUEST_EVENT_TYPE,
+            TestText("lifecycle-clear-request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(CLEAR_REQUEST_EVENT_TYPE.to_owned()),
         ),
         move |_| {
             let handler_seen = Arc::clone(&handler_seen_clone);
@@ -110,7 +135,7 @@ async fn clear_for_test_cancels_pending_request_completion() {
         request_bus
             .publish_request(
                 ClearRequestEvent::new(),
-                metadata(TEST_TARGET),
+                metadata(TestText(TEST_TARGET.to_owned())),
                 RequestOptions::with_timeout(Duration::from_secs(60))
                     .expect_value("request timeout is valid"),
             )

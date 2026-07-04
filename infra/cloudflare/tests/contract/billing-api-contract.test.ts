@@ -3,19 +3,15 @@ import { describe, it } from 'node:test';
 import {
   BillingCheckoutSessionResponseSchema,
   BillingPortalSessionResponseSchema,
-} from '../../../../packages/billing-domain/src/billing-checkout-portal-boundary.js';
-import { BillingReferralInviteResultSchema } from '../../../../packages/billing-domain/src/billing-referral-boundary.js';
-import {
+  BillingReferralInviteResultSchema,
   BillingSupportAdminAccountsResponseSchema,
   BillingSupportAdminAuditEventsResponseSchema,
   BillingSupportAdminDisputesResponseSchema,
   BillingSupportAdminInvoicesResponseSchema,
   BillingSupportAdminReferralsResponseSchema,
-} from '../../../../packages/billing-domain/src/billing-support-admin-api-boundary.js';
-import {
   BillingSupportAdminReconciliationSummarySchema,
   BillingSupportAdminRefundResultSchema,
-} from '../../../../packages/billing-domain/src/billing-support-admin-runtime-boundary.js';
+} from '../../src/generated/billing-contracts.js';
 import { createStripeSignature, createTestHarness, executeRequest, readJson } from '../../src/testing.js';
 
 interface PricingContractResponse {

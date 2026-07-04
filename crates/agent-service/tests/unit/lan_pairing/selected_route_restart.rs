@@ -1,3 +1,5 @@
+use crate::test_text::TestText;
+
 use std::{
     fs::remove_file,
     sync::atomic::{AtomicUsize, Ordering},
@@ -25,7 +27,9 @@ use crate::{
 
 #[tokio::test]
 async fn lan_pairing_persistent_registry_recovers_selected_route_after_restart() {
-    let path = temp_registry_path();
+    let mut path = std::env::temp_dir();
+    path.push(temp_registry_name().0);
+    path.set_extension(constants::lan_pairing::REGISTRY_FILE_EXTENSION);
     let _ = remove_file(&path);
     let runtime = LanPairingRuntime::persistent_json(&path);
     let _ = signed_pairing(runtime.clone()).await;
@@ -59,29 +63,33 @@ async fn lan_pairing_persistent_registry_recovers_selected_route_after_restart()
 
 async fn signed_pairing(runtime: LanPairingRuntime) -> AgentEventEnvelope {
     handle_command_text_for_test(
-        &serialize_command(pairing_command(proof_payload())),
+        serialize_command(pairing_command(proof_payload())),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await
 }
 
 async fn signed_route_select(runtime: LanPairingRuntime) -> AgentEventEnvelope {
     handle_command_text_for_test(
-        &serialize_command(route_select_command(intent_payload(
+        serialize_command(route_select_command(intent_payload(
             constants::lan_pairing::SELECT_INTENT_ID,
             constants::lan_pairing::CHILD_DEVICE_ID,
             constants::lan_pairing::PROOF_DIGEST,
             constants::lan_pairing::EXPIRES_AT,
         ))),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await
 }
 
 async fn loopback_lan_status(runtime: LanPairingRuntime) -> AgentEventEnvelope {
-    handle_command_text_for_test(&serialize_command(loopback_status_command()), runtime, None).await
+    handle_command_text_for_test(serialize_command(loopback_status_command()), runtime, None).await
 }
 
 fn loopback_status_command() -> ocentra_parent_agent_protocol::transport::AgentCommandEnvelope {
@@ -98,25 +106,24 @@ fn loopback_status_command() -> ocentra_parent_agent_protocol::transport::AgentC
 
 async fn old_signed_control(runtime: LanPairingRuntime) -> AgentEventEnvelope {
     handle_command_text_for_test(
-        &serialize_command(health_command(intent_payload(
+        serialize_command(health_command(intent_payload(
             constants::lan_pairing::INTENT_ID,
             constants::lan_pairing::CHILD_DEVICE_ID,
             constants::lan_pairing::PROOF_DIGEST,
             constants::lan_pairing::EXPIRES_AT,
         ))),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await
 }
 
-fn temp_registry_path() -> std::path::PathBuf {
+fn temp_registry_name() -> TestText {
     static REGISTRY_COUNTER: AtomicUsize = AtomicUsize::new(0);
     let mut name = String::from(constants::lan_pairing::REGISTRY_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push_str(&REGISTRY_COUNTER.fetch_add(1, Ordering::Relaxed).to_string());
-    let mut path = std::env::temp_dir();
-    path.push(name);
-    path.set_extension(constants::lan_pairing::REGISTRY_FILE_EXTENSION);
-    path
+    TestText(name)
 }

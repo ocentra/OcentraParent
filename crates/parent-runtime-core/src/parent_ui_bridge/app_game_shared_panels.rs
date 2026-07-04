@@ -1,5 +1,47 @@
 use super::*;
 
+const APP_GAME_PREFLIGHT_ROW_STATUS_LABELS: &[(&str, &str)] = &[
+    ("dispatch-eligible", "Dispatch eligible"),
+    ("blocked-before-dispatch", "Blocked before dispatch"),
+    ("manual-required", "Manual proof required"),
+    ("unavailable", "Adapter unavailable"),
+    ("unsupported", "Platform unsupported"),
+    ("degraded", "Adapter degraded"),
+];
+const APP_GAME_PREFLIGHT_DECISION_LABELS: &[(&str, &str)] =
+    &[("dispatch-eligible", "Dispatch eligible")];
+const APP_GAME_PREFLIGHT_OUTCOME_LABELS: &[(&str, &str)] = &[("dispatch-ready", "Dispatch ready")];
+const APP_GAME_RESULT_ROW_STATUS_LABELS: &[(&str, &str)] = &[
+    ("command-accepted", "Command accepted"),
+    ("blocked-before-command", "Blocked before command"),
+    ("manual-required", "Manual proof required"),
+    ("unavailable", "Adapter unavailable"),
+    ("unsupported", "Platform unsupported"),
+    ("degraded", "Adapter degraded"),
+];
+const APP_GAME_RESULT_DECISION_LABELS: &[(&str, &str)] =
+    &[("command-accepted", "Command accepted")];
+const APP_GAME_EXECUTION_AUDIT_LABELS: &[(&str, &str)] = &[
+    (
+        "service-local-audit-recorded",
+        "Service-local audit recorded",
+    ),
+    (
+        "blocked-before-execution-audit",
+        "Blocked before execution audit",
+    ),
+];
+const APP_GAME_ADAPTER_EXECUTION_LABELS: &[(&str, &str)] = &[
+    ("adapter-execution-reported", "Adapter execution reported"),
+    (
+        "adapter-execution-evidence-missing",
+        "Execution evidence missing",
+    ),
+    (
+        "blocked-before-adapter-execution",
+        "Blocked before adapter execution",
+    ),
+];
 pub(super) fn app_game_panel_unavailable(
     eyebrow: &str,
     title: &str,
@@ -60,29 +102,27 @@ pub(super) fn app_game_adapter_dispatch_preflight_load_state(
 }
 
 pub(super) fn app_game_adapter_dispatch_preflight_row_status(state: &str) -> String {
-    match state {
-        "dispatch-eligible" => "Dispatch eligible".to_string(),
-        "blocked-before-dispatch" => "Blocked before dispatch".to_string(),
-        "manual-required" => "Manual proof required".to_string(),
-        "unavailable" => "Adapter unavailable".to_string(),
-        "unsupported" => "Platform unsupported".to_string(),
-        "degraded" => "Adapter degraded".to_string(),
-        _ => state.to_string(),
-    }
+    APP_GAME_PREFLIGHT_ROW_STATUS_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == state)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| state.to_string())
 }
 
 pub(super) fn app_game_adapter_dispatch_preflight_decision_label(decision: &str) -> String {
-    match decision {
-        "dispatch-eligible" => "Dispatch eligible".to_string(),
-        _ => "Blocked before dispatch".to_string(),
-    }
+    APP_GAME_PREFLIGHT_DECISION_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == decision)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| "Blocked before dispatch".to_string())
 }
 
 pub(super) fn app_game_adapter_dispatch_preflight_outcome_label(outcome: &str) -> String {
-    match outcome {
-        "dispatch-ready" => "Dispatch ready".to_string(),
-        _ => outcome.to_string(),
-    }
+    APP_GAME_PREFLIGHT_OUTCOME_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == outcome)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| outcome.to_string())
 }
 
 pub(super) fn app_game_adapter_dispatch_result_load_state(
@@ -98,37 +138,33 @@ pub(super) fn app_game_adapter_dispatch_result_load_state(
 }
 
 pub(super) fn app_game_adapter_dispatch_result_row_status(state: &str) -> String {
-    match state {
-        "command-accepted" => "Command accepted".to_string(),
-        "blocked-before-command" => "Blocked before command".to_string(),
-        "manual-required" => "Manual proof required".to_string(),
-        "unavailable" => "Adapter unavailable".to_string(),
-        "unsupported" => "Platform unsupported".to_string(),
-        "degraded" => "Adapter degraded".to_string(),
-        _ => state.to_string(),
-    }
+    APP_GAME_RESULT_ROW_STATUS_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == state)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| state.to_string())
 }
 
 pub(super) fn app_game_adapter_dispatch_result_decision_label(decision: &str) -> String {
-    match decision {
-        "command-accepted" => "Command accepted".to_string(),
-        _ => "Blocked before command".to_string(),
-    }
+    APP_GAME_RESULT_DECISION_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == decision)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| "Blocked before command".to_string())
 }
 
 pub(super) fn app_game_adapter_dispatch_execution_audit_label(state: &str) -> String {
-    match state {
-        "service-local-audit-recorded" => "Service-local audit recorded".to_string(),
-        "blocked-before-execution-audit" => "Blocked before execution audit".to_string(),
-        _ => state.to_string(),
-    }
+    APP_GAME_EXECUTION_AUDIT_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == state)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| state.to_string())
 }
 
 pub(super) fn app_game_adapter_dispatch_adapter_execution_label(state: &str) -> String {
-    match state {
-        "adapter-execution-reported" => "Adapter execution reported".to_string(),
-        "adapter-execution-evidence-missing" => "Execution evidence missing".to_string(),
-        "blocked-before-adapter-execution" => "Blocked before adapter execution".to_string(),
-        _ => state.to_string(),
-    }
+    APP_GAME_ADAPTER_EXECUTION_LABELS
+        .iter()
+        .find(|(raw, _)| *raw == state)
+        .map(|(_, label)| (*label).to_string())
+        .unwrap_or_else(|| state.to_string())
 }

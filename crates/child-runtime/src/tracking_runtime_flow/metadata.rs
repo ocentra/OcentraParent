@@ -19,69 +19,6 @@ pub(super) enum TrackingRuntimeHop {
     ParentNotificationRequested,
 }
 
-impl TrackingRuntimeHop {
-    fn source_component(self) -> &'static str {
-        match self {
-            Self::LocationObserved
-            | Self::EvidenceRecorded
-            | Self::GeofenceTransitionDetected
-            | Self::ExpectedPlaceStateEvaluated
-            | Self::ChildCheckInRecorded
-            | Self::AiAnalysisRequested => {
-                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_TRACKING_RUNTIME
-            }
-            Self::NearbyPlaceClassified => {
-                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_AI_RUNTIME
-            }
-            Self::PolicyViolationDetected => {
-                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_POLICY_RUNTIME
-            }
-            Self::ParentNotificationRequested => {
-                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_NOTIFICATION_RUNTIME
-            }
-        }
-    }
-
-    fn runtime_role(self) -> &'static str {
-        match self {
-            Self::LocationObserved
-            | Self::EvidenceRecorded
-            | Self::GeofenceTransitionDetected
-            | Self::ExpectedPlaceStateEvaluated
-            | Self::ChildCheckInRecorded
-            | Self::AiAnalysisRequested => constants::eventing_source::ROLE_AGENT,
-            Self::NearbyPlaceClassified => constants::eventing_source::ROLE_ANALYZER,
-            Self::PolicyViolationDetected => constants::eventing_source::ROLE_DECISION_ENGINE,
-            Self::ParentNotificationRequested => {
-                constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER
-            }
-        }
-    }
-
-    fn target_handler(self) -> &'static str {
-        match self {
-            Self::LocationObserved
-            | Self::EvidenceRecorded
-            | Self::GeofenceTransitionDetected
-            | Self::ChildCheckInRecorded => {
-                constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_OBSERVER
-            }
-            Self::ExpectedPlaceStateEvaluated => {
-                constants::tracking_runtime::TARGET_HANDLER_CHILD_POLICY_EXPECTED_PLACE_EVALUATOR
-            }
-            Self::AiAnalysisRequested => {
-                constants::tracking_runtime::TARGET_HANDLER_CHILD_AI_TRACKING_ANALYZER
-            }
-            Self::NearbyPlaceClassified => {
-                constants::tracking_runtime::TARGET_HANDLER_CHILD_POLICY_TRACKING_ANALYZER
-            }
-            Self::PolicyViolationDetected | Self::ParentNotificationRequested => {
-                constants::tracking_runtime::TARGET_HANDLER_CHILD_NOTIFICATION_POLICY_BRIDGE
-            }
-        }
-    }
-}
-
 pub(super) fn tracking_runtime_metadata(
     hop: TrackingRuntimeHop,
     correlation_suffix: &str,

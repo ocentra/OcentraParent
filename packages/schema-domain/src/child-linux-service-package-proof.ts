@@ -369,26 +369,44 @@ const ExpectedClaimBoundaries = {
 
 function childLinuxServicePackageProofReadModelIsHonest(readModel: ChildLinuxServiceReadModelCandidate): boolean {
   return (
+    childLinuxServicePackageIdentityIsHonest(readModel) &&
+    childLinuxServicePackageLifecycleIsHonest(readModel) &&
+    childLinuxServicePackageHostProofsAreHonest(readModel) &&
+    serviceManagerProofIsHonest(readModel.serviceManagerProof) &&
+    surfaceProofsAreHonest(readModel.surfaceProofs) &&
+    lifecycleProofsAreHonest(readModel.lifecycleProofs) &&
+    claimBoundariesAreHonest(readModel.claimBoundaries)
+  );
+}
+
+function childLinuxServicePackageIdentityIsHonest(readModel: ChildLinuxServiceReadModelCandidate): boolean {
+  return (
     readModel.packageName === 'ocentra-parent-agent' &&
     readModel.serviceName === 'ocentra-parent-agent.service' &&
     readModel.unitPath === '/lib/systemd/system/ocentra-parent-agent.service' &&
-    readModel.binaryPath === '/opt/ocentra/ocentra-parent-agent/bin/ocentra-parent-agent-service' &&
+    readModel.binaryPath === '/opt/ocentra/ocentra-parent-agent/bin/ocentra-parent-agent-service'
+  );
+}
+
+function childLinuxServicePackageLifecycleIsHonest(readModel: ChildLinuxServiceReadModelCandidate): boolean {
+  return (
     readModel.distributionMode === 'direct-deb-package' &&
     readModel.artifactState === 'deb-script-defined' &&
     readModel.serviceManagerBoundaryState === 'systemd-boundary-scripted' &&
     readModel.installState === 'dpkg-install-scripted-manual-host-proof' &&
     readModel.runtimeState === 'systemd-start-scripted-manual-host-proof' &&
-    readModel.restartState === 'restart-policy-scripted-manual-host-proof' &&
+    readModel.restartState === 'restart-policy-scripted-manual-host-proof'
+  );
+}
+
+function childLinuxServicePackageHostProofsAreHonest(readModel: ChildLinuxServiceReadModelCandidate): boolean {
+  return (
     readModel.checksumState === 'sha256-sidecar-scripted' &&
     readModel.packageSigningState === 'unsigned' &&
     readModel.repositoryState === 'direct-deb-only' &&
     readModel.distroSupportState === 'ubuntu-22.04-amd64-glibc-2.35' &&
     readModel.uninstallState === 'dpkg-remove-scripted-manual-host-proof' &&
-    readModel.cleanupState === 'daemon-reload-scripted-manual-host-proof' &&
-    serviceManagerProofIsHonest(readModel.serviceManagerProof) &&
-    surfaceProofsAreHonest(readModel.surfaceProofs) &&
-    lifecycleProofsAreHonest(readModel.lifecycleProofs) &&
-    claimBoundariesAreHonest(readModel.claimBoundaries)
+    readModel.cleanupState === 'daemon-reload-scripted-manual-host-proof'
   );
 }
 
@@ -408,10 +426,7 @@ function serviceManagerProofIsHonest(proof: ChildLinuxServiceManagerProof): bool
 
 function surfaceProofsAreHonest(proofs: ReadonlyArray<ChildLinuxServiceSurfaceProof>): boolean {
   const bySurface = new Map(proofs.map((entry) => [entry.surface, entry] as const));
-  return (
-    bySurface.size === proofs.length &&
-    RequiredSurfaces.every((surface) => surfaceProofIsHonest(bySurface.get(surface), surface))
-  );
+  return bySurface.size === proofs.length && RequiredSurfaces.every((surface) => surfaceProofIsHonest(bySurface.get(surface), surface));
 }
 
 function surfaceProofIsHonest(

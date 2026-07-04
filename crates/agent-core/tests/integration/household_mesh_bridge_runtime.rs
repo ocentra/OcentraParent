@@ -11,12 +11,14 @@ use ocentra_parent_agent_core::household_mesh_bridge_runtime::{
     HouseholdMeshBridgeInput, HouseholdMeshBridgeReport,
 };
 
-type TestResult = Result<(), String>;
+use crate::test_text::{test_ok, test_some, TestText};
+
+type TestResult = crate::test_text::TestResult;
 
 #[tokio::test]
 async fn household_mesh_bridge_exports_selected_events_and_republishes_validated_imports(
 ) -> TestResult {
-    let report = ok(
+    let report = test_ok(
         publish_household_mesh_bridge_chain_for_input(HouseholdMeshBridgeInput::proof_fixture())
             .await,
         constants::household_mesh::ERROR_BRIDGE_CHAIN_PUBLISHES,
@@ -217,7 +219,7 @@ fn household_mesh_bridge_rejects_untrusted_replayed_stale_and_mismatched_imports
 
 #[tokio::test]
 async fn household_mesh_bridge_topology_uses_bridge_targets_not_direct_remote_bus() -> TestResult {
-    let report = ok(
+    let report = test_ok(
         publish_household_mesh_bridge_chain_for_input(HouseholdMeshBridgeInput::proof_fixture())
             .await,
         constants::household_mesh::ERROR_BRIDGE_TOPOLOGY_PROVES,
@@ -250,14 +252,14 @@ fn assert_import_rejection(
 
 fn decode_payloads(
     report: &HouseholdMeshBridgeReport,
-) -> Result<Vec<HouseholdMeshBridgeEventPayload>, String> {
+) -> Result<Vec<HouseholdMeshBridgeEventPayload>, TestText> {
     report
         .stored_events
         .iter()
         .map(|event| {
             let envelope: ocentra_eventing::envelope::EventEnvelope<
                 HouseholdMeshBridgeEventPayload,
-            > = ok(
+            > = test_ok(
                 event.decode(),
                 constants::household_mesh::ERROR_BRIDGE_PAYLOAD_DECODES,
             )?;
@@ -269,17 +271,9 @@ fn decode_payloads(
 fn payload_for_phase(
     payloads: &[HouseholdMeshBridgeEventPayload],
     phase: HouseholdMeshBridgePhase,
-) -> Result<&HouseholdMeshBridgeEventPayload, String> {
-    some(
+) -> Result<&HouseholdMeshBridgeEventPayload, TestText> {
+    test_some(
         payloads.iter().find(|payload| payload.phase == phase),
         constants::household_mesh::ERROR_BRIDGE_PAYLOAD_DECODES,
     )
-}
-
-fn ok<T, E: core::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| context.to_string())
 }

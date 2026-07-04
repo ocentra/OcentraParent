@@ -1,7 +1,7 @@
 use ocentra_eventing::expect_value::ExpectValue;
-use ocentra_network_evidence::{
-    dns::types::NetworkEvidenceGrade,
-    domain::{normalize_domain_with_public_suffix, DomainNormalizationError, PublicSuffixModel},
+use ocentra_network_evidence::dns::types::NetworkEvidenceGrade;
+use ocentra_network_evidence::domain::{
+    normalize_domain_with_public_suffix, DomainNormalizationError, PublicSuffixModel,
 };
 
 const MIXED_CASE_DOMAIN_WITH_TRAILING_DOT: &str = "  Video.Example.Co.UK. ";

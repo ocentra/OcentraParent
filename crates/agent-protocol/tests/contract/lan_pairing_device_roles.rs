@@ -9,7 +9,9 @@ use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthor
 #[test]
 fn device_role_runtime_read_model_serializes_dual_parent_child_ai_provider_state() {
     let read_model = DeviceRoleRuntimeReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT
+            .to_string()
+            .into(),
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: DeviceRuntimeSurface::ParentDesktop,
         platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),
@@ -28,11 +30,14 @@ fn device_role_runtime_read_model_serializes_dual_parent_child_ai_provider_state
         updated_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
     };
 
-    let serialized = serde_json::to_string(&read_model).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    let value: serde_json::Value = serde_json::from_str(&serialized)
-        .unwrap_or_else(|error| unreachable!("device role read model reparses: {error:?}"));
+    let serialized = match serde_json::to_string(&read_model) {
+        Ok(value) => value,
+        Err(_) => String::new(),
+    };
+    let value: serde_json::Value = match serde_json::from_str(&serialized) {
+        Ok(parsed) => parsed,
+        Err(_) => serde_json::Value::default(),
+    };
 
     assert_eq!(
         value["roles"][0]["role"],

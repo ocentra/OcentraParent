@@ -359,9 +359,9 @@ fn sample_time_boundary_policy_source_document() -> TestResult<ParentPolicySourc
     Ok(source)
 }
 
-fn compiler_reason(value: &str) -> TestResult<PolicyReasonCode> {
+fn compiler_reason(value: impl std::fmt::Display) -> TestResult<PolicyReasonCode> {
     Ok(test_ok!(
-        PolicyReasonCode::parse(value),
+        PolicyReasonCode::parse(value.to_string()),
         "compiler reason code"
     ))
 }

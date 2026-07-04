@@ -5,6 +5,7 @@ use chrono::{DateTime, Duration, Utc};
 use ocentra_lan_core::network_inventory::{LanDiscoveryScanPlan, LanNetworkInventoryDevice};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -43,7 +44,7 @@ pub(crate) fn recent_previous_scan_agent_truth_devices(
     let Some(previous_scan_snapshot) = previous_scan_snapshot else {
         return Vec::new();
     };
-    if !scan_history_is_recent(&previous_scan_snapshot.updated_at, now) {
+    if !scan_history_is_recent(previous_scan_snapshot.updated_at.clone().into(), now) {
         return Vec::new();
     }
 
@@ -106,8 +107,8 @@ pub(crate) fn scan_history_path_for_registry(registry_path: &Path) -> PathBuf {
     registry_path.with_file_name(format!("{file_stem}{LAN_SCAN_HISTORY_FILE_SUFFIX}"))
 }
 
-pub(crate) fn scan_history_is_recent(updated_at: &str, now: DateTime<Utc>) -> bool {
-    DateTime::parse_from_rfc3339(updated_at)
+pub(crate) fn scan_history_is_recent(updated_at: LanPairingText, now: DateTime<Utc>) -> bool {
+    DateTime::parse_from_rfc3339(updated_at.0.as_str())
         .map(|parsed| {
             let parsed = parsed.with_timezone(&Utc);
             parsed <= now

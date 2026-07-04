@@ -4,7 +4,7 @@ import {
   GeneratedLogLevel as LogLevel,
   type GeneratedLogLevel as LogLevelValue,
   type GeneratedStackTrace as StackTrace,
-} from '@ocentra-parent/schema-domain/generated/logging-contracts';
+} from '../generated/logging-contracts';
 import {
   RunType,
   TestLogOrigin,
@@ -16,10 +16,10 @@ import {
   type TestLogOrigin as TestLogOriginValue,
   type TestLogScope as TestLogScopeValue,
   type TestSuiteType,
-} from '@ocentra-parent/schema-domain/test-log/types';
+} from '../test-log/types';
 import { createParentLogDecisionProvider } from './logDecisionProvider';
 import { resolveBridgeEndpoint, sendToBridge } from '../transport/bridgeTransport';
-import type { BridgeEntry } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
+import type { BridgeEntry } from '../transport/bridgeLogPayload';
 import { parseStackTrace, type StackFrame } from './stackTraceParser';
 import {
   fileNameFromGeneratedPath,
@@ -27,7 +27,15 @@ import {
   normalizeGeneratedStackPath,
   resolveGeneratedLoggerContext,
   resolveGeneratedLoggerSource,
-} from '../generated/stack-trace-runtime';
+} from '../stack-trace-runtime';
+
+const TestLogOriginLookup: Readonly<Record<string, TestLogOriginValue>> = {
+  [TestLogOrigin.AgentService]: TestLogOrigin.AgentService,
+  [TestLogOrigin.Portal]: TestLogOrigin.Portal,
+  [TestLogOrigin.Worker]: TestLogOrigin.Worker,
+  [TestLogOrigin.Codex]: TestLogOrigin.Codex,
+  [TestLogOrigin.Test]: TestLogOrigin.Test,
+};
 
 export interface LoggerRuntimeConfig {
   readonly bridgeEndpoint?: string | null;
@@ -71,11 +79,8 @@ interface ResolvedLogLocation {
 }
 
 function readEnv(name: string): string | undefined {
-  if (typeof process === 'undefined' || process.env == null) {
-    return undefined;
-  }
-  const value = process.env[name];
-  return value != null && value.trim().length > 0 ? value.trim() : undefined;
+  const value = typeof process === 'undefined' ? undefined : process.env?.[name]?.trim();
+  return value != null && value.length > 0 ? value : undefined;
 }
 
 function toFilePath(moduleUrl: string): string {
@@ -102,20 +107,7 @@ function toRelativePath(filePath: string): string {
 }
 
 function resolveOrigin(value: string | null | undefined): TestLogOriginValue | null {
-  switch (value) {
-    case TestLogOrigin.AgentService:
-      return TestLogOrigin.AgentService;
-    case TestLogOrigin.Portal:
-      return TestLogOrigin.Portal;
-    case TestLogOrigin.Worker:
-      return TestLogOrigin.Worker;
-    case TestLogOrigin.Codex:
-      return TestLogOrigin.Codex;
-    case TestLogOrigin.Test:
-      return TestLogOrigin.Test;
-    default:
-      return null;
-  }
+  return TestLogOriginLookup[value ?? ''] ?? null;
 }
 
 export class Logger {
@@ -155,17 +147,11 @@ export class Logger {
   }
 
   logInfo(message: string, stackTrace: StackTrace, data?: unknown, enabled = true): void {
-    if (!enabled) {
-      return;
-    }
-    this.log(LogLevel.Info, message, stackTrace, data);
+    this.logIfEnabled(enabled, LogLevel.Info, message, stackTrace, data);
   }
 
   logWarn(message: string, stackTrace: StackTrace, data?: unknown, enabled = true): void {
-    if (!enabled) {
-      return;
-    }
-    this.log(LogLevel.Warn, message, stackTrace, data);
+    this.logIfEnabled(enabled, LogLevel.Warn, message, stackTrace, data);
   }
 
   logError(message: string, stackTrace: StackTrace, data?: unknown): void {
@@ -173,19 +159,12 @@ export class Logger {
   }
 
   logDebug(message: string, stackTrace: StackTrace, data?: unknown, enabled = false): void {
-    if (!enabled) {
-      return;
-    }
-    this.log(LogLevel.Debug, message, stackTrace, data);
+    this.logIfEnabled(enabled, LogLevel.Debug, message, stackTrace, data);
   }
 
   async flushLogQueue(): Promise<void> {
-    if (this.logQueue.length === 0) {
-      return;
-    }
-
     const runtime = this.resolveRuntimeConfig();
-    if (runtime.bridgeEndpoint == null || runtime.bridgeEndpoint.length === 0) {
+    if (this.logQueue.length === 0 || runtime.bridgeEndpoint == null || runtime.bridgeEndpoint.length === 0) {
       return;
     }
 
@@ -202,36 +181,29 @@ export class Logger {
   private log(level: LogLevelValue, message: string, stackTrace: StackTrace, data?: unknown): void {
     const frames = parseStackTrace(stackTrace);
     const location = this.resolveLogLocation(frames);
-    if (!this.shouldStoreLog(level, location)) {
-      return;
+    if (this.shouldStoreLog(level, location)) {
+      const runtime = this.resolveRuntimeConfig();
+      this.logQueue.push(this.buildBridgeEntry(level, message, stackTrace, data, runtime, location));
     }
-
-    const runtime = this.resolveRuntimeConfig();
-    this.logQueue.push(this.buildBridgeEntry(level, message, stackTrace, data, runtime, location));
   }
 
   private findRegistration(frames: readonly StackFrame[]): LoggerRegistration | null {
-    for (const frame of frames) {
-      if (frame.filePath == null) {
-        continue;
-      }
-      const registration = this.registrations.get(normalizeGeneratedStackPath(frame.filePath).toLowerCase());
-      if (registration != null) {
-        return registration;
-      }
-    }
-    return null;
+    const frame = frames.find(
+      (candidate) =>
+        candidate.filePath != null &&
+        this.registrations.has(normalizeGeneratedStackPath(candidate.filePath).toLowerCase())
+    );
+    return frame?.filePath == null
+      ? null
+      : this.registrations.get(normalizeGeneratedStackPath(frame.filePath).toLowerCase()) ?? null;
   }
 
   private findMatchedFrame(frames: readonly StackFrame[], registration: LoggerRegistration | null): StackFrame | null {
-    if (registration?.filePath != null) {
-      for (const frame of frames) {
-        if (frame.filePath === registration.absoluteFilePath) {
-          return frame;
-        }
-      }
-    }
-    return frames.find((frame) => frame.filePath != null) ?? null;
+    const matchedFrame =
+      registration?.filePath == null
+        ? null
+        : frames.find((frame) => frame.filePath === registration.absoluteFilePath) ?? null;
+    return matchedFrame ?? frames.find((frame) => frame.filePath != null) ?? null;
   }
 
   private resolveLogLocation(frames: readonly StackFrame[]): ResolvedLogLocation {
@@ -294,6 +266,19 @@ export class Logger {
     return data == null ? null : JSON.stringify(data);
   }
 
+  private logIfEnabled(
+    enabled: boolean,
+    level: LogLevelValue,
+    message: string,
+    stackTrace: StackTrace,
+    data?: unknown
+  ): void {
+    if (!enabled) {
+      return;
+    }
+    this.log(level, message, stackTrace, data);
+  }
+
   private resolveCorrelationId(runtime: ResolvedRuntimeConfig): string {
     return runtime.correlationId ?? globalThis.crypto?.randomUUID?.() ?? `${Date.now()}`;
   }
@@ -322,10 +307,7 @@ export class Logger {
   }
 
   private ensureGeneratedRunId(): string {
-    if (this.generatedRunId == null) {
-      this.runSequence += 1;
-      this.generatedRunId = `${LoggerRuntimeDefaults.GeneratedRunIdPrefix}${this.runSequence}`;
-    }
+    this.generatedRunId ??= `${LoggerRuntimeDefaults.GeneratedRunIdPrefix}${++this.runSequence}`;
     return this.generatedRunId;
   }
 

@@ -1,6 +1,13 @@
-use std::collections::BTreeSet;
-
 use ocentra_schema::parent_owned_sync_export as contracts;
+
+#[path = "parent_owned_sync_export_proof.rs"]
+mod parent_owned_sync_export_proof;
+#[path = "parent_owned_sync_export_provider.rs"]
+mod parent_owned_sync_export_provider;
+#[path = "parent_owned_sync_export_state.rs"]
+mod parent_owned_sync_export_state;
+#[path = "parent_owned_sync_export_tombstone.rs"]
+mod parent_owned_sync_export_tombstone;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParentOwnedSyncProviderStatusInput {
@@ -62,225 +69,25 @@ pub enum ParentOwnedSyncExportDerivationError {
     TombstonePropagatedRequiresTimestamp,
     DuplicateProviderStatusRef,
     DuplicateTombstoneRef,
-}
-
-fn option_or_unreachable<T>(value: Option<T>, context: &str) -> T {
-    match value {
-        Some(value) => value,
-        None => unreachable!("{context}"),
-    }
+    InvalidContractVersion,
 }
 
 pub fn derive_parent_owned_sync_provider_status_row(
     input: ParentOwnedSyncProviderStatusInput,
 ) -> Result<contracts::ParentOwnedSyncProviderStatusRow, ParentOwnedSyncExportDerivationError> {
-    validate_parent_owned_sync_provider_status(&input)?;
-
-    Ok(contracts::ParentOwnedSyncProviderStatusRow {
-        provider_id: input.provider_id,
-        provider_mode: input.provider_mode,
-        provider_status: input.provider_status,
-        destination_ownership: input.destination_ownership,
-        account_ref: input.account_ref,
-        folder_ref: input.folder_ref,
-        status_ref: input.status_ref,
-        revocation_ref: input.revocation_ref,
-        disconnect_visibility_state: input.disconnect_visibility_state,
-        delete_visibility_state: input.delete_visibility_state,
-        last_checked_at: input.last_checked_at,
-        oauth_runtime_claimed: false,
-        upload_runtime_claimed: false,
-        delete_runtime_claimed: false,
-        ocentra_hosted_family_data_stored: false,
-        claim_safe: true,
-    })
-}
-
-fn validate_parent_owned_sync_provider_status(
-    input: &ParentOwnedSyncProviderStatusInput,
-) -> Result<(), ParentOwnedSyncExportDerivationError> {
-    if input.destination_ownership
-        == contracts::ParentOwnedSyncExportDestinationOwnership::OcentraHostedNonActivityMetadata
-    {
-        return Err(ParentOwnedSyncExportDerivationError::OcentraHostedCustodyForbidden);
-    }
-
-    match input.provider_status {
-        contracts::ParentOwnedSyncProviderStatus::Ready => {
-            if input.account_ref.is_none() || input.folder_ref.is_none() {
-                return Err(ParentOwnedSyncExportDerivationError::ReadyProviderMissingLocationRefs);
-            }
-        }
-        contracts::ParentOwnedSyncProviderStatus::Revoked => {
-            if input.revocation_ref.is_none() {
-                return Err(
-                    ParentOwnedSyncExportDerivationError::RevokedProviderMissingRevocationRef,
-                );
-            }
-        }
-        contracts::ParentOwnedSyncProviderStatus::Disabled => {
-            if input.account_ref.is_some()
-                || input.folder_ref.is_some()
-                || input.revocation_ref.is_some()
-            {
-                return Err(ParentOwnedSyncExportDerivationError::DisabledProviderMustNotKeepRefs);
-            }
-        }
-        contracts::ParentOwnedSyncProviderStatus::NotConfigured => {
-            if input.account_ref.is_some()
-                || input.folder_ref.is_some()
-                || input.revocation_ref.is_some()
-            {
-                return Err(
-                    ParentOwnedSyncExportDerivationError::NotConfiguredProviderMustNotKeepRefs,
-                );
-            }
-        }
-        contracts::ParentOwnedSyncProviderStatus::Disconnected => {
-            if input.disconnect_visibility_state
-                != contracts::ParentOwnedSyncDisconnectVisibilityState::DisconnectVisible
-            {
-                return Err(
-                    ParentOwnedSyncExportDerivationError::DisconnectedProviderMustBeVisible,
-                );
-            }
-        }
-        contracts::ParentOwnedSyncProviderStatus::ManualRequired => {
-            if input.disconnect_visibility_state
-                != contracts::ParentOwnedSyncDisconnectVisibilityState::ManualRequired
-                && input.delete_visibility_state
-                    != contracts::ParentOwnedSyncDeleteVisibilityState::ManualRequired
-            {
-                return Err(
-                    ParentOwnedSyncExportDerivationError::ManualProviderStateMustStayVisible,
-                );
-            }
-        }
-        contracts::ParentOwnedSyncProviderStatus::WrongAccount
-        | contracts::ParentOwnedSyncProviderStatus::FolderUnavailable
-        | contracts::ParentOwnedSyncProviderStatus::PartialUpload => {}
-    }
-
-    Ok(())
+    parent_owned_sync_export_provider::derive_parent_owned_sync_provider_status_row(input)
 }
 
 pub fn derive_parent_owned_sync_state_row(
     input: ParentOwnedSyncStateInput,
 ) -> Result<contracts::ParentOwnedSyncStateRow, ParentOwnedSyncExportDerivationError> {
-    match input.sync_state {
-        contracts::ParentOwnedSyncState::Synced | contracts::ParentOwnedSyncState::Stale => {
-            if input.cursor_ref.is_none()
-                || input.batch_ref.is_none()
-                || input.manifest_checksum_ref.is_none()
-                || input.manifest_signature_ref.is_none()
-                || input.last_successful_sync_at.is_none()
-            {
-                return Err(
-                    ParentOwnedSyncExportDerivationError::SuccessfulSyncRequiresCursorBatchChecksumAndSignature,
-                );
-            }
-            if input.manifest_integrity_state
-                == contracts::ParentOwnedSyncManifestIntegrityState::Corrupt
-            {
-                return Err(ParentOwnedSyncExportDerivationError::CorruptManifestCannotClaimSynced);
-            }
-        }
-        contracts::ParentOwnedSyncState::Conflict => {
-            if input.conflict_ref.is_none() {
-                return Err(ParentOwnedSyncExportDerivationError::ConflictStateRequiresConflictRef);
-            }
-            if input.retry_queue_ref.is_none() {
-                return Err(ParentOwnedSyncExportDerivationError::RetryStateRequiresQueueRef);
-            }
-        }
-        contracts::ParentOwnedSyncState::OfflineRetryPending
-        | contracts::ParentOwnedSyncState::PartialOutage
-        | contracts::ParentOwnedSyncState::ManualRequired
-        | contracts::ParentOwnedSyncState::Missing => {
-            if input.retry_queue_ref.is_none() {
-                return Err(ParentOwnedSyncExportDerivationError::RetryStateRequiresQueueRef);
-            }
-        }
-        contracts::ParentOwnedSyncState::NotStarted => {
-            if input.cursor_ref.is_some()
-                || input.batch_ref.is_some()
-                || input.manifest_checksum_ref.is_some()
-                || input.manifest_signature_ref.is_some()
-                || input.last_successful_sync_at.is_some()
-                || input.conflict_ref.is_some()
-                || input.retry_queue_ref.is_some()
-            {
-                return Err(
-                    ParentOwnedSyncExportDerivationError::NotStartedStateCannotHaveOperationalRefs,
-                );
-            }
-        }
-    }
-
-    Ok(contracts::ParentOwnedSyncStateRow {
-        sync_state: input.sync_state,
-        provider_status_ref: input.provider_status_ref,
-        cursor_ref: input.cursor_ref,
-        batch_ref: input.batch_ref,
-        manifest_integrity_state: input.manifest_integrity_state,
-        manifest_checksum_ref: input.manifest_checksum_ref,
-        manifest_signature_ref: input.manifest_signature_ref,
-        last_successful_sync_at: input.last_successful_sync_at,
-        conflict_ref: input.conflict_ref,
-        retry_queue_ref: input.retry_queue_ref,
-        parent_action_required: input.parent_action_required,
-        claim_safe: true,
-    })
+    parent_owned_sync_export_state::derive_parent_owned_sync_state_row(input)
 }
 
 pub fn derive_parent_owned_sync_tombstone_row(
     input: ParentOwnedSyncTombstoneInput,
 ) -> Result<contracts::ParentOwnedSyncTombstoneRow, ParentOwnedSyncExportDerivationError> {
-    match input.propagation_state {
-        contracts::ParentOwnedSyncTombstonePropagationState::NotRequested => {
-            if input.delete_request_ref.is_some()
-                || input.last_propagated_at.is_some()
-                || input.blocked_reason_ref.is_some()
-            {
-                return Err(ParentOwnedSyncExportDerivationError::TombstoneDeleteRequestMissing);
-            }
-        }
-        contracts::ParentOwnedSyncTombstonePropagationState::Pending => {
-            if input.delete_request_ref.is_none() {
-                return Err(ParentOwnedSyncExportDerivationError::TombstoneDeleteRequestMissing);
-            }
-        }
-        contracts::ParentOwnedSyncTombstonePropagationState::Propagated => {
-            if input.delete_request_ref.is_none() {
-                return Err(ParentOwnedSyncExportDerivationError::TombstoneDeleteRequestMissing);
-            }
-            if input.last_propagated_at.is_none() {
-                return Err(
-                    ParentOwnedSyncExportDerivationError::TombstonePropagatedRequiresTimestamp,
-                );
-            }
-        }
-        contracts::ParentOwnedSyncTombstonePropagationState::Blocked
-        | contracts::ParentOwnedSyncTombstonePropagationState::ManualRequired => {
-            if input.delete_request_ref.is_none() {
-                return Err(ParentOwnedSyncExportDerivationError::TombstoneDeleteRequestMissing);
-            }
-            if input.blocked_reason_ref.is_none() {
-                return Err(ParentOwnedSyncExportDerivationError::TombstoneBlockedRequiresReason);
-            }
-        }
-    }
-
-    Ok(contracts::ParentOwnedSyncTombstoneRow {
-        tombstone_ref: input.tombstone_ref,
-        data_class: input.data_class,
-        propagation_state: input.propagation_state,
-        delete_request_ref: input.delete_request_ref,
-        provider_status_ref: input.provider_status_ref,
-        last_propagated_at: input.last_propagated_at,
-        blocked_reason_ref: input.blocked_reason_ref,
-        claim_safe: true,
-    })
+    parent_owned_sync_export_tombstone::derive_parent_owned_sync_tombstone_row(input)
 }
 
 pub fn build_parent_owned_sync_export_proof(
@@ -290,49 +97,11 @@ pub fn build_parent_owned_sync_export_proof(
     tombstone_inputs: Vec<ParentOwnedSyncTombstoneInput>,
     updated_at: contracts::ParentTimestamp,
 ) -> Result<contracts::ParentOwnedSyncExportContractProof, ParentOwnedSyncExportDerivationError> {
-    let provider_statuses = provider_inputs
-        .into_iter()
-        .map(derive_parent_owned_sync_provider_status_row)
-        .collect::<Result<Vec<_>, _>>()?;
-    let sync_states = sync_inputs
-        .into_iter()
-        .map(derive_parent_owned_sync_state_row)
-        .collect::<Result<Vec<_>, _>>()?;
-    let tombstones = tombstone_inputs
-        .into_iter()
-        .map(derive_parent_owned_sync_tombstone_row)
-        .collect::<Result<Vec<_>, _>>()?;
-
-    let mut seen_status_refs = BTreeSet::new();
-    for row in &provider_statuses {
-        if !seen_status_refs.insert(row.status_ref.as_str().to_owned()) {
-            return Err(ParentOwnedSyncExportDerivationError::DuplicateProviderStatusRef);
-        }
-    }
-
-    let mut seen_tombstone_refs = BTreeSet::new();
-    for row in &tombstones {
-        if !seen_tombstone_refs.insert(row.tombstone_ref.as_str().to_owned()) {
-            return Err(ParentOwnedSyncExportDerivationError::DuplicateTombstoneRef);
-        }
-    }
-
-    Ok(contracts::ParentOwnedSyncExportContractProof {
-        schema_version: contracts::PARENT_OWNED_SYNC_EXPORT_SCHEMA_VERSION.to_string(),
-        contract_version: option_or_unreachable(
-            contracts::ParentContractSchemaVersion::parse("v0.6"),
-            "contract version",
-        ),
-        manifest: manifest.clone(),
-        provider_statuses,
-        sync_states,
-        tombstones,
-        non_claims: contracts::required_parent_owned_sync_export_non_claims(),
-        transfer_runtime_claimed: false,
-        connector_o_auth_claimed: false,
-        upload_runtime_claimed: false,
-        delete_runtime_claimed: false,
-        ocentra_hosted_child_evidence_stored: false,
+    parent_owned_sync_export_proof::build_parent_owned_sync_export_proof(
+        manifest,
+        provider_inputs,
+        sync_inputs,
+        tombstone_inputs,
         updated_at,
-    })
+    )
 }

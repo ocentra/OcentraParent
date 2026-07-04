@@ -19,7 +19,7 @@ fn lan_plan_fixture(name: &str) -> String {
         env!("CARGO_MANIFEST_DIR"),
         name
     ))
-    .value_or_unreachable("fixture loads")
+    .value_or_unreachable()
 }
 
 #[test]
@@ -84,7 +84,7 @@ fn macos_arp_parser_accepts_named_private_neighbor() {
         "iphone.local (192.168.2.45) at a4:5e:60:11:22:33 on en0 ifscope [ethernet]",
         TEST_NEIGHBOR_OBSERVED_AT,
     )
-    .value_or_unreachable("macOS arp row parses");
+    .value_or_unreachable();
 
     assert_eq!(observation.ip_address, "192.168.2.45");
     assert_eq!(observation.mac_address, "a4-5e-60-11-22-33");
@@ -138,7 +138,7 @@ fn macos_neighbor_device_reuses_previous_identity_as_weak_hint() {
     };
     let observation =
         macos_arp_observation("? (192.168.2.45) at a4:5e:60:11:22:33 on en0 ifscope [ethernet]")
-            .value_or_unreachable("macOS arp row parses");
+            .value_or_unreachable();
     let previous_inventory = LanPreviousNetworkInventory::from_devices(&[previous]);
     let identity_hint_inventory = LanIdentityHintInventory::from_devices(&[]);
 
@@ -147,7 +147,7 @@ fn macos_neighbor_device_reuses_previous_identity_as_weak_hint() {
         &identity_hint_inventory,
         &previous_inventory,
     )
-    .value_or_unreachable("device from macOS observation");
+    .value_or_unreachable();
 
     assert_eq!(device.label, "kitchen-ipad.local");
     assert_eq!(device.hostname.as_deref(), Some("kitchen-ipad.local"));

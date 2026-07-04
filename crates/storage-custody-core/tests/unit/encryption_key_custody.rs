@@ -17,7 +17,7 @@ fn encryption_key_custody_derives_platform_matrix_with_linux_and_mobile_manual_r
         device_proof_required: false,
         notes: "Linux undecided".to_string(),
     })
-    .value_or_unreachable("linux row");
+    .assume_ok();
     assert!(linux.manual_required);
 
     let ios = derive_platform_key_custody_row(PlatformKeyCustodyInput {
@@ -28,7 +28,7 @@ fn encryption_key_custody_derives_platform_matrix_with_linux_and_mobile_manual_r
         device_proof_required: true,
         notes: "iOS limited".to_string(),
     })
-    .value_or_unreachable("ios row");
+    .assume_ok();
     assert!(ios.manual_required && ios.device_proof_required);
 }
 
@@ -39,7 +39,9 @@ fn encryption_key_custody_wrong_household_and_wrong_device_fail_closed() {
     let wrong_household = derive_decrypt_attempt_result(
         &child_service,
         attempt_input(
-            "attempt-wrong-household",
+            contracts::EncryptionAttemptId::parse("attempt-wrong-household").assume_ok(),
+            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
+            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
             contracts::PlatformKeyCustodySurface::ChildService,
             contracts::EncryptionUnlockScope::ChildEvidenceLocal,
             contracts::KeyCustodyState::KeyAvailable,
@@ -57,7 +59,9 @@ fn encryption_key_custody_wrong_household_and_wrong_device_fail_closed() {
     let wrong_device = derive_decrypt_attempt_result(
         &child_service,
         attempt_input(
-            "attempt-wrong-device",
+            contracts::EncryptionAttemptId::parse("attempt-wrong-device").assume_ok(),
+            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
+            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
             contracts::PlatformKeyCustodySurface::ChildService,
             contracts::EncryptionUnlockScope::ChildEvidenceLocal,
             contracts::KeyCustodyState::KeyAvailable,
@@ -80,7 +84,9 @@ fn encryption_key_custody_revoked_and_lost_key_states_are_explicit() {
     let revoked = derive_decrypt_attempt_result(
         &parent_desktop,
         attempt_input(
-            "attempt-revoked",
+            contracts::EncryptionAttemptId::parse("attempt-revoked").assume_ok(),
+            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
+            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
             contracts::PlatformKeyCustodySurface::ParentDesktop,
             contracts::EncryptionUnlockScope::ParentOwnedBundle,
             contracts::KeyCustodyState::KeyRevoked,
@@ -97,7 +103,9 @@ fn encryption_key_custody_revoked_and_lost_key_states_are_explicit() {
     let lost = derive_decrypt_attempt_result(
         &parent_desktop,
         attempt_input(
-            "attempt-lost",
+            contracts::EncryptionAttemptId::parse("attempt-lost").assume_ok(),
+            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
+            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
             contracts::PlatformKeyCustodySurface::ParentDesktop,
             contracts::EncryptionUnlockScope::ParentOwnedBundle,
             contracts::KeyCustodyState::KeyUnavailable,
@@ -134,7 +142,7 @@ fn encryption_key_custody_rejects_universal_key_and_hosted_portal_decrypt_root()
             notes: "portal".to_string(),
         }],
         vec![],
-        timestamp("2026-06-28T18:55:00.000Z"),
+        contracts::EncryptionTimestamp::parse("2026-06-28T18:55:00.000Z").assume_ok(),
     );
     assert_eq!(
         universal,
@@ -169,12 +177,14 @@ fn encryption_key_custody_recovery_and_mobile_proof_gaps_stay_manual_required() 
         device_proof_required: true,
         notes: "ios".to_string(),
     })
-    .value_or_unreachable("ios row");
+    .assume_ok();
 
     let limited = derive_decrypt_attempt_result(
         &ios,
         attempt_input(
-            "attempt-ios-limited",
+            contracts::EncryptionAttemptId::parse("attempt-ios-limited").assume_ok(),
+            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
+            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
             contracts::PlatformKeyCustodySurface::IOS,
             contracts::EncryptionUnlockScope::ParentOwnedBundle,
             contracts::KeyCustodyState::KeyAvailable,
@@ -195,7 +205,11 @@ fn encryption_key_custody_recovery_and_mobile_proof_gaps_stay_manual_required() 
             recovery_mode: contracts::RecoveryMode::ParentOwnedRecovery,
             key_state: contracts::KeyCustodyState::RecoveryAvailable,
             ..attempt_input(
-                "attempt-recovery",
+                contracts::EncryptionAttemptId::parse("attempt-recovery").assume_ok(),
+                contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
+                Some(
+                    contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok(),
+                ),
                 contracts::PlatformKeyCustodySurface::ParentDesktop,
                 contracts::EncryptionUnlockScope::ParentOwnedBundle,
                 contracts::KeyCustodyState::KeyAvailable,
@@ -221,7 +235,7 @@ fn parent_desktop_row() -> contracts::PlatformKeyCustodyRow {
         device_proof_required: false,
         notes: "parent desktop".to_string(),
     })
-    .value_or_unreachable("parent desktop row")
+    .assume_ok()
 }
 
 fn child_service_row() -> contracts::PlatformKeyCustodyRow {
@@ -233,11 +247,13 @@ fn child_service_row() -> contracts::PlatformKeyCustodyRow {
         device_proof_required: false,
         notes: "child service".to_string(),
     })
-    .value_or_unreachable("child service row")
+    .assume_ok()
 }
 
 fn attempt_input(
-    attempt_id_value: &str,
+    attempt_id: contracts::EncryptionAttemptId,
+    household_id: contracts::EncryptionHouseholdId,
+    device_id: Option<contracts::EncryptionDeviceId>,
     surface: contracts::PlatformKeyCustodySurface,
     requested_scope: contracts::EncryptionUnlockScope,
     key_state: contracts::KeyCustodyState,
@@ -246,9 +262,9 @@ fn attempt_input(
     device_proof_present: bool,
 ) -> DecryptAttemptInput {
     DecryptAttemptInput {
-        attempt_id: attempt_id(attempt_id_value),
-        household_id: household_id("family-key-custody-proof-1"),
-        device_id: Some(device_id("device-key-custody-proof-1")),
+        attempt_id,
+        household_id,
+        device_id,
         surface,
         requested_scope,
         key_state,
@@ -257,20 +273,4 @@ fn attempt_input(
         device_match,
         device_proof_present,
     }
-}
-
-fn attempt_id(value: &str) -> contracts::EncryptionAttemptId {
-    contracts::EncryptionAttemptId::parse(value).value_or_unreachable("attempt id")
-}
-
-fn household_id(value: &str) -> contracts::EncryptionHouseholdId {
-    contracts::EncryptionHouseholdId::parse(value).value_or_unreachable("household id")
-}
-
-fn device_id(value: &str) -> contracts::EncryptionDeviceId {
-    contracts::EncryptionDeviceId::parse(value).value_or_unreachable("device id")
-}
-
-fn timestamp(value: &str) -> contracts::EncryptionTimestamp {
-    contracts::EncryptionTimestamp::parse(value).value_or_unreachable("timestamp")
 }

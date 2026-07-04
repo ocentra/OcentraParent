@@ -1,9 +1,6 @@
-use crate::{
-    map_network_evidence_grade_to_policy, NetworkEvidenceGrade, NetworkEvidencePolicyAction,
-    NetworkEvidencePolicyMappingError, NetworkEvidencePolicyMappingInput,
-    NetworkEvidencePolicyMode,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::policy::*;
 
 #[test]
 fn policy_mapping_allows_grade_a_dry_run_without_adapter_authority() {

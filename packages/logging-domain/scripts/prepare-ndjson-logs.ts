@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { clearDirectory, getTestLogScopeDir } from '../src/test-log/ndjsonPaths';
-import { parseTestLogScopeOrDefault } from '@ocentra-parent/schema-domain/test-log/types';
+import { parseTestLogScopeOrDefault } from '../src/test-log/types';
 
 const args = process.argv.slice(2);
 const scopeArg = args.find((value) => value.startsWith('--scope='))?.slice('--scope='.length) ?? null;

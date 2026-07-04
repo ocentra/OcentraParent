@@ -1,17 +1,33 @@
 use super::{
-    constants, ActivityNetworkEndpoint, ActivityNetworkFlowCounters,
-    ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel, NetworkActivityClassifiedEvent,
-    NetworkAiAnalysisCompletedEvent, NetworkAiAnalysisRequestedEvent,
+    constants, ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
+    ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
+    ActivityNetworkFlowReadModel, ActivityNetworkProtocol, ActivityNetworkTcpState,
+    ActivityProcessAttributionStatus, NetworkActivityClassifiedEvent,
+    NetworkAiAnalysisCompletedEvent, NetworkAiAnalysisRequestedEvent, NetworkAiAuditState,
     NetworkAuditEntryCommittedEvent, NetworkDomainObservedEvent,
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
-    NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
+    NetworkEnforcementResultStatus, NetworkEvidenceScope, NetworkFlowObservedEvent,
+    NetworkInterventionState, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
     NetworkRemoteDeliveryCrossProcessCustodyReadinessState, NetworkRemoteDeliveryStatus,
+    NetworkRiskBudgetState, NetworkRuntimeClaimBoundary, NetworkRuntimeEventPayload,
+    NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
     NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
 };
 use crate::network_flow::{
     NetworkRemoteDeliveryExternalCrossProcessTransportState, NetworkRuntimeEventContract,
 };
+use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::error::EventingError;
+
+macro_rules! serialized_field {
+    ($value:expr, $field:expr $(,)?) => {{
+        serde_json::to_value($value).unwrap_or_default()[$field].clone()
+    }};
+    ($value:expr, $field:expr, $nested:expr $(,)?) => {{
+        serde_json::to_value($value).unwrap_or_default()[$field][$nested].clone()
+    }};
+}
 
 #[path = "network_flow_event_fixtures.rs"]
 mod network_flow_event_fixtures;
@@ -62,9 +78,7 @@ fn network_flow_observation_serializes_to_contract_shape() {
         evidence: Vec::new(),
     };
 
-    let serialized = serde_json::to_value(observation).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(observation).unwrap_or_default();
 
     assert_eq!(serialized["schemaVersion"], NETWORK_FLOW_SCHEMA_VERSION);
     assert_eq!(
@@ -112,9 +126,7 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
         rows: Vec::new(),
     };
 
-    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(read_model).unwrap_or_default();
 
     assert_eq!(
         serialized["custody"],
@@ -135,10 +147,7 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
 #[test]
 fn network_remote_delivery_status_serializes_row10t_external_transport_status_without_product_claims(
 ) {
-    let serialized =
-        serde_json::to_value(remote_delivery_status_fixture()).unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+    let serialized = serde_json::to_value(remote_delivery_status_fixture()).unwrap_or_default();
 
     assert_remote_delivery_status_refs(&serialized);
     assert_remote_delivery_status_counts(&serialized);
@@ -550,9 +559,48 @@ fn network_runtime_event_contracts_name_exact_event_types() {
 }
 
 #[test]
+fn network_runtime_event_payload_uses_rust_owned_contract_and_key_shapes(
+) -> Result<(), EventingError> {
+    let payload = network_runtime_event_payload_fixture();
+
+    let contract = payload.contract()?;
+    let aggregate_key = payload.aggregate_key()?;
+    let idempotency_key = payload.idempotency_key()?;
+
+    assert_eq!(
+        contract.event_type.as_str(),
+        constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED
+    );
+    assert_eq!(
+        contract.schema_version.value(),
+        constants::network_flow::EVENT_SCHEMA_VERSION
+    );
+    assert_eq!(
+        aggregate_key.as_str(),
+        format!(
+            "{}{}",
+            constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX,
+            constants::activity_store::TEST_NETWORK_DOMAIN
+        )
+    );
+    assert_eq!(
+        idempotency_key.as_str(),
+        format!(
+            "{}{}-{}-{}",
+            constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX,
+            constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
+            aggregate_key.as_str(),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT
+        )
+    );
+
+    Ok(())
+}
+
+#[test]
 fn network_observation_contracts_serialize_claim_boundaries() {
     assert_eq!(
-        serialized_field(
+        serialized_field!(
             &network_flow_observed_event(),
             "claimBoundary",
             "exactUrlAvailable"
@@ -560,7 +608,7 @@ fn network_observation_contracts_serialize_claim_boundaries() {
         false
     );
     assert_eq!(
-        serialized_field(
+        serialized_field!(
             &network_flow_observed_event(),
             "claimBoundary",
             "adapterActionExecuted"
@@ -568,11 +616,11 @@ fn network_observation_contracts_serialize_claim_boundaries() {
         false
     );
     assert_eq!(
-        serialized_field(&network_domain_observed_event(), "attribution", ""),
+        serialized_field!(&network_domain_observed_event(), "attribution"),
         serde_json::json!("dns-answer")
     );
     assert_eq!(
-        serialized_field(&network_activity_classified_event(), "activityKind", ""),
+        serialized_field!(&network_activity_classified_event(), "activityKind"),
         serde_json::json!("vpn-proxy-tunnel-candidate")
     );
 }
@@ -580,27 +628,22 @@ fn network_observation_contracts_serialize_claim_boundaries() {
 #[test]
 fn network_ai_and_policy_contracts_serialize_chain_refs() {
     assert_eq!(
-        serialized_field(
+        serialized_field!(
             &network_ai_analysis_requested_event(),
             "rawPacketPayloadIncluded",
-            ""
         ),
         false
     );
     assert_eq!(
-        serialized_field(&network_ai_analysis_completed_event(), "advisoryState", ""),
+        serialized_field!(&network_ai_analysis_completed_event(), "advisoryState"),
         serde_json::json!("completed")
     );
     assert_eq!(
-        serialized_field(&network_policy_evaluation_requested_event(), "dryRun", ""),
+        serialized_field!(&network_policy_evaluation_requested_event(), "dryRun"),
         true
     );
     assert_eq!(
-        serialized_field(
-            &network_policy_decision_completed_event(),
-            "decisionAction",
-            ""
-        ),
+        serialized_field!(&network_policy_decision_completed_event(), "decisionAction",),
         serde_json::json!("manual-review")
     );
 }
@@ -608,42 +651,37 @@ fn network_ai_and_policy_contracts_serialize_chain_refs() {
 #[test]
 fn network_enforcement_audit_and_portal_contracts_serialize_refs() {
     assert_eq!(
-        serialized_field(
+        serialized_field!(
             &network_enforcement_command_issued_event(),
             "policyDecisionRef",
-            ""
         ),
         constants::network_flow::TEST_POLICY_DECISION_REF
     );
     assert_eq!(
-        serialized_field(
+        serialized_field!(
             &network_enforcement_command_issued_event(),
             "enforcementMode",
-            ""
         ),
         serde_json::json!("dry-run")
     );
     assert_eq!(
-        serialized_field(
+        serialized_field!(
             &network_enforcement_result_observed_event(),
             "adapterActionExecuted",
-            ""
         ),
         false
     );
     assert_eq!(
-        serialized_field(
+        serialized_field!(
             &network_audit_entry_committed_event(),
             "enforcementResultRef",
-            ""
         ),
         constants::network_flow::TEST_ENFORCEMENT_RESULT_REF
     );
     assert_eq!(
-        serialized_field(
+        serialized_field!(
             &network_portal_read_model_updated_event(),
             "visibleManualRequired",
-            ""
         ),
         true
     );
@@ -684,9 +722,7 @@ fn manual_required_enforcement_result_keeps_adapter_action_false() {
         ),
     };
 
-    let serialized = serde_json::to_value(result).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(result).unwrap_or_default();
 
     assert_eq!(serialized["resultStatus"], "manual-required");
     assert_eq!(serialized["adapterActionExecuted"], false);
@@ -696,15 +732,37 @@ fn manual_required_enforcement_result_keeps_adapter_action_false() {
     );
 }
 
-fn serialized_field<T>(value: &T, field: &str, nested: &str) -> serde_json::Value
-where
-    T: serde::Serialize,
-{
-    let serialized = serde_json::to_value(value).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    if nested.is_empty() {
-        return serialized[field].clone();
+fn network_runtime_event_payload_fixture() -> NetworkRuntimeEventPayload {
+    NetworkRuntimeEventPayload {
+        phase: NetworkRuntimePhase::FlowObserved,
+        capability_status: ActivityCaptureCapabilityStatus::Available,
+        domain_attribution_status: ActivityDomainAttributionStatus::DomainObserved,
+        process_attribution_status: ActivityProcessAttributionStatus::ProcessAttributed,
+        protocol: Some(ActivityNetworkProtocol::Tcp),
+        tcp_state: Some(ActivityNetworkTcpState::Established),
+        local_ip: Some(constants::test_network::LOOPBACK_IP.to_string()),
+        local_port: Some(constants::activity_store::TEST_NETWORK_LOCAL_PORT),
+        destination_ip: Some(constants::activity_store::TEST_NETWORK_DESTINATION_IP.to_string()),
+        destination_port: Some(constants::activity_store::TEST_NETWORK_DESTINATION_PORT),
+        destination_domain: Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
+        process_id: Some(4242),
+        process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+        evidence_scope: NetworkEvidenceScope::MetadataOnly,
+        evidence_grade: NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata,
+        ai_audit_state: NetworkAiAuditState::NotRequested,
+        risk_budget_state: NetworkRiskBudgetState::ObserveOnly,
+        intervention_state: NetworkInterventionState::DryRunOnly,
+        claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
+        previous_phase_ref: None,
+        evidence_ref: constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),
+        ai_request_ref: None,
+        ai_analysis_ref: None,
+        policy_evaluation_ref: None,
+        policy_decision_ref: None,
+        adapter_capability_ref: None,
+        enforcement_command_ref: None,
+        enforcement_result_ref: None,
+        audit_entry_ref: None,
+        observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
     }
-    serialized[field][nested].clone()
 }

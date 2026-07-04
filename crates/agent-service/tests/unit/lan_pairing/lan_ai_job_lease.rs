@@ -20,6 +20,7 @@ use crate::{
         command_for_target, intent_payload_for_kind, local_network_target, paired_runtime,
         serialize_command,
     },
+    test_text::TestText,
 };
 
 #[tokio::test]
@@ -48,14 +49,18 @@ async fn duplicate_completed_lan_ai_job_submit_is_idempotent() {
     let runtime = lan_ai_provider_runtime().await;
     let first_event = lan_ai_job_event_with_ids(
         runtime.clone(),
-        constants::lan_pairing::INTENT_ID,
-        constants::lan_pairing::LAN_AI_JOB_INTENT_ID,
+        LanAiJobEventExpectation {
+            message_id: constants::lan_pairing::INTENT_ID,
+            intent_id: constants::lan_pairing::LAN_AI_JOB_INTENT_ID,
+        },
     )
     .await;
     let duplicate_event = lan_ai_job_event_with_ids(
         runtime,
-        constants::lan_pairing::SECOND_SELECT_INTENT_ID,
-        constants::lan_pairing::SECOND_SELECT_INTENT_ID,
+        LanAiJobEventExpectation {
+            message_id: constants::lan_pairing::SECOND_SELECT_INTENT_ID,
+            intent_id: constants::lan_pairing::SECOND_SELECT_INTENT_ID,
+        },
     )
     .await;
 
@@ -182,34 +187,48 @@ async fn lan_ai_job_event(
 ) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope {
     lan_ai_job_event_with_ids(
         runtime,
-        constants::lan_pairing::INTENT_ID,
-        constants::lan_pairing::LAN_AI_JOB_INTENT_ID,
+        LanAiJobEventExpectation {
+            message_id: constants::lan_pairing::INTENT_ID,
+            intent_id: constants::lan_pairing::LAN_AI_JOB_INTENT_ID,
+        },
     )
     .await
 }
 
 async fn lan_ai_job_event_with_ids(
     runtime: LanPairingRuntime,
-    message_id: &str,
-    intent_id: &str,
+    expectation: LanAiJobEventExpectation,
 ) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope {
     let mut command = command_for_target(
         AgentCommandName::AgentLanAiJobSubmit,
         local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-        lan_ai_job_payload_for_intent(intent_id),
+        lan_ai_job_payload_for_intent(LanAiJobIntentExpectation {
+            intent_id: expectation.intent_id,
+        }),
     );
-    command.message_id = message_id.to_string();
+    command.message_id = expectation.message_id.to_string();
     handle_command_text_for_test(
-        &serialize_command(command),
+        serialize_command(command),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await
 }
 
-fn lan_ai_job_payload_for_intent(intent_id: &str) -> LogFields {
+struct LanAiJobIntentExpectation {
+    intent_id: &'static str,
+}
+
+struct LanAiJobEventExpectation {
+    message_id: &'static str,
+    intent_id: &'static str,
+}
+
+fn lan_ai_job_payload_for_intent(expectation: LanAiJobIntentExpectation) -> LogFields {
     let mut payload = intent_payload_for_kind(
-        intent_id,
+        expectation.intent_id,
         constants::lan_pairing::CHILD_DEVICE_ID,
         constants::lan_pairing::PROOF_DIGEST,
         constants::lan_pairing::EXPIRES_AT,
@@ -233,7 +252,9 @@ fn lan_ai_job_payload_for_intent(intent_id: &str) -> LogFields {
 async fn lan_ai_provider_runtime() -> LanPairingRuntime {
     let mut runtime = paired_runtime().await;
     runtime.device_roles = DeviceRoleRuntimeReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT
+            .to_string()
+            .into(),
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: DeviceRuntimeSurface::ParentDesktop,
         platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),
@@ -275,18 +296,9 @@ fn assert_no_raw_lan_ai_markers(payload: &LogFields) {
         constants::lan_pairing::RAW_MARKER_RAW_TOKEN,
         constants::lan_pairing::RAW_MARKER_SQLITE_PATH,
     ] {
-        assert!(!payload_contains_marker(payload, marker));
+        assert!(!payload.iter().any(|(key, value)| {
+            key.contains(marker)
+                || matches!(value, LogFieldValue::String(value) if value.contains(marker))
+        }));
     }
-}
-
-fn payload_contains_marker(payload: &LogFields, marker: &str) -> bool {
-    payload.iter().any(|(key, value)| {
-        key.contains(marker)
-            || match value {
-                LogFieldValue::String(value) => value.contains(marker),
-                LogFieldValue::Number(_) | LogFieldValue::Boolean(_) | LogFieldValue::Null(_) => {
-                    false
-                }
-            }
-    })
 }

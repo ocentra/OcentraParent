@@ -32,6 +32,46 @@ pub enum NetworkAppleNetworkExtensionGateStatusState {
     AppleEntitlementProofReady,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkAppleNetworkExtensionGateRequiredArtifact {
+    #[serde(rename = "developer-team-proof")]
+    DeveloperTeamProof,
+    #[serde(rename = "entitlement-approval-proof")]
+    EntitlementApprovalProof,
+    #[serde(rename = "provisioning-profile-proof")]
+    ProvisioningProfileProof,
+    #[serde(rename = "signing-proof")]
+    SigningProof,
+    #[serde(rename = "device-or-testflight-proof")]
+    DeviceOrTestflightProof,
+    #[serde(rename = "network-extension-declaration")]
+    NetworkExtensionDeclaration,
+    #[serde(rename = "extension-configuration-proof")]
+    ExtensionConfigurationProof,
+    #[serde(rename = "rollback-plan")]
+    RollbackPlan,
+    #[serde(rename = "audit-event")]
+    AuditEvent,
+    #[serde(rename = "supervision-or-mdm-proof")]
+    SupervisionOrMdmProof,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkAppleNetworkExtensionGateBoundaryReason {
+    #[serde(rename = "research-only-requested")]
+    ResearchOnlyRequested,
+    #[serde(rename = "capability-manual-required")]
+    CapabilityManualRequired,
+    #[serde(rename = "capability-unavailable")]
+    CapabilityUnavailable,
+    #[serde(rename = "evidence-grade-below-proof-threshold")]
+    EvidenceGradeBelowProofThreshold,
+    #[serde(rename = "policy-not-network-extension-approved")]
+    PolicyNotNetworkExtensionApproved,
+    #[serde(rename = "missing-required-artifact")]
+    MissingRequiredArtifact,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkAppleNetworkExtensionGateStatus {
@@ -46,8 +86,8 @@ pub struct NetworkAppleNetworkExtensionGateStatus {
     pub network_extension_ref: String,
     pub capability_state: NetworkAppleNetworkExtensionGateCapabilityStatusState,
     pub gate_state: NetworkAppleNetworkExtensionGateStatusState,
-    pub boundary_reasons: Vec<String>,
-    pub missing_required_artifacts: Vec<String>,
+    pub boundary_reasons: Vec<NetworkAppleNetworkExtensionGateBoundaryReason>,
+    pub missing_required_artifacts: Vec<NetworkAppleNetworkExtensionGateRequiredArtifact>,
     pub developer_team_proof_ref: Option<String>,
     pub entitlement_approval_proof_ref: Option<String>,
     pub provisioning_profile_proof_ref: Option<String>,

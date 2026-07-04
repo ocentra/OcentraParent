@@ -11,13 +11,8 @@ pub fn record_child_check_in(
     event: &TrackingLocationObservedEvent,
 ) -> TrackingChildCheckInRecordedEvent {
     let check_in_state =
-        match TrackingCheckInState::parse(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED) {
-            Ok(parsed_state) => parsed_state,
-            Err(_) => unreachable!(
-                "tracking check-in state contract drift: {}",
-                constants::tracking_runtime::CHECK_IN_STATE_RECEIVED
-            ),
-        };
+        TrackingCheckInState::parse(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)
+            .expect("tracking check-in state contract drift");
 
     TrackingChildCheckInRecordedEvent {
         child_device_id: event.child_device_id.clone(),

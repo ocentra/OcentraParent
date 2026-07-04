@@ -17,11 +17,11 @@ use crate::activity_surface::source_status;
 #[test]
 fn activity_surface_command_names_match_typescript_contracts() {
     let daily = serde_json::to_value(AgentCommandName::AgentActivityReportDailyGenerate)
-        .unwrap_or_else(|error| unreachable!("daily command serializes: {error}"));
+        .expect("daily command serializes");
     let screen = serde_json::to_value(AgentCommandName::AgentActivityScreenReadModelGet)
-        .unwrap_or_else(|error| unreachable!("screen command serializes: {error}"));
+        .expect("screen command serializes");
     let answer = serde_json::to_value(AgentEventName::AgentActivityReportGenerated)
-        .unwrap_or_else(|error| unreachable!("report event serializes: {error}"));
+        .expect("report event serializes");
 
     assert_eq!(daily, "agent.activity.report.daily.generate");
     assert_eq!(screen, "agent.activity.screen.read-model.get");
@@ -31,8 +31,7 @@ fn activity_surface_command_names_match_typescript_contracts() {
 #[test]
 fn activity_report_document_serializes_report_sections_and_source_states() {
     let report = sample_report_document(ActivityReportFrequency::Daily);
-    let serialized = serde_json::to_value(&report)
-        .unwrap_or_else(|error| unreachable!("report serializes: {error}"));
+    let serialized = serde_json::to_value(&report).expect("report serializes");
 
     assert_eq!(serialized["schemaVersion"], ACTIVITY_SURFACE_SCHEMA_VERSION);
     assert_eq!(serialized["frequency"], "daily");
@@ -90,8 +89,7 @@ fn activity_history_list_carries_saved_report_metadata_and_parsed_document() {
             parsed_report: sample_report_document(ActivityReportFrequency::Daily),
         }],
     };
-    let serialized = serde_json::to_value(&list)
-        .unwrap_or_else(|error| unreachable!("history serializes: {error}"));
+    let serialized = serde_json::to_value(&list).expect("history serializes");
 
     assert_eq!(serialized["reports"][0]["savedState"], "saved");
     assert_eq!(serialized["storageState"], "saved");
@@ -158,8 +156,7 @@ fn activity_screen_read_model_serializes_foreground_and_background_ms() {
         }],
     };
 
-    let screen_json = serde_json::to_value(&screen)
-        .unwrap_or_else(|error| unreachable!("screen serializes: {error}"));
+    let screen_json = serde_json::to_value(&screen).expect("screen serializes");
     assert_eq!(screen_json["rows"][0]["foregroundMs"], 2_400_000);
     assert_eq!(
         screen_json["rows"][0]["imageDeletionState"],
@@ -219,16 +216,19 @@ fn activity_app_use_read_model_serializes_app_game_projection_state() {
             platform_authority_matrix_count: 1,
             platform_authority_row_count: 1,
             ai_classifier_result_row_count: 1,
-            source_status_rows: vec![sample_app_game_source_status(
-                "osInstalledRecord",
-                "2026-05-27T06:19:00Z",
-            )],
+            source_status_rows: vec![source_status::ActivityAppGameSourceStatusRow {
+                source_kind: "osInstalledRecord".to_string(),
+                state: ActivityReadModelState::Ready,
+                row_count: 1,
+                last_observed_at: Some("2026-05-27T06:19:00Z".to_string()),
+                capability_status: "available".to_string(),
+                evidence: vec![sample_evidence()],
+            }],
             evidence: vec![sample_evidence()],
         }],
     };
 
-    let app_use_json = serde_json::to_value(app_use)
-        .unwrap_or_else(|error| unreachable!("app use serializes: {error}"));
+    let app_use_json = serde_json::to_value(app_use).expect("app use serializes");
     assert_eq!(app_use_json["rows"][0]["runtimeState"], "running");
     assert_eq!(app_use_json["rows"][0]["foregroundState"], "foreground");
     assert_eq!(app_use_json["rows"][0]["approvalAuthorityRowCount"], 1);
@@ -250,8 +250,7 @@ fn activity_browser_read_model_serializes_permission_required_state() {
         rows: vec![],
     };
 
-    let browser_json = serde_json::to_value(browser)
-        .unwrap_or_else(|error| unreachable!("browser serializes: {error}"));
+    let browser_json = serde_json::to_value(browser).expect("browser serializes");
     assert_eq!(browser_json["state"], "permission-required");
 }
 
@@ -288,16 +287,19 @@ fn activity_games_read_model_serializes_launcher_source_counts() {
             platform_authority_matrix_count: 1,
             platform_authority_row_count: 1,
             ai_classifier_result_row_count: 1,
-            source_status_rows: vec![sample_app_game_source_status(
-                "launcherManifest",
-                "2026-05-27T06:19:00Z",
-            )],
+            source_status_rows: vec![source_status::ActivityAppGameSourceStatusRow {
+                source_kind: "launcherManifest".to_string(),
+                state: ActivityReadModelState::Ready,
+                row_count: 1,
+                last_observed_at: Some("2026-05-27T06:19:00Z".to_string()),
+                capability_status: "available".to_string(),
+                evidence: vec![sample_evidence()],
+            }],
             evidence: vec![sample_evidence()],
         }],
     };
 
-    let games_json = serde_json::to_value(games)
-        .unwrap_or_else(|error| unreachable!("games serializes: {error}"));
+    let games_json = serde_json::to_value(games).expect("games serializes");
     assert_eq!(games_json["rows"][0]["classificationState"], "knownGame");
     assert_eq!(games_json["rows"][0]["launcherRowCount"], 1);
     assert_eq!(games_json["rows"][0]["platformAuthorityRowCount"], 1);
@@ -319,8 +321,7 @@ fn activity_network_read_model_serializes_unavailable_state() {
         rows: vec![],
     };
 
-    let network_json = serde_json::to_value(network)
-        .unwrap_or_else(|error| unreachable!("network serializes: {error}"));
+    let network_json = serde_json::to_value(network).expect("network serializes");
     assert_eq!(network_json["state"], "unavailable");
 }
 
@@ -342,8 +343,7 @@ fn activity_report_request_serializes_frequency_for_daily_weekly_monthly() {
             range_end: "2026-05-27T06:20:00Z".to_string(),
         };
 
-        let request_json = serde_json::to_value(request)
-            .unwrap_or_else(|error| unreachable!("request serializes: {error}"));
+        let request_json = serde_json::to_value(request).expect("request serializes");
         assert_eq!(request_json["frequency"], expected);
     }
 }
@@ -439,19 +439,5 @@ fn sample_evidence() -> ActivityEvidenceRef {
         kind: ActivityEvidenceKind::JournalEntry,
         digest: Some("sha256:activity-surface".to_string()),
         uri: None,
-    }
-}
-
-fn sample_app_game_source_status(
-    source_kind: &str,
-    last_observed_at: &str,
-) -> source_status::ActivityAppGameSourceStatusRow {
-    source_status::ActivityAppGameSourceStatusRow {
-        source_kind: source_kind.to_string(),
-        state: ActivityReadModelState::Ready,
-        row_count: 1,
-        last_observed_at: Some(last_observed_at.to_string()),
-        capability_status: "available".to_string(),
-        evidence: vec![sample_evidence()],
     }
 }

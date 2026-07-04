@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
 import { LoginDialog, type LoginDialogActionResult } from '../../../vendor/ocentra-parent-core-ui/Auth/LoginDialog';
 import { AUTH_PAGE_LAYOUT_CONTROLS } from '../../../vendor/ocentra-parent-core-ui/Auth/AuthPageLayoutControls';
 

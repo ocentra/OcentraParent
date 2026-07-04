@@ -14,6 +14,10 @@ use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_WINRT_OCR_TEMPLATE_VERSION,
 };
 
+#[path = "../support/test_text.rs"]
+mod test_text;
+use test_text::TestText;
+
 use super::{
     config::{ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenOcrRedactionPolicy},
     event_record::{analysis_event_record, outcome_for_generation, screen_analysis_event},
@@ -48,27 +52,27 @@ fn local_ocr_analysis_event_is_recorded_with_runtime_metadata() {
     );
     assert_eq!(
         string_value(&event, constants::field::SCREEN_PROVIDER_KIND),
-        SCREEN_PROVIDER_LOCAL_OCR
+        Some(SCREEN_PROVIDER_LOCAL_OCR)
     );
     assert_eq!(
         string_value(&event, constants::field::SCREEN_MODEL_RUNTIME_REF),
-        SCREEN_WINRT_OCR_RUNTIME_REF
+        Some(SCREEN_WINRT_OCR_RUNTIME_REF)
     );
     assert_eq!(
         string_value(&event, constants::field::SCREEN_MODEL_ID),
-        SCREEN_WINRT_OCR_MODEL_ID
+        Some(SCREEN_WINRT_OCR_MODEL_ID)
     );
     assert_eq!(
         string_value(&event, constants::field::SCREEN_TEMPLATE_VERSION),
-        SCREEN_WINRT_OCR_TEMPLATE_VERSION
+        Some(SCREEN_WINRT_OCR_TEMPLATE_VERSION)
     );
     assert_eq!(
         string_value(&event, constants::field::SCREEN_OCR_TEXT_SNIPPETS),
-        constants::activity_store::TEST_SCREEN_OCR_SNIPPET_WIKIPEDIA
+        Some(constants::activity_store::TEST_SCREEN_OCR_SNIPPET_WIKIPEDIA)
     );
     assert_eq!(
         string_value(&event, constants::field::SCREEN_REDACTION_NOTES),
-        constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII
+        Some(constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII)
     );
 }
 
@@ -152,9 +156,10 @@ fn complete_generation(output_text: String) -> LocalAiChatGenerationResult {
     }
 }
 
-fn string_value<'a>(event: &'a ActivityEvent, field: &str) -> &'a str {
-    match event.fields.get(field) {
-        Some(LogFieldValue::String(value)) => value,
-        other => unreachable!("{field}: {other:?}"),
+fn string_value<'a>(event: &'a ActivityEvent, field: TestText) -> Option<&'a str> {
+    let field = field;
+    match event.fields.get(field.as_str()) {
+        Some(LogFieldValue::String(value)) => Some(value),
+        _ => None,
     }
 }

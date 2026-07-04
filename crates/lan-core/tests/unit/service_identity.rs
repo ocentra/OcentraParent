@@ -17,18 +17,21 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 use rcgen::generate_simple_self_signed;
 
 use crate::network_inventory::trusted_device;
-use ocentra_lan_core::network_inventory::service_identity::*;
 use ocentra_lan_core::network_inventory::service_identity::probe::{
     parse_probe_observation, probe_service_identity, probe_service_identity_on_target,
     read_probe_response,
 };
 use ocentra_lan_core::network_inventory::service_identity::snmp::{
-    encode_snmp_identity_request, probe_snmp_identity_query_at_endpoint,
+    encode_ber_integer, encode_ber_oid, encode_ber_tlv, encode_snmp_identity_request,
+    parse_snmp_probe_observation, probe_snmp_identity_query_at_endpoint,
 };
 use ocentra_lan_core::network_inventory::service_identity::targets::{
     service_identity_probe_family_decisions, service_identity_probe_targets,
 };
-use ocentra_lan_core::network_inventory::service_identity::wsd::probe_wsd_identity_query_at_endpoint;
+use ocentra_lan_core::network_inventory::service_identity::wsd::{
+    parse_wsd_probe_observation, probe_wsd_identity_query_at_endpoint, sanitize_wsd_device_id,
+};
+use ocentra_lan_core::network_inventory::service_identity::*;
 use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
 
 fn agent_addr_env_lock() -> std::sync::MutexGuard<'static, ()> {
@@ -36,7 +39,7 @@ fn agent_addr_env_lock() -> std::sync::MutexGuard<'static, ()> {
     AGENT_ADDR_ENV_LOCK
         .get_or_init(|| Mutex::new(()))
         .lock()
-        .value_or_unreachable("agent addr env lock")
+        .value_or_unreachable()
 }
 
 fn service_identity_env_lock() -> std::sync::MutexGuard<'static, ()> {
@@ -44,7 +47,7 @@ fn service_identity_env_lock() -> std::sync::MutexGuard<'static, ()> {
     SERVICE_IDENTITY_ENV_LOCK
         .get_or_init(|| Mutex::new(()))
         .lock()
-        .value_or_unreachable("service identity env lock")
+        .value_or_unreachable()
 }
 
 #[test]
@@ -274,13 +277,10 @@ fn service_identity_probe_records_allowed_snmp_response_scan_source() {
 #[test]
 fn service_identity_probe_requires_explicit_selected_interface_scope() {
     let _env_lock = agent_addr_env_lock();
-    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable("expected value");
-    let port = listener
-        .local_addr()
-        .value_or_unreachable("expected value")
-        .port();
+    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable();
+    let port = listener.local_addr().value_or_unreachable().port();
     let server = thread::spawn(move || {
-        let (mut stream, _) = listener.accept().value_or_unreachable("expected value");
+        let (mut stream, _) = listener.accept().value_or_unreachable();
         let _ = read_request(&mut stream);
         let body = "<html><head><title>Scoped</title></head><body>ok</body></html>";
         let response = format!(
@@ -288,9 +288,7 @@ fn service_identity_probe_requires_explicit_selected_interface_scope() {
             body.len(),
             body
         );
-        stream
-            .write_all(response.as_bytes())
-            .value_or_unreachable("expected value");
+        stream.write_all(response.as_bytes()).value_or_unreachable();
     });
 
     let previous_agent_addr = env::var(constants::env_var::AGENT_ADDR).ok();
@@ -342,7 +340,7 @@ fn service_identity_probe_requires_explicit_selected_interface_scope() {
         env::remove_var(constants::env_var::AGENT_ADDR);
     }
 
-    server.join().value_or_unreachable("expected value");
+    server.join().value_or_unreachable();
 
     assert!(is_service_identity_probe_status(
         scoped_devices[0].agent_status.as_deref()
@@ -388,8 +386,7 @@ fn service_identity_probe_skips_when_selected_interface_scope_is_missing() {
 fn wsd_identity_query_adds_weak_metadata_evidence_for_discovered_host() {
     let response = wsd_identity_query_response();
 
-    let observation = parse_wsd_probe_observation(response.as_bytes())
-        .value_or_unreachable("wsd observation for discovered host");
+    let observation = parse_wsd_probe_observation(response.as_bytes()).value_or_unreachable();
 
     let evidence = observation.into_evidence();
     assert!(evidence.iter().any(|item| {
@@ -407,12 +404,10 @@ fn wsd_identity_query_adds_weak_metadata_evidence_for_discovered_host() {
 
 #[test]
 fn wsd_identity_query_executes_against_local_metadata_endpoint() {
-    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable("bind wsd listener");
-    let endpoint = listener
-        .local_addr()
-        .value_or_unreachable("wsd listener addr");
+    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable();
+    let endpoint = listener.local_addr().value_or_unreachable();
     let server = thread::spawn(move || {
-        let (mut stream, _) = listener.accept().value_or_unreachable("accept wsd probe");
+        let (mut stream, _) = listener.accept().value_or_unreachable();
         let request = read_request(&mut stream);
         assert!(request.starts_with("POST /camera-1 HTTP/1.1\r\n"));
         assert!(request.lines().any(|line| {
@@ -421,13 +416,13 @@ fn wsd_identity_query_executes_against_local_metadata_endpoint() {
         }));
         stream
             .write_all(wsd_identity_query_response().as_bytes())
-            .value_or_unreachable("write wsd probe response");
+            .value_or_unreachable();
     });
 
-    let observation = probe_wsd_identity_query_at_endpoint(endpoint, Some("camera-1"))
-        .value_or_unreachable("local wsd identity observation");
+    let observation =
+        probe_wsd_identity_query_at_endpoint(endpoint, Some("camera-1")).value_or_unreachable();
 
-    server.join().value_or_unreachable("wsd server joined");
+    server.join().value_or_unreachable();
 
     let evidence = observation.into_evidence();
     assert!(evidence.iter().any(|item| {
@@ -485,8 +480,8 @@ fn wsd_identity_query_response() -> String {
 fn snmp_identity_query_adds_weak_metadata_evidence_for_discovered_host() {
     let response = snmp_identity_query_response();
 
-    let observation = parse_snmp_probe_observation(&response, SNMP_REQUEST_ID)
-        .value_or_unreachable("snmp observation for discovered host");
+    let observation =
+        parse_snmp_probe_observation(&response, SNMP_REQUEST_ID).value_or_unreachable();
 
     let evidence = observation.into_evidence();
     assert!(evidence.iter().any(|item| {
@@ -504,28 +499,23 @@ fn snmp_identity_query_adds_weak_metadata_evidence_for_discovered_host() {
 
 #[test]
 fn snmp_identity_query_executes_against_local_udp_endpoint() {
-    let socket = UdpSocket::bind("127.0.0.1:0").value_or_unreachable("bind snmp listener");
-    let endpoint = socket
-        .local_addr()
-        .value_or_unreachable("snmp listener addr");
+    let socket = UdpSocket::bind("127.0.0.1:0").value_or_unreachable();
+    let endpoint = socket.local_addr().value_or_unreachable();
     let server = thread::spawn(move || {
         let mut request = [0_u8; 1024];
-        let (read, source) = socket
-            .recv_from(&mut request)
-            .value_or_unreachable("receive snmp request");
+        let (read, source) = socket.recv_from(&mut request).value_or_unreachable();
         assert_eq!(
             request[..read].to_vec(),
             encode_snmp_identity_request(SNMP_REQUEST_ID)
         );
         socket
             .send_to(&snmp_identity_query_response(), source)
-            .value_or_unreachable("send snmp response");
+            .value_or_unreachable();
     });
 
-    let observation = probe_snmp_identity_query_at_endpoint(endpoint, None)
-        .value_or_unreachable("local snmp identity observation");
+    let observation = probe_snmp_identity_query_at_endpoint(endpoint, None).value_or_unreachable();
 
-    server.join().value_or_unreachable("snmp server joined");
+    server.join().value_or_unreachable();
 
     let evidence = observation.into_evidence();
     assert!(evidence.iter().any(|item| {
@@ -540,20 +530,16 @@ fn snmp_identity_query_executes_against_local_udp_endpoint() {
 
 #[test]
 fn snmp_identity_query_notifies_allowed_snmp_observer_with_received_payload() {
-    let socket = UdpSocket::bind("127.0.0.1:0").value_or_unreachable("bind snmp listener");
-    let endpoint = socket
-        .local_addr()
-        .value_or_unreachable("snmp listener addr");
+    let socket = UdpSocket::bind("127.0.0.1:0").value_or_unreachable();
+    let endpoint = socket.local_addr().value_or_unreachable();
     let expected_response = snmp_identity_query_response();
     let server_response = expected_response.clone();
     let server = thread::spawn(move || {
         let mut request = [0_u8; 1024];
-        let (_, source) = socket
-            .recv_from(&mut request)
-            .value_or_unreachable("receive snmp request");
+        let (_, source) = socket.recv_from(&mut request).value_or_unreachable();
         socket
             .send_to(&server_response, source)
-            .value_or_unreachable("send snmp response");
+            .value_or_unreachable();
     });
     let observed_payload = std::sync::Mutex::new(Vec::new());
 
@@ -566,9 +552,9 @@ fn snmp_identity_query_notifies_allowed_snmp_observer_with_received_payload() {
                 .push(payload.to_vec());
         }),
     )
-    .value_or_unreachable("local snmp identity observation");
+    .value_or_unreachable();
 
-    server.join().value_or_unreachable("snmp server joined");
+    server.join().value_or_unreachable();
 
     assert!(observation.observed_allowed_snmp_response());
     let observed_payload = observed_payload
@@ -792,23 +778,18 @@ fn service_identity_probe_requires_selected_interface_match() {
 
 #[test]
 fn probe_response_parser_collects_sanitized_http_title_header_redirect_and_links() {
-    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable("expected value");
-    let port = listener
-        .local_addr()
-        .value_or_unreachable("expected value")
-        .port();
+    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable();
+    let port = listener.local_addr().value_or_unreachable().port();
     let request_count = Arc::new(AtomicUsize::new(0));
     let request_path = Arc::new(Mutex::new(None::<String>));
     let request_path_clone = Arc::clone(&request_path);
     let request_count_clone = Arc::clone(&request_count);
 
     let server = thread::spawn(move || {
-        let (mut stream, _) = listener.accept().value_or_unreachable("expected value");
+        let (mut stream, _) = listener.accept().value_or_unreachable();
         request_count_clone.fetch_add(1, Ordering::SeqCst);
         let request = read_request(&mut stream);
-        *request_path_clone
-            .lock()
-            .value_or_unreachable("expected value") = request
+        *request_path_clone.lock().value_or_unreachable() = request
             .lines()
             .next()
             .and_then(|line| line.split_whitespace().nth(1))
@@ -820,9 +801,7 @@ fn probe_response_parser_collects_sanitized_http_title_header_redirect_and_links
             body.len(),
             body
         );
-        stream
-            .write_all(response.as_bytes())
-            .value_or_unreachable("expected value");
+        stream.write_all(response.as_bytes()).value_or_unreachable();
     });
 
     let observation = probe_service_identity_on_target(
@@ -834,7 +813,7 @@ fn probe_response_parser_collects_sanitized_http_title_header_redirect_and_links
         },
     );
 
-    server.join().value_or_unreachable("expected value");
+    server.join().value_or_unreachable();
 
     let Some(observation) = observation else {
         unreachable!("expected probe observation");
@@ -858,10 +837,7 @@ fn probe_response_parser_collects_sanitized_http_title_header_redirect_and_links
         "probe must not crawl beyond the initial request"
     );
     assert_eq!(
-        request_path
-            .lock()
-            .value_or_unreachable("expected value")
-            .as_deref(),
+        request_path.lock().value_or_unreachable().as_deref(),
         Some("/")
     );
 }
@@ -872,7 +848,7 @@ fn probe_response_parser_rejects_traversal_references_and_invalid_header_text() 
         b"HTTP/1.1 302 Found\r\nLocation: /../../secret?x=1\r\nLink: </../../metadata>; rel=\"service-desc\"\r\nContent-Length: 0\r\n\r\n",
         None,
     )
-    .value_or_unreachable("expected value");
+    .value_or_unreachable();
 
     assert_eq!(traversal.status_code, Some(302));
     assert!(traversal.redirect_location.is_none());
@@ -891,7 +867,7 @@ fn probe_response_parser_normalizes_backslash_references() {
         b"HTTP/1.1 200 OK\r\nLink: <\\metadata\\service-desc>; rel=\"service-desc\"\r\nContent-Length: 0\r\n\r\n",
         None,
     )
-    .value_or_unreachable("expected value");
+    .value_or_unreachable();
 
     assert_eq!(
         observation.descriptor_links,
@@ -931,16 +907,14 @@ fn service_identity_probe_stops_when_scan_budget_is_exhausted() {
 
 #[test]
 fn probe_response_parser_collects_tls_certificate_subject() {
-    let cert = generate_simple_self_signed(vec!["service.local".into()])
-        .value_or_unreachable("expected value");
+    let cert = generate_simple_self_signed(vec!["service.local".into()]).value_or_unreachable();
     let cert_der = cert.cert.der().clone();
-    let certificate_subject =
-        parse_certificate_subject(&cert_der).value_or_unreachable("expected value");
+    let certificate_subject = parse_certificate_subject(&cert_der).value_or_unreachable();
     let observation = parse_probe_observation(
         b"HTTP/1.1 200 OK\r\nServer: tls-banner\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 70\r\n\r\n<html><head><title>Secure Control</title></head><body>ok</body></html>",
         Some(certificate_subject.clone()),
     )
-    .value_or_unreachable("expected value");
+    .value_or_unreachable();
     assert_eq!(observation.title.as_deref(), Some("Secure Control"));
     assert_eq!(observation.server_header.as_deref(), Some("tls-banner"));
     assert_eq!(certificate_subject, "CN=rcgen self signed cert");
@@ -953,11 +927,8 @@ fn probe_response_parser_collects_tls_certificate_subject() {
 #[test]
 fn enrich_service_identity_probes_is_bounded_by_concurrency() {
     let _env_lock = agent_addr_env_lock();
-    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable("expected value");
-    let port = listener
-        .local_addr()
-        .value_or_unreachable("expected value")
-        .port();
+    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable();
+    let port = listener.local_addr().value_or_unreachable().port();
     let active = Arc::new(AtomicUsize::new(0));
     let max_active = Arc::new(AtomicUsize::new(0));
     let active_clone = Arc::clone(&active);
@@ -966,7 +937,7 @@ fn enrich_service_identity_probes_is_bounded_by_concurrency() {
     let server = thread::spawn(move || {
         let mut handlers = Vec::new();
         for _ in 0..5 {
-            let (mut stream, _) = listener.accept().value_or_unreachable("expected value");
+            let (mut stream, _) = listener.accept().value_or_unreachable();
             let active = Arc::clone(&active_clone);
             let max_active = Arc::clone(&max_active_clone);
             handlers.push(thread::spawn(move || {
@@ -1004,7 +975,7 @@ fn enrich_service_identity_probes_is_bounded_by_concurrency() {
         }
 
         for handler in handlers {
-            handler.join().value_or_unreachable("expected value");
+            handler.join().value_or_unreachable();
         }
     });
 
@@ -1045,7 +1016,7 @@ fn enrich_service_identity_probes_is_bounded_by_concurrency() {
         env::remove_var(constants::env_var::AGENT_ADDR);
     }
 
-    server.join().value_or_unreachable("expected value");
+    server.join().value_or_unreachable();
 
     assert!(devices
         .iter()
@@ -1213,7 +1184,7 @@ fn runtime_visible_service_identity_policy_keeps_optional_families_weak_and_boun
     let wsd = decisions
         .iter()
         .find(|decision| decision.family == ServiceIdentityProbeFamily::WsdIdentityQuery)
-        .value_or_unreachable("wsd decision");
+        .value_or_unreachable();
     assert_eq!(
         wsd.decision,
         ServiceIdentityProbeDecision::OperatorSettingRequired
@@ -1225,7 +1196,7 @@ fn runtime_visible_service_identity_policy_keeps_optional_families_weak_and_boun
     let snmp = decisions
         .iter()
         .find(|decision| decision.family == ServiceIdentityProbeFamily::SnmpIdentityQuery)
-        .value_or_unreachable("snmp decision");
+        .value_or_unreachable();
     assert_eq!(
         snmp.decision,
         ServiceIdentityProbeDecision::OperatorSettingRequired
@@ -1237,7 +1208,7 @@ fn runtime_visible_service_identity_policy_keeps_optional_families_weak_and_boun
     let os = decisions
         .iter()
         .find(|decision| decision.family == ServiceIdentityProbeFamily::OsFingerprint)
-        .value_or_unreachable("os decision");
+        .value_or_unreachable();
     assert_eq!(
         os.decision,
         ServiceIdentityProbeDecision::ManualGateRequired
@@ -1337,7 +1308,7 @@ fn executable_service_identity_target_catalog_remains_curated_tcp_only() {
         .iter()
         .find(|decision| decision.family == ServiceIdentityProbeFamily::HttpTcp)
         .map(|decision| decision.allowed_ports.clone())
-        .value_or_unreachable("expected value");
+        .value_or_unreachable();
 
     assert_eq!(targets.len(), http_tcp_ports.len());
     assert!(targets
@@ -1359,9 +1330,7 @@ fn read_request(stream: &mut impl Read) -> String {
     let mut expected_total_len = None;
 
     loop {
-        let read = stream
-            .read(&mut chunk)
-            .value_or_unreachable("expected value");
+        let read = stream.read(&mut chunk).value_or_unreachable();
         if read == 0 {
             break;
         }

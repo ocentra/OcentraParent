@@ -120,7 +120,7 @@ jobs:
 
           for path in "${changed_files[@]}"; do
             case "$path" in
-              .github/workflows/*|.github/actions/*|scripts/ci/*|scripts/test/workflow-ci-trigger.test.mjs)
+              .github/workflows/*|.github/actions/*|scripts/ci/*|tests/repo-tooling/workflow-ci-trigger.test.mjs)
                 ;;
               *)
                 ci_only=false
@@ -141,7 +141,7 @@ jobs:
             esac
 
             case "$path" in
-              .github/workflows/*|.github/actions/*|scripts/ci/*|scripts/test/workflow-ci-trigger.test.mjs|AGENTS.md|docs/architecture/worktree-lanes.md|tools/ocentra-ledger|scripts/dev/ocentra-ledger*.mjs|scripts/test/ocentra-ledger*.test.mjs)
+                .github/workflows/*|.github/actions/*|scripts/ci/*|tests/repo-tooling/workflow-ci-trigger.test.mjs|AGENTS.md|docs/architecture/worktree-lanes.md|scripts/dev/ocentra-ledger*.mjs|scripts/enforcer/*|scripts/test/ocentra-ledger*.test.mjs)
                 ;;
               package.json)
                 package_json_changed=true
@@ -185,7 +185,7 @@ jobs:
               apps/parent-desktop/*)
                 parent_desktop_changed=true
                 ;;
-              platforms/android/parent/*|platforms/ios/OcentraParentMobile*|scripts/release/parent-android/*|scripts/release/parent-ios/*|scripts/test/*parent-mobile*|scripts/test/mobile-child-agent-capability-proof.mjs|packages/schema-domain/src/*parent-mobile*|packages/schema-domain/src/*mobile-controller*|packages/schema-domain/tests/*parent-release-support*|packages/schema-domain/tests/*mobile-child*)
+              platforms/android/parent/*|platforms/ios/OcentraParentMobile*|scripts/release/parent-android/*|scripts/release/parent-ios/*|packages/schema-domain/src/*parent-mobile*|packages/schema-domain/src/*mobile-controller*|packages/schema-domain/tests/*parent-release-support*|packages/schema-domain/tests/*mobile-child*)
                 parent_mobile_changed=true
                 ;;
               platforms/android/*|scripts/release/android/*|scripts/smoke/android-*|scripts/test/*android*|packages/schema-domain/src/*android*|packages/schema-domain/tests/*android*)
@@ -306,7 +306,7 @@ jobs:
         run: node --check scripts/ci/verify-main-pr-proof.mjs
 
       - name: Check CI topology contract
-        run: node --test scripts/test/workflow-ci-trigger.test.mjs
+        run: node --test tests/repo-tooling/workflow-ci-trigger.test.mjs
 
   preflight:
     needs: [detect-targets, format, release-version]
@@ -348,7 +348,7 @@ jobs:
 
       - name: Rust cargo re-export gate
         run: >-
-          cargo lint-architecture --base "${{ steps.architecture-range.outputs.base }}"
+          npm run lint:enforcer:reexports -- --base "${{ steps.architecture-range.outputs.base }}"
           --head "${{ steps.architecture-range.outputs.head }}"
 
   portal-typescript:

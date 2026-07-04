@@ -10,19 +10,14 @@ export function usePortalFrameLayout(
 
   useEffect(() => {
     let active = true;
-    const loadLayout = async (url: (typeof PortalFrameTuner.Api)[keyof typeof PortalFrameTuner.Api]): Promise<void> => {
-      await fetch(url, { cache: PortalFrameTuner.FetchCache.NoStore })
-        .then((response) => (response.ok ? response.json() : undefined))
-        .then((value: unknown) => {
-          if (active) {
-            setLayout(normalizePortalFrameLayout(value));
-          }
-        })
-        .catch(() => undefined);
-    };
-    void loadInitialLayouts(loadLayout);
+    void loadInitialLayouts((url) => loadPortalFrameLayout(url, setLayout, () => active));
     const intervalId = pollDevLayout
-      ? window.setInterval(() => loadLayout(PortalFrameTuner.Api.LayoutEndpoint), PortalFrameTuner.Timing.LayoutPollMs)
+      ? window.setInterval(
+          () => {
+            void loadPortalFrameLayout(PortalFrameTuner.Api.LayoutEndpoint, setLayout, () => active);
+          },
+          PortalFrameTuner.Timing.LayoutPollMs
+        )
       : undefined;
     return () => {
       active = false;
@@ -33,6 +28,22 @@ export function usePortalFrameLayout(
   }, [pollDevLayout]);
 
   return [layout, setLayout];
+}
+
+async function loadPortalFrameLayout(
+  url: (typeof PortalFrameTuner.Api)[keyof typeof PortalFrameTuner.Api],
+  setLayout: (layout: PortalFrameLayout) => void,
+  isActive: () => boolean
+): Promise<void> {
+  try {
+    const response = await fetch(url, { cache: PortalFrameTuner.FetchCache.NoStore });
+    const value = response.ok ? await response.json() : undefined;
+    if (isActive()) {
+      setLayout(normalizePortalFrameLayout(value));
+    }
+  } catch {
+    return;
+  }
 }
 
 async function loadInitialLayouts(

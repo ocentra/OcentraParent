@@ -12,42 +12,39 @@
 
 <!-- /agent-capsule -->
 
-# Ocentra Ledger Integration
+# Ocentra Enforcer Coordination Integration
 
-Ocentra Ledger is the live coordination layer for Ocentra Parent. It replaces
-repo-local `.hub` state with an external append-only event ledger.
+Ocentra Enforcer is the live coordination layer for this repo. It replaces
+repo-local `.hub` state and the old Parent-owned ledger submodule with an
+external append-only event ledger owned by the Enforcer install.
 
 The product repo remains source-only. It tracks:
 
-- the `tools/ocentra-ledger` git submodule pointer;
-- compatibility wrappers in `scripts/dev`;
-- docs and CI/hooks that call Ledger.
+- `ocentra-enforcer.config.json`;
+- thin npm aliases that call `scripts/enforcer/run-ocentra-enforcer.mjs`;
+- docs and CI/hooks that call Enforcer coordination.
 
 It does not track inboxes, status files, worker heartbeats, locks, or generated
 views.
 
 ## Install Model
 
-Clone with submodules or initialize them after clone:
+Install or clone Enforcer once per machine, then run the repo aliases:
 
 ```powershell
-git submodule update --init --recursive
 npm install
-npm run ledger:install
+npm run ledger:root
+npm run ledger:ensure
 ```
 
-The parent wrapper also auto-initializes `tools/ocentra-ledger` on the first
-Ledger command if the submodule folder is missing, so a synced worktree can run
-`npm run hub:inbox` or `npm run ledger:ensure` directly.
-
-The submodule points at `ocentra/OcentraParentHub`. If that repository is
-private, each developer machine and CI runner needs read access. If it must work
-without GitHub auth, the hub repo must be public or mirrored through another
-accessible package/source channel.
+`scripts/enforcer/run-ocentra-enforcer.mjs` resolves Enforcer from
+`OCENTRA_ENFORCER_HOME`, `node_modules/ocentra-enforcer`, a sibling
+`ocentra-enforcer` checkout, or `E:\ocentra-enforcer`. The old
+`tools/ocentra-ledger` submodule is not a source of truth.
 
 ## Runtime
 
-Start the same Ledger binary as local API, browser dashboard, and peer server:
+Start the Enforcer coordination daemon/API/dashboard:
 
 ```powershell
 npm run ledger:ensure
@@ -65,17 +62,17 @@ normal worktree coordination.
 
 ## State Root
 
-Ledger state is selected by `LEDGER_ROOT`:
+Coordination state is selected by `LEDGER_ROOT`:
 
 ```powershell
-$env:LEDGER_ROOT="E:\OcentraLedger\ocentra-parent"
+$env:LEDGER_ROOT="E:\ocentra-enforcer\.ledger\ocentra-parent"
 npm run ledger:ensure
 ```
 
-If `LEDGER_ROOT` is not set, Ledger uses:
+If `LEDGER_ROOT` is not set, the Parent wrapper uses:
 
 ```text
-~/.ocentra/ledger/ocentra-parent
+E:\ocentra-enforcer\.ledger\ocentra-parent
 ```
 
 The ledger root contains stable node identity, append-only NDJSON streams,
@@ -84,7 +81,7 @@ not product source.
 
 ## Commands
 
-Native Ledger commands:
+Enforcer-backed coordination commands:
 
 ```powershell
 npm run ledger:root
@@ -100,7 +97,7 @@ npm run ledger:message -- codex-b "Review the next slice."
 npm run ledger:sync -- --peer ocentrahub
 ```
 
-Compatibility aliases:
+Hub/lane aliases:
 
 ```powershell
 npm run hub:message -- --lane codex-b --subject "Task" --body "Do the work."
@@ -112,7 +109,8 @@ npm run hub:guard
 npm run lanes:status
 ```
 
-The aliases call Ledger. They do not write `.hub` files.
+The aliases call Enforcer coordination. They do not write `.hub` files and do
+not call Parent-owned ledger implementation code.
 
 ## Retention
 

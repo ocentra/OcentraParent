@@ -14,3 +14,23 @@ path = "src/lib.rs"
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 serde = { version = "1.0.228", features = ["derive"] }
+
+[[test]]
+name = "contract_runtime_decision"
+path = "tests/contract/runtime_decision.rs"
+
+[[test]]
+name = "invariant_runtime_decision"
+path = "tests/invariant/runtime_decision.rs"
+
+[[test]]
+name = "unit_app_flow"
+path = "tests/unit/app_flow.rs"
+
+[[test]]
+name = "unit_observation_intent"
+path = "tests/unit/observation_intent.rs"
+
+[[test]]
+name = "unit_runtime_decision"
+path = "tests/unit/runtime_decision.rs"

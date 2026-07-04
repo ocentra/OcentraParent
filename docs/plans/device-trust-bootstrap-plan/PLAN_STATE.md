@@ -25,7 +25,7 @@ Current direction from research and the pasted plan set:
 - Biometric verification stays inside the authenticator or OS prompt; the relying party does not get biometric data.
 - Local trust material must be sealed with platform-backed stores, not custom app-managed plaintext keys.
 - Platform-backed local sealing is documented in `LOCAL_KEY_SEALING_MODEL.md` and `PLATFORM_KEY_CUSTODY_MATRIX.md`.
-- Plan-local test folders now live under `test/device-trust-bootstrap-plan/<major-category>/`.
+- Plan-local test folders now live under `tests/device-trust-bootstrap-plan/<major-category>/`.
 - Current top-level categories are `unit`, `contract`, `integration`, `e2e`, and `security`.
 - Recovery must use an encrypted bundle or equivalent sealed backup artifact; account recovery is not the same thing as data or device recovery.
 - Device trust is separate from account login, subscription entitlement, policy delivery, and remote-access grant state.
@@ -101,7 +101,7 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 ## Proof Coverage
 
 - Proof roots are planned under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`, but they are absent on disk today.
-- Device-trust tests now live under `test/device-trust-bootstrap-plan/<major-category>/`.
+- Device-trust tests now live under `tests/device-trust-bootstrap-plan/<major-category>/`.
 - Current top-level categories are `unit`, `contract`, `integration`, `e2e`, and `security`.
 - The legacy `docs/proof/device-trust-bootstrap-plan/*` path is also absent on disk.
 

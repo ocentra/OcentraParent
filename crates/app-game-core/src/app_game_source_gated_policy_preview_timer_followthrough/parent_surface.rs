@@ -1,5 +1,9 @@
+use super::helpers::{
+    count_state, response_consumer_parent_surface_read_model_state_for_parent_surface_handoff,
+    response_consumer_parent_surface_state_for_read_api_response_consumer_handoff,
+    response_consumer_parent_surface_status_state_for_read_model_handoff,
+};
 use super::*;
-use super::app_game_source_gated_policy_preview_timer_followthrough_protocol::*;
 
 pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffOptions
 {
@@ -216,7 +220,7 @@ pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerP
     pub parent_surface_status_ref: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffRow
 {
     pub schema_version: String,
@@ -268,7 +272,7 @@ pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerP
     pub generated_at: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoff
 {
     pub schema_version: String,
@@ -323,7 +327,7 @@ pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerP
     pub parent_surface_status_read_model_ref: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelHandoffRow
 {
     pub schema_version: String,
@@ -378,7 +382,7 @@ pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerP
     pub generated_at: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelHandoff
 {
     pub schema_version: String,
@@ -568,11 +572,11 @@ fn build_response_consumer_parent_surface_read_model_handoff_row(
 
 fn build_response_consumer_parent_surface_status_handoff_row(
     options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffOptions,
-    row: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffRow,
+    row: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoffRow,
 ) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffRow
 {
     let state = response_consumer_parent_surface_status_state_for_read_model_handoff(
-        &row.response_consumer_parent_surface_status_handoff_state,
+        &row.response_consumer_parent_surface_read_model_handoff_state,
     );
     let required = state == PARENT_SURFACE_STATUS_PROOF_REQUIRED;
     AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffRow {
@@ -612,34 +616,8 @@ fn build_response_consumer_parent_surface_status_handoff_row(
         service_read_api_ref: row.service_read_api_ref.clone(),
         parent_surface_read_model_ref: row.parent_surface_read_model_ref.clone(),
         parent_surface_status_ref: options.parent_surface_status_ref.clone(),
-        service_command_registered: false,
-        service_handler_implemented: false,
-        service_read_api_implemented: false,
-        service_read_api_response_implemented: false,
-        service_read_api_response_consumer_implemented: false,
-        parent_surface_read_model_implemented: false,
-        parent_surface_status_implemented: false,
-        parent_surface_status_read_model_implemented: false,
-        service_event_emitted: false,
-        agent_protocol_implemented: false,
-        rust_protocol_mirrored: false,
-        portal_ui_rendered: false,
-        portal_response_consumer_rendered: false,
-        parent_surface_rendered: false,
-        policy_evaluator_runtime_claimed: false,
-        timer_runtime_claimed: false,
-        timer_scheduled: false,
-        scheduler_persistence_runtime_claimed: false,
-        durable_scheduler_storage_claimed: false,
-        audit_runtime_claimed: false,
-        durable_audit_log_claimed: false,
-        rollback_runtime_claimed: false,
-        rollback_execution_claimed: false,
-        adapter_dispatch_claimed: false,
-        child_delivery_claimed: false,
-        platform_enforcement_claimed: false,
-        raw_private_source_rows_included: false,
         generated_at: options.generated_at.clone(),
+        ..Default::default()
     }
 }
 
@@ -647,10 +625,9 @@ fn build_response_consumer_parent_surface_handoff_row(
     options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffOptions,
     row: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffRow,
 ) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffRow {
-    let state =
-        response_consumer_parent_surface_state_for_read_api_response_consumer_handoff(
-            &row.read_api_response_consumer_handoff_state,
-        );
+    let state = response_consumer_parent_surface_state_for_read_api_response_consumer_handoff(
+        &row.read_api_response_consumer_handoff_state,
+    );
     let required = state == PARENT_SURFACE_PROOF_REQUIRED;
     AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffRow {
         schema_version: options.schema_version.clone(),
@@ -659,17 +636,11 @@ fn build_response_consumer_parent_surface_handoff_row(
         target_domain: row.target_domain.clone(),
         response_consumer_parent_surface_handoff_state: state.to_string(),
         inherited_protocol_proof_refs: row.inherited_protocol_proof_refs.clone(),
-        inherited_agent_protocol_command_refs: row
-            .inherited_agent_protocol_command_refs
-            .clone(),
+        inherited_agent_protocol_command_refs: row.inherited_agent_protocol_command_refs.clone(),
         inherited_agent_protocol_event_refs: row.inherited_agent_protocol_event_refs.clone(),
         inherited_service_handler_refs: row.inherited_service_handler_refs.clone(),
-        inherited_service_read_api_proof_refs: row
-            .inherited_service_read_api_proof_refs
-            .clone(),
-        inherited_read_api_response_proof_refs: row
-            .inherited_read_api_response_proof_refs
-            .clone(),
+        inherited_service_read_api_proof_refs: row.inherited_service_read_api_proof_refs.clone(),
+        inherited_read_api_response_proof_refs: row.inherited_read_api_response_proof_refs.clone(),
         inherited_read_api_response_consumer_proof_refs: row
             .required_read_api_response_consumer_proof_refs
             .clone(),
@@ -678,9 +649,7 @@ fn build_response_consumer_parent_surface_handoff_row(
         } else {
             vec![]
         },
-        inherited_service_readiness_proof_refs: row
-            .inherited_service_readiness_proof_refs
-            .clone(),
+        inherited_service_readiness_proof_refs: row.inherited_service_readiness_proof_refs.clone(),
         source_evidence_refs: row.source_evidence_refs.clone(),
         service_read_api_ref: row.service_read_api_ref.clone(),
         parent_surface_summary_ref: options.parent_surface_summary_ref.clone(),
@@ -846,32 +815,6 @@ pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_respon
                 .map(|value| (*value).to_string())
                 .collect(),
         rows,
-        service_command_registered: false,
-        service_handler_implemented: false,
-        service_read_api_implemented: false,
-        service_read_api_response_implemented: false,
-        service_read_api_response_consumer_implemented: false,
-        parent_surface_read_model_implemented: false,
-        parent_surface_status_implemented: false,
-        service_event_emitted: false,
-        agent_protocol_implemented: false,
-        rust_protocol_mirrored: false,
-        portal_ui_rendered: false,
-        portal_response_consumer_rendered: false,
-        parent_surface_rendered: false,
-        policy_evaluator_runtime_claimed: false,
-        timer_runtime_claimed: false,
-        timer_scheduled: false,
-        scheduler_persistence_runtime_claimed: false,
-        durable_scheduler_storage_claimed: false,
-        audit_runtime_claimed: false,
-        durable_audit_log_claimed: false,
-        rollback_runtime_claimed: false,
-        rollback_execution_claimed: false,
-        adapter_dispatch_claimed: false,
-        child_delivery_claimed: false,
-        platform_enforcement_claimed: false,
-        raw_private_source_rows_included: false,
+        ..Default::default()
     }
 }
-

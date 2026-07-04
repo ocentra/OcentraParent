@@ -224,7 +224,7 @@ function buildRuntimeDevVarsContents(): string {
     'CORS_ALLOWED_ORIGINS=http://localhost:3000',
     'REQUEST_MAX_BYTES=1048576',
     'BILLING_ROUTE_KILL_SWITCH=false',
-    'AUTH_ADAPTER_MODE=account-auth-adapter-manual-required',
+    'AUTH_ADAPTER_MODE=local-safe-fixture',
     `INTERNAL_QUEUE_SHARED_SECRET=${localRuntimeSecrets.internalQueueSharedSecret}`,
     `STRIPE_SECRET_KEY=${localRuntimeSecrets.stripeSecretKey}`,
     `STRIPE_WEBHOOK_SECRET=${localRuntimeSecrets.stripeWebhookSecret}`,
@@ -537,7 +537,7 @@ describe('wrangler local runtime', () => {
     assert.equal(statusBody.parentAccountRef, 'parent-account:demo-grace');
     assert.equal(statusBody.portalVisibleState, 'degraded');
     assert.equal(statusBody.providerMode, 'stripe-hosted');
-    assert.ok(statusBody.warnings.includes('account-backend-not-wired'));
+    assert.ok(!statusBody.warnings.includes('account-backend-not-wired'));
   });
 
   it('serves audit reads through the real worker runtime', async () => {

@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::fs::remove_file;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -37,6 +40,7 @@ use crate::{
         require_json_decode, require_log_string_field, require_ok, require_some,
         serialize_test_json,
     },
+    test_text::TestText,
 };
 
 const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
@@ -63,9 +67,10 @@ async fn app_game_policy_readiness_command_reports_service_backed_readiness_rows
     );
 
     let body = serialize_test_json(&command_envelope());
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let read_model = policy_readiness_payload(
-        &event.payload[constants::field::APP_GAME_POLICY_READINESS_READ_MODEL],
+        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_POLICY_READINESS_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
     );
 
     drop(store);
@@ -217,9 +222,10 @@ fn evidence_claim() -> AppGameEvidenceClaim {
     }
 }
 
-fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
+fn local_db_ref(evidence_id: TestText) -> ActivityEvidenceRef {
+    let evidence_id = evidence_id;
     ActivityEvidenceRef {
-        evidence_id: evidence_id.to_string(),
+        evidence_id: evidence_id.as_ref().to_string(),
         kind: ActivityEvidenceKind::LocalDbRow,
         digest: None,
         uri: None,
@@ -241,7 +247,8 @@ fn readiness_row<'a>(
     )
 }
 
-fn temp_path(suffix: &str) -> std::path::PathBuf {
+fn temp_path(suffix: TestText) -> std::path::PathBuf {
+    let suffix = suffix;
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
@@ -253,7 +260,7 @@ fn temp_path(suffix: &str) -> std::path::PathBuf {
             .to_string(),
     );
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(suffix.as_ref());
 
     let mut path = std::env::temp_dir();
     path.push(name);

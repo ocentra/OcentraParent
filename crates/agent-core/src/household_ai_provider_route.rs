@@ -13,6 +13,13 @@ use crate::{
     screen_household_mesh_runtime_state::custody_label,
 };
 
+#[path = "household_ai_provider_route_rejection.rs"]
+mod household_ai_provider_route_rejection;
+#[path = "household_ai_provider_route_rejection_mobile.rs"]
+mod household_ai_provider_route_rejection_mobile;
+#[path = "household_ai_provider_route_trust.rs"]
+mod household_ai_provider_route_trust;
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HouseholdAiProviderCandidate {
     pub provider_peer_id: String,
@@ -179,41 +186,17 @@ fn candidate_rejection_reason(
     candidate: &HouseholdAiProviderCandidate,
     desktop_or_laptop_available: bool,
 ) -> Option<HouseholdAiRouteRejectionReason> {
-    if candidate.trust_state != HouseholdAiProviderTrustState::Trusted {
-        return trust_rejection_reason(candidate.trust_state);
-    }
-    if candidate.custody_label != request.required_custody_label {
-        return Some(HouseholdAiRouteRejectionReason::CustodyMismatch);
-    }
-    if candidate.provider_class == HouseholdAiProviderClass::MobileDormant
-        && desktop_or_laptop_available
-    {
-        return Some(HouseholdAiRouteRejectionReason::MobileDormantDesktopAvailable);
-    }
-    if !candidate_supports_work(candidate, request.work_class) {
-        return Some(HouseholdAiRouteRejectionReason::UnsupportedCapability);
-    }
-    if candidate.resource_state != HouseholdAiProviderResourceState::Ready {
-        return Some(HouseholdAiRouteRejectionReason::ResourceDegraded);
-    }
-    mobile_rejection_reason(request, candidate, desktop_or_laptop_available)
+    household_ai_provider_route_rejection::candidate_rejection_reason(
+        request,
+        candidate,
+        desktop_or_laptop_available,
+    )
 }
 
 fn trust_rejection_reason(
     trust_state: HouseholdAiProviderTrustState,
 ) -> Option<HouseholdAiRouteRejectionReason> {
-    match trust_state {
-        HouseholdAiProviderTrustState::Trusted => None,
-        HouseholdAiProviderTrustState::Stale => {
-            Some(HouseholdAiRouteRejectionReason::StaleProvider)
-        }
-        HouseholdAiProviderTrustState::Offline => {
-            Some(HouseholdAiRouteRejectionReason::OfflineProvider)
-        }
-        HouseholdAiProviderTrustState::Revoked => {
-            Some(HouseholdAiRouteRejectionReason::RevokedProvider)
-        }
-    }
+    household_ai_provider_route_trust::trust_rejection_reason(trust_state)
 }
 
 fn mobile_rejection_reason(
@@ -221,32 +204,18 @@ fn mobile_rejection_reason(
     candidate: &HouseholdAiProviderCandidate,
     desktop_or_laptop_available: bool,
 ) -> Option<HouseholdAiRouteRejectionReason> {
-    if candidate.provider_class != HouseholdAiProviderClass::MobileDormant {
-        return None;
-    }
-    if desktop_or_laptop_available {
-        return Some(HouseholdAiRouteRejectionReason::MobileDormantDesktopAvailable);
-    }
-    let policy = candidate.resource_policy;
-    if request.allow_mobile_fallback
-        && policy.fallback_policy_allows_mobile
-        && policy.battery_ok
-        && policy.thermal_ok
-    {
-        None
-    } else {
-        Some(HouseholdAiRouteRejectionReason::MobileFallbackDenied)
-    }
+    household_ai_provider_route_rejection_mobile::mobile_rejection_reason(
+        request,
+        candidate,
+        desktop_or_laptop_available,
+    )
 }
 
 fn candidate_supports_work(
     candidate: &HouseholdAiProviderCandidate,
     work_class: HouseholdAiWorkClass,
 ) -> bool {
-    match work_class {
-        HouseholdAiWorkClass::HeavyScreenVision => candidate.supports_heavy_screen_vision,
-        HouseholdAiWorkClass::LightText => candidate.supports_light_text,
-    }
+    household_ai_provider_route_rejection_mobile::candidate_supports_work(candidate, work_class)
 }
 
 fn no_provider_decision() -> HouseholdAiRouteCandidateDecision {

@@ -32,11 +32,22 @@ function hasOption(args, names) {
 
 function main() {
   const cliPath = resolveEnforcerFile(path.join('scripts', 'rust-rules.mjs'));
+  const enforcerRoot = path.resolve(path.dirname(cliPath), '..');
   const args = process.argv.slice(2);
   if (args.length === 0) args.push('doctor');
+  const isCoordinationCommand = args[0] === 'coordination';
   if (!hasOption(args, ['--root'])) args.push('--root', repoRoot);
-  if (!hasOption(args, ['--profile'])) args.push('--profile', defaultProfile);
-  if (!hasOption(args, ['--config']) && fs.existsSync(targetConfig)) args.push('--config', targetConfig);
+  if (isCoordinationCommand) {
+    if (!hasOption(args, ['--hub'])) args.push('--hub', 'ocentra-parent');
+    if (!hasOption(args, ['--state-root', '--stateRoot'])) {
+      args.push('--state-root', path.join(enforcerRoot, '.ledger', 'ocentra-parent'));
+    }
+  } else {
+    if (!hasOption(args, ['--profile'])) args.push('--profile', defaultProfile);
+    if (args[0] !== 'proof' && !hasOption(args, ['--config']) && fs.existsSync(targetConfig)) {
+      args.push('--config', targetConfig);
+    }
+  }
 
   const result = spawnSync(process.execPath, [cliPath, ...args], {
     cwd: repoRoot,

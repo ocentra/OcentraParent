@@ -33,51 +33,19 @@ export function SocialAlertReportRoutePanel({
   readonly browserSocialProviderReceiptIngestionReadinessStatusPanel: ParentBrowserPanelSnapshot | null;
 }): ReactElement {
   if (socialAlertReportPanel === null) {
-    return (
-      <section aria-label="Social alerts and reports unavailable" className={PortalDom.Classes.TrackingStatusOverlay}>
-        <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
-          <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-            <p className={PortalDom.Classes.ProductEyebrow}>Browser route</p>
-            <h2>Social alerts and reports unavailable</h2>
-            <p>Parent Rust snapshot unavailable for the social alert/report route.</p>
-          </header>
-        </div>
-      </section>
-    );
+    return <SocialAlertReportUnavailableSection />;
   }
 
   return (
     <section aria-label={socialAlertReportPanel.title} className={PortalDom.Classes.TrackingStatusOverlay}>
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
-        <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{socialAlertReportPanel.eyebrow}</p>
-          <h2>{socialAlertReportPanel.title}</h2>
-          <p>{socialAlertReportPanel.body}</p>
-          <button
-            className={PortalDom.Classes.CommandResultTab}
-            disabled={!commandEnabled}
-            onClick={() => void actions.refreshRouteSnapshot?.()}
-            type={PortalDom.ButtonType.Button}
-          >
-            {socialAlertReportPanel.title}
-          </button>
-          <button
-            className={PortalDom.Classes.CommandResultTab}
-            disabled={!commandEnabled}
-            onClick={() => void actions.refreshRouteSnapshot?.()}
-            type={PortalDom.ButtonType.Button}
-          >
-            {socialParentNotificationDeliveryPanel?.title ?? 'Social parent notification delivery readiness'}
-          </button>
-          <button
-            className={PortalDom.Classes.CommandResultTab}
-            disabled={!commandEnabled}
-            onClick={() => void actions.refreshRouteSnapshot?.()}
-            type={PortalDom.ButtonType.Button}
-          >
-            {socialAlertReportParentSurfacePanel?.title ?? 'Social parent surface status'}
-          </button>
-        </header>
+        <SocialAlertReportHeader
+          actions={actions}
+          commandEnabled={commandEnabled}
+          panel={socialAlertReportPanel}
+          parentSurfacePanel={socialAlertReportParentSurfacePanel}
+          notificationPanel={socialParentNotificationDeliveryPanel}
+        />
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
             PortalDom.Classes.ClassNameSeparator
@@ -97,6 +65,74 @@ export function SocialAlertReportRoutePanel({
         </div>
       </div>
     </section>
+  );
+}
+
+function SocialAlertReportUnavailableSection(): ReactElement {
+  return (
+    <section aria-label="Social alerts and reports unavailable" className={PortalDom.Classes.TrackingStatusOverlay}>
+      <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
+        <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
+          <p className={PortalDom.Classes.ProductEyebrow}>Browser route</p>
+          <h2>Social alerts and reports unavailable</h2>
+          <p>Parent Rust snapshot unavailable for the social alert/report route.</p>
+        </header>
+      </div>
+    </section>
+  );
+}
+
+function SocialAlertReportHeader({
+  actions,
+  commandEnabled,
+  panel,
+  parentSurfacePanel,
+  notificationPanel,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
+  readonly panel: ParentBrowserPanelSnapshot;
+  readonly parentSurfacePanel: ParentBrowserPanelSnapshot | null;
+  readonly notificationPanel: ParentBrowserPanelSnapshot | null;
+}): ReactElement {
+  return (
+    <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
+      <p className={PortalDom.Classes.ProductEyebrow}>{panel.eyebrow}</p>
+      <h2>{panel.title}</h2>
+      <p>{panel.body}</p>
+      <SocialAlertReportRefreshButton actions={actions} commandEnabled={commandEnabled} label={panel.title} />
+      <SocialAlertReportRefreshButton
+        actions={actions}
+        commandEnabled={commandEnabled}
+        label={notificationPanel?.title ?? 'Social parent notification delivery readiness'}
+      />
+      <SocialAlertReportRefreshButton
+        actions={actions}
+        commandEnabled={commandEnabled}
+        label={parentSurfacePanel?.title ?? 'Social parent surface status'}
+      />
+    </header>
+  );
+}
+
+function SocialAlertReportRefreshButton({
+  actions,
+  commandEnabled,
+  label,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
+  readonly label: string;
+}): ReactElement {
+  return (
+    <button
+      className={PortalDom.Classes.CommandResultTab}
+      disabled={!commandEnabled}
+      onClick={() => void actions.refreshRouteSnapshot?.()}
+      type={PortalDom.ButtonType.Button}
+    >
+      {label}
+    </button>
   );
 }
 

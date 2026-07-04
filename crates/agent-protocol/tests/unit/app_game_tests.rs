@@ -30,9 +30,7 @@ fn app_game_session_summary_serializes_to_contract_shape() {
         confidence: APP_GAME_CONFIDENCE_FOREGROUND_CANDIDATE,
     };
 
-    let serialized = serde_json::to_value(summary).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(summary).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -76,9 +74,7 @@ fn app_game_session_report_serializes_flat_portal_visibility_shape() {
         most_recent_evidence_count: Some(1),
     };
 
-    let serialized = serde_json::to_value(report).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(report).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["returned"], 1);
     assert_eq!(
@@ -94,10 +90,8 @@ fn app_game_session_report_serializes_flat_portal_visibility_shape() {
 
 #[test]
 fn app_game_service_read_model_serializes_replayed_row_groups_for_service_events() {
-    let serialized =
-        serde_json::to_value(replayed_row_group_read_model()).unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
+    let serialized = serde_json::to_value(replayed_row_group_read_model())
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -200,9 +194,7 @@ fn app_game_daily_rollup_serializes_duration_totals() {
         evidence: Vec::new(),
     };
 
-    let serialized = serde_json::to_value(rollup).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(rollup).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(serialized["rollupDate"], "2026-05-20");
@@ -219,9 +211,7 @@ fn app_game_daily_rollup_serializes_duration_totals() {
 fn app_game_runtime_evidence_row_serializes_process_runtime_without_foreground_claim() {
     let row = runtime_evidence_row();
 
-    let serialized = serde_json::to_value(row).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(row).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -272,9 +262,8 @@ fn app_game_process_observation_serializes_schema_domain_mirror_shape() {
         evidence: Vec::new(),
     };
 
-    let serialized = serde_json::to_value(observation).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(observation).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -322,9 +311,7 @@ fn app_game_process_observation_serializes_schema_domain_mirror_shape() {
 fn app_game_foreground_evidence_row_serializes_focus_without_content_claim() {
     let row = foreground_evidence_row();
 
-    let serialized = serde_json::to_value(row).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(row).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -359,9 +346,7 @@ fn app_game_foreground_evidence_row_serializes_focus_without_content_claim() {
 fn app_game_launcher_evidence_row_serializes_launcher_without_game_claim() {
     let row = launcher_evidence_row();
 
-    let serialized = serde_json::to_value(row).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(row).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -393,9 +378,7 @@ fn app_game_launcher_evidence_row_serializes_launcher_without_game_claim() {
 fn app_game_inventory_row_serializes_to_typescript_contract_shape() {
     let row = launcher_inventory_row();
 
-    let serialized = serde_json::to_value(row).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(row).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -441,9 +424,7 @@ fn app_game_inventory_row_preserves_no_use_claims() {
 fn app_game_store_inventory_row_serializes_first_class_package_identity() {
     let row = store_game_inventory_row();
 
-    let serialized = serde_json::to_value(row).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(row).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["sourceKind"],

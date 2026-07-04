@@ -1,11 +1,9 @@
-use crate::{
-    map_network_evidence_grade_to_policy, map_network_parent_notification_candidate,
-    NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
-    NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
-    NetworkParentNotificationCandidateError, NetworkParentNotificationCandidateInput,
-    NetworkParentNotificationDeliveryState, NetworkParentNotificationSeverity,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::notification::*;
+use ocentra_network_evidence::policy::*;
+use ocentra_network_evidence::policy::*;
 
 #[test]
 fn notification_candidate_maps_grade_a_policy_to_urgent_candidate_only() {

@@ -66,11 +66,11 @@ jobs:
         run: npm run build:contracts
 
       - name: Parent mobile shell runtime proof
-        run: node scripts/test/parent-mobile-shell-runtime-proof.mjs
+        run: npm run test:parent-mobile-package-source-artifact-proof
 
       - name: Upload parent mobile proof artifacts
         uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-mobile-proof
           path: |
-            test-results/parent-mobile-shell-runtime-proof/**
+            .enforce/proofs/runs/**

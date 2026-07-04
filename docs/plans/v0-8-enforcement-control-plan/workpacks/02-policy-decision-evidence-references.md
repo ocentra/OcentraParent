@@ -42,18 +42,16 @@ policy decision, target, schedule/budget, evidence refs, and validated actor.
 Tests now prove missing or invalid references produce typed rejection or unknown
 state, not adapter execution. Current proof runs:
 `node scripts/test/v0-8-enforcement-policy-dispatch-proof.mjs`.
-The owning dispatch contract lives in
-`packages/enforcement-domain/src/enforcement-policy-dispatch.ts`, with focused
-TypeScript coverage in
-`packages/enforcement-domain/tests/unit/enforcement-policy-dispatch.test.ts`
-and protocol consumer coverage in
-`packages/agent-protocol-domain/tests/unit/enforcement-policy-dispatch-adapter.test.ts`.
-Rust parity and consumer validation are exercised through
+Rust owns the dispatch contract and consumer validation through
 `crates/agent-protocol/src/constants/v08_enforcement_policy_dispatch.rs`,
+`crates/agent-protocol/src/enforcement_policy_dispatch.rs`,
+`crates/agent-protocol/tests/unit/enforcement_policy_dispatch_tests.rs`,
 `crates/agent-core/src/enforcement_policy_dispatch.rs`,
-`crates/agent-core/src/enforcement_policy_dispatch_tests.rs`,
+`crates/agent-core/tests/unit/enforcement_policy_dispatch_tests.rs`,
 `crates/agent-service/src/enforcement_policy_dispatch_read_model.rs`, and
-`crates/agent-service/src/enforcement_policy_dispatch_read_model_tests.rs`.
+`crates/agent-service/tests/unit/enforcement_policy_dispatch_read_model_tests.rs`.
+The generated TypeScript DTO surface is
+`packages/schema-domain/src/enforcement-policy-dispatch.ts`.
 Current proof artifacts live under
 `test-results/v0-8-enforcement-policy-dispatch-proof/`,
 `output/v0-8-enforcement-control-plan-proof/02-policy-decision-evidence-references/`,

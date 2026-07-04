@@ -5,7 +5,7 @@ import type {
   KVNamespace,
   R2Bucket,
 } from '@cloudflare/workers-types';
-import type { BillingReferralSummary } from '../../../packages/billing-domain/src/billing-referral-boundary.js';
+import type { BillingReferralSummary } from './generated/billing-contracts.js';
 import type { Env } from './env.js';
 import {
   buildBillingInvoices,

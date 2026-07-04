@@ -7,12 +7,10 @@ use ocentra_parent_agent_protocol::transport::{
 #[test]
 fn policy_request_assistant_preview_confirm_command_and_event_names_serialize_to_contract_shape() {
     let command = serde_json::to_value(AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm)
-        .unwrap_or_else(|error| unreachable!("policy request confirm command serializes: {error}"));
+        .expect("policy request confirm command serializes: {error}");
     let event =
         serde_json::to_value(AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported)
-            .unwrap_or_else(|error| {
-                unreachable!("policy request confirm event serializes: {error}")
-            });
+            .expect("policy request confirm event serializes: {error}");
 
     assert_eq!(command, "agent.policy.request.assistant-preview.confirm");
     assert_eq!(
@@ -50,8 +48,8 @@ fn policy_request_assistant_preview_confirm_result_serializes_without_product_ov
         product_claim_state: PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
     };
 
-    let serialized = serde_json::to_value(result)
-        .unwrap_or_else(|error| unreachable!("policy request confirm result serializes: {error}"));
+    let serialized =
+        serde_json::to_value(result).expect("policy request confirm result serializes: {error}");
 
     assert_eq!(serialized["resultState"], "confirmed");
     assert_eq!(serialized["policyRequestStatus"], "pending-parent-review");

@@ -67,26 +67,29 @@ pub struct PolicyContractPreview {
 
 pub fn validate_policy_preview(preview: &PolicyContractPreview) -> PolicyContractValidationResult {
     if preview.confirmed_by_present != preview.confirmed_at.is_some() {
-        return Err("preview confirmation requires both confirmedBy and confirmedAt together");
+        return Err(
+            "preview confirmation requires both confirmedBy and confirmedAt together".into(),
+        );
     }
     if !preview.decision.dry_run {
-        return Err("preview decisions must remain dry-run");
+        return Err("preview decisions must remain dry-run".into());
     }
     if preview.decision.enforcement_handoff_state != PolicyContractDecisionHandoffState::Disabled {
-        return Err("preview decisions must keep enforcement handoff disabled");
+        return Err("preview decisions must keep enforcement handoff disabled".into());
     }
 
     match preview.confirmation_state {
         PolicyContractPreviewConfirmationState::ConfirmationRequired => {
             if preview.confirmed_by_present || preview.confirmed_at.is_some() {
                 return Err(
-                    "confirmation-required previews cannot include confirmedBy or confirmedAt",
+                    "confirmation-required previews cannot include confirmedBy or confirmedAt"
+                        .into(),
                 );
             }
         }
         PolicyContractPreviewConfirmationState::Confirmed => {
             if !preview.confirmed_by_present || preview.confirmed_at.is_none() {
-                return Err("confirmed previews require confirmedBy and confirmedAt");
+                return Err("confirmed previews require confirmedBy and confirmedAt".into());
             }
         }
     }

@@ -32,12 +32,10 @@ fn provider_modes_and_claim_safe_statuses_stay_explicit() {
 
 #[test]
 fn ready_and_revoked_provider_rows_require_their_specific_refs() {
-    let timestamp = contracts::ParentTimestamp::parse("2026-06-28T18:40:00.000Z")
-        .value_or_unreachable("timestamp");
+    let timestamp = contracts::ParentTimestamp::parse("2026-06-28T18:40:00.000Z").assume_ok();
     let ready_missing_refs =
         derive_parent_owned_sync_provider_status_row(ParentOwnedSyncProviderStatusInput {
-            provider_id: contracts::ParentOwnedSyncProviderId::parse("provider-ready")
-                .value_or_unreachable("provider id"),
+            provider_id: contracts::ParentOwnedSyncProviderId::parse("provider-ready").assume_ok(),
             provider_mode: contracts::ParentOwnedSyncProviderMode::GoogleDriveAppdata,
             provider_status: contracts::ParentOwnedSyncProviderStatus::Ready,
             destination_ownership:
@@ -45,7 +43,7 @@ fn ready_and_revoked_provider_rows_require_their_specific_refs() {
             account_ref: None,
             folder_ref: None,
             status_ref: contracts::ParentOwnedSyncStatusRef::parse("provider-status-ready")
-                .value_or_unreachable("status ref"),
+                .assume_ok(),
             revocation_ref: None,
             disconnect_visibility_state:
                 contracts::ParentOwnedSyncDisconnectVisibilityState::NotDisconnected,
@@ -60,7 +58,7 @@ fn ready_and_revoked_provider_rows_require_their_specific_refs() {
     let revoked_missing_ref =
         derive_parent_owned_sync_provider_status_row(ParentOwnedSyncProviderStatusInput {
             provider_id: contracts::ParentOwnedSyncProviderId::parse("provider-revoked")
-                .value_or_unreachable("provider id"),
+                .assume_ok(),
             provider_mode: contracts::ParentOwnedSyncProviderMode::OnedriveApproot,
             provider_status: contracts::ParentOwnedSyncProviderStatus::Revoked,
             destination_ownership:
@@ -68,7 +66,7 @@ fn ready_and_revoked_provider_rows_require_their_specific_refs() {
             account_ref: contracts::ParentOwnedSyncProviderRef::parse("account-revoked"),
             folder_ref: contracts::ParentOwnedSyncProviderRef::parse("folder-revoked"),
             status_ref: contracts::ParentOwnedSyncStatusRef::parse("provider-status-revoked")
-                .value_or_unreachable("status ref"),
+                .assume_ok(),
             revocation_ref: None,
             disconnect_visibility_state:
                 contracts::ParentOwnedSyncDisconnectVisibilityState::NotDisconnected,
@@ -86,7 +84,7 @@ fn sync_states_require_manifest_integrity_and_retry_evidence_honestly() {
     let synced_missing_signature = derive_parent_owned_sync_state_row(ParentOwnedSyncStateInput {
         sync_state: contracts::ParentOwnedSyncState::Synced,
         provider_status_ref: contracts::ParentOwnedSyncStatusRef::parse("provider-status-ready")
-            .value_or_unreachable("status ref"),
+            .assume_ok(),
         cursor_ref: contracts::ParentOwnedSyncCursorRef::parse("cursor-synced"),
         batch_ref: contracts::ParentOwnedSyncBatchRef::parse("batch-synced"),
         manifest_integrity_state: contracts::ParentOwnedSyncManifestIntegrityState::Verified,
@@ -107,7 +105,7 @@ fn sync_states_require_manifest_integrity_and_retry_evidence_honestly() {
     let corrupt_synced = derive_parent_owned_sync_state_row(ParentOwnedSyncStateInput {
         sync_state: contracts::ParentOwnedSyncState::Synced,
         provider_status_ref: contracts::ParentOwnedSyncStatusRef::parse("provider-status-manual")
-            .value_or_unreachable("status ref"),
+            .assume_ok(),
         cursor_ref: contracts::ParentOwnedSyncCursorRef::parse("cursor-corrupt"),
         batch_ref: contracts::ParentOwnedSyncBatchRef::parse("batch-corrupt"),
         manifest_integrity_state: contracts::ParentOwnedSyncManifestIntegrityState::Corrupt,
@@ -126,7 +124,7 @@ fn sync_states_require_manifest_integrity_and_retry_evidence_honestly() {
     let conflict_missing_ref = derive_parent_owned_sync_state_row(ParentOwnedSyncStateInput {
         sync_state: contracts::ParentOwnedSyncState::Conflict,
         provider_status_ref: contracts::ParentOwnedSyncStatusRef::parse("provider-status-conflict")
-            .value_or_unreachable("status ref"),
+            .assume_ok(),
         cursor_ref: contracts::ParentOwnedSyncCursorRef::parse("cursor-conflict"),
         batch_ref: contracts::ParentOwnedSyncBatchRef::parse("batch-conflict"),
         manifest_integrity_state: contracts::ParentOwnedSyncManifestIntegrityState::Verified,
@@ -147,16 +145,16 @@ fn sync_states_require_manifest_integrity_and_retry_evidence_honestly() {
 fn tombstone_propagation_stays_separate_from_sync_success() {
     let propagated = derive_parent_owned_sync_tombstone_row(ParentOwnedSyncTombstoneInput {
         tombstone_ref: contracts::ParentOwnedSyncTombstoneRef::parse("tombstone-propagated")
-            .value_or_unreachable("tombstone ref"),
+            .assume_ok(),
         data_class: contracts::ParentOwnedSyncExportDataClass::GeneratedSummary,
         propagation_state: contracts::ParentOwnedSyncTombstonePropagationState::Propagated,
         delete_request_ref: contracts::ParentOwnedSyncDeleteRequestRef::parse("delete-summary"),
         provider_status_ref: contracts::ParentOwnedSyncStatusRef::parse("provider-status-ready")
-            .value_or_unreachable("status ref"),
+            .assume_ok(),
         last_propagated_at: contracts::ParentTimestamp::parse("2026-06-28T18:40:00.000Z"),
         blocked_reason_ref: None,
     })
-    .value_or_unreachable("propagated tombstone");
+    .assume_ok();
     assert_eq!(
         propagated.propagation_state,
         contracts::ParentOwnedSyncTombstonePropagationState::Propagated
@@ -165,7 +163,7 @@ fn tombstone_propagation_stays_separate_from_sync_success() {
     let blocked_missing_reason =
         derive_parent_owned_sync_tombstone_row(ParentOwnedSyncTombstoneInput {
             tombstone_ref: contracts::ParentOwnedSyncTombstoneRef::parse("tombstone-blocked")
-                .value_or_unreachable("tombstone ref"),
+                .assume_ok(),
             data_class: contracts::ParentOwnedSyncExportDataClass::NotificationHistory,
             propagation_state: contracts::ParentOwnedSyncTombstonePropagationState::Blocked,
             delete_request_ref: contracts::ParentOwnedSyncDeleteRequestRef::parse(
@@ -174,7 +172,7 @@ fn tombstone_propagation_stays_separate_from_sync_success() {
             provider_status_ref: contracts::ParentOwnedSyncStatusRef::parse(
                 "provider-status-folder",
             )
-            .value_or_unreachable("status ref"),
+            .assume_ok(),
             last_propagated_at: None,
             blocked_reason_ref: None,
         });
@@ -239,10 +237,9 @@ fn proof_builder_keeps_non_claims_and_no_default_ocentra_custody_truth() {
                 blocked_reason_ref: row.blocked_reason_ref,
             })
             .collect(),
-        contracts::ParentTimestamp::parse("2026-06-28T18:50:00.000Z")
-            .value_or_unreachable("timestamp"),
+        contracts::ParentTimestamp::parse("2026-06-28T18:50:00.000Z").assume_ok(),
     )
-    .value_or_unreachable("proof");
+    .assume_ok();
 
     assert_eq!(
         built.non_claims,

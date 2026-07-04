@@ -1,14 +1,7 @@
-use crate::{
-    build_network_adapter_capability_status, build_network_local_platform_probe_proof,
-    NetworkAdapterCapabilityStatusInput, NetworkAdapterCapabilityStatusProof,
-    NetworkAdapterCapabilityStatusState, NetworkLocalPlatformProbeError,
-    NetworkLocalPlatformProbeHost, NetworkLocalPlatformProbeInput,
-    NetworkLocalPlatformProbeObservation, NetworkLocalPlatformProbeState,
-    NetworkLocalPlatformProbeUnsupportedClaims, NetworkPlatformClaimEntry,
-    NetworkPlatformClaimManifestProof, NetworkPlatformClaimManualFollowup,
-    NetworkPlatformClaimState, NetworkPlatformClaimTarget,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::adapter_capability_status::*;
+use ocentra_network_evidence::local_platform_probe::*;
+use ocentra_network_evidence::platform_claims::*;
 
 #[test]
 fn local_platform_probe_aligns_windows_android_linux_and_apple_status_rows() {

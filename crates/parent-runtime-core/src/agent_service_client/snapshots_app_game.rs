@@ -10,34 +10,35 @@ use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGamePlatfo
 use ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessReadModel;
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceReadModel;
 
+fn validate_app_game_response_event<'a>(
+    result: &'a AgentServiceCommandResult,
+    expected_event: AgentEventName,
+    result_label: &str,
+) -> Result<&'a AgentEventEnvelope, String> {
+    if result.response_event.event == AgentEventName::AgentCommandRejected {
+        return Err(rejection_message(&result.response_event));
+    }
+    if result.response_event.event != expected_event {
+        return Err(format!(
+            "agent-service expected {}, received {}",
+            serialized_enum_label(&expected_event),
+            serialized_enum_label(&result.response_event.event)
+        ));
+    }
+    let _ = result_label;
+    Ok(&result.response_event)
+}
+
 pub(super) fn app_game_notification_readiness_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<AppGameNotificationReadinessAgentServiceSnapshot, String> {
-    let AgentServiceCommandResult {
-        events,
-        response_event,
-    } = result;
-    if response_event.event == AgentEventName::AgentCommandRejected {
-        return Err(rejection_message(&response_event));
-    }
-    if response_event.event
-        != AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported
-    {
-        return Err(format!(
-            "agent-service expected {}, received {}",
-            serialized_enum_label(
-                &AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported
-            ),
-            serialized_enum_label(&response_event.event)
-        ));
-    }
-
-    events.last().cloned().ok_or_else(|| {
-        "agent-service app/game notification readiness result did not include a response event"
-            .to_string()
-    })?;
+    let response_event = validate_app_game_response_event(
+        &result,
+        AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
+        "notification readiness",
+    )?;
     let read_model = app_game_read_model_from_response::<AppGameNotificationReadinessReadModel>(
-        &response_event,
+        response_event,
         constants::field::APP_GAME_NOTIFICATION_READINESS_READ_MODEL,
         "notification readiness",
     )?;
@@ -47,30 +48,13 @@ pub(super) fn app_game_notification_readiness_snapshot_from_result(
 pub(super) fn app_game_policy_readiness_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<AppGamePolicyReadinessAgentServiceSnapshot, String> {
-    let AgentServiceCommandResult {
-        events,
-        response_event,
-    } = result;
-    if response_event.event == AgentEventName::AgentCommandRejected {
-        return Err(rejection_message(&response_event));
-    }
-    if response_event.event != AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported
-    {
-        return Err(format!(
-            "agent-service expected {}, received {}",
-            serialized_enum_label(
-                &AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported
-            ),
-            serialized_enum_label(&response_event.event)
-        ));
-    }
-
-    events.last().cloned().ok_or_else(|| {
-        "agent-service app/game policy readiness result did not include a response event"
-            .to_string()
-    })?;
+    let response_event = validate_app_game_response_event(
+        &result,
+        AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported,
+        "policy readiness",
+    )?;
     let read_model = app_game_read_model_from_response::<AppGamePolicyReadinessReadModel>(
-        &response_event,
+        response_event,
         constants::field::APP_GAME_POLICY_READINESS_READ_MODEL,
         "policy readiness",
     )?;
@@ -80,31 +64,13 @@ pub(super) fn app_game_policy_readiness_snapshot_from_result(
 pub(super) fn app_game_platform_proof_status_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<AppGamePlatformProofStatusAgentServiceSnapshot, String> {
-    let AgentServiceCommandResult {
-        events,
-        response_event,
-    } = result;
-    if response_event.event == AgentEventName::AgentCommandRejected {
-        return Err(rejection_message(&response_event));
-    }
-    if response_event.event
-        != AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported
-    {
-        return Err(format!(
-            "agent-service expected {}, received {}",
-            serialized_enum_label(
-                &AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported
-            ),
-            serialized_enum_label(&response_event.event)
-        ));
-    }
-
-    events.last().cloned().ok_or_else(|| {
-        "agent-service app/game platform proof status result did not include a response event"
-            .to_string()
-    })?;
+    let response_event = validate_app_game_response_event(
+        &result,
+        AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported,
+        "platform proof status",
+    )?;
     let read_model = app_game_read_model_from_response::<AppGamePlatformProofStatusReadModel>(
-        &response_event,
+        response_event,
         constants::field::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL,
         "platform proof status",
     )?;
@@ -114,32 +80,14 @@ pub(super) fn app_game_platform_proof_status_snapshot_from_result(
 pub(super) fn app_game_child_runtime_transport_receipt_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<AppGameChildRuntimeTransportReceiptAgentServiceSnapshot, String> {
-    let AgentServiceCommandResult {
-        events,
-        response_event,
-    } = result;
-    if response_event.event == AgentEventName::AgentCommandRejected {
-        return Err(rejection_message(&response_event));
-    }
-    if response_event.event
-        != AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported
-    {
-        return Err(format!(
-            "agent-service expected {}, received {}",
-            serialized_enum_label(
-                &AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported
-            ),
-            serialized_enum_label(&response_event.event)
-        ));
-    }
-
-    events.last().cloned().ok_or_else(|| {
-        "agent-service app/game child runtime transport receipt result did not include a response event"
-            .to_string()
-    })?;
+    let response_event = validate_app_game_response_event(
+        &result,
+        AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported,
+        "child runtime transport receipt",
+    )?;
     let read_model =
         app_game_read_model_from_response::<AppGameChildRuntimeTransportReceiptReadModel>(
-            &response_event,
+            response_event,
             constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL,
             "child runtime transport receipt",
         )?;
@@ -149,31 +97,13 @@ pub(super) fn app_game_child_runtime_transport_receipt_snapshot_from_result(
 pub(super) fn app_game_adapter_dispatch_preflight_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<AppGameAdapterDispatchPreflightAgentServiceSnapshot, String> {
-    let AgentServiceCommandResult {
-        events,
-        response_event,
-    } = result;
-    if response_event.event == AgentEventName::AgentCommandRejected {
-        return Err(rejection_message(&response_event));
-    }
-    if response_event.event
-        != AgentEventName::AgentActivityAppGameAdapterDispatchPreflightReadModelReported
-    {
-        return Err(format!(
-            "agent-service expected {}, received {}",
-            serialized_enum_label(
-                &AgentEventName::AgentActivityAppGameAdapterDispatchPreflightReadModelReported
-            ),
-            serialized_enum_label(&response_event.event)
-        ));
-    }
-
-    events.last().cloned().ok_or_else(|| {
-        "agent-service app/game adapter dispatch preflight result did not include a response event"
-            .to_string()
-    })?;
+    let response_event = validate_app_game_response_event(
+        &result,
+        AgentEventName::AgentActivityAppGameAdapterDispatchPreflightReadModelReported,
+        "adapter dispatch preflight",
+    )?;
     let read_model = app_game_read_model_from_response::<AppGameAdapterDispatchPreflightReadModel>(
-        &response_event,
+        response_event,
         constants::field::APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL,
         "adapter dispatch preflight",
     )?;
@@ -183,31 +113,13 @@ pub(super) fn app_game_adapter_dispatch_preflight_snapshot_from_result(
 pub(super) fn app_game_adapter_dispatch_result_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<AppGameAdapterDispatchResultAgentServiceSnapshot, String> {
-    let AgentServiceCommandResult {
-        events,
-        response_event,
-    } = result;
-    if response_event.event == AgentEventName::AgentCommandRejected {
-        return Err(rejection_message(&response_event));
-    }
-    if response_event.event
-        != AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported
-    {
-        return Err(format!(
-            "agent-service expected {}, received {}",
-            serialized_enum_label(
-                &AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported
-            ),
-            serialized_enum_label(&response_event.event)
-        ));
-    }
-
-    events.last().cloned().ok_or_else(|| {
-        "agent-service app/game adapter dispatch result did not include a response event"
-            .to_string()
-    })?;
+    let response_event = validate_app_game_response_event(
+        &result,
+        AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported,
+        "adapter dispatch result",
+    )?;
     let read_model = app_game_read_model_from_response::<AppGameAdapterDispatchResultReadModel>(
-        &response_event,
+        response_event,
         constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL,
         "adapter dispatch result",
     )?;
@@ -217,31 +129,13 @@ pub(super) fn app_game_adapter_dispatch_result_snapshot_from_result(
 pub(super) fn app_game_timer_parent_surface_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<AppGameTimerParentSurfaceAgentServiceSnapshot, String> {
-    let AgentServiceCommandResult {
-        events,
-        response_event,
-    } = result;
-    if response_event.event == AgentEventName::AgentCommandRejected {
-        return Err(rejection_message(&response_event));
-    }
-    if response_event.event
-        != AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
-    {
-        return Err(format!(
-            "agent-service expected {}, received {}",
-            serialized_enum_label(
-                &AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
-            ),
-            serialized_enum_label(&response_event.event)
-        ));
-    }
-
-    events.last().cloned().ok_or_else(|| {
-        "agent-service app/game timer parent surface result did not include a response event"
-            .to_string()
-    })?;
+    let response_event = validate_app_game_response_event(
+        &result,
+        AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
+        "timer parent surface",
+    )?;
     let read_model = app_game_read_model_from_response::<AppGameTimerParentSurfaceReadModel>(
-        &response_event,
+        response_event,
         constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
         "timer parent surface",
     )?;

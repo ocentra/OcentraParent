@@ -2,12 +2,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { appendAppLogEntries, listAppLogSessionFiles, pruneAppLogSessions } from '../../src/app-log/appNdjsonWriter';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 import { listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
 import { pruneTestLogRuns } from '../../src/test-log/testLogRetention';
-import { RunType, TestLogScope, TestLogSchemaVersion } from '@ocentra-parent/schema-domain/test-log/types';
-import { createAppLogStorage } from '../../src/app-log/createAppLogStorage';
-import { listAppLogSessionFiles } from '../../src/app-log/appNdjsonWriter';
+import { RunType, TestLogScope, TestLogSchemaVersion } from '../../src/test-log/types';
 
 function makeTestEntry(runId: string, timestamp: number) {
   return {
@@ -71,55 +70,61 @@ describe('retention cleanup test-log runs', () => {
 });
 
 describe('retention cleanup app-log sessions', () => {
-  it('keeps only the newest app-log sessions for a scope', async () => {
+  it('keeps only the newest app-log sessions for a scope', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-retention-'));
     retentionCleanupTempDirs.push(tempDir);
 
-    const firstStorage = createAppLogStorage({
-      scope: TestLogScope.ParentCodex,
-      rootDir: tempDir,
-      sessionId: 'session-old',
-      keepNewestSessions: 2,
-    });
-    firstStorage.storeLog({
-      timestamp: 1,
-      level: 'info',
-      source: 'portal',
-      context: 'retention',
-      message: 'old',
-      data: null,
-      file: null,
-      filePath: null,
-      line: null,
-      column: null,
-      correlationId: null,
-      environment: 'test',
-    });
-    await firstStorage.flush();
-    await firstStorage.dispose();
+    appendAppLogEntries(
+      TestLogScope.ParentCodex,
+      'session-old',
+      [
+        {
+          schemaVersion: 1,
+          sessionId: 'session-old',
+          scope: TestLogScope.ParentCodex,
+          timestamp: 1,
+          level: 'info',
+          source: 'portal',
+          context: 'retention',
+          message: 'old',
+          data: null,
+          file: null,
+          filePath: null,
+          line: null,
+          column: null,
+          correlationId: null,
+          environment: 'test',
+        },
+      ],
+      tempDir
+    );
+    pruneAppLogSessions(TestLogScope.ParentCodex, 2, tempDir);
 
-    const secondStorage = createAppLogStorage({
-      scope: TestLogScope.ParentCodex,
-      rootDir: tempDir,
-      sessionId: 'session-new',
-      keepNewestSessions: 1,
-    });
-    secondStorage.storeLog({
-      timestamp: 2,
-      level: 'info',
-      source: 'portal',
-      context: 'retention',
-      message: 'new',
-      data: null,
-      file: null,
-      filePath: null,
-      line: null,
-      column: null,
-      correlationId: null,
-      environment: 'test',
-    });
-    await secondStorage.flush();
-    await secondStorage.dispose();
+    appendAppLogEntries(
+      TestLogScope.ParentCodex,
+      'session-new',
+      [
+        {
+          schemaVersion: 1,
+          sessionId: 'session-new',
+          scope: TestLogScope.ParentCodex,
+          timestamp: 2,
+          level: 'info',
+          source: 'portal',
+          context: 'retention',
+          message: 'new',
+          data: null,
+          file: null,
+          filePath: null,
+          line: null,
+          column: null,
+          correlationId: null,
+          environment: 'test',
+        },
+      ],
+      tempDir
+    );
+    pruneAppLogSessions(TestLogScope.ParentCodex, 1, tempDir);
 
     const files = listAppLogSessionFiles(TestLogScope.ParentCodex, tempDir);
     expect(files).toHaveLength(1);

@@ -21,7 +21,6 @@ const SCREEN_AI_PIPELINE_DECISION_RECORDED_EVENT_TYPE: &str =
     "screen-ai.pipeline-decision.recorded";
 const SCREEN_AI_IDEMPOTENCY_SEPARATOR: &str = ":";
 const SCREEN_AI_DECISION_PREFIX: &str = "screen-ai-decision:";
-const ERROR_SCREEN_AI_DECISION_ID: &str = "screen ai decision id";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScreenAiTriggerSource {
@@ -211,10 +210,7 @@ pub fn record_screen_ai_pipeline_decision(
 ) -> ScreenAiPipelineDecisionRecordedEvent {
     ScreenAiPipelineDecisionRecordedEvent {
         aggregate_id: event.aggregate_id.clone(),
-        decision_id: ScreenAiPipelineDecisionId::parse(screen_ai_decision_ref(
-            &event.evaluation_id,
-        ))
-        .unwrap_or_else(|_| unreachable!("{}", ERROR_SCREEN_AI_DECISION_ID)),
+        decision_id: ScreenAiPipelineDecisionId(screen_ai_decision_ref(&event.evaluation_id)),
         source_evaluation_id: event.evaluation_id.clone(),
         decision: evaluate_screen_ai_pipeline(event.input),
     }

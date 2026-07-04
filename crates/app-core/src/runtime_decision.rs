@@ -4,6 +4,7 @@ use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersi
 use ocentra_parent_agent_protocol::child_domain_runtime::ChildDomainObservedEvent;
 use serde::{Deserialize, Serialize};
 
+use crate::runtime_ids::{AppAggregateId, AppRuntimeDecisionId};
 use crate::{app_observed_event, AppObservationIntent};
 
 const APP_SCHEMA_VERSION: u16 = 1;
@@ -79,51 +80,6 @@ pub struct AppRuntimeDecision {
     pub policy_handoff_state: AppPolicyHandoffState,
 }
 
-macro_rules! app_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
-
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
-}
-
-app_text_id!(AppRuntimeDecisionId, "app.runtime_decision_id");
-app_text_id!(AppAggregateId, "app.aggregate_id");
-
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AppRuntimeDecisionRecordedEvent {
     pub aggregate_id: AppAggregateId,
@@ -154,42 +110,51 @@ impl DomainEvent for AppRuntimeDecisionRecordedEvent {
 
 pub fn evaluate_app_runtime(input: AppRuntimeInput) -> AppRuntimeDecision {
     if input.capability_state == AppCapabilityState::Missing {
-        return AppRuntimeDecision {
-            observation_intent: AppObservationIntent::InventoryObservationOnly,
-            runtime_action_state: AppRuntimeActionState::ManualRequired,
-            ai_handoff_state: AppAiHandoffState::NotRequired,
-            policy_handoff_state: AppPolicyHandoffState::DoNotPublish,
-        };
+        return manual_required_decision();
     }
 
-    if input.foreground_state == AppForegroundState::Foreground {
-        return match input.classification_state {
-            AppClassificationState::KnownPolicyApp => AppRuntimeDecision {
-                observation_intent: AppObservationIntent::ForegroundAppRequiresPolicy,
-                runtime_action_state: AppRuntimeActionState::RecordForeground,
-                ai_handoff_state: AppAiHandoffState::NotRequired,
-                policy_handoff_state: AppPolicyHandoffState::Publish,
-            },
-            AppClassificationState::UnknownApp => AppRuntimeDecision {
-                observation_intent: AppObservationIntent::UnknownAppRequiresAi,
-                runtime_action_state: AppRuntimeActionState::RecordForeground,
-                ai_handoff_state: AppAiHandoffState::Required,
-                policy_handoff_state: AppPolicyHandoffState::DoNotPublish,
-            },
-            AppClassificationState::InventoryOnly => AppRuntimeDecision {
-                observation_intent: AppObservationIntent::InventoryObservationOnly,
-                runtime_action_state: AppRuntimeActionState::RecordForeground,
-                ai_handoff_state: AppAiHandoffState::NotRequired,
-                policy_handoff_state: AppPolicyHandoffState::DoNotPublish,
-            },
-        };
+    if input.foreground_state != AppForegroundState::Foreground {
+        return inventory_decision(AppRuntimeActionState::RecordInventory);
     }
 
+    foreground_decision(input.classification_state)
+}
+
+fn manual_required_decision() -> AppRuntimeDecision {
     AppRuntimeDecision {
         observation_intent: AppObservationIntent::InventoryObservationOnly,
-        runtime_action_state: AppRuntimeActionState::RecordInventory,
+        runtime_action_state: AppRuntimeActionState::ManualRequired,
         ai_handoff_state: AppAiHandoffState::NotRequired,
         policy_handoff_state: AppPolicyHandoffState::DoNotPublish,
+    }
+}
+
+fn inventory_decision(runtime_action_state: AppRuntimeActionState) -> AppRuntimeDecision {
+    AppRuntimeDecision {
+        observation_intent: AppObservationIntent::InventoryObservationOnly,
+        runtime_action_state,
+        ai_handoff_state: AppAiHandoffState::NotRequired,
+        policy_handoff_state: AppPolicyHandoffState::DoNotPublish,
+    }
+}
+
+fn foreground_decision(classification_state: AppClassificationState) -> AppRuntimeDecision {
+    match classification_state {
+        AppClassificationState::KnownPolicyApp => AppRuntimeDecision {
+            observation_intent: AppObservationIntent::ForegroundAppRequiresPolicy,
+            runtime_action_state: AppRuntimeActionState::RecordForeground,
+            ai_handoff_state: AppAiHandoffState::NotRequired,
+            policy_handoff_state: AppPolicyHandoffState::Publish,
+        },
+        AppClassificationState::UnknownApp => AppRuntimeDecision {
+            observation_intent: AppObservationIntent::UnknownAppRequiresAi,
+            runtime_action_state: AppRuntimeActionState::RecordForeground,
+            ai_handoff_state: AppAiHandoffState::Required,
+            policy_handoff_state: AppPolicyHandoffState::DoNotPublish,
+        },
+        AppClassificationState::InventoryOnly => {
+            inventory_decision(AppRuntimeActionState::RecordForeground)
+        }
     }
 }
 

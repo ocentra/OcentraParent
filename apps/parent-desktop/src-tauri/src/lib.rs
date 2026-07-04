@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     net::{SocketAddr, TcpStream},
+    fmt::{Display, Formatter},
     sync::{
         atomic::{AtomicBool, AtomicU64, Ordering},
         Arc, Mutex,
@@ -26,6 +27,36 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, State as TauriState};
 
 const SERVICE_CONNECT_TIMEOUT_MS: u64 = 250;
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, serde::Deserialize)]
+#[serde(transparent)]
+pub struct ParentRouteSubscriptionId(pub String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, serde::Deserialize)]
+#[serde(transparent)]
+pub struct ParentDesktopAgentAddress(pub String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, serde::Deserialize)]
+#[serde(transparent)]
+pub struct ParentRouteSubscriptionEventName(pub String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, serde::Deserialize)]
+#[serde(transparent)]
+pub struct ParentDesktopCommandError(String);
+
+impl ParentDesktopCommandError {
+    fn from_tauri_error(error: tauri::Error) -> Self {
+        Self(error.to_string())
+    }
+}
+
+impl Display for ParentDesktopCommandError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for ParentDesktopCommandError {}
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -81,31 +112,36 @@ pub struct ParentRouteSubscriptionRegistry {
 #[derive(Default)]
 struct ParentRouteSubscriptionRegistryInner {
     next_id: AtomicU64,
-    subscriptions: Mutex<HashMap<String, Arc<AtomicBool>>>,
+    subscriptions: Mutex<HashMap<ParentRouteSubscriptionId, Arc<AtomicBool>>>,
 }
 
 impl ParentRouteSubscriptionRegistry {
-    pub fn register(&self) -> (String, Arc<AtomicBool>) {
-        let subscription_id = self
-            .inner
-            .next_id
-            .fetch_add(1, Ordering::SeqCst)
-            .to_string();
+    pub fn register(&self) -> (ParentRouteSubscriptionId, Arc<AtomicBool>) {
+        let subscription_id = ParentRouteSubscriptionId(
+            self.inner
+                .next_id
+                .fetch_add(1, Ordering::SeqCst)
+                .to_string(),
+        );
         let active = Arc::new(AtomicBool::new(true));
-        self.inner
+        let mut subscriptions = self
+            .inner
             .subscriptions
             .lock()
-            .expect("parent route subscriptions lock remains available")
-            .insert(subscription_id.clone(), Arc::clone(&active));
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        subscriptions.insert(subscription_id.clone(), Arc::clone(&active));
         (subscription_id, active)
     }
 
-    pub fn unregister(&self, subscription_id: &str) -> bool {
-        self.inner
+    pub fn unregister(&self, subscription_id: &ParentRouteSubscriptionId) -> bool {
+        let removed = self
+            .inner
             .subscriptions
             .lock()
-            .expect("parent route subscriptions lock remains available")
-            .remove(subscription_id)
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .remove(subscription_id);
+
+        removed
             .map(|active| {
                 active.store(false, Ordering::SeqCst);
                 true
@@ -138,7 +174,7 @@ fn parent_subscribe_route(
     registry: TauriState<'_, ParentRouteSubscriptionRegistry>,
     route: ParentRouteId,
     context: Option<ParentRouteContext>,
-) -> Result<String, String> {
+) -> Result<ParentRouteSubscriptionId, ParentDesktopCommandError> {
     let registry = registry.inner().clone();
     let (subscription_id, active) = registry.register();
     spawn_parent_route_subscription(
@@ -155,13 +191,13 @@ fn parent_subscribe_route(
 #[tauri::command]
 fn parent_unsubscribe_route(
     registry: TauriState<'_, ParentRouteSubscriptionRegistry>,
-    subscription_id: String,
+    subscription_id: ParentRouteSubscriptionId,
 ) -> bool {
-    registry.unregister(subscription_id.as_str())
+    registry.unregister(&subscription_id)
 }
 
-pub fn run() {
-    let result = tauri::Builder::default()
+pub fn run() -> Result<(), ParentDesktopCommandError> {
+    tauri::Builder::default()
         .manage(ParentRouteSubscriptionRegistry::default())
         .invoke_handler(tauri::generate_handler![
             parent_platform_proof_state,
@@ -170,16 +206,14 @@ pub fn run() {
             parent_subscribe_route,
             parent_unsubscribe_route
         ])
-        .run(tauri::generate_context!());
-    if let Err(error) = result {
-        panic!("{error}");
-    }
+        .run(tauri::generate_context!())
+        .map_err(ParentDesktopCommandError::from_tauri_error)
 }
 
 fn spawn_parent_route_subscription(
     app: AppHandle,
     registry: ParentRouteSubscriptionRegistry,
-    subscription_id: String,
+    subscription_id: ParentRouteSubscriptionId,
     route: ParentRouteId,
     context: Option<ParentRouteContext>,
     active: Arc<AtomicBool>,
@@ -202,37 +236,32 @@ fn spawn_parent_route_subscription(
             }
             last_snapshot = Some(event.snapshot);
         }
-        let _ = registry.unregister(subscription_id.as_str());
+        let _ = registry.unregister(&subscription_id);
     });
 }
 
 fn emit_parent_route_subscription_event(
     app: &AppHandle,
-    subscription_id: &str,
+    subscription_id: &ParentRouteSubscriptionId,
     event: &ParentSubscriptionEvent,
-) -> Result<(), String> {
-    app.emit(
-        parent_route_subscription_event_name(subscription_id).as_str(),
-        event.clone(),
+) -> Result<(), ParentDesktopCommandError> {
+    let event_name = parent_route_subscription_event_name(subscription_id);
+    app.emit(event_name.0.as_str(), event.clone())
+        .map_err(ParentDesktopCommandError::from_tauri_error)
+}
+
+fn configured_agent_address() -> ParentDesktopAgentAddress {
+    ParentDesktopAgentAddress(
+        std::env::var(constants::env_var::AGENT_ADDR)
+            .unwrap_or_else(|_| constants::bind::DEFAULT_AGENT_ADDR.to_string()),
     )
-    .map_err(|error| {
-        format!("parent desktop route subscription emit failed for {subscription_id}: {error}")
-    })
-}
-
-pub fn parent_route_subscription_event_name(subscription_id: &str) -> String {
-    format!("{PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX}{subscription_id}")
-}
-
-fn configured_agent_address() -> String {
-    std::env::var(constants::env_var::AGENT_ADDR)
-        .unwrap_or_else(|_| constants::bind::DEFAULT_AGENT_ADDR.to_string())
 }
 
 pub fn parent_platform_proof_state_for_address(
-    agent_address: String,
+    agent_address: ParentDesktopAgentAddress,
 ) -> ParentDesktopPlatformProofState {
     let service_connects = agent_service_connects(&agent_address);
+    let agent_address = agent_address.0;
     let service_state = if service_connects {
         constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
     } else {
@@ -311,9 +340,8 @@ pub fn parent_platform_proof_state_for_address(
     }
 }
 
-pub fn agent_service_connects(agent_address: &str) -> bool {
-    agent_address
-        .parse::<SocketAddr>()
+pub fn agent_service_connects(agent_address: &ParentDesktopAgentAddress) -> bool {
+    agent_address.0.parse::<SocketAddr>()
         .ok()
         .and_then(|address| {
             TcpStream::connect_timeout(&address, Duration::from_millis(SERVICE_CONNECT_TIMEOUT_MS))
@@ -322,9 +350,17 @@ pub fn agent_service_connects(agent_address: &str) -> bool {
         .is_some()
 }
 
+pub fn parent_route_subscription_event_name(
+    subscription_id: &ParentRouteSubscriptionId,
+) -> ParentRouteSubscriptionEventName {
+    let mut event_name = String::from(PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX);
+    event_name.push_str(subscription_id.0.as_str());
+    ParentRouteSubscriptionEventName(event_name)
+}
+
 fn parent_desktop_device_role_state() -> DeviceRoleRuntimeReadModel {
     DeviceRoleRuntimeReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.into(),
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: DeviceRuntimeSurface::ParentDesktop,
         platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),

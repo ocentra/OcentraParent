@@ -22,20 +22,14 @@ fn nearby_place_provider_request_never_drives_policy_directly() {
         TrackingNearbyPlaceProviderKind::parse(
             constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,
         )
-        .unwrap_or_else(|_| unreachable!(
-            "{}",
-            constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE
-        ))
+        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE)
     );
     assert_eq!(
         decision.ambiguity_state,
         TrackingNearbyPlaceAmbiguityState::parse(
             constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES,
         )
-        .unwrap_or_else(|_| unreachable!(
-            "{}",
-            constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES
-        ))
+        .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES)
     );
     assert_eq!(
         decision.provider_ref.as_ref().map(|value| value.as_str()),
@@ -51,17 +45,13 @@ fn nearby_place_provider_request_never_drives_policy_directly() {
         vec![TrackingReasonCode::parse(
             constants::tracking_runtime::REASON_NEARBY_PLACE_AMBIGUITY_PRESERVED
         )
-        .unwrap_or_else(|_| unreachable!(
-            "{}",
-            constants::tracking_runtime::REASON_NEARBY_PLACE_AMBIGUITY_PRESERVED
-        ))]
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_AMBIGUITY_PRESERVED)]
     );
     assert_eq!(
         decision.ai_result_authority_state,
         AiResultAuthorityState::EvidenceOnly
     );
 }
-
 #[test]
 fn nearby_place_provider_unavailable_degrades_without_policy_authority() {
     let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
@@ -88,27 +78,20 @@ fn nearby_place_provider_unavailable_degrades_without_policy_authority() {
         vec![TrackingReasonCode::parse(
             constants::tracking_runtime::REASON_NEARBY_PLACE_PROVIDER_UNAVAILABLE
         )
-        .unwrap_or_else(|_| unreachable!(
-            "{}",
-            constants::tracking_runtime::REASON_NEARBY_PLACE_PROVIDER_UNAVAILABLE
-        ))]
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_PROVIDER_UNAVAILABLE)]
     );
     assert_eq!(
         decision.ai_result_authority_state,
         AiResultAuthorityState::EvidenceOnly
     );
 }
-
 #[test]
 fn nearby_place_classification_helper_reuses_canonical_provider_decision_shape() {
     let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
     let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(observed);
-    let request = report.ai_analysis_requested.unwrap_or_else(|| {
-        unreachable!(
-            "{}",
-            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
-        )
-    });
+    let request = report
+        .ai_analysis_requested
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     let classified =
         ocentra_tracking_core::nearby_place::classify_tracking_nearby_place_request(&request);
@@ -136,9 +119,6 @@ fn nearby_place_classification_helper_reuses_canonical_provider_decision_shape()
         vec![TrackingReasonCode::parse(
             constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE
         )
-        .unwrap_or_else(|_| unreachable!(
-            "{}",
-            constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE
-        ))]
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE)]
     );
 }

@@ -1,6 +1,7 @@
 use std::thread;
 
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentCommandName;
@@ -54,7 +55,8 @@ pub(crate) fn browser_add_device_request_event(
     origin: Option<&str>,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    match parse_household_device_decision(&command.payload, &timestamp_now()) {
+    let origin = LanPairingOptionalText(origin.map(str::to_owned));
+    match parse_household_device_decision(&command.payload, timestamp_now()) {
         Some(Ok(decision)) => {
             runtime
                 .registry
@@ -71,11 +73,13 @@ pub(crate) fn browser_add_device_request_event(
                 LogLevel::Info,
             );
         }
-        Some(Err(reason)) => return rejection_event(command, &reason, None, origin),
+        Some(Err(reason)) => {
+            return rejection_event(command, &reason, None, &origin);
+        }
         None => {}
     }
 
-    let event = pairing_challenge_status_event(runtime, origin, command);
+    let event = pairing_challenge_status_event(runtime, origin.clone(), command);
     if event.event == AgentEventName::AgentLanPairingStatusReported {
         retag_lan_pairing_event(
             event,

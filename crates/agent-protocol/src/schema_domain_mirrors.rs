@@ -1,19 +1,61 @@
+use std::fmt::{Display, Formatter};
+
 use serde::{Deserialize, Serialize};
+
+macro_rules! text_identifier {
+    ($name:ident) => {
+        #[derive(
+            Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize,
+        )]
+        #[serde(transparent)]
+        pub struct $name(String);
+
+        impl $name {
+            pub fn as_str(&self) -> &str {
+                &self.0
+            }
+        }
+
+        impl From<String> for $name {
+            fn from(value: String) -> Self {
+                Self(value)
+            }
+        }
+
+        impl From<&str> for $name {
+            fn from(value: &str) -> Self {
+                Self(value.to_owned())
+            }
+        }
+
+        impl AsRef<str> for $name {
+            fn as_ref(&self) -> &str {
+                self.as_str()
+            }
+        }
+
+        impl Display for $name {
+            fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str(self.as_str())
+            }
+        }
+    };
+}
 
 pub mod family {
     use super::*;
 
-    pub type ParentActorId = String;
-    pub type ParentAccountId = String;
-    pub type FamilyId = String;
-    pub type ChildProfileId = String;
-    pub type ChildProfileDisplayName = String;
-    pub type ParentDeviceId = String;
-    pub type ParentEvidenceReferenceId = String;
-    pub type ParentActionReferenceId = String;
-    pub type ParentPolicyVersion = String;
-    pub type ParentContractSchemaVersion = String;
-    pub type ParentTimestamp = String;
+    text_identifier!(ParentActorId);
+    text_identifier!(ParentAccountId);
+    text_identifier!(FamilyId);
+    text_identifier!(ChildProfileId);
+    text_identifier!(ChildProfileDisplayName);
+    text_identifier!(ParentDeviceId);
+    text_identifier!(ParentEvidenceReferenceId);
+    text_identifier!(ParentActionReferenceId);
+    text_identifier!(ParentPolicyVersion);
+    text_identifier!(ParentContractSchemaVersion);
+    text_identifier!(ParentTimestamp);
 
     pub type ParentActorRole = crate::activity::policy::ParentActorRole;
     pub type ParentActorReference = crate::activity::policy::ParentActorReference;
@@ -47,18 +89,18 @@ pub mod policy {
     use super::family::*;
     use super::*;
 
-    pub type PolicyTimestamp = String;
-    pub type PolicyRuleId = String;
-    pub type PolicyScheduleId = String;
-    pub type PolicyTargetId = String;
-    pub type PermissionRequestId = String;
-    pub type PolicyDecisionId = String;
-    pub type PolicyReasonCode = String;
-    pub type PolicyLocalTime = String;
-    pub type PolicyTimeZone = String;
-    pub type LocalAiResultReferenceId = String;
-    pub type PolicyScheduleExceptionId = String;
-    pub type PolicyPreviewId = String;
+    text_identifier!(PolicyTimestamp);
+    text_identifier!(PolicyRuleId);
+    text_identifier!(PolicyScheduleId);
+    text_identifier!(PolicyTargetId);
+    text_identifier!(PermissionRequestId);
+    text_identifier!(PolicyDecisionId);
+    text_identifier!(PolicyReasonCode);
+    text_identifier!(PolicyLocalTime);
+    text_identifier!(PolicyTimeZone);
+    text_identifier!(LocalAiResultReferenceId);
+    text_identifier!(PolicyScheduleExceptionId);
+    text_identifier!(PolicyPreviewId);
 
     pub type PolicyAction = crate::activity::policy::PolicyAction;
     pub type PolicyTargetType = crate::activity::policy::PolicyTargetType;
@@ -363,19 +405,19 @@ pub mod ai {
     use super::policy::*;
     use super::*;
 
-    pub type LocalAiEvaluationRequestId = String;
-    pub type LocalAiResultId = String;
-    pub type LocalAiPromptVersion = String;
-    pub type LocalAiModelId = String;
-    pub type LocalAiProviderId = String;
-    pub type LocalAiModelReference = String;
-    pub type LocalAiExplanationReference = String;
-    pub type LocalAiMemoryReferenceId = String;
-    pub type LocalAiGraphReferenceId = String;
-    pub type LocalAiRuntimeReferenceId = String;
-    pub type LocalAiTimestamp = String;
-    pub type LocalAiDerivedIndexVersion = String;
-    pub type LocalAiUnavailableReason = String;
+    text_identifier!(LocalAiEvaluationRequestId);
+    text_identifier!(LocalAiResultId);
+    text_identifier!(LocalAiPromptVersion);
+    text_identifier!(LocalAiModelId);
+    text_identifier!(LocalAiProviderId);
+    text_identifier!(LocalAiModelReference);
+    text_identifier!(LocalAiExplanationReference);
+    text_identifier!(LocalAiMemoryReferenceId);
+    text_identifier!(LocalAiGraphReferenceId);
+    text_identifier!(LocalAiRuntimeReferenceId);
+    text_identifier!(LocalAiTimestamp);
+    text_identifier!(LocalAiDerivedIndexVersion);
+    text_identifier!(LocalAiUnavailableReason);
     pub type LocalAiModelLoadState = crate::local_ai_runtime::lifecycle::LocalAiModelLoadState;
     pub type LocalAiCapabilityFlag = crate::local_ai_runtime::lifecycle::LocalAiCapabilityFlag;
     pub type LocalAiResourceClass = crate::local_ai_runtime::lifecycle::LocalAiResourceClass;
@@ -524,10 +566,10 @@ pub mod notification {
     use super::family::*;
     use super::*;
 
-    pub type NotificationLocalOutboxReadModelId = String;
-    pub type NotificationLocalOutboxEntryId = String;
-    pub type NotificationLocalOutboxReference = String;
-    pub type NotificationLocalOutboxPayloadPreview = String;
+    text_identifier!(NotificationLocalOutboxReadModelId);
+    text_identifier!(NotificationLocalOutboxEntryId);
+    text_identifier!(NotificationLocalOutboxReference);
+    text_identifier!(NotificationLocalOutboxPayloadPreview);
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     #[serde(rename_all = "kebab-case")]
@@ -664,7 +706,7 @@ pub mod notification {
 pub mod portal {
     use super::*;
 
-    pub type PortalDevToolUrl = String;
+    text_identifier!(PortalDevToolUrl);
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     #[serde(rename_all = "kebab-case")]

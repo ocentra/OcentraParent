@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { DevLogEntrySchema } from '@ocentra-parent/schema-domain/logging-contracts';
+import { DevLogEntrySchema } from '@ocentra-parent/logging-domain/logging-contracts';
 import {
   GeneratedDevLogEndpoint as DevLogEndpoint,
   GeneratedDevLogEnvironment as DevLogEnvironment,
@@ -11,7 +11,7 @@ import {
   GeneratedDevLogIdPrefix as DevLogIdPrefix,
   GeneratedLogLevel as LogLevel,
   GeneratedLogSource as LogSource,
-} from '@ocentra-parent/schema-domain/generated/logging-contracts';
+} from '@ocentra-parent/logging-domain/generated/logging-contracts';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const requestBodyLimitBytes = 1024 * 256;

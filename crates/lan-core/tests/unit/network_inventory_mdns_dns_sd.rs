@@ -3,7 +3,18 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanServiceIdentityProbeEvidenceKind;
 
-use ocentra_lan_core::network_inventory::mdns_dns_sd::*;
+use ocentra_lan_core::network_inventory::mdns_dns_sd::accumulator::MdnsDnsSdDiscoveryAccumulator;
+use ocentra_lan_core::network_inventory::mdns_dns_sd::merge::merge_mdns_dns_sd_discovery;
+use ocentra_lan_core::network_inventory::mdns_dns_sd::packet::{
+    mdns_query_names, parse_mdns_packet,
+};
+use ocentra_lan_core::network_inventory::mdns_dns_sd::parse_dns_name;
+use ocentra_lan_core::network_inventory::mdns_dns_sd::text::sanitize_mdns_text;
+use ocentra_lan_core::network_inventory::mdns_dns_sd::{
+    MdnsDnsSdDiscovery, MdnsDnsSdServiceInstance, MdnsDnsSdTxtRecord, MDNS_CLASS_IN,
+    MDNS_MAX_TEXT_BYTES, MDNS_SERVICE_ENUMERATION, MDNS_TYPE_A, MDNS_TYPE_AAAA, MDNS_TYPE_PTR,
+    MDNS_TYPE_SRV, MDNS_TYPE_TXT,
+};
 use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
 
 fn packet_with_records(records: Vec<EncodedRecord>) -> Vec<u8> {
@@ -141,7 +152,7 @@ fn sample_discovery() -> MdnsDnsSdDiscovery {
             accumulator.merge(packet);
             accumulator.finalize("2026-06-26T00:00:00Z".to_string())
         })
-        .value_or_unreachable("sample discovery parses")
+        .value_or_unreachable()
 }
 
 #[test]
@@ -156,7 +167,7 @@ fn parser_collects_service_enumeration_srv_txt_and_addresses() {
         .service_instances
         .iter()
         .find(|instance| instance.service_type == "_airplay._tcp.local")
-        .value_or_unreachable("airplay service");
+        .value_or_unreachable();
     assert_eq!(service.display_name.as_deref(), Some("Living Room TV"));
     assert_eq!(service.target_hostname.as_deref(), Some("apple-tv.local"));
     assert_eq!(service.port, Some(7000));
@@ -460,7 +471,7 @@ fn merge_does_not_sse_hostname_fallback_when_hostname_is_ambigsoss() {
     let created = devices
         .iter()
         .find(|device| device.ip_address == "192.168.2.99")
-        .value_or_unreachable("separate mdns-only device");
+        .value_or_unreachable();
     assert_eq!(created.label, "Shared Host");
     assert!(created
         .scan_sources
@@ -514,7 +525,7 @@ fn parser_collects_selected_service_types_and_ignores_snselected() {
             accumulator.merge(packet);
             accumulator.finalize("2026-06-26T00:00:00Z".to_string())
         })
-        .value_or_unreachable("selected service packet parses");
+        .value_or_unreachable();
 
     assert!(!discovery
         .service_types
@@ -638,14 +649,14 @@ fn parser_covers_selected_mdns_device_service_families() {
             accumulator.merge(packet);
             accumulator.finalize("2026-06-26T00:00:00Z".to_string())
         })
-        .value_or_unreachable("service family fixture parses");
+        .value_or_unreachable();
 
     for (service_type, instance_name, target, address) in services {
         let service = discovery
             .service_instances
             .iter()
             .find(|instance| instance.service_type == service_type)
-            .value_or_unreachable("service family instance");
+            .value_or_unreachable();
         assert_eq!(service.instance_name, instance_name);
         assert_eq!(service.target_hostname.as_deref(), Some(target));
         assert!(service.addresses.iter().any(|candidate| {
@@ -675,9 +686,8 @@ fn sanitize_mdns_text_strips_control_characters_and_rejects_empty_values() {
     );
 }
 
-#[test]
-fn parser_bsilds_shared_contract_advertisement_dto_for_parent_and_child_types() {
-    let packet = packet_with_records(vec![
+fn shared_contract_advertisement_packet() -> Vec<u8> {
+    packet_with_records(vec![
         EncodedRecord {
             name: MDNS_SERVICE_ENUMERATION,
             record_type: MDNS_TYPE_PTR,
@@ -741,44 +751,49 @@ fn parser_bsilds_shared_contract_advertisement_dto_for_parent_and_child_types() 
                 "support-state=degraded",
             ]),
         },
-    ]);
+    ])
+}
+
+#[test]
+fn parser_bsilds_shared_contract_advertisement_dto_for_parent_and_child_types() {
+    let packet = shared_contract_advertisement_packet();
     let discovery = parse_mdns_packet(&packet)
         .map(|packet| {
             let mut accumulator = MdnsDnsSdDiscoveryAccumulator::default();
             accumulator.merge(packet);
             accumulator.finalize("2026-06-26T00:00:00Z".to_string())
         })
-        .value_or_unreachable("advertisement packet parses");
+        .value_or_unreachable();
 
     let parent_instance = discovery
         .service_instances
         .iter()
         .find(|instance| instance.service_type == constants::lan_pairing::MDNS_PARENT_SERVICE_TYPE)
-        .value_or_unreachable("parent service");
+        .value_or_unreachable();
     let child_instance = discovery
         .service_instances
         .iter()
         .find(|instance| instance.service_type == constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE)
-        .value_or_unreachable("child service");
+        .value_or_unreachable();
 
     let parent_advertisement = parent_instance
         .parent_advertisement
         .as_ref()
-        .value_or_unreachable("parent advertisement");
+        .value_or_unreachable();
     let child_advertisement = child_instance
         .child_advertisement
         .as_ref()
-        .value_or_unreachable("child advertisement");
+        .value_or_unreachable();
 
     assert_eq!(parent_advertisement.advertisement_id, "sha256:parent-id");
     assert_eq!(child_advertisement.opaque_device_id, "opaque-child-id");
     assert_eq!(
         parent_advertisement.confirmation_state.as_str(),
-        constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY
+        constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY.into()
     );
     assert_eq!(
         child_advertisement.confirmation_state.as_str(),
-        constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY
+        constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY.into()
     );
     assert_eq!(
         parent_advertisement.service_type,
@@ -806,11 +821,11 @@ fn parser_bsilds_shared_contract_advertisement_dto_for_parent_and_child_types() 
     assert!(child_instance.parent_advertisement.is_none());
     assert_eq!(
         parent_advertisement.pairing_state.as_str(),
-        constants::value::LAN_PAIRING_PAIRED
+        constants::value::LAN_PAIRING_PAIRED.into()
     );
     assert_eq!(
         child_advertisement.lifecycle_state.as_str(),
-        constants::lan_pairing::MDNS_TXT_VALUE_UPDATE
+        constants::lan_pairing::MDNS_TXT_VALUE_UPDATE.into()
     );
 }
 
@@ -856,7 +871,7 @@ fn parser_ignores_malformed_dns_names_and_parses_following_records() {
             accumulator.merge(packet);
             accumulator.finalize("2026-06-26T00:00:00Z".to_string())
         })
-        .value_or_unreachable("malformed fixture parses");
+        .value_or_unreachable();
 
     assert_eq!(discovery.service_instances.len(), 1);
     assert_eq!(

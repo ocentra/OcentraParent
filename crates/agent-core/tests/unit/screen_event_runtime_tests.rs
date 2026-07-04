@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::screen_evidence::{
     ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
     ScreenPolicyState, ScreenRuntimePhase,
 };
+use std::fmt::Display;
 
 use ocentra_parent_agent_core::screen_event_runtime::{
     publish_screen_capture_queue_events_for_input, publish_screen_degraded_event_chain_for_input,
@@ -282,11 +283,12 @@ fn decode_payloads(report: &ScreenRuntimeReport) -> Vec<ScreenRuntimeEventPayloa
         .collect()
 }
 
-fn count_event_type(report: &ScreenRuntimeReport, event_type: &str) -> usize {
+fn count_event_type(report: &ScreenRuntimeReport, event_type: impl Display) -> usize {
+    let event_type = event_type.to_string();
     report
         .stored_events
         .iter()
-        .filter(|event| event.contract.event_type.as_str() == event_type)
+        .filter(|event| event.contract.event_type.as_str() == event_type.as_str())
         .count()
 }
 

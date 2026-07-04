@@ -7,7 +7,18 @@ use ocentra_screen_ai_core::screen_ai_pipeline::{
     ScreenAiPolicyNeedState, ScreenAiRawFrameInclusionState, ScreenAiTriggerSource,
 };
 
-type TestResult = Result<(), String>;
+#[derive(Debug)]
+struct TestError(String);
+
+impl std::fmt::Display for TestError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for TestError {}
+
+type TestResult = Result<(), TestError>;
 
 #[test]
 fn screen_ai_request_requires_evidence_refs_and_policy_need() {
@@ -123,14 +134,10 @@ fn screen_ai_includes_raw_frame_only_when_evidence_policy_need_and_privacy_allow
 #[test]
 fn screen_ai_pipeline_request_records_typed_decision_event() -> TestResult {
     let request = ScreenAiPipelineEvaluationRequestedEvent {
-        aggregate_id: ok(
-            ScreenAiAggregateId::parse("screen-ai-family-default"),
-            "screen ai aggregate",
-        )?,
-        evaluation_id: ok(
-            ScreenAiPipelineEvaluationId::parse("screen-ai-evaluation-default"),
-            "screen ai evaluation",
-        )?,
+        aggregate_id: ScreenAiAggregateId::parse("screen-ai-family-default")
+            .map_err(|error| TestError(format!("screen ai aggregate: {error:?}")))?,
+        evaluation_id: ScreenAiPipelineEvaluationId::parse("screen-ai-evaluation-default")
+            .map_err(|error| TestError(format!("screen ai evaluation: {error:?}")))?,
         input: ScreenAiPipelineInput {
             trigger_source: ScreenAiTriggerSource::Browser,
             evidence_reference_state: EvidenceReferenceState::Stable,
@@ -148,21 +155,21 @@ fn screen_ai_pipeline_request_records_typed_decision_event() -> TestResult {
         ScreenAiAnalysisRequestState::Required
     );
     assert_eq!(
-        ok(request.contract(), "screen ai request contract")?
+        request
+            .contract()
+            .map_err(|error| { TestError(format!("screen ai request contract: {error:?}")) })?
             .event_type
             .as_str(),
         "screen-ai.pipeline-evaluation.requested"
     );
     assert_eq!(
-        ok(decision.contract(), "screen ai decision contract")?
+        decision
+            .contract()
+            .map_err(|error| { TestError(format!("screen ai decision contract: {error:?}")) })?
             .event_type
             .as_str(),
         "screen-ai.pipeline-decision.recorded"
     );
 
     Ok(())
-}
-
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
 }

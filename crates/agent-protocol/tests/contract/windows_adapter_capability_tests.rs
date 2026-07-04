@@ -18,9 +18,7 @@ fn windows_adapter_capability_proof_serializes_claim_boundaries() {
         entries: vec![app_entry(), unmanaged_entry()],
     };
 
-    let serialized = serde_json::to_value(proof).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(proof).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized[constants::field::READ_MODEL_ID],

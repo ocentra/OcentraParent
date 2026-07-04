@@ -1,33 +1,6 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  ActivityCaptureCapabilityStatusSchema,
-  ActivityDomainAttributionStatusSchema,
-  ActivityNetworkProtocolSchema,
-  ActivityNetworkTcpStateSchema,
-  ActivityProcessAttributionStatusSchema,
-} from '@ocentra-parent/schema-domain/activity-capture';
-import {
-  ActivityEventKindSchema,
-  ActivityObserverSchema,
-  ActivitySubjectKindSchema,
-} from '@ocentra-parent/schema-domain/evidence-kinds';
-import {
-  ActivityNetworkAdapterIdSchema,
-  ActivityNetworkDomainNameSchema,
-  ActivityNetworkEndpointAddressSchema,
-  ActivityNetworkProcessNameSchema,
-} from '@ocentra-parent/schema-domain/network-flow';
-import {
-  decodeActivityDeviceId,
-  decodeActivityEvidenceDigest,
-  decodeActivityEvidenceId,
-  decodeActivityEventId,
-  decodeActivityPlatform,
-  decodeActivitySubjectId,
-  decodeActivitySubjectName,
-} from '@ocentra-parent/schema-domain/evidence-primitives';
 
 type NetworkEvidenceDrawerProofFixture = {
   readonly eventId: string;
@@ -71,29 +44,7 @@ const fixture = JSON.parse(readFileSync(fixturePath, 'utf8')) as NetworkEvidence
 
 export const NetworkEvidenceDrawerProof = Object.freeze({
   ...fixture,
-  eventId: decodeActivityEventId(fixture.eventId),
-  evidenceId: decodeActivityEvidenceId(fixture.evidenceId),
-  journalEvidenceId: decodeActivityEvidenceId(fixture.journalEvidenceId),
-  evidenceDigest: decodeActivityEvidenceDigest(fixture.evidenceDigest),
-  journalEvidenceDigest: decodeActivityEvidenceDigest(fixture.journalEvidenceDigest),
-  deviceId: decodeActivityDeviceId(fixture.deviceId),
-  platform: decodeActivityPlatform(fixture.platform),
-  observer: ActivityObserverSchema.parse(fixture.observer),
-  kind: ActivityEventKindSchema.parse(fixture.kind),
-  subjectKind: ActivitySubjectKindSchema.parse(fixture.subjectKind),
-  subjectId: decodeActivitySubjectId(fixture.subjectId),
-  subjectDisplayName: decodeActivitySubjectName(fixture.subjectDisplayName),
   fields: Object.freeze({
     ...fixture.fields,
-    capabilityStatus: ActivityCaptureCapabilityStatusSchema.parse(fixture.fields.capabilityStatus),
-    adapterId: ActivityNetworkAdapterIdSchema.parse(fixture.fields.adapterId),
-    networkProtocol: ActivityNetworkProtocolSchema.parse(fixture.fields.networkProtocol),
-    tcpState: ActivityNetworkTcpStateSchema.parse(fixture.fields.tcpState),
-    localIp: ActivityNetworkEndpointAddressSchema.parse(fixture.fields.localIp),
-    destinationIp: ActivityNetworkEndpointAddressSchema.parse(fixture.fields.destinationIp),
-    destinationDomain: ActivityNetworkDomainNameSchema.parse(fixture.fields.destinationDomain),
-    domainAttributionStatus: ActivityDomainAttributionStatusSchema.parse(fixture.fields.domainAttributionStatus),
-    processAttributionStatus: ActivityProcessAttributionStatusSchema.parse(fixture.fields.processAttributionStatus),
-    processName: ActivityNetworkProcessNameSchema.parse(fixture.fields.processName),
   }),
 });

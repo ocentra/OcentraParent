@@ -17,12 +17,24 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanServiceIdentityProbeEvidenceKind,
 };
 
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+struct LanText(String);
+
+macro_rules! lt {
+    ($value:expr) => {
+        ($value).to_string()
+    };
+}
+
+#[path = "canonical_household_merge_registry.rs"]
+mod canonical_household_merge_registry;
+
 #[test]
 fn different_ocentra_device_ids_do_not_auto_merge_even_with_same_stable_mac() {
     let model = build_lan_add_device_read_model(lan_input(vec![
         discovery_device(
             "lan-device-alpha",
-            None,
+            None::<&str>,
             "Printer Alpha",
             Some("printer-alpha.local"),
             Some(constants::lan_pairing::TEST_LAN_IP),
@@ -31,7 +43,7 @@ fn different_ocentra_device_ids_do_not_auto_merge_even_with_same_stable_mac() {
         ),
         discovery_device(
             "lan-device-bravo",
-            None,
+            None::<&str>,
             "Printer Bravo",
             Some("printer-bravo.local"),
             Some("192.168.1.53"),
@@ -112,11 +124,11 @@ fn different_manually_assigned_child_ids_do_not_auto_merge_even_with_same_mac() 
 fn different_parent_assigned_child_ids_do_not_auto_merge_even_when_mdns_instance_matches() {
     let mut alpha = discovery_device(
         "lan-device-mdns-alpha",
-        None,
+        None::<&str>,
         "Living Room TV",
         Some("living-room-tv.local"),
         Some("192.168.1.90"),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::MdnsDnsSdQuery],
     );
     alpha.service_identity_probe_evidence = vec![service_hint(
@@ -126,11 +138,11 @@ fn different_parent_assigned_child_ids_do_not_auto_merge_even_when_mdns_instance
 
     let mut bravo = discovery_device(
         "lan-device-mdns-bravo",
-        None,
+        None::<&str>,
         "Living Room TV",
         Some("living-room-tv.local"),
         Some("192.168.1.91"),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::MdnsDnsSdQuery],
     );
     bravo.service_identity_probe_evidence = alpha.service_identity_probe_evidence.clone();
@@ -139,12 +151,12 @@ fn different_parent_assigned_child_ids_do_not_auto_merge_even_when_mdns_instance
         household_device_decisions: vec![
             household_assignment_decision(
                 "household-action-assign-alpha",
-                &canonical_device_id_from_device_id("lan-device-mdns-alpha"),
+                canonical_device_id_from_device_id("lan-device-mdns-alpha"),
                 "child-profile-alpha",
             ),
             household_assignment_decision(
                 "household-action-assign-bravo",
-                &canonical_device_id_from_device_id("lan-device-mdns-bravo"),
+                canonical_device_id_from_device_id("lan-device-mdns-bravo"),
                 "child-profile-bravo",
             ),
         ],
@@ -184,20 +196,20 @@ fn weak_hostname_overlap_stays_separate_and_keeps_weak_evidence() {
     let model = build_lan_add_device_read_model(lan_input(vec![
         discovery_device(
             "lan-device-hostname-alpha",
-            None,
+            None::<&str>,
             "Speaker Alpha",
             Some("speaker.local"),
             Some("192.168.1.61"),
-            None,
+            None::<&str>,
             vec![LanDiscoveryEvidenceSource::DnsCache],
         ),
         discovery_device(
             "lan-device-hostname-bravo",
-            None,
+            None::<&str>,
             "Speaker Bravo",
             Some("speaker.local"),
             Some("192.168.1.62"),
-            None,
+            None::<&str>,
             vec![LanDiscoveryEvidenceSource::DnsCache],
         ),
     ]));
@@ -226,18 +238,18 @@ fn vendor_only_overlap_stays_separate() {
     let model = build_lan_add_device_read_model(lan_input(vec![
         discovery_device(
             "lan-device-vendor-alpha",
-            None,
+            None::<&str>,
             "Speaker Alpha",
-            None,
+            None::<&str>,
             Some("192.168.1.70"),
             Some("54-27-1e-97-c3-31"),
             vec![LanDiscoveryEvidenceSource::WindowsNeighborTable],
         ),
         discovery_device(
             "lan-device-vendor-bravo",
-            None,
+            None::<&str>,
             "Speaker Bravo",
-            None,
+            None::<&str>,
             Some("192.168.1.71"),
             Some("54-27-1e-97-c3-32"),
             vec![LanDiscoveryEvidenceSource::WindowsNeighborTable],
@@ -266,11 +278,11 @@ fn vendor_only_overlap_stays_separate() {
 fn weak_device_type_only_overlap_stays_separate_without_ssdp_udn() {
     let mut alpha = discovery_device(
         "lan-device-type-alpha",
-        None,
+        None::<&str>,
         "Renderer Alpha",
-        None,
+        None::<&str>,
         Some("192.168.1.72"),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::SsdpUpnpQuery],
     );
     alpha.service_identity_probe_evidence = vec![service_hint(
@@ -280,11 +292,11 @@ fn weak_device_type_only_overlap_stays_separate_without_ssdp_udn() {
 
     let mut bravo = discovery_device(
         "lan-device-type-bravo",
-        None,
+        None::<&str>,
         "Renderer Bravo",
-        None,
+        None::<&str>,
         Some("192.168.1.73"),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::SsdpUpnpQuery],
     );
     bravo.service_identity_probe_evidence = alpha.service_identity_probe_evidence.clone();
@@ -314,11 +326,11 @@ fn weak_device_type_only_overlap_stays_separate_without_ssdp_udn() {
 fn shared_install_id_merges_local_service_and_registry_device_when_canonical_ids_differ() {
     let mut local_service = discovery_device(
         "lan-device-install-merge",
-        None,
+        None::<&str>,
         "Merge Tablet",
         Some("merge-tablet.local"),
         Some(constants::lan_pairing::TEST_LAN_IP),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::LocalService],
     );
     local_service.agent_peer_id = constants::lan_pairing::PARENT_PEER_ID.to_string();
@@ -384,11 +396,11 @@ fn shared_install_id_merges_local_service_and_registry_device_when_canonical_ids
 fn shared_pairing_id_merges_local_service_and_registry_device_when_canonical_ids_differ() {
     let mut local_service = discovery_device(
         "lan-device-pairing-merge",
-        None,
+        None::<&str>,
         "Merge Laptop",
         Some("merge-laptop.local"),
         Some(constants::lan_pairing::TEST_LAN_IP),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::LocalService],
     );
     local_service.agent_peer_id = constants::lan_pairing::PARENT_PEER_ID.to_string();
@@ -418,7 +430,7 @@ fn shared_pairing_id_merges_local_service_and_registry_device_when_canonical_ids
             },
             parent_device: ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef::new(
                 constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
-                None,
+                None::<String>,
                 "Parent".to_string(),
                 constants::lan_pairing::PLATFORM_UNKNOWN.to_string(),
             ),
@@ -450,139 +462,10 @@ fn shared_pairing_id_merges_local_service_and_registry_device_when_canonical_ids
 }
 
 #[test]
-fn shared_child_profile_id_merges_and_preserves_discovery_and_registry_evidence() {
-    let model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
-        generated_at: "2026-06-26T10:00:30Z".to_string(),
-        discovery_source: LanPairingDiscoverySource::LocalService,
-        service_data_available: true,
-        platform_data_available: true,
-        add_device_state: LanPairingProductionDiscoveryState::Discovered,
-        local_service_discovery_state: LanPairingProductionDiscoveryState::Discovered,
-        physical_household_lan_state: LanPairingProductionDiscoveryState::Discovered,
-        cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
-        discovered_devices: vec![discovery_device(
-            "lan-device-merge",
-            Some("child-profile-merge"),
-            "Merge Tablet",
-            Some("merge-tablet.local"),
-            Some(constants::lan_pairing::TEST_LAN_IP),
-            Some(constants::lan_pairing::TEST_LAN_MAC),
-            vec![LanDiscoveryEvidenceSource::WindowsNeighborTable],
-        )],
-        pairing_requests: Vec::new(),
-        trusted_device_registry: vec![LanTrustedDeviceRegistryEntry {
-            schema_version: constants::lan_pairing::SCHEMA_VERSION,
-            pairing_id: "pairing-merge-child-profile".to_string(),
-            child_device: {
-                let mut child_device =
-                    ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef::new(
-                        "lan-device-merge".to_string(),
-                        Some("child-profile-merge".to_string()),
-                        "Merge Tablet".to_string(),
-                        constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
-                    );
-                child_device.ip_address = Some("192.168.1.62".to_string());
-                child_device.mac_address = Some(constants::lan_pairing::TEST_LAN_MAC.to_string());
-                child_device.hostname = Some("merge-tablet.local".to_string());
-                child_device.network_interface =
-                    Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string());
-                child_device
-            },
-            parent_device: ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef::new(
-                constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
-                None,
-                "Parent".to_string(),
-                constants::lan_pairing::PLATFORM_UNKNOWN.to_string(),
-            ),
-            route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
-            origin: "test-trusted-registry".to_string(),
-            proof_digest: "sha256:test-proof".to_string(),
-            trust_state: LanPairingTrustState::Paired,
-            trusted_at: "2026-06-26T09:59:00Z".to_string(),
-            expires_at: "2026-06-27T09:59:00Z".to_string(),
-            revoked_at: None,
-        }],
-        household_device_decisions: vec![LanHouseholdDeviceDecision {
-            schema_version: constants::lan_pairing::SCHEMA_VERSION,
-            action_id: "household-action-rename-merge".to_string(),
-            action_kind: LanHouseholdDeviceActionKind::Rename,
-            canonical_device_id: "lan-child-profile-childprofilemerge".to_string(),
-            child_profile_id: Some("child-profile-merge".to_string()),
-            display_name: Some("Merge Tablet Renamed".to_string()),
-            device_kind: None,
-            parent_actor_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
-            decided_at: "2026-06-26T10:00:10Z".to_string(),
-            revoked_at: None,
-        }],
-        trusted_device_ids: vec!["lan-device-merge".to_string()],
-        revoked_device_ids: Vec::new(),
-        selected_device_readiness: LanSelectedDeviceReadiness {
-            schema_version: constants::lan_pairing::SCHEMA_VERSION,
-            selected_child_device_id: None,
-            route_id: None,
-            pairing_id: None,
-            trust_state: LanPairingTrustState::Unpaired,
-            reachability: LanPairingDeviceReachability::Offline,
-            ready_for_control: false,
-            stale_at: None,
-            offline_at: None,
-        },
-        controller_authority: LanPairingParentAuthority::ActiveController,
-        observer_authority: LanPairingParentAuthority::Observer,
-    });
-
-    assert_eq!(model.canonical_household_devices.len(), 1);
-    let device = &model.canonical_household_devices[0];
-    assert!(dedupe_notes(device)
-        .iter()
-        .any(|note| note.contains("dedupe-decision=automatic")));
-    assert_eq!(
-        device.classification,
-        LanCanonicalHouseholdDeviceClassification::ChildAgent
-    );
-    assert_eq!(device.trust_state, LanPairingTrustState::Paired);
-    assert!(device
-        .source_labels
-        .contains(&LanCanonicalHouseholdDeviceSource::NetworkNeighbor));
-    assert!(device
-        .source_labels
-        .contains(&LanCanonicalHouseholdDeviceSource::TrustedRegistry));
-    assert!(device
-        .network_identity
-        .ip_addresses
-        .contains(&"192.168.1.62".to_string()));
-    assert!(device
-        .network_identity
-        .evidence_records
-        .iter()
-        .any(|record| {
-            record.evidence_kind == LanDiscoveryEvidenceKind::ParentDecision
-                && record.value == constants::lan_pairing::HOUSEHOLD_ACTION_RENAME
-                && record.note.as_deref() == Some("Merge Tablet Renamed")
-        }));
-    assert!(device
-        .network_identity
-        .evidence_records
-        .iter()
-        .any(
-            |record| record.source == LanDiscoveryEvidenceSource::WindowsNeighborTable
-                && record.evidence_kind == LanDiscoveryEvidenceKind::MacAddress
-        ));
-    assert!(device
-        .network_identity
-        .evidence_records
-        .iter()
-        .any(
-            |record| record.source == LanDiscoveryEvidenceSource::TrustedRegistry
-                && record.evidence_kind == LanDiscoveryEvidenceKind::TrustedRegistry
-        ));
-}
-
-#[test]
 fn discovery_and_registry_with_different_device_ids_do_not_merge_even_with_same_mac() {
     let mut model_input = lan_input(vec![discovery_device(
         "lan-device-alpha",
-        None,
+        None::<&str>,
         "Printer Alpha",
         Some("printer-alpha.local"),
         Some(constants::lan_pairing::TEST_LAN_IP),
@@ -596,7 +479,7 @@ fn discovery_and_registry_with_different_device_ids_do_not_merge_even_with_same_
             let mut child_device =
                 ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef::new(
                     "lan-device-bravo".to_string(),
-                    None,
+                    None::<String>,
                     "Printer Bravo".to_string(),
                     constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
                 );
@@ -609,7 +492,7 @@ fn discovery_and_registry_with_different_device_ids_do_not_merge_even_with_same_
         },
         parent_device: ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef::new(
             constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
-            None,
+            None::<String>,
             "Parent".to_string(),
             constants::lan_pairing::PLATFORM_UNKNOWN.to_string(),
         ),
@@ -646,7 +529,7 @@ fn discovery_and_registry_with_different_device_ids_do_not_merge_even_with_same_
 fn trusted_registry_ip_reuse_by_different_device_stays_separate() {
     let mut model_input = lan_input(vec![discovery_device(
         "lan-device-ip-reuse",
-        None,
+        None::<&str>,
         "Camera Reuse",
         Some("camera-reuse.local"),
         Some(constants::lan_pairing::TEST_LAN_IP),
@@ -673,7 +556,7 @@ fn trusted_registry_ip_reuse_by_different_device_stays_separate() {
         },
         parent_device: ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef::new(
             constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
-            None,
+            None::<String>,
             "Parent".to_string(),
             constants::lan_pairing::PLATFORM_UNKNOWN.to_string(),
         ),
@@ -712,20 +595,20 @@ fn weak_ip_only_overlap_stays_separate() {
     let model = build_lan_add_device_read_model(lan_input(vec![
         discovery_device(
             "lan-device-ip-alpha",
-            None,
+            None::<&str>,
             "Sensor Alpha",
-            None,
+            None::<&str>,
             Some("192.168.1.80"),
-            None,
+            None::<&str>,
             vec![LanDiscoveryEvidenceSource::DnsCache],
         ),
         discovery_device(
             "lan-device-ip-bravo",
-            None,
+            None::<&str>,
             "Sensor Bravo",
-            None,
+            None::<&str>,
             Some("192.168.1.80"),
-            None,
+            None::<&str>,
             vec![LanDiscoveryEvidenceSource::DnsCache],
         ),
     ]));
@@ -751,11 +634,11 @@ fn weak_ip_only_overlap_stays_separate() {
 fn mdns_instance_name_merges_same_device_across_dhcp_renewal() {
     let mut alpha = discovery_device(
         "lan-device-mdns-alpha",
-        None,
+        None::<&str>,
         "Living Room TV",
         Some("living-room-tv.local"),
         Some("192.168.1.90"),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::MdnsDnsSdQuery],
     );
     alpha.service_identity_probe_evidence = vec![
@@ -771,11 +654,11 @@ fn mdns_instance_name_merges_same_device_across_dhcp_renewal() {
 
     let mut bravo = discovery_device(
         "lan-device-mdns-bravo",
-        None,
+        None::<&str>,
         "Living Room TV",
         Some("living-room-tv.local"),
         Some("192.168.1.91"),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::MdnsDnsSdQuery],
     );
     bravo.service_identity_probe_evidence = alpha.service_identity_probe_evidence.clone();
@@ -811,11 +694,11 @@ fn mdns_instance_name_merges_same_device_across_dhcp_renewal() {
 fn ssdp_udn_merges_same_device_even_when_neighbor_device_ids_differ() {
     let mut alpha = discovery_device(
         "lan-device-ssdp-alpha",
-        None,
+        None::<&str>,
         "Media Renderer",
         Some("renderer.local"),
         Some("192.168.1.100"),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::SsdpUpnpQuery],
     );
     alpha.service_identity_probe_evidence = vec![
@@ -831,11 +714,11 @@ fn ssdp_udn_merges_same_device_even_when_neighbor_device_ids_differ() {
 
     let mut bravo = discovery_device(
         "lan-device-ssdp-bravo",
-        None,
+        None::<&str>,
         "Media Renderer",
         Some("renderer.local"),
         Some("192.168.1.101"),
-        None,
+        None::<&str>,
         vec![LanDiscoveryEvidenceSource::SsdpUpnpQuery],
     );
     bravo.service_identity_probe_evidence = alpha.service_identity_probe_evidence.clone();
@@ -868,8 +751,12 @@ fn canonical_ids_are_unique(
 
 fn assert_model_has_dedupe_note(
     model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
-    fragments: &[&str],
+    fragments: impl IntoIterator<Item = impl std::fmt::Display>,
 ) {
+    let fragments = fragments
+        .into_iter()
+        .map(|fragment| fragment.to_string())
+        .collect::<Vec<_>>();
     assert!(
         model.canonical_household_devices.iter().any(|device| {
             dedupe_notes(device)
@@ -883,12 +770,12 @@ fn assert_model_has_dedupe_note(
 
 fn dedupe_notes(
     device: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice,
-) -> Vec<&str> {
+) -> Vec<String> {
     device
         .network_identity
         .evidence_records
         .iter()
-        .filter_map(|record| record.note.as_deref())
+        .filter_map(|record| record.note.clone())
         .filter(|note| note.contains("dedupe-decision="))
         .collect()
 }
@@ -928,23 +815,25 @@ fn lan_input(
 }
 
 fn discovery_device(
-    device_id: &str,
-    child_profile_id: Option<&str>,
-    label: &str,
-    hostname: Option<&str>,
-    ip_address: Option<&str>,
-    mac_address: Option<&str>,
+    device_id: impl std::fmt::Display,
+    child_profile_id: Option<impl std::fmt::Display>,
+    label: impl std::fmt::Display,
+    hostname: Option<impl std::fmt::Display>,
+    ip_address: Option<impl std::fmt::Display>,
+    mac_address: Option<impl std::fmt::Display>,
     evidence_sources: Vec<LanDiscoveryEvidenceSource>,
 ) -> LanBrowserAddDeviceDiscoveryDevice {
+    let device_id = device_id.to_string();
+    let label = label.to_string();
     let mut child_device = ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef::new(
-        device_id.to_string(),
-        child_profile_id.map(ToString::to_string),
-        label.to_string(),
+        device_id.clone(),
+        child_profile_id.map(|value| value.to_string()),
+        label,
         constants::lan_pairing::PLATFORM_UNKNOWN.to_string(),
     );
-    child_device.hostname = hostname.map(ToString::to_string);
-    child_device.ip_address = ip_address.map(ToString::to_string);
-    child_device.mac_address = mac_address.map(ToString::to_string);
+    child_device.hostname = hostname.map(|value| value.to_string());
+    child_device.ip_address = ip_address.map(|value| value.to_string());
+    child_device.mac_address = mac_address.map(|value| value.to_string());
     child_device.network_interface =
         Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string());
 
@@ -952,7 +841,7 @@ fn discovery_device(
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         discovered_at: "2026-06-26T10:00:30Z".to_string(),
         child_device,
-        agent_peer_id: device_id.to_string(),
+        agent_peer_id: device_id,
         pairing_id: None,
         route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
         network_mode: LanPairingNetworkMode::LocalNetwork,
@@ -968,7 +857,7 @@ fn discovery_device(
 
 fn service_hint(
     evidence_kind: LanServiceIdentityProbeEvidenceKind,
-    value: &str,
+    value: impl std::fmt::Display,
 ) -> LanServiceIdentityProbeEvidence {
     LanServiceIdentityProbeEvidence {
         evidence_kind,
@@ -978,9 +867,9 @@ fn service_hint(
 }
 
 fn household_assignment_decision(
-    action_id: &str,
-    canonical_device_id: &str,
-    child_profile_id: &str,
+    action_id: impl std::fmt::Display,
+    canonical_device_id: impl std::fmt::Display,
+    child_profile_id: impl std::fmt::Display,
 ) -> LanHouseholdDeviceDecision {
     LanHouseholdDeviceDecision {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -996,7 +885,8 @@ fn household_assignment_decision(
     }
 }
 
-fn canonical_device_id_from_device_id(device_id: &str) -> String {
+fn canonical_device_id_from_device_id(device_id: impl std::fmt::Display) -> String {
+    let device_id = device_id.to_string();
     let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_ID_PREFIX);
     id.push_str(
         &device_id

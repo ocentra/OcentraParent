@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 pub mod runtime_decision;
+pub mod runtime_ids;
 
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_requested_event_if_required,

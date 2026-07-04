@@ -756,6 +756,63 @@ const NETWORK_RUNTIME_PHASES: [NetworkRuntimePhase; 11] = [
     NetworkRuntimePhase::PortalReadModelUpdated,
 ];
 
+const NETWORK_RUNTIME_PHASE_EVENT_TYPES: [&str; 11] = [
+    constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
+    constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
+    constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
+    constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED,
+    constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
+    constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
+    constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
+    constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED,
+    constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED,
+    constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
+    constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
+];
+
+const NETWORK_RUNTIME_PHASE_SUBSCRIBER_IDS: [&str; 11] = [
+    constants::network_flow::SUBSCRIBER_NETWORK_OBSERVER,
+    constants::network_flow::SUBSCRIBER_DOMAIN_OBSERVER,
+    constants::network_flow::SUBSCRIBER_ACTIVITY_CLASSIFIER,
+    constants::network_flow::SUBSCRIBER_AI_REQUEST,
+    constants::network_flow::SUBSCRIBER_AI_COMPLETE,
+    constants::network_flow::SUBSCRIBER_POLICY_REQUEST,
+    constants::network_flow::SUBSCRIBER_POLICY_DECISION,
+    constants::network_flow::SUBSCRIBER_ENFORCEMENT_COMMAND,
+    constants::network_flow::SUBSCRIBER_ENFORCEMENT_RESULT,
+    constants::network_flow::SUBSCRIBER_AUDIT_ENTRY,
+    constants::network_flow::SUBSCRIBER_PORTAL_READ_MODEL,
+];
+
+const NETWORK_RUNTIME_PHASE_TARGET_HANDLERS: [&str; 11] = [
+    constants::network_flow::TARGET_NETWORK_OBSERVER,
+    constants::network_flow::TARGET_DOMAIN_OBSERVER,
+    constants::network_flow::TARGET_ACTIVITY_CLASSIFIER,
+    constants::network_flow::TARGET_AI_ANALYZER,
+    constants::network_flow::TARGET_AI_ANALYZER,
+    constants::network_flow::TARGET_POLICY_ENGINE,
+    constants::network_flow::TARGET_POLICY_ENGINE,
+    constants::network_flow::TARGET_ENFORCEMENT_DRY_RUN,
+    constants::network_flow::TARGET_ENFORCEMENT_DRY_RUN,
+    constants::network_flow::TARGET_AUDIT_WRITER,
+    constants::network_flow::TARGET_PORTAL_READ_MODEL,
+];
+
+const NETWORK_RUNTIME_PHASE_RUNTIME_ROLES: [&str; 11] = [
+    constants::eventing_source::ROLE_AGENT,
+    constants::eventing_source::ROLE_AGENT,
+    constants::eventing_source::ROLE_AGENT,
+    constants::eventing_source::ROLE_ANALYZER,
+    constants::eventing_source::ROLE_ANALYZER,
+    constants::eventing_source::ROLE_DECISION_ENGINE,
+    constants::eventing_source::ROLE_DECISION_ENGINE,
+    constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER,
+    constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER,
+    constants::eventing_source::ROLE_AUDIT_WRITER,
+    constants::eventing_source::ROLE_READ_MODEL,
+];
+
+#[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkRuntimePhase {
     FlowObserved,
@@ -777,91 +834,20 @@ impl NetworkRuntimePhase {
     }
 
     pub fn event_type(self) -> &'static str {
-        match self {
-            Self::FlowObserved => constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
-            Self::DomainObserved => constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
-            Self::ActivityClassified => constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
-            Self::AiAnalysisRequested => constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED,
-            Self::AiAnalysisCompleted => constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
-            Self::PolicyEvaluationRequested => {
-                constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED
-            }
-            Self::PolicyDecisionCompleted => {
-                constants::network_flow::EVENT_POLICY_DECISION_COMPLETED
-            }
-            Self::EnforcementCommandIssued => {
-                constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
-            }
-            Self::EnforcementResultObserved => {
-                constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED
-            }
-            Self::AuditEntryCommitted => constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
-            Self::PortalReadModelUpdated => {
-                constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED
-            }
-        }
+        NETWORK_RUNTIME_PHASE_EVENT_TYPES[self as usize]
     }
 
     pub fn subscriber_id(self) -> &'static str {
-        match self {
-            Self::FlowObserved => constants::network_flow::SUBSCRIBER_NETWORK_OBSERVER,
-            Self::DomainObserved => constants::network_flow::SUBSCRIBER_DOMAIN_OBSERVER,
-            Self::ActivityClassified => constants::network_flow::SUBSCRIBER_ACTIVITY_CLASSIFIER,
-            Self::AiAnalysisRequested => constants::network_flow::SUBSCRIBER_AI_REQUEST,
-            Self::AiAnalysisCompleted => constants::network_flow::SUBSCRIBER_AI_COMPLETE,
-            Self::PolicyEvaluationRequested => constants::network_flow::SUBSCRIBER_POLICY_REQUEST,
-            Self::PolicyDecisionCompleted => constants::network_flow::SUBSCRIBER_POLICY_DECISION,
-            Self::EnforcementCommandIssued => {
-                constants::network_flow::SUBSCRIBER_ENFORCEMENT_COMMAND
-            }
-            Self::EnforcementResultObserved => {
-                constants::network_flow::SUBSCRIBER_ENFORCEMENT_RESULT
-            }
-            Self::AuditEntryCommitted => constants::network_flow::SUBSCRIBER_AUDIT_ENTRY,
-            Self::PortalReadModelUpdated => constants::network_flow::SUBSCRIBER_PORTAL_READ_MODEL,
-        }
+        NETWORK_RUNTIME_PHASE_SUBSCRIBER_IDS[self as usize]
     }
 
     pub fn target_handler(self) -> &'static str {
-        match self {
-            Self::FlowObserved => constants::network_flow::TARGET_NETWORK_OBSERVER,
-            Self::DomainObserved => constants::network_flow::TARGET_DOMAIN_OBSERVER,
-            Self::ActivityClassified => constants::network_flow::TARGET_ACTIVITY_CLASSIFIER,
-            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
-                constants::network_flow::TARGET_AI_ANALYZER
-            }
-            Self::PolicyEvaluationRequested | Self::PolicyDecisionCompleted => {
-                constants::network_flow::TARGET_POLICY_ENGINE
-            }
-            Self::EnforcementCommandIssued | Self::EnforcementResultObserved => {
-                constants::network_flow::TARGET_ENFORCEMENT_DRY_RUN
-            }
-            Self::AuditEntryCommitted => constants::network_flow::TARGET_AUDIT_WRITER,
-            Self::PortalReadModelUpdated => constants::network_flow::TARGET_PORTAL_READ_MODEL,
-        }
+        NETWORK_RUNTIME_PHASE_TARGET_HANDLERS[self as usize]
     }
 
     pub fn runtime_role(self) -> RuntimeRole {
-        let value = match self {
-            Self::FlowObserved | Self::DomainObserved | Self::ActivityClassified => {
-                constants::eventing_source::ROLE_AGENT
-            }
-            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
-                constants::eventing_source::ROLE_ANALYZER
-            }
-            Self::PolicyEvaluationRequested | Self::PolicyDecisionCompleted => {
-                constants::eventing_source::ROLE_DECISION_ENGINE
-            }
-            Self::EnforcementCommandIssued | Self::EnforcementResultObserved => {
-                constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER
-            }
-            Self::AuditEntryCommitted => constants::eventing_source::ROLE_AUDIT_WRITER,
-            Self::PortalReadModelUpdated => constants::eventing_source::ROLE_READ_MODEL,
-        };
-        match RuntimeRole::parse(value) {
-            Ok(role) => role,
-            Err(_) => std::process::abort(),
-        }
+        RuntimeRole::parse(NETWORK_RUNTIME_PHASE_RUNTIME_ROLES[self as usize])
+            .expect("network runtime phase role is a valid runtime role")
     }
 }
 
@@ -985,19 +971,31 @@ impl DomainEvent for NetworkRuntimeEventPayload {
 }
 
 fn network_runtime_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
-    let mut value = String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
-    if let Some(domain) = &payload.destination_domain {
-        value.push_str(domain);
-        return value;
-    }
-    if let Some(ip) = &payload.destination_ip {
-        value.push_str(ip);
-        if let Some(port) = payload.destination_port {
-            value.push(constants::delimiter::HYPHEN);
-            value.push_str(&port.to_string());
-        }
-        return value;
-    }
-    value.push_str(payload.capability_status.as_protocol_str());
-    value
+    payload.destination_domain.as_ref().map_or_else(
+        || {
+            payload.destination_ip.as_ref().map_or_else(
+                || {
+                    let mut value =
+                        String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
+                    value.push_str(payload.capability_status.as_protocol_str());
+                    value
+                },
+                |ip| {
+                    let mut value =
+                        String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
+                    value.push_str(ip);
+                    let port_suffix = payload.destination_port.map_or_else(String::new, |port| {
+                        format!("{}{}", constants::delimiter::HYPHEN, port)
+                    });
+                    value.push_str(&port_suffix);
+                    value
+                },
+            )
+        },
+        |domain| {
+            let mut value = String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
+            value.push_str(domain);
+            value
+        },
+    )
 }

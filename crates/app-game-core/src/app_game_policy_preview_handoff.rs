@@ -203,5 +203,5 @@ fn is_game_target_kind(target_kind: &str) -> bool {
 }
 
 pub fn app_game_policy_preview_handoff_typescript() -> String {
-    include_str!("generated/app-game-policy-preview-handoff.ts").to_string()
+    include_str!("../tests/generated/app-game-policy-preview-handoff.ts").to_string()
 }

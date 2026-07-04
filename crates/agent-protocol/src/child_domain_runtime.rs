@@ -9,11 +9,20 @@ use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 
 pub const CHILD_DOMAIN_RUNTIME_SCHEMA_VERSION: u16 = crate::AGENT_PROTOCOL_SCHEMA_VERSION;
 
-fn parse_or_panic<T, E>(result: Result<T, E>, message: &'static str) -> T {
-    match result {
-        Ok(value) => value,
-        Err(_) => unreachable!("{}", message),
-    }
+fn parse_or_panic<T, E: std::fmt::Debug>(result: Result<T, E>, message: &'static str) -> T {
+    result.expect(message)
+}
+
+fn parse_non_empty_text<T>(
+    value: impl Into<String>,
+    factory: impl FnOnce(String) -> T,
+) -> Result<T, EventingError> {
+    let value = value.into();
+    (!value.trim().is_empty())
+        .then_some(factory(value))
+        .ok_or(EventingError::EmptyValue {
+            field: constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+        })
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -28,13 +37,12 @@ impl ChildDomainEventType {
                 field: constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
             });
         }
-        if !is_known_child_domain_event_type(&value) {
-            return Err(EventingError::InvalidValue {
+        is_known_child_domain_event_type(&value)
+            .then_some(Self(value.clone()))
+            .ok_or(EventingError::InvalidValue {
                 field: constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
                 value,
-            });
-        }
-        Ok(Self(value))
+            })
     }
 
     pub fn as_str(&self) -> &str {
@@ -95,13 +103,7 @@ macro_rules! child_domain_text_type {
 
         impl $name {
             pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue {
-                        field: constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
-                    });
-                }
-                Ok(Self(value))
+                parse_non_empty_text(value, Self)
             }
 
             pub fn as_str(&self) -> &str {
@@ -149,6 +151,7 @@ child_domain_text_type!(ChildDomainNotificationId);
 child_domain_text_type!(ChildDomainNotificationChannel);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(usize)]
 pub enum ChildRuntimeDomain {
     App,
     AppGame,
@@ -159,152 +162,190 @@ pub enum ChildRuntimeDomain {
     ScreenLiveView,
 }
 
+#[derive(Clone, Copy)]
+struct ChildRuntimeDomainSpec {
+    contract_text: &'static str,
+    observed_event_type: &'static str,
+    evidence_recorded_event_type: &'static str,
+    ai_analysis_requested_event_type: &'static str,
+    policy_evaluation_requested_event_type: &'static str,
+    observer_subscriber_id: &'static str,
+    default_subject_ref_suffix: ChildDomainRefSuffix,
+    default_observed_signal: ChildDomainObservedSignal,
+    default_ai_analysis_requirement: ChildDomainAiAnalysisRequirement,
+    default_policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement,
+}
+
+const CHILD_RUNTIME_DOMAIN_SPECS: [ChildRuntimeDomainSpec; 7] = [
+    ChildRuntimeDomainSpec {
+        contract_text: constants::child_domain_runtime::DOMAIN_APP,
+        observed_event_type: constants::child_domain_runtime::APP_OBSERVED_EVENT_TYPE,
+        evidence_recorded_event_type:
+            constants::child_domain_runtime::APP_EVIDENCE_RECORDED_EVENT_TYPE,
+        ai_analysis_requested_event_type:
+            constants::child_domain_runtime::APP_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+        policy_evaluation_requested_event_type:
+            constants::child_domain_runtime::APP_POLICY_EVALUATION_REQUESTED_EVENT_TYPE,
+        observer_subscriber_id: constants::child_domain_runtime::SUBSCRIBER_APP_OBSERVER,
+        default_subject_ref_suffix: ChildDomainRefSuffix::AppSubject,
+        default_observed_signal: ChildDomainObservedSignal::RequiresPolicy,
+        default_ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
+        default_policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+    },
+    ChildRuntimeDomainSpec {
+        contract_text: constants::child_domain_runtime::DOMAIN_APP_GAME,
+        observed_event_type: constants::child_domain_runtime::APP_GAME_OBSERVED_EVENT_TYPE,
+        evidence_recorded_event_type:
+            constants::child_domain_runtime::APP_GAME_EVIDENCE_RECORDED_EVENT_TYPE,
+        ai_analysis_requested_event_type:
+            constants::child_domain_runtime::APP_GAME_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+        policy_evaluation_requested_event_type:
+            constants::child_domain_runtime::APP_GAME_POLICY_EVALUATION_REQUESTED_EVENT_TYPE,
+        observer_subscriber_id: constants::child_domain_runtime::SUBSCRIBER_APP_GAME_OBSERVER,
+        default_subject_ref_suffix: ChildDomainRefSuffix::AppGameSubject,
+        default_observed_signal: ChildDomainObservedSignal::RequiresPolicy,
+        default_ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
+        default_policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+    },
+    ChildRuntimeDomainSpec {
+        contract_text: constants::child_domain_runtime::DOMAIN_BROWSER,
+        observed_event_type: constants::child_domain_runtime::BROWSER_OBSERVED_EVENT_TYPE,
+        evidence_recorded_event_type:
+            constants::child_domain_runtime::BROWSER_EVIDENCE_RECORDED_EVENT_TYPE,
+        ai_analysis_requested_event_type:
+            constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+        policy_evaluation_requested_event_type:
+            constants::child_domain_runtime::BROWSER_POLICY_EVALUATION_REQUESTED_EVENT_TYPE,
+        observer_subscriber_id: constants::child_domain_runtime::SUBSCRIBER_BROWSER_OBSERVER,
+        default_subject_ref_suffix: ChildDomainRefSuffix::BrowserSubject,
+        default_observed_signal: ChildDomainObservedSignal::RequiresAi,
+        default_ai_analysis_requirement: ChildDomainAiAnalysisRequirement::Required,
+        default_policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+    },
+    ChildRuntimeDomainSpec {
+        contract_text: constants::child_domain_runtime::DOMAIN_LAN,
+        observed_event_type: constants::child_domain_runtime::LAN_OBSERVED_EVENT_TYPE,
+        evidence_recorded_event_type:
+            constants::child_domain_runtime::LAN_EVIDENCE_RECORDED_EVENT_TYPE,
+        ai_analysis_requested_event_type:
+            constants::child_domain_runtime::LAN_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+        policy_evaluation_requested_event_type:
+            constants::child_domain_runtime::LAN_POLICY_EVALUATION_REQUESTED_EVENT_TYPE,
+        observer_subscriber_id: constants::child_domain_runtime::SUBSCRIBER_LAN_OBSERVER,
+        default_subject_ref_suffix: ChildDomainRefSuffix::LanSubject,
+        default_observed_signal: ChildDomainObservedSignal::RequiresPolicy,
+        default_ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
+        default_policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+    },
+    ChildRuntimeDomainSpec {
+        contract_text: constants::child_domain_runtime::DOMAIN_NETWORK,
+        observed_event_type: constants::child_domain_runtime::NETWORK_OBSERVED_EVENT_TYPE,
+        evidence_recorded_event_type:
+            constants::child_domain_runtime::NETWORK_EVIDENCE_RECORDED_EVENT_TYPE,
+        ai_analysis_requested_event_type:
+            constants::child_domain_runtime::NETWORK_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+        policy_evaluation_requested_event_type:
+            constants::child_domain_runtime::NETWORK_POLICY_EVALUATION_REQUESTED_EVENT_TYPE,
+        observer_subscriber_id: constants::child_domain_runtime::SUBSCRIBER_NETWORK_OBSERVER,
+        default_subject_ref_suffix: ChildDomainRefSuffix::NetworkSubject,
+        default_observed_signal: ChildDomainObservedSignal::RequiresPolicy,
+        default_ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
+        default_policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+    },
+    ChildRuntimeDomainSpec {
+        contract_text: constants::child_domain_runtime::DOMAIN_SCREEN,
+        observed_event_type: constants::child_domain_runtime::SCREEN_OBSERVED_EVENT_TYPE,
+        evidence_recorded_event_type:
+            constants::child_domain_runtime::SCREEN_EVIDENCE_RECORDED_EVENT_TYPE,
+        ai_analysis_requested_event_type:
+            constants::child_domain_runtime::SCREEN_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+        policy_evaluation_requested_event_type:
+            constants::child_domain_runtime::SCREEN_POLICY_EVALUATION_REQUESTED_EVENT_TYPE,
+        observer_subscriber_id: constants::child_domain_runtime::SUBSCRIBER_SCREEN_OBSERVER,
+        default_subject_ref_suffix: ChildDomainRefSuffix::ScreenSubject,
+        default_observed_signal: ChildDomainObservedSignal::RequiresAi,
+        default_ai_analysis_requirement: ChildDomainAiAnalysisRequirement::Required,
+        default_policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+    },
+    ChildRuntimeDomainSpec {
+        contract_text: constants::child_domain_runtime::DOMAIN_SCREEN_LIVE_VIEW,
+        observed_event_type: constants::child_domain_runtime::SCREEN_LIVE_VIEW_OBSERVED_EVENT_TYPE,
+        evidence_recorded_event_type:
+            constants::child_domain_runtime::SCREEN_LIVE_VIEW_EVIDENCE_RECORDED_EVENT_TYPE,
+        ai_analysis_requested_event_type:
+            constants::child_domain_runtime::SCREEN_LIVE_VIEW_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+        policy_evaluation_requested_event_type:
+            constants::child_domain_runtime::SCREEN_LIVE_VIEW_POLICY_EVALUATION_REQUESTED_EVENT_TYPE,
+        observer_subscriber_id:
+            constants::child_domain_runtime::SUBSCRIBER_SCREEN_LIVE_VIEW_OBSERVER,
+        default_subject_ref_suffix: ChildDomainRefSuffix::ScreenLiveViewSubject,
+        default_observed_signal: ChildDomainObservedSignal::RequiresPolicy,
+        default_ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
+        default_policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+    },
+];
+
+const CHILD_RUNTIME_DOMAIN_VARIANTS: [&str; 7] = [
+    constants::child_domain_runtime::DOMAIN_APP,
+    constants::child_domain_runtime::DOMAIN_APP_GAME,
+    constants::child_domain_runtime::DOMAIN_BROWSER,
+    constants::child_domain_runtime::DOMAIN_LAN,
+    constants::child_domain_runtime::DOMAIN_NETWORK,
+    constants::child_domain_runtime::DOMAIN_SCREEN,
+    constants::child_domain_runtime::DOMAIN_SCREEN_LIVE_VIEW,
+];
+
 impl ChildRuntimeDomain {
+    fn spec(self) -> &'static ChildRuntimeDomainSpec {
+        &CHILD_RUNTIME_DOMAIN_SPECS[self as usize]
+    }
+
+    fn parse_contract_text(value: &str) -> Option<Self> {
+        [
+            Self::App,
+            Self::AppGame,
+            Self::Browser,
+            Self::Lan,
+            Self::Network,
+            Self::Screen,
+            Self::ScreenLiveView,
+        ]
+        .into_iter()
+        .find(|domain| domain.as_contract_text() == value)
+    }
+
     pub fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::App => constants::child_domain_runtime::DOMAIN_APP,
-            Self::AppGame => constants::child_domain_runtime::DOMAIN_APP_GAME,
-            Self::Browser => constants::child_domain_runtime::DOMAIN_BROWSER,
-            Self::Lan => constants::child_domain_runtime::DOMAIN_LAN,
-            Self::Network => constants::child_domain_runtime::DOMAIN_NETWORK,
-            Self::Screen => constants::child_domain_runtime::DOMAIN_SCREEN,
-            Self::ScreenLiveView => constants::child_domain_runtime::DOMAIN_SCREEN_LIVE_VIEW,
-        }
+        self.spec().contract_text
     }
 
     pub fn observed_event_type(self) -> ChildDomainEventType {
-        self.event_type(match self {
-            Self::App => constants::child_domain_runtime::APP_OBSERVED_EVENT_TYPE,
-            Self::AppGame => constants::child_domain_runtime::APP_GAME_OBSERVED_EVENT_TYPE,
-            Self::Browser => constants::child_domain_runtime::BROWSER_OBSERVED_EVENT_TYPE,
-            Self::Lan => constants::child_domain_runtime::LAN_OBSERVED_EVENT_TYPE,
-            Self::Network => constants::child_domain_runtime::NETWORK_OBSERVED_EVENT_TYPE,
-            Self::Screen => constants::child_domain_runtime::SCREEN_OBSERVED_EVENT_TYPE,
-            Self::ScreenLiveView => {
-                constants::child_domain_runtime::SCREEN_LIVE_VIEW_OBSERVED_EVENT_TYPE
-            }
-        })
+        self.event_type(self.spec().observed_event_type)
     }
 
     pub fn evidence_recorded_event_type(self) -> ChildDomainEventType {
-        self.event_type(match self {
-            Self::App => constants::child_domain_runtime::APP_EVIDENCE_RECORDED_EVENT_TYPE,
-            Self::AppGame => constants::child_domain_runtime::APP_GAME_EVIDENCE_RECORDED_EVENT_TYPE,
-            Self::Browser => constants::child_domain_runtime::BROWSER_EVIDENCE_RECORDED_EVENT_TYPE,
-            Self::Lan => constants::child_domain_runtime::LAN_EVIDENCE_RECORDED_EVENT_TYPE,
-            Self::Network => constants::child_domain_runtime::NETWORK_EVIDENCE_RECORDED_EVENT_TYPE,
-            Self::Screen => constants::child_domain_runtime::SCREEN_EVIDENCE_RECORDED_EVENT_TYPE,
-            Self::ScreenLiveView => {
-                constants::child_domain_runtime::SCREEN_LIVE_VIEW_EVIDENCE_RECORDED_EVENT_TYPE
-            }
-        })
+        self.event_type(self.spec().evidence_recorded_event_type)
     }
 
     pub fn ai_analysis_requested_event_type(self) -> ChildDomainEventType {
-        self.event_type(match self {
-            Self::App => constants::child_domain_runtime::APP_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
-            Self::AppGame => {
-                constants::child_domain_runtime::APP_GAME_AI_ANALYSIS_REQUESTED_EVENT_TYPE
-            }
-            Self::Browser => {
-                constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE
-            }
-            Self::Lan => constants::child_domain_runtime::LAN_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
-            Self::Network => {
-                constants::child_domain_runtime::NETWORK_AI_ANALYSIS_REQUESTED_EVENT_TYPE
-            }
-            Self::Screen => {
-                constants::child_domain_runtime::SCREEN_AI_ANALYSIS_REQUESTED_EVENT_TYPE
-            }
-            Self::ScreenLiveView => {
-                constants::child_domain_runtime::SCREEN_LIVE_VIEW_AI_ANALYSIS_REQUESTED_EVENT_TYPE
-            }
-        })
+        self.event_type(self.spec().ai_analysis_requested_event_type)
     }
 
     pub fn policy_evaluation_requested_event_type(self) -> ChildDomainEventType {
-        self.event_type(match self {
-            Self::App => {
-                constants::child_domain_runtime::APP_POLICY_EVALUATION_REQUESTED_EVENT_TYPE
-            }
-            Self::AppGame => {
-                constants::child_domain_runtime::APP_GAME_POLICY_EVALUATION_REQUESTED_EVENT_TYPE
-            }
-            Self::Browser => {
-                constants::child_domain_runtime::BROWSER_POLICY_EVALUATION_REQUESTED_EVENT_TYPE
-            }
-            Self::Lan => constants::child_domain_runtime::LAN_POLICY_EVALUATION_REQUESTED_EVENT_TYPE,
-            Self::Network => {
-                constants::child_domain_runtime::NETWORK_POLICY_EVALUATION_REQUESTED_EVENT_TYPE
-            }
-            Self::Screen => {
-                constants::child_domain_runtime::SCREEN_POLICY_EVALUATION_REQUESTED_EVENT_TYPE
-            }
-            Self::ScreenLiveView => {
-                constants::child_domain_runtime::SCREEN_LIVE_VIEW_POLICY_EVALUATION_REQUESTED_EVENT_TYPE
-            }
-        })
+        self.event_type(self.spec().policy_evaluation_requested_event_type)
     }
 
     pub fn observer_subscriber_id(self) -> &'static str {
-        match self {
-            Self::App => constants::child_domain_runtime::SUBSCRIBER_APP_OBSERVER,
-            Self::AppGame => constants::child_domain_runtime::SUBSCRIBER_APP_GAME_OBSERVER,
-            Self::Browser => constants::child_domain_runtime::SUBSCRIBER_BROWSER_OBSERVER,
-            Self::Lan => constants::child_domain_runtime::SUBSCRIBER_LAN_OBSERVER,
-            Self::Network => constants::child_domain_runtime::SUBSCRIBER_NETWORK_OBSERVER,
-            Self::Screen => constants::child_domain_runtime::SUBSCRIBER_SCREEN_OBSERVER,
-            Self::ScreenLiveView => {
-                constants::child_domain_runtime::SUBSCRIBER_SCREEN_LIVE_VIEW_OBSERVER
-            }
-        }
+        self.spec().observer_subscriber_id
     }
 
     pub fn default_observed_profile(self) -> ChildDomainObservedEventProfile {
-        match self {
-            Self::App => self.observed_profile(
-                ChildDomainRefSuffix::AppSubject,
-                ChildDomainObservedSignal::RequiresPolicy,
-                ChildDomainAiAnalysisRequirement::NotRequired,
-                ChildDomainPolicyEvaluationRequirement::Required,
-            ),
-            Self::AppGame => self.observed_profile(
-                ChildDomainRefSuffix::AppGameSubject,
-                ChildDomainObservedSignal::RequiresPolicy,
-                ChildDomainAiAnalysisRequirement::NotRequired,
-                ChildDomainPolicyEvaluationRequirement::Required,
-            ),
-            Self::Browser => self.observed_profile(
-                ChildDomainRefSuffix::BrowserSubject,
-                ChildDomainObservedSignal::RequiresAi,
-                ChildDomainAiAnalysisRequirement::Required,
-                ChildDomainPolicyEvaluationRequirement::Required,
-            ),
-            Self::Lan => self.observed_profile(
-                ChildDomainRefSuffix::LanSubject,
-                ChildDomainObservedSignal::RequiresPolicy,
-                ChildDomainAiAnalysisRequirement::NotRequired,
-                ChildDomainPolicyEvaluationRequirement::Required,
-            ),
-            Self::Network => self.observed_profile(
-                ChildDomainRefSuffix::NetworkSubject,
-                ChildDomainObservedSignal::RequiresPolicy,
-                ChildDomainAiAnalysisRequirement::NotRequired,
-                ChildDomainPolicyEvaluationRequirement::Required,
-            ),
-            Self::Screen => self.observed_profile(
-                ChildDomainRefSuffix::ScreenSubject,
-                ChildDomainObservedSignal::RequiresAi,
-                ChildDomainAiAnalysisRequirement::Required,
-                ChildDomainPolicyEvaluationRequirement::Required,
-            ),
-            Self::ScreenLiveView => self.observed_profile(
-                ChildDomainRefSuffix::ScreenLiveViewSubject,
-                ChildDomainObservedSignal::RequiresPolicy,
-                ChildDomainAiAnalysisRequirement::NotRequired,
-                ChildDomainPolicyEvaluationRequirement::Required,
-            ),
-        }
+        let spec = self.spec();
+        self.observed_profile(
+            spec.default_subject_ref_suffix,
+            spec.default_observed_signal,
+            spec.default_ai_analysis_requirement,
+            spec.default_policy_evaluation_requirement,
+        )
     }
 
     pub fn observed_profile(
@@ -343,27 +384,9 @@ impl<'de> Deserialize<'de> for ChildRuntimeDomain {
         D: Deserializer<'de>,
     {
         let value = String::deserialize(deserializer)?;
-        match value.as_str() {
-            constants::child_domain_runtime::DOMAIN_APP => Ok(Self::App),
-            constants::child_domain_runtime::DOMAIN_APP_GAME => Ok(Self::AppGame),
-            constants::child_domain_runtime::DOMAIN_BROWSER => Ok(Self::Browser),
-            constants::child_domain_runtime::DOMAIN_LAN => Ok(Self::Lan),
-            constants::child_domain_runtime::DOMAIN_NETWORK => Ok(Self::Network),
-            constants::child_domain_runtime::DOMAIN_SCREEN => Ok(Self::Screen),
-            constants::child_domain_runtime::DOMAIN_SCREEN_LIVE_VIEW => Ok(Self::ScreenLiveView),
-            _ => Err(D::Error::unknown_variant(
-                value.as_str(),
-                &[
-                    constants::child_domain_runtime::DOMAIN_APP,
-                    constants::child_domain_runtime::DOMAIN_APP_GAME,
-                    constants::child_domain_runtime::DOMAIN_BROWSER,
-                    constants::child_domain_runtime::DOMAIN_LAN,
-                    constants::child_domain_runtime::DOMAIN_NETWORK,
-                    constants::child_domain_runtime::DOMAIN_SCREEN,
-                    constants::child_domain_runtime::DOMAIN_SCREEN_LIVE_VIEW,
-                ],
-            )),
-        }
+        Self::parse_contract_text(value.as_str()).ok_or_else(|| {
+            D::Error::unknown_variant(value.as_str(), &CHILD_RUNTIME_DOMAIN_VARIANTS)
+        })
     }
 }
 
@@ -399,6 +422,7 @@ pub struct ChildDomainObservedEventProfile {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(usize)]
 pub enum ChildDomainObservedSignal {
     RequiresAi,
     RequiresPolicy,
@@ -412,69 +436,72 @@ impl ChildDomainObservedSignal {
     }
 
     fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::RequiresAi => constants::child_domain_runtime::SIGNAL_REQUIRES_AI,
-            Self::RequiresPolicy => constants::child_domain_runtime::SIGNAL_REQUIRES_POLICY,
-            Self::ObserveOnly => constants::child_domain_runtime::SIGNAL_OBSERVE_ONLY,
-        }
+        const SIGNAL_TEXTS: [&str; 3] = [
+            constants::child_domain_runtime::SIGNAL_REQUIRES_AI,
+            constants::child_domain_runtime::SIGNAL_REQUIRES_POLICY,
+            constants::child_domain_runtime::SIGNAL_OBSERVE_ONLY,
+        ];
+        SIGNAL_TEXTS[self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(usize)]
 pub enum ChildDomainAnalysisPurposeKind {
     Classification,
 }
 
 impl ChildDomainAnalysisPurposeKind {
     fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::Classification => constants::child_domain_runtime::AI_PURPOSE_CLASSIFICATION,
-        }
+        const ANALYSIS_PURPOSE_TEXTS: [&str; 1] =
+            [constants::child_domain_runtime::AI_PURPOSE_CLASSIFICATION];
+        ANALYSIS_PURPOSE_TEXTS[self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(usize)]
 pub enum ChildDomainPolicyRuleKind {
     Default,
 }
 
 impl ChildDomainPolicyRuleKind {
     fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::Default => constants::child_domain_runtime::POLICY_RULE_DEFAULT,
-        }
+        const POLICY_RULE_TEXTS: [&str; 1] = [constants::child_domain_runtime::POLICY_RULE_DEFAULT];
+        POLICY_RULE_TEXTS[self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(usize)]
 pub enum ChildDomainPolicySeverityKind {
     Review,
 }
 
 impl ChildDomainPolicySeverityKind {
     fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::Review => constants::child_domain_runtime::POLICY_SEVERITY_REVIEW,
-        }
+        const POLICY_SEVERITY_TEXTS: [&str; 1] =
+            [constants::child_domain_runtime::POLICY_SEVERITY_REVIEW];
+        POLICY_SEVERITY_TEXTS[self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(usize)]
 pub enum ChildDomainNotificationChannelKind {
     ParentPortal,
 }
 
 impl ChildDomainNotificationChannelKind {
     fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::ParentPortal => {
-                constants::child_domain_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL
-            }
-        }
+        const NOTIFICATION_CHANNEL_TEXTS: [&str; 1] =
+            [constants::child_domain_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL];
+        NOTIFICATION_CHANNEL_TEXTS[self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(usize)]
 pub enum ChildDomainRefSuffix {
     DefaultObservation,
     AppSubject,
@@ -493,31 +520,22 @@ pub enum ChildDomainRefSuffix {
 
 impl ChildDomainRefSuffix {
     fn as_contract_text(self) -> &'static str {
-        match self {
-            Self::DefaultObservation => {
-                constants::child_domain_runtime::DEFAULT_OBSERVATION_ID_SUFFIX
-            }
-            Self::AppSubject => constants::child_domain_runtime::APP_SUBJECT_REF_SUFFIX,
-            Self::AppGameSubject => constants::child_domain_runtime::APP_GAME_SUBJECT_REF_SUFFIX,
-            Self::BrowserSubject => constants::child_domain_runtime::BROWSER_SUBJECT_REF_SUFFIX,
-            Self::LanSubject => constants::child_domain_runtime::LAN_SUBJECT_REF_SUFFIX,
-            Self::NetworkSubject => constants::child_domain_runtime::NETWORK_SUBJECT_REF_SUFFIX,
-            Self::ScreenSubject => constants::child_domain_runtime::SCREEN_SUBJECT_REF_SUFFIX,
-            Self::ScreenLiveViewSubject => {
-                constants::child_domain_runtime::SCREEN_LIVE_VIEW_SUBJECT_REF_SUFFIX
-            }
-            Self::DefaultEvidence => constants::child_domain_runtime::DEFAULT_EVIDENCE_REF_SUFFIX,
-            Self::DefaultAiRequest => constants::child_domain_runtime::DEFAULT_AI_REQUEST_ID_SUFFIX,
-            Self::DefaultPolicyRequest => {
-                constants::child_domain_runtime::DEFAULT_POLICY_REQUEST_ID_SUFFIX
-            }
-            Self::DefaultPolicyViolation => {
-                constants::child_domain_runtime::DEFAULT_POLICY_VIOLATION_ID_SUFFIX
-            }
-            Self::DefaultNotification => {
-                constants::child_domain_runtime::DEFAULT_NOTIFICATION_ID_SUFFIX
-            }
-        }
+        const REF_SUFFIX_TEXTS: [&str; 13] = [
+            constants::child_domain_runtime::DEFAULT_OBSERVATION_ID_SUFFIX,
+            constants::child_domain_runtime::APP_SUBJECT_REF_SUFFIX,
+            constants::child_domain_runtime::APP_GAME_SUBJECT_REF_SUFFIX,
+            constants::child_domain_runtime::BROWSER_SUBJECT_REF_SUFFIX,
+            constants::child_domain_runtime::LAN_SUBJECT_REF_SUFFIX,
+            constants::child_domain_runtime::NETWORK_SUBJECT_REF_SUFFIX,
+            constants::child_domain_runtime::SCREEN_SUBJECT_REF_SUFFIX,
+            constants::child_domain_runtime::SCREEN_LIVE_VIEW_SUBJECT_REF_SUFFIX,
+            constants::child_domain_runtime::DEFAULT_EVIDENCE_REF_SUFFIX,
+            constants::child_domain_runtime::DEFAULT_AI_REQUEST_ID_SUFFIX,
+            constants::child_domain_runtime::DEFAULT_POLICY_REQUEST_ID_SUFFIX,
+            constants::child_domain_runtime::DEFAULT_POLICY_VIOLATION_ID_SUFFIX,
+            constants::child_domain_runtime::DEFAULT_NOTIFICATION_ID_SUFFIX,
+        ];
+        REF_SUFFIX_TEXTS[self as usize]
     }
 }
 
@@ -622,631 +640,5 @@ pub struct ChildDomainNotificationRequestedEvent {
     pub evidence_refs: Vec<ChildDomainEvidenceRef>,
 }
 
-impl DomainEvent for ChildDomainObservedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        child_domain_contract(&self.event_type)
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        child_domain_aggregate_key(
-            &self.domain,
-            self.child_device_id.as_str(),
-            self.child_profile_id.as_str(),
-        )
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        child_domain_idempotency_key(&self.event_type, self.observation_id.as_str())
-    }
-}
-
-impl DomainEvent for ChildDomainEvidenceRecordedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        child_domain_contract(&self.event_type)
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        child_domain_aggregate_key(
-            &self.domain,
-            self.child_device_id.as_str(),
-            self.child_profile_id.as_str(),
-        )
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        child_domain_idempotency_key(&self.event_type, self.evidence_ref.as_str())
-    }
-}
-
-impl DomainEvent for ChildDomainAiAnalysisRequestedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        child_domain_contract(&self.event_type)
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        child_domain_aggregate_key(
-            &self.domain,
-            self.child_device_id.as_str(),
-            self.child_profile_id.as_str(),
-        )
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        child_domain_idempotency_key(&self.event_type, self.ai_request_id.as_str())
-    }
-}
-
-impl DomainEvent for ChildDomainAiAnalysisCompletedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        child_domain_contract(&self.event_type)
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        child_domain_aggregate_key(
-            &self.domain,
-            self.child_device_id.as_str(),
-            self.child_profile_id.as_str(),
-        )
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        child_domain_idempotency_key(&self.event_type, self.source_ai_request_id.as_str())
-    }
-}
-
-impl DomainEvent for ChildDomainPolicyEvaluationRequestedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        child_domain_contract(&self.event_type)
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        child_domain_aggregate_key(
-            &self.domain,
-            self.child_device_id.as_str(),
-            self.child_profile_id.as_str(),
-        )
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        child_domain_idempotency_key(&self.event_type, self.policy_request_id.as_str())
-    }
-}
-
-impl DomainEvent for ChildDomainPolicyViolationDetectedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        child_domain_contract(&self.event_type)
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        child_domain_aggregate_key(
-            &self.domain,
-            self.child_device_id.as_str(),
-            self.child_profile_id.as_str(),
-        )
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        child_domain_idempotency_key(&self.event_type, self.violation_id.as_str())
-    }
-}
-
-impl DomainEvent for ChildDomainNotificationRequestedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        child_domain_contract(&self.event_type)
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        child_domain_aggregate_key(
-            &self.domain,
-            self.child_device_id.as_str(),
-            self.child_profile_id.as_str(),
-        )
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        child_domain_idempotency_key(&self.event_type, self.notification_id.as_str())
-    }
-}
-
-pub fn child_domain_child_device_id() -> ChildDomainChildDeviceId {
-    parse_or_panic(
-        ChildDomainChildDeviceId::parse(constants::child_domain_runtime::DEFAULT_CHILD_DEVICE_ID),
-        constants::child_domain_runtime::DEFAULT_CHILD_DEVICE_ID,
-    )
-}
-
-pub fn child_domain_child_profile_id() -> ChildDomainChildProfileId {
-    parse_or_panic(
-        ChildDomainChildProfileId::parse(constants::child_domain_runtime::DEFAULT_CHILD_PROFILE_ID),
-        constants::child_domain_runtime::DEFAULT_CHILD_PROFILE_ID,
-    )
-}
-
-pub fn child_domain_observed_at() -> ChildDomainObservedAt {
-    parse_or_panic(
-        ChildDomainObservedAt::parse(constants::child_domain_runtime::DEFAULT_OBSERVED_AT),
-        constants::child_domain_runtime::DEFAULT_OBSERVED_AT,
-    )
-}
-
-pub fn child_domain_observed_state(value: ChildDomainObservedSignal) -> ChildDomainObservedState {
-    value.into_observed_state()
-}
-
-pub fn child_domain_analysis_purpose(
-    value: ChildDomainAnalysisPurposeKind,
-) -> ChildDomainAnalysisPurpose {
-    let value = value.as_contract_text();
-    parse_or_panic(ChildDomainAnalysisPurpose::parse(value), value)
-}
-
-pub fn child_domain_policy_rule_ref(value: ChildDomainPolicyRuleKind) -> ChildDomainPolicyRuleRef {
-    let value = value.as_contract_text();
-    parse_or_panic(ChildDomainPolicyRuleRef::parse(value), value)
-}
-
-pub fn child_domain_policy_severity(
-    value: ChildDomainPolicySeverityKind,
-) -> ChildDomainPolicySeverity {
-    let value = value.as_contract_text();
-    parse_or_panic(ChildDomainPolicySeverity::parse(value), value)
-}
-
-pub fn child_domain_notification_channel(
-    value: ChildDomainNotificationChannelKind,
-) -> ChildDomainNotificationChannel {
-    let value = value.as_contract_text();
-    parse_or_panic(ChildDomainNotificationChannel::parse(value), value)
-}
-
-pub fn child_domain_observation_id(
-    domain: ChildRuntimeDomain,
-    suffix: ChildDomainRefSuffix,
-) -> ChildDomainObservationId {
-    let suffix_text = suffix.as_contract_text();
-    parse_or_panic(
-        ChildDomainObservationId::parse(child_domain_ref_text(domain, suffix_text)),
-        suffix_text,
-    )
-}
-
-pub fn child_domain_subject_ref(
-    domain: ChildRuntimeDomain,
-    suffix: ChildDomainRefSuffix,
-) -> ChildDomainSubjectRef {
-    let suffix_text = suffix.as_contract_text();
-    parse_or_panic(
-        ChildDomainSubjectRef::parse(child_domain_ref_text(domain, suffix_text)),
-        suffix_text,
-    )
-}
-
-pub fn child_domain_evidence_ref(
-    domain: ChildRuntimeDomain,
-    suffix: ChildDomainRefSuffix,
-) -> ChildDomainEvidenceRef {
-    let suffix_text = suffix.as_contract_text();
-    parse_or_panic(
-        ChildDomainEvidenceRef::parse(child_domain_ref_text(domain, suffix_text)),
-        suffix_text,
-    )
-}
-
-pub fn child_domain_ai_request_id(
-    domain: ChildRuntimeDomain,
-    suffix: ChildDomainRefSuffix,
-) -> ChildDomainAiRequestId {
-    let suffix_text = suffix.as_contract_text();
-    parse_or_panic(
-        ChildDomainAiRequestId::parse(child_domain_ref_text(domain, suffix_text)),
-        suffix_text,
-    )
-}
-
-pub fn child_domain_policy_request_id(
-    domain: ChildRuntimeDomain,
-    suffix: ChildDomainRefSuffix,
-) -> ChildDomainPolicyRequestId {
-    let suffix_text = suffix.as_contract_text();
-    parse_or_panic(
-        ChildDomainPolicyRequestId::parse(child_domain_ref_text(domain, suffix_text)),
-        suffix_text,
-    )
-}
-
-pub fn child_domain_fact_ref_from_observation_id(
-    value: &ChildDomainObservationId,
-) -> ChildDomainFactRef {
-    child_domain_fact_ref_text(value.as_str())
-}
-
-pub fn child_domain_observation_id_from_subject_ref(
-    domain: ChildRuntimeDomain,
-    subject_ref: &ChildDomainSubjectRef,
-    observed_state: &ChildDomainObservedState,
-) -> ChildDomainObservationId {
-    let value = child_domain_derived_identifier_text(
-        domain.observed_event_type().as_str(),
-        &[subject_ref.as_str(), observed_state.as_str()],
-    );
-    parse_or_panic(
-        ChildDomainObservationId::parse(value),
-        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
-    )
-}
-
-pub fn child_domain_evidence_ref_from_observation_id(
-    domain: ChildRuntimeDomain,
-    observation_id: &ChildDomainObservationId,
-) -> ChildDomainEvidenceRef {
-    let value = child_domain_derived_identifier_text(
-        domain.evidence_recorded_event_type().as_str(),
-        &[observation_id.as_str()],
-    );
-    parse_or_panic(
-        ChildDomainEvidenceRef::parse(value),
-        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
-    )
-}
-
-pub fn child_domain_ai_request_id_from_evidence_ref(
-    domain: ChildRuntimeDomain,
-    evidence_ref: &ChildDomainEvidenceRef,
-) -> ChildDomainAiRequestId {
-    let value = child_domain_derived_identifier_text(
-        domain.ai_analysis_requested_event_type().as_str(),
-        &[evidence_ref.as_str()],
-    );
-    parse_or_panic(
-        ChildDomainAiRequestId::parse(value),
-        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
-    )
-}
-
-pub fn child_domain_fact_ref_from_ai_request_id(
-    value: &ChildDomainAiRequestId,
-) -> ChildDomainFactRef {
-    child_domain_fact_ref_text(value.as_str())
-}
-
-pub fn child_domain_policy_request_id_from_fact_ref(
-    domain: ChildRuntimeDomain,
-    fact_ref: &ChildDomainFactRef,
-) -> ChildDomainPolicyRequestId {
-    let value = child_domain_derived_identifier_text(
-        domain.policy_evaluation_requested_event_type().as_str(),
-        &[fact_ref.as_str()],
-    );
-    parse_or_panic(
-        ChildDomainPolicyRequestId::parse(value),
-        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
-    )
-}
-
-fn child_domain_fact_ref_text(value: &str) -> ChildDomainFactRef {
-    parse_or_panic(
-        ChildDomainFactRef::parse(value.to_owned()),
-        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
-    )
-}
-
-fn child_domain_derived_identifier_text(prefix: &str, segments: &[&str]) -> String {
-    let mut value = String::from(prefix);
-    for segment in segments {
-        value.push(':');
-        value.push_str(segment);
-    }
-    value
-}
-
-pub fn child_domain_policy_violation_id(
-    domain: ChildRuntimeDomain,
-    suffix: ChildDomainRefSuffix,
-) -> ChildDomainPolicyViolationId {
-    let suffix_text = suffix.as_contract_text();
-    parse_or_panic(
-        ChildDomainPolicyViolationId::parse(child_domain_ref_text(domain, suffix_text)),
-        suffix_text,
-    )
-}
-
-pub fn child_domain_notification_id(
-    domain: ChildRuntimeDomain,
-    suffix: ChildDomainRefSuffix,
-) -> ChildDomainNotificationId {
-    let suffix_text = suffix.as_contract_text();
-    parse_or_panic(
-        ChildDomainNotificationId::parse(child_domain_ref_text(domain, suffix_text)),
-        suffix_text,
-    )
-}
-
-pub fn child_domain_policy_violation_id_from_policy_request_id(
-    policy_request_id: &ChildDomainPolicyRequestId,
-) -> ChildDomainPolicyViolationId {
-    let value = child_domain_derived_identifier_text(
-        constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE,
-        &[policy_request_id.as_str()],
-    );
-    parse_or_panic(
-        ChildDomainPolicyViolationId::parse(value),
-        constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE,
-    )
-}
-
-pub fn child_domain_notification_id_from_policy_violation_id(
-    policy_violation_id: &ChildDomainPolicyViolationId,
-) -> ChildDomainNotificationId {
-    let value = child_domain_derived_identifier_text(
-        constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE,
-        &[policy_violation_id.as_str()],
-    );
-    parse_or_panic(
-        ChildDomainNotificationId::parse(value),
-        constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE,
-    )
-}
-
-fn canonical_child_domain_evidence_refs(
-    evidence_refs: &[ChildDomainEvidenceRef],
-) -> Vec<ChildDomainEvidenceRef> {
-    let mut canonical = Vec::with_capacity(evidence_refs.len());
-    for evidence_ref in evidence_refs {
-        if !canonical.contains(evidence_ref) {
-            canonical.push(evidence_ref.clone());
-        }
-    }
-    canonical
-}
-
-pub fn child_domain_observed_event(
-    profile: ChildDomainObservedEventProfile,
-) -> ChildDomainObservedEvent {
-    let subject_ref = child_domain_subject_ref(profile.domain, profile.subject_ref_suffix);
-    let observed_state = child_domain_observed_state(profile.observed_state);
-    ChildDomainObservedEvent {
-        event_type: profile.domain.observed_event_type(),
-        domain: profile.domain,
-        child_device_id: child_domain_child_device_id(),
-        child_profile_id: child_domain_child_profile_id(),
-        observation_id: child_domain_observation_id_from_subject_ref(
-            profile.domain,
-            &subject_ref,
-            &observed_state,
-        ),
-        subject_ref,
-        observed_state,
-        observed_at: child_domain_observed_at(),
-        ai_analysis_requirement: profile.ai_analysis_requirement,
-        policy_evaluation_requirement: profile.policy_evaluation_requirement,
-    }
-}
-
-pub fn child_domain_evidence_recorded_event(
-    event: &ChildDomainObservedEvent,
-) -> ChildDomainEvidenceRecordedEvent {
-    ChildDomainEvidenceRecordedEvent {
-        event_type: event.domain.evidence_recorded_event_type(),
-        domain: event.domain,
-        child_device_id: event.child_device_id.clone(),
-        child_profile_id: event.child_profile_id.clone(),
-        evidence_ref: child_domain_evidence_ref_from_observation_id(
-            event.domain,
-            &event.observation_id,
-        ),
-        source_observation_id: event.observation_id.clone(),
-        source_observed_at: event.observed_at.clone(),
-        signal: event.observed_state.clone(),
-        ai_analysis_requirement: event.ai_analysis_requirement,
-        policy_evaluation_requirement: event.policy_evaluation_requirement,
-    }
-}
-
-pub fn child_domain_ai_analysis_requested_event(
-    event: &ChildDomainEvidenceRecordedEvent,
-) -> ChildDomainAiAnalysisRequestedEvent {
-    ChildDomainAiAnalysisRequestedEvent {
-        event_type: event.domain.ai_analysis_requested_event_type(),
-        domain: event.domain,
-        child_device_id: event.child_device_id.clone(),
-        child_profile_id: event.child_profile_id.clone(),
-        ai_request_id: child_domain_ai_request_id_from_evidence_ref(
-            event.domain,
-            &event.evidence_ref,
-        ),
-        evidence_refs: vec![event.evidence_ref.clone()],
-        source_observed_at: event.source_observed_at.clone(),
-        allowed_analysis_purpose: child_domain_analysis_purpose(
-            ChildDomainAnalysisPurposeKind::Classification,
-        ),
-        private_payload_state: PrivatePayloadState::Excluded,
-        policy_evaluation_requirement: event.policy_evaluation_requirement,
-    }
-}
-
-pub fn child_domain_ai_analysis_requested_event_if_required(
-    event: &ChildDomainEvidenceRecordedEvent,
-) -> Option<ChildDomainAiAnalysisRequestedEvent> {
-    if event.ai_analysis_requirement == ChildDomainAiAnalysisRequirement::Required {
-        Some(child_domain_ai_analysis_requested_event(event))
-    } else {
-        None
-    }
-}
-
-pub fn child_domain_policy_evaluation_requested_event(
-    event: &ChildDomainEvidenceRecordedEvent,
-    source_fact_ref: ChildDomainFactRef,
-) -> ChildDomainPolicyEvaluationRequestedEvent {
-    ChildDomainPolicyEvaluationRequestedEvent {
-        event_type: event.domain.policy_evaluation_requested_event_type(),
-        domain: event.domain,
-        child_device_id: event.child_device_id.clone(),
-        child_profile_id: event.child_profile_id.clone(),
-        policy_request_id: child_domain_policy_request_id_from_fact_ref(
-            event.domain,
-            &source_fact_ref,
-        ),
-        evidence_refs: vec![event.evidence_ref.clone()],
-        source_observed_at: event.source_observed_at.clone(),
-        source_fact_ref,
-    }
-}
-
-pub fn child_domain_direct_policy_evaluation_requested_event_if_required(
-    event: &ChildDomainEvidenceRecordedEvent,
-) -> Option<ChildDomainPolicyEvaluationRequestedEvent> {
-    if event.policy_evaluation_requirement == ChildDomainPolicyEvaluationRequirement::Required
-        && event.ai_analysis_requirement == ChildDomainAiAnalysisRequirement::NotRequired
-    {
-        Some(child_domain_policy_evaluation_requested_event(
-            event,
-            child_domain_fact_ref_from_observation_id(&event.source_observation_id),
-        ))
-    } else {
-        None
-    }
-}
-
-pub fn child_domain_policy_evaluation_requested_from_ai_event(
-    event: &ChildDomainAiAnalysisRequestedEvent,
-) -> ChildDomainPolicyEvaluationRequestedEvent {
-    child_domain_policy_evaluation_requested_from_ai_result_event(
-        &child_domain_ai_analysis_completed_event(event),
-    )
-}
-
-pub fn child_domain_ai_analysis_completed_event(
-    event: &ChildDomainAiAnalysisRequestedEvent,
-) -> ChildDomainAiAnalysisCompletedEvent {
-    ChildDomainAiAnalysisCompletedEvent {
-        event_type: ChildDomainEventType::ai_analysis_completed(),
-        domain: event.domain,
-        child_device_id: event.child_device_id.clone(),
-        child_profile_id: event.child_profile_id.clone(),
-        source_ai_request_id: event.ai_request_id.clone(),
-        evidence_refs: event.evidence_refs.clone(),
-        source_observed_at: event.source_observed_at.clone(),
-        result_fact_ref: child_domain_fact_ref_from_ai_request_id(&event.ai_request_id),
-        private_payload_state: PrivatePayloadState::Excluded,
-        policy_evaluation_requirement: event.policy_evaluation_requirement,
-    }
-}
-
-pub fn child_domain_policy_evaluation_requested_from_ai_result_event(
-    event: &ChildDomainAiAnalysisCompletedEvent,
-) -> ChildDomainPolicyEvaluationRequestedEvent {
-    let source_fact_ref = event.result_fact_ref.clone();
-    ChildDomainPolicyEvaluationRequestedEvent {
-        event_type: event.domain.policy_evaluation_requested_event_type(),
-        domain: event.domain,
-        child_device_id: event.child_device_id.clone(),
-        child_profile_id: event.child_profile_id.clone(),
-        policy_request_id: child_domain_policy_request_id_from_fact_ref(
-            event.domain,
-            &source_fact_ref,
-        ),
-        evidence_refs: event.evidence_refs.clone(),
-        source_observed_at: event.source_observed_at.clone(),
-        source_fact_ref,
-    }
-}
-
-pub fn child_domain_policy_evaluation_requested_from_ai_event_if_required(
-    event: &ChildDomainAiAnalysisRequestedEvent,
-) -> Option<ChildDomainPolicyEvaluationRequestedEvent> {
-    child_domain_policy_evaluation_requested_from_ai_result_event_if_required(
-        &child_domain_ai_analysis_completed_event(event),
-    )
-}
-
-pub fn child_domain_policy_evaluation_requested_from_ai_result_event_if_required(
-    event: &ChildDomainAiAnalysisCompletedEvent,
-) -> Option<ChildDomainPolicyEvaluationRequestedEvent> {
-    if event.policy_evaluation_requirement == ChildDomainPolicyEvaluationRequirement::Required {
-        Some(child_domain_policy_evaluation_requested_from_ai_result_event(event))
-    } else {
-        None
-    }
-}
-
-pub fn child_domain_policy_violation_detected_event(
-    event: &ChildDomainPolicyEvaluationRequestedEvent,
-) -> ChildDomainPolicyViolationDetectedEvent {
-    ChildDomainPolicyViolationDetectedEvent {
-        event_type: ChildDomainEventType::policy_violation_detected(),
-        domain: event.domain,
-        child_device_id: event.child_device_id.clone(),
-        child_profile_id: event.child_profile_id.clone(),
-        violation_id: child_domain_policy_violation_id_from_policy_request_id(
-            &event.policy_request_id,
-        ),
-        policy_rule_ref: child_domain_policy_rule_ref(ChildDomainPolicyRuleKind::Default),
-        severity: child_domain_policy_severity(ChildDomainPolicySeverityKind::Review),
-        detected_at: event.source_observed_at.clone(),
-        evidence_refs: canonical_child_domain_evidence_refs(&event.evidence_refs),
-    }
-}
-
-pub fn child_domain_notification_requested_event(
-    event: &ChildDomainPolicyViolationDetectedEvent,
-) -> ChildDomainNotificationRequestedEvent {
-    ChildDomainNotificationRequestedEvent {
-        event_type: ChildDomainEventType::notification_requested(),
-        domain: event.domain,
-        child_device_id: event.child_device_id.clone(),
-        child_profile_id: event.child_profile_id.clone(),
-        notification_id: child_domain_notification_id_from_policy_violation_id(&event.violation_id),
-        source_policy_violation_id: event.violation_id.clone(),
-        channel: child_domain_notification_channel(
-            ChildDomainNotificationChannelKind::ParentPortal,
-        ),
-        requested_at: event.detected_at.clone(),
-        evidence_refs: canonical_child_domain_evidence_refs(&event.evidence_refs),
-    }
-}
-
-fn child_domain_ref_text(domain: ChildRuntimeDomain, suffix: &str) -> String {
-    format!(
-        "{}{}{}",
-        domain.as_contract_text(),
-        constants::child_domain_runtime::IDEMPOTENCY_SEPARATOR,
-        suffix
-    )
-}
-
-fn child_domain_contract(
-    event_type: &ChildDomainEventType,
-) -> Result<EventContract, EventingError> {
-    Ok(EventContract::new(
-        EventType::parse(event_type.as_str())?,
-        SchemaVersion::new(AGENT_PROTOCOL_SCHEMA_VERSION)?,
-    ))
-}
-
-fn child_domain_aggregate_key(
-    domain: &ChildRuntimeDomain,
-    child_device_id: &str,
-    child_profile_id: &str,
-) -> Result<AggregateKey, EventingError> {
-    AggregateKey::parse(format!(
-        "{}{}{}{}{}",
-        domain.as_contract_text(),
-        constants::child_domain_runtime::IDEMPOTENCY_SEPARATOR,
-        child_device_id,
-        constants::child_domain_runtime::IDEMPOTENCY_SEPARATOR,
-        child_profile_id
-    ))
-}
-
-fn child_domain_idempotency_key(
-    event_type: &ChildDomainEventType,
-    unique_ref: &str,
-) -> Result<IdempotencyKey, EventingError> {
-    IdempotencyKey::parse(format!(
-        "{}{}{}",
-        event_type.as_str(),
-        constants::child_domain_runtime::IDEMPOTENCY_SEPARATOR,
-        unique_ref
-    ))
-}
+include!("child_domain_runtime/event_flow.rs");
+include!("child_domain_runtime/identifiers.rs");

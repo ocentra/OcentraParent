@@ -13,6 +13,19 @@ use child_agent_event_fixtures::{
     child_command_received_event, child_command_rejected_event, child_runtime_health_updated_event,
 };
 
+macro_rules! serialized_field {
+    ($value:expr, $field:literal) => {{
+        let serialized =
+            serde_json::to_value($value).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serialized[$field].clone()
+    }};
+    ($value:expr, $field:literal, $nested:literal) => {{
+        let serialized =
+            serde_json::to_value($value).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serialized[$field][$nested].clone()
+    }};
+}
+
 #[test]
 fn child_agent_contracts_name_exact_event_types() {
     assert_eq!(
@@ -40,35 +53,27 @@ fn child_agent_contracts_name_exact_event_types() {
 #[test]
 fn child_agent_contracts_serialize_command_and_runtime_refs() {
     assert_eq!(
-        serialized_field(&child_command_received_event(), "commandKind", ""),
+        serialized_field!(&child_command_received_event(), "commandKind"),
         serde_json::json!("apply-policy")
     );
     assert_eq!(
-        serialized_field(
-            &child_command_received_event(),
-            "parentControllerEventRef",
-            ""
-        ),
+        serialized_field!(&child_command_received_event(), "parentControllerEventRef"),
         constants::child_agent::TEST_PARENT_CONTROLLER_EVENT_REF
     );
     assert_eq!(
-        serialized_field(&child_command_accepted_event(), "decision", ""),
+        serialized_field!(&child_command_accepted_event(), "decision"),
         serde_json::json!("manual-required")
     );
     assert_eq!(
-        serialized_field(&child_command_rejected_event(), "rejectionReasonCode", ""),
+        serialized_field!(&child_command_rejected_event(), "rejectionReasonCode"),
         constants::child_agent::TEST_REJECTION_CODE
     );
     assert_eq!(
-        serialized_field(
-            &child_capability_state_updated_event(),
-            "capabilityState",
-            ""
-        ),
+        serialized_field!(&child_capability_state_updated_event(), "capabilityState"),
         serde_json::json!("manual-required")
     );
     assert_eq!(
-        serialized_field(&child_runtime_health_updated_event(), "healthState", ""),
+        serialized_field!(&child_runtime_health_updated_event(), "healthState"),
         serde_json::json!("degraded")
     );
 }
@@ -79,7 +84,7 @@ fn child_agent_contracts_serialize_browser_action_intent_handoff_kind() {
     event.command_kind = ChildCommandKind::BrowserActionIntentHandoff;
 
     assert_eq!(
-        serialized_field(&event, "commandKind", ""),
+        serialized_field!(&event, "commandKind"),
         serde_json::json!("browser-action-intent-handoff")
     );
 }
@@ -102,17 +107,4 @@ fn child_command_contract_rejects_missing_child_command_ref() {
         parsed.err().map(|error| error.classify()),
         Some(serde_json::error::Category::Data)
     );
-}
-
-fn serialized_field<T>(value: &T, field: &str, nested: &str) -> serde_json::Value
-where
-    T: serde::Serialize,
-{
-    let serialized = serde_json::to_value(value).unwrap_or_else(|error| {
-        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    if nested.is_empty() {
-        return serialized[field].clone();
-    }
-    serialized[field][nested].clone()
 }

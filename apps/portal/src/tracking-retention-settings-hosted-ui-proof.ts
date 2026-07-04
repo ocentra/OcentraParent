@@ -1,4 +1,4 @@
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { type PortalDisplayText } from './portal-display-text';
 import {
   type ParentPortalDetailValue,
   type ParentTrackingStatusProofArtifact,

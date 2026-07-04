@@ -8,7 +8,8 @@ use serde_json::json;
 #[test]
 fn data_custody_source_of_truth_round_trips_through_rust_owned_shape() {
     let proof = contracts::sample_data_custody_source_of_truth_contract_proof();
-    let encoded = serde_json::to_value(&proof).value_or_unreachable("proof serializes");
+    let encoded = serde_json::to_value(&proof)
+        .value_or_unreachable(crate::assert_context!("proof serializes"));
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -28,8 +29,8 @@ fn data_custody_source_of_truth_round_trips_through_rust_owned_shape() {
     );
     assert!(encoded.get("schema_version").is_none());
 
-    let decoded: contracts::DataCustodySourceOfTruthContractProof =
-        serde_json::from_value(encoded).value_or_unreachable("proof deserializes");
+    let decoded: contracts::DataCustodySourceOfTruthContractProof = serde_json::from_value(encoded)
+        .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
 }
 
@@ -39,45 +40,68 @@ fn generated_data_custody_source_of_truth_contracts_stay_checked_in() {
         "../../../../packages/schema-domain/src/generated/data-custody-source-of-truth-contracts.ts"
     );
     let generated = data_custody_source_of_truth_contracts_typescript();
-    let checked_in_lines: Vec<&str> = checked_in.lines().collect();
-    let generated_lines: Vec<&str> = generated.lines().collect();
 
     assert_eq!(
         extract_json_block(
-            checked_in,
-            "export const GeneratedDataCustodyKnownGaps = ",
-            " as const;"
+            crate::contract_text!(checked_in),
+            crate::text_boundary!(
+                "export const GeneratedDataCustodyKnownGaps = ",
+                " as const;"
+            )
         ),
         extract_json_block(
-            &generated,
-            "export const GeneratedDataCustodyKnownGaps = ",
-            " as const;"
+            crate::contract_text!(&generated),
+            crate::text_boundary!(
+                "export const GeneratedDataCustodyKnownGaps = ",
+                " as const;"
+            )
         )
     );
     assert_eq!(
         extract_json_block(
-            checked_in,
-            "export const GeneratedDataCustodySourceOfTruthContractProof = ",
-            " as const satisfies GeneratedDataCustodySourceOfTruthContractProof;"
+            crate::contract_text!(checked_in),
+            crate::text_boundary!(
+                "export const GeneratedDataCustodySourceOfTruthContractProof = ",
+                " as const satisfies GeneratedDataCustodySourceOfTruthContractProof;"
+            )
         ),
         extract_json_block(
-            &generated,
-            "export const GeneratedDataCustodySourceOfTruthContractProof = ",
-            " as const satisfies GeneratedDataCustodySourceOfTruthContractProof;"
+            crate::contract_text!(&generated),
+            crate::text_boundary!(
+                "export const GeneratedDataCustodySourceOfTruthContractProof = ",
+                " as const satisfies GeneratedDataCustodySourceOfTruthContractProof;"
+            )
         )
     );
     assert_eq!(
         extract_typescript_block(
-            checked_in,
-            "export const GeneratedDataCustodyClassIds = [",
-            "] as const satisfies readonly GeneratedDataCustodyClassId[];"
+            crate::contract_text!(checked_in),
+            crate::text_boundary!(
+                "export const GeneratedDataCustodyClassIds = [",
+                "] as const satisfies readonly GeneratedDataCustodyClassId[];"
+            )
         ),
         extract_typescript_block(
-            &generated,
-            "export const GeneratedDataCustodyClassIds = [",
-            "] as const satisfies readonly GeneratedDataCustodyClassId[];"
+            crate::contract_text!(&generated),
+            crate::text_boundary!(
+                "export const GeneratedDataCustodyClassIds = [",
+                "] as const satisfies readonly GeneratedDataCustodyClassId[];"
+            )
         )
     );
+    assert_generated_data_custody_source_of_truth_contracts(
+        crate::contract_text!(checked_in),
+        crate::contract_text!(&generated),
+    );
+}
+
+fn assert_generated_data_custody_source_of_truth_contracts(
+    checked_in: crate::support::ContractText<'_>,
+    generated: crate::support::ContractText<'_>,
+) {
+    let checked_in_lines: Vec<&str> = checked_in.0.lines().collect();
+    let generated_lines: Vec<&str> = generated.0.lines().collect();
+
     assert_eq!(
         checked_in_lines.first().copied(),
         Some("/* generated from crates/schema/src/data_custody_source_of_truth.rs */")
@@ -135,11 +159,11 @@ fn data_custody_adapters_stay_thin_and_generated_backed() {
         Some("/* thin adapter over Rust-generated data custody source-of-truth contracts */")
     );
     assert_eq!(
-        module_specifiers(matrix_adapter),
-        vec![
+        module_specifiers(crate::contract_text!(matrix_adapter)),
+        crate::module_specifiers![
             "./family-reference-primitives",
             "./effect",
-            "./production-proof-shape",
+            "./proof-shape",
             "./custody-boundary",
             "./generated/data-custody-source-of-truth-contracts"
         ]
@@ -149,13 +173,12 @@ fn data_custody_adapters_stay_thin_and_generated_backed() {
         Some("/* thin custody boundary helpers over Rust-generated data custody source-of-truth literals plus local workpack adapters */")
     );
     assert_eq!(
-        module_specifiers(boundary_adapter),
-        vec![
+        module_specifiers(crate::contract_text!(boundary_adapter)),
+        crate::module_specifiers![
             "./family-references",
             "./family-reference-primitives",
             "./effect",
             "./generated/data-custody-source-of-truth-contracts",
         ]
     );
-    remainder[..end].trim().replace("\r\n", "\n")
 }

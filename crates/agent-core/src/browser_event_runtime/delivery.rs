@@ -1,10 +1,11 @@
 use ocentra_eventing::{
-    delivery::decide_event_delivery_route, delivery::EventDeliveryBackpressurePolicy,
-    delivery::EventDeliveryDecisionError, delivery::EventDeliveryDecisionInput,
-    delivery::EventDeliveryDecisionProof, delivery::EventDeliveryDecisionState,
-    delivery::EventDeliveryRouteKind, delivery::EventDeliverySubscriberFilter,
-    error::EventingError, ids::EventNamespace, ids::EventType, ids::SourceComponent,
-    ids::SubscriberId, ids::TargetHandler,
+    delivery::decide_event_delivery_route, delivery::validation::EventDeliveryBackpressurePolicy,
+    delivery::validation::EventDeliveryDecisionError,
+    delivery::validation::EventDeliveryDecisionInput,
+    delivery::validation::EventDeliveryDecisionProof,
+    delivery::validation::EventDeliveryDecisionState, delivery::validation::EventDeliveryRouteKind,
+    delivery::validation::EventDeliverySubscriberFilter, error::EventingError, ids::EventNamespace,
+    ids::EventType, ids::SourceComponent, ids::SubscriberId, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;

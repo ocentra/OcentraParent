@@ -8,328 +8,397 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdDeviceConfidence, LanDiscoveryEvidenceSource,
 };
 
-#[test]
-fn merge_and_evidence_invariants_hold_across_duplicate_source_permutations() {
-    let expected_source_sets =
-        BTreeSet::from([BTreeSet::from(["WindowsNeighborTable".to_string()])]);
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+struct LanText(String);
 
-    for network_devices in [
-        vec![
-            inventory_device(
-                "lan-merge-a",
-                "mystery-device.local",
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-            inventory_device(
-                "lan-merge-b",
-                "mystery-device.local",
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                LanPairingDeviceReachability::Online,
-                vec![
-                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
-                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP.to_string(),
-                ],
-            ),
-            inventory_device(
-                "lan-merge-c",
-                "mystery-device.local",
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                LanPairingDeviceReachability::Online,
-                vec![
-                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
-                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH.to_string(),
-                ],
-            ),
-        ],
-        vec![
-            inventory_device(
-                "lan-merge-c",
-                "mystery-device.local",
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                LanPairingDeviceReachability::Online,
-                vec![
-                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
-                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH.to_string(),
-                ],
-            ),
-            inventory_device(
-                "lan-merge-a",
-                "mystery-device.local",
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-            inventory_device(
-                "lan-merge-b",
-                "mystery-device.local",
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                LanPairingDeviceReachability::Online,
-                vec![
-                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
-                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP.to_string(),
-                ],
-            ),
-        ],
-        vec![
-            inventory_device(
-                "lan-merge-b",
-                "mystery-device.local",
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                LanPairingDeviceReachability::Online,
-                vec![
-                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
-                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP.to_string(),
-                ],
-            ),
-            inventory_device(
-                "lan-merge-c",
-                "mystery-device.local",
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                LanPairingDeviceReachability::Online,
-                vec![
-                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
-                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH.to_string(),
-                ],
-            ),
-            inventory_device(
-                "lan-merge-a",
-                "mystery-device.local",
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-        ],
-    ] {
-        let model = lan_add_device_read_model_from_inventory(
-            &network_devices,
-            "2026-06-27T12:00:00Z".to_string(),
-        );
-        assert_eq!(model.canonical_household_devices.len(), 3);
-        assert_eq!(model.discovered_devices.len(), network_devices.len());
-        assert_eq!(canonical_source_sets(&model), expected_source_sets);
-        assert!(model.canonical_household_devices.iter().all(|device| {
-            device.classification
-                == ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceClassification::UnknownLanDevice
-        }));
+macro_rules! lt {
+    ($value:expr) => {
+        LanText(($value).to_string())
+    };
+}
+fn assert_duplicate_source_invariants(
+    network_devices: &[LanNetworkInventoryDevice],
+    expected_source_sets: &BTreeSet<BTreeSet<LanText>>,
+) {
+    let model = lan_add_device_read_model_from_inventory(
+        network_devices,
+        "2026-06-27T12:00:00Z".to_string(),
+    );
+    assert_duplicate_source_model_shape(&model, expected_source_sets);
+    assert_duplicate_source_event_history(&model);
+    assert_duplicate_source_device_ids_unique(&model);
+}
+fn assert_duplicate_source_model_shape(
+    model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
+    expected_source_sets: &BTreeSet<BTreeSet<LanText>>,
+) {
+    assert_eq!(model.canonical_household_devices.len(), 3);
+    assert_eq!(model.discovered_devices.len(), 3);
+    assert_eq!(&canonical_source_sets(model), expected_source_sets);
+    for device in &model.canonical_household_devices {
         assert_eq!(
-            event_count(&model, &LanDiscoveryEventKind::UnknownDetected),
-            3
-        );
-        assert_eq!(event_count(&model, &LanDiscoveryEventKind::DeviceOnline), 3);
-        assert_eq!(
-            model
-                .discovery_event_history
-                .rows
-                .first()
-                .map(|row| &row.event_kind),
-            Some(&LanDiscoveryEventKind::ScanStarted)
-        );
-        assert_eq!(
-            model
-                .discovery_event_history
-                .rows
-                .last()
-                .map(|row| &row.event_kind),
-            Some(&LanDiscoveryEventKind::ScanFinished)
-        );
-        assert!(model
-            .discovery_event_history
-            .rows
-            .iter()
-            .skip(1)
-            .all(|row| row.previous_event_id.is_some()));
-        assert_eq!(
-            model
-                .canonical_household_devices
-                .iter()
-                .map(|device| device.canonical_device_id.as_str())
-                .collect::<BTreeSet<_>>()
-                .len(),
-            model.canonical_household_devices.len()
+            device.classification,
+            ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDeviceClassification::UnknownLanDevice
         );
     }
+    assert_eq!(
+        event_count(model, &LanDiscoveryEventKind::UnknownDetected),
+        3
+    );
+    assert_eq!(event_count(model, &LanDiscoveryEventKind::DeviceOnline), 3);
+}
+
+fn assert_duplicate_source_event_history(
+    model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
+) {
+    assert_eq!(
+        model
+            .discovery_event_history
+            .rows
+            .first()
+            .map(|row| &row.event_kind),
+        Some(&LanDiscoveryEventKind::ScanStarted)
+    );
+    assert_eq!(
+        model
+            .discovery_event_history
+            .rows
+            .last()
+            .map(|row| &row.event_kind),
+        Some(&LanDiscoveryEventKind::ScanFinished)
+    );
+    assert!(model
+        .discovery_event_history
+        .rows
+        .iter()
+        .skip(1)
+        .all(|row| row.previous_event_id.is_some()));
+}
+
+fn assert_duplicate_source_device_ids_unique(
+    model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
+) {
+    assert_eq!(
+        model
+            .canonical_household_devices
+            .iter()
+            .map(|device| device.canonical_device_id.as_str())
+            .collect::<BTreeSet<_>>()
+            .len(),
+        model.canonical_household_devices.len()
+    );
+}
+
+#[test]
+fn merge_and_evidence_invariants_hold_across_duplicate_source_permutations() {
+    let expected_source_sets = BTreeSet::from([BTreeSet::from([lt!("WindowsNeighborTable")])]);
+    assert_duplicate_source_invariants(
+        &[
+            inventory_device(
+                "lan-merge-a",
+                "mystery-device.local",
+                constants::lan_pairing::TEST_LAN_IP,
+                constants::lan_pairing::TEST_LAN_MAC,
+                LanPairingDeviceReachability::Online,
+                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+            ),
+            inventory_device(
+                "lan-merge-b",
+                "mystery-device.local",
+                constants::lan_pairing::TEST_LAN_IP,
+                constants::lan_pairing::TEST_LAN_MAC,
+                LanPairingDeviceReachability::Online,
+                vec![
+                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
+                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP.to_string(),
+                ],
+            ),
+            inventory_device(
+                "lan-merge-c",
+                "mystery-device.local",
+                constants::lan_pairing::TEST_LAN_IP,
+                constants::lan_pairing::TEST_LAN_MAC,
+                LanPairingDeviceReachability::Online,
+                vec![
+                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
+                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH.to_string(),
+                ],
+            ),
+        ],
+        &expected_source_sets,
+    );
+    assert_duplicate_source_invariants(
+        &[
+            inventory_device(
+                "lan-merge-c",
+                "mystery-device.local",
+                constants::lan_pairing::TEST_LAN_IP,
+                constants::lan_pairing::TEST_LAN_MAC,
+                LanPairingDeviceReachability::Online,
+                vec![
+                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
+                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH.to_string(),
+                ],
+            ),
+            inventory_device(
+                "lan-merge-a",
+                "mystery-device.local",
+                constants::lan_pairing::TEST_LAN_IP,
+                constants::lan_pairing::TEST_LAN_MAC,
+                LanPairingDeviceReachability::Online,
+                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+            ),
+            inventory_device(
+                "lan-merge-b",
+                "mystery-device.local",
+                constants::lan_pairing::TEST_LAN_IP,
+                constants::lan_pairing::TEST_LAN_MAC,
+                LanPairingDeviceReachability::Online,
+                vec![
+                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
+                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP.to_string(),
+                ],
+            ),
+        ],
+        &expected_source_sets,
+    );
+    assert_duplicate_source_invariants(
+        &[
+            inventory_device(
+                "lan-merge-b",
+                "mystery-device.local",
+                constants::lan_pairing::TEST_LAN_IP,
+                constants::lan_pairing::TEST_LAN_MAC,
+                LanPairingDeviceReachability::Online,
+                vec![
+                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
+                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP.to_string(),
+                ],
+            ),
+            inventory_device(
+                "lan-merge-c",
+                "mystery-device.local",
+                constants::lan_pairing::TEST_LAN_IP,
+                constants::lan_pairing::TEST_LAN_MAC,
+                LanPairingDeviceReachability::Online,
+                vec![
+                    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
+                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH.to_string(),
+                ],
+            ),
+            inventory_device(
+                "lan-merge-a",
+                "mystery-device.local",
+                constants::lan_pairing::TEST_LAN_IP,
+                constants::lan_pairing::TEST_LAN_MAC,
+                LanPairingDeviceReachability::Online,
+                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+            ),
+        ],
+        &expected_source_sets,
+    );
 }
 
 #[test]
 fn locally_administered_mac_neighbors_stay_split_for_every_input_order() {
-    for network_devices in [
-        vec![
-            inventory_device(
-                "randomized-one",
-                "Printer One",
-                "192.168.1.31",
-                "02-aa-bb-cc-dd-ee",
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-            inventory_device(
-                "randomized-two",
-                "Printer Two",
-                "192.168.1.32",
-                "02-aa-bb-cc-dd-ee",
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-            inventory_device(
-                "randomized-three",
-                "Printer Three",
-                "192.168.1.33",
-                "02-aa-bb-cc-dd-ee",
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-        ],
-        vec![
-            inventory_device(
-                "randomized-three",
-                "Printer Three",
-                "192.168.1.33",
-                "02-aa-bb-cc-dd-ee",
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-            inventory_device(
-                "randomized-one",
-                "Printer One",
-                "192.168.1.31",
-                "02-aa-bb-cc-dd-ee",
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-            inventory_device(
-                "randomized-two",
-                "Printer Two",
-                "192.168.1.32",
-                "02-aa-bb-cc-dd-ee",
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-        ],
-        vec![
-            inventory_device(
-                "randomized-two",
-                "Printer Two",
-                "192.168.1.32",
-                "02-aa-bb-cc-dd-ee",
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-            inventory_device(
-                "randomized-three",
-                "Printer Three",
-                "192.168.1.33",
-                "02-aa-bb-cc-dd-ee",
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-            inventory_device(
-                "randomized-one",
-                "Printer One",
-                "192.168.1.31",
-                "02-aa-bb-cc-dd-ee",
-                LanPairingDeviceReachability::Online,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            ),
-        ],
-    ] {
-        let model = lan_add_device_read_model_from_inventory(
-            &network_devices,
-            "2026-06-27T12:00:00Z".to_string(),
-        );
+    assert_locally_administered_mac_neighbors_split(vec![
+        inventory_device(
+            "randomized-one",
+            "Printer One",
+            "192.168.1.31",
+            "02-aa-bb-cc-dd-ee",
+            LanPairingDeviceReachability::Online,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        ),
+        inventory_device(
+            "randomized-two",
+            "Printer Two",
+            "192.168.1.32",
+            "02-aa-bb-cc-dd-ee",
+            LanPairingDeviceReachability::Online,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        ),
+        inventory_device(
+            "randomized-three",
+            "Printer Three",
+            "192.168.1.33",
+            "02-aa-bb-cc-dd-ee",
+            LanPairingDeviceReachability::Online,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        ),
+    ]);
+    assert_locally_administered_mac_neighbors_split(vec![
+        inventory_device(
+            "randomized-three",
+            "Printer Three",
+            "192.168.1.33",
+            "02-aa-bb-cc-dd-ee",
+            LanPairingDeviceReachability::Online,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        ),
+        inventory_device(
+            "randomized-one",
+            "Printer One",
+            "192.168.1.31",
+            "02-aa-bb-cc-dd-ee",
+            LanPairingDeviceReachability::Online,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        ),
+        inventory_device(
+            "randomized-two",
+            "Printer Two",
+            "192.168.1.32",
+            "02-aa-bb-cc-dd-ee",
+            LanPairingDeviceReachability::Online,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        ),
+    ]);
+    assert_locally_administered_mac_neighbors_split(vec![
+        inventory_device(
+            "randomized-two",
+            "Printer Two",
+            "192.168.1.32",
+            "02-aa-bb-cc-dd-ee",
+            LanPairingDeviceReachability::Online,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        ),
+        inventory_device(
+            "randomized-three",
+            "Printer Three",
+            "192.168.1.33",
+            "02-aa-bb-cc-dd-ee",
+            LanPairingDeviceReachability::Online,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        ),
+        inventory_device(
+            "randomized-one",
+            "Printer One",
+            "192.168.1.31",
+            "02-aa-bb-cc-dd-ee",
+            LanPairingDeviceReachability::Online,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        ),
+    ]);
+}
 
-        assert_eq!(model.canonical_household_devices.len(), 3);
-        assert!(model.canonical_household_devices.iter().all(|device| {
-            device.network_identity.confidence
-                == LanCanonicalHouseholdDeviceConfidence::ManualRequired
-                && !device.enrollable
-                && device.child_agent_inventory.is_none()
-        }));
-    }
+fn assert_locally_administered_mac_neighbors_split(
+    network_devices: Vec<LanNetworkInventoryDevice>,
+) {
+    let model = lan_add_device_read_model_from_inventory(
+        &network_devices,
+        "2026-06-27T12:00:00Z".to_string(),
+    );
+
+    assert_eq!(model.canonical_household_devices.len(), 3);
+    assert_eq!(
+        model.canonical_household_devices[0]
+            .network_identity
+            .confidence,
+        LanCanonicalHouseholdDeviceConfidence::ManualRequired
+    );
+    assert!(!model.canonical_household_devices[0].enrollable);
+    assert!(model.canonical_household_devices[0]
+        .child_agent_inventory
+        .is_none());
+    assert_eq!(
+        model.canonical_household_devices[1]
+            .network_identity
+            .confidence,
+        LanCanonicalHouseholdDeviceConfidence::ManualRequired
+    );
+    assert!(!model.canonical_household_devices[1].enrollable);
+    assert!(model.canonical_household_devices[1]
+        .child_agent_inventory
+        .is_none());
+    assert_eq!(
+        model.canonical_household_devices[2]
+            .network_identity
+            .confidence,
+        LanCanonicalHouseholdDeviceConfidence::ManualRequired
+    );
+    assert!(!model.canonical_household_devices[2].enrollable);
+    assert!(model.canonical_household_devices[2]
+        .child_agent_inventory
+        .is_none());
 }
 
 #[test]
 fn reachability_event_ordering_stays_honest_for_online_offline_and_stale_neighbors() {
-    for (label, reachability, expected_event) in [
-        (
-            "online-neighbor",
-            LanPairingDeviceReachability::Online,
-            LanDiscoveryEventKind::DeviceOnline,
-        ),
-        (
-            "offline-neighbor",
-            LanPairingDeviceReachability::Offline,
-            LanDiscoveryEventKind::DeviceOffline,
-        ),
-        (
-            "stale-neighbor",
-            LanPairingDeviceReachability::Stale,
-            LanDiscoveryEventKind::DeviceUpdated,
-        ),
-    ] {
-        let model = lan_add_device_read_model_from_inventory(
-            &[inventory_device(
-                label,
-                label,
-                constants::lan_pairing::TEST_LAN_IP,
-                constants::lan_pairing::TEST_LAN_MAC,
-                reachability,
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
-            )],
-            "2026-06-27T12:00:00Z".to_string(),
-        );
-        let event_kinds = model
-            .discovery_event_history
-            .rows
-            .iter()
-            .map(|row| row.event_kind.clone())
-            .collect::<Vec<_>>();
-        let expected_index = event_kinds
-            .iter()
-            .position(|event_kind| *event_kind == expected_event)
-            .value_or_unreachable("reachability event");
-        let finish_index = event_kinds
-            .iter()
-            .position(|event_kind| *event_kind == LanDiscoveryEventKind::ScanFinished)
-            .value_or_unreachable("scan finished event");
+    assert_reachability_event_ordering_case(
+        "online-neighbor",
+        LanPairingDeviceReachability::Online,
+        LanDiscoveryEventKind::DeviceOnline,
+    );
+    assert_reachability_event_ordering_case(
+        "offline-neighbor",
+        LanPairingDeviceReachability::Offline,
+        LanDiscoveryEventKind::DeviceOffline,
+    );
+    assert_reachability_event_ordering_case(
+        "stale-neighbor",
+        LanPairingDeviceReachability::Stale,
+        LanDiscoveryEventKind::DeviceUpdated,
+    );
+}
 
-        assert_eq!(
-            event_kinds.first(),
-            Some(&LanDiscoveryEventKind::ScanStarted)
-        );
-        assert!(
-            expected_index > 0,
-            "reachability event should not be the first row"
-        );
-        assert!(
-            expected_index < finish_index,
-            "reachability event should appear before scan finished"
-        );
-        assert_eq!(
-            model
-                .discovery_event_history
-                .rows
-                .last()
-                .map(|row| &row.event_kind),
-            Some(&LanDiscoveryEventKind::ScanFinished)
-        );
-        assert!(model
+fn assert_reachability_event_ordering_case(
+    label: impl std::fmt::Display,
+    reachability: LanPairingDeviceReachability,
+    expected_event: LanDiscoveryEventKind,
+) {
+    let label = label.to_string();
+    let model = lan_add_device_read_model_from_inventory(
+        &[inventory_device(
+            label.as_str(),
+            label.as_str(),
+            constants::lan_pairing::TEST_LAN_IP,
+            constants::lan_pairing::TEST_LAN_MAC,
+            reachability,
+            vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        )],
+        "2026-06-27T12:00:00Z".to_string(),
+    );
+    let event_kinds = model
+        .discovery_event_history
+        .rows
+        .iter()
+        .map(|row| row.event_kind.clone())
+        .collect::<Vec<_>>();
+    let expected_index = event_kinds
+        .iter()
+        .position(|event_kind| *event_kind == expected_event)
+        .value_or_unreachable();
+    let finish_index = event_kinds
+        .iter()
+        .position(|event_kind| *event_kind == LanDiscoveryEventKind::ScanFinished)
+        .value_or_unreachable();
+
+    assert_eq!(
+        event_kinds.first(),
+        Some(&LanDiscoveryEventKind::ScanStarted)
+    );
+    assert!(
+        expected_index > 0,
+        "reachability event should not be the first row"
+    );
+    assert!(
+        expected_index < finish_index,
+        "reachability event should appear before scan finished"
+    );
+    assert_eq!(
+        model
             .discovery_event_history
             .rows
-            .iter()
-            .skip(1)
-            .all(|row| row.previous_event_id.is_some()));
-    }
+            .last()
+            .map(|row| &row.event_kind),
+        Some(&LanDiscoveryEventKind::ScanFinished)
+    );
+    assert!(model
+        .discovery_event_history
+        .rows
+        .iter()
+        .skip(1)
+        .all(|row| row.previous_event_id.is_some()));
 }
 
 #[test]
@@ -356,7 +425,7 @@ fn stronger_local_service_child_merge_wins_across_input_orders() {
         let child_agent_inventory = canonical
             .child_agent_inventory
             .as_ref()
-            .value_or_unreachable("child agent inventory");
+            .value_or_unreachable();
         assert_eq!(
             child_agent_inventory.device_name,
             "study-laptop.local".to_string()
@@ -387,15 +456,16 @@ fn stronger_local_service_child_merge_wins_across_input_orders() {
             .network_identity
             .evidence_records
             .iter()
-            .any(|record| {
+            .filter(|record| {
                 record.source
                     == ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource::WindowsNeighborTable
-                    && record.evidence_kind
-                        == ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceKind::IpAddress
+            })
+            .any(|record| {
+                record.evidence_kind
+                    == ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceKind::IpAddress
             }));
     }
 }
-
 #[test]
 fn duplicate_local_service_evidence_state_stays_stable_across_input_orders() {
     let mut expected_signatures = None;
@@ -416,17 +486,14 @@ fn duplicate_local_service_evidence_state_stays_stable_across_input_orders() {
         let signatures = local_service_evidence_signatures(&model);
         assert_eq!(signatures.len(), 5);
         for signature in &signatures {
-            let parts = signature.split('|').collect::<Vec<_>>();
+            let parts = signature.0.split('|').collect::<Vec<_>>();
             assert_eq!(parts.len(), 6);
             assert_eq!(parts[3], "2026-06-27T12:00:00Z");
             assert_eq!(parts[4], "2026-06-27T12:00:00Z");
         }
 
-        if let Some(expected) = &expected_signatures {
-            assert_eq!(&signatures, expected);
-        } else {
-            expected_signatures = Some(signatures);
-        }
+        let expected = expected_signatures.get_or_insert_with(|| signatures.clone());
+        assert_eq!(&signatures, expected);
     }
 }
 
@@ -472,41 +539,54 @@ fn malformed_scan_sources_do_not_upgrade_evidence_or_scan_summary_across_input_o
                 constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
             ]
         );
-        assert!(model.scan_summary.source_labels.iter().all(|label| {
-            label == constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE
-                || label == constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR
-        }));
-        assert!(model.canonical_household_devices[0]
-            .network_identity
-            .evidence_records
-            .iter()
-            .all(|record| {
-                record.source
-                    != ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource::LocalService
-                    || record.value != "<script>alert(1)</script>"
-            }));
+        assert!(
+            !model.canonical_household_devices[0]
+                .network_identity
+                .evidence_records
+                .iter()
+                .filter(|record| {
+                    record.source
+                        == ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource::LocalService
+                })
+                .any(|record| record.value == "<script>alert(1)</script>")
+        );
     }
 }
 
-fn inventory_device(
-    label: &str,
-    hostname: &str,
-    ip_address: &str,
-    mac_address: &str,
+fn inventory_device<L, H, I, M, S, T>(
+    label: L,
+    hostname: H,
+    ip_address: I,
+    mac_address: M,
     reachability: LanPairingDeviceReachability,
-    scan_sources: Vec<String>,
-) -> LanNetworkInventoryDevice {
+    scan_sources: S,
+) -> LanNetworkInventoryDevice
+where
+    L: std::fmt::Display,
+    H: std::fmt::Display,
+    I: std::fmt::Display,
+    M: std::fmt::Display,
+    S: IntoIterator<Item = T>,
+    T: std::fmt::Display,
+{
+    let label = label.to_string();
+    let hostname = hostname.to_string();
+    let ip_address = ip_address.to_string();
+    let mac_address = mac_address.to_string();
     LanNetworkInventoryDevice {
         device_id: format!("network-neighbor-{label}"),
-        label: label.to_string(),
+        label,
         platform: constants::lan_pairing::PLATFORM_UNKNOWN.to_string(),
-        ip_address: ip_address.to_string(),
-        mac_address: mac_address.to_string(),
-        hostname: Some(hostname.to_string()),
+        ip_address,
+        mac_address,
+        hostname: Some(hostname),
         network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
         reachability,
         agent_status: None,
-        scan_sources,
+        scan_sources: scan_sources
+            .into_iter()
+            .map(|source| source.to_string())
+            .collect(),
         observed_at: String::new(),
         used_previous_scan_hint: false,
         service_identity_probe_evidence: Vec::new(),
@@ -515,21 +595,20 @@ fn inventory_device(
 
 fn filtered_sources<'a>(
     sources: impl Iterator<Item = &'a LanDiscoveryEvidenceSource>,
-) -> BTreeSet<String> {
+) -> BTreeSet<LanText> {
     sources
         .filter_map(|source| match source {
-            LanDiscoveryEvidenceSource::WindowsNeighborTable => Some("WindowsNeighborTable"),
-            LanDiscoveryEvidenceSource::LinuxProcNetArp => Some("LinuxProcNetArp"),
-            LanDiscoveryEvidenceSource::LinuxIpNeigh => Some("LinuxIpNeigh"),
+            LanDiscoveryEvidenceSource::WindowsNeighborTable => Some(lt!("WindowsNeighborTable")),
+            LanDiscoveryEvidenceSource::LinuxProcNetArp => Some(lt!("LinuxProcNetArp")),
+            LanDiscoveryEvidenceSource::LinuxIpNeigh => Some(lt!("LinuxIpNeigh")),
             _ => None,
         })
-        .map(str::to_string)
         .collect()
 }
 
 fn canonical_source_sets(
     model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
-) -> BTreeSet<BTreeSet<String>> {
+) -> BTreeSet<BTreeSet<LanText>> {
     model
         .canonical_household_devices
         .iter()
@@ -559,7 +638,7 @@ fn event_count(
 
 fn local_service_evidence_signatures(
     model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
-) -> BTreeSet<String> {
+) -> BTreeSet<LanText> {
     model.canonical_household_devices[0]
         .network_identity
         .evidence_records
@@ -569,7 +648,7 @@ fn local_service_evidence_signatures(
                 == ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource::LocalService
         })
         .map(|record| {
-            format!(
+            lt!(format!(
                 "{:?}|{}|{:?}|{}|{}|{}",
                 record.evidence_kind,
                 record.normalized_value,
@@ -577,7 +656,7 @@ fn local_service_evidence_signatures(
                 record.first_seen_at,
                 record.last_seen_at,
                 record.note.clone().unwrap_or_default()
-            )
+            ))
         })
         .collect()
 }
@@ -620,12 +699,14 @@ fn local_service_read_model(
 }
 
 fn local_service_child_discovery_device(
-    device_id: &str,
-    discovered_at: &str,
+    device_id: impl std::fmt::Display,
+    discovered_at: impl std::fmt::Display,
 ) -> ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice
 {
+    let device_id = device_id.to_string();
+    let discovered_at = discovered_at.to_string();
     let mut child_device = LanPairingDeviceRef::new(
-        device_id.to_string(),
+        device_id.clone(),
         Some("child-profile-local".to_string()),
         "Study Laptop".to_string(),
         constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
@@ -638,9 +719,9 @@ fn local_service_child_discovery_device(
 
     ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        discovered_at: discovered_at.to_string(),
+        discovered_at,
         child_device,
-        agent_peer_id: device_id.to_string(),
+        agent_peer_id: device_id,
         pairing_id: None,
         route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
         network_mode: ocentra_parent_agent_protocol::lan_pairing::LanPairingNetworkMode::LocalNetwork,
@@ -658,12 +739,14 @@ fn local_service_child_discovery_device(
 }
 
 fn ip_only_neighbor_discovery_device(
-    device_id: &str,
-    discovered_at: &str,
+    device_id: impl std::fmt::Display,
+    discovered_at: impl std::fmt::Display,
 ) -> ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice
 {
+    let device_id = device_id.to_string();
+    let discovered_at = discovered_at.to_string();
     let mut child_device = LanPairingDeviceRef::new(
-        device_id.to_string(),
+        device_id.clone(),
         None,
         "Study Laptop".to_string(),
         constants::lan_pairing::PLATFORM_UNKNOWN.to_string(),
@@ -674,9 +757,9 @@ fn ip_only_neighbor_discovery_device(
 
     ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        discovered_at: discovered_at.to_string(),
+        discovered_at,
         child_device,
-        agent_peer_id: device_id.to_string(),
+        agent_peer_id: device_id,
         pairing_id: None,
         route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
         network_mode: ocentra_parent_agent_protocol::lan_pairing::LanPairingNetworkMode::LocalNetwork,

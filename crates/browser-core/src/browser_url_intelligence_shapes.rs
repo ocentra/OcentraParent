@@ -1,6 +1,6 @@
 use super::*;
 
-fn video_shape(
+pub(super) fn video_shape(
     platform: &'static str,
     video_id: &str,
     reason_codes: Vec<&'static str>,
@@ -17,7 +17,7 @@ fn video_shape(
     }
 }
 
-fn social_post_shape(
+pub(super) fn social_post_shape(
     target_kind: &'static str,
     platform: &'static str,
     post_id: &str,
@@ -36,7 +36,7 @@ fn social_post_shape(
     }
 }
 
-fn channel_shape(
+pub(super) fn channel_shape(
     platform: &'static str,
     channel_id: &str,
     confidence: &'static str,
@@ -53,7 +53,7 @@ fn channel_shape(
     }
 }
 
-fn search_shape(platform: &'static str, query: &str) -> ParsedUrlShape {
+pub(super) fn search_shape(platform: &'static str, query: &str) -> ParsedUrlShape {
     ParsedUrlShape {
         target_kind: "search",
         platform,
@@ -66,7 +66,7 @@ fn search_shape(platform: &'static str, query: &str) -> ParsedUrlShape {
     }
 }
 
-fn social_route_shape(
+pub(super) fn social_route_shape(
     target_kind: &'static str,
     platform: &'static str,
     confidence: &'static str,
@@ -81,7 +81,7 @@ fn social_route_shape(
     }
 }
 
-fn simple_shape(
+pub(super) fn simple_shape(
     target_kind: &'static str,
     platform: &'static str,
     confidence: &'static str,
@@ -100,7 +100,7 @@ fn is_video_kind(value: &str) -> bool {
     matches!(value, "video" | "short-video")
 }
 
-fn empty_platform_ids() -> BrowserUrlShapePlatformIdsTemplate {
+pub(super) fn empty_platform_ids() -> BrowserUrlShapePlatformIdsTemplate {
     BrowserUrlShapePlatformIdsTemplate {
         video_id: None,
         channel_id: None,
@@ -109,5 +109,3 @@ fn empty_platform_ids() -> BrowserUrlShapePlatformIdsTemplate {
         query: None,
     }
 }
-
-

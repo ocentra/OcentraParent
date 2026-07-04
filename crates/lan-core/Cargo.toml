@@ -24,3 +24,11 @@ x509-parser = "0.18.1"
 
 [dev-dependencies]
 rcgen = "0.14.8"
+
+[[test]]
+name = "performance"
+path = "tests/performance/main.rs"
+
+[[test]]
+name = "unit"
+path = "tests/unit/main.rs"

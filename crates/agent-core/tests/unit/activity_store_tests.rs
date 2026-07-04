@@ -1,5 +1,6 @@
+use std::fmt::Display;
 use std::fs::remove_file;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
@@ -15,10 +16,11 @@ use crate::{
     activity_store::ActivityStore,
     journal::ActivityJournal,
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    test_text::{TestResult, TestText},
 };
 
 #[test]
-fn activity_store_ingests_journal_replay_into_sqlite() {
+fn activity_store_ingests_journal_replay_into_sqlite() -> TestResult {
     let journal_path = temp_path(
         constants::activity_store::TEST_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -30,36 +32,55 @@ fn activity_store_ingests_journal_replay_into_sqlite() {
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
     let mut journal = ActivityJournal::open_with_policy(
-        journal_path.clone(),
+        journal_path.to_path_buf(),
         key.clone(),
         ActivityJournalRotationPolicy {
             max_segment_bytes: constants::journal::TEST_ROTATION_BYTES,
         },
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    .map_err(|error| {
+        TestText::from_display(format!("{}: {error:?}", constants::error::JOURNAL_OPENS))
+    })?;
     journal
         .append(&activity_event(
             constants::event_id::HEALTH_REPORTED,
             constants::activity_store::TEST_FIRST_OBSERVED_AT,
         ))
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS));
+        .map_err(|error| {
+            TestText::from_display(format!("{}: {error:?}", constants::error::JOURNAL_APPENDS))
+        })?;
     journal
         .append(&activity_event(
             constants::event_id::LOG_SNAPSHOT_REPORTED,
             constants::activity_store::TEST_SECOND_OBSERVED_AT,
         ))
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS));
-    let reader = ActivityJournal::open(journal_path.clone(), key)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
-    let store = ActivityStore::open(&store_path)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+        .map_err(|error| {
+            TestText::from_display(format!("{}: {error:?}", constants::error::JOURNAL_APPENDS))
+        })?;
+    let reader = ActivityJournal::open(journal_path.to_path_buf(), key).map_err(|error| {
+        TestText::from_display(format!("{}: {error:?}", constants::error::JOURNAL_OPENS))
+    })?;
+    let store = ActivityStore::open(store_path.to_path_buf()).map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
 
-    let status = store
-        .ingest_journal(&reader)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+    let status = store.ingest_journal(&reader).map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_INGESTS
+        ))
+    })?;
     let summary = store
         .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
     cleanup_paths(&journal_path, &store_path);
 
     assert_eq!(status.events_ingested, 2);
@@ -74,12 +95,17 @@ fn activity_store_ingests_journal_replay_into_sqlite() {
         Some(ActivityEventKind::ProcessObserved)
     );
     assert_eq!(summary.returned, 2);
+    Ok(())
 }
 
 #[test]
-fn activity_store_reports_duplicate_ingest_without_double_counting() {
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+fn activity_store_reports_duplicate_ingest_without_double_counting() -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
     let event = activity_event(
         constants::event_id::HEALTH_REPORTED,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
@@ -87,22 +113,37 @@ fn activity_store_reports_duplicate_ingest_without_double_counting() {
 
     let first = store
         .ingest_events(std::slice::from_ref(&event))
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
     let second = store
         .ingest_events(std::slice::from_ref(&event))
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
 
     assert_eq!(first.events_ingested, 1);
     assert_eq!(first.events_stored, 1);
     assert_eq!(second.events_ingested, 0);
     assert_eq!(second.duplicate_events, 1);
     assert_eq!(second.events_stored, 1);
+    Ok(())
 }
 
 #[test]
-fn activity_store_ingests_tracking_mvp_events_into_sqlite() {
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+fn activity_store_ingests_tracking_mvp_events_into_sqlite() -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
     let location = tracking_activity_event(
         constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
         constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
@@ -147,10 +188,20 @@ fn activity_store_ingests_tracking_mvp_events_into_sqlite() {
             check_in,
             retention_delete,
         ])
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
     let summary = store
         .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
 
     assert_eq!(status.events_ingested, 5);
     assert_eq!(status.events_stored, 5);
@@ -167,9 +218,10 @@ fn activity_store_ingests_tracking_mvp_events_into_sqlite() {
         summary.most_recent_subject_kind,
         Some(ActivitySubjectKind::Retention)
     );
+    Ok(())
 }
 
-fn activity_event(event_id: &str, observed_at: &str) -> ActivityEvent {
+fn activity_event(event_id: impl Display, observed_at: impl Display) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::PID.to_string(),
@@ -198,8 +250,8 @@ fn activity_event(event_id: &str, observed_at: &str) -> ActivityEvent {
 }
 
 fn tracking_activity_event(
-    event_id: &str,
-    observed_at: &str,
+    event_id: impl Display,
+    observed_at: impl Display,
     kind: ActivityEventKind,
     observer: ActivityObserver,
     subject_kind: ActivitySubjectKind,
@@ -239,25 +291,25 @@ fn tracking_activity_event(
     }
 }
 
-fn temp_path(suffix: &str, extension: &str) -> PathBuf {
+fn temp_path(suffix: impl Display, extension: impl Display) -> TestText {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(&unique_temp_token());
+    name.push_str(&unique_temp_token().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(&suffix.to_string());
 
     let mut path = std::env::temp_dir();
     path.push(name);
-    path.set_extension(extension);
-    path
+    path.set_extension(extension.to_string());
+    TestText::from_display(path.display())
 }
 
-fn unique_temp_token() -> String {
+fn unique_temp_token() -> TestText {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map(|duration| duration.as_nanos().to_string())
-        .unwrap_or_else(|_| constants::value::EMPTY.to_string())
+        .map(|duration| TestText::from_display(duration.as_nanos()))
+        .unwrap_or_else(|_| TestText::from_display(constants::value::EMPTY))
 }
 
 fn cleanup_paths(journal_path: &Path, store_path: &Path) {

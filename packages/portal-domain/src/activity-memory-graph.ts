@@ -1,24 +1,25 @@
-import type { AgentProtocolLogFields } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
-  parseActivityMemoryGraphDigest,
-  type ActivityMemoryGraphEdge,
-  type ActivityMemoryGraphNode,
-  type ActivityMemoryGraphNodeId,
-  type ActivityMemoryGraphReadModel,
-} from '@ocentra-parent/schema-domain/activity-memory-graph';
+  GeneratedPortalAgentProtocolField,
+  type GeneratedPortalAgentProtocolPayload,
+  decodeGeneratedPortalActivityMemoryGraphDigest,
+  type GeneratedPortalActivityMemoryGraphEdgeSnapshot,
+  type GeneratedPortalActivityMemoryGraphNodeId,
+  type GeneratedPortalActivityMemoryGraphNodeSnapshot,
+  type GeneratedPortalActivityMemoryGraphReadModelSnapshot,
+  type GeneratedPortalRouteEventPayloadRecord,
+} from './generated/portal-contracts';
 
-export type PortalActivityMemoryGraphReadModel = ActivityMemoryGraphReadModel;
-export type PortalActivityMemoryGraphNode = ActivityMemoryGraphNode;
-export type PortalActivityMemoryGraphEdge = ActivityMemoryGraphEdge;
-export type PortalActivityMemoryGraphNodeId = ActivityMemoryGraphNodeId;
+export type PortalActivityMemoryGraphReadModel = GeneratedPortalActivityMemoryGraphReadModelSnapshot;
+export type PortalActivityMemoryGraphNode = GeneratedPortalActivityMemoryGraphNodeSnapshot;
+export type PortalActivityMemoryGraphEdge = GeneratedPortalActivityMemoryGraphEdgeSnapshot;
+export type PortalActivityMemoryGraphNodeId = GeneratedPortalActivityMemoryGraphNodeId;
 
 export function parseActivityMemoryGraphReadModel(
-  payload: AgentProtocolLogFields
+  payload: GeneratedPortalAgentProtocolPayload | GeneratedPortalRouteEventPayloadRecord | null | undefined
 ): PortalActivityMemoryGraphReadModel | null {
-  const digest = payload[AgentProtocolDefaults.Field.ActivityDigest];
+  const digest = payload?.[GeneratedPortalAgentProtocolField.ActivityDigest];
   if (typeof digest !== 'string') {
     return null;
   }
-  return parseActivityMemoryGraphDigest(digest);
+  return decodeGeneratedPortalActivityMemoryGraphDigest(digest);
 }

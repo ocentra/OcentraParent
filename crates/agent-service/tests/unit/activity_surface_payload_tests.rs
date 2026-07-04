@@ -1,3 +1,8 @@
+#[macro_use]
+#[path = "../support/unit_root_basic_harness.rs"]
+mod unit_root_basic_harness;
+declare_agent_service_unit_root_basic_harness!();
+
 use ocentra_parent_agent_protocol::activity_surface::{
     ActivityReadModelState, ActivityReportFrequency, ActivityReportRequest, ActivitySurfaceScope,
     ActivitySurfaceScopeKind,
@@ -16,7 +21,7 @@ fn activity_report_payload_marks_unavailable_reports_unavailable() {
 
     let state = match payload.get(constants::field::ACTIVITY_SURFACE_STATE) {
         Some(LogFieldValue::String(value)) => value.as_str(),
-        _ => panic!("{}", constants::error::AGENT_EVENT_SERIALIZES),
+        _ => assert!(false, "{}", constants::error::AGENT_EVENT_SERIALIZES),
     };
     assert_eq!(state, constants::activity_surface::STATE_UNAVAILABLE);
     assert!(report

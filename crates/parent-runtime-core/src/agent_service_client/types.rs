@@ -14,6 +14,27 @@ use ocentra_schema::parent_ui_bridge::{
     ParentPolicyPreviewReadModelSnapshot, ParentRouteEventSnapshot,
 };
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct AgentServiceError(String);
+
+pub(crate) type AgentServiceResult<T> = Result<T, AgentServiceError>;
+#[derive(Clone, Copy)]
+pub(crate) struct AgentCommandText<'a>(pub(crate) &'a str);
+
+impl std::fmt::Display for AgentServiceError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for AgentServiceError {}
+
+impl AgentServiceError {
+    pub(crate) fn from_display(value: impl std::fmt::Display) -> Self {
+        Self(value.to_string())
+    }
+}
+
 pub(crate) struct LanAgentServiceSnapshot {
     pub(crate) event: ParentRouteEventSnapshot,
     pub(crate) events: Vec<ParentRouteEventSnapshot>,
@@ -82,8 +103,11 @@ impl AgentServiceCommandResult {
         self.response_event.event == AgentEventName::AgentCommandRejected
     }
 
-    pub(crate) fn rejection_message(&self) -> Option<String> {
-        self.is_rejected()
-            .then(|| super::transport::rejection_message(&self.response_event))
+    pub(crate) fn rejection_message(&self) -> Option<AgentServiceError> {
+        self.is_rejected().then(|| {
+            AgentServiceError::from_display(super::transport::rejection_message(
+                &self.response_event,
+            ))
+        })
     }
 }

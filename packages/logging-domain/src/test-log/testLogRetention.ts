@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
-import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
-import { selectGeneratedPruneCandidates } from '../generated/local-test-log';
+import type { TestLogScope } from './types';
+import { selectGeneratedPruneCandidates } from '../local-test-log';
 
 export function pruneTestLogRuns(scope: TestLogScope, keepNewest: number, rootDir?: string): number {
   const files = listNdjsonFiles(getTestLogScopeDir(scope, rootDir))

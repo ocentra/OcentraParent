@@ -9,16 +9,12 @@ use super::{
 fn social_source_custody_mutation_command_event_and_snapshot_serialize() {
     assert_eq!(
         serde_json::to_value(AgentCommandName::AgentBrowserSocialSourceCustodyMutationApply)
-            .unwrap_or_else(|error| {
-                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-            }),
+            .expect(constants::error::AGENT_EVENT_SERIALIZES),
         "agent.browser.social-source-custody.mutation.apply"
     );
     assert_eq!(
         serde_json::to_value(AgentEventName::AgentBrowserSocialSourceCustodyMutationApplied)
-            .unwrap_or_else(|error| {
-                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-            }),
+            .expect(constants::error::AGENT_EVENT_SERIALIZES),
         "agent.browser.social-source-custody.mutation.applied"
     );
 
@@ -66,9 +62,7 @@ fn social_source_custody_mutation_command_event_and_snapshot_serialize() {
         enforcement_claimed: false,
         product_claim_ready: false,
     };
-    let value = serde_json::to_value(snapshot).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let value = serde_json::to_value(snapshot).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         value["schemaVersion"],

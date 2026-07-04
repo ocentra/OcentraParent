@@ -32,7 +32,6 @@ pub const CHILD_RUNTIME_PREFLIGHT_DECISION_RECORDED_EVENT_TYPE: &str =
     "child-runtime.preflight-decision.recorded";
 const CHILD_RUNTIME_IDEMPOTENCY_SEPARATOR: &str = ":";
 const CHILD_RUNTIME_PREFLIGHT_DECISION_PREFIX: &str = "child-runtime-preflight-decision:";
-const ERROR_CHILD_RUNTIME_PREFLIGHT_DECISION_ID: &str = "child runtime preflight decision id";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ChildRuntimeStartState {
@@ -69,18 +68,14 @@ pub struct ChildRuntimePreflightDecision {
 }
 
 macro_rules! child_runtime_text_id {
-    ($name:ident, $field:expr) => {
+    ($name:ident, $field:literal) => {
         #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
         #[serde(try_from = "String", into = "String")]
         pub struct $name(String);
 
         impl $name {
             pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
+                parse_child_runtime_text_id($field, value).map(Self)
             }
 
             pub fn as_str(&self) -> &str {
@@ -99,12 +94,6 @@ macro_rules! child_runtime_text_id {
         impl From<$name> for String {
             fn from(value: $name) -> Self {
                 value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
             }
         }
     };
@@ -147,7 +136,7 @@ impl DomainEvent for ChildRuntimePreflightRequestedEvent {
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         child_runtime_idempotency_key(
             CHILD_RUNTIME_PREFLIGHT_REQUESTED_EVENT_TYPE,
-            &self.request_id,
+            self.request_id.as_str(),
         )
     }
 }
@@ -164,7 +153,7 @@ impl DomainEvent for ChildRuntimePreflightDecisionRecordedEvent {
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         child_runtime_idempotency_key(
             CHILD_RUNTIME_PREFLIGHT_DECISION_RECORDED_EVENT_TYPE,
-            &self.decision_id,
+            self.decision_id.as_str(),
         )
     }
 }
@@ -189,33 +178,29 @@ pub fn evaluate_child_runtime_preflight(
         provisioning_decision,
         entitlement_decision,
         storage_custody_decision,
-        runtime_start_state: if runtime_allowed {
-            ChildRuntimeStartState::Allowed
-        } else {
-            ChildRuntimeStartState::Blocked
-        },
-        manual_review_state: if manual_review_required {
-            ChildRuntimeManualReviewState::Required
-        } else {
-            ChildRuntimeManualReviewState::NotRequired
-        },
+        runtime_start_state: runtime_allowed
+            .then_some(ChildRuntimeStartState::Allowed)
+            .unwrap_or(ChildRuntimeStartState::Blocked),
+        manual_review_state: manual_review_required
+            .then_some(ChildRuntimeManualReviewState::Required)
+            .unwrap_or(ChildRuntimeManualReviewState::NotRequired),
     }
 }
 
 pub fn record_child_runtime_preflight_decision(
     event: &ChildRuntimePreflightRequestedEvent,
-) -> ChildRuntimePreflightDecisionRecordedEvent {
-    let decision_id = ChildRuntimePreflightDecisionId::parse(child_runtime_preflight_decision_ref(
-        &event.request_id,
-    ))
-    .unwrap_or_else(|error| unreachable!("{ERROR_CHILD_RUNTIME_PREFLIGHT_DECISION_ID}: {error:?}"));
+) -> Result<ChildRuntimePreflightDecisionRecordedEvent, EventingError> {
+    let decision_id = ChildRuntimePreflightDecisionId::parse(format!(
+        "{CHILD_RUNTIME_PREFLIGHT_DECISION_PREFIX}{}",
+        event.request_id.as_str()
+    ))?;
 
-    ChildRuntimePreflightDecisionRecordedEvent {
+    Ok(ChildRuntimePreflightDecisionRecordedEvent {
         aggregate_id: event.aggregate_id.clone(),
         decision_id,
         source_request_id: event.request_id.clone(),
         decision: evaluate_child_runtime_preflight(event.input),
-    }
+    })
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -230,13 +215,10 @@ pub fn evaluate_child_runtime_remote_access(
     let session_decision = evaluate_remote_access_session(request);
 
     ChildRuntimeRemoteAccessDecision {
-        runtime_start_state: if session_decision.authorization_state
-            == RemoteAccessSessionAuthorizationState::Allowed
-        {
-            ChildRuntimeStartState::Allowed
-        } else {
-            ChildRuntimeStartState::Blocked
-        },
+        runtime_start_state: (session_decision.authorization_state
+            == RemoteAccessSessionAuthorizationState::Allowed)
+            .then_some(ChildRuntimeStartState::Allowed)
+            .unwrap_or(ChildRuntimeStartState::Blocked),
         session_decision,
     }
 }
@@ -253,13 +235,10 @@ pub fn evaluate_child_runtime_enforcement(
     let action_decision = evaluate_enforcement_action(input);
 
     ChildRuntimeEnforcementDecision {
-        runtime_start_state: if action_decision.adapter_execution_state
-            == EnforcementAdapterExecutionState::Execute
-        {
-            ChildRuntimeStartState::Allowed
-        } else {
-            ChildRuntimeStartState::Blocked
-        },
+        runtime_start_state: (action_decision.adapter_execution_state
+            == EnforcementAdapterExecutionState::Execute)
+            .then_some(ChildRuntimeStartState::Allowed)
+            .unwrap_or(ChildRuntimeStartState::Blocked),
         action_decision,
     }
 }
@@ -281,8 +260,12 @@ fn child_runtime_idempotency_key(
     ))
 }
 
-fn child_runtime_preflight_decision_ref(request_id: &ChildRuntimePreflightRequestId) -> String {
-    let mut value = String::from(CHILD_RUNTIME_PREFLIGHT_DECISION_PREFIX);
-    value.push_str(request_id.as_str());
-    value
+fn parse_child_runtime_text_id(
+    field: &'static str,
+    value: impl Into<String>,
+) -> Result<String, EventingError> {
+    let value = value.into();
+    (!value.trim().is_empty())
+        .then_some(value)
+        .ok_or(EventingError::EmptyValue { field })
 }

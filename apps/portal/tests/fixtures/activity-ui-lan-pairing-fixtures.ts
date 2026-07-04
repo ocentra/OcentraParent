@@ -1,304 +1,44 @@
 import { readFileSync } from 'node:fs';
-import {
-  AgentLanBrowserAddDeviceReadModelSchema,
-  type AgentLanBrowserAddDeviceReadModel,
-} from '@ocentra-parent/schema-domain/agent-lan-add-device';
+import type { ParentLanAddDeviceReadModelSnapshot } from '../../generated/parent-ui-bridge';
+import { normalizeLanAddDeviceFixture } from './activity-ui-lan-pairing-fixtures-normalization';
 
 const LanPlanFixtureDirectory = new URL('./lan-plan/', import.meta.url);
 
-function readLanAddDeviceFixture(fileName: string): AgentLanBrowserAddDeviceReadModel {
+function readLanAddDeviceFixture(fileName: string): ParentLanAddDeviceReadModelSnapshot {
   const fixture = JSON.parse(readFileSync(new URL(fileName, LanPlanFixtureDirectory), 'utf8'));
-  return AgentLanBrowserAddDeviceReadModelSchema.parse(
-    normalizeLanAddDeviceFixture(fixture)
+  return requireLanAddDeviceFixture(normalizeLanAddDeviceFixture(fixture), fileName);
+}
+
+function requireLanAddDeviceFixture(value: unknown, fileName: string): ParentLanAddDeviceReadModelSnapshot {
+  if (!isLanFixtureRecord(value) || !hasLanFixtureRequiredFields(value)) {
+    throw new Error(`LAN add-device fixture ${fileName} does not match generated parent bridge shape`);
+  }
+  return value as unknown as ParentLanAddDeviceReadModelSnapshot;
+}
+
+function isLanFixtureRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function hasLanFixtureRequiredFields(value: Record<string, unknown>): boolean {
+  return (
+    typeof value['schemaVersion'] === 'number' &&
+    typeof value['generatedAt'] === 'string' &&
+    typeof value['addDeviceState'] === 'string' &&
+    typeof value['discoverySource'] === 'string' &&
+    ['scanSummary', 'discoveryEventHistory', 'selectedDeviceReadiness'].every((field) =>
+      isLanFixtureRecord(value[field])
+    ) &&
+    [
+      'discoveredDevices',
+      'canonicalHouseholdDevices',
+      'pairingRequests',
+      'trustedDeviceRegistry',
+      'householdDeviceDecisions',
+      'trustedDeviceIds',
+      'revokedDeviceIds',
+    ].every((field) => Array.isArray(value[field]))
   );
-}
-
-function normalizeLanAddDeviceFixture(value: unknown) {
-  const fixture = structuredClone(value) as {
-    generatedAt?: string;
-    discoveryEventHistory?: unknown;
-    discoveredDevices?: Array<Record<string, unknown>>;
-    canonicalHouseholdDevices?: Array<Record<string, unknown>>;
-  };
-  if (fixture.discoveryEventHistory === undefined) {
-    fixture.discoveryEventHistory = {
-      schemaVersion: 1,
-      generatedAt: fixture.generatedAt ?? null,
-      state: 'ready',
-      latestEventId: null,
-      latestObservedAt: null,
-      rows: [],
-    };
-  }
-  if (Array.isArray(fixture.discoveredDevices)) {
-    fixture.discoveredDevices = fixture.discoveredDevices.map((device) => ({
-      ...device,
-      discoveryStatus: normalizeLanDiscoveryStatus(device['discoveryStatus']),
-    }));
-  }
-  if (Array.isArray(fixture.canonicalHouseholdDevices)) {
-    fixture.canonicalHouseholdDevices = fixture.canonicalHouseholdDevices.map((device) => {
-      const sourceLabels = normalizeLanSourceLabels(device['sourceLabels']);
-      const networkIdentity =
-        typeof device['networkIdentity'] === 'object' && device['networkIdentity'] !== null
-          ? { ...(device['networkIdentity'] as Record<string, unknown>) }
-          : {};
-      networkIdentity['evidenceRecords'] = normalizeLanEvidenceRecords(
-        networkIdentity['evidenceRecords'],
-        device['canonicalDeviceId'],
-        inferLanEvidenceSource(sourceLabels)
-      );
-      networkIdentity['confidence'] = normalizeLanConfidence(networkIdentity['confidence']);
-      return {
-        ...device,
-        roleBadges: normalizeLanRoleBadges(device['roleBadges']),
-        sourceLabels,
-        routeState: normalizeLanRouteState(device['routeState']),
-        childAgentInventory: normalizeLanChildAgentInventory(device['childAgentInventory']),
-        networkIdentity,
-      };
-    });
-  }
-  return fixture;
-}
-
-function lanFixtureEvidenceRecord(canonicalDeviceId: unknown, source: string) {
-  const deviceId =
-    typeof canonicalDeviceId === 'string' && canonicalDeviceId.length > 0
-      ? canonicalDeviceId
-      : 'lan-fixture-device';
-  const evidenceKind = normalizeLanEvidenceKind(null, source);
-  return {
-    schemaVersion: 1,
-    evidenceId: `lan-fixture-evidence-${deviceId}`,
-    source,
-    evidenceKind,
-    deviceId,
-    value: deviceId,
-    normalizedValue: deviceId,
-    firstSeenAt: '2026-06-01T15:20:00Z',
-    lastSeenAt: '2026-06-01T15:20:00Z',
-    expiresAt: null,
-    confidence: normalizeLanEvidenceConfidence(null, source),
-    mergeKey: `merge-${deviceId}`,
-    note: 'normalized portal fixture evidence',
-  };
-}
-
-function inferLanEvidenceSource(sourceLabels: readonly string[]): string {
-  if (sourceLabels.includes('local-service')) {
-    return 'local-service';
-  }
-  if (sourceLabels.includes('trusted-registry')) {
-    return 'trusted-registry';
-  }
-  return 'windows-neighbor-table';
-}
-
-function normalizeLanEvidenceRecords(
-  value: unknown,
-  canonicalDeviceId: unknown,
-  fallbackSource: string
-): Array<Record<string, unknown>> {
-  if (!Array.isArray(value) || value.length === 0) {
-    return [lanFixtureEvidenceRecord(canonicalDeviceId, fallbackSource)];
-  }
-  const records = value.map((entry, index) =>
-    normalizeLanEvidenceRecord(entry, canonicalDeviceId, fallbackSource, index)
-  );
-  return records.length > 0 ? records : [lanFixtureEvidenceRecord(canonicalDeviceId, fallbackSource)];
-}
-
-function normalizeLanEvidenceRecord(
-  value: unknown,
-  canonicalDeviceId: unknown,
-  fallbackSource: string,
-  index: number
-): Record<string, unknown> {
-  const record = typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
-  const source = normalizeLanEvidenceSource(record['source'], fallbackSource);
-  const evidenceKind = normalizeLanEvidenceKind(record['evidenceKind'], source);
-  const deviceId = lanFixtureDeviceId(record, canonicalDeviceId);
-  const rawValue = lanFixtureEvidenceValue(record, deviceId);
-  const normalizedValue = lanFixtureStringField(record, 'normalizedValue') ?? rawValue.toLowerCase();
-  return {
-    schemaVersion: 1,
-    evidenceId: lanFixtureStringField(record, 'evidenceId') ?? `lan-fixture-evidence-${deviceId}-${index + 1}`,
-    source,
-    evidenceKind,
-    deviceId,
-    value: rawValue,
-    normalizedValue,
-    firstSeenAt: lanFixtureStringField(record, 'firstSeenAt') ?? '2026-06-01T15:20:00Z',
-    lastSeenAt: lanFixtureStringField(record, 'lastSeenAt') ?? '2026-06-01T15:20:00Z',
-    expiresAt: lanFixtureStringField(record, 'expiresAt') ?? null,
-    confidence: normalizeLanEvidenceConfidence(record['confidence'], source),
-    mergeKey: lanFixtureStringField(record, 'mergeKey') ?? `merge-${deviceId}-${index + 1}`,
-    note: lanFixtureStringField(record, 'note') ?? null,
-  };
-}
-
-const LanEvidenceSourceValues = new Set([
-  'local-service',
-  'windows-neighbor-table',
-  'dns-cache',
-  'netbios',
-  'previous-scan-snapshot',
-  'trusted-registry',
-  'parent-assignment',
-  'child-agent-hello',
-  'child-agent-heartbeat',
-]);
-const LanEvidenceSourceAliases = new Map([
-  ['network-neighbor', 'windows-neighbor-table'],
-  ['gateway', 'windows-neighbor-table'],
-  ['mdns', 'dns-cache'],
-]);
-
-function normalizeLanEvidenceSource(value: unknown, fallbackSource: string): string {
-  return typeof value === 'string' && LanEvidenceSourceValues.has(value)
-    ? value
-    : LanEvidenceSourceAliases.get(String(value)) ?? fallbackSource;
-}
-
-const LanEvidenceKindValues = new Set([
-  'interface',
-  'ip-address',
-  'mac-address',
-  'hostname',
-  'vendor',
-  'router-classification',
-  'historical-identity-hint',
-  'child-agent-presence',
-  'trusted-registry',
-  'parent-decision',
-  'route',
-]);
-const LanEvidenceKindBySource = new Map([
-  ['trusted-registry', 'trusted-registry'],
-  ['parent-assignment', 'parent-decision'],
-  ['child-agent-hello', 'child-agent-presence'],
-  ['child-agent-heartbeat', 'child-agent-presence'],
-  ['previous-scan-snapshot', 'historical-identity-hint'],
-  ['local-service', 'interface'],
-]);
-
-function normalizeLanEvidenceKind(value: unknown, source: string): string {
-  return typeof value === 'string' && LanEvidenceKindValues.has(value)
-    ? value
-    : LanEvidenceKindBySource.get(source) ?? 'ip-address';
-}
-
-const LanEvidenceConfidenceValues = new Set(['confirmed', 'strong', 'weak', 'manual-required', 'rejected']);
-const LanEvidenceConfidenceAliases = new Map([
-  ['mdns-advertisement', 'weak'],
-  ['network-neighbor', 'weak'],
-  ['trusted-registry', 'strong'],
-  ['agent-confirmed', 'confirmed'],
-]);
-const LanEvidenceConfidenceBySource = new Map([
-  ['local-service', 'confirmed'],
-  ['child-agent-hello', 'confirmed'],
-  ['child-agent-heartbeat', 'confirmed'],
-  ['trusted-registry', 'strong'],
-  ['parent-assignment', 'strong'],
-]);
-
-function normalizeLanEvidenceConfidence(value: unknown, source: string): string {
-  return typeof value === 'string' && LanEvidenceConfidenceValues.has(value)
-    ? value
-    : LanEvidenceConfidenceAliases.get(String(value)) ?? LanEvidenceConfidenceBySource.get(source) ?? 'weak';
-}
-
-function lanFixtureDeviceId(record: Record<string, unknown>, canonicalDeviceId: unknown): string {
-  return lanFixtureStringField(record, 'deviceId') ?? nonEmptyLanString(canonicalDeviceId) ?? 'lan-fixture-device';
-}
-
-function lanFixtureEvidenceValue(record: Record<string, unknown>, deviceId: string): string {
-  return lanFixtureStringField(record, 'value') ?? lanFixtureStringField(record, 'normalizedValue') ?? deviceId;
-}
-
-function lanFixtureStringField(record: Record<string, unknown>, field: string): string | null {
-  return nonEmptyLanString(record[field]);
-}
-
-function normalizeLanDiscoveryStatus(value: unknown): string {
-  switch (value) {
-    case 'planned-unsupported':
-    case 'websocket-direct':
-    case 'network-neighbor':
-      return value;
-    case 'mdns-passive':
-    case 'trusted-registry':
-    default:
-      return 'network-neighbor';
-  }
-}
-
-function normalizeLanSourceLabels(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.flatMap((entry) => {
-    switch (entry) {
-      case 'local-service':
-      case 'network-neighbor':
-      case 'trusted-registry':
-        return [entry];
-      case 'gateway':
-      case 'mdns':
-        return ['network-neighbor'];
-      default:
-        return [];
-    }
-  });
-}
-
-function normalizeLanConfidence(value: unknown): string {
-  switch (value) {
-    case 'agent-confirmed':
-    case 'mac-ip-match':
-    case 'network-neighbor':
-    case 'manual-required':
-      return value;
-    case 'mdns-advertisement':
-    default:
-      return 'network-neighbor';
-  }
-}
-
-function normalizeLanRouteState(value: unknown): string {
-  switch (value) {
-    case 'localhost':
-    case 'local-network':
-    case 'manual-required':
-    case 'unavailable':
-      return value;
-    default:
-      return 'unavailable';
-  }
-}
-
-function normalizeLanRoleBadges(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.filter((entry): entry is string =>
-    entry === 'parent-controller' ||
-    entry === 'parent-observer' ||
-    entry === 'child-agent' ||
-    entry === 'portal' ||
-    entry === 'ai-provider'
-  );
-}
-
-function normalizeLanChildAgentInventory(value: unknown) {
-  if (typeof value !== 'object' || value === null) {
-    return value;
-  }
-  const inventory = { ...(value as Record<string, unknown>) };
-  inventory['routeState'] = normalizeLanRouteState(inventory['routeState']);
-  return inventory;
 }
 
 function nonEmptyLanString(value: unknown): string | null {
@@ -354,7 +94,7 @@ function connectedLanDiscoveryDevice() {
     discoveredAt: '2026-06-01T15:00:00Z',
     childDevice: {
       deviceId: 'child-android-1',
-      childProfileId: 'child-profile-1',
+      childProfileId: null,
       label: 'Pixel child',
       platform: 'android',
       ipAddress: '192.168.2.42',

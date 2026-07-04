@@ -51,31 +51,23 @@ fn alert_severity_for(
     event: &TrackingPolicyViolationDetectedEvent,
     parent_notification_state: &TrackingParentNotificationDecisionState,
 ) -> TrackingAlertSeverity {
-    let severity = match parent_notification_state {
-        TrackingParentNotificationDecisionState::SuppressedMissingEvidence => {
+    let severity = match (parent_notification_state, event.severity.as_str()) {
+        (TrackingParentNotificationDecisionState::SuppressedMissingEvidence, _) => {
             constants::tracking_runtime::ALERT_SEVERITY_INFO
         }
-        TrackingParentNotificationDecisionState::Allowed
-        | TrackingParentNotificationDecisionState::SuppressedDuplicate => {
-            match event.severity.as_str() {
-                constants::tracking_runtime::POLICY_SEVERITY_REVIEW => {
-                    constants::tracking_runtime::ALERT_SEVERITY_WATCH
-                }
-                constants::tracking_runtime::POLICY_SEVERITY_WARNING => {
-                    constants::tracking_runtime::ALERT_SEVERITY_WARNING
-                }
-                constants::tracking_runtime::POLICY_SEVERITY_URGENT => {
-                    constants::tracking_runtime::ALERT_SEVERITY_URGENT
-                }
-                constants::tracking_runtime::POLICY_SEVERITY_CRITICAL => {
-                    constants::tracking_runtime::ALERT_SEVERITY_CRITICAL
-                }
-                _ => constants::tracking_runtime::ALERT_SEVERITY_INFO,
-            }
+        (_, constants::tracking_runtime::POLICY_SEVERITY_REVIEW) => {
+            constants::tracking_runtime::ALERT_SEVERITY_WATCH
         }
+        (_, constants::tracking_runtime::POLICY_SEVERITY_WARNING) => {
+            constants::tracking_runtime::ALERT_SEVERITY_WARNING
+        }
+        (_, constants::tracking_runtime::POLICY_SEVERITY_URGENT) => {
+            constants::tracking_runtime::ALERT_SEVERITY_URGENT
+        }
+        (_, constants::tracking_runtime::POLICY_SEVERITY_CRITICAL) => {
+            constants::tracking_runtime::ALERT_SEVERITY_CRITICAL
+        }
+        _ => constants::tracking_runtime::ALERT_SEVERITY_INFO,
     };
-    match TrackingAlertSeverity::parse(severity) {
-        Ok(parsed_severity) => parsed_severity,
-        Err(_) => unreachable!("tracking alert severity contract drift: {severity}"),
-    }
+    TrackingAlertSeverity::parse(severity).expect("tracking alert severity contract drift")
 }

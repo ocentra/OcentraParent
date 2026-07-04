@@ -5,7 +5,7 @@ import {
   parseGeneratedStackTrace,
   resolveGeneratedLoggerContext,
   resolveGeneratedLoggerSource,
-} from '../../src/generated/stack-trace-runtime';
+} from '../../src/stack-trace-runtime';
 
 describe('stack trace parser', () => {
   it('parses normal stack lines with function names and file urls', () => {

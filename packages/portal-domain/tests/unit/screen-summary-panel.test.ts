@@ -1,18 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ActivityScreenReadModelSchema,
-  ActivitySurfaceSchemaVersion,
-} from '@ocentra-parent/schema-domain/activity-surface';
-import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
+import type { GeneratedPortalScreenSummaryPanelSnapshot } from '../../src/generated/portal-contracts';
 import { createScreenSummaryPanelIntent } from '../../src/screen-summary-panel';
 
 describe('screen summary panel intent', () => {
-  it('summarizes Activity Screen rows for the parent portal', () => {
-    const intent = createScreenSummaryPanelIntent({
-      ok: true,
-      state: 'ready',
-      value: screenReadModel(),
-    });
+  it('renders generated screen summary rows for the parent portal', () => {
+    const intent = createScreenSummaryPanelIntent(screenSummaryPanel());
 
     expect(intent.loadState).toBe('Ready');
     expect(intent.summaryDetails).toContainEqual({ label: 'Rows returned', value: '1' });
@@ -55,13 +47,8 @@ describe('screen summary panel intent', () => {
     expect(JSON.stringify(intent.rows[0])).not.toContain('hunter2');
   });
 
-  it('keeps unavailable or parser-failed screen rows visible without inventing data', () => {
+  it('keeps unavailable screen rows visible without inventing data', () => {
     const unavailable = createScreenSummaryPanelIntent(null);
-    const failed = createScreenSummaryPanelIntent({
-      ok: false,
-      state: 'unavailable',
-      reason: 'parse-error',
-    });
 
     expect(unavailable.loadState).toBe('Unavailable');
     expect(unavailable.rows).toHaveLength(0);
@@ -69,75 +56,55 @@ describe('screen summary panel intent', () => {
       label: 'Product claim',
       value: 'No family setting is configured for this area yet.',
     });
-    expect(failed.summaryDetails).toContainEqual({ label: 'Reason', value: 'parse-error' });
   });
 });
 
-function screenReadModel() {
-  return ActivityScreenReadModelSchema.parse({
-    schemaVersion: ActivitySurfaceSchemaVersion,
-    request: {
-      schemaVersion: ActivitySurfaceSchemaVersion,
-      scope: {
-        scopeKind: 'device',
-        familyId: null,
-        deviceId: 'child-device-screen-summary',
-      },
-      requestedAt: '2026-06-06T22:19:00Z',
-      rangeStart: '2026-06-06T21:20:00Z',
-      rangeEnd: '2026-06-06T22:20:00Z',
-    },
-    state: 'ready',
-    generatedAt: '2026-06-06T22:20:00Z',
-    summary: 'One screen analysis row is ready for parent review',
+function screenSummaryPanel(): GeneratedPortalScreenSummaryPanelSnapshot {
+  return {
+    eyebrow: 'Activity kind',
+    title: 'Screen analysis',
+    body: 'Stored activity',
+    loadState: 'Ready',
+    summaryDetails: [
+      { label: 'Status', value: 'Ready' },
+      { label: 'Generated at', value: '2026-06-06T22:20:00Z' },
+      { label: 'Rows returned', value: '1' },
+      { label: 'Capability', value: 'Available' },
+      { label: 'Custody', value: 'Child device query store' },
+      { label: 'Deleted evidence', value: 'deleted' },
+      { label: 'Model', value: 'windows-media-ocr | screen-ocr-v1 | screen-queue-job-1' },
+      { label: 'Product claim', value: 'No family setting is configured for this area yet.' },
+    ],
     rows: [
       {
-        rowId: 'screen-row-school-research',
-        label: 'School research window',
-        deviceId: 'child-device-screen-summary',
-        state: 'ready',
-        totalMs: 1800000,
-        foregroundMs: 1800000,
-        backgroundMs: 0,
-        captureReason: 'timedCadence',
-        captureScope: 'activeWindow',
-        capabilityStatus: 'available',
-        queueJobId: 'screen-queue-job-1',
-        modelRuntimeRef: 'winrt-ocr-runtime',
-        modelId: 'windows-media-ocr',
-        providerKind: 'localOcr',
-        promptOrTemplateVersion: 'screen-ocr-v1',
-        primaryCategory: 'school',
-        confidence: 0.72,
-        imageDeletionState: 'deleted',
-        rawImageRetained: false,
-        policyEligible: true,
-        imageDigest: 'sha256:screen-digest',
-        custodyState: 'child-device-query-store',
-        evidence: [
-          evidenceRef('screen-summary-ref', 'sha256:screen-summary-ref'),
-          evidenceRef('screen-audit-ref', 'sha256:screen-audit-ref'),
+        title: 'School research window',
+        details: [
+          { label: 'Status', value: 'Ready' },
+          { label: 'Event ID', value: 'screen-row-school-research' },
+          { label: 'Source', value: 'timedCadence' },
+          { label: 'Capability', value: 'Available' },
+          { label: 'Runtime reference', value: 'winrt-ocr-runtime' },
+          { label: 'Model', value: 'windows-media-ocr | screen-ocr-v1 | screen-queue-job-1' },
+          { label: 'Provider', value: 'localOcr' },
+          { label: 'Level', value: '0.72' },
+          { label: 'Activity kind', value: 'school' },
+          { label: 'Custody', value: 'Child device query store' },
+          { label: 'Deleted evidence', value: 'deleted' },
+          { label: 'Policy check', value: 'screen-policy-decision-ref' },
+          { label: 'Decision action', value: 'allow' },
+          { label: 'Enforcement handoff', value: 'Not claimed' },
+          { label: 'Evidence references', value: 'screen-summary-ref | screen-audit-ref' },
+          { label: 'Reason codes', value: 'screen-school-allow' },
+          { label: 'Parent rule context refs', value: 'screen-parent-rule-ref' },
+          { label: 'Reason', value: 'local-ai-screen-summary | stricter-parent-rule-checked' },
+          { label: 'OCR snippets', value: 'Homework research page [redacted]' },
+          { label: 'Redaction notes', value: 'credentialLikeTextRedacted | piiLikeTextRedacted' },
+          { label: 'Parent explanation refs', value: 'screen-parent-explanation-ref' },
+          { label: 'Product claim', value: 'No family setting is configured for this area yet.' },
         ],
-        policyDecisionRef: 'screen-policy-decision-ref',
-        policyAction: 'allow',
-        policyReasonCodes: ['screen-school-allow'],
-        parentRuleRefs: ['screen-parent-rule-ref'],
-        localModelRuntimeRefs: ['winrt-ocr-runtime'],
-        parentExplanationRefs: ['screen-parent-explanation-ref'],
-        explanationReasons: ['local-ai-screen-summary', 'stricter-parent-rule-checked'],
-        deletionReasons: ['screen-image-deleted'],
-        ocrTextSnippets: ['Homework research page [redacted]'],
-        redactionNotes: ['credentialLikeTextRedacted', 'piiLikeTextRedacted'],
       },
     ],
-  });
-}
-
-function evidenceRef(evidenceId: string, digest: string) {
-  return {
-    evidenceId,
-    kind: ActivityEvidenceKind.JournalEntry,
-    digest,
-    uri: null,
-  } as const;
+    emptyMessage: 'No recent activity is available yet.',
+    productClaim: 'No family setting is configured for this area yet.',
+  };
 }

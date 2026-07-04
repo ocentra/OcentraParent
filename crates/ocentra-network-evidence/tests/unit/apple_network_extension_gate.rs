@@ -1,12 +1,7 @@
-use crate::{
-    map_network_evidence_grade_to_policy, plan_network_apple_network_extension_gate,
-    NetworkAppleNetworkExtensionCapabilityState, NetworkAppleNetworkExtensionGateBoundaryReason,
-    NetworkAppleNetworkExtensionGateError, NetworkAppleNetworkExtensionGateInput,
-    NetworkAppleNetworkExtensionGateState, NetworkAppleNetworkExtensionPlatform,
-    NetworkAppleNetworkExtensionRequiredArtifact, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::apple_network_extension_gate::*;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::policy::*;
 
 #[test]
 fn apple_network_extension_gate_allows_entitlement_ready_without_supervision_claim() {

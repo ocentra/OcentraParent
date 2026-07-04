@@ -8,16 +8,15 @@ use rustls::pki_types::{CertificateDer, ServerName, UnixTime};
 use rustls::{ClientConfig, ClientConnection, DigitallySignedStruct, SignatureScheme, StreamOwned};
 
 use super::http::{
-    extract_html_title, first_header_value, header_values, parse_http_response,
-    parse_certificate_subject, sanitize_probe_reference, sanitize_probe_text,
+    extract_html_title, first_header_value, header_values, parse_certificate_subject,
+    parse_http_response, sanitize_probe_reference, sanitize_probe_text,
 };
 use super::snmp::probe_snmp_identity_query;
 use super::wsd::probe_wsd_identity_query;
 use super::{
     AllowedSnmpResponseObserver, LanServiceIdentityProbeObservation, ProbeTarget, ProbeTransport,
-    SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS,
-    SERVICE_IDENTITY_PROBE_MAX_RESPONSE_BYTES, SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES,
-    SERVICE_IDENTITY_PROBE_READ_TIMEOUT_MS,
+    SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS, SERVICE_IDENTITY_PROBE_MAX_RESPONSE_BYTES,
+    SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES, SERVICE_IDENTITY_PROBE_READ_TIMEOUT_MS,
 };
 
 #[derive(Debug)]

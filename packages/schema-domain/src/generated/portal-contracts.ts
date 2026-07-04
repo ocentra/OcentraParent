@@ -1,5 +1,7 @@
 /* generated from crates/schema/src/parent_ui_bridge.rs */
 
+import { Schema } from '../effect';
+
 export const GeneratedPortalRouteLiteral = {
   Overview: 'overview',
   Assistant: 'assistant',
@@ -144,7 +146,12 @@ export interface GeneratedPortalRouteEventSnapshot {
   readonly snapshot?: GeneratedPortalRouteEventPayloadRecord | null;
 }
 
-export type GeneratedPortalDevToolUrl = string;
-export type GeneratedPortalDetailValue = string;
-export type GeneratedPortalClipboardText = string;
-export type GeneratedTrackingStatusProofArtifact = string;
+export const GeneratedPortalDevToolUrlSchema = Schema.String;
+export const GeneratedPortalDetailValueSchema = Schema.String;
+export const GeneratedPortalClipboardTextSchema = Schema.String;
+export const GeneratedTrackingStatusProofArtifactSchema = Schema.String;
+
+export type GeneratedPortalDevToolUrl = typeof GeneratedPortalDevToolUrlSchema.Type;
+export type GeneratedPortalDetailValue = typeof GeneratedPortalDetailValueSchema.Type;
+export type GeneratedPortalClipboardText = typeof GeneratedPortalClipboardTextSchema.Type;
+export type GeneratedTrackingStatusProofArtifact = typeof GeneratedTrackingStatusProofArtifactSchema.Type;

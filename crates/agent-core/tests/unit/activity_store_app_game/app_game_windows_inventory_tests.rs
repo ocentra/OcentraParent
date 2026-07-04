@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use ocentra_parent_agent_protocol::app_game::*;
 use ocentra_parent_agent_protocol::constants;
 
@@ -158,7 +160,7 @@ fn launcher_record() -> WindowsInstalledAppInventoryRecord {
     }
 }
 
-fn display_only_unknown_record(source_ref: &str) -> WindowsInstalledAppInventoryRecord {
+fn display_only_unknown_record(source_ref: impl Display) -> WindowsInstalledAppInventoryRecord {
     WindowsInstalledAppInventoryRecord {
         observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         source_kind: APP_GAME_INVENTORY_SOURCE_UNKNOWN.to_string(),

@@ -1,8 +1,4 @@
-use std::{
-    fs,
-    io::ErrorKind,
-    path::{Path, PathBuf},
-};
+use std::{fs, io::ErrorKind, path::Path};
 
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
 use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyEffectivePolicy;
@@ -10,6 +6,8 @@ use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::policy_constants;
 use serde::{Deserialize, Serialize};
+
+use crate::browser_policy_runtime_support::{BrowserPolicyRevisionId, BrowserPolicyStorePath};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) struct BrowserPolicyStoredState {
@@ -53,15 +51,18 @@ impl BrowserPolicyStoredState {
     }
 
     pub(crate) fn active_revision(&self) -> Option<&BrowserPolicyRevisionRecord> {
-        self.active_revision_id
-            .as_ref()
-            .and_then(|revision_id| self.revision_by_id(revision_id))
+        self.active_revision_id.as_ref().and_then(|revision_id| {
+            self.revision_by_id(&BrowserPolicyRevisionId(revision_id.clone()))
+        })
     }
 
-    pub(crate) fn revision_by_id(&self, revision_id: &str) -> Option<&BrowserPolicyRevisionRecord> {
+    pub(crate) fn revision_by_id(
+        &self,
+        revision_id: &BrowserPolicyRevisionId,
+    ) -> Option<&BrowserPolicyRevisionRecord> {
         self.revisions
             .iter()
-            .find(|revision| revision.revision_id == revision_id)
+            .find(|revision| revision.revision_id == revision_id.0)
     }
 }
 
@@ -90,14 +91,8 @@ pub(crate) async fn write_browser_policy_state(
         .map_err(|error| unavailable_from_error(&error))?
 }
 
-pub(crate) fn browser_policy_store_path_from_env() -> PathBuf {
-    std::env::var(constants::env_var::AGENT_BROWSER_POLICY_STORE_PATH)
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            let mut path = std::env::temp_dir();
-            path.push(constants::browser_policy::STORE_FILE_NAME);
-            path
-        })
+pub(crate) fn browser_policy_store_path_from_env() -> BrowserPolicyStorePath {
+    crate::browser_policy_runtime_support::browser_policy_store_path_from_env()
 }
 
 fn read_browser_policy_state_sync(

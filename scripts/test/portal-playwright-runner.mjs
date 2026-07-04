@@ -55,7 +55,14 @@ const parentBridgePort = resolveParentDevPort(
   portalPort >= 65535 ? ParentDevPort.ParentBridge : portalPort + 1,
   ParentDevEnv.ParentBridgePort
 );
+const logBridgePort = resolveParentDevPort(
+  process.env['OCENTRA_PARENT_LOG_BRIDGE_PORT'],
+  parentBridgePort >= 65535 ? ParentDevPort.ParentBridge + 1 : parentBridgePort + 1,
+  'OCENTRA_PARENT_LOG_BRIDGE_PORT'
+);
 const parentBridgeUrl = createParentDevBridgeUrl(parentBridgePort);
+const logBridgeUrl = createHttpOrigin(ParentDevHost.Loopback, logBridgePort);
+const portalLogBridgeEnvKey = 'VITE_OCENTRA_PARENT_LOG_BRIDGE_URL';
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
 const activityDbPath = path.join(devLogDir, 'activity.sqlite');
 const children = [];
@@ -73,6 +80,12 @@ try {
     parentBridgePort,
     isLikelyParentBridgeOccupant,
     ParentDevEnv.ParentBridgePort
+  );
+  await requireManagedPortFree(
+    'logging bridge',
+    logBridgePort,
+    isLikelyParentLogBridgeOccupant,
+    'OCENTRA_PARENT_LOG_BRIDGE_PORT'
   );
   seedPortalNetworkActivityStore(activityDbPath);
 
@@ -97,6 +110,10 @@ try {
   trackChild(bridge, 'bridge');
   await waitForParentDevBridge(parentBridgeUrl);
 
+  const logBridge = spawnLogBridge();
+  trackChild(logBridge, 'log bridge');
+  await waitForHttp(`${logBridgeUrl}/__health__`);
+
   const portal = spawnVitePortal(
     portalPort,
     {
@@ -105,6 +122,7 @@ try {
       [ParentDevEnv.DevLogDir]: devLogDir,
       [ParentDevEnv.PortalAgentWebSocketUrl]: createAgentWebSocketUrl(agentPort),
       [ParentDevEnv.PortalParentBridgeUrl]: parentBridgeUrl,
+      [portalLogBridgeEnvKey]: logBridgeUrl,
     },
     repoRoot
   );
@@ -162,6 +180,25 @@ function spawnAgent() {
     },
     repoRoot
   );
+}
+
+function spawnLogBridge() {
+  const command = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+  const args =
+    process.platform === 'win32'
+      ? ['/c', 'npm run bridge --workspace @ocentra-parent/logging-domain']
+      : ['run', 'bridge', '--workspace', '@ocentra-parent/logging-domain'];
+  return spawn(command, args, {
+    cwd: repoRoot,
+    detached: process.platform !== 'win32',
+    env: {
+      ...process.env,
+      OCENTRA_PARENT_LOG_BRIDGE_HOST: ParentDevHost.Loopback,
+      OCENTRA_PARENT_LOG_BRIDGE_PORT: String(logBridgePort),
+      OCENTRA_PARENT_LOG_DIR: devLogDir,
+    },
+    stdio: ['ignore', 'inherit', 'inherit'],
+  });
 }
 
 function trackChild(child, label) {
@@ -239,35 +276,52 @@ async function waitForHttp(url, timeoutMs = 30000) {
 }
 
 async function assertPortalDevLogWritten() {
-  const content = await waitForDevLogContent('portal-', [
+  const content = await waitForDevLogContent([
     'Portal command sent.',
     'Portal host bridge event received.',
     'Portal dev runtime started.',
+    'Vite dev server started.',
   ]);
   if (
     !content.includes('Portal host bridge event received.') &&
     !content.includes('Portal dev runtime started.') &&
-    !content.includes('Portal command sent.')
+    !content.includes('Portal command sent.') &&
+    !content.includes('Vite dev server started.')
   ) {
     throw new Error(`Portal dev log did not include startup, host-bridge, or command proof entries:\n${content}`);
   }
 }
 
-async function waitForDevLogContent(prefix, expectedText) {
+async function waitForDevLogContent(expectedText) {
   const expectedTexts = Array.isArray(expectedText) ? expectedText : [expectedText];
   const startedAt = Date.now();
   while (Date.now() - startedAt < 10000) {
-    const files = await readdir(devLogDir);
-    const logFile = files.find((file) => file.startsWith(prefix) && file.endsWith('.ndjson'));
-    if (logFile !== undefined) {
-      const content = await readFile(path.join(devLogDir, logFile), 'utf8');
+    const logFiles = await listNdjsonFiles(devLogDir);
+    for (const logFile of logFiles) {
+      const content = await readFile(logFile, 'utf8');
       if (expectedTexts.some((entry) => content.includes(entry))) {
         return content;
       }
     }
     await delay(250);
   }
-  throw new Error(`Timed out waiting for dev log ${prefix} in ${devLogDir}`);
+  throw new Error(`Timed out waiting for dev log entries in ${devLogDir}`);
+}
+
+async function listNdjsonFiles(directory) {
+  const files = [];
+  const entries = await readdir(directory, { withFileTypes: true });
+  for (const entry of entries) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await listNdjsonFiles(entryPath)));
+      continue;
+    }
+    if (entry.name.endsWith('.ndjson')) {
+      files.push(entryPath);
+    }
+  }
+  return files.sort((left, right) => left.localeCompare(right));
 }
 
 async function waitForParentDevBridge(url) {
@@ -340,4 +394,14 @@ function forceKill(child) {
   } catch {
     child.kill('SIGKILL');
   }
+}
+
+function isLikelyParentLogBridgeOccupant(occupant) {
+  const text = `${occupant.name} ${occupant.commandLine}`.toLowerCase();
+  return (
+    text.includes('log-bridge') ||
+    text.includes('ocentra_parent_log_bridge') ||
+    text.includes('ocentra-parent/logging-domain') ||
+    text.includes('@ocentra-parent/logging-domain')
+  );
 }

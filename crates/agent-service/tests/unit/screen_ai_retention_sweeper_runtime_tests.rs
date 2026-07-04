@@ -1,5 +1,9 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::{
     fs::{self, remove_dir_all},
+    io::Error as IoError,
     path::PathBuf,
     sync::atomic::{AtomicU64, Ordering},
 };
@@ -22,6 +26,10 @@ use crate::screen_ai_retention_sweeper_runtime::{
 };
 use crate::test_invariants::require_ok;
 
+#[path = "../support/test_text.rs"]
+mod test_text;
+use test_text::TestText;
+
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[test]
@@ -33,7 +41,7 @@ fn screen_retention_sweeper_runtime_is_disabled_by_default() {
 }
 
 #[tokio::test]
-async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
+async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() -> Result<(), IoError> {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
     let _ = remove_dir_all(&root);
     let queue_dir = root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
@@ -61,18 +69,20 @@ async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
         constants::activity_store::TEST_SCREEN_RESULT_ID,
         constants::activity_store::TEST_THIRD_OBSERVED_AT,
     );
-    queue
-        .append_encrypted_image(
+    require_ok(
+        queue.append_encrypted_image(
             &expired_job,
             constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER.as_bytes(),
-        )
-        .unwrap_or_else(|error| unreachable!("{}: {error:?}", constants::error::JOURNAL_APPENDS));
-    queue
-        .append_encrypted_image(
+        ),
+        constants::error::JOURNAL_APPENDS,
+    );
+    require_ok(
+        queue.append_encrypted_image(
             &fresh_job,
             constants::activity_store::TEST_SCREEN_SUMMARY.as_bytes(),
-        )
-        .unwrap_or_else(|error| unreachable!("{}: {error:?}", constants::error::JOURNAL_APPENDS));
+        ),
+        constants::error::JOURNAL_APPENDS,
+    );
     let config = ScreenAiRetentionSweeperRuntimeConfig {
         poll_seconds: 1,
         max_sweeps: Some(1),
@@ -103,10 +113,15 @@ async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_THIRD_OBSERVED_AT,
     )
-    .unwrap_or_else(|error| unreachable!("{}: {error:?}", constants::error::ACTIVITY_STORE_OPENS));
+    .map_err(|error| {
+        IoError::other(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
     let _ = remove_dir_all(&root);
 
-    assert_sweep_outcome(outcome, &expired_job);
+    assert_sweep_outcome(outcome, &expired_job)?;
     assert_sweep_deletion_events(&deletion_events, &expired_job);
     assert_sweep_store(
         entries.len(),
@@ -114,6 +129,7 @@ async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
         &fresh_job,
         &screen_summary,
     );
+    Ok(())
 }
 
 async fn publish_swept_deletion_events(
@@ -171,16 +187,17 @@ fn screen_retention_sweeper_tick_keeps_queue_when_key_is_missing() {
     assert_eq!(outcome, ScreenAiRetentionSweeperOutcome::QueueEmpty);
 }
 
-fn sweeper_clock(timestamp: &str) -> ScreenAiRetentionSweeperClock {
+fn sweeper_clock(timestamp: TestText) -> ScreenAiRetentionSweeperClock {
+    let timestamp = timestamp;
     ScreenAiRetentionSweeperClock {
-        timestamp: timestamp.to_string(),
+        timestamp: timestamp.as_str().to_string(),
     }
 }
 
 fn assert_sweep_outcome(
     outcome: ScreenAiRetentionSweeperOutcome,
     expired_job: &ScreenAnalysisQueueJob,
-) {
+) -> Result<(), IoError> {
     match outcome {
         ScreenAiRetentionSweeperOutcome::Swept {
             expired_entries,
@@ -196,19 +213,26 @@ fn assert_sweep_outcome(
             assert!(expired_entries[0].deletion_proof_ref.contains(
                 ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX
             ));
+            Ok(())
         }
-        other => unreachable!("expected swept retention outcome, got {other:?}"),
+        ScreenAiRetentionSweeperOutcome::QueueEmpty => Err(IoError::other(
+            "expected swept retention outcome, got queue empty",
+        )),
+        ScreenAiRetentionSweeperOutcome::NoExpired { pending_count } => Err(IoError::other(
+            format!("expected swept retention outcome, got no expired items: {pending_count}"),
+        )),
     }
 }
 
 fn assert_sweep_store(
     entry_count: usize,
-    retained_queue_job_id: &str,
+    retained_queue_job_id: TestText,
     fresh_job: &ScreenAnalysisQueueJob,
     screen_summary: &ScreenEvidenceRecentSummary,
 ) {
+    let retained_queue_job_id = retained_queue_job_id;
     assert_eq!(entry_count, 1);
-    assert_eq!(retained_queue_job_id, fresh_job.queue_job_id);
+    assert_eq!(retained_queue_job_id.as_str(), fresh_job.queue_job_id);
     assert_eq!(screen_summary.returned, 1);
     assert_eq!(
         screen_summary.results[0].queue_job_id,
@@ -220,13 +244,18 @@ fn assert_sweep_store(
     );
 }
 
-fn screen_queue_job_with_expiry(queue_job_id: &str, expires_at: &str) -> ScreenAnalysisQueueJob {
+fn screen_queue_job_with_expiry(
+    queue_job_id: TestText,
+    expires_at: TestText,
+) -> ScreenAnalysisQueueJob {
+    let queue_job_id = queue_job_id;
+    let expires_at = expires_at;
     ScreenAnalysisQueueJob {
         schema_version: parent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION,
-        queue_job_id: queue_job_id.to_string(),
+        queue_job_id: queue_job_id.as_str().to_string(),
         created_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         not_before: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        expires_at: expires_at.to_string(),
+        expires_at: expires_at.as_str().to_string(),
         last_attempt_at: None,
         capture_reason:
             ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST
@@ -262,13 +291,14 @@ fn screen_queue_job_with_expiry(queue_job_id: &str, expires_at: &str) -> ScreenA
     }
 }
 
-fn test_path(suffix: &str) -> PathBuf {
+fn test_path(suffix: TestText) -> PathBuf {
+    let suffix = suffix;
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(suffix.as_str());
     let mut path = std::env::temp_dir();
     path.push(name);
     path

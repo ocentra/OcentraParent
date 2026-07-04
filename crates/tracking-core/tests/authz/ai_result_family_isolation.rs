@@ -14,19 +14,14 @@ fn ai_result_from_wrong_child_or_device_is_rejected_before_policy() {
     let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(
         ocentra_tracking_core::runtime_flow::default_location_observed_event(),
     );
-    let request = report.ai_analysis_requested.unwrap_or_else(|| {
-        unreachable!(
-            "{}",
-            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED
-        )
-    });
+    let request = report
+        .ai_analysis_requested
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let result = TrackingNearbyPlaceClassifiedEvent {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF,
         )
-        .unwrap_or_else(|_| {
-            unreachable!("{}", constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
-        }),
+        .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
         child_profile_id: request.child_profile_id.clone(),
         source_ai_request_id: request.ai_request_id.clone(),
         source_location_evidence_ref: request.evidence_refs[0].clone(),
@@ -35,57 +30,30 @@ fn ai_result_from_wrong_child_or_device_is_rejected_before_policy() {
         provider_kind: TrackingNearbyPlaceProviderKind::parse(
             constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,
         )
-        .unwrap_or_else(|_| {
-            unreachable!(
-                "{}",
-                constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE
-            )
-        }),
+        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE),
         provider_ref: Some(
             TrackingProviderRef::parse(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
-                .unwrap_or_else(|_| {
-                    unreachable!(
-                        "{}",
-                        constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF
-                    )
-                }),
+                .expect(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF),
         ),
         query_radius_meters: constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS,
         distance_meters: Some(constants::tracking_runtime::DEFAULT_NEARBY_DISTANCE_METERS),
         place_category: TrackingPlaceCategory::parse(
             constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL,
         )
-        .unwrap_or_else(|_| {
-            unreachable!("{}", constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL)
-        }),
+        .expect(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL),
         confidence: constants::tracking_runtime::DEFAULT_NEARBY_PLACE_CONFIDENCE,
         confidence_basis: TrackingConfidenceBasis::parse(
             constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT,
         )
-        .unwrap_or_else(|_| {
-            unreachable!(
-                "{}",
-                constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT
-            )
-        }),
+        .expect(constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT),
         ambiguity_state: TrackingNearbyPlaceAmbiguityState::parse(
             constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR,
         )
-        .unwrap_or_else(|_| {
-            unreachable!(
-                "{}",
-                constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR
-            )
-        }),
+        .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR),
         reason_codes: vec![TrackingReasonCode::parse(
             constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE,
         )
-        .unwrap_or_else(|_| {
-            unreachable!(
-                "{}",
-                constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE
-            )
-        })],
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE)],
         parent_action_requirement: TrackingParentActionRequirement::Required,
     };
 

@@ -135,11 +135,7 @@ macro_rules! remote_access_text_id {
 
         impl $name {
             pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
+                parse_remote_access_text_id($field, value).map(Self)
             }
 
             pub fn as_str(&self) -> &str {
@@ -158,12 +154,6 @@ macro_rules! remote_access_text_id {
         impl From<$name> for String {
             fn from(value: $name) -> Self {
                 value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
             }
         }
     };
@@ -202,7 +192,10 @@ impl DomainEvent for RemoteAccessSessionRequestedEvent {
     }
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        remote_access_idempotency_key(REMOTE_ACCESS_SESSION_REQUESTED_EVENT_TYPE, &self.session_id)
+        remote_access_idempotency_key(
+            REMOTE_ACCESS_SESSION_REQUESTED_EVENT_TYPE,
+            self.session_id.as_str(),
+        )
     }
 }
 
@@ -218,7 +211,7 @@ impl DomainEvent for RemoteAccessAuthorizationResolvedEvent {
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         remote_access_idempotency_key(
             REMOTE_ACCESS_AUTHORIZATION_RESOLVED_EVENT_TYPE,
-            &self.authorization_id,
+            self.authorization_id.as_str(),
         )
     }
 }
@@ -226,30 +219,18 @@ impl DomainEvent for RemoteAccessAuthorizationResolvedEvent {
 pub fn evaluate_remote_access_session(
     request: RemoteAccessSessionRequest,
 ) -> RemoteAccessSessionDecision {
-    let bounded_duration =
-        request.requested_minutes > 0 && request.requested_minutes <= request.maximum_minutes;
-    let allowed = request.parent_authority_state == ParentAuthorityState::Authorized
-        && request.child_disclosure_state == ChildDisclosureState::Disclosed
-        && request.relay_state == RemoteAccessRelayState::Available
-        && request.replay_state == RemoteAccessReplayState::Fresh
-        && bounded_duration;
+    let allowed = remote_access_session_is_allowed(request);
 
     RemoteAccessSessionDecision {
-        authorization_state: if allowed {
-            RemoteAccessSessionAuthorizationState::Allowed
-        } else {
-            RemoteAccessSessionAuthorizationState::Rejected
-        },
-        relay_requirement_state: if request.relay_state != RemoteAccessRelayState::Available {
-            RemoteAccessRelayRequirementState::Required
-        } else {
-            RemoteAccessRelayRequirementState::NotRequired
-        },
-        auto_expiry_state: if allowed {
-            RemoteAccessAutoExpiryState::Required
-        } else {
-            RemoteAccessAutoExpiryState::NotRequired
-        },
+        authorization_state: allowed
+            .then_some(RemoteAccessSessionAuthorizationState::Allowed)
+            .unwrap_or(RemoteAccessSessionAuthorizationState::Rejected),
+        relay_requirement_state: (request.relay_state != RemoteAccessRelayState::Available)
+            .then_some(RemoteAccessRelayRequirementState::Required)
+            .unwrap_or(RemoteAccessRelayRequirementState::NotRequired),
+        auto_expiry_state: allowed
+            .then_some(RemoteAccessAutoExpiryState::Required)
+            .unwrap_or(RemoteAccessAutoExpiryState::NotRequired),
     }
 }
 
@@ -273,27 +254,37 @@ pub fn plan_remote_access_session_effects(
 ) -> RemoteAccessSessionEffectPlan {
     let decision = evaluate_remote_access_session(request);
     let allowed = decision.authorization_state == RemoteAccessSessionAuthorizationState::Allowed;
-    let input_allowed =
-        allowed && request.input_authority_state == RemoteAccessInputAuthorityState::InputAllowed;
+    let input_allowed = [
+        allowed,
+        request.input_authority_state == RemoteAccessInputAuthorityState::InputAllowed,
+    ]
+    .into_iter()
+    .all(std::convert::identity);
 
     RemoteAccessSessionEffectPlan {
-        view_stream_state: if allowed {
-            RemoteAccessViewStreamState::Start
-        } else {
-            RemoteAccessViewStreamState::DoNotStart
-        },
-        input_bridge_state: if input_allowed {
-            RemoteAccessInputBridgeState::Start
-        } else {
-            RemoteAccessInputBridgeState::DoNotStart
-        },
-        disclosure_banner_state: if allowed {
-            RemoteAccessDisclosureBannerState::Show
-        } else {
-            RemoteAccessDisclosureBannerState::DoNotShow
-        },
+        view_stream_state: allowed
+            .then_some(RemoteAccessViewStreamState::Start)
+            .unwrap_or(RemoteAccessViewStreamState::DoNotStart),
+        input_bridge_state: input_allowed
+            .then_some(RemoteAccessInputBridgeState::Start)
+            .unwrap_or(RemoteAccessInputBridgeState::DoNotStart),
+        disclosure_banner_state: allowed
+            .then_some(RemoteAccessDisclosureBannerState::Show)
+            .unwrap_or(RemoteAccessDisclosureBannerState::DoNotShow),
         audit_state: RemoteAccessAuditState::Record,
     }
+}
+
+fn remote_access_session_is_allowed(request: RemoteAccessSessionRequest) -> bool {
+    [
+        request.parent_authority_state == ParentAuthorityState::Authorized,
+        request.child_disclosure_state == ChildDisclosureState::Disclosed,
+        request.relay_state == RemoteAccessRelayState::Available,
+        request.replay_state == RemoteAccessReplayState::Fresh,
+        (1..=request.maximum_minutes).contains(&request.requested_minutes),
+    ]
+    .into_iter()
+    .all(std::convert::identity)
 }
 
 fn remote_access_event_contract(event_type: &str) -> Result<EventContract, EventingError> {
@@ -303,9 +294,19 @@ fn remote_access_event_contract(event_type: &str) -> Result<EventContract, Event
     ))
 }
 
+fn parse_remote_access_text_id(
+    field: &'static str,
+    value: impl Into<String>,
+) -> Result<String, EventingError> {
+    let value = value.into();
+    (!value.trim().is_empty())
+        .then_some(value)
+        .ok_or(EventingError::EmptyValue { field })
+}
+
 fn remote_access_idempotency_key(
     event_type: &str,
-    unique_ref: impl std::fmt::Display,
+    unique_ref: &str,
 ) -> Result<IdempotencyKey, EventingError> {
     IdempotencyKey::parse(format!(
         "{}{}{}",

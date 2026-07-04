@@ -1,5 +1,7 @@
 use std::{
+    fmt::Display,
     fs::{read_to_string, remove_dir_all},
+    path::{Path, PathBuf},
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -16,6 +18,17 @@ use serde_json::Value;
 
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_core::screen_evidence_queue::ScreenEvidenceQueue;
+
+use crate::test_text::TestText;
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+struct TestPath(PathBuf);
+
+impl AsRef<Path> for TestPath {
+    fn as_ref(&self) -> &Path {
+        &self.0
+    }
+}
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
@@ -214,14 +227,19 @@ fn screen_queue_job() -> ScreenAnalysisQueueJob {
     screen_queue_job_with_id(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID)
 }
 
-fn screen_queue_job_with_id(queue_job_id: &str) -> ScreenAnalysisQueueJob {
+fn screen_queue_job_with_id(queue_job_id: impl Display) -> ScreenAnalysisQueueJob {
     screen_queue_job_with_expiry(
         queue_job_id,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
 }
 
-fn screen_queue_job_with_expiry(queue_job_id: &str, expires_at: &str) -> ScreenAnalysisQueueJob {
+fn screen_queue_job_with_expiry(
+    queue_job_id: impl Display,
+    expires_at: impl Display,
+) -> ScreenAnalysisQueueJob {
+    let queue_job_id = TestText::from_display(queue_job_id);
+    let expires_at = TestText::from_display(expires_at);
     ScreenAnalysisQueueJob {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
         queue_job_id: queue_job_id.to_string(),
@@ -255,7 +273,7 @@ fn screen_queue_job_with_expiry(queue_job_id: &str, expires_at: &str) -> ScreenA
     }
 }
 
-fn temp_queue_dir() -> std::path::PathBuf {
+fn temp_queue_dir() -> TestPath {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
@@ -264,5 +282,5 @@ fn temp_queue_dir() -> std::path::PathBuf {
     name.push_str(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
     let mut path = std::env::temp_dir();
     path.push(name);
-    path
+    TestPath(path)
 }

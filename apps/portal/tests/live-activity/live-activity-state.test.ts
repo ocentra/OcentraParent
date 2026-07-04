@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentNetworkRuntimeEventType } from '@ocentra-parent/schema-domain/network-runtime-events';
-import type { ParentRouteLiveActivitySnapshot } from '../../generated/parent-ui-bridge';
-import { resolveSnapshotLiveActivityState } from '../../src/route-live-activity-state';
+import {
+  ParentAgentEvent as AgentEvent,
+  type ParentNetworkRuntimeEventResultSnapshot,
+  type ParentRouteLiveActivitySnapshot,
+} from '../../generated/parent-ui-bridge';
+import { EMPTY_ROUTE_LIVE_ACTIVITY_STATE, resolveSnapshotLiveActivityState } from '../../src/route-live-activity-state';
 import {
   FlowObserved,
   activityTrackingReadModelResultSnapshot,
@@ -144,21 +146,27 @@ describe('portal live activity state', () => {
     expect(state.networkRuntimeEventChainStream).toBeNull();
   });
 
+  it('keeps the empty route live activity state aligned with the shared portal-domain defaults', () => {
+    expect(EMPTY_ROUTE_LIVE_ACTIVITY_STATE.activityServiceUiSpine.dataOwner).toBe('rust-service-read-model');
+    expect(EMPTY_ROUTE_LIVE_ACTIVITY_STATE.activityServiceUiSpine.uiConsumer).toBe('c-owned-activity-ui');
+    expect(EMPTY_ROUTE_LIVE_ACTIVITY_STATE.activityServiceUiSpine.viteDataOwner).toBe(false);
+    expect(EMPTY_ROUTE_LIVE_ACTIVITY_STATE.activityServiceUiSpine.currentState).toBe('unavailable');
+  });
+
   it('surfaces Rust-owned runtime event-chain snapshots directly', () => {
     const runtimeEventValue = {
       aiAnalysisRef: 'analysis.network.flow.observed.1',
     } as const;
+    const runtimeEvent = {
+      ok: true,
+      eventType: 'network.flow.observed',
+      value: runtimeEventValue,
+    } satisfies ParentNetworkRuntimeEventResultSnapshot;
     const state = resolveSnapshotLiveActivityState({
       networkRuntimeEventChainStream: {
         streamedEventCount: 1,
         invalidEventCount: 0,
-        events: [
-          {
-            ok: true,
-            eventType: AgentNetworkRuntimeEventType.NetworkFlowObserved,
-            value: runtimeEventValue,
-          },
-        ],
+        events: [runtimeEvent],
       },
     });
 

@@ -1,14 +1,16 @@
+use std::fmt::Display;
+
 use ocentra_parent_agent_protocol::constants::household_mesh as mesh;
 use ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgeState;
 
+use crate::test_text::{TestResult, TestText};
 use crate::{
     export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
     HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
     HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,
 };
 
-type SelectedEventCase = (HouseholdMeshLocalEventKind, &'static str, &'static str);
-type TestResult = Result<(), String>;
+type SelectedEventCase = (HouseholdMeshLocalEventKind, TestText, TestText);
 
 #[test]
 fn household_mesh_exports_all_selected_local_events() -> TestResult {
@@ -59,7 +61,7 @@ fn household_mesh_validates_incoming_before_local_republish() -> TestResult {
         &[],
     );
     let HouseholdMeshImportDecision::Republish(republish) = decision else {
-        return Err(mesh::TEST_INCOMING_VALIDATES_EXPECT.to_string());
+        return Err(TestText::from_display(mesh::TEST_INCOMING_VALIDATES_EXPECT));
     };
     assert_eq!(republish.family_id, mesh::TEST_BRIDGE_FAMILY_ID);
     assert_eq!(
@@ -292,8 +294,8 @@ fn household_mesh_rejects_replay_stale_family_and_device_mismatches() {
 
 fn assert_selected_export(
     event_kind: HouseholdMeshLocalEventKind,
-    expected_local_ref: &'static str,
-    expected_lan_message: &'static str,
+    expected_local_ref: impl Display,
+    expected_lan_message: impl Display,
 ) -> TestResult {
     let decision = export_selected_local_event(
         event_kind,
@@ -308,7 +310,7 @@ fn assert_selected_export(
         ),
     );
     let HouseholdMeshExportDecision::Export(message) = decision else {
-        return Err(mesh::TEST_SELECTED_EXPORTS_EXPECT.to_string());
+        return Err(TestText::from_display(mesh::TEST_SELECTED_EXPORTS_EXPECT));
     };
     assert_eq!(message.message_id, mesh::TEST_BRIDGE_OUTBOUND_MESSAGE_ID);
     assert_eq!(message.idempotency_key, mesh::TEST_BRIDGE_IDEMPOTENCY_KEY);
@@ -321,8 +323,8 @@ fn assert_selected_export(
         message.source_peer_id,
         mesh::TEST_BRIDGE_CHILD_AGENT_PEER_ID
     );
-    assert_eq!(message.local_event_ref, expected_local_ref);
-    assert_eq!(message.lan_message_type, expected_lan_message);
+    assert_eq!(message.local_event_ref, expected_local_ref.to_string());
+    assert_eq!(message.lan_message_type, expected_lan_message.to_string());
     assert_eq!(
         message.bridge_state,
         HouseholdMeshBridgeState::ExportSelected
@@ -361,68 +363,68 @@ fn selected_event_cases() -> [SelectedEventCase; 13] {
     [
         (
             HouseholdMeshLocalEventKind::DeviceDiscovery,
-            mesh::LOCAL_EVENT_DEVICE_DISCOVERY,
-            mesh::LAN_MESSAGE_DEVICE_DISCOVERY,
+            TestText::from_display(mesh::LOCAL_EVENT_DEVICE_DISCOVERY),
+            TestText::from_display(mesh::LAN_MESSAGE_DEVICE_DISCOVERY),
         ),
         (
             HouseholdMeshLocalEventKind::ProviderAdvertisement,
-            mesh::LOCAL_EVENT_PROVIDER_ADVERTISEMENT,
-            mesh::LAN_MESSAGE_PROVIDER_ADVERTISEMENT,
+            TestText::from_display(mesh::LOCAL_EVENT_PROVIDER_ADVERTISEMENT),
+            TestText::from_display(mesh::LAN_MESSAGE_PROVIDER_ADVERTISEMENT),
         ),
         (
             HouseholdMeshLocalEventKind::ProviderHeartbeat,
-            mesh::LOCAL_EVENT_PROVIDER_HEARTBEAT,
-            mesh::LAN_MESSAGE_PROVIDER_HEARTBEAT,
+            TestText::from_display(mesh::LOCAL_EVENT_PROVIDER_HEARTBEAT),
+            TestText::from_display(mesh::LAN_MESSAGE_PROVIDER_HEARTBEAT),
         ),
         (
             HouseholdMeshLocalEventKind::ProviderCapability,
-            mesh::LOCAL_EVENT_PROVIDER_CAPABILITY,
-            mesh::LAN_MESSAGE_PROVIDER_CAPABILITY,
+            TestText::from_display(mesh::LOCAL_EVENT_PROVIDER_CAPABILITY),
+            TestText::from_display(mesh::LAN_MESSAGE_PROVIDER_CAPABILITY),
         ),
         (
             HouseholdMeshLocalEventKind::AiWorkOffer,
-            mesh::LOCAL_EVENT_AI_WORK_OFFER,
-            mesh::LAN_MESSAGE_AI_WORK_OFFER,
+            TestText::from_display(mesh::LOCAL_EVENT_AI_WORK_OFFER),
+            TestText::from_display(mesh::LAN_MESSAGE_AI_WORK_OFFER),
         ),
         (
             HouseholdMeshLocalEventKind::AiWorkClaimRequest,
-            mesh::LOCAL_EVENT_AI_WORK_CLAIM_REQUEST,
-            mesh::LAN_MESSAGE_AI_WORK_CLAIM_REQUEST,
+            TestText::from_display(mesh::LOCAL_EVENT_AI_WORK_CLAIM_REQUEST),
+            TestText::from_display(mesh::LAN_MESSAGE_AI_WORK_CLAIM_REQUEST),
         ),
         (
             HouseholdMeshLocalEventKind::AiWorkClaimDecision,
-            mesh::LOCAL_EVENT_AI_WORK_CLAIM_DECISION,
-            mesh::LAN_MESSAGE_AI_WORK_CLAIM_DECISION,
+            TestText::from_display(mesh::LOCAL_EVENT_AI_WORK_CLAIM_DECISION),
+            TestText::from_display(mesh::LAN_MESSAGE_AI_WORK_CLAIM_DECISION),
         ),
         (
             HouseholdMeshLocalEventKind::AiWorkLeaseState,
-            mesh::LOCAL_EVENT_AI_WORK_LEASE_STATE,
-            mesh::LAN_MESSAGE_AI_WORK_LEASE_STATE,
+            TestText::from_display(mesh::LOCAL_EVENT_AI_WORK_LEASE_STATE),
+            TestText::from_display(mesh::LAN_MESSAGE_AI_WORK_LEASE_STATE),
         ),
         (
             HouseholdMeshLocalEventKind::AiJobPayloadTransfer,
-            mesh::LOCAL_EVENT_AI_JOB_PAYLOAD_TRANSFER,
-            mesh::LAN_MESSAGE_AI_JOB_PAYLOAD_TRANSFER,
+            TestText::from_display(mesh::LOCAL_EVENT_AI_JOB_PAYLOAD_TRANSFER),
+            TestText::from_display(mesh::LAN_MESSAGE_AI_JOB_PAYLOAD_TRANSFER),
         ),
         (
             HouseholdMeshLocalEventKind::AiResultReturn,
-            mesh::LOCAL_EVENT_AI_RESULT_RETURN,
-            mesh::LAN_MESSAGE_AI_RESULT_RETURN,
+            TestText::from_display(mesh::LOCAL_EVENT_AI_RESULT_RETURN),
+            TestText::from_display(mesh::LAN_MESSAGE_AI_RESULT_RETURN),
         ),
         (
             HouseholdMeshLocalEventKind::ConfigCommand,
-            mesh::LOCAL_EVENT_CONFIG_COMMAND,
-            mesh::LAN_MESSAGE_CONFIG_COMMAND,
+            TestText::from_display(mesh::LOCAL_EVENT_CONFIG_COMMAND),
+            TestText::from_display(mesh::LAN_MESSAGE_CONFIG_COMMAND),
         ),
         (
             HouseholdMeshLocalEventKind::ApprovalOverrideCommand,
-            mesh::LOCAL_EVENT_APPROVAL_OVERRIDE_COMMAND,
-            mesh::LAN_MESSAGE_APPROVAL_OVERRIDE_COMMAND,
+            TestText::from_display(mesh::LOCAL_EVENT_APPROVAL_OVERRIDE_COMMAND),
+            TestText::from_display(mesh::LAN_MESSAGE_APPROVAL_OVERRIDE_COMMAND),
         ),
         (
             HouseholdMeshLocalEventKind::ReadModelQueryRequest,
-            mesh::LOCAL_EVENT_READ_MODEL_QUERY_REQUEST,
-            mesh::LAN_MESSAGE_READ_MODEL_QUERY_REQUEST,
+            TestText::from_display(mesh::LOCAL_EVENT_READ_MODEL_QUERY_REQUEST),
+            TestText::from_display(mesh::LAN_MESSAGE_READ_MODEL_QUERY_REQUEST),
         ),
     ]
 }

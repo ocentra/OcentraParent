@@ -25,8 +25,7 @@ fn local_model_cache_status_serializes_without_parent_visible_paths() {
         corruption_reason: None,
     };
 
-    let serialized = serde_json::to_value(status)
-        .unwrap_or_else(|error| unreachable!("cache status serializes: {error}"));
+    let serialized = serde_json::to_value(status).expect("cache status serializes: {error}");
 
     assert_eq!(
         serialized["artifactRef"],

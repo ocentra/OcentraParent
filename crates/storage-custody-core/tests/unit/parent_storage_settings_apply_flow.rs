@@ -10,19 +10,63 @@ use ocentra_storage_custody_core::parent_storage_settings_apply_flow::{
     ParentStorageRestorePreviewInput, ParentStorageSettingsApplyFlowError,
 };
 
+macro_rules! delete_input {
+    ($id:expr, $action_kind:expr, $state:expr $(,)?) => {
+        ParentStorageDeleteActionInput {
+            action_id: action_id!($id),
+            action_kind: $action_kind,
+            state: $state,
+            notes: format!(
+                "{} remains separate from disconnect.",
+                $action_kind.as_str()
+            ),
+        }
+    };
+}
+
+macro_rules! row_id {
+    ($value:expr $(,)?) => {
+        contracts::ParentStorageSettingsRowId::parse($value).assume_ok()
+    };
+}
+
+macro_rules! preview_id {
+    ($value:expr $(,)?) => {
+        contracts::ParentStoragePreviewId::parse($value).assume_ok()
+    };
+}
+
+macro_rules! apply_id {
+    ($value:expr $(,)?) => {
+        contracts::ParentStorageApplyId::parse($value).assume_ok()
+    };
+}
+
+macro_rules! action_id {
+    ($value:expr $(,)?) => {
+        contracts::ParentStorageActionId::parse($value).assume_ok()
+    };
+}
+
+macro_rules! timestamp {
+    ($value:expr $(,)?) => {
+        contracts::ParentStorageTimestamp::parse($value).assume_ok()
+    };
+}
+
 #[test]
 fn parent_storage_settings_mode_card_keeps_explicit_mode_labels_and_manual_required_visible() {
     let card = derive_parent_storage_mode_card(ParentStorageModeCardInput {
-        row_id: row_id("settings-row-manual"),
+        row_id: row_id!("settings-row-manual"),
         provider_mode: sync_contracts::ParentOwnedSyncProviderMode::GoogleDrivePickerFile,
         provider_status: sync_contracts::ParentOwnedSyncProviderStatus::ManualRequired,
         sync_state: sync_contracts::ParentOwnedSyncState::ManualRequired,
         encryption_status: contracts::ParentStorageEncryptionStatus::EncryptedBeforeUpload,
         key_status: contracts::ParentStorageKeyStatus::ManualRequired,
-        last_success_at: Some(timestamp("2026-06-28T19:10:00.000Z")),
-        last_failure_at: Some(timestamp("2026-06-28T19:12:00.000Z")),
+        last_success_at: Some(timestamp!("2026-06-28T19:10:00.000Z")),
+        last_failure_at: Some(timestamp!("2026-06-28T19:12:00.000Z")),
     })
-    .value_or_unreachable("mode card");
+    .assume_ok();
 
     assert_eq!(
         card.current_mode_label,
@@ -43,14 +87,14 @@ fn parent_storage_settings_restore_preview_stays_preview_before_apply() {
         true,
         vec![sync_contracts::ParentOwnedSyncExportDataClass::NotificationHistory],
     ))
-    .value_or_unreachable("preview");
+    .assume_ok();
     assert!(preview.confirmation_required);
     assert!(preview.tombstones_preserved);
 
     let apply = derive_parent_storage_apply_decision(
         &preview,
         ParentStorageApplyDecisionInput {
-            apply_id: apply_id("apply-confirmation"),
+            apply_id: apply_id!("apply-confirmation"),
             apply_state: contracts::ParentStorageApplyState::ApplyRequiresConfirmation,
             will_change: vec![sync_contracts::ParentOwnedSyncExportDataClass::GeneratedSummary],
             will_not_change: vec![
@@ -64,7 +108,7 @@ fn parent_storage_settings_restore_preview_stays_preview_before_apply() {
             manual_required_note: None,
         },
     )
-    .value_or_unreachable("apply decision");
+    .assume_ok();
     assert_eq!(
         apply.apply_state,
         contracts::ParentStorageApplyState::ApplyRequiresConfirmation
@@ -76,7 +120,7 @@ fn parent_storage_settings_restore_preview_stays_preview_before_apply() {
 fn parent_storage_settings_disconnect_and_delete_stay_separate() {
     let proof = build_parent_storage_settings_apply_flow_proof(
         ParentStorageModeCardInput {
-            row_id: row_id("settings-row-disconnect"),
+            row_id: row_id!("settings-row-disconnect"),
             provider_mode:
                 sync_contracts::ParentOwnedSyncProviderMode::IcloudDriveParentSelectedLocation,
             provider_status: sync_contracts::ParentOwnedSyncProviderStatus::Disconnected,
@@ -84,7 +128,7 @@ fn parent_storage_settings_disconnect_and_delete_stay_separate() {
             encryption_status: contracts::ParentStorageEncryptionStatus::EncryptedBeforeUpload,
             key_status: contracts::ParentStorageKeyStatus::KeyAvailable,
             last_success_at: None,
-            last_failure_at: Some(timestamp("2026-06-28T19:15:00.000Z")),
+            last_failure_at: Some(timestamp!("2026-06-28T19:15:00.000Z")),
         },
         preview_input(
             contracts::ParentStoragePreviewState::ImportPreviewPassed,
@@ -93,7 +137,7 @@ fn parent_storage_settings_disconnect_and_delete_stay_separate() {
             Vec::new(),
         ),
         ParentStorageApplyDecisionInput {
-            apply_id: apply_id("apply-pending"),
+            apply_id: apply_id!("apply-pending"),
             apply_state: contracts::ParentStorageApplyState::ApplyRequiresConfirmation,
             will_change: vec![sync_contracts::ParentOwnedSyncExportDataClass::GeneratedSummary],
             will_not_change: vec![],
@@ -104,13 +148,13 @@ fn parent_storage_settings_disconnect_and_delete_stay_separate() {
         },
         delete_inputs(),
         ParentStorageDisconnectInput {
-            action_id: action_id("disconnect-provider"),
+            action_id: action_id!("disconnect-provider"),
             state: sync_contracts::ParentOwnedSyncDisconnectVisibilityState::DisconnectVisible,
             notes: "Disconnect stops future sync only.".to_string(),
         },
-        timestamp("2026-06-28T19:18:00.000Z"),
+        timestamp!("2026-06-28T19:18:00.000Z"),
     )
-    .value_or_unreachable("proof");
+    .assume_ok();
 
     assert!(proof
         .delete_actions
@@ -128,7 +172,7 @@ fn parent_storage_settings_wrong_household_and_partial_restore_states_stay_expli
         true,
         Vec::new(),
     ))
-    .value_or_unreachable("wrong household preview");
+    .assume_ok();
     assert_eq!(
         wrong_household.preview_state,
         contracts::ParentStoragePreviewState::WrongHousehold
@@ -149,11 +193,11 @@ fn parent_storage_settings_wrong_household_and_partial_restore_states_stay_expli
 #[test]
 fn parent_storage_settings_manual_required_and_disconnect_rows_require_explicit_visibility() {
     let disconnect = derive_parent_storage_disconnect_row(ParentStorageDisconnectInput {
-        action_id: action_id("disconnect-manual"),
+        action_id: action_id!("disconnect-manual"),
         state: sync_contracts::ParentOwnedSyncDisconnectVisibilityState::ManualRequired,
         notes: "Manual re-auth is required.".to_string(),
     })
-    .value_or_unreachable("disconnect row");
+    .assume_ok();
     assert!(disconnect.provider_delete_requested_separately);
 
     let blocked_apply = derive_parent_storage_apply_decision(
@@ -163,9 +207,9 @@ fn parent_storage_settings_manual_required_and_disconnect_rows_require_explicit_
             true,
             Vec::new(),
         ))
-        .value_or_unreachable("manual preview"),
+        .assume_ok(),
         ParentStorageApplyDecisionInput {
-            apply_id: apply_id("apply-blocked"),
+            apply_id: apply_id!("apply-blocked"),
             apply_state: contracts::ParentStorageApplyState::BlockedManualRequired,
             will_change: vec![],
             will_not_change: vec![
@@ -179,7 +223,7 @@ fn parent_storage_settings_manual_required_and_disconnect_rows_require_explicit_
             manual_required_note: Some("Provider re-auth must complete first.".to_string()),
         },
     )
-    .value_or_unreachable("blocked apply");
+    .assume_ok();
     assert_eq!(
         blocked_apply.apply_state,
         contracts::ParentStorageApplyState::BlockedManualRequired
@@ -193,9 +237,9 @@ fn preview_input(
     rejected_sections: Vec<sync_contracts::ParentOwnedSyncExportDataClass>,
 ) -> ParentStorageRestorePreviewInput {
     ParentStorageRestorePreviewInput {
-        preview_id: preview_id("preview"),
+        preview_id: preview_id!("preview"),
         preview_state,
-        created_at: timestamp("2026-06-28T19:14:00.000Z"),
+        created_at: timestamp!("2026-06-28T19:14:00.000Z"),
         product_version: "2026.06.28".to_string(),
         schema_version: "export-import-backup-recovery-proof".to_string(),
         household_match,
@@ -224,68 +268,35 @@ fn preview_input(
 
 fn delete_inputs() -> Vec<ParentStorageDeleteActionInput> {
     vec![
-        delete_input(
+        delete_input!(
             "delete-local",
             contracts::ParentStorageDeleteActionKind::DeleteLocalChildEvidence,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
-        delete_input(
+        delete_input!(
             "delete-cache",
             contracts::ParentStorageDeleteActionKind::DeleteParentPortalCache,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
-        delete_input(
+        delete_input!(
             "delete-report",
             contracts::ParentStorageDeleteActionKind::DeleteGeneratedReport,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
-        delete_input(
+        delete_input!(
             "delete-provider",
             contracts::ParentStorageDeleteActionKind::DeleteProviderBackupCopy,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::ManualRequired,
         ),
-        delete_input(
+        delete_input!(
             "delete-support",
             contracts::ParentStorageDeleteActionKind::DeleteSupportBundle,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
-        delete_input(
+        delete_input!(
             "delete-metadata",
             contracts::ParentStorageDeleteActionKind::DeleteOcentraMetadata,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
     ]
-}
-
-fn delete_input(
-    id: &str,
-    action_kind: contracts::ParentStorageDeleteActionKind,
-    state: sync_contracts::ParentOwnedSyncDeleteVisibilityState,
-) -> ParentStorageDeleteActionInput {
-    ParentStorageDeleteActionInput {
-        action_id: action_id(id),
-        action_kind,
-        state,
-        notes: format!("{} remains separate from disconnect.", action_kind.as_str()),
-    }
-}
-
-fn row_id(value: &str) -> contracts::ParentStorageSettingsRowId {
-    contracts::ParentStorageSettingsRowId::parse(value).value_or_unreachable("row id")
-}
-
-fn preview_id(value: &str) -> contracts::ParentStoragePreviewId {
-    contracts::ParentStoragePreviewId::parse(value).value_or_unreachable("preview id")
-}
-
-fn apply_id(value: &str) -> contracts::ParentStorageApplyId {
-    contracts::ParentStorageApplyId::parse(value).value_or_unreachable("apply id")
-}
-
-fn action_id(value: &str) -> contracts::ParentStorageActionId {
-    contracts::ParentStorageActionId::parse(value).value_or_unreachable("action id")
-}
-
-fn timestamp(value: &str) -> contracts::ParentStorageTimestamp {
-    contracts::ParentStorageTimestamp::parse(value).value_or_unreachable("timestamp")
 }

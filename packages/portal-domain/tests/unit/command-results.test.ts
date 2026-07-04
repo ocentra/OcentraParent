@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import { PortalCommandResultEvents, isCommandResultEvent, latestCommandResult } from '../../src/command-results';
+import {
+  PortalAgentEvent as AgentEvent,
+  type PortalAgentEventName as AgentEventName,
+  type PortalRouteEventRecord,
+} from '../../src/portal-contract-adapter';
 
 describe('portal command result contract', () => {
   it('recognizes portal-selectable command result events from the canonical list', () => {
@@ -21,9 +24,8 @@ describe('portal command result contract', () => {
   });
 });
 
-function event(eventName: AgentEvent, eventId: string) {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: AgentProtocolSchemaVersion,
+function event(eventName: AgentEventName, eventId: string): PortalRouteEventRecord {
+  return {
     eventId,
     correlationId: `${eventId}-correlation`,
     sentAt: '2026-06-12T00:00:00.000Z',
@@ -39,5 +41,5 @@ function event(eventName: AgentEvent, eventId: string) {
     severity: 'info',
     payload: {},
     snapshot: null,
-  });
+  };
 }

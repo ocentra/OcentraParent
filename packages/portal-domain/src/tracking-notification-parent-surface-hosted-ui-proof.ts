@@ -1,26 +1,26 @@
 import { PortalDetails } from './details';
-import {
-  RequiredTrackingNotificationParentSurfaceHistoryNonClaims,
-  TrackingNotificationParentSurfaceHistoryReadModelSchema,
-  TrackingNotificationParentSurfaceHistoryStatus,
-  type TrackingNotificationParentSurfaceHistoryReadModel,
-  type TrackingNotificationParentSurfaceHistoryRow,
-} from '@ocentra-parent/schema-domain/tracking-notification-parent-surface-history-proof';
-import type { DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { GeneratedPortalTrackingContracts } from './generated/portal-contracts';
+import { PortalDevTextToken, resolvePortalDevText, type DisplayText } from './display-text';
 import {
   decodePortalDetailValue,
   type PortalDetailValue,
   type TrackingStatusProofArtifact,
-} from './portal-contract-adapter';
+} from './portal-contract-text-contracts';
 import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
 
 type PortalDisplayText = DisplayText;
+type GeneratedTrackingNotificationParentSurfaceHistoryReadModel = NonNullable<
+  ReturnType<typeof TrackingNotificationParentSurfaceHistoryContracts.decode>
+>;
+type GeneratedTrackingNotificationParentSurfaceHistoryRow =
+  GeneratedTrackingNotificationParentSurfaceHistoryReadModel['rows'][number];
+
+const TrackingNotificationParentSurfaceHistoryContracts =
+  GeneratedPortalTrackingContracts.NotificationParentSurfaceHistory;
 
 const TrackingNotificationParentSurfaceHostedUiValues = {
   NotReported: 'not reported',
   ReferenceSeparator: ' | ',
-  SchemaVersion: 'v0.6',
 } as const;
 
 export type TrackingNotificationParentSurfaceHostedUiRow = {
@@ -57,147 +57,16 @@ export type TrackingNotificationParentSurfaceHostedUiProof = {
   readonly rows: readonly TrackingNotificationParentSurfaceHostedUiRow[];
 };
 
-const DefaultTrackingNotificationParentSurfaceHistoryReadModel =
-  TrackingNotificationParentSurfaceHistoryReadModelSchema.parse({
-    schemaVersion: TrackingNotificationParentSurfaceHostedUiValues.SchemaVersion,
-    proofId: 'tracking-notification-parent-surface-history-proof',
-    generatedAt: '2026-06-06T16:16:00.000Z',
-    family: {
-      familyId: 'family-tracking-notification-history',
-    },
-    sourceProviderNotificationProofRef: 'tracking-provider-notification-proof-for-parent-surface-history',
-    sourceReceiptBoundaryProofRef: 'tracking-notification-receipt-boundary-proof-for-parent-surface-history',
-    sourcePreferencePreflightProofRef: 'tracking-notification-preference-preflight-proof-for-parent-surface-history',
-    sourceContractRefs: [
-      'tracking-provider-notification-proof',
-      'tracking-notification-receipt-boundary-proof',
-      'tracking-notification-preference-preflight-proof',
-      'notifications-expectations',
-      'location-geofence-device-status',
-    ],
-    rows: [
-      {
-        historyRowId: 'tracking-notification-history-tracking-alert-home-arrival',
-        sourceAlertId: 'tracking-alert-home-arrival',
-        sourceProviderNotificationRowId: 'tracking-provider-notification-tracking-alert-home-arrival',
-        sourceReceiptBoundaryRowId: 'tracking-notification-receipt-tracking-alert-home-arrival',
-        sourcePreferencePreflightRowId: 'tracking-notification-preference-preflight-tracking-alert-home-arrival',
-        status: TrackingNotificationParentSurfaceHistoryStatus.HistoryIntentReady,
-        sourcePolicyDecisionId: 'tracking-decision-home-arrival',
-        evidenceRefs: ['location-evidence-geofence-entry'],
-        notificationStatusRefs: ['tracking-notification-intent-home-arrival'],
-        reasonCodeRefs: ['home-arrival-notification'],
-        providerStatusEntryRef: 'tracking-provider-status-entry-home-arrival',
-        providerAttemptRef: 'tracking-provider-attempt-home-arrival',
-        auditRefs: ['tracking-provider-notification-audit-tracking-alert-home-arrival'],
-        providerPreferenceRefs: ['tracking-parent-provider-preference-home-arrival'],
-        parentPreferenceRequirementRefs: ['parent-notification-preference-required-home-arrival'],
-        quietHoursRequirementRefs: ['tracking-quiet-hours-policy-required-tracking-alert-home-arrival'],
-        receiptRequirementRefs: ['receipt-ingestion-required-home-arrival'],
-        manualProofRequirements: ['provider-delivery-runtime-required', 'receipt-webhook-runtime-required'],
-        drillInRefs: ['tracking-notification-history-drill-in-tracking-alert-home-arrival'],
-        redactedParentSummaryRef: 'tracking-notification-redacted-summary-tracking-alert-home-arrival',
-        renderedParentNotificationUiClaimed: false,
-        parentPreferenceMutationRuntimeClaimed: false,
-        providerDeliveryClaimed: false,
-        receiptIngestionRuntimeClaimed: false,
-        childDeviceDeliveryClaimed: false,
-        mobilePhysicalDeviceProofClaimed: false,
-        authorityProofClaimed: false,
-      },
-      {
-        historyRowId: 'tracking-notification-history-tracking-alert-left-expected-place',
-        sourceAlertId: 'tracking-alert-left-expected-place',
-        sourceProviderNotificationRowId: 'tracking-provider-notification-tracking-alert-left-expected-place',
-        sourceReceiptBoundaryRowId: 'tracking-notification-receipt-tracking-alert-left-expected-place',
-        sourcePreferencePreflightRowId: 'tracking-notification-preference-preflight-tracking-alert-left-expected-place',
-        status: TrackingNotificationParentSurfaceHistoryStatus.ManualActionRequired,
-        sourcePolicyDecisionId: 'tracking-decision-left-expected-place',
-        evidenceRefs: ['location-evidence-geofence-entry'],
-        notificationStatusRefs: ['tracking-notification-intent-left-school'],
-        reasonCodeRefs: ['left-expected-place'],
-        providerStatusEntryRef: 'tracking-provider-status-entry-left-school',
-        providerAttemptRef: 'tracking-provider-attempt-left-school',
-        auditRefs: ['tracking-provider-notification-audit-tracking-alert-left-expected-place'],
-        providerPreferenceRefs: ['tracking-parent-provider-preference-left-school'],
-        parentPreferenceRequirementRefs: [
-          'tracking-parent-notification-preference-required-tracking-alert-left-school',
-        ],
-        quietHoursRequirementRefs: ['quiet-hours-requirement-left-school'],
-        receiptRequirementRefs: ['manual-receipt-required-left-school'],
-        manualProofRequirements: ['manual-provider-review-required', 'quiet-hours-runtime-required'],
-        drillInRefs: ['tracking-notification-history-drill-in-tracking-alert-left-expected-place'],
-        redactedParentSummaryRef: 'tracking-notification-redacted-summary-tracking-alert-left-expected-place',
-        renderedParentNotificationUiClaimed: false,
-        parentPreferenceMutationRuntimeClaimed: false,
-        providerDeliveryClaimed: false,
-        receiptIngestionRuntimeClaimed: false,
-        childDeviceDeliveryClaimed: false,
-        mobilePhysicalDeviceProofClaimed: false,
-        authorityProofClaimed: false,
-      },
-      {
-        historyRowId: 'tracking-notification-history-tracking-alert-provider-unavailable',
-        sourceAlertId: 'tracking-alert-provider-unavailable',
-        sourceProviderNotificationRowId: 'tracking-provider-notification-tracking-alert-provider-unavailable',
-        sourceReceiptBoundaryRowId: 'tracking-notification-receipt-tracking-alert-provider-unavailable',
-        sourcePreferencePreflightRowId:
-          'tracking-notification-preference-preflight-tracking-alert-provider-unavailable',
-        status: TrackingNotificationParentSurfaceHistoryStatus.ProviderUnavailable,
-        sourcePolicyDecisionId: 'tracking-decision-provider-unavailable',
-        evidenceRefs: ['location-evidence-geofence-entry'],
-        notificationStatusRefs: ['tracking-notification-intent-provider-unavailable'],
-        reasonCodeRefs: ['provider-unavailable'],
-        providerStatusEntryRef: 'tracking-provider-status-entry-provider-unavailable',
-        providerAttemptRef: 'tracking-provider-attempt-unavailable',
-        auditRefs: ['tracking-provider-notification-audit-tracking-alert-provider-unavailable'],
-        providerPreferenceRefs: ['tracking-parent-provider-preference-provider-unavailable'],
-        parentPreferenceRequirementRefs: ['source-unavailable-preference-required'],
-        quietHoursRequirementRefs: [],
-        receiptRequirementRefs: ['provider-receipt-unavailable'],
-        manualProofRequirements: ['provider-adapter-unavailable', 'manual-parent-history-review-required'],
-        drillInRefs: ['tracking-notification-history-drill-in-tracking-alert-provider-unavailable'],
-        redactedParentSummaryRef: 'tracking-notification-redacted-summary-tracking-alert-provider-unavailable',
-        renderedParentNotificationUiClaimed: false,
-        parentPreferenceMutationRuntimeClaimed: false,
-        providerDeliveryClaimed: false,
-        receiptIngestionRuntimeClaimed: false,
-        childDeviceDeliveryClaimed: false,
-        mobilePhysicalDeviceProofClaimed: false,
-        authorityProofClaimed: false,
-      },
-    ],
-    historyIntentReadyCount: 1,
-    manualActionRequiredCount: 1,
-    providerUnavailableCount: 1,
-    proofNonClaims: RequiredTrackingNotificationParentSurfaceHistoryNonClaims,
-    renderedParentNotificationUiClaimed: false,
-    parentPreferenceMutationRuntimeClaimed: false,
-    parentFrequencyControlUiClaimed: false,
-    quietHoursTimerRuntimeClaimed: false,
-    providerDeliveryRuntimeClaimed: false,
-    providerReceiptIngestionRuntimeClaimed: false,
-    providerCredentialsClaimed: false,
-    cloudRoutingClaimed: false,
-    childDeviceDeliveryClaimed: false,
-    mobilePhysicalDeviceProofClaimed: false,
-    authorityProofClaimed: false,
-    retryExecutionRuntimeClaimed: false,
-    productionDurableHistoryStorageClaimed: false,
-    productionDurableOutboxStorageClaimed: false,
-    adapterDispatchClaimed: false,
-  });
-
 export function trackingNotificationParentSurfaceHostedUiProof(): TrackingNotificationParentSurfaceHostedUiProof {
   return trackingNotificationParentSurfaceHostedUiProofFromReadModel(
-    DefaultTrackingNotificationParentSurfaceHistoryReadModel
+    TrackingNotificationParentSurfaceHistoryContracts.DefaultReadModel
   );
 }
 
 export function trackingNotificationParentSurfaceHostedUiProofFromReadModel(
   readModelInput: unknown
 ): TrackingNotificationParentSurfaceHostedUiProof {
-  const parsed = TrackingNotificationParentSurfaceHistoryReadModelSchema.safeParse(readModelInput);
+  const parsed = TrackingNotificationParentSurfaceHistoryContracts.ReadModelSchema.safeParse(readModelInput);
   if (!parsed.success) {
     return unavailableHostedUiProof();
   }
@@ -214,7 +83,7 @@ export const TrackingNotificationParentSurfaceHostedUiDetails = {
 } as const;
 
 function hostedUiProofFromReadModel(
-  readModel: TrackingNotificationParentSurfaceHistoryReadModel
+  readModel: GeneratedTrackingNotificationParentSurfaceHistoryReadModel
 ): TrackingNotificationParentSurfaceHostedUiProof {
   const rows = readModel.rows.map((row) => hostedRowFromHistoryRow(row));
   return {
@@ -265,7 +134,7 @@ function unavailableHostedUiProof(): TrackingNotificationParentSurfaceHostedUiPr
 }
 
 function hostedRowFromHistoryRow(
-  row: TrackingNotificationParentSurfaceHistoryRow
+  row: GeneratedTrackingNotificationParentSurfaceHistoryRow
 ): TrackingNotificationParentSurfaceHostedUiRow {
   return {
     title: titleForHistoryStatus(row.status),
@@ -280,20 +149,22 @@ function hostedRowFromHistoryRow(
   };
 }
 
-function titleForHistoryStatus(status: TrackingNotificationParentSurfaceHistoryRow['status']): PortalDisplayText {
+function titleForHistoryStatus(
+  status: GeneratedTrackingNotificationParentSurfaceHistoryRow['status']
+): PortalDisplayText {
   switch (status) {
-    case TrackingNotificationParentSurfaceHistoryStatus.HistoryIntentReady:
+    case TrackingNotificationParentSurfaceHistoryContracts.Status.HistoryIntentReady:
       return resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceHistoryIntent);
-    case TrackingNotificationParentSurfaceHistoryStatus.ManualActionRequired:
+    case TrackingNotificationParentSurfaceHistoryContracts.Status.ManualActionRequired:
       return resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceManualAction);
-    case TrackingNotificationParentSurfaceHistoryStatus.ProviderUnavailable:
+    case TrackingNotificationParentSurfaceHistoryContracts.Status.ProviderUnavailable:
       return resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceProviderUnavailable);
   }
 }
 
-function preferenceRequirementRefsFor(row: TrackingNotificationParentSurfaceHistoryRow): readonly string[] {
+function preferenceRequirementRefsFor(row: GeneratedTrackingNotificationParentSurfaceHistoryRow): readonly string[] {
   if (
-    row.status === TrackingNotificationParentSurfaceHistoryStatus.ManualActionRequired &&
+    row.status === TrackingNotificationParentSurfaceHistoryContracts.Status.ManualActionRequired &&
     row.quietHoursRequirementRefs.length > 0
   ) {
     return row.quietHoursRequirementRefs;

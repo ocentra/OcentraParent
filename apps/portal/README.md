@@ -15,6 +15,7 @@ policy evaluation, timers, enforcement, or product contracts.
   generated parent UI bridge.
 - Displays service-backed capability status, custody labels, evidence refs, and
   degraded states.
+- Displays service-backed app/game policy readiness rows on App/Game Sessions.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own

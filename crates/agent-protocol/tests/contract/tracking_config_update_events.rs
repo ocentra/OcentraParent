@@ -44,7 +44,7 @@ fn tracking_config_update_event_names_serialize_exact_contract_text() {
 #[test]
 fn tracking_config_update_applied_event_serializes_durable_child_runtime_result() {
     let request = default_tracking_config_update_request();
-    let command = command_envelope(&request.command_id);
+    let command = command_envelope(&request);
     let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
     let child_event = child_tracking_config_updated_event_from_parent(&parent_event);
     let applied_event = tracking_config_update_applied_event_from_child(
@@ -92,7 +92,7 @@ fn tracking_config_update_applied_event_serializes_durable_child_runtime_result(
 #[test]
 fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
     let request = default_tracking_config_update_request();
-    let command = command_envelope(&request.command_id);
+    let command = command_envelope(&request);
     let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
     let change_requested = tracking_config_change_requested_event(
         "event.parent-controller.parent-action.received.1",
@@ -200,7 +200,7 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
 #[test]
 fn tracking_config_change_rejection_chain_serializes_manual_required_surface_state() {
     let request = default_tracking_config_update_request();
-    let command = command_envelope(&request.command_id);
+    let command = command_envelope(&request);
     let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
     let change_requested = tracking_config_change_requested_event(
         "event.parent-controller.parent-action.received.1",
@@ -254,10 +254,12 @@ fn tracking_config_change_rejection_chain_serializes_manual_required_surface_sta
     assert_eq!(serialized_portal["visibleUnavailable"], true);
 }
 
-fn command_envelope(command_id: &str) -> AgentCommandEnvelope {
+fn command_envelope(
+    request: &crate::tracking::config_update_event::TrackingConfigUpdateRequest,
+) -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_TRANSPORT_SCHEMA_VERSION,
-        message_id: command_id.to_owned(),
+        message_id: request.command_id.clone(),
         sent_at: constants::tracking_retention_settings_write::ACCEPTED_AT.to_string(),
         source: AgentPeer {
             peer_id: constants::peer::PORTAL_DEV.to_string(),

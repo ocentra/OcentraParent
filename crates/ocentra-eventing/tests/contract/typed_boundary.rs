@@ -1,6 +1,6 @@
 use super::support::{
-    metadata, subscriber, test_event, TestEvent, OTHER_EVENT_TYPE, OTHER_SUBSCRIBER, OTHER_TARGET,
-    TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
+    metadata, subscriber, test_event, TestEvent, TestText, OTHER_EVENT_TYPE, OTHER_SUBSCRIBER,
+    OTHER_TARGET, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::envelope::{EventEnvelope, EventPriority};
@@ -15,23 +15,29 @@ async fn event_bus_dispatches_typed_envelope_and_stores_serialized_boundary() {
     let bus = EventBus::new();
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
-        let handled = Arc::clone(&handled_clone);
-        async move {
-            handled.lock().await.push(context.payload().label.clone());
-            Ok(())
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |context| {
+            let handled = Arc::clone(&handled_clone);
+            async move {
+                handled.lock().await.push(context.payload().label.clone());
+                Ok(())
+            }
+        },
+    )
     .await
     .expect_value("subscriber registers");
 
-    let metadata = metadata(TEST_TARGET)
+    let metadata = metadata(TestText(TEST_TARGET.to_owned()))
         .with_causation_id(
             CausationId::parse("causation-test-1").expect_value("causation id parses"),
         )
         .with_priority(EventPriority::High);
     let report = bus
-        .publish(test_event(TEST_LABEL), metadata)
+        .publish(test_event(TestText(TEST_LABEL.to_owned())), metadata)
         .await
         .expect_value("publish succeeds");
     let journal = bus.journal().await;
@@ -59,23 +65,36 @@ async fn target_handler_filter_prevents_wrong_handler_delivery() {
     let bus = EventBus::new();
     let handled = Arc::new(Mutex::new(0_usize));
     let handled_clone = Arc::clone(&handled);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |_| {
-        let handled = Arc::clone(&handled_clone);
-        async move {
-            *handled.lock().await += 1;
-            Ok(())
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| {
+            let handled = Arc::clone(&handled_clone);
+            async move {
+                *handled.lock().await += 1;
+                Ok(())
+            }
+        },
+    )
     .await
     .expect_value("subscriber registers");
-    bus.subscribe::<TestEvent, _, _>(subscriber(OTHER_SUBSCRIBER, OTHER_TARGET), |_| async {
-        Ok(())
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(OTHER_SUBSCRIBER.to_owned()),
+            TestText(OTHER_TARGET.to_owned()),
+        ),
+        |_| async { Ok(()) },
+    )
     .await
     .expect_value("second subscriber registers");
 
     let report = bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
         .await
         .expect_value("publish succeeds");
 
@@ -86,19 +105,25 @@ async fn target_handler_filter_prevents_wrong_handler_delivery() {
 #[tokio::test]
 async fn concurrent_dispatch_records_handler_dead_letter_without_losing_journal() {
     let bus = EventBus::new();
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), |_| async {
-        Err(EventingError::InvalidValue {
-            field: "handler_failure",
-            value: "handler_failure".to_string(),
-        })
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        |_| async {
+            Err(EventingError::InvalidValue {
+                field: "handler_failure",
+                value: "handler_failure".to_string(),
+            })
+        },
+    )
     .await
     .expect_value("subscriber registers");
 
     let report = bus
         .publish_with_mode(
-            test_event(TEST_LABEL),
-            metadata(TEST_TARGET),
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
             ocentra_eventing::bus::DispatchMode::Concurrent,
         )
         .await
@@ -121,7 +146,10 @@ async fn concurrent_dispatch_records_handler_dead_letter_without_losing_journal(
 #[tokio::test]
 async fn duplicate_subscriber_ids_are_rejected() {
     let bus = EventBus::new();
-    let duplicate = subscriber(TEST_SUBSCRIBER, TEST_TARGET);
+    let duplicate = subscriber(
+        TestText(TEST_SUBSCRIBER.to_owned()),
+        TestText(TEST_TARGET.to_owned()),
+    );
     bus.subscribe::<TestEvent, _, _>(duplicate.clone(), |_| async { Ok(()) })
         .await
         .expect_value("first subscriber registers");
@@ -138,13 +166,18 @@ async fn duplicate_subscriber_ids_are_rejected() {
 
 #[test]
 fn eventing_newtypes_reject_empty_values_and_zero_versions() {
-    assert!(EventType::parse("").is_err());
-    assert!(EventType::parse(".leading").is_err());
-    assert!(EventType::parse("trailing.").is_err());
-    assert!(EventType::parse("empty..segment").is_err());
-    assert!(EventType::parse("eventing/slash-taxonomy/observed").is_ok());
-    assert!(RecordedAt::parse(" ").is_err());
-    assert!(SchemaVersion::new(0).is_err());
+    assert!(matches!(EventType::parse(""), Err(_)));
+    assert!(matches!(EventType::parse(".leading"), Err(_)));
+    assert!(matches!(EventType::parse("trailing."), Err(_)));
+    assert!(matches!(EventType::parse("empty..segment"), Err(_)));
+    assert_eq!(
+        EventType::parse("eventing/slash-taxonomy/observed")
+            .expect_value("slash taxonomy event type parses")
+            .as_str(),
+        "eventing/slash-taxonomy/observed"
+    );
+    assert!(matches!(RecordedAt::parse(" "), Err(_)));
+    assert!(matches!(SchemaVersion::new(0), Err(_)));
 }
 
 #[test]
@@ -167,8 +200,11 @@ fn event_namespaces_match_dot_and_slash_event_taxonomy() {
 
 #[test]
 fn stored_decode_rejects_contract_mismatch() {
-    let envelope = EventEnvelope::from_event(test_event(TEST_LABEL), metadata(TEST_TARGET))
-        .expect_value("envelope builds");
+    let envelope = EventEnvelope::from_event(
+        test_event(TestText(TEST_LABEL.to_owned())),
+        metadata(TestText(TEST_TARGET.to_owned())),
+    )
+    .expect_value("envelope builds");
     let mut stored = envelope.store().expect_value("stored envelope builds");
     stored.contract.event_type =
         EventType::parse(OTHER_EVENT_TYPE).expect_value("other event parses");

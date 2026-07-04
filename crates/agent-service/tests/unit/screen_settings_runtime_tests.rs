@@ -194,14 +194,14 @@ fn replace_request(
         "baseSettingVersion": base_setting_version,
         "setting": setting,
     }))
-    .unwrap_or_else(|error| unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES))
+    .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-fn test_store_path(store_suffix: &str) -> PathBuf {
+fn test_store_path(store_suffix: crate::test_text::TestText) -> PathBuf {
     let mut path = std::env::temp_dir();
     let mut file_name = String::from(constants::screen_settings::TEST_STORE_FILE_PREFIX);
     file_name.push(constants::delimiter::HYPHEN);
-    file_name.push_str(store_suffix);
+    file_name.push_str(store_suffix.0.as_str());
     file_name.push(constants::delimiter::HYPHEN);
     file_name.push_str(&std::process::id().to_string());
     file_name.push(constants::delimiter::DOT);
@@ -211,6 +211,6 @@ fn test_store_path(store_suffix: &str) -> PathBuf {
     path
 }
 
-fn test_runtime(store_suffix: &str) -> ScreenSettingsRuntime {
+fn test_runtime(store_suffix: crate::test_text::TestText) -> ScreenSettingsRuntime {
     ScreenSettingsRuntime::for_store_path(test_store_path(store_suffix))
 }

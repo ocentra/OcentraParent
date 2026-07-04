@@ -1,7 +1,7 @@
 use super::super::http::sanitize_probe_text;
 use super::super::{
-    LanServiceIdentityProbeObservation, SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES, BER_TAG_INTEGER,
-    BER_TAG_NULL, BER_TAG_OBJECT_IDENTIFIER, BER_TAG_OCTET_STRING, BER_TAG_SEQUENCE,
+    LanServiceIdentityProbeObservation, BER_TAG_INTEGER, BER_TAG_OBJECT_IDENTIFIER,
+    BER_TAG_OCTET_STRING, BER_TAG_SEQUENCE, SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES,
     SNMP_GET_RESPONSE_TAG, SNMP_SYS_DESCR_OID, SNMP_SYS_NAME_OID, SNMP_VERSION_2C,
 };
 
@@ -14,7 +14,8 @@ pub(super) fn parse_snmp_probe_observation(
         return None;
     }
     let (version_tag, version_body, mut cursor) = super::parse_ber_tlv(message_body, 0)?;
-    if version_tag != BER_TAG_INTEGER || super::parse_ber_integer(version_body)? != SNMP_VERSION_2C {
+    if version_tag != BER_TAG_INTEGER || super::parse_ber_integer(version_body)? != SNMP_VERSION_2C
+    {
         return None;
     }
     let (community_tag, _, next_cursor) = super::parse_ber_tlv(message_body, cursor)?;
@@ -67,7 +68,9 @@ pub(super) fn parse_snmp_probe_observation(
     observation.is_meaningful().then_some(observation)
 }
 
-fn parse_snmp_probe_identity_fields(varbind_list_body: &[u8]) -> Option<(Option<String>, Option<String>)> {
+fn parse_snmp_probe_identity_fields(
+    varbind_list_body: &[u8],
+) -> Option<(Option<String>, Option<String>)> {
     let mut sys_descr = None;
     let mut sys_name = None;
     let mut varbind_cursor = 0_usize;

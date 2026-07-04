@@ -4,6 +4,8 @@ use ocentra_parent_agent_core::browser_bridge_native_host::{
 use ocentra_parent_agent_protocol::constants;
 use serde_json::json;
 
+struct PayloadJson(&'static str);
+
 #[test]
 fn accepts_managed_profile_bound_payload() {
     assert_eq!(validate_browser_native_host_frame(&managed_frame()), Ok(()));
@@ -61,8 +63,8 @@ fn rejects_length_json_and_schema_drift() {
         constants::browser::PATH_SEGMENT_DEFAULT,
     );
     let schema = BrowserNativeHostFrame {
-        length_bytes: schema_drift_payload.len(),
-        payload_json: schema_drift_payload,
+        length_bytes: schema_drift_payload.0.len(),
+        payload_json: schema_drift_payload.0,
         ..managed_frame()
     };
 
@@ -105,8 +107,8 @@ fn managed_frame() -> BrowserNativeHostFrame<'static> {
         origin: constants::browser::NATIVE_HOST_ALLOWED_ORIGIN,
         managed_browser_session_id: constants::browser::SESSION_ID_DEV,
         profile_id: constants::browser::PROFILE_ID_DEV,
-        length_bytes: payload_json.len(),
-        payload_json,
+        length_bytes: payload_json.0.len(),
+        payload_json: payload_json.0,
         heartbeat_age_ms: 0,
         heartbeat_stale_after_ms: constants::browser::NATIVE_HOST_STALE_HEARTBEAT_MS,
     }
@@ -114,17 +116,17 @@ fn managed_frame() -> BrowserNativeHostFrame<'static> {
 
 fn payload_for(
     schema_version: u64,
-    message_type: &'static str,
-    managed_browser_session_id: &'static str,
-    profile_id: &'static str,
-) -> &'static str {
+    message_type: impl std::fmt::Display,
+    managed_browser_session_id: impl std::fmt::Display,
+    profile_id: impl std::fmt::Display,
+) -> PayloadJson {
     let payload_json = json!({
         constants::field::SCHEMA_VERSION: schema_version,
-        constants::field::MESSAGE_TYPE: message_type,
-        constants::field::MANAGED_BROWSER_SESSION_ID: managed_browser_session_id,
-        constants::field::PROFILE_ID: profile_id
+        constants::field::MESSAGE_TYPE: message_type.to_string(),
+        constants::field::MANAGED_BROWSER_SESSION_ID: managed_browser_session_id.to_string(),
+        constants::field::PROFILE_ID: profile_id.to_string()
     })
     .to_string();
 
-    Box::leak(payload_json.into_boxed_str())
+    PayloadJson(Box::leak(payload_json.into_boxed_str()))
 }

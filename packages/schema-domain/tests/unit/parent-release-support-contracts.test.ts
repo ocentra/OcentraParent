@@ -497,19 +497,13 @@ function updaterRollbackRunbookProof() {
 function updaterRollbackRows() {
   return (['scaffold', 'unsigned-preview', 'signature-required', 'production'] as const).map((channel) => ({
     channel,
-    updateAvailabilityState:
-      channel === 'unsigned-preview' ? 'available' : channel === 'scaffold' ? 'unavailable' : 'manual-required',
-    checksumState:
-      channel === 'unsigned-preview' || channel === 'signature-required' ? 'verified' : channel === 'scaffold' ? 'unavailable' : 'manual-required',
-    signatureState: channel === 'scaffold' ? 'unavailable' : 'manual-required',
-    rollbackState:
-      channel === 'scaffold' || channel === 'unsigned-preview' ? 'rollback-unavailable' : 'manual-required',
-    rollbackAvailabilityState:
-      channel === 'scaffold' || channel === 'unsigned-preview' ? 'unavailable' : 'manual-required',
-    teardownEvidenceState:
-      channel === 'scaffold' || channel === 'unsigned-preview' ? 'recorded' : 'manual-required',
-    revertEvidenceState:
-      channel === 'scaffold' || channel === 'unsigned-preview' ? 'recorded' : 'manual-required',
+    updateAvailabilityState: updaterRollbackUpdateAvailabilityState(channel),
+    checksumState: updaterRollbackChecksumState(channel),
+    signatureState: updaterRollbackSignatureState(channel),
+    rollbackState: updaterRollbackRollbackState(channel),
+    rollbackAvailabilityState: updaterRollbackRollbackAvailabilityState(channel),
+    teardownEvidenceState: updaterRollbackEvidenceState(channel),
+    revertEvidenceState: updaterRollbackEvidenceState(channel),
     failureStatusState: 'manual-required',
     manualRequiredState: 'manual-required',
     proofRequirement:
@@ -517,6 +511,48 @@ function updaterRollbackRows() {
         ? 'production channel requires signed production update channel and manual proof before rollback execution teardown or revert evidence'
         : `${channel} channel requires teardown or revert evidence and manual proof before rollback execution or failure status claim`,
   }));
+}
+
+function updaterRollbackUpdateAvailabilityState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
+  if (channel === 'unsigned-preview') {
+    return 'available';
+  }
+
+  if (channel === 'scaffold') {
+    return 'unavailable';
+  }
+
+  return 'manual-required';
+}
+
+function updaterRollbackChecksumState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
+  if (channel === 'unsigned-preview' || channel === 'signature-required') {
+    return 'verified';
+  }
+
+  if (channel === 'scaffold') {
+    return 'unavailable';
+  }
+
+  return 'manual-required';
+}
+
+function updaterRollbackSignatureState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
+  return channel === 'scaffold' ? 'unavailable' : 'manual-required';
+}
+
+function updaterRollbackRollbackState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
+  return channel === 'scaffold' || channel === 'unsigned-preview' ? 'rollback-unavailable' : 'manual-required';
+}
+
+function updaterRollbackRollbackAvailabilityState(
+  channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production'
+) {
+  return channel === 'scaffold' || channel === 'unsigned-preview' ? 'unavailable' : 'manual-required';
+}
+
+function updaterRollbackEvidenceState(channel: 'scaffold' | 'unsigned-preview' | 'signature-required' | 'production') {
+  return channel === 'scaffold' || channel === 'unsigned-preview' ? 'recorded' : 'manual-required';
 }
 
 function manualRunbook() {

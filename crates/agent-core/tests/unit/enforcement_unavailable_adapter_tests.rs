@@ -17,15 +17,7 @@ use ocentra_parent_agent_protocol::enforcement::{
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
 
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| format!("{context}: missing value"))
-}
+use crate::test_text::{test_ok as ok, test_some as some, TestResult, TestText};
 
 #[test]
 fn degraded_capability_with_unavailable_adapter_outcome_records_audit_and_timer_recovery(

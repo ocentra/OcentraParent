@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::constants;
@@ -225,7 +228,7 @@ async fn send_supported_adapter_runtime_proof_command() -> Result<AgentEventEnve
         serde_json::to_string(&command_envelope()),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
-    Ok(handle_local_command_text_for_test(&body).await)
+    Ok(handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await)
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

@@ -33,8 +33,7 @@ fn local_ai_chat_generation_command_serializes_to_typescript_contract_shape() {
         payload,
     };
 
-    let serialized = serde_json::to_value(command)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error:?}"));
+    let serialized = serde_json::to_value(command).expect("command serializes: {error:?}");
 
     assert_eq!(serialized["command"], "agent.local-ai.chat.generate");
     assert_eq!(
@@ -67,8 +66,7 @@ fn local_ai_chat_generation_result_serializes_without_model_paths() {
         unavailable_reason: None,
     };
 
-    let serialized = serde_json::to_value(result)
-        .unwrap_or_else(|error| unreachable!("generation result serializes: {error:?}"));
+    let serialized = serde_json::to_value(result).expect("generation result serializes: {error:?}");
 
     assert_eq!(
         serialized["runtimeReferenceId"],

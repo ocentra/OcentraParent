@@ -1,19 +1,20 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanChildMdnsAdvertisement, LanParentMdnsAdvertisement,
 };
 
-use super::advertisement::{
-    is_selected_service_type, parse_child_mdns_advertisement, parse_parent_mdns_advertisement,
-};
+use super::advertisement::is_selected_service_type;
 use super::packet::parse_mdns_packet;
-use super::text::display_name_from_instance_name;
 use super::{
     MdnsDnsSdDiscovery, MdnsDnsSdPacket, MdnsDnsSdServiceInstance, MdnsDnsSdSrvRecord,
     MdnsDnsSdTxtRecord, MdnsRecordData, MDNS_SERVICE_ENUMERATION,
 };
+
+#[path = "accumulator_detail.rs"]
+mod accumulator_detail;
+
+use accumulator_detail::{append_first_mdns_summary_detail, populate_instance_details};
 
 pub fn parse_mdns_packets(packets: &[Vec<u8>], observed_at: String) -> Option<MdnsDnsSdDiscovery> {
     let mut accumulator = MdnsDnsSdDiscoveryAccumulator::default();
@@ -54,28 +55,6 @@ pub fn discovery_from_single_packet(payload: &[u8]) -> Option<MdnsDnsSdDiscovery
     let mut accumulator = MdnsDnsSdDiscoveryAccumulator::default();
     accumulator.merge(parsed_packet);
     Some(accumulator.finalize(String::new()))
-}
-
-pub fn append_first_mdns_summary_detail(summary: &mut String, discovery: &MdnsDnsSdDiscovery) {
-    if let Some(instance) = discovery.service_instances.first() {
-        summary.push_str("; first service=");
-        summary.push_str(&instance.service_type);
-        if let Some(display_name) = instance.display_name.as_ref() {
-            summary.push_str("; display=");
-            summary.push_str(display_name);
-        }
-        if let Some(target_hostname) = instance.target_hostname.as_ref() {
-            summary.push_str("; target=");
-            summary.push_str(target_hostname);
-        }
-        if let Some(address) = instance.addresses.first() {
-            summary.push_str("; address=");
-            summary.push_str(address);
-        }
-    } else if let Some(service_type) = discovery.service_types.first() {
-        summary.push_str("; first service type=");
-        summary.push_str(service_type);
-    }
 }
 
 #[derive(Default)]
@@ -119,20 +98,34 @@ impl MdnsDnsSdDiscoveryAccumulator {
     }
 
     pub fn finalize(self, observed_at: String) -> MdnsDnsSdDiscovery {
+        let MdnsDnsSdDiscoveryAccumulator {
+            service_types,
+            instances,
+            host_addresses,
+            srv_records,
+            txt_records,
+        } = self;
         let mut service_instances = Vec::new();
-        for ((service_type, instance_name), mut instance) in self.instances {
+        for ((service_type, instance_name), mut instance) in instances {
             if !is_selected_service_type(&service_type) {
                 continue;
             }
             instance.service_type = service_type.clone();
             instance.instance_name = instance_name.clone();
-            self.populate_instance_details(&service_type, &instance_name, &mut instance);
+            populate_instance_details(
+                &host_addresses,
+                &srv_records,
+                &txt_records,
+                &service_type,
+                &instance_name,
+                &mut instance,
+            );
             service_instances.push(instance.into_service_instance());
         }
 
         MdnsDnsSdDiscovery {
             observed_at,
-            service_types: self.service_types.into_iter().collect(),
+            service_types: service_types.into_iter().collect(),
             service_instances,
         }
     }
@@ -152,54 +145,6 @@ impl MdnsDnsSdDiscoveryAccumulator {
             .entry((record_name.clone(), instance_name_key))
             .or_default()
             .instance_name = target;
-    }
-
-    fn populate_instance_details(
-        &self,
-        service_type: &str,
-        instance_name: &str,
-        instance: &mut MdnsDnsSdServiceAccumulator,
-    ) {
-        if let Some(display_name) = display_name_from_instance_name(instance_name, service_type) {
-            instance.display_name = Some(display_name);
-        }
-        if let Some(srv_record) = self.srv_records.get(instance_name) {
-            instance.target_hostname = srv_record.target_hostname.clone();
-            instance.port = srv_record.port;
-            self.extend_addresses_for_srv_target(instance, srv_record);
-        }
-        if let Some(entries) = self.txt_records.get(instance_name) {
-            instance.txt_records = entries.clone();
-            populate_mdns_advertisements(service_type, entries, instance);
-        }
-    }
-
-    fn extend_addresses_for_srv_target(
-        &self,
-        instance: &mut MdnsDnsSdServiceAccumulator,
-        srv_record: &MdnsDnsSdSrvRecord,
-    ) {
-        if let Some(target_hostname) = srv_record.target_hostname.as_ref() {
-            if let Some(addresses) = self
-                .host_addresses
-                .get(&target_hostname.to_ascii_lowercase())
-            {
-                instance.addresses.extend(addresses.iter().cloned());
-            }
-        }
-    }
-}
-
-pub fn populate_mdns_advertisements(
-    service_type: &str,
-    entries: &[MdnsDnsSdTxtRecord],
-    instance: &mut MdnsDnsSdServiceAccumulator,
-) {
-    if service_type.eq_ignore_ascii_case(constants::lan_pairing::MDNS_PARENT_SERVICE_TYPE) {
-        instance.parent_advertisement = parse_parent_mdns_advertisement(entries);
-    }
-    if service_type.eq_ignore_ascii_case(constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE) {
-        instance.child_advertisement = parse_child_mdns_advertisement(entries);
     }
 }
 

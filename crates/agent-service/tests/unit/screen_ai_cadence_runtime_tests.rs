@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::{
     fs,
     path::PathBuf,
@@ -17,6 +20,10 @@ use ocentra_parent_agent_protocol::screen_evidence::{
 use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
 };
+
+#[path = "../support/test_text.rs"]
+mod test_text;
+use test_text::TestText;
 
 use super::{
     screen_ai_cadence_runtime::{
@@ -155,14 +162,13 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
         ActivityStore::open(&config.store_path),
         constants::error::ACTIVITY_STORE_OPENS,
     );
-    let summary = store
-        .screen_evidence_recent_summary(
+    let summary = require_ok(
+        store.screen_evidence_recent_summary(
             constants::activity_store::DEFAULT_RECENT_LIMIT,
             constants::activity_store::TEST_THIRD_OBSERVED_AT,
-        )
-        .unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::ACTIVITY_STORE_QUERIES)
-        });
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    );
 
     assert_eq!(summary.returned, 1);
     assert_eq!(
@@ -232,10 +238,11 @@ fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
     assert!(!config.store_path.exists());
 }
 
-fn cadence_clock(epoch_seconds: u64, timestamp: &str) -> ScreenAiCadenceTickClock {
+fn cadence_clock(epoch_seconds: u64, timestamp: TestText) -> ScreenAiCadenceTickClock {
+    let timestamp = timestamp;
     ScreenAiCadenceTickClock {
         epoch_seconds,
-        timestamp: timestamp.to_string(),
+        timestamp: timestamp.as_str().to_string(),
     }
 }
 
@@ -259,12 +266,13 @@ fn captured_test_image() -> CapturedScreenImage {
     }
 }
 
-fn test_path(suffix: &str) -> PathBuf {
+fn test_path(suffix: TestText) -> PathBuf {
+    let suffix = suffix;
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
     path.push(std::process::id().to_string());
     path.push(constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE);
     path.push(TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
-    path.push(suffix);
+    path.push(suffix.as_str());
     path
 }

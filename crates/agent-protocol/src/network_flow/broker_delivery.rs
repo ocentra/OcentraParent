@@ -1,4 +1,4 @@
-use ocentra_eventing::{delivery::EventDeliveryDecisionProof, ids::SourceComponent};
+use ocentra_eventing::{delivery::validation::EventDeliveryDecisionProof, ids::SourceComponent};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NetworkRuntimeBrokerDeliverySemantics {

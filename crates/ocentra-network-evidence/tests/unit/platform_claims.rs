@@ -1,4 +1,5 @@
-use crate::{
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::{
     android_vpn_service_gate::{
         plan_network_android_vpn_service_gate, NetworkAndroidVpnServiceCapabilityState,
         NetworkAndroidVpnServiceGateInput,
@@ -31,7 +32,6 @@ use crate::{
         NetworkWindowsWfpGateInput,
     },
 };
-use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn platform_claim_manifest_names_fixture_platform_permission_and_device_refs() {

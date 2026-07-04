@@ -1,11 +1,35 @@
 import {
+  GeneratedPortalAgentCommand,
+  type GeneratedPortalAgentCommandEnvelope,
+  type GeneratedPortalAgentCommandName,
+  GeneratedPortalAgentEvent,
+  type GeneratedPortalAgentEventName,
+  GeneratedPortalAgentLanHouseholdActionDeviceKindField,
+  GeneratedPortalAgentLanHouseholdActionKind,
+  type GeneratedPortalAgentLanHouseholdActionKind as GeneratedPortalAgentLanHouseholdActionKindValue,
+  type GeneratedPortalAgentLanHouseholdDeviceKind,
+  GeneratedPortalAgentLanHouseholdDeviceKindValues,
+  GeneratedPortalAgentLanIntentKind,
+  type GeneratedPortalAgentLanIntentKind as GeneratedPortalAgentLanIntentKindValue,
+  GeneratedPortalAgentLanParentAuthority,
+  type GeneratedPortalAgentLanParentAuthority as GeneratedPortalAgentLanParentAuthorityValue,
+  type GeneratedPortalAgentMessageTarget,
+  type GeneratedPortalAgentPeer,
+  GeneratedPortalAgentPeerDefaults,
+  GeneratedPortalAgentProtocolDelimiter,
+  type GeneratedPortalAgentProtocolDelimiter as GeneratedPortalAgentProtocolDelimiterValue,
+  GeneratedPortalAgentProtocolField,
+  type GeneratedPortalAgentProtocolFieldName,
+  type GeneratedPortalAgentProtocolPayload,
+  type GeneratedPortalAgentProtocolPayloadValue,
+  GeneratedPortalAgentProtocolRuntime,
+  GeneratedPortalAgentTargetDefaults,
   GeneratedPortalConnectionState,
   type GeneratedPortalConnectionState as GeneratedPortalConnectionStateValue,
   type GeneratedPortalClipboardText,
   type GeneratedPortalDetailValue,
-  type GeneratedPortalDevToolUrl,
-  type GeneratedPortalRouteEventPayloadRecord as SchemaPortalRouteEventPayloadRecord,
-  type GeneratedPortalRouteEventSnapshot as SchemaPortalRouteEventSnapshot,
+  type GeneratedPortalRouteEventPayloadRecord,
+  type GeneratedPortalRouteEventSnapshot,
   GeneratedPortalRoute,
   type GeneratedPortalRoute as GeneratedPortalRouteValue,
   type GeneratedPortalRouteHashPath as GeneratedPortalRouteHashPathValue,
@@ -14,66 +38,49 @@ import {
   GeneratedPortalRouteHashQuerySeparator,
   GeneratedPortalRouteLiteral,
   type GeneratedTrackingStatusProofArtifact,
-} from '@ocentra-parent/schema-domain/generated/portal-contracts';
+  decodeGeneratedPortalAgentCommandEnvelope,
+} from './generated/portal-contracts';
 
 type SafeParseResult<T> =
   | { readonly success: true; readonly data: T }
-  | { readonly success: false; readonly error: PortalContractParseError };
+  | { readonly success: false; readonly error: TypeError };
 
-type ParsedValue<T> = {
-  parse(input: unknown): T;
-  safeParse(input: unknown): SafeParseResult<T>;
+type PortalLiteralSchema<T> = {
+  readonly parse: (input: unknown) => T;
+  readonly safeParse: (input: unknown) => SafeParseResult<T>;
 };
 
-class PortalContractParseError extends Error {
-  constructor(label: string, input: unknown) {
-    super(`${label}: expected a valid non-empty string`);
-    this.name = 'PortalContractParseError';
-    this.cause = input;
+function parseLiteral<const T extends string>(input: unknown, label: string, allowed: Set<string>): T {
+  if (typeof input !== 'string' || !allowed.has(input)) {
+    throw new TypeError(`${label} must be a Rust-owned protocol literal`);
   }
+  return input as T;
 }
 
-function success<T>(data: T): SafeParseResult<T> {
-  return { success: true, data };
+function safeParseLiteral<const T extends string>(
+  input: unknown,
+  label: string,
+  allowed: Set<string>
+): SafeParseResult<T> {
+  if (typeof input !== 'string' || !allowed.has(input)) {
+    return { success: false, error: new TypeError(`${label} must be a Rust-owned protocol literal`) };
+  }
+  return { success: true, data: input as T };
 }
 
-function failure<T>(label: string, input: unknown): SafeParseResult<T> {
-  return { success: false, error: new PortalContractParseError(label, input) };
-}
-
-function createLiteralParser<const T extends string>(label: string, allowedValues: readonly T[]): ParsedValue<T> {
+function literalSchema<const T extends string>(label: string, allowedValues: readonly T[]): PortalLiteralSchema<T> {
   const allowed = new Set<string>(allowedValues);
   return {
-    parse(input: unknown): T {
-      if (typeof input !== 'string' || !allowed.has(input)) {
-        throw new PortalContractParseError(label, input);
-      }
-      return input as T;
-    },
-    safeParse(input: unknown): SafeParseResult<T> {
-      if (typeof input !== 'string' || !allowed.has(input)) {
-        return failure<T>(label, input);
-      }
-      return success(input as T);
-    },
+    parse: (input: unknown) => parseLiteral<T>(input, label, allowed),
+    safeParse: (input: unknown) => safeParseLiteral<T>(input, label, allowed),
   };
 }
 
-function createNonEmptyStringParser<T extends string>(label: string): ParsedValue<T> {
-  return {
-    parse(input: unknown): T {
-      if (typeof input !== 'string' || input.length === 0) {
-        throw new PortalContractParseError(label, input);
-      }
-      return input as T;
-    },
-    safeParse(input: unknown): SafeParseResult<T> {
-      if (typeof input !== 'string' || input.length === 0) {
-        return failure<T>(label, input);
-      }
-      return success(input as T);
-    },
-  };
+function decodeNonEmptyString<T extends string>(input: unknown, label: string): T {
+  if (typeof input !== 'string' || input.length === 0) {
+    throw new TypeError(`${label} must be a non-empty Rust-owned protocol string`);
+  }
+  return input as T;
 }
 
 const PortalRouteValues = Object.values(GeneratedPortalRouteLiteral) as readonly GeneratedPortalRouteValue[];
@@ -81,7 +88,7 @@ const PortalRouteValues = Object.values(GeneratedPortalRouteLiteral) as readonly
 export const PortalRouteLiteral = GeneratedPortalRouteLiteral;
 export type PortalRoute = GeneratedPortalRouteValue;
 export const PortalRoute = GeneratedPortalRoute;
-export const PortalRouteSchema = createLiteralParser<PortalRoute>('PortalRoute', PortalRouteValues);
+export const PortalRouteSchema = literalSchema<PortalRoute>('PortalRoute', PortalRouteValues);
 
 export const PortalRouteHashPrefix = GeneratedPortalRouteHashPrefix;
 export const PortalRouteHashQuerySeparator = GeneratedPortalRouteHashQuerySeparator;
@@ -91,32 +98,48 @@ export type PortalRouteHashQueryPath = GeneratedPortalRouteHashQueryPathValue;
 export type PortalConnectionState = GeneratedPortalConnectionStateValue;
 export const PortalConnectionState = GeneratedPortalConnectionState;
 
-export type PortalRouteEventPayloadRecord = SchemaPortalRouteEventPayloadRecord;
-export type PortalRouteEventSnapshot = SchemaPortalRouteEventSnapshot;
-export interface PortalRouteEventRecord {
-  readonly event?: string;
-  readonly eventId?: string;
-  readonly correlationId?: string;
-  readonly sentAt?: string;
-  readonly sourcePeerId?: string;
-  readonly sourceRole?: PortalRouteEventSnapshot['sourceRole'];
-  readonly targetPeerId?: string;
-  readonly targetRole?: PortalRouteEventSnapshot['targetRole'];
-  readonly severity?: string;
-  readonly payload?: PortalRouteEventPayloadRecord;
-  readonly snapshot?: unknown;
-}
-export type PortalRouteEventName = NonNullable<PortalRouteEventRecord['event']>;
+export const PortalAgentProtocolRuntime = GeneratedPortalAgentProtocolRuntime;
+export const PortalAgentProtocolField = GeneratedPortalAgentProtocolField;
+export type PortalAgentProtocolFieldName = GeneratedPortalAgentProtocolFieldName;
+export type PortalAgentProtocolPayload = GeneratedPortalAgentProtocolPayload;
+export type PortalAgentProtocolPayloadValue = GeneratedPortalAgentProtocolPayloadValue;
+export const PortalAgentProtocolDelimiter = GeneratedPortalAgentProtocolDelimiter;
+export type PortalAgentProtocolDelimiterValue = GeneratedPortalAgentProtocolDelimiterValue;
+export const PortalAgentCommand = GeneratedPortalAgentCommand;
+export type PortalAgentCommandName = GeneratedPortalAgentCommandName;
+export const PortalAgentEvent = GeneratedPortalAgentEvent;
+export type PortalAgentEventName = GeneratedPortalAgentEventName;
+export const PortalAgentPeerDefaults = GeneratedPortalAgentPeerDefaults;
+export type PortalAgentPeer = GeneratedPortalAgentPeer;
+export const PortalAgentTargetDefaults = GeneratedPortalAgentTargetDefaults;
+export type PortalAgentMessageTarget = GeneratedPortalAgentMessageTarget;
+export type PortalAgentCommandEnvelope = GeneratedPortalAgentCommandEnvelope;
+export const decodePortalAgentCommandEnvelope = decodeGeneratedPortalAgentCommandEnvelope;
+export const PortalAgentLanHouseholdActionKind = GeneratedPortalAgentLanHouseholdActionKind;
+export type PortalAgentLanHouseholdActionKind = GeneratedPortalAgentLanHouseholdActionKindValue;
+export const PortalAgentLanIntentKind = GeneratedPortalAgentLanIntentKind;
+export type PortalAgentLanIntentKind = GeneratedPortalAgentLanIntentKindValue;
+export const PortalAgentLanParentAuthority = GeneratedPortalAgentLanParentAuthority;
+export type PortalAgentLanParentAuthority = GeneratedPortalAgentLanParentAuthorityValue;
+export const PortalAgentLanHouseholdDeviceKindValues = GeneratedPortalAgentLanHouseholdDeviceKindValues;
+export type PortalAgentLanHouseholdDeviceKind = GeneratedPortalAgentLanHouseholdDeviceKind;
+export const PortalAgentLanHouseholdActionDeviceKindField =
+  GeneratedPortalAgentLanHouseholdActionDeviceKindField;
 
-export type PortalDevToolUrl = GeneratedPortalDevToolUrl;
-export const PortalDevToolUrlSchema = createNonEmptyStringParser<PortalDevToolUrl>('PortalDevToolUrl');
+export type PortalRouteEventPayloadRecord = GeneratedPortalRouteEventPayloadRecord;
+export type PortalRouteEventSnapshot = GeneratedPortalRouteEventSnapshot;
+export type PortalRouteEventRecord = Omit<GeneratedPortalRouteEventSnapshot, 'payload'> & {
+  readonly payload?: PortalRouteEventPayloadRecord;
+};
 
 export type PortalDetailValue = GeneratedPortalDetailValue;
-export const decodePortalDetailValue = createNonEmptyStringParser<PortalDetailValue>('PortalDetailValue').parse;
+export const decodePortalDetailValue = (input: unknown): PortalDetailValue =>
+  decodeNonEmptyString<PortalDetailValue>(input, 'PortalDetailValue');
 
 export type PortalClipboardText = GeneratedPortalClipboardText;
-export const decodePortalClipboardText = createNonEmptyStringParser<PortalClipboardText>('PortalClipboardText').parse;
+export const decodePortalClipboardText = (input: unknown): PortalClipboardText =>
+  decodeNonEmptyString<PortalClipboardText>(input, 'PortalClipboardText');
 
 export type TrackingStatusProofArtifact = GeneratedTrackingStatusProofArtifact;
-export const decodeTrackingStatusProofArtifact =
-  createNonEmptyStringParser<TrackingStatusProofArtifact>('TrackingStatusProofArtifact').parse;
+export const decodeTrackingStatusProofArtifact = (input: unknown): TrackingStatusProofArtifact =>
+  decodeNonEmptyString<TrackingStatusProofArtifact>(input, 'TrackingStatusProofArtifact');

@@ -2,7 +2,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+macro_rules! protocol_str_lookup {
+    ($self:expr, [$($value:expr),+ $(,)?]) => {{
+        const VALUES: &[&str] = &[$($value),+];
+        VALUES[*$self as usize]
+    }};
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum BrowserUnmanagedEnforcementState {
     #[serde(rename = "report-only")]
     ReportOnly,
@@ -38,34 +46,25 @@ pub enum BrowserUnmanagedEnforcementState {
 
 impl BrowserUnmanagedEnforcementState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ReportOnly => constants::browser::UNMANAGED_ENFORCEMENT_REPORT_ONLY,
-            Self::WarnChild => constants::browser::UNMANAGED_ENFORCEMENT_WARN_CHILD,
-            Self::AskParent => constants::browser::UNMANAGED_ENFORCEMENT_ASK_PARENT,
-            Self::TerminateProcess => constants::browser::UNMANAGED_ENFORCEMENT_TERMINATE_PROCESS,
-            Self::RelaunchManagedBrowser => {
-                constants::browser::UNMANAGED_ENFORCEMENT_RELAUNCH_MANAGED_BROWSER
-            }
-            Self::OsBlockConfigured => {
-                constants::browser::UNMANAGED_ENFORCEMENT_OS_BLOCK_CONFIGURED
-            }
-            Self::OsBlockManualRequired => {
-                constants::browser::UNMANAGED_ENFORCEMENT_OS_BLOCK_MANUAL_REQUIRED
-            }
-            Self::AllowedUnmanagedException => {
-                constants::browser::UNMANAGED_ENFORCEMENT_ALLOWED_UNMANAGED_EXCEPTION
-            }
-            Self::Degraded => constants::browser::UNMANAGED_ENFORCEMENT_DEGRADED,
-            Self::Unavailable => constants::browser::UNMANAGED_ENFORCEMENT_UNAVAILABLE,
-            Self::MonitorOnly => constants::browser::UNMANAGED_ENFORCEMENT_MONITOR_ONLY,
-            Self::RequiresOsAppControl => {
-                constants::browser::UNMANAGED_ENFORCEMENT_REQUIRES_OS_APP_CONTROL
-            }
-            Self::ReadyToBlock => constants::browser::UNMANAGED_ENFORCEMENT_READY_TO_BLOCK,
-            Self::BlockedAndRelaunchedManaged => {
-                constants::browser::UNMANAGED_ENFORCEMENT_BLOCKED_AND_RELAUNCHED_MANAGED
-            }
-            Self::Unsupported => constants::browser::UNMANAGED_ENFORCEMENT_UNSUPPORTED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                constants::browser::UNMANAGED_ENFORCEMENT_REPORT_ONLY,
+                constants::browser::UNMANAGED_ENFORCEMENT_WARN_CHILD,
+                constants::browser::UNMANAGED_ENFORCEMENT_ASK_PARENT,
+                constants::browser::UNMANAGED_ENFORCEMENT_TERMINATE_PROCESS,
+                constants::browser::UNMANAGED_ENFORCEMENT_RELAUNCH_MANAGED_BROWSER,
+                constants::browser::UNMANAGED_ENFORCEMENT_OS_BLOCK_CONFIGURED,
+                constants::browser::UNMANAGED_ENFORCEMENT_OS_BLOCK_MANUAL_REQUIRED,
+                constants::browser::UNMANAGED_ENFORCEMENT_ALLOWED_UNMANAGED_EXCEPTION,
+                constants::browser::UNMANAGED_ENFORCEMENT_DEGRADED,
+                constants::browser::UNMANAGED_ENFORCEMENT_UNAVAILABLE,
+                constants::browser::UNMANAGED_ENFORCEMENT_MONITOR_ONLY,
+                constants::browser::UNMANAGED_ENFORCEMENT_REQUIRES_OS_APP_CONTROL,
+                constants::browser::UNMANAGED_ENFORCEMENT_READY_TO_BLOCK,
+                constants::browser::UNMANAGED_ENFORCEMENT_BLOCKED_AND_RELAUNCHED_MANAGED,
+                constants::browser::UNMANAGED_ENFORCEMENT_UNSUPPORTED,
+            ]
+        )
     }
 }

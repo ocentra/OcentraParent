@@ -124,7 +124,7 @@ pub const ARTIFACT_UNMANAGED_BROWSER_PROOF: &str =
     "test-results/windows-managed-unmanaged-browser-enforcement-proof/proof.json";
 pub const ARTIFACT_APP_TIME_LIMIT_PROOF: &str =
     "test-results/v0-8-windows-app-time-limit-adapter-mvp/proof.json";
-pub const ARTIFACT_BROWSER_POLICY_ROLLBACK_TEST: &str = "crates/agent-protocol/tests/unit.rs";
+pub const ARTIFACT_BROWSER_POLICY_ROLLBACK_TEST: &str = "crates/agent-protocol/tests/unit/mod.rs";
 pub const ARTIFACT_UNMANAGED_WARN_EVENT: &str = "unmanaged browser warning no-op service event";
 
 pub const REQUIREMENT_ACTIVE_TAB: &str = "managed active-tab evidence";

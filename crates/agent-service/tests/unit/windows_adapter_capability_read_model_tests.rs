@@ -10,6 +10,7 @@ use ocentra_parent_agent_protocol::windows_adapter_capability::{
     WindowsAdapterCapabilityOutcome, WindowsAdapterCapabilitySurface,
 };
 
+use super::test_text::{count_for_display, TestText};
 use crate::windows_adapter_capability_read_model::windows_adapter_capability_proof;
 
 type TestResult = Result<(), Box<dyn Error>>;
@@ -21,7 +22,10 @@ fn windows_adapter_capability_proof_links_app_domain_and_browser_boundaries() ->
 
     assert_eq!(proof.read_model_id, windows_adapter::READ_MODEL_ID_V0_8);
     assert_eq!(proof.entries.len(), 6);
-    assert_eq!(surface_counts[windows_adapter::SURFACE_APP_TARGET], 1);
+    assert_eq!(
+        count_for_display(&surface_counts, windows_adapter::SURFACE_APP_TARGET),
+        1
+    );
     assert_eq!(
         entry_for(&proof, WindowsAdapterCapabilitySurface::AppTarget)?.outcome,
         expected_manual_or_unavailable()
@@ -155,9 +159,11 @@ fn entry_for(
 
 fn count_surfaces(
     entries: &[ocentra_parent_agent_protocol::windows_adapter_capability::WindowsAdapterCapabilityProofEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<TestText, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts.entry(entry.surface.as_protocol_str()).or_default() += 1;
+        *counts
+            .entry(TestText::from_display(entry.surface.as_protocol_str()))
+            .or_default() += 1;
         counts
     })
 }

@@ -4,8 +4,6 @@ use ocentra_lan_core::lan_pairing::LanMdnsAdvertisementLifecycleInput;
 use ocentra_lan_core::lan_pairing::LanMdnsAdvertisementPlatformSupport;
 use ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationContext;
 use ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationError;
-use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoverySource;
-use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryTriggerReason;
 use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
@@ -34,12 +32,8 @@ pub(crate) mod provider_heartbeat;
 mod provider_routing;
 #[path = "lan_pairing_runtime_state/runtime_config.rs"]
 mod runtime_config;
-
-const SIGNED_CHILD_MESSAGE_KIND_HELLO: &str = "hello";
-const SIGNED_CHILD_MESSAGE_KIND_HEARTBEAT: &str = "heartbeat";
-const SIGNED_CHILD_OBSERVED_SUMMARY_PREFIX: &str = "signed child ";
-const SIGNED_CHILD_OBSERVED_SUMMARY_ROUTE_SEPARATOR: &str = " observed: route=";
-const SIGNED_CHILD_OBSERVED_SUMMARY_INSTALL_SEPARATOR: &str = "; install-id=";
+#[path = "lan_pairing_runtime_state/signed_child_passive_observation.rs"]
+mod signed_child_passive_observation;
 
 impl LanPairingRuntime {
     pub fn trusted_device_count(&self) -> usize {
@@ -161,33 +155,6 @@ impl LanPairingRuntime {
         }
     }
 
-    fn record_signed_child_agent_passive_observation(
-        &self,
-        claim: &LanSignedChildAgentClaim,
-        observed_at: &str,
-    ) {
-        let message_kind = match claim.message_kind {
-            ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentMessageKind::Hello => {
-                SIGNED_CHILD_MESSAGE_KIND_HELLO
-            }
-            ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentMessageKind::Heartbeat => {
-                SIGNED_CHILD_MESSAGE_KIND_HEARTBEAT
-            }
-        };
-        let summary =
-            signed_child_observed_summary(message_kind, &claim.route_id, &claim.install_id);
-        if let Ok(mut state) = self.passive_discovery_listener_state.lock() {
-            let _ = state.record_passive_update(
-                LanPassiveDiscoverySource::OcentraBeacon,
-                LanPassiveDiscoveryTriggerReason::PassivePacketObserved,
-                observed_at,
-                Some(claim.child_device_id.as_str()),
-                None,
-                summary,
-            );
-        }
-    }
-
     pub(crate) fn remember_challenge(&self, challenge: LanPairingChallengeState) {
         if let Ok(mut challenges) = self.challenges.lock() {
             challenges.retain(|candidate| candidate.challenge_id != challenge.challenge_id);
@@ -273,16 +240,6 @@ impl LanPairingRuntime {
             }
         }
     }
-}
-
-fn signed_child_observed_summary(message_kind: &str, route_id: &str, install_id: &str) -> String {
-    let mut summary = String::from(SIGNED_CHILD_OBSERVED_SUMMARY_PREFIX);
-    summary.push_str(message_kind);
-    summary.push_str(SIGNED_CHILD_OBSERVED_SUMMARY_ROUTE_SEPARATOR);
-    summary.push_str(route_id);
-    summary.push_str(SIGNED_CHILD_OBSERVED_SUMMARY_INSTALL_SEPARATOR);
-    summary.push_str(install_id);
-    summary
 }
 
 pub(crate) fn signed_child_agent_rejection_reason(

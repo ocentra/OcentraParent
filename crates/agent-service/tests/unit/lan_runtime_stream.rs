@@ -10,6 +10,7 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use serde_json::Value;
+use std::fmt::Display;
 
 use crate::{
     app::{
@@ -20,6 +21,7 @@ use crate::{
         websocket::handle_command_text_for_test,
     },
     test_invariants::serialize_test_json,
+    test_text::TestText,
 };
 
 #[test]
@@ -63,8 +65,8 @@ fn lan_runtime_stream_payload_serializes_replayable_discovery_event_rows() {
 
 #[tokio::test]
 async fn websocket_lan_runtime_stream_command_reports_service_backed_stream() {
-    let body = serialize_test_json(&command_envelope());
-    let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
+    let body = TestText::from_display(serialize_test_json(&command_envelope()));
+    let event = handle_command_text_for_test(body, LanPairingRuntime::empty(), None).await;
 
     assert_eq!(
         event.event,
@@ -72,7 +74,8 @@ async fn websocket_lan_runtime_stream_command_reports_service_backed_stream() {
     );
     assert!(event
         .payload
-        .contains_key(constants::field::LAN_RUNTIME_EVENT_CHAIN_STREAM));
+        .get(constants::field::LAN_RUNTIME_EVENT_CHAIN_STREAM)
+        .is_some());
     assert_eq!(
         event
             .payload
@@ -90,30 +93,31 @@ fn discovery_event_history() -> LanDiscoveryEventHistory {
         latest_observed_at: Some(constants::lan_pairing::OBSERVED_AT.to_string()),
         rows: vec![
             discovery_event_row(
-                "lan-discovery-scan-started-1",
+                TestText::from_display("lan-discovery-scan-started-1"),
                 LanDiscoveryEventKind::ScanStarted,
                 None,
             ),
             discovery_event_row(
-                "lan-discovery-device-found-1",
+                TestText::from_display("lan-discovery-device-found-1"),
                 LanDiscoveryEventKind::DeviceFound,
-                Some("lan-discovery-scan-started-1"),
+                Some(TestText::from_display("lan-discovery-scan-started-1")),
             ),
         ],
     }
 }
 
 fn discovery_event_row(
-    event_id: &str,
+    event_id: impl Display,
     event_kind: LanDiscoveryEventKind,
-    previous_event_id: Option<&str>,
+    previous_event_id: Option<TestText>,
 ) -> LanDiscoveryEventRow {
+    let event_id = TestText::from_display(event_id);
     LanDiscoveryEventRow {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        event_id: event_id.to_string(),
+        event_id: event_id.0,
         event_kind,
         occurred_at: constants::lan_pairing::OBSERVED_AT.to_string(),
-        previous_event_id: previous_event_id.map(str::to_string),
+        previous_event_id: previous_event_id.map(|value| value.0),
         scan_session_id: Some("lan-scan-session-1".to_string()),
         affected_device_id: Some(constants::lan_pairing::CHILD_DEVICE_ID.to_string()),
         evidence_id: Some("lan-evidence-1".to_string()),

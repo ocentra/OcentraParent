@@ -79,50 +79,85 @@ pub struct BrowserRuntimeDecision {
     pub policy_handoff_state: BrowserPolicyHandoffState,
 }
 
-macro_rules! browser_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct BrowserRuntimeDecisionId(String);
 
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
+impl BrowserRuntimeDecisionId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        let value = value.into();
+        if value.trim().is_empty() {
+            return Err(EventingError::EmptyValue {
+                field: "browser.runtime_decision_id",
+            });
         }
+        Ok(Self(value))
+    }
 
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
-browser_text_id!(BrowserRuntimeDecisionId, "browser.runtime_decision_id");
-browser_text_id!(BrowserAggregateId, "browser.aggregate_id");
+impl TryFrom<String> for BrowserRuntimeDecisionId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<BrowserRuntimeDecisionId> for String {
+    fn from(value: BrowserRuntimeDecisionId) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for BrowserRuntimeDecisionId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct BrowserAggregateId(String);
+
+impl BrowserAggregateId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        let value = value.into();
+        if value.trim().is_empty() {
+            return Err(EventingError::EmptyValue {
+                field: "browser.aggregate_id",
+            });
+        }
+        Ok(Self(value))
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for BrowserAggregateId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<BrowserAggregateId> for String {
+    fn from(value: BrowserAggregateId) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for BrowserAggregateId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BrowserRuntimeDecisionRecordedEvent {
@@ -155,48 +190,11 @@ impl DomainEvent for BrowserRuntimeDecisionRecordedEvent {
 }
 
 pub fn evaluate_browser_runtime(input: BrowserRuntimeInput) -> BrowserRuntimeDecision {
-    if input.capability_state == BrowserCapabilityState::Missing {
-        return BrowserRuntimeDecision {
-            observation_intent: BrowserObservationIntent::InventoryObservationOnly,
-            runtime_action_state: BrowserRuntimeActionState::ManualRequired,
-            ai_handoff_state: BrowserAiHandoffState::NotRequired,
-            policy_handoff_state: BrowserPolicyHandoffState::DoNotPublish,
-        };
-    }
-
-    if input.foreground_state == BrowserForegroundState::Foreground {
-        return match input.classification_state {
-            BrowserClassificationState::KnownPolicyNavigation => BrowserRuntimeDecision {
-                observation_intent: BrowserObservationIntent::KnownPolicyNavigationRequiresPolicy,
-                runtime_action_state: BrowserRuntimeActionState::RecordForegroundNavigation,
-                ai_handoff_state: BrowserAiHandoffState::NotRequired,
-                policy_handoff_state: BrowserPolicyHandoffState::Publish,
-            },
-            BrowserClassificationState::AmbiguousNavigation => BrowserRuntimeDecision {
-                observation_intent: BrowserObservationIntent::AmbiguousNavigationRequiresAi,
-                runtime_action_state: BrowserRuntimeActionState::RecordForegroundNavigation,
-                ai_handoff_state: BrowserAiHandoffState::Required,
-                policy_handoff_state: BrowserPolicyHandoffState::DoNotPublish,
-            },
-            BrowserClassificationState::InventoryOnly => BrowserRuntimeDecision {
-                observation_intent: BrowserObservationIntent::InventoryObservationOnly,
-                runtime_action_state: BrowserRuntimeActionState::RecordForegroundNavigation,
-                ai_handoff_state: BrowserAiHandoffState::NotRequired,
-                policy_handoff_state: BrowserPolicyHandoffState::DoNotPublish,
-            },
-        };
-    }
-
-    BrowserRuntimeDecision {
-        observation_intent: BrowserObservationIntent::InventoryObservationOnly,
-        runtime_action_state: BrowserRuntimeActionState::RecordInventory,
-        ai_handoff_state: BrowserAiHandoffState::NotRequired,
-        policy_handoff_state: BrowserPolicyHandoffState::DoNotPublish,
-    }
+    runtime_decision_impl::evaluate_browser_runtime(input)
 }
 
 pub fn browser_runtime_observed_event(input: BrowserRuntimeInput) -> ChildDomainObservedEvent {
-    browser_observed_event(evaluate_browser_runtime(input).observation_intent)
+    runtime_decision_impl::browser_runtime_observed_event(input)
 }
 
 pub fn browser_runtime_decision_recorded_event(
@@ -204,10 +202,8 @@ pub fn browser_runtime_decision_recorded_event(
     decision_id: BrowserRuntimeDecisionId,
     input: BrowserRuntimeInput,
 ) -> BrowserRuntimeDecisionRecordedEvent {
-    BrowserRuntimeDecisionRecordedEvent {
-        aggregate_id,
-        decision_id,
-        input,
-        decision: evaluate_browser_runtime(input),
-    }
+    runtime_decision_impl::browser_runtime_decision_recorded_event(aggregate_id, decision_id, input)
 }
+
+#[path = "../../browser-core-generated/runtime_decision_impl.rs"]
+mod runtime_decision_impl;

@@ -11,7 +11,7 @@ pub(super) fn tracking_child_check_in_request_receipt(
     request: &TrackingChildCheckInRequestedEvent,
     metadata: &EventMetadata,
     duplicate_request: bool,
-) -> TrackingChildCheckInRequestReceipt {
+) -> Result<TrackingChildCheckInRequestReceipt, ocentra_eventing::error::EventingError> {
     let delivery_state = if request.request_state != TrackingChildCheckInRequestState::Pending
         || request.delivery_state != TrackingChildCheckInDeliveryState::Queued
     {
@@ -24,23 +24,17 @@ pub(super) fn tracking_child_check_in_request_receipt(
         TrackingChildCheckInDeliveryState::Requested
     };
 
-    TrackingChildCheckInRequestReceipt {
+    Ok(TrackingChildCheckInRequestReceipt {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         child_device_id: request.child_device_id.clone(),
         child_profile_id: request.child_profile_id.clone(),
         check_in_id: request.check_in_id.clone(),
         related_alert_id: request.related_alert_id.clone(),
         request_state: request.request_state.clone(),
-        receipt_recorded_at: TrackingTimestamp::parse(metadata.observed_at.as_str())
-            .unwrap_or_else(|error| {
-                unreachable!(
-                    "{}: {error:?}",
-                    constants::tracking_runtime::DEFAULT_OBSERVED_AT
-                )
-            }),
-        reason_code: tracking_child_check_in_request_reason_code(&delivery_state),
+        receipt_recorded_at: TrackingTimestamp::parse(metadata.observed_at.as_str())?,
+        reason_code: tracking_child_check_in_request_reason_code(&delivery_state)?,
         delivery_state,
-    }
+    })
 }
 
 fn tracking_child_check_in_request_is_stale(
@@ -52,7 +46,7 @@ fn tracking_child_check_in_request_is_stale(
 
 fn tracking_child_check_in_request_reason_code(
     delivery_state: &TrackingChildCheckInDeliveryState,
-) -> Option<TrackingReasonCode> {
+) -> Result<Option<TrackingReasonCode>, ocentra_eventing::error::EventingError> {
     let value = match delivery_state {
         TrackingChildCheckInDeliveryState::Duplicate => {
             constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST
@@ -64,9 +58,9 @@ fn tracking_child_check_in_request_reason_code(
             constants::tracking_runtime::REASON_UNSUPPORTED_CHECK_IN_DELIVERY
         }
         TrackingChildCheckInDeliveryState::Queued
-        | TrackingChildCheckInDeliveryState::Requested => return None,
+        | TrackingChildCheckInDeliveryState::Requested => {
+            return Ok(None);
+        }
     };
-    Some(
-        TrackingReasonCode::parse(value).unwrap_or_else(|error| unreachable!("{value}: {error:?}")),
-    )
+    Ok(Some(TrackingReasonCode::parse(value)?))
 }

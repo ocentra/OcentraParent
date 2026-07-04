@@ -2,7 +2,11 @@ mod action_dispatch;
 mod lan_route;
 mod presentation;
 pub(crate) mod route_metadata;
+#[path = "parent_ui_bridge/route_requirements.rs"]
+mod route_requirements;
 mod route_snapshot;
+#[path = "parent_ui_bridge/snapshot_overlay.rs"]
+mod snapshot_overlay;
 
 use std::collections::HashSet;
 
@@ -150,157 +154,4 @@ fn build_parent_route_snapshot(
         network_flow_snapshot,
         snapshot_overlay,
     )
-}
-
-fn rust_owned_command_for_action(action: &ParentUiActionKind) -> Option<AgentCommandName> {
-    match action {
-        ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
-            Some(AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm)
-        }
-        ParentUiActionKind::TrackingRetentionSettingsWriteRequested => {
-            Some(AgentCommandName::AgentActivityTrackingRetentionSettingsWrite)
-        }
-        ParentUiActionKind::ScreenSettingsGetRequested => {
-            Some(AgentCommandName::AgentScreenSettingsGet)
-        }
-        ParentUiActionKind::ScreenSettingsReplaceRequested => {
-            Some(AgentCommandName::AgentScreenSettingsReplace)
-        }
-        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested => {
-            Some(AgentCommandName::AgentActivityAppGameAdapterDispatchExecute)
-        }
-        ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested => {
-            Some(AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest)
-        }
-        _ => None,
-    }
-}
-
-fn apply_snapshot_overlay_for_action(
-    action: &ParentUiActionKind,
-    result: &AgentServiceCommandResult,
-    snapshot_overlay: &mut ParentRouteSnapshotOverlay,
-) -> Result<(), String> {
-    if result.is_rejected() {
-        return Ok(());
-    }
-
-    match action {
-        ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
-            expect_agent_event(
-                &result.response_event.event,
-                &AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported,
-            )?;
-        }
-        ParentUiActionKind::TrackingRetentionSettingsWriteRequested => {
-            expect_agent_event(
-                &result.response_event.event,
-                &AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported,
-            )?;
-            snapshot_overlay.activity_tracking_retention_settings_write_result =
-                Some(response_json_payload_field(
-                    &result.response_event,
-                    constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT,
-                )?);
-        }
-        ParentUiActionKind::ScreenSettingsGetRequested => {
-            expect_agent_event(
-                &result.response_event.event,
-                &AgentEventName::AgentScreenSettingsReported,
-            )?;
-            snapshot_overlay.screen_settings_service_response = Some(response_json_payload_field(
-                &result.response_event,
-                constants::field::SCREEN_SETTINGS_RESPONSE,
-            )?);
-        }
-        ParentUiActionKind::ScreenSettingsReplaceRequested => {
-            if !matches!(
-                result.response_event.event,
-                AgentEventName::AgentScreenSettingsReplaceAccepted
-                    | AgentEventName::AgentScreenSettingsReplaceRejected
-            ) {
-                return Err(format!(
-                    "agent-service expected screen settings replace response event, received {}",
-                    serialized_label(&result.response_event.event)
-                ));
-            }
-            snapshot_overlay.screen_settings_service_response = Some(response_json_payload_field(
-                &result.response_event,
-                constants::field::SCREEN_SETTINGS_RESPONSE,
-            )?);
-        }
-        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested => {
-            expect_agent_event(
-                &result.response_event.event,
-                &AgentEventName::AgentActivityAppGameAdapterDispatchExecuted,
-            )?;
-            snapshot_overlay.app_game_adapter_dispatch_executed_result =
-                Some(response_json_payload_field(
-                    &result.response_event,
-                    constants::field::APP_GAME_ADAPTER_DISPATCH_EXECUTE_RESULT,
-                )?);
-        }
-        ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested => {
-            expect_agent_event(
-                &result.response_event.event,
-                &AgentEventName::AgentActivityAppGameTimerParentPreferenceSetupRequested,
-            )?;
-        }
-        _ => {}
-    }
-
-    Ok(())
-}
-
-fn expect_agent_event(actual: &AgentEventName, expected: &AgentEventName) -> Result<(), String> {
-    if actual == expected {
-        return Ok(());
-    }
-    Err(format!(
-        "agent-service expected {}, received {}",
-        serialized_label(&expected),
-        serialized_label(actual)
-    ))
-}
-
-fn serialized_label<T: Serialize>(value: &T) -> String {
-    serde_json::to_value(value)
-        .ok()
-        .and_then(|json| json.as_str().map(ToOwned::to_owned))
-        .unwrap_or_default()
-}
-
-fn route_requires_network_flow_read_model(route: &ParentRouteId) -> bool {
-    matches!(route, ParentRouteId::ProofPanels)
-}
-
-fn route_requires_network_runtime_event_chain_stream(route: &ParentRouteId) -> bool {
-    matches!(route, ParentRouteId::ProofPanels)
-}
-
-fn route_requires_policy_preview_read_model(route: &ParentRouteId) -> bool {
-    matches!(
-        route,
-        ParentRouteId::PolicyNetwork
-            | ParentRouteId::RuleManagement
-            | ParentRouteId::Schedules
-            | ParentRouteId::Approvals
-            | ParentRouteId::Enforcement
-            | ParentRouteId::ProofPanels
-    )
-}
-
-fn route_requires_screen_summary_read_model(route: &ParentRouteId) -> bool {
-    matches!(route, ParentRouteId::ScreenAnalysis)
-}
-
-fn route_requires_tracking_read_model(route: &ParentRouteId) -> bool {
-    matches!(
-        route,
-        ParentRouteId::PolicyTracking | ParentRouteId::ProofPanels
-    )
-}
-
-fn route_requires_app_game_session_read_models(route: &ParentRouteId) -> bool {
-    matches!(route, ParentRouteId::AppGameSessions)
 }

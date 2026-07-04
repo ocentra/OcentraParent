@@ -17,8 +17,10 @@ use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::network_android_vpn_service_gate_status::{
-    NetworkAndroidVpnServiceGateCapabilityStatusState, NetworkAndroidVpnServiceGateStatus,
-    NetworkAndroidVpnServiceGateStatusState,
+    NetworkAndroidVpnServiceGateBoundaryReason as ProtocolNetworkAndroidVpnServiceGateBoundaryReason,
+    NetworkAndroidVpnServiceGateCapabilityStatusState,
+    NetworkAndroidVpnServiceGateRequiredArtifact as ProtocolNetworkAndroidVpnServiceGateRequiredArtifact,
+    NetworkAndroidVpnServiceGateStatus, NetworkAndroidVpnServiceGateStatusState,
 };
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
@@ -212,59 +214,61 @@ fn protocol_gate_state(
     }
 }
 
-fn boundary_reason(reason: &NetworkAndroidVpnServiceGateBoundaryReason) -> String {
+fn boundary_reason(
+    reason: &NetworkAndroidVpnServiceGateBoundaryReason,
+) -> ProtocolNetworkAndroidVpnServiceGateBoundaryReason {
     match reason {
         NetworkAndroidVpnServiceGateBoundaryReason::ResearchOnlyRequested => {
-            constants::network_flow::ANDROID_VPN_BOUNDARY_RESEARCH_ONLY_REQUESTED
+            ProtocolNetworkAndroidVpnServiceGateBoundaryReason::ResearchOnlyRequested
         }
         NetworkAndroidVpnServiceGateBoundaryReason::CapabilityManualRequired => {
-            constants::network_flow::ANDROID_VPN_BOUNDARY_CAPABILITY_MANUAL_REQUIRED
+            ProtocolNetworkAndroidVpnServiceGateBoundaryReason::CapabilityManualRequired
         }
         NetworkAndroidVpnServiceGateBoundaryReason::CapabilityUnavailable => {
-            constants::network_flow::ANDROID_VPN_BOUNDARY_CAPABILITY_UNAVAILABLE
+            ProtocolNetworkAndroidVpnServiceGateBoundaryReason::CapabilityUnavailable
         }
         NetworkAndroidVpnServiceGateBoundaryReason::EvidenceGradeBelowProofThreshold => {
-            constants::network_flow::ANDROID_VPN_BOUNDARY_EVIDENCE_GRADE_BELOW_PROOF_THRESHOLD
+            ProtocolNetworkAndroidVpnServiceGateBoundaryReason::EvidenceGradeBelowProofThreshold
         }
         NetworkAndroidVpnServiceGateBoundaryReason::PolicyNotVpnServiceApproved => {
-            constants::network_flow::ANDROID_VPN_BOUNDARY_POLICY_NOT_VPN_SERVICE_APPROVED
+            ProtocolNetworkAndroidVpnServiceGateBoundaryReason::PolicyNotVpnServiceApproved
         }
         NetworkAndroidVpnServiceGateBoundaryReason::MissingRequiredArtifact => {
-            constants::network_flow::ANDROID_VPN_BOUNDARY_MISSING_REQUIRED_ARTIFACT
+            ProtocolNetworkAndroidVpnServiceGateBoundaryReason::MissingRequiredArtifact
         }
     }
-    .to_string()
 }
 
-fn required_artifact(artifact: &NetworkAndroidVpnServiceRequiredArtifact) -> String {
+fn required_artifact(
+    artifact: &NetworkAndroidVpnServiceRequiredArtifact,
+) -> ProtocolNetworkAndroidVpnServiceGateRequiredArtifact {
     match artifact {
         NetworkAndroidVpnServiceRequiredArtifact::VpnServiceDeclaration => {
-            constants::network_flow::ANDROID_VPN_ARTIFACT_VPN_SERVICE_DECLARATION
+            ProtocolNetworkAndroidVpnServiceGateRequiredArtifact::VpnServiceDeclaration
         }
         NetworkAndroidVpnServiceRequiredArtifact::UserConsentProof => {
-            constants::network_flow::ANDROID_VPN_ARTIFACT_USER_CONSENT_PROOF
+            ProtocolNetworkAndroidVpnServiceGateRequiredArtifact::UserConsentProof
         }
         NetworkAndroidVpnServiceRequiredArtifact::PhysicalDeviceProof => {
-            constants::network_flow::ANDROID_VPN_ARTIFACT_PHYSICAL_DEVICE_PROOF
+            ProtocolNetworkAndroidVpnServiceGateRequiredArtifact::PhysicalDeviceProof
         }
         NetworkAndroidVpnServiceRequiredArtifact::PackageIdentityProof => {
-            constants::network_flow::ANDROID_VPN_ARTIFACT_PACKAGE_IDENTITY_PROOF
+            ProtocolNetworkAndroidVpnServiceGateRequiredArtifact::PackageIdentityProof
         }
         NetworkAndroidVpnServiceRequiredArtifact::VirtualInterfaceProof => {
-            constants::network_flow::ANDROID_VPN_ARTIFACT_VIRTUAL_INTERFACE_PROOF
+            ProtocolNetworkAndroidVpnServiceGateRequiredArtifact::VirtualInterfaceProof
         }
         NetworkAndroidVpnServiceRequiredArtifact::TrafficObservationProof => {
-            constants::network_flow::ANDROID_VPN_ARTIFACT_TRAFFIC_OBSERVATION_PROOF
+            ProtocolNetworkAndroidVpnServiceGateRequiredArtifact::TrafficObservationProof
         }
         NetworkAndroidVpnServiceRequiredArtifact::RollbackPlan => {
-            constants::network_flow::ANDROID_VPN_ARTIFACT_ROLLBACK_PLAN
+            ProtocolNetworkAndroidVpnServiceGateRequiredArtifact::RollbackPlan
         }
         NetworkAndroidVpnServiceRequiredArtifact::AuditEvent => {
-            constants::network_flow::ANDROID_VPN_ARTIFACT_AUDIT_EVENT
+            ProtocolNetworkAndroidVpnServiceGateRequiredArtifact::AuditEvent
         }
         NetworkAndroidVpnServiceRequiredArtifact::DeviceOwnerProof => {
-            constants::network_flow::ANDROID_VPN_ARTIFACT_DEVICE_OWNER_PROOF
+            ProtocolNetworkAndroidVpnServiceGateRequiredArtifact::DeviceOwnerProof
         }
     }
-    .to_string()
 }

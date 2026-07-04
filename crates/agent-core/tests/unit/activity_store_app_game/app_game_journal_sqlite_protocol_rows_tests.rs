@@ -32,7 +32,7 @@ fn journal_replay_projects_new_protocol_boundary_rows() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         APP_GAME_TEST_TIMESTAMP,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(lines.len(), 6);
     assert_eq!(model.evidence_claim_returned, 1);
@@ -138,38 +138,38 @@ fn protocol_boundary_events() -> Vec<ActivityEvent> {
             std::env::consts::OS,
             &evidence_claim(),
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
+        .expect(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_identity_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             APP_GAME_TEST_TIMESTAMP,
             &identity(),
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
+        .expect(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_approval_authority_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &approval_authority(),
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
+        .expect(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_approval_action_result_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &manual_action_result(),
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
+        .expect(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_platform_authority_matrix_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &platform_matrix(),
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
+        .expect(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_ai_classifier_result_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &classifier_result(),
         )
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES)),
+        .expect(constants::error::AGENT_EVENT_SERIALIZES),
     ]
 }
 
@@ -396,7 +396,7 @@ fn parent_evidence() -> AppGameParentEvidenceReference {
     }
 }
 
-fn source_evidence(evidence_id: &str) -> ActivityEvidenceRef {
+fn source_evidence(evidence_id: impl std::fmt::Display) -> ActivityEvidenceRef {
     ActivityEvidenceRef {
         evidence_id: evidence_id.to_string(),
         kind: ActivityEvidenceKind::StorageObject,
@@ -414,23 +414,21 @@ fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJo
     path.set_extension(constants::journal::FILE_EXTENSION);
     cleanup_journal_files(&path);
     let key = JournalKey::from_bytes([7; JOURNAL_KEY_BYTES]);
-    let mut journal = ActivityJournal::open(path.clone(), key.clone())
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let mut journal =
+        ActivityJournal::open(path.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
     let lines = events
         .iter()
         .map(|event| {
             journal
                 .append(event)
-                .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS))
+                .expect(constants::error::JOURNAL_APPENDS)
         })
         .collect::<Vec<_>>();
-    let reader = ActivityJournal::open(path.clone(), key)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let reader = ActivityJournal::open(path.clone(), key).expect(constants::error::JOURNAL_OPENS);
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let status = store
         .ingest_journal(&reader)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);
@@ -438,10 +436,11 @@ fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJo
     (store, lines)
 }
 
-fn cleanup_journal_files(path: &std::path::PathBuf) {
+fn cleanup_journal_files(path: impl AsRef<std::path::Path>) {
+    let path = path.as_ref();
     let _ = remove_file(path);
     for index in 1..=3 {
-        let mut rotated_path = path.clone();
+        let mut rotated_path = path.to_path_buf();
         let mut extension = index.to_string();
         extension.push_str(constants::journal::ROTATED_EXTENSION_SEPARATOR);
         extension.push_str(constants::journal::FILE_EXTENSION);

@@ -1,5 +1,4 @@
-use std::fmt::Debug;
-
+use crate::test_text::{test_ok as ok, TestResult, TestText};
 use crate::*;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
@@ -17,12 +16,6 @@ use ocentra_parent_agent_protocol::enforcement::{
     EnforcementRollbackState, EnforcementUnavailableReason, ParentPlatform,
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
-
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
 
 #[test]
 fn audit_event_mirrors_unavailable_result_capability_and_status_boundary() -> TestResult {

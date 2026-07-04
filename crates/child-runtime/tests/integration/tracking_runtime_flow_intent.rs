@@ -22,30 +22,30 @@ use ocentra_parent_agent_protocol::tracking::runtime_event::{
 use ocentra_tracking_core::alerting::TrackingParentNotificationDecisionState;
 
 trait OptionRequiredExt<T> {
-    fn required(self, context: &str) -> T;
+    fn required(self, context: impl std::fmt::Display) -> T;
 }
 
 impl<T> OptionRequiredExt<T> for Option<T> {
-    fn required(self, context: &str) -> T {
-        self.unwrap_or_else(|| unreachable!("{context}"))
+    fn required(self, context: impl std::fmt::Display) -> T {
+        let context = context.to_string();
+        self.expect(&context)
     }
 }
 
 trait ResultRequiredExt<T, E> {
-    fn required(self, context: &str) -> T;
-    fn required_err(self, context: &str) -> E;
+    fn required(self, context: impl std::fmt::Display) -> T;
+    fn required_err(self, context: impl std::fmt::Display) -> E;
 }
 
 impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
-    fn required(self, context: &str) -> T {
-        self.unwrap_or_else(|error| unreachable!("{context}: {error:?}"))
+    fn required(self, context: impl std::fmt::Display) -> T {
+        let context = context.to_string();
+        self.expect(&context)
     }
 
-    fn required_err(self, context: &str) -> E {
-        match self {
-            Ok(_) => unreachable!("{context}"),
-            Err(error) => error,
-        }
+    fn required_err(self, context: impl std::fmt::Display) -> E {
+        let context = context.to_string();
+        self.err().expect(&context)
     }
 }
 
@@ -676,8 +676,9 @@ async fn tracking_runtime_flow_marks_unsupported_parent_requested_check_in_deliv
 fn parent_requested_check_in_event(
     delivery_state: TrackingChildCheckInDeliveryState,
     request_state: TrackingChildCheckInRequestState,
-    expires_at: &str,
+    expires_at: impl std::fmt::Display,
 ) -> TrackingChildCheckInRequestedEvent {
+    let expires_at = expires_at.to_string();
     TrackingChildCheckInRequestedEvent {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
@@ -700,7 +701,7 @@ fn parent_requested_check_in_event(
         )
         .required(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
         include_location_if_permitted: true,
-        expires_at: TrackingTimestamp::parse(expires_at).required(expires_at),
+        expires_at: TrackingTimestamp::parse(&expires_at).required(&expires_at),
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
@@ -709,7 +710,12 @@ fn parent_requested_check_in_event(
     }
 }
 
-fn parent_requested_check_in_metadata(check_in_id: &str, observed_at: &str) -> EventMetadata {
+fn parent_requested_check_in_metadata(
+    check_in_id: impl std::fmt::Display,
+    observed_at: impl std::fmt::Display,
+) -> EventMetadata {
+    let check_in_id = check_in_id.to_string();
+    let observed_at = observed_at.to_string();
     EventMetadata::from_parts(
         EventId::generated(),
         CorrelationId::parse(format!(
@@ -730,7 +736,7 @@ fn parent_requested_check_in_metadata(check_in_id: &str, observed_at: &str) -> E
             RuntimeInstanceId::parse(constants::peer::PORTAL_DEV)
                 .required(constants::peer::PORTAL_DEV),
         ),
-        RecordedAt::parse(observed_at).required(observed_at),
+        RecordedAt::parse(&observed_at).required(&observed_at),
         Some(
             TargetHandler::parse(
                 constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER,

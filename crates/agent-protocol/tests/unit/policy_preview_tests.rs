@@ -15,9 +15,8 @@ use crate::policy_preview_finding_kinds_csv;
 fn policy_preview_read_model_serializes_stored_evidence_rows() {
     let read_model = policy_preview_read_model();
 
-    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_preview_contract_fields(&serialized);
     assert_preview_state_fields(&serialized);

@@ -12,28 +12,23 @@ use crate::{
 #[test]
 fn notification_provider_status_boundary_serializes_stable_state_values() {
     assert_eq!(
-        serde_json::to_value(V08NotificationProviderStatus::Delivered).unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        }),
+        serde_json::to_value(V08NotificationProviderStatus::Delivered)
+            .expect(constants::error::AGENT_EVENT_SERIALIZES),
         boundary::STATUS_DELIVERED
     );
     assert_eq!(
         serde_json::to_value(V08NotificationProviderStatusProofState::DeliveryReceiptRequired)
-            .unwrap_or_else(|error| {
-                unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-            }),
+            .expect(constants::error::AGENT_EVENT_SERIALIZES),
         boundary::PROOF_DELIVERY_RECEIPT_REQUIRED
     );
     assert_eq!(
-        serde_json::to_value(V08NotificationQuietHoursReadiness::DeferNoncritical).unwrap_or_else(
-            |error| { unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES) }
-        ),
+        serde_json::to_value(V08NotificationQuietHoursReadiness::DeferNoncritical)
+            .expect(constants::error::AGENT_EVENT_SERIALIZES),
         boundary::QUIET_HOURS_DEFER_NONCRITICAL
     );
     assert_eq!(
-        serde_json::to_value(V08NotificationEscalationReadiness::WaitingWindow).unwrap_or_else(
-            |error| { unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES) }
-        ),
+        serde_json::to_value(V08NotificationEscalationReadiness::WaitingWindow)
+            .expect(constants::error::AGENT_EVENT_SERIALIZES),
         boundary::ESCALATION_WAITING_WINDOW
     );
 }
@@ -48,17 +43,10 @@ fn notification_provider_status_boundary_preserves_no_delivery_claims() {
         entries: vec![delivered_entry()],
     };
     let reparsed = serde_json::from_value::<V08NotificationProviderStatusBoundaryReadModel>(
-        serde_json::to_value(read_model).unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        }),
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
     )
-    .unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
-    let entry = reparsed
-        .entries
-        .first()
-        .unwrap_or_else(|| unreachable!("{}", boundary::READ_MODEL_ID));
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let entry = reparsed.entries.first().expect(boundary::READ_MODEL_ID);
 
     assert_eq!(reparsed.read_model_id, boundary::READ_MODEL_ID);
     assert_eq!(

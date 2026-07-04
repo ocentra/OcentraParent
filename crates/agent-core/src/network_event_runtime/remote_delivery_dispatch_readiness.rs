@@ -1,4 +1,4 @@
-use ocentra_eventing::delivery::EventDeliveryDecisionProof;
+use ocentra_eventing::delivery::validation::EventDeliveryDecisionProof;
 use ocentra_parent_agent_protocol::constants;
 
 use super::remote_delivery_dispatch_readiness_types::{

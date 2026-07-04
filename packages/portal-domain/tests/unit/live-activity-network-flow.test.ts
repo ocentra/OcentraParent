@@ -1,12 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ActivityNetworkFlowObservationSchema,
-  ActivityNetworkFlowReadModelSchema,
-  ActivityQuerySchemaVersion,
-  type ActivityNetworkFlowReadModel,
-} from '@ocentra-parent/schema-domain/network-flow';
 import { networkEvidenceDrawerSummary } from '../../src/network-evidence-drawer';
 import { NetworkEvidenceDrawerProof } from './fixtures/network-evidence-drawer-proof-fixture';
+
+type NetworkFlowReadModel = NonNullable<Parameters<typeof networkEvidenceDrawerSummary>[0]>;
+type NetworkFlowObservation = NetworkFlowReadModel['rows'][number];
 
 describe('portal live activity network flow', () => {
   it('projects the parent network evidence drawer with truthful surfaced refs and unsupported gaps', () => {
@@ -161,34 +158,27 @@ function networkFlowReadModel(
     readonly latestTombstoneEventId?: string | null;
     readonly latestTombstoneObservedAt?: string | null;
     readonly deletedEvidenceReferenceIds?: readonly string[];
-    readonly rows?: readonly unknown[];
+    readonly rows?: readonly NetworkFlowObservation[];
   } = {}
-): ActivityNetworkFlowReadModel {
-  return ActivityNetworkFlowReadModelSchema.parse({
-    schemaVersion: ActivityQuerySchemaVersion,
-    generatedAt: '2026-05-21T02:00:01Z',
+): NetworkFlowReadModel {
+  return {
     custody: 'child-device-query-store',
-    limit: 10,
     returned: overrides.returned ?? 1,
     activeRows: overrides.activeRows ?? 1,
     tombstoneRows: overrides.tombstoneRows ?? 0,
     exportableRows: overrides.exportableRows ?? 1,
     capabilityStatus: overrides.capabilityStatus ?? 'available',
-    latestEventId: overrides.latestEventId ?? NetworkEvidenceDrawerProof.eventId,
-    latestObservedAt: overrides.latestObservedAt ?? '2026-05-21T02:00:00Z',
     latestTombstoneEventId: overrides.latestTombstoneEventId ?? null,
     latestTombstoneObservedAt: overrides.latestTombstoneObservedAt ?? null,
     deletedEvidenceReferenceIds: overrides.deletedEvidenceReferenceIds ?? [],
     rows: overrides.rows ?? [networkFlowObservation()],
-  });
+  };
 }
 
-function networkFlowObservation() {
-  return ActivityNetworkFlowObservationSchema.parse({
-    schemaVersion: ActivityQuerySchemaVersion,
+function networkFlowObservation(): NetworkFlowObservation {
+  return {
     eventId: NetworkEvidenceDrawerProof.eventId,
     observedAt: '2026-05-21T02:00:00Z',
-    observer: NetworkEvidenceDrawerProof.observer,
     capabilityStatus: NetworkEvidenceDrawerProof.fields.capabilityStatus,
     adapterId: NetworkEvidenceDrawerProof.fields.adapterId,
     protocol: NetworkEvidenceDrawerProof.fields.networkProtocol,
@@ -227,5 +217,5 @@ function networkFlowObservation() {
         uri: null,
       },
     ],
-  });
+  };
 }

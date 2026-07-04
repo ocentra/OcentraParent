@@ -1,9 +1,11 @@
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{
-    select_household_ai_provider_route, HouseholdAiProviderCandidate, HouseholdAiProviderClass,
-    HouseholdAiProviderResourceState, HouseholdAiProviderTrustState, HouseholdAiRouteDecisionState,
-    HouseholdAiRouteRejectionReason, HouseholdAiRouteRequest,
+    select_household_ai_provider_route,
+    test_text::{TestResult, TestText},
+    HouseholdAiProviderCandidate, HouseholdAiProviderClass, HouseholdAiProviderResourceState,
+    HouseholdAiProviderTrustState, HouseholdAiRouteDecisionState, HouseholdAiRouteRejectionReason,
+    HouseholdAiRouteRequest,
 };
 
 #[test]
@@ -61,8 +63,7 @@ fn household_ai_provider_route_rejects_stale_offline_revoked_and_custody_mismatc
 }
 
 #[test]
-fn household_ai_provider_route_keeps_mobile_dormant_when_desktop_is_available() -> Result<(), String>
-{
+fn household_ai_provider_route_keeps_mobile_dormant_when_desktop_is_available() -> TestResult {
     let selection = select_household_ai_provider_route(
         &HouseholdAiRouteRequest::heavy_screen_job(),
         &[
@@ -74,7 +75,9 @@ fn household_ai_provider_route_keeps_mobile_dormant_when_desktop_is_available() 
         .candidate_decisions
         .iter()
         .find(|decision| decision.provider_class == HouseholdAiProviderClass::MobileDormant)
-        .ok_or_else(|| constants::household_mesh::ERROR_ROUTE_SELECTS_PROVIDER.to_string())?;
+        .ok_or_else(|| {
+            TestText::from_display(constants::household_mesh::ERROR_ROUTE_SELECTS_PROVIDER)
+        })?;
 
     assert_eq!(
         selection.selected_provider_peer_id,
@@ -122,14 +125,14 @@ fn household_ai_provider_route_rejects_mobile_fallback_for_low_battery_or_therma
 }
 
 #[test]
-fn household_ai_provider_route_rejects_degraded_and_unsupported_candidates() {
+fn household_ai_provider_route_rejects_degraded_and_unsupported_mobile_candidates() {
     let request = HouseholdAiRouteRequest::heavy_screen_job();
-    assert_route_rejection(
+    assert_mobile_route_rejection(
         &request,
         |candidate| candidate.resource_state = HouseholdAiProviderResourceState::Degraded,
         HouseholdAiRouteRejectionReason::ResourceDegraded,
     );
-    assert_route_rejection(
+    assert_mobile_route_rejection(
         &request,
         |candidate| candidate.supports_heavy_screen_vision = false,
         HouseholdAiRouteRejectionReason::UnsupportedCapability,
@@ -148,6 +151,25 @@ fn assert_route_rejection(
     assert_eq!(
         selection.candidate_decisions[0].state,
         HouseholdAiRouteDecisionState::Rejected
+    );
+    assert_eq!(
+        selection.candidate_decisions[0].rejection_reason,
+        Some(expected)
+    );
+}
+
+fn assert_mobile_route_rejection(
+    request: &HouseholdAiRouteRequest,
+    mutate: impl FnOnce(&mut HouseholdAiProviderCandidate),
+    expected: HouseholdAiRouteRejectionReason,
+) {
+    let mut candidate = HouseholdAiProviderCandidate::parent_mobile();
+    mutate(&mut candidate);
+    let selection = select_household_ai_provider_route(request, &[candidate]);
+    assert_eq!(selection.selected_provider_peer_id, None);
+    assert_eq!(
+        selection.candidate_decisions[0].state,
+        HouseholdAiRouteDecisionState::Dormant
     );
     assert_eq!(
         selection.candidate_decisions[0].rejection_reason,

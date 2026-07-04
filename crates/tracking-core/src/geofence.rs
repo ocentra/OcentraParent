@@ -166,8 +166,5 @@ fn parse_contract_text<T, E>(
 where
     E: core::fmt::Debug,
 {
-    match parse(value) {
-        Ok(parsed_value) => parsed_value,
-        Err(_) => unreachable!("tracking geofence contract drift: {value}"),
-    }
+    parse(value).expect("tracking geofence contract drift")
 }

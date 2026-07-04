@@ -3,61 +3,27 @@ use ocentra_parent_agent_protocol::activity_capture::{
     ActivityProcessAttributionStatus,
 };
 use ocentra_parent_agent_protocol::network_flow::{
-    NetworkAiAuditState, NetworkEvidenceScope, NetworkInterventionState, NetworkRiskBudgetState,
-    NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
+    NetworkAiAuditState, NetworkEvidenceScope, NetworkRiskBudgetState, NetworkRuntimeEvidenceGrade,
+    NetworkRuntimePhase,
 };
 
 use crate::network_capture::NetworkObservation;
 
+#[path = "network_event_runtime_state/helpers.rs"]
+mod helpers;
+
 pub(crate) fn evidence_scope(observation: &NetworkObservation) -> NetworkEvidenceScope {
-    if observation.status == ActivityCaptureCapabilityStatus::Available {
-        NetworkEvidenceScope::MetadataOnly
-    } else {
-        NetworkEvidenceScope::AdapterUnavailable
-    }
+    helpers::evidence_scope(observation)
 }
 
 pub(crate) fn evidence_grade(observation: &NetworkObservation) -> NetworkRuntimeEvidenceGrade {
-    if observation.status != ActivityCaptureCapabilityStatus::Available {
-        return NetworkRuntimeEvidenceGrade::AdapterUnavailable;
-    }
-    if observation.domain_attribution_status() == ActivityDomainAttributionStatus::DomainObserved
-        && observation.process_attribution_status()
-            == ActivityProcessAttributionStatus::ProcessAttributed
-    {
-        return NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata;
-    }
-    NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata
+    helpers::evidence_grade(observation)
 }
 
 pub(crate) fn ai_audit_state(phase: NetworkRuntimePhase) -> NetworkAiAuditState {
-    match phase {
-        NetworkRuntimePhase::AiAnalysisRequested => NetworkAiAuditState::Requested,
-        NetworkRuntimePhase::AiAnalysisCompleted
-        | NetworkRuntimePhase::PolicyEvaluationRequested
-        | NetworkRuntimePhase::PolicyDecisionCompleted
-        | NetworkRuntimePhase::EnforcementCommandIssued
-        | NetworkRuntimePhase::EnforcementResultObserved
-        | NetworkRuntimePhase::AuditEntryCommitted
-        | NetworkRuntimePhase::PortalReadModelUpdated => NetworkAiAuditState::Completed,
-        _ => NetworkAiAuditState::NotRequested,
-    }
+    helpers::ai_audit_state(phase)
 }
 
 pub(crate) fn risk_budget_state(observation: &NetworkObservation) -> NetworkRiskBudgetState {
-    if observation.status != ActivityCaptureCapabilityStatus::Available {
-        return NetworkRiskBudgetState::Unavailable;
-    }
-    if evidence_grade(observation) == NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata {
-        return NetworkRiskBudgetState::ObserveOnly;
-    }
-    NetworkRiskBudgetState::ManualReviewRequired
-}
-
-pub(crate) fn intervention_state(observation: &NetworkObservation) -> NetworkInterventionState {
-    match risk_budget_state(observation) {
-        NetworkRiskBudgetState::ObserveOnly => NetworkInterventionState::DryRunOnly,
-        NetworkRiskBudgetState::ManualReviewRequired => NetworkInterventionState::ManualRequired,
-        NetworkRiskBudgetState::Unavailable => NetworkInterventionState::Unavailable,
-    }
+    helpers::risk_budget_state(observation)
 }

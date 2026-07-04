@@ -1,19 +1,10 @@
-import {
-  AgentTrackingDeleteAfterAlertResolutionState,
-  AgentTrackingDurableSettingsPersistenceState,
-  AgentTrackingExecutionClaimState,
-  AgentTrackingParentExportState,
-  AgentTrackingRemoteAiState,
-  AgentTrackingRemoteSyncState,
-  type AgentTrackingRetentionSettingsWriteResult,
-} from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
-import type { DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText, type DisplayText } from './display-text';
+import { GeneratedPortalTrackingContracts } from './generated/portal-contracts';
 import {
   decodePortalDetailValue,
   type PortalDetailValue,
   type TrackingStatusProofArtifact,
-} from './portal-contract-adapter';
+} from './portal-contract-text-contracts';
 import { PortalFormatting } from './formatting';
 import type { ParsedPayloadResult } from './read-model-result';
 import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
@@ -110,7 +101,7 @@ const TrackingRetentionSettingsHostedUiDefinitions = [
 ] as const satisfies readonly TrackingRetentionSettingsHostedUiDefinition[];
 
 export function trackingRetentionSettingsHostedUiProof(
-  writeResult: ParsedPayloadResult<AgentTrackingRetentionSettingsWriteResult> | null = null
+  writeResult: ParsedPayloadResult<unknown> | null = null
 ): TrackingRetentionSettingsHostedUiProof {
   const rows = TrackingRetentionSettingsHostedUiDefinitions.map((definition) =>
     retentionSettingsHostedUiRow(definition)
@@ -149,7 +140,7 @@ function retentionSettingsHostedUiRow(
 }
 
 function retentionSettingsWritePreflight(
-  writeResult: ParsedPayloadResult<AgentTrackingRetentionSettingsWriteResult> | null
+  writeResult: ParsedPayloadResult<unknown> | null
 ): TrackingRetentionSettingsWritePreflight {
   const base = emptyRetentionSettingsWritePreflight();
   if (writeResult === null) {
@@ -161,9 +152,24 @@ function retentionSettingsWritePreflight(
       parserReason: detailFromValue(writeResult.reason),
     };
   }
-  const value = writeResult.value;
+  const value = GeneratedPortalTrackingContracts.RetentionSettingsWrite.Result.decode(writeResult.value);
+  if (value === null) {
+    return {
+      ...base,
+      parserReason: detailFromValue('Generated tracking retention settings write result is invalid'),
+    };
+  }
   return {
     ...base,
+    ...retentionSettingsWriteValueDetails(value),
+    ...retentionSettingsWriteClaimDetails(value),
+  };
+}
+
+function retentionSettingsWriteValueDetails(
+  value: NonNullable<ReturnType<typeof GeneratedPortalTrackingContracts.RetentionSettingsWrite.Result.decode>>
+) {
+  return {
     commandId: detailFromValue(value.commandId),
     settingsKind: detailFromValue(value.settingsKind),
     writeState: detailFromValue(value.writeState),
@@ -176,42 +182,67 @@ function retentionSettingsWritePreflight(
     appliedRetentionWindowHours: detailFromValue(value.appliedRetentionWindowHours ?? 0),
     appliedDeleteAfterAlertResolved: detailFromFlag(
       value.appliedDeleteAfterAlertResolutionState ===
-        AgentTrackingDeleteAfterAlertResolutionState.RetainAfterAlertResolved
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.DeleteAfterAlertResolutionState.RetainAfterAlertResolved
     ),
-    parentExportPrepared: detailFromFlag(value.parentExportState === AgentTrackingParentExportState.Prepared),
-    remoteSyncEnabled: detailFromFlag(value.remoteSyncState === AgentTrackingRemoteSyncState.Enabled),
-    remoteAiEnabled: detailFromFlag(value.remoteAiState === AgentTrackingRemoteAiState.Enabled),
+    parentExportPrepared: detailFromFlag(
+      value.parentExportState === GeneratedPortalTrackingContracts.RetentionSettingsWrite.ParentExportState.Prepared
+    ),
+    remoteSyncEnabled: detailFromFlag(
+      value.remoteSyncState === GeneratedPortalTrackingContracts.RetentionSettingsWrite.RemoteSyncState.Enabled
+    ),
+    remoteAiEnabled: detailFromFlag(
+      value.remoteAiState === GeneratedPortalTrackingContracts.RetentionSettingsWrite.RemoteAiState.Enabled
+    ),
     localServiceStateRevision: detailFromValue(value.localServiceStateRevision ?? 0),
     localServiceStateSnapshotRef: detailFromValue(value.localServiceStateSnapshotRef),
+  };
+}
+
+function retentionSettingsWriteClaimDetails(
+  value: NonNullable<ReturnType<typeof GeneratedPortalTrackingContracts.RetentionSettingsWrite.Result.decode>>
+) {
+  return {
     durableSettingsPersistedRows: detailFromFlag(
-      value.durableSettingsPersistenceState === AgentTrackingDurableSettingsPersistenceState.Persisted
+      value.durableSettingsPersistenceState ===
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.DurableSettingsPersistenceState.Persisted
     ),
     commandTransportClaimedRows: detailFromFlag(
-      value.commandTransportClaimState === AgentTrackingExecutionClaimState.Claimed
+      value.commandTransportClaimState === GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
     ),
     serviceWritePreflightClaimedRows: detailFromFlag(
-      value.serviceWritePreflightClaimState === AgentTrackingExecutionClaimState.Claimed
+      value.serviceWritePreflightClaimState ===
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
     ),
     serviceMutationExecutedRows: detailFromFlag(
-      value.serviceMutationExecutionState === AgentTrackingExecutionClaimState.Claimed
+      value.serviceMutationExecutionState ===
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
     ),
     platformRuntimeClaimedRows: detailFromFlag(
-      value.platformRuntimeClaimState === AgentTrackingExecutionClaimState.Claimed
+      value.platformRuntimeClaimState ===
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
     ),
     childDeviceDeliveryClaimedRows: detailFromFlag(
-      value.childDeviceDeliveryClaimState === AgentTrackingExecutionClaimState.Claimed
+      value.childDeviceDeliveryClaimState ===
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
     ),
     providerDeliveryClaimedRows: detailFromFlag(
-      value.providerDeliveryClaimState === AgentTrackingExecutionClaimState.Claimed
+      value.providerDeliveryClaimState ===
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
     ),
     notificationReceiptClaimedRows: detailFromFlag(
-      value.notificationReceiptClaimState === AgentTrackingExecutionClaimState.Claimed
+      value.notificationReceiptClaimState ===
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
     ),
     physicalDeviceClaimedRows: detailFromFlag(
-      value.physicalDeviceClaimState === AgentTrackingExecutionClaimState.Claimed
+      value.physicalDeviceClaimState ===
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
     ),
-    authorityClaimedRows: detailFromFlag(value.authorityClaimState === AgentTrackingExecutionClaimState.Claimed),
-    productClaimReadyRows: detailFromFlag(value.productClaimState === AgentTrackingExecutionClaimState.Claimed),
+    authorityClaimedRows: detailFromFlag(
+      value.authorityClaimState === GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
+    ),
+    productClaimReadyRows: detailFromFlag(
+      value.productClaimState === GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
+    ),
   };
 }
 

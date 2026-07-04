@@ -6,6 +6,13 @@ use super::{
 };
 use crate::logging::DevLogEntry;
 
+fn to_json<T: serde::Serialize>(value: T) -> serde_json::Value {
+    match serde_json::to_value(value) {
+        Ok(serialized) => serialized,
+        Err(_) => serde_json::Value::default(),
+    }
+}
+
 #[test]
 fn crate_name_identifies_agent_protocol_boundary() {
     assert_eq!(crate_name(), "ocentra-parent-agent-protocol");
@@ -38,8 +45,7 @@ fn agent_log_snapshot_serializes_to_typescript_contract_shape() {
         }],
     };
 
-    let serialized = serde_json::to_value(snapshot)
-        .unwrap_or_else(|error| unreachable!("snapshot serializes: {error}"));
+    let serialized = to_json(snapshot);
 
     assert_eq!(serialized["schemaVersion"], 1);
     assert_eq!(serialized["agent"]["deviceId"], "local-dev");
@@ -47,7 +53,10 @@ fn agent_log_snapshot_serializes_to_typescript_contract_shape() {
     assert_eq!(serialized["entries"][0]["level"], "info");
     assert_eq!(serialized["entries"][0]["source"], "agent-service");
     assert_eq!(serialized["entries"][0]["fields"]["captureEnabled"], false);
-    assert!(serialized["entries"][0]["fields"]["remoteSync"].is_null());
+    assert_eq!(
+        serialized["entries"][0]["fields"]["remoteSync"].is_null(),
+        true
+    );
 }
 
 #[test]
@@ -69,8 +78,7 @@ fn websocket_command_envelope_serializes_to_typescript_contract_shape() {
         payload: LogFields::new(),
     };
 
-    let serialized = serde_json::to_value(command)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
+    let serialized = to_json(command);
 
     assert_eq!(serialized["schemaVersion"], 1);
     assert_eq!(serialized["source"]["role"], "portal");
@@ -80,10 +88,8 @@ fn websocket_command_envelope_serializes_to_typescript_contract_shape() {
 
 #[test]
 fn policy_preview_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentPolicyPreviewReadModelGet)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(AgentEventName::AgentPolicyPreviewReadModelReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentPolicyPreviewReadModelGet);
+    let event = to_json(AgentEventName::AgentPolicyPreviewReadModelReported);
 
     assert_eq!(command, "agent.policy.preview.read-model.get");
     assert_eq!(event, "agent.policy.preview.read-model.reported");
@@ -91,18 +97,12 @@ fn policy_preview_command_and_event_names_serialize_to_contract_shape() {
 
 #[test]
 fn enforcement_command_and_event_names_serialize_to_contract_shape() {
-    let execute_command = serde_json::to_value(AgentCommandName::AgentEnforcementExecute)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let recover_command = serde_json::to_value(AgentCommandName::AgentEnforcementTimerRecover)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let expire_command = serde_json::to_value(AgentCommandName::AgentEnforcementTimerExpire)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let cancel_command = serde_json::to_value(AgentCommandName::AgentEnforcementOverrideCancel)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let audit_event = serde_json::to_value(AgentEventName::AgentEnforcementAuditReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
-    let timer_event = serde_json::to_value(AgentEventName::AgentEnforcementTimerReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let execute_command = to_json(AgentCommandName::AgentEnforcementExecute);
+    let recover_command = to_json(AgentCommandName::AgentEnforcementTimerRecover);
+    let expire_command = to_json(AgentCommandName::AgentEnforcementTimerExpire);
+    let cancel_command = to_json(AgentCommandName::AgentEnforcementOverrideCancel);
+    let audit_event = to_json(AgentEventName::AgentEnforcementAuditReported);
+    let timer_event = to_json(AgentEventName::AgentEnforcementTimerReported);
 
     assert_eq!(execute_command, "agent.enforcement.execute");
     assert_eq!(recover_command, "agent.enforcement.timer.recover");
@@ -114,10 +114,8 @@ fn enforcement_command_and_event_names_serialize_to_contract_shape() {
 
 #[test]
 fn browser_intervention_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentBrowserInterventionReadModelGet)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(AgentEventName::AgentBrowserInterventionReadModelReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentBrowserInterventionReadModelGet);
+    let event = to_json(AgentEventName::AgentBrowserInterventionReadModelReported);
 
     assert_eq!(command, "agent.browser.intervention.read-model.get");
     assert_eq!(event, "agent.browser.intervention.read-model.reported");
@@ -125,10 +123,8 @@ fn browser_intervention_command_and_event_names_serialize_to_contract_shape() {
 
 #[test]
 fn network_runtime_stream_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentNetworkRuntimeEventChainStreamGet)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(AgentEventName::AgentNetworkRuntimeEventChainStreamReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentNetworkRuntimeEventChainStreamGet);
+    let event = to_json(AgentEventName::AgentNetworkRuntimeEventChainStreamReported);
 
     assert_eq!(command, "agent.network.runtime.event-chain.stream.get");
     assert_eq!(event, "agent.network.runtime.event-chain.stream.reported");
@@ -136,10 +132,8 @@ fn network_runtime_stream_command_and_event_names_serialize_to_contract_shape() 
 
 #[test]
 fn browser_runtime_stream_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentBrowserRuntimeEventChainStreamGet)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(AgentEventName::AgentBrowserRuntimeEventChainStreamReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentBrowserRuntimeEventChainStreamGet);
+    let event = to_json(AgentEventName::AgentBrowserRuntimeEventChainStreamReported);
 
     assert_eq!(command, "agent.browser.runtime.event-chain.stream.get");
     assert_eq!(event, "agent.browser.runtime.event-chain.stream.reported");
@@ -147,10 +141,8 @@ fn browser_runtime_stream_command_and_event_names_serialize_to_contract_shape() 
 
 #[test]
 fn network_remote_delivery_status_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentNetworkRemoteDeliveryStatusGet)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(AgentEventName::AgentNetworkRemoteDeliveryStatusReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentNetworkRemoteDeliveryStatusGet);
+    let event = to_json(AgentEventName::AgentNetworkRemoteDeliveryStatusReported);
 
     assert_eq!(command, "agent.network.remote-delivery.status.get");
     assert_eq!(event, "agent.network.remote-delivery.status.reported");
@@ -158,10 +150,8 @@ fn network_remote_delivery_status_command_and_event_names_serialize_to_contract_
 
 #[test]
 fn network_linux_nftables_lab_status_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(AgentEventName::AgentNetworkLinuxNftablesLabStatusReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet);
+    let event = to_json(AgentEventName::AgentNetworkLinuxNftablesLabStatusReported);
 
     assert_eq!(command, "agent.network.linux-nftables-lab.status.get");
     assert_eq!(event, "agent.network.linux-nftables-lab.status.reported");
@@ -169,10 +159,8 @@ fn network_linux_nftables_lab_status_command_and_event_names_serialize_to_contra
 
 #[test]
 fn network_windows_firewall_lab_status_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(AgentEventName::AgentNetworkWindowsFirewallLabStatusReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet);
+    let event = to_json(AgentEventName::AgentNetworkWindowsFirewallLabStatusReported);
 
     assert_eq!(command, "agent.network.windows-firewall-lab.status.get");
     assert_eq!(event, "agent.network.windows-firewall-lab.status.reported");
@@ -180,10 +168,8 @@ fn network_windows_firewall_lab_status_command_and_event_names_serialize_to_cont
 
 #[test]
 fn network_windows_wfp_gate_status_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentNetworkWindowsWfpGateStatusGet)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(AgentEventName::AgentNetworkWindowsWfpGateStatusReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentNetworkWindowsWfpGateStatusGet);
+    let event = to_json(AgentEventName::AgentNetworkWindowsWfpGateStatusReported);
 
     assert_eq!(command, "agent.network.windows-wfp-gate.status.get");
     assert_eq!(event, "agent.network.windows-wfp-gate.status.reported");
@@ -191,12 +177,8 @@ fn network_windows_wfp_gate_status_command_and_event_names_serialize_to_contract
 
 #[test]
 fn network_android_vpn_service_gate_status_command_and_event_names_serialize_to_contract_shape() {
-    let command =
-        serde_json::to_value(AgentCommandName::AgentNetworkAndroidVpnServiceGateStatusGet)
-            .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event =
-        serde_json::to_value(AgentEventName::AgentNetworkAndroidVpnServiceGateStatusReported)
-            .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentNetworkAndroidVpnServiceGateStatusGet);
+    let event = to_json(AgentEventName::AgentNetworkAndroidVpnServiceGateStatusReported);
 
     assert_eq!(command, "agent.network.android-vpn-service-gate.status.get");
     assert_eq!(
@@ -208,12 +190,8 @@ fn network_android_vpn_service_gate_status_command_and_event_names_serialize_to_
 #[test]
 fn network_apple_network_extension_gate_status_command_and_event_names_serialize_to_contract_shape()
 {
-    let command =
-        serde_json::to_value(AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet)
-            .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event =
-        serde_json::to_value(AgentEventName::AgentNetworkAppleNetworkExtensionGateStatusReported)
-            .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet);
+    let event = to_json(AgentEventName::AgentNetworkAppleNetworkExtensionGateStatusReported);
 
     assert_eq!(
         command,
@@ -227,10 +205,8 @@ fn network_apple_network_extension_gate_status_command_and_event_names_serialize
 
 #[test]
 fn browser_inventory_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentBrowserInventoryReadModelGet)
-        .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(AgentEventName::AgentBrowserInventoryReadModelReported)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentBrowserInventoryReadModelGet);
+    let event = to_json(AgentEventName::AgentBrowserInventoryReadModelReported);
 
     assert_eq!(command, "agent.browser.inventory.read-model.get");
     assert_eq!(event, "agent.browser.inventory.read-model.reported");
@@ -238,13 +214,8 @@ fn browser_inventory_command_and_event_names_serialize_to_contract_shape() {
 
 #[test]
 fn app_game_timer_parent_surface_command_and_event_names_serialize_to_contract_shape() {
-    let command =
-        serde_json::to_value(AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet)
-            .unwrap_or_else(|error| unreachable!("command serializes: {error}"));
-    let event = serde_json::to_value(
-        AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
-    )
-    .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let command = to_json(AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet);
+    let event = to_json(AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported);
 
     assert_eq!(
         command,
@@ -258,15 +229,8 @@ fn app_game_timer_parent_surface_command_and_event_names_serialize_to_contract_s
 
 #[test]
 fn app_game_adapter_dispatch_execute_command_and_event_names_serialize_to_contract_shape() {
-    let command =
-        serde_json::to_value(AgentCommandName::AgentActivityAppGameAdapterDispatchExecute)
-            .unwrap_or_else(|error| {
-                unreachable!("app game adapter dispatch execute command serializes: {error}")
-            });
-    let event = serde_json::to_value(AgentEventName::AgentActivityAppGameAdapterDispatchExecuted)
-        .unwrap_or_else(|error| {
-            unreachable!("app game adapter dispatch execute event serializes: {error}")
-        });
+    let command = to_json(AgentCommandName::AgentActivityAppGameAdapterDispatchExecute);
+    let event = to_json(AgentEventName::AgentActivityAppGameAdapterDispatchExecuted);
 
     assert_eq!(command, "agent.activity.app-game.adapter-dispatch.execute");
     assert_eq!(event, "agent.activity.app-game.adapter-dispatch.executed");
@@ -296,14 +260,13 @@ fn websocket_event_envelope_serializes_to_typescript_contract_shape() {
         snapshot: None,
     };
 
-    let serialized = serde_json::to_value(event)
-        .unwrap_or_else(|error| unreachable!("event serializes: {error}"));
+    let serialized = to_json(event);
 
     assert_eq!(serialized["schemaVersion"], 1);
     assert_eq!(serialized["source"]["role"], "agent-service");
     assert_eq!(serialized["event"], "agent.health.reported");
     assert_eq!(serialized["payload"]["online"], true);
-    assert!(serialized["snapshot"].is_null());
+    assert_eq!(serialized["snapshot"].is_null(), true);
 }
 
 #[test]
@@ -318,8 +281,7 @@ fn dev_log_entry_serializes_to_typescript_ndjson_shape() {
         fields: LogFields::new(),
     };
 
-    let serialized = serde_json::to_value(entry)
-        .unwrap_or_else(|error| unreachable!("dev log serializes: {error}"));
+    let serialized = to_json(entry);
 
     assert_eq!(serialized["schemaVersion"], 1);
     assert_eq!(serialized["source"], "agent-service");

@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -21,6 +24,10 @@ use ocentra_parent_screen_capture_adapter::{
 };
 
 use crate::test_invariants::{require_json_decode, require_ok};
+
+#[path = "../support/test_text.rs"]
+mod test_text;
+use test_text::TestText;
 
 use super::{
     screen_ai_analysis_runtime::{
@@ -178,17 +185,19 @@ fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> String {
     )
 }
 
-fn analysis_clock(epoch_seconds: u64, timestamp: &str) -> ScreenAiAnalysisCycleClock {
+fn analysis_clock(epoch_seconds: u64, timestamp: TestText) -> ScreenAiAnalysisCycleClock {
+    let timestamp = timestamp;
     ScreenAiAnalysisCycleClock {
         epoch_seconds,
-        timestamp: timestamp.to_string(),
+        timestamp: timestamp.as_str().to_string(),
     }
 }
 
-fn capture_clock(epoch_seconds: u64, timestamp: &str) -> ScreenAiServiceCaptureClock {
+fn capture_clock(epoch_seconds: u64, timestamp: TestText) -> ScreenAiServiceCaptureClock {
+    let timestamp = timestamp;
     ScreenAiServiceCaptureClock {
         epoch_seconds,
-        timestamp: timestamp.to_string(),
+        timestamp: timestamp.as_str().to_string(),
     }
 }
 
@@ -203,7 +212,8 @@ fn assert_queue_drained(config: &ScreenAiAnalysisRuntimeConfig) {
     assert!(queue_record.trim().is_empty());
 }
 
-fn assert_queue_contains(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: &str) {
+fn assert_queue_contains(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: TestText) {
+    let queue_job_id = queue_job_id;
     let queue_file = config
         .queue_dir
         .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
@@ -220,7 +230,7 @@ fn assert_queue_contains(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: &
         queue_entry
             .get(constants::field::SCREEN_QUEUE_JOB_ID)
             .and_then(serde_json::Value::as_str),
-        Some(queue_job_id)
+        Some(queue_job_id.as_str())
     );
     assert_eq!(
         queue_entry
@@ -232,8 +242,9 @@ fn assert_queue_contains(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: &
 
 fn assert_only_service_metadata_summary(
     config: &ScreenAiAnalysisRuntimeConfig,
-    queue_job_id: &str,
+    queue_job_id: TestText,
 ) {
+    let queue_job_id = queue_job_id;
     let store = require_ok(
         ActivityStore::open(&config.store_path),
         constants::error::ACTIVITY_STORE_OPENS,
@@ -248,7 +259,7 @@ fn assert_only_service_metadata_summary(
     let latest = &summary.results[0];
 
     assert_eq!(summary.returned, 1);
-    assert_eq!(latest.queue_job_id, queue_job_id);
+    assert_eq!(latest.queue_job_id, queue_job_id.as_str());
     assert_eq!(latest.provider_kind, SCREEN_PROVIDER_SERVICE_METADATA);
     assert_eq!(
         latest.capture_reason,
@@ -257,7 +268,11 @@ fn assert_only_service_metadata_summary(
     assert!(!latest.policy_eligible);
 }
 
-fn assert_unavailable_analysis_summary(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: &str) {
+fn assert_unavailable_analysis_summary(
+    config: &ScreenAiAnalysisRuntimeConfig,
+    queue_job_id: TestText,
+) {
+    let queue_job_id = queue_job_id;
     let store = require_ok(
         ActivityStore::open(&config.store_path),
         constants::error::ACTIVITY_STORE_OPENS,
@@ -272,7 +287,7 @@ fn assert_unavailable_analysis_summary(config: &ScreenAiAnalysisRuntimeConfig, q
     let latest = &summary.results[0];
 
     assert_eq!(summary.returned, 2);
-    assert_eq!(latest.queue_job_id, queue_job_id);
+    assert_eq!(latest.queue_job_id, queue_job_id.as_str());
     assert_eq!(
         latest.provider_kind,
         SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE
@@ -309,12 +324,13 @@ fn captured_test_image() -> CapturedScreenImage {
     }
 }
 
-fn test_path(suffix: &str) -> PathBuf {
+fn test_path(suffix: TestText) -> PathBuf {
+    let suffix = suffix;
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
     path.push(std::process::id().to_string());
     path.push(SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED_ENV);
     path.push(TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
-    path.push(suffix);
+    path.push(suffix.as_str());
     path
 }

@@ -10,7 +10,7 @@ use crate::{
     activity_store_path::activity_db_path, event_builder::build_event, time::timestamp_now,
 };
 
-use super::activity_store_error_event;
+use super::activity_store_error_event::activity_store_error_event;
 
 pub async fn build_activity_memory_graph_report(
     command: AgentCommandEnvelope,
@@ -27,7 +27,9 @@ pub async fn build_activity_memory_graph_report(
         ),
         None => activity_store_error_event(
             command,
-            constants::event_id::ACTIVITY_MEMORY_GRAPH_REPORTED,
+            crate::activity_api::ActivityEventId(
+                constants::event_id::ACTIVITY_MEMORY_GRAPH_REPORTED,
+            ),
             AgentEventName::AgentActivityMemoryGraphReported,
         ),
     }

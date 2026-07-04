@@ -1,12 +1,13 @@
-use crate::{
-    aggregate_pcap_flows, dns_query_pcap_fixture, generate_network_zeek_analyzer_proof,
-    http_host_request_fixture, parse_http_host, parse_tls_client_hello_sni,
-    replay_dns_observations, tls_client_hello_no_sni_fixture, tls_client_hello_sni_fixture,
-    NetworkZeekAnalyzerComparisonArtifact, NetworkZeekAnalyzerComparisonState,
-    NetworkZeekAnalyzerError, NetworkZeekAnalyzerInput, NetworkZeekHttpEvidence,
-    NetworkZeekLogKind, NetworkZeekTlsEvidence, NetworkZeekVisibilityState,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::dns::replay_dns_observations;
+use ocentra_network_evidence::dns::types::*;
+use ocentra_network_evidence::fixtures::dns_query_pcap_fixture;
+use ocentra_network_evidence::fixtures::visibility::*;
+use ocentra_network_evidence::flow::*;
+use ocentra_network_evidence::http::*;
+use ocentra_network_evidence::packet::types::*;
+use ocentra_network_evidence::tls::*;
+use ocentra_network_evidence::zeek::*;
 
 #[test]
 fn zeek_generator_produces_conn_dns_http_tls_and_ssl_rows_with_matching_comparisons() {

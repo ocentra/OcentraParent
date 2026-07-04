@@ -49,7 +49,10 @@ pub fn merge_linux_neighbor_observation(
     {
         existing.reachability = incoming.reachability.clone();
     }
-    super::super::merge_observed_at(&mut existing.observed_at, &incoming.observed_at);
+    super::super::neighbor_merge::merge_observed_at(
+        &mut existing.observed_at,
+        &incoming.observed_at,
+    );
     for scan_source in incoming.scan_sources {
         push_unique_scan_source(&mut existing.scan_sources, &scan_source);
     }

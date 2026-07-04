@@ -30,14 +30,13 @@ fn browser_domain_surfaces_have_stable_protocol_strings() {
         V08BrowserDomainAdapterProofSurface::AndroidBrowserDomainAdapterManual,
         V08BrowserDomainAdapterProofSurface::IosBrowserDomainAdapterManual,
     ];
-    let serialized = serde_json::to_value(surfaces).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized
             .as_array()
-            .unwrap_or_else(|| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES))
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
             .len(),
         14
     );
@@ -98,6 +97,34 @@ fn windows_app_control_states_serialize_as_contract_values() {
 
 #[test]
 fn browser_domain_read_model_serializes_claim_boundaries_for_service_preview() {
+    let entry = |proof_entry_id: &'static str,
+                 surface,
+                 platform,
+                 capability,
+                 evidence_kind,
+                 product_claim_state,
+                 adapter_execution_state| V08BrowserDomainAdapterProofEntry {
+        schema_version: crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        proof_entry_id: proof_entry_id.to_string(),
+        surface,
+        platform,
+        capability,
+        capability_status: V08BrowserDomainAdapterProofCapabilityStatus::ManualRequired,
+        evidence_kind,
+        product_claim_state,
+        adapter_execution_state,
+        linked_proof_commands: Vec::new(),
+        linked_proof_artifacts: Vec::new(),
+        manual_proof_requirements: vec![proof::REQUIREMENT_ROLLBACK.to_string()],
+        claim_boundary: proof::CLAIM_NETWORK_FILTER_MANUAL.to_string(),
+        fallback_behavior: proof::FALLBACK_NETWORK_FILTER_MANUAL.to_string(),
+        managed_exact_url_claimed: false,
+        unmanaged_exact_url_claimed: false,
+        network_domain_blocking_claimed: false,
+        broad_browser_control_claimed: false,
+        unsupported_os_claimed: false,
+        last_checked_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
+    };
     let read_model = V08BrowserDomainAdapterProofReadModel {
         schema_version: crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: proof::READ_MODEL_ID.to_string(),
@@ -134,14 +161,20 @@ fn browser_domain_read_model_serializes_claim_boundaries_for_service_preview() {
             ),
         ],
     };
-    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
     let reparsed = serde_json::from_value::<V08BrowserDomainAdapterProofReadModel>(serialized)
-        .unwrap_or_else(|error| {
-            unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-        });
-    let claim_counts = count_claim_states(&reparsed.entries);
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let claim_counts: BTreeMap<&'static str, usize> =
+        reparsed
+            .entries
+            .iter()
+            .fold(BTreeMap::new(), |mut counts, entry| {
+                *counts
+                    .entry(entry.product_claim_state.as_protocol_str())
+                    .or_default() += 1;
+                counts
+            });
 
     assert_eq!(reparsed.read_model_id, proof::READ_MODEL_ID);
     assert_eq!(claim_counts[proof::CLAIM_IMPLEMENTED_BOUNDARY], 1);
@@ -188,48 +221,4 @@ fn app_control_state() -> V08WindowsAppControlProofState {
         rollback_claimed: false,
         last_checked_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
     }
-}
-
-fn entry(
-    proof_entry_id: &str,
-    surface: V08BrowserDomainAdapterProofSurface,
-    platform: ParentPlatform,
-    capability: V08BrowserDomainAdapterProofCapabilityName,
-    evidence_kind: V08BrowserDomainAdapterProofEvidenceKind,
-    product_claim_state: V08BrowserDomainAdapterProofClaimState,
-    adapter_execution_state: V08BrowserDomainAdapterExecutionState,
-) -> V08BrowserDomainAdapterProofEntry {
-    V08BrowserDomainAdapterProofEntry {
-        schema_version: crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-        proof_entry_id: proof_entry_id.to_string(),
-        surface,
-        platform,
-        capability,
-        capability_status: V08BrowserDomainAdapterProofCapabilityStatus::ManualRequired,
-        evidence_kind,
-        product_claim_state,
-        adapter_execution_state,
-        linked_proof_commands: Vec::new(),
-        linked_proof_artifacts: Vec::new(),
-        manual_proof_requirements: vec![proof::REQUIREMENT_ROLLBACK.to_string()],
-        claim_boundary: proof::CLAIM_NETWORK_FILTER_MANUAL.to_string(),
-        fallback_behavior: proof::FALLBACK_NETWORK_FILTER_MANUAL.to_string(),
-        managed_exact_url_claimed: false,
-        unmanaged_exact_url_claimed: false,
-        network_domain_blocking_claimed: false,
-        broad_browser_control_claimed: false,
-        unsupported_os_claimed: false,
-        last_checked_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
-    }
-}
-
-fn count_claim_states(
-    entries: &[V08BrowserDomainAdapterProofEntry],
-) -> BTreeMap<&'static str, usize> {
-    entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts
-            .entry(entry.product_claim_state.as_protocol_str())
-            .or_default() += 1;
-        counts
-    })
 }

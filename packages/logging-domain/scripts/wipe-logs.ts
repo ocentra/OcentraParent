@@ -4,7 +4,7 @@ import {
   parseRunTypeOrDefault,
   parseSuiteTypeOrNull,
   parseTestLogScopeOrDefault,
-} from '@ocentra-parent/schema-domain/test-log/types';
+} from '../src/test-log/types';
 import { wipeNdjsonScope } from '../src/test-log/wipeNdjsonScope';
 
 function getFlag(name: string): string | undefined {

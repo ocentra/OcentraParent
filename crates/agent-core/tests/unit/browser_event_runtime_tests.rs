@@ -1,6 +1,8 @@
+use crate::test_text::{test_ok as ok, test_some as some, TestResult, TestText};
 use ocentra_eventing::{
-    delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
-    delivery::EventDeliveryRouteKind, topology::EventTopologyStatus,
+    delivery::validation::EventDeliveryDecisionState,
+    delivery::validation::EventDeliveryRequiredArtifact,
+    delivery::validation::EventDeliveryRouteKind, topology::EventTopologyStatus,
 };
 use ocentra_parent_agent_core::browser_event_runtime::action_handoff::{
     browser_runtime_action_intent_handoff_topology_manifest,
@@ -30,8 +32,6 @@ mod browser_event_runtime_social_provider_receipt_tests;
 #[path = "browser_event_runtime_tests/browser_event_runtime_stream_report_tests.rs"]
 mod browser_event_runtime_stream_report_tests;
 
-type TestResult = Result<(), String>;
-
 #[tokio::test]
 async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() -> TestResult {
     let report = ok(
@@ -56,7 +56,7 @@ async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() -> Te
         constants::browser::CAPABILITY_STATUS_AVAILABLE,
         constants::browser::CUSTODY_CHILD_DEVICE_LOCAL,
         constants::browser::QUERY_VISIBILITY_LIVE_LOCAL,
-        None,
+        None::<TestText>,
     )?;
     Ok(())
 }
@@ -77,7 +77,7 @@ async fn browser_runtime_chain_keeps_manual_required_rows_non_executing() -> Tes
         constants::browser::CAPABILITY_STATUS_AVAILABLE,
         constants::browser::CUSTODY_CHILD_DEVICE_LOCAL,
         constants::browser::QUERY_VISIBILITY_LIVE_LOCAL,
-        None,
+        None::<TestText>,
     )?;
 
     let policy_event = some(
@@ -212,7 +212,7 @@ async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_
     assert!(handoff
         .source_event_ref
         .as_deref()
-        .ok_or_else(|| "handoff source event ref missing".to_string())?
+        .ok_or_else(|| TestText::from_display("handoff source event ref missing"))?
         .ends_with(constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED));
     assert_eq!(handoff.dispatch_attempt_count, 0);
     assert_eq!(handoff.adapter_execution_count, 0);
@@ -570,18 +570,25 @@ fn browser_runtime_delivery_decision_keeps_current_routes_local_only() -> TestRe
     Ok(())
 }
 
-fn assert_all_payloads_preserve_browser_context(
+fn assert_all_payloads_preserve_browser_context<D: std::fmt::Display>(
     report: &BrowserRuntimeReport,
-    capability_status: &str,
-    custody_label: &str,
-    query_visibility: &str,
-    degraded_reason: Option<&str>,
+    capability_status: impl std::fmt::Display,
+    custody_label: impl std::fmt::Display,
+    query_visibility: impl std::fmt::Display,
+    degraded_reason: Option<D>,
 ) -> TestResult {
+    let capability_status = capability_status.to_string();
+    let custody_label = custody_label.to_string();
+    let query_visibility = query_visibility.to_string();
+    let degraded_reason = degraded_reason.map(|reason| reason.to_string());
     for payload in decoded_payloads(report)? {
         assert_eq!(payload.capability_status, capability_status);
         assert_eq!(payload.custody_label, custody_label);
         assert_eq!(payload.query_visibility, query_visibility);
-        assert_eq!(payload.degraded_reason.as_deref(), degraded_reason);
+        assert_eq!(
+            payload.degraded_reason.as_deref(),
+            degraded_reason.as_deref()
+        );
     }
     Ok(())
 }
@@ -596,7 +603,10 @@ fn assert_previous_refs_follow_published_events(report: &BrowserRuntimeReport) -
     for pair in decoded.windows(2) {
         let previous = &pair[0];
         let current = &pair[1];
-        assert_eq!(current.previous_phase_ref, Some(event_ref(previous)));
+        assert_eq!(
+            current.previous_phase_ref,
+            Some(event_ref(previous).to_string())
+        );
     }
     Ok(())
 }
@@ -615,17 +625,17 @@ fn non_executing_runtime_phases() -> Vec<BrowserRuntimePhase> {
         .collect()
 }
 
-fn event_ref(payload: &BrowserRuntimeEventPayload) -> String {
+fn event_ref(payload: &BrowserRuntimeEventPayload) -> TestText {
     let mut value = String::from(constants::browser::CORRELATION_BROWSER_RUNTIME_PREFIX);
     value.push_str(&payload.evidence_ref);
     value.push(constants::delimiter::HYPHEN);
     value.push_str(&payload.observed_at);
     value.push(constants::delimiter::HYPHEN);
     value.push_str(payload.phase.event_type());
-    value
+    TestText::from_display(value)
 }
 
-fn decoded_phases(report: &BrowserRuntimeReport) -> Result<Vec<BrowserRuntimePhase>, String> {
+fn decoded_phases(report: &BrowserRuntimeReport) -> Result<Vec<BrowserRuntimePhase>, TestText> {
     Ok(decoded_payloads(report)?
         .into_iter()
         .map(|payload| payload.phase)
@@ -634,7 +644,7 @@ fn decoded_phases(report: &BrowserRuntimeReport) -> Result<Vec<BrowserRuntimePha
 
 fn decoded_payloads(
     report: &BrowserRuntimeReport,
-) -> Result<Vec<BrowserRuntimeEventPayload>, String> {
+) -> Result<Vec<BrowserRuntimeEventPayload>, TestText> {
     report
         .stored_events
         .iter()
@@ -646,12 +656,4 @@ fn decoded_payloads(
             .map(|decoded| decoded.payload)
         })
         .collect()
-}
-
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| context.to_string())
 }

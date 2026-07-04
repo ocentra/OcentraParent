@@ -16,12 +16,11 @@ use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08
 use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08WindowsAppControlRuleIdentityKind;
 use ocentra_parent_agent_protocol::policy_constants;
 
+use super::test_text::{count_for_display, test_ok, TestResult, TestText};
 use crate::{
     enforcement_browser_domain_adapter_proof_read_model::v08_browser_domain_adapter_proof_read_model,
     test_invariants::require_some,
 };
-
-type TestResult = Result<(), String>;
 
 #[test]
 fn browser_domain_read_model_preserves_honest_adapter_states() {
@@ -166,11 +165,11 @@ fn browser_domain_read_model_does_not_upgrade_exact_or_domain_claims() {
 fn browser_domain_read_model_serializes_for_service_preview() -> TestResult {
     let read_model =
         v08_browser_domain_adapter_proof_read_model(policy_constants::TEST_EVALUATED_AT);
-    let serialized = ok(
+    let serialized = test_ok(
         serde_json::to_value(read_model),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
-    let reparsed = ok(
+    let reparsed = test_ok(
         serde_json::from_value::<V08BrowserDomainAdapterProofReadModel>(serialized),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
@@ -239,7 +238,9 @@ fn assert_surface_state(
 fn assert_app_control_readiness_states(states: &[V08WindowsAppControlProofState]) {
     let readiness_counts = states.iter().fold(BTreeMap::new(), |mut counts, state| {
         *counts
-            .entry(state.readiness_state.as_protocol_str())
+            .entry(TestText::from_display(
+                state.readiness_state.as_protocol_str(),
+            ))
             .or_default() += 1;
         counts
     });
@@ -304,30 +305,30 @@ fn app_control_state_for(
     )
 }
 
-fn count_claims(entries: &[V08BrowserDomainAdapterProofEntry]) -> BTreeMap<&'static str, usize> {
+fn count_claims(entries: &[V08BrowserDomainAdapterProofEntry]) -> BTreeMap<TestText, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
-            .entry(entry.product_claim_state.as_protocol_str())
+            .entry(TestText::from_display(
+                entry.product_claim_state.as_protocol_str(),
+            ))
             .or_default() += 1;
         counts
     })
 }
 
-fn claim_count(counts: &BTreeMap<&'static str, usize>, claim: &'static str) -> usize {
-    *counts.get(claim).unwrap_or(&0)
+fn claim_count(counts: &BTreeMap<TestText, usize>, claim: impl std::fmt::Display) -> usize {
+    count_for_display(counts, claim)
 }
 
-fn count_platforms(entries: &[V08BrowserDomainAdapterProofEntry]) -> BTreeMap<&'static str, usize> {
+fn count_platforms(entries: &[V08BrowserDomainAdapterProofEntry]) -> BTreeMap<TestText, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts.entry(entry.platform.as_protocol_str()).or_default() += 1;
+        *counts
+            .entry(TestText::from_display(entry.platform.as_protocol_str()))
+            .or_default() += 1;
         counts
     })
 }
 
-fn platform_count(counts: &BTreeMap<&'static str, usize>, platform: ParentPlatform) -> usize {
-    *counts.get(platform.as_protocol_str()).unwrap_or(&0)
-}
-
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
+fn platform_count(counts: &BTreeMap<TestText, usize>, platform: ParentPlatform) -> usize {
+    count_for_display(counts, platform.as_protocol_str())
 }

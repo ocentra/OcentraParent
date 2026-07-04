@@ -13,14 +13,16 @@ use std::sync::Mutex;
 use tokio::{sync::Notify, task::yield_now};
 
 use crate::{
-    AggregateKey, DeadLetterReason, DispatchMode, DomainEvent, EventBus, EventClock, EventContract,
-    EventQueuePolicy, EventResponseContract, EventType, EventingError, HandlerExecutionPolicy,
-    HandlerOutcome, IdempotencyKey, ManualEventClock, RequestCompletionOutcome, RequestEvent,
-    RequestId, RequestOptions, SchemaVersion,
+    AggregateKey, DispatchMode, DomainEvent, EventBus, EventClock, EventContract, EventQueuePolicy,
+    EventResponseContract, EventType, EventingError, HandlerExecutionPolicy, IdempotencyKey,
+    ManualEventClock, RequestCompletionOutcome, RequestEvent, RequestId, RequestOptions,
+    SchemaVersion,
 };
+use ocentra_eventing::bus::reports::dead_letter::DeadLetterReason;
+use ocentra_eventing::bus::reports::handler::HandlerOutcome;
 
 use super::fixtures::{
-    metadata, subscriber, subscriber_for_event, test_event, TEST_LABEL, TEST_TARGET,
+    metadata, subscriber, subscriber_for_event, test_event, TestText, TEST_LABEL, TEST_TARGET,
 };
 
 const CLOCK_REQUEST_EVENT_TYPE: &str = "eventing.clock.request";
@@ -58,12 +60,18 @@ async fn manual_clock_expires_queued_ttl_without_wall_clock_sleep() {
         .expect_value("ttl policy is valid");
     let bus = EventBus::with_queue_policy_and_clock(policy, clock.shared());
 
-    bus.publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
-        .await
-        .expect_value("event queues");
+    bus.publish(
+        test_event(TestText(TEST_LABEL.to_owned())),
+        metadata(TestText(TEST_TARGET.to_owned())),
+    )
+    .await
+    .expect_value("event queues");
     clock.advance(Duration::from_millis(11));
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
-        subscriber("manual-clock-subscriber", TEST_TARGET),
+        subscriber(
+            TestText("manual-clock-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
         |_| async { Ok(()) },
     )
     .await
@@ -85,7 +93,10 @@ async fn manual_clock_dead_letters_past_deadline_without_dispatch() {
     let attempts = Arc::new(AtomicUsize::new(0));
     let handler_attempts = Arc::clone(&attempts);
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
-        subscriber("manual-deadline-subscriber", TEST_TARGET),
+        subscriber(
+            TestText("manual-deadline-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
         move |_| {
             let handler_attempts = Arc::clone(&handler_attempts);
             async move {
@@ -104,8 +115,8 @@ async fn manual_clock_dead_letters_past_deadline_without_dispatch() {
 
     let report = bus
         .publish(
-            test_event(TEST_LABEL),
-            metadata(TEST_TARGET).with_deadline(deadline),
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())).with_deadline(deadline),
         )
         .await
         .expect_value("deadline publish reports");
@@ -129,7 +140,10 @@ async fn manual_clock_drives_handler_timeout_retries_without_wall_clock_sleep() 
     let handler_clock = clock.clone();
     let handler_attempts = Arc::clone(&attempts);
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
-        subscriber("manual-timeout-subscriber", TEST_TARGET),
+        subscriber(
+            TestText("manual-timeout-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
         move |_| {
             let handler_clock = handler_clock.clone();
             let handler_attempts = Arc::clone(&handler_attempts);
@@ -145,7 +159,10 @@ async fn manual_clock_drives_handler_timeout_retries_without_wall_clock_sleep() 
     let publish_bus = bus.clone();
     let publish = tokio::spawn(async move {
         publish_bus
-            .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+            .publish(
+                test_event(TestText(TEST_LABEL.to_owned())),
+                metadata(TestText(TEST_TARGET.to_owned())),
+            )
             .await
     });
 
@@ -174,7 +191,10 @@ async fn manual_clock_stops_retry_when_deadline_expires_between_attempts() {
     let handler_clock = clock.clone();
     let handler_attempts = Arc::clone(&attempts);
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
-        subscriber("manual-retry-deadline-subscriber", TEST_TARGET),
+        subscriber(
+            TestText("manual-retry-deadline-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
         move |_| {
             let handler_clock = handler_clock.clone();
             let handler_attempts = Arc::clone(&handler_attempts);
@@ -197,8 +217,8 @@ async fn manual_clock_stops_retry_when_deadline_expires_between_attempts() {
     let publish = tokio::spawn(async move {
         publish_bus
             .publish(
-                test_event(TEST_LABEL),
-                metadata(TEST_TARGET).with_deadline(deadline),
+                test_event(TestText(TEST_LABEL.to_owned())),
+                metadata(TestText(TEST_TARGET.to_owned())).with_deadline(deadline),
             )
             .await
     });
@@ -230,9 +250,9 @@ async fn manual_clock_drives_request_timeout_and_late_completion_without_wall_cl
     let handler_late_sleep_registered = Arc::clone(&late_sleep_registered);
     bus.subscribe::<ClockRequestEvent, _, _>(
         subscriber_for_event(
-            "manual-request-subscriber",
-            TEST_TARGET,
-            CLOCK_REQUEST_EVENT_TYPE,
+            TestText("manual-request-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(CLOCK_REQUEST_EVENT_TYPE.to_owned()),
         ),
         move |context| {
             let handler_clock = handler_clock.clone();
@@ -263,7 +283,7 @@ async fn manual_clock_drives_request_timeout_and_late_completion_without_wall_cl
         request_bus
             .publish_request(
                 ClockRequestEvent::new(),
-                metadata(TEST_TARGET),
+                metadata(TestText(TEST_TARGET.to_owned())),
                 RequestOptions::with_timeout(Duration::from_millis(5))
                     .expect_value("request timeout is valid"),
             )

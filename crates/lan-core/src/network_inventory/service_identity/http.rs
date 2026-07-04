@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use ocentra_parent_agent_protocol::constants;
 use rustls::pki_types::CertificateDer;
 use x509_parser::prelude::parse_x509_certificate;

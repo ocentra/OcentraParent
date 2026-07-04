@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::fs::{read_to_string, remove_file};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -21,6 +24,7 @@ use ocentra_parent_agent_service::test_support::handle_local_command_text_for_te
 use crate::test_invariants::{
     require_json_decode, require_log_string_field, require_ok, require_some, serialize_test_json,
 };
+use crate::test_text::TestText;
 
 use super::{
     app_game_child_runtime_transport_receipt_payload::app_game_child_runtime_transport_receipt_read_model_from_service_model,
@@ -32,9 +36,9 @@ const PERSISTED_SETUP_EVENT_COUNT: u64 = 14;
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
     let body = serialize_test_json(&command_envelope());
-    let event = handle_local_command_text_for_test(&body).await;
+    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let result = request_payload(
-        &event.payload[constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST],
+        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST, constants::error::AGENT_EVENT_SERIALIZES),
     );
 
     assert_eq!(
@@ -108,7 +112,7 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         )
         .await;
     let result = request_payload(
-        &event.payload[constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST],
+        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST, constants::error::AGENT_EVENT_SERIALIZES),
     );
 
     let store = require_ok(
@@ -841,11 +845,12 @@ fn request_payload(value: &LogFieldValue) -> AppGameTimerParentPreferenceSetupRe
     require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-fn temp_path(suffix: &str) -> std::path::PathBuf {
+fn temp_path(suffix: TestText) -> std::path::PathBuf {
+    let suffix = suffix;
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(suffix.as_ref());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST);
     name.push(constants::delimiter::HYPHEN);

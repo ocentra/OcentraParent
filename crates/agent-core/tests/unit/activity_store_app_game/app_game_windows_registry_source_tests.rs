@@ -25,11 +25,11 @@ use super::{
 fn registry_inventory_source_builds_inventory_rows_without_raw_paths_or_use_claims() {
     let root = temp_registry_root(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX);
     cleanup_registry_root(&root);
-    write_registry_export(&registry_export_path(&root), registry_export());
+    write_registry_export(registry_export_path(root.clone()), registry_export());
 
     let records = live_windows_registry_inventory_records_from_roots(
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        std::slice::from_ref(&root),
+        std::slice::from_ref(&root.0),
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     );
     let rows = windows_installed_inventory_rows_from_records(&records);
@@ -69,7 +69,7 @@ fn registry_inventory_source_respects_limit_before_journal_projection() {
     let root = temp_registry_root(constants::activity_store::TEST_CAPTURE_REPLAY_STORE_SUFFIX);
     cleanup_registry_root(&root);
     write_registry_export(
-        &registry_export_path(&root),
+        registry_export_path(root.clone()),
         registry_export_with_two_apps(),
     );
 
@@ -77,10 +77,10 @@ fn registry_inventory_source_respects_limit_before_journal_projection() {
         constants::peer::LOCAL_DEV_AGENT,
         std::env::consts::OS,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        std::slice::from_ref(&root),
+        std::slice::from_ref(&root.0),
         1,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(events.len(), 1);
     cleanup_registry_root(&root);
@@ -90,22 +90,22 @@ fn registry_inventory_source_respects_limit_before_journal_projection() {
 fn registry_inventory_journal_event_replays_into_sqlite_read_model() {
     let root = temp_registry_root(constants::activity_store::TEST_CAPTURE_APP_GAME_STORE_SUFFIX);
     cleanup_registry_root(&root);
-    write_registry_export(&registry_export_path(&root), registry_export());
+    write_registry_export(registry_export_path(root.clone()), registry_export());
     let events = live_windows_registry_inventory_journal_events_from_roots(
         constants::peer::LOCAL_DEV_AGENT,
         std::env::consts::OS,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        std::slice::from_ref(&root),
+        std::slice::from_ref(&root.0),
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let (store, lines) = append_and_replay(&events);
     let model = app_game_journal_sqlite_read_model(
         store.connection_for_test(),
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(lines.len(), 1);
     assert_eq!(model.inventory_returned, 1);
@@ -135,7 +135,7 @@ fn registry_inventory_default_source_is_optional_on_unsupported_platforms() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     for event in events {
         assert_eq!(event.evidence.len(), 0);
@@ -147,13 +147,13 @@ fn registry_inventory_source_skips_hidden_system_components() {
     let root = temp_registry_root(constants::activity_store::TEST_STORE_SUFFIX);
     cleanup_registry_root(&root);
     write_registry_export(
-        &registry_export_path(&root),
+        registry_export_path(root.clone()),
         hidden_system_component_export(),
     );
 
     let records = live_windows_registry_inventory_records_from_roots(
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        std::slice::from_ref(&root),
+        std::slice::from_ref(&root.0),
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     );
 

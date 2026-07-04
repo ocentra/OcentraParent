@@ -1,7 +1,7 @@
 use ocentra_eventing::{
-    delivery::EventDeliveryDecisionProof,
-    delivery::EventDeliveryRequiredArtifact,
-    delivery::EventDeliveryRouteKind,
+    delivery::validation::EventDeliveryDecisionProof,
+    delivery::validation::EventDeliveryRequiredArtifact,
+    delivery::validation::EventDeliveryRouteKind,
     ids::{CorrelationId, EventId, EventType, SourceComponent},
     replay::ReplayMode,
 };

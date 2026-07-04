@@ -5,10 +5,16 @@
 //! This crate owns generic custody/delete/export decisions. Evidence crates own
 //! evidence identity; feature crates own feature-specific interpretation.
 
-use ocentra_eventing::envelope::{DomainEvent, EventContract};
-use ocentra_eventing::error::EventingError;
-use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
+
+#[path = "storage_custody_decision.rs"]
+mod storage_custody_decision;
+#[path = "storage_custody_event_impls.rs"]
+mod storage_custody_event_impls;
+#[path = "storage_custody_events.rs"]
+mod storage_custody_events;
+#[path = "storage_custody_text_id.rs"]
+mod storage_custody_text_id;
 
 pub const CRATE_NAME: &str = "ocentra-storage-custody-core";
 const STORAGE_CUSTODY_SCHEMA_VERSION: u16 = 1;
@@ -113,51 +119,83 @@ pub struct StorageCustodyActionPlan {
     pub audit_state: StorageAuditState,
 }
 
-macro_rules! storage_custody_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct StorageCustodyDecisionId(String);
 
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
+impl StorageCustodyDecisionId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, ocentra_eventing::error::EventingError> {
+        Ok(Self(storage_custody_text_id::parse_nonempty_text_id(
+            "storage_custody.decision_id",
+            value,
+        )?))
+    }
 
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
-storage_custody_text_id!(StorageCustodyDecisionId, "storage_custody.decision_id");
-storage_custody_text_id!(StorageCustodyActionPlanId, "storage_custody.action_plan_id");
-storage_custody_text_id!(StorageCustodyAggregateId, "storage_custody.aggregate_id");
+impl TryFrom<String> for StorageCustodyDecisionId {
+    type Error = ocentra_eventing::error::EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<StorageCustodyDecisionId> for String {
+    fn from(value: StorageCustodyDecisionId) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for StorageCustodyDecisionId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct StorageCustodyActionPlanId(String);
+
+impl StorageCustodyActionPlanId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, ocentra_eventing::error::EventingError> {
+        Ok(Self(storage_custody_text_id::parse_nonempty_text_id(
+            "storage_custody.action_plan_id",
+            value,
+        )?))
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for StorageCustodyActionPlanId {
+    type Error = ocentra_eventing::error::EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<StorageCustodyActionPlanId> for String {
+    fn from(value: StorageCustodyActionPlanId) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for StorageCustodyActionPlanId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct StorageCustodyAggregateId(String);
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct StorageCustodyDecisionRecordedEvent {
@@ -175,63 +213,8 @@ pub struct StorageCustodyActionPlannedEvent {
     pub action_plan: StorageCustodyActionPlan,
 }
 
-impl DomainEvent for StorageCustodyDecisionRecordedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        storage_custody_event_contract(STORAGE_CUSTODY_DECISION_RECORDED_EVENT_TYPE)
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(self.aggregate_id.as_str())
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        storage_custody_idempotency_key(
-            STORAGE_CUSTODY_DECISION_RECORDED_EVENT_TYPE,
-            &self.decision_id,
-        )
-    }
-}
-
-impl DomainEvent for StorageCustodyActionPlannedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        storage_custody_event_contract(STORAGE_CUSTODY_ACTION_PLANNED_EVENT_TYPE)
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(self.aggregate_id.as_str())
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        storage_custody_idempotency_key(
-            STORAGE_CUSTODY_ACTION_PLANNED_EVENT_TYPE,
-            &self.action_plan_id,
-        )
-    }
-}
-
 pub fn evaluate_storage_custody(input: StorageCustodyInput) -> StorageCustodyDecision {
-    let delete_local_payload = input.retention_window_state == RetentionWindowState::Expired;
-    let create_parent_export_packet = input.parent_export_state == ParentExportState::Requested;
-    let remote_upload_allowed = input.remote_sync_state == RemoteSyncState::Enabled
-        && input.location == StorageCustodyLocation::ParentOwnedRemote;
-
-    StorageCustodyDecision {
-        local_payload_retention_action: if delete_local_payload {
-            LocalPayloadRetentionAction::Delete
-        } else {
-            LocalPayloadRetentionAction::Retain
-        },
-        parent_export_packet_state: if create_parent_export_packet {
-            ParentExportPacketState::Create
-        } else {
-            ParentExportPacketState::DoNotCreate
-        },
-        remote_upload_state: if remote_upload_allowed {
-            RemoteUploadState::Allowed
-        } else {
-            RemoteUploadState::Blocked
-        },
-    }
+    storage_custody_decision::evaluate_storage_custody(input)
 }
 
 pub fn storage_custody_decision_recorded_event(
@@ -239,61 +222,19 @@ pub fn storage_custody_decision_recorded_event(
     decision_id: StorageCustodyDecisionId,
     input: StorageCustodyInput,
 ) -> StorageCustodyDecisionRecordedEvent {
-    StorageCustodyDecisionRecordedEvent {
+    storage_custody_events::storage_custody_decision_recorded_event(
         aggregate_id,
         decision_id,
         input,
-        decision: evaluate_storage_custody(input),
-    }
+    )
 }
 
 pub fn plan_storage_custody_actions(input: StorageCustodyInput) -> StorageCustodyActionPlan {
-    let decision = evaluate_storage_custody(input);
-    StorageCustodyActionPlan {
-        local_payload_retention_action: decision.local_payload_retention_action,
-        tombstone_state: if decision.local_payload_retention_action
-            == LocalPayloadRetentionAction::Delete
-        {
-            StorageTombstoneState::Write
-        } else {
-            StorageTombstoneState::DoNotWrite
-        },
-        parent_export_packet_state: decision.parent_export_packet_state,
-        remote_upload_state: decision.remote_upload_state,
-        audit_state: StorageAuditState::Record,
-    }
+    storage_custody_events::plan_storage_custody_actions(input)
 }
 
 pub fn storage_custody_action_planned_event(
     event: StorageCustodyDecisionRecordedEvent,
 ) -> StorageCustodyActionPlannedEvent {
-    StorageCustodyActionPlannedEvent {
-        aggregate_id: event.aggregate_id,
-        action_plan_id: StorageCustodyActionPlanId(storage_custody_action_ref(&event.decision_id)),
-        source_decision_id: event.decision_id,
-        action_plan: plan_storage_custody_actions(event.input),
-    }
-}
-
-fn storage_custody_event_contract(event_type: &str) -> Result<EventContract, EventingError> {
-    Ok(EventContract::new(
-        EventType::parse(event_type)?,
-        SchemaVersion::new(STORAGE_CUSTODY_SCHEMA_VERSION)?,
-    ))
-}
-
-fn storage_custody_idempotency_key(
-    event_type: &str,
-    unique_ref: impl std::fmt::Display,
-) -> Result<IdempotencyKey, EventingError> {
-    IdempotencyKey::parse(format!(
-        "{}{}{}",
-        event_type, STORAGE_CUSTODY_IDEMPOTENCY_SEPARATOR, unique_ref
-    ))
-}
-
-fn storage_custody_action_ref(decision_id: &StorageCustodyDecisionId) -> String {
-    let mut value = String::from(STORAGE_CUSTODY_ACTION_PREFIX);
-    value.push_str(decision_id.as_str());
-    value
+    storage_custody_events::storage_custody_action_planned_event(event)
 }

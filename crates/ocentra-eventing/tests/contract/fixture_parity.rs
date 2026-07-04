@@ -1,3 +1,4 @@
+use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{
     AggregateKey, CausationId, CorrelationId, EventCustody, EventId, EventNamespace, EventType,
@@ -104,18 +105,20 @@ fn rust_newtypes_accept_shared_valid_parity_fixture() {
 #[test]
 fn rust_newtypes_reject_shared_invalid_text_fixture_values() {
     for invalid in fixture().invalid_text {
-        assert!(
-            rejects_text_scalar(&invalid.field, invalid.value),
-            "expected Rust newtype rejection for {}",
-            invalid.field
-        );
+        let field = invalid.field;
+        let value = invalid.value;
+        let rejected = invalid_text_rejects(FixtureField(field.clone()), FixtureText(value));
+        assert!(rejected, "expected Rust newtype rejection for {}", field);
     }
 }
 
 #[test]
 fn rust_schema_version_rejects_shared_invalid_versions() {
     for value in fixture().invalid_schema_versions {
-        assert!(SchemaVersion::new(value).is_err());
+        assert_eq!(
+            SchemaVersion::new(value),
+            Err(EventingError::InvalidVersion)
+        );
     }
 }
 
@@ -123,25 +126,107 @@ fn fixture() -> ParityFixture {
     serde_json::from_str(PARITY_FIXTURE).expect_value("parity fixture parses")
 }
 
-fn rejects_text_scalar(field: &str, value: String) -> bool {
-    match field {
-        EVENT_TYPE_FIELD => EventType::parse(value).is_err(),
-        EVENT_NAMESPACE_FIELD => EventNamespace::parse(value).is_err(),
-        EVENT_ID_FIELD => EventId::parse(value).is_err(),
-        CORRELATION_ID_FIELD => CorrelationId::parse(value).is_err(),
-        CAUSATION_ID_FIELD => CausationId::parse(value).is_err(),
-        REQUEST_ID_FIELD => RequestId::parse(value).is_err(),
-        JOURNAL_HASH_FIELD => JournalHash::parse(value).is_err(),
-        AGGREGATE_KEY_FIELD => AggregateKey::parse(value).is_err(),
-        IDEMPOTENCY_KEY_FIELD => IdempotencyKey::parse(value).is_err(),
-        SUBSCRIBER_ID_FIELD => SubscriberId::parse(value).is_err(),
-        TARGET_HANDLER_FIELD => TargetHandler::parse(value).is_err(),
-        EVENT_CUSTODY_FIELD => EventCustody::parse(value).is_err(),
-        RUNTIME_ROLE_FIELD => RuntimeRole::parse(value).is_err(),
-        SOURCE_SERVICE_FIELD => SourceService::parse(value).is_err(),
-        SOURCE_COMPONENT_FIELD => SourceComponent::parse(value).is_err(),
-        RUNTIME_INSTANCE_ID_FIELD => RuntimeInstanceId::parse(value).is_err(),
-        RECORDED_AT_FIELD => RecordedAt::parse(value).is_err(),
-        _ => false,
-    }
+#[derive(Clone)]
+struct FixtureField(String);
+
+#[derive(Clone)]
+struct FixtureText(String);
+
+type TextParser = fn(FixtureText) -> Result<(), EventingError>;
+
+fn invalid_text_rejects(field: FixtureField, value: FixtureText) -> bool {
+    invalid_text_checkers()
+        .iter()
+        .find(|(candidate, _)| candidate.0.as_str() == field.0.as_str())
+        .is_some_and(|(_, parser)| parser(value).is_err())
 }
+
+fn invalid_text_checkers() -> [(FixtureField, TextParser); 17] {
+    [
+        (FixtureField(EVENT_TYPE_FIELD.to_owned()), parse_event_type),
+        (
+            FixtureField(EVENT_NAMESPACE_FIELD.to_owned()),
+            parse_event_namespace,
+        ),
+        (FixtureField(EVENT_ID_FIELD.to_owned()), parse_event_id),
+        (
+            FixtureField(CORRELATION_ID_FIELD.to_owned()),
+            parse_correlation_id,
+        ),
+        (
+            FixtureField(CAUSATION_ID_FIELD.to_owned()),
+            parse_causation_id,
+        ),
+        (FixtureField(REQUEST_ID_FIELD.to_owned()), parse_request_id),
+        (
+            FixtureField(JOURNAL_HASH_FIELD.to_owned()),
+            parse_journal_hash,
+        ),
+        (
+            FixtureField(AGGREGATE_KEY_FIELD.to_owned()),
+            parse_aggregate_key,
+        ),
+        (
+            FixtureField(IDEMPOTENCY_KEY_FIELD.to_owned()),
+            parse_idempotency_key,
+        ),
+        (
+            FixtureField(SUBSCRIBER_ID_FIELD.to_owned()),
+            parse_subscriber_id,
+        ),
+        (
+            FixtureField(TARGET_HANDLER_FIELD.to_owned()),
+            parse_target_handler,
+        ),
+        (
+            FixtureField(EVENT_CUSTODY_FIELD.to_owned()),
+            parse_event_custody,
+        ),
+        (
+            FixtureField(RUNTIME_ROLE_FIELD.to_owned()),
+            parse_runtime_role,
+        ),
+        (
+            FixtureField(SOURCE_SERVICE_FIELD.to_owned()),
+            parse_source_service,
+        ),
+        (
+            FixtureField(SOURCE_COMPONENT_FIELD.to_owned()),
+            parse_source_component,
+        ),
+        (
+            FixtureField(RUNTIME_INSTANCE_ID_FIELD.to_owned()),
+            parse_runtime_instance_id,
+        ),
+        (
+            FixtureField(RECORDED_AT_FIELD.to_owned()),
+            parse_recorded_at,
+        ),
+    ]
+}
+
+macro_rules! text_parser {
+    ($name:ident, $ty:ty) => {
+        fn $name(value: FixtureText) -> Result<(), EventingError> {
+            <$ty>::parse(value.0.as_str()).map(|_| ())
+        }
+    };
+}
+
+text_parser!(parse_event_type, EventType);
+text_parser!(parse_event_namespace, EventNamespace);
+text_parser!(parse_event_id, EventId);
+text_parser!(parse_correlation_id, CorrelationId);
+text_parser!(parse_causation_id, CausationId);
+text_parser!(parse_request_id, RequestId);
+text_parser!(parse_journal_hash, JournalHash);
+text_parser!(parse_aggregate_key, AggregateKey);
+text_parser!(parse_idempotency_key, IdempotencyKey);
+text_parser!(parse_subscriber_id, SubscriberId);
+text_parser!(parse_target_handler, TargetHandler);
+text_parser!(parse_event_custody, EventCustody);
+text_parser!(parse_runtime_role, RuntimeRole);
+text_parser!(parse_source_service, SourceService);
+text_parser!(parse_source_component, SourceComponent);
+text_parser!(parse_runtime_instance_id, RuntimeInstanceId);
+text_parser!(parse_recorded_at, RecordedAt);

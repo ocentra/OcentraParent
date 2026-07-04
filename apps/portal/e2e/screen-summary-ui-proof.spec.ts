@@ -42,7 +42,7 @@ if (process.env['SCREEN_PARENT_PORTAL_SUMMARY_UI_PROOF'] === '1') {
 
 async function refreshScreenReadModel(page: Page): Promise<void> {
   await page.goto('/#/commands');
-  await expect(page.getByRole('heading', { exact: true, name: 'Controls' })).toBeVisible({
+  await expect(page.getByRole('heading', { exact: true, name: 'Device controls' })).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });
   const command = page.getByRole('button', { exact: true, name: 'Refresh activity screen' });

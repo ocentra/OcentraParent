@@ -1,5 +1,6 @@
 use std::{path::PathBuf, time::Duration};
 
+use ocentra_eventing::bus::reports::handler::EventMetricsSnapshot;
 use ocentra_eventing::{
     bus::subscriber::SubscriptionReport, bus::EventBus, error::EventingError,
     request::RequestOptions, request::RequestReport,
@@ -102,7 +103,7 @@ impl TrackingConfigUpdateEventFlow {
         })
     }
 
-    pub async fn metrics_snapshot(&self) -> ocentra_eventing::bus::reports::EventMetricsSnapshot {
+    pub async fn metrics_snapshot(&self) -> EventMetricsSnapshot {
         self.bus.metrics_snapshot().await
     }
 

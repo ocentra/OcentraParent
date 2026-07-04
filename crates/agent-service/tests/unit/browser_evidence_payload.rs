@@ -1,5 +1,7 @@
-#[path = "../../src/browser_evidence_payload.rs"]
-mod browser_evidence_payload;
+#[macro_use]
+#[path = "../support/unit_root_basic_harness.rs"]
+mod unit_root_basic_harness;
+declare_agent_service_unit_root_basic_harness!();
 
 use ocentra_parent_agent_protocol::browser::{
     BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
@@ -18,11 +20,11 @@ fn browser_evidence_payload_uses_degraded_reason_field() {
     let payload = browser_evidence_payload::browser_evidence_read_model_payload(&read_model());
 
     assert_eq!(
-        payload[constants::field::DEGRADED_REASON],
+        crate::test_invariants::log_field(&payload, constants::field::DEGRADED_REASON, constants::error::AGENT_EVENT_SERIALIZES),
         LogFieldValue::String(constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS.to_string())
     );
     assert_eq!(
-        payload[constants::field::ACTIVE_PROOF_SOURCE],
+        crate::test_invariants::log_field(&payload, constants::field::ACTIVE_PROOF_SOURCE, constants::error::AGENT_EVENT_SERIALIZES),
         LogFieldValue::String(constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY.to_string())
     );
     assert_eq!(payload.get(constants::field::REASON), None);

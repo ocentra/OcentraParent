@@ -2,10 +2,10 @@ use ocentra_parent_agent_protocol::enforcement::{
     EnforcementAction, EnforcementCapabilityState, EnforcementMode,
 };
 
-use super::{
-    enforcement_action, enforcement_mode, validate_intent_decision, EnforcementAdapterRequest,
-    EnforcementBoundaryInput, EnforcementBoundaryRejection,
-};
+use super::enforcement_action::enforcement_action;
+use super::enforcement_mode::enforcement_mode;
+use super::enforcement_validation::validate_intent_decision;
+use super::{EnforcementAdapterRequest, EnforcementBoundaryInput, EnforcementBoundaryRejection};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EnforcementAuthorizationOutcome {

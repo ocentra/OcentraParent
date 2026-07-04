@@ -20,9 +20,8 @@ fn browser_inventory_read_model_serializes_managed_target_list_boundary() {
         rows: vec![managed_edge_inventory_row()],
     };
 
-    let serialized = serde_json::to_value(read_model).unwrap_or_else(|error| {
-        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], BROWSER_EVIDENCE_SCHEMA_VERSION);
     assert_eq!(

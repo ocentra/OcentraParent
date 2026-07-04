@@ -49,7 +49,7 @@ struct FireAndForgetEvent {
 
 impl DomainEvent for FireAndForgetEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
-        event_contract(FIRE_AND_FORGET_EVENT_TYPE)
+        event_contract(TestText(FIRE_AND_FORGET_EVENT_TYPE.to_owned()))
     }
 
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
@@ -69,7 +69,7 @@ struct AwaitableRequestEvent {
 
 impl DomainEvent for AwaitableRequestEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
-        event_contract(REQUEST_EVENT_TYPE)
+        event_contract(TestText(REQUEST_EVENT_TYPE.to_owned()))
     }
 
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
@@ -183,17 +183,26 @@ fn awaitable_response_event() -> AwaitableResponseEvent {
 }
 
 fn fire_subscriber() -> EventSubscriber {
-    subscriber(FIRE_SUBSCRIBER_ID, FIRE_AND_FORGET_EVENT_TYPE)
+    subscriber(
+        TestText(FIRE_SUBSCRIBER_ID.to_owned()),
+        TestText(FIRE_AND_FORGET_EVENT_TYPE.to_owned()),
+    )
 }
 
 fn request_subscriber() -> EventSubscriber {
-    subscriber(REQUEST_SUBSCRIBER_ID, REQUEST_EVENT_TYPE)
+    subscriber(
+        TestText(REQUEST_SUBSCRIBER_ID.to_owned()),
+        TestText(REQUEST_EVENT_TYPE.to_owned()),
+    )
 }
 
-fn subscriber(id: &'static str, event_type: &'static str) -> EventSubscriber {
+#[derive(Clone)]
+pub(super) struct TestText(pub(super) String);
+
+fn subscriber(id: TestText, event_type: TestText) -> EventSubscriber {
     EventSubscriber::new(
-        SubscriberId::parse(id).expect_value(PARSE_EXPECTATION),
-        EventType::parse(event_type).expect_value(PARSE_EXPECTATION),
+        SubscriberId::parse(id.0).expect_value(PARSE_EXPECTATION),
+        EventType::parse(event_type.0).expect_value(PARSE_EXPECTATION),
         TargetHandler::parse(TARGET_HANDLER).expect_value(PARSE_EXPECTATION),
     )
 }
@@ -218,9 +227,9 @@ fn aggregate_key() -> Result<AggregateKey, EventingError> {
     AggregateKey::parse(AGGREGATE_KEY)
 }
 
-fn event_contract(event_type: &'static str) -> Result<EventContract, EventingError> {
+fn event_contract(event_type: TestText) -> Result<EventContract, EventingError> {
     Ok(EventContract::new(
-        EventType::parse(event_type)?,
+        EventType::parse(event_type.0)?,
         SchemaVersion::new(SCHEMA_VERSION)?,
     ))
 }

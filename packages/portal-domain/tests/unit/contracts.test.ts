@@ -1,11 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
+  PortalAgentCommand as AgentCommand,
+  PortalAgentEvent as AgentEvent,
+} from '../../src/portal-contract-adapter';
+import { decodePortalClipboardText } from '../../src/portal-contract-text-contracts';
 import {
   PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
   PARENT_PORTAL_CONTENT,
   PARENT_PORTAL_NAV_LABELS,
   PARENT_PORTAL_ROUTE_CONTEXT,
+  PortalAgentCommand,
+  PortalAgentLanHouseholdActionKind,
+  PortalAgentLanHouseholdDeviceKindValues,
+  PortalAgentProtocolField,
+  PortalAgentTargetDefaults,
   PortalClipboard,
   PortalConnectionState,
   PortalDetails,
@@ -30,7 +39,6 @@ import {
   PortalTiming,
   PortalTrackingStatusRoutes,
   PortalUnifiedChrome,
-  decodePortalClipboardText,
   isPortalAiRuntimeRoute,
   isPortalAppGameParentSurfaceRoute,
   isPortalBrowserParentSurfaceRoute,
@@ -639,6 +647,14 @@ describe('portal shared constants', () => {
     expect(PortalDetails.UnmanagedFallbackAction).toBe('Unmanaged fallback action');
     expect(PortalDetails.ParentRuleContextReferences).toBe('Parent rule context references');
     expect(PortalDetails.ParentRuleContextRefIds).toBe('Parent rule context ref IDs');
+  });
+
+  it('generated agent protocol bridge: exposes defaults and LAN values through contracts', () => {
+    expect(PortalAgentCommand.LanPairingBrowserDiscoveryScan).toBe(AgentCommand.LanPairingBrowserDiscoveryScan);
+    expect(PortalAgentProtocolField.LanRouteId).toBe('routeId');
+    expect(PortalAgentTargetDefaults.LocalNetworkWindowsAgent.route).toBe('local-network');
+    expect(PortalAgentLanHouseholdActionKind.Trust).toBe('trust');
+    expect(PortalAgentLanHouseholdDeviceKindValues).toContain('router');
   });
 
   it('PortalDetails: exposes browser intervention proof labels', () => {

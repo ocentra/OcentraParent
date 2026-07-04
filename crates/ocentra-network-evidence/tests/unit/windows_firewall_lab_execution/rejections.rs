@@ -1,9 +1,14 @@
-use crate::{
-    prove_network_windows_firewall_lab_execution, NetworkWindowsFirewallAdapterProofInput,
-    NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallLabCommandEvidence,
-    NetworkWindowsFirewallLabCommandKind, NetworkWindowsFirewallLabExecutionError,
-    NetworkWindowsFirewallLabExecutionInput, NetworkWindowsFirewallLabUnsupportedClaims,
-    NetworkWindowsFirewallTargetKind,
+use ocentra_network_evidence::{
+    windows_firewall_adapter::{
+        NetworkWindowsFirewallAdapterProofInput, NetworkWindowsFirewallCapabilityState,
+        NetworkWindowsFirewallTargetKind,
+    },
+    windows_firewall_lab_execution::prove_network_windows_firewall_lab_execution,
+    windows_firewall_lab_execution::types::{
+        NetworkWindowsFirewallLabCommandEvidence, NetworkWindowsFirewallLabCommandKind,
+        NetworkWindowsFirewallLabExecutionError, NetworkWindowsFirewallLabExecutionInput,
+        NetworkWindowsFirewallLabUnsupportedClaims,
+    },
 };
 
 use super::fixtures::{

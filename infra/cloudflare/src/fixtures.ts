@@ -1,13 +1,11 @@
 import { getMissingBindings, resolveAuthAdapterMode, type Env } from './env.js';
-import { BillingAccountRuntimeStatusRowSchema } from '../../../packages/billing-domain/src/billing-account-runtime-boundary.js';
 import {
+  BillingAccountRuntimeStatusRowSchema,
   BillingReferralInviteResultSchema,
   BillingReferralSummarySchema,
   type BillingReferralInviteResult,
   type BillingReferralInviteState,
   type BillingReferralSummary,
-} from '../../../packages/billing-domain/src/billing-referral-boundary.js';
-import {
   BillingSupportAdminAccountSummarySchema,
   BillingSupportAdminAuditEventSummarySchema,
   BillingSupportAdminDisputeSummarySchema,
@@ -18,13 +16,11 @@ import {
   type BillingSupportAdminDisputeSummary as DomainBillingSupportAdminDisputeSummary,
   type BillingSupportAdminInvoiceSummary as DomainBillingSupportAdminInvoiceSummary,
   type BillingSupportAdminReferralSummary as DomainBillingSupportAdminReferralSummary,
-} from '../../../packages/billing-domain/src/billing-support-admin-api-boundary.js';
-import {
   BillingSupportAdminReconciliationSummarySchema,
   BillingSupportAdminRefundResultSchema,
   type BillingSupportAdminReconciliationSummary,
   type BillingSupportAdminRefundResult,
-} from '../../../packages/billing-domain/src/billing-support-admin-runtime-boundary.js';
+} from './generated/billing-contracts.js';
 
 type BillingAccountRuntimeStatusRow = ReturnType<typeof BillingAccountRuntimeStatusRowSchema.parse>;
 type ReferralInviteResult = BillingReferralInviteResult;
@@ -638,19 +634,26 @@ function runtimeParentVisibleStateForFixture(
 
 function runtimeSourceForFixture(
   fixture: BillingAccountFixture
-): 'account-backend' | 'signed-local-snapshot' | 'manual-support-review' {
+): 'signed-local-snapshot' | 'manual-admin-review' {
   switch (fixture.accountStatus) {
     case 'active':
-      return 'account-backend';
+      return 'signed-local-snapshot';
     case 'grace':
       return 'signed-local-snapshot';
     case 'manual-review':
-      return 'manual-support-review';
+      return 'manual-admin-review';
   }
 }
 
-function runtimeBackendStateForFixture(fixture: BillingAccountFixture): 'available' | 'manual-required' {
-  return fixture.accountStatus === 'active' ? 'available' : 'manual-required';
+function runtimeBackendStateForFixture(fixture: BillingAccountFixture): 'ready' | 'degraded' | 'unavailable' {
+  switch (fixture.accountStatus) {
+    case 'active':
+      return 'ready';
+    case 'grace':
+      return 'degraded';
+    case 'manual-review':
+      return 'unavailable';
+  }
 }
 
 function runtimeFailureStateForFixture(fixture: BillingAccountFixture) {

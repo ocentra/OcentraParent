@@ -14,13 +14,15 @@ use ocentra_parent_agent_protocol::windows_adapter_artifact_ingestion::{
 };
 use ocentra_parent_agent_protocol::windows_adapter_capability::WindowsAdapterCapabilitySurface;
 
+use crate::test_text::TestText;
 use crate::windows_adapter_artifact_gate_read_model::evaluate_windows_adapter_artifact_gate;
 
 pub(crate) fn evaluate_windows_adapter_artifact_ingestion(
-    generated_at: &str,
+    generated_at: impl std::fmt::Display,
     records: &[WindowsAdapterArtifactIngestionRecord],
 ) -> WindowsAdapterArtifactIngestionProof {
-    let evaluated = evaluated_records(generated_at, records);
+    let generated_at = TestText::from_display(generated_at);
+    let evaluated = evaluated_records(generated_at.clone(), records);
     let accepted_evidence: Vec<_> = evaluated
         .accepted_records
         .iter()
@@ -33,7 +35,10 @@ pub(crate) fn evaluate_windows_adapter_artifact_ingestion(
         generated_at: generated_at.to_string(),
         accepted_records: evaluated.accepted_records,
         rejected_records: evaluated.rejected_records,
-        gate_proof: evaluate_windows_adapter_artifact_gate(generated_at, &accepted_evidence),
+        gate_proof: evaluate_windows_adapter_artifact_gate(
+            &generated_at.to_string(),
+            &accepted_evidence,
+        ),
         product_claim_boundary: artifact_ingestion::CLAIM_BOUNDARY.to_string(),
     }
 }
@@ -44,7 +49,7 @@ struct EvaluatedRecords {
 }
 
 fn evaluated_records(
-    generated_at: &str,
+    generated_at: TestText,
     records: &[WindowsAdapterArtifactIngestionRecord],
 ) -> EvaluatedRecords {
     let mut accepted_records = Vec::new();
@@ -55,7 +60,7 @@ fn evaluated_records(
         if refusal_reasons.is_empty() {
             accepted_records.push(accepted_record(record));
         } else {
-            rejected_records.push(rejected_record(generated_at, record, refusal_reasons));
+            rejected_records.push(rejected_record(&generated_at, record, refusal_reasons));
         }
     }
 
@@ -84,9 +89,9 @@ fn accepted_record(
 }
 
 fn rejected_record(
-    generated_at: &str,
+    generated_at: &TestText,
     record: &WindowsAdapterArtifactIngestionRecord,
-    refusal_reasons: Vec<String>,
+    refusal_reasons: Vec<TestText>,
 ) -> WindowsAdapterArtifactIngestionRejection {
     WindowsAdapterArtifactIngestionRejection {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
@@ -94,60 +99,48 @@ fn rejected_record(
         artifact_id: record.artifact_id.clone(),
         artifact_kind: record.artifact_kind,
         surface: record.surface,
-        refusal_reasons,
+        refusal_reasons: refusal_reasons
+            .into_iter()
+            .map(|reason| reason.to_string())
+            .collect(),
         rejected_at: generated_at.to_string(),
     }
 }
 
-fn refusal_reasons(record: &WindowsAdapterArtifactIngestionRecord) -> Vec<String> {
-    let mut reasons = Vec::new();
-
-    append_required_value_reasons(record, &mut reasons);
-    append_subject_match_reasons(record, &mut reasons);
-    append_surface_reasons(record, &mut reasons);
-
-    reasons
-}
-
-fn append_required_value_reasons(
-    record: &WindowsAdapterArtifactIngestionRecord,
-    reasons: &mut Vec<String>,
-) {
-    if record.artifact_id.is_empty() {
-        reasons.push(artifact_ingestion::REFUSAL_EMPTY_ARTIFACT_ID.to_string());
-    }
-    if record.target_subject_ref.is_empty() {
-        reasons.push(artifact_ingestion::REFUSAL_EMPTY_TARGET_SUBJECT.to_string());
-    }
-    if record.artifact_subject_ref.is_empty() {
-        reasons.push(artifact_ingestion::REFUSAL_EMPTY_ARTIFACT_SUBJECT.to_string());
-    }
-    if !has_custody_event(record) {
-        reasons.push(artifact_ingestion::REFUSAL_MISSING_CUSTODY_EVENT.to_string());
-    }
-}
-
-fn append_subject_match_reasons(
-    record: &WindowsAdapterArtifactIngestionRecord,
-    reasons: &mut Vec<String>,
-) {
-    if !record.target_subject_ref.is_empty()
+fn refusal_reasons(record: &WindowsAdapterArtifactIngestionRecord) -> Vec<TestText> {
+    let unsupported_surface = unsupported_ingestion_surface(record.surface);
+    let subject_mismatch = !record.target_subject_ref.is_empty()
         && !record.artifact_subject_ref.is_empty()
-        && record.target_subject_ref != record.artifact_subject_ref
-    {
-        reasons.push(artifact_ingestion::REFUSAL_SUBJECT_MISMATCH.to_string());
-    }
-}
+        && record.target_subject_ref != record.artifact_subject_ref;
+    let kind_surface_mismatch =
+        !unsupported_surface && !artifact_kind_matches_surface(record.artifact_kind, record.surface);
 
-fn append_surface_reasons(
-    record: &WindowsAdapterArtifactIngestionRecord,
-    reasons: &mut Vec<String>,
-) {
-    if unsupported_ingestion_surface(record.surface) {
-        reasons.push(artifact_ingestion::REFUSAL_UNSUPPORTED_SURFACE.to_string());
-    } else if !artifact_kind_matches_surface(record.artifact_kind, record.surface) {
-        reasons.push(artifact_ingestion::REFUSAL_KIND_SURFACE_MISMATCH.to_string());
-    }
+    [
+        record.artifact_id.is_empty().then_some(TestText::from_display(
+            artifact_ingestion::REFUSAL_EMPTY_ARTIFACT_ID,
+        )),
+        record.target_subject_ref.is_empty().then_some(TestText::from_display(
+            artifact_ingestion::REFUSAL_EMPTY_TARGET_SUBJECT,
+        )),
+        record.artifact_subject_ref.is_empty().then_some(TestText::from_display(
+            artifact_ingestion::REFUSAL_EMPTY_ARTIFACT_SUBJECT,
+        )),
+        (!has_custody_event(record)).then_some(TestText::from_display(
+            artifact_ingestion::REFUSAL_MISSING_CUSTODY_EVENT,
+        )),
+        subject_mismatch.then_some(TestText::from_display(
+            artifact_ingestion::REFUSAL_SUBJECT_MISMATCH,
+        )),
+        unsupported_surface.then_some(TestText::from_display(
+            artifact_ingestion::REFUSAL_UNSUPPORTED_SURFACE,
+        )),
+        kind_surface_mismatch.then_some(TestText::from_display(
+            artifact_ingestion::REFUSAL_KIND_SURFACE_MISMATCH,
+        )),
+    ]
+    .into_iter()
+    .flatten()
+    .collect()
 }
 
 fn has_custody_event(record: &WindowsAdapterArtifactIngestionRecord) -> bool {
@@ -278,8 +271,8 @@ pub(crate) fn managed_browser_ingestion_records() -> Vec<WindowsAdapterArtifactI
 }
 
 fn ingestion_record(
-    ingestion_record_id: &str,
-    artifact_id: &str,
+    ingestion_record_id: impl std::fmt::Display,
+    artifact_id: impl std::fmt::Display,
     artifact_kind: WindowsAdapterArtifactKind,
     surface: WindowsAdapterCapabilitySurface,
 ) -> WindowsAdapterArtifactIngestionRecord {

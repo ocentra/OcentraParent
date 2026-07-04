@@ -67,3 +67,17 @@ fn row_from_sqlite(row: &Row<'_>) -> rusqlite::Result<TrackingStoreRow> {
 fn json_to_sqlite_error(error: serde_json::Error) -> rusqlite::Error {
     rusqlite::Error::ToSqlConversionFailure(Box::new(error))
 }
+
+pub(crate) fn row_lifecycle_state(row: &TrackingStoreRow) -> TrackingReadModelRowLifecycleState {
+    if row.kind == constants::activity_event_kind::TRACKING_RETENTION_DELETED {
+        TrackingReadModelRowLifecycleState::Tombstone
+    } else {
+        TrackingReadModelRowLifecycleState::Active
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum TrackingReadModelRowLifecycleState {
+    Active,
+    Tombstone,
+}

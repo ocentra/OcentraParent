@@ -1,6 +1,8 @@
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::app_game::*;
+use std::fmt::Display;
 use std::fs::remove_file;
+use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
@@ -21,6 +23,15 @@ use super::{
         LiveWindowsForegroundWindowSnapshot,
     },
 };
+
+#[derive(Clone)]
+struct TestPath(PathBuf);
+
+impl AsRef<Path> for TestPath {
+    fn as_ref(&self) -> &Path {
+        self.0.as_ref()
+    }
+}
 
 #[test]
 fn live_foreground_snapshot_uses_opaque_window_refs_without_title_content() {
@@ -81,14 +92,14 @@ fn live_foreground_snapshot_omits_empty_title_without_content_capture() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         &snapshot,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let (store, _) = append_and_replay(&[event], APP_GAME_TEST_FOREGROUND_PERMISSION_EVIDENCE_ID);
     let model = app_game_journal_sqlite_read_model(
         store.connection_for_test(),
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(model.foreground_now_returned, 1);
     assert_eq!(model.foreground_now_rows[0].window_title_ref, None);
@@ -110,14 +121,14 @@ fn live_foreground_snapshot_journal_event_replays_into_sqlite_read_model() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         &foreground_snapshot(),
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let (store, lines) = append_and_replay(&[event], APP_GAME_TEST_FOREGROUND_CLOSED_EVIDENCE_ID);
     let model = app_game_journal_sqlite_read_model(
         store.connection_for_test(),
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_QUERIES));
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(lines.len(), 1);
     assert_eq!(model.running_now_returned, 0);
@@ -145,7 +156,7 @@ fn live_foreground_adapter_smoke_keeps_unavailable_platform_optional() {
         std::env::consts::OS,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .unwrap_or_else(|_| unreachable!("{}", constants::error::AGENT_EVENT_SERIALIZES));
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     if let Some(record) = record {
         let rows = windows_foreground_rows_from_records(&[record]);
@@ -170,28 +181,26 @@ fn foreground_snapshot() -> LiveWindowsForegroundWindowSnapshot {
 
 fn append_and_replay(
     events: &[ActivityEvent],
-    suffix: &str,
+    suffix: impl Display,
 ) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let path = temp_journal_path(suffix);
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal = ActivityJournal::open(path.clone(), key.clone())
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
+    let mut journal =
+        ActivityJournal::open(path.0.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_APPENDS)),
+                .expect(constants::error::JOURNAL_APPENDS),
         );
     }
-    let reader = ActivityJournal::open(path.clone(), key)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::JOURNAL_OPENS));
-    let store = ActivityStore::open_in_memory()
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_OPENS));
+    let reader = ActivityJournal::open(path.0.clone(), key).expect(constants::error::JOURNAL_OPENS);
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let status = store
         .ingest_journal(&reader)
-        .unwrap_or_else(|_| unreachable!("{}", constants::error::ACTIVITY_STORE_INGESTS));
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);
@@ -199,24 +208,26 @@ fn append_and_replay(
     (store, lines)
 }
 
-fn temp_journal_path(suffix: &str) -> std::path::PathBuf {
+fn temp_journal_path(suffix: impl Display) -> TestPath {
+    let suffix = suffix.to_string();
     let mut name = String::from(constants::journal::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(constants::journal::TEST_LIVE_FOREGROUND_SUFFIX);
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(suffix.as_str());
 
     let mut path = std::env::temp_dir();
     path.push(name);
     path.set_extension(constants::journal::FILE_EXTENSION);
-    path
+    TestPath(path)
 }
 
-fn cleanup_journal_files(path: &std::path::PathBuf) {
+fn cleanup_journal_files(path: impl AsRef<Path>) {
+    let path = path.as_ref();
     let _ = remove_file(path);
     for index in 1..=3 {
-        let mut rotated_path = path.clone();
+        let mut rotated_path = path.to_path_buf();
         let mut extension = index.to_string();
         extension.push(constants::delimiter::DOT);
         extension.push_str(constants::journal::FILE_EXTENSION);

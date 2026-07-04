@@ -1,5 +1,5 @@
 import { type ChangeEvent, type ReactElement } from 'react';
-import { type DisplayText as PortalDisplayText } from '@ocentra-parent/schema-domain/text-contracts';
+import { type PortalDisplayText } from './portal-display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   PortalFrameTuner,

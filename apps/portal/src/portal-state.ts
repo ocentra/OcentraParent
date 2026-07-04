@@ -1,12 +1,10 @@
-import {
-  AgentEvent,
-  type AgentEventName,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import type {
   GeneratedAgentLogEntry,
   GeneratedAgentLogSnapshot as AgentLogSnapshot,
-} from '@ocentra-parent/schema-domain/generated/logging-contracts';
+} from '@ocentra-parent/logging-domain/generated/logging-contracts';
 import {
+  ParentAgentEvent as AgentEvent,
+  type ParentAgentEventName as AgentEventName,
   ParentBridgeConnectionState,
   ParentHostBridgeRuntime,
   type ParentBridgeConnectionState as ParentBridgeConnectionStateValue,

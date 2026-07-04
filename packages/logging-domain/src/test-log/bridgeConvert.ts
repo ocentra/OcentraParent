@@ -1,5 +1,5 @@
-import type { BridgeEntry, BridgeLogPayload } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
-import type { RunType as RunTypeValue, StoredTestLogLine, TestLogScope as TestLogScopeValue } from '@ocentra-parent/schema-domain/test-log/types';
+import type { BridgeEntry, BridgeLogPayload } from '../transport/bridgeLogPayload';
+import type { RunType as RunTypeValue, StoredTestLogLine, TestLogScope as TestLogScopeValue } from './types';
 import {
   bridgeEntryToGeneratedStoredLog,
   bridgePayloadToGeneratedStoredLog,
@@ -8,7 +8,7 @@ import {
   storedGeneratedLogToBridgePayload,
   type GeneratedBridgeEntryOverrides,
   type GeneratedBridgePayloadToStoredLogOptions,
-} from '../generated/bridge-log-runtime';
+} from '../bridge-log-runtime';
 
 export type BridgePayloadToStoredLogOptions = Omit<GeneratedBridgePayloadToStoredLogOptions, 'consumer' | 'runType'> & {
   readonly consumer?: TestLogScopeValue | null;

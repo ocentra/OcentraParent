@@ -21,13 +21,14 @@ use crate::{
         command_for_target, intent_payload, intent_payload_for_kind, local_network_target,
         paired_runtime, route_revoke_command, serialize_command,
     },
+    test_text::TestText,
 };
 
 #[tokio::test]
 async fn lan_ai_provider_status_advertises_capability_to_observer_without_raw_activity() {
     let runtime = paired_runtime().await;
     let event = handle_command_text_for_test(
-        &serialize_command(command_for_target(
+        serialize_command(command_for_target(
             AgentCommandName::AgentLanAiProviderStatusGet,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
             with_parent_authority(
@@ -38,11 +39,15 @@ async fn lan_ai_provider_status_advertises_capability_to_observer_without_raw_ac
                     constants::lan_pairing::EXPIRES_AT,
                     constants::value::LAN_INTENT_LAN_AI_PROVIDER_STATUS,
                 ),
-                constants::value::LAN_PARENT_AUTHORITY_OBSERVER,
+                LanParentAuthorityExpectation {
+                    authority: constants::value::LAN_PARENT_AUTHORITY_OBSERVER,
+                },
             ),
         )),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -72,16 +77,18 @@ async fn lan_ai_provider_status_advertises_capability_to_observer_without_raw_ac
 async fn authorized_lan_ai_job_submit_returns_degraded_result_when_provider_is_unavailable() {
     let runtime = paired_runtime().await;
     let event = handle_command_text_for_test(
-        &serialize_command(command_for_target(
+        serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload_for_capability(
-                constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
-                constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
-            ),
+            lan_ai_job_payload_for_capability(LanAiJobPayloadExpectation {
+                authority: constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+                capability: constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+            }),
         )),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -119,16 +126,18 @@ async fn authorized_lan_ai_job_submit_returns_degraded_result_when_provider_is_u
 async fn authorized_lan_ai_job_submit_routes_to_opted_in_provider() {
     let runtime = lan_ai_provider_runtime().await;
     let event = handle_command_text_for_test(
-        &serialize_command(command_for_target(
+        serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload_for_capability(
-                constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
-                constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
-            ),
+            lan_ai_job_payload_for_capability(LanAiJobPayloadExpectation {
+                authority: constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+                capability: constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+            }),
         )),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -163,29 +172,33 @@ async fn authorized_lan_ai_job_submit_routes_to_opted_in_provider() {
 #[tokio::test]
 async fn repeated_lan_ai_job_submit_reuses_completed_job_without_raw_transfer() {
     let runtime = lan_ai_provider_runtime().await;
-    let first_command = lan_ai_job_submit_command(
-        "lan-ai-job-command-first",
-        "lan-ai-job-intent-first",
-        constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
-        constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
-    );
-    let second_command = lan_ai_job_submit_command(
-        "lan-ai-job-command-second",
-        "lan-ai-job-intent-second",
-        constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
-        constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
-    );
+    let first_command = lan_ai_job_submit_command(LanAiJobSubmitExpectation {
+        message_id: "lan-ai-job-command-first",
+        intent_id: "lan-ai-job-intent-first",
+        authority: constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+        capability: constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+    });
+    let second_command = lan_ai_job_submit_command(LanAiJobSubmitExpectation {
+        message_id: "lan-ai-job-command-second",
+        intent_id: "lan-ai-job-intent-second",
+        authority: constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+        capability: constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+    });
 
     let first = handle_command_text_for_test(
-        &first_command,
+        first_command,
         runtime.clone(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
     let second = handle_command_text_for_test(
-        &second_command,
+        second_command,
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -214,16 +227,18 @@ async fn repeated_lan_ai_job_submit_reuses_completed_job_without_raw_transfer() 
 async fn degraded_lan_ai_provider_routes_as_degraded_policy_state() {
     let runtime = lan_ai_provider_runtime_with_state(DeviceRuntimeAiProviderState::Degraded).await;
     let event = handle_command_text_for_test(
-        &serialize_command(command_for_target(
+        serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload_for_capability(
-                constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
-                constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
-            ),
+            lan_ai_job_payload_for_capability(LanAiJobPayloadExpectation {
+                authority: constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+                capability: constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+            }),
         )),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -263,16 +278,18 @@ async fn degraded_lan_ai_provider_routes_as_degraded_policy_state() {
 async fn unsupported_lan_ai_capability_is_rejected_after_authority_checks() {
     let runtime = lan_ai_provider_runtime().await;
     let event = handle_command_text_for_test(
-        &serialize_command(command_for_target(
+        serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload_for_capability(
-                constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
-                constants::local_ai_runtime::CAPABILITY_CLASSIFICATION,
-            ),
+            lan_ai_job_payload_for_capability(LanAiJobPayloadExpectation {
+                authority: constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+                capability: constants::local_ai_runtime::CAPABILITY_CLASSIFICATION,
+            }),
         )),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -293,46 +310,65 @@ async fn unsupported_lan_ai_capability_is_rejected_after_authority_checks() {
 #[tokio::test]
 async fn lan_ai_job_submit_reports_provider_unavailable_for_stale_offline_and_revoked_routes() {
     let stale_runtime = lan_ai_provider_runtime().await;
-    assert!(stale_runtime.mark_selected_stale_for_test(constants::lan_pairing::EXPIRED_AT));
+    assert!(stale_runtime.mark_selected_stale_for_test());
     let stale_event = lan_ai_job_event(stale_runtime).await;
 
     let offline_runtime = lan_ai_provider_runtime().await;
-    assert!(offline_runtime.mark_selected_offline_for_test(constants::lan_pairing::OBSERVED_AT));
+    assert!(offline_runtime.mark_selected_offline_for_test());
     let offline_event = lan_ai_job_event(offline_runtime).await;
 
     let revoked_runtime = lan_ai_provider_runtime().await;
     let _ = handle_command_text_for_test(
-        &serialize_command(route_revoke_command(intent_payload(
+        serialize_command(route_revoke_command(intent_payload(
             constants::lan_pairing::REVOKE_INTENT_ID,
             constants::lan_pairing::CHILD_DEVICE_ID,
             constants::lan_pairing::PROOF_DIGEST,
             constants::lan_pairing::EXPIRES_AT,
         ))),
         revoked_runtime.clone(),
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
     let revoked_event = lan_ai_job_event(revoked_runtime).await;
 
-    assert_route_blocked_provider(&stale_event, constants::value::LAN_REASON_STALE);
-    assert_route_blocked_provider(&offline_event, constants::value::LAN_REASON_OFFLINE);
-    assert_route_blocked_provider(&revoked_event, constants::value::LAN_REASON_REVOKED);
+    assert_route_blocked_provider(
+        &stale_event,
+        LanAiJobBlockExpectation {
+            reason: constants::value::LAN_REASON_STALE,
+        },
+    );
+    assert_route_blocked_provider(
+        &offline_event,
+        LanAiJobBlockExpectation {
+            reason: constants::value::LAN_REASON_OFFLINE,
+        },
+    );
+    assert_route_blocked_provider(
+        &revoked_event,
+        LanAiJobBlockExpectation {
+            reason: constants::value::LAN_REASON_REVOKED,
+        },
+    );
 }
 
 #[tokio::test]
 async fn observer_lan_ai_job_submit_is_rejected_before_provider_routing() {
     let runtime = paired_runtime().await;
     let event = handle_command_text_for_test(
-        &serialize_command(command_for_target(
+        serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload_for_capability(
-                constants::value::LAN_PARENT_AUTHORITY_OBSERVER,
-                constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
-            ),
+            lan_ai_job_payload_for_capability(LanAiJobPayloadExpectation {
+                authority: constants::value::LAN_PARENT_AUTHORITY_OBSERVER,
+                capability: constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+            }),
         )),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await;
 
@@ -343,7 +379,19 @@ async fn observer_lan_ai_job_submit_is_rejected_before_provider_routing() {
     );
 }
 
-fn lan_ai_job_payload_for_capability(authority: &str, capability: &str) -> LogFields {
+struct LanAiJobSubmitExpectation {
+    message_id: &'static str,
+    intent_id: &'static str,
+    authority: &'static str,
+    capability: &'static str,
+}
+
+struct LanAiJobPayloadExpectation {
+    authority: &'static str,
+    capability: &'static str,
+}
+
+fn lan_ai_job_payload_for_capability(expectation: LanAiJobPayloadExpectation) -> LogFields {
     let mut payload = intent_payload_for_kind(
         constants::lan_pairing::LAN_AI_JOB_INTENT_ID,
         constants::lan_pairing::CHILD_DEVICE_ID,
@@ -353,7 +401,7 @@ fn lan_ai_job_payload_for_capability(authority: &str, capability: &str) -> LogFi
     );
     payload.insert(
         constants::field::LAN_PARENT_AUTHORITY.to_string(),
-        LogFieldValue::String(authority.to_string()),
+        LogFieldValue::String(expectation.authority.to_string()),
     );
     payload.insert(
         constants::field::LAN_AI_JOB_ID.to_string(),
@@ -361,42 +409,42 @@ fn lan_ai_job_payload_for_capability(authority: &str, capability: &str) -> LogFi
     );
     payload.insert(
         constants::field::LOCAL_AI_CAPABILITY_FLAGS.to_string(),
-        LogFieldValue::String(capability.to_string()),
+        LogFieldValue::String(expectation.capability.to_string()),
     );
     payload
 }
 
-fn lan_ai_job_submit_command(
-    message_id: &str,
-    intent_id: &str,
-    authority: &str,
-    capability: &str,
-) -> String {
+fn lan_ai_job_submit_command(expectation: LanAiJobSubmitExpectation) -> TestText {
     let mut command = command_for_target(
         AgentCommandName::AgentLanAiJobSubmit,
         local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-        lan_ai_job_payload_for_capability(authority, capability),
+        lan_ai_job_payload_for_capability(LanAiJobPayloadExpectation {
+            authority: expectation.authority,
+            capability: expectation.capability,
+        }),
     );
-    command.message_id = message_id.to_string();
+    command.message_id = expectation.message_id.to_string();
     command.payload.insert(
         constants::field::LAN_INTENT_ID.to_string(),
-        LogFieldValue::String(intent_id.to_string()),
+        LogFieldValue::String(expectation.intent_id.to_string()),
     );
     serialize_command(command)
 }
 
 async fn lan_ai_job_event(runtime: LanPairingRuntime) -> AgentEventEnvelope {
     handle_command_text_for_test(
-        &serialize_command(command_for_target(
+        serialize_command(command_for_target(
             AgentCommandName::AgentLanAiJobSubmit,
             local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload_for_capability(
-                constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
-                constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
-            ),
+            lan_ai_job_payload_for_capability(LanAiJobPayloadExpectation {
+                authority: constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+                capability: constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+            }),
         )),
         runtime,
-        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
     )
     .await
 }
@@ -410,7 +458,9 @@ async fn lan_ai_provider_runtime_with_state(
 ) -> LanPairingRuntime {
     let mut runtime = paired_runtime().await;
     runtime.device_roles = DeviceRoleRuntimeReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT
+            .to_string()
+            .into(),
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: DeviceRuntimeSurface::ParentDesktop,
         platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),
@@ -435,10 +485,17 @@ async fn lan_ai_provider_runtime_with_state(
     runtime
 }
 
-fn assert_route_blocked_provider(event: &AgentEventEnvelope, reason: &str) {
+struct LanAiJobBlockExpectation {
+    reason: &'static str,
+}
+
+fn assert_route_blocked_provider(
+    event: &AgentEventEnvelope,
+    expectation: LanAiJobBlockExpectation,
+) {
     assert_rejection_with_audit(
         event,
-        reason,
+        expectation.reason,
         constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
     );
     assert_eq!(
@@ -465,10 +522,17 @@ fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
     }
 }
 
-fn with_parent_authority(mut payload: LogFields, authority: &str) -> LogFields {
+struct LanParentAuthorityExpectation {
+    authority: &'static str,
+}
+
+fn with_parent_authority(
+    mut payload: LogFields,
+    expectation: LanParentAuthorityExpectation,
+) -> LogFields {
     payload.insert(
         constants::field::LAN_PARENT_AUTHORITY.to_string(),
-        LogFieldValue::String(authority.to_string()),
+        LogFieldValue::String(expectation.authority.to_string()),
     );
     payload
 }
@@ -485,18 +549,9 @@ fn assert_no_raw_lan_ai_markers(payload: &LogFields) {
         constants::lan_pairing::RAW_MARKER_RAW_TOKEN,
         constants::lan_pairing::RAW_MARKER_SQLITE_PATH,
     ] {
-        assert!(!payload_contains_marker(payload, marker));
+        assert!(!payload.iter().any(|(key, value)| {
+            key.contains(marker)
+                || matches!(value, LogFieldValue::String(value) if value.contains(marker))
+        }));
     }
-}
-
-fn payload_contains_marker(payload: &LogFields, marker: &str) -> bool {
-    payload.iter().any(|(key, value)| {
-        key.contains(marker)
-            || match value {
-                LogFieldValue::String(value) => value.contains(marker),
-                LogFieldValue::Number(_) | LogFieldValue::Boolean(_) | LogFieldValue::Null(_) => {
-                    false
-                }
-            }
-    })
 }

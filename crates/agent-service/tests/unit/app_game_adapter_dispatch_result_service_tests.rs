@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::fs::remove_file;
 
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
@@ -13,6 +16,7 @@ use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
 use crate::test_invariants::{require_json_decode, require_some};
+use crate::test_text::TestText;
 
 use super::app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report_with_paths;
 use super::app_game_adapter_dispatch_result_payload::{
@@ -55,7 +59,7 @@ async fn app_game_adapter_dispatch_result_command_returns_typed_event() {
     );
     assert!(event
         .payload
-        .contains_key(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL));
+        .get(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL).is_some());
 }
 
 #[tokio::test]
@@ -345,48 +349,52 @@ fn dispatch_execute_result(
     require_json_decode(value, constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-fn string_log_value(value: &LogFieldValue) -> Option<&str> {
+fn string_log_value(value: &LogFieldValue) -> Option<TestText> {
     match value {
-        LogFieldValue::String(value) => Some(value.as_str()),
+        LogFieldValue::String(value) => Some(TestText::from_display(value.as_str())),
         _ => None,
     }
 }
 
-fn temp_paths(suffix: &str) -> EnforcementJournalPaths {
+fn temp_paths(suffix: TestText) -> EnforcementJournalPaths {
+    let suffix = suffix;
     EnforcementJournalPaths {
         journal_path: temp_path(
-            suffix,
+            suffix.as_ref(),
             constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX,
             constants::journal::FILE_EXTENSION,
         ),
         key_path: temp_path(
-            suffix,
+            suffix.as_ref(),
             constants::activity_store::TEST_CAPTURE_KEY_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
         store_path: temp_path(
-            suffix,
+            suffix.as_ref(),
             constants::activity_store::TEST_STORE_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
         timer_state_path: temp_path(
-            suffix,
+            suffix.as_ref(),
             constants::enforcement::TIMER_STATE_ID_PREFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
     }
 }
 
-fn temp_path(suffix: &str, role: &str, extension: &str) -> std::path::PathBuf {
+fn temp_path(suffix: TestText, role: TestText, extension: TestText) -> std::path::PathBuf {
+    let suffix = suffix;
+    let role = role;
+    let extension = extension;
     let mut name = String::from(constants::journal::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(suffix.as_ref());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(role);
+    name.push_str(role.as_ref());
     let mut path = std::env::temp_dir();
     path.push(name);
-    path.set_extension(extension);
+    path.set_extension(extension.as_ref());
     path
 }
 

@@ -353,78 +353,96 @@ export function resolveGeneratedPolicyApprovalLifecycle<T extends GeneratedPolic
 
   switch (resolution.state) {
     case 'pending':
-      assertGeneratedPolicyContract(
-        resolution.reviewedBy === null &&
-          resolution.reviewedAt === null &&
-          resolution.auditReferenceId === null &&
-          resolution.override === null &&
-          resolution.replayOfApprovalId === null,
-        'pending approvals cannot include review, replay, or override artifacts'
-      );
+      assertGeneratedPendingApprovalIsClean(resolution);
       return resolution;
     case 'preview-only':
-      assertGeneratedPolicyContract(
-        resolution.approval.origin === 'assistant-draft',
-        'preview-only approvals require assistant-draft origin'
-      );
-      assertGeneratedResolutionHasNoReviewOverrideOrReplayArtifacts(
-        resolution,
-        'preview-only approvals must remain unconfirmed and override-free'
-      );
+      assertGeneratedPreviewOnlyApprovalIsHonest(resolution);
       return resolution;
     case 'expired-request':
-      assertGeneratedPolicyContract(
-        evaluatedAt >= parseGeneratedTimestampMillis(resolution.approval.expiresAt, 'approval.expiresAt'),
-        'expired-request state requires evaluatedAt on or after approval.expiresAt'
-      );
-      assertGeneratedResolutionHasNoReviewOverrideOrReplayArtifacts(
-        resolution,
-        'expired-request state cannot include review or override artifacts'
-      );
+      assertGeneratedExpiredRequestApprovalIsHonest(resolution, evaluatedAt);
       return resolution;
     case 'replay-rejected':
-      assertGeneratedPolicyContract(
-        resolution.replayOfApprovalId !== null,
-        'replay-rejected state requires replayOfApprovalId'
-      );
-      assertGeneratedResolutionHasNoReviewOrOverrideArtifacts(
-        resolution,
-        'replay-rejected state cannot include review or override artifacts'
-      );
+      assertGeneratedReplayRejectedApprovalIsHonest(resolution);
       return resolution;
     case 'denied':
-      assertGeneratedPolicyContract(resolution.reviewedBy !== null, 'denied approvals require reviewedBy');
-      assertGeneratedPolicyContract(resolution.reviewedAt !== null, 'denied approvals require reviewedAt');
-      assertGeneratedPolicyContract(
-        resolution.auditReferenceId !== null,
-        'denied approvals require auditReferenceId'
-      );
-      assertGeneratedPolicyContract(resolution.override === null, 'denied approvals cannot create overrides');
-      assertGeneratedPolicyContract(
-        resolution.replayOfApprovalId === null,
-        'denied approvals cannot point at replayOfApprovalId'
-      );
+      assertGeneratedDeniedApprovalIsHonest(resolution);
       return resolution;
     case 'approved':
     case 'modified':
-      assertGeneratedPolicyContract(
-        resolution.reviewedBy !== null &&
-          resolution.reviewedAt !== null &&
-          resolution.auditReferenceId !== null &&
-          resolution.override !== null,
-        `${resolution.state} approvals require review, audit, and override artifacts`
-      );
-      assertGeneratedPolicyContract(
-        resolution.replayOfApprovalId === null,
-        `${resolution.state} approvals cannot point at replayOfApprovalId`
-      );
-      assertGeneratedPolicyContract(
-        String(resolution.reviewedBy.actorId) !== String(resolution.approval.childProfile.childProfileId),
-        'child requests cannot self-approve or self-modify'
-      );
-      validateGeneratedPolicyOverrideGrant(resolution.override, resolution.approval, evaluatedAt);
+      assertGeneratedResolvedApprovalIsHonest(resolution, evaluatedAt);
       return resolution;
   }
+}
+
+function assertGeneratedPendingApprovalIsClean(resolution: GeneratedPolicyApprovalResolutionLike): void {
+  assertGeneratedPolicyContract(
+    resolution.reviewedBy === null &&
+      resolution.reviewedAt === null &&
+      resolution.auditReferenceId === null &&
+      resolution.override === null &&
+      resolution.replayOfApprovalId === null,
+    'pending approvals cannot include review, replay, or override artifacts'
+  );
+}
+
+function assertGeneratedPreviewOnlyApprovalIsHonest(resolution: GeneratedPolicyApprovalResolutionLike): void {
+  assertGeneratedPolicyContract(resolution.approval.origin === 'assistant-draft', 'preview-only approvals require assistant-draft origin');
+  assertGeneratedResolutionHasNoReviewOverrideOrReplayArtifacts(
+    resolution,
+    'preview-only approvals must remain unconfirmed and override-free'
+  );
+}
+
+function assertGeneratedExpiredRequestApprovalIsHonest(
+  resolution: GeneratedPolicyApprovalResolutionLike,
+  evaluatedAt: number
+): void {
+  assertGeneratedPolicyContract(
+    evaluatedAt >= parseGeneratedTimestampMillis(resolution.approval.expiresAt, 'approval.expiresAt'),
+    'expired-request state requires evaluatedAt on or after approval.expiresAt'
+  );
+  assertGeneratedResolutionHasNoReviewOverrideOrReplayArtifacts(
+    resolution,
+    'expired-request state cannot include review or override artifacts'
+  );
+}
+
+function assertGeneratedReplayRejectedApprovalIsHonest(resolution: GeneratedPolicyApprovalResolutionLike): void {
+  assertGeneratedPolicyContract(resolution.replayOfApprovalId !== null, 'replay-rejected state requires replayOfApprovalId');
+  assertGeneratedResolutionHasNoReviewOrOverrideArtifacts(
+    resolution,
+    'replay-rejected state cannot include review or override artifacts'
+  );
+}
+
+function assertGeneratedDeniedApprovalIsHonest(resolution: GeneratedPolicyApprovalResolutionLike): void {
+  assertGeneratedPolicyContract(resolution.reviewedBy !== null, 'denied approvals require reviewedBy');
+  assertGeneratedPolicyContract(resolution.reviewedAt !== null, 'denied approvals require reviewedAt');
+  assertGeneratedPolicyContract(resolution.auditReferenceId !== null, 'denied approvals require auditReferenceId');
+  assertGeneratedPolicyContract(resolution.override === null, 'denied approvals cannot create overrides');
+  assertGeneratedPolicyContract(resolution.replayOfApprovalId === null, 'denied approvals cannot point at replayOfApprovalId');
+}
+
+function assertGeneratedResolvedApprovalIsHonest(
+  resolution: GeneratedPolicyApprovalResolutionLike,
+  evaluatedAt: number
+): void {
+  assertGeneratedPolicyContract(
+    resolution.reviewedBy !== null &&
+      resolution.reviewedAt !== null &&
+      resolution.auditReferenceId !== null &&
+      resolution.override !== null,
+    `${resolution.state} approvals require review, audit, and override artifacts`
+  );
+  assertGeneratedPolicyContract(
+    resolution.replayOfApprovalId === null,
+    `${resolution.state} approvals cannot point at replayOfApprovalId`
+  );
+  assertGeneratedPolicyContract(
+    String(resolution.reviewedBy.actorId) !== String(resolution.approval.childProfile.childProfileId),
+    'child requests cannot self-approve or self-modify'
+  );
+  validateGeneratedPolicyOverrideGrant(resolution.override, resolution.approval, evaluatedAt);
 }
 
 export function generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily(

@@ -1,4 +1,24 @@
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import {
+  formatSummaryText,
+  compareIsoDesc,
+  uniqueStrings,
+} from './live-activity-lan-diagnostics-text';
+import {
+  portalLanDecisionHistorySummary,
+  portalLanEvidenceWindowSummary,
+  portalLanTrustedRegistrySummary,
+} from './live-activity-lan-diagnostics-formatters';
+import {
+  portalLanProductionProofSummary,
+  portalLanRelayCacheSummary,
+  portalLanRouteSafetySummary,
+  portalLanSignedProofSummary,
+} from './live-activity-lan-diagnostics-summary';
+import {
+  projectEvidenceRecordRow,
+  projectHouseholdDecisionRow,
+  projectTrustedRegistryRow,
+} from './live-activity-lan-diagnostics-rows';
 
 export interface PortalLanDiscoveryEvidenceRecordProjection {
   readonly source: string;
@@ -37,7 +57,7 @@ interface PortalLanCanonicalHouseholdDeviceProjection {
   };
 }
 
-interface PortalLanTrustedDeviceRegistryEntryProjection {
+export interface PortalLanTrustedDeviceRegistryEntryProjection {
   readonly pairingId: string;
   readonly routeId: string;
   readonly trustState: string;
@@ -49,7 +69,7 @@ interface PortalLanTrustedDeviceRegistryEntryProjection {
   };
 }
 
-interface PortalLanHouseholdDeviceDecisionProjection {
+export interface PortalLanHouseholdDeviceDecisionProjection {
   readonly actionKind: string;
   readonly canonicalDeviceId: string;
   readonly childProfileId: string | null;
@@ -59,24 +79,24 @@ interface PortalLanHouseholdDeviceDecisionProjection {
   readonly revokedAt: string | null;
 }
 
-interface PortalLanProductionHouseholdProofProjection {
+export interface PortalLanProductionHouseholdProofProjection {
   readonly manualProofRequired: readonly unknown[];
   readonly notImplemented: readonly unknown[];
   readonly claimsProved: readonly unknown[];
   readonly claimsNotProved: readonly unknown[];
 }
 
-interface PortalLanSignedProofRowProjection {
+export interface PortalLanSignedProofRowProjection {
   readonly proofState: string;
   readonly responseState?: string | null;
 }
 
-interface PortalLanRouteSafetyRowProjection {
+export interface PortalLanRouteSafetyRowProjection {
   readonly custodyLabel: string;
   readonly responseState?: string | null;
 }
 
-interface PortalLanRelayCacheRowProjection {
+export interface PortalLanRelayCacheRowProjection {
   readonly decisionState: string;
   readonly custodyLabel?: string | null;
 }
@@ -154,166 +174,4 @@ function projectPortalLanDiagnosticsParts(readModel: PortalLanDiagnosticsReadMod
     routeSafetyRows: readModel.signedDiscoveryRelaySpine?.routeSafetyRows ?? [],
     relayCacheRows: readModel.signedDiscoveryRelaySpine?.relayCacheRows ?? [],
   };
-}
-
-function portalLanEvidenceWindowSummary(records: readonly PortalLanDiscoveryEvidenceRecordProjection[]): string {
-  return formatSummaryText([
-    records.length === 0 ? null : `${records.length} evidence records`,
-    labelWithValue('first', minIsoValue(records.map((record) => record.firstSeenAt))),
-    labelWithValue('latest', maxIsoValue(records.map((record) => record.lastSeenAt))),
-    labelWithValue(
-      'next expiry',
-      minIsoValue(compactStringValues(records.map((record) => record.expiresAt))) ??
-        (records.length === 0 ? null : 'no-expiry')
-    ),
-  ]);
-}
-
-function portalLanTrustedRegistrySummary(
-  trustedRegistry: readonly PortalLanTrustedDeviceRegistryEntryProjection[]
-): string {
-  return formatSummaryText([
-    trustedRegistry.length === 0 ? null : `${trustedRegistry.length} trusted routes`,
-    labelWithValue('latest trust', maxIsoValue(trustedRegistry.map((entry) => entry.trustedAt))),
-    labelWithValue('next expiry', minIsoValue(trustedRegistry.map((entry) => entry.expiresAt))),
-  ]);
-}
-
-function portalLanDecisionHistorySummary(
-  decisions: readonly PortalLanHouseholdDeviceDecisionProjection[]
-): string {
-  return formatSummaryText([
-    decisions.length === 0 ? null : `${decisions.length} parent decisions`,
-    labelWithValue('latest', decisions[0]?.decidedAt ?? null),
-    summarizeCounts(decisions.map((decision) => decision.actionKind)),
-  ]);
-}
-
-function portalLanProductionProofSummary(proof: PortalLanProductionHouseholdProofProjection | null): string {
-  if (proof === null) {
-    return notReportedText();
-  }
-  return formatSummaryText([
-    `${proof.manualProofRequired.length} manual proof required`,
-    `${proof.notImplemented.length} not implemented`,
-    `${proof.claimsProved.length} claims proved`,
-    `${proof.claimsNotProved.length} claims not proved`,
-  ]);
-}
-
-function portalLanSignedProofSummary(rows: readonly PortalLanSignedProofRowProjection[]): string {
-  return formatSummaryText([
-    rows.length === 0 ? null : `${rows.length} signed proof rows`,
-    summarizeCounts(rows.map((row) => row.proofState)),
-    summarizeCounts(rows.map((row) => row.responseState ?? null)),
-  ]);
-}
-
-function portalLanRouteSafetySummary(rows: readonly PortalLanRouteSafetyRowProjection[]): string {
-  return formatSummaryText([
-    rows.length === 0 ? null : `${rows.length} route safety rows`,
-    summarizeCounts(rows.map((row) => row.responseState ?? null)),
-    optionalSummaryText(rows.map((row) => row.custodyLabel)),
-  ]);
-}
-
-function portalLanRelayCacheSummary(rows: readonly PortalLanRelayCacheRowProjection[]): string {
-  return formatSummaryText([
-    rows.length === 0 ? null : `${rows.length} relay cache rows`,
-    summarizeCounts(rows.map((row) => row.decisionState)),
-    optionalSummaryText(compactStringValues(rows.map((row) => row.custodyLabel ?? null))),
-  ]);
-}
-
-function projectEvidenceRecordRow(record: PortalLanDiscoveryEvidenceRecordProjection): PortalLanDiagnosticsRow {
-  return {
-    label: `${record.source} | ${record.evidenceKind}`,
-    value: formatSummaryText([
-      record.value,
-      labelWithValue('first', record.firstSeenAt),
-      labelWithValue('latest', record.lastSeenAt),
-      labelWithValue('expiry', record.expiresAt ?? 'no-expiry'),
-      record.confidence,
-      record.note,
-    ]),
-  };
-}
-
-function projectTrustedRegistryRow(entry: PortalLanTrustedDeviceRegistryEntryProjection): PortalLanDiagnosticsRow {
-  return {
-    label: entry.pairingId,
-    value: formatSummaryText([
-      entry.childDevice.label,
-      entry.trustState,
-      entry.routeId,
-      labelWithValue('trusted', entry.trustedAt),
-      labelWithValue('expiry', entry.expiresAt),
-      labelWithValue('revoked', entry.revokedAt ?? 'active'),
-    ]),
-  };
-}
-
-function projectHouseholdDecisionRow(decision: PortalLanHouseholdDeviceDecisionProjection): PortalLanDiagnosticsRow {
-  return {
-    label: `${decision.actionKind} | ${decision.displayName ?? decision.canonicalDeviceId}`,
-    value: formatSummaryText([
-      decision.deviceKind,
-      decision.childProfileId,
-      labelWithValue('decided', decision.decidedAt),
-      labelWithValue('revoked', decision.revokedAt ?? 'active'),
-    ]),
-  };
-}
-
-function formatSummaryText(values: readonly (string | null | undefined)[]): string {
-  return optionalSummaryText(values) ?? notReportedText();
-}
-
-function optionalSummaryText(values: readonly (string | null | undefined)[]): string | null {
-  const normalized = uniqueStrings(
-    values.filter((value): value is string => value !== null && value !== undefined && value.length > 0)
-  );
-  return normalized.length === 0 ? null : normalized.join(' | ');
-}
-
-function summarizeCounts(values: readonly (string | null | undefined)[]): string | null {
-  const counts = new Map<string, number>();
-  for (const value of values) {
-    if (value === null || value === undefined || value.length === 0) {
-      continue;
-    }
-    counts.set(value, (counts.get(value) ?? 0) + 1);
-  }
-  if (counts.size === 0) {
-    return null;
-  }
-  return [...counts.entries()].map(([value, count]) => `${count} ${value}`).join(' | ');
-}
-
-function labelWithValue(label: string, value: string | null | undefined): string | null {
-  return value === null || value === undefined || value.length === 0 ? null : `${label} ${value}`;
-}
-
-function notReportedText(): string {
-  return resolvePortalDevText(PortalDevTextToken.NotReported);
-}
-
-function minIsoValue(values: readonly string[]): string | null {
-  return values.length === 0 ? null : [...values].sort()[0] ?? null;
-}
-
-function maxIsoValue(values: readonly string[]): string | null {
-  return values.length === 0 ? null : [...values].sort().at(-1) ?? null;
-}
-
-function compareIsoDesc(left: string, right: string): number {
-  return right.localeCompare(left);
-}
-
-function uniqueStrings(values: readonly string[]): readonly string[] {
-  return [...new Set(values)];
-}
-
-function compactStringValues(values: readonly (string | null | undefined)[]): readonly string[] {
-  return values.filter((value): value is string => typeof value === 'string');
 }

@@ -1,3 +1,5 @@
+use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
+use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::EventBus, error::EventingError, ids::EventType,
     ids::SubscriberId, ids::TargetHandler,
@@ -31,9 +33,9 @@ pub type ScreenRuntimeEventPayload = ProtocolScreenRuntimeEventPayload;
 
 #[derive(Clone, Debug)]
 pub struct ScreenRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::bus::reports::PublishReport>,
+    pub publish_reports: Vec<PublishReport>,
     pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
+    pub dead_letters: Vec<DeadLetter>,
 }
 
 impl ScreenRuntimeReport {

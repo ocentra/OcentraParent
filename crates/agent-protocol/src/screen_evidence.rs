@@ -291,6 +291,55 @@ const SCREEN_RUNTIME_PHASES: [ScreenRuntimePhase; 9] = [
     ScreenRuntimePhase::PortalReadModelUpdated,
 ];
 
+const SCREEN_RUNTIME_PHASE_EVENT_TYPES: [&str; 9] = [
+    constants::screen_flow::EVENT_SCREEN_CAPTURE_OBSERVED,
+    constants::screen_flow::EVENT_SCREEN_QUEUE_ENCRYPTED,
+    constants::screen_flow::EVENT_SCREEN_AI_ANALYSIS_REQUESTED,
+    constants::screen_flow::EVENT_SCREEN_AI_ANALYSIS_COMPLETED,
+    constants::screen_flow::EVENT_SCREEN_SUMMARY_COMMITTED,
+    constants::screen_flow::EVENT_SCREEN_POLICY_DECISION_COMPLETED,
+    constants::screen_flow::EVENT_SCREEN_ACTION_DRY_RUN_RECORDED,
+    constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED,
+    constants::screen_flow::EVENT_SCREEN_PORTAL_READ_MODEL_UPDATED,
+];
+
+const SCREEN_RUNTIME_PHASE_SUBSCRIBER_IDS: [&str; 9] = [
+    constants::screen_flow::SUBSCRIBER_SCREEN_CAPTURE_OBSERVER,
+    constants::screen_flow::SUBSCRIBER_SCREEN_QUEUE_WRITER,
+    constants::screen_flow::SUBSCRIBER_SCREEN_AI_REQUEST,
+    constants::screen_flow::SUBSCRIBER_SCREEN_AI_COMPLETE,
+    constants::screen_flow::SUBSCRIBER_SCREEN_SUMMARY_WRITER,
+    constants::screen_flow::SUBSCRIBER_SCREEN_POLICY_DECISION,
+    constants::screen_flow::SUBSCRIBER_SCREEN_ACTION_DRY_RUN,
+    constants::screen_flow::SUBSCRIBER_SCREEN_DELETION_WORKER,
+    constants::screen_flow::SUBSCRIBER_SCREEN_PORTAL_READ_MODEL,
+];
+
+const SCREEN_RUNTIME_PHASE_TARGET_HANDLERS: [&str; 9] = [
+    constants::screen_flow::TARGET_SCREEN_CAPTURE_OBSERVER,
+    constants::screen_flow::TARGET_SCREEN_QUEUE_WRITER,
+    constants::screen_flow::TARGET_SCREEN_AI_ANALYZER,
+    constants::screen_flow::TARGET_SCREEN_AI_ANALYZER,
+    constants::screen_flow::TARGET_SCREEN_SUMMARY_WRITER,
+    constants::screen_flow::TARGET_SCREEN_POLICY_ENGINE,
+    constants::screen_flow::TARGET_SCREEN_ACTION_DRY_RUN,
+    constants::screen_flow::TARGET_SCREEN_DELETION_WORKER,
+    constants::screen_flow::TARGET_SCREEN_PORTAL_READ_MODEL,
+];
+
+const SCREEN_RUNTIME_PHASE_RUNTIME_ROLES: [&str; 9] = [
+    constants::eventing_source::ROLE_AGENT,
+    constants::eventing_source::ROLE_AGENT,
+    constants::eventing_source::ROLE_ANALYZER,
+    constants::eventing_source::ROLE_ANALYZER,
+    constants::eventing_source::ROLE_AUDIT_WRITER,
+    constants::eventing_source::ROLE_DECISION_ENGINE,
+    constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER,
+    constants::eventing_source::ROLE_AUDIT_WRITER,
+    constants::eventing_source::ROLE_READ_MODEL,
+];
+
+#[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScreenRuntimePhase {
     CaptureObserved,
@@ -310,75 +359,20 @@ impl ScreenRuntimePhase {
     }
 
     pub fn event_type(self) -> &'static str {
-        match self {
-            Self::CaptureObserved => constants::screen_flow::EVENT_SCREEN_CAPTURE_OBSERVED,
-            Self::QueueEncrypted => constants::screen_flow::EVENT_SCREEN_QUEUE_ENCRYPTED,
-            Self::AiAnalysisRequested => constants::screen_flow::EVENT_SCREEN_AI_ANALYSIS_REQUESTED,
-            Self::AiAnalysisCompleted => constants::screen_flow::EVENT_SCREEN_AI_ANALYSIS_COMPLETED,
-            Self::SummaryCommitted => constants::screen_flow::EVENT_SCREEN_SUMMARY_COMMITTED,
-            Self::PolicyDecisionCompleted => {
-                constants::screen_flow::EVENT_SCREEN_POLICY_DECISION_COMPLETED
-            }
-            Self::ActionDryRunRecorded => {
-                constants::screen_flow::EVENT_SCREEN_ACTION_DRY_RUN_RECORDED
-            }
-            Self::DeletionCommitted => constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED,
-            Self::PortalReadModelUpdated => {
-                constants::screen_flow::EVENT_SCREEN_PORTAL_READ_MODEL_UPDATED
-            }
-        }
+        SCREEN_RUNTIME_PHASE_EVENT_TYPES[self as usize]
     }
 
     pub fn subscriber_id(self) -> &'static str {
-        match self {
-            Self::CaptureObserved => constants::screen_flow::SUBSCRIBER_SCREEN_CAPTURE_OBSERVER,
-            Self::QueueEncrypted => constants::screen_flow::SUBSCRIBER_SCREEN_QUEUE_WRITER,
-            Self::AiAnalysisRequested => constants::screen_flow::SUBSCRIBER_SCREEN_AI_REQUEST,
-            Self::AiAnalysisCompleted => constants::screen_flow::SUBSCRIBER_SCREEN_AI_COMPLETE,
-            Self::SummaryCommitted => constants::screen_flow::SUBSCRIBER_SCREEN_SUMMARY_WRITER,
-            Self::PolicyDecisionCompleted => {
-                constants::screen_flow::SUBSCRIBER_SCREEN_POLICY_DECISION
-            }
-            Self::ActionDryRunRecorded => constants::screen_flow::SUBSCRIBER_SCREEN_ACTION_DRY_RUN,
-            Self::DeletionCommitted => constants::screen_flow::SUBSCRIBER_SCREEN_DELETION_WORKER,
-            Self::PortalReadModelUpdated => {
-                constants::screen_flow::SUBSCRIBER_SCREEN_PORTAL_READ_MODEL
-            }
-        }
+        SCREEN_RUNTIME_PHASE_SUBSCRIBER_IDS[self as usize]
     }
 
     pub fn target_handler(self) -> &'static str {
-        match self {
-            Self::CaptureObserved => constants::screen_flow::TARGET_SCREEN_CAPTURE_OBSERVER,
-            Self::QueueEncrypted => constants::screen_flow::TARGET_SCREEN_QUEUE_WRITER,
-            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
-                constants::screen_flow::TARGET_SCREEN_AI_ANALYZER
-            }
-            Self::SummaryCommitted => constants::screen_flow::TARGET_SCREEN_SUMMARY_WRITER,
-            Self::PolicyDecisionCompleted => constants::screen_flow::TARGET_SCREEN_POLICY_ENGINE,
-            Self::ActionDryRunRecorded => constants::screen_flow::TARGET_SCREEN_ACTION_DRY_RUN,
-            Self::DeletionCommitted => constants::screen_flow::TARGET_SCREEN_DELETION_WORKER,
-            Self::PortalReadModelUpdated => constants::screen_flow::TARGET_SCREEN_PORTAL_READ_MODEL,
-        }
+        SCREEN_RUNTIME_PHASE_TARGET_HANDLERS[self as usize]
     }
 
     pub fn runtime_role(self) -> RuntimeRole {
-        let value = match self {
-            Self::CaptureObserved | Self::QueueEncrypted => constants::eventing_source::ROLE_AGENT,
-            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
-                constants::eventing_source::ROLE_ANALYZER
-            }
-            Self::SummaryCommitted | Self::DeletionCommitted => {
-                constants::eventing_source::ROLE_AUDIT_WRITER
-            }
-            Self::PolicyDecisionCompleted => constants::eventing_source::ROLE_DECISION_ENGINE,
-            Self::ActionDryRunRecorded => constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER,
-            Self::PortalReadModelUpdated => constants::eventing_source::ROLE_READ_MODEL,
-        };
-        match RuntimeRole::parse(value) {
-            Ok(role) => role,
-            Err(_) => std::process::abort(),
-        }
+        RuntimeRole::parse(SCREEN_RUNTIME_PHASE_RUNTIME_ROLES[self as usize])
+            .expect("screen runtime phase role is a valid runtime role")
     }
 }
 
@@ -490,6 +484,62 @@ impl DomainEvent for ScreenRuntimeEventPayload {
     }
 }
 
+const SCREEN_HOUSEHOLD_MESH_PHASES: [ScreenHouseholdMeshPhase; 8] = [
+    ScreenHouseholdMeshPhase::WorkQueued,
+    ScreenHouseholdMeshPhase::OfferPublished,
+    ScreenHouseholdMeshPhase::ClaimRequested,
+    ScreenHouseholdMeshPhase::ClaimGranted,
+    ScreenHouseholdMeshPhase::LeaseCreated,
+    ScreenHouseholdMeshPhase::ProviderResultReturned,
+    ScreenHouseholdMeshPhase::ChildResultAccepted,
+    ScreenHouseholdMeshPhase::PolicyRequested,
+];
+
+const SCREEN_HOUSEHOLD_MESH_PHASE_EVENT_TYPES: [&str; 8] = [
+    constants::screen_flow::EVENT_SCREEN_MESH_WORK_QUEUED,
+    constants::screen_flow::EVENT_SCREEN_MESH_OFFER_PUBLISHED,
+    constants::screen_flow::EVENT_SCREEN_MESH_CLAIM_REQUESTED,
+    constants::screen_flow::EVENT_SCREEN_MESH_CLAIM_GRANTED,
+    constants::screen_flow::EVENT_SCREEN_MESH_LEASE_CREATED,
+    constants::screen_flow::EVENT_SCREEN_MESH_PROVIDER_RESULT_RETURNED,
+    constants::screen_flow::EVENT_SCREEN_MESH_CHILD_RESULT_ACCEPTED,
+    constants::screen_flow::EVENT_SCREEN_MESH_POLICY_REQUESTED,
+];
+
+const SCREEN_HOUSEHOLD_MESH_PHASE_SUBSCRIBER_IDS: [&str; 8] = [
+    constants::screen_flow::SUBSCRIBER_SCREEN_MESH_WORK_QUEUE,
+    constants::screen_flow::SUBSCRIBER_SCREEN_MESH_OFFER,
+    constants::screen_flow::SUBSCRIBER_SCREEN_MESH_CLAIM_REQUEST,
+    constants::screen_flow::SUBSCRIBER_SCREEN_MESH_CLAIM_GRANT,
+    constants::screen_flow::SUBSCRIBER_SCREEN_MESH_LEASE,
+    constants::screen_flow::SUBSCRIBER_SCREEN_MESH_PROVIDER_RESULT,
+    constants::screen_flow::SUBSCRIBER_SCREEN_MESH_CHILD_VALIDATION,
+    constants::screen_flow::SUBSCRIBER_SCREEN_MESH_POLICY_REQUEST,
+];
+
+const SCREEN_HOUSEHOLD_MESH_PHASE_TARGET_HANDLERS: [&str; 8] = [
+    constants::screen_flow::TARGET_SCREEN_MESH_CHILD_LEDGER,
+    constants::screen_flow::TARGET_SCREEN_MESH_BRIDGE,
+    constants::screen_flow::TARGET_SCREEN_MESH_BRIDGE,
+    constants::screen_flow::TARGET_SCREEN_MESH_CHILD_LEDGER,
+    constants::screen_flow::TARGET_SCREEN_MESH_CHILD_LEDGER,
+    constants::screen_flow::TARGET_SCREEN_MESH_PROVIDER_WORKER,
+    constants::screen_flow::TARGET_SCREEN_MESH_CHILD_VALIDATOR,
+    constants::screen_flow::TARGET_SCREEN_POLICY_ENGINE,
+];
+
+const SCREEN_HOUSEHOLD_MESH_PHASE_RUNTIME_ROLES: [&str; 8] = [
+    constants::eventing_source::ROLE_AUDIT_WRITER,
+    constants::eventing_source::ROLE_AGENT,
+    constants::eventing_source::ROLE_AGENT,
+    constants::eventing_source::ROLE_AUDIT_WRITER,
+    constants::eventing_source::ROLE_AUDIT_WRITER,
+    constants::eventing_source::ROLE_ANALYZER,
+    constants::eventing_source::ROLE_AUDIT_WRITER,
+    constants::eventing_source::ROLE_DECISION_ENGINE,
+];
+
+#[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScreenHouseholdMeshPhase {
     WorkQueued,
@@ -504,79 +554,24 @@ pub enum ScreenHouseholdMeshPhase {
 
 impl ScreenHouseholdMeshPhase {
     pub fn ordered_chain() -> &'static [Self] {
-        &[
-            Self::WorkQueued,
-            Self::OfferPublished,
-            Self::ClaimRequested,
-            Self::ClaimGranted,
-            Self::LeaseCreated,
-            Self::ProviderResultReturned,
-            Self::ChildResultAccepted,
-            Self::PolicyRequested,
-        ]
+        &SCREEN_HOUSEHOLD_MESH_PHASES
     }
 
     pub fn event_type(self) -> &'static str {
-        match self {
-            Self::WorkQueued => constants::screen_flow::EVENT_SCREEN_MESH_WORK_QUEUED,
-            Self::OfferPublished => constants::screen_flow::EVENT_SCREEN_MESH_OFFER_PUBLISHED,
-            Self::ClaimRequested => constants::screen_flow::EVENT_SCREEN_MESH_CLAIM_REQUESTED,
-            Self::ClaimGranted => constants::screen_flow::EVENT_SCREEN_MESH_CLAIM_GRANTED,
-            Self::LeaseCreated => constants::screen_flow::EVENT_SCREEN_MESH_LEASE_CREATED,
-            Self::ProviderResultReturned => {
-                constants::screen_flow::EVENT_SCREEN_MESH_PROVIDER_RESULT_RETURNED
-            }
-            Self::ChildResultAccepted => {
-                constants::screen_flow::EVENT_SCREEN_MESH_CHILD_RESULT_ACCEPTED
-            }
-            Self::PolicyRequested => constants::screen_flow::EVENT_SCREEN_MESH_POLICY_REQUESTED,
-        }
+        SCREEN_HOUSEHOLD_MESH_PHASE_EVENT_TYPES[self as usize]
     }
 
     pub fn subscriber_id(self) -> &'static str {
-        match self {
-            Self::WorkQueued => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_WORK_QUEUE,
-            Self::OfferPublished => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_OFFER,
-            Self::ClaimRequested => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_CLAIM_REQUEST,
-            Self::ClaimGranted => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_CLAIM_GRANT,
-            Self::LeaseCreated => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_LEASE,
-            Self::ProviderResultReturned => {
-                constants::screen_flow::SUBSCRIBER_SCREEN_MESH_PROVIDER_RESULT
-            }
-            Self::ChildResultAccepted => {
-                constants::screen_flow::SUBSCRIBER_SCREEN_MESH_CHILD_VALIDATION
-            }
-            Self::PolicyRequested => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_POLICY_REQUEST,
-        }
+        SCREEN_HOUSEHOLD_MESH_PHASE_SUBSCRIBER_IDS[self as usize]
     }
 
     pub fn target_handler(self) -> &'static str {
-        match self {
-            Self::WorkQueued | Self::ClaimGranted | Self::LeaseCreated => {
-                constants::screen_flow::TARGET_SCREEN_MESH_CHILD_LEDGER
-            }
-            Self::OfferPublished | Self::ClaimRequested => {
-                constants::screen_flow::TARGET_SCREEN_MESH_BRIDGE
-            }
-            Self::ProviderResultReturned => {
-                constants::screen_flow::TARGET_SCREEN_MESH_PROVIDER_WORKER
-            }
-            Self::ChildResultAccepted => constants::screen_flow::TARGET_SCREEN_MESH_CHILD_VALIDATOR,
-            Self::PolicyRequested => constants::screen_flow::TARGET_SCREEN_POLICY_ENGINE,
-        }
+        SCREEN_HOUSEHOLD_MESH_PHASE_TARGET_HANDLERS[self as usize]
     }
 
     pub fn runtime_role(self) -> RuntimeRole {
-        let value = match self {
-            Self::OfferPublished | Self::ClaimRequested => constants::eventing_source::ROLE_AGENT,
-            Self::ProviderResultReturned => constants::eventing_source::ROLE_ANALYZER,
-            Self::PolicyRequested => constants::eventing_source::ROLE_DECISION_ENGINE,
-            _ => constants::eventing_source::ROLE_AUDIT_WRITER,
-        };
-        match RuntimeRole::parse(value) {
-            Ok(role) => role,
-            Err(_) => std::process::abort(),
-        }
+        RuntimeRole::parse(SCREEN_HOUSEHOLD_MESH_PHASE_RUNTIME_ROLES[self as usize])
+            .expect("screen household mesh phase role is a valid runtime role")
     }
 }
 

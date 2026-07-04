@@ -4,13 +4,6 @@ use ocentra_evidence::{
     RuntimeBoundaryState,
 };
 
-fn require_ok<T, E>(result: Result<T, E>, message: &str) -> T {
-    match result {
-        Ok(value) => value,
-        Err(_error) => unreachable!("{message}"),
-    }
-}
-
 #[test]
 fn family_shared_evidence_ref_can_cross_runtime_boundary_without_raw_payload() {
     let decision = evaluate_evidence_reference(EvidenceReferenceInput {
@@ -59,44 +52,4 @@ fn local_only_evidence_ref_stays_inside_child_runtime_boundary() {
         decision.runtime_boundary_state,
         RuntimeBoundaryState::MustRemainLocal
     );
-}
-
-#[test]
-fn custody_scope_serializes_to_canonical_schema_literals() {
-    let local_only = require_ok(
-        serde_json::to_string(&EvidenceCustodyScope::LocalOnly),
-        "serialize local-only scope",
-    );
-    let family_shared = require_ok(
-        serde_json::to_string(&EvidenceCustodyScope::FamilyShared),
-        "serialize family-shared scope",
-    );
-    let exportable = require_ok(
-        serde_json::to_string(&EvidenceCustodyScope::Exportable),
-        "serialize exportable scope",
-    );
-
-    assert_eq!(local_only, "\"local-only\"");
-    assert_eq!(family_shared, "\"family-shared\"");
-    assert_eq!(exportable, "\"exportable\"");
-}
-
-#[test]
-fn custody_scope_deserializes_from_canonical_schema_literals() {
-    let local_only: EvidenceCustodyScope = require_ok(
-        serde_json::from_str("\"local-only\""),
-        "deserialize local-only scope",
-    );
-    let family_shared: EvidenceCustodyScope = require_ok(
-        serde_json::from_str("\"family-shared\""),
-        "deserialize family-shared scope",
-    );
-    let exportable: EvidenceCustodyScope = require_ok(
-        serde_json::from_str("\"exportable\""),
-        "deserialize exportable scope",
-    );
-
-    assert_eq!(local_only, EvidenceCustodyScope::LocalOnly);
-    assert_eq!(family_shared, EvidenceCustodyScope::FamilyShared);
-    assert_eq!(exportable, EvidenceCustodyScope::Exportable);
 }

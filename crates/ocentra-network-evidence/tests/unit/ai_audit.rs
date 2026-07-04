@@ -1,25 +1,34 @@
-use crate::{
-    build_network_ai_audit_report, evaluate_network_ai_detection_fixtures,
-    NetworkAiAuditNarrativeState, NetworkAiAuditRecommendationKind, NetworkAiAuditReportError,
-    NetworkAiAuditReportInput, NetworkAiAuditUncertaintyCode, NetworkAiDetectionEvaluationInput,
-    NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind, NetworkAiDetectionLabel,
-    NetworkAiDetectionResult, NetworkAiDetectionRiskLevel,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::ai_audit::*;
+use ocentra_network_evidence::ai_detection::*;
 
 #[test]
 fn ai_audit_report_generates_parent_readable_narrative_with_cited_refs() {
+    let signature_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-signature-1".to_owned(),
+        fixture_ref: "fixture-detect-signature-1".to_owned(),
+        summary_ref: "summary-detect-signature-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-signature-1".to_owned()],
+        analyzer_alert_refs: vec!["analyzer-alert-critical".to_owned()],
+        expected_label: NetworkAiDetectionLabel::SignatureThreat,
+        predicted_label: NetworkAiDetectionLabel::SignatureThreat,
+        confidence_basis_points: 9_100,
+        baseline_confidence_basis_points: 8_900,
+        risk_level: NetworkAiDetectionRiskLevel::Critical,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+            NetworkAiDetectionInputKind::AnalyzerAlertRefs,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
     let report =
-        build_network_ai_audit_report(&audit_input(detection_results(vec![detection_case(
-            "detect-signature-1",
-            NetworkAiDetectionLabel::SignatureThreat,
-            NetworkAiDetectionLabel::SignatureThreat,
-            9_100,
-            8_900,
-            NetworkAiDetectionRiskLevel::Critical,
-            vec!["analyzer-alert-critical"],
-        )])))
-        .expect_value("high-risk detection should produce a parent-readable audit");
+        build_network_ai_audit_report(&audit_input(detection_results(vec![signature_case])))
+            .expect_value("high-risk detection should produce a parent-readable audit");
 
     assert_eq!(report.narrative_state, NetworkAiAuditNarrativeState::Ready);
     assert_eq!(
@@ -65,16 +74,28 @@ fn ai_audit_report_generates_parent_readable_narrative_with_cited_refs() {
 
 #[test]
 fn ai_audit_report_recommends_confirmation_for_uncertain_detection() {
-    let report =
-        build_network_ai_audit_report(&audit_input(detection_results(vec![detection_case(
-            "detect-unknown-1",
-            NetworkAiDetectionLabel::UnknownHighVolume,
-            NetworkAiDetectionLabel::Unknown,
-            4_200,
-            4_100,
-            NetworkAiDetectionRiskLevel::Unknown,
-            vec![],
-        )])))
+    let unknown_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-unknown-1".to_owned(),
+        fixture_ref: "fixture-detect-unknown-1".to_owned(),
+        summary_ref: "summary-detect-unknown-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-unknown-1".to_owned()],
+        analyzer_alert_refs: Vec::new(),
+        expected_label: NetworkAiDetectionLabel::UnknownHighVolume,
+        predicted_label: NetworkAiDetectionLabel::Unknown,
+        confidence_basis_points: 4_200,
+        baseline_confidence_basis_points: 4_100,
+        risk_level: NetworkAiDetectionRiskLevel::Unknown,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
+    let report = build_network_ai_audit_report(&audit_input(detection_results(vec![unknown_case])))
         .expect_value("uncertain detection should produce advisory confirmation");
 
     assert_eq!(
@@ -107,16 +128,28 @@ fn ai_audit_report_recommends_confirmation_for_uncertain_detection() {
 
 #[test]
 fn ai_audit_report_uses_monitor_only_for_non_high_risk_cited_detection() {
-    let report =
-        build_network_ai_audit_report(&audit_input(detection_results(vec![detection_case(
-            "detect-update-1",
-            NetworkAiDetectionLabel::BenignExpected,
-            NetworkAiDetectionLabel::BenignExpected,
-            8_200,
-            8_100,
-            NetworkAiDetectionRiskLevel::Low,
-            vec![],
-        )])))
+    let update_case = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-update-1".to_owned(),
+        fixture_ref: "fixture-detect-update-1".to_owned(),
+        summary_ref: "summary-detect-update-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-update-1".to_owned()],
+        analyzer_alert_refs: Vec::new(),
+        expected_label: NetworkAiDetectionLabel::BenignExpected,
+        predicted_label: NetworkAiDetectionLabel::BenignExpected,
+        confidence_basis_points: 8_200,
+        baseline_confidence_basis_points: 8_100,
+        risk_level: NetworkAiDetectionRiskLevel::Low,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
+    let report = build_network_ai_audit_report(&audit_input(detection_results(vec![update_case])))
         .expect_value("benign cited detection should produce monitor-only audit");
 
     assert_eq!(
@@ -134,35 +167,57 @@ fn ai_audit_report_uses_monitor_only_for_non_high_risk_cited_detection() {
 
 #[test]
 fn ai_audit_report_rejects_unsupported_content_and_authority_claims() {
+    let passing_detection = NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-signature-1".to_owned(),
+        fixture_ref: "fixture-detect-signature-1".to_owned(),
+        summary_ref: "summary-detect-signature-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-signature-1".to_owned()],
+        analyzer_alert_refs: vec!["analyzer-alert-critical".to_owned()],
+        expected_label: NetworkAiDetectionLabel::SignatureThreat,
+        predicted_label: NetworkAiDetectionLabel::SignatureThreat,
+        confidence_basis_points: 9_100,
+        baseline_confidence_basis_points: 8_900,
+        risk_level: NetworkAiDetectionRiskLevel::Critical,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+            NetworkAiDetectionInputKind::AnalyzerAlertRefs,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    };
     assert_eq!(
         build_network_ai_audit_report(&NetworkAiAuditReportInput {
             remote_ai_claimed: true,
-            ..audit_input(detection_results(vec![passing_detection_case()]))
+            ..audit_input(detection_results(vec![passing_detection.clone()]))
         }),
         Err(NetworkAiAuditReportError::RemoteAiClaimRejected)
     );
     assert_eq!(
         build_network_ai_audit_report(&NetworkAiAuditReportInput {
             exact_url_claimed: true,
-            ..audit_input(detection_results(vec![passing_detection_case()]))
+            ..audit_input(detection_results(vec![passing_detection.clone()]))
         }),
         Err(NetworkAiAuditReportError::ExactUrlClaimRejected)
     );
     assert_eq!(
         build_network_ai_audit_report(&NetworkAiAuditReportInput {
             private_message_claimed: true,
-            ..audit_input(detection_results(vec![passing_detection_case()]))
+            ..audit_input(detection_results(vec![passing_detection.clone()]))
         }),
         Err(NetworkAiAuditReportError::PrivateMessageClaimRejected)
     );
     assert_eq!(
         build_network_ai_audit_report(&NetworkAiAuditReportInput {
             policy_authority_claimed: true,
-            ..audit_input(detection_results(vec![passing_detection_case()]))
+            ..audit_input(detection_results(vec![passing_detection.clone()]))
         }),
         Err(NetworkAiAuditReportError::PolicyAuthorityClaimRejected)
     );
-    let mut detection = detection_results(vec![passing_detection_case()])
+    let mut detection = detection_results(vec![passing_detection])
         .pop()
         .expect_value("test detection exists");
     detection.adapter_authority = true;
@@ -177,26 +232,110 @@ fn ai_audit_report_rejects_missing_citations_and_duplicate_detections() {
     assert_eq!(
         build_network_ai_audit_report(&NetworkAiAuditReportInput {
             audit_report_ref: " ".to_owned(),
-            ..audit_input(detection_results(vec![passing_detection_case()]))
+            ..audit_input(detection_results(vec![NetworkAiDetectionFixtureCase {
+                detection_ref: "detect-signature-1".to_owned(),
+                fixture_ref: "fixture-detect-signature-1".to_owned(),
+                summary_ref: "summary-detect-signature-1".to_owned(),
+                evidence_refs: vec!["evidence-detect-signature-1".to_owned()],
+                analyzer_alert_refs: vec!["analyzer-alert-critical".to_owned()],
+                expected_label: NetworkAiDetectionLabel::SignatureThreat,
+                predicted_label: NetworkAiDetectionLabel::SignatureThreat,
+                confidence_basis_points: 9_100,
+                baseline_confidence_basis_points: 8_900,
+                risk_level: NetworkAiDetectionRiskLevel::Critical,
+                input_kinds: vec![
+                    NetworkAiDetectionInputKind::SummaryRefs,
+                    NetworkAiDetectionInputKind::EvidenceRefs,
+                    NetworkAiDetectionInputKind::FixtureLabel,
+                    NetworkAiDetectionInputKind::AnalyzerAlertRefs,
+                ],
+                raw_pcap_input_claimed: false,
+                decrypted_payload_claimed: false,
+                page_content_claimed: false,
+                exact_url_claimed: false,
+            }]))
         }),
         Err(NetworkAiAuditReportError::EmptyAuditReportRef)
     );
     assert_eq!(
         build_network_ai_audit_report(&NetworkAiAuditReportInput {
             detection_results: vec![],
-            ..audit_input(detection_results(vec![passing_detection_case()]))
+            ..audit_input(detection_results(vec![NetworkAiDetectionFixtureCase {
+                detection_ref: "detect-signature-1".to_owned(),
+                fixture_ref: "fixture-detect-signature-1".to_owned(),
+                summary_ref: "summary-detect-signature-1".to_owned(),
+                evidence_refs: vec!["evidence-detect-signature-1".to_owned()],
+                analyzer_alert_refs: vec!["analyzer-alert-critical".to_owned()],
+                expected_label: NetworkAiDetectionLabel::SignatureThreat,
+                predicted_label: NetworkAiDetectionLabel::SignatureThreat,
+                confidence_basis_points: 9_100,
+                baseline_confidence_basis_points: 8_900,
+                risk_level: NetworkAiDetectionRiskLevel::Critical,
+                input_kinds: vec![
+                    NetworkAiDetectionInputKind::SummaryRefs,
+                    NetworkAiDetectionInputKind::EvidenceRefs,
+                    NetworkAiDetectionInputKind::FixtureLabel,
+                    NetworkAiDetectionInputKind::AnalyzerAlertRefs,
+                ],
+                raw_pcap_input_claimed: false,
+                decrypted_payload_claimed: false,
+                page_content_claimed: false,
+                exact_url_claimed: false,
+            }]))
         }),
         Err(NetworkAiAuditReportError::EmptyDetectionResults)
     );
     assert_eq!(
         build_network_ai_audit_report(&NetworkAiAuditReportInput {
             parent_rule_refs: vec![],
-            ..audit_input(detection_results(vec![passing_detection_case()]))
+            ..audit_input(detection_results(vec![NetworkAiDetectionFixtureCase {
+                detection_ref: "detect-signature-1".to_owned(),
+                fixture_ref: "fixture-detect-signature-1".to_owned(),
+                summary_ref: "summary-detect-signature-1".to_owned(),
+                evidence_refs: vec!["evidence-detect-signature-1".to_owned()],
+                analyzer_alert_refs: vec!["analyzer-alert-critical".to_owned()],
+                expected_label: NetworkAiDetectionLabel::SignatureThreat,
+                predicted_label: NetworkAiDetectionLabel::SignatureThreat,
+                confidence_basis_points: 9_100,
+                baseline_confidence_basis_points: 8_900,
+                risk_level: NetworkAiDetectionRiskLevel::Critical,
+                input_kinds: vec![
+                    NetworkAiDetectionInputKind::SummaryRefs,
+                    NetworkAiDetectionInputKind::EvidenceRefs,
+                    NetworkAiDetectionInputKind::FixtureLabel,
+                    NetworkAiDetectionInputKind::AnalyzerAlertRefs,
+                ],
+                raw_pcap_input_claimed: false,
+                decrypted_payload_claimed: false,
+                page_content_claimed: false,
+                exact_url_claimed: false,
+            }]))
         }),
         Err(NetworkAiAuditReportError::EmptyParentRuleRefs)
     );
 
-    let duplicate = detection_results(vec![passing_detection_case()]);
+    let duplicate = detection_results(vec![NetworkAiDetectionFixtureCase {
+        detection_ref: "detect-signature-1".to_owned(),
+        fixture_ref: "fixture-detect-signature-1".to_owned(),
+        summary_ref: "summary-detect-signature-1".to_owned(),
+        evidence_refs: vec!["evidence-detect-signature-1".to_owned()],
+        analyzer_alert_refs: vec!["analyzer-alert-critical".to_owned()],
+        expected_label: NetworkAiDetectionLabel::SignatureThreat,
+        predicted_label: NetworkAiDetectionLabel::SignatureThreat,
+        confidence_basis_points: 9_100,
+        baseline_confidence_basis_points: 8_900,
+        risk_level: NetworkAiDetectionRiskLevel::Critical,
+        input_kinds: vec![
+            NetworkAiDetectionInputKind::SummaryRefs,
+            NetworkAiDetectionInputKind::EvidenceRefs,
+            NetworkAiDetectionInputKind::FixtureLabel,
+            NetworkAiDetectionInputKind::AnalyzerAlertRefs,
+        ],
+        raw_pcap_input_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        exact_url_claimed: false,
+    }]);
     assert_eq!(
         build_network_ai_audit_report(&audit_input(vec![
             duplicate[0].clone(),
@@ -253,53 +392,4 @@ fn detection_results(cases: Vec<NetworkAiDetectionFixtureCase>) -> Vec<NetworkAi
     })
     .expect_value("detection fixture should evaluate")
     .results
-}
-
-fn passing_detection_case() -> NetworkAiDetectionFixtureCase {
-    detection_case(
-        "detect-signature-1",
-        NetworkAiDetectionLabel::SignatureThreat,
-        NetworkAiDetectionLabel::SignatureThreat,
-        9_100,
-        8_900,
-        NetworkAiDetectionRiskLevel::Critical,
-        vec!["analyzer-alert-critical"],
-    )
-}
-
-fn detection_case(
-    detection_ref: &str,
-    expected_label: NetworkAiDetectionLabel,
-    predicted_label: NetworkAiDetectionLabel,
-    confidence_basis_points: u16,
-    baseline_confidence_basis_points: u16,
-    risk_level: NetworkAiDetectionRiskLevel,
-    analyzer_alert_refs: Vec<&str>,
-) -> NetworkAiDetectionFixtureCase {
-    let mut input_kinds = vec![
-        NetworkAiDetectionInputKind::SummaryRefs,
-        NetworkAiDetectionInputKind::EvidenceRefs,
-        NetworkAiDetectionInputKind::FixtureLabel,
-    ];
-    if !analyzer_alert_refs.is_empty() {
-        input_kinds.push(NetworkAiDetectionInputKind::AnalyzerAlertRefs);
-    }
-
-    NetworkAiDetectionFixtureCase {
-        detection_ref: detection_ref.to_owned(),
-        fixture_ref: format!("fixture-{detection_ref}"),
-        summary_ref: format!("summary-{detection_ref}"),
-        evidence_refs: vec![format!("evidence-{detection_ref}")],
-        analyzer_alert_refs: analyzer_alert_refs.into_iter().map(str::to_owned).collect(),
-        expected_label,
-        predicted_label,
-        confidence_basis_points,
-        baseline_confidence_basis_points,
-        risk_level,
-        input_kinds,
-        raw_pcap_input_claimed: false,
-        decrypted_payload_claimed: false,
-        page_content_claimed: false,
-        exact_url_claimed: false,
-    }
 }

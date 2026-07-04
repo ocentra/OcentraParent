@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::deserialize_lan_schema_version_text;
+use super::{deserialize_lan_schema_version_text, LanPairingText};
 use crate::LanPairingParentAuthority;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -67,7 +67,7 @@ pub struct DeviceRuntimeRoleEntry {
 #[serde(rename_all = "camelCase")]
 pub struct DeviceRoleRuntimeReadModel {
     #[serde(deserialize_with = "deserialize_lan_schema_version_text")]
-    pub schema_version: String,
+    pub schema_version: LanPairingText,
     pub physical_device_id: String,
     pub surface: DeviceRuntimeSurface,
     pub platform: String,

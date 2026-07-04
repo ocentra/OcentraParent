@@ -1,4 +1,5 @@
 use metadata::{tracking_runtime_metadata, TrackingRuntimeHop};
+use ocentra_eventing::bus::reports::handler::EventMetricsSnapshot;
 use ocentra_eventing::{
     bus::subscriber::SubscriptionReport, bus::EventBus, envelope::EventMetadata,
     error::EventingError, request::RequestCompletionReport,
@@ -23,6 +24,8 @@ use subscriptions::{
 };
 
 mod check_in_requests;
+mod hop_source_component_and_runtime_role;
+mod hop_target_handler;
 mod metadata;
 mod state;
 mod state_analysis;
@@ -130,7 +133,7 @@ impl TrackingRuntimeEventFlow {
         self.report()
     }
 
-    pub async fn metrics_snapshot(&self) -> ocentra_eventing::bus::reports::EventMetricsSnapshot {
+    pub async fn metrics_snapshot(&self) -> EventMetricsSnapshot {
         self.bus.metrics_snapshot().await
     }
 

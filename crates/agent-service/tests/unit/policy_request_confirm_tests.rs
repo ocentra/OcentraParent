@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use std::{error::Error, fs::remove_file, io::Error as IoError};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -45,9 +48,11 @@ async fn policy_request_assistant_preview_confirm_accepts_valid_parent_confirmat
         let body = serde_json::to_string(&command_envelope(
             &default_policy_request_assistant_preview_confirm_request(),
         )?)?;
-        let event = handle_local_command_text_for_test(&body).await;
+        let event =
+            handle_local_command_text_for_test(crate::test_text::TestText::from_display(body))
+                .await;
         let result = result_payload(
-            &event.payload[constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT],
+            &crate::test_invariants::log_field(&event.payload, constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
         )?;
         let store = ActivityStore::open(&store_path).map_err(|error| {
             IoError::other(format!(
@@ -130,9 +135,11 @@ async fn policy_request_assistant_preview_confirm_leaves_unsupported_targets_unc
 
     let test_result: TestResult = async {
         let body = serde_json::to_string(&command_envelope(&request)?)?;
-        let event = handle_local_command_text_for_test(&body).await;
+        let event =
+            handle_local_command_text_for_test(crate::test_text::TestText::from_display(body))
+                .await;
         let result = result_payload(
-            &event.payload[constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT],
+            &crate::test_invariants::log_field(&event.payload, constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
         )?;
         let store = ActivityStore::open(&store_path).map_err(|error| {
             IoError::other(format!(
@@ -183,9 +190,10 @@ async fn policy_request_assistant_preview_confirm_leaves_unsupported_targets_unc
 async fn policy_request_assistant_preview_confirm_rejects_missing_typed_request_payload(
 ) -> TestResult {
     let body = serde_json::to_string(&command_envelope_without_request()?)?;
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let result = result_payload(
-        &event.payload[constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT],
+        &crate::test_invariants::log_field(&event.payload, constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
     )?;
 
     assert_eq!(
@@ -210,9 +218,10 @@ async fn policy_request_assistant_preview_confirm_rejects_invalid_parent_authori
     let mut request = default_policy_request_assistant_preview_confirm_request();
     request.confirmation_actor_role = PolicyRequestAssistantPreviewConfirmActorRole::Observer;
     let body = serde_json::to_string(&command_envelope(&request)?)?;
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let result = result_payload(
-        &event.payload[constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT],
+        &crate::test_invariants::log_field(&event.payload, constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
     )?;
 
     assert_eq!(
@@ -269,7 +278,8 @@ fn result_payload(
     }
 }
 
-fn temp_path(suffix: &str) -> std::path::PathBuf {
+fn temp_path(suffix: impl AsRef<str>) -> std::path::PathBuf {
+    let suffix = suffix.as_ref();
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

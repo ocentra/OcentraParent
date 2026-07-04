@@ -24,6 +24,44 @@ pub enum NetworkAndroidVpnServiceGateCapabilityStatusState {
     Unavailable,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkAndroidVpnServiceGateRequiredArtifact {
+    #[serde(rename = "vpn-service-declaration")]
+    VpnServiceDeclaration,
+    #[serde(rename = "user-consent-proof")]
+    UserConsentProof,
+    #[serde(rename = "physical-device-proof")]
+    PhysicalDeviceProof,
+    #[serde(rename = "package-identity-proof")]
+    PackageIdentityProof,
+    #[serde(rename = "virtual-interface-proof")]
+    VirtualInterfaceProof,
+    #[serde(rename = "traffic-observation-proof")]
+    TrafficObservationProof,
+    #[serde(rename = "rollback-plan")]
+    RollbackPlan,
+    #[serde(rename = "audit-event")]
+    AuditEvent,
+    #[serde(rename = "device-owner-proof")]
+    DeviceOwnerProof,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkAndroidVpnServiceGateBoundaryReason {
+    #[serde(rename = "research-only-requested")]
+    ResearchOnlyRequested,
+    #[serde(rename = "capability-manual-required")]
+    CapabilityManualRequired,
+    #[serde(rename = "capability-unavailable")]
+    CapabilityUnavailable,
+    #[serde(rename = "evidence-grade-below-proof-threshold")]
+    EvidenceGradeBelowProofThreshold,
+    #[serde(rename = "policy-not-vpn-service-approved")]
+    PolicyNotVpnServiceApproved,
+    #[serde(rename = "missing-required-artifact")]
+    MissingRequiredArtifact,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkAndroidVpnServiceGateStatus {
@@ -37,8 +75,8 @@ pub struct NetworkAndroidVpnServiceGateStatus {
     pub vpn_service_ref: String,
     pub capability_state: NetworkAndroidVpnServiceGateCapabilityStatusState,
     pub gate_state: NetworkAndroidVpnServiceGateStatusState,
-    pub boundary_reasons: Vec<String>,
-    pub missing_required_artifacts: Vec<String>,
+    pub boundary_reasons: Vec<NetworkAndroidVpnServiceGateBoundaryReason>,
+    pub missing_required_artifacts: Vec<NetworkAndroidVpnServiceGateRequiredArtifact>,
     pub vpn_service_declaration_ref: Option<String>,
     pub user_consent_proof_ref: Option<String>,
     pub physical_device_proof_ref: Option<String>,

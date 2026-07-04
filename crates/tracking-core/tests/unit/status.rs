@@ -9,9 +9,7 @@ use ocentra_tracking_core::status::{
 
 fn child_device_id() -> TrackingChildDeviceId {
     TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        .unwrap_or_else(|_| {
-            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        })
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
 }
 
 #[test]

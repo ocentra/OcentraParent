@@ -17,33 +17,20 @@ use ocentra_policy_control_core::policy_source::{
     PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRollbackRef, PolicyVersion,
 };
 
-fn audit_ref(value: &str) -> TestResult<PolicyAuditReferenceId> {
+fn audit_ref(value: impl std::fmt::Display) -> TestResult<PolicyAuditReferenceId> {
     Ok(test_ok!(
-        PolicyAuditReferenceId::parse(value),
+        PolicyAuditReferenceId::parse(value.to_string()),
         "policy audit ref"
     ))
 }
 
-fn sample_event(kind: PolicyEventKind, sequence: u64) -> TestResult<PolicyEvent> {
-    sample_event_result(kind, sequence)
-}
-
-fn sample_event_result(kind: PolicyEventKind, sequence: u64) -> TestResult<PolicyEvent> {
-    let scope = sample_scope(kind)?;
-    let reason_code = if kind_requires_reason(kind) {
-        Some(test_ok!(
-            PolicyReasonCode::parse(kind.reason_code_value()),
-            "policy reason code"
-        ))
-    } else {
-        None
-    };
-    let dead_letter_reason = if matches!(kind, PolicyEventKind::DeadLetterRecorded) {
-        Some(PolicyEventDeadLetterReason::ReplayRejected)
-    } else {
-        None
-    };
-
+fn sample_policy_event(
+    kind: PolicyEventKind,
+    sequence: u64,
+    scope: PolicyEventScope,
+    reason_code: Option<PolicyReasonCode>,
+    dead_letter_reason: Option<PolicyEventDeadLetterReason>,
+) -> TestResult<PolicyEvent> {
     Ok(PolicyEvent {
         schema_version: test_ok!(policy_event_schema_version(), "policy event schema version"),
         kind,
@@ -55,129 +42,173 @@ fn sample_event_result(kind: PolicyEventKind, sequence: u64) -> TestResult<Polic
     })
 }
 
-fn sample_scope(kind: PolicyEventKind) -> TestResult<PolicyEventScope> {
-    let household_id = test_ok!(
-        PolicyHouseholdId::parse("household-default"),
-        "policy household id"
-    );
-    let source_document_id = test_ok!(
-        ParentPolicyDocumentId::parse("policy-source-default"),
-        "policy source document id"
-    );
-    let policy_version = test_ok!(PolicyVersion::new(5), "policy version");
-
-    match kind {
-        PolicyEventKind::DraftCreated
-        | PolicyEventKind::PreviewRequested
-        | PolicyEventKind::PreviewGenerated
-        | PolicyEventKind::Confirmed
-        | PolicyEventKind::VersionSuperseded
-        | PolicyEventKind::CompilerRequested
-        | PolicyEventKind::CompilerCompleted
-        | PolicyEventKind::AuditRecorded
-        | PolicyEventKind::DeadLetterRecorded
-        | PolicyEventKind::ManualRequired => Ok(PolicyEventScope::SourceDocument {
-            household_id,
-            source_document_id,
-            policy_version,
-        }),
-        PolicyEventKind::AskParentRequested
-        | PolicyEventKind::AskParentApproved
-        | PolicyEventKind::AskParentDenied => Ok(PolicyEventScope::Request {
-            household_id,
-            request_id: test_ok!(
-                PolicyRequestId::parse("policy-request-default"),
-                "policy request id"
-            ),
-            child_profile_id: test_ok!(
-                PolicyChildProfileId::parse("child-primary"),
-                "child profile id"
-            ),
-            source_document_id,
-            policy_version,
-        }),
-        PolicyEventKind::OverrideCreated | PolicyEventKind::OverrideExpired => {
-            Ok(PolicyEventScope::Override {
-                household_id,
-                override_id: test_ok!(
-                    PolicyOverrideId::parse("policy-override-default"),
-                    "policy override id"
-                ),
-                approval_id: test_ok!(
-                    PolicyApprovalId::parse("policy-approval-default"),
-                    "policy approval id"
-                ),
-                request_id: test_ok!(
-                    PolicyRequestId::parse("policy-request-default"),
-                    "policy request id"
-                ),
-                source_document_id,
-                policy_version,
-            })
-        }
-        PolicyEventKind::DeliveryQueued
-        | PolicyEventKind::DeliverySent
-        | PolicyEventKind::DeliveryAcknowledged
-        | PolicyEventKind::DeliveryRejected
-        | PolicyEventKind::DeliveryExpired
-        | PolicyEventKind::DeliveryRetryScheduled
-        | PolicyEventKind::DomainApplied
-        | PolicyEventKind::DomainPartial => Ok(PolicyEventScope::Delivery {
-            household_id,
-            delivery_id: test_ok!(
-                PolicyDeliveryId::parse("policy-delivery-default"),
-                "policy delivery id"
-            ),
-            child_profile_id: test_ok!(
-                PolicyChildProfileId::parse("child-primary"),
-                "child profile id"
-            ),
-            device_id: test_ok!(PolicyDeviceId::parse("device-laptop"), "device id"),
-            domain: PolicyConsumerDomain::Tracking,
-            source_document_id,
-            policy_version,
-        }),
-        PolicyEventKind::RollbackRequested | PolicyEventKind::RollbackApplied => {
-            Ok(PolicyEventScope::Rollback {
-                household_id,
-                rollback_ref: PolicyRollbackRef {
-                    household_id: test_ok!(
-                        PolicyHouseholdId::parse("household-default"),
-                        "policy household id"
-                    ),
-                    rolled_back_document_id: test_ok!(
-                        ParentPolicyDocumentId::parse("policy-source-default"),
-                        "rolled back document id"
-                    ),
-                    rolled_back_policy_version: test_ok!(
-                        PolicyVersion::new(5),
-                        "rolled back policy version"
-                    ),
-                    restored_document_id: test_ok!(
-                        ParentPolicyDocumentId::parse("policy-source-previous"),
-                        "restored document id"
-                    ),
-                    restored_policy_version: test_ok!(
-                        PolicyVersion::new(4),
-                        "restored policy version"
-                    ),
-                },
-            })
-        }
-    }
+fn source_document_scope() -> TestResult<PolicyEventScope> {
+    Ok(PolicyEventScope::SourceDocument {
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "policy household id"
+        ),
+        source_document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-default"),
+            "policy source document id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(5), "policy version"),
+    })
 }
 
-fn kind_requires_reason(kind: PolicyEventKind) -> bool {
-    matches!(
-        kind,
-        PolicyEventKind::DeliveryRejected
-            | PolicyEventKind::DeliveryExpired
-            | PolicyEventKind::DeliveryRetryScheduled
-            | PolicyEventKind::DomainPartial
-            | PolicyEventKind::AskParentDenied
-            | PolicyEventKind::OverrideExpired
-            | PolicyEventKind::ManualRequired
-            | PolicyEventKind::RollbackApplied
+fn request_scope() -> TestResult<PolicyEventScope> {
+    Ok(PolicyEventScope::Request {
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "policy household id"
+        ),
+        request_id: test_ok!(
+            PolicyRequestId::parse("policy-request-default"),
+            "policy request id"
+        ),
+        child_profile_id: test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        ),
+        source_document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-default"),
+            "policy source document id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(5), "policy version"),
+    })
+}
+
+fn override_scope() -> TestResult<PolicyEventScope> {
+    Ok(PolicyEventScope::Override {
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "policy household id"
+        ),
+        override_id: test_ok!(
+            PolicyOverrideId::parse("policy-override-default"),
+            "policy override id"
+        ),
+        approval_id: test_ok!(
+            PolicyApprovalId::parse("policy-approval-default"),
+            "policy approval id"
+        ),
+        request_id: test_ok!(
+            PolicyRequestId::parse("policy-request-default"),
+            "policy request id"
+        ),
+        source_document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-default"),
+            "policy source document id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(5), "policy version"),
+    })
+}
+
+fn delivery_scope() -> TestResult<PolicyEventScope> {
+    Ok(PolicyEventScope::Delivery {
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "policy household id"
+        ),
+        delivery_id: test_ok!(
+            PolicyDeliveryId::parse("policy-delivery-default"),
+            "policy delivery id"
+        ),
+        child_profile_id: test_ok!(
+            PolicyChildProfileId::parse("child-primary"),
+            "child profile id"
+        ),
+        device_id: test_ok!(PolicyDeviceId::parse("device-laptop"), "device id"),
+        domain: PolicyConsumerDomain::Tracking,
+        source_document_id: test_ok!(
+            ParentPolicyDocumentId::parse("policy-source-default"),
+            "policy source document id"
+        ),
+        policy_version: test_ok!(PolicyVersion::new(5), "policy version"),
+    })
+}
+
+fn rollback_scope() -> TestResult<PolicyEventScope> {
+    Ok(PolicyEventScope::Rollback {
+        household_id: test_ok!(
+            PolicyHouseholdId::parse("household-default"),
+            "policy household id"
+        ),
+        rollback_ref: PolicyRollbackRef {
+            household_id: test_ok!(
+                PolicyHouseholdId::parse("household-default"),
+                "policy household id"
+            ),
+            rolled_back_document_id: test_ok!(
+                ParentPolicyDocumentId::parse("policy-source-default"),
+                "rolled back document id"
+            ),
+            rolled_back_policy_version: test_ok!(
+                PolicyVersion::new(5),
+                "rolled back policy version"
+            ),
+            restored_document_id: test_ok!(
+                ParentPolicyDocumentId::parse("policy-source-previous"),
+                "restored document id"
+            ),
+            restored_policy_version: test_ok!(PolicyVersion::new(4), "restored policy version"),
+        },
+    })
+}
+
+fn sample_delivery_queued_event(sequence: u64) -> TestResult<PolicyEvent> {
+    sample_policy_event(
+        PolicyEventKind::DeliveryQueued,
+        sequence,
+        delivery_scope()?,
+        None,
+        None,
+    )
+}
+
+fn sample_delivery_sent_event(sequence: u64) -> TestResult<PolicyEvent> {
+    sample_policy_event(
+        PolicyEventKind::DeliverySent,
+        sequence,
+        delivery_scope()?,
+        None,
+        None,
+    )
+}
+
+fn sample_rollback_applied_event(sequence: u64) -> TestResult<PolicyEvent> {
+    sample_policy_event(
+        PolicyEventKind::RollbackApplied,
+        sequence,
+        rollback_scope()?,
+        Some(test_ok!(
+            PolicyReasonCode::parse("manual-required"),
+            "reason code"
+        )),
+        None,
+    )
+}
+
+fn sample_dead_letter_recorded_event(sequence: u64) -> TestResult<PolicyEvent> {
+    sample_policy_event(
+        PolicyEventKind::DeadLetterRecorded,
+        sequence,
+        source_document_scope()?,
+        None,
+        Some(PolicyEventDeadLetterReason::ReplayRejected),
+    )
+}
+
+fn sample_manual_required_event(sequence: u64) -> TestResult<PolicyEvent> {
+    sample_policy_event(
+        PolicyEventKind::ManualRequired,
+        sequence,
+        source_document_scope()?,
+        Some(test_ok!(
+            PolicyReasonCode::parse("manual-required"),
+            "reason code"
+        )),
+        None,
     )
 }
 
@@ -228,7 +259,7 @@ fn policy_event_family_registry_lists_all_event_types() -> TestResult {
 
 #[test]
 fn policy_event_keys_and_contract_are_stable_for_delivery_events() -> TestResult {
-    let event = sample_event(PolicyEventKind::DeliveryQueued, 3)?;
+    let event = sample_delivery_queued_event(3)?;
 
     let contract = test_ok!(event.contract(), "policy event contract");
     assert_eq!(contract.event_type.as_str(), "policy.delivery.queued");
@@ -246,7 +277,7 @@ fn policy_event_keys_and_contract_are_stable_for_delivery_events() -> TestResult
 
 #[test]
 fn policy_event_replay_tracks_duplicate_stale_and_conflicting_sequences() -> TestResult {
-    let current = sample_event(PolicyEventKind::DeliveryQueued, 3)?;
+    let current = sample_delivery_queued_event(3)?;
     let current_record = test_ok!(current.replay_record(), "policy event replay record");
 
     match test_ok!(
@@ -262,11 +293,8 @@ fn policy_event_replay_tracks_duplicate_stale_and_conflicting_sequences() -> Tes
         }
     }
 
-    match apply_policy_event_replay(
-        &current_record,
-        &sample_event(PolicyEventKind::DeliveryQueued, 2)?,
-    )
-    .map_err(|error| std::io::Error::other(format!("stale replay: {error}")))?
+    match apply_policy_event_replay(&current_record, &sample_delivery_queued_event(2)?)
+        .map_err(|error| std::io::Error::other(format!("stale replay: {error}")))?
     {
         PolicyEventApplyOutcome::Stale(record) => assert_eq!(record, current_record),
         other => {
@@ -278,10 +306,7 @@ fn policy_event_replay_tracks_duplicate_stale_and_conflicting_sequences() -> Tes
     }
 
     let error = test_err!(
-        apply_policy_event_replay(
-            &current_record,
-            &sample_event(PolicyEventKind::DeliverySent, 3)?
-        ),
+        apply_policy_event_replay(&current_record, &sample_delivery_sent_event(3)?),
         "conflicting same-sequence replay must fail"
     );
     assert_eq!(
@@ -296,7 +321,7 @@ fn policy_event_replay_tracks_duplicate_stale_and_conflicting_sequences() -> Tes
 
 #[test]
 fn policy_event_redacted_summary_omits_private_identifiers() -> TestResult {
-    let event = sample_event(PolicyEventKind::RollbackApplied, 5)?;
+    let event = sample_rollback_applied_event(5)?;
     let summary = event.redacted_summary();
 
     assert_eq!(
@@ -307,7 +332,7 @@ fn policy_event_redacted_summary_omits_private_identifiers() -> TestResult {
     assert_eq!(summary.find("policy-approval-default"), None);
     assert_eq!(summary.find("policy-delivery-default"), None);
 
-    let dead_letter = sample_event(PolicyEventKind::DeadLetterRecorded, 4)?;
+    let dead_letter = sample_dead_letter_recorded_event(4)?;
     let dead_letter_summary = dead_letter.redacted_summary();
     assert_eq!(
         dead_letter_summary,
@@ -318,7 +343,7 @@ fn policy_event_redacted_summary_omits_private_identifiers() -> TestResult {
 
 #[test]
 fn policy_event_manual_required_and_dead_letter_payloads_remain_explicit() -> TestResult {
-    let manual_required = sample_event(PolicyEventKind::ManualRequired, 1)?;
+    let manual_required = sample_manual_required_event(1)?;
     assert_eq!(
         test_some!(
             manual_required.reason_code.as_ref(),
@@ -328,7 +353,7 @@ fn policy_event_manual_required_and_dead_letter_payloads_remain_explicit() -> Te
         "manual-required"
     );
 
-    let dead_letter = sample_event(PolicyEventKind::DeadLetterRecorded, 1)?;
+    let dead_letter = sample_dead_letter_recorded_event(1)?;
     assert_eq!(
         test_some!(dead_letter.dead_letter_reason, "dead letter reason"),
         PolicyEventDeadLetterReason::ReplayRejected

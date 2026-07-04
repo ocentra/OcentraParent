@@ -88,7 +88,8 @@ async fn websocket_network_remote_delivery_status_command_reports_payload() -> T
             constants::error::AGENT_EVENT_SERIALIZES
         ))
     })?;
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let status: NetworkRemoteDeliveryStatus = status_value(
         &event.payload,
         constants::field::NETWORK_REMOTE_DELIVERY_STATUS,

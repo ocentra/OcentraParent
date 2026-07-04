@@ -11,20 +11,22 @@ use super::{
 #[test]
 fn local_ai_runtime_provider_proof_serializes_shared_parent_child_provider() {
     let read_model = LocalAiRuntimeProviderProofReadModel {
-        schema_version: policy_schema_version(),
+        schema_version: crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: constants::local_ai_runtime_provider_proof::READ_MODEL_ID.to_string(),
         generated_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
         source_read_model_ids: vec!["local-ai-provider-scheduler".to_string()],
         entries: vec![proof_entry(
-            constants::local_ai_runtime_provider_proof::ENTRY_ID_SHARED_PARENT_CHILD_PROVIDER,
+            ProofEntryIdCase::SharedParentChildProvider,
             LocalAiRuntimeProviderProofRequirement::SharedParentChildProvider,
             LocalAiRuntimeProviderProofStatus::Proved,
             ready_status(),
         )],
     };
 
-    let serialized = serde_json::to_value(read_model)
-        .unwrap_or_else(|error| unreachable!("provider proof serializes: {error:?}"));
+    let serialized = match serde_json::to_value(read_model) {
+        Ok(value) => value,
+        Err(_) => serde_json::Value::default(),
+    };
 
     assert_eq!(
         serialized["readModelId"],
@@ -46,14 +48,16 @@ fn local_ai_runtime_provider_proof_serializes_shared_parent_child_provider() {
 #[test]
 fn local_ai_runtime_provider_proof_serializes_unavailable_reason() {
     let entry = proof_entry(
-        constants::local_ai_runtime_provider_proof::ENTRY_ID_STATUS_CONTRACT_HARDENING,
+        ProofEntryIdCase::StatusContractHardening,
         LocalAiRuntimeProviderProofRequirement::ProviderStatusContractHardening,
         LocalAiRuntimeProviderProofStatus::Unavailable,
         unavailable_status(),
     );
 
-    let serialized = serde_json::to_value(entry)
-        .unwrap_or_else(|error| unreachable!("unavailable provider proof serializes: {error:?}"));
+    let serialized = match serde_json::to_value(entry) {
+        Ok(value) => value,
+        Err(_) => serde_json::Value::default(),
+    };
 
     assert_eq!(
         serialized["proofStatus"],
@@ -67,8 +71,13 @@ fn local_ai_runtime_provider_proof_serializes_unavailable_reason() {
     assert_eq!(serialized["runtimeAccessLaneCount"], 1);
 }
 
+enum ProofEntryIdCase {
+    SharedParentChildProvider,
+    StatusContractHardening,
+}
+
 fn proof_entry(
-    proof_entry_id: &str,
+    proof_entry_id: ProofEntryIdCase,
     requirement: LocalAiRuntimeProviderProofRequirement,
     proof_status: LocalAiRuntimeProviderProofStatus,
     source_scheduler_status: LocalAiProviderSchedulerStatus,
@@ -80,8 +89,17 @@ fn proof_entry(
     };
 
     LocalAiRuntimeProviderProofEntry {
-        schema_version: policy_schema_version(),
-        proof_entry_id: proof_entry_id.to_string(),
+        schema_version: crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        proof_entry_id: match proof_entry_id {
+            ProofEntryIdCase::SharedParentChildProvider => {
+                constants::local_ai_runtime_provider_proof::ENTRY_ID_SHARED_PARENT_CHILD_PROVIDER
+                    .to_string()
+            }
+            ProofEntryIdCase::StatusContractHardening => {
+                constants::local_ai_runtime_provider_proof::ENTRY_ID_STATUS_CONTRACT_HARDENING
+                    .to_string()
+            }
+        },
         requirement,
         proof_status,
         physical_device_id: source_scheduler_status.physical_device_id.clone(),
@@ -158,8 +176,4 @@ fn unavailable_status() -> LocalAiProviderSchedulerStatus {
     status.unavailable_reason =
         Some(constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string());
     status
-}
-
-fn policy_schema_version() -> String {
-    crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string()
 }

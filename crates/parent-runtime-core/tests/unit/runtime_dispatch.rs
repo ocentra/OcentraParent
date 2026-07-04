@@ -33,6 +33,18 @@ use ocentra_parent_runtime_core::tracking_dispatch::{
     ParentRuntimeTarget, PARENT_RUNTIME_TRACKING_DISPATCH_EVALUATED_EVENT_TYPE,
 };
 
+macro_rules! result_or_panic {
+    ($result:expr, $context:expr $(,)?) => {
+        $result.expect($context)
+    };
+}
+
+macro_rules! option_or_panic {
+    ($option:expr, $context:expr $(,)?) => {
+        $option.expect($context)
+    };
+}
+
 #[test]
 fn child_device_change_is_published_and_can_await_acknowledgement() {
     let decision = route_parent_runtime_change(ParentRuntimeChangeRequest {
@@ -236,7 +248,7 @@ fn tracking_config_parent_runtime_records_typed_dispatch_event() {
         ChildAcknowledgementWaitState::Await
     );
     assert_eq!(
-        result_or_panic(dispatch.contract(), "parent runtime dispatch contract")
+        result_or_panic!(dispatch.contract(), "parent runtime dispatch contract")
             .event_type
             .as_str(),
         PARENT_RUNTIME_TRACKING_DISPATCH_EVALUATED_EVENT_TYPE
@@ -246,7 +258,7 @@ fn tracking_config_parent_runtime_records_typed_dispatch_event() {
 #[tokio::test]
 async fn tracking_child_check_in_request_publishes_trusted_intent_and_awaits_receipt() {
     let bus = EventBus::new();
-    let runtime_flow = result_or_panic(
+    let runtime_flow = result_or_panic!(
         TrackingRuntimeEventFlow::with_bus(bus.clone()).await,
         constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
     );
@@ -260,14 +272,14 @@ async fn tracking_child_check_in_request_publishes_trusted_intent_and_awaits_rec
     let report = decision
         .publish_tracking_child_check_in_request(&bus, parent_requested_check_in_event())
         .await;
-    let report = option_or_panic(
-        result_or_panic(
+    let report = option_or_panic!(
+        result_or_panic!(
             report,
             constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
         ),
         "awaited check-in request should return a receipt",
     );
-    let (request, metadata, receipt, completion) = option_or_panic(
+    let (request, metadata, receipt, completion) = option_or_panic!(
         runtime_flow.latest_parent_requested_check_in(),
         "child runtime should record the parent check-in request",
     );
@@ -283,7 +295,7 @@ async fn tracking_child_check_in_request_publishes_trusted_intent_and_awaits_rec
         constants::tracking_runtime::SOURCE_COMPONENT_PARENT_RUNTIME
     );
     assert_eq!(
-        option_or_panic(
+        option_or_panic!(
             metadata.target_handler.as_ref(),
             "target handler should be preserved",
         )
@@ -296,7 +308,7 @@ async fn tracking_child_check_in_request_publishes_trusted_intent_and_awaits_rec
 #[tokio::test]
 async fn tracking_child_check_in_request_can_publish_without_waiting_for_receipt() {
     let bus = EventBus::new();
-    let runtime_flow = result_or_panic(
+    let runtime_flow = result_or_panic!(
         TrackingRuntimeEventFlow::with_bus(bus.clone()).await,
         constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
     );
@@ -310,11 +322,11 @@ async fn tracking_child_check_in_request_can_publish_without_waiting_for_receipt
     let report = decision
         .publish_tracking_child_check_in_request(&bus, parent_requested_check_in_event())
         .await;
-    let report = result_or_panic(
+    let report = result_or_panic!(
         report,
         constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
     );
-    let (_, _, receipt, completion) = option_or_panic(
+    let (_, _, receipt, completion) = option_or_panic!(
         runtime_flow.latest_parent_requested_check_in(),
         "child runtime should record the fire-and-forget check-in request",
     );
@@ -330,7 +342,7 @@ async fn tracking_child_check_in_request_can_publish_without_waiting_for_receipt
 #[tokio::test]
 async fn tracking_child_check_in_request_rejects_duplicate_awaited_request_ids() {
     let bus = EventBus::new();
-    let runtime_flow = result_or_panic(
+    let runtime_flow = result_or_panic!(
         TrackingRuntimeEventFlow::with_bus(bus.clone()).await,
         constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
     );
@@ -345,18 +357,15 @@ async fn tracking_child_check_in_request_rejects_duplicate_awaited_request_ids()
     let first = decision
         .publish_tracking_child_check_in_request(&bus, request.clone())
         .await;
-    let first = result_or_panic(
+    let first = result_or_panic!(
         first,
         constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
     );
-    let first = option_or_panic(first, "first request should return a receipt");
-    let duplicate = match decision
+    let first = option_or_panic!(first, "first request should return a receipt");
+    let duplicate = decision
         .publish_tracking_child_check_in_request(&bus, request)
         .await
-    {
-        Ok(_) => unreachable!("duplicate request id should be rejected"),
-        Err(error) => error,
-    };
+        .expect_err("duplicate request id should be rejected");
 
     assert_eq!(
         first.response.delivery_state,
@@ -367,7 +376,7 @@ async fn tracking_child_check_in_request_rejects_duplicate_awaited_request_ids()
         EventingError::DuplicateRequest { ref request_id }
             if request_id.as_str() == constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID
     ));
-    let (_, _, _, completion) = option_or_panic(
+    let (_, _, _, completion) = option_or_panic!(
         runtime_flow.latest_parent_requested_check_in(),
         "initial request should still be recorded",
     );
@@ -405,56 +414,39 @@ fn tracking_config_command() -> AgentCommandEnvelope {
 
 fn parent_requested_check_in_event() -> TrackingChildCheckInRequestedEvent {
     TrackingChildCheckInRequestedEvent {
-        child_device_id: result_or_panic(
+        child_device_id: result_or_panic!(
             TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         ),
-        child_profile_id: result_or_panic(
+        child_profile_id: result_or_panic!(
             TrackingChildProfileId::parse(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         ),
-        check_in_id: result_or_panic(
+        check_in_id: result_or_panic!(
             TrackingCheckInId::parse(constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID),
             constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
         ),
-        requested_at: result_or_panic(
+        requested_at: result_or_panic!(
             TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
             constants::tracking_runtime::DEFAULT_OBSERVED_AT,
         ),
         request_state: TrackingChildCheckInRequestState::Pending,
         delivery_state: TrackingChildCheckInDeliveryState::Queued,
-        related_alert_id: result_or_panic(
+        related_alert_id: result_or_panic!(
             TrackingPolicyViolationId::parse(
                 constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
             ),
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         ),
         include_location_if_permitted: true,
-        expires_at: result_or_panic(
+        expires_at: result_or_panic!(
             TrackingTimestamp::parse("2026-06-12T12:05:00Z"),
             "2026-06-12T12:05:00Z",
         ),
-        evidence_refs: vec![result_or_panic(
+        evidence_refs: vec![result_or_panic!(
             TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF),
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )],
         audit_refs: vec![String::from("audit.tracking.child-check-in.request")],
-    }
-}
-
-fn result_or_panic<T, E>(result: Result<T, E>, context: &'static str) -> T
-where
-    E: std::fmt::Debug,
-{
-    match result {
-        Ok(value) => value,
-        Err(error) => unreachable!("{context}: {error:?}"),
-    }
-}
-
-fn option_or_panic<T>(option: Option<T>, context: &'static str) -> T {
-    match option {
-        Some(value) => value,
-        None => unreachable!("{context}"),
     }
 }

@@ -1,8 +1,8 @@
-import type { GeneratedStackTrace as StackTrace } from '@ocentra-parent/schema-domain/generated/logging-contracts';
+import type { GeneratedStackTrace as StackTrace } from '../generated/logging-contracts';
 import {
   parseGeneratedStackTrace,
   type GeneratedStackFrame,
-} from '../generated/stack-trace-runtime';
+} from '../stack-trace-runtime';
 
 export type StackFrame = GeneratedStackFrame;
 

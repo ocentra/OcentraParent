@@ -20,8 +20,7 @@ use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REP
 #[test]
 fn social_parent_notification_delivery_snapshot_serializes_claim_boundaries() {
     let snapshot = snapshot();
-    let value = serde_json::to_value(snapshot)
-        .unwrap_or_else(|error| unreachable!("snapshot serializes: {error:?}"));
+    let value = serde_json::to_value(snapshot).expect("snapshot serializes: {error:?}");
 
     assert_eq!(
         value["schemaVersion"],
@@ -41,7 +40,7 @@ fn social_parent_notification_delivery_snapshot_serializes_claim_boundaries() {
 }
 
 fn assert_ready_row(row: Option<&Value>) {
-    let row = row.unwrap_or_else(|| unreachable!("ready row exists"));
+    let row = row.expect("ready row exists");
     assert_eq!(
         row["notificationDeliveryReadinessState"],
         json!(SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY)
@@ -59,7 +58,7 @@ fn snapshot() -> SocialParentNotificationDeliveryReadinessSnapshot {
     SocialParentNotificationDeliveryReadinessSnapshot {
         schema_version: SOCIAL_PARENT_NOTIFICATION_DELIVERY_SCHEMA_VERSION.to_string(),
         readiness_id: SOCIAL_PARENT_NOTIFICATION_DELIVERY_READINESS_ID.to_string(),
-        generated_at: timestamp(),
+        generated_at: "2026-06-08T11:45:00Z".to_string(),
         source_report_writer_proof_ref:
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_REPORT_WRITER_PROOF_REF.to_string(),
         rows: vec![row()],
@@ -110,10 +109,6 @@ fn row() -> SocialParentNotificationDeliveryReadinessRow {
         provider_receipt_ingested: false,
         final_policy_decision_claimed: false,
         enforcement_claimed: false,
-        created_at: timestamp(),
+        created_at: "2026-06-08T11:45:00Z".to_string(),
     }
-}
-
-fn timestamp() -> String {
-    "2026-06-08T11:45:00Z".to_string()
 }

@@ -15,7 +15,6 @@ import {
   GeneratedChildIosEntitlementProtocolEvents,
   GeneratedChildIosEntitlementRuntimeOwners,
   GeneratedChildIosEntitlementSurfaceNames,
-  type GeneratedChildIosEntitlementCapabilityReadModelShape,
   type GeneratedChildIosEntitlementPackagePhase,
   type GeneratedChildIosEntitlementProtocolCommand,
   type GeneratedChildIosEntitlementProtocolEvent,
@@ -60,6 +59,12 @@ const ChildIosEntitlementBundleIdSchema = brandedNonEmptyStringSchema('ChildIosE
 const ChildIosEntitlementClassNameSchema = brandedNonEmptyStringSchema('ChildIosEntitlementClassName');
 const ChildIosEntitlementRequirementSchema = brandedNonEmptyStringSchema('ChildIosEntitlementRequirement');
 const ChildIosEntitlementBoundarySchema = brandedNonEmptyStringSchema('ChildIosEntitlementBoundary');
+
+export type ChildIosEntitlementBundleId = typeof ChildIosEntitlementBundleIdSchema.Type;
+export type ChildIosEntitlementClassName = typeof ChildIosEntitlementClassNameSchema.Type;
+export type ChildIosEntitlementRequirement = typeof ChildIosEntitlementRequirementSchema.Type;
+export type ChildIosEntitlementBoundary = typeof ChildIosEntitlementBoundarySchema.Type;
+export type ChildIosEntitlementTimestamp = typeof ParentTimestampSchema.Type;
 
 export const ChildIosEntitlementSurfaceProofSchema = withParser(
   Schema.Struct({
@@ -164,10 +169,7 @@ export type ChildIosEntitlementSurfaceProof = Infer<typeof ChildIosEntitlementSu
 export type ChildIosEntitlementPackageLifecycleProof = Infer<typeof ChildIosEntitlementPackageLifecycleProofSchema>;
 export type ChildIosEntitlementProtocolBridgeProof = Infer<typeof ChildIosEntitlementProtocolBridgeProofSchema>;
 export type ChildIosEntitlementClaimBoundaries = Infer<typeof ChildIosEntitlementClaimBoundariesSchema>;
-export type ChildIosEntitlementCapabilityReadModel = Infer<
-  typeof ChildIosEntitlementCapabilityReadModelSchema
-> &
-  GeneratedChildIosEntitlementCapabilityReadModelShape;
+export type ChildIosEntitlementCapabilityReadModel = Infer<typeof ChildIosEntitlementCapabilityReadModelSchema>;
 
 export const ChildIosEntitlementCapabilityReadModelProof =
   ChildIosEntitlementCapabilityReadModelSchema.parse(GeneratedChildIosEntitlementCapabilityReadModel);

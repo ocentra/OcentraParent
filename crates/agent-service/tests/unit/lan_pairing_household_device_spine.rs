@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingProductionDiscoveryState, LanPairingTrustState,
@@ -233,7 +236,7 @@ fn parent_rename_decision_updates_canonical_display_name_with_evidence() {
         &[household_decision(
             LanHouseholdDeviceActionKind::Rename,
             &canonical_device_id,
-            Some(constants::lan_pairing::HOUSEHOLD_RENAMED_DEVICE_LABEL),
+            Some(constants::lan_pairing::HOUSEHOLD_RENAMED_DEVICE_LABEL.to_string()),
         )],
     );
 
@@ -275,7 +278,7 @@ fn parent_rename_decision_survives_same_mac_rescan_with_new_ip_and_weaker_neighb
         &[household_decision(
             LanHouseholdDeviceActionKind::Rename,
             &canonical_device_id,
-            Some(renamed_label),
+            Some(renamed_label.to_string()),
         )],
     );
 

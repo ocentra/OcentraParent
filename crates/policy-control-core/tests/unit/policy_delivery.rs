@@ -1,4 +1,11 @@
+#[path = "policy_delivery_helpers.rs"]
+mod helpers;
+
 use super::TestResult;
+use helpers::{
+    attempt, audit_ref, reason, sample_delivery_target, sample_policy_rollback_ref,
+    sample_policy_source_document, sample_queued_delivery, transition, transition_or_context,
+};
 use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
@@ -22,197 +29,6 @@ use ocentra_policy_control_core::policy_source::{
     PolicyScheduleWindow, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
     PolicyVersion,
 };
-
-fn sample_policy_source_document() -> TestResult<ParentPolicySourceDocument> {
-    Ok(ParentPolicySourceDocument {
-        schema_version: test_ok!(
-            parent_policy_source_schema_version(),
-            "policy source schema version"
-        ),
-        document_id: test_ok!(
-            ParentPolicyDocumentId::parse("policy-source-household-default"),
-            "policy source document id"
-        ),
-        household_id: test_ok!(
-            PolicyHouseholdId::parse("household-default"),
-            "household id"
-        ),
-        policy_version: test_ok!(PolicyVersion::new(3), "policy version"),
-        source_surface: PolicySourceSurface::ParentPortal,
-        actor_id: test_ok!(PolicyActorId::parse("actor-parent"), "policy actor id"),
-        actor_role: ParentPolicyActorRole::Parent,
-        status: PolicySourceStatus::Confirmed,
-        child_profile_ids: vec![test_ok!(
-            PolicyChildProfileId::parse("child-primary"),
-            "child profile id"
-        )],
-        device_ids: vec![test_ok!(
-            PolicyDeviceId::parse("device-laptop"),
-            "policy device id"
-        )],
-        rules: vec![ParentPolicyRule {
-            rule_id: test_ok!(
-                PolicyRuleId::parse("rule-school-night-block"),
-                "policy rule id"
-            ),
-            target: PolicyRuleTarget {
-                kind: PolicyTargetKind::Category,
-                reference_id: test_ok!(
-                    PolicyTargetReferenceId::parse("category-gaming"),
-                    "policy target reference"
-                ),
-            },
-            action: PolicyRuleAction::Block,
-            schedule_id: Some(test_ok!(
-                PolicyScheduleId::parse("schedule-school-night"),
-                "policy schedule id"
-            )),
-            priority: 100,
-            reason_code: test_ok!(
-                PolicyReasonCode::parse("school-night"),
-                "policy reason code"
-            ),
-            enabled: true,
-        }],
-        schedules: vec![PolicyScheduleWindow {
-            schedule_id: test_ok!(
-                PolicyScheduleId::parse("schedule-school-night"),
-                "policy schedule id"
-            ),
-            timezone_name: test_ok!(
-                PolicyTimezoneName::parse("America/Toronto"),
-                "policy timezone name"
-            ),
-            starts_at: "21:00".to_string(),
-            ends_at: "07:00".to_string(),
-            time_budget: PolicyScheduleTimeBudget {
-                budget_window_minutes: 120,
-                reset: PolicyScheduleBudgetResetRule {
-                    kind: PolicyScheduleBudgetResetKind::Daily,
-                    local_time: "00:00".to_string(),
-                    day: None,
-                },
-                carryover: PolicyScheduleBudgetCarryoverRule {
-                    mode: PolicyScheduleBudgetCarryoverMode::DiscardUnused,
-                    max_minutes: None,
-                },
-                grace_period_minutes: 5,
-                effective_from: "2026-01-01T00:00:00Z".to_string(),
-                effective_until: None,
-                bonus_expiry_minutes: 30,
-                clock_source: PolicyScheduleClockSource::TrustedService,
-                offline_recovery: PolicyScheduleOfflineRecovery::RecomputeFromJournal,
-            },
-        }],
-        audit_reference_ids: vec![test_ok!(
-            PolicyAuditReferenceId::parse("audit-policy-confirmed"),
-            "policy audit ref"
-        )],
-        superseded_by_policy_version: None,
-        rollback_ref: None,
-        retention: PolicyRetentionMetadata {
-            export_allowed: true,
-            delete_allowed: true,
-            sync_allowed: false,
-        },
-    })
-}
-
-fn sample_delivery_target() -> TestResult<PolicyDeliveryTarget> {
-    Ok(PolicyDeliveryTarget {
-        child_profile_id: test_ok!(
-            PolicyChildProfileId::parse("child-primary"),
-            "child profile id"
-        ),
-        device_id: test_ok!(PolicyDeviceId::parse("device-laptop"), "policy device id"),
-        domain: PolicyConsumerDomain::Tracking,
-    })
-}
-
-fn sample_policy_rollback_ref() -> TestResult<PolicyRollbackRef> {
-    Ok(PolicyRollbackRef {
-        household_id: test_ok!(
-            PolicyHouseholdId::parse("household-default"),
-            "household id"
-        ),
-        rolled_back_document_id: test_ok!(
-            ParentPolicyDocumentId::parse("policy-source-household-default"),
-            "policy source document id"
-        ),
-        rolled_back_policy_version: test_ok!(PolicyVersion::new(3), "policy version"),
-        restored_document_id: test_ok!(
-            ParentPolicyDocumentId::parse("policy-source-household-previous"),
-            "policy source document id"
-        ),
-        restored_policy_version: test_ok!(PolicyVersion::new(2), "policy version"),
-    })
-}
-
-fn sample_queued_delivery() -> TestResult<PolicyDeliveryRecord> {
-    let source = sample_policy_source_document()?;
-    let compiled = test_ok!(
-        compile_domain_policy_artifact(&source, PolicyConsumerDomain::Tracking),
-        "compiled domain policy artifact"
-    );
-
-    Ok(test_ok!(
-        queue_policy_delivery(
-            &compiled,
-            sample_delivery_target()?,
-            test_ok!(
-                PolicyDeliveryId::parse("delivery-policy-household-default"),
-                "policy delivery id"
-            ),
-            test_ok!(
-                PolicyDeliveryAttemptId::parse("attempt-queued"),
-                "policy attempt id"
-            ),
-            vec![audit_ref("audit-policy-queued")?],
-        ),
-        "queued policy delivery"
-    ))
-}
-
-fn audit_ref(value: &str) -> TestResult<PolicyAuditReferenceId> {
-    Ok(test_ok!(
-        PolicyAuditReferenceId::parse(value),
-        "policy audit ref"
-    ))
-}
-
-fn reason(value: &str) -> TestResult<PolicyReasonCode> {
-    Ok(test_ok!(
-        PolicyReasonCode::parse(value),
-        "policy reason code"
-    ))
-}
-
-fn attempt(value: &str) -> TestResult<PolicyDeliveryAttemptId> {
-    Ok(test_ok!(
-        PolicyDeliveryAttemptId::parse(value),
-        "policy attempt id"
-    ))
-}
-
-fn transition(
-    sequence: u64,
-    attempt_id: &str,
-    state: PolicyDeliveryState,
-) -> TestResult<PolicyDeliveryTransition> {
-    Ok(PolicyDeliveryTransition {
-        attempt_id: attempt(attempt_id)?,
-        sequence: test_ok!(
-            PolicyDeliverySequence::new(sequence),
-            "policy delivery sequence"
-        ),
-        state,
-        audit_reference_ids: vec![audit_ref(&format!("audit-{attempt_id}-{sequence}"))?],
-        reason_code: None,
-        superseded_by_policy_version: None,
-        rollback_reference_state: None,
-    })
-}
-
 #[test]
 fn queued_delivery_starts_pending_per_child_device_domain() -> TestResult {
     let queued = sample_queued_delivery()?;
@@ -269,10 +85,13 @@ fn queued_delivery_preserves_source_lifecycle_metadata_separately_from_delivery_
         superseded_source.audit_reference_ids
     );
     assert_eq!(
-        superseded_delivery
-            .source_superseded_by_policy_version
-            .ok_or_else(|| std::io::Error::other("replacement policy version"))?
-            .value(),
+        test_some!(
+            superseded_delivery
+                .source_superseded_by_policy_version
+                .as_ref(),
+            "replacement policy version"
+        )
+        .value(),
         4
     );
     assert!(superseded_delivery.source_rollback_ref.is_none());
@@ -318,12 +137,12 @@ fn queued_delivery_preserves_source_lifecycle_metadata_separately_from_delivery_
         .source_superseded_by_policy_version
         .is_none());
     assert_eq!(
-        rolled_back_delivery
-            .source_rollback_ref
-            .as_ref()
-            .ok_or_else(|| std::io::Error::other("source rollback ref"))?
-            .restored_policy_version
-            .value(),
+        test_some!(
+            rolled_back_delivery.source_rollback_ref.as_ref(),
+            "source rollback ref"
+        )
+        .restored_policy_version
+        .value(),
         2
     );
     assert_eq!(
@@ -349,11 +168,13 @@ fn duplicate_and_older_transitions_are_safe_noops() -> TestResult {
         apply_policy_delivery_transition(&delivered_record, delivered),
         "duplicate delivery is idempotent"
     );
-    let stale = apply_policy_delivery_transition(
-        &delivered_record,
-        transition(1, "attempt-stale", PolicyDeliveryState::Queued)?,
-    )
-    .map_err(|error| std::io::Error::other(format!("older queued replay is ignored: {error}")))?;
+    let stale = transition_or_context(
+        apply_policy_delivery_transition(
+            &delivered_record,
+            transition(1, "attempt-stale", PolicyDeliveryState::Queued)?,
+        ),
+        "older queued replay is ignored",
+    )?;
 
     assert!(matches!(
         duplicate,
@@ -582,19 +403,11 @@ fn retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progr
         PolicyDeliveryParentVisibleState::Degraded
     );
     assert_eq!(
-        partial
-            .reason_code
-            .as_ref()
-            .ok_or_else(|| std::io::Error::other("partial reason code"))?
-            .as_str(),
+        test_some!(partial.reason_code.as_ref(), "partial reason code").as_str(),
         "domain-subset-applied"
     );
     assert_eq!(
-        expired
-            .reason_code
-            .as_ref()
-            .ok_or_else(|| std::io::Error::other("expired reason code"))?
-            .as_str(),
+        test_some!(expired.reason_code.as_ref(), "expired reason code").as_str(),
         "delivery-window-expired"
     );
     assert!(!partial.is_active());
@@ -722,9 +535,10 @@ fn rejected_and_rolled_back_transitions_require_reason_and_reference_context() -
         PolicyDeliveryParentVisibleState::ManualRequired
     );
     assert_eq!(
-        rolled_back
-            .rollback_reference_state
-            .ok_or_else(|| std::io::Error::other("rollback reference state"))?,
+        test_some!(
+            rolled_back.rollback_reference_state,
+            "rollback reference state"
+        ),
         PolicyDeliveryState::Applied
     );
     Ok(())
@@ -825,10 +639,11 @@ fn superseded_before_ack_stays_superseded_and_never_becomes_active() -> TestResu
         PolicyDeliveryParentVisibleState::Superseded
     );
     assert_eq!(
-        superseded_record
-            .superseded_by_policy_version
-            .ok_or_else(|| std::io::Error::other("replacement policy version"))?
-            .value(),
+        test_some!(
+            superseded_record.superseded_by_policy_version,
+            "replacement policy version"
+        )
+        .value(),
         4
     );
     assert!(!superseded_record.is_active());

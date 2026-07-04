@@ -1,11 +1,11 @@
-use crate::windows_firewall_lab_execution::{
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::windows_firewall_lab_execution::{
     prove_network_windows_firewall_lab_execution,
     types::{
         NetworkWindowsFirewallLabCommandKind, NetworkWindowsFirewallLabExecutionInput,
         NetworkWindowsFirewallLabExecutionState,
     },
 };
-use ocentra_eventing::expect_value::ExpectValue;
 
 use super::fixtures::{command, lab_execution_input};
 

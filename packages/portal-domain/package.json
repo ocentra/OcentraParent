@@ -174,8 +174,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/agent-protocol-domain": "file:../agent-protocol-domain",
-    "@ocentra-parent/logging-domain": "file:../logging-domain",
-    "@ocentra-parent/schema-domain": "file:../schema-domain"
+    "@ocentra-parent/logging-domain": "file:../logging-domain"
   }
 }

@@ -3,9 +3,12 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanMdnsAdvertisementConfirmationState;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingChallengeRequest;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
@@ -14,7 +17,9 @@ use ocentra_parent_agent_protocol::transport::AgentEventName;
 use crate::{
     event_builder::build_event,
     fields::fields_from_pairs,
-    lan_pairing::{validate_local_child_target, LanPairingChallengeState, LanPairingRuntime},
+    lan_pairing::{
+        extend_log_fields, validate_local_child_target, LanPairingChallengeState, LanPairingRuntime,
+    },
     lan_pairing_audit::{challenge_issued_audit_fields, rejected_control_audit_fields},
     lan_pairing_browser_add_device_state::browser_add_device_pairs,
     lan_pairing_payload::parse_challenge_request,
@@ -26,8 +31,8 @@ pub(crate) mod selection;
 
 #[derive(Clone, Debug)]
 struct LanPairingStatus {
-    pairing_state: &'static str,
-    authentication_state: &'static str,
+    pairing_state: LanPairingText,
+    authentication_state: LanPairingText,
     trusted_device_count: usize,
     selected_target: Option<LanSelectedRouteTarget>,
     trusted_device_ids: Vec<String>,
@@ -41,43 +46,47 @@ pub(crate) fn pairing_status_event(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let status = pairing_status(runtime);
-    let mut pairs = support_surface_pairs(runtime);
-    pairs.extend(browser_add_device_pairs(
-        runtime,
-        &command,
-        discovery_state(&status),
-    ));
-    pairs.extend(state_pairs(&status));
+    let mut fields = support_surface_fields(runtime);
+    extend_log_fields(
+        &mut fields,
+        fields_from_pairs(browser_add_device_pairs(
+            runtime,
+            &command,
+            discovery_state(&status).0.as_str(),
+        )),
+    );
+    extend_log_fields(&mut fields, state_fields(&status));
     build_event(
         constants::lan_pairing::EVENT_STATUS_REPORTED,
         &command.message_id,
         command.source,
         AgentEventName::AgentLanPairingStatusReported,
         LogLevel::Info,
-        fields_from_pairs(pairs),
+        fields,
         None,
     )
 }
 
 pub(crate) fn pairing_challenge_status_event(
     runtime: &LanPairingRuntime,
-    origin: Option<&str>,
+    origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     match parse_challenge_request(&command.payload) {
-        Ok(request) => match validate_challenge_request(runtime, origin, &command, &request) {
+        Ok(request) => match validate_challenge_request(runtime, &origin, &command, &request) {
             Ok(()) => {
                 let challenge = challenge_state_for_request(&command, &request);
                 runtime.remember_challenge(challenge.clone());
                 let mut event = pairing_status_event(runtime, command);
-                event
-                    .payload
-                    .extend(challenge_issued_audit_fields(&challenge));
+                extend_log_fields(
+                    &mut event.payload,
+                    challenge_issued_audit_fields(&challenge),
+                );
                 event
             }
-            Err(reason) => challenge_rejection_event(command, &reason, origin),
+            Err(reason) => challenge_rejection_event(command, &reason, &origin),
         },
-        Err(reason) => challenge_rejection_event(command, &reason, origin),
+        Err(reason) => challenge_rejection_event(command, &reason, &origin),
     }
 }
 
@@ -85,7 +94,7 @@ fn pairing_status(runtime: &LanPairingRuntime) -> LanPairingStatus {
     let trusted_device_count = runtime.trusted_device_count();
     let selected_target = runtime.selected_target();
     let mut status = LanPairingStatus {
-        pairing_state: constants::value::LAN_PAIRING_UNPAIRED,
+        pairing_state: constants::value::LAN_PAIRING_UNPAIRED.to_string().into(),
         authentication_state: authentication_state(&selected_target),
         trusted_device_count,
         selected_target,
@@ -100,7 +109,7 @@ fn pairing_status(runtime: &LanPairingRuntime) -> LanPairingStatus {
 
 fn validate_challenge_request(
     runtime: &LanPairingRuntime,
-    origin: Option<&str>,
+    origin: &LanPairingOptionalText,
     command: &AgentCommandEnvelope,
     request: &LanPairingChallengeRequest,
 ) -> Result<(), LanPairingRejectionReason> {
@@ -108,7 +117,7 @@ fn validate_challenge_request(
     if command.target.device_id.as_str() != request.child_device_id.as_str() {
         return Err(LanPairingRejectionReason::WrongDevice);
     }
-    if origin != Some(request.origin.as_str()) {
+    if origin.0.as_deref() != Some(request.origin.as_str()) {
         return Err(LanPairingRejectionReason::WrongOrigin);
     }
     if timestamp_now().as_str() > request.expires_at.as_str() {
@@ -147,9 +156,9 @@ fn challenge_state_for_request(
 fn challenge_rejection_event(
     command: AgentCommandEnvelope,
     reason: &LanPairingRejectionReason,
-    origin: Option<&str>,
+    origin: &LanPairingOptionalText,
 ) -> AgentEventEnvelope {
-    let payload = rejected_control_audit_fields(&command, reason, None, origin);
+    let payload = rejected_control_audit_fields(&command, reason, None, &origin);
     build_event(
         constants::event_id::COMMAND_REJECTED,
         &command.message_id,
@@ -174,9 +183,9 @@ fn active_challenge_count(runtime: &LanPairingRuntime) -> usize {
         .unwrap_or(0)
 }
 
-fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogFieldValue)> {
+fn support_surface_fields(runtime: &LanPairingRuntime) -> LogFields {
     let status = pairing_status(runtime);
-    let mut pairs = vec![
+    let mut fields = fields_from_pairs(vec![
         (
             constants::field::TRANSPORT,
             LogFieldValue::String(constants::value::TRANSPORT_WEBSOCKET.to_string()),
@@ -241,22 +250,20 @@ fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogF
                     .join(&constants::delimiter::LIST.to_string()),
             ),
         ),
-    ];
-    pairs.extend(lan_ai_provider_support_pairs());
-    pairs.extend(mdns_advertisement_support_pairs(runtime));
-    pairs.extend(signed_child_agent_support_pairs(runtime));
-    pairs
+    ]);
+    extend_log_fields(&mut fields, lan_ai_provider_support_fields());
+    extend_log_fields(&mut fields, mdns_advertisement_support_fields(runtime));
+    extend_log_fields(&mut fields, signed_child_agent_support_fields(runtime));
+    fields
 }
 
-fn mdns_advertisement_support_pairs(
-    runtime: &LanPairingRuntime,
-) -> Vec<(&'static str, LogFieldValue)> {
+fn mdns_advertisement_support_fields(runtime: &LanPairingRuntime) -> LogFields {
     let lifecycle = LanPairingRuntime::mdns_advertisement_lifecycle(
         runtime.signed_child_agent_family_hash.is_some(),
         false,
         current_platform_support(),
     );
-    vec![
+    fields_from_pairs(vec![
         (
             constants::field::LAN_MDNS_ADVERTISEMENT_LIFECYCLE,
             LogFieldValue::String(lifecycle.lifecycle_action.as_str().to_string()),
@@ -273,13 +280,11 @@ fn mdns_advertisement_support_pairs(
                     .to_string(),
             ),
         ),
-    ]
+    ])
 }
 
-fn signed_child_agent_support_pairs(
-    runtime: &LanPairingRuntime,
-) -> Vec<(&'static str, LogFieldValue)> {
-    vec![
+fn signed_child_agent_support_fields(runtime: &LanPairingRuntime) -> LogFields {
+    fields_from_pairs(vec![
         (
             constants::field::LAN_SIGNED_CHILD_AGENT_STATUS,
             LogFieldValue::String(
@@ -290,11 +295,11 @@ fn signed_child_agent_support_pairs(
             constants::field::LAN_SIGNED_CHILD_AGENT_REPLAY_OBSERVED_COUNT,
             LogFieldValue::Number(runtime.signed_child_agent_replay_observation_count() as f64),
         ),
-    ]
+    ])
 }
 
-fn lan_ai_provider_support_pairs() -> Vec<(&'static str, LogFieldValue)> {
-    vec![
+fn lan_ai_provider_support_fields() -> LogFields {
+    fields_from_pairs(vec![
         (
             constants::field::LAN_AI_PROVIDER_STATUS,
             LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
@@ -311,14 +316,14 @@ fn lan_ai_provider_support_pairs() -> Vec<(&'static str, LogFieldValue)> {
                 constants::value::LAN_PROVIDER_CUSTODY_LOCAL_NETWORK_AI_PROVIDER.to_string(),
             ),
         ),
-    ]
+    ])
 }
 
-pub(crate) fn discovery_state_for_runtime(runtime: &LanPairingRuntime) -> &'static str {
+pub(crate) fn discovery_state_for_runtime(runtime: &LanPairingRuntime) -> LanPairingText {
     discovery_state(&pairing_status(runtime))
 }
 
-fn discovery_state(status: &LanPairingStatus) -> &'static str {
+fn discovery_state(status: &LanPairingStatus) -> LanPairingText {
     match status
         .selected_target
         .as_ref()
@@ -326,18 +331,32 @@ fn discovery_state(status: &LanPairingStatus) -> &'static str {
     {
         Some(LanPairingDeviceReachability::Offline) => {
             constants::value::LAN_DISCOVERY_STATE_OFFLINE
+                .to_string()
+                .into()
         }
-        Some(LanPairingDeviceReachability::Stale) => constants::value::LAN_DISCOVERY_STATE_STALE,
-        Some(LanPairingDeviceReachability::Online) => constants::value::LAN_DISCOVERY_STATE_PAIRED,
-        None if status.trusted_device_count > 0 => constants::value::LAN_DISCOVERY_STATE_PAIRED,
-        None if status.active_challenge_count > 0 => constants::value::LAN_DISCOVERY_STATE_PENDING,
-        None if status.has_revoked_pairing => constants::value::LAN_DISCOVERY_STATE_REVOKED,
-        None => constants::value::LAN_DISCOVERY_STATE_DISCOVERED,
+        Some(LanPairingDeviceReachability::Stale) => constants::value::LAN_DISCOVERY_STATE_STALE
+            .to_string()
+            .into(),
+        Some(LanPairingDeviceReachability::Online) => constants::value::LAN_DISCOVERY_STATE_PAIRED
+            .to_string()
+            .into(),
+        None if status.trusted_device_count > 0 => constants::value::LAN_DISCOVERY_STATE_PAIRED
+            .to_string()
+            .into(),
+        None if status.active_challenge_count > 0 => constants::value::LAN_DISCOVERY_STATE_PENDING
+            .to_string()
+            .into(),
+        None if status.has_revoked_pairing => constants::value::LAN_DISCOVERY_STATE_REVOKED
+            .to_string()
+            .into(),
+        None => constants::value::LAN_DISCOVERY_STATE_DISCOVERED
+            .to_string()
+            .into(),
     }
 }
 
-fn state_pairs(status: &LanPairingStatus) -> Vec<(&'static str, LogFieldValue)> {
-    vec![
+fn state_fields(status: &LanPairingStatus) -> LogFields {
+    fields_from_pairs(vec![
         (
             constants::field::LAN_PAIRING_STATE,
             LogFieldValue::String(status.pairing_state.to_string()),
@@ -402,25 +421,25 @@ fn state_pairs(status: &LanPairingStatus) -> Vec<(&'static str, LogFieldValue)> 
             constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT,
             LogFieldValue::String(selection::offline_at(status.selected_target.as_ref())),
         ),
-    ]
+    ])
 }
 
-fn pairing_state(status: &LanPairingStatus) -> &'static str {
+fn pairing_state(status: &LanPairingStatus) -> LanPairingText {
     if status.trusted_device_count > 0 {
-        constants::value::LAN_PAIRING_PAIRED
+        constants::value::LAN_PAIRING_PAIRED.to_string().into()
     } else if status.active_challenge_count > 0 {
-        constants::value::LAN_PAIRING_PAIRING
+        constants::value::LAN_PAIRING_PAIRING.to_string().into()
     } else if status.has_revoked_pairing {
-        constants::value::LAN_PAIRING_REVOKED
+        constants::value::LAN_PAIRING_REVOKED.to_string().into()
     } else {
-        constants::value::LAN_PAIRING_UNPAIRED
+        constants::value::LAN_PAIRING_UNPAIRED.to_string().into()
     }
 }
 
-fn authentication_state(selected: &Option<LanSelectedRouteTarget>) -> &'static str {
+fn authentication_state(selected: &Option<LanSelectedRouteTarget>) -> LanPairingText {
     if selected.is_some() {
-        constants::value::LAN_AUTH_PAIRED
+        constants::value::LAN_AUTH_PAIRED.to_string().into()
     } else {
-        constants::value::LAN_AUTH_UNPAIRED
+        constants::value::LAN_AUTH_UNPAIRED.to_string().into()
     }
 }

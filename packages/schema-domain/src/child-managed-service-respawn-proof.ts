@@ -227,23 +227,50 @@ function platformProofMatches(
   platform: ChildManagedServiceRespawnPlatform
 ): boolean {
   const expected = ExpectedPlatformProofs[platform];
-  return Boolean(
-    proof &&
-      proof.platform === platform &&
-      proof.supervisor === expected.supervisor &&
-      proof.proofState === expected.proofState &&
-      proof.runtimeOwner === expected.runtimeOwner &&
-      proof.respawnState === expected.respawnState &&
-      proof.restartSurvivalState === expected.restartSurvivalState &&
-      proof.killRecoveryState === expected.killRecoveryState &&
-      proof.stopRecoveryState === expected.stopRecoveryState &&
-      proof.rebootRecoveryState === expected.rebootRecoveryState &&
-      proof.serviceManagerRestartState === expected.serviceManagerRestartState &&
-      proof.teardownState === expected.teardownState &&
-      proof.proofRequirement === expected.proofRequirement &&
-      proof.teardownRequirement === expected.teardownRequirement &&
-      proof.claimBoundary === expected.claimBoundary &&
-      requiredValuesArePresent(proof.sourceRefs, expected.sourceRefs)
+  return (
+    proof !== undefined &&
+    platformProofIdentityMatches(proof, platform, expected) &&
+    platformProofStateMatches(proof, expected) &&
+    platformProofRequirementsMatch(proof, expected)
+  );
+}
+
+function platformProofIdentityMatches(
+  proof: ChildManagedServiceRespawnPlatformProof,
+  platform: ChildManagedServiceRespawnPlatform,
+  expected: (typeof ExpectedPlatformProofs)[ChildManagedServiceRespawnPlatform]
+): boolean {
+  return (
+    proof.platform === platform &&
+    proof.supervisor === expected.supervisor &&
+    proof.runtimeOwner === expected.runtimeOwner &&
+    proof.respawnState === expected.respawnState &&
+    proof.restartSurvivalState === expected.restartSurvivalState &&
+    proof.killRecoveryState === expected.killRecoveryState &&
+    proof.stopRecoveryState === expected.stopRecoveryState
+  );
+}
+
+function platformProofStateMatches(
+  proof: ChildManagedServiceRespawnPlatformProof,
+  expected: (typeof ExpectedPlatformProofs)[ChildManagedServiceRespawnPlatform]
+): boolean {
+  return (
+    proof.proofState === expected.proofState &&
+    proof.serviceManagerRestartState === expected.serviceManagerRestartState &&
+    proof.teardownState === expected.teardownState
+  );
+}
+
+function platformProofRequirementsMatch(
+  proof: ChildManagedServiceRespawnPlatformProof,
+  expected: (typeof ExpectedPlatformProofs)[ChildManagedServiceRespawnPlatform]
+): boolean {
+  return (
+    proof.proofRequirement === expected.proofRequirement &&
+    proof.teardownRequirement === expected.teardownRequirement &&
+    proof.claimBoundary === expected.claimBoundary &&
+    requiredValuesArePresent(proof.sourceRefs, expected.sourceRefs)
   );
 }
 

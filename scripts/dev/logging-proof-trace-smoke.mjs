@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 import { appendTestLogEntries } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
 import { getTestLogScopeDir, listNdjsonFiles } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
-import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
+import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
 import { createBridgeServer } from '@ocentra-parent/logging-domain/transport/bridgeServer';
 import {
   fetchRunInfoFromBridge,

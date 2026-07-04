@@ -15,7 +15,6 @@ const ignoredPathParts = new Set([
   'dist',
   'node_modules',
   'ocentra-ledger',
-  'temp-scratchpad-proof',
 ]);
 const sourceExtension = /\.(?:ts|tsx)$/u;
 const findings = [];

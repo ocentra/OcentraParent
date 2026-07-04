@@ -27,24 +27,29 @@ fn parent_log_event_preserves_rust_owned_encoded_shape() {
 
     let event = ParentLogEvent {
         schema_version: LOG_SCHEMA_VERSION,
-        entry_id: LogEntryId::parse("parent-log-1").value_or_unreachable("entry id"),
+        entry_id: LogEntryId::parse("parent-log-1")
+            .value_or_unreachable(crate::assert_context!("entry id")),
         timestamp: "2026-06-26T07:30:00Z".to_string(),
         level: LogLevel::Info,
         source: LogSource::AgentService,
         message: "parent runtime started".to_string(),
         fields,
-        run_id: Some(LogRunId::parse("run-1").value_or_unreachable("run id")),
+        run_id: Some(
+            LogRunId::parse("run-1").value_or_unreachable(crate::assert_context!("run id")),
+        ),
         lane_id: None,
         command_id: None,
         correlation_id: Some(
-            LogCorrelationId::parse("corr-1").value_or_unreachable("correlation id"),
+            LogCorrelationId::parse("corr-1")
+                .value_or_unreachable(crate::assert_context!("correlation id")),
         ),
         file: None,
         line: Some(42),
         column: None,
     };
 
-    let encoded = serde_json::to_value(&event).value_or_unreachable("log event must serialize");
+    let encoded = serde_json::to_value(&event)
+        .value_or_unreachable(crate::assert_context!("log event must serialize"));
 
     assert_eq!(encoded["schemaVersion"], json!(LOG_SCHEMA_VERSION));
     assert_eq!(encoded["id"], json!("parent-log-1"));
@@ -60,8 +65,8 @@ fn parent_log_event_preserves_rust_owned_encoded_shape() {
     assert!(encoded.get("entry_id").is_none());
     assert!(encoded.get("laneId").is_none());
 
-    let decoded: ParentLogEvent =
-        serde_json::from_value(encoded).value_or_unreachable("encoded event must deserialize");
+    let decoded: ParentLogEvent = serde_json::from_value(encoded)
+        .value_or_unreachable(crate::assert_context!("encoded event must deserialize"));
     assert_eq!(decoded, event);
 }
 
@@ -69,25 +74,33 @@ fn parent_log_event_preserves_rust_owned_encoded_shape() {
 fn agent_log_snapshot_matches_ts_logging_contract_family_shape() {
     let entry = AgentLogEntry {
         schema_version: LOG_SCHEMA_VERSION,
-        entry_id: LogEntryId::parse("agent-log-1").value_or_unreachable("entry id"),
-        timestamp: LogTimestamp::parse("2026-06-26T07:31:00Z").value_or_unreachable("timestamp"),
+        entry_id: LogEntryId::parse("agent-log-1")
+            .value_or_unreachable(crate::assert_context!("entry id")),
+        timestamp: LogTimestamp::parse("2026-06-26T07:31:00Z")
+            .value_or_unreachable(crate::assert_context!("timestamp")),
         level: LogLevel::Warn,
         source: LogSource::Portal,
-        message: LogMessage::parse("portal command retried").value_or_unreachable("message"),
+        message: LogMessage::parse("portal command retried")
+            .value_or_unreachable(crate::assert_context!("message")),
         fields: log_fields(),
     };
     let snapshot = AgentLogSnapshot {
         schema_version: LOG_SCHEMA_VERSION,
         agent: AgentIdentity {
-            device_id: AgentDeviceId::parse("device-alpha").value_or_unreachable("device id"),
-            hostname: AgentHostname::parse("parent-host").value_or_unreachable("hostname"),
-            platform: AgentPlatform::parse("windows").value_or_unreachable("platform"),
-            service_version: AgentServiceVersion::parse("0.1.1").value_or_unreachable("version"),
+            device_id: AgentDeviceId::parse("device-alpha")
+                .value_or_unreachable(crate::assert_context!("device id")),
+            hostname: AgentHostname::parse("parent-host")
+                .value_or_unreachable(crate::assert_context!("hostname")),
+            platform: AgentPlatform::parse("windows")
+                .value_or_unreachable(crate::assert_context!("platform")),
+            service_version: AgentServiceVersion::parse("0.1.1")
+                .value_or_unreachable(crate::assert_context!("version")),
         },
         entries: vec![entry],
     };
 
-    let encoded = serde_json::to_value(&snapshot).value_or_unreachable("snapshot must serialize");
+    let encoded = serde_json::to_value(&snapshot)
+        .value_or_unreachable(crate::assert_context!("snapshot must serialize"));
 
     assert_eq!(encoded["schemaVersion"], json!(LOG_SCHEMA_VERSION));
     assert_eq!(encoded["agent"]["deviceId"], json!("device-alpha"));
@@ -97,8 +110,8 @@ fn agent_log_snapshot_matches_ts_logging_contract_family_shape() {
     assert_eq!(encoded["entries"][0]["level"], json!("warn"));
     assert!(encoded["entries"][0].get("entryId").is_none());
 
-    let decoded: AgentLogSnapshot =
-        serde_json::from_value(encoded).value_or_unreachable("snapshot must deserialize");
+    let decoded: AgentLogSnapshot = serde_json::from_value(encoded)
+        .value_or_unreachable(crate::assert_context!("snapshot must deserialize"));
     assert_eq!(decoded, snapshot);
 }
 
@@ -109,13 +122,15 @@ fn log_snapshot_preserves_status_alias_and_defaults_entries() {
         "status": "ready"
     });
 
-    let decoded: LogSnapshot = serde_json::from_value(encoded)
-        .value_or_unreachable("snapshot must deserialize without entries");
+    let decoded: LogSnapshot = serde_json::from_value(encoded).value_or_unreachable(
+        crate::assert_context!("snapshot must deserialize without entries"),
+    );
     assert_eq!(decoded.schema_version, LOG_SNAPSHOT_SCHEMA_VERSION);
     assert_eq!(decoded.snapshot_state, "ready");
     assert!(decoded.entries.is_empty());
 
-    let reencoded = serde_json::to_value(&decoded).value_or_unreachable("snapshot must serialize");
+    let reencoded = serde_json::to_value(&decoded)
+        .value_or_unreachable(crate::assert_context!("snapshot must serialize"));
     assert_eq!(reencoded["status"], json!("ready"));
     assert_eq!(reencoded["entries"], json!([]));
 }
@@ -127,6 +142,14 @@ fn generated_typescript_logging_contracts_stay_checked_in() {
     let generated = logging_contracts_typescript();
 
     assert_eq!(checked_in, generated);
+    assert_logger_runtime_environment_constants();
+    assert_logger_runtime_defaults();
+    assert_dev_log_bridge_constants();
+    assert_logging_enum_serialization();
+    assert_logging_identifier_parsers();
+}
+
+fn assert_logger_runtime_environment_constants() {
     assert_eq!(
         LoggerRuntimeEnvironment::RUN_ID,
         "OCENTRA_PARENT_LOG_RUN_ID"
@@ -152,7 +175,9 @@ fn generated_typescript_logging_contracts_stay_checked_in() {
         LoggerRuntimeEnvironment::ENVIRONMENT,
         "OCENTRA_PARENT_LOG_ENVIRONMENT"
     );
+}
 
+fn assert_logger_runtime_defaults() {
     assert_eq!(
         LoggerRuntimeDefaults::GENERATED_RUN_ID_PREFIX,
         "parent-log-run-"
@@ -160,7 +185,9 @@ fn generated_typescript_logging_contracts_stay_checked_in() {
     assert_eq!(LoggerRuntimeDefaults::TEST_NAME, "parent-runtime-logger");
     assert_eq!(LoggerRuntimeDefaults::UNKNOWN_MODULE, "UnknownModule");
     assert_eq!(LoggerRuntimeDefaults::MODULE_CONTEXT_SUFFIX, "module");
+}
 
+fn assert_dev_log_bridge_constants() {
     assert_eq!(DevLogEndpoint::WRITE, "/__ocentra-parent-dev-log");
     assert_eq!(DevLogHttp::METHOD_POST, "POST");
     assert_eq!(DevLogHttp::HEADER_CONTENT_TYPE, "Content-Type");
@@ -203,7 +230,9 @@ fn generated_typescript_logging_contracts_stay_checked_in() {
         DevLogMessage::DEV_SERVER_STARTED,
         "Vite dev server started."
     );
+}
 
+fn assert_logging_enum_serialization() {
     let levels = [
         LogLevel::Trace,
         LogLevel::Debug,
@@ -212,7 +241,8 @@ fn generated_typescript_logging_contracts_stay_checked_in() {
         LogLevel::Error,
     ];
     assert_eq!(
-        serde_json::to_value(levels).value_or_unreachable("levels must serialize"),
+        serde_json::to_value(levels)
+            .value_or_unreachable(crate::assert_context!("levels must serialize")),
         json!(["trace", "debug", "info", "warn", "error"])
     );
 
@@ -226,7 +256,8 @@ fn generated_typescript_logging_contracts_stay_checked_in() {
         LogSource::RustTest,
     ];
     assert_eq!(
-        serde_json::to_value(sources).value_or_unreachable("sources must serialize"),
+        serde_json::to_value(sources)
+            .value_or_unreachable(crate::assert_context!("sources must serialize")),
         json!([
             "agent-service",
             "dev-server",
@@ -237,46 +268,48 @@ fn generated_typescript_logging_contracts_stay_checked_in() {
             "rust-test"
         ])
     );
+}
 
+fn assert_logging_identifier_parsers() {
     assert_eq!(
         LogEntryId::parse("agent-log-1")
-            .value_or_unreachable("entry id")
+            .value_or_unreachable(crate::assert_context!("entry id"))
             .as_str(),
         "agent-log-1"
     );
     assert_eq!(
         LogTimestamp::parse("2026-06-26T07:31:00Z")
-            .value_or_unreachable("timestamp")
+            .value_or_unreachable(crate::assert_context!("timestamp"))
             .as_str(),
         "2026-06-26T07:31:00Z"
     );
     assert_eq!(
         LogMessage::parse(DevLogMessage::PORTAL_STARTED)
-            .value_or_unreachable("message")
+            .value_or_unreachable(crate::assert_context!("message"))
             .as_str(),
         DevLogMessage::PORTAL_STARTED
     );
     assert_eq!(
         AgentDeviceId::parse("device-alpha")
-            .value_or_unreachable("device id")
+            .value_or_unreachable(crate::assert_context!("device id"))
             .as_str(),
         "device-alpha"
     );
     assert_eq!(
         AgentHostname::parse("parent-host")
-            .value_or_unreachable("hostname")
+            .value_or_unreachable(crate::assert_context!("hostname"))
             .as_str(),
         "parent-host"
     );
     assert_eq!(
         AgentPlatform::parse("windows")
-            .value_or_unreachable("platform")
+            .value_or_unreachable(crate::assert_context!("platform"))
             .as_str(),
         "windows"
     );
     assert_eq!(
         AgentServiceVersion::parse("0.1.1")
-            .value_or_unreachable("version")
+            .value_or_unreachable(crate::assert_context!("version"))
             .as_str(),
         "0.1.1"
     );
@@ -284,14 +317,16 @@ fn generated_typescript_logging_contracts_stay_checked_in() {
 
 #[test]
 fn logging_contracts_adapter_stays_thin_and_generated_backed() {
-    let adapter = include_str!("../../../../packages/schema-domain/src/logging-contracts.ts");
+    let adapter = include_str!("../../../../packages/logging-domain/src/logging-contracts.ts");
 
     assert_eq!(
         adapter.lines().next(),
         Some("/* thin adapter over Rust-generated logging contracts */")
     );
     assert_eq!(
-        adapter.lines().nth(38),
+        adapter
+            .lines()
+            .find(|line| *line == "} from './generated/logging-contracts';"),
         Some("} from './generated/logging-contracts';")
     );
     assert_eq!(adapter.lines().last(), Some("} as const;"));

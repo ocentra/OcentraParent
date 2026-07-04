@@ -21,9 +21,9 @@ Purpose: define parent step-up auth with passkeys, biometrics, and OS-native app
 
 ## Test layout
 
-- `test/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs`
-- `test/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs`
-- `test/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
+- `tests/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs`
+- `tests/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs`
+- `tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
 
 ## Current audit state
 

@@ -10,11 +10,8 @@ use ocentra_tracking_core::status::{
 
 fn child_device_id() -> TrackingChildDeviceId {
     TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        .unwrap_or_else(|_| {
-            unreachable!("{}", constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        })
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
 }
-
 #[test]
 fn missing_device_mode_exposes_last_known_only_without_live_claim() {
     let decision = ocentra_tracking_core::missing_device::evaluate_missing_device_mode(
@@ -38,10 +35,7 @@ fn missing_device_mode_exposes_last_known_only_without_live_claim() {
         TrackingMissingDeviceState::parse(
             constants::tracking_runtime::MISSING_DEVICE_STATE_LAST_KNOWN_ONLY
         )
-        .unwrap_or_else(|_| unreachable!(
-            "{}",
-            constants::tracking_runtime::MISSING_DEVICE_STATE_LAST_KNOWN_ONLY
-        ))
+        .expect(constants::tracking_runtime::MISSING_DEVICE_STATE_LAST_KNOWN_ONLY)
     );
     assert_eq!(
         decision.parent_visibility_state,

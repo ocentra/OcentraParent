@@ -32,6 +32,7 @@ pub async fn run_once(
     let payload = verify_manifest(manifest, &public_key)?;
     let current = Version::parse(current_version)?;
     let latest = Version::parse(&payload.version)?;
+
     if latest <= current {
         return Ok(UpdateOutcome::Current {
             version: current.to_string(),
@@ -57,14 +58,11 @@ pub async fn run_once(
 pub async fn run_loop(manifest_url: &str, interval_seconds: u64) -> Result<(), UpdaterError> {
     sleep(Duration::from_secs(initial_delay_seconds())).await;
     loop {
-        match run_once(manifest_url, env!("CARGO_PKG_VERSION"), false).await {
-            Ok(UpdateOutcome::InstallerStarted { .. }) => return Ok(()),
-            Ok(_) => {}
-            Err(error) => {
-                let mut output = stderr().lock();
-                drop(writeln!(output, "updater check failed: {error}"));
-            }
+        let result = run_once(manifest_url, env!("CARGO_PKG_VERSION"), false).await;
+        if matches!(&result, Ok(UpdateOutcome::InstallerStarted { .. })) {
+            return Ok(());
         }
+        log_update_failure(&result)?;
         sleep(Duration::from_secs(effective_interval_seconds(
             interval_seconds,
         )))
@@ -72,11 +70,18 @@ pub async fn run_loop(manifest_url: &str, interval_seconds: u64) -> Result<(), U
     }
 }
 
+fn log_update_failure(result: &Result<UpdateOutcome, UpdaterError>) -> Result<(), UpdaterError> {
+    if let Err(error) = result {
+        let mut output = stderr().lock();
+        writeln!(output, "updater check failed: {error}")?;
+    }
+    Ok(())
+}
+
 fn trusted_public_key() -> Result<String, UpdaterError> {
-    if let Ok(value) = env::var(PUBLIC_KEY_ENV) {
-        if !value.trim().is_empty() {
-            return Ok(value);
-        }
+    match env::var(PUBLIC_KEY_ENV) {
+        Ok(value) if !value.trim().is_empty() => return Ok(value),
+        _ => {}
     }
     let built_in = built_in_public_key_base64();
     if built_in.trim().is_empty() {

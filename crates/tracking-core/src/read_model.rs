@@ -1,39 +1,30 @@
-use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_query::ACTIVITY_QUERY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::tracking::identifiers::{
-    TrackingEvidenceRef, TrackingReadModelCapabilityStatus, TrackingReadModelCountValue,
-    TrackingReadModelCustodyLabel, TrackingReadModelDeletedAt, TrackingReadModelDeviceId,
+    TrackingReadModelCapabilityStatus, TrackingReadModelCustodyLabel, TrackingReadModelDeviceId,
     TrackingReadModelEventId, TrackingReadModelGeneratedAt, TrackingReadModelKind,
     TrackingReadModelObservedAt, TrackingReadModelObserver, TrackingReadModelPlatform,
-    TrackingReadModelQueryVisibility, TrackingReadModelSubjectDisplayName,
-    TrackingReadModelSubjectId, TrackingReadModelSubjectKind,
+    TrackingReadModelSubjectDisplayName, TrackingReadModelSubjectId, TrackingReadModelSubjectKind,
 };
 use ocentra_parent_agent_protocol::tracking::read_model::{
-    TrackingReadModel, TrackingReadModelCount, TrackingReadModelRow,
-    TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    TrackingReadModel, TrackingReadModelRow, TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE,
     TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
 };
 use rusqlite::Connection;
-use std::collections::BTreeMap;
 
-use super::read_model_rows::{tracking_rows, TrackingStoreRow};
+use super::read_model_rows::{
+    row_lifecycle_state, tracking_rows, TrackingReadModelRowLifecycleState, TrackingStoreRow,
+};
+use super::read_model_rows_aggregate::{
+    active_counts_by, deleted_at, deleted_evidence_reference_ids, evidence_reference_ids,
+    query_visibility, string_field,
+};
 
 macro_rules! parse_read_model {
     ($parse:path, $value:expr, $expectation:expr) => {
-        match $parse($value) {
-            Ok(parsed_value) => parsed_value,
-            Err(_) => unreachable!("tracking read-model parse drift: {}", $expectation),
-        }
+        $parse($value).expect("tracking read-model parse drift")
     };
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum TrackingReadModelRowLifecycleState {
-    Active,
-    Tombstone,
 }
 
 pub fn tracking_read_model_for_connection(
@@ -181,131 +172,5 @@ fn row_from_store(row: TrackingStoreRow) -> TrackingReadModelRow {
         evidence_reference_ids,
         deleted_evidence_reference_ids,
         evidence: row.evidence,
-    }
-}
-
-fn row_lifecycle_state(row: &TrackingStoreRow) -> TrackingReadModelRowLifecycleState {
-    if row.kind == constants::activity_event_kind::TRACKING_RETENTION_DELETED {
-        TrackingReadModelRowLifecycleState::Tombstone
-    } else {
-        TrackingReadModelRowLifecycleState::Active
-    }
-}
-
-fn query_visibility(
-    lifecycle_state: TrackingReadModelRowLifecycleState,
-) -> TrackingReadModelQueryVisibility {
-    match lifecycle_state {
-        TrackingReadModelRowLifecycleState::Tombstone => parse_read_model!(
-            TrackingReadModelQueryVisibility::parse,
-            TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE,
-            TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE
-        ),
-        TrackingReadModelRowLifecycleState::Active => parse_read_model!(
-            TrackingReadModelQueryVisibility::parse,
-            TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE,
-            TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE
-        ),
-    }
-}
-
-fn deleted_at(
-    row: &TrackingStoreRow,
-    lifecycle_state: TrackingReadModelRowLifecycleState,
-) -> Option<TrackingReadModelDeletedAt> {
-    match lifecycle_state {
-        TrackingReadModelRowLifecycleState::Active => None,
-        TrackingReadModelRowLifecycleState::Tombstone => {
-            string_field(&row.fields, constants::field::DELETED_AT)
-                .or_else(|| Some(row.observed_at.clone()))
-                .map(|value| {
-                    parse_read_model!(
-                        TrackingReadModelDeletedAt::parse,
-                        value.as_str(),
-                        constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT
-                    )
-                })
-        }
-    }
-}
-
-fn deleted_evidence_reference_ids(rows: &[TrackingReadModelRow]) -> Vec<TrackingEvidenceRef> {
-    let mut ids = Vec::new();
-    for row in rows {
-        for id in &row.deleted_evidence_reference_ids {
-            if !ids.iter().any(|existing| existing == id) {
-                ids.push(id.clone());
-            }
-        }
-    }
-    ids
-}
-
-fn active_counts_by(
-    rows: &[TrackingReadModelRow],
-    value_for_row: impl Fn(&TrackingReadModelRow) -> Option<&str>,
-) -> Vec<TrackingReadModelCount> {
-    let mut counts = BTreeMap::<String, u64>::new();
-    for row in rows {
-        if row.query_visibility != TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE {
-            continue;
-        }
-        if let Some(value) = value_for_row(row) {
-            *counts.entry(value.to_string()).or_insert(0) += 1;
-        }
-    }
-    counts
-        .into_iter()
-        .map(|(value, count)| TrackingReadModelCount {
-            value: parse_read_model!(
-                TrackingReadModelCountValue::parse,
-                value,
-                TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS
-            ),
-            count,
-        })
-        .collect()
-}
-
-fn evidence_reference_ids(
-    fields: &LogFields,
-    evidence: &[ActivityEvidenceRef],
-) -> Vec<TrackingEvidenceRef> {
-    let mut ids = string_field(fields, constants::field::EVIDENCE_REFERENCE_IDS)
-        .map(|value| split_evidence_reference_ids(&value))
-        .unwrap_or_default();
-
-    for reference in evidence {
-        let evidence_ref = parse_read_model!(
-            TrackingEvidenceRef::parse,
-            reference.evidence_id.clone(),
-            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
-        );
-        if !ids.iter().any(|id| id == &evidence_ref) {
-            ids.push(evidence_ref);
-        }
-    }
-    ids
-}
-
-fn split_evidence_reference_ids(value: &str) -> Vec<TrackingEvidenceRef> {
-    value
-        .split(constants::delimiter::LIST)
-        .map(str::trim)
-        .filter(|id| !id.is_empty())
-        .map(|id| {
-            parse_read_model!(
-                TrackingEvidenceRef::parse,
-                id,
-                constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
-            )
-        })
-        .collect()
-}
-
-fn string_field(fields: &LogFields, key: &str) -> Option<String> {
-    match fields.get(key) {
-        Some(LogFieldValue::String(value)) => Some(value.clone()),
-        _ => None,
     }
 }

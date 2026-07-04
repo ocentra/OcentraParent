@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { createLocalAiRuntimePanelIntent, parseActivityMemoryGraphReadModel, PortalDetails } from '../../src/contracts';
+import type { GeneratedPortalActivityMemoryGraphReadModelSnapshot } from '../../src/generated/portal-contracts';
+import {
+  PortalAgentEvent as AgentEvent,
+  PortalAgentProtocolField,
+  type PortalRouteEventRecord,
+} from '../../src/portal-contract-adapter';
 
 describe('local AI runtime panel intent', () => {
   it('renders runtime and household job rows from real agent event envelopes', rendersRuntimeAndHouseholdRows);
@@ -11,6 +15,8 @@ describe('local AI runtime panel intent', () => {
     rendersRemoteAssistantBoundary
   );
   it('keeps missing runtime/job events visible as no-data rather than success', rendersMissingEventState);
+  it('rejects generated memory graph payloads with drifted counts', rejectsMemoryGraphPayloadWithDriftedCounts);
+  it('rejects generated memory graph payloads without trace provenance', rejectsMemoryGraphPayloadWithoutTraceProvenance);
 });
 
 function rendersRuntimeAndHouseholdRows() {
@@ -127,9 +133,45 @@ function rendersMissingEventState() {
   });
 }
 
+function rejectsMemoryGraphPayloadWithDriftedCounts() {
+  const digest = {
+    ...memoryGraphDigest(),
+    returnedEdgeCount: 2,
+  };
+
+  expect(parseActivityMemoryGraphReadModel(memoryGraphEvent(digest).payload)).toBe(null);
+}
+
+function rejectsMemoryGraphPayloadWithoutTraceProvenance() {
+  const digest = memoryGraphDigest();
+  const firstNode = digest.nodes[0];
+  if (firstNode === undefined) {
+    throw new Error('Expected memory graph fixture to include a node.');
+  }
+  const traceWithoutProvenance = {
+    ...memoryGraphTrace(),
+    sourceEvidenceReferences: [],
+    sourcePolicyVersion: null,
+    sourceParentActionReferences: [],
+  };
+
+  expect(
+    parseActivityMemoryGraphReadModel(
+      memoryGraphEvent({
+        ...digest,
+        nodes: [
+          {
+            ...firstNode,
+            trace: traceWithoutProvenance,
+          },
+        ],
+      }).payload
+    )
+  ).toBe(null);
+}
+
 function localAiRuntimeStatusEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+  return routeEvent({
     eventId: 'evt-local-ai-runtime',
     correlationId: 'cmd-local-ai-runtime',
     sentAt: '2026-06-07T19:15:00Z',
@@ -144,23 +186,22 @@ function localAiRuntimeStatusEvent() {
     event: AgentEvent.LocalAiRuntimeStatusReported,
     severity: 'info',
     payload: {
-      [AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId]: 'runtime-child-device-1',
-      [AgentProtocolDefaults.Field.LocalAiProviderId]: 'local-provider-1',
-      [AgentProtocolDefaults.Field.LocalAiModelId]: 'screen-local-vlm-v1',
-      [AgentProtocolDefaults.Field.LoadState]: 'loaded',
-      [AgentProtocolDefaults.Field.LocalAiCapabilityFlags]: 'ocr,vision',
-      [AgentProtocolDefaults.Field.LocalAiResourceClass]: 'gpu',
-      [AgentProtocolDefaults.Field.LocalAiDegradedState]: 'ready',
-      [AgentProtocolDefaults.Field.LocalAiPrivacyMode]: 'local-only',
-      [AgentProtocolDefaults.Field.LocalAiExecutionState]: 'ready',
+      [PortalAgentProtocolField.LocalAiRuntimeReferenceId]: 'runtime-child-device-1',
+      [PortalAgentProtocolField.LocalAiProviderId]: 'local-provider-1',
+      [PortalAgentProtocolField.LocalAiModelId]: 'screen-local-vlm-v1',
+      [PortalAgentProtocolField.LoadState]: 'loaded',
+      [PortalAgentProtocolField.LocalAiCapabilityFlags]: 'ocr,vision',
+      [PortalAgentProtocolField.LocalAiResourceClass]: 'gpu',
+      [PortalAgentProtocolField.LocalAiDegradedState]: 'ready',
+      [PortalAgentProtocolField.LocalAiPrivacyMode]: 'local-only',
+      [PortalAgentProtocolField.LocalAiExecutionState]: 'ready',
     },
     snapshot: null,
   });
 }
 
 function lanAiJobEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+  return routeEvent({
     eventId: 'evt-lan-ai-job',
     correlationId: 'cmd-lan-ai-job',
     sentAt: '2026-06-07T19:15:02Z',
@@ -175,31 +216,30 @@ function lanAiJobEvent() {
     event: AgentEvent.LanAiJobReported,
     severity: 'info',
     payload: {
-      [AgentProtocolDefaults.Field.LanAiJobId]: 'lan-ai-job-1',
-      [AgentProtocolDefaults.Field.LanAiJobStatus]: 'claimed',
-      [AgentProtocolDefaults.Field.LanAiJobState]: 'worker-running',
-      [AgentProtocolDefaults.Field.LocalAiProviderId]: 'household-desktop-provider',
-      [AgentProtocolDefaults.Field.LocalAiProviderSource]: 'trusted-household-desktop',
-      [AgentProtocolDefaults.Field.LocalAiCapabilityFlags]: 'screen-hard-visual-analysis',
-      [AgentProtocolDefaults.Field.LocalAiResourceClass]: 'gpu',
-      [AgentProtocolDefaults.Field.LocalAiAdapterReadinessState]: 'ready',
-      [AgentProtocolDefaults.Field.LocalAiPrivacyMode]: 'local-lan-redacted',
-      [AgentProtocolDefaults.Field.LanAiProviderCustodyLabel]: 'local-lan-redacted',
-      [AgentProtocolDefaults.Field.LanAiProviderRoutingState]: 'authorized-result',
-      [AgentProtocolDefaults.Field.ClaimBoundary]: 'claim-lease-child-owned-job',
-      [AgentProtocolDefaults.Field.LanControllerLeaseId]: 'lease-screen-ai-1',
-      [AgentProtocolDefaults.Field.LanControllerLeaseIssuedAt]: '2026-06-07T19:15:01Z',
-      [AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt]: '2026-06-07T19:20:01Z',
-      [AgentProtocolDefaults.Field.LanParentAuthority]: 'child-agent-local-policy-authority',
-      [AgentProtocolDefaults.Field.LocalAiExecutionState]: 'running',
+      [PortalAgentProtocolField.LanAiJobId]: 'lan-ai-job-1',
+      [PortalAgentProtocolField.LanAiJobStatus]: 'claimed',
+      [PortalAgentProtocolField.LanAiJobState]: 'worker-running',
+      [PortalAgentProtocolField.LocalAiProviderId]: 'household-desktop-provider',
+      [PortalAgentProtocolField.LocalAiProviderSource]: 'trusted-household-desktop',
+      [PortalAgentProtocolField.LocalAiCapabilityFlags]: 'screen-hard-visual-analysis',
+      [PortalAgentProtocolField.LocalAiResourceClass]: 'gpu',
+      [PortalAgentProtocolField.LocalAiAdapterReadinessState]: 'ready',
+      [PortalAgentProtocolField.LocalAiPrivacyMode]: 'local-lan-redacted',
+      [PortalAgentProtocolField.LanAiProviderCustodyLabel]: 'local-lan-redacted',
+      [PortalAgentProtocolField.LanAiProviderRoutingState]: 'authorized-result',
+      [PortalAgentProtocolField.ClaimBoundary]: 'claim-lease-child-owned-job',
+      [PortalAgentProtocolField.LanControllerLeaseId]: 'lease-screen-ai-1',
+      [PortalAgentProtocolField.LanControllerLeaseIssuedAt]: '2026-06-07T19:15:01Z',
+      [PortalAgentProtocolField.LanControllerLeaseExpiresAt]: '2026-06-07T19:20:01Z',
+      [PortalAgentProtocolField.LanParentAuthority]: 'child-agent-local-policy-authority',
+      [PortalAgentProtocolField.LocalAiExecutionState]: 'running',
     },
     snapshot: null,
   });
 }
 
 function parentAssistantBoundaryEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+  return routeEvent({
     eventId: 'evt-parent-assistant-boundary',
     correlationId: 'cmd-parent-assistant-provider',
     sentAt: '2026-06-07T19:17:00Z',
@@ -214,24 +254,23 @@ function parentAssistantBoundaryEvent() {
     event: AgentEvent.ParentAssistantAnswerReported,
     severity: 'info',
     payload: {
-      [AgentProtocolDefaults.Field.ParentAssistantRequestId]: 'remote-assistant-request-1',
-      [AgentProtocolDefaults.Field.ParentAssistantAnswerState]: 'ready-answer',
-      [AgentProtocolDefaults.Field.ParentAssistantProviderRoute]: 'remote-api-report-only',
-      [AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary]: 'parent-authorized-report-bundle',
-      [AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState]: 'parent-authorized',
-      [AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel]: 'parent-owned-local-storage',
-      [AgentProtocolDefaults.Field.ParentAssistantApiDeletionState]: 'raw-model-output-not-retained',
-      [AgentProtocolDefaults.Field.ParentAssistantApiRetentionState]: 'report-summary-only',
-      [AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary]: 'evidence-screen-summary-1',
-      [AgentProtocolDefaults.Field.ParentAssistantCitationCount]: '1',
+      [PortalAgentProtocolField.ParentAssistantRequestId]: 'remote-assistant-request-1',
+      [PortalAgentProtocolField.ParentAssistantAnswerState]: 'ready-answer',
+      [PortalAgentProtocolField.ParentAssistantProviderRoute]: 'remote-api-report-only',
+      [PortalAgentProtocolField.ParentAssistantApiProviderBoundary]: 'parent-authorized-report-bundle',
+      [PortalAgentProtocolField.ParentAssistantApiAuthorizationState]: 'parent-authorized',
+      [PortalAgentProtocolField.ParentAssistantApiCustodyLabel]: 'parent-owned-local-storage',
+      [PortalAgentProtocolField.ParentAssistantApiDeletionState]: 'raw-model-output-not-retained',
+      [PortalAgentProtocolField.ParentAssistantApiRetentionState]: 'report-summary-only',
+      [PortalAgentProtocolField.ParentAssistantEvidenceSummary]: 'evidence-screen-summary-1',
+      [PortalAgentProtocolField.ParentAssistantCitationCount]: '1',
     },
     snapshot: null,
   });
 }
 
-function memoryGraphEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
+function memoryGraphEvent(digest: unknown = memoryGraphDigest()) {
+  return routeEvent({
     eventId: 'evt-memory-graph',
     correlationId: 'cmd-memory-graph',
     sentAt: '2026-06-07T19:16:00Z',
@@ -246,13 +285,17 @@ function memoryGraphEvent() {
     event: AgentEvent.ActivityMemoryGraphReported,
     severity: 'info',
     payload: {
-      [AgentProtocolDefaults.Field.ActivityDigest]: JSON.stringify(memoryGraphDigest()),
+      [PortalAgentProtocolField.ActivityDigest]: JSON.stringify(digest),
     },
     snapshot: null,
   });
 }
 
-function memoryGraphDigest() {
+function routeEvent(event: PortalRouteEventRecord): PortalRouteEventRecord {
+  return event;
+}
+
+function memoryGraphDigest(): GeneratedPortalActivityMemoryGraphReadModelSnapshot {
   return {
     schemaVersion: 1,
     generatedAt: '2026-06-07T19:16:00Z',

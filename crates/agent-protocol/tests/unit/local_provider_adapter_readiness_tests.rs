@@ -22,8 +22,7 @@ fn local_provider_adapter_probe_serializes_no_execution_readiness_status() {
         ),
     };
 
-    let serialized = serde_json::to_value(probe)
-        .unwrap_or_else(|error| unreachable!("adapter probe serializes: {error:?}"));
+    let serialized = serde_json::to_value(probe).expect("adapter probe serializes: {error:?}");
 
     assert_eq!(
         serialized["probeState"],
@@ -58,8 +57,8 @@ fn local_provider_adapter_readiness_state_serializes_every_boundary_state() {
     ];
 
     for (state, expected) in states {
-        let serialized = serde_json::to_value(state)
-            .unwrap_or_else(|error| unreachable!("adapter readiness serializes: {error:?}"));
+        let serialized =
+            serde_json::to_value(state).expect("adapter readiness serializes: {error:?}");
 
         assert_eq!(serialized, expected);
     }

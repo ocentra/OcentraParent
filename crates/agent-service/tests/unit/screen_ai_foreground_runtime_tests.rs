@@ -18,6 +18,10 @@ use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
 };
 
+#[path = "../support/test_text.rs"]
+mod test_text;
+use test_text::TestText;
+
 use super::{
     screen_ai_foreground_runtime::{
         record_screen_ai_foreground_captured_image, ScreenAiForegroundTickClock,
@@ -165,10 +169,11 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
     Ok(())
 }
 
-fn foreground_clock(epoch_seconds: u64, timestamp: &str) -> ScreenAiForegroundTickClock {
+fn foreground_clock(epoch_seconds: u64, timestamp: TestText) -> ScreenAiForegroundTickClock {
+    let timestamp = timestamp;
     ScreenAiForegroundTickClock {
         epoch_seconds,
-        timestamp: timestamp.to_string(),
+        timestamp: timestamp.as_str().to_string(),
     }
 }
 
@@ -192,12 +197,13 @@ fn captured_test_image() -> CapturedScreenImage {
     }
 }
 
-fn test_path(suffix: &str) -> PathBuf {
+fn test_path(suffix: TestText) -> PathBuf {
+    let suffix = suffix;
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
     path.push(std::process::id().to_string());
     path.push(constants::activity_capture::SCREEN_TRIGGER_NATIVE_APP_FOREGROUND_START);
     path.push(TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
-    path.push(suffix);
+    path.push(suffix.as_str());
     path
 }

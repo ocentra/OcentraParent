@@ -14,12 +14,11 @@ fn spawn_http_server(
     response_body: &'static str,
     expected_requests: usize,
 ) -> (std::net::SocketAddr, thread::JoinHandle<()>) {
-    let listener =
-        std::net::TcpListener::bind(("127.0.0.1", 0)).value_or_unreachable("bind http server");
-    let addr = listener.local_addr().value_or_unreachable("local addr");
+    let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).value_or_unreachable();
+    let addr = listener.local_addr().value_or_unreachable();
     let handle = thread::spawn(move || {
         for _ in 0..expected_requests {
-            let (mut stream, _) = listener.accept().value_or_unreachable("accept http");
+            let (mut stream, _) = listener.accept().value_or_unreachable();
             let mut request = [0_u8; 1024];
             let _ = stream.read(&mut request);
             let response = format!(
@@ -27,20 +26,17 @@ fn spawn_http_server(
                 response_body.len(),
                 response_body
             );
-            stream
-                .write_all(response.as_bytes())
-                .value_or_unreachable("write http response");
+            stream.write_all(response.as_bytes()).value_or_unreachable();
         }
     });
     (addr, handle)
 }
 
 fn spawn_http_server_that_times_out() -> (std::net::SocketAddr, thread::JoinHandle<()>) {
-    let listener =
-        std::net::TcpListener::bind(("127.0.0.1", 0)).value_or_unreachable("bind http server");
-    let addr = listener.local_addr().value_or_unreachable("local addr");
+    let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).value_or_unreachable();
+    let addr = listener.local_addr().value_or_unreachable();
     let handle = thread::spawn(move || {
-        let (_stream, _) = listener.accept().value_or_unreachable("accept http");
+        let (_stream, _) = listener.accept().value_or_unreachable();
         thread::sleep(Duration::from_millis(200));
     });
     (addr, handle)
@@ -49,17 +45,13 @@ fn spawn_http_server_that_times_out() -> (std::net::SocketAddr, thread::JoinHand
 fn spawn_udp_ssdp_responder(
     response: Vec<u8>,
 ) -> (std::net::SocketAddr, thread::JoinHandle<Vec<u8>>) {
-    let socket = UdpSocket::bind(("127.0.0.1", 0)).value_or_unreachable("bind sdp responder");
-    let addr = socket.local_addr().value_or_unreachable("local addr");
+    let socket = UdpSocket::bind(("127.0.0.1", 0)).value_or_unreachable();
+    let addr = socket.local_addr().value_or_unreachable();
     let handle = thread::spawn(move || {
         let mut buf = [0_u8; 2048];
-        let (size, source) = socket
-            .recv_from(&mut buf)
-            .value_or_unreachable("receive m-search");
+        let (size, source) = socket.recv_from(&mut buf).value_or_unreachable();
         let request = buf[..size].to_vec();
-        socket
-            .send_to(&response, source)
-            .value_or_unreachable("send ssdp response");
+        socket.send_to(&response, source).value_or_unreachable();
         request
     });
     (addr, handle)
@@ -68,19 +60,15 @@ fn spawn_udp_ssdp_responder(
 fn spawn_udp_ssdp_responder_sequence(
     responses: Vec<Vec<u8>>,
 ) -> (std::net::SocketAddr, thread::JoinHandle<Vec<Vec<u8>>>) {
-    let socket = UdpSocket::bind(("127.0.0.1", 0)).value_or_unreachable("bind sdp responder");
-    let addr = socket.local_addr().value_or_unreachable("local addr");
+    let socket = UdpSocket::bind(("127.0.0.1", 0)).value_or_unreachable();
+    let addr = socket.local_addr().value_or_unreachable();
     let handle = thread::spawn(move || {
         let mut requests = Vec::new();
         for response in responses {
             let mut buf = [0_u8; 2048];
-            let (size, source) = socket
-                .recv_from(&mut buf)
-                .value_or_unreachable("receive m-search");
+            let (size, source) = socket.recv_from(&mut buf).value_or_unreachable();
             requests.push(buf[..size].to_vec());
-            socket
-                .send_to(&response, source)
-                .value_or_unreachable("send ssdp response");
+            socket.send_to(&response, source).value_or_unreachable();
         }
         requests
     });
@@ -117,9 +105,8 @@ struct SsdpFixture<'a> {
     enrollable: bool,
 }
 
-#[test]
-fn discovery_covers_tv_roster_console_and_printer_fixtures() {
-    let fixtures = [
+fn ssdp_fixture_cases() -> [SsdpFixture<'static>; 4] {
+    [
         SsdpFixture {
             name: "tv",
             friendly_name: "Living Room TV",
@@ -160,9 +147,77 @@ fn discovery_covers_tv_roster_console_and_printer_fixtures() {
             infrastructure: false,
             enrollable: true,
         },
-    ];
+    ]
+}
 
-    for fixture in fixtures {
+fn assert_ssdp_record_fixture(
+    record: &SsdpDiscoveryRecord,
+    location: &str,
+    fixture: &SsdpFixture<'_>,
+) {
+    assert_eq!(record.response.location, location);
+    assert_eq!(record.response.search_target, fixture.response_device_type);
+    assert_eq!(record.response.usn, fixture.usn);
+    assert_eq!(
+        record.response.udn.as_deref(),
+        Some(
+            fixture
+                .usn
+                .trim_start_matches("uuid:")
+                .split("::")
+                .next()
+                .value_or_unreachable()
+        )
+    );
+    assert_eq!(
+        record.response.device_type.as_deref(),
+        Some(fixture.response_device_type)
+    );
+    assert_eq!(record.response.infrastructure, fixture.infrastructure);
+    assert_eq!(record.response.enrollable, fixture.enrollable);
+
+    let description = record.description.as_ref().value_or_unreachable();
+    let expected_model_name = format!("{}-1000", fixture.name.to_uppercase());
+    assert_eq!(description.friendly_name, fixture.friendly_name);
+    assert_eq!(description.manufacturer.as_deref(), Some("Acme"));
+    assert_eq!(
+        description.model_name.as_deref(),
+        Some(expected_model_name.as_str())
+    );
+    assert_eq!(
+        description.device_type.as_deref(),
+        Some(fixture.description_device_type)
+    );
+    assert_eq!(
+        description.udn.as_deref(),
+        Some(
+            fixture
+                .usn
+                .trim_start_matches("uuid:")
+                .split("::")
+                .next()
+                .value_or_unreachable()
+        )
+    );
+    assert_eq!(description.description_url, location);
+}
+
+fn assert_ssdp_enriched_device(device: &LanNetworkInventoryDevice, fixture: &SsdpFixture<'_>) {
+    assert_eq!(device.platform, fixture.expected_platform);
+    assert_eq!(device.ip_address, "127.0.0.1");
+    assert_eq!(device.reachability, LanPairingDeviceReachability::Online);
+    assert_eq!(
+        device.scan_sources,
+        vec![
+            constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
+            constants::lan_pairing::LAN_SCAN_SOURCE_SSDP_UPNP.to_string(),
+        ]
+    );
+}
+
+#[test]
+fn discovery_covers_tv_roster_console_and_printer_fixtures() {
+    for fixture in ssdp_fixture_cases() {
         let xml = sample_description_xml(
             fixture.friendly_name,
             fixture.description_device_type,
@@ -185,10 +240,10 @@ fn discovery_covers_tv_roster_console_and_printer_fixtures() {
             1,
             Duration::from_millis(250),
         )
-        .value_or_unreachable("discover ssdp records");
+        .value_or_unreachable();
 
-        let request = udp_handle.join().value_or_unreachable("m-search request");
-        let request_text = String::from_utf8(request).value_or_unreachable("utf8 request");
+        let request = udp_handle.join().value_or_unreachable();
+        let request_text = String::from_utf8(request).value_or_unreachable();
         assert_eq!(
             request_text,
             format!(
@@ -197,55 +252,7 @@ fn discovery_covers_tv_roster_console_and_printer_fixtures() {
         );
 
         assert_eq!(records.len(), 1);
-        let record = &records[0];
-        assert_eq!(record.response.location, location);
-        assert_eq!(record.response.search_target, fixture.response_device_type);
-        assert_eq!(record.response.usn, fixture.usn);
-        assert_eq!(
-            record.response.udn.as_deref(),
-            Some(
-                fixture
-                    .usn
-                    .trim_start_matches("uuid:")
-                    .split("::")
-                    .next()
-                    .value_or_unreachable("expected value")
-            )
-        );
-        assert_eq!(
-            record.response.device_type.as_deref(),
-            Some(fixture.response_device_type)
-        );
-        assert_eq!(record.response.infrastructure, fixture.infrastructure);
-        assert_eq!(record.response.enrollable, fixture.enrollable);
-
-        let description = record
-            .description
-            .as_ref()
-            .value_or_unreachable("description");
-        let expected_model_name = format!("{}-1000", fixture.name.to_uppercase());
-        assert_eq!(description.friendly_name, fixture.friendly_name);
-        assert_eq!(description.manufacturer.as_deref(), Some("Acme"));
-        assert_eq!(
-            description.model_name.as_deref(),
-            Some(expected_model_name.as_str())
-        );
-        assert_eq!(
-            description.device_type.as_deref(),
-            Some(fixture.description_device_type)
-        );
-        assert_eq!(
-            description.udn.as_deref(),
-            Some(
-                fixture
-                    .usn
-                    .trim_start_matches("uuid:")
-                    .split("::")
-                    .next()
-                    .value_or_unreachable("expected value")
-            )
-        );
-        assert_eq!(description.description_url, location);
+        assert_ssdp_record_fixture(&records[0], &location, &fixture);
 
         let (enrich_udp_addr, enrich_udp_handle) = spawn_udp_ssdp_responder(ssdp_response(
             &location,
@@ -270,11 +277,8 @@ fn discovery_covers_tv_roster_console_and_printer_fixtures() {
 
         enrich_ssdp_upnp_devices_for_target(&mut devices, enrich_udp_addr);
 
-        let enrich_request = enrich_udp_handle
-            .join()
-            .value_or_unreachable("enrich m-search request");
-        let enrich_request_text =
-            String::from_utf8(enrich_request).value_or_unreachable("utf8 enrich request");
+        let enrich_request = enrich_udp_handle.join().value_or_unreachable();
+        let enrich_request_text = String::from_utf8(enrich_request).value_or_unreachable();
         assert_eq!(
             enrich_request_text,
             format!(
@@ -283,19 +287,9 @@ fn discovery_covers_tv_roster_console_and_printer_fixtures() {
         );
 
         assert_eq!(devices.len(), 1);
-        let device = &devices[0];
-        assert_eq!(device.platform, fixture.expected_platform);
-        assert_eq!(device.ip_address, "127.0.0.1");
-        assert_eq!(device.reachability, LanPairingDeviceReachability::Online);
-        assert_eq!(
-            device.scan_sources,
-            vec![
-                constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
-                constants::lan_pairing::LAN_SCAN_SOURCE_SSDP_UPNP.to_string(),
-            ]
-        );
+        assert_ssdp_enriched_device(&devices[0], &fixture);
 
-        http_handle.join().value_or_unreachable("http server");
+        http_handle.join().value_or_unreachable();
     }
 }
 
@@ -319,8 +313,8 @@ fn enrich_adds_ssdp_only_devices_as_agentless_hints() {
     let mut devices = Vec::new();
     enrich_ssdp_upnp_devices_for_target(&mut devices, udp_addr);
 
-    let request = udp_handle.join().value_or_unreachable("m-search request");
-    let request_text = String::from_utf8(request).value_or_unreachable("utf8 request");
+    let request = udp_handle.join().value_or_unreachable();
+    let request_text = String::from_utf8(request).value_or_unreachable();
     assert_eq!(
         request_text,
         format!(
@@ -342,14 +336,14 @@ fn enrich_adds_ssdp_only_devices_as_agentless_hints() {
         vec![constants::lan_pairing::LAN_SCAN_SOURCE_SSDP_UPNP.to_string()]
     );
 
-    http_handle.join().value_or_unreachable("http server");
+    http_handle.join().value_or_unreachable();
 }
 
 #[test]
 fn ssdp_response_parser_normalizes_header_values_and_sdn_prefixes() {
     let response = b"HTTP/1.1 200 OK\r\nLoCaTiOn:  http://127.0.0.1:1900/device.xml \r\nsT:  urn:schemas-upnp-org:device:MediaRenderer:1\t\r\nuSn:  urn:uuid:device-1::urn:schemas-upnp-org:device:MediaRenderer:1  \r\n\r\n";
 
-    let parsed = parse_ssdp_response(response).value_or_unreachable("parse ssdp response");
+    let parsed = parse_ssdp_response(response).value_or_unreachable();
     assert_eq!(parsed.location, "http://127.0.0.1:1900/device.xml");
     assert_eq!(
         parsed.search_target,
@@ -370,12 +364,10 @@ fn ssdp_response_parser_normalizes_header_values_and_sdn_prefixes() {
 fn msearch_request_clamps_mx_and_normalizes_search_target() {
     let request = build_msearch_request(
         " \r\nssdp:all\t",
-        "239.255.255.250:1900"
-            .parse()
-            .value_or_unreachable("expected value"),
+        "239.255.255.250:1900".parse().value_or_unreachable(),
         99,
     );
-    let request_text = String::from_utf8(request).value_or_unreachable("utf8 request");
+    let request_text = String::from_utf8(request).value_or_unreachable();
 
     assert_eq!(
         request_text,
@@ -400,7 +392,7 @@ fn roster_ssdp_response_is_visible_but_non_enrollable() {
         "urn:schemas-upnp-org:device:InternetGatewayDevice:1",
         "uuid:roster-1::urn:schemas-upnp-org:device:InternetGatewayDevice:1",
     );
-    let parsed = parse_ssdp_response(&response).value_or_unreachable("parse roster response");
+    let parsed = parse_ssdp_response(&response).value_or_unreachable();
 
     assert_eq!(parsed.location, location);
     assert!(parsed.infrastructure);
@@ -410,60 +402,58 @@ fn roster_ssdp_response_is_visible_but_non_enrollable() {
         Some("urn:schemas-upnp-org:device:InternetGatewayDevice:1")
     );
 
-    let description = fetch_ssdp_description(&parsed.location, Duration::from_millis(250))
-        .value_or_unreachable("fetch roster description");
+    let description =
+        fetch_ssdp_description(&parsed.location, Duration::from_millis(250)).value_or_unreachable();
     assert_eq!(description.friendly_name, "Home Roster");
     assert_eq!(description.udn.as_deref(), Some("roster-1"));
 
-    http_handle.join().value_or_unreachable("http server");
+    http_handle.join().value_or_unreachable();
 }
 
 #[test]
 fn invalid_location_xml_timeout_and_missing_headers_are_rejected() {
     let missing_location = b"HTTP/1.1 200 OK\r\nST: urn:schemas-upnp-org:device:MediaRenderer:1\r\nUSN: uuid:device-1::urn:schemas-upnp-org:device:MediaRenderer:1\r\n\r\n";
     assert_eq!(
-        parse_ssdp_response(missing_location).error_or_unreachable("missing location"),
+        parse_ssdp_response(missing_location).error_or_unreachable(),
         SsdpDiscoveryError::MissingLocation
     );
 
     let malformed = b"HTTP/1.1 200 OK\r\n\r\n";
     assert_eq!(
-        parse_ssdp_response(malformed).error_or_unreachable("missing headers"),
+        parse_ssdp_response(malformed).error_or_unreachable(),
         SsdpDiscoveryError::MissingLocation
     );
 
     assert_eq!(
-        parse_ssdp_response(b"NOT HTTP\r\n\r\n").error_or_unreachable("malformed response"),
+        parse_ssdp_response(b"NOT HTTP\r\n\r\n").error_or_unreachable(),
         SsdpDiscoveryError::MalformedResponse
     );
     assert_eq!(
-        parse_ssdp_response(&vec![b'a'; SSDP_MAX_RESPONSE_BYTES + 1])
-            .error_or_unreachable("oversized response"),
+        parse_ssdp_response(&vec![b'a'; SSDP_MAX_RESPONSE_BYTES + 1]).error_or_unreachable(),
         SsdpDiscoveryError::ResponseTooLarge
     );
 
     assert_eq!(
         fetch_ssdp_description("http://example.com/device.xml", Duration::from_millis(100))
-            .error_or_unreachable("external url"),
+            .error_or_unreachable(),
         SsdpDiscoveryError::ExternalLocation
     );
     assert_eq!(
         fetch_ssdp_description("http://127.0.0.1/../device.xml", Duration::from_millis(100))
-            .error_or_unreachable("path traversal"),
+            .error_or_unreachable(),
         SsdpDiscoveryError::MalformedResponse
     );
 
     let bad_xml = "<root><device><friendlyName>Bad Device</friendlyName><deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType><UDN>uuid:bad-1</UDN><!DOCTYPE boom></device></root>";
     assert_eq!(
-        parse_device_description_xml(bad_xml, "http://127.0.0.1/device.xml")
-            .error_or_unreachable("bad xml"),
+        parse_device_description_xml(bad_xml, "http://127.0.0.1/device.xml").error_or_unreachable(),
         SsdpDiscoveryError::InvalidDescription
     );
 
     let recsrsive_xml = "<root><device><friendlyName><friendlyName>Nested</friendlyName></friendlyName><manufacturer>Acme</manufacturer><modelName>TV-1</modelName><deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType><UDN>uuid:recsrsive-1</UDN></device></root>";
     assert_eq!(
         parse_device_description_xml(recsrsive_xml, "http://127.0.0.1/device.xml",)
-            .error_or_unreachable("recsrsive xml"),
+            .error_or_unreachable(),
         SsdpDiscoveryError::InvalidDescription
     );
 
@@ -473,7 +463,7 @@ fn invalid_location_xml_timeout_and_missing_headers_are_rejected() {
     );
     assert_eq!(
         parse_device_description_xml(&oversized_xml, "http://127.0.0.1/device.xml")
-            .error_or_unreachable("oversized xml"),
+            .error_or_unreachable(),
         SsdpDiscoveryError::ResponseTooLarge
     );
 
@@ -483,19 +473,18 @@ fn invalid_location_xml_timeout_and_missing_headers_are_rejected() {
     );
     assert_eq!(
         parse_device_description_xml(&bosnded_text_xml, "http://127.0.0.1/device.xml")
-            .error_or_unreachable("bosnded text xml"),
+            .error_or_unreachable(),
         SsdpDiscoveryError::InvalidDescription
     );
 
     let (timeout_addr, timeout_handle) = spawn_http_server_that_times_out();
     let timeout_location = format!("http://127.0.0.1:{}/timeout.xml", timeout_addr.port());
     assert_eq!(
-        fetch_ssdp_description(&timeout_location, Duration::from_millis(50))
-            .error_or_unreachable("timeout"),
+        fetch_ssdp_description(&timeout_location, Duration::from_millis(50)).error_or_unreachable(),
         SsdpDiscoveryError::Timeout
     );
 
-    timeout_handle.join().value_or_unreachable("timeout server");
+    timeout_handle.join().value_or_unreachable();
 }
 
 #[test]
@@ -525,9 +514,9 @@ fn discovery_retries_after_a_malformed_response_and_keeps_valid_records() {
         2,
         Duration::from_millis(250),
     )
-    .value_or_unreachable("discover ssdp records after retry");
+    .value_or_unreachable();
 
-    let requests = udp_handle.join().value_or_unreachable("m-search requests");
+    let requests = udp_handle.join().value_or_unreachable();
     assert_eq!(requests.len(), 2);
     assert_eq!(records.len(), 1);
     assert_eq!(records[0].response.location, location);
@@ -539,12 +528,12 @@ fn discovery_retries_after_a_malformed_response_and_keeps_valid_records() {
         records[0]
             .description
             .as_ref()
-            .value_or_unreachable("description after retry")
+            .value_or_unreachable()
             .friendly_name,
         "Living Room TV"
     );
 
-    http_handle.join().value_or_unreachable("http server");
+    http_handle.join().value_or_unreachable();
 }
 
 #[test]
@@ -560,8 +549,8 @@ fn device_description_xml_accepts_tag_attributes_and_escaped_text() {
   </device>
 </root>"#;
 
-    let description = parse_device_description_xml(xml, "http://127.0.0.1/device.xml")
-        .value_or_unreachable("parse description xml");
+    let description =
+        parse_device_description_xml(xml, "http://127.0.0.1/device.xml").value_or_unreachable();
 
     assert_eq!(description.friendly_name, "Living Room & TV");
     assert_eq!(description.manufacturer.as_deref(), Some("Acme"));

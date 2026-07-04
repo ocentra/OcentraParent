@@ -218,36 +218,10 @@ pub struct RecoveryDecision {
 }
 
 pub fn authorize_setup_invite(input: SetupInviteInput) -> SetupInviteDecision {
-    if input.invite_state != SetupInviteState::Pending {
-        return rejected_setup_invite(SetupInviteFailureReason::InviteNotActive);
-    }
-
-    if !input.single_use {
-        return rejected_setup_invite(SetupInviteFailureReason::InviteNotSingleUse);
-    }
-
-    if input.replay_state != SetupInviteReplayState::Fresh {
-        return rejected_setup_invite(SetupInviteFailureReason::InviteReplayRejected);
-    }
-
-    if input.abuse_state == SetupRecoveryAbuseState::Throttled {
-        return rejected_setup_invite(SetupInviteFailureReason::InviteNotActive);
-    }
-
-    if input.response_timing_state != SetupRecoveryResponseTimingState::Uniform {
-        return rejected_setup_invite(SetupInviteFailureReason::InviteNotActive);
-    }
-
-    if !input.same_family {
-        return rejected_setup_invite(SetupInviteFailureReason::WrongHousehold);
-    }
-
-    if !purpose_matches_target_role(input.purpose, input.target_role) {
-        return rejected_setup_invite(SetupInviteFailureReason::WrongTargetRole);
-    }
-
-    if !inviter_can_issue(input.inviter_role, input.purpose) {
-        return rejected_setup_invite(SetupInviteFailureReason::InviterNotAuthorized);
+    if let Some(failure_reason) =
+        crate::setup_lifecycle_validation::setup_invite_failure_reason(&input)
+    {
+        return rejected_setup_invite(failure_reason);
     }
 
     SetupInviteDecision {
@@ -265,57 +239,15 @@ pub fn evaluate_recovery_operation(input: RecoveryOperation) -> RecoveryDecision
                 | RecoveryKind::CompromisedAccount
                 | RecoveryKind::HouseholdTransfer
         );
-    let child_evidence_access_state = child_evidence_access_state(input);
-    let data_custody_handoff_state = data_custody_handoff_state(input);
+    let child_evidence_access_state =
+        crate::setup_lifecycle_validation::child_evidence_access_state(input);
+    let data_custody_handoff_state =
+        crate::setup_lifecycle_validation::data_custody_handoff_state(input);
 
-    if input.state == RecoveryState::Revoked {
+    if let Some(failure_reason) = crate::setup_lifecycle_validation::recovery_failure_reason(&input)
+    {
         return rejected_recovery(
-            RecoveryFailureReason::RecoveryNotActive,
-            owner_approval_required,
-            child_evidence_access_state,
-            data_custody_handoff_state,
-        );
-    }
-
-    if input.requester_role != HouseholdRole::SupportAdmin && !input.same_family {
-        return rejected_recovery(
-            RecoveryFailureReason::WrongHousehold,
-            owner_approval_required,
-            child_evidence_access_state,
-            data_custody_handoff_state,
-        );
-    }
-
-    if input.identity_proof_state != RecoveryIdentityProofState::Verified {
-        return rejected_recovery(
-            RecoveryFailureReason::IdentityProofRequired,
-            owner_approval_required,
-            child_evidence_access_state,
-            data_custody_handoff_state,
-        );
-    }
-
-    if input.abuse_state == SetupRecoveryAbuseState::Throttled {
-        return rejected_recovery(
-            RecoveryFailureReason::IdentityProofRequired,
-            owner_approval_required,
-            child_evidence_access_state,
-            data_custody_handoff_state,
-        );
-    }
-
-    if input.response_timing_state != SetupRecoveryResponseTimingState::Uniform {
-        return rejected_recovery(
-            RecoveryFailureReason::IdentityProofRequired,
-            owner_approval_required,
-            child_evidence_access_state,
-            data_custody_handoff_state,
-        );
-    }
-
-    if !requester_can_recover(input.requester_role, input.kind, input.support_channel) {
-        return rejected_recovery(
-            RecoveryFailureReason::RoleNotAuthorized,
+            failure_reason,
             owner_approval_required,
             child_evidence_access_state,
             data_custody_handoff_state,
@@ -343,15 +275,11 @@ pub fn device_trust_state_for_recovery_state(state: RecoveryState) -> DeviceTrus
 }
 
 pub fn device_trust_state_for_recovery_operation(input: RecoveryOperation) -> DeviceTrustState {
-    if input.state == RecoveryState::Revoked {
-        return DeviceTrustState::Revoked;
+    match (input.state, input.delete_export_handoff_required) {
+        (RecoveryState::Revoked, _) => DeviceTrustState::Revoked,
+        (RecoveryState::Completed, true) => DeviceTrustState::ResetRequired,
+        _ => device_trust_state_for_recovery_state(input.state),
     }
-
-    if input.state == RecoveryState::Completed && input.delete_export_handoff_required {
-        return DeviceTrustState::ResetRequired;
-    }
-
-    device_trust_state_for_recovery_state(input.state)
 }
 
 fn rejected_setup_invite(failure_reason: SetupInviteFailureReason) -> SetupInviteDecision {
@@ -376,89 +304,4 @@ fn rejected_recovery(
         data_custody_handoff_state,
         failure_reason: Some(failure_reason),
     }
-}
-
-fn purpose_matches_target_role(
-    purpose: SetupInvitePurpose,
-    target_role: SetupInviteTargetRole,
-) -> bool {
-    matches!(
-        (purpose, target_role),
-        (
-            SetupInvitePurpose::CoParentInvite,
-            SetupInviteTargetRole::CoParentGuardian
-        ) | (
-            SetupInvitePurpose::ObserverInvite,
-            SetupInviteTargetRole::Observer
-        ) | (
-            SetupInvitePurpose::ChildDevicePairing,
-            SetupInviteTargetRole::ChildDeviceAgent
-        ) | (
-            SetupInvitePurpose::HouseholdTransfer,
-            SetupInviteTargetRole::ParentOwner
-        )
-    )
-}
-
-fn inviter_can_issue(role: HouseholdRole, purpose: SetupInvitePurpose) -> bool {
-    match purpose {
-        SetupInvitePurpose::CoParentInvite
-        | SetupInvitePurpose::ObserverInvite
-        | SetupInvitePurpose::ChildDevicePairing => {
-            matches!(
-                role,
-                HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
-            )
-        }
-        SetupInvitePurpose::HouseholdTransfer => matches!(role, HouseholdRole::ParentOwner),
-    }
-}
-
-fn requester_can_recover(
-    role: HouseholdRole,
-    kind: RecoveryKind,
-    support_channel: RecoverySupportChannel,
-) -> bool {
-    if role == HouseholdRole::SupportAdmin {
-        return support_channel == RecoverySupportChannel::SupportAssisted;
-    }
-
-    match kind {
-        RecoveryKind::HouseholdTransfer => role == HouseholdRole::ParentOwner,
-        RecoveryKind::ForgotLogin
-        | RecoveryKind::LostParentDevice
-        | RecoveryKind::CompromisedAccount
-        | RecoveryKind::ChildReinstall => {
-            matches!(
-                role,
-                HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
-            )
-        }
-    }
-}
-
-fn child_evidence_access_state(input: RecoveryOperation) -> RecoveryChildEvidenceAccessState {
-    let has_household_authority = input.same_family
-        && matches!(
-            input.requester_role,
-            HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
-        );
-
-    if has_household_authority && input.support_channel != RecoverySupportChannel::SupportAssisted {
-        RecoveryChildEvidenceAccessState::Allowed
-    } else {
-        RecoveryChildEvidenceAccessState::Blocked
-    }
-}
-
-fn data_custody_handoff_state(input: RecoveryOperation) -> RecoveryDataCustodyHandoffState {
-    if input.kind == RecoveryKind::HouseholdTransfer {
-        return RecoveryDataCustodyHandoffState::HouseholdTransferHandoffRequired;
-    }
-
-    if input.delete_export_handoff_required {
-        return RecoveryDataCustodyHandoffState::ExportDeleteHandoffRequired;
-    }
-
-    RecoveryDataCustodyHandoffState::None
 }

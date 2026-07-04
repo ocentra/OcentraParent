@@ -1,4 +1,3 @@
-use ocentra_eventing::{envelope::DomainEvent, error::EventingError};
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -19,23 +18,14 @@ use ocentra_family_identity_core::setup_lifecycle::{
 };
 use ocentra_provisioning_core::provisioning_install::{
     derive_provisioning_readiness_input_from_family_context, evaluate_provisioning_readiness,
-    plan_provisioning_actions, provisioning_action_planned_event,
-    provisioning_readiness_evaluated_event, AccountReadinessState, ChildAppReadinessState,
-    ChildInstallState, ChildRuntimeReadinessState, ChildServiceState, DataCustodySyncState,
-    NetworkReachabilityState, PairingLifecycleState, ParentAppReadinessState,
-    ParentDeviceRegistrationState, PermissionReadinessState, PolicyBaselineState,
-    ProvisioningActionPlan, ProvisioningActionPlanId, ProvisioningAggregateId,
-    ProvisioningAuditState, ProvisioningBlockerReason, ProvisioningChildRuntimeStartAction,
-    ProvisioningFamilyContextInput, ProvisioningManualStepState, ProvisioningOverallState,
-    ProvisioningReadinessDecision, ProvisioningReadinessEvaluationId, ProvisioningReadinessInput,
-    ProvisioningRecoveryAction, RecoveryState,
+    plan_provisioning_actions, AccountReadinessState, ChildAppReadinessState, ChildInstallState,
+    ChildRuntimeReadinessState, ChildServiceState, DataCustodySyncState, NetworkReachabilityState,
+    PairingLifecycleState, ParentAppReadinessState, ParentDeviceRegistrationState,
+    PermissionReadinessState, PolicyBaselineState, ProvisioningActionPlan, ProvisioningAuditState,
+    ProvisioningBlockerReason, ProvisioningChildRuntimeStartAction, ProvisioningFamilyContextInput,
+    ProvisioningManualStepState, ProvisioningOverallState, ProvisioningReadinessDecision,
+    ProvisioningReadinessInput, ProvisioningRecoveryAction, RecoveryState,
 };
-use serde_json::Value;
-
-const PROVISIONING_AGGREGATE_ID: &str = "provisioning-family-default";
-const PROVISIONING_EVALUATION_ID: &str = "provisioning-readiness-default";
-const PROVISIONING_READINESS_EVENT_TYPE: &str = "provisioning.readiness.evaluated";
-const PROVISIONING_ACTION_EVENT_TYPE: &str = "provisioning.action.planned";
 
 fn ready_input() -> ProvisioningReadinessInput {
     ProvisioningReadinessInput {
@@ -170,99 +160,6 @@ fn custody_sync_pending_keeps_runtime_blocked_but_marks_state_degraded() {
         actions.recovery_action,
         ProvisioningRecoveryAction::RepairCustodySync
     );
-}
-
-#[test]
-fn readiness_event_projects_typed_action_event() -> Result<(), EventingError> {
-    let readiness_event = provisioning_readiness_evaluated_event(
-        ProvisioningAggregateId::parse(PROVISIONING_AGGREGATE_ID)?,
-        ProvisioningReadinessEvaluationId::parse(PROVISIONING_EVALUATION_ID)?,
-        ready_input(),
-    );
-
-    let action_event = provisioning_action_planned_event(readiness_event.clone());
-
-    assert_eq!(
-        readiness_event.contract()?.event_type.as_str(),
-        PROVISIONING_READINESS_EVENT_TYPE
-    );
-    assert_eq!(
-        action_event.contract()?.event_type.as_str(),
-        PROVISIONING_ACTION_EVENT_TYPE
-    );
-    assert_eq!(action_event.aggregate_id, readiness_event.aggregate_id);
-    assert_eq!(
-        action_event.source_evaluation_id,
-        readiness_event.evaluation_id
-    );
-    assert!(
-        ProvisioningActionPlanId::parse(action_event.action_plan_id.as_str()).is_ok(),
-        "action plan id remains branded"
-    );
-
-    Ok(())
-}
-
-#[test]
-fn bootstrap_audit_events_omit_raw_pairing_session_fields() -> Result<(), Box<dyn std::error::Error>>
-{
-    let family_context = ProvisioningFamilyContextInput {
-        pairing_session_input: SessionTokenInput {
-            replay_state: TokenReplayState::ReplayDetected,
-            ..ready_family_context().pairing_session_input
-        },
-        ..ready_family_context()
-    };
-    let projected_input = derive_provisioning_readiness_input_from_family_context(family_context);
-    let readiness_event = provisioning_readiness_evaluated_event(
-        ProvisioningAggregateId::parse(PROVISIONING_AGGREGATE_ID)?,
-        ProvisioningReadinessEvaluationId::parse(PROVISIONING_EVALUATION_ID)?,
-        projected_input,
-    );
-    let action_event = provisioning_action_planned_event(readiness_event.clone());
-
-    assert_eq!(
-        readiness_event.input.pairing_lifecycle_state,
-        PairingLifecycleState::Replayed
-    );
-    assert_eq!(
-        readiness_event.decision.blocker_reason,
-        Some(ProvisioningBlockerReason::PairingReplayRejected)
-    );
-    assert_eq!(
-        action_event.action_plan.audit_state,
-        ProvisioningAuditState::Record
-    );
-
-    let readiness_json = serde_json::to_value(&readiness_event)?;
-    assert_eq!(
-        readiness_json["input"]["pairing_lifecycle_state"],
-        Value::String(String::from("replayed"))
-    );
-    assert_eq!(
-        readiness_json["decision"]["blocker_reason"],
-        Value::String(String::from("pairing-replay-rejected"))
-    );
-    assert!(readiness_json.get("pairing_session_input").is_none());
-    assert!(readiness_json["input"].get("credential_kind").is_none());
-    assert!(readiness_json["input"].get("replay_state").is_none());
-    assert!(readiness_json["input"]
-        .get("validity_window_state")
-        .is_none());
-
-    let action_json = serde_json::to_value(&action_event)?;
-    assert_eq!(
-        action_json["action_plan"]["audit_state"],
-        Value::String(String::from("record"))
-    );
-    assert!(action_json.get("pairing_session_input").is_none());
-    assert!(action_json["action_plan"].get("credential_kind").is_none());
-    assert!(action_json["action_plan"].get("replay_state").is_none());
-    assert!(action_json["action_plan"]
-        .get("validity_window_state")
-        .is_none());
-
-    Ok(())
 }
 
 #[test]

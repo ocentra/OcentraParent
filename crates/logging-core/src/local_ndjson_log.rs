@@ -190,30 +190,17 @@ pub fn non_empty_ndjson_lines(content: &str) -> Vec<&str> {
 }
 
 pub fn matches_wipe_entry(entry: &TestLogEntry<'_>, options: &WipeScopeOptions<'_>) -> bool {
-    if entry.scope != options.scope {
-        return false;
-    }
-    if let Some(run_type) = options.run_type {
-        if entry.run_type != run_type {
-            return false;
-        }
-    }
-    if let Some(suite_type) = options.suite_type {
-        if entry.suite_type != Some(suite_type) {
-            return false;
-        }
-    }
-    if let Some(run_id) = options.run_id {
-        if entry.run_id != run_id {
-            return false;
-        }
-    }
-    if let Some(file_path) = options.file_path {
-        if !matches_file(entry, file_path) {
-            return false;
-        }
-    }
-    true
+    entry.scope == options.scope
+        && options
+            .run_type
+            .is_none_or(|run_type| entry.run_type == run_type)
+        && options
+            .suite_type
+            .is_none_or(|suite_type| entry.suite_type == Some(suite_type))
+        && options.run_id.is_none_or(|run_id| entry.run_id == run_id)
+        && options
+            .file_path
+            .is_none_or(|file_path| matches_file(entry, file_path))
 }
 
 pub fn select_prune_candidates(files: &[PrunableFile<'_>], keep_newest: isize) -> Vec<String> {
@@ -236,24 +223,23 @@ pub fn classify_manifest_changes(
     manifest: &IngestManifest,
     observed_files: &[ObservedFileState],
 ) -> (Vec<String>, Vec<String>) {
-    let mut new_files = Vec::new();
-    let mut changed_files = Vec::new();
-
-    for observed in observed_files {
-        match manifest.files.get(&observed.resolved_path) {
-            None => new_files.push(observed.resolved_path.clone()),
-            Some(existing) => {
-                if existing.size != observed.size
-                    || existing.modified_ms != observed.modified_ms
-                    || existing.sha256 != observed.sha256
+    observed_files.iter().fold(
+        (Vec::new(), Vec::new()),
+        |(mut new_files, mut changed_files), observed| {
+            match manifest.files.get(&observed.resolved_path) {
+                None => new_files.push(observed.resolved_path.clone()),
+                Some(existing)
+                    if existing.size != observed.size
+                        || existing.modified_ms != observed.modified_ms
+                        || existing.sha256 != observed.sha256 =>
                 {
                     changed_files.push(observed.resolved_path.clone());
                 }
+                Some(_) => {}
             }
-        }
-    }
-
-    (new_files, changed_files)
+            (new_files, changed_files)
+        },
+    )
 }
 
 pub fn build_manifest(
@@ -261,20 +247,21 @@ pub fn build_manifest(
     updated_at: u64,
     observed_files: &[ObservedFileState],
 ) -> IngestManifest {
-    let mut files = BTreeMap::new();
-    for observed in observed_files {
-        files.insert(
-            observed.resolved_path.clone(),
-            ManifestEntry {
-                size: observed.size,
-                modified_ms: observed.modified_ms,
-                sha256: observed.sha256.clone(),
-            },
-        );
-    }
     IngestManifest {
         scope: scope.to_owned(),
         updated_at,
-        files,
+        files: observed_files
+            .iter()
+            .map(|observed| {
+                (
+                    observed.resolved_path.clone(),
+                    ManifestEntry {
+                        size: observed.size,
+                        modified_ms: observed.modified_ms,
+                        sha256: observed.sha256.clone(),
+                    },
+                )
+            })
+            .collect(),
     }
 }

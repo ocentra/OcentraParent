@@ -48,12 +48,8 @@ fn social_alert_report_snapshot_serializes_no_claim_boundaries() {
         },
     };
 
-    let json = serde_json::to_value(&snapshot).unwrap_or_else(|error| {
-        unreachable!(
-            "{}: {error:?}",
-            ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES
-        )
-    });
+    let json = serde_json::to_value(&snapshot)
+        .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(json["familyId"], SOCIAL_ALERT_REPORT_FAMILY_ID);
     assert_eq!(

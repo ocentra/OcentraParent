@@ -225,5 +225,5 @@ fn app_game_source_freshness_preview_gate_target_domain(target_kind: &str) -> &'
 }
 
 pub fn app_game_source_freshness_preview_gate_typescript() -> String {
-    include_str!("generated/app-game-source-freshness-preview-gate.ts").to_string()
+    include_str!("../tests/generated/app-game-source-freshness-preview-gate.ts").to_string()
 }

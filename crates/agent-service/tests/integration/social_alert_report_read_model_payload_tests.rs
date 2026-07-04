@@ -1,6 +1,5 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::social_alert_report_read_model::SocialAlertReportReadModelSnapshot;
 use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_CLAIM_NOT_CLAIMED;
 use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_DELIVERY_LOCAL_OUTBOX_ONLY;
@@ -8,17 +7,19 @@ use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK;
 use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED;
 use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED;
 use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED;
-use serde::de::DeserializeOwned;
 
 use super::social_alert_report_read_model_payload::{
     social_alert_report_read_model_from_service, social_alert_report_read_model_payload,
 };
+#[path = "../support/log_payload.rs"]
+mod log_payload;
+use log_payload::payload_json;
 
 #[test]
 fn social_alert_report_payload_reports_honest_service_rows() {
     let read_model = social_alert_report_read_model_from_service();
     let payload = social_alert_report_read_model_payload(&read_model);
-    let decoded: SocialAlertReportReadModelSnapshot = string_payload(
+    let decoded: SocialAlertReportReadModelSnapshot = payload_json(
         &payload,
         constants::field::BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL,
     );
@@ -59,16 +60,4 @@ fn social_alert_report_payload_reports_honest_service_rows() {
         decoded.claim_boundaries.provider_delivery,
         SOCIAL_ALERT_REPORT_CLAIM_NOT_CLAIMED
     );
-}
-
-fn string_payload<T>(payload: &ocentra_parent_agent_protocol::logging::LogFields, field: &str) -> T
-where
-    T: DeserializeOwned,
-{
-    match &payload[field] {
-        LogFieldValue::String(text) => {
-            serde_json::from_str(text).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
-        }
-        _ => std::process::abort(),
-    }
 }

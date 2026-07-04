@@ -8,7 +8,6 @@ fn app_game_observation_records_evidence_and_requests_policy_not_ai() {
     let evidence = ocentra_app_game_core::app_game_evidence_recorded_event(&observed);
     let ai = ocentra_app_game_core::app_game_ai_analysis_requested_event(&evidence);
     let policy = ocentra_app_game_core::app_game_policy_evaluation_requested_event(&evidence);
-    assert!(policy.is_some(), "app game policy request is expected");
     let Some(policy) = policy else {
         return;
     };

@@ -7,6 +7,16 @@ use super::{
     policy_context::LocalAiParentRuleContextRef,
 };
 
+fn protocol_lookup<T: Copy, const N: usize>(
+    value: impl AsRef<str>,
+    variants: [(&'static str, T); N],
+) -> Option<T> {
+    let value = value.as_ref();
+    variants
+        .into_iter()
+        .find_map(|(protocol, variant)| (value == protocol).then_some(variant))
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PolicyPreviewNetworkEvidenceMapping {
@@ -29,12 +39,10 @@ pub enum PolicyPreviewSaveState {
 }
 
 impl PolicyPreviewSaveState {
+    const PROTOCOL_STRINGS: [&'static str; 3] = ["preview-required", "ready-to-save", "blocked"];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::PreviewRequired => "preview-required",
-            Self::ReadyToSave => "ready-to-save",
-            Self::Blocked => "blocked",
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -47,11 +55,10 @@ pub enum PolicyPreviewManualReviewState {
 }
 
 impl PolicyPreviewManualReviewState {
+    const PROTOCOL_STRINGS: [&'static str; 2] = ["required", "not-required"];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Required => "required",
-            Self::NotRequired => "not-required",
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -70,14 +77,16 @@ pub enum PolicyPreviewTargetState {
 }
 
 impl PolicyPreviewTargetState {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        "supported",
+        "unsupported",
+        "manual-required",
+        "offline",
+        "stale",
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Supported => "supported",
-            Self::Unsupported => "unsupported",
-            Self::ManualRequired => "manual-required",
-            Self::Offline => "offline",
-            Self::Stale => "stale",
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -106,19 +115,21 @@ pub enum PolicyPreviewFindingKind {
 }
 
 impl PolicyPreviewFindingKind {
+    const PROTOCOL_STRINGS: [&'static str; 10] = [
+        "overlapping-schedule",
+        "timezone-boundary",
+        "ambiguous-local-time",
+        "nonexistent-local-time",
+        "clock-skew",
+        "unsupported-target",
+        "manual-required-target",
+        "offline-target",
+        "stale-target",
+        "stale-source-document",
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::OverlappingSchedule => "overlapping-schedule",
-            Self::TimezoneBoundary => "timezone-boundary",
-            Self::AmbiguousLocalTime => "ambiguous-local-time",
-            Self::NonexistentLocalTime => "nonexistent-local-time",
-            Self::ClockSkew => "clock-skew",
-            Self::UnsupportedTarget => "unsupported-target",
-            Self::ManualRequiredTarget => "manual-required-target",
-            Self::OfflineTarget => "offline-target",
-            Self::StaleTarget => "stale-target",
-            Self::StaleSourceDocument => "stale-source-document",
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -169,43 +180,56 @@ pub enum PolicySourceStatus {
 }
 
 impl PolicySourceStatus {
+    const PROTOCOL_STRINGS: [&'static str; 14] = [
+        policy_control::source::STATUS_DRAFT,
+        policy_control::source::STATUS_PREVIEW,
+        policy_control::source::STATUS_CONFIRMED,
+        policy_control::source::STATUS_QUEUED,
+        policy_control::source::STATUS_DELIVERED,
+        policy_control::source::STATUS_ACKNOWLEDGED,
+        policy_control::source::STATUS_ACTIVE,
+        policy_control::source::STATUS_PARTIALLY_ACTIVE,
+        policy_control::source::STATUS_REJECTED,
+        policy_control::source::STATUS_SUPERSEDED,
+        policy_control::source::STATUS_ROLLED_BACK,
+        policy_control::source::STATUS_STALE,
+        policy_control::source::STATUS_EXPIRED,
+        policy_control::source::STATUS_MANUAL_REQUIRED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Draft => policy_control::source::STATUS_DRAFT,
-            Self::Preview => policy_control::source::STATUS_PREVIEW,
-            Self::Confirmed => policy_control::source::STATUS_CONFIRMED,
-            Self::Queued => policy_control::source::STATUS_QUEUED,
-            Self::Delivered => policy_control::source::STATUS_DELIVERED,
-            Self::Acknowledged => policy_control::source::STATUS_ACKNOWLEDGED,
-            Self::Active => policy_control::source::STATUS_ACTIVE,
-            Self::PartiallyActive => policy_control::source::STATUS_PARTIALLY_ACTIVE,
-            Self::Rejected => policy_control::source::STATUS_REJECTED,
-            Self::Superseded => policy_control::source::STATUS_SUPERSEDED,
-            Self::RolledBack => policy_control::source::STATUS_ROLLED_BACK,
-            Self::Stale => policy_control::source::STATUS_STALE,
-            Self::Expired => policy_control::source::STATUS_EXPIRED,
-            Self::ManualRequired => policy_control::source::STATUS_MANUAL_REQUIRED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 
-    pub fn from_protocol_str(value: &str) -> Option<Self> {
-        match value {
-            policy_control::source::STATUS_DRAFT => Some(Self::Draft),
-            policy_control::source::STATUS_PREVIEW => Some(Self::Preview),
-            policy_control::source::STATUS_CONFIRMED => Some(Self::Confirmed),
-            policy_control::source::STATUS_QUEUED => Some(Self::Queued),
-            policy_control::source::STATUS_DELIVERED => Some(Self::Delivered),
-            policy_control::source::STATUS_ACKNOWLEDGED => Some(Self::Acknowledged),
-            policy_control::source::STATUS_ACTIVE => Some(Self::Active),
-            policy_control::source::STATUS_PARTIALLY_ACTIVE => Some(Self::PartiallyActive),
-            policy_control::source::STATUS_REJECTED => Some(Self::Rejected),
-            policy_control::source::STATUS_SUPERSEDED => Some(Self::Superseded),
-            policy_control::source::STATUS_ROLLED_BACK => Some(Self::RolledBack),
-            policy_control::source::STATUS_STALE => Some(Self::Stale),
-            policy_control::source::STATUS_EXPIRED => Some(Self::Expired),
-            policy_control::source::STATUS_MANUAL_REQUIRED => Some(Self::ManualRequired),
-            _ => None,
-        }
+    pub fn from_protocol_str(value: impl AsRef<str>) -> Option<Self> {
+        protocol_lookup(
+            value,
+            [
+                (policy_control::source::STATUS_DRAFT, Self::Draft),
+                (policy_control::source::STATUS_PREVIEW, Self::Preview),
+                (policy_control::source::STATUS_CONFIRMED, Self::Confirmed),
+                (policy_control::source::STATUS_QUEUED, Self::Queued),
+                (policy_control::source::STATUS_DELIVERED, Self::Delivered),
+                (
+                    policy_control::source::STATUS_ACKNOWLEDGED,
+                    Self::Acknowledged,
+                ),
+                (policy_control::source::STATUS_ACTIVE, Self::Active),
+                (
+                    policy_control::source::STATUS_PARTIALLY_ACTIVE,
+                    Self::PartiallyActive,
+                ),
+                (policy_control::source::STATUS_REJECTED, Self::Rejected),
+                (policy_control::source::STATUS_SUPERSEDED, Self::Superseded),
+                (policy_control::source::STATUS_ROLLED_BACK, Self::RolledBack),
+                (policy_control::source::STATUS_STALE, Self::Stale),
+                (policy_control::source::STATUS_EXPIRED, Self::Expired),
+                (
+                    policy_control::source::STATUS_MANUAL_REQUIRED,
+                    Self::ManualRequired,
+                ),
+            ],
+        )
     }
 }
 
@@ -222,23 +246,36 @@ pub enum PolicySourceSurface {
 }
 
 impl PolicySourceSurface {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        policy_control::source::SURFACE_PARENT_PORTAL,
+        policy_control::source::SURFACE_PARENT_COMPANION,
+        policy_control::source::SURFACE_AI_PREVIEW,
+        policy_control::source::SURFACE_DOMAIN_CACHE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ParentPortal => policy_control::source::SURFACE_PARENT_PORTAL,
-            Self::ParentCompanion => policy_control::source::SURFACE_PARENT_COMPANION,
-            Self::AiPreview => policy_control::source::SURFACE_AI_PREVIEW,
-            Self::DomainCache => policy_control::source::SURFACE_DOMAIN_CACHE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 
-    pub fn from_protocol_str(value: &str) -> Option<Self> {
-        match value {
-            policy_control::source::SURFACE_PARENT_PORTAL => Some(Self::ParentPortal),
-            policy_control::source::SURFACE_PARENT_COMPANION => Some(Self::ParentCompanion),
-            policy_control::source::SURFACE_AI_PREVIEW => Some(Self::AiPreview),
-            policy_control::source::SURFACE_DOMAIN_CACHE => Some(Self::DomainCache),
-            _ => None,
-        }
+    pub fn from_protocol_str(value: impl AsRef<str>) -> Option<Self> {
+        protocol_lookup(
+            value,
+            [
+                (
+                    policy_control::source::SURFACE_PARENT_PORTAL,
+                    Self::ParentPortal,
+                ),
+                (
+                    policy_control::source::SURFACE_PARENT_COMPANION,
+                    Self::ParentCompanion,
+                ),
+                (policy_control::source::SURFACE_AI_PREVIEW, Self::AiPreview),
+                (
+                    policy_control::source::SURFACE_DOMAIN_CACHE,
+                    Self::DomainCache,
+                ),
+            ],
+        )
     }
 }
 
@@ -251,19 +288,20 @@ pub enum PolicyRequestOrigin {
 }
 
 impl PolicyRequestOrigin {
+    const PROTOCOL_STRINGS: [&'static str; 2] = ["child", "assistant-draft"];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Child => "child",
-            Self::AssistantDraft => "assistant-draft",
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 
-    pub fn from_protocol_str(value: &str) -> Option<Self> {
-        match value {
-            "child" => Some(Self::Child),
-            "assistant-draft" => Some(Self::AssistantDraft),
-            _ => None,
-        }
+    pub fn from_protocol_str(value: impl AsRef<str>) -> Option<Self> {
+        protocol_lookup(
+            value,
+            [
+                ("child", Self::Child),
+                ("assistant-draft", Self::AssistantDraft),
+            ],
+        )
     }
 }
 
@@ -278,21 +316,28 @@ pub enum PolicyAssistantConfirmationState {
 }
 
 impl PolicyAssistantConfirmationState {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        "not-required",
+        "parent-confirmation-required",
+        "parent-confirmed",
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::NotRequired => "not-required",
-            Self::ParentConfirmationRequired => "parent-confirmation-required",
-            Self::ParentConfirmed => "parent-confirmed",
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 
-    pub fn from_protocol_str(value: &str) -> Option<Self> {
-        match value {
-            "not-required" => Some(Self::NotRequired),
-            "parent-confirmation-required" => Some(Self::ParentConfirmationRequired),
-            "parent-confirmed" => Some(Self::ParentConfirmed),
-            _ => None,
-        }
+    pub fn from_protocol_str(value: impl AsRef<str>) -> Option<Self> {
+        protocol_lookup(
+            value,
+            [
+                ("not-required", Self::NotRequired),
+                (
+                    "parent-confirmation-required",
+                    Self::ParentConfirmationRequired,
+                ),
+                ("parent-confirmed", Self::ParentConfirmed),
+            ],
+        )
     }
 }
 
@@ -315,31 +360,42 @@ pub enum PolicyRequestStatus {
 }
 
 impl PolicyRequestStatus {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        policy_control::request::STATUS_PREVIEW_ONLY,
+        policy_control::request::STATUS_PENDING_PARENT_REVIEW,
+        policy_control::request::STATUS_APPROVED,
+        policy_control::request::STATUS_DENIED,
+        policy_control::request::STATUS_MODIFIED,
+        policy_control::request::STATUS_EXPIRED,
+        policy_control::request::STATUS_REPLAY_REJECTED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::PreviewOnly => policy_control::request::STATUS_PREVIEW_ONLY,
-            Self::PendingParentReview => policy_control::request::STATUS_PENDING_PARENT_REVIEW,
-            Self::Approved => policy_control::request::STATUS_APPROVED,
-            Self::Denied => policy_control::request::STATUS_DENIED,
-            Self::Modified => policy_control::request::STATUS_MODIFIED,
-            Self::Expired => policy_control::request::STATUS_EXPIRED,
-            Self::ReplayRejected => policy_control::request::STATUS_REPLAY_REJECTED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 
-    pub fn from_protocol_str(value: &str) -> Option<Self> {
-        match value {
-            policy_control::request::STATUS_PREVIEW_ONLY => Some(Self::PreviewOnly),
-            policy_control::request::STATUS_PENDING_PARENT_REVIEW => {
-                Some(Self::PendingParentReview)
-            }
-            policy_control::request::STATUS_APPROVED => Some(Self::Approved),
-            policy_control::request::STATUS_DENIED => Some(Self::Denied),
-            policy_control::request::STATUS_MODIFIED => Some(Self::Modified),
-            policy_control::request::STATUS_EXPIRED => Some(Self::Expired),
-            policy_control::request::STATUS_REPLAY_REJECTED => Some(Self::ReplayRejected),
-            _ => None,
-        }
+    pub fn from_protocol_str(value: impl AsRef<str>) -> Option<Self> {
+        protocol_lookup(
+            value,
+            [
+                (
+                    policy_control::request::STATUS_PREVIEW_ONLY,
+                    Self::PreviewOnly,
+                ),
+                (
+                    policy_control::request::STATUS_PENDING_PARENT_REVIEW,
+                    Self::PendingParentReview,
+                ),
+                (policy_control::request::STATUS_APPROVED, Self::Approved),
+                (policy_control::request::STATUS_DENIED, Self::Denied),
+                (policy_control::request::STATUS_MODIFIED, Self::Modified),
+                (policy_control::request::STATUS_EXPIRED, Self::Expired),
+                (
+                    policy_control::request::STATUS_REPLAY_REJECTED,
+                    Self::ReplayRejected,
+                ),
+            ],
+        )
     }
 }
 

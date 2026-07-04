@@ -12,24 +12,14 @@ use crate::{
 fn app_game_platform_proof_status_command_and_event_names_are_stable() {
     assert_eq!(
         serde_json::to_value(AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet)
-            .unwrap_or_else(|error| {
-                unreachable!(
-                    "{}: {error:?}",
-                    crate::constants::error::AGENT_EVENT_SERIALIZES
-                )
-            }),
+            .expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.platform-proof-status.read-model.get"
     );
     assert_eq!(
         serde_json::to_value(
             AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported
         )
-        .unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                crate::constants::error::AGENT_EVENT_SERIALIZES
-            )
-        }),
+        .expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.platform-proof-status.read-model.reported"
     );
 }
@@ -59,14 +49,9 @@ fn app_game_platform_proof_status_serializes_without_enforcement_claims() {
     };
 
     let reparsed = serde_json::from_value::<AppGamePlatformProofStatusReadModel>(
-        serde_json::to_value(read_model).unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                crate::constants::error::AGENT_EVENT_SERIALIZES
-            )
-        }),
+        serde_json::to_value(read_model).expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
     )
-    .unwrap_or_else(|error| unreachable!("platform proof status read model reparses: {error:?}"));
+    .expect("platform proof status read model reparses");
 
     assert_eq!(
         reparsed.read_model_id,

@@ -12,6 +12,13 @@ use rusqlite::{params, Connection};
 
 use crate::ActivityStoreError;
 
+#[path = "activity_store_screen_evidence/helpers.rs"]
+mod helpers;
+
+use self::helpers::{
+    bool_field, non_empty_string_list_field, number_field, string_field, string_list_field,
+};
+
 pub(crate) fn screen_evidence_recent_summary(
     connection: &Connection,
     limit: u64,
@@ -169,43 +176,4 @@ fn result_from_fields(
         ),
         deletion_reasons: string_list_field(fields, constants::field::SCREEN_DELETION_REASONS),
     })
-}
-
-fn string_field(fields: &LogFields, key: &str) -> Option<String> {
-    match fields.get(key) {
-        Some(LogFieldValue::String(value)) => Some(value.clone()),
-        _ => None,
-    }
-}
-
-fn number_field(fields: &LogFields, key: &str) -> Option<f64> {
-    match fields.get(key) {
-        Some(LogFieldValue::Number(value)) => Some(*value),
-        _ => None,
-    }
-}
-
-fn bool_field(fields: &LogFields, key: &str) -> Option<bool> {
-    match fields.get(key) {
-        Some(LogFieldValue::Boolean(value)) => Some(*value),
-        _ => None,
-    }
-}
-
-fn string_list_field(fields: &LogFields, key: &str) -> Vec<String> {
-    non_empty_string_list_field(fields, key).unwrap_or_default()
-}
-
-fn non_empty_string_list_field(fields: &LogFields, key: &str) -> Option<Vec<String>> {
-    let values = string_field(fields, key)?
-        .split(constants::delimiter::LIST)
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
-        .map(ToOwned::to_owned)
-        .collect::<Vec<_>>();
-    if values.is_empty() {
-        None
-    } else {
-        Some(values)
-    }
 }

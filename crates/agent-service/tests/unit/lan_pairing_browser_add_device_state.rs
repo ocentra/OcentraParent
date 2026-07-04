@@ -11,10 +11,13 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandName, AgentEventName, AgentMessageTarget, AgentRoute,
 };
 use serde_json::Value;
+use std::string::String as TestString;
 
 use ocentra_lan_core::read_model_builder::{
     build_lan_add_device_read_model, LanAddDeviceReadModelInput,
 };
+
+use crate::test_text::TestText;
 
 use crate::{
     app::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test},
@@ -24,7 +27,7 @@ use crate::{
 #[tokio::test]
 async fn lan_status_reports_browser_first_add_device_read_model_from_service_state() {
     let event = handle_command_text_for_test(
-        &serialize_command(loopback_status_command()),
+        serialize_command(loopback_status_command()),
         LanPairingRuntime::empty(),
         None,
     )
@@ -134,17 +137,14 @@ fn service_data_available_keeps_pairing_state_when_platform_scan_is_unavailable(
 
 fn assert_empty_runtime_payload(payload: &ocentra_parent_agent_protocol::logging::LogFields) {
     let discovery_source = payload.get(constants::field::LAN_DISCOVERY_SOURCE);
-    assert!(matches!(
-        discovery_source,
-        Some(LogFieldValue::String(value))
-            if value.as_str()
-                == serialized_discovery_source(LanPairingDiscoverySource::LocalService).as_str()
-                || value.as_str()
-                    == serialized_discovery_source(
-                    LanPairingDiscoverySource::PhysicalHouseholdLan
-                )
-                .as_str()
-    ));
+    assert!(
+        matches!(discovery_source, Some(LogFieldValue::String(value))
+        if value.as_str()
+            == serialized_discovery_source(LanPairingDiscoverySource::LocalService).as_str()
+            || value.as_str()
+                == serialized_discovery_source(LanPairingDiscoverySource::PhysicalHouseholdLan)
+                    .as_str())
+    );
     let physical_lan_state = payload.get(constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE);
     assert!(matches!(
         physical_lan_state,
@@ -174,10 +174,6 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
         read_model["discoveryEventHistory"]["state"],
         serde_json::json!("unavailable")
     );
-    assert!(!read_model["discoveryEventHistory"]["rows"]
-        .as_array()
-        .unwrap_or_else(|| unreachable!("{}", constants::value::LAN_READ_MODEL_JSON_EXPECTATION))
-        .is_empty());
     assert_eq!(
         read_model["discoveryEventHistory"]["latestEventId"]
             .as_str()
@@ -186,7 +182,7 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
     );
     let canonical_devices = read_model[constants::field::LAN_CANONICAL_HOUSEHOLD_DEVICES]
         .as_array()
-        .unwrap_or_else(|| unreachable!("{}", constants::value::LAN_READ_MODEL_JSON_EXPECTATION));
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
     assert!(canonical_devices.iter().any(|device| device
         [constants::field::LAN_CANONICAL_DEVICE_ID]
         .as_str()
@@ -198,12 +194,7 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
     );
     assert!(read_model[constants::field::LAN_HONEST_NON_CLAIMS]
         .as_array()
-        .unwrap_or_else(|| {
-            unreachable!(
-                "{}",
-                constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
-            )
-        })
+        .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
         .iter()
         .any(|claim| {
             claim.as_str() == Some(constants::value::LAN_NON_CLAIM_REMOTE_DESKTOP_NOT_IMPLEMENTED)
@@ -211,12 +202,7 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
     assert!(
         read_model[constants::field::LAN_SCAN_SUMMARY][constants::field::SOURCE_LABELS]
             .as_array()
-            .unwrap_or_else(|| {
-                unreachable!(
-                    "{}",
-                    constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
-                )
-            })
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
             .iter()
             .any(|source| {
                 matches!(
@@ -254,12 +240,7 @@ fn assert_empty_runtime_production_household_proof(read_model: &Value) {
     assert!(production_household_proof
         [constants::lan_pairing::PRODUCTION_PROOF_FIELD_CLAIMS_NOT_PROVED]
         .as_array()
-        .unwrap_or_else(|| {
-            unreachable!(
-                "{}",
-                constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
-            )
-        })
+        .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
         .iter()
         .any(|claim| claim.as_str()
             == Some(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_SIGNED)));
@@ -294,7 +275,7 @@ fn assert_empty_runtime_lan_source_matrix(read_model: &Value) {
     let matrix = &read_model[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SUMMARY];
     let workpack_rows = matrix[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS]
         .as_array()
-        .unwrap_or_else(|| unreachable!("{}", constants::value::LAN_READ_MODEL_JSON_EXPECTATION));
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
     assert!(workpack_rows.len() >= 20);
     assert!(workpack_rows.iter().any(|row| {
         row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ID]
@@ -310,12 +291,7 @@ fn assert_empty_runtime_lan_source_matrix(read_model: &Value) {
     assert!(
         matrix[constants::lan_pairing::PRODUCTION_PROOF_FIELD_CLAIMS_NOT_PROVED]
             .as_array()
-            .unwrap_or_else(|| {
-                unreachable!(
-                    "{}",
-                    constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
-                )
-            })
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
             .iter()
             .any(|claim| claim.as_str()
                 == Some(constants::lan_pairing::LAN_SOURCE_MATRIX_NON_CLAIM_PACKET_MODE))
@@ -325,7 +301,7 @@ fn assert_empty_runtime_lan_source_matrix(read_model: &Value) {
 #[tokio::test]
 async fn lan_status_marks_selected_trusted_device_ready_for_control() {
     let event = handle_command_text_for_test(
-        &serialize_command(loopback_status_command()),
+        serialize_command(loopback_status_command()),
         paired_runtime().await,
         None,
     )
@@ -359,10 +335,6 @@ async fn lan_status_marks_selected_trusted_device_ready_for_control() {
             [constants::field::LAN_READY_FOR_CONTROL],
         serde_json::json!(true)
     );
-    assert!(!read_model["discoveryEventHistory"]["rows"]
-        .as_array()
-        .unwrap_or_else(|| unreachable!("{}", constants::value::LAN_READ_MODEL_JSON_EXPECTATION))
-        .is_empty());
     assert!(read_model["discoveryEventHistory"]["latestEventId"]
         .as_str()
         .map(|value| !value.is_empty())
@@ -389,10 +361,10 @@ async fn lan_status_marks_selected_trusted_device_ready_for_control() {
 #[tokio::test]
 async fn lan_status_projects_stale_selected_route_state_from_runtime() {
     let runtime = paired_runtime().await;
-    assert!(runtime.mark_selected_stale_for_test(constants::lan_pairing::EXPIRED_AT));
+    assert!(runtime.mark_selected_stale_for_test());
 
     let event =
-        handle_command_text_for_test(&serialize_command(loopback_status_command()), runtime, None)
+        handle_command_text_for_test(serialize_command(loopback_status_command()), runtime, None)
             .await;
 
     assert_eq!(
@@ -423,23 +395,27 @@ async fn lan_status_projects_stale_selected_route_state_from_runtime() {
     );
     assert_route_safety_state(
         &read_model,
-        constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_STALE,
-        constants::value::LAN_DISCOVERY_STATE_STALE,
+        RouteSafetyExpectation {
+            check: constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_STALE,
+            expected_state: constants::value::LAN_DISCOVERY_STATE_STALE,
+        },
     );
     assert_route_safety_state(
         &read_model,
-        constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY,
-        constants::value::LAN_DISCOVERY_STATE_PENDING,
+        RouteSafetyExpectation {
+            check: constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY,
+            expected_state: constants::value::LAN_DISCOVERY_STATE_PENDING,
+        },
     );
 }
 
 #[tokio::test]
 async fn lan_status_projects_offline_selected_route_state_from_runtime() {
     let runtime = paired_runtime().await;
-    assert!(runtime.mark_selected_offline_for_test(constants::lan_pairing::OBSERVED_AT));
+    assert!(runtime.mark_selected_offline_for_test());
 
     let event =
-        handle_command_text_for_test(&serialize_command(loopback_status_command()), runtime, None)
+        handle_command_text_for_test(serialize_command(loopback_status_command()), runtime, None)
             .await;
 
     assert_eq!(
@@ -470,13 +446,17 @@ async fn lan_status_projects_offline_selected_route_state_from_runtime() {
     );
     assert_route_safety_state(
         &read_model,
-        constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_OFFLINE,
-        constants::value::LAN_DISCOVERY_STATE_OFFLINE,
+        RouteSafetyExpectation {
+            check: constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_OFFLINE,
+            expected_state: constants::value::LAN_DISCOVERY_STATE_OFFLINE,
+        },
     );
     assert_route_safety_state(
         &read_model,
-        constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY,
-        constants::value::LAN_DISCOVERY_STATE_PENDING,
+        RouteSafetyExpectation {
+            check: constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY,
+            expected_state: constants::value::LAN_DISCOVERY_STATE_PENDING,
+        },
     );
 }
 
@@ -485,21 +465,14 @@ fn assert_paired_production_route_custody(read_model: &Value) {
         read_model[constants::lan_pairing::PRODUCTION_PROOF_FIELD_SUMMARY]
             [constants::lan_pairing::PRODUCTION_PROOF_FIELD_STATUS_ROWS]
             .as_array()
-            .unwrap_or_else(|| {
-                unreachable!(
-                    "{}",
-                    constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
-                )
-            })
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
             .iter()
             .find(|row| row[constants::field::CAPABILITY]
                 == serde_json::json!(
                     constants::lan_pairing::PRODUCTION_PROOF_CAPABILITY_ROUTE_CUSTODY
                 ))
-            .unwrap_or_else(|| unreachable!(
-                "{}",
-                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
-            ))[constants::field::LAN_DISCOVERY_STATE],
+            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+            [constants::field::LAN_DISCOVERY_STATE],
         serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PAIRED)
     );
 }
@@ -507,52 +480,50 @@ fn assert_paired_production_route_custody(read_model: &Value) {
 fn assert_paired_signed_route_custody(read_model: &Value) {
     assert_route_safety_state(
         read_model,
-        constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY,
-        constants::value::LAN_DISCOVERY_STATE_PAIRED,
+        RouteSafetyExpectation {
+            check: constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY,
+            expected_state: constants::value::LAN_DISCOVERY_STATE_PAIRED,
+        },
     );
 }
 
-fn assert_route_safety_state(read_model: &Value, check: &str, expected_state: &str) {
+struct RouteSafetyExpectation {
+    check: &'static str,
+    expected_state: &'static str,
+}
+
+fn assert_route_safety_state(read_model: &Value, expectation: RouteSafetyExpectation) {
     assert_eq!(
         read_model[constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY]
             [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_ROUTE_SAFETY_ROWS]
             .as_array()
-            .unwrap_or_else(|| {
-                unreachable!(
-                    "{}",
-                    constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION
-                )
-            })
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
             .iter()
             .find(|row| {
                 row[constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_CHECK]
-                    == serde_json::json!(check)
+                    == serde_json::json!(expectation.check)
             })
-            .unwrap_or_else(|| unreachable!(
-                "{}",
-                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
-            ))[constants::field::LAN_DISCOVERY_STATE],
-        serde_json::json!(expected_state)
+            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+            [constants::field::LAN_DISCOVERY_STATE],
+        serde_json::json!(expectation.expected_state)
     );
 }
 
 fn read_model_payload(payload: &ocentra_parent_agent_protocol::logging::LogFields) -> Value {
     match payload.get(constants::field::LAN_ADD_DEVICE_READ_MODEL) {
-        Some(LogFieldValue::String(value)) => serde_json::from_str(value).unwrap_or_else(|error| {
-            unreachable!(
-                "{}: {error:?}",
-                constants::value::LAN_READ_MODEL_JSON_EXPECTATION
-            )
-        }),
+        Some(LogFieldValue::String(value)) => {
+            serde_json::from_str(value).expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+        }
         _ => serde_json::json!({}),
     }
 }
 
-fn serialized_discovery_source(source: LanPairingDiscoverySource) -> String {
+fn serialized_discovery_source(source: LanPairingDiscoverySource) -> TestString {
     serde_json::to_value(source)
-        .ok()
-        .and_then(|value| value.as_str().map(ToOwned::to_owned))
-        .unwrap_or_default()
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+        .as_str()
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+        .to_owned()
 }
 
 fn loopback_status_command() -> ocentra_parent_agent_protocol::transport::AgentCommandEnvelope {

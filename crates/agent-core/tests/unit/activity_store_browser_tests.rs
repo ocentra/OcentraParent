@@ -16,7 +16,16 @@ use crate::{
     JournalKey, JOURNAL_KEY_BYTES,
 };
 
-type TestResult = Result<(), String>;
+use crate::test_text::{test_ok as ok, test_some as some, TestResult, TestText};
+
+#[derive(Clone)]
+struct TestPath(PathBuf);
+
+impl AsRef<Path> for TestPath {
+    fn as_ref(&self) -> &Path {
+        self.0.as_ref()
+    }
+}
 
 #[test]
 fn activity_store_reports_typed_browser_tab_read_model_from_ingested_events() -> TestResult {
@@ -60,28 +69,28 @@ fn activity_store_reports_typed_browser_tab_read_model_from_ingested_events() ->
 #[test]
 fn activity_store_replays_browser_evidence_from_encrypted_journal() -> TestResult {
     let journal_path = temp_path(
-        constants::activity_store::TEST_BROWSER_JOURNAL_SUFFIX,
-        constants::journal::FILE_EXTENSION,
+        TestText::from_display(constants::activity_store::TEST_BROWSER_JOURNAL_SUFFIX),
+        TestText::from_display(constants::journal::FILE_EXTENSION),
     );
     let store_path = temp_path(
-        constants::activity_store::TEST_BROWSER_STORE_SUFFIX,
-        constants::activity_store::FILE_EXTENSION,
+        TestText::from_display(constants::activity_store::TEST_BROWSER_STORE_SUFFIX),
+        TestText::from_display(constants::activity_store::FILE_EXTENSION),
     );
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
     let mut journal = ok(
-        ActivityJournal::open(journal_path.clone(), key.clone()),
+        ActivityJournal::open(journal_path.0.clone(), key.clone()),
         constants::error::JOURNAL_OPENS,
     )?;
     let event = browser_event()?;
     ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
     let journal_bytes = ok(read(&journal_path), constants::error::JOURNAL_READS)?;
     let reader = ok(
-        ActivityJournal::open(journal_path.clone(), key),
+        ActivityJournal::open(journal_path.0.clone(), key),
         constants::error::JOURNAL_OPENS,
     )?;
     let store = ok(
-        ActivityStore::open(&store_path),
+        ActivityStore::open(store_path.0.clone()),
         constants::error::ACTIVITY_STORE_OPENS,
     )?;
 
@@ -108,28 +117,28 @@ fn activity_store_replays_browser_evidence_from_encrypted_journal() -> TestResul
 #[test]
 fn activity_store_counts_duplicate_browser_journal_replay_without_duplicate_rows() -> TestResult {
     let journal_path = temp_path(
-        constants::activity_store::TEST_BROWSER_DUPLICATE_JOURNAL_SUFFIX,
-        constants::journal::FILE_EXTENSION,
+        TestText::from_display(constants::activity_store::TEST_BROWSER_DUPLICATE_JOURNAL_SUFFIX),
+        TestText::from_display(constants::journal::FILE_EXTENSION),
     );
     let store_path = temp_path(
-        constants::activity_store::TEST_BROWSER_DUPLICATE_STORE_SUFFIX,
-        constants::activity_store::FILE_EXTENSION,
+        TestText::from_display(constants::activity_store::TEST_BROWSER_DUPLICATE_STORE_SUFFIX),
+        TestText::from_display(constants::activity_store::FILE_EXTENSION),
     );
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
     let mut journal = ok(
-        ActivityJournal::open(journal_path.clone(), key.clone()),
+        ActivityJournal::open(journal_path.0.clone(), key.clone()),
         constants::error::JOURNAL_OPENS,
     )?;
     let event = browser_event()?;
     ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
     ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
     let reader = ok(
-        ActivityJournal::open(journal_path.clone(), key),
+        ActivityJournal::open(journal_path.0.clone(), key),
         constants::error::JOURNAL_OPENS,
     )?;
     let store = ok(
-        ActivityStore::open(&store_path),
+        ActivityStore::open(store_path.0.clone()),
         constants::error::ACTIVITY_STORE_OPENS,
     )?;
 
@@ -157,31 +166,33 @@ fn activity_store_counts_duplicate_browser_journal_replay_without_duplicate_rows
 #[test]
 fn activity_store_reconstructs_stale_degraded_browser_evidence_after_restart() -> TestResult {
     let journal_path = temp_path(
-        constants::activity_store::TEST_BROWSER_RESTART_JOURNAL_SUFFIX,
-        constants::journal::FILE_EXTENSION,
+        TestText::from_display(constants::activity_store::TEST_BROWSER_RESTART_JOURNAL_SUFFIX),
+        TestText::from_display(constants::journal::FILE_EXTENSION),
     );
     let store_path = temp_path(
-        constants::activity_store::TEST_BROWSER_RESTART_STORE_SUFFIX,
-        constants::activity_store::FILE_EXTENSION,
+        TestText::from_display(constants::activity_store::TEST_BROWSER_RESTART_STORE_SUFFIX),
+        TestText::from_display(constants::activity_store::FILE_EXTENSION),
     );
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
     let mut journal = ok(
-        ActivityJournal::open(journal_path.clone(), key.clone()),
+        ActivityJournal::open(journal_path.0.clone(), key.clone()),
         constants::error::JOURNAL_OPENS,
     )?;
     let event = browser_event_with_status(
         BrowserCapabilityStatus::Stale,
-        Some(constants::value::BROWSER_BRIDGE_STALE_SESSION),
+        Some(TestText::from_display(
+            constants::value::BROWSER_BRIDGE_STALE_SESSION,
+        )),
     )?;
     ok(journal.append(&event), constants::error::JOURNAL_APPENDS)?;
     let reader = ok(
-        ActivityJournal::open(journal_path.clone(), key),
+        ActivityJournal::open(journal_path.0.clone(), key),
         constants::error::JOURNAL_OPENS,
     )?;
     {
         let store = ok(
-            ActivityStore::open(&store_path),
+            ActivityStore::open(store_path.0.clone()),
             constants::error::ACTIVITY_STORE_OPENS,
         )?;
         let status = ok(
@@ -193,7 +204,7 @@ fn activity_store_reconstructs_stale_degraded_browser_evidence_after_restart() -
     }
 
     let restarted_store = ok(
-        ActivityStore::open(&store_path),
+        ActivityStore::open(store_path.0.clone()),
         constants::error::ACTIVITY_STORE_OPENS,
     )?;
     let read_model = ok(
@@ -250,14 +261,14 @@ fn activity_store_reports_empty_browser_evidence_without_inventing_rows() -> Tes
     Ok(())
 }
 
-fn browser_event() -> Result<ActivityEvent, String> {
+fn browser_event() -> Result<ActivityEvent, TestText> {
     browser_event_with_status(BrowserCapabilityStatus::TabListOnly, None)
 }
 
 fn browser_event_with_status(
     capability_status: BrowserCapabilityStatus,
-    degraded_reason: Option<&str>,
-) -> Result<ActivityEvent, String> {
+    degraded_reason: Option<TestText>,
+) -> Result<ActivityEvent, TestText> {
     browser_tab_observation_event(
         BrowserBridgeTargetObservation {
             browser_family: BrowserFamily::Edge,
@@ -273,7 +284,7 @@ fn browser_event_with_status(
             url: constants::activity_store::TEST_BROWSER_URL.to_string(),
             title: Some(constants::activity_store::TEST_BROWSER_TITLE.to_string()),
             capability_status,
-            degraded_reason: degraded_reason.map(ToOwned::to_owned),
+            degraded_reason: degraded_reason.map(|value| value.to_string()),
             custody_label: BrowserCustodyLabel::ChildDeviceLocal,
             query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
         },
@@ -282,10 +293,10 @@ fn browser_event_with_status(
         0,
     )
     .map_err(|error| {
-        format!(
+        TestText::from_display(format!(
             "{}: {error:?}",
             constants::error::BROWSER_BRIDGE_MAPS_TARGET
-        )
+        ))
     })
 }
 
@@ -293,9 +304,13 @@ fn assert_browser_row_matches_event(row: &BrowserTabEvidence, event: &ActivityEv
     assert_eq!(
         row.browser_evidence_id,
         some(
-            string_field(&event.fields, constants::field::BROWSER_EVIDENCE_ID),
+            string_field(
+                &event.fields,
+                TestText::from_display(constants::field::BROWSER_EVIDENCE_ID),
+            ),
             constants::error::ACTIVITY_STORE_QUERIES,
         )?
+        .to_string()
     );
     assert_eq!(
         row.source_id,
@@ -344,26 +359,29 @@ fn assert_browser_row_matches_event(row: &BrowserTabEvidence, event: &ActivityEv
     Ok(())
 }
 
-fn string_field(fields: &LogFields, key: &str) -> Option<String> {
-    match fields.get(key) {
-        Some(LogFieldValue::String(value)) => Some(value.clone()),
+fn string_field(fields: &LogFields, key: TestText) -> Option<TestText> {
+    let key = key.to_string();
+    match fields.get(&key) {
+        Some(LogFieldValue::String(value)) => Some(TestText::from_display(value)),
         _ => None,
     }
 }
 
-fn temp_path(suffix: &str, extension: &str) -> PathBuf {
+fn temp_path(suffix: TestText, extension: TestText) -> TestPath {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix);
+    name.push_str(&suffix.to_string());
 
     let mut path = std::env::temp_dir();
     path.push(name);
-    path.set_extension(extension);
-    path
+    path.set_extension(extension.to_string());
+    TestPath(path)
 }
 
-fn cleanup_paths(journal_path: &Path, store_path: &Path) {
+fn cleanup_paths(journal_path: impl AsRef<Path>, store_path: impl AsRef<Path>) {
+    let journal_path = journal_path.as_ref();
+    let store_path = store_path.as_ref();
     let _ = remove_file(journal_path);
     let _ = remove_file(store_path);
     let mut store_wal_path = store_path.to_path_buf();
@@ -376,12 +394,4 @@ fn cleanup_paths(journal_path: &Path, store_path: &Path) {
 
 fn test_key() -> JournalKey {
     JournalKey::from_bytes([9; JOURNAL_KEY_BYTES])
-}
-
-fn ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn some<T>(value: Option<T>, context: &str) -> Result<T, String> {
-    value.ok_or_else(|| context.to_string())
 }

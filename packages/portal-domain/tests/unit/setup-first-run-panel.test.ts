@@ -3,9 +3,8 @@ import {
   createSetupFirstRunPanelIntent,
   readableSetupValue,
 } from '../../src/setup-first-run-panel';
-import type {
-  ParentSetupFirstRunPanelSnapshot,
-} from '@ocentra-parent/schema-domain/generated/portal-contracts';
+
+type ParentSetupFirstRunPanelSnapshot = Parameters<typeof createSetupFirstRunPanelIntent>[0];
 
 describe('setup first-run panel intent', () => {
   it('projects the Rust-owned setup snapshot without inventing local state', () => {

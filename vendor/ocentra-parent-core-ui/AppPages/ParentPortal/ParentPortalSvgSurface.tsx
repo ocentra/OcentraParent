@@ -73,7 +73,20 @@ import type {
 import { WeeklySchedulerScratchPage } from './WeeklySchedulerScratchPage';
 import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
-import { PortalLanPairingScan } from '@ocentra-parent/portal-domain/contracts';
+import {
+  PortalAgentCommand as AgentCommand,
+  type PortalAgentCommandName as AgentCommandName,
+  PortalAgentLanHouseholdActionDeviceKindField,
+  PortalAgentLanHouseholdActionKind,
+  PortalAgentLanHouseholdDeviceKindValues,
+  PortalAgentLanIntentKind,
+  PortalAgentLanParentAuthority,
+  PortalAgentPeerDefaults,
+  PortalAgentProtocolField,
+  PortalAgentTargetDefaults,
+  PortalLanPairingScan,
+  type PortalRouteEventId as AgentEventId,
+} from '@ocentra-parent/portal-domain/contracts';
 import {
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
   type ParentAssistantPortalQuickActionId,
@@ -93,13 +106,6 @@ import {
 } from '@ocentra-parent/portal-domain/manage-target-selection';
 import { portalRouteFromHashPath } from '@ocentra-parent/portal-domain/routes';
 import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
-import { AgentCommand, type AgentCommandName } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import type { AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
-import {
-  LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD,
-  LAN_HOUSEHOLD_DEVICE_KIND_VALUES,
-} from '@ocentra-parent/schema-domain/lan-device-parent-actions';
 import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
 import {
   AccountProfileIcon,
@@ -445,18 +451,18 @@ function assistantIconForQuickAction(id: AssistantQuickActionId): AssistantQuick
 
 function assistantThreadCreatePayload(): Record<string, string> {
   return {
-    [AgentProtocolDefaults.Field.ParentAssistantStarterCategory]: 'freeform',
-    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: 'quick-action',
+    [PortalAgentProtocolField.ParentAssistantStarterCategory]: 'freeform',
+    [PortalAgentProtocolField.ParentAssistantInputSource]: 'quick-action',
   };
 }
 
 function assistantQuickActionCommandPayload(action: AssistantQuickAction): Record<string, string> {
   return {
-    [AgentProtocolDefaults.Field.ParentAssistantQuickActionId]: action.id,
-    [AgentProtocolDefaults.Field.ParentAssistantStarterCategory]: action.id,
-    [AgentProtocolDefaults.Field.ParentAssistantPromptTemplateId]: action.starterPromptTemplateId,
-    [AgentProtocolDefaults.Field.ParentAssistantInputText]: action.prompt,
-    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: 'quick-action',
+    [PortalAgentProtocolField.ParentAssistantQuickActionId]: action.id,
+    [PortalAgentProtocolField.ParentAssistantStarterCategory]: action.id,
+    [PortalAgentProtocolField.ParentAssistantPromptTemplateId]: action.starterPromptTemplateId,
+    [PortalAgentProtocolField.ParentAssistantInputText]: action.prompt,
+    [PortalAgentProtocolField.ParentAssistantInputSource]: 'quick-action',
   };
 }
 
@@ -467,13 +473,13 @@ function assistantMessageCommandPayload(
   inputSource: 'typed' | 'choice'
 ): Record<string, string> {
   const payload: Record<string, string> = {
-    [AgentProtocolDefaults.Field.ParentAssistantInputText]: prompt,
-    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: inputSource,
+    [PortalAgentProtocolField.ParentAssistantInputText]: prompt,
+    [PortalAgentProtocolField.ParentAssistantInputSource]: inputSource,
   };
   if (action) {
-    payload[AgentProtocolDefaults.Field.ParentAssistantQuickActionId] = action.id;
-    payload[AgentProtocolDefaults.Field.ParentAssistantStarterCategory] = action.id;
-    payload[AgentProtocolDefaults.Field.ParentAssistantPromptTemplateId] =
+    payload[PortalAgentProtocolField.ParentAssistantQuickActionId] = action.id;
+    payload[PortalAgentProtocolField.ParentAssistantStarterCategory] = action.id;
+    payload[PortalAgentProtocolField.ParentAssistantPromptTemplateId] =
       choice?.promptTemplateId ?? action.starterPromptTemplateId;
   }
   return payload;
@@ -4799,7 +4805,7 @@ function LanPairingDeviceEditDialog({
               onChange={(event) => onDeviceKindChange(event.currentTarget.value as DeviceKind)}
               style={fieldStyle}
             >
-              {LAN_HOUSEHOLD_DEVICE_KIND_VALUES.map((kind) => (
+              {PortalAgentLanHouseholdDeviceKindValues.map((kind) => (
                 <option key={`lan-device-kind:${kind}`} value={kind}>
                   {lanPairingDeviceKindOptionLabel(kind)}
                 </option>
@@ -4862,21 +4868,21 @@ function lanPairingActionButtonsFor(slot: DeviceSlot | null): readonly LanPairin
       'Trust',
       'cyan',
       AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Trust)
+      lanPairingHouseholdActionCommandPayload(slot, PortalAgentLanHouseholdActionKind.Trust)
     ),
     lanPairingActionButton(
       'ignore',
       'Ignore',
       'gold',
       AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Ignore)
+      lanPairingHouseholdActionCommandPayload(slot, PortalAgentLanHouseholdActionKind.Ignore)
     ),
     lanPairingActionButton(
       'restore',
       'Restore',
       'purple',
       AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Restore)
+      lanPairingHouseholdActionCommandPayload(slot, PortalAgentLanHouseholdActionKind.Restore)
     ),
     lanPairingActionButton(
       'revoke',
@@ -4922,12 +4928,12 @@ function lanPairingAddDeviceCommandPayload(slot: DeviceSlot | null): Record<stri
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
   const origin = typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin;
   return {
-    [AgentProtocolDefaults.Field.LanChildDeviceId]: childDeviceId,
-    [AgentProtocolDefaults.Field.LanParentDeviceId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanRouteId]: routeId,
-    [AgentProtocolDefaults.Field.Origin]: origin,
-    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.StaleAt]: expiresAt,
+    [PortalAgentProtocolField.LanChildDeviceId]: childDeviceId,
+    [PortalAgentProtocolField.LanParentDeviceId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanRouteId]: routeId,
+    [PortalAgentProtocolField.Origin]: origin,
+    [PortalAgentProtocolField.StartedAt]: issuedAt,
+    [PortalAgentProtocolField.StaleAt]: expiresAt,
   };
 }
 
@@ -4946,27 +4952,27 @@ function lanPairingHouseholdActionCommandPayload(
   const canonicalDeviceId = slot.device?.id || slot.value;
   if (override.requiresRoute !== false && !basePayload) return null;
   if (!canonicalDeviceId) return null;
-  const issuedAt = basePayload?.[AgentProtocolDefaults.Field.StartedAt] ?? new Date().toISOString();
+  const issuedAt = basePayload?.[PortalAgentProtocolField.StartedAt] ?? new Date().toISOString();
   const payload: Record<string, string> = {
     ...(basePayload ?? {}),
-    [AgentProtocolDefaults.Field.Origin]:
-      basePayload?.[AgentProtocolDefaults.Field.Origin] ??
+    [PortalAgentProtocolField.Origin]:
+      basePayload?.[PortalAgentProtocolField.Origin] ??
       (typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin),
-    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.LanHouseholdActionId]: `lan-ui-${actionKind}-${Date.now()}`,
-    [AgentProtocolDefaults.Field.LanHouseholdActionKind]: actionKind,
-    [AgentProtocolDefaults.Field.LanCanonicalDeviceId]: canonicalDeviceId,
-    [AgentProtocolDefaults.Field.LanParentActorId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanHouseholdActionDisplayName]: override.displayName || lanPairingDeviceName(slot),
+    [PortalAgentProtocolField.StartedAt]: issuedAt,
+    [PortalAgentProtocolField.LanHouseholdActionId]: `lan-ui-${actionKind}-${Date.now()}`,
+    [PortalAgentProtocolField.LanHouseholdActionKind]: actionKind,
+    [PortalAgentProtocolField.LanCanonicalDeviceId]: canonicalDeviceId,
+    [PortalAgentProtocolField.LanParentActorId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanHouseholdActionDisplayName]: override.displayName || lanPairingDeviceName(slot),
   };
   if (slot.device?.childProfileId) {
-    payload[AgentProtocolDefaults.Field.LanHouseholdActionChildProfileId] = slot.device.childProfileId;
+    payload[PortalAgentProtocolField.LanHouseholdActionChildProfileId] = slot.device.childProfileId;
   }
   if (override.deviceKind) {
-    payload[LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD] = override.deviceKind;
+    payload[PortalAgentLanHouseholdActionDeviceKindField] = override.deviceKind;
   }
-  if (actionKind === AgentProtocolDefaults.LanHouseholdActionKind.Ignore) {
-    payload[AgentProtocolDefaults.Field.LanHouseholdActionRevokedAt] = issuedAt;
+  if (actionKind === PortalAgentLanHouseholdActionKind.Ignore) {
+    payload[PortalAgentProtocolField.LanHouseholdActionRevokedAt] = issuedAt;
   }
   return payload;
 }
@@ -4982,21 +4988,21 @@ function lanPairingRouteIntentCommandPayload(slot: DeviceSlot | null): Record<st
   const staleAt = slot.device?.expiresAt || new Date(Date.now() + 5 * 60 * 1000).toISOString();
   const leaseExpiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
   return {
-    [AgentProtocolDefaults.Field.LanIntentId]: `lan-ui-intent-${Date.now()}`,
-    [AgentProtocolDefaults.Field.LanIntentKind]: AgentProtocolDefaults.LanIntentKind.ConfigurationUpdate,
-    [AgentProtocolDefaults.Field.LanChildDeviceId]: childDeviceId,
-    [AgentProtocolDefaults.Field.LanRouteId]: routeId,
-    [AgentProtocolDefaults.Field.LanPairingId]: pairingId,
-    [AgentProtocolDefaults.Field.LanProofDigest]: proofDigest,
-    [AgentProtocolDefaults.Field.Origin]: slot.device?.origin || lanPairingPortalOrigin(),
-    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.StaleAt]: staleAt,
-    [AgentProtocolDefaults.Field.LanControllerLeaseId]: `lan-ui-lease-${Date.now()}`,
-    [AgentProtocolDefaults.Field.LanControllerDeviceId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanParentActorId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanParentAuthority]: AgentProtocolDefaults.LanParentAuthority.ActiveController,
-    [AgentProtocolDefaults.Field.LanControllerLeaseIssuedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt]: leaseExpiresAt,
+    [PortalAgentProtocolField.LanIntentId]: `lan-ui-intent-${Date.now()}`,
+    [PortalAgentProtocolField.LanIntentKind]: PortalAgentLanIntentKind.ConfigurationUpdate,
+    [PortalAgentProtocolField.LanChildDeviceId]: childDeviceId,
+    [PortalAgentProtocolField.LanRouteId]: routeId,
+    [PortalAgentProtocolField.LanPairingId]: pairingId,
+    [PortalAgentProtocolField.LanProofDigest]: proofDigest,
+    [PortalAgentProtocolField.Origin]: slot.device?.origin || lanPairingPortalOrigin(),
+    [PortalAgentProtocolField.StartedAt]: issuedAt,
+    [PortalAgentProtocolField.StaleAt]: staleAt,
+    [PortalAgentProtocolField.LanControllerLeaseId]: `lan-ui-lease-${Date.now()}`,
+    [PortalAgentProtocolField.LanControllerDeviceId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanParentActorId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanParentAuthority]: PortalAgentLanParentAuthority.ActiveController,
+    [PortalAgentProtocolField.LanControllerLeaseIssuedAt]: issuedAt,
+    [PortalAgentProtocolField.LanControllerLeaseExpiresAt]: leaseExpiresAt,
   };
 }
 
@@ -11219,7 +11225,7 @@ function ManageControlPanel({
     const nextName = lanPairingHouseholdNameDraft.trim() || lanPairingDeviceName(lanPairingEditSlot);
     const payload = lanPairingHouseholdActionCommandPayload(
       lanPairingEditSlot,
-      AgentProtocolDefaults.LanHouseholdActionKind.Rename,
+      PortalAgentLanHouseholdActionKind.Rename,
       {
         displayName: nextName,
         deviceKind: lanPairingDeviceKindDraft,
@@ -16609,7 +16615,7 @@ function MainBoard({
         onAgentCommand?.(
           lanPairingDeviceGridMode ? AgentCommand.LanPairingBrowserDiscoveryScan : AgentCommand.LanPairingStatusGet,
           {
-            [AgentProtocolDefaults.Field.LanRouteId]: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+            [PortalAgentProtocolField.LanRouteId]: PortalAgentTargetDefaults.LocalNetworkWindowsAgent.route,
           }
         );
       }}

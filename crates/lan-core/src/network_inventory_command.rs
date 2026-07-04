@@ -75,54 +75,15 @@ pub fn targeted_arp_probe_commands(
     ip_address: &str,
     selected_interface: Option<&str>,
 ) -> Vec<TargetedArpProbeCommand> {
-    let mut commands = Vec::new();
-
     if cfg!(target_os = "windows") {
-        commands.push(TargetedArpProbeCommand {
-            program: constants::lan_pairing::PING_EXE,
-            args: vec![
-                constants::lan_pairing::PING_WINDOWS_COUNT_ARG.to_string(),
-                "1".to_string(),
-                constants::lan_pairing::PING_WINDOWS_TIMEOUT_ARG.to_string(),
-                "200".to_string(),
-                ip_address.to_string(),
-            ],
-        });
-        return commands;
+        return vec![windows_targeted_arp_probe_command(ip_address)];
     }
 
     if cfg!(target_os = "linux") {
-        if let Some(selected_interface) = selected_interface
-            .map(str::trim)
-            .filter(|value| !value.is_empty())
-        {
-            commands.push(TargetedArpProbeCommand {
-                program: "arping",
-                args: vec![
-                    "-I".to_string(),
-                    selected_interface.to_string(),
-                    "-c".to_string(),
-                    "1".to_string(),
-                    "-w".to_string(),
-                    "1".to_string(),
-                    ip_address.to_string(),
-                ],
-            });
-        }
-
-        commands.push(TargetedArpProbeCommand {
-            program: constants::lan_pairing::PING_EXE,
-            args: vec![
-                constants::lan_pairing::PING_LINUX_COUNT_ARG.to_string(),
-                "1".to_string(),
-                constants::lan_pairing::PING_LINUX_TIMEOUT_ARG.to_string(),
-                "1".to_string(),
-                ip_address.to_string(),
-            ],
-        });
+        return linux_targeted_arp_probe_commands(ip_address, selected_interface);
     }
 
-    commands
+    Vec::new()
 }
 
 fn command_output_with_timeout(program: &str, args: &[&str], timeout: Duration) -> Option<Output> {
@@ -149,6 +110,64 @@ fn command_output_with_timeout(program: &str, args: &[&str], timeout: Duration) 
         }
         let remaining = timeout.saturating_sub(elapsed);
         sleep(remaining.min(Duration::from_millis(25)));
+    }
+}
+
+fn windows_targeted_arp_probe_command(ip_address: &str) -> TargetedArpProbeCommand {
+    TargetedArpProbeCommand {
+        program: constants::lan_pairing::PING_EXE,
+        args: vec![
+            constants::lan_pairing::PING_WINDOWS_COUNT_ARG.to_string(),
+            "1".to_string(),
+            constants::lan_pairing::PING_WINDOWS_TIMEOUT_ARG.to_string(),
+            "200".to_string(),
+            ip_address.to_string(),
+        ],
+    }
+}
+
+fn linux_targeted_arp_probe_commands(
+    ip_address: &str,
+    selected_interface: Option<&str>,
+) -> Vec<TargetedArpProbeCommand> {
+    let mut commands = optional_linux_arping_command(ip_address, selected_interface)
+        .into_iter()
+        .collect::<Vec<_>>();
+    commands.push(linux_ping_command(ip_address));
+    commands
+}
+
+fn optional_linux_arping_command(
+    ip_address: &str,
+    selected_interface: Option<&str>,
+) -> Option<TargetedArpProbeCommand> {
+    let selected_interface = selected_interface
+        .map(str::trim)
+        .filter(|value| !value.is_empty())?;
+    Some(TargetedArpProbeCommand {
+        program: "arping",
+        args: vec![
+            "-I".to_string(),
+            selected_interface.to_string(),
+            "-c".to_string(),
+            "1".to_string(),
+            "-w".to_string(),
+            "1".to_string(),
+            ip_address.to_string(),
+        ],
+    })
+}
+
+fn linux_ping_command(ip_address: &str) -> TargetedArpProbeCommand {
+    TargetedArpProbeCommand {
+        program: constants::lan_pairing::PING_EXE,
+        args: vec![
+            constants::lan_pairing::PING_LINUX_COUNT_ARG.to_string(),
+            "1".to_string(),
+            constants::lan_pairing::PING_LINUX_TIMEOUT_ARG.to_string(),
+            "1".to_string(),
+            ip_address.to_string(),
+        ],
     }
 }
 

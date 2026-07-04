@@ -42,9 +42,8 @@ fn social_dashboard_snapshot_serializes_without_runtime_claims() {
         claim_boundaries: not_claimed_boundaries(),
     };
 
-    let serialized = serde_json::to_value(snapshot).unwrap_or_else(|error| {
-        unreachable!("{}: {error:?}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized =
+        serde_json::to_value(snapshot).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], SOCIAL_DASHBOARD_SCHEMA_VERSION);
     assert!(serialized["custodyLabel"].is_null());

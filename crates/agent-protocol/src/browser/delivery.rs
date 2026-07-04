@@ -1,4 +1,4 @@
-use ocentra_eventing::delivery::EventDeliveryDecisionProof;
+use ocentra_eventing::delivery::validation::EventDeliveryDecisionProof;
 
 #[derive(Clone, Debug)]
 pub struct BrowserRuntimeDeliveryDecisionReport {

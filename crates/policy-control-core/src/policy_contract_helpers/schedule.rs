@@ -2,12 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::action::PolicyContractAction;
-use super::authority::{
-    PolicyContractApprovalKind, PolicyContractApprovalRequest, PolicyContractApprovalResolution,
-    PolicyContractOverrideGrant, PolicyContractOverrideState, PolicyContractOverrideType,
-};
-use super::preview::PolicyContractPreviewBudgetBoundaryState;
+use super::authority::PolicyContractApprovalResolution;
 use super::PolicyContractValidationResult;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -193,12 +188,12 @@ pub fn validate_policy_schedule(
     schedule: &PolicyContractSchedule,
 ) -> PolicyContractValidationResult {
     if schedule.windows.is_empty() {
-        return Err("schedules must define at least one local window");
+        return Err("schedules must define at least one local window".into());
     }
 
     for window in &schedule.windows {
         if window.day_count == 0 {
-            return Err("schedules must define at least one day for every window");
+            return Err("schedules must define at least one day for every window".into());
         }
         assert_local_time(&window.start_local_time, "windows.startLocalTime")?;
         assert_local_time(&window.end_local_time, "windows.endLocalTime")?;
@@ -221,56 +216,61 @@ pub fn validate_policy_schedule_boundary(
     match boundary.state {
         PolicyContractScheduleBoundaryState::DstGap => {
             let Some(dst_boundary) = &boundary.dst_boundary else {
-                return Err("dst-gap boundaries require dstBoundary details");
+                return Err("dst-gap boundaries require dstBoundary details".into());
             };
             if dst_boundary.transition != PolicyContractScheduleDstTransition::SpringForward {
-                return Err("dst-gap boundaries must use the spring-forward transition");
+                return Err("dst-gap boundaries must use the spring-forward transition".into());
             }
             if matches!(
                 dst_boundary.resolution,
                 PolicyContractScheduleDstResolution::FirstOccurrence
                     | PolicyContractScheduleDstResolution::SecondOccurrence
             ) {
-                return Err("dst-gap boundaries cannot use overlap-only resolutions");
+                return Err("dst-gap boundaries cannot use overlap-only resolutions".into());
             }
         }
         PolicyContractScheduleBoundaryState::DstOverlap => {
             let Some(dst_boundary) = &boundary.dst_boundary else {
-                return Err("dst-overlap boundaries require dstBoundary details");
+                return Err("dst-overlap boundaries require dstBoundary details".into());
             };
             if dst_boundary.transition != PolicyContractScheduleDstTransition::FallBack {
-                return Err("dst-overlap boundaries must use the fall-back transition");
+                return Err("dst-overlap boundaries must use the fall-back transition".into());
             }
             if dst_boundary.resolution == PolicyContractScheduleDstResolution::SkipForward {
-                return Err("dst-overlap boundaries cannot skip the repeated hour");
+                return Err("dst-overlap boundaries cannot skip the repeated hour".into());
             }
         }
         PolicyContractScheduleBoundaryState::ClockSkew => {
             let Some(clock_skew) = &boundary.clock_skew else {
-                return Err("clock-skew boundaries require clockSkew details");
+                return Err("clock-skew boundaries require clockSkew details".into());
             };
             if clock_skew.observed_skew_minutes.abs() <= clock_skew.allowed_skew_minutes {
-                return Err("clock-skew boundaries require skew beyond the allowed tolerance");
+                return Err(
+                    "clock-skew boundaries require skew beyond the allowed tolerance".into(),
+                );
             }
         }
         PolicyContractScheduleBoundaryState::ExceptionActive => {
             let Some(exception) = &boundary.exception else {
-                return Err("exception-active boundaries require exception details");
+                return Err("exception-active boundaries require exception details".into());
             };
             if !(boundary.evaluated_at >= exception.starts_at
                 && boundary.evaluated_at < exception.expires_at)
             {
                 return Err(
-                    "exception-active boundaries must be evaluated inside the exception window",
+                    "exception-active boundaries must be evaluated inside the exception window"
+                        .into(),
                 );
             }
         }
         PolicyContractScheduleBoundaryState::Expired => {
             let Some(expiry) = &boundary.expiry else {
-                return Err("expired schedule boundaries require expiry details");
+                return Err("expired schedule boundaries require expiry details".into());
             };
             if boundary.evaluated_at < expiry.expires_at {
-                return Err("expired schedule boundaries must be evaluated on or after expiry");
+                return Err(
+                    "expired schedule boundaries must be evaluated on or after expiry".into(),
+                );
             }
         }
         PolicyContractScheduleBoundaryState::WithinWindow
@@ -289,20 +289,20 @@ fn validate_policy_schedule_time_budget(
     if let Some(effective_until) = &time_budget.effective_until {
         assert_utc_timestamp(effective_until, "timeBudget.effectiveUntil")?;
         if effective_until <= &time_budget.effective_from {
-            return Err("timeBudget.effectiveUntil must be after timeBudget.effectiveFrom");
+            return Err("timeBudget.effectiveUntil must be after timeBudget.effectiveFrom".into());
         }
     }
 
     match time_budget.reset.kind {
         PolicyContractScheduleBudgetResetKind::Weekly => {
             if time_budget.reset.day.is_none() {
-                return Err("weekly reset rules require timeBudget.reset.day");
+                return Err("weekly reset rules require timeBudget.reset.day".into());
             }
         }
         PolicyContractScheduleBudgetResetKind::Daily
         | PolicyContractScheduleBudgetResetKind::Monthly => {
             if time_budget.reset.day.is_some() {
-                return Err("non-weekly reset rules cannot set timeBudget.reset.day");
+                return Err("non-weekly reset rules cannot set timeBudget.reset.day".into());
             }
         }
     }
@@ -310,13 +310,15 @@ fn validate_policy_schedule_time_budget(
     match time_budget.carryover.mode {
         PolicyContractScheduleBudgetCarryoverMode::DiscardUnused => {
             if time_budget.carryover.max_minutes.is_some() {
-                return Err("discard-unused carryover cannot set timeBudget.carryover.maxMinutes");
+                return Err(
+                    "discard-unused carryover cannot set timeBudget.carryover.maxMinutes".into(),
+                );
             }
         }
         PolicyContractScheduleBudgetCarryoverMode::CarryForward => {}
         PolicyContractScheduleBudgetCarryoverMode::CapCarryover => {
             if time_budget.carryover.max_minutes.unwrap_or(0) == 0 {
-                return Err("cap-carryover requires timeBudget.carryover.maxMinutes");
+                return Err("cap-carryover requires timeBudget.carryover.maxMinutes".into());
             }
         }
     }
@@ -329,11 +331,11 @@ fn validate_policy_schedule_time_budget_status(
     evaluated_at: &str,
 ) -> PolicyContractValidationResult {
     if time_budget.budget_window_minutes == 0 {
-        return Err("timeBudget.budgetWindowMinutes must be a positive number");
+        return Err("timeBudget.budgetWindowMinutes must be a positive number".into());
     }
     assert_utc_timestamp(&time_budget.reset_at, "timeBudget.resetAt")?;
     if time_budget.reset_at.as_str() <= evaluated_at {
-        return Err("timeBudget.resetAt must be after evaluatedAt");
+        return Err("timeBudget.resetAt must be after evaluatedAt".into());
     }
 
     match time_budget.offline_recovery.state {
@@ -341,13 +343,15 @@ fn validate_policy_schedule_time_budget_status(
             if time_budget.offline_recovery.recovered_at.is_some()
                 || time_budget.offline_recovery.recovered_offline_minutes != 0
             {
-                return Err("offline recovery state not-needed cannot include recovery artifacts");
+                return Err(
+                    "offline recovery state not-needed cannot include recovery artifacts".into(),
+                );
             }
         }
         PolicyContractScheduleOfflineRecoveryState::RecoveredFromDevice
         | PolicyContractScheduleOfflineRecoveryState::RecomputedFromJournal => {
             let Some(recovered_at) = &time_budget.offline_recovery.recovered_at else {
-                return Err("recovered offline timer states require recoveredAt");
+                return Err("recovered offline timer states require recoveredAt".into());
             };
             assert_utc_timestamp(recovered_at, "offlineRecovery.recoveredAt")?;
         }
@@ -360,34 +364,38 @@ fn validate_policy_schedule_time_budget_status(
 
     if let Some(bonus_time_minutes) = time_budget.bonus_time_minutes {
         if bonus_time_minutes == 0 {
-            return Err("timeBudget.bonusTimeMinutes must be a positive number");
+            return Err("timeBudget.bonusTimeMinutes must be a positive number".into());
         }
         let Some(bonus_time_remaining_minutes) = time_budget.bonus_time_remaining_minutes else {
             return Err(
-                "timeBudget.bonusTimeRemainingMinutes is required when bonusTimeMinutes are active",
+                "timeBudget.bonusTimeRemainingMinutes is required when bonusTimeMinutes are active"
+                    .into(),
             );
         };
         if bonus_time_remaining_minutes > bonus_time_minutes {
             return Err(
-                "timeBudget.bonusTimeRemainingMinutes cannot exceed timeBudget.bonusTimeMinutes",
+                "timeBudget.bonusTimeRemainingMinutes cannot exceed timeBudget.bonusTimeMinutes"
+                    .into(),
             );
         }
         let Some(bonus_time_expires_at) = &time_budget.bonus_time_expires_at else {
             return Err(
-                "timeBudget.bonusTimeExpiresAt is required when bonusTimeMinutes are active",
+                "timeBudget.bonusTimeExpiresAt is required when bonusTimeMinutes are active".into(),
             );
         };
         assert_utc_timestamp(bonus_time_expires_at, "timeBudget.bonusTimeExpiresAt")?;
         if bonus_time_expires_at.as_str() <= evaluated_at {
             return Err(
-                "timeBudget.bonusTimeExpiresAt must be after evaluatedAt while bonus time is active",
+                "timeBudget.bonusTimeExpiresAt must be after evaluatedAt while bonus time is active"
+                    .into(),
             );
         }
     } else if time_budget.bonus_time_remaining_minutes.is_some()
         || time_budget.bonus_time_expires_at.is_some()
     {
         return Err(
-            "timeBudget.bonusTimeRemainingMinutes and bonusTimeExpiresAt require bonusTimeMinutes",
+            "timeBudget.bonusTimeRemainingMinutes and bonusTimeExpiresAt require bonusTimeMinutes"
+                .into(),
         );
     }
 
@@ -403,124 +411,28 @@ fn validate_policy_schedule_boundary_optional_sections(
     if let Some(clock_skew) = &boundary.clock_skew {
         assert_utc_timestamp(&clock_skew.observed_at, "clockSkew.observedAt")?;
         if clock_skew.allowed_skew_minutes < 0 {
-            return Err("clockSkew.allowedSkewMinutes must be a non-negative number");
+            return Err("clockSkew.allowedSkewMinutes must be a non-negative number".into());
         }
     }
     if let Some(exception) = &boundary.exception {
         assert_utc_timestamp(&exception.starts_at, "exception.startsAt")?;
         assert_utc_timestamp(&exception.expires_at, "exception.expiresAt")?;
         if exception.expires_at <= exception.starts_at {
-            return Err("schedule exceptions must expire after they start");
+            return Err("schedule exceptions must expire after they start".into());
         }
     }
     if let Some(expiry) = &boundary.expiry {
         assert_utc_timestamp(&expiry.expires_at, "expiry.expiresAt")?;
         assert_utc_timestamp(&expiry.expired_at, "expiry.expiredAt")?;
         if expiry.expired_at < expiry.expires_at {
-            return Err("expiry.expiredAt must be on or after expiry.expiresAt");
+            return Err("expiry.expiredAt must be on or after expiry.expiresAt".into());
         }
         if boundary.state != PolicyContractScheduleBoundaryState::Expired
             && boundary.evaluated_at >= expiry.expires_at
         {
-            return Err("non-expired schedule boundaries cannot be evaluated after expiry");
+            return Err("non-expired schedule boundaries cannot be evaluated after expiry".into());
         }
     }
-    Ok(())
-}
-
-fn validate_policy_approval_request(
-    request: &PolicyContractApprovalRequest,
-) -> PolicyContractValidationResult {
-    assert_utc_timestamp(&request.requested_at, "approval.requestedAt")?;
-    assert_utc_timestamp(&request.expires_at, "approval.expiresAt")?;
-    if request.expires_at <= request.requested_at {
-        return Err("approval.expiresAt must be after approval.requestedAt");
-    }
-
-    if let Some(schedule_boundary) = &request.schedule_boundary {
-        validate_policy_schedule_boundary(schedule_boundary)?;
-    }
-
-    match request.kind {
-        PolicyContractApprovalKind::BonusTime => {
-            if request.requested_bonus_time_minutes.unwrap_or(0) == 0 {
-                return Err(
-                    "bonus-time requests must include a positive requestedBonusTimeMinutes value",
-                );
-            }
-            let Some(schedule_boundary) = &request.schedule_boundary else {
-                return Err("bonus-time requests must include scheduleBoundary details");
-            };
-            if schedule_boundary.time_budget.is_none() {
-                return Err("bonus-time requests must include scheduleBoundary.timeBudget details");
-            }
-        }
-        PolicyContractApprovalKind::AskParent | PolicyContractApprovalKind::TemporaryOverride => {
-            if request.requested_bonus_time_minutes.is_some() {
-                return Err("only bonus-time requests may include requestedBonusTimeMinutes");
-            }
-        }
-    }
-
-    Ok(())
-}
-
-fn validate_policy_override_grant(
-    grant: &PolicyContractOverrideGrant,
-    approval: &PolicyContractApprovalRequest,
-    evaluated_at: &str,
-) -> PolicyContractValidationResult {
-    assert_utc_timestamp(&grant.effective_from, "override.effectiveFrom")?;
-    assert_utc_timestamp(&grant.effective_until, "override.effectiveUntil")?;
-    if grant.effective_until <= grant.effective_from {
-        return Err("override.effectiveUntil must be after override.effectiveFrom");
-    }
-
-    match grant.override_type {
-        PolicyContractOverrideType::TemporaryAllow => {
-            if grant.action != PolicyContractAction::Allow || grant.bonus_time_minutes.is_some() {
-                return Err("temporary-allow overrides must resolve to allow without bonus time");
-            }
-        }
-        PolicyContractOverrideType::TemporaryBlock => {
-            if grant.action != PolicyContractAction::Block || grant.bonus_time_minutes.is_some() {
-                return Err("temporary-block overrides must resolve to block without bonus time");
-            }
-        }
-        PolicyContractOverrideType::BonusTime => {
-            if approval.kind != PolicyContractApprovalKind::BonusTime {
-                return Err("bonus-time overrides require a bonus-time approval request");
-            }
-            if !matches!(
-                grant.action,
-                PolicyContractAction::Allow | PolicyContractAction::TimeLimit
-            ) {
-                return Err("bonus-time overrides must keep the action within allow or time-limit");
-            }
-            if grant.bonus_time_minutes.unwrap_or(0) == 0 {
-                return Err("bonus-time overrides must include a positive bonusTimeMinutes value");
-            }
-        }
-    }
-
-    match grant.state {
-        PolicyContractOverrideState::Active => {
-            if evaluated_at >= grant.effective_until.as_str() {
-                return Err("active overrides cannot already be past effectiveUntil");
-            }
-        }
-        PolicyContractOverrideState::Expired => {
-            if evaluated_at < grant.effective_until.as_str() {
-                return Err("expired overrides require evaluatedAt on or after effectiveUntil");
-            }
-        }
-        PolicyContractOverrideState::Revoked => {
-            if evaluated_at < grant.effective_from.as_str() {
-                return Err("revoked overrides require an effectiveFrom boundary");
-            }
-        }
-    }
-
     Ok(())
 }
 
@@ -533,7 +445,7 @@ pub(crate) fn assert_resolution_has_no_review_or_override_artifacts(
         || resolution.audit_reference_id.is_some()
         || resolution.override_grant.is_some()
     {
-        return Err(message);
+        return Err(message.into());
     }
     Ok(())
 }
@@ -544,70 +456,9 @@ pub(crate) fn assert_resolution_has_no_review_override_or_replay_artifacts(
 ) -> PolicyContractValidationResult {
     assert_resolution_has_no_review_or_override_artifacts(resolution, message)?;
     if resolution.replay_of_approval_id.is_some() {
-        return Err(message);
+        return Err(message.into());
     }
     Ok(())
-}
-
-fn policy_action_strictness_rank(action: PolicyContractAction) -> i16 {
-    match action {
-        PolicyContractAction::Allow => 0,
-        PolicyContractAction::Warn => 10,
-        PolicyContractAction::Unknown => 20,
-        PolicyContractAction::AskParent => 30,
-        PolicyContractAction::TimeLimit => 40,
-        PolicyContractAction::Block => 50,
-    }
-}
-
-fn policy_preview_boundary_needs_manual_resolution(
-    boundary: &PolicyContractScheduleBoundary,
-) -> bool {
-    matches!(
-        boundary.state,
-        PolicyContractScheduleBoundaryState::ClockSkew
-    ) || matches!(
-        (boundary.state, boundary.dst_boundary.as_ref()),
-        (
-            PolicyContractScheduleBoundaryState::DstGap
-                | PolicyContractScheduleBoundaryState::DstOverlap,
-            Some(PolicyContractScheduleDstBoundary {
-                resolution: PolicyContractScheduleDstResolution::ManualRequired,
-                ..
-            })
-        )
-    ) || matches!(
-        boundary.time_budget.as_ref(),
-        Some(PolicyContractScheduleTimeBudgetStatus {
-            clock_source: PolicyContractScheduleClockSource::ManualRequired,
-            ..
-        })
-    ) || matches!(
-        boundary.time_budget.as_ref(),
-        Some(PolicyContractScheduleTimeBudgetStatus {
-            offline_recovery: PolicyContractScheduleOfflineRecoveryStatus {
-                state: PolicyContractScheduleOfflineRecoveryState::ManualRequired,
-                ..
-            },
-            ..
-        })
-    )
-}
-
-fn policy_preview_boundary_bonus_time_state(
-    boundary: &PolicyContractScheduleBoundary,
-) -> Option<PolicyContractPreviewBudgetBoundaryState> {
-    let time_budget = boundary.time_budget.as_ref()?;
-    let bonus_time_minutes = time_budget.bonus_time_minutes?;
-    let bonus_time_remaining_minutes = time_budget
-        .bonus_time_remaining_minutes
-        .unwrap_or(bonus_time_minutes);
-
-    Some(if bonus_time_remaining_minutes < bonus_time_minutes {
-        PolicyContractPreviewBudgetBoundaryState::BonusTimeExpiring
-    } else {
-        PolicyContractPreviewBudgetBoundaryState::BonusTimeActive
-    })
 }
 
 fn assert_local_time(value: &str, field_name: &'static str) -> PolicyContractValidationResult {
@@ -620,7 +471,8 @@ fn assert_local_time(value: &str, field_name: &'static str) -> PolicyContractVal
         return Err(match field_name {
             "localTime" => "localTime must use HH:MM 24-hour local time",
             _ => "policy contract local time must use HH:MM 24-hour local time",
-        });
+        }
+        .into());
     }
 
     Ok(())
@@ -644,14 +496,15 @@ pub(crate) fn assert_utc_timestamp(
             "evaluatedAt" => "evaluatedAt must be an ISO-8601 timestamp",
             "reviewedAt" => "reviewedAt must be an ISO-8601 timestamp",
             _ => "policy contract timestamps must be ISO-8601 UTC values",
-        });
+        }
+        .into());
     }
 
     let month = parse_time_component(&value[5..7]).unwrap_or(0);
     let day = parse_time_component(&value[8..10]).unwrap_or(0);
     let seconds = parse_time_component(&value[17..19]).unwrap_or(60);
     if month == 0 || month > 12 || day == 0 || day > 31 || seconds > 59 {
-        return Err("policy contract timestamps must be ISO-8601 UTC values");
+        return Err("policy contract timestamps must be ISO-8601 UTC values".into());
     }
 
     assert_local_time(&value[11..16], "policy timestamp inner local time")

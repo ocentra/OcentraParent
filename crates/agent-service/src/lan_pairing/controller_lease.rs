@@ -1,5 +1,8 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingAuditEventType;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
@@ -10,7 +13,7 @@ use crate::{
     event_builder::build_event,
     lan_pairing::{
         authority::{validate_registry_selection_intent, validate_write_authority},
-        rejection_event, validate_command_target, LanPairingRuntime,
+        extend_log_fields, rejection_event, validate_command_target, LanPairingRuntime,
     },
     lan_pairing_audit::controller_lease_audit_fields,
     lan_pairing_payload::parse_intent,
@@ -30,10 +33,11 @@ impl LanPairingRuntime {
     pub(crate) fn validate_controller_lease(
         &self,
         intent: &LanParentIntentEnvelope,
-        observed_at: &str,
+        observed_at: impl Into<LanPairingText>,
     ) -> Result<(), LanPairingRejectionReason> {
+        let observed_at = observed_at.into();
         let lease = LanControllerLeaseState::from_intent(intent);
-        if observed_at > lease.expires_at.as_str() {
+        if observed_at.0.as_str() > lease.expires_at.as_str() {
             return Err(LanPairingRejectionReason::ControllerLeaseExpired);
         }
 
@@ -43,7 +47,7 @@ impl LanPairingRuntime {
         })?;
         if active_lease
             .as_ref()
-            .is_some_and(|active| observed_at > active.expires_at.as_str())
+            .is_some_and(|active| observed_at.0.as_str() > active.expires_at.as_str())
         {
             *active_lease = None;
         }
@@ -61,10 +65,11 @@ impl LanPairingRuntime {
     pub(crate) fn renew_controller_lease(
         &self,
         intent: &LanParentIntentEnvelope,
-        observed_at: &str,
+        observed_at: impl Into<LanPairingText>,
     ) -> Result<(), LanPairingRejectionReason> {
+        let observed_at = observed_at.into();
         let lease = LanControllerLeaseState::from_intent(intent);
-        if observed_at > lease.expires_at.as_str() {
+        if observed_at.0.as_str() > lease.expires_at.as_str() {
             return Err(LanPairingRejectionReason::ControllerLeaseExpired);
         }
 
@@ -72,7 +77,7 @@ impl LanPairingRuntime {
             let _ = error;
             LanPairingRejectionReason::Malformed
         })?;
-        clear_expired_lease(&mut active_lease, observed_at);
+        clear_expired_lease(&mut active_lease, &observed_at);
 
         match active_lease.as_ref() {
             Some(active) if active.matches(&lease) => {
@@ -90,14 +95,15 @@ impl LanPairingRuntime {
     pub(crate) fn release_controller_lease(
         &self,
         intent: &LanParentIntentEnvelope,
-        observed_at: &str,
+        observed_at: impl Into<LanPairingText>,
     ) -> Result<(), LanPairingRejectionReason> {
+        let observed_at = observed_at.into();
         let lease = LanControllerLeaseState::from_intent(intent);
         let mut active_lease = self.controller_lease.lock().map_err(|error| {
             let _ = error;
             LanPairingRejectionReason::Malformed
         })?;
-        clear_expired_lease(&mut active_lease, observed_at);
+        clear_expired_lease(&mut active_lease, &observed_at);
 
         match active_lease.as_ref() {
             Some(active) if active.matches(&lease) => {
@@ -112,10 +118,11 @@ impl LanPairingRuntime {
     pub(crate) fn takeover_controller_lease(
         &self,
         intent: &LanParentIntentEnvelope,
-        observed_at: &str,
+        observed_at: impl Into<LanPairingText>,
     ) -> Result<(), LanPairingRejectionReason> {
+        let observed_at = observed_at.into();
         let lease = LanControllerLeaseState::from_intent(intent);
-        if observed_at > lease.expires_at.as_str() {
+        if observed_at.0.as_str() > lease.expires_at.as_str() {
             return Err(LanPairingRejectionReason::ControllerLeaseExpired);
         }
 
@@ -123,7 +130,7 @@ impl LanPairingRuntime {
             let _ = error;
             LanPairingRejectionReason::Malformed
         })?;
-        clear_expired_lease(&mut active_lease, observed_at);
+        clear_expired_lease(&mut active_lease, &observed_at);
 
         match active_lease.as_ref() {
             Some(active) if active.matches(&lease) => {
@@ -141,124 +148,38 @@ impl LanPairingRuntime {
 
 pub(crate) fn controller_lease_renew(
     runtime: LanPairingRuntime,
-    origin: Option<String>,
+    origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    controller_lease_lifecycle_command(
+    super::controller_lease_flow::controller_lease_lifecycle_command(
         runtime,
         origin,
         command,
-        constants::value::LAN_AUDIT_CONTROLLER_LEASE_RENEWED,
-        |runtime, intent, observed_at| runtime.renew_controller_lease(intent, observed_at),
+        LanPairingAuditEventType::ControllerLeaseRenewed,
+        super::controller_lease_flow::controller_lease_renew,
     )
 }
 
 pub(crate) fn controller_lease_release(
     runtime: LanPairingRuntime,
-    origin: Option<String>,
+    origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    controller_lease_lifecycle_command(
+    super::controller_lease_flow::controller_lease_lifecycle_command(
         runtime,
         origin,
         command,
-        constants::value::LAN_AUDIT_CONTROLLER_LEASE_RELEASED,
-        |runtime, intent, observed_at| runtime.release_controller_lease(intent, observed_at),
+        LanPairingAuditEventType::ControllerLeaseReleased,
+        super::controller_lease_flow::controller_lease_release,
     )
 }
 
 pub(crate) fn controller_lease_takeover(
     runtime: LanPairingRuntime,
-    origin: Option<String>,
+    origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    let observed_origin = origin.as_deref();
-    let event = match parse_intent(&command.payload) {
-        Ok(intent) => match validate_command_target(&runtime, &command, &intent)
-            .and_then(|()| validate_write_authority(&intent))
-            .and_then(|()| validate_registry_selection_intent(&runtime, observed_origin, &intent))
-            .and_then(|()| runtime.takeover_controller_lease(&intent, timestamp_now().as_str()))
-        {
-            Ok(()) => {
-                let audit_fields = controller_lease_audit_fields(
-                    &command,
-                    &intent,
-                    observed_origin,
-                    constants::value::LAN_AUDIT_CONTROLLER_LEASE_TAKEOVER_ACCEPTED,
-                    None,
-                );
-                let mut event = pairing_status_event(&runtime, command);
-                event.payload.extend(audit_fields);
-                event
-            }
-            Err(reason) => {
-                let audit_type = if reason == LanPairingRejectionReason::TakeoverDenied {
-                    constants::value::LAN_AUDIT_CONTROLLER_LEASE_TAKEOVER_REJECTED
-                } else {
-                    constants::value::LAN_AUDIT_CONTROL_REJECTED
-                };
-                let payload = controller_lease_audit_fields(
-                    &command,
-                    &intent,
-                    observed_origin,
-                    audit_type,
-                    Some(&reason),
-                );
-                build_event(
-                    constants::event_id::COMMAND_REJECTED,
-                    &command.message_id,
-                    command.source,
-                    AgentEventName::AgentCommandRejected,
-                    LogLevel::Warn,
-                    payload,
-                    None,
-                )
-            }
-        },
-        Err(reason) => rejection_event(command, &reason, None, observed_origin),
-    };
-    drop(origin);
-    drop(runtime);
-    event
-}
-
-fn controller_lease_lifecycle_command(
-    runtime: LanPairingRuntime,
-    origin: Option<String>,
-    command: AgentCommandEnvelope,
-    audit_event_type: &'static str,
-    apply: impl Fn(
-        &LanPairingRuntime,
-        &LanParentIntentEnvelope,
-        &str,
-    ) -> Result<(), LanPairingRejectionReason>,
-) -> AgentEventEnvelope {
-    let observed_origin = origin.as_deref();
-    let event = match parse_intent(&command.payload) {
-        Ok(intent) => match validate_command_target(&runtime, &command, &intent)
-            .and_then(|()| validate_write_authority(&intent))
-            .and_then(|()| validate_registry_selection_intent(&runtime, observed_origin, &intent))
-            .and_then(|()| apply(&runtime, &intent, timestamp_now().as_str()))
-        {
-            Ok(()) => {
-                let audit_fields = controller_lease_audit_fields(
-                    &command,
-                    &intent,
-                    observed_origin,
-                    audit_event_type,
-                    None,
-                );
-                let mut event = pairing_status_event(&runtime, command);
-                event.payload.extend(audit_fields);
-                event
-            }
-            Err(reason) => rejection_event(command, &reason, Some(&intent), observed_origin),
-        },
-        Err(reason) => rejection_event(command, &reason, None, observed_origin),
-    };
-    drop(origin);
-    drop(runtime);
-    event
+    super::controller_lease_flow::controller_lease_takeover(runtime, origin, command)
 }
 
 impl LanControllerLeaseState {
@@ -278,10 +199,13 @@ impl LanControllerLeaseState {
     }
 }
 
-fn clear_expired_lease(active_lease: &mut Option<LanControllerLeaseState>, observed_at: &str) {
+fn clear_expired_lease(
+    active_lease: &mut Option<LanControllerLeaseState>,
+    observed_at: &LanPairingText,
+) {
     if active_lease
         .as_ref()
-        .is_some_and(|active| observed_at > active.expires_at.as_str())
+        .is_some_and(|active| observed_at.0.as_str() > active.expires_at.as_str())
     {
         *active_lease = None;
     }

@@ -5,7 +5,8 @@ use serde_json::json;
 #[test]
 fn retention_delete_tombstone_contract_round_trips_through_rust_owned_shape() {
     let proof = contracts::sample_retention_delete_tombstone_contract_proof();
-    let encoded = serde_json::to_value(&proof).value_or_unreachable("proof serializes");
+    let encoded = serde_json::to_value(&proof)
+        .value_or_unreachable(crate::assert_context!("proof serializes"));
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -16,8 +17,8 @@ fn retention_delete_tombstone_contract_round_trips_through_rust_owned_shape() {
     assert_eq!(encoded["rows"][8]["hardDeleted"], json!(true));
     assert!(encoded.get("schema_version").is_none());
 
-    let decoded: contracts::RetentionDeleteTombstoneContractProof =
-        serde_json::from_value(encoded).value_or_unreachable("proof deserializes");
+    let decoded: contracts::RetentionDeleteTombstoneContractProof = serde_json::from_value(encoded)
+        .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
 }
 

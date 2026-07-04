@@ -298,7 +298,10 @@ function buildScopedValidations(scopeArgs) {
   }
 
   if (crateDirs.length > 0) {
-    validations.push(['cargo', ['lint-architecture', ...crateDirs]]);
+    validations.push([
+      process.execPath,
+      ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'reexports', '--files', crateDirs.join(',')],
+    ]);
     validations.push(['cargo', ['check', ...cratePackages.flatMap((crateName) => ['-p', crateName])]]);
     validations.push([
       'cargo',

@@ -2,13 +2,13 @@ import path from 'node:path';
 import {
   GeneratedDevLogBridge as DevLogBridge,
   type GeneratedLogLevel as LogLevelValue,
-} from '@ocentra-parent/schema-domain/generated/logging-contracts';
+} from '../generated/logging-contracts';
 import {
   buildGeneratedParentLogConfig,
   isGeneratedDevOrTestEnvironment,
   isGeneratedLevelAtOrAbove,
   normalizeGeneratedDebugPath,
-} from '../generated/parent-log-runtime';
+} from '../parent-log-runtime';
 
 export type BridgeMode = 'local' | 'tunnel' | 'disabled';
 

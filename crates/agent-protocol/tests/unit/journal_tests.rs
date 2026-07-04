@@ -20,8 +20,7 @@ fn activity_journal_line_serializes_to_typescript_contract_shape() {
         activity_digest: "sha256-activity-digest-base64".to_string(),
     };
 
-    let serialized = serde_json::to_value(line)
-        .unwrap_or_else(|error| unreachable!("journal line serializes: {error:?}"));
+    let serialized = serde_json::to_value(line).expect("journal line serializes: {error:?}");
 
     assert_eq!(serialized["schemaVersion"], 1);
     assert_eq!(serialized["entryId"], "journal-entry-1");
@@ -46,8 +45,7 @@ fn activity_journal_status_serializes_to_typescript_contract_shape() {
         last_entry_id: Some("journal-entry-2".to_string()),
     };
 
-    let serialized = serde_json::to_value(status)
-        .unwrap_or_else(|error| unreachable!("journal status serializes: {error:?}"));
+    let serialized = serde_json::to_value(status).expect("journal status serializes: {error:?}");
 
     assert_eq!(serialized["schemaVersion"], 1);
     assert_eq!(serialized["encrypted"], true);
@@ -65,8 +63,8 @@ fn activity_journal_rotation_policy_serializes_to_typescript_contract_shape() {
         max_segment_bytes: 4096,
     };
 
-    let serialized = serde_json::to_value(policy)
-        .unwrap_or_else(|error| unreachable!("journal rotation policy serializes: {error:?}"));
+    let serialized =
+        serde_json::to_value(policy).expect("journal rotation policy serializes: {error:?}");
 
     assert_eq!(serialized["maxSegmentBytes"], 4096);
 }

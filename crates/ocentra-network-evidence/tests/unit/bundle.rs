@@ -1,9 +1,9 @@
-use crate::{
-    build_network_cross_slice_evidence_bundle, NetworkCascadeNextCheck,
-    NetworkCascadeSignalStrength, NetworkCascadeSourceKind, NetworkCrossSliceEvidenceBundleError,
-    NetworkCrossSliceEvidenceBundleInput, NetworkCrossSliceEvidenceSource, NetworkEvidenceGrade,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::bundle::*;
+use ocentra_network_evidence::cascade::{
+    NetworkCascadeNextCheck, NetworkCascadeSignalStrength, NetworkCascadeSourceKind,
+};
+use ocentra_network_evidence::dns::types::NetworkEvidenceGrade;
 
 #[test]
 fn evidence_bundle_preserves_cross_slice_refs_without_action_authority() {

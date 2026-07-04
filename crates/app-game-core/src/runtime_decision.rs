@@ -6,6 +6,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{app_game_observed_event, AppGameObservationIntent};
 
+#[path = "runtime_decision_helpers.rs"]
+mod runtime_decision_helpers;
+
 const APP_GAME_SCHEMA_VERSION: u16 = 1;
 const APP_GAME_RUNTIME_DECISION_RECORDED_EVENT_TYPE: &str = "app-game.runtime.decision-recorded";
 const APP_GAME_IDEMPOTENCY_SEPARATOR: &str = ":";
@@ -79,50 +82,90 @@ pub struct AppGameRuntimeDecision {
     pub policy_handoff_state: AppGamePolicyHandoffState,
 }
 
-macro_rules! app_game_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
-
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
+fn parse_app_game_text_id(
+    value: impl Into<String>,
+    field: &'static str,
+) -> Result<String, EventingError> {
+    let value = value.into();
+    if value.trim().is_empty() {
+        return Err(EventingError::EmptyValue { field });
+    }
+    Ok(value)
 }
 
-app_game_text_id!(AppGameRuntimeDecisionId, "app_game.runtime_decision_id");
-app_game_text_id!(AppGameAggregateId, "app_game.aggregate_id");
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct AppGameRuntimeDecisionId(String);
+
+impl AppGameRuntimeDecisionId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        Ok(Self(parse_app_game_text_id(
+            value,
+            "app_game.runtime_decision_id",
+        )?))
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for AppGameRuntimeDecisionId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<AppGameRuntimeDecisionId> for String {
+    fn from(value: AppGameRuntimeDecisionId) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for AppGameRuntimeDecisionId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct AppGameAggregateId(String);
+
+impl AppGameAggregateId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        Ok(Self(parse_app_game_text_id(
+            value,
+            "app_game.aggregate_id",
+        )?))
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for AppGameAggregateId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<AppGameAggregateId> for String {
+    fn from(value: AppGameAggregateId) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for AppGameAggregateId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AppGameRuntimeDecisionRecordedEvent {
@@ -155,44 +198,7 @@ impl DomainEvent for AppGameRuntimeDecisionRecordedEvent {
 }
 
 pub fn evaluate_app_game_runtime(input: AppGameRuntimeInput) -> AppGameRuntimeDecision {
-    if input.capability_state == AppGameCapabilityState::Missing {
-        return AppGameRuntimeDecision {
-            observation_intent: AppGameObservationIntent::InventoryObservationOnly,
-            runtime_action_state: AppGameRuntimeActionState::ManualRequired,
-            ai_handoff_state: AppGameAiHandoffState::NotRequired,
-            policy_handoff_state: AppGamePolicyHandoffState::DoNotPublish,
-        };
-    }
-
-    if input.foreground_state == AppGameForegroundState::Foreground {
-        return match input.classification_state {
-            AppGameClassificationState::KnownGame => AppGameRuntimeDecision {
-                observation_intent: AppGameObservationIntent::ForegroundUsageRequiresPolicy,
-                runtime_action_state: AppGameRuntimeActionState::RecordForegroundSession,
-                ai_handoff_state: AppGameAiHandoffState::NotRequired,
-                policy_handoff_state: AppGamePolicyHandoffState::Publish,
-            },
-            AppGameClassificationState::UnknownGame => AppGameRuntimeDecision {
-                observation_intent: AppGameObservationIntent::AmbiguousUsageRequiresAi,
-                runtime_action_state: AppGameRuntimeActionState::RecordForegroundSession,
-                ai_handoff_state: AppGameAiHandoffState::Required,
-                policy_handoff_state: AppGamePolicyHandoffState::DoNotPublish,
-            },
-            AppGameClassificationState::InventoryOnly => AppGameRuntimeDecision {
-                observation_intent: AppGameObservationIntent::InventoryObservationOnly,
-                runtime_action_state: AppGameRuntimeActionState::RecordForegroundSession,
-                ai_handoff_state: AppGameAiHandoffState::NotRequired,
-                policy_handoff_state: AppGamePolicyHandoffState::DoNotPublish,
-            },
-        };
-    }
-
-    AppGameRuntimeDecision {
-        observation_intent: AppGameObservationIntent::InventoryObservationOnly,
-        runtime_action_state: AppGameRuntimeActionState::RecordInventory,
-        ai_handoff_state: AppGameAiHandoffState::NotRequired,
-        policy_handoff_state: AppGamePolicyHandoffState::DoNotPublish,
-    }
+    runtime_decision_helpers::evaluate_app_game_runtime(input)
 }
 
 pub fn app_game_runtime_observed_event(input: AppGameRuntimeInput) -> ChildDomainObservedEvent {

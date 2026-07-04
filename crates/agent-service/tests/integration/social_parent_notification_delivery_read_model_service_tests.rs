@@ -1,3 +1,6 @@
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -8,6 +11,7 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY;
+use ocentra_parent_agent_protocol::SOCIAL_REPORT_WRITER_DELIVERY_REPORT_RECEIPT_REF;
 
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
@@ -15,9 +19,10 @@ use ocentra_parent_agent_service::test_support::handle_local_command_text_for_te
 async fn social_parent_notification_delivery_command_reports_service_backed_readiness_rows() {
     let body = serde_json::to_string(&command_envelope())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
-    let event = handle_local_command_text_for_test(&body).await;
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
     let read_model = read_model_payload(
-        &event.payload[constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL],
+        &crate::test_invariants::log_field(&event.payload, constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
     );
 
     assert_eq!(
@@ -30,7 +35,10 @@ async fn social_parent_notification_delivery_command_reports_service_backed_read
         read_model.rows[0].notification_delivery_readiness_state,
         SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY
     );
-    assert!(read_model.rows[0].report_receipt_ref.is_some());
+    assert_eq!(
+        read_model.rows[0].report_receipt_ref.as_deref(),
+        Some(SOCIAL_REPORT_WRITER_DELIVERY_REPORT_RECEIPT_REF)
+    );
     assert!(!read_model.rows[0].parent_notification_ui_delivered);
     assert!(!read_model.rows[0].provider_delivery_attempted);
     assert!(!read_model.rows[0].provider_receipt_ingested);

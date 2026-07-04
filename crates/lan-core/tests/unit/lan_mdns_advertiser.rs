@@ -23,7 +23,7 @@ fn parent_instance_uses_hashed_service_label_and_contract_txt_records() {
         LanMdnsAdvertisementLifecycleState::Start,
         LanMdnsAdvertisementSupportState::Supported,
     )
-    .value_or_unreachable("parent advertisement");
+    .value_or_unreachable();
 
     let instance = parent_instance(&advertisement);
 
@@ -39,8 +39,8 @@ fn parent_instance_uses_hashed_service_label_and_contract_txt_records() {
 
 #[test]
 fn child_instance_uses_hashed_service_label_and_opaque_txt_records() {
-    let advertisement = LanChildMdnsAdvertisement::new(child_advertisement_input())
-        .value_or_unreachable("child advertisement");
+    let advertisement =
+        LanChildMdnsAdvertisement::new(child_advertisement_input()).value_or_unreachable();
 
     let instance = child_instance(&advertisement);
 
@@ -119,9 +119,8 @@ fn encoded_packet_contains_service_enumeration_service_type_and_txt_values() {
         LanMdnsAdvertisementLifecycleState::Start,
         LanMdnsAdvertisementSupportState::Supported,
     )
-    .value_or_unreachable("parent advertisement");
-    let child = LanChildMdnsAdvertisement::new(child_advertisement_input())
-        .value_or_unreachable("child advertisement");
+    .value_or_unreachable();
+    let child = LanChildMdnsAdvertisement::new(child_advertisement_input()).value_or_unreachable();
 
     let packet =
         encode_advertisement_packet(&[parent_instance(&parent), child_instance(&child)], 120);
@@ -227,13 +226,13 @@ fn goodbye_packets_match_the_zero_ttl_advertisement_shape_and_empty_inputs_noop(
         LanMdnsAdvertisementLifecycleState::Start,
         LanMdnsAdvertisementSupportState::Supported,
     )
-    .value_or_unreachable("parent advertisement");
+    .value_or_unreachable();
     let instance = parent_instance(&advertisement);
     let expected = encode_advertisement_packet(std::slice::from_ref(&instance), 0);
     let sink = RecordingMdnsSink::default();
 
-    send_goodbye(std::slice::from_ref(&instance), &sink).value_or_unreachable("goodbye sends");
-    send_goodbye(&[], &sink).value_or_unreachable("empty goodbye is ignored");
+    send_goodbye(std::slice::from_ref(&instance), &sink).value_or_unreachable();
+    send_goodbye(&[], &sink).value_or_unreachable();
 
     assert_eq!(sink.packets(), vec![expected]);
 }
@@ -245,7 +244,7 @@ struct RecordingMdnsSink {
 
 impl RecordingMdnsSink {
     fn packets(&self) -> Vec<Vec<u8>> {
-        self.packets.lock().value_or_unreachable("packets").clone()
+        self.packets.lock().value_or_unreachable().clone()
     }
 }
 
@@ -253,7 +252,7 @@ impl LanMdnsPacketSink for RecordingMdnsSink {
     fn send(&self, packet: &[u8]) -> io::Result<()> {
         self.packets
             .lock()
-            .value_or_unreachable("packets")
+            .value_or_unreachable()
             .push(packet.to_vec());
         Ok(())
     }

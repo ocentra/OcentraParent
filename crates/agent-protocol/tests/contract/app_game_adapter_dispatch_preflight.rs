@@ -95,8 +95,7 @@ fn app_game_adapter_dispatch_preflight_serializes_parent_safe_rows() {
         rows: vec![row],
     };
 
-    let serialized = serde_json::to_value(&read_model)
-        .unwrap_or_else(|error| unreachable!("dispatch preflight serializes: {error}"));
+    let serialized = serde_json::to_value(&read_model).expect("dispatch preflight serializes");
 
     assert_eq!(
         serialized["readModelId"],

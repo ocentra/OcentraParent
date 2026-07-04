@@ -1,7 +1,6 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
-use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion};
-use ocentra_eventing::request::{EventResponseContract, RequestEvent};
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_evidence::PrivatePayloadState;
 use serde::{Deserialize, Serialize};
 
@@ -483,80 +482,6 @@ impl DomainEvent for TrackingParentAcknowledgementRecordedEvent {
     }
 }
 
-impl DomainEvent for TrackingChildCheckInRequestedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        tracking_event_contract(
-            constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_REQUESTED_EVENT_TYPE,
-        )
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        tracking_child_aggregate_key(&self.child_device_id, &self.child_profile_id)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        tracking_idempotency_key(
-            constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_REQUESTED_EVENT_TYPE,
-            &self.check_in_id,
-        )
-    }
-}
-
-impl RequestEvent for TrackingChildCheckInRequestedEvent {
-    type Response = TrackingChildCheckInRequestReceipt;
-
-    fn request_id(&self) -> Result<RequestId, EventingError> {
-        RequestId::parse(self.check_in_id.as_str())
-    }
-}
-
-impl DomainEvent for TrackingChildCheckInRecordedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        tracking_event_contract(
-            constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE,
-        )
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        tracking_child_aggregate_key(&self.child_device_id, &self.child_profile_id)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        tracking_idempotency_key(
-            constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE,
-            &self.check_in_id,
-        )
-    }
-}
-
-impl EventResponseContract for TrackingChildCheckInRequestReceipt {
-    fn validate(&self) -> Result<(), EventingError> {
-        if self.schema_version != AGENT_PROTOCOL_SCHEMA_VERSION {
-            return Err(EventingError::InvalidVersion);
-        }
-        Ok(())
-    }
-}
-
-impl DomainEvent for ParentNotificationRequestedEvent {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        tracking_event_contract(
-            constants::tracking_runtime::PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE,
-        )
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        tracking_child_aggregate_key(&self.child_device_id, &self.child_profile_id)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        tracking_idempotency_key(
-            constants::tracking_runtime::PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE,
-            &self.notification_id,
-        )
-    }
-}
-
 pub fn default_tracking_runtime_config() -> TrackingRuntimeConfig {
     TrackingRuntimeConfig {
         tracking_enabled_state: TrackingRuntimeEnabledState::Enabled,
@@ -573,7 +498,7 @@ pub fn policy_eligible_tracking_runtime_config() -> TrackingRuntimeConfig {
     }
 }
 
-fn tracking_event_contract(
+pub(crate) fn tracking_event_contract(
     event_type: impl std::fmt::Display,
 ) -> Result<EventContract, EventingError> {
     Ok(EventContract::new(
@@ -582,7 +507,7 @@ fn tracking_event_contract(
     ))
 }
 
-fn tracking_child_aggregate_key(
+pub(crate) fn tracking_child_aggregate_key(
     child_device_id: &TrackingChildDeviceId,
     child_profile_id: &TrackingChildProfileId,
 ) -> Result<AggregateKey, EventingError> {
@@ -594,7 +519,7 @@ fn tracking_child_aggregate_key(
     ))
 }
 
-fn tracking_idempotency_key(
+pub(crate) fn tracking_idempotency_key(
     event_type: impl std::fmt::Display,
     unique_ref: impl std::fmt::Display,
 ) -> Result<IdempotencyKey, EventingError> {

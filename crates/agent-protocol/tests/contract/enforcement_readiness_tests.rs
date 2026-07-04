@@ -8,6 +8,34 @@ use super::{
 
 #[test]
 fn broad_adapter_readiness_serializes_contract_boundaries() {
+    let readiness_entry =
+        |readiness_id: &'static str, capability, readiness_state, proof_level, runtime_owner| {
+            let capability_state = match readiness_state {
+                EnforcementReadinessState::Implemented => EnforcementCapabilityState::Supported,
+                EnforcementReadinessState::ManualRequired
+                | EnforcementReadinessState::NotClaimed => {
+                    EnforcementCapabilityState::ManualRequired
+                }
+                EnforcementReadinessState::Unavailable => EnforcementCapabilityState::Unavailable,
+            };
+
+            EnforcementBroadAdapterReadinessEntry {
+                schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+                readiness_id: readiness_id.to_string(),
+                capability,
+                platform: ParentPlatform::Windows,
+                adapter_kind: EnforcementAdapterKind::ProcessControl,
+                capability_state,
+                readiness_state,
+                proof_level,
+                runtime_owner,
+                supported_modes: vec![EnforcementMode::BlockProcess],
+                claim_boundary: enforcement::CLAIM_BOUNDARY_BROAD_APP_BLOCKING.to_string(),
+                fallback_behavior: enforcement::FALLBACK_BROAD_APP_BLOCKING.to_string(),
+                required_artifacts: vec![enforcement::ARTIFACT_OS_APP_IDENTITY.to_string()],
+                last_checked_at: policy::TEST_EVALUATED_AT.to_string(),
+            }
+        };
     let matrix = EnforcementBroadOsAdapterReadinessMatrix {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         matrix_id: enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER.to_string(),
@@ -37,9 +65,7 @@ fn broad_adapter_readiness_serializes_contract_boundaries() {
         ],
     };
 
-    let serialized = serde_json::to_value(matrix).unwrap_or_else(|error| {
-        unreachable!("{}: {error}", constants::error::AGENT_EVENT_SERIALIZES)
-    });
+    let serialized = serde_json::to_value(matrix).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["matrixId"],
@@ -88,37 +114,4 @@ fn unsupported_readiness_state_does_not_deserialize() {
         parsed.err().map(|error| error.classify()),
         Some(serde_json::error::Category::Data)
     );
-}
-
-fn readiness_entry(
-    readiness_id: &str,
-    capability: EnforcementBroadAdapterCapability,
-    readiness_state: EnforcementReadinessState,
-    proof_level: EnforcementReadinessProofLevel,
-    runtime_owner: EnforcementReadinessRuntimeOwner,
-) -> EnforcementBroadAdapterReadinessEntry {
-    let capability_state = match readiness_state {
-        EnforcementReadinessState::Implemented => EnforcementCapabilityState::Supported,
-        EnforcementReadinessState::ManualRequired | EnforcementReadinessState::NotClaimed => {
-            EnforcementCapabilityState::ManualRequired
-        }
-        EnforcementReadinessState::Unavailable => EnforcementCapabilityState::Unavailable,
-    };
-
-    EnforcementBroadAdapterReadinessEntry {
-        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-        readiness_id: readiness_id.to_string(),
-        capability,
-        platform: ParentPlatform::Windows,
-        adapter_kind: EnforcementAdapterKind::ProcessControl,
-        capability_state,
-        readiness_state,
-        proof_level,
-        runtime_owner,
-        supported_modes: vec![EnforcementMode::BlockProcess],
-        claim_boundary: enforcement::CLAIM_BOUNDARY_BROAD_APP_BLOCKING.to_string(),
-        fallback_behavior: enforcement::FALLBACK_BROAD_APP_BLOCKING.to_string(),
-        required_artifacts: vec![enforcement::ARTIFACT_OS_APP_IDENTITY.to_string()],
-        last_checked_at: policy::TEST_EVALUATED_AT.to_string(),
-    }
 }

@@ -3,7 +3,7 @@ import {
   type GeneratedHostedPortalDistributionState,
   type GeneratedHostedPortalEnv,
   type GeneratedHostedPortalLocation,
-} from './generated/hosted-portal-distribution';
+} from './hosted-portal-distribution.generated';
 
 export type HostedPortalDistributionState = GeneratedHostedPortalDistributionState;
 export type HostedPortalEnv = GeneratedHostedPortalEnv;

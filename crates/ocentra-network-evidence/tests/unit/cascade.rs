@@ -1,9 +1,6 @@
-use crate::{
-    route_network_evidence_cascade, NetworkCascadeNextCheck, NetworkCascadeSignalStrength,
-    NetworkCascadeSource, NetworkCascadeSourceKind, NetworkEvidenceCascadeError,
-    NetworkEvidenceCascadeInput, NetworkEvidenceGrade,
-};
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_network_evidence::cascade::*;
+use ocentra_network_evidence::dns::types::*;
 
 #[test]
 fn cascade_router_prefers_managed_browser_exact_url_over_network_domain() {

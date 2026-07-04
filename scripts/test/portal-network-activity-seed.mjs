@@ -4,7 +4,7 @@ import {
   networkActivityEvidence,
   networkActivityFields,
   networkActivityObservedAt,
-} from './network-evidence-drawer-proof-fixture.mjs';
+} from './network-evidence-drawer-fixture.mjs';
 
 export const PortalNetworkActivitySeed = Object.freeze({
   EventId: NetworkEvidenceDrawerProofFixture.eventId,

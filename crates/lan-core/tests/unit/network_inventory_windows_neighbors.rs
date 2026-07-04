@@ -6,6 +6,9 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 
 use crate::network_inventory::{neighbor_record, neighbor_record_with_values, trusted_device};
+use ocentra_lan_core::network_inventory::windows_neighbors::netbios::{
+    direct_netbios_hostname, netbios_adapter_status_name, netbios_cache_entry,
+};
 use ocentra_lan_core::network_inventory::windows_neighbors::*;
 use ocentra_lan_core::network_inventory::{
     LanIdentityHintInventory, LanNetworkInventoryDevice, LanPreviousNetworkInventory,
@@ -13,29 +16,32 @@ use ocentra_lan_core::network_inventory::{
 
 const TEST_NEIGHBOR_OBSERVED_AT: &str = "2026-06-28T12:00:00Z";
 
-fn lan_plan_fixture_records(name: &str) -> Vec<serde_json::Value> {
+fn lan_plan_fixture_records(name: impl AsRef<std::path::Path>) -> Vec<serde_json::Value> {
     serde_json::from_str(
         &fs::read_to_string(format!(
             "{}/tests/fixtures/lan-plan/{}",
             env!("CARGO_MANIFEST_DIR"),
-            name
+            name.as_ref().display()
         ))
-        .value_or_unreachable("fixture loads"),
+        .value_or_unreachable(),
     )
-    .value_or_unreachable("fixture parses")
+    .value_or_unreachable()
 }
 
 #[test]
 fn windows_neighbor_parser_keeps_cached_hostname_when_later_rows_are_ip_only() {
-    ocentra_lan_core::network_inventory::neighbor_support::cache::clear_cached_neighbor_identities();
+    ocentra_lan_core::network_inventory::neighbor_support::cache::clear_cached_neighbor_identities(
+    );
     let named = network_device_from_windows_neighbor(
-        &neighbor_record(Some(constants::lan_pairing::TEST_HOSTNAME)),
+        &neighbor_record(Some(String::from(
+            constants::lan_pairing::TEST_HOSTNAME.to_string(),
+        ))),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
         None,
     );
-    let named = named.value_or_unreachable("cached hostname neighbor should parse");
+    let named = named.value_or_unreachable();
 
     assert_eq!(
         named.hostname,
@@ -44,13 +50,13 @@ fn windows_neighbor_parser_keeps_cached_hostname_when_later_rows_are_ip_only() {
     assert_eq!(named.label, constants::lan_pairing::TEST_HOSTNAME);
 
     let unnamed = network_device_from_windows_neighbor(
-        &neighbor_record(None),
+        &neighbor_record(None::<String>),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
         None,
     );
-    let unnamed = unnamed.value_or_unreachable("hostname-only fallback neighbor should parse");
+    let unnamed = unnamed.value_or_unreachable();
 
     assert_eq!(
         unnamed.hostname,
@@ -63,18 +69,18 @@ fn windows_neighbor_parser_keeps_cached_hostname_when_later_rows_are_ip_only() {
 fn windows_neighbor_parser_rejects_unsafe_and_oversized_hostnames() {
     let parsed = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            "192.168.2.99",
-            "00-11-22-33-44-77",
-            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE,
-            Some("Ethernet"),
-            Some("bad host<script>"),
+            String::from("192.168.2.99".to_string()),
+            String::from("00-11-22-33-44-77".to_string()),
+            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
+            Some(String::from("Ethernet".to_string())),
+            Some(String::from("bad host<script>".to_string())),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
         None,
     );
-    let parsed = parsed.value_or_unreachable("unsafe hostname neighbor should parse");
+    let parsed = parsed.value_or_unreachable();
 
     assert!(parsed.hostname.is_none());
     assert_eq!(
@@ -89,18 +95,18 @@ fn windows_neighbor_parser_rejects_unsafe_and_oversized_hostnames() {
     let oversized = "a".repeat(256);
     let parsed = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            "192.168.2.100",
-            "00-11-22-33-44-78",
-            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE,
-            Some("Ethernet"),
-            Some(&oversized),
+            String::from("192.168.2.100".to_string()),
+            String::from("00-11-22-33-44-78".to_string()),
+            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
+            Some(String::from("Ethernet".to_string())),
+            Some(String::from(oversized.clone())),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
         None,
     );
-    let parsed = parsed.value_or_unreachable("oversized hostname neighbor should parse");
+    let parsed = parsed.value_or_unreachable();
 
     assert!(parsed.hostname.is_none());
     assert_eq!(
@@ -117,32 +123,36 @@ fn windows_neighbor_parser_rejects_unsafe_and_oversized_hostnames() {
 fn windows_neighbor_parser_keeps_duplicate_hostname_rows_separate_by_mac() {
     let first = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            "192.168.2.101",
-            "00-11-22-33-44-79",
-            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE,
-            Some("Ethernet"),
-            Some(constants::lan_pairing::TEST_HOSTNAME),
+            String::from("192.168.2.101".to_string()),
+            String::from("00-11-22-33-44-79".to_string()),
+            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
+            Some(String::from("Ethernet".to_string())),
+            Some(String::from(
+                constants::lan_pairing::TEST_HOSTNAME.to_string(),
+            )),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
         None,
     )
-    .value_or_unreachable("first record parses");
+    .value_or_unreachable();
     let second = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            "192.168.2.102",
-            "00-11-22-33-44-7A",
-            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE,
-            Some("Ethernet"),
-            Some(constants::lan_pairing::TEST_HOSTNAME),
+            String::from("192.168.2.102".to_string()),
+            String::from("00-11-22-33-44-7A".to_string()),
+            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
+            Some(String::from("Ethernet".to_string())),
+            Some(String::from(
+                constants::lan_pairing::TEST_HOSTNAME.to_string(),
+            )),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
         None,
     )
-    .value_or_unreachable("second record parses");
+    .value_or_unreachable();
 
     assert_ne!(first.device_id, second.device_id);
     assert_eq!(
@@ -159,18 +169,18 @@ fn windows_neighbor_parser_keeps_duplicate_hostname_rows_separate_by_mac() {
 fn windows_neighbor_parser_accepts_ipv6_rows_without_forcing_ipv4_only_logic() {
     let parsed = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            "fe80::2b4d",
-            "00-11-22-33-44-66",
-            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE,
-            Some("Ethernet"),
-            None,
+            String::from("fe80::2b4d".to_string()),
+            String::from("00-11-22-33-44-66".to_string()),
+            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
+            Some(String::from("Ethernet".to_string())),
+            None::<String>,
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
         None,
     );
-    let parsed = parsed.value_or_unreachable("ipv6 neighbor should parse");
+    let parsed = parsed.value_or_unreachable();
 
     assert_eq!(parsed.ip_address, "fe80::2b4d");
     assert_eq!(parsed.mac_address, "00-11-22-33-44-66");
@@ -292,7 +302,7 @@ fn previous_scan_hydrates_hostname_platform_and_label_for_same_mac() {
         &previous_inventory,
         None,
     );
-    let hydrated = hydrated.value_or_unreachable("previous-scan hydrated neighbor should parse");
+    let hydrated = hydrated.value_or_unreachable();
 
     assert_eq!(
         hydrated.hostname.as_deref(),
@@ -306,11 +316,15 @@ fn previous_scan_hydrates_hostname_platform_and_label_for_same_mac() {
 #[test]
 fn trusted_registry_hydrates_identity_before_previous_scan_history() {
     let trusted_inventory = LanIdentityHintInventory::from_devices(&[trusted_device(
-        constants::lan_pairing::TEST_LAN_MAC,
-        Some(constants::lan_pairing::TEST_LAN_IP),
-        Some(constants::lan_pairing::TEST_HOSTNAME),
-        "Family Tablet",
-        constants::lan_pairing::PLATFORM_WINDOWS,
+        String::from(constants::lan_pairing::TEST_LAN_MAC.to_string()),
+        Some(String::from(
+            constants::lan_pairing::TEST_LAN_IP.to_string(),
+        )),
+        Some(String::from(
+            constants::lan_pairing::TEST_HOSTNAME.to_string(),
+        )),
+        String::from("Family Tablet".to_string()),
+        String::from(constants::lan_pairing::PLATFORM_WINDOWS.to_string()),
     )]);
     let previous_inventory = LanPreviousNetworkInventory::from_devices(&[
         LanNetworkInventoryDevice {
@@ -331,13 +345,13 @@ fn trusted_registry_hydrates_identity_before_previous_scan_history() {
     ]);
 
     let hydrated = network_device_from_windows_neighbor(
-        &neighbor_record(None),
+        &neighbor_record(None::<String>),
         &HashMap::new(),
         &trusted_inventory,
         &previous_inventory,
         None,
     );
-    let hydrated = hydrated.value_or_unreachable("trusted-registry hydrated neighbor should parse");
+    let hydrated = hydrated.value_or_unreachable();
 
     assert_eq!(
         hydrated.hostname.as_deref(),
@@ -446,18 +460,18 @@ fn windows_neighbor_parser_uses_netbios_cache_hostname_and_marks_netbios_scan_so
 
     let parsed = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            "192.168.2.58",
-            "00-11-22-33-44-58",
-            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE,
-            Some("Ethernet"),
-            None,
+            String::from("192.168.2.58".to_string()),
+            String::from("00-11-22-33-44-58".to_string()),
+            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
+            Some(String::from("Ethernet".to_string())),
+            None::<String>,
         ),
         &netbios_names,
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
         None,
     );
-    let parsed = parsed.value_or_unreachable("netbios cache hostname neighbor should parse");
+    let parsed = parsed.value_or_unreachable();
 
     assert_eq!(
         parsed.hostname.as_deref(),
@@ -538,11 +552,13 @@ fn current_windows_neighbor_ipv4_observations_prefer_more_reachable_ip_for_same_
 fn windows_neighbor_parser_requires_selected_interface_match_when_scope_is_explicit() {
     assert!(network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            "192.168.2.110",
-            "00-11-22-33-44-10",
-            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE,
-            Some("Wi-Fi"),
-            Some(constants::lan_pairing::TEST_HOSTNAME),
+            String::from("192.168.2.110".to_string()),
+            String::from("00-11-22-33-44-10".to_string()),
+            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
+            Some(String::from("Wi-Fi".to_string())),
+            Some(String::from(
+                constants::lan_pairing::TEST_HOSTNAME.to_string()
+            )),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
@@ -553,18 +569,20 @@ fn windows_neighbor_parser_requires_selected_interface_match_when_scope_is_expli
 
     let selected = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            "192.168.2.111",
-            "00-11-22-33-44-11",
-            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE,
-            Some(" ethernet "),
-            Some(constants::lan_pairing::TEST_HOSTNAME),
+            String::from("192.168.2.111".to_string()),
+            String::from("00-11-22-33-44-11".to_string()),
+            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
+            Some(String::from(" ethernet ".to_string())),
+            Some(String::from(
+                constants::lan_pairing::TEST_HOSTNAME.to_string(),
+            )),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
         Some("Ethernet"),
     )
-    .value_or_unreachable("selected-interface record parses");
+    .value_or_unreachable();
 
     assert_eq!(selected.network_interface.as_deref(), Some("ethernet"));
 }

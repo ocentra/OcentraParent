@@ -24,9 +24,11 @@ use ocentra_policy_control_core::policy_source::{
 
 fn expect_invalid_value(
     error: EventingError,
-    expected_field: &'static str,
-    expected_value: &str,
+    expected_field: impl std::fmt::Display,
+    expected_value: impl std::fmt::Display,
 ) -> TestResult {
+    let expected_field = expected_field.to_string();
+    let expected_value = expected_value.to_string();
     match error {
         EventingError::InvalidValue { field, value } => {
             assert_eq!(field, expected_field);

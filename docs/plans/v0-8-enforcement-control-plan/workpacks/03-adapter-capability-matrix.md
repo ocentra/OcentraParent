@@ -44,16 +44,17 @@ Proof JSON and parent-visible state match the matrix exactly. Current proof runs
 `node scripts/test/v0-8-supported-adapter-runtime-proof.mjs`,
 `node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs`, and
 `node scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs`.
-The owning matrix contracts live in
-`packages/enforcement-domain/src/v0-8-supported-adapter-runtime-proof.ts`,
-`packages/enforcement-domain/src/v0-8-cross-platform-enforcement-capability-proof.ts`,
-and `packages/enforcement-domain/src/v0-8-broad-os-adapter-runtime-proof.ts`.
-Consumer parity is exercised through
-`packages/agent-protocol-domain/src/enforcement-supported-adapter-runtime-proof-adapter.ts`,
+Rust owns the supported-adapter matrix contracts and consumer parity through
 `crates/agent-protocol/src/enforcement_supported_adapter_runtime_proof.rs`,
+`crates/agent-protocol/tests/contract/enforcement_supported_adapter_runtime_proof_tests.rs`,
 `crates/agent-protocol/src/enforcement_cross_platform_capability_proof.rs`,
 `crates/agent-service/src/enforcement_api/enforcement_supported_adapter_runtime_proof_read_model.rs`,
+`crates/agent-service/tests/unit/enforcement_supported_adapter_runtime_proof_read_model_tests.rs`,
 and `crates/agent-service/src/enforcement_cross_platform_capability_proof_read_model.rs`.
+The generated TypeScript DTO surfaces are
+`packages/schema-domain/src/v0-8-supported-adapter-runtime-proof.ts`,
+`packages/schema-domain/src/v0-8-cross-platform-enforcement-capability-proof.ts`, and
+`packages/schema-domain/src/v0-8-broad-os-adapter-runtime-proof.ts`.
 Current proof artifacts live under
 `output/v0-8-enforcement-control-plan-proof/03-adapter-capability-matrix/`,
 `test-results/v0-8-supported-adapter-runtime-proof/`,

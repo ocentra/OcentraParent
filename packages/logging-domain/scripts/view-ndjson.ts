@@ -2,7 +2,7 @@
 
 import fs from 'node:fs';
 import { getTestLogScopeDir, listNdjsonFiles } from '../src/test-log/ndjsonPaths';
-import { parseTestLogScopeOrDefault } from '@ocentra-parent/schema-domain/test-log/types';
+import { parseTestLogScopeOrDefault } from '../src/test-log/types';
 
 const scope = parseTestLogScopeOrDefault(
   process.argv

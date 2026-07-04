@@ -1,3 +1,4 @@
+use crate::test_text::TestText;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
@@ -204,14 +205,14 @@ async fn local_ai_runtime_status_report_links_environment_and_payload_helpers() 
         .starts_with(constants::event_id::LOCAL_AI_RUNTIME_STATUS_REPORTED));
     assert!(event
         .payload
-        .contains_key(constants::field::LOCAL_AI_RUNTIME_PROVIDER_PROOF_READ_MODEL));
+        .get(constants::field::LOCAL_AI_RUNTIME_PROVIDER_PROOF_READ_MODEL).is_some());
     assert!(event
         .payload
-        .contains_key(constants::field::LOCAL_AI_RUNTIME_REFERENCE_ID));
+        .get(constants::field::LOCAL_AI_RUNTIME_REFERENCE_ID).is_some());
     let _ = local_ai_runtime_is_executable(&LocalAiRuntimeConfigSnapshot::unconfigured());
 }
 
-pub(crate) fn write_temp_file(prefix: &str) -> PathBuf {
+pub(crate) fn write_temp_file(prefix: TestText) -> PathBuf {
     let path = unique_temp_path(prefix);
     require_ok(
         fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT),
@@ -224,8 +225,9 @@ pub(crate) fn unused_temp_path() -> PathBuf {
     unique_temp_path(constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED)
 }
 
-fn unique_temp_path(prefix: &str) -> PathBuf {
-    let mut name = prefix.to_string();
+fn unique_temp_path(prefix: TestText) -> PathBuf {
+    let prefix = prefix;
+    let mut name = prefix.as_ref().to_string();
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

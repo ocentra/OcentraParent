@@ -1,7 +1,8 @@
-use ocentra_eventing::delivery::{
-    decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
-    EventDeliveryDecisionInput, EventDeliveryDecisionState, EventDeliveryRequiredArtifact,
-    EventDeliveryRouteKind, EventDeliverySubscriberFilter,
+use ocentra_eventing::delivery::decide_event_delivery_route;
+use ocentra_eventing::delivery::validation::{
+    EventDeliveryBackpressurePolicy, EventDeliveryDecisionError, EventDeliveryDecisionInput,
+    EventDeliveryDecisionState, EventDeliveryRequiredArtifact, EventDeliveryRouteKind,
+    EventDeliverySubscriberFilter,
 };
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{
@@ -17,6 +18,9 @@ const SCREEN_NAMESPACE: &str = "screen";
 const SCREEN_EVIDENCE_SUFFIX: &str = "evidence.observed";
 const BROWSER_NAMESPACE: &str = "browser";
 const BROWSER_NAVIGATION_SUFFIX: &str = "navigation.observed";
+
+#[derive(Clone)]
+pub(super) struct TestText(pub(super) String);
 
 #[test]
 fn local_event_delivery_requires_namespace_filtered_subscriber_and_backpressure() {
@@ -46,8 +50,8 @@ fn delivery_rejects_empty_or_out_of_namespace_subscriber_filters() {
 
     let mut outside_namespace = local_input();
     outside_namespace.subscriber_filter.accepted_event_types = vec![event_type_with_suffix(
-        BROWSER_NAMESPACE,
-        BROWSER_NAVIGATION_SUFFIX,
+        TestText(BROWSER_NAMESPACE.to_owned()),
+        TestText(BROWSER_NAVIGATION_SUFFIX.to_owned()),
     )];
     assert_eq!(
         decide_event_delivery_route(outside_namespace),
@@ -143,16 +147,16 @@ fn delivery_decision_marks_external_transport_manual_required_without_required_a
 fn delivery_decision_marks_external_relay_manual_required_for_relay_artifacts() {
     let proof = decide_event_delivery_route(EventDeliveryDecisionInput {
         route_kind: EventDeliveryRouteKind::ExternalRelay,
-        custody_proof_ref: network_component("custody-proof-45"),
-        publisher_auth_ref: network_component("publisher-auth-proof-45"),
-        subscriber_auth_ref: network_component("subscriber-auth-proof-45"),
-        encryption_ref: network_component("encryption-proof-45"),
-        retention_policy_ref: network_component("retention-policy-proof-45"),
-        replay_plan_ref: network_component("replay-plan-proof-45"),
-        deletion_plan_ref: network_component("deletion-plan-proof-45"),
-        offset_policy_ref: network_component("offset-policy-proof-45"),
-        dedupe_policy_ref: network_component("dedupe-policy-proof-45"),
-        transport_config_ref: network_component("transport-config-proof-45"),
+        custody_proof_ref: network_component(TestText("custody-proof-45".to_owned())),
+        publisher_auth_ref: network_component(TestText("publisher-auth-proof-45".to_owned())),
+        subscriber_auth_ref: network_component(TestText("subscriber-auth-proof-45".to_owned())),
+        encryption_ref: network_component(TestText("encryption-proof-45".to_owned())),
+        retention_policy_ref: network_component(TestText("retention-policy-proof-45".to_owned())),
+        replay_plan_ref: network_component(TestText("replay-plan-proof-45".to_owned())),
+        deletion_plan_ref: network_component(TestText("deletion-plan-proof-45".to_owned())),
+        offset_policy_ref: network_component(TestText("offset-policy-proof-45".to_owned())),
+        dedupe_policy_ref: network_component(TestText("dedupe-policy-proof-45".to_owned())),
+        transport_config_ref: network_component(TestText("transport-config-proof-45".to_owned())),
         ..network_local_input(EventDeliveryRouteKind::LocalInProcess)
     })
     .expect_value("external relay route should require relay specific artifacts");
@@ -241,8 +245,8 @@ fn delivery_decision_rejects_live_claims_and_invalid_route_metadata() {
         decide_event_delivery_route(EventDeliveryDecisionInput {
             subscriber_filter: EventDeliverySubscriberFilter {
                 accepted_event_types: vec![event_type_with_suffix(
-                    SCREEN_NAMESPACE,
-                    SCREEN_EVIDENCE_SUFFIX,
+                    TestText(SCREEN_NAMESPACE.to_owned()),
+                    TestText(SCREEN_EVIDENCE_SUFFIX.to_owned()),
                 )],
                 ..network_subscriber_filter()
             },
@@ -267,8 +271,8 @@ fn local_input() -> EventDeliveryDecisionInput {
                 .expect_value("target handler parses"),
             event_namespace: namespace,
             accepted_event_types: vec![event_type_with_suffix(
-                TRACKING_NAMESPACE,
-                TRACKING_LOCATION_SUFFIX,
+                TestText(TRACKING_NAMESPACE.to_owned()),
+                TestText(TRACKING_LOCATION_SUFFIX.to_owned()),
             )],
         },
         backpressure_policy: EventDeliveryBackpressurePolicy {
@@ -300,7 +304,9 @@ fn network_local_input(route_kind: EventDeliveryRouteKind) -> EventDeliveryDecis
     EventDeliveryDecisionInput {
         route_kind,
         event_namespace: network_event_namespace(),
-        publisher_component: network_source_component("network-runtime-publisher"),
+        publisher_component: network_source_component(TestText(
+            "network-runtime-publisher".to_owned(),
+        )),
         subscriber_filter: network_subscriber_filter(),
         backpressure_policy: network_backpressure_policy(),
         custody_proof_ref: None,
@@ -325,16 +331,16 @@ fn network_local_input(route_kind: EventDeliveryRouteKind) -> EventDeliveryDecis
 fn network_external_transport_requirements_satisfied_input() -> EventDeliveryDecisionInput {
     EventDeliveryDecisionInput {
         route_kind: EventDeliveryRouteKind::ExternalTransport,
-        custody_proof_ref: network_component("custody-proof-45"),
-        publisher_auth_ref: network_component("publisher-auth-proof-45"),
-        subscriber_auth_ref: network_component("subscriber-auth-proof-45"),
-        encryption_ref: network_component("encryption-proof-45"),
-        retention_policy_ref: network_component("retention-policy-proof-45"),
-        replay_plan_ref: network_component("replay-plan-proof-45"),
-        deletion_plan_ref: network_component("deletion-plan-proof-45"),
-        offset_policy_ref: network_component("offset-policy-proof-45"),
-        dedupe_policy_ref: network_component("dedupe-policy-proof-45"),
-        transport_config_ref: network_component("transport-config-proof-45"),
+        custody_proof_ref: network_component(TestText("custody-proof-45".to_owned())),
+        publisher_auth_ref: network_component(TestText("publisher-auth-proof-45".to_owned())),
+        subscriber_auth_ref: network_component(TestText("subscriber-auth-proof-45".to_owned())),
+        encryption_ref: network_component(TestText("encryption-proof-45".to_owned())),
+        retention_policy_ref: network_component(TestText("retention-policy-proof-45".to_owned())),
+        replay_plan_ref: network_component(TestText("replay-plan-proof-45".to_owned())),
+        deletion_plan_ref: network_component(TestText("deletion-plan-proof-45".to_owned())),
+        offset_policy_ref: network_component(TestText("offset-policy-proof-45".to_owned())),
+        dedupe_policy_ref: network_component(TestText("dedupe-policy-proof-45".to_owned())),
+        transport_config_ref: network_component(TestText("transport-config-proof-45".to_owned())),
         ..network_local_input(EventDeliveryRouteKind::ExternalTransport)
     }
 }
@@ -347,8 +353,8 @@ fn network_subscriber_filter() -> EventDeliverySubscriberFilter {
             .expect_value("target handler parses"),
         event_namespace: network_event_namespace(),
         accepted_event_types: vec![
-            network_event_type(NETWORK_FLOW_EVENT),
-            network_event_type(NETWORK_ALERT_EVENT),
+            network_event_type(TestText(NETWORK_FLOW_EVENT.to_owned())),
+            network_event_type(TestText(NETWORK_ALERT_EVENT.to_owned())),
         ],
     }
 }
@@ -382,18 +388,20 @@ fn network_event_namespace() -> EventNamespace {
     EventNamespace::parse(NETWORK_NAMESPACE).expect_value("namespace parses")
 }
 
-fn network_event_type(value: &str) -> EventType {
-    EventType::parse(value).expect_value("event type parses")
+fn network_event_type(value: TestText) -> EventType {
+    EventType::parse(value.0).expect_value("event type parses")
 }
 
-fn event_type_with_suffix(namespace: &str, suffix: &str) -> EventType {
-    network_event_type(&format!("{namespace}.{suffix}"))
+fn event_type_with_suffix(namespace: TestText, suffix: TestText) -> EventType {
+    let namespace = namespace.0;
+    let suffix = suffix.0;
+    network_event_type(TestText(format!("{namespace}.{suffix}")))
 }
 
-fn network_source_component(value: &str) -> SourceComponent {
-    SourceComponent::parse(value).expect_value("source component parses")
+fn network_source_component(value: TestText) -> SourceComponent {
+    SourceComponent::parse(value.0).expect_value("source component parses")
 }
 
-fn network_component(value: &str) -> Option<SourceComponent> {
+fn network_component(value: TestText) -> Option<SourceComponent> {
     Some(network_source_component(value))
 }

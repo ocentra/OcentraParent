@@ -2579,6 +2579,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "tempfile",
+ "thiserror 2.0.18",
  "tokio",
 ]
 
@@ -2692,6 +2693,7 @@ dependencies = [
 name = "ocentra-schema"
 version = "0.1.1"
 dependencies = [
+ "ocentra-parent-agent-protocol",
  "serde",
  "serde_json",
 ]

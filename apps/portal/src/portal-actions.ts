@@ -1,9 +1,10 @@
 import type {
-  AgentCommandName,
-  AgentEventName,
-  AgentProtocolLogFields,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import type { ParentUiActionPayload, ParentUiActionResult } from '../generated/parent-ui-bridge';
+  ParentAgentCommandName as AgentCommandName,
+  ParentAgentEventName as AgentEventName,
+  ParentAgentProtocolPayload as AgentProtocolLogFields,
+  ParentUiActionPayload,
+  ParentUiActionResult,
+} from '../generated/parent-ui-bridge';
 
 export interface PortalRenderActions {
   reconnect(): void;

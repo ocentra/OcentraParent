@@ -5,22 +5,16 @@ import { expect, it } from 'vitest';
 import {
   AgentLogSnapshotSchema,
   DevLogEntrySchema,
-} from '@ocentra-parent/schema-domain/logging-contracts';
+} from '../../src/logging-contracts';
 import {
   GeneratedDevLogMessage as DevLogMessage,
   GeneratedLogSource as LogSource,
-} from '@ocentra-parent/schema-domain/generated/logging-contracts';
+} from '../../src/generated/logging-contracts';
 import { LoggingDomainPackage } from '../../src/package-info';
 
-const DirectLoggingContractImport = '@ocentra-parent/schema-domain/logging-contracts';
 const TestDirectory = dirname(fileURLToPath(import.meta.url));
-const RepoRoot = resolve(TestDirectory, '..', '..', '..', '..');
-const AllowedDirectLoggingContractImportFiles = [
-  'apps/portal/tests/logging/agent-log-contract.test.ts',
-  'packages/logging-domain/tests/unit/dev-log-fixture.test.ts',
-  'packages/logging-domain/tests/unit/package-info.test.ts',
-  'scripts/dev/dev-log-writer.mjs',
-] as const;
+const PackageRoot = resolve(TestDirectory, '..', '..');
+const SchemaDomainPackageSpecifier = `@ocentra-parent/${'schema-domain'}`;
 const SourceFileExtensions = ['.mjs', '.mts', '.ts', '.tsx'] as const;
 const IgnoredDirectories = new Set(['.turbo', 'coverage', 'dist', 'node_modules']);
 
@@ -28,18 +22,13 @@ it('LoggingDomainPackage: identifies the operational logging boundary', () => {
   expect(LoggingDomainPackage.Boundary).toBe('operational-logging-contracts');
 });
 
-it('logging-contracts: direct schema facade imports stay limited to explicit validation edges', () => {
-  const files = [
-    ...listSourceFiles(resolve(RepoRoot, 'apps')),
-    ...listSourceFiles(resolve(RepoRoot, 'packages')),
-    ...listSourceFiles(resolve(RepoRoot, 'scripts')),
-  ];
-  const directImportFiles = files
-    .filter((filePath) => importsDirectLoggingContract(readFileSync(filePath, 'utf8')))
-    .map((filePath) => relative(RepoRoot, filePath).replaceAll('\\', '/'))
+it('logging-domain: does not import schema-domain contract authority', () => {
+  const directImportFiles = listSourceFiles(PackageRoot)
+    .filter((filePath) => readFileSync(filePath, 'utf8').includes(SchemaDomainPackageSpecifier))
+    .map((filePath) => relative(PackageRoot, filePath).replaceAll('\\', '/'))
     .sort();
 
-  expect(directImportFiles).toEqual([...AllowedDirectLoggingContractImportFiles].sort());
+  expect(directImportFiles).toEqual([]);
 });
 
 it('AgentLogSnapshotSchema: accepts the Rust localhost log snapshot contract', () => {
@@ -132,8 +121,4 @@ function listSourceFiles(directory: string): string[] {
   }
 
   return files;
-}
-
-function importsDirectLoggingContract(source: string): boolean {
-  return new RegExp(`import[\\s\\S]*?from '${DirectLoggingContractImport}'`).test(source);
 }

@@ -8,9 +8,35 @@ use std::{
 };
 
 use super::fixtures::{
-    metadata, subscriber, test_event, TestEvent, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
+    metadata, subscriber, test_event, TestEvent, TestText, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
-use crate::{EventBus, EventRecorder, EventingError, HandlerExecutionPolicy, HandlerOutcome};
+use crate::{EventBus, EventRecorder, EventingError, HandlerExecutionPolicy};
+use ocentra_eventing::bus::reports::handler::HandlerOutcome;
+
+fn retry_attempt(
+    attempts: Arc<AtomicUsize>,
+) -> impl std::future::Future<Output = Result<(), EventingError>> {
+    async move {
+        let previous = attempts.fetch_add(1, Ordering::SeqCst);
+        if previous == 0 {
+            Err(EventingError::EmptyValue {
+                field: "retryable_handler_failure",
+            })
+        } else {
+            Ok(())
+        }
+    }
+}
+
+fn timeout_attempt(
+    attempts: Arc<AtomicUsize>,
+) -> impl std::future::Future<Output = Result<(), EventingError>> {
+    async move {
+        attempts.fetch_add(1, Ordering::SeqCst);
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        Ok(())
+    }
+}
 
 #[tokio::test]
 async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
@@ -19,24 +45,21 @@ async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
     );
     let attempts = Arc::new(AtomicUsize::new(0));
     let attempts_clone = Arc::clone(&attempts);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |_| {
-        let attempts = Arc::clone(&attempts_clone);
-        async move {
-            let previous = attempts.fetch_add(1, Ordering::SeqCst);
-            if previous == 0 {
-                Err(EventingError::EmptyValue {
-                    field: "retryable_handler_failure",
-                })
-            } else {
-                Ok(())
-            }
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| retry_attempt(Arc::clone(&attempts_clone)),
+    )
     .await
     .expect_value("subscriber registers");
 
     let report = bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
         .await
         .expect_value("publish succeeds after retry");
     let handler_report = &report.handler_reports[0];
@@ -47,7 +70,7 @@ async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
     assert_eq!(handler_report.trace.event_type, report.event_type);
     assert_eq!(
         handler_report.trace.correlation_id,
-        metadata(TEST_TARGET).correlation_id
+        metadata(TestText(TEST_TARGET.to_owned())).correlation_id
     );
     assert_eq!(handler_report.trace.target_handler.as_str(), TEST_TARGET);
     assert_eq!(attempts.load(Ordering::SeqCst), 2);
@@ -61,19 +84,21 @@ async fn timeout_policy_retries_then_dead_letters_final_timeout() {
     );
     let attempts = Arc::new(AtomicUsize::new(0));
     let attempts_clone = Arc::clone(&attempts);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |_| {
-        let attempts = Arc::clone(&attempts_clone);
-        async move {
-            attempts.fetch_add(1, Ordering::SeqCst);
-            tokio::time::sleep(Duration::from_millis(50)).await;
-            Ok(())
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| timeout_attempt(Arc::clone(&attempts_clone)),
+    )
     .await
     .expect_value("subscriber registers");
 
     let report = bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
         .await
         .expect_value("publish survives timeout");
     let dead_letters = bus.dead_letters().await;
@@ -95,19 +120,30 @@ async fn timeout_policy_retries_then_dead_letters_final_timeout() {
 #[tokio::test]
 async fn event_recorder_uses_real_subscription_and_can_unsubscribe() {
     let bus = EventBus::new();
-    let recorder =
-        EventRecorder::<TestEvent>::attach(&bus, subscriber(TEST_SUBSCRIBER, TEST_TARGET))
-            .await
-            .expect_value("recorder attaches through real bus");
+    let recorder = EventRecorder::<TestEvent>::attach(
+        &bus,
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+    )
+    .await
+    .expect_value("recorder attaches through real bus");
 
     let first_report = bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
         .await
         .expect_value("publish records event");
     let recorded = recorder.recorded().await;
     assert!(recorder.unsubscribe());
     let second_report = bus
-        .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
+        .publish(
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
         .await
         .expect_value("publish after unsubscribe succeeds");
 

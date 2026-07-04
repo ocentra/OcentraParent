@@ -20,10 +20,15 @@ pub mod testkit;
 pub mod topology;
 
 use bus::publisher::{EventContext, EventPublisher};
-use bus::reports::{
+use bus::reports::dead_letter::{
     dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent, DeadLetterReason,
-    EventMetricsSnapshot, EventQueueMetrics, EventRequestMetrics, EventTraceFields, HandlerOutcome,
-    HandlerReport, PublishReport, QueueDrainReport,
+};
+use bus::reports::{
+    handler::{
+        EventMetricsSnapshot, EventTraceFields, HandlerOutcome, HandlerReport, PublishReport,
+        QueueDrainReport,
+    },
+    EventQueueMetrics, EventRequestMetrics,
 };
 use bus::subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
 use bus::{DispatchMode, EventBus, EventBusClearReport, EventBusShutdownReport, ShutdownMode};
@@ -35,10 +40,11 @@ use compatibility::{EventCompatibilityEntry, EventCompatibilityMatrix, EventComp
 use contract_registry::{
     EventContractDescriptor, EventContractRegistry, EventContractRegistryDocumentation,
 };
-use delivery::{
-    decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
-    EventDeliveryDecisionInput, EventDeliveryDecisionProof, EventDeliveryDecisionState,
-    EventDeliveryRequiredArtifact, EventDeliveryRouteKind, EventDeliverySubscriberFilter,
+use delivery::decide_event_delivery_route;
+use delivery::validation::{
+    EventDeliveryBackpressurePolicy, EventDeliveryDecisionError, EventDeliveryDecisionInput,
+    EventDeliveryDecisionProof, EventDeliveryDecisionState, EventDeliveryRequiredArtifact,
+    EventDeliveryRouteKind, EventDeliverySubscriberFilter,
 };
 use envelope::{
     DomainEvent, EventContract, EventEnvelope, EventMetadata, EventPriority, EventSource,

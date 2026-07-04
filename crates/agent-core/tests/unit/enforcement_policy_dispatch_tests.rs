@@ -24,20 +24,8 @@ use ocentra_parent_agent_protocol::enforcement_product_control_spine::{
     V08EnforcementProductControlParentAction, V08EnforcementProductControlSurface,
 };
 
+use crate::test_text::{test_err as err, test_ok as ok, TestResult, TestText};
 use ocentra_parent_agent_core::enforcement_policy_dispatch::validate_enforcement_policy_dispatch_read_model;
-
-type TestResult = Result<(), String>;
-
-fn ok<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<T, String> {
-    result.map_err(|error| format!("{context}: {error:?}"))
-}
-
-fn err<T, E: Debug>(result: Result<T, E>, context: &str) -> Result<E, String> {
-    match result {
-        Ok(_) => Err(format!("{context}: expected error")),
-        Err(error) => Ok(error),
-    }
-}
 
 #[test]
 fn validates_dispatch_ready_dry_run_manual_report_only_rejected_and_recovery_states() -> TestResult
@@ -258,19 +246,20 @@ fn read_model(
 }
 
 fn entry(
-    suffix: &str,
+    suffix: impl std::fmt::Display,
     outcome_state: EnforcementPolicyDispatchOutcomeState,
     capability_state: EnforcementCapabilityState,
     rejection_reason: EnforcementPolicyDispatchRejectionReason,
     timer_state: EnforcementPolicyDispatchTimerState,
 ) -> EnforcementPolicyDispatchReadModelEntry {
+    let suffix = suffix.to_string();
     EnforcementPolicyDispatchReadModelEntry {
         schema_version:
             ocentra_parent_agent_protocol::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6
                 .to_string(),
-        intent: intent(suffix),
+        intent: intent(&suffix),
         matrix_row: EnforcementPolicyDispatchCapabilityMatrixRow {
-            matrix_id: prefixed(dispatch::PREFIX_MATRIX, suffix),
+            matrix_id: prefixed(dispatch::PREFIX_MATRIX, &suffix).to_string(),
             surface: V08EnforcementProductControlSurface::WindowsOwnedProcessTimeLimit,
             platform: ParentPlatform::Windows,
             adapter_kind: EnforcementAdapterKind::ProcessControl,
@@ -285,8 +274,8 @@ fn entry(
         },
         approval_state: EnforcementPolicyDispatchApprovalState::NotRequired,
         timer_state,
-        audit_refs: vec![prefixed(dispatch::PREFIX_AUDIT, suffix)],
-        timer_refs: vec![prefixed(dispatch::PREFIX_TIMER, suffix)],
+        audit_refs: vec![prefixed(dispatch::PREFIX_AUDIT, &suffix).to_string()],
+        timer_refs: vec![prefixed(dispatch::PREFIX_TIMER, &suffix).to_string()],
         child_reason_code: dispatch::CHILD_REASON_TIME_LIMIT.to_string(),
         reason_codes: vec![dispatch::CHILD_REASON_TIME_LIMIT.to_string()],
         dispatched_at: Some(dispatch::GENERATED_AT.to_string()),
@@ -294,12 +283,13 @@ fn entry(
     }
 }
 
-fn intent(suffix: &str) -> EnforcementPolicyDispatchIntent {
+fn intent(suffix: impl std::fmt::Display) -> EnforcementPolicyDispatchIntent {
+    let suffix = suffix.to_string();
     EnforcementPolicyDispatchIntent {
         schema_version:
             ocentra_parent_agent_protocol::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6
                 .to_string(),
-        intent_id: prefixed(dispatch::PREFIX_INTENT, suffix),
+        intent_id: prefixed(dispatch::PREFIX_INTENT, &suffix).to_string(),
         actor: parent_actor(),
         device: ParentDeviceReference {
             device_id: dispatch::LOCAL_DEV_AGENT_DEVICE_ID.to_string(),
@@ -307,24 +297,24 @@ fn intent(suffix: &str) -> EnforcementPolicyDispatchIntent {
             label: dispatch::LOCAL_DEV_CHILD_DEVICE_LABEL.to_string(),
             platform: dispatch::WINDOWS_PLATFORM.to_string(),
         },
-        policy_decision_id: prefixed(dispatch::PREFIX_POLICY, suffix),
-        policy_decision_ref: prefixed(dispatch::PREFIX_DECISION, suffix),
+        policy_decision_id: prefixed(dispatch::PREFIX_POLICY, &suffix).to_string(),
+        policy_decision_ref: prefixed(dispatch::PREFIX_DECISION, &suffix).to_string(),
         policy_version: dispatch::POLICY_VERSION_V0_8_DISPATCH.to_string(),
         target: PolicyTarget {
-            target_id: prefixed(dispatch::PREFIX_TARGET, suffix),
+            target_id: prefixed(dispatch::PREFIX_TARGET, &suffix).to_string(),
             target_type: PolicyTargetType::App,
             target_value: dispatch::TARGET_OWNED_PROCESS_DEMO.to_string(),
         },
         requested_policy_action: PolicyAction::Block,
         requested_parent_action: V08EnforcementProductControlParentAction::BlockScopedProcess,
-        schedule_ref: prefixed(dispatch::PREFIX_SCHEDULE, suffix),
+        schedule_ref: prefixed(dispatch::PREFIX_SCHEDULE, &suffix).to_string(),
         evidence_references: vec![ParentEvidenceReference {
-            evidence_reference_id: prefixed(dispatch::PREFIX_EVIDENCE, suffix),
+            evidence_reference_id: prefixed(dispatch::PREFIX_EVIDENCE, &suffix).to_string(),
             kind: ParentEvidenceReferenceKind::ActivityEvent,
             observed_at: dispatch::GENERATED_AT.to_string(),
         }],
         approval_ref: Some(ParentActionReference {
-            action_reference_id: prefixed(dispatch::PREFIX_APPROVAL, suffix),
+            action_reference_id: prefixed(dispatch::PREFIX_APPROVAL, &suffix).to_string(),
             actor: parent_actor(),
             policy_version: dispatch::POLICY_VERSION_V0_8_DISPATCH.to_string(),
             created_at: dispatch::GENERATED_AT.to_string(),
@@ -343,8 +333,8 @@ fn parent_actor() -> ParentActorReference {
     }
 }
 
-fn prefixed(prefix: &str, value: &str) -> String {
-    let mut output = String::from(prefix);
-    output.push_str(value);
-    output
+fn prefixed(prefix: impl std::fmt::Display, value: impl std::fmt::Display) -> TestText {
+    let mut output = prefix.to_string();
+    output.push_str(&value.to_string());
+    TestText::from_display(output)
 }

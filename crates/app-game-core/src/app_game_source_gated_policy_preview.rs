@@ -12,6 +12,13 @@ const TIMER_HANDOFF_READY_FOR_TIMER_SEQUENCING: &str = "ready-for-timer-sequenci
 const TIMER_HANDOFF_SOURCE_MANUAL_REQUIRED_BEFORE_TIMER: &str =
     "source-manual-required-before-timer";
 
+#[path = "app_game_source_gated_policy_preview_helpers.rs"]
+mod app_game_source_gated_policy_preview_helpers;
+use app_game_source_gated_policy_preview_helpers::{
+    count_projection_rows, count_rows, projection_state_for_gate_state,
+    required_proof_refs_for_timer_status, timer_status_state_for_handoff_state,
+};
+
 const READ_MODEL_REQUIRED_NON_CLAIMS: &[&str] = &[
     "no-service-runtime-event",
     "no-portal-ui-rendered",
@@ -357,54 +364,6 @@ pub fn build_app_game_source_gated_policy_preview_timer_status(
     }
 }
 
-fn projection_state_for_gate_state(gate_state: &str) -> &'static str {
-    match gate_state {
-        "source-fresh" => READ_MODEL_PREVIEW_READY_VISIBLE,
-        "source-manual-required" => READ_MODEL_SOURCE_MANUAL_REQUIRED_VISIBLE,
-        _ => READ_MODEL_COMPILER_MANUAL_REQUIRED_VISIBLE,
-    }
-}
-
-fn timer_status_state_for_handoff_state(timer_handoff_state: &str) -> &'static str {
-    match timer_handoff_state {
-        TIMER_HANDOFF_READY_FOR_TIMER_SEQUENCING => TIMER_STATUS_TIMER_RUNTIME_PROOF_REQUIRED,
-        TIMER_HANDOFF_SOURCE_MANUAL_REQUIRED_BEFORE_TIMER => {
-            TIMER_STATUS_SOURCE_FRESHNESS_PROOF_REQUIRED
-        }
-        _ => TIMER_STATUS_COMPILER_DECISION_PROOF_REQUIRED,
-    }
-}
-
-fn required_proof_refs_for_timer_status(
-    options: &AppGameSourceGatedPolicyPreviewTimerStatusOptions,
-    timer_status_state: &str,
-) -> Vec<String> {
-    match timer_status_state {
-        TIMER_STATUS_TIMER_RUNTIME_PROOF_REQUIRED => {
-            vec![options.timer_runtime_proof_ref.clone()]
-        }
-        TIMER_STATUS_SOURCE_FRESHNESS_PROOF_REQUIRED => {
-            vec![options.source_freshness_proof_ref.clone()]
-        }
-        _ => vec![options.compiler_decision_proof_ref.clone()],
-    }
-}
-
-fn count_rows(rows: &[AppGameSourceGatedPolicyPreviewReadModelRow], target_domain: &str) -> usize {
-    rows.iter()
-        .filter(|row| row.target_domain == target_domain)
-        .count()
-}
-
-fn count_projection_rows(
-    rows: &[AppGameSourceGatedPolicyPreviewReadModelRow],
-    projection_state: &str,
-) -> usize {
-    rows.iter()
-        .filter(|row| row.projection_state == projection_state)
-        .count()
-}
-
 pub fn app_game_source_gated_policy_preview_typescript() -> String {
-    include_str!("generated/app-game-source-gated-policy-preview.ts").to_string()
+    include_str!("../tests/generated/app-game-source-gated-policy-preview.ts").to_string()
 }

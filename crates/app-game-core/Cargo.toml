@@ -14,3 +14,11 @@ path = "src/lib.rs"
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 serde = { version = "1.0.228", features = ["derive"] }
+
+[[test]]
+name = "unit"
+path = "tests/unit/mod.rs"
+
+[[test]]
+name = "contract"
+path = "tests/contract/mod.rs"

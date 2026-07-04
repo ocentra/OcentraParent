@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
 import { PortalDom, PortalTheme, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
 import { ParentRoute, parentRouteHashPath } from '../generated/parent-ui-bridge';
@@ -161,89 +161,101 @@ function PortalOutlineHeader({
   routeTransitionActive,
   theme,
 }: PortalOutlineHeaderProps): ReactElement {
+  return (
+    <header {...shellHeaderExtensionAttributes} className={PortalUnifiedChrome.Classes.OutlineHeader}>
+      <PortalHeaderHomeAction />
+      <PortalHeaderConnector />
+      <PortalHeaderBrand routeTransitionActive={routeTransitionActive} />
+      <PortalHeaderConnector>
+        <PortalHeaderThemeToggle onThemeChange={onThemeChange} theme={theme} />
+      </PortalHeaderConnector>
+      <PortalHeaderLoginAction onAuthOpen={onAuthOpen} />
+    </header>
+  );
+}
+
+function PortalHeaderHomeAction(): ReactElement {
+  return (
+    <button
+      aria-label={resolvePortalDevText(PortalDevTextToken.HeaderHome)}
+      className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
+      onClick={goHome}
+      type={PortalDom.ButtonType.Button}
+    >
+      <PortalHeaderSvgFrame>
+        <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionContent}>
+          <PortalHeaderActionIcon src={PortalAssets.HeaderHomeIcon} />
+          <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
+            {resolvePortalDevText(PortalDevTextToken.HeaderHome)}
+          </span>
+        </span>
+      </PortalHeaderSvgFrame>
+    </button>
+  );
+}
+
+function PortalHeaderBrand({ routeTransitionActive }: { readonly routeTransitionActive: boolean }): ReactElement {
   const logoMountAttributes = routeTransitionActive
     ? { [PortalUnifiedChrome.Attributes.HeaderLogoLoading]: PortalDom.Attributes.True }
     : undefined;
   return (
-    <header {...shellHeaderExtensionAttributes} className={PortalUnifiedChrome.Classes.OutlineHeader}>
-      <button
-        aria-label={resolvePortalDevText(PortalDevTextToken.HeaderHome)}
-        className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
-        onClick={goHome}
-        type={PortalDom.ButtonType.Button}
+    <div className={PortalUnifiedChrome.Classes.OutlineHeaderBrand}>
+      <PortalHeaderSvgFrame />
+      <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPart}>
+        {resolvePortalDevText(PortalDevTextToken.HeaderBrandLeft)}
+      </span>
+      <span
+        aria-hidden={PortalDom.Attributes.True}
+        className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoMount}
+        {...logoMountAttributes}
       >
-        <PortalHeaderSvgFrame>
-          <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionContent}>
-            <span
-              aria-hidden={PortalDom.Attributes.True}
-              className={PortalUnifiedChrome.Classes.OutlineHeaderActionIcon}
-            >
-              <img
-                alt={PortalUnifiedChrome.Alt.DecorativeImage}
-                className={PortalUnifiedChrome.Classes.OutlineHeaderActionIconImage}
-                src={PortalAssets.HeaderHomeIcon}
-              />
-            </span>
-            <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
-              {resolvePortalDevText(PortalDevTextToken.HeaderHome)}
-            </span>
+        <img
+          alt={PortalUnifiedChrome.Alt.DecorativeImage}
+          className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogo}
+          src={PortalAssets.HeaderLogo}
+        />
+        {routeTransitionActive ? (
+          <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoSpinner}>
+            <BrandedLoadingSpinner size="small" />
           </span>
-        </PortalHeaderSvgFrame>
-      </button>
-      <PortalHeaderConnector />
-      <div className={PortalUnifiedChrome.Classes.OutlineHeaderBrand}>
-        <PortalHeaderSvgFrame />
-        <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPart}>
-          {resolvePortalDevText(PortalDevTextToken.HeaderBrandLeft)}
-        </span>
-        <span
-          aria-hidden={PortalDom.Attributes.True}
-          className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoMount}
-          {...logoMountAttributes}
-        >
-          <img
-            alt={PortalUnifiedChrome.Alt.DecorativeImage}
-            className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogo}
-            src={PortalAssets.HeaderLogo}
-          />
-          {routeTransitionActive ? (
-            <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoSpinner}>
-              <BrandedLoadingSpinner size="small" />
-            </span>
-          ) : null}
-        </span>
-        <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPartMuted}>
-          {resolvePortalDevText(PortalDevTextToken.HeaderBrandRight)}
-        </span>
-      </div>
-      <PortalHeaderConnector>
-        <PortalHeaderThemeToggle onThemeChange={onThemeChange} theme={theme} />
-      </PortalHeaderConnector>
-      <button
-        aria-label={resolvePortalDevText(PortalDevTextToken.HeaderLogin)}
-        className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
-        onClick={onAuthOpen}
-        type={PortalDom.ButtonType.Button}
-      >
-        <PortalHeaderSvgFrame>
-          <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionContent}>
-            <span
-              aria-hidden={PortalDom.Attributes.True}
-              className={PortalUnifiedChrome.Classes.OutlineHeaderActionIcon}
-            >
-              <img
-                alt={PortalUnifiedChrome.Alt.DecorativeImage}
-                className={PortalUnifiedChrome.Classes.OutlineHeaderActionIconImage}
-                src={PortalAssets.HeaderLoginIcon}
-              />
-            </span>
-            <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
-              {resolvePortalDevText(PortalDevTextToken.HeaderLogin)}
-            </span>
+        ) : null}
+      </span>
+      <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPartMuted}>
+        {resolvePortalDevText(PortalDevTextToken.HeaderBrandRight)}
+      </span>
+    </div>
+  );
+}
+
+function PortalHeaderLoginAction({ onAuthOpen }: { readonly onAuthOpen: () => void }): ReactElement {
+  return (
+    <button
+      aria-label={resolvePortalDevText(PortalDevTextToken.HeaderLogin)}
+      className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
+      onClick={onAuthOpen}
+      type={PortalDom.ButtonType.Button}
+    >
+      <PortalHeaderSvgFrame>
+        <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionContent}>
+          <PortalHeaderActionIcon src={PortalAssets.HeaderLoginIcon} />
+          <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
+            {resolvePortalDevText(PortalDevTextToken.HeaderLogin)}
           </span>
-        </PortalHeaderSvgFrame>
-      </button>
-    </header>
+        </span>
+      </PortalHeaderSvgFrame>
+    </button>
+  );
+}
+
+function PortalHeaderActionIcon({ src }: { readonly src: string }): ReactElement {
+  return (
+    <span aria-hidden={PortalDom.Attributes.True} className={PortalUnifiedChrome.Classes.OutlineHeaderActionIcon}>
+      <img
+        alt={PortalUnifiedChrome.Alt.DecorativeImage}
+        className={PortalUnifiedChrome.Classes.OutlineHeaderActionIconImage}
+        src={src}
+      />
+    </span>
   );
 }
 

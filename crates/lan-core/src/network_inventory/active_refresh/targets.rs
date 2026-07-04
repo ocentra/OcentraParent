@@ -5,7 +5,9 @@ use ocentra_parent_agent_protocol::constants;
 
 use super::super::neighbor_support::is_household_unicast;
 use super::super::{LanDiscoveryRefreshMode, LanNetworkInventoryDevice};
-use super::suppression::{scan_plan_suppressed_active_ipv4_targets, suppressed_active_ipv4_targets};
+use super::suppression::{
+    scan_plan_suppressed_active_ipv4_targets, suppressed_active_ipv4_targets,
+};
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
 pub fn refresh_metrics(

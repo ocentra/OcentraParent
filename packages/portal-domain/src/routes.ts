@@ -1,15 +1,13 @@
-import { type DisplayText } from '@ocentra-parent/schema-domain/text-contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/schema-domain/text-portal-dev';
+import { PortalDevTextToken, resolvePortalDevText, type DisplayText } from './display-text';
 import {
-  PortalDevToolUrlSchema as SharedPortalDevToolUrlSchema,
   PortalRoute,
   PortalRouteHashPrefix,
   PortalRouteHashQuerySeparator,
   PortalRouteSchema as SharedPortalRouteSchema,
-  type PortalDevToolUrl,
   type PortalRoute as PortalRouteValue,
 } from './portal-contract-adapter';
-import { generatedPortalRouteFromHashPath } from './generated/portal-route-state';
+import { PortalDevToolUrlSchema as SharedPortalDevToolUrlSchema, type PortalDevToolUrl } from './portal-contract-text-contracts';
+import { generatedPortalRouteFromHashPath } from './portal-route-state.generated';
 
 export type PortalRouteHashPath = `${typeof PortalRouteHashPrefix}${PortalRouteValue}`;
 export type PortalRouteHashQueryPath =

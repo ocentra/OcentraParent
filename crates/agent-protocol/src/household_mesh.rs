@@ -9,6 +9,7 @@ use crate::constants::household_mesh as mesh;
 pub mod household_mesh_bridge_input;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 #[serde(rename_all = "kebab-case")]
 pub enum HouseholdMeshBridgeState {
     ExportSelected,
@@ -16,15 +17,18 @@ pub enum HouseholdMeshBridgeState {
 }
 
 impl HouseholdMeshBridgeState {
+    const PROTOCOL_STRINGS: [&'static str; 2] = [
+        mesh::BRIDGE_STATE_EXPORT_SELECTED,
+        mesh::BRIDGE_STATE_LOCAL_REPUBLISH_REQUIRED,
+    ];
+
     pub fn as_str(self) -> &'static str {
-        match self {
-            Self::ExportSelected => mesh::BRIDGE_STATE_EXPORT_SELECTED,
-            Self::LocalRepublishRequired => mesh::BRIDGE_STATE_LOCAL_REPUBLISH_REQUIRED,
-        }
+        Self::PROTOCOL_STRINGS[self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 #[serde(rename_all = "kebab-case")]
 pub enum HouseholdMeshAuthenticationState {
     PairedTrustedDevice,
@@ -33,16 +37,19 @@ pub enum HouseholdMeshAuthenticationState {
 }
 
 impl HouseholdMeshAuthenticationState {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        mesh::AUTHENTICATION_PAIRED_TRUSTED_DEVICE,
+        mesh::AUTHENTICATION_ANONYMOUS,
+        mesh::AUTHENTICATION_STALE_OR_REVOKED,
+    ];
+
     pub fn as_str(self) -> &'static str {
-        match self {
-            Self::PairedTrustedDevice => mesh::AUTHENTICATION_PAIRED_TRUSTED_DEVICE,
-            Self::Anonymous => mesh::AUTHENTICATION_ANONYMOUS,
-            Self::StaleOrRevoked => mesh::AUTHENTICATION_STALE_OR_REVOKED,
-        }
+        Self::PROTOCOL_STRINGS[self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 #[serde(rename_all = "kebab-case")]
 pub enum HouseholdMeshPolicyAuthority {
     ChildAgentOnly,
@@ -51,12 +58,14 @@ pub enum HouseholdMeshPolicyAuthority {
 }
 
 impl HouseholdMeshPolicyAuthority {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        mesh::POLICY_AUTHORITY_CHILD_AGENT_ONLY,
+        mesh::POLICY_AUTHORITY_PROVIDER_CLAIMED,
+        mesh::POLICY_AUTHORITY_PARENT_UI_CLAIMED,
+    ];
+
     pub fn as_str(self) -> &'static str {
-        match self {
-            Self::ChildAgentOnly => mesh::POLICY_AUTHORITY_CHILD_AGENT_ONLY,
-            Self::ProviderClaimed => mesh::POLICY_AUTHORITY_PROVIDER_CLAIMED,
-            Self::ParentUiClaimed => mesh::POLICY_AUTHORITY_PARENT_UI_CLAIMED,
-        }
+        Self::PROTOCOL_STRINGS[self as usize]
     }
 }
 
@@ -141,6 +150,7 @@ impl HouseholdMeshLocalRepublish {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum HouseholdMeshBridgePhase {
     LocalEventSelected,
     LanMessageExported,
@@ -159,46 +169,27 @@ impl HouseholdMeshBridgePhase {
     }
 
     pub fn event_type(self) -> &'static str {
-        match self {
-            Self::LocalEventSelected => constants::household_mesh::EVENT_BRIDGE_LOCAL_SELECTED,
-            Self::LanMessageExported => constants::household_mesh::EVENT_BRIDGE_LAN_EXPORTED,
-            Self::LanMessageReceived => constants::household_mesh::EVENT_BRIDGE_LAN_RECEIVED,
-            Self::LocalEventRepublished => {
-                constants::household_mesh::EVENT_BRIDGE_LOCAL_REPUBLISHED
-            }
-        }
+        Self::EVENT_TYPES[self as usize]
     }
 
     pub fn subscriber_id(self) -> &'static str {
-        match self {
-            Self::LocalEventSelected => constants::household_mesh::SUBSCRIBER_BRIDGE_LOCAL_SELECTED,
-            Self::LanMessageExported => constants::household_mesh::SUBSCRIBER_BRIDGE_LAN_EXPORTED,
-            Self::LanMessageReceived => constants::household_mesh::SUBSCRIBER_BRIDGE_LAN_RECEIVED,
-            Self::LocalEventRepublished => {
-                constants::household_mesh::SUBSCRIBER_BRIDGE_LOCAL_REPUBLISHED
-            }
-        }
+        Self::SUBSCRIBER_IDS[self as usize]
     }
 
     pub fn target_handler(self) -> &'static str {
-        match self {
-            Self::LocalEventSelected => constants::household_mesh::TARGET_BRIDGE_EXPORT_VALIDATOR,
-            Self::LanMessageExported => constants::household_mesh::TARGET_BRIDGE_LAN_TRANSPORT,
-            Self::LanMessageReceived => constants::household_mesh::TARGET_BRIDGE_IMPORT_VALIDATOR,
-            Self::LocalEventRepublished => {
-                constants::household_mesh::TARGET_LOCAL_EVENT_REPUBLISHER
-            }
-        }
+        Self::TARGET_HANDLERS[self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum HouseholdMeshBridgeDirection {
     Export,
     Import,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum HouseholdMeshBridgeEnvelopeState {
     LocalSelected,
     LanExported,
@@ -207,12 +198,14 @@ pub enum HouseholdMeshBridgeEnvelopeState {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum HouseholdMeshBridgeValidationState {
     Accepted,
     Rejected,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum HouseholdMeshBridgeRejectionReason {
     UnselectedEvent,
     PrivateLocalEvent,
@@ -227,6 +220,29 @@ pub enum HouseholdMeshBridgeRejectionReason {
     FamilyMismatch,
     WrongTargetDevice,
     UnsupportedLanMessage,
+}
+
+impl HouseholdMeshBridgePhase {
+    const EVENT_TYPES: [&'static str; 4] = [
+        constants::household_mesh::EVENT_BRIDGE_LOCAL_SELECTED,
+        constants::household_mesh::EVENT_BRIDGE_LAN_EXPORTED,
+        constants::household_mesh::EVENT_BRIDGE_LAN_RECEIVED,
+        constants::household_mesh::EVENT_BRIDGE_LOCAL_REPUBLISHED,
+    ];
+
+    const SUBSCRIBER_IDS: [&'static str; 4] = [
+        constants::household_mesh::SUBSCRIBER_BRIDGE_LOCAL_SELECTED,
+        constants::household_mesh::SUBSCRIBER_BRIDGE_LAN_EXPORTED,
+        constants::household_mesh::SUBSCRIBER_BRIDGE_LAN_RECEIVED,
+        constants::household_mesh::SUBSCRIBER_BRIDGE_LOCAL_REPUBLISHED,
+    ];
+
+    const TARGET_HANDLERS: [&'static str; 4] = [
+        constants::household_mesh::TARGET_BRIDGE_EXPORT_VALIDATOR,
+        constants::household_mesh::TARGET_BRIDGE_LAN_TRANSPORT,
+        constants::household_mesh::TARGET_BRIDGE_IMPORT_VALIDATOR,
+        constants::household_mesh::TARGET_LOCAL_EVENT_REPUBLISHER,
+    ];
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

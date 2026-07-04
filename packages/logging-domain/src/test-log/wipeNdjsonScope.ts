@@ -3,10 +3,10 @@ import type {
   RunType,
   TestLogScope,
   TestSuiteType,
-} from '@ocentra-parent/schema-domain/test-log/types';
+} from './types';
 import { getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
-import { matchesGeneratedWipeEntry } from '../generated/local-test-log';
+import { matchesGeneratedWipeEntry } from '../local-test-log';
 
 export interface WipeNdjsonScopeOptions {
   readonly scope: TestLogScope;

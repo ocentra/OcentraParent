@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use ocentra_parent_agent_protocol::app_game::*;
 use ocentra_parent_agent_protocol::constants;
 
@@ -178,9 +180,9 @@ fn permission_limited_metadata_state_remains_explicit() {
 }
 
 fn running_app_record(
-    runtime_evidence_id: &str,
-    observed_at: &str,
-    observation_mode: &str,
+    runtime_evidence_id: impl Display,
+    observed_at: impl Display,
+    observation_mode: impl Display,
     running_duration_ms: u64,
 ) -> WindowsProcessRuntimeRecord {
     WindowsProcessRuntimeRecord {

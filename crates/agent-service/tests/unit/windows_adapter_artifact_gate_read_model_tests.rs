@@ -9,6 +9,7 @@ use ocentra_parent_agent_protocol::windows_adapter_artifact_gate::{
 };
 use ocentra_parent_agent_protocol::windows_adapter_capability::WindowsAdapterCapabilitySurface;
 
+use super::test_text::TestText;
 use crate::windows_adapter_artifact_gate_read_model::{
     evaluate_windows_adapter_artifact_gate, windows_adapter_artifact_gate_proof,
 };
@@ -189,30 +190,30 @@ fn complete_app_artifacts() -> Vec<WindowsAdapterArtifactEvidence> {
         evidence(
             artifact_gate::TEST_ARTIFACT_APP_IDENTITY,
             WindowsAdapterArtifactKind::SameIdentityAppPackageEvidence,
-            Some(artifact_gate::TEST_CUSTODY_EVENT_ID),
+            Some(TestText::from_display(artifact_gate::TEST_CUSTODY_EVENT_ID)),
         ),
         evidence(
             artifact_gate::TEST_ARTIFACT_APP_APPLY,
             WindowsAdapterArtifactKind::AdapterApplyResult,
-            Some(artifact_gate::TEST_CUSTODY_EVENT_ID),
+            Some(TestText::from_display(artifact_gate::TEST_CUSTODY_EVENT_ID)),
         ),
         evidence(
             artifact_gate::TEST_ARTIFACT_APP_ROLLBACK,
             WindowsAdapterArtifactKind::AdapterRollbackResult,
-            Some(artifact_gate::TEST_CUSTODY_EVENT_ID),
+            Some(TestText::from_display(artifact_gate::TEST_CUSTODY_EVENT_ID)),
         ),
         evidence(
             artifact_gate::TEST_ARTIFACT_AUDIT,
             WindowsAdapterArtifactKind::AuditCustodyEvent,
-            Some(artifact_gate::TEST_CUSTODY_EVENT_ID),
+            Some(TestText::from_display(artifact_gate::TEST_CUSTODY_EVENT_ID)),
         ),
     ]
 }
 
 fn evidence(
-    artifact_id: &str,
+    artifact_id: impl std::fmt::Display,
     artifact_kind: WindowsAdapterArtifactKind,
-    custody_event_id: Option<&str>,
+    custody_event_id: Option<TestText>,
 ) -> WindowsAdapterArtifactEvidence {
     WindowsAdapterArtifactEvidence {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
@@ -220,7 +221,7 @@ fn evidence(
         artifact_kind,
         surface: WindowsAdapterCapabilitySurface::AppTarget,
         subject_ref: artifact_gate::TEST_SUBJECT_REF.to_string(),
-        custody_event_id: custody_event_id.map(str::to_string),
+        custody_event_id: custody_event_id.map(|value| value.to_string()),
         verified_at: policy::TEST_EVALUATED_AT.to_string(),
     }
 }

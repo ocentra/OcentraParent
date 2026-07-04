@@ -15,7 +15,6 @@ import {
   AgentProtocolSchemaVersion,
   AgentWebSocketUrlSchema,
 } from './event-primitives';
-import { AgentLanHouseholdDeviceActionKindSchema } from './agent-lan-add-device';
 import { AgentLanSelectedRouteTrustStateSchema, AgentPairingStateSchema } from './agent-lan';
 
 const decodeAgentWebSocketUrl = Schema.decodeUnknownSync(AgentWebSocketUrlSchema);
@@ -98,11 +97,11 @@ export const AgentProtocolDefaults = {
     LanAiJobSubmit: AgentLanPairingIntentKindSchema.parse('lan-ai-job-submit'),
   },
   LanHouseholdActionKind: {
-    Assign: AgentLanHouseholdDeviceActionKindSchema.parse('assign'),
-    Rename: AgentLanHouseholdDeviceActionKindSchema.parse('rename'),
-    Ignore: AgentLanHouseholdDeviceActionKindSchema.parse('ignore'),
-    Restore: AgentLanHouseholdDeviceActionKindSchema.parse('restore'),
-    Trust: AgentLanHouseholdDeviceActionKindSchema.parse('trust'),
+    Assign: 'assign',
+    Rename: 'rename',
+    Ignore: 'ignore',
+    Restore: 'restore',
+    Trust: 'trust',
   },
   LanParentAuthority: {
     ActiveController: AgentLanPairingParentAuthoritySchema.parse('active-controller'),
