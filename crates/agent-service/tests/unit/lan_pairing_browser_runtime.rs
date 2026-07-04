@@ -18,6 +18,7 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use serde_json::Value;
 use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
 #[macro_use]

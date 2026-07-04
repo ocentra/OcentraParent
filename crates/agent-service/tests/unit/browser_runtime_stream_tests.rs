@@ -225,15 +225,7 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
     report.record_action_intent_child_status(&child_status_response);
     let payload = browser_runtime_event_chain_stream_payload(&report);
 
-    assert_child_status_report_refs(
-        &report,
-        &payload,
-        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID,
-    );
-    assert_payload_child_command_refs_include(
-        &payload,
-        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID,
-    );
+    assert_child_status_report_refs(&report, &payload);
 
     Ok(())
 }
@@ -269,7 +261,7 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
     );
     assert_action_intent_handoff_report_ready(&report, &payload);
     assert_action_intent_handoff_payload_refs(&payload);
-    assert_child_status_report_refs(&report, &payload, policy_constants::TEST_DECISION_ID);
+    assert_child_status_report_refs(&report, &payload);
     assert_eq!(
         policy_entry[constants::field::PAYLOAD][constants::field::POLICY_PREVIEW_ID],
         policy_constants::TEST_PREVIEW_ID
@@ -671,4 +663,3 @@ fn cleanup_path(path: impl AsRef<TestPath>) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
-

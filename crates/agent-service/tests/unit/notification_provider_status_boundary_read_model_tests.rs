@@ -17,15 +17,27 @@ fn notification_provider_status_boundary_read_model_covers_provider_states() {
 
     assert_eq!(read_model.read_model_id, boundary::READ_MODEL_ID);
     assert_eq!(read_model.entries.len(), 5);
-    assert_eq!(status_count(&status_counts, boundary::STATUS_QUEUED), 1);
-    assert_eq!(status_count(&status_counts, boundary::STATUS_DELIVERED), 1);
-    assert_eq!(status_count(&status_counts, boundary::STATUS_FAILED), 1);
     assert_eq!(
-        status_count(&status_counts, boundary::STATUS_UNAVAILABLE),
+        status_count(&status_counts, V08NotificationProviderStatus::Queued),
         1
     );
     assert_eq!(
-        status_count(&status_counts, boundary::STATUS_MANUAL_REQUIRED),
+        status_count(&status_counts, V08NotificationProviderStatus::Delivered),
+        1
+    );
+    assert_eq!(
+        status_count(&status_counts, V08NotificationProviderStatus::Failed),
+        1
+    );
+    assert_eq!(
+        status_count(&status_counts, V08NotificationProviderStatus::Unavailable),
+        1
+    );
+    assert_eq!(
+        status_count(
+            &status_counts,
+            V08NotificationProviderStatus::ManualRequired
+        ),
         1
     );
     assert!(read_model
@@ -40,13 +52,22 @@ fn notification_provider_status_boundary_read_model_preserves_readiness_and_non_
     let quiet_counts = count_quiet_hours(&read_model.entries);
     let escalation_counts = count_escalation(&read_model.entries);
 
-    assert_eq!(quiet_count(&quiet_counts, boundary::QUIET_HOURS_READY), 2);
     assert_eq!(
-        quiet_count(&quiet_counts, boundary::QUIET_HOURS_DEFER_NONCRITICAL),
+        quiet_count(&quiet_counts, V08NotificationQuietHoursReadiness::Ready),
+        2
+    );
+    assert_eq!(
+        quiet_count(
+            &quiet_counts,
+            V08NotificationQuietHoursReadiness::DeferNoncritical
+        ),
         1
     );
     assert_eq!(
-        escalation_count(&escalation_counts, boundary::ESCALATION_MANUAL_REQUIRED),
+        escalation_count(
+            &escalation_counts,
+            V08NotificationEscalationReadiness::ManualRequired
+        ),
         2
     );
     assert!(read_model
@@ -77,75 +98,52 @@ fn notification_provider_status_boundary_read_model_preserves_readiness_and_non_
 
 fn count_statuses(
     entries: &[V08NotificationProviderStatusBoundaryEntry],
-) -> BTreeMap<&'static str, usize> {
-    entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts
-            .entry(status_name(entry.provider_status))
-            .or_default() += 1;
-        counts
-    })
+) -> BTreeMap<V08NotificationProviderStatus, usize> {
+    count_by(entries, |entry| entry.provider_status)
 }
 
 fn count_quiet_hours(
     entries: &[V08NotificationProviderStatusBoundaryEntry],
-) -> BTreeMap<&'static str, usize> {
-    entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts
-            .entry(quiet_hours_name(entry.quiet_hours_readiness))
-            .or_default() += 1;
-        counts
-    })
+) -> BTreeMap<V08NotificationQuietHoursReadiness, usize> {
+    count_by(entries, |entry| entry.quiet_hours_readiness)
 }
 
 fn count_escalation(
     entries: &[V08NotificationProviderStatusBoundaryEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<V08NotificationEscalationReadiness, usize> {
+    count_by(entries, |entry| entry.escalation_readiness)
+}
+
+fn count_by<TEntry, TKey>(
+    entries: &[TEntry],
+    key_for: impl Fn(&TEntry) -> TKey,
+) -> BTreeMap<TKey, usize>
+where
+    TKey: Copy + Ord,
+{
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts
-            .entry(escalation_name(entry.escalation_readiness))
-            .or_default() += 1;
+        *counts.entry(key_for(entry)).or_default() += 1;
         counts
     })
 }
 
-fn status_name(status: V08NotificationProviderStatus) -> &'static str {
-    match status {
-        V08NotificationProviderStatus::Queued => boundary::STATUS_QUEUED,
-        V08NotificationProviderStatus::Delivered => boundary::STATUS_DELIVERED,
-        V08NotificationProviderStatus::Failed => boundary::STATUS_FAILED,
-        V08NotificationProviderStatus::Unavailable => boundary::STATUS_UNAVAILABLE,
-        V08NotificationProviderStatus::ManualRequired => boundary::STATUS_MANUAL_REQUIRED,
-    }
+fn status_count(
+    counts: &BTreeMap<V08NotificationProviderStatus, usize>,
+    status: V08NotificationProviderStatus,
+) -> usize {
+    *counts.get(&status).unwrap_or(&0)
 }
 
-fn quiet_hours_name(readiness: V08NotificationQuietHoursReadiness) -> &'static str {
-    match readiness {
-        V08NotificationQuietHoursReadiness::Ready => boundary::QUIET_HOURS_READY,
-        V08NotificationQuietHoursReadiness::DeferNoncritical => {
-            boundary::QUIET_HOURS_DEFER_NONCRITICAL
-        }
-        V08NotificationQuietHoursReadiness::ManualRequired => boundary::QUIET_HOURS_MANUAL_REQUIRED,
-        V08NotificationQuietHoursReadiness::Unavailable => boundary::QUIET_HOURS_UNAVAILABLE,
-    }
+fn quiet_count(
+    counts: &BTreeMap<V08NotificationQuietHoursReadiness, usize>,
+    readiness: V08NotificationQuietHoursReadiness,
+) -> usize {
+    *counts.get(&readiness).unwrap_or(&0)
 }
 
-fn escalation_name(readiness: V08NotificationEscalationReadiness) -> &'static str {
-    match readiness {
-        V08NotificationEscalationReadiness::Ready => boundary::ESCALATION_READY,
-        V08NotificationEscalationReadiness::WaitingWindow => boundary::ESCALATION_WAITING_WINDOW,
-        V08NotificationEscalationReadiness::ManualRequired => boundary::ESCALATION_MANUAL_REQUIRED,
-        V08NotificationEscalationReadiness::Unavailable => boundary::ESCALATION_UNAVAILABLE,
-    }
-}
-
-fn status_count(counts: &BTreeMap<&'static str, usize>, status: &'static str) -> usize {
-    *counts.get(status).unwrap_or(&0)
-}
-
-fn quiet_count(counts: &BTreeMap<&'static str, usize>, readiness: &'static str) -> usize {
-    *counts.get(readiness).unwrap_or(&0)
-}
-
-fn escalation_count(counts: &BTreeMap<&'static str, usize>, readiness: &'static str) -> usize {
-    *counts.get(readiness).unwrap_or(&0)
+fn escalation_count(
+    counts: &BTreeMap<V08NotificationEscalationReadiness, usize>,
+    readiness: V08NotificationEscalationReadiness,
+) -> usize {
+    *counts.get(&readiness).unwrap_or(&0)
 }

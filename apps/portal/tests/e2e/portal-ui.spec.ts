@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { PortalTheme } from '@ocentra-parent/portal-domain/contracts';
-import { ParentAgentEvent } from '../generated/parent-ui-bridge';
+import { ParentAgentEvent } from '../../generated/parent-ui-bridge';
 import { collectBrowserFailures } from './browser-failures';
 import { assertLanRouteScaffolds } from './portal-route-scaffold-assertions';
 

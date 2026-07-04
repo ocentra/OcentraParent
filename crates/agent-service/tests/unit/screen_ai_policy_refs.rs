@@ -1,4 +1,7 @@
 mod screen_ai_policy_refs_support {
+    use std::primitive::str as TestStr;
+    use std::string::String as TestString;
+
     use ocentra_parent_agent_protocol::constants;
 
     #[derive(Clone, Debug)]
@@ -232,11 +235,11 @@ mod screen_ai_policy_refs_support {
 
     fn string_value<'a>(
         fields: &'a [(
-            &'static str,
+            &'static TestStr,
             ocentra_parent_agent_protocol::logging::LogFieldValue,
         )],
-        field_name: &str,
-    ) -> Option<&'a str> {
+        field_name: &TestStr,
+    ) -> Option<&'a TestStr> {
         fields.iter().find_map(
             |(field_key, value)| match (*field_key == field_name, value) {
                 (true, ocentra_parent_agent_protocol::logging::LogFieldValue::String(value)) => {
@@ -247,8 +250,8 @@ mod screen_ai_policy_refs_support {
         )
     }
 
-    fn prefixed_id(prefix: &str, value: &str) -> String {
-        let mut id = String::from(prefix);
+    fn prefixed_id(prefix: &TestStr, value: &TestStr) -> TestString {
+        let mut id = TestString::from(prefix);
         id.push_str(value);
         id
     }

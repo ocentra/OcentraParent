@@ -18,7 +18,7 @@ use crate::local_ai_runtime_install_plan::{
     default_install_plan_for_target, default_install_plan_from_environment,
     LocalAiRequiredArtifactStatus,
 };
-use crate::test_invariants::require_some;
+use crate::test_invariants::{require_ok, require_some};
 
 #[test]
 fn install_plan_reports_missing_required_runtime_and_default_model() {
@@ -120,7 +120,10 @@ fn install_plan_creates_managed_cache_directories() {
         &gpu_acceleration_config(),
     );
 
-    assert!(plan.ensure_cache_directories().is_ok());
+    require_ok(
+        plan.ensure_cache_directories(),
+        constants::error::LOCAL_AI_RUNTIME_SPAWNS,
+    );
     assert!(plan.runtime_cache_dir().is_dir());
     assert!(plan.model_cache_dir().is_dir());
     let _ = fs::remove_dir_all(root);
@@ -167,9 +170,15 @@ fn write_required_files(plan: &crate::local_ai_runtime_install_plan::LocalAiRunt
 
 fn write_file(path: &Path, contents: &TestStr) {
     if let Some(parent) = path.parent() {
-        assert!(fs::create_dir_all(parent).is_ok());
+        require_ok(
+            fs::create_dir_all(parent),
+            constants::error::LOCAL_AI_RUNTIME_SPAWNS,
+        );
     }
-    assert!(fs::write(path, contents).is_ok());
+    require_ok(
+        fs::write(path, contents),
+        constants::error::LOCAL_AI_RUNTIME_SPAWNS,
+    );
 }
 
 fn windows_x64_target() -> LocalAiRuntimeTarget {

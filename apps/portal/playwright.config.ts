@@ -18,7 +18,7 @@ export default defineConfig({
   reporter: process.env['CI']
     ? [['list'], ['html', { open: 'never', outputFolder: '../../playwright-report/portal' }]]
     : 'list',
-  testDir: './e2e',
+  testDir: './tests/e2e',
   testIgnore: runTrackingHostedUiProof ? [] : ['tracking-hosted-ui-proof.spec.ts'],
   timeout: 30000,
   use: {

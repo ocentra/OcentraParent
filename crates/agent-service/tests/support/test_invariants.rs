@@ -5,8 +5,6 @@ use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::json_contract::serialize_json_string;
-
 pub(crate) fn require_ok<T, E>(result: Result<T, E>, context: impl std::fmt::Display) -> T
 where
     E: Debug,
@@ -51,5 +49,5 @@ pub(crate) fn serialize_test_json<T>(value: &T) -> TestString
 where
     T: Serialize + ?Sized,
 {
-    serialize_json_string(value)
+    serde_json::to_string(value).expect("test json should serialize")
 }

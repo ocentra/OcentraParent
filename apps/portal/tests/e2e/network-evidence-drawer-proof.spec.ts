@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { ParentRoute } from '../generated/parent-ui-bridge';
-import { NetworkEvidenceDrawerProof } from '../tests/fixtures/network/network-evidence-drawer-proof-fixture';
+import { ParentRoute } from '../../generated/parent-ui-bridge';
+import { NetworkEvidenceDrawerProof } from '../fixtures/network/network-evidence-drawer-proof-fixture';
 
 test.setTimeout(120_000);
 

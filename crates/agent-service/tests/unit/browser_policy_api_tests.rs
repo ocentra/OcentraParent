@@ -1,10 +1,7 @@
 use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
 use std::primitive::str as TestStr;
-use std::{
-    path::TestPathBuf,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::string::String as TestString;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -517,4 +514,3 @@ where
 {
     crate::test_invariants::require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
 }
-

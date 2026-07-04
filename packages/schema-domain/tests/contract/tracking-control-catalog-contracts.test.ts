@@ -17,7 +17,7 @@ describe('tracking control catalog contracts', () => {
 });
 
 function generatedSurfaceProof(): void {
-  it('keeps the tracking control catalog as a Rust-generated thin schema-domain surface', () => {
+  it('keeps the tracking control catalog as a thin Rust-seeded schema-domain surface', () => {
     const catalogSource = readFileSync(new URL('../../src/tracking-control-catalog.ts', import.meta.url), 'utf8');
     const schemaSource = readFileSync(new URL('../../src/tracking-control-catalog-schema.ts', import.meta.url), 'utf8');
     const metadataSource = readFileSync(new URL('../../src/tracking-control-catalog-metadata.ts', import.meta.url), 'utf8');
@@ -38,8 +38,10 @@ function generatedSurfaceProof(): void {
     expect(
       metadataSource.startsWith('/* generated from crates/tracking-core/src/tracking_control_catalog_metadata.ts.txt */')
     ).toBe(true);
-    expect(catalogSource).not.toContain("./tracking-control-catalog-data");
-    expect(catalogSource).not.toContain("./tracking-control-catalog-metadata");
+    expect(catalogSource).toContain("./tracking-control-catalog-data");
+    expect(catalogSource).toContain("./tracking-control-catalog-metadata");
+    expect(catalogSource).not.toContain('const TrackingControlCatalogJson =');
+    expect(catalogSource).not.toContain('const TrackingControlCapabilitiesJson =');
     expect(catalogSettings.length).toBe(BaselineTrackingControlCatalog.settingCount);
     expect(TrackingControlProposalSettingCount + TrackingControlGuideSettingCount).toBe(
       BaselineTrackingControlCatalog.settingCount

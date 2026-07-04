@@ -2,6 +2,7 @@
 mod test_invariants;
 
 use std::collections::BTreeMap;
+use std::primitive::str as TestStr;
 
 use ocentra_parent_agent_protocol::constants::{self, enforcement, field, host_identity};
 use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
@@ -126,7 +127,7 @@ fn entry_for(
 
 fn count_readiness(
     entries: &[ocentra_parent_agent_protocol::host_identity::HostIdentityReadModelEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<&'static TestStr, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
             .entry(entry.readiness_state.as_protocol_str())
@@ -137,7 +138,7 @@ fn count_readiness(
 
 fn count_evidence_classes(
     entries: &[ocentra_parent_agent_protocol::host_identity::HostIdentityReadModelEntry],
-) -> BTreeMap<&'static str, usize> {
+) -> BTreeMap<&'static TestStr, usize> {
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
         *counts
             .entry(entry.evidence_class.as_protocol_str())

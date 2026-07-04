@@ -1,9 +1,9 @@
 #![forbid(unsafe_code)]
 
-##[path = "../support/test_invariants.rs"]
+#[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-[path = "../../src/event_builder.rs"]
+#[path = "../../src/event_builder.rs"]
 mod event_builder;
 #[path = "../../src/fields.rs"]
 mod fields;

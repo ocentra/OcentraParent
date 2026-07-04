@@ -254,20 +254,21 @@ fn assert_runtime_support_surface(
 }
 
 fn assert_explicit_discovery_state(event: &AgentEventEnvelope) {
-    match event.payload.get(constants::field::LAN_DISCOVERY_STATE) {
-        Some(LogFieldValue::String(value))
-            if [
-                constants::value::LAN_DISCOVERY_STATE_DISCOVERED,
-                constants::value::LAN_DISCOVERY_STATE_PENDING,
-                constants::value::LAN_DISCOVERY_STATE_PAIRED,
-                constants::value::LAN_DISCOVERY_STATE_REVOKED,
-                constants::value::LAN_DISCOVERY_STATE_STALE,
-                constants::value::LAN_DISCOVERY_STATE_OFFLINE,
-                constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE,
-            ]
-            .contains(&value.as_str()) => {}
-        _ => unreachable!("{}", constants::error::UNEXPECTED_LAN_DISCOVERY_STATE),
-    }
+    let discovery_state = match event.payload.get(constants::field::LAN_DISCOVERY_STATE) {
+        Some(LogFieldValue::String(value)) => value.as_str(),
+        _ => constants::error::UNEXPECTED_LAN_DISCOVERY_STATE,
+    };
+
+    assert!(matches!(
+        discovery_state,
+        constants::value::LAN_DISCOVERY_STATE_DISCOVERED
+            | constants::value::LAN_DISCOVERY_STATE_PENDING
+            | constants::value::LAN_DISCOVERY_STATE_PAIRED
+            | constants::value::LAN_DISCOVERY_STATE_REVOKED
+            | constants::value::LAN_DISCOVERY_STATE_STALE
+            | constants::value::LAN_DISCOVERY_STATE_OFFLINE
+            | constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE
+    ));
 }
 
 fn assert_lan_ai_provider_support_surface(event: &AgentEventEnvelope) {

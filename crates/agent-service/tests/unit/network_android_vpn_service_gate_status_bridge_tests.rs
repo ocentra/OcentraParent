@@ -1,3 +1,5 @@
+use std::primitive::str as TestStr;
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_android_vpn_service_gate_status::{
     NetworkAndroidVpnServiceGateCapabilityStatusState, NetworkAndroidVpnServiceGateStatus,
@@ -125,7 +127,7 @@ fn command_envelope() -> AgentCommandEnvelope {
 
 fn status_value<TStatus: DeserializeOwned>(
     payload: &ocentra_parent_agent_protocol::logging::LogFields,
-    field: &str,
+    field: &TestStr,
 ) -> Result<TStatus, Box<dyn std::error::Error>> {
     let text = match payload.get(field) {
         Some(ocentra_parent_agent_protocol::logging::LogFieldValue::String(text)) => text,

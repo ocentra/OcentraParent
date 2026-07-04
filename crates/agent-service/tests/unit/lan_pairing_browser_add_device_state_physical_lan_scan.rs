@@ -1,3 +1,6 @@
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
+
 use chrono::{Duration, SecondsFormat, Utc};
 use ocentra_lan_core::network_inventory::{LanDiscoveryRefreshMode, LanNetworkInventoryDevice};
 use ocentra_parent_agent_protocol::constants;
@@ -199,7 +202,10 @@ fn localhost_status_with_stale_cache_reports_previous_snapshot_without_reusing_i
 
     assert_eq!(result.devices.len(), 0);
     assert!(!result.reused_recent_snapshot);
-    assert!(result.previous_scan_snapshot.is_some());
+    assert_eq!(
+        result.previous_scan_snapshot,
+        Some(constants::lan_pairing::OBSERVED_AT.to_string())
+    );
     assert!(result.current_scan_snapshot.is_none());
 }
 
@@ -363,7 +369,7 @@ async fn scan_truth_context_reuses_registry_and_history_truth_without_agentless_
         .all(|device| device.mac_address.as_deref() != Some("00-66-77-88-99-AA")));
 }
 
-fn previous_scan_device(agent_status: &str) -> LanNetworkInventoryDevice {
+fn previous_scan_device(agent_status: &TestStr) -> LanNetworkInventoryDevice {
     LanNetworkInventoryDevice {
         device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
         label: constants::lan_pairing::TEST_HOSTNAME.to_string(),
@@ -420,14 +426,15 @@ fn router_scan_device() -> LanNetworkInventoryDevice {
     }
 }
 
-fn canonical_device_id_for_mac(mac_address: &str) -> String {
-    let mut canonical_device_id = String::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
+fn canonical_device_id_for_mac(mac_address: &TestStr) -> TestString {
+    let mut canonical_device_id =
+        TestString::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
     canonical_device_id.push_str(
         &mac_address
             .chars()
             .filter(|character| character.is_ascii_alphanumeric())
             .flat_map(char::to_lowercase)
-            .collect::<String>(),
+            .collect::<TestString>(),
     );
     canonical_device_id
 }

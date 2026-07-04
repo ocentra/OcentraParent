@@ -1,3 +1,5 @@
+use std::primitive::str as TestStr;
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRole;
 use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
@@ -163,7 +165,7 @@ fn local_ai_runtime_provider_proof_serializes_for_protocol_parity() {
 
 fn entry<'a>(
     read_model: &'a LocalAiRuntimeProviderProofReadModel,
-    proof_entry_id: &str,
+    proof_entry_id: &TestStr,
 ) -> &'a LocalAiRuntimeProviderProofEntry {
     require_some(
         read_model

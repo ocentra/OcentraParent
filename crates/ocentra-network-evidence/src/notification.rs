@@ -1,9 +1,11 @@
 mod normalization;
+mod severity;
 
 use serde::{Deserialize, Serialize};
 
-use self::normalization::{
-    normalize_ref, normalized_evidence_refs, normalized_optional_ref, severity_for,
+use self::{
+    normalization::{normalize_ref, normalized_evidence_refs, normalized_optional_ref},
+    severity::severity_for,
 };
 
 use crate::{

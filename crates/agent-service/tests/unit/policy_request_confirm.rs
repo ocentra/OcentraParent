@@ -116,8 +116,8 @@ mod clippy_linkage {
         }
     }
 
-    fn temp_store_path(suffix: &str) -> std::path::PathBuf {
-        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    fn temp_store_path(suffix: &TestStr) -> TestPathBuf {
+        let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
         name.push_str(&std::process::id().to_string());
         name.push(constants::delimiter::HYPHEN);
         name.push_str(suffix);
@@ -128,7 +128,7 @@ mod clippy_linkage {
         path
     }
 
-    fn cleanup_path(path: &std::path::PathBuf) {
+    fn cleanup_path(path: &TestPathBuf) {
         let _ = remove_file(path);
         let mut wal_path = path.clone();
         wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
@@ -138,3 +138,6 @@ mod clippy_linkage {
         let _ = remove_file(shm_path);
     }
 }
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;

@@ -9,7 +9,7 @@ use ocentra_parent_agent_protocol::transport::AgentEventName;
 use serde_json::Value;
 
 use crate::browser_runtime_stream_payload::BrowserRuntimeServiceStreamReport;
-use crate::test_invariants::require_some;
+use crate::test_invariants::{require_json_decode, require_some};
 
 const BROWSER_ACTION_INTENT_EXECUTION_FIELDS: [&TestStr; 4] = [
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
@@ -61,32 +61,34 @@ pub(super) fn assert_action_intent_handoff_payload_refs(payload: &LogFields) {
 pub(super) fn assert_child_status_report_refs(
     report: &BrowserRuntimeServiceStreamReport,
     payload: &LogFields,
-    expected_intent_fragment: &TestStr,
 ) {
+    let child_command_refs = payload_string_refs(
+        payload,
+        constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS,
+    );
+    let child_accepted_event_refs = payload_string_refs(
+        payload,
+        constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_EVENT_REFS,
+    );
+    let parent_read_model_refs = payload_string_refs(
+        payload,
+        constants::field::BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS,
+    );
+
     assert_eq!(report.action_intent_child_accepted_rows, 1);
-    assert!(report.action_intent_child_command_refs[0].contains(expected_intent_fragment));
-    assert!(report.action_intent_child_accepted_event_refs[0]
-        .contains(constants::child_agent::EVENT_COMMAND_ACCEPTED));
-    assert!(report.action_intent_parent_read_model_refs[0]
-        .contains(constants::parent_controller::REF_PARENT_READ_MODEL_SUFFIX));
+    assert_eq!(report.action_intent_child_command_refs, child_command_refs);
+    assert_eq!(
+        report.action_intent_child_accepted_event_refs,
+        child_accepted_event_refs
+    );
+    assert_eq!(
+        report.action_intent_parent_read_model_refs,
+        parent_read_model_refs
+    );
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS),
         Some(&LogFieldValue::Number(1.0))
     );
-}
-
-pub(super) fn assert_payload_child_command_refs_include(
-    payload: &LogFields,
-    expected_fragment: &TestStr,
-) {
-    let child_command_refs = payload
-        .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS)
-        .and_then(|value| match value {
-            LogFieldValue::String(value) => Some(value.as_str()),
-            _ => None,
-        })
-        .unwrap_or_default();
-    assert!(child_command_refs.contains(expected_fragment));
 }
 
 pub(super) fn assert_store_backed_stream_payload_header(event: &AgentEventEnvelope) {
@@ -154,5 +156,17 @@ where
     T: serde::Serialize + ?Sized,
 {
     crate::test_invariants::serialize_test_json(value)
+}
+
+fn payload_string_refs(payload: &LogFields, field_name: &TestStr) -> Vec<TestString> {
+    let encoded_refs = require_some(
+        payload.get(field_name).and_then(|value| match value {
+            LogFieldValue::String(value) => Some(value.as_str()),
+            _ => None,
+        }),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+
+    require_json_decode(encoded_refs, constants::error::AGENT_EVENT_SERIALIZES)
 }
 

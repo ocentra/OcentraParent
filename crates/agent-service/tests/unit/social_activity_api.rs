@@ -155,7 +155,7 @@ mod clippy_linkage {
         );
     }
 
-    fn command_envelope(message_id: &str) -> AgentCommandEnvelope {
+    fn command_envelope(message_id: &TestStr) -> AgentCommandEnvelope {
         AgentCommandEnvelope {
             schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
             message_id: message_id.to_string(),
@@ -174,3 +174,4 @@ mod clippy_linkage {
         }
     }
 }
+use std::primitive::str as TestStr;

@@ -180,8 +180,8 @@ fn assert_android_linux_rows_stay_blocked(decoded: &AppGameAdapterExecutionReadi
 
 fn string_payload<'a>(
     payload: &'a ocentra_parent_agent_protocol::logging::LogFields,
-    field_name: &str,
-) -> &'a str {
+    field_name: &TestStr,
+) -> &'a TestStr {
     require_log_string_field(
         payload.get(field_name),
         constants::error::AGENT_EVENT_SERIALIZES,

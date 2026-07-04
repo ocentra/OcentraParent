@@ -514,7 +514,7 @@ fn command_envelope() -> AgentCommandEnvelope {
 
 fn status_value<TStatus: DeserializeOwned>(
     payload: &ocentra_parent_agent_protocol::logging::LogFields,
-    field: &str,
+    field: &TestStr,
 ) -> TestResult<TStatus> {
     match payload.get(field) {
         Some(LogFieldValue::String(text)) => serde_json::from_str(text).map_err(|error| {
@@ -531,3 +531,4 @@ fn status_value<TStatus: DeserializeOwned>(
         .into()),
     }
 }
+use std::primitive::str as TestStr;

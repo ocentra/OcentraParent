@@ -11,49 +11,18 @@ use ocentra_parent_agent_protocol::policy_constants;
 use serde_json::{json, Value};
 
 use super::enforcement_integrity_runtime_audit_read_model::v08_enforcement_integrity_runtime_audit_read_model;
+use crate::test_invariants::{require_ok, require_some};
 
 #[test]
 fn enforcement_integrity_runtime_audit_read_model_writes_proof_artifact() {
     let read_model =
         v08_enforcement_integrity_runtime_audit_read_model(policy_constants::TEST_EVALUATED_AT);
     let proof_artifact = proof_artifact_path();
-    if let Some(parent) = proof_artifact.parent() {
-        if let Err(error) = fs::create_dir_all(parent) {
-            panic!("create proof artifact parent directory: {error}");
-        }
-    }
-
     let summary = build_proof_summary(&read_model);
-    let serialized_summary = match serde_json::to_string_pretty(&summary) {
-        Ok(serialized) => serialized,
-        Err(error) => panic!("serialize proof summary: {error}"),
-    };
-    fs::write(&proof_artifact, serialized_summary)
-        .unwrap_or_else(|error| panic!("write proof summary: {error}"));
+    write_proof_summary(&proof_artifact, &summary);
+    assert_summary_overview(&summary);
 
-    assert_eq!(summary["schemaVersion"], 1);
-    assert_eq!(
-        summary["proofMode"],
-        "tamper-integrity-audit-contract-proof"
-    );
-    assert_eq!(summary["readModelId"], proof::READ_MODEL_ID);
-    assert_eq!(summary["entryCount"], 14);
-    assert_eq!(summary["bridgeEntryCount"], 4);
-    assert_eq!(summary["boundaryEntryCount"], 5);
-    assert_eq!(summary["negativeClaims"]["notificationDeliveryClaimed"], 0);
-    assert_eq!(summary["negativeClaims"]["tamperHardeningClaimed"], 0);
-    assert_eq!(summary["negativeClaims"]["mobilePrivilegeClaimed"], 0);
-    assert_eq!(summary["negativeClaims"]["stealthPersistenceClaimed"], 0);
-    assert_eq!(summary["negativeClaims"]["privilegeEscalationClaimed"], 0);
-    assert_eq!(summary["negativeClaims"]["providerDeliveryClaimed"], 0);
-    assert_eq!(summary["negativeClaims"]["tamperResistanceClaimed"], 0);
-    assert_eq!(summary["negativeClaims"]["providerDeliveryObserved"], 0);
-    assert_eq!(summary["negativeClaims"]["deliveredNotificationClaimed"], 0);
-
-    let rows = match summary["rows"].as_array() {
-        Some(rows) => rows,
-        None => panic!("rows array"),
-    };
+    let rows = summary_rows(&summary, "rows");
     assert_eq!(rows.len(), 14);
     assert_row_summary(
         rows,
@@ -107,22 +76,7 @@ fn enforcement_integrity_runtime_audit_read_model_writes_proof_artifact() {
         ],
     );
 
-    let bridge_rows = match summary["bridgeRows"].as_array() {
-        Some(rows) => rows,
-        None => panic!("bridge rows array"),
-    };
-    assert_eq!(bridge_rows.len(), 4);
-    assert!(bridge_rows
-        .iter()
-        .any(|row| row["bridgeEntryId"] == bridge::ENTRY_STOPPED_OR_REMOVED));
-    let boundary_rows = match summary["boundaryRows"].as_array() {
-        Some(rows) => rows,
-        None => panic!("boundary rows array"),
-    };
-    assert_eq!(boundary_rows.len(), 5);
-    assert!(boundary_rows
-        .iter()
-        .any(|row| row["statusEntryId"] == boundary::ENTRY_DELIVERED));
+    assert_bridge_and_boundary_rows(&summary);
 }
 
 fn build_proof_summary(
@@ -269,8 +223,10 @@ fn count_negative_claims(
 }
 
 fn protocol_text<T: serde::Serialize>(value: T) -> TestString {
-    serde_json::to_string(&value)
-        .unwrap_or_else(|error| unreachable!("serialize protocol text: {error:?}"))
+    require_ok(
+        serde_json::to_string(&value),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
         .trim_matches('"')
         .to_owned()
 }
@@ -282,13 +238,11 @@ fn assert_row_summary(
     integrity_state: &'static TestStr,
     manual_proof_requirements: &[&'static TestStr],
 ) {
-    let row = match rows
-        .iter()
-        .find(|candidate| candidate["auditEntryId"] == audit_entry_id)
-    {
-        Some(row) => row,
-        None => panic!("row summary"),
-    };
+    let row = require_some(
+        rows.iter()
+            .find(|candidate| candidate["auditEntryId"] == audit_entry_id),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
     assert_eq!(row["result"], result);
     assert_eq!(row["integrityState"], integrity_state);
     assert_eq!(
@@ -300,5 +254,62 @@ fn assert_row_summary(
 fn proof_artifact_path() -> TestPathBuf {
     TestPathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../test-results/tamper-integrity-audit-contract-proof/rust-proof.json")
+}
+
+fn write_proof_summary(proof_artifact: &TestPathBuf, summary: &Value) {
+    if let Some(parent) = proof_artifact.parent() {
+        require_ok(fs::create_dir_all(parent), constants::error::AGENT_EVENT_SERIALIZES);
+    }
+
+    let serialized_summary = require_ok(
+        serde_json::to_string_pretty(summary),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    require_ok(
+        fs::write(proof_artifact, serialized_summary),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+}
+
+fn assert_summary_overview(summary: &Value) {
+    assert_eq!(summary["schemaVersion"], 1);
+    assert_eq!(
+        summary["proofMode"],
+        "tamper-integrity-audit-contract-proof"
+    );
+    assert_eq!(summary["readModelId"], proof::READ_MODEL_ID);
+    assert_eq!(summary["entryCount"], 14);
+    assert_eq!(summary["bridgeEntryCount"], 4);
+    assert_eq!(summary["boundaryEntryCount"], 5);
+    assert_eq!(summary["negativeClaims"]["notificationDeliveryClaimed"], 0);
+    assert_eq!(summary["negativeClaims"]["tamperHardeningClaimed"], 0);
+    assert_eq!(summary["negativeClaims"]["mobilePrivilegeClaimed"], 0);
+    assert_eq!(summary["negativeClaims"]["stealthPersistenceClaimed"], 0);
+    assert_eq!(summary["negativeClaims"]["privilegeEscalationClaimed"], 0);
+    assert_eq!(summary["negativeClaims"]["providerDeliveryClaimed"], 0);
+    assert_eq!(summary["negativeClaims"]["tamperResistanceClaimed"], 0);
+    assert_eq!(summary["negativeClaims"]["providerDeliveryObserved"], 0);
+    assert_eq!(summary["negativeClaims"]["deliveredNotificationClaimed"], 0);
+}
+
+fn assert_bridge_and_boundary_rows(summary: &Value) {
+    let bridge_rows = summary_rows(summary, "bridgeRows");
+    assert_eq!(bridge_rows.len(), 4);
+    assert!(bridge_rows
+        .iter()
+        .any(|row| row["bridgeEntryId"] == bridge::ENTRY_STOPPED_OR_REMOVED));
+
+    let boundary_rows = summary_rows(summary, "boundaryRows");
+    assert_eq!(boundary_rows.len(), 5);
+    assert!(boundary_rows
+        .iter()
+        .any(|row| row["statusEntryId"] == boundary::ENTRY_DELIVERED));
+}
+
+fn summary_rows<'a>(summary: &'a Value, key: &TestStr) -> &'a [Value] {
+    require_some(
+        summary[key].as_array().map(Vec::as_slice),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
 }
 

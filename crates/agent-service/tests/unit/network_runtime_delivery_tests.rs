@@ -1,3 +1,5 @@
+use std::string::String as TestString;
+
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
@@ -85,8 +87,8 @@ fn partial_metadata_row() -> ActivityNetworkFlowObservation {
 }
 
 fn row(
-    destination_domain: Option<String>,
-    process_name: Option<String>,
+    destination_domain: Option<TestString>,
+    process_name: Option<TestString>,
     process_id: Option<u64>,
 ) -> ActivityNetworkFlowObservation {
     ActivityNetworkFlowObservation {

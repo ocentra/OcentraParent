@@ -13,6 +13,8 @@ pub mod test_support;
 mod activity_report_env_lock;
 #[path = "browser_inventory_read_model_tests.rs"]
 mod browser_inventory_read_model_tests;
+#[path = "../../src/browser_inventory_read_model.rs"]
+mod browser_inventory_read_model;
 #[path = "../../src/browser_policy_compiler.rs"]
 mod browser_policy_compiler;
 #[path = "../../src/browser_policy_compiler_assessment.rs"]
@@ -21,6 +23,10 @@ mod browser_policy_compiler_assessment;
 mod browser_policy_runtime_support;
 #[path = "../../src/browser_policy_store.rs"]
 mod browser_policy_store;
+#[path = "../../src/browser_payload.rs"]
+mod browser_payload;
+#[path = "../../src/browser_runtime_paths.rs"]
+mod browser_runtime_paths;
 #[path = "../../src/browser_runtime_status.rs"]
 mod browser_runtime_status;
 #[path = "../../src/fields.rs"]
@@ -34,8 +40,12 @@ mod time;
 
 #[cfg(test)]
 mod clippy_linkage {
+    use std::string::String as TestString;
+
     use crate::browser_policy_store::{BrowserPolicyRevisionRecord, BrowserPolicyStoredState};
-    use crate::test_invariants::{require_json_decode, require_log_string_field};
+    use crate::test_invariants::{
+        require_json_decode, require_log_string_field, require_ok, require_some,
+    };
     use crate::test_support::default_browser_policy_for_test;
     use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
     use ocentra_parent_agent_protocol::constants;
@@ -48,16 +58,52 @@ mod clippy_linkage {
         assert!(empty_state.active_revision().is_none());
         assert!(empty_state.revision_by_id("missing").is_none());
 
+        let (revision_id, state) = linked_browser_policy_state();
+        let active = require_some(
+            state.active_revision(),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
+        let revision = require_some(
+            state.revision_by_id(&revision_id),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
+        let encoded = require_ok(
+            serde_json::to_string(&serde_json::json!({
+                "active_revision_id": state.active_revision_id.as_deref(),
+            })),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
+        let parsed: serde_json::Value =
+            require_json_decode(&encoded, constants::error::AGENT_EVENT_SERIALIZES);
+        let field = LogFieldValue::String(encoded.clone());
+        let string_value =
+            require_log_string_field(Some(&field), constants::error::AGENT_EVENT_SERIALIZES);
+        let _: serde_json::Value = crate::json_contract::serialize_json_value(serde_json::json!({
+            "browser_inventory_read_model": true,
+        }));
+        let _ = crate::time::timestamp_from_epoch_seconds(0);
+        let _ = crate::time::timestamp_after_epoch_seconds(0, 1);
+
+        assert_eq!(active.revision_id, revision.revision_id);
+        assert_eq!(
+            state.active_revision_id.as_deref(),
+            Some(revision_id.as_str())
+        );
+        assert_eq!(string_value, encoded);
+        assert!(parsed.is_object());
+    }
+
+    fn linked_browser_policy_state() -> (TestString, BrowserPolicyStoredState) {
         let policy =
             default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
-        let effective_policy = match crate::browser_policy_compiler::compile_browser_policy(
-            &policy,
-            constants::browser_policy::REVISION_ID,
-            constants::browser_policy::TEST_SENT_AT,
-        ) {
-            Ok(value) => value,
-            Err(_) => return,
-        };
+        let effective_policy = require_ok(
+            crate::browser_policy_compiler::compile_browser_policy(
+                &policy,
+                constants::browser_policy::REVISION_ID,
+                constants::browser_policy::TEST_SENT_AT,
+            ),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
         let revision_id = format!("{}1", constants::browser_policy::REVISION_PREFIX);
         let state = BrowserPolicyStoredState {
             schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
@@ -77,54 +123,17 @@ mod clippy_linkage {
                 created_at: constants::browser_policy::TEST_SENT_AT.to_string(),
             }],
         };
-        let active = match state.active_revision() {
-            Some(value) => value,
-            None => return,
-        };
-        let revision = match state.revision_by_id(&revision_id) {
-            Some(value) => value,
-            None => return,
-        };
-        let encoded = match serde_json::to_string(&serde_json::json!({
-            "active_revision_id": state.active_revision_id.as_deref(),
-        })) {
-            Ok(value) => value,
-            Err(_) => return,
-        };
-        let parsed = match serde_json::from_str::<serde_json::Value>(&encoded) {
-            Ok(value) => value,
-            Err(_) => return,
-        };
-        let field = LogFieldValue::String(encoded.clone());
-        let string_value = match &field {
-            LogFieldValue::String(value) => value.as_str(),
-            _ => return,
-        };
-        let _: serde_json::Value = crate::json_contract::serialize_json_value(serde_json::json!({
-            "browser_inventory_read_model": true,
-        }));
-        let _ = crate::time::timestamp_from_epoch_seconds(0);
-        let _ = crate::time::timestamp_after_epoch_seconds(0, 1);
-        let _: serde_json::Value =
-            require_json_decode(&encoded, constants::error::AGENT_EVENT_SERIALIZES);
-        let _ = require_log_string_field(Some(&field), constants::error::AGENT_EVENT_SERIALIZES);
 
-        assert_eq!(active.revision_id, revision.revision_id);
-        assert_eq!(
-            state.active_revision_id.as_deref(),
-            Some(revision_id.as_str())
-        );
-        assert_eq!(string_value, encoded);
-        assert!(parsed.is_object());
+        (revision_id, state)
     }
 }
 
 #[test]
 fn browser_inventory_read_model_smoke_uses_require_ok_helper() {
-    let decoded = match serde_json::from_str::<serde_json::Value>("{}") {
-        Ok(value) => value,
-        Err(_) => return,
-    };
+    let decoded = crate::test_invariants::require_ok(
+        serde_json::from_str::<serde_json::Value>("{}"),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
 
     assert!(decoded.is_object());
 }

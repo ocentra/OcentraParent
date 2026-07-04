@@ -237,7 +237,10 @@ async fn browser_policy_store_and_runtime_support_helpers_round_trip_state() {
         .revision_by_id(constants::browser_policy::REVISION_ID)
         .is_none());
     assert_eq!(roundtrip, state);
-    assert!(base_revision_matches(&state, None).is_ok());
+    require_ok(
+        base_revision_matches(&state, None),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
     assert!(next_revision_id(&state).starts_with(constants::browser_policy::REVISION_PREFIX));
     assert!(next_audit_event_id(&state).starts_with(constants::browser_policy::AUDIT_PREFIX));
     assert_eq!(
@@ -740,4 +743,3 @@ fn temp_policy_store_path(store_path_suffix: &TestStr) -> TestPathBuf {
         std::process::id(),
     ))
 }
-

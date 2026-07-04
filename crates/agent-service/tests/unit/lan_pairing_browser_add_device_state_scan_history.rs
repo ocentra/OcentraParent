@@ -13,6 +13,7 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 };
 
 use super::*;
+use crate::test_invariants::{require_ok, require_some};
 
 #[test]
 fn persistent_runtime_saves_and_loads_scan_history_sidecar() {
@@ -48,16 +49,25 @@ fn persistent_runtime_loads_snapshot_metadata_for_probe_suppression() {
 
     save_scan_history(&runtime, &devices, Some(sample_scan_metadata()));
 
-    let snapshot = load_scan_history_snapshot(&runtime)
-        .unwrap_or_else(|| unreachable!("scan history snapshot persists"));
+    let snapshot = require_some(
+        load_scan_history_snapshot(&runtime),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
     assert_eq!(snapshot.schema_version, LAN_SCAN_HISTORY_SCHEMA_VERSION);
     assert_eq!(snapshot.devices, devices);
-    assert!(!snapshot.updated_at.is_empty());
+    let parsed_updated_at = require_ok(
+        chrono::DateTime::parse_from_rfc3339(&snapshot.updated_at),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    assert_eq!(
+        parsed_updated_at.to_rfc3339_opts(SecondsFormat::Millis, true),
+        snapshot.updated_at
+    );
     assert_eq!(snapshot.metadata, Some(sample_scan_metadata()));
-    let metadata = snapshot
-        .metadata
-        .as_ref()
-        .unwrap_or_else(|| unreachable!("scan history metadata persists"));
+    let metadata = require_some(
+        snapshot.metadata.as_ref(),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
     assert_eq!(
         metadata.scan_plan.selected_interface.as_deref(),
         Some("Wi-Fi")
@@ -105,13 +115,17 @@ fn legacy_snapshot_without_metadata_still_loads() {
 
     fs::write(
         &path,
-        serde_json::to_vec_pretty(&legacy_json)
-            .unwrap_or_else(|error| unreachable!("legacy snapshot serializes: {error:?}")),
+        require_ok(
+            serde_json::to_vec_pretty(&legacy_json),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        ),
     )
-    .unwrap_or_else(|error| unreachable!("legacy snapshot writes: {error:?}"));
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
-    let snapshot = load_scan_history_snapshot(&runtime)
-        .unwrap_or_else(|| unreachable!("legacy snapshot loads"));
+    let snapshot = require_some(
+        load_scan_history_snapshot(&runtime),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
     assert_eq!(snapshot.schema_version, 1);
     assert!(snapshot.metadata.is_none());
     assert_eq!(snapshot.devices, vec![sample_network_device()]);

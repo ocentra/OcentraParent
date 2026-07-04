@@ -21,5 +21,8 @@ fn build_event_targets_portal_peer_without_inline_literals() {
     );
 
     assert_eq!(event.target.peer_id, constants::peer::PORTAL_DEV);
-    assert!(event.payload.get(constants::field::ONLINE).is_some());
+    assert_eq!(
+        event.payload.get(constants::field::ONLINE),
+        Some(&LogFieldValue::Boolean(true))
+    );
 }

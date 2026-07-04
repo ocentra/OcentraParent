@@ -59,7 +59,13 @@ fn local_agent_and_neighbor_merge_into_one_canonical_physical_device() {
         ]
         .as_slice()
     );
-    assert!(device.child_agent_inventory.as_ref().is_some());
+    assert_eq!(
+        device
+            .child_agent_inventory
+            .as_ref()
+            .map(|inventory| inventory.device_id.as_str()),
+        Some(constants::lan_pairing::LOCAL_AGENT_DEVICE_ID)
+    );
 }
 
 #[test]

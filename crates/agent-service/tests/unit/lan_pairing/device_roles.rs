@@ -68,20 +68,22 @@ fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
 }
 
 fn assert_child_mobile_surface_defaults(expected_surface: DeviceRuntimeSurface) {
-    let (surface_env_value, expected_platform) = match expected_surface {
-        DeviceRuntimeSurface::ChildAndroid => (
-            constants::value::DEVICE_RUNTIME_SURFACE_CHILD_ANDROID,
-            constants::local_ai_runtime::PLATFORM_OS_ANDROID,
-        ),
-        DeviceRuntimeSurface::ChildIos => (
-            constants::value::DEVICE_RUNTIME_SURFACE_CHILD_IOS,
-            constants::value::DEVICE_RUNTIME_PLATFORM_IOS,
-        ),
-        _ => unreachable!("child mobile surface defaults only apply to child mobile surfaces"),
-    };
+    let (surface_env_value, expected_platform) =
+        if expected_surface == DeviceRuntimeSurface::ChildAndroid {
+            (
+                constants::value::DEVICE_RUNTIME_SURFACE_CHILD_ANDROID,
+                constants::local_ai_runtime::PLATFORM_OS_ANDROID,
+            )
+        } else {
+            assert_eq!(expected_surface, DeviceRuntimeSurface::ChildIos);
+            (
+                constants::value::DEVICE_RUNTIME_SURFACE_CHILD_IOS,
+                constants::value::DEVICE_RUNTIME_PLATFORM_IOS,
+            )
+        };
     let _guard = ENV_LOCK
         .lock()
-        .unwrap_or_else(|_| unreachable!("lan device-role env lock remains available"));
+        .expect("lan device-role env lock remains available");
     let previous_registry_path =
         std::env::var_os(constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH);
     let previous_surface = std::env::var_os(constants::lan_pairing::DEVICE_SURFACE_ENV);

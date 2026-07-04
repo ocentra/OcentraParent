@@ -790,28 +790,6 @@ pub(crate) fn app_game_read_model_response_event(
     }
 }
 
-pub(crate) fn policy_preview_response_event() -> AgentEventEnvelope {
-    let payload = policy_preview_response_payload!();
-    AgentEventEnvelope {
-        schema_version: 1,
-        event_id: "agent.policy.preview.read-model.reported-1".to_string(),
-        correlation_id: "policy-preview".to_string(),
-        sent_at: "2026-05-21T02:00:03Z".to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            role: AgentPeerRole::AgentService,
-        },
-        target: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        event: AgentEventName::AgentPolicyPreviewReadModelReported,
-        severity: LogLevel::Info,
-        payload: payload.into(),
-        snapshot: None,
-    }
-}
-
 macro_rules! policy_preview_response_payload {
     () => {{
         let mut payload = std::collections::BTreeMap::new();
@@ -905,6 +883,28 @@ macro_rules! policy_preview_response_payload {
         );
         payload
     }};
+}
+
+pub(crate) fn policy_preview_response_event() -> AgentEventEnvelope {
+    let payload = policy_preview_response_payload!();
+    AgentEventEnvelope {
+        schema_version: 1,
+        event_id: "agent.policy.preview.read-model.reported-1".to_string(),
+        correlation_id: "policy-preview".to_string(),
+        sent_at: "2026-05-21T02:00:03Z".to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            role: AgentPeerRole::AgentService,
+        },
+        target: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        event: AgentEventName::AgentPolicyPreviewReadModelReported,
+        severity: LogLevel::Info,
+        payload: payload.into(),
+        snapshot: None,
+    }
 }
 
 pub(crate) fn policy_preview_confirmed_response_event() -> AgentEventEnvelope {

@@ -199,6 +199,9 @@ async fn browser_inventory_support_helpers_link_policy_store_and_runtime_paths()
 }
 
 async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
+    let _guard = crate::activity_report_env_lock::REPORT_ENV_LOCK
+        .lock()
+        .await;
     let _ = browser_policy_store_path_from_env();
     let policy = default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
     let effective_policy = require_ok(
@@ -222,9 +225,62 @@ async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
         },
     );
     let base_state = BrowserPolicyStoredState::empty();
-    assert!(base_revision_matches(&base_state, None).is_ok());
-    assert!(next_revision_id(&base_state).starts_with(constants::browser_policy::REVISION_PREFIX));
-    assert!(next_audit_event_id(&base_state).starts_with(constants::browser_policy::AUDIT_PREFIX));
+    assert_browser_policy_revision_helpers(&base_state);
+    let roundtrip_path = temp_service_inventory_root().join("browser-policy-store.json");
+    require_ok(
+        write_browser_policy_state(&roundtrip_path, &base_state).await,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    let roundtrip = require_ok(
+        read_browser_policy_state(&roundtrip_path).await,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+
+    let runtime_root = temp_service_inventory_root();
+    let previous_browser_path = std::env::var_os(constants::env_var::MANAGED_BROWSER_EXECUTABLE);
+    let previous_profile_dir =
+        std::env::var_os(constants::env_var::MANAGED_BROWSER_PROFILE_DIR);
+    let expected_browser_path = runtime_root.join("managed-browser.exe");
+    let expected_profile_root = runtime_root.join("managed-browser-profile");
+    std::env::set_var(
+        constants::env_var::MANAGED_BROWSER_EXECUTABLE,
+        &expected_browser_path,
+    );
+    std::env::set_var(
+        constants::env_var::MANAGED_BROWSER_PROFILE_DIR,
+        &expected_profile_root,
+    );
+    let browser_path = managed_browser_executable_path();
+    let profile_store = managed_browser_profile_store();
+    restore_env_var(
+        constants::env_var::MANAGED_BROWSER_EXECUTABLE,
+        previous_browser_path,
+    );
+    restore_env_var(
+        constants::env_var::MANAGED_BROWSER_PROFILE_DIR,
+        previous_profile_dir,
+    );
+
+    assert_eq!(roundtrip, base_state);
+    assert_runtime_path_and_response_helpers(
+        &policy,
+        effective_policy,
+        &assessment.compile_note,
+        &capability_registry.capabilities,
+        browser_path,
+        profile_store,
+        expected_browser_path,
+    );
+    let _ = std::fs::remove_dir_all(runtime_root);
+}
+
+fn assert_browser_policy_revision_helpers(base_state: &BrowserPolicyStoredState) {
+    require_ok(
+        base_revision_matches(base_state, None),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    assert!(next_revision_id(base_state).starts_with(constants::browser_policy::REVISION_PREFIX));
+    assert!(next_audit_event_id(base_state).starts_with(constants::browser_policy::AUDIT_PREFIX));
     assert_eq!(
         default_revision_id(),
         format!(
@@ -241,22 +297,27 @@ async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
             constants::browser_policy::UPDATE_KIND_PREVIEW
         )
     );
-    let roundtrip_path = temp_service_inventory_root().join("browser-policy-store.json");
-    require_ok(
-        write_browser_policy_state(&roundtrip_path, &base_state).await,
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
-    let roundtrip = require_ok(
-        read_browser_policy_state(&roundtrip_path).await,
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
+}
 
-    let browser_path = managed_browser_executable_path();
-    let profile_store = managed_browser_profile_store();
-
-    assert_eq!(roundtrip, base_state);
-    assert!(browser_path.is_none() || browser_path.is_some());
-    assert!(profile_store.is_ok());
+fn assert_runtime_path_and_response_helpers(
+    policy: &ocentra_parent_agent_protocol::browser_policy::BrowserPolicyDocument,
+    effective_policy: ocentra_parent_agent_protocol::browser_policy::BrowserPolicyEffectiveDocument,
+    compile_note: &TestStr,
+    capabilities: &[ocentra_parent_agent_protocol::browser_policy::BrowserPolicyCapability],
+    browser_path: Option<TestPathBuf>,
+    profile_store: Result<
+        ocentra_parent_agent_core::browser_managed_session::BrowserManagedProfileStoreRecord,
+        &'static TestStr,
+    >,
+    expected_browser_path: TestPathBuf,
+) {
+    assert_eq!(browser_path, Some(expected_browser_path));
+    assert_eq!(
+        require_ok(profile_store, constants::error::AGENT_EVENT_SERIALIZES)
+            .entry
+            .profile_id,
+        constants::browser::PROFILE_ID_DEV
+    );
     assert_eq!(
         accepted_response(
             constants::browser_policy::REQUEST_ID.to_string(),
@@ -281,7 +342,7 @@ async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
         .status,
         ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateStatus::Rejected
     );
-    assert!(capability_registry.capabilities.len() >= assessment.compile_note.len().min(1));
+    assert_eq!(capabilities.is_empty(), compile_note.is_empty());
 }
 
 fn browser_inventory_status_helpers_assertions(
@@ -543,4 +604,3 @@ fn restore_env_var(env_var_name: &TestStr, value: Option<TestOsString>) {
         None => std::env::remove_var(env_var_name),
     }
 }
-

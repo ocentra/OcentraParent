@@ -1,5 +1,12 @@
+mod normalization;
+mod routing;
+
 use serde::{Deserialize, Serialize};
 
+use self::{
+    normalization::{normalize_ref, normalized_optional_ref, normalized_refs},
+    routing::mapped_mode_and_action,
+};
 use crate::dns::types::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -97,86 +104,4 @@ pub fn map_network_evidence_grade_to_policy(
         adapter_action_authorized: false,
         enforcement_command_authorized: false,
     })
-}
-
-fn mapped_mode_and_action(
-    grade: NetworkEvidenceGrade,
-    requested_action: NetworkEvidencePolicyAction,
-) -> (NetworkEvidencePolicyMode, NetworkEvidencePolicyAction) {
-    match grade {
-        NetworkEvidenceGrade::A => (
-            NetworkEvidencePolicyMode::DryRun,
-            dry_run_action(requested_action),
-        ),
-        NetworkEvidenceGrade::B => probable_mode_and_action(requested_action),
-        NetworkEvidenceGrade::C => (
-            NetworkEvidencePolicyMode::ParentReview,
-            NetworkEvidencePolicyAction::AskParent,
-        ),
-        NetworkEvidenceGrade::D => (
-            NetworkEvidencePolicyMode::ObserveOnly,
-            NetworkEvidencePolicyAction::None,
-        ),
-    }
-}
-
-fn dry_run_action(requested_action: NetworkEvidencePolicyAction) -> NetworkEvidencePolicyAction {
-    match requested_action {
-        NetworkEvidencePolicyAction::None => NetworkEvidencePolicyAction::Monitor,
-        action => action,
-    }
-}
-
-fn probable_mode_and_action(
-    requested_action: NetworkEvidencePolicyAction,
-) -> (NetworkEvidencePolicyMode, NetworkEvidencePolicyAction) {
-    match requested_action {
-        NetworkEvidencePolicyAction::Block | NetworkEvidencePolicyAction::Limit => (
-            NetworkEvidencePolicyMode::ParentReview,
-            NetworkEvidencePolicyAction::AskParent,
-        ),
-        NetworkEvidencePolicyAction::None => (
-            NetworkEvidencePolicyMode::DryRun,
-            NetworkEvidencePolicyAction::Monitor,
-        ),
-        action => (NetworkEvidencePolicyMode::DryRun, action),
-    }
-}
-
-fn normalized_refs(
-    refs: &[String],
-    empty_error: NetworkEvidencePolicyMappingError,
-) -> Result<Vec<String>, NetworkEvidencePolicyMappingError> {
-    let mut normalized = Vec::new();
-    for value in refs {
-        let Some(ref_value) = normalize_ref(value) else {
-            return Err(empty_error);
-        };
-        if !normalized.contains(&ref_value) {
-            normalized.push(ref_value);
-        }
-    }
-    if normalized.is_empty() {
-        return Err(empty_error);
-    }
-    Ok(normalized)
-}
-
-fn normalized_optional_ref(
-    value: Option<&str>,
-    empty_error: NetworkEvidencePolicyMappingError,
-) -> Result<Option<String>, NetworkEvidencePolicyMappingError> {
-    match value {
-        Some(raw) => normalize_ref(raw).map(Some).ok_or(empty_error),
-        None => Ok(None),
-    }
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_owned())
-    }
 }

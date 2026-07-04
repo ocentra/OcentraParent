@@ -1,4 +1,8 @@
+mod refs;
+
 use crate::{NetworkAdapterCapabilityStatusProof, NetworkAdapterCapabilityStatusState};
+
+use self::refs::normalized_refs;
 
 use super::{
     normalize_ref, NetworkLocalPlatformProbeError, NetworkLocalPlatformProbeObservation,
@@ -121,27 +125,4 @@ fn probe_state_supports_status(
             status == NetworkAdapterCapabilityStatusState::Unavailable
         }
     }
-}
-
-fn normalized_refs(
-    target: NetworkPlatformClaimTarget,
-    refs: &[String],
-) -> Result<Vec<String>, NetworkLocalPlatformProbeError> {
-    let mut normalized = Vec::new();
-    for value in refs {
-        let Some(ref_value) = normalize_ref(value) else {
-            return Err(NetworkLocalPlatformProbeError::EmptyObservationEvidenceRef(
-                target,
-            ));
-        };
-        if !normalized.contains(&ref_value) {
-            normalized.push(ref_value);
-        }
-    }
-    if normalized.is_empty() {
-        return Err(NetworkLocalPlatformProbeError::EmptyObservationEvidenceRef(
-            target,
-        ));
-    }
-    Ok(normalized)
 }

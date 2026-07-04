@@ -1,24 +1,4 @@
-use super::{NetworkParentNotificationCandidateError, NetworkParentNotificationSeverity};
-use crate::{NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMode};
-
-pub(super) fn severity_for(
-    mapping: &NetworkEvidencePolicyMapping,
-) -> NetworkParentNotificationSeverity {
-    match mapping.mode {
-        NetworkEvidencePolicyMode::ObserveOnly => NetworkParentNotificationSeverity::Info,
-        NetworkEvidencePolicyMode::ParentReview => NetworkParentNotificationSeverity::Review,
-        NetworkEvidencePolicyMode::DryRun => match mapping.mapped_action {
-            NetworkEvidencePolicyAction::Block | NetworkEvidencePolicyAction::Limit => {
-                NetworkParentNotificationSeverity::Urgent
-            }
-            NetworkEvidencePolicyAction::WarnChild | NetworkEvidencePolicyAction::Monitor => {
-                NetworkParentNotificationSeverity::Warning
-            }
-            NetworkEvidencePolicyAction::AskParent => NetworkParentNotificationSeverity::Review,
-            NetworkEvidencePolicyAction::None => NetworkParentNotificationSeverity::Info,
-        },
-    }
-}
+use super::NetworkParentNotificationCandidateError;
 
 pub(super) fn normalized_evidence_refs(
     refs: &[String],

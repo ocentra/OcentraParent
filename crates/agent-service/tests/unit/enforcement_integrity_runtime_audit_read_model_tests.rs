@@ -59,39 +59,81 @@ fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
             .len(),
         5
     );
-    assert_eq!(result_count(&result_counts, proof::RESULT_SUCCEEDED), 1);
-    assert_eq!(result_count(&result_counts, proof::RESULT_FAILED), 2);
-    assert_eq!(result_count(&result_counts, proof::RESULT_UNAVAILABLE), 3);
-    assert_eq!(result_count(&result_counts, proof::RESULT_EXPIRED), 1);
-    assert_eq!(result_count(&result_counts, proof::RESULT_ROLLED_BACK), 1);
-    assert_eq!(result_count(&result_counts, proof::RESULT_SUPERSEDED), 1);
-    assert_eq!(result_count(&result_counts, proof::RESULT_NO_OP), 1);
     assert_eq!(
-        result_count(&result_counts, proof::RESULT_MANUAL_REQUIRED),
+        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Succeeded),
+        1
+    );
+    assert_eq!(
+        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Failed),
         2
     );
-    assert_eq!(result_count(&result_counts, proof::RESULT_UNSUPPORTED), 1);
-    assert_eq!(result_count(&result_counts, proof::RESULT_OBSERVE_ONLY), 1);
     assert_eq!(
-        integrity_count(&integrity_counts, proof::INTEGRITY_RUNNING),
-        8
+        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Unavailable),
+        3
     );
     assert_eq!(
-        integrity_count(&integrity_counts, proof::INTEGRITY_PERMISSION_MISSING),
+        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Expired),
         1
     );
     assert_eq!(
-        integrity_count(&integrity_counts, proof::INTEGRITY_ADAPTER_UNAVAILABLE),
+        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::RolledBack),
         1
     );
     assert_eq!(
-        integrity_count(&integrity_counts, proof::INTEGRITY_STALE_HEARTBEAT),
+        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Superseded),
+        1
+    );
+    assert_eq!(
+        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::NoOp),
+        1
+    );
+    assert_eq!(
+        result_count(
+            &result_counts,
+            V08EnforcementIntegrityRuntimeAuditResult::ManualRequired
+        ),
+        2
+    );
+    assert_eq!(
+        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::Unsupported),
+        1
+    );
+    assert_eq!(
+        result_count(&result_counts, V08EnforcementIntegrityRuntimeAuditResult::ObserveOnly),
         1
     );
     assert_eq!(
         integrity_count(
             &integrity_counts,
-            proof::INTEGRITY_TAMPER_SIGNAL_MANUAL_REQUIRED
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::Running
+        ),
+        8
+    );
+    assert_eq!(
+        integrity_count(
+            &integrity_counts,
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::PermissionMissing
+        ),
+        1
+    );
+    assert_eq!(
+        integrity_count(
+            &integrity_counts,
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::AdapterUnavailable
+        ),
+        1
+    );
+    assert_eq!(
+        integrity_count(
+            &integrity_counts,
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::StaleHeartbeat
+        ),
+        1
+    );
+    assert_eq!(
+        integrity_count(
+            &integrity_counts,
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::TamperSignalManualRequired
         ),
         1
     );
@@ -269,75 +311,41 @@ fn assert_entry_integrity(
 
 fn count_results(
     entries: &[V08EnforcementIntegrityRuntimeAuditEntry],
-) -> BTreeMap<&'static TestStr, usize> {
-    entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts.entry(result_name(entry.result)).or_default() += 1;
-        counts
-    })
+) -> BTreeMap<V08EnforcementIntegrityRuntimeAuditResult, usize> {
+    count_by(entries, |entry| entry.result)
 }
 
 fn count_integrity_states(
     entries: &[V08EnforcementIntegrityRuntimeAuditEntry],
-) -> BTreeMap<&'static TestStr, usize> {
+) -> BTreeMap<V08EnforcementIntegrityRuntimeAuditIntegrityState, usize> {
+    count_by(entries, |entry| entry.integrity_state)
+}
+
+fn count_by<TEntry, TKey>(
+    entries: &[TEntry],
+    key_for: impl Fn(&TEntry) -> TKey,
+) -> BTreeMap<TKey, usize>
+where
+    TKey: Copy + Ord,
+{
     entries.iter().fold(BTreeMap::new(), |mut counts, entry| {
-        *counts
-            .entry(integrity_name(entry.integrity_state))
-            .or_default() += 1;
+        *counts.entry(key_for(entry)).or_default() += 1;
         counts
     })
 }
 
-fn result_name(result: V08EnforcementIntegrityRuntimeAuditResult) -> &'static TestStr {
-    match result {
-        V08EnforcementIntegrityRuntimeAuditResult::Succeeded => proof::RESULT_SUCCEEDED,
-        V08EnforcementIntegrityRuntimeAuditResult::Failed => proof::RESULT_FAILED,
-        V08EnforcementIntegrityRuntimeAuditResult::Unavailable => proof::RESULT_UNAVAILABLE,
-        V08EnforcementIntegrityRuntimeAuditResult::Expired => proof::RESULT_EXPIRED,
-        V08EnforcementIntegrityRuntimeAuditResult::RolledBack => proof::RESULT_ROLLED_BACK,
-        V08EnforcementIntegrityRuntimeAuditResult::Superseded => proof::RESULT_SUPERSEDED,
-        V08EnforcementIntegrityRuntimeAuditResult::NoOp => proof::RESULT_NO_OP,
-        V08EnforcementIntegrityRuntimeAuditResult::ManualRequired => proof::RESULT_MANUAL_REQUIRED,
-        V08EnforcementIntegrityRuntimeAuditResult::Unsupported => proof::RESULT_UNSUPPORTED,
-        V08EnforcementIntegrityRuntimeAuditResult::ObserveOnly => proof::RESULT_OBSERVE_ONLY,
-    }
+fn result_count(
+    counts: &BTreeMap<V08EnforcementIntegrityRuntimeAuditResult, usize>,
+    result: V08EnforcementIntegrityRuntimeAuditResult,
+) -> usize {
+    *counts.get(&result).unwrap_or(&0)
 }
 
-fn integrity_name(state: V08EnforcementIntegrityRuntimeAuditIntegrityState) -> &'static TestStr {
-    match state {
-        V08EnforcementIntegrityRuntimeAuditIntegrityState::Running => proof::INTEGRITY_RUNNING,
-        V08EnforcementIntegrityRuntimeAuditIntegrityState::PermissionMissing => {
-            proof::INTEGRITY_PERMISSION_MISSING
-        }
-        V08EnforcementIntegrityRuntimeAuditIntegrityState::AdapterUnavailable => {
-            proof::INTEGRITY_ADAPTER_UNAVAILABLE
-        }
-        V08EnforcementIntegrityRuntimeAuditIntegrityState::StaleHeartbeat => {
-            proof::INTEGRITY_STALE_HEARTBEAT
-        }
-        V08EnforcementIntegrityRuntimeAuditIntegrityState::ServiceStopped => {
-            proof::INTEGRITY_SERVICE_STOPPED
-        }
-        V08EnforcementIntegrityRuntimeAuditIntegrityState::UninstallDetectionManualRequired => {
-            proof::INTEGRITY_UNINSTALL_DETECTION_MANUAL_REQUIRED
-        }
-        V08EnforcementIntegrityRuntimeAuditIntegrityState::TamperSignalManualRequired => {
-            proof::INTEGRITY_TAMPER_SIGNAL_MANUAL_REQUIRED
-        }
-        V08EnforcementIntegrityRuntimeAuditIntegrityState::AntiTamperNotClaimed => {
-            proof::INTEGRITY_ANTI_TAMPER_NOT_CLAIMED
-        }
-        V08EnforcementIntegrityRuntimeAuditIntegrityState::NotApplicable => {
-            proof::INTEGRITY_NOT_APPLICABLE
-        }
-    }
-}
-
-fn result_count(counts: &BTreeMap<&'static TestStr, usize>, result: &'static TestStr) -> usize {
-    *counts.get(result).unwrap_or(&0)
-}
-
-fn integrity_count(counts: &BTreeMap<&'static TestStr, usize>, state: &'static TestStr) -> usize {
-    *counts.get(state).unwrap_or(&0)
+fn integrity_count(
+    counts: &BTreeMap<V08EnforcementIntegrityRuntimeAuditIntegrityState, usize>,
+    state: V08EnforcementIntegrityRuntimeAuditIntegrityState,
+) -> usize {
+    *counts.get(&state).unwrap_or(&0)
 }
 
 fn string_payload_field<'a>(event: &'a AgentEventEnvelope, field: &TestStr) -> Result<&'a TestStr, TestString> {
