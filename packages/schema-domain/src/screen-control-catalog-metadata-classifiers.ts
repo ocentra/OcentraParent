@@ -9,6 +9,9 @@ import type {
   ScreenControlCatalogUiTab,
 } from './screen-control-catalog-schema';
 
+const hasOwn = <T extends object>(value: T, key: PropertyKey): key is keyof T =>
+  Object.prototype.hasOwnProperty.call(value, key);
+
 const UiTabPatterns = [
   [/schedule|cadence|trigger|time/i, 'schedule'],
   [/approval|ask[- ]parent/i, 'approvals'],
@@ -57,12 +60,16 @@ const ProofRequirementPatterns = [
 ] as const satisfies readonly PatternValue<string>[];
 
 const CapabilityStateByEffectStatus = {
+  'already-represented': 'available',
+  'needs-effect-wiring': 'degraded',
+  'permission-required': 'permission-required',
   'future-gap': 'future-gap',
   unavailable: 'unavailable',
   'permission-limited': 'permission-limited',
   'manual-required': 'manual-required',
   degraded: 'degraded',
-} as const satisfies Partial<Record<ScreenControlCatalogEffectStatus, ScreenControlCatalogCapabilityState>>;
+  'proof-required': 'protected',
+} as const satisfies Record<ScreenControlCatalogEffectStatus, ScreenControlCatalogCapabilityState>;
 
 const FallbackByEffectStatus = {
   unavailable: 'Disable or reject this state; do not retain raw capture or use hosted child screen processing by default.',
@@ -99,7 +106,10 @@ export function screenCapabilityStateFor(
   if (status === 'permission-required') {
     return /protected|secure|DRM/i.test(sourceText) ? 'protected' : 'permission-required';
   }
-  return CapabilityStateByEffectStatus[status] ?? (/disabled by default|disabled-by-parent/i.test(sourceText) ? 'disabled' : 'available');
+  if (/disabled by default|disabled-by-parent/i.test(sourceText)) {
+    return 'disabled';
+  }
+  return CapabilityStateByEffectStatus[status];
 }
 
 export function screenRuntimeOwnerFor(
@@ -123,7 +133,7 @@ export function screenProofRequirementFor(sectionTitle: string, sourceText: stri
 
 export function screenFallbackFor(status: ScreenControlCatalogEffectStatus): string {
   return (
-    FallbackByEffectStatus[status] ??
+    (hasOwn(FallbackByEffectStatus, status) ? FallbackByEffectStatus[status] : undefined) ??
     'Portal renders authored intent; child agent owns capture gating, queue, analysis, compile, and audit.'
   );
 }

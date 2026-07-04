@@ -8,6 +8,9 @@ import type {
   TrackingControlRuntimeOwner,
 } from './tracking-control-catalog-schema';
 
+const hasOwn = <T extends object>(value: T, key: PropertyKey): key is keyof T =>
+  Object.prototype.hasOwnProperty.call(value, key);
+
 const PolicyLanePatterns = [
   [/live tracking|live map|live session|cadence|temporary live/iu, 'live'],
   [/geofence|place|arrival|departure|dwell|radius|known place|school|home/iu, 'places'],
@@ -86,13 +89,16 @@ const EffectStatusFallbacks = {
 } as const satisfies Partial<Record<TrackingControlEffectStatus, string>>;
 
 const CapabilityStateByEffectStatus = {
+  'already-represented': 'available',
+  'needs-effect-wiring': 'degraded',
   'permission-required': 'permission-required',
   'manual-required': 'manual-required',
+  'permission-limited': 'permission-limited',
   'future-gap': 'future-gap',
   unavailable: 'unavailable',
   degraded: 'degraded',
   'proof-required': 'protected',
-} as const satisfies Partial<Record<TrackingControlEffectStatus, TrackingControlCapabilityState>>;
+} as const satisfies Record<TrackingControlEffectStatus, TrackingControlCapabilityState>;
 
 const SourceStatePatterns = [
   [/ready/iu, 'available'],
@@ -143,7 +149,7 @@ export function trackingRuntimeOwnerFor(
 export function trackingCapabilityStateFor(
   effectStatus: TrackingControlEffectStatus
 ): TrackingControlCapabilityState {
-  return CapabilityStateByEffectStatus[effectStatus] ?? 'available';
+  return CapabilityStateByEffectStatus[effectStatus];
 }
 
 export function trackingCapabilityStateFromSourceState(sourceState: string): TrackingControlCapabilityState {
@@ -176,7 +182,7 @@ export function trackingFallbackFor(
 ): string {
   return (
     matchOptionalPatternValue(sourceText, SourceFallbackPatterns) ??
-    EffectStatusFallbacks[effectStatus] ??
+    (hasOwn(EffectStatusFallbacks, effectStatus) ? EffectStatusFallbacks[effectStatus] : undefined) ??
     'Portal renders authoring metadata only; child-agent and OS adapters own tracking, sampling, persistence, audit, and fallback behavior.'
   );
 }

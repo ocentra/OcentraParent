@@ -52,6 +52,7 @@ export const selectionModeFor = screenSelectionModeFor;
 export const cardKindFor = screenCardKindFor;
 export const layoutHintsFor = screenLayoutHintsFor;
 export const questionFromSeed = screenQuestionFromSeed;
+export const explicitOptionLabels = screenExplicitOptionLabels;
 export const uiTabFor = screenUiTabFor;
 export const effectStatusFor = screenEffectStatusFor;
 export const capabilityStateFor = (

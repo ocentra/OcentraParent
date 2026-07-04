@@ -6,6 +6,9 @@ import type {
   ScreenControlCatalogSourceKind,
 } from './screen-control-catalog-schema';
 
+const hasOwn = <T extends object>(value: T, key: PropertyKey): key is keyof T =>
+  Object.prototype.hasOwnProperty.call(value, key);
+
 const SourceQuestionPrefixes = {
   'update-command': 'Support',
   'capability-state-meaning': 'Show',
@@ -19,7 +22,7 @@ export function screenQuestionFromSeed(
   if (sourceKind === 'authoring-field') {
     return sourceText.endsWith('?') ? sourceText : `${sourceText}?`;
   }
-  const fixedPrefix = SourceQuestionPrefixes[sourceKind];
+  const fixedPrefix = hasOwn(SourceQuestionPrefixes, sourceKind) ? SourceQuestionPrefixes[sourceKind] : undefined;
   if (fixedPrefix !== undefined) {
     return `${fixedPrefix} ${sourceText.split(':')[0]}${fixedPrefix === 'Support' ? '?' : ' capability state?'}`;
   }

@@ -7,6 +7,9 @@ import type {
   NetworkControlRuntimeOwner,
 } from './network-control-catalog-schema';
 
+const hasOwn = <T extends object>(value: T, key: PropertyKey): key is keyof T =>
+  Object.prototype.hasOwnProperty.call(value, key);
+
 const PolicyLanePatterns = [
   [/retention|custody|audit|journal|deletion|expiry|redact|export|storage|cache/iu, 'audit'],
   [/report|summary|visible|parent sees|top /iu, 'reports'],
@@ -62,6 +65,8 @@ const EffectStatusFallbacks = {
 } as const satisfies Partial<Record<NetworkControlEffectStatus, string>>;
 
 const CapabilityStateByEffectStatus = {
+  'already-represented': 'available',
+  'needs-effect-wiring': 'degraded',
   'manual-required': 'manual-required',
   'permission-required': 'permission-required',
   'permission-limited': 'permission-limited',
@@ -69,7 +74,7 @@ const CapabilityStateByEffectStatus = {
   degraded: 'degraded',
   unavailable: 'unavailable',
   'proof-required': 'protected',
-} as const satisfies Partial<Record<NetworkControlEffectStatus, NetworkControlCapabilityState>>;
+} as const satisfies Record<NetworkControlEffectStatus, NetworkControlCapabilityState>;
 
 const SourceStateCapabilityMap = {
   ready: 'available',
@@ -110,11 +115,11 @@ export function networkRuntimeOwnerFor(
 export function networkCapabilityStateFor(
   effectStatus: NetworkControlEffectStatus
 ): NetworkControlCapabilityState {
-  return CapabilityStateByEffectStatus[effectStatus] ?? 'available';
+  return CapabilityStateByEffectStatus[effectStatus];
 }
 
 export function networkCapabilityStateFromSourceState(sourceState: string): NetworkControlCapabilityState {
-  return SourceStateCapabilityMap[sourceState] ?? 'degraded';
+  return hasOwn(SourceStateCapabilityMap, sourceState) ? SourceStateCapabilityMap[sourceState] : 'degraded';
 }
 
 export function networkCapabilityRequirementFor(
@@ -140,7 +145,7 @@ export function networkProofRequirementFor(
 export function networkFallbackFor(effectStatus: NetworkControlEffectStatus, sourceText: string): string {
   return (
     matchOptionalPatternValue(sourceText, SourceFallbackPatterns) ??
-    EffectStatusFallbacks[effectStatus] ??
+    (hasOwn(EffectStatusFallbacks, effectStatus) ? EffectStatusFallbacks[effectStatus] : undefined) ??
     'Portal renders the control; child-agent/runtime ownership remains explicit.'
   );
 }

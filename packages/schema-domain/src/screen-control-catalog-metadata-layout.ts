@@ -1,6 +1,7 @@
 /* thin adapter helpers for Rust-seeded screen control catalog metadata */
 
 import { slugToken } from './catalog-metadata-text';
+import { screenExplicitOptionLabels } from './screen-control-catalog-metadata-text';
 import { ScreenControlOptionIdSchema } from './screen-control-catalog-schema';
 import type {
   ScreenControlCatalogCardKind,
@@ -9,6 +10,9 @@ import type {
   ScreenControlCatalogOption,
   ScreenControlCatalogSelectionMode,
 } from './screen-control-catalog-schema';
+
+const hasOwn = <T extends object>(value: T, key: PropertyKey): key is keyof T =>
+  Object.prototype.hasOwnProperty.call(value, key);
 
 const FixedCardKinds = {
   duration: 'duration-card',
@@ -40,7 +44,9 @@ export function screenOptionsForSetting(
   if (acceptedOptions.length > 0) {
     return screenOptions(acceptedOptions);
   }
-  const automaticOptions = ScreenAutomaticOptionsByKind[controlKind];
+  const automaticOptions = hasOwn(ScreenAutomaticOptionsByKind, controlKind)
+    ? ScreenAutomaticOptionsByKind[controlKind]
+    : undefined;
   if (automaticOptions !== undefined) {
     return screenOptions(automaticOptions);
   }
@@ -59,7 +65,7 @@ export function screenSelectionModeFor(
   controlKind: ScreenControlCatalogControlKind,
   settingOptions: readonly ScreenControlCatalogOption[]
 ): ScreenControlCatalogSelectionMode {
-  const fixedSelectionMode = FixedSelectionModes[controlKind];
+  const fixedSelectionMode = hasOwn(FixedSelectionModes, controlKind) ? FixedSelectionModes[controlKind] : undefined;
   if (fixedSelectionMode !== undefined) {
     return fixedSelectionMode;
   }
@@ -71,7 +77,7 @@ export function screenCardKindFor(
   selectionMode: ScreenControlCatalogSelectionMode,
   settingOptions: readonly ScreenControlCatalogOption[]
 ): ScreenControlCatalogCardKind {
-  const fixedCardKind = FixedCardKinds[controlKind];
+  const fixedCardKind = hasOwn(FixedCardKinds, controlKind) ? FixedCardKinds[controlKind] : undefined;
   if (fixedCardKind !== undefined) {
     return fixedCardKind;
   }

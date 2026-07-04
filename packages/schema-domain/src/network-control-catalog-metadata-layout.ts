@@ -8,6 +8,9 @@ import type {
   NetworkControlSelectionMode,
 } from './network-control-catalog-schema';
 
+const hasOwn = <T extends object>(value: T, key: PropertyKey): key is keyof T =>
+  Object.prototype.hasOwnProperty.call(value, key);
+
 const ExplicitKinds = {
   boolean: 'toggle',
   'single-choice': 'single-choice',
@@ -41,7 +44,8 @@ export function networkControlKindFor(
   explicitKind: string | null,
   explicitOptionLabels: (value: string) => readonly string[]
 ): NetworkControlKind {
-  const mappedKind = explicitKind === null ? undefined : ExplicitKinds[explicitKind];
+  const mappedKind =
+    explicitKind !== null && hasOwn(ExplicitKinds, explicitKind) ? ExplicitKinds[explicitKind] : undefined;
   if (mappedKind !== undefined) {
     return mappedKind;
   }
@@ -68,7 +72,7 @@ export function networkCardKindFor(
   selectionMode: NetworkControlSelectionMode,
   optionsForSetting: readonly NetworkControlOption[]
 ): NetworkControlCardKind {
-  const fixedCardKind = FixedCardKinds[controlKind];
+  const fixedCardKind = hasOwn(FixedCardKinds, controlKind) ? FixedCardKinds[controlKind] : undefined;
   if (fixedCardKind !== undefined) {
     return fixedCardKind;
   }

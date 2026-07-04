@@ -304,6 +304,7 @@ const ParentAssistantProviderRouteApiStateExpectations = {
 const ParentAssistantActionConfirmStateCheckers = {
   rejected: parentAssistantRejectedActionConfirmIsSafe,
   'contract-required': parentAssistantContractRequiredActionConfirmIsSafe,
+  'not-applied': parentAssistantNotAppliedActionConfirmIsSafe,
 } as const satisfies Record<
   ParentAssistantActionConfirmResultCandidate['confirmState'],
   (result: ParentAssistantActionConfirmResultCandidate) => boolean
@@ -670,6 +671,17 @@ function parentAssistantContractRequiredActionConfirmIsSafe(
     result.previewSatisfied === true &&
     result.previewId !== null &&
     result.childAgentValidationState === 'child-agent-contract-required'
+  );
+}
+
+function parentAssistantNotAppliedActionConfirmIsSafe(
+  result: ParentAssistantActionConfirmResultCandidate
+): boolean {
+  return (
+    result.confirmState === 'not-applied' &&
+    result.previewSatisfied === true &&
+    result.previewId !== null &&
+    result.childAgentValidationState !== 'child-agent-contract-required'
   );
 }
 

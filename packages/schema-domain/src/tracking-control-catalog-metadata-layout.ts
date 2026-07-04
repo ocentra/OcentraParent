@@ -8,6 +8,9 @@ import type {
   TrackingControlSelectionMode,
 } from './tracking-control-catalog-schema';
 
+const hasOwn = <T extends object>(value: T, key: PropertyKey): key is keyof T =>
+  Object.prototype.hasOwnProperty.call(value, key);
+
 const TrackingControlCardKindByControlKind = {
   toggle: 'toggle',
   number: 'number-card',
@@ -66,7 +69,9 @@ export function trackingCardKindFor(
   if (ManyOptionKinds.has(controlKind)) {
     return optionCount > 6 ? 'multi-choice-many' : 'multi-choice-normal';
   }
-  return TrackingControlCardKindByControlKind[controlKind];
+  return hasOwn(TrackingControlCardKindByControlKind, controlKind)
+    ? TrackingControlCardKindByControlKind[controlKind]
+    : 'single-choice-compact';
 }
 
 export function trackingLayoutHintsFor(controlKind: TrackingControlKind, optionCount: number) {

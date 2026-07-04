@@ -2,7 +2,6 @@ import {
   NetworkControlCapabilitySeeds,
   NetworkControlCatalogSettingSeeds,
   NetworkControlCatalogSourceDocuments,
-  type NetworkControlCatalogSettingSeed,
 } from './network-control-catalog-data';
 import { capabilityStateFromSourceState } from './network-control-catalog-metadata';
 import {
