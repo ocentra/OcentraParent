@@ -37,17 +37,6 @@ macro_rules! parent_owned_sync_string_enum {
     };
 }
 
-macro_rules! parent_owned_sync_string_enum_as_str {
-    ($name:ident { $($variant:ident => $value:expr),+ $(,)? }) => {
-        impl $name {
-            pub fn as_str(&self) -> &'static str {
-                const VALUES: &[&str] = &[$($value),+];
-                VALUES[*self as usize]
-            }
-        }
-    };
-}
-
 macro_rules! parent_owned_sync_text_identifiers {
     ($($name:ident),+ $(,)?) => {
         $(parent_owned_sync_text_identifier!($name);)+
@@ -57,12 +46,6 @@ macro_rules! parent_owned_sync_text_identifiers {
 macro_rules! parent_owned_sync_string_enums {
     ($($name:ident { $($(#[$variant_meta:meta])* $variant:ident),+ $(,)? }),+ $(,)?) => {
         $(parent_owned_sync_string_enum!($name { $($(#[$variant_meta])* $variant,)+ });)+
-    };
-}
-
-macro_rules! parent_owned_sync_string_enum_as_strs {
-    ($($name:ident { $($variant:ident => $value:expr),+ $(,)? }),+ $(,)?) => {
-        $(parent_owned_sync_string_enum_as_str!($name { $($variant => $value,)+ });)+
     };
 }
 
