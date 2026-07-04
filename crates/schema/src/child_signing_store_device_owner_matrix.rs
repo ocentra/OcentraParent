@@ -128,60 +128,97 @@ pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_STORE_PARITY_CLAIM_BOUNDARY: &
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_MANAGEMENT_PARITY_CLAIM_BOUNDARY: &str = "device-owner, managed-profile, and supervision states stay platform-specific and manual-required, device-proof-required, or not-applicable unless a row proves otherwise";
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_PARENT_PARITY_CLAIM_BOUNDARY: &str = "child artifact matrix does not imply parent-client parity, hidden daemons, or broader child runtime readiness";
 
-matrix_string_enum!(ChildArtifactMatrixPlatform {
-    Windows => CHILD_ARTIFACT_MATRIX_PLATFORM_WINDOWS,
-    Macos => CHILD_ARTIFACT_MATRIX_PLATFORM_MACOS,
-    Linux => CHILD_ARTIFACT_MATRIX_PLATFORM_LINUX,
-    Android => CHILD_ARTIFACT_MATRIX_PLATFORM_ANDROID,
-    Ios => CHILD_ARTIFACT_MATRIX_PLATFORM_IOS,
-});
-
-matrix_string_enum!(ChildArtifactMatrixArtifactKind {
-    WindowsMsiServicePackage => CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_WINDOWS_MSI_SERVICE_PACKAGE,
-    MacosLaunchdPkg => CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_MACOS_LAUNCHD_PKG,
-    LinuxSystemdDeb => CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_LINUX_SYSTEMD_DEB,
-    AndroidDebugApk => CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_ANDROID_DEBUG_APK,
-    IosSimulatorAppZip => CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_IOS_SIMULATOR_APP_ZIP,
-});
-
-matrix_string_enum!(ChildArtifactMatrixDistributionMode {
-    DirectMsiDownload => CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_DIRECT_MSI_DOWNLOAD,
-    DirectPkgDownload => CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_DIRECT_PKG_DOWNLOAD,
-    DirectDebDownload => CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_DIRECT_DEB_DOWNLOAD,
-    DebugApkSideload => CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_DEBUG_APK_SIDELOAD,
-    UnsignedSimulatorZip => CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_UNSIGNED_SIMULATOR_ZIP,
-});
-
-matrix_string_enum!(ChildArtifactMatrixArtifactProofState {
-    CiMechanicalProof => CHILD_ARTIFACT_MATRIX_ARTIFACT_PROOF_STATE_CI_MECHANICAL_PROOF,
-    CiPackageOnly => CHILD_ARTIFACT_MATRIX_ARTIFACT_PROOF_STATE_CI_PACKAGE_ONLY,
-    SimulatorScaffold => CHILD_ARTIFACT_MATRIX_ARTIFACT_PROOF_STATE_SIMULATOR_SCAFFOLD,
-});
-
-matrix_string_enum!(ChildArtifactMatrixProofSource {
-    WindowsReleaseScript => CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_WINDOWS_RELEASE_SCRIPT,
-    MacosServicePackageProof => CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_MACOS_SERVICE_PACKAGE_PROOF,
-    LinuxServicePackageProof => CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_LINUX_SERVICE_PACKAGE_PROOF,
-    AndroidDeviceProofGate => CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_ANDROID_DEVICE_PROOF_GATE,
-    IosEntitlementProof => CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_IOS_ENTITLEMENT_PROOF,
-});
-
-matrix_string_enum!(ChildArtifactMatrixSigningState {
-    Unsigned => CHILD_ARTIFACT_MATRIX_SIGNING_STATE_UNSIGNED,
-    DebugSigned => CHILD_ARTIFACT_MATRIX_SIGNING_STATE_DEBUG_SIGNED,
-    SigningDisabled => CHILD_ARTIFACT_MATRIX_SIGNING_STATE_SIGNING_DISABLED,
-});
-
-matrix_string_enum!(ChildArtifactMatrixStoreDistributionState {
-    NotApplicable => CHILD_ARTIFACT_MATRIX_STORE_DISTRIBUTION_STATE_NOT_APPLICABLE,
-    Planned => CHILD_ARTIFACT_MATRIX_STORE_DISTRIBUTION_STATE_PLANNED,
-});
-
-matrix_string_enum!(ChildArtifactMatrixManagementState {
-    NotApplicable => CHILD_ARTIFACT_MATRIX_MANAGEMENT_STATE_NOT_APPLICABLE,
-    ManualRequired => CHILD_ARTIFACT_MATRIX_MANAGEMENT_STATE_MANUAL_REQUIRED,
-    DeviceProofRequired => CHILD_ARTIFACT_MATRIX_MANAGEMENT_STATE_DEVICE_PROOF_REQUIRED,
-});
+matrix_string_enums!(
+    ChildArtifactMatrixPlatform {
+        variants: [Windows, Macos, Linux, Android, Ios],
+        values: [
+            CHILD_ARTIFACT_MATRIX_PLATFORM_WINDOWS,
+            CHILD_ARTIFACT_MATRIX_PLATFORM_MACOS,
+            CHILD_ARTIFACT_MATRIX_PLATFORM_LINUX,
+            CHILD_ARTIFACT_MATRIX_PLATFORM_ANDROID,
+            CHILD_ARTIFACT_MATRIX_PLATFORM_IOS,
+        ],
+    },
+    ChildArtifactMatrixArtifactKind {
+        variants: [
+            WindowsMsiServicePackage,
+            MacosLaunchdPkg,
+            LinuxSystemdDeb,
+            AndroidDebugApk,
+            IosSimulatorAppZip,
+        ],
+        values: [
+            CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_WINDOWS_MSI_SERVICE_PACKAGE,
+            CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_MACOS_LAUNCHD_PKG,
+            CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_LINUX_SYSTEMD_DEB,
+            CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_ANDROID_DEBUG_APK,
+            CHILD_ARTIFACT_MATRIX_ARTIFACT_KIND_IOS_SIMULATOR_APP_ZIP,
+        ],
+    },
+    ChildArtifactMatrixDistributionMode {
+        variants: [
+            DirectMsiDownload,
+            DirectPkgDownload,
+            DirectDebDownload,
+            DebugApkSideload,
+            UnsignedSimulatorZip,
+        ],
+        values: [
+            CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_DIRECT_MSI_DOWNLOAD,
+            CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_DIRECT_PKG_DOWNLOAD,
+            CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_DIRECT_DEB_DOWNLOAD,
+            CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_DEBUG_APK_SIDELOAD,
+            CHILD_ARTIFACT_MATRIX_DISTRIBUTION_MODE_UNSIGNED_SIMULATOR_ZIP,
+        ],
+    },
+    ChildArtifactMatrixArtifactProofState {
+        variants: [CiMechanicalProof, CiPackageOnly, SimulatorScaffold],
+        values: [
+            CHILD_ARTIFACT_MATRIX_ARTIFACT_PROOF_STATE_CI_MECHANICAL_PROOF,
+            CHILD_ARTIFACT_MATRIX_ARTIFACT_PROOF_STATE_CI_PACKAGE_ONLY,
+            CHILD_ARTIFACT_MATRIX_ARTIFACT_PROOF_STATE_SIMULATOR_SCAFFOLD,
+        ],
+    },
+    ChildArtifactMatrixProofSource {
+        variants: [
+            WindowsReleaseScript,
+            MacosServicePackageProof,
+            LinuxServicePackageProof,
+            AndroidDeviceProofGate,
+            IosEntitlementProof,
+        ],
+        values: [
+            CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_WINDOWS_RELEASE_SCRIPT,
+            CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_MACOS_SERVICE_PACKAGE_PROOF,
+            CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_LINUX_SERVICE_PACKAGE_PROOF,
+            CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_ANDROID_DEVICE_PROOF_GATE,
+            CHILD_ARTIFACT_MATRIX_PROOF_SOURCE_IOS_ENTITLEMENT_PROOF,
+        ],
+    },
+    ChildArtifactMatrixSigningState {
+        variants: [Unsigned, DebugSigned, SigningDisabled],
+        values: [
+            CHILD_ARTIFACT_MATRIX_SIGNING_STATE_UNSIGNED,
+            CHILD_ARTIFACT_MATRIX_SIGNING_STATE_DEBUG_SIGNED,
+            CHILD_ARTIFACT_MATRIX_SIGNING_STATE_SIGNING_DISABLED,
+        ],
+    },
+    ChildArtifactMatrixStoreDistributionState {
+        variants: [NotApplicable, Planned],
+        values: [
+            CHILD_ARTIFACT_MATRIX_STORE_DISTRIBUTION_STATE_NOT_APPLICABLE,
+            CHILD_ARTIFACT_MATRIX_STORE_DISTRIBUTION_STATE_PLANNED,
+        ],
+    },
+    ChildArtifactMatrixManagementState {
+        variants: [NotApplicable, ManualRequired, DeviceProofRequired],
+        values: [
+            CHILD_ARTIFACT_MATRIX_MANAGEMENT_STATE_NOT_APPLICABLE,
+            CHILD_ARTIFACT_MATRIX_MANAGEMENT_STATE_MANUAL_REQUIRED,
+            CHILD_ARTIFACT_MATRIX_MANAGEMENT_STATE_DEVICE_PROOF_REQUIRED,
+        ],
+    },
+);
 
 matrix_text_identifier!(ChildArtifactMatrixPath);
 matrix_text_identifier!(ChildArtifactMatrixBoundary);

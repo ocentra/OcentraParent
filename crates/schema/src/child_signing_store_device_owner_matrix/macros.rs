@@ -11,11 +11,7 @@ macro_rules! matrix_text_identifier {
         impl $name {
             pub fn parse(value: impl Into<String>) -> Option<Self> {
                 let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
+                (!value.trim().is_empty()).then_some(Self(value))
             }
 
             pub fn as_str(&self) -> &str {
@@ -31,20 +27,21 @@ macro_rules! matrix_text_identifier {
     };
 }
 
-macro_rules! matrix_string_enum {
-    ($name:ident { $($variant:ident => $value:ident),+ $(,)? }) => {
-        #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-        #[serde(rename_all = "kebab-case")]
-        pub enum $name {
-            $( $variant, )+
-        }
+macro_rules! matrix_string_enums {
+    ($($name:ident { variants: [$($variant:ident),+ $(,)?], values: [$($value:ident),+ $(,)?] $(,)? }),+ $(,)?) => {
+        $(
+            #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+            #[serde(rename_all = "kebab-case")]
+            pub enum $name {
+                $( $variant, )+
+            }
 
-        impl $name {
-            pub const fn as_str(&self) -> &'static str {
-                match self {
-                    $(Self::$variant => $value,)+
+            impl $name {
+                pub const fn as_str(&self) -> &'static str {
+                    const VALUES: &[&str] = &[$($value),+];
+                    VALUES[*self as usize]
                 }
             }
-        }
+        )+
     };
 }
