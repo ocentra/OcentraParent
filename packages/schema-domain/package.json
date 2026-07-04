@@ -2437,10 +2437,6 @@
       "import": "./dist/tamper-integrity-audit-read-model.js",
       "types": "./dist/tamper-integrity-audit-read-model.d.ts"
     },
-    "./tamper-uninstall-artifact-status": {
-      "import": "./dist/tamper-uninstall-artifact-status.js",
-      "types": "./dist/tamper-uninstall-artifact-status.d.ts"
-    },
     "./text-app-game-child-ux": {
       "import": "./dist/text-app-game-child-ux.js",
       "types": "./dist/text-app-game-child-ux.d.ts"
