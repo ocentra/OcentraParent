@@ -2845,10 +2845,6 @@
       "import": "./dist/v0-8-browser-domain-adapter-proof.js",
       "types": "./dist/v0-8-browser-domain-adapter-proof.d.ts"
     },
-    "./v0-8-browser-enforcement-timer-recovery-proof": {
-      "import": "./dist/v0-8-browser-enforcement-timer-recovery-proof.js",
-      "types": "./dist/v0-8-browser-enforcement-timer-recovery-proof.d.ts"
-    },
     "./v0-8-cross-platform-enforcement-capability-proof": {
       "import": "./dist/v0-8-cross-platform-enforcement-capability-proof.js",
       "types": "./dist/v0-8-cross-platform-enforcement-capability-proof.d.ts"
