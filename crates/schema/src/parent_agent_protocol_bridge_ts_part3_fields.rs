@@ -1,6 +1,20 @@
 use super::*;
 
 pub(super) fn field_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(field_descriptors_core());
+    descriptors.extend(field_descriptors_browser_social());
+    descriptors.extend(field_descriptors_browser_runtime_action());
+    descriptors.extend(field_descriptors_browser_runtime_stream());
+    descriptors.extend(field_descriptors_lan());
+    descriptors.extend(field_descriptors_local_ai());
+    descriptors.extend(field_descriptors_network());
+    descriptors.extend(field_descriptors_parent_assistant());
+    descriptors.extend(field_descriptors_misc());
+    descriptors
+}
+
+fn field_descriptors_core() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
     vec![
         field_descriptor("ActivityDigest", field::ACTIVITY_DIGEST),
         field_descriptor("ActivityFamilySources", field::ACTIVITY_FAMILY_SOURCES),
@@ -24,6 +38,11 @@ pub(super) fn field_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>
         field_descriptor("Payload", field::PAYLOAD),
         field_descriptor("StartedAt", field::STARTED_AT),
         field_descriptor("StaleAt", field::STALE_AT),
+    ]
+}
+
+fn field_descriptors_browser_social() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "BrowserSocialAlertReportReadModel",
             field::BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL,
@@ -40,6 +59,11 @@ pub(super) fn field_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>
             "BrowserSocialParentNotificationDeliveryReadModel",
             field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL,
         ),
+    ]
+}
+
+fn field_descriptors_browser_runtime_action() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "BrowserRuntimeActionIntentAdapterExecutions",
             field::BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS,
@@ -88,6 +112,11 @@ pub(super) fn field_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>
             "BrowserRuntimeActionIntentParentReadModelRefs",
             field::BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS,
         ),
+    ]
+}
+
+fn field_descriptors_browser_runtime_stream() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "BrowserRuntimeEventChainStream",
             field::BROWSER_RUNTIME_EVENT_CHAIN_STREAM,
@@ -160,6 +189,11 @@ pub(super) fn field_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>
             "BrowserRuntimeStreamedEvents",
             field::BROWSER_RUNTIME_STREAMED_EVENTS,
         ),
+    ]
+}
+
+fn field_descriptors_lan() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor("LanAiJobId", field::LAN_AI_JOB_ID),
         field_descriptor("LanAiJobState", field::LAN_AI_JOB_STATE),
         field_descriptor("LanAiJobStatus", field::LAN_AI_JOB_STATUS),
@@ -216,6 +250,11 @@ pub(super) fn field_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>
         field_descriptor("LanProofDigest", field::LAN_PROOF_DIGEST),
         field_descriptor("LanRouteId", field::LAN_ROUTE_ID),
         field_descriptor("LoadState", field::LOAD_STATE),
+    ]
+}
+
+fn field_descriptors_local_ai() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "LocalAiAdapterReadinessState",
             field::LOCAL_AI_ADAPTER_READINESS_STATE,
@@ -237,6 +276,11 @@ pub(super) fn field_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>
             field::LOCAL_AI_UNAVAILABLE_REASON,
         ),
         field_descriptor("Message", field::MESSAGE),
+    ]
+}
+
+fn field_descriptors_network() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "NetworkAndroidVpnServiceGateStatus",
             network_flow::FIELD_NETWORK_ANDROID_VPN_SERVICE_GATE_STATUS,
@@ -306,6 +350,11 @@ pub(super) fn field_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>
             network_flow::FIELD_NETWORK_WINDOWS_WFP_GATE_STATUS,
         ),
         field_descriptor("Online", field::ONLINE),
+    ]
+}
+
+fn field_descriptors_parent_assistant() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "ParentAssistantAnswerState",
             field::PARENT_ASSISTANT_ANSWER_STATE,
@@ -366,6 +415,11 @@ pub(super) fn field_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>
             "ParentAssistantInputSource",
             field::PARENT_ASSISTANT_INPUT_SOURCE,
         ),
+    ]
+}
+
+fn field_descriptors_misc() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor("RangeEnd", field::RANGE_END),
         field_descriptor("RangeStart", field::RANGE_START),
         field_descriptor("Reason", field::REASON),

@@ -184,7 +184,17 @@ fn event_descriptors_browser_network() -> Vec<ProtocolLiteralDescriptor<AgentEve
     ]
 }
 
-pub(super) fn event_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescriptor<AgentEventName>> {
+pub(super) fn event_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescriptor<AgentEventName>>
+{
+    let mut descriptors = Vec::new();
+    descriptors.extend(event_descriptors_local_policy_lan_network());
+    descriptors.extend(event_descriptors_local_policy_lan_policy());
+    descriptors.extend(event_descriptors_local_policy_lan_enforcement());
+    descriptors.extend(event_descriptors_local_policy_lan_pairing());
+    descriptors
+}
+
+fn event_descriptors_local_policy_lan_network() -> Vec<ProtocolLiteralDescriptor<AgentEventName>> {
     vec![
         event(
             "NetworkLinuxNftablesLabStatusReported",
@@ -230,6 +240,11 @@ pub(super) fn event_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescrip
             "PolicyRequestAssistantPreviewConfirmReported",
             AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported,
         ),
+    ]
+}
+
+fn event_descriptors_local_policy_lan_policy() -> Vec<ProtocolLiteralDescriptor<AgentEventName>> {
+    vec![
         event(
             "BrowserPolicyReported",
             AgentEventName::AgentBrowserPolicyReported,
@@ -274,6 +289,12 @@ pub(super) fn event_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescrip
             "ScreenSettingsReplaceRejected",
             AgentEventName::AgentScreenSettingsReplaceRejected,
         ),
+    ]
+}
+
+fn event_descriptors_local_policy_lan_enforcement() -> Vec<ProtocolLiteralDescriptor<AgentEventName>>
+{
+    vec![
         event(
             "EnforcementAuditReported",
             AgentEventName::AgentEnforcementAuditReported,
@@ -342,6 +363,11 @@ pub(super) fn event_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescrip
             "ParentAssistantErrorReported",
             AgentEventName::AgentParentAssistantErrorReported,
         ),
+    ]
+}
+
+fn event_descriptors_local_policy_lan_pairing() -> Vec<ProtocolLiteralDescriptor<AgentEventName>> {
+    vec![
         event(
             "LanPairingStatusReported",
             AgentEventName::AgentLanPairingStatusReported,

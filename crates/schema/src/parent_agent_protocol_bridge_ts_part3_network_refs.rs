@@ -2,6 +2,16 @@ use super::*;
 
 pub(super) fn network_remote_delivery_status_ref_descriptors(
 ) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(network_remote_delivery_status_ref_descriptors_core());
+    descriptors.extend(network_remote_delivery_status_ref_descriptors_outbox());
+    descriptors.extend(network_remote_delivery_status_ref_descriptors_readiness());
+    descriptors.extend(network_remote_delivery_status_ref_descriptors_transport());
+    descriptors
+}
+
+fn network_remote_delivery_status_ref_descriptors_core(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
     vec![
         field_descriptor(
             "StatusRef",
@@ -39,6 +49,12 @@ pub(super) fn network_remote_delivery_status_ref_descriptors(
             "DurableSupportStatusRef",
             network_flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF,
         ),
+    ]
+}
+
+fn network_remote_delivery_status_ref_descriptors_outbox(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor("OutboxRef", network_flow::TEST_REMOTE_DELIVERY_OUTBOX_REF),
         field_descriptor(
             "OutboxHandoffRef",
@@ -76,6 +92,12 @@ pub(super) fn network_remote_delivery_status_ref_descriptors(
             "FixtureAckRef",
             network_flow::TEST_REMOTE_DELIVERY_FIXTURE_ACK_REF,
         ),
+    ]
+}
+
+fn network_remote_delivery_status_ref_descriptors_readiness(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "DeleteExportPropagationRef",
             network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_PROPAGATION_REF,
@@ -124,6 +146,12 @@ pub(super) fn network_remote_delivery_status_ref_descriptors(
             "RemoteExportCustodyReadinessRef",
             network_flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_CUSTODY_REF,
         ),
+    ]
+}
+
+fn network_remote_delivery_status_ref_descriptors_transport(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "CrossProcessReplayRef",
             network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_REF,
@@ -152,6 +180,15 @@ pub(super) fn network_remote_delivery_status_ref_descriptors(
 }
 
 pub(super) fn network_live_capture_status_ref_descriptors(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(network_live_capture_status_ref_descriptors_proof());
+    descriptors.extend(network_live_capture_status_ref_descriptors_execution());
+    descriptors.extend(network_live_capture_status_ref_descriptors_raw_capture());
+    descriptors
+}
+
+fn network_live_capture_status_ref_descriptors_proof(
 ) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
     vec![
         field_descriptor("StatusRef", network_flow::TEST_LIVE_CAPTURE_STATUS_REF),
@@ -192,6 +229,12 @@ pub(super) fn network_live_capture_status_ref_descriptors(
             "PermissionRef",
             network_flow::TEST_LIVE_CAPTURE_PERMISSION_REF,
         ),
+    ]
+}
+
+fn network_live_capture_status_ref_descriptors_execution(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "BoundedCaptureRef",
             network_flow::TEST_LIVE_CAPTURE_BOUNDED_REF,
@@ -262,6 +305,12 @@ pub(super) fn network_live_capture_status_ref_descriptors(
             "ExecutionPrivateTrafficExclusionRef",
             network_flow::TEST_LIVE_CAPTURE_EXECUTION_PRIVATE_TRAFFIC_EXCLUSION_REF,
         ),
+    ]
+}
+
+fn network_live_capture_status_ref_descriptors_raw_capture(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
         field_descriptor(
             "RawManifestRef",
             network_flow::TEST_RAW_CAPTURE_MANIFEST_REF,

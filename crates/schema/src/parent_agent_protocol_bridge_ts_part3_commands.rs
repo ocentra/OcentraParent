@@ -73,7 +73,17 @@ fn command_descriptors_activity() -> Vec<ProtocolLiteralDescriptor<AgentCommandN
     ]
 }
 
-pub(super) fn command_descriptors_browser_network() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+pub(super) fn command_descriptors_browser_network(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(command_descriptors_browser_network_app_game());
+    descriptors.extend(command_descriptors_browser_network_social());
+    descriptors.extend(command_descriptors_browser_network_runtime());
+    descriptors
+}
+
+fn command_descriptors_browser_network_app_game() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
     vec![
         command(
             "ActivityAppGameNotificationReadinessReadModelGet",
@@ -111,6 +121,12 @@ pub(super) fn command_descriptors_browser_network() -> Vec<ProtocolLiteralDescri
             "ActivityAppGameTimerParentPreferenceSetupRequest",
             AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest,
         ),
+    ]
+}
+
+fn command_descriptors_browser_network_social() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
         command(
             "BrowserSocialDashboardReadModelGet",
             AgentCommandName::AgentBrowserSocialDashboardReadModelGet,
@@ -135,6 +151,12 @@ pub(super) fn command_descriptors_browser_network() -> Vec<ProtocolLiteralDescri
             "BrowserSocialSourceCustodyMutationApply",
             AgentCommandName::AgentBrowserSocialSourceCustodyMutationApply,
         ),
+    ]
+}
+
+fn command_descriptors_browser_network_runtime() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
         command(
             "ActivityNetworkReadModelGet",
             AgentCommandName::AgentActivityNetworkReadModelGet,
@@ -162,7 +184,20 @@ pub(super) fn command_descriptors_browser_network() -> Vec<ProtocolLiteralDescri
     ]
 }
 
-pub(super) fn command_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+pub(super) fn command_descriptors_local_policy_lan(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(command_descriptors_local_policy_lan_network());
+    descriptors.extend(command_descriptors_local_policy_lan_local_ai());
+    descriptors.extend(command_descriptors_local_policy_lan_policy());
+    descriptors.extend(command_descriptors_local_policy_lan_enforcement());
+    descriptors.extend(command_descriptors_local_policy_lan_parent_assistant());
+    descriptors.extend(command_descriptors_local_policy_lan_pairing());
+    descriptors
+}
+
+fn command_descriptors_local_policy_lan_network() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
     vec![
         command(
             "BrowserRuntimeEventChainStreamGet",
@@ -212,6 +247,12 @@ pub(super) fn command_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescr
             "NetworkAppleNetworkExtensionGateStatusGet",
             AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet,
         ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_local_ai(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    vec![
         command(
             "ActivityTrackingReadModelGet",
             AgentCommandName::AgentActivityTrackingReadModelGet,
@@ -228,6 +269,12 @@ pub(super) fn command_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescr
             "ParentAssistantAnswerGenerate",
             AgentCommandName::AgentParentAssistantAnswerGenerate,
         ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_policy() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
         command(
             "PolicyPreviewReadModelGet",
             AgentCommandName::AgentPolicyPreviewReadModelGet,
@@ -253,6 +300,12 @@ pub(super) fn command_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescr
             "BrowserPolicyRollback",
             AgentCommandName::AgentBrowserPolicyRollback,
         ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_enforcement(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    vec![
         command(
             "ScreenSettingsGet",
             AgentCommandName::AgentScreenSettingsGet,
@@ -293,6 +346,12 @@ pub(super) fn command_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescr
             "EnforcementSupportedAdapterRuntimeProofGet",
             AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet,
         ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_parent_assistant(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    vec![
         command(
             "ParentAssistantThreadList",
             AgentCommandName::AgentParentAssistantThreadList,
@@ -333,6 +392,12 @@ pub(super) fn command_descriptors_local_policy_lan() -> Vec<ProtocolLiteralDescr
             "ParentAssistantProviderStatusGet",
             AgentCommandName::AgentParentAssistantProviderStatusGet,
         ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_pairing() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
         command(
             "LanPairingProofSubmit",
             AgentCommandName::AgentLanPairingProofSubmit,

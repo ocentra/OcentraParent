@@ -93,7 +93,8 @@ fn target_default(
     }
 }
 
-pub(super) fn lan_household_action_kind_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+pub(super) fn lan_household_action_kind_descriptors() -> Vec<ProtocolLiteralDescriptor<&'static str>>
+{
     vec![
         field_descriptor("Assign", lan_pairing::HOUSEHOLD_ACTION_ASSIGN),
         field_descriptor("Rename", lan_pairing::HOUSEHOLD_ACTION_RENAME),
