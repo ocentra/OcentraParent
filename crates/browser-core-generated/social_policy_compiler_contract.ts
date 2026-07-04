@@ -9,13 +9,14 @@ import {
   ParentPolicyVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { PolicyCompilerCapabilityStateSchema } from '@ocentra-parent/schema-domain/policy-compiler';
 import {
+  PolicyCompilerCapabilityStateSchema,
   SocialParentPolicyActionCandidateSchema,
   SocialParentPolicyCompilerModeSchema,
   SocialParentPolicyCompileRequestIdSchema,
   SocialParentPolicyConfidenceSchema,
   SocialParentPolicyDecisionCandidateIdSchema,
+  SocialParentPolicyReasonCode,
   SocialParentPolicyReasonCodesSchema,
   SocialParentPolicyScheduleStateSchema,
   SocialParentPolicyTargetKindSchema,
@@ -25,8 +26,7 @@ import {
   SocialPolicyScheduleRefsSchema,
   SocialPolicySignalSetRefsSchema,
   SocialPolicyTimeBudgetRefsSchema,
-} from '@ocentra-parent/schema-domain/social-policy-compiler-values';
-import type { SocialParentPolicyReasonCodeSchema } from '@ocentra-parent/schema-domain/social-policy-compiler-values';
+} from './social_policy_compiler_contract_support';
 
 const SocialParentPolicyCompilerInputBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
@@ -230,17 +230,15 @@ function socialPolicyDecisionCandidateClaimsAuthority(
   );
 }
 
-function reasonCodesIncludeUnknownFallback(value: ReadonlyArray<Infer<typeof SocialParentPolicyReasonCodeSchema>>) {
+function reasonCodesIncludeUnknownFallback(value: ReadonlyArray<SocialParentPolicyReasonCode>) {
   return SocialPolicyUnknownFallbackReasons.some((reasonCode) => value.includes(reasonCode));
 }
 
-const SocialPolicyAllowReasons = ['social-benefit-present', 'parent-rule-match'] as const satisfies ReadonlyArray<
-  Infer<typeof SocialParentPolicyReasonCodeSchema>
->;
+const SocialPolicyAllowReasons = ['social-benefit-present', 'parent-rule-match'] as const satisfies ReadonlyArray<SocialParentPolicyReasonCode>;
 
 const SocialPolicyUnknownFallbackReasons = [
   'missing-signal-proof',
   'degraded-analysis',
   'low-confidence',
   'unknown-evidence',
-] as const satisfies ReadonlyArray<Infer<typeof SocialParentPolicyReasonCodeSchema>>;
+] as const satisfies ReadonlyArray<SocialParentPolicyReasonCode>;
