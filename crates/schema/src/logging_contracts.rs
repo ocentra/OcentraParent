@@ -2,56 +2,23 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
-mod logging_contracts_source;
-mod logging_contracts_text;
+#[path = "logging_contracts_source.rs"]
+pub mod logging_contracts_source;
+#[path = "logging_contracts_text.rs"]
+pub mod logging_contracts_text;
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct AgentDeviceId(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct AgentHostname(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct AgentPlatform(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct AgentServiceVersion(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct LogEntryId(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct LogTimestamp(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct LogMessage(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct LogRunId(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct LogLaneId(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct LogCommandId(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct LogCorrelationId(String);
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct StackTrace(String);
+pub type AgentDeviceId = logging_contracts_text::AgentDeviceId;
+pub type AgentHostname = logging_contracts_text::AgentHostname;
+pub type AgentPlatform = logging_contracts_text::AgentPlatform;
+pub type AgentServiceVersion = logging_contracts_text::AgentServiceVersion;
+pub type LogEntryId = logging_contracts_text::LogEntryId;
+pub type LogTimestamp = logging_contracts_text::LogTimestamp;
+pub type LogMessage = logging_contracts_text::LogMessage;
+pub type LogRunId = logging_contracts_text::LogRunId;
+pub type LogLaneId = logging_contracts_text::LogLaneId;
+pub type LogCommandId = logging_contracts_text::LogCommandId;
+pub type LogCorrelationId = logging_contracts_text::LogCorrelationId;
+pub type StackTrace = logging_contracts_text::StackTrace;
 
 pub const LOG_SCHEMA_VERSION: u16 = 1;
 pub const LOG_SNAPSHOT_SCHEMA_VERSION: u16 = 1;
