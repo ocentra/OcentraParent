@@ -5,8 +5,22 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { RequiredSocialAlertReportProviderStatusHandoffNonClaims } from '@ocentra-parent/schema-domain/social-alert-report-provider-status-handoff-proof';
-import { V08NotificationProviderStatusSchema } from '@ocentra-parent/schema-domain/v0-8-notification-provider-status-boundary';
+
+const RequiredSocialAlertReportProviderStatusHandoffNonClaims = [
+  'no-provider-delivery-execution',
+  'no-provider-receipt-ingestion',
+  'no-provider-credentials',
+  'no-cloud-routing',
+  'no-parent-notification-ui-delivery',
+  'no-report-delivery-execution',
+  'no-final-policy-execution',
+  'no-connector-native-runtime',
+  'no-enforcement',
+] as const;
+
+const V08NotificationProviderStatusSchema = withParser(
+  Schema.Literal('queued', 'delivered', 'failed', 'unavailable', 'manual-required')
+);
 
 export const RequiredSocialAlertReportProviderReceiptBoundaryNonClaims = [
   'no-provider-delivery-execution',
