@@ -88,21 +88,22 @@ export const LocalAiProviderSchedulerDecisionSchema = withParser(
   )
 );
 
-function localAiProviderSchedulerStatusIsConsistent(status: LocalAiProviderSchedulerStatusCandidate): boolean {
-  switch (status.lifecycleState) {
-    case 'unavailable':
-      return unavailableStatusIsConsistent(status);
-    case 'running':
-      return status.currentJobClass !== null && status.unavailableReason === null;
-    case 'queued':
-      return totalQueuedJobs(status.queue) > 0 && status.unavailableReason === null;
-    case 'degraded':
-      return status.degradedState !== 'none' && status.unavailableReason === null;
-    case 'idle':
-      return idleStatusIsConsistent(status);
-  }
+const localAiProviderSchedulerStatusValidators = {
+  unavailable: unavailableStatusIsConsistent,
+  running: (status: LocalAiProviderSchedulerStatusCandidate) =>
+    status.currentJobClass !== null && status.unavailableReason === null,
+  queued: (status: LocalAiProviderSchedulerStatusCandidate) =>
+    totalQueuedJobs(status.queue) > 0 && status.unavailableReason === null,
+  degraded: (status: LocalAiProviderSchedulerStatusCandidate) =>
+    status.degradedState !== 'none' && status.unavailableReason === null,
+  idle: idleStatusIsConsistent,
+} satisfies Record<
+  LocalAiProviderSchedulerLifecycle,
+  (status: LocalAiProviderSchedulerStatusCandidate) => boolean
+>;
 
-  return false;
+function localAiProviderSchedulerStatusIsConsistent(status: LocalAiProviderSchedulerStatusCandidate): boolean {
+  return localAiProviderSchedulerStatusValidators[status.lifecycleState](status);
 }
 
 function unavailableStatusIsConsistent(status: LocalAiProviderSchedulerStatusCandidate): boolean {
@@ -123,21 +124,20 @@ function idleStatusIsConsistent(status: LocalAiProviderSchedulerStatusCandidate)
   );
 }
 
-function localAiProviderSchedulerDecisionIsConsistent(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
-  switch (decision.jobStatus) {
-    case 'unavailable':
-      return unavailableDecisionIsConsistent(decision);
-    case 'queued':
-      return queuedDecisionIsConsistent(decision);
-    case 'running':
-    case 'accepted':
-    case 'complete':
-      return activeRuntimeDecisionIsConsistent(decision);
-    case 'degraded':
-      return degradedDecisionIsConsistent(decision);
-  }
+const localAiProviderSchedulerDecisionValidators = {
+  unavailable: unavailableDecisionIsConsistent,
+  queued: queuedDecisionIsConsistent,
+  running: activeRuntimeDecisionIsConsistent,
+  accepted: activeRuntimeDecisionIsConsistent,
+  complete: activeRuntimeDecisionIsConsistent,
+  degraded: degradedDecisionIsConsistent,
+} satisfies Record<
+  LocalAiProviderSchedulerJobStatus,
+  (decision: LocalAiProviderSchedulerDecisionCandidate) => boolean
+>;
 
-  return false;
+function localAiProviderSchedulerDecisionIsConsistent(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
+  return localAiProviderSchedulerDecisionValidators[decision.jobStatus](decision);
 }
 
 function unavailableDecisionIsConsistent(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
