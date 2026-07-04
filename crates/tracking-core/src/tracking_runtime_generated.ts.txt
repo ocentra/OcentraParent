@@ -8,10 +8,22 @@ import {
   type TrackingGeofenceTransition,
 } from '@ocentra-parent/schema-domain/tracking-geofence';
 import { TrackingReasonCodeSchema } from '@ocentra-parent/schema-domain/tracking-primitives';
-import type {
-  TrackingExpectedPlaceEvaluationInput,
-  TrackingGeofenceEvaluationInput,
-} from '@ocentra-parent/schema-domain/tracking-runtime';
+
+export interface TrackingGeofenceEvaluationInput {
+  readonly transitionId: TrackingGeofenceTransition['transitionId'];
+  readonly observedAt: TrackingGeofenceTransition['observedAt'];
+  readonly rule: TrackingGeofenceRule;
+  readonly location: TrackingLocationEvidence;
+  readonly wasInside: boolean;
+}
+
+export interface TrackingExpectedPlaceEvaluationInput {
+  readonly decisionId: TrackingExpectedPlaceDecision['decisionId'];
+  readonly observedAt: TrackingExpectedPlaceDecision['observedAt'];
+  readonly schedule: TrackingExpectedPlaceSchedule;
+  readonly location: TrackingLocationEvidence;
+  readonly transition: TrackingGeofenceTransition;
+}
 
 const EarthRadiusMeters = 6_371_008.8;
 const HalfCircleDegrees = 180;

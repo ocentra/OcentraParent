@@ -18,6 +18,8 @@ mod read_model;
 mod retention_runtime;
 #[path = "retention_settings.rs"]
 mod retention_settings;
+#[path = "tracking_runtime_contract.rs"]
+mod tracking_runtime_contract;
 #[path = "runtime_side_branch.rs"]
 mod runtime_side_branch;
 #[path = "status.rs"]
