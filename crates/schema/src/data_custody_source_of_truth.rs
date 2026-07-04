@@ -14,11 +14,7 @@ macro_rules! data_custody_identifier {
         impl $name {
             pub fn parse(value: impl Into<String>) -> Option<Self> {
                 let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
+                (!value.trim().is_empty()).then_some(Self(value))
             }
 
             pub fn as_str(&self) -> &str {

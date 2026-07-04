@@ -141,11 +141,7 @@ macro_rules! key_custody_text_identifier {
         impl $name {
             pub fn parse(value: impl Into<String>) -> Option<Self> {
                 let value = value.into();
-                if value.trim().is_empty() {
-                    None
-                } else {
-                    Some(Self(value))
-                }
+                (!value.trim().is_empty()).then_some(Self(value))
             }
 
             pub fn as_str(&self) -> &str {
@@ -161,150 +157,242 @@ macro_rules! key_custody_text_identifier {
     };
 }
 
-macro_rules! key_custody_string_enum {
-    ($name:ident { $($variant:ident => $value:ident),+ $(,)? }) => {
-        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-        pub enum $name {
-            $(
-                $variant,
-            )+
+macro_rules! key_custody_string_enums {
+    ($(
+        $name:ident {
+            variants: [$($variant:ident),+ $(,)?],
+            values: [$($value:literal),+ $(,)?]
         }
+    ),+ $(,)?) => {
+        $(
+            #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+            pub enum $name {
+                $(
+                    #[serde(rename = $value)]
+                    $variant,
+                )+
+            }
 
-        impl $name {
-            pub fn as_str(&self) -> &'static str {
-                match self {
-                    $(Self::$variant => $value,)+
+            impl $name {
+                pub fn as_str(&self) -> &'static str {
+                    const VALUES: &[&str] = &[$($value),+];
+                    VALUES[*self as usize]
                 }
             }
-        }
-
-        impl Serialize for $name {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: Serializer,
-            {
-                serializer.serialize_str(self.as_str())
-            }
-        }
-
-        impl<'de> Deserialize<'de> for $name {
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where
-                D: Deserializer<'de>,
-            {
-                let value = String::deserialize(deserializer)?;
-                match value.as_str() {
-                    $(candidate if candidate == $value => Ok(Self::$variant),)+
-                    _ => Err(serde::de::Error::custom(format!("invalid {}: {}", stringify!($name), value))),
-                }
-            }
-        }
+        )+
     };
 }
 
-key_custody_string_enum!(EncryptionKeyClass {
-    ChildDeviceLocalKey => ENCRYPTION_KEY_CLASS_CHILD_DEVICE_LOCAL_KEY,
-    ParentDesktopKey => ENCRYPTION_KEY_CLASS_PARENT_DESKTOP_KEY,
-    ParentMobileKey => ENCRYPTION_KEY_CLASS_PARENT_MOBILE_KEY,
-    HouseholdRecoveryKey => ENCRYPTION_KEY_CLASS_HOUSEHOLD_RECOVERY_KEY,
-    ProviderAuthToken => ENCRYPTION_KEY_CLASS_PROVIDER_AUTH_TOKEN,
-    SupportDiagnosticToken => ENCRYPTION_KEY_CLASS_SUPPORT_DIAGNOSTIC_TOKEN,
-});
-
-key_custody_string_enum!(EncryptionKeyHolder {
-    ChildDevice => ENCRYPTION_KEY_HOLDER_CHILD_DEVICE,
-    ParentDesktop => ENCRYPTION_KEY_HOLDER_PARENT_DESKTOP,
-    ParentMobile => ENCRYPTION_KEY_HOLDER_PARENT_MOBILE,
-    HouseholdRecoveryPath => ENCRYPTION_KEY_HOLDER_HOUSEHOLD_RECOVERY_PATH,
-    ProviderConnection => ENCRYPTION_KEY_HOLDER_PROVIDER_CONNECTION,
-    SupportFlow => ENCRYPTION_KEY_HOLDER_SUPPORT_FLOW,
-    HostedPortal => ENCRYPTION_KEY_HOLDER_HOSTED_PORTAL,
-});
-
-key_custody_string_enum!(EncryptionUnlockScope {
-    ChildEvidenceLocal => ENCRYPTION_UNLOCK_SCOPE_CHILD_EVIDENCE_LOCAL,
-    ParentOwnedBundle => ENCRYPTION_UNLOCK_SCOPE_PARENT_OWNED_BUNDLE,
-    ParentCacheReports => ENCRYPTION_UNLOCK_SCOPE_PARENT_CACHE_REPORTS,
-    HouseholdRecoveryBundle => ENCRYPTION_UNLOCK_SCOPE_HOUSEHOLD_RECOVERY_BUNDLE,
-    ProviderApiOnly => ENCRYPTION_UNLOCK_SCOPE_PROVIDER_API_ONLY,
-    DiagnosticsMetadataOnly => ENCRYPTION_UNLOCK_SCOPE_DIAGNOSTICS_METADATA_ONLY,
-    StatusOnly => ENCRYPTION_UNLOCK_SCOPE_STATUS_ONLY,
-});
-
-key_custody_string_enum!(PlatformKeyCustodySurface {
-    Windows => PLATFORM_KEY_CUSTODY_SURFACE_WINDOWS,
-    MacOs => PLATFORM_KEY_CUSTODY_SURFACE_MACOS,
-    Linux => PLATFORM_KEY_CUSTODY_SURFACE_LINUX,
-    Android => PLATFORM_KEY_CUSTODY_SURFACE_ANDROID,
-    IOS => PLATFORM_KEY_CUSTODY_SURFACE_IOS,
-    WebPortal => PLATFORM_KEY_CUSTODY_SURFACE_WEB_PORTAL,
-    ParentDesktop => PLATFORM_KEY_CUSTODY_SURFACE_PARENT_DESKTOP,
-    ChildService => PLATFORM_KEY_CUSTODY_SURFACE_CHILD_SERVICE,
-    ParentMobile => PLATFORM_KEY_CUSTODY_SURFACE_PARENT_MOBILE,
-    ChildMobile => PLATFORM_KEY_CUSTODY_SURFACE_CHILD_MOBILE,
-});
-
-key_custody_string_enum!(PlatformKeyStoreKind {
-    WindowsDpapiUser => PLATFORM_KEY_STORE_KIND_WINDOWS_DPAPI_USER,
-    WindowsDpapiMachine => PLATFORM_KEY_STORE_KIND_WINDOWS_DPAPI_MACHINE,
-    MacOsKeychain => PLATFORM_KEY_STORE_KIND_MACOS_KEYCHAIN,
-    SecureEnclaveBacked => PLATFORM_KEY_STORE_KIND_SECURE_ENCLAVE_BACKED,
-    LinuxSecretStoreUndecided => PLATFORM_KEY_STORE_KIND_LINUX_SECRET_STORE_UNDECIDED,
-    AndroidKeystore => PLATFORM_KEY_STORE_KIND_ANDROID_KEYSTORE,
-    IOSKeychain => PLATFORM_KEY_STORE_KIND_IOS_KEYCHAIN,
-    NoDecryptRoot => PLATFORM_KEY_STORE_KIND_NO_DECRYPT_ROOT,
-    ParentDesktopLocalKeyPath => PLATFORM_KEY_STORE_KIND_PARENT_DESKTOP_LOCAL_KEY_PATH,
-    ChildServiceLocalKeyPath => PLATFORM_KEY_STORE_KIND_CHILD_SERVICE_LOCAL_KEY_PATH,
-    ParentMobileApprovalPath => PLATFORM_KEY_STORE_KIND_PARENT_MOBILE_APPROVAL_PATH,
-    ChildMobilePlatformKeyPath => PLATFORM_KEY_STORE_KIND_CHILD_MOBILE_PLATFORM_KEY_PATH,
-});
-
-key_custody_string_enum!(PlatformDecryptAuthority {
-    ChildLocalEvidenceOnly => PLATFORM_DECRYPT_AUTHORITY_CHILD_LOCAL_EVIDENCE_ONLY,
-    ParentOwnedBundlesOnly => PLATFORM_DECRYPT_AUTHORITY_PARENT_OWNED_BUNDLES_ONLY,
-    ParentCacheReportsAndBundles => PLATFORM_DECRYPT_AUTHORITY_PARENT_CACHE_REPORTS_AND_BUNDLES,
-    HouseholdRecoveryBundlesOnly => PLATFORM_DECRYPT_AUTHORITY_HOUSEHOLD_RECOVERY_BUNDLES_ONLY,
-    NotDecryptRoot => PLATFORM_DECRYPT_AUTHORITY_NOT_DECRYPT_ROOT,
-    ManualRequired => PLATFORM_DECRYPT_AUTHORITY_MANUAL_REQUIRED,
-});
-
-key_custody_string_enum!(KeyCustodyState {
-    KeyAvailable => KEY_CUSTODY_STATE_KEY_AVAILABLE,
-    KeyUnavailable => KEY_CUSTODY_STATE_KEY_UNAVAILABLE,
-    KeyRevoked => KEY_CUSTODY_STATE_KEY_REVOKED,
-    WrongHousehold => KEY_CUSTODY_STATE_WRONG_HOUSEHOLD,
-    WrongDevice => KEY_CUSTODY_STATE_WRONG_DEVICE,
-    ReinstallRequired => KEY_CUSTODY_STATE_REINSTALL_REQUIRED,
-    RecoveryAvailable => KEY_CUSTODY_STATE_RECOVERY_AVAILABLE,
-    RecoveryNotSupported => KEY_CUSTODY_STATE_RECOVERY_NOT_SUPPORTED,
-});
-
-key_custody_string_enum!(RecoveryMode {
-    ManualRequired => RECOVERY_MODE_MANUAL_REQUIRED,
-    ParentOwnedRecovery => RECOVERY_MODE_PARENT_OWNED_RECOVERY,
-    NotSupported => RECOVERY_MODE_NOT_SUPPORTED,
-});
-
-key_custody_string_enum!(DecryptDecisionState {
-    Allowed => DECRYPT_DECISION_STATE_ALLOWED,
-    WrongHouseholdDenied => DECRYPT_DECISION_STATE_WRONG_HOUSEHOLD_DENIED,
-    WrongDeviceDenied => DECRYPT_DECISION_STATE_WRONG_DEVICE_DENIED,
-    RevokedKeyDenied => DECRYPT_DECISION_STATE_REVOKED_KEY_DENIED,
-    LostKeyManualRequired => DECRYPT_DECISION_STATE_LOST_KEY_MANUAL_REQUIRED,
-    RecoveryAvailableManualRequired => DECRYPT_DECISION_STATE_RECOVERY_AVAILABLE_MANUAL_REQUIRED,
-    LimitedUntilDeviceProof => DECRYPT_DECISION_STATE_LIMITED_UNTIL_DEVICE_PROOF,
-    NotDecryptRootDenied => DECRYPT_DECISION_STATE_NOT_DECRYPT_ROOT_DENIED,
-    PlatformManualRequired => DECRYPT_DECISION_STATE_PLATFORM_MANUAL_REQUIRED,
-});
-
-key_custody_string_enum!(EncryptionKeyNonClaim {
-    NoUniversalOcentraKey => ENCRYPTION_KEY_NON_CLAIM_NO_UNIVERSAL_OCENTRA_KEY,
-    NoHostedDecryptRoot => ENCRYPTION_KEY_NON_CLAIM_NO_HOSTED_DECRYPT_ROOT,
-    NoPlaintextFallback => ENCRYPTION_KEY_NON_CLAIM_NO_PLAINTEXT_FALLBACK,
-    NoTsBusinessOwner => ENCRYPTION_KEY_NON_CLAIM_NO_TS_BUSINESS_OWNER,
-    NoLanOwnership => ENCRYPTION_KEY_NON_CLAIM_NO_LAN_OWNERSHIP,
-    NoMobileBroadClaim => ENCRYPTION_KEY_NON_CLAIM_NO_MOBILE_BROAD_CLAIM,
-});
+key_custody_string_enums!(
+    EncryptionKeyClass {
+        variants: [
+            ChildDeviceLocalKey,
+            ParentDesktopKey,
+            ParentMobileKey,
+            HouseholdRecoveryKey,
+            ProviderAuthToken,
+            SupportDiagnosticToken,
+        ],
+        values: [
+            "child-device-local-key",
+            "parent-desktop-key",
+            "parent-mobile-key",
+            "household-recovery-key",
+            "provider-auth-token",
+            "support-diagnostic-token",
+        ]
+    },
+    EncryptionKeyHolder {
+        variants: [
+            ChildDevice,
+            ParentDesktop,
+            ParentMobile,
+            HouseholdRecoveryPath,
+            ProviderConnection,
+            SupportFlow,
+            HostedPortal,
+        ],
+        values: [
+            "child-device",
+            "parent-desktop",
+            "parent-mobile",
+            "household-recovery-path",
+            "provider-connection",
+            "support-flow",
+            "hosted-portal",
+        ]
+    },
+    EncryptionUnlockScope {
+        variants: [
+            ChildEvidenceLocal,
+            ParentOwnedBundle,
+            ParentCacheReports,
+            HouseholdRecoveryBundle,
+            ProviderApiOnly,
+            DiagnosticsMetadataOnly,
+            StatusOnly,
+        ],
+        values: [
+            "child-evidence-local",
+            "parent-owned-bundle",
+            "parent-cache-reports",
+            "household-recovery-bundle",
+            "provider-api-only",
+            "diagnostics-metadata-only",
+            "status-only",
+        ]
+    },
+    PlatformKeyCustodySurface {
+        variants: [
+            Windows,
+            MacOs,
+            Linux,
+            Android,
+            IOS,
+            WebPortal,
+            ParentDesktop,
+            ChildService,
+            ParentMobile,
+            ChildMobile,
+        ],
+        values: [
+            "windows",
+            "macos",
+            "linux",
+            "android",
+            "ios",
+            "web-portal",
+            "parent-desktop",
+            "child-service",
+            "parent-mobile",
+            "child-mobile",
+        ]
+    },
+    PlatformKeyStoreKind {
+        variants: [
+            WindowsDpapiUser,
+            WindowsDpapiMachine,
+            MacOsKeychain,
+            SecureEnclaveBacked,
+            LinuxSecretStoreUndecided,
+            AndroidKeystore,
+            IOSKeychain,
+            NoDecryptRoot,
+            ParentDesktopLocalKeyPath,
+            ChildServiceLocalKeyPath,
+            ParentMobileApprovalPath,
+            ChildMobilePlatformKeyPath,
+        ],
+        values: [
+            "windows-dpapi-user",
+            "windows-dpapi-machine",
+            "macos-keychain",
+            "secure-enclave-backed",
+            "linux-secret-store-undecided",
+            "android-keystore",
+            "ios-keychain",
+            "no-decrypt-root",
+            "parent-desktop-local-key-path",
+            "child-service-local-key-path",
+            "parent-mobile-approval-path",
+            "child-mobile-platform-key-path",
+        ]
+    },
+    PlatformDecryptAuthority {
+        variants: [
+            ChildLocalEvidenceOnly,
+            ParentOwnedBundlesOnly,
+            ParentCacheReportsAndBundles,
+            HouseholdRecoveryBundlesOnly,
+            NotDecryptRoot,
+            ManualRequired,
+        ],
+        values: [
+            "child-local-evidence-only",
+            "parent-owned-bundles-only",
+            "parent-cache-reports-and-bundles",
+            "household-recovery-bundles-only",
+            "not-decrypt-root",
+            "manual-required",
+        ]
+    },
+    KeyCustodyState {
+        variants: [
+            KeyAvailable,
+            KeyUnavailable,
+            KeyRevoked,
+            WrongHousehold,
+            WrongDevice,
+            ReinstallRequired,
+            RecoveryAvailable,
+            RecoveryNotSupported,
+        ],
+        values: [
+            "keyAvailable",
+            "keyUnavailable",
+            "keyRevoked",
+            "wrongHousehold",
+            "wrongDevice",
+            "reinstallRequired",
+            "recoveryAvailable",
+            "recoveryNotSupported",
+        ]
+    },
+    RecoveryMode {
+        variants: [
+            ManualRequired,
+            ParentOwnedRecovery,
+            NotSupported,
+        ],
+        values: [
+            "manualRequired",
+            "parent-owned-recovery",
+            "notSupported",
+        ]
+    },
+    DecryptDecisionState {
+        variants: [
+            Allowed,
+            WrongHouseholdDenied,
+            WrongDeviceDenied,
+            RevokedKeyDenied,
+            LostKeyManualRequired,
+            RecoveryAvailableManualRequired,
+            LimitedUntilDeviceProof,
+            NotDecryptRootDenied,
+            PlatformManualRequired,
+        ],
+        values: [
+            "allowed",
+            "wrongHouseholdDenied",
+            "wrongDeviceDenied",
+            "revokedKeyDenied",
+            "lostKeyManualRequired",
+            "recoveryAvailableManualRequired",
+            "limitedUntilDeviceProof",
+            "notDecryptRootDenied",
+            "platformManualRequired",
+        ]
+    },
+    EncryptionKeyNonClaim {
+        variants: [
+            NoUniversalOcentraKey,
+            NoHostedDecryptRoot,
+            NoPlaintextFallback,
+            NoTsBusinessOwner,
+            NoLanOwnership,
+            NoMobileBroadClaim,
+        ],
+        values: [
+            "no-universal-ocentra-key",
+            "no-hosted-decrypt-root",
+            "no-plaintext-fallback",
+            "no-ts-business-owner",
+            "no-lan-ownership",
+            "no-mobile-broad-claim",
+        ]
+    }
+);
 
 key_custody_text_identifier!(EncryptionKeyContractVersion);
 key_custody_text_identifier!(EncryptionHouseholdId);
