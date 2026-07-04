@@ -142,6 +142,15 @@ export function buildLocalAiRuntimeStatusSurfaceReadModel(
   });
 }
 
+const runtimeStatusUnavailableSurfaceStates = {
+  proved: 'manual-setup-required',
+  unavailable: 'unavailable-visible',
+  'not-claimed': 'manual-setup-required',
+  implemented: 'manual-setup-required',
+  degraded: 'manual-setup-required',
+  'manual-required': 'manual-setup-required',
+} as const;
+
 function runtimeStatusSurfaceRowFromProviderEntry(
   entry: LocalAiRuntimeProviderProofEntry
 ): LocalAiRuntimeStatusSurfaceRow {
@@ -172,7 +181,7 @@ function runtimeStatusSurfaceRowFromProviderEntry(
 
 function runtimeStatusSurfaceStateFor(entry: LocalAiRuntimeProviderProofEntry): LocalAiRuntimeStatusSurfaceState {
   if (entry.schedulerLifecycle === 'unavailable') {
-    return entry.proofStatus === 'unavailable' ? 'unavailable-visible' : 'manual-setup-required';
+    return runtimeStatusUnavailableSurfaceStates[entry.proofStatus];
   }
 
   if (entry.proofStatus === 'unavailable') {
@@ -190,19 +199,16 @@ function runtimeStatusSurfaceStateFor(entry: LocalAiRuntimeProviderProofEntry): 
   return 'ready-visible';
 }
 
+const runtimeStatusLabels = {
+  'ready-visible': 'Local AI runtime ready',
+  'queued-visible': 'Local AI runtime queued',
+  'degraded-visible': 'Local AI runtime degraded',
+  'unavailable-visible': 'Local AI runtime unavailable',
+  'manual-setup-required': 'Local AI runtime needs setup',
+} as const satisfies Record<LocalAiRuntimeStatusSurfaceState, string>;
+
 function runtimeStatusLabelFor(entry: LocalAiRuntimeProviderProofEntry): string {
-  switch (runtimeStatusSurfaceStateFor(entry)) {
-    case 'ready-visible':
-      return 'Local AI runtime ready';
-    case 'queued-visible':
-      return 'Local AI runtime queued';
-    case 'degraded-visible':
-      return 'Local AI runtime degraded';
-    case 'unavailable-visible':
-      return 'Local AI runtime unavailable';
-    case 'manual-setup-required':
-      return 'Local AI runtime needs setup';
-  }
+  return runtimeStatusLabels[runtimeStatusSurfaceStateFor(entry)];
 }
 
 function localAiRuntimeStatusSurfaceRowIsHonest(row: LocalAiRuntimeStatusSurfaceRowCandidate): boolean {
@@ -223,20 +229,22 @@ function runtimeStatusSurfaceRowKeepsClaimBoundary(row: LocalAiRuntimeStatusSurf
   );
 }
 
+const runtimeStatusSurfaceStateValidators = {
+  'unavailable-visible': (row: LocalAiRuntimeStatusSurfaceRowCandidate) => row.unavailableReason !== null,
+  'manual-setup-required': (row: LocalAiRuntimeStatusSurfaceRowCandidate) => row.unavailableReason !== null,
+  'degraded-visible': (row: LocalAiRuntimeStatusSurfaceRowCandidate) =>
+    row.degradedState !== 'none' && row.unavailableReason === null,
+  'queued-visible': (row: LocalAiRuntimeStatusSurfaceRowCandidate) =>
+    row.queueDepth > 0 && row.unavailableReason === null,
+  'ready-visible': (row: LocalAiRuntimeStatusSurfaceRowCandidate) =>
+    row.queueDepth === 0 && row.degradedState === 'none' && row.unavailableReason === null,
+} satisfies Record<
+  LocalAiRuntimeStatusSurfaceState,
+  (row: LocalAiRuntimeStatusSurfaceRowCandidate) => boolean
+>;
+
 function runtimeStatusSurfaceStateIsHonest(row: LocalAiRuntimeStatusSurfaceRowCandidate): boolean {
-  if (row.surfaceState === 'unavailable-visible' || row.surfaceState === 'manual-setup-required') {
-    return row.unavailableReason !== null;
-  }
-
-  if (row.surfaceState === 'degraded-visible') {
-    return row.degradedState !== 'none' && row.unavailableReason === null;
-  }
-
-  if (row.surfaceState === 'queued-visible') {
-    return row.queueDepth > 0 && row.unavailableReason === null;
-  }
-
-  return row.queueDepth === 0 && row.degradedState === 'none' && row.unavailableReason === null;
+  return runtimeStatusSurfaceStateValidators[row.surfaceState](row);
 }
 
 function localAiRuntimeStatusSurfaceReadModelCountsMatch(
