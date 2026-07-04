@@ -16,8 +16,16 @@ import {
   type SocialAlertReportProviderReceiptBoundaryReadModel,
   type SocialAlertReportProviderReceiptBoundaryRow,
 } from '@ocentra-parent/schema-domain/social-alert-report-provider-receipt-boundary-proof';
-import { SocialAlertReportReferenceSchema } from '@ocentra-parent/schema-domain/social-alert-report-intent-values';
 import { V3NotificationProviderChannelSchema } from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
+import { SocialAlertReportReferenceSchema } from './social_alert_report_provider_dispatch_execution_support';
+import {
+  countRows,
+  dispatchExecutionStateFor,
+  localOutboxRecordForReceiptRow,
+  manualProofRequirementsFor,
+  socialAlertReportProviderDispatchExecutionReadModelIsHonest,
+  socialAlertReportProviderDispatchExecutionRowIsHonest,
+} from './social_alert_report_provider_dispatch_execution_helpers';
 
 export const RequiredSocialAlertReportProviderDispatchExecutionNonClaims = [
   'no-provider-delivery-observed',
@@ -132,7 +140,11 @@ export const SocialAlertReportProviderDispatchExecutionReadModelSchema = withPar
   SocialAlertReportProviderDispatchExecutionReadModelBaseSchema.pipe(
     Schema.filter(
       (readModel) =>
-        socialAlertReportProviderDispatchExecutionReadModelIsHonest(readModel) ||
+        socialAlertReportProviderDispatchExecutionReadModelIsHonest(
+          readModel,
+          RequiredSocialAlertReportProviderReceiptBoundaryNonClaims,
+          RequiredSocialAlertReportProviderDispatchExecutionNonClaims
+        ) ||
         'Expected provider dispatch execution counts and non-claims to match source receipt-boundary rows'
     )
   )
@@ -153,9 +165,6 @@ export type SocialAlertReportProviderDispatchExecutionOptions = {
   readonly generatedAt: string;
   readonly dispatchExecutionId: string;
 };
-
-type DispatchExecutionRowInput = Infer<typeof SocialAlertReportProviderDispatchExecutionRowBaseSchema>;
-type DispatchExecutionReadModelInput = Infer<typeof SocialAlertReportProviderDispatchExecutionReadModelBaseSchema>;
 
 export function buildSocialAlertReportProviderDispatchExecutionReadModel(
   options: SocialAlertReportProviderDispatchExecutionOptions,
@@ -246,30 +255,6 @@ function socialAlertReportProviderDispatchExecutionRowForReceiptRow(
   });
 }
 
-function localOutboxRecordForReceiptRow(
-  row: SocialAlertReportProviderReceiptBoundaryRow,
-  localOutboxRecords: ReadonlyArray<NotificationLocalOutboxRecord>
-): NotificationLocalOutboxRecord | null {
-  if (row.sourceLocalOutboxRecordRef === null) {
-    return null;
-  }
-
-  return localOutboxRecords.find((record) => String(record.entryId) === String(row.sourceLocalOutboxRecordRef)) ?? null;
-}
-
-function dispatchExecutionStateFor(
-  row: SocialAlertReportProviderReceiptBoundaryRow,
-  outboxRecord: NotificationLocalOutboxRecord | null
-): SocialAlertReportProviderDispatchExecutionState {
-  if (row.receiptBoundaryState === 'provider-unavailable') {
-    return SocialAlertReportProviderDispatchExecutionState.ProviderUnavailable;
-  }
-  if (row.receiptBoundaryState !== 'provider-dispatch-required' || outboxRecord === null) {
-    return SocialAlertReportProviderDispatchExecutionState.ManualRequired;
-  }
-  return SocialAlertReportProviderDispatchExecutionState.LocalDispatchPacketReady;
-}
-
 function dispatchPacketFor(
   row: SocialAlertReportProviderReceiptBoundaryRow,
   record: NotificationLocalOutboxRecord
@@ -295,101 +280,4 @@ function dispatchPacketFor(
     rawMessageTextIncluded: false,
     screenshotOrReportIncluded: false,
   });
-}
-
-function manualProofRequirementsFor(
-  row: SocialAlertReportProviderReceiptBoundaryRow,
-  state: SocialAlertReportProviderDispatchExecutionState
-): readonly string[] {
-  if (state === SocialAlertReportProviderDispatchExecutionState.LocalDispatchPacketReady) {
-    return [];
-  }
-  if (state === SocialAlertReportProviderDispatchExecutionState.ProviderUnavailable) {
-    return [`social-provider-dispatch-provider-unavailable-${row.sourceIntentRef}`];
-  }
-  if (row.receiptBoundaryState === 'provider-dispatch-required') {
-    return [`social-provider-dispatch-local-outbox-record-required-${row.sourceIntentRef}`];
-  }
-  return row.manualProofRequirements;
-}
-
-function socialAlertReportProviderDispatchExecutionRowIsHonest(row: DispatchExecutionRowInput): boolean {
-  if (row.dispatchExecutionState === SocialAlertReportProviderDispatchExecutionState.LocalDispatchPacketReady) {
-    return dispatchPacketReadyRowIsHonest(row);
-  }
-  if (row.dispatchExecutionState === SocialAlertReportProviderDispatchExecutionState.ProviderUnavailable) {
-    return providerUnavailableRowIsHonest(row);
-  }
-  return manualRequiredRowIsHonest(row);
-}
-
-function dispatchPacketReadyRowIsHonest(row: DispatchExecutionRowInput): boolean {
-  return (
-    row.sourceReceiptBoundaryState === 'provider-dispatch-required' &&
-    row.sourceLocalOutboxRecordRef !== null &&
-    row.dispatchPacket !== null &&
-    String(row.dispatchPacket.outboxEntryRef) === String(row.sourceLocalOutboxRecordRef) &&
-    String(row.dispatchPacket.providerAttemptRef) === String(row.sourceProviderAttemptRef) &&
-    row.manualProofRequirements.length === 0 &&
-    providerDispatchClaimsStayFalse(row)
-  );
-}
-
-function manualRequiredRowIsHonest(row: DispatchExecutionRowInput): boolean {
-  return row.dispatchPacket === null && row.manualProofRequirements.length > 0 && providerDispatchClaimsStayFalse(row);
-}
-
-function providerUnavailableRowIsHonest(row: DispatchExecutionRowInput): boolean {
-  return (
-    row.sourceReceiptBoundaryState === 'provider-unavailable' &&
-    row.dispatchPacket === null &&
-    row.manualProofRequirements.length > 0 &&
-    providerDispatchClaimsStayFalse(row)
-  );
-}
-
-function providerDispatchClaimsStayFalse(row: DispatchExecutionRowInput): boolean {
-  return [
-    row.providerDeliveryAttempted,
-    row.providerDeliveryObserved,
-    row.providerReceiptIngested,
-    row.providerWebhookRuntimeClaimed,
-    row.providerCredentialsClaimed,
-    row.cloudRoutingClaimed,
-    row.parentNotificationUiDeliveryClaimed,
-    row.reportDeliveryExecutionClaimed,
-    row.finalPolicyExecutionClaimed,
-    row.connectorNativeRuntimeClaimed,
-    row.enforcementClaimed,
-  ].every((claim) => claim === false);
-}
-
-function socialAlertReportProviderDispatchExecutionReadModelIsHonest(
-  readModel: DispatchExecutionReadModelInput
-): boolean {
-  const sourceNonClaims: readonly string[] = readModel.sourceReceiptBoundaryNonClaims;
-
-  return (
-    readModel.localDispatchPacketReadyCount ===
-      countRows(readModel.rows, SocialAlertReportProviderDispatchExecutionState.LocalDispatchPacketReady) &&
-    readModel.manualRequiredCount ===
-      countRows(readModel.rows, SocialAlertReportProviderDispatchExecutionState.ManualRequired) &&
-    readModel.providerUnavailableCount ===
-      countRows(readModel.rows, SocialAlertReportProviderDispatchExecutionState.ProviderUnavailable) &&
-    RequiredSocialAlertReportProviderReceiptBoundaryNonClaims.every((claim) => sourceNonClaims.includes(claim)) &&
-    RequiredSocialAlertReportProviderDispatchExecutionNonClaims.every((claim) =>
-      readModel.dispatchExecutionNonClaims.includes(claim)
-    ) &&
-    readModel.providerDeliveryAttempted === false &&
-    readModel.providerDeliveryObserved === false &&
-    readModel.providerReceiptIngested === false &&
-    readModel.enforcementClaimed === false
-  );
-}
-
-function countRows(
-  rows: ReadonlyArray<{ readonly dispatchExecutionState: SocialAlertReportProviderDispatchExecutionState }>,
-  state: SocialAlertReportProviderDispatchExecutionState
-): number {
-  return rows.filter((row) => row.dispatchExecutionState === state).length;
 }
