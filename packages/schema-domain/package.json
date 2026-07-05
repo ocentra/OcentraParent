@@ -1905,14 +1905,6 @@
       "import": "./dist/social-report-writer-delivery-proof.js",
       "types": "./dist/social-report-writer-delivery-proof.d.ts"
     },
-    "./stateless-report-compiler-status": {
-      "import": "./dist/stateless-report-compiler-status.js",
-      "types": "./dist/stateless-report-compiler-status.d.ts"
-    },
-    "./stateless-report-compiler-status-values": {
-      "import": "./dist/stateless-report-compiler-status-values.js",
-      "types": "./dist/stateless-report-compiler-status-values.d.ts"
-    },
     "./report-query-custody": {
       "import": "./dist/report-query-custody.js",
       "types": "./dist/report-query-custody.d.ts"
