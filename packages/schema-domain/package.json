@@ -1749,14 +1749,6 @@
       "import": "./dist/tracking-family-dashboard-rollup-proof.js",
       "types": "./dist/tracking-family-dashboard-rollup-proof.d.ts"
     },
-    "./tracking-fixture-coverage-proof": {
-      "import": "./dist/tracking-fixture-coverage-proof.js",
-      "types": "./dist/tracking-fixture-coverage-proof.d.ts"
-    },
-    "./tracking-fixture-coverage-proof-values": {
-      "import": "./dist/tracking-fixture-coverage-proof-values.js",
-      "types": "./dist/tracking-fixture-coverage-proof-values.d.ts"
-    },
     "./tracking-full-product-ui-local-runtime-artifact-capture-proof": {
       "import": "./dist/tracking-full-product-ui-local-runtime-artifact-capture-proof.js",
       "types": "./dist/tracking-full-product-ui-local-runtime-artifact-capture-proof.d.ts"
