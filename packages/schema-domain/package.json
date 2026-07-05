@@ -261,17 +261,9 @@
       "import": "./dist/app-game-android-usage-events-runtime-preflight.js",
       "types": "./dist/app-game-android-usage-events-runtime-preflight.d.ts"
     },
-    "./app-game-apple-ci-platform-proof-preflight": {
-      "import": "./dist/app-game-apple-ci-platform-proof-preflight.js",
-      "types": "./dist/app-game-apple-ci-platform-proof-preflight.d.ts"
-    },
     "./app-game-boundary-read-model": {
       "import": "./dist/app-game-boundary-read-model.js",
       "types": "./dist/app-game-boundary-read-model.d.ts"
-    },
-    "./app-game-broad-blocking-proof-gate-data": {
-      "import": "./dist/app-game-broad-blocking-proof-gate-data.js",
-      "types": "./dist/app-game-broad-blocking-proof-gate-data.d.ts"
     },
     "./app-game-broad-blocking-proof-gate-rules": {
       "import": "./dist/app-game-broad-blocking-proof-gate-rules.js",
@@ -836,10 +828,6 @@
     "./app-game-timer-service-read-model-handoff-rules": {
       "import": "./dist/app-game-timer-service-read-model-handoff-rules.js",
       "types": "./dist/app-game-timer-service-read-model-handoff-rules.d.ts"
-    },
-    "./app-game-windows-broad-blocking-authority-preflight": {
-      "import": "./dist/app-game-windows-broad-blocking-authority-preflight.js",
-      "types": "./dist/app-game-windows-broad-blocking-authority-preflight.d.ts"
     },
     "./app-game-windows-local-policy-evidence-proof": {
       "import": "./dist/app-game-windows-local-policy-evidence-proof.js",
@@ -1508,10 +1496,6 @@
     "./enforcement-host-adapter-preflight": {
       "import": "./dist/enforcement-host-adapter-preflight.js",
       "types": "./dist/enforcement-host-adapter-preflight.d.ts"
-    },
-    "./enforcement-os-adapter-product-proof": {
-      "import": "./dist/enforcement-os-adapter-product-proof.js",
-      "types": "./dist/enforcement-os-adapter-product-proof.d.ts"
     },
     "./enforcement-policy-dispatch": {
       "import": "./dist/enforcement-policy-dispatch.js",
@@ -2813,22 +2797,6 @@
       "import": "./dist/tracking-unsupported-platform-manual-proof.js",
       "types": "./dist/tracking-unsupported-platform-manual-proof.d.ts"
     },
-    "./v0-8-broad-os-adapter-proof": {
-      "import": "./dist/v0-8-broad-os-adapter-proof.js",
-      "types": "./dist/v0-8-broad-os-adapter-proof.d.ts"
-    },
-    "./v0-8-broad-os-adapter-runtime-proof": {
-      "import": "./dist/v0-8-broad-os-adapter-runtime-proof.js",
-      "types": "./dist/v0-8-broad-os-adapter-runtime-proof.d.ts"
-    },
-    "./v0-8-browser-domain-adapter-proof": {
-      "import": "./dist/v0-8-browser-domain-adapter-proof.js",
-      "types": "./dist/v0-8-browser-domain-adapter-proof.d.ts"
-    },
-    "./v0-8-cross-platform-enforcement-capability-proof": {
-      "import": "./dist/v0-8-cross-platform-enforcement-capability-proof.js",
-      "types": "./dist/v0-8-cross-platform-enforcement-capability-proof.d.ts"
-    },
     "./v0-8-enforcement-integrity-runtime-audit": {
       "import": "./dist/v0-8-enforcement-integrity-runtime-audit.js",
       "types": "./dist/v0-8-enforcement-integrity-runtime-audit.d.ts"
@@ -2844,14 +2812,6 @@
     "./v0-8-notification-provider-status-boundary": {
       "import": "./dist/v0-8-notification-provider-status-boundary.js",
       "types": "./dist/v0-8-notification-provider-status-boundary.d.ts"
-    },
-    "./v0-8-os-adapter-manual-artifact-gates": {
-      "import": "./dist/v0-8-os-adapter-manual-artifact-gates.js",
-      "types": "./dist/v0-8-os-adapter-manual-artifact-gates.d.ts"
-    },
-    "./v0-8-supported-adapter-runtime-proof": {
-      "import": "./dist/v0-8-supported-adapter-runtime-proof.js",
-      "types": "./dist/v0-8-supported-adapter-runtime-proof.d.ts"
     },
     "./v0-9-production-discovery-household-proof": {
       "import": "./dist/v0-9-production-discovery-household-proof.js",
