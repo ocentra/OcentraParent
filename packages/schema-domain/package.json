@@ -605,14 +605,6 @@
       "import": "./dist/billing-referral-boundary.js",
       "types": "./dist/billing-referral-boundary.d.ts"
     },
-    "./billing-security-privacy-observability": {
-      "import": "./dist/billing-security-privacy-observability.js",
-      "types": "./dist/billing-security-privacy-observability.d.ts"
-    },
-    "./billing-security-privacy-observability-values": {
-      "import": "./dist/billing-security-privacy-observability-values.js",
-      "types": "./dist/billing-security-privacy-observability-values.d.ts"
-    },
     "./billing-support-admin-api-boundary": {
       "import": "./dist/billing-support-admin-api-boundary.js",
       "types": "./dist/billing-support-admin-api-boundary.d.ts"
