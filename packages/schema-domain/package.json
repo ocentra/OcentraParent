@@ -1945,18 +1945,6 @@
       "import": "./dist/text-contracts.js",
       "types": "./dist/text-contracts.d.ts"
     },
-    "./text-portal-dev": {
-      "import": "./dist/text-portal-dev.js",
-      "types": "./dist/text-portal-dev.d.ts"
-    },
-    "./text-portal-dev-tracking-report": {
-      "import": "./dist/text-portal-dev-tracking-report.js",
-      "types": "./dist/text-portal-dev-tracking-report.d.ts"
-    },
-    "./text-portal-dev-tracking-unsupported": {
-      "import": "./dist/text-portal-dev-tracking-unsupported.js",
-      "types": "./dist/text-portal-dev-tracking-unsupported.d.ts"
-    },
     "./text-portal-product": {
       "import": "./dist/text-portal-product.js",
       "types": "./dist/text-portal-product.d.ts"
