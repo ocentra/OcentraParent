@@ -7,6 +7,11 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
+#[path = "policy_request/resolution.rs"]
+mod resolution;
+#[path = "policy_request/validation.rs"]
+mod validation;
+
 use crate::policy_source::{
     policy_actor_role_name, policy_actor_state_name, ParentPolicyActorRole, ParentPolicyDocumentId,
     PolicyActorId, PolicyAuditReferenceId, PolicyChildProfileId, PolicyDeviceId, PolicyHouseholdId,
@@ -233,8 +238,8 @@ pub fn validate_child_policy_request(request: &ChildPolicyRequest) -> Result<(),
     )?;
     assert_request_status_supported(request.status)?;
     assert_request_scope(&request.scope)?;
-    assert_request_origin_shape(request)?;
-    assert_request_resolution_shape(request)?;
+    validation::assert_request_origin_shape(request)?;
+    validation::assert_request_resolution_shape(request)?;
     Ok(())
 }
 
@@ -357,71 +362,23 @@ pub fn resolve_parent_policy_approval(
         });
     }
 
-    if let Some(resolved_approval_id) = &request.resolved_approval_id {
-        if resolved_approval_id == &approval.approval_id
-            && request.status == policy_request_status_for_approval(approval.decision)
-        {
-            let replay_override = match request.status {
-                PolicyRequestStatus::Approved | PolicyRequestStatus::Modified => {
-                    let replay_override =
-                        existing_override.ok_or_else(|| EventingError::InvalidValue {
-                            field: policy_control::request::FIELD_OVERRIDE_ID,
-                            value: policy_control::request::VALUE_MISSING_OVERRIDE_FOR_RESOLVED_APPROVAL_REPLAY
-                                .to_string(),
-                        })?;
-                    assert_override_matches(request, &approval, replay_override)?;
-                    Some(replay_override.clone())
-                }
-                _ => None,
-            };
-
-            return Ok(PolicyRequestResolution {
-                request: request.clone(),
-                temporary_override: replay_override,
+    let expected_status = resolution::policy_request_status_for_approval(approval.decision);
+    if let Some(resolved_approval_id) = request.resolved_approval_id.as_ref() {
+        if resolved_approval_id != &approval.approval_id || request.status != expected_status {
+            return Err(EventingError::InvalidValue {
+                field: policy_control::request::FIELD_APPROVAL_ID,
+                value: approval.approval_id.as_str().to_string(),
             });
         }
 
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_APPROVAL_ID,
-            value: approval.approval_id.as_str().to_string(),
-        });
+        return resolution::resolve_replayed_parent_policy_approval(
+            request,
+            &approval,
+            existing_override,
+        );
     }
 
-    if request.status != PolicyRequestStatus::PendingParentReview {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_STATUS,
-            value: policy_request_status_name(request.status).to_string(),
-        });
-    }
-
-    let mut resolved_request = request.clone();
-
-    let temporary_override = match approval.decision {
-        PolicyApprovalDecision::Grant | PolicyApprovalDecision::Modify => {
-            Some(build_policy_temporary_override(request, &approval)?)
-        }
-        PolicyApprovalDecision::Deny | PolicyApprovalDecision::Expire => None,
-    };
-
-    let ParentPolicyApproval {
-        approval_id,
-        decision,
-        decided_at,
-        audit_reference_id,
-        ..
-    } = approval;
-
-    resolved_request.status = policy_request_status_for_approval(decision);
-    resolved_request.resolved_approval_id = Some(approval_id);
-    resolved_request.resolved_at = Some(decided_at);
-    resolved_request
-        .audit_reference_ids
-        .push(audit_reference_id);
-    validate_child_policy_request(&resolved_request)?;
-    Ok(PolicyRequestResolution {
-        request: resolved_request,
-        temporary_override,
-    })
+    resolution::resolve_new_parent_policy_approval(request, approval)
 }
 
 fn validate_parent_policy_approval(approval: &ParentPolicyApproval) -> Result<(), EventingError> {
@@ -528,67 +485,6 @@ fn assert_request_status_supported(status: PolicyRequestStatus) -> Result<(), Ev
     Ok(())
 }
 
-fn assert_request_origin_shape(request: &ChildPolicyRequest) -> Result<(), EventingError> {
-    match request.origin {
-        PolicyRequestOrigin::Child => {
-            if request.assistant_preview_id.is_some()
-                || request.assistant_confirmation_state
-                    != PolicyAssistantConfirmationState::NotRequired
-                || request.status == PolicyRequestStatus::PreviewOnly
-            {
-                return Err(EventingError::InvalidValue {
-                    field: policy_control::request::FIELD_ORIGIN,
-                    value: policy_control::request::VALUE_CHILD_REQUEST_CANNOT_BE_ASSISTANT_PREVIEW
-                        .to_string(),
-                });
-            }
-        }
-        PolicyRequestOrigin::AssistantDraft => {
-            let invalid_confirmation_shape = match request.assistant_confirmation_state {
-                PolicyAssistantConfirmationState::NotRequired => true,
-                PolicyAssistantConfirmationState::ParentConfirmationRequired => !matches!(
-                    request.status,
-                    PolicyRequestStatus::PreviewOnly | PolicyRequestStatus::Expired
-                ),
-                PolicyAssistantConfirmationState::ParentConfirmed => {
-                    request.status == PolicyRequestStatus::PreviewOnly
-                }
-            };
-
-            if request.assistant_preview_id.is_none() || invalid_confirmation_shape {
-                return Err(EventingError::InvalidValue {
-                    field: policy_control::request::FIELD_ASSISTANT_PREVIEW_ID,
-                    value: policy_control::request::VALUE_ASSISTANT_DRAFT_REQUEST_MUST_STAY_PREVIEW_ONLY_UNTIL_PARENT_CONFIRMED
-                        .to_string(),
-                });
-            }
-        }
-    }
-    Ok(())
-}
-
-fn assert_request_resolution_shape(request: &ChildPolicyRequest) -> Result<(), EventingError> {
-    let resolved = request.resolved_approval_id.is_some() || request.resolved_at.is_some();
-    if matches!(
-        request.status,
-        PolicyRequestStatus::Approved | PolicyRequestStatus::Denied | PolicyRequestStatus::Modified
-    ) && (request.resolved_approval_id.is_none() || request.resolved_at.is_none())
-    {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_RESOLVED_APPROVAL_ID,
-            value: policy_request_status_name(request.status).to_string(),
-        });
-    }
-    if request.status == PolicyRequestStatus::PreviewOnly && resolved {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_STATUS,
-            value: policy_control::request::VALUE_PREVIEW_ONLY_REQUEST_CANNOT_BE_RESOLVED
-                .to_string(),
-        });
-    }
-    Ok(())
-}
-
 fn assert_request_matches_approval(
     request: &ChildPolicyRequest,
     approval: &ParentPolicyApproval,
@@ -617,38 +513,6 @@ fn assert_request_matches_approval(
             value: policy_control::request::VALUE_EXPIRED_REQUEST_CANNOT_BE_APPROVED.to_string(),
         });
     }
-    Ok(())
-}
-
-fn assert_override_matches(
-    request: &ChildPolicyRequest,
-    approval: &ParentPolicyApproval,
-    existing_override: &PolicyTemporaryOverride,
-) -> Result<(), EventingError> {
-    let expected_action = approval
-        .approved_action
-        .unwrap_or(request.scope.requested_action);
-    let expected_minutes = approval
-        .approved_bonus_minutes
-        .or(request.scope.requested_bonus_minutes);
-    let expected_expires_at = approval
-        .override_expires_at
-        .as_ref()
-        .unwrap_or(&request.expires_at);
-
-    if existing_override.source_request_id != request.request_id
-        || existing_override.source_approval_id != approval.approval_id
-        || existing_override.policy_version != request.policy_version
-        || existing_override.approved_action != expected_action
-        || existing_override.approved_bonus_minutes != expected_minutes
-        || &existing_override.expires_at != expected_expires_at
-    {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_OVERRIDE_ID,
-            value: existing_override.override_id.as_str().to_string(),
-        });
-    }
-
     Ok(())
 }
 
@@ -704,15 +568,6 @@ fn child_requests_match(left: &ChildPolicyRequest, right: &ChildPolicyRequest) -
         && left.scope == right.scope
         && left.requested_at == right.requested_at
         && left.expires_at == right.expires_at
-}
-
-fn policy_request_status_for_approval(decision: PolicyApprovalDecision) -> PolicyRequestStatus {
-    match decision {
-        PolicyApprovalDecision::Grant => PolicyRequestStatus::Approved,
-        PolicyApprovalDecision::Deny => PolicyRequestStatus::Denied,
-        PolicyApprovalDecision::Modify => PolicyRequestStatus::Modified,
-        PolicyApprovalDecision::Expire => PolicyRequestStatus::Expired,
-    }
 }
 
 fn policy_request_status_name(status: PolicyRequestStatus) -> &'static str {
