@@ -1,7 +1,7 @@
 /* generated from crates/schema/src/app_game_preview_source_freshness.rs */
 
-import { AppGamePolicyCompilerOutcomeState, AppGamePolicyTargetKind } from '../app-game-policy-target-compiler-rules';
-import { PolicyDecisionHandoffState } from '../policy-contracts';
+import { AppGamePolicyCompilerOutcomeState, AppGamePolicyTargetKind } from './app-game-policy-target-compiler-rules';
+import { PolicyDecisionHandoffState } from './policy-contracts';
 import {
   AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated,
   AppGamePolicyPreviewNoRuntimeClaimStatesGenerated,
@@ -15,26 +15,39 @@ import {
   AppGameSourceFreshnessPreviewGateStatusGenerated,
   AppGameSourceFreshnessReadModelStateGenerated,
   AppGameSourceFreshnessReasonCodeGenerated,
+  AppGameSourceFreshnessRequirementKindGenerated,
   AppGameSourceFreshnessRequirementSourceKindsGenerated,
   AppGameSourceFreshnessRequirementStateGenerated,
+  AppGameSourceFreshnessSourceKindGenerated,
   AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated,
 } from './generated-app-game-preview-source-freshness-values';
 
 type AppGamePolicyTargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
-type AppGamePolicyPreviewTargetDomainValue = string;
-type AppGamePolicyPreviewStatusValue = string;
+type AppGamePolicyPreviewTargetDomainValue =
+  (typeof AppGamePolicyPreviewTargetDomainGenerated)[keyof typeof AppGamePolicyPreviewTargetDomainGenerated];
+type AppGamePolicyPreviewStatusValue = (typeof AppGamePolicyPreviewStatusGenerated)[keyof typeof AppGamePolicyPreviewStatusGenerated];
 type AppGamePolicyCompilerOutcomeStateValue =
   (typeof AppGamePolicyCompilerOutcomeState)[keyof typeof AppGamePolicyCompilerOutcomeState];
-type AppGameSourceFreshnessPolicyTargetKindValue = string;
-type AppGameSourceFreshnessRequirementKindValue = string;
-type AppGameSourceFreshnessSourceKindValue = string;
-type AppGameSourceFreshnessReadModelStateValue = string;
-type AppGameSourceFreshnessCapabilityStatusValue = string;
-type AppGameSourceFreshnessRequirementStateValue = string;
-type AppGameSourceFreshnessReasonCodeValue = string;
-type AppGameSourceFreshnessPreviewGateStatusValue = string;
-type AppGameSourceFreshnessPreviewGateStateValue = string;
-type AppGameSourceGatedPolicyPreviewProjectionStateValue = string;
+type AppGameSourceFreshnessPolicyTargetKindValue =
+  (typeof AppGameSourceFreshnessPolicyTargetKindGenerated)[keyof typeof AppGameSourceFreshnessPolicyTargetKindGenerated];
+type AppGameSourceFreshnessRequirementKindValue =
+  (typeof AppGameSourceFreshnessRequirementKindGenerated)[keyof typeof AppGameSourceFreshnessRequirementKindGenerated];
+type AppGameSourceFreshnessSourceKindValue =
+  (typeof AppGameSourceFreshnessSourceKindGenerated)[keyof typeof AppGameSourceFreshnessSourceKindGenerated];
+type AppGameSourceFreshnessReadModelStateValue =
+  (typeof AppGameSourceFreshnessReadModelStateGenerated)[keyof typeof AppGameSourceFreshnessReadModelStateGenerated];
+type AppGameSourceFreshnessCapabilityStatusValue =
+  (typeof AppGameSourceFreshnessCapabilityStatusGenerated)[keyof typeof AppGameSourceFreshnessCapabilityStatusGenerated];
+type AppGameSourceFreshnessRequirementStateValue =
+  (typeof AppGameSourceFreshnessRequirementStateGenerated)[keyof typeof AppGameSourceFreshnessRequirementStateGenerated];
+type AppGameSourceFreshnessReasonCodeValue =
+  (typeof AppGameSourceFreshnessReasonCodeGenerated)[keyof typeof AppGameSourceFreshnessReasonCodeGenerated];
+type AppGameSourceFreshnessPreviewGateStatusValue =
+  (typeof AppGameSourceFreshnessPreviewGateStatusGenerated)[keyof typeof AppGameSourceFreshnessPreviewGateStatusGenerated];
+type AppGameSourceFreshnessPreviewGateStateValue =
+  (typeof AppGameSourceFreshnessPreviewGateStateGenerated)[keyof typeof AppGameSourceFreshnessPreviewGateStateGenerated];
+type AppGameSourceGatedPolicyPreviewProjectionStateValue =
+  (typeof AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated)[keyof typeof AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated];
 
 type PreviewRowLike = {
   readonly targetDomain: AppGamePolicyPreviewTargetDomainValue;

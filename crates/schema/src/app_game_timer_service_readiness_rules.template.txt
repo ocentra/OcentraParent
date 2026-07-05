@@ -1,6 +1,6 @@
 /* generated from crates/schema/src/app_game_timer_service_readiness.rs */
 
-import { AppGameSourceGatedPolicyPreviewReadModelProjectionState } from '../app-game-source-gated-policy-preview-read-model-rules';
+import { AppGameSourceGatedPolicyPreviewReadModelProjectionState } from './app-game-source-gated-policy-preview-read-model-rules';
 import {
   AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated,
   AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated,

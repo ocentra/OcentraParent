@@ -192,3 +192,4 @@ export const AppGameSourceGatedPolicyPreviewReadModelNoClaimFlagsGenerated = {
   platformEnforcementClaimed: false,
   rawPrivateSourceRowsIncluded: false,
 } as const;
+

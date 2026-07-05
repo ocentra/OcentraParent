@@ -183,8 +183,7 @@ function isGeneratedArtifact(file) {
     normalized.includes('/dist/') ||
     normalized.startsWith('apps/portal/generated/') ||
     normalized.startsWith('packages/portal-domain/src/generated/') ||
-    normalized.startsWith('packages/schema-domain/src/generated/') ||
-    /^packages\/schema-domain\/src\/generated-[^/]+\.ts$/u.test(normalized)
+    normalized.startsWith('packages/schema-domain/src/generated/')
   );
 }
 

@@ -35,7 +35,7 @@ fn generated_typescript_app_game_preview_source_freshness_values_stay_checked_in
             "AppGameSourceFreshnessPolicyReadinessStateGenerated",
             "AppGameSourceFreshnessAdapterDispatchStateGenerated",
             "AppGameSourceFreshnessReasonCodeGenerated",
-            "AppGameFreshnessRequirementSourceKindsGenerated",
+            "AppGameSourceFreshnessRequirementSourceKindsGenerated",
             "AppGameSourceFreshnessPreviewGateStatusGenerated",
             "AppGameSourceFreshnessPreviewGateStateGenerated",
             "AppGameSourceFreshnessPreviewGateNoRuntimeClaimFlagsGenerated",

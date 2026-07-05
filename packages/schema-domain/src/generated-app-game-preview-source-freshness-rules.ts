@@ -1,6 +1,5 @@
 /* generated from crates/schema/src/app_game_preview_source_freshness.rs */
 
-import { Schema } from './effect';
 import { AppGamePolicyCompilerOutcomeState, AppGamePolicyTargetKind } from './app-game-policy-target-compiler-rules';
 import { PolicyDecisionHandoffState } from './policy-contracts';
 import {
@@ -16,43 +15,39 @@ import {
   AppGameSourceFreshnessPreviewGateStatusGenerated,
   AppGameSourceFreshnessReadModelStateGenerated,
   AppGameSourceFreshnessReasonCodeGenerated,
+  AppGameSourceFreshnessRequirementKindGenerated,
   AppGameSourceFreshnessRequirementSourceKindsGenerated,
   AppGameSourceFreshnessRequirementStateGenerated,
+  AppGameSourceFreshnessSourceKindGenerated,
   AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated,
 } from './generated-app-game-preview-source-freshness-values';
 
 type AppGamePolicyTargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
-export const AppGamePolicyPreviewTargetDomainSchema = Schema.String;
-export const AppGamePolicyPreviewStatusSchema = Schema.String;
+type AppGamePolicyPreviewTargetDomainValue =
+  (typeof AppGamePolicyPreviewTargetDomainGenerated)[keyof typeof AppGamePolicyPreviewTargetDomainGenerated];
+type AppGamePolicyPreviewStatusValue = (typeof AppGamePolicyPreviewStatusGenerated)[keyof typeof AppGamePolicyPreviewStatusGenerated];
 type AppGamePolicyCompilerOutcomeStateValue =
   (typeof AppGamePolicyCompilerOutcomeState)[keyof typeof AppGamePolicyCompilerOutcomeState];
-type AppGameSourceFreshnessPolicyTargetKindValue = string;
-type AppGameSourceFreshnessRequirementKindValue = string;
-type AppGameSourceFreshnessSourceKindValue = string;
-type AppGameSourceFreshnessReadModelStateValue = string;
-export const AppGameSourceFreshnessCapabilityStatusSchema = Schema.String;
-type AppGameSourceFreshnessRequirementStateValue = string;
-type AppGameSourceFreshnessReasonCodeValue = string;
-export const AppGameSourceFreshnessPreviewGateStatusSchema = Schema.String;
-export const AppGameSourceFreshnessPreviewGateStateSchema = Schema.String;
-export const AppGameSourceGatedPolicyPreviewProjectionStateSchema = Schema.String;
-
-type AppGamePolicyPreviewTargetDomainValue = typeof AppGamePolicyPreviewTargetDomainSchema.Type;
-type AppGamePolicyPreviewStatusValue = typeof AppGamePolicyPreviewStatusSchema.Type;
-type AppGameSourceFreshnessCapabilityStatusValue = typeof AppGameSourceFreshnessCapabilityStatusSchema.Type;
-type AppGameSourceFreshnessPreviewGateStatusValue = typeof AppGameSourceFreshnessPreviewGateStatusSchema.Type;
-type AppGameSourceFreshnessPreviewGateStateValue = typeof AppGameSourceFreshnessPreviewGateStateSchema.Type;
+type AppGameSourceFreshnessPolicyTargetKindValue =
+  (typeof AppGameSourceFreshnessPolicyTargetKindGenerated)[keyof typeof AppGameSourceFreshnessPolicyTargetKindGenerated];
+type AppGameSourceFreshnessRequirementKindValue =
+  (typeof AppGameSourceFreshnessRequirementKindGenerated)[keyof typeof AppGameSourceFreshnessRequirementKindGenerated];
+type AppGameSourceFreshnessSourceKindValue =
+  (typeof AppGameSourceFreshnessSourceKindGenerated)[keyof typeof AppGameSourceFreshnessSourceKindGenerated];
+type AppGameSourceFreshnessReadModelStateValue =
+  (typeof AppGameSourceFreshnessReadModelStateGenerated)[keyof typeof AppGameSourceFreshnessReadModelStateGenerated];
+type AppGameSourceFreshnessCapabilityStatusValue =
+  (typeof AppGameSourceFreshnessCapabilityStatusGenerated)[keyof typeof AppGameSourceFreshnessCapabilityStatusGenerated];
+type AppGameSourceFreshnessRequirementStateValue =
+  (typeof AppGameSourceFreshnessRequirementStateGenerated)[keyof typeof AppGameSourceFreshnessRequirementStateGenerated];
+type AppGameSourceFreshnessReasonCodeValue =
+  (typeof AppGameSourceFreshnessReasonCodeGenerated)[keyof typeof AppGameSourceFreshnessReasonCodeGenerated];
+type AppGameSourceFreshnessPreviewGateStatusValue =
+  (typeof AppGameSourceFreshnessPreviewGateStatusGenerated)[keyof typeof AppGameSourceFreshnessPreviewGateStatusGenerated];
+type AppGameSourceFreshnessPreviewGateStateValue =
+  (typeof AppGameSourceFreshnessPreviewGateStateGenerated)[keyof typeof AppGameSourceFreshnessPreviewGateStateGenerated];
 type AppGameSourceGatedPolicyPreviewProjectionStateValue =
-  typeof AppGameSourceGatedPolicyPreviewProjectionStateSchema.Type;
-
-export const GeneratedAppGamePreviewSourceFreshnessStringSchemas = {
-  targetDomain: AppGamePolicyPreviewTargetDomainSchema,
-  status: AppGamePolicyPreviewStatusSchema,
-  capabilityStatus: AppGameSourceFreshnessCapabilityStatusSchema,
-  previewGateStatus: AppGameSourceFreshnessPreviewGateStatusSchema,
-  previewGateState: AppGameSourceFreshnessPreviewGateStateSchema,
-  projectionState: AppGameSourceGatedPolicyPreviewProjectionStateSchema,
-} as const;
+  (typeof AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated)[keyof typeof AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated];
 
 type PreviewRowLike = {
   readonly targetDomain: AppGamePolicyPreviewTargetDomainValue;
@@ -253,8 +248,7 @@ export const appGamePolicyPreviewRowHasNoRuntimeClaimsGenerated = (row: PreviewR
   row.timerRuntimeClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.timerRuntimeClaimState &&
   row.adapterDispatchState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.adapterDispatchState &&
   row.childDeliveryClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.childDeliveryClaimState &&
-  row.platformEnforcementClaimState ===
-    AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.platformEnforcementClaimState &&
+  row.platformEnforcementClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.platformEnforcementClaimState &&
   row.policyEvaluatorRuntimeClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.policyEvaluatorRuntimeClaimed &&
   row.timerRuntimeClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.timerRuntimeClaimed &&
   row.adapterDispatchClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.adapterDispatchClaimed &&
