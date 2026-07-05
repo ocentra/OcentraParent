@@ -5,114 +5,27 @@ use ocentra_eventing::ids::SchemaVersion;
 use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
-use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
 mod lifecycle;
 mod names;
+mod primitives;
 mod validation;
 
 const POLICY_SOURCE_SCHEMA_VERSION_VALUE: u16 = 1;
 
-macro_rules! policy_source_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
-
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-    };
-}
-
-policy_source_text_id!(
-    ParentPolicyDocumentId,
-    policy_control::source::FIELD_DOCUMENT_ID
-);
-policy_source_text_id!(
-    PolicyHouseholdId,
-    policy_control::source::FIELD_HOUSEHOLD_ID
-);
-policy_source_text_id!(PolicyActorId, policy_control::source::FIELD_ACTOR_ID);
-policy_source_text_id!(
-    PolicyChildProfileId,
-    policy_control::source::FIELD_CHILD_PROFILE_ID
-);
-policy_source_text_id!(PolicyDeviceId, policy_control::source::FIELD_DEVICE_ID);
-policy_source_text_id!(PolicyRuleId, policy_control::source::FIELD_RULE_ID);
-policy_source_text_id!(
-    PolicyTargetReferenceId,
-    policy_control::source::FIELD_TARGET_REFERENCE_ID
-);
-policy_source_text_id!(PolicyScheduleId, policy_control::source::FIELD_SCHEDULE_ID);
-policy_source_text_id!(
-    PolicyTimezoneName,
-    policy_control::source::FIELD_TIMEZONE_NAME
-);
-policy_source_text_id!(PolicyReasonCode, policy_control::source::FIELD_REASON_CODE);
-policy_source_text_id!(
-    PolicyAuditReferenceId,
-    policy_control::source::FIELD_AUDIT_REFERENCE_ID
-);
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-#[serde(try_from = "u64", into = "u64")]
-pub struct PolicyVersion(u64);
-
-impl PolicyVersion {
-    pub fn new(value: u64) -> Result<Self, EventingError> {
-        if value == 0 {
-            return Err(EventingError::InvalidValue {
-                field: policy_control::source::FIELD_POLICY_VERSION,
-                value: value.to_string(),
-            });
-        }
-        Ok(Self(value))
-    }
-
-    pub fn value(self) -> u64 {
-        self.0
-    }
-}
-
-impl TryFrom<u64> for PolicyVersion {
-    type Error = EventingError;
-
-    fn try_from(value: u64) -> Result<Self, Self::Error> {
-        Self::new(value)
-    }
-}
-
-impl From<PolicyVersion> for u64 {
-    fn from(value: PolicyVersion) -> Self {
-        value.0
-    }
-}
+pub type ParentPolicyDocumentId = primitives::ParentPolicyDocumentId;
+pub type PolicyHouseholdId = primitives::PolicyHouseholdId;
+pub type PolicyActorId = primitives::PolicyActorId;
+pub type PolicyChildProfileId = primitives::PolicyChildProfileId;
+pub type PolicyDeviceId = primitives::PolicyDeviceId;
+pub type PolicyRuleId = primitives::PolicyRuleId;
+pub type PolicyTargetReferenceId = primitives::PolicyTargetReferenceId;
+pub type PolicyScheduleId = primitives::PolicyScheduleId;
+pub type PolicyTimezoneName = primitives::PolicyTimezoneName;
+pub type PolicyReasonCode = primitives::PolicyReasonCode;
+pub type PolicyAuditReferenceId = primitives::PolicyAuditReferenceId;
+pub type PolicyVersion = primitives::PolicyVersion;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentPolicyActorRole {

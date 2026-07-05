@@ -4,20 +4,21 @@ use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::SchemaVersion;
 use ocentra_parent_agent_protocol::constants::policy_control;
 
+mod compatibility;
+mod delivery;
+
 use super::names::{
-    duplicate_source_truth_value, missing_audit_reference_for_status_value, policy_status_name,
-    replacement_policy_version_must_be_newer_value, restored_policy_version_must_be_older_value,
-    stale_policy_version_value,
+    duplicate_source_truth_value, missing_audit_reference_for_status_value,
+    replacement_policy_version_must_be_newer_value, stale_policy_version_value,
 };
 use super::validation::{
     assert_actor_authority_matches_document, assert_rollback_ref_matches_document,
     assert_source_status_can_compile, validate_parent_policy_source_document,
 };
 use super::{
-    CompiledDomainPolicyArtifact, ParentPolicyDocumentId, ParentPolicySourceDocument,
-    PolicyActorId, PolicyAuditEvent, PolicyAuditReferenceId, PolicyConsumerDomain,
-    PolicyEnforcementResultArtifact, PolicyEnforcementResultState, PolicyHouseholdId,
-    PolicyRollbackRef, PolicySourceActorAuthority, PolicySourceActorState,
+    CompiledDomainPolicyArtifact, ParentPolicySourceDocument, PolicyAuditEvent,
+    PolicyAuditReferenceId, PolicyConsumerDomain, PolicyEnforcementResultArtifact,
+    PolicyEnforcementResultState, PolicyRollbackRef, PolicySourceActorAuthority,
     PolicySourceCompatibilityReport, PolicySourceStatus, PolicyVersion,
 };
 
@@ -58,7 +59,7 @@ pub(crate) fn mark_parent_policy_source_document_active(
 ) -> Result<ParentPolicySourceDocument, EventingError> {
     validate_parent_policy_source_document(document)?;
 
-    assert_delivery_results_match_document(document, delivery_results)?;
+    delivery::assert_delivery_results_match_document(document, delivery_results)?;
 
     let mut activated = document.clone();
     activated.status = PolicySourceStatus::Active;
@@ -170,30 +171,11 @@ pub(crate) fn assess_policy_source_compatibility(
     minimum_supported_policy_version: PolicyVersion,
 ) -> Result<PolicySourceCompatibilityReport, EventingError> {
     validate_parent_policy_source_document(source)?;
-
-    let schema_state = if source.schema_version.value() == supported_schema_version.value() {
-        super::PolicyDocumentCompatibilityState::Compatible
-    } else if source.schema_version.value() < supported_schema_version.value() {
-        super::PolicyDocumentCompatibilityState::MigrationRequired
-    } else {
-        super::PolicyDocumentCompatibilityState::Unsupported
-    };
-
-    let policy_version_state =
-        if source.policy_version.value() < minimum_supported_policy_version.value() {
-            super::PolicyDocumentCompatibilityState::MigrationRequired
-        } else {
-            super::PolicyDocumentCompatibilityState::Compatible
-        };
-
-    Ok(PolicySourceCompatibilityReport {
-        source_schema_version: source.schema_version,
+    compatibility::assess_policy_source_compatibility(
+        source,
         supported_schema_version,
-        source_policy_version: source.policy_version,
         minimum_supported_policy_version,
-        schema_state,
-        policy_version_state,
-    })
+    )
 }
 
 fn assert_not_stale_source_version(
@@ -220,58 +202,6 @@ fn assert_not_duplicate_source_truth(
         return Err(EventingError::InvalidValue {
             field: policy_control::source::FIELD_DOCUMENT_ID,
             value: duplicate_source_truth_value(&candidate.household_id, candidate.policy_version),
-        });
-    }
-
-    Ok(())
-}
-
-fn assert_delivery_results_match_document(
-    document: &ParentPolicySourceDocument,
-    delivery_results: &[PolicyEnforcementResultArtifact],
-) -> Result<(), EventingError> {
-    if delivery_results.is_empty() {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::source::FIELD_STATUS,
-            value: policy_control::source::VALUE_ACTIVE_POLICY_REQUIRES_ACKNOWLEDGED_DELIVERY
-                .to_string(),
-        });
-    }
-
-    for delivery_result in delivery_results {
-        assert_delivery_result_matches_document(document, delivery_result)?;
-    }
-
-    Ok(())
-}
-
-fn assert_delivery_result_matches_document(
-    document: &ParentPolicySourceDocument,
-    delivery_result: &PolicyEnforcementResultArtifact,
-) -> Result<(), EventingError> {
-    if delivery_result.household_id != document.household_id {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::source::FIELD_HOUSEHOLD_ID,
-            value: delivery_result.household_id.as_str().to_string(),
-        });
-    }
-    if delivery_result.source_document_id != document.document_id {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::source::FIELD_DOCUMENT_ID,
-            value: delivery_result.source_document_id.as_str().to_string(),
-        });
-    }
-    if delivery_result.policy_version != document.policy_version {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::source::FIELD_POLICY_VERSION,
-            value: delivery_result.policy_version.value().to_string(),
-        });
-    }
-    if delivery_result.state != PolicyEnforcementResultState::Acknowledged {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::source::FIELD_STATUS,
-            value: policy_control::source::VALUE_ACTIVE_POLICY_REQUIRES_ACKNOWLEDGED_DELIVERY
-                .to_string(),
         });
     }
 

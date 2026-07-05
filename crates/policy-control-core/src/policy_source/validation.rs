@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 use ocentra_eventing::error::EventingError;
+use ocentra_parent_agent_protocol::constants::policy_control;
 
 use super::names::policy_status_name;
 use super::{
@@ -60,7 +61,7 @@ pub(crate) fn assert_source_status_can_compile(
         PolicySourceStatus::Draft | PolicySourceStatus::Preview
     ) {
         return Err(EventingError::InvalidValue {
-            field: super::policy_control::source::FIELD_STATUS,
+            field: policy_control::source::FIELD_STATUS,
             value: policy_status_name(status).to_string(),
         });
     }

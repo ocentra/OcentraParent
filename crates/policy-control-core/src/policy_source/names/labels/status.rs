@@ -1,25 +1,17 @@
 #![forbid(unsafe_code)]
 
 use crate::policy_source::PolicySourceStatus;
+use ocentra_parent_agent_protocol::constants::policy_control;
 
 mod active;
 mod terminal;
 
 pub(super) fn policy_status_name(status: PolicySourceStatus) -> &'static str {
-    match status {
-        PolicySourceStatus::Draft
-        | PolicySourceStatus::Preview
-        | PolicySourceStatus::Confirmed
-        | PolicySourceStatus::Queued
-        | PolicySourceStatus::Delivered
-        | PolicySourceStatus::Acknowledged
-        | PolicySourceStatus::Active => active::policy_status_name(status),
-        PolicySourceStatus::PartiallyActive
-        | PolicySourceStatus::Rejected
-        | PolicySourceStatus::Superseded
-        | PolicySourceStatus::RolledBack
-        | PolicySourceStatus::Stale
-        | PolicySourceStatus::Expired
-        | PolicySourceStatus::ManualRequired => terminal::policy_status_name(status),
+    if let Some(active_status) = active::status_slot(status) {
+        active::policy_status_name(active_status)
+    } else if let Some(terminal_status) = terminal::status_slot(status) {
+        terminal::policy_status_name(terminal_status)
+    } else {
+        policy_control::source::STATUS_MANUAL_REQUIRED
     }
 }
