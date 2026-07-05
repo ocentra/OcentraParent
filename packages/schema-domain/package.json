@@ -1541,25 +1541,9 @@
       "import": "./dist/support-proof-contract.js",
       "types": "./dist/support-proof-contract.d.ts"
     },
-    "./text-app-game-child-ux": {
-      "import": "./dist/text-app-game-child-ux.js",
-      "types": "./dist/text-app-game-child-ux.d.ts"
-    },
-    "./text-browser-ux": {
-      "import": "./dist/text-browser-ux.js",
-      "types": "./dist/text-browser-ux.d.ts"
-    },
     "./text-contracts": {
       "import": "./dist/text-contracts.js",
       "types": "./dist/text-contracts.d.ts"
-    },
-    "./text-portal-product": {
-      "import": "./dist/text-portal-product.js",
-      "types": "./dist/text-portal-product.d.ts"
-    },
-    "./text-social-ux": {
-      "import": "./dist/text-social-ux.js",
-      "types": "./dist/text-social-ux.d.ts"
     },
     "./tracking-child-check-in-timeout-escalation-proof": {
       "import": "./dist/tracking-child-check-in-timeout-escalation-proof.js",
@@ -1748,10 +1732,6 @@
     "./v0-8-notification-provider-status-boundary": {
       "import": "./dist/v0-8-notification-provider-status-boundary.js",
       "types": "./dist/v0-8-notification-provider-status-boundary.d.ts"
-    },
-    "./v0-9-production-discovery-household-proof": {
-      "import": "./dist/v0-9-production-discovery-household-proof.js",
-      "types": "./dist/v0-9-production-discovery-household-proof.d.ts"
     }
   },
   "scripts": {
