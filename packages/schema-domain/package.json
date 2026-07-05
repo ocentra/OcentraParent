@@ -1797,14 +1797,6 @@
       "import": "./dist/tracking-read-model.js",
       "types": "./dist/tracking-read-model.d.ts"
     },
-    "./tracking-report-export-read-model-proof": {
-      "import": "./dist/tracking-report-export-read-model-proof.js",
-      "types": "./dist/tracking-report-export-read-model-proof.d.ts"
-    },
-    "./tracking-report-policy-consumer-proof": {
-      "import": "./dist/tracking-report-policy-consumer-proof.js",
-      "types": "./dist/tracking-report-policy-consumer-proof.d.ts"
-    },
     "./tracking-retention-applied-settings-runtime-bridge-proof": {
       "import": "./dist/tracking-retention-applied-settings-runtime-bridge-proof.js",
       "types": "./dist/tracking-retention-applied-settings-runtime-bridge-proof.d.ts"
