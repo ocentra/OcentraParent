@@ -69,14 +69,6 @@
       "import": "./dist/agent-network-windows-wfp-status.js",
       "types": "./dist/agent-network-windows-wfp-status.d.ts"
     },
-    "./agent-policy-control-audit-redaction": {
-      "import": "./dist/agent-policy-control-audit-redaction.js",
-      "types": "./dist/agent-policy-control-audit-redaction.d.ts"
-    },
-    "./agent-policy-control-delivery-read-model": {
-      "import": "./dist/agent-policy-control-delivery-read-model.js",
-      "types": "./dist/agent-policy-control-delivery-read-model.d.ts"
-    },
     "./agent-policy-preview-read-model": {
       "import": "./dist/agent-policy-preview-read-model.js",
       "types": "./dist/agent-policy-preview-read-model.d.ts"
