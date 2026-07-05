@@ -153,18 +153,6 @@
       "import": "./dist/app-game-adapter-execution-readiness.js",
       "types": "./dist/app-game-adapter-execution-readiness.d.ts"
     },
-    "./app-game-ai-classifier-boundary": {
-      "import": "./dist/app-game-ai-classifier-boundary.js",
-      "types": "./dist/app-game-ai-classifier-boundary.d.ts"
-    },
-    "./app-game-ai-classifier-boundary-data": {
-      "import": "./dist/app-game-ai-classifier-boundary-data.js",
-      "types": "./dist/app-game-ai-classifier-boundary-data.d.ts"
-    },
-    "./app-game-ai-classifier-boundary-values": {
-      "import": "./dist/app-game-ai-classifier-boundary-values.js",
-      "types": "./dist/app-game-ai-classifier-boundary-values.d.ts"
-    },
     "./app-game-android-accessibility-enabled-sample-proof": {
       "import": "./dist/app-game-android-accessibility-enabled-sample-proof.js",
       "types": "./dist/app-game-android-accessibility-enabled-sample-proof.d.ts"
@@ -444,18 +432,6 @@
     "./app-game-notification-scheduler-bridge": {
       "import": "./dist/app-game-notification-scheduler-bridge.js",
       "types": "./dist/app-game-notification-scheduler-bridge.d.ts"
-    },
-    "./app-game-performance-health": {
-      "import": "./dist/app-game-performance-health.js",
-      "types": "./dist/app-game-performance-health.d.ts"
-    },
-    "./app-game-performance-health-proof": {
-      "import": "./dist/app-game-performance-health-proof.js",
-      "types": "./dist/app-game-performance-health-proof.d.ts"
-    },
-    "./app-game-performance-health-rules": {
-      "import": "./dist/app-game-performance-health-rules.js",
-      "types": "./dist/app-game-performance-health-rules.d.ts"
     },
     "./app-game-platform-extension-proof-pack-readiness": {
       "import": "./dist/app-game-platform-extension-proof-pack-readiness.js",
@@ -900,22 +876,6 @@
     "./browser-game-child-checking-block-ux-values": {
       "import": "./dist/browser-game-child-checking-block-ux-values.js",
       "types": "./dist/browser-game-child-checking-block-ux-values.d.ts"
-    },
-    "./browser-game-cloud-gaming-gate": {
-      "import": "./dist/browser-game-cloud-gaming-gate.js",
-      "types": "./dist/browser-game-cloud-gaming-gate.d.ts"
-    },
-    "./browser-game-cloud-gaming-gate-values": {
-      "import": "./dist/browser-game-cloud-gaming-gate-values.js",
-      "types": "./dist/browser-game-cloud-gaming-gate-values.d.ts"
-    },
-    "./browser-game-cloud-pattern-library": {
-      "import": "./dist/browser-game-cloud-pattern-library.js",
-      "types": "./dist/browser-game-cloud-pattern-library.d.ts"
-    },
-    "./browser-game-cloud-pattern-library-values": {
-      "import": "./dist/browser-game-cloud-pattern-library-values.js",
-      "types": "./dist/browser-game-cloud-pattern-library-values.d.ts"
     },
     "./browser-game-dashboard-ux": {
       "import": "./dist/browser-game-dashboard-ux.js",
