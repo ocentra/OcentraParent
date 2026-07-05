@@ -1585,10 +1585,6 @@
       "import": "./dist/household-ai-provider-advertisement-heartbeat-proof.js",
       "types": "./dist/household-ai-provider-advertisement-heartbeat-proof.d.ts"
     },
-    "./household-ai-provider-claim-lease-proof": {
-      "import": "./dist/household-ai-provider-claim-lease-proof.js",
-      "types": "./dist/household-ai-provider-claim-lease-proof.d.ts"
-    },
     "./household-device-spine": {
       "import": "./dist/household-device-spine.js",
       "types": "./dist/household-device-spine.d.ts"
@@ -1681,18 +1677,6 @@
       "import": "./dist/local-ai-graph-reference-contract-proof.js",
       "types": "./dist/local-ai-graph-reference-contract-proof.d.ts"
     },
-    "./local-ai-parent-assistant-runtime-proof": {
-      "import": "./dist/local-ai-parent-assistant-runtime-proof.js",
-      "types": "./dist/local-ai-parent-assistant-runtime-proof.d.ts"
-    },
-    "./local-ai-parent-assistant-runtime-proof-values": {
-      "import": "./dist/local-ai-parent-assistant-runtime-proof-values.js",
-      "types": "./dist/local-ai-parent-assistant-runtime-proof-values.d.ts"
-    },
-    "./local-ai-parent-rule-context-builder-proof": {
-      "import": "./dist/local-ai-parent-rule-context-builder-proof.js",
-      "types": "./dist/local-ai-parent-rule-context-builder-proof.d.ts"
-    },
     "./local-ai-prompt-template-version-proof": {
       "import": "./dist/local-ai-prompt-template-version-proof.js",
       "types": "./dist/local-ai-prompt-template-version-proof.d.ts"
@@ -1705,21 +1689,9 @@
       "import": "./dist/local-ai-recent-memory-window-proof.js",
       "types": "./dist/local-ai-recent-memory-window-proof.d.ts"
     },
-    "./local-ai-remote-assistant-boundary-proof": {
-      "import": "./dist/local-ai-remote-assistant-boundary-proof.js",
-      "types": "./dist/local-ai-remote-assistant-boundary-proof.d.ts"
-    },
     "./local-ai-result-journal-sqlite-proof": {
       "import": "./dist/local-ai-result-journal-sqlite-proof.js",
       "types": "./dist/local-ai-result-journal-sqlite-proof.d.ts"
-    },
-    "./local-ai-runtime-provider-proof": {
-      "import": "./dist/local-ai-runtime-provider-proof.js",
-      "types": "./dist/local-ai-runtime-provider-proof.d.ts"
-    },
-    "./local-ai-runtime-status-read-model-proof": {
-      "import": "./dist/local-ai-runtime-status-read-model-proof.js",
-      "types": "./dist/local-ai-runtime-status-read-model-proof.d.ts"
     },
     "./local-ai-screen-summary-parent-explanation": {
       "import": "./dist/local-ai-screen-summary-parent-explanation.js",
