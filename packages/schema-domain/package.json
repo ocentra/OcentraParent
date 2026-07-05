@@ -49,41 +49,17 @@
       "import": "./dist/agent-policy-preview-read-model.js",
       "types": "./dist/agent-policy-preview-read-model.d.ts"
     },
-    "./agent-policy-request-confirm-command": {
-      "import": "./dist/agent-policy-request-confirm-command.js",
-      "types": "./dist/agent-policy-request-confirm-command.d.ts"
-    },
     "./agent-protocol-defaults": {
       "import": "./dist/agent-protocol-defaults.js",
       "types": "./dist/agent-protocol-defaults.d.ts"
-    },
-    "./agent-screen-settings": {
-      "import": "./dist/agent-screen-settings.js",
-      "types": "./dist/agent-screen-settings.d.ts"
     },
     "./agent-social-alert-report-intent": {
       "import": "./dist/agent-social-alert-report-intent.js",
       "types": "./dist/agent-social-alert-report-intent.d.ts"
     },
-    "./agent-social-alert-report-parent-surface-read-model": {
-      "import": "./dist/agent-social-alert-report-parent-surface-read-model.js",
-      "types": "./dist/agent-social-alert-report-parent-surface-read-model.d.ts"
-    },
-    "./agent-social-alert-report-read-model": {
-      "import": "./dist/agent-social-alert-report-read-model.js",
-      "types": "./dist/agent-social-alert-report-read-model.d.ts"
-    },
-    "./agent-social-source-custody-mutation": {
-      "import": "./dist/agent-social-source-custody-mutation.js",
-      "types": "./dist/agent-social-source-custody-mutation.d.ts"
-    },
     "./agent-social-video-source-custody-settings": {
       "import": "./dist/agent-social-video-source-custody-settings.js",
       "types": "./dist/agent-social-video-source-custody-settings.d.ts"
-    },
-    "./agent-tracking-read-model": {
-      "import": "./dist/agent-tracking-read-model.js",
-      "types": "./dist/agent-tracking-read-model.d.ts"
     },
     "./agent-tracking-retention-settings-write-command": {
       "import": "./dist/agent-tracking-retention-settings-write-command.js",
