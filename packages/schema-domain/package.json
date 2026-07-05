@@ -1697,10 +1697,6 @@
       "import": "./dist/tracking-location-policy-types.js",
       "types": "./dist/tracking-location-policy-types.d.ts"
     },
-    "./tracking-missing-device-mode-proof": {
-      "import": "./dist/tracking-missing-device-mode-proof.js",
-      "types": "./dist/tracking-missing-device-mode-proof.d.ts"
-    },
     "./tracking-notification-local-outbox-readiness-proof": {
       "import": "./dist/tracking-notification-local-outbox-readiness-proof.js",
       "types": "./dist/tracking-notification-local-outbox-readiness-proof.d.ts"
@@ -1729,17 +1725,9 @@
       "import": "./dist/tracking-parent-child-local-runtime-bridge-proof.js",
       "types": "./dist/tracking-parent-child-local-runtime-bridge-proof.d.ts"
     },
-    "./tracking-place-category-ambiguity-proof": {
-      "import": "./dist/tracking-place-category-ambiguity-proof.js",
-      "types": "./dist/tracking-place-category-ambiguity-proof.d.ts"
-    },
     "./tracking-poi-provider-adapter": {
       "import": "./dist/tracking-poi-provider-adapter.js",
       "types": "./dist/tracking-poi-provider-adapter.d.ts"
-    },
-    "./tracking-policy-compiler-runtime-proof": {
-      "import": "./dist/tracking-policy-compiler-runtime-proof.js",
-      "types": "./dist/tracking-policy-compiler-runtime-proof.d.ts"
     },
     "./tracking-primitives": {
       "import": "./dist/tracking-primitives.js",
@@ -1812,10 +1800,6 @@
     "./tracking-retention-settings-writer-boundary-proof": {
       "import": "./dist/tracking-retention-settings-writer-boundary-proof.js",
       "types": "./dist/tracking-retention-settings-writer-boundary-proof.d.ts"
-    },
-    "./tracking-temporary-live-mode-proof": {
-      "import": "./dist/tracking-temporary-live-mode-proof.js",
-      "types": "./dist/tracking-temporary-live-mode-proof.d.ts"
     },
     "./v0-8-enforcement-integrity-runtime-audit": {
       "import": "./dist/v0-8-enforcement-integrity-runtime-audit.js",
