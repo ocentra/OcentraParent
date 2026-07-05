@@ -1,0 +1,134 @@
+/* generated from crates/schema/src/child_signing_store_device_owner_matrix.rs */
+
+export const ChildSigningStoreDeviceOwnerMatrixContractRuntime = {{
+  SchemaVersion: '__CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_SCHEMA_VERSION__',
+}} as const;
+
+export type GeneratedChildSigningStoreDeviceOwnerMatrixSchemaVersion =
+  'child-signing-store-device-owner-matrix-proof';
+export type GeneratedChildArtifactMatrixPath = string;
+export type GeneratedChildArtifactMatrixBoundary = string;
+export type GeneratedChildArtifactMatrixTimestamp = string;
+
+export type GeneratedChildArtifactMatrixPlatform =
+  | 'windows'
+  | 'macos'
+  | 'linux'
+  | 'android'
+  | 'ios';
+export type GeneratedChildArtifactMatrixArtifactKind =
+  | 'windows-msi-service-package'
+  | 'macos-launchd-pkg'
+  | 'linux-systemd-deb'
+  | 'android-debug-apk'
+  | 'ios-simulator-app-zip';
+export type GeneratedChildArtifactMatrixDistributionMode =
+  | 'direct-msi-download'
+  | 'direct-pkg-download'
+  | 'direct-deb-download'
+  | 'debug-apk-sideload'
+  | 'unsigned-simulator-zip';
+export type GeneratedChildArtifactMatrixArtifactProofState =
+  | 'ci-mechanical-proof'
+  | 'ci-package-only'
+  | 'simulator-scaffold';
+export type GeneratedChildArtifactMatrixProofSource =
+  | 'windows-release-script'
+  | 'macos-service-package-proof'
+  | 'linux-service-package-proof'
+  | 'android-device-proof-gate'
+  | 'ios-entitlement-proof';
+export type GeneratedChildArtifactMatrixSigningState =
+  | 'unsigned'
+  | 'debug-signed'
+  | 'signing-disabled';
+export type GeneratedChildArtifactMatrixStoreDistributionState = 'not-applicable' | 'planned';
+export type GeneratedChildArtifactMatrixManagementState =
+  | 'not-applicable'
+  | 'manual-required'
+  | 'device-proof-required';
+
+export const GeneratedChildArtifactMatrixPlatforms = [
+  'windows',
+  'macos',
+  'linux',
+  'android',
+  'ios',
+] as const satisfies readonly GeneratedChildArtifactMatrixPlatform[];
+export const GeneratedChildArtifactMatrixArtifactKinds = [
+  'windows-msi-service-package',
+  'macos-launchd-pkg',
+  'linux-systemd-deb',
+  'android-debug-apk',
+  'ios-simulator-app-zip',
+] as const satisfies readonly GeneratedChildArtifactMatrixArtifactKind[];
+export const GeneratedChildArtifactMatrixDistributionModes = [
+  'direct-msi-download',
+  'direct-pkg-download',
+  'direct-deb-download',
+  'debug-apk-sideload',
+  'unsigned-simulator-zip',
+] as const satisfies readonly GeneratedChildArtifactMatrixDistributionMode[];
+export const GeneratedChildArtifactMatrixArtifactProofStates = [
+  'ci-mechanical-proof',
+  'ci-package-only',
+  'simulator-scaffold',
+] as const satisfies readonly GeneratedChildArtifactMatrixArtifactProofState[];
+export const GeneratedChildArtifactMatrixProofSources = [
+  'windows-release-script',
+  'macos-service-package-proof',
+  'linux-service-package-proof',
+  'android-device-proof-gate',
+  'ios-entitlement-proof',
+] as const satisfies readonly GeneratedChildArtifactMatrixProofSource[];
+export const GeneratedChildArtifactMatrixSigningStates = [
+  'unsigned',
+  'debug-signed',
+  'signing-disabled',
+] as const satisfies readonly GeneratedChildArtifactMatrixSigningState[];
+export const GeneratedChildArtifactMatrixStoreDistributionStates = [
+  'not-applicable',
+  'planned',
+] as const satisfies readonly GeneratedChildArtifactMatrixStoreDistributionState[];
+export const GeneratedChildArtifactMatrixManagementStates = [
+  'not-applicable',
+  'manual-required',
+  'device-proof-required',
+] as const satisfies readonly GeneratedChildArtifactMatrixManagementState[];
+
+export interface GeneratedChildArtifactMatrixRow {{
+  platform: GeneratedChildArtifactMatrixPlatform;
+  artifactKind: GeneratedChildArtifactMatrixArtifactKind;
+  distributionMode: GeneratedChildArtifactMatrixDistributionMode;
+  artifactProofState: GeneratedChildArtifactMatrixArtifactProofState;
+  artifactPackageRef: GeneratedChildArtifactMatrixPath;
+  proofSource: GeneratedChildArtifactMatrixProofSource;
+  proofRefs: readonly GeneratedChildArtifactMatrixPath[];
+  signingState: GeneratedChildArtifactMatrixSigningState;
+  storeDistributionState: GeneratedChildArtifactMatrixStoreDistributionState;
+  deviceOwnerState: GeneratedChildArtifactMatrixManagementState;
+  managedProfileState: GeneratedChildArtifactMatrixManagementState;
+  supervisionState: GeneratedChildArtifactMatrixManagementState;
+  signingBoundary: GeneratedChildArtifactMatrixBoundary;
+  storeBoundary: GeneratedChildArtifactMatrixBoundary;
+  managementBoundary: GeneratedChildArtifactMatrixBoundary;
+  claimBoundary: GeneratedChildArtifactMatrixBoundary;
+}}
+
+export interface GeneratedChildArtifactMatrixClaimBoundaries {{
+  genericMatrix: GeneratedChildArtifactMatrixBoundary;
+  signingParity: GeneratedChildArtifactMatrixBoundary;
+  storeParity: GeneratedChildArtifactMatrixBoundary;
+  managementParity: GeneratedChildArtifactMatrixBoundary;
+  parentParity: GeneratedChildArtifactMatrixBoundary;
+}}
+
+export interface GeneratedChildSigningStoreDeviceOwnerMatrixProof {{
+  schemaVersion: typeof ChildSigningStoreDeviceOwnerMatrixContractRuntime.SchemaVersion;
+  checkedAt: GeneratedChildArtifactMatrixTimestamp;
+  rows: readonly GeneratedChildArtifactMatrixRow[];
+  claimBoundaries: GeneratedChildArtifactMatrixClaimBoundaries;
+}}
+
+export const GeneratedChildSigningStoreDeviceOwnerMatrixProof =
+  __CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_PROOF_JSON__ as const satisfies GeneratedChildSigningStoreDeviceOwnerMatrixProof;
