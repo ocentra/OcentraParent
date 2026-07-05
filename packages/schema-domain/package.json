@@ -1601,18 +1601,6 @@
       "import": "./dist/text-social-ux.js",
       "types": "./dist/text-social-ux.d.ts"
     },
-    "./tracking-authority-enrollment-manual-required-proof": {
-      "import": "./dist/tracking-authority-enrollment-manual-required-proof.js",
-      "types": "./dist/tracking-authority-enrollment-manual-required-proof.d.ts"
-    },
-    "./tracking-authority-runtime-artifact-gate-proof": {
-      "import": "./dist/tracking-authority-runtime-artifact-gate-proof.js",
-      "types": "./dist/tracking-authority-runtime-artifact-gate-proof.d.ts"
-    },
-    "./tracking-authority-runtime-readiness-blocker-proof": {
-      "import": "./dist/tracking-authority-runtime-readiness-blocker-proof.js",
-      "types": "./dist/tracking-authority-runtime-readiness-blocker-proof.d.ts"
-    },
     "./tracking-child-check-in-timeout-escalation-proof": {
       "import": "./dist/tracking-child-check-in-timeout-escalation-proof.js",
       "types": "./dist/tracking-child-check-in-timeout-escalation-proof.d.ts"
@@ -1641,10 +1629,6 @@
       "import": "./dist/tracking-child-runtime-snapshot-requirements-proof.js",
       "types": "./dist/tracking-child-runtime-snapshot-requirements-proof.d.ts"
     },
-    "./tracking-claim-audit-proof": {
-      "import": "./dist/tracking-claim-audit-proof.js",
-      "types": "./dist/tracking-claim-audit-proof.d.ts"
-    },
     "./tracking-control-catalog": {
       "import": "./dist/tracking-control-catalog.js",
       "types": "./dist/tracking-control-catalog.d.ts"
@@ -1668,18 +1652,6 @@
     "./tracking-desktop-presence-hint-proof": {
       "import": "./dist/tracking-desktop-presence-hint-proof.js",
       "types": "./dist/tracking-desktop-presence-hint-proof.d.ts"
-    },
-    "./tracking-escalation-readiness-proof": {
-      "import": "./dist/tracking-escalation-readiness-proof.js",
-      "types": "./dist/tracking-escalation-readiness-proof.d.ts"
-    },
-    "./tracking-escalation-runtime-artifact-gate-proof": {
-      "import": "./dist/tracking-escalation-runtime-artifact-gate-proof.js",
-      "types": "./dist/tracking-escalation-runtime-artifact-gate-proof.d.ts"
-    },
-    "./tracking-escalation-runtime-readiness-blocker-proof": {
-      "import": "./dist/tracking-escalation-runtime-readiness-blocker-proof.js",
-      "types": "./dist/tracking-escalation-runtime-readiness-blocker-proof.d.ts"
     },
     "./tracking-evidence": {
       "import": "./dist/tracking-evidence.js",
@@ -1844,10 +1816,6 @@
     "./tracking-read-model": {
       "import": "./dist/tracking-read-model.js",
       "types": "./dist/tracking-read-model.d.ts"
-    },
-    "./tracking-real-runtime-handoff-proof": {
-      "import": "./dist/tracking-real-runtime-handoff-proof.js",
-      "types": "./dist/tracking-real-runtime-handoff-proof.d.ts"
     },
     "./tracking-report-export-read-model-proof": {
       "import": "./dist/tracking-report-export-read-model-proof.js",
