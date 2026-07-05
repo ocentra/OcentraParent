@@ -45,21 +45,9 @@
       "import": "./dist/agent-lan-pairing-challenge.js",
       "types": "./dist/agent-lan-pairing-challenge.d.ts"
     },
-    "./agent-policy-preview-read-model": {
-      "import": "./dist/agent-policy-preview-read-model.js",
-      "types": "./dist/agent-policy-preview-read-model.d.ts"
-    },
     "./agent-protocol-defaults": {
       "import": "./dist/agent-protocol-defaults.js",
       "types": "./dist/agent-protocol-defaults.d.ts"
-    },
-    "./agent-social-alert-report-intent": {
-      "import": "./dist/agent-social-alert-report-intent.js",
-      "types": "./dist/agent-social-alert-report-intent.d.ts"
-    },
-    "./agent-social-video-source-custody-settings": {
-      "import": "./dist/agent-social-video-source-custody-settings.js",
-      "types": "./dist/agent-social-video-source-custody-settings.d.ts"
     },
     "./agent-tracking-retention-settings-write-command": {
       "import": "./dist/agent-tracking-retention-settings-write-command.js",
