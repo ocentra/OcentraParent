@@ -701,30 +701,6 @@
       "import": "./dist/browser-ai-memory-cache-store-values.js",
       "types": "./dist/browser-ai-memory-cache-store-values.d.ts"
     },
-    "./browser-ai-policy-evaluator-schemas": {
-      "import": "./dist/browser-ai-policy-evaluator-schemas.js",
-      "types": "./dist/browser-ai-policy-evaluator-schemas.d.ts"
-    },
-    "./browser-ai-policy-evaluator-values": {
-      "import": "./dist/browser-ai-policy-evaluator-values.js",
-      "types": "./dist/browser-ai-policy-evaluator-values.d.ts"
-    },
-    "./browser-ai-prompt-template-schemas": {
-      "import": "./dist/browser-ai-prompt-template-schemas.js",
-      "types": "./dist/browser-ai-prompt-template-schemas.d.ts"
-    },
-    "./browser-ai-prompt-template-values": {
-      "import": "./dist/browser-ai-prompt-template-values.js",
-      "types": "./dist/browser-ai-prompt-template-values.d.ts"
-    },
-    "./browser-ai-remote-boundary-schemas": {
-      "import": "./dist/browser-ai-remote-boundary-schemas.js",
-      "types": "./dist/browser-ai-remote-boundary-schemas.d.ts"
-    },
-    "./browser-ai-remote-boundary-values": {
-      "import": "./dist/browser-ai-remote-boundary-values.js",
-      "types": "./dist/browser-ai-remote-boundary-values.d.ts"
-    },
     "./browser-control-baseline-manifest": {
       "import": "./dist/browser-control-baseline-manifest.js",
       "types": "./dist/browser-control-baseline-manifest.d.ts"
@@ -864,10 +840,6 @@
     "./browser-game-url-shape-parser-values": {
       "import": "./dist/browser-game-url-shape-parser-values.js",
       "types": "./dist/browser-game-url-shape-parser-values.d.ts"
-    },
-    "./browser-hidden-analysis-schemas": {
-      "import": "./dist/browser-hidden-analysis-schemas.js",
-      "types": "./dist/browser-hidden-analysis-schemas.d.ts"
     },
     "./browser-intervention-schemas": {
       "import": "./dist/browser-intervention-schemas.js",
