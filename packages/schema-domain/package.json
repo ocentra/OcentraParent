@@ -849,14 +849,6 @@
       "import": "./dist/browser-game-android-ios-capability-matrix-values.js",
       "types": "./dist/browser-game-android-ios-capability-matrix-values.d.ts"
     },
-    "./browser-game-child-checking-block-ux": {
-      "import": "./dist/browser-game-child-checking-block-ux.js",
-      "types": "./dist/browser-game-child-checking-block-ux.d.ts"
-    },
-    "./browser-game-child-checking-block-ux-values": {
-      "import": "./dist/browser-game-child-checking-block-ux-values.js",
-      "types": "./dist/browser-game-child-checking-block-ux-values.d.ts"
-    },
     "./browser-game-dashboard-ux": {
       "import": "./dist/browser-game-dashboard-ux.js",
       "types": "./dist/browser-game-dashboard-ux.d.ts"
@@ -1852,14 +1844,6 @@
     "./social-parent-notification-delivery-readiness": {
       "import": "./dist/social-parent-notification-delivery-readiness.js",
       "types": "./dist/social-parent-notification-delivery-readiness.d.ts"
-    },
-    "./social-parent-sensitivity-settings": {
-      "import": "./dist/social-parent-sensitivity-settings.js",
-      "types": "./dist/social-parent-sensitivity-settings.d.ts"
-    },
-    "./social-parent-sensitivity-settings-values": {
-      "import": "./dist/social-parent-sensitivity-settings-values.js",
-      "types": "./dist/social-parent-sensitivity-settings-values.d.ts"
     },
     "./social-policy-compiler-values": {
       "import": "./dist/social-policy-compiler-values.js",
