@@ -1,14 +1,20 @@
 /* generated from crates/schema/src/child_signing_store_device_owner_matrix.rs */
 
+import { Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+
 export const ChildSigningStoreDeviceOwnerMatrixContractRuntime = {
   SchemaVersion: 'child-signing-store-device-owner-matrix-proof',
 } as const;
 
 export type GeneratedChildSigningStoreDeviceOwnerMatrixSchemaVersion =
   'child-signing-store-device-owner-matrix-proof';
-export type GeneratedChildArtifactMatrixPath = string;
-export type GeneratedChildArtifactMatrixBoundary = string;
-export type GeneratedChildArtifactMatrixTimestamp = string;
+export const GeneratedChildArtifactMatrixPathSchema = brandedNonEmptyStringSchema('GeneratedChildArtifactMatrixPath');
+export const GeneratedChildArtifactMatrixBoundarySchema = brandedNonEmptyStringSchema('GeneratedChildArtifactMatrixBoundary');
+export const GeneratedChildArtifactMatrixTimestampSchema = brandedNonEmptyStringSchema('GeneratedChildArtifactMatrixTimestamp');
+
+export type GeneratedChildArtifactMatrixPath = typeof GeneratedChildArtifactMatrixPathSchema.Type;
+export type GeneratedChildArtifactMatrixBoundary = typeof GeneratedChildArtifactMatrixBoundarySchema.Type;
+export type GeneratedChildArtifactMatrixTimestamp = typeof GeneratedChildArtifactMatrixTimestampSchema.Type;
 
 export type GeneratedChildArtifactMatrixPlatform =
   | 'windows'
@@ -96,42 +102,125 @@ export const GeneratedChildArtifactMatrixManagementStates = [
   'device-proof-required',
 ] as const satisfies readonly GeneratedChildArtifactMatrixManagementState[];
 
+export const GeneratedChildArtifactMatrixPlatformSchema = withParser(
+  Schema.Literal('windows', 'macos', 'linux', 'android', 'ios')
+);
+export const GeneratedChildArtifactMatrixArtifactKindSchema = withParser(
+  Schema.Literal(
+    'windows-msi-service-package',
+    'macos-launchd-pkg',
+    'linux-systemd-deb',
+    'android-debug-apk',
+    'ios-simulator-app-zip'
+  )
+);
+export const GeneratedChildArtifactMatrixDistributionModeSchema = withParser(
+  Schema.Literal(
+    'direct-msi-download',
+    'direct-pkg-download',
+    'direct-deb-download',
+    'debug-apk-sideload',
+    'unsigned-simulator-zip'
+  )
+);
+export const GeneratedChildArtifactMatrixArtifactProofStateSchema = withParser(
+  Schema.Literal('ci-mechanical-proof', 'ci-package-only', 'simulator-scaffold')
+);
+export const GeneratedChildArtifactMatrixProofSourceSchema = withParser(
+  Schema.Literal(
+    'windows-release-script',
+    'macos-service-package-proof',
+    'linux-service-package-proof',
+    'android-device-proof-gate',
+    'ios-entitlement-proof'
+  )
+);
+export const GeneratedChildArtifactMatrixSigningStateSchema = withParser(
+  Schema.Literal('unsigned', 'debug-signed', 'signing-disabled')
+);
+export const GeneratedChildArtifactMatrixStoreDistributionStateSchema = withParser(
+  Schema.Literal('not-applicable', 'planned')
+);
+export const GeneratedChildArtifactMatrixManagementStateSchema = withParser(
+  Schema.Literal('not-applicable', 'manual-required', 'device-proof-required')
+);
+
 export interface GeneratedChildArtifactMatrixRow {
-  platform: GeneratedChildArtifactMatrixPlatform;
-  artifactKind: GeneratedChildArtifactMatrixArtifactKind;
-  distributionMode: GeneratedChildArtifactMatrixDistributionMode;
-  artifactProofState: GeneratedChildArtifactMatrixArtifactProofState;
-  artifactPackageRef: GeneratedChildArtifactMatrixPath;
-  proofSource: GeneratedChildArtifactMatrixProofSource;
-  proofRefs: readonly GeneratedChildArtifactMatrixPath[];
-  signingState: GeneratedChildArtifactMatrixSigningState;
-  storeDistributionState: GeneratedChildArtifactMatrixStoreDistributionState;
-  deviceOwnerState: GeneratedChildArtifactMatrixManagementState;
-  managedProfileState: GeneratedChildArtifactMatrixManagementState;
-  supervisionState: GeneratedChildArtifactMatrixManagementState;
-  signingBoundary: GeneratedChildArtifactMatrixBoundary;
-  storeBoundary: GeneratedChildArtifactMatrixBoundary;
-  managementBoundary: GeneratedChildArtifactMatrixBoundary;
-  claimBoundary: GeneratedChildArtifactMatrixBoundary;
+  readonly platform: GeneratedChildArtifactMatrixPlatform;
+  readonly artifactKind: GeneratedChildArtifactMatrixArtifactKind;
+  readonly distributionMode: GeneratedChildArtifactMatrixDistributionMode;
+  readonly artifactProofState: GeneratedChildArtifactMatrixArtifactProofState;
+  readonly artifactPackageRef: GeneratedChildArtifactMatrixPath;
+  readonly proofSource: GeneratedChildArtifactMatrixProofSource;
+  readonly proofRefs: readonly GeneratedChildArtifactMatrixPath[];
+  readonly signingState: GeneratedChildArtifactMatrixSigningState;
+  readonly storeDistributionState: GeneratedChildArtifactMatrixStoreDistributionState;
+  readonly deviceOwnerState: GeneratedChildArtifactMatrixManagementState;
+  readonly managedProfileState: GeneratedChildArtifactMatrixManagementState;
+  readonly supervisionState: GeneratedChildArtifactMatrixManagementState;
+  readonly signingBoundary: GeneratedChildArtifactMatrixBoundary;
+  readonly storeBoundary: GeneratedChildArtifactMatrixBoundary;
+  readonly managementBoundary: GeneratedChildArtifactMatrixBoundary;
+  readonly claimBoundary: GeneratedChildArtifactMatrixBoundary;
 }
+
+export const GeneratedChildArtifactMatrixRowSchema = withParser(
+  Schema.Struct({
+    platform: GeneratedChildArtifactMatrixPlatformSchema,
+    artifactKind: GeneratedChildArtifactMatrixArtifactKindSchema,
+    distributionMode: GeneratedChildArtifactMatrixDistributionModeSchema,
+    artifactProofState: GeneratedChildArtifactMatrixArtifactProofStateSchema,
+    artifactPackageRef: GeneratedChildArtifactMatrixPathSchema,
+    proofSource: GeneratedChildArtifactMatrixProofSourceSchema,
+    proofRefs: Schema.Array(GeneratedChildArtifactMatrixPathSchema),
+    signingState: GeneratedChildArtifactMatrixSigningStateSchema,
+    storeDistributionState: GeneratedChildArtifactMatrixStoreDistributionStateSchema,
+    deviceOwnerState: GeneratedChildArtifactMatrixManagementStateSchema,
+    managedProfileState: GeneratedChildArtifactMatrixManagementStateSchema,
+    supervisionState: GeneratedChildArtifactMatrixManagementStateSchema,
+    signingBoundary: GeneratedChildArtifactMatrixBoundarySchema,
+    storeBoundary: GeneratedChildArtifactMatrixBoundarySchema,
+    managementBoundary: GeneratedChildArtifactMatrixBoundarySchema,
+    claimBoundary: GeneratedChildArtifactMatrixBoundarySchema,
+  })
+);
 
 export interface GeneratedChildArtifactMatrixClaimBoundaries {
-  genericMatrix: GeneratedChildArtifactMatrixBoundary;
-  signingParity: GeneratedChildArtifactMatrixBoundary;
-  storeParity: GeneratedChildArtifactMatrixBoundary;
-  managementParity: GeneratedChildArtifactMatrixBoundary;
-  parentParity: GeneratedChildArtifactMatrixBoundary;
+  readonly genericMatrix: GeneratedChildArtifactMatrixBoundary;
+  readonly signingParity: GeneratedChildArtifactMatrixBoundary;
+  readonly storeParity: GeneratedChildArtifactMatrixBoundary;
+  readonly managementParity: GeneratedChildArtifactMatrixBoundary;
+  readonly parentParity: GeneratedChildArtifactMatrixBoundary;
 }
+
+export const GeneratedChildArtifactMatrixClaimBoundariesSchema = withParser(
+  Schema.Struct({
+    genericMatrix: GeneratedChildArtifactMatrixBoundarySchema,
+    signingParity: GeneratedChildArtifactMatrixBoundarySchema,
+    storeParity: GeneratedChildArtifactMatrixBoundarySchema,
+    managementParity: GeneratedChildArtifactMatrixBoundarySchema,
+    parentParity: GeneratedChildArtifactMatrixBoundarySchema,
+  })
+);
 
 export interface GeneratedChildSigningStoreDeviceOwnerMatrixProof {
-  schemaVersion: typeof ChildSigningStoreDeviceOwnerMatrixContractRuntime.SchemaVersion;
-  checkedAt: GeneratedChildArtifactMatrixTimestamp;
-  rows: readonly GeneratedChildArtifactMatrixRow[];
-  claimBoundaries: GeneratedChildArtifactMatrixClaimBoundaries;
+  readonly schemaVersion: typeof ChildSigningStoreDeviceOwnerMatrixContractRuntime.SchemaVersion;
+  readonly checkedAt: GeneratedChildArtifactMatrixTimestamp;
+  readonly rows: readonly GeneratedChildArtifactMatrixRow[];
+  readonly claimBoundaries: GeneratedChildArtifactMatrixClaimBoundaries;
 }
 
+export const GeneratedChildSigningStoreDeviceOwnerMatrixProofSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(ChildSigningStoreDeviceOwnerMatrixContractRuntime.SchemaVersion),
+    checkedAt: GeneratedChildArtifactMatrixTimestampSchema,
+    rows: Schema.Array(GeneratedChildArtifactMatrixRowSchema),
+    claimBoundaries: GeneratedChildArtifactMatrixClaimBoundariesSchema,
+  })
+);
+
 export const GeneratedChildSigningStoreDeviceOwnerMatrixProof =
-  {
+  GeneratedChildSigningStoreDeviceOwnerMatrixProofSchema.parse({
   "schemaVersion": "child-signing-store-device-owner-matrix-proof",
   "checkedAt": "2026-06-28T19:45:00.000Z",
   "rows": [
@@ -251,4 +340,4 @@ export const GeneratedChildSigningStoreDeviceOwnerMatrixProof =
     "managementParity": "device-owner, managed-profile, and supervision states stay platform-specific and manual-required, device-proof-required, or not-applicable unless a row proves otherwise",
     "parentParity": "child artifact matrix does not imply parent-client parity, hidden daemons, or broader child runtime readiness"
   }
-} as const satisfies GeneratedChildSigningStoreDeviceOwnerMatrixProof;
+});

@@ -5,7 +5,7 @@ import {
   ChildSigningStoreDeviceOwnerMatrixSchema,
   RequiredChildArtifactMatrixPlatforms,
 } from '../../src/child-signing-store-device-owner-matrix';
-import { GeneratedChildSigningStoreDeviceOwnerMatrixProof } from '../../src/generated/child-signing-store-device-owner-matrix-contracts';
+import { GeneratedChildSigningStoreDeviceOwnerMatrixProof } from '../../src/generated-child-signing-store-device-owner-matrix-contracts';
 
 describe('childSigningStoreDeviceOwnerMatrix', () => {
   it('parses the Rust-owned generated proof through the thin adapter', () => {

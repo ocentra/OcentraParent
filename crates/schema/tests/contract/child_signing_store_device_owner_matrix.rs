@@ -80,7 +80,7 @@ fn child_signing_store_device_owner_matrix_rejects_missing_claim_boundary() {
 #[test]
 fn generated_child_signing_store_device_owner_matrix_contracts_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/child-signing-store-device-owner-matrix-contracts.ts"
+        "../../../../packages/schema-domain/src/generated-child-signing-store-device-owner-matrix-contracts.ts"
     );
     let generated = child_signing_store_device_owner_matrix_contracts_typescript();
     let generated_lines: Vec<&str> = generated.lines().collect();
@@ -138,7 +138,7 @@ fn child_signing_store_device_owner_matrix_adapter_stays_thin_and_generated_back
         module_specifiers(crate::contract_text!(adapter)),
         crate::module_specifiers!(
             "./effect",
-            "./generated/child-signing-store-device-owner-matrix-contracts"
+            "./generated-child-signing-store-device-owner-matrix-contracts"
         )
     );
 }

@@ -13,7 +13,7 @@ import {
   GeneratedChildArtifactMatrixStoreDistributionStates,
   GeneratedChildSigningStoreDeviceOwnerMatrixProof,
   type GeneratedChildArtifactMatrixPlatform,
-} from './generated/child-signing-store-device-owner-matrix-contracts';
+} from './generated-child-signing-store-device-owner-matrix-contracts';
 
 export const ChildSigningStoreDeviceOwnerMatrixSchemaVersionSchema = withParser(
   Schema.Literal(ChildSigningStoreDeviceOwnerMatrixContractRuntime.SchemaVersion)
