@@ -1289,18 +1289,6 @@
       "import": "./dist/policy-literal-contracts.js",
       "types": "./dist/policy-literal-contracts.d.ts"
     },
-    "./privacy-legal-disclosure-status": {
-      "import": "./dist/privacy-legal-disclosure-status.js",
-      "types": "./dist/privacy-legal-disclosure-status.d.ts"
-    },
-    "./privacy-legal-disclosure-status-guards": {
-      "import": "./dist/privacy-legal-disclosure-status-guards.js",
-      "types": "./dist/privacy-legal-disclosure-status-guards.d.ts"
-    },
-    "./privacy-legal-disclosure-status-read-model": {
-      "import": "./dist/privacy-legal-disclosure-status-read-model.js",
-      "types": "./dist/privacy-legal-disclosure-status-read-model.d.ts"
-    },
     "./remote-access-session": {
       "import": "./dist/remote-access-session.js",
       "types": "./dist/remote-access-session.d.ts"
