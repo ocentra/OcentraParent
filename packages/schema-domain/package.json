@@ -45,26 +45,6 @@
       "import": "./dist/agent-lan-pairing-challenge.js",
       "types": "./dist/agent-lan-pairing-challenge.d.ts"
     },
-    "./agent-network-android-vpnservice-status": {
-      "import": "./dist/agent-network-android-vpnservice-status.js",
-      "types": "./dist/agent-network-android-vpnservice-status.d.ts"
-    },
-    "./agent-network-apple-extension-status": {
-      "import": "./dist/agent-network-apple-extension-status.js",
-      "types": "./dist/agent-network-apple-extension-status.d.ts"
-    },
-    "./agent-network-linux-nftables-status": {
-      "import": "./dist/agent-network-linux-nftables-status.js",
-      "types": "./dist/agent-network-linux-nftables-status.d.ts"
-    },
-    "./agent-network-windows-firewall-status": {
-      "import": "./dist/agent-network-windows-firewall-status.js",
-      "types": "./dist/agent-network-windows-firewall-status.d.ts"
-    },
-    "./agent-network-windows-wfp-status": {
-      "import": "./dist/agent-network-windows-wfp-status.js",
-      "types": "./dist/agent-network-windows-wfp-status.d.ts"
-    },
     "./agent-policy-preview-read-model": {
       "import": "./dist/agent-policy-preview-read-model.js",
       "types": "./dist/agent-policy-preview-read-model.d.ts"
