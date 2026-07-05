@@ -1645,14 +1645,6 @@
       "import": "./dist/tracking-control-catalog-schema.js",
       "types": "./dist/tracking-control-catalog-schema.d.ts"
     },
-    "./tracking-cross-platform-runtime-capability-proof": {
-      "import": "./dist/tracking-cross-platform-runtime-capability-proof.js",
-      "types": "./dist/tracking-cross-platform-runtime-capability-proof.d.ts"
-    },
-    "./tracking-desktop-presence-hint-proof": {
-      "import": "./dist/tracking-desktop-presence-hint-proof.js",
-      "types": "./dist/tracking-desktop-presence-hint-proof.d.ts"
-    },
     "./tracking-evidence": {
       "import": "./dist/tracking-evidence.js",
       "types": "./dist/tracking-evidence.d.ts"
@@ -1661,21 +1653,9 @@
       "import": "./dist/tracking-evidence-quality-gate.js",
       "types": "./dist/tracking-evidence-quality-gate.d.ts"
     },
-    "./tracking-expected-place-alert-policy-proof": {
-      "import": "./dist/tracking-expected-place-alert-policy-proof.js",
-      "types": "./dist/tracking-expected-place-alert-policy-proof.d.ts"
-    },
-    "./tracking-family-dashboard-rollup-proof": {
-      "import": "./dist/tracking-family-dashboard-rollup-proof.js",
-      "types": "./dist/tracking-family-dashboard-rollup-proof.d.ts"
-    },
     "./tracking-geofence": {
       "import": "./dist/tracking-geofence.js",
       "types": "./dist/tracking-geofence.d.ts"
-    },
-    "./tracking-hosted-storage-default-boundary-proof": {
-      "import": "./dist/tracking-hosted-storage-default-boundary-proof.js",
-      "types": "./dist/tracking-hosted-storage-default-boundary-proof.d.ts"
     },
     "./tracking-location-policy": {
       "import": "./dist/tracking-location-policy.js",
@@ -1732,10 +1712,6 @@
     "./tracking-primitives": {
       "import": "./dist/tracking-primitives.js",
       "types": "./dist/tracking-primitives.d.ts"
-    },
-    "./tracking-product-readiness-closure-proof": {
-      "import": "./dist/tracking-product-readiness-closure-proof.js",
-      "types": "./dist/tracking-product-readiness-closure-proof.d.ts"
     },
     "./tracking-provider-delivery-artifact-gate-proof": {
       "import": "./dist/tracking-provider-delivery-artifact-gate-proof.js",
