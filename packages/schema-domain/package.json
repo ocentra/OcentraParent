@@ -213,10 +213,6 @@
       "import": "./dist/app-game-child-facing-ux-child-device-runtime-writer.js",
       "types": "./dist/app-game-child-facing-ux-child-device-runtime-writer.d.ts"
     },
-    "./app-game-child-facing-ux-child-runtime-transport-receipt-boundary": {
-      "import": "./dist/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.js",
-      "types": "./dist/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.d.ts"
-    },
     "./app-game-child-facing-ux-handoff": {
       "import": "./dist/app-game-child-facing-ux-handoff.js",
       "types": "./dist/app-game-child-facing-ux-handoff.d.ts"
@@ -229,17 +225,9 @@
       "import": "./dist/app-game-child-facing-ux-local-outbox-bridge.js",
       "types": "./dist/app-game-child-facing-ux-local-outbox-bridge.d.ts"
     },
-    "./app-game-child-facing-ux-local-outbox-parent-surface-intent": {
-      "import": "./dist/app-game-child-facing-ux-local-outbox-parent-surface-intent.js",
-      "types": "./dist/app-game-child-facing-ux-local-outbox-parent-surface-intent.d.ts"
-    },
     "./app-game-child-facing-ux-local-outbox-preference-preflight": {
       "import": "./dist/app-game-child-facing-ux-local-outbox-preference-preflight.js",
       "types": "./dist/app-game-child-facing-ux-local-outbox-preference-preflight.d.ts"
-    },
-    "./app-game-child-facing-ux-local-outbox-preference-status-handoff": {
-      "import": "./dist/app-game-child-facing-ux-local-outbox-preference-status-handoff.js",
-      "types": "./dist/app-game-child-facing-ux-local-outbox-preference-status-handoff.d.ts"
     },
     "./app-game-child-facing-ux-local-outbox-provider-preflight": {
       "import": "./dist/app-game-child-facing-ux-local-outbox-provider-preflight.js",
@@ -248,14 +236,6 @@
     "./app-game-child-facing-ux-local-outbox-provider-status-handoff": {
       "import": "./dist/app-game-child-facing-ux-local-outbox-provider-status-handoff.js",
       "types": "./dist/app-game-child-facing-ux-local-outbox-provider-status-handoff.d.ts"
-    },
-    "./app-game-child-facing-ux-local-outbox-scheduler-bridge": {
-      "import": "./dist/app-game-child-facing-ux-local-outbox-scheduler-bridge.js",
-      "types": "./dist/app-game-child-facing-ux-local-outbox-scheduler-bridge.d.ts"
-    },
-    "./app-game-child-facing-ux-parent-preference-setup-draft": {
-      "import": "./dist/app-game-child-facing-ux-parent-preference-setup-draft.js",
-      "types": "./dist/app-game-child-facing-ux-parent-preference-setup-draft.d.ts"
     },
     "./app-game-child-facing-ux-rules": {
       "import": "./dist/app-game-child-facing-ux-rules.js",
