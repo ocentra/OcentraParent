@@ -29,10 +29,6 @@
       "import": "./dist/activity-surface.js",
       "types": "./dist/activity-surface.d.ts"
     },
-    "./agent-browser-runtime-events": {
-      "import": "./dist/agent-browser-runtime-events.js",
-      "types": "./dist/agent-browser-runtime-events.d.ts"
-    },
     "./agent-command-event-contracts": {
       "import": "./dist/agent-command-event-contracts.js",
       "types": "./dist/agent-command-event-contracts.d.ts"
