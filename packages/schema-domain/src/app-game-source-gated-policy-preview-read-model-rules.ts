@@ -5,7 +5,7 @@ import {
   AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated,
   AppGameSourceGatedPolicyPreviewReadModelSensitiveBoundaryGenerated,
   RequiredAppGameSourceGatedPolicyPreviewReadModelNonClaimsGenerated,
-} from './generated/app-game-preview-source-freshness-values';
+} from './generated-app-game-preview-source-freshness-values';
 import {
   appGameSourceGatedPolicyPreviewReadModelCountsMatchRowsGenerated,
   appGameSourceGatedPolicyPreviewReadModelHasNoRuntimeClaimsGenerated,
@@ -14,7 +14,7 @@ import {
   countAppGameSourceGatedPolicyPreviewProjectionStatesGenerated,
   countAppGameSourceGatedPolicyPreviewReadModelRowsGenerated,
   countAppGameSourceGatedPolicyPreviewRowsGenerated,
-} from './generated/app-game-preview-source-freshness-rules';
+} from './generated-app-game-preview-source-freshness-rules';
 
 export const AppGameSourceGatedPolicyPreviewReadModelProjectionState =
   AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated;

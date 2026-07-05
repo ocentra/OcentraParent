@@ -4,7 +4,7 @@ import {
   AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessNoClaimFlagsGenerated,
   AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated,
   RequiredAppGameSourceGatedPolicyPreviewTimerRuntimeReadinessNonClaimsGenerated,
-} from './generated/app-game-timer-service-readiness-values';
+} from './generated-app-game-timer-service-readiness-values';
 import {
   appGameSourceGatedPolicyPreviewTimerRuntimeReadinessCountsMatchGenerated,
   appGameSourceGatedPolicyPreviewTimerRuntimeReadinessHasNoRuntimeClaimsGenerated,
@@ -12,7 +12,7 @@ import {
   appGameSourceGatedPolicyPreviewTimerRuntimeReadinessRequiredProofRefsGenerated,
   appGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateForStatusGenerated,
   countAppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowsGenerated,
-} from './generated/app-game-timer-service-readiness-rules';
+} from './generated-app-game-timer-service-readiness-rules';
 
 export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState =
   AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated;

@@ -18,7 +18,7 @@ import {
   AppGameSourceFreshnessRequirementSourceKindsGenerated,
   AppGameSourceFreshnessRequirementStateGenerated,
   AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated,
-} from './app-game-preview-source-freshness-values';
+} from './generated-app-game-preview-source-freshness-values';
 
 type AppGamePolicyTargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
 type AppGamePolicyPreviewTargetDomainValue = string;
@@ -863,4 +863,3 @@ function parseTimestampMillisGenerated(value: unknown): number | null {
   const parsed = Date.parse(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
-

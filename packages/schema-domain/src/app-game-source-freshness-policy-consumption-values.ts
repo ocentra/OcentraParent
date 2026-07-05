@@ -12,7 +12,7 @@ import {
   AppGameSourceFreshnessRequirementSourceKindsGenerated,
   AppGameSourceFreshnessRequirementStateGenerated,
   AppGameSourceFreshnessSourceKindGenerated,
-} from './generated/app-game-preview-source-freshness-values';
+} from './generated-app-game-preview-source-freshness-values';
 
 export const AppGameSourceFreshnessPolicyConsumptionMatrixId =
   AppGameSourceFreshnessPolicyConsumptionMatrixIdGenerated;

@@ -21,7 +21,7 @@ import {
   GeneratedBrowserControlRetentionExactUrlValues,
   GeneratedBrowserControlRuleActionValues,
   GeneratedBrowserControlUnmanagedBrowserClassificationTargetValues,
-} from './generated/browser-policy-control-catalog-contracts';
+} from './generated-browser-policy-control-catalog-contracts';
 
 export const BrowserControlManagedBrowserFamilySchema = withParser(
   Schema.Literal(...GeneratedBrowserControlManagedBrowserFamilyValues)

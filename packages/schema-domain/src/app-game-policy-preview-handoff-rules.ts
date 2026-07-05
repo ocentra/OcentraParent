@@ -5,7 +5,7 @@ import {
   AppGamePolicyPreviewNoRuntimeClaimStatesGenerated,
   AppGamePolicyPreviewStatusGenerated,
   AppGamePolicyPreviewTargetDomainGenerated,
-} from './generated/app-game-preview-source-freshness-values';
+} from './generated-app-game-preview-source-freshness-values';
 import {
   appGamePolicyPreviewReadModelCountsMatchRowsGenerated,
   appGamePolicyPreviewRowHasNoRuntimeClaimsGenerated,
@@ -17,7 +17,7 @@ import {
   countAppGamePolicyPreviewReadModelRowsGenerated,
   countAppGamePolicyPreviewRowsGenerated,
   countAppGamePolicyPreviewStatusesGenerated,
-} from './generated/app-game-preview-source-freshness-rules';
+} from './generated-app-game-preview-source-freshness-rules';
 
 export const AppGamePolicyPreviewTargetDomain = AppGamePolicyPreviewTargetDomainGenerated;
 export const AppGamePolicyPreviewStatus = AppGamePolicyPreviewStatusGenerated;

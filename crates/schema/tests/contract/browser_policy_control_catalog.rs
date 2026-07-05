@@ -6,7 +6,7 @@ use ocentra_schema::browser_policy_control_catalog_ts::{
 #[test]
 fn generated_browser_policy_control_catalog_contracts_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/browser-policy-control-catalog-contracts.ts"
+        "../../../../packages/schema-domain/src/generated-browser-policy-control-catalog-contracts.ts"
     );
     let generated = browser_policy_control_catalog_contracts_typescript();
 
@@ -16,7 +16,7 @@ fn generated_browser_policy_control_catalog_contracts_stay_checked_in() {
 #[test]
 fn generated_browser_policy_control_catalog_helpers_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/browser-policy-control-catalog-helpers.ts"
+        "../../../../packages/schema-domain/src/generated-browser-policy-control-catalog-helpers.ts"
     );
     let generated = browser_policy_control_catalog_helpers_typescript();
 

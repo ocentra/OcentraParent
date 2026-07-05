@@ -6,7 +6,7 @@ import {
   GeneratedBrowserGamePolicyConfidenceValues,
   GeneratedBrowserGamePolicyReasonCodeValues,
   GeneratedBrowserGamePolicyTargetKindValues,
-} from './generated/browser-policy-control-catalog-contracts';
+} from './generated-browser-policy-control-catalog-contracts';
 
 export const BrowserGamePolicyEvidenceRefsSchema = Schema.Array(ParentEvidenceReferenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected browser game policy evidence refs')

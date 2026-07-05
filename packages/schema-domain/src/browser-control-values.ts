@@ -21,7 +21,7 @@ import {
   GeneratedBrowserControlUpdateStatusValues,
   GeneratedBrowserControlUrlTargetTypeValues,
   GeneratedBrowserControlWritesToPath,
-} from './generated/browser-policy-control-catalog-contracts';
+} from './generated-browser-policy-control-catalog-contracts';
 
 export const BrowserControlSchemaKnownWritesToPathSchema = withParser(
   NonEmptyStringSchema.pipe(Schema.brand('BrowserControlSchemaKnownWritesToPath'))

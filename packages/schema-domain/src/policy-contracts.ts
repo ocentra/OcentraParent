@@ -12,7 +12,7 @@ import {
   validateGeneratedPolicyPreview,
   validateGeneratedPolicySchedule,
   validateGeneratedPolicyScheduleBoundary,
-} from './generated/policy-control-helpers';
+} from './generated-policy-control-helpers';
 
 export const PolicyTimestampSchema = brandedNonEmptyStringSchema('PolicyTimestamp');
 export const PolicyRuleIdSchema = brandedNonEmptyStringSchema('PolicyRuleId');

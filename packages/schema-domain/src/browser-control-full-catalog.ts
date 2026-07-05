@@ -36,7 +36,7 @@ import {
   GeneratedBrowserControlFullCatalogTabOrder,
   GeneratedBrowserControlFullCatalogTabTitles,
   uiTabForSectionGenerated,
-} from './generated/browser-policy-control-catalog-helpers';
+} from './generated-browser-policy-control-catalog-helpers';
 import {
   BrowserControlFullCatalogSchema,
   type BrowserControlFullCatalog,

@@ -1,6 +1,6 @@
 /* generated from crates/schema/src/app_game_timer_service_readiness.rs */
 
-import { AppGameSourceGatedPolicyPreviewReadModelProjectionState } from '../app-game-source-gated-policy-preview-read-model-rules';
+import { AppGameSourceGatedPolicyPreviewReadModelProjectionState } from './app-game-source-gated-policy-preview-read-model-rules';
 import {
   AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated,
   AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated,
@@ -10,7 +10,7 @@ import {
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated,
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated,
   AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated,
-} from './app-game-timer-service-readiness-values';
+} from './generated-app-game-timer-service-readiness-values';
 
 type ProjectionStateValue =
   (typeof AppGameSourceGatedPolicyPreviewReadModelProjectionState)[keyof typeof AppGameSourceGatedPolicyPreviewReadModelProjectionState];

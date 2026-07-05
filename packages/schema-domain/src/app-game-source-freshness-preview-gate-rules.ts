@@ -4,7 +4,7 @@ import {
   AppGameSourceFreshnessPreviewGateNoRuntimeClaimFlagsGenerated,
   AppGameSourceFreshnessPreviewGateStateGenerated,
   AppGameSourceFreshnessPreviewGateStatusGenerated,
-} from './generated/app-game-preview-source-freshness-values';
+} from './generated-app-game-preview-source-freshness-values';
 import {
   appGameSourceFreshnessPreviewGateReadModelCountsMatchRowsGenerated,
   appGameSourceFreshnessPreviewGateReadModelHasNoRuntimeClaimsGenerated,
@@ -15,7 +15,7 @@ import {
   countAppGameSourceFreshnessPreviewGateRowsGenerated,
   countAppGameSourceFreshnessPreviewGateStatesGenerated,
   countAppGameSourceFreshnessPreviewGateStatusesGenerated,
-} from './generated/app-game-preview-source-freshness-rules';
+} from './generated-app-game-preview-source-freshness-rules';
 
 export const AppGameSourceFreshnessPreviewGateStatus = AppGameSourceFreshnessPreviewGateStatusGenerated;
 export const AppGameSourceFreshnessPreviewGateState = AppGameSourceFreshnessPreviewGateStateGenerated;

@@ -25,7 +25,7 @@ import {
 import {
   browserGamePolicyCompilerInputIsConsistentGenerated,
   browserGamePolicyDecisionCandidateIsConsistentGenerated,
-} from './generated/browser-policy-control-catalog-helpers';
+} from './generated-browser-policy-control-catalog-helpers';
 
 const BrowserGamePolicyCompilerInputBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,

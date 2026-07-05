@@ -13,7 +13,7 @@ use ocentra_schema::app_game_preview_source_freshness_ts::{
 #[test]
 fn generated_typescript_app_game_preview_source_freshness_values_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/app-game-preview-source-freshness-values.ts"
+        "../../../../packages/schema-domain/src/generated-app-game-preview-source-freshness-values.ts"
     );
     let generated = app_game_preview_source_freshness_values_typescript();
 
@@ -60,7 +60,7 @@ fn generated_typescript_app_game_preview_source_freshness_values_stay_checked_in
 #[test]
 fn generated_typescript_app_game_preview_source_freshness_rules_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/app-game-preview-source-freshness-rules.ts"
+        "../../../../packages/schema-domain/src/generated-app-game-preview-source-freshness-rules.ts"
     );
     let generated = app_game_preview_source_freshness_rules_typescript();
 
@@ -111,7 +111,7 @@ fn generated_typescript_app_game_preview_source_freshness_rules_stay_checked_in(
 #[test]
 fn generated_typescript_app_game_preview_source_freshness_data_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/app-game-preview-source-freshness-data.ts"
+        "../../../../packages/schema-domain/src/generated-app-game-preview-source-freshness-data.ts"
     );
     let generated = app_game_preview_source_freshness_data_typescript();
 

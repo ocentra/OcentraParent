@@ -22,7 +22,7 @@ import {
   type GeneratedPolicyScheduleDstResolution,
   type GeneratedPolicyScheduleDstTransition,
   type GeneratedPolicyScheduleOfflineRecoveryState,
-} from './policy-control-helpers-contracts';
+} from './generated-policy-control-helpers-contracts';
 
 export type GeneratedPolicyScheduleBudgetResetLike = {
   readonly kind: GeneratedPolicyScheduleBudgetResetKind;

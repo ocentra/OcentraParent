@@ -80,7 +80,7 @@ import {
   defaultPlatformCapabilityGenerated,
   defaultPlatformsGenerated,
   defaultPortalAiGenerated,
-} from './generated/browser-policy-control-catalog-helpers';
+} from './generated-browser-policy-control-catalog-helpers';
 
 export const BrowserControlBudgetSchema = withParser(
   Schema.Struct({

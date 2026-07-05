@@ -6,7 +6,7 @@ import {
   generatedAppGameCategoryRiskPolicyRouteManualReviewRequiresManualState,
   generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily,
   generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof,
-} from './generated/policy-control-helpers';
+} from './generated-policy-control-helpers';
 import type {
   AppGamePolicyCompilerEvidenceState,
   AppGamePolicyCompilerProofKind,

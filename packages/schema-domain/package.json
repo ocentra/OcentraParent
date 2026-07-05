@@ -1761,10 +1761,6 @@
       "import": "./dist/generated-logging-contracts.js",
       "types": "./dist/generated-logging-contracts.d.ts"
     },
-    "./generated/portal-contracts": {
-      "import": "./dist/generated/portal-contracts.js",
-      "types": "./dist/generated/portal-contracts.d.ts"
-    },
     "./mobile-child-agent-capability-proof": {
       "import": "./dist/mobile-child-agent-capability-proof.js",
       "types": "./dist/mobile-child-agent-capability-proof.d.ts"

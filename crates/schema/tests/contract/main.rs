@@ -19,6 +19,10 @@ mod encryption_key_custody;
 mod export_import_backup_recovery;
 #[path = "logging_contracts.rs"]
 mod logging_contracts;
+#[path = "app_game_preview_source_freshness.rs"]
+mod app_game_preview_source_freshness;
+#[path = "app_game_timer_service_readiness.rs"]
+mod app_game_timer_service_readiness;
 #[path = "parent_agent_protocol_bridge_defaults.rs"]
 mod parent_agent_protocol_bridge_defaults;
 #[path = "parent_owned_sync_export.rs"]

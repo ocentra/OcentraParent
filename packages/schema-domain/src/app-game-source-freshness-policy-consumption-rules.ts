@@ -10,7 +10,7 @@ import {
   appGameSourceFreshnessSourceKindSatisfiesRequirementGenerated,
   appGameSourceFreshnessTargetAllowsNullRefGenerated,
   evaluateAppGameSourceFreshnessPolicyReadinessGenerated as evaluateAppGameSourceFreshnessPolicyReadinessGeneratedImpl,
-} from './generated/app-game-preview-source-freshness-rules';
+} from './generated-app-game-preview-source-freshness-rules';
 
 export const appGameSourceFreshnessTargetAllowsNullRef =
   appGameSourceFreshnessTargetAllowsNullRefGenerated;

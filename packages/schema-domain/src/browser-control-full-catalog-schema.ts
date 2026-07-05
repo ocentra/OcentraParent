@@ -17,7 +17,7 @@ import {
   GeneratedBrowserControlFullCatalogSelectionModeValues,
   GeneratedBrowserControlFullCatalogSidePanelCategoryValues,
   GeneratedBrowserControlFullCatalogUiTabValues,
-} from './generated/browser-policy-control-catalog-contracts';
+} from './generated-browser-policy-control-catalog-contracts';
 
 export const BrowserControlFullCatalogControlKindSchema = withParser(
   Schema.Literal(...GeneratedBrowserControlFullCatalogControlKindValues)

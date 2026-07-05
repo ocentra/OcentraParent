@@ -26,7 +26,7 @@ import {
   browserControlFieldIdsAreUniqueGenerated,
   browserControlSectionIdsAreUniqueGenerated,
   browserControlWritesToIsKnownGenerated,
-} from './generated/browser-policy-control-catalog-helpers';
+} from './generated-browser-policy-control-catalog-helpers';
 
 export const BrowserControlFieldOptionSchema = withParser(
   Schema.Struct({

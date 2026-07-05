@@ -75,12 +75,14 @@
     },
     {
       "globs": [
+        "packages/schema-domain/src/generated-*.ts",
         "packages/schema-domain/src/generated/*.ts",
         "packages/schema-domain/src/generated/**/*.ts"
       ],
       "maxExports": 220,
       "maxLines": 3000,
       "maxFunctionLines": 180,
+      "maxBranches": 140,
       "note": "Generated schema-domain helpers mirror contract breadth."
     },
     {

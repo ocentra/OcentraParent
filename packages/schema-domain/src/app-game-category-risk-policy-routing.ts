@@ -21,7 +21,7 @@ import {
   generatedAppGameCategoryRiskPolicyRouteManualReviewRequiresManualState,
   generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily,
   generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof,
-} from './generated/policy-control-helpers';
+} from './generated-policy-control-helpers';
 
 export const AppGameCategoryRiskPolicyRouteIdSchema = brandedNonEmptyStringSchema('AppGameCategoryRiskPolicyRouteId');
 export const AppGameCategoryCandidateRefSchema = brandedNonEmptyStringSchema('AppGameCategoryCandidateRef');

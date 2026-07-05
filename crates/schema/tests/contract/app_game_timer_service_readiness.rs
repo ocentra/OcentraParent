@@ -10,7 +10,7 @@ use ocentra_schema::app_game_timer_service_readiness_ts::{
 #[test]
 fn generated_typescript_app_game_timer_service_readiness_values_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/app-game-timer-service-readiness-values.ts"
+        "../../../../packages/schema-domain/src/generated-app-game-timer-service-readiness-values.ts"
     );
     let generated = app_game_timer_service_readiness_values_typescript();
 
@@ -47,7 +47,7 @@ fn generated_typescript_app_game_timer_service_readiness_values_stay_checked_in(
 #[test]
 fn generated_typescript_app_game_timer_service_readiness_rules_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/app-game-timer-service-readiness-rules.ts"
+        "../../../../packages/schema-domain/src/generated-app-game-timer-service-readiness-rules.ts"
     );
     let generated = app_game_timer_service_readiness_rules_typescript();
 

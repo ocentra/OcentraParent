@@ -29,7 +29,7 @@ import {
   selectionModeForGenerated,
   validationRulesForGenerated,
   visibilityConditionsForGenerated,
-} from './generated/browser-policy-control-catalog-helpers';
+} from './generated-browser-policy-control-catalog-helpers';
 
 export function optionsFromSourceText(sourceText: string): BrowserControlFullCatalogOption[] {
   return optionsFromSourceTextGenerated(sourceText).map(parseCatalogOption);

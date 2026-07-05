@@ -9,7 +9,7 @@ import {
   resolveGeneratedPolicyAuthority,
   resolveGeneratedPolicyPreviewBudgetBoundaryState,
   selectGeneratedStricterPolicyAction,
-} from '../../src/generated/policy-control-helpers';
+} from '../../src/generated-policy-control-helpers';
 import {
   PolicyAuthoritySource,
   PolicyAuthorityState,

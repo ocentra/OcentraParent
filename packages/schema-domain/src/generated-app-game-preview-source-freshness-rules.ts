@@ -1,8 +1,8 @@
 /* generated from crates/schema/src/app_game_preview_source_freshness.rs */
 
-import { Schema } from '../effect';
-import { AppGamePolicyCompilerOutcomeState, AppGamePolicyTargetKind } from '../app-game-policy-target-compiler-rules';
-import { PolicyDecisionHandoffState } from '../policy-contracts';
+import { Schema } from './effect';
+import { AppGamePolicyCompilerOutcomeState, AppGamePolicyTargetKind } from './app-game-policy-target-compiler-rules';
+import { PolicyDecisionHandoffState } from './policy-contracts';
 import {
   AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated,
   AppGamePolicyPreviewNoRuntimeClaimStatesGenerated,
@@ -19,7 +19,7 @@ import {
   AppGameSourceFreshnessRequirementSourceKindsGenerated,
   AppGameSourceFreshnessRequirementStateGenerated,
   AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated,
-} from './app-game-preview-source-freshness-values';
+} from './generated-app-game-preview-source-freshness-values';
 
 type AppGamePolicyTargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
 export const AppGamePolicyPreviewTargetDomainSchema = Schema.String;

@@ -7,7 +7,7 @@ import {
   GeneratedBrowserControlFullCatalogEffectStatusValues,
   GeneratedBrowserControlFullCatalogRuntimeOwnerValues,
   GeneratedBrowserControlWritesToPath,
-} from './browser-policy-control-catalog-contracts';
+} from './generated-browser-policy-control-catalog-contracts';
 
 type BrowserControlFieldValueGenerated = string | number | boolean | readonly string[] | null;
 

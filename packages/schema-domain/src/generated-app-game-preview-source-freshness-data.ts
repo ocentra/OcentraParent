@@ -6,7 +6,7 @@ import {
   AppGameSourceFreshnessReadModelStateGenerated as ReadModelState,
   AppGameSourceFreshnessRequirementKindGenerated as RequirementKind,
   AppGameSourceFreshnessSourceKindGenerated as SourceKind,
-} from './app-game-preview-source-freshness-values';
+} from './generated-app-game-preview-source-freshness-values';
 
 export const AppGameSourceFreshnessPolicyConsumptionGeneratedAtGenerated = '2026-06-04T12:55:00.000Z' as const;
 export const AppGameSourceFreshnessPolicyConsumptionFreshObservedAtGenerated =
@@ -138,4 +138,3 @@ export const AppGameSourceFreshnessPolicyConsumptionRequestsGenerated = [
     ],
   },
 ] as const;
-

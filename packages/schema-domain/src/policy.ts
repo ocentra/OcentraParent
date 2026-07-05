@@ -15,8 +15,8 @@ import {
   validateGeneratedPolicyScheduleBoundary,
   resolveGeneratedPolicyPreviewBudgetBoundaryState,
   selectGeneratedStricterPolicyAction,
-} from './generated/policy-control-helpers';
-import { GeneratedPolicyActionStrictnessRank } from './generated/policy-control-helpers-contracts';
+} from './generated-policy-control-helpers';
+import { GeneratedPolicyActionStrictnessRank } from './generated-policy-control-helpers-contracts';
 import { literalSchema, parsedLiteralRecord } from './literal-contracts';
 
 export const PolicyTimestampSchema = brandedNonEmptyStringSchema('PolicyTimestamp');

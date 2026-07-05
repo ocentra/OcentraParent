@@ -3,7 +3,7 @@ import {
   generatedScreenAiStricterParentRuleInputIsReady,
   generatedScreenAiStricterParentRuleProofIsHonest,
   selectGeneratedStricterPolicyAction,
-} from './generated/policy-control-helpers';
+} from './generated-policy-control-helpers';
 import { PolicyActionSchema, PolicyDecisionSchema, PolicyRuleSchema } from './policy-contracts';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 const ScreenAiStricterParentRuleProofIdSchema = brandedNonEmptyStringSchema('ScreenAiStricterParentRuleProofId');

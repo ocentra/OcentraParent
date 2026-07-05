@@ -16,7 +16,7 @@ import {
 import {
   resolveGeneratedPolicyApprovalLifecycle,
   resolveGeneratedPolicyAuthority,
-} from './generated/policy-control-helpers';
+} from './generated-policy-control-helpers';
 
 export const PolicyAuthoritySourceLiteral = {
   ParentPolicy: 'parent-policy',

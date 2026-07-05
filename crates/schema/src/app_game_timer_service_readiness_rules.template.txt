@@ -10,7 +10,7 @@ import {
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated,
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated,
   AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated,
-} from './app-game-timer-service-readiness-values';
+} from './generated-app-game-timer-service-readiness-values';
 
 type ProjectionStateValue =
   (typeof AppGameSourceGatedPolicyPreviewReadModelProjectionState)[keyof typeof AppGameSourceGatedPolicyPreviewReadModelProjectionState];
@@ -895,4 +895,3 @@ export const appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadMod
   !readModel.childDeliveryClaimed &&
   !readModel.platformEnforcementClaimed &&
   !readModel.rawPrivateSourceRowsIncluded;
-
