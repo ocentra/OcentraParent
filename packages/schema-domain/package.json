@@ -877,14 +877,6 @@
       "import": "./dist/browser-game-dashboard-ux-values.js",
       "types": "./dist/browser-game-dashboard-ux-values.d.ts"
     },
-    "./browser-game-educational-classifier": {
-      "import": "./dist/browser-game-educational-classifier.js",
-      "types": "./dist/browser-game-educational-classifier.d.ts"
-    },
-    "./browser-game-educational-classifier-values": {
-      "import": "./dist/browser-game-educational-classifier-values.js",
-      "types": "./dist/browser-game-educational-classifier-values.d.ts"
-    },
     "./browser-game-hidden-analysis-profile-safety": {
       "import": "./dist/browser-game-hidden-analysis-profile-safety.js",
       "types": "./dist/browser-game-hidden-analysis-profile-safety.d.ts"
@@ -940,14 +932,6 @@
     "./browser-game-ugc-multiplayer-chat-risk-values": {
       "import": "./dist/browser-game-ugc-multiplayer-chat-risk-values.js",
       "types": "./dist/browser-game-ugc-multiplayer-chat-risk-values.d.ts"
-    },
-    "./browser-game-unblocked-site-detection": {
-      "import": "./dist/browser-game-unblocked-site-detection.js",
-      "types": "./dist/browser-game-unblocked-site-detection.d.ts"
-    },
-    "./browser-game-unblocked-site-detection-values": {
-      "import": "./dist/browser-game-unblocked-site-detection-values.js",
-      "types": "./dist/browser-game-unblocked-site-detection-values.d.ts"
     },
     "./browser-game-url-shape-parser": {
       "import": "./dist/browser-game-url-shape-parser.js",
@@ -1668,14 +1652,6 @@
     "./screen-evidence-detector-prompt-pack-values": {
       "import": "./dist/screen-evidence-detector-prompt-pack-values.js",
       "types": "./dist/screen-evidence-detector-prompt-pack-values.d.ts"
-    },
-    "./screen-evidence-family-hub-routing": {
-      "import": "./dist/screen-evidence-family-hub-routing.js",
-      "types": "./dist/screen-evidence-family-hub-routing.d.ts"
-    },
-    "./screen-evidence-family-hub-routing-values": {
-      "import": "./dist/screen-evidence-family-hub-routing-values.js",
-      "types": "./dist/screen-evidence-family-hub-routing-values.d.ts"
     },
     "./screen-evidence-primitives": {
       "import": "./dist/screen-evidence-primitives.js",
