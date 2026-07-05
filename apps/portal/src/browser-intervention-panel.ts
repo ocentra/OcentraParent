@@ -1,4 +1,4 @@
-import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
@@ -8,7 +8,7 @@ import {
   type ParentPortalDetailValue,
 } from '../generated/parent-ui-bridge';
 import { appendDetail } from './detail-list';
-import { type PortalDisplayText } from './portal-display-text';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 type BrowserInterventionReadModel = NonNullable<PortalLiveActivityState['browserInterventionReadModel']>;

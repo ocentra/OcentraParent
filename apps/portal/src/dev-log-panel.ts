@@ -2,7 +2,7 @@ import type {
   GeneratedAgentLogEntry as AgentLogEntry,
   GeneratedAgentLogSnapshot as AgentLogSnapshot,
 } from '@ocentra-parent/logging-domain/generated/logging-contracts';
-import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { PortalDiagnostics } from '@ocentra-parent/portal-domain/diagnostics';

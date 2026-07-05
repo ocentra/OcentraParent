@@ -1,4 +1,4 @@
-import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {

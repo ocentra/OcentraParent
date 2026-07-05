@@ -5,7 +5,7 @@ import {
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
-import { type PortalDisplayText } from './portal-display-text';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import type { PortalRenderActions } from './portal-actions';
 import {
   createScreenSettingsGetCommandDraft,

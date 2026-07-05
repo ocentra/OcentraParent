@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   createLocalAiRuntimePanelIntent,
@@ -9,7 +9,7 @@ import {
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { isParentAiRuntimeRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
-import { type PortalDisplayText } from './portal-display-text';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function shouldRenderAiRuntimeRoute(route: ParentRouteId): boolean {

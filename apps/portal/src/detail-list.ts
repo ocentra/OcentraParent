@@ -1,8 +1,8 @@
 import { decodeParentPortalDetailValue, type ParentPortalDetailValue } from '../generated/parent-ui-bridge';
-import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
-import { type PortalDisplayText } from './portal-display-text';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 export function appendDetail(list: HTMLDListElement, label: PortalDisplayText, value: ParentPortalDetailValue): void {
   const term = document.createElement(PortalDom.Tags.DefinitionTerm);
   term.textContent = label;

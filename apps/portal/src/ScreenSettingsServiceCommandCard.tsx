@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { type ParentScreenEvidenceSettingsUiProof } from '../generated/parent-ui-screen-bridge';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
-import { type PortalDisplayText } from './portal-display-text';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import {
   type ScreenSettingsServiceResponse,
   type ScreenSettingsServiceRequestId,

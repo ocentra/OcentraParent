@@ -1,6 +1,6 @@
 import { type ParentPortalDetailValue } from '../generated/parent-ui-bridge';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { type PortalDisplayText } from './portal-display-text';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 export function productMetric(
   labelText: PortalDisplayText,
   valueText: ParentPortalDetailValue,

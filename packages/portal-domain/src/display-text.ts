@@ -1,4 +1,5 @@
 export type DisplayText = string;
+export type PortalDisplayText = DisplayText;
 
 class DisplayTextDecodeError extends Error {
   constructor(input: unknown) {
@@ -18,14 +19,24 @@ export function decodeDisplayText(input: unknown): DisplayText {
 export const PortalDevTextToken = {
   Activity: decodeDisplayText('Activity'),
   ActivityDescription: decodeDisplayText('Stored activity'),
+  AgentCommands: decodeDisplayText('Device controls'),
+  AgentEvents: decodeDisplayText('Device audit'),
   AiRuntime: decodeDisplayText('Local AI'),
   AiRuntimeBody: decodeDisplayText(
     'Local AI should explain and summarize when available, while safety decisions remain typed and auditable.'
   ),
   AiRuntimeDescription: decodeDisplayText('Local model privacy'),
+  AppGamePolicyReadiness: decodeDisplayText('App/game policy readiness'),
   AppGameSessions: decodeDisplayText('App and game sessions'),
+  AppGameTimerParentSurface: decodeDisplayText('App/game timer parent surface'),
+  AppTitle: decodeDisplayText('Ocentra Parent'),
   Approvals: decodeDisplayText('Approvals'),
   ApprovalsBody: decodeDisplayText('Route ask-parent moments into a clear approve, deny, or explain outcome.'),
+  AuthBody: decodeDisplayText('Use a parent session before changing rules, approvals, drives, or child-device trust.'),
+  AuthClose: decodeDisplayText('Close parent sign in'),
+  AuthEyebrow: decodeDisplayText('Parent access'),
+  AuthTitle: decodeDisplayText('Protect the family console'),
+  AuthUnavailable: decodeDisplayText('Parent identity is not connected on this device yet.'),
   BillingEntitlements: decodeDisplayText('Billing and entitlements'),
   Browser: decodeDisplayText('Web'),
   BrowserBlockBody: decodeDisplayText(
@@ -33,9 +44,19 @@ export const PortalDevTextToken = {
   ),
   BrowserControls: decodeDisplayText('Browser controls'),
   BrowserDescription: decodeDisplayText('Browser evidence'),
+  BrowserIntervention: decodeDisplayText('Browser protection'),
+  BrowserManagedStatus: decodeDisplayText('Managed browser'),
   CheckHealth: decodeDisplayText('Check health'),
+  CommandResult: decodeDisplayText('Command result'),
   Commands: decodeDisplayText('Controls'),
   CommandsDescription: decodeDisplayText('Safe device refresh actions that use the real child-device connection.'),
+  Connected: decodeDisplayText('Child device connected'),
+  CopiedDiagnostics: decodeDisplayText('Diagnostics copied'),
+  CopiedResult: decodeDisplayText('Copied'),
+  CopyDiagnostics: decodeDisplayText('Copy diagnostics'),
+  CopyDiagnosticsFailed: decodeDisplayText('Diagnostics copy failed'),
+  CopyResult: decodeDisplayText('Copy result'),
+  CopyResultFailed: decodeDisplayText('Copy failed'),
   DataCustodyBody: decodeDisplayText(
     'The child device keeps evidence locally. You decide whether diagnostics or exports leave the device.'
   ),
@@ -44,11 +65,14 @@ export const PortalDevTextToken = {
   DesktopAppBody: decodeDisplayText(
     'The desktop app hosts the child-device service and native capabilities for Windows, macOS, and Linux.'
   ),
+  DevLog: decodeDisplayText('Service log'),
+  DeviceDiagnostics: decodeDisplayText('Device diagnostics'),
   DeviceInventory: decodeDisplayText('Device inventory'),
   Devices: decodeDisplayText('Devices'),
   DevicesDescription: decodeDisplayText('Device control'),
   Diagnostics: decodeDisplayText('Support'),
   DiagnosticsDescription: decodeDisplayText('Exports and logs'),
+  DisplayTheme: decodeDisplayText('Display theme'),
   DriveConnectionsBody: decodeDisplayText(
     'Prepare backups for a parent-owned drive, school archive, or support bundle when you choose.'
   ),
@@ -65,6 +89,8 @@ export const PortalDevTextToken = {
   GetActivityAppGameAdapterExecutionReadinessReadModel: decodeDisplayText('Refresh adapter readiness'),
   GetActivityAppGameChildRuntimeTransportReceiptReadModel: decodeDisplayText('Refresh child runtime receipts'),
   GetActivityAppGamePlatformProofStatusReadModel: decodeDisplayText('Refresh platform proof status'),
+  GetActivityAppGamePolicyReadinessReadModel: decodeDisplayText('Refresh policy readiness'),
+  GetActivityAppGameTimerParentSurfaceReadModel: decodeDisplayText('Refresh timer parent surface'),
   GetActivityAppUseReadModel: decodeDisplayText('Refresh activity app use'),
   GetActivityBrowserReadModel: decodeDisplayText('Refresh activity browser'),
   GetActivityGamesReadModel: decodeDisplayText('Refresh activity games'),
@@ -91,6 +117,10 @@ export const PortalDevTextToken = {
   GetPolicyPreviewReadModel: decodeDisplayText('Refresh policy decision'),
   GetRecentActivitySummary: decodeDisplayText('Refresh recent activity'),
   GetWatcherStatus: decodeDisplayText('Refresh browser watcher'),
+  HeaderBrandLeft: decodeDisplayText("O'centra"),
+  HeaderBrandRight: decodeDisplayText('Parent'),
+  HeaderHome: decodeDisplayText('Home'),
+  HeaderLogin: decodeDisplayText('Login'),
   Logs: decodeDisplayText('Logs'),
   LogsDescription: decodeDisplayText('Local portal and agent service log snapshots.'),
   Memory: decodeDisplayText('Memory'),
@@ -103,6 +133,10 @@ export const PortalDevTextToken = {
   NavGroupMonitor: decodeDisplayText('Today'),
   NavGroupOperate: decodeDisplayText('Manage'),
   NetworkFlow: decodeDisplayText('Network activity'),
+  NoBrowserIntervention: decodeDisplayText('No browser protection decision is available yet.'),
+  NoBrowserManagedStatus: decodeDisplayText('Managed browser status has not been reported yet.'),
+  NoCommandResult: decodeDisplayText('Choose a device control to see the latest response.'),
+  NoDevLog: decodeDisplayText('No service log snapshot has been reported yet.'),
   NoNetworkFlow: decodeDisplayText('No network activity is available yet.'),
   NoRecentActivity: decodeDisplayText('No recent activity is available yet.'),
   NotReported: decodeDisplayText('Not reported'),
@@ -118,15 +152,20 @@ export const PortalDevTextToken = {
   ),
   ParentPortal: decodeDisplayText('Start here'),
   ParentPortalDescription: decodeDisplayText('Setup and controls map'),
+  PendingServiceReadModel: decodeDisplayText('Not connected'),
+  PendingTypedIntent: decodeDisplayText('Setup'),
   Policy: decodeDisplayText('Policy'),
   PolicyDescription: decodeDisplayText('Rules and approvals'),
   PolicyModeActive: decodeDisplayText('Active'),
+  PolicyPreview: decodeDisplayText('Policy decision'),
   PolicyPreviewNoEnforcement: decodeDisplayText('Protection mode: advisory.'),
   PollManagedBrowserBridge: decodeDisplayText('Refresh managed browser'),
   ProductSurfacePending: decodeDisplayText('No family setting is configured for this area yet.'),
   ProofPanels: decodeDisplayText('Proof panels'),
   ProofPanelsDescription: decodeDisplayText('Tracking, network, and policy proof panels.'),
+  Reconnect: decodeDisplayText('Reconnect'),
   RemoteScreen: decodeDisplayText('Remote screen'),
+  RootMissing: decodeDisplayText('Portal root element is missing.'),
   RuleBuilder: decodeDisplayText('Rule builder'),
   RuleBuilderBody: decodeDisplayText(
     'Create family rules for web, apps, games, schedules, local AI explanations, and exception requests.'
@@ -138,6 +177,9 @@ export const PortalDevTextToken = {
   ScreenAnalysis: decodeDisplayText('Screen analysis'),
   SettingsRules: decodeDisplayText('Settings'),
   SettingsRulesDescription: decodeDisplayText('Schedules and budgets'),
+  ThemeDark: decodeDisplayText('Dark'),
+  ThemeLight: decodeDisplayText('Light'),
+  TrackingStatusSurface: decodeDisplayText('Tracking status proof'),
   TrackingChildCheckInCallParentAction: decodeDisplayText('Call parent'),
   TrackingChildCheckInCopyBoundary: decodeDisplayText('Calm copy, no accusation'),
   TrackingChildCheckInDeliveryBoundary: decodeDisplayText('Child-device delivery not proved'),

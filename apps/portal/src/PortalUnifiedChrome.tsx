@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom, PortalTheme, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
 import { ParentRoute, parentRouteHashPath } from '../generated/parent-ui-bridge';

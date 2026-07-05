@@ -2,7 +2,7 @@ import {
   GeneratedDevLogField as DevLogField,
   GeneratedDevLogMessage as DevLogMessage,
 } from '@ocentra-parent/logging-domain/generated/logging-contracts';
-import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom, PortalTiming } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
 import { decodeParentPortalClipboardText, type ParentRouteEventSnapshot } from '../generated/parent-ui-bridge';

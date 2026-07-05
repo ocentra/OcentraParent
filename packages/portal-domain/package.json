@@ -29,6 +29,10 @@
       "import": "./dist/details.js",
       "types": "./dist/details.d.ts"
     },
+    "./display-text": {
+      "import": "./dist/display-text.js",
+      "types": "./dist/display-text.d.ts"
+    },
     "./dev-logger": {
       "import": "./dist/dev-logger.js",
       "types": "./dist/dev-logger.d.ts"

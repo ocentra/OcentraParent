@@ -5,7 +5,7 @@ import {
   type ParentScreenControlSettingsPortalMetric as ScreenControlSettingsPortalMetric,
 } from '../generated/parent-ui-screen-bridge';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { type PortalDisplayText } from './portal-display-text';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { isParentScreenSettingsRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';

@@ -3,7 +3,7 @@ import {
   decodeParentPortalDetailValue,
   type ParentPortalDetailValue,
 } from '../generated/parent-ui-bridge';
-import { PortalDevTextToken, resolvePortalDevText } from './portal-dev-text';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
@@ -16,7 +16,7 @@ import {
 } from '@ocentra-parent/portal-domain/live-activity-lan-add-device';
 import type { ParentNetworkEvidenceSummarySnapshot, ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalLiveActivityState } from './live-activity-state';
-import { decodeDisplayText, type PortalDisplayText } from './portal-display-text';
+import { decodeDisplayText, type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import { isInlineNetworkEvidenceDrawerRoute, isNetworkEvidenceDrawerRoute } from './portal-route-refresh';
 
 export function shouldRenderNetworkEvidenceDrawerRoute(route: ParentRouteId): boolean {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import { type PortalDisplayText } from './portal-display-text';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import { PictureViewerFrame } from '../../../vendor/ocentra-parent-core-ui/Common/PictureViewerFrame/PictureViewerFrame';
 import {
