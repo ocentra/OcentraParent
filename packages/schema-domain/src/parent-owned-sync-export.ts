@@ -40,7 +40,7 @@ import {
   type GeneratedParentOwnedSyncProviderStatusRow,
   type GeneratedParentOwnedSyncStateRow,
   type GeneratedParentOwnedSyncTombstoneRow,
-} from './generated/parent-owned-sync-export-contracts';
+} from './generated-parent-owned-sync-export-contracts';
 import {
   syncExportContractProofIsHonestGenerated,
   syncExportCoversRequiredDataClassesGenerated,
@@ -48,7 +48,7 @@ import {
   syncExportProviderStatusRowIsHonestGenerated,
   syncExportSyncStateRowIsHonestGenerated,
   syncExportTombstoneRowIsHonestGenerated,
-} from './generated/parent-owned-sync-export-contract-rules';
+} from './generated-parent-owned-sync-export-contract-rules';
 
 export const ParentOwnedSyncExportSchemaVersionSchema = withParser(
   Schema.Literal(ParentOwnedSyncExportContractRuntime.SchemaVersion)

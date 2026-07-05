@@ -36,12 +36,12 @@ import {
   type GeneratedReportQueryCustodyContractProof as GeneratedReportQueryCustodyContractProofShape,
   type GeneratedReportQueryCustodyRequest,
   type GeneratedReportQueryCustodyRow,
-} from './generated/report-query-custody-contracts';
+} from './generated-report-query-custody-contracts';
 import {
   reportQueryCustodyProofIsHonestGenerated,
   reportQueryCustodyRequestIsHonestGenerated,
   reportQueryCustodyRowIsHonestGenerated,
-} from './generated/report-query-custody-contract-rules';
+} from './generated-report-query-custody-contract-rules';
 
 export const ReportQueryCustodySchemaVersionSchema = withParser(
   Schema.Literal(ReportQueryCustodyContractRuntime.SchemaVersion)

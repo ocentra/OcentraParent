@@ -1,27 +1,47 @@
 /* generated from crates/schema/src/report_query_custody.rs */
 
+import { brandedNonEmptyStringSchema } from './effect';
+
 export const ReportQueryCustodyContractRuntime = {
   SchemaVersion: 'report-query-custody-proof',
 } as const;
 
 export type GeneratedParentContractSchemaVersion = 'v0.6';
-export type GeneratedParentAccountId = string;
-export type GeneratedFamilyId = string;
-export type GeneratedChildProfileId = string;
-export type GeneratedParentDeviceId = string;
-export type GeneratedParentDeviceLabel = string;
-export type GeneratedParentActorId = string;
-export type GeneratedParentPolicyVersion = string;
-export type GeneratedParentEvidenceReferenceId = string;
-export type GeneratedParentActionReferenceId = string;
-export type GeneratedParentTimestamp = string;
-export type GeneratedReportQueryCustodyRequestId = string;
-export type GeneratedReportQueryCustodyQueryCursor = string;
-export type GeneratedReportQueryCustodyCursorRef = string;
-export type GeneratedReportQueryCustodySortKey = string;
-export type GeneratedReportQueryCustodySourceRef = string;
-export type GeneratedReportQueryCustodyConflictRef = string;
-export type GeneratedReportQueryCustodyDeletedSourceRef = string;
+export const GeneratedParentAccountIdSchema = brandedNonEmptyStringSchema('ParentAccountId');
+export const GeneratedFamilyIdSchema = brandedNonEmptyStringSchema('FamilyId');
+export const GeneratedChildProfileIdSchema = brandedNonEmptyStringSchema('ChildProfileId');
+export const GeneratedParentDeviceIdSchema = brandedNonEmptyStringSchema('ParentDeviceId');
+export const GeneratedParentDeviceLabelSchema = brandedNonEmptyStringSchema('ParentDeviceLabel');
+export const GeneratedParentActorIdSchema = brandedNonEmptyStringSchema('ParentActorId');
+export const GeneratedParentPolicyVersionSchema = brandedNonEmptyStringSchema('ParentPolicyVersion');
+export const GeneratedParentEvidenceReferenceIdSchema = brandedNonEmptyStringSchema('ParentEvidenceReferenceId');
+export const GeneratedParentActionReferenceIdSchema = brandedNonEmptyStringSchema('ParentActionReferenceId');
+export const GeneratedParentTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
+export const GeneratedReportQueryCustodyRequestIdSchema = brandedNonEmptyStringSchema('ReportQueryCustodyRequestId');
+export const GeneratedReportQueryCustodyQueryCursorSchema = brandedNonEmptyStringSchema('ReportQueryCustodyQueryCursor');
+export const GeneratedReportQueryCustodyCursorRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyCursorRef');
+export const GeneratedReportQueryCustodySortKeySchema = brandedNonEmptyStringSchema('ReportQueryCustodySortKey');
+export const GeneratedReportQueryCustodySourceRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodySourceRef');
+export const GeneratedReportQueryCustodyConflictRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyConflictRef');
+export const GeneratedReportQueryCustodyDeletedSourceRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyDeletedSourceRef');
+
+export type GeneratedParentAccountId = typeof GeneratedParentAccountIdSchema.Type;
+export type GeneratedFamilyId = typeof GeneratedFamilyIdSchema.Type;
+export type GeneratedChildProfileId = typeof GeneratedChildProfileIdSchema.Type;
+export type GeneratedParentDeviceId = typeof GeneratedParentDeviceIdSchema.Type;
+export type GeneratedParentDeviceLabel = typeof GeneratedParentDeviceLabelSchema.Type;
+export type GeneratedParentActorId = typeof GeneratedParentActorIdSchema.Type;
+export type GeneratedParentPolicyVersion = typeof GeneratedParentPolicyVersionSchema.Type;
+export type GeneratedParentEvidenceReferenceId = typeof GeneratedParentEvidenceReferenceIdSchema.Type;
+export type GeneratedParentActionReferenceId = typeof GeneratedParentActionReferenceIdSchema.Type;
+export type GeneratedParentTimestamp = typeof GeneratedParentTimestampSchema.Type;
+export type GeneratedReportQueryCustodyRequestId = typeof GeneratedReportQueryCustodyRequestIdSchema.Type;
+export type GeneratedReportQueryCustodyQueryCursor = typeof GeneratedReportQueryCustodyQueryCursorSchema.Type;
+export type GeneratedReportQueryCustodyCursorRef = typeof GeneratedReportQueryCustodyCursorRefSchema.Type;
+export type GeneratedReportQueryCustodySortKey = typeof GeneratedReportQueryCustodySortKeySchema.Type;
+export type GeneratedReportQueryCustodySourceRef = typeof GeneratedReportQueryCustodySourceRefSchema.Type;
+export type GeneratedReportQueryCustodyConflictRef = typeof GeneratedReportQueryCustodyConflictRefSchema.Type;
+export type GeneratedReportQueryCustodyDeletedSourceRef = typeof GeneratedReportQueryCustodyDeletedSourceRefSchema.Type;
 
 export type GeneratedParentPlatform = 'windows' | 'linux' | 'macos' | 'android' | 'ios';
 export type GeneratedParentActorRole = 'parent' | 'guardian' | 'system';
@@ -115,102 +135,102 @@ export const GeneratedReportQueryCustodyTombstoneStates = [
 ] as const satisfies readonly GeneratedReportQueryCustodyTombstoneState[];
 
 export interface GeneratedParentActorReference {
-  actorId: GeneratedParentActorId;
-  role: GeneratedParentActorRole;
+  readonly actorId: GeneratedParentActorId;
+  readonly role: GeneratedParentActorRole;
 }
 
 export interface GeneratedParentAccountReference {
-  parentAccountId: GeneratedParentAccountId;
+  readonly parentAccountId: GeneratedParentAccountId;
 }
 
 export interface GeneratedFamilyReference {
-  familyId: GeneratedFamilyId;
+  readonly familyId: GeneratedFamilyId;
 }
 
 export interface GeneratedParentDeviceReference {
-  deviceId: GeneratedParentDeviceId;
-  childProfileId: GeneratedChildProfileId | null;
-  label: GeneratedParentDeviceLabel;
-  platform: GeneratedParentPlatform;
+  readonly deviceId: GeneratedParentDeviceId;
+  readonly childProfileId: GeneratedChildProfileId | null;
+  readonly label: GeneratedParentDeviceLabel;
+  readonly platform: GeneratedParentPlatform;
 }
 
 export interface GeneratedParentEvidenceReference {
-  evidenceReferenceId: GeneratedParentEvidenceReferenceId;
-  kind: GeneratedParentEvidenceReferenceKind;
-  observedAt: GeneratedParentTimestamp;
+  readonly evidenceReferenceId: GeneratedParentEvidenceReferenceId;
+  readonly kind: GeneratedParentEvidenceReferenceKind;
+  readonly observedAt: GeneratedParentTimestamp;
 }
 
 export interface GeneratedParentActionReference {
-  actionReferenceId: GeneratedParentActionReferenceId;
-  actor: GeneratedParentActorReference;
-  policyVersion: GeneratedParentPolicyVersion;
-  createdAt: GeneratedParentTimestamp;
+  readonly actionReferenceId: GeneratedParentActionReferenceId;
+  readonly actor: GeneratedParentActorReference;
+  readonly policyVersion: GeneratedParentPolicyVersion;
+  readonly createdAt: GeneratedParentTimestamp;
 }
 
 export interface GeneratedReportQueryCustodyRequest {
-  schemaVersion: typeof ReportQueryCustodyContractRuntime.SchemaVersion;
-  requestId: GeneratedReportQueryCustodyRequestId;
-  family: GeneratedFamilyReference;
-  account: GeneratedParentAccountReference;
-  device: GeneratedParentDeviceReference;
-  parentAction: GeneratedParentActionReference;
-  requestedCursor: GeneratedReportQueryCustodyQueryCursor;
-  pageSize: number;
-  requestedDataClasses: readonly GeneratedReportQueryCustodySourceDataClass[];
-  allowedSourceDataClasses: readonly GeneratedReportQueryCustodySourceDataClass[];
-  sourceCitationRefs: readonly GeneratedParentEvidenceReference[];
-  assistantCitationRefs: readonly GeneratedParentEvidenceReference[];
-  notificationPayloadBoundary: GeneratedReportQueryCustodyBoundary;
-  parentAuthorized: boolean;
-  parentOwnedSourceRequired: boolean;
-  rawChildEvidenceRequested: boolean;
+  readonly schemaVersion: typeof ReportQueryCustodyContractRuntime.SchemaVersion;
+  readonly requestId: GeneratedReportQueryCustodyRequestId;
+  readonly family: GeneratedFamilyReference;
+  readonly account: GeneratedParentAccountReference;
+  readonly device: GeneratedParentDeviceReference;
+  readonly parentAction: GeneratedParentActionReference;
+  readonly requestedCursor: GeneratedReportQueryCustodyQueryCursor;
+  readonly pageSize: number;
+  readonly requestedDataClasses: readonly GeneratedReportQueryCustodySourceDataClass[];
+  readonly allowedSourceDataClasses: readonly GeneratedReportQueryCustodySourceDataClass[];
+  readonly sourceCitationRefs: readonly GeneratedParentEvidenceReference[];
+  readonly assistantCitationRefs: readonly GeneratedParentEvidenceReference[];
+  readonly notificationPayloadBoundary: GeneratedReportQueryCustodyBoundary;
+  readonly parentAuthorized: boolean;
+  readonly parentOwnedSourceRequired: boolean;
+  readonly rawChildEvidenceRequested: boolean;
 }
 
 export interface GeneratedReportQueryCustodyRow {
-  rowId: GeneratedReportQueryCustodySourceRef;
-  requestId: GeneratedReportQueryCustodyRequestId;
-  state: GeneratedReportQueryCustodyState;
-  sourceFreshness: GeneratedReportQueryCustodySourceFreshness;
-  sourceDataClass: GeneratedReportQueryCustodySourceDataClass;
-  cursorRef: GeneratedReportQueryCustodyCursorRef;
-  sourceCursorRef: GeneratedReportQueryCustodyCursorRef;
-  nextCursorRef: GeneratedReportQueryCustodyCursorRef | null;
-  pageIndex: number;
-  pageSize: number;
-  stableSortKey: GeneratedReportQueryCustodySortKey;
-  requestedDataClasses: readonly GeneratedReportQueryCustodySourceDataClass[];
-  allowedSourceDataClasses: readonly GeneratedReportQueryCustodySourceDataClass[];
-  sourceCitationRefs: readonly GeneratedParentEvidenceReference[];
-  assistantCitationRefs: readonly GeneratedParentEvidenceReference[];
-  notificationPayloadBoundary: GeneratedReportQueryCustodyBoundary;
-  payloadRedactionState: GeneratedReportQueryCustodyPayloadRedaction;
-  tombstoneState: GeneratedReportQueryCustodyTombstoneState;
-  deletedSourceRef: GeneratedReportQueryCustodyDeletedSourceRef | null;
-  deletedSourceAt: GeneratedParentTimestamp | null;
-  conflictRef: GeneratedReportQueryCustodyConflictRef | null;
-  cursorExpiredAt: GeneratedParentTimestamp | null;
-  rateLimitedUntilAt: GeneratedParentTimestamp | null;
-  parentAuthorized: boolean;
-  parentOwnedSourceRequired: boolean;
-  rawChildEvidenceIncluded: boolean;
-  reportCacheMutated: boolean;
-  secondTruthStoreClaimed: boolean;
-  claimSafe: boolean;
+  readonly rowId: GeneratedReportQueryCustodySourceRef;
+  readonly requestId: GeneratedReportQueryCustodyRequestId;
+  readonly state: GeneratedReportQueryCustodyState;
+  readonly sourceFreshness: GeneratedReportQueryCustodySourceFreshness;
+  readonly sourceDataClass: GeneratedReportQueryCustodySourceDataClass;
+  readonly cursorRef: GeneratedReportQueryCustodyCursorRef;
+  readonly sourceCursorRef: GeneratedReportQueryCustodyCursorRef;
+  readonly nextCursorRef: GeneratedReportQueryCustodyCursorRef | null;
+  readonly pageIndex: number;
+  readonly pageSize: number;
+  readonly stableSortKey: GeneratedReportQueryCustodySortKey;
+  readonly requestedDataClasses: readonly GeneratedReportQueryCustodySourceDataClass[];
+  readonly allowedSourceDataClasses: readonly GeneratedReportQueryCustodySourceDataClass[];
+  readonly sourceCitationRefs: readonly GeneratedParentEvidenceReference[];
+  readonly assistantCitationRefs: readonly GeneratedParentEvidenceReference[];
+  readonly notificationPayloadBoundary: GeneratedReportQueryCustodyBoundary;
+  readonly payloadRedactionState: GeneratedReportQueryCustodyPayloadRedaction;
+  readonly tombstoneState: GeneratedReportQueryCustodyTombstoneState;
+  readonly deletedSourceRef: GeneratedReportQueryCustodyDeletedSourceRef | null;
+  readonly deletedSourceAt: GeneratedParentTimestamp | null;
+  readonly conflictRef: GeneratedReportQueryCustodyConflictRef | null;
+  readonly cursorExpiredAt: GeneratedParentTimestamp | null;
+  readonly rateLimitedUntilAt: GeneratedParentTimestamp | null;
+  readonly parentAuthorized: boolean;
+  readonly parentOwnedSourceRequired: boolean;
+  readonly rawChildEvidenceIncluded: boolean;
+  readonly reportCacheMutated: boolean;
+  readonly secondTruthStoreClaimed: boolean;
+  readonly claimSafe: boolean;
 }
 
 export interface GeneratedReportQueryCustodyContractProof {
-  schemaVersion: typeof ReportQueryCustodyContractRuntime.SchemaVersion;
-  contractVersion: GeneratedParentContractSchemaVersion;
-  request: GeneratedReportQueryCustodyRequest;
-  rows: readonly GeneratedReportQueryCustodyRow[];
-  nonClaims: readonly GeneratedReportQueryCustodyNonClaim[];
-  reportRuntimeClaimed: boolean;
-  portalUiClaimed: boolean;
-  providerRoutingClaimed: boolean;
-  ocentraHostedFamilyDataCustodyClaimed: boolean;
-  secondTruthStoreClaimed: boolean;
-  rawChildEvidenceClaimed: boolean;
-  updatedAt: GeneratedParentTimestamp;
+  readonly schemaVersion: typeof ReportQueryCustodyContractRuntime.SchemaVersion;
+  readonly contractVersion: GeneratedParentContractSchemaVersion;
+  readonly request: GeneratedReportQueryCustodyRequest;
+  readonly rows: readonly GeneratedReportQueryCustodyRow[];
+  readonly nonClaims: readonly GeneratedReportQueryCustodyNonClaim[];
+  readonly reportRuntimeClaimed: boolean;
+  readonly portalUiClaimed: boolean;
+  readonly providerRoutingClaimed: boolean;
+  readonly ocentraHostedFamilyDataCustodyClaimed: boolean;
+  readonly secondTruthStoreClaimed: boolean;
+  readonly rawChildEvidenceClaimed: boolean;
+  readonly updatedAt: GeneratedParentTimestamp;
 }
 
 export const GeneratedReportQueryCustodyKnownGaps = [
@@ -749,4 +769,4 @@ export const GeneratedReportQueryCustodyContractProof = {
   "secondTruthStoreClaimed": false,
   "rawChildEvidenceClaimed": false,
   "updatedAt": "2026-06-28T15:55:00.000Z"
-} as const satisfies GeneratedReportQueryCustodyContractProof;
+} as const;

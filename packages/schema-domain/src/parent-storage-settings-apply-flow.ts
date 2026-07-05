@@ -27,7 +27,7 @@ import {
   ParentStorageSettingsApplyFlowContractRuntime,
   type GeneratedParentStorageClaimSafeCopyRow,
   type GeneratedParentStorageSettingsApplyFlowContractProof as GeneratedParentStorageSettingsApplyFlowContractProofShape,
-} from './generated/parent-storage-settings-apply-flow-contracts';
+} from './generated-parent-storage-settings-apply-flow-contracts';
 import {
   parentStorageApplyDecisionIsHonestGenerated,
   parentStorageClaimSafeCopyRowIsHonestGenerated,
@@ -36,7 +36,7 @@ import {
   parentStorageModeCardIsHonestGenerated,
   parentStorageRestorePreviewIsHonestGenerated,
   parentStorageSettingsApplyFlowProofIsHonestGenerated,
-} from './generated/parent-storage-settings-apply-flow-contract-rules';
+} from './generated-parent-storage-settings-apply-flow-contract-rules';
 
 export const ParentStorageSettingsApplyFlowSchemaVersionSchema = withParser(
   Schema.Literal(ParentStorageSettingsApplyFlowContractRuntime.SchemaVersion)

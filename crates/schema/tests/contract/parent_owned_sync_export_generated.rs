@@ -33,7 +33,7 @@ pub(super) fn assert_parent_owned_sync_export_contracts() {
     assert_eq!(decoded, proof);
 
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/parent-owned-sync-export-contracts.ts"
+        "../../../../packages/schema-domain/src/generated-parent-owned-sync-export-contracts.ts"
     );
     let generated = parent_owned_sync_export_contracts_typescript();
     let generated = crate::contract_text!(&generated);
@@ -61,7 +61,7 @@ pub(super) fn assert_parent_owned_sync_export_contracts() {
     );
 
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/parent-owned-sync-export-contract-rules.ts"
+        "../../../../packages/schema-domain/src/generated-parent-owned-sync-export-contract-rules.ts"
     );
     let generated = parent_owned_sync_export_contract_rules_typescript();
     let generated = crate::contract_text!(&generated);
@@ -95,12 +95,12 @@ pub(super) fn assert_parent_owned_sync_export_contracts() {
     );
     assert_generated_line_containing_eq(
         crate::contract_text!(adapter),
-        crate::contract_text!("from './generated/parent-owned-sync-export-contracts'"),
-        ContractLine("} from './generated/parent-owned-sync-export-contracts';"),
+        crate::contract_text!("from './generated-parent-owned-sync-export-contracts'"),
+        ContractLine("} from './generated-parent-owned-sync-export-contracts';"),
     );
     assert_generated_line_containing_eq(
         crate::contract_text!(adapter),
-        crate::contract_text!("from './generated/parent-owned-sync-export-contract-rules'"),
-        ContractLine("} from './generated/parent-owned-sync-export-contract-rules';"),
+        crate::contract_text!("from './generated-parent-owned-sync-export-contract-rules'"),
+        ContractLine("} from './generated-parent-owned-sync-export-contract-rules';"),
     );
 }

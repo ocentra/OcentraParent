@@ -12,43 +12,15 @@ import {
   type GeneratedParentStorageModeCard,
   type GeneratedParentStorageRestorePreview,
   type GeneratedParentStorageSettingsApplyFlowContractProof,
-} from './parent-storage-settings-apply-flow-contracts';
+} from './generated-parent-storage-settings-apply-flow-contracts';
 
 export function parentStorageModeCardIsHonestGenerated(card: GeneratedParentStorageModeCard): boolean {
   if (!card.restorePreviewAvailable || !card.summary.trim()) {
     return false;
   }
 
-  if (card.currentModeLabel === 'manual-required') {
-    return card.manualRequiredVisible && card.uiState === 'manualRequired' && !card.applyBackAvailable;
-  }
-  if (card.currentModeLabel === 'provider-disconnected') {
-    return (
-      card.providerStatus === 'disconnected' &&
-      card.disconnectVisible &&
-      card.uiState === 'remoteDisabled' &&
-      !card.applyBackAvailable
-    );
-  }
-  if (card.currentModeLabel === 'provider-error') {
-    return card.lastFailureAt !== null && card.providerStatus !== 'ready' && card.providerStatus !== 'disconnected';
-  }
-  if (card.currentModeLabel === 'local-plus-encrypted-backup') {
-    return (
-      card.providerMode === 'local-folder' &&
-      card.providerStatus === 'ready' &&
-      card.encryptionStatus === 'encrypted-before-upload'
-    );
-  }
-  if (card.currentModeLabel === 'disabled') {
-    return (
-      (card.providerStatus === 'disabled' || card.providerStatus === 'not-configured') &&
-      !card.deleteVisible &&
-      !card.applyBackAvailable
-    );
-  }
-
-  return true;
+  const check = parentStorageModeCardChecksGenerated[card.currentModeLabel];
+  return check?.(card) ?? true;
 }
 
 export function parentStorageRestorePreviewIsHonestGenerated(preview: GeneratedParentStorageRestorePreview): boolean {
@@ -62,20 +34,8 @@ export function parentStorageRestorePreviewIsHonestGenerated(preview: GeneratedP
     return false;
   }
 
-  if (preview.previewState === 'partialRestore') {
-    return preview.partialRestore && preview.rejectedSections.length > 0;
-  }
-  if (preview.previewState === 'wrongHousehold') {
-    return !preview.householdMatch;
-  }
-  if (preview.previewState === 'tombstoneConflict') {
-    return preview.rejectedSections.length > 0;
-  }
-  if (preview.previewState === 'manualRequired') {
-    return preview.manualRequiredNote !== null && preview.manualRequiredNote.trim().length > 0;
-  }
-
-  return true;
+  const check = parentStorageRestorePreviewChecksGenerated[preview.previewState];
+  return check?.(preview) ?? true;
 }
 
 export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedParentStorageApplyDecision): boolean {
@@ -83,14 +43,8 @@ export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedP
     return false;
   }
 
-  if (decision.applyState === 'blockedManualRequired' || decision.applyState === 'rollbackManualRequired') {
-    return decision.manualRequiredNote !== null && decision.manualRequiredNote.trim().length > 0;
-  }
-  if (decision.applyState === 'applyRequiresConfirmation') {
-    return decision.manualRequiredNote === null;
-  }
-
-  return true;
+  const check = parentStorageApplyDecisionChecksGenerated[decision.applyState];
+  return check?.(decision) ?? true;
 }
 
 export function parentStorageDeleteActionRowIsHonestGenerated(row: GeneratedParentStorageDeleteActionRow): boolean {
@@ -98,11 +52,7 @@ export function parentStorageDeleteActionRowIsHonestGenerated(row: GeneratedPare
 }
 
 export function parentStorageDisconnectRowIsHonestGenerated(row: GeneratedParentStorageDisconnectRow): boolean {
-  if (!row.existingFilesMayRemain || !row.providerDeleteRequestedSeparately || !row.notes.trim()) {
-    return false;
-  }
-
-  return row.state !== 'manual-required' || row.notes.trim().length > 0;
+  return row.existingFilesMayRemain && row.providerDeleteRequestedSeparately && row.notes.trim().length > 0;
 }
 
 export function parentStorageClaimSafeCopyRowIsHonestGenerated(row: GeneratedParentStorageClaimSafeCopyRow): boolean {
@@ -135,3 +85,49 @@ export function parentStorageSettingsApplyFlowProofIsHonestGenerated(
 function hasExactCoverageGenerated<T extends string>(values: readonly T[], expected: readonly T[]): boolean {
   return values.length === expected.length && expected.every((value, index) => values[index] === value);
 }
+
+const parentStorageModeCardChecksGenerated: Partial<
+  Record<GeneratedParentStorageModeCard['currentModeLabel'], (card: GeneratedParentStorageModeCard) => boolean>
+> = {
+  'manual-required': (card: GeneratedParentStorageModeCard) =>
+    card.manualRequiredVisible && card.uiState === 'manualRequired' && !card.applyBackAvailable,
+  'provider-disconnected': (card: GeneratedParentStorageModeCard) =>
+    card.providerStatus === 'disconnected' &&
+    card.disconnectVisible &&
+    card.uiState === 'remoteDisabled' &&
+    !card.applyBackAvailable,
+  'provider-error': (card: GeneratedParentStorageModeCard) =>
+    card.lastFailureAt !== null && card.providerStatus !== 'ready' && card.providerStatus !== 'disconnected',
+  'local-plus-encrypted-backup': (card: GeneratedParentStorageModeCard) =>
+    card.providerMode === 'local-folder' &&
+    card.providerStatus === 'ready' &&
+    card.encryptionStatus === 'encrypted-before-upload',
+  disabled: (card: GeneratedParentStorageModeCard) =>
+    (card.providerStatus === 'disabled' || card.providerStatus === 'not-configured') &&
+    !card.deleteVisible &&
+    !card.applyBackAvailable,
+};
+
+const parentStorageRestorePreviewChecksGenerated: Partial<
+  Record<
+    GeneratedParentStorageRestorePreview['previewState'],
+    (preview: GeneratedParentStorageRestorePreview) => boolean
+  >
+> = {
+  partialRestore: (preview: GeneratedParentStorageRestorePreview) =>
+    preview.partialRestore && preview.rejectedSections.length > 0,
+  wrongHousehold: (preview: GeneratedParentStorageRestorePreview) => !preview.householdMatch,
+  tombstoneConflict: (preview: GeneratedParentStorageRestorePreview) => preview.rejectedSections.length > 0,
+  manualRequired: (preview: GeneratedParentStorageRestorePreview) =>
+    preview.manualRequiredNote !== null && preview.manualRequiredNote.trim().length > 0,
+};
+
+const parentStorageApplyDecisionChecksGenerated: Partial<
+  Record<GeneratedParentStorageApplyDecision['applyState'], (decision: GeneratedParentStorageApplyDecision) => boolean>
+> = {
+  blockedManualRequired: (decision: GeneratedParentStorageApplyDecision) =>
+    decision.manualRequiredNote !== null && decision.manualRequiredNote.trim().length > 0,
+  rollbackManualRequired: (decision: GeneratedParentStorageApplyDecision) =>
+    decision.manualRequiredNote !== null && decision.manualRequiredNote.trim().length > 0,
+  applyRequiresConfirmation: (decision: GeneratedParentStorageApplyDecision) => decision.manualRequiredNote === null,
+};

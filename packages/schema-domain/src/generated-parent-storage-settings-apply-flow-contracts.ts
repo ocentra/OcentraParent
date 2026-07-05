@@ -1,5 +1,7 @@
 /* generated from crates/schema/src/parent_storage_settings_apply_flow.rs */
 
+import { brandedNonEmptyStringSchema } from './effect';
+
 import type {
   GeneratedParentOwnedSyncDeleteVisibilityState,
   GeneratedParentOwnedSyncDisconnectVisibilityState,
@@ -7,18 +9,24 @@ import type {
   GeneratedParentOwnedSyncProviderMode,
   GeneratedParentOwnedSyncProviderStatus,
   GeneratedParentOwnedSyncState,
-} from './parent-owned-sync-export-contracts';
+} from './generated-parent-owned-sync-export-contracts';
 
 export const ParentStorageSettingsApplyFlowContractRuntime = {
   SchemaVersion: 'parent-storage-settings-apply-flow-proof',
 } as const;
 
 export type GeneratedParentContractSchemaVersion = 'v0.6';
-export type GeneratedParentStorageSettingsRowId = string;
-export type GeneratedParentStoragePreviewId = string;
-export type GeneratedParentStorageApplyId = string;
-export type GeneratedParentStorageActionId = string;
-export type GeneratedParentStorageTimestamp = string;
+export const GeneratedParentStorageSettingsRowIdSchema = brandedNonEmptyStringSchema('ParentStorageSettingsRowId');
+export const GeneratedParentStoragePreviewIdSchema = brandedNonEmptyStringSchema('ParentStoragePreviewId');
+export const GeneratedParentStorageApplyIdSchema = brandedNonEmptyStringSchema('ParentStorageApplyId');
+export const GeneratedParentStorageActionIdSchema = brandedNonEmptyStringSchema('ParentStorageActionId');
+export const GeneratedParentStorageTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
+
+export type GeneratedParentStorageSettingsRowId = typeof GeneratedParentStorageSettingsRowIdSchema.Type;
+export type GeneratedParentStoragePreviewId = typeof GeneratedParentStoragePreviewIdSchema.Type;
+export type GeneratedParentStorageApplyId = typeof GeneratedParentStorageApplyIdSchema.Type;
+export type GeneratedParentStorageActionId = typeof GeneratedParentStorageActionIdSchema.Type;
+export type GeneratedParentStorageTimestamp = typeof GeneratedParentStorageTimestampSchema.Type;
 export type GeneratedParentStorageModeLabel =
   | 'local-only'
   | 'local-plus-encrypted-backup'
@@ -205,89 +213,89 @@ export const GeneratedParentStorageNoClaims = [
 ] as const satisfies readonly GeneratedParentStorageNoClaim[];
 
 export interface GeneratedParentStorageModeCard {
-  rowId: GeneratedParentStorageSettingsRowId;
-  currentModeLabel: GeneratedParentStorageModeLabel;
-  uiState: GeneratedParentStorageUiState;
-  providerMode: GeneratedParentOwnedSyncProviderMode;
-  providerStatus: GeneratedParentOwnedSyncProviderStatus;
-  syncState: GeneratedParentOwnedSyncState;
-  encryptionStatus: GeneratedParentStorageEncryptionStatus;
-  keyStatus: GeneratedParentStorageKeyStatus;
-  manualRequiredVisible: boolean;
-  disconnectVisible: boolean;
-  deleteVisible: boolean;
-  restorePreviewAvailable: boolean;
-  applyBackAvailable: boolean;
-  lastSuccessAt: GeneratedParentStorageTimestamp | null;
-  lastFailureAt: GeneratedParentStorageTimestamp | null;
-  summary: string;
+  readonly rowId: GeneratedParentStorageSettingsRowId;
+  readonly currentModeLabel: GeneratedParentStorageModeLabel;
+  readonly uiState: GeneratedParentStorageUiState;
+  readonly providerMode: GeneratedParentOwnedSyncProviderMode;
+  readonly providerStatus: GeneratedParentOwnedSyncProviderStatus;
+  readonly syncState: GeneratedParentOwnedSyncState;
+  readonly encryptionStatus: GeneratedParentStorageEncryptionStatus;
+  readonly keyStatus: GeneratedParentStorageKeyStatus;
+  readonly manualRequiredVisible: boolean;
+  readonly disconnectVisible: boolean;
+  readonly deleteVisible: boolean;
+  readonly restorePreviewAvailable: boolean;
+  readonly applyBackAvailable: boolean;
+  readonly lastSuccessAt: GeneratedParentStorageTimestamp | null;
+  readonly lastFailureAt: GeneratedParentStorageTimestamp | null;
+  readonly summary: string;
 }
 
 export interface GeneratedParentStorageRestorePreview {
-  previewId: GeneratedParentStoragePreviewId;
-  previewState: GeneratedParentStoragePreviewState;
-  createdAt: GeneratedParentStorageTimestamp;
-  productVersion: string;
-  schemaVersion: string;
-  householdMatch: boolean;
-  deviceMatch: boolean;
-  dataClasses: readonly GeneratedParentOwnedSyncExportDataClass[];
-  conflicts: readonly string[];
-  rejectedSections: readonly GeneratedParentOwnedSyncExportDataClass[];
-  partialRestore: boolean;
-  confirmationRequired: boolean;
-  localTruthAuthoritative: boolean;
-  tombstonesPreserved: boolean;
-  manualRequiredNote: string | null;
+  readonly previewId: GeneratedParentStoragePreviewId;
+  readonly previewState: GeneratedParentStoragePreviewState;
+  readonly createdAt: GeneratedParentStorageTimestamp;
+  readonly productVersion: string;
+  readonly schemaVersion: string;
+  readonly householdMatch: boolean;
+  readonly deviceMatch: boolean;
+  readonly dataClasses: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly conflicts: readonly string[];
+  readonly rejectedSections: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly partialRestore: boolean;
+  readonly confirmationRequired: boolean;
+  readonly localTruthAuthoritative: boolean;
+  readonly tombstonesPreserved: boolean;
+  readonly manualRequiredNote: string | null;
 }
 
 export interface GeneratedParentStorageApplyDecision {
-  applyId: GeneratedParentStorageApplyId;
-  applyState: GeneratedParentStorageApplyState;
-  confirmationRequired: boolean;
-  willChange: readonly GeneratedParentOwnedSyncExportDataClass[];
-  willNotChange: readonly GeneratedParentOwnedSyncExportDataClass[];
-  preservedTombstones: readonly GeneratedParentOwnedSyncExportDataClass[];
-  manualReviewRequired: readonly string[];
-  rollbackAvailable: boolean;
-  manualRequiredNote: string | null;
+  readonly applyId: GeneratedParentStorageApplyId;
+  readonly applyState: GeneratedParentStorageApplyState;
+  readonly confirmationRequired: boolean;
+  readonly willChange: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly willNotChange: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly preservedTombstones: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly manualReviewRequired: readonly string[];
+  readonly rollbackAvailable: boolean;
+  readonly manualRequiredNote: string | null;
 }
 
 export interface GeneratedParentStorageDeleteActionRow {
-  actionId: GeneratedParentStorageActionId;
-  actionKind: GeneratedParentStorageDeleteActionKind;
-  state: GeneratedParentOwnedSyncDeleteVisibilityState;
-  separateFromDisconnect: boolean;
-  proofRequired: boolean;
-  notes: string;
+  readonly actionId: GeneratedParentStorageActionId;
+  readonly actionKind: GeneratedParentStorageDeleteActionKind;
+  readonly state: GeneratedParentOwnedSyncDeleteVisibilityState;
+  readonly separateFromDisconnect: boolean;
+  readonly proofRequired: boolean;
+  readonly notes: string;
 }
 
 export interface GeneratedParentStorageDisconnectRow {
-  actionId: GeneratedParentStorageActionId;
-  state: GeneratedParentOwnedSyncDisconnectVisibilityState;
-  existingFilesMayRemain: boolean;
-  providerDeleteRequestedSeparately: boolean;
-  notes: string;
+  readonly actionId: GeneratedParentStorageActionId;
+  readonly state: GeneratedParentOwnedSyncDisconnectVisibilityState;
+  readonly existingFilesMayRemain: boolean;
+  readonly providerDeleteRequestedSeparately: boolean;
+  readonly notes: string;
 }
 
 export interface GeneratedParentStorageClaimSafeCopyRow {
-  copyKey: GeneratedParentStorageCopyKey;
-  statement: string;
-  forbiddenWithoutState: boolean;
-  notes: string;
+  readonly copyKey: GeneratedParentStorageCopyKey;
+  readonly statement: string;
+  readonly forbiddenWithoutState: boolean;
+  readonly notes: string;
 }
 
 export interface GeneratedParentStorageSettingsApplyFlowContractProof {
-  schemaVersion: typeof ParentStorageSettingsApplyFlowContractRuntime.SchemaVersion;
-  contractVersion: GeneratedParentContractSchemaVersion;
-  modeCard: GeneratedParentStorageModeCard;
-  restorePreview: GeneratedParentStorageRestorePreview;
-  applyDecision: GeneratedParentStorageApplyDecision;
-  deleteActions: readonly GeneratedParentStorageDeleteActionRow[];
-  disconnectAction: GeneratedParentStorageDisconnectRow;
-  claimSafeCopy: readonly GeneratedParentStorageClaimSafeCopyRow[];
-  noClaims: readonly GeneratedParentStorageNoClaim[];
-  updatedAt: GeneratedParentStorageTimestamp;
+  readonly schemaVersion: typeof ParentStorageSettingsApplyFlowContractRuntime.SchemaVersion;
+  readonly contractVersion: GeneratedParentContractSchemaVersion;
+  readonly modeCard: GeneratedParentStorageModeCard;
+  readonly restorePreview: GeneratedParentStorageRestorePreview;
+  readonly applyDecision: GeneratedParentStorageApplyDecision;
+  readonly deleteActions: readonly GeneratedParentStorageDeleteActionRow[];
+  readonly disconnectAction: GeneratedParentStorageDisconnectRow;
+  readonly claimSafeCopy: readonly GeneratedParentStorageClaimSafeCopyRow[];
+  readonly noClaims: readonly GeneratedParentStorageNoClaim[];
+  readonly updatedAt: GeneratedParentStorageTimestamp;
 }
 
 export const GeneratedParentStorageKnownGaps = [
@@ -522,4 +530,4 @@ export const GeneratedParentStorageSettingsApplyFlowContractProof = {
     "no-lan-ownership"
   ],
   "updatedAt": "2026-06-28T19:16:00.000Z"
-} as const satisfies GeneratedParentStorageSettingsApplyFlowContractProof;
+} as const;

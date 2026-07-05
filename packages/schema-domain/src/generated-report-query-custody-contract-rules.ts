@@ -7,7 +7,7 @@ import {
   type GeneratedReportQueryCustodyContractProof,
   type GeneratedReportQueryCustodyRequest,
   type GeneratedReportQueryCustodyRow,
-} from './report-query-custody-contracts';
+} from './generated-report-query-custody-contracts';
 
 const allowedSourceDataClassSet = new Set<string>(GeneratedReportQueryCustodySourceDataClasses);
 
@@ -53,103 +53,115 @@ export function reportQueryCustodyRowIsHonestGenerated(row: GeneratedReportQuery
   );
 }
 
-export function reportQueryCustodyStateIsCoherentGenerated(row: GeneratedReportQueryCustodyRow): boolean {
-  if (row.state === 'derivedFresh') {
-    return (
-      row.sourceFreshness === 'fresh' &&
-      row.payloadRedactionState === 'fully-redacted' &&
-      row.tombstoneState === 'not-required' &&
-      row.nextCursorRef !== null &&
-      row.deletedSourceRef === null &&
-      row.deletedSourceAt === null &&
-      row.conflictRef === null &&
-      row.cursorExpiredAt === null &&
-      row.rateLimitedUntilAt === null
-    );
+function reportQueryCustodyStateHasExpectedShapeGenerated(
+  row: GeneratedReportQueryCustodyRow,
+  expectation: {
+    readonly sourceFreshness: GeneratedReportQueryCustodyRow['sourceFreshness'];
+    readonly payloadRedactionState: GeneratedReportQueryCustodyRow['payloadRedactionState'];
+    readonly tombstoneState: GeneratedReportQueryCustodyRow['tombstoneState'];
+    readonly nextCursorRef: boolean;
+    readonly deletedSourceRef: boolean;
+    readonly deletedSourceAt: boolean;
+    readonly conflictRef: boolean;
+    readonly cursorExpiredAt: boolean;
+    readonly rateLimitedUntilAt: boolean;
   }
-
-  if (row.state === 'derivedStale') {
-    return (
-      row.sourceFreshness === 'stale' &&
-      row.payloadRedactionState === 'fully-redacted' &&
-      row.tombstoneState === 'not-required' &&
-      row.nextCursorRef !== null &&
-      row.deletedSourceRef === null &&
-      row.deletedSourceAt === null &&
-      row.conflictRef === null &&
-      row.cursorExpiredAt === null &&
-      row.rateLimitedUntilAt === null
-    );
-  }
-
-  if (row.state === 'partiallyRedacted') {
-    return (
-      row.sourceFreshness === 'stale' &&
-      row.payloadRedactionState === 'partially-redacted' &&
-      row.tombstoneState === 'not-required' &&
-      row.nextCursorRef !== null &&
-      row.deletedSourceRef === null &&
-      row.deletedSourceAt === null &&
-      row.conflictRef === null &&
-      row.cursorExpiredAt === null &&
-      row.rateLimitedUntilAt === null
-    );
-  }
-
-  if (row.state === 'deletedSource') {
-    return (
-      row.sourceFreshness === 'deleted' &&
-      row.payloadRedactionState === 'fully-redacted' &&
-      row.tombstoneState === 'written' &&
-      row.nextCursorRef === null &&
-      row.deletedSourceRef !== null &&
-      row.deletedSourceAt !== null &&
-      row.conflictRef === null &&
-      row.cursorExpiredAt === null &&
-      row.rateLimitedUntilAt === null
-    );
-  }
-
-  if (row.state === 'syncConflict') {
-    return (
-      row.sourceFreshness === 'conflicted' &&
-      row.payloadRedactionState === 'fully-redacted' &&
-      row.tombstoneState === 'not-required' &&
-      row.nextCursorRef !== null &&
-      row.deletedSourceRef === null &&
-      row.deletedSourceAt === null &&
-      row.conflictRef !== null &&
-      row.cursorExpiredAt === null &&
-      row.rateLimitedUntilAt === null
-    );
-  }
-
-  if (row.state === 'cursorExpired') {
-    return (
-      row.sourceFreshness === 'expired' &&
-      row.payloadRedactionState === 'fully-redacted' &&
-      row.tombstoneState === 'not-required' &&
-      row.nextCursorRef === null &&
-      row.deletedSourceRef === null &&
-      row.deletedSourceAt === null &&
-      row.conflictRef === null &&
-      row.cursorExpiredAt !== null &&
-      row.rateLimitedUntilAt === null
-    );
-  }
-
+): boolean {
   return (
-    row.state === 'rateLimited' &&
-    row.sourceFreshness === 'rate-limited' &&
-    row.payloadRedactionState === 'fully-redacted' &&
-    row.tombstoneState === 'not-required' &&
-    row.nextCursorRef === null &&
-    row.deletedSourceRef === null &&
-    row.deletedSourceAt === null &&
-    row.conflictRef === null &&
-    row.cursorExpiredAt === null &&
-    row.rateLimitedUntilAt !== null
+    row.sourceFreshness === expectation.sourceFreshness &&
+    row.payloadRedactionState === expectation.payloadRedactionState &&
+    row.tombstoneState === expectation.tombstoneState &&
+    (row.nextCursorRef !== null) === expectation.nextCursorRef &&
+    (row.deletedSourceRef !== null) === expectation.deletedSourceRef &&
+    (row.deletedSourceAt !== null) === expectation.deletedSourceAt &&
+    (row.conflictRef !== null) === expectation.conflictRef &&
+    (row.cursorExpiredAt !== null) === expectation.cursorExpiredAt &&
+    (row.rateLimitedUntilAt !== null) === expectation.rateLimitedUntilAt
   );
+}
+
+const reportQueryCustodyStateExpectations = {
+  derivedFresh: {
+    sourceFreshness: 'fresh',
+    payloadRedactionState: 'fully-redacted',
+    tombstoneState: 'not-required',
+    nextCursorRef: true,
+    deletedSourceRef: false,
+    deletedSourceAt: false,
+    conflictRef: false,
+    cursorExpiredAt: false,
+    rateLimitedUntilAt: false,
+  },
+  derivedStale: {
+    sourceFreshness: 'stale',
+    payloadRedactionState: 'fully-redacted',
+    tombstoneState: 'not-required',
+    nextCursorRef: true,
+    deletedSourceRef: false,
+    deletedSourceAt: false,
+    conflictRef: false,
+    cursorExpiredAt: false,
+    rateLimitedUntilAt: false,
+  },
+  partiallyRedacted: {
+    sourceFreshness: 'stale',
+    payloadRedactionState: 'partially-redacted',
+    tombstoneState: 'not-required',
+    nextCursorRef: true,
+    deletedSourceRef: false,
+    deletedSourceAt: false,
+    conflictRef: false,
+    cursorExpiredAt: false,
+    rateLimitedUntilAt: false,
+  },
+  deletedSource: {
+    sourceFreshness: 'deleted',
+    payloadRedactionState: 'fully-redacted',
+    tombstoneState: 'written',
+    nextCursorRef: false,
+    deletedSourceRef: true,
+    deletedSourceAt: true,
+    conflictRef: false,
+    cursorExpiredAt: false,
+    rateLimitedUntilAt: false,
+  },
+  syncConflict: {
+    sourceFreshness: 'conflicted',
+    payloadRedactionState: 'fully-redacted',
+    tombstoneState: 'not-required',
+    nextCursorRef: true,
+    deletedSourceRef: false,
+    deletedSourceAt: false,
+    conflictRef: true,
+    cursorExpiredAt: false,
+    rateLimitedUntilAt: false,
+  },
+  cursorExpired: {
+    sourceFreshness: 'expired',
+    payloadRedactionState: 'fully-redacted',
+    tombstoneState: 'not-required',
+    nextCursorRef: false,
+    deletedSourceRef: false,
+    deletedSourceAt: false,
+    conflictRef: false,
+    cursorExpiredAt: true,
+    rateLimitedUntilAt: false,
+  },
+  rateLimited: {
+    sourceFreshness: 'rate-limited',
+    payloadRedactionState: 'fully-redacted',
+    tombstoneState: 'not-required',
+    nextCursorRef: false,
+    deletedSourceRef: false,
+    deletedSourceAt: false,
+    conflictRef: false,
+    cursorExpiredAt: false,
+    rateLimitedUntilAt: true,
+  },
+} as const;
+
+export function reportQueryCustodyStateIsCoherentGenerated(row: GeneratedReportQueryCustodyRow): boolean {
+  return reportQueryCustodyStateHasExpectedShapeGenerated(row, reportQueryCustodyStateExpectations[row.state]);
 }
 
 export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQueryCustodyContractProof): boolean {

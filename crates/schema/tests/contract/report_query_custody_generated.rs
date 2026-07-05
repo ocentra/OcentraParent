@@ -26,7 +26,7 @@ pub(super) fn assert_report_query_custody_contracts() {
     assert_eq!(decoded, proof);
 
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/report-query-custody-contracts.ts"
+        "../../../../packages/schema-domain/src/generated-report-query-custody-contracts.ts"
     );
     let generated = report_query_custody_contracts_typescript();
     let generated = crate::contract_text!(&generated);
@@ -54,7 +54,7 @@ pub(super) fn assert_report_query_custody_contracts() {
     );
 
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/report-query-custody-contract-rules.ts"
+        "../../../../packages/schema-domain/src/generated-report-query-custody-contract-rules.ts"
     );
     let generated = report_query_custody_contract_rules_typescript();
     let generated = crate::contract_text!(&generated);
@@ -88,12 +88,12 @@ pub(super) fn assert_report_query_custody_contracts() {
     );
     assert_generated_line_containing_eq(
         adapter,
-        crate::contract_text!("from './generated/report-query-custody-contracts'"),
-        ContractLine("} from './generated/report-query-custody-contracts';"),
+        crate::contract_text!("from './generated-report-query-custody-contracts'"),
+        ContractLine("} from './generated-report-query-custody-contracts';"),
     );
     assert_generated_line_containing_eq(
         adapter,
-        crate::contract_text!("from './generated/report-query-custody-contract-rules'"),
-        ContractLine("} from './generated/report-query-custody-contract-rules';"),
+        crate::contract_text!("from './generated-report-query-custody-contract-rules'"),
+        ContractLine("} from './generated-report-query-custody-contract-rules';"),
     );
 }

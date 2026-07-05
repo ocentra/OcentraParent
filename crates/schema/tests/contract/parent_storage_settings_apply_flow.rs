@@ -116,7 +116,7 @@ fn parent_storage_settings_apply_flow_sample_proof_covers_required_modes_actions
 #[test]
 fn generated_parent_storage_settings_apply_flow_contracts_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/parent-storage-settings-apply-flow-contracts.ts"
+        "../../../../packages/schema-domain/src/generated-parent-storage-settings-apply-flow-contracts.ts"
     );
     let generated = parent_storage_settings_apply_flow_contracts_typescript();
 
@@ -147,7 +147,7 @@ fn generated_parent_storage_settings_apply_flow_contracts_stay_checked_in() {
 #[test]
 fn generated_parent_storage_settings_apply_flow_contract_rules_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/parent-storage-settings-apply-flow-contract-rules.ts"
+        "../../../../packages/schema-domain/src/generated-parent-storage-settings-apply-flow-contract-rules.ts"
     );
     let generated = parent_storage_settings_apply_flow_contract_rules_typescript();
 
@@ -191,15 +191,15 @@ fn parent_storage_settings_apply_flow_adapter_stays_thin_and_generated_backed() 
     assert_eq!(
         line_containing(
             adapter.as_bytes(),
-            b"from './generated/parent-storage-settings-apply-flow-contracts'"
+            b"from './generated-parent-storage-settings-apply-flow-contracts'"
         ),
-        b"} from './generated/parent-storage-settings-apply-flow-contracts';"
+        b"} from './generated-parent-storage-settings-apply-flow-contracts';"
     );
     assert_eq!(
         line_containing(
             adapter.as_bytes(),
-            b"from './generated/parent-storage-settings-apply-flow-contract-rules'"
+            b"from './generated-parent-storage-settings-apply-flow-contract-rules'"
         ),
-        b"} from './generated/parent-storage-settings-apply-flow-contract-rules';"
+        b"} from './generated-parent-storage-settings-apply-flow-contract-rules';"
     );
 }
