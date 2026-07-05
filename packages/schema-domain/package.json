@@ -1273,10 +1273,6 @@
       "import": "./dist/delete-executor-proof.js",
       "types": "./dist/delete-executor-proof.d.ts"
     },
-    "./delete-executor-read-model": {
-      "import": "./dist/delete-executor-read-model.js",
-      "types": "./dist/delete-executor-read-model.d.ts"
-    },
     "./device-roles": {
       "import": "./dist/device-roles.js",
       "types": "./dist/device-roles.d.ts"
@@ -1697,18 +1693,6 @@
       "import": "./dist/privacy-legal-disclosure-status-read-model.js",
       "types": "./dist/privacy-legal-disclosure-status-read-model.d.ts"
     },
-    "./public-support-contact-status-proof": {
-      "import": "./dist/public-support-contact-status-proof.js",
-      "types": "./dist/public-support-contact-status-proof.d.ts"
-    },
-    "./public-support-contact-status-read-model": {
-      "import": "./dist/public-support-contact-status-read-model.js",
-      "types": "./dist/public-support-contact-status-read-model.d.ts"
-    },
-    "./public-support-contact-status-values": {
-      "import": "./dist/public-support-contact-status-values.js",
-      "types": "./dist/public-support-contact-status-values.d.ts"
-    },
     "./remote-access-session": {
       "import": "./dist/remote-access-session.js",
       "types": "./dist/remote-access-session.d.ts"
@@ -2072,10 +2056,6 @@
     "./status-backend-redaction-manifest-guards": {
       "import": "./dist/status-backend-redaction-manifest-guards.js",
       "types": "./dist/status-backend-redaction-manifest-guards.d.ts"
-    },
-    "./status-backend-redaction-manifest-read-model": {
-      "import": "./dist/status-backend-redaction-manifest-read-model.js",
-      "types": "./dist/status-backend-redaction-manifest-read-model.d.ts"
     },
     "./support-backend-upload-custody-audit": {
       "import": "./dist/support-backend-upload-custody-audit.js",
