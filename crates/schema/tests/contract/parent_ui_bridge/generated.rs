@@ -279,7 +279,7 @@ fn generated_screen_bridge_artifact_stays_checked_in() {
 #[test]
 fn generated_portal_domain_portal_contracts_artifact_stays_checked_in() {
     let checked_in =
-        include_str!("../../../../../packages/portal-domain/src/generated/portal-contracts.ts");
+        include_str!("../../../../../packages/portal-domain/src/generated-portal-contracts.ts");
     let generated = portal_contracts_typescript();
 
     assert_eq!(checked_in, generated);
@@ -458,7 +458,7 @@ fn portal_domain_portal_contracts_adapter_stays_generated_backed() {
 
     assert!(adapter
         .lines()
-        .any(|line| line.contains("from './generated/portal-contracts'")));
+        .any(|line| line.contains("from './generated-portal-contracts'")));
     assert_has_line!(
         adapter,
         "export const PortalRouteLiteral = GeneratedPortalRouteLiteral;",

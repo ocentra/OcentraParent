@@ -131,7 +131,7 @@
       "name": "tracking-config-update-event-types",
       "ownerPath": "crates/agent-protocol/src/constants/tracking_config_update.rs",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
-      "allowedPaths": ["packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts"],
+      "allowedPaths": ["packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts", "packages/portal-domain/src/generated-portal-contracts.ts"],
       "values": [
         {
           "name": "parent",
@@ -163,7 +163,7 @@
       "name": "child-domain-runtime-event-types",
       "ownerPath": "packages/schema-domain/src/child-domain-runtime-events.ts",
       "scanRoots": ["apps", "packages", "crates"],
-      "allowedPaths": ["crates/agent-protocol/src/constants/screen_flow.rs"],
+      "allowedPaths": ["crates/agent-protocol/src/constants/screen_flow.rs", "packages/portal-domain/src/generated-portal-contracts.ts"],
       "mirrors": [
         {
           "path": "crates/agent-protocol/src/constants/child_domain_runtime.rs",
@@ -492,7 +492,8 @@
         "crates/agent-protocol/src/constants/windows_adapter_artifact_gate.rs",
         "crates/agent-protocol/src/constants/windows_adapter_artifact_ingestion.rs",
         "crates/agent-protocol/src/constants/windows_adapter_capability.rs",
-        "packages/schema-domain/src/evidence-kinds.ts"
+        "packages/schema-domain/src/evidence-kinds.ts",
+        "packages/portal-domain/src/generated-portal-contracts.ts"
       ],
       "values": [
         {
@@ -704,7 +705,7 @@
       "name": "tracking-retention-settings-write-rust-constants",
       "ownerPath": "crates/agent-protocol/src/constants/tracking_retention_settings_write.rs",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
-      "allowedPaths": ["packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts"],
+      "allowedPaths": ["packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts", "packages/portal-domain/src/generated-portal-contracts.ts"],
       "values": [
         {
           "name": "command_id",

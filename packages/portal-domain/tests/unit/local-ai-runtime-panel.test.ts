@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createLocalAiRuntimePanelIntent, parseActivityMemoryGraphReadModel, PortalDetails } from '../../src/contracts';
-import type { GeneratedPortalActivityMemoryGraphReadModelSnapshot } from '../../src/generated/portal-contracts';
+import type { GeneratedPortalActivityMemoryGraphReadModelSnapshot } from '../../src/generated-portal-contracts';
 import {
   PortalAgentEvent as AgentEvent,
   PortalAgentProtocolField,

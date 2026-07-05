@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GeneratedPortalTrackingContracts } from '../../src/generated/portal-contracts';
+import { GeneratedPortalTrackingContracts } from '../../src/generated-portal-contracts';
 import {
   trackingNotificationParentSurfaceHostedUiProof,
   trackingNotificationParentSurfaceHostedUiProofFromReadModel,

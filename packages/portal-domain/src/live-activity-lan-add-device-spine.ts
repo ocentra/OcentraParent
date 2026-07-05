@@ -1,7 +1,7 @@
 import type {
   GeneratedPortalLanSignedDiscoveryRelayAdapterRowSnapshot,
   GeneratedPortalLanSignedDiscoveryRelaySpineSummarySnapshot,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 import {
   isNumber,
   isRecord,

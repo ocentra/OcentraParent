@@ -3,7 +3,7 @@ import {
   type GeneratedPortalDetailValue,
   type GeneratedPortalDevToolUrl,
   type GeneratedTrackingStatusProofArtifact,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 
 type SafeParseResult<T> =
   | { readonly success: true; readonly data: T }

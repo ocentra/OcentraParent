@@ -4,7 +4,7 @@ import {
   GeneratedPortalAgentEvent,
   GeneratedPortalAgentProtocolRuntime,
   GeneratedPortalTrackingContracts,
-} from '../../src/generated/portal-contracts';
+} from '../../src/generated-portal-contracts';
 import { TrackingStatusProofArtifacts } from '../../src/tracking-status-proof-artifacts';
 import type { TrackingStatusLiveProjectionInput } from '../../src/tracking-status-panel';
 import type { trackingRetentionSettingsHostedUiProof } from '../../src/tracking-retention-settings-hosted-ui-proof';

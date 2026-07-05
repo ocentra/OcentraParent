@@ -16,13 +16,13 @@ import type {
   GeneratedPortalNetworkRemoteDeliveryStatusSnapshot,
   GeneratedPortalNetworkRuntimeEventPayload,
   GeneratedPortalNetworkRuntimeEventType,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 import type { PortalActivityMemoryGraphReadModel } from './activity-memory-graph';
 import type { PortalLanAddDeviceReadModel } from './live-activity-lan-add-device';
 import type { networkEvidenceDrawerSummary } from './network-evidence-drawer';
 import type { PortalRouteEventRecord } from './portal-contract-adapter';
 import type { ParsedPayloadResult, ReadModelResult } from './read-model-result';
-import { GeneratedPortalTrackingContracts as GeneratedPortalTrackingContractsValue } from './generated/portal-contracts';
+import { GeneratedPortalTrackingContracts as GeneratedPortalTrackingContractsValue } from './generated-portal-contracts';
 
 type ActivitySurfaceReadModel = GeneratedPortalActivitySurfaceReadModelSnapshot;
 void GeneratedPortalTrackingContractsValue;

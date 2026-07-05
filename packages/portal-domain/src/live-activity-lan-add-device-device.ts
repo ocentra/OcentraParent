@@ -2,7 +2,7 @@ import type {
   GeneratedPortalLanCanonicalHouseholdDeviceSnapshot,
   GeneratedPortalLanCanonicalHouseholdNetworkIdentitySnapshot,
   GeneratedPortalLanDiscoveryEvidenceRecordSnapshot,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 import {
   isNullableString,
   isRecord,

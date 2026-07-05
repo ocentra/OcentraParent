@@ -1,5 +1,5 @@
 import { PortalDevTextToken, resolvePortalDevText, type DisplayText } from './display-text';
-import { GeneratedPortalTrackingContracts } from './generated/portal-contracts';
+import { GeneratedPortalTrackingContracts } from './generated-portal-contracts';
 import {
   decodePortalDetailValue,
   type PortalDetailValue,

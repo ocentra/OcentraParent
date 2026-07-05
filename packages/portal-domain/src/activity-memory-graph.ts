@@ -7,7 +7,7 @@ import {
   type GeneratedPortalActivityMemoryGraphNodeSnapshot,
   type GeneratedPortalActivityMemoryGraphReadModelSnapshot,
   type GeneratedPortalRouteEventPayloadRecord,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 
 export type PortalActivityMemoryGraphReadModel = GeneratedPortalActivityMemoryGraphReadModelSnapshot;
 export type PortalActivityMemoryGraphNode = GeneratedPortalActivityMemoryGraphNodeSnapshot;

@@ -129,6 +129,14 @@
       "maxLines": 1500
     },
     {
+      "path": "packages/portal-domain/src/generated-portal-contracts.ts",
+      "maxExports": 220,
+      "maxLines": 3000,
+      "maxFunctionLines": 180,
+      "maxBranches": 140,
+      "note": "Rust-generated portal contract mirrors intentionally fan out a wide adapter surface."
+    },
+    {
       "path": "apps/portal/e2e/tracking-hosted-ui-proof.spec.ts",
       "maxLines": 1100
     },

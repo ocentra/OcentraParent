@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PortalAgentEvent, type PortalRouteEventRecord } from '../../src/portal-contract-adapter';
-import { GeneratedPortalSocialReadModelPayloadField } from '../../src/generated/portal-contracts';
+import { GeneratedPortalSocialReadModelPayloadField } from '../../src/generated-portal-contracts';
 import {
   parseAgentSocialAlertReportParentSurfaceReadModelEvent,
   parseAgentSocialAlertReportReadModelEvent,

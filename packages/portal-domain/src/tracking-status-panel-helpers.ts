@@ -1,7 +1,7 @@
 import { PortalDevTextToken, resolvePortalDevText } from './display-text';
 import { type TrackingStatusProofArtifact } from './portal-contract-text-contracts';
 import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
-import { GeneratedPortalTrackingContracts as GeneratedPortalTrackingContractsValue } from './generated/portal-contracts';
+import { GeneratedPortalTrackingContracts as GeneratedPortalTrackingContractsValue } from './generated-portal-contracts';
 import {
   detailFromValue,
   familyDashboardRollupRow,

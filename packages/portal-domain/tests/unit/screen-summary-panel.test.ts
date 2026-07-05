@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { GeneratedPortalScreenSummaryPanelSnapshot } from '../../src/generated/portal-contracts';
+import type { GeneratedPortalScreenSummaryPanelSnapshot } from '../../src/generated-portal-contracts';
 import { createScreenSummaryPanelIntent } from '../../src/screen-summary-panel';
 
 describe('screen summary panel intent', () => {

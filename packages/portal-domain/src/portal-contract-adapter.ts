@@ -39,7 +39,7 @@ import {
   GeneratedPortalRouteLiteral,
   type GeneratedTrackingStatusProofArtifact,
   decodeGeneratedPortalAgentCommandEnvelope,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 
 type SafeParseResult<T> =
   | { readonly success: true; readonly data: T }

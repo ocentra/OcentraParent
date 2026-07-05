@@ -1,4 +1,4 @@
-import type { GeneratedPortalLanAddDeviceReadModelSnapshot } from './generated/portal-contracts';
+import type { GeneratedPortalLanAddDeviceReadModelSnapshot } from './generated-portal-contracts';
 import {
   createEmptyPortalLanDiscoveryEventHistory,
   normalizePortalLanDiscoveryEventHistory,

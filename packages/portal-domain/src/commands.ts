@@ -10,7 +10,7 @@ import {
   GeneratedPortalAgentProtocolField,
   type GeneratedPortalAgentProtocolPayload as AgentProtocolPayload,
   type GeneratedPortalAgentActivitySurfaceAdapterOperation as ActivitySurfaceOperation,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 
 export type PortalOverviewCommand = {
   readonly command: AgentCommandName;

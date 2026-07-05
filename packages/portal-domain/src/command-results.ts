@@ -1,6 +1,6 @@
 import type { PortalRouteEventRecord } from './portal-contract-adapter';
 import { PortalCommandButtons } from './commands';
-import type { GeneratedPortalAgentEventName as AgentEventName } from './generated/portal-contracts';
+import type { GeneratedPortalAgentEventName as AgentEventName } from './generated-portal-contracts';
 
 export const PortalCommandResultEvents: readonly AgentEventName[] = [
   ...new Set(PortalCommandButtons.map((button) => button.resultEvent)),

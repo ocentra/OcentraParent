@@ -3,7 +3,7 @@ import type {
   GeneratedPortalLanSelectedDeviceReadinessSnapshot,
   GeneratedPortalLanDiscoveryEventHistorySnapshot,
   GeneratedPortalLanDiscoveryEventRowSnapshot,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 import {
   isNullableString,
   isNumber,

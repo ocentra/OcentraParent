@@ -2,7 +2,7 @@ import type {
   GeneratedPortalScreenSummaryPanelDetailSnapshot,
   GeneratedPortalScreenSummaryPanelRowSnapshot,
   GeneratedPortalScreenSummaryPanelSnapshot,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 import { decodeDisplayText, PortalDevTextToken, resolvePortalDevText, type DisplayText } from './display-text';
 import { PortalDetails, PortalReadableValues } from './details';
 

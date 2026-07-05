@@ -27,7 +27,7 @@ import {
 import { PortalFormatting } from './formatting';
 import { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 import { PortalDiagnostics } from './diagnostics';
-import { GeneratedPortalTrackingContracts } from './generated/portal-contracts';
+import { GeneratedPortalTrackingContracts } from './generated-portal-contracts';
 import {
   createLocalAiRuntimePanelIntent,
   type LocalAiRuntimePanelCard,

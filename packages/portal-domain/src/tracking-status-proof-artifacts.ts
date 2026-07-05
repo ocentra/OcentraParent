@@ -1,5 +1,5 @@
 import { decodeTrackingStatusProofArtifact } from './portal-contract-text-contracts';
-import { GeneratedPortalTrackingContracts } from './generated/portal-contracts';
+import { GeneratedPortalTrackingContracts } from './generated-portal-contracts';
 
 const artifact = decodeTrackingStatusProofArtifact;
 

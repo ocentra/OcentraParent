@@ -1,7 +1,7 @@
 import { PortalDevTextToken, resolvePortalDevText } from './display-text';
 import { PortalFormatting } from './formatting';
 import { decodePortalDetailValue, type PortalDetailValue } from './portal-contract-text-contracts';
-import type { GeneratedPortalTrackingContracts } from './generated/portal-contracts';
+import type { GeneratedPortalTrackingContracts } from './generated-portal-contracts';
 import type { TrackingStatusLiveCitation } from './tracking-status-panel';
 
 type GeneratedParentActivityTrackingReadModelSnapshot = NonNullable<

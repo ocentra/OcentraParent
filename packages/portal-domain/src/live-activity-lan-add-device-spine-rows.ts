@@ -2,7 +2,7 @@ import type {
   GeneratedPortalLanSignedDiscoveryRelayCacheRowSnapshot,
   GeneratedPortalLanSignedDiscoveryRelayRouteSafetyRowSnapshot,
   GeneratedPortalLanSignedDiscoveryRelaySignedProofRowSnapshot,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 import { isRecord, isString, notNull } from './live-activity-lan-add-device-shared';
 
 export type PortalLanSignedProofRow = GeneratedPortalLanSignedDiscoveryRelaySignedProofRowSnapshot;

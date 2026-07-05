@@ -10,7 +10,7 @@ import {
   type GeneratedPortalSocialDashboardUxSnapshot,
   type GeneratedPortalSocialParentNotificationDeliveryReadModelSnapshot,
   type GeneratedPortalSocialReadModelPayloadFieldName,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 import type { ReadModelResult } from './read-model-result';
 
 export type SocialReadModelFailureReason =

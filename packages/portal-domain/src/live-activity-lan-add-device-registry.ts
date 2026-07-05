@@ -4,7 +4,7 @@ import type {
   GeneratedPortalLanDiscoverySourceMatrixWorkpackRowSnapshot,
   GeneratedPortalLanHouseholdDeviceDecisionSnapshot,
   GeneratedPortalLanTrustedDeviceRegistryEntrySnapshot,
-} from './generated/portal-contracts';
+} from './generated-portal-contracts';
 import {
   isNullableString,
   isNumber,
