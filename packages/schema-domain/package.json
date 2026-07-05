@@ -1581,14 +1581,6 @@
       "import": "./dist/support-proof-contract.js",
       "types": "./dist/support-proof-contract.d.ts"
     },
-    "./tamper-integrity-audit": {
-      "import": "./dist/tamper-integrity-audit.js",
-      "types": "./dist/tamper-integrity-audit.d.ts"
-    },
-    "./tamper-integrity-audit-read-model": {
-      "import": "./dist/tamper-integrity-audit-read-model.js",
-      "types": "./dist/tamper-integrity-audit-read-model.d.ts"
-    },
     "./text-app-game-child-ux": {
       "import": "./dist/text-app-game-child-ux.js",
       "types": "./dist/text-app-game-child-ux.d.ts"
@@ -1608,14 +1600,6 @@
     "./text-social-ux": {
       "import": "./dist/text-social-ux.js",
       "types": "./dist/text-social-ux.d.ts"
-    },
-    "./tracking-ai-provider-routing-proof": {
-      "import": "./dist/tracking-ai-provider-routing-proof.js",
-      "types": "./dist/tracking-ai-provider-routing-proof.d.ts"
-    },
-    "./tracking-ai-stored-ref-consumer-proof": {
-      "import": "./dist/tracking-ai-stored-ref-consumer-proof.js",
-      "types": "./dist/tracking-ai-stored-ref-consumer-proof.d.ts"
     },
     "./tracking-android-emulator-artifact-inventory-proof": {
       "import": "./dist/tracking-android-emulator-artifact-inventory-proof.js",

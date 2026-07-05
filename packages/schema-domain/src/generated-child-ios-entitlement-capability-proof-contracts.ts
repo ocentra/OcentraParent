@@ -6,11 +6,6 @@ export const ChildIosEntitlementCapabilityContractRuntime = {
 
 export type GeneratedChildIosEntitlementCapabilityProofSchemaVersion =
   'child-ios-entitlement-capability-proof';
-export type GeneratedChildIosEntitlementBundleId = string;
-export type GeneratedChildIosEntitlementClassName = string;
-export type GeneratedChildIosEntitlementRequirement = string;
-export type GeneratedChildIosEntitlementBoundary = string;
-export type GeneratedChildIosEntitlementTimestamp = string;
 
 export type GeneratedChildIosEntitlementParentCapability =
   | 'package-lifecycle'
@@ -207,58 +202,58 @@ export interface GeneratedChildIosEntitlementSurfaceProof {
   declarationState: GeneratedChildIosEntitlementDeclarationState;
   proofState: GeneratedChildIosEntitlementProofState;
   runtimeOwner: GeneratedChildIosEntitlementRuntimeOwner;
-  proofRequirement: GeneratedChildIosEntitlementRequirement;
-  claimBoundary: GeneratedChildIosEntitlementBoundary;
+  proofRequirement: string;
+  claimBoundary: string;
 }
 
 export interface GeneratedChildIosEntitlementPackageLifecycleProof {
   phase: GeneratedChildIosEntitlementPackagePhase;
   proofState: GeneratedChildIosEntitlementProofState;
   runtimeOwner: GeneratedChildIosEntitlementRuntimeOwner;
-  proofRequirement: GeneratedChildIosEntitlementRequirement;
-  claimBoundary: GeneratedChildIosEntitlementBoundary;
+  proofRequirement: string;
+  claimBoundary: string;
 }
 
 export interface GeneratedChildIosEntitlementProtocolBridgeProof {
-  bundleId: GeneratedChildIosEntitlementBundleId;
-  statusSurfaceClass: GeneratedChildIosEntitlementClassName;
+  bundleId: string;
+  statusSurfaceClass: string;
   bridgeState: GeneratedChildIosEntitlementBridgeState;
   externalTransportState: GeneratedChildIosEntitlementBridgeState;
   commands: readonly GeneratedChildIosEntitlementProtocolCommand[];
   events: readonly GeneratedChildIosEntitlementProtocolEvent[];
   runtimeOwner: GeneratedChildIosEntitlementRuntimeOwner;
-  proofRequirement: GeneratedChildIosEntitlementRequirement;
-  claimBoundary: GeneratedChildIosEntitlementBoundary;
+  proofRequirement: string;
+  claimBoundary: string;
 }
 
 export interface GeneratedChildIosEntitlementClaimBoundaries {
-  simulatorPackage: GeneratedChildIosEntitlementBoundary;
-  launchAvailability: GeneratedChildIosEntitlementBoundary;
-  familyControls: GeneratedChildIosEntitlementBoundary;
-  deviceActivity: GeneratedChildIosEntitlementBoundary;
-  screenTime: GeneratedChildIosEntitlementBoundary;
-  networkExtension: GeneratedChildIosEntitlementBoundary;
-  notifications: GeneratedChildIosEntitlementBoundary;
-  backgroundExecution: GeneratedChildIosEntitlementBoundary;
-  recoveryBehavior: GeneratedChildIosEntitlementBoundary;
-  provisioningProfile: GeneratedChildIosEntitlementBoundary;
-  supervision: GeneratedChildIosEntitlementBoundary;
-  signingEntitlements: GeneratedChildIosEntitlementBoundary;
-  testflight: GeneratedChildIosEntitlementBoundary;
-  deviceProof: GeneratedChildIosEntitlementBoundary;
-  capabilityOnlyState: GeneratedChildIosEntitlementBoundary;
-  externalTransport: GeneratedChildIosEntitlementBoundary;
+  simulatorPackage: string;
+  launchAvailability: string;
+  familyControls: string;
+  deviceActivity: string;
+  screenTime: string;
+  networkExtension: string;
+  notifications: string;
+  backgroundExecution: string;
+  recoveryBehavior: string;
+  provisioningProfile: string;
+  supervision: string;
+  signingEntitlements: string;
+  testflight: string;
+  deviceProof: string;
+  capabilityOnlyState: string;
+  externalTransport: string;
 }
 
 export interface GeneratedChildIosEntitlementCapabilityReadModelShape {
   schemaVersion: typeof ChildIosEntitlementCapabilityContractRuntime.SchemaVersion;
-  bundleId: GeneratedChildIosEntitlementBundleId;
-  statusSurfaceClass: GeneratedChildIosEntitlementClassName;
+  bundleId: string;
+  statusSurfaceClass: string;
   protocolBridgeProof: GeneratedChildIosEntitlementProtocolBridgeProof;
   surfaceProofs: readonly GeneratedChildIosEntitlementSurfaceProof[];
   packageLifecycleProofs: readonly GeneratedChildIosEntitlementPackageLifecycleProof[];
   claimBoundaries: GeneratedChildIosEntitlementClaimBoundaries;
-  updatedAt: GeneratedChildIosEntitlementTimestamp;
+  updatedAt: string;
 }
 
 export const GeneratedChildIosEntitlementCapabilityReadModel =
