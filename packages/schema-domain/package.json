@@ -245,14 +245,6 @@
       "import": "./dist/app-game-boundary-read-model.js",
       "types": "./dist/app-game-boundary-read-model.d.ts"
     },
-    "./app-game-broad-blocking-proof-gate-rules": {
-      "import": "./dist/app-game-broad-blocking-proof-gate-rules.js",
-      "types": "./dist/app-game-broad-blocking-proof-gate-rules.d.ts"
-    },
-    "./app-game-broad-blocking-proof-gates": {
-      "import": "./dist/app-game-broad-blocking-proof-gates.js",
-      "types": "./dist/app-game-broad-blocking-proof-gates.d.ts"
-    },
     "./app-game-category-risk": {
       "import": "./dist/app-game-category-risk.js",
       "types": "./dist/app-game-category-risk.d.ts"
