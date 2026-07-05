@@ -841,14 +841,6 @@
       "import": "./dist/browser-game-account-purchase-gate-values.js",
       "types": "./dist/browser-game-account-purchase-gate-values.d.ts"
     },
-    "./browser-game-ai-analysis": {
-      "import": "./dist/browser-game-ai-analysis.js",
-      "types": "./dist/browser-game-ai-analysis.d.ts"
-    },
-    "./browser-game-ai-analysis-values": {
-      "import": "./dist/browser-game-ai-analysis-values.js",
-      "types": "./dist/browser-game-ai-analysis-values.d.ts"
-    },
     "./browser-game-android-ios-capability-matrix": {
       "import": "./dist/browser-game-android-ios-capability-matrix.js",
       "types": "./dist/browser-game-android-ios-capability-matrix.d.ts"
@@ -880,14 +872,6 @@
     "./browser-game-hidden-analysis-profile-safety-values": {
       "import": "./dist/browser-game-hidden-analysis-profile-safety-values.js",
       "types": "./dist/browser-game-hidden-analysis-profile-safety-values.d.ts"
-    },
-    "./browser-game-metadata-extractor": {
-      "import": "./dist/browser-game-metadata-extractor.js",
-      "types": "./dist/browser-game-metadata-extractor.d.ts"
-    },
-    "./browser-game-metadata-extractor-values": {
-      "import": "./dist/browser-game-metadata-extractor-values.js",
-      "types": "./dist/browser-game-metadata-extractor-values.d.ts"
     },
     "./browser-game-platform-route-contract-values": {
       "import": "./dist/browser-game-platform-route-contract-values.js",
@@ -1725,14 +1709,6 @@
       "import": "./dist/screen-macos-capture-capability-proof.js",
       "types": "./dist/screen-macos-capture-capability-proof.d.ts"
     },
-    "./screen-managed-browser-cdp-capture": {
-      "import": "./dist/screen-managed-browser-cdp-capture.js",
-      "types": "./dist/screen-managed-browser-cdp-capture.d.ts"
-    },
-    "./screen-managed-browser-cdp-capture-values": {
-      "import": "./dist/screen-managed-browser-cdp-capture-values.js",
-      "types": "./dist/screen-managed-browser-cdp-capture-values.d.ts"
-    },
     "./screen-ocr-contracts": {
       "import": "./dist/screen-ocr-contracts.js",
       "types": "./dist/screen-ocr-contracts.d.ts"
@@ -1884,14 +1860,6 @@
     "./social-parent-sensitivity-settings-values": {
       "import": "./dist/social-parent-sensitivity-settings-values.js",
       "types": "./dist/social-parent-sensitivity-settings-values.d.ts"
-    },
-    "./social-platform-connector-authorization": {
-      "import": "./dist/social-platform-connector-authorization.js",
-      "types": "./dist/social-platform-connector-authorization.d.ts"
-    },
-    "./social-platform-connector-authorization-values": {
-      "import": "./dist/social-platform-connector-authorization-values.js",
-      "types": "./dist/social-platform-connector-authorization-values.d.ts"
     },
     "./social-policy-compiler-values": {
       "import": "./dist/social-policy-compiler-values.js",
