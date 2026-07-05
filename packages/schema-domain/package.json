@@ -1405,30 +1405,6 @@
       "import": "./dist/notification-local-outbox-adapter-proof.js",
       "types": "./dist/notification-local-outbox-adapter-proof.d.ts"
     },
-    "./notification-local-outbox-adapter-proof-schemas": {
-      "import": "./dist/notification-local-outbox-adapter-proof-schemas.js",
-      "types": "./dist/notification-local-outbox-adapter-proof-schemas.d.ts"
-    },
-    "./notification-local-outbox-adapter-proof-values": {
-      "import": "./dist/notification-local-outbox-adapter-proof-values.js",
-      "types": "./dist/notification-local-outbox-adapter-proof-values.d.ts"
-    },
-    "./notification-local-outbox-scheduler-proof": {
-      "import": "./dist/notification-local-outbox-scheduler-proof.js",
-      "types": "./dist/notification-local-outbox-scheduler-proof.d.ts"
-    },
-    "./notification-local-outbox-scheduler-proof-guards": {
-      "import": "./dist/notification-local-outbox-scheduler-proof-guards.js",
-      "types": "./dist/notification-local-outbox-scheduler-proof-guards.d.ts"
-    },
-    "./notification-local-outbox-scheduler-proof-schemas": {
-      "import": "./dist/notification-local-outbox-scheduler-proof-schemas.js",
-      "types": "./dist/notification-local-outbox-scheduler-proof-schemas.d.ts"
-    },
-    "./notification-local-outbox-scheduler-proof-values": {
-      "import": "./dist/notification-local-outbox-scheduler-proof-values.js",
-      "types": "./dist/notification-local-outbox-scheduler-proof-values.d.ts"
-    },
     "./notification-v3-provider-retry": {
       "import": "./dist/notification-v3-provider-retry.js",
       "types": "./dist/notification-v3-provider-retry.d.ts"
