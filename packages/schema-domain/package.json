@@ -2037,18 +2037,6 @@
       "import": "./dist/report-query-custody.js",
       "types": "./dist/report-query-custody.d.ts"
     },
-    "./status-backend-payload-custody": {
-      "import": "./dist/status-backend-payload-custody.js",
-      "types": "./dist/status-backend-payload-custody.d.ts"
-    },
-    "./status-backend-payload-custody-guards": {
-      "import": "./dist/status-backend-payload-custody-guards.js",
-      "types": "./dist/status-backend-payload-custody-guards.d.ts"
-    },
-    "./status-backend-payload-custody-read-model": {
-      "import": "./dist/status-backend-payload-custody-read-model.js",
-      "types": "./dist/status-backend-payload-custody-read-model.d.ts"
-    },
     "./status-backend-redaction-manifest": {
       "import": "./dist/status-backend-redaction-manifest.js",
       "types": "./dist/status-backend-redaction-manifest.d.ts"
@@ -2057,42 +2045,6 @@
       "import": "./dist/status-backend-redaction-manifest-guards.js",
       "types": "./dist/status-backend-redaction-manifest-guards.d.ts"
     },
-    "./support-backend-upload-custody-audit": {
-      "import": "./dist/support-backend-upload-custody-audit.js",
-      "types": "./dist/support-backend-upload-custody-audit.d.ts"
-    },
-    "./support-backend-upload-custody-audit-guards": {
-      "import": "./dist/support-backend-upload-custody-audit-guards.js",
-      "types": "./dist/support-backend-upload-custody-audit-guards.d.ts"
-    },
-    "./support-backend-upload-custody-audit-read-model": {
-      "import": "./dist/support-backend-upload-custody-audit-read-model.js",
-      "types": "./dist/support-backend-upload-custody-audit-read-model.d.ts"
-    },
-    "./support-backend-upload-execution-runtime": {
-      "import": "./dist/support-backend-upload-execution-runtime.js",
-      "types": "./dist/support-backend-upload-execution-runtime.d.ts"
-    },
-    "./support-backend-upload-execution-runtime-guards": {
-      "import": "./dist/support-backend-upload-execution-runtime-guards.js",
-      "types": "./dist/support-backend-upload-execution-runtime-guards.d.ts"
-    },
-    "./support-backend-upload-execution-runtime-read-model": {
-      "import": "./dist/support-backend-upload-execution-runtime-read-model.js",
-      "types": "./dist/support-backend-upload-execution-runtime-read-model.d.ts"
-    },
-    "./support-backend-upload-status": {
-      "import": "./dist/support-backend-upload-status.js",
-      "types": "./dist/support-backend-upload-status.d.ts"
-    },
-    "./support-backend-upload-status-guards": {
-      "import": "./dist/support-backend-upload-status-guards.js",
-      "types": "./dist/support-backend-upload-status-guards.d.ts"
-    },
-    "./support-backend-upload-status-read-model": {
-      "import": "./dist/support-backend-upload-status-read-model.js",
-      "types": "./dist/support-backend-upload-status-read-model.d.ts"
-    },
     "./support-bundle-redaction": {
       "import": "./dist/support-bundle-redaction.js",
       "types": "./dist/support-bundle-redaction.d.ts"
@@ -2100,30 +2052,6 @@
     "./support-bundle-redaction-read-model": {
       "import": "./dist/support-bundle-redaction-read-model.js",
       "types": "./dist/support-bundle-redaction-read-model.d.ts"
-    },
-    "./support-case-resolution-status": {
-      "import": "./dist/support-case-resolution-status.js",
-      "types": "./dist/support-case-resolution-status.d.ts"
-    },
-    "./support-case-resolution-status-guards": {
-      "import": "./dist/support-case-resolution-status-guards.js",
-      "types": "./dist/support-case-resolution-status-guards.d.ts"
-    },
-    "./support-case-resolution-status-read-model": {
-      "import": "./dist/support-case-resolution-status-read-model.js",
-      "types": "./dist/support-case-resolution-status-read-model.d.ts"
-    },
-    "./support-incident-workflow": {
-      "import": "./dist/support-incident-workflow.js",
-      "types": "./dist/support-incident-workflow.d.ts"
-    },
-    "./support-incident-workflow-guards": {
-      "import": "./dist/support-incident-workflow-guards.js",
-      "types": "./dist/support-incident-workflow-guards.d.ts"
-    },
-    "./support-incident-workflow-read-model": {
-      "import": "./dist/support-incident-workflow-read-model.js",
-      "types": "./dist/support-incident-workflow-read-model.d.ts"
     },
     "./support-proof-contract": {
       "import": "./dist/support-proof-contract.js",
