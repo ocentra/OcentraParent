@@ -22,6 +22,7 @@ use super::{
 };
 
 mod sample;
+mod scope;
 
 const POLICY_EVENT_SCHEMA_VERSION_VALUE: u16 = 1;
 const POLICY_EVENT_NAMESPACE_VALUE: &str = "policy";
@@ -137,7 +138,7 @@ pub(crate) fn sample_policy_event(kind: PolicyEventKind) -> Result<PolicyEvent, 
 pub(crate) fn sample_policy_event_scope(
     kind: PolicyEventKind,
 ) -> Result<PolicyEventScope, EventingError> {
-    sample::sample_policy_event_scope(kind)
+    scope::sample_policy_event_scope(kind)
 }
 
 pub(crate) fn kind_requires_reason(kind: PolicyEventKind) -> bool {
