@@ -1,7 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import {
-  GeneratedPortalActivityEventKind,
-} from '../../src/generated/portal-contracts';
 import { TrackingStatusProofArtifacts } from '../../src/tracking-status-proof-artifacts';
 import {
   trackingFamilyDashboardHostedRollupProof,
@@ -17,9 +14,7 @@ import {
   ExpectedNotificationParentSurfaceRows,
   ExpectedParentActionReadinessRows,
   ExpectedReportExportHostedUiProof,
-  ExpectedReportExportHostedUiRows,
   ExpectedReportPolicyConsumerHostedUiProof,
-  ExpectedReportPolicyConsumerHostedUiRows,
   ExpectedRetentionDeletedRow,
   ExpectedTrackingLiveSummary,
   ExpectedTrackingProofArtifacts,

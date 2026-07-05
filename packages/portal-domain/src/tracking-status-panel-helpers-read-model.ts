@@ -1,11 +1,11 @@
 import { PortalDevTextToken, resolvePortalDevText } from './display-text';
 import { PortalFormatting } from './formatting';
 import { decodePortalDetailValue, type PortalDetailValue } from './portal-contract-text-contracts';
-import { GeneratedPortalTrackingContracts as GeneratedPortalTrackingContractsValue } from './generated/portal-contracts';
+import type { GeneratedPortalTrackingContracts } from './generated/portal-contracts';
 import type { TrackingStatusLiveCitation } from './tracking-status-panel';
 
 type GeneratedParentActivityTrackingReadModelSnapshot = NonNullable<
-  ReturnType<typeof GeneratedPortalTrackingContractsValue.ActivityTrackingReadModel.decode>
+  ReturnType<typeof GeneratedPortalTrackingContracts.ActivityTrackingReadModel.decode>
 >;
 type GeneratedParentActivityTrackingReadModelRowSnapshot =
   GeneratedParentActivityTrackingReadModelSnapshot['rows'][number];

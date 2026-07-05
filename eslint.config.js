@@ -139,6 +139,12 @@ const standardConfig = tseslint.config(
     },
   },
   {
+    files: ['packages/portal-domain/src/generated/**/*.ts'],
+    rules: {
+      'max-lines': 'off',
+    },
+  },
+  {
     files: [
       'packages/schema-domain/src/browser-control-full-catalog-data-*.ts',
       'packages/schema-domain/src/network-control-catalog-data.ts',

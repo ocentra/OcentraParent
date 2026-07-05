@@ -6,8 +6,8 @@ import {
   GeneratedPortalTrackingContracts,
 } from '../../src/generated/portal-contracts';
 import { TrackingStatusProofArtifacts } from '../../src/tracking-status-proof-artifacts';
-import { trackingStatusLiveSummary, type TrackingStatusLiveProjectionInput } from '../../src/tracking-status-panel';
-import { trackingRetentionSettingsHostedUiProof } from '../../src/tracking-retention-settings-hosted-ui-proof';
+import type { TrackingStatusLiveProjectionInput } from '../../src/tracking-status-panel';
+import type { trackingRetentionSettingsHostedUiProof } from '../../src/tracking-retention-settings-hosted-ui-proof';
 
 export const ExpectedTrackingStateTitles = [
   'Tracking off',
