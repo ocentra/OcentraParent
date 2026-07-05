@@ -19,7 +19,7 @@ import {
   type GeneratedChildIosEntitlementProtocolCommand,
   type GeneratedChildIosEntitlementProtocolEvent,
   type GeneratedChildIosEntitlementSurfaceName,
-} from './generated/child-ios-entitlement-capability-proof-contracts';
+} from './generated-child-ios-entitlement-capability-proof-contracts';
 
 export const ChildIosEntitlementCapabilityProofSchemaVersionSchema = withParser(
   Schema.Literal(ChildIosEntitlementCapabilityContractRuntime.SchemaVersion)

@@ -37,7 +37,7 @@ fn data_custody_source_of_truth_round_trips_through_rust_owned_shape() {
 #[test]
 fn generated_data_custody_source_of_truth_contracts_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/data-custody-source-of-truth-contracts.ts"
+        "../../../../packages/schema-domain/src/generated-data-custody-source-of-truth-contracts.ts"
     );
     let generated = data_custody_source_of_truth_contracts_typescript();
 
@@ -165,7 +165,7 @@ fn data_custody_adapters_stay_thin_and_generated_backed() {
             "./effect",
             "./proof-shape",
             "./custody-boundary",
-            "./generated/data-custody-source-of-truth-contracts"
+            "./generated-data-custody-source-of-truth-contracts"
         ]
     );
     assert_eq!(
@@ -178,7 +178,7 @@ fn data_custody_adapters_stay_thin_and_generated_backed() {
             "./family-references",
             "./family-reference-primitives",
             "./effect",
-            "./generated/data-custody-source-of-truth-contracts",
+            "./generated-data-custody-source-of-truth-contracts",
         ]
     );
 }

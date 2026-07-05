@@ -58,7 +58,7 @@ Failure conditions:
 - Status: complete for WP01 only; no broader plan, provider-runtime, sync-runtime, or PR readiness claim is made.
 - Proof root: `output/data-custody-storage-plan-proof/01-custody-source-of-truth/`
 - Canonical owner: `crates/schema` for the shared custody source-of-truth contract, generated TS contract surface, and Rust proof tests.
-- TS/shared edge note: `packages/schema-domain` remains thin/generated validation only through `src/custody-boundary.ts`, `src/data-custody-matrix.ts`, and `src/generated/data-custody-source-of-truth-contracts.ts`.
+- TS/shared edge note: `packages/schema-domain` remains thin/generated validation only through `src/custody-boundary.ts`, `src/data-custody-matrix.ts`, and `src/generated-data-custody-source-of-truth-contracts.ts`.
 
 ## Required states proved
 
@@ -92,7 +92,7 @@ Failure conditions:
 - `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
 - `cmd /c npm run test --workspace @ocentra-parent/schema-domain -- tests/contract/data-custody-source-of-truth.test.ts`
 - `node scripts/test/data-custody-source-of-truth-proof.mjs`
-- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/custody-boundary.ts packages/schema-domain/src/data-custody-matrix.ts packages/schema-domain/src/generated/data-custody-source-of-truth-contracts.ts packages/schema-domain/tests/contract/data-custody-source-of-truth.test.ts scripts/test/data-custody-source-of-truth-proof.mjs`
+- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/custody-boundary.ts packages/schema-domain/src/data-custody-matrix.ts packages/schema-domain/src/generated-data-custody-source-of-truth-contracts.ts packages/schema-domain/tests/contract/data-custody-source-of-truth.test.ts scripts/test/data-custody-source-of-truth-proof.mjs`
 - `cargo lint-architecture crates/schema/src/lib.rs crates/schema/src/data_custody_source_of_truth.rs crates/schema/src/data_custody_source_of_truth_ts.rs crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs crates/schema/tests/contract.rs crates/schema/tests/contract/data_custody_source_of_truth.rs`
 
 ## Adjacent handoffs

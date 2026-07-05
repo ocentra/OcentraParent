@@ -29,7 +29,8 @@ test('naked domain string guard rejects manual source aliases', () => {
     const result = runGuard(root);
 
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /naked domain string alias DeviceId/u);
+    assert.match(result.stderr, /TS-1\.3 Naked domain string aliases are forbidden/u);
+    assert.match(result.stderr, /> export type DeviceId = string;/u);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -41,6 +42,24 @@ test('naked domain string guard skips Rust-generated DTO folders', () => {
     writeFixture(
       root,
       'packages/schema-domain/src/generated/contracts.ts',
+      'export type GeneratedDeviceId = string;\n'
+    );
+
+    const result = runGuard(root);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Ocentra Enforcer no-naked-domain-strings passed/u);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('naked domain string guard skips relocated Rust-generated DTO roots', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-naked-domain-generated-root-'));
+  try {
+    writeFixture(
+      root,
+      'packages/schema-domain/src/generated-contracts.ts',
       'export type GeneratedDeviceId = string;\n'
     );
 

@@ -32,8 +32,8 @@ import {
   GeneratedAppRiskDetectionSurfaceStateValues,
   type GeneratedAppRiskDetectionCandidate,
   type GeneratedAppRiskDetectionMatrix,
-} from './generated/app-riskdetection-contracts';
-import { appRiskDetectionCandidateIsHonestGenerated } from './generated/app-riskdetection-contract-rules';
+} from './generated-app-riskdetection-contracts';
+import { appRiskDetectionCandidateIsHonestGenerated } from './generated-app-riskdetection-contract-rules';
 
 export const AppRiskDetectionContractSchemaVersionSchema = withParser(
   Schema.Literal(AppRiskDetectionContractRuntime.SchemaVersion)

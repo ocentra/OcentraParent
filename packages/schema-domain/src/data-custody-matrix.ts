@@ -25,7 +25,7 @@ import {
   type GeneratedDataCustodyClassId,
   type GeneratedDataCustodyNonClaim,
   type GeneratedDataCustodySourceOfTruthContractProof as GeneratedDataCustodySourceOfTruthContractProofShape,
-} from './generated/data-custody-source-of-truth-contracts';
+} from './generated-data-custody-source-of-truth-contracts';
 
 export const DataCustodySourceOfTruthSchemaVersionSchema = withParser(
   Schema.Literal(DataCustodySourceOfTruthContractRuntime.SchemaVersion)

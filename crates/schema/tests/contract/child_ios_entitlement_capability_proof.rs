@@ -90,7 +90,7 @@ fn child_ios_entitlement_capability_rejects_missing_surface_field() {
 #[test]
 fn generated_child_ios_entitlement_contracts_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/child-ios-entitlement-capability-proof-contracts.ts"
+        "../../../../packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts"
     );
     let generated = child_ios_entitlement_capability_proof_contracts_typescript();
     let generated_lines: Vec<&str> = generated.lines().collect();
@@ -147,7 +147,7 @@ fn child_ios_entitlement_capability_adapter_stays_thin_and_generated_backed() {
         crate::module_specifiers!(
             "./effect",
             "./family-reference-primitives",
-            "./generated/child-ios-entitlement-capability-proof-contracts",
+            "./generated-child-ios-entitlement-capability-proof-contracts",
         )
     );
 }

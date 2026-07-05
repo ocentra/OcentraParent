@@ -6,7 +6,7 @@ import {
   GeneratedAppRiskDetectionPolicyCandidateAction,
   GeneratedAppRiskDetectionSourceKind,
   type GeneratedAppRiskDetectionCandidate,
-} from './app-riskdetection-contracts';
+} from './generated-app-riskdetection-contracts';
 
 export function appRiskDetectionCandidateIsHonestGenerated(
   candidate: GeneratedAppRiskDetectionCandidate

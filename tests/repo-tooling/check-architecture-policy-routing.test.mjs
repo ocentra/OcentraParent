@@ -5,6 +5,7 @@ import { classifyArchitectureFiles } from '../../scripts/check-architecture-poli
 
 test('architecture wrapper routes generated outputs and generator producers away from generic source checks', () => {
   const files = [
+    'packages/schema-domain/src/generated-report-query-custody-contracts.ts',
     'packages/schema-domain/src/generated/report-query-custody-contracts.ts',
     'apps/portal/generated/parent-ui-bridge.ts',
     'packages/portal-domain/src/generated/portal-contracts.ts',
@@ -16,6 +17,7 @@ test('architecture wrapper routes generated outputs and generator producers away
 
   assert.deepEqual(classifyArchitectureFiles(files), {
     generatedFiles: [
+      'packages/schema-domain/src/generated-report-query-custody-contracts.ts',
       'packages/schema-domain/src/generated/report-query-custody-contracts.ts',
       'apps/portal/generated/parent-ui-bridge.ts',
       'packages/portal-domain/src/generated/portal-contracts.ts',

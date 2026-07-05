@@ -62,7 +62,7 @@ fn app_risk_detection_sample_matrix_covers_known_heuristic_ai_and_override_paths
 #[test]
 fn generated_app_risk_detection_contracts_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/app-riskdetection-contracts.ts"
+        "../../../../packages/schema-domain/src/generated-app-riskdetection-contracts.ts"
     );
     let generated = app_risk_detection_contracts_typescript();
 
@@ -103,7 +103,7 @@ fn assert_generated_app_risk_detection_contracts(generated: crate::support::Cont
 #[test]
 fn generated_app_risk_detection_contract_rules_stay_checked_in() {
     let checked_in = include_str!(
-        "../../../../packages/schema-domain/src/generated/app-riskdetection-contract-rules.ts"
+        "../../../../packages/schema-domain/src/generated-app-riskdetection-contract-rules.ts"
     );
     let generated = app_risk_detection_contract_rules_typescript();
     let generated_lines: Vec<&str> = generated.lines().collect();
@@ -147,8 +147,8 @@ fn app_risk_detection_adapters_stay_thin_and_generated_backed() {
             "./effect",
             "./family-references",
             "./family-reference-primitives",
-            "./generated/app-riskdetection-contracts",
-            "./generated/app-riskdetection-contract-rules",
+            "./generated-app-riskdetection-contracts",
+            "./generated-app-riskdetection-contract-rules",
         )
     );
     assert_eq!(
@@ -158,8 +158,8 @@ fn app_risk_detection_adapters_stay_thin_and_generated_backed() {
     assert_eq!(
         module_specifiers(crate::contract_text!(rules)),
         crate::module_specifiers!(
-            "./generated/app-riskdetection-contracts",
-            "./generated/app-riskdetection-contract-rules",
+            "./generated-app-riskdetection-contracts",
+            "./generated-app-riskdetection-contract-rules",
         )
     );
     assert_eq!(
@@ -170,7 +170,7 @@ fn app_risk_detection_adapters_stay_thin_and_generated_backed() {
         module_specifiers(crate::contract_text!(data)),
         crate::module_specifiers!(
             "./app-riskdetection",
-            "./generated/app-riskdetection-contracts",
+            "./generated-app-riskdetection-contracts",
         )
     );
 }

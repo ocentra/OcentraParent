@@ -15,7 +15,7 @@ import {
   type GeneratedDataCustodyDefaultLocation,
   type GeneratedDataCustodyExposure,
   type GeneratedDataCustodyOcentraHostingMode,
-} from './generated/data-custody-source-of-truth-contracts';
+} from './generated-data-custody-source-of-truth-contracts';
 
 export const DataCustodyRecordIdSchema = brandedNonEmptyStringSchema('DataCustodyRecordId');
 export const DataCustodyStoreRefSchema = brandedNonEmptyStringSchema('DataCustodyStoreRef');

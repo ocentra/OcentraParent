@@ -41,7 +41,7 @@ Current status: `complete`.
   - `crates/schema/src/child_ios_entitlement_capability_proof.rs`
   - `crates/schema/src/child_ios_entitlement_capability_proof_ts.rs`
 - The remaining TypeScript surface is generated/thin only:
-  - `packages/schema-domain/src/generated/child-ios-entitlement-capability-proof-contracts.ts`
+  - `packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts`
   - `packages/schema-domain/src/child-ios-entitlement-capability-proof.ts`
 - Real tests now exist on both sides of the boundary:
   - `crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs`
@@ -73,7 +73,7 @@ Current status: `complete`.
 - `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
 - `cmd /c npm exec --workspace @ocentra-parent/schema-domain -- vitest run tests/proof/child-ios-entitlement-capability-proof.test.ts`
 - `cmd /c npm run test:child-ios-entitlement-capability-proof`
-- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/generated/child-ios-entitlement-capability-proof-contracts.ts packages/schema-domain/src/child-ios-entitlement-capability-proof.ts packages/schema-domain/tests/proof/child-ios-entitlement-capability-proof.test.ts scripts/test/child-ios-entitlement-capability-proof.mjs`
+- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts packages/schema-domain/src/child-ios-entitlement-capability-proof.ts packages/schema-domain/tests/proof/child-ios-entitlement-capability-proof.test.ts scripts/test/child-ios-entitlement-capability-proof.mjs`
 - `cargo lint-architecture crates/schema/src/lib.rs crates/schema/src/child_ios_entitlement_capability_proof.rs crates/schema/src/child_ios_entitlement_capability_proof_ts.rs crates/schema/tests/contract.rs crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs`
 - `cargo test -p ocentra-schema --test contract child_ios_entitlement_capability` -> pass
 - `cmd /c npm run type-check --workspace @ocentra-parent/schema-domain` -> pass
