@@ -1761,14 +1761,6 @@
       "import": "./dist/tracking-parent-child-local-runtime-bridge-proof.js",
       "types": "./dist/tracking-parent-child-local-runtime-bridge-proof.d.ts"
     },
-    "./tracking-physical-device-artifact-gate-proof": {
-      "import": "./dist/tracking-physical-device-artifact-gate-proof.js",
-      "types": "./dist/tracking-physical-device-artifact-gate-proof.d.ts"
-    },
-    "./tracking-physical-device-evidence-review-proof": {
-      "import": "./dist/tracking-physical-device-evidence-review-proof.js",
-      "types": "./dist/tracking-physical-device-evidence-review-proof.d.ts"
-    },
     "./tracking-place-category-ambiguity-proof": {
       "import": "./dist/tracking-place-category-ambiguity-proof.js",
       "types": "./dist/tracking-place-category-ambiguity-proof.d.ts"
@@ -1788,18 +1780,6 @@
     "./tracking-product-readiness-closure-proof": {
       "import": "./dist/tracking-product-readiness-closure-proof.js",
       "types": "./dist/tracking-product-readiness-closure-proof.d.ts"
-    },
-    "./tracking-production-durable-workers-readiness-blocker-proof": {
-      "import": "./dist/tracking-production-durable-workers-readiness-blocker-proof.js",
-      "types": "./dist/tracking-production-durable-workers-readiness-blocker-proof.d.ts"
-    },
-    "./tracking-production-worker-runtime-artifact-gate-proof": {
-      "import": "./dist/tracking-production-worker-runtime-artifact-gate-proof.js",
-      "types": "./dist/tracking-production-worker-runtime-artifact-gate-proof.d.ts"
-    },
-    "./tracking-production-worker-runtime-preflight-proof": {
-      "import": "./dist/tracking-production-worker-runtime-preflight-proof.js",
-      "types": "./dist/tracking-production-worker-runtime-preflight-proof.d.ts"
     },
     "./tracking-provider-delivery-artifact-gate-proof": {
       "import": "./dist/tracking-provider-delivery-artifact-gate-proof.js",
