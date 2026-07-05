@@ -901,10 +901,6 @@
       "import": "./dist/data-export-delete-lifecycle-read-model.js",
       "types": "./dist/data-export-delete-lifecycle-read-model.d.ts"
     },
-    "./delete-executor-proof": {
-      "import": "./dist/delete-executor-proof.js",
-      "types": "./dist/delete-executor-proof.d.ts"
-    },
     "./device-roles": {
       "import": "./dist/device-roles.js",
       "types": "./dist/device-roles.d.ts"
