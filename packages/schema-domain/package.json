@@ -685,22 +685,6 @@
       "import": "./dist/browser-ai-analysis-values.js",
       "types": "./dist/browser-ai-analysis-values.d.ts"
     },
-    "./browser-ai-knowledge-graph-schemas": {
-      "import": "./dist/browser-ai-knowledge-graph-schemas.js",
-      "types": "./dist/browser-ai-knowledge-graph-schemas.d.ts"
-    },
-    "./browser-ai-knowledge-graph-values": {
-      "import": "./dist/browser-ai-knowledge-graph-values.js",
-      "types": "./dist/browser-ai-knowledge-graph-values.d.ts"
-    },
-    "./browser-ai-memory-cache-store-schemas": {
-      "import": "./dist/browser-ai-memory-cache-store-schemas.js",
-      "types": "./dist/browser-ai-memory-cache-store-schemas.d.ts"
-    },
-    "./browser-ai-memory-cache-store-values": {
-      "import": "./dist/browser-ai-memory-cache-store-values.js",
-      "types": "./dist/browser-ai-memory-cache-store-values.d.ts"
-    },
     "./browser-control-baseline-manifest": {
       "import": "./dist/browser-control-baseline-manifest.js",
       "types": "./dist/browser-control-baseline-manifest.d.ts"
