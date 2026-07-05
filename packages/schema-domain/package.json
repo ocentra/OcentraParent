@@ -721,10 +721,6 @@
       "import": "./dist/browser-intervention-schemas.js",
       "types": "./dist/browser-intervention-schemas.d.ts"
     },
-    "./browser-inventory-schemas": {
-      "import": "./dist/browser-inventory-schemas.js",
-      "types": "./dist/browser-inventory-schemas.d.ts"
-    },
     "./browser-policy-questionnaire-forest-contract": {
       "import": "./dist/browser-policy-questionnaire-forest-contract.js",
       "types": "./dist/browser-policy-questionnaire-forest-contract.d.ts"
@@ -925,17 +921,9 @@
       "import": "./dist/endpoint-brands.js",
       "types": "./dist/endpoint-brands.d.ts"
     },
-    "./endpoint-constants": {
-      "import": "./dist/endpoint-constants.js",
-      "types": "./dist/endpoint-constants.d.ts"
-    },
     "./enforcement": {
       "import": "./dist/enforcement.js",
       "types": "./dist/enforcement.d.ts"
-    },
-    "./enforcement-host-adapter-preflight": {
-      "import": "./dist/enforcement-host-adapter-preflight.js",
-      "types": "./dist/enforcement-host-adapter-preflight.d.ts"
     },
     "./enforcement-policy-dispatch": {
       "import": "./dist/enforcement-policy-dispatch.js",
