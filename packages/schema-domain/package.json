@@ -1705,10 +1705,6 @@
       "import": "./dist/tracking-parent-child-local-runtime-bridge-proof.js",
       "types": "./dist/tracking-parent-child-local-runtime-bridge-proof.d.ts"
     },
-    "./tracking-poi-provider-adapter": {
-      "import": "./dist/tracking-poi-provider-adapter.js",
-      "types": "./dist/tracking-poi-provider-adapter.d.ts"
-    },
     "./tracking-primitives": {
       "import": "./dist/tracking-primitives.js",
       "types": "./dist/tracking-primitives.d.ts"
