@@ -869,10 +869,6 @@
       "import": "./dist/browser-game-platform-route-contract-values.js",
       "types": "./dist/browser-game-platform-route-contract-values.d.ts"
     },
-    "./browser-game-platform-route-contracts": {
-      "import": "./dist/browser-game-platform-route-contracts.js",
-      "types": "./dist/browser-game-platform-route-contracts.d.ts"
-    },
     "./browser-game-policy-compiler": {
       "import": "./dist/browser-game-policy-compiler.js",
       "types": "./dist/browser-game-policy-compiler.d.ts"
