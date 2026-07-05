@@ -1,0 +1,175 @@
+/* generated from crates/schema/src/parent_ui_bridge.rs */
+
+import {
+  ParentScreenSettingsCommandRuntime,
+  ParentScreenSettingsUpdateKind,
+  type ParentUnknownRecord,
+} from './parent-ui-bridge';
+
+export const ParentScreenSettingsUpdateStatus = { Accepted: '__PARENT_SCREEN_SETTINGS_UPDATE_STATUS_ACCEPTED__', Rejected: '__PARENT_SCREEN_SETTINGS_UPDATE_STATUS_REJECTED__' } as const;
+type ParentScreenSettingsUpdateKindValue = (typeof ParentScreenSettingsUpdateKind)[keyof typeof ParentScreenSettingsUpdateKind];
+type ParentScreenSettingsUpdateStatus = (typeof ParentScreenSettingsUpdateStatus)[keyof typeof ParentScreenSettingsUpdateStatus];
+
+export interface ParentScreenAnalysisParentSetting {
+  readonly schemaVersion: number; readonly screenAnalysisEnabled: boolean; readonly analysisMode: string;
+  readonly cadenceCaptureEnabled: boolean; readonly cadenceSeconds: number; readonly strictModeEnabled: boolean;
+  readonly triggerCaptureEnabled: boolean; readonly enabledTriggers: readonly string[]; readonly allowedCaptureScope: string;
+  readonly ocrTextEnabled: boolean; readonly ocrTextSnippetLimit: number; readonly redactionMode: string;
+  readonly ocrTextRetentionMode: string; readonly credentialSuppressionEnabled: boolean; readonly piiRedactionEnabled: boolean;
+  readonly temporaryImageTtlSeconds: number; readonly maxRetryCount: number; readonly deleteAfterSuccess: boolean;
+  readonly deleteAfterExpiry: boolean; readonly retainRawImage: boolean; readonly policyUseEnabled: boolean;
+  readonly changedByParentRef: string; readonly changedAt: string; readonly settingVersion: number; readonly reason: string | null;
+}
+
+interface ParentScreenEvidenceRemoteBoundarySetting {
+  readonly schemaVersion: number; readonly parentSettingRef: string; readonly settingVersion: number;
+  readonly rawScreenshotRetentionMode: string; readonly liveViewMode: string; readonly rawScreenshotRemoteUploadEnabled: boolean;
+  readonly remoteSummaryMode: string; readonly remoteSummaryRedactedOnly: boolean; readonly parentApprovedRemoteSummary: boolean;
+  readonly remoteSummaryApprovalRef: string | null; readonly remoteSummaryDestinationCustodyState: string;
+  readonly changedByParentRef: string; readonly changedAt: string; readonly reason: string | null;
+}
+
+type ParentScreenEvidenceSettingsUiIntentKey =
+  | 'disabledLocalSummary'
+  | 'observeOnlyLocalSummary'
+  | 'strictDryRunLocalSummary'
+  | 'approvedRawRetentionLocalTtl';
+
+interface ParentScreenEvidenceSettingsUiIntent {
+  readonly intentKey: ParentScreenEvidenceSettingsUiIntentKey; readonly label: string; readonly detail: string;
+  readonly setting: ParentScreenAnalysisParentSetting; readonly remoteBoundarySetting: ParentScreenEvidenceRemoteBoundarySetting;
+}
+
+export interface ParentScreenEvidenceSettingsUiProof {
+  readonly title: string; readonly note: string; readonly intentLegend: string; readonly draftHeading: string;
+  readonly draftTriggerHeading: string; readonly retentionHeading: string; readonly serviceCommandHeading: string;
+  readonly serviceApplyActionLabel: string; readonly serviceRefreshActionLabel: string; readonly servicePendingStatus: string;
+  readonly serviceAcceptedStatus: string; readonly serviceRejectedStatus: string; readonly serviceDisconnectedStatus: string;
+  readonly serviceNoResponseStatus: string; readonly validationStatusLabel: string; readonly validationStatusValue: string;
+  readonly defaultIntentKey: ParentScreenEvidenceSettingsUiIntentKey; readonly intents: readonly ParentScreenEvidenceSettingsUiIntent[];
+}
+
+export interface ParentScreenControlSettingsPortalMetric { readonly label: string; readonly value: string; readonly detail: string; }
+export interface ParentScreenControlSettingsPortalGate {
+  readonly label: string; readonly status: string; readonly statusText: string; readonly capabilityState: string;
+  readonly runtimeOwner: string; readonly detail: string; readonly sourceDocument: string;
+}
+
+interface ParentScreenControlSettingsPortalProof {
+  readonly title: string; readonly note: string; readonly metrics: readonly ParentScreenControlSettingsPortalMetric[];
+  readonly gates: readonly ParentScreenControlSettingsPortalGate[];
+}
+
+interface ParentScreenOptionalVisibilityRawRetentionSetting {
+  readonly sourceLabel: string; readonly custodyState: string; readonly retentionBehavior: string; readonly [key: string]: unknown;
+}
+interface ParentScreenOptionalVisibilityLiveViewSetting {
+  readonly sourceLabel: string; readonly custodyState: string; readonly transportMode: string; readonly [key: string]: unknown;
+}
+interface ParentScreenOptionalVisibilityPermissionGate { readonly permissionEvidenceKind: string; readonly [key: string]: unknown; }
+
+export interface ParentScreenOptionalVisibilityCapabilityStatus {
+  readonly schemaVersion: number; readonly checkedAt: string; readonly capabilityKind: string; readonly parentSettingRef: string;
+  readonly readinessState: string; readonly rawRetentionSetting: ParentScreenOptionalVisibilityRawRetentionSetting | null;
+  readonly liveViewSetting: ParentScreenOptionalVisibilityLiveViewSetting | null;
+  readonly liveViewPermissionGate: ParentScreenOptionalVisibilityPermissionGate | null;
+  readonly runtimeProofRef: string | null; readonly deletionProofRef: string | null; readonly transportProofRef: string | null;
+  readonly childDisclosureReady: boolean; readonly childDeviceCapabilityReady: boolean; readonly productModeReady: boolean;
+  readonly rawFramesRetained: boolean; readonly rawRemoteUploadAllowed: boolean; readonly remoteInputAllowed: boolean; readonly reason: string;
+}
+
+interface ParentScreenOptionalVisibilityCapabilityProof {
+  readonly schemaVersion: number; readonly generatedAt: string; readonly proofId: string;
+  readonly rows: readonly ParentScreenOptionalVisibilityCapabilityStatus[]; readonly nonClaims: readonly string[];
+}
+
+export interface ParentScreenSettingsUpdateResponse {
+  readonly schemaVersion: number; readonly requestId: string; readonly kind: ParentScreenSettingsUpdateKindValue;
+  readonly status: ParentScreenSettingsUpdateStatus; readonly setting: ParentScreenAnalysisParentSetting | null;
+  readonly auditEventId: string | null; readonly rejectionReason: string | null; readonly message: string | null;
+}
+
+const ParentScreenEvidenceSettingsWritableUiProofValue = __PARENT_SCREEN_EVIDENCE_SETTINGS_WRITABLE_UI_PROOF__ as const satisfies ParentScreenEvidenceSettingsUiProof;
+const ParentScreenControlSettingsPortalProofValue = __PARENT_SCREEN_CONTROL_SETTINGS_PORTAL_PROOF__ as const satisfies ParentScreenControlSettingsPortalProof;
+const ParentScreenOptionalVisibilityCapabilityStatusProofValue = __PARENT_SCREEN_OPTIONAL_VISIBILITY_CAPABILITY_STATUS_PROOF__ as const satisfies ParentScreenOptionalVisibilityCapabilityProof;
+
+export const ParentScreenOptionalVisibilityCapabilityProofGeneratedAt = '__PARENT_SCREEN_OPTIONAL_VISIBILITY_CAPABILITY_PROOF_GENERATED_AT__' as const;
+
+export function parentScreenEvidenceSettingsWritableUiProof(): ParentScreenEvidenceSettingsUiProof {
+  return ParentScreenEvidenceSettingsWritableUiProofValue;
+}
+
+export function parentScreenControlSettingsPortalProof(): ParentScreenControlSettingsPortalProof {
+  return ParentScreenControlSettingsPortalProofValue;
+}
+
+export function parentScreenOptionalVisibilityCapabilityStatusProof(
+  generatedAt: typeof ParentScreenOptionalVisibilityCapabilityProofGeneratedAt
+): ParentScreenOptionalVisibilityCapabilityProof {
+  if (generatedAt !== ParentScreenOptionalVisibilityCapabilityProofGeneratedAt) {
+    throw new TypeError('generatedAt must match the Rust-owned screen optional visibility proof timestamp');
+  }
+  return ParentScreenOptionalVisibilityCapabilityStatusProofValue;
+}
+
+export function decodeParentScreenSettingsUpdateResponse(value: unknown): ParentScreenSettingsUpdateResponse | null {
+  return isParentScreenSettingsUpdateResponse(value) ? value : null;
+}
+
+function isParentScreenSettingsUpdateResponse(value: unknown): value is ParentScreenSettingsUpdateResponse {
+  if (!isParentScreenRecord(value)) {
+    return false;
+  }
+  return value['schemaVersion'] === ParentScreenSettingsCommandRuntime.SchemaVersion &&
+    isParentScreenNonEmptyString(value['requestId']) &&
+    isParentScreenSettingsUpdateKind(value['kind']) &&
+    isParentScreenSettingsUpdateStatus(value['status']) &&
+    isParentScreenAnalysisParentSettingOrNull(value['setting']) &&
+    isParentScreenNullableString(value['auditEventId']) &&
+    isParentScreenNullableString(value['rejectionReason']) &&
+    isParentScreenNullableString(value['message']);
+}
+
+function isParentScreenAnalysisParentSettingOrNull(value: unknown): value is ParentScreenAnalysisParentSetting | null {
+  return value === null || isParentScreenAnalysisParentSetting(value);
+}
+
+function isParentScreenAnalysisParentSetting(value: unknown): value is ParentScreenAnalysisParentSetting {
+  if (!isParentScreenRecord(value)) {
+    return false;
+  }
+  return value['schemaVersion'] === ParentScreenSettingsCommandRuntime.SchemaVersion &&
+    typeof value['screenAnalysisEnabled'] === 'boolean' && typeof value['analysisMode'] === 'string' &&
+    typeof value['cadenceCaptureEnabled'] === 'boolean' && typeof value['cadenceSeconds'] === 'number' &&
+    typeof value['strictModeEnabled'] === 'boolean' && typeof value['triggerCaptureEnabled'] === 'boolean' &&
+    Array.isArray(value['enabledTriggers']) && value['enabledTriggers'].every((trigger) => typeof trigger === 'string') &&
+    typeof value['allowedCaptureScope'] === 'string' && typeof value['ocrTextEnabled'] === 'boolean' &&
+    typeof value['ocrTextSnippetLimit'] === 'number' && typeof value['redactionMode'] === 'string' &&
+    typeof value['ocrTextRetentionMode'] === 'string' && typeof value['credentialSuppressionEnabled'] === 'boolean' &&
+    typeof value['piiRedactionEnabled'] === 'boolean' && typeof value['temporaryImageTtlSeconds'] === 'number' &&
+    typeof value['maxRetryCount'] === 'number' && typeof value['deleteAfterSuccess'] === 'boolean' &&
+    typeof value['deleteAfterExpiry'] === 'boolean' && typeof value['retainRawImage'] === 'boolean' &&
+    typeof value['policyUseEnabled'] === 'boolean' && isParentScreenNonEmptyString(value['changedByParentRef']) &&
+    isParentScreenNonEmptyString(value['changedAt']) && typeof value['settingVersion'] === 'number' &&
+    isParentScreenNullableString(value['reason']);
+}
+
+function isParentScreenSettingsUpdateKind(value: unknown): value is ParentScreenSettingsUpdateKindValue {
+  return value === ParentScreenSettingsUpdateKind.Get || value === ParentScreenSettingsUpdateKind.Replace;
+}
+
+function isParentScreenSettingsUpdateStatus(value: unknown): value is ParentScreenSettingsUpdateStatus {
+  return value === ParentScreenSettingsUpdateStatus.Accepted || value === ParentScreenSettingsUpdateStatus.Rejected;
+}
+
+function isParentScreenNullableString(value: unknown): value is string | null {
+  return value === null || typeof value === 'string';
+}
+
+function isParentScreenNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isParentScreenRecord(value: unknown): value is ParentUnknownRecord {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
