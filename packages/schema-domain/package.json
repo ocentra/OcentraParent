@@ -881,10 +881,6 @@
       "import": "./dist/child-ios-entitlement-capability-proof.js",
       "types": "./dist/child-ios-entitlement-capability-proof.d.ts"
     },
-    "./child-runtime-gates": {
-      "import": "./dist/child-runtime-gates.js",
-      "types": "./dist/child-runtime-gates.d.ts"
-    },
     "./custody-boundary": {
       "import": "./dist/custody-boundary.js",
       "types": "./dist/custody-boundary.d.ts"
@@ -916,10 +912,6 @@
     "./effect": {
       "import": "./dist/effect.js",
       "types": "./dist/effect.d.ts"
-    },
-    "./endpoint-brands": {
-      "import": "./dist/endpoint-brands.js",
-      "types": "./dist/endpoint-brands.d.ts"
     },
     "./enforcement": {
       "import": "./dist/enforcement.js",
@@ -1128,10 +1120,6 @@
     "./native-game-budget-policy-rules": {
       "import": "./dist/native-game-budget-policy-rules.js",
       "types": "./dist/native-game-budget-policy-rules.d.ts"
-    },
-    "./network-contracts": {
-      "import": "./dist/network-contracts.js",
-      "types": "./dist/network-contracts.d.ts"
     },
     "./network-control-catalog": {
       "import": "./dist/network-control-catalog.js",
