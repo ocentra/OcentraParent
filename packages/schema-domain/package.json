@@ -1509,14 +1509,6 @@
       "import": "./dist/social-alert-report-provider-status-handoff-proof.js",
       "types": "./dist/social-alert-report-provider-status-handoff-proof.d.ts"
     },
-    "./social-android-native-app-capability-matrix": {
-      "import": "./dist/social-android-native-app-capability-matrix.js",
-      "types": "./dist/social-android-native-app-capability-matrix.d.ts"
-    },
-    "./social-android-native-app-capability-matrix-values": {
-      "import": "./dist/social-android-native-app-capability-matrix-values.js",
-      "types": "./dist/social-android-native-app-capability-matrix-values.d.ts"
-    },
     "./social-audit-explanation-read-model": {
       "import": "./dist/social-audit-explanation-read-model.js",
       "types": "./dist/social-audit-explanation-read-model.d.ts"
@@ -1548,14 +1540,6 @@
     "./social-decision-memory-cache-values": {
       "import": "./dist/social-decision-memory-cache-values.js",
       "types": "./dist/social-decision-memory-cache-values.d.ts"
-    },
-    "./social-ios-screen-time-capability-matrix": {
-      "import": "./dist/social-ios-screen-time-capability-matrix.js",
-      "types": "./dist/social-ios-screen-time-capability-matrix.d.ts"
-    },
-    "./social-ios-screen-time-capability-matrix-values": {
-      "import": "./dist/social-ios-screen-time-capability-matrix-values.js",
-      "types": "./dist/social-ios-screen-time-capability-matrix-values.d.ts"
     },
     "./social-parent-approval": {
       "import": "./dist/social-parent-approval.js",
