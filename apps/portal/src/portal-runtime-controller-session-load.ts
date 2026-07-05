@@ -1,4 +1,14 @@
-import { ParentBridgeConnectionState, ParentUiActionKind, type ParentRouteContext, type ParentRouteId, type ParentRouteSnapshot, type ParentUiAction, type ParentUiActionResult } from '../generated/parent-ui-bridge';
+import {
+  ParentAgentCommand as AgentCommand,
+  ParentBridgeConnectionState,
+  ParentUiActionKind,
+  type ParentAgentCommandName,
+  type ParentRouteContext,
+  type ParentRouteId,
+  type ParentRouteSnapshot,
+  type ParentUiAction,
+  type ParentUiActionResult,
+} from '../generated/parent-ui-bridge';
 import { shouldPrimeDeveloperRoute } from './portal-runtime-controller-session-context';
 import type { PortalRuntimeState } from './portal-state';
 import { applyParentRouteSnapshot } from './portal-state';
@@ -14,7 +24,7 @@ type PortalRuntimeLoadDeps = {
 
 export function createPortalRuntimeLoadCurrentRoute(
   deps: PortalRuntimeLoadDeps,
-  agentCommand: { readonly LogSnapshotGet: string },
+  agentCommand: { readonly LogSnapshotGet: ParentAgentCommandName },
   currentRouteContext: () => ParentRouteContext,
   dispatchHostAction: (action: ParentUiAction) => Promise<ParentUiActionResult | null>,
   installRouteSubscription: (route: ParentRouteId) => Promise<void>,
@@ -60,7 +70,7 @@ export function createPortalRuntimeLoadCurrentRoute(
     await dispatchHostAction({
       action: ParentUiActionKind.AgentCommandRequested,
       route,
-      command: agentCommand.LogSnapshotGet,
+      command: agentCommand.LogSnapshotGet ?? AgentCommand.LogSnapshotGet,
       payload: {},
     });
   }

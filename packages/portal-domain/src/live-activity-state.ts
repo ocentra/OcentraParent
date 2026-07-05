@@ -8,6 +8,7 @@ import type {
   GeneratedPortalActivitySurfaceReadModelSnapshot,
   GeneratedPortalBrowserEvidenceReadModelSnapshot,
   GeneratedPortalBrowserInterventionReadModelSnapshot,
+  GeneratedPortalBrowserInterventionRowSnapshot,
   GeneratedPortalBrowserInventoryReadModelSnapshot,
   GeneratedPortalBrowserManagedSessionStatusSnapshot,
   GeneratedPortalNetworkLiveCaptureStatusSnapshot,
@@ -92,6 +93,9 @@ export type PortalActivityTrackingReadModelResult = ReadModelResult<
   PortalActivityTrackingReadModelSnapshot,
   PortalActivityTrackingReadModelFailureReason
 >;
+
+export type PortalBrowserInterventionReadModel = GeneratedPortalBrowserInterventionReadModelSnapshot;
+export type PortalBrowserInterventionRow = GeneratedPortalBrowserInterventionRowSnapshot;
 
 export interface PortalLiveActivityState {
   readonly activityServiceUiSpine: PortalActivityServiceUiSpine;

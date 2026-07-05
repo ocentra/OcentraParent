@@ -137,12 +137,8 @@ function AppGameTimerParentSurfaceEmptyCard({
 }
 
 function AppGameTimerParentSurfaceRowCard({
-  actions,
-  commandEnabled = false,
   row,
 }: {
-  readonly actions?: PortalRenderActions;
-  readonly commandEnabled?: boolean;
   readonly row: ParentAppGamePanelRowSnapshot;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(

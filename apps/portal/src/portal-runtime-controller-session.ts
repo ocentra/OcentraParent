@@ -1,4 +1,12 @@
-import { ParentAgentCommand as AgentCommand, type ParentRouteContext, type ParentRouteId, type ParentRouteSnapshot, type ParentUiAction, type ParentUiActionResult } from '../generated/parent-ui-bridge';
+import {
+  type ParentAgentCommandName,
+  type ParentRouteContext,
+  type ParentRouteId,
+  type ParentRouteSnapshot,
+  type ParentSubscriptionEvent,
+  type ParentUiAction,
+  type ParentUiActionResult,
+} from '../generated/parent-ui-bridge';
 import { createPortalRuntimeDispatchHostAction } from './portal-runtime-controller-session-dispatch';
 import { createPortalRuntimeLoadCurrentRoute } from './portal-runtime-controller-session-load';
 import { createPortalRuntimeSubscriptionManager } from './portal-runtime-controller-session-subscription';
@@ -12,7 +20,7 @@ type PortalRuntimeDeps = {
     subscribe(
       route: ParentRouteId,
       context: ParentRouteContext,
-      onEvent: (event: import('../generated/parent-ui-bridge').ParentSubscriptionEvent) => void
+      onEvent: (event: ParentSubscriptionEvent) => void
     ): Promise<() => void>;
   };
   state: PortalRuntimeState;
@@ -22,7 +30,7 @@ type PortalRuntimeDeps = {
 
 export function createPortalRuntimeSession(
   deps: PortalRuntimeDeps,
-  agentCommand: typeof AgentCommand
+  agentCommand: { readonly LogSnapshotGet: ParentAgentCommandName }
 ): {
   readonly loadCurrentRoute: () => Promise<void>;
   readonly disposeRouteSubscription: () => void;

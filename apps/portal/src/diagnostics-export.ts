@@ -1,6 +1,7 @@
 import { PortalDiagnostics } from '@ocentra-parent/portal-domain/diagnostics';
 import {
   ParentAgentEvent as AgentEvent,
+  type ParentAgentEventName as AgentEventName,
   ParentAgentProtocolField,
   decodeParentPortalClipboardText,
   ParentRouteDataSource,
@@ -60,7 +61,7 @@ export function buildDiagnosticsExport(state: PortalRuntimeState): ParentPortalC
   return decodeParentPortalClipboardText(JSON.stringify(report, null, PortalDiagnostics.JsonIndent));
 }
 
-function latestEvent(events: readonly ParentRouteEventSnapshot[], eventName: string) {
+function latestEvent(events: readonly ParentRouteEventSnapshot[], eventName: AgentEventName) {
   return events.find((event) => event.event === eventName) ?? null;
 }
 

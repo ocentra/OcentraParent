@@ -6,7 +6,6 @@ import {
 import { PARENT_PORTAL_NAV_LABELS } from '@ocentra-parent/portal-domain/parent-portal-nav';
 
 export const routeSurfaceReadyTimeoutMs = 30_000;
-const assistantNewChatAction = requireAssistantNewChatAction();
 const assistantRulesAction = requireAssistantRulesAction();
 const assistantRulesExplainChoice = requireAssistantRulesExplainChoice();
 

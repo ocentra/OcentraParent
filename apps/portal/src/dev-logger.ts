@@ -16,12 +16,12 @@ import {
 export type PortalProofTraceOptions = PortalDomainProofTraceOptions;
 export type PortalProofTraceConfig = PortalDomainProofTraceConfig;
 
-export function writePortalDevLog(message: LogMessage | string, fields: LogFields = {}): void {
+export function writePortalDevLog(message: LogMessage, fields: LogFields = {}): void {
   void sendPortalDevLog(message, fields);
 }
 
 export function writePortalProofTraceLog(
-  message: LogMessage | string,
+  message: LogMessage,
   proofTrace: PortalProofTraceOptions,
   fields: LogFields = {}
 ): void {
@@ -29,15 +29,15 @@ export function writePortalProofTraceLog(
 }
 
 export async function sendPortalDevLog(
-  message: LogMessage | string,
+  message: LogMessage,
   fields: LogFields = {},
   endpoint = resolvePortalDevLogBridgeUrl(),
   runtime: PortalLoggerRuntime = globalThis as PortalLoggerRuntime
 ): Promise<boolean> {
-  return sendPortalDevLogWithContext(message as LogMessage, fields, {
+  return sendPortalDevLogWithContext(message, fields, {
     endpoint,
     runtime,
-    stackTrace: (new Error().stack ?? '') as StackTrace,
+    stackTrace: (new Error().stack ?? String()) as StackTrace,
     moduleUrl: import.meta.url,
   });
 }
@@ -47,16 +47,16 @@ export function resolvePortalDevLogBridgeUrl(runtime: PortalLoggerRuntime = glob
 }
 
 export async function sendPortalProofTraceLog(
-  message: LogMessage | string,
+  message: LogMessage,
   proofTrace: PortalProofTraceOptions,
   fields: LogFields = {},
   endpoint = resolvePortalDevLogBridgeUrl(),
   runtime: PortalLoggerRuntime = globalThis as PortalLoggerRuntime
 ): Promise<boolean> {
-  return sendPortalProofTraceLogWithContext(message as LogMessage, proofTrace, fields, {
+  return sendPortalProofTraceLogWithContext(message, proofTrace, fields, {
     endpoint,
     runtime,
-    stackTrace: (new Error().stack ?? '') as StackTrace,
+    stackTrace: (new Error().stack ?? String()) as StackTrace,
     moduleUrl: import.meta.url,
   });
 }

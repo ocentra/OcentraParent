@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, relative, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
 
@@ -26,13 +26,6 @@ const ProductLiveActivityResolverCallers = [
 ];
 const TestDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ProductSourceDirectory = resolve(TestDirectory, '..', 'src');
-const RetiredSchemaDomainPortalContractsSpecifier =
-  '@ocentra-parent/' + 'schema-domain/' + 'portal-contracts';
-const RetiredSchemaDomainLoggingContractsSpecifier =
-  '@ocentra-parent/' + 'schema-domain/' + 'logging-contracts';
-const RetiredSchemaDomainGeneratedLoggingContractsSpecifier =
-  '@ocentra-parent/' + 'schema-domain/generated/' + 'logging-contracts';
-
 function listSourceFiles(directory: string): string[] {
   const entries = readdirSync(directory, { withFileTypes: true });
   const files: string[] = [];

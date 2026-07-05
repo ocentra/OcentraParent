@@ -6,7 +6,6 @@ import {
 } from '../../generated/parent-ui-bridge';
 import { EMPTY_ROUTE_LIVE_ACTIVITY_STATE, resolveSnapshotLiveActivityState } from '../../src/route-live-activity-state';
 import {
-  FlowObserved,
   activityTrackingReadModelResultSnapshot,
   networkFlowReadModelSnapshot,
 } from './live-activity-state-test-support';

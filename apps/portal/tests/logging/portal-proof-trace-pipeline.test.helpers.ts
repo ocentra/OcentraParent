@@ -68,8 +68,6 @@ const proofTraceGlobalKeys = [
   '__OCENTRA_PARENT_PROOF_TRACE_LEVEL',
 ] as const;
 
-const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
-
 export function registerPortalProofTracePipelineSuite(tempDirs: string[]): void {
   const originalStructuredRoot = process.env['OCENTRA_PARENT_LOG_DIR'];
 

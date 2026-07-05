@@ -1,4 +1,4 @@
-import { ParentBridgeConnectionState, type ParentRouteContext, type ParentRouteId, type ParentSubscriptionEvent } from '../generated/parent-ui-bridge';
+import { type ParentRouteContext, type ParentRouteId, type ParentSubscriptionEvent } from '../generated/parent-ui-bridge';
 import { GeneratedDevLogField as DevLogField, GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/logging-domain/generated/logging-contracts';
 import { writePortalDevLog } from './dev-logger';
 import { applyParentSubscriptionEvent, type PortalRuntimeState } from './portal-state';

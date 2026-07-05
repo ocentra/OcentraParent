@@ -140,6 +140,7 @@ export const PortalDevTextToken = {
   NoNetworkFlow: decodeDisplayText('No network activity is available yet.'),
   NoRecentActivity: decodeDisplayText('No recent activity is available yet.'),
   NotReported: decodeDisplayText('Not reported'),
+  UnknownEvent: decodeDisplayText('unknown-event'),
   Notifications: decodeDisplayText('Notifications'),
   NotificationsBody: decodeDisplayText(
     'Choose which events deserve a parent alert and which should stay in the daily audit.'

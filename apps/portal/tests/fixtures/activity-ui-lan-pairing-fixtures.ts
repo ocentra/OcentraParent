@@ -41,10 +41,6 @@ function hasLanFixtureRequiredFields(value: Record<string, unknown>): boolean {
   );
 }
 
-function nonEmptyLanString(value: unknown): string | null {
-  return typeof value === 'string' && value.length > 0 ? value : null;
-}
-
 function requiredCanonicalHouseholdDevice(canonicalDeviceId: string) {
   const device = canonicalRuntimeLanAddDeviceReadModel().canonicalHouseholdDevices.find(
     (candidate) => candidate.canonicalDeviceId === canonicalDeviceId

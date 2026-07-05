@@ -233,7 +233,7 @@ function createDevWebRouteSubscription(
 function createDevWebEmitNextSnapshot(
   subscriptionState: {
     active: boolean;
-    lastSnapshotJson: string;
+    lastSnapshotJson: unknown;
   },
   parentDevBridgeUrl: ParentDevBridgeUrl,
   route: ParentRouteId,

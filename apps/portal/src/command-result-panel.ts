@@ -5,7 +5,12 @@ import {
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom, PortalTiming } from '@ocentra-parent/portal-domain/contracts';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
-import { decodeParentPortalClipboardText, type ParentRouteEventSnapshot } from '../generated/parent-ui-bridge';
+import {
+  decodeParentPortalClipboardText,
+  ParentHostBridgeRuntime,
+  type ParentCommandResultDetailSnapshot,
+  type ParentRouteEventSnapshot,
+} from '../generated/parent-ui-bridge';
 import { writeClipboardText } from './clipboard';
 import { writePortalDevLog } from './dev-logger';
 import { latestParentRouteEventSnapshot } from './parent-route-event-snapshot';
@@ -42,14 +47,14 @@ function renderResultEvent(event: ParentRouteEventSnapshot): HTMLElement {
   const card = document.createElement(PortalDom.Tags.Division);
   card.className = [
     PortalDom.Classes.Log,
-    `${PortalDom.Classes.LogLevelPrefix}${event.severity ?? 'info'}`,
+    `${PortalDom.Classes.LogLevelPrefix}${eventSeverity(event)}`,
   ].join(PortalDom.Classes.ClassNameSeparator);
 
   const header = document.createElement(PortalDom.Tags.Division);
   header.className = PortalDom.Classes.CommandResultHeader;
 
   const message = document.createElement(PortalDom.Tags.Strong);
-  message.textContent = event.event ?? 'unknown-event';
+  message.textContent = resolvedEventName(event);
 
   const copyButton = document.createElement(PortalDom.Tags.Button);
   copyButton.type = PortalDom.ButtonType.Button;
@@ -61,9 +66,9 @@ function renderResultEvent(event: ParentRouteEventSnapshot): HTMLElement {
 
   const detail = document.createElement(PortalDom.Tags.Span);
   detail.textContent = [
-    event.sentAt ?? 'not-reported',
-    event.sourcePeerId ?? 'not-reported',
-    `${PortalFormatting.CorrelationPrefix}${event.correlationId ?? event.eventId ?? 'not-reported'}`,
+    event.sentAt ?? resolvePortalDevText(PortalDevTextToken.NotReported),
+    event.sourcePeerId ?? resolvePortalDevText(PortalDevTextToken.NotReported),
+    `${PortalFormatting.CorrelationPrefix}${event.correlationId ?? event.eventId ?? resolvePortalDevText(PortalDevTextToken.NotReported)}`,
   ].join(PortalFormatting.EventDetailSeparator);
 
   const fields = document.createElement(PortalDom.Tags.Code);
@@ -91,7 +96,7 @@ function renderAppGameTimerParentPreferenceSetupCommandResult(
   return renderDetailList(projection.details);
 }
 
-function renderDetailList(details: readonly { readonly label: string; readonly value: string }[]): HTMLElement {
+function renderDetailList(details: readonly ParentCommandResultDetailSnapshot[]): HTMLElement {
   const list = document.createElement(PortalDom.Tags.DefinitionList);
   for (const item of details) {
     const term = document.createElement(PortalDom.Tags.DefinitionTerm);
@@ -114,7 +119,7 @@ async function copyResultEvent(button: HTMLButtonElement, event: ParentRouteEven
       return;
     }
     writePortalDevLog(DevLogMessage.PortalResultCopied, {
-      [DevLogField.Event]: event.event ?? 'unknown-event',
+      [DevLogField.Event]: resolvedEventName(event),
     });
     button.textContent = resolvePortalDevText(PortalDevTextToken.CopiedResult);
   } catch {
@@ -125,4 +130,12 @@ async function copyResultEvent(button: HTMLButtonElement, event: ParentRouteEven
       button.textContent = resolvePortalDevText(PortalDevTextToken.CopyResult);
     }, PortalTiming.CopyFeedbackMs);
   }
+}
+
+function eventSeverity(event: ParentRouteEventSnapshot) {
+  return event.severity ?? ParentHostBridgeRuntime.InfoSeverity;
+}
+
+function resolvedEventName(event: ParentRouteEventSnapshot) {
+  return event.event ?? resolvePortalDevText(PortalDevTextToken.UnknownEvent);
 }

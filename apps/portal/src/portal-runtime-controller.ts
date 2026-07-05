@@ -3,6 +3,7 @@ import {
   type ParentRouteContext,
   type ParentRouteId,
   type ParentRouteSnapshot,
+  type ParentSubscriptionEvent,
   type ParentUiAction,
   type ParentUiActionResult,
 } from '../generated/parent-ui-bridge';
@@ -25,7 +26,7 @@ export function createPortalRuntimeController(deps: {
     subscribe(
       route: ParentRouteId,
       context: ParentRouteContext,
-      onEvent: (event: import('../generated/parent-ui-bridge').ParentSubscriptionEvent) => void
+      onEvent: (event: ParentSubscriptionEvent) => void
     ): Promise<() => void>;
   };
   state: PortalRuntimeState;

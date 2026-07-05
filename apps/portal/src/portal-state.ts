@@ -2,6 +2,7 @@ import type {
   GeneratedAgentLogEntry,
   GeneratedAgentLogSnapshot as AgentLogSnapshot,
 } from '@ocentra-parent/logging-domain/generated/logging-contracts';
+import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
 import {
   ParentAgentEvent as AgentEvent,
   type ParentAgentEventName as AgentEventName,
@@ -21,7 +22,6 @@ import {
 } from './parent-route-event-snapshot';
 
 const MAX_BUFFERED_PORTAL_EVENTS = 128;
-const LOG_SNAPSHOT_REPORTED_EVENT = 'agent.log.snapshot.reported';
 
 export interface PortalRuntimeState {
   agentEndpoint: ParentRouteAgentEndpoint;
@@ -74,7 +74,7 @@ export function applyParentRouteEvents(
     }
     bufferedEventKeys.add(key);
     state.events.unshift(snapshot);
-    if (snapshot.event === LOG_SNAPSHOT_REPORTED_EVENT) {
+    if (snapshot.event === AgentEvent.LogSnapshotReported) {
       const latestSnapshot = toGeneratedAgentLogSnapshot(snapshot.snapshot);
       if (latestSnapshot !== null) {
         state.latestSnapshot = latestSnapshot;
@@ -99,7 +99,7 @@ export function applyParentSubscriptionEvent(
   }
 }
 
-function portalEventBufferKey(event: ParentRouteEventSnapshot): string {
+function portalEventBufferKey(event: ParentRouteEventSnapshot) {
   return [
     event.eventId,
     event.correlationId,
@@ -107,7 +107,7 @@ function portalEventBufferKey(event: ParentRouteEventSnapshot): string {
     event.event,
     event.sourcePeerId,
     event.targetPeerId,
-  ].join('|');
+  ].join(PortalFormatting.EventDetailSeparator);
 }
 
 function isStaleIncomingEventBatch(
@@ -149,7 +149,7 @@ function toGeneratedAgentLogSnapshot(snapshot: unknown): AgentLogSnapshot | null
 }
 
 function isGeneratedAgentLogSnapshot(value: unknown): value is AgentLogSnapshot {
-  if (typeof value !== 'object' || value === null) {
+  if (Object(value) !== value || value === null) {
     return false;
   }
   const candidate = value as {
@@ -158,8 +158,8 @@ function isGeneratedAgentLogSnapshot(value: unknown): value is AgentLogSnapshot 
     entries?: unknown;
   };
   return (
-    typeof candidate.schemaVersion === 'number' &&
-    typeof candidate.agent === 'object' &&
+    Number.isFinite(candidate.schemaVersion) &&
+    Object(candidate.agent) === candidate.agent &&
     candidate.agent !== null &&
     !Array.isArray(candidate.agent) &&
     Array.isArray(candidate.entries)

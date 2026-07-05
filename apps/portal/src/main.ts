@@ -1,7 +1,6 @@
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
-  GeneratedDevLogField as DevLogField,
   GeneratedDevLogMessage as DevLogMessage,
 } from '@ocentra-parent/logging-domain/generated/logging-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';

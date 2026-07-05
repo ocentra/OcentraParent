@@ -1,29 +1,10 @@
 import { readFileSync, readdirSync } from 'node:fs';
-import { dirname, relative, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
 
 const BridgeContractFile = 'generated/parent-ui-bridge.ts';
 const TestDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const ProductSourceDirectory = resolve(TestDirectory, '..', 'src');
-
-function listSourceFiles(directory: string): string[] {
-  const entries = readdirSync(directory, { withFileTypes: true });
-  const files: string[] = [];
-
-  for (const entry of entries) {
-    const entryPath = resolve(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...listSourceFiles(entryPath));
-      continue;
-    }
-    if (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx')) {
-      files.push(entryPath);
-    }
-  }
-
-  return files;
-}
 
 it('product bridge guard: product route rendering keeps the route shell snapshot-only', () => {
   const parentPortalRouteSource = readFileSync(resolve(TestDirectory, '..', 'src/ParentPortalRoute.tsx'), 'utf8');

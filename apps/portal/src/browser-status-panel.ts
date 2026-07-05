@@ -4,9 +4,10 @@ import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
   ParentAgentProtocolField,
   decodeParentPortalDetailValue,
+  type ParentRouteEventSnapshot,
   type ParentPortalDetailValue,
 } from '../generated/parent-ui-bridge';
-import { appendDetail } from './detail-list';
+import { appendDetail, notReportedDetail, portalDetailFromValue as detailFromValue } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function renderBrowserManagedStatus(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
@@ -60,27 +61,16 @@ function emptyMessage(): HTMLElement {
   return message;
 }
 
-function eventStatus(event: PortalLiveActivityState['browserManagedEvent']): ParentPortalDetailValue {
+function eventStatus(event: ParentRouteEventSnapshot | null): ParentPortalDetailValue {
   if (event === null) {
-    return notReported();
+    return notReportedDetail();
   }
   return decodeParentPortalDetailValue(event.severity ?? resolvePortalDevText(PortalDevTextToken.NotReported));
 }
 
-function eventReason(event: PortalLiveActivityState['browserManagedEvent']): ParentPortalDetailValue {
+function eventReason(event: ParentRouteEventSnapshot | null): ParentPortalDetailValue {
   if (event === null) {
-    return notReported();
+    return notReportedDetail();
   }
-  return detailFromValue(event.payload?.[ParentAgentProtocolField.Reason]);
-}
-
-function detailFromValue(value: unknown): ParentPortalDetailValue {
-  if (value === undefined || value === null) {
-    return notReported();
-  }
-  return decodeParentPortalDetailValue(String(value));
-}
-
-function notReported(): ParentPortalDetailValue {
-  return decodeParentPortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
+  return portalDetailFromValue(event.payload?.[ParentAgentProtocolField.Reason]);
 }

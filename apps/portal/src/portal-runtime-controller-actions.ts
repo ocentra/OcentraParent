@@ -1,5 +1,6 @@
 import {
-  ParentAgentEventName as AgentEventName,
+  type ParentAgentCommandName,
+  type ParentAgentEventName as AgentEventName,
   ParentUiActionKind,
   type ParentRouteId,
   type ParentUiActionPayload,
@@ -38,7 +39,7 @@ function createSelectCommandResultAction(deps: PortalRuntimeActionDeps): (result
 function createSendCommandAction(
   deps: PortalRuntimeActionDeps,
   dispatchHostAction: (action: ParentUiAction) => Promise<ParentUiActionResult | null>
-): (command: string, payload: ParentUiActionPayload) => Promise<ParentUiActionResult | null> {
+): (command: ParentAgentCommandName, payload: ParentUiActionPayload) => Promise<ParentUiActionResult | null> {
   return (command, payload) => {
     return dispatchHostAction({
       action: ParentUiActionKind.AgentCommandRequested,
