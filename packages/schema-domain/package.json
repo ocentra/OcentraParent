@@ -773,62 +773,6 @@
       "import": "./dist/app-game-timer-parent-surface-read-model.js",
       "types": "./dist/app-game-timer-parent-surface-read-model.d.ts"
     },
-    "./app-game-timer-service-event-handoff": {
-      "import": "./dist/app-game-timer-service-event-handoff.js",
-      "types": "./dist/app-game-timer-service-event-handoff.d.ts"
-    },
-    "./app-game-timer-service-event-handoff-rules": {
-      "import": "./dist/app-game-timer-service-event-handoff-rules.js",
-      "types": "./dist/app-game-timer-service-event-handoff-rules.d.ts"
-    },
-    "./app-game-timer-service-handoff": {
-      "import": "./dist/app-game-timer-service-handoff.js",
-      "types": "./dist/app-game-timer-service-handoff.d.ts"
-    },
-    "./app-game-timer-service-handoff-rules": {
-      "import": "./dist/app-game-timer-service-handoff-rules.js",
-      "types": "./dist/app-game-timer-service-handoff-rules.d.ts"
-    },
-    "./app-game-timer-service-read-api-handoff": {
-      "import": "./dist/app-game-timer-service-read-api-handoff.js",
-      "types": "./dist/app-game-timer-service-read-api-handoff.d.ts"
-    },
-    "./app-game-timer-service-read-api-handoff-rules": {
-      "import": "./dist/app-game-timer-service-read-api-handoff-rules.js",
-      "types": "./dist/app-game-timer-service-read-api-handoff-rules.d.ts"
-    },
-    "./app-game-timer-service-read-api-response-consumer-handoff": {
-      "import": "./dist/app-game-timer-service-read-api-response-consumer-handoff.js",
-      "types": "./dist/app-game-timer-service-read-api-response-consumer-handoff.d.ts"
-    },
-    "./app-game-timer-service-read-api-response-consumer-handoff-rules": {
-      "import": "./dist/app-game-timer-service-read-api-response-consumer-handoff-rules.js",
-      "types": "./dist/app-game-timer-service-read-api-response-consumer-handoff-rules.d.ts"
-    },
-    "./app-game-timer-service-read-api-response-consumer-parent-surface-handoff": {
-      "import": "./dist/app-game-timer-service-read-api-response-consumer-parent-surface-handoff.js",
-      "types": "./dist/app-game-timer-service-read-api-response-consumer-parent-surface-handoff.d.ts"
-    },
-    "./app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules": {
-      "import": "./dist/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules.js",
-      "types": "./dist/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules.d.ts"
-    },
-    "./app-game-timer-service-read-api-response-handoff": {
-      "import": "./dist/app-game-timer-service-read-api-response-handoff.js",
-      "types": "./dist/app-game-timer-service-read-api-response-handoff.d.ts"
-    },
-    "./app-game-timer-service-read-api-response-handoff-rules": {
-      "import": "./dist/app-game-timer-service-read-api-response-handoff-rules.js",
-      "types": "./dist/app-game-timer-service-read-api-response-handoff-rules.d.ts"
-    },
-    "./app-game-timer-service-read-model-handoff": {
-      "import": "./dist/app-game-timer-service-read-model-handoff.js",
-      "types": "./dist/app-game-timer-service-read-model-handoff.d.ts"
-    },
-    "./app-game-timer-service-read-model-handoff-rules": {
-      "import": "./dist/app-game-timer-service-read-model-handoff-rules.js",
-      "types": "./dist/app-game-timer-service-read-model-handoff-rules.d.ts"
-    },
     "./app-game-windows-local-policy-evidence-proof": {
       "import": "./dist/app-game-windows-local-policy-evidence-proof.js",
       "types": "./dist/app-game-windows-local-policy-evidence-proof.d.ts"
