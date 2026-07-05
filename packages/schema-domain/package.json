@@ -697,10 +697,6 @@
       "import": "./dist/browser-control-values.js",
       "types": "./dist/browser-control-values.d.ts"
     },
-    "./browser-extension-native-host-schemas": {
-      "import": "./dist/browser-extension-native-host-schemas.js",
-      "types": "./dist/browser-extension-native-host-schemas.d.ts"
-    },
     "./browser-game-platform-route-contract-values": {
       "import": "./dist/browser-game-platform-route-contract-values.js",
       "types": "./dist/browser-game-platform-route-contract-values.d.ts"
@@ -728,18 +724,6 @@
     "./browser-inventory-schemas": {
       "import": "./dist/browser-inventory-schemas.js",
       "types": "./dist/browser-inventory-schemas.d.ts"
-    },
-    "./browser-managed-profile-store": {
-      "import": "./dist/browser-managed-profile-store.js",
-      "types": "./dist/browser-managed-profile-store.d.ts"
-    },
-    "./browser-performance-health-schemas": {
-      "import": "./dist/browser-performance-health-schemas.js",
-      "types": "./dist/browser-performance-health-schemas.d.ts"
-    },
-    "./browser-platform-inventory-matrix": {
-      "import": "./dist/browser-platform-inventory-matrix.js",
-      "types": "./dist/browser-platform-inventory-matrix.d.ts"
     },
     "./browser-policy-questionnaire-forest-contract": {
       "import": "./dist/browser-policy-questionnaire-forest-contract.js",
@@ -844,10 +828,6 @@
     "./browser-video-metadata": {
       "import": "./dist/browser-video-metadata.js",
       "types": "./dist/browser-video-metadata.d.ts"
-    },
-    "./browser-youtube-metadata": {
-      "import": "./dist/browser-youtube-metadata.js",
-      "types": "./dist/browser-youtube-metadata.d.ts"
     },
     "./capabilities": {
       "import": "./dist/capabilities.js",
