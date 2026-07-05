@@ -1,5 +1,7 @@
 /* generated from crates/schema/src/logging_contracts.rs */
 
+import { Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+
 export const LoggingContractRuntime = {
   SchemaVersion: __LOG_SCHEMA_VERSION__,
   SnapshotSchemaVersion: __LOG_SNAPSHOT_SCHEMA_VERSION__,
@@ -7,15 +9,25 @@ export const LoggingContractRuntime = {
 
 export type GeneratedLogFieldValue = string | number | boolean | null;
 export type GeneratedLogFields = Record<string, GeneratedLogFieldValue>;
-export type GeneratedAgentDeviceId = string;
-export type GeneratedAgentHostname = string;
-export type GeneratedAgentPlatform = string;
-export type GeneratedAgentServiceVersion = string;
-export type GeneratedLogEntryId = string;
-export type GeneratedLogTimestamp = string;
-export type GeneratedLogMessage = string;
-export type GeneratedStackTrace = string;
-export type GeneratedLogSnapshotState = string;
+export const GeneratedAgentDeviceIdSchema = brandedNonEmptyStringSchema('GeneratedAgentDeviceId');
+export const GeneratedAgentHostnameSchema = brandedNonEmptyStringSchema('GeneratedAgentHostname');
+export const GeneratedAgentPlatformSchema = brandedNonEmptyStringSchema('GeneratedAgentPlatform');
+export const GeneratedAgentServiceVersionSchema = brandedNonEmptyStringSchema('GeneratedAgentServiceVersion');
+export const GeneratedLogEntryIdSchema = brandedNonEmptyStringSchema('GeneratedLogEntryId');
+export const GeneratedLogTimestampSchema = brandedNonEmptyStringSchema('GeneratedLogTimestamp');
+export const GeneratedLogMessageSchema = brandedNonEmptyStringSchema('GeneratedLogMessage');
+export const GeneratedStackTraceSchema = withParser(Schema.String.pipe(Schema.brand('GeneratedStackTrace')));
+export const GeneratedLogSnapshotStateSchema = brandedNonEmptyStringSchema('GeneratedLogSnapshotState');
+
+export type GeneratedAgentDeviceId = typeof GeneratedAgentDeviceIdSchema.Type;
+export type GeneratedAgentHostname = typeof GeneratedAgentHostnameSchema.Type;
+export type GeneratedAgentPlatform = typeof GeneratedAgentPlatformSchema.Type;
+export type GeneratedAgentServiceVersion = typeof GeneratedAgentServiceVersionSchema.Type;
+export type GeneratedLogEntryId = typeof GeneratedLogEntryIdSchema.Type;
+export type GeneratedLogTimestamp = typeof GeneratedLogTimestampSchema.Type;
+export type GeneratedLogMessage = typeof GeneratedLogMessageSchema.Type;
+export type GeneratedStackTrace = typeof GeneratedStackTraceSchema.Type;
+export type GeneratedLogSnapshotState = typeof GeneratedLogSnapshotStateSchema.Type;
 
 export type GeneratedLogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error';
 
@@ -114,49 +126,49 @@ export const GeneratedDevLogMessage = {
 } as const;
 
 export interface GeneratedAgentIdentity {
-  deviceId: GeneratedAgentDeviceId;
-  hostname: GeneratedAgentHostname;
-  platform: GeneratedAgentPlatform;
-  serviceVersion: GeneratedAgentServiceVersion;
+  readonly deviceId: GeneratedAgentDeviceId;
+  readonly hostname: GeneratedAgentHostname;
+  readonly platform: GeneratedAgentPlatform;
+  readonly serviceVersion: GeneratedAgentServiceVersion;
 }
 
 export interface GeneratedAgentLogEntry {
-  schemaVersion: typeof LoggingContractRuntime.SchemaVersion;
-  id: GeneratedLogEntryId;
-  timestamp: GeneratedLogTimestamp;
-  level: GeneratedLogLevel;
-  source: GeneratedLogSource;
-  message: GeneratedLogMessage;
-  fields: GeneratedLogFields;
+  readonly schemaVersion: typeof LoggingContractRuntime.SchemaVersion;
+  readonly id: GeneratedLogEntryId;
+  readonly timestamp: GeneratedLogTimestamp;
+  readonly level: GeneratedLogLevel;
+  readonly source: GeneratedLogSource;
+  readonly message: GeneratedLogMessage;
+  readonly fields: GeneratedLogFields;
 }
 
 export interface GeneratedAgentLogSnapshot {
-  schemaVersion: typeof LoggingContractRuntime.SchemaVersion;
-  agent: GeneratedAgentIdentity;
-  entries: GeneratedAgentLogEntry[];
+  readonly schemaVersion: typeof LoggingContractRuntime.SchemaVersion;
+  readonly agent: GeneratedAgentIdentity;
+  readonly entries: readonly GeneratedAgentLogEntry[];
 }
 
 export type GeneratedDevLogEntry = GeneratedAgentLogEntry;
 
 export interface GeneratedParentLogEvent {
-  schemaVersion: typeof LoggingContractRuntime.SchemaVersion;
-  id: GeneratedLogEntryId;
-  timestamp: GeneratedLogTimestamp;
-  level: GeneratedLogLevel;
-  source: GeneratedLogSource;
-  message: GeneratedLogMessage;
-  fields: GeneratedLogFields;
-  runId?: string;
-  laneId?: string;
-  commandId?: string;
-  correlationId?: string;
-  file?: string;
-  line?: number;
-  column?: number;
+  readonly schemaVersion: typeof LoggingContractRuntime.SchemaVersion;
+  readonly id: GeneratedLogEntryId;
+  readonly timestamp: GeneratedLogTimestamp;
+  readonly level: GeneratedLogLevel;
+  readonly source: GeneratedLogSource;
+  readonly message: GeneratedLogMessage;
+  readonly fields: GeneratedLogFields;
+  readonly runId?: string;
+  readonly laneId?: string;
+  readonly commandId?: string;
+  readonly correlationId?: string;
+  readonly file?: string;
+  readonly line?: number;
+  readonly column?: number;
 }
 
 export interface GeneratedLogSnapshot {
-  schemaVersion: typeof LoggingContractRuntime.SnapshotSchemaVersion;
-  status: GeneratedLogSnapshotState;
-  entries: GeneratedParentLogEvent[];
+  readonly schemaVersion: typeof LoggingContractRuntime.SnapshotSchemaVersion;
+  readonly status: GeneratedLogSnapshotState;
+  readonly entries: readonly GeneratedParentLogEvent[];
 }

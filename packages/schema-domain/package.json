@@ -1758,8 +1758,8 @@
       "types": "./dist/local-ai-text-llm-adapter-boundary-proof.d.ts"
     },
     "./generated/logging-contracts": {
-      "import": "./dist/generated/logging-contracts.js",
-      "types": "./dist/generated/logging-contracts.d.ts"
+      "import": "./dist/generated-logging-contracts.js",
+      "types": "./dist/generated-logging-contracts.d.ts"
     },
     "./generated/portal-contracts": {
       "import": "./dist/generated/portal-contracts.js",

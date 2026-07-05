@@ -138,7 +138,7 @@ fn log_snapshot_preserves_status_alias_and_defaults_entries() {
 #[test]
 fn generated_typescript_logging_contracts_stay_checked_in() {
     let checked_in =
-        include_str!("../../../../packages/schema-domain/src/generated/logging-contracts.ts");
+        include_str!("../../../../packages/schema-domain/src/generated-logging-contracts.ts");
     let generated = logging_contracts_typescript();
 
     assert_eq!(checked_in, generated);
@@ -326,8 +326,8 @@ fn logging_contracts_adapter_stays_thin_and_generated_backed() {
     assert_eq!(
         adapter
             .lines()
-            .find(|line| *line == "} from './generated/logging-contracts';"),
-        Some("} from './generated/logging-contracts';")
+            .find(|line| *line == "} from './generated-logging-contracts';"),
+        Some("} from './generated-logging-contracts';")
     );
     assert_eq!(adapter.lines().last(), Some("} as const;"));
 }
