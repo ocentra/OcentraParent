@@ -1601,26 +1601,6 @@
       "import": "./dist/text-social-ux.js",
       "types": "./dist/text-social-ux.d.ts"
     },
-    "./tracking-android-emulator-artifact-inventory-proof": {
-      "import": "./dist/tracking-android-emulator-artifact-inventory-proof.js",
-      "types": "./dist/tracking-android-emulator-artifact-inventory-proof.d.ts"
-    },
-    "./tracking-android-permission-background-proof": {
-      "import": "./dist/tracking-android-permission-background-proof.js",
-      "types": "./dist/tracking-android-permission-background-proof.d.ts"
-    },
-    "./tracking-android-physical-device-runtime-proof": {
-      "import": "./dist/tracking-android-physical-device-runtime-proof.js",
-      "types": "./dist/tracking-android-physical-device-runtime-proof.d.ts"
-    },
-    "./tracking-android-status-proof": {
-      "import": "./dist/tracking-android-status-proof.js",
-      "types": "./dist/tracking-android-status-proof.d.ts"
-    },
-    "./tracking-android-system-geofence-blocker-proof": {
-      "import": "./dist/tracking-android-system-geofence-blocker-proof.js",
-      "types": "./dist/tracking-android-system-geofence-blocker-proof.d.ts"
-    },
     "./tracking-authority-enrollment-manual-required-proof": {
       "import": "./dist/tracking-authority-enrollment-manual-required-proof.js",
       "types": "./dist/tracking-authority-enrollment-manual-required-proof.d.ts"
@@ -1740,18 +1720,6 @@
     "./tracking-hosted-storage-default-boundary-proof": {
       "import": "./dist/tracking-hosted-storage-default-boundary-proof.js",
       "types": "./dist/tracking-hosted-storage-default-boundary-proof.d.ts"
-    },
-    "./tracking-ios-location-manual-required-proof": {
-      "import": "./dist/tracking-ios-location-manual-required-proof.js",
-      "types": "./dist/tracking-ios-location-manual-required-proof.d.ts"
-    },
-    "./tracking-ios-privacy-disclosure-release-proof": {
-      "import": "./dist/tracking-ios-privacy-disclosure-release-proof.js",
-      "types": "./dist/tracking-ios-privacy-disclosure-release-proof.d.ts"
-    },
-    "./tracking-ios-simulator-artifact-inventory-proof": {
-      "import": "./dist/tracking-ios-simulator-artifact-inventory-proof.js",
-      "types": "./dist/tracking-ios-simulator-artifact-inventory-proof.d.ts"
     },
     "./tracking-local-execution-strategy-proof": {
       "import": "./dist/tracking-local-execution-strategy-proof.js",
@@ -1940,10 +1908,6 @@
     "./tracking-temporary-live-mode-proof": {
       "import": "./dist/tracking-temporary-live-mode-proof.js",
       "types": "./dist/tracking-temporary-live-mode-proof.d.ts"
-    },
-    "./tracking-unsupported-platform-manual-proof": {
-      "import": "./dist/tracking-unsupported-platform-manual-proof.js",
-      "types": "./dist/tracking-unsupported-platform-manual-proof.d.ts"
     },
     "./v0-8-enforcement-integrity-runtime-audit": {
       "import": "./dist/v0-8-enforcement-integrity-runtime-audit.js",
