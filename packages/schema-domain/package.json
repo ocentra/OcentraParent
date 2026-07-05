@@ -1669,22 +1669,6 @@
       "import": "./dist/tracking-family-dashboard-rollup-proof.js",
       "types": "./dist/tracking-family-dashboard-rollup-proof.d.ts"
     },
-    "./tracking-full-product-ui-local-runtime-artifact-capture-proof": {
-      "import": "./dist/tracking-full-product-ui-local-runtime-artifact-capture-proof.js",
-      "types": "./dist/tracking-full-product-ui-local-runtime-artifact-capture-proof.d.ts"
-    },
-    "./tracking-full-product-ui-readiness-blocker-proof": {
-      "import": "./dist/tracking-full-product-ui-readiness-blocker-proof.js",
-      "types": "./dist/tracking-full-product-ui-readiness-blocker-proof.d.ts"
-    },
-    "./tracking-full-product-ui-runtime-artifact-gate-proof": {
-      "import": "./dist/tracking-full-product-ui-runtime-artifact-gate-proof.js",
-      "types": "./dist/tracking-full-product-ui-runtime-artifact-gate-proof.d.ts"
-    },
-    "./tracking-full-product-ui-runtime-preflight-proof": {
-      "import": "./dist/tracking-full-product-ui-runtime-preflight-proof.js",
-      "types": "./dist/tracking-full-product-ui-runtime-preflight-proof.d.ts"
-    },
     "./tracking-geofence": {
       "import": "./dist/tracking-geofence.js",
       "types": "./dist/tracking-geofence.d.ts"
