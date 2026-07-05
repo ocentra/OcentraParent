@@ -717,38 +717,6 @@
       "import": "./dist/browser-extension-native-host-schemas.js",
       "types": "./dist/browser-extension-native-host-schemas.d.ts"
     },
-    "./browser-game-account-purchase-gate": {
-      "import": "./dist/browser-game-account-purchase-gate.js",
-      "types": "./dist/browser-game-account-purchase-gate.d.ts"
-    },
-    "./browser-game-account-purchase-gate-values": {
-      "import": "./dist/browser-game-account-purchase-gate-values.js",
-      "types": "./dist/browser-game-account-purchase-gate-values.d.ts"
-    },
-    "./browser-game-android-ios-capability-matrix": {
-      "import": "./dist/browser-game-android-ios-capability-matrix.js",
-      "types": "./dist/browser-game-android-ios-capability-matrix.d.ts"
-    },
-    "./browser-game-android-ios-capability-matrix-values": {
-      "import": "./dist/browser-game-android-ios-capability-matrix-values.js",
-      "types": "./dist/browser-game-android-ios-capability-matrix-values.d.ts"
-    },
-    "./browser-game-dashboard-ux": {
-      "import": "./dist/browser-game-dashboard-ux.js",
-      "types": "./dist/browser-game-dashboard-ux.d.ts"
-    },
-    "./browser-game-dashboard-ux-values": {
-      "import": "./dist/browser-game-dashboard-ux-values.js",
-      "types": "./dist/browser-game-dashboard-ux-values.d.ts"
-    },
-    "./browser-game-hidden-analysis-profile-safety": {
-      "import": "./dist/browser-game-hidden-analysis-profile-safety.js",
-      "types": "./dist/browser-game-hidden-analysis-profile-safety.d.ts"
-    },
-    "./browser-game-hidden-analysis-profile-safety-values": {
-      "import": "./dist/browser-game-hidden-analysis-profile-safety-values.js",
-      "types": "./dist/browser-game-hidden-analysis-profile-safety-values.d.ts"
-    },
     "./browser-game-platform-route-contract-values": {
       "import": "./dist/browser-game-platform-route-contract-values.js",
       "types": "./dist/browser-game-platform-route-contract-values.d.ts"
@@ -760,30 +728,6 @@
     "./browser-game-policy-compiler-values": {
       "import": "./dist/browser-game-policy-compiler-values.js",
       "types": "./dist/browser-game-policy-compiler-values.d.ts"
-    },
-    "./browser-game-portal-pattern-library": {
-      "import": "./dist/browser-game-portal-pattern-library.js",
-      "types": "./dist/browser-game-portal-pattern-library.d.ts"
-    },
-    "./browser-game-portal-pattern-library-values": {
-      "import": "./dist/browser-game-portal-pattern-library-values.js",
-      "types": "./dist/browser-game-portal-pattern-library-values.d.ts"
-    },
-    "./browser-game-runtime-signal-detector": {
-      "import": "./dist/browser-game-runtime-signal-detector.js",
-      "types": "./dist/browser-game-runtime-signal-detector.d.ts"
-    },
-    "./browser-game-runtime-signal-detector-values": {
-      "import": "./dist/browser-game-runtime-signal-detector-values.js",
-      "types": "./dist/browser-game-runtime-signal-detector-values.d.ts"
-    },
-    "./browser-game-ugc-multiplayer-chat-risk": {
-      "import": "./dist/browser-game-ugc-multiplayer-chat-risk.js",
-      "types": "./dist/browser-game-ugc-multiplayer-chat-risk.d.ts"
-    },
-    "./browser-game-ugc-multiplayer-chat-risk-values": {
-      "import": "./dist/browser-game-ugc-multiplayer-chat-risk-values.js",
-      "types": "./dist/browser-game-ugc-multiplayer-chat-risk-values.d.ts"
     },
     "./browser-game-url-shape-parser": {
       "import": "./dist/browser-game-url-shape-parser.js",
