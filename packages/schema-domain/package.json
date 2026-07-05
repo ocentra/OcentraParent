@@ -989,10 +989,6 @@
       "import": "./dist/browser-url-metadata-schemas.js",
       "types": "./dist/browser-url-metadata-schemas.d.ts"
     },
-    "./browser-values": {
-      "import": "./dist/browser-values.js",
-      "types": "./dist/browser-values.d.ts"
-    },
     "./browser-video-metadata": {
       "import": "./dist/browser-video-metadata.js",
       "types": "./dist/browser-video-metadata.d.ts"
@@ -1105,14 +1101,6 @@
       "import": "./dist/endpoint-constants.js",
       "types": "./dist/endpoint-constants.d.ts"
     },
-    "./endpoint-lan-pairing": {
-      "import": "./dist/endpoint-lan-pairing.js",
-      "types": "./dist/endpoint-lan-pairing.d.ts"
-    },
-    "./endpoint-sync-export": {
-      "import": "./dist/endpoint-sync-export.js",
-      "types": "./dist/endpoint-sync-export.d.ts"
-    },
     "./enforcement": {
       "import": "./dist/enforcement.js",
       "types": "./dist/enforcement.d.ts"
@@ -1149,10 +1137,6 @@
       "import": "./dist/evidence-contracts.js",
       "types": "./dist/evidence-contracts.d.ts"
     },
-    "./evidence-custody-contracts": {
-      "import": "./dist/evidence-custody-contracts.js",
-      "types": "./dist/evidence-custody-contracts.d.ts"
-    },
     "./evidence-kinds": {
       "import": "./dist/evidence-kinds.js",
       "types": "./dist/evidence-kinds.d.ts"
@@ -1160,10 +1144,6 @@
     "./evidence-primitives": {
       "import": "./dist/evidence-primitives.js",
       "types": "./dist/evidence-primitives.d.ts"
-    },
-    "./family-child-profile": {
-      "import": "./dist/family-child-profile.js",
-      "types": "./dist/family-child-profile.d.ts"
     },
     "./family-household-authority": {
       "import": "./dist/family-household-authority.js",
