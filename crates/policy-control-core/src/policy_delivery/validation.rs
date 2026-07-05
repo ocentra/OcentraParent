@@ -1,0 +1,61 @@
+#![forbid(unsafe_code)]
+
+use std::collections::BTreeSet;
+
+use super::{
+    EventingError, PolicyAuditReferenceId, PolicyDeliveryRecord, PolicyDeliveryTransition,
+    PolicyVersion, SchemaVersion, POLICY_DELIVERY_SCHEMA_VERSION_VALUE, policy_control,
+    state_context,
+};
+
+pub(super) fn policy_delivery_schema_version() -> Result<SchemaVersion, EventingError> {
+    SchemaVersion::new(POLICY_DELIVERY_SCHEMA_VERSION_VALUE)
+}
+
+pub(super) fn validate_policy_delivery_record(
+    record: &PolicyDeliveryRecord,
+) -> Result<(), EventingError> {
+    assert_audit_refs(&record.audit_reference_ids)?;
+    state_context::assert_state_context(
+        record.state,
+        record.reason_code.as_ref(),
+        record.superseded_by_policy_version,
+        record.rollback_reference_state,
+        record.policy_version,
+    )
+}
+
+pub(super) fn validate_policy_delivery_transition(
+    transition: &PolicyDeliveryTransition,
+    current_policy_version: PolicyVersion,
+) -> Result<(), EventingError> {
+    assert_audit_refs(&transition.audit_reference_ids)?;
+    state_context::assert_state_context(
+        transition.state,
+        transition.reason_code.as_ref(),
+        transition.superseded_by_policy_version,
+        transition.rollback_reference_state,
+        current_policy_version,
+    )
+}
+
+fn assert_audit_refs(audit_reference_ids: &[PolicyAuditReferenceId]) -> Result<(), EventingError> {
+    if audit_reference_ids.is_empty() {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::delivery::FIELD_AUDIT_REFERENCE_IDS,
+            value: policy_control::delivery::VALUE_MISSING_AUDIT_REFERENCES.to_string(),
+        });
+    }
+
+    let mut seen = BTreeSet::new();
+    for audit_reference_id in audit_reference_ids {
+        if !seen.insert(audit_reference_id.clone()) {
+            return Err(EventingError::InvalidValue {
+                field: policy_control::delivery::FIELD_AUDIT_REFERENCE_IDS,
+                value: audit_reference_id.as_str().to_string(),
+            });
+        }
+    }
+
+    Ok(())
+}
