@@ -1,4 +1,3 @@
-import path from 'node:path';
 import {
   GeneratedDevLogBridge as DevLogBridge,
   type GeneratedLogLevel as LogLevelValue,
@@ -35,7 +34,7 @@ function defaultEnv(): NodeJS.ProcessEnv | Record<string, string | undefined> {
 }
 
 export function normalizeDebugPath(value: string): string {
-  return normalizeGeneratedDebugPath(path.normalize(value));
+  return normalizeGeneratedDebugPath(value);
 }
 
 export function isLevelAtOrAbove(level: LogLevelValue, minLevel: LogLevelValue): boolean {
