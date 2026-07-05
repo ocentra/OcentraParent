@@ -593,14 +593,6 @@
       "import": "./dist/billing-invoice-tax-refund-dispute-values.js",
       "types": "./dist/billing-invoice-tax-refund-dispute-values.d.ts"
     },
-    "./billing-pricing-matrix": {
-      "import": "./dist/billing-pricing-matrix.js",
-      "types": "./dist/billing-pricing-matrix.d.ts"
-    },
-    "./billing-pricing-matrix-proof": {
-      "import": "./dist/billing-pricing-matrix-proof.js",
-      "types": "./dist/billing-pricing-matrix-proof.d.ts"
-    },
     "./billing-referral-boundary": {
       "import": "./dist/billing-referral-boundary.js",
       "types": "./dist/billing-referral-boundary.d.ts"
