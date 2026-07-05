@@ -10,18 +10,18 @@ import {
   ParentEvidenceReferenceSchema,
 } from './family-references';
 import {
-  ChildProfileId as ChildProfileIdType,
-  FamilyId as FamilyIdType,
-  ParentAccountId as ParentAccountIdType,
-  ParentActionReferenceId as ParentActionReferenceIdType,
-  ParentActorId as ParentActorIdType,
-  ParentDeviceId as ParentDeviceIdType,
-  ParentDeviceLabel as ParentDeviceLabelType,
-  ParentEvidenceReferenceId as ParentEvidenceReferenceIdType,
-  ParentPolicyVersion as ParentPolicyVersionType,
-  ParentTimestamp as ParentTimestampType,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
+  type ChildProfileId as ChildProfileIdType,
+  type FamilyId as FamilyIdType,
+  type ParentAccountId as ParentAccountIdType,
+  type ParentActionReferenceId as ParentActionReferenceIdType,
+  type ParentActorId as ParentActorIdType,
+  type ParentDeviceId as ParentDeviceIdType,
+  type ParentDeviceLabel as ParentDeviceLabelType,
+  type ParentEvidenceReferenceId as ParentEvidenceReferenceIdType,
+  type ParentPolicyVersion as ParentPolicyVersionType,
+  type ParentTimestamp as ParentTimestampType,
 } from './family-reference-primitives';
 import {
   GeneratedReportQueryCustodyContractProof,

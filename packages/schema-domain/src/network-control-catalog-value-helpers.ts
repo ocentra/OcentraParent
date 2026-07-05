@@ -5,7 +5,12 @@ import {
   type NetworkControlCatalogOptionSeed,
 } from './network-control-catalog-data';
 import { slugToken, titleFromToken } from './network-control-catalog-metadata';
-import { NetworkControlKind, NetworkControlOption, NetworkControlOptionIdSchema, NetworkControlSettingIdSchema } from './network-control-catalog-schema';
+import {
+  NetworkControlOptionIdSchema,
+  NetworkControlSettingIdSchema,
+  type NetworkControlKind,
+  type NetworkControlOption,
+} from './network-control-catalog-schema';
 
 export const NetworkControlTargetScopeOptions = optionLabels('network-control.target-scope', [
   ...NetworkControlCatalogTargetScopeLabels,

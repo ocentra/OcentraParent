@@ -1,10 +1,11 @@
+import type * as EffectSchema from 'effect/Schema';
 import { Schema } from '@ocentra-parent/schema-domain/effect';
 
-export function nonEmptyArraySchema(itemSchema: any, message: string) {
+export function nonEmptyArraySchema<S extends EffectSchema.Schema.AnyNoContext>(itemSchema: S, message: string) {
   return Schema.Array(itemSchema).pipe(Schema.filter((value) => value.length > 0 || message));
 }
 
-export function optionalSchema(schema: any) {
+export function optionalSchema<S extends EffectSchema.Schema.AnyNoContext>(schema: S) {
   return Schema.Union(schema, Schema.Null);
 }
 

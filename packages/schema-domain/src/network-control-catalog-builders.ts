@@ -20,10 +20,6 @@ import {
 } from './network-control-catalog-metadata';
 import {
   NetworkControlCardKindSchema,
-  NetworkControlCatalogGroup,
-  NetworkControlCatalogSection,
-  NetworkControlCatalogSetting,
-  NetworkControlCatalogTab,
   NetworkControlEffectStatusSchema,
   NetworkControlGroupIdSchema,
   NetworkControlKindSchema,
@@ -32,6 +28,10 @@ import {
   NetworkControlSettingIdSchema,
   NetworkControlUiTabSchema,
   NetworkControlWritesToPathSchema,
+  type NetworkControlCatalogGroup,
+  type NetworkControlCatalogSection,
+  type NetworkControlCatalogSetting,
+  type NetworkControlCatalogTab,
 } from './network-control-catalog-schema';
 import {
   enabledConditionsFor,

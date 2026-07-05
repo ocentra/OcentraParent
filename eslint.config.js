@@ -129,6 +129,16 @@ const standardConfig = tseslint.config(
     },
   },
   {
+    files: ['packages/schema-domain/src/generated/**/*.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': 'off',
+      complexity: 'off',
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
+      'ocentra-parent/no-naked-domain-string-types': 'off',
+    },
+  },
+  {
     files: [
       'packages/schema-domain/src/browser-control-full-catalog-data-*.ts',
       'packages/schema-domain/src/network-control-catalog-data.ts',
