@@ -1253,22 +1253,6 @@
       "import": "./dist/parent-assistant-run-state.js",
       "types": "./dist/parent-assistant-run-state.d.ts"
     },
-    "./parent-desktop-release-support": {
-      "import": "./dist/parent-desktop-release-support.js",
-      "types": "./dist/parent-desktop-release-support.d.ts"
-    },
-    "./parent-desktop-release-support-guards": {
-      "import": "./dist/parent-desktop-release-support-guards.js",
-      "types": "./dist/parent-desktop-release-support-guards.d.ts"
-    },
-    "./parent-desktop-release-support-incident": {
-      "import": "./dist/parent-desktop-release-support-incident.js",
-      "types": "./dist/parent-desktop-release-support-incident.d.ts"
-    },
-    "./parent-desktop-release-support-incident-guards": {
-      "import": "./dist/parent-desktop-release-support-incident-guards.js",
-      "types": "./dist/parent-desktop-release-support-incident-guards.d.ts"
-    },
     "./parent-owned-sync-export": {
       "import": "./dist/parent-owned-sync-export.js",
       "types": "./dist/parent-owned-sync-export.d.ts"
