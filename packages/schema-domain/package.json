@@ -921,10 +921,6 @@
       "import": "./dist/effect.js",
       "types": "./dist/effect.d.ts"
     },
-    "./endpoint-billing-account": {
-      "import": "./dist/endpoint-billing-account.js",
-      "types": "./dist/endpoint-billing-account.d.ts"
-    },
     "./endpoint-brands": {
       "import": "./dist/endpoint-brands.js",
       "types": "./dist/endpoint-brands.d.ts"
@@ -944,10 +940,6 @@
     "./enforcement-policy-dispatch": {
       "import": "./dist/enforcement-policy-dispatch.js",
       "types": "./dist/enforcement-policy-dispatch.d.ts"
-    },
-    "./enforcement-process-package-identity": {
-      "import": "./dist/enforcement-process-package-identity.js",
-      "types": "./dist/enforcement-process-package-identity.d.ts"
     },
     "./enforcement-proof-shape": {
       "import": "./dist/enforcement-proof-shape.js",
@@ -992,10 +984,6 @@
     "./family-restore-lifecycle": {
       "import": "./dist/family-restore-lifecycle.js",
       "types": "./dist/family-restore-lifecycle.d.ts"
-    },
-    "./family-session-lifecycle": {
-      "import": "./dist/family-session-lifecycle.js",
-      "types": "./dist/family-session-lifecycle.d.ts"
     },
     "./family-setup-bridge": {
       "import": "./dist/family-setup-bridge.js",
@@ -1184,10 +1172,6 @@
     "./network-remote-delivery-status": {
       "import": "./dist/network-remote-delivery-status.js",
       "types": "./dist/network-remote-delivery-status.d.ts"
-    },
-    "./network-runtime-events": {
-      "import": "./dist/network-runtime-events.js",
-      "types": "./dist/network-runtime-events.d.ts"
     },
     "./notification-audit-history": {
       "import": "./dist/notification-audit-history.js",
@@ -1460,10 +1444,6 @@
     "./setup-readiness": {
       "import": "./dist/setup-readiness.js",
       "types": "./dist/setup-readiness.d.ts"
-    },
-    "./setup-state-machine": {
-      "import": "./dist/setup-state-machine.js",
-      "types": "./dist/setup-state-machine.d.ts"
     },
     "./social-alert-report-intent": {
       "import": "./dist/social-alert-report-intent.js",
