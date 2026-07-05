@@ -941,38 +941,6 @@
       "import": "./dist/browser-game-hidden-analysis-profile-safety-values.js",
       "types": "./dist/browser-game-hidden-analysis-profile-safety-values.d.ts"
     },
-    "./browser-game-hold-block-adapter": {
-      "import": "./dist/browser-game-hold-block-adapter.js",
-      "types": "./dist/browser-game-hold-block-adapter.d.ts"
-    },
-    "./browser-game-hold-block-adapter-guards": {
-      "import": "./dist/browser-game-hold-block-adapter-guards.js",
-      "types": "./dist/browser-game-hold-block-adapter-guards.d.ts"
-    },
-    "./browser-game-hold-block-adapter-values": {
-      "import": "./dist/browser-game-hold-block-adapter-values.js",
-      "types": "./dist/browser-game-hold-block-adapter-values.d.ts"
-    },
-    "./browser-game-journal-sqlite-read-model": {
-      "import": "./dist/browser-game-journal-sqlite-read-model.js",
-      "types": "./dist/browser-game-journal-sqlite-read-model.d.ts"
-    },
-    "./browser-game-journal-sqlite-read-model-guards": {
-      "import": "./dist/browser-game-journal-sqlite-read-model-guards.js",
-      "types": "./dist/browser-game-journal-sqlite-read-model-guards.d.ts"
-    },
-    "./browser-game-journal-sqlite-read-model-values": {
-      "import": "./dist/browser-game-journal-sqlite-read-model-values.js",
-      "types": "./dist/browser-game-journal-sqlite-read-model-values.d.ts"
-    },
-    "./browser-game-memory-cache": {
-      "import": "./dist/browser-game-memory-cache.js",
-      "types": "./dist/browser-game-memory-cache.d.ts"
-    },
-    "./browser-game-memory-cache-values": {
-      "import": "./dist/browser-game-memory-cache-values.js",
-      "types": "./dist/browser-game-memory-cache-values.d.ts"
-    },
     "./browser-game-metadata-extractor": {
       "import": "./dist/browser-game-metadata-extractor.js",
       "types": "./dist/browser-game-metadata-extractor.d.ts"
@@ -1004,14 +972,6 @@
     "./browser-game-portal-pattern-library-values": {
       "import": "./dist/browser-game-portal-pattern-library-values.js",
       "types": "./dist/browser-game-portal-pattern-library-values.d.ts"
-    },
-    "./browser-game-riskbenefit-signal": {
-      "import": "./dist/browser-game-riskbenefit-signal.js",
-      "types": "./dist/browser-game-riskbenefit-signal.d.ts"
-    },
-    "./browser-game-riskbenefit-signal-values": {
-      "import": "./dist/browser-game-riskbenefit-signal-values.js",
-      "types": "./dist/browser-game-riskbenefit-signal-values.d.ts"
     },
     "./browser-game-runtime-signal-detector": {
       "import": "./dist/browser-game-runtime-signal-detector.js",
