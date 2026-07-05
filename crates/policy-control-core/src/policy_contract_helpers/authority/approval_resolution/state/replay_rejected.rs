@@ -5,7 +5,9 @@ use super::super::super::{
     PolicyContractValidationResult,
 };
 
-pub(crate) fn validate(resolution: &PolicyContractApprovalResolution) -> PolicyContractValidationResult {
+pub(crate) fn validate(
+    resolution: &PolicyContractApprovalResolution,
+) -> PolicyContractValidationResult {
     if resolution.replay_of_approval_id.is_none() {
         return Err("replay-rejected state requires replayOfApprovalId".into());
     }

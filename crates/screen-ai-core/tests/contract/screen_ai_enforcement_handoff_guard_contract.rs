@@ -1,7 +1,8 @@
 use ocentra_screen_ai_core::screen_ai_enforcement_handoff_guard::screen_ai_enforcement_handoff_guard_generated_typescript;
 
 #[test]
-fn screen_ai_enforcement_handoff_guard_contract_stays_rust_owned_and_replaces_schema_domain_owner() {
+fn screen_ai_enforcement_handoff_guard_contract_stays_rust_owned_and_replaces_schema_domain_owner()
+{
     let source = screen_ai_enforcement_handoff_guard_generated_typescript();
 
     assert_eq!(

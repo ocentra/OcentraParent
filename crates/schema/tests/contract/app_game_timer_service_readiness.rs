@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::support::{ContractNames, assert_exports_include};
+use crate::support::{assert_exports_include, ContractNames};
 use ocentra_schema::app_game_timer_service_readiness::APP_GAME_TIMER_SERVICE_READINESS_GENERATED_MARKER;
 use ocentra_schema::app_game_timer_service_readiness_ts::{
     app_game_timer_service_readiness_rules_typescript,
@@ -41,7 +41,10 @@ fn generated_typescript_app_game_timer_service_readiness_values_stay_checked_in(
         ]
         .map(str::to_owned))),
     );
-    assert_eq!(APP_GAME_TIMER_SERVICE_READINESS_GENERATED_MARKER, "app-game-timer-service-readiness");
+    assert_eq!(
+        APP_GAME_TIMER_SERVICE_READINESS_GENERATED_MARKER,
+        "app-game-timer-service-readiness"
+    );
 }
 
 #[test]

@@ -1,9 +1,47 @@
 #![forbid(unsafe_code)]
 
 use super::{
-    EventingError, PolicyDeliveryState, PolicyReasonCode, PolicyVersion, policy_control,
-    state_values,
+    policy_control, state_values, EventingError, PolicyDeliveryState, PolicyReasonCode,
+    PolicyVersion,
 };
+
+mod reason;
+mod rollback;
+mod superseded;
+
+const ROLLED_BACK_REFERENCE_STATES: &[PolicyDeliveryState] = &[
+    PolicyDeliveryState::Delivered,
+    PolicyDeliveryState::Acknowledged,
+    PolicyDeliveryState::Applied,
+    PolicyDeliveryState::PartialDomainApply,
+    PolicyDeliveryState::Degraded,
+    PolicyDeliveryState::Offline,
+];
+
+#[derive(Clone, Copy)]
+enum ReasonRule {
+    MustBeAbsent,
+    Required,
+}
+
+#[derive(Clone, Copy)]
+enum SupersededRule {
+    MustBeAbsent,
+    RequiredNewerThanCurrent,
+}
+
+#[derive(Clone, Copy)]
+enum RollbackRule {
+    MustBeAbsent,
+    RequiredFrom(&'static [PolicyDeliveryState]),
+}
+
+#[derive(Clone, Copy)]
+struct StateContextRule {
+    reason: ReasonRule,
+    superseded: SupersededRule,
+    rollback: RollbackRule,
+}
 
 pub(super) fn assert_state_context(
     state: PolicyDeliveryState,
@@ -12,17 +50,28 @@ pub(super) fn assert_state_context(
     rollback_reference_state: Option<PolicyDeliveryState>,
     current_policy_version: PolicyVersion,
 ) -> Result<(), EventingError> {
+    let rule = state_context_rule(state);
+    validate_reason(reason_code, state, rule.reason)?;
+    validate_superseded(
+        superseded_by_policy_version,
+        state,
+        current_policy_version,
+        rule.superseded,
+    )?;
+    validate_rollback(rollback_reference_state, state, rule.rollback)
+}
+
+fn state_context_rule(state: PolicyDeliveryState) -> StateContextRule {
     match state {
         PolicyDeliveryState::Queued
         | PolicyDeliveryState::Delivering
         | PolicyDeliveryState::Delivered
         | PolicyDeliveryState::Acknowledged
-        | PolicyDeliveryState::Applied => assert_clear_state_context(
-            reason_code,
-            superseded_by_policy_version,
-            rollback_reference_state,
-            state,
-        ),
+        | PolicyDeliveryState::Applied => StateContextRule {
+            reason: ReasonRule::MustBeAbsent,
+            superseded: SupersededRule::MustBeAbsent,
+            rollback: RollbackRule::MustBeAbsent,
+        },
         PolicyDeliveryState::Rejected
         | PolicyDeliveryState::Degraded
         | PolicyDeliveryState::Offline
@@ -31,180 +80,50 @@ pub(super) fn assert_state_context(
         | PolicyDeliveryState::PartialDomainApply
         | PolicyDeliveryState::BlockedByPermission
         | PolicyDeliveryState::BlockedByCapability
-        | PolicyDeliveryState::ManualRequired => assert_reason_required_state_context(
-            reason_code,
-            superseded_by_policy_version,
-            rollback_reference_state,
-            state,
-        ),
-        PolicyDeliveryState::Superseded => assert_superseded_state_context(
-            reason_code,
-            superseded_by_policy_version,
-            rollback_reference_state,
-            current_policy_version,
-            state,
-        ),
-        PolicyDeliveryState::RolledBack => assert_rolled_back_state_context(
-            reason_code,
-            superseded_by_policy_version,
-            rollback_reference_state,
-            state,
-        ),
+        | PolicyDeliveryState::ManualRequired => StateContextRule {
+            reason: ReasonRule::Required,
+            superseded: SupersededRule::MustBeAbsent,
+            rollback: RollbackRule::MustBeAbsent,
+        },
+        PolicyDeliveryState::Superseded => StateContextRule {
+            reason: ReasonRule::MustBeAbsent,
+            superseded: SupersededRule::RequiredNewerThanCurrent,
+            rollback: RollbackRule::MustBeAbsent,
+        },
+        PolicyDeliveryState::RolledBack => StateContextRule {
+            reason: ReasonRule::Required,
+            superseded: SupersededRule::MustBeAbsent,
+            rollback: RollbackRule::RequiredFrom(ROLLED_BACK_REFERENCE_STATES),
+        },
     }
 }
 
-fn assert_clear_state_context(
+fn validate_reason(
     reason_code: Option<&PolicyReasonCode>,
-    superseded_by_policy_version: Option<PolicyVersion>,
-    rollback_reference_state: Option<PolicyDeliveryState>,
     state: PolicyDeliveryState,
+    rule: ReasonRule,
 ) -> Result<(), EventingError> {
-    if let Some(reason_code) = reason_code {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_REASON_CODE,
-            value: state_values::unexpected_reason_code_value(reason_code, state),
-        });
-    }
-    if let Some(superseded_by_policy_version) = superseded_by_policy_version {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_SUPERSEDED_BY_POLICY_VERSION,
-            value: state_values::unexpected_replacement_policy_version_value(
-                superseded_by_policy_version,
-                state,
-            ),
-        });
-    }
-    if let Some(rollback_reference_state) = rollback_reference_state {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
-            value: state_values::unexpected_rollback_reference_state_value(
-                rollback_reference_state,
-                state,
-            ),
-        });
-    }
-
-    Ok(())
+    reason::validate(reason_code, state, rule)
 }
 
-fn assert_reason_required_state_context(
-    reason_code: Option<&PolicyReasonCode>,
+fn validate_superseded(
     superseded_by_policy_version: Option<PolicyVersion>,
-    rollback_reference_state: Option<PolicyDeliveryState>,
     state: PolicyDeliveryState,
-) -> Result<(), EventingError> {
-    if reason_code.is_none() {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_REASON_CODE,
-            value: state_values::missing_reason_code_value(state),
-        });
-    }
-    if let Some(superseded_by_policy_version) = superseded_by_policy_version {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_SUPERSEDED_BY_POLICY_VERSION,
-            value: state_values::unexpected_replacement_policy_version_value(
-                superseded_by_policy_version,
-                state,
-            ),
-        });
-    }
-    if let Some(rollback_reference_state) = rollback_reference_state {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
-            value: state_values::unexpected_rollback_reference_state_value(
-                rollback_reference_state,
-                state,
-            ),
-        });
-    }
-
-    Ok(())
-}
-
-fn assert_superseded_state_context(
-    reason_code: Option<&PolicyReasonCode>,
-    superseded_by_policy_version: Option<PolicyVersion>,
-    rollback_reference_state: Option<PolicyDeliveryState>,
     current_policy_version: PolicyVersion,
-    state: PolicyDeliveryState,
+    rule: SupersededRule,
 ) -> Result<(), EventingError> {
-    if let Some(reason_code) = reason_code {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_REASON_CODE,
-            value: state_values::unexpected_reason_code_value(reason_code, state),
-        });
-    }
-    if let Some(rollback_reference_state) = rollback_reference_state {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
-            value: state_values::unexpected_rollback_reference_state_value(
-                rollback_reference_state,
-                state,
-            ),
-        });
-    }
-
-    let superseded_by_policy_version =
-        superseded_by_policy_version.ok_or_else(|| EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_SUPERSEDED_BY_POLICY_VERSION,
-            value: state_values::missing_replacement_policy_version_value(state),
-        })?;
-
-    if superseded_by_policy_version.value() <= current_policy_version.value() {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_SUPERSEDED_BY_POLICY_VERSION,
-            value: state_values::replacement_policy_version_must_be_newer_value(
-                superseded_by_policy_version,
-                current_policy_version,
-            ),
-        });
-    }
-
-    Ok(())
+    superseded::validate(
+        superseded_by_policy_version,
+        state,
+        current_policy_version,
+        rule,
+    )
 }
 
-fn assert_rolled_back_state_context(
-    reason_code: Option<&PolicyReasonCode>,
-    superseded_by_policy_version: Option<PolicyVersion>,
+fn validate_rollback(
     rollback_reference_state: Option<PolicyDeliveryState>,
     state: PolicyDeliveryState,
+    rule: RollbackRule,
 ) -> Result<(), EventingError> {
-    if reason_code.is_none() {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_REASON_CODE,
-            value: state_values::missing_reason_code_value(state),
-        });
-    }
-    if let Some(superseded_by_policy_version) = superseded_by_policy_version {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_SUPERSEDED_BY_POLICY_VERSION,
-            value: state_values::unexpected_replacement_policy_version_value(
-                superseded_by_policy_version,
-                state,
-            ),
-        });
-    }
-
-    let rollback_reference_state =
-        rollback_reference_state.ok_or_else(|| EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
-            value: state_values::missing_rollback_reference_state_value(state),
-        })?;
-
-    if !matches!(
-        rollback_reference_state,
-        PolicyDeliveryState::Delivered
-            | PolicyDeliveryState::Acknowledged
-            | PolicyDeliveryState::Applied
-            | PolicyDeliveryState::PartialDomainApply
-            | PolicyDeliveryState::Degraded
-            | PolicyDeliveryState::Offline
-    ) {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
-            value: state_values::policy_delivery_state_name(rollback_reference_state).to_string(),
-        });
-    }
-
-    Ok(())
+    rollback::validate(rollback_reference_state, state, rule)
 }

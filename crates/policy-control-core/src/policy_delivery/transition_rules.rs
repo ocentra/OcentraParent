@@ -158,24 +158,53 @@ const BLOCKED_TRANSITIONS: &[PolicyDeliveryState] = &[
     PolicyDeliveryState::ManualRequired,
 ];
 
+const REJECTED_TRANSITIONS: &[PolicyDeliveryState] = &[PolicyDeliveryState::Superseded];
+const SUPERSEDED_TRANSITIONS: &[PolicyDeliveryState] = &[];
+const ROLLED_BACK_TRANSITIONS: &[PolicyDeliveryState] = &[PolicyDeliveryState::Superseded];
+const EXPIRED_TRANSITIONS: &[PolicyDeliveryState] = &[PolicyDeliveryState::Superseded];
+
+const TRANSITION_RULES: &[(PolicyDeliveryState, &[PolicyDeliveryState])] = &[
+    (PolicyDeliveryState::Queued, QUEUED_TRANSITIONS),
+    (PolicyDeliveryState::Delivering, DELIVERING_TRANSITIONS),
+    (PolicyDeliveryState::Delivered, DELIVERED_TRANSITIONS),
+    (PolicyDeliveryState::Acknowledged, ACKNOWLEDGED_TRANSITIONS),
+    (PolicyDeliveryState::Applied, APPLIED_TRANSITIONS),
+    (PolicyDeliveryState::Rejected, REJECTED_TRANSITIONS),
+    (PolicyDeliveryState::Superseded, SUPERSEDED_TRANSITIONS),
+    (PolicyDeliveryState::RolledBack, ROLLED_BACK_TRANSITIONS),
+    (PolicyDeliveryState::Degraded, DEGRADED_TRANSITIONS),
+    (PolicyDeliveryState::Offline, OFFLINE_TRANSITIONS),
+    (
+        PolicyDeliveryState::ExpiredBeforeDelivery,
+        EXPIRED_TRANSITIONS,
+    ),
+    (
+        PolicyDeliveryState::RetryScheduled,
+        RETRY_SCHEDULED_TRANSITIONS,
+    ),
+    (
+        PolicyDeliveryState::PartialDomainApply,
+        PARTIAL_DOMAIN_TRANSITIONS,
+    ),
+    (
+        PolicyDeliveryState::BlockedByPermission,
+        BLOCKED_TRANSITIONS,
+    ),
+    (
+        PolicyDeliveryState::BlockedByCapability,
+        BLOCKED_TRANSITIONS,
+    ),
+    (PolicyDeliveryState::ManualRequired, BLOCKED_TRANSITIONS),
+];
+
 pub(super) fn transition_allowed(current: PolicyDeliveryState, next: PolicyDeliveryState) -> bool {
-    current == next
-        || match current {
-            PolicyDeliveryState::Queued => QUEUED_TRANSITIONS.contains(&next),
-            PolicyDeliveryState::Delivering => DELIVERING_TRANSITIONS.contains(&next),
-            PolicyDeliveryState::Delivered => DELIVERED_TRANSITIONS.contains(&next),
-            PolicyDeliveryState::Acknowledged => ACKNOWLEDGED_TRANSITIONS.contains(&next),
-            PolicyDeliveryState::Applied => APPLIED_TRANSITIONS.contains(&next),
-            PolicyDeliveryState::Rejected => next == PolicyDeliveryState::Superseded,
-            PolicyDeliveryState::Superseded => false,
-            PolicyDeliveryState::RolledBack => next == PolicyDeliveryState::Superseded,
-            PolicyDeliveryState::Degraded => DEGRADED_TRANSITIONS.contains(&next),
-            PolicyDeliveryState::Offline => OFFLINE_TRANSITIONS.contains(&next),
-            PolicyDeliveryState::ExpiredBeforeDelivery => next == PolicyDeliveryState::Superseded,
-            PolicyDeliveryState::RetryScheduled => RETRY_SCHEDULED_TRANSITIONS.contains(&next),
-            PolicyDeliveryState::PartialDomainApply => PARTIAL_DOMAIN_TRANSITIONS.contains(&next),
-            PolicyDeliveryState::BlockedByPermission
-            | PolicyDeliveryState::BlockedByCapability
-            | PolicyDeliveryState::ManualRequired => BLOCKED_TRANSITIONS.contains(&next),
-        }
+    current == next || allowed_transitions(current).contains(&next)
+}
+
+fn allowed_transitions(current: PolicyDeliveryState) -> &'static [PolicyDeliveryState] {
+    TRANSITION_RULES
+        .iter()
+        .find(|(state, _)| *state == current)
+        .map(|(_, transitions)| *transitions)
+        .expect("every policy delivery state must define transition rules")
 }

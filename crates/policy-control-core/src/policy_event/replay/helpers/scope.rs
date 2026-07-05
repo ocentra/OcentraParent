@@ -27,23 +27,17 @@ pub(crate) fn sample_policy_event_scope(
         | PolicyEventKind::CompilerCompleted
         | PolicyEventKind::AuditRecorded
         | PolicyEventKind::DeadLetterRecorded
-        | PolicyEventKind::ManualRequired => build_source_document_scope(
-            household_id,
-            source_document_id,
-            policy_version,
-        ),
+        | PolicyEventKind::ManualRequired => {
+            build_source_document_scope(household_id, source_document_id, policy_version)
+        }
         PolicyEventKind::AskParentRequested
         | PolicyEventKind::AskParentApproved
-        | PolicyEventKind::AskParentDenied => build_request_scope(
-            household_id,
-            source_document_id,
-            policy_version,
-        ),
-        PolicyEventKind::OverrideCreated | PolicyEventKind::OverrideExpired => build_override_scope(
-            household_id,
-            source_document_id,
-            policy_version,
-        ),
+        | PolicyEventKind::AskParentDenied => {
+            build_request_scope(household_id, source_document_id, policy_version)
+        }
+        PolicyEventKind::OverrideCreated | PolicyEventKind::OverrideExpired => {
+            build_override_scope(household_id, source_document_id, policy_version)
+        }
         PolicyEventKind::DeliveryQueued
         | PolicyEventKind::DeliverySent
         | PolicyEventKind::DeliveryAcknowledged
@@ -51,11 +45,9 @@ pub(crate) fn sample_policy_event_scope(
         | PolicyEventKind::DeliveryExpired
         | PolicyEventKind::DeliveryRetryScheduled
         | PolicyEventKind::DomainApplied
-        | PolicyEventKind::DomainPartial => build_delivery_scope(
-            household_id,
-            source_document_id,
-            policy_version,
-        ),
+        | PolicyEventKind::DomainPartial => {
+            build_delivery_scope(household_id, source_document_id, policy_version)
+        }
         PolicyEventKind::RollbackRequested | PolicyEventKind::RollbackApplied => {
             build_rollback_scope(household_id)
         }

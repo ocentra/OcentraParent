@@ -39,9 +39,8 @@ fn readiness_proof_accepts_internal_security_privacy_support_and_rollout_gates()
 
 #[test]
 fn readiness_proof_blocks_production_claim_without_external_signoff() {
-    let proof =
-        evaluate_network_readiness_proof(readiness_input(true, ExternalAuditRef::Missing))
-            .expect_value("production claim without signoff should be represented as blocked");
+    let proof = evaluate_network_readiness_proof(readiness_input(true, ExternalAuditRef::Missing))
+        .expect_value("production claim without signoff should be represented as blocked");
 
     assert_eq!(
         proof.readiness_state,

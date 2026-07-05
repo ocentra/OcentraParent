@@ -17,58 +17,64 @@ use crate::policy_source::{
     PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRollbackRef, PolicyVersion,
 };
 
+#[path = "policy_event/kind.rs"]
+mod kind;
 mod replay;
 
-const POLICY_EVENT_SCHEMA_VERSION_VALUE: u16 = 1;
-
-macro_rules! policy_event_kind_enum {
-    ($( $variant:ident => $event_type:literal, )+) => {
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-        pub enum PolicyEventKind {
-            $(#[serde(rename = $event_type)] $variant,)+
-        }
-
-        pub const POLICY_EVENT_KINDS: &[PolicyEventKind] = &[
-            $(PolicyEventKind::$variant,)+
-        ];
-
-        impl PolicyEventKind {
-            pub fn event_type_name(self) -> &'static str {
-                match self {
-                    $(Self::$variant => $event_type,)+
-                }
-            }
-        }
-    };
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
+pub enum PolicyEventKind {
+    #[serde(rename = "policy.draft.created")]
+    DraftCreated,
+    #[serde(rename = "policy.preview.requested")]
+    PreviewRequested,
+    #[serde(rename = "policy.preview.generated")]
+    PreviewGenerated,
+    #[serde(rename = "policy.confirmed")]
+    Confirmed,
+    #[serde(rename = "policy.version.superseded")]
+    VersionSuperseded,
+    #[serde(rename = "policy.compiler.requested")]
+    CompilerRequested,
+    #[serde(rename = "policy.compiler.completed")]
+    CompilerCompleted,
+    #[serde(rename = "policy.delivery.queued")]
+    DeliveryQueued,
+    #[serde(rename = "policy.delivery.sent")]
+    DeliverySent,
+    #[serde(rename = "policy.delivery.acknowledged")]
+    DeliveryAcknowledged,
+    #[serde(rename = "policy.delivery.rejected")]
+    DeliveryRejected,
+    #[serde(rename = "policy.delivery.expired")]
+    DeliveryExpired,
+    #[serde(rename = "policy.delivery.retry-scheduled")]
+    DeliveryRetryScheduled,
+    #[serde(rename = "policy.domain.applied")]
+    DomainApplied,
+    #[serde(rename = "policy.domain.partial")]
+    DomainPartial,
+    #[serde(rename = "policy.rollback.requested")]
+    RollbackRequested,
+    #[serde(rename = "policy.rollback.applied")]
+    RollbackApplied,
+    #[serde(rename = "policy.ask-parent.requested")]
+    AskParentRequested,
+    #[serde(rename = "policy.ask-parent.approved")]
+    AskParentApproved,
+    #[serde(rename = "policy.ask-parent.denied")]
+    AskParentDenied,
+    #[serde(rename = "policy.override.created")]
+    OverrideCreated,
+    #[serde(rename = "policy.override.expired")]
+    OverrideExpired,
+    #[serde(rename = "policy.audit.recorded")]
+    AuditRecorded,
+    #[serde(rename = "policy.dead-letter.recorded")]
+    DeadLetterRecorded,
+    #[serde(rename = "policy.manual-required")]
+    ManualRequired,
 }
-
-policy_event_kind_enum!(
-    DraftCreated => "policy.draft.created",
-    PreviewRequested => "policy.preview.requested",
-    PreviewGenerated => "policy.preview.generated",
-    Confirmed => "policy.confirmed",
-    VersionSuperseded => "policy.version.superseded",
-    CompilerRequested => "policy.compiler.requested",
-    CompilerCompleted => "policy.compiler.completed",
-    DeliveryQueued => "policy.delivery.queued",
-    DeliverySent => "policy.delivery.sent",
-    DeliveryAcknowledged => "policy.delivery.acknowledged",
-    DeliveryRejected => "policy.delivery.rejected",
-    DeliveryExpired => "policy.delivery.expired",
-    DeliveryRetryScheduled => "policy.delivery.retry-scheduled",
-    DomainApplied => "policy.domain.applied",
-    DomainPartial => "policy.domain.partial",
-    RollbackRequested => "policy.rollback.requested",
-    RollbackApplied => "policy.rollback.applied",
-    AskParentRequested => "policy.ask-parent.requested",
-    AskParentApproved => "policy.ask-parent.approved",
-    AskParentDenied => "policy.ask-parent.denied",
-    OverrideCreated => "policy.override.created",
-    OverrideExpired => "policy.override.expired",
-    AuditRecorded => "policy.audit.recorded",
-    DeadLetterRecorded => "policy.dead-letter.recorded",
-    ManualRequired => "policy.manual-required",
-);
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -213,6 +219,10 @@ impl PolicyEventApplyOutcome {
 }
 
 impl PolicyEvent {
+    fn scope(&self) -> &PolicyEventScope {
+        &self.scope
+    }
+
     pub fn redacted_summary(&self) -> String {
         replay::policy_event_redacted_summary(self)
     }
@@ -279,4 +289,14 @@ impl PolicyEventKind {
     pub fn reason_code_value(self) -> &'static str {
         replay::policy_event_kind_reason_code_value(self)
     }
+
+    pub fn event_type_name(self) -> &'static str {
+        kind::policy_event_kind_name(self)
+    }
+}
+
+pub const POLICY_EVENT_KINDS: &[PolicyEventKind] = kind::POLICY_EVENT_KINDS;
+
+pub(crate) fn policy_event_kinds() -> &'static [PolicyEventKind] {
+    kind::policy_event_kinds()
 }

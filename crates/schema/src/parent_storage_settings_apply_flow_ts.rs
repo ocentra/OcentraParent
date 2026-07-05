@@ -34,8 +34,14 @@ pub fn parent_storage_settings_apply_flow_contracts_typescript() -> String {
             PARENT_STORAGE_SETTINGS_APPLY_FLOW_SCHEMA_VERSION_TOKEN,
             PARENT_STORAGE_SETTINGS_APPLY_FLOW_SCHEMA_VERSION,
         )
-        .replace(PARENT_STORAGE_SETTINGS_APPLY_FLOW_KNOWN_GAPS_TOKEN, &known_gaps)
-        .replace(PARENT_STORAGE_SETTINGS_APPLY_FLOW_PROOF_JSON_TOKEN, &proof_json)
+        .replace(
+            PARENT_STORAGE_SETTINGS_APPLY_FLOW_KNOWN_GAPS_TOKEN,
+            &known_gaps,
+        )
+        .replace(
+            PARENT_STORAGE_SETTINGS_APPLY_FLOW_PROOF_JSON_TOKEN,
+            &proof_json,
+        )
         .replace("{{", "{")
         .replace("}}", "}")
 }

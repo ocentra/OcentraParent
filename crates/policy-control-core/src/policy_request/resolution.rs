@@ -1,16 +1,55 @@
 #![forbid(unsafe_code)]
 
 use ocentra_eventing::error::EventingError;
-use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus;
+use ocentra_parent_agent_protocol::activity::policy_preview::{
+    PolicyAssistantConfirmationState, PolicyRequestStatus,
+};
 use ocentra_parent_agent_protocol::constants::policy_control;
 
 use super::{
-    build_policy_temporary_override, policy_request_status_name, validate_child_policy_request,
-    ChildPolicyRequest, ParentPolicyApproval, PolicyApprovalDecision, PolicyRequestResolution,
-    PolicyTemporaryOverride,
+    approval::{assert_request_matches_approval, validate_parent_policy_approval},
+    decision::policy_request_status_for_approval,
+    policy_request_schema_version,
+    status::{policy_override_id_value, policy_request_status_name},
+    validation::validate_child_policy_request,
+    ChildPolicyRequest, ParentPolicyApproval, PolicyApprovalDecision, PolicyOverrideId,
+    PolicyOverrideState, PolicyRequestKind, PolicyRequestResolution, PolicyTemporaryOverride,
 };
 
-pub(crate) fn resolve_replayed_parent_policy_approval(
+pub(crate) fn resolve_parent_policy_approval(
+    request: &ChildPolicyRequest,
+    approval: ParentPolicyApproval,
+    existing_override: Option<&PolicyTemporaryOverride>,
+) -> Result<PolicyRequestResolution, EventingError> {
+    validate_child_policy_request(request)?;
+    validate_parent_policy_approval(&approval)?;
+    assert_request_matches_approval(request, &approval)?;
+
+    if request.assistant_confirmation_state
+        == PolicyAssistantConfirmationState::ParentConfirmationRequired
+    {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_ASSISTANT_CONFIRMATION_STATE,
+            value: policy_control::request::VALUE_ASSISTANT_PREVIEW_ONLY.to_string(),
+        });
+    }
+
+    let expected_status = policy_request_status_for_approval(approval.decision);
+    if let Some(resolved_approval_id) = request.resolved_approval_id.as_ref() {
+        if resolved_approval_id != &approval.approval_id || request.status != expected_status {
+            return Err(EventingError::InvalidValue {
+                field: policy_control::request::FIELD_APPROVAL_ID,
+                value: approval.approval_id.as_str().to_string(),
+            });
+        }
+
+        return resolve_replayed_parent_policy_approval(request, &approval, existing_override);
+    }
+
+    resolve_new_parent_policy_approval(request, approval)
+}
+
+fn resolve_replayed_parent_policy_approval(
     request: &ChildPolicyRequest,
     approval: &ParentPolicyApproval,
     existing_override: Option<&PolicyTemporaryOverride>,
@@ -36,7 +75,7 @@ pub(crate) fn resolve_replayed_parent_policy_approval(
     })
 }
 
-pub(crate) fn resolve_new_parent_policy_approval(
+fn resolve_new_parent_policy_approval(
     request: &ChildPolicyRequest,
     approval: ParentPolicyApproval,
 ) -> Result<PolicyRequestResolution, EventingError> {
@@ -76,6 +115,50 @@ pub(crate) fn resolve_new_parent_policy_approval(
     })
 }
 
+fn build_policy_temporary_override(
+    request: &ChildPolicyRequest,
+    approval: &ParentPolicyApproval,
+) -> Result<PolicyTemporaryOverride, EventingError> {
+    let approved_action = approval
+        .approved_action
+        .unwrap_or(request.scope.requested_action);
+    let approved_bonus_minutes = approval
+        .approved_bonus_minutes
+        .or(request.scope.requested_bonus_minutes);
+
+    if request.scope.request_kind == PolicyRequestKind::BonusTime
+        && approved_bonus_minutes.is_none()
+    {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_APPROVED_BONUS_MINUTES,
+            value: policy_control::request::VALUE_BONUS_TIME_APPROVAL_REQUIRES_MINUTES.to_string(),
+        });
+    }
+
+    Ok(PolicyTemporaryOverride {
+        schema_version: policy_request_schema_version()?,
+        override_id: PolicyOverrideId::parse(policy_override_id_value(&approval.approval_id))?,
+        source_request_id: request.request_id.clone(),
+        source_approval_id: approval.approval_id.clone(),
+        household_id: request.household_id.clone(),
+        child_profile_id: request.child_profile_id.clone(),
+        device_id: request.device_id.clone(),
+        source_document_id: request.source_document_id.clone(),
+        policy_version: request.policy_version,
+        request_kind: request.scope.request_kind,
+        target: request.scope.target.clone(),
+        approved_action,
+        approved_bonus_minutes,
+        effective_at: approval.decided_at.clone(),
+        expires_at: approval
+            .override_expires_at
+            .clone()
+            .unwrap_or_else(|| request.expires_at.clone()),
+        state: PolicyOverrideState::Active,
+        audit_reference_ids: vec![approval.audit_reference_id.clone()],
+    })
+}
+
 fn assert_override_matches(
     request: &ChildPolicyRequest,
     approval: &ParentPolicyApproval,
@@ -106,15 +189,4 @@ fn assert_override_matches(
     }
 
     Ok(())
-}
-
-pub(crate) fn policy_request_status_for_approval(
-    decision: PolicyApprovalDecision,
-) -> PolicyRequestStatus {
-    match decision {
-        PolicyApprovalDecision::Grant => PolicyRequestStatus::Approved,
-        PolicyApprovalDecision::Deny => PolicyRequestStatus::Denied,
-        PolicyApprovalDecision::Modify => PolicyRequestStatus::Modified,
-        PolicyApprovalDecision::Expire => PolicyRequestStatus::Expired,
-    }
 }

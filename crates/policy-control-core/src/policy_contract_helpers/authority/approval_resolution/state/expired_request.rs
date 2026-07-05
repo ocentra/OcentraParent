@@ -5,7 +5,9 @@ use super::super::super::{
     PolicyContractValidationResult,
 };
 
-pub(crate) fn validate(resolution: &PolicyContractApprovalResolution) -> PolicyContractValidationResult {
+pub(crate) fn validate(
+    resolution: &PolicyContractApprovalResolution,
+) -> PolicyContractValidationResult {
     if resolution.evaluated_at < resolution.approval.expires_at {
         return Err(
             "expired-request state requires evaluatedAt on or after approval.expiresAt".into(),

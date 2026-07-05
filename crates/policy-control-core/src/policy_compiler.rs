@@ -17,48 +17,74 @@ use crate::policy_source::{
 };
 
 const POLICY_COMPILER_SCHEMA_VERSION_VALUE: u16 = 1;
+const POLICY_TARGET_KIND_COUNT: usize = 6;
+const POLICY_COMPILER_DOMAIN_COUNT: usize = 8;
+const POLICY_COMPILER_CAPABILITY_STATE_COUNT: usize = 3;
+const UNKNOWN_POLICY_TARGET_KIND_NAME: &str = "unknown";
 
-macro_rules! policy_compiler_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
+const POLICY_TARGET_KINDS: [PolicyTargetKind; POLICY_TARGET_KIND_COUNT] = [
+    PolicyTargetKind::ChildProfile,
+    PolicyTargetKind::Device,
+    PolicyTargetKind::App,
+    PolicyTargetKind::Site,
+    PolicyTargetKind::Category,
+    PolicyTargetKind::Resource,
+];
 
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
+const POLICY_TARGET_KIND_NAMES: [&str; POLICY_TARGET_KIND_COUNT] = [
+    "child-profile",
+    "device",
+    "app",
+    "site",
+    "category",
+    "resource",
+];
 
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
+const POLICY_COMPILER_DOMAIN_NAMES: [&str; POLICY_COMPILER_DOMAIN_COUNT] = [
+    "app-game",
+    "browser",
+    "network",
+    "tracking",
+    "screen",
+    "ai",
+    "enforcement",
+    "notification-ask-parent",
+];
 
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct PolicyCompiledArtifactId(String);
 
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
+impl PolicyCompiledArtifactId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        let value = value.into();
+        (!value.trim().is_empty())
+            .then_some(Self(value))
+            .ok_or(EventingError::EmptyValue {
+                field: policy_control::compiler::FIELD_COMPILED_ARTIFACT_ID,
+            })
+    }
 
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-    };
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
-policy_compiler_text_id!(
-    PolicyCompiledArtifactId,
-    policy_control::compiler::FIELD_COMPILED_ARTIFACT_ID
-);
+impl TryFrom<String> for PolicyCompiledArtifactId {
+    type Error = EventingError;
 
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<PolicyCompiledArtifactId> for String {
+    fn from(value: PolicyCompiledArtifactId) -> Self {
+        value.0
+    }
+}
+
+#[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PolicyCompilerDomain {
     #[serde(rename = "app-game")]
@@ -79,6 +105,7 @@ pub enum PolicyCompilerDomain {
     NotificationAskParent,
 }
 
+#[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PolicyCompilerRuleStatus {
     #[serde(rename = "ready")]
@@ -89,6 +116,7 @@ pub enum PolicyCompilerRuleStatus {
     Unsupported,
 }
 
+#[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PolicyCompilerCapabilityState {
     #[serde(rename = "supported")]
@@ -110,6 +138,93 @@ pub struct PolicyCompilerSupportMatrix {
     pub domain: PolicyCompilerDomain,
     pub rows: Vec<PolicyCompilerSupportMatrixRow>,
 }
+
+type DomainSupportMatrix = [PolicyCompilerCapabilityState; POLICY_TARGET_KIND_COUNT];
+type CapabilityStateResolver =
+    fn(PolicyCompilerCapabilityState, PolicyRuleAction) -> PolicyCompilerCapabilityState;
+
+const RULE_STATUS_BY_CAPABILITY_STATE: [PolicyCompilerRuleStatus;
+    POLICY_COMPILER_CAPABILITY_STATE_COUNT] = [
+    PolicyCompilerRuleStatus::Ready,
+    PolicyCompilerRuleStatus::ManualRequired,
+    PolicyCompilerRuleStatus::Unsupported,
+];
+
+const APP_GAME_SUPPORT_MATRIX: DomainSupportMatrix = [
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::ManualRequired,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Unsupported,
+];
+
+const BROWSER_SUPPORT_MATRIX: DomainSupportMatrix = [
+    PolicyCompilerCapabilityState::ManualRequired,
+    PolicyCompilerCapabilityState::ManualRequired,
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::ManualRequired,
+];
+
+const NETWORK_SUPPORT_MATRIX: DomainSupportMatrix = [
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::ManualRequired,
+    PolicyCompilerCapabilityState::Supported,
+];
+
+const TRACKING_SUPPORT_MATRIX: DomainSupportMatrix = [
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Supported,
+];
+
+const SCREEN_SUPPORT_MATRIX: DomainSupportMatrix = [
+    PolicyCompilerCapabilityState::Unsupported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::ManualRequired,
+    PolicyCompilerCapabilityState::ManualRequired,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Unsupported,
+];
+
+const FULLY_SUPPORTED_MATRIX: DomainSupportMatrix = [
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Supported,
+    PolicyCompilerCapabilityState::Supported,
+];
+
+const DOMAIN_SUPPORT_MATRICES: [DomainSupportMatrix; POLICY_COMPILER_DOMAIN_COUNT] = [
+    APP_GAME_SUPPORT_MATRIX,
+    BROWSER_SUPPORT_MATRIX,
+    NETWORK_SUPPORT_MATRIX,
+    TRACKING_SUPPORT_MATRIX,
+    SCREEN_SUPPORT_MATRIX,
+    FULLY_SUPPORTED_MATRIX,
+    FULLY_SUPPORTED_MATRIX,
+    FULLY_SUPPORTED_MATRIX,
+];
+
+const CAPABILITY_STATE_RESOLVERS: [CapabilityStateResolver; POLICY_COMPILER_DOMAIN_COUNT] = [
+    passthrough_capability_state,
+    passthrough_capability_state,
+    passthrough_capability_state,
+    passthrough_capability_state,
+    passthrough_capability_state,
+    passthrough_capability_state,
+    enforcement_capability_state,
+    notification_ask_parent_capability_state,
+];
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DomainCompiledPolicyRule {
@@ -325,305 +440,79 @@ fn no_claim_labels_for_domain(_domain: PolicyCompilerDomain) -> Vec<String> {
 }
 
 fn default_support_matrix_for_domain(domain: PolicyCompilerDomain) -> PolicyCompilerSupportMatrix {
-    let rows = match domain {
-        PolicyCompilerDomain::AppGame => vec![
-            support_matrix_row(
-                PolicyTargetKind::ChildProfile,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Device,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::App,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Site,
-                PolicyCompilerCapabilityState::ManualRequired,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Category,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Resource,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-        ],
-        PolicyCompilerDomain::Browser => vec![
-            support_matrix_row(
-                PolicyTargetKind::ChildProfile,
-                PolicyCompilerCapabilityState::ManualRequired,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Device,
-                PolicyCompilerCapabilityState::ManualRequired,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::App,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Site,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Category,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Resource,
-                PolicyCompilerCapabilityState::ManualRequired,
-            ),
-        ],
-        PolicyCompilerDomain::Network => vec![
-            support_matrix_row(
-                PolicyTargetKind::ChildProfile,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Device,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::App,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Site,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Category,
-                PolicyCompilerCapabilityState::ManualRequired,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Resource,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-        ],
-        PolicyCompilerDomain::Tracking => vec![
-            support_matrix_row(
-                PolicyTargetKind::ChildProfile,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Device,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::App,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Site,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Category,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Resource,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-        ],
-        PolicyCompilerDomain::Screen => vec![
-            support_matrix_row(
-                PolicyTargetKind::ChildProfile,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Device,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::App,
-                PolicyCompilerCapabilityState::ManualRequired,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Site,
-                PolicyCompilerCapabilityState::ManualRequired,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Category,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Resource,
-                PolicyCompilerCapabilityState::Unsupported,
-            ),
-        ],
-        PolicyCompilerDomain::Ai => vec![
-            support_matrix_row(
-                PolicyTargetKind::ChildProfile,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Device,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::App,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Site,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Category,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Resource,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-        ],
-        PolicyCompilerDomain::Enforcement => vec![
-            support_matrix_row(
-                PolicyTargetKind::ChildProfile,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Device,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::App,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Site,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Category,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Resource,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-        ],
-        PolicyCompilerDomain::NotificationAskParent => vec![
-            support_matrix_row(
-                PolicyTargetKind::ChildProfile,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Device,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::App,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Site,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Category,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-            support_matrix_row(
-                PolicyTargetKind::Resource,
-                PolicyCompilerCapabilityState::Supported,
-            ),
-        ],
-    };
+    let rows = POLICY_TARGET_KINDS
+        .into_iter()
+        .zip(domain_support_matrix(domain))
+        .map(|(target_kind, capability_state)| PolicyCompilerSupportMatrixRow {
+            target_kind,
+            capability_state,
+        })
+        .collect();
 
     PolicyCompilerSupportMatrix { domain, rows }
-}
-
-fn support_matrix_row(
-    target_kind: PolicyTargetKind,
-    capability_state: PolicyCompilerCapabilityState,
-) -> PolicyCompilerSupportMatrixRow {
-    PolicyCompilerSupportMatrixRow {
-        target_kind,
-        capability_state,
-    }
 }
 
 fn assert_support_matrix_matches_domain(
     support_matrix: &PolicyCompilerSupportMatrix,
     domain: PolicyCompilerDomain,
 ) -> Result<(), EventingError> {
-    if support_matrix.domain != domain {
-        return Err(EventingError::InvalidValue {
+    (support_matrix.domain == domain)
+        .then_some(())
+        .ok_or_else(|| EventingError::InvalidValue {
             field: policy_control::compiler::FIELD_SUPPORT_MATRIX_DOMAIN,
             value: compiler_domain_name(support_matrix.domain).to_string(),
-        });
-    }
+        })?;
 
-    for target_kind in all_policy_target_kinds() {
-        let match_count = support_matrix
-            .rows
-            .iter()
-            .filter(|row| row.target_kind == target_kind)
-            .count();
-        if match_count != 1 {
-            return Err(EventingError::InvalidValue {
+    POLICY_TARGET_KINDS
+        .into_iter()
+        .find(|target_kind| {
+            support_matrix
+                .rows
+                .iter()
+                .filter(|row| row.target_kind == *target_kind)
+                .count()
+                != 1
+        })
+        .map_or(Ok(()), |target_kind| {
+            Err(EventingError::InvalidValue {
                 field: policy_control::compiler::FIELD_SUPPORT_MATRIX_TARGET_KIND,
                 value: policy_target_kind_name(target_kind).to_string(),
-            });
-        }
-    }
-
-    Ok(())
-}
-
-fn all_policy_target_kinds() -> [PolicyTargetKind; 6] {
-    [
-        PolicyTargetKind::ChildProfile,
-        PolicyTargetKind::Device,
-        PolicyTargetKind::App,
-        PolicyTargetKind::Site,
-        PolicyTargetKind::Category,
-        PolicyTargetKind::Resource,
-    ]
+            })
+        })
 }
 
 fn assert_source_status_can_compile(
     surface: PolicySourceSurface,
     status: PolicySourceStatus,
 ) -> Result<(), EventingError> {
-    if matches!(surface, PolicySourceSurface::DomainCache) {
-        return Err(EventingError::InvalidValue {
+    (!matches!(surface, PolicySourceSurface::DomainCache))
+        .then_some(())
+        .ok_or_else(|| EventingError::InvalidValue {
             field: policy_control::source::FIELD_SOURCE_SURFACE,
             value: policy_control::source::SURFACE_DOMAIN_CACHE.to_string(),
-        });
-    }
+        })?;
 
-    if matches!(
+    (!matches!(
         status,
         PolicySourceStatus::Draft | PolicySourceStatus::Preview
-    ) {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::compiler::FIELD_SOURCE_STATUS,
-            value: policy_status_name(status).to_string(),
-        });
-    }
-
-    Ok(())
+    ))
+    .then_some(())
+    .ok_or_else(|| EventingError::InvalidValue {
+        field: policy_control::compiler::FIELD_SOURCE_STATUS,
+        value: policy_status_name(status).to_string(),
+    })
 }
 
 fn assert_compiler_version_compatible(
     source_policy_version: PolicyVersion,
     consumer_policy_version: PolicyVersion,
 ) -> Result<(), EventingError> {
-    if source_policy_version == consumer_policy_version {
-        return Ok(());
-    }
-
-    Err(EventingError::InvalidValue {
-        field: policy_control::compiler::FIELD_CONSUMER_POLICY_VERSION,
-        value: compiler_version_mismatch_value(source_policy_version, consumer_policy_version),
-    })
+    (source_policy_version == consumer_policy_version)
+        .then_some(())
+        .ok_or_else(|| EventingError::InvalidValue {
+            field: policy_control::compiler::FIELD_CONSUMER_POLICY_VERSION,
+            value: compiler_version_mismatch_value(source_policy_version, consumer_policy_version),
+        })
 }
 
 fn compile_rule_for_domain(
@@ -654,32 +543,9 @@ fn capability_state_for_rule(
     action: PolicyRuleAction,
 ) -> Result<PolicyCompilerCapabilityState, EventingError> {
     let matrix_capability_state = support_matrix_capability_state(support_matrix, target_kind)?;
+    let resolver = CAPABILITY_STATE_RESOLVERS[compiler_domain_index(domain)];
 
-    match domain {
-        PolicyCompilerDomain::Enforcement => Ok(
-            if matrix_capability_state == PolicyCompilerCapabilityState::Unsupported {
-                PolicyCompilerCapabilityState::Unsupported
-            } else {
-                PolicyCompilerCapabilityState::ManualRequired
-            },
-        ),
-        PolicyCompilerDomain::NotificationAskParent => Ok(match matrix_capability_state {
-            PolicyCompilerCapabilityState::Unsupported => {
-                PolicyCompilerCapabilityState::Unsupported
-            }
-            PolicyCompilerCapabilityState::ManualRequired => {
-                PolicyCompilerCapabilityState::ManualRequired
-            }
-            PolicyCompilerCapabilityState::Supported => {
-                if action == PolicyRuleAction::AskParent {
-                    PolicyCompilerCapabilityState::Supported
-                } else {
-                    PolicyCompilerCapabilityState::ManualRequired
-                }
-            }
-        }),
-        _ => Ok(matrix_capability_state),
-    }
+    Ok(resolver(matrix_capability_state, action))
 }
 
 fn support_matrix_capability_state(
@@ -700,11 +566,7 @@ fn support_matrix_capability_state(
 fn rule_status_for_capability_state(
     capability_state: PolicyCompilerCapabilityState,
 ) -> PolicyCompilerRuleStatus {
-    match capability_state {
-        PolicyCompilerCapabilityState::Supported => PolicyCompilerRuleStatus::Ready,
-        PolicyCompilerCapabilityState::ManualRequired => PolicyCompilerRuleStatus::ManualRequired,
-        PolicyCompilerCapabilityState::Unsupported => PolicyCompilerRuleStatus::Unsupported,
-    }
+    RULE_STATUS_BY_CAPABILITY_STATE[capability_state_index(capability_state)]
 }
 
 fn reason_code_for_capability_state(
@@ -712,26 +574,75 @@ fn reason_code_for_capability_state(
     domain: PolicyCompilerDomain,
     action: PolicyRuleAction,
 ) -> Result<Option<PolicyReasonCode>, EventingError> {
-    match capability_state {
-        PolicyCompilerCapabilityState::Supported => Ok(None),
-        PolicyCompilerCapabilityState::ManualRequired => {
-            let reason = if domain == PolicyCompilerDomain::Enforcement
-                && action != PolicyRuleAction::AskParent
-            {
-                policy_control::compiler::REASON_ENFORCEMENT_HANDOFF_REQUIRED
-            } else {
-                policy_control::compiler::REASON_MANUAL_REQUIRED_TARGET
-            };
-            Ok(Some(parse_reason(reason)?))
-        }
-        PolicyCompilerCapabilityState::Unsupported => Ok(Some(parse_reason(
-            policy_control::compiler::REASON_UNSUPPORTED_TARGET,
-        )?)),
-    }
+    [
+        None,
+        Some(manual_required_reason(domain, action)),
+        Some(policy_control::compiler::REASON_UNSUPPORTED_TARGET),
+    ][capability_state_index(capability_state)]
+        .map(parse_reason)
+        .transpose()
 }
 
 fn parse_reason(value: &str) -> Result<PolicyReasonCode, EventingError> {
     PolicyReasonCode::parse(value)
+}
+
+const fn compiler_domain_index(domain: PolicyCompilerDomain) -> usize {
+    domain as usize
+}
+
+const fn capability_state_index(capability_state: PolicyCompilerCapabilityState) -> usize {
+    capability_state as usize
+}
+
+fn policy_target_kind_index(target_kind: PolicyTargetKind) -> Option<usize> {
+    POLICY_TARGET_KINDS
+        .iter()
+        .position(|candidate| *candidate == target_kind)
+}
+
+fn domain_support_matrix(domain: PolicyCompilerDomain) -> DomainSupportMatrix {
+    DOMAIN_SUPPORT_MATRICES[compiler_domain_index(domain)]
+}
+
+fn passthrough_capability_state(
+    capability_state: PolicyCompilerCapabilityState,
+    _action: PolicyRuleAction,
+) -> PolicyCompilerCapabilityState {
+    capability_state
+}
+
+fn enforcement_capability_state(
+    capability_state: PolicyCompilerCapabilityState,
+    _action: PolicyRuleAction,
+) -> PolicyCompilerCapabilityState {
+    [
+        PolicyCompilerCapabilityState::ManualRequired,
+        PolicyCompilerCapabilityState::Unsupported,
+    ][usize::from(capability_state == PolicyCompilerCapabilityState::Unsupported)]
+}
+
+fn notification_ask_parent_capability_state(
+    capability_state: PolicyCompilerCapabilityState,
+    action: PolicyRuleAction,
+) -> PolicyCompilerCapabilityState {
+    [
+        [
+            PolicyCompilerCapabilityState::ManualRequired,
+            PolicyCompilerCapabilityState::Supported,
+        ][usize::from(action == PolicyRuleAction::AskParent)],
+        PolicyCompilerCapabilityState::ManualRequired,
+        PolicyCompilerCapabilityState::Unsupported,
+    ][capability_state_index(capability_state)]
+}
+
+fn manual_required_reason(domain: PolicyCompilerDomain, action: PolicyRuleAction) -> &'static str {
+    [
+        policy_control::compiler::REASON_MANUAL_REQUIRED_TARGET,
+        policy_control::compiler::REASON_ENFORCEMENT_HANDOFF_REQUIRED,
+    ][usize::from(
+        domain == PolicyCompilerDomain::Enforcement && action != PolicyRuleAction::AskParent,
+    )]
 }
 
 fn compiler_version_mismatch_value(
@@ -746,25 +657,11 @@ fn compiler_version_mismatch_value(
 }
 
 fn compiler_domain_name(domain: PolicyCompilerDomain) -> &'static str {
-    match domain {
-        PolicyCompilerDomain::AppGame => "app-game",
-        PolicyCompilerDomain::Browser => "browser",
-        PolicyCompilerDomain::Network => "network",
-        PolicyCompilerDomain::Tracking => "tracking",
-        PolicyCompilerDomain::Screen => "screen",
-        PolicyCompilerDomain::Ai => "ai",
-        PolicyCompilerDomain::Enforcement => "enforcement",
-        PolicyCompilerDomain::NotificationAskParent => "notification-ask-parent",
-    }
+    POLICY_COMPILER_DOMAIN_NAMES[compiler_domain_index(domain)]
 }
 
 fn policy_target_kind_name(target_kind: PolicyTargetKind) -> &'static str {
-    match target_kind {
-        PolicyTargetKind::ChildProfile => "child-profile",
-        PolicyTargetKind::Device => "device",
-        PolicyTargetKind::App => "app",
-        PolicyTargetKind::Site => "site",
-        PolicyTargetKind::Category => "category",
-        PolicyTargetKind::Resource => "resource",
-    }
+    policy_target_kind_index(target_kind)
+        .and_then(|index| POLICY_TARGET_KIND_NAMES.get(index).copied())
+        .unwrap_or(UNKNOWN_POLICY_TARGET_KIND_NAME)
 }

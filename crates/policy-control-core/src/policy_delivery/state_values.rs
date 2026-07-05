@@ -1,52 +1,114 @@
 #![forbid(unsafe_code)]
 
 use super::{
-    PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliverySequence,
-    PolicyDeliveryState, PolicyReasonCode, PolicyVersion, policy_control,
+    policy_control, PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliverySequence,
+    PolicyDeliveryState, PolicyReasonCode, PolicyVersion,
 };
+
+const PENDING_STATES: &[PolicyDeliveryState] = &[
+    PolicyDeliveryState::Queued,
+    PolicyDeliveryState::Delivering,
+    PolicyDeliveryState::Delivered,
+    PolicyDeliveryState::Acknowledged,
+];
+
+const MANUAL_REQUIRED_STATES: &[PolicyDeliveryState] = &[
+    PolicyDeliveryState::Rejected,
+    PolicyDeliveryState::RolledBack,
+    PolicyDeliveryState::BlockedByPermission,
+    PolicyDeliveryState::BlockedByCapability,
+    PolicyDeliveryState::ManualRequired,
+];
+
+const DEGRADED_STATES: &[PolicyDeliveryState] = &[
+    PolicyDeliveryState::Degraded,
+    PolicyDeliveryState::Offline,
+    PolicyDeliveryState::ExpiredBeforeDelivery,
+    PolicyDeliveryState::RetryScheduled,
+    PolicyDeliveryState::PartialDomainApply,
+];
+
+const STATE_NAMES: &[(PolicyDeliveryState, &str)] = &[
+    (
+        PolicyDeliveryState::Queued,
+        policy_control::delivery::STATUS_QUEUED,
+    ),
+    (PolicyDeliveryState::Delivering, "delivering"),
+    (
+        PolicyDeliveryState::Delivered,
+        policy_control::delivery::STATUS_DELIVERED,
+    ),
+    (
+        PolicyDeliveryState::Acknowledged,
+        policy_control::delivery::STATUS_ACKNOWLEDGED,
+    ),
+    (
+        PolicyDeliveryState::Applied,
+        policy_control::delivery::STATUS_APPLIED,
+    ),
+    (
+        PolicyDeliveryState::Rejected,
+        policy_control::delivery::STATUS_REJECTED,
+    ),
+    (
+        PolicyDeliveryState::Superseded,
+        policy_control::delivery::STATUS_SUPERSEDED,
+    ),
+    (
+        PolicyDeliveryState::RolledBack,
+        policy_control::delivery::STATUS_ROLLED_BACK,
+    ),
+    (
+        PolicyDeliveryState::Degraded,
+        policy_control::delivery::STATUS_DEGRADED,
+    ),
+    (
+        PolicyDeliveryState::Offline,
+        policy_control::delivery::STATUS_OFFLINE,
+    ),
+    (
+        PolicyDeliveryState::ExpiredBeforeDelivery,
+        "expired-before-delivery",
+    ),
+    (PolicyDeliveryState::RetryScheduled, "retry-scheduled"),
+    (
+        PolicyDeliveryState::PartialDomainApply,
+        "partial-domain-apply",
+    ),
+    (
+        PolicyDeliveryState::BlockedByPermission,
+        "blocked-by-permission",
+    ),
+    (
+        PolicyDeliveryState::BlockedByCapability,
+        "blocked-by-capability",
+    ),
+    (PolicyDeliveryState::ManualRequired, "manual-required"),
+];
 
 pub(super) fn policy_delivery_parent_visible_state(
     state: PolicyDeliveryState,
 ) -> PolicyDeliveryParentVisibleState {
-    match state {
-        PolicyDeliveryState::Queued
-        | PolicyDeliveryState::Delivering
-        | PolicyDeliveryState::Delivered
-        | PolicyDeliveryState::Acknowledged => PolicyDeliveryParentVisibleState::Pending,
-        PolicyDeliveryState::Applied => PolicyDeliveryParentVisibleState::Applied,
-        PolicyDeliveryState::Rejected
-        | PolicyDeliveryState::RolledBack
-        | PolicyDeliveryState::BlockedByPermission
-        | PolicyDeliveryState::BlockedByCapability
-        | PolicyDeliveryState::ManualRequired => PolicyDeliveryParentVisibleState::ManualRequired,
-        PolicyDeliveryState::Superseded => PolicyDeliveryParentVisibleState::Superseded,
-        PolicyDeliveryState::Degraded
-        | PolicyDeliveryState::Offline
-        | PolicyDeliveryState::ExpiredBeforeDelivery
-        | PolicyDeliveryState::RetryScheduled
-        | PolicyDeliveryState::PartialDomainApply => PolicyDeliveryParentVisibleState::Degraded,
+    if PENDING_STATES.contains(&state) {
+        PolicyDeliveryParentVisibleState::Pending
+    } else if state == PolicyDeliveryState::Applied {
+        PolicyDeliveryParentVisibleState::Applied
+    } else if MANUAL_REQUIRED_STATES.contains(&state) {
+        PolicyDeliveryParentVisibleState::ManualRequired
+    } else if state == PolicyDeliveryState::Superseded {
+        PolicyDeliveryParentVisibleState::Superseded
+    } else {
+        debug_assert!(DEGRADED_STATES.contains(&state));
+        PolicyDeliveryParentVisibleState::Degraded
     }
 }
 
 pub(super) fn policy_delivery_state_name(state: PolicyDeliveryState) -> &'static str {
-    match state {
-        PolicyDeliveryState::Queued => policy_control::delivery::STATUS_QUEUED,
-        PolicyDeliveryState::Delivering => "delivering",
-        PolicyDeliveryState::Delivered => policy_control::delivery::STATUS_DELIVERED,
-        PolicyDeliveryState::Acknowledged => policy_control::delivery::STATUS_ACKNOWLEDGED,
-        PolicyDeliveryState::Applied => policy_control::delivery::STATUS_APPLIED,
-        PolicyDeliveryState::Rejected => policy_control::delivery::STATUS_REJECTED,
-        PolicyDeliveryState::Superseded => policy_control::delivery::STATUS_SUPERSEDED,
-        PolicyDeliveryState::RolledBack => policy_control::delivery::STATUS_ROLLED_BACK,
-        PolicyDeliveryState::Degraded => policy_control::delivery::STATUS_DEGRADED,
-        PolicyDeliveryState::Offline => policy_control::delivery::STATUS_OFFLINE,
-        PolicyDeliveryState::ExpiredBeforeDelivery => "expired-before-delivery",
-        PolicyDeliveryState::RetryScheduled => "retry-scheduled",
-        PolicyDeliveryState::PartialDomainApply => "partial-domain-apply",
-        PolicyDeliveryState::BlockedByPermission => "blocked-by-permission",
-        PolicyDeliveryState::BlockedByCapability => "blocked-by-capability",
-        PolicyDeliveryState::ManualRequired => "manual-required",
-    }
+    STATE_NAMES
+        .iter()
+        .find(|(candidate, _)| *candidate == state)
+        .map(|(_, name)| *name)
+        .expect("every policy delivery state must have a stable name")
 }
 
 pub(super) fn conflicting_replay_value(

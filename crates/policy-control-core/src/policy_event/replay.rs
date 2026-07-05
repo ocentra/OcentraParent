@@ -58,7 +58,8 @@ pub(crate) fn policy_event_family_variants(
     helpers::policy_event_family_variants()
 }
 
-pub(crate) fn policy_event_contract_registry() -> Result<ocentra_eventing::contract_registry::EventContractRegistry, EventingError> {
+pub(crate) fn policy_event_contract_registry(
+) -> Result<ocentra_eventing::contract_registry::EventContractRegistry, EventingError> {
     helpers::policy_event_contract_registry()
 }
 

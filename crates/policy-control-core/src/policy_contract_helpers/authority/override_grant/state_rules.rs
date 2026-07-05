@@ -1,6 +1,8 @@
 #![forbid(unsafe_code)]
 
-use super::super::{assert_utc_timestamp, PolicyContractOverrideGrant, PolicyContractValidationResult};
+use super::super::{
+    assert_utc_timestamp, PolicyContractOverrideGrant, PolicyContractValidationResult,
+};
 
 pub(crate) fn validate_policy_override_grant_state_rules(
     grant: &PolicyContractOverrideGrant,

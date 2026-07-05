@@ -1,11 +1,11 @@
 #![forbid(unsafe_code)]
 
-use super::super::super::{
-    PolicyContractApprovalResolution, PolicyContractValidationResult,
-};
 use super::super::super::override_grant::validate_policy_override_grant;
+use super::super::super::{PolicyContractApprovalResolution, PolicyContractValidationResult};
 
-pub(crate) fn validate(resolution: &PolicyContractApprovalResolution) -> PolicyContractValidationResult {
+pub(crate) fn validate(
+    resolution: &PolicyContractApprovalResolution,
+) -> PolicyContractValidationResult {
     if resolution.reviewed_by_actor_id.is_none()
         || resolution.reviewed_at.is_none()
         || resolution.audit_reference_id.is_none()

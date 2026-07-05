@@ -217,13 +217,12 @@ fn entry(
         CapabilityRef::Missing => None,
         CapabilityRef::Present(value) => Some(value),
     };
-    let missing_required_artifacts = if capability_ref.is_some()
-        && claim_state != NetworkPlatformClaimState::Unavailable
-    {
-        Vec::new()
-    } else {
-        vec![format!("{target:?}.manual-artifact")]
-    };
+    let missing_required_artifacts =
+        if capability_ref.is_some() && claim_state != NetworkPlatformClaimState::Unavailable {
+            Vec::new()
+        } else {
+            vec![format!("{target:?}.manual-artifact")]
+        };
     NetworkPlatformClaimEntry {
         target,
         claim_state,
@@ -315,7 +314,10 @@ fn observation(
         host,
         probe_state,
         capability_status,
-        evidence_refs: evidence_refs.into_iter().map(|value| value.0.to_owned()).collect(),
+        evidence_refs: evidence_refs
+            .into_iter()
+            .map(|value| value.0.to_owned())
+            .collect(),
         read_only_probe_executed: probe_state == NetworkLocalPlatformProbeState::ReadOnlyObserved,
         adapter_execution_attempted: false,
         exact_url_claimed: false,

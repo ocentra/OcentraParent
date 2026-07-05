@@ -20,50 +20,72 @@ mod validation;
 const POLICY_DELIVERY_SCHEMA_VERSION_VALUE: u16 = 1;
 const POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE: u64 = 1;
 
-macro_rules! policy_delivery_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
-
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-    };
+fn parse_delivery_text_id(
+    value: impl Into<String>,
+    field: &'static str,
+) -> Result<String, EventingError> {
+    let value = value.into();
+    if value.trim().is_empty() {
+        return Err(EventingError::EmptyValue { field });
+    }
+    Ok(value)
 }
 
-policy_delivery_text_id!(
-    PolicyDeliveryId,
-    policy_control::delivery::FIELD_DELIVERY_ID
-);
-policy_delivery_text_id!(
-    PolicyDeliveryAttemptId,
-    policy_control::delivery::FIELD_ATTEMPT_ID
-);
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct PolicyDeliveryId(String);
+
+impl PolicyDeliveryId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        parse_delivery_text_id(value, policy_control::delivery::FIELD_DELIVERY_ID).map(Self)
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for PolicyDeliveryId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<PolicyDeliveryId> for String {
+    fn from(value: PolicyDeliveryId) -> Self {
+        value.0
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct PolicyDeliveryAttemptId(String);
+
+impl PolicyDeliveryAttemptId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        parse_delivery_text_id(value, policy_control::delivery::FIELD_ATTEMPT_ID).map(Self)
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for PolicyDeliveryAttemptId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<PolicyDeliveryAttemptId> for String {
+    fn from(value: PolicyDeliveryAttemptId) -> Self {
+        value.0
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "u64", into = "u64")]

@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
-use std::collections::BTreeMap;
+use std::cmp::Ordering;
+use std::collections::{BTreeMap, BTreeSet};
 
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::SchemaVersion;
@@ -13,11 +14,64 @@ use crate::policy_authority::PolicyManualReviewState;
 use crate::policy_source::{
     policy_status_name, validate_parent_policy_source_document, ParentPolicyDocumentId,
     ParentPolicyRule, ParentPolicySourceDocument, PolicyConsumerDomain, PolicyRuleId,
-    PolicyRuleTarget, PolicyScheduleClockSource, PolicyScheduleId, PolicyScheduleWindow,
-    PolicyTargetReferenceId, PolicyVersion,
+    PolicyRuleTarget, PolicyScheduleId, PolicyScheduleWindow, PolicyTargetReferenceId,
+    PolicyVersion,
 };
 
 const POLICY_PREVIEW_SCHEMA_VERSION_VALUE: u16 = 1;
+const SUPPORTED_WP07_DST_TIMEZONES: [&str; 4] = [
+    "America/Toronto",
+    "America/Vancouver",
+    "America/Los_Angeles",
+    "America/Winnipeg",
+];
+const POLICY_PREVIEW_SAVE_STATE_MATRIX: [[PolicyPreviewSaveState; 2]; 2] = [
+    [
+        PolicyPreviewSaveState::Blocked,
+        PolicyPreviewSaveState::Blocked,
+    ],
+    [
+        PolicyPreviewSaveState::PreviewRequired,
+        PolicyPreviewSaveState::ReadyToSave,
+    ],
+];
+const MANUAL_REVIEW_FINDING_KINDS: [PolicyPreviewFindingKind; 9] = [
+    PolicyPreviewFindingKind::OverlappingSchedule,
+    PolicyPreviewFindingKind::TimezoneBoundary,
+    PolicyPreviewFindingKind::AmbiguousLocalTime,
+    PolicyPreviewFindingKind::NonexistentLocalTime,
+    PolicyPreviewFindingKind::ClockSkew,
+    PolicyPreviewFindingKind::ManualRequiredTarget,
+    PolicyPreviewFindingKind::OfflineTarget,
+    PolicyPreviewFindingKind::StaleTarget,
+    PolicyPreviewFindingKind::StaleSourceDocument,
+];
+const ALLOWED_PREVIEW_SOURCE_STATUSES: [PolicySourceStatus; 2] =
+    [PolicySourceStatus::Draft, PolicySourceStatus::Preview];
+const TARGET_STATE_FINDINGS: [Option<PolicyPreviewFindingKind>; 5] = [
+    None,
+    Some(PolicyPreviewFindingKind::UnsupportedTarget),
+    Some(PolicyPreviewFindingKind::ManualRequiredTarget),
+    Some(PolicyPreviewFindingKind::OfflineTarget),
+    Some(PolicyPreviewFindingKind::StaleTarget),
+];
+const CLOCK_SOURCE_FINDINGS: [Option<PolicyPreviewFindingKind>; 3] =
+    [None, None, Some(PolicyPreviewFindingKind::ClockSkew)];
+const FINDING_EXPLANATION_CODES: [&str; 10] = [
+    policy_control::preview::EXPLANATION_OVERLAPPING_SCHEDULE,
+    policy_control::preview::EXPLANATION_SCHEDULE_TIMEZONE_BOUNDARY,
+    policy_control::preview::EXPLANATION_AMBIGUOUS_LOCAL_TIME,
+    policy_control::preview::EXPLANATION_NONEXISTENT_LOCAL_TIME,
+    policy_control::preview::EXPLANATION_CLOCK_SKEW,
+    policy_control::preview::EXPLANATION_UNSUPPORTED_TARGET,
+    policy_control::preview::EXPLANATION_UNSUPPORTED_TARGET,
+    policy_control::preview::EXPLANATION_UNSUPPORTED_TARGET,
+    policy_control::preview::EXPLANATION_UNSUPPORTED_TARGET,
+    policy_control::preview::EXPLANATION_UNSUPPORTED_TARGET,
+];
+const DST_TRANSITION_MINUTE_RANGES: [(u16, u16); 2] = [(120, 180), (60, 120)];
+const DST_TRANSITION_MONTHS: [u8; 2] = [3, 11];
+const DST_TRANSITION_DAY_RANGES: [(u8, u8); 2] = [(8, 14), (1, 7)];
 
 macro_rules! policy_preview_text_id {
     ($name:ident, $field:expr) => {
@@ -27,11 +81,7 @@ macro_rules! policy_preview_text_id {
 
         impl $name {
             pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
+                parse_non_empty_text_id(value, $field).map(Self)
             }
 
             pub fn as_str(&self) -> &str {
@@ -143,23 +193,17 @@ pub fn preview_parent_policy_before_save(
     );
     collect_target_findings(&request.target_inputs, &mut findings);
 
-    let manual_review_state = if findings
-        .iter()
-        .any(|finding| finding_requires_manual_review(finding.kind))
-    {
-        PolicyManualReviewState::Required
-    } else {
-        PolicyManualReviewState::NotRequired
-    };
-    let save_state = if findings.is_empty() {
-        if request.preview_acknowledged {
-            PolicyPreviewSaveState::ReadyToSave
-        } else {
-            PolicyPreviewSaveState::PreviewRequired
-        }
-    } else {
-        PolicyPreviewSaveState::Blocked
-    };
+    let has_findings = !findings.is_empty();
+    let manual_review_state = [
+        PolicyManualReviewState::NotRequired,
+        PolicyManualReviewState::Required,
+    ][usize::from(
+        findings
+            .iter()
+            .any(|finding| finding_requires_manual_review(finding.kind)),
+    )];
+    let save_state = POLICY_PREVIEW_SAVE_STATE_MATRIX[usize::from(!has_findings)]
+        [usize::from(request.preview_acknowledged)];
 
     Ok(PolicyPreviewResult {
         schema_version: policy_preview_schema_version()?,
@@ -190,33 +234,27 @@ impl From<PolicyPreviewTargetInput> for PolicyPreviewTargetResult {
 }
 
 fn assert_preview_candidate_status(status: PolicySourceStatus) -> Result<(), EventingError> {
-    if matches!(
-        status,
-        PolicySourceStatus::Draft | PolicySourceStatus::Preview
-    ) {
-        return Ok(());
-    }
-
-    Err(EventingError::InvalidValue {
-        field: policy_control::preview::FIELD_CANDIDATE_STATUS,
-        value: policy_status_name(status).to_string(),
-    })
+    ALLOWED_PREVIEW_SOURCE_STATUSES
+        .contains(&status)
+        .then_some(())
+        .ok_or_else(|| EventingError::InvalidValue {
+            field: policy_control::preview::FIELD_CANDIDATE_STATUS,
+            value: policy_status_name(status).to_string(),
+        })
 }
 
 fn assert_current_document_matches_household(
     candidate: &ParentPolicySourceDocument,
     current: Option<&ParentPolicySourceDocument>,
 ) -> Result<(), EventingError> {
-    if let Some(current) = current {
-        if current.household_id != candidate.household_id {
-            return Err(EventingError::InvalidValue {
+    current
+        .filter(|current| current.household_id != candidate.household_id)
+        .map_or(Ok(()), |current| {
+            Err(EventingError::InvalidValue {
                 field: policy_control::preview::FIELD_CURRENT_DOCUMENT_HOUSEHOLD_ID,
                 value: current.household_id.as_str().to_string(),
-            });
-        }
-    }
-
-    Ok(())
+            })
+        })
 }
 
 fn collect_source_version_findings(
@@ -224,9 +262,10 @@ fn collect_source_version_findings(
     current: Option<&ParentPolicySourceDocument>,
     findings: &mut Vec<PolicyPreviewFinding>,
 ) {
-    if let Some(current) = current {
-        if current.policy_version.value() > candidate.policy_version.value() {
-            findings.push(PolicyPreviewFinding {
+    findings.extend(
+        current
+            .filter(|current| current.policy_version.value() > candidate.policy_version.value())
+            .map(|_| PolicyPreviewFinding {
                 kind: PolicyPreviewFindingKind::StaleSourceDocument,
                 target_reference_id: None,
                 rule_ids: Vec::new(),
@@ -234,28 +273,23 @@ fn collect_source_version_findings(
                 explanation_code: preview_explanation_code(
                     policy_control::preview::EXPLANATION_STALE_POLICY_VERSION,
                 ),
-            });
-        }
-    }
+            }),
+    );
 }
 
 fn collect_target_findings(
     target_inputs: &[PolicyPreviewTargetInput],
     findings: &mut Vec<PolicyPreviewFinding>,
 ) {
-    for target in target_inputs {
-        let Some(kind) = target_state_finding_kind(target.state) else {
-            continue;
-        };
-
-        findings.push(PolicyPreviewFinding {
+    findings.extend(target_inputs.iter().filter_map(|target| {
+        target_state_finding_kind(target.state).map(|kind| PolicyPreviewFinding {
             kind,
             target_reference_id: Some(target.target.reference_id.clone()),
             rule_ids: Vec::new(),
             schedule_ids: Vec::new(),
             explanation_code: target.explanation_code.clone(),
-        });
-    }
+        })
+    }));
 }
 
 fn collect_schedule_findings(
@@ -271,70 +305,96 @@ fn collect_schedule_findings(
         .iter()
         .filter(|rule| rule.enabled)
         .collect::<Vec<_>>();
-    let mut findings = Vec::new();
-
-    for rule in &enabled_rules {
-        let Some(schedule_id) = &rule.schedule_id else {
-            continue;
-        };
-        let schedule = schedule_lookup.get(schedule_id).copied().ok_or_else(|| {
-            EventingError::InvalidValue {
-                field: policy_control::preview::FIELD_SCHEDULE_ID,
-                value: schedule_id.as_str().to_string(),
-            }
-        })?;
-        let Some(kind) = schedule_manual_review_finding_kind(schedule)? else {
-            continue;
-        };
-
-        findings.push(PolicyPreviewFinding {
-            kind,
-            target_reference_id: Some(rule.target.reference_id.clone()),
-            rule_ids: vec![rule.rule_id.clone()],
-            schedule_ids: vec![schedule_id.clone()],
-            explanation_code: preview_explanation_code(preview_conflict_explanation_code(kind)),
-        });
-    }
-
-    for (left_index, left_rule) in enabled_rules.iter().enumerate() {
-        for right_rule in enabled_rules.iter().skip(left_index + 1) {
-            if left_rule.target != right_rule.target || left_rule.action == right_rule.action {
-                continue;
-            }
-
-            let Some(kind) = rule_conflict_kind(left_rule, right_rule, &schedule_lookup)? else {
-                continue;
-            };
-
-            findings.push(PolicyPreviewFinding {
-                kind,
-                target_reference_id: Some(left_rule.target.reference_id.clone()),
-                rule_ids: vec![left_rule.rule_id.clone(), right_rule.rule_id.clone()],
-                schedule_ids: conflict_schedule_ids(left_rule, right_rule),
-                explanation_code: preview_explanation_code(preview_conflict_explanation_code(kind)),
-            });
-        }
-    }
-
+    let mut findings = schedule_rule_findings(&enabled_rules, &schedule_lookup)?;
+    findings.extend(schedule_conflict_findings(
+        &enabled_rules,
+        &schedule_lookup,
+    )?);
     Ok(findings)
+}
+
+fn schedule_rule_findings(
+    enabled_rules: &[&ParentPolicyRule],
+    schedule_lookup: &BTreeMap<PolicyScheduleId, &PolicyScheduleWindow>,
+) -> Result<Vec<PolicyPreviewFinding>, EventingError> {
+    enabled_rules
+        .iter()
+        .filter_map(|rule| {
+            rule.schedule_id
+                .as_ref()
+                .map(|schedule_id| (rule, schedule_id))
+        })
+        .map(|(rule, schedule_id)| {
+            schedule_lookup
+                .get(schedule_id)
+                .copied()
+                .ok_or_else(|| EventingError::InvalidValue {
+                    field: policy_control::preview::FIELD_SCHEDULE_ID,
+                    value: schedule_id.as_str().to_string(),
+                })
+                .and_then(schedule_manual_review_finding_kind)
+                .map(|kind| {
+                    kind.map(|kind| PolicyPreviewFinding {
+                        kind,
+                        target_reference_id: Some(rule.target.reference_id.clone()),
+                        rule_ids: vec![rule.rule_id.clone()],
+                        schedule_ids: vec![schedule_id.clone()],
+                        explanation_code: preview_explanation_code(
+                            preview_conflict_explanation_code(kind),
+                        ),
+                    })
+                })
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .map(|findings| findings.into_iter().flatten().collect())
+}
+
+fn schedule_conflict_findings(
+    enabled_rules: &[&ParentPolicyRule],
+    schedule_lookup: &BTreeMap<PolicyScheduleId, &PolicyScheduleWindow>,
+) -> Result<Vec<PolicyPreviewFinding>, EventingError> {
+    enabled_rules
+        .iter()
+        .enumerate()
+        .flat_map(|(left_index, left_rule)| {
+            enabled_rules
+                .iter()
+                .skip(left_index + 1)
+                .map(move |right_rule| (left_rule, right_rule))
+        })
+        .filter(|(left_rule, right_rule)| {
+            left_rule.target == right_rule.target && left_rule.action != right_rule.action
+        })
+        .map(|(left_rule, right_rule)| {
+            rule_conflict_kind(left_rule, right_rule, schedule_lookup).map(|kind| {
+                kind.map(|kind| PolicyPreviewFinding {
+                    kind,
+                    target_reference_id: Some(left_rule.target.reference_id.clone()),
+                    rule_ids: vec![left_rule.rule_id.clone(), right_rule.rule_id.clone()],
+                    schedule_ids: conflict_schedule_ids(left_rule, right_rule),
+                    explanation_code: preview_explanation_code(preview_conflict_explanation_code(
+                        kind,
+                    )),
+                })
+            })
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .map(|findings| findings.into_iter().flatten().collect())
 }
 
 fn schedule_manual_review_finding_kind(
     schedule: &PolicyScheduleWindow,
 ) -> Result<Option<PolicyPreviewFindingKind>, EventingError> {
-    if schedule_has_nonexistent_local_time(schedule)? {
-        return Ok(Some(PolicyPreviewFindingKind::NonexistentLocalTime));
-    }
-    if schedule_has_ambiguous_local_time(schedule)? {
-        return Ok(Some(PolicyPreviewFindingKind::AmbiguousLocalTime));
-    }
-    if matches!(
-        schedule.time_budget.clock_source,
-        PolicyScheduleClockSource::ManualRequired
-    ) {
-        return Ok(Some(PolicyPreviewFindingKind::ClockSkew));
-    }
-    Ok(None)
+    [
+        schedule_has_nonexistent_local_time(schedule)
+            .map(|applies| applies.then_some(PolicyPreviewFindingKind::NonexistentLocalTime)),
+        schedule_has_ambiguous_local_time(schedule)
+            .map(|applies| applies.then_some(PolicyPreviewFindingKind::AmbiguousLocalTime)),
+        Ok(CLOCK_SOURCE_FINDINGS[schedule.time_budget.clock_source as usize]),
+    ]
+    .into_iter()
+    .collect::<Result<Vec<_>, _>>()
+    .map(|kinds| kinds.into_iter().flatten().next())
 }
 
 fn rule_conflict_kind(
@@ -342,39 +402,46 @@ fn rule_conflict_kind(
     right_rule: &ParentPolicyRule,
     schedule_lookup: &BTreeMap<PolicyScheduleId, &PolicyScheduleWindow>,
 ) -> Result<Option<PolicyPreviewFindingKind>, EventingError> {
-    match (&left_rule.schedule_id, &right_rule.schedule_id) {
-        (None, None) | (None, Some(_)) | (Some(_), None) => {
-            Ok(Some(PolicyPreviewFindingKind::OverlappingSchedule))
-        }
-        (Some(left_schedule_id), Some(right_schedule_id)) => {
-            let left_schedule =
-                schedule_lookup
-                    .get(left_schedule_id)
-                    .copied()
-                    .ok_or_else(|| EventingError::InvalidValue {
-                        field: policy_control::preview::FIELD_SCHEDULE_ID,
-                        value: left_schedule_id.as_str().to_string(),
-                    })?;
-            let right_schedule =
-                schedule_lookup
-                    .get(right_schedule_id)
-                    .copied()
-                    .ok_or_else(|| EventingError::InvalidValue {
-                        field: policy_control::preview::FIELD_SCHEDULE_ID,
-                        value: right_schedule_id.as_str().to_string(),
-                    })?;
+    let paired_schedule_ids = left_rule
+        .schedule_id
+        .as_ref()
+        .zip(right_rule.schedule_id.as_ref());
 
-            if left_schedule.timezone_name != right_schedule.timezone_name {
-                return Ok(Some(PolicyPreviewFindingKind::TimezoneBoundary));
-            }
-
-            if schedule_windows_overlap(left_schedule, right_schedule)? {
-                Ok(Some(PolicyPreviewFindingKind::OverlappingSchedule))
-            } else {
-                Ok(None)
-            }
-        }
-    }
+    paired_schedule_ids
+        .map(|(left_schedule_id, right_schedule_id)| {
+            schedule_lookup
+                .get(left_schedule_id)
+                .copied()
+                .ok_or_else(|| EventingError::InvalidValue {
+                    field: policy_control::preview::FIELD_SCHEDULE_ID,
+                    value: left_schedule_id.as_str().to_string(),
+                })
+                .and_then(|left_schedule| {
+                    schedule_lookup
+                        .get(right_schedule_id)
+                        .copied()
+                        .ok_or_else(|| EventingError::InvalidValue {
+                            field: policy_control::preview::FIELD_SCHEDULE_ID,
+                            value: right_schedule_id.as_str().to_string(),
+                        })
+                        .and_then(|right_schedule| {
+                            Ok(
+                                (left_schedule.timezone_name != right_schedule.timezone_name)
+                                    .then_some(PolicyPreviewFindingKind::TimezoneBoundary)
+                                    .or(schedule_windows_overlap(left_schedule, right_schedule)?
+                                        .then_some(PolicyPreviewFindingKind::OverlappingSchedule)),
+                            )
+                        })
+                })
+        })
+        .transpose()
+        .map(|kind| {
+            kind.flatten().or_else(|| {
+                paired_schedule_ids
+                    .is_none()
+                    .then_some(PolicyPreviewFindingKind::OverlappingSchedule)
+            })
+        })
 }
 
 fn schedule_windows_overlap(
@@ -394,46 +461,34 @@ fn schedule_windows_overlap(
 fn schedule_has_nonexistent_local_time(
     schedule: &PolicyScheduleWindow,
 ) -> Result<bool, EventingError> {
-    if !schedule_uses_supported_wp07_dst_timezone(schedule) {
-        return Ok(false);
-    }
-    if !schedule_on_single_transition_day(schedule, DstTransitionKind::SpringForward)? {
-        return Ok(false);
-    }
-    schedule_has_transition_local_time(schedule, DstTransitionKind::SpringForward)
+    Ok(schedule_uses_supported_wp07_dst_timezone(schedule)
+        && schedule_on_single_transition_day(schedule, DstTransitionKind::SpringForward)?
+        && schedule_has_transition_local_time(schedule, DstTransitionKind::SpringForward)?)
 }
 
 fn schedule_has_ambiguous_local_time(
     schedule: &PolicyScheduleWindow,
 ) -> Result<bool, EventingError> {
-    if !schedule_uses_supported_wp07_dst_timezone(schedule) {
-        return Ok(false);
-    }
-    if !schedule_on_single_transition_day(schedule, DstTransitionKind::FallBack)? {
-        return Ok(false);
-    }
-    schedule_has_transition_local_time(schedule, DstTransitionKind::FallBack)
+    Ok(schedule_uses_supported_wp07_dst_timezone(schedule)
+        && schedule_on_single_transition_day(schedule, DstTransitionKind::FallBack)?
+        && schedule_has_transition_local_time(schedule, DstTransitionKind::FallBack)?)
 }
 
 fn schedule_has_transition_local_time(
     schedule: &PolicyScheduleWindow,
     transition: DstTransitionKind,
 ) -> Result<bool, EventingError> {
+    let (range_start, range_end) = DST_TRANSITION_MINUTE_RANGES[transition as usize];
     [
         &schedule.starts_at,
         &schedule.ends_at,
         &schedule.time_budget.reset.local_time,
     ]
     .into_iter()
-    .try_fold(false, |found, value| {
-        if found {
-            return Ok(true);
-        }
-        let minutes = parse_clock_time(value)?;
-        Ok(match transition {
-            DstTransitionKind::SpringForward => (120..180).contains(&minutes),
-            DstTransitionKind::FallBack => (60..120).contains(&minutes),
-        })
+    .map(|value| parse_clock_time(value))
+    .try_fold(false, |found, minutes| {
+        let minutes = minutes?;
+        Ok(found || (range_start..range_end).contains(&minutes))
     })
 }
 
@@ -441,52 +496,38 @@ fn schedule_on_single_transition_day(
     schedule: &PolicyScheduleWindow,
     transition: DstTransitionKind,
 ) -> Result<bool, EventingError> {
-    let Some(effective_until) = &schedule.time_budget.effective_until else {
-        return Ok(false);
-    };
+    let (transition_start_day, transition_end_day) = DST_TRANSITION_DAY_RANGES[transition as usize];
+    let transition_month = DST_TRANSITION_MONTHS[transition as usize];
 
-    let effective_from = parse_utc_date(
-        policy_control::source::FIELD_SCHEDULE_EFFECTIVE_FROM,
-        &schedule.time_budget.effective_from,
-    )?;
-    let effective_until = parse_utc_date(
-        policy_control::source::FIELD_SCHEDULE_EFFECTIVE_UNTIL,
-        effective_until,
-    )?;
+    schedule
+        .time_budget
+        .effective_until
+        .as_deref()
+        .map(|effective_until| {
+            let effective_from = parse_utc_date(
+                policy_control::source::FIELD_SCHEDULE_EFFECTIVE_FROM,
+                &schedule.time_budget.effective_from,
+            )?;
+            let effective_until = parse_utc_date(
+                policy_control::source::FIELD_SCHEDULE_EFFECTIVE_UNTIL,
+                effective_until,
+            )?;
 
-    if effective_from != effective_until {
-        return Ok(false);
-    }
-
-    Ok(match transition {
-        DstTransitionKind::SpringForward => {
-            effective_from.month == 3
-                && effective_from.day >= 8
-                && effective_from.day <= 14
+            Ok(effective_from == effective_until
+                && effective_from.month == transition_month
+                && (transition_start_day..=transition_end_day).contains(&effective_from.day)
                 && day_of_week(
                     effective_from.year,
                     effective_from.month,
                     effective_from.day,
-                ) == 0
-        }
-        DstTransitionKind::FallBack => {
-            effective_from.month == 11
-                && effective_from.day >= 1
-                && effective_from.day <= 7
-                && day_of_week(
-                    effective_from.year,
-                    effective_from.month,
-                    effective_from.day,
-                ) == 0
-        }
-    })
+                ) == 0)
+        })
+        .transpose()
+        .map(|result| result.unwrap_or(false))
 }
 
 fn schedule_uses_supported_wp07_dst_timezone(schedule: &PolicyScheduleWindow) -> bool {
-    matches!(
-        schedule.timezone_name.as_str(),
-        "America/Toronto" | "America/Vancouver" | "America/Los_Angeles" | "America/Winnipeg"
-    )
+    SUPPORTED_WP07_DST_TIMEZONES.contains(&schedule.timezone_name.as_str())
 }
 
 fn expand_schedule_ranges(
@@ -494,92 +535,55 @@ fn expand_schedule_ranges(
 ) -> Result<Vec<(u16, u16)>, EventingError> {
     let start_minutes = parse_clock_time(&schedule.starts_at)?;
     let end_minutes = parse_clock_time(&schedule.ends_at)?;
+    let ordering = start_minutes.cmp(&end_minutes);
 
-    if start_minutes == end_minutes {
-        return Ok(vec![(0, 24 * 60)]);
-    }
-
-    if start_minutes < end_minutes {
-        return Ok(vec![(start_minutes, end_minutes)]);
-    }
-
-    Ok(vec![(start_minutes, 24 * 60), (0, end_minutes)])
+    Ok([
+        (ordering == Ordering::Equal).then_some(vec![(0, 24 * 60)]),
+        (ordering == Ordering::Less).then_some(vec![(start_minutes, end_minutes)]),
+        (ordering == Ordering::Greater).then_some(vec![(start_minutes, 24 * 60), (0, end_minutes)]),
+    ]
+    .into_iter()
+    .flatten()
+    .next()
+    .unwrap_or_default())
 }
 
 fn parse_clock_time(value: &str) -> Result<u16, EventingError> {
-    let Some((hours, minutes)) = value.split_once(':') else {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::preview::FIELD_SCHEDULE_TIME,
-            value: value.to_string(),
-        });
+    let invalid_value = || EventingError::InvalidValue {
+        field: policy_control::preview::FIELD_SCHEDULE_TIME,
+        value: value.to_string(),
     };
+    let (hours, minutes) = value.split_once(':').ok_or_else(invalid_value)?;
+    let hours = hours.parse::<u16>().map_err(|_error| invalid_value())?;
+    let minutes = minutes.parse::<u16>().map_err(|_error| invalid_value())?;
 
-    let hours = hours
-        .parse::<u16>()
-        .map_err(|_error| EventingError::InvalidValue {
-            field: policy_control::preview::FIELD_SCHEDULE_TIME,
-            value: value.to_string(),
-        })?;
-    let minutes = minutes
-        .parse::<u16>()
-        .map_err(|_error| EventingError::InvalidValue {
-            field: policy_control::preview::FIELD_SCHEDULE_TIME,
-            value: value.to_string(),
-        })?;
-
-    if hours > 23 || minutes > 59 {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::preview::FIELD_SCHEDULE_TIME,
-            value: value.to_string(),
-        });
-    }
-
-    Ok((hours * 60) + minutes)
+    (hours < 24 && minutes < 60)
+        .then_some((hours * 60) + minutes)
+        .ok_or_else(invalid_value)
 }
 
 fn target_state_finding_kind(state: PolicyPreviewTargetState) -> Option<PolicyPreviewFindingKind> {
-    match state {
-        PolicyPreviewTargetState::Supported => None,
-        PolicyPreviewTargetState::Unsupported => Some(PolicyPreviewFindingKind::UnsupportedTarget),
-        PolicyPreviewTargetState::ManualRequired => {
-            Some(PolicyPreviewFindingKind::ManualRequiredTarget)
-        }
-        PolicyPreviewTargetState::Offline => Some(PolicyPreviewFindingKind::OfflineTarget),
-        PolicyPreviewTargetState::Stale => Some(PolicyPreviewFindingKind::StaleTarget),
-    }
+    TARGET_STATE_FINDINGS[state as usize]
 }
 
 fn finding_requires_manual_review(kind: PolicyPreviewFindingKind) -> bool {
-    matches!(
-        kind,
-        PolicyPreviewFindingKind::OverlappingSchedule
-            | PolicyPreviewFindingKind::TimezoneBoundary
-            | PolicyPreviewFindingKind::AmbiguousLocalTime
-            | PolicyPreviewFindingKind::NonexistentLocalTime
-            | PolicyPreviewFindingKind::ClockSkew
-            | PolicyPreviewFindingKind::ManualRequiredTarget
-            | PolicyPreviewFindingKind::OfflineTarget
-            | PolicyPreviewFindingKind::StaleTarget
-            | PolicyPreviewFindingKind::StaleSourceDocument
-    )
+    MANUAL_REVIEW_FINDING_KINDS.contains(&kind)
 }
 
 fn conflict_schedule_ids(
     left_rule: &ParentPolicyRule,
     right_rule: &ParentPolicyRule,
 ) -> Vec<PolicyScheduleId> {
-    let mut schedule_ids = Vec::new();
-
-    if let Some(schedule_id) = &left_rule.schedule_id {
-        schedule_ids.push(schedule_id.clone());
-    }
-    if let Some(schedule_id) = &right_rule.schedule_id {
-        if !schedule_ids.contains(schedule_id) {
-            schedule_ids.push(schedule_id.clone());
-        }
-    }
-
-    schedule_ids
+    [
+        left_rule.schedule_id.as_ref(),
+        right_rule.schedule_id.as_ref(),
+    ]
+    .into_iter()
+    .flatten()
+    .cloned()
+    .collect::<BTreeSet<_>>()
+    .into_iter()
+    .collect()
 }
 
 fn preview_explanation_code(value: &str) -> PolicyPreviewExplanationCode {
@@ -587,22 +591,7 @@ fn preview_explanation_code(value: &str) -> PolicyPreviewExplanationCode {
 }
 
 fn preview_conflict_explanation_code(kind: PolicyPreviewFindingKind) -> &'static str {
-    match kind {
-        PolicyPreviewFindingKind::AmbiguousLocalTime => {
-            policy_control::preview::EXPLANATION_AMBIGUOUS_LOCAL_TIME
-        }
-        PolicyPreviewFindingKind::NonexistentLocalTime => {
-            policy_control::preview::EXPLANATION_NONEXISTENT_LOCAL_TIME
-        }
-        PolicyPreviewFindingKind::ClockSkew => policy_control::preview::EXPLANATION_CLOCK_SKEW,
-        PolicyPreviewFindingKind::TimezoneBoundary => {
-            policy_control::preview::EXPLANATION_SCHEDULE_TIMEZONE_BOUNDARY
-        }
-        PolicyPreviewFindingKind::OverlappingSchedule => {
-            policy_control::preview::EXPLANATION_OVERLAPPING_SCHEDULE
-        }
-        _ => policy_control::preview::EXPLANATION_UNSUPPORTED_TARGET,
-    }
+    FINDING_EXPLANATION_CODES[kind as usize]
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -643,13 +632,20 @@ fn parse_utc_date(field: &'static str, value: &str) -> Result<UtcDate, EventingE
 
 fn day_of_week(year: i32, month: u8, day: u8) -> u8 {
     let offsets = [0_i32, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
-    let mut year = year;
-    if month < 3 {
-        year -= 1;
-    }
+    let year = year - i32::from(month < 3);
     ((year + (year / 4) - (year / 100)
         + (year / 400)
         + offsets[(month - 1) as usize]
         + i32::from(day))
         % 7) as u8
+}
+
+fn parse_non_empty_text_id(
+    value: impl Into<String>,
+    field: &'static str,
+) -> Result<String, EventingError> {
+    let value = value.into();
+    (!value.trim().is_empty())
+        .then_some(value)
+        .ok_or(EventingError::EmptyValue { field })
 }

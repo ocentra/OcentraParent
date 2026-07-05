@@ -1,11 +1,10 @@
 #![forbid(unsafe_code)]
 
 use super::{
-    CompiledDomainPolicyArtifact, EventingError, PolicyDeliveryApplyOutcome,
-    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
-    PolicyDeliveryTarget, PolicyDeliveryTransition, PolicyVersion,
-    POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE, policy_control, state_values, transition_rules,
-    validation,
+    policy_control, state_values, transition_rules, validation, CompiledDomainPolicyArtifact,
+    EventingError, PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId,
+    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
 };
 
 pub(super) fn queue_policy_delivery(
@@ -44,7 +43,11 @@ pub(super) fn apply_policy_delivery_transition(
     validation::validate_policy_delivery_record(current)?;
     validation::validate_policy_delivery_transition(&transition, current.policy_version)?;
 
-    match transition.sequence.value().cmp(&current.last_sequence.value()) {
+    match transition
+        .sequence
+        .value()
+        .cmp(&current.last_sequence.value())
+    {
         std::cmp::Ordering::Less => return Ok(PolicyDeliveryApplyOutcome::Stale(current.clone())),
         std::cmp::Ordering::Equal => {
             if transition_matches_record(current, &transition) {

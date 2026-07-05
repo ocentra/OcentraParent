@@ -11,7 +11,9 @@ use crate::policy_source::{
     PolicyScheduleWindow, PolicySourceStatus,
 };
 
-pub(crate) fn assert_unique_schedule_ids(document: &ParentPolicySourceDocument) -> Result<(), EventingError> {
+pub(crate) fn assert_unique_schedule_ids(
+    document: &ParentPolicySourceDocument,
+) -> Result<(), EventingError> {
     let mut seen = BTreeSet::new();
     for schedule in &document.schedules {
         if !seen.insert(schedule.schedule_id.clone()) {
@@ -24,7 +26,9 @@ pub(crate) fn assert_unique_schedule_ids(document: &ParentPolicySourceDocument) 
     Ok(())
 }
 
-pub(crate) fn assert_schedule_windows(document: &ParentPolicySourceDocument) -> Result<(), EventingError> {
+pub(crate) fn assert_schedule_windows(
+    document: &ParentPolicySourceDocument,
+) -> Result<(), EventingError> {
     for schedule in &document.schedules {
         assert_schedule_window(schedule)?;
     }
@@ -32,7 +36,9 @@ pub(crate) fn assert_schedule_windows(document: &ParentPolicySourceDocument) -> 
     Ok(())
 }
 
-pub(crate) fn assert_unique_rule_ids(document: &ParentPolicySourceDocument) -> Result<(), EventingError> {
+pub(crate) fn assert_unique_rule_ids(
+    document: &ParentPolicySourceDocument,
+) -> Result<(), EventingError> {
     let mut seen = BTreeSet::new();
     for rule in &document.rules {
         if !seen.insert(rule.rule_id.clone()) {
@@ -45,7 +51,9 @@ pub(crate) fn assert_unique_rule_ids(document: &ParentPolicySourceDocument) -> R
     Ok(())
 }
 
-pub(crate) fn assert_rule_schedule_refs(document: &ParentPolicySourceDocument) -> Result<(), EventingError> {
+pub(crate) fn assert_rule_schedule_refs(
+    document: &ParentPolicySourceDocument,
+) -> Result<(), EventingError> {
     let schedule_ids = document
         .schedules
         .iter()
@@ -74,8 +82,14 @@ pub(crate) fn assert_active_policy_has_rules(
 
 fn assert_schedule_window(schedule: &PolicyScheduleWindow) -> Result<(), EventingError> {
     time::assert_schedule_time_budget(&schedule.time_budget)?;
-    format::assert_local_time(policy_control::source::FIELD_SCHEDULE_STARTS_AT, &schedule.starts_at)?;
-    format::assert_local_time(policy_control::source::FIELD_SCHEDULE_ENDS_AT, &schedule.ends_at)?;
+    format::assert_local_time(
+        policy_control::source::FIELD_SCHEDULE_STARTS_AT,
+        &schedule.starts_at,
+    )?;
+    format::assert_local_time(
+        policy_control::source::FIELD_SCHEDULE_ENDS_AT,
+        &schedule.ends_at,
+    )?;
     Ok(())
 }
 

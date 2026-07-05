@@ -3,9 +3,8 @@
 use std::collections::BTreeSet;
 
 use super::{
-    EventingError, PolicyAuditReferenceId, PolicyDeliveryRecord, PolicyDeliveryTransition,
-    PolicyVersion, SchemaVersion, POLICY_DELIVERY_SCHEMA_VERSION_VALUE, policy_control,
-    state_context,
+    policy_control, state_context, EventingError, PolicyAuditReferenceId, PolicyDeliveryRecord,
+    PolicyDeliveryTransition, PolicyVersion, SchemaVersion, POLICY_DELIVERY_SCHEMA_VERSION_VALUE,
 };
 
 pub(super) fn policy_delivery_schema_version() -> Result<SchemaVersion, EventingError> {

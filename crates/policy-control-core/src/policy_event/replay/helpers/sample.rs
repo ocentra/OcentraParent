@@ -2,16 +2,10 @@
 
 use ocentra_eventing::error::EventingError;
 
-use crate::policy_delivery::PolicyDeliveryId;
 use crate::policy_event::{
-    PolicyEvent, PolicyEventDeadLetterReason, PolicyEventKind, PolicyEventScope,
-    PolicyEventSequence,
+    PolicyEvent, PolicyEventDeadLetterReason, PolicyEventKind, PolicyEventSequence,
 };
-use crate::policy_request::{PolicyApprovalId, PolicyOverrideId, PolicyRequestId};
-use crate::policy_source::{
-    ParentPolicyDocumentId, PolicyAuditReferenceId, PolicyChildProfileId, PolicyConsumerDomain,
-    PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRollbackRef, PolicyVersion,
-};
+use crate::policy_source::{PolicyAuditReferenceId, PolicyReasonCode};
 
 pub(crate) fn sample_policy_event(kind: PolicyEventKind) -> Result<PolicyEvent, EventingError> {
     let scope = super::scope::sample_policy_event_scope(kind)?;

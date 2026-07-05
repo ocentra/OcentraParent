@@ -28,9 +28,8 @@ fn tamper_uninstall_artifact_status_generated_typescript_stays_rust_owned_and_se
         0
     );
     assert_eq!(
-        generated
-            .lines()
-            .find(|line| *line == "} from '@ocentra-parent/schema-domain/tamper-uninstall-artifact-status';"),
+        generated.lines().find(|line| *line
+            == "} from '@ocentra-parent/schema-domain/tamper-uninstall-artifact-status';"),
         None
     );
     assert_eq!(
@@ -41,7 +40,8 @@ fn tamper_uninstall_artifact_status_generated_typescript_stays_rust_owned_and_se
     );
     assert!(generated
         .lines()
-        .any(|line| line == "export const TamperUninstallArtifactStatusReadModelSchema = withParser("));
+        .any(|line| line
+            == "export const TamperUninstallArtifactStatusReadModelSchema = withParser("));
     assert!(generated
         .lines()
         .any(|line| line == "  'tamper-integrity-audit-contract-proof',"));

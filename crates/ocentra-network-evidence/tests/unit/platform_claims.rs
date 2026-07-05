@@ -422,10 +422,7 @@ fn apple_input_for(
         rollback_plan_ref: Some(format!("apple-rollback-ref-52-{}", suffix.0)),
         audit_event_ref: Some(format!("apple-audit-ref-52-{}", suffix.0)),
         supervision_required: true,
-        supervision_or_mdm_proof_ref: Some(format!(
-            "apple-supervision-mdm-ref-52-{}",
-            suffix.0
-        )),
+        supervision_or_mdm_proof_ref: Some(format!("apple-supervision-mdm-ref-52-{}", suffix.0)),
         research_only: false,
         exact_url_claimed: false,
         decrypted_payload_claimed: false,

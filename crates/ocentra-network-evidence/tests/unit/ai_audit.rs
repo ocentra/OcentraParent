@@ -10,11 +10,10 @@ use self::fixtures::{
 
 #[test]
 fn ai_audit_report_generates_parent_readable_narrative_with_cited_refs() {
-    let report =
-        build_network_ai_audit_report(&audit_input(detection_results(vec![
-            signature_detection_case(),
-        ])))
-        .expect_value("high-risk detection should produce a parent-readable audit");
+    let report = build_network_ai_audit_report(&audit_input(detection_results(vec![
+        signature_detection_case(),
+    ])))
+    .expect_value("high-risk detection should produce a parent-readable audit");
 
     assert_eq!(report.narrative_state, NetworkAiAuditNarrativeState::Ready);
     assert_eq!(

@@ -14,7 +14,9 @@ pub(crate) fn validate_policy_approval_resolution_state_rules(
 ) -> PolicyContractValidationResult {
     match resolution.state {
         super::super::PolicyContractApprovalState::Pending => pending::validate(resolution),
-        super::super::PolicyContractApprovalState::PreviewOnly => preview_only::validate(resolution),
+        super::super::PolicyContractApprovalState::PreviewOnly => {
+            preview_only::validate(resolution)
+        }
         super::super::PolicyContractApprovalState::ExpiredRequest => {
             expired_request::validate(resolution)
         }

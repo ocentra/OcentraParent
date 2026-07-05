@@ -60,10 +60,7 @@ fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
         5
     );
     for (result, expected_count) in [
-        (
-            V08EnforcementIntegrityRuntimeAuditResult::Succeeded,
-            1,
-        ),
+        (V08EnforcementIntegrityRuntimeAuditResult::Succeeded, 1),
         (V08EnforcementIntegrityRuntimeAuditResult::Failed, 2),
         (V08EnforcementIntegrityRuntimeAuditResult::Unavailable, 3),
         (V08EnforcementIntegrityRuntimeAuditResult::Expired, 1),
@@ -77,7 +74,10 @@ fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
         assert_eq!(result_count(&result_counts, result), expected_count);
     }
     for (state, expected_count) in [
-        (V08EnforcementIntegrityRuntimeAuditIntegrityState::Running, 8),
+        (
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::Running,
+            8,
+        ),
         (
             V08EnforcementIntegrityRuntimeAuditIntegrityState::PermissionMissing,
             1,

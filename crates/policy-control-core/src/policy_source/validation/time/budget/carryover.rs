@@ -8,10 +8,7 @@ use crate::policy_source::{PolicyScheduleBudgetCarryoverMode, PolicyScheduleTime
 pub(crate) fn assert_schedule_time_budget_carryover(
     budget: &PolicyScheduleTimeBudget,
 ) -> Result<(), EventingError> {
-    assert_schedule_time_budget_carryover_mode(
-        budget.carryover.mode,
-        budget.carryover.max_minutes,
-    )
+    assert_schedule_time_budget_carryover_mode(budget.carryover.mode, budget.carryover.max_minutes)
 }
 
 fn assert_schedule_time_budget_carryover_mode(
@@ -22,9 +19,7 @@ fn assert_schedule_time_budget_carryover_mode(
         PolicyScheduleBudgetCarryoverMode::DiscardUnused => {
             assert_discard_unused_carryover(max_minutes)
         }
-        PolicyScheduleBudgetCarryoverMode::CapCarryover => {
-            assert_cap_carryover(max_minutes)
-        }
+        PolicyScheduleBudgetCarryoverMode::CapCarryover => assert_cap_carryover(max_minutes),
         PolicyScheduleBudgetCarryoverMode::CarryForward => Ok(()),
     }
 }

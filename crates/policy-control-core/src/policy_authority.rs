@@ -18,6 +18,18 @@ const POLICY_EVALUATION_REQUESTED_EVENT_TYPE: &str = "policy-control.evaluation.
 const POLICY_DECISION_RESOLVED_EVENT_TYPE: &str = "policy-control.decision.resolved";
 const POLICY_CONTROL_IDEMPOTENCY_SEPARATOR: &str = ":";
 const POLICY_CONTROL_DECISION_PREFIX: &str = "policy-control-decision:";
+const POLICY_ACTION_AUTHORIZATION_STATES: [PolicyActionAuthorizationState; 2] = [
+    PolicyActionAuthorizationState::Blocked,
+    PolicyActionAuthorizationState::Authorized,
+];
+const POLICY_ENFORCEMENT_EXECUTION_STATES: [PolicyEnforcementExecutionState; 2] = [
+    PolicyEnforcementExecutionState::MustNotExecute,
+    PolicyEnforcementExecutionState::MayExecute,
+];
+const POLICY_MANUAL_REVIEW_STATES: [PolicyManualReviewState; 2] = [
+    PolicyManualReviewState::Required,
+    PolicyManualReviewState::NotRequired,
+];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PolicyDecisionMode {
@@ -134,11 +146,7 @@ macro_rules! policy_control_text_id {
 
         impl $name {
             pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
+                parse_non_empty_text_id(value, $field).map(Self)
             }
 
             pub fn as_str(&self) -> &str {
@@ -226,21 +234,11 @@ pub fn evaluate_policy_control(input: PolicyControlInput) -> PolicyControlDecisi
         policy_can_authorize_action && input.mode == PolicyDecisionMode::Enforce;
 
     PolicyControlDecision {
-        action_authorization_state: if policy_can_authorize_action {
-            PolicyActionAuthorizationState::Authorized
-        } else {
-            PolicyActionAuthorizationState::Blocked
-        },
-        enforcement_execution_state: if enforcement_may_execute {
-            PolicyEnforcementExecutionState::MayExecute
-        } else {
-            PolicyEnforcementExecutionState::MustNotExecute
-        },
-        manual_review_state: if policy_can_authorize_action {
-            PolicyManualReviewState::NotRequired
-        } else {
-            PolicyManualReviewState::Required
-        },
+        action_authorization_state: POLICY_ACTION_AUTHORIZATION_STATES
+            [usize::from(policy_can_authorize_action)],
+        enforcement_execution_state: POLICY_ENFORCEMENT_EXECUTION_STATES
+            [usize::from(enforcement_may_execute)],
+        manual_review_state: POLICY_MANUAL_REVIEW_STATES[usize::from(policy_can_authorize_action)],
     }
 }
 
@@ -257,26 +255,21 @@ pub fn resolve_policy_evaluation_request(
 }
 
 pub fn resolve_policy_conflict(input: PolicyConflictInput) -> PolicyConflictDecision {
-    let resolution_state = if input.evidence_reference_state != EvidenceReferenceState::Stable {
-        PolicyConflictResolutionState::ManualReview
-    } else if input.conflict_state == PolicyConflictState::NoConflict
+    let has_stable_evidence = input.evidence_reference_state == EvidenceReferenceState::Stable;
+    let can_use_parent_policy = input.conflict_state == PolicyConflictState::NoConflict
         && input.parent_authority_state == ParentAuthorityState::Authorized
-        && input.requested_source == PolicyDecisionSource::ParentPolicy
-    {
-        PolicyConflictResolutionState::UseParentPolicy
-    } else if input.requested_source == PolicyDecisionSource::AiEvidence {
-        PolicyConflictResolutionState::ManualReview
-    } else {
-        PolicyConflictResolutionState::ObserveOnly
+        && input.requested_source == PolicyDecisionSource::ParentPolicy;
+    let uses_ai_evidence = input.requested_source == PolicyDecisionSource::AiEvidence;
+    let resolution_state = match (has_stable_evidence, can_use_parent_policy, uses_ai_evidence) {
+        (false, _, _) | (_, _, true) => PolicyConflictResolutionState::ManualReview,
+        (true, true, false) => PolicyConflictResolutionState::UseParentPolicy,
+        _ => PolicyConflictResolutionState::ObserveOnly,
     };
 
     PolicyConflictDecision {
         resolution_state,
-        manual_review_state: if resolution_state == PolicyConflictResolutionState::ManualReview {
-            PolicyManualReviewState::Required
-        } else {
-            PolicyManualReviewState::NotRequired
-        },
+        manual_review_state: POLICY_MANUAL_REVIEW_STATES
+            [usize::from(resolution_state != PolicyConflictResolutionState::ManualReview)],
     }
 }
 
@@ -301,4 +294,15 @@ fn policy_control_decision_ref(request_id: &PolicyControlRequestId) -> String {
     let mut value = String::from(POLICY_CONTROL_DECISION_PREFIX);
     value.push_str(request_id.as_str());
     value
+}
+
+fn parse_non_empty_text_id(
+    value: impl Into<String>,
+    field: &'static str,
+) -> Result<String, EventingError> {
+    let value = value.into();
+    if value.trim().is_empty() {
+        return Err(EventingError::EmptyValue { field });
+    }
+    Ok(value)
 }
