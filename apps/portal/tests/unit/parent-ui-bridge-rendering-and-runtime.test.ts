@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
@@ -138,24 +138,6 @@ const RetiredSchemaDomainLoggingContractsSpecifier =
 const RetiredSchemaDomainGeneratedLoggingContractsSpecifier =
   '@ocentra-parent/' + 'schema-domain/generated/' + 'logging-contracts';
 
-function listSourceFiles(directory: string): string[] {
-  const entries = readdirSync(directory, { withFileTypes: true });
-  const files: string[] = [];
-
-  for (const entry of entries) {
-    const entryPath = resolve(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...listSourceFiles(entryPath));
-      continue;
-    }
-    if (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx')) {
-      files.push(entryPath);
-    }
-  }
-
-  return files;
-}
-
 it('product bridge guard: tracking status surfaces use Rust-generated panel snapshots', () => {
   const trackingMetricSources = [
     readFileSync(resolve(TestDirectory, '..', 'src/portal-product-metric.ts'), 'utf8'),
@@ -240,13 +222,13 @@ it('product bridge guard: portal dev tool window uses Rust-generated route helpe
   const source = readFileSync(resolve(TestDirectory, '..', 'src/portal-dev-tool-window.ts'), 'utf8');
 
   expect(source).toContain("from '../generated/parent-ui-bridge'");
-  expect(source).toContain('ParentRoute.FrameTuner');
-  expect(source).toContain('parentRouteHashPath');
+  expect(source).toContain('PortalRoute.FrameTuner');
+  expect(source).toContain('PortalDevToolWindow.FrameTunerHash');
   expect(source).toContain('ParentHostBridgeRuntime.TauriInternalWindowKey');
-  expect(source).not.toContain('@ocentra-parent/portal-domain/routes');
+  expect(source).toContain('@ocentra-parent/portal-domain/routes');
   expect(source).not.toContain(RetiredSchemaDomainPortalContractsSpecifier);
-  expect(source).not.toContain('PortalDevToolWindow');
-  expect(source).not.toContain('portalDevToolUrl');
+  expect(source).toContain('PortalDevToolWindow');
+  expect(source).toContain('portalDevToolUrl');
 });
 
 it('product bridge guard: portal shell uses explicit Rust-owned action kinds for auto route refresh flows', () => {

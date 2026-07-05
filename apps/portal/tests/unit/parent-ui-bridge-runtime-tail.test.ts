@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
 
@@ -26,6 +26,62 @@ const ProductLiveActivityResolverCallers = [
 ];
 const TestDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ProductSourceDirectory = resolve(TestDirectory, '..', 'src');
+const SnapshotOnlyPanelBindings = [
+  'activityState.networkEvidenceSummary ?? null',
+  'activityState.policyPreviewPanel ?? null',
+  'activityState.appGameNotificationParentSurfacePanel ?? null',
+  'activityState.appGamePolicyReadinessPanel ?? null',
+  'activityState.appGamePlatformProofStatusPanel ?? null',
+  'activityState.appGameChildRuntimeTransportReceiptPanel ?? null',
+  'activityState.appGameAdapterDispatchPanel ?? null',
+  'activityState.appGameTimerParentSurfacePanel ?? null',
+];
+const SocialProofPanelBindings = [
+  'BrowserParentExplanationRoutePanel',
+  'SocialAuditExplanationRoutePanel',
+  'SocialDashboardRoutePanel',
+  'SocialAlertReportRoutePanel',
+  'browserParentExplanationPanel',
+  'socialAuditExplanationPanel',
+  'socialDashboardPanel',
+  'socialAlertReportPanel',
+  'browserActionIntentStreamStatusPanel',
+];
+const ForbiddenSocialReadModels = [
+  'appGameNotificationParentSurfaceIntentReadModel',
+  'appGamePolicyReadinessReadModel',
+  'appGamePlatformProofStatusReadModel',
+  'appGameChildRuntimeTransportReceiptReadModel',
+  'appGameAdapterExecutionReadinessReadModel',
+  'appGameAdapterDispatchPreflightReadModel',
+  'appGameAdapterDispatchResultReadModel',
+  'appGameAdapterDispatchExecutedResult',
+  'appGameTimerParentSurfaceReadModel',
+];
+const AppGamePanelBindings = [
+  'AppGameNotificationParentSurfaceRoutePanel',
+  'AppGamePolicyReadinessRoutePanel',
+  'AppGamePlatformProofStatusRoutePanel',
+  'AppGameChildRuntimeTransportReceiptRoutePanel',
+  'AppGameAdapterDispatchRoutePanel',
+  'AppGameTimerParentSurfaceRoutePanel',
+  'appGameNotificationParentSurfacePanel',
+  'appGamePolicyReadinessPanel',
+  'appGamePlatformProofStatusPanel',
+  'appGameChildRuntimeTransportReceiptPanel',
+  'appGameAdapterDispatchPanel',
+  'appGameTimerParentSurfacePanel',
+];
+const ForbiddenAppGameIntentBuilders = [
+  'createAppGameNotificationParentSurfacePanelIntent',
+  'createAppGamePolicyReadinessPanelIntent',
+  'createAppGamePlatformProofStatusPanelIntent',
+  'createAppGameChildRuntimeTransportReceiptPanelIntent',
+  'createAppGameAdapterDispatchPreflightPanelIntent',
+  'createAppGameAdapterDispatchResultPanelIntent',
+  'createAppGameTimerParentSurfacePanelIntent',
+  'createAppGameTimerParentPreferenceSetupRequestPayload',
+];
 function listSourceFiles(directory: string): string[] {
   const entries = readdirSync(directory, { withFileTypes: true });
   const files: string[] = [];
@@ -59,52 +115,11 @@ it('product bridge guard: product route rendering keeps the route shell snapshot
   expect(parentPortalRouteSource).toContain('resolveSnapshotLiveActivityState(routeLiveActivity)');
   expect(parentPortalRouteSource).not.toContain('resolveLiveActivityState(');
   expect(parentPortalRouteSource).not.toContain('state.events');
-  expect(parentPortalRouteSource).toContain('activityState.networkEvidenceSummary ?? null');
-  expect(parentPortalRouteSource).toContain('activityState.policyPreviewPanel ?? null');
-  expect(parentPortalRouteSource).toContain('activityState.appGameNotificationParentSurfacePanel ?? null');
-  expect(parentPortalRouteSource).toContain('activityState.appGamePolicyReadinessPanel ?? null');
-  expect(parentPortalRouteSource).toContain('activityState.appGamePlatformProofStatusPanel ?? null');
-  expect(parentPortalRouteSource).toContain('activityState.appGameChildRuntimeTransportReceiptPanel ?? null');
-  expect(parentPortalRouteSource).toContain('activityState.appGameAdapterDispatchPanel ?? null');
-  expect(parentPortalRouteSource).toContain('activityState.appGameTimerParentSurfacePanel ?? null');
-  expect(proofPanelsSocialSource).toContain('BrowserParentExplanationRoutePanel');
-  expect(proofPanelsSocialSource).toContain('SocialAuditExplanationRoutePanel');
-  expect(proofPanelsSocialSource).toContain('SocialDashboardRoutePanel');
-  expect(proofPanelsSocialSource).toContain('SocialAlertReportRoutePanel');
-  expect(proofPanelsSocialSource).toContain('browserParentExplanationPanel');
-  expect(proofPanelsSocialSource).toContain('socialAuditExplanationPanel');
-  expect(proofPanelsSocialSource).toContain('socialDashboardPanel');
-  expect(proofPanelsSocialSource).toContain('socialAlertReportPanel');
-  expect(proofPanelsSocialSource).toContain('browserActionIntentStreamStatusPanel');
-  expect(proofPanelsSocialSource).not.toContain('appGameNotificationParentSurfaceIntentReadModel');
-  expect(proofPanelsSocialSource).not.toContain('appGamePolicyReadinessReadModel');
-  expect(proofPanelsSocialSource).not.toContain('appGamePlatformProofStatusReadModel');
-  expect(proofPanelsSocialSource).not.toContain('appGameChildRuntimeTransportReceiptReadModel');
-  expect(proofPanelsSocialSource).not.toContain('appGameAdapterExecutionReadinessReadModel');
-  expect(proofPanelsSocialSource).not.toContain('appGameAdapterDispatchPreflightReadModel');
-  expect(proofPanelsSocialSource).not.toContain('appGameAdapterDispatchResultReadModel');
-  expect(proofPanelsSocialSource).not.toContain('appGameAdapterDispatchExecutedResult');
-  expect(proofPanelsSocialSource).not.toContain('appGameTimerParentSurfaceReadModel');
-  expect(proofPanelsAppGameSource).toContain('AppGameNotificationParentSurfaceRoutePanel');
-  expect(proofPanelsAppGameSource).toContain('AppGamePolicyReadinessRoutePanel');
-  expect(proofPanelsAppGameSource).toContain('AppGamePlatformProofStatusRoutePanel');
-  expect(proofPanelsAppGameSource).toContain('AppGameChildRuntimeTransportReceiptRoutePanel');
-  expect(proofPanelsAppGameSource).toContain('AppGameAdapterDispatchRoutePanel');
-  expect(proofPanelsAppGameSource).toContain('AppGameTimerParentSurfaceRoutePanel');
-  expect(proofPanelsAppGameSource).toContain('appGameNotificationParentSurfacePanel');
-  expect(proofPanelsAppGameSource).toContain('appGamePolicyReadinessPanel');
-  expect(proofPanelsAppGameSource).toContain('appGamePlatformProofStatusPanel');
-  expect(proofPanelsAppGameSource).toContain('appGameChildRuntimeTransportReceiptPanel');
-  expect(proofPanelsAppGameSource).toContain('appGameAdapterDispatchPanel');
-  expect(proofPanelsAppGameSource).toContain('appGameTimerParentSurfacePanel');
-  expect(proofPanelsAppGameSource).not.toContain('createAppGameNotificationParentSurfacePanelIntent');
-  expect(proofPanelsAppGameSource).not.toContain('createAppGamePolicyReadinessPanelIntent');
-  expect(proofPanelsAppGameSource).not.toContain('createAppGamePlatformProofStatusPanelIntent');
-  expect(proofPanelsAppGameSource).not.toContain('createAppGameChildRuntimeTransportReceiptPanelIntent');
-  expect(proofPanelsAppGameSource).not.toContain('createAppGameAdapterDispatchPreflightPanelIntent');
-  expect(proofPanelsAppGameSource).not.toContain('createAppGameAdapterDispatchResultPanelIntent');
-  expect(proofPanelsAppGameSource).not.toContain('createAppGameTimerParentSurfacePanelIntent');
-  expect(proofPanelsAppGameSource).not.toContain('createAppGameTimerParentPreferenceSetupRequestPayload');
+  expectContainsAll(parentPortalRouteSource, SnapshotOnlyPanelBindings);
+  expectContainsAll(proofPanelsSocialSource, SocialProofPanelBindings);
+  expectNotContainsAll(proofPanelsSocialSource, ForbiddenSocialReadModels);
+  expectContainsAll(proofPanelsAppGameSource, AppGamePanelBindings);
+  expectNotContainsAll(proofPanelsAppGameSource, ForbiddenAppGameIntentBuilders);
 
   for (const file of ProductSnapshotOnlyRouteFiles) {
     const source = readFileSync(resolve(TestDirectory, '..', file), 'utf8');
@@ -237,3 +252,15 @@ it('product bridge guard: product source stays decoupled from the TS agent proto
     }
   }
 });
+
+function expectContainsAll(source: string, snippets: readonly string[]): void {
+  for (const snippet of snippets) {
+    expect(source).toContain(snippet);
+  }
+}
+
+function expectNotContainsAll(source: string, snippets: readonly string[]): void {
+  for (const snippet of snippets) {
+    expect(source).not.toContain(snippet);
+  }
+}

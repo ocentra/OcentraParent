@@ -188,17 +188,28 @@ function rustOwnedRouteSnapshot(): ParentRouteLiveActivitySnapshot {
 }
 
 function expectRustOwnedSnapshotOverlay(state: ResolvedLiveActivityState): void {
+  expectRustOwnedStateSummary(state);
+  expectRustOwnedTrackingState(state);
+  expectRustOwnedAppGamePanels(state);
+}
+
+function expectRustOwnedStateSummary(state: ResolvedLiveActivityState): void {
   expect(state.recentSummary?.mostRecentSubjectName).toBe('Child Laptop');
   expect(state.browserManagedEvent?.event).toBe(AgentEvent.BrowserManagedStatusReported);
   expect(state.browserManagedStatus?.managedState).toBe('managed');
   expect(state.localAiRuntimeStatusEvent?.event).toBe(AgentEvent.LocalAiRuntimeStatusReported);
   expect(state.networkFlowEvent?.eventId).toBe('evt-rust-network-flow');
   expect(state.networkFlowReadModel?.rows.at(0)?.destinationDomain).toBe('example-network.test');
+}
+
+function expectRustOwnedTrackingState(state: ResolvedLiveActivityState): void {
   expect(state.activityTrackingReadModelEvent?.eventId).toBe('evt-rust-tracking');
   expect(state.activityTrackingReadModel?.ok ? state.activityTrackingReadModel.value.rows[0]?.deviceId : null).toBe(
     'child-device-1'
   );
+}
 
+function expectRustOwnedAppGamePanels(state: ResolvedLiveActivityState): void {
   const notificationPanel = state.appGameNotificationParentSurfacePanel as {
     readonly summary: string;
     readonly rows: readonly { readonly title: string }[];

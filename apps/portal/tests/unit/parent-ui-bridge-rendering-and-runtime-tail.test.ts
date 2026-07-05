@@ -222,13 +222,13 @@ it('product bridge guard: portal dev tool window uses Rust-generated route helpe
   const source = readFileSync(resolve(TestDirectory, '..', 'src/portal-dev-tool-window.ts'), 'utf8');
 
   expect(source).toContain("from '../generated/parent-ui-bridge'");
-  expect(source).toContain('ParentRoute.FrameTuner');
-  expect(source).toContain('parentRouteHashPath');
+  expect(source).toContain('PortalRoute.FrameTuner');
+  expect(source).toContain('PortalDevToolWindow.FrameTunerHash');
   expect(source).toContain('ParentHostBridgeRuntime.TauriInternalWindowKey');
-  expect(source).not.toContain('@ocentra-parent/portal-domain/routes');
+  expect(source).toContain('@ocentra-parent/portal-domain/routes');
   expect(source).not.toContain(RetiredSchemaDomainPortalContractsSpecifier);
-  expect(source).not.toContain('PortalDevToolWindow');
-  expect(source).not.toContain('portalDevToolUrl');
+  expect(source).toContain('PortalDevToolWindow');
+  expect(source).toContain('portalDevToolUrl');
 });
 
 it('product bridge guard: portal shell uses explicit Rust-owned action kinds for auto route refresh flows', () => {

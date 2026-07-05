@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
@@ -15,168 +15,40 @@ const ProductBridgeSourceFiles = [
   'src/ParentPortalRoute.tsx',
 ];
 const BridgeContractFile = 'generated/parent-ui-bridge.ts';
-const ProductSnapshotRefreshFiles = [
-  {
-    file: 'src/AiRuntimeRoutePanel.tsx',
-    forbidden: ['AgentCommand.LocalAiRuntimeStatusGet', 'AgentEvent.LocalAiRuntimeStatusReported'],
-  },
-  {
-    file: 'src/PolicyPreviewRoutePanel.tsx',
-    forbidden: ['AgentCommand.PolicyPreviewReadModelGet', 'AgentEvent.PolicyPreviewReadModelReported'],
-  },
-  {
-    file: 'src/SocialAuditExplanationRoutePanel.tsx',
-    forbidden: [
-      'AgentCommand.BrowserSocialAuditExplanationReadModelGet',
-      'AgentEvent.BrowserSocialAuditExplanationReadModelReported',
-    ],
-  },
-  {
-    file: 'src/SocialDashboardRoutePanel.tsx',
-    forbidden: [
-      'AgentCommand.BrowserSocialDashboardReadModelGet',
-      'AgentEvent.BrowserSocialDashboardReadModelReported',
-    ],
-  },
-  {
-    file: 'src/SocialAlertReportRoutePanel.tsx',
-    forbidden: [
-      'AgentCommand.BrowserSocialAlertReportReadModelGet',
-      'AgentEvent.BrowserSocialAlertReportReadModelReported',
-      'AgentCommand.BrowserSocialParentNotificationDeliveryReadModelGet',
-      'AgentEvent.BrowserSocialParentNotificationDeliveryReadModelReported',
-      'AgentCommand.BrowserSocialAlertReportParentSurfaceReadModelGet',
-      'AgentEvent.BrowserSocialAlertReportParentSurfaceReadModelReported',
-    ],
-  },
-  {
-    file: 'src/TrackingStatusRoutePanel.tsx',
-    forbidden: [
-      'AgentCommand.ActivityTrackingReadModelGet',
-      'AgentEvent.ActivityTrackingReadModelReported',
-      'AgentCommand.ActivityTrackingRetentionSettingsWrite',
-      'AgentEvent.ActivityTrackingRetentionSettingsWriteRequested',
-    ],
-  },
-  {
-    file: 'src/AppGamePolicyReadinessRoutePanel.tsx',
-    forbidden: [
-      'AgentCommand.ActivityAppGamePolicyReadinessReadModelGet',
-      'AgentEvent.ActivityAppGamePolicyReadinessReadModelReported',
-    ],
-  },
-  {
-    file: 'src/AppGamePlatformProofStatusRoutePanel.tsx',
-    forbidden: [
-      'AgentCommand.ActivityAppGamePlatformProofStatusReadModelGet',
-      'AgentEvent.ActivityAppGamePlatformProofStatusReadModelReported',
-    ],
-  },
-  {
-    file: 'src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx',
-    forbidden: [
-      'AgentCommand.ActivityAppGameChildRuntimeTransportReceiptReadModelGet',
-      'AgentEvent.ActivityAppGameChildRuntimeTransportReceiptReadModelReported',
-    ],
-  },
-  {
-    file: 'src/AppGameAdapterDispatchRoutePanel.tsx',
-    forbidden: [
-      'AgentCommand.ActivityAppGameAdapterDispatchPreflightReadModelGet',
-      'AgentEvent.ActivityAppGameAdapterDispatchPreflightReadModelReported',
-      'AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet',
-      'AgentEvent.ActivityAppGameAdapterDispatchResultReadModelReported',
-      'AgentCommand.ActivityAppGameAdapterDispatchExecute',
-      'AgentEvent.ActivityAppGameAdapterDispatchExecuted',
-    ],
-  },
-  {
-    file: 'src/AppGameTimerParentSurfaceRoutePanel.tsx',
-    forbidden: [
-      'AgentCommand.ActivityAppGameTimerParentSurfaceReadModelGet',
-      'AgentEvent.ActivityAppGameTimerParentSurfaceReadModelReported',
-      'AgentCommand.ActivityAppGameTimerParentPreferenceSetupRequest',
-      'AgentEvent.ActivityAppGameTimerParentPreferenceSetupRequested',
-    ],
-  },
-];
-const ProductCommandBridgeFiles = [
-  {
-    file: 'src/TrackingStatusRoutePanel.tsx',
-    requiredMainActions: ['ParentUiActionKind.TrackingRetentionSettingsWriteRequested'],
-    requiredBridgeActions: ["'tracking-retention-settings-write-requested'"],
-  },
-  {
-    file: 'src/ScreenSettingsWritableControls.tsx',
-    requiredMainActions: [
-      'ParentUiActionKind.ScreenSettingsGetRequested',
-      'ParentUiActionKind.ScreenSettingsReplaceRequested',
-    ],
-    requiredBridgeActions: ["'screen-settings-get-requested'", "'screen-settings-replace-requested'"],
-    forbidden: ['AgentCommand.ActivityScreenSettingsGet', 'AgentCommand.ActivityScreenSettingsReplace'],
-  },
-  {
-    file: 'src/AppGameAdapterDispatchRoutePanel.tsx',
-    requiredMainActions: ['ParentUiActionKind.AppGameAdapterDispatchExecuteRequested'],
-    requiredBridgeActions: ["'app-game-adapter-dispatch-execute-requested'"],
-  },
-  {
-    file: 'src/AppGameTimerParentSurfaceRoutePanel.tsx',
-    requiredMainActions: ['ParentUiActionKind.AppGameTimerParentPreferenceSetupRequested'],
-    requiredBridgeActions: ["'app-game-timer-parent-preference-setup-requested'"],
-  },
-];
-const ProductOverlayPanelsRemovedFromRouteShell = [
-  'AiRuntimeRoutePanel',
-  'AppGameAdapterDispatchRoutePanel',
-  'AppGameChildRuntimeTransportReceiptRoutePanel',
-  'AppGameNotificationParentSurfaceRoutePanel',
-  'AppGamePlatformProofStatusRoutePanel',
-  'AppGamePolicyReadinessRoutePanel',
-  'AppGameTimerParentSurfaceRoutePanel',
-  'BrowserParentExplanationRoutePanel',
-  'ScreenSettingsRoutePanel',
-  'ScreenSummaryRoutePanel',
-  'SocialAlertReportRoutePanel',
-  'SocialAuditExplanationRoutePanel',
-  'SocialDashboardRoutePanel',
-];
-const ProductSnapshotOnlyRouteFiles = [
-  'src/ParentPortalRoute.tsx',
-  ...ProductSnapshotRefreshFiles.map(({ file }) => file),
-];
-const ProductLiveActivityResolverCallers = [
-  'src/diagnostics-export.ts',
-  'src/ParentPortalRoute.tsx',
-  'src/portal-app-behavior.ts',
-  'src/route-live-activity-state.ts',
-];
 const TestDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const ProductSourceDirectory = resolve(TestDirectory, '..', 'src');
 const RetiredSchemaDomainPortalContractsSpecifier =
   '@ocentra-parent/' + 'schema-domain/' + 'portal-contracts';
-const RetiredSchemaDomainLoggingContractsSpecifier =
-  '@ocentra-parent/' + 'schema-domain/' + 'logging-contracts';
-const RetiredSchemaDomainGeneratedLoggingContractsSpecifier =
-  '@ocentra-parent/' + 'schema-domain/generated/' + 'logging-contracts';
-
-function listSourceFiles(directory: string): string[] {
-  const entries = readdirSync(directory, { withFileTypes: true });
-  const files: string[] = [];
-
-  for (const entry of entries) {
-    const entryPath = resolve(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...listSourceFiles(entryPath));
-      continue;
-    }
-    if (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx')) {
-      files.push(entryPath);
-    }
-  }
-
-  return files;
-}
+const BrowserRouteContractSnippets = [
+  'ParentBrowserParentSurfaceRoutes',
+  'ParentRoute.ProofPanels',
+  'isParentBrowserParentSurfaceRoute',
+  'ParentBrowserPanelSnapshot',
+  'browserParentExplanation?: ParentBrowserPanelSnapshot | null',
+  'socialAlertReport?: ParentBrowserPanelSnapshot | null',
+  'browserActionIntentStreamStatus?: ParentBrowserPanelSnapshot | null',
+];
+const BrowserRouteImportSnippets = [
+  "from '../generated/parent-ui-bridge'",
+  'isParentBrowserParentSurfaceRoute',
+  'ParentRouteId',
+];
+const ForbiddenBrowserRouteSnippets = [
+  RetiredSchemaDomainPortalContractsSpecifier,
+  '@ocentra-parent/portal-domain/routes',
+  'PortalRouteValue',
+  'isPortalBrowserParentSurfaceRoute',
+];
+const ForbiddenBrowserDomainImports = [
+  '@ocentra-parent/portal-domain/browser-parent-explanation-panel',
+  '@ocentra-parent/portal-domain/social-audit-explanation-panel',
+  '@ocentra-parent/portal-domain/social-dashboard-panel',
+  '@ocentra-parent/portal-domain/social-alert-report-panel',
+  '@ocentra-parent/portal-domain/social-alert-report-parent-surface-panel',
+  '@ocentra-parent/portal-domain/social-parent-notification-delivery-panel',
+  '@ocentra-parent/portal-domain/browser-action-intent-stream-status',
+  '@ocentra-parent/portal-domain/browser-social-provider-receipt-stream-status',
+  '@ocentra-parent/portal-domain/browser-social-provider-receipt-ingestion-readiness-status',
+];
 
 it('product bridge guard: portal source does not create browser WebSockets', () => {
   for (const sourceFile of ProductBridgeSourceFiles) {
@@ -342,24 +214,13 @@ it('product bridge guard: browser route panels use Rust-generated route-family p
   ];
   const bridgeContractSource = readFileSync(resolve(TestDirectory, '..', BridgeContractFile), 'utf8');
 
-  expect(bridgeContractSource).toContain('ParentBrowserParentSurfaceRoutes');
-  expect(bridgeContractSource).toContain('ParentRoute.ProofPanels');
-  expect(bridgeContractSource).toContain('isParentBrowserParentSurfaceRoute');
-  expect(bridgeContractSource).toContain('ParentBrowserPanelSnapshot');
-  expect(bridgeContractSource).toContain('browserParentExplanation?: ParentBrowserPanelSnapshot | null');
-  expect(bridgeContractSource).toContain('socialAlertReport?: ParentBrowserPanelSnapshot | null');
-  expect(bridgeContractSource).toContain('browserActionIntentStreamStatus?: ParentBrowserPanelSnapshot | null');
+  expectContainsAll(bridgeContractSource, BrowserRouteContractSnippets);
 
   for (const file of browserRouteFiles) {
     const source = readFileSync(resolve(TestDirectory, '..', file), 'utf8');
 
-    expect(source).toContain("from '../generated/parent-ui-bridge'");
-    expect(source).toContain('isParentBrowserParentSurfaceRoute');
-    expect(source).toContain('ParentRouteId');
-    expect(source).not.toContain(RetiredSchemaDomainPortalContractsSpecifier);
-    expect(source).not.toContain('@ocentra-parent/portal-domain/routes');
-    expect(source).not.toContain('PortalRouteValue');
-    expect(source).not.toContain('isPortalBrowserParentSurfaceRoute');
+    expectContainsAll(source, BrowserRouteImportSnippets);
+    expectNotContainsAll(source, ForbiddenBrowserRouteSnippets);
   }
 
   const browserParentExplanationSource = readFileSync(
@@ -371,23 +232,28 @@ it('product bridge guard: browser route panels use Rust-generated route-family p
   const socialAlertReportSource = readFileSync(resolve(TestDirectory, '..', 'src/SocialAlertReportRoutePanel.tsx'), 'utf8');
   const parentPortalRouteSource = readFileSync(resolve(TestDirectory, '..', 'src/ParentPortalRoute.tsx'), 'utf8');
 
-  expect(browserParentExplanationSource).not.toContain('@ocentra-parent/portal-domain/browser-parent-explanation-panel');
-  expect(socialAuditSource).not.toContain('@ocentra-parent/portal-domain/social-audit-explanation-panel');
-  expect(socialDashboardSource).not.toContain('@ocentra-parent/portal-domain/social-dashboard-panel');
-  expect(socialAlertReportSource).not.toContain('@ocentra-parent/portal-domain/social-alert-report-panel');
-  expect(socialAlertReportSource).not.toContain('@ocentra-parent/portal-domain/social-alert-report-parent-surface-panel');
-  expect(socialAlertReportSource).not.toContain('@ocentra-parent/portal-domain/social-parent-notification-delivery-panel');
-  expect(socialAlertReportSource).not.toContain('@ocentra-parent/portal-domain/browser-action-intent-stream-status');
-  expect(socialAlertReportSource).not.toContain('@ocentra-parent/portal-domain/browser-social-provider-receipt-stream-status');
-  expect(socialAlertReportSource).not.toContain(
-    '@ocentra-parent/portal-domain/browser-social-provider-receipt-ingestion-readiness-status'
-  );
+  expect(browserParentExplanationSource).not.toContain(ForbiddenBrowserDomainImports[0]);
+  expect(socialAuditSource).not.toContain(ForbiddenBrowserDomainImports[1]);
+  expect(socialDashboardSource).not.toContain(ForbiddenBrowserDomainImports[2]);
+  expectNotContainsAll(socialAlertReportSource, ForbiddenBrowserDomainImports.slice(3));
   expect(socialAlertReportSource).not.toContain('./live-activity-state');
   expect(parentPortalRouteSource).toContain("browserPanelSnapshot(state, 'browserParentExplanation')");
   expect(parentPortalRouteSource).toContain("browserPanelSnapshot(state, 'socialAlertReport')");
   expect(parentPortalRouteSource).toContain("browserPanelSnapshot(state, 'browserActionIntentStreamStatus')");
   expect(parentPortalRouteSource).toContain('state.routeSnapshot?.browserPanels');
 });
+
+function expectContainsAll(source: string, snippets: readonly string[]): void {
+  for (const snippet of snippets) {
+    expect(source).toContain(snippet);
+  }
+}
+
+function expectNotContainsAll(source: string, snippets: readonly string[]): void {
+  for (const snippet of snippets) {
+    expect(source).not.toContain(snippet);
+  }
+}
 
 it('product bridge guard: ai policy and screen route panels use Rust-generated route-family predicates', () => {
   const routeFamilyPanels = [

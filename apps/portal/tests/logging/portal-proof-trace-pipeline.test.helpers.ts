@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
-import { fileURLToPath } from 'node:url';
 import { afterEach, expect, it } from 'vitest';
 import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/logging-domain/generated/logging-contracts';
 import { appendTestLogEntries } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';

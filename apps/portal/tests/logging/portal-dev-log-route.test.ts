@@ -1,4 +1,4 @@
-import { createServer } from 'node:http';
+import type { Server } from 'node:http';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   GeneratedDevLogBridge as DevLogBridge,
@@ -15,7 +15,7 @@ import {
 } from './portal-dev-log-route.test.helpers';
 
 describe('portal dev log routing', () => {
-  const servers: Array<ReturnType<typeof createServer>> = [];
+  const servers: Server[] = [];
 
   afterEach(async () => {
     Logger.instance.reset();
