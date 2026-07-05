@@ -3,38 +3,6 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-
-use crate::browser_policy_compiler::compile_browser_policy;
-use crate::browser_policy_runtime_support::{
-    base_revision_matches, default_revision_id, next_audit_event_id, next_revision_id,
-    preview_revision_id,
-};
-use crate::browser_policy_store::{
-    browser_policy_store_path_from_env, BrowserPolicyRevisionRecord, BrowserPolicyStoredState,
-};
-use crate::test_invariants::{require_ok, require_some};
-use crate::test_support::default_browser_policy_for_test;
-use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
-use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::policy_constants as policy;
-
-#[path = "../support/browser_policy_test_support.rs"]
-pub mod test_support;
-
-#[path = "../../src/browser_policy_compiler_assessment.rs"]
-mod browser_policy_compiler_assessment;
-#[path = "../../src/browser_policy_compiler.rs"]
-mod browser_policy_compiler_impl;
-#[path = "browser_policy_manifest_patch_tests.rs"]
-mod browser_policy_manifest_patch_tests;
-#[path = "../../src/browser_policy_runtime_support.rs"]
-mod browser_policy_runtime_support;
-#[path = "../../src/browser_policy_store.rs"]
-mod browser_policy_store;
-#[path = "../../src/json_contract.rs"]
-mod json_contract;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 

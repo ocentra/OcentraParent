@@ -1,41 +1,7 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-
-mod dev_log {
-    pub fn write_agent_info(
-        message: impl std::fmt::Display,
-        fields: ocentra_parent_agent_protocol::logging::LogFields,
-    ) -> std::io::Result<()> {
-        let message = message.to_string();
-        agent_service_lib::dev_log::write_agent_info(message.as_str(), fields)
-    }
-}
-
-#[path = "../support/activity_capture_test_support.rs"]
-pub mod test_support;
-
-#[path = "../support/activity_capture/mod.rs"]
-mod activity_capture;
-#[path = "../../src/activity_store_path.rs"]
-mod activity_store_path;
-mod event_builder {
-    pub fn portal_peer() -> ocentra_parent_agent_protocol::transport::AgentPeer {
-        ocentra_parent_agent_protocol::transport::AgentPeer {
-            peer_id: ocentra_parent_agent_protocol::constants::peer::PORTAL_DEV.to_string(),
-            role: ocentra_parent_agent_protocol::transport::AgentPeerRole::Portal,
-        }
-    }
-}
-#[path = "../../src/fields.rs"]
-mod fields;
-#[path = "../../src/json_contract.rs"]
-mod json_contract;
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-#[path = "../../src/time.rs"]
+#[path = "../support/time.rs"]
 mod time;
 
 #[path = "activity_capture_browser_tests.rs"]

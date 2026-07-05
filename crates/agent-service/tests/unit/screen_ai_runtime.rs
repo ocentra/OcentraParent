@@ -1,10 +1,10 @@
 #![forbid(unsafe_code)]
 
-#[path = "../support/activity_capture/mod.rs"]
+#[path = "../support/activity_capture_mod.rs"]
 mod activity_capture;
 #[path = "../../src/activity_store_path.rs"]
 mod activity_store_path;
-#[path = "../support/activity_surface_read_models/mod.rs"]
+#[path = "../support/activity_surface_read_models_mod.rs"]
 mod activity_surface_read_models;
 #[path = "../../src/event_builder.rs"]
 mod event_builder;
@@ -42,7 +42,7 @@ mod screen_ai_service_capture_event_builder;
 mod screen_ai_service_event_bridge;
 #[path = "screen_ai_service_event_bridge_tests.rs"]
 mod screen_ai_service_event_bridge_tests;
-#[path = "../support/screen_ai_service_event_subscription/mod.rs"]
+#[path = "../support/screen_ai_service_event_subscription_mod.rs"]
 pub(crate) mod screen_ai_service_event_subscription;
 #[path = "screen_ai_service_event_subscription_tests.rs"]
 mod screen_ai_service_event_subscription_tests;

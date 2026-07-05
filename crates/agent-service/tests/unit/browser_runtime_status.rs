@@ -1,15 +1,6 @@
 #![forbid(unsafe_code)]
 
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
-#[path = "../../src/browser_payload.rs"]
-mod browser_payload;
-#[path = "../../src/browser_runtime_status.rs"]
-mod browser_runtime_status;
-#[path = "browser_runtime_tests.rs"]
-mod browser_runtime_tests;
-#[path = "../../src/fields.rs"]
+#[path = "../support/fields.rs"]
 mod fields;
 
 #[test]

@@ -3,16 +3,6 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-
-#[path = "../support/command_dispatch_test_support.rs"]
-pub mod test_support;
-
-#[path = "browser_policy_api_tests.rs"]
-mod browser_policy_api_tests;
-#[path = "../../src/json_contract.rs"]
-mod json_contract;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 

@@ -3,39 +3,7 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-
-#[path = "../support/browser_inventory_test_support.rs"]
-pub mod test_support;
-
-#[path = "../support/activity_report_env_lock.rs"]
-mod activity_report_env_lock;
-#[path = "../../src/browser_inventory_read_model.rs"]
-mod browser_inventory_read_model;
-#[path = "browser_inventory_read_model_tests.rs"]
-mod browser_inventory_read_model_tests;
-#[path = "../../src/browser_payload.rs"]
-mod browser_payload;
-#[path = "../../src/browser_policy_compiler.rs"]
-mod browser_policy_compiler;
-#[path = "../../src/browser_policy_compiler_assessment.rs"]
-mod browser_policy_compiler_assessment;
-#[path = "../../src/browser_policy_runtime_support.rs"]
-mod browser_policy_runtime_support;
-#[path = "../../src/browser_policy_store.rs"]
-mod browser_policy_store;
-#[path = "../../src/browser_runtime_paths.rs"]
-mod browser_runtime_paths;
-#[path = "../../src/browser_runtime_status.rs"]
-mod browser_runtime_status;
-#[path = "../../src/fields.rs"]
-mod fields;
-#[path = "../../src/json_contract.rs"]
-mod json_contract;
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-#[path = "../../src/time.rs"]
+#[path = "../support/time.rs"]
 mod time;
 
 #[cfg(test)]

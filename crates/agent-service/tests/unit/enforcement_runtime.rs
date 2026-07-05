@@ -8,7 +8,7 @@ pub mod test_support;
 #[path = "../support/test_text.rs"]
 mod test_text;
 
-#[path = "../support/activity_capture/mod.rs"]
+#[path = "../support/activity_capture_mod.rs"]
 mod activity_capture;
 #[path = "../../src/activity_store_path.rs"]
 mod activity_store_path;

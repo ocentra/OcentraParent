@@ -3,40 +3,7 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-
-#[path = "../support/command_dispatch_test_support.rs"]
-pub mod test_support;
-
-#[path = "../support/activity_api/mod.rs"]
-mod activity_api;
-#[path = "../../src/activity_payload.rs"]
-mod activity_payload;
-#[path = "../support/activity_report_env_lock.rs"]
-mod activity_report_env_lock;
-#[path = "../../src/activity_store_path.rs"]
-mod activity_store_path;
-#[path = "../../src/activity_surface_store.rs"]
-mod activity_surface_store;
-#[path = "../../src/enforcement_timer_state_file.rs"]
-mod enforcement_timer_state_file;
-#[path = "../../src/enforcement_timer_state_path.rs"]
-mod enforcement_timer_state_path;
-#[path = "../../src/event_builder.rs"]
-mod event_builder;
-#[path = "../../src/fields.rs"]
-mod fields;
-#[path = "../../src/json_contract.rs"]
-mod json_contract;
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-#[path = "../../src/time.rs"]
-mod time;
-
-#[path = "../../src/activity_api/app_game_timer_parent_surface_action_results.rs"]
-mod app_game_timer_parent_surface_action_results;
-#[path = "../../src/activity_api/app_game_timer_parent_surface_payload.rs"]
+#[path = "../support/app_game_timer_parent_surface_payload.rs"]
 mod app_game_timer_parent_surface_payload;
 
 use ocentra_parent_agent_protocol::constants;

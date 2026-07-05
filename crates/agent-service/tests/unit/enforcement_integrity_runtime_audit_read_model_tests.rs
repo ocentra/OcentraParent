@@ -59,111 +59,44 @@ fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
             .len(),
         5
     );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::Succeeded
+    for (result, expected_count) in [
+        (
+            V08EnforcementIntegrityRuntimeAuditResult::Succeeded,
+            1,
         ),
-        1
-    );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::Failed
+        (V08EnforcementIntegrityRuntimeAuditResult::Failed, 2),
+        (V08EnforcementIntegrityRuntimeAuditResult::Unavailable, 3),
+        (V08EnforcementIntegrityRuntimeAuditResult::Expired, 1),
+        (V08EnforcementIntegrityRuntimeAuditResult::RolledBack, 1),
+        (V08EnforcementIntegrityRuntimeAuditResult::Superseded, 1),
+        (V08EnforcementIntegrityRuntimeAuditResult::NoOp, 1),
+        (V08EnforcementIntegrityRuntimeAuditResult::ManualRequired, 2),
+        (V08EnforcementIntegrityRuntimeAuditResult::Unsupported, 1),
+        (V08EnforcementIntegrityRuntimeAuditResult::ObserveOnly, 1),
+    ] {
+        assert_eq!(result_count(&result_counts, result), expected_count);
+    }
+    for (state, expected_count) in [
+        (V08EnforcementIntegrityRuntimeAuditIntegrityState::Running, 8),
+        (
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::PermissionMissing,
+            1,
         ),
-        2
-    );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::Unavailable
+        (
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::AdapterUnavailable,
+            1,
         ),
-        3
-    );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::Expired
+        (
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::StaleHeartbeat,
+            1,
         ),
-        1
-    );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::RolledBack
+        (
+            V08EnforcementIntegrityRuntimeAuditIntegrityState::TamperSignalManualRequired,
+            1,
         ),
-        1
-    );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::Superseded
-        ),
-        1
-    );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::NoOp
-        ),
-        1
-    );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::ManualRequired
-        ),
-        2
-    );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::Unsupported
-        ),
-        1
-    );
-    assert_eq!(
-        result_count(
-            &result_counts,
-            V08EnforcementIntegrityRuntimeAuditResult::ObserveOnly
-        ),
-        1
-    );
-    assert_eq!(
-        integrity_count(
-            &integrity_counts,
-            V08EnforcementIntegrityRuntimeAuditIntegrityState::Running
-        ),
-        8
-    );
-    assert_eq!(
-        integrity_count(
-            &integrity_counts,
-            V08EnforcementIntegrityRuntimeAuditIntegrityState::PermissionMissing
-        ),
-        1
-    );
-    assert_eq!(
-        integrity_count(
-            &integrity_counts,
-            V08EnforcementIntegrityRuntimeAuditIntegrityState::AdapterUnavailable
-        ),
-        1
-    );
-    assert_eq!(
-        integrity_count(
-            &integrity_counts,
-            V08EnforcementIntegrityRuntimeAuditIntegrityState::StaleHeartbeat
-        ),
-        1
-    );
-    assert_eq!(
-        integrity_count(
-            &integrity_counts,
-            V08EnforcementIntegrityRuntimeAuditIntegrityState::TamperSignalManualRequired
-        ),
-        1
-    );
+    ] {
+        assert_eq!(integrity_count(&integrity_counts, state), expected_count);
+    }
 }
 
 #[test]

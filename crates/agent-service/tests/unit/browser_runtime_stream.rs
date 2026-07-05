@@ -4,20 +4,6 @@ extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
 #[macro_use]
-#[path = "../support/unit_root_basic_harness.rs"]
-mod unit_root_basic_harness;
-declare_agent_service_unit_root_basic_harness!();
-
-use crate::browser_runtime_stream_payload::browser_runtime_event_chain_stream_payload;
-use crate::browser_runtime_stream_tests::{
-    managed_row, policy_preview_read_model_for_browser, read_model, stream_entries, TestResult,
-};
-use ocentra_parent_agent_protocol::constants;
-use std::io::Error as IoError;
-
-#[path = "../support/command_dispatch_test_support.rs"]
-pub mod test_support;
-
 #[path = "../support/activity_report_env_lock.rs"]
 mod activity_report_env_lock;
 #[path = "browser_runtime_stream_tests.rs"]
