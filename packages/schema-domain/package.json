@@ -1881,34 +1881,6 @@
       "import": "./dist/privacy-legal-disclosure-status-read-model.js",
       "types": "./dist/privacy-legal-disclosure-status-read-model.d.ts"
     },
-    "./provider-secret-custody-status": {
-      "import": "./dist/provider-secret-custody-status.js",
-      "types": "./dist/provider-secret-custody-status.d.ts"
-    },
-    "./provider-secret-custody-status-read-model": {
-      "import": "./dist/provider-secret-custody-status-read-model.js",
-      "types": "./dist/provider-secret-custody-status-read-model.d.ts"
-    },
-    "./provider-secret-execution-readiness": {
-      "import": "./dist/provider-secret-execution-readiness.js",
-      "types": "./dist/provider-secret-execution-readiness.d.ts"
-    },
-    "./provider-secret-execution-readiness-read-model": {
-      "import": "./dist/provider-secret-execution-readiness-read-model.js",
-      "types": "./dist/provider-secret-execution-readiness-read-model.d.ts"
-    },
-    "./provider-secret-rotation-revocation-status": {
-      "import": "./dist/provider-secret-rotation-revocation-status.js",
-      "types": "./dist/provider-secret-rotation-revocation-status.d.ts"
-    },
-    "./provider-secret-rotation-revocation-status-guards": {
-      "import": "./dist/provider-secret-rotation-revocation-status-guards.js",
-      "types": "./dist/provider-secret-rotation-revocation-status-guards.d.ts"
-    },
-    "./provider-secret-rotation-revocation-status-read-model": {
-      "import": "./dist/provider-secret-rotation-revocation-status-read-model.js",
-      "types": "./dist/provider-secret-rotation-revocation-status-read-model.d.ts"
-    },
     "./public-support-contact-status-proof": {
       "import": "./dist/public-support-contact-status-proof.js",
       "types": "./dist/public-support-contact-status-proof.d.ts"
@@ -2288,14 +2260,6 @@
     "./status-backend-redaction-manifest-read-model": {
       "import": "./dist/status-backend-redaction-manifest-read-model.js",
       "types": "./dist/status-backend-redaction-manifest-read-model.d.ts"
-    },
-    "./support-backend-provider-runtime-readiness": {
-      "import": "./dist/support-backend-provider-runtime-readiness.js",
-      "types": "./dist/support-backend-provider-runtime-readiness.d.ts"
-    },
-    "./support-backend-provider-runtime-readiness-read-model": {
-      "import": "./dist/support-backend-provider-runtime-readiness-read-model.js",
-      "types": "./dist/support-backend-provider-runtime-readiness-read-model.d.ts"
     },
     "./support-backend-upload-custody-audit": {
       "import": "./dist/support-backend-upload-custody-audit.js",
