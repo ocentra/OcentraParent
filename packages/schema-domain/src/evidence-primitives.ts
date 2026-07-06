@@ -1,3 +1,5 @@
+/* generic helper for evidence branded primitives */
+
 import { Schema, brandedNonEmptyStringSchema } from './effect';
 
 function defineBrandedNonEmptyString<const TName extends string>(name: TName) {

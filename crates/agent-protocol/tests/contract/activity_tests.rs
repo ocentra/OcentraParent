@@ -208,6 +208,19 @@ fn browser_evidence_values_serialize_to_typescript_contract_shape() {
 }
 
 #[test]
+fn activity_event_kind_constants_track_the_enum_contract() {
+    assert_eq!(constants::activity_event_kind::ALL.len(), 17);
+
+    for (name, kind) in constants::activity_event_kind::ALL {
+        assert_eq!(name, format!("{kind:?}"));
+        assert_eq!(
+            ActivityEventKind::from_protocol_str(kind.as_protocol_str()),
+            Some(kind)
+        );
+    }
+}
+
+#[test]
 fn browser_evidence_recent_summary_serializes_to_contract_shape() {
     let summary = BrowserEvidenceRecentSummary {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,

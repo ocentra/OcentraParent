@@ -1,4 +1,4 @@
-use crate::support::{assert_generated_line_containing_eq, assert_generated_line_eq, ContractLine};
+use crate::support::{assert_generated_line_eq, ContractLine};
 use ocentra_schema::parent_owned_sync_export as contracts;
 use ocentra_schema::parent_owned_sync_export_ts::{
     parent_owned_sync_export_contract_rules_typescript,
@@ -81,26 +81,5 @@ pub(super) fn assert_parent_owned_sync_export_contracts() {
         generated,
         crate::contract_text!("export function syncExportContractProofIsHonestGenerated("),
         ContractLine("export function syncExportContractProofIsHonestGenerated(proof: GeneratedParentOwnedSyncExportContractProof): boolean {"),
-    );
-
-    let adapter =
-        include_str!("../../../../packages/schema-domain/src/parent-owned-sync-export.ts");
-
-    assert_generated_line_eq(
-        crate::contract_text!(adapter),
-        crate::contract_text!(
-            "/* thin adapter over Rust-generated parent-owned sync export contracts */"
-        ),
-        ContractLine("/* thin adapter over Rust-generated parent-owned sync export contracts */"),
-    );
-    assert_generated_line_containing_eq(
-        crate::contract_text!(adapter),
-        crate::contract_text!("from './generated-parent-owned-sync-export-contracts'"),
-        ContractLine("} from './generated-parent-owned-sync-export-contracts';"),
-    );
-    assert_generated_line_containing_eq(
-        crate::contract_text!(adapter),
-        crate::contract_text!("from './generated-parent-owned-sync-export-contract-rules'"),
-        ContractLine("} from './generated-parent-owned-sync-export-contract-rules';"),
     );
 }

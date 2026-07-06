@@ -103,6 +103,7 @@ pub(super) fn assert_browser_add_device_read_model_json(value: &serde_json::Valu
         value["productionHouseholdProof"]["notImplemented"],
         serde_json::json!(["relay-route", "cache-route"])
     );
+    assert_production_household_proof_json(&value["productionHouseholdProof"]);
     super::signed_discovery_relay_spine_test_support::assert_signed_discovery_relay_spine_json(
         &value["signedDiscoveryRelaySpine"],
     );
@@ -117,8 +118,126 @@ pub(super) fn assert_browser_add_device_read_model_json(value: &serde_json::Valu
         ])
     );
     assert_eq!(
+        value["canonicalHouseholdDevices"]
+            .as_array()
+            .expect("canonical household devices serializes as an array")
+            .len(),
+        1
+    );
+    assert!(
+        !value["canonicalHouseholdDevices"][0]["networkIdentity"]["evidenceRecords"]
+            .as_array()
+            .expect("network identity evidence records serializes as an array")
+            .is_empty()
+    );
+    assert_eq!(
         value["canonicalHouseholdDevices"][0]["networkIdentity"]["evidenceRecords"][0]["source"],
         serde_json::json!("local-service")
+    );
+}
+
+fn assert_production_household_proof_json(value: &serde_json::Value) {
+    let status_rows = value["statusRows"]
+        .as_array()
+        .expect("production household proof status rows serialize as an array");
+    let manual_proof_required = value["manualProofRequired"]
+        .as_array()
+        .expect("production household manual proof list serializes as an array");
+    let not_implemented = value["notImplemented"]
+        .as_array()
+        .expect("production household not-implemented list serializes as an array");
+    let claims_not_proved = value["claimsNotProved"]
+        .as_array()
+        .expect("production household non-claims serialize as an array");
+
+    for capability in [
+        "signed-lan-hello",
+        "signed-lan-heartbeat",
+        "passive-neighbor-discovery",
+        "router-neighbor-discovery",
+        "mdns-name-discovery",
+        "ssdp-name-discovery",
+        "router-dhcp-name-discovery",
+        "trusted-registry",
+        "parent-assignment",
+        "parent-rename",
+        "parent-ignore",
+        "parent-revocation",
+        "route-custody",
+        "stale-selected-device",
+        "offline-selected-device",
+        "relay-route",
+        "cache-route",
+        "second-physical-child-agent",
+        "android-child-agent-parity",
+        "ios-child-agent-parity",
+        "store-signing",
+    ] {
+        assert!(
+            status_rows
+                .iter()
+                .any(|row| row["capability"] == serde_json::json!(capability)),
+            "missing production LAN proof capability row: {capability}"
+        );
+    }
+
+    for capability in [
+        "signed-lan-hello",
+        "signed-lan-heartbeat",
+        "mdns-name-discovery",
+        "ssdp-name-discovery",
+        "router-dhcp-name-discovery",
+        "second-physical-child-agent",
+        "android-child-agent-parity",
+        "ios-child-agent-parity",
+        "store-signing",
+    ] {
+        assert!(
+            manual_proof_required
+                .iter()
+                .any(|entry| entry == capability)
+                && status_rows.iter().any(|row| {
+                    row["capability"] == serde_json::json!(capability)
+                        && row["proofState"] == serde_json::json!("manual-required")
+                }),
+            "manual LAN proof capability must be listed and statused manual-required: {capability}"
+        );
+    }
+
+    for capability in ["relay-route", "cache-route"] {
+        assert!(
+            not_implemented.iter().any(|entry| entry == capability)
+                && status_rows.iter().any(|row| {
+                    row["capability"] == serde_json::json!(capability)
+                        && row["proofState"] == serde_json::json!("not-implemented")
+                }),
+            "not-implemented LAN proof capability must be listed and statused not-implemented: {capability}"
+        );
+    }
+
+    for (capability, proof_state) in [
+        ("passive-neighbor-discovery", "ci-mechanical-proof"),
+        ("route-custody", "ci-mechanical-proof"),
+    ] {
+        assert!(
+            status_rows.iter().any(|row| {
+                row["capability"] == serde_json::json!(capability)
+                    && row["proofState"] == serde_json::json!(proof_state)
+            }),
+            "production LAN proof capability must retain Rust-owned proof state: {capability}"
+        );
+    }
+
+    assert_eq!(
+        claims_not_proved,
+        &[
+            serde_json::json!(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_PHYSICAL),
+            serde_json::json!(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_SIGNED),
+            serde_json::json!(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_CLOUD),
+            serde_json::json!(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_ANDROID),
+            serde_json::json!(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_IOS),
+            serde_json::json!(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_STORE),
+        ]
     );
 }
 

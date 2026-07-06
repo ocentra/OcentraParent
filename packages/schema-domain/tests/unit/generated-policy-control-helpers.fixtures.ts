@@ -1,9 +1,9 @@
 import {
-  AppGameCategoryRiskPolicyCandidateAction,
-  AppGameCategoryRiskPolicyRouteFamily,
-  AppGameCategoryRiskPolicyRouteSourceKind,
-  AppGameCategoryRiskPolicyRoutingState,
-} from '../../src/app-game-category-risk-policy-routing';
+  GeneratedAppGameCategoryRiskPolicyCandidateActionValues,
+  GeneratedAppGameCategoryRiskPolicyRouteFamilyValues,
+  GeneratedAppGameCategoryRiskPolicyRouteSourceKindValues,
+  GeneratedAppGameCategoryRiskPolicyRoutingStateValues,
+} from '../../src/generated-policy-control-helpers-contracts';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,
@@ -16,7 +16,7 @@ import {
   PolicyApprovalState,
   PolicyOverrideState,
   PolicyOverrideType,
-} from '../../src/authority';
+} from '../../src/policy-authority';
 import {
   PolicyAction,
   PolicyDecisionHandoffState,
@@ -172,16 +172,16 @@ export const appGameCategoryRiskPolicyRoute = {
   schemaVersion: ParentContractSchemaVersion.V0_6,
   routeId: 'route-001',
   categoryCandidateRef: 'category-candidate-001',
-  routeFamily: AppGameCategoryRiskPolicyRouteFamily.GameContext,
-  sourceKind: AppGameCategoryRiskPolicyRouteSourceKind.LocalAi,
+  routeFamily: GeneratedAppGameCategoryRiskPolicyRouteFamilyValues[3],
+  sourceKind: GeneratedAppGameCategoryRiskPolicyRouteSourceKindValues[4],
   sourceRef: 'source-001',
   targetKind: 'multiplayer-game',
   targetRef: 'target-ref-001',
   confidence: 0.9,
-  candidateAction: AppGameCategoryRiskPolicyCandidateAction.ManualReview,
+  candidateAction: GeneratedAppGameCategoryRiskPolicyCandidateActionValues[3],
   requestedAction: 'manual-required',
   policyAction: PolicyAction.AskParent,
-  routingState: AppGameCategoryRiskPolicyRoutingState.ManualRequired,
+  routingState: GeneratedAppGameCategoryRiskPolicyRoutingStateValues[1],
   categoryProof: {
     evidenceReference: {
       evidenceReferenceId: 'evidence-001',
@@ -208,56 +208,4 @@ export const appGameCategoryRiskPolicyRoute = {
   ],
   aiDigestRef: 'digest-001',
   adapterDispatchState: 'not-dispatched',
-} as const;
-
-export const screenAiStricterParentRuleProofInput = {
-  schemaVersion: ParentContractSchemaVersion.V0_6,
-  proofId: 'proof-screen-ai-stricter-parent-rule',
-  generatedAt: '2026-06-29T14:00:00Z',
-  sourceProof: 'screen-ai-proof',
-  sourceDecision: {
-    schemaVersion: ParentContractSchemaVersion.V0_6,
-    decisionId: 'decision-local-ai',
-    action: PolicyAction.Warn,
-    reasonCodes: ['local-ai-warning'],
-    evidenceReferences: [
-      {
-        evidenceReferenceId: 'evidence-local-ai',
-        kind: ParentEvidenceReferenceKind.LocalAiResult,
-        observedAt: '2026-06-29T13:59:00Z',
-      },
-    ],
-    ruleIds: ['rule-local-ai'],
-    localAiResultId: 'local-ai-result-001',
-    dryRun: true,
-    enforcementHandoffState: PolicyDecisionHandoffState.Disabled,
-    expiresAt: null,
-  },
-  stricterParentRule: {
-    ruleId: 'rule-parent-block',
-    target: {
-      targetId: 'target-game-category',
-      targetType: 'category',
-      targetValue: 'gaming',
-    },
-    action: PolicyAction.Block,
-    scheduleId: null,
-    priority: 100,
-    reasonCode: 'parent-rule-block',
-    createdBy: {
-      actorId: 'actor-parent-001',
-      role: ParentActorRole.Parent,
-    },
-    enabled: true,
-    effectiveFrom: null,
-    effectiveUntil: null,
-  },
-  expectedFinalAction: PolicyAction.Block,
-  claimBoundaries: {
-    localAiAuthorityClaimed: false,
-    remoteAiUsed: false,
-    apiAiUsed: false,
-    rawImageRetained: false,
-    enforcementClaimed: false,
-  },
 } as const;

@@ -424,32 +424,32 @@
     },
     {
       "name": "app-game-android-usage-events-command-event-names",
-      "ownerPath": "packages/schema-domain/src/app-game-android-usage-events-contracts.ts",
+      "ownerPath": "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
       "scanRoots": ["apps", "packages", "scripts", "crates"],
       "values": [
         {
           "name": "capabilityGet",
-          "sourceObjectPath": "AppGameAndroidUsageEventsCommandName.CapabilityGet"
+          "rustConst": "COMMAND_CAPABILITY_GET"
         },
         {
           "name": "replayBoundaryGet",
-          "sourceObjectPath": "AppGameAndroidUsageEventsCommandName.ReplayBoundaryGet"
+          "rustConst": "COMMAND_REPLAY_BOUNDARY_GET"
         },
         {
           "name": "runtimePreflightGet",
-          "sourceObjectPath": "AppGameAndroidUsageEventsCommandName.RuntimePreflightGet"
+          "rustConst": "COMMAND_RUNTIME_PREFLIGHT_GET"
         },
         {
           "name": "capabilityReported",
-          "sourceObjectPath": "AppGameAndroidUsageEventsEventNameLiteral.CapabilityReported"
+          "rustConst": "EVENT_CAPABILITY_REPORTED"
         },
         {
           "name": "replayBoundaryReported",
-          "sourceObjectPath": "AppGameAndroidUsageEventsEventNameLiteral.ReplayBoundaryReported"
+          "rustConst": "EVENT_REPLAY_BOUNDARY_REPORTED"
         },
         {
           "name": "runtimePreflightReported",
-          "sourceObjectPath": "AppGameAndroidUsageEventsEventNameLiteral.RuntimePreflightReported"
+          "rustConst": "EVENT_RUNTIME_PREFLIGHT_REPORTED"
         }
       ]
     },
@@ -493,6 +493,8 @@
         "crates/agent-protocol/src/constants/windows_adapter_artifact_ingestion.rs",
         "crates/agent-protocol/src/constants/windows_adapter_capability.rs",
         "packages/schema-domain/src/evidence-kinds.ts",
+        "packages/schema-domain/src/generated-activity-event-kind.ts",
+        "packages/schema-domain/src/generated-evidence-kinds.ts",
         "packages/portal-domain/src/generated-portal-contracts.ts"
       ],
       "values": [

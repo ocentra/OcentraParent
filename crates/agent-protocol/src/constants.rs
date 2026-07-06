@@ -212,6 +212,8 @@ pub mod event_id {
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
 }
 
+#[path = "constants/app_game_android_usage_events.rs"]
+pub mod app_game_android_usage_events;
 #[path = "constants/field.rs"]
 pub mod field;
 #[path = "constants/policy_control.rs"]

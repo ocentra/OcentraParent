@@ -1,22 +1,34 @@
-import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
 
 import {
   BaselineNetworkControlCatalog,
+  explicitOptionLabels,
   networkControlCatalogCanRender,
   networkControlCatalogSettingCount,
   networkControlCatalogSettings,
-} from '@ocentra-parent/schema-domain/network-control-catalog';
-import {
-  explicitOptionLabels,
   policyLaneFor,
   questionFromSourceText,
-} from '@ocentra-parent/schema-domain/network-control-catalog-metadata';
+} from '../../src/network-control-catalog';
 
 describe('network control catalog Rust-generated metadata surface', () => {
+  it('keeps the public network catalog file checked in as a Rust-generated surface', () => {
+    const catalogSource = readFileSync(new URL('../../src/network-control-catalog.ts', import.meta.url), 'utf8');
+    const rustCatalogSource = readFileSync(
+      new URL('../../../../crates/network-core/src/network_control_catalog.ts.txt', import.meta.url),
+      'utf8'
+    );
+
+    expect(catalogSource).toBe(rustCatalogSource);
+  });
+
   it('keeps the metadata helper file checked in as a Rust-generated surface', () => {
     const metadataSource = readFileSync(
       new URL('../../src/network-control-catalog-metadata.ts', import.meta.url),
+      'utf8'
+    );
+    const rustMetadataSource = readFileSync(
+      new URL('../../../../crates/network-core/src/network_control_catalog_metadata.ts.txt', import.meta.url),
       'utf8'
     );
     const settings = networkControlCatalogSettings();
@@ -36,6 +48,7 @@ describe('network control catalog Rust-generated metadata surface', () => {
     expect(
       metadataSource.startsWith('/* generated from crates/network-core/src/network_control_catalog_metadata.ts.txt */')
     ).toBe(true);
+    expect(metadataSource).toBe(rustMetadataSource);
     expect(networkControlCatalogSettingCount()).toBe(BaselineNetworkControlCatalog.settingCount);
     expect(networkControlCatalogCanRender()).toBe(true);
     expect(protectedSetting?.capabilityState).toBe('protected');
@@ -44,9 +57,7 @@ describe('network control catalog Rust-generated metadata surface', () => {
   });
 
   it('preserves generated helper semantics through the schema-domain edge surface', () => {
-    expect(
-      policyLaneFor('Storage', 'Retention', 'Export audit and cache policy.')
-    ).toBe('audit');
+    expect(policyLaneFor('Storage', 'Retention', 'Export audit and cache policy.')).toBe('audit');
     expect(
       questionFromSourceText('Capability matrix row | Capability=Router protection | Status=Ready', null)
     ).toBe('Represent Router protection capability status.');

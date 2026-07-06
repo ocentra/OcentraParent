@@ -1,25 +1,50 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ParentContractSchemaVersion,
-  ParentEvidenceReferenceKind,
-  ParentPlatform,
-} from '../../src/family-reference-primitives';
-import {
   compareGeneratedPolicyActionStrictness,
+  generatedAppGameCategoryRiskPolicyRouteActionMatchesCandidate,
+  generatedAppGameCategoryRiskPolicyRouteKeepsSoftBoundary,
+  generatedAppGameCategoryRiskPolicyRouteLocalAiRequiresDigest,
+  generatedAppGameCategoryRiskPolicyRouteManualReviewRequiresManualState,
+  generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily,
+  generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof,
   resolveGeneratedPolicyAuthority,
+  resolveGeneratedPolicyApprovalLifecycle,
   resolveGeneratedPolicyPreviewBudgetBoundaryState,
   selectGeneratedStricterPolicyAction,
 } from '../../src/generated-policy-control-helpers';
 import {
-  PolicyAuthoritySource,
-  PolicyAuthorityState,
-  resolvePolicyApprovalLifecycle,
-  resolvePolicyAuthority,
-} from '../../src/authority';
-import { AppGameCategoryRiskPolicyRouteSchema } from '../../src/app-game-category-risk-policy-routing';
+  GeneratedPermissionRequestStateValues,
+  GeneratedPolicyActionValues,
+  GeneratedPolicyApprovalKindValues,
+  GeneratedPolicyApprovalOriginValues,
+  GeneratedPolicyApprovalStateValues,
+  GeneratedPolicyAuthoritySourceValues,
+  GeneratedPolicyAuthorityStateValues,
+  GeneratedPolicyCompilerCapabilityStateValues,
+  GeneratedPolicyCompilerDomainValues,
+  GeneratedPolicyCompilerNoClaimLabelValues,
+  GeneratedPolicyCompilerRuleStatusValues,
+  GeneratedPolicyCompilerSourceStatusValues,
+  GeneratedPolicyCompilerTargetKindValues,
+  GeneratedPolicyDecisionHandoffStateValues,
+  GeneratedPolicyPreviewBudgetBoundaryStateValues,
+  GeneratedPolicyPreviewConfirmationStateValues,
+  GeneratedPolicyPreviewOriginValues,
+  GeneratedPolicyScheduleBoundaryStateValues,
+  GeneratedPolicyScheduleBudgetCarryoverModeValues,
+  GeneratedPolicyScheduleBudgetResetKindValues,
+  GeneratedPolicyScheduleClockSourceValues,
+  GeneratedPolicyScheduleDayValues,
+  GeneratedPolicyScheduleDstResolutionValues,
+  GeneratedPolicyScheduleDstTransitionValues,
+  GeneratedPolicyScheduleOfflineRecoveryStateValues,
+  GeneratedPolicyScheduleOfflineRecoveryValues,
+  GeneratedPolicyOverrideStateValues,
+  GeneratedPolicyOverrideTypeValues,
+  GeneratedPolicyTargetTypeValues,
+} from '../../src/generated-policy-control-helpers-contracts';
 import {
   PolicyAction,
-  PolicyDecisionHandoffState,
   PolicyPreviewBudgetBoundaryState,
   comparePolicyActionStrictness,
   parsePolicyPreview,
@@ -27,7 +52,40 @@ import {
   resolvePolicyPreviewBudgetBoundaryState,
   selectStricterPolicyAction,
 } from '../../src/policy';
-import { buildScreenAiStricterParentRuleProof } from '../../src/screen-ai-stricter-parent-rule-proof';
+import {
+  PermissionRequestState as PolicyPermissionRequestState,
+  PolicyDecisionHandoffState as PolicyDecisionHandoffStateContract,
+  PolicyPreviewBudgetBoundaryState as PolicyPreviewBudgetBoundaryStateContract,
+  PolicyPreviewConfirmationState as PolicyPreviewConfirmationStateContract,
+  PolicyScheduleBoundaryState as PolicyScheduleBoundaryStateContract,
+  PolicyScheduleBudgetCarryoverMode as PolicyScheduleBudgetCarryoverModeContract,
+  PolicyScheduleBudgetResetKind as PolicyScheduleBudgetResetKindContract,
+  PolicyScheduleClockSource as PolicyScheduleClockSourceContract,
+  PolicyScheduleDay as PolicyScheduleDayContract,
+  PolicyScheduleDstResolution as PolicyScheduleDstResolutionContract,
+  PolicyScheduleDstTransition as PolicyScheduleDstTransitionContract,
+  PolicyScheduleOfflineRecovery as PolicyScheduleOfflineRecoveryContract,
+  PolicyScheduleOfflineRecoveryState as PolicyScheduleOfflineRecoveryStateContract,
+  PolicyPreviewOrigin as PolicyPreviewOriginContract,
+  PolicyTargetType as PolicyTargetTypeContract,
+} from '../../src/policy-contracts';
+import {
+  PolicyApprovalKind,
+  PolicyApprovalOrigin,
+  PolicyApprovalState,
+  PolicyAuthoritySource,
+  PolicyAuthorityState,
+  PolicyOverrideState,
+  PolicyOverrideType,
+} from '../../src/policy-authority';
+import {
+  PolicyCompilerCapabilityState,
+  PolicyCompilerDomain,
+  PolicyCompilerNoClaimLabel,
+  PolicyCompilerRuleStatus,
+  PolicyCompilerSourceStatusLiteral,
+  PolicyCompilerTargetKindLiteral,
+} from '../../src/policy-compiler';
 import {
   appGameCategoryRiskPolicyRoute,
   bonusTimeBudgetBoundary,
@@ -36,7 +94,6 @@ import {
   manualBudgetBoundary,
   policyApprovalLifecycleResolution,
   samplePolicyScheduleBoundary,
-  screenAiStricterParentRuleProofInput,
 } from './generated-policy-control-helpers.fixtures';
 
 describe('policy-control generated helpers', () => {
@@ -44,10 +101,10 @@ describe('policy-control generated helpers', () => {
   resolvesManualAndBonusTimeBudgetBoundaryStatesThroughThinAdapters();
   resolvesGeneratedDryRunAuthorityThroughThinAdapter();
   resolvesLocalAiAuthorityAsEvidenceOnly();
+  locksGeneratedLiteralBoundaryAdapters();
   rejectsChildSelfApprovalThroughGeneratedLifecycleSurface();
   keepsPolicyScheduleBoundaryAndPreviewParsingOnGeneratedValidationRules();
   keepsAppGameCategoryRoutingOnGeneratedRouteSemantics();
-  rewiresScreenAiStricterParentRuleProofToGeneratedHelperSemantics();
 });
 
 function preservesStricterPolicyActionOrderingThroughThinAdapters(): void {
@@ -85,31 +142,66 @@ function resolvesGeneratedDryRunAuthorityThroughThinAdapter(): void {
 
 function resolvesLocalAiAuthorityAsEvidenceOnly(): void {
   it('resolves local-AI policy authority as evidence-only', () => {
-    const authority = resolvePolicyAuthority({
-      source: PolicyAuthoritySource.LocalAiResult,
+    const authority = resolveGeneratedPolicyAuthority({
+      source: 'local-ai-result',
       decision: {
-        schemaVersion: ParentContractSchemaVersion.V0_6,
-        decisionId: 'decision-local-ai',
-        action: PolicyAction.Warn,
-        reasonCodes: ['local-ai-warning'],
-        evidenceReferences: [],
-        ruleIds: ['rule-local-ai'],
-        localAiResultId: 'local-ai-result-001',
         dryRun: false,
-        enforcementHandoffState: PolicyDecisionHandoffState.Disabled,
-        expiresAt: null,
       },
     });
 
-    expect(authority.state).toBe(PolicyAuthorityState.EvidenceOnly);
+    expect(authority.state).toBe('evidence-only');
+  });
+}
+
+function locksGeneratedLiteralBoundaryAdapters(): void {
+  it('keeps policy literals aligned with generated Rust-owned value tables', () => {
+    expect(Object.values(PolicyAction)).toEqual(GeneratedPolicyActionValues);
+    expect(Object.values(PolicyTargetTypeContract)).toEqual(GeneratedPolicyTargetTypeValues);
+    expect(Object.values(PolicyScheduleDayContract)).toEqual(GeneratedPolicyScheduleDayValues);
+    expect(Object.values(PolicyDecisionHandoffStateContract)).toEqual(GeneratedPolicyDecisionHandoffStateValues);
+    expect(Object.values(PolicyPermissionRequestState)).toEqual(GeneratedPermissionRequestStateValues);
+    expect(Object.values(PolicyScheduleBoundaryStateContract)).toEqual(GeneratedPolicyScheduleBoundaryStateValues);
+    expect(Object.values(PolicyScheduleDstTransitionContract)).toEqual(GeneratedPolicyScheduleDstTransitionValues);
+    expect(Object.values(PolicyScheduleDstResolutionContract)).toEqual(GeneratedPolicyScheduleDstResolutionValues);
+    expect(Object.values(PolicyScheduleClockSourceContract)).toEqual(GeneratedPolicyScheduleClockSourceValues);
+    expect(Object.values(PolicyScheduleBudgetResetKindContract)).toEqual(GeneratedPolicyScheduleBudgetResetKindValues);
+    expect(Object.values(PolicyScheduleBudgetCarryoverModeContract)).toEqual(
+      GeneratedPolicyScheduleBudgetCarryoverModeValues
+    );
+    expect(Object.values(PolicyScheduleOfflineRecoveryContract)).toEqual(GeneratedPolicyScheduleOfflineRecoveryValues);
+    expect(Object.values(PolicyScheduleOfflineRecoveryStateContract)).toEqual(
+      GeneratedPolicyScheduleOfflineRecoveryStateValues
+    );
+    expect(Object.values(PolicyPreviewOriginContract)).toEqual(GeneratedPolicyPreviewOriginValues);
+    expect(Object.values(PolicyPreviewConfirmationStateContract)).toEqual(
+      GeneratedPolicyPreviewConfirmationStateValues
+    );
+    expect(Object.values(PolicyPreviewBudgetBoundaryStateContract)).toEqual(
+      GeneratedPolicyPreviewBudgetBoundaryStateValues
+    );
+    expect(Object.values(PolicyAuthoritySource)).toEqual(GeneratedPolicyAuthoritySourceValues);
+    expect(Object.values(PolicyAuthorityState)).toEqual(GeneratedPolicyAuthorityStateValues);
+    expect(Object.values(PolicyApprovalOrigin)).toEqual(GeneratedPolicyApprovalOriginValues);
+    expect(Object.values(PolicyApprovalKind)).toEqual(GeneratedPolicyApprovalKindValues);
+    expect(Object.values(PolicyApprovalState)).toEqual(GeneratedPolicyApprovalStateValues);
+    expect(Object.values(PolicyOverrideType)).toEqual(GeneratedPolicyOverrideTypeValues);
+    expect(Object.values(PolicyOverrideState)).toEqual(GeneratedPolicyOverrideStateValues);
+    expect(Object.values(PolicyCompilerDomain)).toEqual(GeneratedPolicyCompilerDomainValues);
+    expect(Object.values(PolicyCompilerRuleStatus)).toEqual(GeneratedPolicyCompilerRuleStatusValues);
+    expect(Object.values(PolicyCompilerCapabilityState)).toEqual(GeneratedPolicyCompilerCapabilityStateValues);
+    expect(Object.values(PolicyCompilerSourceStatusLiteral)).toEqual(GeneratedPolicyCompilerSourceStatusValues);
+    expect(Object.values(PolicyCompilerTargetKindLiteral)).toEqual(GeneratedPolicyCompilerTargetKindValues);
+    expect(Object.values(PolicyCompilerNoClaimLabel)).toEqual(GeneratedPolicyCompilerNoClaimLabelValues);
   });
 }
 
 function rejectsChildSelfApprovalThroughGeneratedLifecycleSurface(): void {
   it('rejects child self-approval through the generated lifecycle surface', () => {
-    expect(resolvePolicyApprovalLifecycle(policyApprovalLifecycleResolution)).toEqual(policyApprovalLifecycleResolution);
+    expect(resolveGeneratedPolicyApprovalLifecycle(policyApprovalLifecycleResolution)).toEqual(
+      policyApprovalLifecycleResolution
+    );
     expect(() =>
-      resolvePolicyApprovalLifecycle({
+      resolveGeneratedPolicyApprovalLifecycle({
         ...policyApprovalLifecycleResolution,
         reviewedBy: {
           ...policyApprovalLifecycleResolution.reviewedBy,
@@ -134,26 +226,19 @@ function keepsPolicyScheduleBoundaryAndPreviewParsingOnGeneratedValidationRules(
 
 function keepsAppGameCategoryRoutingOnGeneratedRouteSemantics(): void {
   it('keeps app/game category routing on generated route semantics', () => {
-    expect(AppGameCategoryRiskPolicyRouteSchema.parse(appGameCategoryRiskPolicyRoute)).toEqual(
-      appGameCategoryRiskPolicyRoute
+    expect(generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily(appGameCategoryRiskPolicyRoute)).toBe(true);
+    expect(generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof(appGameCategoryRiskPolicyRoute)).toBe(true);
+    expect(generatedAppGameCategoryRiskPolicyRouteActionMatchesCandidate(appGameCategoryRiskPolicyRoute)).toBe(true);
+    expect(generatedAppGameCategoryRiskPolicyRouteKeepsSoftBoundary(appGameCategoryRiskPolicyRoute)).toBe(true);
+    expect(generatedAppGameCategoryRiskPolicyRouteManualReviewRequiresManualState(appGameCategoryRiskPolicyRoute)).toBe(
+      true
     );
-    expect(() =>
-      AppGameCategoryRiskPolicyRouteSchema.parse({
+    expect(generatedAppGameCategoryRiskPolicyRouteLocalAiRequiresDigest(appGameCategoryRiskPolicyRoute)).toBe(true);
+    expect(
+      generatedAppGameCategoryRiskPolicyRouteLocalAiRequiresDigest({
         ...appGameCategoryRiskPolicyRoute,
         aiDigestRef: null,
       })
-    ).toThrow('Expected local-AI category policy routes to cite an AI digest ref');
-  });
-}
-
-function rewiresScreenAiStricterParentRuleProofToGeneratedHelperSemantics(): void {
-  it('rewires the screen-ai stricter-parent-rule proof to the generated helper semantics', () => {
-    const proof = buildScreenAiStricterParentRuleProof(screenAiStricterParentRuleProofInput);
-
-    expect(proof.finalAction).toBe(PolicyAction.Block);
-    expect(proof.finalDecision.action).toBe(PolicyAction.Block);
-    expect(proof.finalDecision.reasonCodes[0]).toBe('parent-rule-block');
-    expect(proof.sourceDecision.evidenceReferences[0]?.kind).toBe(ParentEvidenceReferenceKind.LocalAiResult);
-    expect(ParentPlatform.Windows).toBe('windows');
+    ).toBe(false);
   });
 }

@@ -27,12 +27,27 @@ type BrowserControlFieldOptionGenerated = {
 type BrowserControlFieldGenerated = {
   readonly fieldId: string;
   readonly controlKind: string;
+  readonly writesTo?: string;
   readonly defaultValue: BrowserControlFieldValueGenerated;
   readonly options: readonly BrowserControlFieldOptionGenerated[];
 };
 
 type BrowserControlSectionGenerated = {
   readonly sectionId: string;
+};
+
+type BrowserControlManifestSectionGenerated = BrowserControlSectionGenerated & {
+  readonly visibleWhen: readonly BrowserControlConditionGenerated[];
+  readonly fields: readonly BrowserControlManifestFieldGenerated[];
+};
+
+type BrowserControlManifestGenerated = {
+  readonly sections: readonly BrowserControlManifestSectionGenerated[];
+};
+
+type BrowserControlManifestFieldGenerated = {
+  readonly fieldId: string;
+  readonly writesTo: string;
 };
 
 type BrowserControlRuleGenerated = {
@@ -974,6 +989,29 @@ export function browserControlConditionsAreMetGenerated(
   values: Record<string, BrowserControlFieldValueGenerated>
 ): boolean {
   return conditions.every((condition) => browserControlConditionIsMetGenerated(condition, values));
+}
+
+export function browserControlManifestVisibleSectionIdsGenerated(
+  manifest: BrowserControlManifestGenerated,
+  values: Record<string, BrowserControlFieldValueGenerated>
+): string[] {
+  return manifest.sections
+    .filter((section) => browserControlConditionsAreMetGenerated(section.visibleWhen, values))
+    .map((section) => section.sectionId);
+}
+
+export function browserControlManifestAllowsFieldGenerated(
+  manifest: BrowserControlManifestGenerated,
+  fieldId: string
+): boolean {
+  return manifest.sections.some((section) => section.fields.some((field) => field.fieldId === fieldId));
+}
+
+export function browserControlManifestAllowsWritesToGenerated(
+  manifest: BrowserControlManifestGenerated,
+  writesTo: string
+): boolean {
+  return manifest.sections.some((section) => section.fields.some((field) => field.writesTo === writesTo));
 }
 
 export function browserControlFieldDefaultMatchesOptionsGenerated(field: BrowserControlFieldGenerated): boolean {

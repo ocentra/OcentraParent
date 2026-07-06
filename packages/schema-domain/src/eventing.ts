@@ -1,3 +1,7 @@
+/* generated from crates/schema/src/eventing_contracts_ts.rs */
+
+/* generated from crates/schema/src/eventing_contracts_ts.rs */
+
 import { type Infer, NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 const EventingTaxonomyTextSchema = NonEmptyStringSchema.pipe(

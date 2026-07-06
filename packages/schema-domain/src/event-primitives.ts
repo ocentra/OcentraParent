@@ -1,3 +1,5 @@
+/* generic helper for event and message branded primitives */
+
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 export const AgentProtocolSchemaVersion = 1;

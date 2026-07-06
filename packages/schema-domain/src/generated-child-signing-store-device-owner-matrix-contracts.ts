@@ -318,7 +318,7 @@ export const GeneratedChildSigningStoreDeviceOwnerMatrixProof =
       "artifactPackageRef": "target/release-packages/ios/ocentra-parent-agent-ios-simulator-latest.zip",
       "proofSource": "ios-entitlement-proof",
       "proofRefs": [
-        "packages/schema-domain/src/child-ios-entitlement-capability-proof.ts",
+        "packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts",
         "scripts/test/child-ios-entitlement-capability-proof.mjs",
         "scripts/release/ios/build-simulator-app.sh"
       ],

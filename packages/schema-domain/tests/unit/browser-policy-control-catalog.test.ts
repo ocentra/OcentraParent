@@ -4,15 +4,13 @@ import {
   BrowserGamePolicyCompilerInputSchema,
   BrowserGamePolicyDecisionCandidateSchema,
 } from '../../src/browser-game-policy-compiler';
+import { GeneratedBaselineBrowserControlAuthoringManifest } from '../../src/generated-browser-policy-control-catalog-helpers';
 import {
-  BaselineBrowserControlAuthoringManifest,
-} from '../../src/browser-control-baseline-manifest';
-import { BrowserControlManifestDefaults } from '../../src/browser-control-manifest';
-import {
-  BaselineBrowserControlFullCatalog,
-  browserControlFullCatalogSettingCount,
-  browserControlFullCatalogSettings,
-} from '../../src/browser-control-full-catalog';
+  BrowserControlManifestDefaults,
+  browserControlManifestAllowsField,
+  browserControlManifestAllowsWritesTo,
+} from '../../src/browser-control-manifest';
+import { GeneratedBrowserControlWritesToPath } from '../../src/generated-browser-policy-control-catalog-contracts';
 
 const invalidBrowserGameCompilerInput = {
   schemaVersion: 'v0.6',
@@ -80,42 +78,27 @@ describe('browser policy/control schema adapters stay generated-backed', () => {
   });
 
   it('flows generated manifest ids into the baseline authoring manifest', () => {
-    expect(BaselineBrowserControlAuthoringManifest.manifestId).toBe(BrowserControlManifestDefaults.ManifestId);
-    expect(BaselineBrowserControlAuthoringManifest.sections[0]?.sectionId).toBe(
+    expect(GeneratedBaselineBrowserControlAuthoringManifest.manifestId).toBe(BrowserControlManifestDefaults.ManifestId);
+    expect(GeneratedBaselineBrowserControlAuthoringManifest.sections[0]?.sectionId).toBe(
       BrowserControlManifestDefaults.Section.Management
     );
-    expect(BaselineBrowserControlAuthoringManifest.sections[2]?.fields[1]?.defaultValue).toEqual([
+    expect(GeneratedBaselineBrowserControlAuthoringManifest.sections[2]?.fields[1]?.defaultValue).toEqual([
       'edge-stable',
       'chrome-stable',
       'chrome-for-testing',
     ]);
+    expect(
+      browserControlManifestAllowsField(
+        GeneratedBaselineBrowserControlAuthoringManifest,
+        BrowserControlManifestDefaults.Field.Enabled
+      )
+    ).toBe(true);
+    expect(
+      browserControlManifestAllowsWritesTo(
+        GeneratedBaselineBrowserControlAuthoringManifest,
+        GeneratedBrowserControlWritesToPath.Enabled
+      )
+    ).toBe(true);
   });
 
-  it('keeps proof and capability states explicit in the full browser catalog', () => {
-    const settings = browserControlFullCatalogSettings();
-    const proofSetting = settings.find(
-      (setting) =>
-        setting.effectStatus === 'proof-required' &&
-        setting.capabilityState === 'protected' &&
-        setting.proofRequirement === 'managed-browser-or-explicit-browser-integration'
-    );
-    const childAgentSetting = settings.find((setting) => setting.runtimeOwner === 'child-agent');
-    const manualSetting = settings.find(
-      (setting) =>
-        setting.effectStatus === 'manual-required' &&
-        setting.capabilityState === 'manual-required'
-    );
-
-    expect(browserControlFullCatalogSettingCount()).toBe(BaselineBrowserControlFullCatalog.settingCount);
-    expect(proofSetting).toMatchObject({
-      effectStatus: 'proof-required',
-      capabilityState: 'protected',
-      proofRequirement: 'managed-browser-or-explicit-browser-integration',
-    });
-    expect(childAgentSetting?.runtimeOwner).toBe('child-agent');
-    expect(manualSetting).toMatchObject({
-      effectStatus: 'manual-required',
-      capabilityState: 'manual-required',
-    });
-  });
 });

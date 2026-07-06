@@ -1,3 +1,5 @@
-import { withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
+import {
+  BrowserTargetIdSchema as GeneratedBrowserTargetIdSchema,
+} from './generated-browser-target-schemas';
 
-export const BrowserTargetIdSchema = withParser(brandedNonEmptyStringSchema('BrowserTargetId'));
+export const BrowserTargetIdSchema = GeneratedBrowserTargetIdSchema;

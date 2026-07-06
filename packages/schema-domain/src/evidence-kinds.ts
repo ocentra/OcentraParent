@@ -1,83 +1,23 @@
-import { type Infer, Schema, withParser } from './effect';
+/* thin adapter over Rust-owned generated evidence kind contracts */
 
-function defineLiteralKindGroup<const TLiteral extends Record<string, string>>(literal: TLiteral) {
-  const schema = withParser(
-    Schema.Literal(...(Object.values(literal) as [TLiteral[keyof TLiteral], ...TLiteral[keyof TLiteral][]]))
-  );
-  const parsed = Object.fromEntries(Object.entries(literal).map(([key, value]) => [key, schema.parse(value)])) as {
-    readonly [K in keyof TLiteral]: TLiteral[K];
-  };
+import * as Generated from './generated-evidence-kinds';
 
-  return {
-    literal,
-    schema,
-    parsed,
-  } as const;
-}
+export const ActivityObserverLiteral = Generated.ActivityObserverLiteral;
+export const ActivityEventKindLiteral = Generated.ActivityEventKindLiteral;
+export const ActivitySubjectKindLiteral = Generated.ActivitySubjectKindLiteral;
+export const ActivityEvidenceKindLiteral = Generated.ActivityEvidenceKindLiteral;
 
-const ActivityObserverDefinition = defineLiteralKindGroup({
-  AgentService: 'agent-service',
-  WindowsProcess: 'windows-process',
-  WindowsWindow: 'windows-window',
-  WindowsNetwork: 'windows-network',
-  ManagedBrowserBridge: 'managed-browser-bridge',
-  BrowserExtension: 'browser-extension',
-  LocalAi: 'local-ai',
-} as const);
+export const ActivityObserverSchema = Generated.ActivityObserverSchema;
+export const ActivityEventKindSchema = Generated.ActivityEventKindSchema;
+export const ActivitySubjectKindSchema = Generated.ActivitySubjectKindSchema;
+export const ActivityEvidenceKindSchema = Generated.ActivityEvidenceKindSchema;
 
-const ActivityEventKindDefinition = defineLiteralKindGroup({
-  ProcessObserved: 'activity.process.observed',
-  WindowFocused: 'activity.window.focused',
-  DomainObserved: 'activity.domain.observed',
-  UrlObserved: 'activity.url.observed',
-  VideoObserved: 'activity.video.observed',
-  BrowserInterventionApplied: 'activity.browser.intervention.applied',
-  EnforcementAuditRecorded: 'activity.enforcement.audit-recorded',
-  DeviceIdleStateObserved: 'activity.device.idle-state-observed',
-  ScreenAnalysisSummarized: 'activity.screen.analysis.summarized',
-  LocationObserved: 'activity.location.observed',
-  TrackingAlertEvaluated: 'activity.tracking.alert.evaluated',
-  TrackingGeofenceTransitionEvaluated: 'activity.tracking.geofence-transition.evaluated',
-  TrackingExpectedPlaceEvaluated: 'activity.tracking.expected-place.evaluated',
-  TrackingChildCheckInResponded: 'activity.tracking.child-check-in.responded',
-  TrackingParentNotificationRequested: 'activity.tracking.parent-notification.requested',
-  TrackingRetentionDeleted: 'activity.tracking.retention.deleted',
-  NetworkRetentionDeleted: 'activity.network.retention.deleted',
-} as const);
+export type ActivityObserver = Generated.ActivityObserver;
+export type ActivityEventKind = Generated.ActivityEventKind;
+export type ActivitySubjectKind = Generated.ActivitySubjectKind;
+export type ActivityEvidenceKind = Generated.ActivityEvidenceKind;
 
-const ActivitySubjectKindDefinition = defineLiteralKindGroup({
-  Process: 'process',
-  Window: 'window',
-  Domain: 'domain',
-  Url: 'url',
-  Video: 'video',
-  Device: 'device',
-  Intervention: 'intervention',
-} as const);
-
-const ActivityEvidenceKindDefinition = defineLiteralKindGroup({
-  JournalEntry: 'journal-entry',
-  Screenshot: 'screenshot',
-  StorageObject: 'storage-object',
-  LocalDbRow: 'local-db-row',
-} as const);
-
-export const ActivityObserverLiteral = ActivityObserverDefinition.literal;
-export const ActivityEventKindLiteral = ActivityEventKindDefinition.literal;
-export const ActivitySubjectKindLiteral = ActivitySubjectKindDefinition.literal;
-export const ActivityEvidenceKindLiteral = ActivityEvidenceKindDefinition.literal;
-
-export const ActivityObserverSchema = ActivityObserverDefinition.schema;
-export const ActivityEventKindSchema = ActivityEventKindDefinition.schema;
-export const ActivitySubjectKindSchema = ActivitySubjectKindDefinition.schema;
-export const ActivityEvidenceKindSchema = ActivityEvidenceKindDefinition.schema;
-
-export type ActivityObserver = Infer<typeof ActivityObserverSchema>;
-export type ActivityEventKind = Infer<typeof ActivityEventKindSchema>;
-export type ActivitySubjectKind = Infer<typeof ActivitySubjectKindSchema>;
-export type ActivityEvidenceKind = Infer<typeof ActivityEvidenceKindSchema>;
-
-export const ActivityObserver = ActivityObserverDefinition.parsed;
-export const ActivityEventKind = ActivityEventKindDefinition.parsed;
-export const ActivitySubjectKind = ActivitySubjectKindDefinition.parsed;
-export const ActivityEvidenceKind = ActivityEvidenceKindDefinition.parsed;
+export const ActivityObserver = Generated.ActivityObserver;
+export const ActivityEventKind = Generated.ActivityEventKind;
+export const ActivitySubjectKind = Generated.ActivitySubjectKind;
+export const ActivityEvidenceKind = Generated.ActivityEvidenceKind;

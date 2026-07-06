@@ -1,4 +1,4 @@
-use crate::support::{module_specifiers, ValueOrUnreachable as _};
+use crate::support::ValueOrUnreachable as _;
 use ocentra_schema::app_risk_detection as contracts;
 use ocentra_schema::app_risk_detection_ts::{
     app_risk_detection_contract_rules_typescript, app_risk_detection_contracts_typescript,
@@ -128,49 +128,5 @@ fn generated_app_risk_detection_contract_rules_stay_checked_in() {
             .filter(|line| **line == "function appRiskDetectionAiCandidateCitesDigestGenerated(")
             .count(),
         1
-    );
-}
-
-#[test]
-fn app_risk_detection_adapters_stay_thin_and_generated_backed() {
-    let adapter = include_str!("../../../../packages/schema-domain/src/app-riskdetection.ts");
-    let rules = include_str!("../../../../packages/schema-domain/src/app-riskdetection-rules.ts");
-    let data = include_str!("../../../../packages/schema-domain/src/app-riskdetection-data.ts");
-
-    assert_eq!(
-        adapter.lines().next(),
-        Some("/* thin adapter over Rust-generated app risk detection contracts */")
-    );
-    assert_eq!(
-        module_specifiers(crate::contract_text!(adapter)),
-        crate::module_specifiers!(
-            "./effect",
-            "./family-references",
-            "./family-reference-primitives",
-            "./generated-app-riskdetection-contracts",
-            "./generated-app-riskdetection-contract-rules",
-        )
-    );
-    assert_eq!(
-        rules.lines().next(),
-        Some("/* compatibility shim over Rust-generated app risk detection contracts */")
-    );
-    assert_eq!(
-        module_specifiers(crate::contract_text!(rules)),
-        crate::module_specifiers!(
-            "./generated-app-riskdetection-contracts",
-            "./generated-app-riskdetection-contract-rules",
-        )
-    );
-    assert_eq!(
-        data.lines().next(),
-        Some("/* thin adapter over Rust-generated app risk detection proof data */")
-    );
-    assert_eq!(
-        module_specifiers(crate::contract_text!(data)),
-        crate::module_specifiers!(
-            "./app-riskdetection",
-            "./generated-app-riskdetection-contracts",
-        )
     );
 }

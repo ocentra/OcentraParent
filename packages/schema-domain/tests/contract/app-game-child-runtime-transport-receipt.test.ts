@@ -13,7 +13,7 @@ import {
   AgentAppGameChildRuntimeTransportReceiptSourceRuntimeWriterRef,
   AgentAppGameChildRuntimeTransportReceiptState,
   AgentAppGameChildRuntimeTransportReceiptTransportContractRef,
-} from '../../src/app-game-child-runtime-transport-receipt';
+} from '../../src/generated-app-game-child-runtime-transport-receipt';
 
 const ChildRuntimeTransportReceiptReadModel = {
   schemaVersion: AgentAppGameChildRuntimeTransportReceiptSchemaVersion,

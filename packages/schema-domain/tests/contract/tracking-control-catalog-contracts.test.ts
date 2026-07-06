@@ -3,9 +3,6 @@ import { readFileSync } from 'node:fs';
 import {
   BaselineTrackingControlCatalog,
   TrackingControlCapabilities,
-  TrackingControlGuideSettingCount,
-  TrackingControlProposalSettingCount,
-  TrackingControlSourceOptionCount,
   buildTrackingControlEffectivePolicyPlan,
   decodeTrackingControlUpdateCommandForCatalog,
   trackingControlCatalogSettings,
@@ -43,10 +40,13 @@ function generatedSurfaceProof(): void {
     expect(catalogSource).not.toContain('const TrackingControlCatalogJson =');
     expect(catalogSource).not.toContain('const TrackingControlCapabilitiesJson =');
     expect(catalogSettings.length).toBe(BaselineTrackingControlCatalog.settingCount);
-    expect(TrackingControlProposalSettingCount + TrackingControlGuideSettingCount).toBe(
-      BaselineTrackingControlCatalog.settingCount
-    );
-    expect(TrackingControlSourceOptionCount).toBeGreaterThan(0);
+    expect(
+      catalogSettings.filter((setting) => setting.sourceDocument === BaselineTrackingControlCatalog.sourceDocuments[0])
+        .length +
+        catalogSettings.filter((setting) => setting.sourceDocument === BaselineTrackingControlCatalog.sourceDocuments[1])
+          .length
+    ).toBe(BaselineTrackingControlCatalog.settingCount);
+    expect(catalogSettings.reduce((count, setting) => count + setting.options.length, 0)).toBeGreaterThan(0);
     expect(BaselineTrackingControlCatalog.sidePanelCategory).toBe('tracking');
     expect(BaselineTrackingControlCatalog.tabs.length).toBeGreaterThan(0);
     expect(

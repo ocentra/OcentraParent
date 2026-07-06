@@ -96,11 +96,18 @@ fn schema_domain_mirrors_notification_outbox_proof_uses_current_typescript_liter
         value["records"][0]["deliveryClaimState"],
         "local-outbox-only"
     );
+    assert_eq!(
+        value["records"][0]["envelope"]["alertRef"],
+        "notification-alert-ref-1"
+    );
     assert_eq!(value["records"][0]["envelope"]["providerChannel"], "push");
     assert_eq!(
         value["records"][0]["envelope"]["reasonCode"],
         "policy-violation"
     );
+    assert_eq!(value["records"].as_array().map(|rows| rows.len()), Some(1));
+    assert_eq!(value["records"][0]["visibleAfterAt"], serde_json::Value::Null);
+    assert_eq!(value["records"][0]["manualActionRequired"], false);
     assert_eq!(
         value["nonClaims"],
         serde_json::json!([

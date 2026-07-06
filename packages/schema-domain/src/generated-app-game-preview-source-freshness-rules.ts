@@ -1,7 +1,6 @@
 /* generated from crates/schema/src/app_game_preview_source_freshness.rs */
 
 import { AppGamePolicyCompilerOutcomeState, AppGamePolicyTargetKind } from './app-game-policy-target-compiler-rules';
-import { PolicyDecisionHandoffState } from './policy-contracts';
 import {
   AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated,
   AppGamePolicyPreviewNoRuntimeClaimStatesGenerated,
@@ -241,7 +240,7 @@ export const appGamePolicyPreviewStatusMatchesOutcomeGenerated = (row: PreviewRo
   row.previewStatus === appGamePolicyPreviewStatusForOutcomeGenerated(row.outcomeState);
 
 export const appGamePolicyPreviewRowIsDryRunOnlyGenerated = (row: PreviewRowLike) =>
-  row.dryRun && row.enforcementHandoffState === PolicyDecisionHandoffState.Disabled;
+  row.dryRun && row.enforcementHandoffState === 'disabled';
 
 export const appGamePolicyPreviewRowHasNoRuntimeClaimsGenerated = (row: PreviewRowLike) =>
   row.policyEvaluatorRuntimeClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.policyEvaluatorRuntimeClaimState &&

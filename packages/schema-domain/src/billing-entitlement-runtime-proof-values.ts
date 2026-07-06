@@ -1,54 +1,60 @@
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
+import {
+  GeneratedBillingEntitlementRuntimeChildCustodyClaims,
+  GeneratedBillingEntitlementRuntimeConsumptionStates,
+  GeneratedBillingEntitlementRuntimeNonClaims,
+  GeneratedBillingEntitlementRuntimeOperations,
+  GeneratedBillingEntitlementRuntimePortalUiClaims,
+  GeneratedBillingEntitlementRuntimeProductionBillingClaims,
+  GeneratedBillingEntitlementRuntimeProviderContactClaims,
+  GeneratedBillingEntitlementRuntimeProviderExecutionClaims,
+  GeneratedBillingEntitlementRuntimeRefundCreditClaims,
+  GeneratedBillingEntitlementRuntimeSchemaVersion,
+  GeneratedBillingEntitlementRuntimeSnapshotStates,
+  GeneratedBillingEntitlementRuntimeSources,
+} from './generated-billing-entitlement-runtime-proof-values';
 
 export const BillingEntitlementRuntimeSchemaVersionSchema = withParser(
-  Schema.Literal('billing-entitlement-runtime-proof')
+  Schema.Literal(GeneratedBillingEntitlementRuntimeSchemaVersion)
 );
 
 export const BillingEntitlementRuntimeSnapshotStateSchema = withParser(
-  Schema.Literal('snapshot-active', 'snapshot-stale', 'payment-required', 'provider-unavailable', 'manual-review')
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeSnapshotStates)
 );
 
 export const BillingEntitlementRuntimeSourceSchema = withParser(
-  Schema.Literal('signed-local-snapshot', 'account-runtime-boundary', 'manual-support-review', 'unavailable')
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeSources)
 );
 
 export const BillingEntitlementRuntimeOperationSchema = withParser(
-  Schema.Literal(
-    'account-entitlement-snapshot-consumption',
-    'device-limit-decision-consumption',
-    'billing-failure-state-consumption'
-  )
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeOperations)
 );
 
 export const BillingEntitlementRuntimeConsumptionStateSchema = withParser(
-  Schema.Literal(
-    'accepted-local',
-    'accepted-grace',
-    'blocked-new-device',
-    'manual-required',
-    'unavailable-local-safety'
-  )
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeConsumptionStates)
 );
 
-export const BillingEntitlementRuntimeProviderExecutionClaimSchema = withParser(Schema.Literal('not-implemented'));
-export const BillingEntitlementRuntimeProviderContactClaimSchema = withParser(Schema.Literal('manual-required'));
-export const BillingEntitlementRuntimeRefundCreditClaimSchema = withParser(Schema.Literal('manual-required'));
-export const BillingEntitlementRuntimeProductionBillingClaimSchema = withParser(Schema.Literal('not-claimed'));
-export const BillingEntitlementRuntimePortalUiClaimSchema = withParser(Schema.Literal('not-implemented'));
+export const BillingEntitlementRuntimeProviderExecutionClaimSchema = withParser(
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeProviderExecutionClaims)
+);
+export const BillingEntitlementRuntimeProviderContactClaimSchema = withParser(
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeProviderContactClaims)
+);
+export const BillingEntitlementRuntimeRefundCreditClaimSchema = withParser(
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeRefundCreditClaims)
+);
+export const BillingEntitlementRuntimeProductionBillingClaimSchema = withParser(
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeProductionBillingClaims)
+);
+export const BillingEntitlementRuntimePortalUiClaimSchema = withParser(
+  Schema.Literal(...GeneratedBillingEntitlementRuntimePortalUiClaims)
+);
 export const BillingEntitlementRuntimeChildCustodyClaimSchema = withParser(
-  Schema.Literal('signed-snapshot-consumption-contract', 'not-supported')
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeChildCustodyClaims)
 );
 
 export const BillingEntitlementRuntimeNonClaimSchema = withParser(
-  Schema.Literal(
-    'no-stripe-sdk',
-    'no-live-provider-execution',
-    'no-provider-contact',
-    'no-refund-credit-runtime',
-    'no-child-activity-custody',
-    'no-production-billing-claim',
-    'no-portal-ui'
-  )
+  Schema.Literal(...GeneratedBillingEntitlementRuntimeNonClaims)
 );
 
 export const BillingEntitlementRuntimeBoundaryIdSchema = brandedNonEmptyStringSchema(

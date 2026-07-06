@@ -5,15 +5,15 @@ import {
 import {
   AppGameSourceFreshnessPolicyConsumptionMatrix,
   AppGameSourceFreshnessPolicyConsumptionRequests,
-} from '../../src/app-game-source-freshness-policy-consumption-data';
+} from '../../src/generated-app-game-source-freshness-policy-consumption-data';
 import {
   AppGameSourceFreshnessPolicyConsumptionMatrixId,
   AppGameSourceFreshnessPolicyReadinessState,
   AppGameSourceFreshnessPolicyTargetKind,
   AppGameSourceFreshnessReadModelState,
 } from '../../src/app-game-source-freshness-policy-consumption-values';
-import { AppGameSourceFreshnessPreviewGateReadModelSchema } from '../../src/app-game-source-freshness-preview-gate';
-import { AppGameSourceGatedPolicyPreviewReadModelSchema } from '../../src/app-game-source-gated-policy-preview-read-model';
+import { AppGameSourceFreshnessPreviewGateReadModelSchema } from '../../src/generated-app-game-source-freshness-preview-gate';
+import { AppGameSourceGatedPolicyPreviewReadModelSchema } from '../../src/generated-app-game-source-gated-policy-preview-read-model';
 import {
   previewGateReadModelInput,
   previewGateRow,

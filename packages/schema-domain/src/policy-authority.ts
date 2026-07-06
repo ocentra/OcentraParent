@@ -1,10 +1,21 @@
+/* thin adapter over Rust-owned generated policy authority contracts */
+
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+import {
+  GeneratedPolicyApprovalKindValues,
+  GeneratedPolicyApprovalOriginValues,
+  GeneratedPolicyApprovalStateValues,
+  GeneratedPolicyAuthoritySourceValues,
+  GeneratedPolicyAuthorityStateValues,
+  GeneratedPolicyOverrideStateValues,
+  GeneratedPolicyOverrideTypeValues,
+} from './generated-policy-control-helpers-contracts';
 import {
   ChildProfileReferenceSchema,
   ParentActorReferenceSchema,
   ParentDeviceReferenceSchema,
 } from './family-references';
-import { literalSchema, parsedLiteralRecord } from './policy-literal-contracts';
+import { literalRecordFromValues, literalSchema, parsedLiteralRecord } from './policy-literal-contracts';
 import {
   PermissionRequestIdSchema,
   PolicyActionSchema,
@@ -14,55 +25,23 @@ import {
   PolicyTimestampSchema,
 } from './policy-contracts';
 
-export const PolicyAuthoritySourceLiteral = {
-  ParentPolicy: 'parent-policy',
-  LocalAiResult: 'local-ai-result',
-  TrackingSignal: 'tracking-signal',
-  ActivityEvidence: 'activity-evidence',
-} as const;
+export const PolicyAuthoritySourceLiteral = literalRecordFromValues(GeneratedPolicyAuthoritySourceValues);
 
-export const PolicyAuthorityStateLiteral = {
-  Authorized: 'authorized',
-  EvidenceOnly: 'evidence-only',
-  DryRun: 'dry-run',
-} as const;
+export const PolicyAuthorityStateLiteral = literalRecordFromValues(GeneratedPolicyAuthorityStateValues);
 
 export const PolicyApprovalIdSchema = brandedNonEmptyStringSchema('PolicyApprovalId');
 export const PolicyOverrideIdSchema = brandedNonEmptyStringSchema('PolicyOverrideId');
 export const PolicyAuditReferenceIdSchema = brandedNonEmptyStringSchema('PolicyAuditReferenceId');
 
-export const PolicyApprovalOriginLiteral = {
-  ChildRequest: 'child-request',
-  AssistantDraft: 'assistant-draft',
-} as const;
+export const PolicyApprovalOriginLiteral = literalRecordFromValues(GeneratedPolicyApprovalOriginValues);
 
-export const PolicyApprovalKindLiteral = {
-  AskParent: 'ask-parent',
-  TemporaryOverride: 'temporary-override',
-  BonusTime: 'bonus-time',
-} as const;
+export const PolicyApprovalKindLiteral = literalRecordFromValues(GeneratedPolicyApprovalKindValues);
 
-export const PolicyApprovalStateLiteral = {
-  Pending: 'pending',
-  Approved: 'approved',
-  Denied: 'denied',
-  Modified: 'modified',
-  ExpiredRequest: 'expired-request',
-  ReplayRejected: 'replay-rejected',
-  PreviewOnly: 'preview-only',
-} as const;
+export const PolicyApprovalStateLiteral = literalRecordFromValues(GeneratedPolicyApprovalStateValues);
 
-export const PolicyOverrideTypeLiteral = {
-  TemporaryAllow: 'temporary-allow',
-  TemporaryBlock: 'temporary-block',
-  BonusTime: 'bonus-time',
-} as const;
+export const PolicyOverrideTypeLiteral = literalRecordFromValues(GeneratedPolicyOverrideTypeValues);
 
-export const PolicyOverrideStateLiteral = {
-  Active: 'active',
-  Expired: 'expired',
-  Revoked: 'revoked',
-} as const;
+export const PolicyOverrideStateLiteral = literalRecordFromValues(GeneratedPolicyOverrideStateValues);
 
 export const PolicyAuthoritySourceSchema = literalSchema(PolicyAuthoritySourceLiteral);
 export const PolicyAuthorityStateSchema = literalSchema(PolicyAuthorityStateLiteral);

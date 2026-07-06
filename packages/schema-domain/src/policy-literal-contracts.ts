@@ -1,9 +1,20 @@
+/* generic helper for literal/value contracts */
+
 import { Schema, withParser } from './effect';
 
 export function literalValues<Literal extends Record<string, string>>(
   literal: Literal
 ): readonly Literal[keyof Literal][] {
   return Object.freeze(Object.values(literal)) as readonly Literal[keyof Literal][];
+}
+
+export function literalRecordFromValues<const Values extends readonly string[]>(
+  values: Values
+): Readonly<Record<Values[number], Values[number]>> {
+  return Object.freeze(Object.fromEntries(values.map((value) => [value, value])) as Record<
+    Values[number],
+    Values[number]
+  >);
 }
 
 export function literalSchema<Literal extends Record<string, string>>(literal: Literal) {

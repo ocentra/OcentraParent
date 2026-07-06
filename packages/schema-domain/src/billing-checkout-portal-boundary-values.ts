@@ -1,72 +1,74 @@
 import { type Infer, NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import { BillingPlanIdSchema } from './billing-entitlement-values';
+import {
+  GeneratedBillingCheckoutAbuseGateStates,
+  GeneratedBillingCheckoutPortalBoundarySchemaVersion,
+  GeneratedBillingHostedCheckoutPlanIds,
+  GeneratedBillingHostedCsrfStates,
+  GeneratedBillingHostedOriginGateStates,
+  GeneratedBillingHostedReturnPaths,
+  GeneratedBillingHostedReturnResolutions,
+  GeneratedBillingHostedReturnRouteIds,
+  GeneratedBillingHostedSessionKinds,
+  GeneratedBillingHostedSessionRejectionReasons,
+  GeneratedBillingHostedSessionStatuses,
+  GeneratedBillingHostedSurfaceSecretCustodies,
+} from './generated-billing-checkout-portal-boundary-values';
 
 export const BillingCheckoutPortalBoundarySchemaVersionSchema = withParser(
-  Schema.Literal('billing-checkout-portal-boundary')
+  Schema.Literal(GeneratedBillingCheckoutPortalBoundarySchemaVersion)
 );
 
 export const BillingHostedSessionKindSchema = withParser(
-  Schema.Literal('checkout-session-create', 'billing-portal-session-create')
+  Schema.Literal(...GeneratedBillingHostedSessionKinds)
 );
 
-export const BillingHostedSessionStatusSchema = withParser(Schema.Literal('accepted', 'rejected'));
+export const BillingHostedSessionStatusSchema = withParser(Schema.Literal(...GeneratedBillingHostedSessionStatuses));
 
 export const BillingCheckoutAbuseGateStateSchema = withParser(
-  Schema.Literal('passed-turnstile', 'trusted-authenticated-session')
+  Schema.Literal(...GeneratedBillingCheckoutAbuseGateStates)
 );
 
 export const BillingHostedCheckoutPlanIdSchema = withParser(
   BillingPlanIdSchema.pipe(
     Schema.filter(
       (value) =>
-        value === 'family-plus-monthly' ||
-        value === 'family-monitor-core' ||
-        value === 'family-monitor-plus' ||
+        GeneratedBillingHostedCheckoutPlanIds.some((planId) => planId === value) ||
         'Expected hosted checkout requests to reject unknown or non-billable plan ids'
     )
   )
 );
 
-export const BillingHostedOriginGateStateSchema = withParser(Schema.Literal('same-origin-verified'));
+export const BillingHostedOriginGateStateSchema = withParser(
+  Schema.Literal(...GeneratedBillingHostedOriginGateStates)
+);
 
-export const BillingHostedCsrfStateSchema = withParser(Schema.Literal('csrf-token-verified'));
+export const BillingHostedCsrfStateSchema = withParser(Schema.Literal(...GeneratedBillingHostedCsrfStates));
 
-export const BillingHostedSurfaceSecretCustodySchema = withParser(Schema.Literal('not-present'));
+export const BillingHostedSurfaceSecretCustodySchema = withParser(
+  Schema.Literal(...GeneratedBillingHostedSurfaceSecretCustodies)
+);
 
 export const BillingHostedSessionRejectionReasonSchema = withParser(
-  Schema.Literal(
-    'auth-required',
-    'unauthorized-role',
-    'invalid-plan',
-    'origin-csrf-rejected',
-    'redirect-not-allowlisted',
-    'abuse-gate-required',
-    'provider-unavailable'
-  )
+  Schema.Literal(...GeneratedBillingHostedSessionRejectionReasons)
 );
 
 export const BillingHostedReturnRouteIdSchema = withParser(
-  Schema.Literal('family-billing-checkout-success', 'family-billing-checkout-cancel', 'family-billing-portal-return')
+  Schema.Literal(...GeneratedBillingHostedReturnRouteIds)
 );
 
 export const BillingHostedReturnPathSchema = withParser(
   NonEmptyStringSchema.pipe(
     Schema.filter(
       (value) =>
-        value === '/family/billing/checkout/success' ||
-        value === '/family/billing/checkout/cancel' ||
-        value === '/family/billing/manage' ||
+        GeneratedBillingHostedReturnPaths.some((path) => path === value) ||
         'Expected billing checkout and portal paths to stay inside the allowlisted family billing routes'
     )
   )
 );
 
 export const BillingHostedReturnResolutionSchema = withParser(
-  Schema.Literal(
-    'awaiting-provider-webhook',
-    'cancelled-before-provider-confirmation',
-    'portal-management-only'
-  )
+  Schema.Literal(...GeneratedBillingHostedReturnResolutions)
 );
 
 export const BillingHostedSessionRequestIdSchema = brandedNonEmptyStringSchema('BillingHostedSessionRequestId');

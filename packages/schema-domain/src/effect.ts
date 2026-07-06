@@ -1,3 +1,5 @@
+/* generic helper for Effect Schema parsing and branded string contracts */
+
 import * as Either from 'effect/Either';
 import * as ParseResult from 'effect/ParseResult';
 import * as EffectSchema from 'effect/Schema';

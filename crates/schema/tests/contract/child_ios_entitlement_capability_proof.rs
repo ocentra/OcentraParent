@@ -1,4 +1,4 @@
-use crate::support::{module_specifiers, ErrorOrUnreachable as _, ValueOrUnreachable as _};
+use crate::support::{ErrorOrUnreachable as _, ValueOrUnreachable as _};
 use ocentra_schema::child_ios_entitlement_capability_proof as contracts;
 use ocentra_schema::child_ios_entitlement_capability_proof_ts::child_ios_entitlement_capability_proof_contracts_typescript;
 use serde_json::json;
@@ -129,25 +129,5 @@ fn generated_child_ios_entitlement_contracts_stay_checked_in() {
             .filter(|line| **line == "export const GeneratedChildIosEntitlementSurfaceNames = [")
             .count(),
         1
-    );
-}
-
-#[test]
-fn child_ios_entitlement_capability_adapter_stays_thin_and_generated_backed() {
-    let adapter = include_str!(
-        "../../../../packages/schema-domain/src/child-ios-entitlement-capability-proof.ts"
-    );
-
-    assert_eq!(
-        adapter.lines().next(),
-        Some("/* thin adapter over Rust-generated child iOS entitlement capability contracts */")
-    );
-    assert_eq!(
-        module_specifiers(crate::contract_text!(adapter)),
-        crate::module_specifiers!(
-            "./effect",
-            "./family-reference-primitives",
-            "./generated-child-ios-entitlement-capability-proof-contracts",
-        )
     );
 }

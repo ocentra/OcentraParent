@@ -67,19 +67,6 @@ const TrackingControlTemporaryLiveCompanionSettings = [
   },
 ] as const;
 
-export const TrackingControlProposalSettingCount = TrackingControlCatalogSettingSeeds.filter(
-  (seed) => seed[0] === TrackingControlCatalogSourceDocuments[0]
-).length;
-
-export const TrackingControlGuideSettingCount = TrackingControlCatalogSettingSeeds.filter(
-  (seed) => seed[0] === TrackingControlCatalogSourceDocuments[1]
-).length;
-
-export const TrackingControlSourceOptionCount = TrackingControlCatalogSettingSeeds.reduce(
-  (count, seed) => count + seed[15].length,
-  0
-);
-
 export const TrackingControlCapabilities: readonly TrackingControlCapability[] = TrackingControlCapabilitySeeds.map(
   (seed) =>
     TrackingControlCapabilitySchema.parse({

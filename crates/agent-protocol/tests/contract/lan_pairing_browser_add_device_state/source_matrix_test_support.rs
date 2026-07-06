@@ -76,13 +76,23 @@ pub(super) fn source_matrix_fixture() -> LanDiscoverySourceMatrix {
 }
 
 pub(super) fn assert_source_matrix_json(value: &serde_json::Value) {
-    assert_eq!(
-        value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS]
-            .as_array()
-            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-            .len(),
-        25
-    );
+    let workpack_rows = value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS]
+        .as_array()
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
+    let source_rows = value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SOURCE_ROWS]
+        .as_array()
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
+
+    assert_eq!(workpack_rows.len(), 25);
+    for workpack_id in 1..=25 {
+        assert!(
+            workpack_rows.iter().any(|row| {
+                row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ID]
+                    == serde_json::json!(format!("{workpack_id:02}"))
+            }),
+            "missing LAN plan workpack {workpack_id:02}"
+        );
+    }
     assert_eq!(
         value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS][17]
             [constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ID],
@@ -98,19 +108,56 @@ pub(super) fn assert_source_matrix_json(value: &serde_json::Value) {
             [constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_CAN_CONFIRM],
         serde_json::json!(false)
     );
-    assert!(
-        value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SOURCE_ROWS]
-            .as_array()
-            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-            .iter()
-            .any(|row| {
+    assert!(source_rows.iter().any(|row| {
+        row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SOURCE]
+            == serde_json::json!("previous-scan-snapshot")
+            && row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ID]
+                == serde_json::json!("15")
+            && row["persistsAcrossRestart"] == serde_json::json!(true)
+    }));
+    for weak_source in [
+        "windows-neighbor-table",
+        "previous-scan-snapshot",
+        "mdns-dns-sd-query",
+        "ssdp-upnp-query",
+    ] {
+        assert!(
+            source_rows.iter().any(|row| {
                 row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SOURCE]
-                    == serde_json::json!("previous-scan-snapshot")
-                    && row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ID]
-                        == serde_json::json!("15")
-                    && row["persistsAcrossRestart"] == serde_json::json!(true)
-            })
-    );
+                    == serde_json::json!(weak_source)
+                    && row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_CAN_CONFIRM]
+                        == serde_json::json!(false)
+                    && row["canAssignChildProfile"] == serde_json::json!(false)
+            }),
+            "weak LAN source must not confirm child-agent identity or assign child profiles: {weak_source}"
+        );
+    }
+    for signed_source in ["signed-child-agent-hello", "signed-child-agent-heartbeat"] {
+        assert!(
+            source_rows.iter().any(|row| {
+                row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SOURCE]
+                    == serde_json::json!(signed_source)
+                    && row[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_CAN_CONFIRM]
+                        == serde_json::json!(true)
+                    && row["requiredArtifactSummary"].is_string()
+            }),
+            "signed LAN source must require an artifact and explicitly confirm child-agent identity: {signed_source}"
+        );
+    }
+    for non_claim in [
+        constants::lan_pairing::LAN_SOURCE_MATRIX_NON_CLAIM_PACKET_MODE,
+        constants::lan_pairing::LAN_SOURCE_MATRIX_NON_CLAIM_PHYSICAL,
+        constants::lan_pairing::LAN_SOURCE_MATRIX_NON_CLAIM_MDNS_SSDP,
+    ] {
+        assert!(
+            value["claimsNotProved"]
+                .as_array()
+                .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+                .iter()
+                .any(|claim| claim == non_claim),
+            "missing LAN source matrix non-claim: {non_claim}"
+        );
+    }
 }
 
 fn workpack_rows() -> Vec<LanPlanWorkpackStatusRow> {

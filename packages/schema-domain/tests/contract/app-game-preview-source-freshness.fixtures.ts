@@ -10,16 +10,16 @@ import {
   AppGameSourceFreshnessRequirementState,
   AppGameSourceFreshnessReasonCode,
 } from '../../src/app-game-source-freshness-policy-consumption-values';
-import type { AppGameSourceFreshnessPreviewGateReadModelSchema } from '../../src/app-game-source-freshness-preview-gate';
+import type { AppGameSourceFreshnessPreviewGateReadModelSchema } from '../../src/generated-app-game-source-freshness-preview-gate';
 import {
   AppGameSourceFreshnessPreviewGateState,
   AppGameSourceFreshnessPreviewGateStatus,
-} from '../../src/app-game-source-freshness-preview-gate';
-import type { AppGameSourceGatedPolicyPreviewReadModelSchema } from '../../src/app-game-source-gated-policy-preview-read-model';
+} from '../../src/generated-app-game-source-freshness-preview-gate';
+import type { AppGameSourceGatedPolicyPreviewReadModelSchema } from '../../src/generated-app-game-source-gated-policy-preview-read-model';
 import {
   AppGameSourceGatedPolicyPreviewReadModelProjectionState,
   AppGameSourceGatedPolicyPreviewReadModelSensitiveBoundary,
-} from '../../src/app-game-source-gated-policy-preview-read-model';
+} from '../../src/generated-app-game-source-gated-policy-preview-read-model';
 import { RequiredAppGameSourceGatedPolicyPreviewReadModelNonClaims } from '../../src/app-game-source-gated-policy-preview-read-model-rules';
 import { ParentContractSchemaVersion } from '../../src/family-reference-primitives';
 import { PolicyDecisionHandoffState } from '../../src/policy-contracts';

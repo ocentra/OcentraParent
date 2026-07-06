@@ -30,6 +30,13 @@ pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_REF_RECEIPT_CONTRACT: &str =
     "child-runtime-delivery-receipt-contract-ref";
 pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_PARITY_MANIFEST: &str = r#"{"schemaVersion":1,"payloadField":"appGameChildRuntimeTransportReceiptReadModel","readModelId":"app-game-child-runtime-transport-receipt","sourceRuntimeWriterRef":"app-game-child-device-runtime-writer","custodyLabel":"app-game-child-runtime-transport-receipt","capabilityStatus":"app-game-child-runtime-transport-required","stateValues":["child-runtime-transport-required","manual-required","unavailable"],"productMeanings":["native-app","native-game"],"canonicalRefs":["child-runtime-transport-contract-ref","child-runtime-delivery-receipt-contract-ref"],"canonicalGaps":["child-runtime-transport-not-executed","child-runtime-receipt-not-ingested","provider-delivery-not-executed","platform-delivery-channel-not-proved"],"rowFields":["schemaVersion","rowId","sourceRuntimeWriterRowId","boundaryState","productMeanings","requiredTransportRefs","requiredReceiptRefs","openGaps","runtimeTransportExecuted","runtimeReceiptIngested","providerDeliveryExecuted","platformDeliveryChannelClaimed"],"readModelFields":["schemaVersion","readModelId","generatedAt","sourceReadModelIds","custodyLabel","capabilityStatus","returned","transportRequiredCount","manualRequiredCount","unavailableCount","runtimeTransportExecuted","runtimeReceiptIngested","providerDeliveryExecuted","platformDeliveryChannelClaimed","adapterDispatchClaimed","platformEnforcementClaimed","rawPrivateSourceRowsIncluded","rows"]}"#;
 
+pub fn app_game_child_runtime_transport_receipt_typescript() -> String {
+    include_str!(
+        "../../../packages/schema-domain/src/generated-app-game-child-runtime-transport-receipt.ts"
+    )
+    .to_string()
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppGameChildRuntimeTransportReceiptRow {

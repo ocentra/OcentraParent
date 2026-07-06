@@ -1,58 +1,25 @@
 import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema,
-} from '@ocentra-parent/schema-domain/effect';
-const BrowserRedactedRefText = NonEmptyStringSchema.pipe(
-  Schema.filter((value) => browserRedactedRefIsSafe(value) || 'Expected a redacted browser reference')
-);
+  BrowserUnmanagedDetectionConfidenceSchema as GeneratedBrowserUnmanagedDetectionConfidenceSchema,
+  BrowserUnmanagedProcessKindSchema as GeneratedBrowserUnmanagedProcessKindSchema,
+  BrowserUnmanagedDetectionReasonSchema as GeneratedBrowserUnmanagedDetectionReasonSchema,
+  BrowserUnmanagedExecutablePathRefSchema as GeneratedBrowserUnmanagedExecutablePathRefSchema,
+  BrowserUnmanagedProcessHashRefSchema as GeneratedBrowserUnmanagedProcessHashRefSchema,
+  BrowserUnmanagedProcessNameSchema as GeneratedBrowserUnmanagedProcessNameSchema,
+  BrowserUnmanagedSignatureRefSchema as GeneratedBrowserUnmanagedSignatureRefSchema,
+} from './generated-browser-unmanaged-process-schemas';
+import type {
+  BrowserUnmanagedDetectionConfidence as GeneratedBrowserUnmanagedDetectionConfidence,
+  BrowserUnmanagedDetectionReason as GeneratedBrowserUnmanagedDetectionReason,
+  BrowserUnmanagedProcessKind as GeneratedBrowserUnmanagedProcessKind,
+} from './generated-browser-unmanaged-process-schemas';
 
-export const BrowserUnmanagedDetectionConfidenceSchema = withParser(Schema.Literal('high', 'medium', 'low'));
-export const BrowserUnmanagedProcessKindSchema = withParser(
-  Schema.Literal(
-    'supported-browser',
-    'unsupported-browser',
-    'portable-browser',
-    'tor-privacy-browser',
-    'packaged-browser',
-    'embedded-browser-like',
-    'unknown-browser-like',
-    'possible-social-bypass',
-    'possible-browser-game-bypass',
-    'possible-cloud-gaming-bypass'
-  )
-);
-export const BrowserUnmanagedDetectionReasonSchema = withParser(
-  Schema.Literal(
-    'supported-browser-outside-managed-session',
-    'unsupported-browser-process',
-    'portable-browser-process',
-    'tor-privacy-browser-process',
-    'packaged-browser-process',
-    'browser-like-process',
-    'possible-social-bypass',
-    'possible-browser-game-bypass',
-    'possible-cloud-gaming-bypass'
-  )
-);
-
-export const BrowserUnmanagedExecutablePathRefSchema = withParser(
-  BrowserRedactedRefText.pipe(Schema.brand('BrowserUnmanagedExecutablePathRef'))
-);
-export const BrowserUnmanagedProcessHashRefSchema = withParser(
-  BrowserRedactedRefText.pipe(Schema.brand('BrowserUnmanagedProcessHashRef'))
-);
-export const BrowserUnmanagedProcessNameSchema = withParser(brandedNonEmptyStringSchema('BrowserUnmanagedProcessName'));
-export const BrowserUnmanagedSignatureRefSchema = withParser(
-  BrowserRedactedRefText.pipe(Schema.brand('BrowserUnmanagedSignatureRef'))
-);
-
-export type BrowserUnmanagedDetectionConfidence = Infer<typeof BrowserUnmanagedDetectionConfidenceSchema>;
-export type BrowserUnmanagedDetectionReason = Infer<typeof BrowserUnmanagedDetectionReasonSchema>;
-export type BrowserUnmanagedProcessKind = Infer<typeof BrowserUnmanagedProcessKindSchema>;
-
-function browserRedactedRefIsSafe(value: string): boolean {
-  return !value.includes('/') && !value.includes('\\') && !value.includes(':');
-}
+export const BrowserUnmanagedDetectionConfidenceSchema = GeneratedBrowserUnmanagedDetectionConfidenceSchema;
+export const BrowserUnmanagedProcessKindSchema = GeneratedBrowserUnmanagedProcessKindSchema;
+export const BrowserUnmanagedDetectionReasonSchema = GeneratedBrowserUnmanagedDetectionReasonSchema;
+export const BrowserUnmanagedExecutablePathRefSchema = GeneratedBrowserUnmanagedExecutablePathRefSchema;
+export const BrowserUnmanagedProcessHashRefSchema = GeneratedBrowserUnmanagedProcessHashRefSchema;
+export const BrowserUnmanagedProcessNameSchema = GeneratedBrowserUnmanagedProcessNameSchema;
+export const BrowserUnmanagedSignatureRefSchema = GeneratedBrowserUnmanagedSignatureRefSchema;
+export type BrowserUnmanagedDetectionConfidence = GeneratedBrowserUnmanagedDetectionConfidence;
+export type BrowserUnmanagedDetectionReason = GeneratedBrowserUnmanagedDetectionReason;
+export type BrowserUnmanagedProcessKind = GeneratedBrowserUnmanagedProcessKind;

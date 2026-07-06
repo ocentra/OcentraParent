@@ -1,46 +1,57 @@
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+import {
+  GeneratedBillingCollectionRecoveryStates,
+  GeneratedBillingDisputeLifecycleStates,
+  GeneratedBillingEntitlementSideEffects,
+  GeneratedBillingInvoiceChildActivityCustodyClaims,
+  GeneratedBillingInvoiceCurrencyCodes,
+  GeneratedBillingInvoiceHostedSurfaceClaims,
+  GeneratedBillingInvoiceLifecycleNonClaims,
+  GeneratedBillingInvoiceManualSupportClaims,
+  GeneratedBillingInvoiceTaxRefundDisputeSchemaVersion,
+  GeneratedBillingInvoiceVisibilityStates,
+  GeneratedBillingRefundLifecycleStates,
+  GeneratedBillingSupportAuditStates,
+  GeneratedBillingTaxModeDecisions,
+  GeneratedBillingTaxRegionStates,
+  GeneratedBillingInvoiceProviderModes,
+} from './generated-billing-invoice-tax-refund-dispute-values';
 
 export const BillingInvoiceTaxRefundDisputeSchemaVersionSchema = withParser(
-  Schema.Literal('billing-invoice-tax-refund-dispute')
+  Schema.Literal(GeneratedBillingInvoiceTaxRefundDisputeSchemaVersion)
 );
 
 export const BillingInvoiceVisibilityStateSchema = withParser(
-  Schema.Literal('customer-portal-hosted', 'download-link-issued', 'manual-support-required')
+  Schema.Literal(...GeneratedBillingInvoiceVisibilityStates)
 );
 
-export const BillingInvoiceProviderModeSchema = withParser(Schema.Literal('stripe-hosted', 'manual-invoice'));
+export const BillingInvoiceProviderModeSchema = withParser(Schema.Literal(...GeneratedBillingInvoiceProviderModes));
 
-export const BillingInvoiceCurrencyCodeSchema = withParser(Schema.Literal('USD'));
+export const BillingInvoiceCurrencyCodeSchema = withParser(Schema.Literal(...GeneratedBillingInvoiceCurrencyCodes));
 
 export const BillingTaxModeDecisionSchema = withParser(
-  Schema.Literal('stripe-automatic-tax', 'merchant-configured-tax', 'manual-support-required')
+  Schema.Literal(...GeneratedBillingTaxModeDecisions)
 );
 
-export const BillingTaxRegionStateSchema = withParser(Schema.Literal('launch-supported', 'manual-support-required'));
+export const BillingTaxRegionStateSchema = withParser(Schema.Literal(...GeneratedBillingTaxRegionStates));
 
 export const BillingRefundLifecycleStateSchema = withParser(
-  Schema.Literal('none', 'refund-requested', 'refund-issued', 'refund-settled', 'refund-denied')
+  Schema.Literal(...GeneratedBillingRefundLifecycleStates)
 );
 
 export const BillingDisputeLifecycleStateSchema = withParser(
-  Schema.Literal('none', 'dispute-opened', 'dispute-won', 'dispute-lost')
+  Schema.Literal(...GeneratedBillingDisputeLifecycleStates)
 );
 
 export const BillingCollectionRecoveryStateSchema = withParser(
-  Schema.Literal('active', 'trialing', 'past-due', 'grace', 'cancelled', 'unpaid', 'support-required')
+  Schema.Literal(...GeneratedBillingCollectionRecoveryStates)
 );
 
 export const BillingEntitlementSideEffectSchema = withParser(
-  Schema.Literal(
-    'retain-paid-access',
-    'grace-paid-access',
-    'limit-paid-access',
-    'revoke-paid-access',
-    'manual-review-required'
-  )
+  Schema.Literal(...GeneratedBillingEntitlementSideEffects)
 );
 
-export const BillingSupportAuditStateSchema = withParser(Schema.Literal('audited'));
+export const BillingSupportAuditStateSchema = withParser(Schema.Literal(...GeneratedBillingSupportAuditStates));
 
 export const BillingInvoiceLifecycleBoundaryIdSchema = brandedNonEmptyStringSchema('BillingInvoiceLifecycleBoundaryId');
 
@@ -51,19 +62,20 @@ export const BillingInvoiceLifecycleAuditReferenceSchema = brandedNonEmptyString
 export const BillingInvoiceNumberSchema = brandedNonEmptyStringSchema('BillingInvoiceNumber');
 
 export const BillingInvoiceLifecycleNonClaimSchema = withParser(
-  Schema.Literal(
-    'no-invoice-pdf-custody',
-    'no-self-service-refund',
-    'no-self-service-dispute',
-    'no-child-activity-custody'
-  )
+  Schema.Literal(...GeneratedBillingInvoiceLifecycleNonClaims)
 );
 
-export const BillingInvoiceHostedSurfaceClaimSchema = withParser(Schema.Literal('customer-portal-hosted-only'));
+export const BillingInvoiceHostedSurfaceClaimSchema = withParser(
+  Schema.Literal(...GeneratedBillingInvoiceHostedSurfaceClaims)
+);
 
-export const BillingInvoiceManualSupportClaimSchema = withParser(Schema.Literal('audited-required'));
+export const BillingInvoiceManualSupportClaimSchema = withParser(
+  Schema.Literal(...GeneratedBillingInvoiceManualSupportClaims)
+);
 
-export const BillingInvoiceChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-included'));
+export const BillingInvoiceChildActivityCustodyClaimSchema = withParser(
+  Schema.Literal(...GeneratedBillingInvoiceChildActivityCustodyClaims)
+);
 
 export type BillingInvoiceVisibilityState = Infer<typeof BillingInvoiceVisibilityStateSchema>;
 export type BillingInvoiceProviderMode = Infer<typeof BillingInvoiceProviderModeSchema>;

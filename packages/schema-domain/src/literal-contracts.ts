@@ -1,3 +1,5 @@
+/* generic helper for literal/value contracts */
+
 import { Schema, withParser } from './effect';
 
 export function literalValues<Literal extends Record<string, string>>(

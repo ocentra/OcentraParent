@@ -1,101 +1,53 @@
+import {
+  AppGamePolicyCompilerAuthorityStateGenerated,
+  AppGamePolicyCompilerCapabilityStateGenerated,
+  AppGamePolicyCompilerEvidenceStateGenerated,
+  AppGamePolicyCompilerOutcomeStateGenerated,
+  AppGamePolicyCompilerProofKindGenerated,
+  AppGamePolicyCompilerRejectionReasonGenerated,
+  AppGamePolicyCompilerRequestedActionGenerated,
+  AppGamePolicyTargetKindGenerated,
+  appGamePolicyBlockLaunchWithoutProofIsManualRequiredGenerated,
+  appGamePolicyCapabilityRefsKeepNonReadyStatesExplicitGenerated,
+  appGamePolicyCompiledDecisionCarriesProofRefsGenerated,
+  appGamePolicyHardActionProofIsCompleteGenerated,
+  appGamePolicyRequestHasCapabilityRefGenerated,
+  appGamePolicyRequestHasFreshLocalEvidenceGenerated,
+  appGamePolicyRequestHasProofKindGenerated,
+  appGamePolicyRequestHasScheduleProofGenerated,
+  appGamePolicyRequestHasSupportedAuthorityGenerated,
+  appGamePolicyRequestHasSupportedCapabilityGenerated,
+  appGamePolicyRequestedActionIsHardGenerated,
+  appGamePolicyTargetProofIsCompleteGenerated,
+  appGamePolicyTargetRequiresCategoryGenerated,
+  appGamePolicyTargetRequiresIdentityGenerated,
+  appGamePolicyTargetRequiresUnknownStateGenerated,
+} from './generated-app-game-policy-target-compiler-rules';
 import { PolicyCompilerCapabilityState } from './policy-compiler';
 
-export const AppGamePolicyTargetKind = {
-  SpecificApp: 'specific-app',
-  PackageId: 'package-id',
-  BundleId: 'bundle-id',
-  AppUserModelId: 'app-user-model-id',
-  DesktopEntryId: 'desktop-entry-id',
-  ExecutableHash: 'executable-hash',
-  Publisher: 'publisher',
-  AppCategory: 'app-category',
-  UnknownApp: 'unknown-app',
-  NewApp: 'new-app',
-  PortableApp: 'portable-app',
-  RiskApp: 'risk-app',
-  AllNonSystemApps: 'all-non-system-apps',
-  SpecificGame: 'specific-game',
-  LauncherGameId: 'launcher-game-id',
-  StoreGameId: 'store-game-id',
-  GameCategory: 'game-category',
-  UnknownGame: 'unknown-game',
-  NewGame: 'new-game',
-  LauncherGameCandidate: 'launcher-game-candidate',
-  MultiplayerGame: 'multiplayer-game',
-  UgcGame: 'ugc-game',
-  PurchaseCapableGame: 'purchase-capable-game',
-  MatureGame: 'mature-game',
-  AllGames: 'all-games',
-} as const;
+export const AppGamePolicyTargetKind = AppGamePolicyTargetKindGenerated;
+export const AppGamePolicyCompilerProofKind = AppGamePolicyCompilerProofKindGenerated;
+export const AppGamePolicyCompilerEvidenceState = AppGamePolicyCompilerEvidenceStateGenerated;
+export const AppGamePolicyCompilerCapabilityState = AppGamePolicyCompilerCapabilityStateGenerated;
+export const AppGamePolicyCompilerAuthorityState = AppGamePolicyCompilerAuthorityStateGenerated;
+export const AppGamePolicyCompilerRequestedAction = AppGamePolicyCompilerRequestedActionGenerated;
+export const AppGamePolicyCompilerOutcomeState = AppGamePolicyCompilerOutcomeStateGenerated;
+export const AppGamePolicyCompilerRejectionReason = AppGamePolicyCompilerRejectionReasonGenerated;
 
-export const AppGamePolicyCompilerProofKind = {
-  Identity: 'identity-proof',
-  Category: 'category-proof',
-  UnknownState: 'unknown-state-proof',
-  Schedule: 'schedule-proof',
-  Approval: 'approval-proof',
-  Authority: 'authority-proof',
-  Capability: 'capability-proof',
-  SessionSummary: 'session-summary-proof',
-  CurrentProcess: 'current-process-proof',
-} as const;
-
-export const AppGamePolicyCompilerEvidenceState = {
-  Active: 'active',
-  Stale: 'stale',
-  WrongDevice: 'wrong-device',
-  WrongLocalUser: 'wrong-local-user',
-} as const;
-
-export const AppGamePolicyCompilerCapabilityState = PolicyCompilerCapabilityState;
-
-export const AppGamePolicyCompilerAuthorityState = {
-  Proved: 'proved',
-  ManualRequired: 'manual-required',
-  Unavailable: 'unavailable',
-  Unproved: 'unproved',
-} as const;
-
-export const AppGamePolicyCompilerRequestedAction = {
-  Observe: 'observe',
-  Warn: 'warn',
-  AskParent: 'ask-parent',
-  TimeLimit: 'time-limit',
-  TerminateRunning: 'terminate-running',
-  BlockLaunch: 'block-launch',
-  HideApp: 'hide-app',
-  SuspendApp: 'suspend-app',
-  ShieldApp: 'shield-app',
-  ManualRequired: 'manual-required',
-} as const;
-
-export const AppGamePolicyCompilerOutcomeState = {
-  DryRunReady: 'dry-run-ready',
-  ManualRequired: 'manual-required',
-  Rejected: 'rejected',
-} as const;
-
-export const AppGamePolicyCompilerRejectionReason = {
-  None: 'none',
-  MissingIdentity: 'missing-identity-proof',
-  MissingUnknownState: 'missing-unknown-state-proof',
-  MissingCategory: 'missing-category-proof',
-  MissingSchedule: 'missing-schedule-proof',
-  MissingEvidence: 'missing-evidence',
-  MissingCapability: 'missing-capability-proof',
-  MissingAuthority: 'missing-authority-proof',
-  BlockLaunchManualRequired: 'block-launch-manual-required',
-} as const;
-
-type TargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
-type ProofKindValue = (typeof AppGamePolicyCompilerProofKind)[keyof typeof AppGamePolicyCompilerProofKind];
-type EvidenceStateValue = (typeof AppGamePolicyCompilerEvidenceState)[keyof typeof AppGamePolicyCompilerEvidenceState];
-type CapabilityStateValue = (typeof PolicyCompilerCapabilityState)[keyof typeof PolicyCompilerCapabilityState];
+type TargetKindValue =
+  (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
+type ProofKindValue =
+  (typeof AppGamePolicyCompilerProofKind)[keyof typeof AppGamePolicyCompilerProofKind];
+type EvidenceStateValue =
+  (typeof AppGamePolicyCompilerEvidenceState)[keyof typeof AppGamePolicyCompilerEvidenceState];
+type CapabilityStateValue =
+  (typeof PolicyCompilerCapabilityState)[keyof typeof PolicyCompilerCapabilityState];
 type AuthorityStateValue =
   (typeof AppGamePolicyCompilerAuthorityState)[keyof typeof AppGamePolicyCompilerAuthorityState];
 type RequestedActionValue =
   (typeof AppGamePolicyCompilerRequestedAction)[keyof typeof AppGamePolicyCompilerRequestedAction];
-type OutcomeStateValue = (typeof AppGamePolicyCompilerOutcomeState)[keyof typeof AppGamePolicyCompilerOutcomeState];
+type OutcomeStateValue =
+  (typeof AppGamePolicyCompilerOutcomeState)[keyof typeof AppGamePolicyCompilerOutcomeState];
 type RejectionReasonValue =
   (typeof AppGamePolicyCompilerRejectionReason)[keyof typeof AppGamePolicyCompilerRejectionReason];
 
@@ -142,103 +94,47 @@ type CompiledDecisionLike = {
   readonly capabilityRefs: ReadonlyArray<unknown>;
 };
 
-const identityTargets = [
-  AppGamePolicyTargetKind.SpecificApp,
-  AppGamePolicyTargetKind.PackageId,
-  AppGamePolicyTargetKind.BundleId,
-  AppGamePolicyTargetKind.AppUserModelId,
-  AppGamePolicyTargetKind.DesktopEntryId,
-  AppGamePolicyTargetKind.ExecutableHash,
-  AppGamePolicyTargetKind.Publisher,
-  AppGamePolicyTargetKind.SpecificGame,
-  AppGamePolicyTargetKind.LauncherGameId,
-  AppGamePolicyTargetKind.StoreGameId,
-] as const;
-
-const unknownTargets = [AppGamePolicyTargetKind.UnknownApp, AppGamePolicyTargetKind.UnknownGame] as const;
-
-const categoryTargets = [
-  AppGamePolicyTargetKind.AppCategory,
-  AppGamePolicyTargetKind.RiskApp,
-  AppGamePolicyTargetKind.GameCategory,
-  AppGamePolicyTargetKind.MultiplayerGame,
-  AppGamePolicyTargetKind.UgcGame,
-  AppGamePolicyTargetKind.PurchaseCapableGame,
-  AppGamePolicyTargetKind.MatureGame,
-] as const;
-
-const hardActions = [
-  AppGamePolicyCompilerRequestedAction.TerminateRunning,
-  AppGamePolicyCompilerRequestedAction.BlockLaunch,
-  AppGamePolicyCompilerRequestedAction.HideApp,
-  AppGamePolicyCompilerRequestedAction.SuspendApp,
-  AppGamePolicyCompilerRequestedAction.ShieldApp,
-] as const;
-
-const targetKindIsIn = (targetKind: TargetKindValue, candidates: ReadonlyArray<TargetKindValue>) =>
-  candidates.some((candidate) => candidate === targetKind);
-
 export const appGamePolicyTargetRequiresIdentity = (target: TargetLike) =>
-  targetKindIsIn(target.targetKind, identityTargets);
+  appGamePolicyTargetRequiresIdentityGenerated(target);
 
 export const appGamePolicyTargetRequiresUnknownState = (target: TargetLike) =>
-  targetKindIsIn(target.targetKind, unknownTargets);
+  appGamePolicyTargetRequiresUnknownStateGenerated(target);
 
 export const appGamePolicyTargetRequiresCategory = (target: TargetLike) =>
-  targetKindIsIn(target.targetKind, categoryTargets);
+  appGamePolicyTargetRequiresCategoryGenerated(target);
 
 export const appGamePolicyRequestHasFreshLocalEvidence = (request: CompileRequestLike) =>
-  request.evidence.length > 0 &&
-  request.evidence.every(
-    (evidence) =>
-      evidence.evidenceState === AppGamePolicyCompilerEvidenceState.Active &&
-      evidence.device.deviceId === request.device.deviceId &&
-      evidence.localUserRef === request.localUserRef
-  );
+  appGamePolicyRequestHasFreshLocalEvidenceGenerated(request);
 
 export const appGamePolicyRequestHasProofKind = (request: CompileRequestLike, proofKind: ProofKindValue) =>
-  request.evidence.some((evidence) => evidence.proofKind === proofKind);
+  appGamePolicyRequestHasProofKindGenerated(request, proofKind);
 
 export const appGamePolicyTargetProofIsComplete = (request: CompileRequestLike) =>
-  (!appGamePolicyTargetRequiresIdentity(request.target) ||
-    appGamePolicyRequestHasProofKind(request, AppGamePolicyCompilerProofKind.Identity)) &&
-  (!appGamePolicyTargetRequiresUnknownState(request.target) ||
-    appGamePolicyRequestHasProofKind(request, AppGamePolicyCompilerProofKind.UnknownState)) &&
-  (!appGamePolicyTargetRequiresCategory(request.target) ||
-    appGamePolicyRequestHasProofKind(request, AppGamePolicyCompilerProofKind.Category));
+  appGamePolicyTargetProofIsCompleteGenerated(request);
 
 export const appGamePolicyRequestHasScheduleProof = (request: CompileRequestLike) =>
-  request.scheduleRef === null || appGamePolicyRequestHasProofKind(request, AppGamePolicyCompilerProofKind.Schedule);
+  appGamePolicyRequestHasScheduleProofGenerated(request);
 
-export const appGamePolicyRequestHasCapabilityRef = (request: CompileRequestLike) => request.capabilityRefs.length > 0;
+export const appGamePolicyRequestHasCapabilityRef = (request: CompileRequestLike) =>
+  appGamePolicyRequestHasCapabilityRefGenerated(request);
 
 export const appGamePolicyRequestHasSupportedAuthority = (request: CompileRequestLike) =>
-  request.authorityRefs.some((ref) => ref.authorityState === AppGamePolicyCompilerAuthorityState.Proved);
+  appGamePolicyRequestHasSupportedAuthorityGenerated(request);
 
 export const appGamePolicyRequestHasSupportedCapability = (request: CompileRequestLike) =>
-  request.capabilityRefs.length > 0 &&
-  request.capabilityRefs.every((ref) => ref.capabilityState === PolicyCompilerCapabilityState.Supported);
+  appGamePolicyRequestHasSupportedCapabilityGenerated(request);
 
 export const appGamePolicyCapabilityRefsKeepNonReadyStatesExplicit = (decision: CompiledDecisionLike) =>
-  appGamePolicyRequestHasSupportedCapability(decision.request) ||
-  decision.outcomeState !== AppGamePolicyCompilerOutcomeState.DryRunReady;
+  appGamePolicyCapabilityRefsKeepNonReadyStatesExplicitGenerated(decision);
 
 export const appGamePolicyRequestedActionIsHard = (request: CompileRequestLike) =>
-  hardActions.some((action) => action === request.requestedAction);
+  appGamePolicyRequestedActionIsHardGenerated(request);
 
 export const appGamePolicyHardActionProofIsComplete = (request: CompileRequestLike) =>
-  !appGamePolicyRequestedActionIsHard(request) ||
-  (appGamePolicyRequestHasSupportedAuthority(request) && appGamePolicyRequestHasSupportedCapability(request));
+  appGamePolicyHardActionProofIsCompleteGenerated(request);
 
 export const appGamePolicyBlockLaunchWithoutProofIsManualRequired = (decision: CompiledDecisionLike) =>
-  decision.request.requestedAction !== AppGamePolicyCompilerRequestedAction.BlockLaunch ||
-  appGamePolicyHardActionProofIsComplete(decision.request) ||
-  (decision.outcomeState === AppGamePolicyCompilerOutcomeState.ManualRequired &&
-    decision.rejectionReason === AppGamePolicyCompilerRejectionReason.BlockLaunchManualRequired &&
-    decision.policyDecision.enforcementHandoffState === 'disabled');
+  appGamePolicyBlockLaunchWithoutProofIsManualRequiredGenerated(decision);
 
 export const appGamePolicyCompiledDecisionCarriesProofRefs = (decision: CompiledDecisionLike) =>
-  decision.policyDecision.dryRun &&
-  decision.policyDecision.evidenceReferences.length > 0 &&
-  decision.policyDecision.ruleIds.length > 0 &&
-  decision.capabilityRefs.length > 0;
+  appGamePolicyCompiledDecisionCarriesProofRefsGenerated(decision);

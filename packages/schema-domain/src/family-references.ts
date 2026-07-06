@@ -1,77 +1,19 @@
-import { type Infer, Schema, withParser } from './effect';
-import {
-  ChildProfileDisplayNameSchema,
-  ChildProfileIdSchema,
-  FamilyIdSchema,
-  ParentAccountIdSchema,
-  ParentActionReferenceIdSchema,
-  ParentActorIdSchema,
-  ParentActorRoleSchema,
-  ParentDeviceIdSchema,
-  ParentDeviceLabelSchema,
-  ParentEvidenceReferenceIdSchema,
-  ParentEvidenceReferenceKindSchema,
-  ParentPlatformSchema,
-  ParentPolicyVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+/* thin adapter over Rust-owned generated family reference contracts */
 
-export const ParentActorReferenceSchema = withParser(
-  Schema.Struct({
-    actorId: ParentActorIdSchema,
-    role: ParentActorRoleSchema,
-  })
-);
+import * as Generated from './generated-family-references';
 
-export const ParentAccountReferenceSchema = withParser(
-  Schema.Struct({
-    parentAccountId: ParentAccountIdSchema,
-  })
-);
+export const ParentActorReferenceSchema = Generated.ParentActorReferenceSchema;
+export const ParentAccountReferenceSchema = Generated.ParentAccountReferenceSchema;
+export const FamilyReferenceSchema = Generated.FamilyReferenceSchema;
+export const ChildProfileReferenceSchema = Generated.ChildProfileReferenceSchema;
+export const ParentDeviceReferenceSchema = Generated.ParentDeviceReferenceSchema;
+export const ParentEvidenceReferenceSchema = Generated.ParentEvidenceReferenceSchema;
+export const ParentActionReferenceSchema = Generated.ParentActionReferenceSchema;
 
-export const FamilyReferenceSchema = withParser(
-  Schema.Struct({
-    familyId: FamilyIdSchema,
-  })
-);
-
-export const ChildProfileReferenceSchema = withParser(
-  Schema.Struct({
-    childProfileId: ChildProfileIdSchema,
-    displayName: ChildProfileDisplayNameSchema,
-  })
-);
-
-export const ParentDeviceReferenceSchema = withParser(
-  Schema.Struct({
-    deviceId: ParentDeviceIdSchema,
-    childProfileId: Schema.Union(ChildProfileIdSchema, Schema.Null),
-    label: ParentDeviceLabelSchema,
-    platform: ParentPlatformSchema,
-  })
-);
-
-export const ParentEvidenceReferenceSchema = withParser(
-  Schema.Struct({
-    evidenceReferenceId: ParentEvidenceReferenceIdSchema,
-    kind: ParentEvidenceReferenceKindSchema,
-    observedAt: ParentTimestampSchema,
-  })
-);
-
-export const ParentActionReferenceSchema = withParser(
-  Schema.Struct({
-    actionReferenceId: ParentActionReferenceIdSchema,
-    actor: ParentActorReferenceSchema,
-    policyVersion: ParentPolicyVersionSchema,
-    createdAt: ParentTimestampSchema,
-  })
-);
-
-export type ParentActorReference = Infer<typeof ParentActorReferenceSchema>;
-export type ParentAccountReference = Infer<typeof ParentAccountReferenceSchema>;
-export type FamilyReference = Infer<typeof FamilyReferenceSchema>;
-export type ChildProfileReference = Infer<typeof ChildProfileReferenceSchema>;
-export type ParentDeviceReference = Infer<typeof ParentDeviceReferenceSchema>;
-export type ParentEvidenceReference = Infer<typeof ParentEvidenceReferenceSchema>;
-export type ParentActionReference = Infer<typeof ParentActionReferenceSchema>;
+export type ParentActorReference = Generated.ParentActorReference;
+export type ParentAccountReference = Generated.ParentAccountReference;
+export type FamilyReference = Generated.FamilyReference;
+export type ChildProfileReference = Generated.ChildProfileReference;
+export type ParentDeviceReference = Generated.ParentDeviceReference;
+export type ParentEvidenceReference = Generated.ParentEvidenceReference;
+export type ParentActionReference = Generated.ParentActionReference;

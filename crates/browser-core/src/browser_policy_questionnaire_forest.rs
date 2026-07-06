@@ -170,3 +170,7 @@ pub fn browser_policy_questionnaire_forest_typescript() -> &'static str {
         "/../browser-core-generated/browser_policy_questionnaire_forest.ts"
     ))
 }
+
+pub fn browser_policy_questionnaire_forest_contract_typescript() -> &'static str {
+    include_str!("browser_policy_questionnaire_forest_contract.template.txt")
+}

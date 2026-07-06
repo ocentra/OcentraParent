@@ -1,387 +1,79 @@
-import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
-import {
-  ChildProfileReferenceSchema,
-  FamilyReferenceSchema,
-  ParentActionReferenceSchema,
-  ParentActorReferenceSchema,
-  ParentDeviceReferenceSchema,
-  ParentEvidenceReferenceSchema,
-} from './family-references';
-import { ParentContractSchemaVersionSchema, ParentPolicyVersionSchema } from './family-reference-primitives';
+/* thin adapter over Rust-owned generated policy contracts */
+
+import { type Infer } from './effect';
+import * as policyContracts from './policy-contracts';
 import {
   compareGeneratedPolicyActionStrictness,
-  validateGeneratedPolicyPreview,
-  validateGeneratedPolicySchedule,
-  validateGeneratedPolicyScheduleBoundary,
   resolveGeneratedPolicyPreviewBudgetBoundaryState,
   selectGeneratedStricterPolicyAction,
 } from './generated-policy-control-helpers';
-import { GeneratedPolicyActionStrictnessRank } from './generated-policy-control-helpers-contracts';
-import { literalSchema, parsedLiteralRecord } from './literal-contracts';
+import { GeneratedPolicyActionStrictnessRank } from './generated-policy';
 
-export const PolicyTimestampSchema = brandedNonEmptyStringSchema('PolicyTimestamp');
+export const PolicyTimestampSchema = policyContracts.PolicyTimestampSchema;
+export const PolicyRuleIdSchema = policyContracts.PolicyRuleIdSchema;
+export const PolicyScheduleIdSchema = policyContracts.PolicyScheduleIdSchema;
+export const PolicyTargetIdSchema = policyContracts.PolicyTargetIdSchema;
+export const PermissionRequestIdSchema = policyContracts.PermissionRequestIdSchema;
+export const PolicyDecisionIdSchema = policyContracts.PolicyDecisionIdSchema;
+export const PolicyReasonCodeSchema = policyContracts.PolicyReasonCodeSchema;
+export const PolicyLocalTimeSchema = policyContracts.PolicyLocalTimeSchema;
+export const PolicyTimeZoneSchema = policyContracts.PolicyTimeZoneSchema;
+export const LocalAiResultReferenceIdSchema = policyContracts.LocalAiResultReferenceIdSchema;
+export const PolicyScheduleExceptionIdSchema = policyContracts.PolicyScheduleExceptionIdSchema;
+export const PolicyPreviewIdSchema = policyContracts.PolicyPreviewIdSchema;
 
-export const PolicyRuleIdSchema = brandedNonEmptyStringSchema('PolicyRuleId');
-export const PolicyScheduleIdSchema = brandedNonEmptyStringSchema('PolicyScheduleId');
-export const PolicyTargetIdSchema = brandedNonEmptyStringSchema('PolicyTargetId');
-export const PermissionRequestIdSchema = brandedNonEmptyStringSchema('PermissionRequestId');
-export const PolicyDecisionIdSchema = brandedNonEmptyStringSchema('PolicyDecisionId');
-export const PolicyReasonCodeSchema = brandedNonEmptyStringSchema('PolicyReasonCode');
-export const PolicyLocalTimeSchema = brandedNonEmptyStringSchema('PolicyLocalTime');
-export const PolicyTimeZoneSchema = brandedNonEmptyStringSchema('PolicyTimeZone');
-export const LocalAiResultReferenceIdSchema = brandedNonEmptyStringSchema('LocalAiResultReferenceId');
-export const PolicyScheduleExceptionIdSchema = brandedNonEmptyStringSchema('PolicyScheduleExceptionId');
+export const PolicyActionLiteral = policyContracts.PolicyActionLiteral;
+export const PolicyTargetTypeLiteral = policyContracts.PolicyTargetTypeLiteral;
+export const PolicyScheduleDayLiteral = policyContracts.PolicyScheduleDayLiteral;
+export const PolicyDecisionHandoffStateLiteral = policyContracts.PolicyDecisionHandoffStateLiteral;
+export const PermissionRequestStateLiteral = policyContracts.PermissionRequestStateLiteral;
+export const PolicyScheduleBoundaryStateLiteral = policyContracts.PolicyScheduleBoundaryStateLiteral;
+export const PolicyScheduleDstTransitionLiteral = policyContracts.PolicyScheduleDstTransitionLiteral;
+export const PolicyScheduleDstResolutionLiteral = policyContracts.PolicyScheduleDstResolutionLiteral;
+export const PolicyScheduleClockSourceLiteral = policyContracts.PolicyScheduleClockSourceLiteral;
+export const PolicyScheduleBudgetResetKindLiteral = policyContracts.PolicyScheduleBudgetResetKindLiteral;
+export const PolicyScheduleBudgetCarryoverModeLiteral = policyContracts.PolicyScheduleBudgetCarryoverModeLiteral;
+export const PolicyScheduleOfflineRecoveryLiteral = policyContracts.PolicyScheduleOfflineRecoveryLiteral;
+export const PolicyScheduleOfflineRecoveryStateLiteral = policyContracts.PolicyScheduleOfflineRecoveryStateLiteral;
+export const PolicyPreviewOriginLiteral = policyContracts.PolicyPreviewOriginLiteral;
+export const PolicyPreviewConfirmationStateLiteral = policyContracts.PolicyPreviewConfirmationStateLiteral;
+export const PolicyPreviewBudgetBoundaryStateLiteral = policyContracts.PolicyPreviewBudgetBoundaryStateLiteral;
 
-export const PolicyActionLiteral = {
-  Allow: 'allow',
-  Warn: 'warn',
-  Block: 'block',
-  TimeLimit: 'time-limit',
-  AskParent: 'ask-parent',
-  Unknown: 'unknown',
-} as const;
+export const PolicyActionSchema = policyContracts.PolicyActionSchema;
+export const PolicyTargetTypeSchema = policyContracts.PolicyTargetTypeSchema;
+export const PolicyScheduleDaySchema = policyContracts.PolicyScheduleDaySchema;
+export const PolicyDecisionHandoffStateSchema = policyContracts.PolicyDecisionHandoffStateSchema;
+export const PermissionRequestStateSchema = policyContracts.PermissionRequestStateSchema;
+export const PolicyScheduleBoundaryStateSchema = policyContracts.PolicyScheduleBoundaryStateSchema;
+export const PolicyScheduleDstTransitionSchema = policyContracts.PolicyScheduleDstTransitionSchema;
+export const PolicyScheduleDstResolutionSchema = policyContracts.PolicyScheduleDstResolutionSchema;
+export const PolicyScheduleClockSourceSchema = policyContracts.PolicyScheduleClockSourceSchema;
+export const PolicyScheduleBudgetResetKindSchema = policyContracts.PolicyScheduleBudgetResetKindSchema;
+export const PolicyScheduleBudgetCarryoverModeSchema = policyContracts.PolicyScheduleBudgetCarryoverModeSchema;
+export const PolicyScheduleOfflineRecoverySchema = policyContracts.PolicyScheduleOfflineRecoverySchema;
+export const PolicyScheduleOfflineRecoveryStateSchema = policyContracts.PolicyScheduleOfflineRecoveryStateSchema;
+export const PolicyPreviewOriginSchema = policyContracts.PolicyPreviewOriginSchema;
+export const PolicyPreviewConfirmationStateSchema = policyContracts.PolicyPreviewConfirmationStateSchema;
+export const PolicyPreviewBudgetBoundaryStateSchema = policyContracts.PolicyPreviewBudgetBoundaryStateSchema;
 
-export const PolicyTargetTypeLiteral = {
-  App: 'app',
-  Process: 'process',
-  Window: 'window',
-  Domain: 'domain',
-  Site: 'site',
-  Category: 'category',
-  Video: 'video',
-  Channel: 'channel',
-  ActivityType: 'activity-type',
-  Device: 'device',
-} as const;
-
-export const PolicyScheduleDayLiteral = {
-  Monday: 'monday',
-  Tuesday: 'tuesday',
-  Wednesday: 'wednesday',
-  Thursday: 'thursday',
-  Friday: 'friday',
-  Saturday: 'saturday',
-  Sunday: 'sunday',
-} as const;
-
-export const PolicyDecisionHandoffStateLiteral = {
-  NotRequested: 'not-requested',
-  Disabled: 'disabled',
-  Pending: 'pending',
-  HandedOff: 'handed-off',
-} as const;
-
-export const PermissionRequestStateLiteral = {
-  Open: 'open',
-  Approved: 'approved',
-  Denied: 'denied',
-  Expired: 'expired',
-  Cancelled: 'cancelled',
-} as const;
-
-export const PolicyScheduleBoundaryStateLiteral = {
-  WithinWindow: 'within-window',
-  OutsideWindow: 'outside-window',
-  DstGap: 'dst-gap',
-  DstOverlap: 'dst-overlap',
-  ClockSkew: 'clock-skew',
-  ExceptionActive: 'exception-active',
-  Expired: 'expired',
-} as const;
-
-export const PolicyScheduleDstTransitionLiteral = {
-  SpringForward: 'spring-forward',
-  FallBack: 'fall-back',
-} as const;
-
-export const PolicyScheduleDstResolutionLiteral = {
-  SkipForward: 'skip-forward',
-  FirstOccurrence: 'first-occurrence',
-  SecondOccurrence: 'second-occurrence',
-  ManualRequired: 'manual-required',
-} as const;
-
-export const PolicyScheduleClockSourceLiteral = {
-  ChildDevice: 'child-device',
-  TrustedService: 'trusted-service',
-  ManualRequired: 'manual-required',
-} as const;
-
-export const PolicyScheduleBudgetResetKindLiteral = {
-  Daily: 'daily',
-  Weekly: 'weekly',
-  Monthly: 'monthly',
-} as const;
-
-export const PolicyScheduleBudgetCarryoverModeLiteral = {
-  DiscardUnused: 'discard-unused',
-  CarryForward: 'carry-forward',
-  CapCarryover: 'cap-carryover',
-} as const;
-
-export const PolicyScheduleOfflineRecoveryLiteral = {
-  ResumeRemaining: 'resume-remaining',
-  RecomputeFromJournal: 'recompute-from-journal',
-  ManualRequired: 'manual-required',
-} as const;
-
-export const PolicyScheduleOfflineRecoveryStateLiteral = {
-  NotNeeded: 'not-needed',
-  RecoveredFromDevice: 'recovered-from-device',
-  RecomputedFromJournal: 'recomputed-from-journal',
-  ManualRequired: 'manual-required',
-} as const;
-
-export const PolicyActionSchema = literalSchema(PolicyActionLiteral);
-
-export const PolicyTargetTypeSchema = literalSchema(PolicyTargetTypeLiteral);
-
-export const PolicyScheduleDaySchema = literalSchema(PolicyScheduleDayLiteral);
-
-export const PolicyDecisionHandoffStateSchema = literalSchema(PolicyDecisionHandoffStateLiteral);
-
-export const PermissionRequestStateSchema = literalSchema(PermissionRequestStateLiteral);
-
-export const PolicyScheduleBoundaryStateSchema = literalSchema(PolicyScheduleBoundaryStateLiteral);
-
-export const PolicyScheduleDstTransitionSchema = literalSchema(PolicyScheduleDstTransitionLiteral);
-
-export const PolicyScheduleDstResolutionSchema = literalSchema(PolicyScheduleDstResolutionLiteral);
-
-export const PolicyScheduleClockSourceSchema = literalSchema(PolicyScheduleClockSourceLiteral);
-
-export const PolicyScheduleBudgetResetKindSchema = literalSchema(PolicyScheduleBudgetResetKindLiteral);
-
-export const PolicyScheduleBudgetCarryoverModeSchema = literalSchema(PolicyScheduleBudgetCarryoverModeLiteral);
-
-export const PolicyScheduleOfflineRecoverySchema = literalSchema(PolicyScheduleOfflineRecoveryLiteral);
-
-export const PolicyScheduleOfflineRecoveryStateSchema = literalSchema(PolicyScheduleOfflineRecoveryStateLiteral);
-
-export const PolicyTargetSchema = withParser(
-  Schema.Struct({
-    targetId: PolicyTargetIdSchema,
-    targetType: PolicyTargetTypeSchema,
-    targetValue: brandedNonEmptyStringSchema('PolicyTargetValue'),
-  })
-);
-
-export const PolicyScheduleWindowSchema = withParser(
-  Schema.Struct({
-    days: Schema.Array(PolicyScheduleDaySchema),
-    startLocalTime: PolicyLocalTimeSchema,
-    endLocalTime: PolicyLocalTimeSchema,
-  })
-);
-
-export const PolicyScheduleBudgetResetSchema = withParser(
-  Schema.Struct({
-    kind: PolicyScheduleBudgetResetKindSchema,
-    localTime: PolicyLocalTimeSchema,
-    day: Schema.Union(PolicyScheduleDaySchema, Schema.Null),
-  })
-);
-
-export const PolicyScheduleBudgetCarryoverSchema = withParser(
-  Schema.Struct({
-    mode: PolicyScheduleBudgetCarryoverModeSchema,
-    maxMinutes: Schema.Union(Schema.Number, Schema.Null),
-  })
-);
-
-export const PolicyScheduleTimeBudgetSchema = withParser(
-  Schema.Struct({
-    budgetWindowMinutes: Schema.Number,
-    reset: PolicyScheduleBudgetResetSchema,
-    carryover: PolicyScheduleBudgetCarryoverSchema,
-    gracePeriodMinutes: Schema.Number,
-    effectiveFrom: PolicyTimestampSchema,
-    effectiveUntil: Schema.Union(PolicyTimestampSchema, Schema.Null),
-    clockSource: PolicyScheduleClockSourceSchema,
-    offlineRecovery: PolicyScheduleOfflineRecoverySchema,
-  })
-);
-
-export const PolicyScheduleSchema = withParser(
-  Schema.Struct({
-    scheduleId: PolicyScheduleIdSchema,
-    timeZone: PolicyTimeZoneSchema,
-    windows: Schema.Array(PolicyScheduleWindowSchema),
-    timeBudget: PolicyScheduleTimeBudgetSchema,
-  })
-);
-
-export const PolicyScheduleDstBoundarySchema = withParser(
-  Schema.Struct({
-    transition: PolicyScheduleDstTransitionSchema,
-    localTime: PolicyLocalTimeSchema,
-    offsetBeforeMinutes: Schema.Number,
-    offsetAfterMinutes: Schema.Number,
-    resolution: PolicyScheduleDstResolutionSchema,
-  })
-);
-
-export const PolicyScheduleClockSkewSchema = withParser(
-  Schema.Struct({
-    observedAt: PolicyTimestampSchema,
-    observedSkewMinutes: Schema.Number,
-    allowedSkewMinutes: Schema.Number,
-  })
-);
-
-export const PolicyScheduleExceptionSchema = withParser(
-  Schema.Struct({
-    exceptionId: PolicyScheduleExceptionIdSchema,
-    action: PolicyActionSchema,
-    reasonCode: PolicyReasonCodeSchema,
-    startsAt: PolicyTimestampSchema,
-    expiresAt: PolicyTimestampSchema,
-    createdBy: ParentActorReferenceSchema,
-  })
-);
-
-export const PolicyScheduleExpirySchema = withParser(
-  Schema.Struct({
-    expiresAt: PolicyTimestampSchema,
-    expiredAt: PolicyTimestampSchema,
-    reasonCode: PolicyReasonCodeSchema,
-  })
-);
-
-export const PolicyScheduleOfflineRecoveryStatusSchema = withParser(
-  Schema.Struct({
-    state: PolicyScheduleOfflineRecoveryStateSchema,
-    recoveredAt: Schema.Union(PolicyTimestampSchema, Schema.Null),
-    recoveredOfflineMinutes: Schema.Number,
-  })
-);
-
-export const PolicyScheduleTimeBudgetStatusSchema = withParser(
-  Schema.Struct({
-    budgetWindowMinutes: Schema.Number,
-    usedMinutes: Schema.Number,
-    remainingMinutes: Schema.Number,
-    carryoverMinutes: Schema.Number,
-    gracePeriodMinutes: Schema.Number,
-    resetAt: PolicyTimestampSchema,
-    clockSource: PolicyScheduleClockSourceSchema,
-    offlineRecovery: PolicyScheduleOfflineRecoveryStatusSchema,
-    bonusTimeMinutes: Schema.Union(Schema.Number, Schema.Null),
-    bonusTimeRemainingMinutes: Schema.Union(Schema.Number, Schema.Null),
-    bonusTimeExpiresAt: Schema.Union(PolicyTimestampSchema, Schema.Null),
-  })
-);
-
-export const PolicyScheduleBoundarySchema = withParser(
-  Schema.Struct({
-    scheduleId: PolicyScheduleIdSchema,
-    timeZone: PolicyTimeZoneSchema,
-    evaluatedAt: PolicyTimestampSchema,
-    localTime: PolicyLocalTimeSchema,
-    state: PolicyScheduleBoundaryStateSchema,
-    dstBoundary: Schema.Union(PolicyScheduleDstBoundarySchema, Schema.Null),
-    clockSkew: Schema.Union(PolicyScheduleClockSkewSchema, Schema.Null),
-    exception: Schema.Union(PolicyScheduleExceptionSchema, Schema.Null),
-    expiry: Schema.Union(PolicyScheduleExpirySchema, Schema.Null),
-    timeBudget: Schema.Union(PolicyScheduleTimeBudgetStatusSchema, Schema.Null),
-  })
-);
-
-export const PolicyRuleSchema = withParser(
-  Schema.Struct({
-    ruleId: PolicyRuleIdSchema,
-    target: PolicyTargetSchema,
-    action: PolicyActionSchema,
-    scheduleId: Schema.Union(PolicyScheduleIdSchema, Schema.Null),
-    priority: Schema.Number,
-    reasonCode: PolicyReasonCodeSchema,
-    createdBy: ParentActorReferenceSchema,
-    enabled: Schema.Boolean,
-    effectiveFrom: Schema.Union(PolicyTimestampSchema, Schema.Null),
-    effectiveUntil: Schema.Union(PolicyTimestampSchema, Schema.Null),
-  })
-);
-
-export const FamilyPolicySetSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    family: FamilyReferenceSchema,
-    childProfiles: Schema.Array(ChildProfileReferenceSchema),
-    devices: Schema.Array(ParentDeviceReferenceSchema),
-    policyVersion: ParentPolicyVersionSchema,
-    rules: Schema.Array(PolicyRuleSchema),
-    schedules: Schema.Array(PolicyScheduleSchema),
-  })
-);
-
-export const PermissionRequestSchema = withParser(
-  Schema.Struct({
-    permissionRequestId: PermissionRequestIdSchema,
-    childProfile: ChildProfileReferenceSchema,
-    device: ParentDeviceReferenceSchema,
-    evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
-    requestedAction: PolicyActionSchema,
-    requestedTarget: PolicyTargetSchema,
-    state: PermissionRequestStateSchema,
-    parentAction: Schema.Union(ParentActionReferenceSchema, Schema.Null),
-    expiresAt: Schema.Union(PolicyTimestampSchema, Schema.Null),
-  })
-);
-
-export const PolicyDecisionSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    decisionId: PolicyDecisionIdSchema,
-    action: PolicyActionSchema,
-    reasonCodes: Schema.Array(PolicyReasonCodeSchema),
-    evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
-    ruleIds: Schema.Array(PolicyRuleIdSchema),
-    localAiResultId: Schema.Union(LocalAiResultReferenceIdSchema, Schema.Null),
-    dryRun: Schema.Boolean,
-    enforcementHandoffState: PolicyDecisionHandoffStateSchema,
-    expiresAt: Schema.Union(PolicyTimestampSchema, Schema.Null),
-  })
-);
-
-export const PolicyPreviewIdSchema = brandedNonEmptyStringSchema('PolicyPreviewId');
-
-export const PolicyPreviewOriginLiteral = {
-  ParentPreview: 'parent-preview',
-  AssistantPreview: 'assistant-preview',
-} as const;
-
-export const PolicyPreviewConfirmationStateLiteral = {
-  ConfirmationRequired: 'confirmation-required',
-  Confirmed: 'confirmed',
-} as const;
-
-export const PolicyPreviewBudgetBoundaryStateLiteral = {
-  WithinBudget: 'within-budget',
-  BonusTimeActive: 'bonus-time-active',
-  BonusTimeExpiring: 'bonus-time-expiring',
-  ManualRequired: 'manual-required',
-  Expired: 'expired',
-} as const;
-
-export const PolicyPreviewOriginSchema = literalSchema(PolicyPreviewOriginLiteral);
-
-export const PolicyPreviewConfirmationStateSchema = literalSchema(PolicyPreviewConfirmationStateLiteral);
-
-export const PolicyPreviewBudgetBoundaryStateSchema = literalSchema(PolicyPreviewBudgetBoundaryStateLiteral);
-
-const PolicyPreviewFields = {
-  previewId: PolicyPreviewIdSchema,
-  origin: PolicyPreviewOriginSchema,
-  confirmationState: PolicyPreviewConfirmationStateSchema,
-  confirmedBy: Schema.Union(ParentActorReferenceSchema, Schema.Null),
-  confirmedAt: Schema.Union(PolicyTimestampSchema, Schema.Null),
-  target: PolicyTargetSchema,
-  requestedAction: PolicyActionSchema,
-  scheduleBoundary: Schema.Union(PolicyScheduleBoundarySchema, Schema.Null),
-  decision: PolicyDecisionSchema,
-} as const;
-
-export const PolicyPreviewSchema = withParser(Schema.Struct(PolicyPreviewFields));
+export const PolicyTargetSchema = policyContracts.PolicyTargetSchema;
+export const PolicyScheduleWindowSchema = policyContracts.PolicyScheduleWindowSchema;
+export const PolicyScheduleBudgetResetSchema = policyContracts.PolicyScheduleBudgetResetSchema;
+export const PolicyScheduleBudgetCarryoverSchema = policyContracts.PolicyScheduleBudgetCarryoverSchema;
+export const PolicyScheduleTimeBudgetSchema = policyContracts.PolicyScheduleTimeBudgetSchema;
+export const PolicyScheduleSchema = policyContracts.PolicyScheduleSchema;
+export const PolicyScheduleDstBoundarySchema = policyContracts.PolicyScheduleDstBoundarySchema;
+export const PolicyScheduleClockSkewSchema = policyContracts.PolicyScheduleClockSkewSchema;
+export const PolicyScheduleExceptionSchema = policyContracts.PolicyScheduleExceptionSchema;
+export const PolicyScheduleExpirySchema = policyContracts.PolicyScheduleExpirySchema;
+export const PolicyScheduleOfflineRecoveryStatusSchema = policyContracts.PolicyScheduleOfflineRecoveryStatusSchema;
+export const PolicyScheduleTimeBudgetStatusSchema = policyContracts.PolicyScheduleTimeBudgetStatusSchema;
+export const PolicyScheduleBoundarySchema = policyContracts.PolicyScheduleBoundarySchema;
+export const PolicyRuleSchema = policyContracts.PolicyRuleSchema;
+export const FamilyPolicySetSchema = policyContracts.FamilyPolicySetSchema;
+export const PermissionRequestSchema = policyContracts.PermissionRequestSchema;
+export const PolicyDecisionSchema = policyContracts.PolicyDecisionSchema;
+export const PolicyPreviewSchema = policyContracts.PolicyPreviewSchema;
 
 export type PolicyRuleId = typeof PolicyRuleIdSchema.Type;
 export type PolicyScheduleId = typeof PolicyScheduleIdSchema.Type;
@@ -427,98 +119,30 @@ export type PolicyPreviewConfirmationState = Infer<typeof PolicyPreviewConfirmat
 export type PolicyPreviewBudgetBoundaryState = Infer<typeof PolicyPreviewBudgetBoundaryStateSchema>;
 export type PolicyPreview = Infer<typeof PolicyPreviewSchema>;
 
-export const PolicyAction = parsedLiteralRecord(PolicyActionLiteral, (value) => PolicyActionSchema.parse(value));
-
-export const PolicyTargetType = parsedLiteralRecord(PolicyTargetTypeLiteral, (value) =>
-  PolicyTargetTypeSchema.parse(value)
-);
-
-export const PolicyScheduleDay = parsedLiteralRecord(PolicyScheduleDayLiteral, (value) =>
-  PolicyScheduleDaySchema.parse(value)
-);
-
-export const PolicyDecisionHandoffState = parsedLiteralRecord(PolicyDecisionHandoffStateLiteral, (value) =>
-  PolicyDecisionHandoffStateSchema.parse(value)
-);
-
-export const PermissionRequestState = parsedLiteralRecord(PermissionRequestStateLiteral, (value) =>
-  PermissionRequestStateSchema.parse(value)
-);
-
-export const PolicyScheduleBoundaryState = parsedLiteralRecord(PolicyScheduleBoundaryStateLiteral, (value) =>
-  PolicyScheduleBoundaryStateSchema.parse(value)
-);
-
-export const PolicyScheduleDstTransition = parsedLiteralRecord(PolicyScheduleDstTransitionLiteral, (value) =>
-  PolicyScheduleDstTransitionSchema.parse(value)
-);
-
-export const PolicyScheduleDstResolution = parsedLiteralRecord(PolicyScheduleDstResolutionLiteral, (value) =>
-  PolicyScheduleDstResolutionSchema.parse(value)
-);
-
-export const PolicyScheduleClockSource = parsedLiteralRecord(PolicyScheduleClockSourceLiteral, (value) =>
-  PolicyScheduleClockSourceSchema.parse(value)
-);
-
-export const PolicyScheduleBudgetResetKind = parsedLiteralRecord(PolicyScheduleBudgetResetKindLiteral, (value) =>
-  PolicyScheduleBudgetResetKindSchema.parse(value)
-);
-
-export const PolicyScheduleBudgetCarryoverMode = parsedLiteralRecord(
-  PolicyScheduleBudgetCarryoverModeLiteral,
-  (value) => PolicyScheduleBudgetCarryoverModeSchema.parse(value)
-);
-
-export const PolicyScheduleOfflineRecovery = parsedLiteralRecord(PolicyScheduleOfflineRecoveryLiteral, (value) =>
-  PolicyScheduleOfflineRecoverySchema.parse(value)
-);
-
-export const PolicyScheduleOfflineRecoveryState = parsedLiteralRecord(
-  PolicyScheduleOfflineRecoveryStateLiteral,
-  (value) => PolicyScheduleOfflineRecoveryStateSchema.parse(value)
-);
-
-export const PolicyPreviewOrigin = parsedLiteralRecord(PolicyPreviewOriginLiteral, (value) =>
-  PolicyPreviewOriginSchema.parse(value)
-);
-
-export const PolicyPreviewConfirmationState = parsedLiteralRecord(PolicyPreviewConfirmationStateLiteral, (value) =>
-  PolicyPreviewConfirmationStateSchema.parse(value)
-);
-
-export const PolicyPreviewBudgetBoundaryState = parsedLiteralRecord(PolicyPreviewBudgetBoundaryStateLiteral, (value) =>
-  PolicyPreviewBudgetBoundaryStateSchema.parse(value)
-);
+export const PolicyAction = policyContracts.PolicyAction;
+export const PolicyTargetType = policyContracts.PolicyTargetType;
+export const PolicyScheduleDay = policyContracts.PolicyScheduleDay;
+export const PolicyDecisionHandoffState = policyContracts.PolicyDecisionHandoffState;
+export const PermissionRequestState = policyContracts.PermissionRequestState;
+export const PolicyScheduleBoundaryState = policyContracts.PolicyScheduleBoundaryState;
+export const PolicyScheduleDstTransition = policyContracts.PolicyScheduleDstTransition;
+export const PolicyScheduleDstResolution = policyContracts.PolicyScheduleDstResolution;
+export const PolicyScheduleClockSource = policyContracts.PolicyScheduleClockSource;
+export const PolicyScheduleBudgetResetKind = policyContracts.PolicyScheduleBudgetResetKind;
+export const PolicyScheduleBudgetCarryoverMode = policyContracts.PolicyScheduleBudgetCarryoverMode;
+export const PolicyScheduleOfflineRecovery = policyContracts.PolicyScheduleOfflineRecovery;
+export const PolicyScheduleOfflineRecoveryState = policyContracts.PolicyScheduleOfflineRecoveryState;
+export const PolicyPreviewOrigin = policyContracts.PolicyPreviewOrigin;
+export const PolicyPreviewConfirmationState = policyContracts.PolicyPreviewConfirmationState;
+export const PolicyPreviewBudgetBoundaryState = policyContracts.PolicyPreviewBudgetBoundaryState;
 
 export const PolicyActionStrictnessRank =
   GeneratedPolicyActionStrictnessRank as Readonly<Record<PolicyAction, number>>;
 
-export function parsePolicySchedule(input: unknown): PolicySchedule {
-  const schedule = PolicyScheduleSchema.parse(input);
-  validateGeneratedPolicySchedule(schedule);
-  return schedule;
-}
-
-export function parseFamilyPolicySet(input: unknown): FamilyPolicySet {
-  const policySet = FamilyPolicySetSchema.parse(input);
-  for (const schedule of policySet.schedules) {
-    validateGeneratedPolicySchedule(schedule);
-  }
-  return policySet;
-}
-
-export function parsePolicyScheduleBoundary(input: unknown): PolicyScheduleBoundary {
-  const boundary = PolicyScheduleBoundarySchema.parse(input);
-  validateGeneratedPolicyScheduleBoundary(boundary);
-  return boundary;
-}
-
-export function parsePolicyPreview(input: unknown): PolicyPreview {
-  const preview = PolicyPreviewSchema.parse(input);
-  validateGeneratedPolicyPreview(preview);
-  return preview;
-}
+export const parsePolicySchedule = policyContracts.parsePolicySchedule;
+export const parseFamilyPolicySet = policyContracts.parseFamilyPolicySet;
+export const parsePolicyScheduleBoundary = policyContracts.parsePolicyScheduleBoundary;
+export const parsePolicyPreview = policyContracts.parsePolicyPreview;
 
 export function resolvePolicyPreviewBudgetBoundaryState(
   boundary: PolicyScheduleBoundary | null

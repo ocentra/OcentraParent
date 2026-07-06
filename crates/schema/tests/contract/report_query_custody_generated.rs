@@ -1,4 +1,4 @@
-use crate::support::{assert_generated_line_containing_eq, assert_generated_line_eq, ContractLine};
+use crate::support::{assert_generated_line_eq, ContractLine};
 use ocentra_schema::report_query_custody as contracts;
 use ocentra_schema::report_query_custody_ts::{
     report_query_custody_contract_rules_typescript, report_query_custody_contracts_typescript,
@@ -74,26 +74,5 @@ pub(super) fn assert_report_query_custody_contracts() {
         generated,
         crate::contract_text!("export function reportQueryCustodyProofIsHonestGenerated("),
         ContractLine("export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQueryCustodyContractProof): boolean {"),
-    );
-
-    let adapter = include_str!("../../../../packages/schema-domain/src/report-query-custody.ts");
-    let adapter = crate::contract_text!(adapter);
-
-    assert_generated_line_eq(
-        adapter,
-        crate::contract_text!(
-            "/* thin adapter over Rust-generated report query custody contracts */"
-        ),
-        ContractLine("/* thin adapter over Rust-generated report query custody contracts */"),
-    );
-    assert_generated_line_containing_eq(
-        adapter,
-        crate::contract_text!("from './generated-report-query-custody-contracts'"),
-        ContractLine("} from './generated-report-query-custody-contracts';"),
-    );
-    assert_generated_line_containing_eq(
-        adapter,
-        crate::contract_text!("from './generated-report-query-custody-contract-rules'"),
-        ContractLine("} from './generated-report-query-custody-contract-rules';"),
     );
 }

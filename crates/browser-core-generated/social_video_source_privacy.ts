@@ -7,10 +7,10 @@ import {
 } from '@ocentra-parent/schema-domain/browser-ai-analysis-values';
 import { BrowserCustodyLabelSchema } from '@ocentra-parent/schema-domain/browser-schemas';
 import {
-  BrowserSocialPlatformSchema,
   BrowserSocialRouteEvidenceIdSchema,
-} from '@ocentra-parent/schema-domain/browser-social-platform-route-schemas';
-import { BrowserSocialVideoMetadataEvidenceIdSchema } from '@ocentra-parent/schema-domain/browser-social-video-metadata';
+  BrowserSocialPlatformSchema,
+  BrowserSocialVideoMetadataEvidenceIdSchema,
+} from './social_video_ai_signal_aggregate_support';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,

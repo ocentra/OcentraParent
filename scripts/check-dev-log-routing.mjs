@@ -20,7 +20,7 @@ function readText(filePath) {
 
 function main() {
   const repoRoot = parseRepoRoot(process.argv.slice(2));
-  const contractsPath = path.join(repoRoot, 'packages', 'schema-domain', 'src', 'logging-contracts.ts');
+  const contractsPath = path.join(repoRoot, 'packages', 'logging-domain', 'src', 'logging-contracts.ts');
   const portalLoggerPath = path.join(repoRoot, 'packages', 'portal-domain', 'src', 'dev-logger.ts');
   const portalLoggerWrapperPath = path.join(repoRoot, 'apps', 'portal', 'src', 'dev-logger.ts');
   const bridgeServerPath = path.join(repoRoot, 'packages', 'logging-domain', 'src', 'transport', 'bridgeServer.ts');

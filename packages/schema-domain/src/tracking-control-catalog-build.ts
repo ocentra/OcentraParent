@@ -1,13 +1,4 @@
-import {
-  type TrackingControlCatalogSettingSeed,
-} from './tracking-control-catalog-data';
-import {
-  buildTrackingControlEnabledConditions,
-  buildTrackingControlOptions,
-  buildTrackingControlOptionLabels as buildTrackingControlOptionLabelsImpl,
-  buildTrackingControlValidationRules,
-  buildTrackingControlVisibilityConditions,
-} from './tracking-control-catalog-options';
+import { type TrackingControlCatalogSettingSeed } from './tracking-control-catalog-data';
 import {
   capabilityRequirementFor,
   capabilityStateFor,
@@ -40,6 +31,13 @@ import {
   type TrackingControlCatalogTab,
   type TrackingControlOption,
 } from './tracking-control-catalog-schema';
+import {
+  buildTrackingControlEnabledConditions,
+  buildTrackingControlOptions,
+  buildTrackingControlOptionLabels as buildTrackingControlOptionLabelsImpl,
+  buildTrackingControlValidationRules,
+  buildTrackingControlVisibilityConditions,
+} from './tracking-control-catalog-options';
 
 type GroupDraft = Omit<TrackingControlCatalogGroup, 'settings'> & {
   readonly settings: TrackingControlCatalogSetting[];

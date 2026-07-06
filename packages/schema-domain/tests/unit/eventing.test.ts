@@ -1,28 +1,30 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  EventingEventContractSchema,
   EventingDeliveryRouteKindSchema,
+  EventingEventContractSchema,
   EventingEventTypeSchema,
   EventingRequestCompletionReportSchema,
   EventingStoredEnvelopeHeaderSchema,
   EventingTopologyManifestSchema,
 } from '../../src/eventing';
-import { TrackingEventName } from '../../src/agent-tracking-retention-settings-write-command';
+
+const locationObservedEvent = 'tracking.location.observed';
+const aiAnalysisRequestedEvent = 'tracking.ai-analysis.requested';
 
 describe('schema-domain eventing taxonomy and envelopes', () => {
   it('rejects malformed eventing taxonomy values through the shared schema owner', () => {
-    expect(EventingEventTypeSchema.safeParse(TrackingEventName.LocationObserved).success).toBe(true);
-    expect(EventingEventTypeSchema.safeParse(`.${TrackingEventName.LocationObserved}`).success).toBe(false);
-    expect(
-      EventingEventTypeSchema.safeParse(TrackingEventName.LocationObserved.replace('.location.', '..location.')).success
-    ).toBe(false);
-    expect(EventingEventTypeSchema.safeParse(`${TrackingEventName.LocationObserved}/`).success).toBe(false);
+    expect(EventingEventTypeSchema.safeParse(locationObservedEvent).success).toBe(true);
+    expect(EventingEventTypeSchema.safeParse(`.${locationObservedEvent}`).success).toBe(false);
+    expect(EventingEventTypeSchema.safeParse(locationObservedEvent.replace('.location.', '..location.')).success).toBe(
+      false
+    );
+    expect(EventingEventTypeSchema.safeParse(`${locationObservedEvent}/`).success).toBe(false);
   });
 
   it('parses eventing contract and stored envelope header without a feature-local schema clone', () => {
     const contract = EventingEventContractSchema.parse({
-      eventType: TrackingEventName.LocationObserved,
+      eventType: locationObservedEvent,
       schemaVersion: 2,
     });
     const header = EventingStoredEnvelopeHeaderSchema.parse({
@@ -48,7 +50,7 @@ describe('schema-domain eventing taxonomy and envelopes', () => {
       journalHash: 'journal-hash-1',
     });
 
-    expect(header.contract.eventType).toBe(TrackingEventName.LocationObserved);
+    expect(header.contract.eventType).toBe(locationObservedEvent);
     expect(header.contract.schemaVersion).toBe(2);
     expect(header.metadata.source.component).toBe('tracking-runtime-flow');
     expect(header.metadata.priority).toBe('normal');
@@ -58,7 +60,7 @@ describe('schema-domain eventing taxonomy and envelopes', () => {
   it('rejects zero schema versions at the shared stored-envelope boundary', () => {
     const result = EventingStoredEnvelopeHeaderSchema.safeParse({
       contract: {
-        eventType: TrackingEventName.LocationObserved,
+        eventType: locationObservedEvent,
         schemaVersion: 0,
       },
       metadata: {
@@ -92,7 +94,7 @@ describe('schema-domain eventing manifests and reports', () => {
       entries: [
         {
           contract: {
-            eventType: TrackingEventName.AiAnalysisRequested,
+            eventType: aiAnalysisRequestedEvent,
             schemaVersion: 1,
           },
           rustType: 'tracking_core::ai_boundary::TrackingAiAnalysisRequested',

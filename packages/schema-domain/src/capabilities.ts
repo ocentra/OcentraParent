@@ -1,3 +1,7 @@
+/* generated from crates/schema/src/parent_control_capabilities_ts.rs */
+
+/* generated from crates/schema/src/parent_control_capabilities_ts.rs */
+
 import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlPlatformCapabilityInputs } from './capability-data';
 

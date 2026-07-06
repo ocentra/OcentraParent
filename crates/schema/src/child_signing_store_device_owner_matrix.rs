@@ -112,7 +112,7 @@ pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_ANDROID_CLAIM_BOUNDARY: &str =
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_IOS_ARTIFACT_PACKAGE_REF: &str =
     "target/release-packages/ios/ocentra-parent-agent-ios-simulator-latest.zip";
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_IOS_PROOF_REF_1: &str =
-    "packages/schema-domain/src/child-ios-entitlement-capability-proof.ts";
+    "packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts";
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_IOS_PROOF_REF_2: &str =
     "scripts/test/child-ios-entitlement-capability-proof.mjs";
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_IOS_PROOF_REF_3: &str =

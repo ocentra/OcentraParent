@@ -35,6 +35,29 @@ export const BrowserSocialFeedVideoRouteGatePlanIdSchema = withParser(
 export const BrowserSocialRiskBenefitSignalSetIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserSocialRiskBenefitSignalSetId')
 );
+export const BrowserSocialRouteEvidenceIdSchema = withParser(
+  brandedNonEmptyStringSchema('BrowserSocialRouteEvidenceId')
+);
+export const BrowserSocialPlatformSchema = withParser(
+  Schema.Literal(
+    'facebook',
+    'instagram',
+    'messenger',
+    'tiktok',
+    'snapchat',
+    'youtube',
+    'youtube-shorts',
+    'vimeo',
+    'twitch',
+    'discord',
+    'reddit',
+    'x-twitter',
+    'pinterest',
+    'roblox',
+    'generic-social',
+    'unknown-social'
+  )
+);
 export const BrowserSocialVideoMetadataEvidenceIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserSocialVideoMetadataEvidenceId')
 );

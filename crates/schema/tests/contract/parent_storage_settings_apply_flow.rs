@@ -17,13 +17,6 @@ fn generated_line<'a>(generated: &'a [u8], line_start: &[u8]) -> &'a [u8] {
         .value_or_unreachable(crate::assert_context!("expected generated line to exist"))
 }
 
-fn line_containing<'a>(generated: &'a [u8], snippet: &[u8]) -> &'a [u8] {
-    generated
-        .split(|byte| *byte == b'\n')
-        .find(|line| line.windows(snippet.len()).any(|window| window == snippet))
-        .value_or_unreachable(crate::assert_context!("expected generated line to exist"))
-}
-
 #[test]
 fn parent_storage_settings_apply_flow_contract_round_trips_through_rust_owned_shape() {
     let proof = contracts::sample_parent_storage_settings_apply_flow_contract_proof();
@@ -172,34 +165,5 @@ fn generated_parent_storage_settings_apply_flow_contract_rules_stay_checked_in()
             b"export function parentStorageSettingsApplyFlowProofIsHonestGenerated("
         ),
         b"export function parentStorageSettingsApplyFlowProofIsHonestGenerated("
-    );
-}
-
-#[test]
-fn parent_storage_settings_apply_flow_adapter_stays_thin_and_generated_backed() {
-    let adapter = include_str!(
-        "../../../../packages/schema-domain/src/parent-storage-settings-apply-flow.ts"
-    );
-
-    assert_eq!(
-        generated_line(
-            adapter.as_bytes(),
-            b"/* thin adapter over Rust-generated parent storage settings apply flow contracts */"
-        ),
-        b"/* thin adapter over Rust-generated parent storage settings apply flow contracts */"
-    );
-    assert_eq!(
-        line_containing(
-            adapter.as_bytes(),
-            b"from './generated-parent-storage-settings-apply-flow-contracts'"
-        ),
-        b"} from './generated-parent-storage-settings-apply-flow-contracts';"
-    );
-    assert_eq!(
-        line_containing(
-            adapter.as_bytes(),
-            b"from './generated-parent-storage-settings-apply-flow-contract-rules'"
-        ),
-        b"} from './generated-parent-storage-settings-apply-flow-contract-rules';"
     );
 }

@@ -17,8 +17,3 @@ fn generated_parent_owned_sync_export_contracts_stay_checked_in() {
 fn generated_parent_owned_sync_export_contract_rules_stay_checked_in() {
     assert_parent_owned_sync_export_contracts();
 }
-
-#[test]
-fn parent_owned_sync_export_adapter_stays_thin_and_generated_backed() {
-    assert_parent_owned_sync_export_contracts();
-}

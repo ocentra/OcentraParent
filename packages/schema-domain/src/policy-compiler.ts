@@ -1,10 +1,18 @@
+/* thin adapter over Rust-owned generated policy compiler contracts */
+
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 import { ChildProfileIdSchema, ParentDeviceIdSchema } from './family-reference-primitives';
 import {
-  hasExactlySameValues,
-  hasUniqueValues,
+  GeneratedPolicyCompilerCapabilityStateValues,
+  GeneratedPolicyCompilerDomainValues,
+  GeneratedPolicyCompilerNoClaimLabelValues,
+  GeneratedPolicyCompilerRuleStatusValues,
+  GeneratedPolicyCompilerSourceStatusValues,
+  GeneratedPolicyCompilerTargetKindValues,
+} from './generated-policy-control-helpers-contracts';
+import {
+  literalRecordFromValues,
   literalSchema,
-  literalValues,
   parsedLiteralRecord,
 } from './policy-literal-contracts';
 import { PolicyAuditReferenceIdSchema } from './policy-authority';
@@ -23,65 +31,19 @@ export const PolicyCompilerPolicyVersionSchema = brandedNonEmptyStringSchema('Po
 export const PolicyCompilerSourceDocumentIdSchema = brandedNonEmptyStringSchema('PolicyCompilerSourceDocumentId');
 export const PolicyCompilerTargetReferenceIdSchema = brandedNonEmptyStringSchema('PolicyCompilerTargetReferenceId');
 
-export const PolicyCompilerDomainLiteral = {
-  AppGame: 'app-game',
-  Browser: 'browser',
-  Network: 'network',
-  Tracking: 'tracking',
-  Screen: 'screen',
-  Ai: 'ai',
-  Enforcement: 'enforcement',
-  NotificationAskParent: 'notification-ask-parent',
-} as const;
+export const PolicyCompilerDomainLiteral = literalRecordFromValues(GeneratedPolicyCompilerDomainValues);
 
-export const PolicyCompilerRuleStatusLiteral = {
-  Ready: 'ready',
-  ManualRequired: 'manual-required',
-  Unsupported: 'unsupported',
-} as const;
+export const PolicyCompilerRuleStatusLiteral = literalRecordFromValues(GeneratedPolicyCompilerRuleStatusValues);
 
-export const PolicyCompilerCapabilityStateLiteral = {
-  Supported: 'supported',
-  ManualRequired: 'manual-required',
-  Unsupported: 'unsupported',
-} as const;
+export const PolicyCompilerCapabilityStateLiteral = literalRecordFromValues(
+  GeneratedPolicyCompilerCapabilityStateValues
+);
 
-export const PolicyCompilerSourceStatusLiteral = {
-  Draft: 'draft',
-  Preview: 'preview',
-  Confirmed: 'confirmed',
-  Queued: 'queued',
-  Delivered: 'delivered',
-  Acknowledged: 'acknowledged',
-  Active: 'active',
-  PartiallyActive: 'partially-active',
-  Rejected: 'rejected',
-  Superseded: 'superseded',
-  RolledBack: 'rolled-back',
-  Stale: 'stale',
-  Expired: 'expired',
-  ManualRequired: 'manual-required',
-} as const;
+export const PolicyCompilerSourceStatusLiteral = literalRecordFromValues(GeneratedPolicyCompilerSourceStatusValues);
 
-export const PolicyCompilerTargetKindLiteral = {
-  ChildProfile: 'child-profile',
-  Device: 'device',
-  App: 'app',
-  Site: 'site',
-  Category: 'category',
-  Resource: 'resource',
-} as const;
+export const PolicyCompilerTargetKindLiteral = literalRecordFromValues(GeneratedPolicyCompilerTargetKindValues);
 
-export const PolicyCompilerNoClaimLabelLiteral = {
-  CompiledArtifactNotSourceTruth: 'compiled-artifact-not-source-truth',
-  RuntimeMutationNotClaimed: 'runtime-mutation-not-claimed',
-  EnforcementNotClaimed: 'enforcement-not-claimed',
-  UiDeliveryNotClaimed: 'ui-delivery-not-claimed',
-  PlatformSupportNotClaimed: 'platform-support-not-claimed',
-} as const;
-
-const PolicyCompilerTargetKindValues = literalValues(PolicyCompilerTargetKindLiteral);
-const PolicyCompilerNoClaimLabelValues = literalValues(PolicyCompilerNoClaimLabelLiteral);
+export const PolicyCompilerNoClaimLabelLiteral = literalRecordFromValues(GeneratedPolicyCompilerNoClaimLabelValues);
 
 export const PolicyCompilerDomainSchema = literalSchema(PolicyCompilerDomainLiteral);
 export const PolicyCompilerRuleStatusSchema = literalSchema(PolicyCompilerRuleStatusLiteral);
@@ -107,17 +69,7 @@ const PolicyCompilerRuleBaseSchema = Schema.Struct({
   reasonCode: Schema.Union(PolicyReasonCodeSchema, Schema.Null),
 });
 
-type PolicyCompilerRuleCandidate = Infer<typeof PolicyCompilerRuleBaseSchema>;
-
-export const PolicyCompilerRuleSchema = withParser(
-  PolicyCompilerRuleBaseSchema.pipe(
-    Schema.filter(
-      (rule: PolicyCompilerRuleCandidate) =>
-        (hasAlignedRuleCapabilityStateAndStatus(rule) && hasAlignedRuleStatusAndReasonCode(rule)) ||
-        'Expected compiler rule capabilityState, status, and reasonCode to stay aligned'
-    )
-  )
-);
+export const PolicyCompilerRuleSchema = withParser(PolicyCompilerRuleBaseSchema);
 
 export const PolicyCompilerSupportMatrixRowSchema = withParser(
   Schema.Struct({
@@ -130,13 +82,7 @@ export const PolicyCompilerSupportMatrixSchema = withParser(
   Schema.Struct({
     domain: PolicyCompilerDomainSchema,
     rows: Schema.Array(PolicyCompilerSupportMatrixRowSchema),
-  }).pipe(
-    Schema.filter(
-      (supportMatrix) =>
-        hasExactlyOneSupportMatrixRowPerTargetKind(supportMatrix.rows) ||
-        'Expected compiler support matrices to classify every target kind exactly once'
-    )
-  )
+  })
 );
 
 export const PolicyCompilerDeliveryTargetSchema = withParser(
@@ -144,13 +90,7 @@ export const PolicyCompilerDeliveryTargetSchema = withParser(
     childProfileIds: Schema.Array(ChildProfileIdSchema),
     deviceIds: Schema.Array(ParentDeviceIdSchema),
     domain: PolicyCompilerDomainSchema,
-  }).pipe(
-    Schema.filter(
-      (target) =>
-        (target.childProfileIds.length > 0 && target.deviceIds.length > 0) ||
-        'Expected compiler delivery targets to cite child profiles and devices'
-    )
-  )
+  })
 );
 
 export const PolicyCompilerEvidenceCustodyRequirementsSchema = withParser(
@@ -201,27 +141,6 @@ export const PolicyCompiledArtifactSchema = withParser(
     schedules: Schema.Array(PolicyCompilerScheduleWindowSchema),
     rules: Schema.Array(PolicyCompilerRuleSchema),
   })
-    .pipe(
-      Schema.filter(
-        (artifact) =>
-          hasExactlyRequiredNoClaimLabels(artifact.noClaimLabels) ||
-          'Expected compiler artifacts to carry the full no-claim set exactly once'
-      )
-    )
-    .pipe(
-      Schema.filter(
-        (artifact) =>
-          hasUniqueAuditReferenceIds(artifact.auditReferenceIds) ||
-          'Expected compiler artifacts to carry unique audit refs'
-      )
-    )
-    .pipe(
-      Schema.filter(
-        (artifact) =>
-          !(artifact.supersededByPolicyVersion !== null && artifact.rollbackRef !== null) ||
-          'Expected compiler artifacts to keep supersede and rollback refs mutually exclusive'
-      )
-    )
 );
 
 export type PolicyCompiledArtifactId = typeof PolicyCompiledArtifactIdSchema.Type;
@@ -262,45 +181,4 @@ export const PolicyCompilerNoClaimLabel = parsedLiteralRecord(PolicyCompilerNoCl
 
 export function parsePolicyCompiledArtifact(input: unknown): PolicyCompiledArtifact {
   return PolicyCompiledArtifactSchema.parse(input);
-}
-
-function hasExactlyRequiredNoClaimLabels(labels: readonly PolicyCompilerNoClaimLabel[]): boolean {
-  return hasExactlySameValues(labels, PolicyCompilerNoClaimLabelValues);
-}
-
-function hasAlignedRuleCapabilityStateAndStatus(rule: PolicyCompilerRuleCandidate): boolean {
-  return rule.status === expectedRuleStatusForCapabilityState(rule.capabilityState);
-}
-
-function expectedRuleStatusForCapabilityState(
-  capabilityState: PolicyCompilerCapabilityState
-): PolicyCompilerRuleStatus {
-  switch (capabilityState) {
-    case PolicyCompilerCapabilityStateLiteral.Supported:
-      return PolicyCompilerRuleStatusLiteral.Ready;
-    case PolicyCompilerCapabilityStateLiteral.ManualRequired:
-      return PolicyCompilerRuleStatusLiteral.ManualRequired;
-    case PolicyCompilerCapabilityStateLiteral.Unsupported:
-      return PolicyCompilerRuleStatusLiteral.Unsupported;
-  }
-}
-
-function hasAlignedRuleStatusAndReasonCode(rule: PolicyCompilerRuleCandidate): boolean {
-  return (
-    (rule.status === PolicyCompilerRuleStatusLiteral.Ready && rule.reasonCode === null) ||
-    ((rule.status === PolicyCompilerRuleStatusLiteral.ManualRequired ||
-      rule.status === PolicyCompilerRuleStatusLiteral.Unsupported) &&
-      rule.reasonCode !== null)
-  );
-}
-
-function hasUniqueAuditReferenceIds(auditReferenceIds: readonly string[]): boolean {
-  return auditReferenceIds.length > 0 && hasUniqueValues(auditReferenceIds);
-}
-
-function hasExactlyOneSupportMatrixRowPerTargetKind(rows: readonly PolicyCompilerSupportMatrixRow[]): boolean {
-  return hasExactlySameValues(
-    rows.map((row) => row.targetKind),
-    PolicyCompilerTargetKindValues
-  );
 }

@@ -1,6 +1,4 @@
-use crate::support::{
-    extract_json_block, extract_typescript_block, module_specifiers, ValueOrUnreachable as _,
-};
+use crate::support::{extract_json_block, extract_typescript_block, ValueOrUnreachable as _};
 use ocentra_schema::data_custody_source_of_truth as contracts;
 use ocentra_schema::data_custody_source_of_truth_ts::data_custody_source_of_truth_contracts_typescript;
 use serde_json::json;
@@ -144,41 +142,5 @@ fn assert_generated_data_custody_source_of_truth_contracts(
             .filter(|line| **line == "export const GeneratedDataCustodyClassIds = [")
             .count(),
         1
-    );
-}
-
-#[test]
-fn data_custody_adapters_stay_thin_and_generated_backed() {
-    let matrix_adapter =
-        include_str!("../../../../packages/schema-domain/src/data-custody-matrix.ts");
-    let boundary_adapter =
-        include_str!("../../../../packages/schema-domain/src/custody-boundary.ts");
-
-    assert_eq!(
-        matrix_adapter.lines().next(),
-        Some("/* thin adapter over Rust-generated data custody source-of-truth contracts */")
-    );
-    assert_eq!(
-        module_specifiers(crate::contract_text!(matrix_adapter)),
-        crate::module_specifiers![
-            "./family-reference-primitives",
-            "./effect",
-            "./proof-shape",
-            "./custody-boundary",
-            "./generated-data-custody-source-of-truth-contracts"
-        ]
-    );
-    assert_eq!(
-        boundary_adapter.lines().next(),
-        Some("/* thin custody boundary helpers over Rust-generated data custody source-of-truth literals plus local workpack adapters */")
-    );
-    assert_eq!(
-        module_specifiers(crate::contract_text!(boundary_adapter)),
-        crate::module_specifiers![
-            "./family-references",
-            "./family-reference-primitives",
-            "./effect",
-            "./generated-data-custody-source-of-truth-contracts",
-        ]
     );
 }

@@ -1,3 +1,5 @@
+/* generic helper for display text contracts */
+
 import { Schema, brandedNonEmptyStringSchema } from './effect';
 
 export const DisplayTextSchema = brandedNonEmptyStringSchema('DisplayText');

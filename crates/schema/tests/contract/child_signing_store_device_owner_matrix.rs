@@ -1,4 +1,4 @@
-use crate::support::{module_specifiers, ErrorOrUnreachable as _, ValueOrUnreachable as _};
+use crate::support::{ErrorOrUnreachable as _, ValueOrUnreachable as _};
 use ocentra_schema::child_signing_store_device_owner_matrix as contracts;
 use ocentra_schema::child_signing_store_device_owner_matrix_ts::child_signing_store_device_owner_matrix_contracts_typescript;
 use serde_json::json;
@@ -121,24 +121,5 @@ fn generated_child_signing_store_device_owner_matrix_contracts_stay_checked_in()
             .filter(|line| **line == "export const GeneratedChildArtifactMatrixPlatforms = [")
             .count(),
         1
-    );
-}
-
-#[test]
-fn child_signing_store_device_owner_matrix_adapter_stays_thin_and_generated_backed() {
-    let adapter = include_str!(
-        "../../../../packages/schema-domain/src/child-signing-store-device-owner-matrix.ts"
-    );
-
-    assert_eq!(
-        adapter.lines().next(),
-        Some("/* thin adapter over Rust-generated child signing/store/device-owner matrix contracts */")
-    );
-    assert_eq!(
-        module_specifiers(crate::contract_text!(adapter)),
-        crate::module_specifiers!(
-            "./effect",
-            "./generated-child-signing-store-device-owner-matrix-contracts"
-        )
     );
 }

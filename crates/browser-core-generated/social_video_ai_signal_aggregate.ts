@@ -10,10 +10,6 @@ import {
   type BrowserSocialFeedVideoRouteGatePlan,
 } from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate';
 import {
-  BrowserSocialPlatformSchema,
-  BrowserSocialRouteEvidenceIdSchema,
-} from '@ocentra-parent/schema-domain/browser-social-platform-route-schemas';
-import {
   BrowserSocialRiskBenefitSignalSetSchema,
   type BrowserSocialRiskBenefitSignalSet,
 } from '@ocentra-parent/schema-domain/browser-social-riskbenefit-signals';
@@ -37,6 +33,8 @@ import {
   BrowserCustodyLabelSchema,
   BrowserSocialAiAnalysisIdSchema,
   BrowserSocialFeedVideoRouteGatePlanIdSchema,
+  BrowserSocialPlatformSchema,
+  BrowserSocialRouteEvidenceIdSchema,
   BrowserSocialRiskBenefitSignalSetIdSchema,
   BrowserSocialVideoMetadataEvidenceIdSchema,
 } from './social_video_ai_signal_aggregate_support';

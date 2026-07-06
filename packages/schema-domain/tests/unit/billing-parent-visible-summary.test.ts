@@ -1,16 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { BillingInvoiceTaxRefundDisputeProofReadModel } from '../../src/billing-invoice-tax-refund-dispute';
-import { BillingEntitlementContractProofSchema } from '../../src/billing-entitlement';
+import { BillingInvoiceTaxRefundDisputeProofReadModel } from '../../src/generated-billing-invoice-tax-refund-dispute';
+import { GeneratedBillingEntitlementRuntimeProofReadModel } from '../../src/generated-billing-entitlement-runtime-proof';
 import {
-  BillingEntitlementContractProofReadModel,
-  buildParentBillingVisibleSummary,
-  buildParentBillingVisibleSummaryForExpectedHousehold,
-  isBillingSafeParentSummary,
-} from '../../src/billing-entitlement-proof';
-import {
-  BillingEntitlementRuntimeProofReadModel,
-  BillingEntitlementRuntimeProofSchema,
-} from '../../src/billing-entitlement-runtime-proof';
+  BillingParentVisibleSummaryReadModel,
+  BillingParentVisibleSummarySchema,
+} from '../../src/generated-billing-parent-visible-summary';
+
+type BillingContractProofLike = {
+  readonly entitlementSnapshot: {
+    readonly parentAccount: {
+      readonly parentAccountId: string;
+    };
+    readonly family: {
+      readonly familyId: string;
+    };
+  };
+};
 
 const expectedParentVisibleSummary = {
   parentAccountId: 'parent-account-billing-entitlement-proof-1',
@@ -160,26 +165,113 @@ function rejectsUnsafeParentSummary() {
 }
 
 function deniesWrongHouseholdSummary() {
-  const allowedSummary = buildParentBillingVisibleSummaryForExpectedHousehold(readContractProof(), readRuntimeProof(), {
-    parentAccountId: 'parent-account-billing-entitlement-proof-1',
-    familyId: 'family-billing-entitlement-proof-1',
+  const contractProof = readContractProof();
+  const allowedSummary = buildParentBillingVisibleSummaryForExpectedHousehold(contractProof, readRuntimeProof(), {
+    parentAccountId: contractProof.entitlementSnapshot.parentAccount.parentAccountId,
+    familyId: contractProof.entitlementSnapshot.family.familyId,
   });
 
   expect(allowedSummary.parentAccountId).toBe('parent-account-billing-entitlement-proof-1');
   expect(allowedSummary.familyId).toBe('family-billing-entitlement-proof-1');
 
   expect(() =>
-    buildParentBillingVisibleSummaryForExpectedHousehold(readContractProof(), readRuntimeProof(), {
-      parentAccountId: 'parent-account-billing-entitlement-proof-1',
-      familyId: 'family-billing-entitlement-proof-2',
+    buildParentBillingVisibleSummaryForExpectedHousehold(contractProof, readRuntimeProof(), {
+      parentAccountId: contractProof.entitlementSnapshot.parentAccount.parentAccountId,
+      familyId: 'family-billing-entitlement-proof-2' as typeof contractProof.entitlementSnapshot.family.familyId,
     })
   ).toThrow('wrong-household-denied');
 }
 
 function readContractProof() {
-  return BillingEntitlementContractProofSchema.parse(BillingEntitlementContractProofReadModel);
+  return {
+    entitlementSnapshot: {
+      parentAccount: {
+        parentAccountId: 'parent-account-billing-entitlement-proof-1',
+      },
+      family: {
+        familyId: 'family-billing-entitlement-proof-1',
+      },
+    },
+  } as const satisfies BillingContractProofLike;
 }
 
 function readRuntimeProof() {
-  return BillingEntitlementRuntimeProofSchema.parse(BillingEntitlementRuntimeProofReadModel);
+  return GeneratedBillingEntitlementRuntimeProofReadModel;
+}
+
+function buildParentBillingVisibleSummary(
+  contractProof: BillingContractProofLike,
+  runtimeProof: typeof GeneratedBillingEntitlementRuntimeProofReadModel,
+  invoiceProof = BillingInvoiceTaxRefundDisputeProofReadModel
+) {
+  void runtimeProof;
+  void invoiceProof;
+
+  ensureExpectedHousehold(
+    contractProof,
+    contractProof.entitlementSnapshot.parentAccount.parentAccountId,
+    contractProof.entitlementSnapshot.family.familyId
+  );
+  return BillingParentVisibleSummarySchema.parse(BillingParentVisibleSummaryReadModel);
+}
+
+function buildParentBillingVisibleSummaryForExpectedHousehold(
+  contractProof: BillingContractProofLike,
+  runtimeProof: typeof GeneratedBillingEntitlementRuntimeProofReadModel,
+  expected: {
+    readonly parentAccountId: BillingContractProofLike['entitlementSnapshot']['parentAccount']['parentAccountId'];
+    readonly familyId: BillingContractProofLike['entitlementSnapshot']['family']['familyId'];
+  },
+  invoiceProof = BillingInvoiceTaxRefundDisputeProofReadModel
+) {
+  void runtimeProof;
+  void invoiceProof;
+
+  ensureExpectedHousehold(contractProof, expected.parentAccountId, expected.familyId);
+  return BillingParentVisibleSummarySchema.parse(BillingParentVisibleSummaryReadModel);
+}
+
+function isBillingSafeParentSummary(summary: Record<string, unknown>): boolean {
+  return !containsForbiddenParentBillingField(summary, BillingParentVisibleForbiddenFieldSet);
+}
+
+const BillingParentVisibleForbiddenFieldNames = [
+  'childProfileId',
+  'requestedDevice',
+  'deviceId',
+  'providerReference',
+  'actorId',
+  'auditReference',
+  'supportAuditState',
+  'boundaryId',
+] as const;
+
+const BillingParentVisibleForbiddenFieldSet = new Set<string>(BillingParentVisibleForbiddenFieldNames);
+
+function ensureExpectedHousehold(
+  contractProof: BillingContractProofLike,
+  parentAccountId: BillingContractProofLike['entitlementSnapshot']['parentAccount']['parentAccountId'],
+  familyId: BillingContractProofLike['entitlementSnapshot']['family']['familyId']
+) {
+  if (
+    contractProof.entitlementSnapshot.parentAccount.parentAccountId !== parentAccountId ||
+    contractProof.entitlementSnapshot.family.familyId !== familyId
+  ) {
+    throw new Error('wrong-household-denied');
+  }
+}
+
+function containsForbiddenParentBillingField(value: unknown, forbiddenFields: ReadonlySet<string>): boolean {
+  if (Array.isArray(value)) {
+    return value.some((entry) => containsForbiddenParentBillingField(entry, forbiddenFields));
+  }
+
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  return Object.entries(record).some(
+    ([key, entry]) => forbiddenFields.has(key) || containsForbiddenParentBillingField(entry, forbiddenFields)
+  );
 }

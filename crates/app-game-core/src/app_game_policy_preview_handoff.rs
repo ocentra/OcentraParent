@@ -202,6 +202,13 @@ fn is_game_target_kind(target_kind: &str) -> bool {
     )
 }
 
+pub fn app_game_policy_preview_handoff_values_typescript() -> String {
+    include_str!(
+        "../../../packages/schema-domain/src/generated-app-game-policy-preview-handoff-values.ts"
+    )
+    .to_string()
+}
+
 pub fn app_game_policy_preview_handoff_typescript() -> String {
-    include_str!("../tests/generated/app-game-policy-preview-handoff.ts").to_string()
+    app_game_policy_preview_handoff_values_typescript()
 }

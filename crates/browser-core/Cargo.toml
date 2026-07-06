@@ -23,3 +23,7 @@ path = "tests/unit/mod.rs"
 [[test]]
 name = "contract"
 path = "tests/contract/mod.rs"
+
+[[test]]
+name = "browser_generated_social"
+path = "tests/contract/browser_generated_social.rs"

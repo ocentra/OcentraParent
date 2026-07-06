@@ -1,50 +1,14 @@
-import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
+/* thin adapter over Rust-owned generated social dashboard UX value contracts */
 
-export const SocialDashboardUxSchemaVersionSchema = withParser(Schema.Literal('social-dashboard-ux-contract'));
+import * as Generated from './generated-social-dashboard-ux-values';
 
-export const SocialDashboardPanelIdSchema = withParser(brandedNonEmptyStringSchema('SocialDashboardPanelId'));
+export const SocialDashboardUxSchemaVersionSchema = Generated.SocialDashboardUxSchemaVersionSchema;
+export const SocialDashboardPanelIdSchema = Generated.SocialDashboardPanelIdSchema;
+export const SocialDashboardPanelKindSchema = Generated.SocialDashboardPanelKindSchema;
+export const SocialDashboardPanelStatusSchema = Generated.SocialDashboardPanelStatusSchema;
+export const SocialDashboardPanelActionSchema = Generated.SocialDashboardPanelActionSchema;
+export const SocialDashboardPanelSeveritySchema = Generated.SocialDashboardPanelSeveritySchema;
+export const SocialDashboardPanelReasonSchema = Generated.SocialDashboardPanelReasonSchema;
 
-export const SocialDashboardPanelKindSchema = withParser(
-  Schema.Literal(
-    'account-approval-queue',
-    'feed-video-gates',
-    'native-app-capability',
-    'connector-boundaries',
-    'decision-memory',
-    'settings-custody',
-    'manual-required-gaps'
-  )
-);
-
-export const SocialDashboardPanelStatusSchema = withParser(
-  Schema.Literal('ready-for-review', 'manual-required', 'contract-only', 'unavailable')
-);
-
-export const SocialDashboardPanelActionSchema = withParser(
-  Schema.Literal(
-    'open-parent-approval',
-    'review-feed-gate',
-    'review-native-capability',
-    'review-connector-boundary',
-    'review-memory-entry',
-    'review-settings-custody',
-    'manual-review'
-  )
-);
-
-export const SocialDashboardPanelSeveritySchema = withParser(Schema.Literal('info', 'warning', 'critical'));
-
-export const SocialDashboardPanelReasonSchema = withParser(
-  Schema.Literal(
-    'parent-review-needed',
-    'feed-video-gate-candidate',
-    'native-app-manual-required',
-    'connector-boundary-manual-required',
-    'memory-contract-only',
-    'settings-custody-runtime-gap',
-    'platform-proof-gap'
-  )
-);
-
-export type SocialDashboardPanelKind = Infer<typeof SocialDashboardPanelKindSchema>;
-export type SocialDashboardPanelStatus = Infer<typeof SocialDashboardPanelStatusSchema>;
+export type SocialDashboardPanelKind = Generated.SocialDashboardPanelKind;
+export type SocialDashboardPanelStatus = Generated.SocialDashboardPanelStatus;

@@ -24,6 +24,8 @@ mod app_game_notification_readiness_tests;
 mod app_game_platform_proof_status_tests;
 #[path = "app_game_policy_readiness_tests.rs"]
 mod app_game_policy_readiness_tests;
+#[path = "app_game_timer_parent_preference_setup_request_tests.rs"]
+mod app_game_timer_parent_preference_setup_request_tests;
 #[path = "app_game_timer_parent_surface_read_model_tests.rs"]
 mod app_game_timer_parent_surface_read_model_tests;
 #[path = "browser_inventory_tests.rs"]

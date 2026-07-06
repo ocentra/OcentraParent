@@ -1,64 +1,17 @@
-import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
+/* thin adapter over Rust-owned generated social audit explanation read-model value contracts */
 
-export const SocialAuditExplanationReadModelSchemaVersionSchema = withParser(
-  Schema.Literal('social-audit-explanation-read-model')
-);
+import * as Generated from './generated-social-audit-explanation-read-model-values';
 
-export const SocialAuditExplanationEventIdSchema = withParser(
-  brandedNonEmptyStringSchema('SocialAuditExplanationEventId')
-);
+export const SocialAuditExplanationReadModelSchemaVersionSchema =
+  Generated.SocialAuditExplanationReadModelSchemaVersionSchema;
+export const SocialAuditExplanationEventIdSchema = Generated.SocialAuditExplanationEventIdSchema;
+export const SocialAuditExplanationSnapshotIdSchema = Generated.SocialAuditExplanationSnapshotIdSchema;
+export const SocialAuditExplanationSubjectKindSchema = Generated.SocialAuditExplanationSubjectKindSchema;
+export const SocialAuditExplanationStatusSchema = Generated.SocialAuditExplanationStatusSchema;
+export const SocialAuditExplanationDecisionStateSchema = Generated.SocialAuditExplanationDecisionStateSchema;
+export const SocialAuditExplanationEvidenceKindSchema = Generated.SocialAuditExplanationEvidenceKindSchema;
+export const SocialAuditExplanationAudienceSchema = Generated.SocialAuditExplanationAudienceSchema;
+export const SocialAuditExplanationReasonSchema = Generated.SocialAuditExplanationReasonSchema;
 
-export const SocialAuditExplanationSnapshotIdSchema = withParser(
-  brandedNonEmptyStringSchema('SocialAuditExplanationSnapshotId')
-);
-
-export const SocialAuditExplanationSubjectKindSchema = withParser(
-  Schema.Literal(
-    'account-approval',
-    'feed-video-gate',
-    'native-app-gap',
-    'connector-boundary',
-    'decision-memory',
-    'manual-required-gap'
-  )
-);
-
-export const SocialAuditExplanationStatusSchema = withParser(
-  Schema.Literal('ready-for-parent', 'manual-required', 'contract-only', 'unavailable')
-);
-
-export const SocialAuditExplanationDecisionStateSchema = withParser(
-  Schema.Literal('candidate-only', 'parent-recorded', 'manual-required', 'unavailable')
-);
-
-export const SocialAuditExplanationEvidenceKindSchema = withParser(
-  Schema.Literal(
-    'route-evidence',
-    'policy-candidate',
-    'parent-approval',
-    'decision-memory',
-    'connector-boundary',
-    'native-capability',
-    'manual-gap'
-  )
-);
-
-export const SocialAuditExplanationAudienceSchema = withParser(
-  Schema.Literal('parent', 'audit-log', 'support-redacted')
-);
-
-export const SocialAuditExplanationReasonSchema = withParser(
-  Schema.Literal(
-    'evidence-linked',
-    'policy-candidate-linked',
-    'parent-decision-linked',
-    'memory-linked',
-    'connector-boundary-linked',
-    'native-app-manual-required',
-    'manual-review-required',
-    'missing-runtime-proof'
-  )
-);
-
-export type SocialAuditExplanationEvidenceKind = Infer<typeof SocialAuditExplanationEvidenceKindSchema>;
-export type SocialAuditExplanationSubjectKind = Infer<typeof SocialAuditExplanationSubjectKindSchema>;
+export type SocialAuditExplanationEvidenceKind = Generated.SocialAuditExplanationEvidenceKind;
+export type SocialAuditExplanationSubjectKind = Generated.SocialAuditExplanationSubjectKind;

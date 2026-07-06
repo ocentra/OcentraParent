@@ -12,11 +12,6 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
-  SocialAuditExplanationEventIdSchema,
-  SocialAuditExplanationSnapshotIdSchema,
-} from '@ocentra-parent/schema-domain/social-audit-explanation-read-model-values';
-import { SocialDashboardPanelIdSchema } from '@ocentra-parent/schema-domain/social-dashboard-ux-values';
-import {
   V3NotificationProviderChannelSchema,
   V3NotificationRuleReasonCodeSchema,
 } from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
@@ -37,6 +32,14 @@ export const SocialAlertReportDeliveryClaimState = {
   LocalOutboxOnly: 'local-outbox-only',
   ManualRequired: 'manual-required',
 } as const;
+
+export const SocialAuditExplanationEventIdSchema = withParser(
+  brandedNonEmptyStringSchema('SocialAuditExplanationEventId')
+);
+export const SocialAuditExplanationSnapshotIdSchema = withParser(
+  brandedNonEmptyStringSchema('SocialAuditExplanationSnapshotId')
+);
+export const SocialDashboardPanelIdSchema = withParser(brandedNonEmptyStringSchema('SocialDashboardPanelId'));
 
 const RequiredNotificationLocalOutboxStates = [
   'queued-local',

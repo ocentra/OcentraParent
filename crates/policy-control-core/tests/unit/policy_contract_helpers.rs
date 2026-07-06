@@ -237,6 +237,29 @@ fn route_and_screen_ai_helpers_are_rust_owned() {
 }
 
 #[test]
+fn rust_owned_policy_contract_helpers_sidecar_carries_generated_literal_tables() {
+    let sidecar = include_str!("../../src/policy_contract_helpers_ts.contracts.txt");
+
+    for expected in [
+        "GeneratedPolicyTargetTypeValues",
+        "GeneratedPermissionRequestStateValues",
+        "GeneratedPolicyScheduleOfflineRecoveryValues",
+        "GeneratedPolicyPreviewOriginValues",
+        "GeneratedPolicyCompilerDomainValues",
+        "GeneratedPolicyCompilerRuleStatusValues",
+        "GeneratedPolicyCompilerCapabilityStateValues",
+        "GeneratedPolicyCompilerSourceStatusValues",
+        "GeneratedPolicyCompilerTargetKindValues",
+        "GeneratedPolicyCompilerNoClaimLabelValues",
+    ] {
+        assert!(
+            sidecar.contains(expected),
+            "expected Rust-owned policy contract helpers sidecar to contain {expected}"
+        );
+    }
+}
+
+#[test]
 fn preview_validation_keeps_confirmation_and_dry_run_rules_rust_owned() {
     let preview = PolicyContractPreview {
         confirmation_state: PolicyContractPreviewConfirmationState::Confirmed,

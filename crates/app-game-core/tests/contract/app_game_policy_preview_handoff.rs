@@ -83,28 +83,12 @@ fn app_game_policy_preview_handoff_read_model_counts_rows_by_domain_and_status()
 
 #[test]
 fn generated_app_game_policy_preview_handoff_helper_stays_checked_in() {
-    let checked_in = include_str!("../generated/app-game-policy-preview-handoff.ts");
+    let checked_in = include_str!(
+        "../../../../packages/schema-domain/src/generated-app-game-policy-preview-handoff-values.ts"
+    );
     let generated = app_game_policy_preview_handoff_typescript();
 
     assert_eq!(checked_in, generated);
-    assert_eq!(
-        generated
-            .matches("buildGeneratedAppGamePolicyPreviewHandoffRow")
-            .count(),
-        1
-    );
-    assert_eq!(
-        generated
-            .matches("buildGeneratedAppGamePolicyPreviewHandoffReadModel")
-            .count(),
-        1
-    );
-    assert_eq!(
-        generated
-            .matches("generatedAppGamePolicyPreviewReadModelCountsMatchRows")
-            .count(),
-        1
-    );
 }
 
 fn preview_options() -> AppGamePolicyPreviewHandoffOptions {

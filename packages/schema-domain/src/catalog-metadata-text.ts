@@ -1,3 +1,5 @@
+/* generic helper for catalog metadata text matching */
+
 export type PatternValue<T> = readonly [pattern: RegExp, value: T];
 
 export function matchPatternValue<T>(
