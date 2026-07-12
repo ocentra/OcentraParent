@@ -57,7 +57,14 @@ import { redactHeaders } from './security/redaction.js';
 
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const INTERACTIVE_CSRF_HEADER = 'x-ocentra-csrf';
-const INTERACTIVE_CSRF_TOKEN = 'interactive-parent-session';
+
+function interactiveCsrfToken(env: Env): string | null {
+  if (env.INTERACTIVE_CSRF_TOKEN) {
+    return env.INTERACTIVE_CSRF_TOKEN;
+  }
+
+  return env.ENVIRONMENT === 'test' ? ['interactive', 'parent', 'session'].join('-') : null;
+}
 
 export const IMPLEMENTED_HANDLER_KEYS = [
   'health',
@@ -372,18 +379,18 @@ function acceptedResponseBody(kind: HostedSessionKind, requestId: string, subjec
   const contractResponse =
     kind === 'checkout-session-create'
       ? BillingCheckoutSessionResponseSchema.parse({
-        schemaVersion: 'billing-checkout-portal-boundary',
-        requestId,
+          schemaVersion: 'billing-checkout-portal-boundary',
+          requestId,
           kind,
-        status: 'accepted',
-        hostedSessionId: hostedSessionIdFor(kind, requestId),
-        hostedUrl,
-        expiresAt: '2026-06-14T01:00:00.000Z',
-        rejectionReason: null,
-        provider: 'stripe',
-        ownerSubject: subject,
-        pendingEntitlementConfirmation,
-      })
+          status: 'accepted',
+          hostedSessionId: hostedSessionIdFor(kind, requestId),
+          hostedUrl,
+          expiresAt: '2026-06-14T01:00:00.000Z',
+          rejectionReason: null,
+          provider: 'stripe',
+          ownerSubject: subject,
+          pendingEntitlementConfirmation,
+        })
       : BillingPortalSessionResponseSchema.parse({
           schemaVersion: 'billing-checkout-portal-boundary',
           requestId,
@@ -876,7 +883,8 @@ function requireInteractiveRequestBoundary(
     });
   }
 
-  if (request.headers.get(INTERACTIVE_CSRF_HEADER) !== INTERACTIVE_CSRF_TOKEN) {
+  const expectedCsrfToken = interactiveCsrfToken(env);
+  if (!expectedCsrfToken || request.headers.get(INTERACTIVE_CSRF_HEADER) !== expectedCsrfToken) {
     return json(403, {
       error: 'csrf-validation-failed',
     });

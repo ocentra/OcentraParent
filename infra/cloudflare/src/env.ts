@@ -14,6 +14,7 @@ export interface Env {
   REQUEST_MAX_BYTES?: string;
   BILLING_ROUTE_KILL_SWITCH?: string;
   AUTH_ADAPTER_MODE?: string;
+  INTERACTIVE_CSRF_TOKEN?: string;
   INTERNAL_QUEUE_SHARED_SECRET?: string;
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
@@ -54,6 +55,7 @@ const OPTIONAL_ENV_KEYS = [
   'REQUEST_MAX_BYTES',
   'BILLING_ROUTE_KILL_SWITCH',
   'AUTH_ADAPTER_MODE',
+  'INTERACTIVE_CSRF_TOKEN',
   'INTERNAL_QUEUE_SHARED_SECRET',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
@@ -237,6 +239,10 @@ export function validateEnv(env: Env): string[] {
 
   if (!env.ENTITLEMENT_SIGNING_KEY_REF) {
     errors.push('missing required env: ENTITLEMENT_SIGNING_KEY_REF');
+  }
+
+  if (env.ENVIRONMENT !== 'test' && !env.INTERACTIVE_CSRF_TOKEN) {
+    errors.push('missing required env: INTERACTIVE_CSRF_TOKEN');
   }
 
   return errors;

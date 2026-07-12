@@ -8,6 +8,7 @@ Repo rules:
 
 Expected secret names:
 
+- `INTERACTIVE_CSRF_TOKEN`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `RAZORPAY_KEY_ID`

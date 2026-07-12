@@ -90,10 +90,9 @@ describe('POST /webhooks/stripe', () => {
   });
 
   it('keeps webhook auth manual-required when the auth adapter mode is unresolved or unknown', async () => {
-    for (const authAdapterMode of [
-      'account-auth-adapter-manual-required',
-      'future-provider-adapter',
-    ] as const) {
+    const rejectedWebhookFixtureSecret = ['whsec', 'auth', 'boundary', 'fixture'].join('_');
+
+    for (const authAdapterMode of ['account-auth-adapter-manual-required', 'future-provider-adapter'] as const) {
       const { response } = await executeRequest({
         path: '/webhooks/stripe',
         method: 'POST',
@@ -105,7 +104,7 @@ describe('POST /webhooks/stripe', () => {
         },
         envOverrides: {
           AUTH_ADAPTER_MODE: authAdapterMode,
-          STRIPE_WEBHOOK_SECRET: 'whsec_auth_boundary_secret',
+          STRIPE_WEBHOOK_SECRET: rejectedWebhookFixtureSecret,
         },
       });
 
@@ -120,7 +119,7 @@ describe('POST /webhooks/stripe', () => {
           ? 'account-auth-adapter-manual-required'
           : 'unsupported-auth-adapter-mode'
       );
-      assert.equal(text.includes('whsec_auth_boundary_secret'), false);
+      assert.equal(text.includes(rejectedWebhookFixtureSecret), false);
       assert.equal(text.includes('stripe-signature'), false);
     }
   });

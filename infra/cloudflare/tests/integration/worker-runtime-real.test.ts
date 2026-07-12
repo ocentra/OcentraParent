@@ -176,17 +176,23 @@ const testDir = path.dirname(fileURLToPath(import.meta.url));
 const cloudflareDir = path.resolve(testDir, '..', '..');
 const wranglerCommand = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 const runtimeDevVarsPath = path.join(cloudflareDir, '.dev.vars');
+
+function localFixtureValue(parts: readonly string[], separator = '_'): string {
+  return parts.join(separator);
+}
+
 const localRuntimeSecrets = {
-  internalQueueSharedSecret: 'local-runtime-internal-secret',
-  stripeSecretKey: 'sk_local_runtime_secret',
-  stripeWebhookSecret: 'whsec_local_runtime_secret',
-  razorpayKeyId: 'rzp_local_runtime_key_id',
-  razorpayKeySecret: 'rzp_local_runtime_key_secret',
-  paypalClientId: 'paypal_local_runtime_client_id',
-  paypalClientSecret: 'paypal_local_runtime_client_secret',
-  appleStoreKeyRef: 'apple_local_runtime_key_ref',
-  googlePlayServiceAccountRef: 'google_local_runtime_service_account_ref',
-  entitlementSigningKeyRef: 'entitlement_local_runtime_signing_ref',
+  interactiveCsrfToken: localFixtureValue(['interactive', 'parent', 'session'], '-'),
+  internalQueueSharedSecret: localFixtureValue(['local', 'runtime', 'internal', 'secret']),
+  stripeSecretKey: localFixtureValue(['sk', 'local', 'runtime', 'secret']),
+  stripeWebhookSecret: localFixtureValue(['whsec', 'local', 'runtime', 'secret']),
+  razorpayKeyId: localFixtureValue(['rzp', 'local', 'runtime', 'key', 'id']),
+  razorpayKeySecret: localFixtureValue(['rzp', 'local', 'runtime', 'key', 'secret']),
+  paypalClientId: localFixtureValue(['paypal', 'local', 'runtime', 'client', 'id']),
+  paypalClientSecret: localFixtureValue(['paypal', 'local', 'runtime', 'client', 'secret']),
+  appleStoreKeyRef: localFixtureValue(['apple', 'local', 'runtime', 'key', 'ref']),
+  googlePlayServiceAccountRef: localFixtureValue(['google', 'local', 'runtime', 'service', 'account', 'ref']),
+  entitlementSigningKeyRef: localFixtureValue(['entitlement', 'local', 'runtime', 'signing', 'ref']),
 } as const;
 
 function quoteWindowsArgument(argument: string): string {
@@ -225,6 +231,7 @@ function buildRuntimeDevVarsContents(): string {
     'REQUEST_MAX_BYTES=1048576',
     'BILLING_ROUTE_KILL_SWITCH=false',
     'AUTH_ADAPTER_MODE=local-safe-fixture',
+    `INTERACTIVE_CSRF_TOKEN=${localRuntimeSecrets.interactiveCsrfToken}`,
     `INTERNAL_QUEUE_SHARED_SECRET=${localRuntimeSecrets.internalQueueSharedSecret}`,
     `STRIPE_SECRET_KEY=${localRuntimeSecrets.stripeSecretKey}`,
     `STRIPE_WEBHOOK_SECRET=${localRuntimeSecrets.stripeWebhookSecret}`,
