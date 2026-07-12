@@ -46,7 +46,7 @@ export function createDevWebRouteSubscription(
 function createDevWebEmitNextSnapshot(
   subscriptionState: {
     active: boolean;
-    lastSnapshotJson: string;
+    lastSnapshotJson: ReturnType<typeof JSON.stringify>;
   },
   parentDevBridgeUrl: ParentDevBridgeUrl,
   route: ParentRouteId,

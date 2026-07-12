@@ -95,7 +95,6 @@ function PortalProductRouteShell({
 function PortalProtocolRouteShell({
   actions,
   behavior,
-  onProductSurfaceReady,
   onThemeChange,
   route,
   state,

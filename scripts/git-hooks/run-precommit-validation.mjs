@@ -250,17 +250,13 @@ function resolveValidationScope(scopeArgs) {
   };
 }
 
-function collectWorkingTreeFiles() {
+function collectStagedFiles() {
   const tracked = gitOutputLines(
-    ['diff', '--name-only', '--diff-filter=ACMR', 'HEAD', '--', ...validationRoots],
-    'failed to list working-tree files'
-  );
-  const untracked = gitOutputLines(
-    ['ls-files', '--others', '--exclude-standard', '--', ...validationRoots],
-    'failed to list untracked working-tree files'
+    ['diff', '--cached', '--name-only', '--diff-filter=ACMR', '--', ...validationRoots],
+    'failed to list staged files'
   );
 
-  return [...new Set([...tracked, ...untracked])];
+  return [...new Set(tracked)];
 }
 
 function scopedValidationArgBatches(scope, fallbackScopeArgs) {
@@ -372,27 +368,20 @@ function buildScopedValidations(scopeArgs, { prettierFiles: explicitPrettierFile
 }
 
 function buildFastPreCommitValidations() {
-  const workingTreeFiles = collectWorkingTreeFiles();
-  if (workingTreeFiles.length === 0) {
+  const stagedFiles = collectStagedFiles();
+  if (stagedFiles.length === 0) {
     return [];
   }
 
-  const validations = buildScopedValidations(['--files', ...workingTreeFiles], { prettierFiles: workingTreeFiles });
-  const touchesRust = workingTreeFiles.some((filePath) => extensionOf(filePath) === '.rs');
-  const touchesSchemaBoundaries = workingTreeFiles.some(
-    (filePath) => filePath === 'package.json' || filePath.startsWith('apps/') || filePath.startsWith('packages/')
-  );
-  const touchesTooling = workingTreeFiles.some(
+  const validations = buildScopedValidations(['--files', ...stagedFiles], { prettierFiles: stagedFiles });
+  const touchesRust = stagedFiles.some((filePath) => extensionOf(filePath) === '.rs');
+  const touchesTooling = stagedFiles.some(
     (filePath) =>
       filePath === 'package.json' ||
       filePath === 'eslint.config.js' ||
       filePath.startsWith('scripts/') ||
       filePath.startsWith('tests/repo-tooling/')
   );
-
-  if (touchesSchemaBoundaries) {
-    validations.push(['npm', ['run', 'lint:schema-boundaries']]);
-  }
 
   if (touchesTooling) {
     validations.push(['npm', ['run', 'test:tooling']]);

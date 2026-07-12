@@ -25,7 +25,10 @@ function resolveEnforcerFile(relativePath) {
   const searched = candidateRoots()
     .map((entry) => path.join(entry, relativePath))
     .join('\n  ');
-  throw new Error(`Could not find Ocentra Enforcer ${relativePath}. Searched:\n  ${searched}`);
+  throw new Error(
+    `Could not find Ocentra Enforcer ${relativePath}. Searched:\n  ${searched}\n` +
+      'Set OCENTRA_ENFORCER_HOME to select a verified Enforcer checkout. GitHub Actions configures it from safety-main.'
+  );
 }
 
 function hasOption(args, names) {

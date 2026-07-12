@@ -11,10 +11,9 @@ import {
 import { AgentEventIdSchema, type AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
 import { safeParseUnknown } from '@ocentra-parent/schema-domain/effect';
 import { PortalLanPairingScan } from '@ocentra-parent/portal-domain/contracts';
-import { ParentRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
+import { ParentBridgeConnectionState, ParentRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
 import type { ParentScreenSummaryPanelSnapshot } from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
-import type { PortalLiveActivityState } from './live-activity-state';
 import { resolveSnapshotLiveActivityState } from './route-live-activity-state';
 import type { PortalRuntimeState } from './portal-state';
 import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout-types';
@@ -40,7 +39,6 @@ export type PortalAppBehavior = {
   readonly routeFrameLayout: PortalFrameLayout;
   readonly screenSummaryPanel: ParentScreenSummaryPanelSnapshot | null;
   readonly setFrameLayout: (layout: PortalFrameLayout) => void;
-  readonly hasNetworkFlowReadModelEvent: boolean;
 };
 
 const PORTAL_HEADER_ROUTE_TRANSITION_MS = 1040;
@@ -70,8 +68,6 @@ export function usePortalAppBehavior({
   const latestLanPairingScanEventId = decodeSnapshotEventId(
     routeLiveActivity?.lanPairingBrowserDiscoveryEvent?.eventId
   );
-  const hasNetworkFlowReadModelEvent =
-    routeLiveActivity?.networkFlowReadModel !== null && routeLiveActivity?.networkFlowReadModel !== undefined;
   const openAuthDialog = (): void => setAuthOpen(true);
   const closeAuthDialog = (): void => setAuthOpen(false);
   usePortalProductReady(isProductRoute, onProductSurfaceReady);
@@ -101,7 +97,6 @@ export function usePortalAppBehavior({
   usePortalNetworkActivityRefresh({
     actions,
     connectionState: state.connectionState,
-    hasNetworkFlowReadModelEvent,
     networkActivityRefreshRequestedForRouteRef,
     route,
   });
@@ -119,7 +114,6 @@ export function usePortalAppBehavior({
     routeFrameLayout,
     screenSummaryPanel: routeLiveActivity.screenSummaryPanel ?? null,
     setFrameLayout,
-    hasNetworkFlowReadModelEvent,
   };
 }
 
@@ -264,7 +258,7 @@ function visibleContentTarget(content: PortalFrameContentTargetLayout): PortalFr
   return content.showContent ? content : { ...content, showContent: true };
 }
 
-function decodeSnapshotEventId(eventId: string | null | undefined): AgentEventId | null {
+function decodeSnapshotEventId(eventId: unknown): AgentEventId | null {
   const parsed = safeParseUnknown(AgentEventIdSchema, eventId);
   return parsed.success ? parsed.data : null;
 }
@@ -272,13 +266,11 @@ function decodeSnapshotEventId(eventId: string | null | undefined): AgentEventId
 function usePortalNetworkActivityRefresh({
   actions,
   connectionState,
-  hasNetworkFlowReadModelEvent,
   networkActivityRefreshRequestedForRouteRef,
   route,
 }: {
   readonly actions: PortalRenderActions;
-  readonly connectionState: PortalRuntimeState['connectionState'];
-  readonly hasNetworkFlowReadModelEvent: boolean;
+  readonly connectionState: ParentBridgeConnectionState;
   readonly networkActivityRefreshRequestedForRouteRef: MutableRefObject<boolean>;
   readonly route: ParentRouteId;
 }): void {
@@ -287,7 +279,10 @@ function usePortalNetworkActivityRefresh({
       networkActivityRefreshRequestedForRouteRef.current = false;
       return;
     }
-    if (networkActivityRefreshRequestedForRouteRef.current || connectionState === 'disconnected') {
+    if (
+      networkActivityRefreshRequestedForRouteRef.current ||
+      connectionState === ParentBridgeConnectionState.Disconnected
+    ) {
       return;
     }
     networkActivityRefreshRequestedForRouteRef.current = true;
