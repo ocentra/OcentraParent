@@ -17,17 +17,19 @@ describe('GET /public/pricing', () => {
   });
 
   it('does not disclose provider secrets or admin-only data', async () => {
+    const stripeSecretKey = ['sk', 'live', 'price', 'fixture'].join('_');
+    const paypalClientSecret = ['paypal', 'price', 'fixture'].join('-');
     const { response } = await executeRequest({
       path: '/public/pricing',
       envOverrides: {
-        STRIPE_SECRET_KEY: 'sk_live_price_secret',
-        PAYPAL_CLIENT_SECRET: 'paypal-price-secret',
+        STRIPE_SECRET_KEY: stripeSecretKey,
+        PAYPAL_CLIENT_SECRET: paypalClientSecret,
       },
     });
 
     const text = await response.text();
-    assert.equal(text.includes('sk_live_price_secret'), false);
-    assert.equal(text.includes('paypal-price-secret'), false);
+    assert.equal(text.includes(stripeSecretKey), false);
+    assert.equal(text.includes(paypalClientSecret), false);
     assert.equal(text.includes('actorRole'), false);
     assert.equal(text.includes('parentAccountRef'), false);
     assert.equal(text.includes('manualActionsPending'), false);

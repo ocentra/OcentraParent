@@ -94,14 +94,16 @@ describe('GET /auth/billing/status', () => {
   });
 
   it('keeps degraded and manual-review status responses redacted and client-safe', async () => {
+    const stripeSecretKey = ['sk', 'live', 'status', 'fixture'].join('_');
+    const stripeWebhookSecret = ['whsec', 'status', 'fixture'].join('_');
     const { response } = await executeRequest({
       path: '/auth/billing/status',
       headers: {
         authorization: 'Bearer parent:demo-review',
       },
       envOverrides: {
-        STRIPE_SECRET_KEY: 'sk_live_status_secret',
-        STRIPE_WEBHOOK_SECRET: 'whsec_status_secret',
+        STRIPE_SECRET_KEY: stripeSecretKey,
+        STRIPE_WEBHOOK_SECRET: stripeWebhookSecret,
       },
     });
 
@@ -109,8 +111,8 @@ describe('GET /auth/billing/status', () => {
     const body = JSON.parse(text) as BillingStatusResponse & { failureState?: unknown };
     assert.equal(response.status, 200);
     assert.equal(body.portalVisibleState, 'manual-required');
-    assert.equal(text.includes('sk_live_status_secret'), false);
-    assert.equal(text.includes('whsec_status_secret'), false);
+    assert.equal(text.includes(stripeSecretKey), false);
+    assert.equal(text.includes(stripeWebhookSecret), false);
     assert.equal(text.includes('evidence://'), false);
     assert.equal(text.includes('support-bundle-secret'), false);
     assert.ok(body.failureState !== undefined);

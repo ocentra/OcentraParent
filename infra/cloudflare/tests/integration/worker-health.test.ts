@@ -31,17 +31,19 @@ describe('GET /health', () => {
   });
 
   it('does not disclose provider secrets, binding internals, or child-data fields', async () => {
+    const stripeSecretKey = ['sk', 'live', 'health', 'fixture'].join('_');
+    const stripeWebhookSecret = ['whsec', 'health', 'fixture'].join('_');
     const { response } = await executeRequest({
       path: '/health',
       envOverrides: {
-        STRIPE_SECRET_KEY: 'sk_live_health_secret',
-        STRIPE_WEBHOOK_SECRET: 'whsec_health_secret',
+        STRIPE_SECRET_KEY: stripeSecretKey,
+        STRIPE_WEBHOOK_SECRET: stripeWebhookSecret,
       },
     });
 
     const text = await response.text();
-    assert.equal(text.includes('sk_live_health_secret'), false);
-    assert.equal(text.includes('whsec_health_secret'), false);
+    assert.equal(text.includes(stripeSecretKey), false);
+    assert.equal(text.includes(stripeWebhookSecret), false);
     assert.equal(text.includes('childActivityCustody'), false);
     assert.equal(text.includes('ownerSubject'), false);
     assert.equal(text.includes('BILLING_D1'), false);

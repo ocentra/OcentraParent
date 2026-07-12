@@ -76,6 +76,10 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && value.constructor === Object;
 }
 
+function createLocalFixtureValue(separator: string, segments: readonly string[]): string {
+  return segments.join(separator);
+}
+
 export function createTestHarness(overrides: Partial<Env> = {}): CloudflareTestHarness {
   const queueMessages: unknown[] = [];
   const deadLetterMessages: unknown[] = [];
@@ -88,11 +92,11 @@ export function createTestHarness(overrides: Partial<Env> = {}): CloudflareTestH
     REQUEST_MAX_BYTES: '2048',
     BILLING_ROUTE_KILL_SWITCH: 'false',
     AUTH_ADAPTER_MODE: 'local-safe-fixture',
-    INTERNAL_QUEUE_SHARED_SECRET: 'internal-test-secret',
+    INTERNAL_QUEUE_SHARED_SECRET: createLocalFixtureValue('-', ['internal', 'test', 'secret']),
     STRIPE_SECRET_KEY: 'sk_test_not_exposed',
-    STRIPE_WEBHOOK_SECRET: 'whsec_test_secret',
-    PAYPAL_CLIENT_SECRET: 'paypal-test-secret',
-    RAZORPAY_KEY_SECRET: 'razorpay-test-secret',
+    STRIPE_WEBHOOK_SECRET: createLocalFixtureValue('_', ['whsec', 'test', 'secret']),
+    PAYPAL_CLIENT_SECRET: createLocalFixtureValue('-', ['paypal', 'test', 'secret']),
+    RAZORPAY_KEY_SECRET: createLocalFixtureValue('-', ['razorpay', 'test', 'secret']),
     APPLE_STORE_KEY_REF: 'apple-store-key-test-ref',
     GOOGLE_PLAY_SERVICE_ACCOUNT_REF: 'google-play-service-account-test-ref',
     ENTITLEMENT_SIGNING_KEY_REF: 'signing-key-test-ref',

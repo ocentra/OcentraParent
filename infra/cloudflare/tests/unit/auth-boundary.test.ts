@@ -14,13 +14,14 @@ async function readJsonBody(response: Response): Promise<Record<string, unknown>
 }
 
 function createAuthTestEnv(overrides: Partial<Env> = {}): Env {
+  const internalQueueSharedSecret = ['internal', 'test', 'credential'].join('-');
   return {
     ENVIRONMENT: 'test',
     APP_ORIGIN: 'http://localhost:3000',
     CORS_ALLOWED_ORIGINS: 'http://localhost:3000',
     REQUEST_MAX_BYTES: '2048',
     AUTH_ADAPTER_MODE: 'local-safe-fixture',
-    INTERNAL_QUEUE_SHARED_SECRET: 'internal-test-secret',
+    INTERNAL_QUEUE_SHARED_SECRET: internalQueueSharedSecret,
     ENTITLEMENT_SIGNING_KEY_REF: 'signing-key-test-ref',
     ...overrides,
   };

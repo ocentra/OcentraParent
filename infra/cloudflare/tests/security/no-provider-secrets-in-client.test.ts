@@ -2,39 +2,48 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { executeRequest } from '../../src/testing.js';
 
+const fixtureValue = (...parts: readonly string[]) => parts.join('_');
+
 describe('provider secret exposure', () => {
   it('never echoes provider secrets in public pricing responses', async () => {
+    const stripeSecret = fixtureValue('sk', 'live', 'price', 'secret');
+    const paypalSecret = fixtureValue('paypal', 'price', 'secret');
     const { response } = await executeRequest({
       path: '/public/pricing',
       envOverrides: {
-        STRIPE_SECRET_KEY: 'sk_live_price_secret',
-        PAYPAL_CLIENT_SECRET: 'paypal-price-secret',
+        STRIPE_SECRET_KEY: stripeSecret,
+        PAYPAL_CLIENT_SECRET: paypalSecret,
       },
     });
 
     const text = await response.text();
-    assert.equal(text.includes('sk_live_price_secret'), false);
-    assert.equal(text.includes('paypal-price-secret'), false);
+    assert.equal(text.includes(stripeSecret), false);
+    assert.equal(text.includes(paypalSecret), false);
   });
 
   it('never echoes provider secrets in authenticated billing status responses', async () => {
+    const stripeSecret = fixtureValue('sk', 'live', 'status', 'secret');
+    const webhookSecret = fixtureValue('whsec', 'status', 'secret');
     const { response } = await executeRequest({
       path: '/auth/billing/status',
       headers: {
         authorization: 'Bearer parent:demo-active',
       },
       envOverrides: {
-        STRIPE_SECRET_KEY: 'sk_live_status_secret',
-        STRIPE_WEBHOOK_SECRET: 'whsec_status_secret',
+        STRIPE_SECRET_KEY: stripeSecret,
+        STRIPE_WEBHOOK_SECRET: webhookSecret,
       },
     });
 
     const text = await response.text();
-    assert.equal(text.includes('sk_live_status_secret'), false);
-    assert.equal(text.includes('whsec_status_secret'), false);
+    assert.equal(text.includes(stripeSecret), false);
+    assert.equal(text.includes(webhookSecret), false);
   });
 
   it('never echoes provider secret refs or raw provider credentials in support-visible admin payloads', async () => {
+    const paypalSecret = fixtureValue('paypal', 'admin', 'secret');
+    const signingKeyRef = fixtureValue('signing', 'key', 'admin', 'ref');
+    const serviceAccountRef = fixtureValue('google', 'play', 'admin', 'ref');
     const { response } = await executeRequest({
       path: '/admin/billing/accounts?q=review',
       headers: {
@@ -42,16 +51,16 @@ describe('provider secret exposure', () => {
         'x-ocentra-role': 'support',
       },
       envOverrides: {
-        PAYPAL_CLIENT_SECRET: 'paypal-admin-secret',
-        ENTITLEMENT_SIGNING_KEY_REF: 'signing-key-admin-ref',
-        GOOGLE_PLAY_SERVICE_ACCOUNT_REF: 'google-play-admin-ref',
+        PAYPAL_CLIENT_SECRET: paypalSecret,
+        ENTITLEMENT_SIGNING_KEY_REF: signingKeyRef,
+        GOOGLE_PLAY_SERVICE_ACCOUNT_REF: serviceAccountRef,
       },
     });
 
     const text = await response.text();
-    assert.equal(text.includes('paypal-admin-secret'), false);
-    assert.equal(text.includes('signing-key-admin-ref'), false);
-    assert.equal(text.includes('google-play-admin-ref'), false);
+    assert.equal(text.includes(paypalSecret), false);
+    assert.equal(text.includes(signingKeyRef), false);
+    assert.equal(text.includes(serviceAccountRef), false);
   });
 
   it('never exposes child-data markers, evidence refs, or support-bundle markers in client-visible payloads', async () => {

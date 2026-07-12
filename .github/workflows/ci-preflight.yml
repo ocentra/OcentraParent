@@ -23,7 +23,7 @@ jobs:
         run: node --check scripts/ci/verify-main-pr-proof.mjs
 
       - name: Check CI topology contract
-        run: node --test scripts/test/workflow-ci-trigger.test.mjs
+        run: node --test tests/repo-tooling/workflow-ci-trigger.test.mjs
 
   shared-contracts:
     name: 'Preflight: Shared Contract Build'
