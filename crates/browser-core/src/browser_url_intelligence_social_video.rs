@@ -2,7 +2,10 @@ use super::*;
 
 pub(super) fn tiktok_shape(parsed: &ParsedBrowserUrl) -> ParsedUrlShape {
     let segments = path_segments(parsed);
-    if matches!(segments.first().map(String::as_str), Some("upload")) {
+    if matches!(
+        segments.first().map(|segment| segment.0.as_str()),
+        Some("upload")
+    ) {
         return social_route_shape(
             "social-upload-post",
             "tiktok",
@@ -11,14 +14,17 @@ pub(super) fn tiktok_shape(parsed: &ParsedBrowserUrl) -> ParsedUrlShape {
         );
     }
 
-    if let Some(video_index) = segments.iter().position(|segment| segment == "video") {
+    if let Some(video_index) = segments.iter().position(|segment| segment.0 == "video") {
         if let Some(video_id) = segments.get(video_index + 1) {
-            return video_shape("tiktok", video_id, vec!["parsed-url"]);
+            return video_shape("tiktok", video_id.0.as_str(), vec!["parsed-url"]);
         }
     }
 
-    if matches!(segments.first(), Some(first) if first.starts_with('@'))
-        && matches!(segments.get(1).map(String::as_str), Some("live"))
+    if matches!(segments.first(), Some(first) if first.0.starts_with('@'))
+        && matches!(
+            segments.get(1).map(|segment| segment.0.as_str()),
+            Some("live")
+        )
     {
         return social_route_shape(
             "social-livestream",
@@ -28,8 +34,8 @@ pub(super) fn tiktok_shape(parsed: &ParsedBrowserUrl) -> ParsedUrlShape {
         );
     }
 
-    if matches!(segments.first(), Some(first) if first.starts_with('@')) && segments.len() == 1 {
-        return channel_shape("tiktok", &segments[0], "medium");
+    if matches!(segments.first(), Some(first) if first.0.starts_with('@')) && segments.len() == 1 {
+        return channel_shape("tiktok", segments[0].0.as_str(), "medium");
     }
 
     social_route_shape(
@@ -54,17 +60,17 @@ pub(super) fn instagram_shape(parsed: &ParsedBrowserUrl) -> ParsedUrlShape {
                 "instagram",
                 segments
                     .first()
-                    .map(String::as_str)
+                    .map(|segment| segment.0.as_str())
                     .unwrap_or(parsed.domain.as_str()),
                 "medium",
             )
         })
 }
 
-fn instagram_feed_shape(segments: &[String]) -> Option<ParsedUrlShape> {
+fn instagram_feed_shape(segments: &[BrowserUrlText]) -> Option<ParsedUrlShape> {
     if segments.is_empty()
         || matches!(
-            segments.first().map(String::as_str),
+            segments.first().map(|segment| segment.0.as_str()),
             Some("explore" | "reels")
         )
     {
@@ -74,8 +80,12 @@ fn instagram_feed_shape(segments: &[String]) -> Option<ParsedUrlShape> {
     }
 }
 
-fn instagram_create_shape(segments: &[String]) -> Option<ParsedUrlShape> {
-    matches!(segments.first().map(String::as_str), Some("create")).then(|| {
+fn instagram_create_shape(segments: &[BrowserUrlText]) -> Option<ParsedUrlShape> {
+    matches!(
+        segments.first().map(|segment| segment.0.as_str()),
+        Some("create")
+    )
+    .then(|| {
         social_route_shape(
             "social-upload-post",
             "instagram",
@@ -85,8 +95,12 @@ fn instagram_create_shape(segments: &[String]) -> Option<ParsedUrlShape> {
     })
 }
 
-fn instagram_live_shape(segments: &[String]) -> Option<ParsedUrlShape> {
-    matches!(segments.first().map(String::as_str), Some("live")).then(|| {
+fn instagram_live_shape(segments: &[BrowserUrlText]) -> Option<ParsedUrlShape> {
+    matches!(
+        segments.first().map(|segment| segment.0.as_str()),
+        Some("live")
+    )
+    .then(|| {
         social_route_shape(
             "social-livestream",
             "instagram",
@@ -96,37 +110,44 @@ fn instagram_live_shape(segments: &[String]) -> Option<ParsedUrlShape> {
     })
 }
 
-fn instagram_reel_shape(segments: &[String]) -> Option<ParsedUrlShape> {
+fn instagram_reel_shape(segments: &[BrowserUrlText]) -> Option<ParsedUrlShape> {
     match segments {
-        [first, second, ..] if first == "reel" || first == "reels" => Some(social_post_shape(
+        [first, second, ..] if first.0 == "reel" || first.0 == "reels" => Some(social_post_shape(
             "short-video",
             "instagram",
-            second,
+            second.0.as_str(),
             "high",
         )),
         _ => None,
     }
 }
 
-fn instagram_post_shape(segments: &[String]) -> Option<ParsedUrlShape> {
+fn instagram_post_shape(segments: &[BrowserUrlText]) -> Option<ParsedUrlShape> {
     match segments {
-        [first, second, ..] if first == "p" || first == "tv" => Some(social_post_shape(
+        [first, second, ..] if first.0 == "p" || first.0 == "tv" => Some(social_post_shape(
             "social-post",
             "instagram",
-            second,
+            second.0.as_str(),
             "medium",
         )),
         _ => None,
     }
 }
 
-fn instagram_stories_shape(segments: &[String]) -> Option<ParsedUrlShape> {
-    matches!(segments.first().map(String::as_str), Some("stories"))
-        .then(instagram_dynamic_feed_shape)
+fn instagram_stories_shape(segments: &[BrowserUrlText]) -> Option<ParsedUrlShape> {
+    matches!(
+        segments.first().map(|segment| segment.0.as_str()),
+        Some("stories")
+    )
+    .then(instagram_dynamic_feed_shape)
 }
 
-fn instagram_direct_shape(segments: &[String]) -> Option<ParsedUrlShape> {
-    matches!(segments.first().map(String::as_str), Some("direct")).then(|| {
+fn instagram_direct_shape(segments: &[BrowserUrlText]) -> Option<ParsedUrlShape> {
+    matches!(
+        segments.first().map(|segment| segment.0.as_str()),
+        Some("direct")
+    )
+    .then(|| {
         social_route_shape(
             "social-messaging",
             "instagram",

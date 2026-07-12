@@ -40,30 +40,28 @@ pub(crate) fn games_read_model(
         return offline_games_read_model(request);
     }
 
-    match model {
-        Some(model) => {
-            let generated_at = model.generated_at.clone();
-            let rows = game_rows(&request, &model);
-            if rows.is_empty() {
-                return ActivityGamesReadModel {
-                    schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-                    request,
-                    state: ActivityReadModelState::Empty,
-                    generated_at,
-                    summary: constants::activity_surface::SUMMARY_EMPTY.to_string(),
-                    rows,
-                };
-            }
-            ActivityGamesReadModel {
-                schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-                request,
-                state: ActivityReadModelState::Ready,
-                generated_at,
-                summary: constants::activity_surface::SUMMARY_READY.to_string(),
-                rows,
-            }
-        }
-        None => unavailable_games_read_model(request),
+    let Some(model) = model else {
+        return unavailable_games_read_model(request);
+    };
+    let generated_at = model.generated_at.clone();
+    let rows = game_rows(&request, &model);
+    if rows.is_empty() {
+        return ActivityGamesReadModel {
+            schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
+            request,
+            state: ActivityReadModelState::Empty,
+            generated_at,
+            summary: constants::activity_surface::SUMMARY_EMPTY.to_string(),
+            rows,
+        };
+    }
+    ActivityGamesReadModel {
+        schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
+        request,
+        state: ActivityReadModelState::Ready,
+        generated_at,
+        summary: constants::activity_surface::SUMMARY_READY.to_string(),
+        rows,
     }
 }
 
@@ -212,13 +210,19 @@ fn game_label(
         foreground
             .map(|row| row.process_name.clone())
             .or_else(|| running.map(|row| row.process_name.clone()))
-            .or_else(|| {
-                launcher
-                    .and_then(|row| row.launcher_process_name.clone())
-                    .or_else(|| launcher.map(|row| row.launcher_ref.clone()))
-            })
+            .or_else(|| launcher_label(launcher).0)
             .or_else(|| inventory.map(|row| row.display_label.clone()))
             .unwrap_or_else(|| constants::activity_surface::SECTION_GAMES.to_string()),
+    )
+}
+
+fn launcher_label(
+    launcher: Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
+) -> GameMaybeText {
+    GameMaybeText(
+        launcher
+            .and_then(|row| row.launcher_process_name.clone())
+            .or_else(|| launcher.map(|row| row.launcher_ref.clone())),
     )
 }
 

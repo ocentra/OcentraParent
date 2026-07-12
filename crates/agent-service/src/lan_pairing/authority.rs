@@ -11,7 +11,7 @@ pub(crate) fn validate_registry_selection_intent(
     origin: Option<impl Into<LanPairingText>>,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    let observed_at = timestamp_now();
+    let observed_at: String = timestamp_now();
     runtime
         .registry
         .lock()
@@ -32,7 +32,7 @@ pub(crate) fn validate_authorized_lan_ai_job(
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     validate_write_authority(intent)?;
-    runtime.validate_controller_lease(intent, timestamp_now().as_str())?;
+    runtime.validate_controller_lease(intent, timestamp_now::<String>().as_str())?;
     validate_registry_control_intent(runtime, origin, intent)
 }
 
@@ -49,7 +49,7 @@ pub(crate) fn validate_registry_control_intent(
     origin: Option<impl Into<LanPairingText>>,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    let observed_at = timestamp_now();
+    let observed_at: String = timestamp_now();
     runtime
         .registry
         .lock()

@@ -8,8 +8,7 @@ export type GeneratedParentPortalServiceDegradationReasonCode =
   | 'missing-snapshot-rows'
   | 'connecting'
   | 'stale-snapshot-rows'
-  | 'service-unavailable'
-;
+  | 'service-unavailable';
 
 export type GeneratedParentPortalRouteStateRecord = {
   readonly pageMode: GeneratedParentPortalPageMode;
@@ -23,25 +22,29 @@ export type GeneratedParentPortalServiceReachabilityState = {
 };
 
 const portalRouteStateRecords = {
-  'overview': { pageMode: 'parentOverview', selectedControlId: 'activity-store', manageLane: null },
-  'assistant': { pageMode: 'parentGuide', selectedControlId: 'ai-runtime', manageLane: null },
-  'start': { pageMode: 'parentOverview', selectedControlId: 'setup-overall', manageLane: null },
-  'activity': { pageMode: 'parentManage', selectedControlId: 'reports-settings', manageLane: 'childPolicy' },
-  'browser': { pageMode: 'parentManage', selectedControlId: 'managed-web', manageLane: 'childPolicy' },
+  overview: { pageMode: 'parentOverview', selectedControlId: 'activity-store', manageLane: null },
+  assistant: { pageMode: 'parentGuide', selectedControlId: 'ai-runtime', manageLane: null },
+  start: { pageMode: 'parentOverview', selectedControlId: 'setup-overall', manageLane: null },
+  activity: { pageMode: 'parentManage', selectedControlId: 'reports-settings', manageLane: 'childPolicy' },
+  browser: { pageMode: 'parentManage', selectedControlId: 'managed-web', manageLane: 'childPolicy' },
   'browser-settings': { pageMode: 'parentManage', selectedControlId: 'browser-settings', manageLane: 'childPolicy' },
-  'policy': { pageMode: 'parentGuide', selectedControlId: 'rules-policy', manageLane: null },
+  policy: { pageMode: 'parentGuide', selectedControlId: 'rules-policy', manageLane: null },
   'policy-apps': { pageMode: 'parentManage', selectedControlId: 'policy-apps', manageLane: 'childPolicy' },
   'policy-games': { pageMode: 'parentManage', selectedControlId: 'policy-games', manageLane: 'childPolicy' },
   'policy-screen': { pageMode: 'parentManage', selectedControlId: 'screen-analysis', manageLane: 'childPolicy' },
   'policy-network': { pageMode: 'parentManage', selectedControlId: 'network-activity', manageLane: 'childPolicy' },
   'policy-tracking': { pageMode: 'parentManage', selectedControlId: 'policy-tracking', manageLane: 'childPolicy' },
-  'policy-remote-screen': { pageMode: 'parentManage', selectedControlId: 'policy-remote-screen', manageLane: 'childPolicy' },
+  'policy-remote-screen': {
+    pageMode: 'parentManage',
+    selectedControlId: 'policy-remote-screen',
+    manageLane: 'childPolicy',
+  },
   'rule-management': { pageMode: 'parentManage', selectedControlId: 'rules-management', manageLane: 'childPolicy' },
-  'schedules': { pageMode: 'parentManage', selectedControlId: 'schedules-budgets', manageLane: 'childPolicy' },
-  'approvals': { pageMode: 'parentManage', selectedControlId: 'approvals', manageLane: 'childPolicy' },
-  'enforcement': { pageMode: 'parentManage', selectedControlId: 'enforcement-readiness', manageLane: 'childPolicy' },
+  schedules: { pageMode: 'parentManage', selectedControlId: 'schedules-budgets', manageLane: 'childPolicy' },
+  approvals: { pageMode: 'parentManage', selectedControlId: 'approvals', manageLane: 'childPolicy' },
+  enforcement: { pageMode: 'parentManage', selectedControlId: 'enforcement-readiness', manageLane: 'childPolicy' },
   'privacy-design': { pageMode: 'parentGuide', selectedControlId: 'privacy-design', manageLane: null },
-  'memory': { pageMode: 'parentGuide', selectedControlId: 'memory-citations', manageLane: null },
+  memory: { pageMode: 'parentGuide', selectedControlId: 'memory-citations', manageLane: null },
   'memory-settings': { pageMode: 'parentManage', selectedControlId: 'memory-settings', manageLane: 'childPolicy' },
   'ai-guide': { pageMode: 'parentGuide', selectedControlId: 'local-ai-evidence', manageLane: null },
   'ai-runtime': { pageMode: 'parentManage', selectedControlId: 'ai-runtime', manageLane: 'childPolicy' },
@@ -50,28 +53,32 @@ const portalRouteStateRecords = {
   'screen-analysis': { pageMode: 'parentManage', selectedControlId: 'reports-settings', manageLane: 'childPolicy' },
   'app-game-sessions': { pageMode: 'parentManage', selectedControlId: 'app-game-sessions', manageLane: 'childPolicy' },
   'network-activity': { pageMode: 'parentManage', selectedControlId: 'reports-settings', manageLane: 'childPolicy' },
-  'devices': { pageMode: 'parentManage', selectedControlId: 'lan-pairing', manageLane: 'deviceOps' },
+  devices: { pageMode: 'parentManage', selectedControlId: 'lan-pairing', manageLane: 'deviceOps' },
   'lan-pairing': { pageMode: 'parentManage', selectedControlId: 'lan-pairing', manageLane: 'deviceOps' },
   'capability-status': { pageMode: 'parentManage', selectedControlId: 'lan-pairing', manageLane: 'deviceOps' },
-  'notifications': { pageMode: 'parentManage', selectedControlId: 'notifications', manageLane: 'portal' },
-  'notification-channels': { pageMode: 'parentManage', selectedControlId: 'notification-channels', manageLane: 'portal' },
+  notifications: { pageMode: 'parentManage', selectedControlId: 'notifications', manageLane: 'portal' },
+  'notification-channels': {
+    pageMode: 'parentManage',
+    selectedControlId: 'notification-channels',
+    manageLane: 'portal',
+  },
   'drive-connections': { pageMode: 'parentManage', selectedControlId: 'drive-exports', manageLane: 'portal' },
   'export-retention': { pageMode: 'parentManage', selectedControlId: 'export-retention', manageLane: 'portal' },
   'remote-access': { pageMode: 'parentManage', selectedControlId: 'remote-access', manageLane: 'deviceOps' },
   'report-compiler': { pageMode: 'parentManage', selectedControlId: 'reports-settings', manageLane: 'childPolicy' },
   'audit-history': { pageMode: 'parentManage', selectedControlId: 'audit-history', manageLane: 'portal' },
-  'subscription': { pageMode: 'parentManage', selectedControlId: 'subscription-plans', manageLane: 'portal' },
-  'entitlements': { pageMode: 'parentManage', selectedControlId: 'entitlements', manageLane: 'portal' },
+  subscription: { pageMode: 'parentManage', selectedControlId: 'subscription-plans', manageLane: 'portal' },
+  entitlements: { pageMode: 'parentManage', selectedControlId: 'entitlements', manageLane: 'portal' },
   'platforms-install': { pageMode: 'parentManage', selectedControlId: 'lan-pairing', manageLane: 'deviceOps' },
   'install-updates': { pageMode: 'parentManage', selectedControlId: 'lan-pairing', manageLane: 'deviceOps' },
-  'diagnostics': { pageMode: 'parentManage', selectedControlId: 'support-api-status', manageLane: 'portal' },
+  diagnostics: { pageMode: 'parentManage', selectedControlId: 'support-api-status', manageLane: 'portal' },
   'proof-panels': { pageMode: 'parentManage', selectedControlId: 'dev-proof-panels', manageLane: null },
   'settings-rules': { pageMode: 'parentManage', selectedControlId: 'family-settings', manageLane: 'portal' },
   'app-layout': { pageMode: 'parentManage', selectedControlId: 'app-layout', manageLane: null },
   'frame-tuner': { pageMode: 'parentManage', selectedControlId: 'app-layout', manageLane: null },
-  'commands': { pageMode: 'parentManage', selectedControlId: 'dev-commands', manageLane: null },
-  'events': { pageMode: 'parentManage', selectedControlId: 'dev-events', manageLane: null },
-  'logs': { pageMode: 'parentManage', selectedControlId: 'dev-logs', manageLane: null },
+  commands: { pageMode: 'parentManage', selectedControlId: 'dev-commands', manageLane: null },
+  events: { pageMode: 'parentManage', selectedControlId: 'dev-events', manageLane: null },
+  logs: { pageMode: 'parentManage', selectedControlId: 'dev-logs', manageLane: null },
 } as const satisfies Record<string, GeneratedParentPortalRouteStateRecord>;
 
 const portalRouteStateRecordKeys = Object.keys(portalRouteStateRecords);

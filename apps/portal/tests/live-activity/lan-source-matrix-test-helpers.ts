@@ -80,7 +80,9 @@ function expectLanDiagnosticsSummaries(diagnosticsProjection: LanDiagnosticsProj
   expect(diagnosticsProjection.decisionHistorySummary).toBe(
     '2 parent decisions | latest 2026-06-01T15:22:05Z | 1 rename | 1 assign'
   );
-  expect(diagnosticsProjection.policyTargetSurfaceSummary).toBe('devices | policy | browser | activity | tracking | network');
+  expect(diagnosticsProjection.policyTargetSurfaceSummary).toBe(
+    'devices | policy | browser | activity | tracking | network'
+  );
   expect(diagnosticsProjection.productionProofSummary).toBe('Not reported');
   expect(diagnosticsProjection.signedProofSummary).toBe('1 signed proof rows | 1 manual-required | 1 degraded');
   expect(diagnosticsProjection.routeSafetySummary).toBe('2 route safety rows | 2 accepted | parent-local-service');

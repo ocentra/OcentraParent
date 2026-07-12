@@ -26,9 +26,7 @@ export const BrowserCustodyLabelSchema = withParser(
     'unavailable'
   )
 );
-export const BrowserSocialAiAnalysisIdSchema = withParser(
-  brandedNonEmptyStringSchema('BrowserSocialAiAnalysisId')
-);
+export const BrowserSocialAiAnalysisIdSchema = withParser(brandedNonEmptyStringSchema('BrowserSocialAiAnalysisId'));
 export const BrowserSocialFeedVideoRouteGatePlanIdSchema = withParser(
   brandedNonEmptyStringSchema('BrowserSocialFeedVideoRouteGatePlanId')
 );

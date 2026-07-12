@@ -1,6 +1,6 @@
 /* generated from crates/schema/src/parent_owned_sync_export.rs */
 
-import { brandedNonEmptyStringSchema } from './effect';
+import {{ brandedNonEmptyStringSchema }} from './effect';
 
 export const ParentOwnedSyncExportContractRuntime = {{
   SchemaVersion: '__PARENT_OWNED_SYNC_EXPORT_SCHEMA_VERSION__',
@@ -29,7 +29,9 @@ export const GeneratedParentOwnedSyncConflictRefSchema = brandedNonEmptyStringSc
 export const GeneratedParentOwnedSyncChecksumRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncChecksumRef');
 export const GeneratedParentOwnedSyncSignatureRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncSignatureRef');
 export const GeneratedParentOwnedSyncTombstoneRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncTombstoneRef');
-export const GeneratedParentOwnedSyncDeleteRequestRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncDeleteRequestRef');
+export const GeneratedParentOwnedSyncDeleteRequestRefSchema = brandedNonEmptyStringSchema(
+  'ParentOwnedSyncDeleteRequestRef'
+);
 
 export type GeneratedFamilyId = typeof GeneratedFamilyIdSchema.Type;
 export type GeneratedChildProfileId = typeof GeneratedChildProfileIdSchema.Type;

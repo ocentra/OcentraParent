@@ -14,6 +14,7 @@ coverage/
 target/
 /target-*/
 tmp/
+.tmp/
 apps/*/src-tauri/gen/
 apps/*/src-tauri/.generated/
 apps/*/src-tauri/target-*-dev/

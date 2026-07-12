@@ -2,11 +2,7 @@
 
 export type PatternValue<T> = readonly [pattern: RegExp, value: T];
 
-export function matchPatternValue<T>(
-  searchable: string,
-  patterns: readonly PatternValue<T>[],
-  fallback: T
-): T {
+export function matchPatternValue<T>(searchable: string, patterns: readonly PatternValue<T>[], fallback: T): T {
   for (const [pattern, value] of patterns) {
     if (pattern.test(searchable)) {
       return value;
@@ -15,10 +11,7 @@ export function matchPatternValue<T>(
   return fallback;
 }
 
-export function matchOptionalPatternValue<T>(
-  searchable: string,
-  patterns: readonly PatternValue<T>[]
-): T | null {
+export function matchOptionalPatternValue<T>(searchable: string, patterns: readonly PatternValue<T>[]): T | null {
   return matchPatternValue(searchable, patterns, null);
 }
 
@@ -32,12 +25,26 @@ export function splitOptionLabels(candidate: string, delimiters: RegExp, maxItem
 }
 
 export function slugToken(input: string, fallback = 'item'): string {
-  return (
-    input
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/gu, '-')
-      .replace(/^-+|-+$/gu, '') || fallback
-  );
+  let slug = '';
+  let previousDash = false;
+  for (const character of input.toLowerCase()) {
+    const isAsciiLowercaseAlphaNumeric =
+      (character >= 'a' && character <= 'z') || (character >= '0' && character <= '9');
+    if (isAsciiLowercaseAlphaNumeric) {
+      slug += character;
+      previousDash = false;
+      continue;
+    }
+    if (slug === '' || previousDash) {
+      continue;
+    }
+    slug += '-';
+    previousDash = true;
+  }
+  if (previousDash) {
+    slug = slug.slice(0, -1);
+  }
+  return slug || fallback;
 }
 
 export function titleFromToken(input: string): string {

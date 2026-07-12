@@ -17,7 +17,7 @@ impl LanPairingRuntime {
     pub(crate) fn record_signed_child_agent_passive_observation(
         &self,
         claim: &LanSignedChildAgentClaim,
-        observed_at: &str,
+        observed_at: &LanPairingText,
     ) {
         let message_kind = match claim.message_kind {
             LanSignedChildAgentMessageKind::Hello => SIGNED_CHILD_MESSAGE_KIND_HELLO,
@@ -32,10 +32,10 @@ impl LanPairingRuntime {
             let _ = state.record_passive_update(
                 LanPassiveDiscoverySource::OcentraBeacon,
                 LanPassiveDiscoveryTriggerReason::PassivePacketObserved,
-                observed_at,
+                observed_at.0.as_str(),
                 Some(claim.child_device_id.as_str()),
                 None,
-                summary,
+                summary.0,
             );
         }
     }
@@ -45,12 +45,12 @@ fn signed_child_observed_summary(
     message_kind: LanPairingText,
     route_id: LanPairingText,
     install_id: LanPairingText,
-) -> String {
+) -> LanPairingText {
     let mut summary = String::from(SIGNED_CHILD_OBSERVED_SUMMARY_PREFIX);
     summary.push_str(message_kind.0.as_str());
     summary.push_str(SIGNED_CHILD_OBSERVED_SUMMARY_ROUTE_SEPARATOR);
     summary.push_str(route_id.0.as_str());
     summary.push_str(SIGNED_CHILD_OBSERVED_SUMMARY_INSTALL_SEPARATOR);
     summary.push_str(install_id.0.as_str());
-    summary
+    LanPairingText(summary)
 }

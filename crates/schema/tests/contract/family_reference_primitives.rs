@@ -12,7 +12,6 @@ fn family_reference_primitives_generated_typescript_matches_checked_in_file() {
     .expect("family reference primitives source should be readable");
 
     assert_eq!(generated, checked_in);
-    assert!(generated.starts_with(
-        "/* generated from crates/schema/src/family_reference_primitives_ts.rs */"
-    ));
+    assert!(generated
+        .starts_with("/* generated from crates/schema/src/family_reference_primitives_ts.rs */"));
 }

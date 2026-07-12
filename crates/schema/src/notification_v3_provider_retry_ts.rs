@@ -76,17 +76,25 @@ struct V3NotificationRuleProviderRetryContractRowInput {
 }
 
 const V3_NOTIFICATION_RULE_PROVIDER_RETRY_CONTRACT_HELPERS: &str = r#"
+type GeneratedV3NotificationRuleReasonCode = (typeof GeneratedV3NotificationRuleReasonCodes)[number];
+type GeneratedV3NotificationProviderChannel = (typeof GeneratedV3NotificationProviderChannels)[number];
+type GeneratedV3NotificationDeliveryResultState = (typeof GeneratedV3NotificationDeliveryResultStates)[number];
+type GeneratedV3NotificationRetryPolicyState = (typeof GeneratedV3NotificationRetryPolicyStates)[number];
+type GeneratedV3NotificationQuietHoursDecision = (typeof GeneratedV3NotificationQuietHoursDecisions)[number];
+type GeneratedV3NotificationEscalationDecision = (typeof GeneratedV3NotificationEscalationDecisions)[number];
+type GeneratedV3NotificationParentPreferenceState = (typeof GeneratedV3NotificationParentPreferenceStates)[number];
+
 type GeneratedV3NotificationRuleProviderRetryContractEntry = {
   readonly schemaVersion: string;
   readonly contractEntryId: string;
-  readonly reasonCode: string;
-  readonly providerChannel: string;
+  readonly reasonCode: GeneratedV3NotificationRuleReasonCode;
+  readonly providerChannel: GeneratedV3NotificationProviderChannel;
   readonly deliveryAttemptState: string;
-  readonly deliveryResultState: string;
-  readonly retryPolicyState: string;
-  readonly quietHoursDecision: string;
-  readonly escalationDecision: string;
-  readonly parentPreferenceState: string;
+  readonly deliveryResultState: GeneratedV3NotificationDeliveryResultState;
+  readonly retryPolicyState: GeneratedV3NotificationRetryPolicyState;
+  readonly quietHoursDecision: GeneratedV3NotificationQuietHoursDecision;
+  readonly escalationDecision: GeneratedV3NotificationEscalationDecision;
+  readonly parentPreferenceState: GeneratedV3NotificationParentPreferenceState;
   readonly notificationRuleRef: string;
   readonly notificationIntentRef: string;
   readonly deliveryAttemptRef: string;
@@ -118,22 +126,25 @@ type GeneratedV3NotificationRuleProviderRetryContractReadModel = {
 export function generatedV3NotificationRuleProviderRetryContractEntryIsHonest(
   entry: GeneratedV3NotificationRuleProviderRetryContractEntry
 ): boolean {
-  return (
-    !generatedV3NotificationRuleProviderRetryContractHasRuntimeClaim(entry) &&
-    generatedV3NotificationRuleProviderRetryContractHasRequiredRefs(entry) &&
-    generatedV3NotificationRuleProviderRetryContractDeliveryStateIsCoherent(entry)
-  );
+  return [
+    !generatedV3NotificationRuleProviderRetryContractHasRuntimeClaim(entry),
+    generatedV3NotificationRuleProviderRetryContractHasRequiredRefs(entry),
+    generatedV3NotificationRuleProviderRetryContractDeliveryStateIsCoherent(entry),
+  ].every(Boolean);
 }
 
 export function generatedV3NotificationRuleProviderRetryContractReadModelIsHonest(
   readModel: GeneratedV3NotificationRuleProviderRetryContractReadModel
 ): boolean {
-  return (
-    new Set(readModel.entries.map((entry) => entry.contractEntryId)).size === readModel.entries.length &&
-    generatedV3NotificationRuleProviderRetryContractCoversReasonCodes(readModel.entries) &&
-    generatedV3NotificationRuleProviderRetryContractCoversProviderChannels(readModel.entries) &&
-    generatedV3NotificationRuleProviderRetryContractCoversDeliveryAndRetry(readModel.entries)
-  );
+  const hasUniqueContractEntryIds =
+    new Set(readModel.entries.map(generatedV3NotificationRuleProviderRetryContractEntryId)).size ===
+    readModel.entries.length;
+  return [
+    hasUniqueContractEntryIds,
+    generatedV3NotificationRuleProviderRetryContractCoversReasonCodes(readModel.entries),
+    generatedV3NotificationRuleProviderRetryContractCoversProviderChannels(readModel.entries),
+    generatedV3NotificationRuleProviderRetryContractCoversDeliveryAndRetry(readModel.entries),
+  ].every(Boolean);
 }
 
 function generatedV3NotificationRuleProviderRetryContractHasRuntimeClaim(
@@ -148,131 +159,263 @@ function generatedV3NotificationRuleProviderRetryContractHasRuntimeClaim(
   ].some(Boolean);
 }
 
+function generatedV3NotificationRuleProviderRetryContractEntryId(
+  entry: GeneratedV3NotificationRuleProviderRetryContractEntry
+): string {
+  return entry.contractEntryId;
+}
+
+function generatedV3NotificationRuleProviderRetryContractTrimmedTextExists(value: string): boolean {
+  return value.trim().length > 0;
+}
+
+function generatedV3NotificationRuleProviderRetryContractReasonCode(
+  entry: GeneratedV3NotificationRuleProviderRetryContractEntry
+): GeneratedV3NotificationRuleReasonCode {
+  return entry.reasonCode;
+}
+
+function generatedV3NotificationRuleProviderRetryContractProviderChannel(
+  entry: GeneratedV3NotificationRuleProviderRetryContractEntry
+): GeneratedV3NotificationProviderChannel {
+  return entry.providerChannel;
+}
+
+function generatedV3NotificationRuleProviderRetryContractDeliveryResultState(
+  entry: GeneratedV3NotificationRuleProviderRetryContractEntry
+): GeneratedV3NotificationDeliveryResultState {
+  return entry.deliveryResultState;
+}
+
+function generatedV3NotificationRuleProviderRetryContractRetryPolicyState(
+  entry: GeneratedV3NotificationRuleProviderRetryContractEntry
+): GeneratedV3NotificationRetryPolicyState {
+  return entry.retryPolicyState;
+}
+
+function generatedV3NotificationRuleProviderRetryContractQuietHoursDecision(
+  entry: GeneratedV3NotificationRuleProviderRetryContractEntry
+): GeneratedV3NotificationQuietHoursDecision {
+  return entry.quietHoursDecision;
+}
+
+function generatedV3NotificationRuleProviderRetryContractEscalationDecision(
+  entry: GeneratedV3NotificationRuleProviderRetryContractEntry
+): GeneratedV3NotificationEscalationDecision {
+  return entry.escalationDecision;
+}
+
+function generatedV3NotificationRuleProviderRetryContractParentPreferenceState(
+  entry: GeneratedV3NotificationRuleProviderRetryContractEntry
+): GeneratedV3NotificationParentPreferenceState {
+  return entry.parentPreferenceState;
+}
+
+function generatedV3NotificationRuleProviderRetryContractSetContainsAll<T>(
+  values: readonly T[],
+  set: ReadonlySet<T>
+): boolean {
+  return values.map(set.has, set).every(Boolean);
+}
+
 function generatedV3NotificationRuleProviderRetryContractHasRequiredRefs(
   entry: GeneratedV3NotificationRuleProviderRetryContractEntry
 ): boolean {
-  return (
-    entry.auditRefs.length > 0 &&
-    entry.evidenceRefs.length > 0 &&
-    entry.notificationRuleRef.trim().length > 0 &&
-    entry.notificationIntentRef.trim().length > 0 &&
-    entry.deliveryAttemptRef.trim().length > 0 &&
-    entry.deliveryResultRef.trim().length > 0 &&
-    entry.retryPolicyRef.trim().length > 0 &&
-    entry.quietHoursPolicyRef.trim().length > 0 &&
-    entry.escalationPolicyRef.trim().length > 0 &&
-    entry.parentPreferenceRef.trim().length > 0 &&
-    entry.minimalProviderPayloadBoundary.trim().length > 0
-  );
+  const requiredRefs = [
+    entry.notificationRuleRef,
+    entry.notificationIntentRef,
+    entry.deliveryAttemptRef,
+    entry.deliveryResultRef,
+    entry.retryPolicyRef,
+    entry.quietHoursPolicyRef,
+    entry.escalationPolicyRef,
+    entry.parentPreferenceRef,
+    entry.minimalProviderPayloadBoundary,
+  ];
+
+  return [
+    entry.auditRefs.length > 0,
+    entry.evidenceRefs.length > 0,
+    requiredRefs.every(generatedV3NotificationRuleProviderRetryContractTrimmedTextExists),
+  ].every(Boolean);
 }
 
 function generatedV3NotificationRuleProviderRetryContractDeliveryStateIsCoherent(
   entry: GeneratedV3NotificationRuleProviderRetryContractEntry
 ): boolean {
-  return (
-    generatedV3NotificationRuleProviderRetryContractQuietHoursIsCoherent(entry) &&
-    generatedV3NotificationRuleProviderRetryContractParentPreferenceIsCoherent(entry) &&
-    generatedV3NotificationRuleProviderRetryContractRetryableFailureIsCoherent(entry) &&
-    generatedV3NotificationRuleProviderRetryContractReceiptRequiredIsCoherent(entry) &&
-    generatedV3NotificationRuleProviderRetryContractPermanentFailureIsCoherent(entry) &&
-    generatedV3NotificationRuleProviderRetryContractNonReceiptRowsAreCoherent(entry)
-  );
+  return [
+    generatedV3NotificationRuleProviderRetryContractQuietHoursIsCoherent(entry),
+    generatedV3NotificationRuleProviderRetryContractParentPreferenceIsCoherent(entry),
+    generatedV3NotificationRuleProviderRetryContractRetryableFailureIsCoherent(entry),
+    generatedV3NotificationRuleProviderRetryContractReceiptRequiredIsCoherent(entry),
+    generatedV3NotificationRuleProviderRetryContractPermanentFailureIsCoherent(entry),
+    generatedV3NotificationRuleProviderRetryContractNonReceiptRowsAreCoherent(entry),
+  ].every(Boolean);
+}
+
+function generatedV3NotificationRuleProviderRetryContractImplicationIsHonest(
+  condition: boolean,
+  requirements: readonly boolean[]
+): boolean {
+  return [!condition, requirements.every(Boolean)].includes(true);
 }
 
 function generatedV3NotificationRuleProviderRetryContractQuietHoursIsCoherent(
   entry: GeneratedV3NotificationRuleProviderRetryContractEntry
 ): boolean {
-  return (
-    entry.quietHoursDecision !== 'defer-noncritical' ||
-    (entry.deliveryAttemptState === 'suppressed-quiet-hours' &&
-      entry.retryPolicyState === 'quiet-hours-deferred' &&
-      entry.parentPreferenceState === 'quiet-hours-active')
+  return generatedV3NotificationRuleProviderRetryContractImplicationIsHonest(
+    entry.quietHoursDecision === 'defer-noncritical',
+    [
+      entry.deliveryAttemptState === 'suppressed-quiet-hours',
+      entry.retryPolicyState === 'quiet-hours-deferred',
+      entry.parentPreferenceState === 'quiet-hours-active',
+    ]
   );
 }
 
 function generatedV3NotificationRuleProviderRetryContractParentPreferenceIsCoherent(
   entry: GeneratedV3NotificationRuleProviderRetryContractEntry
 ): boolean {
-  return (
-    entry.parentPreferenceState !== 'channel-disabled' ||
-    (entry.deliveryAttemptState === 'provider-disabled' &&
-      entry.deliveryResultState === 'not-sent' &&
-      entry.retryPolicyState === 'provider-disabled')
+  return generatedV3NotificationRuleProviderRetryContractImplicationIsHonest(
+    entry.parentPreferenceState === 'channel-disabled',
+    [
+      entry.deliveryAttemptState === 'provider-disabled',
+      entry.deliveryResultState === 'not-sent',
+      entry.retryPolicyState === 'provider-disabled',
+    ]
   );
 }
 
 function generatedV3NotificationRuleProviderRetryContractRetryableFailureIsCoherent(
   entry: GeneratedV3NotificationRuleProviderRetryContractEntry
 ): boolean {
-  return (
-    entry.deliveryResultState !== 'retryable-failure' ||
-    (entry.retryPolicyState === 'exponential-backoff' && entry.manualProofRequirements.length > 0)
+  return generatedV3NotificationRuleProviderRetryContractImplicationIsHonest(
+    entry.deliveryResultState === 'retryable-failure',
+    [
+      entry.retryPolicyState === 'exponential-backoff',
+      entry.manualProofRequirements.length > 0,
+    ]
   );
 }
 
 function generatedV3NotificationRuleProviderRetryContractReceiptRequiredIsCoherent(
   entry: GeneratedV3NotificationRuleProviderRetryContractEntry
 ): boolean {
-  return (
-    entry.deliveryResultState !== 'receipt-required' ||
-    (entry.providerReceiptRefs.length > 0 &&
-      entry.manualProofRequirements.length > 0 &&
-      entry.deliveryAttemptState === 'queued')
+  return generatedV3NotificationRuleProviderRetryContractImplicationIsHonest(
+    entry.deliveryResultState === 'receipt-required',
+    [
+      entry.providerReceiptRefs.length > 0,
+      entry.manualProofRequirements.length > 0,
+      entry.deliveryAttemptState === 'queued',
+    ]
   );
 }
 
 function generatedV3NotificationRuleProviderRetryContractPermanentFailureIsCoherent(
   entry: GeneratedV3NotificationRuleProviderRetryContractEntry
 ): boolean {
-  return (
-    entry.deliveryResultState !== 'permanent-failure' ||
-    (entry.retryPolicyState === 'manual-review' && entry.manualProofRequirements.length > 0)
+  return generatedV3NotificationRuleProviderRetryContractImplicationIsHonest(
+    entry.deliveryResultState === 'permanent-failure',
+    [
+      entry.retryPolicyState === 'manual-review',
+      entry.manualProofRequirements.length > 0,
+    ]
   );
 }
 
 function generatedV3NotificationRuleProviderRetryContractNonReceiptRowsAreCoherent(
   entry: GeneratedV3NotificationRuleProviderRetryContractEntry
 ): boolean {
-  return entry.deliveryResultState === 'receipt-required' || entry.providerReceiptRefs.length === 0;
+  return generatedV3NotificationRuleProviderRetryContractImplicationIsHonest(
+    entry.deliveryResultState !== 'receipt-required',
+    [entry.providerReceiptRefs.length === 0]
+  );
 }
 
 function generatedV3NotificationRuleProviderRetryContractCoversReasonCodes(
   entries: readonly GeneratedV3NotificationRuleProviderRetryContractEntry[]
 ): boolean {
-  const reasonCodes = new Set(entries.map((entry) => entry.reasonCode));
-  return GeneratedV3NotificationRuleReasonCodes.every((reasonCode) => reasonCodes.has(reasonCode));
+  const reasonCodes = new Set(entries.map(generatedV3NotificationRuleProviderRetryContractReasonCode));
+  return generatedV3NotificationRuleProviderRetryContractSetContainsAll(
+    GeneratedV3NotificationRuleReasonCodes,
+    reasonCodes
+  );
 }
 
 function generatedV3NotificationRuleProviderRetryContractCoversProviderChannels(
   entries: readonly GeneratedV3NotificationRuleProviderRetryContractEntry[]
 ): boolean {
-  const channels = new Set(entries.map((entry) => entry.providerChannel));
-  return GeneratedV3NotificationProviderChannels.every((channel) => channels.has(channel));
+  const channels = new Set(entries.map(generatedV3NotificationRuleProviderRetryContractProviderChannel));
+  return generatedV3NotificationRuleProviderRetryContractSetContainsAll(
+    GeneratedV3NotificationProviderChannels,
+    channels
+  );
 }
 
 function generatedV3NotificationRuleProviderRetryContractCoversDeliveryAndRetry(
   entries: readonly GeneratedV3NotificationRuleProviderRetryContractEntry[]
 ): boolean {
-  const deliveryResults = new Set(entries.map((entry) => entry.deliveryResultState));
-  const retryPolicies = new Set(entries.map((entry) => entry.retryPolicyState));
-  const quietHours = new Set(entries.map((entry) => entry.quietHoursDecision));
-  const escalation = new Set(entries.map((entry) => entry.escalationDecision));
-  const preferences = new Set(entries.map((entry) => entry.parentPreferenceState));
-
-  return (
-    GeneratedV3NotificationDeliveryResultStates.every((state) => deliveryResults.has(state)) &&
-    GeneratedV3NotificationRetryPolicyStates.every((state) => retryPolicies.has(state)) &&
-    GeneratedV3NotificationQuietHoursDecisions.every((state) => quietHours.has(state)) &&
-    GeneratedV3NotificationEscalationDecisions.every((state) => escalation.has(state)) &&
-    GeneratedV3NotificationParentPreferenceStates.every((state) => preferences.has(state))
+  const deliveryResults = new Set(
+    entries.map(generatedV3NotificationRuleProviderRetryContractDeliveryResultState)
   );
+  const retryPolicies = new Set(
+    entries.map(generatedV3NotificationRuleProviderRetryContractRetryPolicyState)
+  );
+  const quietHours = new Set(
+    entries.map(generatedV3NotificationRuleProviderRetryContractQuietHoursDecision)
+  );
+  const escalation = new Set(
+    entries.map(generatedV3NotificationRuleProviderRetryContractEscalationDecision)
+  );
+  const preferences = new Set(
+    entries.map(generatedV3NotificationRuleProviderRetryContractParentPreferenceState)
+  );
+
+  return [
+    generatedV3NotificationRuleProviderRetryContractSetContainsAll(
+      GeneratedV3NotificationDeliveryResultStates,
+      deliveryResults
+    ),
+    generatedV3NotificationRuleProviderRetryContractSetContainsAll(
+      GeneratedV3NotificationRetryPolicyStates,
+      retryPolicies
+    ),
+    generatedV3NotificationRuleProviderRetryContractSetContainsAll(
+      GeneratedV3NotificationQuietHoursDecisions,
+      quietHours
+    ),
+    generatedV3NotificationRuleProviderRetryContractSetContainsAll(
+      GeneratedV3NotificationEscalationDecisions,
+      escalation
+    ),
+    generatedV3NotificationRuleProviderRetryContractSetContainsAll(
+      GeneratedV3NotificationParentPreferenceStates,
+      preferences
+    ),
+  ].every(Boolean);
 }
 "#;
 
 fn push_export<T: Serialize>(output: &mut String, name: &str, value: &T) {
     let json = schema_result_or_unreachable(serde_json::to_string_pretty(value), name);
-    writeln!(output, "export const {name} = {json} as const;\n")
-        .expect("write notification-v3 provider retry ts");
+    let typescript = if json.trim_start().starts_with('[') {
+        let compact = crate::typescript_literal::json_object_to_typescript_literal(&json);
+        let compact_line = format!("export const {name} = {compact} as const;");
+        if compact.lines().count() == 1 && compact_line.len() <= 120 {
+            compact
+        } else {
+            crate::typescript_literal::json_array_to_typescript_literal(&json)
+        }
+    } else {
+        crate::typescript_literal::json_object_to_typescript_literal(&json)
+    };
+    let export_line = format!("export const {name} = {typescript} as const;");
+    let export_line = if export_line.len() > 120 && json.trim_start().starts_with('"') {
+        format!("export const {name} =\n  {typescript} as const;")
+    } else {
+        export_line
+    };
+    writeln!(output, "{export_line}\n").expect("write notification-v3 provider retry ts");
 }
 
 pub fn notification_v3_provider_retry_typescript() -> String {
@@ -335,7 +478,12 @@ pub fn notification_v3_provider_retry_typescript() -> String {
     push_export(
         &mut output,
         "GeneratedV3NotificationQuietHoursDecisions",
-        &["allow", "defer-noncritical", "emergency-override", "manual-required"],
+        &[
+            "allow",
+            "defer-noncritical",
+            "emergency-override",
+            "manual-required",
+        ],
     );
     push_export(
         &mut output,
@@ -345,7 +493,12 @@ pub fn notification_v3_provider_retry_typescript() -> String {
     push_export(
         &mut output,
         "GeneratedV3NotificationParentPreferenceStates",
-        &["enabled", "quiet-hours-active", "channel-disabled", "manual-setup-required"],
+        &[
+            "enabled",
+            "quiet-hours-active",
+            "channel-disabled",
+            "manual-setup-required",
+        ],
     );
     push_export(
         &mut output,
@@ -378,7 +531,40 @@ pub fn notification_v3_provider_retry_typescript() -> String {
             entries: v3_entries(),
         },
     );
-    output.push_str(V3_NOTIFICATION_RULE_PROVIDER_RETRY_CONTRACT_HELPERS);
+    let helpers = V3_NOTIFICATION_RULE_PROVIDER_RETRY_CONTRACT_HELPERS
+        .replace(
+            "\n\n\ntype GeneratedV3NotificationRuleProviderRetryContractEntry",
+            "\n\ntype GeneratedV3NotificationRuleProviderRetryContractEntry",
+        )
+        .replace(
+            "    [\n      entry.retryPolicyState === 'exponential-backoff',\n      entry.manualProofRequirements.length > 0,\n    ]",
+            "    [entry.retryPolicyState === 'exponential-backoff', entry.manualProofRequirements.length > 0]",
+        )
+        .replace(
+            "    [\n      entry.retryPolicyState === 'manual-review',\n      entry.manualProofRequirements.length > 0,\n    ]",
+            "    [entry.retryPolicyState === 'manual-review', entry.manualProofRequirements.length > 0]",
+        )
+        .replace(
+            "  const deliveryResults = new Set(\n    entries.map(generatedV3NotificationRuleProviderRetryContractDeliveryResultState)\n  );",
+            "  const deliveryResults = new Set(entries.map(generatedV3NotificationRuleProviderRetryContractDeliveryResultState));",
+        )
+        .replace(
+            "  const retryPolicies = new Set(\n    entries.map(generatedV3NotificationRuleProviderRetryContractRetryPolicyState)\n  );",
+            "  const retryPolicies = new Set(entries.map(generatedV3NotificationRuleProviderRetryContractRetryPolicyState));",
+        )
+        .replace(
+            "  const quietHours = new Set(\n    entries.map(generatedV3NotificationRuleProviderRetryContractQuietHoursDecision)\n  );",
+            "  const quietHours = new Set(entries.map(generatedV3NotificationRuleProviderRetryContractQuietHoursDecision));",
+        )
+        .replace(
+            "  const escalation = new Set(\n    entries.map(generatedV3NotificationRuleProviderRetryContractEscalationDecision)\n  );",
+            "  const escalation = new Set(entries.map(generatedV3NotificationRuleProviderRetryContractEscalationDecision));",
+        )
+        .replace(
+            "  const preferences = new Set(\n    entries.map(generatedV3NotificationRuleProviderRetryContractParentPreferenceState)\n  );",
+            "  const preferences = new Set(entries.map(generatedV3NotificationRuleProviderRetryContractParentPreferenceState));",
+        );
+    output.push_str(helpers.trim_start_matches('\n'));
 
     output
 }
@@ -566,7 +752,9 @@ fn v3_entries() -> Vec<V3NotificationRuleProviderRetryContractEntry> {
     ]
 }
 
-fn v3_entry(input: V3NotificationRuleProviderRetryContractRowInput) -> V3NotificationRuleProviderRetryContractEntry {
+fn v3_entry(
+    input: V3NotificationRuleProviderRetryContractRowInput,
+) -> V3NotificationRuleProviderRetryContractEntry {
     V3NotificationRuleProviderRetryContractEntry {
         schema_version: "v0.6".to_string(),
         contract_entry_id: input.contract_entry_id,

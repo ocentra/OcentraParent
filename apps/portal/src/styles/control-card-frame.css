@@ -1,3 +1,5 @@
+@import './control-card-frame-defaults.css';
+
 .control-deck.control-carousel-frame {
   background: transparent;
   border: 0;

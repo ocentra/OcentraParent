@@ -1,0 +1,30 @@
+      return [refs.compilerDecisionProofRef];
+  }
+};
+
+export const appGameSourceGatedPolicyPreviewTimerStatusCountsMatchGenerated = (status: TimerStatusLike) =>
+  status.timerRuntimeProofRequiredCount ===
+    status.rows.filter(
+      (row) =>
+        row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired &&
+        row.timerRuntimeProofRequired &&
+        !row.sourceFreshnessProofRequired &&
+        !row.compilerDecisionProofRequired &&
+        !row.timerScheduled
+    ).length &&
+  status.sourceFreshnessProofRequiredCount ===
+    status.rows.filter(
+      (row) =>
+        row.timerStatusState ===
+          AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired &&
+        !row.timerRuntimeProofRequired &&
+        row.sourceFreshnessProofRequired &&
+        !row.compilerDecisionProofRequired &&
+        !row.timerScheduled
+    ).length &&
+  status.compilerDecisionProofRequiredCount ===
+    status.rows.filter(
+      (row) =>
+        row.timerStatusState ===
+          AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired &&
+        !row.timerRuntimeProofRequired &&

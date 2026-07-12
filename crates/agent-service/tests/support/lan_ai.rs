@@ -50,7 +50,7 @@ pub(crate) fn seed_lan_ai_job_lease_for_test(
 ) {
     let job_id = job_id.to_string();
     let expires_at = expires_at.to_string();
-    let lease_state = normalized_lan_ai_lease_state(TestText::from_display(lease_state)).0;
+    let lease_state = normalized_lan_ai_lease_state(TestText::from_display(lease_state));
     let Ok(mut leases) = runtime.lan_ai_job_leases.lock() else {
         return;
     };
@@ -59,7 +59,17 @@ pub(crate) fn seed_lan_ai_job_lease_for_test(
         job_id,
         claim_id: lan_ai_claim_id().0,
         lease_id: lan_ai_lease_id().0,
-        lease_state,
+        lease_state: match lease_state {
+            TestLeaseState::Claimed => constants::value::LAN_AI_LEASE_STATE_CLAIMED,
+            TestLeaseState::Completed => constants::value::LAN_AI_LEASE_STATE_COMPLETED,
+            TestLeaseState::DuplicateRejected => {
+                constants::value::LAN_AI_LEASE_STATE_DUPLICATE_REJECTED
+            }
+            TestLeaseState::ExpiredRequeued => {
+                constants::value::LAN_AI_LEASE_STATE_EXPIRED_REQUEUED
+            }
+            TestLeaseState::DeadLettered => constants::value::LAN_AI_LEASE_STATE_DEAD_LETTERED,
+        },
         attempt_count,
         expires_at,
         dead_letter_reason: None,
@@ -80,15 +90,32 @@ fn record_lan_ai_provider_heartbeat_state_for_test(
     });
 }
 
-fn normalized_lan_ai_lease_state(lease_state: TestText) -> TestText {
-    match lease_state.0.as_str() {
-        constants::value::LAN_AI_LEASE_STATE_CLAIMED
-        | constants::value::LAN_AI_LEASE_STATE_COMPLETED
-        | constants::value::LAN_AI_LEASE_STATE_DUPLICATE_REJECTED
-        | constants::value::LAN_AI_LEASE_STATE_EXPIRED_REQUEUED
-        | constants::value::LAN_AI_LEASE_STATE_DEAD_LETTERED => lease_state,
-        _ => TestText::from_display(constants::value::LAN_AI_LEASE_STATE_CLAIMED),
-    }
+fn normalized_lan_ai_lease_state(lease_state: TestText) -> TestLeaseState {
+    [
+        (
+            constants::value::LAN_AI_LEASE_STATE_CLAIMED,
+            TestLeaseState::Claimed,
+        ),
+        (
+            constants::value::LAN_AI_LEASE_STATE_COMPLETED,
+            TestLeaseState::Completed,
+        ),
+        (
+            constants::value::LAN_AI_LEASE_STATE_DUPLICATE_REJECTED,
+            TestLeaseState::DuplicateRejected,
+        ),
+        (
+            constants::value::LAN_AI_LEASE_STATE_EXPIRED_REQUEUED,
+            TestLeaseState::ExpiredRequeued,
+        ),
+        (
+            constants::value::LAN_AI_LEASE_STATE_DEAD_LETTERED,
+            TestLeaseState::DeadLettered,
+        ),
+    ]
+    .into_iter()
+    .find_map(|(value, state)| (lease_state.0 == value).then_some(state))
+    .unwrap_or(TestLeaseState::Claimed)
 }
 
 fn lan_ai_claim_id() -> TestText {

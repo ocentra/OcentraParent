@@ -39,7 +39,6 @@ use crate::{
     test_invariants::{
         require_json_decode, require_log_string_field, require_ok, serialize_test_json,
     },
-    test_text::TestText,
 };
 
 const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &TestStr = "inventory";
@@ -193,10 +192,9 @@ fn evidence_claim() -> AppGameEvidenceClaim {
     }
 }
 
-fn local_db_ref(evidence_id: TestText) -> ActivityEvidenceRef {
-    let evidence_id = evidence_id;
+fn local_db_ref(evidence_id: impl std::fmt::Display) -> ActivityEvidenceRef {
     ActivityEvidenceRef {
-        evidence_id: evidence_id.as_ref().to_string(),
+        evidence_id: evidence_id.to_string(),
         kind: ActivityEvidenceKind::LocalDbRow,
         digest: None,
         uri: None,
@@ -208,8 +206,8 @@ fn boundary_read_model_payload(value: &LogFieldValue) -> AppGameBoundaryReadMode
     require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-fn temp_path(suffix: TestText) -> TestPathBuf {
-    let suffix = suffix;
+fn temp_path(suffix: impl std::fmt::Display) -> TestPathBuf {
+    let suffix = suffix.to_string();
     let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
@@ -223,7 +221,7 @@ fn temp_path(suffix: TestText) -> TestPathBuf {
     name.push(constants::delimiter::HYPHEN);
     name.push_str(APP_GAME_BOUNDARY_TEST_PATH_PREFIX);
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix.as_ref());
+    name.push_str(&suffix);
 
     let mut path = std::env::temp_dir();
     path.push(name);

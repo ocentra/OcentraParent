@@ -1,8 +1,16 @@
 /* generated from crates/logging-core/src/stack_trace_runtime.rs */
 
-import { decodeGeneratedStackFilePath as decodeGeneratedStackFilePathImpl, fileNameFromGeneratedPath as fileNameFromGeneratedPathImpl, moduleNameFromGeneratedPath as moduleNameFromGeneratedPathImpl, normalizeGeneratedStackPath as normalizeGeneratedStackPathImpl } from './stack-trace-runtime-path';
+import {
+  decodeGeneratedStackFilePath as decodeGeneratedStackFilePathImpl,
+  fileNameFromGeneratedPath as fileNameFromGeneratedPathImpl,
+  moduleNameFromGeneratedPath as moduleNameFromGeneratedPathImpl,
+  normalizeGeneratedStackPath as normalizeGeneratedStackPathImpl,
+} from './stack-trace-runtime-path';
 import { parseGeneratedStackTrace as parseGeneratedStackTraceImpl } from './stack-trace-runtime-parse';
-import { resolveGeneratedLoggerContext as resolveGeneratedLoggerContextImpl, resolveGeneratedLoggerSource as resolveGeneratedLoggerSourceImpl } from './stack-trace-runtime-source';
+import {
+  resolveGeneratedLoggerContext as resolveGeneratedLoggerContextImpl,
+  resolveGeneratedLoggerSource as resolveGeneratedLoggerSourceImpl,
+} from './stack-trace-runtime-source';
 
 export interface GeneratedStackFrame {
   readonly functionName: string | null;

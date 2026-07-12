@@ -82,6 +82,37 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
     let (request, parse_state) = parse_write_request(&command);
     let flow_report =
         execute_tracking_retention_settings_write_flow(&command, &request, parse_state).await;
+    let result = build_tracking_retention_settings_write_result(request, parse_state, &flow_report);
+    let result_text = serde_json::to_string(&result).unwrap_or_default();
+
+    let flow_observability_text =
+        tracking_retention_settings_write_flow_observability(&flow_report).to_string();
+
+    build_event(
+        constants::tracking_retention_settings_write::EVENT_ID,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported,
+        LogLevel::Info,
+        fields_from_pairs(vec![
+            (
+                constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT,
+                LogFieldValue::String(result_text),
+            ),
+            (
+                constants::tracking_retention_settings_write::FLOW_OBSERVABILITY_FIELD,
+                LogFieldValue::String(flow_observability_text),
+            ),
+        ]),
+        None,
+    )
+}
+
+fn build_tracking_retention_settings_write_result(
+    request: TrackingRetentionSettingsWriteRequest,
+    parse_state: TrackingWriteRequestParseState,
+    flow_report: &TrackingRetentionSettingsWriteFlowReport,
+) -> TrackingRetentionSettingsWriteResult {
     let applied_report = flow_report
         .child_runtime_flow
         .as_ref()
@@ -90,7 +121,8 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         .child_runtime_flow
         .as_ref()
         .map(|report| &report.parent_request_report.response);
-    let result = TrackingRetentionSettingsWriteResult {
+
+    TrackingRetentionSettingsWriteResult {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         command_id: request.command_id,
         settings_kind: request.settings_kind,
@@ -137,30 +169,7 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         physical_device_claim_state: TrackingExecutionClaimState::Unclaimed,
         authority_claim_state: TrackingExecutionClaimState::Unclaimed,
         product_claim_state: TrackingExecutionClaimState::Unclaimed,
-    };
-    let result_text = serde_json::to_string(&result).unwrap_or_default();
-
-    let flow_observability_text =
-        tracking_retention_settings_write_flow_observability(&flow_report).to_string();
-
-    build_event(
-        constants::tracking_retention_settings_write::EVENT_ID,
-        &command.message_id,
-        command.source,
-        AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported,
-        LogLevel::Info,
-        fields_from_pairs(vec![
-            (
-                constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT,
-                LogFieldValue::String(result_text),
-            ),
-            (
-                constants::tracking_retention_settings_write::FLOW_OBSERVABILITY_FIELD,
-                LogFieldValue::String(flow_observability_text),
-            ),
-        ]),
-        None,
-    )
+    }
 }
 
 fn tracking_retention_settings_write_flow_observability(

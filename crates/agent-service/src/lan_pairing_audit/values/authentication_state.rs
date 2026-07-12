@@ -7,8 +7,20 @@ pub(super) fn authentication_state_value(
 ) -> LogFieldValue {
     LogFieldValue::String(
         match reason {
-            Some(_) => constants::value::LAN_CONTROL_REJECTED,
-            None => constants::value::LAN_CONTROL_ACCEPTED,
+            Some(
+                LanPairingRejectionReason::Anonymous
+                | LanPairingRejectionReason::ControllerLeaseMissing
+                | LanPairingRejectionReason::ControllerLeaseExpired
+                | LanPairingRejectionReason::ObserverReadOnly
+                | LanPairingRejectionReason::TakeoverDenied
+                | LanPairingRejectionReason::LanAiProviderUnavailable
+                | LanPairingRejectionReason::LanAiJobUnauthorized
+                | LanPairingRejectionReason::WrongOrigin
+                | LanPairingRejectionReason::WrongController
+                | LanPairingRejectionReason::Malformed
+                | LanPairingRejectionReason::SignedChildAgentContextUnavailable,
+            ) => constants::value::LAN_AUTH_UNAUTHENTICATED,
+            Some(_) | None => constants::value::LAN_AUTH_PAIRED,
         }
         .to_string(),
     )

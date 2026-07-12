@@ -39,8 +39,9 @@ fn record_browser_events_replays_appended_journal_lines_into_sqlite_read_model()
         &paths.store_path,
         &[event.clone(), event.clone()],
     )
-    .map_err(|error| format!("{error:?}"))?;
-    let journal_bytes = read(&paths.journal_path).map_err(|error| format!("{error:?}"))?;
+    .map_err(|error| TestText::from_display(format!("{error:?}")))?;
+    let journal_bytes =
+        read(&paths.journal_path).map_err(|error| TestText::from_display(format!("{error:?}")))?;
     let read_model = browser_read_model_from_store(&paths.store_path)?;
     let restarted = browser_read_model_from_store(&paths.store_path)?;
     cleanup_paths(&paths);

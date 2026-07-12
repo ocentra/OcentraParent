@@ -86,8 +86,7 @@ export interface PortalNetworkRuntimeEventChainStream {
   readonly invalidEventCount: number;
 }
 
-export type PortalActivityTrackingReadModelFailureReason =
-  GeneratedPortalAgentActivitySurfaceAdapterFailureReason;
+export type PortalActivityTrackingReadModelFailureReason = GeneratedPortalAgentActivitySurfaceAdapterFailureReason;
 
 export type PortalActivityTrackingReadModelResult = ReadModelResult<
   PortalActivityTrackingReadModelSnapshot,

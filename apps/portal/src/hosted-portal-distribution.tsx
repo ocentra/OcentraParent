@@ -129,11 +129,7 @@ export function resolveHostedPortalDistributionState(
   return resolveHostedPortalDistributionStateFromDomain(location, env, defaultNowMinutes);
 }
 
-export function HostedPortalDistribution({
-  state,
-}: {
-  readonly state: HostedPortalDistributionState;
-}): ReactElement {
+export function HostedPortalDistribution({ state }: { readonly state: HostedPortalDistributionState }): ReactElement {
   return (
     <main data-testid="hosted-portal-distribution" style={SURFACE_STYLE}>
       <HostedPortalHeader environment={state.environment} />
@@ -150,11 +146,7 @@ export function HostedPortalDistribution({
   );
 }
 
-function HostedPortalHeader({
-  environment,
-}: {
-  readonly environment: HostedPortalEnvironment;
-}): ReactElement {
+function HostedPortalHeader({ environment }: { readonly environment: HostedPortalEnvironment }): ReactElement {
   return (
     <header style={HEADER_STYLE}>
       <span data-testid="hosted-environment-badge" style={BADGE_STYLE}>
@@ -164,19 +156,15 @@ function HostedPortalHeader({
         <h1 style={TITLE_STYLE}>Ocentra Parent Web Portal Distribution</h1>
         <p style={LEDE_STYLE}>
           Hosted parent-only portal route for distribution status, sign-in gating, cache honesty, and environment
-          separation. Child runtime execution, setup completion, desktop parity, and mobile parity remain outside
-          this surface.
+          separation. Child runtime execution, setup completion, desktop parity, and mobile parity remain outside this
+          surface.
         </p>
       </div>
     </header>
   );
 }
 
-function HostedPortalRouteBoundaryCard({
-  state,
-}: {
-  readonly state: HostedPortalDistributionState;
-}): ReactElement {
+function HostedPortalRouteBoundaryCard({ state }: { readonly state: HostedPortalDistributionState }): ReactElement {
   const routeMismatch = state.routeState === 'wrong-route';
 
   return (
@@ -188,8 +176,8 @@ function HostedPortalRouteBoundaryCard({
       {routeMismatch ? (
         <>
           <p data-testid="hosted-route-blocker" style={PARAGRAPH_TOP_FLUSH_STYLE}>
-            Unsupported hosted parent portal route. This page refuses the path instead of falling through to a child
-            or setup surface.
+            Unsupported hosted parent portal route. This page refuses the path instead of falling through to a child or
+            setup surface.
           </p>
           <p style={PARAGRAPH_BOTTOM_FLUSH_STYLE}>
             Allowed hosted paths: <code>{state.expectedPaths.join(', ')}</code>

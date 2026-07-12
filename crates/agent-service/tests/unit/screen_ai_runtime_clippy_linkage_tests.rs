@@ -47,7 +47,7 @@ fn screen_ai_runtime_clippy_linkage_keeps_entrypoints_live() {
 
     let payload = serde_json::json!({"screen": "runtime"});
     assert_eq!(
-        json_contract::serialize_json_string(&payload),
+        json_contract::serialize_json_string(&payload).0.as_str(),
         payload.to_string()
     );
     assert_eq!(
@@ -66,7 +66,9 @@ fn screen_ai_runtime_clippy_linkage_keeps_entrypoints_live() {
     );
 
     assert_eq!(
-        crate::activity_capture::ActivityCaptureError::Io.reason(),
+        crate::activity_capture::ActivityCaptureError::Io
+            .reason()
+            .to_string(),
         constants::value::ACTIVITY_CAPTURE_IO_ERROR
     );
 }

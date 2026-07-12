@@ -4,7 +4,10 @@ export function normalizeGeneratedBridgeEndpoint(endpoint: string): string {
   return endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
 }
 
-export function resolveGeneratedBridgeRoute(method: string, pathname: string): 'health' | 'run-info' | 'run-started' | 'logs' | 'flush' | 'not-found' {
+export function resolveGeneratedBridgeRoute(
+  method: string,
+  pathname: string
+): 'health' | 'run-info' | 'run-started' | 'logs' | 'flush' | 'not-found' {
   switch (pathname) {
     case '/__health__':
       return method === 'GET' ? 'health' : 'not-found';

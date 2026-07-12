@@ -14,9 +14,7 @@ export interface PortalRenderActions {
   requestLanPairingBrowserDiscoveryScan?(): Promise<ParentUiActionResult | null>;
   requestNetworkFlowReadModelRefresh?(): Promise<ParentUiActionResult | null>;
   requestTrackingRetentionSettingsWrite?(): Promise<ParentUiActionResult | null>;
-  requestPolicyRequestAssistantPreviewConfirm?(
-    payload: ParentUiActionPayload,
-  ): Promise<ParentUiActionResult | null>;
+  requestPolicyRequestAssistantPreviewConfirm?(payload: ParentUiActionPayload): Promise<ParentUiActionResult | null>;
   requestScreenSettingsGet?(payload: ParentUiActionPayload): Promise<ParentUiActionResult | null>;
   requestScreenSettingsReplace?(payload: ParentUiActionPayload): Promise<ParentUiActionResult | null>;
   requestAppGameAdapterDispatchExecute?(): Promise<ParentUiActionResult | null>;

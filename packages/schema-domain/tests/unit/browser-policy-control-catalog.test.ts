@@ -100,5 +100,4 @@ describe('browser policy/control schema adapters stay generated-backed', () => {
       )
     ).toBe(true);
   });
-
 });

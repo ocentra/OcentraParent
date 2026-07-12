@@ -67,8 +67,7 @@ export function resolveParentDevNetworkConfig(
   const agentBindHost = mode === ParentDevNetworkMode.Lan ? ParentDevHost.Wildcard : ParentDevHost.Loopback;
   const agentConnectHost = ParentDevHost.Loopback;
   const portalBindHost = mode === ParentDevNetworkMode.Lan ? ParentDevHost.Wildcard : ParentDevHost.Loopback;
-  const parentBridgeBindHost =
-    mode === ParentDevNetworkMode.Lan ? ParentDevHost.Wildcard : ParentDevHost.Loopback;
+  const parentBridgeBindHost = mode === ParentDevNetworkMode.Lan ? ParentDevHost.Wildcard : ParentDevHost.Loopback;
   const allowedOrigins = createAllowedOrigins(lanHost, portalPort);
 
   return {

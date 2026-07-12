@@ -1,71 +1,16 @@
 use super::super::http::sanitize_probe_text;
 use super::super::{
-    LanServiceIdentityProbeObservation, BER_TAG_INTEGER, BER_TAG_OBJECT_IDENTIFIER,
-    BER_TAG_OCTET_STRING, BER_TAG_SEQUENCE, SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES,
-    SNMP_GET_RESPONSE_TAG, SNMP_SYS_DESCR_OID, SNMP_SYS_NAME_OID, SNMP_VERSION_2C,
+    LanServiceIdentityProbeObservation, BER_TAG_OBJECT_IDENTIFIER, BER_TAG_OCTET_STRING,
+    BER_TAG_SEQUENCE, SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES, SNMP_SYS_DESCR_OID, SNMP_SYS_NAME_OID,
 };
+
+mod response;
 
 pub(super) fn parse_snmp_probe_observation(
     response: &[u8],
     expected_request_id: i64,
 ) -> Option<LanServiceIdentityProbeObservation> {
-    let (message_tag, message_body, _) = super::parse_ber_tlv(response, 0)?;
-    if message_tag != BER_TAG_SEQUENCE {
-        return None;
-    }
-    let (version_tag, version_body, mut cursor) = super::parse_ber_tlv(message_body, 0)?;
-    if version_tag != BER_TAG_INTEGER || super::parse_ber_integer(version_body)? != SNMP_VERSION_2C
-    {
-        return None;
-    }
-    let (community_tag, _, next_cursor) = super::parse_ber_tlv(message_body, cursor)?;
-    if community_tag != BER_TAG_OCTET_STRING {
-        return None;
-    }
-    cursor = next_cursor;
-    let (pdu_tag, pdu_body, _) = super::parse_ber_tlv(message_body, cursor)?;
-    if pdu_tag != SNMP_GET_RESPONSE_TAG {
-        return None;
-    }
-
-    let (request_id_tag, request_id_body, mut pdu_cursor) = super::parse_ber_tlv(pdu_body, 0)?;
-    if request_id_tag != BER_TAG_INTEGER
-        || super::parse_ber_integer(request_id_body)? != expected_request_id
-    {
-        return None;
-    }
-    let (error_status_tag, error_status_body, next_pdu_cursor) =
-        super::parse_ber_tlv(pdu_body, pdu_cursor)?;
-    if error_status_tag != BER_TAG_INTEGER || super::parse_ber_integer(error_status_body)? != 0 {
-        return None;
-    }
-    pdu_cursor = next_pdu_cursor;
-    let (error_index_tag, error_index_body, next_pdu_cursor) =
-        super::parse_ber_tlv(pdu_body, pdu_cursor)?;
-    if error_index_tag != BER_TAG_INTEGER || super::parse_ber_integer(error_index_body)? != 0 {
-        return None;
-    }
-    pdu_cursor = next_pdu_cursor;
-    let (varbind_list_tag, varbind_list_body, _) = super::parse_ber_tlv(pdu_body, pdu_cursor)?;
-    if varbind_list_tag != BER_TAG_SEQUENCE {
-        return None;
-    }
-    let (sys_descr, sys_name) = parse_snmp_probe_identity_fields(varbind_list_body)?;
-
-    let observation = LanServiceIdentityProbeObservation {
-        status_code: None,
-        title: None,
-        server_header: None,
-        banner: None,
-        redirect_location: None,
-        certificate_subject: None,
-        descriptor_links: Vec::new(),
-        wsd_endpoint_address: None,
-        wsd_types: None,
-        snmp_sys_descr: sys_descr,
-        snmp_sys_name: sys_name,
-    };
-    observation.is_meaningful().then_some(observation)
+    response::parse_snmp_probe_observation(response, expected_request_id)
 }
 
 fn parse_snmp_probe_identity_fields(

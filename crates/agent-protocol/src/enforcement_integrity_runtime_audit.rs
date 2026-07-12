@@ -28,7 +28,7 @@ pub enum V08EnforcementIntegrityRuntimeAuditSurface {
     MobileChildControl,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum V08EnforcementIntegrityRuntimeAuditResult {
     #[serde(rename = "succeeded")]
     Succeeded,
@@ -138,7 +138,7 @@ pub enum V08EnforcementIntegrityRuntimeAuditChildState {
     NotClaimed,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum V08EnforcementIntegrityRuntimeAuditIntegrityState {
     #[serde(rename = "running")]
     Running,

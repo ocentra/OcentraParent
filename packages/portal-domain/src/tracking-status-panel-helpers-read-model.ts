@@ -47,7 +47,9 @@ export function readModelDeletedEvidenceReferences(
   return evidenceReferenceDetail([...references]);
 }
 
-export function liveCitation(rowValue: GeneratedParentActivityTrackingReadModelRowSnapshot): TrackingStatusLiveCitation {
+export function liveCitation(
+  rowValue: GeneratedParentActivityTrackingReadModelRowSnapshot
+): TrackingStatusLiveCitation {
   return {
     title: detailFromValue(rowValue.subjectDisplayName ?? rowValue.kind),
     eventId: detailFromValue(rowValue.eventId),
@@ -73,7 +75,9 @@ export function listDetail(values: readonly unknown[]): PortalDetailValue {
   return evidenceReferenceDetail([...new Set(normalizedValues)]);
 }
 
-export function countDetail(values: readonly GeneratedParentActivityTrackingReadModelCountSnapshot[]): PortalDetailValue {
+export function countDetail(
+  values: readonly GeneratedParentActivityTrackingReadModelCountSnapshot[]
+): PortalDetailValue {
   if (values.length === 0) {
     return notReported();
   }
@@ -82,7 +86,9 @@ export function countDetail(values: readonly GeneratedParentActivityTrackingRead
   );
 }
 
-export function readModelActivityKindCoverage(readModel: GeneratedParentActivityTrackingReadModelSnapshot): PortalDetailValue {
+export function readModelActivityKindCoverage(
+  readModel: GeneratedParentActivityTrackingReadModelSnapshot
+): PortalDetailValue {
   const activeKindCounts = readModel.activeKindCounts ?? [];
   if (activeKindCounts.length > 0) {
     return countDetail(activeKindCounts);
@@ -90,7 +96,9 @@ export function readModelActivityKindCoverage(readModel: GeneratedParentActivity
   return listDetail(activeReadModelRows(readModel).map((rowValue) => rowValue.kind));
 }
 
-export function readModelDeviceCoverage(readModel: GeneratedParentActivityTrackingReadModelSnapshot): PortalDetailValue {
+export function readModelDeviceCoverage(
+  readModel: GeneratedParentActivityTrackingReadModelSnapshot
+): PortalDetailValue {
   const activeDeviceCounts = readModel.activeDeviceCounts ?? [];
   if (activeDeviceCounts.length > 0) {
     return countDetail(activeDeviceCounts);
@@ -98,7 +106,9 @@ export function readModelDeviceCoverage(readModel: GeneratedParentActivityTracki
   return listDetail(activeReadModelRows(readModel).map((rowValue) => rowValue.deviceId));
 }
 
-export function readModelCapabilityCoverage(readModel: GeneratedParentActivityTrackingReadModelSnapshot): PortalDetailValue {
+export function readModelCapabilityCoverage(
+  readModel: GeneratedParentActivityTrackingReadModelSnapshot
+): PortalDetailValue {
   const activeCapabilityStatusCounts = readModel.activeCapabilityStatusCounts ?? [];
   if (activeCapabilityStatusCounts.length > 0) {
     return countDetail(activeCapabilityStatusCounts);

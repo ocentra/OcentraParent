@@ -30,8 +30,7 @@ const sampleSetupFirstRunPanelValue: ParentSetupFirstRunPanelSnapshot = {
   cards: [
     {
       title: 'What is real now',
-      summary:
-        'The Start route can render an honest Rust-owned boundary panel without inventing setup progress.',
+      summary: 'The Start route can render an honest Rust-owned boundary panel without inventing setup progress.',
       details: [
         {
           label: 'Route shell',
@@ -72,8 +71,7 @@ const sampleSetupFirstRunPanelValue: ParentSetupFirstRunPanelSnapshot = {
     },
     {
       title: 'Where it belongs',
-      summary:
-        'When first-run becomes live, Rust must own the setup state and TS must remain pure rendering.',
+      summary: 'When first-run becomes live, Rust must own the setup state and TS must remain pure rendering.',
       details: [
         {
           label: 'Rust owner',
@@ -106,9 +104,7 @@ describe('setup first-run portal route panel', () => {
   });
 
   it('renders an honest boundary-status panel instead of an invented setup state machine', () => {
-    const markup = renderToStaticMarkup(
-      createElement(SetupFirstRunRoutePanel, { panel: sampleSetupFirstRunPanel() })
-    );
+    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel: sampleSetupFirstRunPanel() }));
 
     expect(markup).toContain('Setup-first-run boundary status');
     expect(markup).toContain('Current boundary status');

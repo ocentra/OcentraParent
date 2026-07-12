@@ -2,6 +2,6 @@
 // The complete TypeScript artifact text is produced by app_game_source_gated_policy_preview.rs.
 
 export const appGameSourceGatedPolicyPreviewGeneratedHelpers = [
-  "buildGeneratedAppGameSourceGatedPolicyPreviewReadModel",
-  "buildGeneratedAppGameSourceGatedPolicyPreviewTimerStatus",
+  'buildGeneratedAppGameSourceGatedPolicyPreviewReadModel',
+  'buildGeneratedAppGameSourceGatedPolicyPreviewTimerStatus',
 ] as const;

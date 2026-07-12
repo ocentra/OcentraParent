@@ -1,13 +1,14 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use std::fs::{read_to_string, remove_file};
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED, APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE,
@@ -21,7 +22,6 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
     AgentPeerRole, AgentRoute,
 };
-use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
 use crate::test_invariants::{
@@ -31,7 +31,10 @@ use crate::test_text::TestText;
 
 use super::{
     app_game_child_runtime_transport_receipt_payload::app_game_child_runtime_transport_receipt_read_model_from_service_model,
-    app_game_timer_parent_preference_setup_request::build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path,
+    app_game_timer_parent_preference_setup_request::{
+        AppGameTimerSetupStorePath,
+        build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path,
+    },
 };
 
 const PERSISTED_SETUP_EVENT_COUNT: u64 = 14;
@@ -39,10 +42,13 @@ const PERSISTED_SETUP_EVENT_COUNT: u64 = 14;
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
     let body = serialize_test_json(&command_envelope());
-    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let result = request_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
+    let result = request_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,
@@ -111,12 +117,14 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
     let event =
         build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path(
             command_envelope(),
-            store_path.clone(),
+            AppGameTimerSetupStorePath(store_path.clone()),
         )
         .await;
-    let result = request_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let result = request_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     let store = require_ok(
         ActivityStore::open(&store_path),
@@ -235,9 +243,11 @@ fn assert_persisted_action_result_model(model: &AppGameServiceReadModel) {
             .persistence_state,
         APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE
     );
-    assert!(model.approval_action_result_rows[0]
-        .enforcement_result
-        .is_none());
+    assert!(
+        model.approval_action_result_rows[0]
+            .enforcement_result
+            .is_none()
+    );
 
     let receipt_model =
         app_game_child_runtime_transport_receipt_read_model_from_service_model(model.clone());
@@ -884,4 +894,3 @@ fn cleanup_path(path: &TestPathBuf) {
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
     ));
 }
-

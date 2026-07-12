@@ -4,8 +4,12 @@
 mod activity_capture;
 #[path = "../../src/activity_store_path.rs"]
 mod activity_store_path;
+#[path = "../../src/activity_surface_read_model_states.rs"]
+mod activity_surface_read_model_states;
 #[path = "../support/activity_surface_read_models_mod.rs"]
 mod activity_surface_read_models;
+#[path = "../../src/dev_log.rs"]
+pub mod dev_log;
 #[path = "../../src/event_builder.rs"]
 mod event_builder;
 #[path = "../../src/fields.rs"]
@@ -54,8 +58,6 @@ mod time;
 mod screen_ai_analysis_runtime {
     #[path = "../../../src/screen_ai_analysis_runtime/adapter.rs"]
     pub(crate) mod adapter;
-    #[path = "../../../src/screen_ai_analysis_runtime/adapter_output_fields.rs"]
-    pub(crate) mod adapter_output_fields;
     #[path = "../../../src/screen_ai_analysis_runtime/adapter_process.rs"]
     pub(crate) mod adapter_process;
     #[path = "../../../src/screen_ai_analysis_runtime/adapter_redaction.rs"]
@@ -85,6 +87,7 @@ mod screen_ai_analysis_runtime {
     use crate::{
         activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
         activity_surface_read_models::activity_screen_row_from_result,
+        screen_ai_service_event_subscription,
         screen_ai_service_event_subscription::ScreenAiServiceEventRuntime,
     };
 
@@ -109,8 +112,7 @@ mod screen_ai_analysis_runtime {
         let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan)? else {
             return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
         };
-        let metadata =
-            metadata_result_for_queue_job(&config.store_path, &image.queue_job_id, &clock)?;
+        let metadata = metadata_result_for_queue_job(&config.store_path, &image, &clock)?;
         if metadata
             .as_ref()
             .is_some_and(|result| result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA)
@@ -129,8 +131,7 @@ mod screen_ai_analysis_runtime {
             &generation,
             &config.ocr_redaction_policy,
         );
-        let outcome =
-            event_record::outcome_for_generation(&image.queue_job_id, &generation, &event_record);
+        let outcome = event_record::outcome_for_generation(&image, &generation, &event_record);
         record_activity_events_to_paths(
             &config.journal_path,
             &config.journal_key_path,

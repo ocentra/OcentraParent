@@ -57,7 +57,8 @@ fn mdns_packet_with_child_service() -> Vec<u8> {
     packet
 }
 
-fn encode_dns_name(name: &str, packet: &mut Vec<u8>) {
+fn encode_dns_name(name: impl std::fmt::Display, packet: &mut Vec<u8>) {
+    let name = name.to_string();
     for label in name.split('.') {
         packet.push(label.len() as u8);
         packet.extend_from_slice(label.as_bytes());
@@ -65,9 +66,10 @@ fn encode_dns_name(name: &str, packet: &mut Vec<u8>) {
     packet.push(0);
 }
 
-fn encode_txt_data(entries: &[&str]) -> Vec<u8> {
+fn encode_txt_data(entries: impl IntoIterator<Item = impl std::fmt::Display>) -> Vec<u8> {
     let mut data = Vec::new();
     for entry in entries {
+        let entry = entry.to_string();
         data.push(entry.len() as u8);
         data.extend_from_slice(entry.as_bytes());
     }
@@ -124,7 +126,10 @@ fn encode_ber_oid(oid: &[u32]) -> Vec<u8> {
     encoded
 }
 
-fn allowed_snmp_response_payload(sys_descr: &str, sys_name: &str) -> Vec<u8> {
+fn allowed_snmp_response_payload(
+    sys_descr: impl std::fmt::Display,
+    sys_name: impl std::fmt::Display,
+) -> Vec<u8> {
     const BER_TAG_INTEGER: u8 = 0x02;
     const BER_TAG_OCTET_STRING: u8 = 0x04;
     const BER_TAG_OBJECT_IDENTIFIER: u8 = 0x06;
@@ -134,6 +139,8 @@ fn allowed_snmp_response_payload(sys_descr: &str, sys_name: &str) -> Vec<u8> {
     const SNMP_REQUEST_ID: i64 = 1;
     const SNMP_SYS_DESCR_OID: &[u32] = &[1, 3, 6, 1, 2, 1, 1, 1, 0];
     const SNMP_SYS_NAME_OID: &[u32] = &[1, 3, 6, 1, 2, 1, 1, 5, 0];
+    let sys_descr = sys_descr.to_string();
+    let sys_name = sys_name.to_string();
 
     let varbind_list = encode_ber_tlv(
         BER_TAG_SEQUENCE,

@@ -207,7 +207,8 @@ function retentionSettingsWriteClaimDetails(
         GeneratedPortalTrackingContracts.RetentionSettingsWrite.DurableSettingsPersistenceState.Persisted
     ),
     commandTransportClaimedRows: detailFromFlag(
-      value.commandTransportClaimState === GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
+      value.commandTransportClaimState ===
+        GeneratedPortalTrackingContracts.RetentionSettingsWrite.ExecutionClaimState.Claimed
     ),
     serviceWritePreflightClaimedRows: detailFromFlag(
       value.serviceWritePreflightClaimState ===

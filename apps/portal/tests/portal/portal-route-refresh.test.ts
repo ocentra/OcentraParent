@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ParentBridgeConnectionState,
-  ParentRoute,
-} from '../../generated/parent-ui-bridge';
+import { ParentBridgeConnectionState, ParentRoute } from '../../generated/parent-ui-bridge';
 import { shouldRequestNetworkFlowReadModelForRoute } from '../../src/portal-route-refresh';
 
 describe('portal route refresh', () => {

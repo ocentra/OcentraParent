@@ -147,7 +147,9 @@ export function networkEvidenceDrawerSummaryTemplate(
   };
 }
 
-function firstNetworkFlowRow(readModel: NetworkEvidenceDrawerReadModel | null): NetworkEvidenceDrawerObservation | null {
+function firstNetworkFlowRow(
+  readModel: NetworkEvidenceDrawerReadModel | null
+): NetworkEvidenceDrawerObservation | null {
   return readModel?.rows[0] ?? null;
 }
 
@@ -241,7 +243,9 @@ function deletedEvidenceReferences(readModel: NetworkEvidenceDrawerReadModel | n
 }
 
 function endpointDetail(endpoint: NetworkEvidenceDrawerEndpoint | null | undefined): string {
-  return endpoint?.ip === null || endpoint?.ip === undefined ? NOT_REPORTED : joinedDetail([endpoint.ip, endpoint.port]);
+  return endpoint?.ip === null || endpoint?.ip === undefined
+    ? NOT_REPORTED
+    : joinedDetail([endpoint.ip, endpoint.port]);
 }
 
 function joinedDetail(values: readonly unknown[]): string {

@@ -1,10 +1,10 @@
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
-import { PortalDevToolWindow, PortalRoute, portalDevToolUrl } from '@ocentra-parent/portal-domain/routes';
+import { PortalDevToolWindow, portalDevToolUrl } from '@ocentra-parent/portal-domain/routes';
 import { WebviewWindow, getAllWebviewWindows } from '@tauri-apps/api/webviewWindow';
-import { ParentHostBridgeRuntime } from '../generated/parent-ui-bridge';
+import { ParentHostBridgeRuntime, ParentRoute } from '../generated/parent-ui-bridge';
 
 export async function openPortalFrameTunerWindow(): Promise<void> {
-  const url = portalDevToolUrl(window.location.origin, window.location.pathname, PortalRoute.FrameTuner);
+  const url = portalDevToolUrl(window.location.origin, window.location.pathname, ParentRoute.FrameTuner);
   if (!isTauriRuntime()) {
     openBrowserFrameTunerWindow(url);
     return;

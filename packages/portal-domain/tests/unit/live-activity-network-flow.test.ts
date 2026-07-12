@@ -118,9 +118,7 @@ function expectDeletedNetworkEvidenceDrawerSummary(summary: ReturnType<typeof ne
   expect(summary.interventionResultRef).toBe('Not reported');
 }
 
-function expectSuppliedReferenceNetworkEvidenceDrawerSummary(
-  summary: ReturnType<typeof networkEvidenceDrawerSummary>
-) {
+function expectSuppliedReferenceNetworkEvidenceDrawerSummary(summary: ReturnType<typeof networkEvidenceDrawerSummary>) {
   expect(summary.analyzerAlertRef).toBe('Not reported');
   expect(summary.detectionResultRef).toBe('Not reported');
   expect(summary.aiAuditRef).toBe('local-ai-result.network.preview.1');

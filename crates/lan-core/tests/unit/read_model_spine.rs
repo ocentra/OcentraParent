@@ -1,5 +1,9 @@
 use super::*;
 
+#[macro_use]
+#[path = "read_model_spine_platform_support.rs"]
+mod platform_support;
+
 #[test]
 fn service_probe_snmp_evidence_adds_allowed_snmp_response_scan_label() {
     let mut discovered = neighbor(
@@ -263,12 +267,8 @@ fn passive_local_neighbor_collection_summaries_are_persisted_in_scan_summary() {
         .scan_summary
         .passive_local_neighbor_collection_summaries;
 
-    let expected_summary_count = if cfg!(any(target_os = "linux", target_os = "android")) {
-        2
-    } else {
-        1
-    };
-    assert_eq!(summaries.len(), expected_summary_count);
+    let expected_sources = expected_passive_summary_sources!();
+    assert_eq!(summaries.len(), expected_sources.len());
     for summary in summaries {
         assert_eq!(
             summary.schema_version,
@@ -278,23 +278,10 @@ fn passive_local_neighbor_collection_summaries_are_persisted_in_scan_summary() {
         assert!(summary.observed_count >= summary.recorded_count);
     }
 
-    if cfg!(target_os = "windows") {
+    for expected_source in expected_sources {
         assert!(summaries
             .iter()
-            .any(|summary| summary.source_label == "windows-neighbor-table"));
-    } else if cfg!(any(target_os = "linux", target_os = "android")) {
-        assert!(summaries
-            .iter()
-            .any(|summary| summary.source_label == "linux-proc-net-arp"));
-        assert!(summaries
-            .iter()
-            .any(|summary| summary.source_label == "linux-ip-neigh"));
-    } else if cfg!(target_os = "macos") {
-        assert!(summaries
-            .iter()
-            .any(|summary| summary.source_label == "macos-arp"));
-    } else {
-        assert!(summaries.iter().all(|summary| summary.reason.is_some()));
+            .any(|summary| summary.source_label == *expected_source));
     }
 }
 

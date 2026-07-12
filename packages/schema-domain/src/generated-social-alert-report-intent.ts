@@ -292,4 +292,3 @@ function socialAlertReportHasNoRuntimeClaims(intent: SocialAlertReportIntentCand
     intent.providerReceiptRefs.length === 0
   );
 }
-

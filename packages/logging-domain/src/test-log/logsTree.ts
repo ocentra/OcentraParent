@@ -39,7 +39,10 @@ function addSuiteFiles(
       continue;
     }
     const fileKey = fileEntry.name.slice(0, -'.ndjson'.length);
-    tree.set(buildGeneratedLogsTreeKey(scopeName, runTypeName, suiteName, fileKey), path.join(suitePath, fileEntry.name));
+    tree.set(
+      buildGeneratedLogsTreeKey(scopeName, runTypeName, suiteName, fileKey),
+      path.join(suitePath, fileEntry.name)
+    );
   }
 }
 
@@ -132,7 +135,9 @@ export function listFileKeysInScope(scope: LogsTreeScope, rootDir?: string): str
 }
 
 export function tryGet(tree: LogsTree, scope: LogsTreeScope, fileKey: string): string | undefined {
-  return tree.get(buildGeneratedLogsTreeKey(String(scope.scope), String(scope.runType), suiteSegment(scope.suiteType), fileKey));
+  return tree.get(
+    buildGeneratedLogsTreeKey(String(scope.scope), String(scope.runType), suiteSegment(scope.suiteType), fileKey)
+  );
 }
 
 export function asLogsTree(tree: Map<string, string>): LogsTree {

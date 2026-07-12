@@ -35,13 +35,7 @@
   },
   "controllerAuthority": "observer",
   "observerAuthority": "observer",
-  "routeRequirementLabels": [
-    "No LAN child route selected"
-  ],
-  "auditCheckLabels": [
-    "No LAN discovery evidence available"
-  ],
-  "honestNonClaims": [
-    "no-lan-devices-reported"
-  ]
+  "routeRequirementLabels": ["No LAN child route selected"],
+  "auditCheckLabels": ["No LAN discovery evidence available"],
+  "honestNonClaims": ["no-lan-devices-reported"]
 }

@@ -1,5 +1,5 @@
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-    LanDiscoveryEventKind, LanDiscoveryEvidenceRecord,
+    LanDiscoveryEventKind, LanDiscoveryEventRow,
 };
 use std::primitive::str as TestStr;
 use std::string::String as TestString;
@@ -7,12 +7,12 @@ use std::string::String as TestString;
 type TestText = TestString;
 
 pub(super) fn discovery_row<'a>(
-    rows: &'a [LanDiscoveryEvidenceRecord],
+    rows: &'a [LanDiscoveryEventRow],
     event_kind: LanDiscoveryEventKind,
     affected_device_id: Option<&TestText>,
     evidence_id: Option<&TestText>,
     context: &'static TestStr,
-) -> &'a LanDiscoveryEvidenceRecord {
+) -> &'a LanDiscoveryEventRow {
     rows.iter()
         .find(|row| {
             row.event_kind == event_kind
@@ -23,7 +23,7 @@ pub(super) fn discovery_row<'a>(
 }
 
 pub(super) fn assert_row_contract(
-    row: &LanDiscoveryEvidenceRecord,
+    row: &LanDiscoveryEventRow,
     scan_id: &TestText,
     affected_device_id: Option<&TestText>,
     evidence_id: Option<&TestText>,
@@ -37,14 +37,14 @@ pub(super) fn assert_row_contract(
     assert_eq!(row.occurred_at.as_str(), occurred_at);
 }
 
-pub(super) fn assert_first_row_has_no_previous_event(rows: &[LanDiscoveryEvidenceRecord]) {
+pub(super) fn assert_first_row_has_no_previous_event(rows: &[LanDiscoveryEventRow]) {
     assert_eq!(
         rows.first().and_then(|row| row.previous_event_id.as_ref()),
         None
     );
 }
 
-pub(super) fn assert_previous_event_chain(rows: &[LanDiscoveryEvidenceRecord]) {
+pub(super) fn assert_previous_event_chain(rows: &[LanDiscoveryEventRow]) {
     for row_pair in rows.windows(2) {
         assert_eq!(
             row_pair[1].previous_event_id.as_deref(),

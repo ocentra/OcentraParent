@@ -11,6 +11,9 @@ struct AppControlBoundaryText {
     fallback_behavior: &'static str,
 }
 
+#[derive(Clone, Copy)]
+pub(crate) struct GeneratedAtTextRef<'a>(pub(crate) &'a str);
+
 struct AppControlStateInput {
     proof_state_id: &'static str,
     readiness_state: V08WindowsAppControlReadinessState,
@@ -23,7 +26,9 @@ struct AppControlStateInput {
     generated_at: String,
 }
 
-pub(crate) fn app_control_state_specs(generated_at: &str) -> Vec<V08WindowsAppControlProofState> {
+pub(crate) fn app_control_state_specs(
+    generated_at: GeneratedAtTextRef<'_>,
+) -> Vec<V08WindowsAppControlProofState> {
     vec![
         readiness_state(generated_at),
         audit_only_state(generated_at),
@@ -34,7 +39,7 @@ pub(crate) fn app_control_state_specs(generated_at: &str) -> Vec<V08WindowsAppCo
     ]
 }
 
-fn readiness_state(generated_at: &str) -> V08WindowsAppControlProofState {
+fn readiness_state(generated_at: GeneratedAtTextRef<'_>) -> V08WindowsAppControlProofState {
     app_control_state(AppControlStateInput {
         proof_state_id: proof::STATE_ID_APP_CONTROL_READINESS,
         readiness_state: V08WindowsAppControlReadinessState::ReadinessCheck,
@@ -46,15 +51,15 @@ fn readiness_state(generated_at: &str) -> V08WindowsAppControlProofState {
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_EDITION,
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_ADMIN,
         ],
-        text: app_control_text(
-            proof::CLAIM_WINDOWS_APP_CONTROL_READINESS,
-            proof::FALLBACK_WINDOWS_APP_CONTROL_READINESS,
-        ),
-        generated_at: generated_at.to_string(),
+        text: AppControlBoundaryText {
+            claim_boundary: proof::CLAIM_WINDOWS_APP_CONTROL_READINESS,
+            fallback_behavior: proof::FALLBACK_WINDOWS_APP_CONTROL_READINESS,
+        },
+        generated_at: generated_at.0.to_string(),
     })
 }
 
-fn audit_only_state(generated_at: &str) -> V08WindowsAppControlProofState {
+fn audit_only_state(generated_at: GeneratedAtTextRef<'_>) -> V08WindowsAppControlProofState {
     app_control_state(AppControlStateInput {
         proof_state_id: proof::STATE_ID_APP_CONTROL_AUDIT_ONLY,
         readiness_state: V08WindowsAppControlReadinessState::AuditOnly,
@@ -66,15 +71,15 @@ fn audit_only_state(generated_at: &str) -> V08WindowsAppControlProofState {
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_AUDIT_POLICY,
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_AUDIT_QUERY,
         ],
-        text: app_control_text(
-            proof::CLAIM_WINDOWS_APP_CONTROL_AUDIT_ONLY,
-            proof::FALLBACK_WINDOWS_APP_CONTROL_AUDIT_ONLY,
-        ),
-        generated_at: generated_at.to_string(),
+        text: AppControlBoundaryText {
+            claim_boundary: proof::CLAIM_WINDOWS_APP_CONTROL_AUDIT_ONLY,
+            fallback_behavior: proof::FALLBACK_WINDOWS_APP_CONTROL_AUDIT_ONLY,
+        },
+        generated_at: generated_at.0.to_string(),
     })
 }
 
-fn enforced_state(generated_at: &str) -> V08WindowsAppControlProofState {
+fn enforced_state(generated_at: GeneratedAtTextRef<'_>) -> V08WindowsAppControlProofState {
     app_control_state(AppControlStateInput {
         proof_state_id: proof::STATE_ID_APP_CONTROL_ENFORCED,
         readiness_state: V08WindowsAppControlReadinessState::Enforced,
@@ -90,15 +95,15 @@ fn enforced_state(generated_at: &str) -> V08WindowsAppControlProofState {
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_POLICY_REFRESH,
             proof::REQUIREMENT_ROLLBACK,
         ],
-        text: app_control_text(
-            proof::CLAIM_WINDOWS_APP_CONTROL_ENFORCED,
-            proof::FALLBACK_WINDOWS_APP_CONTROL_ENFORCED,
-        ),
-        generated_at: generated_at.to_string(),
+        text: AppControlBoundaryText {
+            claim_boundary: proof::CLAIM_WINDOWS_APP_CONTROL_ENFORCED,
+            fallback_behavior: proof::FALLBACK_WINDOWS_APP_CONTROL_ENFORCED,
+        },
+        generated_at: generated_at.0.to_string(),
     })
 }
 
-fn manual_required_state(generated_at: &str) -> V08WindowsAppControlProofState {
+fn manual_required_state(generated_at: GeneratedAtTextRef<'_>) -> V08WindowsAppControlProofState {
     app_control_state(AppControlStateInput {
         proof_state_id: proof::STATE_ID_APP_CONTROL_MANUAL_REQUIRED,
         readiness_state: V08WindowsAppControlReadinessState::ManualRequired,
@@ -111,15 +116,15 @@ fn manual_required_state(generated_at: &str) -> V08WindowsAppControlProofState {
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_OPERATOR_CONFIRMATION,
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_IDENTITY_REVIEW,
         ],
-        text: app_control_text(
-            proof::CLAIM_WINDOWS_APP_CONTROL_MANUAL_REQUIRED,
-            proof::FALLBACK_WINDOWS_APP_CONTROL_MANUAL_REQUIRED,
-        ),
-        generated_at: generated_at.to_string(),
+        text: AppControlBoundaryText {
+            claim_boundary: proof::CLAIM_WINDOWS_APP_CONTROL_MANUAL_REQUIRED,
+            fallback_behavior: proof::FALLBACK_WINDOWS_APP_CONTROL_MANUAL_REQUIRED,
+        },
+        generated_at: generated_at.0.to_string(),
     })
 }
 
-fn unavailable_state(generated_at: &str) -> V08WindowsAppControlProofState {
+fn unavailable_state(generated_at: GeneratedAtTextRef<'_>) -> V08WindowsAppControlProofState {
     app_control_state(AppControlStateInput {
         proof_state_id: proof::STATE_ID_APP_CONTROL_UNAVAILABLE,
         readiness_state: V08WindowsAppControlReadinessState::Unavailable,
@@ -131,15 +136,15 @@ fn unavailable_state(generated_at: &str) -> V08WindowsAppControlProofState {
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_PROVIDER,
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_PERMISSION_DENIAL,
         ],
-        text: app_control_text(
-            proof::CLAIM_WINDOWS_APP_CONTROL_UNAVAILABLE,
-            proof::FALLBACK_WINDOWS_APP_CONTROL_UNAVAILABLE,
-        ),
-        generated_at: generated_at.to_string(),
+        text: AppControlBoundaryText {
+            claim_boundary: proof::CLAIM_WINDOWS_APP_CONTROL_UNAVAILABLE,
+            fallback_behavior: proof::FALLBACK_WINDOWS_APP_CONTROL_UNAVAILABLE,
+        },
+        generated_at: generated_at.0.to_string(),
     })
 }
 
-fn failed_state(generated_at: &str) -> V08WindowsAppControlProofState {
+fn failed_state(generated_at: GeneratedAtTextRef<'_>) -> V08WindowsAppControlProofState {
     app_control_state(AppControlStateInput {
         proof_state_id: proof::STATE_ID_APP_CONTROL_FAILED,
         readiness_state: V08WindowsAppControlReadinessState::Failed,
@@ -152,11 +157,11 @@ fn failed_state(generated_at: &str) -> V08WindowsAppControlProofState {
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_IDENTITY_FAILURE,
             proof::REQUIREMENT_WINDOWS_APP_CONTROL_AUDIT_FAILURE,
         ],
-        text: app_control_text(
-            proof::CLAIM_WINDOWS_APP_CONTROL_FAILED,
-            proof::FALLBACK_WINDOWS_APP_CONTROL_FAILED,
-        ),
-        generated_at: generated_at.to_string(),
+        text: AppControlBoundaryText {
+            claim_boundary: proof::CLAIM_WINDOWS_APP_CONTROL_FAILED,
+            fallback_behavior: proof::FALLBACK_WINDOWS_APP_CONTROL_FAILED,
+        },
+        generated_at: generated_at.0.to_string(),
     })
 }
 
@@ -190,14 +195,4 @@ fn identity_kinds() -> Vec<V08WindowsAppControlRuleIdentityKind> {
         V08WindowsAppControlRuleIdentityKind::Hash,
         V08WindowsAppControlRuleIdentityKind::Package,
     ]
-}
-
-fn app_control_text(
-    claim_boundary: &'static str,
-    fallback_behavior: &'static str,
-) -> AppControlBoundaryText {
-    AppControlBoundaryText {
-        claim_boundary,
-        fallback_behavior,
-    }
 }

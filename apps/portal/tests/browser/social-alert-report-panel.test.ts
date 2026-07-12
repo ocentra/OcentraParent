@@ -59,10 +59,7 @@ describe('portal social alert/report panel', () => {
           'Social parent notification delivery readiness',
           '1 parent notification readiness rows'
         ),
-        browserActionIntentStreamStatusPanel: samplePanel(
-          'Browser action-intent stream status',
-          '0 action candidates'
-        ),
+        browserActionIntentStreamStatusPanel: samplePanel('Browser action-intent stream status', '0 action candidates'),
         browserSocialProviderReceiptStreamStatusPanel: samplePanel(
           'Social provider receipt stream status',
           '0 receipt boundary rows'

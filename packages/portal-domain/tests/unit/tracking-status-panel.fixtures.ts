@@ -564,9 +564,7 @@ export function legacyTrackingReadModel() {
   };
 }
 
-export function trackingProjectionInput(
-  readModel = TrackingReadModel
-): TrackingStatusLiveProjectionInput {
+export function trackingProjectionInput(readModel = TrackingReadModel): TrackingStatusLiveProjectionInput {
   return {
     activityTrackingReadModelEvent: {
       event: GeneratedPortalAgentEvent.ActivityTrackingReadModelReported,

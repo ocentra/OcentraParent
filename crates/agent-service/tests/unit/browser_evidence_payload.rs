@@ -2,6 +2,12 @@
 #[path = "../support/unit_root_basic_harness.rs"]
 mod unit_root_basic_harness;
 declare_agent_service_unit_root_basic_harness!();
+#[path = "../../src/browser_evidence_payload.rs"]
+mod browser_evidence_payload;
+#[path = "../../src/fields.rs"]
+mod fields;
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
 
 use ocentra_parent_agent_protocol::browser::{
     BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,

@@ -3,6 +3,7 @@ use std::path::Path;
 use ocentra_parent_agent_protocol::constants;
 
 use crate::local_ai_model_registry::{default_local_ai_model, known_model_for_id};
+use crate::local_ai_runtime_config_values::LocalAiRuntimeText;
 
 #[test]
 fn default_model_is_gemma_four_runtime_artifact() {
@@ -45,7 +46,9 @@ fn default_model_cache_path_can_be_built_from_installer_cache_root() {
 
 #[test]
 fn unsupported_model_id_is_not_a_known_cache_artifact() {
-    let known_model = known_model_for_id(constants::local_ai_runtime::TEST_UNSUPPORTED_MODEL_ID);
+    let known_model = known_model_for_id(&LocalAiRuntimeText(
+        constants::local_ai_runtime::TEST_UNSUPPORTED_MODEL_ID.to_string(),
+    ));
 
     assert_eq!(known_model, None);
 }

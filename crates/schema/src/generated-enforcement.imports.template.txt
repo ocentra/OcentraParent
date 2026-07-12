@@ -1,0 +1,148 @@
+/* generated from crates/schema/src/policy_enforcement_ts.rs */
+
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+import {
+  ParentActionReferenceSchema,
+  ParentActorReferenceSchema,
+  ParentDeviceReferenceSchema,
+  ParentEvidenceReferenceSchema,
+} from './family-references';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentPlatformSchema,
+  ParentPolicyVersionSchema,
+  ParentTimestampSchema,
+} from './family-reference-primitives';
+import {
+  LocalAiResultReferenceIdSchema,
+  PolicyActionSchema,
+  PolicyDecisionIdSchema,
+  PolicyReasonCodeSchema,
+  PolicyTargetSchema,
+} from './policy-contracts';
+
+export const GeneratedEnforcementCapabilityStateValues = [
+  'supported',
+  'unavailable',
+  'degraded',
+  'dry-run',
+  'observe-only',
+  'manual-required',
+] as const;
+
+export const GeneratedEnforcementUnavailableReasonValues = [
+  'unsupported-platform',
+  'unsupported-action',
+  'missing-permission',
+  'missing-dependency',
+  'adapter-unavailable',
+  'adapter-error',
+  'manual-required',
+] as const;
+
+export const GeneratedEnforcementResultStatusValues = [
+  'would-enforce',
+  'actually-enforced',
+  'unavailable',
+  'failed',
+  'expired',
+  'rolled-back',
+  'superseded',
+  'no-op',
+] as const;
+
+export const GeneratedEnforcementRollbackStateValues = [
+  'not-required',
+  'available',
+  'requested',
+  'completed',
+  'unavailable',
+  'failed',
+] as const;
+
+export const GeneratedEnforcementTimerEventKindValues = [
+  'created',
+  'extended',
+  'expired',
+  'cancelled',
+  'restart-recovered',
+  'rollback-requested',
+  'rollback-completed',
+  'recovery-needed',
+  'unavailable',
+] as const;
+
+export const GeneratedEnforcementAuditEventKindValues = [
+  'attempted',
+  'succeeded',
+  'failed',
+  'rollback-requested',
+  'rollback-completed',
+  'expired',
+  'unavailable',
+  'cancelled',
+] as const;
+
+export type GeneratedEnforcementCapabilityState = (typeof GeneratedEnforcementCapabilityStateValues)[number];
+
+export type GeneratedEnforcementUnavailableReason = (typeof GeneratedEnforcementUnavailableReasonValues)[number];
+
+export type GeneratedEnforcementResultStatus = (typeof GeneratedEnforcementResultStatusValues)[number];
+
+export type GeneratedEnforcementRollbackState = (typeof GeneratedEnforcementRollbackStateValues)[number];
+
+export type GeneratedEnforcementTimerEventKind = (typeof GeneratedEnforcementTimerEventKindValues)[number];
+
+export type GeneratedEnforcementAuditEventKind = (typeof GeneratedEnforcementAuditEventKindValues)[number];
+
+export type GeneratedEnforcementCapabilityStatusLike = {
+  readonly schemaVersion: string;
+  readonly platform: string;
+  readonly adapterKind: string;
+  readonly capabilityState: GeneratedEnforcementCapabilityState;
+  readonly permissionState: string;
+  readonly dependencyState: string;
+  readonly supportedActions: ReadonlyArray<string>;
+  readonly degradedReason: string | null;
+  readonly lastCheckedAt: string;
+};
+
+export type GeneratedEnforcementUnavailableStatusLike = {
+  readonly schemaVersion: string;
+  readonly capability: GeneratedEnforcementCapabilityStatusLike;
+  readonly unavailableReason: GeneratedEnforcementUnavailableReason;
+  readonly retryable: boolean;
+  readonly checkedAt: string;
+};
+
+export type GeneratedEnforcementResultLike = {
+  readonly schemaVersion: string;
+  readonly resultId: string;
+  readonly actionId: string;
+  readonly status: GeneratedEnforcementResultStatus;
+  readonly adapterResultCode: string;
+  readonly startedAt: string;
+  readonly completedAt: string | null;
+  readonly rollbackToken: string | null;
+  readonly rollbackState: GeneratedEnforcementRollbackState;
+  readonly unavailableReason: string | null;
+  readonly unavailableStatus: GeneratedEnforcementUnavailableStatusLike | null;
+  readonly failedReason: string | null;
+  readonly nextCheckAt: string | null;
+  readonly capability: GeneratedEnforcementCapabilityStatusLike;
+};
+
+export type GeneratedEnforcementTimerEventLike = {
+  readonly timerEventKind: GeneratedEnforcementTimerEventKind;
+  readonly unavailableReason: GeneratedEnforcementUnavailableReason | null;
+};
+
+export type GeneratedEnforcementAuditEventLike = {
+  readonly auditEventKind: GeneratedEnforcementAuditEventKind;
+  readonly capability: GeneratedEnforcementCapabilityStatusLike;
+  readonly result: GeneratedEnforcementResultLike;
+  readonly unavailableStatus: GeneratedEnforcementUnavailableStatusLike | null;
+};
+
+export type GeneratedEnforcementActiveTimerStateLike = {
+  readonly action: {

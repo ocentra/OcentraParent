@@ -20,7 +20,7 @@ use ocentra_browser_core::{
 };
 
 #[test]
-fn browser_generated_helpers_remain_rust_owned_and_marked() {
+fn browser_generated_decision_helpers_remain_rust_owned_and_marked() {
     let generated = [
         (
             browser_hidden_analysis_loader_typescript(),
@@ -43,7 +43,7 @@ fn browser_generated_helpers_remain_rust_owned_and_marked() {
             "browserGamePolicyDecisionTemplate",
         ),
         (
-            browser_game_url_shape_evaluator_typescript(),
+            browser_game_url_shape_evaluator_typescript().to_string(),
             "browserGameUrlShapeParseResultTemplate",
         ),
         (
@@ -51,9 +51,25 @@ fn browser_generated_helpers_remain_rust_owned_and_marked() {
             "browserPolicyVisibleQuestionIdsTemplate",
         ),
         (
-            browser_url_intelligence_typescript(),
+            browser_url_intelligence_typescript().to_string(),
             "browserUrlShapeClassificationResultTemplate",
         ),
+    ];
+
+    for (source, marker) in generated {
+        assert!(source.starts_with("/* generated from crates/browser-core/src/"));
+        assert_eq!(
+            source
+                .matches(&format!("export function {marker}("))
+                .count(),
+            1
+        );
+    }
+}
+
+#[test]
+fn browser_generated_social_report_helpers_remain_rust_owned_and_marked() {
+    let generated = [
         (
             social_alert_report_local_outbox_bridge_typescript(),
             "buildSocialAlertReportLocalOutboxBridgeReadModel",

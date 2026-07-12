@@ -223,31 +223,29 @@ function normalizeGoldenCardLayout(value: unknown): PortalGoldenCardLayout {
   };
 }
 
-const PORTAL_FRAME_TARGET_RESETTERS: Record<
-  PortalFrameTargetValue,
-  (layout: PortalFrameLayout) => PortalFrameLayout
-> = {
-  [PortalFrameTuner.FrameTarget.Main]: (layout) => ({
-    ...layout,
-    content: { ...layout.content, main: DEFAULT_PORTAL_FRAME_LAYOUT.content.main },
-    main: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.main),
-  }),
-  [PortalFrameTuner.FrameTarget.SideBottom]: (layout) => ({
-    ...layout,
-    content: { ...layout.content, sideBottom: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideBottom },
-    sideBottom: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideBottom),
-  }),
-  [PortalFrameTuner.FrameTarget.SideTop]: (layout) => ({
-    ...layout,
-    content: { ...layout.content, sideTop: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideTop },
-    sideTop: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideTop),
-  }),
-  [PortalFrameTuner.FrameTarget.Side]: (layout) => ({
-    ...layout,
-    content: { ...layout.content, sideTop: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideTop },
-    sideTop: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideTop),
-  }),
-};
+const PORTAL_FRAME_TARGET_RESETTERS: Record<PortalFrameTargetValue, (layout: PortalFrameLayout) => PortalFrameLayout> =
+  {
+    [PortalFrameTuner.FrameTarget.Main]: (layout) => ({
+      ...layout,
+      content: { ...layout.content, main: DEFAULT_PORTAL_FRAME_LAYOUT.content.main },
+      main: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.main),
+    }),
+    [PortalFrameTuner.FrameTarget.SideBottom]: (layout) => ({
+      ...layout,
+      content: { ...layout.content, sideBottom: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideBottom },
+      sideBottom: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideBottom),
+    }),
+    [PortalFrameTuner.FrameTarget.SideTop]: (layout) => ({
+      ...layout,
+      content: { ...layout.content, sideTop: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideTop },
+      sideTop: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideTop),
+    }),
+    [PortalFrameTuner.FrameTarget.Side]: (layout) => ({
+      ...layout,
+      content: { ...layout.content, sideTop: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideTop },
+      sideTop: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideTop),
+    }),
+  };
 
 function normalizeCarouselLayout(value: unknown): PortalCarouselLayout {
   const fallback = DEFAULT_PORTAL_FRAME_LAYOUT.carousel;

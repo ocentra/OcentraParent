@@ -1,0 +1,25 @@
+import styles from './portal-background-tuner-controls-panels.module.css';
+
+export const PortalBackgroundTunerPanelClasses = {
+  actions: styles['actions'],
+  button: styles['button'],
+  buttonActive: `${styles['button']} ${styles['buttonActive']}`,
+  colorInput: styles['colorInput'],
+  colorLabel: styles['colorLabel'],
+  column: styles['column'],
+  columnTitle: styles['columnTitle'],
+  editor: styles['editor'],
+  grid: styles['grid'],
+  header: styles['header'],
+  headerTitle: styles['headerTitle'],
+  json: styles['json'],
+  jsonActions: styles['jsonActions'],
+  jsonError: styles['jsonError'],
+  jsonStatus: styles['jsonStatus'],
+  jsonSummary: styles['jsonSummary'],
+  jsonTextarea: styles['jsonTextarea'],
+  rangeInput: styles['rangeInput'],
+  rangeLabel: styles['rangeLabel'],
+  rangeValue: styles['rangeValue'],
+  status: styles['status'],
+} as const;

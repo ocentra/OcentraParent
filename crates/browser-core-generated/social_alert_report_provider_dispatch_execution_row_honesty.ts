@@ -2,7 +2,9 @@
 
 import type { SocialAlertReportProviderDispatchExecutionRow } from './social_alert_report_provider_dispatch_execution';
 
-export function socialAlertReportProviderDispatchExecutionRowIsHonest(row: SocialAlertReportProviderDispatchExecutionRow): boolean {
+export function socialAlertReportProviderDispatchExecutionRowIsHonest(
+  row: SocialAlertReportProviderDispatchExecutionRow
+): boolean {
   if (row.dispatchExecutionState === 'local-dispatch-packet-ready') {
     return dispatchPacketReadyRowIsHonest(row);
   }

@@ -1,6 +1,11 @@
 /* generated from crates/logging-core/src/parent_log_runtime.rs */
 
-import { parseGeneratedBoolean, parseGeneratedBridgeMode, parseGeneratedLevel, parseGeneratedList } from './parent-log-runtime-parsing';
+import {
+  parseGeneratedBoolean,
+  parseGeneratedBridgeMode,
+  parseGeneratedLevel,
+  parseGeneratedList,
+} from './parent-log-runtime-parsing';
 
 export function buildGeneratedParentLogConfig(
   env: NodeJS.ProcessEnv | Record<string, string | undefined>,
@@ -22,7 +27,9 @@ export function buildGeneratedParentLogConfig(
     nodeEnv,
     testMode,
     debugSources: parseGeneratedList(env['OCENTRA_PARENT_DEBUG_SOURCES']),
-    debugFiles: parseGeneratedList(env['OCENTRA_PARENT_DEBUG_FILES']).map((entry) => entry.replace(/\\/g, '/').toLowerCase()),
+    debugFiles: parseGeneratedList(env['OCENTRA_PARENT_DEBUG_FILES']).map((entry) =>
+      entry.replace(/\\/g, '/').toLowerCase()
+    ),
     debugRuns: parseGeneratedList(env['OCENTRA_PARENT_DEBUG_RUNS']),
     bridgeMode,
     bridgeUrl:

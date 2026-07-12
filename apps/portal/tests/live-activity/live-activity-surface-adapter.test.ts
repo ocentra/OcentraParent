@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ParentRoute } from '../../generated/parent-ui-bridge';
 import { shouldRenderNetworkEvidenceDrawerRoute } from '../../src/NetworkEvidenceDrawerRoutePanel';
-import {
-  expectLanSourceMatrixProjection,
-  expectNoLanSourceMatrixProjection,
-} from './lan-source-matrix-test-helpers';
+import { expectLanSourceMatrixProjection, expectNoLanSourceMatrixProjection } from './lan-source-matrix-test-helpers';
 
 describe('portal live activity surface adapter state', () => {
   registerNetworkEvidenceDrawerRouteTests();

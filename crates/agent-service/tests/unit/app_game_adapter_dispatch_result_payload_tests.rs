@@ -21,18 +21,19 @@ use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::test_invariants::{require_ok, require_some};
 
+use super::app_game_adapter_dispatch_result_fields::required_string;
 use super::app_game_adapter_dispatch_result_payload::{
-    app_game_adapter_dispatch_execution_evidence_from_payload,
-    app_game_adapter_dispatch_result_read_model_with_execution,
-    AppGameAdapterDispatchExecutionEvidence,
+    app_game_adapter_dispatch_result_read_model, AppGameAdapterDispatchExecutionEvidence,
+    DispatchExecutionStatusText, StaticText,
 };
+use super::app_game_adapter_execution_readiness_payload::GeneratedAtText;
 
 const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_GENERATED_AT: &str = "2026-06-08T10:44:00Z";
 
 #[test]
 fn app_game_adapter_dispatch_result_keeps_only_scoped_timer_command_accepted() {
     let read_model = app_game_adapter_dispatch_result_read_model_with_execution(
-        APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_GENERATED_AT,
+        GeneratedAtText(APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_GENERATED_AT.to_string()),
         None,
     );
 
@@ -82,13 +83,13 @@ fn app_game_adapter_dispatch_result_parses_enforcement_audit_payload_evidence() 
     );
 
     let evidence = require_ok(
-        app_game_adapter_dispatch_execution_evidence_from_payload(&payload),
+        enforcement_audit_evidence(&payload),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
 
     assert_eq!(evidence.result_id, constants::enforcement::TEST_RESULT_ID);
     assert_eq!(
-        evidence.status_text,
+        evidence.status_text.0,
         constants::enforcement::RESULT_ACTUALLY_ENFORCED
     );
     assert_eq!(
@@ -105,12 +106,14 @@ fn app_game_adapter_dispatch_result_parses_enforcement_audit_payload_evidence() 
 fn app_game_adapter_dispatch_result_attaches_scoped_execution_evidence_only() {
     let evidence = AppGameAdapterDispatchExecutionEvidence {
         result_id: constants::enforcement::TEST_RESULT_ID.to_string(),
-        status_text: constants::enforcement::RESULT_ACTUALLY_ENFORCED.to_string(),
+        status_text: DispatchExecutionStatusText(
+            constants::enforcement::RESULT_ACTUALLY_ENFORCED.to_string(),
+        ),
         adapter_result_code: constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string(),
         audit_event_id: constants::enforcement::TEST_AUDIT_EVENT_ID.to_string(),
     };
     let read_model = app_game_adapter_dispatch_result_read_model_with_execution(
-        APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_GENERATED_AT,
+        GeneratedAtText(APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_GENERATED_AT.to_string()),
         Some(&evidence),
     );
 
@@ -148,6 +151,32 @@ fn app_game_adapter_dispatch_result_attaches_scoped_execution_evidence_only() {
     assert!(accepted.adapter_dispatch_executed_claimed);
     assert!(accepted.platform_enforcement_claimed);
     assert_blocked_rows(&read_model.rows);
+}
+
+fn app_game_adapter_dispatch_result_read_model_with_execution(
+    generated_at: GeneratedAtText,
+    execution_evidence: Option<&AppGameAdapterDispatchExecutionEvidence>,
+) -> ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel{
+    app_game_adapter_dispatch_result_read_model(generated_at, execution_evidence)
+}
+
+fn enforcement_audit_evidence(
+    payload: &LogFields,
+) -> Result<AppGameAdapterDispatchExecutionEvidence, StaticText> {
+    Ok(AppGameAdapterDispatchExecutionEvidence {
+        result_id: required_string(payload, StaticText(constants::field::ENFORCEMENT_RESULT_ID))?.0,
+        status_text: required_string(payload, StaticText(constants::field::ENFORCEMENT_STATUS))?,
+        adapter_result_code: required_string(
+            payload,
+            StaticText(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+        )?
+        .0,
+        audit_event_id: required_string(
+            payload,
+            StaticText(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
+        )?
+        .0,
+    })
 }
 
 fn assert_scoped_accepted_row(rows: &[AppGameAdapterDispatchResultRow]) {

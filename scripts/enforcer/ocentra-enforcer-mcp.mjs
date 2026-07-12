@@ -20,7 +20,9 @@ function resolveMcpServer() {
     const fullPath = path.join(candidate, 'mcp', 'rust-rules-mcp.mjs');
     if (fs.existsSync(fullPath)) return fullPath;
   }
-  const searched = candidateRoots().map((entry) => path.join(entry, 'mcp', 'rust-rules-mcp.mjs')).join('\n  ');
+  const searched = candidateRoots()
+    .map((entry) => path.join(entry, 'mcp', 'rust-rules-mcp.mjs'))
+    .join('\n  ');
   throw new Error(`Could not find Ocentra Enforcer MCP server. Searched:\n  ${searched}`);
 }
 

@@ -8,7 +8,8 @@ export function enabledConditionsForGenerated(
 ): BrowserControlFullCatalogRuleGenerated[] {
   return [
     ruleGenerated('A family, child, or device target must be selected before writing policy intent.'),
-    ruleGenerated(`Capability state must allow ${effectStatusForSectionGenerated(sectionTitle, sourceText)} presentation.`),
+    ruleGenerated(
+      `Capability state must allow ${effectStatusForSectionGenerated(sectionTitle, sourceText)} presentation.`
+    ),
   ];
 }
-

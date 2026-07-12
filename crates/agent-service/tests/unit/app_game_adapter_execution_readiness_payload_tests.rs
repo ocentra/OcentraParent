@@ -1,6 +1,8 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
+use std::primitive::str as TestStr;
+
 use crate::test_invariants::{require_json_decode, require_log_string_field, require_some};
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     AppGameAdapterExecutionReadinessReadModel, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
@@ -18,13 +20,16 @@ use ocentra_parent_agent_protocol::constants::{
 
 use super::app_game_adapter_execution_readiness_payload::{
     app_game_adapter_execution_readiness_payload, app_game_adapter_execution_readiness_read_model,
+    GeneratedAtText,
 };
 
 const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 
 #[test]
 fn app_game_adapter_execution_readiness_payload_reports_supported_proof_without_claim_upgrades() {
-    let read_model = app_game_adapter_execution_readiness_read_model(APP_GAME_TEST_TIMESTAMP);
+    let read_model = app_game_adapter_execution_readiness_read_model(GeneratedAtText(
+        APP_GAME_TEST_TIMESTAMP.to_string(),
+    ));
     let payload = app_game_adapter_execution_readiness_payload(&read_model);
     let decoded = require_json_decode::<AppGameAdapterExecutionReadinessReadModel>(
         string_payload(

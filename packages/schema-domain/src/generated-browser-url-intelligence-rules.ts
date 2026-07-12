@@ -54,11 +54,13 @@ const VideoPlatforms = new Set(['youtube', 'youtube-shorts', 'vimeo']);
 const VideoKinds = new Set<BrowserUrlShapeTargetKind>(['video', 'short-video']);
 
 export function browserUrlShapeClassificationResultIsConsistent(value: BrowserUrlShapeClassificationCandidate) {
-  return !claimsSemanticsOrPolicy(value) &&
+  return (
+    !claimsSemanticsOrPolicy(value) &&
     value.exactUrlEvidence === (value.sourceKind === 'managed-browser-exact-url') &&
     (value.sourceKind === 'managed-browser-exact-url'
       ? managedExactUrlShapeIsConsistent(value)
-      : nonExactUrlShapeIsConsistent(value));
+      : nonExactUrlShapeIsConsistent(value))
+  );
 }
 
 export function browserUrlIntelligenceMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemoryHitCandidate) {
@@ -70,26 +72,32 @@ function claimsSemanticsOrPolicy(value: BrowserUrlShapeClassificationCandidate) 
 }
 
 function managedExactUrlShapeIsConsistent(value: BrowserUrlShapeClassificationCandidate) {
-  return value.url !== null &&
+  return (
+    value.url !== null &&
     value.domain !== null &&
     (value.targetKind !== 'unknown' || value.confidence !== 'high') &&
-    targetSpecificIdsAreConsistent(value);
+    targetSpecificIdsAreConsistent(value)
+  );
 }
 
 function nonExactUrlShapeIsConsistent(value: BrowserUrlShapeClassificationCandidate) {
-  return value.targetKind === 'unknown' &&
+  return (
+    value.targetKind === 'unknown' &&
     value.platform === 'unknown' &&
     value.confidence !== 'high' &&
     allPlatformIdsMissing(value) &&
-    value.reasonCodes.includes(nonExactEvidenceReason(value.sourceKind));
+    value.reasonCodes.includes(nonExactEvidenceReason(value.sourceKind))
+  );
 }
 
 function allPlatformIdsMissing(value: BrowserUrlShapeClassificationCandidate) {
-  return value.platformIds.videoId === null &&
+  return (
+    value.platformIds.videoId === null &&
     value.platformIds.channelId === null &&
     value.platformIds.playlistId === null &&
     value.platformIds.postId === null &&
-    value.platformIds.query === null;
+    value.platformIds.query === null
+  );
 }
 
 function targetSpecificIdsAreConsistent(value: BrowserUrlShapeClassificationCandidate) {
@@ -120,14 +128,16 @@ function nonExactEvidenceReason(value: BrowserUrlShapeSourceKind) {
 }
 
 function missedMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemoryHitCandidate) {
-  return value.decisionKind === 'no-hit' &&
+  return (
+    value.decisionKind === 'no-hit' &&
     value.sourceEvidenceIds.length === 0 &&
     value.analysisRef === null &&
     value.parentActionRef === null &&
     value.policyVersionRef === null &&
     value.expiresAt === null &&
     value.staleReason === null &&
-    !value.canDrivePolicyInput;
+    !value.canDrivePolicyInput
+  );
 }
 
 function staleMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemoryHitCandidate) {
@@ -139,12 +149,14 @@ function manualRequiredMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemory
 }
 
 function activeMemoryHitIsConsistent(value: BrowserUrlIntelligenceMemoryHitCandidate) {
-  return value.sourceEvidenceIds.length > 0 &&
+  return (
+    value.sourceEvidenceIds.length > 0 &&
     value.policyVersionRef !== null &&
     value.expiresAt !== null &&
     value.staleReason === null &&
     value.canDrivePolicyInput &&
-    browserUrlIntelligenceMemoryHitHasDecisionSource(value);
+    browserUrlIntelligenceMemoryHitHasDecisionSource(value)
+  );
 }
 
 function browserUrlIntelligenceMemoryHitHasDecisionSource(value: BrowserUrlIntelligenceMemoryHitCandidate) {

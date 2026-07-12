@@ -18,7 +18,6 @@ import type { PortalLiveActivityState } from './live-activity-state';
 import { resolveSnapshotLiveActivityState } from './route-live-activity-state';
 import type { PortalRuntimeState } from './portal-state';
 import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout-types';
-import { frameContentTarget } from './portal-frame-layout-state';
 import { usePortalFrameLayout } from './use-portal-frame-layout';
 
 export type PortalAppBehaviorProps = {
@@ -68,7 +67,9 @@ export function usePortalAppBehavior({
     [frameLayout, isDevProtocolRoute]
   );
   const routeLiveActivity = resolveSnapshotLiveActivityState(state.routeSnapshot?.liveActivity ?? null);
-  const latestLanPairingScanEventId = decodeSnapshotEventId(routeLiveActivity?.lanPairingBrowserDiscoveryEvent?.eventId);
+  const latestLanPairingScanEventId = decodeSnapshotEventId(
+    routeLiveActivity?.lanPairingBrowserDiscoveryEvent?.eventId
+  );
   const hasNetworkFlowReadModelEvent =
     routeLiveActivity?.networkFlowReadModel !== null && routeLiveActivity?.networkFlowReadModel !== undefined;
   const openAuthDialog = (): void => setAuthOpen(true);

@@ -1,7 +1,11 @@
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanDiscoveryEvidenceConfidence, LanDiscoveryEvidenceSource,
 };
+
+#[path = "name_evidence/labels.rs"]
+mod labels;
+#[path = "name_evidence/validation.rs"]
+mod validation;
 
 pub const MAX_NAME_EVIDENCE_BYTES: usize = 255;
 
@@ -18,24 +22,11 @@ pub struct LanNeighborNameEvidence {
 
 impl LanNeighborNameEvidence {
     pub fn source_label(&self) -> &'static str {
-        match &self.source {
-            LanDiscoveryEvidenceSource::DnsCache => {
-                constants::lan_pairing::LAN_SCAN_SOURCE_DNS_CACHE
-            }
-            LanDiscoveryEvidenceSource::Netbios => constants::lan_pairing::LAN_SCAN_SOURCE_NETBIOS,
-            LanDiscoveryEvidenceSource::Llmnr => constants::lan_pairing::LAN_SCAN_SOURCE_LLMNR,
-            _ => "unsupported-name-source",
-        }
+        labels::source_label(&self.source)
     }
 
     pub fn confidence_label(&self) -> &'static str {
-        match &self.confidence {
-            LanDiscoveryEvidenceConfidence::Weak => "weak",
-            LanDiscoveryEvidenceConfidence::Confirmed => "confirmed",
-            LanDiscoveryEvidenceConfidence::Strong => "strong",
-            LanDiscoveryEvidenceConfidence::ManualRequired => "manual-required",
-            LanDiscoveryEvidenceConfidence::Rejected => "rejected",
-        }
+        labels::confidence_label(&self.confidence)
     }
 }
 
@@ -92,19 +83,7 @@ pub fn llmnr_name_evidence(
 }
 
 pub fn normalize_name_evidence_value(value: &str) -> Option<String> {
-    let candidate = value.trim();
-    let candidate = candidate.strip_suffix('.').unwrap_or(candidate);
-    if candidate.is_empty()
-        || candidate == constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME
-        || candidate.len() > MAX_NAME_EVIDENCE_BYTES
-        || !candidate.is_ascii()
-    {
-        return None;
-    }
-    if candidate.split('.').any(invalid_hostname_label) {
-        return None;
-    }
-    Some(candidate.to_string())
+    validation::normalize_name_evidence_value(value)
 }
 
 pub fn name_evidence(
@@ -131,13 +110,7 @@ pub fn name_evidence(
 }
 
 pub fn invalid_hostname_label(label: &str) -> bool {
-    label.is_empty()
-        || label.len() > 63
-        || label.starts_with('-')
-        || label.ends_with('-')
-        || !label
-            .chars()
-            .all(|character| character.is_ascii_alphanumeric() || character == '-')
+    validation::invalid_hostname_label(label)
 }
 
 pub fn trim_optional_text(value: &str) -> Option<String> {

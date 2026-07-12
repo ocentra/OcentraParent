@@ -1,5 +1,5 @@
 use std::fs::remove_file;
-use std::path::PathBuf as TestPathBuf;
+use std::path::{Path, PathBuf as TestPathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use chrono::SecondsFormat;
@@ -25,7 +25,7 @@ fn persistent_runtime_saves_and_loads_scan_history_sidecar() {
     save_scan_history(&runtime, &devices, Some(sample_scan_metadata()));
 
     assert_eq!(load_scan_history(&runtime), devices);
-    assert!(scan_history_path_for_registry(&registry_path).exists());
+    assert!(scan_history_path_for_registry(registry_path.as_path().into()).exists());
 
     cleanup_test_files(&registry_path);
 }
@@ -106,7 +106,7 @@ fn legacy_snapshot_without_metadata_still_loads() {
     let registry_path = temp_registry_path();
     cleanup_test_files(&registry_path);
     let runtime = LanPairingRuntime::persistent_json(&registry_path);
-    let path = scan_history_path_for_registry(&registry_path);
+    let path = scan_history_path_for_registry(registry_path.as_path().into());
     let legacy_json = serde_json::json!({
         "schemaVersion": 1,
         "updatedAt": "2026-06-24T02:00:00.000Z",
@@ -143,7 +143,7 @@ fn temp_registry_path() -> TestPathBuf {
 
 fn cleanup_test_files(registry_path: &Path) {
     let _ = remove_file(registry_path);
-    let _ = remove_file(scan_history_path_for_registry(registry_path));
+    let _ = remove_file(scan_history_path_for_registry(registry_path.into()));
 }
 
 fn sample_network_device() -> LanNetworkInventoryDevice {

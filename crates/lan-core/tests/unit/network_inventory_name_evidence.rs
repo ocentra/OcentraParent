@@ -7,42 +7,28 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanDiscoveryEvidenceConfidence, LanDiscoveryEvidenceSource,
 };
 
-fn lan_plan_fixture(name: &str) -> String {
-    fs::read_to_string(format!(
-        "{}/tests/fixtures/lan-plan/{}",
-        env!("CARGO_MANIFEST_DIR"),
-        name
-    ))
-    .value_or_unreachable()
-}
-
-fn fixture_name_evidence(
-    source: &str,
-    value: &str,
-    observed_at: &str,
-    network_interface: Option<&str>,
-) -> Option<LanNeighborNameEvidence> {
-    match source {
-        "reverse-dns" => reverse_dns_name_evidence(value, observed_at, network_interface),
-        "netbios" => netbios_name_evidence(value, observed_at, network_interface),
-        "llmnr" => llmnr_name_evidence(value, observed_at, network_interface),
-        _ => None,
-    }
-}
+#[macro_use]
+#[path = "network_inventory_name_evidence_fixture_support.rs"]
+mod fixture_support;
 
 #[test]
 fn duplicate_name_fixture_keeps_name_only_evidence_weak_and_time_scoped() {
-    let evidences = lan_plan_fixture("name_evidence_duplicate_names.txt")
-        .lines()
-        .filter_map(|line| {
-            let mut columns = line.split('|');
-            let source = columns.next()?;
-            let value = columns.next()?;
-            let observed_at = columns.next()?;
-            let network_interface = columns.next();
-            fixture_name_evidence(source, value, observed_at, network_interface)
-        })
-        .collect::<Vec<_>>();
+    let evidences = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/{}",
+        env!("CARGO_MANIFEST_DIR"),
+        "name_evidence_duplicate_names.txt"
+    ))
+    .value_or_unreachable()
+    .lines()
+    .filter_map(|line| {
+        let mut columns = line.split('|');
+        let source = columns.next()?;
+        let value = columns.next()?;
+        let observed_at = columns.next()?;
+        let network_interface = columns.next();
+        weak_name_evidence_from_source!(source, value, observed_at, network_interface)
+    })
+    .collect::<Vec<_>>();
 
     assert_eq!(evidences.len(), 6);
 
@@ -64,13 +50,23 @@ fn duplicate_name_fixture_keeps_name_only_evidence_weak_and_time_scoped() {
 
 #[test]
 fn long_name_fixture_is_rejected_for_all_supported_weak_name_sources() {
-    let long_name = lan_plan_fixture("name_evidence_long_names.txt");
+    let long_name = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/{}",
+        env!("CARGO_MANIFEST_DIR"),
+        "name_evidence_long_names.txt"
+    ))
+    .value_or_unreachable();
     let long_name = long_name.trim_end_matches(['\r', '\n']);
 
     for source in ["reverse-dns", "netbios", "llmnr"] {
         assert!(
-            fixture_name_evidence(source, long_name, "2026-06-26T00:00:00Z", Some("Wi-Fi"))
-                .is_none(),
+            weak_name_evidence_from_source!(
+                source,
+                long_name,
+                "2026-06-26T00:00:00Z",
+                Some("Wi-Fi")
+            )
+            .is_none(),
             "{source} should reject oversized weak name evidence"
         );
     }
@@ -219,13 +215,46 @@ fn name_evidence_enforces_hostname_label_length_bosndaries() {
     let valid_label = "a".repeat(63);
     let invalid_label = "a".repeat(64);
 
-    assert!(netbios_name_evidence(&valid_label, "2026-06-26T00:00:00Z", None).is_some());
-    assert!(llmnr_name_evidence(
-        &format!("{valid_label}.local"),
-        "2026-06-26T00:00:00Z",
-        Some("Wi-Fi"),
-    )
-    .is_some());
+    let netbios = netbios_name_evidence(&valid_label, "2026-06-26T00:00:00Z", None);
+    assert_eq!(
+        netbios.as_ref().map(|evidence| evidence.source.clone()),
+        Some(LanDiscoveryEvidenceSource::Netbios)
+    );
+    assert_eq!(
+        netbios.as_ref().map(|evidence| evidence.confidence.clone()),
+        Some(LanDiscoveryEvidenceConfidence::Weak)
+    );
+    assert_eq!(
+        netbios.as_ref().map(|evidence| evidence.value.as_str()),
+        Some(valid_label.as_str())
+    );
+    assert_eq!(
+        netbios
+            .as_ref()
+            .map(|evidence| evidence.normalized_value.as_str()),
+        Some(valid_label.as_str())
+    );
+
+    let expected_llmnr_value = format!("{valid_label}.local");
+    let llmnr = llmnr_name_evidence(&expected_llmnr_value, "2026-06-26T00:00:00Z", Some("Wi-Fi"));
+    assert_eq!(
+        llmnr.as_ref().map(|evidence| evidence.source.clone()),
+        Some(LanDiscoveryEvidenceSource::Llmnr)
+    );
+    assert_eq!(
+        llmnr.as_ref().map(|evidence| evidence.confidence.clone()),
+        Some(LanDiscoveryEvidenceConfidence::Weak)
+    );
+    assert_eq!(
+        llmnr.as_ref().map(|evidence| evidence.value.as_str()),
+        Some(expected_llmnr_value.as_str())
+    );
+    assert_eq!(
+        llmnr
+            .as_ref()
+            .map(|evidence| evidence.normalized_value.as_str()),
+        Some(expected_llmnr_value.as_str())
+    );
     assert!(netbios_name_evidence(&invalid_label, "2026-06-26T00:00:00Z", None).is_none());
     assert!(reverse_dns_name_evidence(
         &format!("{invalid_label}.local"),

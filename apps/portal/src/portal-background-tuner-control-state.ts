@@ -1,5 +1,10 @@
 import { useRef, useState } from 'react';
-import { PortalClipboard, PortalTheme, PortalTiming, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
+import {
+  PortalClipboard,
+  PortalTheme,
+  PortalTiming,
+  type PortalThemeValue,
+} from '@ocentra-parent/portal-domain/contracts';
 import {
   PortalDevTextToken,
   resolvePortalDevText,

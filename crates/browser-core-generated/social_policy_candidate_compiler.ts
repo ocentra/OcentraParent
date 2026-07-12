@@ -41,10 +41,7 @@ export const SocialPolicyDecisionTemplates = {
   },
 } as const;
 
-export type SocialPolicyCompilerMode =
-  | 'contract-only'
-  | 'manual-required'
-  | 'unavailable';
+export type SocialPolicyCompilerMode = 'contract-only' | 'manual-required' | 'unavailable';
 
 export type SocialPolicyDecisionTemplate =
   (typeof SocialPolicyDecisionTemplates)[keyof typeof SocialPolicyDecisionTemplates];
@@ -61,15 +58,11 @@ type SocialParentPolicyCompileRequest = {
   readonly parentApprovalRequired: boolean;
 };
 
-export function socialPolicyDecisionTemplate(
-  mode: SocialPolicyCompilerMode
-): SocialPolicyDecisionTemplate {
+export function socialPolicyDecisionTemplate(mode: SocialPolicyCompilerMode): SocialPolicyDecisionTemplate {
   return SocialPolicyDecisionTemplates[mode];
 }
 
-export function buildGeneratedSocialPolicyDecisionCandidate(
-  request: SocialParentPolicyCompileRequest
-) {
+export function buildGeneratedSocialPolicyDecisionCandidate(request: SocialParentPolicyCompileRequest) {
   const input = request.input;
   const decisionTemplate = socialPolicyDecisionTemplate(input.compilerMode);
 

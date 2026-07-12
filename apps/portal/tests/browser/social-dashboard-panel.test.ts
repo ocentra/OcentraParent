@@ -8,8 +8,7 @@ function samplePanel(): ParentBrowserPanelSnapshot {
   return {
     eyebrow: 'Browser route',
     title: 'Social dashboard',
-    body:
-      'Schema-backed social rows show parent-review and manual-required status only; runtime fetch, connector, native app, policy execution, and enforcement remain unclaimed.',
+    body: 'Schema-backed social rows show parent-review and manual-required status only; runtime fetch, connector, native app, policy execution, and enforcement remain unclaimed.',
     summary: '2 social dashboard rows',
     summaryDetails: [
       { label: 'Rows returned', value: '2' },

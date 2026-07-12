@@ -8,9 +8,7 @@ import {
   type GeneratedAppRiskDetectionCandidate,
 } from './generated-app-riskdetection-contracts';
 
-export function appRiskDetectionCandidateIsHonestGenerated(
-  candidate: GeneratedAppRiskDetectionCandidate
-): boolean {
+export function appRiskDetectionCandidateIsHonestGenerated(candidate: GeneratedAppRiskDetectionCandidate): boolean {
   return (
     appRiskDetectionCandidateCitesEvidenceGenerated(candidate) &&
     appRiskDetectionCandidateStateMatchesSourceGenerated(candidate) &&
@@ -22,20 +20,15 @@ export function appRiskDetectionCandidateIsHonestGenerated(
   );
 }
 
-function appRiskDetectionCandidateCitesEvidenceGenerated(
-  candidate: GeneratedAppRiskDetectionCandidate
-): boolean {
+function appRiskDetectionCandidateCitesEvidenceGenerated(candidate: GeneratedAppRiskDetectionCandidate): boolean {
   return candidate.evidenceReferences.length > 0 && candidate.sourceRefs.length > 0;
 }
 
-function appRiskDetectionCandidateStateMatchesSourceGenerated(
-  candidate: GeneratedAppRiskDetectionCandidate
-): boolean {
+function appRiskDetectionCandidateStateMatchesSourceGenerated(candidate: GeneratedAppRiskDetectionCandidate): boolean {
   switch (candidate.sourceKind) {
     case GeneratedAppRiskDetectionSourceKind.KnownCatalog:
       return (
-        candidate.candidateState === GeneratedAppRiskDetectionCandidateState.CatalogMatch &&
-        candidate.confidence >= 0.7
+        candidate.candidateState === GeneratedAppRiskDetectionCandidateState.CatalogMatch && candidate.confidence >= 0.7
       );
     case GeneratedAppRiskDetectionSourceKind.ExecutableName:
     case GeneratedAppRiskDetectionSourceKind.PublisherMetadata:
@@ -54,19 +47,14 @@ function appRiskDetectionCandidateStateMatchesSourceGenerated(
 function appRiskDetectionUnknownPublisherLowersConfidenceGenerated(
   candidate: GeneratedAppRiskDetectionCandidate
 ): boolean {
-  if (
-    candidate.publisherTrustState === 'knownPublisher' ||
-    candidate.publisherTrustState === 'parentTrusted'
-  ) {
+  if (candidate.publisherTrustState === 'knownPublisher' || candidate.publisherTrustState === 'parentTrusted') {
     return true;
   }
 
   return candidate.confidence <= 0.5;
 }
 
-function appRiskDetectionAiCandidateCitesDigestGenerated(
-  candidate: GeneratedAppRiskDetectionCandidate
-): boolean {
+function appRiskDetectionAiCandidateCitesDigestGenerated(candidate: GeneratedAppRiskDetectionCandidate): boolean {
   if (candidate.sourceKind !== GeneratedAppRiskDetectionSourceKind.LocalAiDigest) {
     return true;
   }
@@ -77,9 +65,7 @@ function appRiskDetectionAiCandidateCitesDigestGenerated(
   );
 }
 
-function appRiskDetectionParentOverrideIsDisplayOnlyGenerated(
-  candidate: GeneratedAppRiskDetectionCandidate
-): boolean {
+function appRiskDetectionParentOverrideIsDisplayOnlyGenerated(candidate: GeneratedAppRiskDetectionCandidate): boolean {
   if (candidate.sourceKind !== GeneratedAppRiskDetectionSourceKind.ParentOverride) {
     return true;
   }
@@ -99,7 +85,6 @@ function appRiskDetectionSurfaceDisclosureMatchesEvidenceGenerated(
   return (
     candidate.surfaceDisclosure.sourceEvidenceCount === candidate.evidenceReferences.length &&
     candidate.surfaceDisclosure.confidencePercent === Math.round(candidate.confidence * 100) &&
-    candidate.surfaceDisclosure.noContentClaimState ===
-      GeneratedAppRiskDetectionNoContentClaimState.NoContentCaptured
+    candidate.surfaceDisclosure.noContentClaimState === GeneratedAppRiskDetectionNoContentClaimState.NoContentCaptured
   );
 }

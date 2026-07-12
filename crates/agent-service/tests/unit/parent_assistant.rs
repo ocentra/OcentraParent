@@ -111,7 +111,7 @@ mod clippy_linkage {
         let _ = local_ai_runtime_config::LocalAiRuntimeConfigSnapshot::unconfigured;
         let _ = local_ai_runtime_config_environment::runtime_config_from_environment;
         let _ = local_ai_runtime_config_path::ConfiguredLocalPath::from_path;
-        let _ = local_ai_runtime_config_values::is_safe_local_ai_model_id;
+        let _ = local_ai_runtime_config_values::validation::is_safe_local_ai_model_id;
         let _ = local_ai_runtime_configured_status::configured_local_ai_runtime_status;
         let _ = local_ai_runtime_distribution::select_llama_runtime_distribution;
         let _ = local_ai_runtime_distribution_assets::asset_name;

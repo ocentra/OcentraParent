@@ -27,15 +27,18 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
-use super::enforcement_integrity_runtime_audit_read_model::v08_enforcement_integrity_runtime_audit_read_model;
+use super::enforcement_integrity_runtime_audit_read_model::{
+    v08_enforcement_integrity_runtime_audit_read_model, GeneratedAtTextRef,
+};
 use crate::test_invariants::require_some;
 
 type TestResult = Result<(), TestString>;
 
 #[test]
 fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
-    let read_model =
-        v08_enforcement_integrity_runtime_audit_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_enforcement_integrity_runtime_audit_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
     let result_counts = count_results(&read_model.entries);
     let integrity_counts = count_integrity_states(&read_model.entries);
 
@@ -101,8 +104,9 @@ fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
 
 #[test]
 fn enforcement_integrity_runtime_audit_preserves_no_claim_flags() {
-    let read_model =
-        v08_enforcement_integrity_runtime_audit_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_enforcement_integrity_runtime_audit_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
 
     assert!(read_model
         .entries

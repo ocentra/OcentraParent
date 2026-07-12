@@ -1,13 +1,17 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanBrowserAddDeviceReadModel, LanDiscoveryEventHistory, LanDiscoveryEventHistoryState,
-    LanDiscoveryEventKind, LanDiscoveryEventRow,
+    LanDiscoveryEventRow,
 };
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 use serde_json::Value;
 
+#[path = "lan_runtime_stream_payload/labels.rs"]
+mod labels;
+
 use crate::{fields::fields_from_pairs, json_contract};
+use labels::{discovery_event_kind_label, discovery_history_state_label};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub(crate) struct LanRuntimeServiceStreamReport {
@@ -62,7 +66,7 @@ pub(crate) fn stream_lan_runtime_event_chain_for_history(
         observed_events: history.rows.len(),
         streamed_events: entries.len(),
         failed_events: 0,
-        event_history_state: discovery_history_state_label(&history.state),
+        event_history_state: discovery_history_state_label(&history.state).0,
         manual_required_state: matches!(
             history.state,
             LanDiscoveryEventHistoryState::ManualRequired
@@ -111,30 +115,16 @@ pub(crate) fn lan_runtime_event_chain_stream_payload(
         ),
         (
             constants::field::LAN_RUNTIME_EVENT_CHAIN_STREAM,
-            LogFieldValue::String(json_contract::serialize_json_string(&report.entries)),
+            LogFieldValue::String(json_contract::serialize_json_string(&report.entries).0),
         ),
     ])
 }
 
 fn stream_entry_from_row(row: &LanDiscoveryEventRow) -> LanRuntimeServiceStreamEntry {
     LanRuntimeServiceStreamEntry {
-        stream_type: discovery_event_kind_label(&row.event_kind),
+        stream_type: discovery_event_kind_label(&row.event_kind).0,
         event_ref: row.event_id.clone(),
         payload: json_contract::serialize_json_value(row),
-    }
-}
-
-fn discovery_event_kind_label(kind: &LanDiscoveryEventKind) -> String {
-    match json_contract::serialize_json_value(kind) {
-        Value::String(label) => label,
-        _ => constants::value::EMPTY.to_string(),
-    }
-}
-
-fn discovery_history_state_label(state: &LanDiscoveryEventHistoryState) -> String {
-    match json_contract::serialize_json_value(state) {
-        Value::String(label) => label,
-        _ => constants::value::EMPTY.to_string(),
     }
 }
 

@@ -6,13 +6,9 @@ const RequiredSocialAppliedScheduleNonClaims = [
   'no-enforcement',
 ] as const;
 
-export function socialAppliedScheduleTimeBudgetHasRequiredNonClaims(
-  nonClaims: ReadonlyArray<string>
-): boolean {
+export function socialAppliedScheduleTimeBudgetHasRequiredNonClaims(nonClaims: ReadonlyArray<string>): boolean {
   const values = new Set(nonClaims);
-  return RequiredSocialAppliedScheduleNonClaims.every((requiredNonClaim) =>
-    values.has(requiredNonClaim)
-  );
+  return RequiredSocialAppliedScheduleNonClaims.every((requiredNonClaim) => values.has(requiredNonClaim));
 }
 
 type SocialAppliedScheduleTimeBudgetSummaryRow = {

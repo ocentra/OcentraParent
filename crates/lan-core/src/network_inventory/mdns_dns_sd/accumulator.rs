@@ -6,15 +6,14 @@ use ocentra_parent_agent_protocol::lan_pairing::{
 
 use super::advertisement::is_selected_service_type;
 use super::packet::parse_mdns_packet;
-use super::{
-    MdnsDnsSdDiscovery, MdnsDnsSdPacket, MdnsDnsSdServiceInstance, MdnsDnsSdSrvRecord,
-    MdnsDnsSdTxtRecord, MdnsRecordData, MDNS_SERVICE_ENUMERATION,
-};
+use super::{MdnsDnsSdDiscovery, MdnsDnsSdServiceInstance, MdnsDnsSdSrvRecord, MdnsDnsSdTxtRecord};
 
 #[path = "accumulator_detail.rs"]
 mod accumulator_detail;
 
 use accumulator_detail::{append_first_mdns_summary_detail, populate_instance_details};
+
+mod merge;
 
 pub fn parse_mdns_packets(packets: &[Vec<u8>], observed_at: String) -> Option<MdnsDnsSdDiscovery> {
     let mut accumulator = MdnsDnsSdDiscoveryAccumulator::default();
@@ -59,44 +58,14 @@ pub fn discovery_from_single_packet(payload: &[u8]) -> Option<MdnsDnsSdDiscovery
 
 #[derive(Default)]
 pub struct MdnsDnsSdDiscoveryAccumulator {
-    service_types: BTreeSet<String>,
-    instances: BTreeMap<(String, String), MdnsDnsSdServiceAccumulator>,
-    host_addresses: BTreeMap<String, BTreeSet<String>>,
-    srv_records: BTreeMap<String, MdnsDnsSdSrvRecord>,
-    txt_records: BTreeMap<String, Vec<MdnsDnsSdTxtRecord>>,
+    pub(super) service_types: BTreeSet<String>,
+    pub(super) instances: BTreeMap<(String, String), MdnsDnsSdServiceAccumulator>,
+    pub(super) host_addresses: BTreeMap<String, BTreeSet<String>>,
+    pub(super) srv_records: BTreeMap<String, MdnsDnsSdSrvRecord>,
+    pub(super) txt_records: BTreeMap<String, Vec<MdnsDnsSdTxtRecord>>,
 }
 
 impl MdnsDnsSdDiscoveryAccumulator {
-    pub fn merge(&mut self, packet: MdnsDnsSdPacket) {
-        for record in packet.records {
-            match record.data {
-                MdnsRecordData::Ptr(target) => self.merge_ptr_record(record.name, target),
-                MdnsRecordData::Srv {
-                    target_hostname,
-                    port,
-                } => {
-                    self.srv_records.insert(
-                        record.name,
-                        MdnsDnsSdSrvRecord {
-                            target_hostname,
-                            port,
-                        },
-                    );
-                }
-                MdnsRecordData::Txt(entries) => {
-                    self.txt_records.insert(record.name, entries);
-                }
-                MdnsRecordData::A(address) | MdnsRecordData::Aaaa(address) => {
-                    self.host_addresses
-                        .entry(record.name.to_ascii_lowercase())
-                        .or_default()
-                        .insert(address);
-                }
-                MdnsRecordData::Unknown => {}
-            }
-        }
-    }
-
     pub fn finalize(self, observed_at: String) -> MdnsDnsSdDiscovery {
         let MdnsDnsSdDiscoveryAccumulator {
             service_types,
@@ -129,36 +98,19 @@ impl MdnsDnsSdDiscoveryAccumulator {
             service_instances,
         }
     }
-
-    fn merge_ptr_record(&mut self, record_name: String, target: String) {
-        if record_name.eq_ignore_ascii_case(MDNS_SERVICE_ENUMERATION) {
-            if is_selected_service_type(&target) {
-                self.service_types.insert(target);
-            }
-            return;
-        }
-        if !is_selected_service_type(&record_name) {
-            return;
-        }
-        let instance_name_key = target.clone();
-        self.instances
-            .entry((record_name.clone(), instance_name_key))
-            .or_default()
-            .instance_name = target;
-    }
 }
 
 #[derive(Default)]
 pub struct MdnsDnsSdServiceAccumulator {
-    service_type: String,
-    instance_name: String,
-    display_name: Option<String>,
-    target_hostname: Option<String>,
-    port: Option<u16>,
-    addresses: BTreeSet<String>,
-    txt_records: Vec<MdnsDnsSdTxtRecord>,
-    parent_advertisement: Option<LanParentMdnsAdvertisement>,
-    child_advertisement: Option<LanChildMdnsAdvertisement>,
+    pub(super) service_type: String,
+    pub(super) instance_name: String,
+    pub(super) display_name: Option<String>,
+    pub(super) target_hostname: Option<String>,
+    pub(super) port: Option<u16>,
+    pub(super) addresses: BTreeSet<String>,
+    pub(super) txt_records: Vec<MdnsDnsSdTxtRecord>,
+    pub(super) parent_advertisement: Option<LanParentMdnsAdvertisement>,
+    pub(super) child_advertisement: Option<LanChildMdnsAdvertisement>,
 }
 
 impl MdnsDnsSdServiceAccumulator {

@@ -11,12 +11,14 @@ use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDiscoveryRuntimeStatus;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingNetworkMode;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceDiscoveryDevice;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceSource;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanPairingDiscoverySource;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
 #[path = "lan_pairing_browser_add_device_state/discovery_event_history.rs"]
@@ -30,6 +32,7 @@ pub(crate) mod registry_projection;
 #[path = "lan_pairing_browser_add_device_state/scan_history.rs"]
 pub(crate) mod scan_history;
 
+use crate::fields::fields_from_pairs;
 use crate::lan_pairing_browser_add_device_scan::{push_if_absent, same_physical_network_device};
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
@@ -57,14 +60,14 @@ pub(crate) fn refresh_browser_discovery_scan_history(
     let _ = refresh_network_device_scan_history(runtime, command);
 }
 
-pub(crate) fn browser_add_device_pairs(
+pub(crate) fn browser_add_device_fields(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
-    discovery_state: &str,
-) -> Vec<(&'static str, LogFieldValue)> {
+    discovery_state: &LanPairingText,
+) -> LogFields {
     let model = browser_add_device_read_model(runtime, command, discovery_state);
     let read_model_json = serde_json::to_string(&model).unwrap_or_default();
-    vec![
+    fields_from_pairs(vec![
         (
             constants::field::LAN_ADD_DEVICE_READ_MODEL,
             LogFieldValue::String(read_model_json),
@@ -125,15 +128,15 @@ pub(crate) fn browser_add_device_pairs(
                     .join(&constants::delimiter::LIST.to_string()),
             ),
         ),
-    ]
+    ])
 }
 
 pub(crate) fn browser_add_device_read_model(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
-    discovery_state: &str,
+    discovery_state: &LanPairingText,
 ) -> LanBrowserAddDeviceReadModel {
-    let generated_at = timestamp_now();
+    let generated_at: LanPairingText = timestamp_now::<String>().into();
     let selected = runtime.selected_target();
     let trusted_device_registry = trusted_device_registry(runtime);
     let household_device_decisions = household_device_decisions(runtime);
@@ -157,7 +160,7 @@ pub(crate) fn browser_add_device_read_model(
     let selected_device_readiness = selected_device_readiness(selected);
 
     let mut model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
-        generated_at: generated_at.clone(),
+        generated_at: generated_at.0.clone(),
         discovery_source,
         service_data_available: true,
         platform_data_available,
@@ -169,8 +172,16 @@ pub(crate) fn browser_add_device_read_model(
         pairing_requests: pairing_requests(runtime, &generated_at),
         trusted_device_registry,
         household_device_decisions,
-        trusted_device_ids: runtime.trusted_device_ids(),
-        revoked_device_ids: runtime.revoked_device_ids(),
+        trusted_device_ids: runtime
+            .trusted_device_ids()
+            .into_iter()
+            .map(|value| value.0)
+            .collect(),
+        revoked_device_ids: runtime
+            .revoked_device_ids()
+            .into_iter()
+            .map(|value| value.0)
+            .collect(),
         selected_device_readiness,
         controller_authority: LanPairingParentAuthority::ActiveController,
         observer_authority: LanPairingParentAuthority::Observer,
@@ -214,8 +225,8 @@ fn apple_lan_discovery_is_manual_required() -> bool {
 fn discovered_devices(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
-    discovery_state: &str,
-    generated_at: &str,
+    discovery_state: &LanPairingText,
+    generated_at: &LanPairingText,
     network_devices: &[LanNetworkInventoryDevice],
 ) -> Vec<LanBrowserAddDeviceDiscoveryDevice> {
     let mut devices = registry_discovered_devices(runtime, command, discovery_state, generated_at);
@@ -238,8 +249,8 @@ fn discovered_devices(
 fn registry_discovered_devices(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
-    discovery_state: &str,
-    generated_at: &str,
+    discovery_state: &LanPairingText,
+    generated_at: &LanPairingText,
 ) -> Vec<LanBrowserAddDeviceDiscoveryDevice> {
     let reachability = runtime
         .selected_target()
@@ -275,8 +286,8 @@ fn registry_discovered_devices(
 
 fn local_agent_discovery_device(
     command: &AgentCommandEnvelope,
-    discovery_state: &str,
-    generated_at: &str,
+    discovery_state: &LanPairingText,
+    generated_at: &LanPairingText,
 ) -> LanBrowserAddDeviceDiscoveryDevice {
     LanBrowserAddDeviceDiscoveryDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -301,7 +312,7 @@ fn local_agent_discovery_device(
 
 fn network_neighbor_discovery_device(
     command: &AgentCommandEnvelope,
-    generated_at: &str,
+    generated_at: &LanPairingText,
     network_device: &LanNetworkInventoryDevice,
 ) -> LanBrowserAddDeviceDiscoveryDevice {
     LanBrowserAddDeviceDiscoveryDevice {
@@ -342,7 +353,8 @@ pub(crate) fn network_neighbor_child_device(
         network_device.platform.clone(),
     );
     child_device.ip_address = Some(network_device.ip_address.clone());
-    child_device.mac_address = trimmed_non_empty(&network_device.mac_address);
+    child_device.mac_address =
+        trimmed_non_empty(&LanPairingText(network_device.mac_address.clone())).map(|value| value.0);
     child_device.hostname =
         Some(network_device.hostname.clone().unwrap_or_else(|| {
             constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME.to_string()
@@ -351,7 +363,7 @@ pub(crate) fn network_neighbor_child_device(
     child_device
 }
 
-fn trimmed_non_empty(value: &str) -> Option<String> {
-    let value = value.trim();
-    (!value.is_empty()).then(|| value.to_string())
+fn trimmed_non_empty(value: &LanPairingText) -> Option<LanPairingText> {
+    let value = value.0.trim();
+    (!value.is_empty()).then(|| value.into())
 }

@@ -632,9 +632,7 @@ function runtimeParentVisibleStateForFixture(
   }
 }
 
-function runtimeSourceForFixture(
-  fixture: BillingAccountFixture
-): 'signed-local-snapshot' | 'manual-admin-review' {
+function runtimeSourceForFixture(fixture: BillingAccountFixture): 'signed-local-snapshot' | 'manual-admin-review' {
   switch (fixture.accountStatus) {
     case 'active':
       return 'signed-local-snapshot';

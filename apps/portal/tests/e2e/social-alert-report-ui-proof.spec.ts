@@ -12,10 +12,7 @@ import {
   assertSocialParentNotificationDeliveryRows,
 } from './social-alert-report-ui-proof-assertions';
 import { captureSocialAlertReportScreenshots } from './social-alert-report-ui-proof-capture';
-import {
-  collectAccessibilitySummary,
-  writeAccessibilitySummary,
-} from './social-alert-report-ui-proof-accessibility';
+import { collectAccessibilitySummary, writeAccessibilitySummary } from './social-alert-report-ui-proof-accessibility';
 
 test.setTimeout(120_000);
 

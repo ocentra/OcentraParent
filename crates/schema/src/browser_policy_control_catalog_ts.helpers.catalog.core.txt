@@ -93,4 +93,3 @@ export function helperTextForGenerated(sectionTitle: string, sourceText: string)
   }
   return 'Portal renders authored intent; child runtime owns persistence, compile, evaluation, and audit.';
 }
-

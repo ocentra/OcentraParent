@@ -65,8 +65,10 @@ export function generatedResolveHostedPortalDistributionState(
   const cacheState: GeneratedHostedPortalCacheState = params.get('cache') === 'stale' ? 'stale' : 'fresh';
   const requestedRelease = generatedResolveRequestedRelease(params, environment);
   const cacheAgeMinutes = generatedResolveCacheAgeMinutes(params, cacheState, defaultNowMinutes);
-  const productionClaimBlocked = requestedRelease === 'production' && environment !== null && environment !== 'production';
-  const controlsEnabled = routeState === 'matched' && authState === 'authenticated' && cacheState === 'fresh' && !productionClaimBlocked;
+  const productionClaimBlocked =
+    requestedRelease === 'production' && environment !== null && environment !== 'production';
+  const controlsEnabled =
+    routeState === 'matched' && authState === 'authenticated' && cacheState === 'fresh' && !productionClaimBlocked;
   const currentEnvironment = environment ?? 'preview';
 
   return {

@@ -48,7 +48,8 @@ pub fn tracking_control_catalog_data_generated_typescript() -> String {
 }
 
 pub fn tracking_control_catalog_options_generated_typescript() -> String {
-    include_str!("../../../packages/schema-domain/src/tracking-control-catalog-options.ts").to_owned()
+    include_str!("../../../packages/schema-domain/src/tracking-control-catalog-options.ts")
+        .to_owned()
 }
 
 pub fn tracking_control_catalog_build_generated_typescript() -> String {

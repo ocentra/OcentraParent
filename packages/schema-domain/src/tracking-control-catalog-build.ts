@@ -179,9 +179,7 @@ function buildTrackingControlSetting(
     acceptedOptions: optionsForSetting,
     targetScopeOptions,
     effectModeOptions,
-    writesTo: TrackingControlWritesToPathSchema.parse(
-      explicitWritesTo ?? `/locationPolicy/catalogGuide/${settingId}`
-    ),
+    writesTo: TrackingControlWritesToPathSchema.parse(explicitWritesTo ?? `/locationPolicy/catalogGuide/${settingId}`),
     effectKey: TrackingControlSettingIdSchema.parse(settingId),
     effectStatus: TrackingControlEffectStatusSchema.parse(effectStatus),
     runtimeOwner: TrackingControlRuntimeOwnerSchema.parse(runtimeOwner),

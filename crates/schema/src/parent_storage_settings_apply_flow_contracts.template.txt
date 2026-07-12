@@ -1,6 +1,6 @@
 /* generated from crates/schema/src/parent_storage_settings_apply_flow.rs */
 
-import { brandedNonEmptyStringSchema } from './effect';
+import {{ brandedNonEmptyStringSchema }} from './effect';
 
 import type {{
   GeneratedParentOwnedSyncDeleteVisibilityState,
@@ -61,11 +61,7 @@ export type GeneratedParentStorageEncryptionStatus =
   | 'human-readable-parent-authorized'
   | 'not-applicable'
   | 'manual-required';
-export type GeneratedParentStorageKeyStatus =
-  | 'keyAvailable'
-  | 'keyUnavailable'
-  | 'keyRevoked'
-  | 'manualRequired';
+export type GeneratedParentStorageKeyStatus = 'keyAvailable' | 'keyUnavailable' | 'keyRevoked' | 'manualRequired';
 export type GeneratedParentStoragePreviewState =
   | 'importPreviewPassed'
   | 'partialRestore'

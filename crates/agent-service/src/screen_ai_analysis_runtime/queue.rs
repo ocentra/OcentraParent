@@ -38,7 +38,7 @@ pub(super) fn first_queued_screen_image(
 
 pub(super) fn metadata_result_for_queue_job(
     store_path: &Path,
-    queue_job_id: &str,
+    image: &QueuedScreenImage,
     clock: &ScreenAiAnalysisCycleClock,
 ) -> Result<Option<ScreenAnalysisResult>, ActivityCaptureError> {
     let store = ActivityStore::open(store_path)?;
@@ -49,7 +49,7 @@ pub(super) fn metadata_result_for_queue_job(
     Ok(summary
         .results
         .into_iter()
-        .find(|result| result.queue_job_id == queue_job_id))
+        .find(|result| result.queue_job_id == image.queue_job_id))
 }
 
 pub(super) fn load_existing_screen_key(

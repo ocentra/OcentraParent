@@ -1,0 +1,143 @@
+
+export const ChildDomainObservedEventSchema = withParser(
+  Schema.Struct({
+    eventType: ChildDomainRuntimeEventTypeSchema,
+    domain: ChildRuntimeDomainSchema,
+    childDeviceId: ChildDomainChildDeviceIdSchema,
+    childProfileId: ChildDomainChildProfileIdSchema,
+    observationId: ChildDomainObservationIdSchema,
+    subjectRef: ChildDomainSubjectRefSchema,
+    observedState: ChildDomainObservedStateSchema,
+    observedAt: ChildDomainObservedAtSchema,
+    aiAnalysisRequirement: ChildDomainAiAnalysisRequirementSchema,
+    policyEvaluationRequirement: ChildDomainPolicyEvaluationRequirementSchema,
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        childDomainRuntimeEventTypeMatchesDomain(event.domain, event.eventType) ||
+        'Expected child observed event type to match the owning child runtime domain'
+    )
+  )
+);
+
+export const ChildDomainEvidenceRecordedEventSchema = withParser(
+  Schema.Struct({
+    eventType: ChildDomainRuntimeEventTypeSchema,
+    domain: ChildRuntimeDomainSchema,
+    childDeviceId: ChildDomainChildDeviceIdSchema,
+    childProfileId: ChildDomainChildProfileIdSchema,
+    evidenceRef: ChildDomainEvidenceRefSchema,
+    sourceObservationId: ChildDomainObservationIdSchema,
+    sourceObservedAt: ChildDomainObservedAtSchema,
+    signal: ChildDomainObservedStateSchema,
+    aiAnalysisRequirement: ChildDomainAiAnalysisRequirementSchema,
+    policyEvaluationRequirement: ChildDomainPolicyEvaluationRequirementSchema,
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        childDomainRuntimeEventTypeMatchesDomain(event.domain, event.eventType) ||
+        'Expected child evidence-recorded event type to match the owning child runtime domain'
+    )
+  )
+);
+
+export const ChildDomainAiAnalysisRequestedEventSchema = withParser(
+  Schema.Struct({
+    eventType: ChildDomainRuntimeEventTypeSchema,
+    domain: ChildRuntimeDomainSchema,
+    childDeviceId: ChildDomainChildDeviceIdSchema,
+    childProfileId: ChildDomainChildProfileIdSchema,
+    aiRequestId: ChildDomainAiRequestIdSchema,
+    evidenceRefs: ChildDomainEvidenceRefsSchema,
+    sourceObservedAt: ChildDomainObservedAtSchema,
+    allowedAnalysisPurpose: ChildDomainAnalysisPurposeSchema,
+    privatePayloadState: ChildDomainPrivatePayloadStateSchema,
+    policyEvaluationRequirement: ChildDomainPolicyEvaluationRequirementSchema,
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        childDomainRuntimeEventTypeMatchesDomain(event.domain, event.eventType) ||
+        'Expected child AI request event type to match the owning child runtime domain'
+    )
+  )
+);
+
+export const ChildDomainAiAnalysisCompletedEventSchema = withParser(
+  Schema.Struct({
+    eventType: ChildDomainRuntimeEventTypeSchema,
+    domain: ChildRuntimeDomainSchema,
+    childDeviceId: ChildDomainChildDeviceIdSchema,
+    childProfileId: ChildDomainChildProfileIdSchema,
+    sourceAiRequestId: ChildDomainAiRequestIdSchema,
+    evidenceRefs: ChildDomainEvidenceRefsSchema,
+    sourceObservedAt: ChildDomainObservedAtSchema,
+    resultFactRef: ChildDomainFactRefSchema,
+    privatePayloadState: ChildDomainPrivatePayloadStateSchema,
+    policyEvaluationRequirement: ChildDomainPolicyEvaluationRequirementSchema,
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        event.eventType === ChildDomainRuntimeEventType.AiAnalysisCompleted ||
+        'Expected AI completion to use the child-domain AI completed event type'
+    )
+  )
+);
+
+export const ChildDomainPolicyEvaluationRequestedEventSchema = withParser(
+  Schema.Struct({
+    eventType: ChildDomainRuntimeEventTypeSchema,
+    domain: ChildRuntimeDomainSchema,
+    childDeviceId: ChildDomainChildDeviceIdSchema,
+    childProfileId: ChildDomainChildProfileIdSchema,
+    policyRequestId: ChildDomainPolicyRequestIdSchema,
+    evidenceRefs: ChildDomainEvidenceRefsSchema,
+    sourceObservedAt: ChildDomainObservedAtSchema,
+    sourceFactRef: ChildDomainFactRefSchema,
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        childDomainRuntimeEventTypeMatchesDomain(event.domain, event.eventType) ||
+        'Expected child policy-requested event type to match the owning child runtime domain'
+    )
+  )
+);
+
+export const ChildDomainPolicyViolationDetectedEventSchema = withParser(
+  Schema.Struct({
+    eventType: ChildDomainRuntimeEventTypeSchema,
+    domain: ChildRuntimeDomainSchema,
+    childDeviceId: ChildDomainChildDeviceIdSchema,
+    childProfileId: ChildDomainChildProfileIdSchema,
+    violationId: ChildDomainPolicyViolationIdSchema,
+    policyRuleRef: ChildDomainPolicyRuleRefSchema,
+    severity: ChildDomainPolicySeveritySchema,
+    detectedAt: ChildDomainObservedAtSchema,
+    evidenceRefs: ChildDomainEvidenceRefsSchema,
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        event.eventType === ChildDomainRuntimeEventType.PolicyViolationDetected ||
+        'Expected policy violation to use the child-domain policy violation event type'
+    )
+  )
+);
+
+export const ChildDomainNotificationRequestedEventSchema = withParser(
+  Schema.Struct({
+    eventType: ChildDomainRuntimeEventTypeSchema,
+    domain: ChildRuntimeDomainSchema,
+    childDeviceId: ChildDomainChildDeviceIdSchema,
+    childProfileId: ChildDomainChildProfileIdSchema,
+    notificationId: ChildDomainNotificationIdSchema,
+    sourcePolicyViolationId: ChildDomainPolicyViolationIdSchema,
+    channel: ChildDomainNotificationChannelSchema,
+    requestedAt: ChildDomainObservedAtSchema,
+    evidenceRefs: ChildDomainEvidenceRefsSchema,
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        event.eventType === ChildDomainRuntimeEventType.NotificationRequested ||
+        'Expected notification request to use the child-domain notification event type'
+    )
+  )
+);

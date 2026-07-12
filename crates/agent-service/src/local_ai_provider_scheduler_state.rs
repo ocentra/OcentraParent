@@ -10,19 +10,28 @@ use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderS
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSingletonScope;
 use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
 
-pub(crate) fn status_unavailable(checked_at: String) -> LocalAiProviderSchedulerStatus {
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub(crate) struct LocalAiPhysicalDeviceId(pub(crate) String);
+
+#[derive(Clone, Debug)]
+pub(crate) struct LocalAiStatusText(pub(crate) String);
+
+#[derive(Clone, Debug)]
+pub(crate) struct LocalAiTimestamp(pub(crate) String);
+
+pub(crate) fn status_unavailable(checked_at: LocalAiTimestamp) -> LocalAiProviderSchedulerStatus {
     status_unavailable_for_device(
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
         checked_at,
     )
 }
 
 pub(crate) fn status_unavailable_for_device(
-    physical_device_id: &str,
-    checked_at: String,
+    physical_device_id: LocalAiPhysicalDeviceId,
+    checked_at: LocalAiTimestamp,
 ) -> LocalAiProviderSchedulerStatus {
     LocalAiProviderSchedulerStatus {
-        physical_device_id: physical_device_id.to_string(),
+        physical_device_id: physical_device_id.0,
         singleton_scope: LocalAiProviderSingletonScope::PhysicalDevice,
         provider_id: constants::local_ai_runtime::PROVIDER_ID_UNCONFIGURED.to_string(),
         runtime_reference_id: constants::local_ai_runtime::RUNTIME_REFERENCE_DEV_UNCONFIGURED
@@ -38,7 +47,7 @@ pub(crate) fn status_unavailable_for_device(
         unavailable_reason: Some(
             constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string(),
         ),
-        last_checked_at: checked_at,
+        last_checked_at: checked_at.0,
     }
 }
 
@@ -55,16 +64,16 @@ pub(crate) fn copy_runtime_fields(
 }
 
 pub(crate) fn decision_for(
-    physical_device_id: &str,
+    physical_device_id: LocalAiPhysicalDeviceId,
     runtime: &LocalModelRuntimeStatus,
     job_class: LocalAiProviderSchedulerJobClass,
     job_status: LocalAiProviderSchedulerJobStatus,
     queue_position: Option<u16>,
-    unavailable_reason: Option<&str>,
+    unavailable_reason: Option<LocalAiStatusText>,
     duplicate_runtime_blocked: bool,
 ) -> LocalAiProviderSchedulerDecision {
     LocalAiProviderSchedulerDecision {
-        physical_device_id: physical_device_id.to_string(),
+        physical_device_id: physical_device_id.0,
         job_class,
         job_status,
         selected_runtime_reference_id: if unavailable_reason.is_some() {
@@ -73,7 +82,7 @@ pub(crate) fn decision_for(
             Some(runtime.runtime_reference_id.clone())
         },
         queue_position,
-        unavailable_reason: unavailable_reason.map(ToOwned::to_owned),
+        unavailable_reason: unavailable_reason.map(|reason| reason.0),
         duplicate_runtime_blocked,
     }
 }

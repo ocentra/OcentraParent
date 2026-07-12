@@ -1,7 +1,5 @@
 /* generated from crates/schema/src/parent_control_capability_data_ts.rs */
 
-/* generated from crates/schema/src/parent_control_capability_data_ts.rs */
-
 export const ParentControlPlatformCapabilityInputs = [
   {
     platform: 'windows',

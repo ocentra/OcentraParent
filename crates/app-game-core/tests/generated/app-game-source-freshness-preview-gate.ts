@@ -2,6 +2,6 @@
 // The complete TypeScript artifact text is produced by app_game_source_freshness_preview_gate.rs.
 
 export const appGameSourceFreshnessPreviewGateGeneratedHelpers = [
-  "buildGeneratedAppGameSourceFreshnessPreviewGateRow",
-  "buildGeneratedAppGameSourceFreshnessPreviewGateReadModel",
+  'buildGeneratedAppGameSourceFreshnessPreviewGateRow',
+  'buildGeneratedAppGameSourceFreshnessPreviewGateReadModel',
 ] as const;

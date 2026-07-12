@@ -11,24 +11,21 @@ use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
+#[path = "../../lan_ai_job_submit_transition.rs"]
+mod job_transition;
+
 use crate::{
     event_builder::build_event,
     lan_pairing::{
-        authority::validate_authorized_lan_ai_job,
-        extend_log_fields,
-        lan_ai_job_lease_events::{
-            lan_ai_job_completed_event, lan_ai_job_duplicate_rejected_event,
-            lan_ai_job_lease_state_event,
-        },
-        validate_command_target, LanPairingRuntime,
+        authority::validate_authorized_lan_ai_job, extend_log_fields, validate_command_target,
+        LanPairingRuntime,
     },
     lan_pairing_audit::{controller_lease_audit_fields, rejected_control_audit_fields},
     lan_pairing_payload::parse_intent,
-    lan_pairing_runtime_state::job_leases::LanAiJobLeaseTransition,
 };
 
 use super::fields::{
-    lan_ai_job_fields, lan_ai_job_id, lan_ai_provider_fields, lan_ai_provider_fields_for_rejection,
+    lan_ai_job_fields, lan_ai_provider_fields, lan_ai_provider_fields_for_rejection,
     payload_string, LanAiJobField,
 };
 
@@ -119,55 +116,13 @@ fn lan_ai_job_routed_event(
         );
     }
 
-    lan_ai_job_transition_event(runtime, command, intent, origin, &requested_capability)
-}
-
-fn lan_ai_job_transition_event(
-    runtime: &LanPairingRuntime,
-    command: AgentCommandEnvelope,
-    intent: &LanParentIntentEnvelope,
-    origin: &LanPairingOptionalText,
-    requested_capability: &LanPairingText,
-) -> AgentEventEnvelope {
-    let job_id = lan_ai_job_id(&command, intent);
-    match runtime.claim_lan_ai_job_lease(&job_id.0) {
-        Ok(LanAiJobLeaseTransition::Claimed(lease)) => {
-            let completed_lease = runtime
-                .complete_lan_ai_job_lease(&job_id.0)
-                .unwrap_or(lease);
-            lan_ai_job_completed_event(
-                runtime,
-                command,
-                intent,
-                origin,
-                requested_capability,
-                &completed_lease,
-            )
-        }
-        Ok(LanAiJobLeaseTransition::DuplicateCompleted(lease)) => lan_ai_job_completed_event(
-            runtime,
-            command,
-            intent,
-            origin,
-            requested_capability,
-            &lease,
-        ),
-        Ok(LanAiJobLeaseTransition::DuplicateActiveRejected(lease)) => {
-            lan_ai_job_duplicate_rejected_event(runtime, command, intent, origin, &lease)
-        }
-        Ok(LanAiJobLeaseTransition::ExpiredRequeued(lease))
-        | Ok(LanAiJobLeaseTransition::DeadLettered(lease)) => {
-            lan_ai_job_lease_state_event(runtime, command, intent, origin, &lease)
-        }
-        Err(reason) => lan_ai_rejection_event(
-            runtime,
-            command,
-            &reason,
-            Some(intent),
-            origin,
-            LanPairingAuditEventType::LanAiJobRejected,
-        ),
-    }
+    job_transition::lan_ai_job_transition_event(
+        runtime,
+        command,
+        intent,
+        origin,
+        &requested_capability,
+    )
 }
 
 fn lan_ai_job_degraded_event(

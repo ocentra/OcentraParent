@@ -16,6 +16,43 @@ use crate::{
 pub(crate) const LAN_SCAN_HISTORY_SCHEMA_VERSION: u16 = 2;
 const LAN_SCAN_HISTORY_FILE_SUFFIX: &str = "-lan-scan-history.json";
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct LanScanHistoryRegistryPath(PathBuf);
+
+impl From<&Path> for LanScanHistoryRegistryPath {
+    fn from(value: &Path) -> Self {
+        Self(value.to_path_buf())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct LanScanHistoryDir(PathBuf);
+
+impl AsRef<Path> for LanScanHistoryDir {
+    fn as_ref(&self) -> &Path {
+        self.0.as_path()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct LanScanHistoryPath(PathBuf);
+
+impl AsRef<Path> for LanScanHistoryPath {
+    fn as_ref(&self) -> &Path {
+        self.0.as_path()
+    }
+}
+
+impl LanScanHistoryPath {
+    pub(crate) fn exists(&self) -> bool {
+        self.0.exists()
+    }
+
+    fn parent_dir(&self) -> Option<LanScanHistoryDir> {
+        self.0.parent().map(PathBuf::from).map(LanScanHistoryDir)
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct LanScanHistoryMetadata {
@@ -70,7 +107,7 @@ pub(crate) fn save_scan_history(
     let Some(path) = scan_history_path(runtime) else {
         return;
     };
-    if let Some(parent) = path.parent() {
+    if let Some(parent) = path.parent_dir() {
         let _ = fs::create_dir_all(parent);
     }
     let snapshot = LanScanHistorySnapshot {
@@ -84,27 +121,34 @@ pub(crate) fn save_scan_history(
     }
 }
 
-fn read_scan_history(path: &Path) -> Option<LanScanHistorySnapshot> {
+fn read_scan_history(path: &LanScanHistoryPath) -> Option<LanScanHistorySnapshot> {
     let json = fs::read_to_string(path).ok()?;
     serde_json::from_str(&json).ok()
 }
 
-fn scan_history_path(runtime: &LanPairingRuntime) -> Option<PathBuf> {
+fn scan_history_path(runtime: &LanPairingRuntime) -> Option<LanScanHistoryPath> {
     match &runtime.persistence {
         LanPairingRegistryPersistence::InMemory => None,
-        LanPairingRegistryPersistence::LocalJsonRegistry(path) => {
-            Some(scan_history_path_for_registry(path))
-        }
+        LanPairingRegistryPersistence::LocalJsonRegistry(path) => Some(
+            scan_history_path_for_registry(LanScanHistoryRegistryPath(path.clone())),
+        ),
     }
 }
 
-pub(crate) fn scan_history_path_for_registry(registry_path: &Path) -> PathBuf {
+pub(crate) fn scan_history_path_for_registry(
+    registry_path: LanScanHistoryRegistryPath,
+) -> LanScanHistoryPath {
     let file_stem = registry_path
+        .0
         .file_stem()
         .and_then(|value| value.to_str())
         .filter(|value| !value.is_empty())
         .unwrap_or(constants::lan_pairing::REGISTRY_FILE_STEM_FALLBACK);
-    registry_path.with_file_name(format!("{file_stem}{LAN_SCAN_HISTORY_FILE_SUFFIX}"))
+    LanScanHistoryPath(
+        registry_path
+            .0
+            .with_file_name(format!("{file_stem}{LAN_SCAN_HISTORY_FILE_SUFFIX}")),
+    )
 }
 
 pub(crate) fn scan_history_is_recent(updated_at: LanPairingText, now: DateTime<Utc>) -> bool {

@@ -1,6 +1,9 @@
 /* generated support for crates/browser-core/src/social_video_ai_signal_aggregate.rs */
 
-import type { SocialVideoAiSignalAggregate, SocialVideoAiSignalAggregateInput } from './social_video_ai_signal_aggregate';
+import type {
+  SocialVideoAiSignalAggregate,
+  SocialVideoAiSignalAggregateInput,
+} from './social_video_ai_signal_aggregate';
 
 export function socialVideoAiSignalAggregateIsConsistent(value: SocialVideoAiSignalAggregate) {
   return (

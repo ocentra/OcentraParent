@@ -1,0 +1,57 @@
+  readonly rows: ReadonlyArray<{
+    readonly boundaryId: string;
+    readonly providerMode: BillingInvoiceProviderMode;
+    readonly providerReference: string | null;
+    readonly invoiceVisibility: BillingInvoiceVisibilityState;
+    readonly taxMode: BillingTaxModeDecision;
+    readonly taxRegionState: BillingTaxRegionState;
+    readonly refundState: BillingRefundLifecycleState;
+    readonly disputeState: BillingDisputeLifecycleState;
+    readonly recoveryState: BillingCollectionRecoveryState;
+    readonly entitlementSideEffect: BillingEntitlementSideEffect;
+    readonly portalHosted: boolean;
+    readonly supportAuditState: 'audited';
+  }>;
+  readonly nonClaims: ReadonlyArray<BillingInvoiceLifecycleNonClaim>;
+  readonly hostedInvoiceClaim: 'customer-portal-hosted-only';
+  readonly manualSupportClaim: 'audited-required';
+  readonly childActivityCustodyClaim: 'not-included';
+}): boolean {
+  return (
+    RequiredLifecycleNonClaims.every((claim) => proof.nonClaims.includes(claim)) &&
+    proofRowsCoverRequiredLifecycleStates(proof) &&
+    proof.rows.some((row) => row.providerMode === 'stripe-hosted' && row.providerReference !== null) &&
+    proof.rows.some((row) => row.providerMode === 'manual-invoice' && row.providerReference === null) &&
+    proof.rows.every((row) => row.supportAuditState === 'audited') &&
+    proof.hostedInvoiceClaim === 'customer-portal-hosted-only' &&
+    proof.manualSupportClaim === 'audited-required' &&
+    proof.childActivityCustodyClaim === 'not-included'
+  );
+}
+
+function proofRowsCoverRequiredLifecycleStates(proof: {
+  readonly rows: ReadonlyArray<{
+    readonly boundaryId: string;
+    readonly invoiceVisibility: BillingInvoiceVisibilityState;
+    readonly taxMode: BillingTaxModeDecision;
+    readonly taxRegionState: BillingTaxRegionState;
+    readonly refundState: BillingRefundLifecycleState;
+    readonly disputeState: BillingDisputeLifecycleState;
+    readonly recoveryState: BillingCollectionRecoveryState;
+    readonly portalHosted: boolean;
+  }>;
+}): boolean {
+  return (
+    proof.rows.some((row) => row.invoiceVisibility === 'customer-portal-hosted' && row.portalHosted) &&
+    proof.rows.some((row) => row.invoiceVisibility === 'download-link-issued') &&
+    ['grace', 'unpaid'].every((state) => proof.rows.some((row) => row.recoveryState === state)) &&
+    RequiredLifecycleBoundaryIds.every((boundaryId) => proof.rows.some((row) => row.boundaryId === boundaryId)) &&
+    RequiredRefundStates.every((refundState) => proof.rows.some((row) => row.refundState === refundState)) &&
+    RequiredDisputeStates.every((disputeState) => proof.rows.some((row) => row.disputeState === disputeState)) &&
+    proof.rows.some(
+      (row) => row.taxMode === 'manual-support-required' && row.taxRegionState === 'manual-support-required'
+    )
+  );
+}
+
+function lifecycleRow(

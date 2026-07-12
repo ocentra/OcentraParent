@@ -12,9 +12,7 @@ type MemoryStorageRecord = {
   value: string | null;
 };
 
-function createMemoryStorage(
-  initialValue: string | null = null
-): {
+function createMemoryStorage(initialValue: string | null = null): {
   getItem: (key: string) => string | null;
   setItem: (key: string, value: string) => void;
 } {

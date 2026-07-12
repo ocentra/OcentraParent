@@ -75,9 +75,7 @@ function screenSummaryRow(row: GeneratedPortalScreenSummaryPanelRowSnapshot): Sc
   };
 }
 
-function screenSummaryDetail(
-  source: GeneratedPortalScreenSummaryPanelDetailSnapshot
-): ScreenSummaryPanelDetail {
+function screenSummaryDetail(source: GeneratedPortalScreenSummaryPanelDetailSnapshot): ScreenSummaryPanelDetail {
   return detail(displayText(source.label), displayText(source.value));
 }
 

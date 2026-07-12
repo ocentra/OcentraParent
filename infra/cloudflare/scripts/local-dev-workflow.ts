@@ -135,7 +135,11 @@ function inspectLocalStartPath(): LocalStartPath {
     if (result.status !== 0) {
       blockers.push({
         kind: 'runtime-import-check',
-        details: (result.stderr || result.stdout || 'Cloudflare worker runtime import failed without diagnostics').trim(),
+        details: (
+          result.stderr ||
+          result.stdout ||
+          'Cloudflare worker runtime import failed without diagnostics'
+        ).trim(),
       });
     }
   }
@@ -209,7 +213,8 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
             ? 'populated'
             : 'placeholder',
       itemCount: parseCount(localSeed, 'statusBySubject'),
-      notes: 'Composite seed snapshot should include per-subject status, invoices, referrals, and entitlement snapshots.',
+      notes:
+        'Composite seed snapshot should include per-subject status, invoices, referrals, and entitlement snapshots.',
       blocker: localSeed.blocker,
     },
     {
@@ -222,7 +227,8 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
             ? 'populated'
             : 'placeholder',
       itemCount: parseCount(accountsSeed, 'accounts'),
-      notes: 'Support/admin test accounts must come from the real seed script output, not a manual count written into docs.',
+      notes:
+        'Support/admin test accounts must come from the real seed script output, not a manual count written into docs.',
       blocker: accountsSeed.blocker,
     },
     {
@@ -240,10 +246,12 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
     },
     {
       family: 'webhook-payload-fixtures',
-      source: 'infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts and infra/cloudflare/tests/integration/worker-runtime-real.test.ts',
+      source:
+        'infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts and infra/cloudflare/tests/integration/worker-runtime-real.test.ts',
       populationState: 'test-fixture-backed',
       itemCount: 5,
-      notes: 'Stripe, PayPal, Razorpay, Google, and Apple webhook payload families are explicit test fixtures, not seed placeholders.',
+      notes:
+        'Stripe, PayPal, Razorpay, Google, and Apple webhook payload families are explicit test fixtures, not seed placeholders.',
     },
     {
       family: 'queue-replay-fixtures',

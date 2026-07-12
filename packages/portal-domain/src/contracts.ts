@@ -449,8 +449,7 @@ const PortalTiming = {
   CopyFeedbackMs: 1200,
 } as const;
 
-const PortalTrackingRetentionSettingsWriteDefaults =
-  GeneratedPortalTrackingContracts.RetentionSettingsWrite.Defaults;
+const PortalTrackingRetentionSettingsWriteDefaults = GeneratedPortalTrackingContracts.RetentionSettingsWrite.Defaults;
 
 const PortalEnvironment = {
   AgentWebSocketUrl: 'VITE_AGENT_WS_URL',

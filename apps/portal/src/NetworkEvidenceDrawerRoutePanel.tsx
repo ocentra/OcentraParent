@@ -1,8 +1,5 @@
 import type { ReactElement } from 'react';
-import {
-  decodeParentPortalDetailValue,
-  type ParentPortalDetailValue,
-} from '../generated/parent-ui-bridge';
+import { decodeParentPortalDetailValue, type ParentPortalDetailValue } from '../generated/parent-ui-bridge';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
@@ -151,67 +148,85 @@ function NetworkEvidenceLanSourceMatrixDetails({
   readonly diagnostics: PortalLanDiagnosticsViewModel | null;
 }): ReactElement {
   return (
-      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-        <NetworkEvidenceDrawerDetail label={PortalDetails.GeneratedAt} value={detailFromValue(matrix?.generatedAt)} />
-        <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.matrixCoverage} value={detailFromValue(matrix?.rowSummary)} />
-        <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.statusMix} value={detailFromValue(matrix?.statusSummary)} />
-        <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.historyState} value={detailFromValue(matrix?.historyState)} />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.historySummary}
-          value={detailFromValue(matrix?.historySummary)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.latestHistoryEvent}
-          value={detailFromValue(matrix?.latestHistoryEventId)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.latestHistoryObserved}
-          value={detailFromValue(matrix?.latestHistoryObservedAt)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.currentScanSources}
-          value={detailFromValue(matrix?.currentSourceSummary)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.restartPersistedSources}
-          value={detailFromValue(matrix?.persistedSourceSummary)}
-        />
-        <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.weakFenceSummary} value={detailFromValue(matrix?.fenceSummary)} />
-        <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.claimsProved} value={detailFromValue(matrix?.claimsProved)} />
-        <NetworkEvidenceDrawerDetail label={LAN_SOURCE_MATRIX_TEXT.claimsNotProved} value={detailFromValue(matrix?.claimsNotProved)} />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.evidenceWindow}
-          value={detailFromValue(diagnostics?.evidenceWindowSummary)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.trustedRegistry}
-          value={detailFromValue(diagnostics?.trustedRegistrySummary)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.decisionHistory}
-          value={detailFromValue(diagnostics?.decisionHistorySummary)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.policyTargets}
-          value={detailFromValue(diagnostics?.policyTargetSurfaceSummary)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.productionProof}
-          value={detailFromValue(diagnostics?.productionProofSummary)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.signedProof}
-          value={detailFromValue(diagnostics?.signedProofSummary)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.routeSafety}
-          value={detailFromValue(diagnostics?.routeSafetySummary)}
-        />
-        <NetworkEvidenceDrawerDetail
-          label={LAN_SOURCE_MATRIX_TEXT.relayCache}
-          value={detailFromValue(diagnostics?.relayCacheSummary)}
-        />
-      </dl>
+    <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+      <NetworkEvidenceDrawerDetail label={PortalDetails.GeneratedAt} value={detailFromValue(matrix?.generatedAt)} />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.matrixCoverage}
+        value={detailFromValue(matrix?.rowSummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.statusMix}
+        value={detailFromValue(matrix?.statusSummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.historyState}
+        value={detailFromValue(matrix?.historyState)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.historySummary}
+        value={detailFromValue(matrix?.historySummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.latestHistoryEvent}
+        value={detailFromValue(matrix?.latestHistoryEventId)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.latestHistoryObserved}
+        value={detailFromValue(matrix?.latestHistoryObservedAt)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.currentScanSources}
+        value={detailFromValue(matrix?.currentSourceSummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.restartPersistedSources}
+        value={detailFromValue(matrix?.persistedSourceSummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.weakFenceSummary}
+        value={detailFromValue(matrix?.fenceSummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.claimsProved}
+        value={detailFromValue(matrix?.claimsProved)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.claimsNotProved}
+        value={detailFromValue(matrix?.claimsNotProved)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.evidenceWindow}
+        value={detailFromValue(diagnostics?.evidenceWindowSummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.trustedRegistry}
+        value={detailFromValue(diagnostics?.trustedRegistrySummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.decisionHistory}
+        value={detailFromValue(diagnostics?.decisionHistorySummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.policyTargets}
+        value={detailFromValue(diagnostics?.policyTargetSurfaceSummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.productionProof}
+        value={detailFromValue(diagnostics?.productionProofSummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.signedProof}
+        value={detailFromValue(diagnostics?.signedProofSummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.routeSafety}
+        value={detailFromValue(diagnostics?.routeSafetySummary)}
+      />
+      <NetworkEvidenceDrawerDetail
+        label={LAN_SOURCE_MATRIX_TEXT.relayCache}
+        value={detailFromValue(diagnostics?.relayCacheSummary)}
+      />
+    </dl>
   );
 }
 
@@ -233,7 +248,10 @@ function NetworkEvidenceLanSourceMatrixRows({
         title={LAN_SOURCE_MATRIX_TEXT.weakSourceFences}
         rows={matrix?.weakSourceRows ?? []}
       />
-      <NetworkEvidenceDrawerRowSection title={LAN_SOURCE_MATRIX_TEXT.recentEvents} rows={matrix?.recentEventRows ?? []} />
+      <NetworkEvidenceDrawerRowSection
+        title={LAN_SOURCE_MATRIX_TEXT.recentEvents}
+        rows={matrix?.recentEventRows ?? []}
+      />
       <NetworkEvidenceDrawerRowSection
         title={LAN_SOURCE_MATRIX_TEXT.evidenceRows}
         rows={diagnostics?.evidenceRecordRows ?? []}
@@ -265,7 +283,11 @@ function NetworkEvidenceDrawerRowSection({
           <NetworkEvidenceDrawerDetail label={PortalDetails.Status} value={detailFromValue(undefined)} />
         ) : (
           rows.map((row) => (
-            <NetworkEvidenceDrawerDetail key={`${row.label}-${row.value}`} label={detailLabel(row.label)} value={detailFromValue(row.value)} />
+            <NetworkEvidenceDrawerDetail
+              key={`${row.label}-${row.value}`}
+              label={detailLabel(row.label)}
+              value={detailFromValue(row.value)}
+            />
           ))
         )}
       </dl>
@@ -419,9 +441,7 @@ export function projectLanDiscoverySourceMatrixViewModel(
     latestHistoryEventId: discoveryEventHistory?.latestEventId ?? null,
     latestHistoryObservedAt: discoveryEventHistory?.latestObservedAt ?? null,
     currentSourceSummary: joinTexts(lanAddDeviceReadModel.scanSummary.sourceLabels),
-    persistedSourceSummary: joinTexts(
-      restartPersistedSources.map((row) => `${row.source} (WP ${row.workpackId})`)
-    ),
+    persistedSourceSummary: joinTexts(restartPersistedSources.map((row) => `${row.source} (WP ${row.workpackId})`)),
     fenceSummary: joinTexts([
       `${weakSourceRows.length} weak-source fences`,
       `${routeControlSources.length} route-control sources`,
@@ -449,7 +469,9 @@ function projectWorkpackDisplayRow(row: LanDiscoverySourceMatrixWorkpackRow): La
   };
 }
 
-function projectImplementedSourceDisplayRow(row: LanDiscoverySourceMatrixSourceRow): LanDiscoverySourceMatrixDisplayRow {
+function projectImplementedSourceDisplayRow(
+  row: LanDiscoverySourceMatrixSourceRow
+): LanDiscoverySourceMatrixDisplayRow {
   return {
     label: `${row.source} (WP ${row.workpackId})`,
     value: joinTexts([
@@ -537,7 +559,9 @@ function detailFromValue(value: string | null | undefined): ParentPortalDetailVa
 }
 
 function joinTexts(values: readonly (string | null | undefined)[]): string {
-  const normalized = values.filter((value): value is string => value !== null && value !== undefined && value.length > 0);
+  const normalized = values.filter(
+    (value): value is string => value !== null && value !== undefined && value.length > 0
+  );
   if (normalized.length === 0) {
     return notReportedText();
   }

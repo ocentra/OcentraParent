@@ -82,7 +82,8 @@ function main() {
   }
 
   ensure(
-    !portalLoggerWrapperText.includes('DevLogEndpoint.Write') && !portalLoggerWrapperText.includes('/__ocentra-parent-dev-log'),
+    !portalLoggerWrapperText.includes('DevLogEndpoint.Write') &&
+      !portalLoggerWrapperText.includes('/__ocentra-parent-dev-log'),
     'portal dev logger wrapper must not post directly to the compatibility endpoint'
   );
 

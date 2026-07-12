@@ -24,7 +24,7 @@ pub(crate) fn browser_policy_response_payload(response: &BrowserPolicyUpdateResp
     let mut fields = fields_from_pairs(vec![
         (
             constants::field::BROWSER_POLICY_RESPONSE,
-            LogFieldValue::String(serialize_json_string(response)),
+            LogFieldValue::String(serialize_json_string(response).0),
         ),
         (
             constants::field::BROWSER_POLICY_UPDATE_KIND,
@@ -42,13 +42,13 @@ pub(crate) fn browser_policy_response_payload(response: &BrowserPolicyUpdateResp
     if let Some(effective_policy) = &response.effective_policy {
         fields.insert(
             constants::field::BROWSER_POLICY_EFFECTIVE_POLICY.to_string(),
-            LogFieldValue::String(serialize_json_string(effective_policy)),
+            LogFieldValue::String(serialize_json_string(effective_policy).0),
         );
     }
     if let Some(capability_registry) = &response.capability_registry {
         fields.insert(
             constants::field::BROWSER_POLICY_CAPABILITY_REGISTRY.to_string(),
-            LogFieldValue::String(serialize_json_string(capability_registry)),
+            LogFieldValue::String(serialize_json_string(capability_registry).0),
         );
     }
     fields

@@ -6,7 +6,7 @@ use ocentra_lan_core::network_inventory::{LanDiscoveryRefreshMode, LanNetworkInv
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingNetworkMode, LanPairingProductionDiscoveryState,
-    LanPairingTrustState,
+    LanPairingText, LanPairingTrustState,
 };
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
@@ -98,7 +98,7 @@ fn stale_previous_scan_child_truth_does_not_suppress_probe_forever() {
 #[test]
 fn invalid_history_timestamp_is_not_treated_as_recent() {
     assert!(!scan_history_is_recent(
-        constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME,
+        LanPairingText::from(constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME),
         Utc::now(),
     ));
 }
@@ -193,6 +193,7 @@ fn localhost_status_with_stale_cache_reports_previous_snapshot_without_reusing_i
         )],
     };
 
+    let expected_snapshot = snapshot.clone();
     let result = cached_localhost_status_scan_result(
         &status_command_for_route(AgentRoute::Localhost),
         Some(snapshot),
@@ -202,10 +203,7 @@ fn localhost_status_with_stale_cache_reports_previous_snapshot_without_reusing_i
 
     assert_eq!(result.devices.len(), 0);
     assert!(!result.reused_recent_snapshot);
-    assert_eq!(
-        result.previous_scan_snapshot,
-        Some(constants::lan_pairing::OBSERVED_AT.to_string())
-    );
+    assert_eq!(result.previous_scan_snapshot, Some(expected_snapshot));
     assert!(result.current_scan_snapshot.is_none());
 }
 

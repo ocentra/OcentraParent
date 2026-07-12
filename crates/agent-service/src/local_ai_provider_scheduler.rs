@@ -19,7 +19,8 @@ use crate::{
     },
     local_ai_provider_scheduler_state::{
         copy_runtime_fields, decision_for, decrement_queue, increment_queue, status_unavailable,
-        status_unavailable_for_device,
+        status_unavailable_for_device, LocalAiPhysicalDeviceId, LocalAiStatusText,
+        LocalAiTimestamp,
     },
     time::timestamp_now,
 };
@@ -31,8 +32,8 @@ pub(crate) fn local_ai_provider_scheduler() -> &'static LocalAiProviderScheduler
 }
 
 pub(crate) struct LocalAiProviderSchedulerRuntime {
-    lanes: Mutex<HashMap<String, LocalAiProviderRuntimeLaneQueue>>,
-    states: std::sync::Mutex<HashMap<String, LocalAiProviderSchedulerStatus>>,
+    lanes: Mutex<HashMap<LocalAiPhysicalDeviceId, LocalAiProviderRuntimeLaneQueue>>,
+    states: std::sync::Mutex<HashMap<LocalAiPhysicalDeviceId, LocalAiProviderSchedulerStatus>>,
 }
 
 impl LocalAiProviderSchedulerRuntime {
@@ -40,26 +41,32 @@ impl LocalAiProviderSchedulerRuntime {
         Self {
             lanes: Mutex::new(HashMap::new()),
             states: std::sync::Mutex::new(HashMap::from([(
-                constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
-                status_unavailable(timestamp_now()),
+                LocalAiPhysicalDeviceId(
+                    constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
+                ),
+                status_unavailable(LocalAiTimestamp(timestamp_now())),
             )])),
         }
     }
 
     pub(crate) fn status_snapshot(&self) -> LocalAiProviderSchedulerStatus {
-        self.status_snapshot_for_device(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL)
+        self.status_snapshot_for_device(LocalAiPhysicalDeviceId(
+            constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
+        ))
     }
 
     pub(crate) fn status_snapshot_for_device(
         &self,
-        physical_device_id: &str,
+        physical_device_id: LocalAiPhysicalDeviceId,
     ) -> LocalAiProviderSchedulerStatus {
         self.states
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .get(physical_device_id)
+            .get(&physical_device_id)
             .cloned()
-            .unwrap_or_else(|| status_unavailable_for_device(physical_device_id, timestamp_now()))
+            .unwrap_or_else(|| {
+                status_unavailable_for_device(physical_device_id, LocalAiTimestamp(timestamp_now()))
+            })
     }
 
     pub(crate) fn record_queued_job(
@@ -68,7 +75,7 @@ impl LocalAiProviderSchedulerRuntime {
         job_class: LocalAiProviderSchedulerJobClass,
     ) -> LocalAiProviderSchedulerDecision {
         self.record_queued_job_for_device(
-            constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+            LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
             runtime,
             job_class,
         )
@@ -76,7 +83,7 @@ impl LocalAiProviderSchedulerRuntime {
 
     pub(crate) fn record_queued_job_for_device(
         &self,
-        physical_device_id: &str,
+        physical_device_id: LocalAiPhysicalDeviceId,
         runtime: &LocalModelRuntimeStatus,
         job_class: LocalAiProviderSchedulerJobClass,
     ) -> LocalAiProviderSchedulerDecision {
@@ -84,7 +91,7 @@ impl LocalAiProviderSchedulerRuntime {
             .states
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        let status = status_for_device(&mut states, physical_device_id, runtime);
+        let status = status_for_device(&mut states, physical_device_id.clone(), runtime);
         increment_queue(&mut status.queue, &job_class);
         status.lifecycle_state = LocalAiProviderSchedulerLifecycle::Queued;
         status.duplicate_runtime_blocked = true;
@@ -103,7 +110,7 @@ impl LocalAiProviderSchedulerRuntime {
 
     pub(crate) fn record_running_job_for_device(
         &self,
-        physical_device_id: &str,
+        physical_device_id: LocalAiPhysicalDeviceId,
         runtime: &LocalModelRuntimeStatus,
         job_class: LocalAiProviderSchedulerJobClass,
     ) -> LocalAiProviderSchedulerDecision {
@@ -111,7 +118,7 @@ impl LocalAiProviderSchedulerRuntime {
             .states
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        let status = status_for_device(&mut states, physical_device_id, runtime);
+        let status = status_for_device(&mut states, physical_device_id.clone(), runtime);
         decrement_queue(&mut status.queue, &job_class);
         status.lifecycle_state = LocalAiProviderSchedulerLifecycle::Running;
         status.current_job_class = Some(job_class.clone());
@@ -140,7 +147,7 @@ impl LocalAiProviderSchedulerRuntime {
         job_class: LocalAiProviderSchedulerJobClass,
     ) -> LocalAiProviderSchedulerDecision {
         self.record_unavailable_job_for_device(
-            constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+            LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
             runtime,
             job_class,
         )
@@ -148,7 +155,7 @@ impl LocalAiProviderSchedulerRuntime {
 
     pub(crate) fn record_unavailable_job_for_device(
         &self,
-        physical_device_id: &str,
+        physical_device_id: LocalAiPhysicalDeviceId,
         runtime: &LocalModelRuntimeStatus,
         job_class: LocalAiProviderSchedulerJobClass,
     ) -> LocalAiProviderSchedulerDecision {
@@ -160,7 +167,7 @@ impl LocalAiProviderSchedulerRuntime {
             .states
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        let status = status_for_device(&mut states, physical_device_id, runtime);
+        let status = status_for_device(&mut states, physical_device_id.clone(), runtime);
         status.lifecycle_state = LocalAiProviderSchedulerLifecycle::Unavailable;
         status.current_job_class = None;
         status.queue = LocalAiProviderSchedulerQueue::default();
@@ -174,7 +181,7 @@ impl LocalAiProviderSchedulerRuntime {
             job_class,
             LocalAiProviderSchedulerJobStatus::Unavailable,
             None,
-            Some(reason),
+            Some(LocalAiStatusText(reason.to_string())),
             false,
         )
     }
@@ -190,7 +197,7 @@ impl LocalAiProviderSchedulerRuntime {
         Fut: Future<Output = LocalAiChatGenerationResult>,
     {
         self.run_generation_job_for_device(
-            constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+            LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
             job_class,
             runtime,
             run,
@@ -200,7 +207,7 @@ impl LocalAiProviderSchedulerRuntime {
 
     pub(crate) async fn run_generation_job_for_device<F, Fut>(
         &self,
-        physical_device_id: &str,
+        physical_device_id: LocalAiPhysicalDeviceId,
         job_class: LocalAiProviderSchedulerJobClass,
         runtime: LocalModelRuntimeStatus,
         run: F,
@@ -209,20 +216,25 @@ impl LocalAiProviderSchedulerRuntime {
         F: FnOnce() -> Fut,
         Fut: Future<Output = LocalAiChatGenerationResult>,
     {
+        let finish_physical_device_id = physical_device_id.clone();
         if runtime.unavailable_reason.is_some() {
-            self.record_unavailable_job_for_device(physical_device_id, &runtime, job_class);
+            self.record_unavailable_job_for_device(physical_device_id.clone(), &runtime, job_class);
             return run().await;
         }
 
         match self
-            .reserve_runtime_lane(physical_device_id, job_class.clone())
+            .reserve_runtime_lane(physical_device_id.clone(), job_class.clone())
             .await
         {
             LocalAiProviderRuntimeLaneAdmission::Running => {
                 self.record_running_job_for_device(physical_device_id, &runtime, job_class.clone());
             }
             LocalAiProviderRuntimeLaneAdmission::Queued(waiter) => {
-                self.record_queued_job_for_device(physical_device_id, &runtime, job_class.clone());
+                self.record_queued_job_for_device(
+                    physical_device_id.clone(),
+                    &runtime,
+                    job_class.clone(),
+                );
                 waiter.notify_if_lane_idle();
                 self.wait_for_runtime_lane(physical_device_id, waiter, &runtime, job_class.clone())
                     .await;
@@ -230,25 +242,26 @@ impl LocalAiProviderSchedulerRuntime {
         }
 
         let result = run().await;
-        self.finish_runtime_lane(physical_device_id, &runtime).await;
+        self.finish_runtime_lane(finish_physical_device_id, &runtime)
+            .await;
         result
     }
 
     async fn reserve_runtime_lane(
         &self,
-        physical_device_id: &str,
+        physical_device_id: LocalAiPhysicalDeviceId,
         job_class: LocalAiProviderSchedulerJobClass,
     ) -> LocalAiProviderRuntimeLaneAdmission {
         let mut lanes = self.lanes.lock().await;
         lanes
-            .entry(physical_device_id.to_string())
+            .entry(physical_device_id)
             .or_insert_with(LocalAiProviderRuntimeLaneQueue::new)
             .reserve(job_class)
     }
 
     async fn wait_for_runtime_lane(
         &self,
-        physical_device_id: &str,
+        physical_device_id: LocalAiPhysicalDeviceId,
         waiter: LocalAiProviderRuntimeLaneWaiter,
         runtime: &LocalModelRuntimeStatus,
         job_class: LocalAiProviderSchedulerJobClass,
@@ -258,7 +271,7 @@ impl LocalAiProviderSchedulerRuntime {
             let admitted = {
                 let mut lanes = self.lanes.lock().await;
                 lanes
-                    .entry(physical_device_id.to_string())
+                    .entry(physical_device_id.clone())
                     .or_insert_with(LocalAiProviderRuntimeLaneQueue::new)
                     .try_admit_queued(&waiter)
             };
@@ -271,13 +284,13 @@ impl LocalAiProviderSchedulerRuntime {
 
     async fn finish_runtime_lane(
         &self,
-        physical_device_id: &str,
+        physical_device_id: LocalAiPhysicalDeviceId,
         runtime: &LocalModelRuntimeStatus,
     ) {
         let waiting_jobs = {
             let mut lanes = self.lanes.lock().await;
             let waiting_jobs = lanes
-                .entry(physical_device_id.to_string())
+                .entry(physical_device_id.clone())
                 .or_insert_with(LocalAiProviderRuntimeLaneQueue::new)
                 .finish_running();
             self.finish_runtime_lane_state(physical_device_id, runtime);
@@ -290,7 +303,7 @@ impl LocalAiProviderSchedulerRuntime {
 
     fn finish_runtime_lane_state(
         &self,
-        physical_device_id: &str,
+        physical_device_id: LocalAiPhysicalDeviceId,
         runtime: &LocalModelRuntimeStatus,
     ) {
         let mut states = self
@@ -316,13 +329,14 @@ impl LocalAiProviderSchedulerRuntime {
 }
 
 fn status_for_device<'a>(
-    states: &'a mut HashMap<String, LocalAiProviderSchedulerStatus>,
-    physical_device_id: &str,
+    states: &'a mut HashMap<LocalAiPhysicalDeviceId, LocalAiProviderSchedulerStatus>,
+    physical_device_id: LocalAiPhysicalDeviceId,
     runtime: &LocalModelRuntimeStatus,
 ) -> &'a mut LocalAiProviderSchedulerStatus {
-    states
-        .entry(physical_device_id.to_string())
-        .or_insert_with(|| {
-            status_unavailable_for_device(physical_device_id, runtime.last_checked_at.clone())
-        })
+    states.entry(physical_device_id.clone()).or_insert_with(|| {
+        status_unavailable_for_device(
+            physical_device_id,
+            LocalAiTimestamp(runtime.last_checked_at.clone()),
+        )
+    })
 }

@@ -59,10 +59,7 @@ export function trackingSelectionModeFor(
     : 'single';
 }
 
-export function trackingCardKindFor(
-  controlKind: TrackingControlKind,
-  optionCount: number
-): TrackingControlCardKind {
+export function trackingCardKindFor(controlKind: TrackingControlKind, optionCount: number): TrackingControlCardKind {
   if (controlKind === 'single-choice') {
     return optionCount > 6 ? 'single-choice-many' : 'single-choice-compact';
   }

@@ -5,7 +5,9 @@ export function validationRulesForGenerated(
   const proof = proofRequirementForGenerated(sectionTitle, sourceText);
   const rules = [
     ruleGenerated('Selected option ids must belong to this setting acceptedOptions list.'),
-    ruleGenerated('Portal writes only authored intent; child runtime owns compile, persistence, evaluation, and audit.'),
+    ruleGenerated(
+      'Portal writes only authored intent; child runtime owns compile, persistence, evaluation, and audit.'
+    ),
   ];
   if (proof !== null) {
     rules.push(ruleGenerated(`Enforcement requires proof: ${proof}.`));
@@ -13,7 +15,9 @@ export function validationRulesForGenerated(
   return rules;
 }
 
-export function sectionKindForTitleGenerated(sectionTitle: string): 'setting-section' | 'rule-dimension-section' | 'candidate-mvp-section' | 'planning-gap-section' {
+export function sectionKindForTitleGenerated(
+  sectionTitle: string
+): 'setting-section' | 'rule-dimension-section' | 'candidate-mvp-section' | 'planning-gap-section' {
   if (sectionTitle === 'Global Rule Dimensions') {
     return 'rule-dimension-section';
   }
@@ -25,4 +29,3 @@ export function sectionKindForTitleGenerated(sectionTitle: string): 'setting-sec
   }
   return 'setting-section';
 }
-

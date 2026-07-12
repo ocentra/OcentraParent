@@ -1,11 +1,7 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 
-import {
-  isLikelyParentBridgeOccupant,
-  ParentDevEnv,
-  resolveParentDevNetworkConfig,
-} from './local-dev-config.mjs';
+import { isLikelyParentBridgeOccupant, ParentDevEnv, resolveParentDevNetworkConfig } from './local-dev-config.mjs';
 import { ensurePortFree } from './port-utils.mjs';
 
 function log(message) {
@@ -20,10 +16,7 @@ if (!isFree) {
 }
 
 log(`Starting Rust parent dev bridge on ${network.parentBridgeAddress}.`);
-const bridge = spawn(
-  'cargo',
-  ['run', '--manifest-path', 'crates/parent-dev-bridge/Cargo.toml'],
-  {
+const bridge = spawn('cargo', ['run', '--manifest-path', 'crates/parent-dev-bridge/Cargo.toml'], {
   cwd: process.cwd(),
   stdio: 'inherit',
   shell: process.platform === 'win32',

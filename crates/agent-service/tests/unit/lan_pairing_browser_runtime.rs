@@ -366,8 +366,8 @@ fn household_decision_payload_for_device_with_action(
     action_kind: impl Into<TestString>,
     revoked_at: Option<TestString>,
 ) -> LogFields {
-    let canonical_device_id = canonical_device_id;
-    let action_kind = action_kind;
+    let canonical_device_id = canonical_device_id.into();
+    let action_kind = action_kind.into();
     let mut pairs = vec![
         (
             constants::lan_pairing::HOUSEHOLD_ACTION_ID_FIELD,
@@ -442,7 +442,7 @@ fn temp_registry_path() -> TestPathBuf {
 }
 
 fn canonical_device_id_for_mac(mac_address: impl Into<TestString>) -> TestString {
-    let mac_address = mac_address;
+    let mac_address = mac_address.into();
     let mut canonical_device_id =
         TestString::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
     canonical_device_id.push_str(

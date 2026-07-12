@@ -561,10 +561,10 @@ fn scan_history_snapshot_with_devices(
 }
 
 fn inventory_device(
-    device_id: TestText,
-    hostname: TestText,
-    ip_address: TestText,
-    mac_address: TestText,
+    device_id: impl Into<TestText>,
+    hostname: impl Into<TestText>,
+    ip_address: impl Into<TestText>,
+    mac_address: impl Into<TestText>,
     agent_status: Option<TestText>,
 ) -> LanNetworkInventoryDevice {
     let device_id: TestText = device_id.into();
@@ -582,10 +582,10 @@ fn inventory_device(
 }
 
 fn inventory_device_with_reachability(
-    device_id: TestText,
-    hostname: TestText,
-    ip_address: TestText,
-    mac_address: TestText,
+    device_id: impl Into<TestText>,
+    hostname: impl Into<TestText>,
+    ip_address: impl Into<TestText>,
+    mac_address: impl Into<TestText>,
     reachability: LanPairingDeviceReachability,
     agent_status: Option<TestText>,
 ) -> LanNetworkInventoryDevice {
@@ -751,9 +751,9 @@ fn canonical_offline_router_household_device() -> LanCanonicalHouseholdDevice {
 }
 
 fn canonical_network_identity(
-    hostname: TestText,
-    ip_address: TestText,
-    mac_address: TestText,
+    hostname: impl Into<TestText>,
+    ip_address: impl Into<TestText>,
+    mac_address: impl Into<TestText>,
     reachability: LanPairingDeviceReachability,
     confidence: LanCanonicalHouseholdDeviceConfidence,
     offline_at: Option<TestText>,

@@ -428,7 +428,10 @@ function serviceManagerProofIsHonest(proof: ChildLinuxServiceManagerProof): bool
 
 function surfaceProofsAreHonest(proofs: ReadonlyArray<ChildLinuxServiceSurfaceProof>): boolean {
   const bySurface = new Map(proofs.map((entry) => [entry.surface, entry] as const));
-  return bySurface.size === proofs.length && RequiredSurfaces.every((surface) => surfaceProofIsHonest(bySurface.get(surface), surface));
+  return (
+    bySurface.size === proofs.length &&
+    RequiredSurfaces.every((surface) => surfaceProofIsHonest(bySurface.get(surface), surface))
+  );
 }
 
 function surfaceProofIsHonest(
@@ -438,11 +441,11 @@ function surfaceProofIsHonest(
   const expected = SurfaceExpectations[surface];
   return Boolean(
     proof &&
-      proof.surface === surface &&
-      proof.parentCapability === expected.parentCapability &&
-      proof.parentCapabilityStatus === expected.parentCapabilityStatus &&
-      proof.proofState === expected.proofState &&
-      proof.runtimeOwner === expected.runtimeOwner
+    proof.surface === surface &&
+    proof.parentCapability === expected.parentCapability &&
+    proof.parentCapabilityStatus === expected.parentCapabilityStatus &&
+    proof.proofState === expected.proofState &&
+    proof.runtimeOwner === expected.runtimeOwner
   );
 }
 

@@ -15,163 +15,74 @@ use ocentra_policy_control_core::policy_source::PolicyRuleAction as CorePolicyRu
 use ocentra_policy_control_core::policy_source::PolicySourceActorState as CorePolicySourceActorState;
 use ocentra_policy_control_core::policy_source::PolicyTargetKind as CorePolicyTargetKind;
 
-const ACTOR_ROLE_PROTOCOL_PARENT: &str = "parent";
-const ACTOR_ROLE_PROTOCOL_CO_PARENT: &str = "co-parent";
-const ACTOR_ROLE_PROTOCOL_OBSERVER: &str = "observer";
-const ACTOR_ROLE_PROTOCOL_CHILD: &str = "child";
-const ACTOR_ROLE_PROTOCOL_SUPPORT: &str = "support";
+#[path = "policy_request_confirm/mapping_actor.rs"]
+mod mapping_actor;
+#[path = "policy_request_confirm/mapping_request.rs"]
+mod mapping_request;
+#[path = "policy_request_confirm/mapping_status.rs"]
+mod mapping_status;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct ActorRoleProtocolText(pub(super) &'static str);
 
 pub(super) fn actor_role_protocol(
     role: PolicyRequestAssistantPreviewConfirmActorRole,
-) -> &'static str {
-    match role {
-        PolicyRequestAssistantPreviewConfirmActorRole::Parent => ACTOR_ROLE_PROTOCOL_PARENT,
-        PolicyRequestAssistantPreviewConfirmActorRole::CoParent => ACTOR_ROLE_PROTOCOL_CO_PARENT,
-        PolicyRequestAssistantPreviewConfirmActorRole::Observer => ACTOR_ROLE_PROTOCOL_OBSERVER,
-        PolicyRequestAssistantPreviewConfirmActorRole::Child => ACTOR_ROLE_PROTOCOL_CHILD,
-        PolicyRequestAssistantPreviewConfirmActorRole::Support => ACTOR_ROLE_PROTOCOL_SUPPORT,
-    }
+) -> ActorRoleProtocolText {
+    mapping_actor::actor_role_protocol(role)
 }
 
 pub(super) fn map_request_origin(origin: ProtocolPolicyRequestOrigin) -> CorePolicyRequestOrigin {
-    match origin {
-        ProtocolPolicyRequestOrigin::Child => CorePolicyRequestOrigin::Child,
-        ProtocolPolicyRequestOrigin::AssistantDraft => CorePolicyRequestOrigin::AssistantDraft,
-    }
+    mapping_status::map_request_origin(origin)
 }
 
 pub(super) fn map_request_kind(
     kind: PolicyRequestAssistantPreviewConfirmRequestKind,
 ) -> CorePolicyRequestKind {
-    match kind {
-        PolicyRequestAssistantPreviewConfirmRequestKind::AskParent => {
-            CorePolicyRequestKind::AskParent
-        }
-        PolicyRequestAssistantPreviewConfirmRequestKind::BonusTime => {
-            CorePolicyRequestKind::BonusTime
-        }
-        PolicyRequestAssistantPreviewConfirmRequestKind::TemporaryOverride => {
-            CorePolicyRequestKind::TemporaryOverride
-        }
-    }
+    mapping_request::map_request_kind(kind)
 }
 
 pub(super) fn map_target_kind(
     kind: PolicyRequestAssistantPreviewConfirmTargetKind,
 ) -> CorePolicyTargetKind {
-    match kind {
-        PolicyRequestAssistantPreviewConfirmTargetKind::ChildProfile => {
-            CorePolicyTargetKind::ChildProfile
-        }
-        PolicyRequestAssistantPreviewConfirmTargetKind::Device => CorePolicyTargetKind::Device,
-        PolicyRequestAssistantPreviewConfirmTargetKind::App => CorePolicyTargetKind::App,
-        PolicyRequestAssistantPreviewConfirmTargetKind::Site => CorePolicyTargetKind::Site,
-        PolicyRequestAssistantPreviewConfirmTargetKind::Category => CorePolicyTargetKind::Category,
-        PolicyRequestAssistantPreviewConfirmTargetKind::Resource => CorePolicyTargetKind::Resource,
-    }
+    mapping_request::map_target_kind(kind)
 }
 
 pub(super) fn map_requested_action(
     action: PolicyRequestAssistantPreviewConfirmAction,
 ) -> CorePolicyRuleAction {
-    match action {
-        PolicyRequestAssistantPreviewConfirmAction::Allow => CorePolicyRuleAction::Allow,
-        PolicyRequestAssistantPreviewConfirmAction::Warn => CorePolicyRuleAction::Warn,
-        PolicyRequestAssistantPreviewConfirmAction::AskParent => CorePolicyRuleAction::AskParent,
-        PolicyRequestAssistantPreviewConfirmAction::TimeLimit => CorePolicyRuleAction::TimeLimit,
-        PolicyRequestAssistantPreviewConfirmAction::Block => CorePolicyRuleAction::Block,
-    }
+    mapping_request::map_requested_action(action)
 }
 
 pub(super) fn map_actor_role(
     role: PolicyRequestAssistantPreviewConfirmActorRole,
 ) -> CoreParentPolicyActorRole {
-    match role {
-        PolicyRequestAssistantPreviewConfirmActorRole::Parent => CoreParentPolicyActorRole::Parent,
-        PolicyRequestAssistantPreviewConfirmActorRole::CoParent => {
-            CoreParentPolicyActorRole::CoParent
-        }
-        PolicyRequestAssistantPreviewConfirmActorRole::Observer => {
-            CoreParentPolicyActorRole::Observer
-        }
-        PolicyRequestAssistantPreviewConfirmActorRole::Child => CoreParentPolicyActorRole::Child,
-        PolicyRequestAssistantPreviewConfirmActorRole::Support => {
-            CoreParentPolicyActorRole::Support
-        }
-    }
+    mapping_actor::map_actor_role(role)
 }
 
 pub(super) fn map_actor_state(
     state: PolicyRequestAssistantPreviewConfirmActorState,
 ) -> CorePolicySourceActorState {
-    match state {
-        PolicyRequestAssistantPreviewConfirmActorState::Active => {
-            CorePolicySourceActorState::Active
-        }
-        PolicyRequestAssistantPreviewConfirmActorState::Revoked => {
-            CorePolicySourceActorState::Revoked
-        }
-    }
+    mapping_actor::map_actor_state(state)
 }
 
 pub(super) fn map_confirmation_state(
     state: ProtocolPolicyAssistantConfirmationState,
 ) -> CorePolicyAssistantConfirmationState {
-    match state {
-        ProtocolPolicyAssistantConfirmationState::NotRequired => {
-            CorePolicyAssistantConfirmationState::NotRequired
-        }
-        ProtocolPolicyAssistantConfirmationState::ParentConfirmationRequired => {
-            CorePolicyAssistantConfirmationState::ParentConfirmationRequired
-        }
-        ProtocolPolicyAssistantConfirmationState::ParentConfirmed => {
-            CorePolicyAssistantConfirmationState::ParentConfirmed
-        }
-    }
+    mapping_status::map_confirmation_state(state)
 }
 
 pub(super) fn map_request_status(status: ProtocolPolicyRequestStatus) -> CorePolicyRequestStatus {
-    match status {
-        ProtocolPolicyRequestStatus::PreviewOnly => CorePolicyRequestStatus::PreviewOnly,
-        ProtocolPolicyRequestStatus::PendingParentReview => {
-            CorePolicyRequestStatus::PendingParentReview
-        }
-        ProtocolPolicyRequestStatus::Approved => CorePolicyRequestStatus::Approved,
-        ProtocolPolicyRequestStatus::Denied => CorePolicyRequestStatus::Denied,
-        ProtocolPolicyRequestStatus::Modified => CorePolicyRequestStatus::Modified,
-        ProtocolPolicyRequestStatus::Expired => CorePolicyRequestStatus::Expired,
-        ProtocolPolicyRequestStatus::ReplayRejected => CorePolicyRequestStatus::PreviewOnly,
-    }
+    mapping_status::map_request_status(status)
 }
 
 pub(super) fn map_protocol_request_status(
     status: CorePolicyRequestStatus,
 ) -> ProtocolPolicyRequestStatus {
-    match status {
-        CorePolicyRequestStatus::PreviewOnly => ProtocolPolicyRequestStatus::PreviewOnly,
-        CorePolicyRequestStatus::PendingParentReview => {
-            ProtocolPolicyRequestStatus::PendingParentReview
-        }
-        CorePolicyRequestStatus::Approved => ProtocolPolicyRequestStatus::Approved,
-        CorePolicyRequestStatus::Denied => ProtocolPolicyRequestStatus::Denied,
-        CorePolicyRequestStatus::Modified => ProtocolPolicyRequestStatus::Modified,
-        CorePolicyRequestStatus::Expired => ProtocolPolicyRequestStatus::Expired,
-        CorePolicyRequestStatus::ReplayRejected => ProtocolPolicyRequestStatus::ReplayRejected,
-    }
+    mapping_status::map_protocol_request_status(status)
 }
 
 pub(super) fn map_protocol_confirmation_state(
     state: CorePolicyAssistantConfirmationState,
 ) -> ProtocolPolicyAssistantConfirmationState {
-    match state {
-        CorePolicyAssistantConfirmationState::NotRequired => {
-            ProtocolPolicyAssistantConfirmationState::NotRequired
-        }
-        CorePolicyAssistantConfirmationState::ParentConfirmationRequired => {
-            ProtocolPolicyAssistantConfirmationState::ParentConfirmationRequired
-        }
-        CorePolicyAssistantConfirmationState::ParentConfirmed => {
-            ProtocolPolicyAssistantConfirmationState::ParentConfirmed
-        }
-    }
+    mapping_status::map_protocol_confirmation_state(state)
 }

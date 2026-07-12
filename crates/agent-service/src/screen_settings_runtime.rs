@@ -22,6 +22,28 @@ use crate::{
     time::timestamp_now,
 };
 
+#[path = "screen_settings_runtime/get_flow.rs"]
+mod get_flow;
+#[path = "screen_settings_runtime/replace_flow.rs"]
+mod replace_flow;
+#[path = "screen_settings_runtime/validation.rs"]
+mod validation;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ScreenSettingsRequestId(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ScreenSettingsTimestamp(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ScreenSettingsText(String);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct ScreenSettingsIdPrefix(&'static str);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ScreenSettingsId(String);
+
 #[derive(Clone, Debug)]
 pub(crate) struct ScreenSettingsRuntime {
     persistence: ScreenSettingsPersistence,
@@ -51,107 +73,19 @@ impl ScreenSettingsRuntime {
     ) -> ScreenSettingsUpdateResponse {
         let _guard = self.io_lock.lock().await;
         match request {
-            ScreenSettingsUpdateRequest::Get(request) => self.handle_get(request.request_id).await,
+            ScreenSettingsUpdateRequest::Get(request) => {
+                get_flow::handle_get(self, ScreenSettingsRequestId(request.request_id)).await
+            }
             ScreenSettingsUpdateRequest::Replace(request) => {
-                self.handle_replace(
-                    request.request_id,
+                replace_flow::handle_replace(
+                    self,
+                    ScreenSettingsRequestId(request.request_id),
                     request.base_setting_version,
                     request.setting,
                 )
                 .await
             }
         }
-    }
-
-    async fn handle_get(&self, request_id: String) -> ScreenSettingsUpdateResponse {
-        let generated_at = timestamp_now();
-        match self.read_state().await {
-            Ok(state) => {
-                let setting = state
-                    .active_setting()
-                    .map(|record| record.setting.clone())
-                    .unwrap_or_else(|| default_disabled_setting(&generated_at));
-                accepted_response(
-                    request_id,
-                    ScreenSettingsUpdateKind::Get,
-                    setting,
-                    None,
-                    constants::screen_settings::MESSAGE_REPORTED,
-                )
-            }
-            Err(_) => rejected_response(
-                request_id,
-                ScreenSettingsUpdateKind::Get,
-                ScreenSettingsRejectionReason::StorageUnavailable,
-                constants::screen_settings::MESSAGE_STORAGE_UNAVAILABLE,
-            ),
-        }
-    }
-
-    async fn handle_replace(
-        &self,
-        request_id: String,
-        base_setting_version: Option<u64>,
-        setting: ScreenAnalysisParentSetting,
-    ) -> ScreenSettingsUpdateResponse {
-        let generated_at = timestamp_now();
-        if let Err(reason) = validate_screen_setting(&setting) {
-            return rejected_response(
-                request_id,
-                ScreenSettingsUpdateKind::Replace,
-                reason,
-                constants::screen_settings::MESSAGE_INVALID_SETTING,
-            );
-        }
-        let mut state = match self.read_state().await {
-            Ok(state) => state,
-            Err(_) => {
-                return rejected_response(
-                    request_id,
-                    ScreenSettingsUpdateKind::Replace,
-                    ScreenSettingsRejectionReason::StorageUnavailable,
-                    constants::screen_settings::MESSAGE_STORAGE_UNAVAILABLE,
-                )
-            }
-        };
-        if state.active_setting_version != base_setting_version {
-            return rejected_response(
-                request_id,
-                ScreenSettingsUpdateKind::Replace,
-                ScreenSettingsRejectionReason::StaleRevision,
-                constants::screen_settings::MESSAGE_STALE_REVISION,
-            );
-        }
-        let audit_event_id = next_audit_event_id(&state);
-        state.active_setting_version = Some(setting.setting_version);
-        state.settings.push(ScreenSettingsRevisionRecord {
-            revision_id: next_revision_id(&state),
-            setting: setting.clone(),
-            created_at: generated_at.clone(),
-            audit_event_id: audit_event_id.clone(),
-        });
-        state.audit_events.push(ScreenSettingsAuditRecord {
-            audit_event_id: audit_event_id.clone(),
-            request_id: request_id.clone(),
-            kind: ScreenSettingsUpdateKind::Replace,
-            setting_version: setting.setting_version,
-            created_at: generated_at,
-        });
-        if self.write_state(&state).await.is_err() {
-            return rejected_response(
-                request_id,
-                ScreenSettingsUpdateKind::Replace,
-                ScreenSettingsRejectionReason::StorageUnavailable,
-                constants::screen_settings::MESSAGE_STORAGE_UNAVAILABLE,
-            );
-        }
-        accepted_response(
-            request_id,
-            ScreenSettingsUpdateKind::Replace,
-            setting,
-            Some(audit_event_id),
-            constants::screen_settings::MESSAGE_ACCEPTED,
-        )
     }
 
     async fn read_state(&self) -> Result<ScreenSettingsStoredState, ScreenSettingsStoreError> {
@@ -172,7 +106,10 @@ impl ScreenSettingsRuntime {
     }
 }
 
-pub(crate) fn default_disabled_setting(generated_at: &str) -> ScreenAnalysisParentSetting {
+pub(crate) fn default_disabled_setting(
+    generated_at: impl Into<ScreenSettingsTimestamp>,
+) -> ScreenAnalysisParentSetting {
+    let generated_at = generated_at.into().0;
     ScreenAnalysisParentSetting {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
         screen_analysis_enabled: false,
@@ -204,133 +141,59 @@ pub(crate) fn default_disabled_setting(generated_at: &str) -> ScreenAnalysisPare
     }
 }
 
-fn validate_screen_setting(
-    setting: &ScreenAnalysisParentSetting,
-) -> Result<(), ScreenSettingsRejectionReason> {
-    if setting.schema_version != SCREEN_EVIDENCE_SCHEMA_VERSION
-        || setting.setting_version == 0
-        || setting.cadence_seconds < constants::screen_settings::MIN_CADENCE_SECONDS
-        || setting.cadence_seconds > constants::screen_settings::MAX_CADENCE_SECONDS
-        || setting.temporary_image_ttl_seconds < constants::screen_settings::MIN_TTL_SECONDS
-        || setting.temporary_image_ttl_seconds > constants::screen_settings::MAX_TTL_SECONDS
-        || setting.max_retry_count > constants::screen_settings::MAX_RETRY_COUNT
-        || setting.ocr_text_snippet_limit > constants::screen_settings::MAX_OCR_SNIPPET_LIMIT
-        || !setting.credential_suppression_enabled
-        || !setting.delete_after_success
-        || !setting.delete_after_expiry
-    {
-        return Err(ScreenSettingsRejectionReason::InvalidSetting);
-    }
-    if setting.retain_raw_image && !raw_retention_local_ttl_allowed(setting) {
-        return Err(ScreenSettingsRejectionReason::RawRetentionForbidden);
-    }
-    if !setting.screen_analysis_enabled
-        && (setting.cadence_capture_enabled
-            || setting.strict_mode_enabled
-            || setting.trigger_capture_enabled
-            || setting.policy_use_enabled)
-    {
-        return Err(ScreenSettingsRejectionReason::DisabledSettingInconsistent);
-    }
-    if setting.policy_use_enabled
-        && (!setting.screen_analysis_enabled
-            || setting.analysis_mode == constants::screen_settings::ANALYSIS_MODE_OBSERVE_ONLY)
-    {
-        return Err(ScreenSettingsRejectionReason::PolicyModeInconsistent);
-    }
-    if setting.strict_mode_enabled
-        && (!setting.screen_analysis_enabled
-            || !setting.cadence_capture_enabled
-            || setting.cadence_seconds != constants::screen_settings::STRICT_CADENCE_SECONDS)
-    {
-        return Err(ScreenSettingsRejectionReason::StrictModeInconsistent);
-    }
-    if setting.trigger_capture_enabled
-        && (!setting.screen_analysis_enabled || setting.enabled_triggers.is_empty())
-    {
-        return Err(ScreenSettingsRejectionReason::TriggerModeInconsistent);
-    }
-    if !setting.ocr_text_enabled
-        && (setting.ocr_text_snippet_limit != 0
-            || setting.redaction_mode != constants::screen_settings::REDACTION_MODE_DISABLED
-            || setting.ocr_text_retention_mode
-                != constants::screen_settings::OCR_TEXT_RETENTION_DISABLED
-            || setting.pii_redaction_enabled)
-    {
-        return Err(ScreenSettingsRejectionReason::OcrModeInconsistent);
-    }
-    if setting.ocr_text_enabled
-        && (setting.ocr_text_snippet_limit == 0
-            || setting.redaction_mode == constants::screen_settings::REDACTION_MODE_DISABLED
-            || setting.ocr_text_retention_mode
-                == constants::screen_settings::OCR_TEXT_RETENTION_DISABLED)
-    {
-        return Err(ScreenSettingsRejectionReason::OcrModeInconsistent);
-    }
-    Ok(())
-}
-
-fn raw_retention_local_ttl_allowed(setting: &ScreenAnalysisParentSetting) -> bool {
-    setting.screen_analysis_enabled
-        && setting.temporary_image_ttl_seconds
-            <= constants::screen_settings::RAW_RETENTION_MAX_TTL_SECONDS
-        && setting.delete_after_success
-        && setting.delete_after_expiry
-}
-
 fn accepted_response(
-    request_id: String,
+    request_id: ScreenSettingsRequestId,
     kind: ScreenSettingsUpdateKind,
     setting: ScreenAnalysisParentSetting,
-    audit_event_id: Option<String>,
-    message: &str,
+    audit_event_id: Option<ScreenSettingsId>,
+    message: ScreenSettingsText,
 ) -> ScreenSettingsUpdateResponse {
     ScreenSettingsUpdateResponse {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
-        request_id,
+        request_id: request_id.0,
         kind,
         status: ScreenSettingsUpdateStatus::Accepted,
         setting: Some(setting),
-        audit_event_id,
+        audit_event_id: audit_event_id.map(|value| value.0),
         rejection_reason: None,
-        message: Some(message.to_string()),
+        message: Some(message.0),
     }
 }
 
 fn rejected_response(
-    request_id: String,
+    request_id: ScreenSettingsRequestId,
     kind: ScreenSettingsUpdateKind,
     rejection_reason: ScreenSettingsRejectionReason,
-    message: &str,
+    message: ScreenSettingsText,
 ) -> ScreenSettingsUpdateResponse {
     ScreenSettingsUpdateResponse {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
-        request_id,
+        request_id: request_id.0,
         kind,
         status: ScreenSettingsUpdateStatus::Rejected,
         setting: None,
         audit_event_id: None,
         rejection_reason: Some(rejection_reason),
-        message: Some(message.to_string()),
+        message: Some(message.0),
     }
 }
 
-fn next_revision_id(state: &ScreenSettingsStoredState) -> String {
+fn next_revision_id(state: &ScreenSettingsStoredState) -> ScreenSettingsId {
     suffixed_id(
-        constants::screen_settings::REVISION_PREFIX,
+        ScreenSettingsIdPrefix(constants::screen_settings::REVISION_PREFIX),
         state.settings.len() + 1,
     )
 }
 
-fn next_audit_event_id(state: &ScreenSettingsStoredState) -> String {
+fn next_audit_event_id(state: &ScreenSettingsStoredState) -> ScreenSettingsId {
     suffixed_id(
-        constants::screen_settings::AUDIT_PREFIX,
+        ScreenSettingsIdPrefix(constants::screen_settings::AUDIT_PREFIX),
         state.audit_events.len() + 1,
     )
 }
 
-fn suffixed_id(prefix: &str, suffix: usize) -> String {
-    let mut value = String::from(prefix);
+fn suffixed_id(prefix: ScreenSettingsIdPrefix, suffix: usize) -> ScreenSettingsId {
+    let mut value = String::from(prefix.0);
     value.push_str(&suffix.to_string());
-    value
+    ScreenSettingsId(value)
 }

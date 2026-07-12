@@ -25,7 +25,9 @@ export function browserControlFieldIdsAreUniqueGenerated(fields: readonly Browse
   return new Set(fields.map((field) => field.fieldId)).size === fields.length;
 }
 
-export function browserControlSectionIdsAreUniqueGenerated(sections: readonly BrowserControlSectionGenerated[]): boolean {
+export function browserControlSectionIdsAreUniqueGenerated(
+  sections: readonly BrowserControlSectionGenerated[]
+): boolean {
   return new Set(sections.map((section) => section.sectionId)).size === sections.length;
 }
 
@@ -50,4 +52,3 @@ export function browserControlEffectiveLimitPostureIsConsistentGenerated(
 export function browserControlRuleTargetIsSpecifiedGenerated(rule: BrowserControlRuleGenerated): boolean {
   return (rule.targetType !== null && rule.targetValue !== null) || rule.target !== null;
 }
-

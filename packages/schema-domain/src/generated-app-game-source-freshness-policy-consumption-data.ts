@@ -11,8 +11,7 @@ import {
 
 const GeneratedAt = AppGameSourceFreshnessPolicyConsumptionGeneratedAtGenerated;
 
-export const AppGameSourceFreshnessPolicyConsumptionRequests =
-  AppGameSourceFreshnessPolicyConsumptionRequestsGenerated;
+export const AppGameSourceFreshnessPolicyConsumptionRequests = AppGameSourceFreshnessPolicyConsumptionRequestsGenerated;
 
 export const AppGameSourceFreshnessPolicyConsumptionMatrix =
   SchemaDomainAppGameSourceFreshnessPolicyConsumptionMatrixSchema.parse({

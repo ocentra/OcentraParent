@@ -7,17 +7,20 @@ use crate::{
     lan_pairing_payload::parse_intent,
 };
 
+#[path = "command_routing/direct.rs"]
+mod direct;
+#[path = "command_routing/owned.rs"]
+mod owned;
+
 use super::{
-    controller_lease::{
-        controller_lease_release, controller_lease_renew, controller_lease_takeover,
-    },
-    lan_ai_job::{lan_ai_job_submit, lan_ai_provider_status_get},
-    lan_pairing_route_revoke, lan_pairing_route_select, lan_pairing_status_get, rejection_event,
-    signed_child_agent_observed, submit_pairing_proof, validate_control_intent, LanCommandDecision,
+    command_entrypoints::validate_control_intent, rejection_event, LanCommandDecision,
     LanPairingRuntime,
 };
 
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
+
+use self::direct::direct_pairing_response;
+use self::owned::owned_lan_response;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct LanCommandOrigin(pub(crate) LanPairingOptionalText);
@@ -62,75 +65,6 @@ async fn route_lan_command_inner(
 fn should_continue_without_lan_handling(command: &AgentCommandEnvelope) -> bool {
     command.target.route != AgentRoute::LocalNetwork
         || command.command == AgentCommandName::AgentLanRuntimeEventChainStreamGet
-}
-
-fn direct_pairing_response(
-    runtime: &LanPairingRuntime,
-    origin: Option<&LanCommandOrigin>,
-    command: &AgentCommandEnvelope,
-) -> Option<LanCommandDecision> {
-    let origin_text = origin.and_then(|origin| origin.0 .0.as_deref());
-    let origin_wrapper = origin
-        .cloned()
-        .map(|origin| origin.0)
-        .unwrap_or(LanPairingOptionalText(None));
-    match command.command.clone() {
-        AgentCommandName::AgentLanPairingBrowserDiscoveryScan => Some(LanCommandDecision::Respond(
-            browser_discovery_scan_event(runtime, command.clone()),
-        )),
-        AgentCommandName::AgentLanPairingAddDeviceRequest => Some(LanCommandDecision::Respond(
-            browser_add_device_request_event(runtime, origin_text, command.clone()),
-        )),
-        AgentCommandName::AgentLanPairingSignedChildAgentObserve => {
-            Some(LanCommandDecision::Respond(signed_child_agent_observed(
-                runtime,
-                &origin_wrapper,
-                command.clone(),
-            )))
-        }
-        AgentCommandName::AgentLanAiJobSubmit => Some(LanCommandDecision::Respond(
-            lan_ai_job_submit(runtime, origin_wrapper.clone(), command.clone()),
-        )),
-        _ => None,
-    }
-}
-
-async fn owned_lan_response(
-    runtime: LanPairingRuntime,
-    origin: LanCommandOrigin,
-    command: AgentCommandEnvelope,
-) -> Option<LanCommandDecision> {
-    let observed_origin = origin.0 .0.as_deref();
-    let origin_text = origin.0.clone();
-    let event = match command.command.clone() {
-        AgentCommandName::AgentLanPairingProofSubmit => {
-            submit_pairing_proof(runtime, origin.0.clone(), command).await
-        }
-        AgentCommandName::AgentLanPairingRouteSelect => {
-            lan_pairing_route_select(runtime, origin.0.clone(), command)
-        }
-        AgentCommandName::AgentLanPairingRouteRevoke => {
-            lan_pairing_route_revoke(runtime, origin.0.clone(), command)
-        }
-        AgentCommandName::AgentLanPairingStatusGet => {
-            lan_pairing_status_get(runtime, origin.0.clone(), command)
-        }
-        AgentCommandName::AgentLanPairingControllerLeaseRenew => {
-            controller_lease_renew(runtime, origin_text.clone(), command)
-        }
-        AgentCommandName::AgentLanPairingControllerLeaseRelease => {
-            controller_lease_release(runtime, origin_text.clone(), command)
-        }
-        AgentCommandName::AgentLanPairingControllerLeaseTakeover => {
-            controller_lease_takeover(runtime, origin_text.clone(), command)
-        }
-        AgentCommandName::AgentLanAiProviderStatusGet => {
-            lan_ai_provider_status_get(runtime, origin_text, command)
-        }
-        _ => return None,
-    };
-    let _ = observed_origin;
-    Some(LanCommandDecision::Respond(event))
 }
 
 fn validate_control_command(

@@ -19,17 +19,26 @@ pub(crate) fn same_physical_network_device(
     child_device: &LanPairingDeviceRef,
     network_device: &LanNetworkInventoryDevice,
 ) -> bool {
-    same_device_text(
+    let same_mac_address = match (
         child_device.mac_address.as_deref(),
-        Some(&network_device.mac_address),
-    ) || same_device_text(
-        child_device.ip_address.as_deref(),
-        Some(&network_device.ip_address),
-    )
-}
+        Some(network_device.mac_address.as_str()),
+    ) {
+        (Some(left), Some(right)) => {
+            let left = left.trim();
+            let right = right.trim();
+            !left.is_empty() && !right.is_empty() && left.eq_ignore_ascii_case(right)
+        }
+        _ => false,
+    };
 
-fn same_device_text(left: Option<&str>, right: Option<&str>) -> bool {
-    match (left, right) {
+    if same_mac_address {
+        return true;
+    }
+
+    match (
+        child_device.ip_address.as_deref(),
+        Some(network_device.ip_address.as_str()),
+    ) {
         (Some(left), Some(right)) => {
             let left = left.trim();
             let right = right.trim();

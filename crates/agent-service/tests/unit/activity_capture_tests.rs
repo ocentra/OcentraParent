@@ -4,6 +4,7 @@ use std::{
     io::Error as IoError,
 };
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
@@ -24,7 +25,7 @@ type TestResult = Result<(), Box<dyn Error>>;
 #[test]
 fn startup_activity_capture_can_be_suppressed_for_isolated_service_proofs() {
     assert!(!startup_activity_capture_enabled_for_value_for_test(Some(
-        constants::value::TRUE
+        TestText::from_display(constants::value::TRUE)
     )));
 }
 
@@ -115,15 +116,26 @@ fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() -> TestRes
 
 #[test]
 fn record_process_snapshot_reuses_journal_key_for_replay() -> TestResult {
-    let journal_path = temp_path(
+    let build_path = |suffix: &str, extension: &str| {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(suffix);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
+    let journal_path = build_path(
         constants::activity_store::TEST_CAPTURE_REPLAY_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
     );
-    let key_path = temp_path(
+    let key_path = build_path(
         constants::activity_store::TEST_CAPTURE_REPLAY_KEY_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let store_path = temp_path(
+    let store_path = build_path(
         constants::activity_store::TEST_CAPTURE_REPLAY_STORE_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
@@ -184,15 +196,26 @@ fn record_process_snapshot_reuses_journal_key_for_replay() -> TestResult {
 
 #[test]
 fn record_process_snapshot_rejects_invalid_journal_key() -> TestResult {
-    let journal_path = temp_path(
+    let build_path = |suffix: &str, extension: &str| {
+        let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+        name.push_str(&std::process::id().to_string());
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(suffix);
+
+        let mut path = std::env::temp_dir();
+        path.push(name);
+        path.set_extension(extension);
+        path
+    };
+    let journal_path = build_path(
         constants::activity_store::TEST_CAPTURE_INVALID_KEY_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
     );
-    let key_path = temp_path(
+    let key_path = build_path(
         constants::activity_store::TEST_CAPTURE_INVALID_KEY_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
-    let store_path = temp_path(
+    let store_path = build_path(
         constants::activity_store::TEST_CAPTURE_INVALID_KEY_STORE_SUFFIX,
         constants::activity_store::FILE_EXTENSION,
     );
@@ -209,7 +232,7 @@ fn record_process_snapshot_rejects_invalid_journal_key() -> TestResult {
         Ok(_) => Err(IoError::other(constants::error::ACTIVITY_CAPTURE_REJECTS_INVALID_KEY).into()),
         Err(error) => {
             assert_eq!(
-                error.reason(),
+                error.reason().0,
                 constants::value::ACTIVITY_CAPTURE_INVALID_KEY_LENGTH
             );
             Ok(())
@@ -226,12 +249,12 @@ fn cleanup_paths(
     key_path: impl AsRef<std::path::Path>,
     store_path: impl AsRef<std::path::Path>,
 ) {
-    let journal_path = journal_path.as_ref();
-    let key_path = key_path.as_ref();
-    let store_path = store_path.as_ref();
-    let _ = remove_file(journal_path);
-    let _ = remove_file(key_path);
-    let _ = remove_file(store_path);
+    let journal_path = journal_path.as_ref().to_path_buf();
+    let key_path = key_path.as_ref().to_path_buf();
+    let store_path = store_path.as_ref().to_path_buf();
+    let _ = remove_file(&journal_path);
+    let _ = remove_file(&key_path);
+    let _ = remove_file(&store_path);
     let mut store_wal_path = store_path.clone();
     store_wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(store_wal_path);

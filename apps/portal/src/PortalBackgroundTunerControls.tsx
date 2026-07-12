@@ -2,10 +2,7 @@ import { useState, type ReactElement } from 'react';
 import type { PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalBackgroundConfig } from './portal-background-config';
 import { usePortalBackgroundTunerControlState } from './portal-background-tuner-control-state';
-import {
-  PortalBackgroundTunerEditor,
-  PortalBackgroundTunerHeader,
-} from './portal-background-tuner-controls-panels';
+import { PortalBackgroundTunerEditor, PortalBackgroundTunerHeader } from './portal-background-tuner-controls-panels';
 
 type PortalBackgroundTunerControlsProps = {
   readonly config: PortalBackgroundConfig;

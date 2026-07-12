@@ -102,7 +102,7 @@ pub(crate) fn network_runtime_event_chain_stream_payload(
         ),
         (
             constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM,
-            LogFieldValue::String(serialized_stream_entries(&report.entries)),
+            serialized_stream_entries(&report.entries),
         ),
     ])
 }
@@ -128,9 +128,9 @@ fn count_value(value: usize) -> LogFieldValue {
     LogFieldValue::Number(value as f64)
 }
 
-fn serialized_stream_entries(entries: &[NetworkRuntimeServiceStreamEntry]) -> String {
-    match serde_json::to_string(entries) {
+fn serialized_stream_entries(entries: &[NetworkRuntimeServiceStreamEntry]) -> LogFieldValue {
+    LogFieldValue::String(match serde_json::to_string(entries) {
         Ok(json) => json,
         Err(_error) => constants::value::EMPTY.to_string(),
-    }
+    })
 }

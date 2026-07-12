@@ -1,13 +1,11 @@
 use super::*;
 use ocentra_lan_core::network_inventory::service_identity::http::parse_certificate_subject;
+use std::net::TcpStream;
 
 #[test]
 fn probe_response_parser_collects_sanitized_http_title_header_redirect_and_links() {
     let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable();
-    let port = listener
-        .local_addr()
-        .value_or_unreachable()
-        .port();
+    let port = listener.local_addr().value_or_unreachable().port();
     let request_count = Arc::new(AtomicUsize::new(0));
     let request_path = Arc::new(Mutex::new(None::<String>));
     let request_path_clone = Arc::clone(&request_path);
@@ -17,9 +15,7 @@ fn probe_response_parser_collects_sanitized_http_title_header_redirect_and_links
         let (mut stream, _) = listener.accept().value_or_unreachable();
         request_count_clone.fetch_add(1, Ordering::SeqCst);
         let request = read_request(&mut stream);
-        *request_path_clone
-            .lock()
-            .value_or_unreachable() = request
+        *request_path_clone.lock().value_or_unreachable() = request
             .0
             .lines()
             .next()
@@ -32,9 +28,7 @@ fn probe_response_parser_collects_sanitized_http_title_header_redirect_and_links
             body.len(),
             body
         );
-        stream
-            .write_all(response.as_bytes())
-            .value_or_unreachable();
+        stream.write_all(response.as_bytes()).value_or_unreachable();
     });
 
     let observation = probe_service_identity_on_target(
@@ -68,10 +62,7 @@ fn probe_response_parser_collects_sanitized_http_title_header_redirect_and_links
         "probe must not crawl beyond the initial request"
     );
     assert_eq!(
-        request_path
-            .lock()
-            .value_or_unreachable()
-            .as_deref(),
+        request_path.lock().value_or_unreachable().as_deref(),
         Some("/")
     );
 }
@@ -141,11 +132,9 @@ fn service_identity_probe_stops_when_scan_budget_is_exhausted() {
 
 #[test]
 fn probe_response_parser_collects_tls_certificate_subject() {
-    let cert = generate_simple_self_signed(vec!["service.local".into()])
-        .value_or_unreachable();
+    let cert = generate_simple_self_signed(vec!["service.local".into()]).value_or_unreachable();
     let cert_der = cert.cert.der().clone();
-    let certificate_subject =
-        parse_certificate_subject(&cert_der).value_or_unreachable();
+    let certificate_subject = parse_certificate_subject(&cert_der).value_or_unreachable();
     let observation = parse_probe_observation(
         b"HTTP/1.1 200 OK\r\nServer: tls-banner\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 70\r\n\r\n<html><head><title>Secure Control</title></head><body>ok</body></html>",
         Some(certificate_subject.clone()),
@@ -164,10 +153,7 @@ fn probe_response_parser_collects_tls_certificate_subject() {
 fn enrich_service_identity_probes_is_bounded_by_concurrency() {
     let _env_lock = agent_addr_env_lock();
     let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable();
-    let port = listener
-        .local_addr()
-        .value_or_unreachable()
-        .port();
+    let port = listener.local_addr().value_or_unreachable().port();
     let active = Arc::new(AtomicUsize::new(0));
     let max_active = Arc::new(AtomicUsize::new(0));
     let server = spawn_bounded_probe_server(listener, Arc::clone(&active), Arc::clone(&max_active));
@@ -222,47 +208,67 @@ fn spawn_bounded_probe_server(
     thread::spawn(move || {
         let mut handlers = Vec::new();
         for _ in 0..5 {
-            let (mut stream, _) = listener.accept().value_or_unreachable();
-            let active = Arc::clone(&active);
-            let max_active = Arc::clone(&max_active);
-            handlers.push(thread::spawn(move || {
-                let current = active.fetch_add(1, Ordering::SeqCst) + 1;
-                loop {
-                    let observed = max_active.load(Ordering::SeqCst);
-                    if current > observed {
-                        if max_active
-                            .compare_exchange(
-                                observed,
-                                current,
-                                Ordering::SeqCst,
-                                Ordering::SeqCst,
-                            )
-                            .is_ok()
-                        {
-                            break;
-                        }
-                    } else {
-                        break;
-                    }
-                }
-
-                let _ = read_request(&mut stream);
-                thread::sleep(Duration::from_millis(150));
-                let body = "<html><head><title>Bounded</title></head><body>ok</body></html>";
-                let response = format!(
-                    "HTTP/1.1 200 OK\r\nServer: bounded\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\n\r\n{}",
-                    body.len(),
-                    body
-                );
-                let _ = stream.write_all(response.as_bytes());
-                active.fetch_sub(1, Ordering::SeqCst);
-            }));
+            let (stream, _) = listener.accept().value_or_unreachable();
+            handlers.push(spawn_bounded_probe_handler(
+                stream,
+                Arc::clone(&active),
+                Arc::clone(&max_active),
+            ));
         }
 
-        for handler in handlers {
-            handler.join().value_or_unreachable();
-        }
+        join_bounded_probe_handlers(handlers);
     })
+}
+
+fn spawn_bounded_probe_handler(
+    stream: TcpStream,
+    active: Arc<AtomicUsize>,
+    max_active: Arc<AtomicUsize>,
+) -> thread::JoinHandle<()> {
+    thread::spawn(move || {
+        run_bounded_probe_handler(stream, active, max_active);
+    })
+}
+
+fn run_bounded_probe_handler(
+    mut stream: TcpStream,
+    active: Arc<AtomicUsize>,
+    max_active: Arc<AtomicUsize>,
+) {
+    let current = active.fetch_add(1, Ordering::SeqCst) + 1;
+    update_max_active(max_active.as_ref(), current);
+
+    let _ = read_request(&mut stream);
+    thread::sleep(Duration::from_millis(150));
+    let body = "<html><head><title>Bounded</title></head><body>ok</body></html>";
+    let response = format!(
+        "HTTP/1.1 200 OK\r\nServer: bounded\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\n\r\n{}",
+        body.len(),
+        body
+    );
+    let _ = stream.write_all(response.as_bytes());
+    active.fetch_sub(1, Ordering::SeqCst);
+}
+
+fn update_max_active(max_active: &AtomicUsize, current: usize) {
+    loop {
+        let observed = max_active.load(Ordering::SeqCst);
+        if current <= observed {
+            return;
+        }
+        if max_active
+            .compare_exchange(observed, current, Ordering::SeqCst, Ordering::SeqCst)
+            .is_ok()
+        {
+            return;
+        }
+    }
+}
+
+fn join_bounded_probe_handlers(handlers: Vec<thread::JoinHandle<()>>) {
+    for handler in handlers {
+        handler.join().value_or_unreachable();
+    }
 }
 
 fn bounded_probe_devices() -> Vec<LanNetworkInventoryDevice> {
@@ -286,4 +292,3 @@ fn bounded_probe_devices() -> Vec<LanNetworkInventoryDevice> {
         })
         .collect::<Vec<_>>()
 }
-

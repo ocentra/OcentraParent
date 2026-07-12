@@ -1,4 +1,8 @@
 use super::*;
+
+fn target_ip(value: impl std::fmt::Display) -> std::net::Ipv4Addr {
+    value.to_string().parse().value_or_unreachable()
+}
 use ocentra_lan_core::network_inventory::active_refresh::evidence::{
     targeted_arp_refresh_evidence_from_observation,
     targeted_arp_refresh_targets_with_packet_io_until,
@@ -81,9 +85,16 @@ fn targeted_arp_refresh_targets_only_selected_hosts_on_the_selected_interface() 
         .iter()
         .all(|target| target.network_interface.as_deref()
             == Some(constants::lan_pairing::TEST_NETWORK_INTERFACE)));
-    assert!(targets
-        .iter()
-        .all(|target| target.expected_mac_address.is_some()));
+    assert_eq!(
+        targets
+            .iter()
+            .map(|target| target.expected_mac_address.as_deref())
+            .collect::<Vec<_>>(),
+        vec![
+            Some(constants::lan_pairing::TEST_LAN_MAC),
+            Some(constants::lan_pairing::TEST_LAN_MAC)
+        ]
+    );
 }
 
 #[test]
@@ -232,11 +243,13 @@ fn targeted_arp_refresh_throttles_repeated_checks_per_host_and_interface() {
     };
     let first = Instant::now();
     assert!(targeted_arp_refresh_throttled_at(&target, first).is_none());
-    assert!(targeted_arp_refresh_throttled_at(
-        &target,
-        first + Duration::from_millis(TARGETED_ARP_REFRESH_THROTTLE_MS - 1)
-    )
-    .is_some());
+    assert_eq!(
+        targeted_arp_refresh_throttled_at(
+            &target,
+            first + Duration::from_millis(TARGETED_ARP_REFRESH_THROTTLE_MS - 1)
+        ),
+        Some(first)
+    );
     assert!(targeted_arp_refresh_throttled_at(
         &target,
         first + Duration::from_millis(TARGETED_ARP_REFRESH_THROTTLE_MS + 1)
@@ -264,7 +277,7 @@ fn targeted_arp_refresh_recovers_from_poisoned_attempt_state() {
     let attempts = TARGETED_ARP_REFRESH_ATTEMPTS.get_or_init(|| Mutex::new(HashMap::new()));
     let _ = std::panic::catch_unwind(|| {
         let _lock = attempts.lock().value_or_unreachable();
-        unreachable!("poison targeted arp refresh attempt state");
+        assert_eq!(0, 1, "poison targeted arp refresh attempt state");
     });
 
     let target = ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget {
@@ -275,11 +288,13 @@ fn targeted_arp_refresh_recovers_from_poisoned_attempt_state() {
     let first = Instant::now();
 
     assert!(targeted_arp_refresh_throttled_at(&target, first).is_none());
-    assert!(targeted_arp_refresh_throttled_at(
-        &target,
-        first + Duration::from_millis(TARGETED_ARP_REFRESH_THROTTLE_MS - 1)
-    )
-    .is_some());
+    assert_eq!(
+        targeted_arp_refresh_throttled_at(
+            &target,
+            first + Duration::from_millis(TARGETED_ARP_REFRESH_THROTTLE_MS - 1)
+        ),
+        Some(first)
+    );
 
     clear_targeted_arp_refresh_attempts();
 }
@@ -395,7 +410,9 @@ fn targeted_arp_refresh_budget_skips_without_recording_false_no_response() {
     assert!(packet_io.probed_targets.is_empty());
 }
 
-struct NoAttemptPacketIo;
+struct NoAttemptPacketIo {
+    observations_called: bool,
+}
 
 impl ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshPacketIo
     for NoAttemptPacketIo
@@ -413,12 +430,14 @@ impl ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshPack
         _deadline: Instant,
     ) -> Vec<ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation>
     {
-        unreachable!("observation reads require at least one attempted probe")
+        self.observations_called = true;
+        Vec::new()
     }
 }
 
 struct ExhaustedObservationBudgetPacketIo {
     probed_targets: Vec<std::net::Ipv4Addr>,
+    observations_called: bool,
 }
 
 impl ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshPacketIo
@@ -438,7 +457,8 @@ impl ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshPack
         _deadline: Instant,
     ) -> Vec<ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation>
     {
-        unreachable!("expired observation budget must not read neighbor observations")
+        self.observations_called = true;
+        Vec::new()
     }
 
     fn has_observation_budget(&mut self, _deadline: Instant) -> bool {
@@ -456,7 +476,9 @@ fn targeted_arp_refresh_without_probe_attempt_records_no_false_no_response() {
         expected_mac_address: Some(constants::lan_pairing::TEST_LAN_MAC.to_string()),
         network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
     };
-    let mut packet_io = NoAttemptPacketIo;
+    let mut packet_io = NoAttemptPacketIo {
+        observations_called: false,
+    };
     let evidence = targeted_arp_refresh_targets_with_packet_io_until(
         &[target],
         Instant::now() + Duration::from_secs(1),
@@ -464,6 +486,7 @@ fn targeted_arp_refresh_without_probe_attempt_records_no_false_no_response() {
     );
 
     assert!(evidence.is_empty());
+    assert!(!packet_io.observations_called);
 }
 
 #[test]
@@ -478,6 +501,7 @@ fn targeted_arp_refresh_skips_no_response_when_observation_budget_is_exhausted_a
     };
     let mut packet_io = ExhaustedObservationBudgetPacketIo {
         probed_targets: Vec::new(),
+        observations_called: false,
     };
     let evidence = targeted_arp_refresh_targets_with_packet_io_until(
         &[target],
@@ -487,4 +511,5 @@ fn targeted_arp_refresh_skips_no_response_when_observation_budget_is_exhausted_a
 
     assert_eq!(packet_io.probed_targets, vec![target_ip("192.168.2.252")]);
     assert!(evidence.is_empty());
+    assert!(!packet_io.observations_called);
 }

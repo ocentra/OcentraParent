@@ -136,11 +136,7 @@ function SocialAlertReportRefreshButton({
   );
 }
 
-function SocialAlertReportSummaryCard({
-  panel,
-}: {
-  readonly panel: ParentBrowserPanelSnapshot;
-}): ReactElement {
+function SocialAlertReportSummaryCard({ panel }: { readonly panel: ParentBrowserPanelSnapshot }): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{panel.summary}</h2>
@@ -149,11 +145,7 @@ function SocialAlertReportSummaryCard({
   );
 }
 
-function SocialAlertReportEmptyCard({
-  panel,
-}: {
-  readonly panel: ParentBrowserPanelSnapshot;
-}): ReactElement {
+function SocialAlertReportEmptyCard({ panel }: { readonly panel: ParentBrowserPanelSnapshot }): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{panel.emptyMessage}</h2>
@@ -162,11 +154,7 @@ function SocialAlertReportEmptyCard({
   );
 }
 
-function SocialAlertReportRowCard({
-  row,
-}: {
-  readonly row: ParentBrowserPanelRowSnapshot;
-}): ReactElement {
+function SocialAlertReportRowCard({ row }: { readonly row: ParentBrowserPanelRowSnapshot }): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{row.title}</h2>
@@ -175,11 +163,7 @@ function SocialAlertReportRowCard({
   );
 }
 
-function SupplementalBrowserPanelCards({
-  panel,
-}: {
-  readonly panel: ParentBrowserPanelSnapshot | null;
-}): ReactElement {
+function SupplementalBrowserPanelCards({ panel }: { readonly panel: ParentBrowserPanelSnapshot | null }): ReactElement {
   if (panel === null) {
     return <></>;
   }

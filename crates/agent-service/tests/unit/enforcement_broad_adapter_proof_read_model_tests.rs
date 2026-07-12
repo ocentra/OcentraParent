@@ -24,7 +24,9 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
-use super::enforcement_broad_adapter_proof_read_model::v08_broad_adapter_proof_read_model;
+use super::enforcement_broad_adapter_proof_read_model::{
+    v08_broad_adapter_proof_read_model, GeneratedAtTextRef,
+};
 use super::test_text::{
     count_for_display, optional_log_string, test_ok, test_some, TestResult, TestText,
 };
@@ -32,7 +34,8 @@ use crate::test_invariants::require_some;
 
 #[test]
 fn broad_adapter_proof_read_model_preserves_honest_runtime_states() {
-    let read_model = v08_broad_adapter_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model =
+        v08_broad_adapter_proof_read_model(GeneratedAtTextRef(policy_constants::TEST_EVALUATED_AT));
     let claim_counts = count_claims(&read_model.entries);
     let platform_counts = count_platforms(&read_model.entries);
 
@@ -78,7 +81,8 @@ fn broad_adapter_proof_read_model_preserves_honest_runtime_states() {
 
 #[test]
 fn broad_adapter_proof_read_model_keeps_surface_outcomes_exact() {
-    let read_model = v08_broad_adapter_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model =
+        v08_broad_adapter_proof_read_model(GeneratedAtTextRef(policy_constants::TEST_EVALUATED_AT));
 
     assert_surface_state(
         &read_model.entries,
@@ -109,7 +113,8 @@ fn broad_adapter_proof_read_model_keeps_surface_outcomes_exact() {
 
 #[test]
 fn broad_adapter_proof_read_model_does_not_upgrade_claim_flags() {
-    let read_model = v08_broad_adapter_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model =
+        v08_broad_adapter_proof_read_model(GeneratedAtTextRef(policy_constants::TEST_EVALUATED_AT));
 
     assert!(read_model
         .entries

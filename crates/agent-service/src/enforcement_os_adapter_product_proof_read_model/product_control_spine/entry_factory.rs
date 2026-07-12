@@ -152,9 +152,21 @@ pub(super) fn product_entry(spec: ProductEntrySpec<'_>) -> V08EnforcementProduct
         adapter_execution_state: spec.adapter_execution_state,
         device_policy_state: spec.device_policy_state,
         parent_visible_actions: spec.parent_visible_actions.to_vec(),
-        linked_proof_commands: strings(spec.linked_proof_commands),
-        linked_proof_artifacts: strings(spec.linked_proof_artifacts),
-        manual_proof_requirements: strings(spec.manual_proof_requirements),
+        linked_proof_commands: spec
+            .linked_proof_commands
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        linked_proof_artifacts: spec
+            .linked_proof_artifacts
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        manual_proof_requirements: spec
+            .manual_proof_requirements
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
         claim_boundary: spec.claim_boundary.to_string(),
         fallback_behavior: spec.fallback_behavior.to_string(),
         broad_app_blocking_claimed: false,
@@ -165,8 +177,4 @@ pub(super) fn product_entry(spec: ProductEntrySpec<'_>) -> V08EnforcementProduct
         notification_delivery_claimed: false,
         last_checked_at: spec.generated_at.to_string(),
     }
-}
-
-fn strings(values: &[&str]) -> Vec<String> {
-    values.iter().map(|value| (*value).to_string()).collect()
 }

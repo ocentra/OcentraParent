@@ -6,6 +6,8 @@ use super::{AllowedHttpLocation, SsdpDiscoveryError, SSDP_MAX_MX_SECONDS};
 
 pub mod text;
 
+mod location;
+
 pub fn split_http_headers(
     response: &[u8],
 ) -> Result<(&str, HashMap<String, String>, &[u8]), SsdpDiscoveryError> {
@@ -82,77 +84,27 @@ pub fn is_infrastructure_device(device_type: Option<&str>, search_target: &str, 
 pub fn parse_allowed_http_location(
     location: &str,
 ) -> Result<AllowedHttpLocation, SsdpDiscoveryError> {
-    let location = location.trim();
-    let location = location
-        .strip_prefix("http://")
-        .ok_or(SsdpDiscoveryError::UnsupportedLocationScheme)?;
-    let (authority, path) = location
-        .split_once('/')
-        .map(|(authority, path)| (authority, format!("/{path}")))
-        .unwrap_or((location, "/".to_string()));
-    let (host, port) = parse_authority(authority)?;
-    let addr = resolve_allowed_host(host, port)?;
-    let path = sanitize_path(&path)?;
-    Ok(AllowedHttpLocation { addr, path })
+    location::parse_allowed_http_location(location)
 }
 
 pub fn parse_authority(authority: &str) -> Result<(&str, u16), SsdpDiscoveryError> {
-    if let Some(stripped) = authority.strip_prefix('[') {
-        let (host, port) = stripped
-            .split_once(']')
-            .ok_or(SsdpDiscoveryError::MalformedResponse)?;
-        let port = port
-            .strip_prefix(':')
-            .ok_or(SsdpDiscoveryError::MalformedResponse)?;
-        return Ok((host, parse_port(port)?));
-    }
-    let (host, port) = authority
-        .rsplit_once(':')
-        .map(|(host, port)| (host, parse_port(port)))
-        .unwrap_or((authority, Ok(80)));
-    if host.trim().is_empty() {
-        return Err(SsdpDiscoveryError::MalformedResponse);
-    }
-    Ok((host, port?))
+    location::parse_authority(authority)
 }
 
 pub fn parse_port(value: &str) -> Result<u16, SsdpDiscoveryError> {
-    value
-        .parse::<u16>()
-        .map_err(|_error| SsdpDiscoveryError::MalformedResponse)
+    location::parse_port(value)
 }
 
 pub fn resolve_allowed_host(host: &str, port: u16) -> Result<SocketAddr, SsdpDiscoveryError> {
-    if let Ok(ip) = host.parse::<IpAddr>() {
-        if !is_allowed_private_ip(ip) {
-            return Err(SsdpDiscoveryError::ExternalLocation);
-        }
-        return Ok(SocketAddr::new(ip, port));
-    }
-    Err(SsdpDiscoveryError::ExternalLocation)
+    location::resolve_allowed_host(host, port)
 }
 
 pub fn is_allowed_private_ip(ip: IpAddr) -> bool {
-    match ip {
-        IpAddr::V4(ip) => {
-            ip.is_private()
-                || ip.is_loopback()
-                || ip.octets()[0] == 169 && ip.octets()[1] == 254
-                || matches!(ip.octets(), [100, 64..=127, _, _])
-        }
-        IpAddr::V6(ip) => ip.is_loopback() || ip.is_unique_local(),
-    }
+    location::is_allowed_private_ip(ip)
 }
 
 pub fn sanitize_path(path: &str) -> Result<String, SsdpDiscoveryError> {
-    let path = path.trim();
-    if path.is_empty() || !path.starts_with('/') {
-        return Err(SsdpDiscoveryError::MalformedResponse);
-    }
-    if path.contains("..") {
-        return Err(SsdpDiscoveryError::MalformedResponse);
-    }
-    Ok(path.to_string())
+    location::sanitize_path(path)
 }
 
 pub fn normalize_search_target(search_target: &str) -> String {

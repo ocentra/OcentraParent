@@ -2,6 +2,9 @@ use super::{
     LanPassiveDiscoveryEventKind, LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
 };
 
+mod reasons;
+mod sources;
+
 pub fn passive_event_id(
     event_kind: &LanPassiveDiscoveryEventKind,
     source: Option<&LanPassiveDiscoverySource>,
@@ -36,30 +39,11 @@ pub fn event_kind_label(event_kind: &LanPassiveDiscoveryEventKind) -> &'static s
 }
 
 pub fn trigger_reason_label(trigger_reason: &LanPassiveDiscoveryTriggerReason) -> &'static str {
-    match trigger_reason {
-        LanPassiveDiscoveryTriggerReason::WifiSsidChanged => "wifi-ssid-changed",
-        LanPassiveDiscoveryTriggerReason::DefaultGatewayChanged => "default-gateway-changed",
-        LanPassiveDiscoveryTriggerReason::IpAddressChanged => "ip-address-changed",
-        LanPassiveDiscoveryTriggerReason::InterfaceUp => "interface-up",
-        LanPassiveDiscoveryTriggerReason::InterfaceDown => "interface-down",
-        LanPassiveDiscoveryTriggerReason::AppResumed => "app-resumed",
-        LanPassiveDiscoveryTriggerReason::HeartbeatLost => "heartbeat-lost",
-        LanPassiveDiscoveryTriggerReason::PassivePacketObserved => "passive-packet-observed",
-    }
+    reasons::trigger_reason_label(trigger_reason)
 }
 
 pub fn passive_source_label(source: &LanPassiveDiscoverySource) -> &'static str {
-    match source {
-        LanPassiveDiscoverySource::Arp => "arp",
-        LanPassiveDiscoverySource::Dhcp => "dhcp",
-        LanPassiveDiscoverySource::Mdns => "mdns",
-        LanPassiveDiscoverySource::Ssdp => "ssdp",
-        LanPassiveDiscoverySource::WsDiscovery => "ws-discovery",
-        LanPassiveDiscoverySource::Llmnr => "llmnr",
-        LanPassiveDiscoverySource::Netbios => "netbios",
-        LanPassiveDiscoverySource::OcentraBeacon => "ocentra-beacon",
-        LanPassiveDiscoverySource::AllowedSnmpResponse => "allowed-snmp-response",
-    }
+    sources::passive_source_label(source)
 }
 
 pub fn compact_identifier(value: &str) -> String {

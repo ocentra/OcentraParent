@@ -152,6 +152,18 @@ fn arp_collection_uses_current_platform_neighbor_collectors() {
         LanPassiveDiscoveryRawSocketProtocol::Arp,
         Duration::from_millis(250),
     );
+    let expected_collector_labels = if cfg!(target_os = "windows") {
+        vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()]
+    } else if cfg!(any(target_os = "linux", target_os = "android")) {
+        vec![
+            constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP.to_string(),
+            constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH.to_string(),
+        ]
+    } else if cfg!(target_os = "macos") {
+        vec![constants::lan_pairing::LAN_SCAN_SOURCE_MACOS_ARP.to_string()]
+    } else {
+        Vec::new()
+    };
 
     match outcome {
         LanPassiveDiscoveryRawSocketCaptureOutcome::Captured {
@@ -161,24 +173,21 @@ fn arp_collection_uses_current_platform_neighbor_collectors() {
             recorded_count,
         } => {
             assert_eq!(protocol, LanPassiveDiscoveryRawSocketProtocol::Arp);
-            let expected_collector_labels = if cfg!(target_os = "windows") {
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()]
-            } else if cfg!(any(target_os = "linux", target_os = "android")) {
-                vec![
-                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP.to_string(),
-                    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH.to_string(),
-                ]
-            } else if cfg!(target_os = "macos") {
-                vec![constants::lan_pairing::LAN_SCAN_SOURCE_MACOS_ARP.to_string()]
-            } else {
-                Vec::new()
-            };
             assert_eq!(collector_labels, expected_collector_labels);
             assert_eq!(observed_count, recorded_count);
             assert_eq!(state.snapshot().rows.len(), recorded_count);
         }
         LanPassiveDiscoveryRawSocketCaptureOutcome::Unsupported(support) => {
-            unreachable!("current host should expose a real ARP collector-backed passive path, got {support:?}");
+            assert_eq!(
+                support,
+                LanPassiveDiscoveryRawSocketSupport::AvailableCollector {
+                    protocol: LanPassiveDiscoveryRawSocketProtocol::Arp,
+                    platform: std::env::consts::OS.to_string(),
+                    collector_labels: expected_collector_labels,
+                    reason: "lan-core records passive ARP weak hints from OS neighbor tables instead of raw frames"
+                        .to_string(),
+                }
+            );
         }
     }
 }

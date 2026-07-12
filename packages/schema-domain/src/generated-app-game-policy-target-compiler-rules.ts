@@ -229,9 +229,7 @@ export const appGamePolicyRequestHasCapabilityRefGenerated = (request: CompileRe
   request.capabilityRefs.length > 0;
 
 export const appGamePolicyRequestHasSupportedAuthorityGenerated = (request: CompileRequestLikeGenerated) =>
-  request.authorityRefs.some(
-    (ref) => ref.authorityState === AppGamePolicyCompilerAuthorityStateGenerated.Proved
-  );
+  request.authorityRefs.some((ref) => ref.authorityState === AppGamePolicyCompilerAuthorityStateGenerated.Proved);
 
 export const appGamePolicyRequestHasSupportedCapabilityGenerated = (request: CompileRequestLikeGenerated) =>
   request.capabilityRefs.length > 0 &&

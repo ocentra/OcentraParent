@@ -66,7 +66,9 @@ function PortalProductRouteShell({
   theme,
 }: PortalProductRouteShellProps): ReactElement {
   const controls =
-    route === ParentRoute.Assistant ? behavior.frameLayout.parentPortal.chatInterface : behavior.frameLayout.parentPortal.mainApp;
+    route === ParentRoute.Assistant
+      ? behavior.frameLayout.parentPortal.chatInterface
+      : behavior.frameLayout.parentPortal.mainApp;
   return (
     <>
       <PortalUnifiedShell
@@ -115,7 +117,10 @@ function PortalProtocolRouteShell({
         <div className={PortalDom.Classes.AppFrame} style={appFrameStyle}>
           <PortalSidebar actions={actions} frameLayout={behavior.routeFrameLayout} route={route} state={state} />
           <main aria-label={PortalFrameTuner.Text.TargetMain} className={appMainClassName} style={appMainStyle}>
-            <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.PreviewMain} controls={behavior.routeFrameLayout.main} />
+            <PortalFrameBackdrop
+              ariaLabel={PortalFrameTuner.Text.PreviewMain}
+              controls={behavior.routeFrameLayout.main}
+            />
             <PortalFrameBoundsOverlay content={mainContent} />
             <div className={PortalFrameTuner.Classes.FrameContent}>
               <PageHeader route={route} />

@@ -303,4 +303,3 @@ const countProviderStatus = (
   }>,
   providerStatus: V08NotificationProviderStatus
 ): number => rows.filter((row) => row.providerStatusBoundaryEntry.providerStatus === providerStatus).length;
-

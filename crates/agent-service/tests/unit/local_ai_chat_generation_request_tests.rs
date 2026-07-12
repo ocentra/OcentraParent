@@ -14,6 +14,7 @@ use std::string::String as TestString;
 use crate::{
     local_ai_chat_generation_request::parse_generation_request,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_config_values::LocalAiUnavailableReason,
 };
 
 type TestResult = Result<(), TestString>;
@@ -90,14 +91,14 @@ fn parse_generation_request_rejects_invalid_model_id_field() {
     );
 }
 
-fn assert_request_error<T>(result: &Result<T, &'static TestStr>, expected: &TestStr) {
+fn assert_request_error<T>(result: &Result<T, LocalAiUnavailableReason>, expected: &TestStr) {
     assert!(
         result.is_err(),
         "{}",
         constants::error::LOCAL_AI_CHAT_REQUEST_PARSES
     );
     if let Err(error) = result {
-        assert_eq!(*error, expected);
+        assert_eq!(error.0, expected);
     }
 }
 

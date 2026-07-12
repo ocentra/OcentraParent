@@ -81,9 +81,7 @@ function browserChildInterventionPageSiteBackdropMarkup(
   </div>`;
 }
 
-function browserChildInterventionPageBackgroundVariant(
-  backdrop: BrowserChildInterventionPageBackdrop | undefined
-): {
+function browserChildInterventionPageBackgroundVariant(backdrop: BrowserChildInterventionPageBackdrop | undefined): {
   readonly className: 'ocentra-child-background-svg-clean' | 'ocentra-child-background-svg-site';
   readonly idPrefix: 'ocentraChildBackgroundClean' | 'ocentraChildBackgroundSiteBackdrop';
   readonly renderConfig: ReturnType<typeof browserChildInterventionPageCleanRenderConfig>;

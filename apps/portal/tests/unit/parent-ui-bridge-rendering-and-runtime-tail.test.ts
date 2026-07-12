@@ -131,10 +131,8 @@ const ProductOverlayPanelsRemovedFromRouteShell = [
   'SocialDashboardRoutePanel',
 ];
 const TestDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const RetiredSchemaDomainPortalContractsSpecifier =
-  '@ocentra-parent/' + 'schema-domain/' + 'portal-contracts';
-const RetiredSchemaDomainLoggingContractsSpecifier =
-  '@ocentra-parent/' + 'schema-domain/' + 'logging-contracts';
+const RetiredSchemaDomainPortalContractsSpecifier = '@ocentra-parent/' + 'schema-domain/' + 'portal-contracts';
+const RetiredSchemaDomainLoggingContractsSpecifier = '@ocentra-parent/' + 'schema-domain/' + 'logging-contracts';
 const RetiredSchemaDomainGeneratedLoggingContractsSpecifier =
   '@ocentra-parent/' + 'schema-domain/generated/' + 'logging-contracts';
 
@@ -162,8 +160,7 @@ it('product bridge guard: portal dev logging uses Rust-generated logging DTO typ
     resolve(TestDirectory, '..', '..', '..', 'packages/portal-domain/src/dev-logger.ts'),
     'utf8'
   );
-  const retiredSchemaLoggingContractsSpecifier =
-    RetiredSchemaDomainGeneratedLoggingContractsSpecifier;
+  const retiredSchemaLoggingContractsSpecifier = RetiredSchemaDomainGeneratedLoggingContractsSpecifier;
   const localGeneratedLoggingEdgeSource = readFileSync(
     resolve(TestDirectory, '..', '..', '..', 'packages/logging-domain/src/core/stackTrace.ts'),
     'utf8'
@@ -222,7 +219,7 @@ it('product bridge guard: portal dev tool window uses Rust-generated route helpe
   const source = readFileSync(resolve(TestDirectory, '..', 'src/portal-dev-tool-window.ts'), 'utf8');
 
   expect(source).toContain("from '../generated/parent-ui-bridge'");
-  expect(source).toContain('PortalRoute.FrameTuner');
+  expect(source).toContain('ParentRoute.FrameTuner');
   expect(source).toContain('PortalDevToolWindow.FrameTunerHash');
   expect(source).toContain('ParentHostBridgeRuntime.TauriInternalWindowKey');
   expect(source).toContain('@ocentra-parent/portal-domain/routes');
@@ -233,10 +230,7 @@ it('product bridge guard: portal dev tool window uses Rust-generated route helpe
 
 it('product bridge guard: portal shell uses explicit Rust-owned action kinds for auto route refresh flows', () => {
   const mainSource = readFileSync(resolve(TestDirectory, '..', 'src/portal-runtime-controller.ts'), 'utf8');
-  const actionsSource = readFileSync(
-    resolve(TestDirectory, '..', 'src/portal-runtime-controller-actions.ts'),
-    'utf8'
-  );
+  const actionsSource = readFileSync(resolve(TestDirectory, '..', 'src/portal-runtime-controller-actions.ts'), 'utf8');
   const portalAppSource = readFileSync(resolve(TestDirectory, '..', 'src/PortalApp.tsx'), 'utf8');
   const networkRefreshSource = readFileSync(
     resolve(TestDirectory, '..', 'src/use-portal-network-activity-refresh.ts'),
@@ -264,10 +258,7 @@ it('product bridge guard: generated bridge contract carries Rust-returned action
 });
 
 it('product bridge guard: product command flows use explicit Rust-owned action kinds', () => {
-  const actionsSource = readFileSync(
-    resolve(TestDirectory, '..', 'src/portal-runtime-controller-actions.ts'),
-    'utf8'
-  );
+  const actionsSource = readFileSync(resolve(TestDirectory, '..', 'src/portal-runtime-controller-actions.ts'), 'utf8');
   const bridgeContractSource = readFileSync(resolve(TestDirectory, '..', BridgeContractFile), 'utf8');
 
   for (const { file, requiredMainActions, requiredBridgeActions, forbidden = [] } of ProductCommandBridgeFiles) {
@@ -286,10 +277,7 @@ it('product bridge guard: product command flows use explicit Rust-owned action k
 });
 
 it('product bridge guard: product snapshot route panels refresh through the Rust route snapshot action', () => {
-  const actionsSource = readFileSync(
-    resolve(TestDirectory, '..', 'src/portal-runtime-controller-actions.ts'),
-    'utf8'
-  );
+  const actionsSource = readFileSync(resolve(TestDirectory, '..', 'src/portal-runtime-controller-actions.ts'), 'utf8');
 
   expect(actionsSource).toContain('ParentUiActionKind.RefreshRoute');
   for (const { file, forbidden } of ProductSnapshotRefreshFiles) {

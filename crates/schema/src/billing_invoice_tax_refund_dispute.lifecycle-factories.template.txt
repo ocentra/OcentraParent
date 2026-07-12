@@ -1,0 +1,148 @@
+  boundaryId:
+    | 'billing-invoice-active'
+    | 'billing-invoice-receipt-download'
+    | 'billing-invoice-grace'
+    | 'billing-invoice-unpaid'
+    | 'billing-invoice-refund-settled'
+    | 'billing-invoice-partial-refund-issued'
+    | 'billing-invoice-refund-denied'
+    | 'billing-invoice-dispute-opened'
+    | 'billing-invoice-dispute-won'
+    | 'billing-invoice-dispute-lost'
+    | 'billing-invoice-chargeback-opened'
+    | 'billing-tax-manual-support'
+    | 'billing-invoice-cancel-immediate'
+    | 'billing-invoice-cancel-period-end'
+    | 'billing-invoice-resume-after-past-due',
+  invoiceVisibility: BillingInvoiceVisibilityState,
+  taxMode: BillingTaxModeDecision,
+  taxRegionState: BillingTaxRegionState,
+  refundState: BillingRefundLifecycleState,
+  disputeState: BillingDisputeLifecycleState,
+  recoveryState: BillingCollectionRecoveryState,
+  parentVisibleState: BillingParentVisibleState,
+  localSafetyBehavior: BillingLocalSafetyBehavior,
+  entitlementSideEffect: BillingEntitlementSideEffect,
+  portalHosted: boolean,
+  failureState: BillingFailureState | null
+) {
+  const invoiceIdentity = invoiceLifecycleIdentity(boundaryId);
+  return {
+    schemaVersion: 'billing-invoice-tax-refund-dispute',
+    boundaryId,
+    parentAccount: { parentAccountId: 'parent-account-1' },
+    family: { familyId: 'family-1' },
+    ...invoiceIdentity,
+    invoiceVisibility,
+    taxMode,
+    taxRegionState,
+    refundState,
+    disputeState,
+    recoveryState,
+    parentVisibleState,
+    localSafetyBehavior,
+    evidenceExportAccess: 'retained',
+    childActivityCustody: 'not-included',
+    entitlementSideEffect,
+    supportAuditState: 'audited',
+    portalHosted,
+    failureState,
+    auditReference: `audit-${boundaryId}`,
+  } as const;
+}
+
+function invoiceLifecycleIdentity(
+  boundaryId:
+    | 'billing-invoice-active'
+    | 'billing-invoice-receipt-download'
+    | 'billing-invoice-grace'
+    | 'billing-invoice-unpaid'
+    | 'billing-invoice-refund-settled'
+    | 'billing-invoice-partial-refund-issued'
+    | 'billing-invoice-refund-denied'
+    | 'billing-invoice-dispute-opened'
+    | 'billing-invoice-dispute-won'
+    | 'billing-invoice-dispute-lost'
+    | 'billing-invoice-chargeback-opened'
+    | 'billing-tax-manual-support'
+    | 'billing-invoice-cancel-immediate'
+    | 'billing-invoice-cancel-period-end'
+    | 'billing-invoice-resume-after-past-due'
+) {
+  if (boundaryId === 'billing-tax-manual-support') {
+    return {
+      providerMode: 'manual-invoice' as const,
+      providerReference: null,
+      invoiceNumber: 'INV-MANUAL-1001',
+      currency: 'USD' as const,
+      periodStart: InvoicePeriodStartTimestamp,
+      periodEnd: InvoicePeriodEndTimestamp,
+    };
+  }
+
+  const suffix = boundaryId.replace(/^billing-/, '').replace(/-/g, '_');
+  const invoiceNumberByBoundary = {
+    'billing-invoice-active': 'INV-1001',
+    'billing-invoice-receipt-download': 'INV-1001',
+    'billing-invoice-grace': 'INV-1002',
+    'billing-invoice-unpaid': 'INV-1003',
+    'billing-invoice-refund-settled': 'INV-1004',
+    'billing-invoice-partial-refund-issued': 'INV-1005',
+    'billing-invoice-refund-denied': 'INV-1006',
+    'billing-invoice-dispute-opened': 'INV-1007',
+    'billing-invoice-dispute-lost': 'INV-1008',
+    'billing-invoice-dispute-won': 'INV-1009',
+    'billing-invoice-chargeback-opened': 'INV-1010',
+    'billing-invoice-cancel-immediate': 'INV-1011',
+    'billing-invoice-cancel-period-end': 'INV-1012',
+    'billing-invoice-resume-after-past-due': 'INV-1013',
+  } as const;
+
+  return {
+    providerMode: 'stripe-hosted' as const,
+    providerReference: `stripe_${suffix}_backend_ref`,
+    invoiceNumber: invoiceNumberByBoundary[boundaryId],
+    currency: 'USD' as const,
+    periodStart: InvoicePeriodStartTimestamp,
+    periodEnd: InvoicePeriodEndTimestamp,
+  };
+}
+
+function graceFailureState(): BillingFailureState {
+  return BillingFailureStateSchema.parse({
+    failureKind: 'payment-required',
+    parentVisibleState: 'grace',
+    localSafetyBehavior: 'grace-with-local-safety',
+    retainEvidenceExportAccess: true,
+    existingLocalSafetyContinues: true,
+    parentResolution: 'payment-update',
+    retryAllowed: true,
+    retryAfter: GraceRetryTimestamp,
+  });
+}
+
+function paymentFailureState(): BillingFailureState {
+  return BillingFailureStateSchema.parse({
+    failureKind: 'payment-required',
+    parentVisibleState: 'past-due',
+    localSafetyBehavior: 'local-only',
+    retainEvidenceExportAccess: true,
+    existingLocalSafetyContinues: true,
+    parentResolution: 'payment-update',
+    retryAllowed: true,
+    retryAfter: GraceRetryTimestamp,
+  });
+}
+
+function supportFailureState(): BillingFailureState {
+  return BillingFailureStateSchema.parse({
+    failureKind: 'validation-failed',
+    parentVisibleState: 'manual-review',
+    localSafetyBehavior: 'manual-review-with-local-safety',
+    retainEvidenceExportAccess: true,
+    existingLocalSafetyContinues: true,
+    parentResolution: 'manual-support-review',
+    retryAllowed: false,
+    retryAfter: null,
+  });
+}

@@ -42,7 +42,7 @@ fn local_ocr_analysis_event_is_recorded_with_runtime_metadata() {
         &generation,
         &ScreenOcrRedactionPolicy::default(),
     );
-    let outcome = outcome_for_generation(&image.queue_job_id, &generation, &record);
+    let outcome = outcome_for_generation(&image, &generation, &record);
     let event = screen_analysis_event(&record);
 
     assert_eq!(
@@ -158,8 +158,11 @@ fn complete_generation(output_text: TestString) -> LocalAiChatGenerationResult {
     }
 }
 
-fn string_value<'a>(event: &'a ActivityEvent, field: TestText) -> Option<&'a TestStr> {
-    let field = field;
+fn string_value<'a>(
+    event: &'a ActivityEvent,
+    field: impl std::fmt::Display,
+) -> Option<&'a TestStr> {
+    let field = field.to_string();
     match event.fields.get(field.as_str()) {
         Some(LogFieldValue::String(value)) => Some(value),
         _ => None,

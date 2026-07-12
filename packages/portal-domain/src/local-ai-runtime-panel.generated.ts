@@ -132,9 +132,7 @@ const MEMORY_GRAPH_PRODUCT_CLAIM = 'source-cited-memory-graph-read-model-only';
 const HOUSEHOLD_JOB_PRODUCT_CLAIM = 'worker-only-child-agent-authority';
 const REMOTE_ASSISTANT_PRODUCT_CLAIM = 'remote-assistant-report-only-local-policy-authority';
 
-export function localAiRuntimePanelTemplate(
-  input: LocalAiRuntimePanelInput = {}
-): LocalAiRuntimePanelTemplate {
+export function localAiRuntimePanelTemplate(input: LocalAiRuntimePanelInput = {}): LocalAiRuntimePanelTemplate {
   const cards = [
     runtimeStatusCard(input.runtimeStatus ?? null),
     householdJobCard(input.householdJob ?? null),
@@ -247,7 +245,10 @@ function remoteAssistantBoundaryCard(
       };
 }
 
-function detail(fieldKey: LocalAiRuntimePanelFieldKey, value: string | null | undefined): LocalAiRuntimePanelDetailTemplate {
+function detail(
+  fieldKey: LocalAiRuntimePanelFieldKey,
+  value: string | null | undefined
+): LocalAiRuntimePanelDetailTemplate {
   return {
     fieldKey,
     value: normalizeValue(value),

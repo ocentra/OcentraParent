@@ -218,42 +218,60 @@ fn command_evidence_rows() -> Vec<NetworkWindowsFirewallLabCommandEvidence> {
     vec![
         command_evidence(
             NetworkWindowsFirewallLabCommandKind::ApplyRule,
-            constants::network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_COMMAND_REF,
-            constants::network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_OUTPUT_SHA256,
+            CommandRefText(constants::network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_COMMAND_REF),
+            OutputSha256Text(
+                constants::network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_OUTPUT_SHA256,
+            ),
             true,
         ),
         command_evidence(
             NetworkWindowsFirewallLabCommandKind::VerifyRulePresent,
-            constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_COMMAND_REF,
-            constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_OUTPUT_SHA256,
+            CommandRefText(
+                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_COMMAND_REF,
+            ),
+            OutputSha256Text(
+                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_OUTPUT_SHA256,
+            ),
             true,
         ),
         command_evidence(
             NetworkWindowsFirewallLabCommandKind::RollbackRule,
-            constants::network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_COMMAND_REF,
-            constants::network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_OUTPUT_SHA256,
+            CommandRefText(
+                constants::network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_COMMAND_REF,
+            ),
+            OutputSha256Text(
+                constants::network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_OUTPUT_SHA256,
+            ),
             false,
         ),
         command_evidence(
             NetworkWindowsFirewallLabCommandKind::VerifyRuleRemoved,
-            constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_COMMAND_REF,
-            constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_OUTPUT_SHA256,
+            CommandRefText(
+                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_COMMAND_REF,
+            ),
+            OutputSha256Text(
+                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_OUTPUT_SHA256,
+            ),
             false,
         ),
     ]
 }
 
+struct CommandRefText<'a>(&'a str);
+
+struct OutputSha256Text<'a>(&'a str);
+
 fn command_evidence(
     kind: NetworkWindowsFirewallLabCommandKind,
-    command_ref: &str,
-    output_sha256: &str,
+    command_ref: CommandRefText<'_>,
+    output_sha256: OutputSha256Text<'_>,
     rule_present_after_command: bool,
 ) -> NetworkWindowsFirewallLabCommandEvidence {
     NetworkWindowsFirewallLabCommandEvidence {
         kind,
-        command_ref: command_ref.to_string(),
+        command_ref: command_ref.0.to_string(),
         exit_status: 0,
-        output_sha256: output_sha256.to_string(),
+        output_sha256: output_sha256.0.to_string(),
         rule_present_after_command,
     }
 }

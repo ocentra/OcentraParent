@@ -1,8 +1,5 @@
 import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
-import {
-  type ParentPortalDetailValue,
-  type ParentTrackingStatusProofArtifact,
-} from '../generated/parent-ui-bridge';
+import { type ParentPortalDetailValue, type ParentTrackingStatusProofArtifact } from '../generated/parent-ui-bridge';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {

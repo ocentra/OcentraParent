@@ -911,9 +911,8 @@ describe('real payment worker routes', () => {
     assert.equal(accountsBody.actorRole, 'support');
     assert.equal(
       accountsBody.manualActionsPending,
-      accountsBody.results.filter(
-        (row: BillingSupportAdminAccountsResponse['results'][number]) => row.manualRequired
-      ).length
+      accountsBody.results.filter((row: BillingSupportAdminAccountsResponse['results'][number]) => row.manualRequired)
+        .length
     );
 
     const manualInvoice = await executeRequest({

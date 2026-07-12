@@ -30,7 +30,12 @@ export function renderPortalProofPanelContent({
   socialDashboardPanel,
   socialParentNotificationDeliveryPanel,
 }: Omit<PortalProofPanelsRoutePanelProps, 'onSelectPanel'>): ReactElement {
-  if (activePanel === 'browser-parent-explanation' || activePanel === 'social-audit-explanation' || activePanel === 'social-dashboard' || activePanel === 'social-alert-report') {
+  if (
+    activePanel === 'browser-parent-explanation' ||
+    activePanel === 'social-audit-explanation' ||
+    activePanel === 'social-dashboard' ||
+    activePanel === 'social-alert-report'
+  ) {
     return renderPortalProofPanelSocial({
       actions,
       activePanel,

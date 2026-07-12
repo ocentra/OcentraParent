@@ -11,13 +11,15 @@ use ocentra_parent_agent_protocol::windows_adapter_capability::{
 };
 
 use super::test_text::{count_for_display, TestText};
+use crate::host_identity_read_model::GeneratedAtText;
 use crate::windows_adapter_capability_read_model::windows_adapter_capability_proof;
 
 type TestResult = Result<(), Box<dyn Error>>;
 
 #[test]
 fn windows_adapter_capability_proof_links_app_domain_and_browser_boundaries() -> TestResult {
-    let proof = windows_adapter_capability_proof(policy::TEST_EVALUATED_AT);
+    let proof =
+        windows_adapter_capability_proof(GeneratedAtText(policy::TEST_EVALUATED_AT.to_string()));
     let surface_counts = count_surfaces(&proof.entries);
 
     assert_eq!(proof.read_model_id, windows_adapter::READ_MODEL_ID_V0_8);
@@ -53,7 +55,8 @@ fn windows_adapter_capability_proof_links_app_domain_and_browser_boundaries() ->
 
 #[test]
 fn windows_adapter_capability_proof_keeps_exact_url_and_broad_blocking_unclaimed() -> TestResult {
-    let proof = windows_adapter_capability_proof(policy::TEST_EVALUATED_AT);
+    let proof =
+        windows_adapter_capability_proof(GeneratedAtText(policy::TEST_EVALUATED_AT.to_string()));
     let unmanaged = entry_for(
         &proof,
         WindowsAdapterCapabilitySurface::UnmanagedBrowserTarget,
@@ -89,7 +92,8 @@ fn windows_adapter_capability_proof_keeps_exact_url_and_broad_blocking_unclaimed
 #[test]
 fn windows_adapter_capability_proof_records_unsupported_os_and_rollback_audit_gates() -> TestResult
 {
-    let proof = windows_adapter_capability_proof(policy::TEST_EVALUATED_AT);
+    let proof =
+        windows_adapter_capability_proof(GeneratedAtText(policy::TEST_EVALUATED_AT.to_string()));
     let unsupported = entry_for(&proof, WindowsAdapterCapabilitySurface::UnsupportedOsTarget)?;
     let rollback = entry_for(&proof, WindowsAdapterCapabilitySurface::RollbackAuditTarget)?;
 
@@ -119,7 +123,8 @@ fn windows_adapter_capability_proof_records_unsupported_os_and_rollback_audit_ga
 
 #[test]
 fn windows_adapter_capability_proof_serializes_for_runtime_preview() -> TestResult {
-    let proof = windows_adapter_capability_proof(policy::TEST_EVALUATED_AT);
+    let proof =
+        windows_adapter_capability_proof(GeneratedAtText(policy::TEST_EVALUATED_AT.to_string()));
     let serialized = serde_json::to_value(proof)?;
 
     assert_eq!(

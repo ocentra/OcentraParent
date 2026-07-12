@@ -1,6 +1,11 @@
 /* generated support for crates/browser-core/src/social_applied_schedule_time_budget_proof.rs */
 
-import { Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema,
+} from '@ocentra-parent/schema-domain/effect';
 
 export const SocialPolicyScheduleRefsSchema = Schema.Array(NonEmptyStringSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social policy schedule refs')

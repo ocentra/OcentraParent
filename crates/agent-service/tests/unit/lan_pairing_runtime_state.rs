@@ -45,7 +45,7 @@ fn from_env_defaults_to_local_json_registry_path() {
 
     assert_eq!(
         runtime.persistence_mode(),
-        constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY
+        constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY.into()
     );
     assert!(matches!(
         runtime.persistence,

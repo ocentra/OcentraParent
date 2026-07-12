@@ -144,9 +144,7 @@ export function validateAuthBoundaryRoute(route: AuthBoundaryRouteLike): AuthBou
   }
 
   if (route.path.startsWith('/webhooks/')) {
-    return route.authState === 'provider-webhook-signature-required'
-      ? null
-      : 'webhook-route-auth-state-mismatch';
+    return route.authState === 'provider-webhook-signature-required' ? null : 'webhook-route-auth-state-mismatch';
   }
 
   return null;

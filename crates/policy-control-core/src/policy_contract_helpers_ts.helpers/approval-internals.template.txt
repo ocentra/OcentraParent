@@ -1,0 +1,119 @@
+function validateGeneratedPolicyApprovalRequest(request: GeneratedPolicyApprovalRequestLike): void {
+  const requestedAt = parseGeneratedTimestampMillis(request.requestedAt, 'approval.requestedAt');
+  const expiresAt = parseGeneratedTimestampMillis(request.expiresAt, 'approval.expiresAt');
+  assertGeneratedPolicyContract(expiresAt > requestedAt, 'approval.expiresAt must be after approval.requestedAt');
+
+  if (request.scheduleBoundary !== null) {
+    validateGeneratedPolicyScheduleBoundary(request.scheduleBoundary);
+  }
+
+  if (request.kind === 'bonus-time') {
+    assertGeneratedPolicyContract(
+      request.requestedBonusTimeMinutes !== null && request.requestedBonusTimeMinutes > 0,
+      'bonus-time requests must include a positive requestedBonusTimeMinutes value'
+    );
+    assertGeneratedPolicyContract(
+      request.scheduleBoundary !== null,
+      'bonus-time requests must include scheduleBoundary details'
+    );
+    assertGeneratedPolicyContract(
+      request.scheduleBoundary?.timeBudget !== null,
+      'bonus-time requests must include scheduleBoundary.timeBudget details'
+    );
+    return;
+  }
+
+  assertGeneratedPolicyContract(
+    request.requestedBonusTimeMinutes === null,
+    'only bonus-time requests may include requestedBonusTimeMinutes'
+  );
+}
+
+function validateGeneratedPolicyOverrideGrant(
+  grant: GeneratedPolicyOverrideGrantLike,
+  approval: GeneratedPolicyApprovalRequestLike,
+  evaluatedAt: number
+): void {
+  const effectiveFrom = parseGeneratedTimestampMillis(grant.effectiveFrom, 'override.effectiveFrom');
+  const effectiveUntil = parseGeneratedTimestampMillis(grant.effectiveUntil, 'override.effectiveUntil');
+  assertGeneratedPolicyContract(
+    effectiveUntil > effectiveFrom,
+    'override.effectiveUntil must be after override.effectiveFrom'
+  );
+
+  switch (grant.overrideType) {
+    case 'temporary-allow':
+      assertGeneratedPolicyContract(
+        grant.action === 'allow',
+        'temporary-allow overrides must resolve to allow'
+      );
+      assertGeneratedPolicyContract(
+        grant.bonusTimeMinutes === null,
+        'temporary-allow overrides cannot carry bonusTimeMinutes'
+      );
+      break;
+    case 'temporary-block':
+      assertGeneratedPolicyContract(
+        grant.action === 'block',
+        'temporary-block overrides must resolve to block'
+      );
+      assertGeneratedPolicyContract(
+        grant.bonusTimeMinutes === null,
+        'temporary-block overrides cannot carry bonusTimeMinutes'
+      );
+      break;
+    case 'bonus-time':
+      assertGeneratedPolicyContract(
+        approval.kind === 'bonus-time',
+        'bonus-time overrides require a bonus-time approval request'
+      );
+      assertGeneratedPolicyContract(
+        grant.action === 'allow' || grant.action === 'time-limit',
+        'bonus-time overrides must keep the action within allow or time-limit'
+      );
+      assertGeneratedPolicyContract(
+        grant.bonusTimeMinutes !== null && grant.bonusTimeMinutes > 0,
+        'bonus-time overrides must include a positive bonusTimeMinutes value'
+      );
+      break;
+  }
+
+  switch (grant.state) {
+    case 'active':
+      assertGeneratedPolicyContract(evaluatedAt < effectiveUntil, 'active overrides cannot already be past effectiveUntil');
+      return;
+    case 'expired':
+      assertGeneratedPolicyContract(
+        evaluatedAt >= effectiveUntil,
+        'expired overrides require evaluatedAt on or after effectiveUntil'
+      );
+      return;
+    case 'revoked':
+      assertGeneratedPolicyContract(
+        evaluatedAt >= effectiveFrom,
+        'revoked overrides require an effectiveFrom boundary'
+      );
+      return;
+  }
+}
+
+function assertGeneratedResolutionHasNoReviewOrOverrideArtifacts(
+  resolution: GeneratedPolicyApprovalResolutionLike,
+  message: string
+): void {
+  assertGeneratedPolicyContract(
+    resolution.reviewedBy === null &&
+      resolution.reviewedAt === null &&
+      resolution.auditReferenceId === null &&
+      resolution.override === null,
+    message
+  );
+}
+
+function assertGeneratedResolutionHasNoReviewOverrideOrReplayArtifacts(
+  resolution: GeneratedPolicyApprovalResolutionLike,
+  message: string
+): void {
+  assertGeneratedResolutionHasNoReviewOrOverrideArtifacts(resolution, message);
+  assertGeneratedPolicyContract(resolution.replayOfApprovalId === null, message);
+}

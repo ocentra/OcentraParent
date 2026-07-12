@@ -1,7 +1,25 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
-#[path = "../support/time.rs"]
+#[path = "../../src/activity_capture.rs"]
+mod activity_capture;
+#[path = "../../src/activity_store_path.rs"]
+mod activity_store_path;
+#[path = "../support/dev_log.rs"]
+mod dev_log;
+#[path = "../../src/event_builder.rs"]
+mod event_builder;
+#[path = "../../src/fields.rs"]
+mod fields;
+#[path = "../../src/json_contract.rs"]
+mod json_contract;
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+#[path = "../support/activity_capture_test_support.rs"]
+mod test_support;
+#[path = "../support/test_text.rs"]
+mod test_text;
+#[path = "../../src/time.rs"]
 mod time;
 
 #[path = "activity_capture_browser_tests.rs"]
@@ -17,7 +35,7 @@ mod activity_capture_tests;
 mod clippy_linkage {
     use crate::activity_capture::{
         spawn_startup_activity_capture, startup_activity_capture_enabled,
-        startup_activity_capture_enabled_for_value,
+        startup_activity_capture_enabled_for_value, StartupActivityCaptureDisabledValue,
     };
     use crate::test_invariants::{
         require_json_decode, require_log_string_field, require_ok, require_some,
@@ -50,8 +68,8 @@ mod clippy_linkage {
         let _ = crate::json_contract::serialize_json_value(serde_json::json!({
             "activity_capture": true
         }));
-        let _ = crate::time::timestamp_from_epoch_seconds(1);
-        let _ = crate::time::timestamp_after_epoch_seconds(1, 1);
+        let _: String = crate::time::timestamp_from_epoch_seconds(1);
+        let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
 
         let previous = env::var(constants::env_var::ACTIVITY_CAPTURE_STARTUP_DISABLED).ok();
         env::set_var(
@@ -60,9 +78,9 @@ mod clippy_linkage {
         );
 
         assert!(!startup_activity_capture_enabled());
-        assert!(!startup_activity_capture_enabled_for_value(Some(
-            constants::value::TRUE
-        )));
+        assert!(!startup_activity_capture_enabled_for_value(
+            StartupActivityCaptureDisabledValue(Some(constants::value::TRUE))
+        ));
         spawn_startup_activity_capture();
 
         match previous {

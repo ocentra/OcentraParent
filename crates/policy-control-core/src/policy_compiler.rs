@@ -443,10 +443,12 @@ fn default_support_matrix_for_domain(domain: PolicyCompilerDomain) -> PolicyComp
     let rows = POLICY_TARGET_KINDS
         .into_iter()
         .zip(domain_support_matrix(domain))
-        .map(|(target_kind, capability_state)| PolicyCompilerSupportMatrixRow {
-            target_kind,
-            capability_state,
-        })
+        .map(
+            |(target_kind, capability_state)| PolicyCompilerSupportMatrixRow {
+                target_kind,
+                capability_state,
+            },
+        )
         .collect();
 
     PolicyCompilerSupportMatrix { domain, rows }
@@ -579,8 +581,8 @@ fn reason_code_for_capability_state(
         Some(manual_required_reason(domain, action)),
         Some(policy_control::compiler::REASON_UNSUPPORTED_TARGET),
     ][capability_state_index(capability_state)]
-        .map(parse_reason)
-        .transpose()
+    .map(parse_reason)
+    .transpose()
 }
 
 fn parse_reason(value: &str) -> Result<PolicyReasonCode, EventingError> {

@@ -24,7 +24,9 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
-use super::enforcement_supported_adapter_runtime_proof_read_model::v08_supported_adapter_runtime_proof_read_model;
+use super::enforcement_supported_adapter_runtime_proof_read_model::{
+    v08_supported_adapter_runtime_proof_read_model, GeneratedAtTextRef,
+};
 use super::test_text::{
     count_for_display, optional_log_string, test_ok, test_some, TestResult, TestText,
 };
@@ -32,8 +34,9 @@ use crate::test_invariants::require_some;
 
 #[test]
 fn supported_adapter_runtime_proof_read_model_preserves_honest_states() {
-    let read_model =
-        v08_supported_adapter_runtime_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_supported_adapter_runtime_proof_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
     let state_counts = count_states(&read_model.entries);
     let platform_counts = count_platforms(&read_model.entries);
 
@@ -84,8 +87,9 @@ fn supported_adapter_runtime_proof_read_model_preserves_honest_states() {
 
 #[test]
 fn supported_adapter_runtime_proof_keeps_exact_boundaries() {
-    let read_model =
-        v08_supported_adapter_runtime_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_supported_adapter_runtime_proof_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
 
     assert_boundary_state(
         &read_model.entries,
@@ -141,8 +145,9 @@ fn supported_adapter_runtime_proof_keeps_exact_boundaries() {
 
 #[test]
 fn supported_adapter_runtime_proof_does_not_upgrade_claim_flags() {
-    let read_model =
-        v08_supported_adapter_runtime_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_supported_adapter_runtime_proof_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
 
     assert!(read_model
         .entries

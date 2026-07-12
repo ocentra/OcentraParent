@@ -13,50 +13,85 @@ use super::{
 
 const LAN_DISCOVERY_DECISION_RECORDED_EVENT_TYPE: &str = "lan.discovery.decision-recorded";
 
-macro_rules! lan_text_id {
-    ($name:ident, $field:expr) => {
-        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[serde(try_from = "String", into = "String")]
-        pub struct $name(String);
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct LanDiscoveryDecisionId(String);
 
-        impl $name {
-            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                let value = value.into();
-                if value.trim().is_empty() {
-                    return Err(EventingError::EmptyValue { field: $field });
-                }
-                Ok(Self(value))
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
+impl LanDiscoveryDecisionId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        let value = value.into();
+        if value.trim().is_empty() {
+            return Err(EventingError::EmptyValue {
+                field: "lan.discovery_decision_id",
+            });
         }
+        Ok(Self(value))
+    }
 
-        impl TryFrom<String> for $name {
-            type Error = EventingError;
-
-            fn try_from(value: String) -> Result<Self, Self::Error> {
-                Self::parse(value)
-            }
-        }
-
-        impl From<$name> for String {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl std::fmt::Display for $name {
-            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(self.as_str())
-            }
-        }
-    };
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
-lan_text_id!(LanDiscoveryDecisionId, "lan.discovery_decision_id");
-lan_text_id!(LanAggregateId, "lan.aggregate_id");
+impl TryFrom<String> for LanDiscoveryDecisionId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<LanDiscoveryDecisionId> for String {
+    fn from(value: LanDiscoveryDecisionId) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for LanDiscoveryDecisionId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct LanAggregateId(String);
+
+impl LanAggregateId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        let value = value.into();
+        if value.trim().is_empty() {
+            return Err(EventingError::EmptyValue {
+                field: "lan.aggregate_id",
+            });
+        }
+        Ok(Self(value))
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for LanAggregateId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<LanAggregateId> for String {
+    fn from(value: LanAggregateId) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for LanAggregateId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct LanDiscoveryDecisionRecordedEvent {

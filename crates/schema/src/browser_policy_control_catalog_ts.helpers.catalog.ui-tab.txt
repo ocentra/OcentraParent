@@ -31,4 +31,3 @@ export function uiTabForSectionGenerated(sectionTitle: string): string {
   }
   return 'enforcement';
 }
-

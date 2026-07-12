@@ -18,11 +18,7 @@ import {
   rowToGeneratedStats,
   rowToGeneratedStoredLog,
 } from '../duckdb-log-query';
-import {
-  type StoredTestLogLine,
-  type TestLogScope as TestLogScopeType,
-  type TestLogStats,
-} from './types';
+import { type StoredTestLogLine, type TestLogScope as TestLogScopeType, type TestLogStats } from './types';
 
 const require = createRequire(import.meta.url);
 
@@ -183,10 +179,7 @@ export class TestLogDuckDb {
   }
 
   async ensureSchema(): Promise<void> {
-    await runAsync(
-      this.connection,
-      GeneratedCreateTestLogsTableSql
-    );
+    await runAsync(this.connection, GeneratedCreateTestLogsTableSql);
 
     await runAsync(this.connection, GeneratedIndexScopeLevelSql);
     await runAsync(this.connection, GeneratedIndexScopeRunSql);
@@ -286,22 +279,13 @@ export class TestLogDuckDb {
   }
 
   async getStats(scope: TestLogScopeType): Promise<TestLogStats> {
-    const rows = await allAsync<StatsRow>(
-      this.connection,
-      GeneratedStatsQuerySql,
-      scope
-    );
+    const rows = await allAsync<StatsRow>(this.connection, GeneratedStatsQuerySql, scope);
 
     return rowToStats(rows[0]);
   }
 
   async latestFailures(scope: TestLogScopeType, limit = 20): Promise<StoredTestLogLine[]> {
-    const rows = await allAsync<StoredLogRow>(
-      this.connection,
-      GeneratedLatestFailuresQuerySql,
-      scope,
-      limit
-    );
+    const rows = await allAsync<StoredLogRow>(this.connection, GeneratedLatestFailuresQuerySql, scope, limit);
 
     return rows.map(rowToStoredLog);
   }

@@ -17,12 +17,16 @@ export function createBridgeWriteServer(): {
       return;
     }
     if (request.url === '/__logs__') {
-      appendRequestBody(request, (chunk) => {
-        receivedBody += chunk;
-      }, () => {
-        response.statusCode = 200;
-        response.end(JSON.stringify({ ok: true }));
-      });
+      appendRequestBody(
+        request,
+        (chunk) => {
+          receivedBody += chunk;
+        },
+        () => {
+          response.statusCode = 200;
+          response.end(JSON.stringify({ ok: true }));
+        }
+      );
       return;
     }
     response.statusCode = 404;
@@ -38,12 +42,16 @@ export function createFallbackWriteServer(): {
   let receivedBody = '';
   const server = createServer((request: IncomingMessage, response: ServerResponse) => {
     if (request.url === DevLogEndpoint.Write) {
-      appendRequestBody(request, (chunk) => {
-        receivedBody += chunk;
-      }, () => {
-        response.statusCode = 204;
-        response.end();
-      });
+      appendRequestBody(
+        request,
+        (chunk) => {
+          receivedBody += chunk;
+        },
+        () => {
+          response.statusCode = 204;
+          response.end();
+        }
+      );
       return;
     }
     response.statusCode = 404;
@@ -76,18 +84,20 @@ export async function closeServers(servers: Array<ReturnType<typeof createServer
   );
 }
 
-export function assertBridgeCompatiblePortalRows(payload: Array<{
-  consumer: string;
-  testName: string;
-  log: {
-    source: string;
-    message: string;
-    context: string;
-    data: string | null;
-    file: string | null;
-    file_path: string | null;
-  };
-}>): void {
+export function assertBridgeCompatiblePortalRows(
+  payload: Array<{
+    consumer: string;
+    testName: string;
+    log: {
+      source: string;
+      message: string;
+      context: string;
+      data: string | null;
+      file: string | null;
+      file_path: string | null;
+    };
+  }>
+): void {
   expect(payload).toHaveLength(1);
   expect(payload[0]).toMatchObject({
     consumer: 'parent-portal',
@@ -105,11 +115,7 @@ export function assertBridgeCompatiblePortalRows(payload: Array<{
   });
 }
 
-function appendRequestBody(
-  request: IncomingMessage,
-  onChunk: (chunk: string) => void,
-  onEnd: () => void
-): void {
+function appendRequestBody(request: IncomingMessage, onChunk: (chunk: string) => void, onEnd: () => void): void {
   request.setEncoding('utf8');
   request.on('data', onChunk);
   request.on('end', onEnd);

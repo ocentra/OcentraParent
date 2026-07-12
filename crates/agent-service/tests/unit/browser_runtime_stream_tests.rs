@@ -1,3 +1,4 @@
+use crate::test_support::handle_local_command_text_for_test;
 use crate::test_text::TestText;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::browser_bridge_event::{
@@ -40,7 +41,6 @@ use ocentra_parent_agent_protocol::transport::AgentPeer;
 use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
-use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 use serde_json::Value;
 use std::path::{Path as TestPath, PathBuf as TestPathBuf};
 use std::primitive::str as TestStr;
@@ -49,8 +49,9 @@ use std::{error::Error, fs::remove_file, io::Error as IoError};
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK,
+    browser_runtime_stream_api::action_intent_child_status_from_handoff,
     browser_runtime_stream_payload::{
-        action_intent_child_status_from_handoff, browser_runtime_event_chain_stream_payload,
+        browser_runtime_event_chain_stream_payload,
         stream_browser_runtime_event_chain_for_read_model_with_policy_preview,
         BrowserRuntimeServiceStreamReport,
     },
@@ -67,7 +68,6 @@ mod browser_runtime_stream_test_assertions;
 use browser_runtime_stream_test_assertions::{
     assert_action_intent_execution_payload_zero, assert_action_intent_handoff_payload_refs,
     assert_action_intent_handoff_report_ready, assert_child_status_report_refs,
-    assert_payload_child_command_refs_include,
     assert_store_backed_stream_child_status_and_no_execution,
     assert_store_backed_stream_first_entry, assert_store_backed_stream_payload_header,
 };
@@ -370,8 +370,10 @@ async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_
         Some(&LogFieldValue::Number(2.0))
     );
 
-    let stale_entry =
-        first_entry_with_capability(&entries, constants::browser::CAPABILITY_STATUS_STALE);
+    let stale_entry = first_entry_with_capability(
+        &entries,
+        TestText::from_display(constants::browser::CAPABILITY_STATUS_STALE),
+    );
     assert_eq!(
         stale_entry[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
         false
@@ -383,7 +385,7 @@ async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_
 
     let unsupported_entry = first_entry_with_capability(
         &entries,
-        constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER,
+        TestText::from_display(constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER),
     );
     assert_eq!(
         unsupported_entry[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
@@ -402,7 +404,9 @@ async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_
 #[tokio::test]
 async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() -> TestResult {
     let _guard = REPORT_ENV_LOCK.lock().await;
-    let store_path = temp_path(constants::activity_store::TEST_CAPTURE_BROWSER_STORE_SUFFIX);
+    let store_path = temp_path(TestText::from_display(
+        constants::activity_store::TEST_CAPTURE_BROWSER_STORE_SUFFIX,
+    ));
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 

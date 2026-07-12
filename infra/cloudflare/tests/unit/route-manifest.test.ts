@@ -134,9 +134,6 @@ describe('ROUTE_MANIFEST', () => {
     };
 
     assert.equal(validateAuthBoundaryRoute(nakedPrivateRoute), 'naked-private-route');
-    assert.equal(
-      validateAuthBoundaryRoute(missingAuditRuleRoute),
-      'admin-support-routes-require-audit-rule'
-    );
+    assert.equal(validateAuthBoundaryRoute(missingAuditRuleRoute), 'admin-support-routes-require-audit-rule');
   });
 });

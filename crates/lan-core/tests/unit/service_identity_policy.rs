@@ -1,5 +1,14 @@
 use super::*;
 
+macro_rules! restore_optional_probe_env {
+    ($name:expr, $value:expr) => {
+        match $value {
+            Some(value) => env::set_var($name, value),
+            None => env::remove_var($name),
+        }
+    };
+}
+
 #[test]
 fn service_identity_probe_family_policy_keeps_optional_queries_disabled_by_default() {
     let decisions =
@@ -222,13 +231,13 @@ fn runtime_service_identity_settings_keep_optional_queries_disabled_by_default()
         Some(ServiceIdentityProbeDecision::OperatorSettingRequired)
     );
 
-    restore_optional_probe_env(
+    restore_optional_probe_env!(
         constants::lan_pairing::LAN_ALLOW_WSD_IDENTITY_QUERY_ENV,
-        previous_wsd.as_deref(),
+        previous_wsd.as_deref()
     );
-    restore_optional_probe_env(
+    restore_optional_probe_env!(
         constants::lan_pairing::LAN_ALLOW_SNMP_IDENTITY_QUERY_ENV,
-        previous_snmp.as_deref(),
+        previous_snmp.as_deref()
     );
 }
 
@@ -257,13 +266,13 @@ fn runtime_service_identity_settings_enable_optional_queries_from_env() {
         }
     );
 
-    restore_optional_probe_env(
+    restore_optional_probe_env!(
         constants::lan_pairing::LAN_ALLOW_WSD_IDENTITY_QUERY_ENV,
-        previous_wsd.as_deref(),
+        previous_wsd.as_deref()
     );
-    restore_optional_probe_env(
+    restore_optional_probe_env!(
         constants::lan_pairing::LAN_ALLOW_SNMP_IDENTITY_QUERY_ENV,
-        previous_snmp.as_deref(),
+        previous_snmp.as_deref()
     );
 }
 
@@ -291,11 +300,3 @@ fn executable_service_identity_target_catalog_remains_curated_tcp_only() {
     assert!(!targets.iter().any(|target| target.port == 161));
     assert!(!targets.iter().any(|target| target.port == 3702));
 }
-
-fn restore_optional_probe_env(name: &str, value: Option<&str>) {
-    match value {
-        Some(value) => env::set_var(name, value),
-        None => env::remove_var(name),
-    }
-}
-

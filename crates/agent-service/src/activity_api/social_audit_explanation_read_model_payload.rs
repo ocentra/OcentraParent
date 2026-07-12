@@ -57,12 +57,16 @@ use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_G
 use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_MANUAL_REQUIRED_GAP;
 use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_NATIVE_APP_GAP;
 
-use crate::{
-    event_builder::build_event, fields::fields_from_pairs, json_contract::serialize_json_string,
-    time::timestamp_now,
-};
+#[path = "social_audit_explanation_read_model_payload/field_pairs.rs"]
+mod field_pairs;
 
-type FieldPair = (&'static str, LogFieldValue);
+use crate::{
+    event_builder::build_event, json_contract::serialize_json_string, time::timestamp_now,
+};
+use field_pairs::{
+    field_pair, social_audit_explanation_fields_from_pairs, SocialAuditExplanationFieldKey,
+    SocialAuditExplanationFieldPair, SocialAuditExplanationTextRef,
+};
 
 pub fn social_audit_explanation_read_model_from_service() -> SocialAuditExplanationSnapshot {
     SocialAuditExplanationSnapshot {
@@ -96,7 +100,7 @@ pub fn social_audit_explanation_read_model_from_service() -> SocialAuditExplanat
 pub fn social_audit_explanation_read_model_payload(
     read_model: &SocialAuditExplanationSnapshot,
 ) -> LogFields {
-    fields_from_pairs(read_model_pairs(read_model))
+    social_audit_explanation_fields_from_pairs(read_model_pairs(read_model))
 }
 
 pub async fn build_browser_social_audit_explanation_read_model_report(
@@ -114,19 +118,23 @@ pub async fn build_browser_social_audit_explanation_read_model_report(
     )
 }
 
-fn read_model_pairs(read_model: &SocialAuditExplanationSnapshot) -> Vec<FieldPair> {
+fn read_model_pairs(
+    read_model: &SocialAuditExplanationSnapshot,
+) -> Vec<SocialAuditExplanationFieldPair> {
     vec![
-        (
-            constants::field::GENERATED_AT,
+        field_pair(
+            SocialAuditExplanationFieldKey(constants::field::GENERATED_AT),
             LogFieldValue::String(read_model.captured_at.clone()),
         ),
-        (
-            constants::field::RETURNED,
+        field_pair(
+            SocialAuditExplanationFieldKey(constants::field::RETURNED),
             LogFieldValue::Number(read_model.entries.len() as f64),
         ),
-        (
-            constants::field::BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL,
-            LogFieldValue::String(serialize_json_string(read_model)),
+        field_pair(
+            SocialAuditExplanationFieldKey(
+                constants::field::BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL,
+            ),
+            LogFieldValue::String(serialize_json_string(read_model).0),
         ),
     ]
 }
@@ -145,8 +153,12 @@ fn account_approval_entry() -> SocialAuditExplanationEntry {
             SOCIAL_AUDIT_EXPLANATION_REASON_PARENT_DECISION_LINKED,
         ],
         evidence_links: vec![
-            evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE),
-            evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_PARENT_APPROVAL),
+            evidence_link(SocialAuditExplanationTextRef(
+                SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE,
+            )),
+            evidence_link(SocialAuditExplanationTextRef(
+                SOCIAL_AUDIT_EXPLANATION_EVIDENCE_PARENT_APPROVAL,
+            )),
         ],
         refs: OptionalRefs {
             parent_approval_request_ref: Some(SOCIAL_AUDIT_EXPLANATION_REF_APPROVAL_REQUEST),
@@ -172,8 +184,12 @@ fn feed_video_entry() -> SocialAuditExplanationEntry {
             SOCIAL_AUDIT_EXPLANATION_REASON_POLICY_CANDIDATE_LINKED,
         ],
         evidence_links: vec![
-            evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_ROUTE_EVIDENCE),
-            evidence_link(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE),
+            evidence_link(SocialAuditExplanationTextRef(
+                SOCIAL_AUDIT_EXPLANATION_EVIDENCE_ROUTE_EVIDENCE,
+            )),
+            evidence_link(SocialAuditExplanationTextRef(
+                SOCIAL_AUDIT_EXPLANATION_EVIDENCE_POLICY_CANDIDATE,
+            )),
         ],
         refs: OptionalRefs::default(),
     })
@@ -181,11 +197,13 @@ fn feed_video_entry() -> SocialAuditExplanationEntry {
 
 fn native_app_gap_entry() -> SocialAuditExplanationEntry {
     manual_entry(
-        SOCIAL_AUDIT_EXPLANATION_SUBJECT_NATIVE_APP_GAP,
-        SOCIAL_AUDIT_EXPLANATION_EVIDENCE_NATIVE_CAPABILITY,
+        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_SUBJECT_NATIVE_APP_GAP),
+        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_NATIVE_CAPABILITY),
         vec![
-            SOCIAL_AUDIT_EXPLANATION_REASON_NATIVE_APP_MANUAL_REQUIRED,
-            SOCIAL_AUDIT_EXPLANATION_REASON_MISSING_RUNTIME_PROOF,
+            SocialAuditExplanationTextRef(
+                SOCIAL_AUDIT_EXPLANATION_REASON_NATIVE_APP_MANUAL_REQUIRED,
+            ),
+            SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_REASON_MISSING_RUNTIME_PROOF),
         ],
         OptionalRefs {
             native_capability_ref: Some(SOCIAL_AUDIT_EXPLANATION_REF_NATIVE_CAPABILITY),
@@ -196,11 +214,13 @@ fn native_app_gap_entry() -> SocialAuditExplanationEntry {
 
 fn connector_boundary_entry() -> SocialAuditExplanationEntry {
     manual_entry(
-        SOCIAL_AUDIT_EXPLANATION_SUBJECT_CONNECTOR_BOUNDARY,
-        SOCIAL_AUDIT_EXPLANATION_EVIDENCE_CONNECTOR_BOUNDARY,
+        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_SUBJECT_CONNECTOR_BOUNDARY),
+        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_CONNECTOR_BOUNDARY),
         vec![
-            SOCIAL_AUDIT_EXPLANATION_REASON_CONNECTOR_BOUNDARY_LINKED,
-            SOCIAL_AUDIT_EXPLANATION_REASON_MANUAL_REVIEW_REQUIRED,
+            SocialAuditExplanationTextRef(
+                SOCIAL_AUDIT_EXPLANATION_REASON_CONNECTOR_BOUNDARY_LINKED,
+            ),
+            SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_REASON_MANUAL_REVIEW_REQUIRED),
         ],
         OptionalRefs {
             connector_boundary_ref: Some(SOCIAL_AUDIT_EXPLANATION_REF_CONNECTOR_BOUNDARY),
@@ -221,9 +241,9 @@ fn decision_memory_entry() -> SocialAuditExplanationEntry {
             SOCIAL_AUDIT_EXPLANATION_REASON_MEMORY_LINKED,
             SOCIAL_AUDIT_EXPLANATION_REASON_EVIDENCE_LINKED,
         ],
-        evidence_links: vec![evidence_link(
+        evidence_links: vec![evidence_link(SocialAuditExplanationTextRef(
             SOCIAL_AUDIT_EXPLANATION_EVIDENCE_DECISION_MEMORY,
-        )],
+        ))],
         refs: OptionalRefs {
             decision_memory_ref: Some(SOCIAL_AUDIT_EXPLANATION_REF_DECISION_MEMORY),
             ..OptionalRefs::default()
@@ -233,9 +253,11 @@ fn decision_memory_entry() -> SocialAuditExplanationEntry {
 
 fn manual_gap_entry() -> SocialAuditExplanationEntry {
     manual_entry(
-        SOCIAL_AUDIT_EXPLANATION_SUBJECT_MANUAL_REQUIRED_GAP,
-        SOCIAL_AUDIT_EXPLANATION_EVIDENCE_MANUAL_GAP,
-        vec![SOCIAL_AUDIT_EXPLANATION_REASON_MANUAL_REVIEW_REQUIRED],
+        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_SUBJECT_MANUAL_REQUIRED_GAP),
+        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_MANUAL_GAP),
+        vec![SocialAuditExplanationTextRef(
+            SOCIAL_AUDIT_EXPLANATION_REASON_MANUAL_REVIEW_REQUIRED,
+        )],
         OptionalRefs {
             manual_required_ref: Some(SOCIAL_AUDIT_EXPLANATION_REF_MANUAL_GAP),
             ..OptionalRefs::default()
@@ -244,19 +266,22 @@ fn manual_gap_entry() -> SocialAuditExplanationEntry {
 }
 
 fn manual_entry(
-    subject_kind: &'static str,
-    evidence_kind: &'static str,
-    explanation_reasons: Vec<&'static str>,
+    subject_kind: SocialAuditExplanationTextRef,
+    evidence_kind: SocialAuditExplanationTextRef,
+    explanation_reasons: Vec<SocialAuditExplanationTextRef>,
     refs: OptionalRefs,
 ) -> SocialAuditExplanationEntry {
     entry(EntryInput {
-        subject_kind,
+        subject_kind: subject_kind.0,
         status: SOCIAL_AUDIT_EXPLANATION_STATUS_MANUAL_REQUIRED,
         decision_state: SOCIAL_AUDIT_EXPLANATION_DECISION_MANUAL_REQUIRED,
         policy_version_ref: None,
         action_candidate: SOCIAL_AUDIT_EXPLANATION_ACTION_MANUAL_REVIEW,
         policy_reason_codes: vec![SOCIAL_AUDIT_EXPLANATION_POLICY_REASON_MANUAL_REQUIRED],
-        explanation_reasons,
+        explanation_reasons: explanation_reasons
+            .into_iter()
+            .map(|reason| reason.0)
+            .collect(),
         evidence_links: vec![evidence_link(evidence_kind)],
         refs,
     })
@@ -314,10 +339,12 @@ fn entry(input: EntryInput) -> SocialAuditExplanationEntry {
     }
 }
 
-fn evidence_link(evidence_kind: &'static str) -> SocialAuditExplanationEvidenceLink {
+fn evidence_link(
+    evidence_kind: SocialAuditExplanationTextRef,
+) -> SocialAuditExplanationEvidenceLink {
     SocialAuditExplanationEvidenceLink {
-        evidence_kind: evidence_kind.to_string(),
-        evidence_ref: evidence_kind.to_string(),
+        evidence_kind: evidence_kind.0.to_string(),
+        evidence_ref: evidence_kind.0.to_string(),
     }
 }
 

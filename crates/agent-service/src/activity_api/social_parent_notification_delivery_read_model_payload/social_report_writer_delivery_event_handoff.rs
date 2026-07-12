@@ -49,7 +49,7 @@ struct CorrelationIdText(String);
 
 pub fn social_report_writer_delivery_read_model_from_service() -> SocialReportWriterDeliveryReadModel
 {
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     SocialReportWriterDeliveryReadModel {
         generated_at: generated_at.clone(),
         proof_ref: SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_REPORT_WRITER_PROOF_REF.to_string(),
@@ -91,7 +91,7 @@ pub async fn request_social_report_writer_delivery_read_model_from_service(
     )
     .await?;
 
-    let requested_at = timestamp_now();
+    let requested_at: String = timestamp_now();
     let request = SocialReportWriterDeliveryReadModelRequest {
         request_id: RequestId::parse(
             social_report_writer_delivery_request_id(RequestedAtText(requested_at.clone())).0,

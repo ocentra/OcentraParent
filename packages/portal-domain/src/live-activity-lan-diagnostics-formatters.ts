@@ -57,11 +57,11 @@ function summarizeCounts(values: readonly (string | null | undefined)[]): string
 }
 
 function minIsoValue(values: readonly string[]): string | null {
-  return values.length === 0 ? null : [...values].sort()[0] ?? null;
+  return values.length === 0 ? null : ([...values].sort()[0] ?? null);
 }
 
 function maxIsoValue(values: readonly string[]): string | null {
-  return values.length === 0 ? null : [...values].sort().at(-1) ?? null;
+  return values.length === 0 ? null : ([...values].sort().at(-1) ?? null);
 }
 
 function compactStringValues(values: readonly (string | null | undefined)[]): readonly string[] {

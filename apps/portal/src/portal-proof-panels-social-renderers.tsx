@@ -45,7 +45,9 @@ export function renderPortalProofPanelSocial({
         />
       );
     case 'social-dashboard':
-      return <SocialDashboardRoutePanel actions={actions} commandEnabled={commandEnabled} panel={socialDashboardPanel} />;
+      return (
+        <SocialDashboardRoutePanel actions={actions} commandEnabled={commandEnabled} panel={socialDashboardPanel} />
+      );
     case 'social-alert-report':
     default:
       return (
@@ -57,7 +59,9 @@ export function renderPortalProofPanelSocial({
           socialParentNotificationDeliveryPanel={socialParentNotificationDeliveryPanel}
           browserActionIntentStreamStatusPanel={browserActionIntentStreamStatusPanel}
           browserSocialProviderReceiptStreamStatusPanel={browserSocialProviderReceiptStreamStatusPanel}
-          browserSocialProviderReceiptIngestionReadinessStatusPanel={browserSocialProviderReceiptIngestionReadinessStatusPanel}
+          browserSocialProviderReceiptIngestionReadinessStatusPanel={
+            browserSocialProviderReceiptIngestionReadinessStatusPanel
+          }
         />
       );
   }

@@ -8,8 +8,9 @@ mod billing_checkout_portal_boundary_values_ts;
 fn billing_checkout_portal_boundary_values_generated_typescript_matches_checked_in_file() {
     let generated =
         billing_checkout_portal_boundary_values_ts::BILLING_CHECKOUT_PORTAL_BOUNDARY_VALUES_TYPESCRIPT;
-    let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../packages/schema-domain/src/generated-billing-checkout-portal-boundary-values.ts");
+    let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(
+        "../../packages/schema-domain/src/generated-billing-checkout-portal-boundary-values.ts",
+    );
     let checked_in = read_to_string(file_path)
         .expect("read generated billing checkout portal boundary values ts");
 

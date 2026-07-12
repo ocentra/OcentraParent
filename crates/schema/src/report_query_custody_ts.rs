@@ -10,8 +10,20 @@ const REPORT_QUERY_CUSTODY_PROOF_JSON_TOKEN: &str = "__REPORT_QUERY_CUSTODY_PROO
 const REPORT_QUERY_CUSTODY_KNOWN_GAPS_TOKEN: &str = "__REPORT_QUERY_CUSTODY_KNOWN_GAPS__";
 const REPORT_QUERY_CUSTODY_CONTRACTS_TEMPLATE: &str =
     include_str!("report_query_custody_contracts.template.txt");
-const REPORT_QUERY_CUSTODY_CONTRACT_RULES_TEMPLATE: &str =
-    include_str!("report_query_custody_contract_rules.template.txt");
+fn report_query_custody_contract_rules_template() -> String {
+    assemble_template_fragments(&[
+        include_str!("report_query_custody_contract_rules.request.template.txt"),
+        include_str!("report_query_custody_contract_rules.state.template.txt"),
+        include_str!("report_query_custody_contract_rules.proof.template.txt"),
+    ])
+}
+
+fn assemble_template_fragments(fragments: &[&str]) -> String {
+    fragments
+        .iter()
+        .map(|fragment| fragment.strip_suffix('\n').unwrap_or(fragment))
+        .collect()
+}
 
 pub fn report_query_custody_contracts_typescript() -> String {
     let proof_json = crate::schema_result_or_unreachable(
@@ -20,21 +32,24 @@ pub fn report_query_custody_contracts_typescript() -> String {
     );
     let known_gaps = report_query_custody_known_gaps()
         .iter()
-        .map(|gap| format!("  {:?},", gap))
+        .map(|gap| format!("  '{}',", gap.replace('\'', "\\'")))
         .collect::<Vec<_>>()
         .join(REPORT_QUERY_CUSTODY_KNOWN_GAPS_SEPARATOR);
+
+    let proof_typescript =
+        crate::typescript_literal::json_object_to_typescript_literal(&proof_json);
 
     REPORT_QUERY_CUSTODY_CONTRACTS_TEMPLATE
         .replace(
             REPORT_QUERY_CUSTODY_SCHEMA_VERSION_TOKEN,
             REPORT_QUERY_CUSTODY_SCHEMA_VERSION,
         )
-        .replace(REPORT_QUERY_CUSTODY_PROOF_JSON_TOKEN, &proof_json)
+        .replace(REPORT_QUERY_CUSTODY_PROOF_JSON_TOKEN, &proof_typescript)
         .replace(REPORT_QUERY_CUSTODY_KNOWN_GAPS_TOKEN, &known_gaps)
         .replace("{{", "{")
         .replace("}}", "}")
 }
 
 pub fn report_query_custody_contract_rules_typescript() -> String {
-    REPORT_QUERY_CUSTODY_CONTRACT_RULES_TEMPLATE.to_owned()
+    report_query_custody_contract_rules_template()
 }

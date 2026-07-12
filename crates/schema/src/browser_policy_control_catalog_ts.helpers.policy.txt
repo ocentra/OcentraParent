@@ -40,7 +40,10 @@ export function browserGamePolicyDecisionCandidateIsConsistentGenerated(
 
   switch (value.actionCandidate) {
     case 'unknown-candidate':
-      return value.fallbackUsed && BrowserGamePolicyUnknownFallbackReasonsGenerated.some((reason) => value.reasonCodes.includes(reason));
+      return (
+        value.fallbackUsed &&
+        BrowserGamePolicyUnknownFallbackReasonsGenerated.some((reason) => value.reasonCodes.includes(reason))
+      );
     case 'manual-review-candidate':
       return value.fallbackUsed && value.reasonCodes.includes('manual-required');
     case 'parent-review-candidate':
@@ -90,4 +93,3 @@ export function browserControlManifestAllowsWritesToGenerated(
 ): boolean {
   return manifest.sections.some((section) => section.fields.some((field) => field.writesTo === writesTo));
 }
-

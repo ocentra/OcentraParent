@@ -16,7 +16,10 @@ describe('local AI runtime panel intent', () => {
   );
   it('keeps missing runtime/job events visible as no-data rather than success', rendersMissingEventState);
   it('rejects generated memory graph payloads with drifted counts', rejectsMemoryGraphPayloadWithDriftedCounts);
-  it('rejects generated memory graph payloads without trace provenance', rejectsMemoryGraphPayloadWithoutTraceProvenance);
+  it(
+    'rejects generated memory graph payloads without trace provenance',
+    rejectsMemoryGraphPayloadWithoutTraceProvenance
+  );
 });
 
 function rendersRuntimeAndHouseholdRows() {

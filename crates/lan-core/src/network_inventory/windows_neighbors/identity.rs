@@ -69,8 +69,7 @@ pub fn resolved_windows_neighbor_identity(
         &reuse_state,
         supports_netbios,
     );
-    let direct_netbios_hostname_present = direct_hostname.is_some();
-    let direct_hostname_missing = direct_hostname.is_none();
+    let direct_hostname_presence = (direct_hostname.is_some(), direct_hostname.is_none());
     let used_previous_scan_hostname = windows_neighbor_used_previous_scan_hostname_hint(
         &dns_hostname,
         &netbios_cache_hostname,
@@ -95,7 +94,7 @@ pub fn resolved_windows_neighbor_identity(
         &platform,
         &reuse_state,
         netbios_cache_hostname_missing,
-        direct_hostname_missing,
+        direct_hostname_presence.1,
     );
     persist_windows_neighbor_identity_side_effects(
         ip_address,
@@ -110,7 +109,7 @@ pub fn resolved_windows_neighbor_identity(
         used_previous_scan_hostname || used_previous_scan_label || used_previous_scan_platform;
     let name_scan_sources = windows_neighbor_name_scan_sources(
         dns_hostname_present,
-        netbios_cache_hostname_present || direct_netbios_hostname_present,
+        netbios_cache_hostname_present || direct_hostname_presence.0,
     );
     let label = resolved_windows_neighbor_label(ip_address, &hostname, reuse_state);
 

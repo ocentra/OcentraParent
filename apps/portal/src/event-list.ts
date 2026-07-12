@@ -20,10 +20,9 @@ export function renderEvents(container: HTMLElement, events: readonly ParentRout
 
 function renderEvent(event: ParentRouteEventSnapshot): HTMLLIElement {
   const item = document.createElement(PortalDom.Tags.ListItem);
-  item.className = [
-    PortalDom.Classes.Log,
-    `${PortalDom.Classes.LogLevelPrefix}${eventSeverity(event)}`,
-  ].join(PortalDom.Classes.ClassNameSeparator);
+  item.className = [PortalDom.Classes.Log, `${PortalDom.Classes.LogLevelPrefix}${eventSeverity(event)}`].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
 
   const message = document.createElement(PortalDom.Tags.Strong);
   message.textContent = resolvedEventName(event);

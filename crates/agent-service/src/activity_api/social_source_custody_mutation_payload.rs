@@ -48,7 +48,7 @@ pub fn social_source_custody_mutation_from_command(
     command: &AgentCommandEnvelope,
 ) -> SocialSourceCustodyMutationSnapshot {
     let requested_at = requested_at(command);
-    let applied_at = timestamp_now();
+    let applied_at: String = timestamp_now();
     SocialSourceCustodyMutationSnapshot {
         schema_version: SOCIAL_SOURCE_CUSTODY_MUTATION_SCHEMA_VERSION.to_string(),
         mutation_id: SOCIAL_SOURCE_CUSTODY_MUTATION_ID.to_string(),
@@ -135,7 +135,7 @@ fn mutation_pairs(mutation: &SocialSourceCustodyMutationSnapshot) -> FieldPairs 
         ),
         (
             constants::field::BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION,
-            LogFieldValue::String(serialize_json_string(mutation)),
+            LogFieldValue::String(serialize_json_string(mutation).0),
         ),
     ])
 }

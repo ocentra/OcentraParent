@@ -17,9 +17,7 @@ afterEach(() => {
 it('HostBridge dev adapter: rejects route loads when no dev bridge URL is configured', async () => {
   const bridge = createDevWebHostBridge(null);
 
-  await expect(bridge.loadRoute(ParentRoute.Devices)).rejects.toThrow(
-    presentationOnlyDevWebHostBridgeMessage()
-  );
+  await expect(bridge.loadRoute(ParentRoute.Devices)).rejects.toThrow(presentationOnlyDevWebHostBridgeMessage());
 });
 
 it('HostBridge dev adapter: rejects action dispatch when no dev bridge URL is configured', async () => {
@@ -37,9 +35,9 @@ it('HostBridge dev adapter: rejects action dispatch when no dev bridge URL is co
 it('HostBridge dev adapter: rejects subscriptions when no dev bridge URL is configured', async () => {
   const bridge = createDevWebHostBridge(null);
 
-  await expect(
-    bridge.subscribe(ParentRoute.Devices, {}, () => undefined)
-  ).rejects.toThrow(presentationOnlyDevWebHostBridgeMessage());
+  await expect(bridge.subscribe(ParentRoute.Devices, {}, () => undefined)).rejects.toThrow(
+    presentationOnlyDevWebHostBridgeMessage()
+  );
 });
 
 it('HostBridge dev adapter: loads Rust-owned route snapshots through the local dev bridge when configured', async () => {

@@ -5,6 +5,9 @@ use super::super::name_evidence::{
 };
 use super::text::compact_summary;
 
+mod name;
+mod netbios;
+
 pub fn passive_llmnr_summary(payload: &[u8]) -> Option<String> {
     let (header, evidence) = passive_llmnr_name_evidence(payload)?;
     Some(compact_summary(format!(
@@ -90,73 +93,9 @@ pub fn dns_like_counts(payload: &[u8]) -> Option<DnsLikeHeader> {
 }
 
 pub fn dns_like_name(payload: &[u8], offset: usize) -> Option<(String, usize)> {
-    let mut labels = Vec::new();
-    let mut cursor = offset;
-    let mut next_offset = offset;
-    let mut jumped = false;
-    let mut jumps = 0_usize;
-    loop {
-        let label_len = *payload.get(cursor)?;
-        if label_len == 0 {
-            cursor += 1;
-            if !jumped {
-                next_offset = cursor;
-            }
-            break;
-        }
-        if label_len & 0b1100_0000 == 0b1100_0000 {
-            let low = *payload.get(cursor + 1)?;
-            let pointer = usize::from((u16::from(label_len & 0x3f) << 8) | u16::from(low));
-            if pointer >= payload.len() {
-                return None;
-            }
-            if !jumped {
-                next_offset = cursor + 2;
-            }
-            cursor = pointer;
-            jumped = true;
-            jumps += 1;
-            if jumps > 8 {
-                return None;
-            }
-            continue;
-        }
-        if label_len > 63 || label_len & 0b1100_0000 != 0 {
-            return None;
-        }
-        cursor += 1;
-        let label_end = cursor.checked_add(usize::from(label_len))?;
-        let label = payload.get(cursor..label_end)?;
-        labels.push(String::from_utf8_lossy(label).to_string());
-        cursor = label_end;
-        if !jumped {
-            next_offset = cursor;
-        }
-        if labels.len() > 16 {
-            return None;
-        }
-    }
-    Some((labels.join("."), next_offset))
+    name::dns_like_name(payload, offset)
 }
 
 pub fn decode_netbios_name(encoded_name: &str) -> Option<String> {
-    let encoded = encoded_name.split('.').next().unwrap_or(encoded_name);
-    if encoded.len() != 32 {
-        return None;
-    }
-
-    let mut bytes = Vec::with_capacity(16);
-    let mut chars = encoded.bytes();
-    while let (Some(high), Some(low)) = (chars.next(), chars.next()) {
-        if !(b'A'..=b'P').contains(&high) || !(b'A'..=b'P').contains(&low) {
-            return None;
-        }
-        bytes.push(((high - b'A') << 4) | (low - b'A'));
-    }
-    let name_bytes = bytes.get(..15)?;
-    let decoded = String::from_utf8_lossy(name_bytes)
-        .trim_end()
-        .trim_matches(char::from(0))
-        .to_string();
-    (!decoded.is_empty()).then_some(decoded)
+    netbios::decode_netbios_name(encoded_name)
 }

@@ -16,8 +16,7 @@ const ProductBridgeSourceFiles = [
 ];
 const BridgeContractFile = 'generated/parent-ui-bridge.ts';
 const TestDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const RetiredSchemaDomainPortalContractsSpecifier =
-  '@ocentra-parent/' + 'schema-domain/' + 'portal-contracts';
+const RetiredSchemaDomainPortalContractsSpecifier = '@ocentra-parent/' + 'schema-domain/' + 'portal-contracts';
 const BrowserRouteContractSnippets = [
   'ParentBrowserParentSurfaceRoutes',
   'ParentRoute.ProofPanels',
@@ -63,10 +62,7 @@ it('product bridge guard: portal source does not create browser WebSockets', () 
 
 it('product bridge guard: portal shell uses the host bridge subscription path instead of direct agent event listeners', () => {
   const mainSource = readFileSync(resolve(TestDirectory, '..', 'src/portal-runtime-controller.ts'), 'utf8');
-  const sessionSource = readFileSync(
-    resolve(TestDirectory, '..', 'src/portal-runtime-controller-session.ts'),
-    'utf8'
-  );
+  const sessionSource = readFileSync(resolve(TestDirectory, '..', 'src/portal-runtime-controller-session.ts'), 'utf8');
   const subscriptionSource = readFileSync(
     resolve(TestDirectory, '..', 'src/portal-runtime-controller-session-subscription.ts'),
     'utf8'
@@ -227,9 +223,15 @@ it('product bridge guard: browser route panels use Rust-generated route-family p
     resolve(TestDirectory, '..', 'src/BrowserParentExplanationRoutePanel.tsx'),
     'utf8'
   );
-  const socialAuditSource = readFileSync(resolve(TestDirectory, '..', 'src/SocialAuditExplanationRoutePanel.tsx'), 'utf8');
+  const socialAuditSource = readFileSync(
+    resolve(TestDirectory, '..', 'src/SocialAuditExplanationRoutePanel.tsx'),
+    'utf8'
+  );
   const socialDashboardSource = readFileSync(resolve(TestDirectory, '..', 'src/SocialDashboardRoutePanel.tsx'), 'utf8');
-  const socialAlertReportSource = readFileSync(resolve(TestDirectory, '..', 'src/SocialAlertReportRoutePanel.tsx'), 'utf8');
+  const socialAlertReportSource = readFileSync(
+    resolve(TestDirectory, '..', 'src/SocialAlertReportRoutePanel.tsx'),
+    'utf8'
+  );
   const parentPortalRouteSource = readFileSync(resolve(TestDirectory, '..', 'src/ParentPortalRoute.tsx'), 'utf8');
 
   expect(browserParentExplanationSource).not.toContain(ForbiddenBrowserDomainImports[0]);

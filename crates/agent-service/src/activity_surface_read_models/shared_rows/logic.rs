@@ -13,6 +13,17 @@ use crate::activity_surface_read_models::shared::{
     SourceStatusRowInput,
 };
 
+const SOURCE_STATUS_PRECEDENCE_ORDER: [&str; 8] = [
+    APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR,
+    APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED,
+    APP_GAME_CAPABILITY_STATUS_DEGRADED,
+    APP_GAME_CAPABILITY_STATUS_STALE,
+    APP_GAME_CAPABILITY_STATUS_UNAVAILABLE,
+    APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM,
+    APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED,
+    APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED,
+];
+
 pub(super) fn app_game_source_status_rows(
     model: &AppGameServiceReadModel,
     inventory_filter: fn(&AppGameInventoryEvidenceRow) -> bool,
@@ -139,15 +150,9 @@ fn push_source_status_row(input: SourceStatusRowInput<'_>) {
 }
 
 fn source_status_precedence(capability_status: CapabilityStatus) -> u8 {
-    match capability_status.0.as_str() {
-        APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR => 0,
-        APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED => 1,
-        APP_GAME_CAPABILITY_STATUS_DEGRADED => 2,
-        APP_GAME_CAPABILITY_STATUS_STALE => 3,
-        APP_GAME_CAPABILITY_STATUS_UNAVAILABLE => 4,
-        APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM => 5,
-        APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED => 6,
-        APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED => 7,
-        _ => 8,
-    }
+    SOURCE_STATUS_PRECEDENCE_ORDER
+        .iter()
+        .position(|status| capability_status.0 == *status)
+        .map(|index| index as u8)
+        .unwrap_or(8)
 }

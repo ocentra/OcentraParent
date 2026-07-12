@@ -15,7 +15,9 @@ function explicitOptionLabelsGenerated(sourceText: string): string[] {
   );
 }
 
-function numericOrDurationControlGenerated(sourceText: string): (typeof GeneratedBrowserControlFullCatalogControlKindValues)[number] {
+function numericOrDurationControlGenerated(
+  sourceText: string
+): (typeof GeneratedBrowserControlFullCatalogControlKindValues)[number] {
   return /minutes|seconds|days/u.test(sourceText.toLowerCase()) ? 'number' : 'duration';
 }
 

@@ -3,14 +3,104 @@
 mod unit_root_basic_harness;
 declare_agent_service_unit_root_basic_harness!();
 
+#[path = "../support/activity_report_env_lock.rs"]
+mod activity_report_env_lock;
+#[path = "../../src/activity_store_path.rs"]
+mod activity_store_path;
+#[path = "../../src/activity_surface_report_file_name.rs"]
+mod activity_surface_report_file_name;
+#[path = "../../src/activity_surface_report_store.rs"]
+mod activity_surface_report_store;
+#[path = "../../src/activity_surface_request.rs"]
+mod activity_surface_request;
+#[path = "../../src/activity_surface_store.rs"]
+mod activity_surface_store;
+#[path = "../../src/event_builder.rs"]
+mod event_builder;
+#[path = "../../src/fields.rs"]
+mod fields;
+#[path = "../../src/json_contract.rs"]
+mod json_contract;
+#[path = "../../src/local_ai_cache_root.rs"]
+mod local_ai_cache_root;
+#[path = "../../src/local_ai_chat_generation.rs"]
+mod local_ai_chat_generation;
+#[path = "../../src/local_ai_chat_generation_args.rs"]
+mod local_ai_chat_generation_args;
+#[path = "../../src/local_ai_chat_generation_request.rs"]
+mod local_ai_chat_generation_request;
+#[path = "../../src/local_ai_chat_generation_result.rs"]
+mod local_ai_chat_generation_result;
+#[path = "../../src/local_ai_chat_generation_runner.rs"]
+mod local_ai_chat_generation_runner;
+#[path = "../../src/local_ai_generation_payload.rs"]
+mod local_ai_generation_payload;
+#[path = "../../src/local_ai_model_registry.rs"]
+mod local_ai_model_registry;
+#[path = "../../src/local_ai_provider_scheduler.rs"]
+mod local_ai_provider_scheduler;
+#[path = "../../src/local_ai_provider_scheduler_queue.rs"]
+mod local_ai_provider_scheduler_queue;
+#[path = "../../src/local_ai_provider_scheduler_state.rs"]
+mod local_ai_provider_scheduler_state;
+#[path = "../../src/local_ai_runtime_acceleration_config.rs"]
+mod local_ai_runtime_acceleration_config;
+#[path = "../../src/local_ai_runtime_cache_status.rs"]
+mod local_ai_runtime_cache_status;
+#[path = "../../src/local_ai_runtime_config.rs"]
+mod local_ai_runtime_config;
+#[path = "../../src/local_ai_runtime_config_environment.rs"]
+mod local_ai_runtime_config_environment;
+#[path = "../../src/local_ai_runtime_config_parts.rs"]
+mod local_ai_runtime_config_parts;
+#[path = "../../src/local_ai_runtime_config_path.rs"]
+mod local_ai_runtime_config_path;
+#[path = "../../src/local_ai_runtime_config_values.rs"]
+mod local_ai_runtime_config_values;
+#[path = "../../src/local_ai_runtime_configured_status.rs"]
+mod local_ai_runtime_configured_status;
+#[path = "../../src/local_ai_runtime_distribution.rs"]
+mod local_ai_runtime_distribution;
+#[path = "../../src/local_ai_runtime_distribution_assets.rs"]
+mod local_ai_runtime_distribution_assets;
+#[path = "../../src/local_ai_runtime_install_plan.rs"]
+mod local_ai_runtime_install_plan;
+#[path = "../../src/local_ai_runtime_model_selection.rs"]
+mod local_ai_runtime_model_selection;
+#[path = "../../src/local_ai_runtime_payload.rs"]
+mod local_ai_runtime_payload;
+#[path = "../../src/local_ai_runtime_provider_proof_read_model.rs"]
+mod local_ai_runtime_provider_proof_read_model;
+#[path = "../../src/local_ai_runtime_readiness.rs"]
+mod local_ai_runtime_readiness;
+#[path = "../../src/local_ai_runtime_status.rs"]
+mod local_ai_runtime_status;
+#[path = "../../src/local_ai_runtime_status_unavailable.rs"]
+mod local_ai_runtime_status_unavailable;
+#[path = "../../src/parent_assistant_api.rs"]
+mod parent_assistant_api;
+#[path = "../../src/parent_assistant_evidence_context.rs"]
+mod parent_assistant_evidence_context;
+#[path = "../../src/parent_assistant_payload.rs"]
+mod parent_assistant_payload;
+#[path = "../../src/parent_assistant_report_history.rs"]
+mod parent_assistant_report_history;
+#[path = "../../src/parent_assistant_runtime.rs"]
+mod parent_assistant_runtime;
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+#[path = "../support/test_text.rs"]
+mod test_text;
+
 use crate::test_text::TestText;
 use std::path::PathBuf as TestPathBuf;
 use std::string::String as TestString;
 use std::{
     error::Error,
+    fmt::Display,
     fs,
     io::Error as IoError,
-    path::{Path as TestPath, TestPathBuf},
+    path::Path as TestPath,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -61,7 +151,9 @@ use crate::{
     activity_surface_store::ActivitySurfaceStoreSnapshot,
     fields::fields_from_pairs,
     local_ai_provider_scheduler::LocalAiProviderSchedulerRuntime,
+    local_ai_provider_scheduler_state::LocalAiPhysicalDeviceId,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_config_values::LocalAiRuntimePath,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
     parent_assistant_runtime::{
         generate_parent_assistant_answer_with_scheduler, request_from_command,
@@ -136,8 +228,8 @@ async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() 
     let runtime_binary = write_temp_file(constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI)?;
     let model_file = write_temp_file(constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4)?;
     let config = LocalAiRuntimeConfigSnapshot::from_parts_with_execution(
-        Some(runtime_binary.clone()),
-        Some(model_file.clone()),
+        Some(LocalAiRuntimePath(runtime_binary.clone())),
+        Some(LocalAiRuntimePath(model_file.clone())),
         None,
         None,
         true,
@@ -150,14 +242,14 @@ async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() 
         Some(config.model_id()),
     );
     scheduler.record_running_job_for_device(
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
         &runtime,
         LocalAiProviderSchedulerJobClass::ParentReport,
     );
 
     let answer = generate_parent_assistant_answer_with_scheduler(
         &command_with_payload(Default::default()),
-        request(Some(config.model_id().to_string())),
+        request(Some(config.model_id().0)),
         &config,
         &scheduler,
     )
@@ -244,7 +336,9 @@ async fn parent_assistant_request_prepares_policy_preview_without_enforcement_or
 #[test]
 fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary() {
     let snapshot = ActivitySurfaceStoreSnapshot {
-        device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+        device_id: activity_surface_store::ActivitySurfaceDeviceRefText(
+            constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+        ),
         recent_returned: 1,
         last_event_id: Some(constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED.to_string()),
         last_observed_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
@@ -566,19 +660,16 @@ fn report_source_state<S1, S2, S3>(
     source_label: ActivityReportSourceLabel,
 ) -> ActivityReportSourceState
 where
-    S1: Into<TestText>,
-    S2: Into<TestText>,
-    S3: Into<TestText>,
+    S1: Display,
+    S2: Display,
+    S3: Display,
 {
-    let source_device_identifier = source_device_identifier;
-    let reason = reason;
-    let last_updated_at = last_updated_at.map(Into::into);
     ActivityReportSourceState {
-        device_id: source_device_identifier.as_ref().to_string(),
+        device_id: source_device_identifier.to_string(),
         reachability_state,
         state,
-        reason: Some(reason.as_ref().to_string()),
-        last_updated_at: last_updated_at.map(|value| value.as_ref().to_string()),
+        reason: Some(reason.to_string()),
+        last_updated_at: last_updated_at.map(|value| value.to_string()),
         custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
         source_label,
         raw_child_evidence_included: false,
@@ -606,7 +697,7 @@ fn command_with_payload(
     }
 }
 
-fn write_temp_file(prefix: TestText) -> Result<TestPathBuf, IoError> {
+fn write_temp_file(prefix: impl Display) -> Result<TestPathBuf, IoError> {
     let path = unique_temp_path(prefix);
     fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT).map_err(|error| {
         IoError::other(format!(
@@ -617,9 +708,8 @@ fn write_temp_file(prefix: TestText) -> Result<TestPathBuf, IoError> {
     Ok(path)
 }
 
-fn unique_temp_path(prefix: TestText) -> TestPathBuf {
-    let prefix = prefix;
-    let mut name = prefix.as_ref().to_string();
+fn unique_temp_path(prefix: impl Display) -> TestPathBuf {
+    let mut name = prefix.to_string();
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

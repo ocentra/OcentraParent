@@ -1,9 +1,7 @@
 /* generated from crates/browser-core/src/browser_android_owned_shell_url_custody.rs */
 
 export type BrowserAndroidOwnedShellUrlCustodyTemplate = {
-  readonly custodyState:
-    | 'physical-owned-shell-request-url-ref'
-    | 'manual-required';
+  readonly custodyState: 'physical-owned-shell-request-url-ref' | 'manual-required';
   readonly reasonCode: string;
   readonly rawUrlPersisted: false;
   readonly exactUrlPolicyClaimed: false;

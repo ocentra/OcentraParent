@@ -2,10 +2,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
-import {
-  ParentRoute,
-  type ParentPolicyPreviewPanelSnapshot,
-} from '../../generated/parent-ui-bridge';
+import { ParentRoute, type ParentPolicyPreviewPanelSnapshot } from '../../generated/parent-ui-bridge';
 import { PolicyPreviewRoutePanel, shouldRenderPolicyPreviewRoute } from '../../src/PolicyPreviewRoutePanel';
 
 describe('policy preview portal route panel', () => {
@@ -91,7 +88,10 @@ function policyPreviewPanelIdentity(): Pick<
   };
 }
 
-function policyPreviewSummaryDetails(parentAccess: string, policyCheck: string): ParentPolicyPreviewPanelSnapshot['summaryDetails'] {
+function policyPreviewSummaryDetails(
+  parentAccess: string,
+  policyCheck: string
+): ParentPolicyPreviewPanelSnapshot['summaryDetails'] {
   return [
     { label: 'Decision status', value: 'Preview remains advisory and not enforced.' },
     { label: 'Policy check', value: policyCheck },

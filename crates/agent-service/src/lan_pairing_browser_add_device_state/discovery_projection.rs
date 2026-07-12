@@ -7,6 +7,45 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanBrowserAddDeviceReadModel, LanSelectedDeviceReadiness,
 };
 
+const DISCOVERY_STATE_MAPPINGS: [(&str, LanPairingProductionDiscoveryState); 9] = [
+    (
+        constants::value::LAN_DISCOVERY_STATE_PENDING,
+        LanPairingProductionDiscoveryState::Pending,
+    ),
+    (
+        constants::value::LAN_DISCOVERY_STATE_PAIRED,
+        LanPairingProductionDiscoveryState::Paired,
+    ),
+    (
+        constants::value::LAN_DISCOVERY_STATE_REJECTED,
+        LanPairingProductionDiscoveryState::Rejected,
+    ),
+    (
+        constants::value::LAN_DISCOVERY_STATE_EXPIRED,
+        LanPairingProductionDiscoveryState::Expired,
+    ),
+    (
+        constants::value::LAN_DISCOVERY_STATE_REVOKED,
+        LanPairingProductionDiscoveryState::Revoked,
+    ),
+    (
+        constants::value::LAN_DISCOVERY_STATE_STALE,
+        LanPairingProductionDiscoveryState::Stale,
+    ),
+    (
+        constants::value::LAN_DISCOVERY_STATE_OFFLINE,
+        LanPairingProductionDiscoveryState::Offline,
+    ),
+    (
+        constants::value::LAN_DISCOVERY_STATE_MANUAL_REQUIRED,
+        LanPairingProductionDiscoveryState::ManualRequired,
+    ),
+    (
+        constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE,
+        LanPairingProductionDiscoveryState::Unavailable,
+    ),
+];
+
 pub(super) fn physical_household_lan_state(
     has_network_devices: bool,
 ) -> LanPairingProductionDiscoveryState {
@@ -57,33 +96,12 @@ fn non_empty_text(value: LanPairingText) -> Option<LanPairingText> {
     (!trimmed.is_empty()).then(|| LanPairingText(trimmed.to_string()))
 }
 
-pub(super) fn discovery_state_for(state: &str) -> LanPairingProductionDiscoveryState {
-    match state {
-        constants::value::LAN_DISCOVERY_STATE_PENDING => {
-            LanPairingProductionDiscoveryState::Pending
-        }
-        constants::value::LAN_DISCOVERY_STATE_PAIRED => LanPairingProductionDiscoveryState::Paired,
-        constants::value::LAN_DISCOVERY_STATE_REJECTED => {
-            LanPairingProductionDiscoveryState::Rejected
-        }
-        constants::value::LAN_DISCOVERY_STATE_EXPIRED => {
-            LanPairingProductionDiscoveryState::Expired
-        }
-        constants::value::LAN_DISCOVERY_STATE_REVOKED => {
-            LanPairingProductionDiscoveryState::Revoked
-        }
-        constants::value::LAN_DISCOVERY_STATE_STALE => LanPairingProductionDiscoveryState::Stale,
-        constants::value::LAN_DISCOVERY_STATE_OFFLINE => {
-            LanPairingProductionDiscoveryState::Offline
-        }
-        constants::value::LAN_DISCOVERY_STATE_MANUAL_REQUIRED => {
-            LanPairingProductionDiscoveryState::ManualRequired
-        }
-        constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE => {
-            LanPairingProductionDiscoveryState::Unavailable
-        }
-        _ => LanPairingProductionDiscoveryState::Discovered,
-    }
+pub(super) fn discovery_state_for(state: &LanPairingText) -> LanPairingProductionDiscoveryState {
+    DISCOVERY_STATE_MAPPINGS
+        .iter()
+        .find(|(candidate, _)| *candidate == state.0.as_str())
+        .map(|(_, mapped)| mapped.clone())
+        .unwrap_or(LanPairingProductionDiscoveryState::Discovered)
 }
 
 pub(super) fn pending_pairing_count(model: &LanBrowserAddDeviceReadModel) -> usize {

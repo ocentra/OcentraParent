@@ -55,15 +55,12 @@ pub(crate) fn ip_only_neighbor(
     platform: impl Into<TestString>,
     device_id_seed: impl Into<TestString>,
 ) -> LanBrowserAddDeviceDiscoveryDevice {
-    let ip = ip;
-    let hostname = hostname;
-    let platform = platform;
-    let mut device = LanPairingDeviceRef::new(
-        device_id_seed.into(),
-        None,
-        label_for_ip(ip.clone()),
-        platform,
-    );
+    let ip = ip.into();
+    let hostname = hostname.into();
+    let platform = platform.into();
+    let device_id_seed = device_id_seed.into();
+    let mut device =
+        LanPairingDeviceRef::new(device_id_seed, None, label_for_ip(ip.clone()), platform);
     device.ip_address = Some(ip);
     device.hostname = Some(hostname);
     discovery_device(device, LanPairingDiscoveryRuntimeStatus::NetworkNeighbor)
@@ -90,7 +87,7 @@ pub(crate) fn household_decision(
     canonical_device_id: impl Into<TestString>,
     display_name: Option<TestString>,
 ) -> LanHouseholdDeviceDecision {
-    let canonical_device_id = canonical_device_id;
+    let canonical_device_id = canonical_device_id.into();
     let device_kind = display_name
         .as_ref()
         .map(|_| constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP.to_string());
@@ -138,13 +135,14 @@ fn network_neighbor_device_ref(
     mac: impl Into<TestString>,
     platform: impl Into<TestString>,
 ) -> LanPairingDeviceRef {
-    let ip = ip;
-    let mac = mac;
+    let ip = ip.into();
+    let mac = mac.into();
+    let platform = platform.into();
     let mut device = LanPairingDeviceRef::new(
         expected_device_id_from_mac(mac.clone()),
         None,
         label_for_ip(ip.clone()),
-        platform.into(),
+        platform,
     );
     device.ip_address = Some(ip);
     device.mac_address = Some(mac);
@@ -205,21 +203,21 @@ fn parent_device() -> LanPairingDeviceRef {
 }
 
 fn expected_device_id_from_mac(mac: impl Into<TestString>) -> TestString {
-    let mac = mac;
+    let mac = mac.into();
     let mut id = TestString::from(constants::lan_pairing::NETWORK_NEIGHBOR_DEVICE_PREFIX);
     id.push_str(&compact(mac));
     id
 }
 
 fn label_for_ip(ip: impl Into<TestString>) -> TestString {
-    let ip = ip;
+    let ip = ip.into();
     let mut label = TestString::from(constants::lan_pairing::NETWORK_NEIGHBOR_LABEL_PREFIX);
     label.push_str(&ip);
     label
 }
 
 fn compact(value: impl Into<TestString>) -> TestString {
-    let value = value;
+    let value = value.into();
     value
         .chars()
         .filter(|character| character.is_ascii_alphanumeric())

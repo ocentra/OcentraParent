@@ -6,7 +6,6 @@ use std::string::String as TestString;
 use std::{
     fs::{self, remove_dir_all},
     io::Error as IoError,
-    path::TestPathBuf,
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -21,6 +20,7 @@ use ocentra_parent_agent_protocol::screen_evidence::{
 
 use crate::screen_ai_retention_sweeper_deletion_events::{
     publish_screen_retention_deletion_events, ScreenAiRetentionSweeperDeletionEventOutcome,
+    ScreenRetentionObservedAt,
 };
 use crate::screen_ai_retention_sweeper_runtime::{
     record_screen_ai_retention_sweeper_tick, ScreenAiRetentionSweeperClock,
@@ -145,7 +145,9 @@ async fn publish_swept_deletion_events(
             publish_screen_retention_deletion_events(
                 store_path,
                 expired_entries,
-                constants::activity_store::TEST_SECOND_OBSERVED_AT,
+                ScreenRetentionObservedAt::from_display(
+                    constants::activity_store::TEST_SECOND_OBSERVED_AT,
+                ),
             )
             .await
         }
@@ -189,11 +191,9 @@ fn screen_retention_sweeper_tick_keeps_queue_when_key_is_missing() {
     assert_eq!(outcome, ScreenAiRetentionSweeperOutcome::QueueEmpty);
 }
 
-fn sweeper_clock(timestamp: TestText) -> ScreenAiRetentionSweeperClock {
-    let timestamp = timestamp;
-    ScreenAiRetentionSweeperClock {
-        timestamp: timestamp.as_str().to_string(),
-    }
+fn sweeper_clock(timestamp: impl std::fmt::Display) -> ScreenAiRetentionSweeperClock {
+    let timestamp = timestamp.to_string();
+    ScreenAiRetentionSweeperClock { timestamp }
 }
 
 fn assert_sweep_outcome(
@@ -228,13 +228,13 @@ fn assert_sweep_outcome(
 
 fn assert_sweep_store(
     entry_count: usize,
-    retained_queue_job_id: TestText,
+    retained_queue_job_id: impl std::fmt::Display,
     fresh_job: &ScreenAnalysisQueueJob,
     screen_summary: &ScreenEvidenceRecentSummary,
 ) {
-    let retained_queue_job_id = retained_queue_job_id;
+    let retained_queue_job_id = retained_queue_job_id.to_string();
     assert_eq!(entry_count, 1);
-    assert_eq!(retained_queue_job_id.as_str(), fresh_job.queue_job_id);
+    assert_eq!(retained_queue_job_id, fresh_job.queue_job_id);
     assert_eq!(screen_summary.returned, 1);
     assert_eq!(
         screen_summary.results[0].queue_job_id,
@@ -247,17 +247,17 @@ fn assert_sweep_store(
 }
 
 fn screen_queue_job_with_expiry(
-    queue_job_id: TestText,
-    expires_at: TestText,
+    queue_job_id: impl std::fmt::Display,
+    expires_at: impl std::fmt::Display,
 ) -> ScreenAnalysisQueueJob {
-    let queue_job_id = queue_job_id;
-    let expires_at = expires_at;
+    let queue_job_id = queue_job_id.to_string();
+    let expires_at = expires_at.to_string();
     ScreenAnalysisQueueJob {
         schema_version: parent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION,
-        queue_job_id: queue_job_id.as_str().to_string(),
+        queue_job_id,
         created_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         not_before: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        expires_at: expires_at.as_str().to_string(),
+        expires_at,
         last_attempt_at: None,
         capture_reason:
             ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST
@@ -293,8 +293,8 @@ fn screen_queue_job_with_expiry(
     }
 }
 
-fn test_path(suffix: TestText) -> TestPathBuf {
-    let suffix = suffix;
+fn test_path(suffix: impl std::fmt::Display) -> TestPathBuf {
+    let suffix = suffix.to_string();
     let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

@@ -160,5 +160,5 @@ function connectionStatus(state: PortalRuntimeState): PortalDisplayText {
   if (state.connectionState === ParentBridgeConnectionState.Connected) {
     return resolvePortalDevText(PortalDevTextToken.Connected);
   }
-  return resolvePortalDevText(PortalDevTextToken.Unavailable);
+  return resolvePortalDevText(PortalDevTextToken.PendingServiceReadModel);
 }

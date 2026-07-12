@@ -29,27 +29,19 @@ export const BillingInvoiceProviderModeSchema = withParser(Schema.Literal(...Gen
 
 export const BillingInvoiceCurrencyCodeSchema = withParser(Schema.Literal(...GeneratedBillingInvoiceCurrencyCodes));
 
-export const BillingTaxModeDecisionSchema = withParser(
-  Schema.Literal(...GeneratedBillingTaxModeDecisions)
-);
+export const BillingTaxModeDecisionSchema = withParser(Schema.Literal(...GeneratedBillingTaxModeDecisions));
 
 export const BillingTaxRegionStateSchema = withParser(Schema.Literal(...GeneratedBillingTaxRegionStates));
 
-export const BillingRefundLifecycleStateSchema = withParser(
-  Schema.Literal(...GeneratedBillingRefundLifecycleStates)
-);
+export const BillingRefundLifecycleStateSchema = withParser(Schema.Literal(...GeneratedBillingRefundLifecycleStates));
 
-export const BillingDisputeLifecycleStateSchema = withParser(
-  Schema.Literal(...GeneratedBillingDisputeLifecycleStates)
-);
+export const BillingDisputeLifecycleStateSchema = withParser(Schema.Literal(...GeneratedBillingDisputeLifecycleStates));
 
 export const BillingCollectionRecoveryStateSchema = withParser(
   Schema.Literal(...GeneratedBillingCollectionRecoveryStates)
 );
 
-export const BillingEntitlementSideEffectSchema = withParser(
-  Schema.Literal(...GeneratedBillingEntitlementSideEffects)
-);
+export const BillingEntitlementSideEffectSchema = withParser(Schema.Literal(...GeneratedBillingEntitlementSideEffects));
 
 export const BillingSupportAuditStateSchema = withParser(Schema.Literal(...GeneratedBillingSupportAuditStates));
 

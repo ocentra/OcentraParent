@@ -1,0 +1,30 @@
+    countAppGamePolicyPreviewStatusesGenerated(readModel.rows, AppGamePolicyPreviewStatusGenerated.PreviewReady) &&
+  readModel.manualRequiredCount ===
+    countAppGamePolicyPreviewStatusesGenerated(readModel.rows, AppGamePolicyPreviewStatusGenerated.ManualRequired) &&
+  readModel.rejectedCount ===
+    countAppGamePolicyPreviewStatusesGenerated(readModel.rows, AppGamePolicyPreviewStatusGenerated.Rejected);
+
+export const appGameSourceFreshnessTargetAllowsNullRefGenerated = (target: SourceFreshnessTargetLike) =>
+  target.targetKind === AppGameSourceFreshnessPolicyTargetKindGenerated.AllNativeApps ||
+  target.targetKind === AppGameSourceFreshnessPolicyTargetKindGenerated.AllNativeGames;
+
+export const appGameSourceFreshnessSourceKindSatisfiesRequirementGenerated = (
+  sourceKind: AppGameSourceFreshnessSourceKindValue,
+  requirementKind: AppGameSourceFreshnessRequirementKindValue
+) => {
+  const candidates =
+    AppGameSourceFreshnessRequirementSourceKindsGenerated[
+      requirementKind as keyof typeof AppGameSourceFreshnessRequirementSourceKindsGenerated
+    ] ?? [];
+  return candidates.some((candidate: string) => candidate === sourceKind);
+};
+
+export const appGameSourceFreshnessRowsForRequirementGenerated = (
+  rows: ReadonlyArray<SourceStatusRowLike>,
+  requirementKind: AppGameSourceFreshnessRequirementKindValue
+) =>
+  rows.filter((row) => appGameSourceFreshnessSourceKindSatisfiesRequirementGenerated(row.sourceKind, requirementKind));
+
+export const appGameSourceFreshnessRowIsFreshGenerated = (
+  row: SourceStatusRowLike,
+  evaluatedAt: unknown,

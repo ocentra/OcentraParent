@@ -12,9 +12,7 @@ import {
   isGeneratedDevOrTestEnvironment as isGeneratedDevOrTestEnvironmentImpl,
   isGeneratedLevelAtOrAbove as isGeneratedLevelAtOrAboveImpl,
 } from './parent-log-runtime-level';
-import {
-  matchesGeneratedDebugSelection as matchesGeneratedDebugSelectionImpl,
-} from './parent-log-runtime-selection';
+import { matchesGeneratedDebugSelection as matchesGeneratedDebugSelectionImpl } from './parent-log-runtime-selection';
 import {
   shouldGeneratedLogToConsole as shouldGeneratedLogToConsoleImpl,
   shouldGeneratedStoreLog as shouldGeneratedStoreLogImpl,

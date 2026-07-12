@@ -35,7 +35,7 @@ pub(crate) fn controller_lease_lifecycle_command(
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_write_authority(&intent))
             .and_then(|()| validate_registry_selection_intent(&runtime, origin_text, &intent))
-            .and_then(|()| apply(&runtime, &intent, timestamp_now().into()))
+            .and_then(|()| apply(&runtime, &intent, timestamp_now::<String>().into()))
         {
             Ok(()) => controller_lease_success_event(
                 &runtime,
@@ -78,8 +78,9 @@ pub(crate) fn controller_lease_takeover(
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_write_authority(&intent))
             .and_then(|()| validate_registry_selection_intent(&runtime, origin_text, &intent))
-            .and_then(|()| runtime.takeover_controller_lease(&intent, timestamp_now().as_str()))
-        {
+            .and_then(|()| {
+                runtime.takeover_controller_lease(&intent, timestamp_now::<String>().as_str())
+            }) {
             Ok(()) => controller_lease_success_event(
                 &runtime,
                 command,

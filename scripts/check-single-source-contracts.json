@@ -131,7 +131,10 @@
       "name": "tracking-config-update-event-types",
       "ownerPath": "crates/agent-protocol/src/constants/tracking_config_update.rs",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
-      "allowedPaths": ["packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts", "packages/portal-domain/src/generated-portal-contracts.ts"],
+      "allowedPaths": [
+        "packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts",
+        "packages/portal-domain/src/generated-portal-contracts.ts"
+      ],
       "values": [
         {
           "name": "parent",
@@ -163,7 +166,11 @@
       "name": "child-domain-runtime-event-types",
       "ownerPath": "packages/schema-domain/src/child-domain-runtime-events.ts",
       "scanRoots": ["apps", "packages", "crates"],
-      "allowedPaths": ["crates/agent-protocol/src/constants/screen_flow.rs", "packages/portal-domain/src/generated-portal-contracts.ts"],
+      "allowedPaths": [
+        "crates/agent-protocol/src/constants/screen_flow.rs",
+        "packages/portal-domain/src/generated-portal-contracts.ts",
+        "apps/portal/generated/parent-ui-bridge.ts"
+      ],
       "mirrors": [
         {
           "path": "crates/agent-protocol/src/constants/child_domain_runtime.rs",
@@ -569,6 +576,38 @@
       ]
     },
     {
+      "name": "lan-pairing-protocol-constants",
+      "ownerPath": "crates/agent-protocol/src/constants/lan_pairing.rs",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "allowedPaths": [
+        "crates/agent-protocol/src/transport.rs",
+        "packages/portal-domain/src/generated-portal-contracts.ts",
+        "apps/portal/generated/parent-ui-bridge.ts"
+      ],
+      "values": [
+        { "name": "proofSubmitCommand", "rustConst": "COMMAND_PROOF_SUBMIT" },
+        { "name": "routeSelectCommand", "rustConst": "COMMAND_ROUTE_SELECT" },
+        { "name": "routeRevokeCommand", "rustConst": "COMMAND_ROUTE_REVOKE" },
+        { "name": "statusGetCommand", "rustConst": "COMMAND_STATUS_GET" },
+        { "name": "runtimeEventChainStreamGetCommand", "rustConst": "COMMAND_RUNTIME_EVENT_CHAIN_STREAM_GET" },
+        { "name": "browserDiscoveryScanCommand", "rustConst": "COMMAND_BROWSER_DISCOVERY_SCAN" },
+        { "name": "addDeviceRequestCommand", "rustConst": "COMMAND_ADD_DEVICE_REQUEST" },
+        { "name": "signedChildAgentObserveCommand", "rustConst": "COMMAND_SIGNED_CHILD_AGENT_OBSERVE" },
+        { "name": "controllerLeaseRenewCommand", "rustConst": "COMMAND_CONTROLLER_LEASE_RENEW" },
+        { "name": "controllerLeaseReleaseCommand", "rustConst": "COMMAND_CONTROLLER_LEASE_RELEASE" },
+        { "name": "controllerLeaseTakeoverCommand", "rustConst": "COMMAND_CONTROLLER_LEASE_TAKEOVER" },
+        { "name": "lanAiProviderStatusGetCommand", "rustConst": "COMMAND_LAN_AI_PROVIDER_STATUS_GET" },
+        { "name": "lanAiJobSubmitCommand", "rustConst": "COMMAND_LAN_AI_JOB_SUBMIT" },
+        { "name": "statusReportedEvent", "rustConst": "EVENT_STATUS_REPORTED" },
+        { "name": "runtimeEventChainStreamReportedEvent", "rustConst": "EVENT_RUNTIME_EVENT_CHAIN_STREAM_REPORTED" },
+        { "name": "browserDiscoveryReportedEvent", "rustConst": "EVENT_BROWSER_DISCOVERY_REPORTED" },
+        { "name": "addDeviceReportedEvent", "rustConst": "EVENT_ADD_DEVICE_REPORTED" },
+        { "name": "signedChildAgentReportedEvent", "rustConst": "EVENT_SIGNED_CHILD_AGENT_REPORTED" },
+        { "name": "auditReportedEvent", "rustConst": "EVENT_AUDIT_REPORTED" },
+        { "name": "lanAiJobReportedEvent", "rustConst": "EVENT_LAN_AI_JOB_REPORTED" }
+      ]
+    },
+    {
       "name": "sqlite-rust-constants",
       "ownerPath": "crates/agent-protocol/src/constants/sqlite.rs",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
@@ -707,7 +746,11 @@
       "name": "tracking-retention-settings-write-rust-constants",
       "ownerPath": "crates/agent-protocol/src/constants/tracking_retention_settings_write.rs",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
-      "allowedPaths": ["packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts", "packages/portal-domain/src/generated-portal-contracts.ts"],
+      "allowedPaths": [
+        "packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts",
+        "packages/portal-domain/src/generated-portal-contracts.ts",
+        "apps/portal/generated/parent-ui-bridge.ts"
+      ],
       "values": [
         {
           "name": "command_id",

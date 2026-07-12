@@ -1,0 +1,30 @@
+type TimerServiceReadinessProtocolReadModelStateValue =
+  (typeof AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated)[keyof typeof AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated];
+
+type TimerHandoffRowLike = {
+  readonly timerHandoffState: TimerHandoffStateValue;
+  readonly timerRuntimeRequired: boolean;
+  readonly manualProofRequired: boolean;
+};
+
+type TimerHandoffLike = {
+  readonly nativeAppRowCount: number;
+  readonly nativeGameRowCount: number;
+  readonly timerSequenceCandidateCount: number;
+  readonly sourceManualBlockedCount: number;
+  readonly compilerManualBlockedCount: number;
+  readonly rows: readonly TimerHandoffRowLike[];
+  readonly serviceRuntimeEventClaimed: boolean;
+  readonly portalUiRendered: boolean;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+  readonly rawPrivateSourceRowsIncluded: boolean;
+};
+
+type TimerStatusRowLike = {
+  readonly timerStatusState: TimerStatusStateValue;
+  readonly timerRuntimeProofRequired: boolean;
+  readonly sourceFreshnessProofRequired: boolean;

@@ -5,14 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-type TestFamily =
-  | 'unit'
-  | 'integration'
-  | 'e2e'
-  | 'contract'
-  | 'security'
-  | 'property'
-  | 'fuzz';
+type TestFamily = 'unit' | 'integration' | 'e2e' | 'contract' | 'security' | 'property' | 'fuzz';
 
 interface FamilyConfig {
   readonly directory: string;
@@ -135,13 +128,7 @@ const FAMILY_CONFIG: Record<TestFamily, FamilyConfig> = {
   contract: {
     directory: 'tests/contract',
     files: ['tests/contract/billing-api-contract.test.ts'],
-    assertionIds: [
-      'CT-CONTRACT-01',
-      'CT-CONTRACT-02',
-      'CT-CONTRACT-03',
-      'CT-CONTRACT-04',
-      'CT-CONTRACT-05',
-    ],
+    assertionIds: ['CT-CONTRACT-01', 'CT-CONTRACT-02', 'CT-CONTRACT-03', 'CT-CONTRACT-04', 'CT-CONTRACT-05'],
     proofId: 'cloudflare-control.test-runner-contract',
   },
   security: {
@@ -173,10 +160,7 @@ const FAMILY_CONFIG: Record<TestFamily, FamilyConfig> = {
   },
   property: {
     directory: 'tests/property',
-    files: [
-      'tests/property/route-auth-state.property.test.ts',
-      'tests/property/billing-idempotency.property.test.ts',
-    ],
+    files: ['tests/property/route-auth-state.property.test.ts', 'tests/property/billing-idempotency.property.test.ts'],
     assertionIds: [
       'PROP-ROUTE-01',
       'PROP-ROUTE-02',

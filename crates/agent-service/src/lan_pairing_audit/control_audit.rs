@@ -186,83 +186,86 @@ fn optional_control_identity_fields(
                 _ => None,
             })
     };
-    let mut pairs = Vec::new();
-    let mut push_optional_pair = |field: &'static str, value: Option<LogFieldValue>| {
-        if let Some(value) = value {
-            pairs.push((field, value));
-        }
-    };
-    push_optional_pair(
-        constants::field::LAN_ROUTE_ID,
-        intent
-            .map(|intent| LogFieldValue::String(intent.route_id.clone()))
-            .or_else(|| payload_string(constants::field::LAN_ROUTE_ID).map(LogFieldValue::String)),
+    let string_pairs = [
+        (
+            constants::field::LAN_ROUTE_ID,
+            intent.map(|intent| intent.route_id.clone()),
+        ),
+        (
+            constants::field::LAN_INTENT_ID,
+            intent.map(|intent| intent.intent_id.clone()),
+        ),
+        (
+            constants::field::LAN_PAIRING_ID,
+            intent.map(|intent| intent.pairing_id.clone()),
+        ),
+        (
+            constants::field::LAN_CONTROLLER_LEASE_ID,
+            intent.map(|intent| intent.controller_lease_id.clone()),
+        ),
+        (
+            constants::field::LAN_CONTROLLER_DEVICE_ID,
+            intent.map(|intent| intent.controller_device_id.clone()),
+        ),
+        (
+            constants::field::LAN_PARENT_ACTOR_ID,
+            intent.map(|intent| intent.parent_actor_id.clone()),
+        ),
+        (constants::field::ORIGIN, origin.0.clone()),
+    ]
+    .into_iter()
+    .filter_map(|(field, value)| {
+        value
+            .or_else(|| payload_string(field))
+            .map(|value| (field, LogFieldValue::String(value)))
+    });
+    let mut fields = fields_from_pairs(string_pairs.collect());
+    extend_log_fields(
+        &mut fields,
+        optional_control_special_identity_fields(command, intent),
     );
-    push_optional_pair(
-        constants::field::LAN_INTENT_ID,
-        intent
-            .map(|intent| LogFieldValue::String(intent.intent_id.clone()))
-            .or_else(|| payload_string(constants::field::LAN_INTENT_ID).map(LogFieldValue::String)),
-    );
-    push_optional_pair(
-        constants::field::LAN_INTENT_KIND,
-        intent
-            .map(|intent| intent_kind_value(&intent.intent_kind))
-            .or_else(|| {
-                payload_string(constants::field::LAN_INTENT_KIND).map(LogFieldValue::String)
-            }),
-    );
-    push_optional_pair(
-        constants::field::LAN_PAIRING_ID,
-        intent
-            .map(|intent| LogFieldValue::String(intent.pairing_id.clone()))
-            .or_else(|| {
-                payload_string(constants::field::LAN_PAIRING_ID).map(LogFieldValue::String)
-            }),
-    );
-    push_optional_pair(
-        constants::field::LAN_CONTROLLER_LEASE_ID,
-        intent
-            .map(|intent| LogFieldValue::String(intent.controller_lease_id.clone()))
-            .or_else(|| {
-                payload_string(constants::field::LAN_CONTROLLER_LEASE_ID).map(LogFieldValue::String)
-            }),
-    );
-    push_optional_pair(
-        constants::field::LAN_CONTROLLER_DEVICE_ID,
-        intent
-            .map(|intent| LogFieldValue::String(intent.controller_device_id.clone()))
-            .or_else(|| {
-                payload_string(constants::field::LAN_CONTROLLER_DEVICE_ID)
-                    .map(LogFieldValue::String)
-            }),
-    );
-    push_optional_pair(
-        constants::field::LAN_PARENT_ACTOR_ID,
-        intent
-            .map(|intent| LogFieldValue::String(intent.parent_actor_id.clone()))
-            .or_else(|| {
-                payload_string(constants::field::LAN_PARENT_ACTOR_ID).map(LogFieldValue::String)
-            }),
-    );
-    push_optional_pair(
-        constants::field::LAN_PARENT_AUTHORITY,
-        intent
-            .map(|intent| parent_authority_value(&intent.parent_authority))
-            .or_else(|| {
-                payload_string(constants::field::LAN_PARENT_AUTHORITY).map(LogFieldValue::String)
-            }),
-    );
-    push_optional_pair(
-        constants::field::ORIGIN,
-        origin
-            .0
-            .as_ref()
-            .map(|value| LogFieldValue::String(value.clone()))
-            .or_else(|| payload_string(constants::field::ORIGIN).map(LogFieldValue::String)),
-    );
+    fields
+}
 
-    fields_from_pairs(pairs)
+fn optional_control_special_identity_fields(
+    command: &AgentCommandEnvelope,
+    intent: Option<&LanParentIntentEnvelope>,
+) -> LogFields {
+    fields_from_pairs(
+        [
+            intent
+                .map(|intent| {
+                    (
+                        constants::field::LAN_INTENT_KIND,
+                        intent_kind_value(&intent.intent_kind),
+                    )
+                })
+                .or_else(|| {
+                    command
+                        .payload
+                        .get(constants::field::LAN_INTENT_KIND)
+                        .cloned()
+                        .map(|value| (constants::field::LAN_INTENT_KIND, value))
+                }),
+            intent
+                .map(|intent| {
+                    (
+                        constants::field::LAN_PARENT_AUTHORITY,
+                        parent_authority_value(&intent.parent_authority),
+                    )
+                })
+                .or_else(|| {
+                    command
+                        .payload
+                        .get(constants::field::LAN_PARENT_AUTHORITY)
+                        .cloned()
+                        .map(|value| (constants::field::LAN_PARENT_AUTHORITY, value))
+                }),
+        ]
+        .into_iter()
+        .flatten()
+        .collect(),
+    )
 }
 
 fn audit_event_type_value(audit_event_type: LanPairingAuditEventType) -> LogFieldValue {

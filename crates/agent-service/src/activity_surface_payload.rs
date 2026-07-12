@@ -48,7 +48,9 @@ pub(crate) fn activity_history_payload(history: &ActivityHistoricalReportList) -
         (
             constants::field::ACTIVITY_SURFACE_STATE,
             LogFieldValue::String(
-                read_model_state_value::read_model_state_value(history.state).to_string(),
+                read_model_state_value::read_model_state_value(history.state)
+                    .0
+                    .to_string(),
             ),
         ),
         (
@@ -76,7 +78,9 @@ pub(crate) fn activity_read_model_payload(
         (
             constants::field::ACTIVITY_SURFACE_STATE,
             LogFieldValue::String(
-                read_model_state_value::read_model_state_value(state).to_string(),
+                read_model_state_value::read_model_state_value(state)
+                    .0
+                    .to_string(),
             ),
         ),
         (
@@ -96,20 +100,16 @@ fn report_state(report: &ActivityReportDocument) -> SurfaceText {
         .iter()
         .any(|section| section.state == ActivityReadModelState::Ready)
     {
-        return SurfaceText(read_model_state_value::read_model_state_value(
-            ActivityReadModelState::Ready,
-        ));
+        return read_model_state_value::read_model_state_value(ActivityReadModelState::Ready);
     }
 
-    SurfaceText(
-        report
-            .sections
-            .first()
-            .map(|section| read_model_state_value::read_model_state_value(section.state))
-            .unwrap_or_else(|| {
-                read_model_state_value::read_model_state_value(ActivityReadModelState::Empty)
-            }),
-    )
+    report
+        .sections
+        .first()
+        .map(|section| read_model_state_value::read_model_state_value(section.state))
+        .unwrap_or_else(|| {
+            read_model_state_value::read_model_state_value(ActivityReadModelState::Empty)
+        })
 }
 
 fn report_frequency_value(frequency: ActivityReportFrequency) -> SurfaceText {

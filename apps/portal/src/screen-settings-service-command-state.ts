@@ -32,9 +32,7 @@ export function createScreenSettingsReplaceCommandDraft(input: {
   return parentScreenSettingsReplaceCommandDraft(input);
 }
 
-export function decodeScreenSettingsServiceResponseSnapshot(
-  snapshot: unknown
-): ScreenSettingsServiceResponse {
+export function decodeScreenSettingsServiceResponseSnapshot(snapshot: unknown): ScreenSettingsServiceResponse {
   return decodeParentScreenSettingsUpdateResponse(snapshot);
 }
 

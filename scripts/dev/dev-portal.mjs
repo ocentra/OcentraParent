@@ -16,9 +16,7 @@ if (!isFree) {
   throw new Error(`Cannot start Ocentra Parent portal because port ${port} is not available.`);
 }
 
-log(
-  `Starting Vite portal on ${network.portalBindHost}:${port}; open ${network.portalCommandsUrl}.`
-);
+log(`Starting Vite portal on ${network.portalBindHost}:${port}; open ${network.portalCommandsUrl}.`);
 if (productHostMode) {
   log('Host bridge mode Tauri invoke/listen; local dev bridge env is disabled for this portal process.');
 } else {

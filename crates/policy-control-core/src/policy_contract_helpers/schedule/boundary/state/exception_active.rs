@@ -2,7 +2,9 @@
 
 use super::super::super::{PolicyContractScheduleBoundary, PolicyContractValidationResult};
 
-pub(super) fn validate(boundary: &PolicyContractScheduleBoundary) -> PolicyContractValidationResult {
+pub(super) fn validate(
+    boundary: &PolicyContractScheduleBoundary,
+) -> PolicyContractValidationResult {
     let Some(exception) = &boundary.exception else {
         return Err("exception-active boundaries require exception details".into());
     };

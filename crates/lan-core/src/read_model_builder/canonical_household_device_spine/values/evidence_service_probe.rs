@@ -1,3 +1,10 @@
+#[path = "evidence_service_probe_kind.rs"]
+mod kind;
+#[path = "evidence_service_probe_kind_metadata.rs"]
+mod kind_metadata;
+#[path = "evidence_service_probe_kind_network.rs"]
+mod kind_network;
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
@@ -33,30 +40,10 @@ pub(super) fn push_service_probe_evidence(
 }
 
 fn service_probe_evidence_value(evidence: &LanServiceIdentityProbeEvidence) -> String {
-    let mut value = String::from(service_probe_kind_value(&evidence.evidence_kind));
+    let mut value = String::from(kind::service_probe_kind_value(&evidence.evidence_kind));
     value.push(':');
     value.push_str(&evidence.value);
     value
-}
-
-fn service_probe_kind_value(kind: &LanServiceIdentityProbeEvidenceKind) -> &'static str {
-    match kind {
-        LanServiceIdentityProbeEvidenceKind::HttpStatus => "http-status",
-        LanServiceIdentityProbeEvidenceKind::HtmlTitle => "html-title",
-        LanServiceIdentityProbeEvidenceKind::ServerHeader => "server-header",
-        LanServiceIdentityProbeEvidenceKind::Banner => "banner",
-        LanServiceIdentityProbeEvidenceKind::RedirectLocation => "redirect-location",
-        LanServiceIdentityProbeEvidenceKind::CertificateSubject => "certificate-subject",
-        LanServiceIdentityProbeEvidenceKind::DescriptorLink => "descriptor-link",
-        LanServiceIdentityProbeEvidenceKind::WsdEndpointAddress => "wsd-endpoint-address",
-        LanServiceIdentityProbeEvidenceKind::WsdTypes => "wsd-types",
-        LanServiceIdentityProbeEvidenceKind::SnmpSysDescr => "snmp-sys-descr",
-        LanServiceIdentityProbeEvidenceKind::SnmpSysName => "snmp-sys-name",
-        LanServiceIdentityProbeEvidenceKind::MdnsServiceType => "mdns-service-type",
-        LanServiceIdentityProbeEvidenceKind::MdnsInstanceName => "mdns-instance-name",
-        LanServiceIdentityProbeEvidenceKind::SsdpUdn => "ssdp-udn",
-        LanServiceIdentityProbeEvidenceKind::SsdpDeviceType => "ssdp-device-type",
-    }
 }
 
 fn service_probe_evidence_confidence(

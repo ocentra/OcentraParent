@@ -17,4 +17,3 @@ export function fallbackForGenerated(sectionTitle: string, sourceText: string): 
   }
   return 'Keep as authored intent until runtime wiring proves the exact effect key.';
 }
-

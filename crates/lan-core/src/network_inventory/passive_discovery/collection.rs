@@ -3,18 +3,14 @@ use std::time::Duration;
 use chrono::Utc;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanPassiveDiscoveryLocalNeighborCollectionSummary;
 
-use super::super::linux_neighbors::{
-    current_linux_ip_neigh_ipv4_observations_with_timeout,
-    current_linux_proc_net_arp_ipv4_observations_with_timeout,
-};
-use super::super::macos_neighbors::current_macos_neighbor_ipv4_observations_with_timeout;
-use super::super::windows_neighbors::current_windows_neighbor_ipv4_observations_with_timeout;
 use super::text::compact_summary;
 use super::{
     LanPassiveDiscoveryListenerState, LanPassiveDiscoveryLocalNeighborCollectionOutcome,
     LanPassiveDiscoveryLocalNeighborSource, LanPassiveDiscoveryRecordOutcome,
     LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
 };
+
+mod platform;
 
 pub fn local_neighbor_collection_support_for_platform(
     source: LanPassiveDiscoveryLocalNeighborSource,
@@ -49,20 +45,7 @@ pub fn collect_local_neighbor_passive_updates(
             }
         };
 
-    let observations = match source {
-        LanPassiveDiscoveryLocalNeighborSource::WindowsNeighborTable => {
-            current_windows_neighbor_ipv4_observations_with_timeout(read_timeout)
-        }
-        LanPassiveDiscoveryLocalNeighborSource::LinuxProcNetArp => {
-            current_linux_proc_net_arp_ipv4_observations_with_timeout(read_timeout)
-        }
-        LanPassiveDiscoveryLocalNeighborSource::LinuxIpNeigh => {
-            current_linux_ip_neigh_ipv4_observations_with_timeout(read_timeout)
-        }
-        LanPassiveDiscoveryLocalNeighborSource::MacosArp => {
-            current_macos_neighbor_ipv4_observations_with_timeout(read_timeout)
-        }
-    };
+    let observations = platform::collect_observations(source, read_timeout);
     let (observed_count, recorded_count) =
         record_local_neighbor_passive_updates_from_observations(state, source_label, observations);
 
@@ -149,67 +132,40 @@ fn local_neighbor_collection_summary(
 }
 
 pub fn current_platform_local_neighbor_sources() -> Vec<LanPassiveDiscoveryLocalNeighborSource> {
-    local_neighbor_sources_for_platform(std::env::consts::OS)
+    platform::local_neighbor_sources_for_platform(std::env::consts::OS)
 }
 
 pub fn local_neighbor_sources_for_platform(
     platform: &str,
 ) -> Vec<LanPassiveDiscoveryLocalNeighborSource> {
-    all_local_neighbor_sources()
-        .into_iter()
-        .filter(|source| local_neighbor_collection_support_for_platform(*source, platform).is_ok())
-        .collect()
+    platform::local_neighbor_sources_for_platform(platform)
 }
 
 pub fn local_neighbor_source_labels_for_platform(platform: &str) -> Vec<String> {
-    let sources = local_neighbor_sources_for_platform(platform);
-    local_neighbor_source_labels(&sources)
+    platform::local_neighbor_source_labels_for_platform(platform)
 }
 
 pub fn local_neighbor_source_labels(
     sources: &[LanPassiveDiscoveryLocalNeighborSource],
 ) -> Vec<String> {
-    sources
-        .iter()
-        .map(local_neighbor_source_label)
-        .map(str::to_string)
-        .collect()
+    platform::local_neighbor_source_labels(sources)
 }
 
 pub fn all_local_neighbor_sources() -> Vec<LanPassiveDiscoveryLocalNeighborSource> {
-    vec![
-        LanPassiveDiscoveryLocalNeighborSource::WindowsNeighborTable,
-        LanPassiveDiscoveryLocalNeighborSource::LinuxProcNetArp,
-        LanPassiveDiscoveryLocalNeighborSource::LinuxIpNeigh,
-        LanPassiveDiscoveryLocalNeighborSource::MacosArp,
-    ]
+    platform::all_local_neighbor_sources()
 }
 
 pub fn local_neighbor_source_label(
     source: &LanPassiveDiscoveryLocalNeighborSource,
 ) -> &'static str {
-    match source {
-        LanPassiveDiscoveryLocalNeighborSource::WindowsNeighborTable => "windows-neighbor-table",
-        LanPassiveDiscoveryLocalNeighborSource::LinuxProcNetArp => "linux-proc-net-arp",
-        LanPassiveDiscoveryLocalNeighborSource::LinuxIpNeigh => "linux-ip-neigh",
-        LanPassiveDiscoveryLocalNeighborSource::MacosArp => "macos-arp",
-    }
+    platform::local_neighbor_source_label(source)
 }
 
 fn local_neighbor_source_supported(
     source: LanPassiveDiscoveryLocalNeighborSource,
     platform: &str,
 ) -> bool {
-    match source {
-        LanPassiveDiscoveryLocalNeighborSource::WindowsNeighborTable => {
-            platform.eq_ignore_ascii_case("windows")
-        }
-        LanPassiveDiscoveryLocalNeighborSource::LinuxProcNetArp
-        | LanPassiveDiscoveryLocalNeighborSource::LinuxIpNeigh => {
-            platform.eq_ignore_ascii_case("linux") || platform.eq_ignore_ascii_case("android")
-        }
-        LanPassiveDiscoveryLocalNeighborSource::MacosArp => platform.eq_ignore_ascii_case("macos"),
-    }
+    platform::local_neighbor_source_supported(source, platform)
 }
 
 fn unsupported_local_neighbor_source_reason(
@@ -217,16 +173,5 @@ fn unsupported_local_neighbor_source_reason(
     source_label: &str,
     platform: &str,
 ) -> String {
-    match source {
-        LanPassiveDiscoveryLocalNeighborSource::WindowsNeighborTable => format!(
-            "{source_label} passive collection is only available on windows; current platform is {platform}"
-        ),
-        LanPassiveDiscoveryLocalNeighborSource::LinuxProcNetArp
-        | LanPassiveDiscoveryLocalNeighborSource::LinuxIpNeigh => format!(
-            "{source_label} passive collection is only available on linux or android; current platform is {platform}"
-        ),
-        LanPassiveDiscoveryLocalNeighborSource::MacosArp => format!(
-            "{source_label} passive collection is only available on macos; current platform is {platform}"
-        ),
-    }
+    platform::unsupported_local_neighbor_source_reason(source, source_label, platform)
 }

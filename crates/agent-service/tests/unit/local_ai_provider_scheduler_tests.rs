@@ -25,6 +25,7 @@ use tokio::sync::{Mutex as TokioMutex, Notify};
 use crate::local_ai_provider_scheduler::{
     local_ai_provider_scheduler, LocalAiProviderSchedulerRuntime,
 };
+use crate::local_ai_provider_scheduler_state::LocalAiPhysicalDeviceId;
 use crate::test_invariants::require_ok;
 
 #[test]
@@ -124,14 +125,16 @@ async fn physical_devices_use_independent_runtime_lanes_without_duplicate_loads_
 
     let first_device = spawn_observed_device_job(
         Arc::clone(&scheduler),
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
         runtime.clone(),
         Arc::clone(&active_jobs),
         Arc::clone(&max_active_jobs),
     );
     let second_device = spawn_observed_device_job(
         Arc::clone(&scheduler),
-        constants::local_ai_runtime::PHYSICAL_DEVICE_SECOND_LOCAL,
+        LocalAiPhysicalDeviceId(
+            constants::local_ai_runtime::PHYSICAL_DEVICE_SECOND_LOCAL.to_string(),
+        ),
         runtime,
         Arc::clone(&active_jobs),
         Arc::clone(&max_active_jobs),
@@ -144,11 +147,13 @@ async fn physical_devices_use_independent_runtime_lanes_without_duplicate_loads_
     assert_eq!(max_active_jobs.load(Ordering::SeqCst), 2);
     assert_idle_singleton_scheduler_status_for_device(
         &scheduler,
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        &LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
     );
     assert_idle_singleton_scheduler_status_for_device(
         &scheduler,
-        constants::local_ai_runtime::PHYSICAL_DEVICE_SECOND_LOCAL,
+        &LocalAiPhysicalDeviceId(
+            constants::local_ai_runtime::PHYSICAL_DEVICE_SECOND_LOCAL.to_string(),
+        ),
     );
 }
 
@@ -291,19 +296,19 @@ async fn assert_observed_job_order(
 fn assert_idle_singleton_scheduler_status(scheduler: &LocalAiProviderSchedulerRuntime) {
     assert_idle_singleton_scheduler_status_for_device(
         scheduler,
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        &LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
     );
 }
 
 fn assert_idle_singleton_scheduler_status_for_device(
     scheduler: &LocalAiProviderSchedulerRuntime,
-    physical_device_id: &TestStr,
+    physical_device_id: &LocalAiPhysicalDeviceId,
 ) {
     let status = scheduler.status_snapshot();
-    let status = if physical_device_id == constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL {
+    let status = if physical_device_id.0 == constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL {
         status
     } else {
-        scheduler.status_snapshot_for_device(physical_device_id)
+        scheduler.status_snapshot_for_device(physical_device_id.clone())
     };
     assert_eq!(
         status.lifecycle_state,
@@ -313,7 +318,7 @@ fn assert_idle_singleton_scheduler_status_for_device(
         status.singleton_scope,
         LocalAiProviderSingletonScope::PhysicalDevice
     );
-    assert_eq!(status.physical_device_id, physical_device_id);
+    assert_eq!(status.physical_device_id, physical_device_id.0);
     assert_eq!(
         status.runtime_reference_id,
         constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
@@ -323,7 +328,7 @@ fn assert_idle_singleton_scheduler_status_for_device(
 
 fn spawn_observed_device_job(
     scheduler: Arc<LocalAiProviderSchedulerRuntime>,
-    physical_device_id: &'static TestStr,
+    physical_device_id: LocalAiPhysicalDeviceId,
     runtime: LocalModelRuntimeStatus,
     active_jobs: Arc<AtomicUsize>,
     max_active_jobs: Arc<AtomicUsize>,
@@ -331,11 +336,16 @@ fn spawn_observed_device_job(
     tokio::spawn(async move {
         scheduler
             .run_generation_job_for_device(
-                physical_device_id,
+                physical_device_id.clone(),
                 LocalAiProviderSchedulerJobClass::ParentAssistant,
                 runtime,
                 || async move {
-                    observed_job_result(physical_device_id, active_jobs, max_active_jobs).await
+                    observed_job_result(
+                        Box::leak(physical_device_id.0.into_boxed_str()),
+                        active_jobs,
+                        max_active_jobs,
+                    )
+                    .await
                 },
             )
             .await

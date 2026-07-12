@@ -1,0 +1,139 @@
+
+export const BillingFeatureDecisionSchema = withParser(
+  Schema.Struct({
+    featureCode: BillingFeatureCodeSchema,
+    decision: BillingEntitlementDecisionStateSchema,
+    reasonCode: BillingReasonCodeSchema,
+    safetyCritical: Schema.Boolean,
+    localSafetyBehavior: BillingLocalSafetyBehaviorSchema,
+    evidenceExportAccess: BillingEvidenceExportAccessSchema,
+    childActivityCustody: BillingChildActivityCustodySchema,
+  }).pipe(
+    Schema.filter(
+      (decision) =>
+        !decision.safetyCritical ||
+        (decision.decision !== 'locked' && decision.decision !== 'unavailable') ||
+        'Expected safety-critical behavior not to be locked or made unavailable by billing state'
+    )
+  )
+);
+
+export const BillingEntitlementSeatCompositionSchema = withParser(
+  Schema.Struct({
+    baseChildDeviceLimit: PositiveBillingLimitSchema,
+    activeReferralCredits: NonNegativeBillingCountSchema,
+    paidExtraChildDeviceSeats: NonNegativeBillingCountSchema,
+    effectiveChildDeviceLimit: PositiveBillingLimitSchema,
+  }).pipe(
+    Schema.filter(
+      (composition) =>
+        composition.effectiveChildDeviceLimit ===
+          composition.baseChildDeviceLimit +
+            composition.activeReferralCredits +
+            composition.paidExtraChildDeviceSeats ||
+        'Expected effective child-device limit to equal base seats plus active referral credits plus paid extra child-device seats'
+    )
+  )
+);
+
+export const BillingEntitlementSnapshotSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingEntitlementSchemaVersionSchema,
+    snapshotId: BillingEntitlementSnapshotIdSchema,
+    family: FamilyReferenceSchema,
+    parentAccount: ParentAccountReferenceSchema,
+    planId: BillingPlanIdSchema,
+    subscriptionStatus: BillingSubscriptionStatusSchema,
+    source: BillingEntitlementSourceSchema,
+    signatureState: BillingSignatureStateSchema,
+    generatedAt: ParentTimestampSchema,
+    expiresAt: ParentTimestampSchema,
+    deviceLimit: PositiveBillingLimitSchema,
+    baseChildDeviceLimit: PositiveBillingLimitSchema,
+    activeReferralCredits: NonNegativeBillingCountSchema,
+    paidExtraChildDeviceSeats: NonNegativeBillingCountSchema,
+    effectiveChildDeviceLimit: PositiveBillingLimitSchema,
+    featureDecisions: Schema.Array(BillingFeatureDecisionSchema),
+    failureState: Schema.Union(BillingFailureStateSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (snapshot) =>
+        snapshot.source !== 'unavailable' ||
+        snapshot.failureState !== null ||
+        'Expected unavailable entitlement snapshots to carry a parent-visible failure state'
+    ),
+    Schema.filter(
+      (snapshot) =>
+        BillingEntitlementSeatCompositionSchema.safeParse({
+          baseChildDeviceLimit: snapshot.baseChildDeviceLimit,
+          activeReferralCredits: snapshot.activeReferralCredits,
+          paidExtraChildDeviceSeats: snapshot.paidExtraChildDeviceSeats,
+          effectiveChildDeviceLimit: snapshot.effectiveChildDeviceLimit,
+        }).success || 'Expected entitlement snapshots to keep seat composition math aligned'
+    ),
+    Schema.filter(
+      (snapshot) =>
+        snapshot.deviceLimit === snapshot.effectiveChildDeviceLimit ||
+        'Expected deviceLimit to mirror the effective child-device limit surfaced by the snapshot'
+    )
+  )
+);
+
+export const BillingSyncEventSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingEntitlementSchemaVersionSchema,
+    syncEventId: BillingSyncEventIdSchema,
+    previousStatus: BillingSubscriptionStatusSchema,
+    nextStatus: BillingSubscriptionStatusSchema,
+    source: BillingEntitlementSourceSchema,
+    actor: ParentActorReferenceSchema,
+    recordedAt: ParentTimestampSchema,
+    providerReference: Schema.Union(BillingProviderReferenceSchema, Schema.Null),
+    providerBoundary: BillingProviderBoundarySchema,
+    failureState: Schema.Union(BillingFailureStateSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        event.providerReference === null ||
+        event.providerBoundary === 'backend-reference-only' ||
+        'Expected provider references to remain behind the billing backend boundary'
+    )
+  )
+);
+
+export const BillingDeviceLimitDecisionSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingEntitlementSchemaVersionSchema,
+    decisionId: BillingDeviceLimitDecisionIdSchema,
+    requestedDevice: ParentDeviceReferenceSchema,
+    entitlementSnapshotId: BillingEntitlementSnapshotIdSchema,
+    activeDeviceCount: NonNegativeBillingCountSchema,
+    planDeviceLimit: PositiveBillingLimitSchema,
+    requestedDeviceAlreadyTrusted: Schema.Boolean,
+    decision: BillingDeviceLimitDecisionStateSchema,
+    reasonCode: BillingDeviceLimitReasonSchema,
+    deviceActivationBehavior: BillingDeviceActivationBehaviorSchema,
+    auditReference: BillingAuditReferenceSchema,
+    existingLocalSafetyBehavior: BillingLocalSafetyBehaviorSchema,
+  }).pipe(
+    Schema.filter(
+      (decision) =>
+        decision.decision !== 'denied' ||
+        decision.reasonCode !== 'within-plan' ||
+        'Expected denied device-limit decisions to carry a denial reason'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.decision !== 'allowed' ||
+        decision.requestedDeviceAlreadyTrusted ||
+        decision.activeDeviceCount < decision.planDeviceLimit ||
+        'Expected new-device activation to require capacity below the plan limit'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.decision === 'allowed' ||
+        decision.existingLocalSafetyBehavior !== 'unchanged' ||
+        'Expected non-allowed device-limit decisions to keep existing local safety behavior explicit'
+    )
+  )
+);

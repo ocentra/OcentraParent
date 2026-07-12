@@ -7,7 +7,10 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
 import { NetworkEvidenceDrawerProofFixture } from '../../scripts/test/network-evidence-drawer-fixture.mjs';
-import { PortalNetworkActivitySeed, seedPortalNetworkActivityStore } from '../../scripts/test/portal-network-activity-seed.mjs';
+import {
+  PortalNetworkActivitySeed,
+  seedPortalNetworkActivityStore,
+} from '../../scripts/test/portal-network-activity-seed.mjs';
 
 function readEnforcerProfileProofScript(relativePath) {
   const candidateRoots = [
@@ -111,7 +114,7 @@ test('portal network activity service preflight uses shared protocol command and
 });
 
 test('network drawer proof ids stay single-sourced across scripts and portal tests', () => {
-  const e2eSource = readFileSync('apps/portal/e2e/network-evidence-drawer-proof.spec.ts', 'utf8');
+  const e2eSource = readFileSync('apps/portal/tests/e2e/network-evidence-drawer-proof.spec.ts', 'utf8');
   const unitSource = readFileSync('apps/portal/tests/live-activity/live-activity-network-flow.test.ts', 'utf8');
   const seedSource = readFileSync('scripts/test/portal-network-activity-seed.mjs', 'utf8');
   const proofSource = readEnforcerProfileProofScript('scripts/test/network-parent-ui-evidence-drawer-proof.mjs');

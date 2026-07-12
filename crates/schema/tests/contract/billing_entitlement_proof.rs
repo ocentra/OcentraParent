@@ -11,8 +11,9 @@ use ocentra_schema::billing_entitlement_proof_ts::billing_entitlement_proof_type
 
 #[test]
 fn billing_entitlement_proof_typescript_artifact_stays_checked_in() {
-    let checked_in =
-        include_str!("../../../../packages/schema-domain/src/generated-billing-entitlement-proof.ts");
+    let checked_in = include_str!(
+        "../../../../packages/schema-domain/src/generated-billing-entitlement-proof.ts"
+    );
     let generated = billing_entitlement_proof_typescript();
 
     assert_eq!(checked_in, generated);
@@ -24,9 +25,7 @@ fn billing_entitlement_proof_typescript_artifact_stays_checked_in() {
     assert_generated_line_eq(
         crate::contract_text!(&generated),
         crate::contract_text!("export function billingEntitlementProofIsHonest("),
-        ContractLine(
-            "export function billingEntitlementProofIsHonest(proof: {",
-        ),
+        ContractLine("export function billingEntitlementProofIsHonest(proof: {"),
     );
 }
 
@@ -53,7 +52,9 @@ fn billing_entitlement_proof_is_honest_requires_all_claims_and_thresholds() {
         }],
         ..honest
     };
-    assert!(!billing_entitlement_proof_is_honest(&insufficient_threshold));
+    assert!(!billing_entitlement_proof_is_honest(
+        &insufficient_threshold
+    ));
 }
 
 fn sample_witness() -> BillingEntitlementProofWitness<'static> {

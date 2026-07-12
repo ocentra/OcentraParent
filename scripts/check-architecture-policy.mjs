@@ -42,21 +42,10 @@ export function main(rawArgs = process.argv.slice(2)) {
     ]);
   }
   if (generatedFiles.length > 0) {
-    runEnforcer([
-      'check',
-      'generated-artifacts',
-      '--tracked',
-      ...passthroughArgs,
-      ...filesFromArgs('generated', generatedFiles),
-    ]);
+    runEnforcer(['check', 'generated-artifacts', ...passthroughArgs, ...filesFromArgs('generated', generatedFiles)]);
   }
   if (generatorFiles.length > 0) {
-    runEnforcer([
-      'check',
-      'reexports',
-      ...passthroughArgs,
-      ...filesFromArgs('generator', generatorFiles),
-    ]);
+    runEnforcer(['check', 'reexports', ...passthroughArgs, ...filesFromArgs('generator', generatorFiles)]);
   }
 }
 
@@ -123,14 +112,12 @@ function splitFiles(value) {
 }
 
 function readFileManifest(manifestPath) {
-  const absolute = path.isAbsolute(manifestPath)
-    ? manifestPath
-    : path.resolve(repoRoot, manifestPath);
+  const absolute = path.isAbsolute(manifestPath) ? manifestPath : path.resolve(repoRoot, manifestPath);
   const text = fs.readFileSync(absolute, 'utf8');
   const trimmed = text.trim();
   if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
     const parsed = JSON.parse(trimmed);
-    return Array.isArray(parsed) ? parsed : parsed.files ?? [];
+    return Array.isArray(parsed) ? parsed : (parsed.files ?? []);
   }
   return splitFiles(text);
 }
@@ -200,10 +187,7 @@ export function classifyArchitectureFiles(files) {
   const generatedFiles = files.filter(isGeneratedArtifact);
   const generatorFiles = files.filter((file) => !isGeneratedArtifact(file) && isGeneratedProducer(file));
   const sourceFiles = files.filter(
-    (file) =>
-      !isGeneratedArtifact(file) &&
-      !isGeneratedProducer(file) &&
-      isSourceLike(file),
+    (file) => !isGeneratedArtifact(file) && !isGeneratedProducer(file) && isSourceLike(file)
   );
   return { generatedFiles, generatorFiles, sourceFiles };
 }

@@ -19,7 +19,7 @@ export function generatedResolveRequestedRelease(
   environment: GeneratedHostedPortalEnvironment | null
 ): GeneratedHostedPortalEnvironment {
   const queryValue = params.get('release');
-  const requestedRelease = queryValue === null ? null : GENERATED_HOSTED_PORTAL_RELEASE_LOOKUP[queryValue] ?? null;
+  const requestedRelease = queryValue === null ? null : (GENERATED_HOSTED_PORTAL_RELEASE_LOOKUP[queryValue] ?? null);
   return requestedRelease ?? environment ?? 'preview';
 }
 

@@ -2,8 +2,8 @@
 // This file is not a TypeScript package entrypoint or business owner.
 
 export const appGameSourceGatedPolicyPreviewTimerChainGeneratedHelpers = [
-  "buildGeneratedAppGameSourceGatedPolicyPreviewTimerHandoff",
-  "buildGeneratedAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness",
-  "buildGeneratedAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff",
-  "buildGeneratedAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoff",
+  'buildGeneratedAppGameSourceGatedPolicyPreviewTimerHandoff',
+  'buildGeneratedAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness',
+  'buildGeneratedAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff',
+  'buildGeneratedAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoff',
 ] as const;

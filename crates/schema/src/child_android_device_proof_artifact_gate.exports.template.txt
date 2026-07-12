@@ -1,0 +1,35 @@
+export type ChildAndroidDeviceProofSource = Infer<typeof ChildAndroidDeviceProofSourceSchema>;
+export type ChildAndroidDeviceProofReadinessDecision = Infer<typeof ChildAndroidDeviceProofReadinessDecisionSchema>;
+export type ChildAndroidDeviceProofReadinessState = Infer<typeof ChildAndroidDeviceProofReadinessStateSchema>;
+export type ChildAndroidInstallMode = Infer<typeof ChildAndroidInstallModeSchema>;
+export type ChildAndroidChildAgentArtifactState = Infer<typeof ChildAndroidChildAgentArtifactStateSchema>;
+export type ChildAndroidInstallState = Infer<typeof ChildAndroidInstallStateSchema>;
+export type ChildAndroidLaunchState = Infer<typeof ChildAndroidLaunchStateSchema>;
+export type ChildAndroidRemovalState = Infer<typeof ChildAndroidRemovalStateSchema>;
+export type ChildAndroidPlatformAuthorityState = Infer<typeof ChildAndroidPlatformAuthorityStateSchema>;
+export type ChildAndroidAddDevicePairingReadinessState = Infer<typeof ChildAndroidAddDevicePairingReadinessStateSchema>;
+export type ChildAndroidAddDevicePairingReadinessSurface = Infer<
+  typeof ChildAndroidAddDevicePairingReadinessSurfaceSchema
+>;
+export type ChildAndroidAddDevicePairingReadinessInput = Infer<typeof ChildAndroidAddDevicePairingReadinessInputSchema>;
+export type ChildAndroidDeviceProofArtifactClass = Infer<typeof ChildAndroidDeviceProofArtifactClassSchema>;
+export type ChildAndroidDeviceProofArtifactRequirement = Infer<typeof ChildAndroidDeviceProofArtifactRequirementSchema>;
+export type ChildAndroidDeviceProofArtifactStatus = Infer<typeof ChildAndroidDeviceProofArtifactStatusSchema>;
+export type ChildAndroidDeviceProofCustodyState = Infer<typeof ChildAndroidDeviceProofCustodyStateSchema>;
+export type ChildAndroidDeviceProofPath = Infer<typeof ChildAndroidDeviceProofPathSchema>;
+export type ChildAndroidDeviceProofCommand = Infer<typeof ChildAndroidDeviceProofCommandSchema>;
+export type ChildAndroidDeviceProofSummary = Infer<typeof ChildAndroidDeviceProofSummarySchema>;
+export type ChildAndroidDeviceProofBoundary = Infer<typeof ChildAndroidDeviceProofBoundarySchema>;
+export type ChildAndroidDeviceProofSourceInput = Infer<typeof ChildAndroidDeviceProofSourceInputSchema>;
+export type ChildAndroidDeviceProofArtifactRequirementEvidence = Infer<
+  typeof ChildAndroidDeviceProofArtifactRequirementEvidenceSchema
+>;
+export type ChildAndroidDeviceProofManualEvidenceCustody = Infer<
+  typeof ChildAndroidDeviceProofManualEvidenceCustodySchema
+>;
+export type ChildAndroidAddDevicePairingReadiness = Infer<typeof ChildAndroidAddDevicePairingReadinessSchema>;
+export type ChildAndroidInstallAuthorityState = Infer<typeof ChildAndroidInstallAuthorityStateSchema>;
+export type ChildAndroidDeviceProofClaimBoundaries = Infer<typeof ChildAndroidDeviceProofClaimBoundariesSchema>;
+export type ChildAndroidDeviceProofArtifactGateReadModel = Infer<
+  typeof ChildAndroidDeviceProofArtifactGateReadModelSchema
+>;

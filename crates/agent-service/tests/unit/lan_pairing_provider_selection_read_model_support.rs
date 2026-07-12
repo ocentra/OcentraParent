@@ -45,7 +45,7 @@ pub(crate) fn provider_selection_read_model(
     let mut candidates = vec![selected_route_candidate(
         runtime,
         selected.as_ref(),
-        routing_state,
+        routing_state.clone(),
     )];
     if runtime.lan_ai_provider_available() {
         candidates.push(unsupported_capability_candidate(runtime, selected.as_ref()));

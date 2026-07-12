@@ -55,6 +55,21 @@ struct ParsedBrowserUrl {
     query: Option<String>,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct BrowserUrlText(pub(super) String);
+
+impl BrowserUrlText {
+    pub(super) fn from_display(value: impl std::fmt::Display) -> Self {
+        Self(value.to_string())
+    }
+}
+
+impl std::fmt::Display for BrowserUrlText {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(formatter)
+    }
+}
+
 #[path = "browser_url_intelligence_common.rs"]
 mod browser_url_intelligence_common;
 #[path = "browser_url_intelligence_shapes.rs"]
@@ -75,12 +90,18 @@ use self::browser_url_intelligence_youtube::*;
 pub fn evaluate_browser_url_shape(
     input: &BrowserUrlShapeEvaluationInput<'_>,
 ) -> BrowserUrlShapeClassificationTemplate {
-    browser_url_intelligence_impl::evaluate_browser_url_shape(input)
+    browser_url_intelligence_eval_impl::evaluate_browser_url_shape(input)
 }
 
-pub fn browser_url_intelligence_typescript() -> String {
-    browser_url_intelligence_impl::browser_url_intelligence_typescript()
+pub fn browser_url_intelligence_typescript(
+) -> crate::social_schema_generated_values::GeneratedTypescript {
+    crate::social_schema_generated_values::GeneratedTypescript::new(include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../browser-core-generated/browser_url_intelligence.ts"
+    )))
 }
 
-#[path = "../../browser-core-generated/browser_url_intelligence_impl.rs"]
-mod browser_url_intelligence_impl;
+#[path = "../../browser-core-generated/browser_url_intelligence_eval_impl.rs"]
+mod browser_url_intelligence_eval_impl;
+#[path = "../../browser-core-generated/browser_url_intelligence_shape_dispatch_impl.rs"]
+mod browser_url_intelligence_shape_dispatch_impl;

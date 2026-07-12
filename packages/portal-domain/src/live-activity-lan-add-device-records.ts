@@ -5,18 +5,20 @@ import {
   normalizePortalLanScanSummary,
   normalizePortalLanSelectedDeviceReadiness,
 } from './live-activity-lan-add-device-summary';
-import {
-  normalizePortalLanCanonicalHouseholdDevices,
-} from './live-activity-lan-add-device-device';
+import { normalizePortalLanCanonicalHouseholdDevices } from './live-activity-lan-add-device-device';
 import {
   normalizePortalLanDiscoverySourceMatrix,
   normalizePortalLanHouseholdDeviceDecisions,
   normalizePortalLanTrustedDeviceRegistry,
 } from './live-activity-lan-add-device-registry';
+import { normalizePortalLanSignedDiscoveryRelaySpine } from './live-activity-lan-add-device-spine';
 import {
-  normalizePortalLanSignedDiscoveryRelaySpine,
-} from './live-activity-lan-add-device-spine';
-import { isNumber, isRecord, isString, normalizeGeneratedArray, normalizeStringArray } from './live-activity-lan-add-device-shared';
+  isNumber,
+  isRecord,
+  isString,
+  normalizeGeneratedArray,
+  normalizeStringArray,
+} from './live-activity-lan-add-device-shared';
 
 export type PortalLanAddDeviceReadModel = GeneratedPortalLanAddDeviceReadModelSnapshot;
 
@@ -143,9 +145,7 @@ function normalizePortalLanAddDeviceCollections(raw: PortalLanAddDeviceRaw): Por
   } as PortalLanAddDeviceCollections;
 }
 
-function hasPortalLanAddDeviceCollections(
-  collections: PortalLanAddDeviceCollectionsCandidate
-): boolean {
+function hasPortalLanAddDeviceCollections(collections: PortalLanAddDeviceCollectionsCandidate): boolean {
   return (
     collections.lanDiscoverySourceMatrix !== undefined &&
     [

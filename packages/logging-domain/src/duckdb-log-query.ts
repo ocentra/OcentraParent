@@ -26,9 +26,9 @@ export const GeneratedCreateTestLogsTableSql = `CREATE TABLE IF NOT EXISTS test_
         environment VARCHAR
       )`;
 export const GeneratedIndexScopeLevelSql =
-  "CREATE INDEX IF NOT EXISTS idx_test_logs_scope_level ON test_logs(scope, level)";
+  'CREATE INDEX IF NOT EXISTS idx_test_logs_scope_level ON test_logs(scope, level)';
 export const GeneratedIndexScopeRunSql =
-  "CREATE INDEX IF NOT EXISTS idx_test_logs_scope_run ON test_logs(scope, run_id)";
+  'CREATE INDEX IF NOT EXISTS idx_test_logs_scope_run ON test_logs(scope, run_id)';
 export const GeneratedDeleteByFileSql = 'DELETE FROM test_logs WHERE ndjson_file = ?';
 export const GeneratedStatsQuerySql = `SELECT
         COUNT(*)::BIGINT AS total_logs,

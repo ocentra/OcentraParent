@@ -1,14 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
-import {
-  closeParentPortalDetailIfOpen,
-  surfaceText,
-} from './portal-route-scaffold-common';
+import { closeParentPortalDetailIfOpen, surfaceText } from './portal-route-scaffold-common';
 
-export async function assertActivityManageRouteSurface(
-  page: Page,
-  surface: Locator,
-  path: string
-): Promise<void> {
+export async function assertActivityManageRouteSurface(page: Page, surface: Locator, path: string): Promise<void> {
   await expect(surface.locator('text').filter({ hasText: 'Family' }).first()).toBeVisible();
   await expect(page.getByText('Per Device').first()).toBeVisible();
   if (path === '/#/app-game-sessions') {
@@ -85,10 +78,7 @@ export async function assertActivityReportSurface(page: Page, surface: Locator):
   await expect(surface.locator('text').filter({ hasText: 'Monthly' }).first()).toBeVisible();
 }
 
-export async function assertCollapsedActivitySubsurfaceRemoved(
-  page: Page,
-  surface: Locator
-): Promise<void> {
+export async function assertCollapsedActivitySubsurfaceRemoved(page: Page, surface: Locator): Promise<void> {
   await expect(page.getByRole('tab', { name: 'Show History activity monitor' })).toHaveCount(0);
   await expect(page.getByRole('tab', { name: 'Show Live activity monitor' })).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'MONITOR' })).toHaveCount(0);

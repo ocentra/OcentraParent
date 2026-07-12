@@ -17,6 +17,39 @@ use ocentra_lan_core::network_inventory::mdns_dns_sd::{
 };
 use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
 
+macro_rules! encode_name {
+    ($name:expr, $packet:expr) => {{
+        for label in $name.split('.') {
+            $packet.push(label.len() as u8);
+            $packet.extend_from_slice(label.as_bytes());
+        }
+        $packet.push(0);
+    }};
+}
+
+macro_rules! encode_srv_data {
+    ($port:expr, $target:expr) => {{
+        let mut data = Vec::new();
+        let port: u16 = $port;
+        data.extend_from_slice(&0_u16.to_be_bytes());
+        data.extend_from_slice(&0_u16.to_be_bytes());
+        data.extend_from_slice(&port.to_be_bytes());
+        encode_name!($target, &mut data);
+        data
+    }};
+}
+
+macro_rules! encode_txt_data {
+    ($entries:expr) => {{
+        let mut data = Vec::new();
+        for entry in $entries {
+            data.push(entry.len() as u8);
+            data.extend_from_slice(entry.as_bytes());
+        }
+        data
+    }};
+}
+
 fn packet_with_records(records: Vec<EncodedRecord>) -> Vec<u8> {
     let mut packet = Vec::new();
     packet.extend_from_slice(&0_u16.to_be_bytes());
@@ -25,7 +58,7 @@ fn packet_with_records(records: Vec<EncodedRecord>) -> Vec<u8> {
     packet.extend_from_slice(&(records.len() as u16).to_be_bytes());
     packet.extend_from_slice(&0_u16.to_be_bytes());
     packet.extend_from_slice(&0_u16.to_be_bytes());
-    encode_name(MDNS_SERVICE_ENUMERATION, &mut packet);
+    encode_name!(MDNS_SERVICE_ENUMERATION, &mut packet);
     packet.extend_from_slice(&MDNS_TYPE_PTR.to_be_bytes());
     packet.extend_from_slice(&MDNS_CLASS_IN.to_be_bytes());
     for record in records {
@@ -42,38 +75,12 @@ struct EncodedRecord {
 }
 
 fn push_record(packet: &mut Vec<u8>, record: &EncodedRecord) {
-    encode_name(record.name, packet);
+    encode_name!(record.name, packet);
     packet.extend_from_slice(&record.record_type.to_be_bytes());
     packet.extend_from_slice(&MDNS_CLASS_IN.to_be_bytes());
     packet.extend_from_slice(&60_u32.to_be_bytes());
     packet.extend_from_slice(&(record.data.len() as u16).to_be_bytes());
     packet.extend_from_slice(&record.data);
-}
-
-fn encode_name(name: &str, packet: &mut Vec<u8>) {
-    for label in name.split('.') {
-        packet.push(label.len() as u8);
-        packet.extend_from_slice(label.as_bytes());
-    }
-    packet.push(0);
-}
-
-fn encode_srv_data(port: u16, target: &str) -> Vec<u8> {
-    let mut data = Vec::new();
-    data.extend_from_slice(&0_u16.to_be_bytes());
-    data.extend_from_slice(&0_u16.to_be_bytes());
-    data.extend_from_slice(&port.to_be_bytes());
-    encode_name(target, &mut data);
-    data
-}
-
-fn encode_txt_data(entries: &[&str]) -> Vec<u8> {
-    let mut data = Vec::new();
-    for entry in entries {
-        data.push(entry.len() as u8);
-        data.extend_from_slice(entry.as_bytes());
-    }
-    data
 }
 
 fn encode_raw_name(labels: &[&[u8]]) -> Vec<u8> {
@@ -93,7 +100,7 @@ fn sample_discovery() -> MdnsDnsSdDiscovery {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("_airplay._tcp.local", &mut data);
+                encode_name!("_airplay._tcp.local", &mut data);
                 data
             },
         },
@@ -102,19 +109,19 @@ fn sample_discovery() -> MdnsDnsSdDiscovery {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("Living Room TV._airplay._tcp.local", &mut data);
+                encode_name!("Living Room TV._airplay._tcp.local", &mut data);
                 data
             },
         },
         EncodedRecord {
             name: "Living Room TV._airplay._tcp.local",
             record_type: MDNS_TYPE_SRV,
-            data: encode_srv_data(7000, "apple-tv.local"),
+            data: encode_srv_data!(7000, "apple-tv.local"),
         },
         EncodedRecord {
             name: "Living Room TV._airplay._tcp.local",
             record_type: MDNS_TYPE_TXT,
-            data: encode_txt_data(&["txtvers=1", "deviceid=AB:CD", "opaque=\u{0001}spoof"]),
+            data: encode_txt_data!(&["txtvers=1", "deviceid=AB:CD", "opaque=\u{0001}spoof"]),
         },
         EncodedRecord {
             name: "apple-tv.local",
@@ -131,14 +138,14 @@ fn sample_discovery() -> MdnsDnsSdDiscovery {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("Agent Name\u{0007}._ocentra-agent._tcp.local", &mut data);
+                encode_name!("Agent Name\u{0007}._ocentra-agent._tcp.local", &mut data);
                 data
             },
         },
         EncodedRecord {
             name: "Agent Name\u{0007}._ocentra-agent._tcp.local",
             record_type: MDNS_TYPE_SRV,
-            data: encode_srv_data(4477, "agent-host.local"),
+            data: encode_srv_data!(4477, "agent-host.local"),
         },
         EncodedRecord {
             name: "agent-host.local",
@@ -487,7 +494,7 @@ fn parser_collects_selected_service_types_and_ignores_snselected() {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("_airplay._tcp.local", &mut data);
+                encode_name!("_airplay._tcp.local", &mut data);
                 data
             },
         },
@@ -496,7 +503,7 @@ fn parser_collects_selected_service_types_and_ignores_snselected() {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("_Unsupported.local", &mut data);
+                encode_name!("_Unsupported.local", &mut data);
                 data
             },
         },
@@ -505,7 +512,7 @@ fn parser_collects_selected_service_types_and_ignores_snselected() {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("Office Speaker._airplay._tcp.local", &mut data);
+                encode_name!("Office Speaker._airplay._tcp.local", &mut data);
                 data
             },
         },
@@ -514,7 +521,7 @@ fn parser_collects_selected_service_types_and_ignores_snselected() {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("Not Selected._Unsupported.local", &mut data);
+                encode_name!("Not Selected._Unsupported.local", &mut data);
                 data
             },
         },
@@ -618,7 +625,7 @@ fn parser_covers_selected_mdns_device_service_families() {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name(service_type, &mut data);
+                encode_name!(service_type, &mut data);
                 data
             },
         });
@@ -627,14 +634,14 @@ fn parser_covers_selected_mdns_device_service_families() {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name(instance_name, &mut data);
+                encode_name!(instance_name, &mut data);
                 data
             },
         });
         records.push(EncodedRecord {
             name: instance_name,
             record_type: MDNS_TYPE_SRV,
-            data: encode_srv_data(9, target),
+            data: encode_srv_data!(9, target),
         });
         records.push(EncodedRecord {
             name: target,
@@ -693,7 +700,7 @@ fn shared_contract_advertisement_packet() -> Vec<u8> {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name(constants::lan_pairing::MDNS_PARENT_SERVICE_TYPE, &mut data);
+                encode_name!(constants::lan_pairing::MDNS_PARENT_SERVICE_TYPE, &mut data);
                 data
             },
         },
@@ -702,7 +709,7 @@ fn shared_contract_advertisement_packet() -> Vec<u8> {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name(constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE, &mut data);
+                encode_name!(constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE, &mut data);
                 data
             },
         },
@@ -711,14 +718,14 @@ fn shared_contract_advertisement_packet() -> Vec<u8> {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("Parent Desk._ocentra-parent._tcp.local", &mut data);
+                encode_name!("Parent Desk._ocentra-parent._tcp.local", &mut data);
                 data
             },
         },
         EncodedRecord {
             name: "Parent Desk._ocentra-parent._tcp.local",
             record_type: MDNS_TYPE_TXT,
-            data: encode_txt_data(&[
+            data: encode_txt_data!(&[
                 "lan.mdns_advertisement_id=sha256:parent-id",
                 "protocol-version=2.0.0",
                 "family-hash=sha256:family-parent",
@@ -732,14 +739,14 @@ fn shared_contract_advertisement_packet() -> Vec<u8> {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("Child Tablet._ocentra-agent._tcp.local", &mut data);
+                encode_name!("Child Tablet._ocentra-agent._tcp.local", &mut data);
                 data
             },
         },
         EncodedRecord {
             name: "Child Tablet._ocentra-agent._tcp.local",
             record_type: MDNS_TYPE_TXT,
-            data: encode_txt_data(&[
+            data: encode_txt_data!(&[
                 "lan.mdns_advertisement_id=sha256:child-id",
                 "opaque-device-id=opaque-child-id",
                 "protocol-version=2.0.0",
@@ -847,14 +854,14 @@ fn parser_ignores_malformed_dns_names_and_parses_following_records() {
             record_type: MDNS_TYPE_PTR,
             data: {
                 let mut data = Vec::new();
-                encode_name("Kitchen Speaker._airplay._tcp.local", &mut data);
+                encode_name!("Kitchen Speaker._airplay._tcp.local", &mut data);
                 data
             },
         },
         EncodedRecord {
             name: "Kitchen Speaker._airplay._tcp.local",
             record_type: MDNS_TYPE_SRV,
-            data: encode_srv_data(7000, "kitchen.local"),
+            data: encode_srv_data!(7000, "kitchen.local"),
         },
         EncodedRecord {
             name: "kitchen.local",
@@ -888,5 +895,15 @@ fn parser_ignores_malformed_dns_names_and_parses_following_records() {
 
     let invalid_utf8_payload =
         encode_raw_name(&[&[0xF0, 0x80, 0x80], b"_airplay", b"_tcp", b"local"]);
-    assert!(parse_dns_name(&invalid_utf8_payload, 0).is_some());
+    let expected_name = [
+        String::from_utf8_lossy(&[0xF0, 0x80, 0x80]).to_string(),
+        "_airplay".to_string(),
+        "_tcp".to_string(),
+        "local".to_string(),
+    ]
+    .join(".");
+    assert_eq!(
+        parse_dns_name(&invalid_utf8_payload, 0),
+        Some((expected_name, invalid_utf8_payload.len()))
+    );
 }

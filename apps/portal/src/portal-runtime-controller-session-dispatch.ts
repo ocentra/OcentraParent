@@ -2,7 +2,13 @@ import {
   GeneratedDevLogField as DevLogField,
   GeneratedDevLogMessage as DevLogMessage,
 } from '@ocentra-parent/logging-domain/generated/logging-contracts';
-import { ParentBridgeConnectionState, type ParentRouteContext, type ParentRouteId, type ParentUiAction, type ParentUiActionResult } from '../generated/parent-ui-bridge';
+import {
+  ParentBridgeConnectionState,
+  type ParentRouteContext,
+  type ParentRouteId,
+  type ParentUiAction,
+  type ParentUiActionResult,
+} from '../generated/parent-ui-bridge';
 import { writePortalDevLog } from './dev-logger';
 import { applyParentRouteEvents, applyParentRouteSnapshot, type PortalRuntimeState } from './portal-state';
 
@@ -22,8 +28,7 @@ export function createPortalRuntimeDispatchHostAction(
 ): (action: ParentUiAction) => Promise<ParentUiActionResult | null> {
   return async function dispatchHostAction(action: ParentUiAction): Promise<ParentUiActionResult | null> {
     const context = currentRouteContext();
-    const actionWithContext =
-      context.selectedChildDeviceId === undefined ? action : { ...action, context };
+    const actionWithContext = context.selectedChildDeviceId === undefined ? action : { ...action, context };
     try {
       writePortalDevLog(DevLogMessage.PortalCommandSent, {
         [DevLogField.Command]: action.command ?? action.action,

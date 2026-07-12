@@ -11,7 +11,7 @@ use ocentra_lan_core::network_inventory::ssdp_upnp::*;
 use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
 
 fn spawn_http_server(
-    response_body: &'static str,
+    response_body: Vec<u8>,
     expected_requests: usize,
 ) -> (std::net::SocketAddr, thread::JoinHandle<()>) {
     let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).value_or_unreachable();
@@ -21,12 +21,15 @@ fn spawn_http_server(
             let (mut stream, _) = listener.accept().value_or_unreachable();
             let mut request = [0_u8; 1024];
             let _ = stream.read(&mut request);
-            let response = format!(
+            let response_headers = format!(
                 "HTTP/1.1 200 OK\r\nContent-Type: application/xml\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
                 response_body.len(),
-                response_body
+                ""
             );
-            stream.write_all(response.as_bytes()).value_or_unreachable();
+            stream
+                .write_all(response_headers.as_bytes())
+                .value_or_unreachable();
+            stream.write_all(&response_body).value_or_unreachable();
         }
     });
     (addr, handle)
@@ -76,18 +79,23 @@ fn spawn_udp_ssdp_responder_sequence(
 }
 
 fn sample_description_xml(
-    name: &str,
-    device_type: &str,
-    sdn: &str,
-    manufacturer: &str,
-    model_name: &str,
-) -> String {
+    name: impl std::fmt::Display,
+    device_type: impl std::fmt::Display,
+    sdn: impl std::fmt::Display,
+    manufacturer: impl std::fmt::Display,
+    model_name: impl std::fmt::Display,
+) -> Vec<u8> {
     format!(
         "<?xml version=\"1.0\"?>\n<root>\n  <device>\n    <friendlyName>{name}</friendlyName>\n    <manufacturer>{manufacturer}</manufacturer>\n    <modelName>{model_name}</modelName>\n    <deviceType>{device_type}</deviceType>\n    <UDN>{sdn}</UDN>\n  </device>\n</root>"
     )
+    .into_bytes()
 }
 
-fn ssdp_response(location: &str, search_target: &str, usn: &str) -> Vec<u8> {
+fn ssdp_response(
+    location: impl std::fmt::Display,
+    search_target: impl std::fmt::Display,
+    usn: impl std::fmt::Display,
+) -> Vec<u8> {
     format!(
         "HTTP/1.1 200 OK\r\nCACHE-CONTROL: max-age=1800\r\nLOCATION:  {location} \r\nST:  {search_target}\t\r\nUSN: {usn}\r\nSERVER: Linux/5.15 UPnP/1.0 Acme/1.0\r\n\r\n"
     )
@@ -152,9 +160,10 @@ fn ssdp_fixture_cases() -> [SsdpFixture<'static>; 4] {
 
 fn assert_ssdp_record_fixture(
     record: &SsdpDiscoveryRecord,
-    location: &str,
+    location: impl std::fmt::Display,
     fixture: &SsdpFixture<'_>,
 ) {
+    let location = location.to_string();
     assert_eq!(record.response.location, location);
     assert_eq!(record.response.search_target, fixture.response_device_type);
     assert_eq!(record.response.usn, fixture.usn);
@@ -225,7 +234,7 @@ fn discovery_covers_tv_roster_console_and_printer_fixtures() {
             "Acme",
             &format!("{}-1000", fixture.name.to_uppercase()),
         );
-        let (http_addr, http_handle) = spawn_http_server(Box::leak(xml.into_boxed_str()), 2);
+        let (http_addr, http_handle) = spawn_http_server(xml, 2);
         let location = format!("http://127.0.0.1:{}/{}.xml", http_addr.port(), fixture.name);
         let (udp_addr, udp_handle) = spawn_udp_ssdp_responder(ssdp_response(
             &location,
@@ -302,7 +311,7 @@ fn enrich_adds_ssdp_only_devices_as_agentless_hints() {
         "Acme",
         "TV-1000",
     );
-    let (http_addr, http_handle) = spawn_http_server(Box::leak(xml.into_boxed_str()), 1);
+    let (http_addr, http_handle) = spawn_http_server(xml, 1);
     let location = format!("http://127.0.0.1:{}/tv.xml", http_addr.port());
     let (udp_addr, udp_handle) = spawn_udp_ssdp_responder(ssdp_response(
         &location,
@@ -385,7 +394,7 @@ fn roster_ssdp_response_is_visible_but_non_enrollable() {
         "RosterCo",
         "RTR-1",
     );
-    let (http_addr, http_handle) = spawn_http_server(Box::leak(xml.into_boxed_str()), 1);
+    let (http_addr, http_handle) = spawn_http_server(xml, 1);
     let location = format!("http://127.0.0.1:{}/roster.xml", http_addr.port());
     let response = ssdp_response(
         &location,
@@ -496,7 +505,7 @@ fn discovery_retries_after_a_malformed_response_and_keeps_valid_records() {
         "Acme",
         "TV-1000",
     );
-    let (http_addr, http_handle) = spawn_http_server(Box::leak(xml.into_boxed_str()), 1);
+    let (http_addr, http_handle) = spawn_http_server(xml, 1);
     let location = format!("http://127.0.0.1:{}/tv.xml", http_addr.port());
     let valid_response = ssdp_response(
         &location,

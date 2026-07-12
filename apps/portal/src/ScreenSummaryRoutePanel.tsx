@@ -93,13 +93,7 @@ function ScreenSummaryCard({
   );
 }
 
-function ScreenSummaryDetail({
-  label,
-  value,
-}: {
-  readonly label: string;
-  readonly value: string;
-}): ReactElement {
+function ScreenSummaryDetail({ label, value }: { readonly label: string; readonly value: string }): ReactElement {
   return (
     <div>
       <dt>{label}</dt>

@@ -21,9 +21,7 @@ import {
 export type PortalLanSignedRelayAdapterRow = GeneratedPortalLanSignedDiscoveryRelayAdapterRowSnapshot;
 export type PortalLanSignedDiscoveryRelaySpine = GeneratedPortalLanSignedDiscoveryRelaySpineSummarySnapshot;
 
-export function normalizePortalLanSignedDiscoveryRelaySpine(
-  value: unknown
-): PortalLanSignedDiscoveryRelaySpine | null {
+export function normalizePortalLanSignedDiscoveryRelaySpine(value: unknown): PortalLanSignedDiscoveryRelaySpine | null {
   if (value === null || value === undefined) {
     return null;
   }

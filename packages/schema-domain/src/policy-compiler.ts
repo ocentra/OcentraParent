@@ -10,11 +10,7 @@ import {
   GeneratedPolicyCompilerSourceStatusValues,
   GeneratedPolicyCompilerTargetKindValues,
 } from './generated-policy-control-helpers-contracts';
-import {
-  literalRecordFromValues,
-  literalSchema,
-  parsedLiteralRecord,
-} from './policy-literal-contracts';
+import { literalRecordFromValues, literalSchema, parsedLiteralRecord } from './policy-literal-contracts';
 import { PolicyAuditReferenceIdSchema } from './policy-authority';
 import {
   PolicyActionSchema,

@@ -1,6 +1,5 @@
 use ocentra_browser_core::social_schema_generated_alert_report::{
-    social_alert_report_intent_typescript,
-    social_alert_report_provider_preflight_proof_typescript,
+    social_alert_report_intent_typescript, social_alert_report_provider_preflight_proof_typescript,
     social_alert_report_provider_receipt_boundary_proof_typescript,
     social_alert_report_provider_status_handoff_proof_typescript,
 };
@@ -11,7 +10,9 @@ fn social_alert_report_intent_stay_rust_owned() {
 
     assert_eq!(
         source.to_string().lines().next(),
-        Some("/* generated from crates/browser-core/src/social_schema_generated_alert_report.rs */")
+        Some(
+            "/* generated from crates/browser-core/src/social_schema_generated_alert_report.rs */"
+        )
     );
 }
 
@@ -21,7 +22,9 @@ fn social_alert_report_provider_preflight_proof_stay_rust_owned() {
 
     assert_eq!(
         source.to_string().lines().next(),
-        Some("/* generated from crates/browser-core/src/social_schema_generated_alert_report.rs */")
+        Some(
+            "/* generated from crates/browser-core/src/social_schema_generated_alert_report.rs */"
+        )
     );
 }
 
@@ -31,7 +34,9 @@ fn social_alert_report_provider_receipt_boundary_proof_stay_rust_owned() {
 
     assert_eq!(
         source.to_string().lines().next(),
-        Some("/* generated from crates/browser-core/src/social_schema_generated_alert_report.rs */")
+        Some(
+            "/* generated from crates/browser-core/src/social_schema_generated_alert_report.rs */"
+        )
     );
 }
 
@@ -41,6 +46,8 @@ fn social_alert_report_provider_status_handoff_proof_stay_rust_owned() {
 
     assert_eq!(
         source.to_string().lines().next(),
-        Some("/* generated from crates/browser-core/src/social_schema_generated_alert_report.rs */")
+        Some(
+            "/* generated from crates/browser-core/src/social_schema_generated_alert_report.rs */"
+        )
     );
 }

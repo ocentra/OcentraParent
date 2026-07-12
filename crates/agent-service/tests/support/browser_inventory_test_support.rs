@@ -10,7 +10,10 @@ use std::string::String as TestString;
 use crate::test_text::TestText;
 
 pub async fn handle_local_command_text_for_test(body: TestText) -> AgentEventEnvelope {
-    crate::agent_service_lib::websocket::dispatch_local_command_text(body.0.as_str()).await
+    crate::agent_service_lib::websocket::dispatch_local_command_text(
+        crate::agent_service_lib::websocket::WebsocketCommandText(body.0),
+    )
+    .await
 }
 
 pub fn browser_inventory_read_model_from_service_defaults_for_test(
@@ -19,13 +22,13 @@ pub fn browser_inventory_read_model_from_service_defaults_for_test(
 ) -> BrowserInventoryReadModel {
     let candidate_paths = crate::browser_runtime_paths::system_browser_candidate_paths();
     let mut observations =
-        windows_browser_inventory_observations(&candidate_paths, process_observations, None);
+        windows_browser_inventory_observations(&candidate_paths.0, process_observations, None);
     let package_identities = live_windows_browser_package_entries_with_limit(
         constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
     );
     observations.extend(windows_browser_package_observations(&package_identities));
     crate::browser_inventory_read_model::browser_inventory_read_model_from_windows_inventory(
-        generated_at.0,
+        crate::browser_inventory_read_model::BrowserInventoryGeneratedAtText(generated_at.0),
         &observations,
     )
 }

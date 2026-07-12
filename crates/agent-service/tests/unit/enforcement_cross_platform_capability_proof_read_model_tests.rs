@@ -11,14 +11,16 @@ use ocentra_parent_agent_protocol::policy_constants;
 
 use super::test_text::TestText;
 use crate::{
-    enforcement_cross_platform_capability_proof_read_model::v08_cross_platform_enforcement_capability_proof_read_model,
+    enforcement_cross_platform_capability_proof_read_model::{
+        v08_cross_platform_enforcement_capability_proof_read_model, GeneratedAtTextRef,
+    },
     test_invariants::{require_ok, require_some},
 };
 
 #[test]
 fn cross_platform_read_model_preserves_honest_capability_states() {
     let read_model = v08_cross_platform_enforcement_capability_proof_read_model(
-        policy_constants::TEST_EVALUATED_AT,
+        GeneratedAtTextRef(policy_constants::TEST_EVALUATED_AT),
     );
     let claim_counts = count_claims(&read_model.entries);
     let platform_counts = count_platforms(&read_model.entries);
@@ -48,7 +50,7 @@ fn cross_platform_read_model_preserves_honest_capability_states() {
 #[test]
 fn cross_platform_read_model_does_not_upgrade_unproved_claims() {
     let read_model = v08_cross_platform_enforcement_capability_proof_read_model(
-        policy_constants::TEST_EVALUATED_AT,
+        GeneratedAtTextRef(policy_constants::TEST_EVALUATED_AT),
     );
     let windows_broad = entry_for(
         &read_model.entries,
@@ -96,7 +98,7 @@ fn cross_platform_read_model_does_not_upgrade_unproved_claims() {
 #[test]
 fn cross_platform_read_model_serializes_for_service_preview() {
     let read_model = v08_cross_platform_enforcement_capability_proof_read_model(
-        policy_constants::TEST_EVALUATED_AT,
+        GeneratedAtTextRef(policy_constants::TEST_EVALUATED_AT),
     );
     let serialized = require_ok(
         serde_json::to_value(read_model),

@@ -19,6 +19,7 @@ import {
   presentationOnlyDevWebHostBridgeMessage,
 } from '../generated/parent-ui-bridge';
 import type { ParentRouteId, ParentUnknownRecord } from '../generated/parent-ui-bridge';
+import { createDevWebRouteSubscription } from './host-bridge/dev-web-subscription';
 
 type TauriCoreModule = {
   invoke<TResult>(command: ParentBridgeCommandName, args?: ParentUnknownRecord): Promise<TResult>;
@@ -118,7 +119,10 @@ async function loadDevWebRouteSnapshot(
   });
 }
 
-function createTauriLoadRouteAction(): (route: ParentRouteId, context?: ParentRouteContext) => Promise<ParentRouteSnapshot> {
+function createTauriLoadRouteAction(): (
+  route: ParentRouteId,
+  context?: ParentRouteContext
+) => Promise<ParentRouteSnapshot> {
   return (route, context) =>
     invokeParentBridgeCommand<ParentRouteSnapshot>(ParentBridgeCommand.LoadRoute, {
       route,
@@ -136,13 +140,10 @@ function createTauriSubscribeAction(): (
   onEvent: (event: ParentSubscriptionEvent) => void
 ) => Promise<() => void> {
   return async (route, context, onEvent) => {
-    const subscriptionId = await invokeParentBridgeCommand<ParentRouteSubscriptionId>(
-      ParentBridgeCommand.Subscribe,
-      {
-        route,
-        context: context ?? null,
-      }
-    );
+    const subscriptionId = await invokeParentBridgeCommand<ParentRouteSubscriptionId>(ParentBridgeCommand.Subscribe, {
+      route,
+      context: context ?? null,
+    });
     const tauriEvent = await loadTauriEventModule();
     const unlisten = await tauriEvent.listen<ParentSubscriptionEvent>(
       parentRouteSubscriptionEventName(subscriptionId),
@@ -181,7 +182,8 @@ function createDevWebSubscribeAction(
   context: ParentRouteContext | undefined,
   onEvent: (event: ParentSubscriptionEvent) => void
 ) => Promise<() => void> {
-  return async (route, context, onEvent) => createDevWebRouteSubscription(parentDevBridgeUrl, route, context, onEvent);
+  return async (route, context, onEvent) =>
+    createDevWebRouteSubscription(parentDevBridgeUrl, route, context, onEvent, loadDevWebRouteSnapshot);
 }
 
 function createUnavailableLoadRouteAction(
@@ -198,69 +200,12 @@ function createUnavailableDispatchAction(
 
 function createUnavailableSubscribeAction(
   unavailable: <TResult>() => Promise<TResult>
-): (route?: ParentRouteId, context?: ParentRouteContext, onEvent?: (event: ParentSubscriptionEvent) => void) => Promise<() => void> {
+): (
+  route?: ParentRouteId,
+  context?: ParentRouteContext,
+  onEvent?: (event: ParentSubscriptionEvent) => void
+) => Promise<() => void> {
   return async () => unavailable<() => void>();
-}
-
-function createDevWebRouteSubscription(
-  parentDevBridgeUrl: ParentDevBridgeUrl,
-  route: ParentRouteId,
-  context: ParentRouteContext | undefined,
-  onEvent: (event: ParentSubscriptionEvent) => void
-): () => void {
-  const subscriptionState = {
-    active: true,
-    lastSnapshotJson: JSON.stringify(null),
-  };
-  const emitNextSnapshot = createDevWebEmitNextSnapshot(
-    subscriptionState,
-    parentDevBridgeUrl,
-    route,
-    context,
-    onEvent
-  );
-  void emitNextSnapshot();
-  const intervalId = globalThis.setInterval(() => {
-    void emitNextSnapshot();
-  }, ParentHostBridgeRuntime.DevRouteSubscriptionPollMs);
-
-  return () => {
-    subscriptionState.active = false;
-    globalThis.clearInterval(intervalId);
-  };
-}
-
-function createDevWebEmitNextSnapshot(
-  subscriptionState: {
-    active: boolean;
-    lastSnapshotJson: unknown;
-  },
-  parentDevBridgeUrl: ParentDevBridgeUrl,
-  route: ParentRouteId,
-  context: ParentRouteContext | undefined,
-  onEvent: (event: ParentSubscriptionEvent) => void
-): () => Promise<void> {
-  return async function emitNextSnapshot(): Promise<void> {
-    if (!subscriptionState.active) {
-      return;
-    }
-    let snapshot: ParentRouteSnapshot;
-    try {
-      snapshot = await loadDevWebRouteSnapshot(parentDevBridgeUrl, route, context);
-    } catch {
-      return;
-    }
-    const snapshotJson = JSON.stringify(snapshot);
-    if (snapshotJson === subscriptionState.lastSnapshotJson) {
-      return;
-    }
-    subscriptionState.lastSnapshotJson = snapshotJson;
-    onEvent({
-      schemaVersion: ParentHostBridgeRuntime.SchemaVersion,
-      route,
-      snapshot,
-    });
-  };
 }
 
 async function invokeParentBridgeCommand<TResult>(
@@ -287,17 +232,16 @@ function loadTauriEventModule(): Promise<TauriEventModule> {
 
 function resolveParentDevBridgeUrl(): ParentDevBridgeUrl | null {
   const value = import.meta.env[ParentHostBridgeRuntime.DevBridgeUrlEnvKey];
-  return typeof value === ParentHostBridgeRuntime.StringType && value.trim().length > 0
-    ? value.trim()
-    : null;
+  return typeof value === ParentHostBridgeRuntime.StringType && value.trim().length > 0 ? value.trim() : null;
 }
 
 function trimTrailingSlash(value: ParentDevBridgeUrl): ParentDevBridgeUrl {
-  return value.endsWith(ParentHostBridgeRuntime.UrlPathSeparator)
-    ? value.slice(0, -1)
-    : value;
+  return value.endsWith(ParentHostBridgeRuntime.UrlPathSeparator) ? value.slice(0, -1) : value;
 }
 
 function isTauriRuntime(): boolean {
-  return typeof window !== ParentHostBridgeRuntime.TypeofUndefined && ParentHostBridgeRuntime.TauriInternalWindowKey in window;
+  return (
+    typeof window !== ParentHostBridgeRuntime.TypeofUndefined &&
+    ParentHostBridgeRuntime.TauriInternalWindowKey in window
+  );
 }

@@ -40,6 +40,9 @@ pub(crate) enum ScreenSettingsStoreError {
     Unavailable,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ScreenSettingsStorePath(PathBuf);
+
 impl ScreenSettingsStoredState {
     pub(crate) fn empty() -> Self {
         Self {
@@ -85,14 +88,8 @@ pub(crate) async fn write_screen_settings_state(
         .map_err(|_join_error| ScreenSettingsStoreError::Unavailable)?
 }
 
-pub(crate) fn screen_settings_store_path_from_env() -> PathBuf {
-    std::env::var(constants::env_var::AGENT_SCREEN_SETTINGS_STORE_PATH)
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            let mut path = std::env::temp_dir();
-            path.push(constants::screen_settings::STORE_FILE_NAME);
-            path
-        })
+pub(crate) fn screen_settings_store_path_from_env() -> ScreenSettingsStorePath {
+    ScreenSettingsStorePath::from_environment()
 }
 
 fn read_screen_settings_state_sync(
@@ -117,4 +114,23 @@ fn write_screen_settings_state_sync(
     let text = serde_json::to_string_pretty(state)
         .map_err(|_serialize_error| ScreenSettingsStoreError::Unavailable)?;
     fs::write(path, text).map_err(|_write_error| ScreenSettingsStoreError::Unavailable)
+}
+
+impl ScreenSettingsStorePath {
+    fn from_environment() -> Self {
+        std::env::var(constants::env_var::AGENT_SCREEN_SETTINGS_STORE_PATH)
+            .map(PathBuf::from)
+            .map(Self)
+            .unwrap_or_else(|_| {
+                let mut path = std::env::temp_dir();
+                path.push(constants::screen_settings::STORE_FILE_NAME);
+                Self(path)
+            })
+    }
+}
+
+impl AsRef<Path> for ScreenSettingsStorePath {
+    fn as_ref(&self) -> &Path {
+        self.0.as_path()
+    }
 }

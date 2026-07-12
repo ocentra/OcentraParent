@@ -36,8 +36,8 @@ mod read_model_source_matrix;
 mod read_model_spine;
 
 fn neighbor(
-    label: &str,
-    hostname: Option<&str>,
+    label: impl std::fmt::Display,
+    hostname: Option<impl std::fmt::Display>,
     reachability: LanPairingDeviceReachability,
 ) -> LanNetworkInventoryDevice {
     neighbor_with_mac(
@@ -49,18 +49,19 @@ fn neighbor(
 }
 
 fn neighbor_with_mac(
-    label: &str,
-    hostname: Option<&str>,
+    label: impl std::fmt::Display,
+    hostname: Option<impl std::fmt::Display>,
     reachability: LanPairingDeviceReachability,
-    mac_address: &str,
+    mac_address: impl std::fmt::Display,
 ) -> LanNetworkInventoryDevice {
+    let label = label.to_string();
     LanNetworkInventoryDevice {
         device_id: format!("network-neighbor-{label}"),
-        label: label.to_string(),
+        label,
         platform: constants::lan_pairing::PLATFORM_UNKNOWN.to_string(),
         ip_address: constants::lan_pairing::TEST_LAN_IP.to_string(),
         mac_address: mac_address.to_string(),
-        hostname: hostname.map(str::to_string),
+        hostname: hostname.map(|value| value.to_string()),
         network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
         reachability,
         agent_status: None,

@@ -56,20 +56,20 @@ pub(crate) fn persist_known_household_devices(
 pub(crate) fn merged_known_household_devices_for_read_model(
     runtime: &LanPairingRuntime,
     current_devices: &[LanCanonicalHouseholdDevice],
-    observed_at: &str,
+    observed_at: &LanPairingText,
 ) -> Vec<LanCanonicalHouseholdDevice> {
     runtime
         .registry
         .lock()
         .map(|registry| {
-            registry.known_household_devices_for_read_model(current_devices, observed_at)
+            registry.known_household_devices_for_read_model(current_devices, observed_at.0.as_str())
         })
         .unwrap_or_else(|_| current_devices.to_vec())
 }
 
 pub(crate) fn pairing_requests(
     runtime: &LanPairingRuntime,
-    generated_at: &str,
+    generated_at: &LanPairingText,
 ) -> Vec<LanBrowserAddDevicePairingRequest> {
     runtime
         .challenges
@@ -86,7 +86,7 @@ pub(crate) fn pairing_requests(
                     origin: challenge.origin.clone(),
                     pairing_state: pairing_request_state(
                         challenge.accepted,
-                        LanPairingText(generated_at.to_string()),
+                        LanPairingText(generated_at.0.clone()),
                         LanPairingText(challenge.expires_at.clone()),
                     ),
                     rejection_reason: None,

@@ -1,7 +1,10 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { ParentRoute, type ParentAppGameNotificationParentSurfacePanelSnapshot } from '../../generated/parent-ui-bridge';
+import {
+  ParentRoute,
+  type ParentAppGameNotificationParentSurfacePanelSnapshot,
+} from '../../generated/parent-ui-bridge';
 import {
   AppGameNotificationParentSurfaceRoutePanel,
   shouldRenderAppGameNotificationParentSurfaceRoute,

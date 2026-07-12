@@ -56,8 +56,7 @@ async function appendDevLog(entry) {
 }
 
 function resolveDevLogFile(source) {
-  const directory =
-    process.env[DevLogEnvironment.Directory] ?? join(repoRoot, '.logs', DevLogFile.DirectoryName);
+  const directory = process.env[DevLogEnvironment.Directory] ?? join(repoRoot, '.logs', DevLogFile.DirectoryName);
   const day = new Date().toISOString().slice(0, 10);
   return join(directory, `${source}-${day}.${DevLogFile.Extension}`);
 }

@@ -12,18 +12,21 @@ use ocentra_parent_agent_protocol::local_ai_runtime_provider_proof::{
 };
 use ocentra_parent_agent_protocol::policy_constants;
 
+use crate::local_ai_runtime_config_values::LocalAiRuntimeText;
+
 pub(crate) fn local_ai_runtime_provider_proof_read_model(
-    generated_at: &str,
+    generated_at: impl Into<LocalAiRuntimeText>,
     scheduler_status: &LocalAiProviderSchedulerStatus,
 ) -> LocalAiRuntimeProviderProofReadModel {
+    let generated_at = generated_at.into();
     let queued_status = queued_priority_status(scheduler_status);
     let degraded_status = degraded_provider_status(scheduler_status);
-    let unavailable_status = unavailable_provider_status(generated_at);
+    let unavailable_status = unavailable_provider_status(&generated_at);
 
     LocalAiRuntimeProviderProofReadModel {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: proof::READ_MODEL_ID.to_string(),
-        generated_at: generated_at.to_string(),
+        generated_at: generated_at.0.clone(),
         source_read_model_ids: vec![
             proof::SOURCE_LOCAL_AI_PROVIDER_SCHEDULER.to_string(),
             proof::SOURCE_DEVICE_ROLE_RUNTIME_READ_MODEL.to_string(),
@@ -286,7 +289,9 @@ fn degraded_provider_status(
     status
 }
 
-fn unavailable_provider_status(generated_at: &str) -> LocalAiProviderSchedulerStatus {
+fn unavailable_provider_status(
+    generated_at: &LocalAiRuntimeText,
+) -> LocalAiProviderSchedulerStatus {
     LocalAiProviderSchedulerStatus {
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         singleton_scope:
@@ -305,6 +310,6 @@ fn unavailable_provider_status(generated_at: &str) -> LocalAiProviderSchedulerSt
         unavailable_reason: Some(
             constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string(),
         ),
-        last_checked_at: generated_at.to_string(),
+        last_checked_at: generated_at.0.clone(),
     }
 }

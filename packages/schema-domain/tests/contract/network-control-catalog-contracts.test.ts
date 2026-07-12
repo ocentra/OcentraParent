@@ -40,9 +40,7 @@ describe('network control catalog Rust-generated metadata surface', () => {
     );
     const runtimeSetting = settings.find((setting) => setting.runtimeOwner === 'rust-parent-runtime');
     const manualSetting = settings.find(
-      (setting) =>
-        setting.effectStatus === 'manual-required' &&
-        setting.capabilityState === 'manual-required'
+      (setting) => setting.effectStatus === 'manual-required' && setting.capabilityState === 'manual-required'
     );
 
     expect(
@@ -58,13 +56,9 @@ describe('network control catalog Rust-generated metadata surface', () => {
 
   it('preserves generated helper semantics through the schema-domain edge surface', () => {
     expect(policyLaneFor('Storage', 'Retention', 'Export audit and cache policy.')).toBe('audit');
-    expect(
-      questionFromSourceText('Capability matrix row | Capability=Router protection | Status=Ready', null)
-    ).toBe('Represent Router protection capability status.');
-    expect(explicitOptionLabels('Target domains: gaming, streaming or chat')).toEqual([
-      'Gaming',
-      'Streaming',
-      'Chat',
-    ]);
+    expect(questionFromSourceText('Capability matrix row | Capability=Router protection | Status=Ready', null)).toBe(
+      'Represent Router protection capability status.'
+    );
+    expect(explicitOptionLabels('Target domains: gaming, streaming or chat')).toEqual(['Gaming', 'Streaming', 'Chat']);
   });
 });

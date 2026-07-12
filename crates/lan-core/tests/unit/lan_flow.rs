@@ -41,6 +41,12 @@ use ocentra_parent_agent_protocol::LanTrustedDeviceRegistryEntry;
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct LanText(String);
 
+impl std::fmt::Display for LanText {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
 macro_rules! lt {
     ($value:expr) => {
         ($value).to_string()
@@ -51,6 +57,23 @@ macro_rules! lt {
 mod lan_flow_read_model;
 #[path = "lan_flow_signed_child.rs"]
 mod lan_flow_signed_child;
+
+fn canonical_test_mac_device_id() -> LanText {
+    LanText(format!(
+        "{}{}-{}",
+        constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX,
+        constants::lan_pairing::TEST_LAN_MAC
+            .chars()
+            .filter(|character| character.is_ascii_alphanumeric())
+            .flat_map(char::to_lowercase)
+            .collect::<String>(),
+        "lan-device-54271e97c331"
+            .chars()
+            .filter(|character| character.is_ascii_alphanumeric())
+            .flat_map(char::to_lowercase)
+            .collect::<String>()
+    ))
+}
 
 #[test]
 fn lan_observation_records_presence_evidence_and_requests_policy() {
@@ -375,23 +398,6 @@ fn lan_read_model_input(
         controller_authority: LanPairingParentAuthority::ActiveController,
         observer_authority: LanPairingParentAuthority::Observer,
     }
-}
-
-fn canonical_test_mac_device_id() -> String {
-    format!(
-        "{}{}-{}",
-        constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX,
-        constants::lan_pairing::TEST_LAN_MAC
-            .chars()
-            .filter(|character| character.is_ascii_alphanumeric())
-            .flat_map(char::to_lowercase)
-            .collect::<String>(),
-        "lan-device-54271e97c331"
-            .chars()
-            .filter(|character| character.is_ascii_alphanumeric())
-            .flat_map(char::to_lowercase)
-            .collect::<String>()
-    )
 }
 
 fn child_profile_device(

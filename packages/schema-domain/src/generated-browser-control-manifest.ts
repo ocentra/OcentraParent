@@ -85,13 +85,17 @@ export const BrowserControlManifestDefaults = {
       key,
       BrowserControlSectionIdSchema.parse(value),
     ])
-  ) as { readonly [K in keyof typeof GeneratedBrowserControlManifestDefaults.Section]: typeof BrowserControlSectionIdSchema.Type },
+  ) as {
+    readonly [K in keyof typeof GeneratedBrowserControlManifestDefaults.Section]: typeof BrowserControlSectionIdSchema.Type;
+  },
   Field: Object.fromEntries(
     Object.entries(GeneratedBrowserControlManifestDefaults.Field).map(([key, value]) => [
       key,
       BrowserControlFieldIdSchema.parse(value),
     ])
-  ) as { readonly [K in keyof typeof GeneratedBrowserControlManifestDefaults.Field]: typeof BrowserControlFieldIdSchema.Type },
+  ) as {
+    readonly [K in keyof typeof GeneratedBrowserControlManifestDefaults.Field]: typeof BrowserControlFieldIdSchema.Type;
+  },
 } as const;
 
 export const decodeBrowserControlAuthoringManifest = Schema.decodeUnknownSync(BrowserControlAuthoringManifestSchema);
@@ -99,8 +103,11 @@ export const decodeBrowserControlAuthoringManifest = Schema.decodeUnknownSync(Br
 export function browserControlVisibleSectionIds(
   manifest: BrowserControlAuthoringManifest,
   values: Record<string, BrowserControlFieldValue>
-): typeof BrowserControlSectionIdSchema.Type[] {
-  return browserControlManifestVisibleSectionIdsGenerated(manifest, values) as typeof BrowserControlSectionIdSchema.Type[];
+): (typeof BrowserControlSectionIdSchema.Type)[] {
+  return browserControlManifestVisibleSectionIdsGenerated(
+    manifest,
+    values
+  ) as (typeof BrowserControlSectionIdSchema.Type)[];
 }
 
 export function browserControlManifestAllowsField(

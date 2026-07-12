@@ -1,6 +1,4 @@
-import {
-  type PortalRouteEventRecord,
-} from './portal-contract-adapter';
+import { type PortalRouteEventRecord } from './portal-contract-adapter';
 import { type PortalDetailValue, type TrackingStatusProofArtifact } from './portal-contract-text-contracts';
 import type { PortalActivityTrackingReadModelResult } from './live-activity-state';
 import {

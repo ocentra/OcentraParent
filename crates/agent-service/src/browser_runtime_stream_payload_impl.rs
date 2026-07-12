@@ -160,7 +160,7 @@ pub(crate) fn browser_runtime_event_chain_stream_payload(
         ),
         (
             constants::field::BROWSER_RUNTIME_EVENT_CHAIN_STREAM,
-            LogFieldValue::String(serialize_json_string(&report.entries)),
+            LogFieldValue::String(serialize_json_string(&report.entries).0),
         ),
     ];
     pairs.extend(action_intent_payload_fields(report).0);
@@ -295,5 +295,5 @@ fn count_value(value: usize) -> LogFieldValue {
 }
 
 fn string_array_value(values: BrowserRuntimeStrings) -> LogFieldValue {
-    LogFieldValue::String(serialize_json_string(&values.0))
+    LogFieldValue::String(serialize_json_string(&values.0).0)
 }

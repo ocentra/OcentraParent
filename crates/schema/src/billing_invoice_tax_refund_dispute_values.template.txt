@@ -28,7 +28,12 @@ export const GeneratedBillingRefundLifecycleStates = [
   'refund-denied',
 ] as const;
 
-export const GeneratedBillingDisputeLifecycleStates = ['none', 'dispute-opened', 'dispute-won', 'dispute-lost'] as const;
+export const GeneratedBillingDisputeLifecycleStates = [
+  'none',
+  'dispute-opened',
+  'dispute-won',
+  'dispute-lost',
+] as const;
 
 export const GeneratedBillingCollectionRecoveryStates = [
   'active',

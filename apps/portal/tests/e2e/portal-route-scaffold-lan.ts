@@ -1,8 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 
-export async function assertLanRouteSurface(
-  page: Page
-): Promise<void> {
+export async function assertLanRouteSurface(page: Page): Promise<void> {
   const surface = page.locator('svg.parent-portal-svg-surface');
   const viewport = page.viewportSize();
   await page.setViewportSize({

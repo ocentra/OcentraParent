@@ -87,9 +87,7 @@ export const SocialAlertReportIntentStatusSchema = withParser(
 export const SocialAlertReportDeliveryClaimStateSchema = withParser(
   Schema.Literal(...Object.values(SocialAlertReportDeliveryClaimState))
 );
-export const NotificationLocalOutboxStateSchema = withParser(
-  Schema.Literal(...RequiredNotificationLocalOutboxStates)
-);
+export const NotificationLocalOutboxStateSchema = withParser(Schema.Literal(...RequiredNotificationLocalOutboxStates));
 export const NotificationLocalOutboxDeliveryClaimStateSchema = withParser(
   Schema.Literal('local-outbox-only', 'provider-receipt-required', 'manual-required')
 );

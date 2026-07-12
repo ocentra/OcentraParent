@@ -1,0 +1,30 @@
+  readonly compilerDecisionProofRequired: boolean;
+  readonly timerScheduled: boolean;
+};
+
+type TimerStatusLike = {
+  readonly timerRuntimeProofRequiredCount: number;
+  readonly sourceFreshnessProofRequiredCount: number;
+  readonly compilerDecisionProofRequiredCount: number;
+  readonly rows: readonly TimerStatusRowLike[];
+  readonly serviceRuntimeEventClaimed: boolean;
+  readonly portalUiRendered: boolean;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly timerScheduled: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+  readonly rawPrivateSourceRowsIncluded: boolean;
+};
+
+type TimerStatusProofRefsLike = {
+  readonly timerRuntimeProofRef: string;
+  readonly sourceFreshnessProofRef: string;
+  readonly compilerDecisionProofRef: string;
+};
+
+type TimerRuntimeReadinessRowLike = {
+  readonly runtimeReadinessState: TimerRuntimeReadinessStateValue;
+  readonly timerRuntimeProofRequired: boolean;
+  readonly schedulerPersistenceProofRequired: boolean;

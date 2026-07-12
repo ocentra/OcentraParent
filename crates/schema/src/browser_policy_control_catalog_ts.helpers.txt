@@ -500,7 +500,12 @@ export const GeneratedBaselineBrowserControlAuthoringManifest = {
           GeneratedBrowserControlWritesToPath.UnmanagedBrowserAllowRecoverLaunchUrl,
           'If a launch URL is visible, should it reopen in managed browser?',
           true,
-          [equalsManifestConditionGenerated(GeneratedBrowserControlWritesToPath.UnmanagedBrowserMode, 'relaunch-managed')]
+          [
+            equalsManifestConditionGenerated(
+              GeneratedBrowserControlWritesToPath.UnmanagedBrowserMode,
+              'relaunch-managed'
+            ),
+          ]
         ),
         manifestMultiSelectFieldGenerated(
           GeneratedBrowserControlManifestDefaults.Field.UnmanagedBrowserClassificationTargets,

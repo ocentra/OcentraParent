@@ -1,7 +1,7 @@
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 
-use ocentra_eventing::{bus::reports::HandlerOutcome, bus::EventBus};
+use ocentra_eventing::{bus::reports::handler::HandlerOutcome, bus::EventBus};
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
@@ -22,6 +22,7 @@ use super::screen_ai_service_event_subscription::{
     ScreenAiServiceEventRuntime, ScreenAiServiceEventSubscriptionDispatch,
     ScreenAiServiceEventSubscriptionState, ScreenAiServiceRowReadyEvent,
 };
+use crate::screen_ai_service_event_subscription;
 use crate::test_invariants::require_ok;
 
 const DEGRADED_SCREEN_RUNTIME_EVENT_COUNT: usize = 6;

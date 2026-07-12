@@ -83,23 +83,17 @@ export const GeneratedEnforcementAuditEventKindValues = [
   'cancelled',
 ] as const;
 
-export type GeneratedEnforcementCapabilityState =
-  (typeof GeneratedEnforcementCapabilityStateValues)[number];
+export type GeneratedEnforcementCapabilityState = (typeof GeneratedEnforcementCapabilityStateValues)[number];
 
-export type GeneratedEnforcementUnavailableReason =
-  (typeof GeneratedEnforcementUnavailableReasonValues)[number];
+export type GeneratedEnforcementUnavailableReason = (typeof GeneratedEnforcementUnavailableReasonValues)[number];
 
-export type GeneratedEnforcementResultStatus =
-  (typeof GeneratedEnforcementResultStatusValues)[number];
+export type GeneratedEnforcementResultStatus = (typeof GeneratedEnforcementResultStatusValues)[number];
 
-export type GeneratedEnforcementRollbackState =
-  (typeof GeneratedEnforcementRollbackStateValues)[number];
+export type GeneratedEnforcementRollbackState = (typeof GeneratedEnforcementRollbackStateValues)[number];
 
-export type GeneratedEnforcementTimerEventKind =
-  (typeof GeneratedEnforcementTimerEventKindValues)[number];
+export type GeneratedEnforcementTimerEventKind = (typeof GeneratedEnforcementTimerEventKindValues)[number];
 
-export type GeneratedEnforcementAuditEventKind =
-  (typeof GeneratedEnforcementAuditEventKindValues)[number];
+export type GeneratedEnforcementAuditEventKind = (typeof GeneratedEnforcementAuditEventKindValues)[number];
 
 export type GeneratedEnforcementCapabilityStatusLike = {
   readonly schemaVersion: string;
@@ -471,9 +465,7 @@ export function enforcementCapabilityStatusReasonIsConsistent(
   return true;
 }
 
-export function enforcementUnavailableStatusIsConsistent(
-  result: GeneratedEnforcementResultLike
-): boolean {
+export function enforcementUnavailableStatusIsConsistent(result: GeneratedEnforcementResultLike): boolean {
   if (result.status === 'unavailable') {
     return result.unavailableStatus !== null;
   }
@@ -486,12 +478,12 @@ export function enforcementCapabilityStatusesMatch(
   right: GeneratedEnforcementCapabilityStatusLike
 ): boolean {
   return (
-  left.schemaVersion === right.schemaVersion &&
-  left.platform === right.platform &&
-  left.adapterKind === right.adapterKind &&
-  left.capabilityState === right.capabilityState &&
-  left.permissionState === right.permissionState &&
-  left.dependencyState === right.dependencyState &&
+    left.schemaVersion === right.schemaVersion &&
+    left.platform === right.platform &&
+    left.adapterKind === right.adapterKind &&
+    left.capabilityState === right.capabilityState &&
+    left.permissionState === right.permissionState &&
+    left.dependencyState === right.dependencyState &&
     left.degradedReason === right.degradedReason &&
     left.lastCheckedAt === right.lastCheckedAt &&
     left.supportedActions.length === right.supportedActions.length &&
@@ -516,9 +508,7 @@ export function enforcementUnavailableStatusesMatch(
   );
 }
 
-export function enforcementAuditEventBoundaryIsConsistent(
-  auditEvent: GeneratedEnforcementAuditEventLike
-): boolean {
+export function enforcementAuditEventBoundaryIsConsistent(auditEvent: GeneratedEnforcementAuditEventLike): boolean {
   if (!enforcementCapabilityStatusesMatch(auditEvent.capability, auditEvent.result.capability)) {
     return false;
   }
@@ -534,9 +524,7 @@ export function enforcementAuditEventBoundaryIsConsistent(
   return auditEvent.auditEventKind !== 'unavailable' && auditEvent.unavailableStatus === null;
 }
 
-export function enforcementTimerUnavailableReasonIsConsistent(
-  timerEvent: GeneratedEnforcementTimerEventLike
-): boolean {
+export function enforcementTimerUnavailableReasonIsConsistent(timerEvent: GeneratedEnforcementTimerEventLike): boolean {
   if (timerEvent.timerEventKind === 'unavailable' || timerEvent.timerEventKind === 'recovery-needed') {
     return timerEvent.unavailableReason !== null;
   }
@@ -544,9 +532,7 @@ export function enforcementTimerUnavailableReasonIsConsistent(
   return timerEvent.unavailableReason === null;
 }
 
-export function enforcementActiveTimerStateIsConsistent(
-  state: GeneratedEnforcementActiveTimerStateLike
-): boolean {
+export function enforcementActiveTimerStateIsConsistent(state: GeneratedEnforcementActiveTimerStateLike): boolean {
   return (
     state.action.actionId === state.result.actionId &&
     state.action.actionId === state.auditEvent.action.actionId &&

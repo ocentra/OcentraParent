@@ -1,7 +1,6 @@
 use ocentra_browser_core::social_schema_generated_values::{
     social_alert_report_intent_values_typescript,
-    social_audit_explanation_read_model_values_typescript,
-    social_dashboard_ux_values_typescript,
+    social_audit_explanation_read_model_values_typescript, social_dashboard_ux_values_typescript,
     social_policy_compiler_values_typescript,
 };
 

@@ -5,14 +5,7 @@ import ts from 'typescript';
 
 import { repoAbsolutePath, resolveScopedFiles } from './check-architecture-scope.mjs';
 
-const ignoredPathParts = new Set([
-  '.git',
-  '.turbo',
-  'coverage',
-  'dist',
-  'node_modules',
-  'ocentra-ledger',
-]);
+const ignoredPathParts = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'ocentra-ledger']);
 const sourceExtension = /\.(?:ts|tsx)$/u;
 const cssExtension = /\.css$/u;
 const globalCssEntryFiles = new Set(['apps/portal/src/main.ts']);
@@ -34,6 +27,11 @@ const colorOwnerCssFiles = new Set([
   'apps/portal/src/styles/product-frame.css',
   'apps/portal/src/styles/sidebar.css',
   'apps/portal/src/styles.css',
+]);
+const colorOwnerFoundationCssFiles = new Set([
+  'apps/portal/src/styles/app-shell-foundation.css',
+  'apps/portal/src/styles/base-foundation.css',
+  'apps/portal/src/styles/deck-frame-fit-foundation.css',
 ]);
 const rawColorPattern = /(?:#[0-9a-f]{3,8}\b|(?<!-)rgba?\(|(?<!-)hsla?\()/iu;
 const cssVarDefinitionPattern = /(?<![\w-])(--[a-z0-9_-]+)\s*:/giu;
@@ -238,7 +236,11 @@ function inspectCssFiles({ cssFiles, findings, repoRoot }) {
           report(findings, pathText, index + 1, 'unknown CSS variable', match[1]);
         }
       }
-      if (rawColorPattern.test(line) && !colorOwnerCssFiles.has(pathText)) {
+      if (
+        rawColorPattern.test(line) &&
+        !colorOwnerCssFiles.has(pathText) &&
+        !colorOwnerFoundationCssFiles.has(pathText)
+      ) {
         report(
           findings,
           pathText,

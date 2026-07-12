@@ -22,6 +22,7 @@ use crate::{
     local_ai_provider_scheduler::local_ai_provider_scheduler,
     local_ai_runtime_cache_status::local_ai_model_cache_status_from_config,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_config_values::LocalAiRuntimeText,
     local_ai_runtime_configured_status::{
         configured_local_ai_runtime_status, configured_local_provider_adapter_probe,
         executable_local_ai_runtime_status, executable_local_provider_adapter_probe,
@@ -38,7 +39,10 @@ use crate::{
     time::timestamp_now,
 };
 
-pub fn unavailable_local_ai_runtime_status(checked_at: String) -> LocalModelRuntimeStatus {
+pub fn unavailable_local_ai_runtime_status(
+    checked_at: impl Into<LocalAiRuntimeText>,
+) -> LocalModelRuntimeStatus {
+    let checked_at = checked_at.into();
     LocalModelRuntimeStatus {
         runtime_reference_id: constants::local_ai_runtime::RUNTIME_REFERENCE_DEV_UNCONFIGURED
             .to_string(),
@@ -53,14 +57,17 @@ pub fn unavailable_local_ai_runtime_status(checked_at: String) -> LocalModelRunt
         capability_flags: vec![],
         resource_class: LocalAiResourceClass::Cpu,
         degraded_state: LocalAiDegradedState::ProviderUnavailable,
-        last_checked_at: checked_at,
+        last_checked_at: checked_at.0,
         unavailable_reason: Some(
             constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string(),
         ),
     }
 }
 
-pub fn unavailable_local_provider_adapter_probe(checked_at: String) -> LocalProviderAdapterProbe {
+pub fn unavailable_local_provider_adapter_probe(
+    checked_at: impl Into<LocalAiRuntimeText>,
+) -> LocalProviderAdapterProbe {
+    let checked_at = checked_at.into();
     LocalProviderAdapterProbe {
         provider_id: constants::local_ai_runtime::PROVIDER_ID_UNCONFIGURED.to_string(),
         privacy_mode: LocalAiProviderPrivacyMode::LocalOnly,
@@ -71,7 +78,7 @@ pub fn unavailable_local_provider_adapter_probe(checked_at: String) -> LocalProv
         configuration_state: LocalAiProviderConfigurationState::LocalProviderUnconfigured,
         readiness_state: LocalAiAdapterReadinessState::AdapterNotReady,
         execution_allowed: false,
-        last_checked_at: checked_at,
+        last_checked_at: checked_at.0,
         unavailable_reason: Some(
             constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string(),
         ),
@@ -79,33 +86,34 @@ pub fn unavailable_local_provider_adapter_probe(checked_at: String) -> LocalProv
 }
 
 pub fn local_ai_runtime_status_from_config(
-    checked_at: String,
+    checked_at: impl Into<LocalAiRuntimeText>,
     config: &LocalAiRuntimeConfigSnapshot,
 ) -> (
     LocalModelRuntimeStatus,
     LocalProviderAdapterProbe,
     LocalAiModelCacheStatus,
 ) {
-    local_ai_runtime_status_for_model_from_config(checked_at, config, None)
+    local_ai_runtime_status_for_model_from_config(checked_at.into(), config, None)
 }
 
 pub fn local_ai_runtime_status_for_model_from_config(
-    checked_at: String,
+    checked_at: impl Into<LocalAiRuntimeText>,
     config: &LocalAiRuntimeConfigSnapshot,
-    requested_model_id: Option<&str>,
+    requested_model_id: Option<LocalAiRuntimeText>,
 ) -> (
     LocalModelRuntimeStatus,
     LocalProviderAdapterProbe,
     LocalAiModelCacheStatus,
 ) {
-    let cache = local_ai_model_cache_status_from_config(checked_at.clone(), config);
+    let checked_at = checked_at.into();
+    let cache = local_ai_model_cache_status_from_config(checked_at.0.clone(), config);
     if let Some(model_id) = requested_model_id {
-        if let Some(reason) = requested_model_unavailable_reason(config, model_id) {
+        if let Some(reason) = requested_model_unavailable_reason(config, &model_id) {
             return (
                 unavailable_local_ai_runtime_status_for_model(
                     checked_at.clone(),
                     config,
-                    model_id,
+                    &model_id,
                     reason,
                 ),
                 unavailable_local_provider_adapter_probe_with_reason(checked_at, reason),
@@ -124,15 +132,15 @@ pub fn local_ai_runtime_status_for_model_from_config(
 
     if config.execution_enabled() {
         return (
-            executable_local_ai_runtime_status(checked_at.clone(), config),
-            executable_local_provider_adapter_probe(checked_at, config),
+            executable_local_ai_runtime_status(checked_at.0.clone(), config),
+            executable_local_provider_adapter_probe(checked_at.0, config),
             cache,
         );
     }
 
     (
-        configured_local_ai_runtime_status(checked_at.clone(), config),
-        configured_local_provider_adapter_probe(checked_at, config),
+        configured_local_ai_runtime_status(checked_at.0.clone(), config),
+        configured_local_provider_adapter_probe(checked_at.0, config),
         cache,
     )
 }
@@ -144,7 +152,7 @@ pub fn local_ai_runtime_is_executable(config: &LocalAiRuntimeConfigSnapshot) -> 
 pub async fn build_local_ai_runtime_status_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    let checked_at = timestamp_now();
+    let checked_at: String = timestamp_now();
     let config = tokio::task::spawn_blocking(LocalAiRuntimeConfigSnapshot::from_environment)
         .await
         .unwrap_or_else(|_| LocalAiRuntimeConfigSnapshot::unconfigured());
@@ -169,10 +177,10 @@ pub async fn build_local_ai_runtime_status_report(
     )
 }
 
-fn requested_model_id_from_command(command: &AgentCommandEnvelope) -> Option<&str> {
+fn requested_model_id_from_command(command: &AgentCommandEnvelope) -> Option<LocalAiRuntimeText> {
     match command.payload.get(constants::field::LOCAL_AI_MODEL_ID) {
         Some(ocentra_parent_agent_protocol::logging::LogFieldValue::String(value)) => {
-            Some(value.trim())
+            Some(LocalAiRuntimeText(value.trim().to_string()))
         }
         _ => None,
     }

@@ -13,12 +13,31 @@ pub fn child_ios_entitlement_capability_proof_contracts_typescript() -> String {
         serde_json::to_string_pretty(&sample_child_ios_entitlement_capability_read_model()),
         "child ios entitlement capability proof json",
     );
+    let proof_typescript =
+        crate::typescript_literal::json_object_to_typescript_literal(&proof_json);
 
     let mut output = String::new();
     output.push_str(TS_HEADER);
     output.push_str(CHILD_IOS_ENTITLEMENT_CAPABILITY_PROOF_SCHEMA_VERSION);
-    output.push_str(TS_BODY);
-    output.push_str(&proof_json);
+    let body = TS_BODY
+        .replace(
+            "export type GeneratedChildIosEntitlementCapabilityProofSchemaVersion =\n  'child-ios-entitlement-capability-proof';",
+            "export type GeneratedChildIosEntitlementCapabilityProofSchemaVersion = 'child-ios-entitlement-capability-proof';",
+        )
+        .replace(
+            "export type GeneratedChildIosEntitlementParentCapabilityStatus =\n  | 'manual-required'\n  | 'scaffold'\n  | 'planned';",
+            "export type GeneratedChildIosEntitlementParentCapabilityStatus = 'manual-required' | 'scaffold' | 'planned';",
+        )
+        .replace(
+            "export type GeneratedChildIosEntitlementBridgeState =\n  | 'simulator-scaffold'\n  | 'not-implemented';",
+            "export type GeneratedChildIosEntitlementBridgeState = 'simulator-scaffold' | 'not-implemented';",
+        )
+        .replace(
+            "export const GeneratedChildIosEntitlementCapabilityReadModel =\n  ",
+            "export const GeneratedChildIosEntitlementCapabilityReadModel = ",
+        );
+    output.push_str(&body);
+    output.push_str(&proof_typescript);
     output.push_str(TS_SUFFIX);
     output
 }

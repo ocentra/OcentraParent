@@ -27,7 +27,7 @@ pub(crate) struct ActivitySurfaceStoreSnapshot {
 }
 
 pub(crate) async fn local_store_snapshot() -> Option<ActivitySurfaceStoreSnapshot> {
-    local_store_snapshot_from_path(ActivityStorePath(activity_db_path())).await
+    local_store_snapshot_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn local_store_snapshot_from_path(
@@ -35,7 +35,7 @@ pub(crate) async fn local_store_snapshot_from_path(
 ) -> Option<ActivitySurfaceStoreSnapshot> {
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(path.0).ok()?;
-        let generated_at = timestamp_now();
+        let generated_at: String = timestamp_now();
         let recent = store
             .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
             .ok()?;
@@ -82,14 +82,14 @@ pub(crate) async fn local_store_snapshot_from_path(
 }
 
 pub(crate) async fn load_browser_model() -> Option<BrowserEvidenceReadModel> {
-    load_browser_model_from_path(ActivityStorePath(activity_db_path())).await
+    load_browser_model_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn load_browser_model_from_path(
     path: ActivityStorePath,
 ) -> Option<BrowserEvidenceReadModel> {
     with_store(path, |store| {
-        let generated_at = timestamp_now();
+        let generated_at: String = timestamp_now();
         store
             .browser_evidence_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
@@ -101,14 +101,14 @@ pub(crate) async fn load_browser_model_from_path(
 }
 
 pub(crate) async fn load_network_model() -> Option<ActivityNetworkFlowReadModel> {
-    load_network_model_from_path(ActivityStorePath(activity_db_path())).await
+    load_network_model_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn load_network_model_from_path(
     path: ActivityStorePath,
 ) -> Option<ActivityNetworkFlowReadModel> {
     with_store(path, |store| {
-        let generated_at = timestamp_now();
+        let generated_at: String = timestamp_now();
         store
             .network_flow_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
@@ -120,14 +120,14 @@ pub(crate) async fn load_network_model_from_path(
 }
 
 pub(crate) async fn load_app_game_model() -> Option<AppGameServiceReadModel> {
-    load_app_game_model_from_path(ActivityStorePath(activity_db_path())).await
+    load_app_game_model_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn load_app_game_model_from_path(
     path: ActivityStorePath,
 ) -> Option<AppGameServiceReadModel> {
     with_store(path, |store| {
-        let generated_at = timestamp_now();
+        let generated_at: String = timestamp_now();
         store
             .app_game_service_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
@@ -139,14 +139,14 @@ pub(crate) async fn load_app_game_model_from_path(
 }
 
 pub(crate) async fn load_screen_summary() -> Option<ScreenEvidenceRecentSummary> {
-    load_screen_summary_from_path(ActivityStorePath(activity_db_path())).await
+    load_screen_summary_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn load_screen_summary_from_path(
     path: ActivityStorePath,
 ) -> Option<ScreenEvidenceRecentSummary> {
     with_store(path, |store| {
-        let generated_at = timestamp_now();
+        let generated_at: String = timestamp_now();
         store
             .screen_evidence_recent_summary(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,

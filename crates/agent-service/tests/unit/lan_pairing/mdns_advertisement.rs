@@ -350,7 +350,7 @@ fn mdns_sync_sends_goodbye_when_runtime_context_disappears() {
 #[test]
 fn mdns_sync_keeps_degraded_platform_manual_without_broadcasting_packets() {
     let runtime = LanPairingRuntime::empty_with_signed_child_agent_context(
-        Some("opaque-child-id".to_string()),
+        Some(TestText::from_display("opaque-child-id")),
         constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
         "sha256:family-1".to_string(),
         constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),

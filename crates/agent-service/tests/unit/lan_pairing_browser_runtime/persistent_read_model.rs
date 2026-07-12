@@ -244,7 +244,7 @@ fn assert_selected_route_and_rename_restored(
     read_model: &LanBrowserAddDeviceReadModel,
     selected_canonical_device_id: impl Into<TestString>,
 ) {
-    let selected_canonical_device_id = selected_canonical_device_id;
+    let selected_canonical_device_id = selected_canonical_device_id.into();
     assert_eq!(
         read_model
             .selected_device_readiness
@@ -270,7 +270,7 @@ fn restored_canonical_device<'a>(
     read_model: &'a LanBrowserAddDeviceReadModel,
     selected_canonical_device_id: impl Into<TestString>,
 ) -> &'a LanCanonicalHouseholdDevice {
-    let selected_canonical_device_id = selected_canonical_device_id;
+    let selected_canonical_device_id = selected_canonical_device_id.into();
     read_model
         .canonical_household_devices
         .iter()

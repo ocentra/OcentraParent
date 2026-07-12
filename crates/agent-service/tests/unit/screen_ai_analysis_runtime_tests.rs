@@ -2,10 +2,9 @@
 mod test_invariants;
 
 use std::path::PathBuf as TestPathBuf;
-use std::string::String as TestString;
 use std::{
     fs,
-    path::{Path, TestPathBuf},
+    path::Path,
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -95,7 +94,7 @@ async fn screen_analysis_cycle_records_unavailable_result_and_removes_queue_entr
     assert_eq!(
         outcome,
         ScreenAiAnalysisCycleOutcome::ProviderUnavailable {
-            queue_job_id: queue_job_id.clone(),
+            queue_job_id: queue_job_id.to_string(),
         }
     );
     assert_queue_drained(&config);
@@ -124,7 +123,7 @@ async fn screen_analysis_cycle_publishes_row_ready_event_and_gates_missing_polic
     assert_eq!(
         outcome,
         ScreenAiAnalysisCycleOutcome::ProviderUnavailable {
-            queue_job_id: queue_job_id.clone(),
+            queue_job_id: queue_job_id.to_string(),
         }
     );
     assert_queue_drained(&config);
@@ -159,8 +158,8 @@ fn reset_test_path(path: &Path) {
     }
 }
 
-fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> TestString {
-    require_ok(
+fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> TestText {
+    TestText::from_display(require_ok(
         record_captured_screen_image_to_paths(ScreenAiServiceCaptureRecord {
             paths: ScreenAiServiceCapturePaths {
                 queue_dir: &config.queue_dir,
@@ -184,22 +183,28 @@ fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> TestString {
                 ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
         }),
         constants::error::ACTIVITY_STORE_INGESTS,
-    )
+    ))
 }
 
-fn analysis_clock(epoch_seconds: u64, timestamp: TestText) -> ScreenAiAnalysisCycleClock {
-    let timestamp = timestamp;
+fn analysis_clock(
+    epoch_seconds: u64,
+    timestamp: impl std::fmt::Display,
+) -> ScreenAiAnalysisCycleClock {
+    let timestamp = timestamp.to_string();
     ScreenAiAnalysisCycleClock {
         epoch_seconds,
-        timestamp: timestamp.as_str().to_string(),
+        timestamp,
     }
 }
 
-fn capture_clock(epoch_seconds: u64, timestamp: TestText) -> ScreenAiServiceCaptureClock {
-    let timestamp = timestamp;
+fn capture_clock(
+    epoch_seconds: u64,
+    timestamp: impl std::fmt::Display,
+) -> ScreenAiServiceCaptureClock {
+    let timestamp = timestamp.to_string();
     ScreenAiServiceCaptureClock {
         epoch_seconds,
-        timestamp: timestamp.as_str().to_string(),
+        timestamp,
     }
 }
 
@@ -214,8 +219,11 @@ fn assert_queue_drained(config: &ScreenAiAnalysisRuntimeConfig) {
     assert!(queue_record.trim().is_empty());
 }
 
-fn assert_queue_contains(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: TestText) {
-    let queue_job_id = queue_job_id;
+fn assert_queue_contains(
+    config: &ScreenAiAnalysisRuntimeConfig,
+    queue_job_id: impl std::fmt::Display,
+) {
+    let queue_job_id = queue_job_id.to_string();
     let queue_file = config
         .queue_dir
         .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
@@ -244,9 +252,9 @@ fn assert_queue_contains(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: T
 
 fn assert_only_service_metadata_summary(
     config: &ScreenAiAnalysisRuntimeConfig,
-    queue_job_id: TestText,
+    queue_job_id: impl std::fmt::Display,
 ) {
-    let queue_job_id = queue_job_id;
+    let queue_job_id = queue_job_id.to_string();
     let store = require_ok(
         ActivityStore::open(&config.store_path),
         constants::error::ACTIVITY_STORE_OPENS,
@@ -272,9 +280,9 @@ fn assert_only_service_metadata_summary(
 
 fn assert_unavailable_analysis_summary(
     config: &ScreenAiAnalysisRuntimeConfig,
-    queue_job_id: TestText,
+    queue_job_id: impl std::fmt::Display,
 ) {
-    let queue_job_id = queue_job_id;
+    let queue_job_id = queue_job_id.to_string();
     let store = require_ok(
         ActivityStore::open(&config.store_path),
         constants::error::ACTIVITY_STORE_OPENS,
@@ -326,13 +334,13 @@ fn captured_test_image() -> CapturedScreenImage {
     }
 }
 
-fn test_path(suffix: TestText) -> TestPathBuf {
-    let suffix = suffix;
+fn test_path(suffix: impl std::fmt::Display) -> TestPathBuf {
+    let suffix = suffix.to_string();
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
     path.push(std::process::id().to_string());
     path.push(SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED_ENV);
     path.push(TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
-    path.push(suffix.as_str());
+    path.push(suffix);
     path
 }

@@ -1,9 +1,5 @@
 import type { GeneratedLogLevel as LogLevelValue } from '../generated-logging-contracts';
-import {
-  createParentLogConfig,
-  isDevOrTestEnvironment,
-  type ParentLogConfig,
-} from './logConfig';
+import { createParentLogConfig, isDevOrTestEnvironment, type ParentLogConfig } from './logConfig';
 import {
   matchesGeneratedDebugSelection,
   shouldGeneratedLogToConsole,

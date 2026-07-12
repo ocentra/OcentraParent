@@ -70,8 +70,9 @@ pub fn billing_entitlement_proof_is_honest(proof: &BillingEntitlementProofWitnes
                 && decision.reason_code == "limit-exceeded"
                 && decision.active_device_count >= decision.plan_device_limit
         })
-        && proof
-            .billing_sync_events
-            .iter()
-            .all(|event| event.failure_state_retain_evidence_export_access.unwrap_or(true))
+        && proof.billing_sync_events.iter().all(|event| {
+            event
+                .failure_state_retain_evidence_export_access
+                .unwrap_or(true)
+        })
 }

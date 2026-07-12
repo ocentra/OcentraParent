@@ -29,7 +29,7 @@ pub(super) fn build_report_query_custody_proof(
 
     let mut seen_cursor_refs = BTreeSet::new();
     for row in &rows {
-        if !seen_cursor_refs.insert(row.cursor_ref.as_str().to_owned()) {
+        if !seen_cursor_refs.insert(row.cursor_ref.to_string()) {
             return Err(ReportQueryCustodyDerivationError::DuplicateCursorRef);
         }
     }

@@ -1,0 +1,30 @@
+function sourceRowMissingObservedAtFailureGenerated(
+  row: SourceStatusRowLike
+): SourceFreshnessRequirementFailure | null {
+  if (row.lastObservedAt === null) {
+    return {
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.MissingObservedAt,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.MissingObservedAt,
+    } as const;
+  }
+
+  return null;
+}
+
+function sourceRowStaleFailureGenerated(
+  row: SourceStatusRowLike,
+  evaluatedAt: unknown,
+  maxSourceAgeMs: number
+): SourceFreshnessRequirementFailure | null {
+  if (
+    row.state === AppGameSourceFreshnessReadModelStateGenerated.Stale ||
+    row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.Stale ||
+    !appGameSourceFreshnessRowIsFreshGenerated(row, evaluatedAt, maxSourceAgeMs)
+  ) {
+    return {
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.Stale,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.StaleSourceStatusRow,
+    } as const;
+  }
+
+  return null;

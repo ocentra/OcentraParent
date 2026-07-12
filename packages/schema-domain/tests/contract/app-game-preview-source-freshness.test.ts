@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AppGamePolicyPreviewHandoffReadModelSchema,
-} from '../../src/app-game-policy-preview-handoff';
+import { AppGamePolicyPreviewHandoffReadModelSchema } from '../../src/app-game-policy-preview-handoff';
 import {
   AppGameSourceFreshnessPolicyConsumptionMatrix,
   AppGameSourceFreshnessPolicyConsumptionRequests,

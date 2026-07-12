@@ -84,7 +84,7 @@ pub fn social_parent_notification_delivery_read_model_from_service(
 fn social_parent_notification_delivery_read_model_from_report_writer(
     report_writer_read_model: &SocialReportWriterDeliveryReadModel,
 ) -> SocialParentNotificationDeliveryReadinessSnapshot {
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     let rows = report_writer_read_model
         .rows
         .iter()
@@ -154,7 +154,7 @@ pub async fn request_social_parent_notification_delivery_read_model_from_service
     )
     .await?;
 
-    let requested_at = timestamp_now();
+    let requested_at: String = timestamp_now();
     let request = SocialParentNotificationDeliveryReadModelRequest {
         request_id: RequestId::parse(
             social_parent_notification_delivery_request_id(RequestedAtText(requested_at.clone())).0,
@@ -259,7 +259,7 @@ fn read_model_pairs(read_model: &SocialParentNotificationDeliveryReadinessSnapsh
         ),
         (
             constants::field::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL,
-            LogFieldValue::String(serialize_json_string(read_model)),
+            LogFieldValue::String(serialize_json_string(read_model).0),
         ),
     ])
 }

@@ -18,12 +18,18 @@ export const GeneratedParentEvidenceReferenceIdSchema = brandedNonEmptyStringSch
 export const GeneratedParentActionReferenceIdSchema = brandedNonEmptyStringSchema('ParentActionReferenceId');
 export const GeneratedParentTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
 export const GeneratedReportQueryCustodyRequestIdSchema = brandedNonEmptyStringSchema('ReportQueryCustodyRequestId');
-export const GeneratedReportQueryCustodyQueryCursorSchema = brandedNonEmptyStringSchema('ReportQueryCustodyQueryCursor');
+export const GeneratedReportQueryCustodyQueryCursorSchema = brandedNonEmptyStringSchema(
+  'ReportQueryCustodyQueryCursor'
+);
 export const GeneratedReportQueryCustodyCursorRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyCursorRef');
 export const GeneratedReportQueryCustodySortKeySchema = brandedNonEmptyStringSchema('ReportQueryCustodySortKey');
 export const GeneratedReportQueryCustodySourceRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodySourceRef');
-export const GeneratedReportQueryCustodyConflictRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyConflictRef');
-export const GeneratedReportQueryCustodyDeletedSourceRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyDeletedSourceRef');
+export const GeneratedReportQueryCustodyConflictRefSchema = brandedNonEmptyStringSchema(
+  'ReportQueryCustodyConflictRef'
+);
+export const GeneratedReportQueryCustodyDeletedSourceRefSchema = brandedNonEmptyStringSchema(
+  'ReportQueryCustodyDeletedSourceRef'
+);
 
 export type GeneratedParentAccountId = typeof GeneratedParentAccountIdSchema.Type;
 export type GeneratedFamilyId = typeof GeneratedFamilyIdSchema.Type;
@@ -82,8 +88,18 @@ export type GeneratedReportQueryCustodyNonClaim =
   | 'no-ocentra-hosted-family-data-custody';
 export type GeneratedReportQueryCustodyTombstoneState = 'not-required' | 'written';
 
-export const GeneratedParentPlatforms = ['windows', 'linux', 'macos', 'android', 'ios'] as const satisfies readonly GeneratedParentPlatform[];
-export const GeneratedParentActorRoles = ['parent', 'guardian', 'system'] as const satisfies readonly GeneratedParentActorRole[];
+export const GeneratedParentPlatforms = [
+  'windows',
+  'linux',
+  'macos',
+  'android',
+  'ios',
+] as const satisfies readonly GeneratedParentPlatform[];
+export const GeneratedParentActorRoles = [
+  'parent',
+  'guardian',
+  'system',
+] as const satisfies readonly GeneratedParentActorRole[];
 export const GeneratedParentEvidenceReferenceKinds = [
   'journal-event',
   'query-store-summary',
@@ -234,539 +250,459 @@ export interface GeneratedReportQueryCustodyContractProof {
 }
 
 export const GeneratedReportQueryCustodyKnownGaps = [
-  "No uncontrolled second truth store is claimed for report or query custody.",
-  "No portal rendering, provider routing, or raw child evidence handling is claimed.",
-  "Pagination is modeled as stable derived state over governed evidence, not a second report store.",
-  "Delete, tombstone, stale, conflict, and rate-limit outcomes stay explicit and claim-safe.",
-  "Assistant and report citations stay inside query-store-summary evidence refs only.",
+  'No uncontrolled second truth store is claimed for report or query custody.',
+  'No portal rendering, provider routing, or raw child evidence handling is claimed.',
+  'Pagination is modeled as stable derived state over governed evidence, not a second report store.',
+  'Delete, tombstone, stale, conflict, and rate-limit outcomes stay explicit and claim-safe.',
+  'Assistant and report citations stay inside query-store-summary evidence refs only.',
 ] as const;
 
 export const GeneratedReportQueryCustodyContractProof = {
-  "schemaVersion": "report-query-custody-proof",
-  "contractVersion": "v0.6",
-  "request": {
-    "schemaVersion": "report-query-custody-proof",
-    "requestId": "report-query-custody-request-proof-1",
-    "family": {
-      "familyId": "family-report-query-custody-proof-1"
+  schemaVersion: 'report-query-custody-proof',
+  contractVersion: 'v0.6',
+  request: {
+    schemaVersion: 'report-query-custody-proof',
+    requestId: 'report-query-custody-request-proof-1',
+    family: {
+      familyId: 'family-report-query-custody-proof-1',
     },
-    "account": {
-      "parentAccountId": "parent-account-report-query-custody-proof-1"
+    account: {
+      parentAccountId: 'parent-account-report-query-custody-proof-1',
     },
-    "device": {
-      "deviceId": "windows-parent-device-report-query-custody-proof-1",
-      "childProfileId": null,
-      "label": "Windows parent device report query custody proof",
-      "platform": "windows"
+    device: {
+      deviceId: 'windows-parent-device-report-query-custody-proof-1',
+      childProfileId: null,
+      label: 'Windows parent device report query custody proof',
+      platform: 'windows',
     },
-    "parentAction": {
-      "actionReferenceId": "parent-action-report-query-custody-proof-1",
-      "actor": {
-        "actorId": "parent-report-query-custody-proof-1",
-        "role": "parent"
+    parentAction: {
+      actionReferenceId: 'parent-action-report-query-custody-proof-1',
+      actor: {
+        actorId: 'parent-report-query-custody-proof-1',
+        role: 'parent',
       },
-      "policyVersion": "report-query-custody-proof-v1",
-      "createdAt": "2026-06-28T15:55:00.000Z"
+      policyVersion: 'report-query-custody-proof-v1',
+      createdAt: '2026-06-28T15:55:00.000Z',
     },
-    "requestedCursor": "report-query-custody-cursor-proof-1",
-    "pageSize": 25,
-    "requestedDataClasses": [
-      "sqlite-query-row",
-      "notification-history",
-      "audit-event",
-      "generated-summary"
-    ],
-    "allowedSourceDataClasses": [
-      "sqlite-query-row",
-      "notification-history",
-      "audit-event",
-      "generated-summary"
-    ],
-    "sourceCitationRefs": [
+    requestedCursor: 'report-query-custody-cursor-proof-1',
+    pageSize: 25,
+    requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+    allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+    sourceCitationRefs: [
       {
-        "evidenceReferenceId": "report-query-custody-evidence-1",
-        "kind": "query-store-summary",
-        "observedAt": "2026-06-28T15:55:00.000Z"
+        evidenceReferenceId: 'report-query-custody-evidence-1',
+        kind: 'query-store-summary',
+        observedAt: '2026-06-28T15:55:00.000Z',
       },
       {
-        "evidenceReferenceId": "report-query-custody-evidence-2",
-        "kind": "query-store-summary",
-        "observedAt": "2026-06-28T15:55:00.000Z"
-      }
+        evidenceReferenceId: 'report-query-custody-evidence-2',
+        kind: 'query-store-summary',
+        observedAt: '2026-06-28T15:55:00.000Z',
+      },
     ],
-    "assistantCitationRefs": [
+    assistantCitationRefs: [
       {
-        "evidenceReferenceId": "report-query-custody-evidence-1",
-        "kind": "query-store-summary",
-        "observedAt": "2026-06-28T15:55:00.000Z"
+        evidenceReferenceId: 'report-query-custody-evidence-1',
+        kind: 'query-store-summary',
+        observedAt: '2026-06-28T15:55:00.000Z',
       },
       {
-        "evidenceReferenceId": "report-query-custody-evidence-2",
-        "kind": "query-store-summary",
-        "observedAt": "2026-06-28T15:55:00.000Z"
-      }
+        evidenceReferenceId: 'report-query-custody-evidence-2',
+        kind: 'query-store-summary',
+        observedAt: '2026-06-28T15:55:00.000Z',
+      },
     ],
-    "notificationPayloadBoundary": "parent-owned-citations-only",
-    "parentAuthorized": true,
-    "parentOwnedSourceRequired": true,
-    "rawChildEvidenceRequested": false
+    notificationPayloadBoundary: 'parent-owned-citations-only',
+    parentAuthorized: true,
+    parentOwnedSourceRequired: true,
+    rawChildEvidenceRequested: false,
   },
-  "rows": [
+  rows: [
     {
-      "rowId": "report-query-custody-row-derivedFresh",
-      "requestId": "report-query-custody-request-proof-1",
-      "state": "derivedFresh",
-      "sourceFreshness": "fresh",
-      "sourceDataClass": "sqlite-query-row",
-      "cursorRef": "report-query-custody-cursor-derivedFresh",
-      "sourceCursorRef": "report-query-custody-source-cursor-proof-1",
-      "nextCursorRef": "derived-fresh-next-cursor",
-      "pageIndex": 1,
-      "pageSize": 25,
-      "stableSortKey": "report-query-custody-stable-sort-key",
-      "requestedDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "allowedSourceDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "sourceCitationRefs": [
+      rowId: 'report-query-custody-row-derivedFresh',
+      requestId: 'report-query-custody-request-proof-1',
+      state: 'derivedFresh',
+      sourceFreshness: 'fresh',
+      sourceDataClass: 'sqlite-query-row',
+      cursorRef: 'report-query-custody-cursor-derivedFresh',
+      sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
+      nextCursorRef: 'derived-fresh-next-cursor',
+      pageIndex: 1,
+      pageSize: 25,
+      stableSortKey: 'report-query-custody-stable-sort-key',
+      requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      sourceCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "assistantCitationRefs": [
+      assistantCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "notificationPayloadBoundary": "parent-owned-citations-only",
-      "payloadRedactionState": "fully-redacted",
-      "tombstoneState": "not-required",
-      "deletedSourceRef": null,
-      "deletedSourceAt": null,
-      "conflictRef": null,
-      "cursorExpiredAt": null,
-      "rateLimitedUntilAt": null,
-      "parentAuthorized": true,
-      "parentOwnedSourceRequired": true,
-      "rawChildEvidenceIncluded": false,
-      "reportCacheMutated": false,
-      "secondTruthStoreClaimed": false,
-      "claimSafe": true
+      notificationPayloadBoundary: 'parent-owned-citations-only',
+      payloadRedactionState: 'fully-redacted',
+      tombstoneState: 'not-required',
+      deletedSourceRef: null,
+      deletedSourceAt: null,
+      conflictRef: null,
+      cursorExpiredAt: null,
+      rateLimitedUntilAt: null,
+      parentAuthorized: true,
+      parentOwnedSourceRequired: true,
+      rawChildEvidenceIncluded: false,
+      reportCacheMutated: false,
+      secondTruthStoreClaimed: false,
+      claimSafe: true,
     },
     {
-      "rowId": "report-query-custody-row-derivedStale",
-      "requestId": "report-query-custody-request-proof-1",
-      "state": "derivedStale",
-      "sourceFreshness": "stale",
-      "sourceDataClass": "generated-summary",
-      "cursorRef": "report-query-custody-cursor-derivedStale",
-      "sourceCursorRef": "report-query-custody-source-cursor-proof-1",
-      "nextCursorRef": "derived-stale-next-cursor",
-      "pageIndex": 2,
-      "pageSize": 25,
-      "stableSortKey": "report-query-custody-stable-sort-key",
-      "requestedDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "allowedSourceDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "sourceCitationRefs": [
+      rowId: 'report-query-custody-row-derivedStale',
+      requestId: 'report-query-custody-request-proof-1',
+      state: 'derivedStale',
+      sourceFreshness: 'stale',
+      sourceDataClass: 'generated-summary',
+      cursorRef: 'report-query-custody-cursor-derivedStale',
+      sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
+      nextCursorRef: 'derived-stale-next-cursor',
+      pageIndex: 2,
+      pageSize: 25,
+      stableSortKey: 'report-query-custody-stable-sort-key',
+      requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      sourceCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "assistantCitationRefs": [
+      assistantCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "notificationPayloadBoundary": "parent-owned-citations-only",
-      "payloadRedactionState": "fully-redacted",
-      "tombstoneState": "not-required",
-      "deletedSourceRef": null,
-      "deletedSourceAt": null,
-      "conflictRef": null,
-      "cursorExpiredAt": null,
-      "rateLimitedUntilAt": null,
-      "parentAuthorized": true,
-      "parentOwnedSourceRequired": true,
-      "rawChildEvidenceIncluded": false,
-      "reportCacheMutated": false,
-      "secondTruthStoreClaimed": false,
-      "claimSafe": true
+      notificationPayloadBoundary: 'parent-owned-citations-only',
+      payloadRedactionState: 'fully-redacted',
+      tombstoneState: 'not-required',
+      deletedSourceRef: null,
+      deletedSourceAt: null,
+      conflictRef: null,
+      cursorExpiredAt: null,
+      rateLimitedUntilAt: null,
+      parentAuthorized: true,
+      parentOwnedSourceRequired: true,
+      rawChildEvidenceIncluded: false,
+      reportCacheMutated: false,
+      secondTruthStoreClaimed: false,
+      claimSafe: true,
     },
     {
-      "rowId": "report-query-custody-row-partiallyRedacted",
-      "requestId": "report-query-custody-request-proof-1",
-      "state": "partiallyRedacted",
-      "sourceFreshness": "stale",
-      "sourceDataClass": "notification-history",
-      "cursorRef": "report-query-custody-cursor-partiallyRedacted",
-      "sourceCursorRef": "report-query-custody-source-cursor-proof-1",
-      "nextCursorRef": "partially-redacted-next-cursor",
-      "pageIndex": 3,
-      "pageSize": 25,
-      "stableSortKey": "report-query-custody-stable-sort-key",
-      "requestedDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "allowedSourceDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "sourceCitationRefs": [
+      rowId: 'report-query-custody-row-partiallyRedacted',
+      requestId: 'report-query-custody-request-proof-1',
+      state: 'partiallyRedacted',
+      sourceFreshness: 'stale',
+      sourceDataClass: 'notification-history',
+      cursorRef: 'report-query-custody-cursor-partiallyRedacted',
+      sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
+      nextCursorRef: 'partially-redacted-next-cursor',
+      pageIndex: 3,
+      pageSize: 25,
+      stableSortKey: 'report-query-custody-stable-sort-key',
+      requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      sourceCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "assistantCitationRefs": [
+      assistantCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "notificationPayloadBoundary": "parent-owned-citations-only",
-      "payloadRedactionState": "partially-redacted",
-      "tombstoneState": "not-required",
-      "deletedSourceRef": null,
-      "deletedSourceAt": null,
-      "conflictRef": null,
-      "cursorExpiredAt": null,
-      "rateLimitedUntilAt": null,
-      "parentAuthorized": true,
-      "parentOwnedSourceRequired": true,
-      "rawChildEvidenceIncluded": false,
-      "reportCacheMutated": false,
-      "secondTruthStoreClaimed": false,
-      "claimSafe": true
+      notificationPayloadBoundary: 'parent-owned-citations-only',
+      payloadRedactionState: 'partially-redacted',
+      tombstoneState: 'not-required',
+      deletedSourceRef: null,
+      deletedSourceAt: null,
+      conflictRef: null,
+      cursorExpiredAt: null,
+      rateLimitedUntilAt: null,
+      parentAuthorized: true,
+      parentOwnedSourceRequired: true,
+      rawChildEvidenceIncluded: false,
+      reportCacheMutated: false,
+      secondTruthStoreClaimed: false,
+      claimSafe: true,
     },
     {
-      "rowId": "report-query-custody-row-deletedSource",
-      "requestId": "report-query-custody-request-proof-1",
-      "state": "deletedSource",
-      "sourceFreshness": "deleted",
-      "sourceDataClass": "audit-event",
-      "cursorRef": "report-query-custody-cursor-deletedSource",
-      "sourceCursorRef": "report-query-custody-source-cursor-proof-1",
-      "nextCursorRef": null,
-      "pageIndex": 4,
-      "pageSize": 25,
-      "stableSortKey": "report-query-custody-stable-sort-key",
-      "requestedDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "allowedSourceDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "sourceCitationRefs": [
+      rowId: 'report-query-custody-row-deletedSource',
+      requestId: 'report-query-custody-request-proof-1',
+      state: 'deletedSource',
+      sourceFreshness: 'deleted',
+      sourceDataClass: 'audit-event',
+      cursorRef: 'report-query-custody-cursor-deletedSource',
+      sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
+      nextCursorRef: null,
+      pageIndex: 4,
+      pageSize: 25,
+      stableSortKey: 'report-query-custody-stable-sort-key',
+      requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      sourceCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "assistantCitationRefs": [
+      assistantCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "notificationPayloadBoundary": "parent-owned-citations-only",
-      "payloadRedactionState": "fully-redacted",
-      "tombstoneState": "written",
-      "deletedSourceRef": "deleted-source-ref-1",
-      "deletedSourceAt": "2026-06-28T15:57:00.000Z",
-      "conflictRef": null,
-      "cursorExpiredAt": null,
-      "rateLimitedUntilAt": null,
-      "parentAuthorized": true,
-      "parentOwnedSourceRequired": true,
-      "rawChildEvidenceIncluded": false,
-      "reportCacheMutated": false,
-      "secondTruthStoreClaimed": false,
-      "claimSafe": true
+      notificationPayloadBoundary: 'parent-owned-citations-only',
+      payloadRedactionState: 'fully-redacted',
+      tombstoneState: 'written',
+      deletedSourceRef: 'deleted-source-ref-1',
+      deletedSourceAt: '2026-06-28T15:57:00.000Z',
+      conflictRef: null,
+      cursorExpiredAt: null,
+      rateLimitedUntilAt: null,
+      parentAuthorized: true,
+      parentOwnedSourceRequired: true,
+      rawChildEvidenceIncluded: false,
+      reportCacheMutated: false,
+      secondTruthStoreClaimed: false,
+      claimSafe: true,
     },
     {
-      "rowId": "report-query-custody-row-syncConflict",
-      "requestId": "report-query-custody-request-proof-1",
-      "state": "syncConflict",
-      "sourceFreshness": "conflicted",
-      "sourceDataClass": "sqlite-query-row",
-      "cursorRef": "report-query-custody-cursor-syncConflict",
-      "sourceCursorRef": "report-query-custody-source-cursor-proof-1",
-      "nextCursorRef": "sync-conflict-next-cursor",
-      "pageIndex": 5,
-      "pageSize": 25,
-      "stableSortKey": "report-query-custody-stable-sort-key",
-      "requestedDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "allowedSourceDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "sourceCitationRefs": [
+      rowId: 'report-query-custody-row-syncConflict',
+      requestId: 'report-query-custody-request-proof-1',
+      state: 'syncConflict',
+      sourceFreshness: 'conflicted',
+      sourceDataClass: 'sqlite-query-row',
+      cursorRef: 'report-query-custody-cursor-syncConflict',
+      sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
+      nextCursorRef: 'sync-conflict-next-cursor',
+      pageIndex: 5,
+      pageSize: 25,
+      stableSortKey: 'report-query-custody-stable-sort-key',
+      requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      sourceCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "assistantCitationRefs": [
+      assistantCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "notificationPayloadBoundary": "parent-owned-citations-only",
-      "payloadRedactionState": "fully-redacted",
-      "tombstoneState": "not-required",
-      "deletedSourceRef": null,
-      "deletedSourceAt": null,
-      "conflictRef": "conflict-ref-1",
-      "cursorExpiredAt": null,
-      "rateLimitedUntilAt": null,
-      "parentAuthorized": true,
-      "parentOwnedSourceRequired": true,
-      "rawChildEvidenceIncluded": false,
-      "reportCacheMutated": false,
-      "secondTruthStoreClaimed": false,
-      "claimSafe": true
+      notificationPayloadBoundary: 'parent-owned-citations-only',
+      payloadRedactionState: 'fully-redacted',
+      tombstoneState: 'not-required',
+      deletedSourceRef: null,
+      deletedSourceAt: null,
+      conflictRef: 'conflict-ref-1',
+      cursorExpiredAt: null,
+      rateLimitedUntilAt: null,
+      parentAuthorized: true,
+      parentOwnedSourceRequired: true,
+      rawChildEvidenceIncluded: false,
+      reportCacheMutated: false,
+      secondTruthStoreClaimed: false,
+      claimSafe: true,
     },
     {
-      "rowId": "report-query-custody-row-cursorExpired",
-      "requestId": "report-query-custody-request-proof-1",
-      "state": "cursorExpired",
-      "sourceFreshness": "expired",
-      "sourceDataClass": "generated-summary",
-      "cursorRef": "report-query-custody-cursor-cursorExpired",
-      "sourceCursorRef": "report-query-custody-source-cursor-proof-1",
-      "nextCursorRef": null,
-      "pageIndex": 6,
-      "pageSize": 25,
-      "stableSortKey": "report-query-custody-stable-sort-key",
-      "requestedDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "allowedSourceDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "sourceCitationRefs": [
+      rowId: 'report-query-custody-row-cursorExpired',
+      requestId: 'report-query-custody-request-proof-1',
+      state: 'cursorExpired',
+      sourceFreshness: 'expired',
+      sourceDataClass: 'generated-summary',
+      cursorRef: 'report-query-custody-cursor-cursorExpired',
+      sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
+      nextCursorRef: null,
+      pageIndex: 6,
+      pageSize: 25,
+      stableSortKey: 'report-query-custody-stable-sort-key',
+      requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      sourceCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "assistantCitationRefs": [
+      assistantCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "notificationPayloadBoundary": "parent-owned-citations-only",
-      "payloadRedactionState": "fully-redacted",
-      "tombstoneState": "not-required",
-      "deletedSourceRef": null,
-      "deletedSourceAt": null,
-      "conflictRef": null,
-      "cursorExpiredAt": "2026-06-28T15:59:00.000Z",
-      "rateLimitedUntilAt": null,
-      "parentAuthorized": true,
-      "parentOwnedSourceRequired": true,
-      "rawChildEvidenceIncluded": false,
-      "reportCacheMutated": false,
-      "secondTruthStoreClaimed": false,
-      "claimSafe": true
+      notificationPayloadBoundary: 'parent-owned-citations-only',
+      payloadRedactionState: 'fully-redacted',
+      tombstoneState: 'not-required',
+      deletedSourceRef: null,
+      deletedSourceAt: null,
+      conflictRef: null,
+      cursorExpiredAt: '2026-06-28T15:59:00.000Z',
+      rateLimitedUntilAt: null,
+      parentAuthorized: true,
+      parentOwnedSourceRequired: true,
+      rawChildEvidenceIncluded: false,
+      reportCacheMutated: false,
+      secondTruthStoreClaimed: false,
+      claimSafe: true,
     },
     {
-      "rowId": "report-query-custody-row-rateLimited",
-      "requestId": "report-query-custody-request-proof-1",
-      "state": "rateLimited",
-      "sourceFreshness": "rate-limited",
-      "sourceDataClass": "notification-history",
-      "cursorRef": "report-query-custody-cursor-rateLimited",
-      "sourceCursorRef": "report-query-custody-source-cursor-proof-1",
-      "nextCursorRef": null,
-      "pageIndex": 7,
-      "pageSize": 25,
-      "stableSortKey": "report-query-custody-stable-sort-key",
-      "requestedDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "allowedSourceDataClasses": [
-        "sqlite-query-row",
-        "notification-history",
-        "audit-event",
-        "generated-summary"
-      ],
-      "sourceCitationRefs": [
+      rowId: 'report-query-custody-row-rateLimited',
+      requestId: 'report-query-custody-request-proof-1',
+      state: 'rateLimited',
+      sourceFreshness: 'rate-limited',
+      sourceDataClass: 'notification-history',
+      cursorRef: 'report-query-custody-cursor-rateLimited',
+      sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
+      nextCursorRef: null,
+      pageIndex: 7,
+      pageSize: 25,
+      stableSortKey: 'report-query-custody-stable-sort-key',
+      requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
+      sourceCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "assistantCitationRefs": [
+      assistantCitationRefs: [
         {
-          "evidenceReferenceId": "report-query-custody-evidence-1",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
+          evidenceReferenceId: 'report-query-custody-evidence-1',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
         },
         {
-          "evidenceReferenceId": "report-query-custody-evidence-2",
-          "kind": "query-store-summary",
-          "observedAt": "2026-06-28T15:55:00.000Z"
-        }
+          evidenceReferenceId: 'report-query-custody-evidence-2',
+          kind: 'query-store-summary',
+          observedAt: '2026-06-28T15:55:00.000Z',
+        },
       ],
-      "notificationPayloadBoundary": "parent-owned-citations-only",
-      "payloadRedactionState": "fully-redacted",
-      "tombstoneState": "not-required",
-      "deletedSourceRef": null,
-      "deletedSourceAt": null,
-      "conflictRef": null,
-      "cursorExpiredAt": null,
-      "rateLimitedUntilAt": "2026-06-28T16:05:00.000Z",
-      "parentAuthorized": true,
-      "parentOwnedSourceRequired": true,
-      "rawChildEvidenceIncluded": false,
-      "reportCacheMutated": false,
-      "secondTruthStoreClaimed": false,
-      "claimSafe": true
-    }
+      notificationPayloadBoundary: 'parent-owned-citations-only',
+      payloadRedactionState: 'fully-redacted',
+      tombstoneState: 'not-required',
+      deletedSourceRef: null,
+      deletedSourceAt: null,
+      conflictRef: null,
+      cursorExpiredAt: null,
+      rateLimitedUntilAt: '2026-06-28T16:05:00.000Z',
+      parentAuthorized: true,
+      parentOwnedSourceRequired: true,
+      rawChildEvidenceIncluded: false,
+      reportCacheMutated: false,
+      secondTruthStoreClaimed: false,
+      claimSafe: true,
+    },
   ],
-  "nonClaims": [
-    "no-second-truth-store",
-    "no-portal-ui",
-    "no-raw-child-evidence",
-    "no-unbounded-pagination",
-    "no-provider-routing",
-    "no-ocentra-hosted-family-data-custody"
+  nonClaims: [
+    'no-second-truth-store',
+    'no-portal-ui',
+    'no-raw-child-evidence',
+    'no-unbounded-pagination',
+    'no-provider-routing',
+    'no-ocentra-hosted-family-data-custody',
   ],
-  "reportRuntimeClaimed": false,
-  "portalUiClaimed": false,
-  "providerRoutingClaimed": false,
-  "ocentraHostedFamilyDataCustodyClaimed": false,
-  "secondTruthStoreClaimed": false,
-  "rawChildEvidenceClaimed": false,
-  "updatedAt": "2026-06-28T15:55:00.000Z"
+  reportRuntimeClaimed: false,
+  portalUiClaimed: false,
+  providerRoutingClaimed: false,
+  ocentraHostedFamilyDataCustodyClaimed: false,
+  secondTruthStoreClaimed: false,
+  rawChildEvidenceClaimed: false,
+  updatedAt: '2026-06-28T15:55:00.000Z',
 } as const;

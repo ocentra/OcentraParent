@@ -8,6 +8,7 @@ use crate::{
     local_ai_chat_generation_args::llama_acceleration_args,
     local_ai_runtime_acceleration_config::LocalAiRuntimeAccelerationConfig,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_config_values::{LocalAiRuntimePath, LocalAiRuntimeText},
     local_ai_runtime_status::local_ai_runtime_status_from_config,
     local_ai_runtime_status_tests::{remove_temp_file, write_temp_file},
 };
@@ -17,8 +18,8 @@ fn gpu_runtime_configuration_reports_gpu_resource_class() {
     let binary = write_temp_file(constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI);
     let model = write_temp_file(constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED);
     let config = LocalAiRuntimeConfigSnapshot::from_parts_with_execution(
-        Some(binary.clone()),
-        Some(model.clone()),
+        Some(LocalAiRuntimePath(binary.clone())),
+        Some(LocalAiRuntimePath(model.clone())),
         None,
         None,
         true,
@@ -101,7 +102,7 @@ fn llama_acceleration_args_include_split_and_offload_controls() {
     let args = llama_acceleration_args(&config);
 
     assert_eq!(
-        args,
+        args.into_iter().collect::<Vec<_>>(),
         [
             constants::local_ai_runtime::LLAMA_ARG_DEVICE,
             constants::local_ai_runtime::TEST_RUNTIME_DEVICE_VULKAN0,
@@ -122,7 +123,7 @@ fn llama_acceleration_args_include_split_and_offload_controls() {
             constants::local_ai_runtime::LLAMA_ARG_CPU_MOE_LAYERS,
             constants::local_ai_runtime::TEST_CPU_MOE_LAYERS_2,
         ]
-        .map(str::to_string)
+        .map(LocalAiRuntimeText::from)
     );
 }
 
@@ -157,8 +158,8 @@ fn acceleration_config_from_environment_parses_safe_gpu_controls() {
 
 fn execution_config(binary: TestPathBuf, model: TestPathBuf) -> LocalAiRuntimeConfigSnapshot {
     LocalAiRuntimeConfigSnapshot::from_parts_with_execution(
-        Some(binary),
-        Some(model),
+        Some(LocalAiRuntimePath(binary)),
+        Some(LocalAiRuntimePath(model)),
         None,
         None,
         true,

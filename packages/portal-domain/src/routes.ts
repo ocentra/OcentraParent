@@ -6,7 +6,10 @@ import {
   PortalRouteSchema as SharedPortalRouteSchema,
   type PortalRoute as PortalRouteValue,
 } from './portal-contract-adapter';
-import { PortalDevToolUrlSchema as SharedPortalDevToolUrlSchema, type PortalDevToolUrl } from './portal-contract-text-contracts';
+import {
+  PortalDevToolUrlSchema as SharedPortalDevToolUrlSchema,
+  type PortalDevToolUrl,
+} from './portal-contract-text-contracts';
 import { generatedPortalRouteFromHashPath } from './portal-route-state.generated';
 
 export type PortalRouteHashPath = `${typeof PortalRouteHashPrefix}${PortalRouteValue}`;

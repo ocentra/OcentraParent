@@ -282,14 +282,17 @@ function PortalAppLayoutPane({
           onReset={onResetContent}
         />
       ) : null}
-      {section !== PortalFrameTuner.AppLayoutSection.Colors &&
-      section !== PortalFrameTuner.AppLayoutSection.Content ? (
+      {section !== PortalFrameTuner.AppLayoutSection.Colors && section !== PortalFrameTuner.AppLayoutSection.Content ? (
         <NumberControlSection
           defaultRoot={defaultControls}
           fields={activeNumberFields}
           onChange={onNumberChange}
           root={controls}
-          title={section === PortalFrameTuner.AppLayoutSection.Chrome ? PortalFrameTuner.Text.AppLayoutChrome : activeSectionLabel}
+          title={
+            section === PortalFrameTuner.AppLayoutSection.Chrome
+              ? PortalFrameTuner.Text.AppLayoutChrome
+              : activeSectionLabel
+          }
         />
       ) : null}
     </div>

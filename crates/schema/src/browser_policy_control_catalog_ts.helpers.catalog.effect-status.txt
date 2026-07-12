@@ -9,7 +9,11 @@ export function effectStatusForSectionGenerated(
   if (/Never-Collect|Portal Display|Child-Facing|Report|Audit|Custody|Retention|Data Minimization/u.test(searchable)) {
     return 'already-represented';
   }
-  if (/Exact URL|active tab|page title|download source|browser evidence|required proof|proof requirement/iu.test(searchable)) {
+  if (
+    /Exact URL|active tab|page title|download source|browser evidence|required proof|proof requirement/iu.test(
+      searchable
+    )
+  ) {
     return 'proof-required';
   }
   if (/Private|Tor|permission|protected browser/iu.test(searchable)) {
@@ -23,4 +27,3 @@ export function effectStatusForSectionGenerated(
   }
   return 'needs-effect-wiring';
 }
-

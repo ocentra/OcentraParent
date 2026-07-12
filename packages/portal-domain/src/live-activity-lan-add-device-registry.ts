@@ -24,8 +24,22 @@ export type PortalLanDiscoverySourceMatrixWorkpackRow = GeneratedPortalLanDiscov
 export type PortalLanDiscoverySourceMatrixSourceRow = GeneratedPortalLanDiscoverySourceMatrixSourceRowSnapshot;
 export type PortalLanDiscoverySourceMatrix = GeneratedPortalLanDiscoverySourceMatrixSnapshot;
 
-const PortalLanDiscoverySourceStringFields = ['source', 'workpackId', 'status', 'authority', 'runtimePath', 'uiSurface', 'evidenceLabel'] as const;
-const PortalLanDiscoverySourceBooleanFields = ['canConfirmChildAgent', 'canAssignChildProfile', 'canControlRoute', 'requiresSelectedInterface', 'persistsAcrossRestart'] as const;
+const PortalLanDiscoverySourceStringFields = [
+  'source',
+  'workpackId',
+  'status',
+  'authority',
+  'runtimePath',
+  'uiSurface',
+  'evidenceLabel',
+] as const;
+const PortalLanDiscoverySourceBooleanFields = [
+  'canConfirmChildAgent',
+  'canAssignChildProfile',
+  'canControlRoute',
+  'requiresSelectedInterface',
+  'persistsAcrossRestart',
+] as const;
 const PortalLanTrustedDeviceStringFields = ['pairingId', 'routeId', 'trustState', 'trustedAt', 'expiresAt'] as const;
 const PortalLanDecisionStringFields = ['actionKind', 'canonicalDeviceId', 'decidedAt'] as const;
 const PortalLanDecisionNullableStringFields = ['childProfileId', 'displayName', 'deviceKind', 'revokedAt'] as const;
@@ -104,9 +118,7 @@ function normalizePortalLanDiscoverySourceRow(value: unknown): PortalLanDiscover
   return value as unknown as PortalLanDiscoverySourceMatrixSourceRow;
 }
 
-function hasPortalLanDiscoverySourceRowFields(
-  raw: Record<string, unknown>
-): boolean {
+function hasPortalLanDiscoverySourceRowFields(raw: Record<string, unknown>): boolean {
   return (
     recordHasStringFields(raw, PortalLanDiscoverySourceStringFields) &&
     recordHasBooleanFields(raw, PortalLanDiscoverySourceBooleanFields)
@@ -141,12 +153,7 @@ function normalizePortalLanTrustedDeviceRegistryEntry(value: unknown): PortalLan
 }
 
 function normalizePortalLanDeviceRef(value: unknown): PortalLanPairingDeviceRef | null {
-  if (
-    !isRecord(value) ||
-    !isString(value['deviceId']) ||
-    !isString(value['label']) ||
-    !isString(value['platform'])
-  ) {
+  if (!isRecord(value) || !isString(value['deviceId']) || !isString(value['label']) || !isString(value['platform'])) {
     return null;
   }
   return {

@@ -3,13 +3,30 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
-#[path = "../support/time.rs"]
+#[path = "../../src/browser_policy_compiler.rs"]
+mod browser_policy_compiler;
+#[path = "../../src/browser_policy_compiler_assessment.rs"]
+mod browser_policy_compiler_assessment;
+#[path = "../../src/browser_policy_runtime_support.rs"]
+mod browser_policy_runtime_support;
+#[path = "../../src/browser_policy_store.rs"]
+mod browser_policy_store;
+#[path = "../../src/json_contract.rs"]
+mod json_contract;
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+#[path = "../support/browser_policy_test_support.rs"]
+mod test_support;
+#[path = "../support/test_text.rs"]
+mod test_text;
+#[path = "../../src/time.rs"]
 mod time;
+
+use ocentra_parent_agent_protocol::constants;
 
 #[cfg(test)]
 mod clippy_linkage {
-    use std::string::String as TestString;
-
+    use crate::browser_policy_runtime_support::BrowserPolicyRevisionId;
     use crate::browser_policy_store::{BrowserPolicyRevisionRecord, BrowserPolicyStoredState};
     use crate::test_invariants::{
         require_json_decode, require_log_string_field, require_ok, require_some,
@@ -24,7 +41,9 @@ mod clippy_linkage {
     fn browser_inventory_read_model_helpers_are_linked() {
         let empty_state = BrowserPolicyStoredState::empty();
         assert!(empty_state.active_revision().is_none());
-        assert!(empty_state.revision_by_id("missing").is_none());
+        assert!(empty_state
+            .revision_by_id(&BrowserPolicyRevisionId("missing".to_string()))
+            .is_none());
 
         let (revision_id, state) = linked_browser_policy_state();
         let active = require_some(
@@ -49,36 +68,39 @@ mod clippy_linkage {
         let _: serde_json::Value = crate::json_contract::serialize_json_value(serde_json::json!({
             "browser_inventory_read_model": true,
         }));
-        let _ = crate::time::timestamp_from_epoch_seconds(0);
-        let _ = crate::time::timestamp_after_epoch_seconds(0, 1);
+        let _: String = crate::time::timestamp_from_epoch_seconds(0);
+        let _: String = crate::time::timestamp_after_epoch_seconds(0, 1);
 
         assert_eq!(active.revision_id, revision.revision_id);
         assert_eq!(
             state.active_revision_id.as_deref(),
-            Some(revision_id.as_str())
+            Some(revision_id.0.as_str())
         );
-        assert_eq!(string_value, encoded);
+        assert_eq!(string_value.as_str(), encoded.as_str());
         assert!(parsed.is_object());
     }
 
-    fn linked_browser_policy_state() -> (TestString, BrowserPolicyStoredState) {
+    fn linked_browser_policy_state() -> (BrowserPolicyRevisionId, BrowserPolicyStoredState) {
         let policy = default_browser_policy_for_test(
             crate::test_support::default_browser_policy_id_for_test(),
         );
         let effective_policy = require_ok(
             crate::browser_policy_compiler::compile_browser_policy(
                 &policy,
-                constants::browser_policy::REVISION_ID,
-                constants::browser_policy::TEST_SENT_AT,
+                crate::browser_policy_compiler::BrowserPolicyCompileRequest {
+                    revision_id: constants::browser_policy::REVISION_ID,
+                    compiled_at: constants::browser_policy::TEST_SENT_AT,
+                },
             ),
             constants::error::AGENT_EVENT_SERIALIZES,
         );
-        let revision_id = format!("{}1", constants::browser_policy::REVISION_PREFIX);
+        let revision_id =
+            BrowserPolicyRevisionId(format!("{}1", constants::browser_policy::REVISION_PREFIX));
         let state = BrowserPolicyStoredState {
             schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-            active_revision_id: Some(revision_id.clone()),
+            active_revision_id: Some(revision_id.0.clone()),
             revisions: vec![BrowserPolicyRevisionRecord {
-                revision_id: revision_id.clone(),
+                revision_id: revision_id.0.clone(),
                 policy,
                 effective_policy,
                 created_at: constants::browser_policy::TEST_SENT_AT.to_string(),
@@ -88,7 +110,7 @@ mod clippy_linkage {
                 audit_event_id: constants::browser_policy::REQUEST_ID.to_string(),
                 request_id: constants::browser_policy::REQUEST_ID.to_string(),
                 kind: BrowserPolicyUpdateKind::Preview,
-                revision_id: revision_id.clone(),
+                revision_id: revision_id.0.clone(),
                 created_at: constants::browser_policy::TEST_SENT_AT.to_string(),
             }],
         };

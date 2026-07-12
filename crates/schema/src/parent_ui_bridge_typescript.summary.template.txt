@@ -1,0 +1,124 @@
+  readonly label: string;
+  readonly value: string;
+}
+
+export interface ParentScreenSummaryPanelRowSnapshot {
+  readonly title: string;
+  readonly details: readonly ParentScreenSummaryPanelDetailSnapshot[];
+}
+
+export interface ParentScreenSummaryPanelSnapshot {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly body: string;
+  readonly loadState: string;
+  readonly summaryDetails: readonly ParentScreenSummaryPanelDetailSnapshot[];
+  readonly rows: readonly ParentScreenSummaryPanelRowSnapshot[];
+  readonly emptyMessage: string;
+  readonly productClaim: string;
+}
+
+export interface ParentTrackingStatusPanelDetailSnapshot {
+  readonly label: string;
+  readonly value: string;
+}
+
+export interface ParentTrackingStatusPanelCardSnapshot {
+  readonly key: string;
+  readonly title: string;
+  readonly details: readonly ParentTrackingStatusPanelDetailSnapshot[];
+}
+
+export interface ParentTrackingStatusPanelSnapshot {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly body: string;
+  readonly summaryCards: readonly ParentTrackingStatusPanelCardSnapshot[];
+  readonly cards: readonly ParentTrackingStatusPanelCardSnapshot[];
+  readonly emptyMessage: string;
+  readonly productClaim: string;
+}
+
+export interface ParentSetupFirstRunPanelDetailSnapshot {
+  readonly label: string;
+  readonly value: string;
+}
+
+export interface ParentSetupFirstRunPanelCardSnapshot {
+  readonly title: string;
+  readonly summary: string;
+  readonly details: readonly ParentSetupFirstRunPanelDetailSnapshot[];
+}
+
+export interface ParentSetupFirstRunPanelSnapshot {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly body: string;
+  readonly summaryCardTitle: string;
+  readonly summary: string;
+  readonly summaryDetails: readonly ParentSetupFirstRunPanelDetailSnapshot[];
+  readonly cards: readonly ParentSetupFirstRunPanelCardSnapshot[];
+  readonly productClaim: string;
+}
+
+export interface ParentBrowserPanelDetailSnapshot {
+  readonly label: string;
+  readonly value: string;
+}
+
+export interface ParentBrowserPanelRowSnapshot {
+  readonly key: string;
+  readonly title: string;
+  readonly details: readonly ParentBrowserPanelDetailSnapshot[];
+}
+
+export interface ParentBrowserPanelSnapshot {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly body: string;
+  readonly summary: string;
+  readonly summaryDetails: readonly ParentBrowserPanelDetailSnapshot[];
+  readonly rows: readonly ParentBrowserPanelRowSnapshot[];
+  readonly emptyMessage: string;
+  readonly productClaim: string;
+}
+
+export interface ParentRouteBrowserPanelsSnapshot {
+  readonly browserParentExplanation?: ParentBrowserPanelSnapshot | null;
+  readonly socialAuditExplanation?: ParentBrowserPanelSnapshot | null;
+  readonly socialAlertReport?: ParentBrowserPanelSnapshot | null;
+  readonly socialAlertReportParentSurface?: ParentBrowserPanelSnapshot | null;
+  readonly socialParentNotificationDelivery?: ParentBrowserPanelSnapshot | null;
+  readonly socialDashboard?: ParentBrowserPanelSnapshot | null;
+  readonly browserActionIntentStreamStatus?: ParentBrowserPanelSnapshot | null;
+  readonly browserSocialProviderReceiptStreamStatus?: ParentBrowserPanelSnapshot | null;
+  readonly browserSocialProviderReceiptIngestionReadinessStatus?: ParentBrowserPanelSnapshot | null;
+}
+
+export interface ParentRouteSummary {
+  readonly title: string;
+  readonly routeCapability: string;
+  readonly parentAccess: string;
+  readonly household: string;
+  readonly childDevice: string;
+}
+
+export interface ParentRouteSnapshot {
+  readonly schemaVersion: number;
+  readonly route: ParentRouteId;
+  readonly generatedAt: string;
+  readonly seasonLabel: string;
+  readonly lastUpdated: string;
+  readonly connectionState: ParentBridgeConnectionState;
+  readonly commandEnabled: boolean;
+  readonly agentEndpoint: string;
+  readonly dataSource: ParentRouteDataSource;
+  readonly summary: ParentRouteSummary;
+  readonly diagnosticPanelsEnabled: boolean;
+  readonly parentPortalRows?: readonly ParentPortalRowSnapshot[] | null;
+  readonly parentPortalShellStatus?: ParentPortalShellStatusSnapshot | null;
+  readonly liveActivity?: ParentRouteLiveActivitySnapshot | null;
+  readonly browserPanels?: ParentRouteBrowserPanelsSnapshot | null;
+  readonly setupFirstRunPanel?: ParentSetupFirstRunPanelSnapshot | null;
+  readonly screenSettingsServiceResponse?: ParentUnknownRecord | null;
+}

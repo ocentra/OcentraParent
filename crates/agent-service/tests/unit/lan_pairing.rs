@@ -342,7 +342,10 @@ async fn lan_pairing_status_reports_stale_and_offline_selected_device_state() {
     )
     .await;
 
-    assert_selected_device_reachability(&stale_status, constants::value::LAN_REACHABILITY_STALE);
+    assert_selected_device_reachability(
+        &stale_status,
+        constants::value::LAN_REACHABILITY_STALE.to_string(),
+    );
     assert_status_selected_route_custody(
         &stale_status,
         SelectedRouteCustodyExpectation {
@@ -359,7 +362,7 @@ async fn lan_pairing_status_reports_stale_and_offline_selected_device_state() {
     assert_rejection(&stale_health, constants::value::LAN_REASON_STALE);
     assert_selected_device_reachability(
         &offline_status,
-        constants::value::LAN_REACHABILITY_OFFLINE,
+        constants::value::LAN_REACHABILITY_OFFLINE.to_string(),
     );
     assert_status_selected_route_custody(
         &offline_status,
@@ -395,7 +398,10 @@ async fn lan_pairing_status_reports_online_selected_device_state() {
     )
     .await;
 
-    assert_selected_device_reachability(&status, constants::value::LAN_REACHABILITY_ONLINE);
+    assert_selected_device_reachability(
+        &status,
+        constants::value::LAN_REACHABILITY_ONLINE.to_string(),
+    );
 }
 
 #[tokio::test]

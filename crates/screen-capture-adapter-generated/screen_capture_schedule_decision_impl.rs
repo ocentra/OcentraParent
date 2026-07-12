@@ -1,17 +1,83 @@
 use std::{env, fs::write, path::PathBuf};
 
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants as protocol_constants;
 use ocentra_parent_screen_capture_adapter::{
     trigger_scheduler::{
-        evaluate_screen_capture_schedule, ScreenCaptureScheduleDecision,
-        ScreenCaptureScheduleTrigger, ScreenCaptureSchedulerSettings, ScreenCaptureSchedulerState,
+        evaluate_screen_capture_schedule, ScreenCaptureScheduleTrigger,
+        ScreenCaptureSchedulerSettings, ScreenCaptureSchedulerState,
     },
     ScreenCaptureScope,
 };
-use serde_json::json;
+
+mod constants {
+    pub const DEFAULT_OUTPUT_DIR: &str = "output/screen-plan-proof/real-capture/scheduler-decision";
+    pub const DECISION_FILE: &str = "00-scheduler-decision.json";
+    pub const ERROR_SEPARATOR: &str = ": ";
+    pub const ENV_TRIGGER: &str = "OCENTRA_SCREEN_CAPTURE_TRIGGER";
+    pub const ENV_ANALYSIS_ENABLED: &str = "OCENTRA_SCREEN_ANALYSIS_ENABLED";
+    pub const ENV_TRIGGER_CAPTURE_ENABLED: &str = "OCENTRA_SCREEN_TRIGGER_CAPTURE_ENABLED";
+    pub const ENV_CADENCE_CAPTURE_ENABLED: &str = "OCENTRA_SCREEN_CADENCE_CAPTURE_ENABLED";
+    pub const ENV_ALLOWED_SCOPE: &str = "OCENTRA_SCREEN_CAPTURE_ALLOWED_SCOPE";
+    pub const ENV_CADENCE_SECONDS: &str = "OCENTRA_SCREEN_CADENCE_SECONDS";
+    pub const ENV_MIN_TRIGGER_GAP_SECONDS: &str = "OCENTRA_SCREEN_MIN_TRIGGER_GAP_SECONDS";
+    pub const ENV_OBSERVED_AT: &str = "OCENTRA_SCREEN_CAPTURE_OBSERVED_AT";
+    pub const ENV_LAST_CAPTURE_AT: &str = "OCENTRA_SCREEN_LAST_CAPTURE_AT";
+    pub const ENV_REQUESTED_SCOPE: &str = "OCENTRA_SCREEN_CAPTURE_REQUESTED_SCOPE";
+    pub const VALUE_ONE: &str = "1";
+    pub const VALUE_TRUE: &str = "true";
+    pub const SCOPE_ACTIVE_WINDOW: &str = "activeWindow";
+    pub const SCOPE_SELECTED_WINDOW: &str = "selectedWindow";
+    pub const SCOPE_PRIMARY_DISPLAY: &str = "primaryDisplay";
+    pub const SCOPE_ACTIVE_WINDOW_INPUT: &str = "active-window";
+    pub const SCOPE_SELECTED_WINDOW_INPUT: &str = "selected-window";
+    pub const SCOPE_PRIMARY_DISPLAY_INPUT: &str = "primary-display";
+    pub const JSON_PRODUCT_SCHEDULER_IMPLEMENTED: &str = "productSchedulerImplemented";
+    pub const JSON_DECISION: &str = "decision";
+    pub const JSON_TRIGGER: &str = "trigger";
+    pub const JSON_REASON: &str = "reason";
+    pub const JSON_SCOPE: &str = "scope";
+    pub const JSON_SUPPRESSION: &str = "suppression";
+    pub const JSON_OBSERVED_AT: &str = "observedAtEpochSeconds";
+    pub const JSON_LAST_CAPTURE_AT: &str = "lastCaptureAtEpochSeconds";
+    pub const JSON_PARENT_SETTING: &str = "parentSetting";
+    pub const JSON_SCREEN_ANALYSIS_ENABLED: &str = "screenAnalysisEnabled";
+    pub const JSON_TRIGGER_CAPTURE_ENABLED: &str = "triggerCaptureEnabled";
+    pub const JSON_CADENCE_CAPTURE_ENABLED: &str = "cadenceCaptureEnabled";
+    pub const JSON_ALLOWED_SCOPE: &str = "allowedScope";
+    pub const JSON_CADENCE_SECONDS: &str = "cadenceSeconds";
+    pub const JSON_MIN_TRIGGER_GAP_SECONDS: &str = "minTriggerGapSeconds";
+    pub const JSON_ENABLED_TRIGGERS: &str = "enabledTriggers";
+    pub const DECISION_ENQUEUE_CAPTURE: &str = "enqueueCapture";
+    pub const DECISION_SUPPRESS_CAPTURE: &str = "suppressCapture";
+}
+
+#[path = "screen_capture_schedule_decision_helpers.rs"]
+mod helpers;
+
+#[derive(Clone, Copy)]
+enum ErrorContext {
+    JournalOpens,
+    EventSerializes,
+    JournalAppends,
+}
+
+const ERROR_CONTEXT_LABELS: &[&str] = &[
+    protocol_constants::error::JOURNAL_OPENS,
+    protocol_constants::error::AGENT_EVENT_SERIALIZES,
+    protocol_constants::error::JOURNAL_APPENDS,
+];
 
 #[derive(Debug)]
 pub struct ScheduleDecisionError(String);
+
+impl ScheduleDecisionError {
+    fn from_context(context: ErrorContext, error: impl std::fmt::Display) -> Self {
+        let mut message = ERROR_CONTEXT_LABELS[context as usize].to_owned();
+        message.push_str(constants::ERROR_SEPARATOR);
+        message.push_str(&error.to_string());
+        Self(message)
+    }
+}
 
 impl std::fmt::Display for ScheduleDecisionError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -24,42 +90,54 @@ impl std::error::Error for ScheduleDecisionError {}
 pub type MainResult<T = ()> = Result<T, ScheduleDecisionError>;
 
 pub fn main() -> MainResult<()> {
-    let output_dir = env::args().nth(1).map(PathBuf::from).unwrap_or_else(|| {
-        PathBuf::from("output/screen-plan-proof/real-capture/scheduler-decision")
-    });
-    std::fs::create_dir_all(&output_dir).map_err(|error| {
-        ScheduleDecisionError(format!("{}: {error:?}", constants::error::JOURNAL_OPENS))
-    })?;
+    let output_dir = env::args()
+        .nth(1)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(constants::DEFAULT_OUTPUT_DIR));
+    std::fs::create_dir_all(&output_dir)
+        .map_err(|error| ScheduleDecisionError::from_context(ErrorContext::JournalOpens, error))?;
 
-    let trigger = env::var("OCENTRA_SCREEN_CAPTURE_TRIGGER")
+    let trigger = env::var(constants::ENV_TRIGGER)
         .ok()
         .as_deref()
         .and_then(ScreenCaptureScheduleTrigger::from_proof_label)
         .unwrap_or(ScreenCaptureScheduleTrigger::ParentManualTestCapture);
     let settings = ScreenCaptureSchedulerSettings {
-        screen_analysis_enabled: env_bool("OCENTRA_SCREEN_ANALYSIS_ENABLED", true),
-        trigger_capture_enabled: env_bool("OCENTRA_SCREEN_TRIGGER_CAPTURE_ENABLED", true),
-        cadence_capture_enabled: env_bool("OCENTRA_SCREEN_CADENCE_CAPTURE_ENABLED", true),
-        allowed_scope: env_scope(
-            "OCENTRA_SCREEN_CAPTURE_ALLOWED_SCOPE",
+        screen_analysis_enabled: helpers::env_bool(
+            helpers::EnvironmentVariable::AnalysisEnabled,
+            true,
+        ),
+        trigger_capture_enabled: helpers::env_bool(
+            helpers::EnvironmentVariable::TriggerCaptureEnabled,
+            true,
+        ),
+        cadence_capture_enabled: helpers::env_bool(
+            helpers::EnvironmentVariable::CadenceCaptureEnabled,
+            true,
+        ),
+        allowed_scope: helpers::env_scope(
+            helpers::EnvironmentVariable::AllowedScope,
             ScreenCaptureScope::SelectedWindow,
         ),
-        cadence_seconds: env_u64("OCENTRA_SCREEN_CADENCE_SECONDS", 60),
-        min_trigger_gap_seconds: env_u64("OCENTRA_SCREEN_MIN_TRIGGER_GAP_SECONDS", 10),
+        cadence_seconds: helpers::env_u64(helpers::EnvironmentVariable::CadenceSeconds, 60),
+        min_trigger_gap_seconds: helpers::env_u64(
+            helpers::EnvironmentVariable::MinTriggerGapSeconds,
+            10,
+        ),
         enabled_triggers: enabled_triggers(),
     };
-    let observed_at = env_u64("OCENTRA_SCREEN_CAPTURE_OBSERVED_AT", 1_780_000_000);
+    let observed_at = helpers::env_u64(helpers::EnvironmentVariable::ObservedAt, 1_780_000_000);
     let state = ScreenCaptureSchedulerState {
-        last_capture_at_epoch_seconds: env_optional_u64("OCENTRA_SCREEN_LAST_CAPTURE_AT"),
+        last_capture_at_epoch_seconds: helpers::env_optional_u64(
+            helpers::EnvironmentVariable::LastCaptureAt,
+        ),
     };
-    let requested_scope = env::var("OCENTRA_SCREEN_CAPTURE_REQUESTED_SCOPE")
-        .ok()
-        .map(|_| {
-            env_scope(
-                "OCENTRA_SCREEN_CAPTURE_REQUESTED_SCOPE",
-                settings.allowed_scope,
-            )
-        });
+    let requested_scope = env::var(constants::ENV_REQUESTED_SCOPE).ok().map(|_| {
+        helpers::env_scope(
+            helpers::EnvironmentVariable::RequestedScope,
+            settings.allowed_scope,
+        )
+    });
 
     let decision = evaluate_screen_capture_schedule(
         &settings,
@@ -71,7 +149,7 @@ pub fn main() -> MainResult<()> {
         },
     );
 
-    let decision_json = decision_json(
+    let decision_json = helpers::decision_json(
         decision,
         settings,
         trigger,
@@ -79,66 +157,14 @@ pub fn main() -> MainResult<()> {
         state.last_capture_at_epoch_seconds,
     );
     let bytes = serde_json::to_vec_pretty(&decision_json).map_err(|error| {
-        ScheduleDecisionError(format!(
-            "{}: {error:?}",
-            constants::error::AGENT_EVENT_SERIALIZES
-        ))
+        ScheduleDecisionError::from_context(ErrorContext::EventSerializes, error)
     })?;
 
-    write(output_dir.join("00-scheduler-decision.json"), bytes).map_err(|error| {
-        ScheduleDecisionError(format!("{}: {error:?}", constants::error::JOURNAL_APPENDS))
+    write(output_dir.join(constants::DECISION_FILE), bytes).map_err(|error| {
+        ScheduleDecisionError::from_context(ErrorContext::JournalAppends, error)
     })?;
 
     Ok(())
-}
-
-fn decision_json(
-    decision: ScreenCaptureScheduleDecision,
-    settings: ScreenCaptureSchedulerSettings,
-    trigger: ScreenCaptureScheduleTrigger,
-    observed_at: u64,
-    last_capture_at: Option<u64>,
-) -> serde_json::Value {
-    match decision {
-        ScreenCaptureScheduleDecision::EnqueueCapture { reason, scope } => json!({
-            "productSchedulerImplemented": true,
-            "decision": "enqueueCapture",
-            "trigger": trigger.as_proof_label(),
-            "reason": reason.as_proof_label(),
-            "scope": scope_label(scope),
-            "suppression": null,
-            "observedAtEpochSeconds": observed_at,
-            "lastCaptureAtEpochSeconds": last_capture_at,
-            "parentSetting": parent_setting_json(settings),
-        }),
-        ScreenCaptureScheduleDecision::SuppressCapture { reason } => json!({
-            "productSchedulerImplemented": true,
-            "decision": "suppressCapture",
-            "trigger": trigger.as_proof_label(),
-            "reason": null,
-            "scope": null,
-            "suppression": reason.as_proof_label(),
-            "observedAtEpochSeconds": observed_at,
-            "lastCaptureAtEpochSeconds": last_capture_at,
-            "parentSetting": parent_setting_json(settings),
-        }),
-    }
-}
-
-fn parent_setting_json(settings: ScreenCaptureSchedulerSettings) -> serde_json::Value {
-    json!({
-        "screenAnalysisEnabled": settings.screen_analysis_enabled,
-        "triggerCaptureEnabled": settings.trigger_capture_enabled,
-        "cadenceCaptureEnabled": settings.cadence_capture_enabled,
-        "allowedScope": scope_label(settings.allowed_scope),
-        "cadenceSeconds": settings.cadence_seconds,
-        "minTriggerGapSeconds": settings.min_trigger_gap_seconds,
-        "enabledTriggers": settings
-            .enabled_triggers
-            .iter()
-            .map(|trigger| trigger.as_proof_label())
-            .collect::<Vec<_>>(),
-    })
 }
 
 fn enabled_triggers() -> &'static [ScreenCaptureScheduleTrigger] {
@@ -153,38 +179,4 @@ fn enabled_triggers() -> &'static [ScreenCaptureScheduleTrigger] {
         ScreenCaptureScheduleTrigger::PolicyAmbiguity,
         ScreenCaptureScheduleTrigger::ParentManualTestCapture,
     ]
-}
-
-fn env_scope(name: &str, fallback: ScreenCaptureScope) -> ScreenCaptureScope {
-    match env::var(name).ok().as_deref() {
-        Some("active-window" | "activeWindow") => ScreenCaptureScope::ActiveWindow,
-        Some("selected-window" | "selectedWindow") => ScreenCaptureScope::SelectedWindow,
-        Some("primary-display" | "primaryDisplay") => ScreenCaptureScope::PrimaryDisplay,
-        _ => fallback,
-    }
-}
-
-fn scope_label(scope: ScreenCaptureScope) -> &'static str {
-    match scope {
-        ScreenCaptureScope::ActiveWindow => "activeWindow",
-        ScreenCaptureScope::SelectedWindow => "selectedWindow",
-        ScreenCaptureScope::PrimaryDisplay => "primaryDisplay",
-    }
-}
-
-fn env_bool(name: &str, fallback: bool) -> bool {
-    env::var(name)
-        .ok()
-        .map(|value| value == "1" || value == "true")
-        .unwrap_or(fallback)
-}
-
-fn env_optional_u64(name: &str) -> Option<u64> {
-    env::var(name)
-        .ok()
-        .and_then(|value| value.parse::<u64>().ok())
-}
-
-fn env_u64(name: &str, fallback: u64) -> u64 {
-    env_optional_u64(name).unwrap_or(fallback)
 }

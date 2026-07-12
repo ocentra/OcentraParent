@@ -13,21 +13,16 @@ use ocentra_lan_core::network_inventory::{
 
 const TEST_NEIGHBOR_OBSERVED_AT: &str = "2026-06-28T12:00:00Z";
 
-fn lan_plan_fixture(name: &str) -> String {
-    fs::read_to_string(format!(
-        "{}/tests/fixtures/lan-plan/{}",
-        env!("CARGO_MANIFEST_DIR"),
-        name
-    ))
-    .value_or_unreachable()
-}
-
 #[test]
 fn macos_basic_fixture_preserves_named_and_unnamed_neighbors() {
-    let observations = lan_plan_fixture("macos_arp_a_basic.txt")
-        .lines()
-        .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
-        .collect::<Vec<_>>();
+    let observations = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/macos_arp_a_basic.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
+    .collect::<Vec<_>>();
 
     assert_eq!(observations.len(), 2);
     assert_eq!(observations[0].ip_address, "192.168.2.1");
@@ -43,18 +38,30 @@ fn macos_basic_fixture_preserves_named_and_unnamed_neighbors() {
 
 #[test]
 fn macos_empty_incomplete_and_malformed_fixtures_produce_no_rows() {
-    let empty = lan_plan_fixture("macos_arp_a_empty.txt")
-        .lines()
-        .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
-        .collect::<Vec<_>>();
-    let incomplete = lan_plan_fixture("macos_arp_a_incomplete.txt")
-        .lines()
-        .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
-        .collect::<Vec<_>>();
-    let malformed = lan_plan_fixture("macos_arp_a_malformed.txt")
-        .lines()
-        .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
-        .collect::<Vec<_>>();
+    let empty = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/macos_arp_a_empty.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
+    .collect::<Vec<_>>();
+    let incomplete = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/macos_arp_a_incomplete.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
+    .collect::<Vec<_>>();
+    let malformed = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/macos_arp_a_malformed.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
+    .collect::<Vec<_>>();
 
     assert!(empty.is_empty());
     assert!(incomplete.is_empty());
@@ -63,10 +70,14 @@ fn macos_empty_incomplete_and_malformed_fixtures_produce_no_rows() {
 
 #[test]
 fn macos_duplicate_fixture_keeps_duplicate_candidates_until_merge() {
-    let parsed = lan_plan_fixture("macos_arp_a_duplicate.txt")
-        .lines()
-        .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
-        .collect::<Vec<_>>();
+    let parsed = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/macos_arp_a_duplicate.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .filter_map(|line| macos_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT))
+    .collect::<Vec<_>>();
 
     assert_eq!(parsed.len(), 2);
     assert_eq!(parsed[0].mac_address, parsed[1].mac_address);

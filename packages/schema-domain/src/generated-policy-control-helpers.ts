@@ -226,7 +226,10 @@ export function selectGeneratedStricterPolicyAction(
 export function validateGeneratedPolicySchedule(schedule: GeneratedPolicyScheduleLike): void {
   assertGeneratedPolicyContract(schedule.windows.length > 0, 'schedules must define at least one local window');
   for (const [index, window] of schedule.windows.entries()) {
-    assertGeneratedPolicyContract(window.days.length > 0, `schedules must define at least one day for windows[${index}]`);
+    assertGeneratedPolicyContract(
+      window.days.length > 0,
+      `schedules must define at least one day for windows[${index}]`
+    );
     parseGeneratedLocalTimeMinutes(window.startLocalTime, `windows[${index}].startLocalTime`);
     parseGeneratedLocalTimeMinutes(window.endLocalTime, `windows[${index}].endLocalTime`);
   }
@@ -255,7 +258,10 @@ export function validateGeneratedPolicyScheduleBoundary(boundary: GeneratedPolic
       );
       return;
     case 'dst-overlap':
-      assertGeneratedPolicyContract(boundary.dstBoundary !== null, 'dst-overlap boundaries require dstBoundary details');
+      assertGeneratedPolicyContract(
+        boundary.dstBoundary !== null,
+        'dst-overlap boundaries require dstBoundary details'
+      );
       assertGeneratedPolicyContract(
         boundary.dstBoundary.transition === 'fall-back',
         'dst-overlap boundaries must use the fall-back transition'
@@ -273,7 +279,10 @@ export function validateGeneratedPolicyScheduleBoundary(boundary: GeneratedPolic
       );
       return;
     case 'exception-active':
-      assertGeneratedPolicyContract(boundary.exception !== null, 'exception-active boundaries require exception details');
+      assertGeneratedPolicyContract(
+        boundary.exception !== null,
+        'exception-active boundaries require exception details'
+      );
       assertGeneratedPolicyContract(
         evaluatedAt >= parseGeneratedTimestampMillis(boundary.exception.startsAt, 'exception.startsAt') &&
           evaluatedAt < parseGeneratedTimestampMillis(boundary.exception.expiresAt, 'exception.expiresAt'),
@@ -386,7 +395,10 @@ function assertGeneratedPendingApprovalIsClean(resolution: GeneratedPolicyApprov
 }
 
 function assertGeneratedPreviewOnlyApprovalIsHonest(resolution: GeneratedPolicyApprovalResolutionLike): void {
-  assertGeneratedPolicyContract(resolution.approval.origin === 'assistant-draft', 'preview-only approvals require assistant-draft origin');
+  assertGeneratedPolicyContract(
+    resolution.approval.origin === 'assistant-draft',
+    'preview-only approvals require assistant-draft origin'
+  );
   assertGeneratedResolutionHasNoReviewOverrideOrReplayArtifacts(
     resolution,
     'preview-only approvals must remain unconfirmed and override-free'
@@ -408,7 +420,10 @@ function assertGeneratedExpiredRequestApprovalIsHonest(
 }
 
 function assertGeneratedReplayRejectedApprovalIsHonest(resolution: GeneratedPolicyApprovalResolutionLike): void {
-  assertGeneratedPolicyContract(resolution.replayOfApprovalId !== null, 'replay-rejected state requires replayOfApprovalId');
+  assertGeneratedPolicyContract(
+    resolution.replayOfApprovalId !== null,
+    'replay-rejected state requires replayOfApprovalId'
+  );
   assertGeneratedResolutionHasNoReviewOrOverrideArtifacts(
     resolution,
     'replay-rejected state cannot include review or override artifacts'
@@ -420,7 +435,10 @@ function assertGeneratedDeniedApprovalIsHonest(resolution: GeneratedPolicyApprov
   assertGeneratedPolicyContract(resolution.reviewedAt !== null, 'denied approvals require reviewedAt');
   assertGeneratedPolicyContract(resolution.auditReferenceId !== null, 'denied approvals require auditReferenceId');
   assertGeneratedPolicyContract(resolution.override === null, 'denied approvals cannot create overrides');
-  assertGeneratedPolicyContract(resolution.replayOfApprovalId === null, 'denied approvals cannot point at replayOfApprovalId');
+  assertGeneratedPolicyContract(
+    resolution.replayOfApprovalId === null,
+    'denied approvals cannot point at replayOfApprovalId'
+  );
 }
 
 function assertGeneratedResolvedApprovalIsHonest(
@@ -572,7 +590,10 @@ function validateGeneratedPolicyScheduleTimeBudget(timeBudget: GeneratedPolicySc
   if (timeBudget.reset.kind === 'weekly') {
     assertGeneratedPolicyContract(timeBudget.reset.day !== null, 'weekly reset rules require timeBudget.reset.day');
   } else {
-    assertGeneratedPolicyContract(timeBudget.reset.day === null, 'non-weekly reset rules cannot set timeBudget.reset.day');
+    assertGeneratedPolicyContract(
+      timeBudget.reset.day === null,
+      'non-weekly reset rules cannot set timeBudget.reset.day'
+    );
   }
 
   switch (timeBudget.carryover.mode) {
@@ -762,20 +783,14 @@ function validateGeneratedPolicyOverrideGrant(
 
   switch (grant.overrideType) {
     case 'temporary-allow':
-      assertGeneratedPolicyContract(
-        grant.action === 'allow',
-        'temporary-allow overrides must resolve to allow'
-      );
+      assertGeneratedPolicyContract(grant.action === 'allow', 'temporary-allow overrides must resolve to allow');
       assertGeneratedPolicyContract(
         grant.bonusTimeMinutes === null,
         'temporary-allow overrides cannot carry bonusTimeMinutes'
       );
       break;
     case 'temporary-block':
-      assertGeneratedPolicyContract(
-        grant.action === 'block',
-        'temporary-block overrides must resolve to block'
-      );
+      assertGeneratedPolicyContract(grant.action === 'block', 'temporary-block overrides must resolve to block');
       assertGeneratedPolicyContract(
         grant.bonusTimeMinutes === null,
         'temporary-block overrides cannot carry bonusTimeMinutes'
@@ -799,7 +814,10 @@ function validateGeneratedPolicyOverrideGrant(
 
   switch (grant.state) {
     case 'active':
-      assertGeneratedPolicyContract(evaluatedAt < effectiveUntil, 'active overrides cannot already be past effectiveUntil');
+      assertGeneratedPolicyContract(
+        evaluatedAt < effectiveUntil,
+        'active overrides cannot already be past effectiveUntil'
+      );
       return;
     case 'expired':
       assertGeneratedPolicyContract(
@@ -837,9 +855,7 @@ function assertGeneratedResolutionHasNoReviewOverrideOrReplayArtifacts(
   assertGeneratedPolicyContract(resolution.replayOfApprovalId === null, message);
 }
 
-function generatedPolicyPreviewBoundaryNeedsManualResolution(
-  boundary: GeneratedPolicyScheduleBoundaryLike
-): boolean {
+function generatedPolicyPreviewBoundaryNeedsManualResolution(boundary: GeneratedPolicyScheduleBoundaryLike): boolean {
   return [
     boundary.state === 'clock-skew',
     (boundary.state === 'dst-gap' || boundary.state === 'dst-overlap') &&
@@ -858,9 +874,7 @@ function generatedPolicyPreviewBoundaryBonusTimeState(
 
   const bonusTimeRemainingMinutes =
     boundary.timeBudget.bonusTimeRemainingMinutes ?? boundary.timeBudget.bonusTimeMinutes;
-  return bonusTimeRemainingMinutes < boundary.timeBudget.bonusTimeMinutes
-    ? 'bonus-time-expiring'
-    : 'bonus-time-active';
+  return bonusTimeRemainingMinutes < boundary.timeBudget.bonusTimeMinutes ? 'bonus-time-expiring' : 'bonus-time-active';
 }
 
 function assertGeneratedPolicyContract(condition: unknown, message: string): asserts condition {

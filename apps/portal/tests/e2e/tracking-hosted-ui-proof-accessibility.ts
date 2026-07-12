@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, type Page } from '@playwright/test';
 import { PortalTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/portal-domain/contracts';
+import { hostedTrackingScreenshotPaths } from './tracking-hosted-ui-proof-accessibility-screenshots';
 
 const repoRoot = path.resolve(process.cwd(), '..', '..');
 const accessibilitySummaryPath = path.join(
@@ -103,24 +104,7 @@ export async function writeAccessibilitySummary(
         route: '#/proof-panels',
         assertions: hostedTrackingAssertions(),
         summary,
-        screenshots: {
-          desktop: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-live-summary.png')).replace(/\\/gu, '/'),
-          familyDashboard: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-family-dashboard-rollup.png')).replace(/\\/gu, '/'),
-          reportPolicyConsumer: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-report-policy-consumer.png')).replace(/\\/gu, '/'),
-          reportExport: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-report-export.png')).replace(/\\/gu, '/'),
-          notificationParentSurface: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-notification-parent-surface.png')).replace(/\\/gu, '/'),
-          parentActionReadiness: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-parent-action-readiness.png')).replace(/\\/gu, '/'),
-          missingDevice: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-missing-device.png')).replace(/\\/gu, '/'),
-          evidenceDrawer: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-evidence-drawer.png')).replace(/\\/gu, '/'),
-          citationDetail: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-citation-detail.png')).replace(/\\/gu, '/'),
-          retentionSettings: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-retention-settings.png')).replace(/\\/gu, '/'),
-          childCheckIn: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-child-check-in.png')).replace(/\\/gu, '/'),
-          childRuntimeUi: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-child-runtime-ui.png')).replace(/\\/gu, '/'),
-          parentOverviewShell: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-parent-overview-shell.png')).replace(/\\/gu, '/'),
-          parentDevicesShell: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-parent-devices-shell.png')).replace(/\\/gu, '/'),
-          unsupportedManualPlatform: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-unsupported-manual.png')).replace(/\\/gu, '/'),
-          mobile: path.relative(repoRoot, path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces', '11-ui-snapshots', 'hosted-policy-tracking-live-summary-mobile.png')).replace(/\\/gu, '/'),
-        },
+        screenshots: hostedTrackingScreenshotPaths(repoRoot),
         parentPortalShellSummary,
       },
       null,

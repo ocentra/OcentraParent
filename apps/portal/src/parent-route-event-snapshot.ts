@@ -25,15 +25,11 @@ export function hasRequiredSnapshotEventIdentity(snapshot: ParentRouteEventSnaps
   );
 }
 
-export function parentRouteSnapshotTimestampMs(
-  snapshot: ParentRouteSnapshot | null | undefined
-): number | null {
+export function parentRouteSnapshotTimestampMs(snapshot: ParentRouteSnapshot | null | undefined): number | null {
   return timestampMs(snapshot?.generatedAt) ?? timestampMs(snapshot?.lastUpdated);
 }
 
-export function latestParentRouteEventTimestampMs(
-  events: readonly ParentRouteEventSnapshot[]
-): number | null {
+export function latestParentRouteEventTimestampMs(events: readonly ParentRouteEventSnapshot[]): number | null {
   let latestTimestamp: number | null = null;
   for (const event of events) {
     if (!hasRequiredSnapshotEventIdentity(event)) {
@@ -49,10 +45,14 @@ export function latestParentRouteEventTimestampMs(
 }
 
 function timestampMs(value: unknown): number | null {
-  if (typeof value !== ParentHostBridgeRuntime.StringType || value.length === 0) {
+  if (typeof value !== ParentHostBridgeRuntime.StringType) {
     return null;
   }
-  const parsed = Date.parse(value);
+  const timestamp = String(value);
+  if (timestamp.length === 0) {
+    return null;
+  }
+  const parsed = Date.parse(timestamp);
   return Number.isFinite(parsed) ? parsed : null;
 }
 

@@ -41,21 +41,22 @@ pub(crate) struct EnforcementJournalPaths {
     pub journal_path: PathBuf,
     pub key_path: PathBuf,
     pub store_path: PathBuf,
-    pub timer_state_path: PathBuf,
+    pub timer_state_path: crate::enforcement_timer_state_path::EnforcementTimerStatePath,
 }
 
 impl EnforcementJournalPaths {
     pub(crate) fn from_environment() -> Self {
         Self {
-            journal_path: crate::activity_store_path::activity_journal_path(),
-            key_path: crate::activity_store_path::activity_journal_key_path(),
-            store_path: crate::activity_store_path::activity_db_path(),
+            journal_path: crate::activity_store_path::activity_journal_path().into(),
+            key_path: crate::activity_store_path::activity_journal_key_path().into(),
+            store_path: crate::activity_store_path::activity_db_path().into(),
             timer_state_path: env::var(constants::env_var::AGENT_ENFORCEMENT_TIMER_STATE_PATH)
                 .map(PathBuf::from)
+                .map(crate::enforcement_timer_state_path::EnforcementTimerStatePath)
                 .unwrap_or_else(|_| {
                     let mut path = env::temp_dir();
                     path.push(constants::enforcement::TIMER_STATE_FILE_NAME);
-                    path
+                    crate::enforcement_timer_state_path::EnforcementTimerStatePath(path)
                 }),
         }
     }
@@ -87,15 +88,15 @@ async fn execute_enforcement_command(
     command: AgentCommandEnvelope,
     paths: EnforcementJournalPaths,
 ) -> Result<LogFields, TestText> {
-    let observed_at = TestText::from_display(timestamp_now());
-    let request = parse_enforcement_command_payload(&command, &observed_at.to_string())
-        .map_err(TestText::from_display)?;
+    let observed_at = TestText::from_display(timestamp_now::<String>());
+    let request = parse_enforcement_command_payload(&command, observed_at.to_string().into())
+        .map_err(|error| TestText::from_display(format!("{error:?}")))?;
     let authorization = authorize_enforcement_boundary(request.input.clone())
         .map_err(|error| TestText::from_display(error.as_protocol_str()))?;
     let before_action_outcome =
         journal_before_action_outcome(&request, &authorization.action, &observed_at.to_string());
     record_enforcement_audit(&request, &before_action_outcome, &paths).await?;
-    let completed_at = TestText::from_display(timestamp_now());
+    let completed_at = TestText::from_display(timestamp_now::<String>());
     let adapter_outcome = authorization
         .adapter_request
         .as_ref()
@@ -120,7 +121,7 @@ async fn execute_enforcement_command(
         &completed_at.to_string(),
     )
     .await
-    .map_err(TestText::from_display)?;
+    .map_err(|error| TestText::from_display(format!("{error:?}")))?;
 
     enforcement_report_payload(&outcome, &status, active_state.as_ref())
 }
@@ -188,7 +189,7 @@ fn enforcement_activity_event(
         event_id: outcome.audit_event.audit_event_id.clone(),
         observed_at: outcome.audit_event.observed_at.clone(),
         source: ActivitySource {
-            device_id: request.device_id.clone(),
+            device_id: request.device_id.0.clone(),
             platform: request.platform.clone(),
             observer: ActivityObserver::AgentService,
             source_id: constants::enforcement::SOURCE_ID_AGENT_SERVICE.to_string(),

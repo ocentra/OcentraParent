@@ -2,9 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const portalShellReadyTimeoutMs = 90_000;
 
-test('start route renders an honest setup boundary panel without invented readiness flow', async ({
-  page,
-}) => {
+test('start route renders an honest setup boundary panel without invented readiness flow', async ({ page }) => {
   await page.goto('/#/start');
 
   await expect(page.getByRole('button', { exact: true, name: 'Home' })).toBeVisible({
@@ -17,7 +15,11 @@ test('start route renders an honest setup boundary panel without invented readin
   await expect(setupRegion.getByRole('heading', { name: 'What is real now' })).toBeVisible();
   await expect(setupRegion.getByRole('heading', { name: 'What is missing' })).toBeVisible();
   await expect(setupRegion.getByRole('heading', { name: 'Where it belongs' })).toBeVisible();
-  await expect(setupRegion.getByText('The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot.')).toBeVisible();
+  await expect(
+    setupRegion.getByText(
+      'The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot.'
+    )
+  ).toBeVisible();
   await expect(setupRegion.getByText('unavailable', { exact: true })).toBeVisible();
   await expect(setupRegion.getByText('Start route is visible in the portal shell')).toBeVisible();
   await expect(setupRegion.getByText('Host bridge snapshot reaches TS presentation')).toBeVisible();

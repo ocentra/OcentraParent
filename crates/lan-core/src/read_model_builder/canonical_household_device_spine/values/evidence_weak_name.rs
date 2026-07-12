@@ -5,8 +5,8 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanDiscoveryEvidenceSource,
 };
 
+use super::super::value_support::known_hostname;
 use super::evidence_record::{push_evidence_record, EvidenceRecordInput};
-use super::known_hostname;
 
 pub(super) fn push_weak_name_evidence(
     records: &mut Vec<LanDiscoveryEvidenceRecord>,

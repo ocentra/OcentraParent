@@ -17,4 +17,3 @@ export function capabilityRequirementForGenerated(sectionTitle: string, sourceTe
   }
   return 'browser-control-capability-registry';
 }
-

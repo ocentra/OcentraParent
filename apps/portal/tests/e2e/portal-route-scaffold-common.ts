@@ -245,10 +245,7 @@ export async function expectSurfaceTextToContain(
   await expect.poll(() => surfaceText(surface), { timeout: routeSurfaceReadyTimeoutMs }).toContain(expected);
 }
 
-export async function expectSurfaceTextToMatch(
-  surface: ReturnType<Page['locator']>,
-  expected: RegExp
-): Promise<void> {
+export async function expectSurfaceTextToMatch(surface: ReturnType<Page['locator']>, expected: RegExp): Promise<void> {
   await expect.poll(() => surfaceText(surface), { timeout: routeSurfaceReadyTimeoutMs }).toMatch(expected);
 }
 

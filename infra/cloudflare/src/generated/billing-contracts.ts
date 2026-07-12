@@ -60,7 +60,10 @@ function generatedArray<T>(value: unknown, field: string, decoder: (item: unknow
   return value.map((item, index) => decoder(item, index));
 }
 
-function generatedSchema<T>(name: string, decoder: (value: unknown) => T): {
+function generatedSchema<T>(
+  name: string,
+  decoder: (value: unknown) => T
+): {
   parse(value: unknown): T;
   safeParse(value: unknown): GeneratedParseResult<T>;
 } {
@@ -200,13 +203,7 @@ export type BillingAccountRuntimeStatusRow = {
   family: {
     familyId: string;
   };
-  accountStatus:
-    | 'trialing'
-    | 'active'
-    | 'past-due'
-    | 'backend-unavailable'
-    | 'provider-unavailable'
-    | 'manual-review';
+  accountStatus: 'trialing' | 'active' | 'past-due' | 'backend-unavailable' | 'provider-unavailable' | 'manual-review';
   subscriptionStatus: 'active' | 'grace' | 'past-due';
   source: 'signed-local-snapshot' | 'manual-admin-review';
   backendRuntimeState: 'ready' | 'degraded' | 'unavailable';
@@ -376,7 +373,10 @@ function decodeBillingCheckoutSessionRequest(value: unknown): BillingCheckoutSes
     ]),
     requestId: generatedString(record.requestId, 'BillingCheckoutSessionRequest.requestId'),
     kind: generatedEnum(record.kind, 'BillingCheckoutSessionRequest.kind', ['checkout-session-create']),
-    parentAccountRef: generatedOptionalString(record.parentAccountRef, 'BillingCheckoutSessionRequest.parentAccountRef'),
+    parentAccountRef: generatedOptionalString(
+      record.parentAccountRef,
+      'BillingCheckoutSessionRequest.parentAccountRef'
+    ),
     familyRef: generatedOptionalString(record.familyRef, 'BillingCheckoutSessionRequest.familyRef'),
     subject: generatedOptionalString(record.subject, 'BillingCheckoutSessionRequest.subject'),
     planId: generatedString(record.planId, 'BillingCheckoutSessionRequest.planId'),
@@ -411,10 +411,7 @@ function decodeBillingCheckoutSessionResponse(value: unknown): BillingCheckoutSe
     requestId: generatedString(record.requestId, 'BillingCheckoutSessionResponse.requestId'),
     kind: generatedEnum(record.kind, 'BillingCheckoutSessionResponse.kind', ['checkout-session-create']),
     status: generatedEnum(record.status, 'BillingCheckoutSessionResponse.status', ['accepted', 'rejected']),
-    hostedSessionId: generatedNullableString(
-      record.hostedSessionId,
-      'BillingCheckoutSessionResponse.hostedSessionId'
-    ),
+    hostedSessionId: generatedNullableString(record.hostedSessionId, 'BillingCheckoutSessionResponse.hostedSessionId'),
     hostedUrl: generatedNullableString(record.hostedUrl, 'BillingCheckoutSessionResponse.hostedUrl'),
     expiresAt: generatedNullableString(record.expiresAt, 'BillingCheckoutSessionResponse.expiresAt'),
     rejectionReason:
@@ -584,11 +581,11 @@ function decodeBillingAccountRuntimeStatusRow(value: unknown): BillingAccountRun
       'signed-local-snapshot',
       'manual-admin-review',
     ]),
-    backendRuntimeState: generatedEnum(record.backendRuntimeState, 'BillingAccountRuntimeStatusRow.backendRuntimeState', [
-      'ready',
-      'degraded',
-      'unavailable',
-    ]),
+    backendRuntimeState: generatedEnum(
+      record.backendRuntimeState,
+      'BillingAccountRuntimeStatusRow.backendRuntimeState',
+      ['ready', 'degraded', 'unavailable']
+    ),
     parentVisibleState: generatedEnum(record.parentVisibleState, 'BillingAccountRuntimeStatusRow.parentVisibleState', [
       'available',
       'past-due',
@@ -596,20 +593,26 @@ function decodeBillingAccountRuntimeStatusRow(value: unknown): BillingAccountRun
       'unavailable',
       'manual-review',
     ]),
-    localSafetyBehavior: generatedEnum(record.localSafetyBehavior, 'BillingAccountRuntimeStatusRow.localSafetyBehavior', [
-      'unchanged',
-      'grace-with-local-safety',
-      'manual-review-with-local-safety',
-    ]),
-    evidenceExportAccess: generatedEnum(record.evidenceExportAccess, 'BillingAccountRuntimeStatusRow.evidenceExportAccess', [
-      'retained',
-    ]),
-    childActivityCustody: generatedEnum(record.childActivityCustody, 'BillingAccountRuntimeStatusRow.childActivityCustody', [
-      'not-included',
-    ]),
-    providerSecretCustody: generatedEnum(record.providerSecretCustody, 'BillingAccountRuntimeStatusRow.providerSecretCustody', [
-      'not-present',
-    ]),
+    localSafetyBehavior: generatedEnum(
+      record.localSafetyBehavior,
+      'BillingAccountRuntimeStatusRow.localSafetyBehavior',
+      ['unchanged', 'grace-with-local-safety', 'manual-review-with-local-safety']
+    ),
+    evidenceExportAccess: generatedEnum(
+      record.evidenceExportAccess,
+      'BillingAccountRuntimeStatusRow.evidenceExportAccess',
+      ['retained']
+    ),
+    childActivityCustody: generatedEnum(
+      record.childActivityCustody,
+      'BillingAccountRuntimeStatusRow.childActivityCustody',
+      ['not-included']
+    ),
+    providerSecretCustody: generatedEnum(
+      record.providerSecretCustody,
+      'BillingAccountRuntimeStatusRow.providerSecretCustody',
+      ['not-present']
+    ),
     providerMode: generatedEnum(record.providerMode, 'BillingAccountRuntimeStatusRow.providerMode', [
       'stripe-hosted',
       'manual-invoice',
@@ -649,28 +652,32 @@ function decodeBillingSupportAdminAccountSummary(value: unknown): BillingSupport
   return {
     parentAccountRef: generatedString(record.parentAccountRef, 'BillingSupportAdminAccountSummary.parentAccountRef'),
     familyRef: generatedString(record.familyRef, 'BillingSupportAdminAccountSummary.familyRef'),
-    parentVisibleState: generatedEnum(record.parentVisibleState, 'BillingSupportAdminAccountSummary.parentVisibleState', [
-      'available',
-      'grace',
-      'manual-review',
-      'stale',
-      'unavailable',
-    ]),
-    subscriptionStatus: generatedEnum(record.subscriptionStatus, 'BillingSupportAdminAccountSummary.subscriptionStatus', [
-      'active',
-      'grace',
-      'past-due',
-    ]),
+    parentVisibleState: generatedEnum(
+      record.parentVisibleState,
+      'BillingSupportAdminAccountSummary.parentVisibleState',
+      ['available', 'grace', 'manual-review', 'stale', 'unavailable']
+    ),
+    subscriptionStatus: generatedEnum(
+      record.subscriptionStatus,
+      'BillingSupportAdminAccountSummary.subscriptionStatus',
+      ['active', 'grace', 'past-due']
+    ),
     planId: generatedString(record.planId, 'BillingSupportAdminAccountSummary.planId'),
-    evidenceExportAccess: generatedEnum(record.evidenceExportAccess, 'BillingSupportAdminAccountSummary.evidenceExportAccess', [
-      'retained',
-    ]),
-    childActivityCustody: generatedEnum(record.childActivityCustody, 'BillingSupportAdminAccountSummary.childActivityCustody', [
-      'not-included',
-    ]),
-    providerSecretCustody: generatedEnum(record.providerSecretCustody, 'BillingSupportAdminAccountSummary.providerSecretCustody', [
-      'not-present',
-    ]),
+    evidenceExportAccess: generatedEnum(
+      record.evidenceExportAccess,
+      'BillingSupportAdminAccountSummary.evidenceExportAccess',
+      ['retained']
+    ),
+    childActivityCustody: generatedEnum(
+      record.childActivityCustody,
+      'BillingSupportAdminAccountSummary.childActivityCustody',
+      ['not-included']
+    ),
+    providerSecretCustody: generatedEnum(
+      record.providerSecretCustody,
+      'BillingSupportAdminAccountSummary.providerSecretCustody',
+      ['not-present']
+    ),
     manualRequired: generatedBoolean(record.manualRequired, 'BillingSupportAdminAccountSummary.manualRequired'),
     failureKind: generatedNullableString(record.failureKind, 'BillingSupportAdminAccountSummary.failureKind'),
     auditReference: generatedString(record.auditReference, 'BillingSupportAdminAccountSummary.auditReference'),
@@ -689,10 +696,7 @@ function decodeBillingSupportAdminAuditEventSummary(value: unknown): BillingSupp
       'admin',
       'system',
     ]),
-    parentAccountRef: generatedString(
-      record.parentAccountRef,
-      'BillingSupportAdminAuditEventSummary.parentAccountRef'
-    ),
+    parentAccountRef: generatedString(record.parentAccountRef, 'BillingSupportAdminAuditEventSummary.parentAccountRef'),
     familyRef: generatedString(record.familyRef, 'BillingSupportAdminAuditEventSummary.familyRef'),
     auditReference: generatedString(record.auditReference, 'BillingSupportAdminAuditEventSummary.auditReference'),
     createdAt: generatedString(record.createdAt, 'BillingSupportAdminAuditEventSummary.createdAt'),
@@ -711,11 +715,11 @@ function decodeBillingSupportAdminDisputeSummary(value: unknown): BillingSupport
       'dispute-won',
       'dispute-lost',
     ]),
-    entitlementEffect: generatedEnum(
-      record.entitlementEffect,
-      'BillingSupportAdminDisputeSummary.entitlementEffect',
-      ['manual-review-required', 'grace-paid-access', 'revoke-paid-access']
-    ),
+    entitlementEffect: generatedEnum(record.entitlementEffect, 'BillingSupportAdminDisputeSummary.entitlementEffect', [
+      'manual-review-required',
+      'grace-paid-access',
+      'revoke-paid-access',
+    ]),
     manualRequired: generatedBoolean(record.manualRequired, 'BillingSupportAdminDisputeSummary.manualRequired'),
     auditReference: generatedString(record.auditReference, 'BillingSupportAdminDisputeSummary.auditReference'),
     updatedAt: generatedString(record.updatedAt, 'BillingSupportAdminDisputeSummary.updatedAt'),
@@ -744,7 +748,10 @@ function decodeBillingSupportAdminInvoiceSummary(value: unknown): BillingSupport
       'unpaid',
       'refunded',
     ]),
-    provider: generatedEnum(record.provider, 'BillingSupportAdminInvoiceSummary.provider', ['stripe', 'manual-invoice']),
+    provider: generatedEnum(record.provider, 'BillingSupportAdminInvoiceSummary.provider', [
+      'stripe',
+      'manual-invoice',
+    ]),
     hostedUrl: generatedNullableString(record.hostedUrl, 'BillingSupportAdminInvoiceSummary.hostedUrl'),
     periodStart: generatedString(record.periodStart, 'BillingSupportAdminInvoiceSummary.periodStart'),
     periodEnd: generatedString(record.periodEnd, 'BillingSupportAdminInvoiceSummary.periodEnd'),
@@ -840,9 +847,7 @@ function decodeBillingSupportAdminReferralsResponse(value: unknown): BillingSupp
   };
 }
 
-function decodeBillingSupportAdminReconciliationSummary(
-  value: unknown
-): BillingSupportAdminReconciliationSummary {
+function decodeBillingSupportAdminReconciliationSummary(value: unknown): BillingSupportAdminReconciliationSummary {
   const record = generatedRecord(value, 'BillingSupportAdminReconciliationSummary');
   return {
     requestId: generatedString(record.requestId, 'BillingSupportAdminReconciliationSummary.requestId'),
@@ -876,7 +881,9 @@ function decodeBillingSupportAdminRefundResult(value: unknown): BillingSupportAd
       'manual-review-required',
     ]),
     amountCents:
-      record.amountCents === null ? null : generatedNumber(record.amountCents, 'BillingSupportAdminRefundResult.amountCents'),
+      record.amountCents === null
+        ? null
+        : generatedNumber(record.amountCents, 'BillingSupportAdminRefundResult.amountCents'),
     auditReference: generatedString(record.auditReference, 'BillingSupportAdminRefundResult.auditReference'),
     rejectionReason:
       record.rejectionReason === null

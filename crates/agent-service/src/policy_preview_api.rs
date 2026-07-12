@@ -39,7 +39,7 @@ pub async fn build_policy_preview_read_model_report(
 
 pub(crate) async fn load_policy_preview_read_model() -> Option<PolicyPreviewReadModel> {
     let path = activity_db_path();
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(path).ok()?;
         store

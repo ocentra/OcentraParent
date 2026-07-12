@@ -133,7 +133,12 @@ fn runtime_device_limit_consumptions(
     runtime_validation_failure: &Value,
 ) -> Value {
     json!([
-        device_limit_consumption("runtime-device-allowed", "allowed", "accepted-local", Value::Null),
+        device_limit_consumption(
+            "runtime-device-allowed",
+            "allowed",
+            "accepted-local",
+            Value::Null
+        ),
         device_limit_consumption(
             "runtime-device-denied",
             "denied",

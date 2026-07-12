@@ -9,6 +9,7 @@ use std::string::String as TestString;
 use ocentra_parent_agent_protocol::constants;
 
 use crate::local_ai_runtime_acceleration_config::LocalAiRuntimeAccelerationConfig;
+use crate::local_ai_runtime_config_values::LocalAiRuntimePath;
 use crate::local_ai_runtime_distribution::{
     requested_runtime_acceleration, select_llama_runtime_distribution, LlamaRuntimeAcceleration,
     LocalAiRuntimeTarget,
@@ -172,7 +173,10 @@ fn extracted_runtime_path_uses_release_cache_directory() {
     expected.push(constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG);
     expected.push(constants::local_ai_runtime::LLAMA_CLI_EXECUTABLE_WINDOWS);
 
-    assert_eq!(distribution.extracted_binary_path(&cache_root), expected);
+    assert_eq!(
+        distribution.extracted_binary_path(&cache_root),
+        LocalAiRuntimePath(expected),
+    );
 }
 
 #[test]
@@ -192,7 +196,10 @@ fn runtime_archive_path_uses_asset_name_under_runtime_cache() {
     expected.push(constants::local_ai_runtime::LLAMA_CPP_CACHE_DIR);
     expected.push(&distribution.asset_name);
 
-    assert_eq!(distribution.archive_path(&cache_root), expected);
+    assert_eq!(
+        distribution.archive_path(&cache_root),
+        LocalAiRuntimePath(expected)
+    );
 }
 
 fn expected_asset_name(suffix: &TestStr) -> TestString {

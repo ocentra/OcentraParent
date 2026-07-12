@@ -1,16 +1,21 @@
+use super::SurfaceText;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
 use ocentra_parent_agent_protocol::constants;
 
-pub(super) fn read_model_state_value(state: ActivityReadModelState) -> &'static str {
+pub(super) fn read_model_state_value(state: ActivityReadModelState) -> SurfaceText {
     match state {
-        ActivityReadModelState::Ready => constants::activity_surface::STATE_READY,
-        ActivityReadModelState::Empty => constants::activity_surface::STATE_EMPTY,
-        ActivityReadModelState::Unavailable => constants::activity_surface::STATE_UNAVAILABLE,
-        ActivityReadModelState::Offline => constants::activity_surface::STATE_OFFLINE,
-        ActivityReadModelState::Stale => constants::activity_surface::STATE_STALE,
-        ActivityReadModelState::PermissionRequired => {
-            constants::activity_surface::STATE_PERMISSION_REQUIRED
+        ActivityReadModelState::Ready => SurfaceText(constants::activity_surface::STATE_READY),
+        ActivityReadModelState::Empty => SurfaceText(constants::activity_surface::STATE_EMPTY),
+        ActivityReadModelState::Unavailable => {
+            SurfaceText(constants::activity_surface::STATE_UNAVAILABLE)
         }
-        ActivityReadModelState::ScaffoldOnly => constants::activity_surface::STATE_SCAFFOLD_ONLY,
+        ActivityReadModelState::Offline => SurfaceText(constants::activity_surface::STATE_OFFLINE),
+        ActivityReadModelState::Stale => SurfaceText(constants::activity_surface::STATE_STALE),
+        ActivityReadModelState::PermissionRequired => {
+            SurfaceText(constants::activity_surface::STATE_PERMISSION_REQUIRED)
+        }
+        ActivityReadModelState::ScaffoldOnly => {
+            SurfaceText(constants::activity_surface::STATE_SCAFFOLD_ONLY)
+        }
     }
 }

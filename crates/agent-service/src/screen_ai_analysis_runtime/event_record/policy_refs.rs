@@ -1,7 +1,9 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
-use super::ScreenAiAnalysisEventRecord;
+use super::super::queue::QueuedScreenImage;
+use super::{ScreenAiAnalysisEventRecord, ScreenAnalysisFieldEntry};
+use crate::screen_ai_service_capture_event_builder::{ScreenIdPrefix, ScreenText};
 
 pub(super) struct ScreenAiServicePolicyRefs {
     pub(super) policy_decision_ref: Option<String>,
@@ -14,26 +16,34 @@ pub(super) struct ScreenAiServicePolicyRefs {
 }
 
 pub(super) fn service_policy_refs(
-    queue_job_id: &str,
+    image: &QueuedScreenImage,
     policy_eligible: bool,
 ) -> ScreenAiServicePolicyRefs {
     if !policy_eligible {
         return empty_policy_refs();
     }
     ScreenAiServicePolicyRefs {
-        policy_decision_ref: Some(prefixed_id(
-            constants::screen_flow::SCREEN_SERVICE_POLICY_DECISION_ID_PREFIX,
-            queue_job_id,
-        )),
+        policy_decision_ref: Some(
+            prefixed_id(
+                ScreenIdPrefix(constants::screen_flow::SCREEN_SERVICE_POLICY_DECISION_ID_PREFIX),
+                &ScreenText::from_display(image.queue_job_id.clone()),
+            )
+            .0,
+        ),
         policy_action: Some(constants::screen_flow::SCREEN_SERVICE_POLICY_ACTION_ALLOW.to_string()),
         policy_reason_codes: vec![
             constants::screen_flow::SCREEN_SERVICE_POLICY_REASON_CODE.to_string()
         ],
         parent_rule_refs: vec![constants::screen_flow::SCREEN_SERVICE_PARENT_RULE_REF.to_string()],
-        parent_explanation_refs: vec![prefixed_id(
-            constants::screen_flow::SCREEN_SERVICE_PARENT_EXPLANATION_REF_PREFIX,
-            queue_job_id,
-        )],
+        parent_explanation_refs: vec![
+            prefixed_id(
+                ScreenIdPrefix(
+                    constants::screen_flow::SCREEN_SERVICE_PARENT_EXPLANATION_REF_PREFIX,
+                ),
+                &ScreenText::from_display(image.queue_job_id.clone()),
+            )
+            .0,
+        ],
         explanation_reasons: vec![
             constants::screen_flow::SCREEN_SERVICE_EXPLANATION_REASON.to_string()
         ],
@@ -43,37 +53,48 @@ pub(super) fn service_policy_refs(
 
 pub(super) fn screen_analysis_policy_fields(
     record: &ScreenAiAnalysisEventRecord,
-) -> Vec<(&'static str, LogFieldValue)> {
-    [
-        optional_string_field(
-            constants::field::POLICY_DECISION_ID,
-            record.policy_decision_ref.clone(),
-        ),
-        optional_string_field(
-            constants::field::POLICY_ACTION,
-            record.policy_action.clone(),
-        ),
-        optional_string_list_field(
+) -> Vec<ScreenAnalysisFieldEntry> {
+    let join_values = |values: &[String]| values.join(&constants::delimiter::LIST.to_string());
+    let mut fields = Vec::new();
+    if let Some(value) = &record.policy_decision_ref {
+        fields.push(ScreenAnalysisFieldEntry {
+            key: constants::field::POLICY_DECISION_ID,
+            value: LogFieldValue::String(value.clone()),
+        });
+    }
+    if let Some(value) = &record.policy_action {
+        fields.push(ScreenAnalysisFieldEntry {
+            key: constants::field::POLICY_ACTION,
+            value: LogFieldValue::String(value.clone()),
+        });
+    }
+    for (key, values) in [
+        (
             constants::field::POLICY_REASON_CODES,
             &record.policy_reason_codes,
         ),
-        optional_string_list_field(constants::field::POLICY_RULE_IDS, &record.parent_rule_refs),
-        optional_string_list_field(
+        (constants::field::POLICY_RULE_IDS, &record.parent_rule_refs),
+        (
             constants::field::SCREEN_PARENT_EXPLANATION_REFS,
             &record.parent_explanation_refs,
         ),
-        optional_string_list_field(
+        (
             constants::field::SCREEN_EXPLANATION_REASONS,
             &record.explanation_reasons,
         ),
-        optional_string_list_field(
+        (
             constants::field::SCREEN_DELETION_REASONS,
             &record.deletion_reasons,
         ),
-    ]
-    .into_iter()
-    .flatten()
-    .collect()
+    ] {
+        if !values.is_empty() {
+            fields.push(ScreenAnalysisFieldEntry {
+                key,
+                value: LogFieldValue::String(join_values(values)),
+            });
+        }
+    }
+    fields
 }
 
 fn empty_policy_refs() -> ScreenAiServicePolicyRefs {
@@ -88,33 +109,8 @@ fn empty_policy_refs() -> ScreenAiServicePolicyRefs {
     }
 }
 
-fn optional_string_field(
-    key: &'static str,
-    value: Option<String>,
-) -> Option<(&'static str, LogFieldValue)> {
-    value.map(|value| string_field(key, value))
-}
-
-fn optional_string_list_field(
-    key: &'static str,
-    values: &[String],
-) -> Option<(&'static str, LogFieldValue)> {
-    if values.is_empty() {
-        None
-    } else {
-        Some(string_field(
-            key,
-            values.join(&constants::delimiter::LIST.to_string()),
-        ))
-    }
-}
-
-fn string_field(key: &'static str, value: impl Into<String>) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::String(value.into()))
-}
-
-fn prefixed_id(prefix: &str, value: &str) -> String {
-    let mut id = String::from(prefix);
-    id.push_str(value);
-    id
+fn prefixed_id(prefix: ScreenIdPrefix, value: &ScreenText) -> ScreenText {
+    let mut id = String::from(prefix.0);
+    id.push_str(&value.0);
+    ScreenText::from_display(id)
 }

@@ -6,7 +6,9 @@ use crate::{
     activity_store_path::activity_db_path,
     activity_surface_store::load_app_game_model,
     browser_evidence_payload::browser_evidence_read_model_payload,
-    browser_inventory_read_model::browser_inventory_read_model_from_windows_inventory,
+    browser_inventory_read_model::{
+        browser_inventory_read_model_from_windows_inventory, BrowserInventoryGeneratedAtText,
+    },
     browser_payload::browser_inventory_read_model_payload,
     browser_runtime_paths::system_browser_candidate_paths,
     event_builder::build_event,
@@ -36,37 +38,67 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use std::future::Future;
 
+#[path = "activity_api/activity_store_error_event.rs"]
 pub(crate) mod activity_store_error_event;
 use self::activity_store_error_event::activity_store_error_event;
 
+#[path = "activity_api/activity_memory_graph_report.rs"]
 pub(crate) mod activity_memory_graph_report;
+#[path = "activity_api/app_game_adapter_dispatch_execute_payload.rs"]
 pub(crate) mod app_game_adapter_dispatch_execute_payload;
+#[path = "activity_api/app_game_adapter_dispatch_preflight_payload.rs"]
 pub(crate) mod app_game_adapter_dispatch_preflight_payload;
+#[path = "activity_api/app_game_adapter_dispatch_result_fields.rs"]
 pub(crate) mod app_game_adapter_dispatch_result_fields;
+#[path = "activity_api/app_game_adapter_dispatch_result_payload.rs"]
 pub(crate) mod app_game_adapter_dispatch_result_payload;
+#[path = "activity_api/app_game_adapter_execution_readiness_payload.rs"]
 pub(crate) mod app_game_adapter_execution_readiness_payload;
+#[path = "activity_api/app_game_adapter_host_capabilities.rs"]
 mod app_game_adapter_host_capabilities;
+#[path = "activity_api/app_game_adapter_host_capabilities_paths.rs"]
 mod app_game_adapter_host_capabilities_paths;
+#[path = "activity_api/app_game_boundary_read_model_payload.rs"]
 mod app_game_boundary_read_model_payload;
+#[path = "activity_api/app_game_boundary_read_model_payload_rows.rs"]
 mod app_game_boundary_read_model_payload_rows;
+#[path = "activity_api/app_game_child_runtime_transport_receipt_payload.rs"]
 pub(crate) mod app_game_child_runtime_transport_receipt_payload;
+#[path = "activity_api/app_game_notification_readiness_payload.rs"]
 mod app_game_notification_readiness_payload;
+#[path = "activity_api/app_game_platform_proof_status_payload.rs"]
 pub(crate) mod app_game_platform_proof_status_payload;
+#[path = "activity_api/app_game_policy_readiness_payload.rs"]
 mod app_game_policy_readiness_payload;
+#[path = "activity_api/app_game_policy_readiness_sources.rs"]
 mod app_game_policy_readiness_sources;
+#[path = "activity_api/app_game_timer_parent_preference_setup_request.rs"]
 pub(crate) mod app_game_timer_parent_preference_setup_request;
+#[path = "activity_api/app_game_timer_parent_preference_setup_request_outbox.rs"]
 mod app_game_timer_parent_preference_setup_request_outbox;
+#[path = "activity_api/app_game_timer_parent_preference_setup_request_persistence.rs"]
 mod app_game_timer_parent_preference_setup_request_persistence;
+#[path = "activity_api/app_game_timer_parent_preference_setup_request_status.rs"]
 mod app_game_timer_parent_preference_setup_request_status;
+#[path = "activity_api/app_game_timer_parent_surface_action_results.rs"]
 mod app_game_timer_parent_surface_action_results;
+#[path = "activity_api/app_game_timer_parent_surface_payload.rs"]
 pub(crate) mod app_game_timer_parent_surface_payload;
+#[path = "activity_api/browser_intervention_payload.rs"]
 mod browser_intervention_payload;
+#[path = "activity_api/browser_intervention_report.rs"]
 pub(crate) mod browser_intervention_report;
+#[path = "activity_api/social_alert_report_parent_surface_read_model_payload.rs"]
 pub(crate) mod social_alert_report_parent_surface_read_model_payload;
+#[path = "activity_api/social_alert_report_read_model_payload.rs"]
 pub(crate) mod social_alert_report_read_model_payload;
+#[path = "activity_api/social_audit_explanation_read_model_payload.rs"]
 pub(crate) mod social_audit_explanation_read_model_payload;
+#[path = "activity_api/social_dashboard_read_model_payload.rs"]
 pub(crate) mod social_dashboard_read_model_payload;
+#[path = "activity_api/social_parent_notification_delivery_read_model_payload.rs"]
 pub(crate) mod social_parent_notification_delivery_read_model_payload;
+#[path = "activity_api/social_source_custody_mutation_payload.rs"]
 pub(crate) mod social_source_custody_mutation_payload;
 
 use self::app_game_boundary_read_model_payload::{
@@ -252,7 +284,8 @@ pub async fn build_activity_app_game_notification_readiness_report(
         AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
         async {
             load_app_game_model().await.map(|model| {
-                let local_outbox_runtime_claimed = setup_outbox_has_records(&activity_db_path());
+                let local_outbox_runtime_claimed =
+                    setup_outbox_has_records(&std::path::PathBuf::from(activity_db_path()));
                 app_game_notification_readiness_from_service_model(
                     model,
                     local_outbox_runtime_claimed,
@@ -291,7 +324,7 @@ where
 
 async fn load_browser_inventory_read_model() -> BrowserInventoryReadModel {
     let generated_at = GeneratedAtText(timestamp_now());
-    let fallback_generated_at = generated_at.clone().0;
+    let fallback_generated_at = BrowserInventoryGeneratedAtText(generated_at.clone().0);
     tokio::task::spawn_blocking(move || {
         let process_observations =
             collect_process_snapshot(constants::browser::PROCESS_SCAN_LIMIT_BROWSER_DISCOVERY);
@@ -309,12 +342,15 @@ pub(crate) fn browser_inventory_read_model_from_service_defaults(
 ) -> BrowserInventoryReadModel {
     let candidate_paths = system_browser_candidate_paths();
     let mut observations =
-        windows_browser_inventory_observations(&candidate_paths, process_observations, None);
+        windows_browser_inventory_observations(&candidate_paths.0, process_observations, None);
     let package_identities = live_windows_browser_package_entries_with_limit(
         constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
     );
     observations.extend(windows_browser_package_observations(&package_identities));
-    browser_inventory_read_model_from_windows_inventory(generated_at.0, &observations)
+    browser_inventory_read_model_from_windows_inventory(
+        BrowserInventoryGeneratedAtText(generated_at.0),
+        &observations,
+    )
 }
 
 async fn load_activity_ingest_status() -> Option<ActivityIngestStatus> {
@@ -349,7 +385,7 @@ pub(crate) async fn load_browser_evidence_read_model(
         store
             .browser_evidence_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
-                &timestamp_now(),
+                timestamp_now::<String>().as_str(),
             )
             .ok()
     })
@@ -366,7 +402,7 @@ pub(crate) async fn load_network_flow_read_model(
         store
             .network_flow_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
-                &timestamp_now(),
+                timestamp_now::<String>().as_str(),
             )
             .ok()
     })
@@ -383,7 +419,7 @@ async fn load_activity_tracking_read_model(
         tracking_read_model_for_store(
             &store,
             constants::activity_store::DEFAULT_RECENT_LIMIT,
-            &timestamp_now(),
+            timestamp_now::<String>().as_str(),
         )
         .ok()
     })

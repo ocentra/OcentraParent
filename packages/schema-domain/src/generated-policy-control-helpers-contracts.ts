@@ -44,11 +44,7 @@ export const GeneratedPolicyScheduleDstResolutionValues = [
   'second-occurrence',
   'manual-required',
 ] as const;
-export const GeneratedPolicyScheduleClockSourceValues = [
-  'child-device',
-  'trusted-service',
-  'manual-required',
-] as const;
+export const GeneratedPolicyScheduleClockSourceValues = ['child-device', 'trusted-service', 'manual-required'] as const;
 export const GeneratedPolicyScheduleOfflineRecoveryStateValues = [
   'not-needed',
   'recovered-from-device',
@@ -160,18 +156,14 @@ export const GeneratedAppGameCategoryRiskPolicyCandidateActionValues = [
   'askParent',
   'manualReview',
 ] as const;
-export const GeneratedAppGameCategoryRiskPolicyRoutingStateValues = [
-  'compile-ready',
-  'manual-required',
-] as const;
+export const GeneratedAppGameCategoryRiskPolicyRoutingStateValues = ['compile-ready', 'manual-required'] as const;
 
 export type GeneratedPolicyAction = (typeof GeneratedPolicyActionValues)[number];
 export type GeneratedPolicyTargetType = (typeof GeneratedPolicyTargetTypeValues)[number];
 export type GeneratedPolicyScheduleDay = (typeof GeneratedPolicyScheduleDayValues)[number];
 export type GeneratedPolicyDecisionHandoffState = (typeof GeneratedPolicyDecisionHandoffStateValues)[number];
 export type GeneratedPermissionRequestState = (typeof GeneratedPermissionRequestStateValues)[number];
-export type GeneratedPolicyPreviewConfirmationState =
-  (typeof GeneratedPolicyPreviewConfirmationStateValues)[number];
+export type GeneratedPolicyPreviewConfirmationState = (typeof GeneratedPolicyPreviewConfirmationStateValues)[number];
 export type GeneratedPolicyScheduleBoundaryState = (typeof GeneratedPolicyScheduleBoundaryStateValues)[number];
 export type GeneratedPolicyScheduleDstTransition = (typeof GeneratedPolicyScheduleDstTransitionValues)[number];
 export type GeneratedPolicyScheduleDstResolution = (typeof GeneratedPolicyScheduleDstResolutionValues)[number];

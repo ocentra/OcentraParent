@@ -845,7 +845,10 @@ function upsertLanDeviceSlot(
     devices.delete(existing.value);
   }
   const preserveCanonicalState =
-    !!existing && hasCanonicalLanPhysicalSlotValue(existing.value) && !incomingHasAgentFacet && input.preferState !== true;
+    !!existing &&
+    hasCanonicalLanPhysicalSlotValue(existing.value) &&
+    !incomingHasAgentFacet &&
+    input.preferState !== true;
   const state = preserveCanonicalState
     ? stringValue(existing.badge) || input.state
     : input.preferState ||
@@ -870,7 +873,12 @@ function upsertLanDeviceSlot(
       name: slotLabel,
       ip: input.ip || existing?.device?.ip,
       mac: input.mac || existing?.device?.mac,
-      hostname: preferredLanHostname(existing?.device?.hostname, input.hostname, existingHasAgentFacet, incomingHasAgentFacet),
+      hostname: preferredLanHostname(
+        existing?.device?.hostname,
+        input.hostname,
+        existingHasAgentFacet,
+        incomingHasAgentFacet
+      ),
       networkInterface: input.networkInterface || existing?.device?.networkInterface,
       agentStatus: preserveCanonicalIdentity
         ? nonEmptyString(existing?.device?.agentStatus) || nonEmptyString(input.agentStatus)

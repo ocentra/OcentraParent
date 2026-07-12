@@ -12,8 +12,7 @@ const ownerPrefixes = [
   'crates/agent-updater/src/',
   'crates/logging-core/src/',
 ];
-const testScopedPathPattern =
-  /(^|\/)[^/]*_tests?\/|_tests?\.rs$|_test_support\.rs$|_test_fixtures?\.rs$|\/tests?\//u;
+const testScopedPathPattern = /(^|\/)[^/]*_tests?\/|_tests?\.rs$|_test_support\.rs$|_test_fixtures?\.rs$|\/tests?\//u;
 const suspiciousTypePattern = '(?:String|&str|Cow<[^>]*str[^>]*>|Option<String>|Vec<String>|HashMap<String\\s*,[^>]+>)';
 const publicSerdeStructPattern = /^\s*pub\s+struct\s+\w+/u;
 const publicFieldPattern = new RegExp(

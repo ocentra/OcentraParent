@@ -26,7 +26,7 @@ function nonEmptyLanString(value: unknown): string | null {
 function normalizeLanDiscoveryStatus(value: unknown): string {
   return typeof value === 'string' && LanDiscoveryStatusValues.has(value)
     ? value
-    : LanDiscoveryStatusAliases.get(String(value)) ?? LanDiscoveryStatusFallback;
+    : (LanDiscoveryStatusAliases.get(String(value)) ?? LanDiscoveryStatusFallback);
 }
 
 function normalizeLanSourceLabels(value: unknown): string[] {
@@ -37,7 +37,9 @@ function normalizeLanSourceLabels(value: unknown): string[] {
     if (entry === 'local-service' || entry === 'network-neighbor' || entry === 'trusted-registry') {
       return [entry];
     }
-    return LanSourceLabelAliases.has(String(entry)) ? [LanSourceLabelAliases.get(String(entry)) ?? 'network-neighbor'] : [];
+    return LanSourceLabelAliases.has(String(entry))
+      ? [LanSourceLabelAliases.get(String(entry)) ?? 'network-neighbor']
+      : [];
   });
 }
 

@@ -234,7 +234,10 @@ function reasonCodesIncludeUnknownFallback(value: ReadonlyArray<SocialParentPoli
   return SocialPolicyUnknownFallbackReasons.some((reasonCode) => value.includes(reasonCode));
 }
 
-const SocialPolicyAllowReasons = ['social-benefit-present', 'parent-rule-match'] as const satisfies ReadonlyArray<SocialParentPolicyReasonCode>;
+const SocialPolicyAllowReasons = [
+  'social-benefit-present',
+  'parent-rule-match',
+] as const satisfies ReadonlyArray<SocialParentPolicyReasonCode>;
 
 const SocialPolicyUnknownFallbackReasons = [
   'missing-signal-proof',

@@ -364,9 +364,11 @@ fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
             constants::activity_store::TEST_STORE_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
-        timer_state_path: build_path(
-            constants::enforcement::TIMER_STATE_ID_PREFIX,
-            constants::activity_store::FILE_EXTENSION,
+        timer_state_path: crate::enforcement_timer_state_path::EnforcementTimerStatePath(
+            build_path(
+                constants::enforcement::TIMER_STATE_ID_PREFIX,
+                constants::activity_store::FILE_EXTENSION,
+            ),
         ),
     }
 }

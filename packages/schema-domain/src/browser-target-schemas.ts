@@ -1,5 +1,3 @@
-import {
-  BrowserTargetIdSchema as GeneratedBrowserTargetIdSchema,
-} from './generated-browser-target-schemas';
+import { BrowserTargetIdSchema as GeneratedBrowserTargetIdSchema } from './generated-browser-target-schemas';
 
 export const BrowserTargetIdSchema = GeneratedBrowserTargetIdSchema;

@@ -1,7 +1,4 @@
-import {
-  PortalAgentEvent,
-  type PortalRouteEventRecord,
-} from './portal-contract-adapter';
+import { PortalAgentEvent, type PortalRouteEventRecord } from './portal-contract-adapter';
 import {
   type GeneratedPortalAgentActivitySurfaceAdapterFailureReason,
   GeneratedPortalSocialReadModelPayloadField,
@@ -13,8 +10,7 @@ import {
 } from './generated-portal-contracts';
 import type { ReadModelResult } from './read-model-result';
 
-export type SocialReadModelFailureReason =
-  GeneratedPortalAgentActivitySurfaceAdapterFailureReason;
+export type SocialReadModelFailureReason = GeneratedPortalAgentActivitySurfaceAdapterFailureReason;
 
 export type SocialReadModelResult<T> = ReadModelResult<T, SocialReadModelFailureReason>;
 

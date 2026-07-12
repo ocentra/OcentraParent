@@ -44,7 +44,9 @@ export function portalLanRelayCacheSummary(rows: readonly PortalLanRelayCacheRow
 }
 
 function optionalSummaryText(values: readonly (string | null | undefined)[]): string | null {
-  const normalized = [...new Set(values.filter((value): value is string => value !== null && value !== undefined && value.length > 0))];
+  const normalized = [
+    ...new Set(values.filter((value): value is string => value !== null && value !== undefined && value.length > 0)),
+  ];
   return normalized.length === 0 ? null : normalized.join(' | ');
 }
 

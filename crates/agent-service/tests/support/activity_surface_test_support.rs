@@ -7,7 +7,10 @@ use std::fs::remove_dir_all;
 use std::path::Path as TestPath;
 
 pub async fn handle_local_command_text_for_test(body: TestText) -> AgentEventEnvelope {
-    crate::agent_service_lib::websocket::dispatch_local_command_text(body.0.as_str()).await
+    crate::agent_service_lib::websocket::dispatch_local_command_text(
+        crate::agent_service_lib::websocket::WebsocketCommandText(body.0),
+    )
+    .await
 }
 
 pub async fn lock_activity_report_env_for_test() -> tokio::sync::MutexGuard<'static, ()> {

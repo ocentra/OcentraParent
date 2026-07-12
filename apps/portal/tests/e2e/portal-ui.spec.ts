@@ -301,11 +301,7 @@ async function assertDevicesRoute(page: Page): Promise<string> {
   await expect(page.getByText('SELECTED DEVICE').first()).toBeVisible();
   await expect(page.getByText('SOURCE').first()).toBeVisible();
   await expect(page.getByText('CONTROL').first()).toBeVisible();
-  for (const tabName of [
-    'Show LAN pairing Info',
-    'Show LAN pairing Update',
-    'Show LAN pairing Capability',
-  ]) {
+  for (const tabName of ['Show LAN pairing Info', 'Show LAN pairing Update', 'Show LAN pairing Capability']) {
     await expect(page.getByRole('tab', { exact: true, name: tabName })).toBeVisible();
   }
   const pairTab = page.getByRole('tab', { exact: true, name: 'Show LAN pairing Pair' });

@@ -18,13 +18,20 @@ fn network_generated_helpers_remain_rust_owned_and_marked() {
     let generated_metadata = network_control_catalog_metadata_generated_typescript();
     let generated_metadata_text = network_control_catalog_metadata_text_generated_typescript();
     let generated_metadata_layout = network_control_catalog_metadata_layout_generated_typescript();
-    let generated_metadata_classifiers = network_control_catalog_metadata_classifiers_generated_typescript();
+    let generated_metadata_classifiers =
+        network_control_catalog_metadata_classifiers_generated_typescript();
     let generated_builders = network_control_catalog_builders_generated_typescript();
     let generated_value_helpers = network_control_catalog_value_helpers_generated_typescript();
 
-    assert!(generated_catalog.starts_with("/* generated from crates/network-core/src/network_control_catalog.ts.txt */"));
-    assert!(generated_data.starts_with("/* generated from crates/network-core/src/network_control_catalog_data.ts.txt */"));
-    assert!(generated_schema.starts_with("/* generated from crates/network-core/src/network_control_catalog_schema.ts.txt */"));
+    assert!(generated_catalog.starts_with(
+        "/* generated from crates/network-core/src/network_control_catalog.ts.txt */"
+    ));
+    assert!(generated_data.starts_with(
+        "/* generated from crates/network-core/src/network_control_catalog_data.ts.txt */"
+    ));
+    assert!(generated_schema.starts_with(
+        "/* generated from crates/network-core/src/network_control_catalog_schema.ts.txt */"
+    ));
     assert!(generated_metadata.starts_with(
         "/* generated from crates/network-core/src/network_control_catalog_metadata.ts.txt */"
     ));
@@ -37,8 +44,12 @@ fn network_generated_helpers_remain_rust_owned_and_marked() {
     assert!(generated_metadata_classifiers.starts_with(
         "/* generated from crates/network-core/src/network_control_catalog_metadata_classifiers.ts.txt */"
     ));
-    assert!(generated_builders.starts_with("/* generated from crates/network-core/src/network_control_catalog_builders.ts.txt */"));
-    assert!(generated_value_helpers.starts_with("/* generated from crates/network-core/src/network_control_catalog_value_helpers.ts.txt */"));
+    assert!(generated_builders.starts_with(
+        "/* generated from crates/network-core/src/network_control_catalog_builders.ts.txt */"
+    ));
+    assert!(generated_value_helpers.starts_with(
+        "/* generated from crates/network-core/src/network_control_catalog_value_helpers.ts.txt */"
+    ));
 
     assert_eq!(
         generated_metadata
@@ -79,16 +90,40 @@ fn network_generated_catalog_surfaces_stay_checked_in() {
         "../../../../packages/schema-domain/src/network-control-catalog-value-helpers.ts"
     );
 
-    assert_eq!(checked_in_catalog, network_control_catalog_generated_typescript());
-    assert_eq!(checked_in_data, network_control_catalog_data_generated_typescript());
-    assert_eq!(checked_in_schema, network_control_catalog_schema_generated_typescript());
-    assert_eq!(checked_in_metadata, network_control_catalog_metadata_generated_typescript());
-    assert_eq!(checked_in_metadata_text, network_control_catalog_metadata_text_generated_typescript());
-    assert_eq!(checked_in_metadata_layout, network_control_catalog_metadata_layout_generated_typescript());
+    assert_eq!(
+        checked_in_catalog,
+        network_control_catalog_generated_typescript()
+    );
+    assert_eq!(
+        checked_in_data,
+        network_control_catalog_data_generated_typescript()
+    );
+    assert_eq!(
+        checked_in_schema,
+        network_control_catalog_schema_generated_typescript()
+    );
+    assert_eq!(
+        checked_in_metadata,
+        network_control_catalog_metadata_generated_typescript()
+    );
+    assert_eq!(
+        checked_in_metadata_text,
+        network_control_catalog_metadata_text_generated_typescript()
+    );
+    assert_eq!(
+        checked_in_metadata_layout,
+        network_control_catalog_metadata_layout_generated_typescript()
+    );
     assert_eq!(
         checked_in_metadata_classifiers,
         network_control_catalog_metadata_classifiers_generated_typescript()
     );
-    assert_eq!(checked_in_builders, network_control_catalog_builders_generated_typescript());
-    assert_eq!(checked_in_value_helpers, network_control_catalog_value_helpers_generated_typescript());
+    assert_eq!(
+        checked_in_builders,
+        network_control_catalog_builders_generated_typescript()
+    );
+    assert_eq!(
+        checked_in_value_helpers,
+        network_control_catalog_value_helpers_generated_typescript()
+    );
 }

@@ -38,7 +38,9 @@ export const BrowserGamePolicyReasonCodeSchema = withParser(
 export const BrowserGamePolicyCompilerModeSchema = withParser(
   Schema.Literal(...GeneratedBrowserGamePolicyCompilerModeValues)
 );
-export const BrowserGamePolicyConfidenceSchema = withParser(Schema.Literal(...GeneratedBrowserGamePolicyConfidenceValues));
+export const BrowserGamePolicyConfidenceSchema = withParser(
+  Schema.Literal(...GeneratedBrowserGamePolicyConfidenceValues)
+);
 
 export const BrowserGamePolicyReasonCodesSchema = Schema.Array(BrowserGamePolicyReasonCodeSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected browser game policy reason codes')

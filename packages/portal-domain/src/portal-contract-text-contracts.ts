@@ -28,7 +28,10 @@ export const PortalDevToolUrlSchema: PortalLiteralSchema<PortalDevToolUrl> = {
   },
   safeParse(input: unknown): SafeParseResult<PortalDevToolUrl> {
     if (typeof input !== 'string' || input.length === 0) {
-      return { success: false, error: new TypeError('PortalDevToolUrl must be a non-empty Rust-owned protocol string') };
+      return {
+        success: false,
+        error: new TypeError('PortalDevToolUrl must be a non-empty Rust-owned protocol string'),
+      };
     }
     return { success: true, data: input as PortalDevToolUrl };
   },

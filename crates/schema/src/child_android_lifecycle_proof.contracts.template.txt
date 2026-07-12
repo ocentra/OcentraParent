@@ -1,0 +1,248 @@
+/* generated from crates/schema/src/child_android_lifecycle_proof_ts.rs */
+
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from './effect';
+import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from './capabilities';
+import { ParentTimestampSchema } from './family-reference-primitives';
+
+export const ChildAndroidLifecycleProofSchemaVersionSchema = withParser(
+  Schema.Literal('child-android-protocol-package-lifecycle-proof')
+);
+export const ChildAndroidLifecycleCapabilityNameSchema = withParser(
+  Schema.Literal(
+    'foreground-mobile-service',
+    'notifications',
+    'local-storage',
+    'typed-protocol-bridge',
+    'usage-stats',
+    'accessibility-service',
+    'vpn-dns-filtering',
+    'device-owner-policy',
+    'managed-profile',
+    'package-lifecycle',
+    'store-distribution'
+  )
+);
+export const ChildAndroidLifecycleProofStateSchema = withParser(
+  Schema.Literal('ci-mechanical-proof', 'scaffold', 'manual-required', 'planned', 'not-implemented')
+);
+export const ChildAndroidLifecycleRuntimeOwnerSchema = withParser(
+  Schema.Literal(
+    'android-native-wrapper',
+    'android-manifest',
+    'android-package-build',
+    'android-os-permission',
+    'manual-device-proof',
+    'store-distribution'
+  )
+);
+export const ChildAndroidLifecyclePackagePhaseSchema = withParser(
+  Schema.Literal(
+    'debug-apk-build',
+    'checksum',
+    'launcher-activity',
+    'foreground-service-registration',
+    'notification-permission-declared',
+    'install',
+    'update',
+    'background-execution',
+    'reboot-recovery',
+    'uninstall'
+  )
+);
+export const ChildAndroidProtocolCommandSchema = withParser(
+  Schema.Literal(
+    'child.android.lifecycle.snapshot.get',
+    'child.android.capabilities.snapshot.get',
+    'child.android.package.lifecycle.proof.get'
+  )
+);
+export const ChildAndroidProtocolEventSchema = withParser(
+  Schema.Literal(
+    'child.android.lifecycle.snapshot.reported',
+    'child.android.capability.snapshot.reported',
+    'child.android.package.lifecycle.proof.reported'
+  )
+);
+export const ChildAndroidProtocolBridgeStateSchema = withParser(
+  Schema.Literal('package-local-scaffold', 'not-implemented')
+);
+export const ChildAndroidPermissionDeclarationStateSchema = withParser(
+  Schema.Literal('declared-in-manifest', 'manual-required')
+);
+export const ChildAndroidRuntimeGrantStateSchema = withParser(Schema.Literal('not-applicable', 'manual-required'));
+export const ChildAndroidInstallModeSchema = withParser(Schema.Literal('debug-apk-sideload'));
+export const ChildAndroidChildAgentArtifactStateSchema = withParser(Schema.Literal('debug-apk-built'));
+export const ChildAndroidInstallStateSchema = withParser(Schema.Literal('manual-install-proof-required'));
+export const ChildAndroidLaunchStateSchema = withParser(Schema.Literal('manual-launch-proof-required'));
+export const ChildAndroidRemovalStateSchema = withParser(Schema.Literal('manual-removal-proof-required'));
+export const ChildAndroidPlatformAuthorityStateSchema = withParser(Schema.Literal('manual-required'));
+
+const ChildAndroidPackageIdSchema = brandedNonEmptyStringSchema('ChildAndroidPackageId');
+const ChildAndroidClassNameSchema = brandedNonEmptyStringSchema('ChildAndroidClassName');
+const ChildAndroidPathSchema = brandedNonEmptyStringSchema('ChildAndroidProofPath');
+const ChildAndroidCommandTextSchema = brandedNonEmptyStringSchema('ChildAndroidCommandText');
+const ChildAndroidProofRequirementSchema = brandedNonEmptyStringSchema('ChildAndroidProofRequirement');
+const ChildAndroidClaimBoundarySchema = brandedNonEmptyStringSchema('ChildAndroidClaimBoundary');
+const ChildAndroidPermissionNameSchema = brandedNonEmptyStringSchema('ChildAndroidPermissionName');
+
+export const ChildAndroidCapabilityProofSchema = withParser(
+  Schema.Struct({
+    capability: ChildAndroidLifecycleCapabilityNameSchema,
+    parentCapability: ParentControlCapabilityNameSchema,
+    parentCapabilityStatus: ParentControlCapabilityStatusSchema,
+    proofState: ChildAndroidLifecycleProofStateSchema,
+    runtimeOwner: ChildAndroidLifecycleRuntimeOwnerSchema,
+    proofRequirement: ChildAndroidProofRequirementSchema,
+    claimBoundary: ChildAndroidClaimBoundarySchema,
+  })
+);
+
+export const ChildAndroidPackageProofSchema = withParser(
+  Schema.Struct({
+    packageId: ChildAndroidPackageIdSchema,
+    applicationId: ChildAndroidPackageIdSchema,
+    launchActivity: ChildAndroidClassNameSchema,
+    foregroundService: ChildAndroidClassNameSchema,
+    nativeBridgeClass: ChildAndroidClassNameSchema,
+    minSdk: Schema.Number,
+    targetSdk: Schema.Number,
+    versionName: ChildAndroidCommandTextSchema,
+    debugApkPath: ChildAndroidPathSchema,
+    latestApkPath: ChildAndroidPathSchema,
+    checksumState: ChildAndroidLifecycleProofStateSchema,
+    releaseCommand: ChildAndroidCommandTextSchema,
+  })
+);
+
+export const ChildAndroidPackageLifecycleAssertionSchema = withParser(
+  Schema.Struct({
+    phase: ChildAndroidLifecyclePackagePhaseSchema,
+    proofState: ChildAndroidLifecycleProofStateSchema,
+    runtimeOwner: ChildAndroidLifecycleRuntimeOwnerSchema,
+    proofRequirement: ChildAndroidProofRequirementSchema,
+    claimBoundary: ChildAndroidClaimBoundarySchema,
+  })
+);
+
+export const ChildAndroidProtocolBridgeProofSchema = withParser(
+  Schema.Struct({
+    bridgeState: ChildAndroidProtocolBridgeStateSchema,
+    externalTransportState: ChildAndroidProtocolBridgeStateSchema,
+    commands: Schema.Array(ChildAndroidProtocolCommandSchema),
+    events: Schema.Array(ChildAndroidProtocolEventSchema),
+    nativeBridgeClass: ChildAndroidClassNameSchema,
+    runtimeOwner: ChildAndroidLifecycleRuntimeOwnerSchema,
+    proofRequirement: ChildAndroidProofRequirementSchema,
+    claimBoundary: ChildAndroidClaimBoundarySchema,
+  })
+);
+
+export const ChildAndroidPermissionProofSchema = withParser(
+  Schema.Struct({
+    permission: ChildAndroidPermissionNameSchema,
+    declarationState: ChildAndroidPermissionDeclarationStateSchema,
+    runtimeGrantState: ChildAndroidRuntimeGrantStateSchema,
+    proofRequirement: ChildAndroidProofRequirementSchema,
+  })
+);
+
+export const ChildAndroidInstallAuthorityProofSchema = withParser(
+  Schema.Struct({
+    childAgentArtifactState: ChildAndroidChildAgentArtifactStateSchema,
+    installMode: ChildAndroidInstallModeSchema,
+    installState: ChildAndroidInstallStateSchema,
+    launchState: ChildAndroidLaunchStateSchema,
+    removalState: ChildAndroidRemovalStateSchema,
+    deviceOwnerAuthorityState: ChildAndroidPlatformAuthorityStateSchema,
+    managedProfileAuthorityState: ChildAndroidPlatformAuthorityStateSchema,
+    childAgentArtifactBoundary: ChildAndroidClaimBoundarySchema,
+    installModeBoundary: ChildAndroidClaimBoundarySchema,
+    installStateBoundary: ChildAndroidClaimBoundarySchema,
+    launchStateBoundary: ChildAndroidClaimBoundarySchema,
+    removalStateBoundary: ChildAndroidClaimBoundarySchema,
+    deviceOwnerBoundary: ChildAndroidClaimBoundarySchema,
+    managedProfileBoundary: ChildAndroidClaimBoundarySchema,
+  })
+);
+
+export const ChildAndroidLifecycleClaimBoundariesSchema = withParser(
+  Schema.Struct({
+    childAndroidEnforcementParity: ChildAndroidClaimBoundarySchema,
+    foregroundServiceRuntime: ChildAndroidClaimBoundarySchema,
+    notificationRuntime: ChildAndroidClaimBoundarySchema,
+    accessibility: ChildAndroidClaimBoundarySchema,
+    vpnDns: ChildAndroidClaimBoundarySchema,
+    deviceOwner: ChildAndroidClaimBoundarySchema,
+    managedProfile: ChildAndroidClaimBoundarySchema,
+    usageStats: ChildAndroidClaimBoundarySchema,
+    packageLifecycle: ChildAndroidClaimBoundarySchema,
+    physicalDevice: ChildAndroidClaimBoundarySchema,
+    storeDistribution: ChildAndroidClaimBoundarySchema,
+  })
+);
+
+const ChildAndroidLifecycleReadModelBaseSchema = Schema.Struct({
+  schemaVersion: ChildAndroidLifecycleProofSchemaVersionSchema,
+  packageProof: ChildAndroidPackageProofSchema,
+  protocolBridgeProof: ChildAndroidProtocolBridgeProofSchema,
+  capabilityProofs: Schema.Array(ChildAndroidCapabilityProofSchema),
+  packageLifecycleAssertions: Schema.Array(ChildAndroidPackageLifecycleAssertionSchema),
+  permissionProofs: Schema.Array(ChildAndroidPermissionProofSchema),
+  installAuthorityProof: ChildAndroidInstallAuthorityProofSchema,
+  claimBoundaries: ChildAndroidLifecycleClaimBoundariesSchema,
+  updatedAt: ParentTimestampSchema,
+});
+
+type ChildAndroidLifecycleReadModelCandidate = Infer<typeof ChildAndroidLifecycleReadModelBaseSchema>;
+
+export const ChildAndroidLifecycleReadModelSchema = withParser(
+  ChildAndroidLifecycleReadModelBaseSchema.pipe(
+    Schema.filter(
+      (readModel) =>
+        childAndroidLifecycleReadModelIsHonest(readModel) ||
+        'Expected Child Android lifecycle proof to keep package build and bridge proof CI-mechanical while Android permissions, device-owner, accessibility, VPN/DNS, managed profile, install/update/background/reboot/uninstall, store distribution, and enforcement parity remain manual-required, planned, or unimplemented'
+    )
+  )
+);
+
+const RequiredCapabilities = [
+  'foreground-mobile-service',
+  'notifications',
+  'local-storage',
+  'typed-protocol-bridge',
+  'usage-stats',
+  'accessibility-service',
+  'vpn-dns-filtering',
+  'device-owner-policy',
+  'managed-profile',
+  'package-lifecycle',
+  'store-distribution',
+] as const satisfies ReadonlyArray<ChildAndroidLifecycleCapabilityName>;
+
+const RequiredCiPackagePhases = [
+  'debug-apk-build',
+  'checksum',
+  'launcher-activity',
+  'foreground-service-registration',
+  'notification-permission-declared',
+] as const satisfies ReadonlyArray<ChildAndroidLifecyclePackagePhase>;
+
+const RequiredManualPackagePhases = [
+  'install',
+  'update',
+  'background-execution',
+  'reboot-recovery',
+  'uninstall',
+] as const satisfies ReadonlyArray<ChildAndroidLifecyclePackagePhase>;
+
+const RequiredCommands = [
+  'child.android.lifecycle.snapshot.get',
+  'child.android.capabilities.snapshot.get',
+  'child.android.package.lifecycle.proof.get',
+] as const satisfies ReadonlyArray<ChildAndroidProtocolCommand>;
+
+const RequiredEvents = [
+  'child.android.lifecycle.snapshot.reported',
+  'child.android.capability.snapshot.reported',
+  'child.android.package.lifecycle.proof.reported',
+] as const satisfies ReadonlyArray<ChildAndroidProtocolEvent>;

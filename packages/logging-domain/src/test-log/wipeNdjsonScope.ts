@@ -1,9 +1,5 @@
 import fs from 'node:fs';
-import type {
-  RunType,
-  TestLogScope,
-  TestSuiteType,
-} from './types';
+import type { RunType, TestLogScope, TestSuiteType } from './types';
 import { getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
 import { matchesGeneratedWipeEntry } from '../local-test-log';

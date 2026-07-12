@@ -107,16 +107,16 @@ fn activity_surface_helper_modules_are_linked_request_and_store(
         crate::activity_surface_request::surface_request_from_command(&save_command);
     let parsed_document =
         crate::activity_surface_request::report_document_from_command(&save_command)
-            .ok_or_else(|| std::io::Error::other(constants::error::AGENT_EVENT_SERIALIZES))?;
+            .ok_or_else(|| TestText::from_display(constants::error::AGENT_EVENT_SERIALIZES))?;
     let saved_report = crate::activity_surface_report_store::save_report_document_to_dir(
         report.clone(),
-        report_root,
+        report_storage_dir(report_root),
     );
     let saved_report_default =
         crate::activity_surface_report_store::save_report_document(report.clone());
     let history = crate::activity_surface_report_store::history_list_from_dir(
         parsed_surface_request.clone(),
-        report_root,
+        report_storage_dir(report_root),
     );
     let history_default =
         crate::activity_surface_report_store::history_list(parsed_surface_request.clone());
@@ -195,11 +195,11 @@ async fn activity_surface_helper_modules_are_linked_payload_and_models(
         crate::activity_surface_request::surface_request_from_command(&save_command);
     let _ = crate::activity_surface_report_store::save_report_document_to_dir(
         report.clone(),
-        &report_root,
+        report_storage_dir(report_root),
     );
     let history = crate::activity_surface_report_store::history_list_from_dir(
         parsed_surface_request.clone(),
-        &report_root,
+        report_storage_dir(report_root),
     );
     let history_payload = crate::activity_surface_payload::activity_history_payload(&history);
     let screen_model = crate::activity_surface_read_models::screen_read_model(
@@ -214,24 +214,36 @@ async fn activity_surface_helper_modules_are_linked_payload_and_models(
         parsed_surface_request.clone(),
         None,
     );
+    let screen_json = serde_json::to_string(&screen_model)
+        .map_err(|error| TestText::from_display(format!("{error:?}")))?;
     let screen_payload = crate::activity_surface_payload::activity_read_model_payload(
-        "screen",
+        crate::activity_surface_payload::ReadModelKind("screen".to_string()),
         screen_model.state,
         screen_model.rows.len(),
-        serde_json::to_string(&screen_model)?,
+        crate::activity_surface_payload::ReadModelJson(screen_json.clone()),
     );
-    let history_json = serde_json::to_string(&history)?;
-    let screen_json = serde_json::to_string(&screen_model)?;
-    let snapshot_none =
-        crate::activity_surface_store::local_store_snapshot_from_path(report_root.clone()).await;
-    let browser_none =
-        crate::activity_surface_store::load_browser_model_from_path(report_root.clone()).await;
-    let network_none =
-        crate::activity_surface_store::load_network_model_from_path(report_root.clone()).await;
-    let app_game_none =
-        crate::activity_surface_store::load_app_game_model_from_path(report_root.clone()).await;
-    let screen_none =
-        crate::activity_surface_store::load_screen_summary_from_path(report_root.clone()).await;
+    let history_json = serde_json::to_string(&history)
+        .map_err(|error| TestText::from_display(format!("{error:?}")))?;
+    let snapshot_none = crate::activity_surface_store::local_store_snapshot_from_path(
+        activity_store_path(report_root),
+    )
+    .await;
+    let browser_none = crate::activity_surface_store::load_browser_model_from_path(
+        activity_store_path(report_root),
+    )
+    .await;
+    let network_none = crate::activity_surface_store::load_network_model_from_path(
+        activity_store_path(report_root),
+    )
+    .await;
+    let app_game_none = crate::activity_surface_store::load_app_game_model_from_path(
+        activity_store_path(report_root),
+    )
+    .await;
+    let screen_none = crate::activity_surface_store::load_screen_summary_from_path(
+        activity_store_path(report_root),
+    )
+    .await;
 
     assert_eq!(
         history_payload.get(constants::field::ACTIVITY_REPORTS),
@@ -316,7 +328,7 @@ async fn send_activity_surface_command(
     payload: LogFields,
 ) -> Result<AgentEventEnvelope, TestText> {
     let body = serialize_json(&command_envelope(command, payload))?;
-    Ok(handle_local_command_text_for_test(body.as_ref()).await)
+    Ok(handle_local_command_text_for_test(body).await)
 }
 
 fn save_payload(report: &ActivityReportDocument) -> Result<LogFields, TestText> {
@@ -391,17 +403,17 @@ fn report_request() -> ocentra_parent_agent_protocol::activity_surface::Activity
 }
 
 fn report_from_event(event: &AgentEventEnvelope) -> Result<ActivityReportDocument, TestText> {
-    Ok(serde_json::from_str(
-        string_payload_field(event, constants::field::ACTIVITY_REPORT_DOCUMENT).as_ref(),
-    )?)
+    let payload = string_payload_field(event, constants::field::ACTIVITY_REPORT_DOCUMENT)?;
+    serde_json::from_str(payload.0.as_str())
+        .map_err(|error| TestText::from_display(format!("{error:?}")))
 }
 
 fn history_from_event(
     event: &AgentEventEnvelope,
 ) -> Result<ActivityHistoricalReportList, TestText> {
-    Ok(serde_json::from_str(
-        string_payload_field(event, constants::field::ACTIVITY_REPORTS).as_ref(),
-    )?)
+    let payload = string_payload_field(event, constants::field::ACTIVITY_REPORTS)?;
+    serde_json::from_str(payload.0.as_str())
+        .map_err(|error| TestText::from_display(format!("{error:?}")))
 }
 
 fn string_payload_field<'a>(
@@ -431,6 +443,16 @@ impl AsRef<Path> for TempReportRoot {
     fn as_ref(&self) -> &Path {
         self.path()
     }
+}
+
+fn report_storage_dir(
+    root: &TempReportRoot,
+) -> crate::activity_surface_report_store::ReportStorageDir {
+    crate::activity_surface_report_store::ReportStorageDir(root.as_ref().to_path_buf())
+}
+
+fn activity_store_path(root: &TempReportRoot) -> crate::activity_surface_store::ActivityStorePath {
+    crate::activity_surface_store::ActivityStorePath(root.as_ref().to_path_buf())
 }
 
 fn temp_report_root() -> TempReportRoot {

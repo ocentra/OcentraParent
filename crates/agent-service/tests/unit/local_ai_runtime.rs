@@ -86,6 +86,8 @@ mod local_ai_runtime_status_tests;
 mod local_ai_runtime_status_unavailable;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
+#[path = "../support/test_text.rs"]
+mod test_text;
 #[path = "../../src/time.rs"]
 mod time;
 
@@ -110,8 +112,8 @@ mod clippy_linkage {
         let _ = require_log_string_field(Some(&field), constants::error::AGENT_EVENT_SERIALIZES);
         let _ = crate::json_contract::serialize_json_string(&payload);
         let _ = crate::json_contract::serialize_json_value(payload);
-        let _ = crate::time::timestamp_from_epoch_seconds(1);
-        let _ = crate::time::timestamp_after_epoch_seconds(1, 1);
+        let _: String = crate::time::timestamp_from_epoch_seconds(1);
+        let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
     }
 }
 
@@ -134,8 +136,8 @@ fn local_ai_runtime_smoke_uses_event_builder_json_and_invariants_helpers() {
         payload,
         None,
     );
-    let epoch = time::timestamp_from_epoch_seconds(0);
-    let later = time::timestamp_after_epoch_seconds(0, 1);
+    let epoch: String = time::timestamp_from_epoch_seconds(0);
+    let later: String = time::timestamp_after_epoch_seconds(0, 1);
     let serialized = crate::json_contract::serialize_json_string(&serde_json::json!({
         "event_id": &event.event_id,
         "peer_id": &event.target.peer_id,
@@ -144,7 +146,7 @@ fn local_ai_runtime_smoke_uses_event_builder_json_and_invariants_helpers() {
         &serialized,
         constants::error::AGENT_EVENT_SERIALIZES,
     );
-    let log_field = LogFieldValue::String(serialized.clone());
+    let log_field = LogFieldValue::String(serialized.0.clone());
 
     assert_eq!(event.target.peer_id, constants::peer::PORTAL_DEV);
     assert_eq!(
@@ -156,7 +158,7 @@ fn local_ai_runtime_smoke_uses_event_builder_json_and_invariants_helpers() {
             Some(&log_field),
             constants::error::AGENT_EVENT_SERIALIZES,
         ),
-        serialized
+        serialized.0.as_str()
     );
     let roundtrip = crate::test_invariants::serialize_test_json(&decoded);
     let _: serde_json::Value = crate::test_invariants::require_json_decode(

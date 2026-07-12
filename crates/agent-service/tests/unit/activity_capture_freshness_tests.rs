@@ -42,23 +42,29 @@ fn recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_wit
         constants::activity_store::FILE_EXTENSION,
     );
     cleanup_paths(&journal_path, &key_path, &store_path);
+    let second_observed_ats = [TestText::from_display(
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    )];
 
     let freshness = record_activity_capture_freshness_to_paths_for_test(
         (&journal_path, &key_path, &store_path),
         (1, 1),
         (
-            constants::activity_store::TEST_FIRST_OBSERVED_AT,
-            &[constants::activity_store::TEST_SECOND_OBSERVED_AT],
-            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            TestText::from_display(constants::activity_store::TEST_FIRST_OBSERVED_AT),
+            &second_observed_ats,
+            TestText::from_display(constants::activity_store::TEST_THIRD_OBSERVED_AT),
         ),
     )
-    .map_err(|error| format!("{error:?}"))?;
-    let key_bytes = read(&key_path).map_err(|error| format!("{error:?}"))?;
+    .map_err(|error| TestText::from_display(format!("{error:?}")))?;
+    let key_bytes =
+        read(&key_path).map_err(|error| TestText::from_display(format!("{error:?}")))?;
     let mut key = [0; JOURNAL_KEY_BYTES];
     key.copy_from_slice(&key_bytes);
     let journal = ActivityJournal::open(journal_path.clone(), JournalKey::from_bytes(key))
-        .map_err(|error| format!("{error:?}"))?;
-    let lines = journal.lines().map_err(|error| format!("{error:?}"))?;
+        .map_err(|error| TestText::from_display(format!("{error:?}")))?;
+    let lines = journal
+        .lines()
+        .map_err(|error| TestText::from_display(format!("{error:?}")))?;
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
@@ -72,12 +78,12 @@ fn cleanup_paths(
     key_path: impl AsRef<std::path::Path>,
     store_path: impl AsRef<std::path::Path>,
 ) {
-    let journal_path = journal_path.as_ref();
-    let key_path = key_path.as_ref();
-    let store_path = store_path.as_ref();
-    let _ = remove_file(journal_path);
-    let _ = remove_file(key_path);
-    let _ = remove_file(store_path);
+    let journal_path = journal_path.as_ref().to_path_buf();
+    let key_path = key_path.as_ref().to_path_buf();
+    let store_path = store_path.as_ref().to_path_buf();
+    let _ = remove_file(&journal_path);
+    let _ = remove_file(&key_path);
+    let _ = remove_file(&store_path);
     let mut store_wal_path = store_path.clone();
     store_wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(store_wal_path);

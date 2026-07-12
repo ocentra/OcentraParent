@@ -37,12 +37,24 @@ const APP_GAME_PROOF_PANEL_RENDERERS: Record<AppGameProofPanelId, AppGameProofPa
     <AppGameNotificationParentSurfaceRoutePanel panel={appGameNotificationParentSurfacePanel} />
   ),
   'app-game-policy-readiness': ({ actions, commandEnabled, appGamePolicyReadinessPanel }) => (
-    <AppGamePolicyReadinessRoutePanel actions={actions} commandEnabled={commandEnabled} panel={appGamePolicyReadinessPanel} />
+    <AppGamePolicyReadinessRoutePanel
+      actions={actions}
+      commandEnabled={commandEnabled}
+      panel={appGamePolicyReadinessPanel}
+    />
   ),
   'app-game-platform-proof-status': ({ actions, commandEnabled, appGamePlatformProofStatusPanel }) => (
-    <AppGamePlatformProofStatusRoutePanel actions={actions} commandEnabled={commandEnabled} panel={appGamePlatformProofStatusPanel} />
+    <AppGamePlatformProofStatusRoutePanel
+      actions={actions}
+      commandEnabled={commandEnabled}
+      panel={appGamePlatformProofStatusPanel}
+    />
   ),
-  'app-game-child-runtime-transport-receipt': ({ actions, commandEnabled, appGameChildRuntimeTransportReceiptPanel }) => (
+  'app-game-child-runtime-transport-receipt': ({
+    actions,
+    commandEnabled,
+    appGameChildRuntimeTransportReceiptPanel,
+  }) => (
     <AppGameChildRuntimeTransportReceiptRoutePanel
       actions={actions}
       commandEnabled={commandEnabled}
@@ -50,10 +62,18 @@ const APP_GAME_PROOF_PANEL_RENDERERS: Record<AppGameProofPanelId, AppGameProofPa
     />
   ),
   'app-game-adapter-dispatch': ({ actions, commandEnabled, appGameAdapterDispatchPanel }) => (
-    <AppGameAdapterDispatchRoutePanel actions={actions} commandEnabled={commandEnabled} panel={appGameAdapterDispatchPanel} />
+    <AppGameAdapterDispatchRoutePanel
+      actions={actions}
+      commandEnabled={commandEnabled}
+      panel={appGameAdapterDispatchPanel}
+    />
   ),
   'app-game-timer-parent-surface': ({ actions, commandEnabled, appGameTimerParentSurfacePanel }) => (
-    <AppGameTimerParentSurfaceRoutePanel actions={actions} commandEnabled={commandEnabled} panel={appGameTimerParentSurfacePanel} />
+    <AppGameTimerParentSurfaceRoutePanel
+      actions={actions}
+      commandEnabled={commandEnabled}
+      panel={appGameTimerParentSurfacePanel}
+    />
   ),
 };
 

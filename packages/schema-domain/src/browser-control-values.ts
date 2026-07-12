@@ -31,9 +31,7 @@ export const BrowserControlFieldValueSchema = withParser(
   Schema.Union(NonEmptyStringSchema, Schema.Number, Schema.Boolean, Schema.Array(NonEmptyStringSchema), Schema.Null)
 );
 
-export const BrowserControlKindSchema = withParser(
-  Schema.Literal(...GeneratedBrowserControlKindValues)
-);
+export const BrowserControlKindSchema = withParser(Schema.Literal(...GeneratedBrowserControlKindValues));
 export const BrowserControlConditionKindSchema = withParser(
   Schema.Literal(...GeneratedBrowserControlConditionKindValues)
 );
@@ -68,9 +66,7 @@ export const BrowserControlApprovalStateSchema = withParser(
   Schema.Literal(...GeneratedBrowserControlApprovalStateValues)
 );
 export const BrowserControlReportStateSchema = withParser(Schema.Literal(...GeneratedBrowserControlReportStateValues));
-export const BrowserControlAuditStateSchema = withParser(
-  Schema.Literal(...GeneratedBrowserControlAuditStateValues)
-);
+export const BrowserControlAuditStateSchema = withParser(Schema.Literal(...GeneratedBrowserControlAuditStateValues));
 export const BrowserControlRetentionStateSchema = withParser(
   Schema.Literal(...GeneratedBrowserControlRetentionStateValues)
 );
@@ -80,11 +76,13 @@ export const BrowserControlCapabilityStateSchema = withParser(
 export const BrowserControlRejectionReasonSchema = withParser(
   Schema.Literal(...GeneratedBrowserControlRejectionReasonValues)
 );
-export const BrowserControlPatchOperationSchema = withParser(Schema.Literal(...GeneratedBrowserControlPatchOperationValues));
-export const BrowserControlUpdateKindSchema = withParser(
-  Schema.Literal(...GeneratedBrowserControlUpdateKindValues)
+export const BrowserControlPatchOperationSchema = withParser(
+  Schema.Literal(...GeneratedBrowserControlPatchOperationValues)
 );
-export const BrowserControlUpdateStatusSchema = withParser(Schema.Literal(...GeneratedBrowserControlUpdateStatusValues));
+export const BrowserControlUpdateKindSchema = withParser(Schema.Literal(...GeneratedBrowserControlUpdateKindValues));
+export const BrowserControlUpdateStatusSchema = withParser(
+  Schema.Literal(...GeneratedBrowserControlUpdateStatusValues)
+);
 
 export type BrowserControlSchemaKnownWritesToPath = typeof BrowserControlSchemaKnownWritesToPathSchema.Type;
 export type BrowserControlFieldValue = Infer<typeof BrowserControlFieldValueSchema>;

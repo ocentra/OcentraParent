@@ -1,0 +1,54 @@
+/* generated from crates/schema/src/report_query_custody.rs */
+
+import {
+  GeneratedReportQueryCustodyNonClaims,
+  GeneratedReportQueryCustodySourceDataClasses,
+  GeneratedReportQueryCustodyStates,
+  type GeneratedReportQueryCustodyContractProof,
+  type GeneratedReportQueryCustodyRequest,
+  type GeneratedReportQueryCustodyRow,
+} from './generated-report-query-custody-contracts';
+
+const allowedSourceDataClassSet = new Set<string>(GeneratedReportQueryCustodySourceDataClasses);
+
+export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedReportQueryCustodyRequest): boolean {
+  return (
+    request.parentAuthorized &&
+    request.parentOwnedSourceRequired &&
+    !request.rawChildEvidenceRequested &&
+    request.pageSize > 0 &&
+    request.requestedDataClasses.length > 0 &&
+    request.allowedSourceDataClasses.length > 0 &&
+    request.sourceCitationRefs.length > 0 &&
+    request.assistantCitationRefs.length > 0 &&
+    request.notificationPayloadBoundary === 'parent-owned-citations-only' &&
+    request.requestedDataClasses.every((dataClass) => allowedSourceDataClassSet.has(dataClass)) &&
+    request.allowedSourceDataClasses.every((dataClass) => allowedSourceDataClassSet.has(dataClass)) &&
+    request.sourceCitationRefs.every((citation) => citation.kind === 'query-store-summary') &&
+    request.assistantCitationRefs.every((citation) => citation.kind === 'query-store-summary')
+  );
+}
+
+export function reportQueryCustodyRowIsHonestGenerated(row: GeneratedReportQueryCustodyRow): boolean {
+  return (
+    row.claimSafe &&
+    !row.secondTruthStoreClaimed &&
+    !row.reportCacheMutated &&
+    !row.rawChildEvidenceIncluded &&
+    row.parentAuthorized &&
+    row.parentOwnedSourceRequired &&
+    row.pageSize > 0 &&
+    row.pageIndex > 0 &&
+    allowedSourceDataClassSet.has(row.sourceDataClass) &&
+    row.requestedDataClasses.length > 0 &&
+    row.allowedSourceDataClasses.length > 0 &&
+    row.sourceCitationRefs.length > 0 &&
+    row.assistantCitationRefs.length > 0 &&
+    row.notificationPayloadBoundary === 'parent-owned-citations-only' &&
+    row.requestedDataClasses.every((dataClass) => allowedSourceDataClassSet.has(dataClass)) &&
+    row.allowedSourceDataClasses.every((dataClass) => allowedSourceDataClassSet.has(dataClass)) &&
+    row.sourceCitationRefs.every((citation) => citation.kind === 'query-store-summary') &&
+    row.assistantCitationRefs.every((citation) => citation.kind === 'query-store-summary') &&
+    reportQueryCustodyStateIsCoherentGenerated(row)
+  );
+}

@@ -3,6 +3,38 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
+#[path = "../../src/activity_payload.rs"]
+mod activity_payload;
+#[path = "../../src/activity_store_path.rs"]
+mod activity_store_path;
+#[path = "../../src/activity_surface_store.rs"]
+mod activity_surface_store;
+#[path = "../../src/enforcement_timer_state_file.rs"]
+mod enforcement_timer_state_file;
+#[path = "../../src/enforcement_timer_state_path.rs"]
+mod enforcement_timer_state_path;
+#[path = "../../src/event_builder.rs"]
+mod event_builder;
+#[path = "../../src/fields.rs"]
+mod fields;
+#[path = "../../src/json_contract.rs"]
+mod json_contract;
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+#[path = "../../src/time.rs"]
+mod time;
+mod activity_api {
+    pub(crate) struct ActivityEventId(pub(crate) &'static str);
+    pub(crate) struct GeneratedAtText(pub(crate) String);
+}
+#[path = "../../src/activity_api/app_game_child_runtime_transport_receipt_payload.rs"]
+mod app_game_child_runtime_transport_receipt_payload;
+#[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request.rs"]
+mod app_game_timer_parent_preference_setup_request;
+#[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request_outbox.rs"]
+mod app_game_timer_parent_preference_setup_request_outbox;
+#[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request_persistence.rs"]
+mod app_game_timer_parent_preference_setup_request_persistence;
 #[path = "../support/app_game_timer_parent_preference_setup_request_status.rs"]
 mod app_game_timer_parent_preference_setup_request_status;
 
@@ -95,38 +127,48 @@ mod clippy_linkage {
         let _ = crate::json_contract::serialize_json_value(serde_json::json!({
             "app_game_pref_request": true
         }));
-        let _ = crate::time::timestamp_from_epoch_seconds(1);
-        let _ = crate::time::timestamp_after_epoch_seconds(1, 1);
+        let _: String = crate::time::timestamp_from_epoch_seconds(1);
+        let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
     }
 
     async fn link_activity_surface_store_helpers(store_path: &std::path::Path) {
         if let Some(snapshot) = activity_surface_store::local_store_snapshot().await {
             touch_activity_surface_snapshot(&snapshot);
         }
-        if let Some(snapshot) =
-            activity_surface_store::local_store_snapshot_from_path(store_path.to_path_buf()).await
+        if let Some(snapshot) = activity_surface_store::local_store_snapshot_from_path(
+            activity_surface_store::ActivityStorePath(store_path.to_path_buf()),
+        )
+        .await
         {
             touch_activity_surface_snapshot(&snapshot);
         }
         let _ = activity_surface_store::load_browser_model().await;
-        let _ =
-            activity_surface_store::load_browser_model_from_path(store_path.to_path_buf()).await;
+        let _ = activity_surface_store::load_browser_model_from_path(
+            activity_surface_store::ActivityStorePath(store_path.to_path_buf()),
+        )
+        .await;
         let _ = activity_surface_store::load_network_model().await;
-        let _ =
-            activity_surface_store::load_network_model_from_path(store_path.to_path_buf()).await;
+        let _ = activity_surface_store::load_network_model_from_path(
+            activity_surface_store::ActivityStorePath(store_path.to_path_buf()),
+        )
+        .await;
         let _ = activity_surface_store::load_app_game_model().await;
-        let _ =
-            activity_surface_store::load_app_game_model_from_path(store_path.to_path_buf()).await;
+        let _ = activity_surface_store::load_app_game_model_from_path(
+            activity_surface_store::ActivityStorePath(store_path.to_path_buf()),
+        )
+        .await;
         let _ = activity_surface_store::load_screen_summary().await;
-        let _ =
-            activity_surface_store::load_screen_summary_from_path(store_path.to_path_buf()).await;
+        let _ = activity_surface_store::load_screen_summary_from_path(
+            activity_surface_store::ActivityStorePath(store_path.to_path_buf()),
+        )
+        .await;
     }
 
     fn touch_activity_surface_snapshot(
         snapshot: &activity_surface_store::ActivitySurfaceStoreSnapshot,
     ) {
         let _ = (
-            snapshot.device_id.as_str(),
+            snapshot.device_id.0.as_str(),
             snapshot.last_event_id.as_deref(),
             snapshot.last_observed_at.as_deref(),
             snapshot.recent_returned,

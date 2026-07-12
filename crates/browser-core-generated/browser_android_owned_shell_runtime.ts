@@ -1,10 +1,7 @@
 /* generated from crates/browser-core/src/browser_android_owned_shell_runtime.rs */
 
 export type BrowserAndroidOwnedShellRuntimeTemplate = {
-  readonly runtimeState:
-    | 'physical-visible-owned-shell'
-    | 'emulator-browser-role-routing'
-    | 'manual-required';
+  readonly runtimeState: 'physical-visible-owned-shell' | 'emulator-browser-role-routing' | 'manual-required';
   readonly reasonCode: string;
   readonly exactUrlPolicyClaimed: false;
   readonly knownActiveTabProofClaimed: false;
@@ -37,10 +34,7 @@ export function browserAndroidOwnedShellRuntimePhysicalTemplate(input: {
 }): BrowserAndroidOwnedShellRuntimeTemplate {
   return {
     runtimeState:
-      input.packageInstalled &&
-      input.explicitLaunchObserved &&
-      input.screenshotCaptured &&
-      input.uiTreeCaptured
+      input.packageInstalled && input.explicitLaunchObserved && input.screenshotCaptured && input.uiTreeCaptured
         ? 'physical-visible-owned-shell'
         : 'manual-required',
     reasonCode: 'physical-android-owned-shell-visible-runtime-proof',
@@ -66,8 +60,7 @@ export function browserAndroidOwnedShellRuntimeEmulatorTemplate(input: {
 export function browserAndroidOwnedShellRuntimeManualTemplate(): BrowserAndroidOwnedShellRuntimeTemplate {
   return {
     runtimeState: 'manual-required',
-    reasonCode:
-      'physical-device-owner-browser-role-exact-url-active-tab-and-enforcement-proof-required',
+    reasonCode: 'physical-device-owner-browser-role-exact-url-active-tab-and-enforcement-proof-required',
     ...BrowserAndroidOwnedShellRuntimeNoClaimFlags,
   };
 }

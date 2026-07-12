@@ -62,8 +62,8 @@ test('coordination-only pull requests stay off product proof lanes', () => {
 
   assert.match(workflow, /repo_support_only: \$\{\{ steps\.detect\.outputs\.repo_support_only \}\}/u);
   assert.match(workflow, /repo_support_only=true/u);
-    assert.equal(workflow.includes('tests/repo-tooling/workflow-ci-trigger.test.mjs'), true);
-    assert.equal(workflow.includes('scripts/test/ocentra-ledger*.test.mjs'), true);
+  assert.equal(workflow.includes('tests/repo-tooling/workflow-ci-trigger.test.mjs'), true);
+  assert.equal(workflow.includes('scripts/test/ocentra-ledger*.test.mjs'), true);
   assert.match(workflow, /package_json_changed=true/u);
   assert.equal(workflow.includes('^[+-][[:space:]]*\\"(hub|ledger):[^\\"]+\\"[[:space:]]*:'), true);
   assert.match(workflow, /repo_support_only=false/u);

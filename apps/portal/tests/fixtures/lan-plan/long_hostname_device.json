@@ -8,10 +8,7 @@
   "cloudRelayState": "unavailable",
   "scanSummary": {
     "schemaVersion": 1,
-    "sourceLabels": [
-      "mdns",
-      "network-neighbor"
-    ],
+    "sourceLabels": ["mdns", "network-neighbor"],
     "scannedDeviceCount": 4,
     "agentDeviceCount": 0,
     "passiveDeviceCount": 4,
@@ -59,30 +56,20 @@
       "routeId": null,
       "routeState": "unavailable",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "mdns",
-        "network-neighbor"
-      ],
+      "sourceLabels": ["mdns", "network-neighbor"],
       "networkIdentity": {
         "hostname": "Media Room Tablet With An Intentionally Long Hostname That Should Still Render As Text",
-        "ipAddresses": [
-          "192.168.2.66"
-        ],
+        "ipAddresses": ["192.168.2.66"],
         "macAddress": "aa-11-bb-22-cc-33",
         "macVendor": null,
-        "networkInterfaces": [
-          "Wi-Fi"
-        ],
+        "networkInterfaces": ["Wi-Fi"],
         "reachability": "online",
         "confidence": "mdns-advertisement",
         "staleAt": null,
         "offlineAt": null
       },
       "childAgentInventory": null,
-      "policyTargetSurfaces": [
-        "devices",
-        "network"
-      ]
+      "policyTargetSurfaces": ["devices", "network"]
     },
     {
       "schemaVersion": 1,
@@ -96,29 +83,20 @@
       "routeId": null,
       "routeState": "unavailable",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "network-neighbor"
-      ],
+      "sourceLabels": ["network-neighbor"],
       "networkIdentity": {
         "hostname": "GARAGE-DESKTOP",
-        "ipAddresses": [
-          "192.168.2.67"
-        ],
+        "ipAddresses": ["192.168.2.67"],
         "macAddress": "dd-44-ee-55-ff-66",
         "macVendor": null,
-        "networkInterfaces": [
-          "Ethernet"
-        ],
+        "networkInterfaces": ["Ethernet"],
         "reachability": "online",
         "confidence": "network-neighbor",
         "staleAt": null,
         "offlineAt": null
       },
       "childAgentInventory": null,
-      "policyTargetSurfaces": [
-        "devices",
-        "network"
-      ]
+      "policyTargetSurfaces": ["devices", "network"]
     },
     {
       "schemaVersion": 1,
@@ -132,67 +110,47 @@
       "routeId": null,
       "routeState": "unavailable",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "mdns"
-      ],
+      "sourceLabels": ["mdns"],
       "networkIdentity": {
         "hostname": "FAMILY-IPAD",
-        "ipAddresses": [
-          "192.168.2.68"
-        ],
+        "ipAddresses": ["192.168.2.68"],
         "macAddress": "11-22-33-44-55-66",
         "macVendor": "Apple, Inc.",
-        "networkInterfaces": [
-          "Wi-Fi"
-        ],
+        "networkInterfaces": ["Wi-Fi"],
         "reachability": "online",
         "confidence": "mdns-advertisement",
         "staleAt": null,
         "offlineAt": null
       },
       "childAgentInventory": null,
-      "policyTargetSurfaces": [
-        "devices",
-        "network"
-      ]
+      "policyTargetSurfaces": ["devices", "network"]
     },
     {
       "schemaVersion": 1,
       "canonicalDeviceId": "lan-physical-mac-001122334455",
       "displayName": "LAN 192.168.2.1",
       "classification": "network-infrastructure",
-      "roleBadges": [
-        "router"
-      ],
+      "roleBadges": ["router"],
       "enrollable": false,
       "discoveryState": "discovered",
       "trustState": "unpaired",
       "routeId": null,
       "routeState": "unavailable",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "gateway"
-      ],
+      "sourceLabels": ["gateway"],
       "networkIdentity": {
         "hostname": null,
-        "ipAddresses": [
-          "192.168.2.1"
-        ],
+        "ipAddresses": ["192.168.2.1"],
         "macAddress": "00-11-22-33-44-55",
         "macVendor": null,
-        "networkInterfaces": [
-          "Gateway"
-        ],
+        "networkInterfaces": ["Gateway"],
         "reachability": "online",
         "confidence": "network-neighbor",
         "staleAt": null,
         "offlineAt": null
       },
       "childAgentInventory": null,
-      "policyTargetSurfaces": [
-        "devices",
-        "network"
-      ]
+      "policyTargetSurfaces": ["devices", "network"]
     }
   ],
   "trustedDeviceIds": [],
@@ -210,13 +168,7 @@
   },
   "controllerAuthority": "observer",
   "observerAuthority": "observer",
-  "routeRequirementLabels": [
-    "Passive LAN labels render as service-backed text only"
-  ],
-  "auditCheckLabels": [
-    "Long hostnames stay visible without inventing hardware details"
-  ],
-  "honestNonClaims": [
-    "long-hostname-passive-device-has-no-agent-hardware"
-  ]
+  "routeRequirementLabels": ["Passive LAN labels render as service-backed text only"],
+  "auditCheckLabels": ["Long hostnames stay visible without inventing hardware details"],
+  "honestNonClaims": ["long-hostname-passive-device-has-no-agent-hardware"]
 }

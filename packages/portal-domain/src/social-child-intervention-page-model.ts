@@ -173,7 +173,9 @@ function parseSocialChildApprovalBlockSurface(value: unknown): SocialChildApprov
     nativeAppControlClaimed: value['nativeAppControlClaimed'],
     enforcementClaimed: value['enforcementClaimed'],
   };
-  return Object.values(surface).slice(1).every((claim) => claim === false)
+  return Object.values(surface)
+    .slice(1)
+    .every((claim) => claim === false)
     ? (surface as SocialChildApprovalBlockSurface)
     : null;
 }
@@ -239,7 +241,10 @@ function surfaceSortOrder(surface: SocialChildApprovalBlockSurface): number {
 }
 
 function isSocialChildApprovalBlockSurfaceKind(value: unknown): value is SocialChildApprovalBlockSurfaceKind {
-  return typeof value === 'string' && SocialChildApprovalBlockSurfaceKinds.includes(value as SocialChildApprovalBlockSurfaceKind);
+  return (
+    typeof value === 'string' &&
+    SocialChildApprovalBlockSurfaceKinds.includes(value as SocialChildApprovalBlockSurfaceKind)
+  );
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

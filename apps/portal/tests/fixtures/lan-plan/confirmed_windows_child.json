@@ -8,10 +8,7 @@
   "cloudRelayState": "unavailable",
   "scanSummary": {
     "schemaVersion": 1,
-    "sourceLabels": [
-      "local-service",
-      "windows-neighbor-table"
-    ],
+    "sourceLabels": ["local-service", "windows-neighbor-table"],
     "scannedDeviceCount": 3,
     "agentDeviceCount": 1,
     "passiveDeviceCount": 1,
@@ -139,9 +136,7 @@
       "revokedAt": null
     }
   ],
-  "trustedDeviceIds": [
-    "local-dev-agent"
-  ],
+  "trustedDeviceIds": ["local-dev-agent"],
   "revokedDeviceIds": [],
   "selectedDeviceReadiness": {
     "schemaVersion": 1,
@@ -160,13 +155,8 @@
     "Only trusted signed child-agent routes become controllable",
     "Selected route must stay parent-local custody"
   ],
-  "auditCheckLabels": [
-    "Signed hello manual proof required",
-    "Parent assign decision retained in audit history"
-  ],
-  "honestNonClaims": [
-    "physical household signed child hello requires second device"
-  ],
+  "auditCheckLabels": ["Signed hello manual proof required", "Parent assign decision retained in audit history"],
+  "honestNonClaims": ["physical household signed child hello requires second device"],
   "signedDiscoveryRelaySpine": {
     "schemaVersion": 1,
     "generatedAt": "2026-06-01T15:21:00Z",
@@ -233,21 +223,10 @@
         "evidenceLabel": "Cloud relay is unavailable and not child data custody."
       }
     ],
-    "manualProofRequired": [
-      "signed-child-agent-hello",
-      "signed-child-agent-heartbeat"
-    ],
-    "notImplemented": [
-      "relay-route-unavailable",
-      "cache-route-unavailable",
-      "parent-owned-storage-unavailable"
-    ],
-    "claimsProved": [
-      "route custody rejects wrong target"
-    ],
-    "claimsNotProved": [
-      "physical household signed child hello requires second device"
-    ]
+    "manualProofRequired": ["signed-child-agent-hello", "signed-child-agent-heartbeat"],
+    "notImplemented": ["relay-route-unavailable", "cache-route-unavailable", "parent-owned-storage-unavailable"],
+    "claimsProved": ["route custody rejects wrong target"],
+    "claimsNotProved": ["physical household signed child hello requires second device"]
   },
   "canonicalHouseholdDevices": [
     {
@@ -255,30 +234,20 @@
       "canonicalDeviceId": "lan-physical-mac-b42e993e72b9",
       "displayName": "GAMEDEV",
       "classification": "child-agent",
-      "roleBadges": [
-        "child-agent",
-        "parent-controller"
-      ],
+      "roleBadges": ["child-agent", "parent-controller"],
       "enrollable": true,
       "discoveryState": "paired",
       "trustState": "paired",
       "routeId": "lan-route-local-network",
       "routeState": "local-network",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "local-service",
-        "network-neighbor"
-      ],
+      "sourceLabels": ["local-service", "network-neighbor"],
       "networkIdentity": {
         "hostname": "GAMEDEV",
-        "ipAddresses": [
-          "192.168.2.10"
-        ],
+        "ipAddresses": ["192.168.2.10"],
         "macAddress": "b4-2e-99-3e-72-b9",
         "macVendor": null,
-        "networkInterfaces": [
-          "Ethernet 2"
-        ],
+        "networkInterfaces": ["Ethernet 2"],
         "reachability": "online",
         "confidence": "mac-ip-match",
         "staleAt": null,
@@ -295,24 +264,13 @@
         "gpuDriver": "456.71",
         "gpuMemory": "8192 MiB",
         "nvidiaSmi": "GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM",
-        "networkInterfaces": [
-          "Ethernet 2"
-        ],
-        "capabilities": [
-          "direct-websocket",
-          "device-inventory"
-        ],
+        "networkInterfaces": ["Ethernet 2"],
+        "capabilities": ["direct-websocket", "device-inventory"],
         "roleState": "implemented",
         "routeState": "local-network",
         "pairingTrustState": "paired"
       },
-      "policyTargetSurfaces": [
-        "devices",
-        "policy",
-        "browser",
-        "activity",
-        "tracking"
-      ]
+      "policyTargetSurfaces": ["devices", "policy", "browser", "activity", "tracking"]
     },
     {
       "schemaVersion": 1,
@@ -326,67 +284,47 @@
       "routeId": null,
       "routeState": "unavailable",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "network-neighbor"
-      ],
+      "sourceLabels": ["network-neighbor"],
       "networkIdentity": {
         "hostname": "HPSUJAN",
-        "ipAddresses": [
-          "192.168.2.42"
-        ],
+        "ipAddresses": ["192.168.2.42"],
         "macAddress": "54-27-1e-97-c3-31",
         "macVendor": null,
-        "networkInterfaces": [
-          "Ethernet 2"
-        ],
+        "networkInterfaces": ["Ethernet 2"],
         "reachability": "online",
         "confidence": "network-neighbor",
         "staleAt": null,
         "offlineAt": null
       },
       "childAgentInventory": null,
-      "policyTargetSurfaces": [
-        "devices",
-        "network"
-      ]
+      "policyTargetSurfaces": ["devices", "network"]
     },
     {
       "schemaVersion": 1,
       "canonicalDeviceId": "lan-physical-mac-001122334455",
       "displayName": "LAN 192.168.2.1",
       "classification": "network-infrastructure",
-      "roleBadges": [
-        "router"
-      ],
+      "roleBadges": ["router"],
       "enrollable": false,
       "discoveryState": "discovered",
       "trustState": "unpaired",
       "routeId": null,
       "routeState": "unavailable",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "gateway"
-      ],
+      "sourceLabels": ["gateway"],
       "networkIdentity": {
         "hostname": null,
-        "ipAddresses": [
-          "192.168.2.1"
-        ],
+        "ipAddresses": ["192.168.2.1"],
         "macAddress": "00-11-22-33-44-55",
         "macVendor": null,
-        "networkInterfaces": [
-          "Gateway"
-        ],
+        "networkInterfaces": ["Gateway"],
         "reachability": "online",
         "confidence": "network-neighbor",
         "staleAt": null,
         "offlineAt": null
       },
       "childAgentInventory": null,
-      "policyTargetSurfaces": [
-        "devices",
-        "network"
-      ]
+      "policyTargetSurfaces": ["devices", "network"]
     }
   ]
 }

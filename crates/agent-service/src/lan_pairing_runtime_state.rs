@@ -8,16 +8,20 @@ use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
 use ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget;
 use ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentClaim;
 use ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentEnvelope;
+use std::fmt::Display;
 
 use crate::{
     lan_pairing::{LanPairingChallengeState, LanPairingRegistryPersistence, LanPairingRuntime},
     time::timestamp_now,
 };
 
+#[path = "lan_pairing_runtime_state/challenge_validation.rs"]
+mod challenge_validation;
 #[path = "lan_pairing_runtime_state/device_roles.rs"]
 mod device_roles;
 #[path = "lan_pairing_runtime_state/job_leases.rs"]
@@ -30,10 +34,14 @@ pub(crate) mod passive_discovery;
 pub(crate) mod provider_heartbeat;
 #[path = "lan_pairing_runtime_state/provider_routing.rs"]
 mod provider_routing;
+#[path = "lan_pairing_runtime_state/rejection_reason.rs"]
+mod rejection_reason;
 #[path = "lan_pairing_runtime_state/runtime_config.rs"]
 mod runtime_config;
 #[path = "lan_pairing_runtime_state/signed_child_passive_observation.rs"]
 mod signed_child_passive_observation;
+
+use self::rejection_reason::signed_child_agent_rejection_reason;
 
 impl LanPairingRuntime {
     pub fn trusted_device_count(&self) -> usize {
@@ -44,24 +52,36 @@ impl LanPairingRuntime {
     }
 
     pub fn selected_target(&self) -> Option<LanSelectedRouteTarget> {
-        let observed_at = timestamp_now();
+        let observed_at: String = timestamp_now();
         self.registry
             .lock()
             .ok()
             .and_then(|registry| registry.selected_target_at(&observed_at))
     }
 
-    pub fn trusted_device_ids(&self) -> Vec<String> {
+    pub fn trusted_device_ids(&self) -> Vec<LanPairingText> {
         self.registry
             .lock()
-            .map(|registry| registry.trusted_device_ids())
+            .map(|registry| {
+                registry
+                    .trusted_device_ids()
+                    .into_iter()
+                    .map(LanPairingText)
+                    .collect()
+            })
             .unwrap_or_default()
     }
 
-    pub fn revoked_device_ids(&self) -> Vec<String> {
+    pub fn revoked_device_ids(&self) -> Vec<LanPairingText> {
         self.registry
             .lock()
-            .map(|registry| registry.revoked_device_ids())
+            .map(|registry| {
+                registry
+                    .revoked_device_ids()
+                    .into_iter()
+                    .map(LanPairingText)
+                    .collect()
+            })
             .unwrap_or_default()
     }
 
@@ -89,9 +109,10 @@ impl LanPairingRuntime {
     pub fn verify_signed_child_agent_envelope(
         &self,
         envelope: &LanSignedChildAgentEnvelope,
-        observed_at: &str,
+        observed_at: &impl Display,
         context: &LanSignedChildAgentVerificationContext,
     ) -> Result<LanSignedChildAgentClaim, LanSignedChildAgentVerificationError> {
+        let observed_at = LanPairingText(observed_at.to_string());
         let mut replay_guard = self
             .signed_child_agent_replay_guard
             .lock()
@@ -99,19 +120,25 @@ impl LanPairingRuntime {
                 drop(error);
                 LanSignedChildAgentVerificationError::SignatureRejected
             })?;
-        verify_lan_signed_child_agent_envelope(envelope, observed_at, context, &mut replay_guard)
+        verify_lan_signed_child_agent_envelope(
+            envelope,
+            observed_at.0.as_str(),
+            context,
+            &mut replay_guard,
+        )
     }
 
     pub fn observe_signed_child_agent_envelope(
         &self,
         envelope: &LanSignedChildAgentEnvelope,
-        observed_at: &str,
+        observed_at: &impl Display,
     ) -> Result<LanSignedChildAgentClaim, LanPairingRejectionReason> {
+        let observed_at = LanPairingText(observed_at.to_string());
         let context = self.signed_child_agent_verification_context()?;
         let claim = self
-            .verify_signed_child_agent_envelope(envelope, observed_at, &context)
+            .verify_signed_child_agent_envelope(envelope, &observed_at, &context)
             .map_err(|reason| signed_child_agent_rejection_reason(&reason))?;
-        self.record_signed_child_agent_passive_observation(&claim, observed_at);
+        self.record_signed_child_agent_passive_observation(&claim, &observed_at);
         Ok(claim)
     }
 
@@ -162,72 +189,29 @@ impl LanPairingRuntime {
         }
     }
 
-    pub(crate) fn validate_challenge_proof(
-        &self,
-        proof: &LanPairingProof,
-        observed_at: &str,
-    ) -> Result<(), LanPairingRejectionReason> {
-        let mut challenges = self.challenges.lock().map_err(|error| {
-            let _ = error;
-            LanPairingRejectionReason::Malformed
-        })?;
-        if challenges.is_empty() {
-            return Ok(());
-        }
-
-        let challenge = challenges
-            .iter_mut()
-            .find(|candidate| candidate.challenge_id == proof.challenge_id)
-            .ok_or(LanPairingRejectionReason::Malformed)?;
-        if challenge.accepted {
-            return Err(LanPairingRejectionReason::Replayed);
-        }
-        if challenge.child_device_id != proof.child_device_id {
-            return Err(LanPairingRejectionReason::WrongDevice);
-        }
-        if challenge.parent_device_id != proof.parent_device_id {
-            return Err(LanPairingRejectionReason::Malformed);
-        }
-        if challenge.route_id != proof.route_id {
-            return Err(LanPairingRejectionReason::UnsupportedRoute);
-        }
-        if challenge.origin != proof.origin {
-            return Err(LanPairingRejectionReason::WrongOrigin);
-        }
-        if challenge.proof_digest != proof.proof_digest {
-            return Err(LanPairingRejectionReason::Malformed);
-        }
-        if observed_at > challenge.expires_at.as_str() || observed_at > proof.expires_at.as_str() {
-            return Err(LanPairingRejectionReason::Stale);
-        }
-
-        challenge.accepted = true;
-        Ok(())
-    }
-
-    pub(crate) fn persistence_mode(&self) -> &'static str {
+    pub(crate) fn persistence_mode(&self) -> LanPairingText {
         match &self.persistence {
             LanPairingRegistryPersistence::InMemory => {
-                constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED
+                constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED.into()
             }
             LanPairingRegistryPersistence::LocalJsonRegistry(_) => {
-                constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY
+                constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY.into()
             }
         }
     }
 
-    pub(crate) fn restart_behavior(&self) -> &'static str {
+    pub(crate) fn restart_behavior(&self) -> LanPairingText {
         match &self.persistence {
             LanPairingRegistryPersistence::InMemory => {
-                constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED
+                constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED.into()
             }
             LanPairingRegistryPersistence::LocalJsonRegistry(_)
                 if self.selected_target().is_some() =>
             {
-                constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_SELECTED_ROUTE
+                constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_SELECTED_ROUTE.into()
             }
             LanPairingRegistryPersistence::LocalJsonRegistry(_) => {
-                constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_UNSELECTED
+                constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_UNSELECTED.into()
             }
         }
     }
@@ -238,38 +222,6 @@ impl LanPairingRuntime {
             LanPairingRegistryPersistence::LocalJsonRegistry(path) => {
                 registry.save_json(path.as_path()).is_ok()
             }
-        }
-    }
-}
-
-pub(crate) fn signed_child_agent_rejection_reason(
-    reason: &LanSignedChildAgentVerificationError,
-) -> LanPairingRejectionReason {
-    match reason {
-        LanSignedChildAgentVerificationError::Replayed => LanPairingRejectionReason::Replayed,
-        LanSignedChildAgentVerificationError::Expired
-        | LanSignedChildAgentVerificationError::FutureIssuedAt => {
-            LanPairingRejectionReason::Expired
-        }
-        LanSignedChildAgentVerificationError::WrongRoute => {
-            LanPairingRejectionReason::UnsupportedRoute
-        }
-        LanSignedChildAgentVerificationError::WrongFamily
-        | LanSignedChildAgentVerificationError::WrongParentDevice
-        | LanSignedChildAgentVerificationError::WrongChildDevice => {
-            LanPairingRejectionReason::WrongDevice
-        }
-        LanSignedChildAgentVerificationError::UnsupportedSchemaVersion
-        | LanSignedChildAgentVerificationError::EmptyRequiredField
-        | LanSignedChildAgentVerificationError::InvalidMetadata
-        | LanSignedChildAgentVerificationError::MalformedTimestamp
-        | LanSignedChildAgentVerificationError::UnsupportedAlgorithm
-        | LanSignedChildAgentVerificationError::InvalidPublicKey
-        | LanSignedChildAgentVerificationError::PublicKeyIdMismatch
-        | LanSignedChildAgentVerificationError::InvalidSignature
-        | LanSignedChildAgentVerificationError::SignatureRejected
-        | LanSignedChildAgentVerificationError::SerializationFailed => {
-            LanPairingRejectionReason::Malformed
         }
     }
 }

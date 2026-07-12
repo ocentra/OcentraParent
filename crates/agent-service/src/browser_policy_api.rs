@@ -105,7 +105,7 @@ fn invalid_request_response(
         capability_registry: Some(
             crate::browser_policy_compiler::browser_policy_capability_registry(
                 crate::browser_policy_compiler::BrowserPolicyCapabilityRegistryRequest {
-                    generated_at: &timestamp_now(),
+                    generated_at: timestamp_now::<String>().as_str(),
                 },
             ),
         ),

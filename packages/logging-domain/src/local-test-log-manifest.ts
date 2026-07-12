@@ -1,9 +1,6 @@
 /* generated from crates/logging-core/src/local_ndjson_log.rs */
 
-import type {
-  GeneratedIngestManifest,
-  GeneratedObservedFileState,
-} from './local-test-log';
+import type { GeneratedIngestManifest, GeneratedObservedFileState } from './local-test-log';
 import { getGeneratedRunNdjsonFilePath } from './local-test-log-paths';
 import type { StoredTestLogLine, TestLogScope } from './test-log/types';
 
@@ -29,7 +26,10 @@ export function splitGeneratedNdjsonContent(content: string): string[] {
   if (trimmed.length === 0) {
     return [];
   }
-  return trimmed.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
+  return trimmed
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
 }
 
 export function classifyGeneratedManifestChanges(

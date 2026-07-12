@@ -7,26 +7,31 @@ use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::BROWSER_EVIDENCE_SCHEMA_VERSION;
 
+#[derive(Clone)]
+pub struct BrowserInventoryGeneratedAtText(pub String);
+
+struct BrowserInventoryRowIdText(String);
+
 pub fn browser_inventory_read_model_from_windows_inventory(
-    scanned_at: String,
+    generated_at: BrowserInventoryGeneratedAtText,
     observations: &[BrowserWindowsInventoryObservation],
 ) -> BrowserInventoryReadModel {
     let rows = observations
         .iter()
         .enumerate()
         .map(|(index, observation)| {
-            browser_inventory_row_from_windows_observation(&scanned_at, index, observation)
+            browser_inventory_row_from_windows_observation(&generated_at, index, observation)
         })
         .collect::<Vec<_>>();
     let returned = rows.len() as u64;
-    let latest_observed_at = latest_observed_at(&scanned_at, returned);
+    let latest_observed_at = latest_observed_at(&generated_at, returned);
 
     BrowserInventoryReadModel {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        generated_at: scanned_at,
+        generated_at: generated_at.0,
         limit: returned,
         returned,
-        latest_observed_at,
+        latest_observed_at: latest_observed_at.map(|observed_at| observed_at.0),
         capability_status: None,
         custody_label: BrowserCustodyLabel::ChildDeviceLocal,
         query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
@@ -35,14 +40,14 @@ pub fn browser_inventory_read_model_from_windows_inventory(
 }
 
 fn browser_inventory_row_from_windows_observation(
-    scanned_at: &str,
+    generated_at: &BrowserInventoryGeneratedAtText,
     row_index: usize,
     observation: &BrowserWindowsInventoryObservation,
 ) -> BrowserInventoryRow {
     BrowserInventoryRow {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        inventory_row_id: windows_inventory_row_id(observation, row_index),
-        scanned_at: scanned_at.to_string(),
+        inventory_row_id: windows_inventory_row_id(observation, row_index).0,
+        scanned_at: generated_at.0.clone(),
         device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
         product_name: observation.product_name.clone(),
         browser_family: observation.browser_family.clone(),
@@ -70,17 +75,20 @@ fn browser_inventory_row_from_windows_observation(
     }
 }
 
-fn latest_observed_at(scanned_at: &str, returned: u64) -> Option<String> {
+fn latest_observed_at(
+    generated_at: &BrowserInventoryGeneratedAtText,
+    returned: u64,
+) -> Option<BrowserInventoryGeneratedAtText> {
     if returned == 0 {
         return None;
     }
-    Some(scanned_at.to_string())
+    Some(generated_at.clone())
 }
 
 fn windows_inventory_row_id(
     observation: &BrowserWindowsInventoryObservation,
     row_index: usize,
-) -> String {
+) -> BrowserInventoryRowIdText {
     let mut row_id = String::from(constants::browser::INVENTORY_ROW_ID_PREFIX_WINDOWS);
     row_id.push(constants::delimiter::HYPHEN);
     row_id.push_str(observation.browser_family.as_protocol_str());
@@ -93,5 +101,5 @@ fn windows_inventory_row_id(
         Some(process_id) => row_id.push_str(&process_id.to_string()),
         None => row_id.push_str(&row_index.to_string()),
     }
-    row_id
+    BrowserInventoryRowIdText(row_id)
 }

@@ -214,7 +214,6 @@ export const GeneratedBrowserControlManifestDefaults = {
     AuditRequiredFields: 'audit.requiredFields',
   },
 } as const;
-
 export const GeneratedBrowserControlFullCatalogSourceDocument = 'docs/browser-policy-settings-catalog.md';
 export const GeneratedBrowserControlFullCatalogSourceDocuments = [
   GeneratedBrowserControlFullCatalogSourceDocument,
@@ -501,7 +500,12 @@ export const GeneratedBaselineBrowserControlAuthoringManifest = {
           GeneratedBrowserControlWritesToPath.UnmanagedBrowserAllowRecoverLaunchUrl,
           'If a launch URL is visible, should it reopen in managed browser?',
           true,
-          [equalsManifestConditionGenerated(GeneratedBrowserControlWritesToPath.UnmanagedBrowserMode, 'relaunch-managed')]
+          [
+            equalsManifestConditionGenerated(
+              GeneratedBrowserControlWritesToPath.UnmanagedBrowserMode,
+              'relaunch-managed'
+            ),
+          ]
         ),
         manifestMultiSelectFieldGenerated(
           GeneratedBrowserControlManifestDefaults.Field.UnmanagedBrowserClassificationTargets,
@@ -920,7 +924,6 @@ export const GeneratedBaselineBrowserControlAuthoringManifest = {
     ),
   ],
 } as const;
-
 export function browserGamePolicyCompilerInputIsConsistentGenerated(
   value: BrowserGamePolicyCompilerInputGenerated
 ): boolean {
@@ -963,7 +966,10 @@ export function browserGamePolicyDecisionCandidateIsConsistentGenerated(
 
   switch (value.actionCandidate) {
     case 'unknown-candidate':
-      return value.fallbackUsed && BrowserGamePolicyUnknownFallbackReasonsGenerated.some((reason) => value.reasonCodes.includes(reason));
+      return (
+        value.fallbackUsed &&
+        BrowserGamePolicyUnknownFallbackReasonsGenerated.some((reason) => value.reasonCodes.includes(reason))
+      );
     case 'manual-review-candidate':
       return value.fallbackUsed && value.reasonCodes.includes('manual-required');
     case 'parent-review-candidate':
@@ -1013,7 +1019,6 @@ export function browserControlManifestAllowsWritesToGenerated(
 ): boolean {
   return manifest.sections.some((section) => section.fields.some((field) => field.writesTo === writesTo));
 }
-
 export function browserControlFieldDefaultMatchesOptionsGenerated(field: BrowserControlFieldGenerated): boolean {
   if (
     field.controlKind === 'toggle' ||
@@ -1041,7 +1046,9 @@ export function browserControlFieldIdsAreUniqueGenerated(fields: readonly Browse
   return new Set(fields.map((field) => field.fieldId)).size === fields.length;
 }
 
-export function browserControlSectionIdsAreUniqueGenerated(sections: readonly BrowserControlSectionGenerated[]): boolean {
+export function browserControlSectionIdsAreUniqueGenerated(
+  sections: readonly BrowserControlSectionGenerated[]
+): boolean {
   return new Set(sections.map((section) => section.sectionId)).size === sections.length;
 }
 
@@ -1066,7 +1073,6 @@ export function browserControlEffectiveLimitPostureIsConsistentGenerated(
 export function browserControlRuleTargetIsSpecifiedGenerated(rule: BrowserControlRuleGenerated): boolean {
   return (rule.targetType !== null && rule.targetValue !== null) || rule.target !== null;
 }
-
 export function browserControlExactUrlPolicyIsHonestGenerated(policy: BrowserControlPolicyGenerated): boolean {
   const authoredRules = [...policy.rules.items, ...policy.rules.entries];
   if (!policy.rules.allowedTargetTypes.includes('exact-url') && !authoredRules.some(ruleUsesExactUrlTargetGenerated)) {
@@ -1094,7 +1100,6 @@ export function browserControlBrowserGameLimitIsConsistentGenerated(policy: Brow
 
   return !gameLimitSelected || policy.browserGames.defaultDailyMinutes !== null || policy.fallbackPosture !== null;
 }
-
 export function defaultBrowserGamesGenerated() {
   return {
     educationalGameMode: 'allow' as const,
@@ -1176,7 +1181,6 @@ export function defaultFallbacksGenerated() {
     platformUnsupported: null,
   };
 }
-
 export function optionsFromSourceTextGenerated(sourceText: string): BrowserControlFullCatalogOptionGenerated[] {
   const explicit = explicitOptionLabelsGenerated(sourceText);
   if (explicit.length > 0) {
@@ -1272,7 +1276,6 @@ export function helperTextForGenerated(sectionTitle: string, sourceText: string)
   }
   return 'Portal renders authored intent; child runtime owns persistence, compile, evaluation, and audit.';
 }
-
 export function effectStatusForSectionGenerated(
   sectionTitle: string,
   sourceText: string
@@ -1284,7 +1287,11 @@ export function effectStatusForSectionGenerated(
   if (/Never-Collect|Portal Display|Child-Facing|Report|Audit|Custody|Retention|Data Minimization/u.test(searchable)) {
     return 'already-represented';
   }
-  if (/Exact URL|active tab|page title|download source|browser evidence|required proof|proof requirement/iu.test(searchable)) {
+  if (
+    /Exact URL|active tab|page title|download source|browser evidence|required proof|proof requirement/iu.test(
+      searchable
+    )
+  ) {
     return 'proof-required';
   }
   if (/Private|Tor|permission|protected browser/iu.test(searchable)) {
@@ -1298,7 +1305,6 @@ export function effectStatusForSectionGenerated(
   }
   return 'needs-effect-wiring';
 }
-
 export function runtimeOwnerForSectionGenerated(
   sectionTitle: string,
   sourceText: string
@@ -1313,7 +1319,9 @@ export function runtimeOwnerForSectionGenerated(
   if (/AI/iu.test(searchable)) {
     return 'local-ai-runtime';
   }
-  if (/Platform|Setup|Provisioning|Managed Browser Operation|Private|Tor|Network|Capability Failure/iu.test(searchable)) {
+  if (
+    /Platform|Setup|Provisioning|Managed Browser Operation|Private|Tor|Network|Capability Failure/iu.test(searchable)
+  ) {
     return 'os-adapter';
   }
   if (/manual|permission/iu.test(searchable)) {
@@ -1324,7 +1332,6 @@ export function runtimeOwnerForSectionGenerated(
   }
   return 'child-agent';
 }
-
 export function capabilityStateForSectionGenerated(
   sectionTitle: string,
   sourceText: string
@@ -1347,7 +1354,6 @@ export function capabilityStateForSectionGenerated(
   }
   return 'available';
 }
-
 export function capabilityRequirementForGenerated(sectionTitle: string, sourceText: string): string {
   const searchable = `${sectionTitle} ${sourceText}`;
   if (/Exact URL|active tab|page title|download source/iu.test(searchable)) {
@@ -1367,7 +1373,6 @@ export function capabilityRequirementForGenerated(sectionTitle: string, sourceTe
   }
   return 'browser-control-capability-registry';
 }
-
 export function proofRequirementForGenerated(sectionTitle: string, sourceText: string): string | null {
   const searchable = `${sectionTitle} ${sourceText}`;
   if (/Exact URL|active tab|page title|download source/iu.test(searchable)) {
@@ -1387,7 +1392,6 @@ export function proofRequirementForGenerated(sectionTitle: string, sourceText: s
   }
   return null;
 }
-
 export function fallbackForGenerated(sectionTitle: string, sourceText: string): string {
   const status = effectStatusForSectionGenerated(sectionTitle, sourceText);
   if (status === 'future-gap') {
@@ -1407,7 +1411,6 @@ export function fallbackForGenerated(sectionTitle: string, sourceText: string): 
   }
   return 'Keep as authored intent until runtime wiring proves the exact effect key.';
 }
-
 export function visibilityConditionsForGenerated(): BrowserControlFullCatalogRuleGenerated[] {
   return [ruleGenerated('Visible when the Browser side-panel category is selected.')];
 }
@@ -1418,10 +1421,11 @@ export function enabledConditionsForGenerated(
 ): BrowserControlFullCatalogRuleGenerated[] {
   return [
     ruleGenerated('A family, child, or device target must be selected before writing policy intent.'),
-    ruleGenerated(`Capability state must allow ${effectStatusForSectionGenerated(sectionTitle, sourceText)} presentation.`),
+    ruleGenerated(
+      `Capability state must allow ${effectStatusForSectionGenerated(sectionTitle, sourceText)} presentation.`
+    ),
   ];
 }
-
 export function validationRulesForGenerated(
   sectionTitle: string,
   sourceText: string
@@ -1429,7 +1433,9 @@ export function validationRulesForGenerated(
   const proof = proofRequirementForGenerated(sectionTitle, sourceText);
   const rules = [
     ruleGenerated('Selected option ids must belong to this setting acceptedOptions list.'),
-    ruleGenerated('Portal writes only authored intent; child runtime owns compile, persistence, evaluation, and audit.'),
+    ruleGenerated(
+      'Portal writes only authored intent; child runtime owns compile, persistence, evaluation, and audit.'
+    ),
   ];
   if (proof !== null) {
     rules.push(ruleGenerated(`Enforcement requires proof: ${proof}.`));
@@ -1437,7 +1443,9 @@ export function validationRulesForGenerated(
   return rules;
 }
 
-export function sectionKindForTitleGenerated(sectionTitle: string): 'setting-section' | 'rule-dimension-section' | 'candidate-mvp-section' | 'planning-gap-section' {
+export function sectionKindForTitleGenerated(
+  sectionTitle: string
+): 'setting-section' | 'rule-dimension-section' | 'candidate-mvp-section' | 'planning-gap-section' {
   if (sectionTitle === 'Global Rule Dimensions') {
     return 'rule-dimension-section';
   }
@@ -1449,7 +1457,6 @@ export function sectionKindForTitleGenerated(sectionTitle: string): 'setting-sec
   }
   return 'setting-section';
 }
-
 export function uiTabForSectionGenerated(sectionTitle: string): string {
   if (/Rule|Search|Video|Conflict/u.test(sectionTitle)) {
     return 'rules';
@@ -1483,7 +1490,6 @@ export function uiTabForSectionGenerated(sectionTitle: string): string {
   }
   return 'enforcement';
 }
-
 interface ControlKindRuleGenerated {
   readonly pattern: RegExp;
   readonly resolve: (sourceText: string) => (typeof GeneratedBrowserControlFullCatalogControlKindValues)[number];
@@ -1522,7 +1528,6 @@ function browserControlConditionIsMetGenerated(
   }
   return false;
 }
-
 function explicitOptionLabelsGenerated(sourceText: string): string[] {
   const colonIndex = sourceText.indexOf(':');
   if (colonIndex === -1) {
@@ -1540,7 +1545,9 @@ function explicitOptionLabelsGenerated(sourceText: string): string[] {
   );
 }
 
-function numericOrDurationControlGenerated(sourceText: string): (typeof GeneratedBrowserControlFullCatalogControlKindValues)[number] {
+function numericOrDurationControlGenerated(
+  sourceText: string
+): (typeof GeneratedBrowserControlFullCatalogControlKindValues)[number] {
   return /minutes|seconds|days/u.test(sourceText.toLowerCase()) ? 'number' : 'duration';
 }
 

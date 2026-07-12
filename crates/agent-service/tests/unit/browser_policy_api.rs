@@ -3,6 +3,8 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
+#[path = "../../src/json_contract.rs"]
+mod json_contract;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 

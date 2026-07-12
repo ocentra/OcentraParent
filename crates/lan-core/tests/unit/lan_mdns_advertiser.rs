@@ -2,6 +2,7 @@ use crate::support::ResultTestExt as _;
 use std::io;
 use std::sync::Mutex;
 
+use ocentra_eventing::error::EventingError;
 use ocentra_lan_core::lan_mdns_advertiser::{
     child_instance, current_platform_support, derive_child_advertisement_id,
     derive_parent_advertisement_id, encode_advertisement_packet, parent_instance, send_goodbye,
@@ -12,6 +13,16 @@ use ocentra_parent_agent_protocol::lan_pairing::{
     LanChildMdnsAdvertisement, LanChildMdnsAdvertisementInput, LanMdnsAdvertisementLifecycleState,
     LanMdnsAdvertisementSupportState, LanPairingTrustState, LanParentMdnsAdvertisement,
 };
+
+macro_rules! assert_empty_value_error {
+    ($result:expr, $expected_field:expr) => {
+        assert!(
+            matches!($result, Err(EventingError::EmptyValue { field }) if field == $expected_field),
+            "expected EmptyValue error for field {}",
+            $expected_field
+        );
+    };
+}
 
 #[test]
 fn parent_instance_uses_hashed_service_label_and_contract_txt_records() {
@@ -56,57 +67,81 @@ fn child_instance_uses_hashed_service_label_and_opaque_txt_records() {
 
 #[test]
 fn parent_and_child_constructors_reject_missing_required_fields() {
-    assert!(LanParentMdnsAdvertisement::new(
-        "",
-        constants::lan_pairing::SCHEMA_VERSION_TEXT,
-        "sha256:family-parent",
-        LanPairingTrustState::Paired,
-        LanMdnsAdvertisementLifecycleState::Start,
-        LanMdnsAdvertisementSupportState::Supported,
-    )
-    .is_err());
-    assert!(LanParentMdnsAdvertisement::new(
-        derive_parent_advertisement_id("sha256:family-parent"),
-        "",
-        "sha256:family-parent",
-        LanPairingTrustState::Paired,
-        LanMdnsAdvertisementLifecycleState::Start,
-        LanMdnsAdvertisementSupportState::Supported,
-    )
-    .is_err());
-    assert!(LanParentMdnsAdvertisement::new(
-        derive_parent_advertisement_id("sha256:family-parent"),
-        constants::lan_pairing::SCHEMA_VERSION_TEXT,
-        "",
-        LanPairingTrustState::Paired,
-        LanMdnsAdvertisementLifecycleState::Start,
-        LanMdnsAdvertisementSupportState::Supported,
-    )
-    .is_err());
+    assert_empty_value_error!(
+        LanParentMdnsAdvertisement::new(
+            "",
+            constants::lan_pairing::SCHEMA_VERSION_TEXT,
+            "sha256:family-parent",
+            LanPairingTrustState::Paired,
+            LanMdnsAdvertisementLifecycleState::Start,
+            LanMdnsAdvertisementSupportState::Supported,
+        ),
+        constants::lan_pairing::MDNS_ADVERTISEMENT_ID_FIELD
+    );
+    assert_empty_value_error!(
+        LanParentMdnsAdvertisement::new(
+            derive_parent_advertisement_id("sha256:family-parent"),
+            "",
+            "sha256:family-parent",
+            LanPairingTrustState::Paired,
+            LanMdnsAdvertisementLifecycleState::Start,
+            LanMdnsAdvertisementSupportState::Supported,
+        ),
+        constants::lan_pairing::MDNS_PROTOCOL_VERSION_FIELD
+    );
+    assert_empty_value_error!(
+        LanParentMdnsAdvertisement::new(
+            derive_parent_advertisement_id("sha256:family-parent"),
+            constants::lan_pairing::SCHEMA_VERSION_TEXT,
+            "",
+            LanPairingTrustState::Paired,
+            LanMdnsAdvertisementLifecycleState::Start,
+            LanMdnsAdvertisementSupportState::Supported,
+        ),
+        constants::lan_pairing::MDNS_FAMILY_HASH_FIELD
+    );
 
     let mut input = child_advertisement_input();
     input.advertisement_id.clear();
-    assert!(LanChildMdnsAdvertisement::new(input).is_err());
+    assert_empty_value_error!(
+        LanChildMdnsAdvertisement::new(input),
+        constants::lan_pairing::MDNS_ADVERTISEMENT_ID_FIELD
+    );
 
     let mut input = child_advertisement_input();
     input.opaque_device_id.clear();
-    assert!(LanChildMdnsAdvertisement::new(input).is_err());
+    assert_empty_value_error!(
+        LanChildMdnsAdvertisement::new(input),
+        constants::lan_pairing::MDNS_OPAQUE_DEVICE_ID_FIELD
+    );
 
     let mut input = child_advertisement_input();
     input.protocol_version.clear();
-    assert!(LanChildMdnsAdvertisement::new(input).is_err());
+    assert_empty_value_error!(
+        LanChildMdnsAdvertisement::new(input),
+        constants::lan_pairing::MDNS_PROTOCOL_VERSION_FIELD
+    );
 
     let mut input = child_advertisement_input();
     input.family_hash.clear();
-    assert!(LanChildMdnsAdvertisement::new(input).is_err());
+    assert_empty_value_error!(
+        LanChildMdnsAdvertisement::new(input),
+        constants::lan_pairing::MDNS_FAMILY_HASH_FIELD
+    );
 
     let mut input = child_advertisement_input();
     input.platform.clear();
-    assert!(LanChildMdnsAdvertisement::new(input).is_err());
+    assert_empty_value_error!(
+        LanChildMdnsAdvertisement::new(input),
+        constants::lan_pairing::MDNS_PLATFORM_FIELD
+    );
 
     let mut input = child_advertisement_input();
     input.agent_version.clear();
-    assert!(LanChildMdnsAdvertisement::new(input).is_err());
+    assert_empty_value_error!(
+        LanChildMdnsAdvertisement::new(input),
+        constants::lan_pairing::MDNS_AGENT_VERSION_FIELD
+    );
 }
 
 #[test]

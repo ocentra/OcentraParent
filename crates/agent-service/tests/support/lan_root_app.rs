@@ -12,7 +12,8 @@ pub(crate) mod lan_pairing {
 
     pub(crate) const route_trust_state: fn(
         Option<&ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget>,
-    ) -> &'static str = crate::lan_pairing_status::selection::route_trust_state;
+    ) -> ocentra_parent_agent_protocol::lan_pairing::LanPairingText =
+        crate::lan_pairing_status::selection::route_trust_state;
 }
 
 pub(crate) mod lan_pairing_status {
@@ -30,16 +31,19 @@ pub(crate) mod lan_pairing_runtime_state {
     }
 
     pub(crate) mod passive_discovery {
+        pub(crate) type LanPassiveDiscoveryLocalNetworkChangeTrigger =
+            crate::lan_pairing_runtime_state::passive_discovery::LanPassiveDiscoveryLocalNetworkChangeTrigger;
         pub(crate) type LanPassiveDiscoveryRuntimeObservedState =
             crate::lan_pairing_runtime_state::passive_discovery::LanPassiveDiscoveryRuntimeObservedState;
 
         pub(crate) const local_network_change_triggers: fn(
-            Option<&ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryListenerState>,
-            &ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability,
+            Option<&ocentra_lan_core::network_inventory::LanPassiveRuntimeLocalNetworkIdentity>,
             &ocentra_lan_core::network_inventory::LanPassiveRuntimeLocalNetworkIdentity,
-        ) -> bool = crate::lan_pairing_runtime_state::passive_discovery::local_network_change_triggers;
+        ) -> Vec<LanPassiveDiscoveryLocalNetworkChangeTrigger> =
+            crate::lan_pairing_runtime_state::passive_discovery::local_network_change_triggers;
 
-        pub(crate) const passive_discovery_udp_sources: fn() -> [ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoverySource; 6] =
+        pub(crate) const passive_discovery_udp_sources:
+            fn() -> &'static [ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoverySource] =
             crate::lan_pairing_runtime_state::passive_discovery::passive_discovery_udp_sources;
     }
 

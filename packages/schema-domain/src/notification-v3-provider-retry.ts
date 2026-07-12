@@ -1,10 +1,7 @@
 /* thin adapter over Rust-owned generated notification v3 provider retry contracts */
 
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
-import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './family-reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './family-reference-primitives';
 import {
   GeneratedV3NotificationDeliveryAttemptStates,
   GeneratedV3NotificationDeliveryResultStates,

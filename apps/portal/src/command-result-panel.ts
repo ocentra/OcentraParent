@@ -45,10 +45,9 @@ function renderSelectedResult(state: PortalRuntimeState): HTMLElement {
 
 function renderResultEvent(event: ParentRouteEventSnapshot): HTMLElement {
   const card = document.createElement(PortalDom.Tags.Division);
-  card.className = [
-    PortalDom.Classes.Log,
-    `${PortalDom.Classes.LogLevelPrefix}${eventSeverity(event)}`,
-  ].join(PortalDom.Classes.ClassNameSeparator);
+  card.className = [PortalDom.Classes.Log, `${PortalDom.Classes.LogLevelPrefix}${eventSeverity(event)}`].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
 
   const header = document.createElement(PortalDom.Tags.Division);
   header.className = PortalDom.Classes.CommandResultHeader;
@@ -85,9 +84,7 @@ function renderResultEvent(event: ParentRouteEventSnapshot): HTMLElement {
   return card;
 }
 
-function renderAppGameTimerParentPreferenceSetupCommandResult(
-  event: ParentRouteEventSnapshot
-): HTMLElement | null {
+function renderAppGameTimerParentPreferenceSetupCommandResult(event: ParentRouteEventSnapshot): HTMLElement | null {
   const projection = event.commandResultProjection;
   if (projection === undefined || projection === null) {
     return null;

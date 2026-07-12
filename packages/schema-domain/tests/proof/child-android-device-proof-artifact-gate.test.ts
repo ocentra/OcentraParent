@@ -32,7 +32,8 @@ function acceptsHonestDeviceProofGate(): void {
       removalState: 'manual-removal-proof-required',
       deviceOwnerAuthorityState: 'manual-required',
       managedProfileAuthorityState: 'manual-required',
-      childAgentArtifactBoundary: 'debug APK is the Android child-agent artifact proved by CI package output and checksum only',
+      childAgentArtifactBoundary:
+        'debug APK is the Android child-agent artifact proved by CI package output and checksum only',
       installModeBoundary:
         'proof is limited to debug APK sideload mode and does not claim managed-profile or device-owner packaging',
       installStateBoundary: 'Android install remains manual-required until emulator or physical-device proof exists',
@@ -284,7 +285,8 @@ function validReadModel(): ChildAndroidDeviceProofArtifactGateReadModel {
       removalState: 'manual-removal-proof-required',
       deviceOwnerAuthorityState: 'manual-required',
       managedProfileAuthorityState: 'manual-required',
-      childAgentArtifactBoundary: 'debug APK is the Android child-agent artifact proved by CI package output and checksum only',
+      childAgentArtifactBoundary:
+        'debug APK is the Android child-agent artifact proved by CI package output and checksum only',
       installModeBoundary:
         'proof is limited to debug APK sideload mode and does not claim managed-profile or device-owner packaging',
       installStateBoundary: 'Android install remains manual-required until emulator or physical-device proof exists',

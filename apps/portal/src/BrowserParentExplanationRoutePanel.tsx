@@ -56,11 +56,7 @@ export function BrowserParentExplanationRoutePanel({
   );
 }
 
-function BrowserParentExplanationSummaryCard({
-  panel,
-}: {
-  readonly panel: ParentBrowserPanelSnapshot;
-}): ReactElement {
+function BrowserParentExplanationSummaryCard({ panel }: { readonly panel: ParentBrowserPanelSnapshot }): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{panel.summary}</h2>
@@ -69,11 +65,7 @@ function BrowserParentExplanationSummaryCard({
   );
 }
 
-function BrowserParentExplanationEmptyCard({
-  panel,
-}: {
-  readonly panel: ParentBrowserPanelSnapshot;
-}): ReactElement {
+function BrowserParentExplanationEmptyCard({ panel }: { readonly panel: ParentBrowserPanelSnapshot }): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{panel.emptyMessage}</h2>
@@ -82,11 +74,7 @@ function BrowserParentExplanationEmptyCard({
   );
 }
 
-function BrowserParentExplanationRowCard({
-  row,
-}: {
-  readonly row: ParentBrowserPanelRowSnapshot;
-}): ReactElement {
+function BrowserParentExplanationRowCard({ row }: { readonly row: ParentBrowserPanelRowSnapshot }): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{row.title}</h2>

@@ -240,6 +240,14 @@ fn timer_parent_surface_row_counts(
     }
 }
 
+fn timer_parent_surface_status_text_index(counts: &TimerParentSurfaceRowCounts) -> usize {
+    {
+        let has_rows = (counts.returned != 0) as usize;
+        let ready_is_full = (counts.ready_for_parent_surface_count == counts.returned) as usize;
+        has_rows * ready_is_full + has_rows * (1 - ready_is_full) * 2
+    }
+}
+
 fn timer_parent_surface_read_model(
     model: AppGameServiceReadModel,
     rows: Vec<AppGameTimerParentSurfaceRow>,
@@ -247,11 +255,8 @@ fn timer_parent_surface_read_model(
     control_action_results: super::app_game_timer_parent_surface_action_results::TimerParentSurfaceControlActionResults,
 ) -> AppGameTimerParentSurfaceReadModel {
     let counts = timer_parent_surface_row_counts(&rows);
-    let capability_status = TIMER_PARENT_SURFACE_STATUS_TEXTS[{
-        let has_rows = (counts.returned != 0) as usize;
-        let ready_is_full = (counts.ready_for_parent_surface_count == counts.returned) as usize;
-        has_rows * ready_is_full + has_rows * (1 - ready_is_full) * 2
-    }]
+    let capability_status = TIMER_PARENT_SURFACE_STATUS_TEXTS
+        [timer_parent_surface_status_text_index(&counts)]
     .to_string();
 
     AppGameTimerParentSurfaceReadModel {

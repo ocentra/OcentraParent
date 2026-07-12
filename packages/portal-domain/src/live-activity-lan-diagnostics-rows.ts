@@ -20,7 +20,9 @@ export function projectEvidenceRecordRow(record: PortalLanDiscoveryEvidenceRecor
   };
 }
 
-export function projectTrustedRegistryRow(entry: PortalLanTrustedDeviceRegistryEntryProjection): PortalLanDiagnosticsRow {
+export function projectTrustedRegistryRow(
+  entry: PortalLanTrustedDeviceRegistryEntryProjection
+): PortalLanDiagnosticsRow {
   return {
     label: entry.pairingId,
     value: formatSummaryText([
@@ -34,7 +36,9 @@ export function projectTrustedRegistryRow(entry: PortalLanTrustedDeviceRegistryE
   };
 }
 
-export function projectHouseholdDecisionRow(decision: PortalLanHouseholdDeviceDecisionProjection): PortalLanDiagnosticsRow {
+export function projectHouseholdDecisionRow(
+  decision: PortalLanHouseholdDeviceDecisionProjection
+): PortalLanDiagnosticsRow {
   return {
     label: `${decision.actionKind} | ${decision.displayName ?? decision.canonicalDeviceId}`,
     value: formatSummaryText([

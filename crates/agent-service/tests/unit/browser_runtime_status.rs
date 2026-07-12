@@ -1,7 +1,15 @@
 #![forbid(unsafe_code)]
 
-#[path = "../support/fields.rs"]
+#[path = "../../src/browser_payload.rs"]
+mod browser_payload;
+#[path = "../../src/browser_runtime_status.rs"]
+mod browser_runtime_status;
+#[path = "../../src/fields.rs"]
 mod fields;
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+
+use ocentra_parent_agent_protocol::constants;
 
 #[test]
 fn browser_runtime_harness_links_status_variants_and_inventory_payload() {
@@ -29,7 +37,7 @@ fn browser_runtime_harness_links_status_variants_and_inventory_payload() {
             .to_string(),
         Some("125.0.0.1".to_string()),
         ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus::Available,
-        None,
+        None::<String>,
     );
     assert_eq!(
         connected.managed_state,

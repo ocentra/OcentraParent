@@ -4,8 +4,8 @@ use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::SchemaVersion;
 
 use crate::policy_source::{
-    ParentPolicySourceDocument, PolicyDocumentCompatibilityState,
-    PolicySourceCompatibilityReport, PolicyVersion,
+    ParentPolicySourceDocument, PolicyDocumentCompatibilityState, PolicySourceCompatibilityReport,
+    PolicyVersion,
 };
 
 pub(super) fn assess_policy_source_compatibility(
@@ -13,12 +13,12 @@ pub(super) fn assess_policy_source_compatibility(
     supported_schema_version: SchemaVersion,
     minimum_supported_policy_version: PolicyVersion,
 ) -> Result<PolicySourceCompatibilityReport, EventingError> {
-    let schema_state =
-        schema_compatibility_state(source.schema_version.value(), supported_schema_version.value());
-    let policy_version_state = policy_version_compatibility_state(
-        source.policy_version,
-        minimum_supported_policy_version,
+    let schema_state = schema_compatibility_state(
+        source.schema_version.value(),
+        supported_schema_version.value(),
     );
+    let policy_version_state =
+        policy_version_compatibility_state(source.policy_version, minimum_supported_policy_version);
 
     Ok(PolicySourceCompatibilityReport {
         source_schema_version: source.schema_version,

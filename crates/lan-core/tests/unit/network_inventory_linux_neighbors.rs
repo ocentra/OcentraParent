@@ -19,28 +19,19 @@ use ocentra_lan_core::network_inventory::{
 
 const TEST_NEIGHBOR_OBSERVED_AT: &str = "2026-06-28T12:00:00Z";
 
-fn lan_plan_fixture(name: &str) -> String {
-    fs::read_to_string(format!(
-        "{}/tests/fixtures/lan-plan/{}",
-        env!("CARGO_MANIFEST_DIR"),
-        name
-    ))
-    .value_or_unreachable()
-}
-
-fn lan_plan_fixture_records(name: &str) -> Vec<serde_json::Value> {
-    serde_json::from_str(&lan_plan_fixture(name)).value_or_unreachable()
-}
-
 #[test]
 fn linux_proc_net_arp_basic_fixture_preserves_neighbor_rows() {
-    let observations = lan_plan_fixture("linux_proc_net_arp_basic.txt")
-        .lines()
-        .skip(1)
-        .filter_map(|line| {
-            linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
+    let observations = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/linux_proc_net_arp_basic.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .skip(1)
+    .filter_map(|line| {
+        linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
 
     assert_eq!(observations.len(), 2);
     assert_eq!(observations[0].ip_address, "192.168.2.1");
@@ -61,27 +52,39 @@ fn linux_proc_net_arp_basic_fixture_preserves_neighbor_rows() {
 
 #[test]
 fn linux_proc_net_arp_empty_incomplete_and_malformed_fixtures_produce_no_rows() {
-    let empty = lan_plan_fixture("linux_proc_net_arp_empty.txt")
-        .lines()
-        .skip(1)
-        .filter_map(|line| {
-            linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
-    let incomplete = lan_plan_fixture("linux_proc_net_arp_incomplete.txt")
-        .lines()
-        .skip(1)
-        .filter_map(|line| {
-            linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
-    let malformed = lan_plan_fixture("linux_proc_net_arp_malformed.txt")
-        .lines()
-        .skip(1)
-        .filter_map(|line| {
-            linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
+    let empty = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/linux_proc_net_arp_empty.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .skip(1)
+    .filter_map(|line| {
+        linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
+    let incomplete = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/linux_proc_net_arp_incomplete.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .skip(1)
+    .filter_map(|line| {
+        linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
+    let malformed = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/linux_proc_net_arp_malformed.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .skip(1)
+    .filter_map(|line| {
+        linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
 
     assert!(empty.is_empty());
     assert!(incomplete.is_empty());
@@ -90,13 +93,17 @@ fn linux_proc_net_arp_empty_incomplete_and_malformed_fixtures_produce_no_rows() 
 
 #[test]
 fn linux_proc_net_arp_duplicate_fixture_keeps_duplicate_candidates_until_merge() {
-    let parsed = lan_plan_fixture("linux_proc_net_arp_duplicate.txt")
-        .lines()
-        .skip(1)
-        .filter_map(|line| {
-            linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
+    let parsed = fs::read_to_string(format!(
+        "{}/tests/fixtures/lan-plan/linux_proc_net_arp_duplicate.txt",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .value_or_unreachable()
+    .lines()
+    .skip(1)
+    .filter_map(|line| {
+        linux_proc_net_arp_observation_with_observed_at(line, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
 
     assert_eq!(parsed.len(), 2);
     assert_eq!(parsed[0].mac_address, parsed[1].mac_address);
@@ -109,12 +116,19 @@ fn linux_proc_net_arp_duplicate_fixture_keeps_duplicate_candidates_until_merge()
 
 #[test]
 fn linux_ip_neigh_basic_fixture_preserves_neighbor_rows() {
-    let parsed = lan_plan_fixture_records("linux_ip_neigh_basic.json")
-        .iter()
-        .filter_map(|record| {
-            linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
+    let parsed = serde_json::from_str::<Vec<serde_json::Value>>(
+        &fs::read_to_string(format!(
+            "{}/tests/fixtures/lan-plan/linux_ip_neigh_basic.json",
+            env!("CARGO_MANIFEST_DIR")
+        ))
+        .value_or_unreachable(),
+    )
+    .value_or_unreachable()
+    .iter()
+    .filter_map(|record| {
+        linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
 
     assert_eq!(parsed.len(), 2);
     assert_eq!(parsed[0].ip_address, "192.168.2.45");
@@ -126,24 +140,45 @@ fn linux_ip_neigh_basic_fixture_preserves_neighbor_rows() {
 
 #[test]
 fn linux_ip_neigh_empty_incomplete_and_malformed_fixtures_produce_no_rows() {
-    let empty = lan_plan_fixture_records("linux_ip_neigh_empty.json")
-        .iter()
-        .filter_map(|record| {
-            linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
-    let incomplete = lan_plan_fixture_records("linux_ip_neigh_incomplete.json")
-        .iter()
-        .filter_map(|record| {
-            linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
-    let malformed = lan_plan_fixture_records("linux_ip_neigh_malformed.json")
-        .iter()
-        .filter_map(|record| {
-            linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
+    let empty = serde_json::from_str::<Vec<serde_json::Value>>(
+        &fs::read_to_string(format!(
+            "{}/tests/fixtures/lan-plan/linux_ip_neigh_empty.json",
+            env!("CARGO_MANIFEST_DIR")
+        ))
+        .value_or_unreachable(),
+    )
+    .value_or_unreachable()
+    .iter()
+    .filter_map(|record| {
+        linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
+    let incomplete = serde_json::from_str::<Vec<serde_json::Value>>(
+        &fs::read_to_string(format!(
+            "{}/tests/fixtures/lan-plan/linux_ip_neigh_incomplete.json",
+            env!("CARGO_MANIFEST_DIR")
+        ))
+        .value_or_unreachable(),
+    )
+    .value_or_unreachable()
+    .iter()
+    .filter_map(|record| {
+        linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
+    let malformed = serde_json::from_str::<Vec<serde_json::Value>>(
+        &fs::read_to_string(format!(
+            "{}/tests/fixtures/lan-plan/linux_ip_neigh_malformed.json",
+            env!("CARGO_MANIFEST_DIR")
+        ))
+        .value_or_unreachable(),
+    )
+    .value_or_unreachable()
+    .iter()
+    .filter_map(|record| {
+        linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
 
     assert!(empty.is_empty());
     assert!(incomplete.is_empty());
@@ -152,12 +187,19 @@ fn linux_ip_neigh_empty_incomplete_and_malformed_fixtures_produce_no_rows() {
 
 #[test]
 fn linux_ip_neigh_duplicate_fixture_keeps_duplicate_candidates_until_merge() {
-    let parsed = lan_plan_fixture_records("linux_ip_neigh_duplicate.json")
-        .iter()
-        .filter_map(|record| {
-            linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
-        })
-        .collect::<Vec<_>>();
+    let parsed = serde_json::from_str::<Vec<serde_json::Value>>(
+        &fs::read_to_string(format!(
+            "{}/tests/fixtures/lan-plan/linux_ip_neigh_duplicate.json",
+            env!("CARGO_MANIFEST_DIR")
+        ))
+        .value_or_unreachable(),
+    )
+    .value_or_unreachable()
+    .iter()
+    .filter_map(|record| {
+        linux_ip_neigh_observation_with_observed_at(record, TEST_NEIGHBOR_OBSERVED_AT)
+    })
+    .collect::<Vec<_>>();
 
     assert_eq!(parsed.len(), 2);
     assert_eq!(parsed[0].mac_address, parsed[1].mac_address);

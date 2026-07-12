@@ -25,12 +25,12 @@ export type PortalCommandButton = PortalOverviewCommand & {
 const EmptyPayload = {} as const satisfies AgentProtocolPayload;
 
 const ActivitySurfaceOperations = new Map(
-  GeneratedPortalAgentActivitySurfaceAdapterOperationManifest.map((operation) => [operation.operationId, operation] as const)
+  GeneratedPortalAgentActivitySurfaceAdapterOperationManifest.map(
+    (operation) => [operation.operationId, operation] as const
+  )
 );
 
-function activitySurfaceOperation(
-  operationId: ActivitySurfaceOperation['operationId']
-): ActivitySurfaceOperation {
+function activitySurfaceOperation(operationId: ActivitySurfaceOperation['operationId']): ActivitySurfaceOperation {
   const operation = ActivitySurfaceOperations.get(operationId);
   if (operation === undefined) {
     throw new TypeError(`Missing generated activity surface operation: ${operationId}`);
@@ -137,14 +137,9 @@ export const PortalCommandButtons = [
     AgentCommand.LogSnapshotGet,
     AgentEvent.LogSnapshotReported
   ),
-  commandButton(
-    resolvePortalDevText(PortalDevTextToken.EchoPortalPing),
-    AgentCommand.DevEcho,
-    AgentEvent.DevEchoed,
-    {
-      [GeneratedPortalAgentProtocolField.Message]: resolvePortalDevText(PortalDevTextToken.EchoPortalPing),
-    }
-  ),
+  commandButton(resolvePortalDevText(PortalDevTextToken.EchoPortalPing), AgentCommand.DevEcho, AgentEvent.DevEchoed, {
+    [GeneratedPortalAgentProtocolField.Message]: resolvePortalDevText(PortalDevTextToken.EchoPortalPing),
+  }),
   commandButton(
     resolvePortalDevText(PortalDevTextToken.GetWatcherStatus),
     AgentCommand.WatchStatusGet,

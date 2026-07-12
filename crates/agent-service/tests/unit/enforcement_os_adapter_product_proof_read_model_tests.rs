@@ -13,7 +13,9 @@ use ocentra_parent_agent_protocol::policy_constants;
 
 use self::test_text::{count_for_display, test_ok, TestResult, TestText};
 use crate::{
-    enforcement_os_adapter_product_proof_read_model::v08_os_adapter_product_proof_read_model,
+    enforcement_os_adapter_product_proof_read_model::{
+        v08_os_adapter_product_proof_read_model, GeneratedAtTextRef,
+    },
     test_invariants::require_some,
 };
 
@@ -27,7 +29,9 @@ mod product_control_spine_tests;
 
 #[test]
 fn product_proof_read_model_captures_v0_8_adapter_boundaries() {
-    let read_model = v08_os_adapter_product_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_os_adapter_product_proof_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
     let readiness_counts = count_readiness(&read_model.entries);
 
     assert_eq!(read_model.read_model_id, proof::READ_MODEL_ID);
@@ -60,7 +64,9 @@ fn product_proof_read_model_captures_v0_8_adapter_boundaries() {
 
 #[test]
 fn product_proof_read_model_preserves_lifecycle_and_audit_states() {
-    let read_model = v08_os_adapter_product_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_os_adapter_product_proof_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
     let restart = entry_for(
         &read_model.entries,
         V08OsAdapterProductProofSurface::RestartRecovery,
@@ -99,7 +105,9 @@ fn product_proof_read_model_preserves_lifecycle_and_audit_states() {
 
 #[test]
 fn product_proof_read_model_serializes_for_runtime_preview() -> TestResult {
-    let read_model = v08_os_adapter_product_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_os_adapter_product_proof_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
     let serialized = test_ok(
         serde_json::to_value(read_model),
         constants::error::AGENT_EVENT_SERIALIZES,

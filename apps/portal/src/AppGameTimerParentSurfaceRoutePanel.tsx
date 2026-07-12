@@ -136,11 +136,7 @@ function AppGameTimerParentSurfaceEmptyCard({
   );
 }
 
-function AppGameTimerParentSurfaceRowCard({
-  row,
-}: {
-  readonly row: ParentAppGamePanelRowSnapshot;
-}): ReactElement {
+function AppGameTimerParentSurfaceRowCard({ row }: { readonly row: ParentAppGamePanelRowSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
@@ -196,7 +192,11 @@ function AppGameTimerParentSurfaceDetails({
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
       {details.map((detail, index) => (
-        <AppGameTimerParentSurfaceDetail key={`${String(detail.label)}:${index}`} label={detail.label} value={detail.value} />
+        <AppGameTimerParentSurfaceDetail
+          key={`${String(detail.label)}:${index}`}
+          label={detail.label}
+          value={detail.value}
+        />
       ))}
     </dl>
   );

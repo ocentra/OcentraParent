@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  createSetupFirstRunPanelIntent,
-  readableSetupValue,
-} from '../../src/setup-first-run-panel';
+import { createSetupFirstRunPanelIntent, readableSetupValue } from '../../src/setup-first-run-panel';
 
 type ParentSetupFirstRunPanelSnapshot = Parameters<typeof createSetupFirstRunPanelIntent>[0];
 
@@ -14,8 +11,7 @@ describe('setup first-run panel intent', () => {
       expect.objectContaining({
         eyebrow: 'Setup route',
         title: 'Setup-first-run boundary status',
-        body:
-          'The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot. This panel reports that gap honestly instead of inventing onboarding progress.',
+        body: 'The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot. This panel reports that gap honestly instead of inventing onboarding progress.',
         summaryCardTitle: 'Current boundary status',
         summary:
           'Portal rendering and the Rust-owned route snapshot exist, but live setup/account/trust/custody state is unavailable here today.',
@@ -38,8 +34,7 @@ describe('setup first-run panel intent', () => {
     expect(intent.cards).toEqual([
       {
         title: 'What is real now',
-        summary:
-          'The Start route can render an honest Rust-owned boundary panel without inventing setup progress.',
+        summary: 'The Start route can render an honest Rust-owned boundary panel without inventing setup progress.',
         details: [
           { label: 'Route shell', value: 'Start route is visible in the portal shell' },
           { label: 'Snapshot transport', value: 'Host bridge snapshot reaches TS presentation' },
@@ -59,8 +54,7 @@ describe('setup first-run panel intent', () => {
       },
       {
         title: 'Where it belongs',
-        summary:
-          'When first-run becomes live, Rust must own the setup state and TS must remain pure rendering.',
+        summary: 'When first-run becomes live, Rust must own the setup state and TS must remain pure rendering.',
         details: [
           { label: 'Rust owner', value: 'parent runtime + setup read model' },
           { label: 'TS role', value: 'presentation only' },
@@ -81,8 +75,7 @@ function sampleSetupFirstRunPanel(): ParentSetupFirstRunPanelSnapshot {
   return {
     eyebrow: 'Setup route',
     title: 'Setup-first-run boundary status',
-    body:
-      'The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot. This panel reports that gap honestly instead of inventing onboarding progress.',
+    body: 'The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot. This panel reports that gap honestly instead of inventing onboarding progress.',
     summaryCardTitle: 'Current boundary status',
     summary:
       'Portal rendering and the Rust-owned route snapshot exist, but live setup/account/trust/custody state is unavailable here today.',
@@ -99,8 +92,7 @@ function sampleSetupFirstRunPanel(): ParentSetupFirstRunPanelSnapshot {
     cards: [
       {
         title: 'What is real now',
-        summary:
-          'The Start route can render an honest Rust-owned boundary panel without inventing setup progress.',
+        summary: 'The Start route can render an honest Rust-owned boundary panel without inventing setup progress.',
         details: [
           { label: 'Route shell', value: 'Start route is visible in the portal shell' },
           { label: 'Snapshot transport', value: 'Host bridge snapshot reaches TS presentation' },
@@ -120,8 +112,7 @@ function sampleSetupFirstRunPanel(): ParentSetupFirstRunPanelSnapshot {
       },
       {
         title: 'Where it belongs',
-        summary:
-          'When first-run becomes live, Rust must own the setup state and TS must remain pure rendering.',
+        summary: 'When first-run becomes live, Rust must own the setup state and TS must remain pure rendering.',
         details: [
           { label: 'Rust owner', value: 'parent runtime + setup read model' },
           { label: 'TS role', value: 'presentation only' },

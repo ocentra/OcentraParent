@@ -25,4 +25,3 @@ export function browserControlBrowserGameLimitIsConsistentGenerated(policy: Brow
 
   return !gameLimitSelected || policy.browserGames.defaultDailyMinutes !== null || policy.fallbackPosture !== null;
 }
-

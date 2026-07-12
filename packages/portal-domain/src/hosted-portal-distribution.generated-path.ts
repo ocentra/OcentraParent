@@ -1,4 +1,8 @@
-import type { GeneratedHostedPortalEnv, GeneratedHostedPortalEnvironment, GeneratedHostedPortalLocation } from './hosted-portal-distribution.generated';
+import type {
+  GeneratedHostedPortalEnv,
+  GeneratedHostedPortalEnvironment,
+  GeneratedHostedPortalLocation,
+} from './hosted-portal-distribution.generated';
 
 type GeneratedHostedPortalSearchParams = {
   get(name: string): string | null;
@@ -39,10 +43,7 @@ export function hostedPortalExpectedPaths(prefix: string): readonly string[] {
   return ['preview', 'staging', 'production'].map((environment) => normalizePath(`${prefix}/${environment}`));
 }
 
-export function generatedEnvironmentForPath(
-  pathname: string,
-  prefix: string
-): GeneratedHostedPortalEnvironment | null {
+export function generatedEnvironmentForPath(pathname: string, prefix: string): GeneratedHostedPortalEnvironment | null {
   const pathMap = new Map<GeneratedHostedPortalEnvironment, string>([
     ['preview', normalizePath(`${prefix}/preview`)],
     ['staging', normalizePath(`${prefix}/staging`)],
@@ -69,5 +70,13 @@ export function normalizePath(value: string): string {
     return '/';
   }
   const prefixed = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-  return prefixed.replace(/\/+$/u, '');
+  return trimTrailingSolidus(prefixed);
+}
+
+function trimTrailingSolidus(value: string): string {
+  let end = value.length;
+  while (end > 0 && value.charCodeAt(end - 1) === 47) {
+    end -= 1;
+  }
+  return value.slice(0, end);
 }

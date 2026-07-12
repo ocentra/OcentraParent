@@ -17,7 +17,6 @@ import {
   type LocalAiRuntimeStatusInput,
 } from './local-ai-runtime-panel.generated';
 
-
 export type LocalAiRuntimePanelDetail = {
   readonly label: DisplayText;
   readonly value: PortalDetailValue;
@@ -187,7 +186,9 @@ function normalizeMemoryGraph(readModel: PortalActivityMemoryGraphReadModel | nu
   };
 }
 
-function normalizeRemoteAssistantBoundary(event: PortalRouteEventRecord | null): LocalAiRemoteAssistantBoundaryInput | null {
+function normalizeRemoteAssistantBoundary(
+  event: PortalRouteEventRecord | null
+): LocalAiRemoteAssistantBoundaryInput | null {
   if (
     event?.event !== AgentEvent.ParentAssistantAnswerReported &&
     event?.event !== AgentEvent.ParentAssistantProviderDegraded &&

@@ -1,12 +1,7 @@
 import { PortalTheme, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import type { ReactElement, ReactNode } from 'react';
 import type { PortalBackgroundTunerControlState } from './portal-background-tuner-control-state';
-
-const panelChrome = {
-  border: 'rgba(148, 163, 184, 0.18)',
-  subtext: '#93a4bb',
-  text: '#e5eefb',
-} as const;
+import { PortalBackgroundTunerPanelClasses } from './portal-background-tuner-controls-panels-style';
 
 export function PortalBackgroundTunerHeader({
   dirty,
@@ -20,10 +15,10 @@ export function PortalBackgroundTunerHeader({
   readonly status: string;
 }): ReactElement {
   return (
-    <div style={{ alignItems: 'center', display: 'flex', gap: 8, justifyContent: 'space-between' }}>
+    <div className={PortalBackgroundTunerPanelClasses.header}>
       <div>
-        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: 0 }}>BG tuner</div>
-        <div style={{ color: panelChrome.subtext, fontSize: 10 }}>{dirty ? 'Draft changes' : status}</div>
+        <div className={PortalBackgroundTunerPanelClasses.headerTitle}>BG tuner</div>
+        <div className={PortalBackgroundTunerPanelClasses.status}>{dirty ? 'Draft changes' : status}</div>
       </div>
       <SmallButton onClick={() => onOpenChange(!open)}>{open ? 'Hide' : 'Show'}</SmallButton>
     </div>
@@ -48,7 +43,7 @@ export function PortalBackgroundTunerEditor({
   readonly previewTheme: PortalThemeValue;
 }): ReactElement {
   return (
-    <div style={{ display: 'grid', gap: 9, marginTop: 10 }}>
+    <div className={PortalBackgroundTunerPanelClasses.editor}>
       <PortalBackgroundTunerActions
         dirty={dirty}
         onPreviewThemeChange={onPreviewThemeChange}
@@ -79,7 +74,7 @@ function PortalBackgroundTunerActions({
   readonly previewTheme: PortalThemeValue;
 }): ReactElement {
   return (
-    <div style={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+    <div className={PortalBackgroundTunerPanelClasses.actions}>
       <SmallButton active={previewTheme === PortalTheme.Dark} onClick={() => onPreviewThemeChange(PortalTheme.Dark)}>
         Dark
       </SmallButton>
@@ -101,7 +96,7 @@ function PortalBackgroundTunerGrid({
   readonly controls: PortalBackgroundTunerControlState;
 }): ReactElement {
   return (
-    <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
+    <div className={PortalBackgroundTunerPanelClasses.grid}>
       <HexControls controls={controls} />
       <BgControls controls={controls} />
       <LightControls controls={controls} />
@@ -267,12 +262,18 @@ function PortalBackgroundTunerJson({
   readonly controls: PortalBackgroundTunerControlState;
 }): ReactElement {
   return (
-    <details style={{ borderTop: `1px solid ${panelChrome.border}`, paddingTop: 8 }}>
-      <summary style={{ cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>JSON</summary>
-      <div style={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: 6, margin: '8px 0' }}>
+    <details className={PortalBackgroundTunerPanelClasses.json}>
+      <summary className={PortalBackgroundTunerPanelClasses.jsonSummary}>JSON</summary>
+      <div className={PortalBackgroundTunerPanelClasses.jsonActions}>
         <SmallButton onClick={controls.copyJson}>{controls.copied ? 'Copied' : 'Copy JSON'}</SmallButton>
         <SmallButton onClick={controls.selectJson}>Select JSON</SmallButton>
-        <div style={{ color: controls.copyError ? '#fca5a5' : panelChrome.subtext, fontSize: 10 }}>
+        <div
+          className={
+            controls.copyError
+              ? PortalBackgroundTunerPanelClasses.jsonError
+              : PortalBackgroundTunerPanelClasses.jsonStatus
+          }
+        >
           {controls.copyError || 'One save stores dark and light background values.'}
         </div>
       </div>
@@ -283,19 +284,7 @@ function PortalBackgroundTunerJson({
         }}
         readOnly={true}
         ref={controls.jsonRef}
-        style={{
-          background: 'rgba(2, 6, 23, 0.78)',
-          border: `1px solid ${panelChrome.border}`,
-          borderRadius: 8,
-          color: '#cbd5e1',
-          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          fontSize: 10,
-          lineHeight: 1.4,
-          minHeight: 128,
-          padding: 10,
-          resize: 'vertical',
-          width: '100%',
-        }}
+        className={PortalBackgroundTunerPanelClasses.jsonTextarea}
         value={controls.jsonText}
       />
     </details>
@@ -304,8 +293,8 @@ function PortalBackgroundTunerJson({
 
 function ControlColumn({ children, title }: { readonly children: ReactNode; readonly title: string }): ReactElement {
   return (
-    <div style={{ display: 'grid', gap: 6 }}>
-      <div style={{ fontSize: 12, fontWeight: 700 }}>{title}</div>
+    <div className={PortalBackgroundTunerPanelClasses.column}>
+      <div className={PortalBackgroundTunerPanelClasses.columnTitle}>{title}</div>
       {children}
     </div>
   );
@@ -321,20 +310,11 @@ function ColorInput({
   readonly value: string;
 }): ReactElement {
   return (
-    <label
-      style={{
-        alignItems: 'center',
-        color: panelChrome.subtext,
-        display: 'grid',
-        fontSize: 11,
-        gap: 8,
-        gridTemplateColumns: 'auto 34px',
-      }}
-    >
+    <label className={PortalBackgroundTunerPanelClasses.colorLabel}>
       <span>{label}</span>
       <input
         onChange={(event) => onChange(event.target.value)}
-        style={{ background: 'transparent', border: 'none', cursor: 'pointer', height: 24, padding: 0, width: 34 }}
+        className={PortalBackgroundTunerPanelClasses.colorInput}
         type="color"
         value={value}
       />
@@ -358,8 +338,8 @@ function RangeInput({
   readonly value: number;
 }): ReactElement {
   return (
-    <label style={{ display: 'grid', gap: 4 }}>
-      <span style={{ color: panelChrome.subtext, fontSize: 11 }}>
+    <label className={PortalBackgroundTunerPanelClasses.rangeLabel}>
+      <span className={PortalBackgroundTunerPanelClasses.rangeValue}>
         {label}: {Number.isInteger(value) ? value : value.toFixed(2)}
       </span>
       <input
@@ -367,7 +347,7 @@ function RangeInput({
         min={min}
         onChange={(event) => onChange(Number(event.target.value))}
         step={step}
-        style={{ width: '100%' }}
+        className={PortalBackgroundTunerPanelClasses.rangeInput}
         type="range"
         value={value}
       />
@@ -386,20 +366,8 @@ function SmallButton({
 }): ReactElement {
   return (
     <button
+      className={active ? PortalBackgroundTunerPanelClasses.buttonActive : PortalBackgroundTunerPanelClasses.button}
       onClick={onClick}
-      style={{
-        background: active
-          ? 'linear-gradient(180deg, rgba(246, 195, 74, 0.96), rgba(142, 92, 16, 0.96))'
-          : 'rgba(255,255,255,0.05)',
-        border: active ? '1px solid rgba(255, 244, 189, 0.72)' : `1px solid ${panelChrome.border}`,
-        borderRadius: 8,
-        color: active ? '#201400' : panelChrome.text,
-        cursor: 'pointer',
-        fontSize: 11,
-        fontWeight: active ? 800 : 700,
-        padding: '6px 10px',
-        whiteSpace: 'nowrap',
-      }}
       type="button"
     >
       {children}

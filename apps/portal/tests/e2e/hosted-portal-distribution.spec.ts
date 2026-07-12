@@ -40,18 +40,14 @@ test.describe('hosted parent web portal distribution', () => {
     await page.goto('/staging?cache=stale&cacheAgeMinutes=180');
 
     await expect(page.getByTestId('hosted-cache-stale')).toContainText('Cached shell age is 180 minutes');
-    await expect(page.getByTestId('hosted-cache-stale')).toContainText(
-      'Fresh install or release claims are blocked'
-    );
+    await expect(page.getByTestId('hosted-cache-stale')).toContainText('Fresh install or release claims are blocked');
     await expect(page.getByTestId('hosted-primary-action')).toContainText('Parent release action blocked');
   });
 
   test('blocks preview routes from presenting themselves as production releases', async ({ page }) => {
     await page.goto('/preview?release=production');
 
-    await expect(page.getByTestId('hosted-production-claim-blocked')).toContainText(
-      'Production release claim blocked'
-    );
+    await expect(page.getByTestId('hosted-production-claim-blocked')).toContainText('Production release claim blocked');
     await expect(page.getByTestId('hosted-primary-action')).toContainText('Parent release action blocked');
   });
 });

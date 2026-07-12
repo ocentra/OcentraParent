@@ -20,7 +20,7 @@ pub(super) fn validate_pairing_proof_target(
         return Err(LanPairingRejectionReason::WrongOrigin);
     }
     if command.target.device_id.as_str() == proof.child_device_id.as_str() {
-        runtime.validate_challenge_proof(proof, &timestamp_now())
+        runtime.validate_challenge_proof(proof, &timestamp_now::<String>())
     } else {
         Err(LanPairingRejectionReason::WrongDevice)
     }
@@ -58,7 +58,7 @@ pub(super) fn validate_intent_result(
     origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    let observed_at = timestamp_now();
+    let observed_at: String = timestamp_now();
     if crate::lan_pairing::is_write_intent(intent) {
         validate_write_authority(intent)?;
     }
@@ -77,7 +77,7 @@ pub(super) fn validate_selection_intent_result(
     origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    let observed_at = timestamp_now();
+    let observed_at: String = timestamp_now();
     validate_write_authority(intent)?;
     runtime.validate_controller_lease(intent, &*observed_at)?;
     validate_registry_selection_intent(runtime, origin.0.as_deref(), intent)
@@ -111,7 +111,7 @@ pub(super) fn revoke_pairing(
     runtime: &LanPairingRuntime,
     intent: &LanParentIntentEnvelope,
 ) -> bool {
-    let revoked_at = timestamp_now();
+    let revoked_at: String = timestamp_now();
     runtime
         .registry
         .lock()

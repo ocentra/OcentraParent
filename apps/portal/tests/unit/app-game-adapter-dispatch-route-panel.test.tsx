@@ -43,7 +43,8 @@ const AdapterDispatchPanel: ParentAppGameAdapterDispatchPanelSnapshot = {
       { label: 'Adapter dispatch', value: 'Accepted' },
       {
         label: 'Product claim',
-        value: 'Broad installed-app blocking, platform enforcement, provider delivery, and child delivery remain unclaimed.',
+        value:
+          'Broad installed-app blocking, platform enforcement, provider delivery, and child delivery remain unclaimed.',
       },
     ],
     rows: [
@@ -108,6 +109,8 @@ describe('app-game adapter dispatch route panel', () => {
     expect(html).toContain('windows-app-game-owned-process-time-limit');
     expect(html).toContain('Platform state</dt><dd>Not claimed');
     expect(html).toContain('Child delivery</dt><dd>Not claimed');
-    expect(html).toContain('Broad installed-app blocking, platform enforcement, provider delivery, and child delivery remain unclaimed.');
+    expect(html).toContain(
+      'Broad installed-app blocking, platform enforcement, provider delivery, and child delivery remain unclaimed.'
+    );
   });
 });

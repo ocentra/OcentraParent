@@ -1,4 +1,4 @@
-use crate::support::{extract_json_block, extract_typescript_block, ValueOrUnreachable as _};
+use crate::support::{extract_typescript_block, ValueOrUnreachable as _};
 use ocentra_schema::data_custody_source_of_truth as contracts;
 use ocentra_schema::data_custody_source_of_truth_ts::data_custody_source_of_truth_contracts_typescript;
 use serde_json::json;
@@ -40,14 +40,14 @@ fn generated_data_custody_source_of_truth_contracts_stay_checked_in() {
     let generated = data_custody_source_of_truth_contracts_typescript();
 
     assert_eq!(
-        extract_json_block(
+        extract_typescript_block(
             crate::contract_text!(checked_in),
             crate::text_boundary!(
                 "export const GeneratedDataCustodyKnownGaps = ",
                 " as const;"
             )
         ),
-        extract_json_block(
+        extract_typescript_block(
             crate::contract_text!(&generated),
             crate::text_boundary!(
                 "export const GeneratedDataCustodyKnownGaps = ",
@@ -56,17 +56,17 @@ fn generated_data_custody_source_of_truth_contracts_stay_checked_in() {
         )
     );
     assert_eq!(
-        extract_json_block(
+        extract_typescript_block(
             crate::contract_text!(checked_in),
             crate::text_boundary!(
-                "export const GeneratedDataCustodySourceOfTruthContractProof = ",
+                "export const GeneratedDataCustodySourceOfTruthContractProof =",
                 " as const satisfies GeneratedDataCustodySourceOfTruthContractProof;"
             )
         ),
-        extract_json_block(
+        extract_typescript_block(
             crate::contract_text!(&generated),
             crate::text_boundary!(
-                "export const GeneratedDataCustodySourceOfTruthContractProof = ",
+                "export const GeneratedDataCustodySourceOfTruthContractProof =",
                 " as const satisfies GeneratedDataCustodySourceOfTruthContractProof;"
             )
         )

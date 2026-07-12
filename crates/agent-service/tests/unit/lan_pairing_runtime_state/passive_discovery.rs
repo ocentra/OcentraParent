@@ -315,7 +315,7 @@ fn set_heartbeat_state(
     observed_at: impl Into<TestString>,
     reachability: LanPairingDeviceReachability,
 ) {
-    let observed_at = observed_at;
+    let observed_at = observed_at.into();
     *runtime
         .lan_ai_provider_heartbeat
         .lock()
@@ -348,10 +348,10 @@ fn identity_snapshot(
     wifi_ssid: impl Into<TestString>,
     default_gateway: impl Into<TestString>,
 ) -> LanPassiveRuntimeLocalNetworkIdentity {
-    let ip_address = ip_address;
-    let network_interface = network_interface;
-    let wifi_ssid = wifi_ssid;
-    let default_gateway = default_gateway;
+    let ip_address = ip_address.into();
+    let network_interface = network_interface.into();
+    let wifi_ssid = wifi_ssid.into();
+    let default_gateway = default_gateway.into();
     LanPassiveRuntimeLocalNetworkIdentity {
         ip_address: Some(ip_address),
         network_interface: Some(network_interface),
@@ -434,7 +434,7 @@ fn encode_integer(value: i64) -> Vec<u8> {
 }
 
 fn encode_octet_string(value: impl Into<TestString>) -> Vec<u8> {
-    let value = value;
+    let value = value.into();
     let bytes = value.as_bytes();
     let mut encoded = vec![BER_TAG_OCTET_STRING];
     encoded.extend(encode_length(bytes.len()));

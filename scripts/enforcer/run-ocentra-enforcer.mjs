@@ -22,7 +22,9 @@ function resolveEnforcerFile(relativePath) {
     const fullPath = path.join(candidate, relativePath);
     if (fs.existsSync(fullPath)) return fullPath;
   }
-  const searched = candidateRoots().map((entry) => path.join(entry, relativePath)).join('\n  ');
+  const searched = candidateRoots()
+    .map((entry) => path.join(entry, relativePath))
+    .join('\n  ');
   throw new Error(`Could not find Ocentra Enforcer ${relativePath}. Searched:\n  ${searched}`);
 }
 

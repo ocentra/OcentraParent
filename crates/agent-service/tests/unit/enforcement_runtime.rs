@@ -10,6 +10,10 @@ mod test_text;
 
 #[path = "../support/activity_capture_mod.rs"]
 mod activity_capture;
+mod activity_api {
+    pub(crate) struct ActivityEventId(pub(crate) &'static str);
+    pub(crate) struct GeneratedAtText(pub(crate) String);
+}
 #[path = "../../src/activity_store_path.rs"]
 mod activity_store_path;
 #[path = "../../src/dev_log.rs"]
@@ -62,6 +66,8 @@ mod enforcement_timer_payload;
 mod enforcement_timer_report;
 #[path = "../../src/enforcement_timer_state_file.rs"]
 mod enforcement_timer_state_file;
+#[path = "../../src/enforcement_timer_state_path.rs"]
+mod enforcement_timer_state_path;
 #[path = "enforcement_timer_tests.rs"]
 mod enforcement_timer_tests;
 #[path = "../../src/event_builder.rs"]
@@ -103,10 +109,22 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = activity_store_path::activity_db_path;
     let _ = activity_store_path::activity_journal_path;
     let _ = activity_store_path::activity_journal_key_path;
-    let _ = dev_log::write_agent_info;
-    let _ = dev_log::write_agent_warn;
-    let _ = dev_log::write_agent_error;
-    let _ = dev_log::write_agent_debug;
+    let _: fn(
+        dev_log::AgentLogMessageRef<'static>,
+        ocentra_parent_agent_protocol::logging::LogFields,
+    ) -> std::io::Result<()> = dev_log::write_agent_info;
+    let _: fn(
+        dev_log::AgentLogMessageRef<'static>,
+        ocentra_parent_agent_protocol::logging::LogFields,
+    ) -> std::io::Result<()> = dev_log::write_agent_warn;
+    let _: fn(
+        dev_log::AgentLogMessageRef<'static>,
+        ocentra_parent_agent_protocol::logging::LogFields,
+    ) -> std::io::Result<()> = dev_log::write_agent_error;
+    let _: fn(
+        dev_log::AgentLogMessageRef<'static>,
+        ocentra_parent_agent_protocol::logging::LogFields,
+    ) -> std::io::Result<()> = dev_log::write_agent_debug;
     let _ = event_builder::portal_peer();
     let sample_json = serde_json::json!({ "link": true });
     let _ = json_contract::serialize_json_string(&sample_json);
@@ -118,6 +136,6 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = test_invariants::require_log_string_field(Some(&log_field), "link");
     let _ = test_invariants::serialize_test_json(&decoded);
     let _ = enforcement_timer_api::build_enforcement_timer_report;
-    let _ = time::timestamp_from_epoch_seconds;
-    let _ = time::timestamp_after_epoch_seconds;
+    let _: fn(u64) -> String = time::timestamp_from_epoch_seconds;
+    let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
 }

@@ -2,17 +2,11 @@
 
 export const GeneratedBillingCheckoutPortalBoundarySchemaVersion = 'billing-checkout-portal-boundary' as const;
 
-export const GeneratedBillingHostedSessionKinds = [
-  'checkout-session-create',
-  'billing-portal-session-create',
-] as const;
+export const GeneratedBillingHostedSessionKinds = ['checkout-session-create', 'billing-portal-session-create'] as const;
 
 export const GeneratedBillingHostedSessionStatuses = ['accepted', 'rejected'] as const;
 
-export const GeneratedBillingCheckoutAbuseGateStates = [
-  'passed-turnstile',
-  'trusted-authenticated-session',
-] as const;
+export const GeneratedBillingCheckoutAbuseGateStates = ['passed-turnstile', 'trusted-authenticated-session'] as const;
 
 export const GeneratedBillingHostedCheckoutPlanIds = [
   'family-plus-monthly',

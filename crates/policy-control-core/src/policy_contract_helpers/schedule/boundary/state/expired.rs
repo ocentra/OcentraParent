@@ -2,7 +2,9 @@
 
 use super::super::super::{PolicyContractScheduleBoundary, PolicyContractValidationResult};
 
-pub(super) fn validate(boundary: &PolicyContractScheduleBoundary) -> PolicyContractValidationResult {
+pub(super) fn validate(
+    boundary: &PolicyContractScheduleBoundary,
+) -> PolicyContractValidationResult {
     let Some(expiry) = &boundary.expiry else {
         return Err("expired schedule boundaries require expiry details".into());
     };

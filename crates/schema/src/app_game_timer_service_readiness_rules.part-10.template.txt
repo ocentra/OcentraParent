@@ -1,0 +1,30 @@
+
+export const appGameSourceGatedPolicyPreviewTimerHandoffHasNoRuntimeClaimsGenerated = (handoff: TimerHandoffLike) =>
+  !handoff.serviceRuntimeEventClaimed &&
+  !handoff.portalUiRendered &&
+  !handoff.policyEvaluatorRuntimeClaimed &&
+  !handoff.timerRuntimeClaimed &&
+  !handoff.adapterDispatchClaimed &&
+  !handoff.childDeliveryClaimed &&
+  !handoff.platformEnforcementClaimed &&
+  !handoff.rawPrivateSourceRowsIncluded;
+
+export const appGameSourceGatedPolicyPreviewTimerStatusMatchesHandoffGenerated = (
+  handoffState: TimerHandoffStateValue,
+  timerStatusState: TimerStatusStateValue
+) =>
+  (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing &&
+    timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired) ||
+  (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer &&
+    timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired) ||
+  (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.CompilerManualRequiredBeforeTimer &&
+    timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired);
+
+export const appGameSourceGatedPolicyPreviewTimerStatusStateForHandoffGenerated = (
+  handoffState: TimerHandoffStateValue
+): TimerStatusStateValue => {
+  if (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing) {
+    return AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired;
+  }
+
+  if (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer) {

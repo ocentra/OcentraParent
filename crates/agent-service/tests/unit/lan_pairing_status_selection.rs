@@ -26,7 +26,7 @@ fn route_trust_state_reports_pairing_selected_target() {
     };
 
     assert_eq!(
-        route_trust_state(Some(&target)),
+        route_trust_state(Some(&target)).0,
         constants::value::LAN_PAIRING_PAIRING
     );
 }

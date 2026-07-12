@@ -1,7 +1,6 @@
 use std::path::PathBuf as TestPathBuf;
 use std::{
     fs,
-    path::TestPathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -13,12 +12,12 @@ use ocentra_parent_agent_protocol::transport::{
     AgentPeerRole, AgentRoute,
 };
 
-use crate::test_text::TestText;
 use crate::{
     local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_chat_generation_request::LocalAiChatGenerationRequest,
     local_ai_chat_generation_runner::run_local_ai_chat_generation,
-    local_ai_runtime_config::LocalAiRuntimeConfigSnapshot, test_invariants::require_ok,
+    local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_config_values::LocalAiRuntimePath, test_invariants::require_ok,
 };
 
 #[tokio::test]
@@ -26,8 +25,8 @@ async fn disabled_generation_returns_unavailable_without_spawning_runtime() {
     let binary = write_temp_file(constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI);
     let model = write_temp_file(constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED);
     let config = LocalAiRuntimeConfigSnapshot::from_parts(
-        Some(binary.clone()),
-        Some(model.clone()),
+        Some(LocalAiRuntimePath(binary.clone())),
+        Some(LocalAiRuntimePath(model.clone())),
         None,
         None,
     );
@@ -61,8 +60,8 @@ async fn unsupported_requested_model_returns_unavailable_without_spawning_runtim
     let binary = write_temp_file(constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI);
     let model = write_temp_file(constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4);
     let config = LocalAiRuntimeConfigSnapshot::from_parts_with_execution(
-        Some(binary.clone()),
-        Some(model.clone()),
+        Some(LocalAiRuntimePath(binary.clone())),
+        Some(LocalAiRuntimePath(model.clone())),
         None,
         None,
         true,
@@ -124,7 +123,7 @@ async fn local_ai_chat_generation_report_links_request_and_payload_helpers() {
     );
 }
 
-fn write_temp_file(prefix: TestText) -> TestPathBuf {
+fn write_temp_file(prefix: impl std::fmt::Display) -> TestPathBuf {
     let path = unique_temp_path(prefix);
     require_ok(
         fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT),
@@ -133,9 +132,8 @@ fn write_temp_file(prefix: TestText) -> TestPathBuf {
     path
 }
 
-fn unique_temp_path(prefix: TestText) -> TestPathBuf {
-    let prefix = prefix;
-    let mut name = prefix.as_ref().to_string();
+fn unique_temp_path(prefix: impl std::fmt::Display) -> TestPathBuf {
+    let mut name = prefix.to_string();
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

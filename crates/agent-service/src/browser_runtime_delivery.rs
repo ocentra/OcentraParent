@@ -9,6 +9,10 @@ use ocentra_parent_agent_protocol::browser_read_model::{
 };
 use ocentra_parent_agent_protocol::constants;
 
+struct BrowserReadModelRef(Option<String>);
+
+struct BrowserActionIntentId(String);
+
 pub(crate) fn browser_runtime_input_from_row(
     read_model: &BrowserEvidenceReadModel,
     row: &BrowserTabEvidence,
@@ -41,7 +45,7 @@ pub(crate) fn browser_runtime_input_from_row_with_policy_preview(
         intervention_command_ref: None,
         intervention_result_ref: None,
         audit_entry_ref: latest_event_ref,
-        read_model_ref: read_model_ref(read_model, row),
+        read_model_ref: read_model_ref(read_model, row).0,
         observed_at: row.observed_at.clone(),
         exact_url_claimed: row_has_exact_url_boundary(row),
         ai_authority: false,
@@ -55,7 +59,7 @@ pub(crate) fn browser_runtime_input_from_row_with_policy_preview(
         input.policy_evaluation_ref = Some(preview.source_event_id.clone());
         input.policy_decision_ref = Some(preview.decision.decision_id.clone());
         input.policy_preview_id = Some(preview.preview_id.clone());
-        input.action_intent_id = Some(action_intent_id_from_policy_decision(preview));
+        input.action_intent_id = Some(action_intent_id_from_policy_decision(preview).0);
         input.policy_authority = true;
         input.dry_run = preview.decision.dry_run;
     }
@@ -66,11 +70,13 @@ pub(crate) fn browser_runtime_input_from_row_with_policy_preview(
 fn read_model_ref(
     read_model: &BrowserEvidenceReadModel,
     row: &BrowserTabEvidence,
-) -> Option<String> {
-    read_model
-        .latest_event_id
-        .clone()
-        .or_else(|| Some(row.browser_evidence_id.clone()))
+) -> BrowserReadModelRef {
+    BrowserReadModelRef(
+        read_model
+            .latest_event_id
+            .clone()
+            .or_else(|| Some(row.browser_evidence_id.clone())),
+    )
 }
 
 fn row_has_exact_url_boundary(row: &BrowserTabEvidence) -> bool {
@@ -108,8 +114,10 @@ fn policy_preview_references_browser_row(
     })
 }
 
-fn action_intent_id_from_policy_decision(preview: &PolicyPreviewReadModelRow) -> String {
+fn action_intent_id_from_policy_decision(
+    preview: &PolicyPreviewReadModelRow,
+) -> BrowserActionIntentId {
     let mut value = String::from(constants::browser::ACTION_INTENT_ID_PREFIX);
     value.push_str(&preview.decision.decision_id);
-    value
+    BrowserActionIntentId(value)
 }

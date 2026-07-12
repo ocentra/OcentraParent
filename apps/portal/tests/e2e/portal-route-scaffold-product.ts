@@ -3,19 +3,11 @@ import { assertLanRouteSurface } from './portal-route-scaffold-lan';
 import { assertActivityManageRouteSurface } from './portal-route-scaffold-product-activity';
 import { assertAssistantRouteSurface } from './portal-route-scaffold-product-assistant';
 import { assertControlRouteSurface } from './portal-route-scaffold-product-control';
-import {
-  assertGuideDashboardRouteSurface,
-  assertGuideRouteSurface,
-} from './portal-route-scaffold-product-guide';
+import { assertGuideDashboardRouteSurface, assertGuideRouteSurface } from './portal-route-scaffold-product-guide';
 import { assertManageRouteSurface } from './portal-route-scaffold-product-manage';
 
 type RouteKind = 'activityManage' | 'assistant' | 'control' | 'guide' | 'guideDashboard' | 'lanPairing' | 'manage';
-type RouteSurfaceHandler = (
-  page: Page,
-  surface: Locator,
-  path: string,
-  panelTitle: string
-) => Promise<void>;
+type RouteSurfaceHandler = (page: Page, surface: Locator, path: string, panelTitle: string) => Promise<void>;
 
 const routeSurfaceHandlers = {
   assistant: async (page: Page, _surface: Locator, _path: string, _panelTitle: string): Promise<void> => {

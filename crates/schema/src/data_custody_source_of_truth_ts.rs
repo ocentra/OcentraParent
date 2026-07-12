@@ -19,9 +19,12 @@ pub fn data_custody_source_of_truth_contracts_typescript() -> String {
     );
     let known_gaps = data_custody_source_of_truth_known_gaps()
         .iter()
-        .map(|gap| format!("  {:?},", gap))
+        .map(|gap| format!("  '{}',", gap.replace('\'', "\\'")))
         .collect::<Vec<_>>()
         .join(DATA_CUSTODY_SOURCE_OF_TRUTH_TYPESCRIPT_LINE_BREAK);
+
+    let proof_typescript =
+        crate::typescript_literal::json_object_to_typescript_literal(&proof_json);
 
     DATA_CUSTODY_SOURCE_OF_TRUTH_TEMPLATE
         .replace(
@@ -34,6 +37,6 @@ pub fn data_custody_source_of_truth_contracts_typescript() -> String {
         )
         .replace(
             DATA_CUSTODY_SOURCE_OF_TRUTH_PROOF_JSON_PLACEHOLDER,
-            &proof_json,
+            &proof_typescript,
         )
 }

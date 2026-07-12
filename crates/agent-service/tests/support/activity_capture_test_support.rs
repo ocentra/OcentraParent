@@ -30,7 +30,9 @@ pub struct ActivityCaptureFreshnessStatusForTest {
 
 pub fn startup_activity_capture_enabled_for_value_for_test(value: Option<TestText>) -> bool {
     crate::activity_capture::startup_activity_capture_enabled_for_value(
-        value.as_ref().map(|value| value.0.as_str()),
+        crate::activity_capture::StartupActivityCaptureDisabledValue(
+            value.as_ref().map(|value| value.0.as_str()),
+        ),
     )
 }
 
@@ -88,7 +90,7 @@ where
         store_path.as_ref(),
         process_limit,
         network_limit,
-        first_observed_at.0.as_str(),
+        crate::activity_capture::ActivityCaptureObservedAt(first_observed_at.0.as_str()),
     )?;
     for observed_at in next_observed_ats {
         capture_runs += 1;
@@ -98,7 +100,7 @@ where
             store_path.as_ref(),
             process_limit,
             network_limit,
-            observed_at.0.as_str(),
+            crate::activity_capture::ActivityCaptureObservedAt(observed_at.0.as_str()),
         )?;
     }
 
@@ -138,7 +140,7 @@ where
         observed_at.clone(),
         process_limit,
         network_limit,
-        live_inventory_events_from_roots_for_test(observed_at.0.as_str(), inventory_roots)?,
+        live_inventory_events_from_roots_for_test(observed_at.clone(), inventory_roots)?,
         Vec::new(),
         Vec::new(),
     )?;
@@ -167,7 +169,7 @@ where
         process_limit,
         network_limit,
         Vec::new(),
-        live_store_package_events_from_roots_for_test(observed_at.0.as_str(), store_package_roots)?,
+        live_store_package_events_from_roots_for_test(observed_at.clone(), store_package_roots)?,
         Vec::new(),
     )?;
     crate::activity_capture::record_activity_events_to_paths(
@@ -196,7 +198,7 @@ where
         network_limit,
         Vec::new(),
         Vec::new(),
-        live_registry_inventory_events_from_roots_for_test(observed_at.0.as_str(), registry_roots)?,
+        live_registry_inventory_events_from_roots_for_test(observed_at.clone(), registry_roots)?,
     )?;
     crate::activity_capture::record_activity_events_to_paths(
         journal_path.as_ref(),

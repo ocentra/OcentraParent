@@ -114,13 +114,7 @@ function PolicyPreviewDetails({
   );
 }
 
-function PolicyPreviewDetail({
-  label,
-  value,
-}: {
-  readonly label: string;
-  readonly value: string;
-}): ReactElement {
+function PolicyPreviewDetail({ label, value }: { readonly label: string; readonly value: string }): ReactElement {
   return (
     <div>
       <dt>{label}</dt>

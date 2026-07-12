@@ -17,7 +17,10 @@ function generatedSurfaceProof(): void {
   it('keeps the tracking control catalog as a thin Rust-seeded schema-domain surface', () => {
     const catalogSource = readFileSync(new URL('../../src/tracking-control-catalog.ts', import.meta.url), 'utf8');
     const schemaSource = readFileSync(new URL('../../src/tracking-control-catalog-schema.ts', import.meta.url), 'utf8');
-    const metadataSource = readFileSync(new URL('../../src/tracking-control-catalog-metadata.ts', import.meta.url), 'utf8');
+    const metadataSource = readFileSync(
+      new URL('../../src/tracking-control-catalog-metadata.ts', import.meta.url),
+      'utf8'
+    );
     const catalogSettings = trackingControlCatalogSettings(BaselineTrackingControlCatalog);
     const knownSettingIds = new Set(catalogSettings.map((setting) => String(setting.settingId)));
     const capabilitySettingsOutsideCatalog = TrackingControlCapabilities.flatMap((capability) =>
@@ -26,25 +29,28 @@ function generatedSurfaceProof(): void {
         .map((settingId) => `${capability.capabilityId}:${String(settingId)}`)
     );
 
-    expect(catalogSource.startsWith('/* generated from crates/tracking-core/src/tracking_control_catalog.ts.txt */')).toBe(
-      true
-    );
-    expect(schemaSource.startsWith('/* generated from crates/tracking-core/src/tracking_control_catalog_schema.ts.txt */')).toBe(
-      true
-    );
     expect(
-      metadataSource.startsWith('/* generated from crates/tracking-core/src/tracking_control_catalog_metadata.ts.txt */')
+      catalogSource.startsWith('/* generated from crates/tracking-core/src/tracking_control_catalog.ts.txt */')
     ).toBe(true);
-    expect(catalogSource).toContain("./tracking-control-catalog-data");
-    expect(catalogSource).toContain("./tracking-control-catalog-metadata");
+    expect(
+      schemaSource.startsWith('/* generated from crates/tracking-core/src/tracking_control_catalog_schema.ts.txt */')
+    ).toBe(true);
+    expect(
+      metadataSource.startsWith(
+        '/* generated from crates/tracking-core/src/tracking_control_catalog_metadata.ts.txt */'
+      )
+    ).toBe(true);
+    expect(catalogSource).toContain('./tracking-control-catalog-data');
+    expect(catalogSource).toContain('./tracking-control-catalog-metadata');
     expect(catalogSource).not.toContain('const TrackingControlCatalogJson =');
     expect(catalogSource).not.toContain('const TrackingControlCapabilitiesJson =');
     expect(catalogSettings.length).toBe(BaselineTrackingControlCatalog.settingCount);
     expect(
       catalogSettings.filter((setting) => setting.sourceDocument === BaselineTrackingControlCatalog.sourceDocuments[0])
         .length +
-        catalogSettings.filter((setting) => setting.sourceDocument === BaselineTrackingControlCatalog.sourceDocuments[1])
-          .length
+        catalogSettings.filter(
+          (setting) => setting.sourceDocument === BaselineTrackingControlCatalog.sourceDocuments[1]
+        ).length
     ).toBe(BaselineTrackingControlCatalog.settingCount);
     expect(catalogSettings.reduce((count, setting) => count + setting.options.length, 0)).toBeGreaterThan(0);
     expect(BaselineTrackingControlCatalog.sidePanelCategory).toBe('tracking');

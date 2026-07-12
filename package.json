@@ -47,7 +47,7 @@
     "lint:enforcer:no-zod-source": "node scripts/enforcer/run-ocentra-enforcer.mjs check no-zod-source",
     "lint:enforcer:no-naked-domain-strings": "node scripts/enforcer/run-ocentra-enforcer.mjs check no-naked-domain-strings",
     "lint:enforcer:no-test-doubles": "node scripts/enforcer/run-ocentra-enforcer.mjs check no-test-doubles",
-    "lint:enforcer:generated-artifacts": "node scripts/enforcer/run-ocentra-enforcer.mjs check generated-artifacts --tracked",
+    "lint:enforcer:generated-artifacts": "node scripts/enforcer/run-ocentra-enforcer.mjs check generated-artifacts",
     "lint:enforcer:source-shape": "node scripts/enforcer/run-ocentra-enforcer.mjs check source-shape",
     "lint:enforcer:required-tests": "node scripts/enforcer/run-ocentra-enforcer.mjs check required-tests",
     "lint:enforcer:single-source-contracts": "node scripts/enforcer/run-ocentra-enforcer.mjs check single-source-contracts",

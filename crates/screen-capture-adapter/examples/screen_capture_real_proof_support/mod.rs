@@ -18,6 +18,10 @@ pub(crate) enum ScreenCaptureProofOutputDir {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct ScreenCaptureProofRunId(pub(crate) String);
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ScreenCaptureProofText(pub(crate) String);
+
+#[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ScreenCaptureProofScopeLabel {
     ActiveWindow,
@@ -62,25 +66,20 @@ pub(crate) fn write_run_metadata(
     keep_raw_until_analysis: bool,
 ) -> ProofResult {
     screen_capture_real_proof_support_impl::write_run_metadata(
-        output_dir.0,
-        &run_id.0,
+        output_dir,
+        run_id,
         status,
         target_title,
-        SCREEN_CAPTURE_PROOF_SCOPE_WIRE_LABELS[scope_wire_label_index(requested_scope)],
+        requested_scope,
         keep_raw_until_analysis,
     )
-    .map_err(ScreenCaptureProofError)
 }
 
 pub(crate) fn write_trigger_input(
     output_dir: ScreenCaptureProofPath<'_>,
     requested_scope: ScreenCaptureProofScopeLabel,
 ) -> ProofResult {
-    screen_capture_real_proof_support_impl::write_trigger_input(
-        output_dir.0,
-        SCREEN_CAPTURE_PROOF_SCOPE_WIRE_LABELS[scope_wire_label_index(requested_scope)],
-    )
-    .map_err(ScreenCaptureProofError)
+    screen_capture_real_proof_support_impl::write_trigger_input(output_dir, requested_scope)
 }
 
 pub(crate) fn write_captured_artifacts(
@@ -91,48 +90,51 @@ pub(crate) fn write_captured_artifacts(
     keep_raw_until_analysis: bool,
 ) -> ProofResult {
     screen_capture_real_proof_support_impl::write_captured_artifacts(
-        output_dir.0,
-        &run_id.0,
+        output_dir,
+        run_id,
         image,
-        SCREEN_CAPTURE_PROOF_SCOPE_WIRE_LABELS[scope_wire_label_index(requested_scope)],
+        requested_scope,
         keep_raw_until_analysis,
     )
-    .map_err(ScreenCaptureProofError)
 }
 
 pub(crate) fn write_degraded_artifacts(
     output_dir: ScreenCaptureProofPath<'_>,
     status: &ActivityCaptureCapabilityStatus,
 ) -> ProofResult {
-    screen_capture_real_proof_support_impl::write_degraded_artifacts(output_dir.0, status)
-        .map_err(ScreenCaptureProofError)
+    screen_capture_real_proof_support_impl::write_degraded_artifacts(output_dir, status)
 }
 
 pub(crate) fn proof_scope_label(scope: ScreenCaptureScope) -> ScreenCaptureProofScopeLabel {
-    match screen_capture_real_proof_support_impl::proof_scope_label(scope) {
-        screen_capture_real_proof_support_impl::SCREEN_CAPTURE_PROOF_SCOPE_ACTIVE_WINDOW => {
-            ScreenCaptureProofScopeLabel::ActiveWindow
-        }
-        screen_capture_real_proof_support_impl::SCREEN_CAPTURE_PROOF_SCOPE_SELECTED_WINDOW => {
-            ScreenCaptureProofScopeLabel::SelectedWindow
-        }
-        screen_capture_real_proof_support_impl::SCREEN_CAPTURE_PROOF_SCOPE_PRIMARY_DISPLAY => {
-            ScreenCaptureProofScopeLabel::PrimaryDisplay
-        }
-        _ => ScreenCaptureProofScopeLabel::ActiveWindow,
+    match scope {
+        ScreenCaptureScope::ActiveWindow => ScreenCaptureProofScopeLabel::ActiveWindow,
+        ScreenCaptureScope::SelectedWindow => ScreenCaptureProofScopeLabel::SelectedWindow,
+        ScreenCaptureScope::PrimaryDisplay => ScreenCaptureProofScopeLabel::PrimaryDisplay,
     }
 }
 
 pub(crate) fn run_id() -> ProofResult<ScreenCaptureProofRunId> {
     screen_capture_real_proof_support_impl::run_id()
-        .map(ScreenCaptureProofRunId)
-        .map_err(ScreenCaptureProofError)
+}
+
+pub(crate) fn scope_wire_label(scope: ScreenCaptureProofScopeLabel) -> ScreenCaptureProofText {
+    ScreenCaptureProofText(
+        SCREEN_CAPTURE_PROOF_SCOPE_WIRE_LABELS[scope_wire_label_index(scope)].to_owned(),
+    )
+}
+
+pub(crate) fn degraded_reason(status: &ActivityCaptureCapabilityStatus) -> ScreenCaptureProofText {
+    const REASONS: [&str; 6] = [
+        screen_capture_real_proof_support_impl::DEGRADED_REASON_NOT_DEGRADED,
+        screen_capture_real_proof_support_impl::DEGRADED_REASON_PLATFORM_ADAPTER,
+        screen_capture_real_proof_support_impl::DEGRADED_REASON_ACCESS_DENIED,
+        screen_capture_real_proof_support_impl::DEGRADED_REASON_NO_ACTIVE_WINDOW,
+        screen_capture_real_proof_support_impl::DEGRADED_REASON_NOT_SCREEN_CAPTURE,
+        screen_capture_real_proof_support_impl::DEGRADED_REASON_ADAPTER_ERROR,
+    ];
+    ScreenCaptureProofText(REASONS[*status as usize].to_owned())
 }
 
 const fn scope_wire_label_index(scope: ScreenCaptureProofScopeLabel) -> usize {
-    match scope {
-        ScreenCaptureProofScopeLabel::ActiveWindow => 0,
-        ScreenCaptureProofScopeLabel::SelectedWindow => 1,
-        ScreenCaptureProofScopeLabel::PrimaryDisplay => 2,
-    }
+    scope as usize
 }

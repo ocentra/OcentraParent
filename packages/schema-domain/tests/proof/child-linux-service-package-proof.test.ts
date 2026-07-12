@@ -174,7 +174,8 @@ function rejectsParentParityOrNonSystemdBoundaryClaims(): void {
         ...model,
         claimBoundaries: {
           ...model.claimBoundaries,
-          parentParityBoundary: 'child Linux package proof implies parent-client parity and generic cross-platform readiness',
+          parentParityBoundary:
+            'child Linux package proof implies parent-client parity and generic cross-platform readiness',
         },
       }).success
     ).toBe(false);
@@ -252,8 +253,18 @@ function validReadModel(): ChildLinuxServicePackageProofReadModel {
 }
 
 function surfaceProofs() {
+  return [...surfaceProofsPackageAndService(), ...surfaceProofsServiceControl(), ...surfaceProofsClosure()];
+}
+
+function surfaceProofsPackageAndService() {
   return [
-    surfaceProof('deb-build-script', 'package-lifecycle', 'manual-required', 'ci-mechanical-proof', 'linux-deb-build-script'),
+    surfaceProof(
+      'deb-build-script',
+      'package-lifecycle',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-deb-build-script'
+    ),
     surfaceProof(
       'direct-deb-distribution',
       'package-lifecycle',
@@ -268,17 +279,87 @@ function surfaceProofs() {
       'ci-mechanical-proof',
       'linux-release-binary'
     ),
-    surfaceProof('systemd-unit', 'headless-agent-service', 'manual-required', 'ci-mechanical-proof', 'linux-systemd-unit'),
-    surfaceProof('dpkg-install-path', 'package-lifecycle', 'manual-required', 'ci-mechanical-proof', 'linux-smoke-script'),
-    surfaceProof('systemctl-enable', 'headless-agent-service', 'manual-required', 'ci-mechanical-proof', 'linux-dpkg-maintainer-scripts'),
-    surfaceProof('systemctl-restart', 'headless-agent-service', 'manual-required', 'ci-mechanical-proof', 'linux-dpkg-maintainer-scripts'),
-    surfaceProof('systemctl-stop', 'headless-agent-service', 'manual-required', 'ci-mechanical-proof', 'linux-dpkg-maintainer-scripts'),
-    surfaceProof('systemctl-disable', 'headless-agent-service', 'manual-required', 'ci-mechanical-proof', 'linux-dpkg-maintainer-scripts'),
-    surfaceProof('daemon-reload-hook', 'headless-agent-service', 'manual-required', 'ci-mechanical-proof', 'linux-dpkg-maintainer-scripts'),
-    surfaceProof('checksum-sidecar', 'package-lifecycle', 'manual-required', 'ci-mechanical-proof', 'linux-sha256-sidecar'),
+    surfaceProof(
+      'systemd-unit',
+      'headless-agent-service',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-systemd-unit'
+    ),
+    surfaceProof(
+      'dpkg-install-path',
+      'package-lifecycle',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-smoke-script'
+    ),
+  ];
+}
+
+function surfaceProofsServiceControl() {
+  return [
+    surfaceProof(
+      'systemctl-enable',
+      'headless-agent-service',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-dpkg-maintainer-scripts'
+    ),
+    surfaceProof(
+      'systemctl-restart',
+      'headless-agent-service',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-dpkg-maintainer-scripts'
+    ),
+    surfaceProof(
+      'systemctl-stop',
+      'headless-agent-service',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-dpkg-maintainer-scripts'
+    ),
+    surfaceProof(
+      'systemctl-disable',
+      'headless-agent-service',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-dpkg-maintainer-scripts'
+    ),
+    surfaceProof(
+      'daemon-reload-hook',
+      'headless-agent-service',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-dpkg-maintainer-scripts'
+    ),
+  ];
+}
+
+function surfaceProofsClosure() {
+  return [
+    surfaceProof(
+      'checksum-sidecar',
+      'package-lifecycle',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-sha256-sidecar'
+    ),
     surfaceProof('signing-review', 'store-distribution', 'manual-required', 'unsigned', 'linux-package-signing'),
-    surfaceProof('distro-baseline-review', 'package-lifecycle', 'manual-required', 'ci-mechanical-proof', 'linux-deb-build-script'),
-    surfaceProof('uninstall-cleanup-review', 'package-lifecycle', 'manual-required', 'ci-mechanical-proof', 'linux-smoke-script'),
+    surfaceProof(
+      'distro-baseline-review',
+      'package-lifecycle',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-deb-build-script'
+    ),
+    surfaceProof(
+      'uninstall-cleanup-review',
+      'package-lifecycle',
+      'manual-required',
+      'ci-mechanical-proof',
+      'linux-smoke-script'
+    ),
   ];
 }
 

@@ -78,8 +78,32 @@ export async function writeAccessibilitySummary(
         ],
         summary,
         screenshots: {
-          desktop: path.relative(repoRoot, path.join(repoRoot, 'output', 'browser-plan-proof', 'social-alert-report-intent-ui-proof', '06-ui-snapshots', 'social-alert-report-browser-route.png')).replace(/\\/gu, '/'),
-          mobile: path.relative(repoRoot, path.join(repoRoot, 'output', 'browser-plan-proof', 'social-alert-report-intent-ui-proof', '06-ui-snapshots', 'social-alert-report-browser-route-mobile.png')).replace(/\\/gu, '/'),
+          desktop: path
+            .relative(
+              repoRoot,
+              path.join(
+                repoRoot,
+                'output',
+                'browser-plan-proof',
+                'social-alert-report-intent-ui-proof',
+                '06-ui-snapshots',
+                'social-alert-report-browser-route.png'
+              )
+            )
+            .replace(/\\/gu, '/'),
+          mobile: path
+            .relative(
+              repoRoot,
+              path.join(
+                repoRoot,
+                'output',
+                'browser-plan-proof',
+                'social-alert-report-intent-ui-proof',
+                '06-ui-snapshots',
+                'social-alert-report-browser-route-mobile.png'
+              )
+            )
+            .replace(/\\/gu, '/'),
         },
       },
       null,

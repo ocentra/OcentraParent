@@ -1,5 +1,4 @@
-use std::path::PathBuf;
-
+use super::app_game_timer_parent_preference_setup_request::AppGameTimerSetupStorePath;
 use super::app_game_timer_parent_preference_setup_request_outbox::append_setup_outbox_record;
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -36,9 +35,29 @@ use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
 
 use crate::json_contract::serialize_json_string;
 
+struct SetupRequestTextRef<'a>(&'a str);
+
+struct ProviderAuditEventRef<'a> {
+    event_id: SetupRequestTextRef<'a>,
+    capability_status: SetupRequestTextRef<'a>,
+}
+
+macro_rules! provider_audit_event_ref {
+    ($result:expr, $field:ident, $status:expr) => {
+        ProviderAuditEventRef {
+            event_id: SetupRequestTextRef($result.$field.as_str()),
+            capability_status: SetupRequestTextRef($status),
+        }
+    };
+}
+
 macro_rules! provider_setup_audit_event {
     ($command:expr, $result:expr, $field:ident, $status:expr) => {
-        provider_audit_activity_event($command, $result, &$result.$field, $status)
+        provider_audit_activity_event(
+            $command,
+            $result,
+            provider_audit_event_ref!($result, $field, $status),
+        )
     };
 }
 
@@ -94,7 +113,7 @@ macro_rules! provider_delivery_events {
 pub(crate) async fn persist_setup_handoff(
     command: &AgentCommandEnvelope,
     result: &AppGameTimerParentPreferenceSetupRequestResult,
-    store_path: PathBuf,
+    store_path: AppGameTimerSetupStorePath,
 ) -> bool {
     let persisted_result = persisted_result(result);
     let action_result_event = action_result_activity_event(command, &persisted_result);
@@ -111,7 +130,7 @@ pub(crate) async fn persist_setup_handoff(
         child_runtime_delivery_receipt_pending_activity_event(command, &persisted_result);
     let provider_delivery_events = provider_delivery_events!(command, &persisted_result);
     tokio::task::spawn_blocking(move || {
-        let store = ActivityStore::open(&store_path).map_err(|_error| ())?;
+        let store = ActivityStore::open(&store_path.0).map_err(|_error| ())?;
         store
             .ingest_events(&[
                 action_result_event,
@@ -210,8 +229,7 @@ fn persisted_result(
 fn provider_audit_activity_event(
     command: &AgentCommandEnvelope,
     result: &AppGameTimerParentPreferenceSetupRequestResult,
-    event_id: &str,
-    capability_status: &str,
+    event: ProviderAuditEventRef<'_>,
 ) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
@@ -220,12 +238,12 @@ fn provider_audit_activity_event(
     );
     fields.insert(
         constants::field::CAPABILITY_STATUS.to_string(),
-        LogFieldValue::String(capability_status.to_string()),
+        LogFieldValue::String(event.capability_status.0.to_string()),
     );
 
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
-        event_id: event_id.to_string(),
+        event_id: event.event_id.0.to_string(),
         observed_at: result.accepted_at.clone(),
         source: ActivitySource {
             device_id: command.target.device_id.clone(),
@@ -237,7 +255,7 @@ fn provider_audit_activity_event(
         subject: ActivitySubject {
             kind: ActivitySubjectKind::Device,
             subject_id: result.parent_preference_setup_reference_id.clone(),
-            display_name: Some(capability_status.to_string()),
+            display_name: Some(event.capability_status.0.to_string()),
         },
         fields,
         evidence: evidence_references(result)
@@ -260,7 +278,7 @@ fn child_runtime_delivery_receipt_pending_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING
             .to_string(),
-        LogFieldValue::String(serialize_json_string(result)),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -321,7 +339,7 @@ fn child_runtime_delivery_receipt_requirement_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIREMENT
             .to_string(),
-        LogFieldValue::String(serialize_json_string(result)),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -384,7 +402,7 @@ fn child_runtime_delivery_dispatch_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_DISPATCH
             .to_string(),
-        LogFieldValue::String(serialize_json_string(result)),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -445,7 +463,7 @@ fn child_runtime_delivery_queue_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE
             .to_string(),
-        LogFieldValue::String(serialize_json_string(result)),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -506,7 +524,7 @@ fn child_runtime_delivery_handoff_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF
             .to_string(),
-        LogFieldValue::String(serialize_json_string(result)),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -566,7 +584,7 @@ fn mutation_receipt_activity_event(
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT.to_string(),
-        LogFieldValue::String(serialize_json_string(result)),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -617,7 +635,7 @@ fn action_result_activity_event(
     result: &AppGameTimerParentPreferenceSetupRequestResult,
 ) -> ActivityEvent {
     let row = action_result_row(command, result);
-    let row_json = serialize_json_string(&row);
+    let row_json = serialize_json_string(&row).0;
     let AppGameControlActionResult {
         result_id,
         result_status,

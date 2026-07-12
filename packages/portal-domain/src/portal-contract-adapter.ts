@@ -123,8 +123,7 @@ export const PortalAgentLanParentAuthority = GeneratedPortalAgentLanParentAuthor
 export type PortalAgentLanParentAuthority = GeneratedPortalAgentLanParentAuthorityValue;
 export const PortalAgentLanHouseholdDeviceKindValues = GeneratedPortalAgentLanHouseholdDeviceKindValues;
 export type PortalAgentLanHouseholdDeviceKind = GeneratedPortalAgentLanHouseholdDeviceKind;
-export const PortalAgentLanHouseholdActionDeviceKindField =
-  GeneratedPortalAgentLanHouseholdActionDeviceKindField;
+export const PortalAgentLanHouseholdActionDeviceKindField = GeneratedPortalAgentLanHouseholdActionDeviceKindField;
 
 export type PortalRouteEventPayloadRecord = GeneratedPortalRouteEventPayloadRecord;
 export type PortalRouteEventSnapshot = GeneratedPortalRouteEventSnapshot;

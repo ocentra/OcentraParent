@@ -144,8 +144,7 @@ export const SocialAlertReportProviderDispatchExecutionReadModelSchema = withPar
           readModel,
           RequiredSocialAlertReportProviderReceiptBoundaryNonClaims,
           RequiredSocialAlertReportProviderDispatchExecutionNonClaims
-        ) ||
-        'Expected provider dispatch execution counts and non-claims to match source receipt-boundary rows'
+        ) || 'Expected provider dispatch execution counts and non-claims to match source receipt-boundary rows'
     )
   )
 );

@@ -43,7 +43,7 @@ async fn load_activity_memory_graph(
         store
             .activity_memory_graph_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
-                &timestamp_now(),
+                timestamp_now::<String>().as_str(),
             )
             .ok()
     })

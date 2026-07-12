@@ -1,8 +1,5 @@
 import { decodeDisplayText } from './display-text';
-import type {
-  PortalFrameBooleanField,
-  PortalFrameNumberField,
-} from './frame-tuner-impl';
+import type { PortalFrameBooleanField, PortalFrameNumberField } from './frame-tuner-impl';
 
 export const PortalFrameTunerLayoutKey = {
   ParentPortal: 'parentPortal',
@@ -379,9 +376,27 @@ export const PortalFrameInnerGapNumberFields: readonly PortalFrameNumberField[] 
 ] as const;
 
 export const PortalFrameOuterSegmentNumberFields: readonly PortalFrameNumberField[] = [
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopLeftRunStart], 'Top left start', 0, 40, 1),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopLeftRunMid], 'Top left mid', 0, 40, 1),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopLeftRunEnd], 'Top left end', 0, 40, 1),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopLeftRunStart],
+    'Top left start',
+    0,
+    40,
+    1
+  ),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopLeftRunMid],
+    'Top left mid',
+    0,
+    40,
+    1
+  ),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopLeftRunEnd],
+    'Top left end',
+    0,
+    40,
+    1
+  ),
   field(
     [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopLeftConnector],
     'Top left connector',
@@ -389,7 +404,13 @@ export const PortalFrameOuterSegmentNumberFields: readonly PortalFrameNumberFiel
     40,
     1
   ),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopCenterRun], 'Top center run', 0, 40, 1),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopCenterRun],
+    'Top center run',
+    0,
+    40,
+    1
+  ),
   field(
     [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopRightConnector],
     'Top right connector',
@@ -404,8 +425,20 @@ export const PortalFrameOuterSegmentNumberFields: readonly PortalFrameNumberFiel
     40,
     1
   ),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopRightRunMid], 'Top right mid', 0, 40, 1),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopRightRunEnd], 'Top right end', 0, 40, 1),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopRightRunMid],
+    'Top right mid',
+    0,
+    40,
+    1
+  ),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.TopRightRunEnd],
+    'Top right end',
+    0,
+    40,
+    1
+  ),
   field(
     [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.RightTopCorner],
     'Right top corner',
@@ -420,8 +453,20 @@ export const PortalFrameOuterSegmentNumberFields: readonly PortalFrameNumberFiel
     40,
     1
   ),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.RightSideRunMid], 'Right side mid', 0, 40, 1),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.RightSideRunEnd], 'Right side end', 0, 40, 1),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.RightSideRunMid],
+    'Right side mid',
+    0,
+    40,
+    1
+  ),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.RightSideRunEnd],
+    'Right side end',
+    0,
+    40,
+    1
+  ),
   field(
     [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.RightBottomCorner],
     'Right bottom corner',
@@ -506,9 +551,27 @@ export const PortalFrameOuterSegmentNumberFields: readonly PortalFrameNumberFiel
     40,
     1
   ),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.LeftSideRunMid], 'Left side mid', 0, 40, 1),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.LeftSideRunEnd], 'Left side end', 0, 40, 1),
-  field([key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.LeftTopCorner], 'Left top corner', 0, 40, 1),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.LeftSideRunMid],
+    'Left side mid',
+    0,
+    40,
+    1
+  ),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.LeftSideRunEnd],
+    'Left side end',
+    0,
+    40,
+    1
+  ),
+  field(
+    [key.OuterFrame, key.SegmentThicknesses, PortalFrameTunerLayoutKey.Segment.LeftTopCorner],
+    'Left top corner',
+    0,
+    40,
+    1
+  ),
 ] as const;
 
 export const PortalFrameInnerSegmentNumberFields: readonly PortalFrameNumberField[] =

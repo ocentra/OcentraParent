@@ -8,10 +8,7 @@
   "cloudRelayState": "unavailable",
   "scanSummary": {
     "schemaVersion": 1,
-    "sourceLabels": [
-      "mdns",
-      "windows-neighbor-table"
-    ],
+    "sourceLabels": ["mdns", "windows-neighbor-table"],
     "scannedDeviceCount": 1,
     "agentDeviceCount": 0,
     "passiveDeviceCount": 1,
@@ -59,30 +56,20 @@
       "routeId": null,
       "routeState": "unavailable",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "mdns",
-        "network-neighbor"
-      ],
+      "sourceLabels": ["mdns", "network-neighbor"],
       "networkIdentity": {
         "hostname": "Family-iPad.local",
-        "ipAddresses": [
-          "192.168.2.84"
-        ],
+        "ipAddresses": ["192.168.2.84"],
         "macAddress": "ac-de-48-00-11-22",
         "macVendor": "Apple, Inc.",
-        "networkInterfaces": [
-          "Wi-Fi"
-        ],
+        "networkInterfaces": ["Wi-Fi"],
         "reachability": "online",
         "confidence": "mdns-advertisement",
         "staleAt": null,
         "offlineAt": null
       },
       "childAgentInventory": null,
-      "policyTargetSurfaces": [
-        "devices",
-        "network"
-      ]
+      "policyTargetSurfaces": ["devices", "network"]
     }
   ],
   "trustedDeviceIds": [],
@@ -100,13 +87,7 @@
   },
   "controllerAuthority": "observer",
   "observerAuthority": "observer",
-  "routeRequirementLabels": [
-    "Passive LAN evidence does not grant control"
-  ],
-  "auditCheckLabels": [
-    "Apple passive device has no child-agent proof"
-  ],
-  "honestNonClaims": [
-    "no-child-agent-route"
-  ]
+  "routeRequirementLabels": ["Passive LAN evidence does not grant control"],
+  "auditCheckLabels": ["Apple passive device has no child-agent proof"],
+  "honestNonClaims": ["no-child-agent-route"]
 }

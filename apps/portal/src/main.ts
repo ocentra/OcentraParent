@@ -1,12 +1,15 @@
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import {
-  GeneratedDevLogMessage as DevLogMessage,
-} from '@ocentra-parent/logging-domain/generated/logging-contracts';
+import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/logging-domain/generated/logging-contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { writePortalDevLog } from './dev-logger';
-import { parentRouteFromHashPath, parentRouteHashPath, ParentRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
+import {
+  parentRouteFromHashPath,
+  parentRouteHashPath,
+  ParentRoute,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import { createHostBridge } from './host-bridge';
 import { fadePortalBackgroundBootLayer, removePortalBackgroundBootLayer } from './portal-background-boot';
 import { HostedPortalDistribution, resolveHostedPortalDistributionState } from './hosted-portal-distribution';

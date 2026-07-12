@@ -32,7 +32,9 @@ use ocentra_parent_agent_service::test_support::{
 };
 
 use crate::{
-    browser_inventory_read_model::browser_inventory_read_model_from_windows_inventory,
+    browser_inventory_read_model::{
+        browser_inventory_read_model_from_windows_inventory, BrowserInventoryGeneratedAtText,
+    },
     browser_payload::{browser_inventory_read_model_payload, browser_managed_status_payload},
     browser_policy_compiler::compile_browser_policy,
     browser_policy_compiler_assessment::compile_rule_assessment,
@@ -63,7 +65,7 @@ fn browser_inventory_read_model_maps_windows_inventory_without_url_claims() {
     let observations = windows_browser_inventory_observations(&[], &[process], None);
 
     let read_model = browser_inventory_read_model_from_windows_inventory(
-        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        BrowserInventoryGeneratedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
         &observations,
     );
     let row = &read_model.rows[0];
@@ -250,8 +252,8 @@ async fn browser_inventory_policy_store_and_runtime_paths_are_linked() {
         constants::env_var::MANAGED_BROWSER_PROFILE_DIR,
         &expected_profile_root,
     );
-    let browser_path = managed_browser_executable_path();
-    let profile_store = managed_browser_profile_store();
+    let browser_path = managed_browser_executable_path().map(TestPathBuf::from);
+    let profile_store = managed_browser_profile_store().map_err(|error| error.0);
     restore_env_var(
         constants::env_var::MANAGED_BROWSER_EXECUTABLE,
         previous_browser_path,
@@ -480,7 +482,7 @@ fn browser_inventory_service_sources_feed_packaged_browser_without_url_claims() 
     );
     let observations = windows_browser_package_observations(&packages);
     let read_model = browser_inventory_read_model_from_windows_inventory(
-        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        BrowserInventoryGeneratedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
         &observations,
     );
 

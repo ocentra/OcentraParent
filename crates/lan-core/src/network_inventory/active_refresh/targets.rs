@@ -51,13 +51,22 @@ pub fn active_target_count(
 }
 
 pub fn active_ipv4_target_timeout_ms() -> Option<u64> {
-    if cfg!(target_os = "windows") {
-        Some(200)
-    } else if cfg!(any(target_os = "linux", target_os = "android")) {
-        Some(1000)
-    } else {
-        None
-    }
+    active_ipv4_target_timeout_for_platform()
+}
+
+#[cfg(target_os = "windows")]
+fn active_ipv4_target_timeout_for_platform() -> Option<u64> {
+    Some(200)
+}
+
+#[cfg(any(target_os = "linux", target_os = "android"))]
+fn active_ipv4_target_timeout_for_platform() -> Option<u64> {
+    Some(1000)
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "android")))]
+fn active_ipv4_target_timeout_for_platform() -> Option<u64> {
+    None
 }
 
 pub fn saturating_u32(value: usize) -> u32 {
@@ -115,11 +124,7 @@ pub fn bounded_active_ipv4_candidate_target_ips(
     let Some((host_ip, prefix_length)) = parse_ipv4_cidr(ip_address, ipv4_cidr) else {
         return Vec::new();
     };
-    let effective_prefix_length = if prefix_length < 24 {
-        24
-    } else {
-        prefix_length
-    };
+    let effective_prefix_length = prefix_length.max(24);
     if effective_prefix_length >= 31 {
         return Vec::new();
     }
@@ -128,10 +133,9 @@ pub fn bounded_active_ipv4_candidate_target_ips(
     let network = u32::from(host_ip) & mask;
     let broadcast = network | !mask;
     let mut targets = Vec::new();
-    for raw_ip in (network.saturating_add(1))..broadcast {
-        if raw_ip == u32::from(host_ip) {
-            continue;
-        }
+    for raw_ip in
+        ((network.saturating_add(1))..broadcast).filter(|raw_ip| *raw_ip != u32::from(host_ip))
+    {
         targets.push(Ipv4Addr::from(raw_ip));
         if targets.len() >= constants::lan_pairing::LAN_ACTIVE_IPV4_SWEEP_MAX_HOSTS as usize {
             break;

@@ -1,0 +1,107 @@
+export function resolveGeneratedPolicyAuthority<TDecision extends { readonly dryRun: boolean }>(
+  request: GeneratedPolicyAuthorityRequestLike<TDecision>
+): GeneratedPolicyAuthorityDecisionLike<TDecision> {
+  return {
+    source: request.source,
+    state: resolveGeneratedPolicyAuthorityState(request.source, request.decision.dryRun),
+    decision: request.decision,
+  };
+}
+
+export function resolveGeneratedPolicyAuthorityState(
+  source: GeneratedPolicyAuthoritySource,
+  dryRun: boolean
+): GeneratedPolicyAuthorityState {
+  if (dryRun) {
+    return 'dry-run';
+  }
+
+  return source === 'parent-policy' ? 'authorized' : 'evidence-only';
+}
+
+export function resolveGeneratedPolicyApprovalLifecycle<T extends GeneratedPolicyApprovalResolutionLike>(
+  resolution: T
+): T {
+  const evaluatedAt = parseGeneratedTimestampMillis(resolution.evaluatedAt, 'evaluatedAt');
+  validateGeneratedPolicyApprovalRequest(resolution.approval);
+
+  if (resolution.reviewedAt !== null) {
+    const reviewedAt = parseGeneratedTimestampMillis(resolution.reviewedAt, 'reviewedAt');
+    assertGeneratedPolicyContract(reviewedAt <= evaluatedAt, 'reviewedAt cannot be after evaluatedAt');
+  }
+
+  switch (resolution.state) {
+    case 'pending':
+      assertGeneratedPolicyContract(
+        resolution.reviewedBy === null &&
+          resolution.reviewedAt === null &&
+          resolution.auditReferenceId === null &&
+          resolution.override === null &&
+          resolution.replayOfApprovalId === null,
+        'pending approvals cannot include review, replay, or override artifacts'
+      );
+      return resolution;
+    case 'preview-only':
+      assertGeneratedPolicyContract(
+        resolution.approval.origin === 'assistant-draft',
+        'preview-only approvals require assistant-draft origin'
+      );
+      assertGeneratedResolutionHasNoReviewOverrideOrReplayArtifacts(
+        resolution,
+        'preview-only approvals must remain unconfirmed and override-free'
+      );
+      return resolution;
+    case 'expired-request':
+      assertGeneratedPolicyContract(
+        evaluatedAt >= parseGeneratedTimestampMillis(resolution.approval.expiresAt, 'approval.expiresAt'),
+        'expired-request state requires evaluatedAt on or after approval.expiresAt'
+      );
+      assertGeneratedResolutionHasNoReviewOverrideOrReplayArtifacts(
+        resolution,
+        'expired-request state cannot include review or override artifacts'
+      );
+      return resolution;
+    case 'replay-rejected':
+      assertGeneratedPolicyContract(
+        resolution.replayOfApprovalId !== null,
+        'replay-rejected state requires replayOfApprovalId'
+      );
+      assertGeneratedResolutionHasNoReviewOrOverrideArtifacts(
+        resolution,
+        'replay-rejected state cannot include review or override artifacts'
+      );
+      return resolution;
+    case 'denied':
+      assertGeneratedPolicyContract(resolution.reviewedBy !== null, 'denied approvals require reviewedBy');
+      assertGeneratedPolicyContract(resolution.reviewedAt !== null, 'denied approvals require reviewedAt');
+      assertGeneratedPolicyContract(
+        resolution.auditReferenceId !== null,
+        'denied approvals require auditReferenceId'
+      );
+      assertGeneratedPolicyContract(resolution.override === null, 'denied approvals cannot create overrides');
+      assertGeneratedPolicyContract(
+        resolution.replayOfApprovalId === null,
+        'denied approvals cannot point at replayOfApprovalId'
+      );
+      return resolution;
+    case 'approved':
+    case 'modified':
+      assertGeneratedPolicyContract(
+        resolution.reviewedBy !== null &&
+          resolution.reviewedAt !== null &&
+          resolution.auditReferenceId !== null &&
+          resolution.override !== null,
+        `${resolution.state} approvals require review, audit, and override artifacts`
+      );
+      assertGeneratedPolicyContract(
+        resolution.replayOfApprovalId === null,
+        `${resolution.state} approvals cannot point at replayOfApprovalId`
+      );
+      assertGeneratedPolicyContract(
+        String(resolution.reviewedBy.actorId) !== String(resolution.approval.childProfile.childProfileId),
+        'child requests cannot self-approve or self-modify'
+      );
+      validateGeneratedPolicyOverrideGrant(resolution.override, resolution.approval, evaluatedAt);
+      return resolution;
+  }
+}

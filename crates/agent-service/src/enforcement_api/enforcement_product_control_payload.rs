@@ -24,13 +24,13 @@ pub(crate) fn enforcement_product_control_spine_payload(
         ),
         (
             constants::field::ENFORCEMENT_PRODUCT_CONTROL_SPINE_READ_MODEL,
-            LogFieldValue::String(read_model_json(read_model)),
+            read_model_json(read_model),
         ),
     ])
 }
 
-fn read_model_json(read_model: &V08EnforcementProductControlSpineReadModel) -> String {
-    serialize_json_string(read_model)
+fn read_model_json(read_model: &V08EnforcementProductControlSpineReadModel) -> LogFieldValue {
+    LogFieldValue::String(serialize_json_string(read_model).0)
 }
 
 pub(crate) fn enforcement_policy_dispatch_payload(
@@ -47,11 +47,13 @@ pub(crate) fn enforcement_policy_dispatch_payload(
         ),
         (
             constants::field::ENFORCEMENT_POLICY_DISPATCH_READ_MODEL,
-            LogFieldValue::String(policy_dispatch_read_model_json(read_model)),
+            policy_dispatch_read_model_json(read_model),
         ),
     ])
 }
 
-fn policy_dispatch_read_model_json(read_model: &EnforcementPolicyDispatchReadModel) -> String {
-    serialize_json_string(read_model)
+fn policy_dispatch_read_model_json(
+    read_model: &EnforcementPolicyDispatchReadModel,
+) -> LogFieldValue {
+    LogFieldValue::String(serialize_json_string(read_model).0)
 }

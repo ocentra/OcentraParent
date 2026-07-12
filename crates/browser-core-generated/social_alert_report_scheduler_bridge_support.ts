@@ -2,7 +2,10 @@
 
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { V3NotificationProviderChannelSchema, V3NotificationRuleReasonCodeSchema } from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
+import {
+  V3NotificationProviderChannelSchema,
+  V3NotificationRuleReasonCodeSchema,
+} from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
 
 const RequiredNotificationLocalOutboxStates = [
   'queued-local',
@@ -38,7 +41,9 @@ const NotificationLocalOutboxSchedulerStateSchema = withParser(
   Schema.Literal(...RequiredNotificationLocalOutboxSchedulerStates)
 );
 const NotificationLocalOutboxSeveritySchema = withParser(Schema.Literal('info', 'attention', 'urgent'));
-const NotificationLocalOutboxReferenceSchema = withParser(brandedNonEmptyStringSchema('NotificationLocalOutboxReference'));
+const NotificationLocalOutboxReferenceSchema = withParser(
+  brandedNonEmptyStringSchema('NotificationLocalOutboxReference')
+);
 const NotificationLocalOutboxEntryIdSchema = withParser(brandedNonEmptyStringSchema('NotificationLocalOutboxEntryId'));
 const NotificationLocalOutboxSchedulerEntryIdSchema = withParser(
   brandedNonEmptyStringSchema('NotificationLocalOutboxSchedulerEntryId')

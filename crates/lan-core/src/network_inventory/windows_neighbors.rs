@@ -24,6 +24,7 @@ use super::{
 
 pub mod identity;
 pub mod netbios;
+mod reachability;
 
 pub fn windows_lan_neighbors(
     identity_hint_devices: &[LanPairingDeviceRef],
@@ -245,24 +246,5 @@ pub fn network_device_from_windows_neighbor_with_observed_at(
 pub fn reachability_from_windows_state(
     state: Option<&serde_json::Value>,
 ) -> LanPairingDeviceReachability {
-    match state
-        .and_then(value_text)
-        .map(|value| value.to_ascii_lowercase())
-    {
-        Some(value)
-            if value == constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE_NUMBER
-                || value == constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_PERMANENT_NUMBER
-                || value == constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE
-                || value == constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_PERMANENT =>
-        {
-            LanPairingDeviceReachability::Online
-        }
-        Some(value)
-            if value == constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_STALE_NUMBER
-                || value == constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_STALE =>
-        {
-            LanPairingDeviceReachability::Stale
-        }
-        _ => LanPairingDeviceReachability::Offline,
-    }
+    reachability::from_windows_state(state.and_then(value_text))
 }

@@ -3,6 +3,55 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
+#[path = "../../src/activity_payload.rs"]
+mod activity_payload;
+#[path = "../../src/activity_store_path.rs"]
+mod activity_store_path;
+#[path = "../../src/activity_surface_store.rs"]
+mod activity_surface_store;
+#[path = "../../src/enforcement_timer_state_file.rs"]
+mod enforcement_timer_state_file;
+#[path = "../../src/enforcement_timer_state_path.rs"]
+mod enforcement_timer_state_path;
+#[path = "../../src/event_builder.rs"]
+mod event_builder;
+#[path = "../../src/fields.rs"]
+mod fields;
+#[path = "../../src/json_contract.rs"]
+mod json_contract;
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
+#[path = "../../src/time.rs"]
+mod time;
+mod activity_api {
+    pub(crate) struct ActivityEventId(pub(crate) &'static str);
+    pub(crate) struct GeneratedAtText(pub(crate) String);
+}
+mod activity_store_error_event {
+    use super::activity_api::ActivityEventId;
+    use ocentra_parent_agent_protocol::logging::LogLevel;
+    use ocentra_parent_agent_protocol::transport::{
+        AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+    };
+
+    pub(crate) fn activity_store_error_event(
+        command: AgentCommandEnvelope,
+        event_id_suffix: ActivityEventId,
+        event: AgentEventName,
+    ) -> AgentEventEnvelope {
+        crate::event_builder::build_event(
+            event_id_suffix.0,
+            &command.message_id,
+            command.source,
+            event,
+            LogLevel::Error,
+            crate::activity_payload::activity_store_error_payload(),
+            None,
+        )
+    }
+}
+#[path = "../../src/activity_api/app_game_timer_parent_surface_action_results.rs"]
+mod app_game_timer_parent_surface_action_results;
 #[path = "../support/app_game_timer_parent_surface_payload.rs"]
 mod app_game_timer_parent_surface_payload;
 
@@ -75,7 +124,7 @@ mod clippy_linkage {
         let _ = crate::activity_payload::activity_store_error_payload();
         if let Some(snapshot) = crate::activity_surface_store::local_store_snapshot().await {
             let _ = (
-                snapshot.device_id.as_str(),
+                snapshot.device_id.0.as_str(),
                 snapshot.recent_returned,
                 snapshot.last_event_id.as_deref(),
                 snapshot.last_observed_at.as_deref(),
@@ -88,31 +137,41 @@ mod clippy_linkage {
         let store_path = std::path::PathBuf::from(
             "C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/tmp/app-game-surface-clippy.db",
         );
-        let _ =
-            crate::activity_surface_store::local_store_snapshot_from_path(store_path.clone()).await;
+        let _ = crate::activity_surface_store::local_store_snapshot_from_path(
+            crate::activity_surface_store::ActivityStorePath(store_path.clone()),
+        )
+        .await;
         let _ = crate::activity_surface_store::load_browser_model().await;
-        let _ =
-            crate::activity_surface_store::load_browser_model_from_path(store_path.clone()).await;
+        let _ = crate::activity_surface_store::load_browser_model_from_path(
+            crate::activity_surface_store::ActivityStorePath(store_path.clone()),
+        )
+        .await;
         let _ = crate::activity_surface_store::load_network_model().await;
-        let _ =
-            crate::activity_surface_store::load_network_model_from_path(store_path.clone()).await;
+        let _ = crate::activity_surface_store::load_network_model_from_path(
+            crate::activity_surface_store::ActivityStorePath(store_path.clone()),
+        )
+        .await;
         let _ = crate::activity_surface_store::load_app_game_model().await;
-        let _ =
-            crate::activity_surface_store::load_app_game_model_from_path(store_path.clone()).await;
+        let _ = crate::activity_surface_store::load_app_game_model_from_path(
+            crate::activity_surface_store::ActivityStorePath(store_path.clone()),
+        )
+        .await;
         let _ = crate::activity_surface_store::load_screen_summary().await;
+        let _ = crate::activity_surface_store::load_screen_summary_from_path(
+            crate::activity_surface_store::ActivityStorePath(store_path),
+        )
+        .await;
+        let timer_state_path = crate::enforcement_timer_state_path::enforcement_timer_state_path();
         let _ =
-            crate::activity_surface_store::load_screen_summary_from_path(store_path.clone()).await;
-        let _ = crate::enforcement_timer_state_file::read_active_timer_state(store_path.as_path())
-            .await;
+            crate::enforcement_timer_state_file::read_active_timer_state(&timer_state_path).await;
         let _ =
-            crate::enforcement_timer_state_file::remove_active_timer_state(store_path.as_path())
-                .await;
+            crate::enforcement_timer_state_file::remove_active_timer_state(&timer_state_path).await;
         let _ = crate::event_builder::portal_peer();
         let _ = crate::json_contract::serialize_json_value(serde_json::json!({
             "app_game_timer_parent_surface": true
         }));
-        let _ = crate::time::timestamp_from_epoch_seconds(1);
-        let _ = crate::time::timestamp_after_epoch_seconds(1, 1);
+        let _: String = crate::time::timestamp_from_epoch_seconds(1);
+        let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
     }
 
     #[tokio::test]

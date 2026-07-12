@@ -86,9 +86,7 @@ const NetworkControlTabTitles = {
 
 export { NetworkControlEffectModeOptions, NetworkControlTargetScopeOptions };
 
-export function networkControlCatalogAcceptedOptionCountFromSeeds(
-  seeds: readonly NetworkControlCatalogSettingSeed[]
-) {
+export function networkControlCatalogAcceptedOptionCountFromSeeds(seeds: readonly NetworkControlCatalogSettingSeed[]) {
   return seeds.reduce((count, seed) => count + buildSetting(seed).acceptedOptions.length, 0);
 }
 
@@ -185,7 +183,6 @@ export function buildSetting(seed: NetworkControlCatalogSettingSeed): NetworkCon
     unsafeOrUnsupportedFallback: fallbackFor(effectStatus, sourceText),
   };
 }
-
 
 function getTabDraft(tabs: Map<string, TabDraft>, tabId: string): TabDraft {
   const existing = tabs.get(tabId);

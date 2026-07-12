@@ -296,4 +296,3 @@ function countReceiptRows(
 ): number {
   return rows.filter((row) => row.receiptBoundaryState === receiptBoundaryState).length;
 }
-

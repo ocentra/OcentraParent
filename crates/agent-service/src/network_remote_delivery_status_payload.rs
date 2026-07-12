@@ -183,18 +183,16 @@ fn apply_durable_status(
     outbox_report: &NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
     durable_report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
 ) {
-    let (event_chain_journal_ref, receipt_ledger_ref, local_receipt_ack_ref) =
-        receipt_refs(durable_report);
-    let (durable_replay_ref, durable_delete_export_ref, durable_support_status_ref) =
-        durable_refs(durable_report);
-    status.event_chain_journal_ref = event_chain_journal_ref;
-    status.receipt_ledger_ref = receipt_ledger_ref;
-    status.local_receipt_ack_ref = local_receipt_ack_ref;
+    let receipt_refs = receipt_refs(durable_report);
+    let durable_refs = durable_refs(durable_report);
+    status.event_chain_journal_ref = receipt_refs.event_chain_journal_ref;
+    status.receipt_ledger_ref = receipt_refs.receipt_ledger_ref;
+    status.local_receipt_ack_ref = receipt_refs.local_receipt_ack_ref;
     status.durable_envelope_ref = outbox_report.durable_envelope_ref.as_str().to_string();
     status.durable_store_ref = outbox_report.durable_store_ref.as_str().to_string();
-    status.durable_replay_ref = durable_replay_ref;
-    status.durable_delete_export_ref = durable_delete_export_ref;
-    status.durable_support_status_ref = durable_support_status_ref;
+    status.durable_replay_ref = durable_refs.durable_replay_ref;
+    status.durable_delete_export_ref = durable_refs.durable_delete_export_ref;
+    status.durable_support_status_ref = durable_refs.durable_support_status_ref;
     status.durable_envelope_ready = durable_envelope_ready(durable_report);
     status.durable_envelope_missing_artifact_count = 0;
 }
@@ -335,36 +333,44 @@ pub(crate) fn blocked_dispatch_records_match_outbox_candidates(
         })
 }
 
-fn receipt_refs(
-    report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-) -> (String, String, String) {
-    (
-        report
+struct ReceiptRefs {
+    event_chain_journal_ref: String,
+    receipt_ledger_ref: String,
+    local_receipt_ack_ref: String,
+}
+
+fn receipt_refs(report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport) -> ReceiptRefs {
+    ReceiptRefs {
+        event_chain_journal_ref: report
             .receipt_ledger
             .event_chain_journal_ref
             .as_str()
             .to_string(),
-        report
+        receipt_ledger_ref: report
             .receipt_ledger
             .receipt_ledger_ref
             .as_str()
             .to_string(),
-        report
+        local_receipt_ack_ref: report
             .receipt_ledger
             .local_receipt_ack_ref
             .as_str()
             .to_string(),
-    )
+    }
 }
 
-fn durable_refs(
-    report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-) -> (String, String, String) {
-    (
-        report.durable_replay_ref.as_str().to_string(),
-        report.delete_export_readiness_ref.as_str().to_string(),
-        report.durable_support_status_ref.as_str().to_string(),
-    )
+struct DurableRefs {
+    durable_replay_ref: String,
+    durable_delete_export_ref: String,
+    durable_support_status_ref: String,
+}
+
+fn durable_refs(report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport) -> DurableRefs {
+    DurableRefs {
+        durable_replay_ref: report.durable_replay_ref.as_str().to_string(),
+        durable_delete_export_ref: report.delete_export_readiness_ref.as_str().to_string(),
+        durable_support_status_ref: report.durable_support_status_ref.as_str().to_string(),
+    }
 }
 
 fn durable_envelope_ready(report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport) -> bool {

@@ -31,11 +31,11 @@ fn tracking_read_model_harness_links_epoch_time_helpers() {
     );
 
     assert_eq!(
-        time::timestamp_from_epoch_seconds(0),
+        time::timestamp_from_epoch_seconds::<String>(0),
         "1970-01-01T00:00:00.000Z"
     );
     assert_eq!(
-        time::timestamp_after_epoch_seconds(30, 3),
+        time::timestamp_after_epoch_seconds::<String>(30, 3),
         "1970-01-01T00:00:33.000Z"
     );
 }

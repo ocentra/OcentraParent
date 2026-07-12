@@ -50,20 +50,18 @@ function main() {
 
   const exportsMap = packageJson.exports ?? {};
   ensure(exportsMap['./contracts'] == null, 'unexpected packages/logging-domain export ./contracts');
-  ensure(exportsMap['./test-log/types'] == null, 'unexpected packages/logging-domain export ./test-log/types');
-  ensure(
-    exportsMap['./test-log/ndjsonBrands'] == null,
-    'unexpected packages/logging-domain export ./test-log/ndjsonBrands'
-  );
   for (const exportKey of [
+    './test-log/types',
     './test-log/bridgeConvert',
     './test-log/ndjsonPaths',
+    './test-log/ndjsonBrands',
     './test-log/ndjsonWriter',
     './test-log/testLogDuckDb',
     './test-log/logsTree',
     './test-log/wipeNdjsonScope',
     './transport/bridgeTransport',
-    './app-log/createAppLogStorage',
+    './app-log/appNdjsonWriter',
+    './app-log/types',
     './package-info',
   ]) {
     ensure(exportsMap[exportKey] != null, `missing packages/logging-domain export ${exportKey}`);
@@ -76,16 +74,7 @@ function main() {
     !fs.existsSync(path.join(packageRoot, 'src', 'core', 'logRuntimeConstants.ts')),
     'unexpected packages/logging-domain/src/core/logRuntimeConstants.ts'
   );
-  ensure(
-    !fs.existsSync(path.join(packageRoot, 'src', 'test-log', 'types.ts')),
-    'unexpected packages/logging-domain/src/test-log/types.ts'
-  );
-  ensure(
-    !fs.existsSync(path.join(packageRoot, 'src', 'test-log', 'ndjsonBrands.ts')),
-    'unexpected packages/logging-domain/src/test-log/ndjsonBrands.ts'
-  );
-
-  const schemaTypesText = readText(path.join(repoRoot, 'packages', 'schema-domain', 'src', 'test-log', 'types.ts'));
+  const schemaTypesText = readText(path.join(packageRoot, 'src', 'test-log', 'types.ts'));
   ensure(
     schemaTypesText.includes('fallback: TestLogScope = TestLogScope.ParentTest'),
     'generic test-log scope fallback must default to parent-test instead of parent-cloudflare'

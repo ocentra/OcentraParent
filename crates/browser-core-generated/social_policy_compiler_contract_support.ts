@@ -1,6 +1,12 @@
 /* generated support for crates/browser-core/src/social_policy_compiler_contract.rs */
 
-import { type Infer, Schema, withParser, brandedNonEmptyStringSchema, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema,
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const SocialPolicyEvidenceRefsSchema = Schema.Array(ParentEvidenceReferenceIdSchema).pipe(

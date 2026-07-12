@@ -80,10 +80,35 @@ use crate::{
     time::timestamp_now,
 };
 
-type FieldPair = (&'static str, LogFieldValue);
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct SocialAlertReportText(String);
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct SocialAlertReportTextList(Vec<String>);
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct SocialAlertReportFieldName(&'static str);
+
+impl<T> From<T> for SocialAlertReportText
+where
+    T: Into<String>,
+{
+    fn from(value: T) -> Self {
+        Self(value.into())
+    }
+}
+
+impl<T> From<Vec<T>> for SocialAlertReportTextList
+where
+    T: Into<String>,
+{
+    fn from(value: Vec<T>) -> Self {
+        Self(value.into_iter().map(Into::into).collect())
+    }
+}
 
 pub fn social_alert_report_read_model_from_service() -> SocialAlertReportReadModelSnapshot {
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     SocialAlertReportReadModelSnapshot {
         schema_version: SOCIAL_ALERT_REPORT_SCHEMA_VERSION.to_string(),
         family_id: SOCIAL_ALERT_REPORT_FAMILY_ID.to_string(),
@@ -110,7 +135,24 @@ pub fn social_alert_report_read_model_from_service() -> SocialAlertReportReadMod
 pub fn social_alert_report_read_model_payload(
     read_model: &SocialAlertReportReadModelSnapshot,
 ) -> LogFields {
-    fields_from_pairs(read_model_pairs(read_model))
+    fields_from_pairs(vec![
+        (
+            constants::field::GENERATED_AT,
+            LogFieldValue::String(read_model.generated_at.clone()),
+        ),
+        (
+            constants::field::CAPABILITY_STATUS,
+            LogFieldValue::String(SOCIAL_ALERT_REPORT_CAPABILITY_READY.to_string()),
+        ),
+        (
+            constants::field::RETURNED,
+            LogFieldValue::Number(read_model.intents.len() as f64),
+        ),
+        (
+            constants::field::BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL,
+            LogFieldValue::String(serialize_json_string(read_model).0),
+        ),
+    ])
 }
 
 pub async fn build_browser_social_alert_report_read_model_report(
@@ -128,33 +170,14 @@ pub async fn build_browser_social_alert_report_read_model_report(
     )
 }
 
-fn read_model_pairs(read_model: &SocialAlertReportReadModelSnapshot) -> Vec<FieldPair> {
-    vec![
-        (
-            constants::field::GENERATED_AT,
-            LogFieldValue::String(read_model.generated_at.clone()),
-        ),
-        (
-            constants::field::CAPABILITY_STATUS,
-            LogFieldValue::String(SOCIAL_ALERT_REPORT_CAPABILITY_READY.to_string()),
-        ),
-        (
-            constants::field::RETURNED,
-            LogFieldValue::Number(read_model.intents.len() as f64),
-        ),
-        (
-            constants::field::BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL,
-            LogFieldValue::String(serialize_json_string(read_model)),
-        ),
-    ]
-}
-
-fn high_risk_provider_status_row(last_checked_at: &str) -> SocialAlertReportProviderStatusRow {
+fn high_risk_provider_status_row(
+    last_checked_at: impl Into<SocialAlertReportText>,
+) -> SocialAlertReportProviderStatusRow {
     provider_status_row(
-        SOCIAL_ALERT_REPORT_PROVIDER_STATUS_HIGH_RISK,
-        SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK,
-        SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED,
-        SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_HIGH_RISK,
+        SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_PROVIDER_STATUS_HIGH_RISK),
+        SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK),
+        SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED),
+        SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_HIGH_RISK),
         vec![
             SOCIAL_ALERT_REPORT_PROVIDER_ADAPTER_REQUIRED.to_string(),
             SOCIAL_ALERT_REPORT_PROVIDER_CREDENTIALS_REQUIRED.to_string(),
@@ -170,13 +193,13 @@ fn high_risk_provider_status_row(last_checked_at: &str) -> SocialAlertReportProv
 }
 
 fn manual_required_provider_status_row(
-    last_checked_at: &str,
+    last_checked_at: impl Into<SocialAlertReportText>,
 ) -> SocialAlertReportProviderStatusRow {
     provider_status_row(
-        SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL,
-        SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED,
-        SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_MANUAL_REQUIRED,
-        SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_MANUAL,
+        SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL),
+        SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED),
+        SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_MANUAL_REQUIRED),
+        SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_PROVIDER_ATTEMPT_MANUAL),
         vec![SOCIAL_ALERT_REPORT_MANUAL_PROOF_REQUIRED.to_string()],
         vec![SOCIAL_ALERT_REPORT_MANUAL_PROOF_REQUIRED.to_string()],
         last_checked_at,
@@ -184,35 +207,39 @@ fn manual_required_provider_status_row(
 }
 
 fn provider_status_row(
-    status_entry_id: &'static str,
-    source_intent_ref: &'static str,
-    source_preflight_status: &'static str,
-    provider_attempt_ref: &'static str,
-    readiness_refs: Vec<String>,
-    manual_proof_requirements: Vec<String>,
-    last_checked_at: &str,
+    status_entry_id: SocialAlertReportFieldName,
+    source_intent_ref: SocialAlertReportFieldName,
+    source_preflight_status: SocialAlertReportFieldName,
+    provider_attempt_ref: SocialAlertReportFieldName,
+    readiness_refs: impl Into<SocialAlertReportTextList>,
+    manual_proof_requirements: impl Into<SocialAlertReportTextList>,
+    last_checked_at: impl Into<SocialAlertReportText>,
 ) -> SocialAlertReportProviderStatusRow {
+    let readiness_refs = readiness_refs.into();
+    let manual_proof_requirements = manual_proof_requirements.into();
+    let last_checked_at = last_checked_at.into();
     SocialAlertReportProviderStatusRow {
-        status_entry_id: status_entry_id.to_string(),
-        source_intent_ref: source_intent_ref.to_string(),
-        source_preflight_status: source_preflight_status.to_string(),
+        status_entry_id: status_entry_id.0.to_string(),
+        source_intent_ref: source_intent_ref.0.to_string(),
+        source_preflight_status: source_preflight_status.0.to_string(),
         provider_status: SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED.to_string(),
         status_proof_state: SOCIAL_ALERT_REPORT_PROVIDER_STATUS_PROOF_MANUAL_ACTION.to_string(),
         delivery_claim_state: SOCIAL_ALERT_REPORT_PROVIDER_DELIVERY_NOT_OBSERVED.to_string(),
-        provider_attempt_ref: provider_attempt_ref.to_string(),
-        readiness_refs,
+        provider_attempt_ref: provider_attempt_ref.0.to_string(),
+        readiness_refs: readiness_refs.0,
         provider_receipt_refs: Vec::new(),
-        manual_proof_requirements,
+        manual_proof_requirements: manual_proof_requirements.0,
         provider_delivery_implemented: false,
         provider_delivery_observed: false,
         delivered_notification_claimed: false,
         sensitive_provider_payload_claimed: false,
         provider_stores_child_evidence_claimed: false,
-        last_checked_at: last_checked_at.to_string(),
+        last_checked_at: last_checked_at.0,
     }
 }
 
-fn high_risk_intent(created_at: &str) -> SocialAlertReportIntent {
+fn high_risk_intent(created_at: impl Into<SocialAlertReportText>) -> SocialAlertReportIntent {
+    let created_at = created_at.into();
     SocialAlertReportIntent {
         schema_version: SOCIAL_ALERT_REPORT_CONTRACT_SCHEMA_VERSION.to_string(),
         alert_report_intent_id: SOCIAL_ALERT_REPORT_INTENT_HIGH_RISK.to_string(),
@@ -232,18 +259,18 @@ fn high_risk_intent(created_at: &str) -> SocialAlertReportIntent {
             SOCIAL_ALERT_REPORT_EXPLANATION_EVENT_FEED_VIDEO_GATE.to_string()
         ],
         evidence_references: vec![evidence_reference(
-            SOCIAL_ALERT_REPORT_EVIDENCE_ROUTE_GATE,
-            created_at,
+            SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_EVIDENCE_ROUTE_GATE),
+            created_at.0.as_str(),
         )],
         policy_refs: vec![SOCIAL_ALERT_REPORT_POLICY_HIGH_RISK.to_string()],
         audit_refs: vec![SOCIAL_ALERT_REPORT_AUDIT_REF.to_string()],
         parent_report_ref: None,
-        parent_action_ref: Some(parent_action_ref(created_at)),
+        parent_action_ref: Some(parent_action_ref(created_at.0.as_str())),
         local_outbox_record_ref: Some(SOCIAL_ALERT_REPORT_LOCAL_OUTBOX_REF.to_string()),
         provider_attempt_refs: Vec::new(),
         provider_receipt_refs: Vec::new(),
         manual_proof_requirements: Vec::new(),
-        minimal_payload_fields: minimal_payload_fields(),
+        minimal_payload_fields: minimal_payload_fields().0,
         delivery_claim_state: SOCIAL_ALERT_REPORT_DELIVERY_LOCAL_OUTBOX_ONLY.to_string(),
         raw_account_data_included: false,
         raw_video_content_included: false,
@@ -259,11 +286,12 @@ fn high_risk_intent(created_at: &str) -> SocialAlertReportIntent {
         enforcement_claimed: false,
         adapter_dispatch_state: SOCIAL_ALERT_REPORT_ADAPTER_NOT_DISPATCHED.to_string(),
         adapter_action_claimed: false,
-        created_at: created_at.to_string(),
+        created_at: created_at.0,
     }
 }
 
-fn manual_required_intent(created_at: &str) -> SocialAlertReportIntent {
+fn manual_required_intent(created_at: impl Into<SocialAlertReportText>) -> SocialAlertReportIntent {
+    let created_at = created_at.into();
     SocialAlertReportIntent {
         schema_version: SOCIAL_ALERT_REPORT_CONTRACT_SCHEMA_VERSION.to_string(),
         alert_report_intent_id: SOCIAL_ALERT_REPORT_INTENT_MANUAL_REQUIRED.to_string(),
@@ -283,8 +311,8 @@ fn manual_required_intent(created_at: &str) -> SocialAlertReportIntent {
             SOCIAL_ALERT_REPORT_EXPLANATION_EVENT_MANUAL_REQUIRED.to_string()
         ],
         evidence_references: vec![evidence_reference(
-            SOCIAL_ALERT_REPORT_EVIDENCE_MANUAL_GAP,
-            created_at,
+            SocialAlertReportFieldName(SOCIAL_ALERT_REPORT_EVIDENCE_MANUAL_GAP),
+            created_at.0.as_str(),
         )],
         policy_refs: vec![SOCIAL_ALERT_REPORT_POLICY_MANUAL_REQUIRED.to_string()],
         audit_refs: vec![SOCIAL_ALERT_REPORT_AUDIT_REF.to_string()],
@@ -294,7 +322,7 @@ fn manual_required_intent(created_at: &str) -> SocialAlertReportIntent {
         provider_attempt_refs: Vec::new(),
         provider_receipt_refs: Vec::new(),
         manual_proof_requirements: vec![SOCIAL_ALERT_REPORT_MANUAL_PROOF_REQUIRED.to_string()],
-        minimal_payload_fields: minimal_payload_fields(),
+        minimal_payload_fields: minimal_payload_fields().0,
         delivery_claim_state: SOCIAL_ALERT_REPORT_DELIVERY_MANUAL_REQUIRED.to_string(),
         raw_account_data_included: false,
         raw_video_content_included: false,
@@ -310,7 +338,7 @@ fn manual_required_intent(created_at: &str) -> SocialAlertReportIntent {
         enforcement_claimed: false,
         adapter_dispatch_state: SOCIAL_ALERT_REPORT_ADAPTER_NOT_DISPATCHED.to_string(),
         adapter_action_claimed: false,
-        created_at: created_at.to_string(),
+        created_at: created_at.0,
     }
 }
 
@@ -324,17 +352,21 @@ fn device_ref() -> SocialAlertReportDeviceRef {
 }
 
 fn evidence_reference(
-    evidence_ref: &'static str,
-    observed_at: &str,
+    evidence_ref: SocialAlertReportFieldName,
+    observed_at: impl Into<SocialAlertReportText>,
 ) -> SocialAlertReportEvidenceRef {
+    let observed_at = observed_at.into();
     SocialAlertReportEvidenceRef {
-        evidence_reference_id: evidence_ref.to_string(),
+        evidence_reference_id: evidence_ref.0.to_string(),
         kind: SOCIAL_ALERT_REPORT_EVIDENCE_KIND_POLICY_DECISION.to_string(),
-        observed_at: observed_at.to_string(),
+        observed_at: observed_at.0,
     }
 }
 
-fn parent_action_ref(created_at: &str) -> SocialAlertReportParentActionRef {
+fn parent_action_ref(
+    created_at: impl Into<SocialAlertReportText>,
+) -> SocialAlertReportParentActionRef {
+    let created_at = created_at.into();
     SocialAlertReportParentActionRef {
         action_reference_id: SOCIAL_ALERT_REPORT_PARENT_ACTION_ID.to_string(),
         actor: SocialAlertReportParentActor {
@@ -342,12 +374,12 @@ fn parent_action_ref(created_at: &str) -> SocialAlertReportParentActionRef {
             role: SOCIAL_ALERT_REPORT_PARENT_ACTOR_ROLE.to_string(),
         },
         policy_version: SOCIAL_ALERT_REPORT_POLICY_VERSION.to_string(),
-        created_at: created_at.to_string(),
+        created_at: created_at.0,
     }
 }
 
-fn minimal_payload_fields() -> Vec<String> {
-    vec![
+fn minimal_payload_fields() -> SocialAlertReportTextList {
+    SocialAlertReportTextList(vec![
         SOCIAL_ALERT_REPORT_PAYLOAD_ALERT_ID.to_string(),
         SOCIAL_ALERT_REPORT_PAYLOAD_FAMILY_DEVICE_SCOPE.to_string(),
         SOCIAL_ALERT_REPORT_PAYLOAD_SEVERITY.to_string(),
@@ -356,5 +388,5 @@ fn minimal_payload_fields() -> Vec<String> {
         SOCIAL_ALERT_REPORT_PAYLOAD_POLICY_REF.to_string(),
         SOCIAL_ALERT_REPORT_PAYLOAD_EXPLANATION_REF.to_string(),
         SOCIAL_ALERT_REPORT_PAYLOAD_PARENT_ACTION_LINK_REF.to_string(),
-    ]
+    ])
 }

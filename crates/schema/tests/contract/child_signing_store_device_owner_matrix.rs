@@ -101,20 +101,13 @@ fn generated_child_signing_store_device_owner_matrix_contracts_stay_checked_in()
             .count(),
         1
     );
-    let schema_version_line = format!(
-        "  '{}';",
-        contracts::CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_SCHEMA_VERSION
-    );
-    let schema_version_key = generated_lines
-        .iter()
-        .position(|line| {
-            *line == "export type GeneratedChildSigningStoreDeviceOwnerMatrixSchemaVersion ="
-        })
-        .value_or_unreachable(crate::assert_context!("schema version type declaration"));
-    assert_eq!(
-        generated_lines[schema_version_key + 1],
-        schema_version_line.as_str()
-    );
+    assert!(generated_lines.iter().any(|line| {
+        *line
+            == format!(
+                "export type GeneratedChildSigningStoreDeviceOwnerMatrixSchemaVersion = '{}';",
+                contracts::CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_SCHEMA_VERSION
+            )
+    }));
     assert_eq!(
         generated_lines
             .iter()

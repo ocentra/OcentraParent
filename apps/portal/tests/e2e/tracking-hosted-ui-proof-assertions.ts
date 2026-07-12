@@ -420,10 +420,7 @@ type ParentPortalShellRoute = {
   readonly expectedSvgText: readonly string[];
 };
 
-async function assertAndCaptureParentPortalShellRoute(
-  page: Page,
-  route: ParentPortalShellRoute
-): Promise<void> {
+async function assertAndCaptureParentPortalShellRoute(page: Page, route: ParentPortalShellRoute): Promise<void> {
   await page.goto(route.route);
   const surface = page.locator('svg.parent-portal-svg-surface');
   await expect(surface).toBeVisible({ timeout: portalShellReadyTimeoutMs });

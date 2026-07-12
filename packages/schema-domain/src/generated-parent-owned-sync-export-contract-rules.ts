@@ -39,8 +39,7 @@ export function syncExportManifestItemIsHonestGenerated(item: GeneratedParentOwn
     'encrypted-support-bundle':
       item.encryption.encryptionState === 'encrypted-at-rest' && item.encryption.encryptedBeforeUpload,
     'human-readable-parent-report':
-      item.encryption.encryptionState === 'human-readable-parent-authorized' &&
-      !item.encryption.encryptedBeforeUpload,
+      item.encryption.encryptionState === 'human-readable-parent-authorized' && !item.encryption.encryptedBeforeUpload,
   } as const;
 
   return (
@@ -57,8 +56,7 @@ export function syncExportProviderStatusRowIsHonestGenerated(row: GeneratedParen
   const statusChecks = {
     ready: row.accountRef !== null && row.folderRef !== null,
     'manual-required':
-      row.disconnectVisibilityState === 'manual-required' ||
-      row.deleteVisibilityState === 'manual-required',
+      row.disconnectVisibilityState === 'manual-required' || row.deleteVisibilityState === 'manual-required',
     revoked: row.revocationRef !== null,
     'wrong-account': true,
     'folder-unavailable': true,
@@ -118,10 +116,7 @@ export function syncExportSyncStateRowIsHonestGenerated(row: GeneratedParentOwne
 
 export function syncExportTombstoneRowIsHonestGenerated(row: GeneratedParentOwnedSyncTombstoneRow): boolean {
   const stateChecks = {
-    'not-requested':
-      row.deleteRequestRef === null &&
-      row.lastPropagatedAt === null &&
-      row.blockedReasonRef === null,
+    'not-requested': row.deleteRequestRef === null && row.lastPropagatedAt === null && row.blockedReasonRef === null,
     pending: row.deleteRequestRef !== null,
     propagated: row.deleteRequestRef !== null && row.lastPropagatedAt !== null,
     blocked: row.deleteRequestRef !== null && row.blockedReasonRef !== null,

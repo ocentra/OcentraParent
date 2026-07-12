@@ -116,16 +116,16 @@ fn generated_app_risk_detection_contract_rules_stay_checked_in() {
     assert_eq!(
         generated_lines
             .iter()
-            .filter(|line| {
-                **line == "export function appRiskDetectionCandidateIsHonestGenerated("
-            })
+            .filter(|line| line
+                .starts_with("export function appRiskDetectionCandidateIsHonestGenerated("))
             .count(),
         1
     );
     assert_eq!(
         generated_lines
             .iter()
-            .filter(|line| **line == "function appRiskDetectionAiCandidateCitesDigestGenerated(")
+            .filter(|line| line
+                .starts_with("function appRiskDetectionAiCandidateCitesDigestGenerated("))
             .count(),
         1
     );

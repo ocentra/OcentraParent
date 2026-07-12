@@ -1,10 +1,5 @@
 import { expect, it } from 'vitest';
-import {
-  asFileKey,
-  asNdjsonSummaryContent,
-  asOutputDir,
-  asTestName,
-} from '../../src/test-log/ndjsonBrands';
+import { asFileKey, asNdjsonSummaryContent, asOutputDir, asTestName } from '../../src/test-log/ndjsonBrands';
 
 it('ndjsonBrands: exposes branded helpers for the NDJSON seam', () => {
   expect(asOutputDir('output')).toBe('output');

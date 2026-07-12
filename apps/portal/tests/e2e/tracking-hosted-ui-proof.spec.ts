@@ -5,10 +5,7 @@ import {
   captureHostedTrackingScreenshots,
   captureParentPortalShellScreenshots,
 } from './tracking-hosted-ui-proof-assertions';
-import {
-  collectAccessibilitySummary,
-  writeAccessibilitySummary,
-} from './tracking-hosted-ui-proof-accessibility';
+import { collectAccessibilitySummary, writeAccessibilitySummary } from './tracking-hosted-ui-proof-accessibility';
 
 test.setTimeout(120_000);
 

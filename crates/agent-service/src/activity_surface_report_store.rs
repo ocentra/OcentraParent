@@ -1,3 +1,5 @@
+#[path = "activity_surface_report_store/history.rs"]
+mod history;
 #[path = "activity_surface_report_store/logic.rs"]
 mod logic;
 

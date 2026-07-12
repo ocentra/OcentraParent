@@ -23,37 +23,29 @@ export function resolveParentDevBridgeManifestPath(repoRoot = process.cwd()) {
 }
 
 export function spawnAgentService(env, repoRoot = process.cwd()) {
-  return spawn(
-    'cargo',
-    ['run', '--quiet', '--manifest-path', resolveAgentServiceManifestPath(repoRoot)],
-    {
-      cwd: repoRoot,
-      detached: process.platform !== 'win32',
-      env: {
-        ...env,
-        CARGO_TARGET_DIR: join(repoRoot, 'target'),
-      },
-      shell: process.platform === 'win32',
-      stdio: ['ignore', 'inherit', 'inherit'],
-    }
-  );
+  return spawn('cargo', ['run', '--quiet', '--manifest-path', resolveAgentServiceManifestPath(repoRoot)], {
+    cwd: repoRoot,
+    detached: process.platform !== 'win32',
+    env: {
+      ...env,
+      CARGO_TARGET_DIR: join(repoRoot, 'target'),
+    },
+    shell: process.platform === 'win32',
+    stdio: ['ignore', 'inherit', 'inherit'],
+  });
 }
 
 export function spawnParentDevBridge(env, repoRoot = process.cwd()) {
-  return spawn(
-    'cargo',
-    ['run', '--quiet', '--manifest-path', resolveParentDevBridgeManifestPath(repoRoot)],
-    {
-      cwd: repoRoot,
-      detached: process.platform !== 'win32',
-      env: {
-        ...env,
-        CARGO_TARGET_DIR: join(repoRoot, 'target'),
-      },
-      shell: process.platform === 'win32',
-      stdio: ['ignore', 'inherit', 'inherit'],
-    }
-  );
+  return spawn('cargo', ['run', '--quiet', '--manifest-path', resolveParentDevBridgeManifestPath(repoRoot)], {
+    cwd: repoRoot,
+    detached: process.platform !== 'win32',
+    env: {
+      ...env,
+      CARGO_TARGET_DIR: join(repoRoot, 'target'),
+    },
+    shell: process.platform === 'win32',
+    stdio: ['ignore', 'inherit', 'inherit'],
+  });
 }
 
 export async function ensureParentDevBridgeBinaryUnlocked(
@@ -170,12 +162,7 @@ function isRetriableRemoveError(error) {
 }
 
 function isRetriableWindowsBinaryUnlockError(error) {
-  return (
-    error?.code === 'EACCES' ||
-    error?.code === 'EBUSY' ||
-    error?.code === 'ENOTEMPTY' ||
-    error?.code === 'EPERM'
-  );
+  return error?.code === 'EACCES' || error?.code === 'EBUSY' || error?.code === 'ENOTEMPTY' || error?.code === 'EPERM';
 }
 
 function terminateWindowsProcessImage(imageName) {

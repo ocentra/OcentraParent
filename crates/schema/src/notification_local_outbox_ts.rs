@@ -7,11 +7,10 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::{
         ParentEvidenceReferenceKind,
     },
     notification::{
-        NotificationLocalOutboxAdapterProof,
-        NotificationLocalOutboxDeliveryClaimState, NotificationLocalOutboxMinimalAlertEnvelope,
-        NotificationLocalOutboxNonClaim, NotificationLocalOutboxRecord,
-        NotificationLocalOutboxSeverity, NotificationLocalOutboxState,
-        V3NotificationProviderChannel, V3NotificationRuleReasonCode,
+        NotificationLocalOutboxAdapterProof, NotificationLocalOutboxDeliveryClaimState,
+        NotificationLocalOutboxMinimalAlertEnvelope, NotificationLocalOutboxNonClaim,
+        NotificationLocalOutboxRecord, NotificationLocalOutboxSeverity,
+        NotificationLocalOutboxState, V3NotificationProviderChannel, V3NotificationRuleReasonCode,
     },
 };
 use serde::Serialize;
@@ -73,27 +72,52 @@ struct NotificationLocalOutboxSchedulerProofRow {
 
 fn push_export<T: Serialize>(output: &mut String, name: &str, value: &T) {
     let json = crate::schema_result_or_unreachable(serde_json::to_string_pretty(value), name);
-    writeln!(output, "export const {name} = {json} as const;\n").expect("write notification-local-outbox ts");
+    let typescript = if json.trim_start().starts_with('[') {
+        let compact = crate::typescript_literal::json_object_to_typescript_literal(&json);
+        let compact_line = format!("export const {name} = {compact} as const;");
+        if compact.lines().count() == 1 && compact_line.len() <= 120 {
+            compact
+        } else {
+            crate::typescript_literal::json_array_to_typescript_literal(&json)
+        }
+    } else {
+        crate::typescript_literal::json_object_to_typescript_literal(&json)
+    };
+    let export_line = format!("export const {name} = {typescript} as const;");
+    let export_line = if export_line.len() > 120 && json.trim_start().starts_with('"') {
+        format!("export const {name} =\n  {typescript} as const;")
+    } else {
+        export_line
+    };
+    writeln!(output, "{export_line}\n").expect("write notification-local-outbox ts");
 }
 
 fn proof_family() -> FamilyReference {
     FamilyReference {
-        family_id: "family-notification-local-outbox-proof-1".to_string().into(),
+        family_id: "family-notification-local-outbox-proof-1"
+            .to_string()
+            .into(),
     }
 }
 
 fn proof_device() -> ParentDeviceReference {
     ParentDeviceReference {
-        device_id: "windows-child-device-notification-outbox-proof-1".to_string().into(),
+        device_id: "windows-child-device-notification-outbox-proof-1"
+            .to_string()
+            .into(),
         child_profile_id: Some("child-notification-outbox-proof-1".to_string().into()),
-        label: "Windows child device notification outbox proof".to_string().into(),
+        label: "Windows child device notification outbox proof"
+            .to_string()
+            .into(),
         platform: ParentDevicePlatform::Windows,
     }
 }
 
 fn proof_parent_action() -> ParentActionReference {
     ParentActionReference {
-        action_reference_id: "parent-action-notification-outbox-proof-1".to_string().into(),
+        action_reference_id: "parent-action-notification-outbox-proof-1"
+            .to_string()
+            .into(),
         actor: ParentActorReference {
             actor_id: "parent-notification-outbox-proof-1".to_string().into(),
             role: ParentActorRole::Parent,
@@ -105,7 +129,9 @@ fn proof_parent_action() -> ParentActionReference {
 
 fn proof_evidence_ref() -> ParentEvidenceReference {
     ParentEvidenceReference {
-        evidence_reference_id: "notification-local-outbox-evidence-ref-1".to_string().into(),
+        evidence_reference_id: "notification-local-outbox-evidence-ref-1"
+            .to_string()
+            .into(),
         kind: ParentEvidenceReferenceKind::PolicyDecision,
         observed_at: "2026-06-04T01:31:47.023Z".to_string().into(),
     }
@@ -323,8 +349,19 @@ fn notification_outbox_scheduler_proof_rows() -> Vec<NotificationLocalOutboxSche
 }
 
 pub fn notification_local_outbox_typescript() -> String {
-    let mut output = String::from(
-        "/* generated from crates/schema/src/notification_local_outbox_ts.rs */\n\n",
+    let mut output =
+        String::from("/* generated from crates/schema/src/notification_local_outbox_ts.rs */\n\n");
+
+    let _ = (
+        std::mem::size_of::<NotificationLocalOutboxAdapterProof>(),
+        std::mem::size_of::<NotificationLocalOutboxMinimalAlertEnvelope>(),
+        std::mem::size_of::<NotificationLocalOutboxRecord>(),
+        std::mem::size_of::<NotificationLocalOutboxDeliveryClaimState>(),
+        std::mem::size_of::<NotificationLocalOutboxNonClaim>(),
+        std::mem::size_of::<NotificationLocalOutboxState>(),
+        std::mem::size_of::<NotificationLocalOutboxSeverity>(),
+        std::mem::size_of::<V3NotificationProviderChannel>(),
+        std::mem::size_of::<V3NotificationRuleReasonCode>(),
     );
 
     push_export(
@@ -470,20 +507,5 @@ pub fn notification_local_outbox_typescript() -> String {
         &notification_outbox_scheduler_proof_rows(),
     );
 
-    output
-}
-
-#[allow(dead_code)]
-fn _schema_presence_check(
-    adapter: NotificationLocalOutboxAdapterProof,
-    envelope: NotificationLocalOutboxMinimalAlertEnvelope,
-    record: NotificationLocalOutboxRecord,
-    claim: NotificationLocalOutboxDeliveryClaimState,
-    non_claim: NotificationLocalOutboxNonClaim,
-    state: NotificationLocalOutboxState,
-    severity: NotificationLocalOutboxSeverity,
-    provider_channel: V3NotificationProviderChannel,
-    reason_code: V3NotificationRuleReasonCode,
-) {
-    let _ = (adapter, envelope, record, claim, non_claim, state, severity, provider_channel, reason_code);
+    format!("{}\n", output.trim_end())
 }

@@ -293,9 +293,7 @@ export const PortalDevTextToken = {
   TrackingParentActionChildCheckInEvidence: decodeDisplayText('tracking-parent-action-evidence-4'),
   TrackingParentActionChildCheckInReady: decodeDisplayText('Child check-in action ready'),
   TrackingParentActionChildCheckInRequestReady: decodeDisplayText('child-check-in-request-ready'),
-  TrackingParentActionChildCheckInSurface: decodeDisplayText(
-    'tracking-parent-action-surface-tracking-alert-check-in'
-  ),
+  TrackingParentActionChildCheckInSurface: decodeDisplayText('tracking-parent-action-surface-tracking-alert-check-in'),
   TrackingParentActionChildRuntimeManualProof: decodeDisplayText(
     'child-device-runtime-proof-required | rendered-portal-acknowledgement-ui-proof-required'
   ),
@@ -326,9 +324,7 @@ export const PortalDevTextToken = {
   TrackingParentActionExpectedPlaceLateBusSurface: decodeDisplayText(
     'tracking-expected-place-ui-readiness-expected-place-decision-late-bus'
   ),
-  TrackingParentActionExpectedPlaceLowAccuracyDecision: decodeDisplayText(
-    'expected-place-decision-low-accuracy'
-  ),
+  TrackingParentActionExpectedPlaceLowAccuracyDecision: decodeDisplayText('expected-place-decision-low-accuracy'),
   TrackingParentActionExpectedPlaceLowAccuracyEvidence: decodeDisplayText('expected-place-evidence-low-accuracy'),
   TrackingParentActionExpectedPlaceLowAccuracySurface: decodeDisplayText(
     'tracking-expected-place-ui-readiness-expected-place-decision-low-accuracy'
@@ -348,9 +344,7 @@ export const PortalDevTextToken = {
   TrackingParentActionFalseAlarmEvidence: decodeDisplayText('tracking-parent-action-evidence-3'),
   TrackingParentActionFalseAlarmRecorded: decodeDisplayText('False alarm recorded'),
   TrackingParentActionFalseAlarmRecordedStatus: decodeDisplayText('false-alarm-recorded'),
-  TrackingParentActionFalseAlarmSurface: decodeDisplayText(
-    'tracking-parent-action-surface-tracking-alert-false-alarm'
-  ),
+  TrackingParentActionFalseAlarmSurface: decodeDisplayText('tracking-parent-action-surface-tracking-alert-false-alarm'),
   TrackingParentActionHostedReadOnlyManualProof: decodeDisplayText('hosted-read-only-parent-action-proof'),
   TrackingParentActionManualRequired: decodeDisplayText('manual-required'),
   TrackingParentActionManualReview: decodeDisplayText('manual-review'),
@@ -394,13 +388,9 @@ export const PortalDevTextToken = {
   TrackingReportExportReadModelReady: decodeDisplayText('report-export-read-model-ready'),
   TrackingReportExportRedactedCustody: decodeDisplayText('parent-owned-redacted-report'),
   TrackingReportExportRedactedReport: decodeDisplayText('Redacted report packet'),
-  TrackingReportExportRedactedReportEvidence: decodeDisplayText(
-    'tracking-report-export-evidence-redacted-report'
-  ),
+  TrackingReportExportRedactedReportEvidence: decodeDisplayText('tracking-report-export-evidence-redacted-report'),
   TrackingReportExportRetentionAudit: decodeDisplayText('Retention audit export packet'),
-  TrackingReportExportRetentionAuditEvidence: decodeDisplayText(
-    'tracking-report-export-evidence-retention-audit'
-  ),
+  TrackingReportExportRetentionAuditEvidence: decodeDisplayText('tracking-report-export-evidence-retention-audit'),
   TrackingReportPolicyConsumerHostedBoundary: decodeDisplayText(
     'Hosted report/policy consumer rendering only; AI execution, product policy mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, production, and product readiness remain unclaimed.'
   ),

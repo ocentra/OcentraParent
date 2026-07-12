@@ -8,14 +8,7 @@ import { runPortalUiBoundaryCheck, runPortalUiBoundaryCheckForFiles } from './ch
 
 const repoRoot = process.cwd();
 const sourceRoots = ['apps/portal/src'];
-const ignoredPathParts = new Set([
-  '.git',
-  '.turbo',
-  'coverage',
-  'dist',
-  'node_modules',
-  'ocentra-ledger',
-]);
+const ignoredPathParts = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'ocentra-ledger']);
 const sourceExtension = /\.(?:ts|tsx)$/u;
 const findings = [];
 const typeGuardLiteralValues = new Set([

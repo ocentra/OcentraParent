@@ -1,7 +1,5 @@
 /* generated from crates/schema/src/eventing_contracts_ts.rs */
 
-/* generated from crates/schema/src/eventing_contracts_ts.rs */
-
 import { type Infer, NonEmptyStringSchema, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
 
 const EventingTaxonomyTextSchema = NonEmptyStringSchema.pipe(
@@ -33,9 +31,7 @@ export const EventingSchemaVersionSchema = EventingSchemaVersionNumberSchema.pip
   Schema.brand('EventingSchemaVersion')
 );
 
-export const EventingEventPrioritySchema = withParser(
-  Schema.Literal('low', 'normal', 'high', 'critical')
-);
+export const EventingEventPrioritySchema = withParser(Schema.Literal('low', 'normal', 'high', 'critical'));
 
 export const EventingTopologyStatusSchema = withParser(
   Schema.Literal('covered', 'no-publisher', 'no-subscriber', 'accepted-one-sided')
@@ -45,9 +41,7 @@ export const EventingDeliveryRouteKindSchema = withParser(
   Schema.Literal('local-in-process', 'local-service', 'external-transport', 'external-relay')
 );
 
-export const EventingRequestCompletionOutcomeSchema = withParser(
-  Schema.Literal('completed', 'duplicate', 'late')
-);
+export const EventingRequestCompletionOutcomeSchema = withParser(Schema.Literal('completed', 'duplicate', 'late'));
 
 export const EventingEventContractSchema = withParser(
   Schema.Struct({

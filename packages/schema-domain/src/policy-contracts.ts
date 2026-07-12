@@ -28,11 +28,7 @@ import {
   ParentEvidenceReferenceSchema,
 } from './family-references';
 import { ParentContractSchemaVersionSchema, ParentPolicyVersionSchema } from './family-reference-primitives';
-import {
-  literalRecordFromValues,
-  literalSchema,
-  parsedLiteralRecord,
-} from './policy-literal-contracts';
+import { literalRecordFromValues, literalSchema, parsedLiteralRecord } from './policy-literal-contracts';
 import {
   validateGeneratedPolicyPreview,
   validateGeneratedPolicySchedule,
@@ -55,22 +51,12 @@ export const PolicyPreviewIdSchema = brandedNonEmptyStringSchema('PolicyPreviewI
 export const PolicyActionLiteral = literalRecordFromValues(GeneratedPolicyActionValues);
 export const PolicyTargetTypeLiteral = literalRecordFromValues(GeneratedPolicyTargetTypeValues);
 export const PolicyScheduleDayLiteral = literalRecordFromValues(GeneratedPolicyScheduleDayValues);
-export const PolicyDecisionHandoffStateLiteral = literalRecordFromValues(
-  GeneratedPolicyDecisionHandoffStateValues
-);
+export const PolicyDecisionHandoffStateLiteral = literalRecordFromValues(GeneratedPolicyDecisionHandoffStateValues);
 export const PermissionRequestStateLiteral = literalRecordFromValues(GeneratedPermissionRequestStateValues);
-export const PolicyScheduleBoundaryStateLiteral = literalRecordFromValues(
-  GeneratedPolicyScheduleBoundaryStateValues
-);
-export const PolicyScheduleDstTransitionLiteral = literalRecordFromValues(
-  GeneratedPolicyScheduleDstTransitionValues
-);
-export const PolicyScheduleDstResolutionLiteral = literalRecordFromValues(
-  GeneratedPolicyScheduleDstResolutionValues
-);
-export const PolicyScheduleClockSourceLiteral = literalRecordFromValues(
-  GeneratedPolicyScheduleClockSourceValues
-);
+export const PolicyScheduleBoundaryStateLiteral = literalRecordFromValues(GeneratedPolicyScheduleBoundaryStateValues);
+export const PolicyScheduleDstTransitionLiteral = literalRecordFromValues(GeneratedPolicyScheduleDstTransitionValues);
+export const PolicyScheduleDstResolutionLiteral = literalRecordFromValues(GeneratedPolicyScheduleDstResolutionValues);
+export const PolicyScheduleClockSourceLiteral = literalRecordFromValues(GeneratedPolicyScheduleClockSourceValues);
 export const PolicyScheduleBudgetResetKindLiteral = literalRecordFromValues(
   GeneratedPolicyScheduleBudgetResetKindValues
 );
@@ -106,9 +92,7 @@ export const PolicyScheduleOfflineRecoverySchema = literalSchema(PolicyScheduleO
 export const PolicyScheduleOfflineRecoveryStateSchema = literalSchema(PolicyScheduleOfflineRecoveryStateLiteral);
 export const PolicyPreviewOriginSchema = literalSchema(PolicyPreviewOriginLiteral);
 export const PolicyPreviewConfirmationStateSchema = literalSchema(PolicyPreviewConfirmationStateLiteral);
-export const PolicyPreviewBudgetBoundaryStateSchema = literalSchema(
-  PolicyPreviewBudgetBoundaryStateLiteral
-);
+export const PolicyPreviewBudgetBoundaryStateSchema = literalSchema(PolicyPreviewBudgetBoundaryStateLiteral);
 
 export const PolicyTargetSchema = withParser(
   Schema.Struct({

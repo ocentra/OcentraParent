@@ -199,14 +199,15 @@ async fn publish_screen_runtime_chain_for_row(
     event: ScreenAiServiceRowReadyEvent,
     observed_at: ObservedAtText,
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
-    if screen_service_row_is_degraded(&event.row) {
-        return publish_screen_degraded_event_chain(event.row, observed_at.0.as_str()).await;
+    let ScreenAiServiceRowReadyEvent { row, action_ref } = event;
+    if screen_service_row_is_degraded(&row) {
+        return publish_screen_degraded_event_chain(row, observed_at).await;
     }
     publish_screen_service_row_event_chain(
-        event.row,
-        observed_at.0.as_str(),
+        row,
+        observed_at,
         ScreenAiServiceEventBridgeRefs {
-            action_ref: event.action_ref,
+            action_ref: ActionRefText(action_ref),
         },
     )
     .await

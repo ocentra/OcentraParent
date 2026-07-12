@@ -13,6 +13,7 @@ use ocentra_parent_agent_protocol::local_ai_runtime_provider_proof::{
 
 use crate::{
     local_ai_provider_scheduler::LocalAiProviderSchedulerRuntime,
+    local_ai_provider_scheduler_state::LocalAiPhysicalDeviceId,
     local_ai_runtime_provider_proof_read_model::local_ai_runtime_provider_proof_read_model,
     test_invariants::{require_ok, require_some},
 };
@@ -21,7 +22,7 @@ use crate::{
 fn local_ai_runtime_provider_proof_read_model_captures_all_requirements() {
     let scheduler = LocalAiProviderSchedulerRuntime::new();
     scheduler.record_running_job_for_device(
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
         &ready_runtime(),
         LocalAiProviderSchedulerJobClass::ParentAssistant,
     );
@@ -55,7 +56,7 @@ fn local_ai_runtime_provider_proof_read_model_captures_all_requirements() {
 fn local_ai_runtime_provider_proof_keeps_child_safety_priority_and_duplicate_blocking() {
     let scheduler = LocalAiProviderSchedulerRuntime::new();
     scheduler.record_running_job_for_device(
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
         &ready_runtime(),
         LocalAiProviderSchedulerJobClass::ParentAssistant,
     );
@@ -93,7 +94,7 @@ fn local_ai_runtime_provider_proof_keeps_child_safety_priority_and_duplicate_blo
 fn local_ai_runtime_provider_proof_preserves_degraded_and_unavailable_boundaries() {
     let scheduler = LocalAiProviderSchedulerRuntime::new();
     scheduler.record_running_job_for_device(
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
         &ready_runtime(),
         LocalAiProviderSchedulerJobClass::ParentAssistant,
     );
@@ -132,7 +133,7 @@ fn local_ai_runtime_provider_proof_preserves_degraded_and_unavailable_boundaries
 fn local_ai_runtime_provider_proof_serializes_for_protocol_parity() {
     let scheduler = LocalAiProviderSchedulerRuntime::new();
     scheduler.record_running_job_for_device(
-        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL,
+        LocalAiPhysicalDeviceId(constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()),
         &ready_runtime(),
         LocalAiProviderSchedulerJobClass::ParentAssistant,
     );

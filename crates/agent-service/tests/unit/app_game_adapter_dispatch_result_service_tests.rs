@@ -24,7 +24,7 @@ use crate::test_text::TestText;
 use super::app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report_with_paths;
 use super::app_game_adapter_dispatch_result_payload::{
     build_activity_app_game_adapter_dispatch_result_report,
-    build_activity_app_game_adapter_dispatch_result_report_with_store_path,
+    build_activity_app_game_adapter_dispatch_result_report_with_store_path, ActivityStorePath,
 };
 
 const APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID: &TestStr =
@@ -75,7 +75,7 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
             .await;
     let event = build_activity_app_game_adapter_dispatch_result_report_with_store_path(
         dispatch_result_command(),
-        paths.store_path.clone(),
+        ActivityStorePath(paths.store_path.clone()),
     )
     .await;
     cleanup_paths(&paths);
@@ -143,7 +143,7 @@ async fn app_game_adapter_dispatch_execute_command_runs_scoped_enforcement_and_r
     .await;
     let readback_event = build_activity_app_game_adapter_dispatch_result_report_with_store_path(
         dispatch_result_command(),
-        paths.store_path.clone(),
+        ActivityStorePath(paths.store_path.clone()),
     )
     .await;
     cleanup_paths(&paths);
@@ -193,7 +193,9 @@ async fn app_game_adapter_dispatch_execute_rejects_non_windows_targets() {
             .payload
             .get(constants::field::REASON)
             .and_then(string_log_value),
-        Some(constants::enforcement::REJECTION_UNSUPPORTED_CAPABILITY)
+        Some(TestText::from_display(
+            constants::enforcement::REJECTION_UNSUPPORTED_CAPABILITY,
+        ))
     );
 }
 
@@ -360,45 +362,51 @@ fn string_log_value(value: &LogFieldValue) -> Option<TestText> {
     }
 }
 
-fn temp_paths(suffix: TestText) -> EnforcementJournalPaths {
-    let suffix = suffix;
+fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
+    let suffix = suffix.to_string();
     EnforcementJournalPaths {
         journal_path: temp_path(
-            suffix.as_ref(),
+            &suffix,
             constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX,
             constants::journal::FILE_EXTENSION,
         ),
         key_path: temp_path(
-            suffix.as_ref(),
+            &suffix,
             constants::activity_store::TEST_CAPTURE_KEY_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
         store_path: temp_path(
-            suffix.as_ref(),
+            &suffix,
             constants::activity_store::TEST_STORE_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
-        timer_state_path: temp_path(
-            suffix.as_ref(),
-            constants::enforcement::TIMER_STATE_ID_PREFIX,
-            constants::activity_store::FILE_EXTENSION,
+        timer_state_path: crate::enforcement_timer_state_path::EnforcementTimerStatePath(
+            temp_path(
+                &suffix,
+                constants::enforcement::TIMER_STATE_ID_PREFIX,
+                constants::activity_store::FILE_EXTENSION,
+            ),
         ),
     }
 }
 
-fn temp_path(suffix: TestText, role: TestText, extension: TestText) -> TestPathBuf {
-    let suffix = suffix;
-    let role = role;
-    let extension = extension;
+fn temp_path(
+    suffix: impl std::fmt::Display,
+    role: impl std::fmt::Display,
+    extension: impl std::fmt::Display,
+) -> TestPathBuf {
+    let suffix = suffix.to_string();
+    let role = role.to_string();
+    let extension = extension.to_string();
     let mut name = TestString::from(constants::journal::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix.as_ref());
+    name.push_str(&suffix);
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(role.as_ref());
+    name.push_str(&role);
     let mut path = std::env::temp_dir();
     path.push(name);
-    path.set_extension(extension.as_ref());
+    path.set_extension(extension);
     path
 }
 
@@ -406,7 +414,7 @@ fn cleanup_paths(paths: &EnforcementJournalPaths) {
     let _ = remove_file(&paths.journal_path);
     let _ = remove_file(&paths.key_path);
     let _ = remove_file(&paths.store_path);
-    let _ = remove_file(&paths.timer_state_path);
+    let _ = remove_file(&paths.timer_state_path.0);
     let mut wal_path = paths.store_path.clone();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(wal_path);

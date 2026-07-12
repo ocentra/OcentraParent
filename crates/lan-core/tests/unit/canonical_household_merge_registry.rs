@@ -85,9 +85,7 @@ fn merged_child_profile_input() -> LanAddDeviceReadModelInput {
 fn assert_merged_child_profile_evidence(
     device: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice,
 ) {
-    assert!(dedupe_notes(device)
-        .iter()
-        .any(|note| note.contains("dedupe-decision=automatic")));
+    assert!(has_dedupe_note(device, ["dedupe-decision=automatic"]));
     assert_eq!(
         device.classification,
         LanCanonicalHouseholdDeviceClassification::ChildAgent

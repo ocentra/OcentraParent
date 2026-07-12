@@ -32,7 +32,8 @@ export function normalizeManageTargetSelection(value: unknown): ManageTargetSele
   if (value.scope !== 'global' && value.scope !== 'perDevice') return null;
   return {
     scope: value.scope,
-    device: typeof value.device === 'string' ? value.device : typeof value.deviceLabel === 'string' ? value.deviceLabel : '',
+    device:
+      typeof value.device === 'string' ? value.device : typeof value.deviceLabel === 'string' ? value.deviceLabel : '',
     deviceId: typeof value.deviceId === 'string' ? value.deviceId : '',
     browser: typeof value.browser === 'string' ? value.browser : 'Chrome',
   };

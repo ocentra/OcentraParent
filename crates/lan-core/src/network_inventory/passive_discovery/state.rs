@@ -1,15 +1,17 @@
 use std::collections::VecDeque;
 
 use super::{
-    labels, LanPassiveDiscoveryDeviceId, LanPassiveDiscoveryEventHistory,
-    LanPassiveDiscoveryEventKind, LanPassiveDiscoveryEventRow,
-    LanPassiveDiscoveryListenerLifecycleState, LanPassiveDiscoveryListenerState,
-    LanPassiveDiscoveryPacket, LanPassiveDiscoveryPacketIngestOutcome,
-    LanPassiveDiscoveryRecordOutcome, LanPassiveDiscoveryScanSessionId, LanPassiveDiscoverySource,
-    LanPassiveDiscoveryTriggerReason,
+    LanPassiveDiscoveryDeviceId, LanPassiveDiscoveryEventHistory, LanPassiveDiscoveryEventKind,
+    LanPassiveDiscoveryEventRow, LanPassiveDiscoveryListenerLifecycleState,
+    LanPassiveDiscoveryListenerState, LanPassiveDiscoveryPacket,
+    LanPassiveDiscoveryPacketIngestOutcome, LanPassiveDiscoveryRecordOutcome,
+    LanPassiveDiscoveryScanSessionId, LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
 };
 
-struct PassiveDiscoveryEventInput<'a> {
+mod ingest;
+mod record;
+
+pub(super) struct PassiveDiscoveryEventInput<'a> {
     event_kind: LanPassiveDiscoveryEventKind,
     source: Option<LanPassiveDiscoverySource>,
     trigger_reason: LanPassiveDiscoveryTriggerReason,
@@ -50,24 +52,7 @@ impl LanPassiveDiscoveryListenerState {
     }
 
     pub fn ingest_udp_packet(&mut self, payload: &[u8]) -> LanPassiveDiscoveryPacketIngestOutcome {
-        if !self.is_running() {
-            return LanPassiveDiscoveryPacketIngestOutcome::Stopped;
-        }
-
-        match super::packet::parse_passive_discovery_packet(payload) {
-            Ok(packet) => match self.record_passive_packet(packet) {
-                LanPassiveDiscoveryRecordOutcome::Recorded => {
-                    LanPassiveDiscoveryPacketIngestOutcome::Recorded
-                }
-                LanPassiveDiscoveryRecordOutcome::Deduplicated => {
-                    LanPassiveDiscoveryPacketIngestOutcome::Deduplicated
-                }
-                LanPassiveDiscoveryRecordOutcome::Stopped => {
-                    LanPassiveDiscoveryPacketIngestOutcome::Stopped
-                }
-            },
-            Err(error) => LanPassiveDiscoveryPacketIngestOutcome::Rejected(error),
-        }
+        ingest::ingest_udp_packet(self, payload)
     }
 
     pub fn record_passive_packet(
@@ -149,54 +134,6 @@ impl LanPassiveDiscoveryListenerState {
         &mut self,
         input: PassiveDiscoveryEventInput<'_>,
     ) -> LanPassiveDiscoveryRecordOutcome {
-        let PassiveDiscoveryEventInput {
-            event_kind,
-            source,
-            trigger_reason,
-            observed_at,
-            device_id,
-            scan_session_id,
-            summary,
-        } = input;
-        if !self.is_running() {
-            return LanPassiveDiscoveryRecordOutcome::Stopped;
-        }
-
-        let event_id = labels::passive_event_id(
-            &event_kind,
-            source.as_ref(),
-            &trigger_reason,
-            observed_at,
-            device_id,
-            scan_session_id,
-        );
-
-        if self
-            .rows
-            .iter()
-            .any(|row| row.event_id.as_str().eq_ignore_ascii_case(&event_id))
-        {
-            return LanPassiveDiscoveryRecordOutcome::Deduplicated;
-        }
-
-        if self.rows.len() >= self.max_rows {
-            let _ = self.rows.pop_front();
-            self.dropped_row_count = self.dropped_row_count.saturating_add(1);
-        }
-
-        let previous_event_id = self.rows.back().map(|row| row.event_id.clone());
-        self.rows.push_back(LanPassiveDiscoveryEventRow {
-            schema_version: Self::SCHEMA_VERSION,
-            event_id: event_id.into(),
-            event_kind,
-            observed_at: observed_at.to_string(),
-            previous_event_id,
-            source,
-            trigger_reason,
-            device_id: device_id.map(LanPassiveDiscoveryDeviceId::from),
-            scan_session_id: scan_session_id.map(LanPassiveDiscoveryScanSessionId::from),
-            summary,
-        });
-        LanPassiveDiscoveryRecordOutcome::Recorded
+        record::record_event(self, input)
     }
 }

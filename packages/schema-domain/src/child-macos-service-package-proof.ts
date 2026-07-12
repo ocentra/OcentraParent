@@ -55,9 +55,7 @@ export const ChildMacosServiceRuntimeStateSchema = withParser(
 export const ChildMacosServiceRestartStateSchema = withParser(
   Schema.Literal('keepalive-declared-manual-recovery-proof', 'restart-proved', 'failed')
 );
-export const ChildMacosServiceSigningStateSchema = withParser(
-  Schema.Literal('unsigned', 'signed', 'manual-required')
-);
+export const ChildMacosServiceSigningStateSchema = withParser(Schema.Literal('unsigned', 'signed', 'manual-required'));
 export const ChildMacosServiceNotarizationStateSchema = withParser(
   Schema.Literal('manual-required', 'notarized', 'failed')
 );
@@ -317,16 +315,24 @@ const SurfaceExpectations = {
 >;
 
 const ExpectedClaimBoundaries = {
-  packageArtifact: 'pkgbuild script and staged payload prove only the child macOS artifact layout and install script boundary',
+  packageArtifact:
+    'pkgbuild script and staged payload prove only the child macOS artifact layout and install script boundary',
   launchdBoundary: 'launchd plist plus bootstrap/enable commands prove only the macOS service-manager boundary',
-  runtimeBoundary: 'launchd source proof does not prove installed service health, launch success, or crash-free runtime behavior',
+  runtimeBoundary:
+    'launchd source proof does not prove installed service health, launch success, or crash-free runtime behavior',
   restartBoundary: 'KeepAlive declaration is not runtime restart or recovery proof without macOS service artifacts',
-  signingBoundary: 'the child macOS package is unsigned in this proof surface because no codesign or productsign artifact is attached',
-  notarizationBoundary: 'notarization remains manual-required because no notarytool or stapled ticket artifact is attached',
-  entitlementBoundary: 'entitlement or hardened-runtime claims remain manual-required without signed entitlement artifacts',
-  uninstallBoundary: 'disable and uninstall remain manual-required because no uninstall script or launchctl disable artifact is attached',
-  removalBoundary: 'removal and cleanup remain manual-required because no package removal, plist cleanup, or post-remove heartbeat artifact is attached',
-  parentParityBoundary: 'child macOS launchd proof does not imply parent-client parity or hidden background-service authority',
+  signingBoundary:
+    'the child macOS package is unsigned in this proof surface because no codesign or productsign artifact is attached',
+  notarizationBoundary:
+    'notarization remains manual-required because no notarytool or stapled ticket artifact is attached',
+  entitlementBoundary:
+    'entitlement or hardened-runtime claims remain manual-required without signed entitlement artifacts',
+  uninstallBoundary:
+    'disable and uninstall remain manual-required because no uninstall script or launchctl disable artifact is attached',
+  removalBoundary:
+    'removal and cleanup remain manual-required because no package removal, plist cleanup, or post-remove heartbeat artifact is attached',
+  parentParityBoundary:
+    'child macOS launchd proof does not imply parent-client parity or hidden background-service authority',
 } as const satisfies Record<keyof ChildMacosServiceClaimBoundaries, string>;
 
 function childMacosServicePackageProofReadModelIsHonest(readModel: ChildMacosServiceReadModelCandidate): boolean {
@@ -386,11 +392,11 @@ function surfaceProofIsHonest(
   const expected = SurfaceExpectations[surface];
   return Boolean(
     proof &&
-      proof.surface === surface &&
-      proof.parentCapability === expected.parentCapability &&
-      proof.parentCapabilityStatus === expected.parentCapabilityStatus &&
-      proof.proofState === expected.proofState &&
-      proof.runtimeOwner === expected.runtimeOwner
+    proof.surface === surface &&
+    proof.parentCapability === expected.parentCapability &&
+    proof.parentCapabilityStatus === expected.parentCapabilityStatus &&
+    proof.proofState === expected.proofState &&
+    proof.runtimeOwner === expected.runtimeOwner
   );
 }
 

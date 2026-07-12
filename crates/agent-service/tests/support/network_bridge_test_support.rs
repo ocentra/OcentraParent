@@ -30,7 +30,7 @@ impl NetworkBridgeTestError {
 
 impl std::fmt::Display for NetworkBridgeTestError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.context)
+        f.write_str(self.context.as_str())
     }
 }
 
@@ -92,7 +92,10 @@ pub struct NetworkRuntimeServiceStreamReportForTest {
 }
 
 pub async fn handle_local_command_text_for_test(body: TestText) -> AgentEventEnvelope {
-    crate::agent_service_lib::websocket::dispatch_local_command_text(body.0.as_str()).await
+    crate::agent_service_lib::websocket::dispatch_local_command_text(
+        crate::agent_service_lib::websocket::WebsocketCommandText(body.0),
+    )
+    .await
 }
 
 pub async fn lock_activity_report_env_for_test() -> tokio::sync::MutexGuard<'static, ()> {

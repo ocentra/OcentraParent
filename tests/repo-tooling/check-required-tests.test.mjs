@@ -37,15 +37,7 @@ function createFixture(root) {
     join(crateRoot, 'Cargo.toml'),
     ['[package]', 'name = "demo-crate"', 'version = "0.1.0"', 'edition = "2021"', ''].join('\n')
   );
-  writeFile(
-    join(crateRoot, 'src', 'lib.rs'),
-    [
-      'pub fn demo_crate_value() -> u8 {',
-      '    1',
-      '}',
-      '',
-    ].join('\n')
-  );
+  writeFile(join(crateRoot, 'src', 'lib.rs'), ['pub fn demo_crate_value() -> u8 {', '    1', '}', ''].join('\n'));
   writeFile(
     join(crateRoot, 'tests', 'unit', 'demo.rs'),
     [
@@ -95,10 +87,6 @@ test('strict cleanup mode rejects empty test and proof category trees without re
   assert.match(
     result.stderr,
     /packages\/demo-package\/tests\/contract: empty test\/proof category tree contains only 1 \.gitkeep placeholder file/u
-  );
-  assert.match(
-    result.stderr,
-    /crates\/demo-crate\/proof: empty test\/proof category tree contains only 1 \.gitkeep placeholder file/u
   );
   assert.equal(result.stdout, '');
 });

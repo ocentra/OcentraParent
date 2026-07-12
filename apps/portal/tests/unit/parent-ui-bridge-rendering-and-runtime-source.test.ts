@@ -130,12 +130,14 @@ it('product bridge guard: product route rendering keeps the bridge contract thin
   expect(bridgeContractSource).toContain('ParentAppGameActionRowSnapshot');
   expect(bridgeContractSource).toContain('ParentAppGameAdapterDispatchPanelSnapshot');
   expect(bridgeContractSource).toContain('ParentAppGameTimerParentSurfacePanelSnapshot');
-  expect(bridgeContractSource).toContain('appGameAdapterDispatchPanel?: ParentAppGameAdapterDispatchPanelSnapshot | null;');
-  expect(bridgeContractSource).toContain('appGameTimerParentSurfacePanel?: ParentAppGameTimerParentSurfacePanelSnapshot | null;');
-  expect(bridgeContractSource).not.toContain('policyPreviewEvent?: ParentRouteEventSnapshot | null;');
-  expect(bridgeContractSource).not.toContain(
-    'policyPreviewReadModel?: ParentPolicyPreviewReadModelSnapshot | null;'
+  expect(bridgeContractSource).toContain(
+    'appGameAdapterDispatchPanel?: ParentAppGameAdapterDispatchPanelSnapshot | null;'
   );
+  expect(bridgeContractSource).toContain(
+    'appGameTimerParentSurfacePanel?: ParentAppGameTimerParentSurfacePanelSnapshot | null;'
+  );
+  expect(bridgeContractSource).not.toContain('policyPreviewEvent?: ParentRouteEventSnapshot | null;');
+  expect(bridgeContractSource).not.toContain('policyPreviewReadModel?: ParentPolicyPreviewReadModelSnapshot | null;');
   expect(bridgeContractSource).not.toContain('appGameAdapterDispatchPreflightReadModel?: ParentUnknownRecord | null;');
   expect(bridgeContractSource).not.toContain('appGameAdapterDispatchResultReadModel?: ParentUnknownRecord | null;');
   expect(bridgeContractSource).not.toContain('appGameAdapterDispatchExecutedResult?: ParentUnknownRecord | null;');

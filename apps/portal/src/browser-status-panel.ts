@@ -72,5 +72,5 @@ function eventReason(event: ParentRouteEventSnapshot | null): ParentPortalDetail
   if (event === null) {
     return notReportedDetail();
   }
-  return portalDetailFromValue(event.payload?.[ParentAgentProtocolField.Reason]);
+  return detailFromValue(event.payload?.[ParentAgentProtocolField.Reason]);
 }

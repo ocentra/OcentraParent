@@ -7,6 +7,9 @@ use ocentra_parent_agent_protocol::screen_settings::{
 };
 use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentCommandName};
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ScreenSettingsRequestId(pub(crate) String);
+
 pub(crate) fn parse_screen_settings_request(
     command: &AgentCommandEnvelope,
 ) -> Result<ScreenSettingsUpdateRequest, ScreenSettingsRejectionReason> {
@@ -27,7 +30,7 @@ pub(crate) fn parse_screen_settings_request(
     }
 }
 
-pub(crate) fn request_id_from_command(command: &AgentCommandEnvelope) -> String {
+pub(crate) fn request_id_from_command(command: &AgentCommandEnvelope) -> ScreenSettingsRequestId {
     match command
         .payload
         .get(constants::field::SCREEN_SETTINGS_REQUEST)
@@ -39,8 +42,9 @@ pub(crate) fn request_id_from_command(command: &AgentCommandEnvelope) -> String 
                     .get(constants::field::SCREEN_SETTINGS_REQUEST_ID)
                     .and_then(|request_id| request_id.as_str().map(ToString::to_string))
             })
-            .unwrap_or_else(|| command.message_id.clone()),
-        _ => command.message_id.clone(),
+            .map(ScreenSettingsRequestId)
+            .unwrap_or_else(|| ScreenSettingsRequestId(command.message_id.clone())),
+        _ => ScreenSettingsRequestId(command.message_id.clone()),
     }
 }
 

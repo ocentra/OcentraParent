@@ -12,7 +12,13 @@ import {
 
 export const TestLogSchemaVersion = 1;
 
-const TestLogScopeValues = ['parent-agent', 'parent-portal', 'parent-cloudflare', 'parent-codex', 'parent-test'] as const;
+const TestLogScopeValues = [
+  'parent-agent',
+  'parent-portal',
+  'parent-cloudflare',
+  'parent-codex',
+  'parent-test',
+] as const;
 const RunTypeValues = ['single', 'full', 'single-pool', 'single-threads'] as const;
 const TestSuiteTypeValues = ['unit', 'integration', 'e2e', 'contract', 'websocket'] as const;
 const TestLogOriginValues = ['test', 'worker', 'portal', 'agent-service', 'codex'] as const;

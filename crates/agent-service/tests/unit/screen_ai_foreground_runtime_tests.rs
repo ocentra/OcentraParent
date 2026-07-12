@@ -3,7 +3,6 @@ use std::string::String as TestString;
 use std::{
     fs,
     io::Error as IoError,
-    path::TestPathBuf,
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -54,7 +53,7 @@ fn screen_foreground_key_prefers_real_window_id_and_rejects_degraded_state() {
     let mut expected = TestString::from(SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX);
     expected.push_str(constants::activity_store::TEST_WINDOW_ID);
 
-    assert_eq!(foreground_key(&active), Some(expected));
+    assert_eq!(foreground_key(&active).map(|key| key.0), Some(expected));
     assert_eq!(
         foreground_key(&ForegroundWindowObservation::degraded(
             ActivityCaptureCapabilityStatus::Unavailable
@@ -122,7 +121,7 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
         queue_entry
             .get(constants::field::SCREEN_QUEUE_JOB_ID)
             .and_then(serde_json::Value::as_str),
-        Some(queue_job_id.as_str())
+        Some(queue_job_id.to_string().as_str())
     );
     assert_eq!(
         queue_entry
@@ -171,11 +170,14 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
     Ok(())
 }
 
-fn foreground_clock(epoch_seconds: u64, timestamp: TestText) -> ScreenAiForegroundTickClock {
-    let timestamp = timestamp;
+fn foreground_clock(
+    epoch_seconds: u64,
+    timestamp: impl std::fmt::Display,
+) -> ScreenAiForegroundTickClock {
+    let timestamp = timestamp.to_string();
     ScreenAiForegroundTickClock {
         epoch_seconds,
-        timestamp: timestamp.as_str().to_string(),
+        timestamp,
     }
 }
 
@@ -199,13 +201,13 @@ fn captured_test_image() -> CapturedScreenImage {
     }
 }
 
-fn test_path(suffix: TestText) -> TestPathBuf {
-    let suffix = suffix;
+fn test_path(suffix: impl std::fmt::Display) -> TestPathBuf {
+    let suffix = suffix.to_string();
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
     path.push(std::process::id().to_string());
     path.push(constants::activity_capture::SCREEN_TRIGGER_NATIVE_APP_FOREGROUND_START);
     path.push(TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
-    path.push(suffix.as_str());
+    path.push(suffix);
     path
 }

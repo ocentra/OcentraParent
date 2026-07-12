@@ -1,0 +1,115 @@
+function notificationProviderStatusBoundaryEntryIsHonest(
+  entry: V08NotificationProviderStatusBoundaryEntryCandidate
+): boolean {
+  return (
+    !notificationProviderStatusBoundaryHasClaimUpgrade(entry) &&
+    notificationProviderStatusBoundaryHasRequiredRefs(entry) &&
+    notificationProviderStatusBoundaryStatusIsHonest(entry)
+  );
+}
+
+function notificationProviderStatusBoundaryHasClaimUpgrade(
+  entry: V08NotificationProviderStatusBoundaryEntryCandidate
+): boolean {
+  return [
+    entry.providerDeliveryImplemented,
+    entry.providerDeliveryObserved,
+    entry.deliveredNotificationClaimed,
+    entry.sensitiveProviderPayloadClaimed,
+    entry.providerStoresChildEvidenceClaimed,
+  ].some(Boolean);
+}
+
+function notificationProviderStatusBoundaryHasRequiredRefs(
+  entry: V08NotificationProviderStatusBoundaryEntryCandidate
+): boolean {
+  return (
+    entry.auditRefs.length > 0 &&
+    entry.preferenceRefs.length > 0 &&
+    entry.readinessRefs.length > 0 &&
+    entry.minimalPayloadBoundary.trim().length > 0
+  );
+}
+
+function notificationProviderStatusBoundaryStatusIsHonest(
+  entry: V08NotificationProviderStatusBoundaryEntryCandidate
+): boolean {
+  if (entry.providerStatus === 'delivered') {
+    return notificationProviderStatusBoundaryDeliveredIsHonest(entry);
+  }
+
+  if (entry.providerStatus === 'manual-required') {
+    return entry.statusProofState === 'manual-action-required' && entry.manualProofRequirements.length > 0;
+  }
+
+  return entry.providerReceiptRefs.length === 0 && entry.deliveryClaimState !== 'receipt-required';
+}
+
+function notificationProviderStatusBoundaryDeliveredIsHonest(
+  entry: V08NotificationProviderStatusBoundaryEntryCandidate
+): boolean {
+  return (
+    entry.statusProofState === 'delivery-receipt-required' &&
+    entry.deliveryClaimState === 'receipt-required' &&
+    entry.providerReceiptRefs.length > 0 &&
+    entry.manualProofRequirements.length > 0
+  );
+}
+
+function notificationProviderStatusBoundaryCoversStatuses(
+  entries: readonly V08NotificationProviderStatusBoundaryEntry[]
+): boolean {
+  const statuses = new Set(entries.map((entry) => entry.providerStatus));
+  return ['queued', 'delivered', 'failed', 'unavailable', 'manual-required'].every((status) =>
+    statuses.has(status as V08NotificationProviderStatus)
+  );
+}
+
+function notificationProviderStatusBoundaryCoversReadiness(
+  entries: readonly V08NotificationProviderStatusBoundaryEntry[]
+): boolean {
+  const quietHours = new Set(entries.map((entry) => entry.quietHoursReadiness));
+  const escalation = new Set(entries.map((entry) => entry.escalationReadiness));
+  return (
+    ['ready', 'defer-noncritical', 'manual-required', 'unavailable'].every((state) =>
+      quietHours.has(state as V08NotificationQuietHoursReadiness)
+    ) &&
+    ['ready', 'waiting-window', 'manual-required', 'unavailable'].every((state) =>
+      escalation.has(state as V08NotificationEscalationReadiness)
+    )
+  );
+}
+
+export type V08NotificationProviderStatusBoundaryReadModelId =
+  typeof V08NotificationProviderStatusBoundaryReadModelIdSchema.Type;
+export type V08NotificationProviderStatusBoundaryEntryId =
+  typeof V08NotificationProviderStatusBoundaryEntryIdSchema.Type;
+export type V08NotificationProviderStatusBoundaryReference =
+  typeof V08NotificationProviderStatusBoundaryReferenceSchema.Type;
+export type V08NotificationProviderStatusBoundaryRequirement =
+  typeof V08NotificationProviderStatusBoundaryRequirementSchema.Type;
+export type V08NotificationProviderStatusBoundaryText = typeof V08NotificationProviderStatusBoundaryTextSchema.Type;
+export type V08NotificationProviderStatus = Infer<typeof V08NotificationProviderStatusSchema>;
+export type V08NotificationProviderStatusProofState = Infer<typeof V08NotificationProviderStatusProofStateSchema>;
+export type V08NotificationQuietHoursReadiness = Infer<typeof V08NotificationQuietHoursReadinessSchema>;
+export type V08NotificationEscalationReadiness = Infer<typeof V08NotificationEscalationReadinessSchema>;
+export type V08NotificationProviderDeliveryClaim = Infer<typeof V08NotificationProviderDeliveryClaimSchema>;
+export type V08NotificationProviderStatusBoundaryEntry = Infer<typeof V08NotificationProviderStatusBoundaryEntrySchema>;
+export type V08NotificationProviderStatusBoundaryReadModel = Infer<
+  typeof V08NotificationProviderStatusBoundaryReadModelSchema
+>;
+
+type V08NotificationProviderStatusBoundaryEntryInput = {
+  statusEntryId: string;
+  providerStatus: V08NotificationProviderStatus;
+  statusProofState: V08NotificationProviderStatusProofState;
+  quietHoursReadiness: V08NotificationQuietHoursReadiness;
+  escalationReadiness: V08NotificationEscalationReadiness;
+  deliveryClaimState: V08NotificationProviderDeliveryClaim;
+  notificationStatusRef: string;
+  providerAttemptRef: string;
+  readinessRefs: readonly string[];
+  providerReceiptRefs: readonly string[];
+  manualProofRequirements: readonly string[];
+  minimalPayloadBoundary: string;
+};

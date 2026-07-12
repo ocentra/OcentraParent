@@ -122,6 +122,22 @@ fn different_manually_assigned_child_ids_do_not_auto_merge_even_with_same_mac() 
 
 #[test]
 fn different_parent_assigned_child_ids_do_not_auto_merge_even_when_mdns_instance_matches() {
+    let mut canonical_alpha = String::from(constants::lan_pairing::CANONICAL_DEVICE_ID_PREFIX);
+    canonical_alpha.push_str(
+        &"lan-device-mdns-alpha"
+            .chars()
+            .filter(|character| character.is_ascii_alphanumeric())
+            .flat_map(char::to_lowercase)
+            .collect::<String>(),
+    );
+    let mut canonical_bravo = String::from(constants::lan_pairing::CANONICAL_DEVICE_ID_PREFIX);
+    canonical_bravo.push_str(
+        &"lan-device-mdns-bravo"
+            .chars()
+            .filter(|character| character.is_ascii_alphanumeric())
+            .flat_map(char::to_lowercase)
+            .collect::<String>(),
+    );
     let mut alpha = discovery_device(
         "lan-device-mdns-alpha",
         None::<&str>,
@@ -151,12 +167,12 @@ fn different_parent_assigned_child_ids_do_not_auto_merge_even_when_mdns_instance
         household_device_decisions: vec![
             household_assignment_decision(
                 "household-action-assign-alpha",
-                canonical_device_id_from_device_id("lan-device-mdns-alpha"),
+                canonical_alpha,
                 "child-profile-alpha",
             ),
             household_assignment_decision(
                 "household-action-assign-bravo",
-                canonical_device_id_from_device_id("lan-device-mdns-bravo"),
+                canonical_bravo,
                 "child-profile-bravo",
             ),
         ],
@@ -758,26 +774,33 @@ fn assert_model_has_dedupe_note(
         .map(|fragment| fragment.to_string())
         .collect::<Vec<_>>();
     assert!(
-        model.canonical_household_devices.iter().any(|device| {
-            dedupe_notes(device)
-                .iter()
-                .any(|note| fragments.iter().all(|fragment| note.contains(fragment)))
-        }),
+        model
+            .canonical_household_devices
+            .iter()
+            .any(|device| has_dedupe_note(device, &fragments,)),
         "expected a dedupe decision note containing {:?}",
         fragments
     );
 }
 
-fn dedupe_notes(
+fn has_dedupe_note(
     device: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice,
-) -> Vec<String> {
+    fragments: impl IntoIterator<Item = impl std::fmt::Display>,
+) -> bool {
+    let fragments = fragments
+        .into_iter()
+        .map(|fragment| fragment.to_string())
+        .collect::<Vec<_>>();
     device
         .network_identity
         .evidence_records
         .iter()
-        .filter_map(|record| record.note.clone())
-        .filter(|note| note.contains("dedupe-decision="))
-        .collect()
+        .any(|record| {
+            record.note.as_ref().is_some_and(|note| {
+                note.contains("dedupe-decision=")
+                    && fragments.iter().all(|fragment| note.contains(fragment))
+            })
+        })
 }
 
 fn lan_input(
@@ -883,17 +906,4 @@ fn household_assignment_decision(
         decided_at: "2026-06-26T10:00:10Z".to_string(),
         revoked_at: None,
     }
-}
-
-fn canonical_device_id_from_device_id(device_id: impl std::fmt::Display) -> String {
-    let device_id = device_id.to_string();
-    let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_ID_PREFIX);
-    id.push_str(
-        &device_id
-            .chars()
-            .filter(|character| character.is_ascii_alphanumeric())
-            .flat_map(char::to_lowercase)
-            .collect::<String>(),
-    );
-    id
 }

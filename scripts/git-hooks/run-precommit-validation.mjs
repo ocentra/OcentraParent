@@ -6,6 +6,21 @@ import { repoRoot, resolveScopedFiles } from '../check-architecture-scope.mjs';
 
 const scriptName = 'node scripts/git-hooks/run-precommit-validation.mjs';
 const usageLines = ['--full', '--all', '--base <sha> --head <sha>'];
+const validationRoots = [
+  'apps',
+  'packages',
+  'crates',
+  'scripts',
+  'tests',
+  'docs',
+  '.github',
+  'vendor',
+  'AGENTS.md',
+  '.ocentra-ai',
+  '.prettierignore',
+  'package.json',
+  'eslint.config.js',
+];
 const prettierExtensions = new Set([
   '.cjs',
   '.css',
@@ -15,7 +30,6 @@ const prettierExtensions = new Set([
   '.json',
   '.jsx',
   '.md',
-  '.mdc',
   '.mjs',
   '.mts',
   '.scss',
@@ -25,14 +39,7 @@ const prettierExtensions = new Set([
   '.yml',
 ]);
 const maxPrettierChunkChars = process.platform === 'win32' ? 4000 : 16000;
-
-const preCommitValidations = [
-  ['npm', ['run', 'format:check']],
-  ['npm', ['run', 'lint:schema-boundaries']],
-  ['npm', ['run', 'test:tooling']],
-  ['npm', ['run', 'format:rust']],
-  ['cargo', ['check', '--workspace']],
-];
+const maxScopedFileChunkChars = process.platform === 'win32' ? 4000 : 14000;
 
 const fullValidations = [
   ['npm', ['run', 'format:check']],
@@ -88,12 +95,18 @@ function quoteWindowsCommandPart(value) {
 }
 
 function runCommand(command, args) {
+  const env =
+    process.platform === 'win32' && command === 'cargo'
+      ? { ...process.env, CARGO_BUILD_JOBS: process.env.CARGO_BUILD_JOBS ?? '1' }
+      : process.env;
+
   if (process.platform === 'win32' && (command === 'npm' || command === 'npx')) {
     const commandLine = [executableFor(command), ...args].map(quoteWindowsCommandPart).join(' ');
     return spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', commandLine], {
       cwd: repoRoot,
       stdio: 'inherit',
       shell: false,
+      env,
     });
   }
 
@@ -101,7 +114,31 @@ function runCommand(command, args) {
     cwd: repoRoot,
     stdio: 'inherit',
     shell: false,
+    env,
   });
+}
+
+function runGitCommand(args, failureLabel) {
+  const result = spawnSync('git', args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    shell: false,
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if ((result.status ?? 1) !== 0) {
+    throw new Error(`${failureLabel}: ${result.stderr?.trim() || 'git command failed'}`);
+  }
+
+  return result.stdout.trim();
+}
+
+function gitOutputLines(args, failureLabel) {
+  const output = runGitCommand(args, failureLabel);
+  return output === '' ? [] : output.split(/\r?\n/u).filter(Boolean);
 }
 
 function extensionOf(filePath) {
@@ -158,24 +195,12 @@ function resolveValidationScope(scopeArgs) {
   const scope = resolveScopedFiles(scopeArgs, {
     scriptName,
     usageLines,
-    roots: [
-      'apps',
-      'packages',
-      'crates',
-      'scripts',
-      'docs',
-      '.github',
-      'vendor',
-      'AGENTS.md',
-      '.ocentra-ai',
-      'package.json',
-      'eslint.config.js',
-    ],
+    roots: validationRoots,
     acceptPath: () => true,
   });
 
   if (scope.mode === 'skip') {
-    return { files: [], workspaces: [], crates: [] };
+    return { ...scope, files: [], workspaces: [], crates: [] };
   }
 
   const workspaces = new Map();
@@ -218,16 +243,40 @@ function resolveValidationScope(scopeArgs) {
   }
 
   return {
+    ...scope,
     files: scope.files,
     workspaces: [...workspaces.entries()],
     crates: [...crates.entries()],
   };
 }
 
-function buildScopedValidations(scopeArgs) {
+function collectWorkingTreeFiles() {
+  const tracked = gitOutputLines(
+    ['diff', '--name-only', '--diff-filter=ACMR', 'HEAD', '--', ...validationRoots],
+    'failed to list working-tree files'
+  );
+  const untracked = gitOutputLines(
+    ['ls-files', '--others', '--exclude-standard', '--', ...validationRoots],
+    'failed to list untracked working-tree files'
+  );
+
+  return [...new Set([...tracked, ...untracked])];
+}
+
+function scopedValidationArgBatches(scope, fallbackScopeArgs) {
+  if (scope.mode !== 'files') {
+    return [fallbackScopeArgs];
+  }
+
+  return chunkValues(scope.files, maxScopedFileChunkChars).map((files) => ['--files', ...files]);
+}
+
+function buildScopedValidations(scopeArgs, { prettierFiles: explicitPrettierFiles = null } = {}) {
   const scope = resolveValidationScope(scopeArgs);
   const validations = [];
-  const prettierFiles = scope.files.filter((filePath) => prettierExtensions.has(extensionOf(filePath)));
+  const validationScopeArgsBatches = scopedValidationArgBatches(scope, scopeArgs);
+  const prettierInputs = explicitPrettierFiles ?? scope.files;
+  const prettierFiles = prettierInputs.filter((filePath) => prettierExtensions.has(extensionOf(filePath)));
   const workspaceFilters = scope.workspaces.flatMap(([, packageName]) => ['--filter', packageName]);
   const crateDirs = scope.crates.map(([crateDir]) => crateDir);
   const cratePackages = scope.crates.map(([, crateName]) => crateName);
@@ -246,46 +295,56 @@ function buildScopedValidations(scopeArgs) {
     }
   }
 
-  validations.push([
-    process.execPath,
-    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'generated-artifacts', '--tracked', ...scopeArgs],
-  ]);
-  validations.push(['npm', ['run', 'lint:architecture', '--', ...scopeArgs]]);
-  validations.push([
-    process.execPath,
-    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'no-zod-source', ...scopeArgs],
-  ]);
-  validations.push([
-    process.execPath,
-    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'no-naked-domain-strings', ...scopeArgs],
-  ]);
+  for (const validationScopeArgs of validationScopeArgsBatches) {
+    validations.push([
+      process.execPath,
+      ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'generated-artifacts', ...validationScopeArgs],
+    ]);
+    validations.push(['npm', ['run', 'lint:architecture', '--', ...validationScopeArgs]]);
+    validations.push([
+      process.execPath,
+      ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'no-zod-source', ...validationScopeArgs],
+    ]);
+    validations.push([
+      process.execPath,
+      ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'no-naked-domain-strings', ...validationScopeArgs],
+    ]);
+    if (touchesPortalVendor) {
+      validations.push([process.execPath, ['scripts/check-vendor-portal-asset-imports.mjs', ...validationScopeArgs]]);
+    }
+    validations.push([
+      process.execPath,
+      ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'required-tests', ...validationScopeArgs],
+    ]);
+    validations.push([
+      process.execPath,
+      [
+        'scripts/enforcer/run-ocentra-enforcer.mjs',
+        'check',
+        'single-source-contracts',
+        '--check-config',
+        'scripts/check-single-source-contracts.json',
+        ...validationScopeArgs,
+      ],
+    ]);
+    validations.push([
+      process.execPath,
+      ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'no-test-doubles', ...validationScopeArgs],
+    ]);
+    validations.push([
+      process.execPath,
+      ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'cross-platform-script-commands', ...validationScopeArgs],
+    ]);
+    validations.push([
+      process.execPath,
+      ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'source-shape', ...validationScopeArgs],
+    ]);
+  }
   if (touchesPortalApp) {
-    validations.push([process.execPath, ['scripts/check-no-app-string-literals.mjs', ...scopeArgs]]);
-    validations.push([process.execPath, ['scripts/check-portal-route-panel-contracts.mjs', ...scopeArgs]]);
+    const portalSourceScope = ['--files', 'apps/portal/src'];
+    validations.push([process.execPath, ['scripts/check-no-app-string-literals.mjs', ...portalSourceScope]]);
+    validations.push([process.execPath, ['scripts/check-portal-route-panel-contracts.mjs', ...portalSourceScope]]);
   }
-  if (touchesPortalVendor) {
-    validations.push([process.execPath, ['scripts/check-vendor-portal-asset-imports.mjs', ...scopeArgs]]);
-  }
-  validations.push([
-    process.execPath,
-    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'required-tests', ...scopeArgs],
-  ]);
-  validations.push([
-    process.execPath,
-    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'single-source-contracts', ...scopeArgs],
-  ]);
-  validations.push([
-    process.execPath,
-    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'no-test-doubles', ...scopeArgs],
-  ]);
-  validations.push([
-    process.execPath,
-    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'cross-platform-script-commands', ...scopeArgs],
-  ]);
-  validations.push([
-    process.execPath,
-    ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'source-shape', ...scopeArgs],
-  ]);
   if (touchesLoggingDomain) {
     validations.push(['npm', ['run', 'lint:logging-parity']]);
   }
@@ -302,11 +361,45 @@ function buildScopedValidations(scopeArgs) {
       process.execPath,
       ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'reexports', '--files', crateDirs.join(',')],
     ]);
-    validations.push(['cargo', ['check', ...cratePackages.flatMap((crateName) => ['-p', crateName])]]);
-    validations.push([
-      'cargo',
-      ['test', ...cratePackages.flatMap((crateName) => ['-p', crateName]), '--', '--test-threads=1'],
-    ]);
+    for (const crateName of cratePackages) {
+      // Keep Windows linker command lines bounded while validating every changed crate.
+      validations.push(['cargo', ['check', '-p', crateName]]);
+      validations.push(['cargo', ['test', '-p', crateName, '--', '--test-threads=1']]);
+    }
+  }
+
+  return validations;
+}
+
+function buildFastPreCommitValidations() {
+  const workingTreeFiles = collectWorkingTreeFiles();
+  if (workingTreeFiles.length === 0) {
+    return [];
+  }
+
+  const validations = buildScopedValidations(['--files', ...workingTreeFiles], { prettierFiles: workingTreeFiles });
+  const touchesRust = workingTreeFiles.some((filePath) => extensionOf(filePath) === '.rs');
+  const touchesSchemaBoundaries = workingTreeFiles.some(
+    (filePath) => filePath === 'package.json' || filePath.startsWith('apps/') || filePath.startsWith('packages/')
+  );
+  const touchesTooling = workingTreeFiles.some(
+    (filePath) =>
+      filePath === 'package.json' ||
+      filePath === 'eslint.config.js' ||
+      filePath.startsWith('scripts/') ||
+      filePath.startsWith('tests/repo-tooling/')
+  );
+
+  if (touchesSchemaBoundaries) {
+    validations.push(['npm', ['run', 'lint:schema-boundaries']]);
+  }
+
+  if (touchesTooling) {
+    validations.push(['npm', ['run', 'test:tooling']]);
+  }
+
+  if (touchesRust) {
+    validations.push(['npm', ['run', 'format:rust']]);
   }
 
   return validations;
@@ -314,11 +407,20 @@ function buildScopedValidations(scopeArgs) {
 
 const { fullMode, scopeArgs } = parseArgs(process.argv.slice(2));
 const scopedMode = scopeArgs.length > 0;
-const validations = fullMode ? fullValidations : scopedMode ? buildScopedValidations(scopeArgs) : preCommitValidations;
+const validations = fullMode
+  ? fullValidations
+  : scopedMode
+    ? buildScopedValidations(scopeArgs)
+    : buildFastPreCommitValidations();
 
 console.log(
   `[validation] Running ${fullMode ? 'full integration' : scopedMode ? 'scoped batch' : 'fast pre-commit'} gate.`
 );
+
+if (validations.length === 0) {
+  console.log('[validation] No relevant working-tree files detected.');
+  process.exit(0);
+}
 
 for (const [command, args] of validations) {
   const result = runCommand(command, args);

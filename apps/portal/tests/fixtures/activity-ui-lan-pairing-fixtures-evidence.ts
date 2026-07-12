@@ -57,26 +57,24 @@ const LanEvidenceConfidenceBySource = new Map([
 function normalizeLanEvidenceSource(value: unknown, fallbackSource: string): string {
   return typeof value === 'string' && LanEvidenceSourceValues.has(value)
     ? value
-    : LanEvidenceSourceAliases.get(String(value)) ?? fallbackSource;
+    : (LanEvidenceSourceAliases.get(String(value)) ?? fallbackSource);
 }
 
 function normalizeLanEvidenceKind(value: unknown, source: string): string {
   return typeof value === 'string' && LanEvidenceKindValues.has(value)
     ? value
-    : LanEvidenceKindBySource.get(source) ?? 'ip-address';
+    : (LanEvidenceKindBySource.get(source) ?? 'ip-address');
 }
 
 function normalizeLanEvidenceConfidence(value: unknown, source: string): string {
   return typeof value === 'string' && LanEvidenceConfidenceValues.has(value)
     ? value
-    : LanEvidenceConfidenceAliases.get(String(value)) ?? LanEvidenceConfidenceBySource.get(source) ?? 'weak';
+    : (LanEvidenceConfidenceAliases.get(String(value)) ?? LanEvidenceConfidenceBySource.get(source) ?? 'weak');
 }
 
 function lanFixtureEvidenceRecord(canonicalDeviceId: unknown, source: string) {
   const deviceId =
-    typeof canonicalDeviceId === 'string' && canonicalDeviceId.length > 0
-      ? canonicalDeviceId
-      : 'lan-fixture-device';
+    typeof canonicalDeviceId === 'string' && canonicalDeviceId.length > 0 ? canonicalDeviceId : 'lan-fixture-device';
   const evidenceKind = normalizeLanEvidenceKind(null, source);
   return {
     schemaVersion: 1,

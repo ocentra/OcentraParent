@@ -173,5 +173,8 @@ test('mobile platform projects define real installable app targets', () => {
   assert.match(iosProject, /productType = "com\.apple\.product-type\.application"/u);
   assert.match(iosProject, /PRODUCT_BUNDLE_IDENTIFIER = ca\.ocentra\.parent\.mobile/u);
   assert.match(parentMobileSourceProof, /child-agent-parity=not-claimed/u);
-  assert.match(parentMobileSourceProof, /parent mobile release scripts and smoke inputs are separate from child agent package scripts/u);
+  assert.match(
+    parentMobileSourceProof,
+    /parent mobile release scripts and smoke inputs are separate from child agent package scripts/u
+  );
 });

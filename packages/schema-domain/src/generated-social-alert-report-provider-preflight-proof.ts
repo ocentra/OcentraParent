@@ -251,4 +251,3 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
-

@@ -45,7 +45,7 @@ async fn load_browser_intervention_read_model(
         store
             .browser_intervention_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
-                &timestamp_now(),
+                timestamp_now::<String>().as_str(),
             )
             .ok()
     })

@@ -1,0 +1,162 @@
+const RequirementExpectations = {
+  'debug-apk-build': {
+    parentCapability: 'package-lifecycle',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'ci-package-artifact',
+    artifactStatus: 'ci-mechanical-proof',
+    source: 'child-android-protocol-package-lifecycle-proof',
+  },
+  'apk-sha256-checksum': {
+    parentCapability: 'package-lifecycle',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'ci-package-artifact',
+    artifactStatus: 'ci-mechanical-proof',
+    source: 'child-android-protocol-package-lifecycle-proof',
+  },
+  'package-local-status-bundles': {
+    parentCapability: 'typed-protocol-bridge',
+    parentCapabilityStatus: 'scaffold',
+    artifactClass: 'package-local-status',
+    artifactStatus: 'package-local-scaffold',
+    source: 'child-android-privileged-capability-proof',
+  },
+  'real-device-install-artifact': {
+    parentCapability: 'package-lifecycle',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'emulator-device-artifact',
+    artifactStatus: 'device-proof-required',
+    source: 'child-android-protocol-package-lifecycle-proof',
+  },
+  'launch-activity-runtime-artifact': {
+    parentCapability: 'package-lifecycle',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'emulator-device-artifact',
+    artifactStatus: 'device-proof-required',
+    source: 'child-android-protocol-package-lifecycle-proof',
+  },
+  'foreground-service-runtime-artifact': {
+    parentCapability: 'foreground-mobile-service',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'emulator-device-artifact',
+    artifactStatus: 'device-proof-required',
+    source: 'child-android-service-protocol-capability-proof',
+  },
+  'notification-runtime-grant-artifact': {
+    parentCapability: 'notifications',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'permission-grant-artifact',
+    artifactStatus: 'manual-required',
+    source: 'child-android-permission-capability-proof',
+  },
+  'usage-stats-settings-grant-artifact': {
+    parentCapability: 'usage-stats',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'permission-grant-artifact',
+    artifactStatus: 'settings-grant-required',
+    source: 'child-android-privileged-capability-proof',
+  },
+  'usage-stats-observation-artifact': {
+    parentCapability: 'usage-stats',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'emulator-device-artifact',
+    artifactStatus: 'device-proof-required',
+    source: 'child-android-privileged-capability-proof',
+  },
+  'accessibility-service-grant-artifact': {
+    parentCapability: 'accessibility-service',
+    parentCapabilityStatus: 'not-implemented',
+    artifactClass: 'privileged-adapter-artifact',
+    artifactStatus: 'not-implemented',
+    source: 'child-android-privileged-capability-proof',
+  },
+  'vpn-service-grant-artifact': {
+    parentCapability: 'vpn-dns-filtering',
+    parentCapabilityStatus: 'not-implemented',
+    artifactClass: 'privileged-adapter-artifact',
+    artifactStatus: 'not-implemented',
+    source: 'child-android-privileged-capability-proof',
+  },
+  'dns-filtering-behavior-artifact': {
+    parentCapability: 'vpn-dns-filtering',
+    parentCapabilityStatus: 'not-implemented',
+    artifactClass: 'privileged-adapter-artifact',
+    artifactStatus: 'not-implemented',
+    source: 'child-android-privileged-capability-proof',
+  },
+  'package-removal-artifact': {
+    parentCapability: 'package-lifecycle',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'emulator-device-artifact',
+    artifactStatus: 'device-proof-required',
+    source: 'child-android-protocol-package-lifecycle-proof',
+  },
+  'device-owner-enrollment-artifact': {
+    parentCapability: 'device-owner-policy',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'enrollment-artifact',
+    artifactStatus: 'blocked',
+    source: 'child-android-privileged-capability-proof',
+  },
+  'managed-profile-enrollment-artifact': {
+    parentCapability: 'managed-profile',
+    parentCapabilityStatus: 'manual-required',
+    artifactClass: 'enrollment-artifact',
+    artifactStatus: 'blocked',
+    source: 'child-android-privileged-capability-proof',
+  },
+  'play-store-signing-artifact': {
+    parentCapability: 'store-distribution',
+    parentCapabilityStatus: 'planned',
+    artifactClass: 'store-signing-artifact',
+    artifactStatus: 'planned',
+    source: 'child-android-protocol-package-lifecycle-proof',
+  },
+  'external-child-agent-transport-artifact': {
+    parentCapability: 'typed-protocol-bridge',
+    parentCapabilityStatus: 'not-implemented',
+    artifactClass: 'external-transport-artifact',
+    artifactStatus: 'not-implemented',
+    source: 'child-android-privileged-capability-proof',
+  },
+} as const satisfies Record<
+  ChildAndroidDeviceProofArtifactRequirement,
+  Pick<
+    ChildAndroidDeviceProofArtifactRequirementEvidence,
+    'parentCapability' | 'parentCapabilityStatus' | 'artifactClass' | 'artifactStatus' | 'source'
+  >
+>;
+
+const CiEvidenceStatuses = new Set<ChildAndroidDeviceProofArtifactStatus>([
+  'ci-mechanical-proof',
+  'package-local-scaffold',
+]);
+
+const AddDevicePairingInputExpectations = {
+  package: {
+    source: 'child-android-protocol-package-lifecycle-proof',
+    readinessState: 'scaffold',
+  },
+  service: {
+    source: 'child-android-service-protocol-capability-proof',
+    readinessState: 'manual-required',
+  },
+  storage: {
+    source: 'child-android-storage-protocol-capability-proof',
+    readinessState: 'scaffold',
+  },
+  protocol: {
+    source: 'child-android-storage-protocol-capability-proof',
+    readinessState: 'scaffold',
+  },
+  permission: {
+    source: 'child-android-permission-capability-proof',
+    readinessState: 'manual-required',
+  },
+  privileged: {
+    source: 'child-android-privileged-capability-proof',
+    readinessState: 'not-implemented',
+  },
+} as const satisfies Record<
+  ChildAndroidAddDevicePairingReadinessInput,
+  Pick<ChildAndroidAddDevicePairingReadiness['inputs'][number], 'source' | 'readinessState'>
+>;

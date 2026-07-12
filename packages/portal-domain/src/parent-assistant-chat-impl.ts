@@ -73,5 +73,6 @@ export type ParentAssistantPortalQuickAction = {
 export const PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS = PARENT_ASSISTANT_QUICK_ACTIONS.filter(
   (action) => action.quickActionId !== ParentAssistantPortalQuickActionId.NewChat
 );
-export const PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION =
-  PARENT_ASSISTANT_QUICK_ACTIONS.find((action) => action.quickActionId === ParentAssistantPortalQuickActionId.NewChat)!;
+export const PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION = PARENT_ASSISTANT_QUICK_ACTIONS.find(
+  (action) => action.quickActionId === ParentAssistantPortalQuickActionId.NewChat
+)!;

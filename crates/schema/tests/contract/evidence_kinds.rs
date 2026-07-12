@@ -5,7 +5,8 @@ use std::path::PathBuf;
 fn evidence_kinds_generated_typescript_matches_checked_in_file() {
     let generated = ocentra_schema::evidence_kinds_ts::evidence_kinds_typescript();
     let checked_in = fs::read_to_string(
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../packages/schema-domain/src/generated-evidence-kinds.ts"),
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../packages/schema-domain/src/generated-evidence-kinds.ts"),
     )
     .expect("evidence kinds source should be readable");
 

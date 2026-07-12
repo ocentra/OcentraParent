@@ -87,10 +87,7 @@ export function applyParentRouteEvents(
   }
 }
 
-export function applyParentSubscriptionEvent(
-  state: PortalRuntimeState,
-  event: ParentSubscriptionEvent
-): void {
+export function applyParentSubscriptionEvent(state: PortalRuntimeState, event: ParentSubscriptionEvent): void {
   if (!isStaleIncomingEventBatch(state, event.events ?? [])) {
     applyParentRouteEvents(state, event.events ?? []);
   }
@@ -100,20 +97,12 @@ export function applyParentSubscriptionEvent(
 }
 
 function portalEventBufferKey(event: ParentRouteEventSnapshot) {
-  return [
-    event.eventId,
-    event.correlationId,
-    event.sentAt,
-    event.event,
-    event.sourcePeerId,
-    event.targetPeerId,
-  ].join(PortalFormatting.EventDetailSeparator);
+  return [event.eventId, event.correlationId, event.sentAt, event.event, event.sourcePeerId, event.targetPeerId].join(
+    PortalFormatting.EventDetailSeparator
+  );
 }
 
-function isStaleIncomingEventBatch(
-  state: PortalRuntimeState,
-  snapshots: readonly ParentRouteEventSnapshot[]
-): boolean {
+function isStaleIncomingEventBatch(state: PortalRuntimeState, snapshots: readonly ParentRouteEventSnapshot[]): boolean {
   const latestBufferedTimestamp = latestParentRouteEventTimestampMs(state.events);
   const latestIncomingTimestamp = latestParentRouteEventTimestampMs(snapshots);
   return (
@@ -123,10 +112,7 @@ function isStaleIncomingEventBatch(
   );
 }
 
-function isStaleIncomingRouteSnapshot(
-  state: PortalRuntimeState,
-  snapshot: ParentRouteSnapshot
-): boolean {
+function isStaleIncomingRouteSnapshot(state: PortalRuntimeState, snapshot: ParentRouteSnapshot): boolean {
   const currentTimestamp = parentRouteSnapshotTimestampMs(state.routeSnapshot);
   const incomingTimestamp = parentRouteSnapshotTimestampMs(snapshot);
   return currentTimestamp !== null && incomingTimestamp !== null && incomingTimestamp < currentTimestamp;

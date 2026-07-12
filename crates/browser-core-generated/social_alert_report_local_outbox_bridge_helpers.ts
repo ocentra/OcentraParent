@@ -7,7 +7,9 @@ import {
   type SocialAlertReportIntent,
 } from './social_alert_report_local_outbox_bridge_support';
 
-export function bridgeStatusForIntent(intent: SocialAlertReportIntent): 'linked-local-outbox-record' | 'manual-required' | 'unavailable' {
+export function bridgeStatusForIntent(
+  intent: SocialAlertReportIntent
+): 'linked-local-outbox-record' | 'manual-required' | 'unavailable' {
   if (intent.intentStatus === SocialAlertReportIntentStatus.LocalOutboxEligible) {
     return 'linked-local-outbox-record';
   }
@@ -47,14 +49,12 @@ export function socialAlertReportBridgeRowIsHonest(row: BridgeHonestyRow): boole
   return row.outboxRecord === null && row.blockedReasonRefs.length > 0;
 }
 
-export function socialAlertReportBridgeReadModelCountsMatch(
-  readModel: {
-    readonly rows: ReadonlyArray<{ readonly status: 'linked-local-outbox-record' | 'manual-required' | 'unavailable' }>;
-    readonly linkedRecordCount: number;
-    readonly manualRequiredCount: number;
-    readonly unavailableCount: number;
-  }
-): boolean {
+export function socialAlertReportBridgeReadModelCountsMatch(readModel: {
+  readonly rows: ReadonlyArray<{ readonly status: 'linked-local-outbox-record' | 'manual-required' | 'unavailable' }>;
+  readonly linkedRecordCount: number;
+  readonly manualRequiredCount: number;
+  readonly unavailableCount: number;
+}): boolean {
   return (
     readModel.linkedRecordCount === countRows(readModel.rows, 'linked-local-outbox-record') &&
     readModel.manualRequiredCount === countRows(readModel.rows, 'manual-required') &&

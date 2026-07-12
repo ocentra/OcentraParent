@@ -11,16 +11,9 @@
     "platform": "windows",
     "hostname": "GAMEDEV",
     "agentVersion": "1.2.3",
-    "localIps": [
-      "192.168.2.42"
-    ],
-    "macAddresses": [
-      "54-27-1e-97-c3-31"
-    ],
-    "capabilities": [
-      "child-agent-pairing-route",
-      "future-safe-local-capability"
-    ],
+    "localIps": ["192.168.2.42"],
+    "macAddresses": ["54-27-1e-97-c3-31"],
+    "capabilities": ["child-agent-pairing-route", "future-safe-local-capability"],
     "routeId": "lan-route-local-network",
     "nonce": "nonce-hello-1",
     "sequence": 1,

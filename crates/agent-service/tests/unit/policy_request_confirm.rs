@@ -72,8 +72,8 @@ mod clippy_linkage {
         let _ = crate::json_contract::serialize_json_value(serde_json::json!({
             "policy_request_confirm": true
         }));
-        let _ = crate::time::timestamp_from_epoch_seconds(1);
-        let _ = crate::time::timestamp_after_epoch_seconds(1, 1);
+        let _: String = crate::time::timestamp_from_epoch_seconds(1);
+        let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
 
         let store_path = temp_store_path("policy-request-confirm-clippy");
         cleanup_path(&store_path);

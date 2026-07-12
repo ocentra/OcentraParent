@@ -236,11 +236,9 @@ export const appGameSourceGatedPolicyPreviewTimerStateMatchesProjectionGenerated
   (projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionState.PreviewReadyVisible &&
     timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing) ||
   (projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionState.SourceManualRequiredVisible &&
-    timerHandoffState ===
-      AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer) ||
+    timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer) ||
   (projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionState.CompilerManualRequiredVisible &&
-    timerHandoffState ===
-      AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.CompilerManualRequiredBeforeTimer);
+    timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.CompilerManualRequiredBeforeTimer);
 
 export const appGameSourceGatedPolicyPreviewTimerHandoffStateForProjectionGenerated = (
   projectionState: ProjectionStateValue
@@ -260,8 +258,7 @@ export const countAppGameSourceGatedPolicyPreviewTimerHandoffRowsGenerated = (
   rows: readonly TimerHandoffRowLike[]
 ) => ({
   timerSequenceCandidateCount: rows.filter(
-    (row) =>
-      row.timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing
+    (row) => row.timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing
   ).length,
   sourceManualBlockedCount: rows.filter(
     (row) =>
@@ -275,16 +272,13 @@ export const countAppGameSourceGatedPolicyPreviewTimerHandoffRowsGenerated = (
   ).length,
 });
 
-export const appGameSourceGatedPolicyPreviewTimerHandoffCountsMatchGenerated = (
-  handoff: TimerHandoffLike
-) =>
+export const appGameSourceGatedPolicyPreviewTimerHandoffCountsMatchGenerated = (handoff: TimerHandoffLike) =>
   handoff.nativeAppRowCount > 0 &&
   handoff.nativeGameRowCount > 0 &&
   handoff.timerSequenceCandidateCount ===
     handoff.rows.filter(
       (row) =>
-        row.timerHandoffState ===
-          AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing &&
+        row.timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing &&
         row.timerRuntimeRequired &&
         !row.manualProofRequired
     ).length &&
@@ -305,9 +299,7 @@ export const appGameSourceGatedPolicyPreviewTimerHandoffCountsMatchGenerated = (
         row.manualProofRequired
     ).length;
 
-export const appGameSourceGatedPolicyPreviewTimerHandoffHasNoRuntimeClaimsGenerated = (
-  handoff: TimerHandoffLike
-) =>
+export const appGameSourceGatedPolicyPreviewTimerHandoffHasNoRuntimeClaimsGenerated = (handoff: TimerHandoffLike) =>
   !handoff.serviceRuntimeEventClaimed &&
   !handoff.portalUiRendered &&
   !handoff.policyEvaluatorRuntimeClaimed &&
@@ -323,14 +315,10 @@ export const appGameSourceGatedPolicyPreviewTimerStatusMatchesHandoffGenerated =
 ) =>
   (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing &&
     timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired) ||
-  (handoffState ===
-    AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer &&
-    timerStatusState ===
-      AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired) ||
-  (handoffState ===
-    AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.CompilerManualRequiredBeforeTimer &&
-    timerStatusState ===
-      AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired);
+  (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer &&
+    timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired) ||
+  (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.CompilerManualRequiredBeforeTimer &&
+    timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired);
 
 export const appGameSourceGatedPolicyPreviewTimerStatusStateForHandoffGenerated = (
   handoffState: TimerHandoffStateValue
@@ -339,31 +327,24 @@ export const appGameSourceGatedPolicyPreviewTimerStatusStateForHandoffGenerated 
     return AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired;
   }
 
-  if (
-    handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer
-  ) {
+  if (handoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer) {
     return AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired;
   }
 
   return AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired;
 };
 
-export const countAppGameSourceGatedPolicyPreviewTimerStatusRowsGenerated = (
-  rows: readonly TimerStatusRowLike[]
-) => ({
+export const countAppGameSourceGatedPolicyPreviewTimerStatusRowsGenerated = (rows: readonly TimerStatusRowLike[]) => ({
   timerRuntimeProofRequiredCount: rows.filter(
-    (row) =>
-      row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired
+    (row) => row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired
   ).length,
   sourceFreshnessProofRequiredCount: rows.filter(
     (row) =>
-      row.timerStatusState ===
-      AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired
+      row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired
   ).length,
   compilerDecisionProofRequiredCount: rows.filter(
     (row) =>
-      row.timerStatusState ===
-      AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired
+      row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired
   ).length,
 });
 
@@ -381,14 +362,11 @@ export const appGameSourceGatedPolicyPreviewTimerStatusRequiredProofRefsGenerate
   }
 };
 
-export const appGameSourceGatedPolicyPreviewTimerStatusCountsMatchGenerated = (
-  status: TimerStatusLike
-) =>
+export const appGameSourceGatedPolicyPreviewTimerStatusCountsMatchGenerated = (status: TimerStatusLike) =>
   status.timerRuntimeProofRequiredCount ===
     status.rows.filter(
       (row) =>
-        row.timerStatusState ===
-          AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired &&
+        row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired &&
         row.timerRuntimeProofRequired &&
         !row.sourceFreshnessProofRequired &&
         !row.compilerDecisionProofRequired &&
@@ -415,9 +393,7 @@ export const appGameSourceGatedPolicyPreviewTimerStatusCountsMatchGenerated = (
         !row.timerScheduled
     ).length;
 
-export const appGameSourceGatedPolicyPreviewTimerStatusHasNoRuntimeClaimsGenerated = (
-  status: TimerStatusLike
-) =>
+export const appGameSourceGatedPolicyPreviewTimerStatusHasNoRuntimeClaimsGenerated = (status: TimerStatusLike) =>
   !status.serviceRuntimeEventClaimed &&
   !status.portalUiRendered &&
   !status.policyEvaluatorRuntimeClaimed &&
@@ -435,12 +411,10 @@ export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessMatchesStatusGe
   (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired &&
     runtimeReadinessState ===
       AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired) ||
-  (timerStatusState ===
-    AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired &&
+  (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired &&
     runtimeReadinessState ===
       AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedBySourceFreshness) ||
-  (timerStatusState ===
-    AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired &&
+  (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired &&
     runtimeReadinessState ===
       AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedByCompilerDecision);
 
@@ -451,10 +425,7 @@ export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateForStatusG
     return AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired;
   }
 
-  if (
-    timerStatusState ===
-    AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired
-  ) {
+  if (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired) {
     return AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedBySourceFreshness;
   }
 
@@ -486,14 +457,8 @@ export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessRequiredProofRe
   runtimeReadinessState: TimerRuntimeReadinessStateValue,
   inheritedProofRefs: readonly string[]
 ) =>
-  runtimeReadinessState ===
-  AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired
-    ? [
-        refs.timerRuntimeProofRef,
-        refs.schedulerPersistenceProofRef,
-        refs.auditProofRef,
-        refs.rollbackProofRef,
-      ]
+  runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired
+    ? [refs.timerRuntimeProofRef, refs.schedulerPersistenceProofRef, refs.auditProofRef, refs.rollbackProofRef]
     : [...inheritedProofRefs];
 
 export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessCountsMatchGenerated = (
@@ -553,8 +518,7 @@ export const appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceMatchesRunt
   runtimeReadinessState: TimerRuntimeReadinessStateValue,
   schedulerPersistenceState: TimerSchedulerPersistenceStateValue
 ) =>
-  (runtimeReadinessState ===
-    AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired &&
+  (runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired &&
     schedulerPersistenceState ===
       AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.SchedulerPersistenceProofRequired) ||
   (runtimeReadinessState ===
@@ -570,8 +534,7 @@ export const appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateForRun
   runtimeReadinessState: TimerRuntimeReadinessStateValue
 ): TimerSchedulerPersistenceStateValue => {
   if (
-    runtimeReadinessState ===
-    AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired
+    runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired
   ) {
     return AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.SchedulerPersistenceProofRequired;
   }
@@ -685,13 +648,16 @@ export const appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelMatche
   handoffState: TimerServiceReadinessHandoffStateValue,
   readModelState: TimerServiceReadinessReadModelStateValue
 ) =>
-  (handoffState === AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.ServiceReadApiProofRequired &&
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.ServiceReadApiProofRequired &&
     readModelState ===
       AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.ServiceReadModelProofRequired) ||
-  (handoffState === AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.BlockedBySourceFreshness &&
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.BlockedBySourceFreshness &&
     readModelState ===
       AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedBySourceFreshness) ||
-  (handoffState === AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.BlockedByCompilerDecision &&
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.BlockedByCompilerDecision &&
     readModelState ===
       AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedByCompilerDecision);
 
@@ -699,7 +665,8 @@ export const appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateF
   handoffState: TimerServiceReadinessHandoffStateValue
 ): TimerServiceReadinessReadModelStateValue => {
   if (
-    handoffState === AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.ServiceReadApiProofRequired
+    handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.ServiceReadApiProofRequired
   ) {
     return AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.ServiceReadModelProofRequired;
   }
@@ -790,7 +757,8 @@ export const appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadMod
   handoffState: TimerServiceReadinessProtocolHandoffStateValue,
   readModelState: TimerServiceReadinessProtocolReadModelStateValue
 ) =>
-  (handoffState === AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateGenerated.ProtocolProofRequired &&
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateGenerated.ProtocolProofRequired &&
     readModelState ===
       AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.ProtocolReadModelProofRequired) ||
   (handoffState ===
@@ -806,7 +774,8 @@ export const appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadMod
   handoffState: TimerServiceReadinessProtocolHandoffStateValue
 ): TimerServiceReadinessProtocolReadModelStateValue => {
   if (
-    handoffState === AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateGenerated.ProtocolProofRequired
+    handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateGenerated.ProtocolProofRequired
   ) {
     return AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.ProtocolReadModelProofRequired;
   }

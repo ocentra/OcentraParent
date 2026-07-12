@@ -13,26 +13,10 @@ use crate::{
     activity_surface_store::ActivitySurfaceStoreSnapshot, time::timestamp_now,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-struct ReportId(String);
+#[path = "logic/labels.rs"]
+mod labels;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-struct SummaryText(String);
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-struct GeneratedAtText(String);
-
-impl std::fmt::Display for SummaryText {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_str(&self.0)
-    }
-}
-
-impl std::fmt::Display for GeneratedAtText {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_str(&self.0)
-    }
-}
+use self::labels::{report_id, report_section_summary, section_title, GeneratedAtText};
 
 pub(crate) fn report_document(
     request: ActivityReportRequest,
@@ -54,7 +38,7 @@ fn report_document_from_snapshot(
     snapshot: &ActivitySurfaceStoreSnapshot,
     family_sources: Vec<ActivityReportSourceState>,
 ) -> ActivityReportDocument {
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     let source_state = if snapshot_has_rows(snapshot) {
         ActivityReadModelState::Ready
     } else {
@@ -121,7 +105,7 @@ fn source_states_for_request(
 }
 
 fn unavailable_report_document(request: ActivityReportRequest) -> ActivityReportDocument {
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     let source_states = unavailable_source_states_for_request(&request.scope);
     let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
@@ -172,7 +156,7 @@ fn unavailable_source_states_for_request(
 }
 
 fn offline_device_report_document(request: ActivityReportRequest) -> ActivityReportDocument {
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: report_id(request.frequency, GeneratedAtText(generated_at.clone())).0,
@@ -252,48 +236,6 @@ fn snapshot_has_rows(snapshot: &ActivitySurfaceStoreSnapshot) -> bool {
         || snapshot.network_returned > 0
         || snapshot.games_returned > 0
         || snapshot.screen_returned > 0
-}
-
-fn report_section_summary(item_count: u64) -> SummaryText {
-    if item_count > 0 {
-        SummaryText(constants::activity_surface::SUMMARY_READY.to_string())
-    } else {
-        SummaryText(constants::activity_surface::SUMMARY_EMPTY.to_string())
-    }
-}
-
-fn section_title(kind: ActivityReportSectionKind) -> SummaryText {
-    match kind {
-        ActivityReportSectionKind::Summary => {
-            SummaryText(constants::activity_surface::SECTION_SUMMARY.to_string())
-        }
-        ActivityReportSectionKind::Screen => {
-            SummaryText(constants::activity_surface::SECTION_SCREEN.to_string())
-        }
-        ActivityReportSectionKind::AppUse => {
-            SummaryText(constants::activity_surface::SECTION_APP_USE.to_string())
-        }
-        ActivityReportSectionKind::Browser => {
-            SummaryText(constants::activity_surface::SECTION_BROWSER.to_string())
-        }
-        ActivityReportSectionKind::Games => {
-            SummaryText(constants::activity_surface::SECTION_GAMES.to_string())
-        }
-        ActivityReportSectionKind::Network => {
-            SummaryText(constants::activity_surface::SECTION_NETWORK.to_string())
-        }
-    }
-}
-
-fn report_id(frequency: ActivityReportFrequency, generated_at: GeneratedAtText) -> ReportId {
-    let mut id = String::from(match frequency {
-        ActivityReportFrequency::Daily => constants::activity_surface::REPORT_ID_DAILY,
-        ActivityReportFrequency::Weekly => constants::activity_surface::REPORT_ID_WEEKLY,
-        ActivityReportFrequency::Monthly => constants::activity_surface::REPORT_ID_MONTHLY,
-    });
-    id.push(constants::delimiter::HYPHEN);
-    id.extend(generated_at.0.chars().filter(char::is_ascii_alphanumeric));
-    ReportId(id)
 }
 
 fn request_targets_remote_device(scope: &ActivitySurfaceScope) -> bool {

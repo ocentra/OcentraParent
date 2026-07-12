@@ -19,6 +19,21 @@ pub struct BrowserGameUrlShapeParseTemplate {
     pub confidence: &'static str,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct BrowserGameUrlText(pub(super) String);
+
+impl BrowserGameUrlText {
+    pub(super) fn from_display(value: impl std::fmt::Display) -> Self {
+        Self(value.to_string())
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct BrowserGameShapeCode(pub(super) &'static str);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct BrowserGameUrlFingerprint(pub(super) String);
+
 struct BrowserGameParsedUrl<'a> {
     hostname: &'a str,
     pathname: &'a str,
@@ -35,22 +50,29 @@ struct BrowserGameRouteHints {
 }
 
 struct BrowserGameRouteFingerprintInput<'a> {
-    protocol_shape: &'static str,
-    host_shape: &'static str,
-    path_depth: &'static str,
-    route_surface_kind: &'static str,
+    protocol_shape: BrowserGameShapeCode,
+    host_shape: BrowserGameShapeCode,
+    path_depth: BrowserGameShapeCode,
+    route_surface_kind: BrowserGameShapeCode,
     has_game_id_like_segment: bool,
     has_query_shape: bool,
     has_fragment_shape: bool,
     route_hints: &'a BrowserGameRouteHints,
 }
 
-pub fn evaluate_browser_game_url_shape(input: &str) -> BrowserGameUrlShapeParseTemplate {
-    browser_game_url_shape_evaluator_impl::evaluate_browser_game_url_shape(input)
+pub fn evaluate_browser_game_url_shape(
+    input: impl std::fmt::Display,
+) -> BrowserGameUrlShapeParseTemplate {
+    let input = BrowserGameUrlText::from_display(input);
+    browser_game_url_shape_evaluator_impl::evaluate_browser_game_url_shape(&input)
 }
 
-pub fn browser_game_url_shape_evaluator_typescript() -> String {
-    browser_game_url_shape_evaluator_impl::browser_game_url_shape_evaluator_typescript()
+pub fn browser_game_url_shape_evaluator_typescript(
+) -> crate::social_schema_generated_values::GeneratedTypescript {
+    crate::social_schema_generated_values::GeneratedTypescript::new(include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../browser-core-generated/browser_game_url_shape_evaluator.ts"
+    )))
 }
 
 #[path = "../../browser-core-generated/browser_game_url_shape_evaluator_impl.rs"]

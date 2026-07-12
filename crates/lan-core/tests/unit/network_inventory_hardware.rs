@@ -35,20 +35,56 @@ fn windows_prefers_default_gateway_interface_and_skips_virtual_candidates() {
             "InterfaceAlias": "Wi-Fi",
             "MacAddress": "aa-bb-cc-dd-ee-ff"
         }),
-    ])
-    .unwrap_or_else(|| unreachable!("preferred Windows identity exists"));
+    ]);
 
-    assert_eq!(identity.network_interface.as_deref(), Some("Ethernet 2"));
-    assert_eq!(identity.default_gateway.as_deref(), Some("192.168.2.1"));
-    assert_eq!(identity.wifi_ssid, None);
-    assert_eq!(identity.ipv4_cidr.as_deref(), Some("192.168.2.42/24"));
-    assert_eq!(identity.broadcast_address.as_deref(), Some("192.168.2.255"));
     assert_eq!(
-        identity.dns_servers,
-        vec!["192.168.2.1".to_string(), "1.1.1.1".to_string()]
+        identity
+            .as_ref()
+            .map(|identity| identity.network_interface.as_deref()),
+        Some(Some("Ethernet 2"))
     );
-    assert_eq!(identity.dhcp_server.as_deref(), Some("192.168.2.1"));
-    assert_eq!(identity.ipv6_prefixes, vec!["2001:db8::42/64".to_string()]);
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.default_gateway.as_deref()),
+        Some(Some("192.168.2.1"))
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.wifi_ssid.as_deref()),
+        Some(None)
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.ipv4_cidr.as_deref()),
+        Some(Some("192.168.2.42/24"))
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.broadcast_address.as_deref()),
+        Some(Some("192.168.2.255"))
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.dns_servers.clone()),
+        Some(vec!["192.168.2.1".to_string(), "1.1.1.1".to_string()])
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.dhcp_server.as_deref()),
+        Some(Some("192.168.2.1"))
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.ipv6_prefixes.clone()),
+        Some(vec!["2001:db8::42/64".to_string()])
+    );
 }
 
 #[test]
@@ -109,12 +145,11 @@ fn linux_prefers_default_route_interface_and_captures_gateway_and_cidr() {
             "192.168.2.1".to_string(),
             "2001:4860:4860::8888".to_string(),
         ],
-    )
-    .unwrap_or_else(|| unreachable!("preferred Linux identity exists"));
+    );
 
     assert_eq!(
         identity,
-        LocalNetworkIdentity {
+        Some(LocalNetworkIdentity {
             ip_address: Some("192.168.2.42".to_string()),
             mac_address: Some("54-27-1e-97-c3-31".to_string()),
             network_interface: Some("wlp0s20f3".to_string()),
@@ -128,7 +163,7 @@ fn linux_prefers_default_route_interface_and_captures_gateway_and_cidr() {
             dhcp_server: None,
             broadcast_address: Some("192.168.2.255".to_string()),
             ipv6_prefixes: vec!["2001:db8::42/64".to_string()],
-        }
+        })
     );
 }
 
@@ -159,16 +194,48 @@ fn linux_skips_link_local_only_and_falls_back_to_first_viable_interface() {
             }),
         ],
         &[],
-    )
-    .unwrap_or_else(|| unreachable!("fallback Linux identity exists"));
+    );
 
-    assert_eq!(identity.network_interface.as_deref(), Some("wlp0s20f3"));
-    assert_eq!(identity.wifi_ssid, None);
-    assert_eq!(identity.default_gateway, None);
-    assert_eq!(identity.ipv4_cidr.as_deref(), Some("192.168.2.88/24"));
-    assert_eq!(identity.broadcast_address.as_deref(), Some("192.168.2.255"));
-    assert!(identity.dns_servers.is_empty());
-    assert!(identity.ipv6_prefixes.is_empty());
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.network_interface.as_deref()),
+        Some(Some("wlp0s20f3"))
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.wifi_ssid.as_deref()),
+        Some(None)
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.default_gateway.as_deref()),
+        Some(None)
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.ipv4_cidr.as_deref()),
+        Some(Some("192.168.2.88/24"))
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.broadcast_address.as_deref()),
+        Some(Some("192.168.2.255"))
+    );
+    assert_eq!(
+        identity.as_ref().map(|identity| identity.dns_servers.len()),
+        Some(0)
+    );
+    assert_eq!(
+        identity
+            .as_ref()
+            .map(|identity| identity.ipv6_prefixes.len()),
+        Some(0)
+    );
 }
 
 #[test]
@@ -239,10 +306,14 @@ fn windows_identity_keeps_wifi_ssid_only_for_wireless_aliases() {
         "InterfaceAlias": "Wi-Fi",
         "MacAddress": "aa-bb-cc-dd-ee-ff",
         "WifiSsid": "Home-Wifi"
-    })])
-    .unwrap_or_else(|| unreachable!("wireless identity exists"));
+    })]);
 
-    assert_eq!(wireless_identity.wifi_ssid.as_deref(), Some("Home-Wifi"));
+    assert_eq!(
+        wireless_identity
+            .as_ref()
+            .map(|identity| identity.wifi_ssid.as_deref()),
+        Some(Some("Home-Wifi"))
+    );
 
     let wired_identity = preferred_windows_local_network_identity(&[json!({
         "IPAddress": "192.168.2.42",
@@ -250,8 +321,12 @@ fn windows_identity_keeps_wifi_ssid_only_for_wireless_aliases() {
         "InterfaceAlias": "Ethernet 2",
         "MacAddress": "54-27-1e-97-c3-31",
         "WifiSsid": "Should-Not-Survive"
-    })])
-    .unwrap_or_else(|| unreachable!("wired identity exists"));
+    })]);
 
-    assert_eq!(wired_identity.wifi_ssid, None);
+    assert_eq!(
+        wired_identity
+            .as_ref()
+            .map(|identity| identity.wifi_ssid.as_deref()),
+        Some(None)
+    );
 }

@@ -60,10 +60,7 @@ async function captureOptionalFullPageScreenshot(page: Page, screenshotPath: str
   await page.screenshot({ fullPage: true, path: screenshotPath });
 }
 
-async function captureOptionalPanelScreenshot(
-  panel: Locator,
-  screenshotPath: string
-): Promise<void> {
+async function captureOptionalPanelScreenshot(panel: Locator, screenshotPath: string): Promise<void> {
   if (screenshotPath.length === 0) {
     return;
   }

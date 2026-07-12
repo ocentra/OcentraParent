@@ -17,8 +17,8 @@ use ocentra_lan_core::network_inventory::{
 };
 use ocentra_lan_core::network_inventory_hardware::LocalNetworkIdentity;
 
-fn target_ip(value: &str) -> std::net::Ipv4Addr {
-    value.parse().value_or_unreachable()
+fn target_ip(octets: [u8; 4]) -> std::net::Ipv4Addr {
+    octets.into()
 }
 
 fn targeted_arp_refresh_attempt_state_guard() -> MutexGuard<'static, ()> {
@@ -162,14 +162,14 @@ fn active_refresh_suppression_skips_currently_confirmed_known_child_ip() {
         )],
         &[],
         &HashMap::from([(
-            target_ip("192.168.2.20"),
+            target_ip([192, 168, 2, 20]),
             constants::lan_pairing::TEST_LAN_MAC.to_ascii_lowercase(),
         )]),
     );
 
     assert_eq!(
         suppressed_targets,
-        std::collections::HashSet::from([target_ip("192.168.2.20")])
+        std::collections::HashSet::from([target_ip([192, 168, 2, 20])])
     );
 }
 
@@ -186,7 +186,7 @@ fn active_refresh_suppression_does_not_skip_reused_ip_with_different_mac() {
         )],
         &[],
         &HashMap::from([(
-            target_ip("192.168.2.20"),
+            target_ip([192, 168, 2, 20]),
             constants::lan_pairing::TEST_ROUTER_MAC.to_ascii_lowercase(),
         )]),
     );

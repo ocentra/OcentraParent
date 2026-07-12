@@ -11,8 +11,7 @@ function samplePanel(): ParentBrowserPanelSnapshot {
   return {
     eyebrow: 'Browser route',
     title: 'Browser parent explanations',
-    body:
-      'Schema-backed parent explanations show evidence, model, policy, action, child experience, fallback, and audit sections only when a validated browser AI explanation bundle is present.',
+    body: 'Schema-backed parent explanations show evidence, model, policy, action, child experience, fallback, and audit sections only when a validated browser AI explanation bundle is present.',
     summary: '1 parent explanation rows',
     summaryDetails: [
       { label: 'Rows returned', value: '1' },
@@ -41,9 +40,7 @@ describe('browser parent explanation route panel', () => {
   });
 
   it('renders the Rust-owned browser explanation snapshot', () => {
-    const markup = renderToStaticMarkup(
-      createElement(BrowserParentExplanationRoutePanel, { panel: samplePanel() })
-    );
+    const markup = renderToStaticMarkup(createElement(BrowserParentExplanationRoutePanel, { panel: samplePanel() }));
 
     expect(markup).toContain('Browser parent explanations');
     expect(markup).toContain('1 parent explanation rows');

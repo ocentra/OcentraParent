@@ -10,6 +10,9 @@ pub struct NetworkPolicy {
     allowed_origins: Vec<HeaderValue>,
 }
 
+#[derive(Clone, Copy)]
+struct AllowedOriginsTextRef<'a>(&'a str);
+
 impl NetworkPolicy {
     pub fn from_environment() -> Self {
         let bind_address = read_bind_address();
@@ -68,12 +71,11 @@ fn read_local_network_enabled() -> bool {
 
 fn read_allowed_origins() -> Vec<HeaderValue> {
     env::var(constants::env_var::AGENT_ALLOWED_ORIGINS)
-        .map(|value| parse_allowed_origins(&value))
+        .map(|value| parse_allowed_origins(AllowedOriginsTextRef(&value)))
         .unwrap_or_else(|_| {
-            parse_allowed_origins(
-                &constants::bind::DEFAULT_ALLOWED_ORIGINS
-                    .join(&constants::delimiter::LIST.to_string()),
-            )
+            let default_allowed_origins = constants::bind::DEFAULT_ALLOWED_ORIGINS
+                .join(&constants::delimiter::LIST.to_string());
+            parse_allowed_origins(AllowedOriginsTextRef(&default_allowed_origins))
         })
 }
 
@@ -83,8 +85,9 @@ fn default_bind_address() -> SocketAddr {
         .unwrap_or_else(|_error| SocketAddr::from(([127, 0, 0, 1], 4477)))
 }
 
-fn parse_allowed_origins(input: &str) -> Vec<HeaderValue> {
+fn parse_allowed_origins(input: AllowedOriginsTextRef<'_>) -> Vec<HeaderValue> {
     let allowed_origins = input
+        .0
         .split(constants::delimiter::LIST)
         .map(str::trim)
         .filter(|origin| !origin.is_empty())

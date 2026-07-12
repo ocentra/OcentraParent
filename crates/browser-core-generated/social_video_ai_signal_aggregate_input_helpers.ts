@@ -1,14 +1,8 @@
 /* generated support for crates/browser-core/src/social_video_ai_signal_aggregate.rs */
 
-import type {
-  BrowserSocialAiAnalysisResult,
-} from '@ocentra-parent/schema-domain/browser-social-ai-analysis-schemas';
-import type {
-  BrowserSocialFeedVideoRouteGatePlan,
-} from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate';
-import type {
-  BrowserSocialRiskBenefitSignalSet,
-} from '@ocentra-parent/schema-domain/browser-social-riskbenefit-signals';
+import type { BrowserSocialAiAnalysisResult } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-schemas';
+import type { BrowserSocialFeedVideoRouteGatePlan } from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate';
+import type { BrowserSocialRiskBenefitSignalSet } from '@ocentra-parent/schema-domain/browser-social-riskbenefit-signals';
 import type { SocialVideoSourcePrivacySummary } from './social-video-source-privacy';
 import type { SocialVideoAiSignalAggregateInput } from './social_video_ai_signal_aggregate';
 

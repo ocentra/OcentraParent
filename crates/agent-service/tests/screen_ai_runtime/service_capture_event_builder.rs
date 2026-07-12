@@ -36,6 +36,17 @@ use test_text::TestText;
 const DEFAULT_MAX_RETRY_COUNT: u64 = 0;
 const DEFAULT_SETTING_VERSION: u64 = 1;
 
+#[derive(Clone, Copy)]
+pub(crate) struct ScreenIdPrefix(pub(crate) &'static str);
+
+pub(crate) type ScreenText = TestText;
+
+impl std::fmt::Display for ScreenIdPrefix {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.0)
+    }
+}
+
 pub(crate) struct ScreenAiServiceCaptureIds {
     pub(crate) queue_job_id: TestText,
     result_id: TestText,
@@ -73,7 +84,8 @@ pub(crate) fn screen_queue_job(
         not_before: record.clock.timestamp.clone(),
         expires_at: record
             .clock
-            .expires_after_seconds(record.temporary_image_ttl_seconds),
+            .expires_after_seconds(record.temporary_image_ttl_seconds)
+            .to_string(),
         last_attempt_at: None,
         capture_reason: record.capture_reason.to_string(),
         capture_scope: SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_string(),
@@ -256,14 +268,20 @@ fn fields_from_pairs_test(pairs: Vec<(TestText, LogFieldValue)>) -> LogFields {
     fields
 }
 
-fn string_field(key: TestText, value: TestText) -> (TestText, LogFieldValue) {
-    (key, LogFieldValue::String(value.to_string()))
+fn string_field(
+    key: impl std::fmt::Display,
+    value: impl std::fmt::Display,
+) -> (TestText, LogFieldValue) {
+    (
+        TestText::from_display(key),
+        LogFieldValue::String(value.to_string()),
+    )
 }
 
-fn number_field(key: TestText, value: f64) -> (TestText, LogFieldValue) {
-    (key, LogFieldValue::Number(value))
+fn number_field(key: impl std::fmt::Display, value: f64) -> (TestText, LogFieldValue) {
+    (TestText::from_display(key), LogFieldValue::Number(value))
 }
 
-fn bool_field(key: TestText, value: bool) -> (TestText, LogFieldValue) {
-    (key, LogFieldValue::Boolean(value))
+fn bool_field(key: impl std::fmt::Display, value: bool) -> (TestText, LogFieldValue) {
+    (TestText::from_display(key), LogFieldValue::Boolean(value))
 }

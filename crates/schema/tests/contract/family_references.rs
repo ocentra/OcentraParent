@@ -5,7 +5,8 @@ use std::path::PathBuf;
 fn family_references_generated_typescript_matches_checked_in_file() {
     let generated = ocentra_schema::family_references_ts::family_references_typescript();
     let checked_in = fs::read_to_string(
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../packages/schema-domain/src/generated-family-references.ts"),
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../packages/schema-domain/src/generated-family-references.ts"),
     )
     .expect("family references source should be readable");
 

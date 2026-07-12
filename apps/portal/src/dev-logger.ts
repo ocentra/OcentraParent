@@ -3,6 +3,7 @@ import {
   type GeneratedLogMessage as LogMessage,
   type GeneratedStackTrace as StackTrace,
 } from '@ocentra-parent/logging-domain/generated/logging-contracts';
+import { decodeLogMessage } from '@ocentra-parent/logging-domain/logging-contracts';
 import {
   resolvePortalDevLogBridgeUrl as resolvePortalDomainDevLogBridgeUrl,
   resolvePortalProofTraceConfig as resolvePortalDomainProofTraceConfig,
@@ -16,12 +17,16 @@ import {
 export type PortalProofTraceOptions = PortalDomainProofTraceOptions;
 export type PortalProofTraceConfig = PortalDomainProofTraceConfig;
 
-export function writePortalDevLog(message: LogMessage, fields: LogFields = {}): void {
+function decodePortalLogMessage(message: unknown): LogMessage {
+  return decodeLogMessage(message) as unknown as LogMessage;
+}
+
+export function writePortalDevLog(message: unknown, fields: LogFields = {}): void {
   void sendPortalDevLog(message, fields);
 }
 
 export function writePortalProofTraceLog(
-  message: LogMessage,
+  message: unknown,
   proofTrace: PortalProofTraceOptions,
   fields: LogFields = {}
 ): void {
@@ -29,12 +34,12 @@ export function writePortalProofTraceLog(
 }
 
 export async function sendPortalDevLog(
-  message: LogMessage,
+  message: unknown,
   fields: LogFields = {},
   endpoint = resolvePortalDevLogBridgeUrl(),
   runtime: PortalLoggerRuntime = globalThis as PortalLoggerRuntime
 ): Promise<boolean> {
-  return sendPortalDevLogWithContext(message, fields, {
+  return sendPortalDevLogWithContext(decodePortalLogMessage(message), fields, {
     endpoint,
     runtime,
     stackTrace: (new Error().stack ?? String()) as StackTrace,
@@ -47,13 +52,13 @@ export function resolvePortalDevLogBridgeUrl(runtime: PortalLoggerRuntime = glob
 }
 
 export async function sendPortalProofTraceLog(
-  message: LogMessage,
+  message: unknown,
   proofTrace: PortalProofTraceOptions,
   fields: LogFields = {},
   endpoint = resolvePortalDevLogBridgeUrl(),
   runtime: PortalLoggerRuntime = globalThis as PortalLoggerRuntime
 ): Promise<boolean> {
-  return sendPortalProofTraceLogWithContext(message, proofTrace, fields, {
+  return sendPortalProofTraceLogWithContext(decodePortalLogMessage(message), proofTrace, fields, {
     endpoint,
     runtime,
     stackTrace: (new Error().stack ?? String()) as StackTrace,

@@ -248,7 +248,8 @@ describe('env validation', () => {
       owner: 'billing-runtime-config',
       purpose: 'low-risk runtime flags and rollout config',
       bindingFamily: 'kv',
-      privacyBoundary: 'rollout flags and non-secret config only; no child telemetry, raw child data, or provider secrets',
+      privacyBoundary:
+        'rollout flags and non-secret config only; no child telemetry, raw child data, or provider secrets',
       childDataStorage: 'forbidden',
       readinessState: 'required',
     });

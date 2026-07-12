@@ -165,70 +165,45 @@ fn optional_pairing_audit_fields(
                 _ => None,
             })
     };
-    let pairs = [
-        proof
-            .map(|proof| {
-                (
-                    constants::field::LAN_ROUTE_ID,
-                    LogFieldValue::String(proof.route_id.clone()),
-                )
-            })
-            .or_else(|| {
-                payload_string(constants::field::LAN_ROUTE_ID)
-                    .map(|value| (constants::field::LAN_ROUTE_ID, LogFieldValue::String(value)))
-            }),
-        proof
-            .map(|proof| {
-                (
-                    constants::field::LAN_PAIRING_ID,
-                    LogFieldValue::String(proof.pairing_id.clone()),
-                )
-            })
-            .or_else(|| {
-                payload_string(constants::field::LAN_PAIRING_ID).map(|value| {
-                    (
-                        constants::field::LAN_PAIRING_ID,
-                        LogFieldValue::String(value),
-                    )
-                })
-            }),
-        proof
-            .map(|proof| {
-                (
-                    constants::field::LAN_PARENT_DEVICE_ID,
-                    LogFieldValue::String(proof.parent_device_id.clone()),
-                )
-            })
-            .or_else(|| {
-                payload_string(constants::field::LAN_PARENT_DEVICE_ID).map(|value| {
-                    (
-                        constants::field::LAN_PARENT_DEVICE_ID,
-                        LogFieldValue::String(value),
-                    )
-                })
-            }),
-        proof
-            .map(|proof| {
-                (
-                    constants::field::ORIGIN,
-                    LogFieldValue::String(proof.origin.clone()),
-                )
-            })
-            .or_else(|| {
-                payload_string(constants::field::ORIGIN)
-                    .map(|value| (constants::field::ORIGIN, LogFieldValue::String(value)))
-            }),
-        reason.map(|reason| {
-            (
-                constants::field::LAN_AUTHENTICATION_STATE,
-                authentication_state_value(Some(reason)),
-            )
-        }),
-        reason.map(|reason| (constants::field::LAN_REJECTION_REASON, reason_value(reason))),
-    ]
-    .into_iter()
-    .flatten()
-    .collect::<Vec<_>>();
+    let mut pairs = Vec::new();
+    let mut push_optional_pair = |field: &'static str, value: Option<LogFieldValue>| {
+        if let Some(value) = value {
+            pairs.push((field, value));
+        }
+    };
+    for (field, value) in [
+        (
+            constants::field::LAN_ROUTE_ID,
+            proof.map(|proof| proof.route_id.clone()),
+        ),
+        (
+            constants::field::LAN_PAIRING_ID,
+            proof.map(|proof| proof.pairing_id.clone()),
+        ),
+        (
+            constants::field::LAN_PARENT_DEVICE_ID,
+            proof.map(|proof| proof.parent_device_id.clone()),
+        ),
+        (
+            constants::field::ORIGIN,
+            proof.map(|proof| proof.origin.clone()),
+        ),
+    ] {
+        push_optional_pair(
+            field,
+            value
+                .or_else(|| payload_string(field))
+                .map(LogFieldValue::String),
+        );
+    }
+    push_optional_pair(
+        constants::field::LAN_AUTHENTICATION_STATE,
+        reason.map(|reason| authentication_state_value(Some(reason))),
+    );
+    push_optional_pair(
+        constants::field::LAN_REJECTION_REASON,
+        reason.map(reason_value),
+    );
 
     let mut fields = fields_from_pairs(pairs);
     extend_log_fields(

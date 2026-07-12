@@ -1,10 +1,7 @@
 import { BridgeEntryArraySchema, type BridgeEntry } from './bridgeLogPayload';
 import { RunType } from '../test-log/types';
 import { createParentLogConfig } from '../core/logConfig';
-import {
-  buildGeneratedRunStartedPayload,
-  normalizeGeneratedBridgeEndpoint,
-} from '../parent-log-runtime';
+import { buildGeneratedRunStartedPayload, normalizeGeneratedBridgeEndpoint } from '../parent-log-runtime';
 
 export interface BridgeRunInfo {
   readonly runId: string;

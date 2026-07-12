@@ -1,8 +1,4 @@
-import {
-  formatSummaryText,
-  compareIsoDesc,
-  uniqueStrings,
-} from './live-activity-lan-diagnostics-text';
+import { formatSummaryText, compareIsoDesc, uniqueStrings } from './live-activity-lan-diagnostics-text';
 import {
   portalLanDecisionHistorySummary,
   portalLanEvidenceWindowSummary,
@@ -153,7 +149,9 @@ export function projectPortalLanDiagnosticsViewModel(
   };
 }
 
-function projectPortalLanDiagnosticsParts(readModel: PortalLanDiagnosticsReadModel): PortalLanDiagnosticsProjectionParts {
+function projectPortalLanDiagnosticsParts(
+  readModel: PortalLanDiagnosticsReadModel
+): PortalLanDiagnosticsProjectionParts {
   const trustedRegistry = [...readModel.trustedDeviceRegistry].sort((left, right) =>
     compareIsoDesc(left.trustedAt, right.trustedAt)
   );

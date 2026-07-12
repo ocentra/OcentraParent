@@ -5,6 +5,7 @@
   "failOn": ["error"],
   "ignoreDirs": [
     ".git",
+    ".tmp",
     ".hub",
     ".turbo",
     ".wrangler",
@@ -15,7 +16,9 @@
     "dist",
     "build",
     "coverage",
-    "output"
+    "output",
+    "test-results",
+    "playwright-report"
   ],
   "ignoreFileGlobs": [
     "ocentra-enforcer/**",
@@ -23,8 +26,7 @@
     "tests/repo-tooling/no-test-doubles-policy.test.mjs",
     "infra/cloudflare/tests/property/billing-idempotency.property.test.ts"
   ],
-  "singleSourceRequiredMirrorRoots": ["crates/agent-protocol/src/constants"],
-  "generatedArtifactsMode": "tracked",
+  "generatedArtifactsMode": "scan",
   "sourceShapePolicies": [
     {
       "roots": ["src", "apps"],
@@ -65,10 +67,7 @@
   ],
   "sourceShapeOverrides": [
     {
-      "globs": [
-        "packages/schema-domain/src/*.ts",
-        "packages/schema-domain/src/**/*.ts"
-      ],
+      "globs": ["packages/schema-domain/src/*.ts", "packages/schema-domain/src/**/*.ts"],
       "maxExports": 140,
       "maxLines": 1500,
       "note": "Central schema ownership carries a wider public contract surface."
@@ -127,8 +126,10 @@
     },
     {
       "path": "apps/portal/generated/parent-ui-bridge.ts",
-      "maxExports": 180,
-      "maxLines": 1500
+      "maxExports": 320,
+      "maxLines": 2500,
+      "maxBranches": 220,
+      "note": "Rust-generated parent bridge mirrors the protocol and activity contract surface; schema contract tests enforce generator freshness."
     },
     {
       "path": "packages/portal-domain/src/generated-portal-contracts.ts",

@@ -198,7 +198,7 @@ export const PortalFrameTuner = {
     Colors: 'colors',
     Content: 'content',
   },
-    LayoutKey: PortalFrameTunerLayoutKeyImpl,
+  LayoutKey: PortalFrameTunerLayoutKeyImpl,
   Segment: {
     TopLeftRunStart: 'topLeftRunStart',
     TopLeftRunMid: 'topLeftRunMid',

@@ -7,12 +7,15 @@ use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08Not
 use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationQuietHoursReadiness;
 use ocentra_parent_agent_protocol::policy_constants;
 
-use super::notification_provider_status_boundary_read_model::v08_notification_provider_status_boundary_read_model;
+use super::notification_provider_status_boundary_read_model::{
+    v08_notification_provider_status_boundary_read_model, GeneratedAtTextRef,
+};
 
 #[test]
 fn notification_provider_status_boundary_read_model_covers_provider_states() {
-    let read_model =
-        v08_notification_provider_status_boundary_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_notification_provider_status_boundary_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
     let status_counts = count_statuses(&read_model.entries);
 
     assert_eq!(read_model.read_model_id, boundary::READ_MODEL_ID);
@@ -47,8 +50,9 @@ fn notification_provider_status_boundary_read_model_covers_provider_states() {
 
 #[test]
 fn notification_provider_status_boundary_read_model_preserves_readiness_and_non_claims() {
-    let read_model =
-        v08_notification_provider_status_boundary_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_notification_provider_status_boundary_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
     let quiet_counts = count_quiet_hours(&read_model.entries);
     let escalation_counts = count_escalation(&read_model.entries);
 

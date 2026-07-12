@@ -23,6 +23,7 @@ use super::screen_ai_service_event_bridge::{
     screen_runtime_deletion_input_from_service_row, screen_runtime_input_from_service_row,
     ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
 };
+use super::screen_ai_service_event_subscription::{ActionRefText, ObservedAtText};
 use crate::test_invariants::require_ok;
 
 #[test]
@@ -70,7 +71,7 @@ fn screen_service_event_bridge_maps_service_row_to_existing_screen_runtime_input
 async fn screen_service_event_bridge_publishes_ordered_chain_from_service_read_model_row() {
     let report = publish_screen_service_row_event_chain(
         service_screen_row(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
         service_bridge_refs(),
     )
     .await;
@@ -101,7 +102,7 @@ async fn screen_service_event_bridge_publishes_ordered_chain_from_service_read_m
 async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture_row() {
     let report = publish_screen_capture_queue_event_chain(
         service_screen_row(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
     )
     .await;
     let report = require_ok(
@@ -137,7 +138,7 @@ async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture
 async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row() {
     let report = publish_screen_deletion_event_chain(
         service_screen_row(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
     )
     .await;
     let report = require_ok(
@@ -166,7 +167,7 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
 async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
     let report = publish_screen_degraded_event_chain(
         degraded_service_screen_row(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
     )
     .await;
     let report = require_ok(
@@ -303,7 +304,7 @@ fn service_screen_row() -> ActivityScreenReadModelRow {
 
 fn service_bridge_refs() -> ScreenAiServiceEventBridgeRefs {
     ScreenAiServiceEventBridgeRefs {
-        action_ref: constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
+        action_ref: ActionRefText(constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string()),
     }
 }
 

@@ -23,11 +23,11 @@ pub(crate) fn enforcement_broad_adapter_proof_payload(
         ),
         (
             constants::field::ENFORCEMENT_BROAD_ADAPTER_PROOF_READ_MODEL,
-            LogFieldValue::String(read_model_json(read_model)),
+            read_model_json(read_model),
         ),
     ])
 }
 
-fn read_model_json(read_model: &V08BroadAdapterRuntimeProofReadModel) -> String {
-    serialize_json_string(read_model)
+fn read_model_json(read_model: &V08BroadAdapterRuntimeProofReadModel) -> LogFieldValue {
+    LogFieldValue::String(serialize_json_string(read_model).0)
 }

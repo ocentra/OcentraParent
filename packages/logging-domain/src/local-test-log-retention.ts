@@ -12,10 +12,7 @@ function matchesGeneratedFile(entry: StoredTestLogLine, filePath: string): boole
   return entry.file === path.basename(filePath);
 }
 
-export function matchesGeneratedWipeEntry(
-  entry: StoredTestLogLine,
-  options: GeneratedWipeNdjsonScopeOptions
-): boolean {
+export function matchesGeneratedWipeEntry(entry: StoredTestLogLine, options: GeneratedWipeNdjsonScopeOptions): boolean {
   if (entry.scope !== options.scope) {
     return false;
   }
@@ -34,10 +31,7 @@ export function matchesGeneratedWipeEntry(
   return true;
 }
 
-export function selectGeneratedPruneCandidates(
-  files: readonly GeneratedPrunableFile[],
-  keepNewest: number
-): string[] {
+export function selectGeneratedPruneCandidates(files: readonly GeneratedPrunableFile[], keepNewest: number): string[] {
   const keepCount = Math.max(keepNewest, 0);
   return [...files]
     .sort((left, right) => {

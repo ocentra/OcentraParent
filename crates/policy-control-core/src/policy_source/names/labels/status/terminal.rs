@@ -19,8 +19,14 @@ const TERMINAL_POLICY_STATUS_SLOTS: [(PolicySourceStatus, TerminalPolicyStatus);
         TerminalPolicyStatus::PartiallyActive,
     ),
     (PolicySourceStatus::Rejected, TerminalPolicyStatus::Rejected),
-    (PolicySourceStatus::Superseded, TerminalPolicyStatus::Superseded),
-    (PolicySourceStatus::RolledBack, TerminalPolicyStatus::RolledBack),
+    (
+        PolicySourceStatus::Superseded,
+        TerminalPolicyStatus::Superseded,
+    ),
+    (
+        PolicySourceStatus::RolledBack,
+        TerminalPolicyStatus::RolledBack,
+    ),
     (PolicySourceStatus::Stale, TerminalPolicyStatus::Stale),
     (PolicySourceStatus::Expired, TerminalPolicyStatus::Expired),
     (

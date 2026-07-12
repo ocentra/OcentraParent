@@ -17,4 +17,3 @@ export function proofRequirementForGenerated(sectionTitle: string, sourceText: s
   }
   return null;
 }
-

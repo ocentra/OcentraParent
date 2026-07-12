@@ -34,20 +34,15 @@ export const AppGamePolicyCompilerRequestedAction = AppGamePolicyCompilerRequest
 export const AppGamePolicyCompilerOutcomeState = AppGamePolicyCompilerOutcomeStateGenerated;
 export const AppGamePolicyCompilerRejectionReason = AppGamePolicyCompilerRejectionReasonGenerated;
 
-type TargetKindValue =
-  (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
-type ProofKindValue =
-  (typeof AppGamePolicyCompilerProofKind)[keyof typeof AppGamePolicyCompilerProofKind];
-type EvidenceStateValue =
-  (typeof AppGamePolicyCompilerEvidenceState)[keyof typeof AppGamePolicyCompilerEvidenceState];
-type CapabilityStateValue =
-  (typeof PolicyCompilerCapabilityState)[keyof typeof PolicyCompilerCapabilityState];
+type TargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
+type ProofKindValue = (typeof AppGamePolicyCompilerProofKind)[keyof typeof AppGamePolicyCompilerProofKind];
+type EvidenceStateValue = (typeof AppGamePolicyCompilerEvidenceState)[keyof typeof AppGamePolicyCompilerEvidenceState];
+type CapabilityStateValue = (typeof PolicyCompilerCapabilityState)[keyof typeof PolicyCompilerCapabilityState];
 type AuthorityStateValue =
   (typeof AppGamePolicyCompilerAuthorityState)[keyof typeof AppGamePolicyCompilerAuthorityState];
 type RequestedActionValue =
   (typeof AppGamePolicyCompilerRequestedAction)[keyof typeof AppGamePolicyCompilerRequestedAction];
-type OutcomeStateValue =
-  (typeof AppGamePolicyCompilerOutcomeState)[keyof typeof AppGamePolicyCompilerOutcomeState];
+type OutcomeStateValue = (typeof AppGamePolicyCompilerOutcomeState)[keyof typeof AppGamePolicyCompilerOutcomeState];
 type RejectionReasonValue =
   (typeof AppGamePolicyCompilerRejectionReason)[keyof typeof AppGamePolicyCompilerRejectionReason];
 

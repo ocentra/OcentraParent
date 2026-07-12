@@ -1,0 +1,120 @@
+export function isParentAiRuntimeRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentAiRuntimeRoutes);
+}
+
+export function isParentAppGameParentSurfaceRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentAppGameParentSurfaceRoutes);
+}
+
+export function isParentBrowserParentSurfaceRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentBrowserParentSurfaceRoutes);
+}
+
+export function isParentNetworkEvidenceDrawerRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentNetworkEvidenceDrawerRoutes);
+}
+
+export function isParentInlineNetworkEvidenceDrawerRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentInlineNetworkEvidenceDrawerRoutes);
+}
+
+export function isParentPolicyPreviewRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentPolicyPreviewRoutes);
+}
+
+export function isParentScreenSettingsRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentScreenSettingsRoutes);
+}
+
+export function isParentScreenSummaryRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentScreenSummaryRoutes);
+}
+
+export function isParentSetupFirstRunRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentSetupFirstRunRoutes);
+}
+
+export function isParentTrackingStatusRoute(route: ParentRouteId): boolean {
+  return parentRouteMatches(route, ParentTrackingStatusRoutes);
+}
+
+function parentRouteMatches(route: ParentRouteId, routes: readonly ParentRouteId[]): boolean {
+  return routes.some((candidate) => candidate === route);
+}
+
+export type ParentRouteGroupId = 'monitor' | 'guide' | 'operate' | 'dev-tools';
+
+export const ParentRouteGroup = {
+  Monitor: 'monitor',
+  Guide: 'guide',
+  Operate: 'operate',
+  DevTools: 'dev-tools',
+} as const;
+
+export const ParentSidebarRouteGroups: readonly ParentRouteGroupId[] = [
+  ParentRouteGroup.Monitor,
+  ParentRouteGroup.Guide,
+  ParentRouteGroup.Operate,
+] as const;
+
+export type ParentRouteMetadataEntry = {
+  readonly route: ParentRouteId;
+  readonly group: ParentRouteGroupId;
+  readonly sidebar: boolean;
+};
+
+export const ParentRouteMetadata: Readonly<Record<ParentRouteId, ParentRouteMetadataEntry>> = {
+  [ParentRoute.Overview]: { route: ParentRoute.Overview, group: ParentRouteGroup.Monitor, sidebar: true },
+  [ParentRoute.Assistant]: { route: ParentRoute.Assistant, group: ParentRouteGroup.Guide, sidebar: true },
+  [ParentRoute.Start]: { route: ParentRoute.Start, group: ParentRouteGroup.Monitor, sidebar: true },
+  [ParentRoute.Activity]: { route: ParentRoute.Activity, group: ParentRouteGroup.Monitor, sidebar: true },
+  [ParentRoute.Browser]: { route: ParentRoute.Browser, group: ParentRouteGroup.Monitor, sidebar: true },
+  [ParentRoute.BrowserSettings]: { route: ParentRoute.BrowserSettings, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.Policy]: { route: ParentRoute.Policy, group: ParentRouteGroup.Guide, sidebar: true },
+  [ParentRoute.PolicyApps]: { route: ParentRoute.PolicyApps, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.PolicyGames]: { route: ParentRoute.PolicyGames, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.PolicyScreen]: { route: ParentRoute.PolicyScreen, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.PolicyNetwork]: { route: ParentRoute.PolicyNetwork, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.PolicyTracking]: { route: ParentRoute.PolicyTracking, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.PolicyRemoteScreen]: { route: ParentRoute.PolicyRemoteScreen, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.RuleManagement]: { route: ParentRoute.RuleManagement, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.Schedules]: { route: ParentRoute.Schedules, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.Approvals]: { route: ParentRoute.Approvals, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.Enforcement]: { route: ParentRoute.Enforcement, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.PrivacyDesign]: { route: ParentRoute.PrivacyDesign, group: ParentRouteGroup.Guide, sidebar: true },
+  [ParentRoute.Memory]: { route: ParentRoute.Memory, group: ParentRouteGroup.Guide, sidebar: true },
+  [ParentRoute.MemorySettings]: { route: ParentRoute.MemorySettings, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.AiGuide]: { route: ParentRoute.AiGuide, group: ParentRouteGroup.Guide, sidebar: true },
+  [ParentRoute.AiRuntime]: { route: ParentRoute.AiRuntime, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.ApiProviders]: { route: ParentRoute.ApiProviders, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.ReportsGuide]: { route: ParentRoute.ReportsGuide, group: ParentRouteGroup.Guide, sidebar: true },
+  [ParentRoute.ScreenAnalysis]: { route: ParentRoute.ScreenAnalysis, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.AppGameSessions]: { route: ParentRoute.AppGameSessions, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.NetworkActivity]: { route: ParentRoute.NetworkActivity, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.Devices]: { route: ParentRoute.Devices, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.LanPairing]: { route: ParentRoute.LanPairing, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.CapabilityStatus]: { route: ParentRoute.CapabilityStatus, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.Notifications]: { route: ParentRoute.Notifications, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.NotificationChannels]: { route: ParentRoute.NotificationChannels, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.DriveConnections]: { route: ParentRoute.DriveConnections, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.ExportRetention]: { route: ParentRoute.ExportRetention, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.RemoteAccess]: { route: ParentRoute.RemoteAccess, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.ReportCompiler]: { route: ParentRoute.ReportCompiler, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.AuditHistory]: { route: ParentRoute.AuditHistory, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.Subscription]: { route: ParentRoute.Subscription, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.Entitlements]: { route: ParentRoute.Entitlements, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.PlatformsInstall]: { route: ParentRoute.PlatformsInstall, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.InstallUpdates]: { route: ParentRoute.InstallUpdates, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.Diagnostics]: { route: ParentRoute.Diagnostics, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.ProofPanels]: { route: ParentRoute.ProofPanels, group: ParentRouteGroup.DevTools, sidebar: true },
+  [ParentRoute.SettingsRules]: { route: ParentRoute.SettingsRules, group: ParentRouteGroup.Operate, sidebar: true },
+  [ParentRoute.AppLayout]: { route: ParentRoute.AppLayout, group: ParentRouteGroup.DevTools, sidebar: false },
+  [ParentRoute.FrameTuner]: { route: ParentRoute.FrameTuner, group: ParentRouteGroup.DevTools, sidebar: false },
+  [ParentRoute.Commands]: { route: ParentRoute.Commands, group: ParentRouteGroup.DevTools, sidebar: true },
+  [ParentRoute.Events]: { route: ParentRoute.Events, group: ParentRouteGroup.DevTools, sidebar: true },
+  [ParentRoute.Logs]: { route: ParentRoute.Logs, group: ParentRouteGroup.DevTools, sidebar: true },
+} as const;
+
+export const ParentSidebarRoutes: readonly ParentRouteId[] = ParentRoutes.filter(
+  (route) => ParentRouteMetadata[route].sidebar
+);

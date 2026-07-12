@@ -136,8 +136,7 @@ export const PolicyPreviewOrigin = policyContracts.PolicyPreviewOrigin;
 export const PolicyPreviewConfirmationState = policyContracts.PolicyPreviewConfirmationState;
 export const PolicyPreviewBudgetBoundaryState = policyContracts.PolicyPreviewBudgetBoundaryState;
 
-export const PolicyActionStrictnessRank =
-  GeneratedPolicyActionStrictnessRank as Readonly<Record<PolicyAction, number>>;
+export const PolicyActionStrictnessRank = GeneratedPolicyActionStrictnessRank as Readonly<Record<PolicyAction, number>>;
 
 export const parsePolicySchedule = policyContracts.parsePolicySchedule;
 export const parseFamilyPolicySet = policyContracts.parseFamilyPolicySet;

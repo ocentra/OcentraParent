@@ -16,7 +16,14 @@ export type PortalLanCanonicalHouseholdDevice = GeneratedPortalLanCanonicalHouse
 export type PortalLanCanonicalNetworkIdentity = GeneratedPortalLanCanonicalHouseholdNetworkIdentitySnapshot;
 export type PortalLanDiscoveryEvidenceRecord = GeneratedPortalLanDiscoveryEvidenceRecordSnapshot;
 
-const PortalLanDiscoveryEvidenceStringFields = ['source', 'evidenceKind', 'value', 'firstSeenAt', 'lastSeenAt', 'confidence'] as const;
+const PortalLanDiscoveryEvidenceStringFields = [
+  'source',
+  'evidenceKind',
+  'value',
+  'firstSeenAt',
+  'lastSeenAt',
+  'confidence',
+] as const;
 
 export function normalizePortalLanCanonicalHouseholdDevices(
   value: unknown
@@ -111,9 +118,7 @@ function normalizePortalLanCanonicalNetworkIdentity(value: unknown): PortalLanCa
   } as PortalLanCanonicalNetworkIdentity;
 }
 
-function normalizePortalLanDiscoveryEvidenceRecord(
-  value: unknown
-): PortalLanDiscoveryEvidenceRecord | null {
+function normalizePortalLanDiscoveryEvidenceRecord(value: unknown): PortalLanDiscoveryEvidenceRecord | null {
   if (
     !isRecord(value) ||
     !recordHasStringFields(value, PortalLanDiscoveryEvidenceStringFields) ||

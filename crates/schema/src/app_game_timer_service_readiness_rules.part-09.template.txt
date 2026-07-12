@@ -1,0 +1,30 @@
+      AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.CompilerManualRequiredBeforeTimer
+  ).length,
+});
+
+export const appGameSourceGatedPolicyPreviewTimerHandoffCountsMatchGenerated = (handoff: TimerHandoffLike) =>
+  handoff.nativeAppRowCount > 0 &&
+  handoff.nativeGameRowCount > 0 &&
+  handoff.timerSequenceCandidateCount ===
+    handoff.rows.filter(
+      (row) =>
+        row.timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing &&
+        row.timerRuntimeRequired &&
+        !row.manualProofRequired
+    ).length &&
+  handoff.sourceManualBlockedCount ===
+    handoff.rows.filter(
+      (row) =>
+        row.timerHandoffState ===
+          AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer &&
+        !row.timerRuntimeRequired &&
+        row.manualProofRequired
+    ).length &&
+  handoff.compilerManualBlockedCount ===
+    handoff.rows.filter(
+      (row) =>
+        row.timerHandoffState ===
+          AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.CompilerManualRequiredBeforeTimer &&
+        !row.timerRuntimeRequired &&
+        row.manualProofRequired
+    ).length;

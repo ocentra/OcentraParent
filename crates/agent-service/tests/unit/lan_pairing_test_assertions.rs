@@ -6,6 +6,7 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
+use std::fmt::Display;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
@@ -15,8 +16,11 @@ pub(crate) fn assert_accepted_control(event: &AgentEventEnvelope) {
     assert_accepted_control_for_intent(event, constants::lan_pairing::INTENT_ID);
 }
 
-pub(crate) fn assert_accepted_control_for_intent(event: &AgentEventEnvelope, intent_id: TestText) {
-    let intent_id: TestText = intent_id.into();
+pub(crate) fn assert_accepted_control_for_intent(
+    event: &AgentEventEnvelope,
+    intent_id: impl Display,
+) {
+    let intent_id = intent_id.to_string();
     assert_eq!(
         event.payload.get(constants::field::LAN_CONTROL_STATE),
         Some(&LogFieldValue::String(
@@ -115,11 +119,11 @@ pub(crate) fn assert_persistent_selected_route_support_surface(event: &AgentEven
 
 fn assert_status_support_surface_with_persistence(
     event: &AgentEventEnvelope,
-    persistence_mode: TestText,
-    restart_behavior: TestText,
+    persistence_mode: impl Display,
+    restart_behavior: impl Display,
 ) {
-    let persistence_mode: TestText = persistence_mode.into();
-    let restart_behavior: TestText = restart_behavior.into();
+    let persistence_mode = persistence_mode.to_string();
+    let restart_behavior = restart_behavior.to_string();
     assert_transport_support_surface(event);
     assert_runtime_support_surface(event, persistence_mode, restart_behavior);
 }
@@ -153,11 +157,11 @@ fn assert_transport_support_surface(event: &AgentEventEnvelope) {
 
 fn assert_runtime_support_surface(
     event: &AgentEventEnvelope,
-    persistence_mode: TestText,
-    restart_behavior: TestText,
+    persistence_mode: impl Display,
+    restart_behavior: impl Display,
 ) {
-    let persistence_mode: TestText = persistence_mode.into();
-    let restart_behavior: TestText = restart_behavior.into();
+    let persistence_mode = persistence_mode.to_string();
+    let restart_behavior = restart_behavior.to_string();
     let expected_mdns =
         evaluate_lan_mdns_advertisement_lifecycle(LanMdnsAdvertisementLifecycleInput {
             desired_present: false,
@@ -317,15 +321,15 @@ pub(crate) fn assert_selected_device_reachability(
 
 pub(crate) fn assert_status_selection(
     event: &AgentEventEnvelope,
-    authentication_state: TestText,
-    selected_child_device_id: TestText,
-    selected_route_id: TestText,
-    trusted_device_ids: TestText,
+    authentication_state: impl Display,
+    selected_child_device_id: impl Display,
+    selected_route_id: impl Display,
+    trusted_device_ids: impl Display,
 ) {
-    let authentication_state: TestText = authentication_state.into();
-    let selected_child_device_id: TestText = selected_child_device_id.into();
-    let selected_route_id: TestText = selected_route_id.into();
-    let trusted_device_ids: TestText = trusted_device_ids.into();
+    let authentication_state = authentication_state.to_string();
+    let selected_child_device_id = selected_child_device_id.to_string();
+    let selected_route_id = selected_route_id.to_string();
+    let trusted_device_ids = trusted_device_ids.to_string();
     assert_eq!(
         event
             .payload
@@ -350,15 +354,15 @@ pub(crate) fn assert_status_selection(
 
 pub(crate) fn assert_status_selected_route_trust(
     event: &AgentEventEnvelope,
-    pairing_id: TestText,
-    trust_state: TestText,
-    stale_at: TestText,
-    offline_at: TestText,
+    pairing_id: impl Display,
+    trust_state: impl Display,
+    stale_at: impl Display,
+    offline_at: impl Display,
 ) {
-    let pairing_id: TestText = pairing_id.into();
-    let trust_state: TestText = trust_state.into();
-    let stale_at: TestText = stale_at.into();
-    let offline_at: TestText = offline_at.into();
+    let pairing_id = pairing_id.to_string();
+    let trust_state = trust_state.to_string();
+    let stale_at = stale_at.to_string();
+    let offline_at = offline_at.to_string();
     assert_eq!(
         event.payload.get(constants::field::LAN_SELECTED_PAIRING_ID),
         Some(&LogFieldValue::String(pairing_id))
@@ -415,17 +419,17 @@ pub(crate) fn assert_status_selected_route_custody(
     );
 }
 
-pub(crate) fn assert_rejection(event: &AgentEventEnvelope, reason: TestText) {
+pub(crate) fn assert_rejection(event: &AgentEventEnvelope, reason: impl Display) {
     assert_rejection_with_audit(event, reason, constants::value::LAN_AUDIT_CONTROL_REJECTED);
 }
 
 pub(crate) fn assert_rejection_with_audit(
     event: &AgentEventEnvelope,
-    reason: TestText,
-    audit_type: TestText,
+    reason: impl Display,
+    audit_type: impl Display,
 ) {
-    let reason: TestText = reason.into();
-    let audit_type: TestText = audit_type.into();
+    let reason = reason.to_string();
+    let audit_type = audit_type.to_string();
     assert_eq!(event.event, AgentEventName::AgentCommandRejected);
     assert_eq!(
         event.payload.get(constants::field::LAN_CONTROL_STATE),

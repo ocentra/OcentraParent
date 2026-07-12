@@ -16,6 +16,17 @@ use crate::{
 const TEST_RUNTIME_STORE_FILE_PREFIX: &str = "ocentra-parent-agent-service-";
 const TEST_RUNTIME_STORE_FILE_EXTENSION: &str = ".json";
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct TempRuntimeStorePrefix(pub(crate) &'static str);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct TempRuntimeStorePath(pub(crate) PathBuf);
+
+pub(crate) const BROWSER_POLICY_TEST_STORE_PREFIX: TempRuntimeStorePrefix =
+    TempRuntimeStorePrefix(constants::browser_policy::TEST_STORE_FILE_PREFIX);
+pub(crate) const SCREEN_SETTINGS_TEST_STORE_PREFIX: TempRuntimeStorePrefix =
+    TempRuntimeStorePrefix(constants::screen_settings::TEST_STORE_FILE_PREFIX);
+
 pub(crate) fn build_dev_echo_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
     build_event(
         constants::event_id::DEV_ECHOED,
@@ -79,16 +90,34 @@ pub(crate) fn build_watcher_status_report(command: AgentCommandEnvelope) -> Agen
     )
 }
 
-pub(crate) fn temp_runtime_store_path(prefix: &str) -> PathBuf {
+pub(crate) fn maybe_basic_report(command: AgentCommandEnvelope) -> Option<AgentEventEnvelope> {
+    match command.command {
+        ocentra_parent_agent_protocol::transport::AgentCommandName::AgentHealthCheck => {
+            Some(build_health_report(command))
+        }
+        ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLogSnapshotGet => {
+            Some(build_log_snapshot_report(command))
+        }
+        ocentra_parent_agent_protocol::transport::AgentCommandName::AgentDevEcho => {
+            Some(build_dev_echo_report(command))
+        }
+        ocentra_parent_agent_protocol::transport::AgentCommandName::AgentWatchStatusGet => {
+            Some(build_watcher_status_report(command))
+        }
+        _ => None,
+    }
+}
+
+pub(crate) fn temp_runtime_store_path(prefix: TempRuntimeStorePrefix) -> TempRuntimeStorePath {
     static TEST_RUNTIME_COUNTER: AtomicU64 = AtomicU64::new(0);
 
     let sequence = TEST_RUNTIME_COUNTER.fetch_add(1, Ordering::Relaxed);
     let mut file_name = String::from(TEST_RUNTIME_STORE_FILE_PREFIX);
-    file_name.push_str(prefix);
+    file_name.push_str(prefix.0);
     file_name.push('-');
     file_name.push_str(&std::process::id().to_string());
     file_name.push('-');
     file_name.push_str(&sequence.to_string());
     file_name.push_str(TEST_RUNTIME_STORE_FILE_EXTENSION);
-    std::env::temp_dir().join(file_name)
+    TempRuntimeStorePath(std::env::temp_dir().join(file_name))
 }

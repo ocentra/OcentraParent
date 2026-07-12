@@ -64,11 +64,7 @@ export function SetupFirstRunRoutePanel({
   );
 }
 
-function SetupFirstRunCard({
-  card,
-}: {
-  readonly card: ParentSetupFirstRunPanelCardSnapshot;
-}): ReactElement {
+function SetupFirstRunCard({ card }: { readonly card: ParentSetupFirstRunPanelCardSnapshot }): ReactElement {
   return (
     <article className={setupCardClassName()}>
       <h2>{card.title}</h2>
@@ -92,11 +88,7 @@ function SetupFirstRunDetails({
   );
 }
 
-function SetupFirstRunDetail({
-  detail,
-}: {
-  readonly detail: ParentSetupFirstRunPanelDetailSnapshot;
-}): ReactElement {
+function SetupFirstRunDetail({ detail }: { readonly detail: ParentSetupFirstRunPanelDetailSnapshot }): ReactElement {
   return (
     <div>
       <dt>{detail.label}</dt>

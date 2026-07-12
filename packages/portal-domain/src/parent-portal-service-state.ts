@@ -52,9 +52,7 @@ export type ParentPortalServiceState = {
   readonly userEntry: ParentPortalRow | null;
 };
 
-const SERVICE_DEGRADATION_REASON_TEXT: Readonly<
-  Record<GeneratedParentPortalServiceDegradationReasonCode, string>
-> = {
+const SERVICE_DEGRADATION_REASON_TEXT: Readonly<Record<GeneratedParentPortalServiceDegradationReasonCode, string>> = {
   'missing-snapshot-rows': 'Connected to the local service, but no Rust-owned route rows were supplied.',
   connecting: 'The local service bridge is still connecting.',
   'stale-snapshot-rows': 'Stale route rows remain visible while the service is not connected.',
@@ -62,7 +60,8 @@ const SERVICE_DEGRADATION_REASON_TEXT: Readonly<
 };
 
 export function resolveParentPortalServiceState(input: ParentPortalServiceStateInput): ParentPortalServiceState {
-  const parentPortalRows = input.snapshotRows === null || input.snapshotRows === undefined ? [] : [...input.snapshotRows];
+  const parentPortalRows =
+    input.snapshotRows === null || input.snapshotRows === undefined ? [] : [...input.snapshotRows];
   const { serviceReachability, serviceDegradationReasonCode } = generatedResolveParentPortalServiceReachability(
     input.connectionState,
     parentPortalRows.length > 0

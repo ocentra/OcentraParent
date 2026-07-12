@@ -1,5 +1,9 @@
 import { PortalDevTextToken, resolvePortalDevText } from './display-text';
-import { decodePortalDetailValue, type PortalDetailValue, type TrackingStatusProofArtifact } from './portal-contract-text-contracts';
+import {
+  decodePortalDetailValue,
+  type PortalDetailValue,
+  type TrackingStatusProofArtifact,
+} from './portal-contract-text-contracts';
 import { PortalFormatting } from './formatting';
 import type {
   TrackingFamilyDashboardHostedRollupRow,

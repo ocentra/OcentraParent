@@ -15,6 +15,11 @@ use super::{
     TargetedArpRefreshPacketIo, TargetedArpRefreshTarget, TARGETED_ARP_REFRESH_SCAN_BUDGET_MS,
 };
 
+enum TargetedArpAttempt<'a> {
+    Probed(&'a TargetedArpRefreshTarget),
+    Throttled(&'a TargetedArpRefreshTarget),
+}
+
 pub fn targeted_arp_refresh_targets_with_evidence(
     targets: &[TargetedArpRefreshTarget],
 ) -> Vec<LanTargetedArpRefreshEvidence> {
@@ -40,11 +45,6 @@ pub fn targeted_arp_refresh_targets_with_packet_io_until(
     deadline: Instant,
     packet_io: &mut dyn TargetedArpRefreshPacketIo,
 ) -> Vec<LanTargetedArpRefreshEvidence> {
-    enum TargetedArpAttempt<'a> {
-        Probed(&'a TargetedArpRefreshTarget),
-        Throttled(&'a TargetedArpRefreshTarget),
-    }
-
     let mut attempts = Vec::new();
     for target in targets {
         if Instant::now() >= deadline {
@@ -63,40 +63,41 @@ pub fn targeted_arp_refresh_targets_with_packet_io_until(
     let probed = attempts
         .iter()
         .any(|attempt| matches!(attempt, TargetedArpAttempt::Probed(_)));
-    let observations = if probed && packet_io.has_observation_budget(deadline) {
-        Some(observations_by_ip(packet_io.observations(deadline)))
-    } else if probed {
-        None
-    } else {
-        Some(HashMap::new())
-    };
+    let observations = probed
+        .then(|| {
+            packet_io
+                .has_observation_budget(deadline)
+                .then(|| observations_by_ip(packet_io.observations(deadline)))
+        })
+        .flatten()
+        .or_else(|| (!probed).then(HashMap::new));
     let observed_at_unix_ms = unix_timestamp_ms();
-    let mut evidence = Vec::new();
-    for attempt in attempts {
-        match attempt {
-            TargetedArpAttempt::Probed(target) => {
-                let Some(observations) = observations.as_ref() else {
-                    continue;
-                };
-                let observed_mac_address = observations.get(&target.ip_address).cloned();
-                evidence.push(targeted_arp_refresh_evidence_from_observation(
-                    target,
-                    observed_mac_address,
-                    observed_at_unix_ms,
-                    false,
-                ));
-            }
-            TargetedArpAttempt::Throttled(target) => {
-                evidence.push(targeted_arp_refresh_evidence_from_observation(
-                    target,
-                    None,
-                    observed_at_unix_ms,
-                    true,
-                ));
-            }
-        }
+    attempts
+        .into_iter()
+        .filter_map(|attempt| {
+            targeted_arp_attempt_evidence(attempt, observations.as_ref(), observed_at_unix_ms)
+        })
+        .collect()
+}
+
+fn targeted_arp_attempt_evidence(
+    attempt: TargetedArpAttempt<'_>,
+    observations: Option<&HashMap<Ipv4Addr, String>>,
+    observed_at_unix_ms: u128,
+) -> Option<LanTargetedArpRefreshEvidence> {
+    match attempt {
+        TargetedArpAttempt::Probed(target) => observations.map(|observations| {
+            targeted_arp_refresh_evidence_from_observation(
+                target,
+                observations.get(&target.ip_address).cloned(),
+                observed_at_unix_ms,
+                false,
+            )
+        }),
+        TargetedArpAttempt::Throttled(target) => Some(
+            targeted_arp_refresh_evidence_from_observation(target, None, observed_at_unix_ms, true),
+        ),
     }
-    evidence
 }
 
 pub fn observations_by_ip(
@@ -169,13 +170,22 @@ pub fn targeted_arp_refresh_evidence_from_observation(
 }
 
 pub fn targeted_arp_refresh_source() -> &'static str {
-    if cfg!(target_os = "windows") {
-        constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR
-    } else if cfg!(target_os = "macos") {
-        constants::lan_pairing::LAN_SCAN_SOURCE_MACOS_ARP
-    } else {
-        constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH
-    }
+    targeted_arp_refresh_source_for_platform()
+}
+
+#[cfg(target_os = "windows")]
+fn targeted_arp_refresh_source_for_platform() -> &'static str {
+    constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR
+}
+
+#[cfg(target_os = "macos")]
+fn targeted_arp_refresh_source_for_platform() -> &'static str {
+    constants::lan_pairing::LAN_SCAN_SOURCE_MACOS_ARP
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "macos")))]
+fn targeted_arp_refresh_source_for_platform() -> &'static str {
+    constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH
 }
 
 pub fn unix_timestamp_ms() -> u128 {

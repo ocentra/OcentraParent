@@ -12,12 +12,9 @@ export function usePortalFrameLayout(
     let active = true;
     void loadInitialLayouts((url) => loadPortalFrameLayout(url, setLayout, () => active));
     const intervalId = pollDevLayout
-      ? window.setInterval(
-          () => {
-            void loadPortalFrameLayout(PortalFrameTuner.Api.LayoutEndpoint, setLayout, () => active);
-          },
-          PortalFrameTuner.Timing.LayoutPollMs
-        )
+      ? window.setInterval(() => {
+          void loadPortalFrameLayout(PortalFrameTuner.Api.LayoutEndpoint, setLayout, () => active);
+        }, PortalFrameTuner.Timing.LayoutPollMs)
       : undefined;
     return () => {
       active = false;

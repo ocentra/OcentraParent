@@ -1,0 +1,26 @@
+export function validateGeneratedPolicyPreview(preview: GeneratedPolicyPreviewLike): void {
+  const hasConfirmedBy = preview.confirmedBy !== null;
+  const hasConfirmedAt = preview.confirmedAt !== null;
+  assertGeneratedPolicyContract(
+    hasConfirmedBy === hasConfirmedAt,
+    'preview confirmation requires both confirmedBy and confirmedAt together'
+  );
+  assertGeneratedPolicyContract(preview.decision.dryRun, 'preview decisions must remain dry-run');
+  assertGeneratedPolicyContract(
+    preview.decision.enforcementHandoffState === 'disabled',
+    'preview decisions must keep enforcement handoff disabled'
+  );
+
+  switch (preview.confirmationState) {
+    case 'confirmation-required':
+      assertGeneratedPolicyContract(
+        preview.confirmedBy === null && preview.confirmedAt === null,
+        'confirmation-required previews cannot include confirmedBy or confirmedAt'
+      );
+      return;
+    case 'confirmed':
+      assertGeneratedPolicyContract(preview.confirmedBy !== null, 'confirmed previews require confirmedBy');
+      assertGeneratedPolicyContract(preview.confirmedAt !== null, 'confirmed previews require confirmedAt');
+      return;
+  }
+}

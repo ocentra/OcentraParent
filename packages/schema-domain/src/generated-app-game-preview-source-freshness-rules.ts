@@ -24,7 +24,8 @@ import {
 type AppGamePolicyTargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
 type AppGamePolicyPreviewTargetDomainValue =
   (typeof AppGamePolicyPreviewTargetDomainGenerated)[keyof typeof AppGamePolicyPreviewTargetDomainGenerated];
-type AppGamePolicyPreviewStatusValue = (typeof AppGamePolicyPreviewStatusGenerated)[keyof typeof AppGamePolicyPreviewStatusGenerated];
+type AppGamePolicyPreviewStatusValue =
+  (typeof AppGamePolicyPreviewStatusGenerated)[keyof typeof AppGamePolicyPreviewStatusGenerated];
 type AppGamePolicyCompilerOutcomeStateValue =
   (typeof AppGamePolicyCompilerOutcomeState)[keyof typeof AppGamePolicyCompilerOutcomeState];
 type AppGameSourceFreshnessPolicyTargetKindValue =
@@ -243,12 +244,15 @@ export const appGamePolicyPreviewRowIsDryRunOnlyGenerated = (row: PreviewRowLike
   row.dryRun && row.enforcementHandoffState === 'disabled';
 
 export const appGamePolicyPreviewRowHasNoRuntimeClaimsGenerated = (row: PreviewRowLike) =>
-  row.policyEvaluatorRuntimeClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.policyEvaluatorRuntimeClaimState &&
+  row.policyEvaluatorRuntimeClaimState ===
+    AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.policyEvaluatorRuntimeClaimState &&
   row.timerRuntimeClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.timerRuntimeClaimState &&
   row.adapterDispatchState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.adapterDispatchState &&
   row.childDeliveryClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.childDeliveryClaimState &&
-  row.platformEnforcementClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.platformEnforcementClaimState &&
-  row.policyEvaluatorRuntimeClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.policyEvaluatorRuntimeClaimed &&
+  row.platformEnforcementClaimState ===
+    AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.platformEnforcementClaimState &&
+  row.policyEvaluatorRuntimeClaimed ===
+    AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.policyEvaluatorRuntimeClaimed &&
   row.timerRuntimeClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.timerRuntimeClaimed &&
   row.adapterDispatchClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.adapterDispatchClaimed &&
   row.childDeliveryClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.childDeliveryClaimed &&
@@ -272,7 +276,10 @@ export const countAppGamePolicyPreviewStatusesGenerated = (
 
 export const countAppGamePolicyPreviewReadModelRowsGenerated = (rows: readonly PreviewRowLike[]) => ({
   nativeAppRowCount: countAppGamePolicyPreviewRowsGenerated(rows, AppGamePolicyPreviewTargetDomainGenerated.NativeApp),
-  nativeGameRowCount: countAppGamePolicyPreviewRowsGenerated(rows, AppGamePolicyPreviewTargetDomainGenerated.NativeGame),
+  nativeGameRowCount: countAppGamePolicyPreviewRowsGenerated(
+    rows,
+    AppGamePolicyPreviewTargetDomainGenerated.NativeGame
+  ),
   previewReadyCount: countAppGamePolicyPreviewStatusesGenerated(rows, AppGamePolicyPreviewStatusGenerated.PreviewReady),
   manualRequiredCount: countAppGamePolicyPreviewStatusesGenerated(
     rows,
@@ -311,7 +318,8 @@ export const appGameSourceFreshnessSourceKindSatisfiesRequirementGenerated = (
 export const appGameSourceFreshnessRowsForRequirementGenerated = (
   rows: ReadonlyArray<SourceStatusRowLike>,
   requirementKind: AppGameSourceFreshnessRequirementKindValue
-) => rows.filter((row) => appGameSourceFreshnessSourceKindSatisfiesRequirementGenerated(row.sourceKind, requirementKind));
+) =>
+  rows.filter((row) => appGameSourceFreshnessSourceKindSatisfiesRequirementGenerated(row.sourceKind, requirementKind));
 
 export const appGameSourceFreshnessRowIsFreshGenerated = (
   row: SourceStatusRowLike,
@@ -336,9 +344,7 @@ export const appGameSourceFreshnessRequirementIsSatisfiedGenerated = (result: Re
   result.reasonCode === null &&
   result.sourceEvidenceRefs.length > 0;
 
-export const appGameSourceFreshnessReadinessIsPolicyReadyGenerated = (
-  readiness: SourceFreshnessReadinessLike
-) =>
+export const appGameSourceFreshnessReadinessIsPolicyReadyGenerated = (readiness: SourceFreshnessReadinessLike) =>
   readiness.policyCompileAllowed &&
   readiness.directAdapterCallRequested === false &&
   readiness.rawPrivateSourceRowsIncluded === false &&
@@ -426,9 +432,7 @@ function sourceRowPermissionLimitedFailureGenerated(
   return null;
 }
 
-function sourceRowUnavailableFailureGenerated(
-  row: SourceStatusRowLike
-): SourceFreshnessRequirementFailure | null {
+function sourceRowUnavailableFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
   if (
     row.state === AppGameSourceFreshnessReadModelStateGenerated.Unavailable ||
     row.state === AppGameSourceFreshnessReadModelStateGenerated.Offline ||
@@ -444,9 +448,7 @@ function sourceRowUnavailableFailureGenerated(
   return null;
 }
 
-function sourceRowAdapterErrorFailureGenerated(
-  row: SourceStatusRowLike
-): SourceFreshnessRequirementFailure | null {
+function sourceRowAdapterErrorFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
   if (row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.AdapterError) {
     return {
       requirementState: AppGameSourceFreshnessRequirementStateGenerated.AdapterError,
@@ -457,9 +459,7 @@ function sourceRowAdapterErrorFailureGenerated(
   return null;
 }
 
-function sourceRowManualRequiredFailureGenerated(
-  row: SourceStatusRowLike
-): SourceFreshnessRequirementFailure | null {
+function sourceRowManualRequiredFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
   if (
     row.state === AppGameSourceFreshnessReadModelStateGenerated.ScaffoldOnly ||
     row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.ManualRequired
@@ -473,9 +473,7 @@ function sourceRowManualRequiredFailureGenerated(
   return null;
 }
 
-function sourceRowNotClaimedFailureGenerated(
-  row: SourceStatusRowLike
-): SourceFreshnessRequirementFailure | null {
+function sourceRowNotClaimedFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
   if (row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.NotClaimed) {
     return {
       requirementState: AppGameSourceFreshnessRequirementStateGenerated.NotClaimed,
@@ -486,9 +484,7 @@ function sourceRowNotClaimedFailureGenerated(
   return null;
 }
 
-function sourceRowMissingEvidenceFailureGenerated(
-  row: SourceStatusRowLike
-): SourceFreshnessRequirementFailure | null {
+function sourceRowMissingEvidenceFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
   if (row.evidence.length === 0) {
     return {
       requirementState: AppGameSourceFreshnessRequirementStateGenerated.MissingEvidence,

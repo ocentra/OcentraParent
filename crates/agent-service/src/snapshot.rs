@@ -9,6 +9,9 @@ use ocentra_parent_agent_protocol::LOG_SCHEMA_VERSION;
 use crate::time::timestamp_now;
 
 pub fn build_dev_log_snapshot() -> AgentLogSnapshot {
+    let hostname = env::var(constants::env_var::COMPUTER_NAME)
+        .or_else(|_| env::var(constants::env_var::HOSTNAME))
+        .unwrap_or_else(|_| constants::value::UNKNOWN_HOST.to_string());
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::CAPTURE_ENABLED.to_string(),
@@ -35,7 +38,7 @@ pub fn build_dev_log_snapshot() -> AgentLogSnapshot {
         schema_version: LOG_SCHEMA_VERSION,
         agent: AgentIdentity {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            hostname: hostname(),
+            hostname,
             platform: env::consts::OS.to_string(),
             service_version: env!("CARGO_PKG_VERSION").to_string(),
         },
@@ -49,12 +52,6 @@ pub fn build_dev_log_snapshot() -> AgentLogSnapshot {
             fields,
         }],
     }
-}
-
-fn hostname() -> String {
-    env::var(constants::env_var::COMPUTER_NAME)
-        .or_else(|_| env::var(constants::env_var::HOSTNAME))
-        .unwrap_or_else(|_| constants::value::UNKNOWN_HOST.to_string())
 }
 
 #[cfg(windows)]

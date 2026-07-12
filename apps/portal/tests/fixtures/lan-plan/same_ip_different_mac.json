@@ -8,10 +8,7 @@
   "cloudRelayState": "unavailable",
   "scanSummary": {
     "schemaVersion": 1,
-    "sourceLabels": [
-      "trusted-registry",
-      "windows-neighbor-table"
-    ],
+    "sourceLabels": ["trusted-registry", "windows-neighbor-table"],
     "scannedDeviceCount": 2,
     "agentDeviceCount": 1,
     "passiveDeviceCount": 1,
@@ -85,29 +82,20 @@
       "canonicalDeviceId": "lan-physical-mac-aa11bb22cc33",
       "displayName": "Previous desktop",
       "classification": "child-agent",
-      "roleBadges": [
-        "child-agent"
-      ],
+      "roleBadges": ["child-agent"],
       "enrollable": true,
       "discoveryState": "paired",
       "trustState": "paired",
       "routeId": "lan-route-previous-desktop",
       "routeState": "stale",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "trusted-registry",
-        "previous-scan"
-      ],
+      "sourceLabels": ["trusted-registry", "previous-scan"],
       "networkIdentity": {
         "hostname": "PREVIOUS-DESKTOP",
-        "ipAddresses": [
-          "192.168.2.50"
-        ],
+        "ipAddresses": ["192.168.2.50"],
         "macAddress": "aa-11-bb-22-cc-33",
         "macVendor": null,
-        "networkInterfaces": [
-          "Ethernet 2"
-        ],
+        "networkInterfaces": ["Ethernet 2"],
         "reachability": "stale",
         "confidence": "trusted-registry",
         "staleAt": "2026-06-01T15:10:00Z",
@@ -124,19 +112,13 @@
         "gpuDriver": "551.23",
         "gpuMemory": "8192 MiB",
         "nvidiaSmi": "GeForce RTX 3070 driver 551.23 8192 MiB VRAM",
-        "networkInterfaces": [
-          "Ethernet 2"
-        ],
-        "capabilities": [
-          "direct-websocket"
-        ],
+        "networkInterfaces": ["Ethernet 2"],
+        "capabilities": ["direct-websocket"],
         "roleState": "implemented",
         "routeState": "stale",
         "pairingTrustState": "paired"
       },
-      "policyTargetSurfaces": [
-        "devices"
-      ]
+      "policyTargetSurfaces": ["devices"]
     },
     {
       "schemaVersion": 1,
@@ -150,29 +132,20 @@
       "routeId": null,
       "routeState": "unavailable",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "windows-neighbor-table"
-      ],
+      "sourceLabels": ["windows-neighbor-table"],
       "networkIdentity": {
         "hostname": "NEW-NEIGHBOR",
-        "ipAddresses": [
-          "192.168.2.50"
-        ],
+        "ipAddresses": ["192.168.2.50"],
         "macAddress": "dd-44-ee-55-ff-66",
         "macVendor": null,
-        "networkInterfaces": [
-          "Wi-Fi"
-        ],
+        "networkInterfaces": ["Wi-Fi"],
         "reachability": "online",
         "confidence": "network-neighbor",
         "staleAt": null,
         "offlineAt": null
       },
       "childAgentInventory": null,
-      "policyTargetSurfaces": [
-        "devices",
-        "network"
-      ]
+      "policyTargetSurfaces": ["devices", "network"]
     }
   ],
   "trustedDeviceIds": [],
@@ -190,13 +163,7 @@
   },
   "controllerAuthority": "observer",
   "observerAuthority": "observer",
-  "routeRequirementLabels": [
-    "IP match alone does not merge devices"
-  ],
-  "auditCheckLabels": [
-    "Different MAC addresses remain separate rows"
-  ],
-  "honestNonClaims": [
-    "same-ip-is-not-device-identity"
-  ]
+  "routeRequirementLabels": ["IP match alone does not merge devices"],
+  "auditCheckLabels": ["Different MAC addresses remain separate rows"],
+  "honestNonClaims": ["same-ip-is-not-device-identity"]
 }

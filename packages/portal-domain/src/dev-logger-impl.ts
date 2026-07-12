@@ -124,10 +124,10 @@ const portalLogger = Logger.instance;
 const PORTAL_DEV_LOG_RUN_ID = `portal-dev-${createPortalLogToken()}`;
 
 export function resolvePortalDevLogBridgeUrl(runtime: PortalLoggerRuntime = globalThis as PortalLoggerRuntime): string {
-  return firstNonEmptyString(
-    getPortalEnv()[PortalDevLogBridge.EnvironmentUrl],
-    runtime[PortalDevLogBridge.GlobalUrlKey]
-  ) ?? PortalDevLogBridge.DefaultUrl;
+  return (
+    firstNonEmptyString(getPortalEnv()[PortalDevLogBridge.EnvironmentUrl], runtime[PortalDevLogBridge.GlobalUrlKey]) ??
+    PortalDevLogBridge.DefaultUrl
+  );
 }
 
 export function resolvePortalProofTraceConfig(
@@ -169,7 +169,11 @@ export async function sendPortalProofTraceLogWithContext(
   context: PortalLoggerDispatchContext
 ): Promise<boolean> {
   const dispatch = buildPortalProofTraceDispatch(fields, proofTrace, context.runtime);
-  return dispatch !== null && ((await sendPortalBridgeMessage(message, dispatch.fields, dispatch.runtimeConfig, context)) || (await sendPortalCompatibilityLog(message, dispatch.fields, context.runtime)));
+  return (
+    dispatch !== null &&
+    ((await sendPortalBridgeMessage(message, dispatch.fields, dispatch.runtimeConfig, context)) ||
+      (await sendPortalCompatibilityLog(message, dispatch.fields, context.runtime)))
+  );
 }
 
 function buildPortalProofTraceDispatch(
@@ -234,9 +238,7 @@ function proofTraceAllowedForPortal(config: PortalProofTraceConfig): boolean {
 }
 
 function parseBoolean(value: unknown): boolean {
-  return typeof value === 'string'
-    ? PortalBooleanLookup[value.trim().toLowerCase()] === true
-    : value === true;
+  return typeof value === 'string' ? PortalBooleanLookup[value.trim().toLowerCase()] === true : value === true;
 }
 
 function parseList(value: string | null): string[] {
@@ -319,7 +321,11 @@ function resolvePortalCompatibilityUrl(runtime: PortalLoggerRuntime): string | n
 }
 
 function trimTrailingSolidus(value: string): string {
-  return value.replace(/\/+$/u, '');
+  let end = value.length;
+  while (end > 0 && value.charCodeAt(end - 1) === 47) {
+    end -= 1;
+  }
+  return value.slice(0, end);
 }
 
 function buildPortalLoggerConfiguration(
@@ -352,11 +358,7 @@ function resolvePortalProofTraceScopeOverride(
   proofTraceScope: string | undefined,
   configScope: string | null
 ): Partial<Pick<PortalProofTraceOptions, 'scope'>> {
-  return proofTraceScope != null
-    ? { scope: proofTraceScope }
-    : configScope === null
-      ? {}
-      : { scope: configScope };
+  return proofTraceScope != null ? { scope: proofTraceScope } : configScope === null ? {} : { scope: configScope };
 }
 
 function createPortalCompatibilityEntry(message: LogMessage, fields: LogFields): DevLogEntry {

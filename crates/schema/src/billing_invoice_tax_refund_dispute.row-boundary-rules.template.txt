@@ -1,0 +1,65 @@
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.boundaryId !== 'billing-invoice-receipt-download' ||
+      row.invoiceVisibility === 'download-link-issued' ||
+      'Expected explicit receipt visibility rows to use the download-link-issued state'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.boundaryId !== 'billing-invoice-partial-refund-issued' ||
+      (row.refundState === 'refund-issued' &&
+        row.entitlementSideEffect === 'retain-paid-access' &&
+        row.recoveryState === 'active') ||
+      'Expected partial refund rows to remain distinct from full-refund revocation'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.boundaryId !== 'billing-invoice-refund-denied' ||
+      (row.refundState === 'refund-denied' &&
+        row.entitlementSideEffect === 'retain-paid-access' &&
+        row.recoveryState === 'active') ||
+      'Expected denied refunds to remain explicit and auditable without revoking paid access'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.boundaryId !== 'billing-invoice-dispute-won' ||
+      (row.disputeState === 'dispute-won' &&
+        row.entitlementSideEffect === 'retain-paid-access' &&
+        row.recoveryState === 'active') ||
+      'Expected dispute-won rows to restore or preserve the active entitlement path'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.boundaryId !== 'billing-invoice-chargeback-opened' ||
+      (row.disputeState === 'dispute-opened' &&
+        row.invoiceVisibility === 'manual-support-required' &&
+        row.entitlementSideEffect === 'manual-review-required') ||
+      'Expected chargeback rows to stay distinct from ordinary refunds and require manual review'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.boundaryId !== 'billing-invoice-cancel-immediate' ||
+      (row.recoveryState === 'cancelled' &&
+        row.entitlementSideEffect === 'revoke-paid-access' &&
+        row.parentVisibleState === 'locked') ||
+      'Expected immediate cancellation rows to make revocation explicit'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.boundaryId !== 'billing-invoice-cancel-period-end' ||
+      (row.recoveryState === 'grace' &&
+        row.entitlementSideEffect === 'grace-paid-access' &&
+        row.parentVisibleState === 'grace') ||
+      'Expected period-end cancellation rows to remain distinct from immediate cancellation'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.boundaryId !== 'billing-invoice-resume-after-past-due' ||
+      (row.recoveryState === 'active' &&
+        row.entitlementSideEffect === 'retain-paid-access' &&
+        row.parentVisibleState === 'available') ||
+      'Expected resume-after-past-due rows to restore a ledger-backed active state'
+  )
+);
+
+export const BillingInvoiceTaxRefundDisputeRowSchema = withParser(BillingInvoiceTaxRefundDisputeRowRefinedSchema);

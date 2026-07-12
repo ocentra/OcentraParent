@@ -29,14 +29,6 @@ async function pathExists(targetPath) {
   }
 }
 
-async function listDirectories(targetPath) {
-  if (!(await pathExists(targetPath))) {
-    return [];
-  }
-  const entries = await fs.readdir(targetPath, { withFileTypes: true });
-  return entries.filter((entry) => entry.isDirectory()).map((entry) => path.join(targetPath, entry.name));
-}
-
 async function walkFiles(targetPath) {
   if (!(await pathExists(targetPath))) {
     return [];
@@ -105,13 +97,13 @@ async function countEmptyScaffolds(...rootsToScan) {
     const directories = await walkDirectories(rootPath);
     for (const directoryPath of directories) {
       const trackedFilesInDirectory = [...trackedFiles].filter((relativePath) =>
-        relativePath.startsWith(toRepoRelativePath(directoryPath) + '/'),
+        relativePath.startsWith(toRepoRelativePath(directoryPath) + '/')
       );
       if (trackedFilesInDirectory.length === 0) {
         continue;
       }
       const usefulTrackedFiles = trackedFilesInDirectory.filter(
-        (relativePath) => path.basename(relativePath) !== '.gitkeep',
+        (relativePath) => path.basename(relativePath) !== '.gitkeep'
       );
       if (usefulTrackedFiles.length === 0) {
         count += 1;
@@ -134,7 +126,7 @@ async function trackedFileSet() {
         stdout
           .split(/\r?\n/u)
           .map((line) => line.trim())
-          .filter(Boolean),
+          .filter(Boolean)
       );
     });
   }
@@ -351,8 +343,8 @@ async function main() {
           rows,
         },
         null,
-        2,
-      ),
+        2
+      )
     );
     return;
   }
@@ -365,7 +357,7 @@ async function main() {
       `surfaces=${summary.totalSurfaces} ok=${summary.ok} generated_support=${summary.generatedSupport} needs_tests=${summary.needsTests} empty_scaffold_debt=${summary.emptyScaffoldDebt} inline_test_debt=${summary.inlineTestDebt}`,
       ``,
       formatMarkdown(rows),
-    ].join('\n'),
+    ].join('\n')
   );
 }
 

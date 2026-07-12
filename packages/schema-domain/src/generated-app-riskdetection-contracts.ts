@@ -236,12 +236,10 @@ export const GeneratedAppRiskDetectionMatrix = {
         {
           evidenceReferenceId: 'evidence-known-vpn-proxy-risk',
           kind: 'activity-event',
-          observedAt: '2026-06-03T10:55:00.000Z'
-        }
+          observedAt: '2026-06-03T10:55:00.000Z',
+        },
       ],
-      sourceRefs: [
-        'source-known-vpn-proxy-risk'
-      ],
+      sourceRefs: ['source-known-vpn-proxy-risk'],
       localAiDigestRef: null,
       parentOverride: null,
       policyCandidateAction: 'warn',
@@ -253,9 +251,9 @@ export const GeneratedAppRiskDetectionMatrix = {
         surfaceState: 'riskdisclosure-ready',
         confidencePercent: 94,
         sourceEvidenceCount: 1,
-        noContentClaimState: 'no-content-captured'
+        noContentClaimState: 'no-content-captured',
       },
-      lastCheckedAt: '2026-06-03T10:55:00.000Z'
+      lastCheckedAt: '2026-06-03T10:55:00.000Z',
     },
     {
       schemaVersion: 'v0.6',
@@ -273,12 +271,10 @@ export const GeneratedAppRiskDetectionMatrix = {
         {
           evidenceReferenceId: 'evidence-known-remote-desktop-risk',
           kind: 'activity-event',
-          observedAt: '2026-06-03T10:55:00.000Z'
-        }
+          observedAt: '2026-06-03T10:55:00.000Z',
+        },
       ],
-      sourceRefs: [
-        'source-known-remote-desktop-risk'
-      ],
+      sourceRefs: ['source-known-remote-desktop-risk'],
       localAiDigestRef: null,
       parentOverride: null,
       policyCandidateAction: 'askParent',
@@ -290,9 +286,9 @@ export const GeneratedAppRiskDetectionMatrix = {
         surfaceState: 'riskdisclosure-ready',
         confidencePercent: 92,
         sourceEvidenceCount: 1,
-        noContentClaimState: 'no-content-captured'
+        noContentClaimState: 'no-content-captured',
       },
-      lastCheckedAt: '2026-06-03T10:55:00.000Z'
+      lastCheckedAt: '2026-06-03T10:55:00.000Z',
     },
     {
       schemaVersion: 'v0.6',
@@ -310,12 +306,10 @@ export const GeneratedAppRiskDetectionMatrix = {
         {
           evidenceReferenceId: 'evidence-known-download-torrent-risk',
           kind: 'activity-event',
-          observedAt: '2026-06-03T10:55:00.000Z'
-        }
+          observedAt: '2026-06-03T10:55:00.000Z',
+        },
       ],
-      sourceRefs: [
-        'source-known-download-torrent-risk'
-      ],
+      sourceRefs: ['source-known-download-torrent-risk'],
       localAiDigestRef: null,
       parentOverride: null,
       policyCandidateAction: 'warn',
@@ -327,9 +321,9 @@ export const GeneratedAppRiskDetectionMatrix = {
         surfaceState: 'riskdisclosure-ready',
         confidencePercent: 90,
         sourceEvidenceCount: 1,
-        noContentClaimState: 'no-content-captured'
+        noContentClaimState: 'no-content-captured',
       },
-      lastCheckedAt: '2026-06-03T10:55:00.000Z'
+      lastCheckedAt: '2026-06-03T10:55:00.000Z',
     },
     {
       schemaVersion: 'v0.6',
@@ -347,12 +341,10 @@ export const GeneratedAppRiskDetectionMatrix = {
         {
           evidenceReferenceId: 'evidence-known-ai-chatbot-risk',
           kind: 'activity-event',
-          observedAt: '2026-06-03T10:55:00.000Z'
-        }
+          observedAt: '2026-06-03T10:55:00.000Z',
+        },
       ],
-      sourceRefs: [
-        'source-known-ai-chatbot-risk'
-      ],
+      sourceRefs: ['source-known-ai-chatbot-risk'],
       localAiDigestRef: null,
       parentOverride: null,
       policyCandidateAction: 'manualReview',
@@ -364,9 +356,9 @@ export const GeneratedAppRiskDetectionMatrix = {
         surfaceState: 'riskdisclosure-ready',
         confidencePercent: 86,
         sourceEvidenceCount: 1,
-        noContentClaimState: 'no-content-captured'
+        noContentClaimState: 'no-content-captured',
       },
-      lastCheckedAt: '2026-06-03T10:55:00.000Z'
+      lastCheckedAt: '2026-06-03T10:55:00.000Z',
     },
     {
       schemaVersion: 'v0.6',
@@ -384,12 +376,10 @@ export const GeneratedAppRiskDetectionMatrix = {
         {
           evidenceReferenceId: 'evidence-unknown-vpn-name-candidate',
           kind: 'activity-event',
-          observedAt: '2026-06-03T10:55:00.000Z'
-        }
+          observedAt: '2026-06-03T10:55:00.000Z',
+        },
       ],
-      sourceRefs: [
-        'source-unknown-vpn-name-candidate'
-      ],
+      sourceRefs: ['source-unknown-vpn-name-candidate'],
       localAiDigestRef: null,
       parentOverride: null,
       policyCandidateAction: 'manualReview',
@@ -401,9 +391,9 @@ export const GeneratedAppRiskDetectionMatrix = {
         surfaceState: 'riskdisclosure-ready',
         confidencePercent: 42,
         sourceEvidenceCount: 1,
-        noContentClaimState: 'no-content-captured'
+        noContentClaimState: 'no-content-captured',
       },
-      lastCheckedAt: '2026-06-03T10:55:00.000Z'
+      lastCheckedAt: '2026-06-03T10:55:00.000Z',
     },
     {
       schemaVersion: 'v0.6',
@@ -421,12 +411,10 @@ export const GeneratedAppRiskDetectionMatrix = {
         {
           evidenceReferenceId: 'evidence-unknown-publisher-hash-candidate',
           kind: 'activity-event',
-          observedAt: '2026-06-03T10:55:00.000Z'
-        }
+          observedAt: '2026-06-03T10:55:00.000Z',
+        },
       ],
-      sourceRefs: [
-        'source-unknown-publisher-hash-candidate'
-      ],
+      sourceRefs: ['source-unknown-publisher-hash-candidate'],
       localAiDigestRef: null,
       parentOverride: null,
       policyCandidateAction: 'manualReview',
@@ -438,9 +426,9 @@ export const GeneratedAppRiskDetectionMatrix = {
         surfaceState: 'riskdisclosure-ready',
         confidencePercent: 38,
         sourceEvidenceCount: 1,
-        noContentClaimState: 'no-content-captured'
+        noContentClaimState: 'no-content-captured',
       },
-      lastCheckedAt: '2026-06-03T10:55:00.000Z'
+      lastCheckedAt: '2026-06-03T10:55:00.000Z',
     },
     {
       schemaVersion: 'v0.6',
@@ -458,12 +446,10 @@ export const GeneratedAppRiskDetectionMatrix = {
         {
           evidenceReferenceId: 'evidence-local-ai-social-video-messaging-risk',
           kind: 'activity-event',
-          observedAt: '2026-06-03T10:55:00.000Z'
-        }
+          observedAt: '2026-06-03T10:55:00.000Z',
+        },
       ],
-      sourceRefs: [
-        'source-local-ai-social-video-messaging-risk'
-      ],
+      sourceRefs: ['source-local-ai-social-video-messaging-risk'],
       localAiDigestRef: 'local-ai-digest-social-video-messaging',
       parentOverride: null,
       policyCandidateAction: 'askParent',
@@ -475,9 +461,9 @@ export const GeneratedAppRiskDetectionMatrix = {
         surfaceState: 'riskdisclosure-ready',
         confidencePercent: 73,
         sourceEvidenceCount: 1,
-        noContentClaimState: 'no-content-captured'
+        noContentClaimState: 'no-content-captured',
       },
-      lastCheckedAt: '2026-06-03T10:55:00.000Z'
+      lastCheckedAt: '2026-06-03T10:55:00.000Z',
     },
     {
       schemaVersion: 'v0.6',
@@ -495,17 +481,15 @@ export const GeneratedAppRiskDetectionMatrix = {
         {
           evidenceReferenceId: 'evidence-parent-display-override-ai-tool',
           kind: 'activity-event',
-          observedAt: '2026-06-03T10:55:00.000Z'
-        }
+          observedAt: '2026-06-03T10:55:00.000Z',
+        },
       ],
-      sourceRefs: [
-        'source-parent-display-override-ai-tool'
-      ],
+      sourceRefs: ['source-parent-display-override-ai-tool'],
       localAiDigestRef: null,
       parentOverride: {
         parentDisplayLabel: 'Homework AI tool',
         policyCandidateAction: 'observe',
-        rawIdentityChanged: false
+        rawIdentityChanged: false,
       },
       policyCandidateAction: 'observe',
       policyTargetKind: 'risk-app',
@@ -516,9 +500,9 @@ export const GeneratedAppRiskDetectionMatrix = {
         surfaceState: 'riskdisclosure-ready',
         confidencePercent: 80,
         sourceEvidenceCount: 1,
-        noContentClaimState: 'no-content-captured'
+        noContentClaimState: 'no-content-captured',
       },
-      lastCheckedAt: '2026-06-03T10:55:00.000Z'
-    }
-  ]
+      lastCheckedAt: '2026-06-03T10:55:00.000Z',
+    },
+  ],
 } as const satisfies GeneratedAppRiskDetectionMatrix;

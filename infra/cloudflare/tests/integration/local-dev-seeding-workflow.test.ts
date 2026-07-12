@@ -22,7 +22,9 @@ describe('local dev seeding workflow', () => {
       'queue-replay-fixtures',
     ]);
 
-    const seededFamilies = workflow.seed.fixtureFamilies.filter((family) => family.populationState !== 'test-fixture-backed');
+    const seededFamilies = workflow.seed.fixtureFamilies.filter(
+      (family) => family.populationState !== 'test-fixture-backed'
+    );
     for (const family of seededFamilies) {
       if (family.populationState === 'blocked') {
         assert.ok(family.blocker);
@@ -44,8 +46,7 @@ describe('local dev seeding workflow', () => {
       assert.ok(
         workflow.seed.fixtureFamilies.some(
           (family) =>
-            family.populationState === 'blocked' &&
-            family.blocker?.details.includes('billing-account-runtime-boundary')
+            family.populationState === 'blocked' && family.blocker?.details.includes('billing-account-runtime-boundary')
         )
       );
     }

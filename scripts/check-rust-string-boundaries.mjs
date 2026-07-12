@@ -27,8 +27,7 @@ const lineAllowPatterns = [
 ];
 const cfgTestAttributePattern = /^\s*#\[cfg\(test\)\]/u;
 const stackedAttributePattern = /^\s*#\[/u;
-const testScopedPathPattern =
-  /(^|\/)[^/]*_tests?\/|_tests?\.rs$|_test_support\.rs$|_test_fixtures?\.rs$|\/tests?\//u;
+const testScopedPathPattern = /(^|\/)[^/]*_tests?\/|_tests?\.rs$|_test_support\.rs$|_test_fixtures?\.rs$|\/tests?\//u;
 
 function isGuardedRustSource(filePath) {
   return (

@@ -1,4 +1,6 @@
-/* Final deck-frame fit pass: one side rail, one main body frame, no duplicate route strip. */
+@import './deck-frame-fit-foundation.css';
+
+/* This approved style owner keeps the deck palette and the runtime frame defaults together. */
 :root {
   --portal-rail-width: clamp(238px, 18.5vw, 270px);
   --portal-shell-edge: 8px;
@@ -14,425 +16,90 @@
     rgb(74 218 255 / var(--portal-frame-glass-highlight-opacity)),
     transparent 11rem
   );
-}
-
-.app-frame {
-  gap: 0;
-  grid-template-areas: 'sidebar main';
-  grid-template-columns: var(--portal-rail-width) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  height: 100%;
-  max-width: none;
-  overflow: hidden;
-  padding: var(--portal-shell-edge);
-  width: 100%;
-}
-
-.app-sidebar,
-.app-main {
-  background: var(--portal-frame-glass), var(--portal-frame-bg);
-  border: 0;
-  border-radius: 0;
-  box-shadow:
-    0 0 30px rgb(84 226 255 / 18%),
-    inset 0 0 0 1px rgb(255 255 255 / 4%);
-  clip-path: polygon(
-    23px 0,
-    calc(100% - 23px) 0,
-    100% 27px,
-    100% calc(100% - 27px),
-    calc(100% - 23px) 100%,
-    23px 100%,
-    0 calc(100% - 27px),
-    0 27px
-  );
-  height: 100%;
-  max-height: none;
-  min-height: 0;
-  overflow: hidden;
-  position: relative;
-  top: auto;
-}
-
-.app-sidebar {
-  gap: clamp(8px, 1.2dvh, 12px);
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  padding: 24px 16px 18px;
-  z-index: 5;
-}
-
-.app-main {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  margin-left: -2px;
-  min-width: 0;
-  padding: var(--portal-body-inset) var(--portal-body-inset) calc(var(--portal-body-inset) - 2px);
-  z-index: 1;
-}
-
-.app-sidebar::before,
-.app-sidebar::after,
-.app-main::before,
-.app-main::after {
-  pointer-events: none;
-  position: absolute;
-}
-
-.app-sidebar::before,
-.app-main::before {
-  background: linear-gradient(90deg, transparent, rgb(112 239 255 / 68%), transparent);
-  content: '';
-  height: 1px;
-  left: 28px;
-  right: 28px;
-  top: 18px;
-}
-
-.app-sidebar::after,
-.app-main::after {
-  border: 1px solid rgb(132 240 255 / 28%);
-  clip-path: inherit;
-  content: '';
-  inset: 14px;
-}
-
-.product-brand {
-  background:
+  --portal-sidebar-stack-gap: 10px;
+  --portal-sidebar-bottom-height: 126px;
+  --portal-frame-slot-height-adjust: 0px;
+  --portal-frame-slot-width-adjust: 0px;
+  --portal-frame-content-gap: 10px;
+  --portal-frame-content-inset-x: 22px;
+  --portal-frame-content-inset-y: 22px;
+  --portal-frame-content-offset-x: 0px;
+  --portal-frame-content-offset-y: 0px;
+  --portal-frame-content-clip-x: 0;
+  --portal-frame-content-clip-y: 0;
+  --portal-deck-shell-shadow: 0 0 30px rgb(84 226 255 / 18%), inset 0 0 0 1px rgb(255 255 255 / 4%);
+  --portal-deck-top-line: linear-gradient(90deg, transparent, rgb(112 239 255 / 68%), transparent);
+  --portal-deck-inner-stroke: 1px solid rgb(132 240 255 / 28%);
+  --portal-deck-brand-background:
     radial-gradient(circle at 28px 30px, rgb(84 226 255 / 20%), transparent 48px),
     linear-gradient(90deg, rgb(11 72 101 / 78%), rgb(2 16 31 / 88%));
-  border: 1px solid rgb(99 226 255 / 48%);
-  border-radius: 0;
-  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
-  gap: 8px 10px;
-  grid-template-columns: 44px minmax(0, 1fr);
-  margin-inline: 3px 6px;
-  min-height: 92px;
-  padding: 9px;
-}
-
-.product-brand-mark {
-  border-radius: 0;
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-  height: 44px;
-  width: 44px;
-}
-
-.product-brand h1 {
-  font-size: 0.84rem;
-  letter-spacing: 0.04em;
-  line-height: 1.04;
-}
-
-.product-brand p {
-  color: #d9f1fa;
-  font-size: 0.68rem;
-  line-height: 1.23;
-}
-
-.app-sidebar .routes {
-  align-content: start;
-  display: grid;
-  gap: var(--portal-frame-content-gap, 7px);
-  min-height: 0;
-  overflow-x: clip;
-  overflow-y: auto;
-  padding: 0 4px 0 2px;
-}
-
-.app-sidebar .route-group {
-  display: grid;
-  gap: max(2px, calc(var(--portal-frame-content-gap, 7px) - 1px));
-  overflow: visible;
-}
-
-.app-sidebar .route-group-label {
-  align-items: center;
-  background: linear-gradient(90deg, rgb(5 29 51 / 82%), rgb(2 12 25 / 64%)), rgb(2 12 25 / 72%);
-  border: 1px solid rgb(84 226 255 / 22%);
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 3%),
-    0 0 12px rgb(84 226 255 / 5%);
-  clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 50%, calc(100% - 13px) 100%, 0 100%);
-  color: #ffd36a;
-  cursor: pointer;
-  display: flex;
-  font-size: 0.66rem;
-  font-weight: 950;
-  justify-content: space-between;
-  letter-spacing: 0.05em;
-  min-height: 22px;
-  padding: 0 9px 0 7px;
-  text-transform: uppercase;
-  transition:
-    background 140ms ease,
-    border-color 140ms ease,
-    box-shadow 140ms ease,
-    color 140ms ease;
-}
-
-.app-sidebar .route-group-label::-webkit-details-marker {
-  display: none;
-}
-
-.app-sidebar .route-group-label::after {
-  background: rgb(84 226 255 / 82%);
-  box-shadow: 0 0 10px rgb(84 226 255 / 24%);
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
-  content: '';
-  flex: 0 0 auto;
-  height: 8px;
-  margin-left: 8px;
-  transform: rotate(0deg);
-  transition:
-    background 140ms ease,
-    box-shadow 140ms ease,
-    transform 140ms ease;
-  width: 8px;
-}
-
-.app-sidebar .route-group-label:hover,
-.app-sidebar .route-group[open] > .route-group-label {
-  background: linear-gradient(90deg, rgb(9 50 77 / 90%), rgb(3 18 33 / 76%)), rgb(3 18 33 / 82%);
-  border-color: rgb(84 226 255 / 44%);
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 5%),
-    0 0 16px rgb(84 226 255 / 12%);
-  color: #fff4a8;
-}
-
-.app-sidebar .route-group[open] > .route-group-label::after {
-  background: #ffd36a;
-  box-shadow: 0 0 10px rgb(255 211 106 / 28%);
-  transform: rotate(90deg);
-}
-
-.app-sidebar .route-link {
-  background:
+  --portal-deck-brand-border: 1px solid rgb(99 226 255 / 48%);
+  --portal-deck-brand-copy: #d9f1fa;
+  --portal-deck-group-background: linear-gradient(90deg, rgb(5 29 51 / 82%), rgb(2 12 25 / 64%)), rgb(2 12 25 / 72%);
+  --portal-deck-group-border: 1px solid rgb(84 226 255 / 22%);
+  --portal-deck-group-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%), 0 0 12px rgb(84 226 255 / 5%);
+  --portal-deck-group-text: #ffd36a;
+  --portal-deck-group-chevron: rgb(84 226 255 / 82%);
+  --portal-deck-group-chevron-shadow: 0 0 10px rgb(84 226 255 / 24%);
+  --portal-deck-group-active-background:
+    linear-gradient(90deg, rgb(9 50 77 / 90%), rgb(3 18 33 / 76%)), rgb(3 18 33 / 82%);
+  --portal-deck-group-active-border: rgb(84 226 255 / 44%);
+  --portal-deck-group-active-shadow: inset 0 0 0 1px rgb(255 255 255 / 5%), 0 0 16px rgb(84 226 255 / 12%);
+  --portal-deck-group-active-text: #fff4a8;
+  --portal-deck-group-active-chevron: #ffd36a;
+  --portal-deck-group-active-chevron-shadow: 0 0 10px rgb(255 211 106 / 28%);
+  --portal-deck-route-background:
     linear-gradient(90deg, rgb(5 26 45 / 76%), rgb(4 17 32 / 92%)),
     radial-gradient(ellipse at 0 50%, rgb(84 226 255 / 9%), transparent 55%), rgb(4 17 32 / 96%);
-  border: 1px solid rgb(85 214 255 / 32%);
-  border-radius: 0;
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 4%),
-    0 0 10px rgb(84 226 255 / 5%);
-  clip-path: polygon(
-    8px 0,
-    calc(100% - 8px) 0,
-    100% 8px,
-    100% calc(100% - 8px),
-    calc(100% - 8px) 100%,
-    8px 100%,
-    0 calc(100% - 8px),
-    0 8px
-  );
-  color: #ecfbff;
-  display: grid;
-  gap: 2px 10px;
-  grid-template-columns: 48px minmax(0, 1fr);
-  isolation: isolate;
-  max-width: 100%;
-  min-height: 48px;
-  overflow: visible;
-  padding: 0 24px 0 8px;
-  position: relative;
-  transition:
-    background 150ms ease,
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    filter 150ms ease,
-    transform 150ms ease;
-  width: 100%;
-}
-
-.app-sidebar .route-link::before {
-  background:
-    var(--route-icon) center / 30px 30px no-repeat,
+  --portal-deck-route-border: 1px solid rgb(85 214 255 / 32%);
+  --portal-deck-route-shadow: inset 0 0 0 1px rgb(255 255 255 / 4%), 0 0 10px rgb(84 226 255 / 5%);
+  --portal-deck-route-text: #ecfbff;
+  --portal-deck-route-icon-background:
     radial-gradient(circle at 50% 46%, rgb(255 255 255 / 18%), transparent 24%),
     radial-gradient(circle at 50% 50%, rgb(84 226 255 / 24%), transparent 62%),
     linear-gradient(135deg, rgb(84 226 255 / 45%), rgb(19 80 111 / 64%));
-  border: 1px solid rgb(114 236 255 / 48%);
-  border-radius: 0;
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 8%) inset,
-    0 0 14px rgb(84 226 255 / 13%);
-  clip-path: polygon(
-    13px 0,
-    calc(100% - 6px) 0,
-    100% 6px,
-    100% calc(100% - 13px),
-    calc(100% - 13px) 100%,
-    6px 100%,
-    0 calc(100% - 6px),
-    0 13px
-  );
-  grid-row: 1 / span 2;
-  height: 48px;
-  width: 48px;
-}
-
-.app-sidebar .route-link::after {
-  background: transparent;
-  border: 0;
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
-  content: '';
-  filter: none;
-  height: 42px;
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-  right: 4px;
-  top: calc(50% - 21px);
-  transform: none;
-  width: 18px;
-  z-index: 9;
-}
-
-.app-sidebar .route-link:hover {
-  background:
+  --portal-deck-route-icon-border: 1px solid rgb(114 236 255 / 48%);
+  --portal-deck-route-icon-shadow: 0 0 0 1px rgb(255 255 255 / 8%) inset, 0 0 14px rgb(84 226 255 / 13%);
+  --portal-deck-route-hover-background:
     linear-gradient(90deg, rgb(18 82 118 / 84%), rgb(5 27 48 / 96%)),
     radial-gradient(ellipse at 0 50%, rgb(84 226 255 / 17%), transparent 57%), rgb(6 30 54 / 98%);
-  border-color: rgb(122 239 255 / 58%);
-  box-shadow:
-    0 0 0 2px rgb(84 226 255 / 16%),
-    0 0 18px rgb(84 226 255 / 13%),
-    inset 0 0 0 1px rgb(255 255 255 / 8%);
-}
-
-.app-sidebar .route-link:hover::after {
-  background:
+  --portal-deck-route-hover-border: rgb(122 239 255 / 58%);
+  --portal-deck-route-hover-shadow:
+    0 0 0 2px rgb(84 226 255 / 16%), 0 0 18px rgb(84 226 255 / 13%), inset 0 0 0 1px rgb(255 255 255 / 8%);
+  --portal-deck-route-hover-arrow:
     linear-gradient(90deg, rgb(84 226 255 / 54%), rgb(84 226 255 / 38%) 52%, transparent 53%),
     linear-gradient(135deg, rgb(98 236 255 / 76%), rgb(124 245 255 / 46%));
-  border: 1px solid rgb(139 242 255 / 46%);
-  box-shadow: 0 0 14px rgb(84 226 255 / 22%);
-  opacity: 0.62;
-}
-
-.app-sidebar .route-link[aria-current='page'] {
-  background:
+  --portal-deck-route-hover-arrow-border: 1px solid rgb(139 242 255 / 46%);
+  --portal-deck-route-hover-arrow-shadow: 0 0 14px rgb(84 226 255 / 22%);
+  --portal-deck-route-selected-background:
     linear-gradient(90deg, rgb(43 152 205 / 70%), rgb(16 76 115 / 90%)),
     radial-gradient(ellipse at 8% 50%, rgb(84 226 255 / 26%), transparent 48%), rgb(5 41 72 / 98%);
-  border-color: rgb(116 237 255 / 92%);
-  box-shadow:
-    0 0 0 3px rgb(84 226 255 / 18%),
-    0 0 23px rgb(84 226 255 / 24%),
-    inset 0 0 0 1px rgb(255 255 255 / 12%);
-  filter: drop-shadow(0 0 11px rgb(84 226 255 / 15%));
-  margin-right: 0;
-  transform: translateX(1px);
-  z-index: 8;
-}
-
-.app-sidebar .route-link[aria-current='page']::before {
-  background:
-    var(--route-icon) center / 31px 31px no-repeat,
+  --portal-deck-route-selected-border: rgb(116 237 255 / 92%);
+  --portal-deck-route-selected-shadow:
+    0 0 0 3px rgb(84 226 255 / 18%), 0 0 23px rgb(84 226 255 / 24%), inset 0 0 0 1px rgb(255 255 255 / 12%);
+  --portal-deck-route-selected-filter: drop-shadow(0 0 11px rgb(84 226 255 / 15%));
+  --portal-deck-route-selected-icon-background:
     radial-gradient(circle at 50% 46%, rgb(255 211 106 / 18%), transparent 25%),
     radial-gradient(circle at 50% 50%, rgb(84 226 255 / 30%), transparent 64%),
     linear-gradient(135deg, rgb(84 226 255 / 56%), rgb(20 88 121 / 70%));
-  border-color: rgb(166 246 255 / 72%);
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 10%) inset,
-    0 0 17px rgb(84 226 255 / 24%);
-}
-
-.app-sidebar .route-link[aria-current='page']::after {
-  background:
+  --portal-deck-route-selected-icon-border: rgb(166 246 255 / 72%);
+  --portal-deck-route-selected-icon-shadow: 0 0 0 1px rgb(255 255 255 / 10%) inset, 0 0 17px rgb(84 226 255 / 24%);
+  --portal-deck-route-selected-arrow:
     linear-gradient(90deg, rgb(84 226 255 / 86%), rgb(84 226 255 / 66%) 52%, transparent 53%),
     linear-gradient(135deg, rgb(98 236 255 / 92%), rgb(124 245 255 / 66%));
-  border: 1px solid rgb(139 242 255 / 78%);
-  box-shadow:
-    0 0 16px rgb(84 226 255 / 36%),
-    0 0 28px rgb(84 226 255 / 20%);
-  filter: drop-shadow(0 0 12px rgb(84 226 255 / 48%));
-  opacity: 1;
-  width: 21px;
-}
-
-.app-sidebar .route-link-label {
-  align-self: end;
-  font-size: 0.86rem;
-  font-weight: 930;
-  letter-spacing: 0;
-  line-height: 1.06;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.app-sidebar .route-link-description {
-  align-self: start;
-  color: rgb(202 225 238 / 84%);
-  display: block;
-  font-size: 0.67rem;
-  line-height: 1.12;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.product-sidebar-panel {
-  background:
+  --portal-deck-route-selected-arrow-border: 1px solid rgb(139 242 255 / 78%);
+  --portal-deck-route-selected-arrow-shadow: 0 0 16px rgb(84 226 255 / 36%), 0 0 28px rgb(84 226 255 / 20%);
+  --portal-deck-route-selected-arrow-filter: drop-shadow(0 0 12px rgb(84 226 255 / 48%));
+  --portal-deck-route-description: rgb(202 225 238 / 84%);
+  --portal-deck-status-background:
     radial-gradient(circle at 86% 0, rgb(84 226 255 / 16%), transparent 68%),
     linear-gradient(180deg, rgb(12 65 92 / 76%), rgb(3 18 34 / 94%));
-  border: 1px solid rgb(84 226 255 / 46%);
-  border-radius: 0;
-  clip-path: polygon(13px 0, 100% 0, 100% calc(100% - 13px), calc(100% - 13px) 100%, 0 100%, 0 13px);
-  margin-inline: 3px 6px;
-  min-height: 104px;
-  padding: 10px;
-}
-
-.product-sidebar-panel strong,
-.product-sidebar-panel p {
-  max-width: 150px;
-}
-
-.page-header {
-  background:
+  --portal-deck-status-border: 1px solid rgb(84 226 255 / 46%);
+  --portal-deck-page-header-background:
     linear-gradient(90deg, rgb(84 226 255 / 15%), transparent 56%),
     linear-gradient(180deg, rgb(7 36 61 / 68%), rgb(3 14 28 / 66%));
-  border: 1px solid rgb(84 226 255 / 24%);
-  border-radius: 0;
-  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
-  min-height: 80px;
-  padding: 15px 18px;
+  --portal-deck-page-header-border: 1px solid rgb(84 226 255 / 24%);
 }
-
-.state {
-  gap: 10px;
-  height: 100%;
-  margin-top: 10px;
-  min-height: 0;
-  overflow: auto;
-  padding: 0 3px 2px 0;
-}
-
-.product-dashboard {
-  gap: 10px;
-}
-
-.control-deck,
-.summary,
-.product-shell-hero,
-.product-metric,
-.control-card {
-  border-radius: 0;
-  clip-path: polygon(13px 0, 100% 0, 100% calc(100% - 13px), calc(100% - 13px) 100%, 0 100%, 0 13px);
-}
-
-:root[data-theme='light'] {
-  --portal-frame-bg: linear-gradient(
-    180deg,
-    rgb(205 231 244 / var(--portal-frame-material-fill-alpha-strong)),
-    rgb(169 209 230 / var(--portal-frame-material-fill-alpha)) 44%,
-    rgb(216 238 248 / var(--portal-frame-material-fill-alpha-strong))
-  );
-  --portal-frame-glass: linear-gradient(
-    180deg,
-    rgb(8 126 164 / var(--portal-frame-glass-highlight-opacity)),
-    transparent 11rem
-  );
-}
-
 @media (max-width: 980px) {
   .app-frame {
     gap: 8px;
@@ -476,6 +143,20 @@
   .app-sidebar .route-link::after {
     display: none;
   }
+}
+
+:root[data-theme='light'] {
+  --portal-frame-bg: linear-gradient(
+    180deg,
+    rgb(205 231 244 / var(--portal-frame-material-fill-alpha-strong)),
+    rgb(169 209 230 / var(--portal-frame-material-fill-alpha)) 44%,
+    rgb(216 238 248 / var(--portal-frame-material-fill-alpha-strong))
+  );
+  --portal-frame-glass: linear-gradient(
+    180deg,
+    rgb(8 126 164 / var(--portal-frame-glass-highlight-opacity)),
+    transparent 11rem
+  );
 }
 
 @media (max-width: 640px) {

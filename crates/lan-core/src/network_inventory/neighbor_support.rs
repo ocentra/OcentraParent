@@ -1,4 +1,6 @@
 pub mod cache;
+mod hostname;
+mod source_mapping;
 
 use std::collections::HashMap;
 use std::net::{IpAddr, Ipv4Addr};
@@ -62,37 +64,7 @@ pub fn effective_scan_sources(device: &LanNetworkInventoryDevice) -> Vec<String>
 pub fn discovery_evidence_source_from_scan_source(
     scan_source: &str,
 ) -> Option<LanDiscoveryEvidenceSource> {
-    match scan_source {
-        constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR => {
-            Some(LanDiscoveryEvidenceSource::WindowsNeighborTable)
-        }
-        constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP => {
-            Some(LanDiscoveryEvidenceSource::LinuxProcNetArp)
-        }
-        constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH => {
-            Some(LanDiscoveryEvidenceSource::LinuxIpNeigh)
-        }
-        constants::lan_pairing::LAN_SCAN_SOURCE_MACOS_ARP => {
-            Some(LanDiscoveryEvidenceSource::MacosArp)
-        }
-        constants::lan_pairing::LAN_SCAN_SOURCE_SERVICE_IDENTITY_PROBE => {
-            Some(LanDiscoveryEvidenceSource::ServiceIdentityProbe)
-        }
-        constants::lan_pairing::LAN_SCAN_SOURCE_MDNS_DNS_SD => {
-            Some(LanDiscoveryEvidenceSource::MdnsDnsSdQuery)
-        }
-        constants::lan_pairing::LAN_SCAN_SOURCE_SSDP_UPNP => {
-            Some(LanDiscoveryEvidenceSource::SsdpUpnpQuery)
-        }
-        constants::lan_pairing::LAN_SCAN_SOURCE_DNS_CACHE => {
-            Some(LanDiscoveryEvidenceSource::DnsCache)
-        }
-        constants::lan_pairing::LAN_SCAN_SOURCE_NETBIOS => {
-            Some(LanDiscoveryEvidenceSource::Netbios)
-        }
-        constants::lan_pairing::LAN_SCAN_SOURCE_LLMNR => Some(LanDiscoveryEvidenceSource::Llmnr),
-        _ => None,
-    }
+    source_mapping::discovery_evidence_source_from_scan_source(scan_source)
 }
 
 pub fn is_supported_neighbor_ip(ip_address: &str) -> bool {
@@ -193,26 +165,5 @@ pub fn cached_neighbor_identity(mac_address: &str) -> Option<LanNeighborIdentity
 }
 
 pub fn normalize_neighbor_hostname(value: &str) -> Option<String> {
-    let candidate = value.trim().trim_end_matches('.');
-    if candidate.is_empty()
-        || candidate == constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME
-        || candidate.len() > MAX_NEIGHBOR_HOSTNAME_BYTES
-    {
-        return None;
-    }
-    if !candidate.is_ascii() {
-        return None;
-    }
-    if candidate.split('.').any(|label| {
-        label.is_empty()
-            || label.len() > 63
-            || label.starts_with('-')
-            || label.ends_with('-')
-            || !label
-                .chars()
-                .all(|character| character.is_ascii_alphanumeric() || character == '-')
-    }) {
-        return None;
-    }
-    Some(candidate.to_string())
+    hostname::normalize_neighbor_hostname(value)
 }

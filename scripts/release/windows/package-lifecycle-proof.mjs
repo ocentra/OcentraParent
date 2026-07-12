@@ -62,14 +62,22 @@ async function main() {
       manualRequired.push('Windows host required for install/start/stop/restart/uninstall lifecycle proof.');
     }
     if (decision.status === 'admin-required') {
-      manualRequired.push('Elevated Windows shell required before install/start/stop/restart/uninstall lifecycle proof can run.');
+      manualRequired.push(
+        'Elevated Windows shell required before install/start/stop/restart/uninstall lifecycle proof can run.'
+      );
     }
     if (decision.status === 'ready-not-run') {
-      manualRequired.push('Install flag not set; the proof remains artifact-only until install lifecycle is explicitly requested.');
+      manualRequired.push(
+        'Install flag not set; the proof remains artifact-only until install lifecycle is explicitly requested.'
+      );
     }
     if (decision.status === 'install-requested') {
-      manualRequired.push('Crash-triggered respawn execution and reboot recovery remain unexercised; service-manager recovery state is the only respawn proof in this slice.');
-      manualRequired.push('Parent-authorized revoke remains a separate workpack and is not exercised by MSI uninstall.');
+      manualRequired.push(
+        'Crash-triggered respawn execution and reboot recovery remain unexercised; service-manager recovery state is the only respawn proof in this slice.'
+      );
+      manualRequired.push(
+        'Parent-authorized revoke remains a separate workpack and is not exercised by MSI uninstall.'
+      );
     }
     proof.manualRequired = manualRequired;
     proof.lifecycle = {

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   useCallback,
   useEffect,
@@ -4181,7 +4180,8 @@ function storedManageTargetSelectionSlot(
   const deviceId = selection.deviceId.trim();
   const deviceLabel = selection.device.trim();
   if (deviceId.length === 0 && deviceLabel.length === 0) return null;
-  const slotValue = deviceId.length > 0 ? deviceId : `stored-manage-target-${assetKey(deviceLabel) || slots.length + 1}`;
+  const slotValue =
+    deviceId.length > 0 ? deviceId : `stored-manage-target-${assetKey(deviceLabel) || slots.length + 1}`;
   const deviceName = deviceLabel.length > 0 ? deviceLabel : deviceId;
   return {
     value: slotValue,
@@ -7929,7 +7929,7 @@ function manageWorkspaceCards(
       {
         label: 'Scope',
         value: 'View only',
-        body: 'Remote input/control remains a separate later capability, not part of the live-view stub.',
+        body: 'Remote input/control remains a separate later capability, not part of the live-view display boundary.',
         tone: 'purple',
       },
     ];
@@ -8021,7 +8021,7 @@ function manageWorkspaceCards(
       {
         label: 'Fallback',
         value: 'Explain',
-        body: 'Unsupported enforcement should become visible advice, not fake success.',
+        body: 'Unsupported enforcement should become visible advice, not an unverified success claim.',
         tone: 'purple',
       },
     ];
@@ -8904,7 +8904,7 @@ function managePolicySettingRows(
       },
       {
         label: 'Unavailable adapter',
-        value: 'No fake success',
+        value: 'No adapter success claim',
         body: 'Adapter-unavailable states remain visible and cannot be hidden by portal UI.',
         tone: 'red',
       },
@@ -10939,7 +10939,9 @@ function ManageTargetPanel({
           aria-pressed={targetSelection.scope === option.scope}
           onClick={(event) => {
             event.stopPropagation();
-            const selectedSlot = runtimeDeviceSlots ? reportSelectedSlot(runtimeDeviceSlots, targetSelection) : undefined;
+            const selectedSlot = runtimeDeviceSlots
+              ? reportSelectedSlot(runtimeDeviceSlots, targetSelection)
+              : undefined;
             const nextSelection =
               option.scope === 'perDevice' && selectedSlot
                 ? selectedManageTargetSelectionForSlot(targetSelection, selectedSlot)
@@ -11370,10 +11372,7 @@ function ManageControlPanel({
     [runtimeDeviceSlots, targetSelection]
   );
   const reportSlots = useMemo(
-    () =>
-      reportSelectionSlots.length > 0
-        ? reportSelectionSlots
-        : reportPlanSeatSlots(reportPlanSeatLimit),
+    () => (reportSelectionSlots.length > 0 ? reportSelectionSlots : reportPlanSeatSlots(reportPlanSeatLimit)),
     [reportPlanSeatLimit, reportSelectionSlots]
   );
   const reportPortalIds = useMemo(
@@ -16307,7 +16306,7 @@ function MainBoard({
             ? currentSelectedSlot.value
             : currentDeviceAvailable || (current.deviceId.length > 0 && !deviceChoicesAvailable)
               ? current.deviceId
-            : defaultDevice;
+              : defaultDevice;
       const nextBrowser =
         !contextChanged && manageBrowserTargets.some((target) => target.label === current.browser)
           ? current.browser

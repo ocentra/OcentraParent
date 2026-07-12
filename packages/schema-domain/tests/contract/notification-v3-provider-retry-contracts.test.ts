@@ -20,7 +20,9 @@ describe('notification v3 provider retry contracts', () => {
     expect(source).not.toContain('export const V3NotificationRuleProviderRetryContractReadModel = {');
     expect(source).not.toContain('notificationRuleProviderRetryContractEntryIsHonest(');
     expect(source).not.toContain('notificationRuleProviderRetryContractReadModelIsHonest(');
-    expect(generated.startsWith('/* generated from crates/schema/src/notification_v3_provider_retry_ts.rs */')).toBe(true);
+    expect(generated.startsWith('/* generated from crates/schema/src/notification_v3_provider_retry_ts.rs */')).toBe(
+      true
+    );
     expect(generated).toContain('export function generatedV3NotificationRuleProviderRetryContractEntryIsHonest');
     expect(generated).toContain('export function generatedV3NotificationRuleProviderRetryContractReadModelIsHonest');
     expect(V3NotificationRuleReasonCodeSchema.parse('policy-violation')).toBe('policy-violation');

@@ -57,7 +57,10 @@ function forbidden(reason: string, state: AuthState): AuthFailureResult {
   };
 }
 
-function manualRequired(authState: AuthState, blocker = ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER): AuthFailureResult {
+function manualRequired(
+  authState: AuthState,
+  blocker = ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER
+): AuthFailureResult {
   return {
     ok: false,
     response: json(503, {
@@ -188,10 +191,7 @@ function authAdapterBlocker(env: Env): string | null {
   return UNSUPPORTED_AUTH_ADAPTER_MODE_BLOCKER;
 }
 
-function extractBearerIdentity(
-  request: Request,
-  authState: AuthState
-): BearerIdentityResult {
+function extractBearerIdentity(request: Request, authState: AuthState): BearerIdentityResult {
   const token = parseBearerToken(request.headers.get('authorization'));
   if (!token) {
     const failure = missingHeader('authorization', authState);
@@ -308,7 +308,10 @@ function verifyInternalQueueRequest(request: Request, env: Env, authState: AuthS
   if (request.headers.get('x-ocentra-internal-call') !== 'true') {
     return forbidden('missing-internal-queue-signal', authState);
   }
-  if (env.INTERNAL_QUEUE_SHARED_SECRET && request.headers.get(INTERNAL_SECRET_HEADER) !== env.INTERNAL_QUEUE_SHARED_SECRET) {
+  if (
+    env.INTERNAL_QUEUE_SHARED_SECRET &&
+    request.headers.get(INTERNAL_SECRET_HEADER) !== env.INTERNAL_QUEUE_SHARED_SECRET
+  ) {
     return forbidden('internal-queue-secret-mismatch', authState);
   }
   return authStateIdentity('internal-queue', authState, 'internal', false);

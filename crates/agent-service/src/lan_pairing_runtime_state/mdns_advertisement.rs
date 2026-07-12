@@ -2,8 +2,7 @@ use std::io;
 use std::time::Duration;
 
 use ocentra_lan_core::lan_mdns_advertiser::{
-    child_instance, current_platform_support, derive_child_advertisement_id,
-    derive_parent_advertisement_id, parent_instance, send_advertisements, send_goodbye,
+    current_platform_support, derive_child_advertisement_id, derive_parent_advertisement_id,
     LanMdnsAdvertisementInstance, LanMdnsPacketSink, UdpMulticastMdnsPacketSink,
 };
 use ocentra_lan_core::lan_pairing::{
@@ -16,6 +15,9 @@ use ocentra_parent_agent_protocol::lan_pairing::{
 };
 
 use crate::lan_pairing::LanPairingRuntime;
+
+#[path = "mdns_advertisement/sync.rs"]
+mod sync;
 
 const MDNS_ADVERTISEMENT_INTERVAL: Duration = Duration::from_secs(30);
 
@@ -54,83 +56,7 @@ impl LanPairingRuntime {
         platform_support: LanMdnsAdvertisementPlatformSupport,
         sink: &dyn LanMdnsPacketSink,
     ) -> io::Result<()> {
-        self.sync_parent_mdns_advertisement(sync_state, platform_support, sink)?;
-        self.sync_child_mdns_advertisement(sync_state, platform_support, sink)?;
-        Ok(())
-    }
-
-    fn sync_parent_mdns_advertisement(
-        &self,
-        sync_state: &mut LanMdnsAdvertisementSyncState,
-        platform_support: LanMdnsAdvertisementPlatformSupport,
-        sink: &dyn LanMdnsPacketSink,
-    ) -> io::Result<()> {
-        let support_state = support_state_for_platform(platform_support);
-        let decision = Self::mdns_advertisement_lifecycle(
-            self.signed_child_agent_family_hash.is_some(),
-            sync_state.parent.is_some(),
-            platform_support,
-        );
-        match decision.lifecycle_action {
-            LanMdnsAdvertisementLifecycleAction::Start
-            | LanMdnsAdvertisementLifecycleAction::Update => {
-                if let Some(advertisement) = self.build_parent_mdns_advertisement(
-                    lifecycle_state_for_action(decision.lifecycle_action),
-                    support_state,
-                ) {
-                    let instance = parent_instance(&advertisement);
-                    send_advertisements(std::slice::from_ref(&instance), sink)?;
-                    sync_state.parent = Some(instance);
-                } else if let Some(instance) = sync_state.parent.take() {
-                    send_goodbye(std::slice::from_ref(&instance), sink)?;
-                }
-                Ok(())
-            }
-            LanMdnsAdvertisementLifecycleAction::Stop
-            | LanMdnsAdvertisementLifecycleAction::Degraded => {
-                if let Some(instance) = sync_state.parent.take() {
-                    send_goodbye(std::slice::from_ref(&instance), sink)?;
-                }
-                Ok(())
-            }
-        }
-    }
-
-    fn sync_child_mdns_advertisement(
-        &self,
-        sync_state: &mut LanMdnsAdvertisementSyncState,
-        platform_support: LanMdnsAdvertisementPlatformSupport,
-        sink: &dyn LanMdnsPacketSink,
-    ) -> io::Result<()> {
-        let support_state = support_state_for_platform(platform_support);
-        let decision = Self::mdns_advertisement_lifecycle(
-            self.local_child_device_id.is_some() && self.signed_child_agent_family_hash.is_some(),
-            sync_state.child.is_some(),
-            platform_support,
-        );
-        match decision.lifecycle_action {
-            LanMdnsAdvertisementLifecycleAction::Start
-            | LanMdnsAdvertisementLifecycleAction::Update => {
-                if let Some(advertisement) = self.build_child_mdns_advertisement(
-                    lifecycle_state_for_action(decision.lifecycle_action),
-                    support_state,
-                ) {
-                    let instance = child_instance(&advertisement);
-                    send_advertisements(std::slice::from_ref(&instance), sink)?;
-                    sync_state.child = Some(instance);
-                } else if let Some(instance) = sync_state.child.take() {
-                    send_goodbye(std::slice::from_ref(&instance), sink)?;
-                }
-                Ok(())
-            }
-            LanMdnsAdvertisementLifecycleAction::Stop
-            | LanMdnsAdvertisementLifecycleAction::Degraded => {
-                if let Some(instance) = sync_state.child.take() {
-                    send_goodbye(std::slice::from_ref(&instance), sink)?;
-                }
-                Ok(())
-            }
-        }
+        sync::sync_mdns_advertisements_with_sink(self, sync_state, platform_support, sink)
     }
 
     fn build_parent_mdns_advertisement(

@@ -5,7 +5,9 @@ use super::super::super::{
     PolicyContractScheduleDstTransition, PolicyContractValidationResult,
 };
 
-pub(super) fn validate(boundary: &PolicyContractScheduleBoundary) -> PolicyContractValidationResult {
+pub(super) fn validate(
+    boundary: &PolicyContractScheduleBoundary,
+) -> PolicyContractValidationResult {
     let Some(dst_boundary) = &boundary.dst_boundary else {
         return Err("dst-gap boundaries require dstBoundary details".into());
     };

@@ -1,27 +1,25 @@
 /* generated from crates/schema/src/child_signing_store_device_owner_matrix.rs */
 
-import { Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+import {{ Schema, brandedNonEmptyStringSchema, withParser }} from './effect';
 
 export const ChildSigningStoreDeviceOwnerMatrixContractRuntime = {{
   SchemaVersion: '__CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_SCHEMA_VERSION__',
 }} as const;
 
-export type GeneratedChildSigningStoreDeviceOwnerMatrixSchemaVersion =
-  'child-signing-store-device-owner-matrix-proof';
+export type GeneratedChildSigningStoreDeviceOwnerMatrixSchemaVersion = 'child-signing-store-device-owner-matrix-proof';
 export const GeneratedChildArtifactMatrixPathSchema = brandedNonEmptyStringSchema('GeneratedChildArtifactMatrixPath');
-export const GeneratedChildArtifactMatrixBoundarySchema = brandedNonEmptyStringSchema('GeneratedChildArtifactMatrixBoundary');
-export const GeneratedChildArtifactMatrixTimestampSchema = brandedNonEmptyStringSchema('GeneratedChildArtifactMatrixTimestamp');
+export const GeneratedChildArtifactMatrixBoundarySchema = brandedNonEmptyStringSchema(
+  'GeneratedChildArtifactMatrixBoundary'
+);
+export const GeneratedChildArtifactMatrixTimestampSchema = brandedNonEmptyStringSchema(
+  'GeneratedChildArtifactMatrixTimestamp'
+);
 
 export type GeneratedChildArtifactMatrixPath = typeof GeneratedChildArtifactMatrixPathSchema.Type;
 export type GeneratedChildArtifactMatrixBoundary = typeof GeneratedChildArtifactMatrixBoundarySchema.Type;
 export type GeneratedChildArtifactMatrixTimestamp = typeof GeneratedChildArtifactMatrixTimestampSchema.Type;
 
-export type GeneratedChildArtifactMatrixPlatform =
-  | 'windows'
-  | 'macos'
-  | 'linux'
-  | 'android'
-  | 'ios';
+export type GeneratedChildArtifactMatrixPlatform = 'windows' | 'macos' | 'linux' | 'android' | 'ios';
 export type GeneratedChildArtifactMatrixArtifactKind =
   | 'windows-msi-service-package'
   | 'macos-launchd-pkg'
@@ -44,10 +42,7 @@ export type GeneratedChildArtifactMatrixProofSource =
   | 'linux-service-package-proof'
   | 'android-device-proof-gate'
   | 'ios-entitlement-proof';
-export type GeneratedChildArtifactMatrixSigningState =
-  | 'unsigned'
-  | 'debug-signed'
-  | 'signing-disabled';
+export type GeneratedChildArtifactMatrixSigningState = 'unsigned' | 'debug-signed' | 'signing-disabled';
 export type GeneratedChildArtifactMatrixStoreDistributionState = 'not-applicable' | 'planned';
 export type GeneratedChildArtifactMatrixManagementState =
   | 'not-applicable'
@@ -165,7 +160,7 @@ export interface GeneratedChildArtifactMatrixRow {{
 }}
 
 export const GeneratedChildArtifactMatrixRowSchema = withParser(
-  Schema.Struct({
+  Schema.Struct({{
     platform: GeneratedChildArtifactMatrixPlatformSchema,
     artifactKind: GeneratedChildArtifactMatrixArtifactKindSchema,
     distributionMode: GeneratedChildArtifactMatrixDistributionModeSchema,
@@ -182,7 +177,7 @@ export const GeneratedChildArtifactMatrixRowSchema = withParser(
     storeBoundary: GeneratedChildArtifactMatrixBoundarySchema,
     managementBoundary: GeneratedChildArtifactMatrixBoundarySchema,
     claimBoundary: GeneratedChildArtifactMatrixBoundarySchema,
-  })
+  }})
 );
 
 export interface GeneratedChildArtifactMatrixClaimBoundaries {{
@@ -194,13 +189,13 @@ export interface GeneratedChildArtifactMatrixClaimBoundaries {{
 }}
 
 export const GeneratedChildArtifactMatrixClaimBoundariesSchema = withParser(
-  Schema.Struct({
+  Schema.Struct({{
     genericMatrix: GeneratedChildArtifactMatrixBoundarySchema,
     signingParity: GeneratedChildArtifactMatrixBoundarySchema,
     storeParity: GeneratedChildArtifactMatrixBoundarySchema,
     managementParity: GeneratedChildArtifactMatrixBoundarySchema,
     parentParity: GeneratedChildArtifactMatrixBoundarySchema,
-  })
+  }})
 );
 
 export interface GeneratedChildSigningStoreDeviceOwnerMatrixProof {{
@@ -211,12 +206,12 @@ export interface GeneratedChildSigningStoreDeviceOwnerMatrixProof {{
 }}
 
 export const GeneratedChildSigningStoreDeviceOwnerMatrixProofSchema = withParser(
-  Schema.Struct({
+  Schema.Struct({{
     schemaVersion: Schema.Literal(ChildSigningStoreDeviceOwnerMatrixContractRuntime.SchemaVersion),
     checkedAt: GeneratedChildArtifactMatrixTimestampSchema,
     rows: Schema.Array(GeneratedChildArtifactMatrixRowSchema),
     claimBoundaries: GeneratedChildArtifactMatrixClaimBoundariesSchema,
-  })
+  }})
 );
 
 export const GeneratedChildSigningStoreDeviceOwnerMatrixProof =

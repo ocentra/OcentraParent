@@ -1,0 +1,30 @@
+});
+
+export const appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelCountsMatchGenerated = (
+  readModel: TimerServiceReadinessProtocolReadModelLike
+) =>
+  readModel.protocolReadModelProofRequiredCount ===
+    readModel.rows.filter(
+      (row) =>
+        row.protocolReadModelState ===
+          AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.ProtocolReadModelProofRequired &&
+        row.requiredProtocolProofRefs.length > 0 &&
+        !row.agentProtocolContractImplemented &&
+        !row.rustProtocolMirrored &&
+        !row.serviceCommandRegistered &&
+        !row.serviceEventEmitted &&
+        !row.serviceReadApiImplemented &&
+        !row.serviceReadModelEventEmitted
+    ).length &&
+  readModel.blockedBySourceFreshnessCount ===
+    readModel.rows.filter(
+      (row) =>
+        row.protocolReadModelState ===
+          AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.BlockedBySourceFreshness &&
+        row.requiredProtocolProofRefs.length === 0
+    ).length &&
+  readModel.blockedByCompilerDecisionCount ===
+    readModel.rows.filter(
+      (row) =>
+        row.protocolReadModelState ===
+          AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.BlockedByCompilerDecision &&

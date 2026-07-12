@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanDiscoveryEvidenceSource,
 };
 
-use super::compact_identifier;
+use super::super::value_support::compact_identifier;
 use super::EvidenceContext;
 
 pub(super) struct EvidenceRecordInput<'a> {

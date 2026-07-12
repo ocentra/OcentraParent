@@ -2,7 +2,9 @@
 
 use super::super::super::{PolicyContractScheduleBoundary, PolicyContractValidationResult};
 
-pub(super) fn validate(boundary: &PolicyContractScheduleBoundary) -> PolicyContractValidationResult {
+pub(super) fn validate(
+    boundary: &PolicyContractScheduleBoundary,
+) -> PolicyContractValidationResult {
     let Some(clock_skew) = &boundary.clock_skew else {
         return Err("clock-skew boundaries require clockSkew details".into());
     };

@@ -1,4 +1,6 @@
-use crate::screen_ai_retention_sweeper_deletion_events::publish_screen_retention_deletion_events;
+use crate::screen_ai_retention_sweeper_deletion_events::{
+    publish_screen_retention_deletion_events, ScreenRetentionObservedAt,
+};
 
 #[tokio::test]
 async fn screen_retention_deletion_event_publisher_ignores_empty_expiry_set() {
@@ -6,7 +8,9 @@ async fn screen_retention_deletion_event_publisher_ignores_empty_expiry_set() {
     let outcomes = publish_screen_retention_deletion_events(
         &store_path,
         &[],
-        ocentra_parent_agent_protocol::constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        ScreenRetentionObservedAt::from_display(
+            ocentra_parent_agent_protocol::constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        ),
     )
     .await;
 

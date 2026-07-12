@@ -51,9 +51,7 @@ function verifyReplaceCommandPayload() {
 
   expect(replaceDraft.action).toBe(ParentUiActionKind.ScreenSettingsReplaceRequested);
   expect(replaceDraft.requestId).toBe(`${ParentScreenSettingsCommandRuntime.RequestIdPrefix}4`);
-  expect(
-    JSON.parse(String(replaceDraft.payload[ParentUiActionPayloadField.ScreenSettingsRequest]))
-  ).toEqual({
+  expect(JSON.parse(String(replaceDraft.payload[ParentUiActionPayloadField.ScreenSettingsRequest]))).toEqual({
     schemaVersion: ParentScreenSettingsCommandRuntime.SchemaVersion,
     requestId: `${ParentScreenSettingsCommandRuntime.RequestIdPrefix}4`,
     kind: ParentScreenSettingsUpdateKind.Replace,
@@ -115,16 +113,10 @@ function verifySnapshotResponseFiltering() {
   });
 
   expect(
-    matchingScreenSettingsServiceResponse(
-      snapshotResponse,
-      `${ParentScreenSettingsCommandRuntime.RequestIdPrefix}12`
-    )
+    matchingScreenSettingsServiceResponse(snapshotResponse, `${ParentScreenSettingsCommandRuntime.RequestIdPrefix}12`)
   ).toEqual(snapshotResponse);
   expect(
-    matchingScreenSettingsServiceResponse(
-      snapshotResponse,
-      `${ParentScreenSettingsCommandRuntime.RequestIdPrefix}99`
-    )
+    matchingScreenSettingsServiceResponse(snapshotResponse, `${ParentScreenSettingsCommandRuntime.RequestIdPrefix}99`)
   ).toBeNull();
 }
 

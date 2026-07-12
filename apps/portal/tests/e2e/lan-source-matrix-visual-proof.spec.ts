@@ -53,10 +53,7 @@ async function captureOptionalFullPageScreenshot(page: Page, screenshotPath: str
   await page.screenshot({ fullPage: true, path: screenshotPath });
 }
 
-async function selectPolicyCapableLanTarget(
-  page: Page,
-  surface: Locator
-): Promise<StoredManageTargetSelection> {
+async function selectPolicyCapableLanTarget(page: Page, surface: Locator): Promise<StoredManageTargetSelection> {
   const candidateLabels = prioritizeCandidateLabels(await listLanChoiceLabels(page));
   expect(candidateLabels.length).toBeGreaterThan(0);
 

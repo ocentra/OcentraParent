@@ -20,6 +20,18 @@ use crate::{
     time::timestamp_now,
 };
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct ScreenAiEnvVar(&'static str);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct ScreenAiFieldName(&'static str);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ScreenAiText(String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ScreenAiPath(PathBuf);
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct ScreenAiAnalysisRuntimeConfig {
     pub(crate) screen_analysis_enabled: bool,
@@ -75,32 +87,41 @@ pub(crate) struct ScreenAiAnalysisCycleClock {
 
 impl ScreenAiAnalysisRuntimeConfig {
     pub(crate) fn from_environment() -> Option<Self> {
-        if !env_flag(SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED_ENV, false) {
+        if !env_flag(
+            ScreenAiEnvVar(SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED_ENV),
+            false,
+        ) {
             return None;
         }
         Some(Self {
-            screen_analysis_enabled: env_flag(SCREEN_SERVICE_ANALYSIS_ENABLED_ENV, true),
+            screen_analysis_enabled: env_flag(
+                ScreenAiEnvVar(SCREEN_SERVICE_ANALYSIS_ENABLED_ENV),
+                true,
+            ),
             poll_seconds: env_u64(
-                SCREEN_SERVICE_ANALYSIS_POLL_SECONDS_ENV,
+                ScreenAiEnvVar(SCREEN_SERVICE_ANALYSIS_POLL_SECONDS_ENV),
                 SCREEN_SERVICE_ANALYSIS_DEFAULT_POLL_SECONDS,
             ),
-            max_jobs: env_optional_u64(SCREEN_SERVICE_ANALYSIS_MAX_JOBS_ENV),
-            max_ticks: env_optional_u64(SCREEN_SERVICE_ANALYSIS_MAX_TICKS_ENV),
+            max_jobs: env_optional_u64(ScreenAiEnvVar(SCREEN_SERVICE_ANALYSIS_MAX_JOBS_ENV)),
+            max_ticks: env_optional_u64(ScreenAiEnvVar(SCREEN_SERVICE_ANALYSIS_MAX_TICKS_ENV)),
             max_queue_scan: SCREEN_SERVICE_ANALYSIS_DEFAULT_MAX_QUEUE_SCAN,
             adapter_timeout_ms: env_u64(
-                SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS_ENV,
+                ScreenAiEnvVar(SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS_ENV),
                 SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
             ),
-            adapter_command: env_path(SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND_ENV),
-            ocr_redaction_policy: env_path(
+            adapter_command: env_path(ScreenAiEnvVar(SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND_ENV))
+                .map(|path| path.0),
+            ocr_redaction_policy: env_path(ScreenAiEnvVar(
                 constants::local_ai_runtime::SCREEN_SERVICE_OCR_REDACTION_POLICY_PATH_ENV,
-            )
-            .and_then(|path| ScreenOcrRedactionPolicy::from_file(&path))
+            ))
+            .and_then(|path| ScreenOcrRedactionPolicy::from_file(path.0))
             .unwrap_or_default(),
-            queue_dir: env_path(SCREEN_SERVICE_QUEUE_DIR_ENV).unwrap_or_else(default_queue_dir),
-            journal_path: activity_journal_path(),
-            journal_key_path: activity_journal_key_path(),
-            store_path: activity_db_path(),
+            queue_dir: env_path(ScreenAiEnvVar(SCREEN_SERVICE_QUEUE_DIR_ENV))
+                .map(|path| path.0)
+                .unwrap_or_else(|| default_queue_dir().0),
+            journal_path: activity_journal_path().into(),
+            journal_key_path: activity_journal_key_path().into(),
+            store_path: activity_db_path().into(),
         })
     }
 }
@@ -124,38 +145,40 @@ impl Default for ScreenOcrRedactionPolicy {
 }
 
 impl ScreenOcrRedactionPolicy {
-    fn from_file(path: &PathBuf) -> Option<Self> {
-        let value: Value = serde_json::from_str(&fs::read_to_string(path).ok()?).ok()?;
+    fn from_file(path: impl AsRef<std::path::Path>) -> Option<Self> {
+        let value: Value = serde_json::from_str(&fs::read_to_string(path.as_ref()).ok()?).ok()?;
         let mut policy = Self::default();
         policy.ocr_text_enabled = optional_bool(
             &value,
-            constants::field::SCREEN_OCR_TEXT_ENABLED,
+            ScreenAiFieldName(constants::field::SCREEN_OCR_TEXT_ENABLED),
             policy.ocr_text_enabled,
         );
         policy.snippet_limit = optional_usize(
             &value,
-            constants::field::SCREEN_OCR_SNIPPET_LIMIT,
+            ScreenAiFieldName(constants::field::SCREEN_OCR_SNIPPET_LIMIT),
             policy.snippet_limit,
         )
         .min(constants::local_ai_runtime::SCREEN_SERVICE_OCR_SNIPPET_LIMIT);
         policy.redaction_mode = optional_string(
             &value,
-            constants::field::SCREEN_OCR_REDACTION_MODE,
-            &policy.redaction_mode,
-        );
+            ScreenAiFieldName(constants::field::SCREEN_OCR_REDACTION_MODE),
+            ScreenAiText(policy.redaction_mode.clone()),
+        )
+        .0;
         policy.text_retention_mode = optional_string(
             &value,
-            constants::field::SCREEN_OCR_TEXT_RETENTION_MODE,
-            &policy.text_retention_mode,
-        );
+            ScreenAiFieldName(constants::field::SCREEN_OCR_TEXT_RETENTION_MODE),
+            ScreenAiText(policy.text_retention_mode.clone()),
+        )
+        .0;
         policy.credential_suppression_enabled = optional_bool(
             &value,
-            constants::field::SCREEN_OCR_CREDENTIAL_SUPPRESSION_ENABLED,
+            ScreenAiFieldName(constants::field::SCREEN_OCR_CREDENTIAL_SUPPRESSION_ENABLED),
             policy.credential_suppression_enabled,
         );
         policy.pii_redaction_enabled = optional_bool(
             &value,
-            constants::field::SCREEN_OCR_PII_REDACTION_ENABLED,
+            ScreenAiFieldName(constants::field::SCREEN_OCR_PII_REDACTION_ENABLED),
             policy.pii_redaction_enabled,
         );
         policy.parent_setting_ref = value
@@ -200,61 +223,66 @@ impl ScreenAiAnalysisCycleClock {
     }
 }
 
-fn env_flag(env_var_name: &str, default_value: bool) -> bool {
-    env::var(env_var_name)
+fn env_flag(env_var_name: ScreenAiEnvVar, default_value: bool) -> bool {
+    env::var(env_var_name.0)
         .ok()
         .map(|value| value == constants::value::TRUE)
         .unwrap_or(default_value)
 }
 
-fn env_u64(env_var_name: &str, default_value: u64) -> u64 {
-    env::var(env_var_name)
+fn env_u64(env_var_name: ScreenAiEnvVar, default_value: u64) -> u64 {
+    env::var(env_var_name.0)
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
         .unwrap_or(default_value)
 }
 
-fn env_optional_u64(env_var_name: &str) -> Option<u64> {
-    env::var(env_var_name)
+fn env_optional_u64(env_var_name: ScreenAiEnvVar) -> Option<u64> {
+    env::var(env_var_name.0)
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
 }
 
-fn env_path(env_var_name: &str) -> Option<PathBuf> {
-    env::var(env_var_name)
+fn env_path(env_var_name: ScreenAiEnvVar) -> Option<ScreenAiPath> {
+    env::var(env_var_name.0)
         .ok()
         .filter(|value| !value.is_empty())
         .map(PathBuf::from)
+        .map(ScreenAiPath)
 }
 
-fn optional_bool(value: &Value, field: &str, default_value: bool) -> bool {
+fn optional_bool(value: &Value, field: ScreenAiFieldName, default_value: bool) -> bool {
     value
-        .get(field)
+        .get(field.0)
         .and_then(Value::as_bool)
         .unwrap_or(default_value)
 }
 
-fn optional_usize(value: &Value, field: &str, default_value: usize) -> usize {
+fn optional_usize(value: &Value, field: ScreenAiFieldName, default_value: usize) -> usize {
     value
-        .get(field)
+        .get(field.0)
         .and_then(Value::as_u64)
         .and_then(|candidate| usize::try_from(candidate).ok())
         .unwrap_or(default_value)
 }
 
-fn optional_string(value: &Value, field: &str, default_value: &str) -> String {
+fn optional_string(
+    value: &Value,
+    field: ScreenAiFieldName,
+    default_value: ScreenAiText,
+) -> ScreenAiText {
     value
-        .get(field)
+        .get(field.0)
         .and_then(Value::as_str)
         .filter(|candidate| !candidate.is_empty())
+        .map(|candidate| ScreenAiText(candidate.to_string()))
         .unwrap_or(default_value)
-        .to_string()
 }
 
-fn default_queue_dir() -> PathBuf {
+fn default_queue_dir() -> ScreenAiPath {
     let mut path = env::temp_dir();
     path.push(SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME);
-    path
+    ScreenAiPath(path)
 }

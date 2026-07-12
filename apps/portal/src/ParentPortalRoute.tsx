@@ -11,7 +11,7 @@ import {
   type ParentRouteId,
 } from '../generated/parent-ui-bridge';
 import { resolveParentPortalServiceState } from '@ocentra-parent/portal-domain/parent-portal-service-state';
-import { ParentPortalSvgSurface } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
+import { ParentPortalSvgSurface } from './vendor-parent-portal-surface.js';
 import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 import { resolveSnapshotLiveActivityState } from './route-live-activity-state';
 import { PortalDeveloperRoutePanel, shouldRenderPortalDeveloperRoute } from './PortalDeveloperRoutePanel';
@@ -31,7 +31,9 @@ type ParentPortalRouteProps = {
   readonly state: PortalRuntimeState;
 };
 
-type ParentPortalSurfaceActivityState = NonNullable<ComponentProps<typeof ParentPortalSvgSurface>['activityState']> | null;
+type ParentPortalSurfaceActivityState = NonNullable<
+  ComponentProps<typeof ParentPortalSvgSurface>['activityState']
+> | null;
 type ParentPortalRouteContext = ReturnType<typeof parentPortalRouteContext>;
 type ParentPortalServiceState = ReturnType<typeof resolveParentPortalServiceState>;
 type ParentPortalLiveActivity = ReturnType<typeof resolveSnapshotLiveActivityState>;
@@ -204,7 +206,10 @@ function parentPortalRoutePanels(state: PortalRuntimeState, activityState: Paren
     socialAlertReportParentSurfacePanel: browserPanelSnapshot(state, 'socialAlertReportParentSurface'),
     socialParentNotificationDeliveryPanel: browserPanelSnapshot(state, 'socialParentNotificationDelivery'),
     browserActionIntentStreamStatusPanel: browserPanelSnapshot(state, 'browserActionIntentStreamStatus'),
-    browserSocialProviderReceiptStreamStatusPanel: browserPanelSnapshot(state, 'browserSocialProviderReceiptStreamStatus'),
+    browserSocialProviderReceiptStreamStatusPanel: browserPanelSnapshot(
+      state,
+      'browserSocialProviderReceiptStreamStatus'
+    ),
     browserSocialProviderReceiptIngestionReadinessStatusPanel: browserPanelSnapshot(
       state,
       'browserSocialProviderReceiptIngestionReadinessStatus'
@@ -214,7 +219,10 @@ function parentPortalRoutePanels(state: PortalRuntimeState, activityState: Paren
   };
 }
 
-function browserPanelSnapshot(state: PortalRuntimeState, key: ParentBrowserPanelKey): ParentBrowserPanelSnapshot | null {
+function browserPanelSnapshot(
+  state: PortalRuntimeState,
+  key: ParentBrowserPanelKey
+): ParentBrowserPanelSnapshot | null {
   const browserPanels = state.routeSnapshot?.browserPanels as
     | Record<ParentBrowserPanelKey, ParentBrowserPanelSnapshot | null | undefined>
     | null

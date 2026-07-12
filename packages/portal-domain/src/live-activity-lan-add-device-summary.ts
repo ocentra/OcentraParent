@@ -21,7 +21,12 @@ export type PortalLanDiscoveryEventHistoryRow = GeneratedPortalLanDiscoveryEvent
 export type PortalLanDiscoveryEventHistory = GeneratedPortalLanDiscoveryEventHistorySnapshot;
 
 const PortalLanDiscoveryEventHistoryRowStringFields = ['eventId', 'eventKind', 'occurredAt', 'summary'] as const;
-const PortalLanDiscoveryEventHistoryRowNullableStringFields = ['previousEventId', 'scanSessionId', 'affectedDeviceId', 'evidenceId'] as const;
+const PortalLanDiscoveryEventHistoryRowNullableStringFields = [
+  'previousEventId',
+  'scanSessionId',
+  'affectedDeviceId',
+  'evidenceId',
+] as const;
 
 export function normalizePortalLanScanSummary(value: unknown): PortalLanScanSummary | null {
   if (!isRecord(value)) {

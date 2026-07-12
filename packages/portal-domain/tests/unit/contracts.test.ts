@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  PortalAgentCommand as AgentCommand,
-  PortalAgentEvent as AgentEvent,
-} from '../../src/portal-contract-adapter';
+import { PortalAgentCommand as AgentCommand, PortalAgentEvent as AgentEvent } from '../../src/portal-contract-adapter';
 import { decodePortalClipboardText } from '../../src/portal-contract-text-contracts';
 import {
   PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,

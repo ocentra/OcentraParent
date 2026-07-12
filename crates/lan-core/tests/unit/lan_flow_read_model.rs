@@ -227,7 +227,7 @@ fn household_revoke_decision_records_audit_evidence_and_blocks_control() {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         action_id: "household-action-revoke-1".to_string(),
         action_kind: LanHouseholdDeviceActionKind::Revoke,
-        canonical_device_id: canonical_test_mac_device_id(),
+        canonical_device_id: canonical_test_mac_device_id().to_string(),
         child_profile_id: Some("child-profile-1".to_string()),
         display_name: Some("Kitchen Printer".to_string()),
         device_kind: Some(constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_UNKNOWN.to_string()),

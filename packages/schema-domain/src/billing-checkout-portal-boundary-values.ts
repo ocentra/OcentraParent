@@ -19,9 +19,7 @@ export const BillingCheckoutPortalBoundarySchemaVersionSchema = withParser(
   Schema.Literal(GeneratedBillingCheckoutPortalBoundarySchemaVersion)
 );
 
-export const BillingHostedSessionKindSchema = withParser(
-  Schema.Literal(...GeneratedBillingHostedSessionKinds)
-);
+export const BillingHostedSessionKindSchema = withParser(Schema.Literal(...GeneratedBillingHostedSessionKinds));
 
 export const BillingHostedSessionStatusSchema = withParser(Schema.Literal(...GeneratedBillingHostedSessionStatuses));
 
@@ -39,9 +37,7 @@ export const BillingHostedCheckoutPlanIdSchema = withParser(
   )
 );
 
-export const BillingHostedOriginGateStateSchema = withParser(
-  Schema.Literal(...GeneratedBillingHostedOriginGateStates)
-);
+export const BillingHostedOriginGateStateSchema = withParser(Schema.Literal(...GeneratedBillingHostedOriginGateStates));
 
 export const BillingHostedCsrfStateSchema = withParser(Schema.Literal(...GeneratedBillingHostedCsrfStates));
 
@@ -53,9 +49,7 @@ export const BillingHostedSessionRejectionReasonSchema = withParser(
   Schema.Literal(...GeneratedBillingHostedSessionRejectionReasons)
 );
 
-export const BillingHostedReturnRouteIdSchema = withParser(
-  Schema.Literal(...GeneratedBillingHostedReturnRouteIds)
-);
+export const BillingHostedReturnRouteIdSchema = withParser(Schema.Literal(...GeneratedBillingHostedReturnRouteIds));
 
 export const BillingHostedReturnPathSchema = withParser(
   NonEmptyStringSchema.pipe(

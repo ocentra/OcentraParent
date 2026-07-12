@@ -55,7 +55,7 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_execute_report_with
         );
     }
 
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     let read_model =
         app_game_adapter_dispatch_result_read_model(GeneratedAtText(generated_at.clone()), None);
     let Some(row) = scoped_dispatch_result_row(&read_model) else {

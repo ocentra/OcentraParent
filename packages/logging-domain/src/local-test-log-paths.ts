@@ -13,13 +13,18 @@ function generatedIsAsciiLowercaseAlphaNumeric(character: string): boolean {
 }
 
 function generatedTrimEdgeDashes(value: string): string {
-  return value.replace(/^-+|-+$/g, '');
+  let start = 0;
+  let end = value.length;
+  while (start < end && value.charCodeAt(start) === 45) {
+    start += 1;
+  }
+  while (end > start && value.charCodeAt(end - 1) === 45) {
+    end -= 1;
+  }
+  return value.slice(start, end);
 }
 
-function generatedSanitizeWithCollapsedDashes(
-  value: string,
-  isAllowed: (character: string) => boolean
-): string {
+function generatedSanitizeWithCollapsedDashes(value: string, isAllowed: (character: string) => boolean): string {
   let sanitized = '';
   for (const character of value) {
     if (isAllowed(character)) {
@@ -41,16 +46,17 @@ function generatedSuiteSegment(value: TestSuiteType | string | null | undefined)
 export function sanitizeGeneratedPathSegment(value: string): string {
   const sanitized = generatedSanitizeWithCollapsedDashes(
     value,
-    (character) => generatedIsAsciiAlphaNumeric(character) || character === '.' || character === '_' || character === '-'
+    (character) =>
+      generatedIsAsciiAlphaNumeric(character) || character === '.' || character === '_' || character === '-'
   );
   return sanitized.length > 0 ? sanitized : 'default';
 }
 
 export function sanitizeGeneratedTestNameForNdjson(testName: string): string {
-  const sanitized = generatedSanitizeWithCollapsedDashes(testName.toLowerCase(), generatedIsAsciiLowercaseAlphaNumeric).slice(
-    0,
-    100
-  );
+  const sanitized = generatedSanitizeWithCollapsedDashes(
+    testName.toLowerCase(),
+    generatedIsAsciiLowercaseAlphaNumeric
+  ).slice(0, 100);
   return sanitized || 'unnamed-test';
 }
 
@@ -109,7 +115,15 @@ export function buildGeneratedLogsTreeKey(
   return [scope, runType, generatedSuiteSegment(suiteType), fileKey].join('\0');
 }
 
-export function getGeneratedRunDirPath(scope: { readonly scope: TestLogScope | string; readonly runType: RunType | string; readonly suiteType: TestSuiteType | string | null }, fileKey: string, rootDir: string): string {
+export function getGeneratedRunDirPath(
+  scope: {
+    readonly scope: TestLogScope | string;
+    readonly runType: RunType | string;
+    readonly suiteType: TestSuiteType | string | null;
+  },
+  fileKey: string,
+  rootDir: string
+): string {
   return path.dirname(
     getGeneratedRunNdjsonFilePath(
       scope.scope as TestLogScope,

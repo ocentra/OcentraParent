@@ -214,7 +214,13 @@ function validReadModel(): ChildMacosServicePackageProofReadModel {
 
 function surfaceProofs() {
   return [
-    surfaceProof('pkgbuild-script', 'package-lifecycle', 'manual-required', 'ci-mechanical-proof', 'macos-pkgbuild-script'),
+    surfaceProof(
+      'pkgbuild-script',
+      'package-lifecycle',
+      'manual-required',
+      'ci-mechanical-proof',
+      'macos-pkgbuild-script'
+    ),
     surfaceProof(
       'service-binary-path',
       'headless-agent-service',
@@ -222,7 +228,13 @@ function surfaceProofs() {
       'ci-mechanical-proof',
       'macos-release-binary'
     ),
-    surfaceProof('launchd-plist', 'headless-agent-service', 'manual-required', 'ci-mechanical-proof', 'macos-launchd-plist'),
+    surfaceProof(
+      'launchd-plist',
+      'headless-agent-service',
+      'manual-required',
+      'ci-mechanical-proof',
+      'macos-launchd-plist'
+    ),
     surfaceProof(
       'launchctl-bootstrap',
       'headless-agent-service',
@@ -237,7 +249,13 @@ function surfaceProofs() {
       'ci-mechanical-proof',
       'macos-launchctl-script'
     ),
-    surfaceProof('run-at-load', 'headless-agent-service', 'manual-required', 'ci-mechanical-proof', 'macos-launchd-plist'),
+    surfaceProof(
+      'run-at-load',
+      'headless-agent-service',
+      'manual-required',
+      'ci-mechanical-proof',
+      'macos-launchd-plist'
+    ),
     surfaceProof(
       'keepalive-declaration',
       'headless-agent-service',

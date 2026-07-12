@@ -195,14 +195,14 @@ export class Logger {
     );
     return frame?.filePath == null
       ? null
-      : this.registrations.get(normalizeGeneratedStackPath(frame.filePath).toLowerCase()) ?? null;
+      : (this.registrations.get(normalizeGeneratedStackPath(frame.filePath).toLowerCase()) ?? null);
   }
 
   private findMatchedFrame(frames: readonly StackFrame[], registration: LoggerRegistration | null): StackFrame | null {
     const matchedFrame =
       registration?.filePath == null
         ? null
-        : frames.find((frame) => frame.filePath === registration.absoluteFilePath) ?? null;
+        : (frames.find((frame) => frame.filePath === registration.absoluteFilePath) ?? null);
     return matchedFrame ?? frames.find((frame) => frame.filePath != null) ?? null;
   }
 

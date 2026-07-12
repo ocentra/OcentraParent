@@ -18,7 +18,10 @@ export function parseGeneratedList(value: string | undefined): string[] {
   if (value == null || value.trim().length === 0) {
     return [];
   }
-  return value.split(',').map((entry) => entry.trim()).filter((entry) => entry.length > 0);
+  return value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
 }
 
 export function parseGeneratedLevel(value: string | undefined, fallback = 'info'): string {

@@ -1,0 +1,30 @@
+    evaluateRequirementGenerated(request, requirementKind, evaluatedAt)
+  );
+  const policyEvidenceRefs = [...new Set(requirementResults.flatMap((result) => result.sourceEvidenceRefs))];
+  const allSatisfied = requirementResults.every(
+    (result) => result.requirementState === AppGameSourceFreshnessRequirementStateGenerated.Satisfied
+  );
+
+  return {
+    schemaVersion: request.schemaVersion,
+    readinessId,
+    request,
+    readinessState: allSatisfied
+      ? AppGameSourceFreshnessPolicyReadinessStateGenerated.PolicyReady
+      : AppGameSourceFreshnessPolicyReadinessStateGenerated.ManualRequired,
+    requirementResults,
+    policyEvidenceRefs,
+    policyCompileAllowed: allSatisfied,
+    adapterDispatchState: AppGameSourceFreshnessAdapterDispatchStateGenerated.NotDispatched,
+    directAdapterCallRequested: false,
+    rawPrivateSourceRowsIncluded: false,
+    evaluatedAt,
+  };
+}
+
+export const appGameSourceFreshnessPreviewGateRowHasNoRuntimeClaimsGenerated = (
+  row: SourceFreshnessPreviewGateRowLike
+) =>
+  !row.policyEvaluatorRuntimeClaimed &&
+  !row.timerRuntimeClaimed &&
+  !row.adapterDispatchClaimed &&

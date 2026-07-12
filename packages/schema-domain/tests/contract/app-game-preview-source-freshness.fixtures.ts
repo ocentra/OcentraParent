@@ -1,6 +1,4 @@
-import type {
-  AppGamePolicyPreviewHandoffReadModelSchema,
-} from '../../src/app-game-policy-preview-handoff';
+import type { AppGamePolicyPreviewHandoffReadModelSchema } from '../../src/app-game-policy-preview-handoff';
 import {
   AppGamePolicyPreviewStatus,
   AppGamePolicyPreviewTargetDomain,
@@ -168,8 +166,7 @@ export const sourceGatedReadModelInput = {
       previewStatus: AppGameSourceFreshnessPreviewGateStatus.ManualRequired,
       previewDecisionRef: null,
       previewCompilerStatus: null,
-      sensitiveDetailBoundary:
-        AppGameSourceGatedPolicyPreviewReadModelSensitiveBoundary.RedactedEvidenceRefsOnly,
+      sensitiveDetailBoundary: AppGameSourceGatedPolicyPreviewReadModelSensitiveBoundary.RedactedEvidenceRefsOnly,
       serviceRuntimeEventClaimed: false,
       portalUiRendered: false,
       policyEvaluatorRuntimeClaimed: false,

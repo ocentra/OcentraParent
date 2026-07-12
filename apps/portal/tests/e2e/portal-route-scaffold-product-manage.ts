@@ -1,8 +1,5 @@
 import { type Locator } from '@playwright/test';
-import {
-  expectSurfaceTextToContain,
-  expectSurfaceTextToMatch,
-} from './portal-route-scaffold-common';
+import { expectSurfaceTextToContain, expectSurfaceTextToMatch } from './portal-route-scaffold-common';
 
 export async function assertManageRouteSurface(surface: Locator, path: string): Promise<void> {
   await expectSurfaceTextToMatch(
@@ -15,7 +12,10 @@ export async function assertManageRouteSurface(surface: Locator, path: string): 
   }
   if (path === '/#/settings-rules') {
     await expectSurfaceTextToMatch(surface, /(?:Rules|Managed web path|Browser inventory)/);
-    await expectSurfaceTextToMatch(surface, /(?:Schedule|Budget|Approvals|Audit|Exact URL capability|Active tab proof)/);
+    await expectSurfaceTextToMatch(
+      surface,
+      /(?:Schedule|Budget|Approvals|Audit|Exact URL capability|Active tab proof)/
+    );
     await expectSurfaceTextToMatch(surface, /(?:browser policy|Observe|Enforce)/i);
     return;
   }

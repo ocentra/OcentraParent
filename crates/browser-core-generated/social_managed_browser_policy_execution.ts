@@ -20,8 +20,7 @@ export const SocialManagedBrowserPolicyExecutionTemplate = {
   rawPageContentPersisted: false,
 } as const;
 
-export type SocialManagedBrowserPolicyExecutionTemplate =
-  typeof SocialManagedBrowserPolicyExecutionTemplate;
+export type SocialManagedBrowserPolicyExecutionTemplate = typeof SocialManagedBrowserPolicyExecutionTemplate;
 
 type SocialManagedBrowserPolicyExecutionState =
   | 'managed-browser-intervention-executed'
@@ -79,14 +78,11 @@ type SocialManagedBrowserPolicyExecutionSummary = {
   readonly applePlatformClaimed: boolean;
 };
 
-export function socialManagedBrowserPolicyExecutionTemplate():
-  SocialManagedBrowserPolicyExecutionTemplate {
+export function socialManagedBrowserPolicyExecutionTemplate(): SocialManagedBrowserPolicyExecutionTemplate {
   return SocialManagedBrowserPolicyExecutionTemplate;
 }
 
-export function buildGeneratedSocialManagedBrowserPolicyExecution(
-  input: SocialManagedBrowserPolicyExecutionInput
-) {
+export function buildGeneratedSocialManagedBrowserPolicyExecution(input: SocialManagedBrowserPolicyExecutionInput) {
   return {
     schemaVersion: 'v0.6',
     executionId: input.executionId,

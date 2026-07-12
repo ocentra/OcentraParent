@@ -4,7 +4,7 @@ use std::{error::Error, io::Error as IoError};
 
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::network_flow::{
     ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
     ActivityNetworkFlowReadModel, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
@@ -200,7 +200,7 @@ fn product_path_report() -> NetworkProductPathServiceProofReportForTest {
     }
 }
 
-fn assert_product_path_payload(payload: &std::collections::BTreeMap<TestString, LogFieldValue>) {
+fn assert_product_path_payload(payload: &LogFields) {
     assert_eq!(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_OBSERVED_ROWS),
         Some(&LogFieldValue::Number(1.0))

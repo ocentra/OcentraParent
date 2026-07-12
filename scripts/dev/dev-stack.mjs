@@ -66,11 +66,10 @@ start('agent', 'npm', ['run', 'dev:agent']);
 
 if (desktopProductMode) {
   console.log('[dev] Desktop product stack uses the Tauri host bridge; web dev bridge is disabled.');
-  start(
-    'portal',
-    'npm',
-    ['run', networkMode === ParentDevNetworkMode.Lan ? 'dev:portal:desktop:lan' : 'dev:portal:desktop']
-  );
+  start('portal', 'npm', [
+    'run',
+    networkMode === ParentDevNetworkMode.Lan ? 'dev:portal:desktop:lan' : 'dev:portal:desktop',
+  ]);
 } else {
   start('bridge', 'npm', ['run', 'dev:bridge']);
   start('portal', 'npm', ['run', 'dev:portal']);

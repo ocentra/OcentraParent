@@ -1,5 +1,8 @@
 import { ParentRoute, type ParentRouteContext, type ParentRouteId } from '../generated/parent-ui-bridge';
-import { readStoredManageTargetSelection, selectedChildDeviceIdFromManageTargetSelection } from '@ocentra-parent/portal-domain/manage-target-selection';
+import {
+  readStoredManageTargetSelection,
+  selectedChildDeviceIdFromManageTargetSelection,
+} from '@ocentra-parent/portal-domain/manage-target-selection';
 
 export function createCurrentRouteContext(): ParentRouteContext {
   const selectedChildDeviceId = selectedChildDeviceIdFromManageTargetSelection(readStoredManageTargetSelection());

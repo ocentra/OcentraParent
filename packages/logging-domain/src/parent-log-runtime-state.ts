@@ -1,6 +1,10 @@
 /* generated from crates/logging-core/src/parent_log_runtime.rs */
 
-export function generatedStaleRunInfoWarning(runId: string | null, startedAt: number | null, now = Date.now()): string | null {
+export function generatedStaleRunInfoWarning(
+  runId: string | null,
+  startedAt: number | null,
+  now = Date.now()
+): string | null {
   if (runId == null || startedAt == null) {
     return null;
   }
@@ -11,9 +15,11 @@ export function generatedHasRunInfoConflict(
   runInfo: { readonly runId: string | null; readonly scope: string | null },
   entries: readonly { readonly runId?: string | null; readonly consumer: string | null }[]
 ): boolean {
-  return runInfo.runId != null &&
+  return (
+    runInfo.runId != null &&
     runInfo.scope != null &&
-    entries.some((entry) => entry.consumer === runInfo.scope && entry.runId !== runInfo.runId);
+    entries.some((entry) => entry.consumer === runInfo.scope && entry.runId !== runInfo.runId)
+  );
 }
 
 export function buildGeneratedRunStartedPayload(payload: {

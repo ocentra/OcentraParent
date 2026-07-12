@@ -1,0 +1,30 @@
+    return AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired;
+  }
+
+  return AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired;
+};
+
+export const countAppGameSourceGatedPolicyPreviewTimerStatusRowsGenerated = (rows: readonly TimerStatusRowLike[]) => ({
+  timerRuntimeProofRequiredCount: rows.filter(
+    (row) => row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired
+  ).length,
+  sourceFreshnessProofRequiredCount: rows.filter(
+    (row) =>
+      row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired
+  ).length,
+  compilerDecisionProofRequiredCount: rows.filter(
+    (row) =>
+      row.timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired
+  ).length,
+});
+
+export const appGameSourceGatedPolicyPreviewTimerStatusRequiredProofRefsGenerated = (
+  refs: TimerStatusProofRefsLike,
+  timerStatusState: TimerStatusStateValue
+) => {
+  switch (timerStatusState) {
+    case AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired:
+      return [refs.timerRuntimeProofRef];
+    case AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired:
+      return [refs.sourceFreshnessProofRef];
+    default:

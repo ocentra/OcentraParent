@@ -1,6 +1,6 @@
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
-
-use crate::network_inventory_command::value_text;
+mod address;
+mod prefix;
+mod record_values;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LocalNetworkInterfaceIgnoreReason {
@@ -15,39 +15,11 @@ pub enum LocalNetworkInterfaceIgnoreReason {
 }
 
 pub(super) fn supported_local_ipv4_text(value: &str) -> bool {
-    value
-        .parse::<Ipv4Addr>()
-        .map(supported_local_ipv4)
-        .unwrap_or(false)
-}
-
-fn supported_local_ipv6_text(value: &str) -> bool {
-    value
-        .parse::<Ipv6Addr>()
-        .map(supported_local_ipv6)
-        .unwrap_or(false)
-}
-
-fn supported_local_ipv4(ip_address: Ipv4Addr) -> bool {
-    !ip_address.is_loopback()
-        && !ip_address.is_multicast()
-        && !ip_address.is_unspecified()
-        && !ip_address.is_link_local()
-        && ip_address != Ipv4Addr::BROADCAST
-}
-
-fn supported_local_ipv6(ip_address: Ipv6Addr) -> bool {
-    !ip_address.is_loopback()
-        && !ip_address.is_multicast()
-        && !ip_address.is_unspecified()
-        && !ip_address.is_unicast_link_local()
+    address::supported_local_ipv4_text(value)
 }
 
 pub(super) fn supported_dns_server_text(value: &str) -> bool {
-    value
-        .parse::<IpAddr>()
-        .map(|ip_address| !ip_address.is_loopback() && !ip_address.is_unspecified())
-        .unwrap_or(false)
+    address::supported_dns_server_text(value)
 }
 
 pub(super) fn sanitized_dns_servers(values: Vec<String>) -> Vec<String> {
@@ -59,27 +31,7 @@ pub(super) fn sanitized_dns_servers(values: Vec<String>) -> Vec<String> {
 }
 
 pub(super) fn record_text_values(record: &serde_json::Value, field_name: &str) -> Vec<String> {
-    record
-        .get(field_name)
-        .map(value_text_values)
-        .unwrap_or_default()
-}
-
-fn value_text_values(value: &serde_json::Value) -> Vec<String> {
-    match value {
-        serde_json::Value::Array(values) => {
-            let mut texts = Vec::new();
-            for value in values {
-                if let Some(text) = value_text(value) {
-                    push_unique_string(&mut texts, text);
-                }
-            }
-            texts
-        }
-        _ => value_text(value)
-            .map(|value| vec![value])
-            .unwrap_or_default(),
-    }
+    record_values::record_text_values(record, field_name)
 }
 
 pub(super) fn normalized_ipv6_prefixes(values: Vec<String>) -> Vec<String> {
@@ -93,12 +45,7 @@ pub(super) fn normalized_ipv6_prefixes(values: Vec<String>) -> Vec<String> {
 }
 
 pub(super) fn normalized_ipv6_prefix(value: &str) -> Option<String> {
-    let (address, prefix_length) = value.trim().split_once('/')?;
-    let prefix_length = prefix_length.parse::<u8>().ok()?;
-    if prefix_length > 128 || !supported_local_ipv6_text(address) {
-        return None;
-    }
-    Some(format!("{address}/{prefix_length}"))
+    prefix::normalized_ipv6_prefix(value)
 }
 
 pub(super) fn push_unique_string(values: &mut Vec<String>, value: String) {
@@ -126,69 +73,39 @@ pub fn ignored_interface_reason(interface_name: &str) -> Option<LocalNetworkInte
 }
 
 pub(super) fn default_gateway_preference(default_gateway: Option<&str>) -> u8 {
-    if default_gateway.is_some() {
-        0
-    } else {
-        1
-    }
+    u8::from(default_gateway.is_none())
 }
 
 fn interface_ignore_reason(normalized: &str) -> Option<LocalNetworkInterfaceIgnoreReason> {
-    [
-        (
-            normalized.is_empty(),
-            LocalNetworkInterfaceIgnoreReason::EmptyName,
-        ),
-        (
-            is_loopback_interface(normalized),
-            LocalNetworkInterfaceIgnoreReason::Loopback,
-        ),
-        (
-            normalized.starts_with("vethernet"),
-            LocalNetworkInterfaceIgnoreReason::VirtualEthernet,
-        ),
-        (
-            is_container_bridge_interface(normalized),
-            LocalNetworkInterfaceIgnoreReason::ContainerBridge,
-        ),
-        (
-            is_virtual_machine_bridge_interface(normalized),
-            LocalNetworkInterfaceIgnoreReason::VirtualMachineBridge,
-        ),
-        (
-            is_vpn_or_tunnel_interface(normalized),
-            LocalNetworkInterfaceIgnoreReason::VpnOrTunnel,
-        ),
-        (
-            normalized.starts_with("zt"),
-            LocalNetworkInterfaceIgnoreReason::ZeroTier,
-        ),
-        (
-            normalized.contains("wsl"),
-            LocalNetworkInterfaceIgnoreReason::Wsl,
-        ),
-    ]
-    .into_iter()
-    .find_map(|(matched, reason)| matched.then_some(reason))
-}
-
-fn is_loopback_interface(normalized: &str) -> bool {
-    normalized == "lo" || normalized.contains("loopback")
-}
-
-fn is_container_bridge_interface(normalized: &str) -> bool {
-    normalized.starts_with("docker")
+    if normalized.is_empty() {
+        return Some(LocalNetworkInterfaceIgnoreReason::EmptyName);
+    }
+    if normalized == "lo" || normalized.contains("loopback") {
+        return Some(LocalNetworkInterfaceIgnoreReason::Loopback);
+    }
+    if normalized.starts_with("vethernet") {
+        return Some(LocalNetworkInterfaceIgnoreReason::VirtualEthernet);
+    }
+    if normalized.starts_with("docker")
         || normalized.starts_with("veth")
         || normalized.starts_with("br-")
-}
-
-fn is_virtual_machine_bridge_interface(normalized: &str) -> bool {
-    normalized.starts_with("virbr") || normalized.starts_with("vboxnet")
-}
-
-fn is_vpn_or_tunnel_interface(normalized: &str) -> bool {
-    normalized.starts_with("tailscale")
+    {
+        return Some(LocalNetworkInterfaceIgnoreReason::ContainerBridge);
+    }
+    if normalized.starts_with("virbr") || normalized.starts_with("vboxnet") {
+        return Some(LocalNetworkInterfaceIgnoreReason::VirtualMachineBridge);
+    }
+    if normalized.starts_with("tailscale")
         || normalized.starts_with("wg")
         || normalized.starts_with("tun")
         || normalized.starts_with("tap")
+    {
+        return Some(LocalNetworkInterfaceIgnoreReason::VpnOrTunnel);
+    }
+    if normalized.starts_with("zt") {
+        return Some(LocalNetworkInterfaceIgnoreReason::ZeroTier);
+    }
+    normalized
+        .contains("wsl")
+        .then_some(LocalNetworkInterfaceIgnoreReason::Wsl)
 }

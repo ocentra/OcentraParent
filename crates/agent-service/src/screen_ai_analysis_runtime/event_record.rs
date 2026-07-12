@@ -60,6 +60,11 @@ pub(crate) struct ScreenAiAnalysisEventRecord {
     redaction_notes: Vec<String>,
 }
 
+pub(super) struct ScreenAnalysisFieldEntry {
+    pub(super) key: &'static str,
+    pub(super) value: LogFieldValue,
+}
+
 pub(crate) fn analysis_event_record(
     image: &QueuedScreenImage,
     metadata: Option<&ScreenAnalysisResult>,
@@ -68,7 +73,7 @@ pub(crate) fn analysis_event_record(
     redaction_policy: &ScreenOcrRedactionPolicy,
 ) -> ScreenAiAnalysisEventRecord {
     let parsed = parsed_fields_from_generation(generation, redaction_policy);
-    let policy = policy_refs::service_policy_refs(&image.queue_job_id, parsed.policy_eligible);
+    let policy = policy_refs::service_policy_refs(image, parsed.policy_eligible);
     ScreenAiAnalysisEventRecord {
         queue_job_id: image.queue_job_id.clone(),
         image_digest: image.image_digest.clone(),
@@ -81,9 +86,21 @@ pub(crate) fn analysis_event_record(
         model_runtime_ref: parsed.model_runtime_ref,
         model_id: parsed.model_id,
         prompt_or_template_version: parsed.template_version,
-        capture_reason: capture_reason(metadata).to_string(),
-        capture_scope: capture_scope(metadata).to_string(),
-        capability_status: capability_status(metadata).to_string(),
+        capture_reason: metadata
+            .map(|result| result.capture_reason.clone())
+            .unwrap_or_else(|| {
+                constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string()
+            }),
+        capture_scope: metadata
+            .map(|result| result.capture_scope.clone())
+            .unwrap_or_else(|| SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_string()),
+        capability_status: metadata
+            .map(|result| result.capability_status.clone())
+            .unwrap_or_else(|| {
+                ActivityCaptureCapabilityStatus::Available
+                    .as_protocol_str()
+                    .to_string()
+            }),
         policy_decision_ref: policy.policy_decision_ref,
         policy_action: policy.policy_action,
         policy_reason_codes: policy.policy_reason_codes,
@@ -97,31 +114,34 @@ pub(crate) fn analysis_event_record(
 }
 
 pub(crate) fn outcome_for_generation(
-    queue_job_id: &str,
+    image: &QueuedScreenImage,
     generation: &LocalAiChatGenerationResult,
     event_record: &ScreenAiAnalysisEventRecord,
 ) -> ScreenAiAnalysisCycleOutcome {
-    if is_recorded_provider_kind(&event_record.provider_kind) {
+    if event_record.provider_kind == SCREEN_PROVIDER_LOCAL_VISION
+        || event_record.provider_kind == SCREEN_PROVIDER_LOCAL_OCR
+    {
         return ScreenAiAnalysisCycleOutcome::Recorded {
-            queue_job_id: queue_job_id.to_string(),
+            queue_job_id: image.queue_job_id.clone(),
             provider_kind: event_record.provider_kind.clone(),
         };
     }
     if generation.generation_state == LocalAiGenerationState::Complete {
         return ScreenAiAnalysisCycleOutcome::InvalidOutput {
-            queue_job_id: queue_job_id.to_string(),
+            queue_job_id: image.queue_job_id.clone(),
         };
     }
     ScreenAiAnalysisCycleOutcome::ProviderUnavailable {
-        queue_job_id: queue_job_id.to_string(),
+        queue_job_id: image.queue_job_id.clone(),
     }
 }
 
-fn is_recorded_provider_kind(provider_kind: &str) -> bool {
-    provider_kind == SCREEN_PROVIDER_LOCAL_VISION || provider_kind == SCREEN_PROVIDER_LOCAL_OCR
-}
-
 pub(crate) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> ActivityEvent {
+    let prefixed_id = |prefix: &'static str, value: &String| {
+        let mut id = String::from(prefix);
+        id.push_str(value);
+        id
+    };
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: prefixed_id(
@@ -141,7 +161,12 @@ pub(crate) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> Act
             subject_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
             display_name: None,
         },
-        fields: fields_from_pairs(screen_analysis_fields(record)),
+        fields: fields_from_pairs(
+            screen_analysis_fields(record)
+                .into_iter()
+                .map(|entry| (entry.key, entry.value))
+                .collect(),
+        ),
         evidence: vec![ActivityEvidenceRef {
             evidence_id: prefixed_id(
                 SCREEN_SERVICE_ANALYSIS_EVIDENCE_ID_PREFIX,
@@ -154,16 +179,36 @@ pub(crate) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> Act
     }
 }
 
-fn screen_analysis_fields(
+fn screen_analysis_fields(record: &ScreenAiAnalysisEventRecord) -> Vec<ScreenAnalysisFieldEntry> {
+    let mut fields = base_screen_analysis_fields(record);
+    fields.extend(policy_refs::screen_analysis_policy_fields(record));
+    fields.extend(screen_analysis_redaction_fields(record));
+    fields
+}
+
+fn base_screen_analysis_fields(
     record: &ScreenAiAnalysisEventRecord,
-) -> Vec<(&'static str, LogFieldValue)> {
-    let mut fields = vec![
+) -> Vec<ScreenAnalysisFieldEntry> {
+    let string_field = |key: &'static str, value: String| ScreenAnalysisFieldEntry {
+        key,
+        value: LogFieldValue::String(value),
+    };
+    let static_string_field = |key: &'static str, value: &'static str| ScreenAnalysisFieldEntry {
+        key,
+        value: LogFieldValue::String(value.to_string()),
+    };
+    let number_field = |key: &'static str, value: f64| ScreenAnalysisFieldEntry {
+        key,
+        value: LogFieldValue::Number(value),
+    };
+    let bool_field = |key: &'static str, value: bool| ScreenAnalysisFieldEntry {
+        key,
+        value: LogFieldValue::Boolean(value),
+    };
+    vec![
         string_field(
             constants::field::SCREEN_ANALYSIS_RESULT_ID,
-            prefixed_id(
-                SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX,
-                &record.queue_job_id,
-            ),
+            String::from(SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX) + &record.queue_job_id,
         ),
         string_field(
             constants::field::SCREEN_QUEUE_JOB_ID,
@@ -175,7 +220,7 @@ fn screen_analysis_fields(
             record.primary_category.clone(),
         ),
         number_field(constants::field::SCREEN_CONFIDENCE, record.confidence),
-        string_field(
+        static_string_field(
             constants::field::SCREEN_IMAGE_DELETION_STATE,
             SCREEN_DELETION_DELETED,
         ),
@@ -212,48 +257,9 @@ fn screen_analysis_fields(
             constants::field::SCREEN_IMAGE_DIGEST,
             record.image_digest.clone(),
         ),
-        string_field(
+        static_string_field(
             constants::field::SCREEN_CUSTODY_STATE,
             SCREEN_CUSTODY_JOURNAL,
         ),
-    ];
-    fields.extend(policy_refs::screen_analysis_policy_fields(record));
-    fields.extend(screen_analysis_redaction_fields(record));
-    fields
-}
-
-fn capture_reason(metadata: Option<&ScreenAnalysisResult>) -> &str {
-    metadata
-        .map(|result| result.capture_reason.as_str())
-        .unwrap_or(constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE)
-}
-
-fn capture_scope(metadata: Option<&ScreenAnalysisResult>) -> &str {
-    metadata
-        .map(|result| result.capture_scope.as_str())
-        .unwrap_or(SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW)
-}
-
-fn capability_status(metadata: Option<&ScreenAnalysisResult>) -> &str {
-    metadata
-        .map(|result| result.capability_status.as_str())
-        .unwrap_or(ActivityCaptureCapabilityStatus::Available.as_protocol_str())
-}
-
-fn prefixed_id(prefix: &str, value: &str) -> String {
-    let mut id = String::from(prefix);
-    id.push_str(value);
-    id
-}
-
-fn string_field(key: &'static str, value: impl Into<String>) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::String(value.into()))
-}
-
-fn number_field(key: &'static str, value: f64) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::Number(value))
-}
-
-fn bool_field(key: &'static str, value: bool) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::Boolean(value))
+    ]
 }

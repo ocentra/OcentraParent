@@ -11,8 +11,7 @@ function samplePanel(): ParentBrowserPanelSnapshot {
   return {
     eyebrow: 'Browser route',
     title: 'Social explanations',
-    body:
-      'Schema-backed social explanations show parent-visible evidence, policy, approval, memory, connector, native, manual, and audit refs without raw social content.',
+    body: 'Schema-backed social explanations show parent-visible evidence, policy, approval, memory, connector, native, manual, and audit refs without raw social content.',
     summary: '1 social explanation rows',
     summaryDetails: [
       { label: 'Rows returned', value: '1' },

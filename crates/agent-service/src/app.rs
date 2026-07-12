@@ -20,7 +20,7 @@ use crate::{
     network::NetworkPolicy,
     screen_settings_runtime::ScreenSettingsRuntime,
     snapshot::build_dev_log_snapshot,
-    websocket::handle_socket,
+    websocket::{handle_socket, WebsocketCommandOrigin},
 };
 
 #[derive(Clone)]
@@ -85,7 +85,7 @@ async fn websocket(
             state.lan_pairing,
             state.browser_policy,
             state.screen_settings,
-            origin,
+            WebsocketCommandOrigin(origin),
         )
     })
 }

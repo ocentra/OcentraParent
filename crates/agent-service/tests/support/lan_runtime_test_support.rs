@@ -20,13 +20,13 @@ use crate::lan_pairing::LanPairingRuntime;
 use crate::lan_pairing_runtime_state::job_leases::LanAiJobLeaseState;
 use crate::test_text::TestText;
 
-#[path = "lan_runtime_test_support/discovery.rs"]
+#[path = "discovery.rs"]
 mod discovery;
-#[path = "lan_runtime_test_support/lan_ai.rs"]
+#[path = "lan_ai.rs"]
 mod lan_ai;
-#[path = "lan_runtime_test_support/mdns.rs"]
+#[path = "mdns.rs"]
 mod mdns;
-#[path = "lan_runtime_test_support/registry.rs"]
+#[path = "registry.rs"]
 mod registry;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

@@ -21,7 +21,9 @@ function generatedTrimWindowsFileUrlPrefix(pathname: string): string {
 
 export function decodeGeneratedStackFilePath(value: string): string {
   if (value.startsWith('file://')) {
-    return normalizeGeneratedStackPath(generatedTrimWindowsFileUrlPrefix(generatedPercentDecode(value.slice('file://'.length))));
+    return normalizeGeneratedStackPath(
+      generatedTrimWindowsFileUrlPrefix(generatedPercentDecode(value.slice('file://'.length)))
+    );
   }
   return normalizeGeneratedStackPath(value);
 }

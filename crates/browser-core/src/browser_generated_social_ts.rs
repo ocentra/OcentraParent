@@ -3,7 +3,12 @@ pub fn browser_social_feed_route_classification_typescript() -> String {
 }
 
 pub fn browser_social_feed_video_route_gate_typescript() -> String {
-    include_str!("browser_social_feed_video_route_gate.template.txt").to_string()
+    [
+        include_str!("browser_social_feed_video_route_gate.template.txt"),
+        "\n",
+        include_str!("browser_social_feed_video_route_gate/guards.template.txt"),
+    ]
+    .concat()
 }
 
 pub fn browser_social_feed_video_route_gate_guards_typescript() -> String {

@@ -142,7 +142,9 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
 async fn websocket_network_runtime_stream_command_reports_store_backed_chain(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
-    let store_path = temp_path(constants::activity_store::TEST_NETWORK_STORE_SUFFIX);
+    let store_path = temp_path(TestText::from_display(
+        constants::activity_store::TEST_NETWORK_STORE_SUFFIX,
+    ));
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
@@ -183,7 +185,9 @@ async fn websocket_network_runtime_stream_command_reports_store_backed_chain(
 async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_deleted_row(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
-    let store_path = temp_path(constants::activity_store::TEST_NETWORK_STORE_SUFFIX);
+    let store_path = temp_path(TestText::from_display(
+        constants::activity_store::TEST_NETWORK_STORE_SUFFIX,
+    ));
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 

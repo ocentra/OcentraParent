@@ -18,11 +18,8 @@ pub(crate) async fn build_lan_runtime_event_chain_stream_report(
     runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    let read_model = browser_add_device_read_model(
-        runtime,
-        &command,
-        discovery_state_for_runtime(runtime).0.as_str(),
-    );
+    let read_model =
+        browser_add_device_read_model(runtime, &command, &discovery_state_for_runtime(runtime));
     let stream = stream_lan_runtime_event_chain_for_read_model(&read_model);
     build_event(
         constants::lan_pairing::EVENT_RUNTIME_EVENT_CHAIN_STREAM_REPORTED,

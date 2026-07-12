@@ -58,7 +58,7 @@ use ocentra_parent_agent_core::activity_store::ActivityStore;
 use std::path::PathBuf;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct ActivityStorePath(PathBuf);
+pub(crate) struct ActivityStorePath(pub(crate) PathBuf);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct StaticText(pub(crate) &'static str);
@@ -68,7 +68,7 @@ pub async fn build_activity_app_game_adapter_dispatch_result_report(
 ) -> AgentEventEnvelope {
     build_activity_app_game_adapter_dispatch_result_report_with_store_path(
         command,
-        ActivityStorePath(activity_db_path()),
+        ActivityStorePath(activity_db_path().into()),
     )
     .await
 }
@@ -77,7 +77,7 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_result_report_with_
     command: AgentCommandEnvelope,
     store_path: ActivityStorePath,
 ) -> AgentEventEnvelope {
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     let execution_evidence = tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(store_path.0).ok()?;
         let fields = store.latest_enforcement_audit_fields().ok()??;

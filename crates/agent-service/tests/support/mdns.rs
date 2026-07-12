@@ -83,6 +83,6 @@ pub(crate) fn canonical_household_devices_for_test(
         discovered_devices,
         trusted_registry,
         household_device_decisions,
-        &crate::time::timestamp_now(),
+        &crate::time::timestamp_now::<String>(),
     )
 }

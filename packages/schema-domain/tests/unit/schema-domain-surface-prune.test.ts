@@ -3,13 +3,8 @@ import { describe, expect, it } from 'vitest';
 
 describe('schema-domain surface prune', () => {
   it('does not export dead browser and tracking subpaths', () => {
-    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(
-      /^\uFEFF/,
-      ''
-    );
-    const packageJson = JSON.parse(
-      packageJsonText
-    ) as {
+    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(/^\uFEFF/, '');
+    const packageJson = JSON.parse(packageJsonText) as {
       exports: Record<string, unknown>;
     };
 
@@ -70,13 +65,8 @@ describe('schema-domain surface prune', () => {
   });
 
   it('keeps the active app-game contract exports intact', () => {
-    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(
-      /^\uFEFF/,
-      ''
-    );
-    const packageJson = JSON.parse(
-      packageJsonText
-    ) as {
+    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(/^\uFEFF/, '');
+    const packageJson = JSON.parse(packageJsonText) as {
       exports: Record<string, unknown>;
     };
 
@@ -95,13 +85,8 @@ describe('schema-domain surface prune', () => {
   });
 
   it('does not export dead policy, enforcement, or evidence subpaths', () => {
-    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(
-      /^\uFEFF/,
-      ''
-    );
-    const packageJson = JSON.parse(
-      packageJsonText
-    ) as {
+    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(/^\uFEFF/, '');
+    const packageJson = JSON.parse(packageJsonText) as {
       exports: Record<string, unknown>;
     };
 
@@ -122,13 +107,8 @@ describe('schema-domain surface prune', () => {
   });
 
   it('does not export dead social, screen, or support subpaths', () => {
-    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(
-      /^\uFEFF/,
-      ''
-    );
-    const packageJson = JSON.parse(
-      packageJsonText
-    ) as {
+    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(/^\uFEFF/, '');
+    const packageJson = JSON.parse(packageJsonText) as {
       exports: Record<string, unknown>;
     };
 
@@ -159,13 +139,8 @@ describe('schema-domain surface prune', () => {
   });
 
   it('keeps the active social, screen, and support exports intact', () => {
-    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(
-      /^\uFEFF/,
-      ''
-    );
-    const packageJson = JSON.parse(
-      packageJsonText
-    ) as {
+    const packageJsonText = readFileSync(new URL('../../package.json', import.meta.url), 'utf8').replace(/^\uFEFF/, '');
+    const packageJson = JSON.parse(packageJsonText) as {
       exports: Record<string, unknown>;
     };
 

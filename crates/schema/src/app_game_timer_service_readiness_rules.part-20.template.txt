@@ -1,0 +1,30 @@
+        !row.timerScheduled &&
+        !row.schedulerPersistenceRuntimeClaimed &&
+        !row.durableSchedulerStorageClaimed
+    ).length &&
+  persistence.blockedBySourceFreshnessCount ===
+    persistence.rows.filter(
+      (row) =>
+        row.schedulerPersistenceState ===
+          AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.BlockedBySourceFreshness &&
+        !row.serviceTimerRuntimeProofRequired &&
+        !row.schedulerPersistenceProofRequired &&
+        !row.schedulerStateStoreProofRequired &&
+        !row.auditProofRequired &&
+        !row.rollbackProofRequired &&
+        !row.timerScheduled
+    ).length &&
+  persistence.blockedByCompilerDecisionCount ===
+    persistence.rows.filter(
+      (row) =>
+        row.schedulerPersistenceState ===
+          AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.BlockedByCompilerDecision &&
+        !row.serviceTimerRuntimeProofRequired &&
+        !row.schedulerPersistenceProofRequired &&
+        !row.schedulerStateStoreProofRequired &&
+        !row.auditProofRequired &&
+        !row.rollbackProofRequired &&
+        !row.timerScheduled
+    ).length;
+
+export const appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceHasNoRuntimeClaimsGenerated = (

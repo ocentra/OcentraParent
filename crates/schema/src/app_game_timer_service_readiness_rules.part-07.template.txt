@@ -1,0 +1,30 @@
+  readonly rustProtocolMirrored: boolean;
+  readonly serviceCommandRegistered: boolean;
+  readonly serviceEventEmitted: boolean;
+  readonly serviceReadApiImplemented: boolean;
+  readonly serviceReadModelEventEmitted: boolean;
+  readonly portalUiRendered: boolean;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly timerScheduled: boolean;
+  readonly schedulerPersistenceRuntimeClaimed: boolean;
+  readonly durableSchedulerStorageClaimed: boolean;
+  readonly auditRuntimeClaimed: boolean;
+  readonly durableAuditLogClaimed: boolean;
+  readonly rollbackRuntimeClaimed: boolean;
+  readonly rollbackExecutionClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+  readonly rawPrivateSourceRowsIncluded: boolean;
+};
+
+export const appGameSourceGatedPolicyPreviewTimerStateMatchesProjectionGenerated = (
+  projectionState: ProjectionStateValue,
+  timerHandoffState: TimerHandoffStateValue
+) =>
+  (projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionState.PreviewReadyVisible &&
+    timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing) ||
+  (projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionState.SourceManualRequiredVisible &&
+    timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer) ||
+  (projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionState.CompilerManualRequiredVisible &&

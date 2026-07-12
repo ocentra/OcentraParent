@@ -69,11 +69,7 @@ export function SocialDashboardRoutePanel({
   );
 }
 
-function SocialDashboardSummaryCard({
-  panel,
-}: {
-  readonly panel: ParentBrowserPanelSnapshot;
-}): ReactElement {
+function SocialDashboardSummaryCard({ panel }: { readonly panel: ParentBrowserPanelSnapshot }): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{panel.summary}</h2>
@@ -82,11 +78,7 @@ function SocialDashboardSummaryCard({
   );
 }
 
-function SocialDashboardEmptyCard({
-  panel,
-}: {
-  readonly panel: ParentBrowserPanelSnapshot;
-}): ReactElement {
+function SocialDashboardEmptyCard({ panel }: { readonly panel: ParentBrowserPanelSnapshot }): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{panel.emptyMessage}</h2>
@@ -95,11 +87,7 @@ function SocialDashboardEmptyCard({
   );
 }
 
-function SocialDashboardRowCard({
-  row,
-}: {
-  readonly row: ParentBrowserPanelRowSnapshot;
-}): ReactElement {
+function SocialDashboardRowCard({ row }: { readonly row: ParentBrowserPanelRowSnapshot }): ReactElement {
   return (
     <article className={cardClassName()}>
       <h2>{row.title}</h2>

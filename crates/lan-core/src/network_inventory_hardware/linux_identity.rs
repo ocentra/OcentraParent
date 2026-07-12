@@ -3,12 +3,14 @@ use std::{fs::read_to_string, net::Ipv4Addr};
 use ocentra_parent_agent_protocol::constants;
 
 use super::network_identity_support::{
-    default_gateway_preference, ignored_interface_name, normalized_ipv6_prefix,
-    normalized_ipv6_prefixes, push_unique_string, push_unique_string_if, record_text_values,
-    sanitized_dns_servers, supported_dns_server_text, supported_local_ipv4_text,
+    default_gateway_preference, ignored_interface_name, normalized_ipv6_prefixes,
+    push_unique_string_if, record_text_values, sanitized_dns_servers, supported_dns_server_text,
+    supported_local_ipv4_text,
 };
 use super::LocalNetworkIdentity;
 use crate::network_inventory_command::{normalize_mac_address, record_text, record_u64};
+
+mod address;
 
 pub fn preferred_windows_local_network_identity(
     records: &[serde_json::Value],
@@ -118,23 +120,7 @@ fn linux_local_network_identity_candidate(
 }
 
 pub(super) fn linux_ipv4_address(record: &serde_json::Value) -> Option<(String, u8)> {
-    let addr_info = record
-        .get(constants::lan_pairing::JSON_KEY_ADDR_INFO)?
-        .as_array()?;
-    addr_info.iter().find_map(|addr| {
-        let family = record_text(addr, constants::lan_pairing::JSON_KEY_FAMILY)?;
-        if family != "inet" {
-            return None;
-        }
-        let scope = record_text(addr, constants::lan_pairing::JSON_KEY_SCOPE);
-        let local = record_text(addr, constants::lan_pairing::JSON_KEY_LOCAL)?;
-        let prefix_length = record_u64(addr, constants::lan_pairing::JSON_KEY_PREFIXLEN)
-            .map(|value| value as u8)?;
-        if !supported_local_ipv4_text(&local) || scope.as_deref() == Some("host") {
-            return None;
-        }
-        Some((local, prefix_length))
-    })
+    address::linux_ipv4_address(record)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -174,32 +160,7 @@ pub fn linux_dns_servers_from_resolv_conf_text(text: &str) -> Vec<String> {
 }
 
 pub(super) fn linux_ipv6_prefixes(record: &serde_json::Value) -> Vec<String> {
-    let mut ipv6_prefixes = Vec::new();
-    let Some(addr_info) = record
-        .get(constants::lan_pairing::JSON_KEY_ADDR_INFO)
-        .and_then(serde_json::Value::as_array)
-    else {
-        return ipv6_prefixes;
-    };
-    for addr in addr_info {
-        let family = record_text(addr, constants::lan_pairing::JSON_KEY_FAMILY);
-        if family.as_deref() != Some("inet6") {
-            continue;
-        }
-        let scope = record_text(addr, constants::lan_pairing::JSON_KEY_SCOPE);
-        let local = record_text(addr, constants::lan_pairing::JSON_KEY_LOCAL);
-        let prefix_length = record_u64(addr, constants::lan_pairing::JSON_KEY_PREFIXLEN);
-        if scope.as_deref() == Some("host") {
-            continue;
-        }
-        if let (Some(local), Some(prefix_length)) = (local, prefix_length) {
-            let prefix = format!("{local}/{prefix_length}");
-            if let Some(prefix) = normalized_ipv6_prefix(&prefix) {
-                push_unique_string(&mut ipv6_prefixes, prefix);
-            }
-        }
-    }
-    ipv6_prefixes
+    address::linux_ipv6_prefixes(record)
 }
 
 pub(super) fn cidr_summary(ip_address: &str, prefix_length: Option<u8>) -> Option<String> {

@@ -1,7 +1,5 @@
 #[path = "screen_ai_analysis_runtime/adapter.rs"]
 mod adapter;
-#[path = "screen_ai_analysis_runtime/adapter_output_fields.rs"]
-mod adapter_output_fields;
 #[path = "screen_ai_analysis_runtime/adapter_process.rs"]
 mod adapter_process;
 #[path = "screen_ai_analysis_runtime/adapter_redaction.rs"]
@@ -88,7 +86,7 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
     let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan)? else {
         return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
     };
-    let metadata = metadata_result_for_queue_job(&config.store_path, &image.queue_job_id, &clock)?;
+    let metadata = metadata_result_for_queue_job(&config.store_path, &image, &clock)?;
     if metadata
         .as_ref()
         .is_some_and(|result| result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA)
@@ -114,7 +112,7 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
         &generation,
         &config.ocr_redaction_policy,
     );
-    let outcome = outcome_for_generation(&image.queue_job_id, &generation, &event_record);
+    let outcome = outcome_for_generation(&image, &generation, &event_record);
     record_activity_events_to_paths(
         &config.journal_path,
         &config.journal_key_path,

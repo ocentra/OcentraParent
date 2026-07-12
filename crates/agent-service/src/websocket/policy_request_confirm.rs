@@ -19,15 +19,10 @@ use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
-use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmAction;
-use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmActorRole;
-use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmActorState;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmClaimState;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmRequest;
-use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmRequestKind;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmResult;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmResultState;
-use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmTargetKind;
 use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_policy_control_core::policy_request::{
@@ -47,42 +42,32 @@ use crate::{
 
 #[path = "policy_request_confirm_mapping.rs"]
 mod mapping;
+#[path = "policy_request_confirm/parse.rs"]
+mod parse;
+#[path = "policy_request_confirm/target.rs"]
+mod target;
 
 use self::mapping::{
     actor_role_protocol, map_actor_role, map_actor_state, map_confirmation_state,
     map_protocol_confirmation_state, map_protocol_request_status, map_request_kind,
     map_request_origin, map_request_status, map_requested_action, map_target_kind,
 };
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum PolicyRequestAssistantPreviewConfirmParseState {
-    Accepted,
-    Rejected,
-}
+use self::parse::{
+    parse_policy_request_assistant_preview_confirm_request,
+    PolicyRequestAssistantPreviewConfirmParseState,
+};
+use self::target::{supported_policy_preview_target, SupportedPolicyPreviewTarget};
 
 const POLICY_REQUEST_CONFIRM_SOURCE_ID: &str = "policy-request-assistant-preview-confirm";
 const POLICY_REQUEST_CONFIRM_REJECTION_REASON_INVALID_REQUEST: &str = "invalid-request";
-const DEFAULT_CONFIRM_COMMAND_ID: &str = "policy-request-assistant-preview-confirm-command";
-const DEFAULT_CONFIRM_REQUEST_ID: &str = "policy-request-1";
-const DEFAULT_CONFIRM_SUBMISSION_KEY: &str = "policy-request-submission-1";
-const DEFAULT_CONFIRM_HOUSEHOLD_ID: &str = "family-local";
-const DEFAULT_CONFIRM_CHILD_PROFILE_ID: &str = "child-profile-1";
-const DEFAULT_CONFIRM_SOURCE_DOCUMENT_ID: &str = "policy-document-1";
-const DEFAULT_CONFIRM_TARGET_REFERENCE_ID: &str = "example.test";
-const DEFAULT_CONFIRM_RULE_ID: &str = "browser-rule-1";
-const DEFAULT_CONFIRM_REQUESTED_AT: &str = "2026-06-18T00:00:00Z";
-const DEFAULT_CONFIRM_EXPIRES_AT: &str = "2026-06-18T01:00:00Z";
-const DEFAULT_CONFIRM_ASSISTANT_PREVIEW_ID: &str = "assistant-preview-1";
-const DEFAULT_CONFIRM_AUDIT_REFERENCE_ID: &str = "audit.policy-request.preview";
-const DEFAULT_CONFIRM_ACTOR_ID: &str = "parent-1";
-const DEFAULT_CONFIRM_AUDIT_CONFIRMATION_ID: &str = "audit.policy-request.confirmed";
-const DEFAULT_CONFIRM_CONFIRMED_AT: &str = "2026-06-18T00:05:00Z";
 
 struct PolicyRequestAssistantPreviewConfirmStoreOutcome {
     activity_store_mutation_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
     upstream_writer_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
     read_model_projection_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
 }
+
+struct PolicyRequestAssistantPreviewConfirmRejectionReason(String);
 
 impl PolicyRequestAssistantPreviewConfirmStoreOutcome {
     fn claimed() -> Self {
@@ -106,22 +91,13 @@ impl PolicyRequestAssistantPreviewConfirmStoreOutcome {
     }
 }
 
-#[derive(Clone)]
-struct SupportedPolicyPreviewTarget {
-    subject_kind: ActivitySubjectKind,
-    target_type: PolicyTargetType,
-    target_value: String,
-    subject_display_name: String,
-    subject_field: Option<(&'static str, String)>,
-}
-
 pub(crate) async fn build_policy_request_assistant_preview_confirm_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let (request, parse_state) = parse_policy_request_assistant_preview_confirm_request(&command);
     let result =
         execute_policy_request_assistant_preview_confirm(&command, &request, parse_state).await;
-    let result_text = serialize_json_string(&result);
+    let result_text = serialize_json_string(&result).0;
 
     build_event(
         constants::event_id::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REPORTED,
@@ -137,33 +113,6 @@ pub(crate) async fn build_policy_request_assistant_preview_confirm_report(
     )
 }
 
-fn parse_policy_request_assistant_preview_confirm_request(
-    command: &AgentCommandEnvelope,
-) -> (
-    PolicyRequestAssistantPreviewConfirmRequest,
-    PolicyRequestAssistantPreviewConfirmParseState,
-) {
-    match command
-        .payload
-        .get(constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REQUEST)
-    {
-        Some(LogFieldValue::String(text)) => match serde_json::from_str(text) {
-            Ok(request) => (
-                request,
-                PolicyRequestAssistantPreviewConfirmParseState::Accepted,
-            ),
-            Err(_) => (
-                default_policy_request_assistant_preview_confirm_request(),
-                PolicyRequestAssistantPreviewConfirmParseState::Rejected,
-            ),
-        },
-        _ => (
-            default_policy_request_assistant_preview_confirm_request(),
-            PolicyRequestAssistantPreviewConfirmParseState::Rejected,
-        ),
-    }
-}
-
 async fn execute_policy_request_assistant_preview_confirm(
     command: &AgentCommandEnvelope,
     request: &PolicyRequestAssistantPreviewConfirmRequest,
@@ -172,7 +121,9 @@ async fn execute_policy_request_assistant_preview_confirm(
     if parse_state == PolicyRequestAssistantPreviewConfirmParseState::Rejected {
         return rejected_result(
             request,
-            POLICY_REQUEST_CONFIRM_REJECTION_REASON_INVALID_REQUEST.to_string(),
+            PolicyRequestAssistantPreviewConfirmRejectionReason(
+                POLICY_REQUEST_CONFIRM_REJECTION_REASON_INVALID_REQUEST.to_string(),
+            ),
         );
     }
 
@@ -186,7 +137,10 @@ async fn execute_policy_request_assistant_preview_confirm(
                     .await;
             confirmed_result(request, &confirmed_request, &store_outcome)
         }
-        Err(error) => rejected_result(request, error.to_string()),
+        Err(error) => rejected_result(
+            request,
+            PolicyRequestAssistantPreviewConfirmRejectionReason(error.to_string()),
+        ),
     }
 }
 
@@ -305,7 +259,7 @@ fn confirmed_result(
 
 fn rejected_result(
     request: &PolicyRequestAssistantPreviewConfirmRequest,
-    rejection_reason: String,
+    rejection_reason: PolicyRequestAssistantPreviewConfirmRejectionReason,
 ) -> PolicyRequestAssistantPreviewConfirmResult {
     PolicyRequestAssistantPreviewConfirmResult {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -317,7 +271,7 @@ fn rejected_result(
         policy_assistant_confirmation_state: request.assistant_confirmation_state,
         policy_audit_reference_id: None,
         confirmed_at: None,
-        rejection_reason: Some(rejection_reason),
+        rejection_reason: Some(rejection_reason.0),
         command_transport_claim_state: PolicyRequestAssistantPreviewConfirmClaimState::Claimed,
         service_validation_claim_state: PolicyRequestAssistantPreviewConfirmClaimState::Claimed,
         activity_store_mutation_claim_state:
@@ -458,7 +412,11 @@ fn insert_review_fields(
     );
     fields.insert(
         constants::field::POLICY_REVIEWED_BY_ACTOR_ROLE.to_string(),
-        LogFieldValue::String(actor_role_protocol(request.confirmation_actor_role).to_string()),
+        LogFieldValue::String(
+            actor_role_protocol(request.confirmation_actor_role)
+                .0
+                .to_string(),
+        ),
     );
     fields.insert(
         constants::field::POLICY_REVIEWED_AT.to_string(),
@@ -479,82 +437,7 @@ fn insert_optional_subject_fields(
     }
 }
 
-fn supported_policy_preview_target(
-    request: &PolicyRequestAssistantPreviewConfirmRequest,
-) -> Option<SupportedPolicyPreviewTarget> {
-    let target_value = request.target_reference_id.clone();
-    let subject_display_name = target_value.clone();
-
-    match request.target_kind {
-        PolicyRequestAssistantPreviewConfirmTargetKind::App => Some(SupportedPolicyPreviewTarget {
-            subject_kind: ActivitySubjectKind::Process,
-            target_type: PolicyTargetType::App,
-            target_value: target_value.clone(),
-            subject_display_name,
-            subject_field: Some((constants::field::PROCESS_NAME, target_value)),
-        }),
-        PolicyRequestAssistantPreviewConfirmTargetKind::Site => {
-            Some(SupportedPolicyPreviewTarget {
-                subject_kind: ActivitySubjectKind::Url,
-                target_type: PolicyTargetType::Site,
-                target_value: target_value.clone(),
-                subject_display_name,
-                subject_field: Some((constants::field::URL, target_value)),
-            })
-        }
-        PolicyRequestAssistantPreviewConfirmTargetKind::Category => {
-            Some(SupportedPolicyPreviewTarget {
-                subject_kind: ActivitySubjectKind::Device,
-                target_type: PolicyTargetType::Category,
-                target_value: target_value.clone(),
-                subject_display_name,
-                subject_field: Some((constants::field::SCREEN_PRIMARY_CATEGORY, target_value)),
-            })
-        }
-        PolicyRequestAssistantPreviewConfirmTargetKind::Device => {
-            Some(SupportedPolicyPreviewTarget {
-                subject_kind: ActivitySubjectKind::Device,
-                target_type: PolicyTargetType::Device,
-                target_value,
-                subject_display_name,
-                subject_field: None,
-            })
-        }
-        PolicyRequestAssistantPreviewConfirmTargetKind::ChildProfile
-        | PolicyRequestAssistantPreviewConfirmTargetKind::Resource => None,
-    }
-}
-
 pub(crate) fn default_policy_request_assistant_preview_confirm_request(
 ) -> PolicyRequestAssistantPreviewConfirmRequest {
-    PolicyRequestAssistantPreviewConfirmRequest {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        command_id: DEFAULT_CONFIRM_COMMAND_ID.to_string(),
-        request_id: DEFAULT_CONFIRM_REQUEST_ID.to_string(),
-        submission_key: DEFAULT_CONFIRM_SUBMISSION_KEY.to_string(),
-        household_id: DEFAULT_CONFIRM_HOUSEHOLD_ID.to_string(),
-        child_profile_id: DEFAULT_CONFIRM_CHILD_PROFILE_ID.to_string(),
-        device_id: Some(constants::peer::LOCAL_DEV_AGENT.to_string()),
-        source_document_id: DEFAULT_CONFIRM_SOURCE_DOCUMENT_ID.to_string(),
-        policy_version: 1,
-        request_kind: PolicyRequestAssistantPreviewConfirmRequestKind::AskParent,
-        target_kind: PolicyRequestAssistantPreviewConfirmTargetKind::Site,
-        target_reference_id: DEFAULT_CONFIRM_TARGET_REFERENCE_ID.to_string(),
-        requested_action: PolicyRequestAssistantPreviewConfirmAction::AskParent,
-        rule_id: Some(DEFAULT_CONFIRM_RULE_ID.to_string()),
-        requested_bonus_minutes: None,
-        requested_at: DEFAULT_CONFIRM_REQUESTED_AT.to_string(),
-        expires_at: DEFAULT_CONFIRM_EXPIRES_AT.to_string(),
-        origin: ProtocolPolicyRequestOrigin::AssistantDraft,
-        assistant_preview_id: DEFAULT_CONFIRM_ASSISTANT_PREVIEW_ID.to_string(),
-        assistant_confirmation_state:
-            ProtocolPolicyAssistantConfirmationState::ParentConfirmationRequired,
-        request_status: ProtocolPolicyRequestStatus::PreviewOnly,
-        audit_reference_ids: vec![DEFAULT_CONFIRM_AUDIT_REFERENCE_ID.to_string()],
-        confirmation_actor_id: DEFAULT_CONFIRM_ACTOR_ID.to_string(),
-        confirmation_actor_role: PolicyRequestAssistantPreviewConfirmActorRole::Parent,
-        confirmation_actor_state: PolicyRequestAssistantPreviewConfirmActorState::Active,
-        confirmation_audit_reference_id: DEFAULT_CONFIRM_AUDIT_CONFIRMATION_ID.to_string(),
-        confirmed_at: DEFAULT_CONFIRM_CONFIRMED_AT.to_string(),
-    }
+    parse::default_policy_request_assistant_preview_confirm_request()
 }

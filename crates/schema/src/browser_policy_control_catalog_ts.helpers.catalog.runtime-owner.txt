@@ -12,7 +12,9 @@ export function runtimeOwnerForSectionGenerated(
   if (/AI/iu.test(searchable)) {
     return 'local-ai-runtime';
   }
-  if (/Platform|Setup|Provisioning|Managed Browser Operation|Private|Tor|Network|Capability Failure/iu.test(searchable)) {
+  if (
+    /Platform|Setup|Provisioning|Managed Browser Operation|Private|Tor|Network|Capability Failure/iu.test(searchable)
+  ) {
     return 'os-adapter';
   }
   if (/manual|permission/iu.test(searchable)) {
@@ -23,4 +25,3 @@ export function runtimeOwnerForSectionGenerated(
   }
   return 'child-agent';
 }
-

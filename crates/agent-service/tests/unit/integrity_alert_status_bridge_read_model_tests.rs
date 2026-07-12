@@ -5,13 +5,16 @@ use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAl
 use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertStatusBridgeEntry;
 use ocentra_parent_agent_protocol::policy_constants;
 
-use super::integrity_alert_status_bridge_read_model::v08_integrity_alert_status_bridge_read_model;
+use super::integrity_alert_status_bridge_read_model::{
+    v08_integrity_alert_status_bridge_read_model, GeneratedAtTextRef,
+};
 use super::test_text::TestText;
 
 #[test]
 fn integrity_alert_status_bridge_read_model_covers_required_parent_visible_states() {
-    let read_model =
-        v08_integrity_alert_status_bridge_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_integrity_alert_status_bridge_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
     let state_counts = count_states(&read_model.entries);
 
     assert_eq!(read_model.read_model_id, bridge::READ_MODEL_ID);
@@ -33,8 +36,9 @@ fn integrity_alert_status_bridge_read_model_covers_required_parent_visible_state
 
 #[test]
 fn integrity_alert_status_bridge_read_model_preserves_non_claims_and_refs() {
-    let read_model =
-        v08_integrity_alert_status_bridge_read_model(policy_constants::TEST_EVALUATED_AT);
+    let read_model = v08_integrity_alert_status_bridge_read_model(GeneratedAtTextRef(
+        policy_constants::TEST_EVALUATED_AT,
+    ));
 
     assert!(read_model
         .entries

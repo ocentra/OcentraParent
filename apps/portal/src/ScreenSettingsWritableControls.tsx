@@ -1,7 +1,5 @@
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
-import {
-  parentScreenEvidenceSettingsWritableUiProof as screenEvidenceSettingsWritableUiProof,
-} from '../generated/parent-ui-screen-bridge';
+import { parentScreenEvidenceSettingsWritableUiProof as screenEvidenceSettingsWritableUiProof } from '../generated/parent-ui-screen-bridge';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';

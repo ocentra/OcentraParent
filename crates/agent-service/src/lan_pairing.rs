@@ -5,6 +5,8 @@ use std::{
 
 #[path = "lan_pairing/authority.rs"]
 pub(crate) mod authority;
+#[path = "lan_pairing_command_entrypoints.rs"]
+pub(crate) mod command_entrypoints;
 #[path = "lan_pairing/command_routing.rs"]
 pub(crate) mod command_routing;
 #[path = "lan_pairing/controller_lease.rs"]
@@ -139,55 +141,6 @@ pub fn build_lan_pairing_status_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     pairing_status_event(runtime, command)
-}
-
-fn lan_pairing_route_select(
-    runtime: LanPairingRuntime,
-    origin: LanPairingOptionalText,
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    runtime_commands::lan_pairing_route_select(runtime, origin, command)
-}
-
-fn lan_pairing_status_get(
-    runtime: LanPairingRuntime,
-    origin: LanPairingOptionalText,
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    runtime_commands::lan_pairing_status_get(runtime, origin, command)
-}
-
-fn lan_pairing_route_revoke(
-    runtime: LanPairingRuntime,
-    origin: LanPairingOptionalText,
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    runtime_commands::lan_pairing_route_revoke(runtime, origin, command)
-}
-
-fn signed_child_agent_observed(
-    runtime: &LanPairingRuntime,
-    origin: &LanPairingOptionalText,
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    runtime_commands::signed_child_agent_observed(runtime, origin, command)
-}
-
-async fn submit_pairing_proof(
-    runtime: LanPairingRuntime,
-    origin: LanPairingOptionalText,
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    runtime_commands::submit_pairing_proof(runtime, origin, command).await
-}
-
-fn validate_control_intent(
-    runtime: LanPairingRuntime,
-    origin: &LanPairingOptionalText,
-    command: AgentCommandEnvelope,
-    intent: LanParentIntentEnvelope,
-) -> LanCommandDecision {
-    runtime_commands::validate_control_intent(runtime, origin, command, intent)
 }
 
 pub(crate) fn validate_command_target(

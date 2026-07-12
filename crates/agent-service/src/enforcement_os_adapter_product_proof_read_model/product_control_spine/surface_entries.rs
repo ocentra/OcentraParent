@@ -21,40 +21,47 @@ use super::{
         LinkedManualEntrySpec, ManualEntrySpec, ProductEntrySpec,
     },
     proof_links::{expect_browser, expect_cross, expect_os},
+    GeneratedAtText, ProofEntryId,
 };
 
 pub(super) fn entries(
     cross_platform: &V08CrossPlatformEnforcementCapabilityProofReadModel,
     browser_domain: &V08BrowserDomainAdapterProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: GeneratedAtText,
 ) -> Vec<V08EnforcementProductControlSpineEntry> {
     vec![
-        owned_process_entry(cross_platform, os_product, generated_at),
-        app_time_limit_entry(cross_platform, os_product, generated_at),
-        managed_browser_entry(cross_platform, browser_domain, generated_at),
-        unmanaged_browser_entry(cross_platform, browser_domain, os_product, generated_at),
-        policy_dry_run_entry(generated_at),
-        approval_override_entry(generated_at),
-        restart_recovery_entry(browser_domain, os_product, generated_at),
-        rollback_audit_entry(browser_domain, os_product, generated_at),
-        child_explanation_entry(generated_at),
-        broad_app_entry(cross_platform, os_product, generated_at),
-        network_domain_entry(cross_platform, browser_domain, os_product, generated_at),
-        managed_exact_url_entry(browser_domain, os_product, generated_at),
-        unmanaged_exact_url_entry(browser_domain, os_product, generated_at),
-        permission_loss_entry(generated_at),
-        tamper_uninstall_entry(generated_at),
+        owned_process_entry(cross_platform, os_product, &generated_at),
+        app_time_limit_entry(cross_platform, os_product, &generated_at),
+        managed_browser_entry(cross_platform, browser_domain, &generated_at),
+        unmanaged_browser_entry(cross_platform, browser_domain, os_product, &generated_at),
+        policy_dry_run_entry(&generated_at),
+        approval_override_entry(&generated_at),
+        restart_recovery_entry(browser_domain, os_product, &generated_at),
+        rollback_audit_entry(browser_domain, os_product, &generated_at),
+        child_explanation_entry(&generated_at),
+        broad_app_entry(cross_platform, os_product, &generated_at),
+        network_domain_entry(cross_platform, browser_domain, os_product, &generated_at),
+        managed_exact_url_entry(browser_domain, os_product, &generated_at),
+        unmanaged_exact_url_entry(browser_domain, os_product, &generated_at),
+        permission_loss_entry(&generated_at),
+        tamper_uninstall_entry(&generated_at),
     ]
 }
 
 fn owned_process_entry(
     cross_platform: &V08CrossPlatformEnforcementCapabilityProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
-    expect_cross(cross_platform, cross_proof::ENTRY_ID_WINDOWS_OWNED_PROCESS);
-    expect_os(os_product, os_proof::ENTRY_ID_OWNED_PROCESS_TERMINATE);
+    expect_cross(
+        cross_platform,
+        ProofEntryId(cross_proof::ENTRY_ID_WINDOWS_OWNED_PROCESS),
+    );
+    expect_os(
+        os_product,
+        ProofEntryId(os_proof::ENTRY_ID_OWNED_PROCESS_TERMINATE),
+    );
     linked_entry(LinkedEntrySpec {
         entry_id: spine::ENTRY_ID_OWNED_PROCESS,
         surface: V08EnforcementProductControlSurface::WindowsOwnedProcessTimeLimit,
@@ -72,17 +79,23 @@ fn owned_process_entry(
         linked_proof_artifacts: &[spine::ARTIFACT_WINDOWS_UNMANAGED_PROOF],
         claim_boundary: os_proof::CLAIM_OWNED_PROCESS,
         fallback_behavior: os_proof::FALLBACK_OWNED_PROCESS,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
 fn app_time_limit_entry(
     cross_platform: &V08CrossPlatformEnforcementCapabilityProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
-    expect_cross(cross_platform, cross_proof::ENTRY_ID_WINDOWS_APP_TIME_LIMIT);
-    expect_os(os_product, os_proof::ENTRY_ID_APP_TIME_LIMIT_LIFECYCLE);
+    expect_cross(
+        cross_platform,
+        ProofEntryId(cross_proof::ENTRY_ID_WINDOWS_APP_TIME_LIMIT),
+    );
+    expect_os(
+        os_product,
+        ProofEntryId(os_proof::ENTRY_ID_APP_TIME_LIMIT_LIFECYCLE),
+    );
     linked_entry(LinkedEntrySpec {
         entry_id: spine::ENTRY_ID_APP_TIME_LIMIT,
         surface: V08EnforcementProductControlSurface::WindowsAppTimeLimitLifecycle,
@@ -100,20 +113,23 @@ fn app_time_limit_entry(
         linked_proof_artifacts: &[spine::ARTIFACT_WINDOWS_TIMER_PROOF],
         claim_boundary: os_proof::CLAIM_APP_TIME_LIMIT,
         fallback_behavior: os_proof::FALLBACK_APP_TIME_LIMIT,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
 fn managed_browser_entry(
     cross_platform: &V08CrossPlatformEnforcementCapabilityProofReadModel,
     browser_domain: &V08BrowserDomainAdapterProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
     expect_cross(
         cross_platform,
-        cross_proof::ENTRY_ID_WINDOWS_MANAGED_BROWSER,
+        ProofEntryId(cross_proof::ENTRY_ID_WINDOWS_MANAGED_BROWSER),
     );
-    expect_browser(browser_domain, browser_proof::ENTRY_ID_MANAGED_INTERVENTION);
+    expect_browser(
+        browser_domain,
+        ProofEntryId(browser_proof::ENTRY_ID_MANAGED_INTERVENTION),
+    );
     linked_entry(LinkedEntrySpec {
         entry_id: spine::ENTRY_ID_MANAGED_BROWSER_SESSION,
         surface: V08EnforcementProductControlSurface::WindowsManagedBrowserSessionIntervention,
@@ -131,7 +147,7 @@ fn managed_browser_entry(
         linked_proof_artifacts: &[spine::ARTIFACT_MANAGED_BROWSER_PROOF],
         claim_boundary: browser_proof::CLAIM_MANAGED_INTERVENTION,
         fallback_behavior: browser_proof::FALLBACK_MANAGED_INTERVENTION,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
@@ -139,16 +155,19 @@ fn unmanaged_browser_entry(
     cross_platform: &V08CrossPlatformEnforcementCapabilityProofReadModel,
     browser_domain: &V08BrowserDomainAdapterProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
     expect_cross(
         cross_platform,
-        cross_proof::ENTRY_ID_WINDOWS_UNMANAGED_BROWSER,
+        ProofEntryId(cross_proof::ENTRY_ID_WINDOWS_UNMANAGED_BROWSER),
     );
-    expect_browser(browser_domain, browser_proof::ENTRY_ID_UNMANAGED_WARN);
+    expect_browser(
+        browser_domain,
+        ProofEntryId(browser_proof::ENTRY_ID_UNMANAGED_WARN),
+    );
     expect_os(
         os_product,
-        os_proof::ENTRY_ID_UNMANAGED_BROWSER_PROCESS_ONLY,
+        ProofEntryId(os_proof::ENTRY_ID_UNMANAGED_BROWSER_PROCESS_ONLY),
     );
     linked_with_manual_entry(LinkedManualEntrySpec {
         entry_id: spine::ENTRY_ID_UNMANAGED_BROWSER_PROCESS,
@@ -172,11 +191,11 @@ fn unmanaged_browser_entry(
         ],
         claim_boundary: browser_proof::CLAIM_UNMANAGED_WARN,
         fallback_behavior: browser_proof::FALLBACK_UNMANAGED_WARN,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
-fn policy_dry_run_entry(generated_at: &str) -> V08EnforcementProductControlSpineEntry {
+fn policy_dry_run_entry(generated_at: &GeneratedAtText) -> V08EnforcementProductControlSpineEntry {
     linked_entry(LinkedEntrySpec {
         entry_id: spine::ENTRY_ID_POLICY_DRY_RUN,
         surface: V08EnforcementProductControlSurface::WindowsPolicyDryRunPreview,
@@ -193,11 +212,13 @@ fn policy_dry_run_entry(generated_at: &str) -> V08EnforcementProductControlSpine
         linked_proof_artifacts: &[spine::ARTIFACT_POLICY_PREVIEW],
         claim_boundary: spine::CLAIM_POLICY_DRY_RUN,
         fallback_behavior: spine::FALLBACK_POLICY_DRY_RUN,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
-fn approval_override_entry(generated_at: &str) -> V08EnforcementProductControlSpineEntry {
+fn approval_override_entry(
+    generated_at: &GeneratedAtText,
+) -> V08EnforcementProductControlSpineEntry {
     linked_entry(LinkedEntrySpec {
         entry_id: spine::ENTRY_ID_APPROVAL_OVERRIDE,
         surface: V08EnforcementProductControlSurface::WindowsApprovalOverrideAudit,
@@ -214,17 +235,23 @@ fn approval_override_entry(generated_at: &str) -> V08EnforcementProductControlSp
         linked_proof_artifacts: &[spine::ARTIFACT_PRODUCT_PROOF],
         claim_boundary: spine::CLAIM_APPROVAL_OVERRIDE,
         fallback_behavior: spine::FALLBACK_APPROVAL_OVERRIDE,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
 fn restart_recovery_entry(
     browser_domain: &V08BrowserDomainAdapterProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
-    expect_browser(browser_domain, browser_proof::ENTRY_ID_RESTART_RECOVERY);
-    expect_os(os_product, os_proof::ENTRY_ID_RESTART_RECOVERY);
+    expect_browser(
+        browser_domain,
+        ProofEntryId(browser_proof::ENTRY_ID_RESTART_RECOVERY),
+    );
+    expect_os(
+        os_product,
+        ProofEntryId(os_proof::ENTRY_ID_RESTART_RECOVERY),
+    );
     linked_entry(LinkedEntrySpec {
         entry_id: spine::ENTRY_ID_RESTART_RECOVERY,
         surface: V08EnforcementProductControlSurface::WindowsRestartRecoveryTimer,
@@ -241,20 +268,20 @@ fn restart_recovery_entry(
         linked_proof_artifacts: &[spine::ARTIFACT_WINDOWS_TIMER_PROOF],
         claim_boundary: os_proof::CLAIM_RESTART_RECOVERY,
         fallback_behavior: os_proof::FALLBACK_RESTART_RECOVERY,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
 fn rollback_audit_entry(
     browser_domain: &V08BrowserDomainAdapterProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
     expect_browser(
         browser_domain,
-        browser_proof::ENTRY_ID_BROWSER_POLICY_ROLLBACK,
+        ProofEntryId(browser_proof::ENTRY_ID_BROWSER_POLICY_ROLLBACK),
     );
-    expect_os(os_product, os_proof::ENTRY_ID_AUDIT_CUSTODY);
+    expect_os(os_product, ProofEntryId(os_proof::ENTRY_ID_AUDIT_CUSTODY));
     linked_entry(LinkedEntrySpec {
         entry_id: spine::ENTRY_ID_ROLLBACK_AUDIT,
         surface: V08EnforcementProductControlSurface::WindowsRollbackAuditBoundary,
@@ -268,11 +295,13 @@ fn rollback_audit_entry(
         linked_proof_artifacts: &[spine::ARTIFACT_BROWSER_DOMAIN_PROOF],
         claim_boundary: browser_proof::CLAIM_BROWSER_POLICY_ROLLBACK,
         fallback_behavior: browser_proof::FALLBACK_BROWSER_POLICY_ROLLBACK,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
-fn child_explanation_entry(generated_at: &str) -> V08EnforcementProductControlSpineEntry {
+fn child_explanation_entry(
+    generated_at: &GeneratedAtText,
+) -> V08EnforcementProductControlSpineEntry {
     manual_entry(ManualEntrySpec {
         entry_id: spine::ENTRY_ID_CHILD_EXPLANATION,
         surface: V08EnforcementProductControlSurface::WindowsChildFacingExplanation,
@@ -285,17 +314,23 @@ fn child_explanation_entry(generated_at: &str) -> V08EnforcementProductControlSp
         ],
         claim_boundary: spine::CLAIM_CHILD_EXPLANATION,
         fallback_behavior: spine::FALLBACK_CHILD_EXPLANATION,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
 fn broad_app_entry(
     cross_platform: &V08CrossPlatformEnforcementCapabilityProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
-    expect_cross(cross_platform, cross_proof::ENTRY_ID_WINDOWS_BROAD_APP);
-    expect_os(os_product, os_proof::ENTRY_ID_BROAD_APP_BLOCKING);
+    expect_cross(
+        cross_platform,
+        ProofEntryId(cross_proof::ENTRY_ID_WINDOWS_BROAD_APP),
+    );
+    expect_os(
+        os_product,
+        ProofEntryId(os_proof::ENTRY_ID_BROAD_APP_BLOCKING),
+    );
     manual_entry(ManualEntrySpec {
         entry_id: spine::ENTRY_ID_BROAD_APP,
         surface: V08EnforcementProductControlSurface::WindowsBroadAppBlocking,
@@ -309,7 +344,7 @@ fn broad_app_entry(
         ],
         claim_boundary: os_proof::CLAIM_BROAD_APP,
         fallback_behavior: os_proof::FALLBACK_BROAD_APP,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
@@ -317,14 +352,20 @@ fn network_domain_entry(
     cross_platform: &V08CrossPlatformEnforcementCapabilityProofReadModel,
     browser_domain: &V08BrowserDomainAdapterProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
-    expect_cross(cross_platform, cross_proof::ENTRY_ID_WINDOWS_NETWORK_DOMAIN);
+    expect_cross(
+        cross_platform,
+        ProofEntryId(cross_proof::ENTRY_ID_WINDOWS_NETWORK_DOMAIN),
+    );
     expect_browser(
         browser_domain,
-        browser_proof::ENTRY_ID_NETWORK_FILTER_MANUAL,
+        ProofEntryId(browser_proof::ENTRY_ID_NETWORK_FILTER_MANUAL),
     );
-    expect_os(os_product, os_proof::ENTRY_ID_NETWORK_DOMAIN_BLOCKING);
+    expect_os(
+        os_product,
+        ProofEntryId(os_proof::ENTRY_ID_NETWORK_DOMAIN_BLOCKING),
+    );
     manual_entry(ManualEntrySpec {
         entry_id: spine::ENTRY_ID_NETWORK_DOMAIN,
         surface: V08EnforcementProductControlSurface::WindowsNetworkDomainBlocking,
@@ -338,17 +379,23 @@ fn network_domain_entry(
         ],
         claim_boundary: os_proof::CLAIM_NETWORK_DOMAIN,
         fallback_behavior: os_proof::FALLBACK_NETWORK_DOMAIN,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
 fn managed_exact_url_entry(
     browser_domain: &V08BrowserDomainAdapterProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
-    expect_browser(browser_domain, browser_proof::ENTRY_ID_MANAGED_EXACT_URL);
-    expect_os(os_product, os_proof::ENTRY_ID_MANAGED_BROWSER_EXACT_URL);
+    expect_browser(
+        browser_domain,
+        ProofEntryId(browser_proof::ENTRY_ID_MANAGED_EXACT_URL),
+    );
+    expect_os(
+        os_product,
+        ProofEntryId(os_proof::ENTRY_ID_MANAGED_BROWSER_EXACT_URL),
+    );
     manual_entry(ManualEntrySpec {
         entry_id: spine::ENTRY_ID_MANAGED_EXACT_URL,
         surface: V08EnforcementProductControlSurface::WindowsManagedExactUrlControl,
@@ -362,22 +409,22 @@ fn managed_exact_url_entry(
         ],
         claim_boundary: browser_proof::CLAIM_MANAGED_EXACT_URL,
         fallback_behavior: browser_proof::FALLBACK_MANAGED_EXACT_URL,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
 fn unmanaged_exact_url_entry(
     browser_domain: &V08BrowserDomainAdapterProofReadModel,
     os_product: &V08OsAdapterProductProofReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
     expect_browser(
         browser_domain,
-        browser_proof::ENTRY_ID_UNMANAGED_EXACT_EVIDENCE,
+        ProofEntryId(browser_proof::ENTRY_ID_UNMANAGED_EXACT_EVIDENCE),
     );
     expect_os(
         os_product,
-        os_proof::ENTRY_ID_UNMANAGED_BROWSER_EXACT_EVIDENCE,
+        ProofEntryId(os_proof::ENTRY_ID_UNMANAGED_BROWSER_EXACT_EVIDENCE),
     );
     product_entry(ProductEntrySpec {
         entry_id: spine::ENTRY_ID_UNMANAGED_EXACT_URL,
@@ -394,11 +441,11 @@ fn unmanaged_exact_url_entry(
         manual_proof_requirements: &[spine::REQUIREMENT_UNMANAGED_INTEGRATION],
         claim_boundary: browser_proof::CLAIM_UNMANAGED_EXACT_EVIDENCE,
         fallback_behavior: browser_proof::FALLBACK_UNMANAGED_EXACT_EVIDENCE,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
-fn permission_loss_entry(generated_at: &str) -> V08EnforcementProductControlSpineEntry {
+fn permission_loss_entry(generated_at: &GeneratedAtText) -> V08EnforcementProductControlSpineEntry {
     manual_entry(ManualEntrySpec {
         entry_id: spine::ENTRY_ID_PERMISSION_LOSS,
         surface: V08EnforcementProductControlSurface::WindowsPermissionLossAlerts,
@@ -411,11 +458,13 @@ fn permission_loss_entry(generated_at: &str) -> V08EnforcementProductControlSpin
         ],
         claim_boundary: spine::CLAIM_PERMISSION_LOSS,
         fallback_behavior: spine::FALLBACK_PERMISSION_LOSS,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }
 
-fn tamper_uninstall_entry(generated_at: &str) -> V08EnforcementProductControlSpineEntry {
+fn tamper_uninstall_entry(
+    generated_at: &GeneratedAtText,
+) -> V08EnforcementProductControlSpineEntry {
     manual_entry(ManualEntrySpec {
         entry_id: spine::ENTRY_ID_TAMPER_UNINSTALL,
         surface: V08EnforcementProductControlSurface::WindowsTamperUninstallAlerts,
@@ -428,6 +477,6 @@ fn tamper_uninstall_entry(generated_at: &str) -> V08EnforcementProductControlSpi
         ],
         claim_boundary: spine::CLAIM_TAMPER_UNINSTALL,
         fallback_behavior: spine::FALLBACK_TAMPER_UNINSTALL,
-        generated_at,
+        generated_at: generated_at.0.as_str(),
     })
 }

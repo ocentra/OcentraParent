@@ -28,7 +28,11 @@ const GENERATED_AT: &TestStr = constants::value::APP_GAME_TEST_PLATFORM_PROOF_ST
 
 #[test]
 fn platform_proof_status_payload_serializes_parent_safe_status_model() {
-    let read_model = app_game_platform_proof_status_read_model(GENERATED_AT);
+    let read_model = app_game_platform_proof_status_read_model(
+        super::app_game_adapter_execution_readiness_payload::GeneratedAtText(
+            GENERATED_AT.to_string(),
+        ),
+    );
     let payload = app_game_platform_proof_status_payload(&read_model);
 
     let reparsed = require_json_decode::<AppGamePlatformProofStatusReadModel>(

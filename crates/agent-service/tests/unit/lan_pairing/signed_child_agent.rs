@@ -45,7 +45,7 @@ fn lan_pairing_runtime_accepts_signed_child_agent_hello_and_heartbeat_with_real_
     let verified_hello = require_ok(
         runtime.verify_signed_child_agent_envelope(
             &hello,
-            "2026-06-26T10:00:30Z",
+            &TestText::from_display("2026-06-26T10:00:30Z"),
             &signed_child_agent_context(Some(constants::lan_pairing::CHILD_DEVICE_ID)),
         ),
         "signed hello verifies through runtime replay guard",
@@ -53,7 +53,7 @@ fn lan_pairing_runtime_accepts_signed_child_agent_hello_and_heartbeat_with_real_
     let verified_heartbeat = require_ok(
         runtime.verify_signed_child_agent_envelope(
             &heartbeat,
-            "2026-06-26T10:00:31Z",
+            &TestText::from_display("2026-06-26T10:00:31Z"),
             &signed_child_agent_context(Some(constants::lan_pairing::CHILD_DEVICE_ID)),
         ),
         "signed heartbeat verifies through runtime replay guard",
@@ -111,7 +111,7 @@ fn lan_pairing_runtime_accepts_signed_child_agent_hello_and_heartbeat_with_real_
     assert_eq!(
         runtime.verify_signed_child_agent_envelope(
             &heartbeat,
-            "2026-06-26T10:00:32Z",
+            &TestText::from_display("2026-06-26T10:00:32Z"),
             &signed_child_agent_context(Some(constants::lan_pairing::CHILD_DEVICE_ID,)),
         ),
         Err(ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationError::Replayed)
@@ -152,18 +152,25 @@ fn lan_pairing_runtime_rejects_invalid_signature_wrong_family_and_expired_signed
     assert_eq!(
         runtime.verify_signed_child_agent_envelope(
             &invalid_signature,
-            "2026-06-26T10:00:30Z",
+            &TestText::from_display("2026-06-26T10:00:30Z"),
             &context,
         ),
         Err(ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationError::SignatureRejected)
     );
     assert_eq!(
-        runtime
-            .verify_signed_child_agent_envelope(&wrong_family, "2026-06-26T10:00:31Z", &context,),
+        runtime.verify_signed_child_agent_envelope(
+            &wrong_family,
+            &TestText::from_display("2026-06-26T10:00:31Z"),
+            &context,
+        ),
         Err(ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationError::WrongFamily)
     );
     assert_eq!(
-        runtime.verify_signed_child_agent_envelope(&expired, "2026-06-26T10:00:32Z", &context,),
+        runtime.verify_signed_child_agent_envelope(
+            &expired,
+            &TestText::from_display("2026-06-26T10:00:32Z"),
+            &context,
+        ),
         Err(ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationError::Expired)
     );
 }
@@ -192,11 +199,17 @@ fn signed_child_agent_observation_records_passive_beacon_history_rows() {
     );
 
     require_ok(
-        runtime.observe_signed_child_agent_envelope(&hello, "2026-06-26T10:00:30Z"),
+        runtime.observe_signed_child_agent_envelope(
+            &hello,
+            &TestText::from_display("2026-06-26T10:00:30Z"),
+        ),
         "hello observation",
     );
     require_ok(
-        runtime.observe_signed_child_agent_envelope(&heartbeat, "2026-06-26T10:00:31Z"),
+        runtime.observe_signed_child_agent_envelope(
+            &heartbeat,
+            &TestText::from_display("2026-06-26T10:00:31Z"),
+        ),
         "heartbeat observation",
     );
 
@@ -438,7 +451,11 @@ fn lan_pairing_runtime_rejects_malformed_signed_child_agent_envelope() {
     };
 
     assert_eq!(
-        runtime.verify_signed_child_agent_envelope(&envelope, "2026-06-26T10:00:30Z", &context,),
+        runtime.verify_signed_child_agent_envelope(
+            &envelope,
+            &TestText::from_display("2026-06-26T10:00:30Z"),
+            &context,
+        ),
         Err(ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationError::InvalidPublicKey)
     );
 }
@@ -454,7 +471,7 @@ fn lan_pairing_runtime_rejects_signed_child_agent_wrong_parent_wrong_route_empty
         TestText::from_display("sha256:family-1"),
         TestText::from_display(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK),
     );
-    let observed_at = "2026-06-26T10:00:30Z";
+    let observed_at = TestText::from_display("2026-06-26T10:00:30Z");
 
     assert_eq!(
         runtime.observe_signed_child_agent_envelope(
@@ -469,7 +486,7 @@ fn lan_pairing_runtime_rejects_signed_child_agent_wrong_parent_wrong_route_empty
                 claim.nonce = String::new();
                 claim
             }),
-            observed_at,
+            &observed_at,
         ),
         Err(LanPairingRejectionReason::Malformed)
     );
@@ -487,7 +504,7 @@ fn lan_pairing_runtime_rejects_signed_child_agent_wrong_parent_wrong_route_empty
                 claim.parent_device_id = "sha256:other-parent".to_string();
                 claim
             }),
-            observed_at,
+            &observed_at,
         ),
         Err(LanPairingRejectionReason::WrongDevice)
     );
@@ -505,7 +522,7 @@ fn lan_pairing_runtime_rejects_signed_child_agent_wrong_parent_wrong_route_empty
                 claim.route_id = constants::lan_pairing::ROUTE_ID_SECOND_LOCAL_NETWORK.to_string();
                 claim
             }),
-            observed_at,
+            &observed_at,
         ),
         Err(LanPairingRejectionReason::UnsupportedRoute)
     );
@@ -523,7 +540,7 @@ fn lan_pairing_runtime_rejects_signed_child_agent_wrong_parent_wrong_route_empty
                 claim.schema_version = constants::lan_pairing::SCHEMA_VERSION + 1;
                 claim
             }),
-            observed_at,
+            &observed_at,
         ),
         Err(LanPairingRejectionReason::Malformed)
     );

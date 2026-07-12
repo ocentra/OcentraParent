@@ -56,7 +56,7 @@ fn social_dashboard_payload_reports_seven_honest_service_rows() {
         SOCIAL_DASHBOARD_CUSTODY_CHILD_DEVICE_QUERY_STORE
     );
     assert_eq!(
-        payload_text(&payload, constants::field::CAPABILITY_STATUS),
+        payload_text(&payload, constants::field::CAPABILITY_STATUS).to_string(),
         SOCIAL_DASHBOARD_CAPABILITY_READY
     );
     assert_eq!(

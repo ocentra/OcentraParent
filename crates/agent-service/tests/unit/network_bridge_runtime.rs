@@ -1,6 +1,8 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
+use chrono::{DateTime, SecondsFormat};
+
 #[path = "../support/test_text.rs"]
 mod test_text;
 
@@ -152,9 +154,17 @@ fn network_bridge_runtime_links_report_builders_and_time_helpers() {
         Some(&ocentra_parent_agent_protocol::logging::LogFieldValue::String("[]".to_string()))
     );
 
-    assert!(!time::timestamp_now().is_empty());
-    assert!(!time::timestamp_from_epoch_seconds(0).is_empty());
-    assert!(!time::timestamp_after_epoch_seconds(0, 1).is_empty());
+    let timestamp_now: String = time::timestamp_now();
+    let timestamp_from_epoch: String = time::timestamp_from_epoch_seconds(0);
+    let timestamp_after_epoch: String = time::timestamp_after_epoch_seconds(0, 1);
+    let parsed_timestamp_now = DateTime::parse_from_rfc3339(&timestamp_now)
+        .expect("timestamp_now must use RFC3339 formatting");
+    assert_eq!(
+        parsed_timestamp_now.to_rfc3339_opts(SecondsFormat::Millis, true),
+        timestamp_now
+    );
+    assert_eq!(timestamp_from_epoch, "1970-01-01T00:00:00.000Z");
+    assert_eq!(timestamp_after_epoch, "1970-01-01T00:00:01.000Z");
     assert_eq!(
         event_builder::portal_peer().peer_id,
         constants::peer::PORTAL_DEV

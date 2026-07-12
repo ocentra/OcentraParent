@@ -41,6 +41,7 @@ use super::app_game_child_runtime_transport_receipt_payload::{
     app_game_child_runtime_transport_receipt_payload,
     app_game_child_runtime_transport_receipt_read_model,
     app_game_child_runtime_transport_receipt_read_model_from_service_model,
+    AppGameReceiptGeneratedAt,
 };
 
 const GENERATED_AT: &TestStr =
@@ -89,7 +90,9 @@ const APP_GAME_TEST_WINDOW_TITLE_REF: &TestStr = "title-ref-4242";
 
 #[test]
 fn child_runtime_transport_receipt_payload_serializes_parent_safe_status_model() {
-    let read_model = app_game_child_runtime_transport_receipt_read_model(GENERATED_AT);
+    let read_model = app_game_child_runtime_transport_receipt_read_model(
+        AppGameReceiptGeneratedAt(GENERATED_AT.to_string()),
+    );
     let payload = app_game_child_runtime_transport_receipt_payload(&read_model);
 
     let reparsed = require_json_decode::<AppGameChildRuntimeTransportReceiptReadModel>(

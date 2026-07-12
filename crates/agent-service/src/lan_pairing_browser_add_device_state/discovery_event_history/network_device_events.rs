@@ -13,6 +13,7 @@ use super::{current_scan_snapshot, scan_session_id_for_result, scan_session_key}
 use crate::lan_pairing_browser_add_device_state::physical_lan_scan::LanNetworkDeviceScanResult;
 use crate::time::timestamp_now;
 
+const LAN_DISCOVERY_DEVICE_FOUND_EVENT_PREFIX: &str = "lan-discovery-device-found-";
 const LAN_DISCOVERY_DEVICE_UPDATED_EVENT_PREFIX: &str = "lan-discovery-device-updated-";
 const LAN_DISCOVERY_DEVICE_ONLINE_SEGMENT: &str = "device-online";
 const LAN_DISCOVERY_DEVICE_OFFLINE_SEGMENT: &str = "device-offline";
@@ -85,7 +86,7 @@ fn push_device_found_row(
         rows,
         discovery_event_row(
             keyed_discovery_event_id(
-                LAN_DISCOVERY_DEVICE_UPDATED_EVENT_PREFIX.to_string().into(),
+                LAN_DISCOVERY_DEVICE_FOUND_EVENT_PREFIX.to_string().into(),
                 &context.scan_key,
                 &LanPairingText(device.device_id.clone()),
             ),

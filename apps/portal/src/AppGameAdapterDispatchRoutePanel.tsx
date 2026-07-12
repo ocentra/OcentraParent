@@ -17,7 +17,9 @@ const EmptyAdapterDispatchPreflightPanel: ParentAppGamePanelSnapshot = {
   title: 'Adapter dispatch preflight',
   body: 'Rust has not reported an adapter dispatch preflight panel yet.',
   loadState: 'unavailable',
-  summaryDetails: [{ label: PortalDetails.ProductClaim, value: 'Adapter dispatch preflight has not been reported yet.' }],
+  summaryDetails: [
+    { label: PortalDetails.ProductClaim, value: 'Adapter dispatch preflight has not been reported yet.' },
+  ],
   rows: [],
   emptyMessage: 'No adapter dispatch preflight rows have been reported yet.',
   productClaim: 'Scoped adapter dispatch readiness has not been reported yet.',
@@ -101,8 +103,14 @@ export function AppGameAdapterDispatchRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <AppGameAdapterDispatchSummaryCard heading={PortalDetails.Capability} details={preflightPanel.summaryDetails} />
-          <AppGameAdapterDispatchSummaryCard heading={PortalDetails.AdapterDispatch} details={resultPanel.summaryDetails} />
+          <AppGameAdapterDispatchSummaryCard
+            heading={PortalDetails.Capability}
+            details={preflightPanel.summaryDetails}
+          />
+          <AppGameAdapterDispatchSummaryCard
+            heading={PortalDetails.AdapterDispatch}
+            details={resultPanel.summaryDetails}
+          />
           {preflightPanel.rows.length === 0 ? (
             <AppGameAdapterDispatchEmptyCard panel={preflightPanel} />
           ) : (
@@ -178,7 +186,11 @@ function AppGameAdapterDispatchDetails({
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
       {details.map((detail, index) => (
-        <AppGameAdapterDispatchDetail key={`${String(detail.label)}:${index}`} label={detail.label} value={detail.value} />
+        <AppGameAdapterDispatchDetail
+          key={`${String(detail.label)}:${index}`}
+          label={detail.label}
+          value={detail.value}
+        />
       ))}
     </dl>
   );

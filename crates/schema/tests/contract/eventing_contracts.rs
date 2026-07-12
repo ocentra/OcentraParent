@@ -5,10 +5,13 @@ use std::path::PathBuf;
 fn eventing_contracts_generated_typescript_matches_checked_in_file() {
     let generated = ocentra_schema::eventing_contracts_ts::eventing_contracts_typescript();
     let checked_in = fs::read_to_string(
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../packages/schema-domain/src/eventing.ts"),
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../packages/schema-domain/src/eventing.ts"),
     )
     .expect("eventing source should be readable");
 
     assert_eq!(generated, checked_in);
-    assert!(generated.starts_with("/* generated from crates/schema/src/eventing_contracts_ts.rs */"));
+    assert!(
+        generated.starts_with("/* generated from crates/schema/src/eventing_contracts_ts.rs */")
+    );
 }

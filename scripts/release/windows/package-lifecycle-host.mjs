@@ -214,9 +214,7 @@ function restartServices({ healthUrl }) {
 function waitForServicesStatus(expectedStatus) {
   for (let attempt = 1; attempt <= 20; attempt += 1) {
     const services = readServices();
-    const allMatched =
-      services.length === 2 &&
-      services.every((service) => service.status === expectedStatus);
+    const allMatched = services.length === 2 && services.every((service) => service.status === expectedStatus);
     if (allMatched) {
       return services;
     }
@@ -238,12 +236,8 @@ function readRespawnState() {
 }
 
 function readServiceManagerRespawnProof(serviceName) {
-  const failureActions = parseServiceFailureActions(
-    runSc(['qfailure', serviceName], { encoding: 'utf8' })
-  );
-  const failureFlag = parseServiceFailureFlag(
-    runSc(['qfailureflag', serviceName], { encoding: 'utf8' })
-  );
+  const failureActions = parseServiceFailureActions(runSc(['qfailure', serviceName], { encoding: 'utf8' }));
+  const failureFlag = parseServiceFailureFlag(runSc(['qfailureflag', serviceName], { encoding: 'utf8' }));
   const restartActions = failureActions.actions.filter((action) => action.type === 'restart');
   return {
     actions: failureActions.actions,

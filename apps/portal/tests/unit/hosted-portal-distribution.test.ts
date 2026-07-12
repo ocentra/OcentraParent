@@ -4,9 +4,7 @@ import { resolve } from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it } from 'vitest';
 
-import {
-  HostedPortalDistribution,
-} from '../../src/hosted-portal-distribution';
+import { HostedPortalDistribution } from '../../src/hosted-portal-distribution';
 import { resolveHostedPortalDistributionState } from '@ocentra-parent/portal-domain/hosted-portal-distribution';
 
 const hostedEnv = {
@@ -114,7 +112,10 @@ it('keeps the root hash-route shell when hosted distribution mode is disabled', 
 });
 
 it('keeps deterministic hosted distribution decisions out of the app shell', () => {
-  const source = readFileSync(resolve(import.meta.dirname, '..', '..', 'src', 'hosted-portal-distribution.tsx'), 'utf8');
+  const source = readFileSync(
+    resolve(import.meta.dirname, '..', '..', 'src', 'hosted-portal-distribution.tsx'),
+    'utf8'
+  );
 
   expect(source).toContain('@ocentra-parent/portal-domain/hosted-portal-distribution');
   expect(source).not.toContain('function environmentForPath(');

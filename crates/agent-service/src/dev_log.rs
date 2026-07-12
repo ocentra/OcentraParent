@@ -1,3 +1,6 @@
+#[path = "dev_log/message.rs"]
+mod message;
+
 use ocentra_parent_agent_protocol::logging::LogFieldValue as ProtocolLogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_logging_core::{
@@ -8,31 +11,55 @@ use ocentra_parent_logging_core::{
 };
 
 // Compatibility local-dev writer until WP04 migrates agent-service logging into crates/logging-core.
-pub fn write_agent_info(message: &str, fields: LogFields) -> std::io::Result<()> {
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct AgentLogMessageRef<'a>(pub &'a str);
+
+pub trait AgentLogMessageSource {
+    fn as_agent_log_message_ref(&self) -> AgentLogMessageRef<'_>;
+}
+
+pub fn write_agent_info(
+    message: impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
     write_agent_log(&LogLevel::Info, message, fields)
 }
 
-pub fn write_agent_warn(message: &str, fields: LogFields) -> std::io::Result<()> {
+pub fn write_agent_warn(
+    message: impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
     write_agent_log(&LogLevel::Warn, message, fields)
 }
 
-pub fn write_agent_error(message: &str, fields: LogFields) -> std::io::Result<()> {
+pub fn write_agent_error(
+    message: impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
     write_agent_log(&LogLevel::Error, message, fields)
 }
 
-pub fn write_agent_debug(message: &str, fields: LogFields) -> std::io::Result<()> {
+pub fn write_agent_debug(
+    message: impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
     write_agent_log(&LogLevel::Debug, message, fields)
 }
 
-fn write_agent_log(level: &LogLevel, message: &str, fields: LogFields) -> std::io::Result<()> {
+fn write_agent_log(
+    level: &LogLevel,
+    message: impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
     let logger = DevLogger::from_env(LogSource::AgentService)?;
     let core_fields = into_core_fields(fields);
+    let message = message.as_agent_log_message_ref();
     match *level {
-        LogLevel::Info => logger.info(message, core_fields),
-        LogLevel::Warn => logger.warn(message, core_fields),
-        LogLevel::Error => logger.error(message, core_fields),
-        LogLevel::Debug => logger.debug(message, core_fields),
-        LogLevel::Trace => logger.log(LogLevel::Trace, message, core_fields),
+        LogLevel::Info => logger.info(message.0, core_fields),
+        LogLevel::Warn => logger.warn(message.0, core_fields),
+        LogLevel::Error => logger.error(message.0, core_fields),
+        LogLevel::Debug => logger.debug(message.0, core_fields),
+        LogLevel::Trace => logger.log(LogLevel::Trace, message.0, core_fields),
     }
     .map(|_| ())
 }

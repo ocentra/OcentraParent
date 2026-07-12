@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { PARENT_PORTAL_SERVICE_STATE, PortalRoute, resolveParentPortalServiceState } from '../../src/contracts';
-import { parentPortalManageLaneForRoute, parentPortalRouteContext, type ParentPortalRow } from '../../src/parent-portal-data';
+import {
+  parentPortalManageLaneForRoute,
+  parentPortalRouteContext,
+  type ParentPortalRow,
+} from '../../src/parent-portal-data';
 import { portalRouteFromHashPath } from '../../src/routes';
 
 describe('portal service-backed parent portal state', () => {

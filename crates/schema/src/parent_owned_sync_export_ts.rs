@@ -22,16 +22,19 @@ pub fn parent_owned_sync_export_contracts_typescript() -> String {
     );
     let known_gaps = parent_owned_sync_export_known_gaps()
         .iter()
-        .map(|gap| format!("  {:?},", gap))
+        .map(|gap| format!("  '{}',", gap.replace('\'', "\\'")))
         .collect::<Vec<_>>()
         .join(PARENT_OWNED_SYNC_EXPORT_TYPESCRIPT_LINE_BREAK);
+
+    let proof_typescript =
+        crate::typescript_literal::json_object_to_typescript_literal(&proof_json);
 
     PARENT_OWNED_SYNC_EXPORT_CONTRACTS_TEMPLATE
         .replace(
             PARENT_OWNED_SYNC_EXPORT_SCHEMA_VERSION_TOKEN,
             PARENT_OWNED_SYNC_EXPORT_SCHEMA_VERSION,
         )
-        .replace(PARENT_OWNED_SYNC_EXPORT_PROOF_JSON_TOKEN, &proof_json)
+        .replace(PARENT_OWNED_SYNC_EXPORT_PROOF_JSON_TOKEN, &proof_typescript)
         .replace(PARENT_OWNED_SYNC_EXPORT_KNOWN_GAPS_TOKEN, &known_gaps)
         .replace("{{", "{")
         .replace("}}", "}")

@@ -11,9 +11,7 @@ describe('host bridge', () => {
   it('rejects when the dev web bridge URL is missing instead of fabricating a product snapshot', async () => {
     const bridge = createDevWebHostBridge(null);
 
-    await expect(bridge.loadRoute(ParentRoute.Overview)).rejects.toThrow(
-      presentationOnlyDevWebHostBridgeMessage()
-    );
+    await expect(bridge.loadRoute(ParentRoute.Overview)).rejects.toThrow(presentationOnlyDevWebHostBridgeMessage());
     await expect(
       bridge.dispatch({
         action: ParentUiActionKind.RefreshRoute,
@@ -21,9 +19,9 @@ describe('host bridge', () => {
         payload: {},
       })
     ).rejects.toThrow(presentationOnlyDevWebHostBridgeMessage());
-    await expect(
-      bridge.subscribe(ParentRoute.Overview, {}, () => undefined)
-    ).rejects.toThrow(presentationOnlyDevWebHostBridgeMessage());
+    await expect(bridge.subscribe(ParentRoute.Overview, {}, () => undefined)).rejects.toThrow(
+      presentationOnlyDevWebHostBridgeMessage()
+    );
   });
 
   it('rejects when the configured dev web bridge is unreachable instead of returning an unavailable snapshot', async () => {

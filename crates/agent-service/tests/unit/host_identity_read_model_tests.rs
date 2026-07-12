@@ -12,12 +12,12 @@ use ocentra_parent_agent_protocol::enforcement_readiness::{
 use ocentra_parent_agent_protocol::host_identity::HostIdentityEvidenceKind;
 use ocentra_parent_agent_protocol::policy_constants as policy;
 
-use crate::host_identity_read_model::host_identity_read_model;
+use crate::host_identity_read_model::{GeneratedAtText, host_identity_read_model};
 use crate::test_invariants::{require_ok, require_some};
 
 #[test]
 fn host_identity_read_model_preserves_manual_and_unavailable_boundaries() {
-    let model = host_identity_read_model(policy::TEST_EVALUATED_AT);
+    let model = host_identity_read_model(GeneratedAtText(policy::TEST_EVALUATED_AT.to_string()));
     let readiness_counts = count_readiness(&model.entries);
     let evidence_counts = count_evidence_classes(&model.entries);
 
@@ -42,7 +42,7 @@ fn host_identity_read_model_preserves_manual_and_unavailable_boundaries() {
 
 #[test]
 fn host_identity_read_model_keeps_unsupported_and_rollback_states_honest() {
-    let model = host_identity_read_model(policy::TEST_EVALUATED_AT);
+    let model = host_identity_read_model(GeneratedAtText(policy::TEST_EVALUATED_AT.to_string()));
     let unsupported = entry_for(
         &model.entries,
         HostIdentityEvidenceKind::UnsupportedIdentity,
@@ -85,7 +85,7 @@ fn host_identity_read_model_keeps_unsupported_and_rollback_states_honest() {
 
 #[test]
 fn host_identity_read_model_serializes_for_runtime_preview_without_claiming_blocking() {
-    let model = host_identity_read_model(policy::TEST_EVALUATED_AT);
+    let model = host_identity_read_model(GeneratedAtText(policy::TEST_EVALUATED_AT.to_string()));
     let serialized = require_ok(
         serde_json::to_value(model),
         constants::error::AGENT_EVENT_SERIALIZES,

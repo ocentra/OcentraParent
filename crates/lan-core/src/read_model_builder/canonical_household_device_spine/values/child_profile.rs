@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
-use super::compact_identifier;
+use super::value_support::compact_identifier;
 
 const CHILD_PROFILE_DEVICE_PREFIX: &str = "lan-child-profile-";
 

@@ -36,4 +36,3 @@ function browserControlConditionIsMetGenerated(
   }
   return false;
 }
-

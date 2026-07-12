@@ -5,7 +5,6 @@ use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
 use std::{
     fs,
-    path::TestPathBuf,
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -240,11 +239,14 @@ fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
     assert!(!config.store_path.exists());
 }
 
-fn cadence_clock(epoch_seconds: u64, timestamp: TestText) -> ScreenAiCadenceTickClock {
-    let timestamp = timestamp;
+fn cadence_clock(
+    epoch_seconds: u64,
+    timestamp: impl std::fmt::Display,
+) -> ScreenAiCadenceTickClock {
+    let timestamp = timestamp.to_string();
     ScreenAiCadenceTickClock {
         epoch_seconds,
-        timestamp: timestamp.as_str().to_string(),
+        timestamp,
     }
 }
 
@@ -268,13 +270,13 @@ fn captured_test_image() -> CapturedScreenImage {
     }
 }
 
-fn test_path(suffix: TestText) -> TestPathBuf {
-    let suffix = suffix;
+fn test_path(suffix: impl std::fmt::Display) -> TestPathBuf {
+    let suffix = suffix.to_string();
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
     path.push(std::process::id().to_string());
     path.push(constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE);
     path.push(TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
-    path.push(suffix.as_str());
+    path.push(suffix);
     path
 }

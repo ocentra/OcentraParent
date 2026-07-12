@@ -5,6 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore,
     journal::ActivityJournal,
@@ -82,7 +83,7 @@ fn record_capture_with_inventory_root_writes_inventory_journal_and_sqlite_rows()
             &store_path,
             1,
             1,
-            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            TestText::from_display(constants::activity_store::TEST_FIRST_OBSERVED_AT),
             std::slice::from_ref(&inventory_root),
         )
         .map_err(|error| {
@@ -171,7 +172,7 @@ fn record_capture_with_store_package_root_writes_inventory_journal_and_sqlite_ro
             &store_path,
             1,
             1,
-            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            TestText::from_display(constants::activity_store::TEST_FIRST_OBSERVED_AT),
             std::slice::from_ref(&store_package_root),
         )
         .map_err(|error| {
@@ -268,7 +269,7 @@ fn record_capture_with_registry_root_writes_inventory_journal_and_sqlite_rows() 
             &store_path,
             1,
             1,
-            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            TestText::from_display(constants::activity_store::TEST_FIRST_OBSERVED_AT),
             std::slice::from_ref(&registry_root),
         )
         .map_err(|error| {

@@ -1,0 +1,26 @@
+        row.requiredProtocolProofRefs.length === 0
+    ).length;
+
+export const appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelHasNoRuntimeClaimsGenerated = (
+  readModel: TimerServiceReadinessProtocolReadModelLike
+) =>
+  !readModel.agentProtocolContractImplemented &&
+  !readModel.rustProtocolMirrored &&
+  !readModel.serviceCommandRegistered &&
+  !readModel.serviceEventEmitted &&
+  !readModel.serviceReadApiImplemented &&
+  !readModel.serviceReadModelEventEmitted &&
+  !readModel.portalUiRendered &&
+  !readModel.policyEvaluatorRuntimeClaimed &&
+  !readModel.timerRuntimeClaimed &&
+  !readModel.timerScheduled &&
+  !readModel.schedulerPersistenceRuntimeClaimed &&
+  !readModel.durableSchedulerStorageClaimed &&
+  !readModel.auditRuntimeClaimed &&
+  !readModel.durableAuditLogClaimed &&
+  !readModel.rollbackRuntimeClaimed &&
+  !readModel.rollbackExecutionClaimed &&
+  !readModel.adapterDispatchClaimed &&
+  !readModel.childDeliveryClaimed &&
+  !readModel.platformEnforcementClaimed &&
+  !readModel.rawPrivateSourceRowsIncluded;

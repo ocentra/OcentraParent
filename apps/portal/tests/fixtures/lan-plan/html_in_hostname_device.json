@@ -8,10 +8,7 @@
   "cloudRelayState": "unavailable",
   "scanSummary": {
     "schemaVersion": 1,
-    "sourceLabels": [
-      "mdns",
-      "network-neighbor"
-    ],
+    "sourceLabels": ["mdns", "network-neighbor"],
     "scannedDeviceCount": 2,
     "agentDeviceCount": 0,
     "passiveDeviceCount": 2,
@@ -59,30 +56,20 @@
       "routeId": null,
       "routeState": "unavailable",
       "networkMode": "local-network",
-      "sourceLabels": [
-        "mdns",
-        "network-neighbor"
-      ],
+      "sourceLabels": ["mdns", "network-neighbor"],
       "networkIdentity": {
         "hostname": "<b>Bedroom-TV</b>",
-        "ipAddresses": [
-          "192.168.2.88"
-        ],
+        "ipAddresses": ["192.168.2.88"],
         "macAddress": "66-55-44-33-22-11",
         "macVendor": null,
-        "networkInterfaces": [
-          "Wi-Fi"
-        ],
+        "networkInterfaces": ["Wi-Fi"],
         "reachability": "online",
         "confidence": "mdns-advertisement",
         "staleAt": null,
         "offlineAt": null
       },
       "childAgentInventory": null,
-      "policyTargetSurfaces": [
-        "devices",
-        "network"
-      ]
+      "policyTargetSurfaces": ["devices", "network"]
     }
   ],
   "trustedDeviceIds": [],
@@ -100,13 +87,7 @@
   },
   "controllerAuthority": "observer",
   "observerAuthority": "observer",
-  "routeRequirementLabels": [
-    "HTML-like hostnames remain plain text in the portal"
-  ],
-  "auditCheckLabels": [
-    "Passive LAN hostnames are rendered without trusting markup"
-  ],
-  "honestNonClaims": [
-    "hostname-markup-does-not-become-ui-html"
-  ]
+  "routeRequirementLabels": ["HTML-like hostnames remain plain text in the portal"],
+  "auditCheckLabels": ["Passive LAN hostnames are rendered without trusting markup"],
+  "honestNonClaims": ["hostname-markup-does-not-become-ui-html"]
 }

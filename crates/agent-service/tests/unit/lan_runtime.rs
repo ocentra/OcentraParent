@@ -171,11 +171,11 @@ fn lan_runtime_path_included_scheduler_hooks_and_time_helpers_remain_linked() {
         crate::lan_pairing_runtime_state::passive_discovery::spawn_lan_passive_discovery_runtime;
 
     assert_eq!(
-        crate::time::timestamp_from_epoch_seconds(0),
+        crate::time::timestamp_from_epoch_seconds::<String>(0),
         "1970-01-01T00:00:00.000Z"
     );
     assert_eq!(
-        crate::time::timestamp_after_epoch_seconds(10, 5),
+        crate::time::timestamp_after_epoch_seconds::<String>(10, 5),
         "1970-01-01T00:00:15.000Z"
     );
 

@@ -1,6 +1,6 @@
 /* generated from crates/schema/src/report_query_custody.rs */
 
-import { brandedNonEmptyStringSchema } from './effect';
+import {{ brandedNonEmptyStringSchema }} from './effect';
 
 export const ReportQueryCustodyContractRuntime = {{
   SchemaVersion: '__REPORT_QUERY_CUSTODY_SCHEMA_VERSION__',
@@ -18,12 +18,18 @@ export const GeneratedParentEvidenceReferenceIdSchema = brandedNonEmptyStringSch
 export const GeneratedParentActionReferenceIdSchema = brandedNonEmptyStringSchema('ParentActionReferenceId');
 export const GeneratedParentTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
 export const GeneratedReportQueryCustodyRequestIdSchema = brandedNonEmptyStringSchema('ReportQueryCustodyRequestId');
-export const GeneratedReportQueryCustodyQueryCursorSchema = brandedNonEmptyStringSchema('ReportQueryCustodyQueryCursor');
+export const GeneratedReportQueryCustodyQueryCursorSchema = brandedNonEmptyStringSchema(
+  'ReportQueryCustodyQueryCursor'
+);
 export const GeneratedReportQueryCustodyCursorRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyCursorRef');
 export const GeneratedReportQueryCustodySortKeySchema = brandedNonEmptyStringSchema('ReportQueryCustodySortKey');
 export const GeneratedReportQueryCustodySourceRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodySourceRef');
-export const GeneratedReportQueryCustodyConflictRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyConflictRef');
-export const GeneratedReportQueryCustodyDeletedSourceRefSchema = brandedNonEmptyStringSchema('ReportQueryCustodyDeletedSourceRef');
+export const GeneratedReportQueryCustodyConflictRefSchema = brandedNonEmptyStringSchema(
+  'ReportQueryCustodyConflictRef'
+);
+export const GeneratedReportQueryCustodyDeletedSourceRefSchema = brandedNonEmptyStringSchema(
+  'ReportQueryCustodyDeletedSourceRef'
+);
 
 export type GeneratedParentAccountId = typeof GeneratedParentAccountIdSchema.Type;
 export type GeneratedFamilyId = typeof GeneratedFamilyIdSchema.Type;
@@ -82,8 +88,18 @@ export type GeneratedReportQueryCustodyNonClaim =
   | 'no-ocentra-hosted-family-data-custody';
 export type GeneratedReportQueryCustodyTombstoneState = 'not-required' | 'written';
 
-export const GeneratedParentPlatforms = ['windows', 'linux', 'macos', 'android', 'ios'] as const satisfies readonly GeneratedParentPlatform[];
-export const GeneratedParentActorRoles = ['parent', 'guardian', 'system'] as const satisfies readonly GeneratedParentActorRole[];
+export const GeneratedParentPlatforms = [
+  'windows',
+  'linux',
+  'macos',
+  'android',
+  'ios',
+] as const satisfies readonly GeneratedParentPlatform[];
+export const GeneratedParentActorRoles = [
+  'parent',
+  'guardian',
+  'system',
+] as const satisfies readonly GeneratedParentActorRole[];
 export const GeneratedParentEvidenceReferenceKinds = [
   'journal-event',
   'query-store-summary',
