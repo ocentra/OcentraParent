@@ -60,8 +60,11 @@ fn parent_assistant_thread_create_returns_durable_service_state() {
             LogFieldValue::String(constants::parent_assistant::DEFAULT_THREAD_ID.to_string()),
         )]),
     ));
-    let response =
-        thread_response_payload(&crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_THREAD_RESPONSE, constants::error::AGENT_EVENT_SERIALIZES));
+    let response = thread_response_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::parent_assistant::FIELD_THREAD_RESPONSE,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,
@@ -127,8 +130,11 @@ fn parent_assistant_provider_status_reports_local_runtime_and_api_boundary() {
         AgentCommandName::AgentParentAssistantProviderStatusGet,
         Default::default(),
     ));
-    let status =
-        provider_status_payload(&crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_PROVIDER_STATUS, constants::error::AGENT_EVENT_SERIALIZES));
+    let status = provider_status_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::parent_assistant::FIELD_PROVIDER_STATUS,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,
@@ -304,8 +310,11 @@ fn parent_assistant_run_cancel_reports_not_running_without_process_kill_claim() 
             LogFieldValue::String(constants::parent_assistant::DEFAULT_RUN_ID.to_string()),
         )]),
     ));
-    let result =
-        run_cancel_payload(&crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_RUN_CANCEL_RESULT, constants::error::AGENT_EVENT_SERIALIZES));
+    let result = run_cancel_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::parent_assistant::FIELD_RUN_CANCEL_RESULT,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,
@@ -345,8 +354,11 @@ fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforce
             ),
         ]),
     ));
-    let result =
-        action_preview_payload(&crate::test_invariants::log_field(&event.payload, constants::field::PARENT_ASSISTANT_ACTION_PREVIEW, constants::error::AGENT_EVENT_SERIALIZES));
+    let result = action_preview_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::PARENT_ASSISTANT_ACTION_PREVIEW,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,
@@ -423,9 +435,11 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
         AgentCommandName::AgentParentAssistantActionConfirm,
         fields_from_pairs(vec![intent.clone(), preview.clone()]),
     ));
-    let result = action_confirm_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let result = action_confirm_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     assert_eq!(
         event.event,
@@ -458,9 +472,12 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
         AgentCommandName::AgentParentAssistantActionConfirm,
         fields_from_pairs(vec![intent.clone()]),
     ));
-    let missing_preview = action_confirm_payload(
-        &missing_preview_crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let missing_preview =
+        action_confirm_payload(&missing_preview_crate::test_invariants::log_field(
+            &event.payload,
+            constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT,
+            constants::error::AGENT_EVENT_SERIALIZES,
+        ));
     assert_rejected_action_confirm!(
         missing_preview,
         constants::parent_assistant::ACTION_CONFIRM_PREVIEW_REQUIRED_REASON
@@ -480,9 +497,11 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
             ),
         ]),
     ));
-    let raw = action_confirm_payload(
-        &raw_crate::test_invariants::log_field(&event.payload, constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let raw = action_confirm_payload(&raw_crate::test_invariants::log_field(
+        &event.payload,
+        constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
     assert_rejected_action_confirm!(
         raw,
         constants::parent_assistant::ACTION_CONFIRM_RAW_PROSE_REJECTED_REASON
@@ -639,4 +658,3 @@ fn unique_temp_dir() -> TestPathBuf {
     path.push(name);
     path
 }
-

@@ -22,7 +22,7 @@ pub(crate) async fn handle_replace(
                 request_id,
                 BrowserPolicyUpdateKind::Replace,
                 generated_at,
-            )
+            );
         }
     };
     if let Err(reason) = base_revision_matches(&state, base_revision_id.as_ref()) {

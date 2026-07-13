@@ -1,1 +1,4 @@
-include!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/activity_capture/app_game.rs"));
+include!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/src/activity_capture/app_game.rs"
+));

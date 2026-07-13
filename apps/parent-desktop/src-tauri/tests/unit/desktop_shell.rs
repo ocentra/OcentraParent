@@ -5,9 +5,8 @@ use ocentra_parent_agent_protocol::{
 };
 use ocentra_parent_desktop::{
     agent_service_connects, parent_platform_proof_state_for_address,
-    parent_route_subscription_event_name, ParentRouteSubscriptionRegistry,
-    ParentDesktopAgentAddress,
-    ParentRouteSubscriptionId,
+    parent_route_subscription_event_name, ParentDesktopAgentAddress, ParentRouteSubscriptionId,
+    ParentRouteSubscriptionRegistry,
 };
 use serde_json::Value;
 
@@ -32,7 +31,8 @@ fn parent_platform_proof_state_uses_rust_service_connection_for_package_runtime(
 fn parent_platform_proof_state_reports_ready_when_rust_service_socket_accepts() {
     let listener =
         TcpListener::bind((constants::test_network::LOOPBACK_IP, 0)).expect("bind listener");
-    let address = ParentDesktopAgentAddress(listener.local_addr().expect("listener address").to_string());
+    let address =
+        ParentDesktopAgentAddress(listener.local_addr().expect("listener address").to_string());
 
     assert!(agent_service_connects(&address));
 
@@ -111,7 +111,10 @@ fn assert_parent_platform_proof_state_shell_identity(state: &Value) {
 }
 
 fn assert_parent_platform_proof_state_runtime_truth(state: &Value) {
-    assert_eq!(state["routeState"], serde_json::json!(DeviceRuntimeRouteState::LocalNetwork));
+    assert_eq!(
+        state["routeState"],
+        serde_json::json!(DeviceRuntimeRouteState::LocalNetwork)
+    );
     assert_eq!(
         state["routeSourceState"],
         serde_json::json!(DeviceRuntimeRouteState::LocalNetwork)
@@ -132,10 +135,7 @@ fn assert_parent_platform_proof_state_runtime_truth(state: &Value) {
         state["deviceRoleState"]["localAiRuntimeClaim"],
         serde_json::json!(DeviceRuntimeLocalAiClaim::SharedPhysicalDeviceSingleton)
     );
-    assert_eq!(
-        state["serviceConnectTimeoutMs"],
-        serde_json::json!(250)
-    );
+    assert_eq!(state["serviceConnectTimeoutMs"], serde_json::json!(250));
 }
 
 fn assert_parent_platform_proof_state_package_operations_truth(state: &Value) {

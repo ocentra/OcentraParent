@@ -48,7 +48,9 @@ async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
     let runtime = ScreenSettingsRuntime::for_store_path(&path);
     let strict = strict_dry_run_setting(2);
 
-    let accepted = runtime.handle_request(replace_request(None, &TestStrict)).await;
+    let accepted = runtime
+        .handle_request(replace_request(None, &TestStrict))
+        .await;
 
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
     assert_eq!(
@@ -216,4 +218,3 @@ fn test_store_path(store_suffix: crate::test_text::TestText) -> TestPathBuf {
 fn test_runtime(store_suffix: crate::test_text::TestText) -> ScreenSettingsRuntime {
     ScreenSettingsRuntime::for_store_path(test_store_path(store_suffix))
 }
-

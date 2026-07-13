@@ -3,6 +3,7 @@
 mod unit_root_basic_harness;
 declare_agent_service_unit_root_basic_harness!();
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_protocol::activity_surface::{
     ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportFrequency,
     ActivityReportRequest, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
@@ -20,7 +21,6 @@ use ocentra_parent_agent_service::test_support::{
     build_activity_report_document_with_family_sources_for_test,
     family_sources_from_command_for_test, ActivitySurfaceSnapshotForTest,
 };
-use crate::test_text::TestText;
 
 #[test]
 fn activity_family_sources_parse_reachable_offline_stale_and_error_records_from_command_payload(
@@ -202,11 +202,12 @@ async fn activity_family_report_without_query_store_keeps_family_fanout_unavaila
 fn command_with_sources(
     sources: &[ActivityReportSourceState],
 ) -> Result<AgentCommandEnvelope, TestText> {
-    let encoded_sources = serde_json::to_string(sources)
-        .map_err(|error| TestText::from_display(format!(
+    let encoded_sources = serde_json::to_string(sources).map_err(|error| {
+        TestText::from_display(format!(
             "{}: {error}",
             constants::error::AGENT_EVENT_SERIALIZES
-        )))?;
+        ))
+    })?;
     Ok(command(log_fields_with_sources(encoded_sources)))
 }
 

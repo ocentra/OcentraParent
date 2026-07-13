@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
-    net::{SocketAddr, TcpStream},
     fmt::{Display, Formatter},
+    net::{SocketAddr, TcpStream},
     sync::{
         atomic::{AtomicBool, AtomicU64, Ordering},
         Arc, Mutex,
@@ -341,7 +341,9 @@ pub fn parent_platform_proof_state_for_address(
 }
 
 pub fn agent_service_connects(agent_address: &ParentDesktopAgentAddress) -> bool {
-    agent_address.0.parse::<SocketAddr>()
+    agent_address
+        .0
+        .parse::<SocketAddr>()
         .ok()
         .and_then(|address| {
             TcpStream::connect_timeout(&address, Duration::from_millis(SERVICE_CONNECT_TIMEOUT_MS))

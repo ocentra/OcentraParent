@@ -23,9 +23,10 @@ pub(super) fn summary_for_mode(
         (contracts::ParentStorageModeLabel::ManualRequired, _) => {
             "Manual proof is required before a safe apply or delete step proceeds."
         }
-        (contracts::ParentStorageModeLabel::Disabled, contracts::ParentStorageUiState::SyncDisabled) => {
-            "Provider sync is intentionally disabled."
-        }
+        (
+            contracts::ParentStorageModeLabel::Disabled,
+            contracts::ParentStorageUiState::SyncDisabled,
+        ) => "Provider sync is intentionally disabled.",
         (contracts::ParentStorageModeLabel::Disabled, _) => "Provider storage is not configured.",
     }
 }

@@ -24,7 +24,7 @@ pub(crate) async fn handle_rollback(
                 request_id,
                 BrowserPolicyUpdateKind::Rollback,
                 generated_at,
-            )
+            );
         }
     };
     let Some(target) = state.revision_by_id(&target_revision_id).cloned() else {

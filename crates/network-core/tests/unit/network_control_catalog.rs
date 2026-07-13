@@ -241,11 +241,7 @@ fn requirements_fallbacks_and_helper_text_preserve_network_non_claims() {
         )
     );
     assert_eq!(
-        helper_text_for(
-            "Signals",
-            "Flow",
-            "IP port protocol flow metadata."
-        ),
+        helper_text_for("Signals", "Flow", "IP port protocol flow metadata."),
         "Network claims require stored metadata evidence with source, freshness, confidence, and custody labels."
     );
     assert_eq!(

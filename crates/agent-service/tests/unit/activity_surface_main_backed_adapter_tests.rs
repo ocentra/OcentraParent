@@ -3,6 +3,7 @@
 mod unit_root_basic_harness;
 declare_agent_service_unit_root_basic_harness!();
 
+use crate::test_text::TestText;
 use ocentra_parent_agent_protocol::activity_surface::{
     ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityGamesReadModel,
     ActivityNetworkReadModel, ActivityReadModelState, ActivityReportDocument,
@@ -18,7 +19,6 @@ use ocentra_parent_agent_protocol::transport::{
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 use serde::Serialize;
-use crate::test_text::TestText;
 
 #[tokio::test]
 async fn activity_surface_dispatcher_returns_typed_report_events() {
@@ -183,14 +183,12 @@ fn assert_typed_surface_state(event: &AgentEventEnvelope) {
 
 fn decoded_surface_state(event: &AgentEventEnvelope) -> ActivityReadModelState {
     let encoded = string_payload_field(event, constants::field::ACTIVITY_SURFACE_STATE);
-    serde_json::from_str(encoded.as_ref())
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::from_str(encoded.as_ref()).expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn report_document_from_event(event: &AgentEventEnvelope) -> ActivityReportDocument {
     let encoded = string_payload_field(event, constants::field::ACTIVITY_REPORT_DOCUMENT);
-    serde_json::from_str(encoded.as_ref())
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::from_str(encoded.as_ref()).expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn assert_local_source_state(report: &ActivityReportDocument) {
@@ -224,37 +222,32 @@ fn assert_read_model_payload(event: &AgentEventEnvelope, expected_kind: impl std
     let read_model = string_payload_field(event, constants::field::ACTIVITY_READ_MODEL);
     match expected_kind {
         constants::activity_surface::READ_MODEL_SCREEN => {
-            let decoded: ActivityScreenReadModel =
-                serde_json::from_str(read_model.as_ref())
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            let decoded: ActivityScreenReadModel = serde_json::from_str(read_model.as_ref())
+                .expect(constants::error::AGENT_EVENT_SERIALIZES);
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }
         constants::activity_surface::READ_MODEL_APP_USE => {
-            let decoded: ActivityAppUseReadModel =
-                serde_json::from_str(read_model.as_ref())
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            let decoded: ActivityAppUseReadModel = serde_json::from_str(read_model.as_ref())
+                .expect(constants::error::AGENT_EVENT_SERIALIZES);
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }
         constants::activity_surface::READ_MODEL_BROWSER => {
-            let decoded: ActivityBrowserReadModel =
-                serde_json::from_str(read_model.as_ref())
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            let decoded: ActivityBrowserReadModel = serde_json::from_str(read_model.as_ref())
+                .expect(constants::error::AGENT_EVENT_SERIALIZES);
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }
         constants::activity_surface::READ_MODEL_GAMES => {
-            let decoded: ActivityGamesReadModel =
-                serde_json::from_str(read_model.as_ref())
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            let decoded: ActivityGamesReadModel = serde_json::from_str(read_model.as_ref())
+                .expect(constants::error::AGENT_EVENT_SERIALIZES);
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }
         constants::activity_surface::READ_MODEL_NETWORK => {
-            let decoded: ActivityNetworkReadModel =
-                serde_json::from_str(read_model.as_ref())
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            let decoded: ActivityNetworkReadModel = serde_json::from_str(read_model.as_ref())
+                .expect(constants::error::AGENT_EVENT_SERIALIZES);
             assert_eq!(decoded.state, expected_state);
             assert!(decoded.rows.len() <= constants::activity_store::DEFAULT_RECENT_LIMIT as usize);
         }

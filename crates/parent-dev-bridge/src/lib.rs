@@ -60,7 +60,9 @@ pub fn configured_parent_dev_bridge_address() -> Option<SocketAddr> {
     let port = std::env::var(constants::env_var::PARENT_DEV_BRIDGE_PORT)
         .ok()
         .and_then(|value| value.parse::<u16>().ok())?;
-    let host = if std::env::var(constants::env_var::DEV_NETWORK_MODE).ok().as_deref()
+    let host = if std::env::var(constants::env_var::DEV_NETWORK_MODE)
+        .ok()
+        .as_deref()
         == Some(constants::value::LOCAL_NETWORK_MODE)
     {
         IpAddr::V4(Ipv4Addr::UNSPECIFIED)
@@ -75,11 +77,7 @@ pub async fn serve_parent_dev_bridge(address: SocketAddr) -> Result<(), ParentDe
         .await
         .map_err(|error| {
             let reason = ParentDevBridgeFailure::from_display(error);
-            log_parent_dev_bridge_error(
-                ParentDevBridgeErrorMessage::Bind,
-                Some(address),
-                &reason,
-            );
+            log_parent_dev_bridge_error(ParentDevBridgeErrorMessage::Bind, Some(address), &reason);
             reason
         })?;
 
@@ -87,11 +85,7 @@ pub async fn serve_parent_dev_bridge(address: SocketAddr) -> Result<(), ParentDe
         .await
         .map_err(|error| {
             let reason = ParentDevBridgeFailure::from_display(error);
-            log_parent_dev_bridge_error(
-                ParentDevBridgeErrorMessage::Run,
-                Some(address),
-                &reason,
-            );
+            log_parent_dev_bridge_error(ParentDevBridgeErrorMessage::Run, Some(address), &reason);
             reason
         })
 }

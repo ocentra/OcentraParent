@@ -156,13 +156,13 @@ pub(super) fn evaluate_browser_game_url_shape(
     let parsed_url = match parse::parse_browser_game_url(input) {
         Ok(parsed_url) => parsed_url,
         Err(parse::ParseBrowserGameUrlError::Invalid) => {
-            return manual_browser_game_url_shape_result(REASON_INVALID_URL, PROTOCOL_UNKNOWN)
+            return manual_browser_game_url_shape_result(REASON_INVALID_URL, PROTOCOL_UNKNOWN);
         }
         Err(parse::ParseBrowserGameUrlError::UnsupportedProtocol(protocol_shape)) => {
             return manual_browser_game_url_shape_result(
                 REASON_UNSUPPORTED_PROTOCOL,
                 protocol_shape,
-            )
+            );
         }
     };
 

@@ -24,7 +24,10 @@ async fn replay_cursor_and_filters_read_ordered_projection_records() {
     let path = journal_path(TestText("replay-filters".to_owned()));
     let journal = NdjsonEventJournal::new(&path);
     let first = stored_event(test_event(TestText(TEST_LABEL.to_owned())));
-    let second = stored_event(test_event_for_type(TestText("other".to_owned()), TestText(OTHER_EVENT_TYPE.to_owned())));
+    let second = stored_event(test_event_for_type(
+        TestText("other".to_owned()),
+        TestText(OTHER_EVENT_TYPE.to_owned()),
+    ));
     let mut third = stored_event(test_event(TestText("third".to_owned())));
     third.correlation_id = CorrelationId::parse("correlation-replay-3").expect_value("correlation");
 
@@ -108,20 +111,29 @@ async fn action_replay_dispatches_queued_drain_event_once() {
         EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid"),
     );
     bus.publish(
-        test_event_with_idempotency(TestText(TEST_LABEL.to_owned()), TestText("queued-drain-replay-key".to_owned())),
+        test_event_with_idempotency(
+            TestText(TEST_LABEL.to_owned()),
+            TestText("queued-drain-replay-key".to_owned()),
+        ),
         metadata(TestText(TEST_TARGET.to_owned())),
     )
     .await
     .expect_value("event queues without action journal record");
     let handled = Arc::new(tokio::sync::Mutex::new(0_usize));
     let handled_clone = Arc::clone(&handled);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TestText(TEST_SUBSCRIBER.to_owned()), TestText(TEST_TARGET.to_owned())), move |_| {
-        let handled = Arc::clone(&handled_clone);
-        async move {
-            *handled.lock().await += 1;
-            Ok(())
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| {
+            let handled = Arc::clone(&handled_clone);
+            async move {
+                *handled.lock().await += 1;
+                Ok(())
+            }
+        },
+    )
     .await
     .expect_value("subscriber drains queued event");
     assert_eq!(*handled.lock().await, 1);
@@ -138,13 +150,19 @@ async fn action_replay_dispatches_queued_drain_event_once() {
     let replay_handled = Arc::new(tokio::sync::Mutex::new(0_usize));
     let replay_handled_clone = Arc::clone(&replay_handled);
     replay_bus
-        .subscribe::<TestEvent, _, _>(subscriber(TestText("replay-subscriber".to_owned()), TestText(TEST_TARGET.to_owned())), move |_| {
-            let handled = Arc::clone(&replay_handled_clone);
-            async move {
-                *handled.lock().await += 1;
-                Ok(())
-            }
-        })
+        .subscribe::<TestEvent, _, _>(
+            subscriber(
+                TestText("replay-subscriber".to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            move |_| {
+                let handled = Arc::clone(&replay_handled_clone);
+                async move {
+                    *handled.lock().await += 1;
+                    Ok(())
+                }
+            },
+        )
         .await
         .expect_value("replay subscriber registers");
     let reports = replay_bus
@@ -187,13 +205,19 @@ async fn projection_replay_cannot_run_handlers_without_action_mode() {
 
     let handled = Arc::new(tokio::sync::Mutex::new(0_usize));
     let handled_clone = Arc::clone(&handled);
-    bus.subscribe::<TestEvent, _, _>(subscriber(TestText(TEST_SUBSCRIBER.to_owned()), TestText(TEST_TARGET.to_owned())), move |_| {
-        let handled = Arc::clone(&handled_clone);
-        async move {
-            *handled.lock().await += 1;
-            Ok(())
-        }
-    })
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| {
+            let handled = Arc::clone(&handled_clone);
+            async move {
+                *handled.lock().await += 1;
+                Ok(())
+            }
+        },
+    )
     .await
     .expect_value("subscriber registers");
     let action = journal

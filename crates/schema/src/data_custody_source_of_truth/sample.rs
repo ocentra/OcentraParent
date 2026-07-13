@@ -55,16 +55,26 @@ pub(super) fn sample_data_custody_source_of_truth_contract_proof(
     DataCustodySourceOfTruthContractProof {
         schema_version: DATA_CUSTODY_SOURCE_OF_TRUTH_SCHEMA_VERSION.to_string(),
         contract_version: PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
-        matrix_id: data_custody_source_of_truth_matrix_id("data-custody-source-of-truth-wp01".to_string()),
+        matrix_id: data_custody_source_of_truth_matrix_id(
+            "data-custody-source-of-truth-wp01".to_string(),
+        ),
         rows: data_custody_rows(),
         allowed_ocentra_hosted_metadata: allowed_ocentra_hosted_metadata(),
         must_never_be_hosted_by_default: must_never_be_hosted_by_default(),
         claim_safe_language: vec![
             format!("Ocentra-hosted infrastructure is not the default child-data store."),
-            format!("SQLite/read-model databases are rebuildable caches, not the evidence truth layer."),
-            format!("Reports, notifications, and assistant context may reference allowed source data only."),
-            format!("Provider payloads and support bundles require encryption and parent-initiated export before leaving the household boundary."),
-            format!("Billing provider identity remains provider-owned even when entitlement metadata is mirrored in the control plane."),
+            format!(
+                "SQLite/read-model databases are rebuildable caches, not the evidence truth layer."
+            ),
+            format!(
+                "Reports, notifications, and assistant context may reference allowed source data only."
+            ),
+            format!(
+                "Provider payloads and support bundles require encryption and parent-initiated export before leaving the household boundary."
+            ),
+            format!(
+                "Billing provider identity remains provider-owned even when entitlement metadata is mirrored in the control plane."
+            ),
         ],
         non_claims: vec![
             DataCustodyNonClaim::NoDefaultOcentraChildActivityStore,
@@ -610,7 +620,9 @@ fn data_custody_rows_10() -> Vec<DataCustodySourceOfTruthRow> {
             false,
             true,
             policy(DataCustodyOcentraHostingMode::Forbidden, true, false, false),
-            format!("Network, app, and game evidence stays under the same local-first custody rule."),
+            format!(
+                "Network, app, and game evidence stays under the same local-first custody rule."
+            ),
         ),
         row!(
             format!("custody-row-location-tracking-evidence"),
@@ -631,7 +643,9 @@ fn data_custody_rows_10() -> Vec<DataCustodySourceOfTruthRow> {
             false,
             true,
             policy(DataCustodyOcentraHostingMode::Forbidden, true, false, false),
-            format!("Tracking evidence remains child-device local unless a later plan proves otherwise."),
+            format!(
+                "Tracking evidence remains child-device local unless a later plan proves otherwise."
+            ),
         ),
     ]
 }
@@ -713,7 +727,9 @@ fn data_custody_rows_12() -> Vec<DataCustodySourceOfTruthRow> {
             true,
             true,
             policy(DataCustodyOcentraHostingMode::Forbidden, true, false, false),
-            format!("Parent device caches notification status without making cloud routing the family-data store."),
+            format!(
+                "Parent device caches notification status without making cloud routing the family-data store."
+            ),
         ),
         row!(
             format!("custody-row-assistant-child-evidence-context"),
@@ -824,7 +840,9 @@ fn data_custody_rows_14() -> Vec<DataCustodySourceOfTruthRow> {
             true,
             true,
             policy(DataCustodyOcentraHostingMode::Forbidden, true, false, true),
-            format!("Support raw-activity export requires explicit parent initiation and redaction review."),
+            format!(
+                "Support raw-activity export requires explicit parent initiation and redaction review."
+            ),
         ),
         row!(
             format!("custody-row-universal-decrypt-keys"),
@@ -844,8 +862,15 @@ fn data_custody_rows_14() -> Vec<DataCustodySourceOfTruthRow> {
             false,
             false,
             true,
-            policy(DataCustodyOcentraHostingMode::Forbidden, false, false, false),
-            format!("Universal decrypt keys never host by default and remain outside this workpack's runtime claims."),
+            policy(
+                DataCustodyOcentraHostingMode::Forbidden,
+                false,
+                false,
+                false
+            ),
+            format!(
+                "Universal decrypt keys never host by default and remain outside this workpack's runtime claims."
+            ),
         ),
     ]
 }

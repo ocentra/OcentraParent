@@ -234,7 +234,7 @@ fn ndjson_writer_rejects_invalid_segments_impl() -> Result<(), Box<dyn Error>> {
                 "invalid segments must not create log file: {}",
                 path.display()
             ))
-            .into())
+            .into());
         }
         Err(error) => error,
     };

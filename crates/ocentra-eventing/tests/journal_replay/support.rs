@@ -18,7 +18,6 @@ use super::super::fixtures::{metadata, subscriber, TestEvent, TEST_SUBSCRIBER, T
 #[derive(Clone, Debug)]
 pub(super) struct TestText(pub(super) String);
 
-
 #[derive(Clone, Debug)]
 pub(super) struct JournalPath(pub(super) PathBuf);
 
@@ -156,7 +155,10 @@ impl EventJournal for RecordingJournal {
     ) -> Pin<Box<dyn Future<Output = Result<JournalAppend, EventingError>> + Send + 'a>> {
         Box::pin(async move {
             let mut log = self.log.lock().expect_value("recording log");
-            log.push(JournalLine(format!("journal:{}", envelope.contract.event_type.as_str())));
+            log.push(JournalLine(format!(
+                "journal:{}",
+                envelope.contract.event_type.as_str()
+            )));
             Ok(JournalAppend {
                 sequence: log.len() as u64,
                 previous_hash: None,

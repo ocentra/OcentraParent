@@ -17,10 +17,11 @@ fn remote_access_session_request_and_resolution_keep_contract_surface_stable() {
     let request_event = RemoteAccessSessionRequestedEvent {
         aggregate_id: RemoteAccessAggregateId::parse(REMOTE_ACCESS_AGGREGATE_ID)
             .expect("aggregate id"),
-        session_id: ocentra_remote_access_core::remote_access_session::RemoteAccessSessionId::parse(
-            REMOTE_ACCESS_SESSION_ID,
-        )
-        .expect("session id"),
+        session_id:
+            ocentra_remote_access_core::remote_access_session::RemoteAccessSessionId::parse(
+                REMOTE_ACCESS_SESSION_ID,
+            )
+            .expect("session id"),
         request: RemoteAccessSessionRequest {
             parent_authority_state: ParentAuthorityState::Authorized,
             child_disclosure_state: ChildDisclosureState::Disclosed,
@@ -51,8 +52,10 @@ fn remote_access_session_request_and_resolution_keep_contract_surface_stable() {
     );
     assert_eq!(
         resolved_event.authorization_id,
-        RemoteAccessAuthorizationId::parse("remote-access-authorization:remote-access-session-contract-default")
-            .expect("authorization id")
+        RemoteAccessAuthorizationId::parse(
+            "remote-access-authorization:remote-access-session-contract-default"
+        )
+        .expect("authorization id")
     );
     assert_eq!(
         resolved_event.decision.authorization_state,
@@ -71,8 +74,8 @@ fn remote_access_session_request_and_resolution_keep_contract_surface_stable() {
     let resolved_json = serde_json::to_value(&resolved_event).expect("serialize resolved event");
     let round_trip_request: RemoteAccessSessionRequestedEvent =
         serde_json::from_value(request_json).expect("deserialize request event");
-    let round_trip_resolved = serde_json::from_value(resolved_json)
-        .expect("deserialize resolved event");
+    let round_trip_resolved =
+        serde_json::from_value(resolved_json).expect("deserialize resolved event");
 
     assert_eq!(round_trip_request, request_event);
     assert_eq!(round_trip_resolved, resolved_event);

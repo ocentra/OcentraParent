@@ -112,19 +112,28 @@ fn refusal_reasons(record: &WindowsAdapterArtifactIngestionRecord) -> Vec<TestTe
     let subject_mismatch = !record.target_subject_ref.is_empty()
         && !record.artifact_subject_ref.is_empty()
         && record.target_subject_ref != record.artifact_subject_ref;
-    let kind_surface_mismatch =
-        !unsupported_surface && !artifact_kind_matches_surface(record.artifact_kind, record.surface);
+    let kind_surface_mismatch = !unsupported_surface
+        && !artifact_kind_matches_surface(record.artifact_kind, record.surface);
 
     [
-        record.artifact_id.is_empty().then_some(TestText::from_display(
-            artifact_ingestion::REFUSAL_EMPTY_ARTIFACT_ID,
-        )),
-        record.target_subject_ref.is_empty().then_some(TestText::from_display(
-            artifact_ingestion::REFUSAL_EMPTY_TARGET_SUBJECT,
-        )),
-        record.artifact_subject_ref.is_empty().then_some(TestText::from_display(
-            artifact_ingestion::REFUSAL_EMPTY_ARTIFACT_SUBJECT,
-        )),
+        record
+            .artifact_id
+            .is_empty()
+            .then_some(TestText::from_display(
+                artifact_ingestion::REFUSAL_EMPTY_ARTIFACT_ID,
+            )),
+        record
+            .target_subject_ref
+            .is_empty()
+            .then_some(TestText::from_display(
+                artifact_ingestion::REFUSAL_EMPTY_TARGET_SUBJECT,
+            )),
+        record
+            .artifact_subject_ref
+            .is_empty()
+            .then_some(TestText::from_display(
+                artifact_ingestion::REFUSAL_EMPTY_ARTIFACT_SUBJECT,
+            )),
         (!has_custody_event(record)).then_some(TestText::from_display(
             artifact_ingestion::REFUSAL_MISSING_CUSTODY_EVENT,
         )),

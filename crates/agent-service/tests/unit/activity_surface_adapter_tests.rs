@@ -68,13 +68,12 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
     cleanup_store(&store_path);
     write_process_event(&store_path);
 
-    let report =
-        build_activity_report_document_from_store_path_for_test(
-            report_request(),
-            store_path.as_ref(),
-        )
-            .await
-            .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let report = build_activity_report_document_from_store_path_for_test(
+        report_request(),
+        store_path.as_ref(),
+    )
+    .await
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
     let report_dir = temp_report_dir();
     cleanup_report_dir(&report_dir);
     let saved = save_activity_report_document_to_dir_for_test(report.clone(), report_dir.as_ref());
@@ -212,13 +211,12 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
     cleanup_store(&store_path);
     write_process_event(&store_path);
 
-    let report =
-        build_activity_report_document_from_store_path_for_test(
-            report_request(),
-            store_path.as_ref(),
-        )
-            .await
-            .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let report = build_activity_report_document_from_store_path_for_test(
+        report_request(),
+        store_path.as_ref(),
+    )
+    .await
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
     let report_dir = temp_report_dir();
     cleanup_report_dir(&report_dir);
     let saved = save_activity_report_document_to_dir_for_test(report.clone(), report_dir.as_ref());
@@ -250,7 +248,8 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
 }
 
 fn write_process_event(store_path: impl AsRef<Path>) {
-    let store = ActivityStore::open(store_path.as_ref()).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store =
+        ActivityStore::open(store_path.as_ref()).expect(constants::error::ACTIVITY_STORE_OPENS);
     store
         .ingest_events(&[process_event()])
         .expect(constants::error::ACTIVITY_STORE_INGESTS);

@@ -27,7 +27,7 @@ pub(crate) async fn handle_get(
                 BrowserPolicyRejectionReason::StorageUnavailable,
                 BrowserPolicyMessage(constants::browser_policy::MESSAGE_STORAGE_UNAVAILABLE),
                 generated_at,
-            )
+            );
         }
     };
     if let Some(revision) = state.active_revision() {

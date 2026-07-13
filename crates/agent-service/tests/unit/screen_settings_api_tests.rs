@@ -218,4 +218,3 @@ fn temp_screen_settings_store_path(path_label: &TestStr) -> TestPathBuf {
     path.push(file_name);
     path
 }
-

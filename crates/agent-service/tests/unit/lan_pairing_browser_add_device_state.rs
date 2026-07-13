@@ -184,11 +184,12 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
     let canonical_devices = read_model[constants::field::LAN_CANONICAL_HOUSEHOLD_DEVICES]
         .as_array()
         .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
-    assert!(canonical_devices.iter().any(|device| device
-        [constants::field::LAN_CANONICAL_DEVICE_ID]
-        .as_str()
-        .map(|value| !value.is_empty())
-        .unwrap_or(false)));
+    assert!(canonical_devices.iter().any(|device| {
+        device[constants::field::LAN_CANONICAL_DEVICE_ID]
+            .as_str()
+            .map(|value| !value.is_empty())
+            .unwrap_or(false)
+    }));
     assert_eq!(
         read_model[constants::field::LAN_TRUSTED_DEVICE_REGISTRY],
         serde_json::json!([])

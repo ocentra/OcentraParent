@@ -6,7 +6,9 @@ fn social_alert_report_preference_status_handoff_remains_generated_and_rust_load
 
     assert_eq!(
         source.lines().next(),
-        Some("/* generated from crates/browser-core/src/social_alert_report_preference_status_handoff.rs */")
+        Some(
+            "/* generated from crates/browser-core/src/social_alert_report_preference_status_handoff.rs */"
+        )
     );
     assert_eq!(
         source

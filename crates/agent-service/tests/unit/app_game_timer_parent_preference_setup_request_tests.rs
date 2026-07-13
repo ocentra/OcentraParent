@@ -8,7 +8,6 @@ use std::string::String as TestString;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED, APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE,
@@ -22,6 +21,7 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
     AgentPeerRole, AgentRoute,
 };
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
 use crate::test_invariants::{
@@ -32,8 +32,8 @@ use crate::test_text::TestText;
 use super::{
     app_game_child_runtime_transport_receipt_payload::app_game_child_runtime_transport_receipt_read_model_from_service_model,
     app_game_timer_parent_preference_setup_request::{
-        AppGameTimerSetupStorePath,
         build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path,
+        AppGameTimerSetupStorePath,
     },
 };
 
@@ -243,11 +243,9 @@ fn assert_persisted_action_result_model(model: &AppGameServiceReadModel) {
             .persistence_state,
         APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE
     );
-    assert!(
-        model.approval_action_result_rows[0]
-            .enforcement_result
-            .is_none()
-    );
+    assert!(model.approval_action_result_rows[0]
+        .enforcement_result
+        .is_none());
 
     let receipt_model =
         app_game_child_runtime_transport_receipt_read_model_from_service_model(model.clone());

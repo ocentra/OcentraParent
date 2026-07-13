@@ -4,23 +4,26 @@ pub(crate) mod fields {
             &'static str,
             ocentra_parent_agent_protocol::logging::LogFieldValue,
         )>,
-    ) -> ocentra_parent_agent_protocol::logging::LogFields = crate::fields::fields_from_pairs;
+    )
+        -> ocentra_parent_agent_protocol::logging::LogFields = crate::fields::fields_from_pairs;
 }
 
 pub(crate) mod lan_pairing {
     pub(crate) type LanPairingRuntime = crate::lan_pairing::LanPairingRuntime;
 
-    pub(crate) const route_trust_state: fn(
-        Option<&ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget>,
-    ) -> ocentra_parent_agent_protocol::lan_pairing::LanPairingText =
+    pub(crate) const route_trust_state:
+        fn(
+            Option<&ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget>,
+        ) -> ocentra_parent_agent_protocol::lan_pairing::LanPairingText =
         crate::lan_pairing_status::selection::route_trust_state;
 }
 
 pub(crate) mod lan_pairing_status {
-    pub(crate) const pairing_status_event: fn(
-        &crate::lan_pairing::LanPairingRuntime,
-        ocentra_parent_agent_protocol::transport::AgentCommandEnvelope,
-    ) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope =
+    pub(crate) const pairing_status_event:
+        fn(
+            &crate::lan_pairing::LanPairingRuntime,
+            ocentra_parent_agent_protocol::transport::AgentCommandEnvelope,
+        ) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope =
         crate::lan_pairing_status::pairing_status_event;
 }
 
@@ -39,8 +42,9 @@ pub(crate) mod lan_pairing_runtime_state {
         pub(crate) const local_network_change_triggers: fn(
             Option<&ocentra_lan_core::network_inventory::LanPassiveRuntimeLocalNetworkIdentity>,
             &ocentra_lan_core::network_inventory::LanPassiveRuntimeLocalNetworkIdentity,
-        ) -> Vec<LanPassiveDiscoveryLocalNetworkChangeTrigger> =
-            crate::lan_pairing_runtime_state::passive_discovery::local_network_change_triggers;
+        ) -> Vec<
+            LanPassiveDiscoveryLocalNetworkChangeTrigger,
+        > = crate::lan_pairing_runtime_state::passive_discovery::local_network_change_triggers;
 
         pub(crate) const passive_discovery_udp_sources:
             fn() -> &'static [ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoverySource] =

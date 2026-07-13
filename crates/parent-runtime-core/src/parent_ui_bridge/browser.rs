@@ -64,14 +64,15 @@ pub(super) fn browser_route_panels_snapshot(
             "No social provider receipt stream status has been reported yet.",
             "Browser runtime social provider receipt stream status only; provider delivery, receipt ingestion, parent notification delivery, report delivery, final policy execution, connector/native runtime, and enforcement remain unclaimed.",
         )),
-        browser_social_provider_receipt_ingestion_readiness_status:
-            Some(browser_status_panel_snapshot(
+        browser_social_provider_receipt_ingestion_readiness_status: Some(
+            browser_status_panel_snapshot(
                 "Social provider receipt ingestion readiness",
                 "Rust-owned route snapshot of receipt ingestion readiness for the Browser route.",
                 "0 readiness rows",
                 "No social provider receipt ingestion readiness status has been reported yet.",
                 "Browser runtime social provider receipt ingestion readiness status only; provider delivery, receipt ingestion runtime, webhook runtime, credentials, observed provider receipts, parent notification delivery, report delivery, final policy execution, connector/native runtime, browser mutation, child intervention, unmanaged exact URL support, and enforcement remain unclaimed.",
-            )),
+            ),
+        ),
     })
 }
 
@@ -184,7 +185,10 @@ fn setup_first_run_current_truth_card() -> ParentSetupFirstRunPanelCardSnapshot 
         "The Start route can render an honest Rust-owned boundary panel without inventing setup progress.",
         vec![
             setup_first_run_detail("Route shell", "Start route is visible in the portal shell"),
-            setup_first_run_detail("Snapshot transport", "Host bridge snapshot reaches TS presentation"),
+            setup_first_run_detail(
+                "Snapshot transport",
+                "Host bridge snapshot reaches TS presentation",
+            ),
             setup_first_run_detail("Evidence boundary", "Route-contract projection only"),
         ],
     )
@@ -198,7 +202,10 @@ fn setup_first_run_missing_runtime_card() -> ParentSetupFirstRunPanelCardSnapsho
             setup_first_run_detail("Account/provider state", "not wired"),
             setup_first_run_detail("Pairing/trust state", "not wired"),
             setup_first_run_detail("Data-custody/readiness state", "not wired"),
-            setup_first_run_detail("Completion claim", "withheld until a live Rust snapshot exists"),
+            setup_first_run_detail(
+                "Completion claim",
+                "withheld until a live Rust snapshot exists",
+            ),
         ],
     )
 }
@@ -210,7 +217,10 @@ fn setup_first_run_ownership_card() -> ParentSetupFirstRunPanelCardSnapshot {
         vec![
             setup_first_run_detail("Rust owner", "parent runtime + setup read model"),
             setup_first_run_detail("TS role", "presentation only"),
-            setup_first_run_detail("Proof rule", "claim only what the live Rust snapshot can prove"),
+            setup_first_run_detail(
+                "Proof rule",
+                "claim only what the live Rust snapshot can prove",
+            ),
         ],
     )
 }

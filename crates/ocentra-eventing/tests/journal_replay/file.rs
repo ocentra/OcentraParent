@@ -17,7 +17,10 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
     let path = journal_path(TestText("hash-chain".to_owned()));
     let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
     let first = stored_event(test_event(TestText(TEST_LABEL.to_owned())));
-    let second = stored_event(test_event_for_type(TestText("second event".to_owned()), TestText(OTHER_EVENT_TYPE.to_owned())));
+    let second = stored_event(test_event_for_type(
+        TestText("second event".to_owned()),
+        TestText(OTHER_EVENT_TYPE.to_owned()),
+    ));
 
     let first_append = journal.append(&first).await.expect_value("first append");
     let second_append = journal.append(&second).await.expect_value("second append");
@@ -55,7 +58,10 @@ async fn ndjson_journal_reopen_continues_sequence_and_hash_chain() {
     drop(first_journal);
 
     let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
-    let second = stored_event(test_event_for_type(TestText("second event".to_owned()), TestText(OTHER_EVENT_TYPE.to_owned())));
+    let second = stored_event(test_event_for_type(
+        TestText("second event".to_owned()),
+        TestText(OTHER_EVENT_TYPE.to_owned()),
+    ));
     let second_append = reopened.append(&second).await.expect_value("second append");
     let lines = read_lines(path.clone()).await;
     let second_entry: NdjsonJournalEntry =

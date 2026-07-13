@@ -90,7 +90,7 @@ fn delivery_replay_same_sequence_is_duplicate_and_older_sequence_is_stale() -> T
             return Err(std::io::Error::other(format!(
                 "expected duplicate replay outcome, got {other:?}"
             ))
-            .into())
+            .into());
         }
     }
 
@@ -100,7 +100,7 @@ fn delivery_replay_same_sequence_is_duplicate_and_older_sequence_is_stale() -> T
             return Err(std::io::Error::other(format!(
                 "expected stale replay outcome, got {other:?}"
             ))
-            .into())
+            .into());
         }
     }
     Ok(())

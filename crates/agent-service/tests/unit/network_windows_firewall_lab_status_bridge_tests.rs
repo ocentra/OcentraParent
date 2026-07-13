@@ -138,7 +138,7 @@ fn status_value<TStatus: DeserializeOwned>(
                 "{}: {other:?}",
                 constants::error::AGENT_EVENT_SERIALIZES
             ))
-            .into())
+            .into());
         }
     };
     Ok(serde_json::from_str(text)?)

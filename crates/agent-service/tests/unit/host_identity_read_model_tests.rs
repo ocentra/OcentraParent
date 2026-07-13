@@ -12,7 +12,7 @@ use ocentra_parent_agent_protocol::enforcement_readiness::{
 use ocentra_parent_agent_protocol::host_identity::HostIdentityEvidenceKind;
 use ocentra_parent_agent_protocol::policy_constants as policy;
 
-use crate::host_identity_read_model::{GeneratedAtText, host_identity_read_model};
+use crate::host_identity_read_model::{host_identity_read_model, GeneratedAtText};
 use crate::test_invariants::{require_ok, require_some};
 
 #[test]

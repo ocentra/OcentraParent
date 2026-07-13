@@ -4,10 +4,9 @@ use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::policy_constants;
 use ocentra_parent_agent_protocol::tracking::config_update_event::{
     child_tracking_config_updated_event_from_parent, default_tracking_config_update_request,
-    parent_tracking_config_updated_event_from_command,
-    tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,
-    tracking_config_change_rejected_event, tracking_config_change_requested_event,
-    tracking_config_policy_decision_completed_event,
+    parent_tracking_config_updated_event_from_command, tracking_config_audit_entry_committed_event,
+    tracking_config_change_approved_event, tracking_config_change_rejected_event,
+    tracking_config_change_requested_event, tracking_config_policy_decision_completed_event,
     tracking_config_policy_evaluation_requested_event,
     tracking_config_portal_read_model_updated_event,
     tracking_config_update_applied_event_from_child, TrackingConfigAuditOutcome,
@@ -208,12 +207,10 @@ fn tracking_config_change_rejection_chain_serializes_manual_required_surface_sta
     );
     let evaluation = tracking_config_policy_evaluation_requested_event(
         &change_requested,
-        vec![
-            TrackingPolicyRuleRef::parse(
-                constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
-            )
-            .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME),
-        ],
+        vec![TrackingPolicyRuleRef::parse(
+            constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
+        )
+        .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME)],
         false,
     );
     let decision = tracking_config_policy_decision_completed_event(

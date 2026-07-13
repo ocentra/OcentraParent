@@ -85,8 +85,7 @@ fn browser_runtime_contract_decoders_typescript(
     let phase_event_type_const = format!("{prefix}BrowserRuntimePhaseEventType");
     let helper_prefix = format!("__{prefix}BrowserRuntime");
     replace_tokens(
-        parent_agent_protocol_bridge_ts_runtime_01_template()
-        .to_string(),
+        parent_agent_protocol_bridge_ts_runtime_01_template().to_string(),
         &[
             ("__RUNTIME_CONST__", names.runtime_const),
             ("__BROWSER_EVENT_TYPE_CONST__", browser_event_type_const),
@@ -101,7 +100,10 @@ fn browser_runtime_contract_decoders_typescript(
                 "__BROWSER_CAPABILITY_STATUS_TYPE__",
                 browser_capability_status_type,
             ),
-            ("__BROWSER_CUSTODY_LABEL_CONST__", browser_custody_label_const),
+            (
+                "__BROWSER_CUSTODY_LABEL_CONST__",
+                browser_custody_label_const,
+            ),
             ("__BROWSER_CUSTODY_LABEL_TYPE__", browser_custody_label_type),
             (
                 "__BROWSER_QUERY_VISIBILITY_CONST__",
@@ -124,7 +126,10 @@ fn browser_runtime_contract_decoders_typescript(
             ("__BROWSER_PAYLOAD_SCHEMA_CONST__", &payload_schema_const),
             ("__BROWSER_ENTRY_SCHEMA_CONST__", &entry_schema_const),
             ("__BROWSER_STREAM_SCHEMA_CONST__", &stream_schema_const),
-            ("__BROWSER_PHASE_EVENT_TYPE_CONST__", &phase_event_type_const),
+            (
+                "__BROWSER_PHASE_EVENT_TYPE_CONST__",
+                &phase_event_type_const,
+            ),
             ("__HELPER_PREFIX__", &helper_prefix),
         ],
     )

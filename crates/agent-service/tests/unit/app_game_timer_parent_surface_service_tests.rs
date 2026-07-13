@@ -85,10 +85,13 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
     );
 
     let body = serialize_test_json(&command_envelope());
-    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = timer_parent_surface_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
+    let read_model = timer_parent_surface_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
     cleanup_path(&store_path);
@@ -158,10 +161,13 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
     write_active_timer_state_fixture(&timer_state_path);
 
     let body = serialize_test_json(&command_envelope());
-    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = timer_parent_surface_payload(
-        &crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL, constants::error::AGENT_EVENT_SERIALIZES),
-    );
+    let event =
+        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
+    let read_model = timer_parent_surface_payload(&crate::test_invariants::log_field(
+        &event.payload,
+        constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
 
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
     std::env::remove_var(constants::env_var::AGENT_ENFORCEMENT_TIMER_STATE_PATH);
@@ -185,9 +191,7 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
 }
 
 #[tokio::test]
-async fn app_game_timer_parent_surface_timer_state_helpers_are_linked()
-    -> Result<(), TestString>
-{
+async fn app_game_timer_parent_surface_timer_state_helpers_are_linked() -> Result<(), TestString> {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let timer_state_path = temp_path(constants::enforcement::TIMER_STATE_ID_PREFIX);
     cleanup_path(&timer_state_path);
@@ -568,4 +572,3 @@ fn cleanup_path(path: impl AsRef<TestPath>) {
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
 }
-

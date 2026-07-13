@@ -90,8 +90,14 @@ pub fn evidence_kinds_typescript() -> String {
         TYPESCRIPT_HEADER,
         literal_definition("ActivityObserverDefinition", ACTIVITY_OBSERVER_ENTRIES),
         "const ActivityEventKindDefinition = defineLiteralKindGroup(ActivityEventKindLiteralSource);\n\n",
-        literal_definition("ActivitySubjectKindDefinition", ACTIVITY_SUBJECT_KIND_ENTRIES),
-        literal_definition("ActivityEvidenceKindDefinition", ACTIVITY_EVIDENCE_KIND_ENTRIES),
+        literal_definition(
+            "ActivitySubjectKindDefinition",
+            ACTIVITY_SUBJECT_KIND_ENTRIES
+        ),
+        literal_definition(
+            "ActivityEvidenceKindDefinition",
+            ACTIVITY_EVIDENCE_KIND_ENTRIES
+        ),
         TYPESCRIPT_EXPORTS
     )
 }

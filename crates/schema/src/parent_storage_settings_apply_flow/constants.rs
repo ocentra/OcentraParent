@@ -44,14 +44,11 @@ pub(super) const PARENT_STORAGE_CLAIM_SAFE_COPY_NOTE: &str =
     "Claim-safe copy only; no success-looking shorthand without proof state.";
 pub(super) const PARENT_STORAGE_COPY_CUSTODY_BOUNDARY_STATEMENT: &str =
     "Ocentra does not store child activity data by default.";
-pub(super) const PARENT_STORAGE_COPY_METADATA_LEAKAGE_STATEMENT: &str =
-    "Your selected storage provider may see encrypted file metadata such as file name, size, and modified time.";
+pub(super) const PARENT_STORAGE_COPY_METADATA_LEAKAGE_STATEMENT: &str = "Your selected storage provider may see encrypted file metadata such as file name, size, and modified time.";
 pub(super) const PARENT_STORAGE_COPY_SENSITIVE_ENCRYPTED_BEFORE_UPLOAD_STATEMENT: &str =
     "Sensitive data is encrypted before upload.";
-pub(super) const PARENT_STORAGE_COPY_LOST_KEY_MAY_BE_UNRECOVERABLE_STATEMENT: &str =
-    "If you lose your recovery key or device keys, Ocentra may not be able to recover encrypted child activity data.";
-pub(super) const PARENT_STORAGE_COPY_DISCONNECT_DOES_NOT_DELETE_STATEMENT: &str =
-    "Disconnecting a provider stops future sync but does not automatically delete files already written there unless you request deletion and proof succeeds.";
+pub(super) const PARENT_STORAGE_COPY_LOST_KEY_MAY_BE_UNRECOVERABLE_STATEMENT: &str = "If you lose your recovery key or device keys, Ocentra may not be able to recover encrypted child activity data.";
+pub(super) const PARENT_STORAGE_COPY_DISCONNECT_DOES_NOT_DELETE_STATEMENT: &str = "Disconnecting a provider stops future sync but does not automatically delete files already written there unless you request deletion and proof succeeds.";
 pub(super) const PARENT_STORAGE_COPY_TOMBSTONES_MAY_BE_REQUIRED_STATEMENT: &str =
     "Deleting local data may require tombstones so old backups do not restore deleted evidence.";
 pub(super) const PARENT_STORAGE_COPY_BACKUP_QUEUED_STATEMENT: &str = "Backup queued.";

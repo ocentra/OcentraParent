@@ -54,9 +54,7 @@ impl NetworkStatusContractNames {
                 "{prefix}NetworkWindowsFirewallLabCommandKind"
             ),
             windows_wfp_gate_state_const: format!("{prefix}NetworkWindowsWfpGateState"),
-            windows_wfp_capability_state_const: format!(
-                "{prefix}NetworkWindowsWfpCapabilityState"
-            ),
+            windows_wfp_capability_state_const: format!("{prefix}NetworkWindowsWfpCapabilityState"),
             android_vpn_gate_state_const: format!("{prefix}NetworkAndroidVpnServiceGateState"),
             android_vpn_capability_state_const: format!(
                 "{prefix}NetworkAndroidVpnServiceCapabilityState"
@@ -281,9 +279,7 @@ impl NetworkStatusDecoderNames {
             live_capture_status_type: format!("{prefix}NetworkLiveCaptureStatus"),
             live_capture_row_schema_const: format!("{prefix}NetworkLiveCaptureStatusRowSchema"),
             live_capture_status_schema_const: format!("{prefix}NetworkLiveCaptureStatusSchema"),
-            linux_nftables_command_row_type: format!(
-                "{prefix}NetworkLinuxNftablesLabCommandRow"
-            ),
+            linux_nftables_command_row_type: format!("{prefix}NetworkLinuxNftablesLabCommandRow"),
             linux_nftables_status_type: format!("{prefix}NetworkLinuxNftablesLabStatus"),
             linux_nftables_status_schema_const: format!(
                 "{prefix}NetworkLinuxNftablesLabStatusSchema"
@@ -460,7 +456,10 @@ fn network_status_decoder_type_tokens<'a>(
             "__REMOTE_STATUS_SCHEMA_CONST__",
             &decoder_names.remote_status_schema_const,
         ),
-        ("__LIVE_CAPTURE_ROW_TYPE__", &decoder_names.live_capture_row_type),
+        (
+            "__LIVE_CAPTURE_ROW_TYPE__",
+            &decoder_names.live_capture_row_type,
+        ),
         (
             "__LIVE_CAPTURE_STATUS_TYPE__",
             &decoder_names.live_capture_status_type,

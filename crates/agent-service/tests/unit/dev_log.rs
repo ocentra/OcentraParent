@@ -190,4 +190,3 @@ fn write_agent_all_levels_emit_ndjson_lines() {
         assert_eq!(row["fields"]["context"].as_str(), Some("hello-world"));
     }
 }
-

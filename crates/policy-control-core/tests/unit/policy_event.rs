@@ -289,7 +289,7 @@ fn policy_event_replay_tracks_duplicate_stale_and_conflicting_sequences() -> Tes
             return Err(std::io::Error::other(format!(
                 "expected duplicate replay outcome, got {other:?}"
             ))
-            .into())
+            .into());
         }
     }
 
@@ -301,7 +301,7 @@ fn policy_event_replay_tracks_duplicate_stale_and_conflicting_sequences() -> Tes
             return Err(std::io::Error::other(format!(
                 "expected stale replay outcome, got {other:?}"
             ))
-            .into())
+            .into());
         }
     }
 

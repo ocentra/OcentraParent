@@ -54,7 +54,9 @@ fn social_policy_compiler_contract_stays_rust_owned_and_replaces_schema_domain_o
     );
     assert_eq!(
         source
-            .matches("export const decodeSocialParentPolicyDecisionCandidate = Schema.decodeUnknownSync(")
+            .matches(
+                "export const decodeSocialParentPolicyDecisionCandidate = Schema.decodeUnknownSync("
+            )
             .count(),
         1
     );

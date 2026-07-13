@@ -169,7 +169,7 @@
     "test": "npm run test:tooling && npm run test:unit && npm run test:contract",
     "validate:logging": "npm run lint:logging-parity && npm run lint:local-evidence && npm run lint:dev-log-routing && npm run lint:logging-exports",
     "test:logging-evidence": "node scripts/enforcer/run-ocentra-enforcer.mjs proof run --proof ocentra-parent.logging-local-evidence-smoke",
-    "format:rust": "cargo fmt --all --check",
+    "format:rust": "node scripts/ci/check-rust-format.mjs",
     "lint:rust": "cargo clippy --workspace --all-targets -- -D warnings",
     "validate:rust": "npm run format:rust && npm run lint:rust && cargo check --workspace && cargo test --workspace -- --test-threads=1",
     "validate": "npm run release:version && npm run codeql:local:changed && npm run test:pre-ai-proof && npm run lint && npm run validate:logging && npm run test:logging-evidence && npm run test && npm run validate:rust && npm run test:integration && npm run test:e2e",

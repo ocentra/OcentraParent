@@ -10,7 +10,8 @@ fn build_dev_log_snapshot_uses_protocol_owned_constants() {
     assert_eq!(snapshot.agent.device_id, constants::peer::LOCAL_DEV_AGENT);
     assert!(snapshot.entries[0]
         .fields
-        .get(constants::field::CAPTURE_ENABLED).is_some());
+        .get(constants::field::CAPTURE_ENABLED)
+        .is_some());
 }
 
 #[test]

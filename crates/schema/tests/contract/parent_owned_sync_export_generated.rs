@@ -70,16 +70,22 @@ pub(super) fn assert_parent_owned_sync_export_contracts() {
     assert_generated_line_eq(
         generated,
         crate::contract_text!("export function syncExportManifestItemIsHonestGenerated("),
-        ContractLine("export function syncExportManifestItemIsHonestGenerated(item: GeneratedParentOwnedSyncExportManifestItem): boolean {"),
+        ContractLine(
+            "export function syncExportManifestItemIsHonestGenerated(item: GeneratedParentOwnedSyncExportManifestItem): boolean {",
+        ),
     );
     assert_generated_line_eq(
         generated,
         crate::contract_text!("export function syncExportProviderStatusRowIsHonestGenerated("),
-        ContractLine("export function syncExportProviderStatusRowIsHonestGenerated(row: GeneratedParentOwnedSyncProviderStatusRow): boolean {"),
+        ContractLine(
+            "export function syncExportProviderStatusRowIsHonestGenerated(row: GeneratedParentOwnedSyncProviderStatusRow): boolean {",
+        ),
     );
     assert_generated_line_eq(
         generated,
         crate::contract_text!("export function syncExportContractProofIsHonestGenerated("),
-        ContractLine("export function syncExportContractProofIsHonestGenerated(proof: GeneratedParentOwnedSyncExportContractProof): boolean {"),
+        ContractLine(
+            "export function syncExportContractProofIsHonestGenerated(proof: GeneratedParentOwnedSyncExportContractProof): boolean {",
+        ),
     );
 }

@@ -65,7 +65,9 @@ fn browser_inventory_read_model_maps_windows_inventory_without_url_claims() {
     let observations = windows_browser_inventory_observations(&[], &[process], None);
 
     let read_model = browser_inventory_read_model_from_windows_inventory(
-        BrowserInventoryGeneratedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        BrowserInventoryGeneratedAtText(
+            constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        ),
         &observations,
     );
     let row = &read_model.rows[0];
@@ -482,7 +484,9 @@ fn browser_inventory_service_sources_feed_packaged_browser_without_url_claims() 
     );
     let observations = windows_browser_package_observations(&packages);
     let read_model = browser_inventory_read_model_from_windows_inventory(
-        BrowserInventoryGeneratedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        BrowserInventoryGeneratedAtText(
+            constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        ),
         &observations,
     );
 

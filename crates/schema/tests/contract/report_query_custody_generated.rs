@@ -63,16 +63,22 @@ pub(super) fn assert_report_query_custody_contracts() {
     assert_generated_line_eq(
         generated,
         crate::contract_text!("export function reportQueryCustodyRequestIsHonestGenerated("),
-        ContractLine("export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedReportQueryCustodyRequest): boolean {"),
+        ContractLine(
+            "export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedReportQueryCustodyRequest): boolean {",
+        ),
     );
     assert_generated_line_eq(
         generated,
         crate::contract_text!("export function reportQueryCustodyRowIsHonestGenerated("),
-        ContractLine("export function reportQueryCustodyRowIsHonestGenerated(row: GeneratedReportQueryCustodyRow): boolean {"),
+        ContractLine(
+            "export function reportQueryCustodyRowIsHonestGenerated(row: GeneratedReportQueryCustodyRow): boolean {",
+        ),
     );
     assert_generated_line_eq(
         generated,
         crate::contract_text!("export function reportQueryCustodyProofIsHonestGenerated("),
-        ContractLine("export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQueryCustodyContractProof): boolean {"),
+        ContractLine(
+            "export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQueryCustodyContractProof): boolean {",
+        ),
     );
 }

@@ -1,5 +1,5 @@
-use std::primitive::str as TestStr;
 use std::error::Error;
+use std::primitive::str as TestStr;
 
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::activity_surface::{
@@ -189,7 +189,10 @@ fn service_model() -> Result<AppGameServiceReadModel, Box<dyn Error>> {
     })
 }
 
-fn inventory_row(product_kind: &TestStr, classification_state: &TestStr) -> AppGameInventoryEvidenceRow {
+fn inventory_row(
+    product_kind: &TestStr,
+    classification_state: &TestStr,
+) -> AppGameInventoryEvidenceRow {
     AppGameInventoryEvidenceRow {
         schema_version: APP_GAME_SCHEMA_VERSION,
         inventory_entry_id: APP_GAME_TEST_EVIDENCE_REF_ID.to_string(),
@@ -471,4 +474,3 @@ fn surface_request() -> ActivitySurfaceRequest {
         range_end: APP_GAME_TEST_TIMESTAMP.to_string(),
     }
 }
-

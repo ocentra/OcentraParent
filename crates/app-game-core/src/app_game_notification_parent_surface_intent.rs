@@ -3,8 +3,7 @@ pub const APP_GAME_NOTIFICATION_PARENT_SURFACE_INPUT_FAMILY_MISMATCH: &str =
 pub const APP_GAME_NOTIFICATION_PARENT_SURFACE_INPUT_ROW_COUNT_MISMATCH: &str =
     "Expected app/game notification parent-surface inputs to have matching row counts";
 
-const MINIMAL_SURFACE_PAYLOAD_BOUNDARY: &str =
-    "Parent surface intent contains status refs and setup requirements only; sensitive app/game evidence stays behind authenticated drill-in.";
+const MINIMAL_SURFACE_PAYLOAD_BOUNDARY: &str = "Parent surface intent contains status refs and setup requirements only; sensitive app/game evidence stays behind authenticated drill-in.";
 
 const REQUIRED_NON_CLAIMS: &[&str] = &[
     "no-parent-notification-ui-rendered",

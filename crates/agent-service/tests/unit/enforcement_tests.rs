@@ -22,8 +22,8 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
-use crate::test_text::{optional_log_string, TestText};
 use crate::test_invariants::{require_json_decode, require_ok, require_some};
+use crate::test_text::{optional_log_string, TestText};
 
 const ENFORCEMENT_TEST_PATH_PREFIX: &str = "enforcement-tests";
 
@@ -282,7 +282,10 @@ fn assert_unwired_adapter_readiness(
         &readiness_id,
     );
 
-    assert_eq!(TestText::from_display(action.adapter_kind.as_protocol_str()), expected_kind);
+    assert_eq!(
+        TestText::from_display(action.adapter_kind.as_protocol_str()),
+        expected_kind
+    );
     assert_eq!(
         TestText::from_display(readiness.adapter_kind.as_protocol_str()),
         TestText::from_display(action.adapter_kind.as_protocol_str())

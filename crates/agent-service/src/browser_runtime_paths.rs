@@ -60,7 +60,7 @@ pub(crate) fn managed_browser_profile_store(
         Err(_) => {
             return Err(BrowserRuntimePathErrorText(
                 constants::value::MANAGED_BROWSER_PROFILE_DIR_MISSING,
-            ))
+            ));
         }
     };
 

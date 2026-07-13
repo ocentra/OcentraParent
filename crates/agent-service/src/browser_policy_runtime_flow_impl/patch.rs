@@ -27,7 +27,7 @@ pub(crate) async fn handle_patch(
                 request_id,
                 BrowserPolicyUpdateKind::Patch,
                 generated_at,
-            )
+            );
         }
     };
     let Some(active) = state.active_revision() else {
@@ -52,7 +52,7 @@ pub(crate) async fn handle_patch(
                 BrowserPolicyUpdateKind::Patch,
                 reason,
                 generated_at,
-            )
+            );
         }
     };
     persist::persist_revision(

@@ -16,7 +16,9 @@ fn browser_generated_social_typescript_stays_checked_in() {
         browser_social_feed_route_classification_typescript()
     );
     assert_eq!(
-        include_str!("../../../../packages/schema-domain/src/generated-browser-social-feed-video-route-gate.ts"),
+        include_str!(
+            "../../../../packages/schema-domain/src/generated-browser-social-feed-video-route-gate.ts"
+        ),
         browser_social_feed_video_route_gate_typescript()
     );
     assert_eq!(

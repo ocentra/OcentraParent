@@ -33,9 +33,7 @@ fn tracking_control_generated_catalog_surfaces_stay_checked_in() {
             tracking_control_catalog_build_generated_typescript(),
         ),
         (
-            include_str!(
-                "../../../../packages/schema-domain/src/tracking-control-catalog-data.ts"
-            ),
+            include_str!("../../../../packages/schema-domain/src/tracking-control-catalog-data.ts"),
             tracking_control_catalog_data_generated_typescript(),
         ),
         (

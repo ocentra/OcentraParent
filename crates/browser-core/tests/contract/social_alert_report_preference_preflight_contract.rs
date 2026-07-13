@@ -6,7 +6,9 @@ fn social_alert_report_preference_preflight_remains_generated_and_rust_loaded() 
 
     assert_eq!(
         source.lines().next(),
-        Some("/* generated from crates/browser-core/src/social_alert_report_preference_preflight.rs */")
+        Some(
+            "/* generated from crates/browser-core/src/social_alert_report_preference_preflight.rs */"
+        )
     );
     assert_eq!(
         source

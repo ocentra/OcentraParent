@@ -1,6 +1,6 @@
-use std::string::String as TestString;
-use std::primitive::str as TestStr;
 use std::error::Error;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
 
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::activity_surface::source_status::ActivityAppGameSourceStatusRow;
@@ -51,7 +51,8 @@ const APP_GAME_TEST_SECOND_SHORTCUT_SOURCE_REF: &TestStr = "source-second-start-
 const APP_GAME_TEST_STORE_GAME_SOURCE_REF: &TestStr = "source-store-package-game";
 
 #[test]
-fn app_use_read_model_groups_app_game_source_status_rows_without_launcher_claims() -> Result<(), Box<dyn Error>> {
+fn app_use_read_model_groups_app_game_source_status_rows_without_launcher_claims(
+) -> Result<(), Box<dyn Error>> {
     let read_model = build_activity_app_use_read_model_from_app_game_for_test(
         surface_request(),
         Some(service_model()?),
@@ -90,7 +91,8 @@ fn app_use_read_model_groups_app_game_source_status_rows_without_launcher_claims
 }
 
 #[test]
-fn games_read_model_groups_game_inventory_runtime_foreground_and_launcher_source_status_rows() -> Result<(), Box<dyn Error>> {
+fn games_read_model_groups_game_inventory_runtime_foreground_and_launcher_source_status_rows(
+) -> Result<(), Box<dyn Error>> {
     let read_model =
         build_activity_games_read_model_for_test(surface_request(), Some(service_model()?));
     let source_rows = &read_model.rows[0].source_status_rows;
@@ -415,4 +417,3 @@ fn surface_request() -> ActivitySurfaceRequest {
         range_end: constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string(),
     }
 }
-

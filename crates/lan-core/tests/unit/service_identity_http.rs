@@ -284,7 +284,7 @@ fn bounded_probe_devices() -> Vec<LanNetworkInventoryDevice> {
             reachability: LanPairingDeviceReachability::Online,
             agent_status: None,
             scan_sources: vec![
-                constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()
+                constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string(),
             ],
             observed_at: String::new(),
             used_previous_scan_hint: false,
