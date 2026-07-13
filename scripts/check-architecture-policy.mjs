@@ -24,6 +24,10 @@ const ignoredExpansionDirs = new Set([
 export function main(rawArgs = process.argv.slice(2)) {
   const files = expandFiles(parseFiles(rawArgs));
   if (files === null) {
+    if (hasDiffScope(rawArgs)) {
+      runEnforcer(['architecture', 'check', '--scope', 'diff', ...rawArgs]);
+      return;
+    }
     runEnforcer(['check', 'architecture-policy', ...rawArgs]);
     return;
   }
@@ -47,6 +51,10 @@ export function main(rawArgs = process.argv.slice(2)) {
   if (generatorFiles.length > 0) {
     runEnforcer(['check', 'reexports', ...passthroughArgs, ...filesFromArgs('generator', generatorFiles)]);
   }
+}
+
+function hasDiffScope(args) {
+  return args.some((arg) => arg === '--base' || arg.startsWith('--base='));
 }
 
 function parseFiles(args) {

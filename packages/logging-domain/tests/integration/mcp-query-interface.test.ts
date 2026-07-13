@@ -431,7 +431,32 @@ describe('logging-domain MCP query interface tool listing', () => {
   });
 
   it('keeps smoke output compact for the latest failed run', () => {
-    const result = runMcp(['--smoke', 'latest-failures']);
+    const logRoot = makeTempDir('mcp-latest-failures-');
+    mcpQueryTempDirs.push(logRoot);
+    const env = {
+      ...process.env,
+      OCENTRA_PARENT_LOG_ROOT: logRoot,
+      LEDGER_LANE: 'logging-domain-mcp-smoke',
+    };
+    const agentRun = spawnSync(
+      process.execPath,
+      [
+        path.join(workspaceRoot(), 'scripts', 'dev', 'agent-run.mjs'),
+        '--',
+        process.execPath,
+        '-e',
+        "process.stderr.write('expected smoke failure\\n'); process.exit(1)",
+      ],
+      {
+        cwd: workspaceRoot(),
+        env,
+        encoding: 'utf8',
+        windowsHide: true,
+      }
+    );
+    expect(agentRun.status).toBe(1);
+
+    const result = runMcp(['--smoke', 'latest-failures'], env);
     expect(result.status).toBe(0);
 
     const latest = JSON.parse(result.stdout) as Array<{ readonly runId: string; readonly status: string }>;

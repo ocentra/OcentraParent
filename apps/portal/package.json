@@ -9,7 +9,7 @@
     "type-check": "tsc -p tsconfig.json --noEmit",
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/portal",
     "lint:exec": "eslint --cache src tests playwright.config.ts && tsc -p tsconfig.json --noEmit",
-    "test": "vitest run tests --exclude tests/e2e/**",
+    "test": "vitest run tests --exclude \"tests/e2e/**\"",
     "test:e2e": "node ../../scripts/test/portal-playwright-runner.mjs"
   },
   "dependencies": {

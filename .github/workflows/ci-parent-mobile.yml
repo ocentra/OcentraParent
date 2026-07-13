@@ -34,7 +34,7 @@ jobs:
         run: npm run build:contracts
 
       - name: Parent mobile capability contracts
-        run: npm run test:mobile-child-agent-capability-proof
+        run: npm run test:parent-mobile-package-source-artifact-proof
 
   parent-mobile-package-source-proof:
     name: 'Proof: Parent Mobile Package Source Artifact'

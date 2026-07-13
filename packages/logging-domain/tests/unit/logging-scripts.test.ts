@@ -106,6 +106,7 @@ async function runBridgeScript(scriptPath: string, env: NodeJS.ProcessEnv): Prom
 
     let stdout = '';
     let settled = false;
+    let terminationRequested = false;
 
     const finish = (error: Error | null) => {
       if (settled) {
@@ -122,6 +123,7 @@ async function runBridgeScript(scriptPath: string, env: NodeJS.ProcessEnv): Prom
     child.stdout?.on('data', (chunk) => {
       stdout += String(chunk);
       if (stdout.includes('Logging bridge listening')) {
+        terminationRequested = true;
         child.kill();
       }
     });
@@ -130,7 +132,7 @@ async function runBridgeScript(scriptPath: string, env: NodeJS.ProcessEnv): Prom
     });
     child.on('error', (error) => finish(error));
     child.on('exit', (code, signal) => {
-      if (code === 0 || signal != null) {
+      if (code === 0 || signal != null || terminationRequested) {
         finish(null);
         return;
       }
