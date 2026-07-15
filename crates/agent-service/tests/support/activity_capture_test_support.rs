@@ -1,4 +1,6 @@
-use std::path::{Path as TestPath, PathBuf as TestPathBuf};
+use std::path::Path as TestPath;
+#[cfg(windows)]
+use std::path::PathBuf as TestPathBuf;
 use std::string::String as TestString;
 
 use crate::test_invariants::require_ok;
@@ -135,12 +137,13 @@ pub fn record_activity_capture_to_paths_at_with_inventory_roots_for_test<P>(
 where
     P: AsRef<TestPath>,
 {
-    let observed_at = observed_at.0;
+    let inventory_events =
+        live_inventory_events_from_roots_for_test(observed_at.0.as_str(), inventory_roots)?;
     let events = activity_capture_events_with_inventory_sources(
-        TestText(observed_at.clone()),
+        observed_at,
         process_limit,
         network_limit,
-        live_inventory_events_from_roots_for_test(TestText(observed_at), inventory_roots)?,
+        inventory_events,
         Vec::new(),
         Vec::new(),
     )?;
@@ -164,13 +167,14 @@ pub fn record_activity_capture_to_paths_at_with_store_package_roots_for_test<P>(
 where
     P: AsRef<TestPath>,
 {
-    let observed_at = observed_at.0;
+    let store_package_events =
+        live_store_package_events_from_roots_for_test(observed_at.0.as_str(), store_package_roots)?;
     let events = activity_capture_events_with_inventory_sources(
-        TestText(observed_at.clone()),
+        observed_at,
         process_limit,
         network_limit,
         Vec::new(),
-        live_store_package_events_from_roots_for_test(TestText(observed_at), store_package_roots)?,
+        store_package_events,
         Vec::new(),
     )?;
     crate::activity_capture::record_activity_events_to_paths(
@@ -193,14 +197,15 @@ pub fn record_activity_capture_to_paths_at_with_registry_inventory_roots_for_tes
 where
     P: AsRef<TestPath>,
 {
-    let observed_at = observed_at.0;
+    let registry_inventory_events =
+        live_registry_inventory_events_from_roots_for_test(observed_at.0.as_str(), registry_roots)?;
     let events = activity_capture_events_with_inventory_sources(
-        TestText(observed_at.clone()),
+        observed_at,
         process_limit,
         network_limit,
         Vec::new(),
         Vec::new(),
-        live_registry_inventory_events_from_roots_for_test(TestText(observed_at), registry_roots)?,
+        registry_inventory_events,
     )?;
     crate::activity_capture::record_activity_events_to_paths(
         journal_path.as_ref(),
@@ -223,13 +228,13 @@ fn activity_capture_events_with_inventory_sources(
     events.push(foreground_window_event(&observed_at));
     events.extend(network_snapshot_events(&observed_at, network_limit));
     events.extend(live_process_events_for_test(
-        TestText(observed_at.clone()),
+        observed_at.as_str(),
         process_limit,
     )?);
     events.extend(inventory_events);
     events.extend(store_package_events);
     events.extend(registry_inventory_events);
-    if let Some(event) = live_foreground_event_for_test(TestText(observed_at))? {
+    if let Some(event) = live_foreground_event_for_test(observed_at.as_str())? {
         events.push(event);
     }
     Ok(events)
@@ -237,56 +242,51 @@ fn activity_capture_events_with_inventory_sources(
 
 #[cfg(windows)]
 fn live_process_events_for_test(
-    observed_at: TestText,
+    observed_at: &str,
     limit: usize,
 ) -> Result<Vec<ActivityEvent>, crate::activity_capture::ActivityCaptureError> {
-    let observed_at = observed_at.0;
     Ok(live_windows_process_snapshot_journal_events_with_limit(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at.as_str(),
+        observed_at,
         limit,
     )?)
 }
 
 #[cfg(not(windows))]
 fn live_process_events_for_test(
-    observed_at: TestText,
+    _observed_at: &str,
     _limit: usize,
 ) -> Result<Vec<ActivityEvent>, crate::activity_capture::ActivityCaptureError> {
-    let _ = observed_at.0;
     Ok(Vec::new())
 }
 
 #[cfg(windows)]
 fn live_foreground_event_for_test(
-    observed_at: TestText,
+    observed_at: &str,
 ) -> Result<Option<ActivityEvent>, crate::activity_capture::ActivityCaptureError> {
-    let observed_at = observed_at.0;
     Ok(live_windows_foreground_window_journal_event(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at.as_str(),
+        observed_at,
     )?)
 }
 
 #[cfg(not(windows))]
 fn live_foreground_event_for_test(
-    observed_at: TestText,
+    _observed_at: &str,
 ) -> Result<Option<ActivityEvent>, crate::activity_capture::ActivityCaptureError> {
-    let _ = observed_at.0;
     Ok(None)
 }
 
 #[cfg(windows)]
 fn live_inventory_events_from_roots_for_test<P>(
-    observed_at: TestText,
+    observed_at: &str,
     roots: &[P],
 ) -> Result<Vec<ActivityEvent>, crate::activity_capture::ActivityCaptureError>
 where
     P: AsRef<TestPath>,
 {
-    let observed_at = observed_at.0;
     let roots: Vec<TestPathBuf> = roots
         .iter()
         .map(|root| root.as_ref().to_path_buf())
@@ -294,7 +294,7 @@ where
     Ok(live_windows_inventory_journal_events_from_roots(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at.as_str(),
+        observed_at,
         &roots,
         constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT,
     )?)
@@ -302,22 +302,20 @@ where
 
 #[cfg(not(windows))]
 fn live_inventory_events_from_roots_for_test<P>(
-    observed_at: TestText,
+    _observed_at: &str,
     _roots: &[P],
 ) -> Result<Vec<ActivityEvent>, crate::activity_capture::ActivityCaptureError> {
-    let _ = observed_at.0;
     Ok(Vec::new())
 }
 
 #[cfg(windows)]
 fn live_store_package_events_from_roots_for_test<P>(
-    observed_at: TestText,
+    observed_at: &str,
     roots: &[P],
 ) -> Result<Vec<ActivityEvent>, crate::activity_capture::ActivityCaptureError>
 where
     P: AsRef<TestPath>,
 {
-    let observed_at = observed_at.0;
     let roots: Vec<TestPathBuf> = roots
         .iter()
         .map(|root| root.as_ref().to_path_buf())
@@ -325,7 +323,7 @@ where
     Ok(live_windows_store_package_journal_events_from_roots(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at.as_str(),
+        observed_at,
         &roots,
         constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT,
     )?)
@@ -333,22 +331,20 @@ where
 
 #[cfg(not(windows))]
 fn live_store_package_events_from_roots_for_test<P>(
-    observed_at: TestText,
+    _observed_at: &str,
     _roots: &[P],
 ) -> Result<Vec<ActivityEvent>, crate::activity_capture::ActivityCaptureError> {
-    let _ = observed_at.0;
     Ok(Vec::new())
 }
 
 #[cfg(windows)]
 fn live_registry_inventory_events_from_roots_for_test<P>(
-    observed_at: TestText,
+    observed_at: &str,
     roots: &[P],
 ) -> Result<Vec<ActivityEvent>, crate::activity_capture::ActivityCaptureError>
 where
     P: AsRef<TestPath>,
 {
-    let observed_at = observed_at.0;
     let roots: Vec<TestPathBuf> = roots
         .iter()
         .map(|root| root.as_ref().to_path_buf())
@@ -356,7 +352,7 @@ where
     Ok(live_windows_registry_inventory_journal_events_from_roots(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at.as_str(),
+        observed_at,
         &roots,
         constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT,
     )?)
@@ -364,9 +360,8 @@ where
 
 #[cfg(not(windows))]
 fn live_registry_inventory_events_from_roots_for_test<P>(
-    observed_at: TestText,
+    _observed_at: &str,
     _roots: &[P],
 ) -> Result<Vec<ActivityEvent>, crate::activity_capture::ActivityCaptureError> {
-    let _ = observed_at.0;
     Ok(Vec::new())
 }

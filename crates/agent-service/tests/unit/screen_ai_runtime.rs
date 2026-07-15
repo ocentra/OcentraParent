@@ -95,22 +95,54 @@ const _: () = {
 };
 
 mod screen_ai_analysis_runtime {
-    #[path = "../../../src/screen_ai_analysis_runtime/adapter.rs"]
-    pub(crate) mod adapter;
-    #[path = "../../../src/screen_ai_analysis_runtime/adapter_process.rs"]
-    pub(crate) mod adapter_process;
-    #[path = "../../../src/screen_ai_analysis_runtime/adapter_redaction.rs"]
-    pub(crate) mod adapter_redaction;
-    #[path = "../screen_ai_analysis_runtime_adapter_tests.rs"]
-    mod adapter_tests;
-    #[path = "../../../src/screen_ai_analysis_runtime/config.rs"]
-    pub(crate) mod config;
-    #[path = "../../../src/screen_ai_analysis_runtime/event_record.rs"]
-    pub(crate) mod event_record;
-    #[path = "../screen_ai_analysis_runtime_event_record_tests.rs"]
-    mod event_record_tests;
-    #[path = "../../../src/screen_ai_analysis_runtime/queue.rs"]
-    pub(crate) mod queue;
+    pub(crate) mod adapter {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/adapter.rs"
+        ));
+    }
+    pub(crate) mod adapter_process {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/adapter_process.rs"
+        ));
+    }
+    pub(crate) mod adapter_redaction {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/adapter_redaction.rs"
+        ));
+    }
+    mod adapter_tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs"
+        ));
+    }
+    pub(crate) mod config {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/config.rs"
+        ));
+    }
+    pub(crate) mod event_record {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/event_record.rs"
+        ));
+    }
+    mod event_record_tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/screen_ai_analysis_runtime_event_record_tests.rs"
+        ));
+    }
+    pub(crate) mod queue {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/queue.rs"
+        ));
+    }
 
     type ScreenAiAnalysisCycleClock = config::ScreenAiAnalysisCycleClock;
     type ScreenAiAnalysisCycleOutcome = config::ScreenAiAnalysisCycleOutcome;
