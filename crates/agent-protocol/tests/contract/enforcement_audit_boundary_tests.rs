@@ -8,6 +8,7 @@ use super::{
     ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform,
     PolicyAction, PolicyTarget, PolicyTargetType,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn unavailable_audit_event_serializes_result_capability_and_unavailable_status_boundary() {
@@ -17,7 +18,8 @@ fn unavailable_audit_event_serializes_result_capability_and_unavailable_status_b
     let result = enforcement_result(&action, capability.clone(), unavailable_status.clone());
     let audit = enforcement_audit(action, result, capability, unavailable_status);
 
-    let serialized = serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(audit).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["auditEventKind"], enforcement::AUDIT_UNAVAILABLE);
     assert_eq!(serialized["capability"], serialized["result"]["capability"]);

@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName, AgentMessageTarget,
     AgentPeer, AgentPeerRole, AgentRoute, AGENT_TRANSPORT_SCHEMA_VERSION,
@@ -41,10 +42,10 @@ fn lan_pairing_transport_envelopes_keep_message_and_event_fields_explicit() {
         snapshot: None,
     };
 
-    let command_json =
-        serde_json::to_value(command).expect("lan pairing command envelope serializes: {error:?}");
-    let event_json =
-        serde_json::to_value(event).expect("lan pairing event envelope serializes: {error:?}");
+    let command_json = serde_json::to_value(command)
+        .expect_value("lan pairing command envelope serializes: {error:?}");
+    let event_json = serde_json::to_value(event)
+        .expect_value("lan pairing event envelope serializes: {error:?}");
 
     assert_eq!(
         command_json[constants::field::COMMAND],
@@ -83,12 +84,12 @@ fn lan_pairing_transport_envelopes_reject_missing_required_fields() {
         "messageId": constants::lan_pairing::INTENT_ID,
         "sentAt": constants::lan_pairing::ISSUED_AT
     }))
-    .expect_err("transport command envelopes must reject missing required fields");
+    .expect_err_value("transport command envelopes must reject missing required fields");
     let event_error = serde_json::from_value::<AgentEventEnvelope>(serde_json::json!({
         "schemaVersion": AGENT_TRANSPORT_SCHEMA_VERSION,
         "eventId": constants::lan_pairing::AUDIT_EVENT_ID
     }))
-    .expect_err("transport event envelopes must reject missing required fields");
+    .expect_err_value("transport event envelopes must reject missing required fields");
 
     assert_eq!(command_error.classify(), serde_json::error::Category::Data);
     assert_eq!(event_error.classify(), serde_json::error::Category::Data);

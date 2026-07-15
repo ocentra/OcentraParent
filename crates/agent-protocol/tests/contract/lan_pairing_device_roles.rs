@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     DeviceRoleRuntimeReadModel, DeviceRuntimeAiProviderState, DeviceRuntimeLocalAiClaim,
@@ -30,14 +31,10 @@ fn device_role_runtime_read_model_serializes_dual_parent_child_ai_provider_state
         updated_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
     };
 
-    let serialized = match serde_json::to_string(&read_model) {
-        Ok(value) => value,
-        Err(_) => String::new(),
-    };
-    let value: serde_json::Value = match serde_json::from_str(&serialized) {
-        Ok(parsed) => parsed,
-        Err(_) => serde_json::Value::default(),
-    };
+    let serialized = serde_json::to_string(&read_model)
+        .expect_value("device role runtime read model must serialize");
+    let value: serde_json::Value = serde_json::from_str(&serialized)
+        .expect_value("device role runtime read model must deserialize");
 
     assert_eq!(
         value["roles"][0]["role"],

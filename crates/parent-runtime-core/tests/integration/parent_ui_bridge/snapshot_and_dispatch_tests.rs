@@ -24,6 +24,7 @@ use super::common::events::responses::*;
 use super::common::events::samples::*;
 use super::common::helpers::*;
 
+#[test]
 fn parent_route_snapshot_serializes_with_host_bridge_snapshot_fields() {
     let value = route_snapshot_json(
         ParentRouteId::Activity,
@@ -647,7 +648,7 @@ fn parent_ui_action_serializes_and_returns_snapshot() {
         TestContext("network flow command returns live activity snapshot"),
         TestContext("live activity snapshot serializes"),
     );
-    assert_network_policy_bridge_snapshot(&live_activity, json!(3));
+    assert_network_policy_bridge_snapshot(&live_activity, &json!(3));
 }
 
 #[test]

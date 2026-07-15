@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_parent_defined_place_id_from_evidence_ref, TrackingEvidenceRef,
@@ -27,7 +28,7 @@ pub fn evaluate_parent_defined_place(
         constants::tracking_runtime::PARENT_DEFINED_PLACE_STATE_ACCEPTED
     };
     let parsed_place_state = TrackingParentDefinedPlaceState::parse(place_state)
-        .expect("tracking parent-defined place contract drift");
+        .expect_value("tracking parent-defined place contract drift");
 
     TrackingParentDefinedPlaceDecision {
         place_id: tracking_parent_defined_place_id_from_evidence_ref(&input.source_evidence_ref),

@@ -17,29 +17,35 @@ pub trait AgentLogMessageSource {
     fn as_agent_log_message_ref(&self) -> AgentLogMessageRef<'_>;
 }
 
+impl AgentLogMessageSource for str {
+    fn as_agent_log_message_ref(&self) -> AgentLogMessageRef<'_> {
+        AgentLogMessageRef(self)
+    }
+}
+
 pub fn write_agent_info(
-    message: impl AgentLogMessageSource,
+    message: &(impl AgentLogMessageSource + ?Sized),
     fields: LogFields,
 ) -> std::io::Result<()> {
     write_agent_log(&LogLevel::Info, message, fields)
 }
 
 pub fn write_agent_warn(
-    message: impl AgentLogMessageSource,
+    message: &(impl AgentLogMessageSource + ?Sized),
     fields: LogFields,
 ) -> std::io::Result<()> {
     write_agent_log(&LogLevel::Warn, message, fields)
 }
 
 pub fn write_agent_error(
-    message: impl AgentLogMessageSource,
+    message: &(impl AgentLogMessageSource + ?Sized),
     fields: LogFields,
 ) -> std::io::Result<()> {
     write_agent_log(&LogLevel::Error, message, fields)
 }
 
 pub fn write_agent_debug(
-    message: impl AgentLogMessageSource,
+    message: &(impl AgentLogMessageSource + ?Sized),
     fields: LogFields,
 ) -> std::io::Result<()> {
     write_agent_log(&LogLevel::Debug, message, fields)
@@ -49,33 +55,33 @@ pub fn write_agent_info_ref(
     message: AgentLogMessageRef<'_>,
     fields: LogFields,
 ) -> std::io::Result<()> {
-    write_agent_info(message, fields)
+    write_agent_info(&message, fields)
 }
 
 pub fn write_agent_warn_ref(
     message: AgentLogMessageRef<'_>,
     fields: LogFields,
 ) -> std::io::Result<()> {
-    write_agent_warn(message, fields)
+    write_agent_warn(&message, fields)
 }
 
 pub fn write_agent_error_ref(
     message: AgentLogMessageRef<'_>,
     fields: LogFields,
 ) -> std::io::Result<()> {
-    write_agent_error(message, fields)
+    write_agent_error(&message, fields)
 }
 
 pub fn write_agent_debug_ref(
     message: AgentLogMessageRef<'_>,
     fields: LogFields,
 ) -> std::io::Result<()> {
-    write_agent_debug(message, fields)
+    write_agent_debug(&message, fields)
 }
 
 fn write_agent_log(
     level: &LogLevel,
-    message: impl AgentLogMessageSource,
+    message: &(impl AgentLogMessageSource + ?Sized),
     fields: LogFields,
 ) -> std::io::Result<()> {
     let logger = DevLogger::from_env(LogSource::AgentService)?;

@@ -1,14 +1,10 @@
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
-use ocentra_parent_agent_protocol::app_game::{
-    AppGameLauncherEvidenceRow, APP_GAME_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow;
 
 #[path = "app_game_windows_launcher_classification.rs"]
 mod app_game_windows_launcher_classification;
 #[path = "app_game_windows_launcher_row.rs"]
 mod app_game_windows_launcher_row;
-#[path = "app_game_windows_launcher_status.rs"]
-mod app_game_windows_launcher_status;
 
 use app_game_windows_launcher_row::row_from_record;
 

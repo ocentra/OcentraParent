@@ -23,7 +23,7 @@ pub(super) fn screen_intelligence_route_request_is_consistent(
         && value
             .structured_extraction
             .as_ref()
-            .map_or(true, |extraction| {
+            .is_none_or(|extraction| {
                 value.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
                     && screen_managed_browser_structured_extraction_is_consistent(extraction)
             })

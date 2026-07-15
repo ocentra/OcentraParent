@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_evaluation_id_from_observation_id, TrackingCapabilityStatus,
@@ -122,5 +123,5 @@ fn parse_contract_text<T, E>(
 where
     E: core::fmt::Debug,
 {
-    parse(value).expect("tracking expected-place contract drift")
+    parse(value).expect_value("tracking expected-place contract drift")
 }

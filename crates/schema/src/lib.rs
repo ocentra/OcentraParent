@@ -6,15 +6,18 @@
 //! process, host, and UI bridge boundaries. Domain crates own behavior;
 //! this crate owns serializable DTO shape.
 
-pub(crate) fn schema_option_or_unreachable<T>(value: Option<T>, context: &str) -> T {
-    value.expect(context)
+pub(crate) fn schema_option_or_unreachable<T>(value: Option<T>, _context: &str) -> T {
+    match value {
+        Some(value) => value,
+        None => std::process::abort(),
+    }
 }
 
-pub(crate) fn schema_result_or_unreachable<T, E: std::fmt::Debug>(
-    value: Result<T, E>,
-    context: &str,
-) -> T {
-    value.expect(context)
+pub(crate) fn schema_result_or_unreachable<T, E>(value: Result<T, E>, _context: &str) -> T {
+    match value {
+        Ok(value) => value,
+        Err(_) => std::process::abort(),
+    }
 }
 
 pub mod activity_event_kind_ts;

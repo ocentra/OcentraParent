@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::schema_domain_mirrors::{
     family::{
         ChildProfileReference, FamilyReference, ParentActionReference, ParentActorReference,
@@ -22,10 +23,7 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::{
 };
 
 fn to_json<T: serde::Serialize>(value: T) -> serde_json::Value {
-    match serde_json::to_value(value) {
-        Ok(serialized) => serialized,
-        Err(_) => serde_json::Value::default(),
-    }
+    serde_json::to_value(value).expect_value("schema domain mirror fixture must serialize")
 }
 
 #[test]
@@ -33,16 +31,16 @@ fn schema_domain_mirrors_family_policy_set_serializes_to_typescript_shape() {
     let value = to_json(FamilyPolicySet {
         schema_version: "v0.6".to_string().into(),
         family: FamilyReference {
-            family_id: "family-1".to_string().into(),
+            family_id: "family-1".to_string(),
         },
         child_profiles: vec![ChildProfileReference {
-            child_profile_id: "child-1".to_string().into(),
-            display_name: "Child One".to_string().into(),
+            child_profile_id: "child-1".to_string(),
+            display_name: "Child One".to_string(),
         }],
         devices: vec![ParentDeviceReference {
             device_id: "device-1".to_string().into(),
             child_profile_id: Some("child-1".to_string().into()),
-            label: "Parent Laptop".to_string().into(),
+            label: "Parent Laptop".to_string(),
             platform: ParentDevicePlatform::Windows,
         }],
         policy_version: "policy-v1".to_string().into(),
@@ -54,26 +52,26 @@ fn schema_domain_mirrors_family_policy_set_serializes_to_typescript_shape() {
     assert_eq!(value["family"]["familyId"], "family-1");
     assert_eq!(value["childProfiles"][0]["childProfileId"], "child-1");
     assert_eq!(value["childProfiles"][0]["displayName"], "Child One");
-    assert_eq!(value["childProfiles"][0].get("familyId").is_none(), true);
+    assert!(value["childProfiles"][0].get("familyId").is_none());
     assert_eq!(value["devices"][0]["platform"], "windows");
     assert_eq!(value["policyVersion"], "policy-v1");
 }
 #[test]
 fn schema_domain_mirrors_parent_references_use_current_typescript_literals() {
     let evidence = to_json(ParentEvidenceReference {
-        evidence_reference_id: "evidence-1".to_string().into(),
+        evidence_reference_id: "evidence-1".to_string(),
         kind: ParentEvidenceReferenceKind::QueryStoreSummary,
-        observed_at: "2026-06-20T18:00:00.000Z".to_string().into(),
+        observed_at: "2026-06-20T18:00:00.000Z".to_string(),
     });
 
     let action = to_json(ParentActionReference {
-        action_reference_id: "action-1".to_string().into(),
+        action_reference_id: "action-1".to_string(),
         actor: ParentActorReference {
-            actor_id: "actor-1".to_string().into(),
+            actor_id: "actor-1".to_string(),
             role: ParentActorRole::Guardian,
         },
-        policy_version: "policy-v1".to_string().into(),
-        created_at: "2026-06-20T18:01:00.000Z".to_string().into(),
+        policy_version: "policy-v1".to_string(),
+        created_at: "2026-06-20T18:01:00.000Z".to_string(),
     });
 
     assert_eq!(evidence["evidenceReferenceId"], "evidence-1");
@@ -110,7 +108,9 @@ fn schema_domain_mirrors_notification_outbox_proof_uses_current_typescript_liter
         value["records"][0]["visibleAfterAt"],
         serde_json::Value::Null
     );
-    assert_eq!(value["records"][0]["manualActionRequired"], false);
+    assert!(value["records"][0]["manualActionRequired"]
+        .as_bool()
+        .is_some_and(|manual_action_required| !manual_action_required));
     assert_eq!(
         value["nonClaims"],
         serde_json::json!([
@@ -181,30 +181,30 @@ fn notification_outbox_envelope_fixture() -> NotificationLocalOutboxMinimalAlert
     NotificationLocalOutboxMinimalAlertEnvelope {
         alert_ref: "notification-alert-ref-1".to_string().into(),
         family: FamilyReference {
-            family_id: "family-1".to_string().into(),
+            family_id: "family-1".to_string(),
         },
         device: ParentDeviceReference {
             device_id: "device-1".to_string().into(),
             child_profile_id: Some("child-1".to_string().into()),
-            label: "Parent Laptop".to_string().into(),
+            label: "Parent Laptop".to_string(),
             platform: ParentDevicePlatform::Windows,
         },
         parent_action: ParentActionReference {
-            action_reference_id: "action-1".to_string().into(),
+            action_reference_id: "action-1".to_string(),
             actor: ParentActorReference {
-                actor_id: "actor-1".to_string().into(),
+                actor_id: "actor-1".to_string(),
                 role: ParentActorRole::Parent,
             },
-            policy_version: "policy-v1".to_string().into(),
-            created_at: "2026-06-21T09:45:00.000Z".to_string().into(),
+            policy_version: "policy-v1".to_string(),
+            created_at: "2026-06-21T09:45:00.000Z".to_string(),
         },
         severity: NotificationLocalOutboxSeverity::Urgent,
         reason_code: V3NotificationRuleReasonCode::PolicyViolation,
         provider_channel: V3NotificationProviderChannel::Push,
         evidence_refs: vec![ParentEvidenceReference {
-            evidence_reference_id: "evidence-1".to_string().into(),
+            evidence_reference_id: "evidence-1".to_string(),
             kind: ParentEvidenceReferenceKind::PolicyDecision,
-            observed_at: "2026-06-21T09:44:00.000Z".to_string().into(),
+            observed_at: "2026-06-21T09:44:00.000Z".to_string(),
         }],
         policy_refs: vec!["policy-ref-1".to_string().into()],
         audit_refs: vec!["audit-ref-1".to_string().into()],
@@ -256,14 +256,14 @@ fn policy_preview_fixture() -> PolicyPreview {
         origin: PolicyPreviewOrigin::AssistantPreview,
         confirmation_state: PolicyPreviewConfirmationState::Confirmed,
         confirmed_by: Some(ParentActorReference {
-            actor_id: "actor-1".to_string().into(),
+            actor_id: "actor-1".to_string(),
             role: ParentActorRole::Parent,
         }),
         confirmed_at: Some("2026-06-21T10:05:00.000Z".to_string().into()),
         target: PolicyTarget {
-            target_id: "target-1".to_string().into(),
+            target_id: "target-1".to_string(),
             target_type: PolicyTargetType::Domain,
-            target_value: "example.test".to_string().into(),
+            target_value: "example.test".to_string(),
         },
         requested_action: PolicyAction::TimeLimit,
         schedule_boundary: Some(policy_schedule_boundary_fixture()),
@@ -314,19 +314,19 @@ fn policy_schedule_time_budget_fixture() -> PolicyScheduleTimeBudgetStatus {
 
 fn policy_decision_fixture() -> PolicyDecision {
     PolicyDecision {
-        schema_version: "v0.6".to_string().into(),
-        decision_id: "decision-1".to_string().into(),
+        schema_version: "v0.6".to_string(),
+        decision_id: "decision-1".to_string(),
         action: PolicyAction::Warn,
-        reason_codes: vec!["reason-1".to_string().into()],
+        reason_codes: vec!["reason-1".to_string()],
         evidence_references: vec![ParentEvidenceReference {
-            evidence_reference_id: "evidence-1".to_string().into(),
+            evidence_reference_id: "evidence-1".to_string(),
             kind: ParentEvidenceReferenceKind::PolicyDecision,
-            observed_at: "2026-06-21T09:55:00.000Z".to_string().into(),
+            observed_at: "2026-06-21T09:55:00.000Z".to_string(),
         }],
-        rule_ids: vec!["rule-1".to_string().into()],
-        local_ai_result_id: Some("local-ai-result-1".to_string().into()),
+        rule_ids: vec!["rule-1".to_string()],
+        local_ai_result_id: Some("local-ai-result-1".to_string()),
         dry_run: true,
         enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
-        expires_at: Some("2026-06-21T11:00:00.000Z".to_string().into()),
+        expires_at: Some("2026-06-21T11:00:00.000Z".to_string()),
     }
 }

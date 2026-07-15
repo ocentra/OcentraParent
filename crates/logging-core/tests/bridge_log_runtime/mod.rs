@@ -124,8 +124,14 @@ fn generated_bridge_runtime_helper_stays_checked_in() {
 
 #[test]
 fn bridge_runtime_serializes_origin_as_contract_literal() {
-    let payload = serde_json::to_value(sample_payload()).expect("payload should serialize");
-    let stored = serde_json::to_value(sample_stored_log()).expect("stored log should serialize");
+    let payload = match serde_json::to_value(sample_payload()) {
+        Ok(value) => value,
+        Err(_) => std::process::abort(),
+    };
+    let stored = match serde_json::to_value(sample_stored_log()) {
+        Ok(value) => value,
+        Err(_) => std::process::abort(),
+    };
 
     assert_eq!(
         payload.get("origin").and_then(serde_json::Value::as_str),

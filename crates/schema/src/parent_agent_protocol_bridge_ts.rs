@@ -128,43 +128,43 @@ struct ProtocolBridgeNames {
 
 pub(crate) fn parent_agent_protocol_bridge_typescript() -> String {
     protocol_bridge_typescript(
-        parent_bridge_names(),
+        &parent_bridge_names(),
         Some(parent_route_event_id_typescript()),
     )
 }
 
 pub(crate) fn parent_agent_protocol_domain_contracts_typescript() -> String {
     protocol_bridge_typescript(
-        parent_bridge_names(),
+        &parent_bridge_names(),
         Some(standalone_parent_route_event_id_typescript()),
     )
 }
 
 pub(crate) fn generated_portal_agent_protocol_bridge_typescript() -> String {
-    protocol_bridge_typescript(generated_portal_bridge_names(), None)
+    protocol_bridge_typescript(&generated_portal_bridge_names(), None)
 }
 
 fn protocol_bridge_typescript(
-    names: ProtocolBridgeNames,
+    names: &ProtocolBridgeNames,
     event_id_types: Option<String>,
 ) -> String {
     let mut sections = vec![
-        runtime_typescript(&names),
-        transport_typescript(&names),
-        field_typescript(&names),
-        runtime_event_contract_typescript(&names),
-        network_status_ref_typescript(&names),
-        network_status_contract_typescript(&names),
-        tracking_retention_settings_write_typescript(&names),
-        delimiter_typescript(&names),
+        runtime_typescript(names),
+        transport_typescript(names),
+        field_typescript(names),
+        runtime_event_contract_typescript(names),
+        network_status_ref_typescript(names),
+        network_status_contract_typescript(names),
+        tracking_retention_settings_write_typescript(names),
+        delimiter_typescript(names),
         literal_typescript(
             names.command_const,
             names.command_type,
             &command_descriptors(),
         ),
         literal_typescript(names.event_const, names.event_type, &event_descriptors()),
-        activity_surface_contract_typescript(&names),
-        lan_value_typescript(&names),
+        activity_surface_contract_typescript(names),
+        lan_value_typescript(names),
     ];
     if let Some(event_id_types) = event_id_types {
         sections.push(event_id_types);

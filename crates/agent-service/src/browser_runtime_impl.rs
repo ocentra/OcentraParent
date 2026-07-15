@@ -53,12 +53,12 @@ pub async fn build_browser_managed_status_report(
 fn resolve_browser_managed_status() -> BrowserManagedSessionStatus {
     let checked_at: String = timestamp_now();
     match configured_bridge_port() {
-        Ok(Some(port)) => bridge_poll_status(BrowserRuntimeText(checked_at.clone()), port),
+        Ok(Some(port)) => bridge_poll_status(BrowserRuntimeText(checked_at), port),
         Ok(None) => {
             if launch_on_status_enabled() {
-                return launch_managed_browser_status(BrowserRuntimeText(checked_at.clone()));
+                return launch_managed_browser_status(BrowserRuntimeText(checked_at));
             }
-            managed_profile_or_missing_status(BrowserRuntimeText(checked_at.clone()))
+            managed_profile_or_missing_status(BrowserRuntimeText(checked_at))
         }
         Err(reason) => status_with_error(checked_at, reason.0),
     }

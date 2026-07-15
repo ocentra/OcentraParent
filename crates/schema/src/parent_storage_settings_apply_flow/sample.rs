@@ -32,12 +32,12 @@ pub(super) fn required_parent_storage_mode_labels() -> Vec<ParentStorageModeLabe
 
 pub(super) fn required_parent_storage_delete_action_kinds() -> Vec<ParentStorageDeleteActionKind> {
     vec![
-        ParentStorageDeleteActionKind::DeleteLocalChildEvidence,
-        ParentStorageDeleteActionKind::DeleteParentPortalCache,
-        ParentStorageDeleteActionKind::DeleteGeneratedReport,
-        ParentStorageDeleteActionKind::DeleteProviderBackupCopy,
-        ParentStorageDeleteActionKind::DeleteSupportBundle,
-        ParentStorageDeleteActionKind::DeleteOcentraMetadata,
+        ParentStorageDeleteActionKind::LocalChildEvidence,
+        ParentStorageDeleteActionKind::ParentPortalCache,
+        ParentStorageDeleteActionKind::GeneratedReport,
+        ParentStorageDeleteActionKind::ProviderBackupCopy,
+        ParentStorageDeleteActionKind::SupportBundle,
+        ParentStorageDeleteActionKind::OcentraMetadata,
     ]
 }
 
@@ -63,13 +63,13 @@ pub(super) fn required_parent_storage_copy_keys() -> Vec<ParentStorageCopyKey> {
 
 pub(super) fn required_parent_storage_no_claims() -> Vec<ParentStorageNoClaim> {
     vec![
-        ParentStorageNoClaim::NoPortalImplementationReady,
-        ParentStorageNoClaim::NoProviderRuntimeReady,
-        ParentStorageNoClaim::NoAutoApply,
-        ParentStorageNoClaim::NoDisconnectDeletesProviderData,
-        ParentStorageNoClaim::NoDeleteDisconnectCollapse,
-        ParentStorageNoClaim::NoTsBusinessOwner,
-        ParentStorageNoClaim::NoLanOwnership,
+        ParentStorageNoClaim::PortalImplementationReady,
+        ParentStorageNoClaim::ProviderRuntimeReady,
+        ParentStorageNoClaim::AutoApply,
+        ParentStorageNoClaim::DisconnectDeletesProviderData,
+        ParentStorageNoClaim::DeleteDisconnectCollapse,
+        ParentStorageNoClaim::TsBusinessOwner,
+        ParentStorageNoClaim::LanOwnership,
     ]
 }
 
@@ -168,37 +168,37 @@ fn sample_delete_actions() -> Vec<ParentStorageDeleteActionRow> {
     vec![
         delete_action(
             PARENT_STORAGE_DELETE_LOCAL_EVIDENCE_ACTION_ID,
-            ParentStorageDeleteActionKind::DeleteLocalChildEvidence,
+            ParentStorageDeleteActionKind::LocalChildEvidence,
             ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
             PARENT_STORAGE_DELETE_LOCAL_EVIDENCE_NOTE,
         ),
         delete_action(
             PARENT_STORAGE_DELETE_PARENT_CACHE_ACTION_ID,
-            ParentStorageDeleteActionKind::DeleteParentPortalCache,
+            ParentStorageDeleteActionKind::ParentPortalCache,
             ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
             PARENT_STORAGE_DELETE_PARENT_CACHE_NOTE,
         ),
         delete_action(
             PARENT_STORAGE_DELETE_GENERATED_REPORT_ACTION_ID,
-            ParentStorageDeleteActionKind::DeleteGeneratedReport,
+            ParentStorageDeleteActionKind::GeneratedReport,
             ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
             PARENT_STORAGE_DELETE_GENERATED_REPORT_NOTE,
         ),
         delete_action(
             PARENT_STORAGE_DELETE_PROVIDER_COPY_ACTION_ID,
-            ParentStorageDeleteActionKind::DeleteProviderBackupCopy,
+            ParentStorageDeleteActionKind::ProviderBackupCopy,
             ParentOwnedSyncDeleteVisibilityState::ManualRequired,
             PARENT_STORAGE_DELETE_PROVIDER_COPY_NOTE,
         ),
         delete_action(
             PARENT_STORAGE_DELETE_SUPPORT_BUNDLE_ACTION_ID,
-            ParentStorageDeleteActionKind::DeleteSupportBundle,
+            ParentStorageDeleteActionKind::SupportBundle,
             ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
             PARENT_STORAGE_DELETE_SUPPORT_BUNDLE_NOTE,
         ),
         delete_action(
             PARENT_STORAGE_DELETE_OCENTRA_METADATA_ACTION_ID,
-            ParentStorageDeleteActionKind::DeleteOcentraMetadata,
+            ParentStorageDeleteActionKind::OcentraMetadata,
             ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
             PARENT_STORAGE_DELETE_OCENTRA_METADATA_NOTE,
         ),

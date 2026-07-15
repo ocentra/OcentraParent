@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::app_game::*;
 use std::fs::remove_file;
 
@@ -41,7 +42,7 @@ fn journal_replay_produces_app_game_sqlite_read_model_rows() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(lines.len(), 5);
 
@@ -97,7 +98,7 @@ fn journal_replay_events() -> [ActivityEvent; 5] {
             std::env::consts::OS,
             &inventory_row(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_runtime_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
@@ -106,7 +107,7 @@ fn journal_replay_events() -> [ActivityEvent; 5] {
                 constants::activity_store::TEST_FIRST_OBSERVED_AT,
             ),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_runtime_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
@@ -115,19 +116,19 @@ fn journal_replay_events() -> [ActivityEvent; 5] {
                 constants::activity_store::TEST_SECOND_OBSERVED_AT,
             ),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_foreground_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &foreground_row(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_launcher_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &launcher_row(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
     ]
 }
 
@@ -152,19 +153,19 @@ fn duplicate_runtime_observations_do_not_double_count_duration_after_replay() {
             std::env::consts::OS,
             &runtime_start,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_runtime_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &duplicate,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_runtime_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &runtime_latest,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
     ];
 
     let (store, _) = append_and_replay(&events, constants::journal::TEST_ROTATION_SUFFIX);
@@ -173,7 +174,7 @@ fn duplicate_runtime_observations_do_not_double_count_duration_after_replay() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(model.daily_rollups.len(), 1);
     assert_eq!(model.daily_rollups[0].running_duration_ms, 60000);
@@ -191,10 +192,11 @@ fn invalid_inventory_evidence_is_rejected_before_sqlite_ingest() {
         std::env::consts::OS,
         &invalid,
     );
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     let status = store
         .status()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(
         result,
@@ -210,21 +212,23 @@ fn append_and_replay(
     let path = temp_journal_path(suffix);
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.0.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.0.clone(), key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .expect_value(constants::error::JOURNAL_APPENDS),
         );
     }
-    let reader = ActivityJournal::open(path.0.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader =
+        ActivityJournal::open(path.0.clone(), key).expect_value(constants::error::JOURNAL_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);
@@ -281,7 +285,7 @@ fn runtime_row(
     AppGameRuntimeEvidenceRow {
         schema_version: APP_GAME_SCHEMA_VERSION,
         runtime_evidence_id: runtime_evidence_id.to_string(),
-        observed_at: observed_at.to_string(),
+        observed_at,
         process_identity: APP_GAME_TEST_PROCESS_IDENTITY.to_string(),
         process_id: APP_GAME_TEST_PROCESS_ID,
         parent_process_id: Some(APP_GAME_TEST_PARENT_PROCESS_ID),
@@ -380,7 +384,7 @@ fn temp_journal_path(suffix: impl Display) -> TestPath {
     name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix.as_str());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(&APP_GAME_TEST_RUNTIME_EVIDENCE_ID.to_string());
+    name.push_str(APP_GAME_TEST_RUNTIME_EVIDENCE_ID);
 
     let mut path = std::env::temp_dir();
     path.push(name);

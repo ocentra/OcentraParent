@@ -2,7 +2,6 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingAuditEventType;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
@@ -12,7 +11,8 @@ use ocentra_parent_agent_protocol::transport::AgentEventName;
 use crate::event_builder::build_event;
 use crate::lan_pairing::authority::{validate_registry_selection_intent, validate_write_authority};
 use crate::lan_pairing::{
-    extend_log_fields, rejection_event, validate_command_target, LanPairingRuntime,
+    extend_log_fields, runtime_rejection::rejection_event,
+    runtime_validation::validate_command_target, LanPairingRuntime,
 };
 use crate::lan_pairing_audit::controller_lease_audit_fields;
 use crate::lan_pairing_payload::parse_intent;
@@ -30,6 +30,7 @@ pub(crate) fn controller_lease_lifecycle_command(
         ocentra_parent_agent_protocol::lan_pairing::LanPairingText,
     ) -> Result<(), LanPairingRejectionReason>,
 ) -> AgentEventEnvelope {
+    let origin = LanPairingOptionalText(origin.0);
     let origin_text = origin.0.as_deref();
     let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
@@ -73,6 +74,7 @@ pub(crate) fn controller_lease_takeover(
     origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
+    let origin = LanPairingOptionalText(origin.0);
     let origin_text = origin.0.as_deref();
     let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
@@ -88,7 +90,7 @@ pub(crate) fn controller_lease_takeover(
                 &origin,
                 LanPairingAuditEventType::ControllerLeaseTakeoverAccepted,
             ),
-            Err(reason) => controller_lease_rejection_event(command, &intent, origin, reason),
+            Err(reason) => controller_lease_rejection_event(command, &intent, origin, &reason),
         },
         Err(reason) => rejection_event(command, &reason, None, &origin),
     };
@@ -114,18 +116,19 @@ fn controller_lease_rejection_event(
     command: AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
     origin: LanPairingOptionalText,
-    reason: LanPairingRejectionReason,
+    reason: &LanPairingRejectionReason,
 ) -> AgentEventEnvelope {
+    let origin = LanPairingOptionalText(origin.0);
     let payload = controller_lease_audit_fields(
         &command,
         intent,
         &origin,
-        if reason == LanPairingRejectionReason::TakeoverDenied {
+        if *reason == LanPairingRejectionReason::TakeoverDenied {
             LanPairingAuditEventType::ControllerLeaseTakeoverRejected
         } else {
             LanPairingAuditEventType::ControlRejected
         },
-        Some(&reason),
+        Some(reason),
     );
     build_event(
         constants::event_id::COMMAND_REJECTED,

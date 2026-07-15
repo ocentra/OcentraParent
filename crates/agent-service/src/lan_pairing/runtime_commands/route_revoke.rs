@@ -1,13 +1,14 @@
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentEventEnvelope};
 
-use crate::lan_pairing::{
-    extend_log_fields, pairing_status_event, revoked_route_audit_fields,
-    validate_selection_intent_result, LanPairingRuntime,
+use super::super::runtime_validation::validate_command_target;
+use super::super::{
+    extend_log_fields, runtime_rejection::rejection_event,
+    runtime_validation::validate_selection_intent_result, LanPairingRuntime,
 };
+use crate::lan_pairing_audit::revoked_route_audit_fields;
 use crate::lan_pairing_payload::parse_intent;
-
-use super::{rejection_event, validate_command_target};
+use crate::lan_pairing_status::pairing_status_event;
 
 pub(super) fn lan_pairing_route_revoke(
     runtime: LanPairingRuntime,

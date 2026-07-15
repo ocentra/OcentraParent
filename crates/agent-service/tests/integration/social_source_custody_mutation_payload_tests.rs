@@ -1,4 +1,3 @@
-use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::{
@@ -12,9 +11,7 @@ use ocentra_parent_agent_protocol::SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED;
 use super::social_source_custody_mutation_payload::{
     social_source_custody_mutation_from_command, social_source_custody_mutation_payload,
 };
-#[path = "../support/log_payload.rs"]
-mod log_payload;
-use log_payload::payload_json;
+use crate::log_payload::payload_json;
 
 #[test]
 fn social_source_custody_mutation_payload_reports_applied_ref_only_snapshot() {

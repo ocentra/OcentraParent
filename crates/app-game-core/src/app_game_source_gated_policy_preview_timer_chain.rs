@@ -10,13 +10,6 @@ const TIMER_RUNTIME_BLOCKED_BY_COMPILER_DECISION: &str = "blocked-by-compiler-de
 
 const TIMER_SERVICE_READ_API_PROOF_REQUIRED: &str = "service-read-api-proof-required";
 const TIMER_PROTOCOL_PROOF_REQUIRED: &str = "protocol-proof-required";
-const PREVIEW_READY_VISIBLE: &str = "preview-ready-visible";
-const PREVIEW_SOURCE_MANUAL_REQUIRED_VISIBLE: &str = "source-manual-required-visible";
-const TIMER_STATUS_RUNTIME_PROOF_REQUIRED: &str = "timer-runtime-proof-required";
-const TIMER_STATUS_SOURCE_FRESHNESS_PROOF_REQUIRED: &str = "source-freshness-proof-required";
-const PARENT_SURFACE_INTENT_PROOF_REQUIRED: &str = "audit-rollback-parent-surface-proof-required";
-const SERVICE_READ_MODEL_PROOF_REQUIRED: &str = "service-read-model-proof-required";
-
 const TIMER_HANDOFF_NON_CLAIMS: &[&str] = &[
     "no-service-runtime-event",
     "no-portal-ui-rendered",

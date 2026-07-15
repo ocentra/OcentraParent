@@ -18,37 +18,43 @@ pub trait AgentLogMessageSource {
     fn as_agent_log_message_ref(&self) -> AgentLogMessageRef<'_>;
 }
 
+struct AgentLogMessageValue<T>(T);
+
 pub fn write_agent_info(
     message: impl AgentLogMessageSource,
     fields: LogFields,
 ) -> std::io::Result<()> {
-    write_agent_log(&LogLevel::Info, message, fields)
+    let message = AgentLogMessageValue(message);
+    write_agent_log(&LogLevel::Info, &message.0, fields)
 }
 
 pub fn write_agent_warn(
     message: impl AgentLogMessageSource,
     fields: LogFields,
 ) -> std::io::Result<()> {
-    write_agent_log(&LogLevel::Warn, message, fields)
+    let message = AgentLogMessageValue(message);
+    write_agent_log(&LogLevel::Warn, &message.0, fields)
 }
 
 pub fn write_agent_error(
     message: impl AgentLogMessageSource,
     fields: LogFields,
 ) -> std::io::Result<()> {
-    write_agent_log(&LogLevel::Error, message, fields)
+    let message = AgentLogMessageValue(message);
+    write_agent_log(&LogLevel::Error, &message.0, fields)
 }
 
 pub fn write_agent_debug(
     message: impl AgentLogMessageSource,
     fields: LogFields,
 ) -> std::io::Result<()> {
-    write_agent_log(&LogLevel::Debug, message, fields)
+    let message = AgentLogMessageValue(message);
+    write_agent_log(&LogLevel::Debug, &message.0, fields)
 }
 
 fn write_agent_log(
     level: &LogLevel,
-    message: impl AgentLogMessageSource,
+    message: &impl AgentLogMessageSource,
     fields: LogFields,
 ) -> std::io::Result<()> {
     let logger = DevLogger::from_env(LogSource::AgentService)?;

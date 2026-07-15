@@ -5,6 +5,7 @@ use crate::{
     V08OsAdapterProductProofParentOverrideState, V08OsAdapterProductProofReadModel,
     V08OsAdapterProductProofSurface, V08OsAdapterProductProofTimerRecoveryState,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn product_proof_surfaces_have_stable_protocol_strings() {
@@ -23,12 +24,12 @@ fn product_proof_surfaces_have_stable_protocol_strings() {
         V08OsAdapterProductProofSurface::RollbackArtifactGate,
     ];
     let serialized =
-        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(surfaces).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized
             .as_array()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .len(),
         12
     );
@@ -125,9 +126,9 @@ fn product_proof_read_model_serializes_claim_flags_for_runtime_preview() {
         ],
     };
     let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let reparsed = serde_json::from_value::<V08OsAdapterProductProofReadModel>(serialized)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let readiness_counts: std::collections::BTreeMap<&'static str, usize> = reparsed
         .entries
         .iter()

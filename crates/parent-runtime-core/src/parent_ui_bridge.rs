@@ -18,7 +18,6 @@ use ocentra_schema::parent_ui_bridge::{
     ParentPortalParentAccessState, ParentRouteContext, ParentRouteId, ParentRouteSnapshot,
     ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind, ParentUiActionResult,
 };
-use serde::Serialize;
 use serde_json::Value;
 
 use crate::agent_service_client::snapshots_lan::network_flow_snapshot_from_parts;
@@ -61,7 +60,6 @@ use self::route_snapshot::build_parent_route_snapshot_impl;
 const PARENT_UI_BRIDGE_SCHEMA_VERSION: u16 = 1;
 const EMPTY_TIMESTAMP: &str = "";
 const HOST_BRIDGE_URL: &str = "host-bridge://tauri-parent";
-const LAN_DISCOVERY_REPORTED_EVENT: &str = "agent.lan-pairing.browser-discovery.reported";
 
 #[derive(Default)]
 struct ParentRouteSnapshotOverlay {

@@ -1,11 +1,9 @@
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingAuditEventType;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
 use ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentClaim;
-use ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentMessageKind;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 

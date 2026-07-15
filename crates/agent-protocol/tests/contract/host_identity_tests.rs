@@ -4,6 +4,7 @@ use super::{
     EnforcementReadinessRuntimeOwner, EnforcementReadinessState, HostIdentityEvidenceClass,
     HostIdentityEvidenceKind, HostIdentityReadModel, HostIdentityReadModelEntry, ParentPlatform,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn host_identity_read_model_serializes_evidence_boundaries() {
@@ -81,7 +82,8 @@ fn host_identity_read_model_serializes_evidence_boundaries() {
         ],
     };
 
-    let serialized = serde_json::to_value(model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["readModelId"], host_identity::READ_MODEL_ID_V0_8);
     assert_eq!(

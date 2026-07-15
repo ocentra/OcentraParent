@@ -89,7 +89,7 @@ fn activity_memory_graph_replays_from_encrypted_journal_without_plaintext_leak()
         constants::error::JOURNAL_OPENS,
     )?;
     let store = ok(
-        ActivityStore::open(store_path.to_path_buf()),
+        ActivityStore::open(&store_path),
         constants::error::ACTIVITY_STORE_OPENS,
     )?;
 

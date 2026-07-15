@@ -3,7 +3,7 @@ use std::env;
 use std::io::{Cursor, Read, Write};
 use std::net::{TcpListener, UdpSocket};
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -17,7 +17,6 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 use rcgen::generate_simple_self_signed;
 
 use crate::network_inventory::trusted_device;
-use ocentra_lan_core::network_inventory::service_identity::http::parse_certificate_subject;
 use ocentra_lan_core::network_inventory::service_identity::probe::{
     parse_probe_observation, probe_service_identity, probe_service_identity_on_target,
     read_probe_response,
@@ -563,7 +562,7 @@ fn snmp_identity_query_notifies_allowed_snmp_observer_with_received_payload() {
     assert!(observation.observed_allowed_snmp_response());
     let observed_payload = observed_payload.into_inner().ok();
     assert_eq!(
-        observed_payload.as_ref().map(|payload| payload.as_slice()),
+        observed_payload.as_deref(),
         Some(std::slice::from_ref(&expected_response))
     );
 }

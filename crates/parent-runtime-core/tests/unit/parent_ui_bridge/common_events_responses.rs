@@ -10,60 +10,6 @@ macro_rules! payload_text {
     };
 }
 
-pub(crate) fn network_runtime_event_chain_response_event() -> AgentEventEnvelope {
-    let entries = json!([
-        {
-            "eventType": constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
-            "payload": {
-                "aiAnalysisRef": "event.ai.analysis.completed.1"
-            }
-        },
-        {
-            "eventType": constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
-            "payload": {
-                "policyDecisionRef": "event.policy.decision.completed.1"
-            }
-        },
-        {
-            "eventType": constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED,
-            "payload": {
-                "enforcementResultRef": "event.enforcement.result.observed.1"
-            }
-        }
-    ]);
-    let mut payload = std::collections::BTreeMap::new();
-    payload.insert(
-        constants::field::NETWORK_RUNTIME_STREAMED_EVENTS.to_string(),
-        LogFieldValue::Number(3.0),
-    );
-    payload.insert(
-        constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM.to_string(),
-        LogFieldValue::String(require_ok(
-            serde_json::to_string(&entries),
-            "network runtime event chain serializes",
-        )),
-    );
-
-    AgentEventEnvelope {
-        schema_version: 1,
-        event_id: "agent.network.runtime.event-chain.reported-1".to_string(),
-        correlation_id: "network-runtime".to_string(),
-        sent_at: "2026-06-23T00:00:01Z".to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            role: AgentPeerRole::AgentService,
-        },
-        target: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        event: AgentEventName::AgentNetworkRuntimeEventChainStreamReported,
-        severity: LogLevel::Info,
-        payload: payload.into(),
-        snapshot: None,
-    }
-}
-
 pub(crate) fn screen_settings_response_event(
     request_id: PayloadText,
     kind: PayloadText,
@@ -121,6 +67,60 @@ pub(crate) fn screen_settings_response_event(
             role: AgentPeerRole::Portal,
         },
         event,
+        severity: LogLevel::Info,
+        payload: payload.into(),
+        snapshot: None,
+    }
+}
+
+pub(crate) fn network_runtime_event_chain_response_event() -> AgentEventEnvelope {
+    let entries = json!([
+        {
+            "eventType": constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
+            "payload": {
+                "aiAnalysisRef": "event.ai.analysis.completed.1"
+            }
+        },
+        {
+            "eventType": constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
+            "payload": {
+                "policyDecisionRef": "event.policy.decision.completed.1"
+            }
+        },
+        {
+            "eventType": constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED,
+            "payload": {
+                "enforcementResultRef": "event.enforcement.result.observed.1"
+            }
+        }
+    ]);
+    let mut payload = std::collections::BTreeMap::new();
+    payload.insert(
+        constants::field::NETWORK_RUNTIME_STREAMED_EVENTS.to_string(),
+        LogFieldValue::Number(3.0),
+    );
+    payload.insert(
+        constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM.to_string(),
+        LogFieldValue::String(require_ok(
+            serde_json::to_string(&entries),
+            "network runtime event chain serializes",
+        )),
+    );
+
+    AgentEventEnvelope {
+        schema_version: 1,
+        event_id: "agent.network.runtime.event-chain.reported-1".to_string(),
+        correlation_id: "network-runtime".to_string(),
+        sent_at: "2026-06-23T00:00:01Z".to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            role: AgentPeerRole::AgentService,
+        },
+        target: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        event: AgentEventName::AgentNetworkRuntimeEventChainStreamReported,
         severity: LogLevel::Info,
         payload: payload.into(),
         snapshot: None,

@@ -1,7 +1,4 @@
-use std::{
-    fmt::Debug,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_protocol::browser::{BrowserCapabilityStatus, BrowserFamily};
 use ocentra_parent_agent_protocol::browser_inventory::BrowserExactUrlCapability;
@@ -596,7 +593,7 @@ fn managed_discovery_identity_uses_windows_inventory_identity() {
 }
 
 fn temp_inventory_root(suffix: u32) -> TestText {
-    let mut root = std::env::temp_dir()
+    let root = std::env::temp_dir()
         .join(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
         .join(std::process::id().to_string())
         .join(suffix.to_string());

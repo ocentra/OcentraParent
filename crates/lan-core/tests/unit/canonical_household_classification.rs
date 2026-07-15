@@ -15,15 +15,6 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanServiceIdentityProbeEvidence, LanServiceIdentityProbeEvidenceKind,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct LanText(String);
-
-macro_rules! lt {
-    ($value:expr) => {
-        LanText(($value).to_string())
-    };
-}
-
 #[test]
 fn service_probe_and_mdns_evidence_classify_television_devices() {
     let mut device = discovery_device("scanner-only-device");

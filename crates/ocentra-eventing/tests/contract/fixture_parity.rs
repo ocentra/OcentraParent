@@ -107,8 +107,9 @@ fn rust_newtypes_reject_shared_invalid_text_fixture_values() {
     for invalid in fixture().invalid_text {
         let field = invalid.field;
         let value = invalid.value;
-        let rejected = invalid_text_rejects(FixtureField(field.clone()), FixtureText(value));
-        assert!(rejected, "expected Rust newtype rejection for {}", field);
+        let field = FixtureField(field);
+        let rejected = invalid_text_rejects(&field, FixtureText(value));
+        assert!(rejected, "expected Rust newtype rejection for {}", field.0);
     }
 }
 
@@ -134,7 +135,7 @@ struct FixtureText(String);
 
 type TextParser = fn(FixtureText) -> Result<(), EventingError>;
 
-fn invalid_text_rejects(field: FixtureField, value: FixtureText) -> bool {
+fn invalid_text_rejects(field: &FixtureField, value: FixtureText) -> bool {
     invalid_text_checkers()
         .iter()
         .find(|(candidate, _)| candidate.0.as_str() == field.0.as_str())

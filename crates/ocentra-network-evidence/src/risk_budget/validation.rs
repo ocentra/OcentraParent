@@ -40,9 +40,3 @@ pub(super) fn validate_signal(
 ) -> Result<(), NetworkRiskBudgetThresholdError> {
     signal::validate_signal(signal)
 }
-
-pub(super) fn validate_audit_report(
-    report: &NetworkAiAuditReport,
-) -> Result<(), NetworkRiskBudgetThresholdError> {
-    signal::validate_audit_report(report)
-}

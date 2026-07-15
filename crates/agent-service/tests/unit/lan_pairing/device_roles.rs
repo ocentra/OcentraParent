@@ -12,7 +12,7 @@ use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRouteState;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeSurface;
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 
-use crate::app::lan_pairing::LanPairingRuntime;
+use crate::{app::lan_pairing::LanPairingRuntime, test_invariants::require_ok};
 
 static ENV_LOCK: Mutex<()> = Mutex::new(());
 
@@ -56,8 +56,8 @@ fn device_role_read_model_reports_dual_role_without_duplicate_ai_runtime_claims(
 
 #[test]
 fn device_role_read_model_defaults_child_mobile_surfaces_to_scaffold_manual_required_routes() {
-    assert_child_mobile_surface_defaults(DeviceRuntimeSurface::ChildAndroid);
-    assert_child_mobile_surface_defaults(DeviceRuntimeSurface::ChildIos);
+    assert_child_mobile_surface_defaults(&DeviceRuntimeSurface::ChildAndroid);
+    assert_child_mobile_surface_defaults(&DeviceRuntimeSurface::ChildIos);
 }
 
 fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
@@ -67,23 +67,24 @@ fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
     }
 }
 
-fn assert_child_mobile_surface_defaults(expected_surface: DeviceRuntimeSurface) {
+fn assert_child_mobile_surface_defaults(expected_surface: &DeviceRuntimeSurface) {
     let (surface_env_value, expected_platform) =
-        if expected_surface == DeviceRuntimeSurface::ChildAndroid {
+        if *expected_surface == DeviceRuntimeSurface::ChildAndroid {
             (
                 constants::value::DEVICE_RUNTIME_SURFACE_CHILD_ANDROID,
                 constants::local_ai_runtime::PLATFORM_OS_ANDROID,
             )
         } else {
-            assert_eq!(expected_surface, DeviceRuntimeSurface::ChildIos);
+            assert_eq!(*expected_surface, DeviceRuntimeSurface::ChildIos);
             (
                 constants::value::DEVICE_RUNTIME_SURFACE_CHILD_IOS,
                 constants::value::DEVICE_RUNTIME_PLATFORM_IOS,
             )
         };
-    let _guard = ENV_LOCK
-        .lock()
-        .expect("lan device-role env lock remains available");
+    let _guard = require_ok(
+        ENV_LOCK.lock(),
+        "lan device-role env lock remains available",
+    );
     let previous_registry_path =
         std::env::var_os(constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH);
     let previous_surface = std::env::var_os(constants::lan_pairing::DEVICE_SURFACE_ENV);
@@ -115,7 +116,7 @@ fn assert_child_mobile_surface_defaults(expected_surface: DeviceRuntimeSurface) 
     let runtime = LanPairingRuntime::from_env();
     let read_model = runtime.device_role_read_model();
 
-    assert_eq!(read_model.surface, expected_surface);
+    assert_eq!(read_model.surface, *expected_surface);
     assert_eq!(read_model.platform, expected_platform);
     assert_eq!(read_model.primary_role, DeviceRuntimeRole::ChildAgent);
     assert_eq!(read_model.roles.len(), 1);

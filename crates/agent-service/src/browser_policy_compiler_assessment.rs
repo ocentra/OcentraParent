@@ -5,7 +5,6 @@ use ocentra_parent_agent_protocol::BrowserPolicyApprovalState;
 use ocentra_parent_agent_protocol::BrowserPolicyCapabilityState;
 use ocentra_parent_agent_protocol::BrowserPolicyDefaultPosture;
 use ocentra_parent_agent_protocol::BrowserPolicyEvidenceProofLevel;
-use ocentra_parent_agent_protocol::BrowserPolicyExecutionMode;
 use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserIntegrationMechanism;
 use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserMode;
 use ocentra_parent_agent_protocol::BrowserPolicyRule;

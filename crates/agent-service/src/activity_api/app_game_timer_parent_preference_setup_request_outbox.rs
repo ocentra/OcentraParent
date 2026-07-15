@@ -11,7 +11,7 @@ use serde_json::{Map, Value};
 
 use super::app_game_timer_parent_preference_setup_request::AppGameTimerSetupStorePath;
 
-struct SetupOutboxPath(PathBuf);
+pub(crate) struct SetupOutboxPath(PathBuf);
 
 struct SetupOutboxTextRef<'a>(&'a str);
 

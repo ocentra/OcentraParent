@@ -91,7 +91,7 @@ pub(crate) async fn publish_screen_capture_queue_events_for_queue_job(
     queue_job_id: ScreenAiQueueJobId,
     observed_at: ObservedAtText,
 ) -> Result<Option<ScreenRuntimeReport>, ActivityCaptureError> {
-    let Some(row) = latest_screen_row_for_queue_job(store_path, queue_job_id, observed_at.clone())?
+    let Some(row) = latest_screen_row_for_queue_job(store_path, &queue_job_id, &observed_at)?
     else {
         return Ok(None);
     };
@@ -105,7 +105,7 @@ pub(crate) async fn publish_screen_deletion_event_for_queue_job(
     queue_job_id: ScreenAiQueueJobId,
     observed_at: ObservedAtText,
 ) -> Result<Option<ScreenRuntimeReport>, ActivityCaptureError> {
-    let Some(row) = latest_screen_row_for_queue_job(store_path, queue_job_id, observed_at.clone())?
+    let Some(row) = latest_screen_row_for_queue_job(store_path, &queue_job_id, &observed_at)?
     else {
         return Ok(None);
     };
@@ -121,7 +121,7 @@ pub(crate) fn screen_runtime_input_from_service_row(
     if row.raw_image_retained {
         return Err(ScreenAiServiceEventBridgeError::RawImageRetained);
     }
-    if !deletion_state_is_safe(ScreenAiDeletionState(row.image_deletion_state.clone())) {
+    if !deletion_state_is_safe(&ScreenAiDeletionState(row.image_deletion_state.clone())) {
         return Err(ScreenAiServiceEventBridgeError::UnsafeDeletionState);
     }
     let policy_decision_ref = row
@@ -210,7 +210,7 @@ pub(crate) fn screen_runtime_degraded_input_from_service_row(
     if row.raw_image_retained {
         return Err(ScreenAiServiceEventBridgeError::RawImageRetained);
     }
-    if !deletion_state_is_safe(ScreenAiDeletionState(row.image_deletion_state.clone())) {
+    if !deletion_state_is_safe(&ScreenAiDeletionState(row.image_deletion_state.clone())) {
         return Err(ScreenAiServiceEventBridgeError::UnsafeDeletionState);
     }
     let deletion_proof_ref = row
@@ -235,10 +235,9 @@ pub(crate) fn screen_runtime_degraded_input_from_service_row(
 
 fn latest_screen_row_for_queue_job(
     store_path: &Path,
-    queue_job_id: ScreenAiQueueJobId,
-    generated_at: ObservedAtText,
+    queue_job_id: &ScreenAiQueueJobId,
+    generated_at: &ObservedAtText,
 ) -> Result<Option<ActivityScreenReadModelRow>, ActivityCaptureError> {
-    let queue_job_id = queue_job_id.0;
     let store = ActivityStore::open(store_path)?;
     let summary = store.screen_evidence_recent_summary(
         constants::activity_store::DEFAULT_RECENT_LIMIT,
@@ -247,10 +246,10 @@ fn latest_screen_row_for_queue_job(
     Ok(summary
         .results
         .into_iter()
-        .find(|result| result.queue_job_id == queue_job_id)
+        .find(|result| result.queue_job_id == queue_job_id.0)
         .map(activity_screen_row_from_result))
 }
 
-fn deletion_state_is_safe(state: ScreenAiDeletionState) -> bool {
+fn deletion_state_is_safe(state: &ScreenAiDeletionState) -> bool {
     state.0 == SCREEN_DELETION_DELETED || state.0 == SCREEN_DELETION_EXPIRED_DELETED
 }

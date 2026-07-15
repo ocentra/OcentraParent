@@ -35,16 +35,6 @@ impl AsRef<Path> for LocalAiRuntimePath {
     }
 }
 
-impl LocalAiRuntimePath {
-    pub(crate) fn ends_with(&self, path: impl AsRef<Path>) -> bool {
-        self.0.ends_with(path)
-    }
-
-    pub(crate) fn is_dir(&self) -> bool {
-        self.0.is_dir()
-    }
-}
-
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct LocalAiRuntimeRefPrefix(pub(crate) &'static str);
 
@@ -80,7 +70,7 @@ pub(crate) fn env_u32(env_var_name: LocalAiRuntimeEnvVar, fallback: u32) -> u32 
 }
 
 pub(crate) fn env_llama_device(env_var_name: LocalAiRuntimeEnvVar) -> Option<LocalAiRuntimeText> {
-    env_value(env_var_name).filter(|value| validation::is_safe_llama_selector(value))
+    env_value(env_var_name).filter(validation::is_safe_llama_selector)
 }
 
 pub(crate) fn env_llama_gpu_layers(
@@ -95,7 +85,7 @@ pub(crate) fn env_llama_gpu_layers(
 
 pub(crate) fn env_llama_release_tag(env_var_name: LocalAiRuntimeEnvVar) -> LocalAiRuntimeText {
     env_value(env_var_name)
-        .filter(|value| validation::is_safe_llama_release_tag(value))
+        .filter(validation::is_safe_llama_release_tag)
         .unwrap_or_else(|| {
             LocalAiRuntimeText(
                 constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG.to_string(),
@@ -105,7 +95,7 @@ pub(crate) fn env_llama_release_tag(env_var_name: LocalAiRuntimeEnvVar) -> Local
 
 pub(crate) fn env_local_ai_model_id(env_var_name: LocalAiRuntimeEnvVar) -> LocalAiRuntimeText {
     env_value(env_var_name)
-        .filter(|value| validation::is_safe_local_ai_model_id(value))
+        .filter(validation::is_safe_local_ai_model_id)
         .unwrap_or_else(|| {
             LocalAiRuntimeText(constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4.to_string())
         })

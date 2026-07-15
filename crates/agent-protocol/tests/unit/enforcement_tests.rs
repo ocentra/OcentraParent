@@ -10,6 +10,7 @@ use super::{
     ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
     PolicyTarget, PolicyTargetType,
 };
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 
 const TIMER_TRANSITION_CASES: &[(
     EnforcementTimerEventKind,
@@ -109,9 +110,9 @@ fn enforcement_shapes_serialize_to_parent_domain_contract_names() {
     };
 
     let serialized_audit =
-        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(audit).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let serialized_timer =
-        serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(timer).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized_audit["auditEventKind"],
@@ -165,7 +166,7 @@ fn unsupported_status_values_do_not_deserialize() {
 
     let parsed = serde_json::from_value::<EnforcementResult>(payload);
 
-    let error = parsed.expect_err("expected invalid enforcement status to fail");
+    let error = parsed.expect_err_value("expected invalid enforcement status to fail");
     let message = error.to_string();
     assert!(
         message.contains("blocked-by-label"),
@@ -185,7 +186,7 @@ fn unavailable_status_serializes_typed_capability_reason() {
     };
 
     let serialized =
-        serde_json::to_value(unavailable).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(unavailable).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["unavailableReason"],
@@ -223,9 +224,9 @@ fn parent_approval_and_override_serialize_as_audit_references() {
     };
 
     let serialized_action =
-        serde_json::to_value(action).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(action).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let serialized_audit =
-        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(audit).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized_action["parentApproval"]["actionReferenceId"],
@@ -278,7 +279,7 @@ fn timer_event_kinds_serialize_to_contract_literals() {
             unavailable_reason: *unavailable_reason,
         };
         let serialized =
-            serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES);
+            serde_json::to_value(timer).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
         assert_eq!(serialized["timerEventKind"], *expected_kind);
         assert_eq!(
@@ -299,7 +300,7 @@ fn timer_event_kinds_serialize_to_contract_literals() {
                 action
                     .rollback_token
                     .as_deref()
-                    .expect(enforcement::TEST_ROLLBACK_TOKEN)
+                    .expect_value(enforcement::TEST_ROLLBACK_TOKEN)
             )
         );
         assert_eq!(
@@ -361,7 +362,8 @@ fn active_timer_state_serializes_action_result_audit_and_timer() {
         stored_at: policy::TEST_EVALUATED_AT.to_string(),
     };
 
-    let serialized = serde_json::to_value(state).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(state).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["stateId"], enforcement::TEST_TIMER_STATE_ID);
     assert_eq!(

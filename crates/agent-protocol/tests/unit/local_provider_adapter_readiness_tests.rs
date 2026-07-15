@@ -3,6 +3,7 @@ use super::{
     LocalAiExecutionState, LocalAiProviderConfigurationState, LocalAiProviderPrivacyMode,
     LocalAiProviderSource, LocalProviderAdapterProbe,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn local_provider_adapter_probe_serializes_no_execution_readiness_status() {
@@ -22,7 +23,7 @@ fn local_provider_adapter_probe_serializes_no_execution_readiness_status() {
         ),
     };
 
-    let serialized = serde_json::to_value(probe).expect("adapter probe serializes: {error:?}");
+    let serialized = serde_json::to_value(probe).expect_value("adapter probe serializes");
 
     assert_eq!(
         serialized["probeState"],
@@ -57,8 +58,7 @@ fn local_provider_adapter_readiness_state_serializes_every_boundary_state() {
     ];
 
     for (state, expected) in states {
-        let serialized =
-            serde_json::to_value(state).expect("adapter readiness serializes: {error:?}");
+        let serialized = serde_json::to_value(state).expect_value("adapter readiness serializes");
 
         assert_eq!(serialized, expected);
     }

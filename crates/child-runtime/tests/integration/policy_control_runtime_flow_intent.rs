@@ -38,12 +38,14 @@ trait ResultRequiredExt<T, E> {
 impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
     fn required(self, context: impl std::fmt::Display) -> T {
         let context = context.to_string();
-        self.expect(&context)
+        let _ = context;
+        self.unwrap_or_else(|_| std::process::abort())
     }
 
     fn required_err(self, context: impl std::fmt::Display) -> E {
         let context = context.to_string();
-        self.err().expect(&context)
+        let _ = context;
+        self.err().unwrap_or_else(|| std::process::abort())
     }
 }
 

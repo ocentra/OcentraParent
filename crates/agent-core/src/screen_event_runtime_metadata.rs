@@ -60,7 +60,7 @@ pub(crate) fn screen_deletion_event_metadata(
 fn screen_event_source(phase: ScreenRuntimePhase) -> Result<EventSource, EventingError> {
     Ok(EventSource::new(
         EventCustody::parse(custody_state(phase))?,
-        phase.runtime_role(),
+        phase.runtime_role()?,
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(constants::screen_flow::RUNTIME_COMPONENT_SCREEN_SPINE)?,
         RuntimeInstanceId::parse(constants::screen_flow::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,

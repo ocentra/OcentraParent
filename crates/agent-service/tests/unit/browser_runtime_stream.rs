@@ -29,6 +29,7 @@ mod activity_api {
         AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
     };
 
+    #[derive(Clone, Copy)]
     pub(crate) struct ActivityEventId(pub(crate) &'static str);
 
     pub(crate) async fn load_browser_evidence_read_model() -> Option<BrowserEvidenceReadModel> {
@@ -43,10 +44,13 @@ mod activity_api {
             event_id_suffix: ActivityEventId,
             event: AgentEventName,
         ) -> AgentEventEnvelope {
+            let AgentCommandEnvelope {
+                message_id, source, ..
+            } = command;
             crate::event_builder::build_event(
                 event_id_suffix.0,
-                &command.message_id,
-                command.source,
+                &message_id,
+                source,
                 event,
                 ocentra_parent_agent_protocol::logging::LogLevel::Error,
                 super::LogFields::new(),
@@ -94,6 +98,19 @@ mod clippy_linkage {
 
     #[tokio::test]
     async fn browser_runtime_stream_helpers_are_linked() {
+        let _ = crate::browser_runtime_stream_api::build_browser_runtime_event_chain_stream_report;
+        assert_eq!(
+            crate::event_builder::portal_peer().peer_id,
+            ocentra_parent_agent_protocol::constants::peer::PORTAL_DEV
+        );
+        assert_eq!(
+            crate::time::timestamp_after_epoch_seconds::<String>(30, 3),
+            "1970-01-01T00:00:33.000Z"
+        );
+        assert_eq!(
+            crate::time::timestamp_from_epoch_seconds::<String>(0),
+            "1970-01-01T00:00:00.000Z"
+        );
         let read_model = read_model(vec![managed_row()]);
         let policy_preview = match policy_preview_read_model_for_browser(&read_model) {
             Ok(policy_preview) => policy_preview,
@@ -145,7 +162,7 @@ async fn browser_runtime_stream_smoke_uses_request_and_json_helpers() -> TestRes
         "streamed_events": request_report.streamed_events,
     }));
     let _: serde_json::Value = crate::test_invariants::require_json_decode(
-        &crate::test_invariants::serialize_test_json(&serialized),
+        crate::test_invariants::serialize_test_json(&serialized),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
 

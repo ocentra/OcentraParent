@@ -12,7 +12,8 @@ use std::sync::Arc;
 use super::{
     super::fixtures::{
         metadata, subscriber, test_event, test_event_for_type, test_event_with_idempotency,
-        TestEvent, OTHER_EVENT_TYPE, TEST_EVENT_TYPE, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
+        TestEvent, TestText, OTHER_EVENT_TYPE, TEST_EVENT_TYPE, TEST_LABEL, TEST_SUBSCRIBER,
+        TEST_TARGET,
     },
     support::{
         cleanup, event_type, journal_path, stored_event, tamper_first_journal_payload_label,

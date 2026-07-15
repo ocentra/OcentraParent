@@ -36,7 +36,6 @@ pub fn module_name_from_path(file_path: &str) -> String {
         .unwrap_or(file_name.as_str());
     stem.split(|character: char| !character.is_ascii_alphanumeric())
         .filter(|segment| !segment.is_empty())
-        .into_iter()
         .map(|segment| {
             let mut chars = segment.chars();
             chars.next().map_or(String::new(), |first| {

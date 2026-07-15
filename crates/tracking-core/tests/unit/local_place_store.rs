@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_tracking_core::local_place_store::{
     build_tracking_local_parent_defined_place_match,
     create_tracking_local_parent_defined_place_store, delete_tracking_local_parent_defined_place,
@@ -13,7 +14,7 @@ trait TrackingLocalPlaceTestResultExt<T, E> {
 impl<T, E: core::fmt::Debug> TrackingLocalPlaceTestResultExt<T, E> for Result<T, E> {
     fn value_or_expect(self, context: impl core::fmt::Display) -> T {
         let context = context.to_string();
-        self.expect(&context)
+        self.expect_value(&context)
     }
 }
 

@@ -6,7 +6,7 @@ use crate::{
 
 use tokio::{
     fs::File,
-    io::{AsyncBufReadExt, BufReader, Lines},
+    io::{BufReader, Lines},
 };
 
 pub(super) async fn next_line(

@@ -28,10 +28,7 @@ use ocentra_parent_screen_capture_adapter::CapturedScreenImage;
 
 use crate::screen_ai_cadence_runtime_event::ScreenAiServiceCaptureRecord;
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-
-use test_text::TestText;
+use crate::test_text::TestText;
 
 const DEFAULT_MAX_RETRY_COUNT: u64 = 0;
 const DEFAULT_SETTING_VERSION: u64 = 1;
@@ -75,7 +72,7 @@ impl ScreenAiServiceCaptureIds {
 pub(crate) fn screen_queue_job(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
-    image_digest: TestText,
+    image_digest: &TestText,
 ) -> ScreenAnalysisQueueJob {
     ScreenAnalysisQueueJob {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
@@ -117,9 +114,9 @@ pub(crate) fn screen_analysis_event(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: TestText,
+    image_digest: &TestText,
 ) -> ActivityEvent {
-    let evidence = screen_analysis_evidence(ids, job, image_digest.clone());
+    let evidence = screen_analysis_evidence(ids, job, image_digest);
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: ids.event_id.to_string(),
@@ -144,7 +141,7 @@ pub(crate) fn screen_analysis_event(
 fn screen_analysis_evidence(
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: TestText,
+    image_digest: &TestText,
 ) -> Vec<ActivityEvidenceRef> {
     vec![ActivityEvidenceRef {
         evidence_id: ids.evidence_id.to_string(),
@@ -158,7 +155,7 @@ fn screen_analysis_fields(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: TestText,
+    image_digest: &TestText,
 ) -> Vec<(TestText, LogFieldValue)> {
     let mut fields = Vec::new();
     fields.extend(screen_analysis_identity_fields(record, ids, job));
@@ -224,10 +221,9 @@ fn screen_analysis_model_fields(
 
 fn screen_analysis_capture_fields(
     job: &ScreenAnalysisQueueJob,
-    image_digest: impl std::fmt::Display,
+    image_digest: &TestText,
     image: &CapturedScreenImage,
 ) -> Vec<(TestText, LogFieldValue)> {
-    let image_digest = TestText::from_display(image_digest);
     vec![
         string_field(
             constants::field::SCREEN_CAPTURE_REASON,

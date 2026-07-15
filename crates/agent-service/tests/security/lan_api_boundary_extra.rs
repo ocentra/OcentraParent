@@ -1,17 +1,39 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
-use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::{AgentEventEnvelope, AgentEventName};
 
 use crate::test_text::TestText;
 
 use crate::{
     app::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test},
-    lan_pairing_test_assertions::assert_rejection,
     lan_pairing_test_commands::{
         health_command, intent_payload, paired_runtime, serialize_command,
     },
     test_invariants::require_ok,
 };
+
+fn assert_rejection(event: &AgentEventEnvelope, reason: impl std::fmt::Display) {
+    let reason = reason.to_string();
+    assert_eq!(event.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(
+        event.payload.get(constants::field::LAN_CONTROL_STATE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_CONTROL_REJECTED.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_REJECTION_REASON),
+        Some(&LogFieldValue::String(reason))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_AUTHENTICATION_STATE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AUTH_UNAUTHENTICATED.to_string()
+        ))
+    );
+}
 
 #[tokio::test]
 async fn lan_api_boundary_rejects_unknown_command_body() {

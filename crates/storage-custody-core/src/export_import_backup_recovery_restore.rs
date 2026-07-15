@@ -42,13 +42,13 @@ fn restore_state(
         | (contracts::ExportImportPreflightState::PartialPreview, false) => {
             contracts::ExportImportRestoreApplyState::ApplyPending
         }
-        (contracts::ExportImportPreflightState::RejectedWrongHousehold, _) => {
+        (contracts::ExportImportPreflightState::HouseholdMismatch, _) => {
             contracts::ExportImportRestoreApplyState::WrongHousehold
         }
-        (contracts::ExportImportPreflightState::RejectedWrongKey, _) => {
+        (contracts::ExportImportPreflightState::KeyUnavailable, _) => {
             contracts::ExportImportRestoreApplyState::WrongKey
         }
-        (contracts::ExportImportPreflightState::RejectedCorruptBundle, _) => {
+        (contracts::ExportImportPreflightState::BundleCorrupt, _) => {
             contracts::ExportImportRestoreApplyState::Corrupt
         }
         _ => contracts::ExportImportRestoreApplyState::Blocked,

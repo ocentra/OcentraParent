@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use serde_json::{json, Value};
 
 use crate::{
@@ -186,5 +187,5 @@ fn base_intervention_row() -> BrowserInterventionRow {
 }
 
 fn serialized_read_model(read_model: BrowserInterventionReadModel) -> Value {
-    serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
 }

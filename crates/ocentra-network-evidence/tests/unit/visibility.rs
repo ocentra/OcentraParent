@@ -1,5 +1,4 @@
 use ocentra_eventing::expect_value::ExpectValue;
-use ocentra_network_evidence::dns::types::*;
 use ocentra_network_evidence::encrypted_dns::*;
 use ocentra_network_evidence::fixtures::visibility::*;
 use ocentra_network_evidence::http::*;

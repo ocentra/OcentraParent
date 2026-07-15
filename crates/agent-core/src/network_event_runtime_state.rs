@@ -1,7 +1,3 @@
-use ocentra_parent_agent_protocol::activity_capture::{
-    ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
-    ActivityProcessAttributionStatus,
-};
 use ocentra_parent_agent_protocol::network_flow::{
     NetworkAiAuditState, NetworkEvidenceScope, NetworkRiskBudgetState, NetworkRuntimeEvidenceGrade,
     NetworkRuntimePhase,

@@ -47,7 +47,7 @@ pub(super) fn bridge_poll_status(
         Ok(snapshot) => connected_bridge_status(
             BrowserRuntimeText(checked_at),
             BrowserRuntimeVersion(snapshot.browser_version.clone()),
-            snapshot,
+            &snapshot,
         ),
         Err(error) => bridge_disconnected_status(checked_at, error.reason()),
     }
@@ -56,7 +56,7 @@ pub(super) fn bridge_poll_status(
 fn connected_bridge_status(
     checked_at: BrowserRuntimeText,
     browser_version: BrowserRuntimeVersion,
-    snapshot: BrowserBridgePollSnapshot,
+    snapshot: &BrowserBridgePollSnapshot,
 ) -> BrowserManagedSessionStatus {
     let checked_at = checked_at.0;
     if let Err(error) = record_activity_events_to_paths(

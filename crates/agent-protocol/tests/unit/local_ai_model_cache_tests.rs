@@ -3,6 +3,7 @@ use super::{
     LocalAiModelCacheUnavailableReason, LocalAiModelDownloadStatus,
     LocalAiModelManifestIntegrityState, LocalAiModelSourcePolicy,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn local_model_cache_status_serializes_without_parent_visible_paths() {
@@ -25,7 +26,7 @@ fn local_model_cache_status_serializes_without_parent_visible_paths() {
         corruption_reason: None,
     };
 
-    let serialized = serde_json::to_value(status).expect("cache status serializes: {error}");
+    let serialized = serde_json::to_value(status).expect_value("cache status serializes");
 
     assert_eq!(
         serialized["artifactRef"],

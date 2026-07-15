@@ -259,9 +259,7 @@ export const ParentSetupFirstRunRoutes: readonly ParentRouteId[] = [
 
 export const ParentTrackingStatusRoutes: readonly ParentRouteId[] = [
   ParentRoute.PolicyTracking,
-] as const;
-
-export function isParentAiRuntimeRoute(route: ParentRouteId): boolean {
+] as const;export function isParentAiRuntimeRoute(route: ParentRouteId): boolean {
   return parentRouteMatches(route, ParentAiRuntimeRoutes);
 }
 
@@ -380,9 +378,7 @@ export const ParentRouteMetadata: Readonly<Record<ParentRouteId, ParentRouteMeta
 
 export const ParentSidebarRoutes: readonly ParentRouteId[] = ParentRoutes.filter(
   (route) => ParentRouteMetadata[route].sidebar
-);
-
-export type ParentBridgeConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
+);export type ParentBridgeConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
 
 export const ParentBridgeConnectionState = {
   Disconnected: 'disconnected',
@@ -1315,8 +1311,7 @@ export function presentationOnlyDevWebHostBridgeMessage(): string {
   return 'Dev web host bridge is presentation-only. Launch the desktop app for product data and actions.';
 }
 
-export type ParentRouteSubscriptionId = Parameters<typeof parentRouteSubscriptionEventName>[0];
-export type ParentRouteSubscriptionEventName = ReturnType<typeof parentRouteSubscriptionEventName>;
+export type ParentRouteSubscriptionId = Parameters<typeof parentRouteSubscriptionEventName>[0];export type ParentRouteSubscriptionEventName = ReturnType<typeof parentRouteSubscriptionEventName>;
 export type ParentDevBridgeUrl = Parameters<typeof parentDevBridgeDispatchUnavailableMessage>[0];
 
 export interface ParentRouteContext {
@@ -1678,9 +1673,7 @@ export interface ParentLanAddDeviceReadModelSnapshot {
   readonly routeRequirementLabels: readonly string[];
   readonly auditCheckLabels: readonly string[];
   readonly honestNonClaims: readonly string[];
-}
-
-export interface ParentActivityEvidenceRefSnapshot {
+}export interface ParentActivityEvidenceRefSnapshot {
   readonly evidenceId: string;
   readonly kind: string;
   readonly digest?: string | null;
@@ -1825,8 +1818,7 @@ export interface ParentNetworkRuntimeEventChainStreamSnapshot {
   readonly invalidEventCount: number;
 }
 
-export interface ParentPolicyPreviewReadModelSnapshot {
-  readonly schemaVersion?: string | null;
+export interface ParentPolicyPreviewReadModelSnapshot {  readonly schemaVersion?: string | null;
   readonly generatedAt?: string | null;
   readonly custody?: string | null;
   readonly limit?: number | null;
@@ -1994,8 +1986,7 @@ export interface ParentAppGameNotificationParentSurfacePanelSnapshot {
   readonly emptyMessage: string;
 }
 
-export interface ParentScreenSummaryPanelDetailSnapshot {
-  readonly label: string;
+export interface ParentScreenSummaryPanelDetailSnapshot {  readonly label: string;
   readonly value: string;
 }
 
@@ -2118,9 +2109,7 @@ export interface ParentRouteSnapshot {
   readonly browserPanels?: ParentRouteBrowserPanelsSnapshot | null;
   readonly setupFirstRunPanel?: ParentSetupFirstRunPanelSnapshot | null;
   readonly screenSettingsServiceResponse?: ParentUnknownRecord | null;
-}
-
-export type ParentChildDeviceId = NonNullable<ParentRouteContext['selectedChildDeviceId']>;
+}export type ParentChildDeviceId = NonNullable<ParentRouteContext['selectedChildDeviceId']>;
 export type ParentUiDisplayText = ParentPortalRowSnapshot['label'];
 export type ParentRouteSummaryState = ParentPortalRowSnapshot['trend'];
 export type ParentPortalShellStatusCardId = ParentPortalShellStatusCardSnapshot['id'];

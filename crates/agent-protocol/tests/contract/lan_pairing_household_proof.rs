@@ -1,10 +1,9 @@
-#[path = "lan_pairing_helpers.rs"]
-mod lan_pairing_helpers;
-
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::V09ProductionDiscoveryHouseholdProofReadModel;
 
-use lan_pairing_helpers::{json_surface_contains_marker, read_model, JsonSurfaceMarker};
+use super::lan_pairing::lan_pairing_helpers::{
+    json_surface_contains_marker, read_model, JsonSurfaceMarker,
+};
 
 #[test]
 fn v09_production_discovery_household_proof_read_model_serializes_honest_route_states(
@@ -55,18 +54,18 @@ fn assert_honest_route_states(
 }
 
 fn assert_no_raw_markers(serialized: &serde_json::Value) {
-    assert_eq!(
-        json_surface_contains_marker(&serialized, JsonSurfaceMarker::RawEvidence),
-        false
-    );
-    assert_eq!(
-        json_surface_contains_marker(&serialized, JsonSurfaceMarker::RawToken),
-        false
-    );
-    assert_eq!(
-        json_surface_contains_marker(&serialized, JsonSurfaceMarker::ActivitySqlite),
-        false
-    );
+    assert!(!json_surface_contains_marker(
+        serialized,
+        JsonSurfaceMarker::RawEvidence,
+    ));
+    assert!(!json_surface_contains_marker(
+        serialized,
+        JsonSurfaceMarker::RawToken,
+    ));
+    assert!(!json_surface_contains_marker(
+        serialized,
+        JsonSurfaceMarker::ActivitySqlite,
+    ));
 }
 
 #[test]
@@ -77,7 +76,6 @@ fn v09_production_discovery_household_proof_read_model_rejects_missing_required_
         }),
     );
 
-    assert_eq!(result.is_err(), true);
     assert_eq!(
         result.err().as_ref().map(serde_json::Error::classify),
         Some(serde_json::error::Category::Data)

@@ -1,4 +1,4 @@
-use std::{fmt::Debug, fs, path::Path};
+use std::{fs, path::Path};
 
 use ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME;
 use ocentra_parent_agent_protocol::browser_inventory::{

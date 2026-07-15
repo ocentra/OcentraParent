@@ -11,6 +11,7 @@ use super::read_model::{
     TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
 use crate::{constants, LogFieldValue, LogFields};
+use ocentra_eventing::expect_value::ExpectValue;
 
 struct FieldPair {
     key: &'static str,
@@ -133,11 +134,11 @@ fn read_model_active_count_pairs(read_model: &TrackingReadModel) -> Vec<FieldPai
 }
 
 fn active_counts_json(counts: &[TrackingReadModelCount]) -> String {
-    serde_json::to_string(counts).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::to_string(counts).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn tracking_read_model_json(read_model: &TrackingReadModel) -> String {
-    serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    serde_json::to_string(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn latest_row_pairs(row: Option<&TrackingReadModelRow>) -> Vec<FieldPair> {

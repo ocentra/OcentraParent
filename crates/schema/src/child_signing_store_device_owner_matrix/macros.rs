@@ -1,7 +1,3 @@
-use std::fmt::{Display, Formatter};
-
-use serde::{Deserialize, Serialize};
-
 macro_rules! matrix_text_identifier {
     ($name:ident) => {
         #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]

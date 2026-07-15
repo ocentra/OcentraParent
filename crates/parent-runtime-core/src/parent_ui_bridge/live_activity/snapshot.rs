@@ -84,7 +84,3 @@ fn activity_tracking_panel_snapshot(
 ) -> ParentTrackingStatusPanelSnapshot {
     activity_tracking_panel_snapshot_impl(read_model_result, write_result)
 }
-
-pub(super) const SCREEN_SUMMARY_DETAIL_SEPARATOR: &str = " | ";
-pub(super) const SCREEN_SUMMARY_NOT_REPORTED: &str = "Not reported";
-pub(super) const SCREEN_SUMMARY_UNAVAILABLE: &str = "Unavailable";

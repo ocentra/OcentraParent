@@ -92,14 +92,14 @@ async fn policy_dispatch_websocket_command_returns_service_read_model() -> TestR
 
     let read_model: EnforcementPolicyDispatchReadModel = test_ok(
         serde_json::from_str(
-            &test_some(
+            test_some(
                 optional_log_string(
                     &event.payload,
                     constants::field::ENFORCEMENT_POLICY_DISPATCH_READ_MODEL,
                 ),
                 constants::error::AGENT_EVENT_SERIALIZES,
             )?
-            .to_string(),
+            .as_ref(),
         ),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;

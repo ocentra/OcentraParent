@@ -78,7 +78,7 @@ pub async fn build_activity_screen_read_model(command: AgentCommandEnvelope) -> 
     read_model_event(
         command,
         AgentEventName::AgentActivityScreenReadModelReported,
-        ActivitySurfaceEventId(constants::event_id::ACTIVITY_SCREEN_READ_MODEL_REPORTED),
+        &ActivitySurfaceEventId(constants::event_id::ACTIVITY_SCREEN_READ_MODEL_REPORTED),
         ReadModelKind(constants::activity_surface::READ_MODEL_SCREEN.to_string()),
         read_model.state,
         read_model.rows.len(),
@@ -93,7 +93,7 @@ pub async fn build_activity_app_use_read_model(
     read_model_event(
         command,
         AgentEventName::AgentActivityAppUseReadModelReported,
-        ActivitySurfaceEventId(constants::event_id::ACTIVITY_APP_USE_READ_MODEL_REPORTED),
+        &ActivitySurfaceEventId(constants::event_id::ACTIVITY_APP_USE_READ_MODEL_REPORTED),
         ReadModelKind(constants::activity_surface::READ_MODEL_APP_USE.to_string()),
         read_model.state,
         read_model.rows.len(),
@@ -108,7 +108,7 @@ pub async fn build_activity_browser_read_model(
     read_model_event(
         command,
         AgentEventName::AgentActivityBrowserReadModelReported,
-        ActivitySurfaceEventId(constants::event_id::ACTIVITY_BROWSER_READ_MODEL_REPORTED),
+        &ActivitySurfaceEventId(constants::event_id::ACTIVITY_BROWSER_READ_MODEL_REPORTED),
         ReadModelKind(constants::activity_surface::READ_MODEL_BROWSER.to_string()),
         read_model.state,
         read_model.rows.len(),
@@ -121,7 +121,7 @@ pub async fn build_activity_games_read_model(command: AgentCommandEnvelope) -> A
     read_model_event(
         command,
         AgentEventName::AgentActivityGamesReadModelReported,
-        ActivitySurfaceEventId(constants::event_id::ACTIVITY_GAMES_READ_MODEL_REPORTED),
+        &ActivitySurfaceEventId(constants::event_id::ACTIVITY_GAMES_READ_MODEL_REPORTED),
         ReadModelKind(constants::activity_surface::READ_MODEL_GAMES.to_string()),
         read_model.state,
         read_model.rows.len(),
@@ -136,7 +136,7 @@ pub async fn build_activity_network_read_model(
     read_model_event(
         command,
         AgentEventName::AgentActivityNetworkReadModelReported,
-        ActivitySurfaceEventId(constants::event_id::ACTIVITY_NETWORK_READ_MODEL_REPORTED),
+        &ActivitySurfaceEventId(constants::event_id::ACTIVITY_NETWORK_READ_MODEL_REPORTED),
         ReadModelKind(constants::activity_surface::READ_MODEL_NETWORK.to_string()),
         read_model.state,
         read_model.rows.len(),
@@ -163,7 +163,7 @@ async fn build_generated_report(
 fn read_model_event(
     command: AgentCommandEnvelope,
     event: AgentEventName,
-    event_id: ActivitySurfaceEventId,
+    event_id: &ActivitySurfaceEventId,
     read_model_kind: ReadModelKind,
     state: ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState,
     row_count: usize,

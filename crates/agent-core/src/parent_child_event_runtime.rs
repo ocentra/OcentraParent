@@ -89,8 +89,8 @@ fn parent_child_event_source(phase: ParentChildRuntimePhase) -> Result<EventSour
     };
 
     Ok(EventSource::new(
-        phase.custody(),
-        phase.runtime_role(),
+        phase.custody()?,
+        phase.runtime_role()?,
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(component)?,
         RuntimeInstanceId::parse(instance)?,

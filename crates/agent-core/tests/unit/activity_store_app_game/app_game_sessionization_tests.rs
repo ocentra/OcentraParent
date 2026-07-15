@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::app_game::APP_GAME_OBSERVATION_MODE_PROCESS_EXIT;
 use ocentra_parent_agent_protocol::app_game::*;
@@ -88,7 +89,7 @@ fn foreground_duration_uses_window_focus_and_stays_within_running_duration() {
         .find(|summary| {
             summary.primary_process_identity == constants::activity_store::TEST_PROCESS_SUBJECT_ID
         })
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(game_summary.running_duration_ms, 120000);
     assert_eq!(game_summary.foreground_duration_ms, 60000);
@@ -141,15 +142,16 @@ fn daily_rollup_sums_session_durations_by_day_and_classification() {
 }
 
 fn summaries_from_events(events: &[ActivityEvent]) -> Vec<AppGameSessionSummary> {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     store
         .ingest_events(events)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
     let rows = app_game_rows(
         store.connection_for_test(),
         constants::activity_store::DEFAULT_RECENT_LIMIT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
     session_summaries_from_rows(rows, constants::activity_store::DEFAULT_RECENT_LIMIT)
 }
 

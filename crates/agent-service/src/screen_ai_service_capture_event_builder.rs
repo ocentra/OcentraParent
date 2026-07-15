@@ -79,7 +79,7 @@ impl ScreenAiServiceCaptureIds {
 pub(crate) fn screen_queue_job(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
-    image_digest: ScreenText,
+    image_digest: &ScreenText,
 ) -> ScreenAnalysisQueueJob {
     ScreenAnalysisQueueJob {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
@@ -121,9 +121,9 @@ pub(crate) fn screen_analysis_event(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: ScreenText,
+    image_digest: &ScreenText,
 ) -> ActivityEvent {
-    let evidence = screen_analysis_evidence(ids, job, image_digest.clone());
+    let evidence = screen_analysis_evidence(ids, job, image_digest);
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: ids.event_id.clone(),
@@ -153,7 +153,7 @@ pub(crate) fn screen_analysis_event(
 fn screen_analysis_evidence(
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: ScreenText,
+    image_digest: &ScreenText,
 ) -> Vec<ActivityEvidenceRef> {
     vec![ActivityEvidenceRef {
         evidence_id: ids.evidence_id.clone(),
@@ -167,7 +167,7 @@ fn screen_analysis_fields(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: ScreenText,
+    image_digest: &ScreenText,
 ) -> Vec<ScreenFieldEntry> {
     let mut fields = Vec::new();
     fields.extend(screen_analysis_identity_fields(record, ids, job));
@@ -242,7 +242,7 @@ fn screen_analysis_model_fields(
 
 fn screen_analysis_capture_fields(
     job: &ScreenAnalysisQueueJob,
-    image_digest: ScreenText,
+    image_digest: &ScreenText,
     image: &CapturedScreenImage,
 ) -> Vec<ScreenFieldEntry> {
     vec![
@@ -260,7 +260,7 @@ fn screen_analysis_capture_fields(
         ),
         string_field(
             ScreenFieldKey(constants::field::SCREEN_IMAGE_DIGEST),
-            image_digest,
+            ScreenText(image_digest.0.clone()),
         ),
         string_field(
             ScreenFieldKey(constants::field::SCREEN_CUSTODY_STATE),

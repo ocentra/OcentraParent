@@ -143,6 +143,7 @@ fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
     }
 }
 
+#[derive(Clone, Copy)]
 struct LanAiProviderStatusExpectation {
     status: &'static str,
     routing_state: &'static str,

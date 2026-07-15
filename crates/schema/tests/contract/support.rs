@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
-use serde_json::Value;
+#[path = "support/support_assertions.rs"]
+mod support_assertions;
 
 #[macro_export]
 macro_rules! assert_context {
@@ -71,15 +72,6 @@ pub struct ContractNames(pub BTreeSet<String>);
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TypeScriptBlock(pub String);
 
-impl TypeScriptBlock {
-    pub fn as_contract_text(&self) -> ContractText<'_> {
-        ContractText(self.0.as_str())
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ModuleSpecifiers<'a>(pub Vec<&'a str>);
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ContractTexts(pub Vec<String>);
 
@@ -110,32 +102,21 @@ impl<T: std::fmt::Debug, E: std::fmt::Debug> ErrorOrUnreachable<E> for Result<T,
 }
 
 pub fn option_or_unreachable<T>(value: Option<T>, context: AssertionContext<'_>) -> T {
-    value.expect(context.0)
+    support_assertions::option_or_unreachable(value, context)
 }
 
 pub fn result_or_unreachable<T, E: std::fmt::Debug>(
     value: Result<T, E>,
     context: AssertionContext<'_>,
 ) -> T {
-    value.expect(context.0)
+    support_assertions::result_or_unreachable(value, context)
 }
 
 pub fn error_or_unreachable<T: std::fmt::Debug, E: std::fmt::Debug>(
     value: Result<T, E>,
     context: AssertionContext<'_>,
 ) -> E {
-    value.expect_err(context.0)
-}
-
-pub fn module_specifiers<'a>(source: ContractText<'a>) -> ModuleSpecifiers<'a> {
-    ModuleSpecifiers(
-        source
-            .0
-            .split(" from '")
-            .skip(1)
-            .filter_map(|rest| rest.split_once('\'').map(|(specifier, _)| specifier))
-            .collect(),
-    )
+    support_assertions::error_or_unreachable(value, context)
 }
 
 fn exported_name_from_line(line: ContractLine<'_>) -> Option<ContractString> {
@@ -171,7 +152,8 @@ pub fn exported_names(source: ContractText<'_>) -> ContractNames {
 
 pub fn assert_exports_include(source: ContractText<'_>, expected: ContractNames) {
     let actual = exported_names(source);
-    assert!(expected.0.is_subset(&actual.0));
+    let expected = expected.0;
+    assert!(expected.is_subset(&actual.0));
 }
 
 pub fn string_const_value(
@@ -216,24 +198,6 @@ pub fn assert_generated_line_eq(
     assert_eq!(generated_line(source, line_start), expected);
 }
 
-pub fn assert_generated_line_containing_eq(
-    source: ContractText<'_>,
-    snippet: ContractText<'_>,
-    expected: ContractLine<'_>,
-) {
-    assert_eq!(line_containing(source, snippet), expected);
-}
-
-pub fn line_containing<'a>(
-    source: ContractText<'a>,
-    snippet: ContractText<'_>,
-) -> ContractLine<'a> {
-    ContractLine(option_or_unreachable(
-        source.0.lines().find(|line| line.contains(snippet.0)),
-        crate::assert_context!("expected generated line to exist"),
-    ))
-}
-
 pub fn assert_contract_contains(source: ContractText<'_>, expected: ContractText<'_>) {
     assert!(
         source.0.contains(expected.0),
@@ -255,26 +219,19 @@ pub fn assert_contract_has_lines(source: ContractText<'_>, expected: ContractTex
         .for_each(|line| assert_contract_contains(source, crate::contract_text!(line.as_str())));
 }
 
-pub fn extract_json_block(source: ContractText<'_>, boundary: TextBoundary<'_>) -> Value {
-    let normalized = extract_typescript_block(source, boundary)
-        .0
-        .replace(",\n]", "\n]")
-        .replace(",\n}", "\n}");
-    serde_json::from_str(&normalized).expect("generated json block parses")
-}
-
 pub fn extract_typescript_block(
     source: ContractText<'_>,
     boundary: TextBoundary<'_>,
 ) -> TypeScriptBlock {
-    let remainder = source
-        .0
-        .split_once(boundary.prefix)
-        .expect("typescript block prefix to exist")
-        .1;
-    let block = remainder
-        .split_once(boundary.suffix)
-        .expect("typescript block suffix to exist")
-        .0;
+    let remainder = option_or_unreachable(
+        source.0.split_once(boundary.prefix),
+        crate::assert_context!("typescript block prefix to exist"),
+    )
+    .1;
+    let block = option_or_unreachable(
+        remainder.split_once(boundary.suffix),
+        crate::assert_context!("typescript block suffix to exist"),
+    )
+    .0;
     TypeScriptBlock(block.trim().replace("\r\n", "\n"))
 }

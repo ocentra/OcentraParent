@@ -149,6 +149,7 @@ pub(super) fn scan_session_key(
 ) -> LanPairingText {
     const SCAN_SESSION_KEY_REPLACEMENT: &str = "-";
     scan_session_id.cloned().unwrap_or_else(|| {
-        LanPairingText(fallback.0.replace([':', '.'], SCAN_SESSION_KEY_REPLACEMENT))
+        let fallback = fallback.0;
+        LanPairingText(fallback.replace([':', '.'], SCAN_SESSION_KEY_REPLACEMENT))
     })
 }

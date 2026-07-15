@@ -66,7 +66,7 @@ pub(super) fn keyed_discovery_event_id(
 }
 
 pub(super) fn reachability_discovery_event_id(
-    segment: LanPairingText,
+    segment: &LanPairingText,
     scan_key: &LanPairingText,
     entity_id: &LanPairingText,
 ) -> LanPairingText {
@@ -87,7 +87,7 @@ pub(super) fn scan_finished_summary(scanned_device_count: u32) -> LanPairingText
 }
 
 pub(super) fn evidence_found_summary(
-    evidence_kind: LanPairingText,
+    evidence_kind: &LanPairingText,
     display_name: &LanPairingText,
 ) -> LanPairingText {
     let mut summary = String::from(LAN_DISCOVERY_OBSERVED_SUMMARY_PREFIX);

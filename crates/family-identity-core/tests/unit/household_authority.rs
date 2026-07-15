@@ -388,7 +388,7 @@ fn parent_step_up_required_actions_are_explicit() {
 
 #[test]
 fn validates_parent_step_up_assertions_as_action_device_and_target_bound() {
-    let decision = validate_parent_step_up_assertion(ParentStepUpValidationInput {
+    let decision = validate_parent_step_up_assertion(&ParentStepUpValidationInput {
         assertion: Some(ParentStepUpAssertionSnapshot {
             family_id: "family-main".to_owned(),
             parent_account_id: "parent-account-1".to_owned(),
@@ -420,7 +420,7 @@ fn validates_parent_step_up_assertions_as_action_device_and_target_bound() {
 
 #[test]
 fn rejects_expired_or_replayed_parent_step_up_assertions() {
-    let expired = validate_parent_step_up_assertion(ParentStepUpValidationInput {
+    let expired = validate_parent_step_up_assertion(&ParentStepUpValidationInput {
         assertion: Some(ParentStepUpAssertionSnapshot {
             family_id: "family-main".to_owned(),
             parent_account_id: "parent-account-1".to_owned(),
@@ -446,7 +446,7 @@ fn rejects_expired_or_replayed_parent_step_up_assertions() {
         Some(ParentStepUpValidationFailureReason::Expired)
     );
 
-    let replayed = validate_parent_step_up_assertion(ParentStepUpValidationInput {
+    let replayed = validate_parent_step_up_assertion(&ParentStepUpValidationInput {
         assertion: Some(ParentStepUpAssertionSnapshot {
             family_id: "family-main".to_owned(),
             parent_account_id: "parent-account-1".to_owned(),

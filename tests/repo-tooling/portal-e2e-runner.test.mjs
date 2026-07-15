@@ -104,12 +104,14 @@ WHERE event_id = ?;
   }
 });
 
-test('portal network activity service preflight uses shared protocol command and seed refs', () => {
+test('portal network activity service preflight uses the Rust wire decoder and shared command helper', () => {
   const preflightSource = readFileSync('scripts/test/portal-network-activity-service-preflight.mjs', 'utf8');
 
-  assert.equal(preflightSource.includes('AgentCommand.NetworkFlowReadModelGet'), true);
-  assert.equal(preflightSource.includes('AgentEvent.NetworkFlowReadModelReported'), true);
-  assert.equal(preflightSource.includes('AgentEventEnvelopeSchema.parse'), true);
+  assert.equal(preflightSource.includes('createPortalSmokeCommandEnvelope'), true);
+  assert.equal(preflightSource.includes('parseAgentEventEnvelope'), true);
+  assert.equal(preflightSource.includes("'agent.network.flow.read-model.get'"), true);
+  assert.equal(preflightSource.includes("'agent.network.flow.read-model.reported'"), true);
+  assert.equal(preflightSource.includes('@ocentra-parent/schema-domain'), false);
   assert.equal(preflightSource.includes('PortalNetworkActivitySeed.EvidenceId'), true);
 });
 

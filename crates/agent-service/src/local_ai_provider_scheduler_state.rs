@@ -59,7 +59,7 @@ pub(crate) fn copy_runtime_fields(
     status.runtime_reference_id = runtime.runtime_reference_id.clone();
     status.model_id = runtime.model_id.clone();
     status.model_reference = runtime.model_reference.clone();
-    status.resource_class = runtime.resource_class.clone();
+    status.resource_class = runtime.resource_class;
     status.last_checked_at = runtime.last_checked_at.clone();
 }
 

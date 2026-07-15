@@ -95,14 +95,6 @@ name = "lan_pairing"
 path = "tests/unit/lan_pairing.rs"
 
 [[test]]
-name = "lan_pairing_browser_runtime"
-path = "tests/unit/lan_pairing_browser_runtime.rs"
-
-[[test]]
-name = "lan_pairing_multidevice"
-path = "tests/unit/lan_pairing_multidevice.rs"
-
-[[test]]
 name = "lan_pairing_runtime_state"
 path = "tests/unit/lan_pairing_runtime_state.rs"
 

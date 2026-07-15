@@ -21,14 +21,14 @@ use ocentra_parent_agent_protocol::transport::{
 
 use super::{
     cached_localhost_status_scan_result, cached_status_snapshot_devices,
-    command_uses_physical_lan_scan, durable_household_scan_suppression_devices,
-    inventory_refresh_mode_after_targeted_refresh, network_device_scan_result_for_command,
-    recent_previous_scan_agent_truth_devices, refresh_mode_for_command, scan_history_is_recent,
-    scan_truth_context,
+    command_uses_physical_lan_scan, inventory_refresh_mode_after_targeted_refresh,
+    network_device_scan_result_for_command, recent_previous_scan_agent_truth_devices,
+    refresh_mode_for_command, scan_history_is_recent, scan_truth_context,
 };
 use crate::app::lan_pairing::LanPairingRuntime;
 use crate::app::lan_pairing_browser_add_device_state::scan_history::LanScanHistorySnapshot;
 use crate::lan_pairing_test_commands::paired_runtime;
+use crate::test_invariants::{require_ok, require_some};
 
 #[test]
 fn status_and_scan_commands_keep_physical_lan_inventory_enabled() {
@@ -98,7 +98,7 @@ fn stale_previous_scan_child_truth_does_not_suppress_probe_forever() {
 #[test]
 fn invalid_history_timestamp_is_not_treated_as_recent() {
     assert!(!scan_history_is_recent(
-        LanPairingText::from(constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME),
+        &LanPairingText::from(constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME),
         Utc::now(),
     ));
 }
@@ -157,8 +157,8 @@ fn localhost_status_prefers_recent_cached_scan_snapshot() {
         &status_command_for_route(AgentRoute::Localhost),
         Some(&snapshot),
         now,
-    )
-    .expect("localhost status cache should return cached devices");
+    );
+    let devices = require_some(devices, constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
 
     assert_eq!(devices.len(), 1);
     assert_eq!(devices[0].ip_address, constants::lan_pairing::TEST_LAN_IP);
@@ -198,8 +198,8 @@ fn localhost_status_with_stale_cache_reports_previous_snapshot_without_reusing_i
         &status_command_for_route(AgentRoute::Localhost),
         Some(snapshot),
         now,
-    )
-    .expect("localhost status cache should return a stale snapshot wrapper");
+    );
+    let result = require_some(result, constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
 
     assert_eq!(result.devices.len(), 0);
     assert!(!result.reused_recent_snapshot);
@@ -237,7 +237,8 @@ fn previous_router_truth_becomes_scan_suppression_without_upgrading_identity_tru
         devices: vec![router_scan_device()],
     };
 
-    let devices = durable_household_scan_suppression_devices(&[], Some(&snapshot), &[], &[]);
+    let runtime = LanPairingRuntime::empty();
+    let devices = scan_truth_context(&runtime, Some(&snapshot), now).scan_suppression_devices;
 
     assert_eq!(devices.len(), 1);
     assert_eq!(
@@ -261,7 +262,7 @@ fn ignored_previous_household_device_becomes_scan_suppression_truth() {
             constants::lan_pairing::LOCAL_AGENT_STATUS,
         )],
     };
-    let decisions = vec![LanHouseholdDeviceDecision {
+    let mut decisions = vec![LanHouseholdDeviceDecision {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         action_id: constants::lan_pairing::HOUSEHOLD_ACTION_ID.to_string(),
         action_kind: LanHouseholdDeviceActionKind::Ignore,
@@ -274,7 +275,15 @@ fn ignored_previous_household_device_becomes_scan_suppression_truth() {
         revoked_at: None,
     }];
 
-    let devices = durable_household_scan_suppression_devices(&[], Some(&snapshot), &[], &decisions);
+    let runtime = LanPairingRuntime::empty();
+    {
+        let mut registry = require_ok(
+            runtime.registry.lock(),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
+        registry.apply_household_device_decision(decisions.remove(0));
+    }
+    let devices = scan_truth_context(&runtime, Some(&snapshot), now).scan_suppression_devices;
 
     assert_eq!(devices.len(), 1);
     assert_eq!(
@@ -285,8 +294,15 @@ fn ignored_previous_household_device_becomes_scan_suppression_truth() {
 
 #[test]
 fn stored_known_router_truth_suppresses_scan_work_without_scan_history() {
-    let devices =
-        durable_household_scan_suppression_devices(&[stored_known_router()], None, &[], &[]);
+    let runtime = LanPairingRuntime::empty();
+    {
+        let mut registry = require_ok(
+            runtime.registry.lock(),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
+        assert!(registry.merge_known_household_devices(vec![stored_known_router()]));
+    }
+    let devices = scan_truth_context(&runtime, None, Utc::now()).scan_suppression_devices;
 
     assert_eq!(devices.len(), 1);
     assert_eq!(
@@ -299,10 +315,10 @@ fn stored_known_router_truth_suppresses_scan_work_without_scan_history() {
 fn stored_known_child_agent_truth_feeds_identity_and_scan_context_without_scan_history() {
     let runtime = LanPairingRuntime::empty();
     {
-        let mut registry = runtime
-            .registry
-            .lock()
-            .expect("registry lock remains available");
+        let mut registry = require_ok(
+            runtime.registry.lock(),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
         let changed = registry.merge_known_household_devices(vec![stored_known_child_agent()]);
         assert!(changed);
     }
@@ -330,10 +346,10 @@ fn stored_known_child_agent_truth_feeds_identity_and_scan_context_without_scan_h
 async fn scan_truth_context_reuses_registry_and_history_truth_without_agentless_devices() {
     let runtime = paired_runtime().await;
     {
-        let mut registry = runtime
-            .registry
-            .lock()
-            .expect("registry lock remains available");
+        let mut registry = require_ok(
+            runtime.registry.lock(),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
         let changed = registry.merge_known_household_devices(vec![stored_known_router()]);
         assert!(changed);
     }

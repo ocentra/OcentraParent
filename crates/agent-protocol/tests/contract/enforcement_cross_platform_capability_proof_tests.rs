@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use std::collections::BTreeMap;
 
 use crate::{
@@ -29,12 +30,12 @@ fn cross_platform_capability_surfaces_have_stable_protocol_strings() {
         V08CrossPlatformEnforcementCapabilitySurface::IosStoreDistribution,
     ];
     let serialized =
-        serde_json::to_value(surfaces).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(surfaces).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized
             .as_array()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .len(),
         15
     );
@@ -130,10 +131,10 @@ fn cross_platform_read_model_serializes_claim_boundaries_for_service_preview() {
         ],
     };
     let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let reparsed =
         serde_json::from_value::<V08CrossPlatformEnforcementCapabilityProofReadModel>(serialized)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let claim_counts: BTreeMap<&'static str, usize> =
         reparsed
             .entries

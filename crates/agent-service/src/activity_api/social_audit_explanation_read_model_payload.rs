@@ -123,15 +123,15 @@ fn read_model_pairs(
 ) -> Vec<SocialAuditExplanationFieldPair> {
     vec![
         field_pair(
-            SocialAuditExplanationFieldKey(constants::field::GENERATED_AT),
+            &SocialAuditExplanationFieldKey(constants::field::GENERATED_AT),
             LogFieldValue::String(read_model.captured_at.clone()),
         ),
         field_pair(
-            SocialAuditExplanationFieldKey(constants::field::RETURNED),
+            &SocialAuditExplanationFieldKey(constants::field::RETURNED),
             LogFieldValue::Number(read_model.entries.len() as f64),
         ),
         field_pair(
-            SocialAuditExplanationFieldKey(
+            &SocialAuditExplanationFieldKey(
                 constants::field::BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL,
             ),
             LogFieldValue::String(serialize_json_string(read_model).0),
@@ -197,8 +197,8 @@ fn feed_video_entry() -> SocialAuditExplanationEntry {
 
 fn native_app_gap_entry() -> SocialAuditExplanationEntry {
     manual_entry(
-        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_SUBJECT_NATIVE_APP_GAP),
-        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_NATIVE_CAPABILITY),
+        &SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_SUBJECT_NATIVE_APP_GAP),
+        &SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_NATIVE_CAPABILITY),
         vec![
             SocialAuditExplanationTextRef(
                 SOCIAL_AUDIT_EXPLANATION_REASON_NATIVE_APP_MANUAL_REQUIRED,
@@ -214,8 +214,8 @@ fn native_app_gap_entry() -> SocialAuditExplanationEntry {
 
 fn connector_boundary_entry() -> SocialAuditExplanationEntry {
     manual_entry(
-        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_SUBJECT_CONNECTOR_BOUNDARY),
-        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_CONNECTOR_BOUNDARY),
+        &SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_SUBJECT_CONNECTOR_BOUNDARY),
+        &SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_CONNECTOR_BOUNDARY),
         vec![
             SocialAuditExplanationTextRef(
                 SOCIAL_AUDIT_EXPLANATION_REASON_CONNECTOR_BOUNDARY_LINKED,
@@ -253,8 +253,8 @@ fn decision_memory_entry() -> SocialAuditExplanationEntry {
 
 fn manual_gap_entry() -> SocialAuditExplanationEntry {
     manual_entry(
-        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_SUBJECT_MANUAL_REQUIRED_GAP),
-        SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_MANUAL_GAP),
+        &SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_SUBJECT_MANUAL_REQUIRED_GAP),
+        &SocialAuditExplanationTextRef(SOCIAL_AUDIT_EXPLANATION_EVIDENCE_MANUAL_GAP),
         vec![SocialAuditExplanationTextRef(
             SOCIAL_AUDIT_EXPLANATION_REASON_MANUAL_REVIEW_REQUIRED,
         )],
@@ -266,8 +266,8 @@ fn manual_gap_entry() -> SocialAuditExplanationEntry {
 }
 
 fn manual_entry(
-    subject_kind: SocialAuditExplanationTextRef,
-    evidence_kind: SocialAuditExplanationTextRef,
+    subject_kind: &SocialAuditExplanationTextRef,
+    evidence_kind: &SocialAuditExplanationTextRef,
     explanation_reasons: Vec<SocialAuditExplanationTextRef>,
     refs: OptionalRefs,
 ) -> SocialAuditExplanationEntry {
@@ -282,7 +282,9 @@ fn manual_entry(
             .into_iter()
             .map(|reason| reason.0)
             .collect(),
-        evidence_links: vec![evidence_link(evidence_kind)],
+        evidence_links: vec![evidence_link(SocialAuditExplanationTextRef(
+            evidence_kind.0,
+        ))],
         refs,
     })
 }
@@ -340,11 +342,11 @@ fn entry(input: EntryInput) -> SocialAuditExplanationEntry {
 }
 
 fn evidence_link(
-    evidence_kind: SocialAuditExplanationTextRef,
+    SocialAuditExplanationTextRef(evidence_kind): SocialAuditExplanationTextRef,
 ) -> SocialAuditExplanationEvidenceLink {
     SocialAuditExplanationEvidenceLink {
-        evidence_kind: evidence_kind.0.to_string(),
-        evidence_ref: evidence_kind.0.to_string(),
+        evidence_kind: evidence_kind.to_string(),
+        evidence_ref: evidence_kind.to_string(),
     }
 }
 

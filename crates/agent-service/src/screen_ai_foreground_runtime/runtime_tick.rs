@@ -22,9 +22,9 @@ use crate::{
         ScreenAiServiceCaptureRecord,
     },
     screen_ai_foreground_runtime::{
-        ScreenAiForegroundQueueJobId, ScreenAiForegroundRuntimeConfig, ScreenAiForegroundTickClock,
-        ScreenAiForegroundTickOutcome,
+        ScreenAiForegroundQueueJobId, ScreenAiForegroundTickClock, ScreenAiForegroundTickOutcome,
     },
+    screen_ai_foreground_runtime_config::ScreenAiForegroundRuntimeConfig,
     screen_ai_foreground_runtime_config::{foreground_key, pending_queue_record_count},
 };
 
@@ -45,7 +45,7 @@ pub(super) fn record_screen_ai_foreground_tick(
     };
     if last_foreground_key.is_some_and(|current| current.0 == foreground_key.0) {
         return Ok(ScreenAiForegroundTickOutcome::NoForegroundChange {
-            foreground_key: foreground_key.0.clone(),
+            foreground_key: foreground_key.0,
         });
     }
     let decision = evaluate_screen_capture_schedule(

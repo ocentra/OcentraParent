@@ -5,6 +5,7 @@ use super::{
     },
     ACTIVITY_JOURNAL_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn activity_journal_line_serializes_to_typescript_contract_shape() {
@@ -20,7 +21,7 @@ fn activity_journal_line_serializes_to_typescript_contract_shape() {
         activity_digest: "sha256-activity-digest-base64".to_string(),
     };
 
-    let serialized = serde_json::to_value(line).expect("journal line serializes: {error:?}");
+    let serialized = serde_json::to_value(line).expect_value("journal line serializes");
 
     assert_eq!(serialized["schemaVersion"], 1);
     assert_eq!(serialized["entryId"], "journal-entry-1");
@@ -45,7 +46,7 @@ fn activity_journal_status_serializes_to_typescript_contract_shape() {
         last_entry_id: Some("journal-entry-2".to_string()),
     };
 
-    let serialized = serde_json::to_value(status).expect("journal status serializes: {error:?}");
+    let serialized = serde_json::to_value(status).expect_value("journal status serializes");
 
     assert_eq!(serialized["schemaVersion"], 1);
     assert_eq!(serialized["encrypted"], true);
@@ -64,7 +65,7 @@ fn activity_journal_rotation_policy_serializes_to_typescript_contract_shape() {
     };
 
     let serialized =
-        serde_json::to_value(policy).expect("journal rotation policy serializes: {error:?}");
+        serde_json::to_value(policy).expect_value("journal rotation policy serializes");
 
     assert_eq!(serialized["maxSegmentBytes"], 4096);
 }

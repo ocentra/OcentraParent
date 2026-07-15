@@ -11,7 +11,3 @@ pub(crate) fn collect_shortcut_targets(
 ) {
     browser_windows_shortcut_source_scan_walk::collect_shortcut_targets(root, limit, targets)
 }
-
-pub(crate) fn is_shortcut_path(path: &Path) -> bool {
-    browser_windows_shortcut_source_scan_walk::is_shortcut_path(path)
-}

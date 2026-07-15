@@ -29,7 +29,10 @@ use tungstenite::{
 };
 
 pub(super) fn require_ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &'static str) -> T {
-    result.expect(context)
+    match result {
+        Ok(value) => value,
+        Err(error) => std::panic::resume_unwind(Box::new(format!("{context}: {error:?}"))),
+    }
 }
 
 fn env_lock() -> &'static Mutex<()> {
@@ -73,7 +76,9 @@ pub(super) fn start_lan_local_server_with_capture(
     event_name: AgentEventName,
     read_model: LanBrowserAddDeviceReadModel,
 ) -> (String, mpsc::Receiver<CapturedLanRequest>) {
-    start_local_server_with_capture_response(lan_event(event_name, &read_model))
+    let response_event = lan_event(event_name, &read_model);
+    drop(read_model);
+    start_local_server_with_capture_response(response_event)
 }
 
 pub(super) fn start_local_server_with_capture_response(

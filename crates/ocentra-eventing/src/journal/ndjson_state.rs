@@ -1,7 +1,7 @@
 use crate::JournalHash;
 
 #[derive(Default, Debug)]
-pub(super) struct NdjsonJournalState {
+pub(crate) struct NdjsonJournalState {
     pub(super) next_sequence: u64,
     pub(super) previous_hash: Option<JournalHash>,
     pub(super) recovered: bool,

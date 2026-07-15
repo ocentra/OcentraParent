@@ -1,11 +1,10 @@
-use std::{path::Path, time::Duration};
+use std::time::Duration;
 
 use ocentra_parent_screen_capture_adapter::trigger_scheduler::{
     ScreenCaptureSchedulerSettings, ScreenCaptureSchedulerState,
 };
 
 use crate::{
-    activity_capture::ActivityCaptureError,
     screen_ai_cadence_runtime::{
         ScreenAiCadenceRuntimeConfig, ScreenAiCadenceTickClock, ScreenAiCadenceTickOutcome,
     },
@@ -40,7 +39,7 @@ pub(super) async fn run_screen_ai_cadence_runtime(config: ScreenAiCadenceRuntime
         let clock = ScreenAiCadenceTickClock::from_system_time();
         let observed_at = clock.timestamp.clone();
         let epoch_seconds = clock.epoch_seconds;
-        let outcome = record_screen_ai_cadence_tick(&config, state, clock, tick_count);
+        let outcome = tick::record_screen_ai_cadence_tick(&config, state, clock, tick_count);
         if let Ok(ScreenAiCadenceTickOutcome::Recorded { queue_job_id }) = outcome {
             let _ = publish_screen_capture_queue_events_for_queue_job(
                 &config.store_path,
@@ -68,13 +67,4 @@ pub(super) fn scheduler_settings(
     config: &ScreenAiCadenceRuntimeConfig,
 ) -> ScreenCaptureSchedulerSettings {
     environment::scheduler_settings(config)
-}
-
-pub(super) fn record_screen_ai_cadence_tick(
-    config: &ScreenAiCadenceRuntimeConfig,
-    state: ScreenCaptureSchedulerState,
-    clock: ScreenAiCadenceTickClock,
-    tick_index: u64,
-) -> Result<ScreenAiCadenceTickOutcome, ActivityCaptureError> {
-    tick::record_screen_ai_cadence_tick(config, state, clock, tick_index)
 }

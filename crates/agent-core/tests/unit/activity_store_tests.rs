@@ -60,7 +60,7 @@ fn activity_store_ingests_journal_replay_into_sqlite() -> TestResult {
     let reader = ActivityJournal::open(journal_path.to_path_buf(), key).map_err(|error| {
         TestText::from_display(format!("{}: {error:?}", constants::error::JOURNAL_OPENS))
     })?;
-    let store = ActivityStore::open(store_path.to_path_buf()).map_err(|error| {
+    let store = ActivityStore::open(&store_path).map_err(|error| {
         TestText::from_display(format!(
             "{}: {error:?}",
             constants::error::ACTIVITY_STORE_OPENS

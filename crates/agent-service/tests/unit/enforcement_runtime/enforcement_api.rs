@@ -28,7 +28,9 @@ use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::activity_capture::record_activity_events_to_paths;
-use crate::enforcement_payload::{parse_enforcement_command_payload, EnforcementCommandPayload};
+use crate::enforcement_payload::{
+    parse_enforcement_command_payload, EnforcementCommandPayload, EnforcementText,
+};
 use crate::enforcement_pre_action_journal::journal_before_action_outcome;
 use crate::enforcement_timer_state_file::store_active_timer_state_for_outcome;
 use crate::event_builder::build_event;
@@ -89,12 +91,13 @@ async fn execute_enforcement_command(
     paths: EnforcementJournalPaths,
 ) -> Result<LogFields, TestText> {
     let observed_at = TestText::from_display(timestamp_now::<String>());
-    let request = parse_enforcement_command_payload(&command, observed_at.to_string().into())
+    let observed_at_text = EnforcementText::from(observed_at.to_string());
+    let request = parse_enforcement_command_payload(&command, &observed_at_text)
         .map_err(|error| TestText::from_display(format!("{error:?}")))?;
     let authorization = authorize_enforcement_boundary(request.input.clone())
         .map_err(|error| TestText::from_display(error.as_protocol_str()))?;
     let before_action_outcome =
-        journal_before_action_outcome(&request, &authorization.action, &observed_at.to_string());
+        journal_before_action_outcome(&request, &authorization.action, observed_at.to_string());
     record_enforcement_audit(&request, &before_action_outcome, &paths).await?;
     let completed_at = TestText::from_display(timestamp_now::<String>());
     let adapter_outcome = authorization
@@ -149,7 +152,7 @@ fn adapter_outcome_for_request(
             pid,
             expected_process_name: action.target.target_value.clone(),
         },
-        &completed_at.to_string(),
+        completed_at.as_ref(),
     ))
 }
 
@@ -176,8 +179,8 @@ async fn record_enforcement_audit(
         record_activity_events_to_paths(&journal_path, &key_path, &store_path, &[event])
     })
     .await
-    .map_err(|_| TestText::from_display(constants::value::ACTIVITY_CAPTURE_STORE_ERROR))?
-    .map_err(|_| TestText::from_display(constants::value::ACTIVITY_CAPTURE_STORE_ERROR))
+    .map_err(|_join_error| TestText::from_display(constants::value::ACTIVITY_CAPTURE_STORE_ERROR))?
+    .map_err(|_store_error| TestText::from_display(constants::value::ACTIVITY_CAPTURE_STORE_ERROR))
 }
 
 fn enforcement_activity_event(
@@ -351,13 +354,14 @@ fn enforcement_success_report(payload: LogFields) -> EnforcementAuditReport {
 }
 
 fn enforcement_rejection_report(reason: TestText) -> EnforcementAuditReport {
+    let TestText(reason_text) = reason;
     EnforcementAuditReport {
         event_id: constants::event_id::COMMAND_REJECTED,
         event_name: AgentEventName::AgentCommandRejected,
         level: LogLevel::Warn,
         payload: fields_from_pairs(vec![(
             constants::field::REASON,
-            LogFieldValue::String(reason.to_string()),
+            LogFieldValue::String(reason_text),
         )]),
     }
 }
@@ -385,7 +389,9 @@ where
 {
     serde_json::to_string(value)
         .map(LogFieldValue::String)
-        .map_err(|_| TestText::from_display(constants::error::AGENT_EVENT_SERIALIZES))
+        .map_err(|_serialize_error| {
+            TestText::from_display(constants::error::AGENT_EVENT_SERIALIZES)
+        })
 }
 
 fn serialize_optional_json<T>(value: Option<&T>) -> Result<LogFieldValue, TestText>

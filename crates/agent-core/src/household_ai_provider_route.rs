@@ -17,8 +17,6 @@ use crate::{
 mod household_ai_provider_route_rejection;
 #[path = "household_ai_provider_route_rejection_mobile.rs"]
 mod household_ai_provider_route_rejection_mobile;
-#[path = "household_ai_provider_route_trust.rs"]
-mod household_ai_provider_route_trust;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HouseholdAiProviderCandidate {
@@ -191,31 +189,6 @@ fn candidate_rejection_reason(
         candidate,
         desktop_or_laptop_available,
     )
-}
-
-fn trust_rejection_reason(
-    trust_state: HouseholdAiProviderTrustState,
-) -> Option<HouseholdAiRouteRejectionReason> {
-    household_ai_provider_route_trust::trust_rejection_reason(trust_state)
-}
-
-fn mobile_rejection_reason(
-    request: &HouseholdAiRouteRequest,
-    candidate: &HouseholdAiProviderCandidate,
-    desktop_or_laptop_available: bool,
-) -> Option<HouseholdAiRouteRejectionReason> {
-    household_ai_provider_route_rejection_mobile::mobile_rejection_reason(
-        request,
-        candidate,
-        desktop_or_laptop_available,
-    )
-}
-
-fn candidate_supports_work(
-    candidate: &HouseholdAiProviderCandidate,
-    work_class: HouseholdAiWorkClass,
-) -> bool {
-    household_ai_provider_route_rejection_mobile::candidate_supports_work(candidate, work_class)
 }
 
 fn no_provider_decision() -> HouseholdAiRouteCandidateDecision {

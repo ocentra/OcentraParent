@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::path::PathBuf as TestPathBuf;
 use std::{
     fs,
@@ -26,9 +23,7 @@ use ocentra_parent_screen_capture_adapter::{
 
 use crate::test_invariants::{require_json_decode, require_ok};
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-use test_text::TestText;
+use crate::test_text::TestText;
 
 use super::{
     screen_ai_analysis_runtime::{

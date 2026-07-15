@@ -8,14 +8,13 @@ use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
 use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
-    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
-    ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
-    ids::SourceService, ids::SubscriberId, ids::TargetHandler,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventId, ids::EventType,
+    ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent, ids::SourceService,
+    ids::SubscriberId, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
-    NetworkInterventionState, NetworkRiskBudgetState, NetworkRuntimeClaimBoundary,
+    NetworkInterventionState, NetworkRuntimeClaimBoundary,
     NetworkRuntimeEventPayload as ProtocolNetworkRuntimeEventPayload, NetworkRuntimePhase,
 };
 
@@ -87,11 +86,11 @@ fn network_runtime_event_payload_from_observation(
     let risk_budget_state = risk_budget_state(observation);
     NetworkRuntimeEventPayload {
         phase,
-        capability_status: observation.status.clone(),
+        capability_status: observation.status,
         domain_attribution_status: observation.domain_attribution_status(),
         process_attribution_status: observation.process_attribution_status(),
-        protocol: observation.protocol.clone(),
-        tcp_state: observation.tcp_state.clone(),
+        protocol: observation.protocol,
+        tcp_state: observation.tcp_state,
         local_ip: observation.local_ip.clone(),
         local_port: observation.local_port,
         destination_ip: observation.destination_ip.clone(),
@@ -102,7 +101,7 @@ fn network_runtime_event_payload_from_observation(
         evidence_scope: evidence_scope(observation),
         evidence_grade: evidence_grade(observation),
         ai_audit_state: ai_audit_state(phase),
-        risk_budget_state: risk_budget_state.clone(),
+        risk_budget_state,
         intervention_state: helpers::intervention_state_from_budget(&risk_budget_state),
         claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
         previous_phase_ref: chain_refs.previous_phase_ref,
@@ -214,7 +213,7 @@ fn network_event_source(
 ) -> Result<EventSource, EventingError> {
     Ok(EventSource::new(
         helpers::event_custody(observation),
-        phase.runtime_role(),
+        phase.runtime_role()?,
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(constants::network_flow::RUNTIME_COMPONENT_NETWORK_SPINE)?,
         RuntimeInstanceId::parse(constants::network_flow::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,

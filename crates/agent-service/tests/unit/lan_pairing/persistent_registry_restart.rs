@@ -24,9 +24,9 @@ use crate::{
     },
     lan_pairing_test_commands::{
         command_for_target, health_command, intent_payload, intent_payload_for_kind,
-        paired_runtime, pairing_command, proof_payload, route_revoke_command, route_select_command,
-        serialize_command,
+        paired_runtime, pairing_command, proof_payload, route_select_command, serialize_command,
     },
+    lan_pairing_test_multidevice_commands::route_revoke_command,
 };
 
 #[tokio::test]
@@ -387,6 +387,7 @@ async fn signed_control_for_kind(
     .await
 }
 
+#[derive(Clone, Copy)]
 struct RestartAcceptedIntentExpectation {
     intent_id: &'static str,
     intent_kind: &'static str,
@@ -404,6 +405,7 @@ fn assert_restart_accepted_intent(
     );
 }
 
+#[derive(Clone, Copy)]
 struct LanPairingStateExpectation {
     pairing_state: &'static str,
     trusted_count: f64,

@@ -21,9 +21,9 @@ use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
-use crate::enforcement_payload::parsing::parse_enforcement_command_payload;
 use crate::enforcement_payload::{
-    EnforcementCommandPayload, EnforcementPayloadError, EnforcementText,
+    parse_enforcement_command_payload, EnforcementCommandPayload, EnforcementPayloadError,
+    EnforcementText,
 };
 use crate::{
     activity_capture::record_activity_events_to_paths, event_builder::build_event,
@@ -70,7 +70,7 @@ async fn execute_enforcement_command(
     paths: EnforcementJournalPaths,
 ) -> Result<LogFields, EnforcementCommandExecutionError> {
     let observed_at = EnforcementText(timestamp_now());
-    let request = parse_enforcement_command_payload(&command, observed_at.clone())
+    let request = parse_enforcement_command_payload(&command, &observed_at)
         .map_err(EnforcementCommandExecutionError::PayloadRejection)?;
     let authorization = authorize_enforcement_boundary(request.input.clone())
         .map_err(EnforcementCommandExecutionError::BoundaryRejection)?;
@@ -95,7 +95,7 @@ async fn execute_enforcement_command(
         completed_at.0.as_str(),
     )
     .await
-    .map_err(|_| EnforcementCommandExecutionError::Journal(EnforcementJournalBuildError::Store))?;
+    .map_err(activity_capture_store_error)?;
 
     build_enforcement_report_payload(&outcome, &status, active_state.as_ref())
         .map_err(EnforcementCommandExecutionError::Journal)
@@ -114,8 +114,8 @@ async fn record_enforcement_audit(
         record_activity_events_to_paths(&journal_path, &key_path, &store_path, &[event])
     })
     .await
-    .map_err(|_| EnforcementJournalBuildError::Store)?
-    .map_err(|_| EnforcementJournalBuildError::Store)
+    .map_err(activity_capture_store_error)?
+    .map_err(activity_capture_store_error)
 }
 
 fn enforcement_activity_event(
@@ -176,4 +176,8 @@ impl From<EnforcementJournalBuildError> for EnforcementCommandExecutionError {
     fn from(error: EnforcementJournalBuildError) -> Self {
         Self::Journal(error)
     }
+}
+
+fn activity_capture_store_error(_: impl std::fmt::Debug) -> EnforcementJournalBuildError {
+    EnforcementJournalBuildError::Store
 }

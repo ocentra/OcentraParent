@@ -2,7 +2,7 @@ use std::{
     error::Error,
     fs::{create_dir_all, read, remove_dir_all, remove_file, write},
     io::Error as IoError,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 use crate::test_text::TestText;

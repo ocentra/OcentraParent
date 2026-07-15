@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_missing_device_evaluation_id_from_child_device_id, TrackingChildDeviceId,
@@ -10,7 +11,7 @@ use ocentra_tracking_core::status::{
 
 fn child_device_id() -> TrackingChildDeviceId {
     TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        .expect_value(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
 }
 #[test]
 fn missing_device_mode_exposes_last_known_only_without_live_claim() {
@@ -35,7 +36,7 @@ fn missing_device_mode_exposes_last_known_only_without_live_claim() {
         TrackingMissingDeviceState::parse(
             constants::tracking_runtime::MISSING_DEVICE_STATE_LAST_KNOWN_ONLY
         )
-        .expect(constants::tracking_runtime::MISSING_DEVICE_STATE_LAST_KNOWN_ONLY)
+        .expect_value(constants::tracking_runtime::MISSING_DEVICE_STATE_LAST_KNOWN_ONLY)
     );
     assert_eq!(
         decision.parent_visibility_state,

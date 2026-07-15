@@ -73,7 +73,7 @@ pub fn targeted_arp_refresh_targets_with_packet_io_until(
         .or_else(|| (!probed).then(HashMap::new));
     let observed_at_unix_ms = unix_timestamp_ms();
     attempts
-        .into_iter()
+        .iter()
         .filter_map(|attempt| {
             targeted_arp_attempt_evidence(attempt, observations.as_ref(), observed_at_unix_ms)
         })
@@ -81,7 +81,7 @@ pub fn targeted_arp_refresh_targets_with_packet_io_until(
 }
 
 fn targeted_arp_attempt_evidence(
-    attempt: TargetedArpAttempt<'_>,
+    attempt: &TargetedArpAttempt<'_>,
     observations: Option<&HashMap<Ipv4Addr, String>>,
     observed_at_unix_ms: u128,
 ) -> Option<LanTargetedArpRefreshEvidence> {

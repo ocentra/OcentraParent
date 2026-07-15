@@ -758,14 +758,12 @@ impl ParentChildRuntimePhase {
         PARENT_CHILD_RUNTIME_PHASE_TARGET_HANDLERS[self as usize]
     }
 
-    pub fn runtime_role(self) -> RuntimeRole {
+    pub fn runtime_role(self) -> Result<RuntimeRole, EventingError> {
         RuntimeRole::parse(PARENT_CHILD_RUNTIME_PHASE_RUNTIME_ROLES[self as usize])
-            .expect("parent child runtime phase role is a valid runtime role")
     }
 
-    pub fn custody(self) -> EventCustody {
+    pub fn custody(self) -> Result<EventCustody, EventingError> {
         EventCustody::parse(PARENT_CHILD_RUNTIME_PHASE_CUSTODY[self as usize])
-            .expect("parent child runtime phase custody is a valid event custody")
     }
 
     pub fn is_child_agent_phase(self) -> bool {

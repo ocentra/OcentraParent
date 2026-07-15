@@ -20,15 +20,10 @@ pub mod testkit;
 pub mod topology;
 
 use bus::publisher::{EventContext, EventPublisher};
-use bus::reports::dead_letter::{
-    dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent, DeadLetterReason,
-};
-use bus::reports::{
-    handler::{
-        EventMetricsSnapshot, EventTraceFields, HandlerOutcome, HandlerReport, PublishReport,
-        QueueDrainReport,
-    },
-    EventQueueMetrics, EventRequestMetrics,
+use bus::reports::dead_letter::{dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent};
+use bus::reports::handler::{
+    EventMetricsSnapshot, EventTraceFields, HandlerOutcome, HandlerReport, PublishReport,
+    QueueDrainReport,
 };
 use bus::subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
 use bus::{DispatchMode, EventBus, EventBusClearReport, EventBusShutdownReport, ShutdownMode};
@@ -67,7 +62,7 @@ use journal::{EventJournal, JournalAppend, SharedEventJournal};
 use queue::policy::{
     EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition, QueueOverflowPolicy, QueueReport,
 };
-use queue::state::{EventQueue, EventQueueClearReport, NoSubscriberQueueDecision, QueuedEnvelope};
+use queue::state::{EventQueue, EventQueueClearReport, QueuedEnvelope};
 use registrar::{EventRegistrar, RegistrarDisposeReport};
 use replay::{ReplayCursor, ReplayFilter, ReplayMode, ReplayReadReport, ReplayRecord};
 use request::RequestRegistry;

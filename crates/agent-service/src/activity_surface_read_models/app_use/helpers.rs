@@ -59,7 +59,38 @@ pub(super) fn app_use_model_from_recent_summary(
 ) -> ActivityAppUseReadModel {
     match summary {
         Some(summary) if summary.returned > 0 => {
-            let rows = vec![app_use_recent_row(&request, summary)];
+            let rows = vec![ActivityAppUseReadModelRow {
+                row_id: summary
+                    .last_event_id
+                    .unwrap_or_else(|| constants::activity_surface::READ_MODEL_APP_USE.to_string()),
+                app_name: summary
+                    .most_recent_subject_name
+                    .unwrap_or_else(|| constants::activity_surface::SECTION_APP_USE.to_string()),
+                device_id: row_device_id(&request).0,
+                state: ActivityReadModelState::Ready,
+                product_kind: APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE.to_string(),
+                classification_state: APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS.to_string(),
+                inventory_state: APP_GAME_INVENTORY_STATE_UNAVAILABLE.to_string(),
+                runtime_state: APP_GAME_RUNTIME_NOT_CLAIMED.to_string(),
+                foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
+                capability_status: APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED.to_string(),
+                last_observed_at: summary.last_observed_at,
+                total_ms: 0,
+                launch_count: summary.returned,
+                inventory_row_count: 0,
+                running_row_count: 0,
+                foreground_row_count: 0,
+                daily_rollup_count: 0,
+                evidence_claim_row_count: 0,
+                identity_row_count: 0,
+                approval_authority_row_count: 0,
+                approval_action_result_row_count: 0,
+                platform_authority_matrix_count: 0,
+                platform_authority_row_count: 0,
+                ai_classifier_result_row_count: 0,
+                source_status_rows: Vec::new(),
+                evidence: Vec::new(),
+            }];
             ActivityAppUseReadModel {
                 schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
                 request,
@@ -117,47 +148,9 @@ fn app_use_sources(
             .iter()
             .find(|row| is_app_foreground(row)),
         model.daily_rollups.iter().find(|rollup| {
-            is_app_classification(ClassificationText(rollup.classification_state.clone()))
+            is_app_classification(&ClassificationText(rollup.classification_state.clone()))
         }),
     )
-}
-
-pub(super) fn app_use_recent_row(
-    request: &ActivitySurfaceRequest,
-    summary: ActivityRecentSummary,
-) -> ActivityAppUseReadModelRow {
-    ActivityAppUseReadModelRow {
-        row_id: summary
-            .last_event_id
-            .unwrap_or_else(|| constants::activity_surface::READ_MODEL_APP_USE.to_string()),
-        app_name: summary
-            .most_recent_subject_name
-            .unwrap_or_else(|| constants::activity_surface::SECTION_APP_USE.to_string()),
-        device_id: row_device_id(request).0,
-        state: ActivityReadModelState::Ready,
-        product_kind: APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE.to_string(),
-        classification_state: APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS.to_string(),
-        inventory_state: APP_GAME_INVENTORY_STATE_UNAVAILABLE.to_string(),
-        runtime_state: APP_GAME_RUNTIME_NOT_CLAIMED.to_string(),
-        foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
-        capability_status: APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED.to_string(),
-        last_observed_at: summary.last_observed_at,
-        total_ms: 0,
-        launch_count: summary.returned,
-        inventory_row_count: 0,
-        running_row_count: 0,
-        foreground_row_count: 0,
-        daily_rollup_count: 0,
-        evidence_claim_row_count: 0,
-        identity_row_count: 0,
-        approval_authority_row_count: 0,
-        approval_action_result_row_count: 0,
-        platform_authority_matrix_count: 0,
-        platform_authority_row_count: 0,
-        ai_classifier_result_row_count: 0,
-        source_status_rows: Vec::new(),
-        evidence: Vec::new(),
-    }
 }
 
 fn is_app_inventory(row: &AppGameInventoryEvidenceRow) -> bool {
@@ -166,14 +159,14 @@ fn is_app_inventory(row: &AppGameInventoryEvidenceRow) -> bool {
 }
 
 fn is_app_runtime(row: &AppGameRuntimeEvidenceRow) -> bool {
-    is_app_classification(ClassificationText(row.classification_state.clone()))
+    is_app_classification(&ClassificationText(row.classification_state.clone()))
 }
 
 fn is_app_foreground(row: &AppGameForegroundEvidenceRow) -> bool {
-    is_app_classification(ClassificationText(row.classification_state.clone()))
+    is_app_classification(&ClassificationText(row.classification_state.clone()))
 }
 
-fn is_app_classification(classification: ClassificationText) -> bool {
+fn is_app_classification(classification: &ClassificationText) -> bool {
     matches!(
         classification.0.as_str(),
         APP_GAME_CLASSIFICATION_KNOWN_APP
@@ -221,10 +214,10 @@ fn app_label(
     foreground: Option<&AppGameForegroundEvidenceRow>,
 ) -> AppText {
     AppText(
-        foreground
-            .map(|row| row.process_name.clone())
+        inventory
+            .map(|row| row.display_label.clone())
+            .or_else(|| foreground.map(|row| row.process_name.clone()))
             .or_else(|| running.map(|row| row.process_name.clone()))
-            .or_else(|| inventory.map(|row| row.display_label.clone()))
             .unwrap_or_else(|| constants::activity_surface::SECTION_APP_USE.to_string()),
     )
 }
@@ -263,7 +256,7 @@ fn app_total_ms(model: &AppGameServiceReadModel) -> u64 {
         .daily_rollups
         .iter()
         .filter(|rollup| {
-            is_app_classification(ClassificationText(rollup.classification_state.clone()))
+            is_app_classification(&ClassificationText(rollup.classification_state.clone()))
         })
         .map(|rollup| rollup.running_duration_ms)
         .sum()
@@ -274,7 +267,7 @@ fn app_session_count(model: &AppGameServiceReadModel) -> u64 {
         .daily_rollups
         .iter()
         .filter(|rollup| {
-            is_app_classification(ClassificationText(rollup.classification_state.clone()))
+            is_app_classification(&ClassificationText(rollup.classification_state.clone()))
         })
         .map(|rollup| rollup.session_count)
         .sum::<u64>()
@@ -313,7 +306,7 @@ fn app_evidence(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
     for row in model
         .daily_rollups
         .iter()
-        .filter(|row| is_app_classification(ClassificationText(row.classification_state.clone())))
+        .filter(|row| is_app_classification(&ClassificationText(row.classification_state.clone())))
     {
         push_evidence(&mut evidence, &row.evidence);
     }
@@ -334,7 +327,7 @@ fn app_use_row(
         row_id: app_row_id(inventory, running, foreground, rollup).0,
         app_name: app_label(inventory, running, foreground).0,
         device_id: row_device_id(request).0,
-        state: row_state(CapabilityStatus(model.capability_status.clone())),
+        state: row_state(&CapabilityStatus(model.capability_status.clone())),
         product_kind: APP_GAME_PRODUCT_NATIVE_APP.to_string(),
         classification_state: app_classification(inventory, running, foreground, rollup).0,
         inventory_state: inventory
@@ -372,7 +365,7 @@ fn app_use_row(
             .daily_rollups
             .iter()
             .filter(|rollup| {
-                is_app_classification(ClassificationText(rollup.classification_state.clone()))
+                is_app_classification(&ClassificationText(rollup.classification_state.clone()))
             })
             .count() as u64,
         evidence_claim_row_count: boundary_counts.evidence_claim_row_count,

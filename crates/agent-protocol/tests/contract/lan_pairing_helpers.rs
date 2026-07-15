@@ -18,10 +18,6 @@ use ocentra_parent_agent_protocol::lan_pairing_support::{
 use ocentra_parent_agent_protocol::ParentEvidenceReference;
 use ocentra_parent_agent_protocol::ParentEvidenceReferenceKind;
 
-fn to_json<T: serde::Serialize>(value: T) -> serde_json::Value {
-    serde_json::to_value(value).expect("lan pairing helper serializes")
-}
-
 pub fn child_device() -> LanPairingDeviceRef {
     LanPairingDeviceRef {
         device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),

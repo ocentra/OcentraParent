@@ -1,12 +1,13 @@
 use super::constants;
 use crate::app_game::*;
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn app_game_identity_serializes_deterministic_identity_contract_shape() {
     let identity = deterministic_game_identity();
 
     let serialized =
-        serde_json::to_value(identity).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(identity).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(serialized["identityId"], APP_GAME_TEST_IDENTITY_ID);
@@ -54,7 +55,8 @@ fn app_game_identity_merge_proof_serializes_sources_and_shared_refs() {
         evidence: Vec::new(),
     };
 
-    let serialized = serde_json::to_value(merge).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(merge).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(serialized["mergeId"], APP_GAME_TEST_MERGE_ID);
@@ -103,7 +105,8 @@ fn app_game_evidence_claim_serializes_inventory_without_use_claims() {
         evidence: Vec::new(),
     };
 
-    let serialized = serde_json::to_value(claim).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(claim).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(serialized["claimId"], APP_GAME_TEST_EVIDENCE_CLAIM_ID);
@@ -144,7 +147,8 @@ fn app_game_ai_digest_reference_serializes_stored_evidence_sources() {
         unavailable_reason: None,
     };
 
-    let serialized = serde_json::to_value(digest).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(digest).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(serialized["digestRef"], APP_GAME_TEST_AI_DIGEST_REF);
@@ -178,7 +182,8 @@ fn app_game_ai_classification_digest_serializes_classify_only_handoff() {
         unavailable_reason: None,
     };
 
-    let serialized = serde_json::to_value(digest).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(digest).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(serialized["digestRef"], APP_GAME_TEST_AI_DIGEST_REF);

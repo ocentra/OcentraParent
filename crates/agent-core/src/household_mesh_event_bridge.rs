@@ -5,7 +5,6 @@ use ocentra_parent_agent_protocol::household_mesh::{
 
 use crate::{
     household_mesh_event_bridge_lookup::{
-        bridge_local_event_kind_for_local_event, bridge_message_type_for_local_event,
         is_selected_local_event_ref, lan_message_type_for_ref, local_event_ref,
     },
     household_mesh_event_bridge_rejection::rejection_as_str,

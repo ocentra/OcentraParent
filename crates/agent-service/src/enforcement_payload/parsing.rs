@@ -28,12 +28,12 @@ use super::EnforcementText;
 
 pub(crate) fn parse_enforcement_command_payload(
     command: &AgentCommandEnvelope,
-    observed_at: EnforcementText,
+    observed_at: &EnforcementText,
 ) -> Result<EnforcementCommandPayload, EnforcementPayloadError> {
-    let policy = parse_policy_payload(&command.payload, &observed_at)?;
+    let policy = parse_policy_payload(&command.payload, observed_at)?;
     let ids = parse_payload_ids(
         &command.payload,
-        EnforcementText(command.message_id.clone()),
+        &EnforcementText(command.message_id.clone()),
     );
     let process_id = optional_process_id(&command.payload)?;
     let target = policy_target(&policy);
@@ -41,7 +41,7 @@ pub(crate) fn parse_enforcement_command_payload(
     let capability = crate::enforcement_capability::enforcement_capability_for_policy(
         policy.action,
         policy.target_type,
-        crate::enforcement_capability::EnforcementRequestedAtText(&policy.requested_at),
+        &crate::enforcement_capability::EnforcementRequestedAtText(&policy.requested_at),
     );
     let intent = enforcement_intent(command, &policy, &ids, &target);
     let input = EnforcementBoundaryInput {
@@ -144,7 +144,7 @@ fn parse_policy_payload(
     })
 }
 
-fn parse_payload_ids(payload: &LogFields, message_id: EnforcementText) -> EnforcementPayloadIds {
+fn parse_payload_ids(payload: &LogFields, message_id: &EnforcementText) -> EnforcementPayloadIds {
     let rollback_token = optional_string(
         payload,
         EnforcementFieldKey(constants::field::ROLLBACK_TOKEN),
@@ -154,7 +154,7 @@ fn parse_payload_ids(payload: &LogFields, message_id: EnforcementText) -> Enforc
         Some(
             prefixed_id(
                 &EnforcementText(constants::enforcement::ROLLBACK_TOKEN_PREFIX.to_string()),
-                &message_id,
+                message_id,
             )
             .0,
         )
@@ -163,31 +163,31 @@ fn parse_payload_ids(payload: &LogFields, message_id: EnforcementText) -> Enforc
         payload,
         EnforcementFieldKey(constants::field::ENFORCEMENT_ACTION_ID),
         &EnforcementText(constants::enforcement::ACTION_ID_PREFIX.to_string()),
-        &message_id,
+        message_id,
     );
     let result_id = string_or_prefixed(
         payload,
         EnforcementFieldKey(constants::field::ENFORCEMENT_RESULT_ID),
         &EnforcementText(constants::enforcement::RESULT_ID_PREFIX.to_string()),
-        &message_id,
+        message_id,
     );
     let audit_event_id = string_or_prefixed(
         payload,
         EnforcementFieldKey(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
         &EnforcementText(constants::enforcement::AUDIT_EVENT_ID_PREFIX.to_string()),
-        &message_id,
+        message_id,
     );
     let timer_event_id = string_or_prefixed(
         payload,
         EnforcementFieldKey(constants::field::ENFORCEMENT_TIMER_EVENT_ID),
         &EnforcementText(constants::enforcement::TIMER_EVENT_ID_PREFIX.to_string()),
-        &message_id,
+        message_id,
     );
     let intent_id = string_or_prefixed(
         payload,
         EnforcementFieldKey(constants::field::ENFORCEMENT_INTENT_ID),
         &EnforcementText(constants::enforcement::INTENT_ID_PREFIX.to_string()),
-        &message_id,
+        message_id,
     );
 
     EnforcementPayloadIds {

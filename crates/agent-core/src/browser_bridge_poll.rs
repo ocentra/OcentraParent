@@ -2,17 +2,11 @@ use std::net::SocketAddr;
 
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::browser::{
-    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
-    BrowserCustodyLabel, BrowserFamily,
+    BrowserCapabilityStatus, BrowserChannel, BrowserFamily,
 };
-use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
 use ocentra_parent_agent_protocol::constants;
-use serde_json::Value;
 
-use crate::{
-    browser_bridge_http::read_devtools_body, browser_tab_observation_event,
-    BrowserBridgeTargetObservation,
-};
+use crate::browser_bridge_http::read_devtools_body;
 
 #[path = "browser_bridge_poll/custody.rs"]
 mod custody;

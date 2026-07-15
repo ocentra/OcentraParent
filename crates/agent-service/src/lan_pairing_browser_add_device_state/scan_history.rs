@@ -44,10 +44,6 @@ impl AsRef<Path> for LanScanHistoryPath {
 }
 
 impl LanScanHistoryPath {
-    pub(crate) fn exists(&self) -> bool {
-        self.0.exists()
-    }
-
     fn parent_dir(&self) -> Option<LanScanHistoryDir> {
         self.0.parent().map(PathBuf::from).map(LanScanHistoryDir)
     }
@@ -81,7 +77,7 @@ pub(crate) fn recent_previous_scan_agent_truth_devices(
     let Some(previous_scan_snapshot) = previous_scan_snapshot else {
         return Vec::new();
     };
-    if !scan_history_is_recent(previous_scan_snapshot.updated_at.clone().into(), now) {
+    if !scan_history_is_recent(&previous_scan_snapshot.updated_at.clone().into(), now) {
         return Vec::new();
     }
 
@@ -130,13 +126,13 @@ fn scan_history_path(runtime: &LanPairingRuntime) -> Option<LanScanHistoryPath> 
     match &runtime.persistence {
         LanPairingRegistryPersistence::InMemory => None,
         LanPairingRegistryPersistence::LocalJsonRegistry(path) => Some(
-            scan_history_path_for_registry(LanScanHistoryRegistryPath(path.clone())),
+            scan_history_path_for_registry(&LanScanHistoryRegistryPath(path.clone())),
         ),
     }
 }
 
 pub(crate) fn scan_history_path_for_registry(
-    registry_path: LanScanHistoryRegistryPath,
+    registry_path: &LanScanHistoryRegistryPath,
 ) -> LanScanHistoryPath {
     let file_stem = registry_path
         .0
@@ -151,7 +147,7 @@ pub(crate) fn scan_history_path_for_registry(
     )
 }
 
-pub(crate) fn scan_history_is_recent(updated_at: LanPairingText, now: DateTime<Utc>) -> bool {
+pub(crate) fn scan_history_is_recent(updated_at: &LanPairingText, now: DateTime<Utc>) -> bool {
     DateTime::parse_from_rfc3339(updated_at.0.as_str())
         .map(|parsed| {
             let parsed = parsed.with_timezone(&Utc);

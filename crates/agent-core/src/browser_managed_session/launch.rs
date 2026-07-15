@@ -1,14 +1,9 @@
 use std::{
-    fs,
     net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener},
-    path::{Path, PathBuf},
+    path::Path,
     process::Command,
 };
 
-use ocentra_parent_agent_protocol::browser::{
-    BrowserChannel, BrowserFamily, BROWSER_EVIDENCE_SCHEMA_VERSION,
-};
-use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileStoreEntry;
 use ocentra_parent_agent_protocol::constants;
 
 use crate::browser_managed_discovery::managed_browser_executable_identity;

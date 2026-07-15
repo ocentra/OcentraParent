@@ -63,66 +63,66 @@ fn runtime_snapshot_consumptions(
             "runtime-snapshot-active",
             "snapshot-active",
             "signed-local-snapshot",
-            entitlement_snapshot(
+            &entitlement_snapshot(
                 "entitlement-snapshot-family-1-active",
                 "active",
                 "signed-local-snapshot",
                 "schema-valid-local",
-                Value::Null,
+                &Value::Null,
             ),
-            Value::Null,
+            &Value::Null,
         ),
         snapshot_consumption(
             "runtime-snapshot-stale",
             "snapshot-stale",
             "signed-local-snapshot",
-            entitlement_snapshot(
+            &entitlement_snapshot(
                 "entitlement-runtime-expired",
                 "expired",
                 "signed-local-snapshot",
                 "schema-valid-local",
-                runtime_stale_snapshot_failure.clone(),
+                runtime_stale_snapshot_failure,
             ),
-            runtime_stale_snapshot_failure.clone(),
+            runtime_stale_snapshot_failure,
         ),
         snapshot_consumption(
             "runtime-snapshot-payment-required",
             "payment-required",
             "signed-local-snapshot",
-            entitlement_snapshot(
+            &entitlement_snapshot(
                 "entitlement-runtime-past-due",
                 "past-due",
                 "signed-local-snapshot",
                 "schema-valid-local",
-                runtime_payment_required_failure.clone(),
+                runtime_payment_required_failure,
             ),
-            runtime_payment_required_failure.clone(),
+            runtime_payment_required_failure,
         ),
         snapshot_consumption(
             "runtime-snapshot-provider-unavailable",
             "provider-unavailable",
             "unavailable",
-            entitlement_snapshot(
+            &entitlement_snapshot(
                 "entitlement-runtime-unavailable",
                 "unavailable",
                 "unavailable",
                 "unavailable",
-                runtime_provider_unavailable_failure.clone(),
+                runtime_provider_unavailable_failure,
             ),
-            runtime_provider_unavailable_failure.clone(),
+            runtime_provider_unavailable_failure,
         ),
         snapshot_consumption(
             "runtime-snapshot-manual-review",
             "manual-review",
             "manual-support-review",
-            entitlement_snapshot(
+            &entitlement_snapshot(
                 "entitlement-runtime-manual-review",
                 "unknown",
                 "manual-admin-review",
                 "manual-required",
-                runtime_validation_failure.clone(),
+                runtime_validation_failure,
             ),
-            runtime_validation_failure.clone(),
+            runtime_validation_failure,
         ),
     ])
 }
@@ -137,25 +137,25 @@ fn runtime_device_limit_consumptions(
             "runtime-device-allowed",
             "allowed",
             "accepted-local",
-            Value::Null
+            &Value::Null
         ),
         device_limit_consumption(
             "runtime-device-denied",
             "denied",
             "blocked-new-device",
-            runtime_payment_required_failure.clone(),
+            runtime_payment_required_failure,
         ),
         device_limit_consumption(
             "runtime-device-grace",
             "grace",
             "accepted-grace",
-            runtime_stale_snapshot_failure.clone(),
+            runtime_stale_snapshot_failure,
         ),
         device_limit_consumption(
             "runtime-device-manual",
             "manual-review",
             "manual-required",
-            runtime_validation_failure.clone(),
+            runtime_validation_failure,
         ),
     ])
 }
@@ -169,7 +169,7 @@ fn runtime_failure_consumptions(
     json!([
         failure_consumption(
             "runtime-failure-provider-unavailable",
-            runtime_provider_unavailable_failure.clone(),
+            runtime_provider_unavailable_failure,
             "unavailable-local-safety",
             &[
                 "account-entitlement-snapshot-consumption",
@@ -178,7 +178,7 @@ fn runtime_failure_consumptions(
         ),
         failure_consumption(
             "runtime-failure-stale-snapshot",
-            runtime_stale_snapshot_failure.clone(),
+            runtime_stale_snapshot_failure,
             "accepted-grace",
             &[
                 "account-entitlement-snapshot-consumption",
@@ -187,7 +187,7 @@ fn runtime_failure_consumptions(
         ),
         failure_consumption(
             "runtime-failure-payment-required",
-            runtime_payment_required_failure.clone(),
+            runtime_payment_required_failure,
             "blocked-new-device",
             &[
                 "account-entitlement-snapshot-consumption",
@@ -196,7 +196,7 @@ fn runtime_failure_consumptions(
         ),
         failure_consumption(
             "runtime-failure-validation-failed",
-            runtime_validation_failure.clone(),
+            runtime_validation_failure,
             "manual-required",
             &["billing-failure-state-consumption"],
         ),
@@ -220,7 +220,7 @@ fn entitlement_snapshot(
     subscription_status: &str,
     source: &str,
     signature_state: &str,
-    failure_state: Value,
+    failure_state: &Value,
 ) -> Value {
     json!({
         "schemaVersion": "billing-entitlement-contract-proof",
@@ -287,8 +287,8 @@ fn snapshot_consumption(
     boundary_id: &str,
     runtime_state: &str,
     source: &str,
-    entitlement_snapshot: Value,
-    failure_state: Value,
+    entitlement_snapshot: &Value,
+    failure_state: &Value,
 ) -> Value {
     json!({
         "schemaVersion": BILLING_ENTITLEMENT_RUNTIME_PROOF_SCHEMA_VERSION,
@@ -297,7 +297,7 @@ fn snapshot_consumption(
         "runtimeState": runtime_state,
         "source": source,
         "entitlementSnapshot": entitlement_snapshot,
-        "localSafetyBehavior": local_safety_behavior(&failure_state),
+        "localSafetyBehavior": local_safety_behavior(failure_state),
         "evidenceExportAccess": "retained",
         "childActivityCustody": "not-included",
         "failureState": failure_state,
@@ -309,7 +309,7 @@ fn device_limit_consumption(
     boundary_id: &str,
     decision: &str,
     consumption_state: &str,
-    failure_state: Value,
+    failure_state: &Value,
 ) -> Value {
     json!({
         "schemaVersion": BILLING_ENTITLEMENT_RUNTIME_PROOF_SCHEMA_VERSION,
@@ -317,7 +317,7 @@ fn device_limit_consumption(
         "operation": "device-limit-decision-consumption",
         "deviceLimitDecision": required_device_limit_decision(decision),
         "consumptionState": consumption_state,
-        "localSafetyBehavior": local_safety_behavior(&failure_state),
+        "localSafetyBehavior": local_safety_behavior(failure_state),
         "evidenceExportAccess": "retained",
         "childActivityCustody": "not-included",
         "failureState": failure_state,
@@ -327,7 +327,7 @@ fn device_limit_consumption(
 
 fn failure_consumption(
     boundary_id: &str,
-    failure_state: Value,
+    failure_state: &Value,
     consumption_state: &str,
     consumed_for: &[&str],
 ) -> Value {
@@ -337,7 +337,7 @@ fn failure_consumption(
         "operation": "billing-failure-state-consumption",
         "failureState": failure_state,
         "consumedFor": consumed_for,
-        "localSafetyBehavior": local_safety_behavior(&failure_state),
+        "localSafetyBehavior": local_safety_behavior(failure_state),
         "evidenceExportAccess": "retained",
         "childActivityCustody": "not-included",
         "consumptionState": consumption_state,

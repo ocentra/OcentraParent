@@ -1,11 +1,9 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::dns::replay_dns_observations;
-use ocentra_network_evidence::dns::types::*;
 use ocentra_network_evidence::fixtures::dns_query_pcap_fixture;
 use ocentra_network_evidence::fixtures::visibility::*;
 use ocentra_network_evidence::flow::*;
 use ocentra_network_evidence::http::*;
-use ocentra_network_evidence::packet::types::*;
 use ocentra_network_evidence::tls::*;
 use ocentra_network_evidence::zeek::*;
 

@@ -2,10 +2,7 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentRoute,
 };
 
-use crate::{
-    lan_pairing_browser_runtime::{browser_add_device_request_event, browser_discovery_scan_event},
-    lan_pairing_payload::parse_intent,
-};
+use crate::lan_pairing_payload::parse_intent;
 
 #[path = "command_routing/direct.rs"]
 mod direct;

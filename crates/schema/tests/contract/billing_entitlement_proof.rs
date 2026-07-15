@@ -1,7 +1,3 @@
-#[path = "support.rs"]
-mod support;
-
-use crate::support::{assert_generated_line_eq, ContractLine};
 use ocentra_schema::billing_entitlement_proof::{
     billing_entitlement_proof_is_honest, BillingDeviceLimitDecisionWitness,
     BillingEntitlementProofWitness, BillingFailureStateWitness,
@@ -18,15 +14,27 @@ fn billing_entitlement_proof_typescript_artifact_stays_checked_in() {
 
     assert_eq!(checked_in, generated);
     assert_generated_line_eq(
-        crate::contract_text!(&generated),
-        crate::contract_text!("export const billingEntitlementRequiredNonClaims = ["),
-        ContractLine("export const billingEntitlementRequiredNonClaims = ["),
+        &generated,
+        "export const billingEntitlementRequiredNonClaims = [",
+        "export const billingEntitlementRequiredNonClaims = [",
     );
     assert_generated_line_eq(
-        crate::contract_text!(&generated),
-        crate::contract_text!("export function billingEntitlementProofIsHonest("),
-        ContractLine("export function billingEntitlementProofIsHonest(proof: {"),
+        &generated,
+        "export function billingEntitlementProofIsHonest(",
+        "export function billingEntitlementProofIsHonest(proof: {",
     );
+}
+
+fn assert_generated_line_eq(source: &str, line_start: &str, expected: &str) {
+    let line = match source
+        .lines()
+        .find(|line| line.trim_start().starts_with(line_start))
+    {
+        Some(line) => line,
+        None => std::process::abort(),
+    };
+
+    assert_eq!(line, expected);
 }
 
 #[test]

@@ -70,7 +70,7 @@ fn push_evidence_found_rows(
                 Some(LanPairingText(device.canonical_device_id.clone())),
                 Some(evidence_id),
                 evidence_found_summary(
-                    serialized_enum_label(&record.evidence_kind),
+                    &serialized_enum_label(&record.evidence_kind),
                     &LanPairingText(device.display_name.clone()),
                 ),
             ),

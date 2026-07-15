@@ -2,6 +2,7 @@ use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::cascade::*;
 use ocentra_network_evidence::dns::types::*;
 
+#[derive(Clone, Copy)]
 struct SourceRef(&'static str);
 
 #[test]

@@ -138,7 +138,7 @@ fn default_lan_pairing_registry_file_name(
     local_child_device_id: Option<LanPairingText>,
 ) -> LanPairingText {
     let mut name = String::from(constants::lan_pairing::REGISTRY_FILE_PREFIX);
-    match sanitize_registry_file_segment(local_child_device_id.unwrap_or_else(|| {
+    match sanitize_registry_file_segment(&local_child_device_id.unwrap_or_else(|| {
         constants::lan_pairing::REGISTRY_FILE_DEFAULT_SEGMENT
             .to_string()
             .into()
@@ -149,7 +149,7 @@ fn default_lan_pairing_registry_file_name(
     LanPairingText(name)
 }
 
-fn sanitize_registry_file_segment(value: LanPairingText) -> Option<LanPairingText> {
+fn sanitize_registry_file_segment(value: &LanPairingText) -> Option<LanPairingText> {
     let sanitized = value
         .0
         .trim()

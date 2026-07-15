@@ -17,15 +17,6 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanServiceIdentityProbeEvidenceKind,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct LanText(String);
-
-macro_rules! lt {
-    ($value:expr) => {
-        ($value).to_string()
-    };
-}
-
 #[path = "canonical_household_merge_registry.rs"]
 mod canonical_household_merge_registry;
 
@@ -56,7 +47,7 @@ fn different_ocentra_device_ids_do_not_auto_merge_even_with_same_stable_mac() {
     assert!(canonical_ids_are_unique(&model));
     assert_model_has_dedupe_note(
         &model,
-        &[
+        [
             "dedupe-decision=forbidden",
             "conflicting-ocentra-device-id",
             "shared-stable-mac",
@@ -101,7 +92,7 @@ fn different_manually_assigned_child_ids_do_not_auto_merge_even_with_same_mac() 
     assert!(canonical_ids_are_unique(&model));
     assert_model_has_dedupe_note(
         &model,
-        &[
+        [
             "dedupe-decision=forbidden",
             "conflicting-child-profile-id",
             "shared-stable-mac",
@@ -188,7 +179,7 @@ fn different_parent_assigned_child_ids_do_not_auto_merge_even_when_mdns_instance
     assert!(canonical_ids_are_unique(&model));
     assert_model_has_dedupe_note(
         &model,
-        &[
+        [
             "dedupe-decision=forbidden",
             "conflicting-child-profile-id",
             "shared-mdns-instance-name",
@@ -234,7 +225,7 @@ fn weak_hostname_overlap_stays_separate_and_keeps_weak_evidence() {
     assert!(canonical_ids_are_unique(&model));
     assert_model_has_dedupe_note(
         &model,
-        &["dedupe-decision=manual-required", "shared-hostname"],
+        ["dedupe-decision=manual-required", "shared-hostname"],
     );
     assert!(model.canonical_household_devices.iter().all(|device| {
         device
@@ -274,10 +265,7 @@ fn vendor_only_overlap_stays_separate() {
 
     assert_eq!(model.canonical_household_devices.len(), 2);
     assert!(canonical_ids_are_unique(&model));
-    assert_model_has_dedupe_note(
-        &model,
-        &["dedupe-decision=manual-required", "shared-vendor"],
-    );
+    assert_model_has_dedupe_note(&model, ["dedupe-decision=manual-required", "shared-vendor"]);
     assert!(model.canonical_household_devices.iter().all(|device| {
         device
             .network_identity
@@ -323,7 +311,7 @@ fn weak_device_type_only_overlap_stays_separate_without_ssdp_udn() {
     assert!(canonical_ids_are_unique(&model));
     assert_model_has_dedupe_note(
         &model,
-        &["dedupe-decision=manual-required", "shared-device-type"],
+        ["dedupe-decision=manual-required", "shared-device-type"],
     );
     assert!(model.canonical_household_devices.iter().all(|device| {
         device
@@ -393,7 +381,7 @@ fn shared_install_id_merges_local_service_and_registry_device_when_canonical_ids
     });
 
     assert_eq!(model.canonical_household_devices.len(), 1);
-    assert_model_has_dedupe_note(&model, &["dedupe-decision=automatic", "shared-install-id"]);
+    assert_model_has_dedupe_note(&model, ["dedupe-decision=automatic", "shared-install-id"]);
     assert!(model.canonical_household_devices[0]
         .network_identity
         .evidence_records
@@ -462,7 +450,7 @@ fn shared_pairing_id_merges_local_service_and_registry_device_when_canonical_ids
     });
 
     assert_eq!(model.canonical_household_devices.len(), 1);
-    assert_model_has_dedupe_note(&model, &["dedupe-decision=automatic", "shared-pairing-id"]);
+    assert_model_has_dedupe_note(&model, ["dedupe-decision=automatic", "shared-pairing-id"]);
     assert!(model.canonical_household_devices[0]
         .network_identity
         .evidence_records
@@ -527,7 +515,7 @@ fn discovery_and_registry_with_different_device_ids_do_not_merge_even_with_same_
     assert!(canonical_ids_are_unique(&model));
     assert_model_has_dedupe_note(
         &model,
-        &[
+        [
             "dedupe-decision=forbidden",
             "conflicting-ocentra-device-id",
             "shared-stable-mac",
@@ -591,7 +579,7 @@ fn trusted_registry_ip_reuse_by_different_device_stays_separate() {
     assert!(canonical_ids_are_unique(&model));
     assert_model_has_dedupe_note(
         &model,
-        &[
+        [
             "dedupe-decision=forbidden",
             "conflicting-ocentra-device-id",
             "shared-ip-address",
@@ -632,7 +620,7 @@ fn weak_ip_only_overlap_stays_separate() {
     assert_eq!(model.canonical_household_devices.len(), 2);
     assert_model_has_dedupe_note(
         &model,
-        &["dedupe-decision=manual-required", "shared-ip-address"],
+        ["dedupe-decision=manual-required", "shared-ip-address"],
     );
     assert!(model.canonical_household_devices.iter().all(|device| {
         device
@@ -684,7 +672,7 @@ fn mdns_instance_name_merges_same_device_across_dhcp_renewal() {
     assert_eq!(model.canonical_household_devices.len(), 1);
     assert_model_has_dedupe_note(
         &model,
-        &["dedupe-decision=automatic", "shared-mdns-instance-name"],
+        ["dedupe-decision=automatic", "shared-mdns-instance-name"],
     );
     let device = &model.canonical_household_devices[0];
     assert!(device
@@ -742,7 +730,7 @@ fn ssdp_udn_merges_same_device_even_when_neighbor_device_ids_differ() {
     let model = build_lan_add_device_read_model(lan_input(vec![alpha, bravo]));
 
     assert_eq!(model.canonical_household_devices.len(), 1);
-    assert_model_has_dedupe_note(&model, &["dedupe-decision=automatic", "shared-ssdp-udn"]);
+    assert_model_has_dedupe_note(&model, ["dedupe-decision=automatic", "shared-ssdp-udn"]);
     assert!(model.canonical_household_devices[0]
         .network_identity
         .evidence_records

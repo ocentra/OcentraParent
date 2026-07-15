@@ -38,7 +38,7 @@ pub(super) fn trust_state_for_selected(
     selected: Option<&LanSelectedRouteTarget>,
 ) -> LanPairingTrustState {
     selected
-        .map(|target| target.trust_state.clone())
+        .map(|target| target.trust_state)
         .unwrap_or(LanPairingTrustState::Unpaired)
 }
 

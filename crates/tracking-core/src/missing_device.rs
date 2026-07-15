@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_missing_device_evaluation_id_from_child_device_id, TrackingMissingDeviceEvaluationId,
@@ -35,7 +36,7 @@ pub fn evaluate_missing_device_mode(
     TrackingMissingDeviceDecision {
         evaluation_id: tracking_missing_device_evaluation_id_from_child_device_id(&child_device_id),
         missing_device_state: TrackingMissingDeviceState::parse(missing_device_state)
-            .expect("tracking missing-device contract drift"),
+            .expect_value("tracking missing-device contract drift"),
         parent_visibility_state: if missing {
             TrackingLastKnownVisibilityState::LastKnownOnly
         } else {

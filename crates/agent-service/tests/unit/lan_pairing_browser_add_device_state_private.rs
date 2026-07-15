@@ -205,7 +205,7 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::ScanStarted,
+            &LanDiscoveryEventKind::ScanStarted,
             None,
             None,
             "scan started row should be emitted",
@@ -213,13 +213,13 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
         &current_metadata.scan_id,
         None,
         None,
-        format!("lan-discovery-scan-started-{}", current_metadata.scan_id),
+        &format!("lan-discovery-scan-started-{}", current_metadata.scan_id),
         "2026-06-26T20:45:47.000Z",
     );
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::ScanFinished,
+            &LanDiscoveryEventKind::ScanFinished,
             None,
             None,
             "scan finished row should be emitted",
@@ -227,13 +227,13 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
         &current_metadata.scan_id,
         None,
         None,
-        format!("lan-discovery-scan-finished-{}", current_metadata.scan_id),
+        &format!("lan-discovery-scan-finished-{}", current_metadata.scan_id),
         "2026-06-26T20:45:47.000Z",
     );
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::InterfaceChanged,
+            &LanDiscoveryEventKind::InterfaceChanged,
             None,
             None,
             "interface change row should be emitted",
@@ -241,7 +241,7 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
         &current_metadata.scan_id,
         None,
         None,
-        format!(
+        &format!(
             "lan-discovery-interface-changed-{}",
             current_metadata.scan_id
         ),
@@ -250,7 +250,7 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::DeviceFound,
+            &LanDiscoveryEventKind::DeviceFound,
             Some(&discovered_device.device_id),
             None,
             "device found row should be emitted",
@@ -258,7 +258,7 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
         &current_metadata.scan_id,
         Some(&discovered_device.device_id),
         None,
-        format!(
+        &format!(
             "lan-discovery-device-found-{}-{}",
             current_metadata.scan_id, discovered_device.device_id
         ),
@@ -267,7 +267,7 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::AgentDiscovered,
+            &LanDiscoveryEventKind::AgentDiscovered,
             Some(&discovered_device.device_id),
             None,
             "agent discovered row should be emitted",
@@ -275,7 +275,7 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
         &current_metadata.scan_id,
         Some(&discovered_device.device_id),
         None,
-        format!(
+        &format!(
             "lan-discovery-agent-discovered-{}-{}",
             current_metadata.scan_id, discovered_device.device_id
         ),
@@ -292,7 +292,7 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::DeviceUpdated,
+            &LanDiscoveryEventKind::DeviceUpdated,
             Some(&currently_online_with_update.device_id),
             None,
             "device updated row should be emitted",
@@ -300,7 +300,7 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
         &current_scan_id,
         Some(&currently_online_with_update.device_id),
         None,
-        format!(
+        &format!(
             "lan-discovery-device-updated-{}-{}",
             current_scan_id, currently_online_with_update.device_id
         ),
@@ -309,7 +309,7 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::DeviceOnline,
+            &LanDiscoveryEventKind::DeviceOnline,
             Some(&currently_online_with_update.device_id),
             None,
             "device online row should be emitted",
@@ -317,7 +317,7 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
         &current_scan_id,
         Some(&currently_online_with_update.device_id),
         None,
-        format!(
+        &format!(
             "lan-discovery-device-online-{}-{}",
             current_scan_id, currently_online_with_update.device_id
         ),
@@ -326,7 +326,7 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::DeviceOffline,
+            &LanDiscoveryEventKind::DeviceOffline,
             Some(&currently_offline.device_id),
             None,
             "device offline row should be emitted",
@@ -334,7 +334,7 @@ fn ordered_discovery_event_rows_emit_update_and_reachability_rows_with_contract_
         &current_scan_id,
         Some(&currently_offline.device_id),
         None,
-        format!(
+        &format!(
             "lan-discovery-device-offline-{}-{}",
             current_scan_id, currently_offline.device_id
         ),
@@ -367,7 +367,7 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::EvidenceFound,
+            &LanDiscoveryEventKind::EvidenceFound,
             Some(&child_agent_id),
             Some(&child_agent_evidence_id),
             "canonical evidence row should be emitted",
@@ -375,7 +375,7 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
         &current_metadata.scan_id,
         Some(&child_agent_id),
         Some(&child_agent_evidence_id),
-        format!(
+        &format!(
             "lan-discovery-evidence-found-{}-{}",
             current_metadata.scan_id, "lan-child-agent-evidence"
         ),
@@ -384,7 +384,7 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::UnknownDetected,
+            &LanDiscoveryEventKind::UnknownDetected,
             Some(&unknown_id),
             None,
             "unknown device row should be emitted",
@@ -392,7 +392,7 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
         &current_metadata.scan_id,
         Some(&unknown_id),
         None,
-        format!(
+        &format!(
             "lan-discovery-unknown-detected-{}-{}",
             current_metadata.scan_id, "lan-canonical-unknown"
         ),
@@ -401,7 +401,7 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::AgentConfirmed,
+            &LanDiscoveryEventKind::AgentConfirmed,
             Some(&child_agent_id),
             None,
             "child agent confirmation row should be emitted",
@@ -409,7 +409,7 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
         &current_metadata.scan_id,
         Some(&child_agent_id),
         None,
-        format!(
+        &format!(
             "lan-discovery-agent-confirmed-{}-{}",
             current_metadata.scan_id, "lan-canonical-child-agent"
         ),
@@ -418,7 +418,7 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
     assert_row_contract(
         discovery_row(
             &rows,
-            LanDiscoveryEventKind::DeviceOffline,
+            &LanDiscoveryEventKind::DeviceOffline,
             Some(&router_id),
             None,
             "canonical offline device row should be emitted",
@@ -426,7 +426,7 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
         &current_metadata.scan_id,
         Some(&router_id),
         None,
-        format!(
+        &format!(
             "lan-discovery-device-offline-{}-{}",
             current_metadata.scan_id, "lan-canonical-router"
         ),
@@ -594,12 +594,12 @@ fn inventory_device_with_reachability(
     let ip_address: TestText = ip_address.into();
     let mac_address: TestText = mac_address.into();
     LanNetworkInventoryDevice {
-        device_id: device_id.clone(),
+        device_id,
         label: hostname.clone(),
         platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
-        ip_address: ip_address.clone(),
-        mac_address: mac_address.clone(),
-        hostname: Some(hostname.clone()),
+        ip_address,
+        mac_address,
+        hostname: Some(hostname),
         network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
         observed_at: "2026-06-26T20:45:47.000Z".to_string(),
         reachability,
@@ -763,9 +763,9 @@ fn canonical_network_identity(
     let ip_address: TestText = ip_address.into();
     let mac_address: TestText = mac_address.into();
     LanCanonicalHouseholdNetworkIdentity {
-        hostname: Some(hostname.clone()),
-        ip_addresses: vec![ip_address.clone()],
-        mac_address: Some(mac_address.clone()),
+        hostname: Some(hostname),
+        ip_addresses: vec![ip_address],
+        mac_address: Some(mac_address),
         mac_vendor: None,
         network_interfaces: vec![constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()],
         reachability,

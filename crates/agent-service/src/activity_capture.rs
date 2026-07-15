@@ -44,7 +44,7 @@ pub fn spawn_startup_activity_capture() {
 }
 
 pub(crate) fn startup_activity_capture_enabled() -> bool {
-    startup_activity_capture_enabled_for_value(StartupActivityCaptureDisabledValue(
+    startup_activity_capture_enabled_for_value(&StartupActivityCaptureDisabledValue(
         std::env::var(constants::env_var::ACTIVITY_CAPTURE_STARTUP_DISABLED)
             .ok()
             .as_deref(),
@@ -52,7 +52,7 @@ pub(crate) fn startup_activity_capture_enabled() -> bool {
 }
 
 pub(crate) fn startup_activity_capture_enabled_for_value(
-    value: StartupActivityCaptureDisabledValue<'_>,
+    value: &StartupActivityCaptureDisabledValue<'_>,
 ) -> bool {
     windows_activity_capture_supported() && value.0 != Some(constants::value::TRUE)
 }
@@ -110,7 +110,7 @@ pub fn record_activity_capture_to_paths(
         store_path,
         process_limit,
         network_limit,
-        ActivityCaptureObservedAt(observed_at.as_str()),
+        &ActivityCaptureObservedAt(observed_at.as_str()),
     )
 }
 
@@ -120,7 +120,7 @@ pub(crate) fn record_activity_capture_to_paths_at(
     store_path: &Path,
     process_limit: usize,
     network_limit: usize,
-    observed_at: ActivityCaptureObservedAt<'_>,
+    observed_at: &ActivityCaptureObservedAt<'_>,
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
     let events = capture_events::activity_capture_events(
         capture_events::ObservedAtText(Box::leak(observed_at.0.to_string().into_boxed_str())),

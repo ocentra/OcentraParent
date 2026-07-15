@@ -21,9 +21,9 @@ use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use crate::activity_surface_store::ActivitySurfaceStoreSnapshot;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-struct ParentAssistantText(String);
+pub(crate) struct ParentAssistantText(String);
 
-trait IntoParentAssistantText {
+pub(crate) trait IntoParentAssistantText {
     fn into_parent_assistant_text(self) -> ParentAssistantText;
 }
 
@@ -45,6 +45,8 @@ impl IntoParentAssistantText for &str {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct ParentAssistantPayloadFieldName(&'static str);
 
+struct ParentAssistantActivitySnapshotValue(Option<ActivitySurfaceStoreSnapshot>);
+
 pub(crate) fn evidence_contexts_from_command(
     command: &AgentCommandEnvelope,
     activity_snapshot: Option<ActivitySurfaceStoreSnapshot>,
@@ -52,16 +54,19 @@ pub(crate) fn evidence_contexts_from_command(
     observed_at: impl IntoParentAssistantText,
 ) -> Vec<ParentAssistantEvidenceContext> {
     let observed_at = observed_at.into_parent_assistant_text();
+    let activity_snapshot = ParentAssistantActivitySnapshotValue(activity_snapshot);
     let allowed_summary =
-        activity_summary::allowed_summary_from_command(command, activity_snapshot.as_ref());
+        activity_summary::allowed_summary_from_command(command, activity_snapshot.0.as_ref());
     let mut contexts = vec![ParentAssistantEvidenceContext {
         evidence: ParentEvidenceReference {
             evidence_reference_id: activity_snapshot
+                .0
                 .as_ref()
                 .and_then(|snapshot| snapshot.last_event_id.clone())
                 .unwrap_or_else(|| constants::field::ACTIVITY_DIGEST.to_string()),
             kind: ParentEvidenceReferenceKind::QueryStoreSummary,
             observed_at: activity_snapshot
+                .0
                 .as_ref()
                 .and_then(|snapshot| snapshot.last_observed_at.clone())
                 .unwrap_or_else(|| observed_at.0.clone()),
@@ -76,7 +81,7 @@ pub(crate) fn evidence_contexts_from_command(
     }];
 
     if let Some(context) =
-        activity_summary::activity_event_context(activity_snapshot.as_ref(), &observed_at)
+        activity_summary::activity_event_context(activity_snapshot.0.as_ref(), &observed_at)
     {
         contexts.push(context);
     }

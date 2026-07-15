@@ -5,15 +5,6 @@ use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 use std::fmt::Display;
 
-#[macro_use]
-#[path = "../support/lan_root_harness.rs"]
-mod lan_root_harness;
-declare_lan_root_harness!();
-#[path = "../unit/lan_pairing_test_assertions.rs"]
-mod lan_pairing_test_assertions;
-#[path = "../unit/lan_pairing_test_commands.rs"]
-mod lan_pairing_test_commands;
-
 use crate::{
     app::{
         fields::fields_from_pairs, lan_pairing::LanPairingRuntime,
@@ -27,8 +18,9 @@ use crate::{
         health_command, health_command_for_target, intent_payload, intent_payload_for_pairing,
         paired_runtime, pairing_command, pairing_command_for_target, proof_payload,
         proof_payload_for_pairing, route_select_command, route_select_command_for_target,
-        second_proof_payload, serialize_command, status_command,
+        serialize_command, status_command,
     },
+    lan_pairing_test_multidevice_commands::second_proof_payload,
     test_text::TestText,
 };
 
@@ -185,14 +177,15 @@ async fn lan_pairing_route_select_makes_multi_device_control_explicit() {
         &first_before_selection,
         constants::value::LAN_REASON_UNSELECTED_DEVICE,
     );
+    let device_id_delimiter = constants::delimiter::LIST.to_string();
     assert_route_selected(
         &select_first,
         constants::lan_pairing::CHILD_DEVICE_ID,
-        &[
+        [
             constants::lan_pairing::CHILD_DEVICE_ID,
             constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
         ]
-        .join(&constants::delimiter::LIST.to_string()),
+        .join(device_id_delimiter.as_str()),
     );
     assert_eq!(
         first_after_selection.event,

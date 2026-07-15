@@ -201,7 +201,7 @@ fn merge_and_evidence_invariants_hold_across_duplicate_source_permutations() {
 
 #[test]
 fn locally_administered_mac_neighbors_stay_split_for_every_input_order() {
-    assert_locally_administered_mac_neighbors_split(vec![
+    assert_locally_administered_mac_neighbors_split(&[
         inventory_device(
             "randomized-one",
             "Printer One",
@@ -227,7 +227,7 @@ fn locally_administered_mac_neighbors_stay_split_for_every_input_order() {
             vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
         ),
     ]);
-    assert_locally_administered_mac_neighbors_split(vec![
+    assert_locally_administered_mac_neighbors_split(&[
         inventory_device(
             "randomized-three",
             "Printer Three",
@@ -253,7 +253,7 @@ fn locally_administered_mac_neighbors_stay_split_for_every_input_order() {
             vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
         ),
     ]);
-    assert_locally_administered_mac_neighbors_split(vec![
+    assert_locally_administered_mac_neighbors_split(&[
         inventory_device(
             "randomized-two",
             "Printer Two",
@@ -281,11 +281,9 @@ fn locally_administered_mac_neighbors_stay_split_for_every_input_order() {
     ]);
 }
 
-fn assert_locally_administered_mac_neighbors_split(
-    network_devices: Vec<LanNetworkInventoryDevice>,
-) {
+fn assert_locally_administered_mac_neighbors_split(network_devices: &[LanNetworkInventoryDevice]) {
     let model = lan_add_device_read_model_from_inventory(
-        &network_devices,
+        network_devices,
         "2026-06-27T12:00:00Z".to_string(),
     );
 
@@ -327,24 +325,24 @@ fn reachability_event_ordering_stays_honest_for_online_offline_and_stale_neighbo
     assert_reachability_event_ordering_case(
         "online-neighbor",
         LanPairingDeviceReachability::Online,
-        LanDiscoveryEventKind::DeviceOnline,
+        &LanDiscoveryEventKind::DeviceOnline,
     );
     assert_reachability_event_ordering_case(
         "offline-neighbor",
         LanPairingDeviceReachability::Offline,
-        LanDiscoveryEventKind::DeviceOffline,
+        &LanDiscoveryEventKind::DeviceOffline,
     );
     assert_reachability_event_ordering_case(
         "stale-neighbor",
         LanPairingDeviceReachability::Stale,
-        LanDiscoveryEventKind::DeviceUpdated,
+        &LanDiscoveryEventKind::DeviceUpdated,
     );
 }
 
 fn assert_reachability_event_ordering_case(
     label: impl std::fmt::Display,
     reachability: LanPairingDeviceReachability,
-    expected_event: LanDiscoveryEventKind,
+    expected_event: &LanDiscoveryEventKind,
 ) {
     let label = label.to_string();
     let model = lan_add_device_read_model_from_inventory(
@@ -366,7 +364,7 @@ fn assert_reachability_event_ordering_case(
         .collect::<Vec<_>>();
     let expected_index = event_kinds
         .iter()
-        .position(|event_kind| *event_kind == expected_event)
+        .position(|event_kind| event_kind == expected_event)
         .value_or_unreachable();
     let finish_index = event_kinds
         .iter()

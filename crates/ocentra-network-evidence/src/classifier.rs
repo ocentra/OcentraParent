@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    CategoryFreshnessState, CategoryMatchKind, DomainCategoryLookup, NetworkCategory,
-    NetworkEvidenceGrade,
-};
+use crate::{CategoryMatchKind, DomainCategoryLookup, NetworkCategory, NetworkEvidenceGrade};
 
 mod matching;
 mod validation;

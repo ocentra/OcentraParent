@@ -55,12 +55,7 @@ pub fn matching_mdns_instances_for_hostname<'a>(
     if device_hostname_counts.get(&hostname_key).copied() != Some(1) {
         return None;
     }
-    let matching_instances = indexes
-        .service_by_hostname
-        .get(&hostname_key)?
-        .iter()
-        .copied()
-        .collect::<Vec<_>>();
+    let matching_instances = indexes.service_by_hostname.get(&hostname_key)?.to_vec();
     if matching_instances.is_empty() {
         None
     } else {

@@ -2,7 +2,7 @@ use super::super::{
     BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
     BrowserManagedProfileStoreRecord, ProfileStoreRecordInput,
 };
-use super::io::{read_profile_store_entry, write_profile_store_entry};
+use super::io::read_profile_store_entry;
 use super::paths::managed_profile_store_paths;
 use super::record::profile_store_record;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileLifecycleState;

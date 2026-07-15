@@ -69,7 +69,7 @@ pub(crate) fn select_llama_runtime_distribution(
     Some(LlamaRuntimeDistribution {
         target,
         acceleration,
-        release_tag: release_tag.0.clone(),
+        release_tag: release_tag.0,
         asset_name: asset_name.0,
         download_url: download_url.0,
         executable_name: executable_name.0,

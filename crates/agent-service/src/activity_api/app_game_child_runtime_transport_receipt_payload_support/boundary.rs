@@ -20,7 +20,7 @@ use super::{AppGameReceiptBoundaryState, AppGameReceiptReferenceIds};
 
 pub(super) fn count_rows(
     rows: &[AppGameChildRuntimeTransportReceiptRow],
-    state: AppGameReceiptBoundaryState,
+    state: &AppGameReceiptBoundaryState,
 ) -> u64 {
     rows.iter()
         .filter(|row| row.boundary_state == state.0)

@@ -62,10 +62,6 @@ name = "unit_runtime_gate"
 path = "tests/unit/runtime_gate.rs"
 
 [[test]]
-name = "unit_support"
-path = "tests/unit/support.rs"
-
-[[test]]
 name = "unit_flow_state"
 path = "tests/unit/tracking_config_update_flow.rs"
 

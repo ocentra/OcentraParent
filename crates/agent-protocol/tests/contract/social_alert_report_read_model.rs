@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::social_alert_report_read_model::{
     SocialAlertReportClaimBoundaries, SocialAlertReportProviderStatusRow,
     SocialAlertReportReadModelSnapshot, SOCIAL_ALERT_REPORT_CAPABILITY_READY,
@@ -49,7 +50,7 @@ fn social_alert_report_snapshot_serializes_no_claim_boundaries() {
     };
 
     let json = serde_json::to_value(&snapshot)
-        .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(json["familyId"], SOCIAL_ALERT_REPORT_FAMILY_ID);
     assert_eq!(

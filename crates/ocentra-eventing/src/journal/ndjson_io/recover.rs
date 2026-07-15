@@ -1,14 +1,10 @@
-use std::sync::Arc;
-use tokio::fs::{File, OpenOptions};
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::fs::File;
+use tokio::io::{AsyncBufReadExt, BufReader};
 
 use crate::journal::hash_chain::verify_hash_chain_entry;
-use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
+use crate::{EventingError, ExpectValue};
 
-use super::{
-    JournalAppend, JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalEntry,
-    NdjsonJournalOptions,
-};
+use super::{NdjsonEventJournal, NdjsonJournalEntry};
 
 impl NdjsonEventJournal {
     pub(crate) async fn recover_state(&self) -> Result<(), EventingError> {

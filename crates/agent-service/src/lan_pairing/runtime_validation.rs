@@ -59,7 +59,7 @@ pub(super) fn validate_intent_result(
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     let observed_at: String = timestamp_now();
-    if crate::lan_pairing::is_write_intent(intent) {
+    if crate::lan_pairing::authority::is_write_intent(intent) {
         validate_write_authority(intent)?;
     }
     if intent.parent_authority == LanPairingParentAuthority::ActiveController {

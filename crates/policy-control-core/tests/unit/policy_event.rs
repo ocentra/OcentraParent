@@ -9,9 +9,6 @@ use ocentra_policy_control_core::policy_event::{
     PolicyEventApplyOutcome, PolicyEventDeadLetterReason, PolicyEventKind, PolicyEventScope,
     PolicyEventSequence, POLICY_EVENT_KINDS,
 };
-use ocentra_policy_control_core::policy_request::{
-    PolicyApprovalId, PolicyOverrideId, PolicyRequestId,
-};
 use ocentra_policy_control_core::policy_source::{
     ParentPolicyDocumentId, PolicyAuditReferenceId, PolicyChildProfileId, PolicyConsumerDomain,
     PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRollbackRef, PolicyVersion,
@@ -47,54 +44,6 @@ fn source_document_scope() -> TestResult<PolicyEventScope> {
         household_id: test_ok!(
             PolicyHouseholdId::parse("household-default"),
             "policy household id"
-        ),
-        source_document_id: test_ok!(
-            ParentPolicyDocumentId::parse("policy-source-default"),
-            "policy source document id"
-        ),
-        policy_version: test_ok!(PolicyVersion::new(5), "policy version"),
-    })
-}
-
-fn request_scope() -> TestResult<PolicyEventScope> {
-    Ok(PolicyEventScope::Request {
-        household_id: test_ok!(
-            PolicyHouseholdId::parse("household-default"),
-            "policy household id"
-        ),
-        request_id: test_ok!(
-            PolicyRequestId::parse("policy-request-default"),
-            "policy request id"
-        ),
-        child_profile_id: test_ok!(
-            PolicyChildProfileId::parse("child-primary"),
-            "child profile id"
-        ),
-        source_document_id: test_ok!(
-            ParentPolicyDocumentId::parse("policy-source-default"),
-            "policy source document id"
-        ),
-        policy_version: test_ok!(PolicyVersion::new(5), "policy version"),
-    })
-}
-
-fn override_scope() -> TestResult<PolicyEventScope> {
-    Ok(PolicyEventScope::Override {
-        household_id: test_ok!(
-            PolicyHouseholdId::parse("household-default"),
-            "policy household id"
-        ),
-        override_id: test_ok!(
-            PolicyOverrideId::parse("policy-override-default"),
-            "policy override id"
-        ),
-        approval_id: test_ok!(
-            PolicyApprovalId::parse("policy-approval-default"),
-            "policy approval id"
-        ),
-        request_id: test_ok!(
-            PolicyRequestId::parse("policy-request-default"),
-            "policy request id"
         ),
         source_document_id: test_ok!(
             ParentPolicyDocumentId::parse("policy-source-default"),

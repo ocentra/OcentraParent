@@ -164,12 +164,13 @@ fn assert_mobile_route_rejection(
     expected: HouseholdAiRouteRejectionReason,
 ) {
     let mut candidate = HouseholdAiProviderCandidate::parent_mobile();
+    candidate.supports_heavy_screen_vision = true;
     mutate(&mut candidate);
     let selection = select_household_ai_provider_route(request, &[candidate]);
     assert_eq!(selection.selected_provider_peer_id, None);
     assert_eq!(
         selection.candidate_decisions[0].state,
-        HouseholdAiRouteDecisionState::Dormant
+        HouseholdAiRouteDecisionState::Rejected
     );
     assert_eq!(
         selection.candidate_decisions[0].rejection_reason,

@@ -52,8 +52,47 @@ pub(crate) mod screen_ai_service_event_subscription;
 mod screen_ai_service_event_subscription_tests;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
+#[path = "../support/test_text.rs"]
+mod test_text;
 #[path = "../../src/time.rs"]
 mod time;
+
+const _: () = {
+    let _ = activity_capture::spawn_startup_activity_capture;
+    let _ = activity_capture::startup_activity_capture_enabled;
+    let _ = activity_capture::startup_activity_capture_enabled_for_value;
+    let _ = activity_capture::record_activity_capture_once;
+    let _ = activity_capture::record_activity_capture_to_paths;
+    let _ = activity_capture::record_activity_capture_to_paths_at;
+
+    let _ = activity_surface_read_model_states::request_targets_remote_device;
+    let _ = activity_surface_read_model_states::empty_screen_read_model;
+    let _ = activity_surface_read_model_states::unavailable_screen_read_model;
+    let _ = activity_surface_read_model_states::offline_screen_read_model;
+    let _ = activity_surface_read_model_states::empty_app_use_read_model;
+    let _ = activity_surface_read_model_states::unavailable_app_use_read_model;
+    let _ = activity_surface_read_model_states::offline_app_use_read_model;
+    let _ = activity_surface_read_model_states::unavailable_games_read_model;
+    let _ = activity_surface_read_model_states::offline_games_read_model;
+    let _ = activity_surface_read_model_states::unavailable_browser_read_model;
+    let _ = activity_surface_read_model_states::offline_browser_read_model;
+    let _ = activity_surface_read_model_states::unavailable_network_read_model;
+    let _ = activity_surface_read_model_states::offline_network_read_model;
+
+    let _ = activity_surface_read_models::screen_read_model;
+    let _ = activity_surface_read_models::browser_read_model;
+    let _ = activity_surface_read_models::network_read_model;
+    let _ = activity_surface_read_models::app_use::app_use_read_model::<
+        Option<ocentra_parent_agent_protocol::activity_query::ActivityRecentSummary>,
+    >;
+    let _ = activity_surface_read_models::games::games_read_model;
+
+    let _ = screen_ai_service_capture_event_builder::screen_queue_job;
+    let _ = screen_ai_service_capture_event_builder::screen_analysis_event;
+
+    let _ = event_builder::build_event::<&str, &str>;
+    let _ = event_builder::portal_peer;
+};
 
 mod screen_ai_analysis_runtime {
     #[path = "../../../src/screen_ai_analysis_runtime/adapter.rs"]
@@ -149,15 +188,11 @@ mod screen_ai_analysis_runtime {
         Ok(outcome)
     }
 
-    pub(crate) fn adapter_runtime_status<P>(
-        command: Option<P>,
+    pub(crate) fn adapter_runtime_status(
+        command: Option<&std::path::Path>,
         timestamp: impl std::fmt::Display,
-    ) -> LocalModelRuntimeStatus
-    where
-        P: AsRef<std::path::Path>,
-    {
+    ) -> LocalModelRuntimeStatus {
         let timestamp = timestamp.to_string();
-        let command = command.as_ref().map(AsRef::as_ref);
         adapter::runtime_status(command, timestamp.as_str())
     }
 

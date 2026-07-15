@@ -34,7 +34,7 @@ pub(super) fn child_runtime_rows_from_service_model(
             push_child_runtime_row(
                 &mut rows,
                 AppGameReceiptSourceRowId(row.runtime_evidence_id.clone()),
-                boundary_state,
+                &boundary_state,
                 evidence_reference_ids(&row.evidence),
             );
         }
@@ -46,7 +46,7 @@ pub(super) fn child_runtime_rows_from_service_model(
             push_child_runtime_row(
                 &mut rows,
                 AppGameReceiptSourceRowId(row.foreground_evidence_id.clone()),
-                boundary_state,
+                &boundary_state,
                 evidence_reference_ids(&row.evidence),
             );
         }
@@ -70,7 +70,7 @@ fn push_action_result_child_runtime_row(
         push_child_runtime_row(
             rows,
             AppGameReceiptSourceRowId(row.result_id.clone()),
-            AppGameReceiptBoundaryState(
+            &AppGameReceiptBoundaryState(
                 APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_MANUAL_REQUIRED.to_string(),
             ),
             AppGameReceiptReferenceIds(
@@ -93,7 +93,7 @@ fn push_inventory_child_runtime_row(
         push_child_runtime_row(
             rows,
             AppGameReceiptSourceRowId(row.inventory_entry_id.clone()),
-            boundary_state,
+            &boundary_state,
             evidence_reference_ids(&row.evidence),
         );
     }
@@ -102,7 +102,7 @@ fn push_inventory_child_runtime_row(
 fn push_child_runtime_row(
     rows: &mut Vec<AppGameChildRuntimeTransportReceiptRow>,
     source_row_id: AppGameReceiptSourceRowId,
-    boundary_state: AppGameReceiptBoundaryState,
+    boundary_state: &AppGameReceiptBoundaryState,
     source_refs: AppGameReceiptReferenceIds,
 ) {
     if rows
@@ -120,7 +120,7 @@ fn push_child_runtime_row(
 
 fn child_runtime_row(
     source_row_id: AppGameReceiptSourceRowId,
-    boundary_state: AppGameReceiptBoundaryState,
+    boundary_state: &AppGameReceiptBoundaryState,
     required_transport_refs: AppGameReceiptReferenceIds,
 ) -> AppGameChildRuntimeTransportReceiptRow {
     let mut row_id = String::from(APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_ROW_ID_PREFIX);
@@ -135,9 +135,9 @@ fn child_runtime_row(
             APP_GAME_ADAPTER_PRODUCT_NATIVE_APP.to_string(),
             APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME.to_string(),
         ],
-        required_transport_refs: required_refs_for(&boundary_state, required_transport_refs).0,
-        required_receipt_refs: required_receipt_refs_for(&boundary_state).0,
-        open_gaps: open_gaps_for(&boundary_state).0,
+        required_transport_refs: required_refs_for(boundary_state, required_transport_refs).0,
+        required_receipt_refs: required_receipt_refs_for(boundary_state).0,
+        open_gaps: open_gaps_for(boundary_state).0,
         runtime_transport_executed: false,
         runtime_receipt_ingested: false,
         provider_delivery_executed: false,

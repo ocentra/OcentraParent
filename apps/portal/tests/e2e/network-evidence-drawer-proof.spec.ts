@@ -36,7 +36,9 @@ test('network evidence drawer renders service-backed refs without unsupported cl
   await page.getByRole('button', { exact: true, name: 'Network activity' }).click();
   const networkPanel = page.getByRole('region', { name: 'Network activity' });
   await expect(networkPanel).toBeVisible({ timeout: shellReadyTimeoutMs });
-  await expect(networkPanel.getByText(evidenceRefs, { exact: true })).toBeVisible({
+  await expect(
+    networkPanel.getByText('Evidence references', { exact: true }).locator('xpath=following-sibling::dd[1]')
+  ).toContainText(evidenceRefs, {
     timeout: shellReadyTimeoutMs,
   });
   await expect(networkPanel.getByText('Exact URL claim')).toBeVisible({ timeout: shellReadyTimeoutMs });

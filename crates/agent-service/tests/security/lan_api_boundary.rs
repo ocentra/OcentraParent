@@ -1,5 +1,5 @@
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::test_text::TestText;

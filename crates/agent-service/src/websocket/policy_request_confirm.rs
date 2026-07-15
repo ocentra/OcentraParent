@@ -1,9 +1,5 @@
 use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
-use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
-use ocentra_parent_agent_protocol::activity::policy_preview::PolicyAssistantConfirmationState as ProtocolPolicyAssistantConfirmationState;
-use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestOrigin as ProtocolPolicyRequestOrigin;
-use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus as ProtocolPolicyRequestStatus;
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicySourceStatus;
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicySourceSurface;
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
@@ -11,7 +7,6 @@ use ocentra_parent_agent_protocol::activity::ActivityEventKind;
 use ocentra_parent_agent_protocol::activity::ActivityObserver;
 use ocentra_parent_agent_protocol::activity::ActivitySource;
 use ocentra_parent_agent_protocol::activity::ActivitySubject;
-use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;

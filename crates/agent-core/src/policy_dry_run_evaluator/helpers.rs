@@ -84,14 +84,13 @@ fn target_matches(observed: &PolicyTarget, rule_target: &PolicyTarget) -> bool {
 }
 
 fn rule_is_effective_at(evaluated_at: &str, rule: &PolicyRule) -> bool {
-    rule.effective_from.as_ref().map_or(true, |effective_from| {
-        effective_from.as_str() <= evaluated_at
-    }) && rule
-        .effective_until
+    rule.effective_from
         .as_ref()
-        .map_or(true, |effective_until| {
-            effective_until.as_str() > evaluated_at
-        })
+        .is_none_or(|effective_from| effective_from.as_str() <= evaluated_at)
+        && rule
+            .effective_until
+            .as_ref()
+            .is_none_or(|effective_until| effective_until.as_str() > evaluated_at)
 }
 
 pub(super) fn push_unique(values: &mut Vec<String>, value: String) {

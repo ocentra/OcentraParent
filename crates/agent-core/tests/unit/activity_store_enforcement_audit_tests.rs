@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity::{
     ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
@@ -87,12 +88,12 @@ fn activity_store_returns_no_enforcement_audit_fields_when_empty() -> TestResult
 
 fn open_in_memory_store() -> ActivityStore {
     activity_store_open(ActivityStore::open_in_memory())
-        .expect(constants::error::ACTIVITY_STORE_OPENS)
+        .expect_value(constants::error::ACTIVITY_STORE_OPENS)
 }
 
 fn ingest_enforcement_events(store: &ActivityStore, events: &[ActivityEvent]) {
     activity_store_ingest(store.ingest_events(events))
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
 }
 
 fn latest_enforcement_audit_fields(store: &ActivityStore) -> Result<Option<LogFields>, TestText> {

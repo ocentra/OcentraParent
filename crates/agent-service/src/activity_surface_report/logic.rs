@@ -1,8 +1,8 @@
 use ocentra_parent_agent_protocol::activity_surface::{
     ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
-    ActivityReportFrequency, ActivityReportRequest, ActivityReportSection,
-    ActivityReportSectionKind, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
-    ActivityReportSourceState, ActivitySurfaceScope, ActivitySurfaceScopeKind,
+    ActivityReportRequest, ActivityReportSection, ActivityReportSectionKind,
+    ActivityReportSourceLabel, ActivityReportSourceReachabilityState, ActivityReportSourceState,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
@@ -48,7 +48,7 @@ fn report_document_from_snapshot(
         source_states_for_request(&request.scope, snapshot, source_state, family_sources);
     let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-        report_id: report_id(request.frequency, GeneratedAtText(generated_at.clone())).0,
+        report_id: report_id(request.frequency, &GeneratedAtText(generated_at.clone())).0,
         frequency: request.frequency,
         scope: request.scope,
         requested_at: request.requested_at,
@@ -109,7 +109,7 @@ fn unavailable_report_document(request: ActivityReportRequest) -> ActivityReport
     let source_states = unavailable_source_states_for_request(&request.scope);
     let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-        report_id: report_id(request.frequency, GeneratedAtText(generated_at.clone())).0,
+        report_id: report_id(request.frequency, &GeneratedAtText(generated_at.clone())).0,
         frequency: request.frequency,
         scope: request.scope,
         requested_at: request.requested_at,
@@ -159,7 +159,7 @@ fn offline_device_report_document(request: ActivityReportRequest) -> ActivityRep
     let generated_at: String = timestamp_now();
     let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-        report_id: report_id(request.frequency, GeneratedAtText(generated_at.clone())).0,
+        report_id: report_id(request.frequency, &GeneratedAtText(generated_at.clone())).0,
         frequency: request.frequency,
         scope: request.scope.clone(),
         requested_at: request.requested_at,

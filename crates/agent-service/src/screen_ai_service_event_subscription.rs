@@ -155,7 +155,7 @@ pub(crate) async fn publish_screen_service_row_ready_event(
     event: ScreenAiServiceRowReadyEvent,
     observed_at: ObservedAtText,
 ) -> Result<ocentra_eventing::bus::reports::handler::PublishReport, EventingError> {
-    bus.publish(event, screen_service_row_ready_metadata(observed_at)?)
+    bus.publish(event, screen_service_row_ready_metadata(&observed_at)?)
         .await
 }
 
@@ -219,7 +219,7 @@ fn screen_service_row_is_degraded(row: &ActivityScreenReadModelRow) -> bool {
 }
 
 fn screen_service_row_ready_metadata(
-    observed_at: ObservedAtText,
+    observed_at: &ObservedAtText,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),

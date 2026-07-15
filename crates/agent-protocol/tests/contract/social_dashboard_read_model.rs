@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::SocialDashboardClaimBoundaries;
 use ocentra_parent_agent_protocol::SocialDashboardPanel;
@@ -43,7 +44,7 @@ fn social_dashboard_snapshot_serializes_without_runtime_claims() {
     };
 
     let serialized =
-        serde_json::to_value(snapshot).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(snapshot).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], SOCIAL_DASHBOARD_SCHEMA_VERSION);
     assert!(serialized["custodyLabel"].is_null());

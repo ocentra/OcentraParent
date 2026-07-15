@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanDiscoveryEventHistory, LanDiscoveryEventHistoryState, LanDiscoveryEventKind,
@@ -120,14 +121,14 @@ pub(super) fn assert_browser_add_device_read_model_json(value: &serde_json::Valu
     assert_eq!(
         value["canonicalHouseholdDevices"]
             .as_array()
-            .expect("canonical household devices serializes as an array")
+            .expect_value("canonical household devices serializes as an array")
             .len(),
         1
     );
     assert!(
         !value["canonicalHouseholdDevices"][0]["networkIdentity"]["evidenceRecords"]
             .as_array()
-            .expect("network identity evidence records serializes as an array")
+            .expect_value("network identity evidence records serializes as an array")
             .is_empty()
     );
     assert_eq!(
@@ -139,16 +140,16 @@ pub(super) fn assert_browser_add_device_read_model_json(value: &serde_json::Valu
 fn assert_production_household_proof_json(value: &serde_json::Value) {
     let status_rows = value["statusRows"]
         .as_array()
-        .expect("production household proof status rows serialize as an array");
+        .expect_value("production household proof status rows serialize as an array");
     let manual_proof_required = value["manualProofRequired"]
         .as_array()
-        .expect("production household manual proof list serializes as an array");
+        .expect_value("production household manual proof list serializes as an array");
     let not_implemented = value["notImplemented"]
         .as_array()
-        .expect("production household not-implemented list serializes as an array");
+        .expect_value("production household not-implemented list serializes as an array");
     let claims_not_proved = value["claimsNotProved"]
         .as_array()
-        .expect("production household non-claims serialize as an array");
+        .expect_value("production household non-claims serialize as an array");
 
     for capability in [
         "signed-lan-hello",

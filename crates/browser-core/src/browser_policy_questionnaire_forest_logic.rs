@@ -41,92 +41,123 @@ pub(super) fn browser_policy_computed_flag(
 ) -> bool {
     browser_policy_computed_flag_evaluators()
         .iter()
-        .find_map(|(candidate_flag_id, evaluator)| {
-            (*candidate_flag_id == flag_id).then_some(evaluator)
-        })
+        .find_map(|entry| (entry.flag_id == flag_id).then_some(entry.evaluator))
         .is_some_and(|evaluator| evaluator(answers))
 }
 
-const BROWSER_POLICY_COMPUTED_FLAG_EVALUATORS: &[(&str, fn(&BrowserPolicyAnswerMap) -> bool)] = &[
-    ("policyIsOff", |answers| {
-        browser_policy_root_answer(answers) == "off"
-    }),
-    ("policyIsOn", |answers| {
-        browser_policy_root_answer(answers) == "on"
-    }),
-    ("policyPaused", |answers| {
-        browser_policy_root_answer(answers) == "paused"
-    }),
-    (
-        "emergencyOverrideActive",
-        browser_policy_emergency_override_active,
-    ),
-    ("askParentExists", browser_policy_ask_parent_exists),
-    ("limitExists", |answers| {
-        browser_policy_has(answers, "1.2", "limit")
-            || browser_policy_has(answers, "6.1", "limit-time")
-            || browser_policy_has(answers, "8.1", "limit")
-    }),
-    ("downloadsSelected", |answers| {
-        browser_policy_has(answers, "5.1", "downloads")
-    }),
-    ("searchSelected", |answers| {
-        browser_policy_has_any(answers, "5.1", &["search-terms", "safe-search"])
-    }),
-    ("videoSelected", |answers| {
-        browser_policy_has(answers, "5.1", "video")
-    }),
-    (
-        "exactEvidenceSelected",
-        browser_policy_exact_evidence_selected,
-    ),
-    (
-        "managedBrowserRequired",
-        browser_policy_managed_browser_required,
-    ),
-    ("reportsEnabled", |answers| {
-        selected(answers, "14.1")
-            .iter()
-            .any(|option_id| option_id != "policy-status")
-    }),
-    ("auditEnabled", |answers| {
-        browser_policy_has_any(
-            answers,
-            "18.1",
-            &["minimal", "standard", "detailed", "custom"],
-        )
-    }),
-    ("setupRelevant", browser_policy_setup_relevant),
-    ("classificationServiceReferenced", |answers| {
-        browser_policy_has(answers, "5.1", "category")
-            || browser_policy_has(answers, "5.2", "classification-service")
-    }),
-    ("multiTargetActionMatrixRelevant", |answers| {
-        browser_policy_count(answers, "5.1") >= 2 && browser_policy_count(answers, "6.1") >= 2
-    }),
-    (
-        "evidencePrivacyVisible",
-        browser_policy_evidence_privacy_visible,
-    ),
-    (
-        "notificationEventsRelevant",
-        browser_policy_notification_events_relevant,
-    ),
-    (
-        "unsupportedCapabilityRelevant",
-        browser_policy_unsupported_capability_relevant,
-    ),
-    (
-        "storedBrowserDataExists",
-        browser_policy_stored_browser_data_exists,
-    ),
-    (
-        "browserGamesRelevant",
-        browser_policy_browser_games_relevant,
-    ),
+struct BrowserPolicyComputedFlagEvaluatorEntry {
+    flag_id: &'static str,
+    evaluator: fn(&BrowserPolicyAnswerMap) -> bool,
+}
+
+const BROWSER_POLICY_COMPUTED_FLAG_EVALUATORS: &[BrowserPolicyComputedFlagEvaluatorEntry] = &[
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "policyIsOff",
+        evaluator: |answers| browser_policy_root_answer(answers) == "off",
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "policyIsOn",
+        evaluator: |answers| browser_policy_root_answer(answers) == "on",
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "policyPaused",
+        evaluator: |answers| browser_policy_root_answer(answers) == "paused",
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "emergencyOverrideActive",
+        evaluator: browser_policy_emergency_override_active,
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "askParentExists",
+        evaluator: browser_policy_ask_parent_exists,
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "limitExists",
+        evaluator: |answers| {
+            browser_policy_has(answers, "1.2", "limit")
+                || browser_policy_has(answers, "6.1", "limit-time")
+                || browser_policy_has(answers, "8.1", "limit")
+        },
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "downloadsSelected",
+        evaluator: |answers| browser_policy_has(answers, "5.1", "downloads"),
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "searchSelected",
+        evaluator: |answers| {
+            browser_policy_has_any(answers, "5.1", &["search-terms", "safe-search"])
+        },
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "videoSelected",
+        evaluator: |answers| browser_policy_has(answers, "5.1", "video"),
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "exactEvidenceSelected",
+        evaluator: browser_policy_exact_evidence_selected,
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "managedBrowserRequired",
+        evaluator: browser_policy_managed_browser_required,
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "reportsEnabled",
+        evaluator: |answers| {
+            selected(answers, "14.1")
+                .iter()
+                .any(|option_id| option_id != "policy-status")
+        },
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "auditEnabled",
+        evaluator: |answers| {
+            browser_policy_has_any(
+                answers,
+                "18.1",
+                &["minimal", "standard", "detailed", "custom"],
+            )
+        },
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "setupRelevant",
+        evaluator: browser_policy_setup_relevant,
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "classificationServiceReferenced",
+        evaluator: |answers| {
+            browser_policy_has(answers, "5.1", "category")
+                || browser_policy_has(answers, "5.2", "classification-service")
+        },
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "multiTargetActionMatrixRelevant",
+        evaluator: |answers| {
+            browser_policy_count(answers, "5.1") >= 2 && browser_policy_count(answers, "6.1") >= 2
+        },
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "evidencePrivacyVisible",
+        evaluator: browser_policy_evidence_privacy_visible,
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "notificationEventsRelevant",
+        evaluator: browser_policy_notification_events_relevant,
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "unsupportedCapabilityRelevant",
+        evaluator: browser_policy_unsupported_capability_relevant,
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "storedBrowserDataExists",
+        evaluator: browser_policy_stored_browser_data_exists,
+    },
+    BrowserPolicyComputedFlagEvaluatorEntry {
+        flag_id: "browserGamesRelevant",
+        evaluator: browser_policy_browser_games_relevant,
+    },
 ];
 
-fn browser_policy_computed_flag_evaluators(
-) -> &'static [(&'static str, fn(&BrowserPolicyAnswerMap) -> bool)] {
+fn browser_policy_computed_flag_evaluators() -> &'static [BrowserPolicyComputedFlagEvaluatorEntry] {
     BROWSER_POLICY_COMPUTED_FLAG_EVALUATORS
 }

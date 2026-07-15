@@ -36,34 +36,53 @@ const COPY_KEY_VALUES: [&str; 15] = [
 ];
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct ParentStorageCopyKey(u8);
+#[repr(u8)]
+pub enum ParentStorageCopyKey {
+    CustodyBoundary,
+    MetadataLeakage,
+    SensitiveEncryptedBeforeUpload,
+    LostKeyMayBeUnrecoverable,
+    DisconnectDoesNotDelete,
+    TombstonesMayBeRequired,
+    BackupQueued,
+    ProviderUploadPending,
+    ProviderUploadFailed,
+    ProviderUploadConfirmed,
+    ImportPreviewPassed,
+    ApplyRequiresConfirmation,
+    DeletedLocallyProviderDeletePending,
+    ProviderDisconnectedExistingFilesMayRemain,
+    ManualProofRequired,
+}
 
 impl ParentStorageCopyKey {
-    pub const CustodyBoundary: Self = Self(0);
-    pub const MetadataLeakage: Self = Self(1);
-    pub const SensitiveEncryptedBeforeUpload: Self = Self(2);
-    pub const LostKeyMayBeUnrecoverable: Self = Self(3);
-    pub const DisconnectDoesNotDelete: Self = Self(4);
-    pub const TombstonesMayBeRequired: Self = Self(5);
-    pub const BackupQueued: Self = Self(6);
-    pub const ProviderUploadPending: Self = Self(7);
-    pub const ProviderUploadFailed: Self = Self(8);
-    pub const ProviderUploadConfirmed: Self = Self(9);
-    pub const ImportPreviewPassed: Self = Self(10);
-    pub const ApplyRequiresConfirmation: Self = Self(11);
-    pub const DeletedLocallyProviderDeletePending: Self = Self(12);
-    pub const ProviderDisconnectedExistingFilesMayRemain: Self = Self(13);
-    pub const ManualProofRequired: Self = Self(14);
-
     pub fn as_str(&self) -> &'static str {
-        COPY_KEY_VALUES[self.0 as usize]
+        COPY_KEY_VALUES[*self as usize]
     }
 
     fn parse(value: &str) -> Option<Self> {
+        let variants = [
+            Self::CustodyBoundary,
+            Self::MetadataLeakage,
+            Self::SensitiveEncryptedBeforeUpload,
+            Self::LostKeyMayBeUnrecoverable,
+            Self::DisconnectDoesNotDelete,
+            Self::TombstonesMayBeRequired,
+            Self::BackupQueued,
+            Self::ProviderUploadPending,
+            Self::ProviderUploadFailed,
+            Self::ProviderUploadConfirmed,
+            Self::ImportPreviewPassed,
+            Self::ApplyRequiresConfirmation,
+            Self::DeletedLocallyProviderDeletePending,
+            Self::ProviderDisconnectedExistingFilesMayRemain,
+            Self::ManualProofRequired,
+        ];
+
         COPY_KEY_VALUES
             .iter()
             .position(|candidate| *candidate == value)
-            .map(|index| Self(index as u8))
+            .map(|index| variants[index])
     }
 }
 

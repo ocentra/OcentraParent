@@ -5,7 +5,7 @@ use tokio::{
 
 use crate::{
     EventingError, JournalHash, NdjsonEventJournal, ReplayCursor, ReplayFilter, ReplayMode,
-    ReplayReadReport, ReplayRecord,
+    ReplayReadReport,
 };
 
 use super::record;

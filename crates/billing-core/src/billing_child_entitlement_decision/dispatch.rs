@@ -1,8 +1,7 @@
 use super::{construct, freshness};
 use crate::billing_child_entitlement::{
     BillingChildEntitlementConsumptionDecision, BillingChildEntitlementRejectionReason,
-    BillingChildEntitlementSnapshot, BillingChildSnapshotFreshnessState,
-    BillingChildSnapshotSignatureState,
+    BillingChildEntitlementSnapshot, BillingChildSnapshotSignatureState,
 };
 
 pub(crate) fn decide_child_entitlement_snapshot(

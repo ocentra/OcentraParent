@@ -7,6 +7,12 @@ mod activity_family_sources;
 mod activity_report_env_lock;
 #[path = "../../src/activity_store_path.rs"]
 mod activity_store_path;
+#[path = "../support/activity_surface_app_game_boundary_fixtures.rs"]
+mod activity_surface_app_game_boundary_fixtures;
+#[path = "../support/activity_surface_app_game_model_fixtures.rs"]
+mod activity_surface_app_game_model_fixtures;
+#[path = "../support/activity_surface_common_fixtures.rs"]
+mod activity_surface_common_fixtures;
 #[path = "../../src/activity_surface_payload.rs"]
 mod activity_surface_payload;
 #[path = "../../src/activity_surface_read_model_states.rs"]
@@ -34,5 +40,7 @@ mod test_text;
 #[path = "../../src/time.rs"]
 mod time;
 
+#[path = "activity_surface_read_models_direct_tests.rs"]
+mod activity_surface_read_models_direct_tests;
 #[path = "activity_surface_report_command_tests.rs"]
 mod activity_surface_report_command_tests;

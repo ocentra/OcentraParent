@@ -1,4 +1,8 @@
-use std::fs::{read_to_string, remove_file};
+use std::{
+    env,
+    fs::{read_to_string, remove_file},
+    path::PathBuf,
+};
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
@@ -19,8 +23,30 @@ use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use super::test_text::{optional_log_string, test_ok, test_some, TestResult, TestText};
 use crate::{
     enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
+    enforcement_payload::EnforcementPayloadError,
     enforcement_timer_api::build_enforcement_timer_report_with_paths,
 };
+
+#[test]
+fn timer_state_path_uses_configured_or_default_location() {
+    let path = crate::enforcement_timer_state_path::enforcement_timer_state_path();
+    let expected = env::var(constants::env_var::AGENT_ENFORCEMENT_TIMER_STATE_PATH)
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| {
+            let mut default_path = env::temp_dir();
+            default_path.push(constants::enforcement::TIMER_STATE_FILE_NAME);
+            default_path
+        });
+    assert_eq!(path.as_ref(), expected.as_path());
+}
+
+#[test]
+fn unsupported_capability_rejection_is_protocol_stable() {
+    assert_eq!(
+        EnforcementPayloadError::UnsupportedCapability.to_string(),
+        constants::enforcement::REJECTION_UNSUPPORTED_CAPABILITY
+    );
+}
 
 #[tokio::test]
 async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestResult {
@@ -289,7 +315,7 @@ fn payload_timer_event(payload: &LogFields) -> Result<EnforcementTimerEvent, Tes
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
     test_ok(
-        serde_json::from_str(&text.to_string()),
+        serde_json::from_str(text.as_ref()),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }
@@ -300,7 +326,7 @@ fn payload_audit_event(payload: &LogFields) -> Result<EnforcementAuditEvent, Tes
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;
     test_ok(
-        serde_json::from_str(&text.to_string()),
+        serde_json::from_str(text.as_ref()),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }

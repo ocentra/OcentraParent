@@ -370,9 +370,8 @@ impl ScreenRuntimePhase {
         SCREEN_RUNTIME_PHASE_TARGET_HANDLERS[self as usize]
     }
 
-    pub fn runtime_role(self) -> RuntimeRole {
+    pub fn runtime_role(self) -> Result<RuntimeRole, EventingError> {
         RuntimeRole::parse(SCREEN_RUNTIME_PHASE_RUNTIME_ROLES[self as usize])
-            .expect("screen runtime phase role is a valid runtime role")
     }
 }
 
@@ -569,9 +568,8 @@ impl ScreenHouseholdMeshPhase {
         SCREEN_HOUSEHOLD_MESH_PHASE_TARGET_HANDLERS[self as usize]
     }
 
-    pub fn runtime_role(self) -> RuntimeRole {
+    pub fn runtime_role(self) -> Result<RuntimeRole, EventingError> {
         RuntimeRole::parse(SCREEN_HOUSEHOLD_MESH_PHASE_RUNTIME_ROLES[self as usize])
-            .expect("screen household mesh phase role is a valid runtime role")
     }
 }
 

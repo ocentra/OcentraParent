@@ -19,10 +19,14 @@ fn report_query_custody_contract_rules_template() -> String {
 }
 
 fn assemble_template_fragments(fragments: &[&str]) -> String {
-    fragments
-        .iter()
-        .map(|fragment| fragment.strip_suffix('\n').unwrap_or(fragment))
-        .collect()
+    format!(
+        "{}\n",
+        fragments
+            .iter()
+            .map(|fragment| fragment.trim_end_matches('\n'))
+            .collect::<Vec<_>>()
+            .join("\n")
+    )
 }
 
 pub fn report_query_custody_contracts_typescript() -> String {

@@ -1,5 +1,6 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_evidence::PrivatePayloadState;
 use serde::de::Error;
@@ -10,7 +11,7 @@ use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 pub const CHILD_DOMAIN_RUNTIME_SCHEMA_VERSION: u16 = crate::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 fn parse_or_panic<T, E: std::fmt::Debug>(result: Result<T, E>, message: &'static str) -> T {
-    result.expect(message)
+    result.expect_value(message)
 }
 
 fn parse_non_empty_text<T>(

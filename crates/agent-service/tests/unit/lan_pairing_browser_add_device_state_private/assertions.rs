@@ -8,18 +8,19 @@ type TestText = TestString;
 
 pub(super) fn discovery_row<'a>(
     rows: &'a [LanDiscoveryEventRow],
-    event_kind: LanDiscoveryEventKind,
+    event_kind: &LanDiscoveryEventKind,
     affected_device_id: Option<&TestText>,
     evidence_id: Option<&TestText>,
     context: &'static TestStr,
 ) -> &'a LanDiscoveryEventRow {
-    rows.iter()
-        .find(|row| {
-            row.event_kind == event_kind
+    crate::test_invariants::require_some(
+        rows.iter().find(|row| {
+            row.event_kind == *event_kind
                 && row.affected_device_id.as_ref() == affected_device_id
                 && row.evidence_id.as_ref() == evidence_id
-        })
-        .expect(context)
+        }),
+        context,
+    )
 }
 
 pub(super) fn assert_row_contract(
@@ -27,13 +28,13 @@ pub(super) fn assert_row_contract(
     scan_id: &TestText,
     affected_device_id: Option<&TestText>,
     evidence_id: Option<&TestText>,
-    event_id: TestText,
+    event_id: &TestText,
     occurred_at: &'static TestStr,
 ) {
     assert_eq!(row.scan_session_id.as_ref(), Some(scan_id));
     assert_eq!(row.affected_device_id.as_ref(), affected_device_id);
     assert_eq!(row.evidence_id.as_ref(), evidence_id);
-    assert_eq!(row.event_id.as_str(), event_id);
+    assert_eq!(row.event_id.as_str(), event_id.as_str());
     assert_eq!(row.occurred_at.as_str(), occurred_at);
 }
 

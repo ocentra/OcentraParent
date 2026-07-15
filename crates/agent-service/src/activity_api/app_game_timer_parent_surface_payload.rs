@@ -31,7 +31,7 @@ use crate::{
 };
 
 use super::activity_store_error_event::activity_store_error_event;
-use super::app_game_timer_parent_surface_action_results::timer_parent_surface_control_action_results;
+use super::app_game_timer_parent_surface_action_results::apply_timer_parent_surface_control_action_results;
 
 struct TimerParentSurfaceRowSpec {
     row_id: String,
@@ -64,7 +64,7 @@ pub async fn build_activity_app_game_timer_parent_surface_report(
                 .ok()
                 .flatten();
             let read_model = app_game_timer_parent_surface_from_service_model_with_timer_state(
-                model,
+                &model,
                 timer_state.as_ref(),
             );
             build_event(
@@ -88,10 +88,10 @@ pub async fn build_activity_app_game_timer_parent_surface_report(
 }
 
 pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
-    model: AppGameServiceReadModel,
+    model: &AppGameServiceReadModel,
     active_timer_state: Option<&EnforcementActiveTimerState>,
 ) -> AppGameTimerParentSurfaceReadModel {
-    let rows = timer_parent_surface_rows(&model);
+    let rows = timer_parent_surface_rows(model);
     let runtime_claims = TimerParentSurfaceRuntimeClaims {
         active_timer_state_exists: active_timer_state.is_some(),
         audit_runtime_claimed: active_timer_state
@@ -105,9 +105,9 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
             })
             .is_some(),
     };
-    let control_action_results = timer_parent_surface_control_action_results(&model);
-
-    timer_parent_surface_read_model(model, rows, runtime_claims, control_action_results)
+    let mut read_model = timer_parent_surface_read_model(model, rows, &runtime_claims);
+    apply_timer_parent_surface_control_action_results(model, &mut read_model);
+    read_model
 }
 
 struct TimerParentSurfaceRuntimeClaims {
@@ -249,10 +249,9 @@ fn timer_parent_surface_status_text_index(counts: &TimerParentSurfaceRowCounts) 
 }
 
 fn timer_parent_surface_read_model(
-    model: AppGameServiceReadModel,
+    model: &AppGameServiceReadModel,
     rows: Vec<AppGameTimerParentSurfaceRow>,
-    runtime_claims: TimerParentSurfaceRuntimeClaims,
-    control_action_results: super::app_game_timer_parent_surface_action_results::TimerParentSurfaceControlActionResults,
+    runtime_claims: &TimerParentSurfaceRuntimeClaims,
 ) -> AppGameTimerParentSurfaceReadModel {
     let counts = timer_parent_surface_row_counts(&rows);
     let capability_status = TIMER_PARENT_SURFACE_STATUS_TEXTS
@@ -261,7 +260,7 @@ fn timer_parent_surface_read_model(
 
     AppGameTimerParentSurfaceReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
-        generated_at: model.generated_at,
+        generated_at: model.generated_at.clone(),
         custody_label: APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         capability_status,
         returned: counts.returned,
@@ -269,58 +268,41 @@ fn timer_parent_surface_read_model(
         blocked_by_source_freshness_count: counts.blocked_by_source_freshness_count,
         blocked_by_compiler_decision_count: counts.blocked_by_compiler_decision_count,
         runtime_manual_required_count: counts.runtime_manual_required_count,
-        control_action_result_count: control_action_results.reference_ids.len() as u64,
-        control_action_result_reference_ids: control_action_results.reference_ids,
-        control_action_result_statuses: control_action_results.statuses,
-        control_action_result_capability_states: control_action_results.capability_states,
-        control_action_result_enforcement_statuses: control_action_results.enforcement_statuses,
-        child_facing_reason_reference_ids: control_action_results.child_reason_reference_ids,
-        child_facing_status_reference_ids: control_action_results.child_status_reference_ids,
-        child_ux_handoff_ready_count: control_action_results.child_ux_handoff_ready_count,
-        child_ux_handoff_blocked_count: control_action_results.child_ux_handoff_blocked_count,
-        child_ux_handoff_reference_ids: control_action_results.child_ux_handoff_reference_ids,
-        child_ux_local_handoff_artifact_record_count: control_action_results
-            .child_ux_local_handoff_artifact_record_count,
-        child_ux_local_handoff_artifact_skipped_count: control_action_results
-            .child_ux_local_handoff_artifact_skipped_count,
-        child_ux_local_handoff_artifact_reference_ids: control_action_results
-            .child_ux_local_handoff_artifact_reference_ids,
-        child_ux_local_handoff_artifact_records: control_action_results
-            .child_ux_local_handoff_artifact_records,
-        child_ux_parent_surface_intent_manual_action_required_count: control_action_results
-            .child_ux_parent_surface_intent_manual_action_required_count,
-        child_ux_parent_surface_intent_unavailable_visible_count: control_action_results
-            .child_ux_parent_surface_intent_unavailable_visible_count,
-        child_ux_parent_surface_intent_history_visible_count: control_action_results
-            .child_ux_parent_surface_intent_history_visible_count,
-        child_ux_parent_surface_intent_preference_setup_required_count: control_action_results
-            .child_ux_parent_surface_intent_preference_setup_required_count,
-        child_ux_parent_surface_intent_reference_ids: control_action_results
-            .child_ux_parent_surface_intent_reference_ids,
-        child_ux_parent_surface_intent_records: control_action_results
-            .child_ux_parent_surface_intent_records,
-        child_ux_parent_preference_setup_draft_ready_count: control_action_results
-            .child_ux_parent_preference_setup_draft_ready_count,
-        child_ux_parent_preference_setup_unavailable_visible_count: control_action_results
-            .child_ux_parent_preference_setup_unavailable_visible_count,
-        child_ux_parent_preference_setup_reference_ids: control_action_results
-            .child_ux_parent_preference_setup_reference_ids,
-        child_ux_parent_preference_setup_request_ready_count: control_action_results
-            .child_ux_parent_preference_setup_request_ready_count,
-        child_ux_parent_preference_setup_request_unavailable_visible_count: control_action_results
-            .child_ux_parent_preference_setup_request_unavailable_visible_count,
-        child_ux_parent_preference_setup_request_reference_ids: control_action_results
-            .child_ux_parent_preference_setup_request_reference_ids,
-        child_ux_parent_preference_setup_records: control_action_results
-            .child_ux_parent_preference_setup_records,
+        control_action_result_count: 0,
+        control_action_result_reference_ids: Vec::new(),
+        control_action_result_statuses: Vec::new(),
+        control_action_result_capability_states: Vec::new(),
+        control_action_result_enforcement_statuses: Vec::new(),
+        child_facing_reason_reference_ids: Vec::new(),
+        child_facing_status_reference_ids: Vec::new(),
+        child_ux_handoff_ready_count: 0,
+        child_ux_handoff_blocked_count: 0,
+        child_ux_handoff_reference_ids: Vec::new(),
+        child_ux_local_handoff_artifact_record_count: 0,
+        child_ux_local_handoff_artifact_skipped_count: 0,
+        child_ux_local_handoff_artifact_reference_ids: Vec::new(),
+        child_ux_local_handoff_artifact_records: Vec::new(),
+        child_ux_parent_surface_intent_manual_action_required_count: 0,
+        child_ux_parent_surface_intent_unavailable_visible_count: 0,
+        child_ux_parent_surface_intent_history_visible_count: 0,
+        child_ux_parent_surface_intent_preference_setup_required_count: 0,
+        child_ux_parent_surface_intent_reference_ids: Vec::new(),
+        child_ux_parent_surface_intent_records: Vec::new(),
+        child_ux_parent_preference_setup_draft_ready_count: 0,
+        child_ux_parent_preference_setup_unavailable_visible_count: 0,
+        child_ux_parent_preference_setup_reference_ids: Vec::new(),
+        child_ux_parent_preference_setup_request_ready_count: 0,
+        child_ux_parent_preference_setup_request_unavailable_visible_count: 0,
+        child_ux_parent_preference_setup_request_reference_ids: Vec::new(),
+        child_ux_parent_preference_setup_records: Vec::new(),
         timer_runtime_claimed: runtime_claims.active_timer_state_exists,
         scheduler_persistence_claimed: runtime_claims.active_timer_state_exists,
         durable_scheduler_storage_claimed: runtime_claims.active_timer_state_exists,
         audit_runtime_claimed: runtime_claims.audit_runtime_claimed,
         rollback_runtime_claimed: runtime_claims.rollback_runtime_claimed,
-        adapter_dispatch_claimed: control_action_results.adapter_dispatch_claimed,
+        adapter_dispatch_claimed: false,
         child_delivery_claimed: false,
-        platform_enforcement_claimed: control_action_results.platform_enforcement_claimed,
+        platform_enforcement_claimed: false,
         raw_private_source_rows_included: false,
         rows,
     }

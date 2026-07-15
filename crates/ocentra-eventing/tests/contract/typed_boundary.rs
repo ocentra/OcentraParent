@@ -166,18 +166,46 @@ async fn duplicate_subscriber_ids_are_rejected() {
 
 #[test]
 fn eventing_newtypes_reject_empty_values_and_zero_versions() {
-    assert!(matches!(EventType::parse(""), Err(_)));
-    assert!(matches!(EventType::parse(".leading"), Err(_)));
-    assert!(matches!(EventType::parse("trailing."), Err(_)));
-    assert!(matches!(EventType::parse("empty..segment"), Err(_)));
+    assert_eq!(
+        EventType::parse(""),
+        Err(EventingError::EmptyValue {
+            field: "event_type"
+        })
+    );
+    assert_eq!(
+        EventType::parse(".leading"),
+        Err(EventingError::InvalidValue {
+            field: "event_type",
+            value: ".leading".to_owned(),
+        })
+    );
+    assert_eq!(
+        EventType::parse("trailing."),
+        Err(EventingError::InvalidValue {
+            field: "event_type",
+            value: "trailing.".to_owned(),
+        })
+    );
+    assert_eq!(
+        EventType::parse("empty..segment"),
+        Err(EventingError::InvalidValue {
+            field: "event_type",
+            value: "empty..segment".to_owned(),
+        })
+    );
     assert_eq!(
         EventType::parse("eventing/slash-taxonomy/observed")
             .expect_value("slash taxonomy event type parses")
             .as_str(),
         "eventing/slash-taxonomy/observed"
     );
-    assert!(matches!(RecordedAt::parse(" "), Err(_)));
-    assert!(matches!(SchemaVersion::new(0), Err(_)));
+    assert_eq!(
+        RecordedAt::parse(" "),
+        Err(EventingError::EmptyValue {
+            field: "recorded_at"
+        })
+    );
+    assert_eq!(SchemaVersion::new(0), Err(EventingError::InvalidVersion));
 }
 
 #[test]

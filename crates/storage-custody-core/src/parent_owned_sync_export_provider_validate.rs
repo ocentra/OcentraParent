@@ -1,5 +1,3 @@
-use ocentra_schema::parent_owned_sync_export as contracts;
-
 use super::{ParentOwnedSyncExportDerivationError, ParentOwnedSyncProviderStatusInput};
 
 #[path = "parent_owned_sync_export_provider_validate_destination.rs"]

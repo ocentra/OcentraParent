@@ -621,7 +621,7 @@ where
         issued_at: issued_at.to_string(),
         expires_at: expires_at.to_string(),
     };
-    let payload = serde_json::to_vec(&claim).expect("signed child claim serializes");
+    let payload = require_ok(serde_json::to_vec(&claim), "signed child claim serializes");
     let signature = signing_key.sign(&payload);
 
     LanSignedChildAgentEnvelope {
@@ -662,9 +662,10 @@ fn signed_child_agent_payload(envelope: &LanSignedChildAgentEnvelope) -> LogFiel
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::LAN_SIGNED_CHILD_AGENT_ENVELOPE_JSON.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(envelope).expect("signed child envelope serializes"),
-        ),
+        LogFieldValue::String(require_ok(
+            serde_json::to_string(envelope),
+            "signed child envelope serializes",
+        )),
     );
     fields
 }

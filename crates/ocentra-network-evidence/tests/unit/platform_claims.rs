@@ -33,6 +33,7 @@ use ocentra_network_evidence::{
     },
 };
 
+#[derive(Clone, Copy)]
 struct Suffix(&'static str);
 
 #[test]

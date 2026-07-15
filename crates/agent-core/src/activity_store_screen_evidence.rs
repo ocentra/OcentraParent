@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::screen_evidence::{
     ScreenAnalysisResult, ScreenCategoryCandidate, ScreenEvidenceQueueHealth,
     ScreenEvidenceRecentSummary, SCREEN_CUSTODY_QUERY_STORE, SCREEN_DELETION_DELETED,

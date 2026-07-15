@@ -1,6 +1,4 @@
-use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingProductionDiscoveryState, LanPairingTrustState,
-};
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingProductionDiscoveryState;
 
 pub(super) fn stronger_discovery_state(
     existing: LanPairingProductionDiscoveryState,

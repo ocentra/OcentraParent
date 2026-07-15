@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_nearby_place_request_id_from_evidence_ref, TrackingConfidenceBasis,
@@ -180,5 +181,5 @@ fn parse_contract_text<T, E>(
 where
     E: core::fmt::Debug,
 {
-    parse(value).expect("tracking nearby-place contract drift")
+    parse(value).expect_value("tracking nearby-place contract drift")
 }

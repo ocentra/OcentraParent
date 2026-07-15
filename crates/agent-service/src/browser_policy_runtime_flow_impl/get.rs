@@ -1,6 +1,5 @@
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason;
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
-use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyValue;
 use ocentra_parent_agent_protocol::constants;
 
 use super::read_state;

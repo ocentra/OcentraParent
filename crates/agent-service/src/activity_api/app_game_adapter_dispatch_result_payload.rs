@@ -122,7 +122,7 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_result_report_with_
     )
 }
 
-struct DispatchResultCounts {
+pub(crate) struct DispatchResultCounts {
     returned: u64,
     command_accepted: u64,
     blocked_before_command: u64,
@@ -373,7 +373,7 @@ struct OptionalText(Option<String>);
 struct StringList(Vec<String>);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct DispatchExecutionStatusText(pub(crate) String);
+pub struct DispatchExecutionStatusText(pub String);
 
 struct ExecutionAuditFields {
     state: String,

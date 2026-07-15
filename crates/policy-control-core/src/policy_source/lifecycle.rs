@@ -75,7 +75,7 @@ pub(crate) fn supersede_parent_policy_source_document(
     validate_parent_policy_source_document(current)?;
 
     assert_newer_supersede_version(current, replacement_policy_version)?;
-    assert_supersede_audit_reference_is_unique(current, supersede_audit_reference_id.clone())?;
+    assert_supersede_audit_reference_is_unique(current, &supersede_audit_reference_id)?;
 
     let mut superseded = current.clone();
     superseded.status = PolicySourceStatus::Superseded;
@@ -95,7 +95,7 @@ pub(crate) fn rollback_parent_policy_source_document(
 ) -> Result<ParentPolicySourceDocument, EventingError> {
     validate_parent_policy_source_document(current)?;
     assert_rollback_ref_matches_document(current, rollback_ref)?;
-    assert_rollback_audit_reference_is_unique(current, rollback_audit_reference_id.clone())?;
+    assert_rollback_audit_reference_is_unique(current, &rollback_audit_reference_id)?;
 
     let mut rolled_back = current.clone();
     rolled_back.status = PolicySourceStatus::RolledBack;
@@ -227,11 +227,11 @@ fn assert_newer_supersede_version(
 
 fn assert_supersede_audit_reference_is_unique(
     current: &ParentPolicySourceDocument,
-    supersede_audit_reference_id: PolicyAuditReferenceId,
+    supersede_audit_reference_id: &PolicyAuditReferenceId,
 ) -> Result<(), EventingError> {
     if current
         .audit_reference_ids
-        .contains(&supersede_audit_reference_id)
+        .contains(supersede_audit_reference_id)
     {
         return Err(EventingError::InvalidValue {
             field: policy_control::source::FIELD_AUDIT_REFERENCE_ID,
@@ -244,11 +244,11 @@ fn assert_supersede_audit_reference_is_unique(
 
 fn assert_rollback_audit_reference_is_unique(
     current: &ParentPolicySourceDocument,
-    rollback_audit_reference_id: PolicyAuditReferenceId,
+    rollback_audit_reference_id: &PolicyAuditReferenceId,
 ) -> Result<(), EventingError> {
     if current
         .audit_reference_ids
-        .contains(&rollback_audit_reference_id)
+        .contains(rollback_audit_reference_id)
     {
         return Err(EventingError::InvalidValue {
             field: policy_control::source::FIELD_AUDIT_REFERENCE_ID,

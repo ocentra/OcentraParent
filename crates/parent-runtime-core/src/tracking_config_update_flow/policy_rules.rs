@@ -20,6 +20,5 @@ pub(super) fn tracking_policy_rule_refs(
 }
 
 fn tracking_policy_rule_ref(value: &str) -> TrackingPolicyRuleRef {
-    TrackingPolicyRuleRef::parse(value)
-        .expect("tracking policy rule refs are fixed constants and must parse")
+    TrackingPolicyRuleRef::parse(value).unwrap_or_else(|_| std::process::abort())
 }

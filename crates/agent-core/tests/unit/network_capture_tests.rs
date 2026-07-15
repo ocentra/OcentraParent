@@ -1,5 +1,5 @@
 use ocentra_parent_agent_protocol::activity::{
-    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySubjectKind,
+    ActivityEventKind, ActivityObserver, ActivitySubjectKind,
 };
 use ocentra_parent_agent_protocol::activity_capture::{
     ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,

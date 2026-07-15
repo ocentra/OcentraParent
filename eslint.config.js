@@ -129,7 +129,7 @@ const standardConfig = tseslint.config(
     },
   },
   {
-    files: ['packages/schema-domain/src/generated/**/*.ts'],
+    files: ['packages/schema-domain/src/generated/**/*.ts', 'packages/schema-domain/src/generated-*.ts'],
     rules: {
       '@typescript-eslint/consistent-type-imports': 'off',
       complexity: 'off',
@@ -139,7 +139,7 @@ const standardConfig = tseslint.config(
     },
   },
   {
-    files: ['packages/portal-domain/src/generated/**/*.ts'],
+    files: ['packages/portal-domain/src/generated/**/*.ts', 'packages/portal-domain/src/generated-*.ts'],
     rules: {
       'max-lines': 'off',
     },

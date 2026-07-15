@@ -38,17 +38,21 @@ fn encryption_key_custody_wrong_household_and_wrong_device_fail_closed() {
 
     let wrong_household = derive_decrypt_attempt_result(
         &child_service,
-        attempt_input(
-            contracts::EncryptionAttemptId::parse("attempt-wrong-household").assume_ok(),
-            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
-            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
-            contracts::PlatformKeyCustodySurface::ChildService,
-            contracts::EncryptionUnlockScope::ChildEvidenceLocal,
-            contracts::KeyCustodyState::KeyAvailable,
-            false,
-            true,
-            true,
-        ),
+        attempt_input(DecryptAttemptFixture {
+            attempt_id: contracts::EncryptionAttemptId::parse("attempt-wrong-household")
+                .assume_ok(),
+            household_id: contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1")
+                .assume_ok(),
+            device_id: Some(
+                contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok(),
+            ),
+            surface: contracts::PlatformKeyCustodySurface::ChildService,
+            requested_scope: contracts::EncryptionUnlockScope::ChildEvidenceLocal,
+            key_state: contracts::KeyCustodyState::KeyAvailable,
+            household_match: false,
+            device_match: true,
+            device_proof_present: true,
+        }),
     );
     assert_eq!(
         wrong_household.state,
@@ -58,17 +62,20 @@ fn encryption_key_custody_wrong_household_and_wrong_device_fail_closed() {
 
     let wrong_device = derive_decrypt_attempt_result(
         &child_service,
-        attempt_input(
-            contracts::EncryptionAttemptId::parse("attempt-wrong-device").assume_ok(),
-            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
-            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
-            contracts::PlatformKeyCustodySurface::ChildService,
-            contracts::EncryptionUnlockScope::ChildEvidenceLocal,
-            contracts::KeyCustodyState::KeyAvailable,
-            true,
-            false,
-            true,
-        ),
+        attempt_input(DecryptAttemptFixture {
+            attempt_id: contracts::EncryptionAttemptId::parse("attempt-wrong-device").assume_ok(),
+            household_id: contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1")
+                .assume_ok(),
+            device_id: Some(
+                contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok(),
+            ),
+            surface: contracts::PlatformKeyCustodySurface::ChildService,
+            requested_scope: contracts::EncryptionUnlockScope::ChildEvidenceLocal,
+            key_state: contracts::KeyCustodyState::KeyAvailable,
+            household_match: true,
+            device_match: false,
+            device_proof_present: true,
+        }),
     );
     assert_eq!(
         wrong_device.state,
@@ -83,17 +90,20 @@ fn encryption_key_custody_revoked_and_lost_key_states_are_explicit() {
 
     let revoked = derive_decrypt_attempt_result(
         &parent_desktop,
-        attempt_input(
-            contracts::EncryptionAttemptId::parse("attempt-revoked").assume_ok(),
-            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
-            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
-            contracts::PlatformKeyCustodySurface::ParentDesktop,
-            contracts::EncryptionUnlockScope::ParentOwnedBundle,
-            contracts::KeyCustodyState::KeyRevoked,
-            true,
-            true,
-            true,
-        ),
+        attempt_input(DecryptAttemptFixture {
+            attempt_id: contracts::EncryptionAttemptId::parse("attempt-revoked").assume_ok(),
+            household_id: contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1")
+                .assume_ok(),
+            device_id: Some(
+                contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok(),
+            ),
+            surface: contracts::PlatformKeyCustodySurface::ParentDesktop,
+            requested_scope: contracts::EncryptionUnlockScope::ParentOwnedBundle,
+            key_state: contracts::KeyCustodyState::KeyRevoked,
+            household_match: true,
+            device_match: true,
+            device_proof_present: true,
+        }),
     );
     assert_eq!(
         revoked.state,
@@ -102,17 +112,20 @@ fn encryption_key_custody_revoked_and_lost_key_states_are_explicit() {
 
     let lost = derive_decrypt_attempt_result(
         &parent_desktop,
-        attempt_input(
-            contracts::EncryptionAttemptId::parse("attempt-lost").assume_ok(),
-            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
-            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
-            contracts::PlatformKeyCustodySurface::ParentDesktop,
-            contracts::EncryptionUnlockScope::ParentOwnedBundle,
-            contracts::KeyCustodyState::KeyUnavailable,
-            true,
-            true,
-            true,
-        ),
+        attempt_input(DecryptAttemptFixture {
+            attempt_id: contracts::EncryptionAttemptId::parse("attempt-lost").assume_ok(),
+            household_id: contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1")
+                .assume_ok(),
+            device_id: Some(
+                contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok(),
+            ),
+            surface: contracts::PlatformKeyCustodySurface::ParentDesktop,
+            requested_scope: contracts::EncryptionUnlockScope::ParentOwnedBundle,
+            key_state: contracts::KeyCustodyState::KeyUnavailable,
+            household_match: true,
+            device_match: true,
+            device_proof_present: true,
+        }),
     );
     assert_eq!(
         lost.state,
@@ -181,17 +194,20 @@ fn encryption_key_custody_recovery_and_mobile_proof_gaps_stay_manual_required() 
 
     let limited = derive_decrypt_attempt_result(
         &ios,
-        attempt_input(
-            contracts::EncryptionAttemptId::parse("attempt-ios-limited").assume_ok(),
-            contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
-            Some(contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok()),
-            contracts::PlatformKeyCustodySurface::IOS,
-            contracts::EncryptionUnlockScope::ParentOwnedBundle,
-            contracts::KeyCustodyState::KeyAvailable,
-            true,
-            true,
-            false,
-        ),
+        attempt_input(DecryptAttemptFixture {
+            attempt_id: contracts::EncryptionAttemptId::parse("attempt-ios-limited").assume_ok(),
+            household_id: contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1")
+                .assume_ok(),
+            device_id: Some(
+                contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok(),
+            ),
+            surface: contracts::PlatformKeyCustodySurface::IOS,
+            requested_scope: contracts::EncryptionUnlockScope::ParentOwnedBundle,
+            key_state: contracts::KeyCustodyState::KeyAvailable,
+            household_match: true,
+            device_match: true,
+            device_proof_present: false,
+        }),
     );
     assert_eq!(
         limited.state,
@@ -204,19 +220,20 @@ fn encryption_key_custody_recovery_and_mobile_proof_gaps_stay_manual_required() 
         DecryptAttemptInput {
             recovery_mode: contracts::RecoveryMode::ParentOwnedRecovery,
             key_state: contracts::KeyCustodyState::RecoveryAvailable,
-            ..attempt_input(
-                contracts::EncryptionAttemptId::parse("attempt-recovery").assume_ok(),
-                contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1").assume_ok(),
-                Some(
+            ..attempt_input(DecryptAttemptFixture {
+                attempt_id: contracts::EncryptionAttemptId::parse("attempt-recovery").assume_ok(),
+                household_id: contracts::EncryptionHouseholdId::parse("family-key-custody-proof-1")
+                    .assume_ok(),
+                device_id: Some(
                     contracts::EncryptionDeviceId::parse("device-key-custody-proof-1").assume_ok(),
                 ),
-                contracts::PlatformKeyCustodySurface::ParentDesktop,
-                contracts::EncryptionUnlockScope::ParentOwnedBundle,
-                contracts::KeyCustodyState::KeyAvailable,
-                true,
-                true,
-                true,
-            )
+                surface: contracts::PlatformKeyCustodySurface::ParentDesktop,
+                requested_scope: contracts::EncryptionUnlockScope::ParentOwnedBundle,
+                key_state: contracts::KeyCustodyState::KeyAvailable,
+                household_match: true,
+                device_match: true,
+                device_proof_present: true,
+            })
         },
     );
     assert_eq!(
@@ -250,7 +267,7 @@ fn child_service_row() -> contracts::PlatformKeyCustodyRow {
     .assume_ok()
 }
 
-fn attempt_input(
+struct DecryptAttemptFixture {
     attempt_id: contracts::EncryptionAttemptId,
     household_id: contracts::EncryptionHouseholdId,
     device_id: Option<contracts::EncryptionDeviceId>,
@@ -260,17 +277,19 @@ fn attempt_input(
     household_match: bool,
     device_match: bool,
     device_proof_present: bool,
-) -> DecryptAttemptInput {
+}
+
+fn attempt_input(fixture: DecryptAttemptFixture) -> DecryptAttemptInput {
     DecryptAttemptInput {
-        attempt_id,
-        household_id,
-        device_id,
-        surface,
-        requested_scope,
-        key_state,
+        attempt_id: fixture.attempt_id,
+        household_id: fixture.household_id,
+        device_id: fixture.device_id,
+        surface: fixture.surface,
+        requested_scope: fixture.requested_scope,
+        key_state: fixture.key_state,
         recovery_mode: contracts::RecoveryMode::NotSupported,
-        household_match,
-        device_match,
-        device_proof_present,
+        household_match: fixture.household_match,
+        device_match: fixture.device_match,
+        device_proof_present: fixture.device_proof_present,
     }
 }

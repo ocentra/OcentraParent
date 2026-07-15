@@ -263,7 +263,6 @@ export const appGamePolicyPreviewRowHasProofRefsGenerated = (row: PreviewRowLike
   row.ruleRefs.length > 0 &&
   row.capabilityRefs.length > 0 &&
   row.auditRefs.length > 0;
-
 export const countAppGamePolicyPreviewRowsGenerated = (
   rows: readonly PreviewRowLike[],
   targetDomain: AppGamePolicyPreviewTargetDomainValue
@@ -383,7 +382,6 @@ function sourceRowEmptyFailureGenerated(row: SourceStatusRowLike): SourceFreshne
 
   return null;
 }
-
 function sourceRowMissingObservedAtFailureGenerated(
   row: SourceStatusRowLike
 ): SourceFreshnessRequirementFailure | null {
@@ -623,7 +621,6 @@ export const appGameSourceFreshnessPreviewGateRowMatchesSourceStateGenerated = (
     row.sourceEvidenceRefs.length > 0
   );
 };
-
 export const appGameSourceFreshnessPreviewGateRowMatchesPreviewStateGenerated = (
   row: SourceFreshnessPreviewGateRowLike
 ) => {

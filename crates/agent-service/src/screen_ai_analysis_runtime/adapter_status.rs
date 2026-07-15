@@ -14,7 +14,9 @@ use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_SERVICE_ANALYSIS_PROVIDER_ID, SCREEN_SERVICE_ANALYSIS_RUNTIME_REF,
 };
 
+#[derive(Clone, Copy)]
 pub(super) struct AdapterRuntimeCommand<'a>(pub(super) Option<&'a Path>);
+#[derive(Clone, Copy)]
 pub(super) struct AdapterRuntimeTimestamp<'a>(pub(super) &'a str);
 
 pub(super) fn runtime_status(

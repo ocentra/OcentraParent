@@ -8,19 +8,17 @@ mod route_select;
 mod status_get;
 
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingOptionalText, LanPairingRejectionReason, LanParentIntentEnvelope,
-};
+use ocentra_parent_agent_protocol::lan_pairing::{LanPairingOptionalText, LanParentIntentEnvelope};
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
-use crate::lan_pairing::runtime_rejection::rejection_event;
-use crate::lan_pairing::runtime_validation::{validate_command_target, validate_intent_result};
-use crate::lan_pairing::{
-    accepted_control_audit_fields, extend_log_fields, pairing_status_event, LanPairingRuntime,
-};
+use super::runtime_rejection::rejection_event;
+use super::runtime_validation::{validate_command_target, validate_intent_result};
+use super::{extend_log_fields, LanPairingRuntime};
+use crate::lan_pairing_audit::accepted_control_audit_fields;
 use crate::lan_pairing_payload::parse_signed_child_agent_envelope;
+use crate::lan_pairing_status::pairing_status_event;
 use crate::time::timestamp_now;
 
 pub(super) fn lan_pairing_route_select(

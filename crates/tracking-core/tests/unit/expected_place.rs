@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     TrackingCapabilityStatus, TrackingScheduleId, TrackingTransitionKind,
@@ -27,7 +28,7 @@ fn expected_place_evaluation_marks_uncertain_location_without_parent_action() {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS,
         )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS),
+        .expect_value(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS),
         ..evaluation
     };
 
@@ -76,7 +77,7 @@ fn expected_place_exit_requires_parent_action() {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT,
         )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT),
+        .expect_value(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT),
         ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
@@ -108,11 +109,11 @@ fn expected_place_marks_stale_capability_as_manual_required() {
         capability_status: TrackingCapabilityStatus::parse(
             constants::tracking_runtime::CAPABILITY_STATUS_STALE,
         )
-        .expect(constants::tracking_runtime::CAPABILITY_STATUS_STALE),
+        .expect_value(constants::tracking_runtime::CAPABILITY_STATUS_STALE),
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL,
         )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
+        .expect_value(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
         ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
@@ -140,7 +141,7 @@ fn expected_place_missed_arrival_outside_grace_requires_parent_action() {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL,
         )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
+        .expect_value(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
         ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
@@ -171,7 +172,7 @@ fn expected_place_late_grace_suppresses_missed_arrival() {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL,
         )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
+        .expect_value(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
         late_grace_active: true,
         ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
@@ -203,7 +204,7 @@ fn expected_place_early_exit_grace_suppresses_exit() {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT,
         )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT),
+        .expect_value(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT),
         early_exit_grace_active: true,
         ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
@@ -236,7 +237,7 @@ fn expected_place_schedule_disabled_stays_manual_required() {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL,
         )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
+        .expect_value(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
         ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
@@ -267,7 +268,7 @@ fn expected_place_holiday_exception_suppresses_expected_arrival() {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL,
         )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
+        .expect_value(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
         active_exception: Some(
             ocentra_tracking_core::expected_place::TrackingExpectedPlaceException::HolidayMode,
         ),
@@ -305,7 +306,7 @@ fn expected_place_trip_exception_suppresses_missed_arrival() {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL,
         )
-        .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
+        .expect_value(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
         active_exception: Some(
             ocentra_tracking_core::expected_place::TrackingExpectedPlaceException::TripException,
         ),
@@ -377,11 +378,11 @@ fn assert_expected_place_schedule_case(case: &ExpectedPlaceScheduleCase) {
     let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
     let evidence =
         ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
-    let schedule_id = TrackingScheduleId::parse(case.schedule_id).expect(case.schedule_id);
+    let schedule_id = TrackingScheduleId::parse(case.schedule_id).expect_value(case.schedule_id);
     let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         schedule_id: schedule_id.clone(),
         transition_kind: TrackingTransitionKind::parse(case.transition_kind)
-            .expect(case.transition_kind),
+            .expect_value(case.transition_kind),
         distance_tolerance_meters: Some(case.distance_tolerance_meters),
         late_grace_seconds: case.late_grace_seconds,
         early_exit_grace_seconds: case.early_exit_grace_seconds,

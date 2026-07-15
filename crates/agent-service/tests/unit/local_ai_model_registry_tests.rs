@@ -31,7 +31,7 @@ fn default_model_cache_path_uses_local_model_cache_directory() {
     let suffix = Path::new(constants::local_ai_runtime::LOCAL_AI_MODELS_CACHE_DIR)
         .join(constants::local_ai_runtime::DEFAULT_GEMMA_4_MODEL_FILE_NAME);
 
-    assert!(path.ends_with(suffix));
+    assert!(AsRef::<Path>::as_ref(&path).ends_with(suffix));
 }
 
 #[test]
@@ -41,7 +41,9 @@ fn default_model_cache_path_can_be_built_from_installer_cache_root() {
     let suffix = Path::new(constants::local_ai_runtime::LOCAL_AI_MODELS_CACHE_DIR)
         .join(constants::local_ai_runtime::DEFAULT_GEMMA_4_MODEL_FILE_NAME);
 
-    assert!(model.cache_path(root).ends_with(suffix));
+    let path = model.cache_path(root);
+
+    assert!(AsRef::<Path>::as_ref(&path).ends_with(suffix));
 }
 
 #[test]

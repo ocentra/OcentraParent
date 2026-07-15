@@ -118,7 +118,7 @@ fn control_audit_fields(
         .map(|intent| intent.intent_id.clone())
         .or_else(|| payload_string(constants::field::LAN_INTENT_ID))
         .unwrap_or_else(|| command.message_id.clone());
-    let mut pairs = vec![
+    let pairs = vec![
         (constants::field::LAN_CONTROL_STATE, state),
         (
             constants::field::LAN_AUDIT_EVENT_ID,

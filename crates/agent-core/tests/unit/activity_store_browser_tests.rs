@@ -69,12 +69,12 @@ fn activity_store_reports_typed_browser_tab_read_model_from_ingested_events() ->
 #[test]
 fn activity_store_replays_browser_evidence_from_encrypted_journal() -> TestResult {
     let journal_path = temp_path(
-        TestText::from_display(constants::activity_store::TEST_BROWSER_JOURNAL_SUFFIX),
-        TestText::from_display(constants::journal::FILE_EXTENSION),
+        &TestText::from_display(constants::activity_store::TEST_BROWSER_JOURNAL_SUFFIX),
+        &TestText::from_display(constants::journal::FILE_EXTENSION),
     );
     let store_path = temp_path(
-        TestText::from_display(constants::activity_store::TEST_BROWSER_STORE_SUFFIX),
-        TestText::from_display(constants::activity_store::FILE_EXTENSION),
+        &TestText::from_display(constants::activity_store::TEST_BROWSER_STORE_SUFFIX),
+        &TestText::from_display(constants::activity_store::FILE_EXTENSION),
     );
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
@@ -117,12 +117,12 @@ fn activity_store_replays_browser_evidence_from_encrypted_journal() -> TestResul
 #[test]
 fn activity_store_counts_duplicate_browser_journal_replay_without_duplicate_rows() -> TestResult {
     let journal_path = temp_path(
-        TestText::from_display(constants::activity_store::TEST_BROWSER_DUPLICATE_JOURNAL_SUFFIX),
-        TestText::from_display(constants::journal::FILE_EXTENSION),
+        &TestText::from_display(constants::activity_store::TEST_BROWSER_DUPLICATE_JOURNAL_SUFFIX),
+        &TestText::from_display(constants::journal::FILE_EXTENSION),
     );
     let store_path = temp_path(
-        TestText::from_display(constants::activity_store::TEST_BROWSER_DUPLICATE_STORE_SUFFIX),
-        TestText::from_display(constants::activity_store::FILE_EXTENSION),
+        &TestText::from_display(constants::activity_store::TEST_BROWSER_DUPLICATE_STORE_SUFFIX),
+        &TestText::from_display(constants::activity_store::FILE_EXTENSION),
     );
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
@@ -166,12 +166,12 @@ fn activity_store_counts_duplicate_browser_journal_replay_without_duplicate_rows
 #[test]
 fn activity_store_reconstructs_stale_degraded_browser_evidence_after_restart() -> TestResult {
     let journal_path = temp_path(
-        TestText::from_display(constants::activity_store::TEST_BROWSER_RESTART_JOURNAL_SUFFIX),
-        TestText::from_display(constants::journal::FILE_EXTENSION),
+        &TestText::from_display(constants::activity_store::TEST_BROWSER_RESTART_JOURNAL_SUFFIX),
+        &TestText::from_display(constants::journal::FILE_EXTENSION),
     );
     let store_path = temp_path(
-        TestText::from_display(constants::activity_store::TEST_BROWSER_RESTART_STORE_SUFFIX),
-        TestText::from_display(constants::activity_store::FILE_EXTENSION),
+        &TestText::from_display(constants::activity_store::TEST_BROWSER_RESTART_STORE_SUFFIX),
+        &TestText::from_display(constants::activity_store::FILE_EXTENSION),
     );
     cleanup_paths(&journal_path, &store_path);
     let key = test_key();
@@ -306,7 +306,7 @@ fn assert_browser_row_matches_event(row: &BrowserTabEvidence, event: &ActivityEv
         some(
             string_field(
                 &event.fields,
-                TestText::from_display(constants::field::BROWSER_EVIDENCE_ID),
+                &TestText::from_display(constants::field::BROWSER_EVIDENCE_ID),
             ),
             constants::error::ACTIVITY_STORE_QUERIES,
         )?
@@ -359,7 +359,7 @@ fn assert_browser_row_matches_event(row: &BrowserTabEvidence, event: &ActivityEv
     Ok(())
 }
 
-fn string_field(fields: &LogFields, key: TestText) -> Option<TestText> {
+fn string_field(fields: &LogFields, key: &TestText) -> Option<TestText> {
     let key = key.to_string();
     match fields.get(&key) {
         Some(LogFieldValue::String(value)) => Some(TestText::from_display(value)),
@@ -367,7 +367,7 @@ fn string_field(fields: &LogFields, key: TestText) -> Option<TestText> {
     }
 }
 
-fn temp_path(suffix: TestText, extension: TestText) -> TestPath {
+fn temp_path(suffix: &TestText, extension: &TestText) -> TestPath {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

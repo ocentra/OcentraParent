@@ -1,6 +1,5 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::category::*;
-use ocentra_network_evidence::dns::types::*;
 use ocentra_network_evidence::domain::{normalize_domain_with_public_suffix, PublicSuffixModel};
 
 #[test]

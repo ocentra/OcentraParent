@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use serde::{Deserialize, Serialize};
 
 use super::config_update_event::{TrackingConfigEffectiveState, TrackingConfigUpdateResponseState};
@@ -11,8 +12,8 @@ use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 pub const TRACKING_RETENTION_SETTINGS_WRITE_SCHEMA_VERSION: u16 =
     crate::AGENT_PROTOCOL_SCHEMA_VERSION;
 
-fn parse_or_panic<T, E: std::fmt::Debug>(result: Result<T, E>, message: &'static str) -> T {
-    result.expect(message)
+fn parse_or_panic<T, E>(result: Result<T, E>, message: &'static str) -> T {
+    result.expect_value(message)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

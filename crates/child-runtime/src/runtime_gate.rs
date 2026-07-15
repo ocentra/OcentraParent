@@ -178,12 +178,16 @@ pub fn evaluate_child_runtime_preflight(
         provisioning_decision,
         entitlement_decision,
         storage_custody_decision,
-        runtime_start_state: runtime_allowed
-            .then_some(ChildRuntimeStartState::Allowed)
-            .unwrap_or(ChildRuntimeStartState::Blocked),
-        manual_review_state: manual_review_required
-            .then_some(ChildRuntimeManualReviewState::Required)
-            .unwrap_or(ChildRuntimeManualReviewState::NotRequired),
+        runtime_start_state: if runtime_allowed {
+            ChildRuntimeStartState::Allowed
+        } else {
+            ChildRuntimeStartState::Blocked
+        },
+        manual_review_state: if manual_review_required {
+            ChildRuntimeManualReviewState::Required
+        } else {
+            ChildRuntimeManualReviewState::NotRequired
+        },
     }
 }
 
@@ -215,10 +219,13 @@ pub fn evaluate_child_runtime_remote_access(
     let session_decision = evaluate_remote_access_session(request);
 
     ChildRuntimeRemoteAccessDecision {
-        runtime_start_state: (session_decision.authorization_state
-            == RemoteAccessSessionAuthorizationState::Allowed)
-            .then_some(ChildRuntimeStartState::Allowed)
-            .unwrap_or(ChildRuntimeStartState::Blocked),
+        runtime_start_state: if session_decision.authorization_state
+            == RemoteAccessSessionAuthorizationState::Allowed
+        {
+            ChildRuntimeStartState::Allowed
+        } else {
+            ChildRuntimeStartState::Blocked
+        },
         session_decision,
     }
 }
@@ -235,10 +242,13 @@ pub fn evaluate_child_runtime_enforcement(
     let action_decision = evaluate_enforcement_action(input);
 
     ChildRuntimeEnforcementDecision {
-        runtime_start_state: (action_decision.adapter_execution_state
-            == EnforcementAdapterExecutionState::Execute)
-            .then_some(ChildRuntimeStartState::Allowed)
-            .unwrap_or(ChildRuntimeStartState::Blocked),
+        runtime_start_state: if action_decision.adapter_execution_state
+            == EnforcementAdapterExecutionState::Execute
+        {
+            ChildRuntimeStartState::Allowed
+        } else {
+            ChildRuntimeStartState::Blocked
+        },
         action_decision,
     }
 }

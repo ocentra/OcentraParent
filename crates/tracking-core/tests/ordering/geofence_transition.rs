@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::TrackingCapabilityStatus;
 use ocentra_parent_agent_protocol::tracking::runtime_event::TrackingGeofenceTransitionDetectedEvent;
@@ -89,7 +90,7 @@ fn detect_transition(
             previous_inside_state: Some(previous_inside_state),
             current_inside_state,
             capability_status: TrackingCapabilityStatus::parse(&capability_status)
-                .expect(&capability_status),
+                .expect_value(&capability_status),
             distance_meters,
             low_accuracy_near_boundary,
             grace_period_active: false,

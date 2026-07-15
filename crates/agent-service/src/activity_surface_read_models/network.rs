@@ -1,6 +1,5 @@
 use ocentra_parent_agent_protocol::activity_surface::{
-    ActivityNetworkReadModel, ActivityNetworkReadModelRow, ActivityReadModelState,
-    ActivitySurfaceRequest,
+    ActivityNetworkReadModel, ActivityReadModelState, ActivitySurfaceRequest,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;

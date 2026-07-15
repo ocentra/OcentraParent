@@ -9,6 +9,7 @@ use super::{
     ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
     PolicyTarget, PolicyTargetType,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn permission_and_dependency_unavailable_events_serialize_typed_recovery_data() {
@@ -56,8 +57,8 @@ fn serialized_unavailable_events(
     let timer = enforcement_timer(action, reason);
 
     (
-        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(audit).expect_value(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(timer).expect_value(constants::error::AGENT_EVENT_SERIALIZES),
     )
 }
 

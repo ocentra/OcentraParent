@@ -845,9 +845,8 @@ impl NetworkRuntimePhase {
         NETWORK_RUNTIME_PHASE_TARGET_HANDLERS[self as usize]
     }
 
-    pub fn runtime_role(self) -> RuntimeRole {
+    pub fn runtime_role(self) -> Result<RuntimeRole, EventingError> {
         RuntimeRole::parse(NETWORK_RUNTIME_PHASE_RUNTIME_ROLES[self as usize])
-            .expect("network runtime phase role is a valid runtime role")
     }
 }
 

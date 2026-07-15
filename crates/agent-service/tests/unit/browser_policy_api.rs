@@ -5,14 +5,27 @@ extern crate self as ocentra_parent_agent_service;
 
 #[path = "../../src/json_contract.rs"]
 mod json_contract;
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
 
 #[test]
-fn browser_policy_api_harness_links_shared_value_helpers() {
-    let value = json_contract::serialize_json_value(serde_json::json!({"policy": "linked"}));
+fn browser_policy_api_harness_links_shared_value_helpers() -> Result<(), serde_json::Error> {
+    let json_text = json_contract::serialize_json_string(&serde_json::json!({
+        "policy": "linked",
+    }));
+    let value_from_value = json_contract::serialize_json_value(serde_json::json!({
+        "policy": "linked",
+    }));
+    let value: serde_json::Value = serde_json::from_str(&json_text.0)?;
+
     assert_eq!(
-        test_invariants::require_some(value.get("policy"), "policy helper value"),
-        "linked"
+        value.get("policy").and_then(serde_json::Value::as_str),
+        Some("linked")
     );
+    assert_eq!(
+        value_from_value
+            .get("policy")
+            .and_then(serde_json::Value::as_str),
+        Some("linked")
+    );
+
+    Ok(())
 }

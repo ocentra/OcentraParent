@@ -383,16 +383,20 @@ fn generated_agent_protocol_literals_cover_rust_owned_transport_enums() {
                 &line_with_close_brace!(" as const;")
             ),
         );
-        let enum_start = transport_source
-            .find(&format!("pub enum {enum_name} {}", OPEN_BRACE))
-            .expect("expected transport enum to exist");
-        let enum_body = transport_source[enum_start..]
-            .split_once(OPEN_BRACE)
-            .expect("expected transport enum body to start")
-            .1
-            .split_once(&format!("\n{CLOSE_BRACE}"))
-            .expect("expected transport enum body to end")
-            .0;
+        let enum_start = crate::support::option_or_unreachable(
+            transport_source.find(&format!("pub enum {enum_name} {}", OPEN_BRACE)),
+            crate::assert_context!("expected transport enum to exist"),
+        );
+        let enum_body = crate::support::option_or_unreachable(
+            transport_source[enum_start..].split_once(OPEN_BRACE),
+            crate::assert_context!("expected transport enum body to start"),
+        )
+        .1;
+        let enum_body = crate::support::option_or_unreachable(
+            enum_body.split_once(&format!("\n{CLOSE_BRACE}")),
+            crate::assert_context!("expected transport enum body to end"),
+        )
+        .0;
         let variants: Vec<&'static str> = enum_body
             .lines()
             .filter_map(|line| {
@@ -407,9 +411,10 @@ fn generated_agent_protocol_literals_cover_rust_owned_transport_enums() {
             .collect();
 
         for variant in &variants {
-            let generated_key = variant
-                .strip_prefix("Agent")
-                .expect("agent protocol variant must use Agent prefix");
+            let generated_key = crate::support::option_or_unreachable(
+                variant.strip_prefix("Agent"),
+                crate::assert_context!("agent protocol variant must use Agent prefix"),
+            );
             assert!(
                 object.0.contains(&format!("{generated_key}: ")),
                 "{object_name} omits {variant}"

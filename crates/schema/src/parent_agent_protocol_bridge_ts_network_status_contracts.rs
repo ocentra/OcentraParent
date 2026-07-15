@@ -315,7 +315,7 @@ fn network_status_contract_decoders_typescript(
     let decoder_names = NetworkStatusDecoderNames::new(prefix);
     let tokens = network_status_decoder_tokens(contract_names, &decoder_names);
     replace_tokens(
-        parent_agent_protocol_bridge_ts_network_status_01_template().to_string(),
+        parent_agent_protocol_bridge_ts_network_status_01_template(),
         &tokens,
     )
 }
@@ -329,17 +329,17 @@ fn network_status_decoder_tokens<'a>(
     tokens
 }
 
-fn network_status_decoder_const_tokens<'a>(
-    contract_names: &'a NetworkStatusContractNames,
-) -> Vec<(&'static str, &'a str)> {
+fn network_status_decoder_const_tokens(
+    contract_names: &NetworkStatusContractNames,
+) -> Vec<(&'static str, &str)> {
     let mut tokens = network_status_decoder_remote_tokens(contract_names);
     tokens.extend(network_status_decoder_platform_tokens(contract_names));
     tokens
 }
 
-fn network_status_decoder_remote_tokens<'a>(
-    contract_names: &'a NetworkStatusContractNames,
-) -> Vec<(&'static str, &'a str)> {
+fn network_status_decoder_remote_tokens(
+    contract_names: &NetworkStatusContractNames,
+) -> Vec<(&'static str, &str)> {
     vec![
         (
             "__REMOTE_STATUS_STATE_CONST__",
@@ -380,9 +380,9 @@ fn network_status_decoder_remote_tokens<'a>(
     ]
 }
 
-fn network_status_decoder_platform_tokens<'a>(
-    contract_names: &'a NetworkStatusContractNames,
-) -> Vec<(&'static str, &'a str)> {
+fn network_status_decoder_platform_tokens(
+    contract_names: &NetworkStatusContractNames,
+) -> Vec<(&'static str, &str)> {
     vec![
         (
             "__LINUX_NFTABLES_STATE_CONST__",
@@ -447,9 +447,9 @@ fn network_status_decoder_platform_tokens<'a>(
     ]
 }
 
-fn network_status_decoder_type_tokens<'a>(
-    decoder_names: &'a NetworkStatusDecoderNames,
-) -> Vec<(&'static str, &'a str)> {
+fn network_status_decoder_type_tokens(
+    decoder_names: &NetworkStatusDecoderNames,
+) -> Vec<(&'static str, &str)> {
     vec![
         ("__REMOTE_STATUS_TYPE__", &decoder_names.remote_status_type),
         (

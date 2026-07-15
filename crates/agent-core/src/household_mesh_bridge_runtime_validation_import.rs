@@ -3,7 +3,7 @@ use crate::household_mesh_bridge_runtime::{
 };
 use crate::household_mesh_bridge_runtime_state::HouseholdMeshBridgeRejectionReason;
 use crate::household_mesh_event_bridge::{
-    validate_incoming_lan_message, HouseholdMeshBridgeRejection, HouseholdMeshImportDecision,
+    validate_incoming_lan_message, HouseholdMeshImportDecision,
 };
 
 #[path = "household_mesh_bridge_runtime_validation_import_rejection.rs"]

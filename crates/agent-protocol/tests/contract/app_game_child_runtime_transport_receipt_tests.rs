@@ -18,6 +18,7 @@ use crate::{
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_REF_TRANSPORT_CONTRACT,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_TRANSPORT_REQUIRED, APP_GAME_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn app_game_child_runtime_transport_receipt_command_and_event_names_are_stable() {
@@ -25,14 +26,14 @@ fn app_game_child_runtime_transport_receipt_command_and_event_names_are_stable()
         serde_json::to_value(
             AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet
         )
-        .expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(crate::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.child-runtime-transport-receipt.read-model.get"
     );
     assert_eq!(
         serde_json::to_value(
             AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported
         )
-        .expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(crate::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.child-runtime-transport-receipt.read-model.reported"
     );
 }
@@ -41,7 +42,7 @@ fn app_game_child_runtime_transport_receipt_command_and_event_names_are_stable()
 fn app_game_child_runtime_transport_receipt_parity_manifest_matches_contract_constants() {
     let manifest: serde_json::Value =
         serde_json::from_str(APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_PARITY_MANIFEST)
-            .expect("child runtime transport receipt parity manifest parses");
+            .expect_value("child runtime transport receipt parity manifest parses");
 
     assert_eq!(
         manifest,
@@ -133,9 +134,10 @@ fn app_game_child_runtime_transport_receipt_serializes_without_delivery_claims()
     };
 
     let reparsed = serde_json::from_value::<AppGameChildRuntimeTransportReceiptReadModel>(
-        serde_json::to_value(read_model).expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(read_model)
+            .expect_value(crate::constants::error::AGENT_EVENT_SERIALIZES),
     )
-    .expect("child runtime transport receipt read model reparses");
+    .expect_value("child runtime transport receipt read model reparses");
 
     assert_eq!(
         reparsed.read_model_id,

@@ -111,7 +111,7 @@ struct EnforcementPayloadIds {
 
 pub(crate) fn parse_enforcement_command_payload(
     command: &ocentra_parent_agent_protocol::transport::AgentCommandEnvelope,
-    observed_at: EnforcementText,
+    observed_at: &EnforcementText,
 ) -> Result<EnforcementCommandPayload, EnforcementPayloadError> {
     parsing::parse_enforcement_command_payload(command, observed_at)
 }

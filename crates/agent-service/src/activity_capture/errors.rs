@@ -47,7 +47,7 @@ impl ActivityCaptureError {
         REASONS
             .iter()
             .find(|(error, _)| error == self)
-            .map(|(_, reason)| ActivityCaptureReasonText(*reason))
+            .map(|(_, reason)| ActivityCaptureReasonText(reason))
             .unwrap_or(ActivityCaptureReasonText(
                 constants::value::ACTIVITY_CAPTURE_APP_GAME_ERROR,
             ))

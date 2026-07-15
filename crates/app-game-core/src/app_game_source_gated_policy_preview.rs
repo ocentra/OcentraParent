@@ -8,10 +8,6 @@ const TIMER_STATUS_TIMER_RUNTIME_PROOF_REQUIRED: &str = "timer-runtime-proof-req
 const TIMER_STATUS_SOURCE_FRESHNESS_PROOF_REQUIRED: &str = "source-freshness-proof-required";
 const TIMER_STATUS_COMPILER_DECISION_PROOF_REQUIRED: &str = "compiler-decision-proof-required";
 
-const TIMER_HANDOFF_READY_FOR_TIMER_SEQUENCING: &str = "ready-for-timer-sequencing";
-const TIMER_HANDOFF_SOURCE_MANUAL_REQUIRED_BEFORE_TIMER: &str =
-    "source-manual-required-before-timer";
-
 #[path = "app_game_source_gated_policy_preview_helpers.rs"]
 mod app_game_source_gated_policy_preview_helpers;
 use app_game_source_gated_policy_preview_helpers::{

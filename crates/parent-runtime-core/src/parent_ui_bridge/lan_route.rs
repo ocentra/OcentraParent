@@ -3,7 +3,10 @@ mod query_view;
 mod route_flags;
 mod route_state;
 
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
+use ocentra_parent_agent_protocol::{
+    constants::lan_pairing::EVENT_BROWSER_DISCOVERY_REPORTED as LAN_DISCOVERY_REPORTED_EVENT,
+    lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
+};
 use ocentra_schema::parent_ui_bridge::{
     ParentBridgeConnectionState, ParentRouteContext, ParentRouteDataSource,
     ParentRouteEventSnapshot, ParentRouteId, ParentUiAction, ParentUiActionKind,
@@ -22,7 +25,6 @@ use self::query_view::{
 use self::route_flags::{
     is_dev_tools_route_impl, is_lan_surface_route_impl, requires_lan_read_model,
 };
-use super::LAN_DISCOVERY_REPORTED_EVENT;
 pub(super) type LanRouteQuery = route_state::LanRouteQuery;
 
 pub(super) fn data_source_for_route(

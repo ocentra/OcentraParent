@@ -68,3 +68,37 @@ pub(crate) fn optional_log_string(payload: &LogFields, field: impl Display) -> O
         _ => None,
     }
 }
+
+#[cfg(test)]
+mod clippy_linkage {
+    use super::*;
+
+    #[test]
+    fn test_text_helpers_are_linked() {
+        let text = TestText::from_display(123);
+        assert_eq!(text.as_str(), "123");
+        assert_eq!(text.as_bytes(), b"123");
+
+        let ok = test_ok(Ok::<i32, ()>(7), "browser-policy");
+        assert_eq!(ok, Ok(7));
+
+        let some = test_some(Some(3), "browser-policy");
+        assert_eq!(some, Ok(3));
+
+        let mut counts = BTreeMap::new();
+        counts.insert(TestText::from_display("needle"), 4);
+        assert_eq!(count_for_display(&counts, "needle"), 4);
+
+        let mut fields = LogFields::new();
+        fields.insert(
+            "browser".to_string(),
+            LogFieldValue::String("policy".to_string()),
+        );
+        assert_eq!(
+            optional_log_string(&fields, "browser"),
+            Some(TestText::from_display("policy"))
+        );
+
+        let _: TestResult = Ok(());
+    }
+}

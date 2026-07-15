@@ -3,6 +3,7 @@ use super::{
     BrowserChannel, BrowserCustodyLabel, BrowserEvidenceReadModel, BrowserFamily,
     BrowserQueryVisibilityLabel, BrowserTabEvidence, BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn browser_evidence_read_model_serializes_tab_list_only_rows() {
@@ -20,7 +21,7 @@ fn browser_evidence_read_model_serializes_tab_list_only_rows() {
     };
 
     let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], BROWSER_EVIDENCE_SCHEMA_VERSION);
     assert_eq!(serialized["returned"], 1);

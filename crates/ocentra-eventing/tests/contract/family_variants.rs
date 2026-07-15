@@ -1,4 +1,4 @@
-use super::support::{test_event_for_type, TestText, OTHER_EVENT_TYPE, TEST_EVENT_TYPE};
+use super::support::TestText;
 use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::contract_registry::EventContractRegistry;

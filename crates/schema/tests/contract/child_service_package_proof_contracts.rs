@@ -18,8 +18,10 @@ fn child_service_package_proof_contracts_generated_typescript_matches_checked_in
     ];
 
     for (generated, path, header) in checks {
-        let checked_in =
-            fs::read_to_string(path).expect("service package source should be readable");
+        let checked_in = match fs::read_to_string(path) {
+            Ok(value) => value,
+            Err(_) => std::process::abort(),
+        };
         assert_eq!(generated, checked_in);
         assert!(generated.starts_with(header));
     }

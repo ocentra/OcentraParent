@@ -1,13 +1,11 @@
-use std::sync::Arc;
-
 use crate::{
     DomainEvent, EventEnvelope, EventMetadata, EventingError, ExpectValue, JournalDispatchPhase,
     PublishReport, QueueDisposition, StoredEventEnvelope,
 };
 
 use super::{DispatchMode, DispatchStoredError, EventBus, SubscriberRecord};
+use crate::bus::reports::dead_letters_for;
 use crate::bus::reports::handler::{HandlerOutcome, HandlerReport};
-use crate::bus::reports::{dead_letters_for, empty_publish_report};
 
 mod dispatching;
 

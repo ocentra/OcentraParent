@@ -1,4 +1,4 @@
-use super::{NetworkLiveCaptureProof, NetworkLiveCaptureProofInput, NetworkLiveCaptureProofState};
+use super::{NetworkLiveCaptureProofInput, NetworkLiveCaptureProofState};
 
 pub(super) fn proof_state(
     input: &NetworkLiveCaptureProofInput,

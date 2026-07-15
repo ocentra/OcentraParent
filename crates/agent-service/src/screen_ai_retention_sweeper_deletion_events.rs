@@ -44,9 +44,3 @@ pub(crate) async fn publish_screen_retention_deletion_events(
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct ScreenRetentionObservedAt(String);
-
-impl ScreenRetentionObservedAt {
-    pub(crate) fn from_display(value: impl std::fmt::Display) -> Self {
-        Self(value.to_string())
-    }
-}

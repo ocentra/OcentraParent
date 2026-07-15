@@ -1,10 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    normalize_domain_with_public_suffix, DomainNormalizationError, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMode,
-    PublicSuffixModel,
-};
+use crate::{DomainNormalizationError, NetworkEvidenceGrade, NetworkEvidencePolicyMapping};
 
 mod artifacts;
 mod normalization;

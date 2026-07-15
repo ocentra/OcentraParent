@@ -13,8 +13,43 @@ mod app_game_policy_readiness_sources;
 mod test_invariants;
 #[path = "../support/command_dispatch_test_support.rs"]
 pub mod test_support;
-#[path = "../support/test_text.rs"]
-mod test_text;
+
+mod test_text {
+    use std::{
+        fmt::{self, Display},
+        primitive::str as TestStr,
+        string::String as TestString,
+    };
+
+    #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
+    pub(crate) struct TestText(pub(crate) TestString);
+
+    impl TestText {
+        pub(crate) fn from_display(value: impl Display) -> Self {
+            Self(value.to_string())
+        }
+    }
+
+    impl AsRef<TestStr> for TestText {
+        fn as_ref(&self) -> &TestStr {
+            self.0.as_str()
+        }
+    }
+
+    impl AsRef<[u8]> for TestText {
+        fn as_ref(&self) -> &[u8] {
+            self.0.as_bytes()
+        }
+    }
+
+    impl Display for TestText {
+        fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+            self.0.fmt(formatter)
+        }
+    }
+
+    impl std::error::Error for TestText {}
+}
 
 #[path = "../../src/activity_payload.rs"]
 mod activity_payload;
@@ -91,14 +126,6 @@ mod app_game_notification_readiness_payload;
 mod app_game_platform_proof_status_payload;
 #[path = "../../src/activity_api/app_game_policy_readiness_payload.rs"]
 mod app_game_policy_readiness_payload;
-#[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request.rs"]
-mod app_game_timer_parent_preference_setup_request;
-#[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request_outbox.rs"]
-mod app_game_timer_parent_preference_setup_request_outbox;
-#[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request_persistence.rs"]
-mod app_game_timer_parent_preference_setup_request_persistence;
-#[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request_status.rs"]
-mod app_game_timer_parent_preference_setup_request_status;
 #[path = "../../src/activity_api/app_game_timer_parent_surface_action_results.rs"]
 mod app_game_timer_parent_surface_action_results;
 #[path = "../../src/activity_api/app_game_timer_parent_surface_payload.rs"]
@@ -138,3 +165,5 @@ mod app_game_platform_proof_status_service_tests;
 mod app_game_policy_readiness_payload_tests;
 #[path = "app_game_policy_readiness_service_tests.rs"]
 mod app_game_policy_readiness_service_tests;
+#[path = "app_game_timer_parent_surface_payload_tests.rs"]
+mod app_game_timer_parent_surface_payload_tests;

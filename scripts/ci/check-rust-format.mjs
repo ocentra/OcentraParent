@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 
 const listed = spawnSync('git', ['ls-files', '-z', '--', '*.rs'], {
   encoding: 'utf8',
@@ -10,7 +11,8 @@ if (listed.status !== 0) {
   process.exit(listed.status ?? 1);
 }
 
-const files = listed.stdout.split('\0').filter(Boolean);
+// Staged deletions remain in `git ls-files` but cannot be passed to rustfmt.
+const files = listed.stdout.split('\0').filter((filePath) => filePath && existsSync(filePath));
 const maxChunkChars = process.platform === 'win32' ? 7000 : 24000;
 const chunks = [];
 let chunk = [];

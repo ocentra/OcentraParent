@@ -91,7 +91,7 @@ pub struct NetworkRuntimeServiceStreamReportForTest {
     pub entries: Vec<serde_json::Value>,
 }
 
-pub async fn handle_local_command_text_for_test(body: TestText) -> AgentEventEnvelope {
+pub(crate) async fn handle_local_command_text_for_test(body: TestText) -> AgentEventEnvelope {
     crate::agent_service_lib::websocket::dispatch_local_command_text(
         crate::agent_service_lib::websocket::WebsocketCommandText(body.0),
     )

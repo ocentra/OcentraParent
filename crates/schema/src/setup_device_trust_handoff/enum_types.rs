@@ -168,15 +168,15 @@ const SETUP_DEVICE_TRUST_HANDOFF_MANUAL_REQUIRED_STATE_VARIANTS: [&str; 5] = [
 #[repr(usize)]
 pub enum SetupDeviceTrustHandoffManualRequiredState {
     #[serde(rename = "not-required")]
-    NotRequired,
+    Not,
     #[serde(rename = "parent-action-required")]
-    ParentActionRequired,
+    ParentAction,
     #[serde(rename = "target-device-action-required")]
-    TargetDeviceActionRequired,
+    TargetDeviceAction,
     #[serde(rename = "admin-action-required")]
-    AdminActionRequired,
+    AdminAction,
     #[serde(rename = "route-sync-required")]
-    RouteSyncRequired,
+    RouteSync,
 }
 
 impl SetupDeviceTrustHandoffManualRequiredState {
@@ -233,19 +233,19 @@ const SETUP_DEVICE_TRUST_HANDOFF_NO_CLAIM_VARIANTS: [&str; 7] = [
 #[repr(usize)]
 pub enum SetupDeviceTrustHandoffNoClaim {
     #[serde(rename = "not-parent-bootstrap-proof")]
-    NotParentBootstrapProof,
+    ParentBootstrapProof,
     #[serde(rename = "not-child-pairing-code")]
-    NotChildPairingCode,
+    ChildPairingCode,
     #[serde(rename = "not-package-readiness")]
-    NotPackageReadiness,
+    PackageReadiness,
     #[serde(rename = "not-install-runtime-readiness")]
-    NotInstallRuntimeReadiness,
+    InstallRuntimeReadiness,
     #[serde(rename = "not-service-health-proof")]
-    NotServiceHealthProof,
+    ServiceHealthProof,
     #[serde(rename = "not-package-artifact-proof")]
-    NotPackageArtifactProof,
+    PackageArtifactProof,
     #[serde(rename = "not-parent-client-parity")]
-    NotParentClientParity,
+    ParentClientParity,
 }
 
 impl SetupDeviceTrustHandoffNoClaim {

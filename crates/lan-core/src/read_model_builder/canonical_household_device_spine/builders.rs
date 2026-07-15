@@ -51,7 +51,7 @@ pub(super) fn device_from_discovery(
         trust_state: LanPairingTrustState::Unpaired,
         route_id: route_id_for(is_child_agent, Some(discovered.route_id.clone())),
         route_state: route_state.clone(),
-        network_mode: discovered.network_mode.clone(),
+        network_mode: discovered.network_mode,
         source_labels: vec![source],
         child_agent_inventory: child_agent_inventory_for(
             is_child_agent,
@@ -89,7 +89,7 @@ pub(super) fn device_from_registry(
         role_badges: vec![LanCanonicalHouseholdDeviceRole::ChildAgent],
         enrollable: true,
         discovery_state: state_from_trust(&entry.trust_state),
-        trust_state: entry.trust_state.clone(),
+        trust_state: entry.trust_state,
         route_id: Some(entry.route_id.clone()),
         route_state: LanCanonicalHouseholdRouteState::LocalNetwork,
         network_mode: LanPairingNetworkMode::LocalNetwork,
@@ -98,7 +98,7 @@ pub(super) fn device_from_registry(
         child_agent_inventory: child_agent_inventory_for(
             true,
             device,
-            entry.trust_state.clone(),
+            entry.trust_state,
             LanCanonicalHouseholdRouteState::LocalNetwork,
         ),
         policy_target_surfaces: surfaces_for(true),

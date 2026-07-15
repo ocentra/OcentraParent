@@ -23,6 +23,7 @@ pub(crate) enum LanAiJobField {
 
 pub(crate) fn lan_ai_provider_fields(runtime: &LanPairingRuntime) -> LogFields {
     let provider_status = runtime.lan_ai_provider_status_value();
+    let routing_state = runtime.lan_ai_provider_routing_state().0;
     let capability_flags = runtime.lan_ai_provider_capability_flags();
     fields_from_pairs(vec![
         (
@@ -31,7 +32,7 @@ pub(crate) fn lan_ai_provider_fields(runtime: &LanPairingRuntime) -> LogFields {
         ),
         (
             constants::field::LAN_AI_PROVIDER_ROUTING_STATE,
-            LogFieldValue::String(runtime.lan_ai_provider_routing_state().0.clone()),
+            LogFieldValue::String(routing_state),
         ),
         (
             constants::field::LAN_AI_PROVIDER_CUSTODY_LABEL,
@@ -139,35 +140,12 @@ pub(crate) fn lan_ai_job_fields(
     fields
 }
 
-pub(crate) fn lan_ai_job_rejected_fields(
-    command: &AgentCommandEnvelope,
-    intent: Option<&LanParentIntentEnvelope>,
-) -> LogFields {
-    let mut fields = LogFields::new();
-    if let Some(intent) = intent {
-        crate::lan_pairing::extend_log_fields(
-            &mut fields,
-            lan_ai_job_fields(
-                command,
-                intent,
-                LanPairingText(constants::value::LAN_AI_JOB_STATE_REJECTED.to_string()),
-                LanPairingText(constants::value::LAN_AI_JOB_STATE_REJECTED.to_string()),
-                LanPairingText(
-                    constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE.to_string(),
-                ),
-                None,
-            ),
-        );
-    }
-    fields
-}
-
 pub(crate) fn lan_ai_job_id(
     command: &AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
 ) -> LanPairingText {
-    payload_string(&command.payload, LanAiJobField::JobId)
-        .unwrap_or_else(|| intent.intent_id.clone().into())
+    payload_string(&command.payload, &LanAiJobField::JobId)
+        .unwrap_or_else(|| intent.intent_id.as_str().into())
 }
 
 pub(crate) fn local_ai_result_id(intent: &LanParentIntentEnvelope) -> LanPairingText {
@@ -178,14 +156,16 @@ pub(crate) fn local_ai_result_id(intent: &LanParentIntentEnvelope) -> LanPairing
 
 pub(crate) fn payload_string(
     fields: &LogFields,
-    field_name: LanAiJobField,
+    field_name: &LanAiJobField,
 ) -> Option<LanPairingText> {
     let field_name = match field_name {
         LanAiJobField::CapabilityFlags => constants::field::LOCAL_AI_CAPABILITY_FLAGS,
         LanAiJobField::JobId => constants::field::LAN_AI_JOB_ID,
     };
     fields.get(field_name).and_then(|value| match value {
-        LogFieldValue::String(value) if !value.is_empty() => Some(LanPairingText(value.clone())),
+        LogFieldValue::String(value) if !value.is_empty() => {
+            Some(LanPairingText(value.as_str().to_owned()))
+        }
         _ => None,
     })
 }

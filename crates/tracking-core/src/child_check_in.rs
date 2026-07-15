@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_check_in_id_from_observation_id, tracking_evidence_ref_from_observation_id,
@@ -12,7 +13,7 @@ pub fn record_child_check_in(
 ) -> TrackingChildCheckInRecordedEvent {
     let check_in_state =
         TrackingCheckInState::parse(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)
-            .expect("tracking check-in state contract drift");
+            .expect_value("tracking check-in state contract drift");
 
     TrackingChildCheckInRecordedEvent {
         child_device_id: event.child_device_id.clone(),

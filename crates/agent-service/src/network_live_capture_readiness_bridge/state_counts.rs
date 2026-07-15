@@ -10,9 +10,9 @@ pub(super) fn apply_state_counts(
     status: &mut NetworkLiveCaptureStatus,
     row: &NetworkLiveCaptureStatusRow,
 ) {
-    apply_proof_counts(status, row.proof_state.clone());
-    apply_storage_counts(status, row.storage_state.clone());
-    apply_execution_counts(status, row.execution_state.clone());
+    apply_proof_counts(status, &row.proof_state);
+    apply_storage_counts(status, &row.storage_state);
+    apply_execution_counts(status, &row.execution_state);
     status.missing_artifact_count += row.missing_artifact_count;
     status.storage_missing_artifact_count += row.storage_missing_artifact_count;
     status.execution_missing_artifact_count += row.execution_missing_artifact_count;

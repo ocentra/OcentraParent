@@ -1,13 +1,14 @@
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentEventEnvelope};
 
-use crate::lan_pairing::{
-    accepted_control_audit_fields, extend_log_fields, pairing_challenge_status_event,
-    pairing_status_event, validate_selection_intent_result, LanPairingRuntime,
+use super::super::runtime_validation::validate_command_target;
+use super::super::{
+    extend_log_fields, runtime_rejection::rejection_event,
+    runtime_validation::validate_selection_intent_result, LanPairingRuntime,
 };
+use crate::lan_pairing_audit::accepted_control_audit_fields;
 use crate::lan_pairing_payload::{is_challenge_request, parse_intent};
-
-use super::{rejection_event, validate_command_target};
+use crate::lan_pairing_status::{pairing_challenge_status_event, pairing_status_event};
 
 pub(super) fn lan_pairing_status_get(
     runtime: LanPairingRuntime,
@@ -15,7 +16,7 @@ pub(super) fn lan_pairing_status_get(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     if is_challenge_request(&command.payload) {
-        return pairing_challenge_status_event(&runtime, origin.clone(), command);
+        return pairing_challenge_status_event(&runtime, origin, command);
     }
     if crate::lan_pairing::log_fields_is_empty(&command.payload) {
         return pairing_status_event(&runtime, command);

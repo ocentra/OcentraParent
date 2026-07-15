@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_evidence::ManualReviewState;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::TrackingChildDeviceId;
@@ -8,7 +9,7 @@ use ocentra_tracking_core::status::{
 
 fn child_device_id() -> TrackingChildDeviceId {
     TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        .expect_value(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
 }
 
 #[test]

@@ -11,7 +11,6 @@ mod test_text;
 #[path = "../support/activity_capture_mod.rs"]
 mod activity_capture;
 mod activity_api {
-    pub(crate) struct ActivityEventId(pub(crate) &'static str);
     pub(crate) struct GeneratedAtText(pub(crate) String);
 }
 #[path = "../../src/activity_store_path.rs"]
@@ -130,12 +129,12 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = json_contract::serialize_json_string(&sample_json);
     let _ = json_contract::serialize_json_value(sample_json.clone());
     let decoded: serde_json::Value =
-        test_invariants::require_json_decode(&sample_json.to_string(), "link");
+        test_invariants::require_json_decode(sample_json.to_string(), "link");
     let log_field =
         ocentra_parent_agent_protocol::logging::LogFieldValue::String(String::from("value"));
     let _ = test_invariants::require_log_string_field(Some(&log_field), "link");
     let _ = test_invariants::serialize_test_json(&decoded);
     let _ = enforcement_timer_api::build_enforcement_timer_report;
-    let _: fn(u64) -> String = time::timestamp_from_epoch_seconds;
+    let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
 }

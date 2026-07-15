@@ -40,10 +40,10 @@ pub(crate) async fn record_timer_activity(
     let store_path = paths.store_path.clone();
     tokio::task::spawn_blocking(move || {
         record_activity_events_to_paths(&journal_path, &key_path, &store_path, &[event])
-            .map_err(|_| TimerReportError::Store)
+            .map_err(activity_capture_store_error)
     })
     .await
-    .map_err(|_| TimerReportError::Store)?
+    .map_err(activity_capture_store_error)?
 }
 
 pub(crate) fn timer_report_payload(

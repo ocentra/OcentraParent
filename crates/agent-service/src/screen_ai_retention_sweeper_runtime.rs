@@ -1,12 +1,7 @@
-use std::{
-    env, fs,
-    path::{Path, PathBuf},
-    time::Duration,
-};
+use std::{env, path::PathBuf, time::Duration};
 
-use ocentra_parent_agent_core::{
-    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
-    screen_evidence_queue::{ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue},
+use ocentra_parent_agent_core::screen_evidence_queue::{
+    ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue,
 };
 use ocentra_parent_agent_protocol as parent_protocol;
 use ocentra_parent_agent_protocol::activity::{
@@ -241,10 +236,11 @@ fn expired_entry_event(
     entry: &ScreenEvidenceExpiredQueueEntry,
     observed_at: ScreenAiObservedAt,
 ) -> ActivityEvent {
+    let ScreenAiObservedAt(observed_at) = observed_at;
     ActivityEvent {
         schema_version: parent_protocol::ACTIVITY_SCHEMA_VERSION,
         event_id: retention_event_id(entry).0,
-        observed_at: observed_at.0.clone(),
+        observed_at,
         source: ActivitySource {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
             platform: std::env::consts::OS.to_string(),

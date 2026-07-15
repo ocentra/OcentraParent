@@ -26,6 +26,7 @@ struct BrowserPolicyCapabilitySpec<'a> {
     affected_writes_to: Vec<&'a str>,
 }
 
+#[derive(Clone, Copy)]
 pub struct BrowserPolicyCompileRequest<'a> {
     pub revision_id: &'a str,
     pub compiled_at: &'a str,
@@ -45,18 +46,22 @@ pub(crate) fn compile_browser_policy(
     policy: &BrowserPolicyValue,
     request: BrowserPolicyCompileRequest<'_>,
 ) -> Result<BrowserPolicyEffectivePolicy, BrowserPolicyRejectionReason> {
+    let BrowserPolicyCompileRequest {
+        revision_id,
+        compiled_at,
+    } = request;
     validate_browser_policy(policy)?;
     let rules = compiled_effective_rules(policy)?;
     Ok(BrowserPolicyEffectivePolicy {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         policy_id: policy.policy_id.clone(),
-        revision_id: request.revision_id.to_string(),
+        revision_id: revision_id.to_string(),
         compiled_hash: {
             let mut compiled_hash = constants::browser_policy::COMPILED_HASH_PREFIX.to_string();
-            compiled_hash.push_str(request.revision_id);
+            compiled_hash.push_str(revision_id);
             compiled_hash
         },
-        compiled_at: request.compiled_at.to_string(),
+        compiled_at: compiled_at.to_string(),
         execution_mode: policy.execution_mode,
         default_posture: effective_default_posture(policy),
         fallback_posture: policy.fallback_posture,

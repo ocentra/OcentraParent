@@ -6,7 +6,9 @@ use ocentra_network_evidence::cascade::{
 use ocentra_network_evidence::dns::types::NetworkEvidenceGrade;
 use ocentra_network_evidence::screen_summary::*;
 
+#[derive(Clone, Copy)]
 struct TriggerRef(&'static str);
+#[derive(Clone, Copy)]
 struct EvidenceRef(&'static str);
 
 #[test]

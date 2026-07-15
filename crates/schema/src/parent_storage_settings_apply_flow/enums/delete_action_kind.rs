@@ -12,17 +12,17 @@ use super::super::constants::{
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ParentStorageDeleteActionKind {
     #[serde(rename = "delete-local-child-evidence")]
-    DeleteLocalChildEvidence,
+    LocalChildEvidence,
     #[serde(rename = "delete-parent-portal-cache")]
-    DeleteParentPortalCache,
+    ParentPortalCache,
     #[serde(rename = "delete-generated-report")]
-    DeleteGeneratedReport,
+    GeneratedReport,
     #[serde(rename = "delete-provider-backup-copy")]
-    DeleteProviderBackupCopy,
+    ProviderBackupCopy,
     #[serde(rename = "delete-support-bundle")]
-    DeleteSupportBundle,
+    SupportBundle,
     #[serde(rename = "delete-ocentra-metadata")]
-    DeleteOcentraMetadata,
+    OcentraMetadata,
 }
 
 impl ParentStorageDeleteActionKind {

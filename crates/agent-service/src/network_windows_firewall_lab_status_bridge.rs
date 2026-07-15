@@ -216,64 +216,46 @@ fn unsupported_claims() -> NetworkWindowsFirewallLabUnsupportedClaims {
 
 fn command_evidence_rows() -> Vec<NetworkWindowsFirewallLabCommandEvidence> {
     vec![
-        command_evidence(
-            NetworkWindowsFirewallLabCommandKind::ApplyRule,
-            CommandRefText(constants::network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_COMMAND_REF),
-            OutputSha256Text(
-                constants::network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_OUTPUT_SHA256,
-            ),
-            true,
-        ),
-        command_evidence(
-            NetworkWindowsFirewallLabCommandKind::VerifyRulePresent,
-            CommandRefText(
-                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_COMMAND_REF,
-            ),
-            OutputSha256Text(
-                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_OUTPUT_SHA256,
-            ),
-            true,
-        ),
-        command_evidence(
-            NetworkWindowsFirewallLabCommandKind::RollbackRule,
-            CommandRefText(
-                constants::network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_COMMAND_REF,
-            ),
-            OutputSha256Text(
-                constants::network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_OUTPUT_SHA256,
-            ),
-            false,
-        ),
-        command_evidence(
-            NetworkWindowsFirewallLabCommandKind::VerifyRuleRemoved,
-            CommandRefText(
-                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_COMMAND_REF,
-            ),
-            OutputSha256Text(
-                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_OUTPUT_SHA256,
-            ),
-            false,
-        ),
+        NetworkWindowsFirewallLabCommandEvidence {
+            kind: NetworkWindowsFirewallLabCommandKind::ApplyRule,
+            command_ref: constants::network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_COMMAND_REF
+                .to_string(),
+            exit_status: 0,
+            output_sha256: constants::network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_OUTPUT_SHA256
+                .to_string(),
+            rule_present_after_command: true,
+        },
+        NetworkWindowsFirewallLabCommandEvidence {
+            kind: NetworkWindowsFirewallLabCommandKind::VerifyRulePresent,
+            command_ref: constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_COMMAND_REF
+                .to_string(),
+            exit_status: 0,
+            output_sha256:
+                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_OUTPUT_SHA256
+                    .to_string(),
+            rule_present_after_command: true,
+        },
+        NetworkWindowsFirewallLabCommandEvidence {
+            kind: NetworkWindowsFirewallLabCommandKind::RollbackRule,
+            command_ref: constants::network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_COMMAND_REF
+                .to_string(),
+            exit_status: 0,
+            output_sha256:
+                constants::network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_OUTPUT_SHA256
+                    .to_string(),
+            rule_present_after_command: false,
+        },
+        NetworkWindowsFirewallLabCommandEvidence {
+            kind: NetworkWindowsFirewallLabCommandKind::VerifyRuleRemoved,
+            command_ref: constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_COMMAND_REF
+                .to_string(),
+            exit_status: 0,
+            output_sha256:
+                constants::network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_OUTPUT_SHA256
+                    .to_string(),
+            rule_present_after_command: false,
+        },
     ]
-}
-
-struct CommandRefText<'a>(&'a str);
-
-struct OutputSha256Text<'a>(&'a str);
-
-fn command_evidence(
-    kind: NetworkWindowsFirewallLabCommandKind,
-    command_ref: CommandRefText<'_>,
-    output_sha256: OutputSha256Text<'_>,
-    rule_present_after_command: bool,
-) -> NetworkWindowsFirewallLabCommandEvidence {
-    NetworkWindowsFirewallLabCommandEvidence {
-        kind,
-        command_ref: command_ref.0.to_string(),
-        exit_status: 0,
-        output_sha256: output_sha256.0.to_string(),
-        rule_present_after_command,
-    }
 }
 
 fn command_row(

@@ -1,6 +1,5 @@
 use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementAdapterResultCode, EnforcementCapabilityStatus, EnforcementResultStatus,
-    EnforcementUnavailableReason, EnforcementUnavailableStatus,
+    EnforcementCapabilityStatus, EnforcementUnavailableReason, EnforcementUnavailableStatus,
 };
 
 use crate::enforcement_adapter::EnforcementAdapterOutcome;

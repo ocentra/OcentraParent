@@ -63,7 +63,7 @@ pub(crate) mod lan_pairing_browser_add_device_state;
 pub(crate) mod lan_pairing_browser_runtime;
 pub(crate) mod lan_pairing_payload;
 pub(crate) mod lan_pairing_runtime_state;
-pub(crate) mod lan_pairing_status;
+pub mod lan_pairing_status;
 mod lan_runtime_stream_api;
 pub(crate) mod lan_runtime_stream_payload;
 mod local_ai_cache_root;

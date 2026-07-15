@@ -1,8 +1,6 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::dns::types::*;
-use ocentra_network_evidence::dns::types::*;
 use ocentra_network_evidence::notification::*;
-use ocentra_network_evidence::policy::*;
 use ocentra_network_evidence::policy::*;
 
 #[test]

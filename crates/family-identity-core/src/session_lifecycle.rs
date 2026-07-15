@@ -197,9 +197,9 @@ pub fn authorize_session_credential_issuance(
         };
     }
 
-    let source_session = input
-        .source_session
-        .expect("session credential issuance source session is validated");
+    let Some(source_session) = input.source_session else {
+        return rejected_session_credential_issuance(SessionTokenFailureReason::SessionLoggedOut);
+    };
     let source_session_decision = authorize_session_token_action(SessionTokenInput {
         action: source_session_action_for_issuance(input.issuance_action),
         ..source_session

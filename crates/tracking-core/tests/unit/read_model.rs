@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -26,7 +27,7 @@ fn tracking_read_model_includes_alert_and_parent_notification_rows() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 4);
     assert_eq!(read_model.active_rows, 3);
@@ -91,7 +92,7 @@ fn tracking_read_model_excludes_non_tracking_activity_rows() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.active_rows, 0);
@@ -102,18 +103,19 @@ fn tracking_read_model_excludes_non_tracking_activity_rows() {
 }
 
 fn tracking_connection() -> Connection {
-    let connection = Connection::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let connection =
+        Connection::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     connection
         .execute_batch(constants::sqlite::INITIALIZE_ACTIVITY_STORE)
-        .expect(constants::error::ACTIVITY_STORE_OPENS);
+        .expect_value(constants::error::ACTIVITY_STORE_OPENS);
     connection
 }
 
 fn insert_tracking_row(connection: &Connection, row: TrackingRowSeed) {
-    let fields_json =
-        serde_json::to_string(&tracking_fields()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let fields_json = serde_json::to_string(&tracking_fields())
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let evidence_json = serde_json::to_string(&tracking_evidence())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     connection
         .execute(
@@ -132,7 +134,7 @@ fn insert_tracking_row(connection: &Connection, row: TrackingRowSeed) {
                 evidence_json
             ],
         )
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
 }
 
 fn insert_tracking_rows(connection: &Connection, rows: &[TrackingRowSeed]) {

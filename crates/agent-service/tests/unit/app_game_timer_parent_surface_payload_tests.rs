@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
     AppGameEvidenceClaim, AppGameIdentity, AppGameServiceReadModel,
@@ -74,8 +71,9 @@ const APP_GAME_TEST_WINDOWS_ROW_ID: &str = "windows-block-launch-row";
 
 #[test]
 fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claims() {
+    let model = service_model();
     let read_model =
-        app_game_timer_parent_surface_from_service_model_with_timer_state(service_model(), None);
+        app_game_timer_parent_surface_from_service_model_with_timer_state(&model, None);
     let payload = app_game_timer_parent_surface_payload(&read_model);
     let read_model_json = require_log_string_field(
         payload.get(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL),
@@ -107,6 +105,42 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
             APP_GAME_TEST_AUTHORITY_ID
         ]
     );
+}
+
+#[test]
+fn app_game_timer_parent_surface_action_results_project_parent_visible_handoffs() {
+    let results = super::app_game_timer_parent_surface_action_results::timer_parent_surface_control_action_results(
+        &service_model(),
+    );
+
+    assert_eq!(
+        results.reference_ids,
+        vec![APP_GAME_TEST_ACTION_RESULT_ID.to_string()]
+    );
+    assert_eq!(
+        results.statuses,
+        vec![APP_GAME_CONTROL_ACTION_STATUS_ENFORCED.to_string()]
+    );
+    assert_eq!(
+        results.capability_states,
+        vec![APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED.to_string()]
+    );
+    assert_eq!(
+        results.enforcement_statuses,
+        vec![APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED.to_string()]
+    );
+    assert_eq!(
+        results.child_reason_reference_ids,
+        vec![APP_GAME_TEST_REASON_PARENT_APPROVED.to_string()]
+    );
+    assert_eq!(
+        results.child_status_reference_ids,
+        vec![APP_GAME_TEST_ACTION_REFERENCE_ID.to_string()]
+    );
+    assert_eq!(results.child_ux_handoff_ready_count, 1);
+    assert_eq!(results.child_ux_handoff_blocked_count, 0);
+    assert!(results.adapter_dispatch_claimed);
+    assert!(results.platform_enforcement_claimed);
 }
 
 fn assert_parent_surface_counts_and_claim_boundaries(decoded: &AppGameTimerParentSurfaceReadModel) {

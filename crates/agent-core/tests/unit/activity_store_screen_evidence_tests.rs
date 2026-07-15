@@ -13,7 +13,7 @@ use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_PROVIDER_LOCAL_VISION, SCREEN_QUEUE_STATUS_FAILED,
 };
 
-use crate::test_text::{test_ok as ok, test_some as some, TestResult, TestText};
+use crate::test_text::{test_some as some, TestResult, TestText};
 use crate::ActivityStore;
 
 #[test]

@@ -25,6 +25,7 @@ use crate::host_identity_read_model::{host_identity_read_model, GeneratedAtText}
 pub(crate) fn windows_adapter_capability_proof(
     generated_at: GeneratedAtText,
 ) -> WindowsAdapterCapabilityProof {
+    let generated_at = GeneratedAtText(generated_at.0);
     let readiness = broad_os_adapter_readiness(generated_at.0.as_str());
     let host_identity_model = host_identity_read_model(generated_at.clone());
 

@@ -1,7 +1,6 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsRejectionReason;
-use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateKind;
 use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateResponse;
 use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateStatus;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;

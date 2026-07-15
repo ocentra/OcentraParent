@@ -11,11 +11,13 @@ use super::{
     ParentUiActionKind,
 };
 
+use super::common::events::responses::screen_settings_response_event;
 use super::common::events::responses::*;
 use super::common::events::samples::*;
 use super::common::events::tracking::*;
 use super::common::helpers::*;
 
+#[test]
 fn screen_settings_actions_attach_runtime_service_response_snapshot() {
     let (address, capture) = start_local_server_with_capture_responses(vec![
         screen_settings_response_event(
@@ -557,7 +559,7 @@ fn proof_panels_route_load_attaches_network_flow_read_model() {
         value["liveActivity"]["networkFlowReadModel"]["rows"][0]["evidence"][0]["evidenceId"],
         json!("network-ui-evidence-1")
     );
-    assert_network_policy_bridge_snapshot(&value["liveActivity"], json!(3));
+    assert_network_policy_bridge_snapshot(&value["liveActivity"], &json!(3));
     assert_eq!(
         value["liveActivity"]["activityTrackingReadModel"]["ok"],
         json!(true)
@@ -682,7 +684,7 @@ fn network_flow_refresh_action_attaches_runtime_backed_snapshot() {
         ),
         TestContext("live activity snapshot serializes"),
     );
-    assert_network_policy_bridge_snapshot(&live_activity, json!(3));
+    assert_network_policy_bridge_snapshot(&live_activity, &json!(3));
 }
 
 fn capture_app_game_dispatch_requests(

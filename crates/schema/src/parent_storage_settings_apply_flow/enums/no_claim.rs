@@ -10,19 +10,19 @@ use super::super::constants::{
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ParentStorageNoClaim {
     #[serde(rename = "no-portal-implementation-ready")]
-    NoPortalImplementationReady,
+    PortalImplementationReady,
     #[serde(rename = "no-provider-runtime-ready")]
-    NoProviderRuntimeReady,
+    ProviderRuntimeReady,
     #[serde(rename = "no-auto-apply")]
-    NoAutoApply,
+    AutoApply,
     #[serde(rename = "no-disconnect-deletes-provider-data")]
-    NoDisconnectDeletesProviderData,
+    DisconnectDeletesProviderData,
     #[serde(rename = "no-delete-disconnect-collapse")]
-    NoDeleteDisconnectCollapse,
+    DeleteDisconnectCollapse,
     #[serde(rename = "no-ts-business-owner")]
-    NoTsBusinessOwner,
+    TsBusinessOwner,
     #[serde(rename = "no-lan-ownership")]
-    NoLanOwnership,
+    LanOwnership,
 }
 
 impl ParentStorageNoClaim {

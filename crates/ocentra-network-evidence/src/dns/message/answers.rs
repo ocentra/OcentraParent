@@ -1,4 +1,4 @@
-use super::{constants, record, DnsResourceRecord, NetworkReplayError};
+use super::{record, DnsResourceRecord, NetworkReplayError};
 
 pub(super) fn parse_answers(
     payload: &[u8],

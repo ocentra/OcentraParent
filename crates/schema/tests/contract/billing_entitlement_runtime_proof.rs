@@ -7,8 +7,10 @@ fn billing_entitlement_runtime_proof_generated_typescript_matches_checked_in_fil
         ocentra_schema::billing_entitlement_runtime_proof_ts::billing_entitlement_runtime_proof_typescript();
     let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../packages/schema-domain/src/generated-billing-entitlement-runtime-proof.ts");
-    let checked_in =
-        read_to_string(file_path).expect("read generated billing entitlement runtime proof ts");
+    let checked_in = match read_to_string(file_path) {
+        Ok(value) => value,
+        Err(_) => std::process::abort(),
+    };
 
     assert!(generated.starts_with(
         "/* generated from crates/schema/src/billing_entitlement_runtime_proof_ts.rs */"

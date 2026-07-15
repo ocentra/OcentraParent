@@ -11,22 +11,6 @@ mod text_types_query;
 
 pub const REPORT_QUERY_CUSTODY_SCHEMA_VERSION: &str = "report-query-custody-proof";
 
-const PARENT_PLATFORM_WINDOWS: &str = "windows";
-const PARENT_PLATFORM_LINUX: &str = "linux";
-const PARENT_PLATFORM_MACOS: &str = "macos";
-const PARENT_PLATFORM_ANDROID: &str = "android";
-const PARENT_PLATFORM_IOS: &str = "ios";
-
-const PARENT_ACTOR_ROLE_PARENT: &str = "parent";
-const PARENT_ACTOR_ROLE_GUARDIAN: &str = "guardian";
-const PARENT_ACTOR_ROLE_SYSTEM: &str = "system";
-
-const PARENT_EVIDENCE_REFERENCE_KIND_JOURNAL_EVENT: &str = "journal-event";
-const PARENT_EVIDENCE_REFERENCE_KIND_QUERY_STORE_SUMMARY: &str = "query-store-summary";
-const PARENT_EVIDENCE_REFERENCE_KIND_ACTIVITY_EVENT: &str = "activity-event";
-const PARENT_EVIDENCE_REFERENCE_KIND_POLICY_DECISION: &str = "policy-decision";
-const PARENT_EVIDENCE_REFERENCE_KIND_LOCAL_AI_RESULT: &str = "local-ai-result";
-
 const REPORT_QUERY_CUSTODY_STATE_DERIVED_FRESH: &str = "derivedFresh";
 const REPORT_QUERY_CUSTODY_STATE_DERIVED_STALE: &str = "derivedStale";
 const REPORT_QUERY_CUSTODY_STATE_PARTIALLY_REDACTED: &str = "partiallyRedacted";
@@ -34,34 +18,6 @@ const REPORT_QUERY_CUSTODY_STATE_DELETED_SOURCE: &str = "deletedSource";
 const REPORT_QUERY_CUSTODY_STATE_SYNC_CONFLICT: &str = "syncConflict";
 const REPORT_QUERY_CUSTODY_STATE_CURSOR_EXPIRED: &str = "cursorExpired";
 const REPORT_QUERY_CUSTODY_STATE_RATE_LIMITED: &str = "rateLimited";
-
-const REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_FRESH: &str = "fresh";
-const REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_STALE: &str = "stale";
-const REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_DELETED: &str = "deleted";
-const REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_CONFLICTED: &str = "conflicted";
-const REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_EXPIRED: &str = "expired";
-const REPORT_QUERY_CUSTODY_SOURCE_FRESHNESS_RATE_LIMITED: &str = "rate-limited";
-
-const REPORT_QUERY_CUSTODY_BOUNDARY_PARENT_OWNED_CITATIONS_ONLY: &str =
-    "parent-owned-citations-only";
-const REPORT_QUERY_CUSTODY_PAYLOAD_REDACTION_FULLY_REDACTED: &str = "fully-redacted";
-const REPORT_QUERY_CUSTODY_PAYLOAD_REDACTION_PARTIALLY_REDACTED: &str = "partially-redacted";
-
-const REPORT_QUERY_CUSTODY_SOURCE_DATA_CLASS_SQLITE_QUERY_ROW: &str = "sqlite-query-row";
-const REPORT_QUERY_CUSTODY_SOURCE_DATA_CLASS_NOTIFICATION_HISTORY: &str = "notification-history";
-const REPORT_QUERY_CUSTODY_SOURCE_DATA_CLASS_AUDIT_EVENT: &str = "audit-event";
-const REPORT_QUERY_CUSTODY_SOURCE_DATA_CLASS_GENERATED_SUMMARY: &str = "generated-summary";
-
-const REPORT_QUERY_CUSTODY_NON_CLAIM_NO_SECOND_TRUTH_STORE: &str = "no-second-truth-store";
-const REPORT_QUERY_CUSTODY_NON_CLAIM_NO_PORTAL_UI: &str = "no-portal-ui";
-const REPORT_QUERY_CUSTODY_NON_CLAIM_NO_RAW_CHILD_EVIDENCE: &str = "no-raw-child-evidence";
-const REPORT_QUERY_CUSTODY_NON_CLAIM_NO_UNBOUNDED_PAGINATION: &str = "no-unbounded-pagination";
-const REPORT_QUERY_CUSTODY_NON_CLAIM_NO_PROVIDER_ROUTING: &str = "no-provider-routing";
-const REPORT_QUERY_CUSTODY_NON_CLAIM_NO_OCENTRA_HOSTED_FAMILY_DATA_CUSTODY: &str =
-    "no-ocentra-hosted-family-data-custody";
-
-const REPORT_QUERY_CUSTODY_TOMBSTONE_STATE_NOT_REQUIRED: &str = "not-required";
-const REPORT_QUERY_CUSTODY_TOMBSTONE_STATE_WRITTEN: &str = "written";
 
 const REPORT_QUERY_CUSTODY_KNOWN_GAP_NO_SECOND_TRUTH_STORE: &str =
     "No uncontrolled second truth store is claimed for report or query custody.";

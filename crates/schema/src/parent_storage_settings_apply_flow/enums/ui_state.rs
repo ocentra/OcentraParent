@@ -40,39 +40,63 @@ const UI_STATE_VALUES: [&str; 20] = [
 ];
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct ParentStorageUiState(u8);
+#[repr(u8)]
+pub enum ParentStorageUiState {
+    ProviderNotConfigured,
+    ProviderAuthExpired,
+    ProviderPermissionMissing,
+    ProviderRevoked,
+    ProviderQuotaExceeded,
+    ProviderUnavailable,
+    LocalStoreUnavailable,
+    KeyUnavailable,
+    KeyRevoked,
+    WrongHousehold,
+    WrongDevice,
+    SchemaUnsupported,
+    BundleCorrupt,
+    TombstoneConflict,
+    ManualRequired,
+    OfflineQueued,
+    SyncDisabled,
+    RemoteDisabled,
+    OcentraHostedStorageNotUsed,
+    Ready,
+}
 
 impl ParentStorageUiState {
-    pub const ProviderNotConfigured: Self = Self(0);
-    pub const ProviderAuthExpired: Self = Self(1);
-    pub const ProviderPermissionMissing: Self = Self(2);
-    pub const ProviderRevoked: Self = Self(3);
-    pub const ProviderQuotaExceeded: Self = Self(4);
-    pub const ProviderUnavailable: Self = Self(5);
-    pub const LocalStoreUnavailable: Self = Self(6);
-    pub const KeyUnavailable: Self = Self(7);
-    pub const KeyRevoked: Self = Self(8);
-    pub const WrongHousehold: Self = Self(9);
-    pub const WrongDevice: Self = Self(10);
-    pub const SchemaUnsupported: Self = Self(11);
-    pub const BundleCorrupt: Self = Self(12);
-    pub const TombstoneConflict: Self = Self(13);
-    pub const ManualRequired: Self = Self(14);
-    pub const OfflineQueued: Self = Self(15);
-    pub const SyncDisabled: Self = Self(16);
-    pub const RemoteDisabled: Self = Self(17);
-    pub const OcentraHostedStorageNotUsed: Self = Self(18);
-    pub const Ready: Self = Self(19);
-
     pub fn as_str(&self) -> &'static str {
-        UI_STATE_VALUES[self.0 as usize]
+        UI_STATE_VALUES[*self as usize]
     }
 
     fn parse(value: &str) -> Option<Self> {
+        let variants = [
+            Self::ProviderNotConfigured,
+            Self::ProviderAuthExpired,
+            Self::ProviderPermissionMissing,
+            Self::ProviderRevoked,
+            Self::ProviderQuotaExceeded,
+            Self::ProviderUnavailable,
+            Self::LocalStoreUnavailable,
+            Self::KeyUnavailable,
+            Self::KeyRevoked,
+            Self::WrongHousehold,
+            Self::WrongDevice,
+            Self::SchemaUnsupported,
+            Self::BundleCorrupt,
+            Self::TombstoneConflict,
+            Self::ManualRequired,
+            Self::OfflineQueued,
+            Self::SyncDisabled,
+            Self::RemoteDisabled,
+            Self::OcentraHostedStorageNotUsed,
+            Self::Ready,
+        ];
+
         UI_STATE_VALUES
             .iter()
             .position(|candidate| *candidate == value)
-            .map(|index| Self(index as u8))
+            .map(|index| variants[index])
     }
 }
 

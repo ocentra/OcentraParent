@@ -23,7 +23,7 @@ fn mdns_packet_with_child_service() -> Vec<u8> {
     packet.extend_from_slice(&60_u32.to_be_bytes());
     let mut data = Vec::new();
     encode_dns_name(
-        &format!(
+        format!(
             "Kitchen Tablet.{}",
             ocentra_parent_agent_protocol::constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE
         ),
@@ -32,7 +32,7 @@ fn mdns_packet_with_child_service() -> Vec<u8> {
     packet.extend_from_slice(&(data.len() as u16).to_be_bytes());
     packet.extend_from_slice(&data);
     encode_dns_name(
-        &format!(
+        format!(
             "Kitchen Tablet.{}",
             ocentra_parent_agent_protocol::constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE
         ),
@@ -41,7 +41,7 @@ fn mdns_packet_with_child_service() -> Vec<u8> {
     packet.extend_from_slice(&16_u16.to_be_bytes());
     packet.extend_from_slice(&1_u16.to_be_bytes());
     packet.extend_from_slice(&60_u32.to_be_bytes());
-    let txt = encode_txt_data(&[
+    let txt = encode_txt_data([
         "lan.mdns_advertisement_id=sha256:child-id",
         "opaque-device-id=opaque-child-id",
         "protocol-version=2.0.0",
@@ -213,7 +213,7 @@ fn netbios_name_query_packet(name: &str) -> Vec<u8> {
     packet.extend_from_slice(&0_u16.to_be_bytes());
     packet.extend_from_slice(&0_u16.to_be_bytes());
     packet.extend_from_slice(&0_u16.to_be_bytes());
-    encode_dns_name(&encoded_netbios_name(name), &mut packet);
+    encode_dns_name(encoded_netbios_name(name), &mut packet);
     packet.extend_from_slice(&0x20_u16.to_be_bytes());
     packet.extend_from_slice(&1_u16.to_be_bytes());
     packet

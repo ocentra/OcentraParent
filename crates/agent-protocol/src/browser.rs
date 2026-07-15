@@ -318,8 +318,8 @@ impl BrowserRuntimePhase {
         Self::TARGET_HANDLERS[self as usize]
     }
 
-    pub fn runtime_role(self) -> RuntimeRole {
-        RuntimeRole::parse(Self::ROLE_STRINGS[self as usize]).expect("browser runtime role parses")
+    pub fn runtime_role(self) -> Result<RuntimeRole, EventingError> {
+        RuntimeRole::parse(Self::ROLE_STRINGS[self as usize])
     }
 }
 

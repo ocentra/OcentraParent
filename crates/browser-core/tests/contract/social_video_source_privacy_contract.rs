@@ -15,12 +15,11 @@ fn social_video_privacy_generated_contracts_no_longer_depend_on_schema_domain_ow
                 .count(),
             0
         );
-        assert_eq!(
+        assert!(
             source
                 .matches("SocialVideoSourcePrivacyEvidenceIdSchema")
                 .count()
-                > 0,
-            true
+                > 0
         );
     }
 }

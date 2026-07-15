@@ -1,8 +1,7 @@
 #![forbid(unsafe_code)]
 
 use super::{
-    PolicyContractApprovalKind, PolicyContractApprovalRequest, PolicyContractOverrideGrant,
-    PolicyContractValidationResult,
+    PolicyContractApprovalRequest, PolicyContractOverrideGrant, PolicyContractValidationResult,
 };
 
 mod state_rules;

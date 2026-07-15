@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::path::PathBuf as TestPathBuf;
 use std::string::String as TestString;
 use std::{
@@ -20,17 +17,12 @@ use ocentra_parent_agent_protocol::screen_evidence::{
 
 use crate::screen_ai_retention_sweeper_deletion_events::{
     publish_screen_retention_deletion_events, ScreenAiRetentionSweeperDeletionEventOutcome,
-    ScreenRetentionObservedAt,
 };
 use crate::screen_ai_retention_sweeper_runtime::{
     record_screen_ai_retention_sweeper_tick, ScreenAiRetentionSweeperClock,
     ScreenAiRetentionSweeperOutcome, ScreenAiRetentionSweeperRuntimeConfig,
 };
 use crate::test_invariants::require_ok;
-
-#[path = "../support/test_text.rs"]
-mod test_text;
-use test_text::TestText;
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
@@ -145,8 +137,8 @@ async fn publish_swept_deletion_events(
             publish_screen_retention_deletion_events(
                 store_path,
                 expired_entries,
-                ScreenRetentionObservedAt::from_display(
-                    constants::activity_store::TEST_SECOND_OBSERVED_AT,
+                crate::screen_ai_service_event_subscription::ObservedAtText(
+                    constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
                 ),
             )
             .await

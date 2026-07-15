@@ -23,7 +23,7 @@ import {
   appGamePolicyTargetRequiresIdentityGenerated,
   appGamePolicyTargetRequiresUnknownStateGenerated,
 } from './generated-app-game-policy-target-compiler-rules';
-import { PolicyCompilerCapabilityState } from './policy-compiler';
+import type { PolicyCompilerCapabilityState } from './policy-compiler';
 
 export const AppGamePolicyTargetKind = AppGamePolicyTargetKindGenerated;
 export const AppGamePolicyCompilerProofKind = AppGamePolicyCompilerProofKindGenerated;

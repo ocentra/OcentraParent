@@ -1,5 +1,3 @@
-use ocentra_parent_agent_protocol::constants;
-
 use crate::household_mesh_event_bridge::HouseholdMeshBridgeRejection;
 
 pub(crate) fn bridge_rejection_reason(

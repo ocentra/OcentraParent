@@ -26,9 +26,6 @@ use serde_json::{Map, Value};
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct LanText(pub(crate) String);
-
 pub(crate) fn neighbor_record(hostname: Option<impl Into<Value>>) -> Value {
     neighbor_record_with_values(
         constants::lan_pairing::TEST_LAN_IP,

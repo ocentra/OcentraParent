@@ -1,7 +1,4 @@
-use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-    LanDiscoveryEvidenceConfidence, LanDiscoveryEvidenceRecord,
-};
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEvidenceRecord;
 
 use super::evidence_rank::evidence_confidence_rank;
 

@@ -3,10 +3,7 @@ use super::types::{
     NetworkLinuxNftablesLabExecutionError, NetworkLinuxNftablesLabExecutionInput,
     NetworkLinuxNftablesLabExecutionState, NetworkLinuxNftablesLabUnsupportedClaims,
 };
-use crate::lab_execution_common::{is_test_net_remote_address, normalize_ref};
-use crate::linux_adapter_gate::{
-    NetworkLinuxAdapterGateProof, NetworkLinuxAdapterGateState, NetworkLinuxAdapterKind,
-};
+use crate::linux_adapter_gate::NetworkLinuxAdapterGateProof;
 
 mod claims;
 mod commands;

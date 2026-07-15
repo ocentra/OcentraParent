@@ -190,7 +190,7 @@ fn export_import_backup_recovery_rejects_wrong_household_wrong_key_and_corrupt_b
     );
     assert_eq!(
         wrong_household.state,
-        contracts::ExportImportPreflightState::RejectedWrongHousehold
+        contracts::ExportImportPreflightState::HouseholdMismatch
     );
 
     let wrong_key = run_import_preflight(
@@ -212,7 +212,7 @@ fn export_import_backup_recovery_rejects_wrong_household_wrong_key_and_corrupt_b
     );
     assert_eq!(
         wrong_key.state,
-        contracts::ExportImportPreflightState::RejectedWrongKey
+        contracts::ExportImportPreflightState::KeyUnavailable
     );
 
     let corrupt = run_import_preflight(
@@ -234,7 +234,7 @@ fn export_import_backup_recovery_rejects_wrong_household_wrong_key_and_corrupt_b
     );
     assert_eq!(
         corrupt.state,
-        contracts::ExportImportPreflightState::RejectedCorruptBundle
+        contracts::ExportImportPreflightState::BundleCorrupt
     );
 }
 
@@ -270,7 +270,7 @@ fn export_import_backup_recovery_rejects_schema_expiry_duplicate_device_and_unsu
     );
     assert_eq!(
         unsupported_schema.state,
-        contracts::ExportImportPreflightState::RejectedSchemaVersion
+        contracts::ExportImportPreflightState::SchemaVersionInvalid
     );
 
     let expired = run_import_preflight(
@@ -292,7 +292,7 @@ fn export_import_backup_recovery_rejects_schema_expiry_duplicate_device_and_unsu
     );
     assert_eq!(
         expired.state,
-        contracts::ExportImportPreflightState::RejectedExpiredRetention
+        contracts::ExportImportPreflightState::RetentionExpired
     );
 
     let duplicate_device_bundle = derive_export_bundle(
@@ -325,7 +325,7 @@ fn export_import_backup_recovery_rejects_schema_expiry_duplicate_device_and_unsu
     );
     assert_eq!(
         duplicate_device.state,
-        contracts::ExportImportPreflightState::RejectedDuplicateDevice
+        contracts::ExportImportPreflightState::DeviceDuplicate
     );
 }
 
@@ -362,7 +362,7 @@ fn export_import_backup_recovery_rejects_unsupported_migration() {
     );
     assert_eq!(
         migration_blocked.state,
-        contracts::ExportImportPreflightState::RejectedMigrationUnsupported
+        contracts::ExportImportPreflightState::MigrationUnsupported
     );
 }
 

@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity::{
     ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
@@ -28,7 +29,8 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
 }
 
 fn tracking_read_model_with_mixed_events() -> TrackingReadModel {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     let events = [
         tracking_activity_event(
             constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
@@ -61,13 +63,13 @@ fn tracking_read_model_with_mixed_events() -> TrackingReadModel {
     ];
     store
         .ingest_events(&events)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
     tracking_read_model_for_store(
         &store,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES)
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES)
 }
 
 fn assert_mixed_read_model_counts(read_model: &TrackingReadModel) {
@@ -175,14 +177,15 @@ fn assert_mixed_read_model_active_product_surface_counts(read_model: &TrackingRe
 
 #[test]
 fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
 
     let read_model = tracking_read_model_for_store(
         &store,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 0);
     assert_eq!(read_model.active_rows, 0);
@@ -202,7 +205,8 @@ fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
 
 fn tracking_evidence_ref(value: impl Display) -> TrackingEvidenceRef {
     let value = TestText::from_display(value);
-    TrackingEvidenceRef::parse(value.to_string()).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    TrackingEvidenceRef::parse(value.to_string())
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn assert_count(counts: &[TrackingReadModelCount], value: impl Display, count: u64) {

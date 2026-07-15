@@ -61,16 +61,7 @@ fn bridge_prefix(names: &ProtocolBridgeNames) -> &str {
 fn browser_runtime_contract_decoders_typescript(
     names: &ProtocolBridgeNames,
     prefix: &str,
-    browser_event_type_const: &str,
-    browser_event_type_type: &str,
-    browser_phase_const: &str,
-    browser_phase_type: &str,
-    browser_capability_status_const: &str,
-    browser_capability_status_type: &str,
-    browser_custody_label_const: &str,
-    browser_custody_label_type: &str,
-    browser_query_visibility_const: &str,
-    browser_query_visibility_type: &str,
+    contract_names: &RuntimeEventContractNames,
 ) -> String {
     let payload_type = format!("{prefix}BrowserRuntimeEventPayload");
     let entry_type = format!("{prefix}BrowserRuntimeEventChainEntry");
@@ -84,34 +75,36 @@ fn browser_runtime_contract_decoders_typescript(
     let stream_schema_const = format!("{prefix}BrowserRuntimeEventChainStreamSchema");
     let phase_event_type_const = format!("{prefix}BrowserRuntimePhaseEventType");
     let helper_prefix = format!("__{prefix}BrowserRuntime");
+    let browser_event_type = &contract_names.browser_event_type_const;
+    let browser_phase = &contract_names.browser_phase_const;
+    let browser_capability_status = &contract_names.browser_capability_status_const;
+    let browser_custody_label = &contract_names.browser_custody_label_const;
+    let browser_query_visibility = &contract_names.browser_query_visibility_const;
     replace_tokens(
-        parent_agent_protocol_bridge_ts_runtime_01_template().to_string(),
+        parent_agent_protocol_bridge_ts_runtime_01_template(),
         &[
             ("__RUNTIME_CONST__", names.runtime_const),
-            ("__BROWSER_EVENT_TYPE_CONST__", browser_event_type_const),
-            ("__BROWSER_EVENT_TYPE_TYPE__", browser_event_type_type),
-            ("__BROWSER_PHASE_CONST__", browser_phase_const),
-            ("__BROWSER_PHASE_TYPE__", browser_phase_type),
+            ("__BROWSER_EVENT_TYPE_CONST__", browser_event_type),
+            ("__BROWSER_EVENT_TYPE_TYPE__", browser_event_type),
+            ("__BROWSER_PHASE_CONST__", browser_phase),
+            ("__BROWSER_PHASE_TYPE__", browser_phase),
             (
                 "__BROWSER_CAPABILITY_STATUS_CONST__",
-                browser_capability_status_const,
+                browser_capability_status,
             ),
             (
                 "__BROWSER_CAPABILITY_STATUS_TYPE__",
-                browser_capability_status_type,
+                browser_capability_status,
             ),
-            (
-                "__BROWSER_CUSTODY_LABEL_CONST__",
-                browser_custody_label_const,
-            ),
-            ("__BROWSER_CUSTODY_LABEL_TYPE__", browser_custody_label_type),
+            ("__BROWSER_CUSTODY_LABEL_CONST__", browser_custody_label),
+            ("__BROWSER_CUSTODY_LABEL_TYPE__", browser_custody_label),
             (
                 "__BROWSER_QUERY_VISIBILITY_CONST__",
-                browser_query_visibility_const,
+                browser_query_visibility,
             ),
             (
                 "__BROWSER_QUERY_VISIBILITY_TYPE__",
-                browser_query_visibility_type,
+                browser_query_visibility,
             ),
             ("__BROWSER_PAYLOAD_TYPE__", &payload_type),
             ("__BROWSER_ENTRY_TYPE__", &entry_type),

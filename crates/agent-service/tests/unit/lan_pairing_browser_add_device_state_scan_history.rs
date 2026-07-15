@@ -25,7 +25,10 @@ fn persistent_runtime_saves_and_loads_scan_history_sidecar() {
     save_scan_history(&runtime, &devices, Some(sample_scan_metadata()));
 
     assert_eq!(load_scan_history(&runtime), devices);
-    assert!(scan_history_path_for_registry(registry_path.as_path().into()).exists());
+    let scan_history_registry_path = LanScanHistoryRegistryPath::from(registry_path.as_path());
+    assert!(scan_history_path_for_registry(&scan_history_registry_path)
+        .as_ref()
+        .exists());
 
     cleanup_test_files(&registry_path);
 }
@@ -106,21 +109,24 @@ fn legacy_snapshot_without_metadata_still_loads() {
     let registry_path = temp_registry_path();
     cleanup_test_files(&registry_path);
     let runtime = LanPairingRuntime::persistent_json(&registry_path);
-    let path = scan_history_path_for_registry(registry_path.as_path().into());
+    let scan_history_registry_path = LanScanHistoryRegistryPath::from(registry_path.as_path());
+    let path = scan_history_path_for_registry(&scan_history_registry_path);
     let legacy_json = serde_json::json!({
         "schemaVersion": 1,
         "updatedAt": "2026-06-24T02:00:00.000Z",
         "devices": [sample_network_device()],
     });
 
-    fs::write(
-        &path,
-        require_ok(
-            serde_json::to_vec_pretty(&legacy_json),
-            constants::error::AGENT_EVENT_SERIALIZES,
+    require_ok(
+        fs::write(
+            &path,
+            require_ok(
+                serde_json::to_vec_pretty(&legacy_json),
+                constants::error::AGENT_EVENT_SERIALIZES,
+            ),
         ),
-    )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
 
     let snapshot = require_some(
         load_scan_history_snapshot(&runtime),
@@ -143,7 +149,8 @@ fn temp_registry_path() -> TestPathBuf {
 
 fn cleanup_test_files(registry_path: &Path) {
     let _ = remove_file(registry_path);
-    let _ = remove_file(scan_history_path_for_registry(registry_path.into()));
+    let scan_history_registry_path = LanScanHistoryRegistryPath::from(registry_path);
+    let _ = remove_file(scan_history_path_for_registry(&scan_history_registry_path).as_ref());
 }
 
 fn sample_network_device() -> LanNetworkInventoryDevice {

@@ -2,7 +2,6 @@ use std::fmt::Display;
 
 use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
 use ocentra_lan_core::read_model_builder;
-use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanChildMdnsAdvertisement, LanChildMdnsAdvertisementInput, LanMdnsAdvertisementLifecycleState,

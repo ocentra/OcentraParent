@@ -1,6 +1,6 @@
 use crate::bus::reports::dead_letter::DeadLetterReason;
 use crate::queue::policy::{QueueDisposition, QueueOverflowPolicy, QueueReport};
-use crate::{EventClockInstant, EventType, EventingError, StoredEventEnvelope};
+use crate::{EventClockInstant, EventingError, StoredEventEnvelope};
 
 use super::{EventQueue, EventQueueState, NoSubscriberQueueDecision, QueuedEnvelope};
 use crate::ExpectValue;

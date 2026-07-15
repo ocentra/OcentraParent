@@ -275,7 +275,6 @@ function buildScopedValidations(scopeArgs, { prettierFiles: explicitPrettierFile
   const prettierFiles = prettierInputs.filter((filePath) => prettierExtensions.has(extensionOf(filePath)));
   const workspaceFilters = scope.workspaces.flatMap(([, packageName]) => ['--filter', packageName]);
   const crateDirs = scope.crates.map(([crateDir]) => crateDir);
-  const cratePackages = scope.crates.map(([, crateName]) => crateName);
   const touchesPortalApp = scope.files.some((filePath) => filePath.startsWith('apps/portal/'));
   const touchesPortalVendor = scope.files.some((filePath) =>
     filePath.startsWith('vendor/ocentra-parent-core-ui/AppPages/ParentPortal/')
@@ -357,10 +356,11 @@ function buildScopedValidations(scopeArgs, { prettierFiles: explicitPrettierFile
       process.execPath,
       ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'reexports', '--files', crateDirs.join(',')],
     ]);
-    for (const crateName of cratePackages) {
+    for (const [crateDir] of scope.crates) {
       // Keep Windows linker command lines bounded while validating every changed crate.
-      validations.push(['cargo', ['check', '-p', crateName]]);
-      validations.push(['cargo', ['test', '-p', crateName, '--', '--test-threads=1']]);
+      const manifestPath = `${crateDir}/Cargo.toml`;
+      validations.push(['cargo', ['check', '--manifest-path', manifestPath]]);
+      validations.push(['cargo', ['test', '--manifest-path', manifestPath, '--', '--test-threads=1']]);
     }
   }
 

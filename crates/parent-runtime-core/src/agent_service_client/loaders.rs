@@ -132,7 +132,7 @@ pub(crate) fn load_app_game_notification_readiness_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_notification_readiness_snapshot_from_result)
+    .and_then(|result| app_game_notification_readiness_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -145,7 +145,7 @@ pub(crate) fn load_app_game_policy_readiness_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_policy_readiness_snapshot_from_result)
+    .and_then(|result| app_game_policy_readiness_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -158,7 +158,7 @@ pub(crate) fn load_app_game_platform_proof_status_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_platform_proof_status_snapshot_from_result)
+    .and_then(|result| app_game_platform_proof_status_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -171,7 +171,7 @@ pub(crate) fn load_app_game_child_runtime_transport_receipt_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_child_runtime_transport_receipt_snapshot_from_result)
+    .and_then(|result| app_game_child_runtime_transport_receipt_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -184,7 +184,7 @@ pub(crate) fn load_app_game_adapter_dispatch_preflight_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_adapter_dispatch_preflight_snapshot_from_result)
+    .and_then(|result| app_game_adapter_dispatch_preflight_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -197,7 +197,7 @@ pub(crate) fn load_app_game_adapter_dispatch_result_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_adapter_dispatch_result_snapshot_from_result)
+    .and_then(|result| app_game_adapter_dispatch_result_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -210,7 +210,7 @@ pub(crate) fn load_app_game_timer_parent_surface_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_timer_parent_surface_snapshot_from_result)
+    .and_then(|result| app_game_timer_parent_surface_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 

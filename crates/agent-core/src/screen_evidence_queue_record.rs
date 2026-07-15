@@ -25,8 +25,9 @@ pub(crate) struct EncryptedScreenEvidenceQueueRecord {
 
 pub(crate) fn encrypted_record_from_job(
     job: &ScreenAnalysisQueueJob,
-    encrypted: crate::journal_crypto::EncryptedPayload,
+    encrypted: impl Borrow<crate::journal_crypto::EncryptedPayload>,
 ) -> Value {
+    let encrypted = encrypted.borrow();
     json!({
         constants::field::SCHEMA_VERSION: job.schema_version,
         constants::field::SCREEN_QUEUE_JOB_ID: job.queue_job_id,
@@ -111,3 +112,4 @@ fn parse_timestamp(value: &str) -> Option<DateTime<Utc>> {
         .ok()
         .map(|timestamp| timestamp.with_timezone(&Utc))
 }
+use std::borrow::Borrow;

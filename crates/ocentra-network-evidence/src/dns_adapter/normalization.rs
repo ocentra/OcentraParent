@@ -1,7 +1,7 @@
 use super::{redirects, refs};
 use super::{
-    NetworkDnsAdapterAction, NetworkDnsAdapterArtifactRefs, NetworkDnsAdapterProofError,
-    NetworkDnsAdapterProofInput, NetworkDnsAdapterRequiredArtifact, NormalizedDnsAdapterInput,
+    NetworkDnsAdapterArtifactRefs, NetworkDnsAdapterProofError, NetworkDnsAdapterProofInput,
+    NetworkDnsAdapterRequiredArtifact, NormalizedDnsAdapterInput,
 };
 
 pub(super) fn normalize_dns_adapter_input(

@@ -7,11 +7,13 @@ mod child_domain_runtime_events_ts;
 #[test]
 fn child_domain_runtime_events_generated_typescript_matches_checked_in_file() {
     let generated = child_domain_runtime_events_ts::child_domain_runtime_events_typescript();
-    let checked_in = fs::read_to_string(
+    let checked_in = match fs::read_to_string(
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../packages/schema-domain/src/child-domain-runtime-events.ts"),
-    )
-    .expect("child domain runtime source should be readable");
+    ) {
+        Ok(value) => value,
+        Err(_) => std::process::abort(),
+    };
 
     assert_eq!(generated, checked_in);
     assert!(generated

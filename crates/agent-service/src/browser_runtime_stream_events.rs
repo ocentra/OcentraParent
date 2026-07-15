@@ -38,7 +38,7 @@ impl<'de> Deserialize<'de> for BrowserRuntimeServiceStreamEntry {
     where
         D: Deserializer<'de>,
     {
-        let mut entry = Value::deserialize(deserializer)
+        let entry = Value::deserialize(deserializer)
             .and_then(|value| match value {
                 Value::Object(fields) => Ok(fields),
                 _ => Err(de::Error::custom(constants::error::AGENT_EVENT_SERIALIZES)),
@@ -111,7 +111,7 @@ pub(crate) fn stream_entries_from_report(
                 BrowserRuntimeText(event.contract.event_type.as_str().to_string());
             let event_ref = event_ref(
                 BrowserRuntimeText(event.correlation_id.as_str().to_string()),
-                BrowserRuntimeText(event.contract.event_type.as_str().to_string()),
+                &BrowserRuntimeText(event.contract.event_type.as_str().to_string()),
             );
             let payload = protocol_payload(&decoded.payload);
             Some(BrowserRuntimeServiceStreamEntry {
@@ -286,7 +286,7 @@ fn payload_json_value<T: Serialize>(value: T) -> Value {
 
 fn event_ref(
     correlation_id: BrowserRuntimeText,
-    runtime_event_name: BrowserRuntimeText,
+    runtime_event_name: &BrowserRuntimeText,
 ) -> BrowserRuntimeText {
     let mut value = correlation_id.0;
     value.push(constants::delimiter::HYPHEN);

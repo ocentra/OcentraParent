@@ -3,10 +3,7 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use serde::de::DeserializeOwned;
 
-#[path = "test_text.rs"]
-mod test_text;
-
-use test_text::TestText;
+use crate::test_text::TestText;
 
 pub(crate) fn payload_json<T>(payload: &LogFields, field: impl std::fmt::Display) -> T
 where

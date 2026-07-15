@@ -89,13 +89,13 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_execute_report_with
 
     match execute_result {
         Ok(execute_result) => build_dispatch_executed_event(
-            DispatchText(correlation_id.to_string()),
+            &DispatchText(correlation_id.to_string()),
             target,
             enforcement_event.payload,
             execute_result,
         ),
         Err(reason) => dispatch_execute_rejected_from_parts(
-            DispatchText(correlation_id.to_string()),
+            &DispatchText(correlation_id.to_string()),
             target,
             DispatchReason(reason.0),
         ),
@@ -112,7 +112,7 @@ fn scoped_dispatch_result_row(
 }
 
 fn build_dispatch_executed_event(
-    correlation_id: DispatchText,
+    correlation_id: &DispatchText,
     target: ocentra_parent_agent_protocol::transport::AgentPeer,
     mut payload: LogFields,
     execute_result: DispatchText,
@@ -322,14 +322,14 @@ fn dispatch_execute_rejected(
     reason: DispatchReason,
 ) -> AgentEventEnvelope {
     dispatch_execute_rejected_from_parts(
-        DispatchText(command.message_id.to_string()),
+        &DispatchText(command.message_id.to_string()),
         command.source,
         reason,
     )
 }
 
 fn dispatch_execute_rejected_from_parts(
-    correlation_id: DispatchText,
+    correlation_id: &DispatchText,
     target: ocentra_parent_agent_protocol::transport::AgentPeer,
     reason: DispatchReason,
 ) -> AgentEventEnvelope {

@@ -4,12 +4,7 @@ use ocentra_lan_core::network_inventory::{
     plan_lan_discovery_scan_with_active_refresh_suppression,
     targeted_arp_refresh_evidence_for_scan, LanDiscoveryRefreshMode, LanNetworkInventoryDevice,
 };
-use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingDeviceRef, LanPairingText, LanTrustedDeviceRegistryEntry,
-};
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-    LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
-};
+use ocentra_parent_agent_protocol::lan_pairing::{LanPairingDeviceRef, LanPairingText};
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentRoute,
 };
@@ -136,7 +131,7 @@ pub(crate) fn cached_localhost_status_scan_result(
     let Some(snapshot) = previous_scan_snapshot else {
         return Some(LanNetworkDeviceScanResult::default());
     };
-    if !scan_history_is_recent(LanPairingText(snapshot.updated_at.clone()), now) {
+    if !scan_history_is_recent(&LanPairingText(snapshot.updated_at.clone()), now) {
         return Some(LanNetworkDeviceScanResult {
             previous_scan_snapshot: Some(snapshot),
             ..LanNetworkDeviceScanResult::default()
@@ -163,7 +158,7 @@ pub(crate) fn cached_status_snapshot_devices(
     }
     let previous_scan_snapshot = previous_scan_snapshot?;
     scan_history_is_recent(
-        LanPairingText(previous_scan_snapshot.updated_at.clone()),
+        &LanPairingText(previous_scan_snapshot.updated_at.clone()),
         now,
     )
     .then(|| previous_scan_snapshot.devices.clone())
@@ -183,20 +178,6 @@ pub(crate) fn scan_truth_context(
     now: DateTime<Utc>,
 ) -> LanScanTruthContext {
     scan_truth::scan_truth_context(runtime, previous_scan_snapshot, now)
-}
-
-pub(crate) fn durable_household_scan_suppression_devices(
-    stored_known_household_devices: &[LanCanonicalHouseholdDevice],
-    previous_scan_snapshot: Option<&LanScanHistorySnapshot>,
-    trusted_registry: &[LanTrustedDeviceRegistryEntry],
-    household_device_decisions: &[LanHouseholdDeviceDecision],
-) -> Vec<LanPairingDeviceRef> {
-    scan_truth::durable_household_scan_suppression_devices(
-        stored_known_household_devices,
-        previous_scan_snapshot,
-        trusted_registry,
-        household_device_decisions,
-    )
 }
 
 pub(crate) fn command_uses_physical_lan_scan(command: &AgentCommandName) -> bool {

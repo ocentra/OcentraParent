@@ -15,7 +15,6 @@ type TestText = TestString;
 pub(crate) fn assert_accepted_control(event: &AgentEventEnvelope) {
     assert_accepted_control_for_intent(event, constants::lan_pairing::INTENT_ID);
 }
-
 pub(crate) fn assert_accepted_control_for_intent(
     event: &AgentEventEnvelope,
     intent_id: impl Display,
@@ -310,7 +309,6 @@ pub(crate) fn assert_selected_device_reachability(
     event: &AgentEventEnvelope,
     reachability: TestText,
 ) {
-    let reachability: TestText = reachability.into();
     assert_eq!(
         event
             .payload
@@ -450,13 +448,12 @@ pub(crate) fn assert_rejection_with_audit(
             .payload
             .get(constants::field::LAN_AUTHENTICATION_STATE),
         Some(&LogFieldValue::String(
-            expected_authentication_state(reason).to_string()
+            expected_authentication_state(&reason).to_string()
         ))
     );
 }
 
-fn expected_authentication_state(reason: TestText) -> &'static TestStr {
-    let reason: TestText = reason.into();
+fn expected_authentication_state(reason: &TestText) -> &'static TestStr {
     let reason = reason.as_str();
     if reason == constants::value::LAN_REASON_ANONYMOUS
         || reason == constants::value::LAN_REASON_CONTROLLER_LEASE_MISSING

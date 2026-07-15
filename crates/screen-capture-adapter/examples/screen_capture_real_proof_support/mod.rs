@@ -10,11 +10,6 @@ use ocentra_parent_screen_capture_adapter::{
 use std::fmt;
 use std::path::Path;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum ScreenCaptureProofOutputDir {
-    ManualParentTestActiveWindow,
-}
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct ScreenCaptureProofRunId(pub(crate) String);
 
@@ -44,9 +39,6 @@ impl fmt::Display for ScreenCaptureProofError {
 impl std::error::Error for ScreenCaptureProofError {}
 
 pub(crate) type ProofResult<T = ()> = Result<T, ScreenCaptureProofError>;
-
-pub(crate) const DEFAULT_DIR: ScreenCaptureProofOutputDir =
-    ScreenCaptureProofOutputDir::ManualParentTestActiveWindow;
 
 pub(crate) const DEFAULT_OUTPUT_DIR_PATH: &str =
     screen_capture_real_proof_support_impl::DEFAULT_DIR;

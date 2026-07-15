@@ -45,18 +45,13 @@ fn accumulate_all_classification_scores(
     text: &WeightedHintText,
 ) {
     for profile in CLASSIFICATION_HINT_PROFILES {
-        accumulate_classification_score(
-            scores,
-            profile.classification.clone(),
-            profile.hints,
-            text,
-        );
+        accumulate_classification_score(scores, &profile.classification, profile.hints, text);
     }
 }
 
 fn accumulate_classification_score(
     scores: &mut [ClassificationScore],
-    classification: LanCanonicalHouseholdDeviceClassification,
+    classification: &LanCanonicalHouseholdDeviceClassification,
     hints: &[&str],
     text: &WeightedHintText,
 ) {
@@ -65,7 +60,7 @@ fn accumulate_classification_score(
     }
     let Some(score) = scores
         .iter_mut()
-        .find(|score| score.classification == classification)
+        .find(|score| &score.classification == classification)
     else {
         return;
     };

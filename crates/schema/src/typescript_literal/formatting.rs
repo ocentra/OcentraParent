@@ -6,7 +6,7 @@ pub(super) fn json_to_typescript_literal(json: &str, compact_scalar_arrays: bool
         .flat_map(conversion::convert_json_line)
         .collect::<Vec<_>>();
     let formatted_lines = compact_arrays(converted_lines, compact_scalar_arrays);
-    add_trailing_commas(formatted_lines).join(LINE_BREAK)
+    add_trailing_commas(&formatted_lines).join(LINE_BREAK)
 }
 
 fn compact_arrays(lines: Vec<String>, enabled: bool) -> Vec<String> {
@@ -68,7 +68,7 @@ fn is_scalar_array_item(item: &str) -> bool {
         && !item.contains(']')
 }
 
-fn add_trailing_commas(lines: Vec<String>) -> Vec<String> {
+fn add_trailing_commas(lines: &[String]) -> Vec<String> {
     lines
         .iter()
         .enumerate()

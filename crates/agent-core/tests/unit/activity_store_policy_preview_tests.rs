@@ -224,7 +224,7 @@ fn assert_network_parent_rule_refs(
     assert_eq!(row.parent_rule_context_references.len(), 1);
     assert_eq!(
         row.parent_rule_context_references[0].target_evidence_refs,
-        vec![row.source_event_id.clone(), network_evidence_id.to_string()]
+        vec![row.source_event_id.clone(), network_evidence_id]
     );
 }
 
@@ -415,9 +415,7 @@ fn policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombston
             policy::TEST_BLOCK_RULE_ID,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![crate::test_text::TestText::from_display(
-                deleted_event_id.clone(),
-            )],
+            vec![crate::test_text::TestText::from_display(deleted_event_id)],
         )]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;
@@ -465,9 +463,7 @@ fn policy_preview_read_model_applies_retention_tombstones_before_limit() -> Test
             policy::TEST_BLOCK_RULE_ID,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![crate::test_text::TestText::from_display(
-                deleted_event_id.clone(),
-            )],
+            vec![crate::test_text::TestText::from_display(deleted_event_id)],
         )]),
         constants::error::ACTIVITY_STORE_INGESTS,
     )?;

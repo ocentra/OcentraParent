@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::fs::{remove_file, write};
 use std::path::Path;
 use std::path::PathBuf as TestPathBuf;

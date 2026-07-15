@@ -79,7 +79,7 @@ fn game_rows(
         row_id: game_row_id(inventory, running, foreground, launcher, rollup).0,
         display_name: game_label(inventory, running, foreground, launcher).0,
         device_id: row_device_id(request).0,
-        state: row_state(CapabilityStatus(model.capability_status.clone())),
+        state: row_state(&CapabilityStatus(model.capability_status.clone())),
         product_kind: game_product_kind(inventory, launcher).0,
         classification_state: game_classification(inventory, running, foreground, launcher, rollup)
             .0,
@@ -116,7 +116,7 @@ fn game_rows(
             .daily_rollups
             .iter()
             .filter(|rollup| {
-                is_game_classification(ClassificationText(rollup.classification_state.clone()))
+                is_game_classification(&ClassificationText(rollup.classification_state.clone()))
             })
             .count() as u64,
         evidence_claim_row_count: boundary_counts.evidence_claim_row_count,
@@ -151,14 +151,14 @@ fn is_game_inventory(row: &AppGameInventoryEvidenceRow) -> bool {
 }
 
 fn is_game_runtime(row: &AppGameRuntimeEvidenceRow) -> bool {
-    is_game_classification(ClassificationText(row.classification_state.clone()))
+    is_game_classification(&ClassificationText(row.classification_state.clone()))
 }
 
 fn is_game_foreground(row: &AppGameForegroundEvidenceRow) -> bool {
-    is_game_classification(ClassificationText(row.classification_state.clone()))
+    is_game_classification(&ClassificationText(row.classification_state.clone()))
 }
 
-fn is_game_classification(classification: ClassificationText) -> bool {
+fn is_game_classification(classification: &ClassificationText) -> bool {
     matches!(
         classification.0.as_str(),
         APP_GAME_CLASSIFICATION_KNOWN_GAME
@@ -276,7 +276,7 @@ fn game_total_ms(model: &AppGameServiceReadModel) -> u64 {
         .daily_rollups
         .iter()
         .filter(|rollup| {
-            is_game_classification(ClassificationText(rollup.classification_state.clone()))
+            is_game_classification(&ClassificationText(rollup.classification_state.clone()))
         })
         .map(|rollup| rollup.running_duration_ms)
         .sum()
@@ -287,7 +287,7 @@ fn game_session_count(model: &AppGameServiceReadModel) -> u64 {
         .daily_rollups
         .iter()
         .filter(|rollup| {
-            is_game_classification(ClassificationText(rollup.classification_state.clone()))
+            is_game_classification(&ClassificationText(rollup.classification_state.clone()))
         })
         .map(|rollup| rollup.session_count)
         .sum::<u64>()
@@ -323,7 +323,7 @@ fn game_evidence(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
     for row in model
         .daily_rollups
         .iter()
-        .filter(|row| is_game_classification(ClassificationText(row.classification_state.clone())))
+        .filter(|row| is_game_classification(&ClassificationText(row.classification_state.clone())))
     {
         push_evidence(&mut evidence, &row.evidence);
     }
@@ -331,15 +331,15 @@ fn game_evidence(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
     evidence
 }
 
-fn game_sources(
-    model: &AppGameServiceReadModel,
-) -> (
-    Option<&AppGameInventoryEvidenceRow>,
-    Option<&AppGameRuntimeEvidenceRow>,
-    Option<&AppGameForegroundEvidenceRow>,
-    Option<&ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
-    Option<&ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
-) {
+type GameSources<'a> = (
+    Option<&'a AppGameInventoryEvidenceRow>,
+    Option<&'a AppGameRuntimeEvidenceRow>,
+    Option<&'a AppGameForegroundEvidenceRow>,
+    Option<&'a ocentra_parent_agent_protocol::app_game::AppGameLauncherEvidenceRow>,
+    Option<&'a ocentra_parent_agent_protocol::app_game::AppGameSessionDailyRollup>,
+);
+
+fn game_sources(model: &AppGameServiceReadModel) -> GameSources<'_> {
     (
         model
             .inventory_rows
@@ -355,7 +355,7 @@ fn game_sources(
             .find(|row| is_game_foreground(row)),
         model.launcher_rows.first(),
         model.daily_rollups.iter().find(|rollup| {
-            is_game_classification(ClassificationText(rollup.classification_state.clone()))
+            is_game_classification(&ClassificationText(rollup.classification_state.clone()))
         }),
     )
 }

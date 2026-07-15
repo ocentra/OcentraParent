@@ -3,13 +3,10 @@ use ocentra_parent_agent_protocol::app_game::*;
 use crate::activity_store_app_game_observation::AppGameObservation;
 
 use super::{
-    app_game_sessionization_foreground::apply_foreground_duration,
     app_game_sessionization_foreground::apply_foreground_duration_to_summary,
-    app_game_sessionization_foreground::close_focused_process,
     app_game_sessionization_foreground::close_focused_processes_for_open_sessions,
     app_game_sessionization_foreground::is_stronger_classification,
-    app_game_sessionization_foreground::update_running_duration, ForegroundFocus,
-    SessionizationState,
+    app_game_sessionization_foreground::update_running_duration, SessionizationState,
 };
 
 pub(super) fn apply_observation_to_session(

@@ -27,10 +27,6 @@ struct SavedMetadataArgs {
     storage_reason: Option<String>,
 }
 
-pub(crate) fn save_report_document(report: ActivityReportDocument) -> ActivityReportDocument {
-    save_report_document_to_dir(report, activity_report_storage_dir())
-}
-
 pub(crate) fn draft_metadata_for_report(
     report: &ActivityReportDocument,
 ) -> ActivitySavedReportMetadata {
@@ -57,7 +53,7 @@ pub(crate) fn save_report_document_to_dir(
         saved_at: Some(saved_at),
         storage_reason: Some(constants::activity_surface::SUMMARY_STORAGE_SAVED.to_string()),
     }));
-    match write_report_to_dir(directory.clone(), file_name, &report) {
+    match write_report_to_dir(directory, file_name, &report) {
         Ok(()) => report,
         Err(_) => {
             report.saved_metadata = Some(saved_metadata(SavedMetadataArgs {
@@ -72,10 +68,6 @@ pub(crate) fn save_report_document_to_dir(
             report
         }
     }
-}
-
-pub(crate) fn history_list(request: ActivitySurfaceRequest) -> ActivityHistoricalReportList {
-    history_list_from_dir(request, activity_report_storage_dir())
 }
 
 pub(crate) fn history_list_from_dir(
@@ -144,7 +136,7 @@ fn saved_metadata(args: SavedMetadataArgs) -> ActivitySavedReportMetadata {
     }
 }
 
-fn activity_report_storage_dir() -> ReportStorageDir {
+pub(crate) fn activity_report_storage_dir() -> ReportStorageDir {
     let directory = env::var(constants::env_var::DEV_LOG_DIR)
         .unwrap_or_else(|_| constants::dev_log::DEFAULT_DIR.to_owned());
     let mut path = PathBuf::from(directory);

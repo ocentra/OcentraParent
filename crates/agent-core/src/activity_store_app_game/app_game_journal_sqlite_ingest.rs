@@ -1,9 +1,8 @@
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::app_game::{
     AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow,
-    AppGameRuntimeEvidenceRow, APP_GAME_SCHEMA_VERSION,
+    AppGameRuntimeEvidenceRow,
 };
-use rusqlite::Connection;
 
 #[path = "app_game_journal_sqlite_ingest_event.rs"]
 mod app_game_journal_sqlite_ingest_event;
@@ -204,15 +203,4 @@ pub fn app_game_launcher_journal_event(
             evidence: row.evidence.clone(),
         },
     ))
-}
-
-pub(crate) fn app_game_service_read_model(
-    connection: &Connection,
-    limit: u64,
-    generated_at: &str,
-) -> Result<
-    ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel,
-    crate::ActivityStoreError,
-> {
-    read_model::app_game_journal_sqlite_read_model(connection, limit, generated_at)
 }

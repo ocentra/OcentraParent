@@ -1,6 +1,7 @@
 use std::fs::{read, remove_file};
 use std::path::Path;
 
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity::{
     ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
@@ -40,7 +41,7 @@ fn activity_store_reports_network_flow_read_model_from_ingested_events() -> Test
     let row = read_model
         .rows
         .first()
-        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 1);
     assert_eq!(read_model.active_rows, 1);
@@ -137,7 +138,7 @@ fn activity_store_replays_network_flow_read_model_from_encrypted_journal() -> Te
         constants::error::JOURNAL_OPENS,
     )?;
     let store = ok(
-        ActivityStore::open(store_path.to_path_buf()),
+        ActivityStore::open(&store_path),
         constants::error::ACTIVITY_STORE_OPENS,
     )?;
 

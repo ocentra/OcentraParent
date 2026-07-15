@@ -50,7 +50,7 @@ fn merge_ptr_record(
 ) {
     if record_name.eq_ignore_ascii_case(MDNS_SERVICE_ENUMERATION) {
         if is_selected_service_type(&target) {
-            accumulator.service_types.insert(target.clone());
+            accumulator.service_types.insert(target);
         }
         return;
     }

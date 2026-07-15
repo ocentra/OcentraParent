@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use serde_json::json;
 
 use crate::constants::household_mesh as mesh;
@@ -13,7 +14,7 @@ fn household_mesh_transport_envelope_roundtrips_with_expected_wire_shape() {
         mesh::LAN_MESSAGE_AI_RESULT_RETURN,
     );
 
-    let value = serde_json::to_value(&envelope).expect("transport envelope serializes");
+    let value = serde_json::to_value(&envelope).expect_value("transport envelope serializes");
     assert_eq!(value["schemaVersion"], json!(mesh::EVENT_SCHEMA_VERSION));
     assert_eq!(
         value["messageId"],
@@ -50,7 +51,7 @@ fn household_mesh_transport_envelope_roundtrips_with_expected_wire_shape() {
     );
 
     let decoded: HouseholdMeshTransportEnvelope =
-        serde_json::from_value(value).expect("transport envelope deserializes");
+        serde_json::from_value(value).expect_value("transport envelope deserializes");
     assert_eq!(decoded, envelope);
 }
 
@@ -58,17 +59,17 @@ fn household_mesh_transport_envelope_roundtrips_with_expected_wire_shape() {
 fn household_mesh_enum_wire_strings_match_constants() {
     assert_eq!(
         serde_json::to_string(&HouseholdMeshBridgeState::LocalRepublishRequired)
-            .expect("bridge state serializes"),
+            .expect_value("bridge state serializes"),
         format!("\"{}\"", mesh::BRIDGE_STATE_LOCAL_REPUBLISH_REQUIRED)
     );
     assert_eq!(
         serde_json::to_string(&HouseholdMeshAuthenticationState::StaleOrRevoked)
-            .expect("authentication state serializes"),
+            .expect_value("authentication state serializes"),
         format!("\"{}\"", mesh::AUTHENTICATION_STALE_OR_REVOKED)
     );
     assert_eq!(
         serde_json::to_string(&HouseholdMeshPolicyAuthority::ParentUiClaimed)
-            .expect("policy authority serializes"),
+            .expect_value("policy authority serializes"),
         format!("\"{}\"", mesh::POLICY_AUTHORITY_PARENT_UI_CLAIMED)
     );
 }

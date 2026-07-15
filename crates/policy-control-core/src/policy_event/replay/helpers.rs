@@ -78,20 +78,6 @@ pub(crate) fn apply_policy_event_replay(
     replay_apply::apply_policy_event_replay(current, next)
 }
 
-pub(crate) fn sample_policy_event(kind: PolicyEventKind) -> Result<PolicyEvent, EventingError> {
-    sample::sample_policy_event(kind)
-}
-
-pub(crate) fn sample_policy_event_scope(
-    kind: PolicyEventKind,
-) -> Result<PolicyEventScope, EventingError> {
-    scope::sample_policy_event_scope(kind)
-}
-
-pub(crate) fn kind_requires_reason(kind: PolicyEventKind) -> bool {
-    sample::kind_requires_reason(kind)
-}
-
 pub(crate) fn policy_event_kind_reason_code_value(kind: PolicyEventKind) -> &'static str {
     sample::policy_event_kind_reason_code_value(kind)
 }

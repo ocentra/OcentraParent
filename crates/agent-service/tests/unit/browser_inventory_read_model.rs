@@ -33,9 +33,11 @@ mod clippy_linkage {
     };
     use crate::test_support::default_browser_policy_for_test;
     use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
+    use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateStatus;
     use ocentra_parent_agent_protocol::constants;
     use ocentra_parent_agent_protocol::logging::LogFieldValue;
     use ocentra_parent_agent_protocol::policy_constants as policy;
+    use ocentra_parent_agent_protocol::{BrowserPolicyBudgets, BrowserPolicyEffectivePolicy};
 
     #[test]
     fn browser_inventory_read_model_helpers_are_linked() {
@@ -68,7 +70,6 @@ mod clippy_linkage {
         let _: serde_json::Value = crate::json_contract::serialize_json_value(serde_json::json!({
             "browser_inventory_read_model": true,
         }));
-        let _: String = crate::time::timestamp_from_epoch_seconds(0);
         let _: String = crate::time::timestamp_after_epoch_seconds(0, 1);
 
         assert_eq!(active.revision_id, revision.revision_id);
@@ -78,6 +79,199 @@ mod clippy_linkage {
         );
         assert_eq!(string_value.as_str(), encoded.as_str());
         assert!(parsed.is_object());
+    }
+
+    #[test]
+    fn browser_policy_compiler_helpers_are_linked() {
+        let registry = crate::browser_policy_compiler::browser_policy_capability_registry(
+            crate::browser_policy_compiler::BrowserPolicyCapabilityRegistryRequest {
+                generated_at: constants::browser_policy::TEST_SENT_AT,
+            },
+        );
+
+        assert_eq!(
+            registry.generated_at,
+            constants::browser_policy::TEST_SENT_AT
+        );
+        assert_eq!(registry.capabilities.len(), 8);
+    }
+
+    #[test]
+    fn browser_policy_runtime_support_state_helpers_are_linked() {
+        let request_id =
+            crate::browser_policy_runtime_support::BrowserPolicyRequestId("request-1".to_string());
+        let _store_path = crate::browser_policy_runtime_support::BrowserPolicyStorePath(
+            std::path::PathBuf::from("browser-policy.json"),
+        );
+
+        let empty_state = crate::browser_policy_store::BrowserPolicyStoredState::empty();
+        assert!(
+            crate::browser_policy_runtime_support::base_revision_matches(&empty_state, None)
+                .is_ok()
+        );
+        assert_eq!(
+            crate::browser_policy_runtime_support::base_revision_matches(
+                &empty_state,
+                Some(&crate::browser_policy_runtime_support::BrowserPolicyRevisionId(
+                    "missing".to_string()
+                ))
+            ),
+            Err(ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason::RevisionNotFound)
+        );
+        assert_eq!(
+            crate::browser_policy_runtime_support::next_revision_id(&empty_state).0,
+            format!("{}1", constants::browser_policy::REVISION_PREFIX)
+        );
+        assert_eq!(
+            crate::browser_policy_runtime_support::next_audit_event_id(&empty_state).0,
+            format!("{}1", constants::browser_policy::AUDIT_PREFIX)
+        );
+        assert_eq!(
+            crate::browser_policy_runtime_support::preview_revision_id().0,
+            format!(
+                "{}{}",
+                constants::browser_policy::REVISION_PREFIX,
+                constants::browser_policy::UPDATE_KIND_PREVIEW
+            )
+        );
+        assert_eq!(
+            crate::browser_policy_runtime_support::default_revision_id().0,
+            format!(
+                "{}{}",
+                constants::browser_policy::REVISION_PREFIX,
+                constants::browser_policy::UPDATE_KIND_GET
+            )
+        );
+        let _ = crate::browser_policy_runtime_support::browser_policy_store_path_from_env();
+        let _ = request_id;
+    }
+
+    #[test]
+    fn browser_policy_runtime_support_response_helpers_are_linked() {
+        let request_id =
+            crate::browser_policy_runtime_support::BrowserPolicyRequestId("request-1".to_string());
+        let audit_event_id =
+            crate::browser_policy_runtime_support::BrowserPolicyAuditEventId("audit-1".to_string());
+        let timestamp = crate::browser_policy_runtime_support::BrowserPolicyTimestamp(
+            "2026-07-13T00:00:00.000Z".to_string(),
+        );
+        let message =
+            crate::browser_policy_runtime_support::BrowserPolicyMessage("browser policy ready");
+        let policy = default_browser_policy_for_test(
+            crate::test_support::default_browser_policy_id_for_test(),
+        );
+        let effective_policy = BrowserPolicyEffectivePolicy {
+            schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+            policy_id: policy.policy_id.clone(),
+            revision_id: "revision-1".to_string(),
+            compiled_hash: format!(
+                "{}{}",
+                constants::browser_policy::COMPILED_HASH_PREFIX,
+                "revision-1"
+            ),
+            compiled_at: constants::browser_policy::TEST_SENT_AT.to_string(),
+            execution_mode: policy.execution_mode,
+            default_posture: policy.default_posture,
+            fallback_posture: policy.fallback_posture,
+            discovery: policy.discovery.clone(),
+            budgets: BrowserPolicyBudgets {
+                enabled: policy.budgets.enabled,
+                default_daily_minutes: policy.budgets.default_daily_minutes,
+                counting_mode: policy.budgets.counting_mode,
+            },
+            rules: Vec::new(),
+        };
+        let accepted = crate::browser_policy_runtime_support::accepted_response(
+            request_id.clone(),
+            BrowserPolicyUpdateKind::Preview,
+            policy,
+            effective_policy,
+            Some(audit_event_id),
+            message,
+            timestamp.clone(),
+        );
+        assert_eq!(accepted.status, BrowserPolicyUpdateStatus::Accepted);
+        assert_eq!(accepted.request_id, "request-1");
+        assert_eq!(accepted.audit_event_id, Some("audit-1".to_string()));
+
+        let rejected = crate::browser_policy_runtime_support::rejected_response(
+            request_id,
+            BrowserPolicyUpdateKind::Preview,
+            ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason::InvalidRequest,
+            crate::browser_policy_runtime_support::BrowserPolicyMessage(
+                "browser policy rejected",
+            ),
+            timestamp,
+        );
+        assert_eq!(rejected.status, BrowserPolicyUpdateStatus::Rejected);
+        assert_eq!(rejected.request_id, "request-1");
+        assert_eq!(
+            rejected.rejection_reason,
+            Some(ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason::InvalidRequest)
+        );
+        assert_eq!(
+            rejected
+                .capability_registry
+                .map(|registry| registry.generated_at),
+            Some("2026-07-13T00:00:00.000Z".to_string())
+        );
+    }
+
+    #[test]
+    fn browser_policy_store_helpers_round_trip_state() {
+        let _ = crate::browser_policy_store::browser_policy_store_path_from_env();
+        let mut path = std::env::temp_dir();
+        path.push(format!(
+            "ocentra-browser-policy-store-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|duration| duration.as_nanos())
+                .unwrap_or(0)
+        ));
+
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap_or_else(|_| std::process::abort());
+
+        runtime.block_on(async {
+            let state = crate::browser_policy_store::BrowserPolicyStoredState::empty();
+            crate::browser_policy_store::write_browser_policy_state(&path, &state)
+                .await
+                .unwrap_or_else(|_| std::process::abort());
+            let loaded = crate::browser_policy_store::read_browser_policy_state(&path)
+                .await
+                .unwrap_or_else(|_| std::process::abort());
+
+            assert_eq!(loaded, state);
+        });
+
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn json_contract_helpers_are_linked() {
+        let json_text = crate::json_contract::serialize_json_string(&serde_json::json!({
+            "browser": "policy",
+        }));
+        assert_eq!(json_text.0, "{\"browser\":\"policy\"}");
+
+        let json_value = crate::json_contract::serialize_json_value(serde_json::json!({
+            "browser": "policy",
+        }));
+        assert_eq!(json_value["browser"], "policy");
+    }
+
+    #[test]
+    fn timestamp_helpers_are_linked() {
+        let now: String = crate::time::timestamp_now();
+        let zero: String = crate::time::timestamp_from_epoch_seconds(0);
+        let plus_one: String = crate::time::timestamp_after_epoch_seconds(0, 1);
+
+        assert_eq!(zero, "1970-01-01T00:00:00.000Z");
+        assert_eq!(plus_one, "1970-01-01T00:00:01.000Z");
+        assert_eq!(now.len(), 24);
     }
 
     fn linked_browser_policy_state() -> (BrowserPolicyRevisionId, BrowserPolicyStoredState) {

@@ -26,22 +26,61 @@ fn browser_evidence_payload_uses_degraded_reason_field() {
     let payload = browser_evidence_payload::browser_evidence_read_model_payload(&read_model());
 
     assert_eq!(
-        crate::test_invariants::log_field(
-            &payload,
-            constants::field::DEGRADED_REASON,
-            constants::error::AGENT_EVENT_SERIALIZES
-        ),
-        LogFieldValue::String(constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS.to_string())
+        payload.get(constants::field::DEGRADED_REASON),
+        Some(&LogFieldValue::String(
+            constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS.to_string()
+        ))
     );
     assert_eq!(
-        crate::test_invariants::log_field(
-            &payload,
-            constants::field::ACTIVE_PROOF_SOURCE,
-            constants::error::AGENT_EVENT_SERIALIZES
-        ),
-        LogFieldValue::String(constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY.to_string())
+        payload.get(constants::field::ACTIVE_PROOF_SOURCE),
+        Some(&LogFieldValue::String(
+            constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY.to_string()
+        ))
     );
     assert_eq!(payload.get(constants::field::REASON), None);
+}
+
+#[test]
+fn browser_evidence_payload_validates_invariant_helpers_with_real_values() {
+    let ok_value = crate::test_invariants::require_ok(
+        Ok::<_, &'static str>("invariant-ok"),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    let some_value = crate::test_invariants::require_some(
+        Some("invariant-some"),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    let serialized = crate::test_invariants::serialize_test_json(&serde_json::json!({
+        "ok": ok_value,
+        "some": some_value,
+    }));
+    let decoded: serde_json::Value = crate::test_invariants::require_json_decode(
+        serialized,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    let log_field = LogFieldValue::String("invariant-field".to_string());
+    let string_field = crate::test_invariants::require_log_string_field(
+        Some(&log_field),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+
+    let timestamp_now: String = crate::time::timestamp_now();
+    let timestamp_epoch: String = crate::time::timestamp_from_epoch_seconds(0);
+    let timestamp_after_epoch: String = crate::time::timestamp_after_epoch_seconds(0, 1);
+
+    assert_eq!(decoded["ok"], "invariant-ok");
+    assert_eq!(decoded["some"], "invariant-some");
+    assert_eq!(string_field, "invariant-field");
+    let parsed_now = crate::test_invariants::require_ok(
+        chrono::DateTime::parse_from_rfc3339(&timestamp_now),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    assert_eq!(
+        parsed_now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+        timestamp_now
+    );
+    assert_eq!(timestamp_epoch, "1970-01-01T00:00:00.000Z");
+    assert_eq!(timestamp_after_epoch, "1970-01-01T00:00:01.000Z");
 }
 
 fn read_model() -> BrowserEvidenceReadModel {

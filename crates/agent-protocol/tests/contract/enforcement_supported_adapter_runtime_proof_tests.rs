@@ -232,7 +232,7 @@ fn count_runtime_states(
         {
             *count += 1;
         } else {
-            counts.push((entry.runtime_state.clone(), 1));
+            counts.push((entry.runtime_state, 1));
         }
         counts
     })

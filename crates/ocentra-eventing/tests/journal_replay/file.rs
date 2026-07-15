@@ -6,7 +6,7 @@ use ocentra_eventing::journal::ndjson::{
 use ocentra_eventing::journal::EventJournal;
 
 use super::{
-    super::fixtures::{test_event, test_event_for_type, OTHER_EVENT_TYPE, TEST_LABEL},
+    super::fixtures::{test_event, test_event_for_type, TestText, OTHER_EVENT_TYPE, TEST_LABEL},
     support::{
         cleanup, journal_path, read_lines, stored_event, tamper_first_journal_payload_label,
     },
@@ -123,7 +123,7 @@ async fn concurrent_ndjson_appends_do_not_hold_state_lock_across_file_write() {
             let journal = journal.clone();
             tokio::spawn(async move {
                 let event = stored_event(test_event_for_type(
-                    TestText(format!("parallel event {index}").to_owned()),
+                    TestText(format!("parallel event {index}")),
                     TestText(OTHER_EVENT_TYPE.to_owned()),
                 ));
                 journal.append(&event).await.expect_value("append succeeds")

@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use ocentra_eventing::{bus::reports::handler::HandlerOutcome, bus::EventBus};
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;

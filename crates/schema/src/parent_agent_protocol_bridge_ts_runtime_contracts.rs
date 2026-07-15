@@ -83,20 +83,7 @@ fn browser_runtime_event_contract_sections(
             &contract_names.browser_query_visibility_const,
             &browser_query_visibility_descriptors(),
         ),
-        browser_runtime_contract_decoders_typescript(
-            names,
-            prefix,
-            &contract_names.browser_event_type_const,
-            &contract_names.browser_event_type_const,
-            &contract_names.browser_phase_const,
-            &contract_names.browser_phase_const,
-            &contract_names.browser_capability_status_const,
-            &contract_names.browser_capability_status_const,
-            &contract_names.browser_custody_label_const,
-            &contract_names.browser_custody_label_const,
-            &contract_names.browser_query_visibility_const,
-            &contract_names.browser_query_visibility_const,
-        ),
+        browser_runtime_contract_decoders_typescript(names, prefix, contract_names),
     ]
 }
 
@@ -216,7 +203,7 @@ fn network_runtime_contract_decoders_typescript(
     let decoder_names = NetworkRuntimeDecoderNames::new(prefix);
     let tokens = network_runtime_decoder_tokens(names, contract_names, &decoder_names);
     replace_tokens(
-        parent_agent_protocol_bridge_ts_runtime_02_template().to_string(),
+        parent_agent_protocol_bridge_ts_runtime_02_template(),
         &tokens,
     )
 }
@@ -273,9 +260,9 @@ fn network_runtime_decoder_identity_tokens<'a>(
     ]
 }
 
-fn network_runtime_decoder_state_tokens<'a>(
-    contract_names: &'a RuntimeEventContractNames,
-) -> Vec<(&'static str, &'a str)> {
+fn network_runtime_decoder_state_tokens(
+    contract_names: &RuntimeEventContractNames,
+) -> Vec<(&'static str, &str)> {
     vec![
         (
             "__NETWORK_ACTIVITY_KIND_CONST__",
@@ -336,9 +323,9 @@ fn network_runtime_decoder_state_tokens<'a>(
     ]
 }
 
-fn network_runtime_decoder_type_tokens<'a>(
-    decoder_names: &'a NetworkRuntimeDecoderNames,
-) -> Vec<(&'static str, &'a str)> {
+fn network_runtime_decoder_type_tokens(
+    decoder_names: &NetworkRuntimeDecoderNames,
+) -> Vec<(&'static str, &str)> {
     vec![
         (
             "__NETWORK_CLAIM_BOUNDARY_TYPE__",

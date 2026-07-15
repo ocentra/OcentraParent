@@ -1,11 +1,10 @@
 use super::TestResult;
 use ocentra_parent_agent_protocol::activity::policy_preview::{
-    PolicyPreviewFindingKind, PolicyPreviewTargetState, PolicySourceStatus, PolicySourceSurface,
+    PolicyPreviewTargetState, PolicySourceStatus, PolicySourceSurface,
 };
-use ocentra_policy_control_core::policy_authority::PolicyManualReviewState;
 use ocentra_policy_control_core::policy_preview::{
-    policy_preview_schema_version, preview_parent_policy_before_save, PolicyPreviewExplanationCode,
-    PolicyPreviewRequest, PolicyPreviewRequestId, PolicyPreviewSaveState, PolicyPreviewTargetInput,
+    policy_preview_schema_version, PolicyPreviewExplanationCode, PolicyPreviewRequest,
+    PolicyPreviewRequestId, PolicyPreviewTargetInput,
 };
 use ocentra_policy_control_core::policy_source::{
     parent_policy_source_schema_version, ParentPolicyActorRole, ParentPolicyDocumentId,
@@ -179,36 +178,4 @@ pub(super) fn sample_target_input(
             "preview explanation code"
         ),
     })
-}
-
-pub(super) fn assert_version_skew_round_trip(
-    queued: &PolicyPreviewRequest,
-    current: Option<u64>,
-) -> TestResult {
-    let result = test_ok!(
-        preview_parent_policy_before_save(queued),
-        "policy preview version skew result"
-    );
-
-    if current.is_some() {
-        assert_eq!(result.save_state, PolicyPreviewSaveState::ReadyToSave);
-        assert_eq!(
-            result.manual_review_state,
-            PolicyManualReviewState::NotRequired
-        );
-        assert!(result.findings.is_empty());
-    } else {
-        assert_eq!(result.save_state, PolicyPreviewSaveState::Blocked);
-        assert_eq!(
-            result.manual_review_state,
-            PolicyManualReviewState::Required
-        );
-        assert_eq!(result.findings.len(), 1);
-        assert_eq!(
-            result.findings[0].kind,
-            PolicyPreviewFindingKind::StaleSourceDocument
-        );
-    }
-
-    Ok(())
 }

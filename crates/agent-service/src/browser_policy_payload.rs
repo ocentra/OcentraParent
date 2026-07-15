@@ -1,4 +1,3 @@
-use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason;
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateResponse;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;

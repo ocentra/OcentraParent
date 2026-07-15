@@ -112,7 +112,7 @@ fn delivery_identity_matches_request(
         && request
             .device_id
             .as_ref()
-            .map_or(true, |device_id| *device_id == delivery.target.device_id)
+            .is_none_or(|device_id| *device_id == delivery.target.device_id)
 }
 
 const SUPPORTED_DELIVERY_STATES: [PolicyDeliveryState; 16] = [

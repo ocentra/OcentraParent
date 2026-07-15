@@ -23,12 +23,12 @@ pub(crate) fn browser_evidence_read_model(
         .filter_map(browser_read_row_from_store)
         .collect::<Vec<_>>();
     let latest = read_rows.first();
-    let capability_status = latest.map(|row| row.evidence.capability_status.clone());
+    let capability_status = latest.map(|row| row.evidence.capability_status);
     let custody_label = latest
-        .map(|row| row.evidence.custody_label.clone())
+        .map(|row| row.evidence.custody_label)
         .unwrap_or(BrowserCustodyLabel::Unavailable);
     let query_visibility = latest
-        .map(|row| row.evidence.query_visibility.clone())
+        .map(|row| row.evidence.query_visibility)
         .unwrap_or(BrowserQueryVisibilityLabel::Unavailable);
     let latest_event_id = latest.map(|row| row.event_id.clone());
     let latest_observed_at = latest.map(|row| row.observed_at.clone());

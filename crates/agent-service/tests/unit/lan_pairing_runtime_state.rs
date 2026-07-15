@@ -1,10 +1,13 @@
-use std::ffi::OsString;
 use std::io;
 use std::sync::Mutex;
 
 use ocentra_lan_core::lan_mdns_advertiser::{encode_advertisement_packet, LanMdnsPacketSink};
 
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
+
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
 
 #[macro_use]
 #[path = "../support/lan_root_harness.rs"]
@@ -15,11 +18,18 @@ mod lan_pairing_test_commands;
 use crate::app::lan_pairing::LanPairingRuntime;
 use crate::app::lan_pairing_runtime_state::mdns_advertisement::LanMdnsAdvertisementSyncState;
 use crate::lan_pairing::LanPairingRegistryPersistence;
-use crate::lan_pairing_test_commands::paired_runtime;
+use crate::lan_pairing_runtime_state::mdns_advertisement::spawn_lan_mdns_advertisement_runtime;
+use crate::lan_pairing_runtime_state::passive_discovery::spawn_lan_passive_discovery_runtime;
+use crate::lan_pairing_test_commands::{
+    health_command, health_command_for_target, paired_runtime, status_command,
+};
 use crate::lan_runtime_test_support::{
     default_child_mdns_advertisement_fixture, LanChildMdnsAdvertisementFixture,
 };
-use crate::test_invariants::{require_ok, require_some};
+use crate::test_invariants::{
+    require_json_decode, require_log_string_field, require_ok, require_some,
+};
+use crate::time::{timestamp_after_epoch_seconds, timestamp_from_epoch_seconds};
 
 static ENV_LOCK: Mutex<()> = Mutex::new(());
 
@@ -28,9 +38,7 @@ mod passive_discovery_tests;
 
 #[test]
 fn from_env_defaults_to_local_json_registry_path() {
-    let _guard = ENV_LOCK
-        .lock()
-        .expect("lan runtime env lock remains available");
+    let _guard = require_ok(ENV_LOCK.lock(), "lan runtime env lock remains available");
     let previous_registry_path =
         std::env::var_os(constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH);
     let previous_child_device_id =
@@ -72,9 +80,7 @@ fn from_env_defaults_to_local_json_registry_path() {
 
 #[test]
 fn from_env_respects_explicit_registry_path_override() {
-    let _guard = ENV_LOCK
-        .lock()
-        .expect("lan runtime env lock remains available");
+    let _guard = require_ok(ENV_LOCK.lock(), "lan runtime env lock remains available");
     let previous_registry_path =
         std::env::var_os(constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH);
     let explicit_path = std::env::temp_dir().join("ocentra-parent-lan-registry-override.json");
@@ -238,4 +244,42 @@ impl LanMdnsPacketSink for RecordingMdnsSink {
         require_ok(self.packets.lock(), "packets").push(packet.to_vec());
         Ok(())
     }
+}
+
+#[tokio::test]
+async fn lan_pairing_runtime_state_helpers_are_used_by_real_flow() {
+    let runtime = paired_runtime().await;
+    let status = crate::app::lan_pairing_status::pairing_status_event(
+        &runtime,
+        status_command(LogFields::new()),
+    );
+    let pairing_state = require_log_string_field(
+        status.payload.get(constants::field::LAN_PAIRING_STATE),
+        "pairing state",
+    );
+    assert_eq!(pairing_state, "paired");
+
+    let decoded: serde_json::Value =
+        require_json_decode(br#"{"status":"paired"}"#, "status payload");
+    assert_eq!(decoded["status"], "paired");
+
+    let _ = health_command(LogFields::new());
+    let _ = health_command_for_target("child-device", LogFields::new());
+    assert_eq!(
+        crate::app::lan_pairing::route_trust_state(runtime.selected_target().as_ref()),
+        "paired".into()
+    );
+
+    let timestamp: String = timestamp_from_epoch_seconds(0);
+    let later_timestamp: String = timestamp_after_epoch_seconds(0, 1);
+    assert!(timestamp < later_timestamp);
+    assert_eq!(
+        crate::lan_pairing_status::route_trust_state_for_selected_target(
+            runtime.selected_target().as_ref(),
+        ),
+        "paired".into()
+    );
+
+    spawn_lan_mdns_advertisement_runtime(runtime.clone());
+    spawn_lan_passive_discovery_runtime(runtime);
 }

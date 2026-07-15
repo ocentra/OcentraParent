@@ -12,13 +12,13 @@ use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::App
 
 fn validate_app_game_response_event<'a>(
     result: &'a AgentServiceCommandResult,
-    expected_event: AgentEventName,
+    expected_event: &AgentEventName,
     result_label: &str,
 ) -> Result<&'a AgentEventEnvelope, String> {
     if result.response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&result.response_event));
     }
-    if result.response_event.event != expected_event {
+    if result.response_event.event != *expected_event {
         return Err(format!(
             "agent-service expected {}, received {}",
             serialized_enum_label(&expected_event),
@@ -30,11 +30,11 @@ fn validate_app_game_response_event<'a>(
 }
 
 pub(super) fn app_game_notification_readiness_snapshot_from_result(
-    result: AgentServiceCommandResult,
+    result: &AgentServiceCommandResult,
 ) -> Result<AppGameNotificationReadinessAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
-        &result,
-        AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
+        result,
+        &AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
         "notification readiness",
     )?;
     let read_model = app_game_read_model_from_response::<AppGameNotificationReadinessReadModel>(
@@ -46,11 +46,11 @@ pub(super) fn app_game_notification_readiness_snapshot_from_result(
 }
 
 pub(super) fn app_game_policy_readiness_snapshot_from_result(
-    result: AgentServiceCommandResult,
+    result: &AgentServiceCommandResult,
 ) -> Result<AppGamePolicyReadinessAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
-        &result,
-        AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported,
+        result,
+        &AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported,
         "policy readiness",
     )?;
     let read_model = app_game_read_model_from_response::<AppGamePolicyReadinessReadModel>(
@@ -62,11 +62,11 @@ pub(super) fn app_game_policy_readiness_snapshot_from_result(
 }
 
 pub(super) fn app_game_platform_proof_status_snapshot_from_result(
-    result: AgentServiceCommandResult,
+    result: &AgentServiceCommandResult,
 ) -> Result<AppGamePlatformProofStatusAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
-        &result,
-        AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported,
+        result,
+        &AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported,
         "platform proof status",
     )?;
     let read_model = app_game_read_model_from_response::<AppGamePlatformProofStatusReadModel>(
@@ -78,11 +78,11 @@ pub(super) fn app_game_platform_proof_status_snapshot_from_result(
 }
 
 pub(super) fn app_game_child_runtime_transport_receipt_snapshot_from_result(
-    result: AgentServiceCommandResult,
+    result: &AgentServiceCommandResult,
 ) -> Result<AppGameChildRuntimeTransportReceiptAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
-        &result,
-        AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported,
+        result,
+        &AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported,
         "child runtime transport receipt",
     )?;
     let read_model =
@@ -95,11 +95,11 @@ pub(super) fn app_game_child_runtime_transport_receipt_snapshot_from_result(
 }
 
 pub(super) fn app_game_adapter_dispatch_preflight_snapshot_from_result(
-    result: AgentServiceCommandResult,
+    result: &AgentServiceCommandResult,
 ) -> Result<AppGameAdapterDispatchPreflightAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
-        &result,
-        AgentEventName::AgentActivityAppGameAdapterDispatchPreflightReadModelReported,
+        result,
+        &AgentEventName::AgentActivityAppGameAdapterDispatchPreflightReadModelReported,
         "adapter dispatch preflight",
     )?;
     let read_model = app_game_read_model_from_response::<AppGameAdapterDispatchPreflightReadModel>(
@@ -111,11 +111,11 @@ pub(super) fn app_game_adapter_dispatch_preflight_snapshot_from_result(
 }
 
 pub(super) fn app_game_adapter_dispatch_result_snapshot_from_result(
-    result: AgentServiceCommandResult,
+    result: &AgentServiceCommandResult,
 ) -> Result<AppGameAdapterDispatchResultAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
-        &result,
-        AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported,
+        result,
+        &AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported,
         "adapter dispatch result",
     )?;
     let read_model = app_game_read_model_from_response::<AppGameAdapterDispatchResultReadModel>(
@@ -127,11 +127,11 @@ pub(super) fn app_game_adapter_dispatch_result_snapshot_from_result(
 }
 
 pub(super) fn app_game_timer_parent_surface_snapshot_from_result(
-    result: AgentServiceCommandResult,
+    result: &AgentServiceCommandResult,
 ) -> Result<AppGameTimerParentSurfaceAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
-        &result,
-        AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
+        result,
+        &AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
         "timer parent surface",
     )?;
     let read_model = app_game_read_model_from_response::<AppGameTimerParentSurfaceReadModel>(

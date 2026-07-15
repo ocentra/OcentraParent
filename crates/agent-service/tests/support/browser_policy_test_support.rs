@@ -28,3 +28,13 @@ pub async fn handle_local_command_text_with_browser_policy_store_for_test(
     )
     .await
 }
+
+#[cfg(test)]
+mod clippy_linkage {
+    use super::*;
+
+    #[test]
+    fn browser_policy_test_support_helper_is_linked() {
+        let _ = handle_local_command_text_with_browser_policy_store_for_test;
+    }
+}

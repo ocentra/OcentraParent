@@ -4,7 +4,9 @@ use ocentra_network_evidence::cascade::*;
 use ocentra_network_evidence::dns::types::*;
 use ocentra_network_evidence::local_ai_queue::*;
 
+#[derive(Clone, Copy)]
 struct TriggerRef(&'static str);
+#[derive(Clone, Copy)]
 struct EvidenceRef(&'static str);
 
 #[test]

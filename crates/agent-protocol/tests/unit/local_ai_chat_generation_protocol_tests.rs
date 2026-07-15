@@ -3,6 +3,7 @@ use super::{
     AgentPeerRole, AgentRoute, LocalAiChatGenerationResult, LocalAiGenerationState, LogFieldValue,
     LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn local_ai_chat_generation_command_serializes_to_typescript_contract_shape() {
@@ -33,7 +34,7 @@ fn local_ai_chat_generation_command_serializes_to_typescript_contract_shape() {
         payload,
     };
 
-    let serialized = serde_json::to_value(command).expect("command serializes: {error:?}");
+    let serialized = serde_json::to_value(command).expect_value("command serializes");
 
     assert_eq!(serialized["command"], "agent.local-ai.chat.generate");
     assert_eq!(
@@ -66,7 +67,7 @@ fn local_ai_chat_generation_result_serializes_without_model_paths() {
         unavailable_reason: None,
     };
 
-    let serialized = serde_json::to_value(result).expect("generation result serializes: {error:?}");
+    let serialized = serde_json::to_value(result).expect_value("generation result serializes");
 
     assert_eq!(
         serialized["runtimeReferenceId"],

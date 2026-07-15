@@ -1,5 +1,3 @@
-use std::fmt::Write as _;
-
 use ocentra_parent_agent_protocol::schema_domain_mirrors::{
     family::{
         FamilyReference, ParentActionReference, ParentActorReference, ParentActorRole,
@@ -89,14 +87,13 @@ fn push_export<T: Serialize>(output: &mut String, name: &str, value: &T) {
     } else {
         export_line
     };
-    writeln!(output, "{export_line}\n").expect("write notification-local-outbox ts");
+    output.push_str(&export_line);
+    output.push_str("\n\n");
 }
 
 fn proof_family() -> FamilyReference {
     FamilyReference {
-        family_id: "family-notification-local-outbox-proof-1"
-            .to_string()
-            .into(),
+        family_id: "family-notification-local-outbox-proof-1".to_string(),
     }
 }
 
@@ -106,34 +103,28 @@ fn proof_device() -> ParentDeviceReference {
             .to_string()
             .into(),
         child_profile_id: Some("child-notification-outbox-proof-1".to_string().into()),
-        label: "Windows child device notification outbox proof"
-            .to_string()
-            .into(),
+        label: "Windows child device notification outbox proof".to_string(),
         platform: ParentDevicePlatform::Windows,
     }
 }
 
 fn proof_parent_action() -> ParentActionReference {
     ParentActionReference {
-        action_reference_id: "parent-action-notification-outbox-proof-1"
-            .to_string()
-            .into(),
+        action_reference_id: "parent-action-notification-outbox-proof-1".to_string(),
         actor: ParentActorReference {
-            actor_id: "parent-notification-outbox-proof-1".to_string().into(),
+            actor_id: "parent-notification-outbox-proof-1".to_string(),
             role: ParentActorRole::Parent,
         },
-        policy_version: "notification-local-outbox-proof-v1".to_string().into(),
-        created_at: "2026-06-04T01:31:47.023Z".to_string().into(),
+        policy_version: "notification-local-outbox-proof-v1".to_string(),
+        created_at: "2026-06-04T01:31:47.023Z".to_string(),
     }
 }
 
 fn proof_evidence_ref() -> ParentEvidenceReference {
     ParentEvidenceReference {
-        evidence_reference_id: "notification-local-outbox-evidence-ref-1"
-            .to_string()
-            .into(),
+        evidence_reference_id: "notification-local-outbox-evidence-ref-1".to_string(),
         kind: ParentEvidenceReferenceKind::PolicyDecision,
-        observed_at: "2026-06-04T01:31:47.023Z".to_string().into(),
+        observed_at: "2026-06-04T01:31:47.023Z".to_string(),
     }
 }
 

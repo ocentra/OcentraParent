@@ -1,9 +1,5 @@
-#[macro_use]
-#[path = "../support/unit_root_basic_harness.rs"]
-mod unit_root_basic_harness;
-declare_agent_service_unit_root_basic_harness!();
-
 use std::{
+    collections::BTreeMap,
     env,
     path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
@@ -23,7 +19,8 @@ use ocentra_parent_agent_protocol::transport::{
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::{
     build_activity_report_document_for_test, handle_local_command_text_for_test,
-    lock_activity_report_env_for_test,
+    history_list_from_dir_for_test, lock_activity_report_env_for_test,
+    save_activity_report_document_for_test, save_activity_report_document_to_dir_for_test,
 };
 use serde::Serialize;
 
@@ -80,15 +77,96 @@ async fn activity_surface_helper_modules_remain_linked_without_panics() -> Resul
     let _guard = lock_activity_report_env_for_test().await;
     let report_root = temp_report_root();
     crate::test_support::cleanup_report_dir(&report_root);
+    env::set_var(constants::env_var::DEV_LOG_DIR, report_root.path());
 
     let report = build_activity_report_document_for_test(report_request());
     activity_surface_helper_modules_are_linked_request_and_store(&report, &report_root)?;
     activity_surface_helper_modules_are_linked_payload_and_models(&report, &report_root).await?;
+    activity_surface_helper_test_support_is_linked(&report_root).await;
+    activity_surface_test_support_helpers_are_linked()?;
+    activity_surface_time_helpers_are_linked();
 
     env::remove_var(constants::env_var::DEV_LOG_DIR);
     crate::test_support::cleanup_report_dir(&report_root);
 
     Ok(())
+}
+
+async fn activity_surface_helper_test_support_is_linked(report_root: &TempReportRoot) {
+    let summary = crate::test_support::load_activity_recent_summary_from_store_path_for_test(
+        report_root.path(),
+    )
+    .await;
+    assert!(summary.is_none());
+}
+
+fn activity_surface_test_support_helpers_are_linked() -> Result<(), TestText> {
+    let mut payload = LogFields::new();
+    payload.insert(
+        constants::field::ACTIVITY_REPORT_ID.to_string(),
+        LogFieldValue::String(constants::activity_surface::DEFAULT_FAMILY_ID.to_string()),
+    );
+
+    assert_eq!(
+        crate::test_invariants::require_ok(Ok::<usize, TestText>(1), "result"),
+        1
+    );
+    assert_eq!(crate::test_invariants::require_some(Some(2), "value"), 2);
+    assert_eq!(
+        crate::test_invariants::require_json_decode::<usize>("3", "json"),
+        3
+    );
+    assert_eq!(
+        crate::test_invariants::require_log_string_field(
+            payload.get(constants::field::ACTIVITY_REPORT_ID),
+            "payload",
+        ),
+        constants::activity_surface::DEFAULT_FAMILY_ID
+    );
+    assert_eq!(
+        crate::test_invariants::log_field(
+            &payload,
+            constants::field::ACTIVITY_REPORT_ID,
+            "payload",
+        ),
+        LogFieldValue::String(constants::activity_surface::DEFAULT_FAMILY_ID.to_string())
+    );
+    assert_eq!(crate::test_invariants::serialize_test_json(&4), "4");
+
+    let text = TestText::from_display("text");
+    let mut counts = BTreeMap::new();
+    let mut payload = LogFields::new();
+    counts.insert(text.clone(), 1);
+    payload.insert(
+        constants::field::ACTIVITY_REPORT_ID.to_string(),
+        LogFieldValue::String(text.to_string()),
+    );
+
+    let _: crate::test_text::TestResult = Ok(());
+    assert_eq!(text.as_bytes(), b"text");
+    assert_eq!(text.as_str(), "text");
+    assert_eq!(
+        crate::test_text::test_ok(Ok::<usize, TestText>(1), "result")?,
+        1
+    );
+    assert_eq!(crate::test_text::test_some(Some(2), "value")?, 2);
+    assert_eq!(crate::test_text::count_for_display(&counts, "text"), 1);
+    assert_eq!(
+        crate::test_text::optional_log_string(&payload, constants::field::ACTIVITY_REPORT_ID),
+        Some(text)
+    );
+
+    Ok(())
+}
+
+fn activity_surface_time_helpers_are_linked() {
+    let now: String = crate::time::timestamp_now();
+    let after_epoch: String = crate::time::timestamp_after_epoch_seconds(0, 1);
+    let from_epoch: String = crate::time::timestamp_from_epoch_seconds(0);
+
+    assert!(now.ends_with('Z'));
+    assert_eq!(after_epoch, "1970-01-01T00:00:01.000Z");
+    assert_eq!(from_epoch, "1970-01-01T00:00:00.000Z");
 }
 
 fn activity_surface_helper_modules_are_linked_request_and_store(
@@ -108,16 +186,13 @@ fn activity_surface_helper_modules_are_linked_request_and_store(
     let parsed_document =
         crate::activity_surface_request::report_document_from_command(&save_command)
             .ok_or_else(|| TestText::from_display(constants::error::AGENT_EVENT_SERIALIZES))?;
-    let saved_report = crate::activity_surface_report_store::save_report_document_to_dir(
-        report.clone(),
-        report_storage_dir(report_root),
-    );
-    let saved_report_default =
+    let saved_report =
+        save_activity_report_document_to_dir_for_test(report.clone(), report_root.path());
+    let saved_report_default = save_activity_report_document_for_test(report.clone());
+    let saved_report_via_module =
         crate::activity_surface_report_store::save_report_document(report.clone());
-    let history = crate::activity_surface_report_store::history_list_from_dir(
-        parsed_surface_request.clone(),
-        report_storage_dir(report_root),
-    );
+    let history =
+        history_list_from_dir_for_test(parsed_surface_request.clone(), report_root.path());
     let history_default =
         crate::activity_surface_report_store::history_list(parsed_surface_request.clone());
     let history_default_saved_report_count = history_default
@@ -153,6 +228,7 @@ fn activity_surface_helper_modules_are_linked_request_and_store(
         Some(ActivitySavedReportState::Saved)
     );
     assert_eq!(saved_report_default.report_id, report.report_id);
+    assert_eq!(saved_report_via_module.report_id, report.report_id);
     assert_eq!(history.reports.len(), 1);
     assert_eq!(history.reports[0].parsed_report.report_id, report.report_id);
     assert_eq!(history_default_saved_report_count, 1);
@@ -164,7 +240,7 @@ fn activity_surface_helper_modules_are_linked_request_and_store(
         history_default.reports[0].parsed_report.report_id,
         report.report_id
     );
-    activity_surface_helper_modules_are_linked_family_sources(report)?;
+    activity_surface_helper_modules_are_linked_family_sources()?;
     activity_surface_helper_modules_are_linked_read_models(&parsed_surface_request);
 
     Ok(())
@@ -193,15 +269,11 @@ async fn activity_surface_helper_modules_are_linked_payload_and_models(
     );
     let parsed_surface_request =
         crate::activity_surface_request::surface_request_from_command(&save_command);
-    let _ = crate::activity_surface_report_store::save_report_document_to_dir(
-        report.clone(),
-        report_storage_dir(report_root),
-    );
-    let history = crate::activity_surface_report_store::history_list_from_dir(
-        parsed_surface_request.clone(),
-        report_storage_dir(report_root),
-    );
+    let _ = save_activity_report_document_for_test(report.clone());
+    let history =
+        history_list_from_dir_for_test(parsed_surface_request.clone(), report_root.path());
     let history_payload = crate::activity_surface_payload::activity_history_payload(&history);
+    let report_payload = crate::activity_surface_payload::activity_report_document_payload(report);
     let screen_model = crate::activity_surface_read_models::screen_read_model(
         parsed_surface_request.clone(),
         None,
@@ -244,10 +316,32 @@ async fn activity_surface_helper_modules_are_linked_payload_and_models(
         activity_store_path(report_root),
     )
     .await;
+    let _local_snapshot = crate::activity_surface_store::local_store_snapshot().await;
+    let _local_browser = crate::activity_surface_store::load_browser_model().await;
+    let _local_network = crate::activity_surface_store::load_network_model().await;
+    let _local_app_game = crate::activity_surface_store::load_app_game_model().await;
+    let _local_screen = crate::activity_surface_store::load_screen_summary().await;
+    let snapshot = crate::activity_surface_store::ActivitySurfaceStoreSnapshot {
+        device_id: crate::activity_surface_store::ActivitySurfaceDeviceRefText(
+            constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+        ),
+        recent_returned: 0,
+        last_event_id: None,
+        last_observed_at: None,
+        browser_returned: 0,
+        network_returned: 0,
+        games_returned: 0,
+        screen_returned: 0,
+    };
+    let _ = crate::activity_surface_read_models::activity_screen_row_from_result;
 
     assert_eq!(
         history_payload.get(constants::field::ACTIVITY_REPORTS),
         Some(&LogFieldValue::String(history_json))
+    );
+    assert_eq!(
+        report_payload.get(constants::field::ACTIVITY_REPORT_ID),
+        Some(&LogFieldValue::String(report.report_id.clone()))
     );
     assert_eq!(screen_model.state, ActivityReadModelState::Unavailable);
     assert_eq!(browser_model.state, ActivityReadModelState::Unavailable);
@@ -261,13 +355,12 @@ async fn activity_surface_helper_modules_are_linked_payload_and_models(
     assert!(network_none.is_none());
     assert!(app_game_none.is_none());
     assert!(screen_none.is_none());
+    assert_eq!(snapshot.last_event_id, None);
 
     Ok(())
 }
 
-fn activity_surface_helper_modules_are_linked_family_sources(
-    report: &ActivityReportDocument,
-) -> Result<(), TestText> {
+fn activity_surface_helper_modules_are_linked_family_sources() -> Result<(), TestText> {
     let family_sources_command = command_envelope(AgentCommandName::AgentActivityReportSave, {
         let mut payload = surface_command_payload();
         payload.insert(
@@ -416,8 +509,8 @@ fn history_from_event(
         .map_err(|error| TestText::from_display(format!("{error:?}")))
 }
 
-fn string_payload_field<'a>(
-    event: &'a AgentEventEnvelope,
+fn string_payload_field(
+    event: &AgentEventEnvelope,
     field: impl std::fmt::Display,
 ) -> Result<TestText, TestText> {
     let field = field.to_string();
@@ -443,12 +536,6 @@ impl AsRef<Path> for TempReportRoot {
     fn as_ref(&self) -> &Path {
         self.path()
     }
-}
-
-fn report_storage_dir(
-    root: &TempReportRoot,
-) -> crate::activity_surface_report_store::ReportStorageDir {
-    crate::activity_surface_report_store::ReportStorageDir(root.as_ref().to_path_buf())
 }
 
 fn activity_store_path(root: &TempReportRoot) -> crate::activity_surface_store::ActivityStorePath {

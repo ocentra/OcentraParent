@@ -1,5 +1,4 @@
 use crate::test_support::handle_local_command_text_for_test;
-use crate::test_text::TestText;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeTargetObservation,
@@ -370,10 +369,8 @@ async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_
         Some(&LogFieldValue::Number(2.0))
     );
 
-    let stale_entry = first_entry_with_capability(
-        &entries,
-        TestText::from_display(constants::browser::CAPABILITY_STATUS_STALE),
-    );
+    let stale_entry =
+        first_entry_with_capability(&entries, constants::browser::CAPABILITY_STATUS_STALE);
     assert_eq!(
         stale_entry[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
         false
@@ -385,7 +382,7 @@ async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_
 
     let unsupported_entry = first_entry_with_capability(
         &entries,
-        TestText::from_display(constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER),
+        constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER,
     );
     assert_eq!(
         unsupported_entry[constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
@@ -404,9 +401,7 @@ async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_
 #[tokio::test]
 async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() -> TestResult {
     let _guard = REPORT_ENV_LOCK.lock().await;
-    let store_path = temp_path(TestText::from_display(
-        constants::activity_store::TEST_CAPTURE_BROWSER_STORE_SUFFIX,
-    ));
+    let store_path = temp_path(constants::activity_store::TEST_CAPTURE_BROWSER_STORE_SUFFIX);
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
@@ -633,23 +628,20 @@ pub(super) fn stream_entries(payload: &LogFields) -> Vec<Value> {
     }
 }
 
-fn first_entry_with_capability(entries: &[Value], capability: TestText) -> &Value {
-    let capability = capability;
+fn first_entry_with_capability<'a>(entries: &'a [Value], capability: &str) -> &'a Value {
     require_some(
         entries.iter().find(|entry| {
-            entry[constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS]
-                == capability.as_ref()
+            entry[constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS] == capability
         }),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
 }
 
-fn temp_path(suffix: TestText) -> TestPathBuf {
-    let suffix = suffix;
+fn temp_path(suffix: &str) -> TestPathBuf {
     let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(suffix.as_ref());
+    name.push_str(suffix);
 
     let mut path = std::env::temp_dir();
     path.push(name);

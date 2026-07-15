@@ -1,9 +1,6 @@
 use ocentra_eventing::bus;
 use ocentra_eventing::bus::publisher::EventPublisher;
-use ocentra_eventing::bus::reports::dead_letter::{
-    dead_letter_recorded_event_type, DeadLetterReason,
-};
-use ocentra_eventing::bus::reports::handler::HandlerOutcome;
+use ocentra_eventing::bus::reports::dead_letter::dead_letter_recorded_event_type;
 use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::{DispatchMode, EventBus, ShutdownMode};
 use ocentra_eventing::clock::{EventClock, ManualEventClock};

@@ -66,11 +66,25 @@ const portalLogBridgeEnvKey = 'VITE_OCENTRA_PARENT_LOG_BRIDGE_URL';
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
 const activityDbPath = path.join(devLogDir, 'activity.sqlite');
 const children = [];
-const playwrightArgs = process.argv.slice(2);
+const playwrightArgs = playwrightArguments(process.argv.slice(2));
 const agentStartupTimeoutMs = 120000;
 
 let exitCode = 1;
 let stopping = false;
+
+function playwrightArguments(argumentsToFilter) {
+  const result = [];
+  for (let index = 0; index < argumentsToFilter.length; index += 1) {
+    const argument = argumentsToFilter[index];
+    // Enforcer adds these harness options after the child command. They are not Playwright options.
+    if (argument === '--root' || argument === '--profile') {
+      index += 1;
+      continue;
+    }
+    result.push(argument);
+  }
+  return result;
+}
 
 try {
   await requireManagedPortFree('agent', agentPort, isLikelyParentAgentOccupant, ParentDevEnv.AgentPort);

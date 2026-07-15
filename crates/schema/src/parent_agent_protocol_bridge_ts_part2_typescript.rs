@@ -80,7 +80,7 @@ struct ActivitySurfaceTypescriptNames {
 }
 
 pub(super) fn activity_surface_contract_typescript(names: &ProtocolBridgeNames) -> String {
-    let types = activity_surface_typescript_names(&bridge_prefix(names));
+    let types = activity_surface_typescript_names(bridge_prefix(names));
     [
         format!(
             "export const {} = {ACTIVITY_SURFACE_SCHEMA_VERSION} as const;",

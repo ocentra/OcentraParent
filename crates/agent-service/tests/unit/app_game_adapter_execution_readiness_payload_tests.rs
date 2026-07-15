@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::primitive::str as TestStr;
 
 use crate::test_invariants::{require_json_decode, require_log_string_field, require_some};

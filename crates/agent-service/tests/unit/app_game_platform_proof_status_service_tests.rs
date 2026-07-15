@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use ocentra_parent_agent_protocol::app_game_platform_proof_status::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_ID;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};

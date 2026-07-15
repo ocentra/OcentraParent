@@ -59,12 +59,20 @@ struct ParentDevBridgeDispatchRequest {
 pub fn configured_parent_dev_bridge_address() -> Option<SocketAddr> {
     let port = std::env::var(constants::env_var::PARENT_DEV_BRIDGE_PORT)
         .ok()
-        .and_then(|value| value.parse::<u16>().ok())?;
-    let host = if std::env::var(constants::env_var::DEV_NETWORK_MODE)
+        .and_then(|value| value.parse::<u16>().ok());
+    let local_network = std::env::var(constants::env_var::DEV_NETWORK_MODE)
         .ok()
         .as_deref()
-        == Some(constants::value::LOCAL_NETWORK_MODE)
-    {
+        == Some(constants::value::LOCAL_NETWORK_MODE);
+    parent_dev_bridge_address_from_configuration(port, local_network)
+}
+
+pub fn parent_dev_bridge_address_from_configuration(
+    port: Option<u16>,
+    local_network: bool,
+) -> Option<SocketAddr> {
+    let port = port?;
+    let host = if local_network {
         IpAddr::V4(Ipv4Addr::UNSPECIFIED)
     } else {
         IpAddr::V4(Ipv4Addr::LOCALHOST)

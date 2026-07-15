@@ -3,6 +3,10 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
+
 #[path = "../support/test_text.rs"]
 mod test_text;
 
@@ -72,7 +76,7 @@ mod clippy_linkage {
         let _ = crate::json_contract::serialize_json_value(serde_json::json!({
             "policy_request_confirm": true
         }));
-        let _: String = crate::time::timestamp_from_epoch_seconds(1);
+        let _: String = crate::time::timestamp_after_epoch_seconds(1, 0);
         let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
 
         let store_path = temp_store_path("policy-request-confirm-clippy");
@@ -138,6 +142,3 @@ mod clippy_linkage {
         let _ = remove_file(shm_path);
     }
 }
-use std::path::PathBuf as TestPathBuf;
-use std::primitive::str as TestStr;
-use std::string::String as TestString;

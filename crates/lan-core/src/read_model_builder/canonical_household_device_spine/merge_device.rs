@@ -20,9 +20,8 @@ pub(super) fn merge_device(
         existing.discovery_state.clone(),
         incoming.discovery_state.clone(),
     );
-    let merged_trust_state =
-        stronger_trust_state(existing.trust_state.clone(), incoming.trust_state);
-    existing.trust_state = merged_trust_state.clone();
+    let merged_trust_state = stronger_trust_state(existing.trust_state, incoming.trust_state);
+    existing.trust_state = merged_trust_state;
     existing.route_id = existing.route_id.clone().or(incoming.route_id);
     existing.route_state = stronger_route_state(existing.route_state.clone(), incoming.route_state);
     existing.display_name = preferred_display_name(&existing.display_name, &incoming.display_name);

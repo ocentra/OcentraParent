@@ -310,7 +310,7 @@ fn base_answer(
         local_ai_result_id: parts.local_ai_result_id.map(|value| value.0),
         answer_text: parts.answer_text.map(|value| value.0),
         citations: request.evidence_context.clone(),
-        action_preview: preview_only_action(&ParentAssistantText(request.question.clone())),
+        action_preview: preview_only_action(&ParentAssistantText(request.question)),
         api_provider_boundary,
         provider_route,
         prompt_version: constants::parent_assistant::PROMPT_VERSION_LOCAL_V1.to_string(),

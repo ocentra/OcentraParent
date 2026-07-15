@@ -218,8 +218,8 @@ fn lan_ai_job_id(
     command: &AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
 ) -> LanPairingText {
-    payload_string(&command.payload, LanAiJobField::JobId)
-        .unwrap_or_else(|| intent.intent_id.clone().into())
+    payload_string(&command.payload, &LanAiJobField::JobId)
+        .unwrap_or_else(|| intent.intent_id.as_str().into())
 }
 
 fn local_ai_result_id(intent: &LanParentIntentEnvelope) -> LanPairingText {
@@ -228,12 +228,14 @@ fn local_ai_result_id(intent: &LanParentIntentEnvelope) -> LanPairingText {
     result_id.into()
 }
 
-fn payload_string(fields: &LogFields, field_name: LanAiJobField) -> Option<LanPairingText> {
+fn payload_string(fields: &LogFields, field_name: &LanAiJobField) -> Option<LanPairingText> {
     let field_name = match field_name {
         LanAiJobField::JobId => constants::field::LAN_AI_JOB_ID,
     };
     fields.get(field_name).and_then(|value| match value {
-        LogFieldValue::String(value) if !value.is_empty() => Some(LanPairingText(value.clone())),
+        LogFieldValue::String(value) if !value.is_empty() => {
+            Some(LanPairingText(value.as_str().to_owned()))
+        }
         _ => None,
     })
 }

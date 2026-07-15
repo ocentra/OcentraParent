@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 use crate::*;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
@@ -17,7 +15,7 @@ use ocentra_parent_agent_protocol::enforcement::{
 };
 use ocentra_parent_agent_protocol::policy_constants as policy;
 
-use crate::test_text::{test_ok as ok, test_some as some, TestResult, TestText};
+use crate::test_text::{test_ok as ok, test_some as some, TestResult};
 
 #[test]
 fn degraded_capability_with_unavailable_adapter_outcome_records_audit_and_timer_recovery(

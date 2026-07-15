@@ -16,7 +16,7 @@ use crate::{
     app::{
         lan_pairing::LanPairingRuntime,
         lan_runtime_stream_payload::{
-            lan_runtime_event_chain_stream_payload, stream_lan_runtime_event_chain_for_history,
+            LAN_RUNTIME_EVENT_CHAIN_STREAM_PAYLOAD, STREAM_LAN_RUNTIME_EVENT_CHAIN_FOR_HISTORY,
         },
         websocket::handle_command_text_for_test,
     },
@@ -27,8 +27,8 @@ use crate::{
 #[test]
 fn lan_runtime_stream_payload_serializes_replayable_discovery_event_rows() {
     let history = discovery_event_history();
-    let report = stream_lan_runtime_event_chain_for_history(&history);
-    let payload = lan_runtime_event_chain_stream_payload(&report);
+    let report = STREAM_LAN_RUNTIME_EVENT_CHAIN_FOR_HISTORY(&history);
+    let payload = LAN_RUNTIME_EVENT_CHAIN_STREAM_PAYLOAD(&report);
     let entries = stream_entries(&payload);
 
     assert_eq!(report.observed_events, 2);

@@ -69,14 +69,14 @@ async fn assert_timer_expiry_uses_persisted_state_and_clears_it(
 
     let audit = test_ok(
         serde_json::from_str::<ocentra_parent_agent_protocol::enforcement::EnforcementAuditEvent>(
-            &test_some(
+            test_some(
                 optional_log_string(
                     &expire_event.payload,
                     constants::field::ENFORCEMENT_AUDIT_EVENT,
                 ),
                 constants::error::AGENT_EVENT_SERIALIZES,
             )?
-            .to_string(),
+            .as_ref(),
         ),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;

@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::AppGameAdapterDispatchPreflightReadModel;
 use ocentra_parent_agent_protocol::AppGameAdapterDispatchPreflightRow;
 use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_AUDIT_OWNED_PROCESS;
@@ -95,7 +96,8 @@ fn app_game_adapter_dispatch_preflight_serializes_parent_safe_rows() {
         rows: vec![row],
     };
 
-    let serialized = serde_json::to_value(&read_model).expect("dispatch preflight serializes");
+    let serialized =
+        serde_json::to_value(&read_model).expect_value("dispatch preflight serializes");
 
     assert_eq!(
         serialized["readModelId"],

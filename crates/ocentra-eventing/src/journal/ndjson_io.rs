@@ -1,18 +1,6 @@
-use std::sync::Arc;
-use tokio::{
-    fs::{File, OpenOptions},
-    io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
-};
-
-use crate::journal::{
-    hash_chain::{hash_entry, verify_hash_chain_entry},
-    EventJournal, JournalAppendFuture,
-};
-use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
-
 use super::{
-    ndjson_state::NdjsonJournalState, JournalAppend, JournalFlushPolicy, JournalHashChain,
-    NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
+    JournalAppend, JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalEntry,
+    NdjsonJournalOptions,
 };
 
 #[path = "ndjson_io/append.rs"]

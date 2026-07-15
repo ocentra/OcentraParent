@@ -4,9 +4,8 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryApplyOutcome,
-    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
-    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    queue_policy_delivery, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord,
+    PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
@@ -176,20 +175,6 @@ pub(super) fn audit_ref(value: impl std::fmt::Display) -> TestResult<PolicyAudit
     ))
 }
 
-pub(super) fn attempt(value: impl std::fmt::Display) -> TestResult<PolicyDeliveryAttemptId> {
-    Ok(test_ok!(
-        PolicyDeliveryAttemptId::parse(value.to_string()),
-        "policy attempt id"
-    ))
-}
-
-pub(super) fn reason(value: impl std::fmt::Display) -> TestResult<PolicyReasonCode> {
-    Ok(test_ok!(
-        PolicyReasonCode::parse(value.to_string()),
-        "policy reason code"
-    ))
-}
-
 pub(super) fn transition_or_context<T>(
     result: Result<T, EventingError>,
     context: impl std::fmt::Display,
@@ -221,45 +206,4 @@ pub(super) fn transition(
         superseded_by_policy_version: None,
         rollback_reference_state: None,
     })
-}
-
-pub(super) fn assert_explicit_wp04_delivery_state_round_trip(
-    queued: &PolicyDeliveryRecord,
-    state: PolicyDeliveryState,
-    transition_meta: Option<(PolicyDeliveryAttemptId, PolicyAuditReferenceId)>,
-    reason_code: Option<PolicyReasonCode>,
-) -> TestResult {
-    let (attempt_id, audit_reference_id) = test_some!(transition_meta, "transition metadata");
-    let mut transition = transition(2, attempt_id.as_str(), state)?;
-    transition.audit_reference_ids = vec![audit_reference_id];
-    transition.reason_code = reason_code;
-    if state == PolicyDeliveryState::Superseded {
-        transition.superseded_by_policy_version =
-            Some(test_ok!(PolicyVersion::new(8), "policy version"));
-    }
-
-    let record = test_ok!(
-        apply_policy_delivery_transition(queued, transition),
-        "explicit wp04 delivery state transition"
-    )
-    .into_record();
-
-    let serialized = test_ok!(
-        serde_json::to_value(&record),
-        "serialize policy delivery record"
-    );
-    assert_eq!(
-        serialized["state"],
-        test_ok!(
-            serde_json::to_value(&state),
-            "serialize policy delivery state"
-        )
-    );
-
-    let round_trip: PolicyDeliveryRecord = test_ok!(
-        serde_json::from_value(serialized),
-        "deserialize policy delivery record"
-    );
-    assert_eq!(round_trip.state, state);
-    Ok(())
 }

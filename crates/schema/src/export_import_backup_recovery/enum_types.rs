@@ -48,20 +48,31 @@ export_import_string_enums!(
     ExportImportPreflightState, "camelCase" {
         AcceptedPreview,
         PartialPreview,
-        RejectedSchemaVersion,
-        RejectedMigrationUnsupported,
-        RejectedWrongHousehold,
-        RejectedWrongKey,
-        RejectedCorruptBundle,
-        RejectedExpiredRetention,
-        RejectedDuplicateDevice,
-        RejectedTombstoneConflict,
+        #[serde(rename = "rejectedSchemaVersion")]
+        SchemaVersionInvalid,
+        #[serde(rename = "rejectedMigrationUnsupported")]
+        MigrationUnsupported,
+        #[serde(rename = "rejectedWrongHousehold")]
+        HouseholdMismatch,
+        #[serde(rename = "rejectedWrongKey")]
+        KeyUnavailable,
+        #[serde(rename = "rejectedCorruptBundle")]
+        BundleCorrupt,
+        #[serde(rename = "rejectedExpiredRetention")]
+        RetentionExpired,
+        #[serde(rename = "rejectedDuplicateDevice")]
+        DeviceDuplicate,
+        #[serde(rename = "rejectedTombstoneConflict")]
+        TombstoneConflict,
     },
     ExportImportSectionDecisionState, "camelCase" {
         Accepted,
-        RejectedExpiredRetention,
-        RejectedTombstonePreserved,
-        RejectedDuplicateDevice,
+        #[serde(rename = "rejectedExpiredRetention")]
+        RetentionExpired,
+        #[serde(rename = "rejectedTombstonePreserved")]
+        TombstonePreserved,
+        #[serde(rename = "rejectedDuplicateDevice")]
+        DuplicateDevice,
     },
     ExportImportRestoreApplyState, "camelCase" {
         NotApplied,
@@ -74,11 +85,16 @@ export_import_string_enums!(
         Blocked,
     },
     ExportImportNonClaim, "kebab-case" {
-        NoProviderRuntime,
-        NoAutoApply,
-        NoDefaultSupportDecrypt,
-        NoTsBusinessOwner,
-        NoLanOwnership,
+        #[serde(rename = "no-provider-runtime")]
+        ProviderRuntime,
+        #[serde(rename = "no-auto-apply")]
+        AutoApply,
+        #[serde(rename = "no-default-support-decrypt")]
+        DefaultSupportDecrypt,
+        #[serde(rename = "no-ts-business-owner")]
+        TsBusinessOwner,
+        #[serde(rename = "no-lan-ownership")]
+        LanOwnership,
     },
 );
 
@@ -159,14 +175,14 @@ export_import_string_enum_as_str_values!(
         variants: [
             AcceptedPreview,
             PartialPreview,
-            RejectedSchemaVersion,
-            RejectedMigrationUnsupported,
-            RejectedWrongHousehold,
-            RejectedWrongKey,
-            RejectedCorruptBundle,
-            RejectedExpiredRetention,
-            RejectedDuplicateDevice,
-            RejectedTombstoneConflict,
+            SchemaVersionInvalid,
+            MigrationUnsupported,
+            HouseholdMismatch,
+            KeyUnavailable,
+            BundleCorrupt,
+            RetentionExpired,
+            DeviceDuplicate,
+            TombstoneConflict,
         ],
         values: [
             EXPORT_IMPORT_PREFLIGHT_STATE_ACCEPTED_PREVIEW,
@@ -184,9 +200,9 @@ export_import_string_enum_as_str_values!(
     ExportImportSectionDecisionState {
         variants: [
             Accepted,
-            RejectedExpiredRetention,
-            RejectedTombstonePreserved,
-            RejectedDuplicateDevice,
+            RetentionExpired,
+            TombstonePreserved,
+            DuplicateDevice,
         ],
         values: [
             EXPORT_IMPORT_SECTION_DECISION_STATE_ACCEPTED,
@@ -219,11 +235,11 @@ export_import_string_enum_as_str_values!(
     },
     ExportImportNonClaim {
         variants: [
-            NoProviderRuntime,
-            NoAutoApply,
-            NoDefaultSupportDecrypt,
-            NoTsBusinessOwner,
-            NoLanOwnership,
+            ProviderRuntime,
+            AutoApply,
+            DefaultSupportDecrypt,
+            TsBusinessOwner,
+            LanOwnership,
         ],
         values: [
             EXPORT_IMPORT_NON_CLAIM_NO_PROVIDER_RUNTIME,

@@ -1,5 +1,6 @@
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_completed_event, child_domain_ai_analysis_requested_event,
     child_domain_ai_request_id_from_evidence_ref, child_domain_evidence_recorded_event,
@@ -25,8 +26,10 @@ fn child_domain_events_expose_eventing_contract_keys_without_local_shape_duplica
     let violation = child_domain_policy_violation_detected_event(&policy_requested);
     let notification = child_domain_notification_requested_event(&violation);
 
-    let observed_contract = observed.contract().expect("observed contract");
-    let notification_contract = notification.contract().expect("notification contract");
+    let observed_contract = observed.contract().expect_value("observed contract");
+    let notification_contract = notification
+        .contract()
+        .expect_value("notification contract");
 
     assert_eq!(
         observed_contract.event_type.as_str(),
@@ -64,12 +67,12 @@ fn child_domain_events_expose_eventing_contract_keys_without_local_shape_duplica
     );
     assert!(observed
         .aggregate_key()
-        .expect("observed aggregate")
+        .expect_value("observed aggregate")
         .as_str()
         .contains(ChildRuntimeDomain::Browser.as_contract_text()));
     assert!(notification
         .idempotency_key()
-        .expect("notification idempotency")
+        .expect_value("notification idempotency")
         .as_str()
         .contains(notification.notification_id.as_str()));
     assert_eq!(
@@ -103,7 +106,7 @@ fn child_domain_policy_and_notification_helpers_canonicalize_evidence_refs() {
     let duplicate = policy_requested
         .evidence_refs
         .first()
-        .expect("policy evidence ref")
+        .expect_value("policy evidence ref")
         .clone();
     policy_requested.evidence_refs.push(duplicate);
 
@@ -131,7 +134,7 @@ fn child_domain_event_type_deserialization_rejects_unknown_protocol_text() {
     });
 
     let error = serde_json::from_value::<ChildDomainObservedEvent>(payload)
-        .expect_err("unknown protocol text must fail deserialization");
+        .expect_err_value("unknown protocol text must fail deserialization");
 
     assert_eq!(error.classify(), serde_json::error::Category::Data);
 }

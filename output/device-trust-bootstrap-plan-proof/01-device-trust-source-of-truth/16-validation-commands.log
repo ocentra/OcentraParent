@@ -1,3 +1,0 @@
-2026-07-01T08:17:00-04:00 | PASS | cargo test -p ocentra-provisioning-core
-2026-07-01T08:17:00-04:00 | PASS | npm run lint:architecture -- --files crates/provisioning-core/src/lib.rs crates/provisioning-core/src/provisioning_install.rs crates/provisioning-core/tests/unit.rs crates/provisioning-core/tests/unit/readiness.rs crates/provisioning-core/tests/unit/readiness_flow.rs crates/provisioning-core/tests/contract.rs crates/provisioning-core/tests/contract/events.rs crates/provisioning-core/tests/security.rs crates/provisioning-core/tests/security/pairing_redaction.rs
-2026-07-01T08:17:00-04:00 | PASS | git diff --check --cached -- crates/provisioning-core/src/lib.rs output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth

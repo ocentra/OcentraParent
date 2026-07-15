@@ -2,7 +2,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const defaultProfile = 'ocentra-parent';
@@ -35,7 +35,11 @@ function hasOption(args, names) {
   return args.some((arg) => names.includes(arg) || names.some((name) => arg.startsWith(`${name}=`)));
 }
 
-function main() {
+export function cleanGitEnvironment(environment = process.env) {
+  return Object.fromEntries(Object.entries(environment).filter(([key]) => !key.startsWith('GIT_')));
+}
+
+export function main() {
   const cliPath = resolveEnforcerFile(path.join('scripts', 'rust-rules.mjs'));
   const enforcerRoot = path.resolve(path.dirname(cliPath), '..');
   const args = process.argv.slice(2);
@@ -56,11 +60,15 @@ function main() {
 
   const result = spawnSync(process.execPath, [cliPath, ...args], {
     cwd: repoRoot,
-    env: process.env,
+    // Git hooks export worktree-specific GIT_* variables. They make the
+    // external Enforcer resolve stale worktree metadata instead of this root.
+    env: cleanGitEnvironment(),
     stdio: 'inherit',
   });
   if (result.error) throw result.error;
   process.exit(result.status ?? 1);
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

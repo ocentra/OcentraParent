@@ -1,6 +1,5 @@
 use std::{fs::OpenOptions, io::Write};
 
-use chrono::{DateTime, Utc};
 use ocentra_parent_agent_protocol::constants;
 
 use crate::JournalError;

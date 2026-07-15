@@ -121,7 +121,7 @@ impl LocalAiProviderSchedulerRuntime {
         let status = status_for_device(&mut states, physical_device_id.clone(), runtime);
         decrement_queue(&mut status.queue, &job_class);
         status.lifecycle_state = LocalAiProviderSchedulerLifecycle::Running;
-        status.current_job_class = Some(job_class.clone());
+        status.current_job_class = Some(job_class);
         status.duplicate_runtime_blocked = true;
         status.degraded_state = if status.queue.total() > 0 {
             LocalAiDegradedState::Overloaded
@@ -223,20 +223,16 @@ impl LocalAiProviderSchedulerRuntime {
         }
 
         match self
-            .reserve_runtime_lane(physical_device_id.clone(), job_class.clone())
+            .reserve_runtime_lane(physical_device_id.clone(), job_class)
             .await
         {
             LocalAiProviderRuntimeLaneAdmission::Running => {
-                self.record_running_job_for_device(physical_device_id, &runtime, job_class.clone());
+                self.record_running_job_for_device(physical_device_id, &runtime, job_class);
             }
             LocalAiProviderRuntimeLaneAdmission::Queued(waiter) => {
-                self.record_queued_job_for_device(
-                    physical_device_id.clone(),
-                    &runtime,
-                    job_class.clone(),
-                );
+                self.record_queued_job_for_device(physical_device_id.clone(), &runtime, job_class);
                 waiter.notify_if_lane_idle();
-                self.wait_for_runtime_lane(physical_device_id, waiter, &runtime, job_class.clone())
+                self.wait_for_runtime_lane(physical_device_id, waiter, &runtime, job_class)
                     .await;
             }
         }

@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::transport::{
 
 use crate::test_text::TestText;
 use crate::{
-    event_builder::{build_event, portal_peer},
+    event_builder::build_event,
     fields::fields_from_pairs,
     lan_pairing::{
         build_lan_pairing_status_report, command_routing::route_lan_command, LanCommandDecision,

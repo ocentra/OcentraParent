@@ -109,10 +109,6 @@ pub fn name_evidence(
     })
 }
 
-pub fn invalid_hostname_label(label: &str) -> bool {
-    validation::invalid_hostname_label(label)
-}
-
 pub fn trim_optional_text(value: &str) -> Option<String> {
     let value = value.trim();
     (!value.is_empty()).then(|| value.to_string())

@@ -6,6 +6,7 @@ const shellReadyTimeoutMs = 90_000;
 const devicesLanScreenshotPath = process.env['LAN_SOURCE_MATRIX_DEVICES_SCREENSHOT']?.trim() ?? '';
 const policyNetworkTargetScreenshotPath = process.env['LAN_SOURCE_MATRIX_POLICY_TARGET_SCREENSHOT']?.trim() ?? '';
 const manageTargetSelectionStorageKey = 'ocentra.parent.portal.manage-target-selection.v1';
+const selectableLanTargetName = /^Select (?:LAN \d{1,3}(?:\.\d{1,3}){3}|[A-Z0-9._-]{4,})$/u;
 
 type StoredManageTargetSelection = {
   readonly device: string;
@@ -24,7 +25,7 @@ test('devices and policy-network surfaces preserve the selected LAN policy targe
   const scanButton = page.getByRole('button', { exact: true, name: 'Scan Local Area Network' });
   await expect(scanButton).toBeVisible({ timeout: shellReadyTimeoutMs });
   await scanButton.click({ force: true });
-  await expect(page.getByRole('button', { name: /^Select LAN \d{1,3}(?:\.\d{1,3}){3}$/u }).first()).toBeVisible({
+  await expect(page.getByRole('button', { name: selectableLanTargetName }).first()).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });
 

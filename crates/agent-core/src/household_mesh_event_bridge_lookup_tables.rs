@@ -92,15 +92,6 @@ const SELECTED_LOCAL_EVENT_LOOKUPS: [SelectedLocalEventLookup; 13] = [
     },
 ];
 
-pub(crate) fn bridge_message_type_for_local_event(event_type: &str) -> Option<&'static str> {
-    LOCAL_EVENT_TYPE_LOOKUPS.iter().find_map(|lookup| {
-        (lookup.event_type == event_type)
-            .then(|| local_event_ref(lookup.local_event_kind))
-            .flatten()
-            .and_then(lan_message_type_for_ref)
-    })
-}
-
 pub(crate) fn bridge_local_event_kind_for_local_event(
     event_type: &str,
 ) -> Option<HouseholdMeshLocalEventKind> {

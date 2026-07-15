@@ -217,6 +217,7 @@ async fn lan_ai_job_event_with_ids(
     .await
 }
 
+#[derive(Clone, Copy)]
 struct LanAiJobIntentExpectation {
     intent_id: &'static str,
 }

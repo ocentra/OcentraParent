@@ -4,6 +4,7 @@ use super::{
     APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE, APP_GAME_POLICY_READINESS_STATE_READY,
     APP_GAME_POLICY_READINESS_STATUS_PARTIAL, APP_GAME_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn app_game_policy_readiness_read_model_serializes_no_adapter_claim() {
@@ -41,7 +42,7 @@ fn app_game_policy_readiness_read_model_serializes_no_adapter_claim() {
     };
 
     let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(

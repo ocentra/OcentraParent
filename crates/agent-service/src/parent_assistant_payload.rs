@@ -17,9 +17,6 @@ use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantThreadRespon
 
 use crate::fields::fields_from_pairs;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-struct ParentAssistantText(String);
-
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct ParentAssistantTextRef<'a>(&'a str);
 

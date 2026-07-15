@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
 use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementIntent, EnforcementIntentSource, EnforcementResultStatus, EnforcementTimerEventKind,
+    EnforcementIntent, EnforcementResultStatus, EnforcementTimerEventKind,
 };
 
 use super::enforcement_timer_event_kind_recovery::timer_event_kind_for_recovery;

@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::collections::BTreeMap;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;

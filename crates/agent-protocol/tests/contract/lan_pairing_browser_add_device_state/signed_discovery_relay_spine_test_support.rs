@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::LanPairingProductionDiscoveryState;
 use ocentra_parent_agent_protocol::LanPairingRejectionReason;
@@ -20,7 +21,6 @@ use ocentra_parent_agent_protocol::LAN_PAIRING_SCHEMA_VERSION;
 
 #[derive(Clone)]
 struct AdapterRowMetadata {
-    custody_label: LanSignedDiscoveryRelayCustodyLabel,
     evidence_label: &'static str,
     required_artifact_summary: Option<&'static str>,
 }
@@ -138,7 +138,7 @@ fn adapter_rows() -> Vec<LanSignedDiscoveryRelayAdapterRow> {
             V09ProductionDiscoveryHouseholdProofState::CiMechanicalProof,
             LanSignedDiscoveryRelaySourceConfidence::Strong,
             LanSignedDiscoveryRelayCustodyLabel::PassiveLanObservation,
-            adapter_row_metadata(&LanSignedDiscoveryRelayAdapterKind::PassiveLanNeighbor),
+            &adapter_row_metadata(&LanSignedDiscoveryRelayAdapterKind::PassiveLanNeighbor),
         ),
         adapter_row(
             LanSignedDiscoveryRelayAdapterKind::RouterInfrastructure,
@@ -146,7 +146,7 @@ fn adapter_rows() -> Vec<LanSignedDiscoveryRelayAdapterRow> {
             V09ProductionDiscoveryHouseholdProofState::CiMechanicalProof,
             LanSignedDiscoveryRelaySourceConfidence::Strong,
             LanSignedDiscoveryRelayCustodyLabel::RouterInfrastructureObservation,
-            adapter_row_metadata(&LanSignedDiscoveryRelayAdapterKind::RouterInfrastructure),
+            &adapter_row_metadata(&LanSignedDiscoveryRelayAdapterKind::RouterInfrastructure),
         ),
         manual_adapter_row(LanSignedDiscoveryRelayAdapterKind::MdnsName),
         manual_adapter_row(LanSignedDiscoveryRelayAdapterKind::SsdpName),
@@ -328,7 +328,7 @@ fn manual_adapter_row(
         V09ProductionDiscoveryHouseholdProofState::ManualRequired,
         LanSignedDiscoveryRelaySourceConfidence::ManualRequired,
         custody_label,
-        metadata,
+        &metadata,
     )
 }
 
@@ -338,7 +338,7 @@ fn adapter_row(
     proof_state: V09ProductionDiscoveryHouseholdProofState,
     source_confidence: LanSignedDiscoveryRelaySourceConfidence,
     custody_label: LanSignedDiscoveryRelayCustodyLabel,
-    metadata: AdapterRowMetadata,
+    metadata: &AdapterRowMetadata,
 ) -> LanSignedDiscoveryRelayAdapterRow {
     let runtime_owner = runtime_owner_for(&proof_state);
     LanSignedDiscoveryRelayAdapterRow {
@@ -482,7 +482,7 @@ fn adapter_row_metadata(adapter: &LanSignedDiscoveryRelayAdapterKind) -> Adapter
         .iter()
         .find(|(kind, _)| kind == adapter)
         .map(|(_, metadata)| metadata.clone())
-        .expect("adapter metadata exists")
+        .expect_value("adapter metadata exists")
 }
 
 fn signed_proof_metadata(check: &LanSignedDiscoveryRelaySignedProofCheck) -> SignedProofMetadata {
@@ -490,7 +490,7 @@ fn signed_proof_metadata(check: &LanSignedDiscoveryRelaySignedProofCheck) -> Sig
         .iter()
         .find(|(kind, _)| kind == check)
         .map(|(_, metadata)| *metadata)
-        .expect("signed proof metadata exists")
+        .expect_value("signed proof metadata exists")
 }
 
 fn route_safety_metadata(check: &LanSignedDiscoveryRelayRouteSafetyCheck) -> RouteSafetyMetadata {
@@ -498,7 +498,7 @@ fn route_safety_metadata(check: &LanSignedDiscoveryRelayRouteSafetyCheck) -> Rou
         .iter()
         .find(|(kind, _)| kind == check)
         .map(|(_, metadata)| *metadata)
-        .expect("route safety metadata exists")
+        .expect_value("route safety metadata exists")
 }
 
 fn relay_cache_metadata(check: &LanSignedDiscoveryRelayCacheCheck) -> RelayCacheMetadata {
@@ -506,14 +506,13 @@ fn relay_cache_metadata(check: &LanSignedDiscoveryRelayCacheCheck) -> RelayCache
         .iter()
         .find(|(kind, _)| kind == check)
         .map(|(_, metadata)| *metadata)
-        .expect("relay cache metadata exists")
+        .expect_value("relay cache metadata exists")
 }
 
 const ADAPTER_ROW_METADATA: &[(LanSignedDiscoveryRelayAdapterKind, AdapterRowMetadata)] = &[
     (
         LanSignedDiscoveryRelayAdapterKind::PassiveLanNeighbor,
         AdapterRowMetadata {
-            custody_label: LanSignedDiscoveryRelayCustodyLabel::PassiveLanObservation,
             evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR,
             required_artifact_summary: None,
         },
@@ -521,7 +520,6 @@ const ADAPTER_ROW_METADATA: &[(LanSignedDiscoveryRelayAdapterKind, AdapterRowMet
     (
         LanSignedDiscoveryRelayAdapterKind::RouterInfrastructure,
         AdapterRowMetadata {
-            custody_label: LanSignedDiscoveryRelayCustodyLabel::RouterInfrastructureObservation,
             evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_ROUTER_NEIGHBOR,
             required_artifact_summary: None,
         },
@@ -529,7 +527,6 @@ const ADAPTER_ROW_METADATA: &[(LanSignedDiscoveryRelayAdapterKind, AdapterRowMet
     (
         LanSignedDiscoveryRelayAdapterKind::MdnsName,
         AdapterRowMetadata {
-            custody_label: LanSignedDiscoveryRelayCustodyLabel::PassiveLanObservation,
             evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_MDNS,
             required_artifact_summary: Some(constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_MDNS),
         },
@@ -537,7 +534,6 @@ const ADAPTER_ROW_METADATA: &[(LanSignedDiscoveryRelayAdapterKind, AdapterRowMet
     (
         LanSignedDiscoveryRelayAdapterKind::SsdpName,
         AdapterRowMetadata {
-            custody_label: LanSignedDiscoveryRelayCustodyLabel::PassiveLanObservation,
             evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_SSDP,
             required_artifact_summary: Some(constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_SSDP),
         },
@@ -545,7 +541,6 @@ const ADAPTER_ROW_METADATA: &[(LanSignedDiscoveryRelayAdapterKind, AdapterRowMet
     (
         LanSignedDiscoveryRelayAdapterKind::RouterDhcpName,
         AdapterRowMetadata {
-            custody_label: LanSignedDiscoveryRelayCustodyLabel::RouterInfrastructureObservation,
             evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_ROUTER_DHCP,
             required_artifact_summary: Some(
                 constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_ROUTER_DHCP,
@@ -555,7 +550,6 @@ const ADAPTER_ROW_METADATA: &[(LanSignedDiscoveryRelayAdapterKind, AdapterRowMet
     (
         LanSignedDiscoveryRelayAdapterKind::ManualDirectAddress,
         AdapterRowMetadata {
-            custody_label: LanSignedDiscoveryRelayCustodyLabel::ManualParentEntry,
             evidence_label: constants::lan_pairing::MANUAL_PROOF_GAP_LAN_BIND,
             required_artifact_summary: Some(constants::lan_pairing::MANUAL_PROOF_GAP_LAN_BIND),
         },
@@ -563,7 +557,6 @@ const ADAPTER_ROW_METADATA: &[(LanSignedDiscoveryRelayAdapterKind, AdapterRowMet
     (
         LanSignedDiscoveryRelayAdapterKind::SignedChildAgentHello,
         AdapterRowMetadata {
-            custody_label: LanSignedDiscoveryRelayCustodyLabel::SignedChildAgentArtifact,
             evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_SIGNED_HELLO,
             required_artifact_summary: Some(
                 constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_SIGNED_HELLO,
@@ -573,7 +566,6 @@ const ADAPTER_ROW_METADATA: &[(LanSignedDiscoveryRelayAdapterKind, AdapterRowMet
     (
         LanSignedDiscoveryRelayAdapterKind::SignedChildAgentHeartbeat,
         AdapterRowMetadata {
-            custody_label: LanSignedDiscoveryRelayCustodyLabel::SignedChildAgentArtifact,
             evidence_label: constants::lan_pairing::PRODUCTION_PROOF_LABEL_SIGNED_HEARTBEAT,
             required_artifact_summary: Some(
                 constants::lan_pairing::PRODUCTION_PROOF_ARTIFACT_SIGNED_HEARTBEAT,

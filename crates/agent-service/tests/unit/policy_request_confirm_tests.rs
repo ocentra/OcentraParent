@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;

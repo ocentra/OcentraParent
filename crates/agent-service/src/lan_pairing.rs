@@ -33,42 +33,23 @@ mod runtime_validation;
 use ocentra_lan_core::lan_pairing::LanSignedChildAgentReplayGuard;
 use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryListenerState;
 use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
-use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::logging::LogFields;
-use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
-use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
-    event_builder::build_event,
-    lan_pairing_audit::{
-        accepted_control_audit_fields, accepted_pairing_audit_fields,
-        rejected_control_audit_fields, rejected_pairing_audit_fields, revoked_route_audit_fields,
-        selected_route_audit_fields,
-    },
-    lan_pairing_payload::{
-        is_challenge_request, parse_intent, parse_pairing_proof, parse_signed_child_agent_envelope,
-    },
     lan_pairing_runtime_state::{
         job_leases::LanAiJobLeaseState, provider_heartbeat::LanAiProviderHeartbeatState,
     },
-    lan_pairing_status::{pairing_challenge_status_event, pairing_status_event},
-    time::timestamp_now,
+    lan_pairing_status::pairing_status_event,
 };
 
-use self::authority::{
-    is_write_intent, validate_registry_selection_intent, validate_write_authority,
-};
-use self::command_routing::LanCommandOrigin;
 use self::controller_lease::LanControllerLeaseState;
 
 #[derive(Clone, Debug)]
@@ -123,7 +104,8 @@ pub(crate) fn extend_log_fields(target: &mut LogFields, fields: LogFields) {
 }
 
 pub(crate) fn log_fields_contains_key(fields: &LogFields, key: LanPairingText) -> bool {
-    fields.get(key.0.as_str()).is_some()
+    let key = key.0;
+    fields.get(key.as_str()).is_some()
 }
 
 pub(crate) fn log_fields_is_empty(fields: &LogFields) -> bool {
@@ -143,55 +125,11 @@ pub fn build_lan_pairing_status_report(
     pairing_status_event(runtime, command)
 }
 
-pub(crate) fn validate_command_target(
-    runtime: &LanPairingRuntime,
-    command: &AgentCommandEnvelope,
-    intent: &LanParentIntentEnvelope,
-) -> Result<(), LanPairingRejectionReason> {
-    runtime_validation::validate_command_target(runtime, command, intent)
-}
-
 pub(crate) fn validate_local_child_target(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     runtime_validation::validate_local_child_target(runtime, command)
-}
-
-fn validate_pairing_proof_target(
-    runtime: &LanPairingRuntime,
-    command: &AgentCommandEnvelope,
-    proof: &LanPairingProof,
-    origin: &LanPairingOptionalText,
-) -> Result<(), LanPairingRejectionReason> {
-    runtime_validation::validate_pairing_proof_target(runtime, command, proof, origin)
-}
-
-fn validate_intent_result(
-    runtime: &LanPairingRuntime,
-    origin: &LanPairingOptionalText,
-    intent: &LanParentIntentEnvelope,
-) -> Result<(), LanPairingRejectionReason> {
-    runtime_validation::validate_intent_result(runtime, origin, intent)
-}
-
-fn validate_selection_intent_result(
-    runtime: &LanPairingRuntime,
-    origin: &LanPairingOptionalText,
-    intent: &LanParentIntentEnvelope,
-) -> Result<(), LanPairingRejectionReason> {
-    runtime_validation::validate_selection_intent_result(runtime, origin, intent)
-}
-
-fn select_pairing_result(
-    runtime: &LanPairingRuntime,
-    intent: &LanParentIntentEnvelope,
-) -> Result<(), LanPairingRejectionReason> {
-    runtime_validation::select_pairing_result(runtime, intent)
-}
-
-fn revoke_pairing(runtime: &LanPairingRuntime, intent: &LanParentIntentEnvelope) -> bool {
-    runtime_validation::revoke_pairing(runtime, intent)
 }
 
 pub(crate) fn rejection_event(
@@ -201,13 +139,6 @@ pub(crate) fn rejection_event(
     origin: &LanPairingOptionalText,
 ) -> AgentEventEnvelope {
     runtime_rejection::rejection_event(command, reason, intent, origin)
-}
-
-fn pairing_rejection_event(
-    command: AgentCommandEnvelope,
-    reason: &LanPairingRejectionReason,
-) -> AgentEventEnvelope {
-    runtime_rejection::pairing_rejection_event(command, reason)
 }
 
 fn device_ref(paired_device_id: LanPairingText, platform: LanPairingText) -> LanPairingDeviceRef {
