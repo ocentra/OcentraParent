@@ -1,7 +1,9 @@
 use serde_json::{Map, Value};
+use std::io::Error as IoError;
+#[cfg(windows)]
+use std::path::Path;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;
-use std::{io::Error as IoError, path::Path};
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
@@ -19,10 +21,9 @@ use ocentra_parent_agent_protocol::screen_evidence::SCREEN_WINRT_OCR_MODEL_ID;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_WINRT_OCR_RUNTIME_REF;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_WINRT_OCR_TEMPLATE_VERSION;
 
-use super::{
-    adapter::parsed_generation_output_with_policy, adapter_process::is_windows_batch_adapter,
-    config::ScreenOcrRedactionPolicy,
-};
+#[cfg(windows)]
+use super::adapter_process::is_windows_batch_adapter;
+use super::{adapter::parsed_generation_output_with_policy, config::ScreenOcrRedactionPolicy};
 
 type TestResult = Result<(), IoError>;
 
@@ -167,6 +168,7 @@ fn parsed_generation_output_respects_parent_selected_bounded_snippets() -> TestR
     Ok(())
 }
 
+#[cfg(windows)]
 #[test]
 fn adapter_launch_detects_windows_batch_wrappers() {
     assert!(is_windows_batch_adapter(Path::new(

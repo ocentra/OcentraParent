@@ -63,7 +63,9 @@ use ocentra_parent_agent_core::household_mesh_event_bridge::{
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_core::journal_error;
-use ocentra_parent_agent_core::network_capture::{collect_network_snapshot, NetworkObservation};
+#[cfg(windows)]
+use ocentra_parent_agent_core::network_capture::collect_network_snapshot;
+use ocentra_parent_agent_core::network_capture::NetworkObservation;
 use ocentra_parent_agent_core::network_capture_event::network_observation_event;
 #[cfg(windows)]
 use ocentra_parent_agent_core::network_capture_netstat;
