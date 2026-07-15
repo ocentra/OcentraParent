@@ -16,7 +16,6 @@ use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_WINDOWS_PATH_MICROSOFT, APP_GAME_WINDOWS_PATH_PROGRAMS,
     APP_GAME_WINDOWS_PATH_START_MENU, APP_GAME_WINDOWS_PATH_WINDOWS,
 };
-use ocentra_parent_agent_protocol::constants;
 use sha2::{Digest, Sha256};
 
 use super::{
@@ -206,3 +205,5 @@ fn opaque_ref(prefix: &str, path: &Path) -> String {
     reference.push_str(&BASE64_URL_SAFE_NO_PAD.encode(digest));
     reference
 }
+#[cfg(target_os = "windows")]
+use ocentra_parent_agent_protocol::constants;
