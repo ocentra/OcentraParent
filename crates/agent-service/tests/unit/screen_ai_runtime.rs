@@ -280,6 +280,10 @@ mod screen_ai_analysis_runtime {
 
 mod screen_ai_service_event_subscription_live_view {
     use super::screen_ai_service_event_subscription::live_view_service_runtime;
-    #[path = "../live_view_service_runtime_tests.rs"]
-    mod live_view_service_runtime_tests;
+    mod live_view_service_runtime_tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/live_view_service_runtime_tests.rs"
+        ));
+    }
 }

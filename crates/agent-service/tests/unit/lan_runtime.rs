@@ -334,8 +334,12 @@ mod lan_pairing_browser_add_device_scan_tests {
     use super::lan_pairing_browser_add_device_scan::*;
     use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
 
-    #[path = "../lan_pairing_browser_add_device_scan.rs"]
-    mod tests;
+    mod tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/lan_pairing_browser_add_device_scan.rs"
+        ));
+    }
 }
 
 mod lan_pairing_browser_add_device_state_private_tests {
@@ -356,8 +360,12 @@ mod lan_pairing_browser_add_device_state_private_tests {
             crate::lan_pairing_browser_add_device_state::scan_history::LanScanHistorySnapshot;
     }
 
-    #[path = "../lan_pairing_browser_add_device_state_private.rs"]
-    mod tests;
+    mod tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/lan_pairing_browser_add_device_state_private.rs"
+        ));
+    }
 }
 
 mod lan_pairing_browser_add_device_state_physical_lan_scan_tests {
@@ -366,8 +374,12 @@ mod lan_pairing_browser_add_device_state_physical_lan_scan_tests {
         recent_previous_scan_agent_truth_devices, scan_history_is_recent,
     };
 
-    #[path = "../lan_pairing_browser_add_device_state_physical_lan_scan.rs"]
-    mod tests;
+    mod tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/lan_pairing_browser_add_device_state_physical_lan_scan.rs"
+        ));
+    }
 }
 
 mod lan_pairing_browser_add_device_state_scan_history_tests {
@@ -378,6 +390,10 @@ mod lan_pairing_browser_add_device_state_scan_history_tests {
     use ocentra_lan_core::network_inventory::{LanDiscoveryScanPlan, LanNetworkInventoryDevice};
     use std::fs;
 
-    #[path = "../lan_pairing_browser_add_device_state_scan_history.rs"]
-    mod tests;
+    mod tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/lan_pairing_browser_add_device_state_scan_history.rs"
+        ));
+    }
 }
