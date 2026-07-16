@@ -54,6 +54,17 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
   assert.equal(processSource.includes('CARGO_BUILD_JOBS'), false);
 });
 
+test('portal e2e CI preserves platform results and reports Enforcer proof diagnostics', () => {
+  const workflowSource = readFileSync('.github/workflows/ci-portal-e2e.yml', 'utf8');
+
+  assert.equal(workflowSource.includes('fail-fast: false'), true);
+  assert.equal(workflowSource.includes('id: portal_e2e'), true);
+  assert.equal(workflowSource.includes('continue-on-error: true'), true);
+  assert.equal(workflowSource.includes('proof last-failure --json'), true);
+  assert.equal(workflowSource.includes("steps.portal_e2e.outcome == 'failure'"), true);
+  assert.equal(workflowSource.includes('node -e "process.exit(1)"'), true);
+});
+
 test('portal local smoke waits for process shutdown before temp cleanup', () => {
   const smokeSource = readEnforcerProfileProofScript('scripts/test/portal-local-smoke.mjs');
   const stopIndex = smokeSource.indexOf('await Promise.all([stopProcess(portal), stopProcess(agent)])');
