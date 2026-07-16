@@ -2,16 +2,9 @@
 
 import { spawnSync } from 'node:child_process';
 
-const environment =
-  process.platform === 'win32'
-    ? { ...process.env, CARGO_BUILD_JOBS: process.env.CARGO_BUILD_JOBS ?? '1' }
-    : process.env;
-const commands = [
-  ['npm', ['run', 'format:rust']],
-  ['npm', ['run', 'lint:rust']],
-  ['cargo', ['check', '--workspace']],
-  ['cargo', ['test', '--workspace', '--', '--test-threads=1']],
-];
+import { buildWorkspaceRustValidationCommands } from './rust-validation-commands.mjs';
+
+const commands = buildWorkspaceRustValidationCommands();
 
 for (const [command, arguments_] of commands) {
   const usesWindowsNpm = process.platform === 'win32' && command === 'npm';
@@ -20,7 +13,7 @@ for (const [command, arguments_] of commands) {
     usesWindowsNpm ? ['/d', '/s', '/c', 'npm.cmd', ...arguments_] : arguments_,
     {
       cwd: process.cwd(),
-      env: environment,
+      env: process.env,
       stdio: 'inherit',
       shell: false,
     }

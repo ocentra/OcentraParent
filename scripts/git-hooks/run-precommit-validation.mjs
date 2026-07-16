@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { repoRoot, resolveScopedFiles } from '../check-architecture-scope.mjs';
+import { buildCrateRustValidationCommands } from '../ci/rust-validation-commands.mjs';
 
 const scriptName = 'node scripts/git-hooks/run-precommit-validation.mjs';
 const usageLines = ['--full', '--all', '--base <sha> --head <sha>'];
@@ -357,10 +358,7 @@ function buildScopedValidations(scopeArgs, { prettierFiles: explicitPrettierFile
       ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'reexports', '--files', crateDirs.join(',')],
     ]);
     for (const [crateDir] of scope.crates) {
-      // Keep Windows linker command lines bounded while validating every changed crate.
-      const manifestPath = `${crateDir}/Cargo.toml`;
-      validations.push(['cargo', ['check', '--manifest-path', manifestPath]]);
-      validations.push(['cargo', ['test', '--manifest-path', manifestPath, '--', '--test-threads=1']]);
+      validations.push(...buildCrateRustValidationCommands(crateDir));
     }
   }
 
