@@ -24,6 +24,11 @@ tests from the touched risk surface, not from habit. A docs-only routing change
 does not need the same proof as an authenticated protocol or platform adapter
 change; an authenticated persistent runtime change needs more than unit tests.
 
+For Rust-first parent architecture packets, validate the owned slice before any
+broad repo gate. Use crate/package/file-scoped commands while the worktree is
+dirty or other lanes own adjacent files. Do not run repo-wide validation from a
+subagent unless the main lane explicitly authorizes it.
+
 ## Root gate
 
 ```bash
@@ -34,6 +39,9 @@ The root gate covers release version alignment, CodeQL changed-file checks,
 schema/source-boundary checks, Turbo lint/type-check/test tasks, Rust format,
 Rust clippy/check/test, integration smoke, local portal smoke, and Playwright UI
 coverage against the real Rust service.
+
+Use the root gate near integration/PR readiness, not as the first validation for
+per-crate Rust-first packets.
 
 ## Before DONE or PR_READY
 
@@ -68,3 +76,10 @@ When writing or changing tests, also read
 `.ocentra-ai/rules/ocentra-parent-test-rules.mdc`. Tests must use real
 contracts, parsers, services, transports, or UI paths. Test doubles are
 forbidden.
+
+Rust test structure must stay visible and honest: create only applicable
+category folders/harnesses such as `unit`, `integration`, `contract`,
+`security`, `property`, `fuzz`, `replay`, `concurrency`, `migration`,
+`compatibility`, `observability`, `performance`, `chaos`, `ai`, or `e2e`.
+Remove or ignore empty placeholder folders until a real claimed packet fills
+them. Inline Rust tests are allowed only for tiny private invariants.

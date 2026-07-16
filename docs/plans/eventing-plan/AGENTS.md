@@ -28,15 +28,55 @@ Proof rule: proof must contain command log, negative case, artifact path, update
 Authoring rule: this plan describes outcomes, boundaries, expected tests, proof, and failure conditions; it must not prescribe implementation code except for minimal public contract or artifact-shape examples.
 Failure condition: no DONE/PR_READY when tests are happy-path only, proof is missing, product status moved without evidence, or validation scope is not listed.
 
+## Ownership, Import, And Boundary Contract
+
+This plan owns reusable local eventing semantics and proof. It does not own every product feature that publishes, consumes, transports, displays, stores, or reacts to events.
+
+Module roles:
+
+```text
+ocentra-eventing: reusable Rust local event bus, typed envelopes, event ids, idempotency keys, aggregate ordering, queue/dead-letter semantics, request/response registry, journal/replay, topology/contract registry, local dispatch lifecycle, and testkit helpers.
+schema-domain: canonical shared event contract shapes when event contracts cross package, crate, app, or plan boundaries.
+event-domain: package-boundary metadata only; shared event contracts live in schema-domain or the owning protocol package.
+agent-protocol and agent-service: protocol/service consumers when selected. They prove wire/service/read-model delivery only for their own surfaces.
+LAN and remote-access plans: transport, mesh, relay, pairing, route authority, and cross-device delivery owners.
+network, AI, policy, enforcement, portal, data-custody, browser, app-game, screen, tracking, setup, payment, and account plans: consumer owners that may publish or consume events through typed handoffs; they own their domain behavior.
+```
+
+Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
+
+```text
+ocentra-eventing public modules for local event bus, envelope, ids, queue, journal, replay, request/response, topology, contract registry, and testkit proof
+schema-domain shared event shapes when a contract is cross-boundary
+agent-protocol/agent-service public protocol surfaces only when selected by the workpack
+consumer-plan public contract surfaces only when the selected workpack names a consumer handoff
+pure common helpers that do not own feature behavior or side effects
+```
+
+Forbidden direct imports and claims:
+
+```text
+consumer feature runtime internals imported into the eventing crate
+local bus proof upgraded into cross-device transport, LAN mesh, relay, or remote delivery proof
+NDJSON journal/replay proof upgraded into production durability, retention, deletion, export, or remote replication proof
+protocol shape proof upgraded into service delivery proof
+consumer read-model proof upgraded into eventing crate readiness
+AI, policy, enforcement, portal, storage, account, payment, setup, browser, screen, app-game, tracking, LAN, or remote behavior claimed as eventing behavior
+provider or peer devices allowed to publish policy/enforcement events directly through the eventing plan
+```
+
+If eventing work needs LAN, remote, network, AI, policy, enforcement, portal, data custody, browser, app-game, screen, tracking, setup, payment, or account behavior, it must use typed evidence, commands, events, requests, read models, proof roots, and explicit handoffs. If a shape is used by multiple feature owners, place or consume it through `schema-domain` or another neutral shared boundary. Do not solve cross-plan behavior by importing another feature owner's runtime internals.
+
 ## Default read order
 
 1. [PLAN_STATE.md](PLAN_STATE.md) - current state, open gaps, default no-read list.
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
-4. Assigned workpack under `workpacks/`, if any.
-5. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
-6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
-7. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when the selected workpack owner/proof family is unclear.
+5. Assigned workpack under `workpacks/`, if any.
+6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
+7. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
+8. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
 
 ## Local decision tree
 

@@ -28,15 +28,55 @@ Proof rule: proof must contain command log, negative case, artifact path, update
 Authoring rule: this plan describes outcomes, boundaries, expected tests, proof, and failure conditions; it must not prescribe implementation code except for minimal public contract or artifact-shape examples.
 Failure condition: no DONE/PR_READY when tests are happy-path only, proof is missing, product status moved without evidence, or validation scope is not listed.
 
+## Ownership, Import, And Boundary Contract
+
+Browser owns browser evidence and browser-control handoff surfaces. It does not own AI classification, policy authority, enforcement authority, network capture, screen capture, native app/game control, or parent portal rendering beyond browser-specific projections.
+
+Module roles:
+
+```text
+crates/schema: canonical shared browser/evidence/policy-reference/protocol/capability/logging shapes when browser shapes cross package, crate, app, or plan boundaries.
+browser-domain: TypeScript browser helper/projection and focused validation surface. It is presentation-only and generated/thin at the edge; it must not become a policy, notification, family, AI, portal, or enforcement runtime aggregator.
+browser-core: child-local Rust browser observation, evidence event, AI-request event, and policy-request event boundary. It should use event/protocol handoffs rather than importing sibling runtime crates.
+agent-protocol and agent-service: wire/service/read-model boundaries only when the selected workpack names protocol, service handler, or read API proof.
+AI plan: consumes stored browser evidence, source refs, or structured digests only. AI does not import browser runtime, scrape browser state, or decide enforcement.
+policy and enforcement plans: deterministic decision/action owners. Browser provides evidence/source readiness/intervention handoff; policy/enforcement own final decision and adapter action.
+portal-domain and apps/portal: parent-visible projection only; they do not capture browser state, infer exact URLs, run policies, or enforce.
+network, screen, app-game, tracking, LAN, remote, account, data-custody, and setup plans: sibling evidence or handoff owners only. They must not re-own browser source truth.
+```
+
+Direct imports are allowed only for neutral/shared infrastructure or explicit public helper surfaces:
+
+```text
+canonical crates/schema browser/evidence/policy-reference/protocol/capability/logging shapes
+neutral event/evidence/logging/protocol primitives
+approved public browser-domain helper exports when the selected workpack names browser-domain scope
+browser-core when the selected workpack names Rust browser observation/event proof
+pure common helpers that do not own feature behavior or side effects
+```
+
+Forbidden direct imports:
+
+```text
+sibling feature owner runtime behavior from AI, policy, enforcement, network, screen, app-game, tracking, portal, notification, child-runtime, LAN, remote, setup, payment, or data-custody plans
+private source files from another plan's owning package/crate
+peer feature contracts when the shared shape should live in crates/schema or another neutral Rust boundary
+AI, policy, enforcement, portal, or notification code that captures or infers browser source state instead of consuming browser evidence/read models
+network/process/window evidence being upgraded into exact tab URL, active tab, page title, or browser-game proof without the selected browser source proof
+```
+
+If browser work needs AI, policy, enforcement, notification, portal, network, screen, app-game, tracking, LAN, or remote behavior, it must use typed evidence, commands, events, requests, read models, and proof handoffs. If a shape is used by multiple feature owners, place or consume it through `crates/schema` or another neutral Rust shared boundary. Do not solve cross-plan behavior by importing another feature's runtime internals.
+
 ## Default read order
 
 1. [PLAN_STATE.md](PLAN_STATE.md) - current state, open gaps, default no-read list.
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
-4. Assigned workpack under `workpacks/`, if any.
-5. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
-6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
-7. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when the selected workpack owner/proof family is unclear.
+5. Assigned workpack under `workpacks/`, if any.
+6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
+7. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
+8. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
 
 ## Local decision tree
 

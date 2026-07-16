@@ -1,94 +1,77 @@
-# Tracking Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `tracking-plan`
+> Doc: `Tracking Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one active workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: location/product readiness or PR readiness.
 
-Convert tracking claims into reproducible location/session/geofence behavior with strict ordering, privacy, and alert control.
+<!-- /agent-capsule -->
 
-## Slice 01 � Location and Session Contracts
+# Tracking Plan Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- Location/session schema boundaries and family/device authorization are explicit.
+Tracking is mature but large. Do not execute the full plan. Select one workpack from `WORKPACK_INDEX.md` and use its named proof root, proof ids, no-claim boundaries, and focused commands.
 
-### Tests
+Use this loop:
 
-- `tracking.location.schema-negative-decode`
-- `tracking.authz.family-isolation`
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one selected workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
 
-### Proof
+## Proof root rule
 
-- `docs/proof/tracking-plan/slice-01-location-contract.md`
+Prefer proof roots explicitly named inside the selected workpack.
 
-## Slice 02 � Platform Adapters and Power/Permissions
+If a workpack lacks a proof root, derive:
 
-### Acceptance
+```text
+output/tracking-plan-proof/<workpack-file-stem>/
+```
 
-- Adapter capability, permission, and degraded modes are captured.
+## Active-workpack rule
 
-### Tests
+Checked rows in `WORKPACK_INDEX.md` stay closed unless the assignment is
+audit/regression/reopen. This plan currently has audit-reopened checked rows:
+`WP25`, `WP27`, `WP28`, `WP29`, and `WP33`.
 
-- `tracking.adapter.platform`
-- `tracking.platform.permission`
+Treat on-disk `WP34-WP39` as active workpacks even though older generated
+index/state docs omitted them.
 
-### Proof
+Large reference docs under `workpacks/` that have `0/0` boxes are source/reference material, not executable workpacks, unless a selected workpack names them.
 
-- `docs/proof/tracking-plan/slice-02-adapter-matrix.md`
+## Focused command policy
 
-## Slice 03 � Geofence and Session Invariants
+Use only commands relevant to the selected workpack, typically from:
 
-### Acceptance
+```bash
+npm run build --workspace @ocentra-parent/tracking-domain
+npm run test --workspace @ocentra-parent/tracking-domain
+cargo test -p ocentra-tracking-core
+cargo test -p ocentra-parent-agent-protocol tracking
+npm run test --workspace @ocentra-parent/portal -- tracking
+npm run lint:architecture -- --files packages/tracking-domain crates/tracking-core packages/agent-protocol-domain crates/agent-protocol apps/portal docs/plans/tracking-plan
+```
 
-- Geofence transitions handle jitter, duplicates, stale samples, and stale transitions.
+If focused Rust commands are blocked by unrelated crates, record the blocker and keep the row open unless the selected workpack already documents the blocker.
 
-### Tests
+## Proof update rule
 
-- `tracking.geofence.transition-invariants`
-- `tracking.session.idempotency-replay`
+Each completed row needs:
 
-### Proof
+```text
+exact command
+exit code
+proof file path
+test/proof id
+negative case status
+remaining gaps/no-claim boundary
+```
 
-- `docs/proof/tracking-plan/slice-03-geofence-invariants.md`
+## No-claim boundaries
 
-## Slice 04 � Alerts, Escalation, and Rollback
-
-### Acceptance
-
-- Alert severity/rollover/rate-limit and rollback behavior are explicit.
-
-### Tests
-
-- `tracking.alert.rate-limit-escalation`
-- `tracking.alert.acknowledge-rollback`
-
-### Proof
-
-- `docs/proof/tracking-plan/slice-04-alert-escalation.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/tracking-plan/workpacks/01-source-index-and-repo-reconciliation.md
-- Slice 02: docs/plans/tracking-plan/workpacks/02-current-tracking-snapshot-and-gap-map.md
-- Slice 03: docs/plans/tracking-plan/workpacks/03-contract-boundary-and-effect-schemas.md
-- Slice 04: docs/plans/tracking-plan/workpacks/04-location-evidence-model.md
-
-## PR-ready gate
-
-- No location/geofence claim without replay/order/privacy and platform limitation proof.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: tracking schema and location contracts
-- Integration: adapter, permission, and policy transitions
-- E2E: consent, geofence, and alert flows
-- Security: geofence/replay/role isolation and escalation
-- Non-functional: ordering, rollback, and canary checks
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+Do not claim physical-device proof, background platform behavior, notification delivery, authority proof, production adapter dispatch, or product-ready tracking unless the selected workpack explicitly proves it.

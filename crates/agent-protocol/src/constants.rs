@@ -61,9 +61,11 @@ pub mod env_var {
         "OCENTRA_PARENT_LOCAL_AI_LLAMA_CPP_RELEASE_TAG";
     pub const LOCAL_AI_RUNTIME_CACHE_DIR: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_CACHE_DIR";
     pub const COMPUTER_NAME: &str = "COMPUTERNAME";
+    pub const DEV_NETWORK_MODE: &str = "OCENTRA_PARENT_DEV_NETWORK";
     pub const DEV_LOG_DIR: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
     pub const HOME: &str = "HOME";
     pub const HOSTNAME: &str = "HOSTNAME";
+    pub const PARENT_DEV_BRIDGE_PORT: &str = "OCENTRA_PARENT_PARENT_BRIDGE_PORT";
     pub const USERPROFILE: &str = "USERPROFILE";
 }
 
@@ -167,10 +169,16 @@ pub mod event_id {
         "network-windows-firewall-lab-status-reported";
     pub const NETWORK_WINDOWS_WFP_GATE_STATUS_REPORTED: &str =
         "network-windows-wfp-gate-status-reported";
+    pub const NETWORK_ANDROID_VPN_SERVICE_GATE_STATUS_REPORTED: &str =
+        "network-android-vpn-service-gate-status-reported";
+    pub const NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS_REPORTED: &str =
+        "network-apple-network-extension-gate-status-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
     pub const POLICY_PREVIEW_READ_MODEL_REPORTED: &str = "policy-preview-read-model-reported";
+    pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REPORTED: &str =
+        "policy-request-assistant-preview-confirm-reported";
     pub const BROWSER_POLICY_REPORTED: &str = "browser-policy-reported";
     pub const BROWSER_POLICY_PREVIEWED: &str = "browser-policy-previewed";
     pub const BROWSER_POLICY_PATCH_ACCEPTED: &str = "browser-policy-patch-accepted";
@@ -204,8 +212,18 @@ pub mod event_id {
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
 }
 
+#[path = "constants/app_game_android_usage_events.rs"]
+pub mod app_game_android_usage_events;
 #[path = "constants/field.rs"]
 pub mod field;
+#[path = "constants/policy_control.rs"]
+pub mod policy_control;
+#[path = "constants/tracking_config_update.rs"]
+pub mod tracking_config_update;
+#[path = "constants/tracking_retention_settings_write.rs"]
+pub mod tracking_retention_settings_write;
+#[path = "constants/tracking_runtime.rs"]
+pub mod tracking_runtime;
 
 pub mod dev_log {
     pub const AGENT_FILE_PREFIX: &str = "agent-service";
@@ -275,6 +293,8 @@ pub mod activity_surface;
 pub mod browser;
 #[path = "constants/child_agent.rs"]
 pub mod child_agent;
+#[path = "constants/child_domain_runtime.rs"]
+pub mod child_domain_runtime;
 #[path = "constants/enforcement_broad_adapter_proof.rs"]
 pub mod enforcement_broad_adapter_proof;
 #[path = "constants/host_identity.rs"]
@@ -538,7 +558,7 @@ pub mod browser_policy {
     pub const REJECTION_STALE_REVISION: &str = "stale-revision";
     pub const REJECTION_REVISION_NOT_FOUND: &str = "revision-not-found";
     pub const SCAFFOLD_UNAVAILABLE_MESSAGE: &str =
-        "Browser policy persistence and compiler are not implemented in this scaffold slice.";
+        "Browser policy runtime returned a legacy scaffold-unavailable rejection.";
     pub const MESSAGE_ACCEPTED: &str = "Browser policy update accepted.";
     pub const MESSAGE_PREVIEWED: &str =
         "Browser policy preview compiled without persisting a revision.";
@@ -642,6 +662,8 @@ pub mod error {
         "non-loopback bind requires OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED=true";
     pub const LOCALHOST_BIND_SUCCEEDS: &str = "agent service localhost bind succeeds";
     pub const AGENT_SERVICE_RUNS: &str = "agent service runs";
+    pub const PARENT_DEV_BRIDGE_BINDS: &str = "parent dev bridge localhost bind succeeds";
+    pub const PARENT_DEV_BRIDGE_RUNS: &str = "parent dev bridge runs";
     pub const DEV_LOG_SERIALIZES: &str = "dev log serializes";
     pub const AGENT_EVENT_SERIALIZES: &str = "agent event serializes";
     pub const JOURNAL_APPENDS: &str = "activity journal appends";

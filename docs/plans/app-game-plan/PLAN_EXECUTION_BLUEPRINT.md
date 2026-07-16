@@ -1,93 +1,68 @@
-# App + Game Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `App Game Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one active workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: app/game control readiness or PR readiness.
 
-Split game/app behavior into explicit runtime, policy, and approval boundaries with enforceable audit proof.
+<!-- /agent-capsule -->
 
-## Slice 01 � Game Runtime and Inventory Contracts
+# App Game Plan Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- Runtime model, foreground states, and launcher ownership are contract-defined.
+This plan is large and contains many historical/generated workpacks. Do not read or execute the whole plan.
 
-### Tests
+Use this loop:
 
-- `app-game.policy.authz-replay`
-- `app-game.no-fake-green`
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one selected workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
 
-### Proof
+## Active-workpack rule
 
-- `docs/proof/app-game-plan/slice-01-runtime-contract.md`
+When a workpack row is marked `checked`, do not reopen it unless the assignment says audit/regression/reopen.
 
-## Slice 02 � Approval and Family Authority
+When a row is marked `possibly done`, treat it as **not execution-ready** until proof artifacts and validation commands are named.
 
-### Acceptance
+Source/reference inventory files are not workpacks and must not be assigned as implementation slices.
 
-- Parent actions, parent/co-parent overrides, and stale actions are handled by policy boundaries.
+## Deterministic proof root
 
-### Tests
+```text
+output/app-game-plan-proof/<workpack-file-stem>/
+```
 
-- `app-game.policy.authz-replay`
-- `app-game.approval-state-machine`
+## Focused commands
 
-### Proof
+```bash
+npm run build --workspace @ocentra-parent/app-game-domain
+npm run test --workspace @ocentra-parent/app-game-domain
+cargo test -p ocentra-parent-agent-protocol app_game
+cargo test -p ocentra-parent-agent-service app_game
+npm run test --workspace @ocentra-parent/portal -- app
+npm run lint:architecture -- --files packages/app-game-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/app-game-plan
+```
 
-- `docs/proof/app-game-plan/slice-02-approval-boundary.md`
+If a command/test path does not exist, record the blocker and keep rows open.
 
-## Slice 03 � Platform Execution Capability Matrix
+## Universal proof files
 
-### Acceptance
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
 
-- Platform adapters are capability-typed with safe unavailable/manual-required states.
+## No-claim boundaries
 
-### Tests
+Do not claim inventory, runtime duration, foreground app, launcher evidence, policy readiness, app install, app block/allow, notification, timer, or parent UI readiness unless the selected proof root proves that exact slice.
 
-- `app-game.platform.capability-matrix`
-- `app-game.platform.rollback`
+## Cleanup requirement
 
-### Proof
-
-- `docs/proof/app-game-plan/slice-03-platform-capability.md`
-
-## Slice 04 � Journal and State Replay
-
-### Acceptance
-
-- Replays and journal reads do not duplicate or reorder visible game action state incorrectly.
-
-### Tests
-
-- `app-game.journal.replay-ordering`
-
-### Proof
-
-- `docs/proof/app-game-plan/slice-04-journal.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/app-game-plan/workpacks/01-contract-boundary-and-effect-schemas.md
-- Slice 02: docs/plans/app-game-plan/workpacks/02-source-index-and-doc-reconciliation.md
-- Slice 03: docs/plans/app-game-plan/workpacks/03-current-app-game-snapshot-and-gap-map.md
-- Slice 04: docs/plans/app-game-plan/workpacks/04-app-game-identity-model.md
-
-## PR-ready gate
-
-- No execution path can claim enforcement authority until policy-authority and audit trail proofs are linked.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: runtime/action contracts and authority model checks
-- Integration: policy authoring + service/portal read model updates
-- E2E: approval and parent action journeys
-- Security: privilege boundary and anti-replay behavior
-- Non-functional: platform capability matrix and rollback
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+Before assigning broad app/game work, reduce the selected slice to one owner package/crate/UI route. Do not let long generated workpack names or checked historical rows drive new implementation without a fresh proof target.

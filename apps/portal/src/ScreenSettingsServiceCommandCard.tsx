@@ -1,8 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
-import { screenEvidenceSettingsWritableUiProof } from '@ocentra-parent/activity-domain/screen-evidence';
-import { PortalDetails, PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { type ParentScreenEvidenceSettingsUiProof } from '../generated/parent-ui-screen-bridge';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import {
-  latestScreenSettingsServiceResponse,
+  type ScreenSettingsServiceResponse,
   type ScreenSettingsServiceRequestId,
 } from './screen-settings-service-command-state';
 
@@ -19,8 +21,8 @@ export function ScreenSettingsServiceCommandCard({
   readonly onRefresh: () => void;
   readonly onSave: () => void;
   readonly pendingRequestId: ScreenSettingsServiceRequestId | null;
-  readonly proof: ReturnType<typeof screenEvidenceSettingsWritableUiProof>;
-  readonly response: ReturnType<typeof latestScreenSettingsServiceResponse>;
+  readonly proof: ParentScreenEvidenceSettingsUiProof;
+  readonly response: ScreenSettingsServiceResponse;
   readonly serviceStatus: ReactNode;
 }): ReactElement {
   return (

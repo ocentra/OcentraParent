@@ -1,9 +1,20 @@
-use ocentra_parent_agent_protocol::{constants, AgentCommandEnvelope, LogFieldValue};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+
+#[path = "local_ai_chat_generation_request/model_id.rs"]
+mod model_id;
+#[path = "local_ai_chat_generation_request/numeric.rs"]
+mod numeric;
+#[path = "local_ai_chat_generation_request/prompt.rs"]
+mod prompt;
 
 use crate::{
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
-    local_ai_runtime_config_values::is_safe_local_ai_model_id,
+    local_ai_runtime_config_values::LocalAiUnavailableReason,
 };
+use model_id::requested_model_id;
+use numeric::{numeric_field_u32, numeric_field_u64};
+use prompt::prompt_from_command;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct LocalAiChatGenerationRequest {
@@ -16,27 +27,13 @@ pub(crate) struct LocalAiChatGenerationRequest {
 pub(crate) fn parse_generation_request(
     command: &AgentCommandEnvelope,
     config: &LocalAiRuntimeConfigSnapshot,
-) -> Result<LocalAiChatGenerationRequest, &'static str> {
-    let prompt = match command.payload.get(constants::field::LOCAL_AI_PROMPT) {
-        Some(LogFieldValue::String(value)) => value.trim().to_string(),
-        _ => {
-            return Err(constants::local_ai_runtime::UNAVAILABLE_REASON_COMMAND_PAYLOAD_INVALID);
-        }
-    };
-
-    if prompt.is_empty() {
-        return Err(constants::local_ai_runtime::UNAVAILABLE_REASON_PROMPT_EMPTY);
-    }
-
-    if prompt.chars().count() > constants::local_ai_runtime::MAX_PROMPT_CHARS {
-        return Err(constants::local_ai_runtime::UNAVAILABLE_REASON_PROMPT_TOO_LARGE);
-    }
-
+) -> Result<LocalAiChatGenerationRequest, LocalAiUnavailableReason> {
+    let prompt = prompt_from_command(command)?;
     let model_id = requested_model_id(command, config)?;
 
     Ok(LocalAiChatGenerationRequest {
-        model_id,
-        prompt,
+        model_id: model_id.0,
+        prompt: prompt.0,
         max_output_tokens: numeric_field_u32(
             command
                 .payload
@@ -48,40 +45,4 @@ pub(crate) fn parse_generation_request(
             config.generation_timeout_ms(),
         ),
     })
-}
-
-fn requested_model_id(
-    command: &AgentCommandEnvelope,
-    config: &LocalAiRuntimeConfigSnapshot,
-) -> Result<String, &'static str> {
-    match command.payload.get(constants::field::LOCAL_AI_MODEL_ID) {
-        Some(LogFieldValue::String(value)) => {
-            let model_id = value.trim();
-            if is_safe_local_ai_model_id(model_id) {
-                Ok(model_id.to_string())
-            } else {
-                Err(constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_ID_INVALID)
-            }
-        }
-        Some(_) => Err(constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_ID_INVALID),
-        None => Ok(config.model_id().to_string()),
-    }
-}
-
-fn numeric_field_u32(value: Option<&LogFieldValue>, fallback: u32) -> u32 {
-    match value {
-        Some(LogFieldValue::Number(number)) if number.is_finite() && *number > 0.0 => {
-            *number as u32
-        }
-        _ => fallback,
-    }
-}
-
-fn numeric_field_u64(value: Option<&LogFieldValue>, fallback: u64) -> u64 {
-    match value {
-        Some(LogFieldValue::Number(number)) if number.is_finite() && *number > 0.0 => {
-            *number as u64
-        }
-        _ => fallback,
-    }
 }

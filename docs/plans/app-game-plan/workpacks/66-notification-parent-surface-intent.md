@@ -59,17 +59,17 @@ provider/preference proof internals.
 
 ## Validation
 
-- [x] Provider-status and preference-status handoff read models parse before
+- [ ] Provider-status and preference-status handoff read models parse before
       mapping.
-- [x] Source family refs and row counts must match before parent-surface intent
+- [ ] Source family refs and row counts must match before parent-surface intent
       rows are produced.
-- [x] Manual provider/preference rows become parent-surface
+- [ ] Manual provider/preference rows become parent-surface
       `manual-action-required` rows with history/preference setup visibility.
-- [x] Unavailable provider/preference rows remain visible as unavailable or
+- [ ] Unavailable provider/preference rows remain visible as unavailable or
       disabled rows without delivery claims.
-- [x] Proof pack records no rendered UI, no parent preference mutation, no
+- [ ] Proof pack records no rendered UI, no parent preference mutation, no
       provider delivery, no receipt ingestion, no credentials, no production
       runtime, no child delivery, no adapter dispatch, no broad blocking, and no
       platform support.
-- [x] Product checklist unchanged because this parent-surface intent does not
+- [ ] Product checklist unchanged because this parent-surface intent does not
       move feature status and provider/runtime/UI/platform gaps remain.

@@ -58,15 +58,15 @@ delivery.
 
 ## Validation
 
-- [x] Preference-status handoff parses WP62 app/game preference preflight rows
+- [ ] Preference-status handoff parses WP62 app/game preference preflight rows
       before mapping.
-- [x] Parent-preference-required and manual-required rows become V3
+- [ ] Parent-preference-required and manual-required rows become V3
       manual-required notification preference/quiet-hours status entries.
-- [x] Unavailable rows become V3 disabled/not-sent status entries.
-- [x] Proof pack records no parent preference UI, no frequency controls, no
+- [ ] Unavailable rows become V3 disabled/not-sent status entries.
+- [ ] Proof pack records no parent preference UI, no frequency controls, no
       parent notification UI, no provider delivery, no receipt ingestion, no
       credentials, no retry-worker/quiet-hours timer runtime, no child delivery,
       no adapter dispatch, no broad blocking, and no durable production outbox
       claim.
-- [x] Product checklist unchanged because this handoff does not move feature
+- [ ] Product checklist unchanged because this handoff does not move feature
       status and provider/runtime/UI/platform gaps remain.

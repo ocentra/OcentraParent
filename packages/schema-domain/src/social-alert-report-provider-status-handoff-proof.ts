@@ -1,0 +1,22 @@
+/* thin adapter over Rust-owned generated social alert report provider status handoff proof contracts */
+
+import * as Generated from './generated-social-alert-report-provider-status-handoff-proof';
+
+export const RequiredSocialAlertReportProviderStatusHandoffNonClaims =
+  Generated.RequiredSocialAlertReportProviderStatusHandoffNonClaims;
+export const SocialAlertReportProviderStatusHandoffNonClaimSchema =
+  Generated.SocialAlertReportProviderStatusHandoffNonClaimSchema;
+export const SocialAlertReportProviderStatusHandoffIdSchema = Generated.SocialAlertReportProviderStatusHandoffIdSchema;
+export const SocialAlertReportProviderStatusHandoffReferenceSchema =
+  Generated.SocialAlertReportProviderStatusHandoffReferenceSchema;
+export const SocialAlertReportProviderStatusHandoffRowSchema =
+  Generated.SocialAlertReportProviderStatusHandoffRowSchema;
+export const SocialAlertReportProviderStatusHandoffReadModelSchema =
+  Generated.SocialAlertReportProviderStatusHandoffReadModelSchema;
+export type SocialAlertReportProviderStatusHandoffRow = Generated.SocialAlertReportProviderStatusHandoffRow;
+export type SocialAlertReportProviderStatusHandoffReadModel = Generated.SocialAlertReportProviderStatusHandoffReadModel;
+export type SocialAlertReportProviderStatusHandoffOptions = Generated.SocialAlertReportProviderStatusHandoffOptions;
+export const buildSocialAlertReportProviderStatusHandoffReadModel =
+  Generated.buildSocialAlertReportProviderStatusHandoffReadModel;
+export const summarizeSocialAlertReportProviderStatusHandoff =
+  Generated.summarizeSocialAlertReportProviderStatusHandoff;

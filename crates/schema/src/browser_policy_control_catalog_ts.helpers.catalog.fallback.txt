@@ -1,0 +1,19 @@
+export function fallbackForGenerated(sectionTitle: string, sourceText: string): string {
+  const status = effectStatusForSectionGenerated(sectionTitle, sourceText);
+  if (status === 'future-gap') {
+    return 'Expose as future gap or planning-only control; do not compile into enforcement.';
+  }
+  if (status === 'manual-required') {
+    return 'Disable or degrade until manual setup/proof confirms the required browser capability.';
+  }
+  if (status === 'permission-required') {
+    return 'Disable strict behavior until permission exists; keep observe/audit-only alternatives available.';
+  }
+  if (status === 'degraded') {
+    return 'Show degraded capability and compile only the observable subset without exact URL/tab claims.';
+  }
+  if (status === 'proof-required') {
+    return 'Require explicit proof before enforcement; otherwise compile observe or manual-required behavior.';
+  }
+  return 'Keep as authored intent until runtime wiring proves the exact effect key.';
+}

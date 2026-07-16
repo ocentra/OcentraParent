@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=1800
+DATE: Fri, 26 Jun 2026 12:00:00 GMT
+EXT:
+LOCATION: http://192.168.1.55:2869/device.xml
+SERVER: Windows/10.0 UPnP/1.0 XboxOne/10.0
+ST: urn:schemas-upnp-org:device:MediaRenderer:1
+USN: uuid:5bc6d7d0-7f1a-4cb8-9f87-0f0c77f3f101::urn:schemas-upnp-org:device:MediaRenderer:1
+BOOTID.UPNP.ORG: 5
+CONFIGID.UPNP.ORG: 17
+SEARCHPORT.UPNP.ORG: 1900
+

@@ -1,15 +1,19 @@
-use ocentra_parent_agent_core::{
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState as RuntimeCrossProcessCustodyReadinessState,
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessState as RuntimeProviderChildReadinessState,
+use ocentra_parent_agent_core::network_event_runtime::{
+    remote_delivery_cross_process_custody_readiness_types::{
+        NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
+        NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState as RuntimeCrossProcessCustodyReadinessState,
+    },
+    remote_delivery_cross_process_replay_types::NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    remote_delivery_external_cross_process_transport_types::NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
+    remote_delivery_provider_child_readiness_types::{
+        NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+        NetworkRuntimeRemoteDeliveryProviderChildReadinessState as RuntimeProviderChildReadinessState,
+    },
 };
-use ocentra_parent_agent_protocol::{
-    constants, NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
-    NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryCrossProcessCustodyReadinessState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryProviderChildReadinessState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryStatus;
 
 pub(crate) fn apply_provider_child_readiness_status(
     status: &mut NetworkRemoteDeliveryStatus,

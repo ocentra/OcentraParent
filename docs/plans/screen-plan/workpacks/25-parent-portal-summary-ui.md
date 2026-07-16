@@ -34,14 +34,14 @@ Desktop and mobile screenshots are captured under
 
 ## Checklist
 
-- [x] Build disabled state.
-- [x] Build capability state.
-- [x] Build queue health state.
-- [x] Build summary cards.
-- [x] Build confidence/unknown UI.
-- [x] Build deletion/custody labels.
-- [x] Build policy/audit details.
-- [x] Capture screenshots.
+- [ ] Build disabled state.
+- [ ] Build capability state.
+- [ ] Build queue health state.
+- [ ] Build summary cards.
+- [ ] Build confidence/unknown UI.
+- [ ] Build deletion/custody labels.
+- [ ] Build policy/audit details.
+- [ ] Capture screenshots.
 
 ## Proof
 

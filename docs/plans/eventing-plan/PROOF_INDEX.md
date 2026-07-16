@@ -1,34 +1,132 @@
-# Reusable Rust Eventing Plan Proof Index
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `eventing-plan`
-> Doc: `Reusable Rust Eventing Plan Proof Index`
-> Kind: proof artifact locator and PR evidence router.
-> Read when: Only when validating proof, PR_READY, DONE, or broad status claims.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Use this file to locate proof artifacts; proof must include command logs and negative cases.
+> Doc: `Eventing Plan Proof Index`
+> Kind: proof artifact router.
+> Read when: selected workpack needs proof paths or PR_READY/DONE proof validation.
+> Stop rule: use only the proof root for the selected workpack.
+> Proves: proof location routing only.
+> Does not prove: implementation completion by itself.
+> Proof rule: proof artifacts are valid only after focused commands run or precise blockers are recorded.
 
 <!-- /agent-capsule -->
 
-Proof/checkpoint files are validation context, not default context. Open only the proof named by a workpack, checklist row, hub assignment, or PR review.
+# Eventing Plan Proof Index
 
-## Plan-local proof/reference files
+## Proof root
 
-- [Tests, Proof, And Validation](04-tests-proof-and-validation.md) (14,434 bytes)
-- [Type Safety, Validation, And Ownership](06-type-safety-validation-and-ownership.md) (8,522 bytes)
+```text
+output/eventing-plan-proof/<workpack-file-stem>/
+```
 
-## Related global checkpoints
+`docs/proof/eventing-plan/` is accepted only for the current WP12 route-proof manifest bundle. Historical `docs/proof` references do not close runtime work by themselves.
 
-- [Activity/MIA Evidence Final Pass](../../checkpoints/activity-mia-evidence-final-pass-2026-05-30.md) (2,866 bytes)
-- [Activity MIA Final Pass Service Adapter Consumption Checkpoint](../../checkpoints/activity-mia-final-pass-service-adapter-consumption-2026-05-31.md) (3,160 bytes)
-- [Activity/MIA Report History And Action Preview Proof - 2026-05-30](../../checkpoints/activity-mia-report-history-action-preview-proof-2026-05-30.md) (2,262 bytes)
-- [Activity Report Persistence, Family Fan-Out, And MIA Context Checkpoint](../../checkpoints/activity-report-persistence-family-mia-context-2026-05-31.md) (2,340 bytes)
-- [Activity Reports Adapter And MIA Evidence Final Pass](../../checkpoints/activity-reports-adapter-mia-evidence-final-pass-2026-05-31.md) (2,597 bytes)
-- [Activity Reports Family Fan-Out MIA Final Pass](../../checkpoints/activity-reports-family-fanout-mia-final-pass-2026-06-01.md) (2,247 bytes)
-- [Activity Surface Main-Backed Adapter Proof](../../checkpoints/activity-surface-main-backed-adapter-proof-2026-05-29.md) (3,061 bytes)
-- [V0.7 CI Checkpoint Evidence Refresh After PR96](../../checkpoints/v0-7-ci-checkpoint-evidence-refresh-2026-05-25.md) (24,042 bytes)
-- [V0.7 Windows Controlled Evidence And Package Lifecycle Proof - 2026-05-25](../../checkpoints/v0-7-windows-controlled-evidence-and-package-lifecycle-proof-2026-05-25.md) (37,967 bytes)
+## Expected route-closure proof bundle
+
+```text
+docs/proof/eventing-plan/slice-01-envelope-version.md
+docs/proof/eventing-plan/slice-02-ordering-replay.md
+docs/proof/eventing-plan/slice-03-consumer-boundary.md
+output/eventing-plan-proof/rollout-proof/proof-summary.json
+test-results/eventing-rollout-proof/proof.json
+output/eventing-plan-proof/rollout-proof/pr-done-report.md
+output/eventing-plan-proof/rollout-proof/command-logs/
+```
+
+If any path above is missing, keep WP12 open and record the blocker in `PLAN_STATE.md` and `NEXT_ACTIONS.md`. Historical doc references do not prove route closure by themselves.
+
+## Current WP11 local proof roots
+
+```text
+output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json
+test-results/eventing-type-safety-source-gate-proof/proof.json
+output/eventing-plan-proof/66-76-source-safety/proof-summary.json
+output/eventing-plan-proof/67-lock-await/proof-summary.json
+output/eventing-plan-proof/68-fixture-parity/proof-summary.json
+```
+
+## Command log format
+
+```text
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <path or n/a>
+notes: <short note>
+```
+
+If blocked:
+
+```text
+blocker:
+required environment:
+why this does not prove completion:
+next command:
+```
+
+## Structured proof metadata
+
+For new proof artifacts and new command-log entries, include structured metadata when available:
+
+```text
+plan: eventing-plan
+workpack: <workpack id and name>
+owner: ocentra-eventing | schema-domain | event-domain | agent-protocol | agent-service | agent-protocol-domain | lan-handoff | remote-handoff | network-handoff | ai-handoff | policy-handoff | enforcement-handoff | portal-handoff | data-custody-handoff | docs-only
+event_namespace: <namespace or n/a>
+event_type: <event type or n/a>
+schema_version: <schema version or n/a>
+aggregate_key: <aggregate key or n/a>
+event_id_state: generated | validated | rejected | not-tested | n/a
+idempotency_state: accepted | duplicate-rejected | missing-rejected | not-tested | n/a
+correlation_id_state: present | missing | rejected | not-tested | n/a
+causation_id_state: present | missing | rejected | not-tested | n/a
+request_response_state: requested | completed | timed-out | cancelled | duplicate-completion-rejected | not-tested | n/a
+queue_state: enqueued | drained | no-subscriber | overflowed | ttl-expired | not-tested | n/a
+retry_dead_letter_state: retried | dead-lettered | not-tested | n/a
+journal_replay_state: appended | replayed | hash-checked | version-skew-checked | corrupted-rejected | not-tested | n/a
+delivery_route_state: local-only | transport-required | blocked | manual-required | not-applicable
+consumer_handoff_state: not-tested | validated | rejected | local-republish-only | blocked | manual-required | n/a
+transport_boundary: local-bus-only | lan-handoff | remote-handoff | service-handoff | not-applicable
+redaction_state: redacted | blocked | not-tested | n/a
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <stdout/stderr artifact pointer, proof file, test result path, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+manual_required_note: <explicit manual-required gap or n/a>
+no_claim: <what this result does not prove>
+```
+
+The command log is a compact index, not a raw terminal transcript. Store command output, test reports, proof JSON, route-sync reports, or long failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
+
+## Runtime and local harness split
+
+Runtime/product-safe proof must show event identity, schema, idempotency, queue, journal/replay, request/response, delivery route, consumer handoff, redaction, and no-claim boundaries. Local harness proof may include richer diagnostics, but it still stores logs by pointer and keeps plan docs compact.
+
+```text
+runtime-safe: no private payload bodies, child activity payloads, provider secrets, account tokens, raw policy/enforcement payloads, or consumer-private data unless a selected expectation explicitly allows the field.
+local harness: enough file/line/command/artifact/event/queue/journal/handoff context for Codex/MCP/humans to debug without reading terminal walls.
+```
+
+## No-claim language
+
+Do not claim:
+
+```text
+cross-device transport ready
+LAN mesh ready
+remote relay ready
+service delivery ready
+policy/enforcement behavior ready
+AI behavior ready
+portal behavior ready
+production durability/retention ready
+consumer product behavior ready
+WP10 ready
+PR_READY
+```
+
+unless the selected proof root proves the exact claim and WP12/WP10 aggregation rules allow it.

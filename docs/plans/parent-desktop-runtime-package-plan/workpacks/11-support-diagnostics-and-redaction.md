@@ -31,11 +31,11 @@ service state, and non-private diagnostic ids with redaction.
 
 ## Requirement Checklist
 
-- [x] Define allowed support fields.
-- [x] Redact secrets, tokens, raw journals, SQLite data, and child activity.
-- [x] Include package/service/source state.
-- [x] Test redaction.
-- [x] Document support use.
+- [ ] Define allowed support fields.
+- [ ] Redact secrets, tokens, raw journals, SQLite data, and child activity.
+- [ ] Include package/service/source state.
+- [ ] Test redaction.
+- [ ] Document support use.
 
 ## Acceptance And Proof
 

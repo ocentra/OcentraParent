@@ -1,15 +1,19 @@
 use std::{collections::BTreeSet, path::PathBuf};
 
 use ocentra_eventing::{
-    EventBus, EventSubscriber, EventType, EventingError, JournalPolicy, JournalSelector,
-    NdjsonEventJournal, NdjsonJournalOptions, ReplayFilter, ReplayReadReport, ReplayRecord,
-    SourceComponent, StoredEventEnvelope, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::StoredEventEnvelope,
+    error::EventingError, ids::EventType, ids::SourceComponent, ids::SubscriberId,
+    ids::TargetHandler, journal::ndjson::NdjsonEventJournal, journal::ndjson::NdjsonJournalOptions,
+    journal::policy::JournalPolicy, journal::policy::JournalSelector, replay::ReplayFilter,
+    replay::ReplayReadReport, replay::ReplayRecord,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase;
 
-use crate::{network_event_runtime_phase::NetworkRuntimePhase, NetworkObservation};
+use crate::NetworkObservation;
 
 use super::remote_delivery_event_chain_journal_types::{
     count_payloads, NetworkRuntimeRemoteEventChainJournalError, UnsupportedClaimCounts,
@@ -17,7 +21,6 @@ use super::remote_delivery_event_chain_journal_types::{
 use super::{network_event_metadata, should_publish_phase, NetworkRuntimeEventPayload};
 
 pub(super) struct NetworkRuntimeRemoteEventChainStore {
-    #[cfg(test)]
     pub stored_events: Vec<StoredEventEnvelope>,
     pub projection: ReplayReadReport,
     pub payloads: Vec<NetworkRuntimeEventPayload>,
@@ -36,7 +39,7 @@ pub(super) async fn publish_network_runtime_remote_event_chain_store(
         .copied()
         .filter(|phase| should_publish_phase(*phase, &observation))
     {
-        let payload = NetworkRuntimeEventPayload::from_observation(
+        let payload = super::network_runtime_event_payload_from_observation(
             phase,
             &observation,
             constants::activity_store::TEST_FIRST_OBSERVED_AT,
@@ -56,7 +59,6 @@ pub(super) async fn publish_network_runtime_remote_event_chain_store(
     assert_projection_matches(&stored_events, &projection.records)?;
     let payloads = decode_payloads(&projection.records)?;
     Ok(NetworkRuntimeRemoteEventChainStore {
-        #[cfg(test)]
         stored_events,
         projection,
         payloads,
@@ -146,9 +148,10 @@ fn assert_projection_matches(
         return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch);
     }
     for (index, (stored_event, record)) in stored_events.iter().zip(records.iter()).enumerate() {
-        let expected_sequence = u64::try_from(index)
-            .map(|value| value.saturating_add(1))
-            .map_err(|_| NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch)?;
+        let expected_sequence = match u64::try_from(index) {
+            Ok(value) => value.saturating_add(1),
+            Err(_) => return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch),
+        };
         if record.sequence != expected_sequence || &record.envelope != stored_event {
             return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch);
         }
@@ -187,7 +190,7 @@ fn remote_event_chain_journal_path() -> PathBuf {
     file_name.push(constants::delimiter::HYPHEN);
     file_name.push_str(&std::process::id().to_string());
     file_name.push(constants::delimiter::HYPHEN);
-    file_name.push_str(ocentra_eventing::EventId::generated().as_str());
+    file_name.push_str(ocentra_eventing::ids::EventId::generated().as_str());
     file_name.push(constants::delimiter::DOT);
     file_name.push_str(constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION);
     std::env::temp_dir().join(file_name)

@@ -1,0 +1,15 @@
+export function visibilityConditionsForGenerated(): BrowserControlFullCatalogRuleGenerated[] {
+  return [ruleGenerated('Visible when the Browser side-panel category is selected.')];
+}
+
+export function enabledConditionsForGenerated(
+  sectionTitle: string,
+  sourceText: string
+): BrowserControlFullCatalogRuleGenerated[] {
+  return [
+    ruleGenerated('A family, child, or device target must be selected before writing policy intent.'),
+    ruleGenerated(
+      `Capability state must allow ${effectStatusForSectionGenerated(sectionTitle, sourceText)} presentation.`
+    ),
+  ];
+}

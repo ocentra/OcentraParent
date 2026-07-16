@@ -1,63 +1,154 @@
-# V0.8 Enforcement Control Plan Test and Proof Expectations
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `v0-8-enforcement-control-plan`
-> Doc: `V0.8 Enforcement Control Plan Test and Proof Expectations`
-> Kind: plan-local test and proof decision tree.
-> Read when: After the assigned workpack/checklist row is known; use to choose required tests/proof.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: This file defines required local tests/proof; missing tests keep rows open.
+> Doc: `V0.8 Enforcement Control Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
 <!-- /agent-capsule -->
 
-Use this after the assigned enforcement workpack is known. Enforcement proof must separate policy decision, adapter capability, execution authority, rollback, and manual-required states.
+# V0.8 Enforcement Control Test Proof Expectations
 
-## Where tests should live
+## Proof root
 
-When the enforcement implementation crate/package exists, tests belong under its test tree and proof output under its proof folder. Until then, colocate with the owning enforcement/domain/runtime package and record paths in the workpack and `PROOF_INDEX.md`.
+```text
+output/v0-8-enforcement-control-plan-proof/<workpack-file-stem>/
+```
 
-## Decision Tree
+Narrative proof notes remain under:
 
-| If the assigned work is...                                  | Read next                                       | Expected tests or proof                                                                               |
-| ----------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| WP01-WP03 contracts, evidence refs, adapter capability      | assigned workpack                               | schema negatives, branded ids, capability matrix, no execution without authority proof.               |
-| WP04-WP08 app/game/browser/network/screen handoffs          | assigned workpack and owning plan only if named | consumer contract proof, dry-run/manual-required states, replay/idempotency, source custody.          |
-| WP09-WP12 execution/rollback/audit paths                    | assigned workpack                               | privilege escalation negatives, rollback/unblock, audit trail, stale target, double-submit.           |
-| WP13-WP16 platform authority and package/release boundaries | assigned workpack                               | platform manual proof, version/tag/package smoke, capability limitation notes.                        |
-| WP17-WP20 proof/PR/rollout gates                            | `PROOF_INDEX.md`                                | complete proof manifest, selected risk rows, validation command logs, remaining manual-required gaps. |
+```text
+docs/proof/v0-8-enforcement-control-plan/
+```
 
-## Expected test/proof inventory
+## Common commands
 
-Use these names as proof intent labels in the assigned workpack/proof note. Implementers choose the actual crate/package test names after the owning implementation boundary exists.
+Use the subset relevant to the selected workpack:
 
-- `enforcement.policy-input.schema-negative`: policy/action inputs reject malformed, stale, unauthorized, and cross-child data.
-- `enforcement.authz.privilege-escalation`: role and device authority prevent privilege escalation and cross-family action.
-- `enforcement.adapter.capability-matrix`: adapter capability, unsupported, degraded, and manual-required states are explicit.
-- `enforcement.execute.rollback-unblock`: execution proof includes rollback, unblock, cleanup, and stale-target handling.
-- `enforcement.replay.idempotency-race`: duplicate, replayed, concurrent, and out-of-order actions are safe.
-- `enforcement.audit.log-trace`: action, result, rollback, and parent-visible status emit safe audit/log/trace refs.
-- `enforcement.canary.rollback-validation`: rollout/canary proof includes failure-mode and rollback validation.
-- `enforcement.no-ai-direct-action`: AI/classification evidence cannot execute enforcement without deterministic policy authority.
+```bash
+npm run build --workspace @ocentra-parent/enforcement-domain
+npm run test --workspace @ocentra-parent/enforcement-domain
+npm run test --workspace @ocentra-parent/agent-protocol-domain -- enforcement
+cargo test -p ocentra-parent-agent-protocol enforcement
+cargo test -p ocentra-parent-agent-core enforcement
+cargo test -p ocentra-parent-agent-service enforcement
+npm run test --workspace @ocentra-parent/portal -- enforcement
+npm run lint:architecture -- --files packages/schema-domain packages/enforcement-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-core crates/agent-service apps/portal docs/plans/v0-8-enforcement-control-plan
+node scripts/test/v0-8-enforcement-control-plan-proof.mjs
+```
 
-## Required proof contents
+Run through `npm run agent:run --` when collecting proof if the wrapper is
+available.
 
-- Policy input, authority tier, adapter capability, dry-run/execution result.
-- Rollback/unblock cleanup evidence.
-- Audit/log/trace refs for parent-visible action.
-- Explicit manual-required state when proof is missing.
+## Command ownership notes
 
-## Failure conditions
+- `schema-domain` owns canonical shared enforcement schemas when cross-boundary.
+- `enforcement-domain` owns TypeScript helper, proof, and read-model consumer
+  surfaces. It does not silently replace `schema-domain` as canonical owner.
+- `policy-control-plane-plan` owns policy source truth, schedule/budget, and
+  ask-parent/override authority semantics.
+- `agent-protocol` and `agent-protocol-domain` prove transport and read-model
+  parity when selected.
+- `app-game`, `browser`, `network`, `screen`, `tracking`, AI/evidence, and
+  portal scopes run only when the selected workpack explicitly names the
+  handoff.
 
-Do not claim DONE or PR_READY if any apply:
+## Enforcement E2E meaning
 
-- The expected test/proof row for the touched work type is missing.
-- The implementation crate/package test folder does not exist and the missing expected location is not recorded.
-- Only happy-path tests pass for a trust, policy, persistence, protocol, UI, AI, platform, security, performance, or observability boundary.
-- A product/checklist row moved without command logs and proof artifact path.
-- A manual-required/platform limitation was converted into a runtime capability claim.
-- A proof artifact lacks negative cases, logs/traces where relevant, or exact workpack/checklist linkage.
-- A sibling plan or broad source tree was read without a route reason recorded in the workpack/proof note.
+Do not use one proof family to claim the whole enforcement path. For this plan,
+E2E has separate meanings:
+
+```text
+contract boundary E2E: canonical schema -> protocol parity -> helper/read-model consumer -> no silent ownership drift
+policy decision ref E2E: deterministic policy decision -> typed target/evidence refs -> eligible/dry-run/manual-required/rejected state
+adapter execution E2E: authority + capability + target identity -> dispatch/preflight -> adapter result/no-op/mismatch/unavailable -> audit
+managed browser E2E: managed bridge/session -> managed intervention/manual-required state -> visible result with no exact-URL claim
+network/domain E2E: evidence visibility -> report-only/manual-required state -> no blocking claim without adapter proof
+approval/override E2E: child request -> parent approval/denial/expiry -> scoped action state -> audit trail
+read-model/surface E2E: service read model -> parent/child visible state -> no UI-authored authority
+integrity E2E: heartbeat/install/permission state -> degraded/manual-required visibility -> no anti-tamper claim
+rollout gate E2E: accepted proof roots + carried blockers -> route sync -> PR-ready or not-ready state
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record
+the non-claim instead of broad DONE.
+
+## Platform proof rule
+
+- Windows proof is expected where relevant.
+- Real iOS/macOS proof is an external-platform constraint on this Windows host.
+- Android, WSL, and Docker proof paths remain expected where the selected
+  workpack names them.
+- Do not treat feasible Windows-only proof as a blocker unless a real
+  dependency-owned surface is missing.
+
+## Blocker reporting rule
+
+- Real dependency blockers: missing selected sibling-plan or owner-path surfaces.
+- External platform blockers: host/device limits such as iOS/macOS proof on this
+  Windows host.
+- Avoidable local blockers: stale docs, missing proof files, broken scoped
+  commands, or local validation debt. Keep these separate from true dependency
+  blockers.
+
+## Structured harness logging expectations
+
+Product/runtime-safe logging:
+
+```text
+redact child private data, raw policy payloads when not fixture-scoped, exact browser/network content, device secrets, and support-private diagnostics
+log workpack, policy decision ref state, actor/device authority state, target identity state, adapter capability state, execution state, rollback state, audit state, parent-visible state, manual-required state, and no-claim boundary when safe
+separate policy authority, evidence input, adapter capability, execution, rollback, audit, read-model, portal, and platform-health state
+never treat UI preview, browser evidence, tracking evidence, app/game evidence, AI results, or focused contract logs as full enforcement readiness without selected proof roots
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, owner module, exit code, result, artifact pointer, diagnostics summary, blocker note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
+
+## Required states
+
+```text
+contract boundary
+policy decision refs
+authority state
+target identity
+adapter capability
+execution result
+rollback or recovery
+approval or override
+audit or journal
+read-model visibility
+manual-required or degraded
+negative cases
+```
+
+## Required negative states
+
+```text
+policy missing -> no effect-ready claim
+parent authority missing -> no effect-ready claim
+device authority missing -> no effect-ready claim
+adapter capability missing or stale -> manual-required or rejected
+platform unsupported -> manual-required
+observe-only and dry-run cannot be treated as active effect
+rollback/manual override missing -> no ready claim
+audit missing -> no ready claim
+AI result not used as enforcement authority
+portal click not used as enforcement authority
+screen/browser/app-game/network/tracking evidence not used as adapter execution proof
+managed-browser proof not used as exact-URL proof
+network visibility not used as network blocking proof
+heartbeat or install visibility not used as anti-tamper proof
+focused contract passes not used as full plan completion
+```

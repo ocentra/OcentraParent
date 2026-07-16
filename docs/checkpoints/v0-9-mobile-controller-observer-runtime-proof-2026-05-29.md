@@ -62,7 +62,7 @@ docs/expectations/pre-ai-proof-matrix.json
 The typed contract is exported as:
 
 ```text
-@ocentra-parent/parent-domain/v0-9-mobile-controller-observer-runtime
+@ocentra-parent/lan-domain/v0-9-mobile-controller-observer-runtime
 ```
 
 It consumes:

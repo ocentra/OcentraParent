@@ -1,0 +1,926 @@
+/* generated from crates/schema/src/browser_policy_control_catalog_ts.rs */
+
+import {
+  GeneratedBrowserControlFullCatalogCapabilityStateValues,
+  GeneratedBrowserControlFullCatalogCardKindValues,
+  GeneratedBrowserControlFullCatalogControlKindValues,
+  GeneratedBrowserControlFullCatalogEffectStatusValues,
+  GeneratedBrowserControlFullCatalogRuntimeOwnerValues,
+  GeneratedBrowserControlWritesToPath,
+} from './generated-browser-policy-control-catalog-contracts';
+
+type BrowserControlFieldValueGenerated = string | number | boolean | readonly string[] | null;
+
+type BrowserControlConditionGenerated = {
+  readonly kind: string;
+  readonly writesTo: string | null;
+  readonly expectedValue: BrowserControlFieldValueGenerated | null;
+  readonly defaultPosture: string | null;
+};
+
+type BrowserControlFieldOptionGenerated = {
+  readonly optionId: string;
+  readonly label: string;
+  readonly value: BrowserControlFieldValueGenerated;
+};
+
+type BrowserControlFieldGenerated = {
+  readonly fieldId: string;
+  readonly controlKind: string;
+  readonly writesTo?: string;
+  readonly defaultValue: BrowserControlFieldValueGenerated;
+  readonly options: readonly BrowserControlFieldOptionGenerated[];
+};
+
+type BrowserControlSectionGenerated = {
+  readonly sectionId: string;
+};
+
+type BrowserControlManifestSectionGenerated = BrowserControlSectionGenerated & {
+  readonly visibleWhen: readonly BrowserControlConditionGenerated[];
+  readonly fields: readonly BrowserControlManifestFieldGenerated[];
+};
+
+type BrowserControlManifestGenerated = {
+  readonly sections: readonly BrowserControlManifestSectionGenerated[];
+};
+
+type BrowserControlManifestFieldGenerated = {
+  readonly fieldId: string;
+  readonly writesTo: string;
+};
+
+type BrowserControlRuleGenerated = {
+  readonly targetType: string | null;
+  readonly targetValue: string | null;
+  readonly target: { readonly kind: string } | null;
+};
+
+type BrowserControlPolicyGenerated = {
+  readonly defaultPosture: string;
+  readonly fallbackPosture: string | null;
+  readonly managedBrowser: { readonly mode: string };
+  readonly evidence: {
+    readonly requiredProof: string;
+    readonly proofFallback: string | null;
+    readonly whenProofUnavailable: string;
+  };
+  readonly budgets: {
+    readonly enabled: boolean;
+    readonly defaultDailyMinutes: number | null;
+  };
+  readonly rules: {
+    readonly allowedTargetTypes: readonly string[];
+    readonly items: readonly BrowserControlRuleGenerated[];
+    readonly entries: readonly BrowserControlRuleGenerated[];
+  };
+  readonly browserGames: {
+    readonly educationalGameMode: string;
+    readonly unknownGameMode: string;
+    readonly unblockedPortalMode: string;
+    readonly webglCanvasMode: string;
+    readonly defaultDailyMinutes: number | null;
+  };
+};
+
+type BrowserControlEffectivePolicyGenerated = {
+  readonly defaultPosture: string;
+  readonly fallbackPosture: string | null;
+  readonly budgets: {
+    readonly enabled: boolean;
+    readonly defaultDailyMinutes: number | null;
+  };
+};
+
+type BrowserControlFullCatalogOptionGenerated = {
+  readonly optionId: string;
+  readonly label: string;
+  readonly value: string;
+  readonly originalSourceText: string;
+  readonly meaning: string | null;
+  readonly defaultSelected: boolean;
+};
+
+type BrowserControlFullCatalogRuleGenerated = {
+  readonly ruleId: string;
+  readonly description: string;
+};
+
+type BrowserGamePolicyCompilerInputGenerated = {
+  readonly targetKind: string;
+  readonly analysisRefs: readonly string[];
+  readonly parentRuleRefs: readonly string[];
+  readonly compilerMode: string;
+  readonly rawGamePayloadIncluded: boolean;
+  readonly rawModelTextIncluded: boolean;
+  readonly activityDomainObjectIncluded: boolean;
+  readonly finalDecisionClaimedByInput: boolean;
+  readonly runtimeGateClaimedByInput: boolean;
+  readonly uiClaimedByInput: boolean;
+  readonly enforcementClaimedByInput: boolean;
+  readonly nativeGameControlClaimed: boolean;
+  readonly cloudFrameAnalysisClaimed: boolean;
+};
+
+type BrowserGamePolicyDecisionCandidateGenerated = {
+  readonly actionCandidate: string;
+  readonly reasonCodes: readonly string[];
+  readonly compilerMode: string;
+  readonly analysisRefs: readonly string[];
+  readonly fallbackUsed: boolean;
+  readonly parentApprovalRequired: boolean;
+  readonly finalPolicyDecisionClaimed: boolean;
+  readonly runtimeGateExecutedClaimed: boolean;
+  readonly uiRenderedClaimed: boolean;
+  readonly enforcementClaimed: boolean;
+  readonly nativeGameControlClaimed: boolean;
+  readonly cloudFrameAnalysisClaimed: boolean;
+  readonly rawGamePayloadStored: boolean;
+  readonly rawModelTextUsed: boolean;
+};
+
+const BrowserGamePolicyAllowReasonsGenerated = ['educational-benefit-present', 'parent-rule-match'] as const;
+const BrowserGamePolicyUnknownFallbackReasonsGenerated = [
+  'missing-game-evidence',
+  'degraded-analysis',
+  'low-confidence',
+  'unknown-evidence',
+] as const;
+
+const BrowserControlKnownWritesToPathsGenerated = new Set<string>(Object.values(GeneratedBrowserControlWritesToPath));
+
+export const GeneratedBrowserControlManifestDefaults = {
+  ManifestId: 'browser-control-authoring-v1',
+  Section: {
+    Management: 'browser-management',
+    BrowserDiscovery: 'browser-discovery',
+    ManagedBrowser: 'managed-browser',
+    UnmanagedBrowser: 'unmanaged-browser',
+    UrlTabEvidence: 'url-tab-evidence',
+    WebRules: 'web-rules',
+    Budgets: 'budgets',
+    BrowserGames: 'browser-games',
+    Downloads: 'downloads',
+    Approvals: 'approvals',
+    Reports: 'reports',
+    Audit: 'audit',
+  },
+  Field: {
+    Enabled: 'browser.enabled',
+    ExecutionMode: 'browser.executionMode',
+    DefaultPosture: 'browser.defaultPosture',
+    ManagementMode: 'browser.managementMode',
+    DiscoveryScanInstalledBrowsers: 'discovery.scanInstalledBrowsers',
+    DiscoveryScanRunningBrowsers: 'discovery.scanRunningBrowsers',
+    DiscoveryDetectUnmanagedBrowsers: 'discovery.detectUnmanagedBrowsers',
+    ManagedBrowserMode: 'managedBrowser.mode',
+    ManagedBrowserAllowedFamilies: 'managedBrowser.allowedFamilies',
+    ManagedBrowserLaunchMode: 'managedBrowser.launchMode',
+    ManagedBrowserProfileMode: 'managedBrowser.profileMode',
+    ManagedBrowserBridgeRequirements: 'managedBrowser.bridgeRequirements',
+    ManagedBrowserIntegrationMechanisms: 'managedBrowser.integrationMechanisms',
+    ManagedBrowserPolicyWriterControls: 'managedBrowser.policyWriterControls',
+    ManagedBrowserPolicyWriterFallback: 'managedBrowser.policyWriterFallback',
+    UnmanagedBrowserMode: 'unmanagedBrowser.mode',
+    UnmanagedBrowserGraceSeconds: 'unmanagedBrowser.graceSeconds',
+    UnmanagedBrowserAllowRecoverLaunchUrl: 'unmanagedBrowser.allowRecoverLaunchUrl',
+    UnmanagedBrowserClassificationTargets: 'unmanagedBrowser.classificationTargets',
+    EvidenceUrlScope: 'evidence.urlScope',
+    RequiredProof: 'evidence.requiredProof',
+    WhenProofUnavailable: 'evidence.whenProofUnavailable',
+    EvidenceNeverCollect: 'evidence.neverCollect',
+    AllowedTargetTypes: 'rules.allowedTargetTypes',
+    AllowedActions: 'rules.allowedActions',
+    RuleItems: 'rules.items',
+    UrlAllowList: 'rules.urlAllowList',
+    UrlBlockList: 'rules.urlBlockList',
+    BudgetsEnabled: 'budgets.enabled',
+    DailyBudgetMinutes: 'budgets.defaultDailyMinutes',
+    BudgetCountingMode: 'budgets.countingMode',
+    BrowserGameEducationalMode: 'browserGames.educationalGameMode',
+    BrowserGameUnknownMode: 'browserGames.unknownGameMode',
+    BrowserGameCloudGamingApproval: 'browserGames.cloudGamingApproval',
+    BrowserGamePurchaseAccountApproval: 'browserGames.purchaseAccountApproval',
+    BrowserGameUnblockedPortalMode: 'browserGames.unblockedPortalMode',
+    BrowserGameWebglCanvasMode: 'browserGames.webglCanvasMode',
+    BrowserGameDailyBudgetMinutes: 'browserGames.defaultDailyMinutes',
+    DownloadMode: 'downloads.mode',
+    DownloadBlockedTypes: 'downloads.blockedTypes',
+    ApprovalRequiredFor: 'approvals.requiredFor',
+    ApprovalUnansweredDefault: 'approvals.unansweredDefault',
+    ReportVisibleFields: 'reports.visibleFields',
+    RetentionExactUrl: 'retention.exactUrl',
+    CustodyAllowedUses: 'custody.allowedUses',
+    AuditRequiredFields: 'audit.requiredFields',
+  },
+} as const;
+export const GeneratedBrowserControlFullCatalogSourceDocument = 'docs/browser-policy-settings-catalog.md';
+export const GeneratedBrowserControlFullCatalogSourceDocuments = [
+  GeneratedBrowserControlFullCatalogSourceDocument,
+  'docs/browser-control-schema-proposal.md',
+  'docs/managed-unmanaged-browser.md',
+  'docs/browser-control-coverage-matrix.md',
+] as const;
+export const GeneratedBrowserControlFullCatalogSidePanelCategory = 'browser' as const;
+export const GeneratedBrowserControlFullCatalogTargetScopeOptions = optionsGenerated([
+  'Family',
+  'Per Child',
+  'Per Device',
+  'Per Platform',
+  'Per Browser',
+  'Per Network',
+]);
+export const GeneratedBrowserControlFullCatalogEffectModeOptions = optionsGenerated([
+  'Off',
+  'Observe',
+  'Dry Run',
+  'Warn',
+  'Notify',
+  'Ask',
+  'Limit',
+  'Block',
+  'Enforce',
+  'Audit Only',
+]);
+export const GeneratedBrowserControlFullCatalogTabOrder = [
+  'enforcement',
+  'rules',
+  'schedule',
+  'approvals',
+  'evidence',
+  'reports',
+  'data',
+  'audit',
+  'ai',
+  'setup',
+  'platform',
+] as const;
+export const GeneratedBrowserControlFullCatalogTabTitles = {
+  enforcement: 'Enforcement',
+  rules: 'Rules',
+  schedule: 'Schedule',
+  approvals: 'Approvals',
+  evidence: 'Evidence',
+  reports: 'Reports',
+  data: 'Data',
+  audit: 'Audit',
+  ai: 'AI',
+  setup: 'Setup',
+  platform: 'Platform',
+} as const;
+
+const enabledManifestConditionGenerated = equalsManifestConditionGenerated(
+  GeneratedBrowserControlWritesToPath.Enabled,
+  true
+);
+
+export const GeneratedBaselineBrowserControlAuthoringManifest = {
+  schemaVersion: 'v0.6',
+  manifestId: GeneratedBrowserControlManifestDefaults.ManifestId,
+  title: 'Browser controls',
+  sections: [
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.Management,
+      'Browser management',
+      'Top-level browser policy switch and default posture.',
+      [],
+      [
+        manifestBooleanFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.Enabled,
+          GeneratedBrowserControlWritesToPath.Enabled,
+          'Enable browser management?',
+          false,
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ExecutionMode,
+          GeneratedBrowserControlWritesToPath.ExecutionMode,
+          'How should browser-control decisions run?',
+          'observe',
+          ['observe', 'dry-run', 'warn-ask', 'enforce'],
+          [enabledManifestConditionGenerated]
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.DefaultPosture,
+          GeneratedBrowserControlWritesToPath.DefaultPosture,
+          'What should happen to browser activity?',
+          'observe',
+          ['allow', 'observe', 'warn', 'ask', 'limit', 'block'],
+          [enabledManifestConditionGenerated]
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ManagementMode,
+          GeneratedBrowserControlWritesToPath.ManagementMode,
+          'How should browser management run on this device?',
+          'local-child-agent',
+          ['local-child-agent', 'lan-live', 'authoring-only', 'unavailable'],
+          [enabledManifestConditionGenerated]
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.BrowserDiscovery,
+      'Browser discovery',
+      'Detect installed, running, and unmanaged browser activity before enforcement claims are made.',
+      [enabledManifestConditionGenerated],
+      [
+        manifestBooleanFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.DiscoveryScanInstalledBrowsers,
+          GeneratedBrowserControlWritesToPath.DiscoveryScanInstalledBrowsers,
+          'Scan installed browsers?',
+          false,
+          []
+        ),
+        manifestBooleanFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.DiscoveryScanRunningBrowsers,
+          GeneratedBrowserControlWritesToPath.DiscoveryScanRunningBrowsers,
+          'Scan running browsers?',
+          true,
+          []
+        ),
+        manifestBooleanFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.DiscoveryDetectUnmanagedBrowsers,
+          GeneratedBrowserControlWritesToPath.DiscoveryDetectUnmanagedBrowsers,
+          'Detect unmanaged browser use?',
+          true,
+          []
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.ManagedBrowser,
+      'Managed browser',
+      'Configure the browser path that can support exact URL, tab, download, and request-level rules.',
+      [enabledManifestConditionGenerated],
+      [
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ManagedBrowserMode,
+          GeneratedBrowserControlWritesToPath.ManagedBrowserMode,
+          'How should managed browser be used?',
+          'available-for-exact-rules',
+          ['disabled', 'available-for-exact-rules', 'required-for-exact-rules', 'required-for-all-browsing'],
+          []
+        ),
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ManagedBrowserAllowedFamilies,
+          GeneratedBrowserControlWritesToPath.ManagedBrowserAllowedFamilies,
+          'Which managed browsers are allowed?',
+          ['edge-stable', 'chrome-stable', 'chrome-for-testing'],
+          [
+            'edge-stable',
+            'edge-beta',
+            'edge-dev',
+            'chrome-stable',
+            'chrome-beta',
+            'chrome-dev',
+            'chrome-for-testing',
+            'brave',
+            'firefox',
+            'safari-webkit',
+            'owned-webview',
+          ],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ManagedBrowserLaunchMode,
+          GeneratedBrowserControlWritesToPath.ManagedBrowserLaunchMode,
+          'How should allowed browsing launch?',
+          'ocentra-launcher',
+          ['manual', 'ocentra-launcher', 'default-browser-route', 'managed-shell', 'admin-provisioned'],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ManagedBrowserProfileMode,
+          GeneratedBrowserControlWritesToPath.ManagedBrowserProfileMode,
+          'How should the managed profile behave?',
+          'persistent-managed-profile',
+          ['persistent-managed-profile', 'clear-on-schedule', 'clear-on-session-end', 'ephemeral'],
+          []
+        ),
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ManagedBrowserBridgeRequirements,
+          GeneratedBrowserControlWritesToPath.ManagedBrowserBridgeRequirements,
+          'Which bridge security rules are required?',
+          [
+            'owned-profile',
+            'loopback-only',
+            'random-port',
+            'reject-default-profile',
+            'reject-unmanaged-profile',
+            'redacted-refs',
+            'close-on-session-end',
+            'degrade-safely',
+          ],
+          [
+            'owned-profile',
+            'loopback-only',
+            'random-port',
+            'reject-default-profile',
+            'reject-unmanaged-profile',
+            'redacted-refs',
+            'close-on-session-end',
+            'degrade-safely',
+          ],
+          []
+        ),
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ManagedBrowserIntegrationMechanisms,
+          GeneratedBrowserControlWritesToPath.ManagedBrowserIntegrationMechanisms,
+          'Which managed browser integrations may be used?',
+          ['chromium-cdp', 'managed-extension-native-host', 'browser-policy'],
+          ['chromium-cdp', 'webdriver-bidi', 'managed-extension-native-host', 'browser-policy', 'owned-webview'],
+          []
+        ),
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ManagedBrowserPolicyWriterControls,
+          GeneratedBrowserControlWritesToPath.ManagedBrowserPolicyWriterControls,
+          'Which managed Chrome/Edge policy-writer inputs may be authored?',
+          [
+            'disable-incognito',
+            'disable-guest-browsing',
+            'disable-profile-adding',
+            'limit-history-deletion',
+            'force-safe-search',
+            'force-restricted-mode',
+          ],
+          [
+            'disable-incognito',
+            'disable-guest-browsing',
+            'disable-profile-adding',
+            'limit-history-deletion',
+            'force-safe-search',
+            'force-restricted-mode',
+            'url-allow-list',
+            'url-block-list',
+          ],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ManagedBrowserPolicyWriterFallback,
+          GeneratedBrowserControlWritesToPath.ManagedBrowserPolicyWriterFallback,
+          'What if managed browser policy writing is unsupported?',
+          'manual-required',
+          ['observe-only', 'manual-required', 'degraded', 'unsupported', 'not-claimed'],
+          []
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.UnmanagedBrowser,
+      'Unmanaged browser',
+      'Choose what happens when browser-like activity is outside the managed boundary.',
+      [enabledManifestConditionGenerated],
+      [
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.UnmanagedBrowserMode,
+          GeneratedBrowserControlWritesToPath.UnmanagedBrowserMode,
+          'What should happen to unmanaged browsers?',
+          'report-only',
+          [
+            'report-only',
+            'allowed-unmanaged-exception',
+            'warn-child',
+            'parent-review',
+            'terminate-process',
+            'relaunch-managed',
+            'os-block-configured',
+            'os-block-manual-required',
+          ],
+          []
+        ),
+        manifestNumberFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.UnmanagedBrowserGraceSeconds,
+          GeneratedBrowserControlWritesToPath.UnmanagedBrowserGraceSeconds,
+          'How long should the child get before unmanaged browser action applies?',
+          0,
+          [includesManifestConditionGenerated(GeneratedBrowserControlWritesToPath.UnmanagedBrowserMode, 'warn')]
+        ),
+        manifestBooleanFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.UnmanagedBrowserAllowRecoverLaunchUrl,
+          GeneratedBrowserControlWritesToPath.UnmanagedBrowserAllowRecoverLaunchUrl,
+          'If a launch URL is visible, should it reopen in managed browser?',
+          true,
+          [
+            equalsManifestConditionGenerated(
+              GeneratedBrowserControlWritesToPath.UnmanagedBrowserMode,
+              'relaunch-managed'
+            ),
+          ]
+        ),
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.UnmanagedBrowserClassificationTargets,
+          GeneratedBrowserControlWritesToPath.UnmanagedBrowserClassificationTargets,
+          'Which unmanaged browser types should be detected?',
+          ['known-browser', 'portable-browser', 'renamed-browser', 'browser-like-process', 'private-or-tor'],
+          [
+            'known-browser',
+            'portable-browser',
+            'renamed-browser',
+            'browser-like-process',
+            'embedded-webview',
+            'private-or-tor',
+            'unknown',
+          ],
+          []
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.UrlTabEvidence,
+      'URL and tab evidence',
+      'Choose what exact browser state may be collected and used.',
+      [
+        enabledManifestConditionGenerated,
+        notEqualsManifestConditionGenerated(GeneratedBrowserControlWritesToPath.DefaultPosture, 'block'),
+      ],
+      [
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.EvidenceUrlScope,
+          GeneratedBrowserControlWritesToPath.EvidenceUrlScope,
+          'What URL detail may rules use?',
+          'domain-origin-title',
+          ['none', 'domain-only', 'domain-origin-title', 'full-url-without-query', 'full-url-with-query'],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.RequiredProof,
+          GeneratedBrowserControlWritesToPath.RequiredProof,
+          'What proof is enough for exact browser rules?',
+          'fresh-managed-active-tab',
+          [
+            'process-running',
+            'foreground-window',
+            'network-domain',
+            'managed-tab-list',
+            'fresh-managed-tab-list',
+            'fresh-managed-active-tab',
+          ],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.WhenProofUnavailable,
+          GeneratedBrowserControlWritesToPath.WhenProofUnavailable,
+          'What if browser proof is unavailable?',
+          'ask',
+          ['allow', 'observe', 'warn', 'ask', 'block-until-ready', 'mark-unavailable'],
+          []
+        ),
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.EvidenceNeverCollect,
+          GeneratedBrowserControlWritesToPath.EvidenceNeverCollect,
+          'What must browser rules never collect?',
+          [
+            'page-body',
+            'chat-content',
+            'screenshots',
+            'keystrokes',
+            'form-values',
+            'secrets',
+            'decrypted-https-payload',
+            'raw-protocol-dumps',
+          ],
+          [
+            'page-body',
+            'chat-content',
+            'screenshots',
+            'keystrokes',
+            'form-values',
+            'secrets',
+            'decrypted-https-payload',
+            'raw-protocol-dumps',
+          ],
+          []
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.WebRules,
+      'Web rules',
+      'Rules for URLs, domains, categories, search, video, browser sessions, and browser processes.',
+      [
+        enabledManifestConditionGenerated,
+        notEqualsManifestConditionGenerated(GeneratedBrowserControlWritesToPath.DefaultPosture, 'allow'),
+      ],
+      [
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.AllowedTargetTypes,
+          GeneratedBrowserControlWritesToPath.AllowedTargetTypes,
+          'What browser targets should rules match?',
+          ['exact-url', 'domain-origin', 'site-category', 'browser-session', 'browser-process', 'capability-state'],
+          [
+            'exact-url',
+            'domain-origin',
+            'site-category',
+            'search-terms',
+            'video-channel',
+            'browser-session',
+            'browser-process',
+            'capability-state',
+            'download',
+            'browser-game-portal',
+            'cloud-gaming',
+            'webgl-canvas-game',
+            'game-account',
+            'game-purchase',
+          ],
+          []
+        ),
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.AllowedActions,
+          GeneratedBrowserControlWritesToPath.AllowedActions,
+          'What actions may browser rules use?',
+          ['allow', 'warn', 'ask', 'limit', 'block'],
+          [
+            'allow',
+            'monitor',
+            'warn',
+            'ask',
+            'limit',
+            'block',
+            'redirect',
+            'close-tab',
+            'close-browser',
+            'terminate-process',
+            'relaunch-managed',
+          ],
+          []
+        ),
+        manifestFieldGenerated(
+          'rule-list',
+          GeneratedBrowserControlManifestDefaults.Field.RuleItems,
+          GeneratedBrowserControlWritesToPath.RuleItems,
+          'Rules',
+          [],
+          [],
+          []
+        ),
+        manifestFieldGenerated(
+          'target-list',
+          GeneratedBrowserControlManifestDefaults.Field.UrlAllowList,
+          GeneratedBrowserControlWritesToPath.UrlAllowList,
+          'Allowed URL or domain list',
+          [],
+          [],
+          []
+        ),
+        manifestFieldGenerated(
+          'target-list',
+          GeneratedBrowserControlManifestDefaults.Field.UrlBlockList,
+          GeneratedBrowserControlWritesToPath.UrlBlockList,
+          'Blocked URL or domain list',
+          [],
+          [],
+          []
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.Budgets,
+      'Budgets',
+      'Browser time budgets and counting mode.',
+      [
+        enabledManifestConditionGenerated,
+        equalsManifestConditionGenerated(GeneratedBrowserControlWritesToPath.DefaultPosture, 'limit'),
+      ],
+      [
+        manifestBooleanFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.BudgetsEnabled,
+          GeneratedBrowserControlWritesToPath.BudgetsEnabled,
+          'Enable browser budgets?',
+          true,
+          []
+        ),
+        manifestNumberFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.DailyBudgetMinutes,
+          GeneratedBrowserControlWritesToPath.DailyBudgetMinutes,
+          'Default daily browser minutes',
+          60,
+          [equalsManifestConditionGenerated(GeneratedBrowserControlWritesToPath.BudgetsEnabled, true)]
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.BudgetCountingMode,
+          GeneratedBrowserControlWritesToPath.BudgetCountingMode,
+          'How should browser time count?',
+          'foreground-browser-time',
+          [
+            'foreground-browser-time',
+            'managed-active-tab-time',
+            'managed-session-time',
+            'all-browser-process-time',
+            'unmanaged-as-unknown-web-time',
+          ],
+          [equalsManifestConditionGenerated(GeneratedBrowserControlWritesToPath.BudgetsEnabled, true)]
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.BrowserGames,
+      'Browser games and cloud gaming',
+      'Author educational game, unknown game, cloud gaming, account, purchase, portal, and canvas rules.',
+      [
+        enabledManifestConditionGenerated,
+        notEqualsManifestConditionGenerated(GeneratedBrowserControlWritesToPath.DefaultPosture, 'allow'),
+      ],
+      [
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.BrowserGameEducationalMode,
+          GeneratedBrowserControlWritesToPath.BrowserGameEducationalMode,
+          'What should happen to educational browser games?',
+          'allow',
+          ['allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required'],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.BrowserGameUnknownMode,
+          GeneratedBrowserControlWritesToPath.BrowserGameUnknownMode,
+          'What should happen to unknown browser games?',
+          'parent-review',
+          ['allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required'],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.BrowserGameCloudGamingApproval,
+          GeneratedBrowserControlWritesToPath.BrowserGameCloudGamingApproval,
+          'How should cloud gaming be approved?',
+          'parent-review',
+          ['allow', 'parent-review', 'block', 'manual-required'],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.BrowserGamePurchaseAccountApproval,
+          GeneratedBrowserControlWritesToPath.BrowserGamePurchaseAccountApproval,
+          'How should game purchases and accounts be approved?',
+          'parent-review',
+          ['allow', 'parent-review', 'block', 'manual-required'],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.BrowserGameUnblockedPortalMode,
+          GeneratedBrowserControlWritesToPath.BrowserGameUnblockedPortalMode,
+          'What should happen to unblocked game portals?',
+          'warn',
+          ['allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required'],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.BrowserGameWebglCanvasMode,
+          GeneratedBrowserControlWritesToPath.BrowserGameWebglCanvasMode,
+          'What should happen to WebGL or canvas games?',
+          'observe',
+          ['allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required'],
+          []
+        ),
+        manifestNumberFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.BrowserGameDailyBudgetMinutes,
+          GeneratedBrowserControlWritesToPath.BrowserGameDailyBudgetMinutes,
+          'Default daily browser-game minutes',
+          30,
+          []
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.Downloads,
+      'Downloads',
+      'Download monitoring and risky file handling.',
+      [enabledManifestConditionGenerated],
+      [
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.DownloadMode,
+          GeneratedBrowserControlWritesToPath.DownloadMode,
+          'How should downloads be handled?',
+          'observe',
+          ['off', 'observe', 'warn', 'ask', 'block-risky', 'block-all'],
+          []
+        ),
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.DownloadBlockedTypes,
+          GeneratedBrowserControlWritesToPath.DownloadBlockedTypes,
+          'Which downloads are risky?',
+          ['executable', 'script', 'unknown'],
+          ['executable', 'script', 'archive', 'media', 'unknown', 'large-file', 'browser-danger'],
+          [notEqualsManifestConditionGenerated(GeneratedBrowserControlWritesToPath.DownloadMode, 'off')]
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.Approvals,
+      'Approvals',
+      'Parent approval triggers and unanswered request behavior.',
+      [enabledManifestConditionGenerated],
+      [
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ApprovalRequiredFor,
+          GeneratedBrowserControlWritesToPath.ApprovalRequiredFor,
+          'What requires parent approval?',
+          ['blocked-site', 'new-domain', 'unmanaged-browser', 'download', 'time-extension'],
+          [
+            'blocked-site',
+            'new-domain',
+            'unknown-category',
+            'unmanaged-browser',
+            'download',
+            'time-extension',
+            'managed-setup',
+            'new-browser-install',
+          ],
+          []
+        ),
+        manifestSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ApprovalUnansweredDefault,
+          GeneratedBrowserControlWritesToPath.ApprovalUnansweredDefault,
+          'What if parent does not answer?',
+          'deny',
+          ['deny', 'allow-temporarily', 'continue-observe-only', 'keep-waiting'],
+          []
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.Reports,
+      'Reports',
+      'Parent-visible report fields, retention, and custody.',
+      [enabledManifestConditionGenerated],
+      [
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.ReportVisibleFields,
+          GeneratedBrowserControlWritesToPath.ReportVisibleFields,
+          'Which report fields may parents see?',
+          [
+            'managed-status',
+            'recent-domain-title',
+            'unmanaged-use',
+            'policy-decisions',
+            'block-results',
+            'time-budget',
+            'source-capability',
+          ],
+          [
+            'managed-status',
+            'recent-url',
+            'recent-domain-title',
+            'unmanaged-use',
+            'policy-decisions',
+            'block-results',
+            'time-budget',
+            'download-events',
+            'source-capability',
+          ],
+          []
+        ),
+        manifestFieldGenerated(
+          'retention',
+          GeneratedBrowserControlManifestDefaults.Field.RetentionExactUrl,
+          GeneratedBrowserControlWritesToPath.RetentionExactUrl,
+          'How long can exact URL evidence be retained?',
+          '7-days',
+          ['fresh-only', '24-hours', '7-days', '30-days', 'until-reset', 'delete-expired'],
+          []
+        ),
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.CustodyAllowedUses,
+          GeneratedBrowserControlWritesToPath.CustodyAllowedUses,
+          'Where may browser evidence be used?',
+          ['child-local', 'lan-live', 'parent-cache', 'parent-report'],
+          ['child-local', 'lan-live', 'parent-cache', 'parent-export', 'parent-report', 'unavailable'],
+          []
+        ),
+      ]
+    ),
+    manifestSectionGenerated(
+      GeneratedBrowserControlManifestDefaults.Section.Audit,
+      'Audit',
+      'Required audit fields for strict browser-control actions.',
+      [enabledManifestConditionGenerated],
+      [
+        manifestMultiSelectFieldGenerated(
+          GeneratedBrowserControlManifestDefaults.Field.AuditRequiredFields,
+          GeneratedBrowserControlWritesToPath.AuditRequiredFields,
+          'Which audit fields are required?',
+          [
+            'policy-decision',
+            'evidence-ref',
+            'adapter-result',
+            'timer-state',
+            'parent-override',
+            'rollback',
+            'policy-version',
+          ],
+          [
+            'policy-decision',
+            'evidence-ref',
+            'ai-ref',
+            'adapter-result',
+            'timer-state',
+            'parent-override',
+            'rollback',
+            'policy-version',
+            'capability-state',
+            'custody-label',
+          ],
+          []
+        ),
+      ]
+    ),
+  ],
+} as const;

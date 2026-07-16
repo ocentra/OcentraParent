@@ -1,0 +1,30 @@
+    timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.CompilerManualRequiredBeforeTimer);
+
+export const appGameSourceGatedPolicyPreviewTimerHandoffStateForProjectionGenerated = (
+  projectionState: ProjectionStateValue
+): TimerHandoffStateValue => {
+  if (projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionState.PreviewReadyVisible) {
+    return AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing;
+  }
+
+  if (projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionState.SourceManualRequiredVisible) {
+    return AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer;
+  }
+
+  return AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.CompilerManualRequiredBeforeTimer;
+};
+
+export const countAppGameSourceGatedPolicyPreviewTimerHandoffRowsGenerated = (
+  rows: readonly TimerHandoffRowLike[]
+) => ({
+  timerSequenceCandidateCount: rows.filter(
+    (row) => row.timerHandoffState === AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.ReadyForTimerSequencing
+  ).length,
+  sourceManualBlockedCount: rows.filter(
+    (row) =>
+      row.timerHandoffState ===
+      AppGameSourceGatedPolicyPreviewTimerHandoffStateGenerated.SourceManualRequiredBeforeTimer
+  ).length,
+  compilerManualBlockedCount: rows.filter(
+    (row) =>
+      row.timerHandoffState ===

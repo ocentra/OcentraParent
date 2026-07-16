@@ -1,20 +1,35 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_supported_adapter_runtime_proof as proof, policy_constants, ParentPlatform,
-    V08SupportedAdapterAuditReferenceState, V08SupportedAdapterCapability,
-    V08SupportedAdapterPlatformSupportState, V08SupportedAdapterRefusalReason,
-    V08SupportedAdapterResult, V08SupportedAdapterRollbackReferenceState,
-    V08SupportedAdapterRuntimeBoundary, V08SupportedAdapterRuntimeProofEntry,
-    V08SupportedAdapterRuntimeProofReadModel, V08SupportedAdapterRuntimeState,
-    V08SupportedAdapterTargetIdentityState,
-};
+use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterAuditReferenceState;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterCapability;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterPlatformSupportState;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRefusalReason;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterResult;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRollbackReferenceState;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeBoundary;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeProofEntry;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeState;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterTargetIdentityState;
+use ocentra_parent_agent_protocol::policy_constants;
 
-pub(crate) fn v08_supported_adapter_runtime_proof_read_model(
-    generated_at: &str,
+#[derive(Clone, Copy)]
+pub(crate) struct GeneratedAtTextRef<'a>(pub(crate) &'a str);
+
+#[derive(Clone, Copy)]
+struct ProofEntryId(pub(crate) &'static str);
+
+#[derive(Clone, Copy)]
+struct StaticTextRefs(pub(crate) &'static [&'static str]);
+
+pub(crate) fn v08_supported_adapter_runtime_proof_read_model<'a>(
+    generated_at: impl Into<GeneratedAtTextRef<'a>>,
 ) -> V08SupportedAdapterRuntimeProofReadModel {
+    let generated_at = generated_at.into();
     V08SupportedAdapterRuntimeProofReadModel {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: proof::READ_MODEL_ID.to_string(),
-        generated_at: generated_at.to_string(),
+        generated_at: generated_at.0.to_string(),
         source_read_model_ids: vec![
             proof::SOURCE_BROAD_ADAPTER_PROOF.to_string(),
             proof::SOURCE_POLICY_DISPATCH_PROOF.to_string(),
@@ -51,6 +66,7 @@ struct EntrySpec {
     fallback_behavior: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct ImplementedSpecInput {
     proof_entry_id: &'static str,
     runtime_boundary: V08SupportedAdapterRuntimeBoundary,
@@ -64,6 +80,7 @@ struct ImplementedSpecInput {
     fallback_behavior: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct ManualSpecInput {
     proof_entry_id: &'static str,
     runtime_boundary: V08SupportedAdapterRuntimeBoundary,
@@ -85,24 +102,24 @@ fn entry_specs() -> Vec<EntrySpec> {
         unavailable_spec(),
         unsupported_spec(),
         mobile_manual_spec(
-            proof::ENTRY_ID_ANDROID_MANUAL,
+            ProofEntryId(proof::ENTRY_ID_ANDROID_MANUAL),
             V08SupportedAdapterRuntimeBoundary::AndroidMobileControlManualGate,
             ParentPlatform::Android,
-            &[
+            StaticTextRefs(&[
                 proof::REQUIREMENT_ANDROID_DEVICE_OWNER,
                 proof::REQUIREMENT_ANDROID_USAGE_STATS,
                 proof::REQUIREMENT_ANDROID_ACCESSIBILITY_VPN_DNS,
-            ],
+            ]),
         ),
         mobile_manual_spec(
-            proof::ENTRY_ID_IOS_MANUAL,
+            ProofEntryId(proof::ENTRY_ID_IOS_MANUAL),
             V08SupportedAdapterRuntimeBoundary::IosMobileControlManualGate,
             ParentPlatform::Ios,
-            &[
+            StaticTextRefs(&[
                 proof::REQUIREMENT_IOS_FAMILY_CONTROLS,
                 proof::REQUIREMENT_IOS_DEVICE_ACTIVITY,
                 proof::REQUIREMENT_IOS_NETWORK_EXTENSION,
-            ],
+            ]),
         ),
     ]);
     specs
@@ -350,6 +367,7 @@ fn unsupported_spec() -> EntrySpec {
     }
 }
 
+#[derive(Clone, Copy)]
 struct ArtifactStatusSpecInput {
     proof_entry_id: &'static str,
     runtime_boundary: V08SupportedAdapterRuntimeBoundary,
@@ -461,24 +479,27 @@ fn manual_spec(input: ManualSpecInput) -> EntrySpec {
 }
 
 fn mobile_manual_spec(
-    proof_entry_id: &'static str,
+    proof_entry_id: ProofEntryId,
     runtime_boundary: V08SupportedAdapterRuntimeBoundary,
     platform: ParentPlatform,
-    manual_proof_requirements: &'static [&'static str],
+    manual_proof_requirements: StaticTextRefs,
 ) -> EntrySpec {
     manual_spec(ManualSpecInput {
-        proof_entry_id,
+        proof_entry_id: proof_entry_id.0,
         runtime_boundary,
         platform,
         adapter_capability: V08SupportedAdapterCapability::MobileChildControlAdapter,
         target_identity_state: V08SupportedAdapterTargetIdentityState::UnsupportedPlatformTarget,
-        manual_proof_requirements,
+        manual_proof_requirements: manual_proof_requirements.0,
         claim_boundary: proof::CLAIM_MOBILE_MANUAL,
         fallback_behavior: proof::FALLBACK_MOBILE_MANUAL,
     })
 }
 
-fn entry_from_spec(spec: &EntrySpec, generated_at: &str) -> V08SupportedAdapterRuntimeProofEntry {
+fn entry_from_spec(
+    spec: &EntrySpec,
+    generated_at: GeneratedAtTextRef<'_>,
+) -> V08SupportedAdapterRuntimeProofEntry {
     V08SupportedAdapterRuntimeProofEntry {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         proof_entry_id: spec.proof_entry_id.to_string(),
@@ -492,10 +513,26 @@ fn entry_from_spec(spec: &EntrySpec, generated_at: &str) -> V08SupportedAdapterR
         rollback_reference_state: spec.rollback_reference_state,
         audit_reference_state: spec.audit_reference_state,
         refusal_reason: spec.refusal_reason,
-        evidence_refs: to_strings(spec.evidence_refs),
-        linked_proof_commands: to_strings(spec.linked_proof_commands),
-        linked_proof_artifacts: to_strings(spec.linked_proof_artifacts),
-        manual_proof_requirements: to_strings(spec.manual_proof_requirements),
+        evidence_refs: StaticTextRefs(spec.evidence_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        linked_proof_commands: StaticTextRefs(spec.linked_proof_commands)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        linked_proof_artifacts: StaticTextRefs(spec.linked_proof_artifacts)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        manual_proof_requirements: StaticTextRefs(spec.manual_proof_requirements)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
         claim_boundary: spec.claim_boundary.to_string(),
         fallback_behavior: spec.fallback_behavior.to_string(),
         broad_installed_app_blocking_claimed: false,
@@ -505,10 +542,6 @@ fn entry_from_spec(spec: &EntrySpec, generated_at: &str) -> V08SupportedAdapterR
         tamper_hardening_claimed: false,
         mobile_control_claimed: false,
         unsupported_platform_behavior_claimed: false,
-        last_checked_at: generated_at.to_string(),
+        last_checked_at: generated_at.0.to_string(),
     }
-}
-
-fn to_strings(values: &[&str]) -> Vec<String> {
-    values.iter().map(|value| (*value).to_string()).collect()
 }

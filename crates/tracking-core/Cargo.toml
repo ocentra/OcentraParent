@@ -1,0 +1,49 @@
+[package]
+name = "ocentra-tracking-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "authz"
+path = "tests/authz/mod.rs"
+
+[[test]]
+name = "contract"
+path = "tests/contract/mod.rs"
+
+[[test]]
+name = "migration"
+path = "tests/migration/mod.rs"
+
+[[test]]
+name = "observability"
+path = "tests/observability/mod.rs"
+
+[[test]]
+name = "replay"
+path = "tests/replay/mod.rs"
+
+[[test]]
+name = "retention"
+path = "tests/retention/mod.rs"
+
+[[test]]
+name = "unit"
+path = "tests/unit/mod.rs"
+
+[dependencies]
+ocentra-evidence = { path = "../ocentra-evidence" }
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-family-identity-core = { path = "../family-identity-core" }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-policy-control-core = { path = "../policy-control-core" }
+rusqlite = { version = "0.39.0", features = ["bundled"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"

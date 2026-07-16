@@ -1,0 +1,115 @@
+/* generated from crates/app-game-core/src/app_game_policy_target_compiler_generated_ts.rs */
+
+import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from './effect';
+import {
+  AppGamePolicyCompilerAuthorityState,
+  AppGamePolicyCompilerEvidenceState,
+  AppGamePolicyCompilerOutcomeState,
+  AppGamePolicyCompilerProofKind,
+  AppGamePolicyCompilerRejectionReason,
+  AppGamePolicyCompilerRequestedAction,
+  AppGamePolicyTargetKind,
+  appGamePolicyBlockLaunchWithoutProofIsManualRequired,
+  appGamePolicyCapabilityRefsKeepNonReadyStatesExplicit,
+  appGamePolicyCompiledDecisionCarriesProofRefs,
+  appGamePolicyHardActionProofIsComplete,
+  appGamePolicyRequestHasCapabilityRef,
+  appGamePolicyRequestHasFreshLocalEvidence,
+  appGamePolicyRequestHasScheduleProof,
+  appGamePolicyTargetProofIsComplete,
+} from './app-game-policy-target-compiler-rules';
+import { ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from './family-references';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentPolicyVersionSchema,
+  ParentTimestampSchema,
+} from './family-reference-primitives';
+import {
+  PolicyActionSchema,
+  PolicyDecisionSchema,
+  PolicyRuleIdSchema,
+  PolicyScheduleIdSchema,
+  PolicyTargetSchema,
+} from './policy-contracts';
+import { PolicyCompilerCapabilityStateSchema } from './policy-compiler';
+
+export const AppGamePolicyCompileRequestIdSchema = brandedNonEmptyStringSchema('AppGamePolicyCompileRequestId');
+export const AppGamePolicyCompiledDecisionIdSchema = brandedNonEmptyStringSchema('AppGamePolicyCompiledDecisionId');
+export const AppGamePolicyTargetRefSchema = brandedNonEmptyStringSchema('AppGamePolicyTargetRef');
+export const AppGamePolicyLocalUserRefSchema = brandedNonEmptyStringSchema('AppGamePolicyLocalUserRef');
+export const AppGamePolicyCapabilityRefSchema = brandedNonEmptyStringSchema('AppGamePolicyCapabilityRef');
+export const AppGamePolicyAuthorityRefSchema = brandedNonEmptyStringSchema('AppGamePolicyAuthorityRef');
+export const AppGamePolicyAuditRefSchema = brandedNonEmptyStringSchema('AppGamePolicyAuditRef');
+
+export const AppGamePolicyTargetKindSchema = withParser(Schema.Literal(...Object.values(AppGamePolicyTargetKind)));
+export const AppGamePolicyCompilerProofKindSchema = withParser(
+  Schema.Literal(...Object.values(AppGamePolicyCompilerProofKind))
+);
+export const AppGamePolicyCompilerEvidenceStateSchema = withParser(
+  Schema.Literal(...Object.values(AppGamePolicyCompilerEvidenceState))
+);
+export const AppGamePolicyCompilerCapabilityStateSchema = PolicyCompilerCapabilityStateSchema;
+export const AppGamePolicyCompilerAuthorityStateSchema = withParser(
+  Schema.Literal(...Object.values(AppGamePolicyCompilerAuthorityState))
+);
+export const AppGamePolicyCompilerRequestedActionSchema = withParser(
+  Schema.Literal(...Object.values(AppGamePolicyCompilerRequestedAction))
+);
+export const AppGamePolicyCompilerOutcomeStateSchema = withParser(
+  Schema.Literal(...Object.values(AppGamePolicyCompilerOutcomeState))
+);
+export const AppGamePolicyCompilerRejectionReasonSchema = withParser(
+  Schema.Literal(...Object.values(AppGamePolicyCompilerRejectionReason))
+);
+
+export const AppGamePolicyCompilerTargetSchema = withParser(
+  Schema.Struct({
+    targetKind: AppGamePolicyTargetKindSchema,
+    targetRef: Schema.Union(AppGamePolicyTargetRefSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (target) =>
+        target.targetRef !== null ||
+        target.targetKind === AppGamePolicyTargetKind.AllGames ||
+        target.targetKind === AppGamePolicyTargetKind.AllNonSystemApps ||
+        'Expected concrete app/game policy targets to carry a target ref'
+    )
+  )
+);
+
+export const AppGamePolicyCompilerEvidenceSchema = withParser(
+  Schema.Struct({
+    evidenceReference: ParentEvidenceReferenceSchema,
+    proofKind: AppGamePolicyCompilerProofKindSchema,
+    evidenceState: AppGamePolicyCompilerEvidenceStateSchema,
+    device: ParentDeviceReferenceSchema,
+    localUserRef: AppGamePolicyLocalUserRefSchema,
+    observedAt: ParentTimestampSchema,
+  })
+);
+
+export const AppGamePolicyCompilerCapabilityRefSchema = withParser(
+  Schema.Struct({
+    capabilityRef: AppGamePolicyCapabilityRefSchema,
+    capabilityState: AppGamePolicyCompilerCapabilityStateSchema,
+    evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+  }).pipe(
+    Schema.filter(
+      (capability) =>
+        capability.evidenceReferences.length > 0 || 'Expected app/game compiler capability refs to cite evidence'
+    )
+  )
+);
+
+export const AppGamePolicyCompilerAuthorityRefSchema = withParser(
+  Schema.Struct({
+    authorityRef: AppGamePolicyAuthorityRefSchema,
+    authorityState: AppGamePolicyCompilerAuthorityStateSchema,
+    evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+  }).pipe(
+    Schema.filter(
+      (authority) =>
+        authority.evidenceReferences.length > 0 || 'Expected app/game compiler authority refs to cite evidence'
+    )
+  )
+);

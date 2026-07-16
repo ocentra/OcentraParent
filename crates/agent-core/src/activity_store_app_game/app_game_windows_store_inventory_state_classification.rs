@@ -1,0 +1,26 @@
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CLASSIFICATION_ADAPTER_ERROR, APP_GAME_CLASSIFICATION_KNOWN_APP,
+    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_CLASSIFICATION_PERMISSION_LIMITED,
+    APP_GAME_CLASSIFICATION_STALE, APP_GAME_INVENTORY_STATE_ADAPTER_ERROR,
+    APP_GAME_INVENTORY_STATE_PERMISSION_LIMITED, APP_GAME_INVENTORY_STATE_STALE,
+    APP_GAME_PRODUCT_NATIVE_GAME,
+};
+
+use super::super::WindowsStorePackageInventoryRecord;
+
+pub(crate) fn classification_state_for_record(
+    record: &WindowsStorePackageInventoryRecord,
+    product_kind: &str,
+) -> String {
+    if record.inventory_state == APP_GAME_INVENTORY_STATE_PERMISSION_LIMITED {
+        APP_GAME_CLASSIFICATION_PERMISSION_LIMITED.to_string()
+    } else if record.inventory_state == APP_GAME_INVENTORY_STATE_ADAPTER_ERROR {
+        APP_GAME_CLASSIFICATION_ADAPTER_ERROR.to_string()
+    } else if record.inventory_state == APP_GAME_INVENTORY_STATE_STALE {
+        APP_GAME_CLASSIFICATION_STALE.to_string()
+    } else if product_kind == APP_GAME_PRODUCT_NATIVE_GAME {
+        APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string()
+    } else {
+        APP_GAME_CLASSIFICATION_KNOWN_APP.to_string()
+    }
+}

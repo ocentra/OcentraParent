@@ -148,6 +148,6 @@ Next action:
   consumer feature without a core workpack and compatibility proof.
 - Do not use mocks, fakes, stubs, spies, or replacement transports.
 - Do not hold locks across handler awaits.
-- Do not mark a workpack `[x]` without proof artifacts.
+- Do not mark a workpack `[ ]` without proof artifacts.
 - Report product-doc updates, or explicitly state why no product-doc update was
   needed.

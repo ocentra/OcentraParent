@@ -14,11 +14,11 @@
 
 # Data Custody Storage Plan Next Actions
 
-1. Select the smallest current workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md).
-2. Confirm product source docs in [DOC_INDEX.md](DOC_INDEX.md).
-3. Select required test/proof intents from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
+1. Select the next smallest open workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md); WP01, WP02, WP03, WP04, WP05, WP06, and WP08 are complete, and WP07 still needs its aggregate refresh.
+2. Confirm product source docs in [DOC_INDEX.md](DOC_INDEX.md) for the next selected workpack.
+3. Select required proof intents from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
 4. Record any adjacent-plan handoff in the selected workpack before opening that adjacent plan.
-5. Keep status open until proof artifacts exist and checklist/proof rows are updated.
+5. Keep overall plan status open until the remaining workpacks and proof roots are updated; WP07 still carries the remaining open plan-state work.
 
 ## Actioned completion tracker
 
@@ -28,5 +28,13 @@
 
 ## State
 
-- State remains first-pass research until custody runtime, retention, and policy handoff proofs are closed with test artifacts.
+- WP04 retention/delete/tombstone is closed with green implementation, proof artifacts, and focused validation.
+- WP01 custody source of truth is closed with a Rust-owned contract, generated TS edge, real schema-domain contract test, focused proof runner, and proof root under `output/data-custody-storage-plan-proof/01-custody-source-of-truth/`.
+- WP02 encryption key custody is closed with green implementation, proof artifacts, and focused validation.
+- WP05 export/import/backup/recovery is closed with green implementation, proof artifacts, and focused validation.
+- WP06 report/query custody is closed with green implementation, proof artifacts, and focused validation.
+- WP03 parent-owned cloud sync is closed with green Rust contract/runtime coverage, green schema-domain build/test/proof reruns, and a refreshed proof root under `output/data-custody-storage-plan-proof/03-parent-owned-cloud-sync/`.
+- WP07 rollout gate still needs its own refresh because its current aggregate text predates the WP01 proof root and should not be treated as current aggregate truth.
+- WP08 parent storage settings/apply flow is closed with green Rust contract/runtime coverage, green schema-domain build/test/proof reruns, and a refreshed proof root under `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/`.
+- State remains open until provider sync, AI runtime custody, rollout refresh, and any carried blocked proof slices are closed with test artifacts or exact blocker resolution.
 - Keep this file and `PLAN_STATE.md` synchronized before any DONE/PR_READY claim.

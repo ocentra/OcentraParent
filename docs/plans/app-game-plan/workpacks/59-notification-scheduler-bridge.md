@@ -54,11 +54,11 @@ scheduler handoff without claiming provider delivery or production runtime.
 
 ## Validation
 
-- [x] Bridge parses the WP58 app/game outbox bridge read model before
+- [ ] Bridge parses the WP58 app/game outbox bridge read model before
       scheduling.
-- [x] Only linked local outbox records become scheduler JSONL rows.
-- [x] Manual-required and unavailable rows remain unscheduled.
-- [x] Scheduler JSONL rereads through the existing scheduler record parser.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no
+- [ ] Only linked local outbox records become scheduler JSONL rows.
+- [ ] Manual-required and unavailable rows remain unscheduled.
+- [ ] Scheduler JSONL rereads through the existing scheduler record parser.
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no
       retry-worker/quiet-hours timer runtime, no parent UI, no child delivery,
       no adapter dispatch, no durable production outbox, and no platform claim.

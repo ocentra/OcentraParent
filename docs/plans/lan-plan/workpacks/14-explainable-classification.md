@@ -35,12 +35,12 @@ it.
 
 ## Requirement Checklist
 
-- [ ] Classify using vendor, mDNS service type, SSDP type, hostname pattern,
+- [x] Classify using vendor, mDNS service type, SSDP type, hostname pattern,
       safe probe hint, child-agent platform, and manual parent label.
-- [ ] Include reasons and confidence in read models.
-- [ ] Represent unsupported, infrastructure, router, and unknown states.
-- [ ] Keep guessed owner/child labels out of scanner-only records.
-- [ ] Keep classification changes audit-friendly and test-backed.
+- [x] Include reasons and confidence in read models.
+- [x] Represent unsupported, infrastructure, router, and unknown states.
+- [x] Keep guessed owner/child labels out of scanner-only records.
+- [x] Keep classification changes audit-friendly and test-backed.
 
 ## Acceptance And Proof
 
@@ -49,6 +49,29 @@ it.
   unknown evidence.
 - UI tests show guessed, unknown, confirmed, router, and unsupported labels
   distinctly.
+
+Current local proof: `output/lan-plan-proof/14-explainable-classification/01-local-validation.md`
+
+Current local closure for this slice:
+
+- The Rust classifier already weights hostname, label, platform, hardware, and
+  safe service-probe hints into explicit canonical classifications instead of
+  guessing child ownership from scanner-only evidence.
+- Focused `lan-core` tests already cover router, unknown, unsupported, printer,
+  television, console, camera, NAS, IoT, phone, tablet, laptop, desktop, and
+  signed-child-agent cases plus conflicting-hint safety behavior.
+- The thin `agent-service` household-device spine remains a Rust-backed
+  projection and keeps router rows visible but non-enrollable.
+- Current scoped validation in this lane reran the live Rust read-model and
+  household-device spine surfaces without requiring source changes for W14.
+- Focused portal unit proof reran green for guessed, unknown, confirmed,
+  router, infrastructure, revoked, ignored, and manual-required label
+  rendering from the real Rust LAN read model, and the refreshed
+  source-matrix/browser proof kept the real `/devices` snapshot path honest.
+
+This workpack is locally complete for the current LAN scope. Broader
+install-eligibility or physical/manual readiness claims remain owned by later
+workpacks instead of classification.
 
 ## Parallel Ownership Notes
 

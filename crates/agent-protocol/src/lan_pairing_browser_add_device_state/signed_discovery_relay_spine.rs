@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use super::deserialize_lan_schema_version;
 use crate::{
     LanPairingProductionDiscoveryState, LanPairingRejectionReason, LanPairingResponseState,
     V09ProductionDiscoveryHouseholdProofState, V09ProductionDiscoveryHouseholdRuntimeOwner,
@@ -95,6 +96,7 @@ pub enum LanSignedDiscoveryRelayDecisionState {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanSignedDiscoveryRelayAdapterRow {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub adapter: LanSignedDiscoveryRelayAdapterKind,
     pub discovery_state: LanPairingProductionDiscoveryState,
@@ -109,6 +111,7 @@ pub struct LanSignedDiscoveryRelayAdapterRow {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanSignedDiscoveryRelaySignedProofRow {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub check: LanSignedDiscoveryRelaySignedProofCheck,
     pub discovery_state: LanPairingProductionDiscoveryState,
@@ -122,6 +125,7 @@ pub struct LanSignedDiscoveryRelaySignedProofRow {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanSignedDiscoveryRelayRouteSafetyRow {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub check: LanSignedDiscoveryRelayRouteSafetyCheck,
     pub route_id: Option<String>,
@@ -137,6 +141,7 @@ pub struct LanSignedDiscoveryRelayRouteSafetyRow {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanSignedDiscoveryRelayCacheRow {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub check: LanSignedDiscoveryRelayCacheCheck,
     pub decision_state: LanSignedDiscoveryRelayDecisionState,
@@ -150,6 +155,7 @@ pub struct LanSignedDiscoveryRelayCacheRow {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanSignedDiscoveryRelaySpineSummary {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub generated_at: String,
     pub adapter_rows: Vec<LanSignedDiscoveryRelayAdapterRow>,

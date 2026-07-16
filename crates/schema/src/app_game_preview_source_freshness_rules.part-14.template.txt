@@ -1,0 +1,29 @@
+  !row.childDeliveryClaimed &&
+  !row.platformEnforcementClaimed;
+
+export const appGameSourceFreshnessPreviewGateRowMatchesSourceStateGenerated = (
+  row: SourceFreshnessPreviewGateRowLike
+) => {
+  if (row.sourceReadinessState === AppGameSourceFreshnessPolicyReadinessStateGenerated.ManualRequired) {
+    return (
+      row.previewStatus === AppGameSourceFreshnessPreviewGateStatusGenerated.ManualRequired &&
+      row.gateState === AppGameSourceFreshnessPreviewGateStateGenerated.SourceManualRequired &&
+      !row.sourcePolicyCompileAllowed &&
+      row.previewRow === null &&
+      !row.compiledDecisionProvided &&
+      row.sourceRequirementStates.length > 0
+    );
+  }
+
+  if (row.sourceReadinessState !== AppGameSourceFreshnessPolicyReadinessStateGenerated.PolicyReady) {
+    return false;
+  }
+
+  return (
+    row.sourcePolicyCompileAllowed &&
+    row.compiledDecisionProvided &&
+    row.previewRow !== null &&
+    row.previewRow.targetDomain === row.targetDomain &&
+    row.sourceEvidenceRefs.length > 0
+  );
+};

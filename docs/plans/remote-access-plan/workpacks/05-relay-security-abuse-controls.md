@@ -2,13 +2,53 @@
 
 Goal: define relay safety, availability, and abuse controls.
 
-Expected shape:
+## Ownership boundary
+
+```text
+remote-access-plan owns authenticated/scoped relay sessions, rate limits, backpressure, replay/cross-household isolation, outage/degraded states, and redacted diagnostics.
+account-identity-family-plan owns account/session/token authority.
+data-custody-storage-plan owns diagnostic retention and private payload boundaries.
+screen-plan owns screen payload/protected-surface boundaries when screen content is involved.
+```
+
+## Expected shape
 
 - Relay connections are authenticated, scoped, rate-limited, and observable.
 - Partial outage, slow dependency, reconnect storm, and DoS are expected states.
 - Diagnostics are redacted and do not store screen content unless explicitly authorized.
+- Standing paired access remains visible until revoke or device removal.
 
-Expected proof:
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+relay_session_state
+authentication_state
+token_scope_state
+token_expiry_state
+token_replay_state
+rate_limit_state
+backpressure_state
+connection_limit_state
+cross_household_state
+origin_host_state
+redirect_state
+cache_stale_grant_state
+partial_outage_state
+slow_dependency_state
+reconnect_storm_state
+diagnostic_redaction_state
+retention_state
+abuse_alert_state
+support_admin_state
+no_raw_payload_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
+
+## Expected proof
 
 - Rate-limit and brute-force proof.
 - Retry storm/backpressure proof.
@@ -88,3 +128,4 @@ Proof artifact expectations:
 - Do not call relay production-ready without abuse, load, replay, and cross-household proof.
 - Do not store screen frames, input stream, or child-private payload in relay diagnostics by default.
 - Do not let support/admin bypass parent-visible session grants.
+- Do not treat relay availability as permission to retain raw screen or input payloads.

@@ -1,27 +1,47 @@
-# Reusable Rust Eventing Plan Checklist Index
+# Checklist Index
 
-<!-- agent-capsule -->
+Status: WP11 type-safety hardening locally proved; WP12 rollout-proof route
+complete; WP13 regression audit complete; plan remains open on WP10.
 
-> Agent Capsule
-> Plan: `eventing-plan`
-> Doc: `Reusable Rust Eventing Plan Checklist Index`
-> Kind: checklist row locator; not the full checklist.
-> Read when: Only when named by the plan route, selected workpack, or index row.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+This checklist tracks the current execution slice only. Historical closure notes
+remain in the plan docs, but the list below is the live tracker for the recent
+local proof closures and the remaining open workpacks.
 
-<!-- /agent-capsule -->
+- [x] Read the plan and route docs.
+- [x] Write or update the code.
+- [x] Write or update the tests.
+- [x] Compile and validate the touched code.
+- [x] Run the tests.
+- [ ] Run full crate or package validation.
+- [x] Collect proof artifacts in the designated local artifact path.
+- [x] Record the proof location outside the plan folder.
+- [ ] Prepare handoff notes.
 
-This is a section map for `implementation-checklist.md`. Read only the relevant section/row, not the entire file.
+## Route-proof reconciliation
 
-| Section                                                                                                      | Line | Rows | Boxes | Open |
-| ------------------------------------------------------------------------------------------------------------ | ---: | ---: | ----: | ---: |
-| [Eventing Plan Implementation Checklist](implementation-checklist.md#eventing-plan-implementation-checklist) |    1 |   79 |   138 |    1 |
-| [Fill Rules](implementation-checklist.md#fill-rules)                                                         |   12 |    0 |     0 |    0 |
-| [Required Proof Pack](implementation-checklist.md#required-proof-pack)                                       |   27 |    0 |    13 |    0 |
-| [Evidence Quality Gates](implementation-checklist.md#evidence-quality-gates)                                 |  112 |    0 |    32 |    0 |
-| [Main Execution Gates](implementation-checklist.md#main-execution-gates)                                     |  207 |    0 |    13 |    0 |
-| [Base Workpack Checklist](implementation-checklist.md#base-workpack-checklist)                               |  251 |   79 |    80 |    1 |
-| [Worker Report Template](implementation-checklist.md#worker-report-template)                                 |  339 |    0 |     0 |    0 |
+- [x] Restore the local WP12 rollout-proof bundle under
+      `docs/proof/eventing-plan/`,
+      `output/eventing-plan-proof/rollout-proof/`, and
+      `test-results/eventing-rollout-proof/`.
+- [x] Re-run `node scripts/test/eventing-rollout-proof.mjs` and confirm the
+      route docs keep WP10 open without any `PR_READY` claim.
+- [x] Record the restored WP12 route-proof state in `PLAN_STATE.md`,
+      `NEXT_ACTIONS.md`, `PROOF_INDEX.md`, and
+      `TEST_PROOF_EXPECTATIONS.md`.
+- [x] Re-run the scoped WP11 package validation:
+      `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`,
+      focused policy-control/contract tests, and touched-file
+      `npm run lint:architecture -- --files ...`.
+
+## Fresh regression audit
+
+- [x] Audit the migrated state: deleted `src/tests.rs`, empty `src/tests/`
+      scaffold, `src/lib.rs` source-side test entrypoint, and the external
+      harness files already living under `crates/ocentra-eventing/tests/`.
+- [x] Remove the remaining source-side test module entrypoint from
+      `crates/ocentra-eventing/src/lib.rs`.
+- [x] Remove the remaining empty `crates/ocentra-eventing/src/tests/`
+      scaffold from `crates/ocentra-eventing/src/`.
+- [x] Re-run the focused eventing test suites and architecture lint for the moved files.
+- [x] Record the fresh proof artifacts or blockers under the regression-audit
+      proof root and the WP12 route docs.

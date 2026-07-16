@@ -1,0 +1,27 @@
+[package]
+name = "ocentra-child-ai-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-evidence = { path = "../ocentra-evidence" }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-tracking-core = { path = "../tracking-core" }
+
+[dev-dependencies]
+
+[[test]]
+name = "contract_child_domain_policy_handoff"
+path = "tests/contract/child_domain_policy_handoff.rs"
+
+[[test]]
+name = "security_tracking_boundary"
+path = "tests/security/tracking_boundary.rs"

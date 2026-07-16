@@ -31,12 +31,12 @@ handoffs without claiming rendered UI or notification delivery.
 
 ## Validation
 
-- [x] Parent-surface rows require matching family and row counts across provider
+- [ ] Parent-surface rows require matching family and row counts across provider
       and preference status inputs.
-- [x] Redacted native app history/preference intent rows preserve refs for
+- [ ] Redacted native app history/preference intent rows preserve refs for
       future authenticated drill-in.
-- [x] No rendered parent UI, parent preference mutation, provider delivery,
+- [ ] No rendered parent UI, parent preference mutation, provider delivery,
       receipt ingestion, credentials, production runtime, child delivery,
       adapter dispatch, broad app blocking, or platform support is claimed.
-- [x] Product checklist unchanged because this proof does not move feature
+- [ ] Product checklist unchanged because this proof does not move feature
       status and provider/runtime/UI/platform gaps remain.

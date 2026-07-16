@@ -1,0 +1,3 @@
+/* Ownership marker only.
+   Generated child Android device proof artifact gate TypeScript is assembled in
+   child_android_proof_contracts_ts.rs from the child_android_device_proof_artifact_gate.*.template.txt fragments. */

@@ -37,7 +37,7 @@ WP58 outbox linking.
 
 ## Validation
 
-- [x] Cross-recorded from shared app/game WP59 proof.
-- [x] Native app rows schedule only after local outbox eligibility is proved.
-- [x] Manual-required and unavailable rows remain unscheduled.
-- [x] Runtime/provider/UI/child/adapter/platform claims remain false.
+- [ ] Cross-recorded from shared app/game WP59 proof.
+- [ ] Native app rows schedule only after local outbox eligibility is proved.
+- [ ] Manual-required and unavailable rows remain unscheduled.
+- [ ] Runtime/provider/UI/child/adapter/platform claims remain false.

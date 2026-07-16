@@ -1,99 +1,100 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { AgentAppGameAdapterDispatchPreflightResult } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
-import type {
-  AgentAppGameAdapterDispatchExecute,
-  AgentAppGameAdapterDispatchResult,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
-  PortalDetails,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  isPortalAppGameParentSurfaceRoute,
-  type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+  isParentAppGameParentSurfaceRoute,
+  type ParentAppGameAdapterDispatchPanelSnapshot,
+  type ParentAppGamePanelDetailSnapshot,
+  type ParentAppGamePanelRowSnapshot,
+  type ParentAppGamePanelSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import type { PortalRenderActions } from './portal-actions';
-import {
-  createAppGameAdapterDispatchPreflightPanelIntent,
-  type AppGameAdapterDispatchPreflightPanelDetail,
-  type AppGameAdapterDispatchPreflightPanelIntent,
-  type AppGameAdapterDispatchPreflightPanelRow,
-} from './app-game-adapter-dispatch-preflight-panel';
-import {
-  createAppGameAdapterDispatchResultPanelIntent,
-  type AppGameAdapterDispatchResultPanelDetail,
-  type AppGameAdapterDispatchResultPanelExecuteAction,
-  type AppGameAdapterDispatchResultPanelIntent,
-  type AppGameAdapterDispatchResultPanelRow,
-} from './app-game-adapter-dispatch-result-panel';
 
-export function shouldRenderAppGameAdapterDispatchRoute(route: PortalRouteValue): boolean {
-  return isPortalAppGameParentSurfaceRoute(route);
+const EmptyAdapterDispatchPreflightPanel: ParentAppGamePanelSnapshot = {
+  eyebrow: 'Rust-owned panel',
+  title: 'Adapter dispatch preflight',
+  body: 'Rust has not reported an adapter dispatch preflight panel yet.',
+  loadState: 'unavailable',
+  summaryDetails: [
+    { label: PortalDetails.ProductClaim, value: 'Adapter dispatch preflight has not been reported yet.' },
+  ],
+  rows: [],
+  emptyMessage: 'No adapter dispatch preflight rows have been reported yet.',
+  productClaim: 'Scoped adapter dispatch readiness has not been reported yet.',
+};
+
+const EmptyAdapterDispatchResultPanel: ParentAppGamePanelSnapshot = {
+  eyebrow: 'Rust-owned panel',
+  title: 'Adapter dispatch result',
+  body: 'Rust has not reported an adapter dispatch result panel yet.',
+  loadState: 'unavailable',
+  summaryDetails: [{ label: PortalDetails.ProductClaim, value: 'Adapter dispatch result has not been reported yet.' }],
+  rows: [],
+  emptyMessage: 'No adapter dispatch result rows have been reported yet.',
+  productClaim: 'Scoped adapter dispatch execution has not been reported yet.',
+};
+
+const EmptyAdapterDispatchPanel: ParentAppGameAdapterDispatchPanelSnapshot = {
+  eyebrow: 'Rust-owned panel',
+  title: 'App/game adapter dispatch',
+  body: 'Rust has not reported an app/game adapter dispatch panel yet.',
+  preflightPanel: EmptyAdapterDispatchPreflightPanel,
+  resultPanel: EmptyAdapterDispatchResultPanel,
+  executeActionLabel: null,
+};
+
+export function shouldRenderAppGameAdapterDispatchRoute(route: ParentRouteId): boolean {
+  return isParentAppGameParentSurfaceRoute(route);
 }
 
 export function AppGameAdapterDispatchRoutePanel({
   actions,
   commandEnabled,
-  executeResult,
-  preflightResult,
-  resultReadModel,
+  panel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly executeResult: AgentAppGameAdapterDispatchExecute | null;
-  readonly preflightResult: AgentAppGameAdapterDispatchPreflightResult | null;
-  readonly resultReadModel: AgentAppGameAdapterDispatchResult | null;
+  readonly panel: ParentAppGameAdapterDispatchPanelSnapshot | null;
 }): ReactElement {
-  const preflightIntent = createAppGameAdapterDispatchPreflightPanelIntent(preflightResult);
-  const resultIntent = createAppGameAdapterDispatchResultPanelIntent(resultReadModel, executeResult);
+  const resolvedPanel = panel ?? EmptyAdapterDispatchPanel;
+  const preflightPanel = resolvedPanel.preflightPanel;
+  const resultPanel = resolvedPanel.resultPanel;
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.ExecuteActivityAppGameAdapterDispatch)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.ExecuteActivityAppGameAdapterDispatch)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{resultIntent.eyebrow}</p>
-          <h2>{resultIntent.title}</h2>
-          <p>{resultIntent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{resolvedPanel.eyebrow}</p>
+          <h2>{resolvedPanel.title}</h2>
+          <p>{resolvedPanel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGameAdapterDispatchPreflightReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGameAdapterDispatchPreflightReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel)}
           </button>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGameAdapterDispatchResultReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityAppGameAdapterDispatchResultReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchResultReadModel)}
           </button>
-          {resultIntent.executeAction === null ? null : (
+          {resolvedPanel.executeActionLabel === null || resolvedPanel.executeActionLabel === undefined ? null : (
             <button
               className={PortalDom.Classes.CommandResultTab}
               disabled={!commandEnabled}
               type={PortalDom.ButtonType.Button}
-              onClick={() => {
-                const action = resultIntent.executeAction;
-                if (action === null) {
-                  return;
-                }
-                sendAppGameAdapterDispatchExecuteAction(actions, action);
-              }}
+              onClick={() => sendAppGameAdapterDispatchExecuteAction(actions)}
             >
-              {resultIntent.executeAction.label}
+              {resolvedPanel.executeActionLabel}
             </button>
           )}
         </header>
@@ -102,16 +103,26 @@ export function AppGameAdapterDispatchRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <AppGameAdapterDispatchPreflightSummaryCard intent={preflightIntent} />
-          <AppGameAdapterDispatchResultSummaryCard intent={resultIntent} />
-          {preflightIntent.rows.map((row, index) => (
-            <AppGameAdapterDispatchPreflightRowCard key={`${String(row.title)}:${index}`} row={row} />
-          ))}
-          {resultIntent.rows.length === 0 ? (
-            <AppGameAdapterDispatchResultEmptyCard intent={resultIntent} />
+          <AppGameAdapterDispatchSummaryCard
+            heading={PortalDetails.Capability}
+            details={preflightPanel.summaryDetails}
+          />
+          <AppGameAdapterDispatchSummaryCard
+            heading={PortalDetails.AdapterDispatch}
+            details={resultPanel.summaryDetails}
+          />
+          {preflightPanel.rows.length === 0 ? (
+            <AppGameAdapterDispatchEmptyCard panel={preflightPanel} />
           ) : (
-            resultIntent.rows.map((row, index) => (
-              <AppGameAdapterDispatchResultRowCard key={`${String(row.title)}:${index}`} row={row} />
+            preflightPanel.rows.map((row, index) => (
+              <AppGameAdapterDispatchRowCard key={`${String(row.title)}:preflight:${index}`} row={row} />
+            ))
+          )}
+          {resultPanel.rows.length === 0 ? (
+            <AppGameAdapterDispatchEmptyCard panel={resultPanel} />
+          ) : (
+            resultPanel.rows.map((row, index) => (
+              <AppGameAdapterDispatchRowCard key={`${String(row.title)}:result:${index}`} row={row} />
             ))
           )}
         </div>
@@ -120,124 +131,57 @@ export function AppGameAdapterDispatchRoutePanel({
   );
 }
 
-export function sendAppGameAdapterDispatchExecuteAction(
-  actions: PortalRenderActions,
-  action: AppGameAdapterDispatchResultPanelExecuteAction
-): void {
-  actions.selectCommandResult(action.resultEvent);
-  actions.sendCommand(action.command, {});
+export function sendAppGameAdapterDispatchExecuteAction(actions: PortalRenderActions): void {
+  void actions.requestAppGameAdapterDispatchExecute?.();
 }
 
-function AppGameAdapterDispatchPreflightSummaryCard({
-  intent,
+function AppGameAdapterDispatchSummaryCard({
+  heading,
+  details,
 }: {
-  readonly intent: AppGameAdapterDispatchPreflightPanelIntent;
+  readonly heading: string;
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
   return (
     <article className={className}>
-      <h2>{PortalDetails.Capability}</h2>
-      <AppGameAdapterDispatchPreflightDetails details={intent.summaryDetails} />
+      <h2>{heading}</h2>
+      <AppGameAdapterDispatchDetails details={details} />
     </article>
   );
 }
 
-function AppGameAdapterDispatchResultSummaryCard({
-  intent,
-}: {
-  readonly intent: AppGameAdapterDispatchResultPanelIntent;
-}): ReactElement {
+function AppGameAdapterDispatchEmptyCard({ panel }: { readonly panel: ParentAppGamePanelSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
   return (
     <article className={className}>
-      <h2>{PortalDetails.AdapterDispatch}</h2>
-      <AppGameAdapterDispatchResultDetails details={intent.summaryDetails} />
+      <h2>{panel.loadState}</h2>
+      <p>{panel.emptyMessage}</p>
+      <AppGameAdapterDispatchDetails details={[{ label: PortalDetails.ProductClaim, value: panel.productClaim }]} />
     </article>
   );
 }
 
-function AppGameAdapterDispatchResultEmptyCard({
-  intent,
-}: {
-  readonly intent: AppGameAdapterDispatchResultPanelIntent;
-}): ReactElement {
-  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
-    PortalDom.Classes.ClassNameSeparator
-  );
-  return (
-    <article className={className}>
-      <h2>{intent.loadState}</h2>
-      <p>{intent.emptyMessage}</p>
-      <AppGameAdapterDispatchResultDetails
-        details={[
-          {
-            label: PortalDetails.ProductClaim,
-            value: intent.productClaim,
-          },
-        ]}
-      />
-    </article>
-  );
-}
-
-function AppGameAdapterDispatchPreflightRowCard({
-  row,
-}: {
-  readonly row: AppGameAdapterDispatchPreflightPanelRow;
-}): ReactElement {
+function AppGameAdapterDispatchRowCard({ row }: { readonly row: ParentAppGamePanelRowSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
   return (
     <article className={className}>
       <h2>{row.title}</h2>
-      <AppGameAdapterDispatchPreflightDetails details={row.details} />
+      <AppGameAdapterDispatchDetails details={row.details} />
     </article>
   );
 }
 
-function AppGameAdapterDispatchResultRowCard({
-  row,
-}: {
-  readonly row: AppGameAdapterDispatchResultPanelRow;
-}): ReactElement {
-  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
-    PortalDom.Classes.ClassNameSeparator
-  );
-  return (
-    <article className={className}>
-      <h2>{row.title}</h2>
-      <AppGameAdapterDispatchResultDetails details={row.details} />
-    </article>
-  );
-}
-
-function AppGameAdapterDispatchPreflightDetails({
+function AppGameAdapterDispatchDetails({
   details,
 }: {
-  readonly details: readonly AppGameAdapterDispatchPreflightPanelDetail[];
-}): ReactElement {
-  return (
-    <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-      {details.map((detail, index) => (
-        <AppGameAdapterDispatchDetail
-          key={`${String(detail.label)}:${index}`}
-          label={detail.label}
-          value={detail.value}
-        />
-      ))}
-    </dl>
-  );
-}
-
-function AppGameAdapterDispatchResultDetails({
-  details,
-}: {
-  readonly details: readonly AppGameAdapterDispatchResultPanelDetail[];
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
@@ -256,8 +200,8 @@ function AppGameAdapterDispatchDetail({
   label,
   value,
 }: {
-  readonly label: PortalDisplayText;
-  readonly value: PortalDisplayText;
+  readonly label: string;
+  readonly value: string;
 }): ReactElement {
   return (
     <div>

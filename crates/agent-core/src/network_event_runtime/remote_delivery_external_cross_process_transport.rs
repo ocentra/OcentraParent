@@ -1,7 +1,7 @@
-use ocentra_eventing::SourceComponent;
+use ocentra_eventing::ids::SourceComponent;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_cross_process_replay;
+use super::remote_delivery_cross_process_replay::prove_network_runtime_remote_delivery_cross_process_replay;
 use super::remote_delivery_cross_process_replay_types::{
     NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord,
     NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
@@ -28,7 +28,7 @@ pub async fn prove_network_runtime_remote_delivery_external_cross_process_transp
     )
 }
 
-pub(crate) fn prove_network_runtime_remote_delivery_external_cross_process_transport_from_replay(
+pub fn prove_network_runtime_remote_delivery_external_cross_process_transport_from_replay(
     cross_process_replay: NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
 ) -> Result<
     NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
@@ -204,152 +204,4 @@ fn has_unsupported_claims(report: &NetworkRuntimeRemoteDeliveryCrossProcessRepla
         || report.video_content_available_count > 0
         || report.private_message_content_available_count > 0
         || report.search_query_available_count > 0
-}
-
-#[cfg(test)]
-mod tests {
-    use ocentra_parent_agent_protocol::constants;
-
-    use crate::network_event_runtime::{
-        prove_network_runtime_remote_delivery_cross_process_replay,
-        prove_network_runtime_remote_delivery_external_cross_process_transport,
-        prove_network_runtime_remote_delivery_external_cross_process_transport_from_replay,
-        NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError,
-        NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
-        NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState,
-    };
-
-    #[tokio::test]
-    async fn records_external_cross_process_transport_from_replay_records() {
-        let report = prove_network_runtime_remote_delivery_external_cross_process_transport()
-            .await
-            .expect(
-                constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_EXTERNAL_CROSS_PROCESS_TRANSPORT,
-            );
-
-        assert_eq!(
-            report.external_cross_process_transport_ref.as_str(),
-            constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_REF
-        );
-        assert_eq!(
-            report.external_cross_process_transport_envelope_ref.as_str(),
-            constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ENVELOPE_REF
-        );
-        assert_eq!(
-            report.external_cross_process_transport_ack_ref.as_str(),
-            constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ACK_REF
-        );
-        assert_eq!(
-            report.external_cross_process_transport_record_count,
-            report.source_replay_record_count
-        );
-        assert_eq!(
-            report.external_cross_process_transport_envelope_count,
-            report.external_cross_process_transport_record_count
-        );
-        assert_eq!(
-            report.external_cross_process_transport_ack_count,
-            report.external_cross_process_transport_record_count
-        );
-        assert!(report.external_cross_process_transport_records_match_replay_records);
-        assert!(report.external_cross_process_transport_ack_records_match_envelopes);
-        assert!(report.external_cross_process_transport_implemented);
-        assert_external_transport_records(&report);
-        assert_no_product_delivery_or_enforcement_claims(&report);
-    }
-
-    #[tokio::test]
-    async fn rejects_replay_source_that_claims_remote_delivery_ack() {
-        let mut replay = prove_network_runtime_remote_delivery_cross_process_replay()
-            .await
-            .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY);
-        replay.remote_delivery_ack_implemented = true;
-
-        let proof_result =
-            prove_network_runtime_remote_delivery_external_cross_process_transport_from_replay(
-                replay,
-            );
-
-        assert!(matches!(
-            proof_result,
-            Err(NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError::UnsupportedClaim)
-        ));
-    }
-
-    #[tokio::test]
-    async fn rejects_replay_records_that_do_not_match_source_count() {
-        let mut replay = prove_network_runtime_remote_delivery_cross_process_replay()
-            .await
-            .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY);
-        replay.cross_process_replay_record_count += 1;
-
-        let proof_result =
-            prove_network_runtime_remote_delivery_external_cross_process_transport_from_replay(
-                replay,
-            );
-
-        assert!(matches!(
-            proof_result,
-            Err(NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError::TransportRecordMismatch)
-        ));
-    }
-
-    fn assert_external_transport_records(
-        report: &NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
-    ) {
-        for (record, replay_record) in report
-            .records
-            .iter()
-            .zip(report.cross_process_replay.records.iter())
-        {
-            assert_eq!(
-                record.transport_state,
-                NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState::DeterministicEnvelopeAckRecorded
-            );
-            assert_eq!(record.sequence, replay_record.sequence);
-            assert_eq!(record.event_id, replay_record.event_id);
-            assert_eq!(record.event_type, replay_record.event_type);
-            assert_eq!(record.correlation_id, replay_record.correlation_id);
-            assert_eq!(record.source_replay_state, replay_record.replay_state);
-            assert_eq!(
-                record.cross_process_replay_ref,
-                replay_record.cross_process_replay_ref
-            );
-            assert_eq!(
-                record.external_cross_process_transport_ref.as_str(),
-                constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_REF
-            );
-            assert_eq!(
-                record.external_cross_process_transport_envelope_ref.as_str(),
-                constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ENVELOPE_REF
-            );
-            assert_eq!(
-                record.external_cross_process_transport_ack_ref.as_str(),
-                constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ACK_REF
-            );
-        }
-    }
-
-    fn assert_no_product_delivery_or_enforcement_claims(
-        report: &NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
-    ) {
-        assert!(!report.broker_delivery_implemented);
-        assert!(!report.family_hub_delivery_implemented);
-        assert!(!report.remote_delivery_ack_implemented);
-        assert!(!report.provider_delivery_implemented);
-        assert!(!report.child_device_delivery_implemented);
-        assert!(!report.remote_delete_export_propagation_implemented);
-        assert!(!report.product_ready_remote_delivery);
-        assert!(!report.policy_authority);
-        assert!(!report.side_effect_authority);
-        assert_eq!(report.enforcement_command_event_count, 0);
-        assert_eq!(report.adapter_action_executed_count, 0);
-        assert_eq!(report.raw_pcap_available_count, 0);
-        assert_eq!(report.exact_url_available_count, 0);
-        assert_eq!(report.decrypted_payload_available_count, 0);
-        assert_eq!(report.page_content_available_count, 0);
-        assert_eq!(report.video_content_available_count, 0);
-        assert_eq!(report.private_message_content_available_count, 0);
-        assert_eq!(report.search_query_available_count, 0);
-    }
 }

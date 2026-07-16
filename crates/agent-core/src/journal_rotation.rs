@@ -3,9 +3,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityJournalRotationPolicy, ActivityJournalStatus,
-    ACTIVITY_JOURNAL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::journal::ACTIVITY_JOURNAL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::journal::{
+    ActivityJournalRotationPolicy, ActivityJournalStatus,
 };
 
 use crate::journal_error::JournalError;

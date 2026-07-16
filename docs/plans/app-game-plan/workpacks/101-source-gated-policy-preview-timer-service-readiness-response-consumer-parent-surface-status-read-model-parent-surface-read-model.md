@@ -27,11 +27,11 @@ Add a parent-domain parent-surface read-model contract that consumes WP100 hando
 
 ## Implementation Checklist
 
-- [x] Add parent-domain parent-surface read-model schemas, builder, no-claim flags, and state rules.
-- [x] Add focused parser/builder tests using the real WP100 proof output.
-- [x] Add proof harness and app-game/app proof artifacts.
-- [x] Update feature/checklist/README docs with the no-claim decision.
-- [x] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
+- [ ] Add parent-domain parent-surface read-model schemas, builder, no-claim flags, and state rules.
+- [ ] Add focused parser/builder tests using the real WP100 proof output.
+- [ ] Add proof harness and app-game/app proof artifacts.
+- [ ] Update feature/checklist/README docs with the no-claim decision.
+- [ ] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
 
 ## Evidence
 

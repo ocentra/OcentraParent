@@ -1,0 +1,1029 @@
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
+import {
+  ParentControlCapabilityName,
+  ParentControlCapabilityNameSchema,
+  ParentControlCapabilityStatus,
+  ParentControlCapabilityStatusSchema,
+  ParentControlPlatformSchema,
+} from './capabilities';
+import {
+  ParentContractSchemaVersion,
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+} from './family-reference-primitives';
+
+export const V08BrowserEnforcementTimerRecoveryProofReadModelIdSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofReadModelId'
+);
+export const V08BrowserEnforcementTimerRecoveryProofEntryIdSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofEntryId'
+);
+export const V08BrowserEnforcementTimerRecoveryProofReferenceSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofReference'
+);
+export const V08BrowserEnforcementTimerRecoveryProofRequirementSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofRequirement'
+);
+export const V08BrowserEnforcementTimerRecoveryProofBoundarySchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofBoundary'
+);
+export const V08BrowserEnforcementTimerRecoveryProofFallbackSchema = brandedNonEmptyStringSchema(
+  'V08BrowserEnforcementTimerRecoveryProofFallback'
+);
+
+export const V08TimerRecoverySurfaceSchema = withParser(
+  Schema.Literal(
+    'timer-created-active',
+    'timer-extended-active',
+    'timer-expired-cleared',
+    'timer-cancelled-cleared',
+    'timer-restart-recovered-active',
+    'timer-recovery-needed-missing-state',
+    'timer-rollback-completed-cleared',
+    'timer-rollback-unavailable-visible'
+  )
+);
+
+export const V08TimerRecoveryLifecycleStateSchema = withParser(
+  Schema.Literal(
+    'created',
+    'extended',
+    'expired',
+    'cancelled',
+    'restart-recovered',
+    'recovery-needed',
+    'rollback-completed',
+    'rollback-unavailable'
+  )
+);
+
+export const V08TimerRecoveryEventKindSchema = withParser(
+  Schema.Literal(
+    'created',
+    'extended',
+    'expired',
+    'cancelled',
+    'restart-recovered',
+    'rollback-completed',
+    'recovery-needed',
+    'unavailable'
+  )
+);
+
+export const V08TimerRecoveryResultStatusSchema = withParser(
+  Schema.Literal('no-op', 'expired', 'superseded', 'rolled-back', 'unavailable')
+);
+
+export const V08TimerRecoveryRollbackStateSchema = withParser(
+  Schema.Literal('not-required', 'available', 'completed', 'unavailable')
+);
+
+export const V08TimerRecoveryStatePersistenceSchema = withParser(
+  Schema.Literal('active-state-persisted', 'active-state-cleared', 'active-state-missing')
+);
+
+export const V08TimerRecoveryParentVisibleStateSchema = withParser(
+  Schema.Literal('next-check-visible', 'terminal-state-visible', 'failure-state-visible', 'rollback-state-visible')
+);
+
+export const V08UnmanagedBrowserFallbackSurfaceSchema = withParser(
+  Schema.Literal(
+    'unmanaged-process-identity-required',
+    'unmanaged-report-only',
+    'unmanaged-warn-child',
+    'unmanaged-parent-review',
+    'unmanaged-terminate-process',
+    'unmanaged-relaunch-managed-browser',
+    'unmanaged-manual-required',
+    'unmanaged-degraded',
+    'unmanaged-unavailable'
+  )
+);
+
+export const V08UnmanagedBrowserFallbackStateSchema = withParser(
+  Schema.Literal(
+    'process-identity-required',
+    'report-only',
+    'warn-child',
+    'parent-review',
+    'terminate-process',
+    'relaunch-managed-browser',
+    'manual-required',
+    'degraded',
+    'unavailable'
+  )
+);
+
+export const V08UnmanagedBrowserFallbackExecutionStateSchema = withParser(
+  Schema.Literal(
+    'process-identity-rejected',
+    'returns-report-only',
+    'returns-degraded-noop',
+    'returns-parent-review',
+    'executes-real-service',
+    'returns-manual-required',
+    'returns-unavailable'
+  )
+);
+
+export const V08UnmanagedBrowserProcessIdentityStateSchema = withParser(
+  Schema.Literal('missing-process-identity-rejected', 'pid-name-required', 'pid-name-validated', 'not-applicable')
+);
+
+const V08TimerRecoveryProofEntryBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  proofEntryId: V08BrowserEnforcementTimerRecoveryProofEntryIdSchema,
+  surface: V08TimerRecoverySurfaceSchema,
+  platform: ParentControlPlatformSchema,
+  capability: ParentControlCapabilityNameSchema,
+  capabilityStatus: ParentControlCapabilityStatusSchema,
+  lifecycleState: V08TimerRecoveryLifecycleStateSchema,
+  timerEventKind: V08TimerRecoveryEventKindSchema,
+  resultStatus: V08TimerRecoveryResultStatusSchema,
+  rollbackState: V08TimerRecoveryRollbackStateSchema,
+  statePersistence: V08TimerRecoveryStatePersistenceSchema,
+  parentVisibleStates: Schema.Array(V08TimerRecoveryParentVisibleStateSchema),
+  nextCheckAtVisible: Schema.Boolean,
+  failureStateVisible: Schema.Boolean,
+  linkedProofCommands: Schema.Array(V08BrowserEnforcementTimerRecoveryProofReferenceSchema),
+  linkedProofArtifacts: Schema.Array(V08BrowserEnforcementTimerRecoveryProofReferenceSchema),
+  manualProofRequirements: Schema.Array(V08BrowserEnforcementTimerRecoveryProofRequirementSchema),
+  claimBoundary: V08BrowserEnforcementTimerRecoveryProofBoundarySchema,
+  fallbackBehavior: V08BrowserEnforcementTimerRecoveryProofFallbackSchema,
+  lastCheckedAt: ParentTimestampSchema,
+});
+
+const V08UnmanagedBrowserFallbackProofEntryBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  proofEntryId: V08BrowserEnforcementTimerRecoveryProofEntryIdSchema,
+  surface: V08UnmanagedBrowserFallbackSurfaceSchema,
+  platform: ParentControlPlatformSchema,
+  capability: ParentControlCapabilityNameSchema,
+  capabilityStatus: ParentControlCapabilityStatusSchema,
+  fallbackState: V08UnmanagedBrowserFallbackStateSchema,
+  adapterExecutionState: V08UnmanagedBrowserFallbackExecutionStateSchema,
+  processIdentityRequired: Schema.Boolean,
+  processIdentityState: V08UnmanagedBrowserProcessIdentityStateSchema,
+  exactUrlClaimed: Schema.Boolean,
+  activeTabClaimed: Schema.Boolean,
+  titleClaimed: Schema.Boolean,
+  contentClaimed: Schema.Boolean,
+  notificationDeliveryClaimed: Schema.Boolean,
+  broadBrowserBlockingClaimed: Schema.Boolean,
+  linkedProofCommands: Schema.Array(V08BrowserEnforcementTimerRecoveryProofReferenceSchema),
+  linkedProofArtifacts: Schema.Array(V08BrowserEnforcementTimerRecoveryProofReferenceSchema),
+  manualProofRequirements: Schema.Array(V08BrowserEnforcementTimerRecoveryProofRequirementSchema),
+  claimBoundary: V08BrowserEnforcementTimerRecoveryProofBoundarySchema,
+  fallbackBehavior: V08BrowserEnforcementTimerRecoveryProofFallbackSchema,
+  lastCheckedAt: ParentTimestampSchema,
+});
+
+type V08TimerRecoveryProofEntryCandidate = Infer<typeof V08TimerRecoveryProofEntryBaseSchema>;
+type V08UnmanagedBrowserFallbackProofEntryCandidate = Infer<typeof V08UnmanagedBrowserFallbackProofEntryBaseSchema>;
+
+export const V08TimerRecoveryProofEntrySchema = withParser(
+  V08TimerRecoveryProofEntryBaseSchema.pipe(
+    Schema.filter(
+      (entry) =>
+        timerRecoveryEntryMatchesExpectation(entry) ||
+        'Expected V0.8 timer recovery proof entries to preserve create, extend, expire, cancel, restart recovery, recovery-needed, and rollback visibility boundaries'
+    )
+  )
+);
+
+export const V08UnmanagedBrowserFallbackProofEntrySchema = withParser(
+  V08UnmanagedBrowserFallbackProofEntryBaseSchema.pipe(
+    Schema.filter(
+      (entry) =>
+        unmanagedFallbackEntryIsHonest(entry) ||
+        'Expected V0.8 unmanaged browser fallback entries to keep process identity, report-only, warn, review, terminate, relaunch, manual, degraded, and unavailable states separate without exact content claim upgrades'
+    )
+  )
+);
+
+export const V08BrowserEnforcementTimerRecoveryProofReadModelSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    readModelId: V08BrowserEnforcementTimerRecoveryProofReadModelIdSchema,
+    generatedAt: ParentTimestampSchema,
+    sourceReadModelIds: Schema.Array(V08BrowserEnforcementTimerRecoveryProofReferenceSchema),
+    timerEntries: Schema.Array(V08TimerRecoveryProofEntrySchema),
+    unmanagedFallbackEntries: Schema.Array(V08UnmanagedBrowserFallbackProofEntrySchema),
+  }).pipe(
+    Schema.filter(
+      (readModel) =>
+        (new Set(readModel.timerEntries.map((entry) => entry.proofEntryId)).size === readModel.timerEntries.length &&
+          new Set(readModel.unmanagedFallbackEntries.map((entry) => entry.proofEntryId)).size ===
+            readModel.unmanagedFallbackEntries.length) ||
+        'Expected V0.8 browser enforcement timer recovery proof entry ids to be unique per section'
+    ),
+    Schema.filter(
+      (readModel) =>
+        timerRecoveryStatesAreComplete(readModel.timerEntries) ||
+        'Expected V0.8 timer recovery proof to cover create, extend, expire, cancel, restart recovery, recovery-needed, rollback-completed, and rollback-unavailable states'
+    ),
+    Schema.filter(
+      (readModel) =>
+        unmanagedFallbackStatesAreComplete(readModel.unmanagedFallbackEntries) ||
+        'Expected V0.8 unmanaged browser fallback proof to cover process identity, report-only, warn, review, terminate, relaunch, manual-required, degraded, and unavailable states'
+    )
+  )
+);
+
+function timerRecoveryEntryMatchesExpectation(entry: V08TimerRecoveryProofEntryCandidate): boolean {
+  const expectation = timerRecoveryExpectations.find((candidate) => candidate.surface === entry.surface);
+  if (expectation === undefined) {
+    return false;
+  }
+
+  return (
+    timerRecoveryCoreFieldsMatch(entry, expectation) &&
+    parentVisibleStatesMatch(entry.parentVisibleStates, expectation.parentVisibleStates) &&
+    proofEvidenceMatches(entry, expectation.evidenceExpectation)
+  );
+}
+
+function timerRecoveryCoreFieldsMatch(
+  entry: V08TimerRecoveryProofEntryCandidate,
+  expectation: TimerRecoveryExpectation
+): boolean {
+  return (
+    entry.platform === 'windows' &&
+    entry.capability === ParentControlCapabilityName.AppTimeLimit &&
+    entry.capabilityStatus === expectation.capabilityStatus &&
+    entry.lifecycleState === expectation.lifecycleState &&
+    entry.timerEventKind === expectation.timerEventKind &&
+    entry.resultStatus === expectation.resultStatus &&
+    entry.rollbackState === expectation.rollbackState &&
+    entry.statePersistence === expectation.statePersistence &&
+    entry.nextCheckAtVisible === expectation.nextCheckAtVisible &&
+    entry.failureStateVisible === expectation.failureStateVisible
+  );
+}
+
+function unmanagedFallbackEntryIsHonest(entry: V08UnmanagedBrowserFallbackProofEntryCandidate): boolean {
+  if (unmanagedFallbackEntryHasClaimUpgrade(entry)) {
+    return false;
+  }
+
+  const expectation = unmanagedFallbackExpectations.find((candidate) => candidate.surface === entry.surface);
+  if (expectation === undefined) {
+    return false;
+  }
+
+  return (
+    entry.platform === 'windows' &&
+    entry.capability === ParentControlCapabilityName.UnmanagedBrowserDetection &&
+    entry.capabilityStatus === expectation.capabilityStatus &&
+    entry.fallbackState === expectation.fallbackState &&
+    entry.adapterExecutionState === expectation.adapterExecutionState &&
+    entry.processIdentityRequired === expectation.processIdentityRequired &&
+    entry.processIdentityState === expectation.processIdentityState &&
+    proofEvidenceMatches(entry, expectation.evidenceExpectation)
+  );
+}
+
+function unmanagedFallbackEntryHasClaimUpgrade(entry: V08UnmanagedBrowserFallbackProofEntryCandidate): boolean {
+  return [
+    entry.exactUrlClaimed,
+    entry.activeTabClaimed,
+    entry.titleClaimed,
+    entry.contentClaimed,
+    entry.notificationDeliveryClaimed,
+    entry.broadBrowserBlockingClaimed,
+  ].some(Boolean);
+}
+
+function timerRecoveryStatesAreComplete(entries: readonly V08TimerRecoveryProofEntryCandidate[]): boolean {
+  return timerRecoveryExpectations.every((expectation) =>
+    entries.some((entry) => entry.surface === expectation.surface)
+  );
+}
+
+function unmanagedFallbackStatesAreComplete(
+  entries: readonly V08UnmanagedBrowserFallbackProofEntryCandidate[]
+): boolean {
+  return unmanagedFallbackExpectations.every((expectation) =>
+    entries.some((entry) => entry.surface === expectation.surface)
+  );
+}
+
+function parentVisibleStatesMatch(
+  actual: readonly V08TimerRecoveryParentVisibleState[],
+  expected: readonly V08TimerRecoveryParentVisibleState[]
+): boolean {
+  return actual.length === expected.length && expected.every((state) => actual.includes(state));
+}
+
+function proofEvidenceMatches(entry: ProofEvidenceFields, evidenceExpectation: ProofEvidenceExpectation): boolean {
+  switch (evidenceExpectation) {
+    case 'linked-proof':
+      return (
+        entry.linkedProofCommands.length > 0 &&
+        entry.linkedProofArtifacts.length > 0 &&
+        entry.manualProofRequirements.length === 0
+      );
+    case 'linked-with-manual-requirements':
+      return (
+        entry.linkedProofCommands.length > 0 &&
+        entry.linkedProofArtifacts.length > 0 &&
+        entry.manualProofRequirements.length > 0
+      );
+    case 'manual-proof':
+      return (
+        entry.linkedProofCommands.length === 0 &&
+        entry.linkedProofArtifacts.length === 0 &&
+        entry.manualProofRequirements.length > 0
+      );
+  }
+}
+
+type ProofEvidenceFields = {
+  linkedProofCommands: readonly unknown[];
+  linkedProofArtifacts: readonly unknown[];
+  manualProofRequirements: readonly unknown[];
+};
+
+type ProofEvidenceExpectation = 'linked-proof' | 'linked-with-manual-requirements' | 'manual-proof';
+
+type TimerRecoveryExpectation = {
+  surface: V08TimerRecoverySurface;
+  capabilityStatus: typeof ParentControlCapabilityStatusSchema.Type;
+  lifecycleState: V08TimerRecoveryLifecycleState;
+  timerEventKind: V08TimerRecoveryEventKind;
+  resultStatus: V08TimerRecoveryResultStatus;
+  rollbackState: V08TimerRecoveryRollbackState;
+  statePersistence: V08TimerRecoveryStatePersistence;
+  parentVisibleStates: readonly V08TimerRecoveryParentVisibleState[];
+  nextCheckAtVisible: boolean;
+  failureStateVisible: boolean;
+  evidenceExpectation: ProofEvidenceExpectation;
+};
+
+type UnmanagedFallbackExpectation = {
+  surface: V08UnmanagedBrowserFallbackSurface;
+  capabilityStatus: typeof ParentControlCapabilityStatusSchema.Type;
+  fallbackState: V08UnmanagedBrowserFallbackState;
+  adapterExecutionState: V08UnmanagedBrowserFallbackExecutionState;
+  processIdentityRequired: boolean;
+  processIdentityState: V08UnmanagedBrowserProcessIdentityState;
+  evidenceExpectation: ProofEvidenceExpectation;
+};
+
+const timerRecoveryExpectations: readonly TimerRecoveryExpectation[] = [
+  {
+    surface: 'timer-created-active',
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    lifecycleState: 'created',
+    timerEventKind: 'created',
+    resultStatus: 'no-op',
+    rollbackState: 'available',
+    statePersistence: 'active-state-persisted',
+    parentVisibleStates: ['next-check-visible'],
+    nextCheckAtVisible: true,
+    failureStateVisible: false,
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'timer-extended-active',
+    capabilityStatus: ParentControlCapabilityStatus.Supported,
+    lifecycleState: 'extended',
+    timerEventKind: 'extended',
+    resultStatus: 'no-op',
+    rollbackState: 'available',
+    statePersistence: 'active-state-persisted',
+    parentVisibleStates: ['next-check-visible'],
+    nextCheckAtVisible: true,
+    failureStateVisible: false,
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'timer-expired-cleared',
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    lifecycleState: 'expired',
+    timerEventKind: 'expired',
+    resultStatus: 'expired',
+    rollbackState: 'not-required',
+    statePersistence: 'active-state-cleared',
+    parentVisibleStates: ['terminal-state-visible'],
+    nextCheckAtVisible: false,
+    failureStateVisible: false,
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'timer-cancelled-cleared',
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    lifecycleState: 'cancelled',
+    timerEventKind: 'cancelled',
+    resultStatus: 'superseded',
+    rollbackState: 'not-required',
+    statePersistence: 'active-state-cleared',
+    parentVisibleStates: ['terminal-state-visible'],
+    nextCheckAtVisible: false,
+    failureStateVisible: false,
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'timer-restart-recovered-active',
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    lifecycleState: 'restart-recovered',
+    timerEventKind: 'restart-recovered',
+    resultStatus: 'no-op',
+    rollbackState: 'not-required',
+    statePersistence: 'active-state-persisted',
+    parentVisibleStates: ['next-check-visible'],
+    nextCheckAtVisible: true,
+    failureStateVisible: false,
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'timer-recovery-needed-missing-state',
+    capabilityStatus: ParentControlCapabilityStatus.Unavailable,
+    lifecycleState: 'recovery-needed',
+    timerEventKind: 'recovery-needed',
+    resultStatus: 'unavailable',
+    rollbackState: 'unavailable',
+    statePersistence: 'active-state-missing',
+    parentVisibleStates: ['failure-state-visible'],
+    nextCheckAtVisible: false,
+    failureStateVisible: true,
+    evidenceExpectation: 'linked-with-manual-requirements',
+  },
+  {
+    surface: 'timer-rollback-completed-cleared',
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    lifecycleState: 'rollback-completed',
+    timerEventKind: 'rollback-completed',
+    resultStatus: 'rolled-back',
+    rollbackState: 'completed',
+    statePersistence: 'active-state-cleared',
+    parentVisibleStates: ['terminal-state-visible', 'rollback-state-visible'],
+    nextCheckAtVisible: false,
+    failureStateVisible: false,
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'timer-rollback-unavailable-visible',
+    capabilityStatus: ParentControlCapabilityStatus.Unavailable,
+    lifecycleState: 'rollback-unavailable',
+    timerEventKind: 'unavailable',
+    resultStatus: 'unavailable',
+    rollbackState: 'unavailable',
+    statePersistence: 'active-state-cleared',
+    parentVisibleStates: ['failure-state-visible', 'rollback-state-visible'],
+    nextCheckAtVisible: false,
+    failureStateVisible: true,
+    evidenceExpectation: 'linked-with-manual-requirements',
+  },
+];
+
+const unmanagedFallbackExpectations: readonly UnmanagedFallbackExpectation[] = [
+  {
+    surface: 'unmanaged-process-identity-required',
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    fallbackState: 'process-identity-required',
+    adapterExecutionState: 'process-identity-rejected',
+    processIdentityRequired: true,
+    processIdentityState: 'missing-process-identity-rejected',
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'unmanaged-report-only',
+    capabilityStatus: ParentControlCapabilityStatus.Supported,
+    fallbackState: 'report-only',
+    adapterExecutionState: 'returns-report-only',
+    processIdentityRequired: false,
+    processIdentityState: 'not-applicable',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'unmanaged-warn-child',
+    capabilityStatus: ParentControlCapabilityStatus.Supported,
+    fallbackState: 'warn-child',
+    adapterExecutionState: 'returns-degraded-noop',
+    processIdentityRequired: false,
+    processIdentityState: 'not-applicable',
+    evidenceExpectation: 'linked-with-manual-requirements',
+  },
+  {
+    surface: 'unmanaged-parent-review',
+    capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+    fallbackState: 'parent-review',
+    adapterExecutionState: 'returns-parent-review',
+    processIdentityRequired: false,
+    processIdentityState: 'not-applicable',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'unmanaged-terminate-process',
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    fallbackState: 'terminate-process',
+    adapterExecutionState: 'executes-real-service',
+    processIdentityRequired: true,
+    processIdentityState: 'pid-name-validated',
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'unmanaged-relaunch-managed-browser',
+    capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+    fallbackState: 'relaunch-managed-browser',
+    adapterExecutionState: 'returns-manual-required',
+    processIdentityRequired: true,
+    processIdentityState: 'pid-name-required',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'unmanaged-manual-required',
+    capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+    fallbackState: 'manual-required',
+    adapterExecutionState: 'returns-manual-required',
+    processIdentityRequired: false,
+    processIdentityState: 'not-applicable',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'unmanaged-degraded',
+    capabilityStatus: ParentControlCapabilityStatus.Supported,
+    fallbackState: 'degraded',
+    adapterExecutionState: 'returns-degraded-noop',
+    processIdentityRequired: false,
+    processIdentityState: 'not-applicable',
+    evidenceExpectation: 'linked-with-manual-requirements',
+  },
+  {
+    surface: 'unmanaged-unavailable',
+    capabilityStatus: ParentControlCapabilityStatus.Unavailable,
+    fallbackState: 'unavailable',
+    adapterExecutionState: 'returns-unavailable',
+    processIdentityRequired: false,
+    processIdentityState: 'not-applicable',
+    evidenceExpectation: 'manual-proof',
+  },
+];
+
+export type V08BrowserEnforcementTimerRecoveryProofReadModelId =
+  typeof V08BrowserEnforcementTimerRecoveryProofReadModelIdSchema.Type;
+export type V08BrowserEnforcementTimerRecoveryProofEntryId =
+  typeof V08BrowserEnforcementTimerRecoveryProofEntryIdSchema.Type;
+export type V08BrowserEnforcementTimerRecoveryProofReference =
+  typeof V08BrowserEnforcementTimerRecoveryProofReferenceSchema.Type;
+export type V08BrowserEnforcementTimerRecoveryProofRequirement =
+  typeof V08BrowserEnforcementTimerRecoveryProofRequirementSchema.Type;
+export type V08BrowserEnforcementTimerRecoveryProofBoundary =
+  typeof V08BrowserEnforcementTimerRecoveryProofBoundarySchema.Type;
+export type V08BrowserEnforcementTimerRecoveryProofFallback =
+  typeof V08BrowserEnforcementTimerRecoveryProofFallbackSchema.Type;
+export type V08TimerRecoverySurface = Infer<typeof V08TimerRecoverySurfaceSchema>;
+export type V08TimerRecoveryLifecycleState = Infer<typeof V08TimerRecoveryLifecycleStateSchema>;
+export type V08TimerRecoveryEventKind = Infer<typeof V08TimerRecoveryEventKindSchema>;
+export type V08TimerRecoveryResultStatus = Infer<typeof V08TimerRecoveryResultStatusSchema>;
+export type V08TimerRecoveryRollbackState = Infer<typeof V08TimerRecoveryRollbackStateSchema>;
+export type V08TimerRecoveryStatePersistence = Infer<typeof V08TimerRecoveryStatePersistenceSchema>;
+export type V08TimerRecoveryParentVisibleState = Infer<typeof V08TimerRecoveryParentVisibleStateSchema>;
+export type V08UnmanagedBrowserFallbackSurface = Infer<typeof V08UnmanagedBrowserFallbackSurfaceSchema>;
+export type V08UnmanagedBrowserFallbackState = Infer<typeof V08UnmanagedBrowserFallbackStateSchema>;
+export type V08UnmanagedBrowserFallbackExecutionState = Infer<typeof V08UnmanagedBrowserFallbackExecutionStateSchema>;
+export type V08UnmanagedBrowserProcessIdentityState = Infer<typeof V08UnmanagedBrowserProcessIdentityStateSchema>;
+export type V08TimerRecoveryProofEntry = Infer<typeof V08TimerRecoveryProofEntrySchema>;
+export type V08UnmanagedBrowserFallbackProofEntry = Infer<typeof V08UnmanagedBrowserFallbackProofEntrySchema>;
+export type V08BrowserEnforcementTimerRecoveryProofReadModel = Infer<
+  typeof V08BrowserEnforcementTimerRecoveryProofReadModelSchema
+>;
+
+export const V08TimerRecoverySurface = {
+  CreatedActive: V08TimerRecoverySurfaceSchema.parse('timer-created-active'),
+  ExtendedActive: V08TimerRecoverySurfaceSchema.parse('timer-extended-active'),
+  ExpiredCleared: V08TimerRecoverySurfaceSchema.parse('timer-expired-cleared'),
+  CancelledCleared: V08TimerRecoverySurfaceSchema.parse('timer-cancelled-cleared'),
+  RestartRecoveredActive: V08TimerRecoverySurfaceSchema.parse('timer-restart-recovered-active'),
+  RecoveryNeededMissingState: V08TimerRecoverySurfaceSchema.parse('timer-recovery-needed-missing-state'),
+  RollbackCompletedCleared: V08TimerRecoverySurfaceSchema.parse('timer-rollback-completed-cleared'),
+  RollbackUnavailableVisible: V08TimerRecoverySurfaceSchema.parse('timer-rollback-unavailable-visible'),
+} as const;
+
+export const V08UnmanagedBrowserFallbackSurface = {
+  ProcessIdentityRequired: V08UnmanagedBrowserFallbackSurfaceSchema.parse('unmanaged-process-identity-required'),
+  ReportOnly: V08UnmanagedBrowserFallbackSurfaceSchema.parse('unmanaged-report-only'),
+  WarnChild: V08UnmanagedBrowserFallbackSurfaceSchema.parse('unmanaged-warn-child'),
+  ParentReview: V08UnmanagedBrowserFallbackSurfaceSchema.parse('unmanaged-parent-review'),
+  TerminateProcess: V08UnmanagedBrowserFallbackSurfaceSchema.parse('unmanaged-terminate-process'),
+  RelaunchManagedBrowser: V08UnmanagedBrowserFallbackSurfaceSchema.parse('unmanaged-relaunch-managed-browser'),
+  ManualRequired: V08UnmanagedBrowserFallbackSurfaceSchema.parse('unmanaged-manual-required'),
+  Degraded: V08UnmanagedBrowserFallbackSurfaceSchema.parse('unmanaged-degraded'),
+  Unavailable: V08UnmanagedBrowserFallbackSurfaceSchema.parse('unmanaged-unavailable'),
+} as const;
+
+export const decodeV08TimerRecoveryProofEntry = Schema.decodeUnknownSync(V08TimerRecoveryProofEntrySchema);
+export const decodeV08UnmanagedBrowserFallbackProofEntry = Schema.decodeUnknownSync(
+  V08UnmanagedBrowserFallbackProofEntrySchema
+);
+export const decodeV08BrowserEnforcementTimerRecoveryProofReadModel = Schema.decodeUnknownSync(
+  V08BrowserEnforcementTimerRecoveryProofReadModelSchema
+);
+
+type ParentControlCapabilityStatusType = Infer<typeof ParentControlCapabilityStatusSchema>;
+type V08BrowserEnforcementTimerRecoveryProofReadModelType = V08BrowserEnforcementTimerRecoveryProofReadModel;
+type V08TimerRecoverySurfaceType = V08TimerRecoverySurface;
+type V08UnmanagedBrowserFallbackSurfaceType = V08UnmanagedBrowserFallbackSurface;
+
+type TimerEntryInput = {
+  proofEntryId: string;
+  surface: V08TimerRecoverySurfaceType;
+  lifecycleState: V08TimerRecoveryLifecycleState;
+  timerEventKind: V08TimerRecoveryEventKind;
+  resultStatus: V08TimerRecoveryResultStatus;
+  rollbackState: V08TimerRecoveryRollbackState;
+  statePersistence: V08TimerRecoveryStatePersistence;
+  capabilityStatus: ParentControlCapabilityStatusType;
+  parentVisibleStates: readonly V08TimerRecoveryParentVisibleState[];
+  nextCheckAtVisible: boolean;
+  failureStateVisible: boolean;
+  linkedProofCommands: readonly string[];
+  linkedProofArtifacts: readonly string[];
+  manualProofRequirements: readonly string[];
+  claimBoundary: string;
+  fallbackBehavior: string;
+};
+
+type FallbackEntryInput = {
+  proofEntryId: string;
+  surface: V08UnmanagedBrowserFallbackSurfaceType;
+  capabilityStatus: ParentControlCapabilityStatusType;
+  fallbackState: V08UnmanagedBrowserFallbackState;
+  adapterExecutionState: V08UnmanagedBrowserFallbackExecutionState;
+  processIdentityRequired: boolean;
+  processIdentityState: V08UnmanagedBrowserProcessIdentityState;
+  linkedProofCommands: readonly string[];
+  linkedProofArtifacts: readonly string[];
+  manualProofRequirements: readonly string[];
+  claimBoundary: string;
+  fallbackBehavior: string;
+};
+
+const generatedAt = '2026-06-03T21:39:51.644Z';
+
+export const V08BrowserEnforcementTimerRecoveryProofReadModel: V08BrowserEnforcementTimerRecoveryProofReadModelType =
+  V08BrowserEnforcementTimerRecoveryProofReadModelSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    readModelId: 'v0-8-browser-enforcement-timer-recovery-proof',
+    generatedAt,
+    sourceReadModelIds: [
+      'v0-8-supported-adapter-runtime-proof',
+      'v0-8-browser-domain-adapter-proof',
+      'v0-8-enforcement-product-control-spine',
+      'v0-8-enforcement-timer-recovery-mvp',
+    ],
+    timerEntries: [
+      timerEntry({
+        proofEntryId: 'v0-8-timer-created-active',
+        surface: V08TimerRecoverySurface.CreatedActive,
+        lifecycleState: 'created',
+        timerEventKind: 'created',
+        resultStatus: 'no-op',
+        rollbackState: 'available',
+        statePersistence: 'active-state-persisted',
+        capabilityStatus: ParentControlCapabilityStatus.Implemented,
+        parentVisibleStates: ['next-check-visible'],
+        nextCheckAtVisible: true,
+        failureStateVisible: false,
+        linkedProofCommands: ['node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs'],
+        linkedProofArtifacts: ['test-results/v0-8-enforcement-timer-recovery-mvp'],
+        manualProofRequirements: [],
+        claimBoundary:
+          'Timer create proof is limited to persisted active timer state, audit refs, and parent-visible next-check state.',
+        fallbackBehavior:
+          'Reject or report unavailable when the service cannot persist the active timer state for recovery.',
+      }),
+      timerEntry({
+        proofEntryId: 'v0-8-timer-extended-active',
+        surface: V08TimerRecoverySurface.ExtendedActive,
+        lifecycleState: 'extended',
+        timerEventKind: 'extended',
+        resultStatus: 'no-op',
+        rollbackState: 'available',
+        statePersistence: 'active-state-persisted',
+        capabilityStatus: ParentControlCapabilityStatus.Supported,
+        parentVisibleStates: ['next-check-visible'],
+        nextCheckAtVisible: true,
+        failureStateVisible: false,
+        linkedProofCommands: [],
+        linkedProofArtifacts: [],
+        manualProofRequirements: ['service command for active timer extension', 'proof artifact for updated expiry'],
+        claimBoundary:
+          'The contract supports extension as an active timer event, but the current service proof does not expose a dedicated extend command.',
+        fallbackBehavior:
+          'Keep existing active timer next-check visible and require a new service proof before claiming extension execution.',
+      }),
+      timerEntry({
+        proofEntryId: 'v0-8-timer-expired-cleared',
+        surface: V08TimerRecoverySurface.ExpiredCleared,
+        lifecycleState: 'expired',
+        timerEventKind: 'expired',
+        resultStatus: 'expired',
+        rollbackState: 'not-required',
+        statePersistence: 'active-state-cleared',
+        capabilityStatus: ParentControlCapabilityStatus.Implemented,
+        parentVisibleStates: ['terminal-state-visible'],
+        nextCheckAtVisible: false,
+        failureStateVisible: false,
+        linkedProofCommands: [
+          'node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs',
+          'cargo test -p ocentra-parent-agent-service enforcement_timer_expiry',
+        ],
+        linkedProofArtifacts: [
+          'test-results/v0-8-enforcement-timer-recovery-mvp',
+          'crates/agent-service/tests/unit.rs',
+        ],
+        manualProofRequirements: [],
+        claimBoundary:
+          'Timer expiry proof is limited to app time-limit active state expiry and clearing the persisted timer state.',
+        fallbackBehavior: 'Report recovery-needed when expiry is requested without compatible active timer state.',
+      }),
+      timerEntry({
+        proofEntryId: 'v0-8-timer-cancelled-cleared',
+        surface: V08TimerRecoverySurface.CancelledCleared,
+        lifecycleState: 'cancelled',
+        timerEventKind: 'cancelled',
+        resultStatus: 'superseded',
+        rollbackState: 'not-required',
+        statePersistence: 'active-state-cleared',
+        capabilityStatus: ParentControlCapabilityStatus.Implemented,
+        parentVisibleStates: ['terminal-state-visible'],
+        nextCheckAtVisible: false,
+        failureStateVisible: false,
+        linkedProofCommands: [
+          'node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs',
+          'cargo test -p ocentra-parent-agent-service enforcement_timer',
+        ],
+        linkedProofArtifacts: [
+          'test-results/v0-8-enforcement-timer-recovery-mvp',
+          'crates/agent-service/tests/unit.rs',
+        ],
+        manualProofRequirements: [],
+        claimBoundary: 'Cancel proof is parent-override scoped and clears only the matching active timer state.',
+        fallbackBehavior: 'Do not treat parent cancel as broad rollback, browser control, or host policy removal.',
+      }),
+      timerEntry({
+        proofEntryId: 'v0-8-timer-restart-recovered-active',
+        surface: V08TimerRecoverySurface.RestartRecoveredActive,
+        lifecycleState: 'restart-recovered',
+        timerEventKind: 'restart-recovered',
+        resultStatus: 'no-op',
+        rollbackState: 'not-required',
+        statePersistence: 'active-state-persisted',
+        capabilityStatus: ParentControlCapabilityStatus.Implemented,
+        parentVisibleStates: ['next-check-visible'],
+        nextCheckAtVisible: true,
+        failureStateVisible: false,
+        linkedProofCommands: [
+          'node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs',
+          'cargo test -p ocentra-parent-agent-service enforcement_timer',
+        ],
+        linkedProofArtifacts: [
+          'test-results/v0-8-enforcement-timer-recovery-mvp',
+          'crates/agent-service/tests/unit.rs',
+        ],
+        manualProofRequirements: [],
+        claimBoundary: 'Restart recovery proof preserves timer identity and next-check state after service restart.',
+        fallbackBehavior:
+          'Return recovery-needed instead of inventing timer state when the active state file is absent.',
+      }),
+      timerEntry({
+        proofEntryId: 'v0-8-timer-recovery-needed-missing-state',
+        surface: V08TimerRecoverySurface.RecoveryNeededMissingState,
+        lifecycleState: 'recovery-needed',
+        timerEventKind: 'recovery-needed',
+        resultStatus: 'unavailable',
+        rollbackState: 'unavailable',
+        statePersistence: 'active-state-missing',
+        capabilityStatus: ParentControlCapabilityStatus.Unavailable,
+        parentVisibleStates: ['failure-state-visible'],
+        nextCheckAtVisible: false,
+        failureStateVisible: true,
+        linkedProofCommands: [
+          'node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs',
+          'cargo test -p ocentra-parent-agent-service timer_recovery_reports_unavailable_when_active_state_is_missing',
+        ],
+        linkedProofArtifacts: [
+          'test-results/v0-8-enforcement-timer-recovery-mvp',
+          'crates/agent-service/tests/unit.rs',
+        ],
+        manualProofRequirements: ['operator-visible retry or manual review state'],
+        claimBoundary:
+          'Recovery-needed proof records missing active timer state as a failure state, not as a recovered or expired timer.',
+        fallbackBehavior:
+          'Show unavailable recovery state with reason rather than silently clearing or recreating a timer.',
+      }),
+      timerEntry({
+        proofEntryId: 'v0-8-timer-rollback-completed-cleared',
+        surface: V08TimerRecoverySurface.RollbackCompletedCleared,
+        lifecycleState: 'rollback-completed',
+        timerEventKind: 'rollback-completed',
+        resultStatus: 'rolled-back',
+        rollbackState: 'completed',
+        statePersistence: 'active-state-cleared',
+        capabilityStatus: ParentControlCapabilityStatus.Implemented,
+        parentVisibleStates: ['terminal-state-visible', 'rollback-state-visible'],
+        nextCheckAtVisible: false,
+        failureStateVisible: false,
+        linkedProofCommands: ['cargo test -p ocentra-parent-agent-core enforcement_timer_state'],
+        linkedProofArtifacts: ['crates/agent-core/tests/unit.rs'],
+        manualProofRequirements: [],
+        claimBoundary:
+          'Rollback-completed proof is a timer transition result boundary and does not prove host browser/domain rollback.',
+        fallbackBehavior:
+          'Expose rollback completed as terminal timer state only when adapter outcome reports rolled-back.',
+      }),
+      timerEntry({
+        proofEntryId: 'v0-8-timer-rollback-unavailable-visible',
+        surface: V08TimerRecoverySurface.RollbackUnavailableVisible,
+        lifecycleState: 'rollback-unavailable',
+        timerEventKind: 'unavailable',
+        resultStatus: 'unavailable',
+        rollbackState: 'unavailable',
+        statePersistence: 'active-state-cleared',
+        capabilityStatus: ParentControlCapabilityStatus.Unavailable,
+        parentVisibleStates: ['failure-state-visible', 'rollback-state-visible'],
+        nextCheckAtVisible: false,
+        failureStateVisible: true,
+        linkedProofCommands: ['cargo test -p ocentra-parent-agent-core enforcement_timer_state'],
+        linkedProofArtifacts: ['crates/agent-core/tests/unit.rs'],
+        manualProofRequirements: ['operator-visible rollback unavailable state'],
+        claimBoundary:
+          'Rollback-unavailable proof records rollback failure visibility and does not claim browser policy restoration.',
+        fallbackBehavior:
+          'Expose unavailable rollback state with failure reason and require manual review for host policy rollback.',
+      }),
+    ],
+    unmanagedFallbackEntries: [
+      fallbackEntry({
+        proofEntryId: 'v0-8-unmanaged-process-identity-required',
+        surface: V08UnmanagedBrowserFallbackSurface.ProcessIdentityRequired,
+        capabilityStatus: ParentControlCapabilityStatus.Implemented,
+        fallbackState: 'process-identity-required',
+        adapterExecutionState: 'process-identity-rejected',
+        processIdentityRequired: true,
+        processIdentityState: 'missing-process-identity-rejected',
+        linkedProofCommands: ['node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs'],
+        linkedProofArtifacts: ['test-results/windows-managed-unmanaged-browser-enforcement-proof'],
+        manualProofRequirements: [],
+        claimBoundary:
+          'Unmanaged browser process actions require process id and expected process name; URL strings are not accepted as identity.',
+        fallbackBehavior: 'Reject missing process identity before attempting terminate or relaunch fallback actions.',
+      }),
+      fallbackEntry({
+        proofEntryId: 'v0-8-unmanaged-report-only',
+        surface: V08UnmanagedBrowserFallbackSurface.ReportOnly,
+        capabilityStatus: ParentControlCapabilityStatus.Supported,
+        fallbackState: 'report-only',
+        adapterExecutionState: 'returns-report-only',
+        processIdentityRequired: false,
+        processIdentityState: 'not-applicable',
+        linkedProofCommands: [],
+        linkedProofArtifacts: [],
+        manualProofRequirements: ['browser integration or managed-session proof before escalating beyond report-only'],
+        claimBoundary:
+          'Report-only unmanaged browser fallback records process suspicion without claiming warning delivery or blocking.',
+        fallbackBehavior:
+          'Keep report-only separate from warn, review, terminate, relaunch, degraded, and unavailable states.',
+      }),
+      fallbackEntry({
+        proofEntryId: 'v0-8-unmanaged-warn-child',
+        surface: V08UnmanagedBrowserFallbackSurface.WarnChild,
+        capabilityStatus: ParentControlCapabilityStatus.Supported,
+        fallbackState: 'warn-child',
+        adapterExecutionState: 'returns-degraded-noop',
+        processIdentityRequired: false,
+        processIdentityState: 'not-applicable',
+        linkedProofCommands: ['node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs'],
+        linkedProofArtifacts: ['test-results/windows-managed-unmanaged-browser-enforcement-proof'],
+        manualProofRequirements: ['notification delivery artifact', 'browser warning surface artifact'],
+        claimBoundary:
+          'Warn-child unmanaged fallback is a degraded no-op until notification and browser warning delivery are proved.',
+        fallbackBehavior:
+          'Return degraded warning state instead of claiming delivered warning or content-aware control.',
+      }),
+      fallbackEntry({
+        proofEntryId: 'v0-8-unmanaged-parent-review',
+        surface: V08UnmanagedBrowserFallbackSurface.ParentReview,
+        capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+        fallbackState: 'parent-review',
+        adapterExecutionState: 'returns-parent-review',
+        processIdentityRequired: false,
+        processIdentityState: 'not-applicable',
+        linkedProofCommands: [],
+        linkedProofArtifacts: [],
+        manualProofRequirements: ['parent approval workflow artifact', 'review queue proof'],
+        claimBoundary:
+          'Parent-review fallback is a manual review state and is not a browser block, warning delivery, or exact URL claim.',
+        fallbackBehavior: 'Route unknown unmanaged browser cases to review when enforcement identity is incomplete.',
+      }),
+      fallbackEntry({
+        proofEntryId: 'v0-8-unmanaged-terminate-process',
+        surface: V08UnmanagedBrowserFallbackSurface.TerminateProcess,
+        capabilityStatus: ParentControlCapabilityStatus.Implemented,
+        fallbackState: 'terminate-process',
+        adapterExecutionState: 'executes-real-service',
+        processIdentityRequired: true,
+        processIdentityState: 'pid-name-validated',
+        linkedProofCommands: ['node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs'],
+        linkedProofArtifacts: ['test-results/windows-managed-unmanaged-browser-enforcement-proof'],
+        manualProofRequirements: [],
+        claimBoundary: 'Terminate fallback is limited to a validated unmanaged browser process id and process name.',
+        fallbackBehavior: 'Fail closed on process name mismatch and do not infer tab, title, URL, content, or intent.',
+      }),
+      fallbackEntry({
+        proofEntryId: 'v0-8-unmanaged-relaunch-managed-browser',
+        surface: V08UnmanagedBrowserFallbackSurface.RelaunchManagedBrowser,
+        capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+        fallbackState: 'relaunch-managed-browser',
+        adapterExecutionState: 'returns-manual-required',
+        processIdentityRequired: true,
+        processIdentityState: 'pid-name-required',
+        linkedProofCommands: [],
+        linkedProofArtifacts: [],
+        manualProofRequirements: ['managed browser launch proof', 'handoff custody artifact', 'rollback artifact'],
+        claimBoundary:
+          'Relaunch-managed fallback remains manual-required until the service proves managed launch and custody.',
+        fallbackBehavior:
+          'Do not kill and relaunch unmanaged browser sessions without process identity and managed-session proof.',
+      }),
+      fallbackEntry({
+        proofEntryId: 'v0-8-unmanaged-manual-required',
+        surface: V08UnmanagedBrowserFallbackSurface.ManualRequired,
+        capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+        fallbackState: 'manual-required',
+        adapterExecutionState: 'returns-manual-required',
+        processIdentityRequired: false,
+        processIdentityState: 'not-applicable',
+        linkedProofCommands: [],
+        linkedProofArtifacts: [],
+        manualProofRequirements: ['operator-visible manual browser control state', 'host browser policy artifact'],
+        claimBoundary:
+          'Manual-required fallback covers browser controls that need host policy, managed session, or operator setup.',
+        fallbackBehavior: 'Report manual-required instead of upgrading process evidence into browser/domain blocking.',
+      }),
+      fallbackEntry({
+        proofEntryId: 'v0-8-unmanaged-degraded',
+        surface: V08UnmanagedBrowserFallbackSurface.Degraded,
+        capabilityStatus: ParentControlCapabilityStatus.Supported,
+        fallbackState: 'degraded',
+        adapterExecutionState: 'returns-degraded-noop',
+        processIdentityRequired: false,
+        processIdentityState: 'not-applicable',
+        linkedProofCommands: ['node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs'],
+        linkedProofArtifacts: ['test-results/windows-managed-unmanaged-browser-enforcement-proof'],
+        manualProofRequirements: ['delivery dependency proof', 'permission recovery proof'],
+        claimBoundary:
+          'Degraded unmanaged fallback is visible as a no-op or partial capability state, not enforcement success.',
+        fallbackBehavior: 'Keep degraded separate from report-only, manual-required, and unavailable states.',
+      }),
+      fallbackEntry({
+        proofEntryId: 'v0-8-unmanaged-unavailable',
+        surface: V08UnmanagedBrowserFallbackSurface.Unavailable,
+        capabilityStatus: ParentControlCapabilityStatus.Unavailable,
+        fallbackState: 'unavailable',
+        adapterExecutionState: 'returns-unavailable',
+        processIdentityRequired: false,
+        processIdentityState: 'not-applicable',
+        linkedProofCommands: [],
+        linkedProofArtifacts: [],
+        manualProofRequirements: ['supported browser executable proof', 'target platform adapter proof'],
+        claimBoundary: 'Unavailable fallback records when unmanaged browser handling cannot run on the target host.',
+        fallbackBehavior: 'Report unavailable instead of falling through to broad app or domain blocking.',
+      }),
+    ],
+  });
+
+function timerEntry(input: TimerEntryInput): V08TimerRecoveryProofEntry {
+  return V08TimerRecoveryProofEntrySchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    platform: 'windows',
+    capability: ParentControlCapabilityName.AppTimeLimit,
+    lastCheckedAt: generatedAt,
+    ...input,
+    parentVisibleStates: [...input.parentVisibleStates],
+    linkedProofCommands: [...input.linkedProofCommands],
+    linkedProofArtifacts: [...input.linkedProofArtifacts],
+    manualProofRequirements: [...input.manualProofRequirements],
+  });
+}
+
+function fallbackEntry(input: FallbackEntryInput): V08UnmanagedBrowserFallbackProofEntry {
+  return V08UnmanagedBrowserFallbackProofEntrySchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    platform: 'windows',
+    capability: ParentControlCapabilityName.UnmanagedBrowserDetection,
+    exactUrlClaimed: false,
+    activeTabClaimed: false,
+    titleClaimed: false,
+    contentClaimed: false,
+    notificationDeliveryClaimed: false,
+    broadBrowserBlockingClaimed: false,
+    lastCheckedAt: generatedAt,
+    ...input,
+    linkedProofCommands: [...input.linkedProofCommands],
+    linkedProofArtifacts: [...input.linkedProofArtifacts],
+    manualProofRequirements: [...input.manualProofRequirements],
+  });
+}

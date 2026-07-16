@@ -20,8 +20,9 @@ or recovering after a long/overflowed Codex chat.
 ## Shared state
 
 Live lane, inbox, ownership, heartbeat, and task state belongs in Ocentra
-Ledger, not in this product repo. The product repo tracks code, docs, scripts,
-and the pinned `tools/ocentra-ledger` submodule pointer.
+Ledger, not in this product repo. Parent consumes Ocentra Enforcer coordination
+through npm wrappers and MCP; the reusable coordination implementation and live
+ledger state live outside the product repo.
 
 If using more than one PC, configure a shared `LEDGER_ROOT` or Ledger sync
 transport before coordination or lane work. Do not let two PCs actively edit

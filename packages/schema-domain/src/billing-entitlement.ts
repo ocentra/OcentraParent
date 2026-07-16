@@ -1,0 +1,46 @@
+import {
+  BillingDeviceLimitDecisionSchema as GeneratedBillingDeviceLimitDecisionSchema,
+  BillingEntitlementContractProofSchema as GeneratedBillingEntitlementContractProofSchema,
+  BillingEntitlementSeatCompositionSchema as GeneratedBillingEntitlementSeatCompositionSchema,
+  BillingEntitlementSnapshotSchema as GeneratedBillingEntitlementSnapshotSchema,
+  BillingFeatureDecisionSchema as GeneratedBillingFeatureDecisionSchema,
+  BillingFeatureEntitlementSchema as GeneratedBillingFeatureEntitlementSchema,
+  BillingFailureStateSchema as GeneratedBillingFailureStateSchema,
+  BillingPlanSchema as GeneratedBillingPlanSchema,
+  BillingReferralCreditSummarySchema as GeneratedBillingReferralCreditSummarySchema,
+  BillingSubscriptionStatusProofRowSchema as GeneratedBillingSubscriptionStatusProofRowSchema,
+  BillingSyncEventSchema as GeneratedBillingSyncEventSchema,
+} from './generated-billing-entitlement';
+import type {
+  BillingDeviceLimitDecision as GeneratedBillingDeviceLimitDecision,
+  BillingEntitlementContractProof as GeneratedBillingEntitlementContractProof,
+  BillingEntitlementSeatComposition as GeneratedBillingEntitlementSeatComposition,
+  BillingEntitlementSnapshot as GeneratedBillingEntitlementSnapshot,
+  BillingPlan as GeneratedBillingPlan,
+  BillingReferralCreditSummary as GeneratedBillingReferralCreditSummary,
+  BillingSubscriptionStatusProofRow as GeneratedBillingSubscriptionStatusProofRow,
+  BillingSyncEvent as GeneratedBillingSyncEvent,
+  BillingFailureState as GeneratedBillingFailureState,
+} from './generated-billing-entitlement';
+
+export const BillingFeatureEntitlementSchema = GeneratedBillingFeatureEntitlementSchema;
+export const BillingPlanSchema = GeneratedBillingPlanSchema;
+export const BillingFailureStateSchema = GeneratedBillingFailureStateSchema;
+export const BillingSubscriptionStatusProofRowSchema = GeneratedBillingSubscriptionStatusProofRowSchema;
+export const BillingFeatureDecisionSchema = GeneratedBillingFeatureDecisionSchema;
+export const BillingEntitlementSeatCompositionSchema = GeneratedBillingEntitlementSeatCompositionSchema;
+export const BillingEntitlementSnapshotSchema = GeneratedBillingEntitlementSnapshotSchema;
+export const BillingSyncEventSchema = GeneratedBillingSyncEventSchema;
+export const BillingDeviceLimitDecisionSchema = GeneratedBillingDeviceLimitDecisionSchema;
+export const BillingReferralCreditSummarySchema = GeneratedBillingReferralCreditSummarySchema;
+export const BillingEntitlementContractProofSchema = GeneratedBillingEntitlementContractProofSchema;
+
+export type BillingPlan = GeneratedBillingPlan;
+export type BillingEntitlementSeatComposition = GeneratedBillingEntitlementSeatComposition;
+export type BillingEntitlementSnapshot = GeneratedBillingEntitlementSnapshot;
+export type BillingSubscriptionStatusProofRow = GeneratedBillingSubscriptionStatusProofRow;
+export type BillingSyncEvent = GeneratedBillingSyncEvent;
+export type BillingDeviceLimitDecision = GeneratedBillingDeviceLimitDecision;
+export type BillingReferralCreditSummary = GeneratedBillingReferralCreditSummary;
+export type BillingFailureState = GeneratedBillingFailureState;
+export type BillingEntitlementContractProof = GeneratedBillingEntitlementContractProof;

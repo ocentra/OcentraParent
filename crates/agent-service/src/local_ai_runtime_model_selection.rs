@@ -2,32 +2,37 @@ use ocentra_parent_agent_protocol::constants;
 
 use crate::{
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
-    local_ai_runtime_config_values::is_safe_local_ai_model_id,
+    local_ai_runtime_config_values::validation::is_safe_local_ai_model_id,
+    local_ai_runtime_config_values::{LocalAiRuntimeText, LocalAiUnavailableReason},
 };
 
 pub(crate) fn requested_model_unavailable_reason(
     config: &LocalAiRuntimeConfigSnapshot,
-    requested_model_id: &str,
-) -> Option<&'static str> {
+    requested_model_id: &LocalAiRuntimeText,
+) -> Option<LocalAiUnavailableReason> {
     if !is_safe_local_ai_model_id(requested_model_id) {
-        return Some(constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_ID_INVALID);
+        return Some(LocalAiUnavailableReason(
+            constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_ID_INVALID,
+        ));
     }
 
-    if requested_model_id != config.model_id() {
-        return Some(constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_UNSUPPORTED);
+    if requested_model_id.0 != config.model_id().0 {
+        return Some(LocalAiUnavailableReason(
+            constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_UNSUPPORTED,
+        ));
     }
 
     None
 }
 
-pub(crate) fn model_reference_for_request<'a>(
-    config: &'a LocalAiRuntimeConfigSnapshot,
-    requested_model_id: &str,
-) -> &'a str {
-    if requested_model_id == config.model_id() {
+pub(crate) fn model_reference_for_request(
+    config: &LocalAiRuntimeConfigSnapshot,
+    requested_model_id: &LocalAiRuntimeText,
+) -> LocalAiRuntimeText {
+    if requested_model_id.0 == config.model_id().0 {
         config.artifact_ref()
     } else {
-        constants::local_ai_runtime::MODEL_REFERENCE_UNCONFIGURED
+        LocalAiRuntimeText(constants::local_ai_runtime::MODEL_REFERENCE_UNCONFIGURED.to_string())
     }
 }
 

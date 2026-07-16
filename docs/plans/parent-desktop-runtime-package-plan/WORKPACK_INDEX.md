@@ -1,40 +1,64 @@
-# Parent Desktop Runtime Package Plan Workpack Index
-
 <!-- agent-capsule -->
 
 > Agent Capsule
-> Plan: `parent-desktop-runtime-package-plan`
-> Doc: `Parent Desktop Runtime Package Plan Workpack Index`
-> Kind: workpack selector; use before opening any workpack.
-> Read when: Only when named by the plan route, selected workpack, or index row.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Plan: `parent-client-runtime-distribution-plan`
+> Doc: `Parent Client Runtime Distribution Workpack Index`
+> Kind: workpack selector.
+> Read when: after PLAN_STATE.md and NEXT_ACTIONS.md.
+> Stop rule: open exactly one selected workpack; do not read every workpack.
+> Proves: workpack routing only.
+> Does not prove: package readiness, signing readiness, store readiness, setup readiness, or PR readiness.
+> Proof rule: update counts/status only after matching proof artifacts exist.
 
 <!-- /agent-capsule -->
 
-Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
+# Parent Client Runtime Distribution Workpack Index
 
-| Status  | Workpack                                                                                          |  Size | Boxes               |
-| ------- | ------------------------------------------------------------------------------------------------- | ----: | ------------------- |
-| checked | [04 Parent Observer Read-Only State](workpacks/04-parent-observer-read-only-state.md)             | 1,301 | 5/5 checked; 0 open |
-| checked | [06 Parent Mobile Bridge Boundary](workpacks/06-parent-mobile-bridge-boundary.md)                 | 1,284 | 5/5 checked; 0 open |
-| checked | [09 Update Channel And Rollback Scaffold](workpacks/09-update-channel-and-rollback-scaffold.md)   | 1,255 | 5/5 checked; 0 open |
-| checked | [10 Signing, Notarization, And Store Claims](workpacks/10-signing-notarization-store-claims.md)   | 1,218 | 5/5 checked; 0 open |
-| checked | [11 Support Diagnostics And Redaction](workpacks/11-support-diagnostics-and-redaction.md)         | 1,260 | 5/5 checked; 0 open |
-| checked | [12 Privacy And Release Docs](workpacks/12-privacy-and-release-docs.md)                           | 1,153 | 5/5 checked; 0 open |
-| checked | [15 Platform Capability Matrix](workpacks/15-platform-capability-matrix.md)                       | 1,739 | 5/5 checked; 0 open |
-| checked | [16 Release Branch Boundary](workpacks/16-release-branch-boundary.md)                             | 1,201 | 5/5 checked; 0 open |
-| checked | [17 GitHub Actions Artifact Proof](workpacks/17-github-actions-artifact-proof.md)                 | 1,318 | 5/5 checked; 0 open |
-| checked | [18 Manual Platform Proof Runbook](workpacks/18-manual-platform-proof-runbook.md)                 | 1,370 | 5/5 checked; 0 open |
-| open    | [01 Tauri Shell Contract Boundary](workpacks/01-tauri-shell-contract-boundary.md)                 | 3,956 | 0/5 checked; 5 open |
-| open    | [02 Local Service Connection Command](workpacks/02-local-service-connection-command.md)           | 3,952 | 0/5 checked; 5 open |
-| open    | [03 LAN Route And Controller State](workpacks/03-lan-route-and-controller-state.md)               | 3,988 | 0/5 checked; 5 open |
-| open    | [05 Custody And Source Labels](workpacks/05-custody-and-source-labels.md)                         | 4,024 | 0/5 checked; 5 open |
-| open    | [07 Windows Installer And Preview](workpacks/07-windows-installer-and-preview.md)                 | 4,340 | 0/5 checked; 5 open |
-| open    | [08 Cross-Platform Package Preview Matrix](workpacks/08-cross-platform-package-preview-matrix.md) | 1,271 | 1/6 checked; 5 open |
-| open    | [13 Desktop Launch Smoke](workpacks/13-desktop-launch-smoke.md)                                   | 3,791 | 0/5 checked; 5 open |
-| open    | [14 Tauri Build And Dev Scripts](workpacks/14-tauri-build-and-dev-scripts.md)                     | 3,670 | 0/5 checked; 5 open |
-| open    | [19 Product Checklist And Feature Doc Sync](workpacks/19-product-checklist-feature-doc-sync.md)   | 1,745 | 3/5 checked; 2 open |
-| open    | [20 PR, CI, And Rollout Gate](workpacks/20-pr-ci-rollout-gate.md)                                 | 1,302 | 2/5 checked; 3 open |
+The folder path remains `parent-desktop-runtime-package-plan`, but the canonical scope is parent client runtime distribution: web, desktop, Android parent, and iOS parent. Child agent runtime distribution belongs to `child-agent-runtime-distribution-plan`.
+
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
+| Status | Workpack | Boxes | Proof root |
+| --- | --- | ---: | --- |
+| complete | [WP01 Parent Client Scope And Route Boundary](workpacks/01-parent-client-scope-and-route-boundary.md) | 10/10 | `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/` |
+| complete | [WP02 Parent Web Portal Distribution](workpacks/02-parent-web-portal-distribution.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/` |
+| complete | [WP03 Parent Desktop Shell Package](workpacks/03-parent-desktop-shell-package.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/03-parent-desktop-shell-package/` |
+| complete | [WP04 Parent Android Package](workpacks/04-parent-android-package.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/04-parent-android-package/` |
+| open | [WP05 Parent iOS Package](workpacks/05-parent-ios-package.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/05-parent-ios-package/` |
+| complete | [WP06 Parent Local Service Route Bridge](workpacks/06-parent-local-service-route-bridge.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/` |
+| open | [WP07 Parent Client Signing Store Matrix](workpacks/07-parent-client-signing-store-matrix.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/07-parent-client-signing-store-matrix/` |
+| complete | [WP08 Parent Client Update Rollback](workpacks/08-parent-client-update-rollback.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/` |
+| complete | [WP09 Parent Client Launch Smoke Matrix](workpacks/09-parent-client-launch-smoke-matrix.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/` |
+| open | [WP10 Setup Handoff Contracts](workpacks/10-setup-handoff-contracts.md) | 0/10 | `output/parent-client-runtime-distribution-plan-proof/10-setup-handoff-contracts/` |
+| open | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | 0/14 | `output/parent-client-runtime-distribution-plan-proof/11-proof-ci-release-gate/` |
+
+## Default execution order
+
+```text
+WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09 -> WP10 -> WP11
+```
+
+## Dependency rules
+
+```text
+WP01 fixes scope and route boundary before package work.
+WP02 handles web portal distribution.
+WP03 handles desktop shell/package only.
+WP04/WP05 handle parent mobile package claims separately.
+WP06 handles local service route bridge without claiming setup completion.
+WP07 handles signing/store/notarization matrix before release claims.
+WP08 handles update/rollback/checksum/SBOM.
+WP09 handles launch smoke by artifact/platform.
+WP10 handles setup handoff contract only.
+WP11 is last and consumes all previous proof roots.
+```
+
+## Status rules
+
+- If a workpack text says proof is recorded but this index says open, keep the row open until the proof root, checklist row, and PLAN_STATE are aligned.
+- Do not raise status from scaffold, source script presence, launch smoke, CI success, preview build, or package metadata alone.
+- Do not use one platform artifact to imply another platform artifact.
+
+## Do not select
+
+Do not implement child agent runtime distribution, setup journey state machine, device trust, account identity, payment behavior, policy behavior, remote access, data custody, child capture/enforcement adapters, or portal shell UX in this plan.

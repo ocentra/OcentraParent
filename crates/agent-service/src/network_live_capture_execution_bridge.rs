@@ -1,14 +1,29 @@
 use ocentra_network_evidence::{
-    NetworkLiveCaptureExecutionInput, NetworkLiveCaptureExecutionSource,
-    NetworkLiveCaptureExecutionState, NetworkLiveCapturePlatform, NetworkLiveCaptureProof,
-    NetworkLiveCaptureProofState,
+    live_capture::{NetworkLiveCaptureProof, NetworkLiveCaptureProofState},
+    live_capture_execution::{NetworkLiveCaptureExecutionInput, NetworkLiveCaptureExecutionState},
 };
-use ocentra_parent_agent_protocol::{constants, NetworkLiveCaptureExecutionStatusState};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkLiveCaptureExecutionStatusState;
+
+use self::execution_source::execution_source;
+use self::mapping::execution_ref_index;
+
+#[path = "network_live_capture_execution_bridge/execution_source.rs"]
+mod execution_source;
+#[path = "network_live_capture_execution_bridge/mapping.rs"]
+mod mapping;
+
+const LIVE_CAPTURE_EXECUTION_REFS: [&str; 4] = [
+    constants::network_flow::TEST_LIVE_CAPTURE_WINDOWS_EXECUTION_REF,
+    constants::network_flow::TEST_LIVE_CAPTURE_LINUX_EXECUTION_REF,
+    constants::network_flow::TEST_LIVE_CAPTURE_MACOS_EXECUTION_REF,
+    constants::network_flow::TEST_LIVE_CAPTURE_MANUAL_EXECUTION_REF,
+];
 
 pub(crate) fn execution_input(proof: &NetworkLiveCaptureProof) -> NetworkLiveCaptureExecutionInput {
     let bounded_execution = proof.proof_state == NetworkLiveCaptureProofState::ProofReady;
     NetworkLiveCaptureExecutionInput {
-        execution_ref: execution_ref(proof).to_string(),
+        execution_ref: LIVE_CAPTURE_EXECUTION_REFS[execution_ref_index(proof)].to_string(),
         live_capture_proof: proof.clone(),
         source: execution_source(proof.platform),
         driver_invocation_ref: bounded_execution.then_some(
@@ -61,47 +76,5 @@ pub(crate) fn execution_input(proof: &NetworkLiveCaptureProof) -> NetworkLiveCap
 pub(crate) fn protocol_execution_state(
     state: NetworkLiveCaptureExecutionState,
 ) -> NetworkLiveCaptureExecutionStatusState {
-    match state {
-        NetworkLiveCaptureExecutionState::BoundedExecuted => {
-            NetworkLiveCaptureExecutionStatusState::BoundedExecuted
-        }
-        NetworkLiveCaptureExecutionState::ManualRequired => {
-            NetworkLiveCaptureExecutionStatusState::ManualRequired
-        }
-        NetworkLiveCaptureExecutionState::Unavailable => {
-            NetworkLiveCaptureExecutionStatusState::Unavailable
-        }
-        NetworkLiveCaptureExecutionState::Degraded => {
-            NetworkLiveCaptureExecutionStatusState::Degraded
-        }
-    }
-}
-
-fn execution_ref(proof: &NetworkLiveCaptureProof) -> &'static str {
-    match proof.capture_proof_ref.as_str() {
-        constants::network_flow::TEST_LIVE_CAPTURE_WINDOWS_PROOF_REF => {
-            constants::network_flow::TEST_LIVE_CAPTURE_WINDOWS_EXECUTION_REF
-        }
-        constants::network_flow::TEST_LIVE_CAPTURE_LINUX_PROOF_REF => {
-            constants::network_flow::TEST_LIVE_CAPTURE_LINUX_EXECUTION_REF
-        }
-        constants::network_flow::TEST_LIVE_CAPTURE_MACOS_PROOF_REF => {
-            constants::network_flow::TEST_LIVE_CAPTURE_MACOS_EXECUTION_REF
-        }
-        _ => constants::network_flow::TEST_LIVE_CAPTURE_MANUAL_EXECUTION_REF,
-    }
-}
-
-fn execution_source(platform: NetworkLiveCapturePlatform) -> NetworkLiveCaptureExecutionSource {
-    match platform {
-        NetworkLiveCapturePlatform::WindowsNpcap => {
-            NetworkLiveCaptureExecutionSource::WindowsNpcapDriver
-        }
-        NetworkLiveCapturePlatform::LinuxLibpcap => {
-            NetworkLiveCaptureExecutionSource::LinuxLibpcapDriver
-        }
-        NetworkLiveCapturePlatform::MacosBpfLibpcap => {
-            NetworkLiveCaptureExecutionSource::MacosBpfLibpcapDriver
-        }
-    }
+    mapping::protocol_execution_state(state)
 }

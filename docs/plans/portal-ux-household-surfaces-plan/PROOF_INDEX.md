@@ -1,32 +1,117 @@
-# Portal UX Household Surfaces Plan Proof Index
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `portal-ux-household-surfaces-plan`
-> Doc: `Portal UX Household Surfaces Plan Proof Index`
-> Kind: proof artifact locator and PR evidence router.
-> Read when: Only when validating proof, PR_READY, DONE, or broad status claims.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Use this file to locate proof artifacts; proof must include command logs and negative cases.
+> Doc: `Portal UX Household Surfaces Proof Index`
+> Kind: proof artifact router.
+> Read when: selected workpack needs proof paths or PR_READY/DONE proof validation.
+> Stop rule: use only the proof root for the selected workpack.
+> Proves: proof location routing only.
+> Does not prove: implementation completion by itself.
+> Proof rule: proof artifacts are valid only after focused commands run or precise blockers are recorded.
 
 <!-- /agent-capsule -->
 
-Proof/checkpoint files are validation context, not default context. Open only the proof named by a workpack, checklist row, hub assignment, or PR review.
+# Portal UX Household Surfaces Proof Index
 
-## Plan-local proof/reference files
+## Deterministic proof root
 
-- No plan-local proof/reference files detected by filename heuristic.
+```text
+output/portal-ux-household-surfaces-plan-proof/<workpack-file-stem>/
+```
 
-## Related global checkpoints
+## Required universal proof files
 
-- [Activity Surface Main-Backed Adapter Proof](../../checkpoints/activity-surface-main-backed-adapter-proof-2026-05-29.md) (3,061 bytes)
-- [Linux Package Baseline And Package Proof - 2026-05-25](../../checkpoints/linux-package-baseline-and-package-proof-2026-05-25.md) (18,731 bytes)
-- [V0.9 Household Discovery Mobile Controller Product Proof](../../checkpoints/v0-9-household-discovery-mobile-controller-product-proof-2026-05-30.md) (2,054 bytes)
-- [V0.9 Household LAN Pairing Proof](../../checkpoints/v0-9-household-lan-pairing-proof-2026-06-01.md) (2,158 bytes)
-- [V0.9 Household LAN Production Discovery Proof Boundary - 2026-05-29](../../checkpoints/v0-9-household-lan-production-discovery-proof-2026-05-29.md) (2,771 bytes)
-- [V0.9 Household Multi-Device Proof Gates](../../checkpoints/v0-9-household-multi-device-proof-gates-2026-06-01.md) (3,869 bytes)
-- [V0.9 Household Physical Proof Artifact Gate](../../checkpoints/v0-9-household-physical-proof-artifact-gate-2026-05-31.md) (1,929 bytes)
-- [V0.9 Production Discovery And Household Route Proof - 2026-05-30](../../checkpoints/v0-9-production-discovery-household-proof-2026-05-30.md) (3,299 bytes)
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
+
+## Command log format
+
+```text
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <path or n/a>
+notes: <short note>
+```
+
+If blocked:
+
+```text
+blocker:
+required environment:
+why this does not prove completion:
+next command:
+```
+
+## Structured proof metadata
+
+For new proof artifacts and new command-log entries, include structured metadata when available:
+
+```text
+plan: portal-ux-household-surfaces-plan
+workpack: <workpack id and name>
+owner: apps-portal | portal-domain | schema-domain | agent-protocol-domain | policy-handoff | setup-handoff | account-handoff | device-trust-handoff | lan-handoff | browser-handoff | app-game-handoff | network-handoff | screen-handoff | tracking-handoff | ai-handoff | payment-handoff | custody-handoff | notification-handoff | enforcement-handoff | docs-only
+route: <portal route/hash/path or n/a>
+viewport: desktop | mobile | tablet | responsive | n/a
+actor_role: parent-controller | observer | co-parent | unauthenticated | system | n/a
+read_model_source: service | fixture | demo | generated | missing | n/a
+fixture_state: not-used | explicit-fixture | leaked-as-real | n/a
+runtime_state: not-tested | service-backed | degraded | unavailable | stale | error | n/a
+schema_decode_state: not-tested | parsed | rejected-invalid | missing-payload | n/a
+portal_local_replacement_state: not-used | blocked | present | n/a
+source_label_state: visible | missing | not-applicable
+custody_label_state: visible | missing | not-applicable
+manual_required_state: visible | hidden | not-applicable
+degraded_state: visible | hidden | not-applicable
+screenshot_state: not-tested | captured | missing | review-only | n/a
+console_state: not-tested | clean | warnings-documented | errors-blocked | n/a
+accessibility_state: not-tested | keyboard-proved | responsive-proved | blocked | n/a
+action_authority_state: not-claimed | parent-confirmation-required | denied-role | handoff-required | n/a
+no_claim: <what this result does not prove>
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <stdout/stderr artifact pointer, screenshot path, proof file, test result path, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+```
+
+The command log is a compact index, not a raw terminal transcript. Store screenshots, traces, console logs, test reports, or failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
+
+## Required proof themes
+
+```text
+typed contract/read-model source
+empty/loading/degraded/error state
+source/custody labels
+responsive proof when layout changes
+Playwright proof when behavior changes
+no fake readiness
+manual-required states
+console/page-error state
+no-claim boundary
+```
+
+## No-claim language
+
+Do not claim:
+
+```text
+product runtime ready
+domain source truth ready
+policy ready
+enforcement ready
+AI action ready
+transport ready
+custody ready
+parent mobile package ready
+PR_READY
+```
+
+unless the selected workpack proof root proves the claim or carries the exact blocker.

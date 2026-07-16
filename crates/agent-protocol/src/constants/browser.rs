@@ -40,9 +40,11 @@ pub const EVENT_ID_PREFIX: &str = "activity-browser-url-observed-";
 pub const EVENT_SCHEMA_VERSION: u16 = 1;
 pub const EVENT_BROWSER_EVIDENCE_OBSERVED: &str = "browser.evidence.observed";
 pub const EVENT_BROWSER_EVIDENCE_JOURNALED: &str = "browser.evidence.journaled";
-pub const EVENT_BROWSER_AI_ANALYSIS_REQUESTED: &str = "browser.ai.analysis.requested";
+pub const EVENT_BROWSER_AI_ANALYSIS_REQUESTED: &str =
+    super::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE;
 pub const EVENT_BROWSER_AI_ANALYSIS_COMPLETED: &str = "browser.ai.analysis.completed";
-pub const EVENT_BROWSER_POLICY_EVALUATION_REQUESTED: &str = "browser.policy.evaluation.requested";
+pub const EVENT_BROWSER_POLICY_EVALUATION_REQUESTED: &str =
+    super::child_domain_runtime::BROWSER_POLICY_EVALUATION_REQUESTED_EVENT_TYPE;
 pub const EVENT_BROWSER_POLICY_DECISION_COMPLETED: &str = "browser.policy.decision.completed";
 pub const EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED: &str =
     "browser.action-intent.status.requested";

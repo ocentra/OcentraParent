@@ -31,11 +31,11 @@ action, permission state, logs/screenshots, and observed result.
 
 ## Requirement Checklist
 
-- [x] Define manual proof artifacts per platform.
-- [x] Include distinct parent/child and package/runtime claims.
-- [x] Record signing/store/entitlement gaps.
-- [x] Keep artifacts out of source unless intentionally tracked.
-- [x] Update proof matrix after manual checks.
+- [ ] Define manual proof artifacts per platform.
+- [ ] Include distinct parent/child and package/runtime claims.
+- [ ] Record signing/store/entitlement gaps.
+- [ ] Keep artifacts out of source unless intentionally tracked.
+- [ ] Update proof matrix after manual checks.
 
 ## Acceptance And Proof
 

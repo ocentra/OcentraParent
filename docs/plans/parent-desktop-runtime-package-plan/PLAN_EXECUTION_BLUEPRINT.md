@@ -1,77 +1,27 @@
-# Parent Desktop Runtime Package Plan � HID Execution Blueprint
+# Execution Blueprint
+
+Status: reset.
 
 ## Execution objective
 
-Make desktop runtime package claims auditable: launch, local service link, origin security, packaging, and release artifacts.
+Turn the parent client distribution route from docs into artifact proof, update/rollback proof, and route-gate proof.
 
-## Slice 01 � Checklist and Snapshot Baseline
+## Execution slices
 
-### Acceptance
+1. Parent client scope and route boundary.
+2. Parent web portal distribution.
+3. Parent desktop shell/package.
+4. Parent Android package.
+5. Parent iOS package.
+6. Parent local-service route bridge.
+7. Signing/store/notarization matrix.
+8. Update and rollback.
+9. Launch smoke matrix.
+10. Setup handoff contracts.
+11. Proof, CI, and release gate.
 
-- Define concrete implementation checklist/snapshot and keep aligned with workpacks.
+## Required order
 
-### Tests
-
-- `desktop.packaging.checklist-sync`
-
-### Proof
-
-- `docs/proof/parent-desktop-runtime-package-plan/slice-01-checklist-snapshot.md`
-
-## Slice 02 � Tauri/Service Contracts
-
-### Acceptance
-
-- Local service invocation and token/header/origin checks are contract-defined.
-
-### Tests
-
-- `desktop.connection.authz`
-- `desktop.origin.header-security`
-
-### Proof
-
-- `docs/proof/parent-desktop-runtime-package-plan/slice-02-tauri-service.md`
-
-## Slice 03 � LAN Route and Update/Recovery
-
-### Acceptance
-
-- LAN controller path and rollback/restart behavior are proven.
-
-### Tests
-
-- `desktop.route.state.machine`
-- `desktop.update.rollback`
-
-### Proof
-
-- `docs/proof/parent-desktop-runtime-package-plan/slice-03-lan-recovery.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/parent-desktop-runtime-package-plan/workpacks/01-tauri-shell-contract-boundary.md
-- Slice 02: docs/plans/parent-desktop-runtime-package-plan/workpacks/02-local-service-connection-command.md
-- Slice 03: docs/plans/parent-desktop-runtime-package-plan/workpacks/03-lan-route-and-controller-state.md
-
-## PR-ready gate
-
-- No packaging/release check mark without launch artifact, smoke output, and origin/header proof logs.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: bootstrap/install contract checks
-- Integration: service smoke + runtime handoff
-- E2E: install/rollback/recover cycle
-- Security: origin/header policy and signing checks
-- Non-functional: startup latency and smoke reproducibility
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+- Select one workpack, then collect code, tests, validation, proof, and route sync for that workpack only.
+- Do not mix proof from sibling workpacks into the current proof folder.
+- Do not mark a workpack PR-ready until the selected slice has at least one negative test and one rollback or teardown proof.

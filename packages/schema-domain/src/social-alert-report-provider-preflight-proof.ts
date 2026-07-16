@@ -1,0 +1,19 @@
+/* thin adapter over Rust-owned generated social alert report provider preflight proof contracts */
+
+import * as Generated from './generated-social-alert-report-provider-preflight-proof';
+
+export const SocialAlertReportProviderPreflightStatus = Generated.SocialAlertReportProviderPreflightStatus;
+export const SocialAlertReportProviderPreflightStatusSchema = Generated.SocialAlertReportProviderPreflightStatusSchema;
+export const SocialAlertReportProviderPreflightNonClaimSchema =
+  Generated.SocialAlertReportProviderPreflightNonClaimSchema;
+export const SocialAlertReportProviderPreflightIdSchema = Generated.SocialAlertReportProviderPreflightIdSchema;
+export const SocialAlertReportProviderPreflightRowSchema = Generated.SocialAlertReportProviderPreflightRowSchema;
+export const SocialAlertReportProviderPreflightReadModelSchema =
+  Generated.SocialAlertReportProviderPreflightReadModelSchema;
+export type SocialAlertReportProviderPreflightStatus = Generated.SocialAlertReportProviderPreflightStatus;
+export type SocialAlertReportProviderPreflightRow = Generated.SocialAlertReportProviderPreflightRow;
+export type SocialAlertReportProviderPreflightReadModel = Generated.SocialAlertReportProviderPreflightReadModel;
+export type SocialAlertReportProviderPreflightOptions = Generated.SocialAlertReportProviderPreflightOptions;
+export const buildSocialAlertReportProviderPreflightReadModel =
+  Generated.buildSocialAlertReportProviderPreflightReadModel;
+export const summarizeSocialAlertReportProviderPreflight = Generated.summarizeSocialAlertReportProviderPreflight;

@@ -51,7 +51,11 @@ Proof root: `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack now has source reconciliation proof from
+`codex/tracking-plan-full-continuation-a` under the proof root below. The proof
+checks the current source inputs, source-index assertions, pasted-content audit,
+current snapshot, implementation checklist, and product-readiness closure
+blockers without claiming runtime/product-complete behavior.
 
 ## Where We Want To Be
 
@@ -78,9 +82,19 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [ ] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [ ] Touched files: source index, current snapshot, implementation checklist,
+      WP01/WP02 docs, source reconciliation proof script, generated WP01/WP02 proof
+      roots, and product-checklist delta queue.
+- [ ] Validation commands and results:
+      `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs` passed
+      after regenerating the product-readiness closure proof.
+- [ ] Proof artifacts under
+      `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/`.
+- [ ] Product doc/checklist updates: source index, current snapshot,
+      implementation checklist, and owning feature doc/checklist delta queue; the
+      shared capability checklist file was not edited by this lane.
+- [ ] Known gaps/manual-required states: physical-device, authority-enrolled,
+      provider delivery/receipt, full product UI, retention product runtime,
+      production workers, and product-ready tracking remain proof-gated.

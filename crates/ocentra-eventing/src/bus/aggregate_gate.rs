@@ -3,6 +3,7 @@ use std::sync::Arc;
 use tokio::sync::Semaphore;
 
 use crate::AggregateKey;
+use crate::ExpectValue;
 
 use super::EventBus;
 
@@ -11,7 +12,7 @@ impl EventBus {
         let mut gates = self
             .aggregate_gates
             .lock()
-            .expect("event aggregate gate map");
+            .expect_value("event aggregate gate map");
         Arc::clone(
             gates
                 .entry(aggregate_key.clone())
@@ -30,7 +31,7 @@ impl EventBus {
         let mut gates = self
             .aggregate_gates
             .lock()
-            .expect("event aggregate gate map");
+            .expect_value("event aggregate gate map");
         if gates
             .get(aggregate_key)
             .is_some_and(|current| Arc::ptr_eq(current, aggregate_gate))

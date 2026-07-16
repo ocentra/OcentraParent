@@ -1,8 +1,12 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
-    ActivityObservationMode, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind, ACTIVITY_SCHEMA_VERSION,
 };
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityObservationMode,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
 
@@ -14,6 +18,22 @@ pub fn foreground_window_observation_event(
     observation: ForegroundWindowObservation,
     observed_at: &str,
 ) -> ActivityEvent {
+    let ForegroundWindowObservation {
+        status,
+        pid,
+        app_name,
+        process_path,
+        title,
+        window_id,
+    } = observation;
+    let observation = ForegroundWindowObservation {
+        status,
+        pid,
+        app_name,
+        process_path,
+        title,
+        window_id,
+    };
     let mut fields = base_fields(&observation);
     insert_optional_number(&mut fields, constants::field::PID, observation.pid);
     insert_optional_text(

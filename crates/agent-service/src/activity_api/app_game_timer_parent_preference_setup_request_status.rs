@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, AppGameTimerParentPreferenceSetupRequestResult};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::AppGameTimerParentPreferenceSetupRequestResult;
 
 pub(crate) fn apply_persisted_setup_statuses(
     result: &mut AppGameTimerParentPreferenceSetupRequestResult,

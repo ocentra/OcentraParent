@@ -1,76 +1,143 @@
-﻿# Data Custody Storage Plan — HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `data-custody-storage-plan`
+> Doc: `Data Custody Storage Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: implementation completion or PR readiness.
 
-Turn custody promises into concrete schema, deletion, retention, export, and deletion-tombstone behavior.
+<!-- /agent-capsule -->
 
-## Slice 01 — Evidence Schema and Access Contract
+# Data Custody Storage Plan Execution Blueprint
 
-### Acceptance
+## Execution order
 
-- Evidence schema boundary and data authority are enforced with invalid input rejection.
+```text
+1. WP01 Custody Source Of Truth
+2. WP02 Encryption Key Custody
+3. WP03 Parent Owned Cloud Sync
+4. WP04 Retention Delete Tombstone
+5. WP05 Export Import Backup Recovery
+6. WP06 Report Query Custody
+7. WP08 Parent Storage Settings Apply Flow
+8. WP07 Rollout Proof And Route Gate
+```
 
-### Tests
+## Codex startup prompt
 
-- `data-custody.contract.schema-negative`
+```text
+You are working in OcentraParent on data-custody-storage-plan.
+Read only:
+- docs/plans/data-custody-storage-plan/AGENTS.md
+- docs/plans/data-custody-storage-plan/PLAN_STATE.md
+- docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md
+- docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md
+Then open exactly one assigned workpack.
+Do not read sibling plan folders unless the selected workpack names a handoff.
+Do not implement eventing internals while eventing-plan is active in another lane.
+Do not claim storage, sync, export, restore, report, or delete readiness without proof artifacts.
+```
 
-### Proof
+## Pre-edit note
 
-- `docs/proof/data-custody-storage-plan/slice-01-evidence-schema.md`
+Before editing source or docs, write:
 
-## Slice 02 — Retention and Deletion
+```text
+Assigned workpack:
+Implementation slice:
+Expected source/doc files:
+Expected tests/proof files:
+Proof root:
+Adjacent handoffs that are read-only:
+No-claim boundaries:
+```
 
-### Acceptance
+## Source ownership map
 
-- Deletion creates a `deleted` tombstone state with a bounded retention marker (`deleteExpiry`, `evidenceHash`, `policyVersion`) persisted for the configured retention window; delete requests older than window must fail with explicit expiration response while keeping the tombstone discoverable for proof audits.
+Likely owned paths:
 
-### Tests
+```text
+crates/storage-custody-core/**
+crates/ocentra-evidence/** when custody references are touched
+packages/production-domain/src/parent-owned-sync-export.ts
+packages/production-domain/tests/** selected parent-owned sync/export tests
+packages/portal-domain/src/** selected parent storage settings/read-model text
+apps/portal/src/** selected storage/settings surfaces only
+scripts/test/** selected proof harnesses only
+docs/plans/data-custody-storage-plan/**
+```
 
-- `data-custody.replay.idempotency-ordering`
-- `data-custody.retention-delete-tombstone`
+Read-only or handoff-only paths:
 
-### Proof
+```text
+docs/plans/eventing-plan/**
+docs/plans/account-identity-family-plan/**
+docs/plans/payment-subscription-plan/**
+docs/plans/remote-access-plan/**
+docs/plans/portal-ux-household-surfaces-plan/**
+docs/plans/setup-install-provisioning-plan/**
+docs/plans/device-trust-bootstrap-plan/**
+```
 
-- `docs/proof/data-custody-storage-plan/slice-02-retention-delete.md`
+## Focused command policy
 
-## Slice 03 — Export/Sync Integrity
+Use relevant commands only:
 
-### Acceptance
+```bash
+cargo test -p ocentra-parent-storage-custody-core
+cargo test -p ocentra-evidence
+npm run build --workspace @ocentra-parent/production-domain
+npm run test --workspace @ocentra-parent/production-domain -- custody
+npm run test --workspace @ocentra-parent/portal -- storage
+npm run lint:architecture -- --files crates/storage-custody-core crates/ocentra-evidence packages/production-domain apps/portal docs/plans/data-custody-storage-plan
+```
 
-- Export and sync produce checksummed payloads with ownership boundaries.
+If a command or test path does not exist, record the missing location and keep the row open.
 
-### Tests
+## Proof update rule
 
-- `data-custody.sync.integrity`
+Each completed row needs:
 
-### Proof
+```text
+exact command
+exit code
+proof file path
+test/proof id
+negative case status
+remaining gaps/no-claim boundary
+```
 
-- `docs/proof/data-custody-storage-plan/slice-03-export-sync.md`
+Proof roots are under:
 
-## Workpacks (execution lane)
+```text
+output/data-custody-storage-plan-proof/<workpack-id>/
+```
 
-### Slice-to-workpack binding
+Test result roots are under:
 
-- Slice 01: docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md
-- Slice 02: docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md
-- Slice 03: docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md
+```text
+test-results/data-custody-storage-plan-<workpack-id>/
+```
 
-## PR-ready gate
+## DONE / PR_READY criteria
 
-- No storage claim without retention/delete evidence and negative-case replay path.
+DONE for one workpack requires:
 
-## HID test floor (this plan)
+```text
+source/docs/tests updated
+focused commands run or blocker recorded
+negative cases covered or explicitly open
+proof artifacts written
+CHECKLIST_INDEX.md rows updated
+selected workpack Fill-before-DONE section updated
+PLAN_STATE.md open gaps updated if state changed
+```
 
-### Required test families for closed slice
+PR_READY for the whole plan requires WP07 route gate proof and all earlier workpack proof roots.
 
-- Unit: schema validation and ownership models
-- Integration: retention/delete and export sync flows
-- E2E: restore/rebuild and ownership handoff
-- Security: corruption/replay detection and deletion tamper checks
-- Non-functional: checksum and cleanup timing
+## Global no-touch rule
 
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+Do not edit active policy/eventing work from this plan unless the user explicitly assigns that route-sync after active lanes finish.

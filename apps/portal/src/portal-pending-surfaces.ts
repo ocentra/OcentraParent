@@ -1,12 +1,9 @@
-import {
-  PortalDetails,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  decodePortalDetailValue,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { decodeParentPortalDetailValue } from '../generated/parent-ui-bridge';
 import { appendDetail } from './detail-list';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 
 export function renderPendingPanel(container: HTMLElement, titleText: PortalDisplayText): void {
   const panel = document.createElement(PortalDom.Tags.Section);
@@ -19,17 +16,17 @@ export function renderPendingPanel(container: HTMLElement, titleText: PortalDisp
   appendDetail(
     metadata,
     PortalDetails.Status,
-    decodePortalDetailValue(PortalText.Resolve(PortalTextToken.PendingTypedIntent))
+    decodeParentPortalDetailValue(resolvePortalDevText(PortalDevTextToken.PendingTypedIntent))
   );
   appendDetail(
     metadata,
     PortalDetails.Capability,
-    decodePortalDetailValue(PortalText.Resolve(PortalTextToken.PendingServiceReadModel))
+    decodeParentPortalDetailValue(resolvePortalDevText(PortalDevTextToken.PendingServiceReadModel))
   );
 
   const note = document.createElement(PortalDom.Tags.Paragraph);
   note.className = PortalDom.Classes.ProductPanelNote;
-  note.textContent = PortalText.Resolve(PortalTextToken.ProductSurfacePending);
+  note.textContent = resolvePortalDevText(PortalDevTextToken.ProductSurfacePending);
 
   panel.append(title, metadata, note);
   container.append(panel);

@@ -1,26 +1,24 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventBus, EventContract, EventContractRegistry,
-    EventResponseContract, EventSubscriber, EventTopologyManifest, EventTopologyPublisher,
-    EventTopologySubscriber, EventType, EventingError, IdempotencyKey, RequestEvent, RequestId,
-    RequestOptions, SchemaVersion, SourceComponent, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, contract_registry::EventContractRegistry,
+    envelope::DomainEvent, envelope::EventContract, error::EventingError, ids::AggregateKey,
+    ids::EventType, ids::IdempotencyKey, ids::RequestId, ids::SchemaVersion, ids::SourceComponent,
+    ids::SubscriberId, ids::TargetHandler, request::RequestEvent, request::RequestOptions,
+    topology::EventTopologyManifest, topology::EventTopologyPublisher,
+    topology::EventTopologySubscriber,
 };
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimePhase, BrowserRuntimeReport,
+use super::{
+    browser_aggregate_key, browser_event_metadata, BrowserRuntimeEventPayload, BrowserRuntimeInput,
+    BrowserRuntimeReport,
 };
 
-use super::{browser_aggregate_key, browser_event_metadata};
-
-#[derive(Clone, Debug)]
-pub struct BrowserRuntimeActionIntentHandoffReport {
-    pub request_report: ocentra_eventing::RequestReport<BrowserRuntimeActionIntentHandoffResponse>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
-}
+pub type BrowserRuntimeActionIntentHandoffReport =
+    ocentra_parent_agent_protocol::browser::action_handoff::BrowserRuntimeActionIntentHandoffReport;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 struct BrowserRuntimeActionIntentHandoffRequest {
@@ -56,51 +54,33 @@ impl RequestEvent for BrowserRuntimeActionIntentHandoffRequest {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct BrowserRuntimeActionIntentHandoffResponse {
-    pub candidate_count: usize,
-    pub policy_preview_id: Option<String>,
-    pub action_intent_id: Option<String>,
-    pub source_event_ref: Option<String>,
-    pub outbox_ref: Option<String>,
-    pub handoff_ref: Option<String>,
-    pub source_ref: String,
-    pub evidence_ref: String,
-    pub dry_run_only: bool,
-    pub policy_authority_only: bool,
-    pub dispatch_attempt_count: u8,
-    pub adapter_execution_count: u8,
-    pub browser_mutation_count: u8,
-    pub child_intervention_execution_count: u8,
-    pub enforcement_execution_count: u8,
-}
+pub type BrowserRuntimeActionIntentHandoffResponse =
+    ocentra_parent_agent_protocol::browser::action_handoff::BrowserRuntimeActionIntentHandoffResponse;
 
-impl BrowserRuntimeActionIntentHandoffResponse {
-    fn from_payload(payload: &BrowserRuntimeEventPayload) -> Self {
-        let candidate = candidate_refs_from_payload(payload);
-        Self {
-            candidate_count: usize::from(candidate.is_some()),
-            policy_preview_id: candidate
-                .as_ref()
-                .map(|refs| refs.policy_preview_id.clone()),
-            action_intent_id: candidate.as_ref().map(|refs| refs.action_intent_id.clone()),
-            source_event_ref: candidate.as_ref().map(|refs| refs.source_event_ref.clone()),
-            outbox_ref: candidate.as_ref().map(|refs| refs.outbox_ref.clone()),
-            handoff_ref: candidate.as_ref().map(|refs| refs.handoff_ref.clone()),
-            source_ref: payload.source_ref.clone(),
-            evidence_ref: payload.evidence_ref.clone(),
-            dry_run_only: true,
-            policy_authority_only: true,
-            dispatch_attempt_count: 0,
-            adapter_execution_count: 0,
-            browser_mutation_count: 0,
-            child_intervention_execution_count: 0,
-            enforcement_execution_count: 0,
-        }
+fn action_intent_handoff_response_from_payload(
+    payload: &BrowserRuntimeEventPayload,
+) -> BrowserRuntimeActionIntentHandoffResponse {
+    let candidate = candidate_refs_from_payload(payload);
+    BrowserRuntimeActionIntentHandoffResponse {
+        candidate_count: usize::from(candidate.is_some()),
+        policy_preview_id: candidate
+            .as_ref()
+            .map(|refs| refs.policy_preview_id.clone()),
+        action_intent_id: candidate.as_ref().map(|refs| refs.action_intent_id.clone()),
+        source_event_ref: candidate.as_ref().map(|refs| refs.source_event_ref.clone()),
+        outbox_ref: candidate.as_ref().map(|refs| refs.outbox_ref.clone()),
+        handoff_ref: candidate.as_ref().map(|refs| refs.handoff_ref.clone()),
+        source_ref: payload.source_ref.clone(),
+        evidence_ref: payload.evidence_ref.clone(),
+        dry_run_only: true,
+        policy_authority_only: true,
+        dispatch_attempt_count: 0,
+        adapter_execution_count: 0,
+        browser_mutation_count: 0,
+        child_intervention_execution_count: 0,
+        enforcement_execution_count: 0,
     }
 }
-
-impl EventResponseContract for BrowserRuntimeActionIntentHandoffResponse {}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct ActionIntentHandoffRefs {
@@ -145,7 +125,7 @@ pub async fn request_browser_runtime_action_intent_handoff_for_input(
         ),
         |context| async move {
             context
-                .complete_request(BrowserRuntimeActionIntentHandoffResponse::from_payload(
+                .complete_request(action_intent_handoff_response_from_payload(
                     &context.payload().payload,
                 ))
                 .await?;
@@ -155,7 +135,7 @@ pub async fn request_browser_runtime_action_intent_handoff_for_input(
     .await?;
 
     let phase = BrowserRuntimePhase::PolicyDecisionCompleted;
-    let payload = BrowserRuntimeEventPayload::from_input(phase, &input);
+    let payload = super::browser_runtime_event_payload_from_input(phase, &input);
     let request = BrowserRuntimeActionIntentHandoffRequest {
         request_id: RequestId::parse(action_intent_handoff_request_id(&payload))?,
         payload,
@@ -184,7 +164,7 @@ pub async fn request_browser_runtime_action_intent_handoff_for_input(
 
 pub fn browser_runtime_action_intent_handoff_topology_manifest(
 ) -> Result<EventTopologyManifest, EventingError> {
-    let payload = BrowserRuntimeEventPayload::from_input(
+    let payload = super::browser_runtime_event_payload_from_input(
         BrowserRuntimePhase::PolicyDecisionCompleted,
         &BrowserRuntimeInput::dry_run_action_handoff_fixture(),
     );
@@ -221,7 +201,7 @@ pub fn browser_runtime_action_intent_handoff_topology_manifest(
 }
 
 fn candidate_refs(
-    event: &ocentra_eventing::StoredEventEnvelope,
+    event: &ocentra_eventing::envelope::StoredEventEnvelope,
 ) -> Option<ActionIntentHandoffRefs> {
     let decoded = event.decode::<BrowserRuntimeEventPayload>().ok()?;
     candidate_refs_from_payload(&decoded.payload)

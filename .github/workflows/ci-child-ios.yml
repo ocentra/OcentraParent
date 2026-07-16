@@ -34,4 +34,4 @@ jobs:
         run: npm run build:contracts
 
       - name: iOS entitlement capability contracts
-        run: npm run test --workspace @ocentra-parent/parent-domain -- tests/child-ios-entitlement-capability-proof.test.ts
+        run: npm run test:child-ios-entitlement-capability-proof

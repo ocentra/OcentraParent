@@ -1,135 +1,138 @@
-# 04 Portal UX And First-Run Handoff
+# 24 Portal UX And First-Run Handoff
 
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `lan-plan`
-> Doc: `04 Portal UX And First-Run Handoff`
-> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
-> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
-> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+> Doc: `24 Portal UX And First-Run Handoff`
+> Kind: assigned active workpack; read only when this exact workpack is selected.
+> Read when: Only when this exact workpack is explicitly selected from `WORKPACK_INDEX.md`.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack's own proof rows and tests support the claim.
+> Proves: only this workpack's current presentation/handoff boundary and progress explicitly recorded here.
+> Does not prove: current completion of sibling workpacks or broad LAN readiness.
+> Proof rule: Rewrite or discard any stale historical assumptions before using this file for execution claims.
 
 <!-- /agent-capsule -->
 
-Sources: [folder README](../README.md), [feature doc](../../features/family-setup-device-roles.md),
-[family setup expectations](../../expectations/family-setup.md).
-Assumes WP01 contracts, WP02 SQLite tables, WP03 command handlers all exist.
+Sources: [folder README](../README.md), [feature doc](../../../features/family-setup-device-roles.md),
+[family setup expectations](../../../expectations/family-setup.md).
+Assumes earlier Rust-owned LAN contract, runtime, and route-proof workpacks
+already expose the states and typed commands this UI slice may consume.
+
+## Active scope status
+
+This workpack is part of the authoritative `01-25` LAN execution model. It is
+locally complete for the current presentation/handoff slice.
+
+Historical portal-owned implementation recipes, TS-owned command assumptions,
+and exact UI file-tree prescriptions from older copies of this draft are stale.
+Current direction for this workpack is:
+
+- Rust owns all LAN logic, contracts, runtime behavior, read models, and proof.
+- TS is pure UI/presentation only.
+- Any UI route, panel, wizard, or badge must consume Rust-backed host-bridge
+  state and typed commands only through Rust-owned host-bridge interfaces.
+- UI wording, screenshots, and browser tests do not become LAN truth or proof
+  authority.
 
 ## Where We Are
 
-The parent portal's Devices/LAN surface has command-backed add, route-select,
-rename, trust, ignore, restore, and revoke controls wired to the existing V0.9
-LAN spine read model (`output/playwright/lan-source-matrix-plan-completion/`).
-These controls expose raw LAN slot fields (IP, MAC, source kind) that are
-service-backed but require technical knowledge to interpret.
+The product already has Rust-backed LAN state for source labels, route
+readiness, trust state, signed-discovery status, stale/offline status, and
+parent decision fields. This locally complete slice records the parent-facing
+presentation and handoff layer that turns those Rust-backed states into
+understandable, nontechnical UX.
 
-What is **missing**:
+The current completed work in this slice is about presentation honesty, not TS
+ownership:
 
-- A first-run wizard that lets a nontechnical parent create a household, name
-  children, and pair a child device **without seeing raw protocol fields**.
-- Add-device UX that issues typed commands (`AssignDevice`, `RenameDevice`,
-  `TrustDevice`) rather than raw LAN slot IDs.
-- Recovery UX: no portal flow triggers `StartRecovery` or `ConfirmPairing`.
-- Source-label UX: `local`, `lan`, `relay`, `cache`, `unavailable` labels exist in
-  the read model but are not rendered as distinct, explained UI states in the
-  portal. "Relay unavailable" and "cache" are shown but not explained.
-- Portal tests for full setup, recovery, and degraded first-run states (feature
-  doc checklist row still open).
-- `ObserverPermission` role is not displayed or editable in the portal.
+- showing first-run or recovery state without inventing business rules;
+- rendering route/source/trust state in plain language while preserving
+  unknown/manual-required/degraded truth;
+- keeping observer/read-only and protection-readiness boundaries explicit; and
+- carrying manual-required or deferred flows honestly when the Rust layer does
+  not yet prove them.
 
 ## Where We Want To Be
 
-A nontechnical parent opens the portal, sees a "Set up your household" prompt,
-names their household, adds a child profile by name, taps "Add device", and
-pairs it — all through typed commands that the portal issues to the service.
-The same parent can later see device source labels explained in plain language,
-initiate recovery if a device goes stale, and understand what "protected" vs
-"unprotected" means before enabling enforcement.
+A parent-facing surface should eventually be able to consume the Rust-owned LAN
+read model and typed command set so that:
+
+1. first-run and add-device flows explain what the parent can do next without
+   exposing raw LAN internals as product authority;
+2. recovery and degraded states stay visible and understandable;
+3. route/source/trust labels are presented in plain language derived from
+   Rust-backed state only; and
+4. the UI never upgrades a presentation hint into a claim that a device is
+   protected, paired, reachable, or ready unless the Rust-owned runtime state
+   already says so.
+
+## Presentation boundary
+
+- Rust shared schema/protocol/runtime/read-model crates remain the sole owners
+  of LAN command semantics, route labels, trust labels, stale/offline state,
+  recovery state, and proof truth.
+- TS presentation surfaces may collect parent intent, render Rust-backed state,
+  and dispatch typed bridge commands through existing host-bridge contracts.
+- TS must not define LAN contracts, invent fallback route logic, infer recovery
+  state, or normalize weak hints into business truth.
+- Screenshots, browser checks, or visual fixtures are supporting presentation
+  artifacts only. They do not close LAN proof by themselves.
 
 ## Scope
 
-### First-Run Wizard
-
-New portal route: `/setup` (or modal if no household exists on first load).
-Steps:
-
-1. Create household — POST `agent.household.create` command with `displayName`.
-   Maps to `HouseholdProfile` from WP01; service stores it (WP02 table).
-2. Add child profile — POST `agent.child-profile.create` command with `displayName`.
-3. Add device — opens existing Devices/LAN surface, but wraps it in a context that
-   issues `AssignDevice` using the `childId` from step 2.
-4. Summary: show household read model response with device `routeState` label and
-   explain each label in plain language.
-
-Touched portal files:
-
-- `packages/portal/src/routes/setup/` (new directory)
-- `packages/portal/src/routes/setup/SetupWizard.tsx` (or `.svelte`)
-- `packages/portal/src/routes/setup/CreateHousehold.tsx`
-- `packages/portal/src/routes/setup/AddChildProfile.tsx`
-- `packages/portal/src/routes/setup/AddDevice.tsx`
-- `packages/portal/src/routes/setup/SetupSummary.tsx`
-
-### Recovery UX
-
-New recovery panel in existing Devices/LAN route:
-
-- Button: "Recover device" — visible when `DeviceRegistration.trustState = "stale" | "revoked"`.
-- On confirm: POST `agent.household.start-recovery` command; poll for `RecoveryState` in read model.
-- On fresh pairing: POST `agent.household.confirm-pairing`; clear `RecoveryState` from UI.
-- Touched portal files:
-  - `packages/portal/src/components/DeviceRecoveryPanel.tsx` (new)
-  - `packages/portal/src/routes/devices/DevicesLan.tsx` (add recovery panel)
-
-### Source-Label Explanation
-
-In `packages/portal/src/components/DeviceRouteLabel.tsx` (new): render
-`routeState` as a badge with a tooltip explaining each label:
-
-- `local` → "This device is on this machine (loopback)."
-- `lan` → "Connected over your local network."
-- `relay` → "Connected through an Ocentra relay."
-- `cache` → "Showing cached data; device may be offline."
-- `unavailable` → "Device is not reachable. Recovery may be needed."
-
-## Touched Paths
-
-- `packages/portal/src/routes/setup/` (new — all setup wizard files)
-- `packages/portal/src/components/DeviceRecoveryPanel.tsx` (new)
-- `packages/portal/src/components/DeviceRouteLabel.tsx` (new)
-- `packages/portal/src/routes/devices/DevicesLan.tsx` (add recovery panel import)
-- `packages/portal/tests/family-setup.playwright.ts` (new — Playwright tests)
+- Define the presentation-only handoff expectations for first-run, recovery,
+  route/source explanation, observer/read-only state, and degraded/manual
+  states.
+- Keep this slice limited to UI/presentation behavior that consumes Rust-owned
+  state and typed commands.
+- Do not prescribe portal filesystem layouts, route names, component names, or
+  code recipes.
+- Do not let future UI flow work recreate TS business ownership; broader
+  first-run/platform proof stays in its owning workpack.
 
 ## Tests And Proof
 
-- [ ] Playwright test: full setup wizard flow — create household, add child, add device; assert service-backed read model appears in `/setup` summary.
-- [ ] Playwright test: recovery flow — stale device, click "Recover", confirm pairing; assert `routeState` changes to `local` or `lan` after re-pair.
-- [ ] Playwright test: degraded first-run — service offline; wizard step 1 shows error state, does not claim device is protected.
-- [ ] Playwright test: source-label tooltip renders for `relay`, `cache`, `unavailable` states using fixture read model responses.
-- [ ] Playwright test: observer-role parent sees read-only controls; no assign/rename/revoke buttons visible.
-- [ ] UI snapshot proof: screenshots saved to `output/lan-plan-proof/04-portal-ux-and-first-run-handoff/06-ui-snapshots/`.
-- [ ] No raw LAN slot field (IP, MAC, source kind enum value) exposed directly as copy in the first-run wizard. Portal must translate service fields to user-legible labels.
+- Rust-owned LAN contract/runtime/read-model proof for the consumed states and
+  commands must already exist before this workpack can claim presentation
+  closure.
+- Any UI checks must live in real dedicated UI test folders/groups and prove
+  presentation behavior only.
+- Required presentation coverage should include: first-run empty/degraded
+  states; stale/offline/revoked/manual-required rendering; route/source/trust
+  explanation copy; and observer/read-only command visibility boundaries.
+- UI tests must not become substitutes for Rust-owned logic, contract, runtime,
+  read-model, or proof coverage.
+- Inline source-owned tests, placeholder directories, `.gitkeep` trees, fake
+  coverage, mock-only readiness, and screenshot-only closure do not count.
+- Supporting presentation artifacts may be attached only under a current proof
+  root and must carry explicit no-claim notes when the underlying Rust proof is
+  still open.
+- Proof artifact: `output/lan-plan-proof/24-portal-ux-and-first-run-handoff/`
+- Current proof: `output/lan-plan-proof/24-portal-ux-and-first-run-handoff/01-local-validation.md`
+- Current validation covered focused portal unit tests, portal build, and the
+  exact Windows `setup-first-run-ui-proof` Playwright command. This is
+  presentation support only and does not become LAN truth.
 
 ## AI Worker Checklist
 
-Fill this before reporting `DONE` or PR-ready:
-
-- [ ] Confirm source docs read: [folder README](../README.md), [feature doc](../../features/family-setup-device-roles.md), [family setup expectations](../../expectations/family-setup.md), [current PLAN_STATE](../PLAN_STATE.md), and this workpack.
-- [ ] Confirmed WP01–03 (contracts, tables, command handlers) exist before building portal routes.
-- [ ] Check enhancement overlap: `portal-ux-household-surfaces-plan` — coordinate to avoid duplicate household surface implementations.
-- [ ] Hub lock covers this workpack and exact implementation/docs paths.
-- [ ] Setup wizard issues typed commands (`agent.household.create`, `agent.child-profile.create`, `AssignDevice`) not raw LAN slot mutations.
-- [ ] Recovery panel triggers `agent.household.start-recovery` and `agent.household.confirm-pairing` commands only.
-- [ ] No portal surface invents a "device is protected" claim before service-backed capability status confirms it.
-- [ ] Playwright tests: setup wizard, recovery, degraded, source-label, observer-role all written and passing.
-- [ ] UI snapshots captured to proof folder.
-- [ ] [main checklist](../implementation-checklist.md) rows 04 updated.
-- [ ] Known gaps (co-parent invite email delivery, push notification) recorded as open/deferred.
+- [x] Confirm WP24 is the assigned active workpack.
+- [x] Rewrite any stale TS-owned portal/business wording still present in this
+      file before code moves.
+- [x] Confirm the consumed commands and read-model states are already Rust-owned
+      before UI work starts.
+- [x] Keep TS pure presentation only; no TS-owned LAN command semantics,
+      contracts, runtime state, or proof truth.
+- [x] No presentation copy upgrades a device into paired, protected, reachable,
+      or controllable state before the Rust-owned runtime says so.
+- [x] All claimed UI tests live in real dedicated UI test folders/groups; no
+      inline source-owned, placeholder, `.gitkeep`, fake, or mock-only test
+      surfaces count.
+- [x] Manual-required and deferred states remain explicit in both proof and copy.
 
 ## Manual-Required Gaps
 
-First-run QR-code-based pairing (scanning a QR code on the child device to pair) is an OS-level camera/permission flow and must be tested manually if implemented. Record as manual-required.
-Co-parent `SetupInvite` delivery via email or SMS relies on external send services and is out of scope; record as deferred.
+Camera, OS permission, QR, push-delivery, or other platform-specific first-run
+flows remain separate manual-required or deferred proof unless a later artifact
+set proves them. UI polish or screenshot completeness alone must not upgrade
+those rows into LAN readiness.

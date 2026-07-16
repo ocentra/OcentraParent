@@ -34,3 +34,30 @@ Failure conditions:
 - Do not accept stringly typed event families or IDs.
 - Do not hide mutation behind serde/json escape hatches.
 - Do not use TypeScript fixtures as proof of Rust runtime behavior without Rust validation.
+
+Expected proof artifacts:
+
+- `output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json`
+- `output/eventing-plan-proof/66-76-source-safety/proof-summary.json`
+- `output/eventing-plan-proof/67-lock-await/proof-summary.json`
+- `output/eventing-plan-proof/68-fixture-parity/proof-summary.json`
+
+Current local completion evidence from the 2026-06-17 regeneration and follow-up validation pass:
+
+- The scoped Rust proof roots now regenerate successfully at:
+  - `output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json`
+  - `output/eventing-plan-proof/66-76-source-safety/proof-summary.json`
+  - `output/eventing-plan-proof/67-lock-await/proof-summary.json`
+  - `output/eventing-plan-proof/68-fixture-parity/proof-summary.json`
+- Package-wide TypeScript validation now passes again:
+  `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`.
+- Focused downstream validation for the hardened package surface now also
+  passes:
+  `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- policy-control-audit-redaction.test.ts policy-control-delivery-read-model.test.ts contracts.test.ts`.
+- The touched-file architecture gate now passes for
+  `src/contracts.ts`, `src/policy-control-audit-redaction.ts`, and
+  `src/policy-control-delivery-read-model.ts`.
+
+These proof-summary paths now exist in this checkout, and WP11 is locally
+proved in truth for this worktree. The broader plan still remains open because
+WP10 household-mesh consumer proof is not yet restored.

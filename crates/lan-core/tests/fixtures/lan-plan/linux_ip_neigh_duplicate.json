@@ -1,0 +1,14 @@
+[
+  {
+    "dst": "fe80::abcd",
+    "lladdr": "00:11:22:33:44:88",
+    "state": ["REACHABLE"],
+    "dev": "eth0"
+  },
+  {
+    "dst": "192.168.2.80",
+    "lladdr": "00:11:22:33:44:88",
+    "state": ["STALE"],
+    "dev": "eth0"
+  }
+]

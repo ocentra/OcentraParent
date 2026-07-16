@@ -1,0 +1,16 @@
+[
+  {
+    "IPAddress": "192.168.2.1",
+    "LinkLayerAddress": "00-11-22-33-44-55",
+    "State": "reachable",
+    "InterfaceAlias": "Ethernet",
+    "Hostname": "router.local"
+  },
+  {
+    "IPAddress": "192.168.2.45",
+    "LinkLayerAddress": "a4-5e-60-11-22-33",
+    "State": "reachable",
+    "InterfaceAlias": "Ethernet",
+    "Hostname": "iphone.local"
+  }
+]

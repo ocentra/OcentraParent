@@ -1,53 +1,64 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LanPairingRejectionReason,
-    LanParentIntentEnvelope, LogFieldValue, LogFields, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingAuditEventType;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
+use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event,
     fields::fields_from_pairs,
     lan_pairing::{
-        lan_ai_job::lan_ai_provider_fields, lan_ai_route_metadata::lan_ai_household_route_fields,
-        LanPairingRuntime,
+        extend_log_fields, lan_ai_job_flow::fields::lan_ai_provider_fields,
+        lan_ai_route_metadata::lan_ai_household_route_fields, LanPairingRuntime,
     },
     lan_pairing_audit::controller_lease_audit_fields,
-    lan_pairing_runtime_state::LanAiJobLeaseState,
+    lan_pairing_runtime_state::job_leases::LanAiJobLeaseState,
 };
 
 pub(crate) fn lan_ai_job_completed_event(
     runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
-    origin: Option<&str>,
-    requested_capability: &str,
+    origin: &LanPairingOptionalText,
+    requested_capability: &LanPairingText,
     lease: &LanAiJobLeaseState,
 ) -> AgentEventEnvelope {
     let mut payload = controller_lease_audit_fields(
         &command,
         intent,
         origin,
-        constants::value::LAN_AUDIT_LAN_AI_JOB_COMPLETED,
+        LanPairingAuditEventType::LanAiJobCompleted,
         None,
     );
-    payload.extend(lan_ai_provider_fields(runtime));
+    extend_log_fields(&mut payload, lan_ai_provider_fields(runtime));
     payload.insert(
         constants::field::LOCAL_AI_CAPABILITY_FLAGS.to_string(),
-        LogFieldValue::String(requested_capability.to_string()),
+        LogFieldValue::String(requested_capability.0.clone()),
     );
-    payload.extend(lan_ai_household_route_fields(
-        runtime,
-        &command,
-        intent,
-        requested_capability,
-    ));
-    payload.extend(lan_ai_job_lease_fields(lease));
-    payload.extend(lan_ai_job_result_fields(
-        &command,
-        intent,
-        constants::value::LAN_AI_JOB_STATE_COMPLETED,
-        constants::local_ai_runtime::GENERATION_STATE_COMPLETE,
-        Some(constants::value::LAN_AI_PROVIDER_RESULT_REDACTED),
-    ));
+    extend_log_fields(
+        &mut payload,
+        lan_ai_household_route_fields(runtime, &command, intent, requested_capability),
+    );
+    extend_log_fields(&mut payload, lan_ai_job_lease_fields(lease));
+    extend_log_fields(
+        &mut payload,
+        lan_ai_job_result_fields(
+            &command,
+            intent,
+            LanPairingText(constants::value::LAN_AI_JOB_STATE_COMPLETED.to_string()),
+            LanPairingText(constants::local_ai_runtime::GENERATION_STATE_COMPLETE.to_string()),
+            Some(LanPairingText(
+                constants::value::LAN_AI_PROVIDER_RESULT_REDACTED.to_string(),
+            )),
+        ),
+    );
     build_lan_ai_job_event(command, LogLevel::Info, payload)
 }
 
@@ -55,25 +66,28 @@ pub(crate) fn lan_ai_job_duplicate_rejected_event(
     runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
-    origin: Option<&str>,
+    origin: &LanPairingOptionalText,
     lease: &LanAiJobLeaseState,
 ) -> AgentEventEnvelope {
     let mut payload = controller_lease_audit_fields(
         &command,
         intent,
         origin,
-        constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
+        LanPairingAuditEventType::LanAiJobRejected,
         Some(&LanPairingRejectionReason::LanAiJobUnauthorized),
     );
-    payload.extend(lan_ai_provider_fields(runtime));
-    payload.extend(lan_ai_job_lease_fields(lease));
-    payload.extend(lan_ai_job_result_fields(
-        &command,
-        intent,
-        constants::value::LAN_AI_JOB_STATE_REJECTED,
-        constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE,
-        None,
-    ));
+    extend_log_fields(&mut payload, lan_ai_provider_fields(runtime));
+    extend_log_fields(&mut payload, lan_ai_job_lease_fields(lease));
+    extend_log_fields(
+        &mut payload,
+        lan_ai_job_result_fields(
+            &command,
+            intent,
+            LanPairingText(constants::value::LAN_AI_JOB_STATE_REJECTED.to_string()),
+            LanPairingText(constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE.to_string()),
+            None,
+        ),
+    );
     build_event(
         constants::event_id::COMMAND_REJECTED,
         &command.message_id,
@@ -89,39 +103,42 @@ pub(crate) fn lan_ai_job_lease_state_event(
     runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
-    origin: Option<&str>,
+    origin: &LanPairingOptionalText,
     lease: &LanAiJobLeaseState,
 ) -> AgentEventEnvelope {
     let mut payload = controller_lease_audit_fields(
         &command,
         intent,
         origin,
-        constants::value::LAN_AUDIT_LAN_AI_JOB_DEGRADED,
+        LanPairingAuditEventType::LanAiJobDegraded,
         None,
     );
-    payload.extend(lan_ai_provider_fields(runtime));
-    payload.extend(lan_ai_job_lease_fields(lease));
-    payload.extend(lan_ai_job_result_fields(
-        &command,
-        intent,
-        constants::value::LAN_AI_JOB_STATE_DEGRADED,
-        constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE,
-        None,
-    ));
+    extend_log_fields(&mut payload, lan_ai_provider_fields(runtime));
+    extend_log_fields(&mut payload, lan_ai_job_lease_fields(lease));
+    extend_log_fields(
+        &mut payload,
+        lan_ai_job_result_fields(
+            &command,
+            intent,
+            LanPairingText(constants::value::LAN_AI_JOB_STATE_DEGRADED.to_string()),
+            LanPairingText(constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE.to_string()),
+            None,
+        ),
+    );
     build_lan_ai_job_event(command, LogLevel::Warn, payload)
 }
 
 fn lan_ai_job_result_fields(
     command: &AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
-    job_state: &'static str,
-    generation_state: &'static str,
-    output_text: Option<&'static str>,
+    job_state: LanPairingText,
+    generation_state: LanPairingText,
+    output_text: Option<LanPairingText>,
 ) -> LogFields {
     let mut fields = fields_from_pairs(vec![
         (
             constants::field::LAN_AI_JOB_ID,
-            LogFieldValue::String(lan_ai_job_id(command, intent)),
+            LogFieldValue::String(lan_ai_job_id(command, intent).0),
         ),
         (
             constants::field::LAN_AI_JOB_STATUS,
@@ -129,21 +146,21 @@ fn lan_ai_job_result_fields(
         ),
         (
             constants::field::LAN_AI_JOB_STATE,
-            LogFieldValue::String(job_state.to_string()),
+            LogFieldValue::String(job_state.0),
         ),
         (
             constants::field::LOCAL_AI_RESULT_ID,
-            LogFieldValue::String(local_ai_result_id(intent)),
+            LogFieldValue::String(local_ai_result_id(intent).0),
         ),
         (
             constants::field::LOCAL_AI_GENERATION_STATE,
-            LogFieldValue::String(generation_state.to_string()),
+            LogFieldValue::String(generation_state.0),
         ),
     ]);
     if let Some(output_text) = output_text {
         fields.insert(
             constants::field::LOCAL_AI_OUTPUT_TEXT.to_string(),
-            LogFieldValue::String(output_text.to_string()),
+            LogFieldValue::String(output_text.0),
         );
     }
     fields
@@ -193,20 +210,32 @@ fn build_lan_ai_job_event(
     )
 }
 
-fn lan_ai_job_id(command: &AgentCommandEnvelope, intent: &LanParentIntentEnvelope) -> String {
-    command
-        .payload
-        .get(constants::field::LAN_AI_JOB_ID)
-        .and_then(|value| match value {
-            LogFieldValue::String(value) if !value.is_empty() => Some(value.as_str()),
-            _ => None,
-        })
-        .unwrap_or(intent.intent_id.as_str())
-        .to_string()
+enum LanAiJobField {
+    JobId,
 }
 
-fn local_ai_result_id(intent: &LanParentIntentEnvelope) -> String {
+fn lan_ai_job_id(
+    command: &AgentCommandEnvelope,
+    intent: &LanParentIntentEnvelope,
+) -> LanPairingText {
+    payload_string(&command.payload, &LanAiJobField::JobId)
+        .unwrap_or_else(|| intent.intent_id.as_str().into())
+}
+
+fn local_ai_result_id(intent: &LanParentIntentEnvelope) -> LanPairingText {
     let mut result_id = String::from(constants::local_ai_runtime::RESULT_ID_PREFIX);
     result_id.push_str(&intent.intent_id);
-    result_id
+    result_id.into()
+}
+
+fn payload_string(fields: &LogFields, field_name: &LanAiJobField) -> Option<LanPairingText> {
+    let field_name = match field_name {
+        LanAiJobField::JobId => constants::field::LAN_AI_JOB_ID,
+    };
+    fields.get(field_name).and_then(|value| match value {
+        LogFieldValue::String(value) if !value.is_empty() => {
+            Some(LanPairingText(value.as_str().to_owned()))
+        }
+        _ => None,
+    })
 }

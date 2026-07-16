@@ -1,95 +1,135 @@
-# AI Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `ai-plan`
+> Doc: `AI Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: implementation completion, model readiness, privacy readiness, or PR readiness.
 
-Force AI runtime to stay evidence-only, schema-safe, and authority-neutral with deterministic fallback behavior.
+<!-- /agent-capsule -->
 
-## Slice 01 � Contract and Parser Boundaries
+# AI Plan Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- AI request/result contracts are schema-valid and cross-language parity is proved.
+This plan is large. Do not try to execute it top-to-bottom.
 
-### Tests
+Use this loop:
 
-- `ai.contract.schema-negative-decode`
-- `ai.output.invariant-regression`
+```text
+AGENTS.md
+  -> PLAN_STATE.md
+  -> NEXT_ACTIONS.md
+  -> WORKPACK_INDEX.md
+  -> exactly one selected workpack
+  -> TEST_PROOF_EXPECTATIONS.md
+  -> PROOF_INDEX.md
+```
 
-### Proof
+## Proof-root rule
 
-- `docs/proof/ai-plan/slice-01-contract-schema.md`
+For any selected workpack, derive the proof root from the workpack filename:
 
-## Slice 02 � Provider and Runtime Routing
+```text
+output/ai-plan-proof/<workpack-file-stem>/
+```
 
-### Acceptance
+Example:
 
-- Provider routing is deterministic and retry/dead-letter/replay-safe.
+```text
+workpacks/07-ai-job-queue-contract.md
+output/ai-plan-proof/07-ai-job-queue-contract/
+```
 
-### Tests
+## Pre-edit note
 
-- `ai.runtime.idempotency`
-- `ai.rate-limit` and `ai.retry-storm`
+Before editing source or docs, write:
 
-### Proof
+```text
+Assigned workpack:
+Implementation slice:
+Expected source/doc files:
+Expected tests/proof files:
+Proof root:
+Adjacent handoffs that are read-only:
+No-claim boundaries:
+```
 
-- `docs/proof/ai-plan/slice-02-provider-routing.md`
+## High-risk AI boundaries
 
-## Slice 03 � Safety and Prompt Boundary
+Do not claim readiness without proof for the selected slice:
 
-### Acceptance
+```text
+input custody and redaction
+model/provider routing
+local/remote provider distinction
+prompt/template versioning
+output parser and schema validation
+timeout/error/degraded behavior
+memory/reference provenance
+AI result journal and replay
+parent explanation source citations
+abuse/privacy/performance boundaries
+```
 
-- No prompt injection or raw-screen input can alter safety boundaries.
+## Likely source ownership map
 
-### Tests
+```text
+packages/ai-domain/**
+packages/text-domain/**
+packages/evidence-domain/** when evidence refs are touched
+packages/agent-protocol-domain/** when protocol contracts are touched
+crates/agent-protocol/** only for cross-language contract parity
+crates/agent-service/** only for selected runtime boundary proof
+apps/portal/** only for selected parent-visible AI surface proof
+scripts/test/** selected AI proof runners
+```
 
-- `ai.prompt-injection.boundary`
-- `ai.result-journal.replay-idempotency`
+## Focused command policy
 
-### Proof
+Use relevant commands only:
 
-- `docs/proof/ai-plan/slice-03-safety-boundary.md`
+```bash
+npm run build --workspace @ocentra-parent/ai-domain
+npm run test --workspace @ocentra-parent/ai-domain
+npm run build --workspace @ocentra-parent/text-domain
+npm run test --workspace @ocentra-parent/text-domain
+cargo test -p ocentra-parent-agent-protocol ai
+cargo test -p ocentra-parent-agent-service ai
+npm run test --workspace @ocentra-parent/portal -- ai
+npm run lint:architecture -- --files packages/ai-domain packages/text-domain packages/evidence-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/ai-plan
+```
 
-## Slice 04 � Output and Hallucination Resilience
+If a command or test path does not exist, record the missing location and keep the row open.
 
-### Acceptance
+## Proof update rule
 
-- OCR/VLM/classifier output remains bounded and schema-conformant under fixture drift.
+Every completed workpack needs:
 
-### Tests
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
 
-- `ai.safety-regression.hallucination`
-- `ai.output.invariant-regression`
+plus any workpack-specific artifacts named by the selected workpack.
 
-### Proof
+## DONE / PR_READY criteria
 
-- `docs/proof/ai-plan/slice-04-output-invariants.md`
+DONE for one workpack requires:
 
-## Workpacks (execution lane)
+```text
+source/docs/tests updated
+focused commands run or blocker recorded
+negative cases covered or explicitly open
+proof artifacts written
+CHECKLIST_INDEX.md rows updated when exact rows exist
+selected workpack Fill-before-DONE section updated
+PLAN_STATE.md open gaps updated if state changed
+```
 
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/ai-plan/workpacks/01-source-index-and-repo-reconciliation.md
-- Slice 02: docs/plans/ai-plan/workpacks/02-current-ai-snapshot-and-gap-map.md
-- Slice 03: docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md
-- Slice 04: docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md
-
-## PR-ready gate
-
-- No policy-action claim can be checked in until `no-ai-direct-action` is explicitly proven in proof manifest.
-- Any output path missing source schema negatives or redaction evidence fails PR gate.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: parser/schema + output invariants
-- Integration: provider routing queue and dead-letter
-- E2E: policy handoff path with evidence routing
-- Security: prompt-injection, hallucination boundary
-- Non-functional: timeout/fallback and resource pressure
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+PR_READY for the whole plan requires the rollout/PR-gate workpack and all prerequisite proof roots named by that gate.

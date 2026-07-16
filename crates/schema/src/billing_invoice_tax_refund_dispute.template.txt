@@ -1,0 +1,100 @@
+/* generated from crates/schema/src/billing_invoice_tax_refund_dispute_ts.rs */
+
+import { type Infer, Schema, withParser } from './effect';
+import { FamilyReferenceSchema, ParentAccountReferenceSchema } from './family-references';
+import { ParentTimestampSchema } from './family-reference-primitives';
+import {
+  BillingChildActivityCustodySchema,
+  BillingEvidenceExportAccessSchema,
+  BillingLocalSafetyBehaviorSchema,
+  BillingParentVisibleStateSchema,
+  BillingProviderReferenceSchema,
+} from './billing-entitlement-values';
+import { BillingFailureStateSchema, type BillingFailureState } from './generated-billing-entitlement';
+import {
+  BillingCollectionRecoveryStateSchema,
+  BillingDisputeLifecycleStateSchema,
+  BillingEntitlementSideEffectSchema,
+  BillingInvoiceCurrencyCodeSchema,
+  BillingInvoiceChildActivityCustodyClaimSchema,
+  BillingInvoiceHostedSurfaceClaimSchema,
+  BillingInvoiceLifecycleAuditReferenceSchema,
+  BillingInvoiceLifecycleBoundaryIdSchema,
+  BillingInvoiceLifecycleNonClaimSchema,
+  BillingInvoiceManualSupportClaimSchema,
+  BillingInvoiceNumberSchema,
+  BillingInvoiceProviderModeSchema,
+  BillingInvoiceTaxRefundDisputeSchemaVersionSchema,
+  BillingInvoiceVisibilityStateSchema,
+  BillingRefundLifecycleStateSchema,
+  BillingSupportAuditStateSchema,
+  BillingTaxModeDecisionSchema,
+  BillingTaxRegionStateSchema,
+  type BillingCollectionRecoveryState,
+  type BillingDisputeLifecycleState,
+  type BillingEntitlementSideEffect,
+  type BillingInvoiceProviderMode,
+  type BillingInvoiceLifecycleNonClaim,
+  type BillingInvoiceVisibilityState,
+  type BillingRefundLifecycleState,
+  type BillingTaxModeDecision,
+  type BillingTaxRegionState,
+} from './billing-invoice-tax-refund-dispute-values';
+
+const Timestamp = '2026-06-13T09:10:00.000Z';
+const GraceRetryTimestamp = '2026-06-16T09:10:00.000Z';
+const InvoicePeriodStartTimestamp = '2026-06-14T00:00:00.000Z';
+const InvoicePeriodEndTimestamp = '2026-07-14T00:00:00.000Z';
+
+const BillingInvoiceTaxRefundDisputeRowStruct = Schema.Struct({
+  schemaVersion: BillingInvoiceTaxRefundDisputeSchemaVersionSchema,
+  boundaryId: BillingInvoiceLifecycleBoundaryIdSchema,
+  parentAccount: ParentAccountReferenceSchema,
+  family: FamilyReferenceSchema,
+  providerMode: BillingInvoiceProviderModeSchema,
+  providerReference: Schema.Union(BillingProviderReferenceSchema, Schema.Null),
+  invoiceNumber: BillingInvoiceNumberSchema,
+  currency: BillingInvoiceCurrencyCodeSchema,
+  periodStart: ParentTimestampSchema,
+  periodEnd: ParentTimestampSchema,
+  invoiceVisibility: BillingInvoiceVisibilityStateSchema,
+  taxMode: BillingTaxModeDecisionSchema,
+  taxRegionState: BillingTaxRegionStateSchema,
+  refundState: BillingRefundLifecycleStateSchema,
+  disputeState: BillingDisputeLifecycleStateSchema,
+  recoveryState: BillingCollectionRecoveryStateSchema,
+  parentVisibleState: BillingParentVisibleStateSchema,
+  localSafetyBehavior: BillingLocalSafetyBehaviorSchema,
+  evidenceExportAccess: BillingEvidenceExportAccessSchema,
+  childActivityCustody: BillingChildActivityCustodySchema,
+  entitlementSideEffect: BillingEntitlementSideEffectSchema,
+  supportAuditState: BillingSupportAuditStateSchema,
+  portalHosted: Schema.Boolean,
+  failureState: Schema.Union(BillingFailureStateSchema, Schema.Null),
+  auditReference: BillingInvoiceLifecycleAuditReferenceSchema,
+});
+
+type BillingInvoiceTaxRefundDisputeRowShape = Infer<typeof BillingInvoiceTaxRefundDisputeRowStruct>;
+
+const BillingInvoiceTaxRefundDisputeRowRefinedSchema = BillingInvoiceTaxRefundDisputeRowStruct.pipe(
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.invoiceVisibility !== 'customer-portal-hosted' ||
+      row.portalHosted ||
+      'Expected customer-visible invoices to stay on the Stripe-hosted portal surface'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.periodStart < row.periodEnd || 'Expected invoice lifecycle rows to keep period start before period end'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.providerMode !== 'manual-invoice' ||
+      (!row.portalHosted && row.providerReference === null && row.invoiceVisibility === 'manual-support-required') ||
+      'Expected manual invoice rows to remain non-hosted and app-owned'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.providerMode !== 'stripe-hosted' ||
+      row.providerReference !== null ||
+      'Expected Stripe-hosted invoice rows to retain a backend provider reference'

@@ -1,0 +1,30 @@
+
+type TimerSchedulerPersistenceRowLike = {
+  readonly schedulerPersistenceState: TimerSchedulerPersistenceStateValue;
+  readonly serviceTimerRuntimeProofRequired: boolean;
+  readonly schedulerPersistenceProofRequired: boolean;
+  readonly schedulerStateStoreProofRequired: boolean;
+  readonly auditProofRequired: boolean;
+  readonly rollbackProofRequired: boolean;
+  readonly timerScheduled: boolean;
+  readonly schedulerPersistenceRuntimeClaimed: boolean;
+  readonly durableSchedulerStorageClaimed: boolean;
+};
+
+type TimerSchedulerPersistenceLike = {
+  readonly schedulerPersistenceProofRequiredCount: number;
+  readonly blockedBySourceFreshnessCount: number;
+  readonly blockedByCompilerDecisionCount: number;
+  readonly rows: readonly TimerSchedulerPersistenceRowLike[];
+  readonly serviceRuntimeEventClaimed: boolean;
+  readonly portalUiRendered: boolean;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly timerScheduled: boolean;
+  readonly schedulerPersistenceRuntimeClaimed: boolean;
+  readonly durableSchedulerStorageClaimed: boolean;
+  readonly auditRuntimeClaimed: boolean;
+  readonly rollbackRuntimeClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;

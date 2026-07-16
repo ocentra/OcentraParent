@@ -27,3 +27,6 @@ Default worker path:
 3. Open only the workpack named by the hub assignment.
 4. Update the assigned workpack and relevant checklist rows before reporting
    `DONE` or `PR_READY`.
+
+Household Mesh consumer proof is covered by `scripts/test/eventing-household-mesh-consumer-proof.mjs`
+and the `12-household-mesh-consumer-proof.log` row in the checklist.

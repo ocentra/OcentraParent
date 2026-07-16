@@ -1,0 +1,24 @@
+[package]
+name = "ocentra-screen-ai-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-evidence = { path = "../ocentra-evidence" }
+ocentra-eventing = { path = "../ocentra-eventing" }
+serde = { version = "1.0.228", features = ["derive"] }
+
+[[test]]
+name = "contract_generated_bridge_contracts"
+path = "tests/contract/generated_bridge_contracts.rs"
+
+[[test]]
+name = "unit_pipeline_decision"
+path = "tests/unit/pipeline_decision.rs"

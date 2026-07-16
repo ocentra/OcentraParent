@@ -1,6 +1,5 @@
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_outbox_handoff;
 use super::remote_delivery_event_chain_store::source_component;
 use super::remote_delivery_fixture_transport_types::{
     NetworkRuntimeRemoteDeliveryFixtureTransportError,
@@ -8,6 +7,7 @@ use super::remote_delivery_fixture_transport_types::{
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
     NetworkRuntimeRemoteDeliveryFixtureTransportState,
 };
+use super::remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff;
 use super::remote_delivery_outbox_handoff_types::{
     NetworkRuntimeRemoteDeliveryOutboxCandidate, NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
 };
@@ -22,18 +22,7 @@ pub async fn prove_network_runtime_remote_delivery_fixture_transport() -> Result
     prove_network_runtime_remote_delivery_fixture_transport_from_outbox(outbox_handoff)
 }
 
-#[cfg(test)]
-pub(crate) fn prove_network_runtime_remote_delivery_fixture_transport_from_outbox(
-    outbox_handoff: NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
-) -> Result<
-    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-    NetworkRuntimeRemoteDeliveryFixtureTransportError,
-> {
-    build_fixture_transport_report(outbox_handoff)
-}
-
-#[cfg(not(test))]
-fn prove_network_runtime_remote_delivery_fixture_transport_from_outbox(
+pub fn prove_network_runtime_remote_delivery_fixture_transport_from_outbox(
     outbox_handoff: NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
 ) -> Result<
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
@@ -114,9 +103,9 @@ fn build_fixture_transport_report(
 
 fn fixture_record(
     candidate: &NetworkRuntimeRemoteDeliveryOutboxCandidate,
-    fixture_transport_ref: &ocentra_eventing::SourceComponent,
-    fixture_dispatch_attempt_ref: &ocentra_eventing::SourceComponent,
-    fixture_ack_ref: &ocentra_eventing::SourceComponent,
+    fixture_transport_ref: &ocentra_eventing::ids::SourceComponent,
+    fixture_dispatch_attempt_ref: &ocentra_eventing::ids::SourceComponent,
+    fixture_ack_ref: &ocentra_eventing::ids::SourceComponent,
 ) -> NetworkRuntimeRemoteDeliveryFixtureTransportRecord {
     NetworkRuntimeRemoteDeliveryFixtureTransportRecord {
         sequence: candidate.sequence,

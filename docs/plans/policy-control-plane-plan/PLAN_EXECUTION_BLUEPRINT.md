@@ -1,77 +1,61 @@
-# Policy Control Plane Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `policy-control-plane-plan`
+> Doc: `Policy Control Plane Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: policy runtime readiness or PR readiness.
 
-Create explicit cross-domain policy source-of-truth with deterministic conflict-resolution and delivery replay guarantees.
+<!-- /agent-capsule -->
 
-## Slice 01 � Policy Source of Truth
+# Policy Control Plane Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- Central policy contract and precedence model are explicit and validated.
+Use this loop:
 
-### Tests
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
 
-- `policy-control.authoring.conflict-resolution`
+## Proof root
 
-### Proof
+```text
+docs/proof/policy-control-plane-plan/
+```
 
-- `docs/proof/policy-control-plane-plan/slice-01-source-of-truth.md`
+## Focused commands
 
-## Slice 02 � Delivery and Replay Safety
+```bash
+npm run build --workspace @ocentra-parent/policy-domain
+npm run test --workspace @ocentra-parent/policy-domain
+cargo test -p ocentra-policy-control-core
+cargo test -p ocentra-parent-agent-protocol policy
+npm run test --workspace @ocentra-parent/agent-protocol-domain -- tests/unit/policy-preview-contracts.test.ts tests/unit/policy-control-delivery-read-model.test.ts tests/unit/policy-control-audit-redaction.test.ts tests/unit/parent-assistant-adapter.test.ts
+cd apps/portal && npx vitest run tests/policy-preview-route-panel.test.ts tests/policy-preview-live-activity-state.test.ts
+npm run lint:architecture -- --files packages/policy-domain crates/policy-control-core packages/agent-protocol-domain crates/agent-protocol apps/portal docs/plans/policy-control-plane-plan
+```
 
-### Acceptance
+If a command/test path does not exist, record the blocker and keep rows open.
+If a workspace script is broader than the selected proof slice, prefer a direct scoped command and record why.
 
-- Offline/retry/stale updates converge predictably and produce deterministic final state.
+## Platform proof rule
 
-### Tests
+- Real iOS/macOS proof is an external-platform constraint on this Windows host.
+- Windows, Android, WSL, and Docker proof remain expected where relevant and should not be reported as blocked unless a real dependency prevents them.
 
-- `policy-control.delivery.replay-idempotency`
-- `policy-control.authz.family-device-boundary`
+## Proof files
 
-### Proof
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
 
-- `docs/proof/policy-control-plane-plan/slice-02-delivery-replay.md`
+## DONE rule
 
-## Slice 03 � Audit/Observability and Overrides
-
-### Acceptance
-
-- Parent override/rollback paths are observable, authorized, and documented.
-
-### Tests
-
-- `policy-control.observability.alerts`
-- `policy-control.rollback`
-
-### Proof
-
-- `docs/proof/policy-control-plane-plan/slice-03-audit-override.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md
-- Slice 02: docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md
-- Slice 03: docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md
-
-## PR-ready gate
-
-- No policy control claim without conflict rules and audit trail proofs.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: policy compiler and decision schemas
-- Integration: source-of-truth + delivery override paths
-- E2E: parent policy authoring and rollout paths
-- Security: privilege escalation and replay safety
-- Non-functional: override audit, observability, rollback
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+One workpack is DONE only after focused commands or blockers are recorded and proof artifacts exist under that workpack root.

@@ -9,7 +9,7 @@
 > Read when: Immediately after plan AGENTS.md; use for current state and no-claim boundaries.
 > Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
 > Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR_READY, or broad DONE unless routed proof says so.
 > Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
 
 <!-- /agent-capsule -->
@@ -20,22 +20,75 @@ Generated from the existing `screen-plan` docs. This is the default resume/statu
 
 This folder is the single working plan location for local screen evidence, screenshot capture, OCR/vision summaries, temporary encrypted image queue, deletion proof, screen-derived policy evidence, optional screenshots, optional live view, and screen-related UI/UX.
 
+## Current ownership interpretation
+
+```text
+screen-plan:
+  Local screen capture/evidence/custody/settings/live-view-boundary owner and screen proof router.
+
+screen-domain:
+  Public screen capture, evidence, OCR, VLM, disclosure, settings, screen-intelligence-router, and handoff contract package.
+
+screen-ai-pipeline-plan:
+  Screen -> AI -> policy/action product-path integration proof and live-operator proof.
+
+ai-plan/schema-domain:
+  AI context/result/provider/degradation contracts and model/runtime behavior when selected.
+
+policy-control-plane-plan:
+  Policy authority, parent-rule precedence, and deterministic policy decision semantics.
+
+v0-8-enforcement-control-plan:
+  Adapter execution, rollback, and supported runtime proof.
+
+data-custody-storage-plan:
+  Retention/export/delete/privacy/custody policy and parent-owned storage semantics.
+
+portal-ux-household-surfaces-plan:
+  Rendered parent UX, screenshots, route proof, and no-fake-data presentation.
+
+remote-access-plan:
+  Remote live-access capability, relay/session authority, standing grants, and remote product proof.
+
+browser/app-game/network/tracking plans:
+  Source-trigger/source-truth behavior for their domains.
+```
+
 ## Resume route
 
 1. Read this file.
 2. Read `NEXT_ACTIONS.md` when starting/resuming.
 3. Read `WORKPACK_INDEX.md`.
-4. Open only the assigned workpack.
-5. Use `CHECKLIST_INDEX.md` for exact checklist sections.
-6. Use `PROOF_INDEX.md` for proof artifacts.
+4. Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+5. Open only the assigned workpack.
+6. Use `CHECKLIST_INDEX.md` for exact checklist sections.
+7. Use `PROOF_INDEX.md` for proof artifacts.
 
 ## Current snapshot source
 
-- Snapshot: [current-screen-snapshot.md](current-screen-snapshot.md)
+- Snapshot: [current-screen-snapshot.md](current-screen-snapshot.md).
 
 ## What is already present / proved
 
-- No concise existing/proved bullet section was detected in the current snapshot.
+The current snapshot records retained proof for these screen-owned or screen-adjacent slices. These are real proof references but each row keeps its own non-claim.
+
+```text
+Windows active/selected/parent opt-in capture: real Windows pixels enter adapter path, encrypted queue metadata is produced, and raw image material is deleted; no macOS/Linux/physical Android/iOS parity claim.
+Trigger scheduler capture: managed-browser/native/cadence inputs enqueue selected-window captures and delete raw images; browser URL ownership and service-owned producers remain separate.
+Linux WSLg selected-window capture: real X11 selected-window capture with encrypted custody/deletion; no native Wayland/root claim.
+Android MediaProjection emulator capture: explicit OS-consent emulator capture; no silent background capture or physical Android parity claim.
+Disabled setting suppression: service path creates no new capture/queue/local-vision rows while disabled; service-persisted product settings remain separate.
+Service cadence/read-model loop: Rust service cadence and WebSocket read rows; no VLM quality claim.
+Service analysis loop: local adapter command and localVision row; proof adapter, not production VLM quality.
+Retention sweeper: expired encrypted queue record removed and visible as expiredDeleted row; no parent retention UI/cloud policy claim.
+Live operator matrix: nine real operator-supplied URL/app scenarios through real capture/local VLM/schema/policy dry-run/raw deletion; no authenticated-social or managed-browser trigger ownership claim.
+Portal rendering: service-backed screen read model renders custody/evidence refs; no product-complete background watcher or broad adapter claim.
+Settings and optional-visibility proofs: catalog, writable intent, service command/persistence, optional raw-retention/live-view status; no raw retention/live view/raw remote upload enablement claim.
+Remote/retention/live boundary: raw screenshot retention, live view, and raw remote upload disabled for local summaries; no live-view transport/writable retention/privacy/legal claim.
+Live-view gates: platform-permission, loopback/session/runtime, UI-persistence, worker-startup, relay/cache harnesses; no product live-view, platform prompt screenshot, physical parity, hosted relay, or privacy/legal claim.
+OCR/VLM proofs: Tesseract/PaddleOCR/WinRT candidate selection and small VLM readiness; final broad OCR/VLM quality and cross-platform parity remain open.
+Closure/external gates: remaining platform/live-view/model-quality gaps are enumerated; external evidence intake rejects fixture/static/raw-private artifacts but does not replace missing physical/external proof.
+```
 
 ## Open gaps / missing product runtime
 
@@ -52,11 +105,26 @@ This folder is the single working plan location for local screen evidence, scree
 - Production parent explanation UX.
 - Privacy/legal review.
 
+## Current coupling risks
+
+```text
+- 100/100 implementation checklist status is not whole-plan completion while 22 workpacks remain open.
+- Checked workpack proof cannot close unrelated open workpacks.
+- Local capture proof is not screen-AI pipeline completion.
+- Screen summary/evidence proof is not policy authority.
+- Policy dry-run proof is not enforcement adapter execution.
+- Live-view preflight/loopback/relay-cache/worker-startup proof is not product live-view readiness.
+- Redacted summary export proof is not raw screenshot remote upload proof.
+- Portal screenshot proof is not runtime capture proof.
+- Mock screenshot or fixture-only proof is not product proof.
+```
+
 ## Checklist summary
 
 - Full checklist: [implementation-checklist.md](implementation-checklist.md) (not default context).
 - Checkbox rows detected: 100 total, 100 checked, 0 unchecked.
 - Checklist index: [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md).
+- Status rule: checklist rows alone do not prove whole-plan completion while `WORKPACK_INDEX.md` still lists open workpacks.
 
 ## Workpack summary
 
@@ -95,6 +163,7 @@ This folder is the single working plan location for local screen evidence, scree
 - `README_FULL_ORIGINAL.md` unless you need historical full README context.
 - Full `implementation-checklist.md` unless `CHECKLIST_INDEX.md` names exact section/row.
 - All workpacks; use `WORKPACK_INDEX.md`.
+- `WORKPACK_FAMILIES.md` unless selected workpack owner/proof family is unclear.
 - Source inventories and pasted-content audits unless source ownership is unclear.
 - Historical checkpoint/proof docs unless `PROOF_INDEX.md` or the assigned workpack names them.
 
@@ -102,21 +171,17 @@ This folder is the single working plan location for local screen evidence, scree
 
 - See `PLAN_HEALTH.md` before claiming the whole plan is complete or stale.
 
-## HID Execution Guard (added 2026-06-12)
+## HID Execution Guard
 
 - Scope and completion source:
   - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
+  - use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
   - do not mark this plan complete from checklist deltas alone.
 - Before any checked update, attach:
-  - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under docs/proof/screen-plan/.
-- Required proof manifest names:
-  - docs/proof/screen-plan/slice-01-\*.md
-  - docs/proof/screen-plan/slice-02-\*.md
-  - docs/proof/screen-plan/slice-03-\*.md
-  - each proof file must include commands, pass/fail,
-    negative-cases, and manual-required notes.
-- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
+  - a real test run log or explicit known blocker from the assigned implementation boundary,
+  - proof under `output/screen-plan-proof/<workpack-file-stem>/` or the exact named historical proof directory,
+  - proof manifest notes under docs/proof/screen-plan/ when a slice claims closure.
+- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, rollback/teardown, deletion/custody, redaction, platform/manual-required, and no-claim proofs are present for the assigned slice.
 
 ## HID execution blueprint
 

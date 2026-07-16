@@ -1,94 +1,90 @@
-# Browser Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `browser-plan`
+> Doc: `Browser Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: browser visibility/control readiness or PR readiness.
 
-Make managed browser behavior deterministic with request safety, custody-aware profile states, and audited intervention.
+<!-- /agent-capsule -->
 
-## Slice 01 � Managed Profile and Custody
+# Browser Plan Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- Profile boundaries, redaction, and restart/repair behavior are proven.
+Browser visibility/control work is high-risk. Do not claim coverage from mocked browser data, unmanaged browser assumptions, or UI-only proof.
 
-### Tests
+Use this loop:
 
-- `browser.profile.custody-redaction`
-- `browser.policy.authz-idempotency`
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
 
-### Proof
+## Deterministic proof root
 
-- `docs/proof/browser-plan/slice-01-profile-custody.md`
+```text
+output/browser-plan-proof/<workpack-file-stem>/
+```
 
-## Slice 02 � Setting/Schema Safety
+## Pre-edit note
 
-### Acceptance
+```text
+Assigned workpack:
+Implementation slice:
+Expected source/doc files:
+Expected tests/proof files:
+Proof root:
+Adjacent handoffs that are read-only:
+No-claim boundaries:
+```
 
-- Settings/state contracts reject invalid values and unknown state transitions.
+## Likely source ownership map
 
-### Tests
+```text
+packages/browser-domain/**
+packages/agent-protocol-domain/** when browser events cross protocol
+crates/agent-protocol/** browser contract parity
+crates/agent-service/** browser service boundary only
+apps/portal/** selected browser surface proof
+scripts/test/** selected browser proof harnesses
+```
 
-- `browser.setting.schema-boundary`
-- `browser.policy.authz-idempotency`
+## Focused command policy
 
-### Proof
+```bash
+npm run build --workspace @ocentra-parent/browser-domain
+npm run test --workspace @ocentra-parent/browser-domain
+cargo test -p ocentra-parent-agent-protocol browser
+cargo test -p ocentra-parent-agent-service browser
+npm run test --workspace @ocentra-parent/portal -- browser
+npm run lint:architecture -- --files packages/browser-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/browser-plan
+```
 
-- `docs/proof/browser-plan/slice-02-setting-schema.md`
+If a command/test path does not exist, record the blocker and keep rows open.
 
-## Slice 03 � Network and Request Security
+## Universal proof files
 
-### Acceptance
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
 
-- Origin/header/host/redirect/path handling fails closed for attack vectors.
+## No-claim boundaries
 
-### Tests
+Do not claim:
 
-- `browser.origin.header-security`
-- `browser.security.request-smuggling-desync`
+```text
+exact URL visibility
+content inspection
+unmanaged browser coverage
+browser enforcement
+extension/app-store readiness
+social/video feed classification
+```
 
-### Proof
-
-- `docs/proof/browser-plan/slice-03-network-security.md`
-
-## Slice 04 � Intervention and Rollback
-
-### Acceptance
-
-- Intervention calls are idempotent and reversible via rollback states.
-
-### Tests
-
-- `browser.policy.authz-idempotency`
-- `browser.rate-limit.abuse`
-
-### Proof
-
-- `docs/proof/browser-plan/slice-04-intervention-rollback.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/browser-plan/workpacks/01-contract-boundary-and-effect-schemas.md
-- Slice 02: docs/plans/browser-plan/workpacks/02-source-index-and-doc-reconciliation.md
-- Slice 03: docs/plans/browser-plan/workpacks/03-browser-inventory-model.md
-- Slice 04: docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md
-
-## PR-ready gate
-
-- No browser PR claim until audit logs and request security negatives are passed and linked.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: setting/profile schema boundaries
-- Integration: intervention and lifecycle handoffs
-- E2E: managed/unmanaged runtime and control paths
-- Security: origin/header/request security and request-split probes
-- Non-functional: rate-limit and retry stability
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+unless the selected proof root proves the claim and degraded/manual-required states are visible.

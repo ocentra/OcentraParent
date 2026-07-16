@@ -1,67 +1,82 @@
-# Parent Desktop Runtime Package Plan Health Report
+# Parent Client Runtime Distribution Plan Health
 
-<!-- agent-capsule -->
+Health: canonical parent client distribution route exists; artifact parity and proof remain open.
 
-> Agent Capsule
-> Plan: `parent-desktop-runtime-package-plan`
-> Doc: `Parent Desktop Runtime Package Plan Health Report`
-> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
-> Read when: Only when named by the plan route, selected workpack, or index row.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
-
-<!-- /agent-capsule -->
-
-This file records documentation health and consistency checks for the plan. It is generated from the existing docs and should be updated manually when the plan state is cleaned further.
-
-## Status sources
-
-- Short README: `README.md`
-- Preserved full README: `README_FULL_ORIGINAL.md`
-- Current snapshot: `missing`
-- Implementation checklist present: false
-- Workpacks indexed: 20
-
-## Consistency warnings
-
-- No current snapshot file was found. Treat workpack/checklist indexes as routing state and create/update a snapshot when product state changes.
+Known risks: scaffold being overclaimed as parity, desktop launch being overclaimed as product readiness, signing/store status being hidden, setup being merged with package proof, child-agent claims leaking into this plan, and update/rollback proof missing.
 
 ## Required hygiene before PR_READY
 
 - Update the assigned workpack.
-- Update the relevant checklist row/section.
-- Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
-- Update feature/product docs if a product claim, gap, or proof changed.
-- Do not use a stale checked row to override an open assigned workpack or hub instruction.
+- Update the matching checklist/proof row if one exists.
+- Update `PLAN_STATE.md` and `NEXT_ACTIONS.md` if current state changes.
+- Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+- Do not claim READY from scaffold, preview output, package metadata, launch smoke, web build, or CI success alone.
+- Do not claim READY from unsigned, unnotarized, unpublished, side-loaded, simulator-only, or manual-required artifacts.
+- Do not claim setup completion from package creation or route bridge proof.
+- Do not claim child runtime readiness from parent client package work.
+- Do not claim update readiness without checksum, SBOM, rollback, and stale update handling.
+- Do not claim release readiness until WP11 consumes accepted proof roots or exact carried blockers.
 
-## Agent Route Walkthrough
+## Known healthy boundaries
 
-- Landing decision: root `AGENTS.md` routes desktop runtime packaging, installer, launch, update, service lifecycle, platform smoke, and release artifact work here.
-- Scope split: package/install/service/launch behavior stays here. Product feature truth, portal UX, enforcement semantics, and app/game/browser/screen evidence stay in their owning plans.
-- Minimum read set: assigned workpack or package row, `TEST_PROOF_EXPECTATIONS.md`, package/release docs named by the row, and platform notes only for the target artifact.
-- Test/proof decision: require install/upgrade/uninstall, rollback, service lifecycle, version alignment, platform smoke, dependency policy, signing/notarization/manual credential status, and launch log proof where applicable.
-- DONE blocker: no release/package row may claim production readiness, signing, store delivery, or device-owner capability without artifact proof and explicit credential/entitlement state.
+This plan intentionally separates:
 
-## High-Information-Density Gate
+```text
+parent web portal distribution
+parent desktop shell/package
+parent Android package
+parent iOS package
+parent local-service route bridge
+signing/store/notarization
+update/rollback
+launch smoke
+setup handoff
+proof/CI/release gate
+```
+
+Do not collapse those boundaries.
+
+## Known incomplete areas
+
+```text
+artifact matrix
+web distribution contract
+parent desktop package artifact proof
+parent Android device/store proof
+parent iOS device/store proof
+route bridge contract proof
+signing/store/notarization matrix
+update/rollback/checksum/SBOM proof
+launch smoke matrix
+setup handoff contract
+release gate aggregation
+WP01 status reconciliation between workpack text and index/proof state
+```
+
+## High-information-density gate
 
 ### Scope and ownership
 
-- Scope and ownership: this file governs documentation routing, state, and proof expectations for `parent-desktop-runtime-package-plan`.
-- Ownership path: this plan is coordinated via `parent-desktop-runtime-package-plan/AGENTS.md`, `parent-desktop-runtime-package-plan/PLAN_STATE.md`, and `parent-desktop-runtime-package-plan/NEXT_ACTIONS.md` plus selected workpack files.
+- Scope and ownership: this file governs documentation routing, state, and proof expectations for `parent-client-runtime-distribution-plan`.
+- Ownership path: this plan is coordinated via `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, `WORKPACK_FAMILIES.md`, and the selected workpack files.
 
 ### State
 
-- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
-- Current action: keep this file and `parent-desktop-runtime-package-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+- Current state: the folder path is preserved for compatibility, but the canonical scope is now parent client runtime distribution.
+- Current action: keep this file and `PLAN_STATE.md` aligned before any DONE or PR_READY claim.
 
 ### Decision routes and failure controls
 
-- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Decision route: follow the AGENTS landing decision, the selected workpack path, and the proof inventory referenced in this file.
 - Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
 
 ### Proof mapping
 
-- Required proof before READY: explicit links from workpack checklist rows, proof artifacts named in this file, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
-- At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, and the assigned plan workpacks.
+- Required proof before READY: explicit links from workpack/checklist rows, proof artifacts named in the proof inventory, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
+- At minimum, align `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, and the assigned plan workpacks before READY.
+
+## PR-ready rule
+
+The whole plan is PR-ready only when WP11 consumes or blocks every earlier proof root and updates PLAN_STATE.
+
+A partial PR may be ready only when one selected workpack is closed with proof artifacts, command logs, blocker classification, no-claim language, and remaining open workpacks listed.

@@ -69,73 +69,37 @@ pub fn verify_bytes(
         ));
     }
     let verifying_key = decode_verifying_key(public_key_base64)?;
-    let signature_bytes = STANDARD
-        .decode(signature_base64)
-        .map_err(|_| UpdaterError::Crypto("manifest signature is not valid base64".to_owned()))?;
-    let signature = Signature::from_slice(&signature_bytes).map_err(|_| {
-        UpdaterError::Crypto("manifest signature does not have Ed25519 length".to_owned())
+    let signature_bytes = STANDARD.decode(signature_base64).map_err(|error| {
+        UpdaterError::Crypto(format!("manifest signature is not valid base64: {error}"))
     })?;
-    verifying_key
-        .verify(payload, &signature)
-        .map_err(|_| UpdaterError::Crypto("manifest signature verification failed".to_owned()))
+    let signature = Signature::from_slice(&signature_bytes).map_err(|error| {
+        UpdaterError::Crypto(format!(
+            "manifest signature does not have Ed25519 length: {error}"
+        ))
+    })?;
+    verifying_key.verify(payload, &signature).map_err(|error| {
+        UpdaterError::Crypto(format!("manifest signature verification failed: {error}"))
+    })
 }
 
 fn decode_signing_key(private_key_base64: &str) -> Result<SigningKey, UpdaterError> {
-    let bytes = STANDARD
-        .decode(private_key_base64)
-        .map_err(|_| UpdaterError::Crypto("private signing key is not valid base64".to_owned()))?;
-    let key_bytes: [u8; 32] = bytes
-        .try_into()
-        .map_err(|_| UpdaterError::Crypto("private signing key must be 32 bytes".to_owned()))?;
+    let bytes = STANDARD.decode(private_key_base64).map_err(|error| {
+        UpdaterError::Crypto(format!("private signing key is not valid base64: {error}"))
+    })?;
+    let key_bytes: [u8; 32] = bytes.try_into().map_err(|error| {
+        UpdaterError::Crypto(format!("private signing key must be 32 bytes: {error:?}"))
+    })?;
     Ok(SigningKey::from_bytes(&key_bytes))
 }
 
 fn decode_verifying_key(public_key_base64: &str) -> Result<VerifyingKey, UpdaterError> {
-    let bytes = STANDARD
-        .decode(public_key_base64)
-        .map_err(|_| UpdaterError::Crypto("public signing key is not valid base64".to_owned()))?;
-    let key_bytes: [u8; 32] = bytes
-        .try_into()
-        .map_err(|_| UpdaterError::Crypto("public signing key must be 32 bytes".to_owned()))?;
-    VerifyingKey::from_bytes(&key_bytes)
-        .map_err(|_| UpdaterError::Crypto("public signing key is not an Ed25519 key".to_owned()))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn generated_key_pair_signs_and_verifies_payload() {
-        let keys = generate_key_pair();
-        let payload = b"ocentra-parent-update-payload";
-        let (signature, key_id) =
-            sign_bytes(payload, &keys.private_key_base64).expect("payload signs");
-
-        verify_bytes(
-            payload,
-            &signature,
-            &keys.public_key_base64,
-            &key_id,
-            ED25519_ALGORITHM,
-        )
-        .expect("payload verifies");
-    }
-
-    #[test]
-    fn verification_rejects_tampered_payload() {
-        let keys = generate_key_pair();
-        let (signature, key_id) =
-            sign_bytes(b"trusted", &keys.private_key_base64).expect("payload signs");
-
-        let result = verify_bytes(
-            b"tampered",
-            &signature,
-            &keys.public_key_base64,
-            &key_id,
-            ED25519_ALGORITHM,
-        );
-
-        assert!(result.is_err());
-    }
+    let bytes = STANDARD.decode(public_key_base64).map_err(|error| {
+        UpdaterError::Crypto(format!("public signing key is not valid base64: {error}"))
+    })?;
+    let key_bytes: [u8; 32] = bytes.try_into().map_err(|error| {
+        UpdaterError::Crypto(format!("public signing key must be 32 bytes: {error:?}"))
+    })?;
+    VerifyingKey::from_bytes(&key_bytes).map_err(|error| {
+        UpdaterError::Crypto(format!("public signing key is not an Ed25519 key: {error}"))
+    })
 }

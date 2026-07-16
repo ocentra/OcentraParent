@@ -20,8 +20,9 @@ This file is the short resume list for the next worker. It is derived from open 
 
 1. Confirm the hub assignment and lane.
 2. Pick only the assigned workpack from the list below.
-3. Open that workpack and exact checklist rows only.
-4. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
+3. Read `workpacks/00-owner-boundary-proof-gate.md` to apply current AI owner/import/proof rules.
+4. Open that workpack and exact checklist rows only.
+5. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
 
 ## Highest-open workpacks by unchecked boxes
 
@@ -55,5 +56,6 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 ## Actioned completion tracker
 
 - [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
+- [ ] Apply `workpacks/00-owner-boundary-proof-gate.md` to the selected workpack before source changes.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
 - [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.

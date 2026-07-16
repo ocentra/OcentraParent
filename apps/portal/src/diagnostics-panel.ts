@@ -1,15 +1,15 @@
 import {
-  PortalDetails,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  PortalTiming,
-  decodePortalDetailValue,
-} from '@ocentra-parent/portal-domain/contracts';
+  GeneratedDevLogField as DevLogField,
+  GeneratedDevLogMessage as DevLogMessage,
+} from '@ocentra-parent/logging-domain/generated/logging-contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom, PortalTiming } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { decodeParentPortalDetailValue } from '../generated/parent-ui-bridge';
 import { writeClipboardText } from './clipboard';
 import { appendDetail } from './detail-list';
 import { buildDiagnosticsExport } from './diagnostics-export';
-import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
+import { writePortalDevLog } from './dev-logger';
 import type { PortalRuntimeState } from './portal-state';
 
 export function renderDiagnosticsPanel(container: HTMLElement, state: PortalRuntimeState): void {
@@ -17,21 +17,21 @@ export function renderDiagnosticsPanel(container: HTMLElement, state: PortalRunt
   panel.className = PortalDom.Classes.Summary;
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.DeviceDiagnostics);
+  title.textContent = resolvePortalDevText(PortalDevTextToken.DeviceDiagnostics);
 
   const copyButton = document.createElement(PortalDom.Tags.Button);
   copyButton.type = PortalDom.ButtonType.Button;
   copyButton.className = PortalDom.Classes.CopyResultButton;
-  copyButton.textContent = PortalText.Resolve(PortalTextToken.CopyDiagnostics);
+  copyButton.textContent = resolvePortalDevText(PortalDevTextToken.CopyDiagnostics);
   copyButton.addEventListener(PortalDom.Events.Click, () => {
     void copyDiagnostics(copyButton, state);
   });
 
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
   const latestEvent = state.events[0] ?? null;
-  appendDetail(metadata, PortalDetails.AgentUrl, decodePortalDetailValue(state.agentWsUrl));
-  appendDetail(metadata, PortalDetails.State, decodePortalDetailValue(state.connectionState));
-  appendDetail(metadata, PortalDetails.Events, decodePortalDetailValue(String(state.events.length)));
+  appendDetail(metadata, PortalDetails.AgentUrl, decodeParentPortalDetailValue(state.agentEndpoint));
+  appendDetail(metadata, PortalDetails.State, decodeParentPortalDetailValue(state.connectionState));
+  appendDetail(metadata, PortalDetails.Events, decodeParentPortalDetailValue(String(state.events.length)));
   appendDetail(metadata, PortalDetails.LastEvent, detailFromValue(latestEvent?.event));
   appendDetail(metadata, PortalDetails.EventId, detailFromValue(latestEvent?.eventId));
 
@@ -43,8 +43,8 @@ async function copyDiagnostics(button: HTMLButtonElement, state: PortalRuntimeSt
   button.disabled = true;
   try {
     const didCopy = await writeClipboardText(buildDiagnosticsExport(state));
-    button.textContent = PortalText.Resolve(
-      didCopy ? PortalTextToken.CopiedDiagnostics : PortalTextToken.CopyDiagnosticsFailed
+    button.textContent = resolvePortalDevText(
+      didCopy ? PortalDevTextToken.CopiedDiagnostics : PortalDevTextToken.CopyDiagnosticsFailed
     );
     if (didCopy) {
       writePortalDevLog(DevLogMessage.PortalResultCopied, {
@@ -52,18 +52,18 @@ async function copyDiagnostics(button: HTMLButtonElement, state: PortalRuntimeSt
       });
     }
   } catch {
-    button.textContent = PortalText.Resolve(PortalTextToken.CopyDiagnosticsFailed);
+    button.textContent = resolvePortalDevText(PortalDevTextToken.CopyDiagnosticsFailed);
   } finally {
     button.disabled = false;
     window.setTimeout(() => {
-      button.textContent = PortalText.Resolve(PortalTextToken.CopyDiagnostics);
+      button.textContent = resolvePortalDevText(PortalDevTextToken.CopyDiagnostics);
     }, PortalTiming.CopyFeedbackMs);
   }
 }
 
 function detailFromValue(value: unknown) {
   if (value === undefined || value === null) {
-    return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+    return decodeParentPortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
   }
-  return decodePortalDetailValue(String(value));
+  return decodeParentPortalDetailValue(String(value));
 }

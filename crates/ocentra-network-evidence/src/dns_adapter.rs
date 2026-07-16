@@ -1,10 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    normalize_domain_with_public_suffix, DomainNormalizationError, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMode,
-    PublicSuffixModel,
-};
+use crate::{DomainNormalizationError, NetworkEvidenceGrade, NetworkEvidencePolicyMapping};
+
+mod artifacts;
+mod normalization;
+mod policy;
+mod redirects;
+mod refs;
+mod validation;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkDnsAdapterAction {
@@ -135,19 +138,33 @@ struct NetworkDnsAdapterArtifactRefs {
 pub fn plan_network_dns_adapter_proof(
     input: NetworkDnsAdapterProofInput,
 ) -> Result<NetworkDnsAdapterProof, NetworkDnsAdapterProofError> {
-    reject_unsupported_claims(&input)?;
-    if input.policy_mapping.adapter_action_authorized
-        || input.policy_mapping.enforcement_command_authorized
-    {
-        return Err(NetworkDnsAdapterProofError::PolicyMappingAuthorityRejected);
-    }
+    validation::reject_unsupported_claims(&input)?;
+    validation::reject_policy_mapping_authority(&input)?;
 
-    let normalized = normalize_dns_adapter_input(&input)?;
-    let artifacts = normalize_artifact_refs(&input)?;
-    let missing_required_artifacts = missing_required_artifacts(&artifacts);
-    let boundary_reasons = boundary_reasons(&input, missing_required_artifacts.is_empty());
-    let proof_state = proof_state(input.dry_run, input.capability_state, &boundary_reasons);
+    let normalized = normalization::normalize_dns_adapter_input(&input)?;
+    let artifacts = normalization::normalize_artifact_refs(&input)?;
+    let missing_required_artifacts = artifacts::missing_required_artifacts(&artifacts);
+    let boundary_reasons = policy::boundary_reasons(&input, missing_required_artifacts.is_empty());
+    let proof_state = policy::proof_state(input.dry_run, input.capability_state, &boundary_reasons);
     let adapter_apply_authorized = proof_state == NetworkDnsAdapterProofState::ApplyReady;
+    let NetworkDnsAdapterProofInput {
+        dns_adapter_plan_ref: _dns_adapter_plan_ref,
+        policy_mapping,
+        requested_action,
+        target_domain: _,
+        redirect_target_domain: _,
+        capability_state,
+        adapter_authorization_ref: _,
+        adapter_capability_proof_ref: _,
+        apply_artifact_ref: _,
+        result_artifact_ref: _,
+        rollback_artifact_ref: _,
+        audit_event_ref: _,
+        dry_run: _,
+        exact_url_claimed: _,
+        decrypted_payload_claimed: _,
+        page_content_claimed: _,
+    } = input;
 
     Ok(NetworkDnsAdapterProof {
         dns_adapter_plan_ref: normalized.dns_adapter_plan_ref,
@@ -155,11 +172,11 @@ pub fn plan_network_dns_adapter_proof(
         parent_rule_ref: normalized.parent_rule_ref,
         evidence_refs: normalized.evidence_refs,
         local_ai_result_ref: normalized.local_ai_result_ref,
-        evidence_grade: input.policy_mapping.evidence_grade,
-        requested_action: input.requested_action,
+        evidence_grade: policy_mapping.evidence_grade,
+        requested_action,
         target_domain: normalized.target_domain,
         redirect_target_domain: normalized.redirect_target_domain,
-        capability_state: input.capability_state,
+        capability_state,
         proof_state,
         boundary_reasons,
         missing_required_artifacts,
@@ -176,241 +193,4 @@ pub fn plan_network_dns_adapter_proof(
         decrypted_payload_available: false,
         page_content_available: false,
     })
-}
-
-fn normalize_dns_adapter_input(
-    input: &NetworkDnsAdapterProofInput,
-) -> Result<NormalizedDnsAdapterInput, NetworkDnsAdapterProofError> {
-    Ok(NormalizedDnsAdapterInput {
-        dns_adapter_plan_ref: normalize_ref(&input.dns_adapter_plan_ref)
-            .ok_or(NetworkDnsAdapterProofError::EmptyDnsAdapterPlanRef)?,
-        policy_decision_ref: normalize_ref(&input.policy_mapping.policy_decision_ref)
-            .ok_or(NetworkDnsAdapterProofError::EmptyPolicyDecisionRef)?,
-        parent_rule_ref: normalize_ref(&input.policy_mapping.parent_rule_ref)
-            .ok_or(NetworkDnsAdapterProofError::EmptyParentRuleRef)?,
-        evidence_refs: normalized_refs(&input.policy_mapping.evidence_refs)?,
-        local_ai_result_ref: normalized_local_ai_ref(
-            input.policy_mapping.local_ai_result_ref.as_deref(),
-        )?,
-        target_domain: normalized_target_domain(&input.target_domain)?,
-        redirect_target_domain: normalized_redirect_target(input.requested_action, input)?,
-    })
-}
-
-fn normalize_artifact_refs(
-    input: &NetworkDnsAdapterProofInput,
-) -> Result<NetworkDnsAdapterArtifactRefs, NetworkDnsAdapterProofError> {
-    Ok(NetworkDnsAdapterArtifactRefs {
-        adapter_authorization_ref: normalized_artifact_ref(
-            input.adapter_authorization_ref.as_deref(),
-            NetworkDnsAdapterRequiredArtifact::AdapterAuthorization,
-        )?,
-        adapter_capability_proof_ref: normalized_artifact_ref(
-            input.adapter_capability_proof_ref.as_deref(),
-            NetworkDnsAdapterRequiredArtifact::CapabilityProof,
-        )?,
-        apply_artifact_ref: normalized_artifact_ref(
-            input.apply_artifact_ref.as_deref(),
-            NetworkDnsAdapterRequiredArtifact::ApplyArtifact,
-        )?,
-        result_artifact_ref: normalized_artifact_ref(
-            input.result_artifact_ref.as_deref(),
-            NetworkDnsAdapterRequiredArtifact::ResultArtifact,
-        )?,
-        rollback_artifact_ref: normalized_artifact_ref(
-            input.rollback_artifact_ref.as_deref(),
-            NetworkDnsAdapterRequiredArtifact::RollbackArtifact,
-        )?,
-        audit_event_ref: normalized_artifact_ref(
-            input.audit_event_ref.as_deref(),
-            NetworkDnsAdapterRequiredArtifact::AuditEvent,
-        )?,
-    })
-}
-
-fn reject_unsupported_claims(
-    input: &NetworkDnsAdapterProofInput,
-) -> Result<(), NetworkDnsAdapterProofError> {
-    if input.exact_url_claimed {
-        return Err(NetworkDnsAdapterProofError::ExactUrlClaimRejected);
-    }
-    if input.decrypted_payload_claimed {
-        return Err(NetworkDnsAdapterProofError::DecryptedPayloadClaimRejected);
-    }
-    if input.page_content_claimed {
-        return Err(NetworkDnsAdapterProofError::PageContentClaimRejected);
-    }
-    Ok(())
-}
-
-fn normalized_target_domain(input: &str) -> Result<String, NetworkDnsAdapterProofError> {
-    normalize_domain_with_public_suffix(input, &PublicSuffixModel::ocentra_fixture())
-        .map(|evidence| evidence.normalized_domain)
-        .map_err(NetworkDnsAdapterProofError::InvalidTargetDomain)
-}
-
-fn normalized_redirect_target(
-    action: NetworkDnsAdapterAction,
-    input: &NetworkDnsAdapterProofInput,
-) -> Result<Option<String>, NetworkDnsAdapterProofError> {
-    match (action, input.redirect_target_domain.as_deref()) {
-        (NetworkDnsAdapterAction::Redirect, Some(target)) => {
-            normalize_domain_with_public_suffix(target, &PublicSuffixModel::ocentra_fixture())
-                .map(|evidence| Some(evidence.normalized_domain))
-                .map_err(NetworkDnsAdapterProofError::InvalidRedirectTargetDomain)
-        }
-        (NetworkDnsAdapterAction::Redirect, None) => {
-            Err(NetworkDnsAdapterProofError::MissingRedirectTargetDomain)
-        }
-        (NetworkDnsAdapterAction::Block, Some(target)) => {
-            normalize_domain_with_public_suffix(target, &PublicSuffixModel::ocentra_fixture())
-                .map(|evidence| Some(evidence.normalized_domain))
-                .map_err(NetworkDnsAdapterProofError::InvalidRedirectTargetDomain)
-        }
-        (NetworkDnsAdapterAction::Block, None) => Ok(None),
-    }
-}
-
-fn boundary_reasons(
-    input: &NetworkDnsAdapterProofInput,
-    has_required_artifacts: bool,
-) -> Vec<NetworkDnsAdapterBoundaryReason> {
-    let mut reasons = Vec::new();
-    if input.dry_run {
-        reasons.push(NetworkDnsAdapterBoundaryReason::DryRunRequested);
-    }
-    match input.capability_state {
-        NetworkDnsAdapterCapabilityState::ManualRequired => {
-            reasons.push(NetworkDnsAdapterBoundaryReason::CapabilityManualRequired);
-        }
-        NetworkDnsAdapterCapabilityState::Unavailable => {
-            reasons.push(NetworkDnsAdapterBoundaryReason::CapabilityUnavailable);
-        }
-        NetworkDnsAdapterCapabilityState::Supported => {}
-    }
-    if input.policy_mapping.evidence_grade != NetworkEvidenceGrade::A {
-        reasons.push(NetworkDnsAdapterBoundaryReason::EvidenceGradeBelowApplyThreshold);
-    }
-    if input.policy_mapping.mode != NetworkEvidencePolicyMode::DryRun
-        || input.policy_mapping.mapped_action != NetworkEvidencePolicyAction::Block
-    {
-        reasons.push(NetworkDnsAdapterBoundaryReason::PolicyNotAdapterApproved);
-    }
-    if !has_required_artifacts {
-        reasons.push(NetworkDnsAdapterBoundaryReason::MissingRequiredArtifact);
-    }
-    reasons
-}
-
-fn proof_state(
-    dry_run: bool,
-    capability_state: NetworkDnsAdapterCapabilityState,
-    boundary_reasons: &[NetworkDnsAdapterBoundaryReason],
-) -> NetworkDnsAdapterProofState {
-    if dry_run {
-        return NetworkDnsAdapterProofState::DryRun;
-    }
-    if capability_state == NetworkDnsAdapterCapabilityState::Unavailable {
-        return NetworkDnsAdapterProofState::Unavailable;
-    }
-    if boundary_reasons.is_empty() {
-        NetworkDnsAdapterProofState::ApplyReady
-    } else {
-        NetworkDnsAdapterProofState::ManualRequired
-    }
-}
-
-fn missing_required_artifacts(
-    artifacts: &NetworkDnsAdapterArtifactRefs,
-) -> Vec<NetworkDnsAdapterRequiredArtifact> {
-    let mut missing = Vec::new();
-    push_missing(
-        &mut missing,
-        artifacts.adapter_authorization_ref.as_ref(),
-        NetworkDnsAdapterRequiredArtifact::AdapterAuthorization,
-    );
-    push_missing(
-        &mut missing,
-        artifacts.adapter_capability_proof_ref.as_ref(),
-        NetworkDnsAdapterRequiredArtifact::CapabilityProof,
-    );
-    push_missing(
-        &mut missing,
-        artifacts.apply_artifact_ref.as_ref(),
-        NetworkDnsAdapterRequiredArtifact::ApplyArtifact,
-    );
-    push_missing(
-        &mut missing,
-        artifacts.result_artifact_ref.as_ref(),
-        NetworkDnsAdapterRequiredArtifact::ResultArtifact,
-    );
-    push_missing(
-        &mut missing,
-        artifacts.rollback_artifact_ref.as_ref(),
-        NetworkDnsAdapterRequiredArtifact::RollbackArtifact,
-    );
-    push_missing(
-        &mut missing,
-        artifacts.audit_event_ref.as_ref(),
-        NetworkDnsAdapterRequiredArtifact::AuditEvent,
-    );
-    missing
-}
-
-fn push_missing(
-    missing: &mut Vec<NetworkDnsAdapterRequiredArtifact>,
-    value: Option<&String>,
-    artifact: NetworkDnsAdapterRequiredArtifact,
-) {
-    if value.is_none() {
-        missing.push(artifact);
-    }
-}
-
-fn normalized_refs(refs: &[String]) -> Result<Vec<String>, NetworkDnsAdapterProofError> {
-    let mut normalized = Vec::new();
-    for value in refs {
-        let Some(ref_value) = normalize_ref(value) else {
-            return Err(NetworkDnsAdapterProofError::EmptyEvidenceRef);
-        };
-        if !normalized.contains(&ref_value) {
-            normalized.push(ref_value);
-        }
-    }
-    if normalized.is_empty() {
-        return Err(NetworkDnsAdapterProofError::EmptyEvidenceRef);
-    }
-    Ok(normalized)
-}
-
-fn normalized_local_ai_ref(
-    value: Option<&str>,
-) -> Result<Option<String>, NetworkDnsAdapterProofError> {
-    match value {
-        Some(raw) => normalize_ref(raw)
-            .map(Some)
-            .ok_or(NetworkDnsAdapterProofError::EmptyLocalAiResultRef),
-        None => Ok(None),
-    }
-}
-
-fn normalized_artifact_ref(
-    value: Option<&str>,
-    artifact: NetworkDnsAdapterRequiredArtifact,
-) -> Result<Option<String>, NetworkDnsAdapterProofError> {
-    match value {
-        Some(raw) => normalize_ref(raw).map(Some).ok_or(
-            NetworkDnsAdapterProofError::EmptyRequiredArtifactRef(artifact),
-        ),
-        None => Ok(None),
-    }
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_owned())
-    }
 }

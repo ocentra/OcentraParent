@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=120
+DATE: Fri, 26 Jun 2026 12:00:00 GMT
+EXT:
+LOCATION: http://192.168.1.1:8080/rootDesc.xml
+SERVER: Linux/3.10 UPnP/1.0 RouterUPnP/2.1
+ST: urn:schemas-upnp-org:device:InternetGatewayDevice:1
+USN: uuid:2d3f7a20-8a8e-4c0e-b6eb-5cd5ec0e1001::urn:schemas-upnp-org:device:InternetGatewayDevice:1
+BOOTID.UPNP.ORG: 7
+CONFIGID.UPNP.ORG: 42
+SEARCHPORT.UPNP.ORG: 1900
+

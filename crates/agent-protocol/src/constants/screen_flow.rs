@@ -1,7 +1,8 @@
 pub const EVENT_SCHEMA_VERSION: u16 = 1;
 pub const EVENT_SCREEN_CAPTURE_OBSERVED: &str = "screen.capture.observed";
 pub const EVENT_SCREEN_QUEUE_ENCRYPTED: &str = "screen.queue.encrypted";
-pub const EVENT_SCREEN_AI_ANALYSIS_REQUESTED: &str = "screen.ai.analysis.requested";
+pub const EVENT_SCREEN_AI_ANALYSIS_REQUESTED: &str =
+    super::child_domain_runtime::SCREEN_AI_ANALYSIS_REQUESTED_EVENT_TYPE;
 pub const EVENT_SCREEN_AI_ANALYSIS_COMPLETED: &str = "screen.ai.analysis.completed";
 pub const EVENT_SCREEN_SUMMARY_COMMITTED: &str = "screen.summary.committed";
 pub const EVENT_SCREEN_POLICY_DECISION_COMPLETED: &str = "screen.policy.decision.completed";

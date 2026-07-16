@@ -1,64 +1,109 @@
-# Screen Plan Test and Proof Expectations
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `screen-plan`
-> Doc: `Screen Plan Test and Proof Expectations`
-> Kind: plan-local test and proof decision tree.
-> Read when: After the assigned workpack/checklist row is known; use to choose required tests/proof.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: This file defines required local tests/proof; missing tests keep rows open.
+> Doc: `Screen Plan Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
 <!-- /agent-capsule -->
 
-Use this after the assigned screen workpack or checklist row is known. Screen proof must separate capture permission, raw retention, OCR/VLM quality, browser/live trigger, live view, and parent explanation claims.
+# Screen Plan Test Proof Expectations
 
-## Where tests should live
+## Proof root
 
-When the screen implementation crate/package exists, tests belong under its test tree and proof output under its proof folder. Until then, colocate with the owning screen/domain/runtime package and record paths in the workpack and `PROOF_INDEX.md`.
+```text
+output/screen-plan-proof/<workpack-file-stem>/
+```
 
-## Decision Tree
+Historical retained artifacts may use named subdirectories under `output/screen-plan-proof/`; the selected workpack must name the accepted artifact path before any row is checked.
 
-| If the assigned work is...         | Read next                                | Expected tests or proof                                                                                    |
-| ---------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Capture scope/permission/retention | assigned workpack or exact checklist row | permission matrix, raw retention opt-in/out, delete/export, protected-surface negatives, custody proof.    |
-| Platform capture adapter           | assigned workpack                        | OS/device/version, manual permission proof, degraded/manual-required states, rollback/cleanup.             |
-| OCR/VLM/detector                   | assigned workpack                        | fixture regression, quality/resource measurement, output invariants, invalid-output handling.              |
-| Browser/live trigger or scheduler  | assigned workpack                        | trigger authenticity, idempotency, replay, ordering, service-started subscriber proof.                     |
-| Live view/relay/cache              | assigned workpack                        | authZ, token lifecycle, origin/header, connection exhaustion, timeout/cleanup, privacy prompt screenshots. |
-| Parent UI/explanation              | assigned workpack                        | Playwright screenshots, redacted summaries, empty/error/degraded states, log/trace refs.                   |
-| Security/privacy/legal boundary    | assigned workpack                        | protected surface proof, no raw leakage, redaction, privacy/legal approval note.                           |
+## Common commands
 
-## Expected test/proof inventory
+Use the subset relevant to the selected workpack:
 
-Use these names as proof intent labels in the assigned workpack/proof note. Implementers choose the actual crate/package test names after the owning implementation boundary exists.
+```bash
+npm run build --workspace @ocentra-parent/screen-domain
+npm run test --workspace @ocentra-parent/screen-domain
+cargo test -p ocentra-parent-agent-protocol screen
+cargo test -p ocentra-parent-agent-service screen
+npm run test --workspace @ocentra-parent/portal -- screen
+npm run lint:architecture -- --files packages/screen-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/screen-plan
+```
 
-- `screen.capture.permission-manual-required`: platform permission/enrollment gaps stay manual-required.
-- `screen.capture.custody-redaction`: screenshot custody, retention, deletion, and redaction paths are proved.
-- `screen.surface.inventory-boundaries`: window/surface inventory does not claim content understanding.
-- `screen.trigger.clock-boundary`: capture triggers handle timing, throttling, clock skew, and stale signals.
-- `screen.storage.retention-tombstone`: deletion and retention replay produce durable tombstone/read-model proof.
-- `screen.platform.adapter-proof`: platform adapters record OS/version/permission/output and limitations.
-- `screen.no-ai-enforcement-claim`: capture proof does not imply OCR/VLM, policy, or enforcement success.
+Run through `npm run agent:run --` when collecting proof if the wrapper is available.
 
-## Required proof contents
+## Command ownership notes
 
-- Screenshot or capture artifact path when visual proof is claimed.
-- Redaction/custody result and retention setting.
-- Platform/device limitation notes.
-- Command logs and selected risk rows.
+- `screen-plan` owns local screen capture/evidence/custody/settings/live-view-boundary proof.
+- `screen-domain` owns public screen contracts, screen intelligence, disclosure, routing, and handoff guard surfaces.
+- `screen-ai-pipeline-plan` owns screen -> AI -> policy/action product-path proof.
+- `ai-plan/schema-domain` owns shared AI context/result/provider/degradation behavior and contracts.
+- `policy-control-plane-plan` owns policy authority and parent-rule precedence.
+- `v0-8-enforcement-control-plan` owns enforcement adapter execution and rollback.
+- `data-custody-storage-plan` owns product retention/export/delete/privacy policy.
+- `portal-ux-household-surfaces-plan` owns broader portal UX completion.
+- `remote-access-plan` owns relay-backed remote live-access/session authority.
 
-## Failure conditions
+## Screen E2E meaning
 
-Do not claim DONE or PR_READY if any apply:
+Do not use one proof family to claim the whole screen path. For this plan, E2E has separate meanings:
 
-- The expected test/proof row for the touched work type is missing.
-- The implementation crate/package test folder does not exist and the missing expected location is not recorded.
-- Only happy-path tests pass for a trust, policy, persistence, protocol, UI, AI, platform, security, performance, or observability boundary.
-- A product/checklist row moved without command logs and proof artifact path.
-- A manual-required/platform limitation was converted into a runtime capability claim.
-- A proof artifact lacks negative cases, logs/traces where relevant, or exact workpack/checklist linkage.
-- A sibling plan or broad source tree was read without a route reason recorded in the workpack/proof note.
+```text
+contract/status E2E: schema/contract -> malformed payload rejection -> no runtime platform proof.
+platform-capture E2E: permission/probe -> selected display/window/app capture -> protected/degraded state -> queue/deletion; no AI or cross-platform claim.
+trigger-scope E2E: source trigger/scope -> capture job or structured skip -> custody state; no domain source-truth claim.
+queue-scheduler E2E: encrypted temp image queue -> debounce/backpressure -> deletion/expiry/failure states; no AI/policy claim.
+analysis-result E2E: screen summary/result schema -> redaction/confidence/evidence refs -> validator rejection; no model-quality claim unless selected.
+journal/read-model E2E: screen evidence row -> service/read model -> portal visible state; no raw capture or portal UX completion claim.
+deletion/retention E2E: raw image path -> delete success/TTL/delete-failed visibility -> raw retention disabled or opt-in proof.
+policy-evidence E2E: validated summary/evidence refs -> policy target/dry-run handoff -> no enforcement claim.
+live-view E2E: optional live-view setting/preflight/loopback/relay-cache/worker gate -> no product-ready claim without prompt/physical/privacy proof.
+remote-boundary E2E: redacted summary export -> parent approval/audit/custody -> raw screenshot remote upload denied.
+rollout E2E: accepted proof roots + open workpack blockers + known gaps -> allowed/blocked claims.
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Product/runtime-safe logging:
+
+```text
+redact raw images, raw screenshot paths, OCR text unless fixture-scoped, VLM prompt/output unless fixture-scoped, child-private text, account/session secrets, remote/export payloads, and support-private diagnostics
+log workpack, platform, capture scope, trigger type, permission state, protected-surface state, queue state, deletion state, retention mode, live-view state, custody state, portal state, proof tier, artifact pointer, blocker, and no-claim boundary when safe
+separate capture source, queue/custody, AI analysis, policy handoff, enforcement, portal projection, live-view, remote/export, and legal/privacy states
+never treat mock screenshots, fixture-only proof, checked rows, portal screenshots, capture-only proof, or live-view preflight proof as product readiness without selected proof root and no-claim boundary
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, platform, proof tier, exit code, result, artifact pointer, diagnostics summary, blocker note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
+
+## Required negative states
+
+```text
+permission missing visible
+unsupported platform visible
+capture disabled visible
+protected surface blocked or degraded visible
+image deleted/expired state visible
+delete-failed state visible where selected
+private raw image not exposed by default
+raw screenshot remote upload denied by default
+mock screenshot not product proof
+portal screenshot not runtime proof
+capture-only proof not AI/policy/enforcement proof
+AI analysis handoff remains separate unless selected workpack owns it
+live-view preflight/loopback proof not product live-view readiness
+redacted summary export not raw screenshot remote upload
+```

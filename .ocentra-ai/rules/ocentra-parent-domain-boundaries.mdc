@@ -6,43 +6,101 @@ alwaysApply: false
 
 # Ocentra Parent Domain Boundaries
 
-Shared meaning lives in domain packages and protocol crates, not in app code.
+Current architecture authority is Rust-first. New work must treat Rust as the
+product source of truth even when older plan docs still describe the former
+TypeScript-first migration path.
+
+Canonical cross-boundary schema truth lives in `crates/schema`. Rust domain and
+runtime crates own product contracts, actions, route snapshots, read models,
+projections, business logic, and policy decisions. TypeScript is presentation
+and edge-adapter code only: TSX, CSS, assets, generated bridge DTO/types, thin
+host/dev adapters, and minimal local visual state.
+
+`@ocentra-parent/schema-domain`, `@ocentra-parent/agent-protocol-domain`, and
+feature TS domain packages are transitional compatibility surfaces only. They
+may keep temporary edge decoders or presentation helpers until Rust-owned
+replacements and generated bridge consumers are live. Do not add new
+hand-written TS business schema or TS-owned product contracts there.
 
 ## TypeScript Rules
 
-- Use Effect Schema for runtime validation.
+- Use Effect Schema only at untrusted TypeScript edges or generated validation
+  edges. It is not business truth.
 - Do not add Zod.
-- Do not create manual `string & { readonly __brand: ... }` aliases.
-- Use Effect Schema brands and decode helpers.
+- Do not create new hand-written product brands or DTO authorities in
+  TypeScript.
 - Keep external input as `unknown` until parsed.
-- Do not annotate app/runtime values as raw `string` when a domain brand exists.
-- Do not place runtime text, route ids, event names, field names, or endpoint paths in app source.
+- Do not place runtime route ids, event names, field names, protocol strings,
+  endpoint paths, read-model rules, policy logic, or product fallback behavior
+  in app or package source.
+- TypeScript may render generated Rust-owned snapshots and dispatch generated
+  Rust-owned actions. It may not reconstruct product state as source of truth.
 
 ## Package Ownership
 
 | Package | Owns |
 | --- | --- |
-| `@ocentra-parent/schema-domain` | Effect Schema helpers and branded decode helpers |
-| `@ocentra-parent/endpoint-domain` | endpoint paths, route ids, headers, query brands |
-| `@ocentra-parent/agent-protocol-domain` | WebSocket command and event contracts |
-| `@ocentra-parent/text-domain` | schema-backed display text tokens |
-| `@ocentra-parent/portal-domain` | portal route ids, DOM ids, dev command descriptors |
-| `@ocentra-parent/logging-domain` | structured log contracts shared across runtimes |
-| `@ocentra-parent/parent-domain` | family, parent, child, and device product contracts |
-| `@ocentra-parent/activity-domain` | activity event and policy observation contracts |
+| `crates/schema` | Canonical cross-boundary Rust DTOs, route snapshots, action/result shapes, generated TypeScript bridge artifacts, and encoded-shape tests. |
+| `crates/parent-runtime-core` | Parent app facade: accepts UI actions, dispatches Rust commands/events, and builds route snapshots. |
+| `crates/ocentra-eventing` | Internal Rust event backbone and business event decoupling. |
+| Rust domain crates such as tracking, network, browser, policy, screen, app-game, enforcement, family, evidence, custody, notification | Product logic, projections, read models, security decisions, and runtime state for their domain. |
+| `apps/parent-desktop/src-tauri` | Product Tauri command/event host into Rust. |
+| `apps/portal` / future `apps/parent-ui` | Presentation only: TSX, CSS, assets, generated bridge DTO imports, host/dev adapters, and visual state. |
+| `@ocentra-parent/logging-domain` | Narrow dev/proof/UI-edge logging helpers only; Rust owns product proof logs. |
+
+Transitional TypeScript packages:
+
+- `@ocentra-parent/schema-domain` must stop being canonical authority. Keep only
+  temporary edge decoders or generated validation adapters until consumers move
+  to Rust-owned generated DTOs.
+- `@ocentra-parent/agent-protocol-domain` must stop being protocol authority.
+  Rust parent/child crates consume `crates/schema` and Rust protocol shapes.
+- Feature TS domain packages must shrink to pure presentation helpers or be
+  removed after Rust replacement is live, the bridge exposes it, the UI consumes
+  it, focused tests pass, and the main lane approves deletion.
 
 ## Rust Rules
 
-- Runtime strings live in `crates/agent-protocol` constants.
-- Serde structs live beside the protocol boundary.
-- The Rust service should consume protocol constants and structs, not invent local strings.
+- Runtime strings, Serde structs/enums, action payloads, route snapshots, read
+  models, and wire DTOs that cross product boundaries live in `crates/schema` or
+  the owning Rust domain crate when the shape is crate-local.
+- `crates/agent-protocol` is transitional protocol surface, not the desired
+  final schema owner. Prefer new shared cross-boundary DTOs in `crates/schema`.
+- Rust services and runtimes consume Rust-owned constants and structs, not local
+  string literals or TS-owned catalogs.
 - Platform-neutral concepts belong outside Windows-specific modules.
+- Generated TypeScript artifacts must preserve Rust serde encoded shape: field
+  names, discriminants, nullability, versioning, and enum values.
+- Shared Rust/generated-TS contracts must be guarded by serialization,
+  generated-artifact, compatibility, and drift-check coverage so TypeScript
+  cannot silently become a second authority.
 
 ## Change Order
 
-1. Add or update domain contract.
-2. Add or update parser/brand tests.
-3. Mirror into Rust protocol if the Rust service crosses the boundary.
-4. Update portal/service consumers.
-5. Run the validation gate.
+1. Add or update the canonical Rust contract/read model/action in
+   `crates/schema`, `crates/parent-runtime-core`, or the relevant Rust domain
+   crate.
+2. Add or update Rust serialization, round-trip, negative, compatibility, and
+   drift coverage appropriate to the boundary.
+3. Generate or update TypeScript bridge DTOs or edge decoders from Rust.
+4. Update TS consumers to render generated snapshots or dispatch generated
+   actions only.
+5. Remove product TS fallback/reconstruction only after replacement is live and
+   focused tests pass.
+6. Delete/shrink TS business packages only after imports are gone, replacement
+   tests are green, and the main lane approves the deletion condition.
+7. Run scoped crate/package validation first; reserve broad repo validation for
+   late integration.
 
+## Rust Test Shape
+
+Rust test placement must be visible and risk-based. Use crate-level folders such
+as `tests/unit`, `tests/integration`, `tests/contract`, `tests/security`,
+`tests/property`, `tests/fuzz`, `tests/replay`, `tests/concurrency`,
+`tests/migration`, `tests/compatibility`, `tests/observability`,
+`tests/performance`, `tests/chaos`, `tests/ai`, or `tests/e2e` only when that
+category has real tests for that crate. Do not keep empty `.gitkeep` folders as
+proof. New tests must live in visible crate-level test folders/groups. Treat
+inline `#[cfg(test)]` blocks as tiny private invariant seams or migration debt
+only; they do not count as closure evidence and must not be used for new
+completion claims.

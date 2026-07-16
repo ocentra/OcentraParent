@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+  <specVersion>
+    <major>1</major>
+    <minor>0</minor>
+  </specVersion>
+  <URLBase>http://192.168.1.40:9197/</URLBase>
+  <device>
+    <deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType>
+    <friendlyName>Samsung Living Room TV</friendlyName>
+    <manufacturer>Samsung Electronics</manufacturer>
+    <manufacturerURL>https://www.samsung.com/</manufacturerURL>
+    <modelDescription>Smart television with UPnP media renderer support</modelDescription>
+    <modelName>Q80T</modelName>
+    <modelNumber>QN55Q80TAFXZA</modelNumber>
+    <UDN>uuid:4f8f8b66-3c2b-4f34-a8d7-1f3de8a9d001</UDN>
+    <serialNumber>TV-2026-0042</serialNumber>
+  </device>
+</root>
+

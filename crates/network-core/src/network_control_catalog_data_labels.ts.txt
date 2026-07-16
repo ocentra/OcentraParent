@@ -1,0 +1,28 @@
+
+export const NetworkControlCatalogSourceDocuments = [
+  'docs/network-control-capability-guide.md',
+  'docs/network-control-schema-proposal.md',
+] as const;
+
+export const NetworkControlCatalogTargetScopeLabels = [
+  'Family',
+  'Per Child',
+  'Per Device',
+  'Per Platform',
+  'Per Network',
+] as const;
+
+export const NetworkControlCatalogEffectModeLabels = [
+  'Off',
+  'Observe',
+  'Dry Run',
+  'Warn',
+  'Notify',
+  'Ask',
+  'Limit',
+  'Block',
+  'Enforce',
+  'Audit Only',
+] as const;
+
+// Generated from docs/network-control-schema-proposal.md and docs/network-control-capability-guide.md. Tests parse the source docs and prove parity.

@@ -1,12 +1,18 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityMemoryGraphEdge, ActivityMemoryGraphNode, ActivityMemoryGraphQuery,
-    ActivityMemoryGraphQueryKind, ActivityMemoryGraphReadModel, ActivityMemoryGraphTimeRange,
-    ParentDeviceReference, ACTIVITY_MEMORY_GRAPH_CAPABILITY_NO_EVIDENCE,
-    ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY, ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE,
-    ACTIVITY_MEMORY_GRAPH_REASON_EDGE_LIMIT, ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphEdge;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphNode;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphQuery;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphQueryKind;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphReadModel;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphTimeRange;
+use ocentra_parent_agent_protocol::activity_memory_graph::ACTIVITY_MEMORY_GRAPH_CAPABILITY_NO_EVIDENCE;
+use ocentra_parent_agent_protocol::activity_memory_graph::ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY;
+use ocentra_parent_agent_protocol::activity_memory_graph::ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE;
+use ocentra_parent_agent_protocol::activity_memory_graph::ACTIVITY_MEMORY_GRAPH_REASON_EDGE_LIMIT;
+use ocentra_parent_agent_protocol::activity_memory_graph::ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::constants;
 
 use crate::{
     activity_store_memory_graph_nodes::{
@@ -46,9 +52,9 @@ impl MemoryGraphBuilder {
         }
     }
 
-    pub(crate) fn ingest(&mut self, row: MemoryGraphStoreRow) {
+    pub(crate) fn ingest(&mut self, row: &MemoryGraphStoreRow) {
         self.capture_time_range(&row.observed_at);
-        self.query_device = device_from_row(&row);
+        self.query_device = device_from_row(row);
         if let Some(edge) = self.edge_from_row(row) {
             if self.edges.len() < self.limit as usize {
                 self.edges.push(edge);
@@ -97,21 +103,21 @@ impl MemoryGraphBuilder {
         }
     }
 
-    fn edge_from_row(&mut self, row: MemoryGraphStoreRow) -> Option<ActivityMemoryGraphEdge> {
-        let device = device_from_row(&row);
-        let device_node = device_node(&row, &device, &self.generated_at);
-        let activity_node = activity_node(&row, &device, &self.generated_at)?;
-        let edge_kind = edge_kind(&row)?;
+    fn edge_from_row(&mut self, row: &MemoryGraphStoreRow) -> Option<ActivityMemoryGraphEdge> {
+        let device = device_from_row(row);
+        let device_node = device_node(row, &device, &self.generated_at);
+        let activity_node = activity_node(row, &device, &self.generated_at)?;
+        let edge_kind = edge_kind(row)?;
         let edge = ActivityMemoryGraphEdge {
             graph_id: graph_id(),
-            edge_id: edge_id(&row),
+            edge_id: edge_id(row),
             edge_kind,
             from_node_id: device_node.node_id.clone(),
             to_node_id: activity_node.node_id.clone(),
             observed_from: row.observed_at.clone(),
             observed_until: None,
             duration_ms: None,
-            trace: trace_from_row(&row, &self.generated_at, confidence_for_edge(edge_kind)),
+            trace: trace_from_row(row, &self.generated_at, confidence_for_edge(edge_kind)),
         };
         self.nodes.insert(device_node.node_id.clone(), device_node);
         self.nodes

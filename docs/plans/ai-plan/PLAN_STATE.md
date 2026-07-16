@@ -20,6 +20,45 @@ Generated from the existing `ai-plan` docs. This is the default resume/status fi
 
 This folder is the single working plan location for local AI safety contracts, local model runtime, evidence context building, provider routing, AI job queues, memory and knowledge graph, TabAgent reuse, screen OCR/VLM routing, policy handoff, parent explanations, and later parent-approved remote assistant boundaries.
 
+## Current ownership interpretation
+
+```text
+crates/schema or the owning Rust crate:
+  Canonical shared AI contracts when AI shapes cross package, crate, app, or plan boundaries.
+
+schema-domain:
+  Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+
+ai-domain:
+  Helper/projection and focused validation surface. It consumes Rust-owned/generated AI contracts and must not re-own shared AI contracts.
+
+child-ai-core:
+  Child-local AI runtime/evaluator boundary for context validation, provider result validation, degraded states, and accepted AI output.
+
+screen-ai-core:
+  Screen AI worker/router boundary. It consumes screen evidence references and does not own general screen capture, retention, or policy.
+
+agent-protocol and agent-service:
+  Wire/service transport boundaries when a selected workpack names protocol or service proof.
+
+portal-domain and apps/portal:
+  Parent-visible AI status/explanation projections. They do not own child-local evaluation or policy actions.
+
+Browser, screen, tracking, network, and app/game plans:
+  Evidence/source owners. AI consumes their evidence/read-model/request results and must not import their runtime behavior.
+
+Policy and enforcement plans:
+  Deterministic decision/action owners. AI output is evidence input, not authority to act.
+```
+
+## Current coupling risks
+
+```text
+- `ai-domain` dependencies on family-domain, lan-domain, and policy-domain are transition-sensitive. Keep only explicit public helper/contract consumption; shared shapes should move through `crates/schema` or another neutral Rust-owned boundary.
+- `child-ai-core` currently depends on tracking-core. Treat it as migration debt unless the selected workpack records a temporary compatibility reason and a replacement event/read-model route.
+- Bridge work for browser, screen, tracking, network, or app/game must use evidence/read-model/request results instead of direct runtime calls.
+```
+
 ## Resume route
 
 1. Read this file.
@@ -62,6 +101,17 @@ This folder is the single working plan location for local AI safety contracts, l
 - Full TabAgent code reuse audit and extraction plan.
 - Parent explanation UI that cites evidence, rules, model/runtime refs, and degraded states.
 - Real stored-evidence validation for browser, app/game, tracking, LAN, network, and screen slices.
+
+## Current proof interpretation
+
+```text
+Historical checklist rows are status input, not completion authority.
+Current workpack boxes and assigned proof roots are the active execution source.
+A checked checklist row cannot close an open workpack without current proof artifacts and command logs.
+Mock provider, dry-run adapter, docs-only proof, or a schema-only unit test cannot prove local model runtime readiness.
+A feature-evidence bridge proof proves only the handoff route unless it includes the owning feature evidence source and AI validation result.
+An AI result is not a policy/enforcement decision until deterministic policy consumes it through the owned handoff.
+```
 
 ## Checklist summary
 
@@ -125,9 +175,9 @@ This folder is the single working plan location for local AI safety contracts, l
   - a real test run log (or explicit known blocker) from the assigned implementation boundary,
   - a proof manifest under docs/proof/ai-plan/.
 - Required proof manifest names:
-  - docs/proof/ai-plan/slice-01-\*.md
-  - docs/proof/ai-plan/slice-02-\*.md
-  - docs/proof/ai-plan/slice-03-\*.md
+  - docs/proof/ai-plan/slice-01-*.md
+  - docs/proof/ai-plan/slice-02-*.md
+  - docs/proof/ai-plan/slice-03-*.md
   - each proof file must include commands, pass/fail,
     negative-cases, and manual-required notes.
 - Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use ocentra_parent_agent_protocol::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
 use tokio::sync::Notify;
 
 pub(crate) enum LocalAiProviderRuntimeLaneAdmission {

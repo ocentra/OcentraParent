@@ -9,6 +9,17 @@ Read next:
 - `../../lan-plan/AGENTS.md`
 - `../../remote-access-plan/AGENTS.md` only if relay/remote access is the assignment
 - `../05-implementation-workpacks.md` rows 79-87 only
+- `../WORKPACK_FAMILIES.md` only if owner/proof family is unclear
+
+## Ownership boundary
+
+```text
+eventing-plan owns selected event export/import validation and local republish semantics only.
+lan-plan owns LAN mesh, pairing, transport, authority, and household route behavior.
+remote-access-plan owns relay/remote access behavior when selected.
+account/device-trust/data-custody plans own authority, trust, and custody facts consumed by the handoff.
+policy/enforcement plans own decisions and actions; peer/provider devices must not publish those events directly.
+```
 
 Expected outcome:
 
@@ -17,6 +28,34 @@ Expected outcome:
 - Incoming bridge messages republish locally only after validation.
 - Provider advertisement, heartbeat, AI work claim/lease/result, and child-agent AI work ledger events have owner boundaries.
 - Provider or peer devices cannot publish policy/enforcement events directly.
+- The proof root records whether this is eventing-local validation, LAN consumer proof, or remote-access handoff proof.
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+handoff_id
+source_event_ref
+source_event_type
+export_scope
+family_ref
+publisher_device_ref
+consumer_device_ref
+transport_boundary
+authority_state
+custody_state
+idempotency_state
+replay_state
+stale_message_state
+republish_local_state
+consumer_plan_ref
+peer_policy_publish_state
+manual_required_state
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 Expected tests/proof:
 
@@ -32,3 +71,15 @@ Failure conditions:
 - Do not claim remote relay, mobile parity, or cloud delivery here.
 - Do not trust provider/peer claims without account/device authority proof.
 - Do not bypass local validation before republishing imported events.
+- Do not allow provider or peer devices to direct-publish policy/enforcement events.
+- Do not claim LAN/remote readiness from eventing crate proof alone.
+- Do not claim eventing PR_READY from WP12/WP13 proof while this workpack lacks accepted proof or exact blockers.
+
+Expected proof artifacts:
+
+- `output/eventing-plan-proof/12-household-mesh-consumer/proof-summary.json`
+- `test-results/eventing-household-mesh-consumer-proof/proof.json`
+- `output/eventing-plan-proof/12-household-mesh-consumer/16-validation-commands.log`
+- `output/eventing-plan-proof/12-household-mesh-consumer/02-no-claim-boundary.md`
+
+These paths are currently absent in this checkout. Keep WP10 open until they are restored or regenerated and the owning LAN/remote-access workpack reference is re-verified.

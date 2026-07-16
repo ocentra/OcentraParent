@@ -20,12 +20,12 @@ Timed cadence and repeated AI analysis are bounded and visible.
 
 ## Checklist
 
-- [x] Short test cadence configured by explicit service opt-in setting.
-- [x] At least three captures recorded.
-- [x] Actual timestamps recorded.
-- [x] Queue backpressure/debounce recorded. The service proof caps pending queue records at three and verifies no fourth row appears after the queue is full.
-- [x] Repeated AI analysis does not flood model runtime. Current service analysis proof uses explicit opt-in, `max_jobs`, `max_ticks`, poll cadence, and adapter timeout to bound service-owned model dispatch, while broader multi-job production VLM stress remains a follow-up proof item.
-- [x] Disable stops future cadence jobs at scheduler/service unit boundary and
+- [ ] Short test cadence configured by explicit service opt-in setting.
+- [ ] At least three captures recorded.
+- [ ] Actual timestamps recorded.
+- [ ] Queue backpressure/debounce recorded. The service proof caps pending queue records at three and verifies no fourth row appears after the queue is full.
+- [ ] Repeated AI analysis does not flood model runtime. Current service analysis proof uses explicit opt-in, `max_jobs`, `max_ticks`, poll cadence, and adapter timeout to bound service-owned model dispatch, while broader multi-job production VLM stress remains a follow-up proof item.
+- [ ] Disable stops future cadence jobs at scheduler/service unit boundary and
       service runtime proof boundary.
 
 ## Proof

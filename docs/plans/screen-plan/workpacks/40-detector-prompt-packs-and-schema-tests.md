@@ -25,12 +25,12 @@ Capture MVP should reserve detector IDs and result contracts. Prompt quality pro
 
 ## Checklist
 
-- [x] Define detector IDs.
-- [x] Define output schema.
-- [x] Add social/video/chat/game/school/bypass/adult/violence/payment/signup detectors.
-- [x] Forbid private messages, names, credentials, and full OCR text by default.
-- [x] Add malformed output tests.
-- [x] Add confidence and uncertainty reason tests.
+- [ ] Define detector IDs.
+- [ ] Define output schema.
+- [ ] Add social/video/chat/game/school/bypass/adult/violence/payment/signup detectors.
+- [ ] Forbid private messages, names, credentials, and full OCR text by default.
+- [ ] Add malformed output tests.
+- [ ] Add confidence and uncertainty reason tests.
 
 ## Proof
 

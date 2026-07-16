@@ -1,78 +1,60 @@
-import { type ScreenAnalysisParentSetting } from '@ocentra-parent/activity-domain/screen-evidence-settings';
 import {
-  AgentCommand,
-  type AgentCommandName,
-  type AgentEventEnvelope,
-  type AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+  ParentScreenSettingsUpdateKind,
+  parentScreenSettingsGetCommandDraft,
+  parentScreenSettingsReplaceCommandDraft,
+  type ParentScreenSettingsServiceBridgeAction,
+  type ParentScreenSettingsServiceCommandDraft,
+  type ParentScreenSettingsServiceRequestId,
+} from '../generated/parent-ui-bridge';
 import {
-  createScreenSettingsCommandPayload,
-  createScreenSettingsGetRequest,
-  createScreenSettingsPortalRequestId,
-  createScreenSettingsReplaceRequest,
-  parseScreenSettingsUpdateEvent,
-  ScreenSettingsUpdateKindValue,
-  ScreenSettingsUpdateStatus,
-  type ScreenSettingsUpdateResponse,
-} from '@ocentra-parent/agent-protocol-domain/screen-settings-adapter';
-import { type ScreenEvidenceSettingsUiProof } from '@ocentra-parent/activity-domain/screen-evidence';
+  ParentScreenSettingsUpdateStatus,
+  decodeParentScreenSettingsUpdateResponse,
+  type ParentScreenAnalysisParentSetting,
+  type ParentScreenEvidenceSettingsUiProof,
+  type ParentScreenSettingsUpdateResponse,
+} from '../generated/parent-ui-screen-bridge';
 
-export type ScreenSettingsServiceRequestId = ReturnType<typeof createScreenSettingsPortalRequestId>;
+export type ScreenSettingsServiceRequestId = ParentScreenSettingsServiceRequestId;
+export type ScreenSettingsServiceBridgeAction = ParentScreenSettingsServiceBridgeAction;
+export type ScreenSettingsServiceCommandDraft = ParentScreenSettingsServiceCommandDraft;
 
-export type ScreenSettingsServiceCommandDraft = {
-  readonly command: AgentCommandName;
-  readonly payload: AgentProtocolLogFields;
-  readonly requestId: ScreenSettingsServiceRequestId;
-};
+export type ScreenSettingsServiceResponse = ParentScreenSettingsUpdateResponse | null;
 
 export function createScreenSettingsGetCommandDraft(sequence: number): ScreenSettingsServiceCommandDraft {
-  const requestId = createScreenSettingsPortalRequestId(sequence);
-  return {
-    command: AgentCommand.ScreenSettingsGet,
-    payload: createScreenSettingsCommandPayload(createScreenSettingsGetRequest(requestId)),
-    requestId,
-  };
+  return parentScreenSettingsGetCommandDraft(sequence);
 }
 
 export function createScreenSettingsReplaceCommandDraft(input: {
   readonly baseSettingVersion: number | null;
   readonly sequence: number;
-  readonly setting: ScreenAnalysisParentSetting;
+  readonly setting: ParentScreenAnalysisParentSetting;
 }): ScreenSettingsServiceCommandDraft {
-  const requestId = createScreenSettingsPortalRequestId(input.sequence);
-  return {
-    command: AgentCommand.ScreenSettingsReplace,
-    payload: createScreenSettingsCommandPayload(
-      createScreenSettingsReplaceRequest({
-        requestId,
-        baseSettingVersion: input.baseSettingVersion,
-        setting: input.setting,
-      })
-    ),
-    requestId,
-  };
+  return parentScreenSettingsReplaceCommandDraft(input);
 }
 
-export function latestScreenSettingsServiceResponse(
-  events: readonly AgentEventEnvelope[],
+export function decodeScreenSettingsServiceResponseSnapshot(snapshot: unknown): ScreenSettingsServiceResponse {
+  return decodeParentScreenSettingsUpdateResponse(snapshot);
+}
+
+export function matchingScreenSettingsServiceResponse(
+  response: ScreenSettingsServiceResponse,
   requestId: ScreenSettingsServiceRequestId | null
-): ScreenSettingsUpdateResponse | null {
-  for (const event of events) {
-    const parsed = parseScreenSettingsUpdateEvent(event);
-    if (!parsed.ok) {
-      continue;
-    }
-    if (requestId === null || parsed.value.requestId === requestId) {
-      return parsed.value;
-    }
+): ScreenSettingsServiceResponse {
+  if (response === null) {
+    return null;
+  }
+  if (requestId === null || response.requestId === requestId) {
+    return response;
   }
   return null;
 }
 
-export function screenSettingsBaseVersionForReplace(response: ScreenSettingsUpdateResponse | null): number | null {
+export function screenSettingsBaseVersionForReplace(
+  response: ParentScreenSettingsUpdateResponse | null
+): number | null {
   if (
-    response?.kind !== ScreenSettingsUpdateKindValue.Replace ||
-    response.status !== ScreenSettingsUpdateStatus.Accepted ||
+    response?.kind !== ParentScreenSettingsUpdateKind.Replace ||
+    response.status !== ParentScreenSettingsUpdateStatus.Accepted ||
     response.setting === null
   ) {
     return null;
@@ -83,16 +65,16 @@ export function screenSettingsBaseVersionForReplace(response: ScreenSettingsUpda
 export function screenSettingsServiceStatusText(input: {
   readonly commandEnabled: boolean;
   readonly pendingRequestId: ScreenSettingsServiceRequestId | null;
-  readonly proof: ScreenEvidenceSettingsUiProof;
-  readonly response: ScreenSettingsUpdateResponse | null;
+  readonly proof: ParentScreenEvidenceSettingsUiProof;
+  readonly response: ParentScreenSettingsUpdateResponse | null;
 }) {
   if (!input.commandEnabled) {
     return input.proof.serviceDisconnectedStatus;
   }
-  if (input.response?.status === ScreenSettingsUpdateStatus.Accepted) {
+  if (input.response?.status === ParentScreenSettingsUpdateStatus.Accepted) {
     return input.proof.serviceAcceptedStatus;
   }
-  if (input.response?.status === ScreenSettingsUpdateStatus.Rejected) {
+  if (input.response?.status === ParentScreenSettingsUpdateStatus.Rejected) {
     return input.proof.serviceRejectedStatus;
   }
   if (input.pendingRequestId !== null) {

@@ -1,9 +1,14 @@
 use std::{fs, path::Path, time::Duration};
 
-use ocentra_parent_agent_core::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityIngestStatus, LogFieldValue,
+use ocentra_parent_agent_core::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
 };
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
@@ -11,13 +16,17 @@ use crate::{
     time::timestamp_now,
 };
 
+#[path = "activity_capture/app_game.rs"]
 mod app_game;
+#[path = "activity_capture/capture_events.rs"]
 pub(crate) mod capture_events;
+#[path = "activity_capture/errors.rs"]
 mod errors;
-pub use errors::ActivityCaptureError;
+pub(crate) type ActivityCaptureError = errors::ActivityCaptureError;
 
-#[cfg(test)]
-pub(crate) mod freshness;
+pub(crate) struct StartupActivityCaptureDisabledValue<'a>(pub(crate) Option<&'a str>);
+
+pub(crate) struct ActivityCaptureObservedAt<'a>(pub(crate) &'a str);
 
 pub fn spawn_startup_activity_capture() {
     if !startup_activity_capture_enabled() {
@@ -35,15 +44,17 @@ pub fn spawn_startup_activity_capture() {
 }
 
 pub(crate) fn startup_activity_capture_enabled() -> bool {
-    startup_activity_capture_enabled_for_value(
+    startup_activity_capture_enabled_for_value(&StartupActivityCaptureDisabledValue(
         std::env::var(constants::env_var::ACTIVITY_CAPTURE_STARTUP_DISABLED)
             .ok()
             .as_deref(),
-    )
+    ))
 }
 
-pub(crate) fn startup_activity_capture_enabled_for_value(value: Option<&str>) -> bool {
-    windows_activity_capture_supported() && value != Some(constants::value::TRUE)
+pub(crate) fn startup_activity_capture_enabled_for_value(
+    value: &StartupActivityCaptureDisabledValue<'_>,
+) -> bool {
+    windows_activity_capture_supported() && value.0 != Some(constants::value::TRUE)
 }
 
 async fn run_activity_capture_once_blocking() {
@@ -67,9 +78,9 @@ fn log_activity_capture_error(error: &ActivityCaptureError) {
 
 pub fn record_activity_capture_once() -> Result<ActivityIngestStatus, ActivityCaptureError> {
     record_activity_capture_to_paths(
-        &activity_journal_path(),
-        &activity_journal_key_path(),
-        &activity_db_path(),
+        activity_journal_path().as_ref(),
+        activity_journal_key_path().as_ref(),
+        activity_db_path().as_ref(),
         constants::activity_capture::PROCESS_SNAPSHOT_LIMIT,
         constants::activity_capture::NETWORK_SNAPSHOT_LIMIT,
     )
@@ -92,14 +103,14 @@ pub fn record_activity_capture_to_paths(
     process_limit: usize,
     network_limit: usize,
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
-    let observed_at = timestamp_now();
+    let observed_at: String = timestamp_now();
     record_activity_capture_to_paths_at(
         journal_path,
         key_path,
         store_path,
         process_limit,
         network_limit,
-        &observed_at,
+        &ActivityCaptureObservedAt(observed_at.as_str()),
     )
 }
 
@@ -109,10 +120,13 @@ pub(crate) fn record_activity_capture_to_paths_at(
     store_path: &Path,
     process_limit: usize,
     network_limit: usize,
-    observed_at: &str,
+    observed_at: &ActivityCaptureObservedAt<'_>,
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
-    let events =
-        capture_events::activity_capture_events(observed_at, process_limit, network_limit)?;
+    let events = capture_events::activity_capture_events(
+        capture_events::ObservedAtText(Box::leak(observed_at.0.to_string().into_boxed_str())),
+        capture_events::CaptureLimit(process_limit),
+        capture_events::CaptureLimit(network_limit),
+    )?;
     record_activity_events_to_paths(journal_path, key_path, store_path, &events)
 }
 

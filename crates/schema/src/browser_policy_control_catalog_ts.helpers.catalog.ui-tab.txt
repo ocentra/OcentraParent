@@ -1,0 +1,33 @@
+export function uiTabForSectionGenerated(sectionTitle: string): string {
+  if (/Rule|Search|Video|Conflict/u.test(sectionTitle)) {
+    return 'rules';
+  }
+  if (/Schedule|Time Budget/u.test(sectionTitle)) {
+    return 'schedule';
+  }
+  if (/Approval|Override|Notifications/u.test(sectionTitle)) {
+    return 'approvals';
+  }
+  if (/Evidence|Never-Collect/u.test(sectionTitle)) {
+    return 'evidence';
+  }
+  if (/Report|Portal Display|Child-Facing/u.test(sectionTitle)) {
+    return 'reports';
+  }
+  if (/Custody|Retention/u.test(sectionTitle)) {
+    return 'data';
+  }
+  if (/Audit/u.test(sectionTitle)) {
+    return 'audit';
+  }
+  if (/AI/u.test(sectionTitle)) {
+    return 'ai';
+  }
+  if (/Platform/u.test(sectionTitle)) {
+    return 'platform';
+  }
+  if (/Setup|Provisioning/u.test(sectionTitle)) {
+    return 'setup';
+  }
+  return 'enforcement';
+}

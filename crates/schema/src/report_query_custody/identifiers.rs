@@ -1,0 +1,91 @@
+use super::*;
+
+macro_rules! report_query_identifier {
+    ($function_name:ident, $type_name:ty, $expect_message:ident) => {
+        pub(super) fn $function_name(value: impl Into<String>) -> $type_name {
+            crate::schema_option_or_unreachable(<$type_name>::parse(value), $expect_message)
+        }
+    };
+}
+
+report_query_identifier!(
+    contract_version,
+    ParentContractSchemaVersion,
+    REPORT_QUERY_CUSTODY_EXPECT_CONTRACT_VERSION
+);
+report_query_identifier!(
+    account_id,
+    ParentAccountId,
+    REPORT_QUERY_CUSTODY_EXPECT_ACCOUNT_ID
+);
+report_query_identifier!(family_id, FamilyId, REPORT_QUERY_CUSTODY_EXPECT_FAMILY_ID);
+report_query_identifier!(
+    parent_device_id,
+    ParentDeviceId,
+    REPORT_QUERY_CUSTODY_EXPECT_DEVICE_ID
+);
+report_query_identifier!(
+    parent_device_label,
+    ParentDeviceLabel,
+    REPORT_QUERY_CUSTODY_EXPECT_DEVICE_LABEL
+);
+report_query_identifier!(
+    parent_actor_id,
+    ParentActorId,
+    REPORT_QUERY_CUSTODY_EXPECT_ACTOR_ID
+);
+report_query_identifier!(
+    policy_version,
+    ParentPolicyVersion,
+    REPORT_QUERY_CUSTODY_EXPECT_POLICY_VERSION
+);
+report_query_identifier!(
+    evidence_id,
+    ParentEvidenceReferenceId,
+    REPORT_QUERY_CUSTODY_EXPECT_EVIDENCE_ID
+);
+report_query_identifier!(
+    parent_action_id,
+    ParentActionReferenceId,
+    REPORT_QUERY_CUSTODY_EXPECT_PARENT_ACTION_ID
+);
+report_query_identifier!(
+    timestamp,
+    ParentTimestamp,
+    REPORT_QUERY_CUSTODY_EXPECT_TIMESTAMP
+);
+report_query_identifier!(
+    request_id,
+    ReportQueryCustodyRequestId,
+    REPORT_QUERY_CUSTODY_EXPECT_REQUEST_ID
+);
+report_query_identifier!(
+    query_cursor,
+    ReportQueryCustodyQueryCursor,
+    REPORT_QUERY_CUSTODY_EXPECT_QUERY_CURSOR
+);
+report_query_identifier!(
+    cursor_ref,
+    ReportQueryCustodyCursorRef,
+    REPORT_QUERY_CUSTODY_EXPECT_CURSOR_REF
+);
+report_query_identifier!(
+    sort_key,
+    ReportQueryCustodySortKey,
+    REPORT_QUERY_CUSTODY_EXPECT_SORT_KEY
+);
+report_query_identifier!(
+    source_ref,
+    ReportQueryCustodySourceRef,
+    REPORT_QUERY_CUSTODY_EXPECT_SOURCE_REF
+);
+report_query_identifier!(
+    conflict_ref,
+    ReportQueryCustodyConflictRef,
+    REPORT_QUERY_CUSTODY_EXPECT_CONFLICT_REF
+);
+report_query_identifier!(
+    deleted_source_ref,
+    ReportQueryCustodyDeletedSourceRef,
+    REPORT_QUERY_CUSTODY_EXPECT_DELETED_SOURCE_REF
+);

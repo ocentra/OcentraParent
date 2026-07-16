@@ -1,0 +1,68 @@
+export function validateGeneratedPolicySchedule(schedule: GeneratedPolicyScheduleLike): void {
+  assertGeneratedPolicyContract(schedule.windows.length > 0, 'schedules must define at least one local window');
+  for (const [index, window] of schedule.windows.entries()) {
+    assertGeneratedPolicyContract(window.days.length > 0, `schedules must define at least one day for windows[${index}]`);
+    parseGeneratedLocalTimeMinutes(window.startLocalTime, `windows[${index}].startLocalTime`);
+    parseGeneratedLocalTimeMinutes(window.endLocalTime, `windows[${index}].endLocalTime`);
+  }
+  validateGeneratedPolicyScheduleTimeBudget(schedule.timeBudget);
+}
+
+export function validateGeneratedPolicyScheduleBoundary(boundary: GeneratedPolicyScheduleBoundaryLike): void {
+  const evaluatedAt = parseGeneratedTimestampMillis(boundary.evaluatedAt, 'evaluatedAt');
+  parseGeneratedLocalTimeMinutes(boundary.localTime, 'localTime');
+  validateGeneratedPolicyScheduleBoundaryOptionalSections(boundary, evaluatedAt);
+  if (boundary.timeBudget !== null) {
+    validateGeneratedPolicyScheduleTimeBudgetStatus(boundary.timeBudget, evaluatedAt);
+  }
+
+  switch (boundary.state) {
+    case 'dst-gap':
+      assertGeneratedPolicyContract(boundary.dstBoundary !== null, 'dst-gap boundaries require dstBoundary details');
+      assertGeneratedPolicyContract(
+        boundary.dstBoundary.transition === 'spring-forward',
+        'dst-gap boundaries must use the spring-forward transition'
+      );
+      assertGeneratedPolicyContract(
+        boundary.dstBoundary.resolution !== 'first-occurrence' &&
+          boundary.dstBoundary.resolution !== 'second-occurrence',
+        'dst-gap boundaries cannot use overlap-only resolutions'
+      );
+      return;
+    case 'dst-overlap':
+      assertGeneratedPolicyContract(boundary.dstBoundary !== null, 'dst-overlap boundaries require dstBoundary details');
+      assertGeneratedPolicyContract(
+        boundary.dstBoundary.transition === 'fall-back',
+        'dst-overlap boundaries must use the fall-back transition'
+      );
+      assertGeneratedPolicyContract(
+        boundary.dstBoundary.resolution !== 'skip-forward',
+        'dst-overlap boundaries cannot skip the repeated hour'
+      );
+      return;
+    case 'clock-skew':
+      assertGeneratedPolicyContract(boundary.clockSkew !== null, 'clock-skew boundaries require clockSkew details');
+      assertGeneratedPolicyContract(
+        Math.abs(boundary.clockSkew.observedSkewMinutes) > boundary.clockSkew.allowedSkewMinutes,
+        'clock-skew boundaries require skew beyond the allowed tolerance'
+      );
+      return;
+    case 'exception-active':
+      assertGeneratedPolicyContract(boundary.exception !== null, 'exception-active boundaries require exception details');
+      assertGeneratedPolicyContract(
+        evaluatedAt >= parseGeneratedTimestampMillis(boundary.exception.startsAt, 'exception.startsAt') &&
+          evaluatedAt < parseGeneratedTimestampMillis(boundary.exception.expiresAt, 'exception.expiresAt'),
+        'exception-active boundaries must be evaluated inside the exception window'
+      );
+      return;
+    case 'expired':
+      assertGeneratedPolicyContract(boundary.expiry !== null, 'expired schedule boundaries require expiry details');
+      assertGeneratedPolicyContract(
+        evaluatedAt >= parseGeneratedTimestampMillis(boundary.expiry.expiresAt, 'expiry.expiresAt'),
+        'expired schedule boundaries must be evaluated on or after expiry'
+      );
+      return;
+    default:
+      return;
+  }
+}

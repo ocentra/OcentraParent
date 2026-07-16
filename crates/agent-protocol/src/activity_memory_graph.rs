@@ -1,9 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ChildProfileReference, ParentActorReference, ParentDeviceReference, ParentEvidenceReference,
+    activity::policy::ParentEvidenceReference,
+    activity::policy_context::{ChildProfileReference, ParentDeviceReference},
+    enforcement::ParentActionReference,
 };
 
+pub const ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION: u16 = crate::ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION;
 pub const ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE: &str = "child-device-activity-store";
 pub const ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY: &str = "ready";
 pub const ACTIVITY_MEMORY_GRAPH_CAPABILITY_NO_EVIDENCE: &str = "no-evidence";
@@ -79,21 +82,12 @@ pub struct ActivityMemoryGraphTrace {
     pub entry_status: ActivityMemoryGraphEntryStatus,
     pub source_evidence_references: Vec<ParentEvidenceReference>,
     pub source_policy_version: Option<String>,
-    pub source_parent_action_references: Vec<ActivityMemoryGraphParentActionReference>,
+    pub source_parent_action_references: Vec<ParentActionReference>,
     pub generated_at: String,
     pub expires_at: Option<String>,
     pub confidence: f64,
     pub derived_index_version: String,
     pub degraded_reasons: Vec<String>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ActivityMemoryGraphParentActionReference {
-    pub action_reference_id: String,
-    pub actor: ParentActorReference,
-    pub policy_version: String,
-    pub created_at: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

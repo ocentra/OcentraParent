@@ -11,15 +11,14 @@ import {
   type TransitionEvent,
 } from 'react';
 
-import { Action, EnforcementOfficerIcon } from '../../Common/NavSvgIcons';
+import { Action } from '../../Common/NavSvgIcons/Action';
+import { EnforcementOfficerIcon } from '../../Common/NavSvgIcons/ParentNavSvgIcons';
 import { defaultChatBubbleConfig, RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
-import {
-  calculateScopeMultiChoiceMetrics,
-  defaultScopeMultiChoiceConfig,
-  mergeScopeMultiChoiceConfig,
-  ScopeMultiChoice,
-} from './ScopeMultiChoice';
-import { calculateScopeToggleMetrics, defaultScopeToggleConfig, mergeScopeToggleConfig } from './ScopeToggle';
+import { calculateScopeMultiChoiceMetrics } from './ScopeMultiChoice/ScopeMultiChoiceMetrics';
+import { defaultScopeMultiChoiceConfig, mergeScopeMultiChoiceConfig } from './ScopeMultiChoice/ScopeMultiChoiceConfig';
+import { ScopeMultiChoice } from './ScopeMultiChoice/ScopeMultiChoice';
+import { calculateScopeToggleMetrics } from './ScopeToggle/ScopeToggleMetrics';
+import { defaultScopeToggleConfig, mergeScopeToggleConfig } from './ScopeToggle/ScopeToggleConfig';
 import { ScopeToggle } from './ScopeToggle/ScopeToggle';
 import './BrowserRulesQuestionnaire.css';
 

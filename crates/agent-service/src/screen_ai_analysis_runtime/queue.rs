@@ -1,20 +1,23 @@
 use std::{fs, path::Path};
 
 use ocentra_parent_agent_core::{
-    ActivityStore, JournalKey, ScreenEvidenceQueue, JOURNAL_KEY_BYTES,
+    activity_store::ActivityStore,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    screen_evidence_queue::ScreenEvidenceQueue,
 };
-use ocentra_parent_agent_protocol::{constants, ScreenAnalysisResult};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenAnalysisResult;
 
 use crate::activity_capture::ActivityCaptureError;
 
 use super::ScreenAiAnalysisCycleClock;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) struct QueuedScreenImage {
-    pub(super) queue_job_id: String,
-    pub(super) custody_state: String,
-    pub(super) image_digest: String,
-    pub(super) image_bytes: Vec<u8>,
+pub(crate) struct QueuedScreenImage {
+    pub(crate) queue_job_id: String,
+    pub(crate) custody_state: String,
+    pub(crate) image_digest: String,
+    pub(crate) image_bytes: Vec<u8>,
 }
 
 pub(super) fn first_queued_screen_image(
@@ -35,7 +38,7 @@ pub(super) fn first_queued_screen_image(
 
 pub(super) fn metadata_result_for_queue_job(
     store_path: &Path,
-    queue_job_id: &str,
+    image: &QueuedScreenImage,
     clock: &ScreenAiAnalysisCycleClock,
 ) -> Result<Option<ScreenAnalysisResult>, ActivityCaptureError> {
     let store = ActivityStore::open(store_path)?;
@@ -46,7 +49,7 @@ pub(super) fn metadata_result_for_queue_job(
     Ok(summary
         .results
         .into_iter()
-        .find(|result| result.queue_job_id == queue_job_id))
+        .find(|result| result.queue_job_id == image.queue_job_id))
 }
 
 pub(super) fn load_existing_screen_key(

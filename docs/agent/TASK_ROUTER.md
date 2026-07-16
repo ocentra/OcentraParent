@@ -21,6 +21,24 @@ Authoring rule: routing docs define goals, expected shapes, boundaries, proof,
 and failure conditions. They must not spoon-feed implementation code or tell a
 future worker exactly what code to write.
 
+## Universal instrumentation note
+
+For source/test/proof work, universal logging and proof-chain instrumentation is part of source shape. It is not Cloudflare-only. Source routes must apply `.ocentra-ai/rules/ocentra-parent-logging-redaction.mdc` and `docs/repo-audits/event-driven-proof-architecture/LOGGER_USAGE_PATTERN_STANDARD.md` where applicable.
+
+## Rust-first architecture override
+
+When the current assignment, prompt, or worker packet says Rust-first parent
+architecture, read `RUST_FIRST_PARENT_ARCHITECTURE.md` before choosing deeper
+implementation docs. That document is newer than older plan-file wording that
+still assigns product ownership to schema-domain or other TS surfaces.
+
+For Rust-first parent architecture work, TypeScript is presentation-only or
+generated thin adapter code at the edges. Rust owns contracts, route snapshots,
+actions, read models, business logic, policy, tracking, logging, network,
+browser, enforcement, and mobile bridge shapes. Do not add TS business logic,
+TS-owned contracts, fake fallback behavior, placeholder tests, or delete TS
+business files before a live Rust replacement and focused green tests exist.
+
 ## Route decision
 
 | Assignment says...                                                                                                       | Read                                                             |
@@ -35,6 +53,7 @@ future worker exactly what code to write.
 | You are debugging CI, local validation, heavier gates, or test requirements                                              | `VALIDATION_FLOW.md`                                             |
 | You need to decide which tests/proof artifacts apply to a workpack                                                       | `TEST_PROOF_DECISION_MATRIX.md` after the plan/workpack is known |
 | You are touching release, installer, package previews, version tags, production branch                                   | `RELEASE_FLOW.md`                                                |
+| You are moving parent architecture toward Rust-owned schemas, route snapshots, HostBridge, or TS package collapse        | `RUST_FIRST_PARENT_ARCHITECTURE.md` then the smallest owning flow |
 
 ## Route conflict rule
 

@@ -1,35 +1,112 @@
-# Parent Desktop Runtime Package Plan Proof Index
-
 <!-- agent-capsule -->
 
 > Agent Capsule
-> Plan: `parent-desktop-runtime-package-plan`
-> Doc: `Parent Desktop Runtime Package Plan Proof Index`
-> Kind: proof artifact locator and PR evidence router.
-> Read when: Only when validating proof, PR_READY, DONE, or broad status claims.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Use this file to locate proof artifacts; proof must include command logs and negative cases.
+> Plan: `parent-client-runtime-distribution-plan`
+> Doc: `Parent Client Runtime Distribution Proof Index`
+> Kind: proof artifact router.
+> Read when: selected workpack needs proof paths or PR_READY/DONE proof validation.
+> Stop rule: use only the proof root for the selected workpack.
+> Proves: proof location routing only.
+> Does not prove: implementation completion by itself.
+> Proof rule: proof artifacts are valid only after focused commands run or precise blockers are recorded.
 
 <!-- /agent-capsule -->
 
-Proof/checkpoint files are validation context, not default context. Open only the proof named by a workpack, checklist row, hub assignment, or PR review.
+# Parent Client Runtime Distribution Proof Index
 
-## Plan-local proof/reference files
+## Proof roots
 
-- No plan-local proof/reference files detected by filename heuristic.
+```text
+output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/
+output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/
+output/parent-client-runtime-distribution-plan-proof/03-parent-desktop-shell-package/
+output/parent-client-runtime-distribution-plan-proof/04-parent-android-package/
+output/parent-client-runtime-distribution-plan-proof/05-parent-ios-package/
+output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/
+output/parent-client-runtime-distribution-plan-proof/07-parent-client-signing-store-matrix/
+output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/
+output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/
+output/parent-client-runtime-distribution-plan-proof/10-setup-handoff-contracts/
+output/parent-client-runtime-distribution-plan-proof/11-proof-ci-release-gate/
+```
 
-## Related global checkpoints
+`docs/proof/parent-desktop-runtime-package-plan/` is compatibility-only for old references. New proof should use the `output/parent-client-runtime-distribution-plan-proof/<workpack>/` root.
 
-- [Child Android Protocol Package Lifecycle Proof](../../checkpoints/child-android-protocol-package-lifecycle-proof-2026-05-31.md) (1,724 bytes)
-- [Cross-Platform Deliverables Package Proof Checkpoint - 2026-05-29](../../checkpoints/cross-platform-deliverables-package-proof-checkpoint-2026-05-29.md) (9,017 bytes)
-- [LAN Browser Discovery Pairing Runtime Checkpoint](../../checkpoints/lan-browser-discovery-pairing-runtime-2026-06-01.md) (1,111 bytes)
-- [Linux Package Baseline And Package Proof - 2026-05-25](../../checkpoints/linux-package-baseline-and-package-proof-2026-05-25.md) (18,731 bytes)
-- [Local AI Runtime Provider Proof - 2026-05-30](../../checkpoints/local-ai-runtime-provider-proof-2026-05-30.md) (1,047 bytes)
-- [V0.7 Windows Controlled Evidence And Package Lifecycle Proof - 2026-05-25](../../checkpoints/v0-7-windows-controlled-evidence-and-package-lifecycle-proof-2026-05-25.md) (37,967 bytes)
-- [V0.8 Broad OS Adapter Runtime Proof Checkpoint](../../checkpoints/v0-8-broad-os-adapter-runtime-proof-2026-05-30.md) (2,454 bytes)
-- [V0.8 Process Package Identity Proof Bridge](../../checkpoints/v0-8-process-package-identity-proof-bridge-2026-05-29.md) (1,756 bytes)
-- [V0.9 Mobile Controller Discovery Runtime Proof - 2026-05-29](../../checkpoints/v0-9-mobile-controller-discovery-runtime-proof-2026-05-29.md) (2,907 bytes)
-- [V0.9 Mobile Controller Observer Runtime Proof - 2026-05-29](../../checkpoints/v0-9-mobile-controller-observer-runtime-proof-2026-05-29.md) (3,165 bytes)
-- [windows-package-lifecycle-proof-harness-2026-05-25](../../checkpoints/windows-package-lifecycle-proof-harness-2026-05-25.md) (13,369 bytes)
+## Required universal proof files
+
+Every proof root needs:
+
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-manual-required-gap-register.md
+16-validation-commands.log
+```
+
+## Command log format
+
+```text
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <path or n/a>
+notes: <short note>
+```
+
+If blocked:
+
+```text
+blocker:
+required environment:
+why this does not prove completion:
+next command:
+```
+
+## Structured proof metadata
+
+For new proof artifacts and new command-log entries, include structured metadata when available:
+
+```text
+plan: parent-client-runtime-distribution-plan
+workpack: <workpack id and name>
+owner: apps-portal | portal-domain | parent-domain | scripts-dev | scripts-release | setup-handoff | child-runtime-handoff | device-trust-handoff | docs-only
+artifact_kind: web | desktop | parent-android | parent-ios | route-bridge | signing-store | update-rollback | launch-smoke | setup-handoff | release-gate | n/a
+platform: web | windows | macos | linux | android | ios | cross-platform | n/a
+package_state: not-tested | scaffold | built | packaged | installed | blocked | manual-required | n/a
+signing_state: not-tested | unsigned | self-signed | signed | blocked | manual-required | n/a
+store_state: not-tested | unpublished | uploaded | reviewed | published | blocked | manual-required | n/a
+notarization_state: not-tested | not-notarized | submitted | notarized | blocked | manual-required | n/a
+launch_state: not-tested | launched | degraded | failed | blocked | manual-required | n/a
+route_bridge_state: not-tested | defined | connected | degraded | blocked | n/a
+setup_handoff_state: not-tested | request-defined | response-defined | setup-owner-required | blocked | n/a
+update_state: not-tested | channel-defined | checksum-proved | sbom-proved | blocked | manual-required | n/a
+rollback_state: not-tested | proved | blocked | manual-required | n/a
+manual_required_note: <manual-required gap or n/a>
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <stdout/stderr artifact pointer, proof file, test result path, package artifact path, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+no_claim: <what this result does not prove>
+```
+
+The command log is a compact index, not a raw terminal transcript. Store package logs, build output, signing/store notes, screenshots, or long failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
+
+## No-claim language
+
+Do not claim:
+
+```text
+web portal production ready
+desktop package ready
+mobile package ready
+signing/store ready
+update/rollback ready
+setup handoff ready
+release ready
+PR_READY
+```
+
+unless the selected proof root proves the claim and WP11 aggregates it when broad readiness is claimed.

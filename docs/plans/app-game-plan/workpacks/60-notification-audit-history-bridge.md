@@ -54,13 +54,13 @@ without claiming provider delivery, parent history UI, or production runtime.
 
 ## Validation
 
-- [x] Handoff parses app/game local outbox bridge rows before audit entry
+- [ ] Handoff parses app/game local outbox bridge rows before audit entry
       creation.
-- [x] Linked local outbox rows become queued audit-history entries.
-- [x] Manual-required and unavailable rows remain blocked/manual and do not
+- [ ] Linked local outbox rows become queued audit-history entries.
+- [ ] Manual-required and unavailable rows remain blocked/manual and do not
       create provider sends.
-- [x] Source audit, evidence, and policy refs are preserved in the handoff read
+- [ ] Source audit, evidence, and policy refs are preserved in the handoff read
       model.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no
       retry-worker/quiet-hours timer runtime, no parent UI, no child delivery,
       no adapter dispatch, no durable production outbox, and no platform claim.

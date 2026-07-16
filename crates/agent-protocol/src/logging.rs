@@ -42,11 +42,48 @@ pub enum LogFieldValue {
     Null(()),
 }
 
-pub type LogFields = BTreeMap<String, LogFieldValue>;
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LogFields(BTreeMap<String, LogFieldValue>);
+
+impl LogFields {
+    pub fn new() -> Self {
+        Self(BTreeMap::new())
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (&String, &LogFieldValue)> {
+        self.0.iter()
+    }
+
+    pub fn get(&self, key: &str) -> Option<&LogFieldValue> {
+        self.0.get(key)
+    }
+
+    pub fn insert(&mut self, key: String, value: LogFieldValue) -> Option<LogFieldValue> {
+        self.0.insert(key, value)
+    }
+
+    pub fn into_inner(self) -> BTreeMap<String, LogFieldValue> {
+        self.0
+    }
+}
+
+impl From<BTreeMap<String, LogFieldValue>> for LogFields {
+    fn from(value: BTreeMap<String, LogFieldValue>) -> Self {
+        Self(value)
+    }
+}
+
+impl std::iter::FromIterator<(String, LogFieldValue)> for LogFields {
+    fn from_iter<T: IntoIterator<Item = (String, LogFieldValue)>>(iter: T) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentLogEntry {
+    pub schema_version: u16,
     pub id: String,
     pub timestamp: String,
     pub level: LogLevel,

@@ -1,61 +1,125 @@
-# Screen AI Pipeline Plan Test and Proof Expectations
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `screen-ai-pipeline-plan`
-> Doc: `Screen AI Pipeline Plan Test and Proof Expectations`
-> Kind: plan-local test and proof decision tree.
-> Read when: After the assigned workpack/checklist row is known; use to choose required tests/proof.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: This file defines required local tests/proof; missing tests keep rows open.
+> Doc: `Screen AI Pipeline Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR readiness.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
 <!-- /agent-capsule -->
 
-Use this after the assigned screen AI pipeline workpack is known. This plan proves the trigger-to-capture-to-analysis pipeline, not broad screen capture product completion.
+# Screen AI Pipeline Test Proof Expectations
 
-## Where tests should live
+## Current audited truth
 
-When the screen AI pipeline implementation crate/package exists, tests belong under its test tree and proof output under its proof folder. Until then, colocate with the owning screen/AI package and record paths in the workpack and `PROOF_INDEX.md`.
+- No retained `output/screen-ai-pipeline-proof/` proof root currently exists in this checkout.
+- Use real focused validation and real retained artifacts for the assigned workpack; do not close rows with mock-only or placeholder proof.
+- `docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md` is required before any slice-level closure claim.
 
-## Decision Tree
+## Proof root
 
-| If the assigned work is... | Read next                    | Expected tests or proof                                                                                         |
-| -------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Trigger-to-capture gate    | assigned workpack            | trigger source authenticity, custody, idempotency, replay, no capture without policy/permission proof.          |
-| OCR/VLM pipeline           | assigned workpack            | fixture regression, output schema invariants, redaction, resource/battery bounds, invalid-output handling.      |
-| AI safety analysis         | assigned workpack; AI matrix | prompt injection, hallucination regression, safety boundary, temperature sensitivity, no enforcement authority. |
-| Parent-facing result/proof | assigned workpack            | screenshot/crop artifact path, redacted summary, log/trace refs, proof manifest.                                |
-| Final rollout/PR gate      | `PROOF_INDEX.md`             | selected risk rows, command logs, screenshot/proof completeness, skipped risk notes.                            |
+```text
+output/screen-ai-pipeline-proof/
+```
 
-## Expected test/proof inventory
+## Host and platform expectations
 
-Use these names as proof intent labels in the assigned workpack/proof note. Implementers choose the actual crate/package test names after the owning implementation boundary exists.
+- Windows proof is expected where the assigned workpack touches Windows-owned runtime or portal behavior.
+- Android proof is expected where the assigned workpack includes Android scope; use the emulator and the already-synced Samsung device when needed.
+- Linux proof via WSL is expected where the assigned workpack includes Linux scope; missing Docker CLI on PATH is a local execution gap if Docker-backed proof is required.
+- macOS and iOS proof are external-platform constraints from this Windows host.
 
-- `screen-ai.ocr-output.invariants`: OCR output is bounded, schema-valid, confidence-aware, and rejects malformed results.
-- `screen-ai.vlm-output.invariants`: VLM/classifier output stays schema-valid and cannot create policy authority.
-- `screen-ai.prompt-injection.boundary`: visible text or prompt-like screen content cannot override safety rules.
-- `screen-ai.hallucination.regression`: known fixtures catch hallucination, overclaiming, and unsupported category output.
-- `screen-ai.redaction.custody`: pipeline proof preserves screenshot custody and redaction boundaries.
-- `screen-ai.temperature.sensitivity`: model variability stays within accepted output invariants.
-- `screen-ai.degraded-model-state`: missing/slow/failed model paths produce safe degraded results and logs.
+## Common focused commands
 
-## Required proof contents
+Use the subset relevant to the selected workpack:
 
-- Trigger source, capture artifact, analysis output, and redaction result.
-- Command logs and fixture IDs.
-- Explicit boundary between AI advisory output and parent/policy authority.
+```bash
+npm run build --workspace @ocentra-parent/screen-domain
+npm run test --workspace @ocentra-parent/screen-domain
+npm run build --workspace @ocentra-parent/ai-domain
+npm run test --workspace @ocentra-parent/ai-domain
+cargo test -p ocentra-parent-agent-protocol screen_ai
+cargo test -p ocentra-parent-agent-service screen_ai
+npm run test --workspace @ocentra-parent/portal -- screen
+npm run lint:architecture -- --files packages/screen-domain packages/ai-domain packages/evidence-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/screen-ai-pipeline-plan
+node --check scripts/test/screen-ai-final-product-path-proof.mjs
+node --check scripts/test/screen-ai-live-operator-artifact-gate.mjs
+node --check scripts/test/screen-ai-service-winrt-ocr-proof.mjs
+node --check scripts/test/screen-ai-household-mesh-proof.mjs
+```
 
-## Failure conditions
+Run through `npm run agent:run --` when collecting proof if the wrapper is available.
 
-Do not claim DONE or PR_READY if any apply:
+## Command ownership notes
 
-- The expected test/proof row for the touched work type is missing.
-- The implementation crate/package test folder does not exist and the missing expected location is not recorded.
-- Only happy-path tests pass for a trust, policy, persistence, protocol, UI, AI, platform, security, performance, or observability boundary.
-- A product/checklist row moved without command logs and proof artifact path.
-- A manual-required/platform limitation was converted into a runtime capability claim.
-- A proof artifact lacks negative cases, logs/traces where relevant, or exact workpack/checklist linkage.
-- A sibling plan or broad source tree was read without a route reason recorded in the workpack/proof note.
+- `screen-ai-pipeline-plan` owns cross-hop scenario proof and no-claim boundaries.
+- `screen-plan` owns raw capture mechanics and protected-surface behavior.
+- `screen-domain` owns screen capture/evidence/OCR/VLM/disclosure/settings contracts.
+- `ai-plan` owns provider/runtime/model behavior; canonical shared AI contracts live in `schema-domain`, not `ai-domain` package identity.
+- `policy-control-plane-plan` owns policy authority and parent-rule precedence.
+- `v0-8-enforcement-control-plan` owns adapter execution and rollback.
+- `data-custody-storage-plan` owns retention/export/delete/custody policy.
+- `portal-ux-household-surfaces-plan` owns rendered parent-visible UI proof.
+
+## Screen-AI E2E meaning
+
+Do not use one proof family to claim the whole pipeline. For this plan, E2E has separate meanings:
+
+```text
+trigger-to-capture E2E: real trigger or structured skip -> queued capture job -> deletion/custody state; no AI claim.
+capture-to-AI E2E: capture ref -> AI context/router -> OCR/VLM/text/deterministic result -> queue deletion; no policy authority claim.
+AI-result-to-policy E2E: schema-valid AI result with evidence refs -> deterministic policy handoff -> invalid output rejected; no action authority claim.
+policy-action-dry-run E2E: policy decision -> observe/allow/warn/ask-parent/time-limit/block dry-run -> audit refs; no adapter execution claim.
+journal/read-model/portal E2E: pipeline event/journal row -> read model -> portal projection; no raw capture/model/runtime claim.
+custody/deletion E2E: encrypted queue/raw path -> delete success/TTL/delete failure/retention state -> no remote upload by default.
+live-operator E2E: operator manifest -> real URL/app capture -> local AI/policy artifacts -> deletion and screenshots; artifact gate is not rerun.
+performance/backpressure E2E: cadence/queue pressure -> backpressure/degraded/manual-required state -> no classification/policy claim.
+final rollout E2E: retained proof roots + manifest + known gaps + validation logs -> allowed/blocked claims.
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Current known gate failure
+
+- `npm run lint:architecture -- --files packages/screen-domain/src/screen-evidence.ts packages/portal-domain/src/contracts.ts packages/parent-domain/src/local-ai-runtime.ts` is currently red because those files still use banned re-export patterns.
+
+## Structured harness logging expectations
+
+Product/runtime-safe logging:
+
+```text
+redact raw images, raw screenshot paths, OCR text unless fixture-scoped, VLM prompt/output unless fixture-scoped, child-private text, account/session secrets, provider payloads, and support-private diagnostics
+log workpack, scenario id, source evidence ref, capture reason, platform, provider route, model route, policy decision state, action dry-run state, queue state, deletion state, retention state, portal state, artifact shape, command id, blocker, and no-claim boundary when safe
+separate capture source, AI context, model result, policy decision, action dry-run, enforcement, custody, portal projection, and live-operator artifact-gate states
+never treat source-only, mock-only, happy-path-only, local-capture-only, artifact-gate-only, or screenshot-only proof as product readiness without selected retained proof root and no-claim boundary
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, scenario id, artifact shape, platform, exit code, result, artifact pointer, diagnostics summary, blocker note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
+
+## Required states
+
+```text
+source evidence reference
+schema validation
+unavailable state
+manual-required state
+redacted output
+deletion/custody
+no direct AI-to-policy authority
+mock proof not product proof
+source-only proof not product proof
+AI result not policy authority
+policy dry-run not enforcement proof
+live-operator artifact gate not live rerun proof
+```

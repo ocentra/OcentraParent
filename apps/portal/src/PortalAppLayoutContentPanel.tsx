@@ -1,7 +1,8 @@
-import { useMemo, useState, type ChangeEvent, type ReactElement } from 'react';
+import { useState, type ChangeEvent, type ReactElement } from 'react';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
-  PortalDom,
-  PortalFrameTuner,
   createPortalAppLayoutButtonDraft,
   createPortalAppLayoutFoldoutDraft,
   type PortalAppLayoutButtonDraft,
@@ -9,8 +10,7 @@ import {
   type PortalAppLayoutFoldoutDraft,
   type PortalAppLayoutSurfaceContentDraft,
   type PortalAppLayoutTone,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/app-layout';
 import { TunerActionButton, TunerTabButton } from './PortalFrameTunerControls';
 
 type PortalAppLayoutContentPanelProps = {
@@ -39,14 +39,7 @@ export function PortalAppLayoutContentPanel({
   const foldouts = content[area];
   const safeIndex = foldouts.length === 0 ? -1 : Math.min(selectedFoldoutIndex, foldouts.length - 1);
   const selectedFoldout = safeIndex >= 0 ? foldouts[safeIndex] : undefined;
-  const areaTabs = useMemo(
-    () => [
-      { id: PortalFrameTuner.AppContentArea.SidePanelFoldouts, label: PortalFrameTuner.Text.SidePanelFoldouts },
-      { id: PortalFrameTuner.AppContentArea.MainPanelTop, label: mainTopLabel },
-      { id: PortalFrameTuner.AppContentArea.MainPanelBottom, label: PortalFrameTuner.Text.MainPanelBottomContent },
-    ],
-    [mainTopLabel]
-  );
+  const areaTabs = contentAreaTabs(mainTopLabel);
   const updateFoldouts = (nextFoldouts: readonly PortalAppLayoutFoldoutDraft[]): void => {
     onContentChange({ ...content, [area]: nextFoldouts });
   };
@@ -108,6 +101,17 @@ export function PortalAppLayoutContentPanel({
       </div>
     </section>
   );
+}
+
+function contentAreaTabs(mainTopLabel: PortalDisplayText): readonly {
+  readonly id: PortalAppLayoutContentAreaKey;
+  readonly label: PortalDisplayText;
+}[] {
+  return [
+    { id: PortalFrameTuner.AppContentArea.SidePanelFoldouts, label: PortalFrameTuner.Text.SidePanelFoldouts },
+    { id: PortalFrameTuner.AppContentArea.MainPanelTop, label: mainTopLabel },
+    { id: PortalFrameTuner.AppContentArea.MainPanelBottom, label: PortalFrameTuner.Text.MainPanelBottomContent },
+  ];
 }
 
 function FoldoutEditor({

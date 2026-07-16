@@ -23,12 +23,13 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' ws://127.0.0.1:4477 http://127.0.0.1:4477 ws://localhost:4477 http://localhost:4477; img-src 'self' asset: https://asset.localhost; script-src 'self'; style-src 'self' 'unsafe-inline'"
+      "csp": "default-src 'self'; connect-src 'self' ws://127.0.0.1:4478 http://127.0.0.1:4478 ws://localhost:4478 http://localhost:4478; img-src 'self' asset: https://asset.localhost; script-src 'self'; style-src 'self' 'unsafe-inline'"
     }
   },
   "bundle": {
     "active": true,
     "targets": "all",
+    "icon": ["icons/icon.ico", "icons/icon.png"],
     "category": "Lifestyle"
   }
 }

@@ -14,18 +14,17 @@
 
 # Ocentra Ledger Worktree Coordination
 
-Ocentra Parent no longer keeps live hub state in this product repo. The product
-repo owns code, docs, scripts, and the pinned Ledger submodule only.
+Ocentra Parent no longer owns live hub/ledger implementation. The product repo
+owns product code, product docs, config, and thin Enforcer consumer aliases.
 
-Live coordination state belongs in Ocentra Ledger:
+Live coordination implementation belongs in Ocentra Enforcer:
 
 ```text
-tools/ocentra-ledger
+E:\ocentra-enforcer
 ```
 
-That path is a git submodule pointing at `ocentra/OcentraParentHub`. The actual
-event streams, identity files, runtime PID files, peer aliases, and generated
-views are external to this checkout.
+The actual event streams, identity files, runtime PID files, peer aliases, and
+generated views live under the Enforcer ledger root, not this checkout.
 
 ## State Root
 
@@ -36,10 +35,10 @@ $env:LEDGER_ROOT="E:\OcentraLedger\ocentra-parent"
 npm run ledger:ensure
 ```
 
-Without `LEDGER_ROOT`, Ledger uses:
+Without `LEDGER_ROOT`, this repo's Enforcer wrapper uses:
 
 ```text
-~/.ocentra/ledger/ocentra-parent
+E:\ocentra-enforcer\.ledger\ocentra-parent
 ```
 
 The state root is disposable/rebuildable except for append-only event streams
@@ -56,19 +55,17 @@ Stable lane identities are explicit:
 - `codex-d` and `E-*`: additional reusable lanes when assigned.
 
 Set `LEDGER_LANE` or `OCENTRA_PARENT_LEDGER_LANE` in worker shells when the
-checkout path does not make the lane obvious. The compatibility wrappers infer
-common `codex-a`/`codex-b`/`E-A` path names, but explicit lane identity wins.
+checkout path does not make the lane obvious. Enforcer coordination aliases
+infer common `codex-a`/`codex-b`/`E-A` path names, but explicit lane identity
+wins.
 
 ## Commands
 
-Install/build the pinned Ledger submodule:
+Verify the Enforcer coordination root:
 
 ```powershell
-npm run ledger:install
+npm run ledger:root
 ```
-
-If the submodule is missing after a fresh pull, the Ledger wrapper initializes
-`tools/ocentra-ledger` automatically on the first command.
 
 Start the local browser/API daemon:
 
@@ -128,6 +125,58 @@ exclusive lane ownership. Repo hooks use the Codex hook `session_id` to record
 or refresh the current thread identity for wake routing. Several chats may be
 active for the same lane at once, and exact-file claims are the write gate that
 prevents collisions.
+
+One thread may opt into manual-only hook behavior:
+
+```powershell
+npm run hub:thread:upgrade
+```
+
+Inspect the current lane/session view without changing anything:
+
+```powershell
+npm run hub:thread-mode
+```
+
+That command may only be run from the thread that most recently received a real
+`UserPromptSubmit` for the lane. It does not accept a target `--session-id`, so
+one thread cannot silently retarget another. Codex hooks currently expose
+`session_id`, so manual-only mode treats that active session as the thread
+identity available to the hook. In manual-only mode, auto hooks such as
+`SessionStart`, `PostToolUse`, and `Stop` do not claim or refresh the lane
+lease for that session; only a real `UserPromptSubmit` in the same thread may
+do that. Restore the default behavior with:
+
+```powershell
+npm run hub:thread:default
+```
+
+`hub:thread-mode` is read-only. It reports the lane's active hook session, the
+most recent real user-prompt session, and any explicit write-grant sessions so
+duplicate-thread confusion stays visible without weakening the upgrade guard.
+
+Explicit user prompts now create writable grants instead of lane takeovers.
+When a real `UserPromptSubmit` arrives from another thread on the same lane,
+the compatibility layer keeps the existing lease owner but records writable
+authority for the prompted session. That means multiple user-directed threads
+may write on the same lane at the same time, while auto hooks still keep
+single-owner lease semantics.
+
+A prompted coordinator thread may also delegate writable access to spawned
+subagent sessions:
+
+```powershell
+npm run hub:delegate:grant -- --session-id 019ec463-0620-7a03-a937-8af8e89dc04a --reason "policy-control test worker"
+npm run hub:delegate:revoke -- --session-id 019ec463-0620-7a03-a937-8af8e89dc04a
+```
+
+Those grant commands may only be run from the thread that most recently
+received a real user prompt for the lane. They do not transfer coordination
+ownership or the active lease; they only authorize additional writable
+sessions. Treat the human user as the super-user: the single-owner rule is for
+AI auto hooks and background Codex behavior, not for explicit user-directed
+threads or coordinator-delegated workers. Manual-only still changes future
+auto-hook behavior for that session only.
 
 Idle liveness should stay outside Codex chat. A watcher or daemon may write
 Ledger heartbeat events, but idle workers should not spend chat turns reporting
@@ -214,10 +263,11 @@ $env:OCENTRA_PARENT_SKIP_LANE_GUARD="1"
 $env:OCENTRA_PARENT_SKIP_HUB_GUARD="1"
 ```
 
-## Submodule Policy
+## Enforcer Ownership Policy
 
-Do not gitignore `tools/ocentra-ledger`. The parent repo tracks only the
-submodule pointer and `.gitmodules`; Ledger code changes are committed in
-`E:\OcentraParentHub` and then the parent repo pointer is advanced.
+Do not reintroduce `tools/ocentra-ledger` or a Parent-owned ledger submodule.
+Coordination code changes belong in `E:\ocentra-enforcer`; this product repo
+keeps only the Enforcer config and thin npm aliases.
 
-Generated Ledger files belong under `LEDGER_ROOT`, not under this product repo.
+Generated coordination files belong under the Enforcer ledger root, not under
+this product repo.

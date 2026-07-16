@@ -1,0 +1,429 @@
+const GeneratedTrackingRetentionSettingsWriteDefaults =
+  __GENERATED_TRACKING_RETENTION_SETTINGS_WRITE_DEFAULTS__ as const;
+
+type GeneratedTrackingRetentionSettingsWriteKind =
+  | typeof GeneratedTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow
+  | 'delete-after-alert-setting'
+  | 'parent-export-setting'
+  | 'remote-sync-disabled-setting'
+  | 'remote-ai-disabled-setting';
+
+type GeneratedTrackingRetentionSettingsWriteState =
+  | typeof GeneratedTrackingRetentionSettingsWriteDefaults.WriteStateAccepted
+  | typeof GeneratedTrackingRetentionSettingsWriteDefaults.WriteStateRejected;
+
+const GeneratedTrackingDeleteAfterAlertResolutionState = {
+  DeleteAfterAlertResolved: 'delete-after-alert-resolved',
+  RetainAfterAlertResolved: 'retain-after-alert-resolved',
+} as const;
+type GeneratedTrackingDeleteAfterAlertResolutionState =
+  (typeof GeneratedTrackingDeleteAfterAlertResolutionState)[keyof typeof GeneratedTrackingDeleteAfterAlertResolutionState];
+
+const GeneratedTrackingParentExportState = {
+  Prepared: 'prepared',
+  NotPrepared: 'not-prepared',
+} as const;
+type GeneratedTrackingParentExportState =
+  (typeof GeneratedTrackingParentExportState)[keyof typeof GeneratedTrackingParentExportState];
+
+const GeneratedTrackingRemoteSyncState = { Enabled: 'enabled', Disabled: 'disabled' } as const;
+type GeneratedTrackingRemoteSyncState =
+  (typeof GeneratedTrackingRemoteSyncState)[keyof typeof GeneratedTrackingRemoteSyncState];
+
+const GeneratedTrackingRemoteAiState = { Enabled: 'enabled', Disabled: 'disabled' } as const;
+type GeneratedTrackingRemoteAiState =
+  (typeof GeneratedTrackingRemoteAiState)[keyof typeof GeneratedTrackingRemoteAiState];
+
+const GeneratedTrackingDurableSettingsPersistenceState = {
+  Persisted: 'persisted',
+  NotPersisted: 'not-persisted',
+} as const;
+type GeneratedTrackingDurableSettingsPersistenceState =
+  (typeof GeneratedTrackingDurableSettingsPersistenceState)[keyof typeof GeneratedTrackingDurableSettingsPersistenceState];
+
+const GeneratedTrackingExecutionClaimState = {
+  Claimed: 'claimed',
+  Unclaimed: 'unclaimed',
+} as const;
+type GeneratedTrackingExecutionClaimState =
+  (typeof GeneratedTrackingExecutionClaimState)[keyof typeof GeneratedTrackingExecutionClaimState];
+
+interface GeneratedTrackingRetentionSettingsWriteResult {
+  readonly schemaVersion: number;
+  readonly commandId: string;
+  readonly settingsKind: GeneratedTrackingRetentionSettingsWriteKind;
+  readonly writeState: GeneratedTrackingRetentionSettingsWriteState;
+  readonly acceptedAt: string;
+  readonly sourceWriterIntentRefs: readonly string[];
+  readonly sourceReadModelProofRefs: readonly string[];
+  readonly sourceMutationProofRefs: readonly string[];
+  readonly appliedRetentionWindowHours: number | null;
+  readonly appliedDeleteAfterAlertResolutionState: GeneratedTrackingDeleteAfterAlertResolutionState;
+  readonly parentExportState: GeneratedTrackingParentExportState;
+  readonly remoteSyncState: GeneratedTrackingRemoteSyncState;
+  readonly remoteAiState: GeneratedTrackingRemoteAiState;
+  readonly localServiceStateRevision: number | null;
+  readonly localServiceStateSnapshotRef: string;
+  readonly durableSettingsStoreRef: string;
+  readonly durableSettingsPersistenceState: GeneratedTrackingDurableSettingsPersistenceState;
+  readonly childConfigResponseState?: 'applied' | 'rejected' | null;
+  readonly effectiveTrackingState?: 'enabled' | 'disabled' | 'degraded' | null;
+  readonly childConfigAckState?: 'received' | 'missing';
+  readonly commandTransportClaimState: GeneratedTrackingExecutionClaimState;
+  readonly serviceWritePreflightClaimState: GeneratedTrackingExecutionClaimState;
+  readonly serviceMutationExecutionState: GeneratedTrackingExecutionClaimState;
+  readonly portalWritableUiClaimState: GeneratedTrackingExecutionClaimState;
+  readonly platformRuntimeClaimState: GeneratedTrackingExecutionClaimState;
+  readonly childDeviceDeliveryClaimState: GeneratedTrackingExecutionClaimState;
+  readonly providerDeliveryClaimState: GeneratedTrackingExecutionClaimState;
+  readonly notificationReceiptClaimState: GeneratedTrackingExecutionClaimState;
+  readonly physicalDeviceClaimState: GeneratedTrackingExecutionClaimState;
+  readonly authorityClaimState: GeneratedTrackingExecutionClaimState;
+  readonly productClaimState: GeneratedTrackingExecutionClaimState;
+}
+
+const GeneratedTrackingNotificationParentSurfaceHistoryStatus = {
+  HistoryIntentReady: 'history-intent-ready',
+  ManualActionRequired: 'manual-action-required',
+  ProviderUnavailable: 'provider-unavailable',
+} as const;
+type GeneratedTrackingNotificationParentSurfaceHistoryStatus =
+  (typeof GeneratedTrackingNotificationParentSurfaceHistoryStatus)[keyof typeof GeneratedTrackingNotificationParentSurfaceHistoryStatus];
+
+const GeneratedRequiredTrackingNotificationParentSurfaceHistoryNonClaims = [
+  'no-rendered-parent-notification-ui',
+  'no-parent-preference-mutation-runtime',
+  'no-parent-frequency-control-ui',
+  'no-quiet-hours-timer-runtime',
+  'no-provider-delivery-execution',
+  'no-provider-receipt-ingestion-runtime',
+  'no-provider-credentials',
+  'no-cloud-routing',
+  'no-child-device-delivery',
+  'no-mobile-physical-device-proof',
+  'no-authority-proof',
+  'no-retry-worker-runtime',
+  'no-production-durable-history-storage',
+  'no-production-durable-outbox-storage',
+  'no-adapter-dispatch',
+] as const;
+type GeneratedTrackingNotificationParentSurfaceHistoryNonClaim =
+  (typeof GeneratedRequiredTrackingNotificationParentSurfaceHistoryNonClaims)[number];
+
+interface GeneratedTrackingNotificationParentSurfaceHistoryFamily {
+  readonly familyId: string;
+}
+
+interface GeneratedTrackingNotificationParentSurfaceHistoryRow {
+  readonly historyRowId: string;
+  readonly sourceAlertId: string;
+  readonly sourceProviderNotificationRowId: string;
+  readonly sourceReceiptBoundaryRowId: string;
+  readonly sourcePreferencePreflightRowId: string;
+  readonly status: GeneratedTrackingNotificationParentSurfaceHistoryStatus;
+  readonly sourcePolicyDecisionId: string;
+  readonly evidenceRefs: readonly string[];
+  readonly notificationStatusRefs: readonly string[];
+  readonly reasonCodeRefs: readonly string[];
+  readonly providerStatusEntryRef: string;
+  readonly providerAttemptRef: string;
+  readonly auditRefs: readonly string[];
+  readonly providerPreferenceRefs: readonly string[];
+  readonly parentPreferenceRequirementRefs: readonly string[];
+  readonly quietHoursRequirementRefs: readonly string[];
+  readonly receiptRequirementRefs: readonly string[];
+  readonly manualProofRequirements: readonly string[];
+  readonly drillInRefs: readonly string[];
+  readonly redactedParentSummaryRef: string;
+  readonly renderedParentNotificationUiClaimed: false;
+  readonly parentPreferenceMutationRuntimeClaimed: false;
+  readonly providerDeliveryClaimed: false;
+  readonly receiptIngestionRuntimeClaimed: false;
+  readonly childDeviceDeliveryClaimed: false;
+  readonly mobilePhysicalDeviceProofClaimed: false;
+  readonly authorityProofClaimed: false;
+}
+
+interface GeneratedTrackingNotificationParentSurfaceHistoryReadModel {
+  readonly schemaVersion: 'v0.6';
+  readonly proofId: string;
+  readonly generatedAt: string;
+  readonly family: GeneratedTrackingNotificationParentSurfaceHistoryFamily;
+  readonly sourceProviderNotificationProofRef: string;
+  readonly sourceReceiptBoundaryProofRef: string;
+  readonly sourcePreferencePreflightProofRef: string;
+  readonly sourceContractRefs: readonly string[];
+  readonly rows: readonly GeneratedTrackingNotificationParentSurfaceHistoryRow[];
+  readonly historyIntentReadyCount: number;
+  readonly manualActionRequiredCount: number;
+  readonly providerUnavailableCount: number;
+  readonly proofNonClaims: readonly GeneratedTrackingNotificationParentSurfaceHistoryNonClaim[];
+  readonly renderedParentNotificationUiClaimed: false;
+  readonly parentPreferenceMutationRuntimeClaimed: false;
+  readonly parentFrequencyControlUiClaimed: false;
+  readonly quietHoursTimerRuntimeClaimed: false;
+  readonly providerDeliveryRuntimeClaimed: false;
+  readonly providerReceiptIngestionRuntimeClaimed: false;
+  readonly providerCredentialsClaimed: false;
+  readonly cloudRoutingClaimed: false;
+  readonly childDeviceDeliveryClaimed: false;
+  readonly mobilePhysicalDeviceProofClaimed: false;
+  readonly authorityProofClaimed: false;
+  readonly retryExecutionRuntimeClaimed: false;
+  readonly productionDurableHistoryStorageClaimed: false;
+  readonly productionDurableOutboxStorageClaimed: false;
+  readonly adapterDispatchClaimed: false;
+}
+
+const GeneratedDefaultTrackingNotificationParentSurfaceHistoryReadModel =
+  __GENERATED_TRACKING_NOTIFICATION_PARENT_SURFACE_HISTORY_READ_MODEL__ as const satisfies GeneratedTrackingNotificationParentSurfaceHistoryReadModel;
+
+type GeneratedParseResult<T> =
+  | { readonly success: true; readonly data: T }
+  | { readonly success: false; readonly error: TypeError };
+
+const GeneratedTrackingNotificationParentSurfaceHistoryReadModelSchema = {
+  parse(value: unknown): GeneratedTrackingNotificationParentSurfaceHistoryReadModel {
+    const parsed = decodeGeneratedTrackingNotificationParentSurfaceHistoryReadModel(value);
+    if (parsed === null) {
+      throw new TypeError('GeneratedTrackingNotificationParentSurfaceHistoryReadModel is invalid');
+    }
+    return parsed;
+  },
+  safeParse(value: unknown): GeneratedParseResult<GeneratedTrackingNotificationParentSurfaceHistoryReadModel> {
+    const parsed = decodeGeneratedTrackingNotificationParentSurfaceHistoryReadModel(value);
+    return parsed === null
+      ? { success: false, error: new TypeError('GeneratedTrackingNotificationParentSurfaceHistoryReadModel is invalid') }
+      : { success: true, data: parsed };
+  },
+} as const;
+
+function decodeGeneratedParentActivityTrackingReadModelSnapshot(
+  value: unknown
+): GeneratedParentActivityTrackingReadModelSnapshot | null {
+  if (!generatedRecord(value) || !Array.isArray(value['rows'])) {
+    return null;
+  }
+  return value as unknown as GeneratedParentActivityTrackingReadModelSnapshot;
+}
+
+function decodeGeneratedTrackingRetentionSettingsWriteResult(
+  value: unknown
+): GeneratedTrackingRetentionSettingsWriteResult | null {
+  if (!generatedRecord(value) || typeof value['commandId'] !== 'string') {
+    return null;
+  }
+  return value as unknown as GeneratedTrackingRetentionSettingsWriteResult;
+}
+
+function decodeGeneratedTrackingNotificationParentSurfaceHistoryReadModel(
+  value: unknown
+): GeneratedTrackingNotificationParentSurfaceHistoryReadModel | null {
+  if (!isGeneratedTrackingNotificationReadModel(value)) {
+    return null;
+  }
+  return value;
+}
+
+function isGeneratedTrackingNotificationReadModel(
+  value: unknown
+): value is GeneratedTrackingNotificationParentSurfaceHistoryReadModel {
+  if (!generatedRecord(value) || value['schemaVersion'] !== 'v0.6' || !generatedString(value['proofId'])) {
+    return false;
+  }
+  const rows = value['rows'];
+  return (
+    generatedTrackingNotificationReadModelIdentity(value as Record<string, unknown>) &&
+    generatedTrackingNotificationReadModelRows(rows) &&
+    generatedNotificationClaimFlagsStayFalse(value as Record<string, unknown>) &&
+    generatedNotificationCountsMatch(value as Record<string, unknown>, rows) &&
+    generatedRequiredNotificationNonClaimsPresent(value['proofNonClaims'])
+  );
+}
+
+function generatedTrackingNotificationReadModelIdentity(
+  value: Record<string, unknown>
+): boolean {
+  return (
+    generatedRecord(value['family']) &&
+    generatedString(value['family']['familyId']) &&
+    generatedString(value['generatedAt']) &&
+    generatedString(value['sourceProviderNotificationProofRef']) &&
+    generatedString(value['sourceReceiptBoundaryProofRef']) &&
+    generatedString(value['sourcePreferencePreflightProofRef']) &&
+    generatedStringArray(value['sourceContractRefs'])
+  );
+}
+
+function generatedTrackingNotificationReadModelRows(
+  rows: unknown
+): rows is readonly GeneratedTrackingNotificationParentSurfaceHistoryRow[] {
+  return Array.isArray(rows) && rows.every(isGeneratedTrackingNotificationRow);
+}
+
+function isGeneratedTrackingNotificationRow(
+  value: unknown
+): value is GeneratedTrackingNotificationParentSurfaceHistoryRow {
+  return (
+    generatedTrackingNotificationRowIdentity(value as Record<string, unknown>) &&
+    generatedTrackingNotificationRowReferences(value as Record<string, unknown>) &&
+    generatedNotificationRowClaimFlagsStayFalse(value as Record<string, unknown>)
+  );
+}
+
+function generatedTrackingNotificationRowIdentity(
+  value: Record<string, unknown>
+): boolean {
+  return (
+    generatedRecord(value) &&
+    generatedString(value['historyRowId']) &&
+    generatedString(value['sourceAlertId']) &&
+    generatedString(value['sourceProviderNotificationRowId']) &&
+    generatedString(value['sourceReceiptBoundaryRowId']) &&
+    generatedString(value['sourcePreferencePreflightRowId']) &&
+    generatedNotificationStatus(value['status']) &&
+    generatedString(value['sourcePolicyDecisionId']) &&
+    generatedString(value['providerStatusEntryRef']) &&
+    generatedString(value['providerAttemptRef']) &&
+    generatedString(value['redactedParentSummaryRef'])
+  );
+}
+
+function generatedTrackingNotificationRowReferences(
+  value: Record<string, unknown>
+): boolean {
+  return (
+    generatedStringArray(value['evidenceRefs']) &&
+    generatedStringArray(value['notificationStatusRefs']) &&
+    generatedStringArray(value['reasonCodeRefs']) &&
+    generatedStringArray(value['auditRefs']) &&
+    generatedStringArray(value['providerPreferenceRefs']) &&
+    generatedStringArray(value['parentPreferenceRequirementRefs']) &&
+    generatedStringArray(value['quietHoursRequirementRefs']) &&
+    generatedStringArray(value['receiptRequirementRefs']) &&
+    generatedStringArray(value['manualProofRequirements']) &&
+    generatedStringArray(value['drillInRefs'])
+  );
+}
+
+function generatedNotificationStatus(
+  value: unknown
+): value is GeneratedTrackingNotificationParentSurfaceHistoryStatus {
+  return Object.values(GeneratedTrackingNotificationParentSurfaceHistoryStatus).includes(
+    value as GeneratedTrackingNotificationParentSurfaceHistoryStatus
+  );
+}
+
+function generatedNotificationCountsMatch(
+  value: Record<string, unknown>,
+  rows: readonly GeneratedTrackingNotificationParentSurfaceHistoryRow[]
+): boolean {
+  return value['historyIntentReadyCount'] === generatedNotificationStatusCount(rows, GeneratedTrackingNotificationParentSurfaceHistoryStatus.HistoryIntentReady) &&
+    value['manualActionRequiredCount'] === generatedNotificationStatusCount(rows, GeneratedTrackingNotificationParentSurfaceHistoryStatus.ManualActionRequired) &&
+    value['providerUnavailableCount'] === generatedNotificationStatusCount(rows, GeneratedTrackingNotificationParentSurfaceHistoryStatus.ProviderUnavailable);
+}
+
+function generatedNotificationStatusCount(
+  rows: readonly GeneratedTrackingNotificationParentSurfaceHistoryRow[],
+  status: GeneratedTrackingNotificationParentSurfaceHistoryStatus
+): number {
+  return rows.filter((row) => row.status === status).length;
+}
+
+function generatedRequiredNotificationNonClaimsPresent(value: unknown): boolean {
+  return Array.isArray(value) &&
+    GeneratedRequiredTrackingNotificationParentSurfaceHistoryNonClaims.every((claim) => value.includes(claim));
+}
+
+function generatedNotificationClaimFlagsStayFalse(value: Record<string, unknown>): boolean {
+  return [
+    value['renderedParentNotificationUiClaimed'],
+    value['parentPreferenceMutationRuntimeClaimed'],
+    value['parentFrequencyControlUiClaimed'],
+    value['quietHoursTimerRuntimeClaimed'],
+    value['providerDeliveryRuntimeClaimed'],
+    value['providerReceiptIngestionRuntimeClaimed'],
+    value['providerCredentialsClaimed'],
+    value['cloudRoutingClaimed'],
+    value['childDeviceDeliveryClaimed'],
+    value['mobilePhysicalDeviceProofClaimed'],
+    value['authorityProofClaimed'],
+    value['retryExecutionRuntimeClaimed'],
+    value['productionDurableHistoryStorageClaimed'],
+    value['productionDurableOutboxStorageClaimed'],
+    value['adapterDispatchClaimed'],
+  ].every((claim) => claim === false);
+}
+
+function generatedNotificationRowClaimFlagsStayFalse(value: Record<string, unknown>): boolean {
+  return [
+    value['renderedParentNotificationUiClaimed'],
+    value['parentPreferenceMutationRuntimeClaimed'],
+    value['providerDeliveryClaimed'],
+    value['receiptIngestionRuntimeClaimed'],
+    value['childDeviceDeliveryClaimed'],
+    value['mobilePhysicalDeviceProofClaimed'],
+    value['authorityProofClaimed'],
+  ].every((claim) => claim === false);
+}
+
+function generatedStringArray(value: unknown): value is readonly string[] {
+  return Array.isArray(value) && value.every(generatedString);
+}
+
+function generatedString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function generatedRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export const GeneratedPortalTrackingContracts = {
+  ActivityTrackingReadModel: {
+    decode: decodeGeneratedParentActivityTrackingReadModelSnapshot,
+  },
+  RetentionSettingsWrite: {
+    Defaults: GeneratedTrackingRetentionSettingsWriteDefaults,
+    DeleteAfterAlertResolutionState: GeneratedTrackingDeleteAfterAlertResolutionState,
+    DurableSettingsPersistenceState: GeneratedTrackingDurableSettingsPersistenceState,
+    ExecutionClaimState: GeneratedTrackingExecutionClaimState,
+    ParentExportState: GeneratedTrackingParentExportState,
+    RemoteAiState: GeneratedTrackingRemoteAiState,
+    RemoteSyncState: GeneratedTrackingRemoteSyncState,
+    Result: {
+      decode: decodeGeneratedTrackingRetentionSettingsWriteResult,
+    },
+  },
+  NotificationParentSurfaceHistory: {
+    DefaultReadModel: GeneratedDefaultTrackingNotificationParentSurfaceHistoryReadModel,
+    ReadModelSchema: GeneratedTrackingNotificationParentSurfaceHistoryReadModelSchema,
+    RequiredNonClaims: GeneratedRequiredTrackingNotificationParentSurfaceHistoryNonClaims,
+    Status: GeneratedTrackingNotificationParentSurfaceHistoryStatus,
+    decode: decodeGeneratedTrackingNotificationParentSurfaceHistoryReadModel,
+  },
+} as const;
+
+export interface GeneratedPortalRouteEventSnapshot {
+  readonly event?: string | null;
+  readonly eventId?: string | null;
+  readonly correlationId?: string | null;
+  readonly sentAt?: string | null;
+  readonly sourcePeerId?: string | null;
+  readonly sourceRole?: GeneratedPortalRouteEventRole | null;
+  readonly targetPeerId?: string | null;
+  readonly targetRole?: GeneratedPortalRouteEventRole | null;
+  readonly severity?: string | null;
+  readonly payload?: GeneratedPortalRouteEventPayloadRecord | null;
+  readonly snapshot?: GeneratedPortalRouteEventPayloadRecord | null;
+}
+
+export const GeneratedPortalDevToolUrlSchema = brandedNonEmptyStringSchema('GeneratedPortalDevToolUrl');
+export type GeneratedPortalDevToolUrl = typeof GeneratedPortalDevToolUrlSchema.Type;
+export const GeneratedPortalDetailValueSchema = brandedNonEmptyStringSchema('GeneratedPortalDetailValue');
+export type GeneratedPortalDetailValue = typeof GeneratedPortalDetailValueSchema.Type;
+export type GeneratedPortalClipboardText = string;
+export const GeneratedTrackingStatusProofArtifactSchema = brandedNonEmptyStringSchema(
+  'GeneratedTrackingStatusProofArtifact'
+);
+export type GeneratedTrackingStatusProofArtifact = typeof GeneratedTrackingStatusProofArtifactSchema.Type;

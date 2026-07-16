@@ -1,18 +1,19 @@
 # @ocentra-parent/schema-domain
 
-Shared Effect Schema boundary for branded types and decode helpers.
+Generated/thin validation and edge-decoder boundary for TypeScript over Rust-owned contracts.
 
-## Owns
+## Role
 
-- Effect Schema helper exports.
-- Branded decode patterns used by other domain packages.
-- The repo-wide validation style for TypeScript runtime parsing.
+- Consume Rust-generated contract artifacts from `crates/schema`.
+- Provide thin parsing helpers at untrusted TS edges.
+- Keep temporary adapters small while Rust remains the contract authority.
 
 ## Must Not Own
 
-- Product-specific policy, evidence, route, or protocol contracts.
+- Canonical product-specific policy, evidence, route, or protocol contracts.
 - Manual `string & { readonly __brand: ... }` aliases.
 - Zod or parallel validation frameworks.
+- TS business authority, fallback behavior, or canonical schema ownership.
 
 ## Flow
 
@@ -34,3 +35,4 @@ flowchart LR
 
 - Keep helpers small and generic.
 - Add helper docs only when repeated contract patterns emerge.
+- Retire TS adapters once Rust-owned replacements are live, bridge-exposed, and consumed.

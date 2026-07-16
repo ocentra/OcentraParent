@@ -27,9 +27,10 @@ LAN scan discovers. Child agent confirms. Parent assigns.
   protocol/service proof layer for signed discovery, route custody, trusted
   registry safety, relay/cache unavailable states, and manual-required physical
   proof labels. That proof is not the finished parent-facing LAN workflow.
-- This working lane owns the full LAN discovery plan end to end: contracts,
-  Rust/service wiring, portal UI/UX surfaces, Activity/Network diagnostics, and
-  proof. It still must not claim production household LAN readiness.
+- This working lane owns the full LAN discovery plan end to end: Rust-owned
+  contracts, Rust/service/runtime wiring, portal UI/UX presentation surfaces,
+  Activity/Network diagnostics, and proof. It still must not claim production
+  household LAN readiness.
 - Physical household proof is still manual-required until a real second
   child-agent device, signed LAN hello/heartbeat, router/firewall reachability,
   and generated proof artifacts exist.
@@ -65,7 +66,7 @@ the workpacks:
 - property-based tests for merge, evidence, parser robustness, events, and
   presence state;
 - proof matrix coverage, not only prose acceptance;
-- Playwright contract-fixture UI tests first, then real-backend UI proof later;
+- Playwright fixture-backed UI tests first, then real-backend UI proof later;
 - scan cadence and network-change triggers;
 - modular Rust LAN crate/service ownership shape;
 - platform-specific Android and iOS child-agent limits;
@@ -88,8 +89,11 @@ all screens or that ChatGPT knew the current C-lane UI implementation.
   across multiple agents.
 - Do not create a second source of truth. Durable state belongs in the canonical
   household device registry; read models and portal rows are derived from it.
-- Build TypeScript domain contracts first, Rust protocol/service parity second,
-  portal consumption third.
+- Build or repair Rust-owned shared contracts first, Rust protocol/service
+  parity second, portal presentation consumption third.
+- Tests must live in real organized test folders and crates. Inline
+  source-owned tests, empty placeholder directories, fake coverage, and
+  mock-only readiness claims do not close LAN workpacks.
 - Keep routers and unsupported LAN devices visible but non-enrollable unless a
   real supported child-agent path exists.
 - Each worker report must name the workpack, touched paths, validation, product
@@ -99,7 +103,7 @@ all screens or that ChatGPT knew the current C-lane UI implementation.
 
 | Step | Workpack                                                                                     | Target State                                                                                                               |
 | ---- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| 01   | [Contract boundary and Effect schemas](workpacks/01-contract-boundary-and-effect-schemas.md) | LAN discovery contracts are typed, schema-backed, branded, and owned in domain packages before runtime code consumes them. |
+| 01   | [Contract boundary and Effect schemas](workpacks/01-contract-boundary-and-effect-schemas.md) | LAN discovery contracts are typed, schema-backed, branded, and owned in the Rust shared-schema/runtime boundary before portal presentation consumes them. |
 | 02   | [Evidence model and device record](workpacks/02-evidence-model-and-device-record.md)         | Every visible device has source evidence, first/last seen, confidence, and no IP-only identity.                            |
 | 03   | [Interface detection](workpacks/03-interface-detection.md)                                   | Active LAN interfaces are selected safely, with virtual/VPN/link-local interfaces excluded by default.                     |
 | 04   | [Neighbor table ingestion](workpacks/04-neighbor-table-ingestion.md)                         | Windows, Linux, and macOS neighbor output normalizes into one evidence shape.                                              |
@@ -140,58 +144,59 @@ Checked items below mean there is concrete proof in merged `main` or in branch
 `codex/v0-9-lan-signed-discovery-relay-spine`. They do not mark a whole
 workpack complete unless every requirement in that workpack is complete.
 
-- [x] Main has the baseline V0.9 household LAN read model: local child-agent
+- [ ] Main has the baseline V0.9 household LAN read model: local child-agent
       inventory, passive neighbor/router separation, scan summary, trusted
       registry input, selected-device readiness, route recovery, and portal
       target filtering.
-- [x] Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds typed
-      signed-discovery and relay/cache spine contracts in `parent-domain` and
-      `agent-protocol-domain`.
-- [x] The same branch adds Rust protocol/service parity for signed discovery
+- [ ] Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds typed
+      signed-discovery and relay/cache spine contracts in the Rust-owned shared
+      schema/protocol boundary. Historical `parent-domain` and
+      `agent-protocol-domain` labels do not imply current TS ownership.
+- [ ] The same branch adds Rust protocol/service parity for signed discovery
       rows, rejected discovery states, route custody safety, trusted registry
       route checks, and relay/cache unavailable/manual-required states.
-- [x] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` exists as the
+- [ ] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` exists as the
       focused proof harness for this branch and keeps physical household proof,
       real relay/cache, and mobile/store/signing claims manual-required unless
       separately proved.
-- [x] Feature docs for remote/LAN/mobile platforms and family setup/device
+- [ ] Feature docs for remote/LAN/mobile platforms and family setup/device
       roles were updated on this branch to describe the signed discovery relay
       proof and remaining gaps.
-- [x] Parent-facing Devices/LAN UX now consumes the signed discovery relay
+- [ ] Parent-facing Devices/LAN UX now consumes the signed discovery relay
       spine from the B read model for selected-device route custody, signed
       proof, relay/cache unavailable, manual-proof, audit, route requirement,
       unproved-claim, and parent-decision labels.
-- [x] Devices/LAN add-to-portal now sends the existing
+- [ ] Devices/LAN add-to-portal now sends the existing
       `agent.lan-pairing.add-device.request` command when the selected LAN slot
       has a controllable service route, while unsupported/router slots remain
       visible-only.
-- [x] Parent-facing Devices/LAN UX now has first-class action controls for
+- [ ] Parent-facing Devices/LAN UX now has first-class action controls for
       add, route select, rename, trust, ignore, restore, and revoke. Add,
       rename/trust/ignore/restore decisions use the existing
       `agent.lan-pairing.add-device.request` household-decision fields; route
       select/revoke use LAN route commands, and the portal transport now routes
       LAN commands to the selected local-network child target.
-- [x] Activity/Network diagnostics now render service-backed LAN read-model
+- [ ] Activity/Network diagnostics now render service-backed LAN read-model
       state for selected/family target, cloud relay, physical LAN state,
       selected route, signed proof, route safety, relay/cache, manual proof,
       unproved claims, route requirements, audit checks, canonical devices,
       evidence records, parent decisions, sources, and latest evidence.
-- [x] Activity/Network diagnostics now include lightweight LAN scan/evidence
+- [ ] Activity/Network diagnostics now include lightweight LAN scan/evidence
       timeline rows, signed adapter/heartbeat proof state, and policy-target
       history in addition to route/evidence/decision state.
-- [x] Branch `codex/v0-9-lan-source-matrix-plan-completion` adds a typed
-      `lanDiscoverySourceMatrix` read-model field across parent-domain,
-      agent-protocol-domain, Rust protocol, and Rust service state. The matrix
-      carries all 20 workpacks and source rows with implemented, partial,
-      manual-required, and not-implemented statuses.
-- [x] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` writes
-      `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`. Latest
-      local proof shows 2 implemented workpacks, 10 partial workpacks,
-      5 manual-required workpacks, 3 not-implemented workpacks, 9 implemented
-      source rows, 5 partial source rows, 10 manual-required source rows, and
-      7 not-implemented source rows. It also proves weak sources cannot confirm
-      child-agent identity or assign a child profile.
-- [x] Live browser proof was captured on the B lane dev ports for Devices/LAN,
+- [ ] Branch `codex/v0-9-lan-source-matrix-plan-completion` adds a typed
+      `lanDiscoverySourceMatrix` read-model field across the Rust-owned shared
+      schema/protocol boundary, Rust protocol, and Rust service state. The
+      matrix carries all 25 workpacks and source rows with implemented,
+      partial, manual-required, and not-implemented statuses.
+- [ ] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` writes
+      `output/lan-plan-proof/01-lan-b1-proof-regeneration/01-lan-source-matrix-plan-completion-proof.json`.
+      Latest local proof shows 13 implemented workpacks, 11 partial workpacks,
+      1 manual-required workpack, 14 implemented source rows, 15 partial source
+      rows, 2 manual-required source rows, and 4 not-implemented source rows.
+      It also proves weak sources cannot confirm child-agent identity or assign
+      a child profile.
+- [ ] Live browser proof was captured on the B lane dev ports for Devices/LAN,
       Activity/Network diagnostics, and Network policy target binding:
       `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`,
       `output/playwright/lan-source-matrix-plan-completion/activity-network-source-matrix.png`,
@@ -208,7 +213,7 @@ workpack complete unless every requirement in that workpack is complete.
 - [ ] Cloud relay/cache, parent-owned storage, Android/iOS child parity,
       package signing, and store-distribution claims remain unavailable or
       manual-required until separate implementation proof exists.
-- [x] `docs/product-capability-checklist.md` has the matching LAN
+- [ ] `docs/product-capability-checklist.md` has the matching LAN
       source-matrix proof note. The Remote/LAN/mobile and family setup rows
       point at the source-matrix proof script, proof JSON, and screenshot
       artifacts above while keeping physical household proof manual-required.

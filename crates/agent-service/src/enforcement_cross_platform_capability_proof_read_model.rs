@@ -1,19 +1,35 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_cross_platform_enforcement_capability_proof as proof, policy_constants,
-    ParentPlatform, V08CrossPlatformAdapterExecutionState, V08CrossPlatformCapabilityStatus,
-    V08CrossPlatformEnforcementCapabilityClaimState, V08CrossPlatformEnforcementCapabilityName,
-    V08CrossPlatformEnforcementCapabilityProofEntry,
-    V08CrossPlatformEnforcementCapabilityProofReadModel,
-    V08CrossPlatformEnforcementCapabilitySurface,
-};
+use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformAdapterExecutionState;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformCapabilityStatus;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityClaimState;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityName;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofEntry;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilitySurface;
+use ocentra_parent_agent_protocol::policy_constants;
 
-pub(crate) fn v08_cross_platform_enforcement_capability_proof_read_model(
-    generated_at: &str,
+#[derive(Clone, Copy)]
+pub(crate) struct GeneratedAtTextRef<'a>(pub(crate) &'a str);
+
+#[derive(Clone, Copy)]
+struct ProofEntryId(pub(crate) &'static str);
+
+#[derive(Clone, Copy)]
+struct EntryProofText {
+    manual_proof_requirements: &'static [&'static str],
+    claim_boundary: &'static str,
+    fallback_behavior: &'static str,
+}
+
+pub(crate) fn v08_cross_platform_enforcement_capability_proof_read_model<'a>(
+    generated_at: impl Into<GeneratedAtTextRef<'a>>,
 ) -> V08CrossPlatformEnforcementCapabilityProofReadModel {
+    let generated_at = generated_at.into();
     V08CrossPlatformEnforcementCapabilityProofReadModel {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: proof::READ_MODEL_ID.to_string(),
-        generated_at: generated_at.to_string(),
+        generated_at: generated_at.0.to_string(),
         source_read_model_ids: vec![
             proof::SOURCE_BROAD_PROOF.to_string(),
             proof::SOURCE_PRODUCT_PROOF.to_string(),
@@ -120,32 +136,36 @@ fn implemented_boundary_specs() -> Vec<EntrySpec> {
 fn windows_manual_specs() -> Vec<EntrySpec> {
     vec![
         manual_spec(
-            proof::ENTRY_ID_WINDOWS_BROAD_APP,
+            ProofEntryId(proof::ENTRY_ID_WINDOWS_BROAD_APP),
             V08CrossPlatformEnforcementCapabilitySurface::WindowsBroadInstalledAppBlocking,
             ParentPlatform::Windows,
             V08CrossPlatformEnforcementCapabilityName::AppBlocking,
-            &[
-                proof::REQUIREMENT_OS_APP_IDENTITY,
-                proof::REQUIREMENT_BLOCK_APPLY,
-                proof::REQUIREMENT_ROLLBACK,
-                proof::REQUIREMENT_AUDIT_CUSTODY,
-            ],
-            proof::CLAIM_WINDOWS_BROAD_APP,
-            proof::FALLBACK_WINDOWS_BROAD_APP,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_OS_APP_IDENTITY,
+                    proof::REQUIREMENT_BLOCK_APPLY,
+                    proof::REQUIREMENT_ROLLBACK,
+                    proof::REQUIREMENT_AUDIT_CUSTODY,
+                ],
+                claim_boundary: proof::CLAIM_WINDOWS_BROAD_APP,
+                fallback_behavior: proof::FALLBACK_WINDOWS_BROAD_APP,
+            },
         ),
         manual_spec(
-            proof::ENTRY_ID_WINDOWS_NETWORK_DOMAIN,
+            ProofEntryId(proof::ENTRY_ID_WINDOWS_NETWORK_DOMAIN),
             V08CrossPlatformEnforcementCapabilitySurface::WindowsNetworkDomainBlocking,
             ParentPlatform::Windows,
             V08CrossPlatformEnforcementCapabilityName::NetworkDomainBlocking,
-            &[
-                proof::REQUIREMENT_NETWORK_FILTER,
-                proof::REQUIREMENT_DOMAIN_APPLY,
-                proof::REQUIREMENT_ROLLBACK,
-                proof::REQUIREMENT_AUDIT_CUSTODY,
-            ],
-            proof::CLAIM_WINDOWS_NETWORK_DOMAIN,
-            proof::FALLBACK_WINDOWS_NETWORK_DOMAIN,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_NETWORK_FILTER,
+                    proof::REQUIREMENT_DOMAIN_APPLY,
+                    proof::REQUIREMENT_ROLLBACK,
+                    proof::REQUIREMENT_AUDIT_CUSTODY,
+                ],
+                claim_boundary: proof::CLAIM_WINDOWS_NETWORK_DOMAIN,
+                fallback_behavior: proof::FALLBACK_WINDOWS_NETWORK_DOMAIN,
+            },
         ),
     ]
 }
@@ -153,27 +173,31 @@ fn windows_manual_specs() -> Vec<EntrySpec> {
 fn desktop_scaffold_specs() -> Vec<EntrySpec> {
     vec![
         scaffold_spec(
-            proof::ENTRY_ID_LINUX_ADAPTER_SCAFFOLD,
+            ProofEntryId(proof::ENTRY_ID_LINUX_ADAPTER_SCAFFOLD),
             V08CrossPlatformEnforcementCapabilitySurface::LinuxEnforcementAdapterScaffold,
             ParentPlatform::Linux,
-            &[
-                proof::REQUIREMENT_LINUX_SERVICE,
-                proof::REQUIREMENT_LINUX_ADAPTER,
-            ],
-            proof::CLAIM_LINUX_SCAFFOLD,
-            proof::FALLBACK_LINUX_SCAFFOLD,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_LINUX_SERVICE,
+                    proof::REQUIREMENT_LINUX_ADAPTER,
+                ],
+                claim_boundary: proof::CLAIM_LINUX_SCAFFOLD,
+                fallback_behavior: proof::FALLBACK_LINUX_SCAFFOLD,
+            },
         ),
         scaffold_spec(
-            proof::ENTRY_ID_MACOS_ADAPTER_SCAFFOLD,
+            ProofEntryId(proof::ENTRY_ID_MACOS_ADAPTER_SCAFFOLD),
             V08CrossPlatformEnforcementCapabilitySurface::MacosEnforcementAdapterScaffold,
             ParentPlatform::Macos,
-            &[
-                proof::REQUIREMENT_MACOS_PERMISSIONS,
-                proof::REQUIREMENT_MACOS_PACKAGE,
-                proof::REQUIREMENT_MACOS_ADAPTER,
-            ],
-            proof::CLAIM_MACOS_SCAFFOLD,
-            proof::FALLBACK_MACOS_SCAFFOLD,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_MACOS_PERMISSIONS,
+                    proof::REQUIREMENT_MACOS_PACKAGE,
+                    proof::REQUIREMENT_MACOS_ADAPTER,
+                ],
+                claim_boundary: proof::CLAIM_MACOS_SCAFFOLD,
+                fallback_behavior: proof::FALLBACK_MACOS_SCAFFOLD,
+            },
         ),
     ]
 }
@@ -188,43 +212,49 @@ fn mobile_specs() -> Vec<EntrySpec> {
 fn android_specs() -> Vec<EntrySpec> {
     vec![
         manual_spec(
-            proof::ENTRY_ID_ANDROID_DEVICE_OWNER,
+            ProofEntryId(proof::ENTRY_ID_ANDROID_DEVICE_OWNER),
             V08CrossPlatformEnforcementCapabilitySurface::AndroidDeviceOwnerPolicy,
             ParentPlatform::Android,
             V08CrossPlatformEnforcementCapabilityName::DeviceOwnerPolicy,
-            &[
-                proof::REQUIREMENT_ANDROID_DEVICE_OWNER,
-                proof::REQUIREMENT_ANDROID_POLICY_APPLY,
-                proof::REQUIREMENT_ANDROID_PROFILE,
-            ],
-            proof::CLAIM_ANDROID_DEVICE_OWNER,
-            proof::FALLBACK_ANDROID_DEVICE_OWNER,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_ANDROID_DEVICE_OWNER,
+                    proof::REQUIREMENT_ANDROID_POLICY_APPLY,
+                    proof::REQUIREMENT_ANDROID_PROFILE,
+                ],
+                claim_boundary: proof::CLAIM_ANDROID_DEVICE_OWNER,
+                fallback_behavior: proof::FALLBACK_ANDROID_DEVICE_OWNER,
+            },
         ),
         manual_spec(
-            proof::ENTRY_ID_ANDROID_PACKAGE_LIFECYCLE,
+            ProofEntryId(proof::ENTRY_ID_ANDROID_PACKAGE_LIFECYCLE),
             V08CrossPlatformEnforcementCapabilitySurface::AndroidPackageLifecycle,
             ParentPlatform::Android,
             V08CrossPlatformEnforcementCapabilityName::PackageLifecycle,
-            &[
-                proof::REQUIREMENT_ANDROID_PACKAGE,
-                proof::REQUIREMENT_ANDROID_LIFECYCLE,
-                proof::REQUIREMENT_ANDROID_UNINSTALL,
-            ],
-            proof::CLAIM_ANDROID_PACKAGE,
-            proof::FALLBACK_ANDROID_PACKAGE,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_ANDROID_PACKAGE,
+                    proof::REQUIREMENT_ANDROID_LIFECYCLE,
+                    proof::REQUIREMENT_ANDROID_UNINSTALL,
+                ],
+                claim_boundary: proof::CLAIM_ANDROID_PACKAGE,
+                fallback_behavior: proof::FALLBACK_ANDROID_PACKAGE,
+            },
         ),
         planned_spec(
-            proof::ENTRY_ID_ANDROID_STORE,
+            ProofEntryId(proof::ENTRY_ID_ANDROID_STORE),
             V08CrossPlatformEnforcementCapabilitySurface::AndroidStoreDistribution,
             ParentPlatform::Android,
             V08CrossPlatformEnforcementCapabilityName::StoreDistribution,
-            &[
-                proof::REQUIREMENT_GOOGLE_PLAY,
-                proof::REQUIREMENT_RELEASE_TRACK,
-                proof::REQUIREMENT_POLICY_REVIEW,
-            ],
-            proof::CLAIM_ANDROID_STORE,
-            proof::FALLBACK_ANDROID_STORE,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_GOOGLE_PLAY,
+                    proof::REQUIREMENT_RELEASE_TRACK,
+                    proof::REQUIREMENT_POLICY_REVIEW,
+                ],
+                claim_boundary: proof::CLAIM_ANDROID_STORE,
+                fallback_behavior: proof::FALLBACK_ANDROID_STORE,
+            },
         ),
     ]
 }
@@ -232,71 +262,77 @@ fn android_specs() -> Vec<EntrySpec> {
 fn ios_specs() -> Vec<EntrySpec> {
     vec![
         manual_spec(
-            proof::ENTRY_ID_IOS_FAMILY_CONTROLS,
+            ProofEntryId(proof::ENTRY_ID_IOS_FAMILY_CONTROLS),
             V08CrossPlatformEnforcementCapabilitySurface::IosFamilyControls,
             ParentPlatform::Ios,
             V08CrossPlatformEnforcementCapabilityName::FamilyControlsEntitlement,
-            &[
-                proof::REQUIREMENT_IOS_FAMILY,
-                proof::REQUIREMENT_IOS_DEVICE_ACTIVITY,
-                proof::REQUIREMENT_IOS_DEVICE,
-            ],
-            proof::CLAIM_IOS_FAMILY,
-            proof::FALLBACK_IOS_FAMILY,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_IOS_FAMILY,
+                    proof::REQUIREMENT_IOS_DEVICE_ACTIVITY,
+                    proof::REQUIREMENT_IOS_DEVICE,
+                ],
+                claim_boundary: proof::CLAIM_IOS_FAMILY,
+                fallback_behavior: proof::FALLBACK_IOS_FAMILY,
+            },
         ),
         manual_spec(
-            proof::ENTRY_ID_IOS_SIGNING,
+            ProofEntryId(proof::ENTRY_ID_IOS_SIGNING),
             V08CrossPlatformEnforcementCapabilitySurface::IosSigningEntitlements,
             ParentPlatform::Ios,
             V08CrossPlatformEnforcementCapabilityName::SigningEntitlements,
-            &[
-                proof::REQUIREMENT_APPLE_SIGNING,
-                proof::REQUIREMENT_IOS_ENTITLEMENTS,
-                proof::REQUIREMENT_IOS_INSTALL,
-            ],
-            proof::CLAIM_IOS_SIGNING,
-            proof::FALLBACK_IOS_SIGNING,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_APPLE_SIGNING,
+                    proof::REQUIREMENT_IOS_ENTITLEMENTS,
+                    proof::REQUIREMENT_IOS_INSTALL,
+                ],
+                claim_boundary: proof::CLAIM_IOS_SIGNING,
+                fallback_behavior: proof::FALLBACK_IOS_SIGNING,
+            },
         ),
         manual_spec(
-            proof::ENTRY_ID_IOS_TESTFLIGHT,
+            ProofEntryId(proof::ENTRY_ID_IOS_TESTFLIGHT),
             V08CrossPlatformEnforcementCapabilitySurface::IosTestflightDistribution,
             ParentPlatform::Ios,
             V08CrossPlatformEnforcementCapabilityName::TestflightDistribution,
-            &[
-                proof::REQUIREMENT_TESTFLIGHT,
-                proof::REQUIREMENT_APP_STORE_CONNECT,
-                proof::REQUIREMENT_IOS_INSTALL,
-            ],
-            proof::CLAIM_IOS_TESTFLIGHT,
-            proof::FALLBACK_IOS_TESTFLIGHT,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_TESTFLIGHT,
+                    proof::REQUIREMENT_APP_STORE_CONNECT,
+                    proof::REQUIREMENT_IOS_INSTALL,
+                ],
+                claim_boundary: proof::CLAIM_IOS_TESTFLIGHT,
+                fallback_behavior: proof::FALLBACK_IOS_TESTFLIGHT,
+            },
         ),
         planned_spec(
-            proof::ENTRY_ID_IOS_STORE,
+            ProofEntryId(proof::ENTRY_ID_IOS_STORE),
             V08CrossPlatformEnforcementCapabilitySurface::IosStoreDistribution,
             ParentPlatform::Ios,
             V08CrossPlatformEnforcementCapabilityName::StoreDistribution,
-            &[
-                proof::REQUIREMENT_APPLE_SIGNING,
-                proof::REQUIREMENT_APP_STORE_REVIEW,
-                proof::REQUIREMENT_APPLE_RELEASE,
-            ],
-            proof::CLAIM_IOS_STORE,
-            proof::FALLBACK_IOS_STORE,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    proof::REQUIREMENT_APPLE_SIGNING,
+                    proof::REQUIREMENT_APP_STORE_REVIEW,
+                    proof::REQUIREMENT_APPLE_RELEASE,
+                ],
+                claim_boundary: proof::CLAIM_IOS_STORE,
+                fallback_behavior: proof::FALLBACK_IOS_STORE,
+            },
         ),
     ]
 }
 
 fn manual_spec(
-    proof_entry_id: &'static str,
+    proof_entry_id: ProofEntryId,
     surface: V08CrossPlatformEnforcementCapabilitySurface,
     platform: ParentPlatform,
     capability: V08CrossPlatformEnforcementCapabilityName,
-    manual_proof_requirements: &'static [&'static str],
-    claim_boundary: &'static str,
-    fallback_behavior: &'static str,
+    text: EntryProofText,
 ) -> EntrySpec {
     EntrySpec {
-        proof_entry_id,
+        proof_entry_id: proof_entry_id.0,
         surface,
         platform,
         capability,
@@ -305,22 +341,20 @@ fn manual_spec(
         adapter_execution_state: V08CrossPlatformAdapterExecutionState::ReturnsManualRequired,
         linked_proof_commands: &[],
         linked_proof_artifacts: &[],
-        manual_proof_requirements,
-        claim_boundary,
-        fallback_behavior,
+        manual_proof_requirements: text.manual_proof_requirements,
+        claim_boundary: text.claim_boundary,
+        fallback_behavior: text.fallback_behavior,
     }
 }
 
 fn scaffold_spec(
-    proof_entry_id: &'static str,
+    proof_entry_id: ProofEntryId,
     surface: V08CrossPlatformEnforcementCapabilitySurface,
     platform: ParentPlatform,
-    manual_proof_requirements: &'static [&'static str],
-    claim_boundary: &'static str,
-    fallback_behavior: &'static str,
+    text: EntryProofText,
 ) -> EntrySpec {
     EntrySpec {
-        proof_entry_id,
+        proof_entry_id: proof_entry_id.0,
         surface,
         platform,
         capability: V08CrossPlatformEnforcementCapabilityName::HeadlessAgentService,
@@ -329,23 +363,21 @@ fn scaffold_spec(
         adapter_execution_state: V08CrossPlatformAdapterExecutionState::ScaffoldOnly,
         linked_proof_commands: &[],
         linked_proof_artifacts: &[],
-        manual_proof_requirements,
-        claim_boundary,
-        fallback_behavior,
+        manual_proof_requirements: text.manual_proof_requirements,
+        claim_boundary: text.claim_boundary,
+        fallback_behavior: text.fallback_behavior,
     }
 }
 
 fn planned_spec(
-    proof_entry_id: &'static str,
+    proof_entry_id: ProofEntryId,
     surface: V08CrossPlatformEnforcementCapabilitySurface,
     platform: ParentPlatform,
     capability: V08CrossPlatformEnforcementCapabilityName,
-    manual_proof_requirements: &'static [&'static str],
-    claim_boundary: &'static str,
-    fallback_behavior: &'static str,
+    text: EntryProofText,
 ) -> EntrySpec {
     EntrySpec {
-        proof_entry_id,
+        proof_entry_id: proof_entry_id.0,
         surface,
         platform,
         capability,
@@ -354,15 +386,15 @@ fn planned_spec(
         adapter_execution_state: V08CrossPlatformAdapterExecutionState::NotInvoked,
         linked_proof_commands: &[],
         linked_proof_artifacts: &[],
-        manual_proof_requirements,
-        claim_boundary,
-        fallback_behavior,
+        manual_proof_requirements: text.manual_proof_requirements,
+        claim_boundary: text.claim_boundary,
+        fallback_behavior: text.fallback_behavior,
     }
 }
 
 fn entry_from_spec(
     spec: &EntrySpec,
-    generated_at: &str,
+    generated_at: GeneratedAtTextRef<'_>,
 ) -> V08CrossPlatformEnforcementCapabilityProofEntry {
     V08CrossPlatformEnforcementCapabilityProofEntry {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
@@ -394,6 +426,6 @@ fn entry_from_spec(
         exact_url_claimed: false,
         privileged_mobile_claimed: false,
         production_distribution_claimed: false,
-        last_checked_at: generated_at.to_string(),
+        last_checked_at: generated_at.0.to_string(),
     }
 }

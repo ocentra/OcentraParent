@@ -1,96 +1,173 @@
-# Account Identity Family Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `account-identity-family-plan`
+> Doc: `Account Identity Family Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: implementation completion, auth security, or PR readiness.
 
-Make identity + household authority explicit and enforceable in implementation with replay-safe auth and explicit family boundaries.
+<!-- /agent-capsule -->
 
-## Slice 01 � Provider Decision and Custody Contract
+# Account Identity Family Plan Execution Blueprint
 
-### Acceptance
+## Execution order
 
-- ADR names chosen auth provider model and custody ownership.
-- Family/household identity authority mapped to one source of truth.
+```text
+1. WP01 Auth Provider Decision
+2. WP02 Identity Household Role Model
+3. WP03 Session Token Lifecycle
+4. WP04 Invites Recovery Lifecycle
+5. WP05 Device Ownership AuthZ
+6. WP07 Parent Account Family Setup UI
+7. WP06 Security Proof And Route Gate
+```
 
-### Tests
+## Codex startup prompt
 
-- `account-identity.auth-provider.decisions`
-- `account-identity.contract.schema-negative`
+```text
+You are working in OcentraParent on account-identity-family-plan.
+Read only:
+- docs/plans/account-identity-family-plan/AGENTS.md
+- docs/plans/account-identity-family-plan/PLAN_STATE.md
+- docs/plans/account-identity-family-plan/NEXT_ACTIONS.md
+- docs/plans/account-identity-family-plan/WORKPACK_INDEX.md
+Then open exactly one assigned workpack.
+Do not read sibling plan folders unless the selected workpack names a handoff.
+Do not implement provider/session/account runtime before WP01 provider/custody decision is accepted.
+Do not claim DONE/PR_READY without proof artifacts and focused validation commands.
+```
 
-### Proof required
+## Pre-edit note
 
-- `docs/proof/account-identity-family-plan/slice-01-provider-adr.md`
+Before editing source or docs, write:
 
-## Slice 02 � Session and Token Lifecycle
+```text
+Assigned workpack:
+Implementation slice:
+Expected source/doc files:
+Expected tests/proof files:
+Proof root:
+Adjacent handoffs that are read-only:
+No-claim boundaries:
+```
 
-### Acceptance
+## Source ownership map
 
-- Login, refresh, expiry, revocation, replay and stolen token handling are proven by tests and logs.
+Likely owned paths for this plan:
 
-### Tests
+```text
+packages/family-domain/src/**
+packages/family-domain/tests/unit/**
+packages/parent-domain/src/** when parent setup/read-model surface is needed
+packages/portal-domain/src/** when stable UI route/text/DOM ids are needed
+packages/agent-protocol-domain/src/** only for typed service/portal protocol crossings
+apps/portal/src/** only for WP07 selected UI surfaces
+apps/portal/tests/** only for WP07 selected UI tests
+apps/portal/e2e/** only for WP07 selected Playwright proof
+crates/agent-protocol/** only for cross-language contract parity
+crates/agent-service/** only for selected service-backed setup/session/device boundary proof
+infra/cloudflare/** only after cloudflare-control-plane-plan exposes the required worker scaffold/handoff
+```
 
-- `account-identity.auth-session.replay-idempotency`
-- `account-identity.recovery.rate-limit`
+Read-only or handoff-only paths:
 
-### Proof required
+```text
+docs/plans/setup-install-provisioning-plan/**
+docs/plans/cloudflare-control-plane-plan/**
+docs/plans/payment-subscription-plan/**
+docs/plans/policy-control-plane-plan/**
+docs/plans/data-custody-storage-plan/**
+docs/plans/device-trust-bootstrap-plan/**
+docs/plans/lan-plan/**
+docs/plans/remote-access-plan/**
+```
 
-- `docs/proof/account-identity-family-plan/slice-02-token-lifecycle.md`
+Do not edit handoff plans from this plan unless the user explicitly assigns route-sync work.
 
-## Slice 03 � Family Role/Device Authorization Boundaries
+## Research-backed architecture constraints
 
-### Acceptance
+Use these constraints during implementation:
 
-- Parent, child, co-parent, support, and admin roles reject cross-family and stale actions.
+```text
+Cloudflare D1 is the relational account/family metadata store when Cloudflare runtime is selected.
+Cloudflare Durable Objects coordinate serialized, short-lived, per-household/session/invite/recovery state where needed.
+Firebase/Auth.js may be an auth/session adapter but must not own household membership, child profiles, device trust, invite/recovery state, policy authority, child evidence, or product data custody.
+Firebase custom claims, if used, are access hints only and must stay minimal.
+Session identifiers must be opaque, unpredictable, meaningless client-side identifiers backed by server-side session state.
+Authorization is deny-by-default and validated on every request.
+Recovery/invite tokens are single-use, expiring, random, stored securely, rate-limited, and enumeration-resistant.
+Sensitive state-changing browser requests need CSRF/origin/fetch-metadata or equivalent proof.
+```
 
-### Tests
+## Focused command policy
 
-- `account-identity.authz.role-boundary`
-- `account-identity.observability.audit`
+Prefer focused commands before broad validation:
 
-### Proof required
+```bash
+npm run build --workspace @ocentra-parent/family-domain
+npm run test --workspace @ocentra-parent/family-domain
+npm run test --workspace @ocentra-parent/portal -- account
+npm run test:e2e --workspace @ocentra-parent/portal -- account
+cargo test -p ocentra-parent-agent-protocol account
+cargo test -p ocentra-parent-agent-service account
+npm run lint:architecture -- --files packages/family-domain apps/portal packages/portal-domain crates/agent-protocol crates/agent-service
+```
 
-- `docs/proof/account-identity-family-plan/slice-03-authz-boundary.md`
+If a command does not exist or no matching tests exist, record the missing location in the proof artifact and keep the checklist row open.
 
-## Slice 04 � Recovery and Abuse Hardening
+## Proof update rule
 
-### Acceptance
+Each completed row needs:
 
-- Recovery and invite flows reject enumeration, reuse, and lockout-bypass behavior.
+```text
+exact command
+exit code
+proof file path
+test/proof id
+negative case status
+remaining gaps/no-claim boundary
+```
 
-### Tests
+Proof roots are under:
 
-- `account-identity.recovery.rate-limit`
-- `account-identity.authz.role-boundary`
+```text
+output/account-identity-family-plan-proof/<workpack-id>/
+```
 
-### Proof required
+Test result roots are under:
 
-- `docs/proof/account-identity-family-plan/slice-04-recovery-abuse.md`
+```text
+test-results/account-identity-family-plan-<workpack-id>/
+```
 
-## Workpacks (execution lane)
+## DONE / PR_READY criteria
 
-### Slice-to-workpack binding
+DONE for one workpack requires:
 
-- Slice 01: docs/plans/account-identity-family-plan/workpacks/01-auth-provider-decision.md
-- Slice 02: docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md
-- Slice 03: docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md
-- Slice 04: docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md
+```text
+source/docs/tests updated
+focused commands run or blocker recorded
+negative cases covered or explicitly open
+proof artifacts written
+CHECKLIST_INDEX.md rows updated
+selected workpack Fill-before-DONE section updated
+PLAN_STATE.md open gaps updated if state changed
+```
 
-## PR-ready gate
+PR_READY for the whole plan requires WP06 route gate proof and all prior workpack proof roots.
 
-- No `PLAN_STATE` checkbox may be marked complete without all four slices and corresponding proof logs.
-- Include failed case list and explicit manual-required limitations.
+## Global no-touch rule
 
-## HID test floor (this plan)
+This plan must not update policy/eventing work while those are active in other Codex lanes.
 
-### Required test families for closed slice
+Do not edit:
 
-- Unit: auth provider/session contract decoders
-- Integration: authN/authZ and token replay flows
-- E2E: registration/account/handoff lifecycle
-- Security: role separation, replay-idempotency, rate-limit abuse
-- Non-functional: observability + rollback proof
+```text
+docs/plans/policy-control-plane-plan/**
+docs/plans/eventing-plan/**
+```
 
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+unless the user explicitly assigns that route-sync after active lanes finish.

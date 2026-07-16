@@ -1,8 +1,8 @@
 # Ocentra Parent Desktop
 
-This workspace is the production desktop shell for the parent portal. The Vite portal remains the fast HMR surface for development, while this Tauri app embeds the same built UI for desktop distribution.
+This workspace is the production desktop shell for the parent portal. The Vite portal remains the fast HMR surface for development, while this Tauri app embeds the built UI for desktop distribution and talks to the Rust parent runtime through the Tauri bridge.
 
-The desktop shell does not execute child-device capture, policy enforcement, or AI model work. It connects to the local Ocentra Parent agent through the typed portal WebSocket path and displays only the read models the service exposes.
+The desktop shell does not execute child-device capture, policy enforcement, or AI model work. It uses Rust-owned bridge commands and displays only the read models and snapshots the service exposes.
 
 Parent mobile runtime proof uses the same contract boundary as a shell wrapper:
 Android and iOS package mechanics may prove launch scaffolds, but parent mobile
@@ -21,7 +21,7 @@ cmd /c npm run tauri:dev --workspace @ocentra-parent/parent-desktop
 cmd /c npm run tauri:build --workspace @ocentra-parent/parent-desktop
 ```
 
-For parallel worker demos, keep running the lane-specific Rust agent and Vite portal ports from the hub assignment, then use the Vite URL for visual HMR validation.
+For parallel worker demos, keep running the lane-specific Rust agent and portal dev services from the hub assignment, then use the portal dev URL for visual HMR validation.
 
 ## Runtime Package Proof
 

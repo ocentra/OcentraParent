@@ -45,6 +45,7 @@
     "child-android-service-protocol-capability-proof",
     "child-android-permission-capability-proof",
     "child-android-privileged-capability-proof",
+    "child-macos-service-package-proof",
     "child-ios-entitlement-capability-proof",
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
@@ -231,7 +232,7 @@
       "title": "Activity Surface Main-Backed Adapter Proof",
       "claimIds": ["activity-surface-main-backed-adapter"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-5-live-activity-portal.md",
+        "docs/roadmaps/roadmap-v0-5-live-activity-portal.md",
         "docs/expectations/portal.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -303,8 +304,8 @@
       "title": "V0.8 And V0.9 Product Proof Final Pass",
       "claimIds": ["v08-v09-product-proof-final-pass"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -342,7 +343,7 @@
       "title": "V0.8 OS Adapter Proof Hardening",
       "claimIds": ["v0-8-os-adapter-proof-hardening"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -377,7 +378,7 @@
       "title": "V0.8 Enforcement Adapter Product Proof Continuation",
       "claimIds": ["v0-8-enforcement-adapter-product-proof-continuation"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -414,7 +415,7 @@
       "title": "V0.8 Broad OS Adapter Proof Readiness",
       "claimIds": ["v0-8-broad-os-adapter-proof-readiness"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -450,7 +451,7 @@
       "title": "V0.8 Broad OS Adapter Proof",
       "claimIds": ["v0-8-broad-os-adapter-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/capture.md",
         "docs/expectations/policy.md",
@@ -488,7 +489,7 @@
       "title": "V0.8 Cross-Platform Enforcement Capability Proof",
       "claimIds": ["v0-8-cross-platform-enforcement-capability-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -527,7 +528,7 @@
       "title": "V0.8 Browser/Domain Adapter Proof",
       "claimIds": ["v0-8-browser-domain-adapter-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/capture.md",
         "docs/expectations/policy.md",
@@ -569,7 +570,7 @@
       "title": "V0.8 OS Adapter Manual Artifact Gates",
       "claimIds": ["v0-8-os-adapter-manual-artifact-gates"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/policy.md",
@@ -607,7 +608,7 @@
       "title": "V0.8 Broad OS Adapter Runtime Proof",
       "claimIds": ["v0-8-broad-os-adapter-runtime-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/policy.md",
@@ -646,7 +647,7 @@
       "title": "V0.8 Host Adapter Proof Preflight",
       "claimIds": ["v0-8-host-adapter-proof-preflight"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -681,7 +682,7 @@
       "title": "V0.8 Process Package Identity Proof Bridge",
       "claimIds": ["v0-8-process-package-identity-proof-bridge"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -716,7 +717,7 @@
       "title": "V0.8 Host Identity Read-Model Proof",
       "claimIds": ["v0-8-host-identity-read-model-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -753,7 +754,7 @@
       "title": "V0.8 Windows Adapter Capability Proof",
       "claimIds": ["v0-8-windows-adapter-capability-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -790,7 +791,7 @@
       "title": "V0.8 Windows Adapter Artifact Gate",
       "claimIds": ["v0-8-windows-adapter-artifact-gate"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -827,7 +828,7 @@
       "title": "V0.8 Windows Adapter Artifact Ingestion And Custody Proof",
       "claimIds": ["v0-8-windows-adapter-artifact-ingestion-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -864,7 +865,7 @@
       "title": "V0.9 Household LAN Proof Readiness Gate",
       "claimIds": ["v0-9-household-lan-proof-readiness"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -900,7 +901,7 @@
       "title": "V0.9 Household LAN Pairing Proof",
       "claimIds": ["v0-9-household-lan-pairing-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -937,7 +938,7 @@
       "title": "V0.9 Household LAN Production Discovery Boundary Proof",
       "claimIds": ["v0-9-household-lan-production-discovery-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -974,7 +975,7 @@
       "title": "V0.9 Production Discovery Product Truth Proof",
       "claimIds": ["v0-9-production-discovery-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -1008,7 +1009,7 @@
       "title": "V0.9 Production Discovery And Household Route Proof",
       "claimIds": ["v0-9-production-discovery-household-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -1045,7 +1046,7 @@
       "title": "V0.9 Production Discovery Provider Selection Proof",
       "claimIds": ["v0-9-prod-discovery-provider-selection-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -1083,8 +1084,8 @@
       "title": "Platform LAN And Enforcement Production Proof",
       "claimIds": ["platform-lan-enforcement-production-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -1126,8 +1127,8 @@
       "title": "OS Enforcement, Production LAN, And Mobile Platform Proof",
       "claimIds": ["platform-os-lan-mobile-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",
@@ -1168,8 +1169,8 @@
       "title": "Enforcement, LAN, And Mobile Product Proof",
       "claimIds": ["enforcement-lan-mobile-product-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",
@@ -1451,6 +1452,41 @@
       ]
     },
     {
+      "id": "child-macos-service-package-proof",
+      "title": "Child macOS Service Package Proof",
+      "claimIds": ["child-macos-service-package-proof"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the schema-domain child macOS service package contract test.",
+        "Verify the macOS package script stages the child service binary, LaunchDaemon plist, and launchctl bootstrap/enable path.",
+        "Verify the launchd plist declares RunAtLoad and KeepAlive without upgrading runtime or restart claims.",
+        "Record signing as unsigned and keep notarization, entitlement, install, runtime, uninstall, and removal states manual-required until real macOS artifacts exist."
+      ],
+      "ciCommands": ["node scripts/test/child-macos-service-package-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/child-macos-service-package-proof/proof.json",
+        "packages/schema-domain/src/child-macos-service-package-proof.ts",
+        "packages/schema-domain/tests/proof/child-macos-service-package-proof.test.ts",
+        "scripts/release/macos/build-agent-package.sh",
+        "scripts/release/macos/ca.ocentra.parent.agent.plist"
+      ],
+      "knownGaps": [
+        "CI proof inspects macOS package and launchd source only; it does not install or run the package on a macOS host in this worker environment.",
+        "Install, runtime launch, restart recovery, signing, notarization, entitlements, uninstall, and removal remain manual-required until real macOS artifacts exist."
+      ],
+      "notProof": [
+        "A launchd plist or KeepAlive declaration presented as proved runtime launch or restart recovery.",
+        "A pkgbuild script presented as signed, notarized, entitlement-approved, or uninstall-proved macOS behavior.",
+        "A child macOS launchd package presented as parent-client parity or hidden background-service authority."
+      ]
+    },
+    {
       "id": "child-ios-entitlement-capability-proof",
       "title": "Child iOS Entitlement Package Capability Proof",
       "claimIds": ["child-ios-entitlement-capability-proof"],
@@ -1462,15 +1498,15 @@
       "proofMode": "ci-mechanical-proof",
       "realEvidencePath": [
         "Build TypeScript contracts from the current commit.",
-        "Run the parent-domain Child iOS entitlement/package contract test.",
+        "Run the schema-domain Child iOS entitlement/package contract test.",
         "Verify the iOS simulator target, bundle identifier, Info.plist scaffold, status surface labels, and simulator build script without invoking unavailable Apple signing or device tooling.",
         "Record Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, TestFlight, App Store, and physical device states as manual-required, entitlement-required, signing-required, device-proof-required, planned, or not implemented until Apple artifacts exist."
       ],
       "ciCommands": ["node scripts/test/child-ios-entitlement-capability-proof.mjs"],
       "requiredArtifacts": [
         "test-results/child-ios-entitlement-capability-proof/proof.json",
-        "packages/parent-domain/src/child-ios-entitlement-capability-proof.ts",
-        "packages/parent-domain/tests/child-ios-entitlement-capability-proof.test.ts",
+        "packages/schema-domain/src/child-ios-entitlement-capability-proof.ts",
+        "packages/schema-domain/tests/proof/child-ios-entitlement-capability-proof.test.ts",
         "platforms/ios/OcentraParentAgent/AgentStatusViewController.swift",
         "scripts/release/ios/build-simulator-app.sh"
       ],
@@ -1489,7 +1525,7 @@
       "title": "V0.9 Mobile Controller Discovery Runtime Proof",
       "claimIds": ["v0-9-mobile-controller-discovery-runtime-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",
@@ -1526,7 +1562,7 @@
       "title": "V0.9 Mobile Controller Observer Runtime Proof",
       "claimIds": ["v0-9-mobile-controller-observer-runtime-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",
@@ -1602,7 +1638,7 @@
       "title": "V0.9 Household Discovery Mobile Controller Product Proof",
       "claimIds": ["v0-9-household-discovery-mobile-controller-product-proof"],
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",
@@ -1639,7 +1675,7 @@
       "id": "v0.1-foundation",
       "roadmapSlice": "V0.1 Foundation And Evidence Contracts",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-1-foundation-and-evidence-contracts.md",
+        "docs/roadmaps/roadmap-v0-1-foundation-and-evidence-contracts.md",
         "docs/expectations/contracts.md",
         "docs/expectations/release-installer.md"
       ],
@@ -1663,7 +1699,7 @@
       "id": "v0.2-evidence-store",
       "roadmapSlice": "V0.2 Trusted Local Evidence Store",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-2-trusted-local-evidence-store.md",
+        "docs/roadmaps/roadmap-v0-2-trusted-local-evidence-store.md",
         "docs/expectations/evidence-storage.md"
       ],
       "claim": "Encrypted journal, replay, SQLite ingest/query, service status, and portal visibility use real storage code paths.",
@@ -1688,7 +1724,7 @@
       "id": "v0.3-windows-process-window",
       "roadmapSlice": "V0.3 Windows Process And Window Activity Capture",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-3-windows-process-window-activity-capture.md",
+        "docs/roadmaps/roadmap-v0-3-windows-process-window-activity-capture.md",
         "docs/expectations/capture.md"
       ],
       "claim": "Windows process/window observations are captured, stored, queried, and visible through the parent portal.",
@@ -1718,7 +1754,7 @@
       "id": "v0.4-windows-network-domain",
       "roadmapSlice": "V0.4 Windows Network And Domain Observation",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-4-windows-network-domain-observation.md",
+        "docs/roadmaps/roadmap-v0-4-windows-network-domain-observation.md",
         "docs/expectations/network-flow-evidence.md",
         "docs/expectations/capture.md"
       ],
@@ -1746,7 +1782,7 @@
     {
       "id": "v0.5-live-activity-portal",
       "roadmapSlice": "V0.5 Live Activity Portal",
-      "expectationFiles": ["docs/expectations/roadmap-v0-5-live-activity-portal.md", "docs/expectations/portal.md"],
+      "expectationFiles": ["docs/roadmaps/roadmap-v0-5-live-activity-portal.md", "docs/expectations/portal.md"],
       "claim": "The parent portal sends real typed requests to the Rust service and renders validated service state.",
       "privilegedCapability": false,
       "ciProof": {
@@ -1767,7 +1803,7 @@
       "id": "activity-surface-main-backed-adapter",
       "roadmapSlice": "Activity Surface Main-Backed Adapter",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-5-live-activity-portal.md",
+        "docs/roadmaps/roadmap-v0-5-live-activity-portal.md",
         "docs/expectations/portal.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -1813,7 +1849,7 @@
       "id": "v0.5.1-browser-url-tab",
       "roadmapSlice": "V0.5.1 Browser URL And Tab Evidence Capture",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-5-1-browser-url-tab-evidence-capture.md",
+        "docs/roadmaps/roadmap-v0-5-1-browser-url-tab-evidence-capture.md",
         "docs/expectations/browser-evidence.md"
       ],
       "claim": "Managed browser URL/tab evidence and unmanaged/degraded states are typed, stored, queried, and visible.",
@@ -1843,7 +1879,7 @@
       "id": "v0.5.2-app-game-sessions",
       "roadmapSlice": "V0.5.2 App And Game Evidence Sessions",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-5-2-app-game-evidence-sessions.md",
+        "docs/roadmaps/roadmap-v0-5-2-app-game-evidence-sessions.md",
         "docs/expectations/app-game-evidence.md"
       ],
       "claim": "App/game session summaries use stored activity evidence rather than portal state or AI guesses.",
@@ -1871,7 +1907,7 @@
       "id": "v0.5.3-screen-evidence-queue",
       "roadmapSlice": "V0.5.3 Local Screen Evidence Analysis Queue",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-5-3-local-screen-evidence-analysis-queue.md",
+        "docs/roadmaps/roadmap-v0-5-3-local-screen-evidence-analysis-queue.md",
         "docs/expectations/screen-evidence.md"
       ],
       "claim": "Screen evidence queue/read-model state is typed, local-only, parent-visible, and honest about disabled or permission-limited capture.",
@@ -1899,7 +1935,7 @@
       "id": "v0.6-local-ai-contracts",
       "roadmapSlice": "V0.6 Local AI Safety Decision Contracts",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-6-local-ai-safety-decision-contracts.md",
+        "docs/roadmaps/roadmap-v0-6-local-ai-safety-decision-contracts.md",
         "docs/expectations/ai.md",
         "docs/expectations/policy.md"
       ],
@@ -1923,7 +1959,7 @@
       "id": "v0.7-dry-run-policy-preview",
       "roadmapSlice": "V0.7 Local AI Policy Evaluator",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-7-local-ai-policy-evaluator.md",
+        "docs/roadmaps/roadmap-v0-7-local-ai-policy-evaluator.md",
         "docs/expectations/ai.md",
         "docs/expectations/policy.md",
         "docs/expectations/portal.md"
@@ -1948,8 +1984,8 @@
       "id": "platform-roles-lan-ai-provider-pool",
       "roadmapSlice": "V0.8/V0.9 platform roles and LAN AI provider pool",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md"
       ],
@@ -2043,8 +2079,8 @@
       "id": "v08-v09-product-proof-final-pass",
       "roadmapSlice": "V0.8/V0.9 product proof final pass",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md"
       ],
@@ -2091,7 +2127,7 @@
       "id": "v0-9-household-lan-proof-readiness",
       "roadmapSlice": "V0.9 household LAN proof readiness gate",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -2147,7 +2183,7 @@
       "id": "v0-9-household-lan-pairing-proof",
       "roadmapSlice": "V0.9 household LAN pairing proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -2212,7 +2248,7 @@
       "id": "v0-9-household-lan-production-discovery-proof",
       "roadmapSlice": "V0.9 household LAN production discovery proof boundary",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -2272,7 +2308,7 @@
       "id": "v0-9-production-discovery-proof",
       "roadmapSlice": "V0.9 production discovery product truth",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -2328,7 +2364,7 @@
       "id": "v0-9-production-discovery-household-proof",
       "roadmapSlice": "V0.9 production discovery and household route proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -2389,7 +2425,7 @@
       "id": "v0-9-prod-discovery-provider-selection-proof",
       "roadmapSlice": "V0.9 production discovery and household provider-selection proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -2446,7 +2482,7 @@
       "id": "v0-8-os-adapter-proof-hardening",
       "roadmapSlice": "V0.8 OS adapter proof hardening",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -2493,7 +2529,7 @@
       "id": "v0-8-enforcement-adapter-product-proof-continuation",
       "roadmapSlice": "V0.8 enforcement adapter product proof continuation",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -2546,7 +2582,7 @@
       "id": "v0-8-broad-os-adapter-proof-readiness",
       "roadmapSlice": "V0.8 broad OS adapter proof readiness",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -2601,7 +2637,7 @@
       "id": "v0-8-broad-os-adapter-proof",
       "roadmapSlice": "V0.8 broad OS adapter proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/capture.md",
         "docs/expectations/policy.md",
@@ -2681,7 +2717,7 @@
       "id": "v0-8-cross-platform-enforcement-capability-proof",
       "roadmapSlice": "V0.8 cross-platform enforcement capability proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -2751,7 +2787,7 @@
       "id": "v0-8-browser-domain-adapter-proof",
       "roadmapSlice": "V0.8 browser/domain adapter proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/capture.md",
         "docs/expectations/policy.md",
@@ -2827,7 +2863,7 @@
       "id": "v0-8-os-adapter-manual-artifact-gates",
       "roadmapSlice": "V0.8 OS adapter manual artifact gates",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/policy.md",
@@ -2892,7 +2928,7 @@
       "id": "v0-8-broad-os-adapter-runtime-proof",
       "roadmapSlice": "V0.8 broad OS adapter runtime proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platforms.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/policy.md",
@@ -2973,7 +3009,7 @@
       "id": "v0-8-host-adapter-proof-preflight",
       "roadmapSlice": "V0.8 host adapter proof preflight",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -3030,7 +3066,7 @@
       "id": "v0-8-process-package-identity-proof-bridge",
       "roadmapSlice": "V0.8 process package identity proof bridge",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -3094,7 +3130,7 @@
       "id": "v0-8-host-identity-read-model-proof",
       "roadmapSlice": "V0.8 host identity read-model proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -3166,7 +3202,7 @@
       "id": "v0-8-windows-adapter-capability-proof",
       "roadmapSlice": "V0.8 Windows adapter capability proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -3230,7 +3266,7 @@
       "id": "v0-8-windows-adapter-artifact-gate",
       "roadmapSlice": "V0.8 Windows adapter artifact gate",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -3294,7 +3330,7 @@
       "id": "v0-8-windows-adapter-artifact-ingestion-proof",
       "roadmapSlice": "V0.8 Windows adapter artifact ingestion and custody proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
@@ -3346,8 +3382,8 @@
       "id": "platform-lan-enforcement-production-proof",
       "roadmapSlice": "V0.8/V0.9 production platform proof hardening",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
@@ -3400,8 +3436,8 @@
       "id": "platform-os-lan-mobile-proof",
       "roadmapSlice": "V0.8 OS enforcement, V0.9 production LAN, and mobile platform capability proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",
@@ -3460,8 +3496,8 @@
       "id": "enforcement-lan-mobile-product-proof",
       "roadmapSlice": "V0.8 enforcement, V0.9 LAN, and mobile product proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-8-enforcement-adapters.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",
@@ -3951,6 +3987,82 @@
       ]
     },
     {
+      "id": "child-macos-service-package-proof",
+      "roadmapSlice": "Child macOS service package proof",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Child macOS service package proof validates a typed schema-domain macOS package read model, proves the pkgbuild script and LaunchDaemon plist define the child launchd service boundary, records signing as unsigned, and keeps install, runtime, restart recovery, notarization, entitlement, uninstall, removal, and parent-parity states honest and manual-required until macOS artifacts exist.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/child-macos-service-package-proof.mjs"],
+        "jobs": ["Worker D child macOS service package proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "ci-mechanical-proof",
+        "android": "not-applicable",
+        "ios": "not-applicable"
+      },
+      "runtimeSurfaceCoverage": {
+        "packageScript": {
+          "state": "ci-mechanical-proof",
+          "proof": "The macOS release script stages the child agent binary and LaunchDaemon plist into a pkgbuild payload."
+        },
+        "launchdBoundary": {
+          "state": "ci-mechanical-proof",
+          "proof": "The package script bootstraps and enables the ca.ocentra.parent.agent LaunchDaemon and the plist declares RunAtLoad."
+        },
+        "runtimeLaunch": {
+          "state": "manual-required",
+          "proof": "Source proof does not show installed launch success or service health on macOS."
+        },
+        "restartRecovery": {
+          "state": "manual-required",
+          "proof": "KeepAlive is declared, but restart or recovery behavior remains manual-required without runtime artifacts."
+        },
+        "signing": {
+          "state": "unsigned",
+          "proof": "The package script has no codesign or productsign step, so the child artifact stays explicitly unsigned in this proof surface."
+        },
+        "notarization": {
+          "state": "manual-required",
+          "proof": "No notarytool or stapled ticket artifact is attached."
+        },
+        "entitlements": {
+          "state": "manual-required",
+          "proof": "No signed entitlement or hardened-runtime artifact is attached."
+        },
+        "uninstallDisable": {
+          "state": "manual-required",
+          "proof": "No uninstall script or launchctl disable artifact is attached."
+        },
+        "removalCleanup": {
+          "state": "manual-required",
+          "proof": "No package removal, plist cleanup, or post-remove heartbeat artifact is attached."
+        },
+        "parentParity": {
+          "state": "not-yet-proven",
+          "proof": "The child macOS package proof does not imply parent-client parity or hidden persistence."
+        }
+      },
+      "knownGaps": [
+        "The proof does not install or run the child package on a macOS host in this worker environment.",
+        "Install, runtime launch, restart recovery, signing, notarization, entitlements, uninstall, and removal remain manual-required until real macOS artifacts exist.",
+        "The proof does not claim parent-client parity or hidden background-service behavior."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/child-macos-service-package-proof/proof.json with the commit SHA.",
+        "Install the child macOS package on a macOS host and capture launchctl/bootstrap output before upgrading install or runtime states.",
+        "Record service health and crash/restart artifacts before upgrading restart or recovery claims.",
+        "Record Apple signing identity, entitlement, and notarization artifacts before upgrading those states.",
+        "Record disable, uninstall, removal, and cleanup artifacts before upgrading lifecycle removal claims."
+      ]
+    },
+    {
       "id": "child-ios-entitlement-capability-proof",
       "roadmapSlice": "Child iOS entitlement/package capability proof",
       "expectationFiles": [
@@ -3958,7 +4070,7 @@
         "docs/expectations/platforms.md",
         "docs/expectations/real-evidence-proof.md"
       ],
-      "claim": "Child iOS entitlement/package capability proof validates a typed parent-domain iOS entitlement read model, proves the simulator target, bundle id, Info.plist scaffold, status surface labels, and simulator build script are present, and records Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, TestFlight, App Store, physical-device, and external child-agent states without over-claiming Apple artifacts.",
+      "claim": "Child iOS entitlement/package capability proof validates a typed schema-domain iOS entitlement read model, proves the simulator target, bundle id, Info.plist scaffold, status surface labels, and simulator build script are present, and records launch availability, recovery non-claim, Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, TestFlight, App Store, physical-device, and external child-agent states without over-claiming Apple artifacts.",
       "privilegedCapability": false,
       "ciProof": {
         "commands": ["node scripts/test/child-ios-entitlement-capability-proof.mjs"],
@@ -4086,7 +4198,7 @@
       "id": "v0-9-mobile-controller-discovery-runtime-proof",
       "roadmapSlice": "V0.9 mobile controller discovery runtime proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",
@@ -4156,7 +4268,7 @@
       "id": "v0-9-mobile-controller-observer-runtime-proof",
       "roadmapSlice": "V0.9 mobile controller observer runtime proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",
@@ -4234,7 +4346,7 @@
       "id": "v0-9-household-discovery-mobile-controller-product-proof",
       "roadmapSlice": "V0.9 household discovery and parent mobile controller product proof",
       "expectationFiles": [
-        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/platforms.md",

@@ -1,0 +1,107 @@
+#![forbid(unsafe_code)]
+
+use super::{
+    policy_control, state_values, transition_rules, validation, CompiledDomainPolicyArtifact,
+    EventingError, PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId,
+    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
+};
+
+pub(super) fn queue_policy_delivery(
+    artifact: &CompiledDomainPolicyArtifact,
+    target: PolicyDeliveryTarget,
+    delivery_id: PolicyDeliveryId,
+    attempt_id: PolicyDeliveryAttemptId,
+    audit_reference_ids: Vec<super::PolicyAuditReferenceId>,
+) -> Result<PolicyDeliveryRecord, EventingError> {
+    let record = PolicyDeliveryRecord {
+        schema_version: validation::policy_delivery_schema_version()?,
+        delivery_id,
+        household_id: artifact.household_id.clone(),
+        policy_version: artifact.policy_version,
+        source_document_id: artifact.source_document_id.clone(),
+        target,
+        state: super::PolicyDeliveryState::Queued,
+        last_sequence: PolicyDeliverySequence::new(POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE)?,
+        last_attempt_id: attempt_id,
+        audit_reference_ids,
+        source_audit_reference_ids: artifact.audit_reference_ids.clone(),
+        source_superseded_by_policy_version: artifact.superseded_by_policy_version,
+        source_rollback_ref: artifact.rollback_ref.clone(),
+        reason_code: None,
+        superseded_by_policy_version: None,
+        rollback_reference_state: None,
+    };
+    validation::validate_policy_delivery_record(&record)?;
+    Ok(record)
+}
+
+pub(super) fn apply_policy_delivery_transition(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    validation::validate_policy_delivery_record(current)?;
+    validation::validate_policy_delivery_transition(&transition, current.policy_version)?;
+
+    match transition
+        .sequence
+        .value()
+        .cmp(&current.last_sequence.value())
+    {
+        std::cmp::Ordering::Less => return Ok(PolicyDeliveryApplyOutcome::Stale(current.clone())),
+        std::cmp::Ordering::Equal => {
+            if transition_matches_record(current, &transition) {
+                return Ok(PolicyDeliveryApplyOutcome::Duplicate(current.clone()));
+            }
+
+            return Err(EventingError::InvalidValue {
+                field: policy_control::delivery::FIELD_SEQUENCE,
+                value: state_values::conflicting_replay_value(
+                    transition.sequence,
+                    &current.delivery_id,
+                ),
+            });
+        }
+        std::cmp::Ordering::Greater => {}
+    }
+
+    if !transition_rules::transition_allowed(current.state, transition.state) {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::delivery::FIELD_STATE,
+            value: state_values::invalid_transition_value(current.state, transition.state),
+        });
+    }
+
+    let next = PolicyDeliveryRecord {
+        schema_version: current.schema_version,
+        delivery_id: current.delivery_id.clone(),
+        household_id: current.household_id.clone(),
+        policy_version: current.policy_version,
+        source_document_id: current.source_document_id.clone(),
+        target: current.target.clone(),
+        state: transition.state,
+        last_sequence: transition.sequence,
+        last_attempt_id: transition.attempt_id,
+        audit_reference_ids: transition.audit_reference_ids,
+        source_audit_reference_ids: current.source_audit_reference_ids.clone(),
+        source_superseded_by_policy_version: current.source_superseded_by_policy_version,
+        source_rollback_ref: current.source_rollback_ref.clone(),
+        reason_code: transition.reason_code,
+        superseded_by_policy_version: transition.superseded_by_policy_version,
+        rollback_reference_state: transition.rollback_reference_state,
+    };
+    validation::validate_policy_delivery_record(&next)?;
+    Ok(PolicyDeliveryApplyOutcome::Advanced(next))
+}
+
+fn transition_matches_record(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+) -> bool {
+    current.state == transition.state
+        && current.last_attempt_id == transition.attempt_id
+        && current.audit_reference_ids == transition.audit_reference_ids
+        && current.reason_code == transition.reason_code
+        && current.superseded_by_policy_version == transition.superseded_by_policy_version
+        && current.rollback_reference_state == transition.rollback_reference_state
+}

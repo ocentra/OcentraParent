@@ -16,13 +16,15 @@
 
 Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
 
-| Status  | Workpack                                                                                                                  |   Size | Boxes                 |
-| ------- | ------------------------------------------------------------------------------------------------------------------------- | -----: | --------------------- |
-| checked | [WP25 Policy Compiler For Tracking Rules](workpacks/25-policy-compiler-for-tracking-rules.md)                             |  3,656 | 11/11 checked; 0 open |
-| checked | [WP27 Escalation Engine](workpacks/27-escalation-engine.md)                                                               |  4,200 | 11/11 checked; 0 open |
-| checked | [WP28 Temporary Live Tracking Mode](workpacks/28-temporary-live-tracking-mode.md)                                         |  4,048 | 11/11 checked; 0 open |
-| checked | [WP29 Missing-Device Mode](workpacks/29-missing-device-mode.md)                                                           |  3,631 | 11/11 checked; 0 open |
-| checked | [WP33 Proof Gates Fixtures Rollout And PR Gate](workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md)                 | 22,994 | 65/65 checked; 0 open |
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
+
+| Status  | Workpack                                                                                                                  |   Size | Boxes                              |
+| ------- | ------------------------------------------------------------------------------------------------------------------------- | -----: | ---------------------------------- |
+| open    | [WP25 Policy Compiler For Tracking Rules](workpacks/25-policy-compiler-for-tracking-rules.md)                           |  3,656 | 11/11 checked; audit reopen        |
+| open    | [WP27 Escalation Engine](workpacks/27-escalation-engine.md)                                                              |  4,200 | 11/11 checked; audit reopen        |
+| open    | [WP28 Temporary Live Tracking Mode](workpacks/28-temporary-live-tracking-mode.md)                                        |  4,048 | 11/11 checked; audit reopen        |
+| open    | [WP29 Missing-Device Mode](workpacks/29-missing-device-mode.md)                                                          |  3,631 | 11/11 checked; audit reopen        |
+| open    | [WP33 Proof Gates Fixtures Rollout And PR Gate](workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md)               | 22,994 | 65/65 checked; proof rerun blocked |
 | open    | [WP01 Source Index And Repo Reconciliation](workpacks/01-source-index-and-repo-reconciliation.md)                         |  3,032 | 0/11 checked; 11 open |
 | open    | [WP02 Current Tracking Snapshot And Gap Map](workpacks/02-current-tracking-snapshot-and-gap-map.md)                       |  2,902 | 0/10 checked; 10 open |
 | open    | [WP03 Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md)                         |  3,476 | 6/11 checked; 5 open  |
@@ -51,7 +53,24 @@ Use this index to open exactly one assigned workpack. Do not read every file in 
 | open    | [WP30 Parent And Child UI/UX Surfaces](workpacks/30-parent-and-child-ui-ux-surfaces.md)                                   | 24,016 | 72/74 checked; 2 open |
 | open    | [WP31 Platform Extension Checklists And Proof Routing](workpacks/31-platform-extension-checklists-and-proof-routing.md)   |  7,398 | 19/24 checked; 5 open |
 | open    | [WP32 Journal SQLite And Read-Model Proof](workpacks/32-journal-sqlite-and-read-model-proof.md)                           | 21,929 | 73/76 checked; 3 open |
+| open    | [WP34 Tracking Event Contracts And Protocol Constants](workpacks/34-tracking-event-contracts-and-protocol-constants.md)   |  4,248 | 0/0 checked; on-disk audit open    |
+| open    | [WP35 Parent Tracking Config Command Event Flow](workpacks/35-parent-tracking-config-command-event-flow.md)               |  3,281 | 0/0 checked; on-disk audit open    |
+| open    | [WP36 Tracking Detection Cascade Event Flow](workpacks/36-tracking-detection-cascade-event-flow.md)                       |  4,015 | 0/0 checked; on-disk audit open    |
+| open    | [WP37 Tracking Event Journal Replay And Projection](workpacks/37-tracking-event-journal-replay-and-projection.md)        |  2,550 | 0/0 checked; on-disk audit open    |
+| open    | [WP38 Tracking Notification And Escalation Event Flow](workpacks/38-tracking-notification-and-escalation-event-flow.md)   |  2,980 | 0/0 checked; on-disk audit open    |
+| open    | [WP39 Tracking Portal Event Read-Model Proof](workpacks/39-tracking-portal-event-read-model-proof.md)                     |  2,908 | 0/0 checked; on-disk audit open    |
 
 | open | [Device Location Tracking Capability Guide](workpacks/device-location-tracking-capability-guide.md) | 33,263 | 0/0 checked; 0 open |
 | open | [Device Location Tracking Schema Proposal](workpacks/device-location-tracking-schema-proposal.md) | 46,695 | 0/0 checked; 0 open |
 | open | [Tracking Control Settings Inventory](workpacks/tracking-control-settings-inventory.md) | 326,337 | 0/0 checked; 0 open |
+
+Audit note: `WP25`, `WP27`, `WP28`, `WP29`, and `WP33` were reopened by the 2026-06-16 source/test/proof audit. `WP34-WP39` exist on disk and belong in the active index; earlier generated summaries omitted them.
+
+## Selection rules
+
+- Choose exactly one workpack.
+- If owner/proof family is unclear, classify through `WORKPACK_FAMILIES.md`; do not scan every family.
+- Do not use checked boxes as proof when a workpack is audit-reopened.
+- Do not omit WP34-WP39 from scope.
+- Cross-boundary schemas must cite `schema-domain` or a neutral protocol/event/evidence owner.
+- Tracking-local schemas are private helpers only.

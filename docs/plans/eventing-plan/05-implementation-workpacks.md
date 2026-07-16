@@ -180,9 +180,9 @@ tier and must not be marked complete until focused product proofs exist.
 
 ## Main Gates
 
-- [x] Eventing plan folder exists.
-- [x] Ocentra Games eventing semantics are indexed.
-- [x] Pasted planning inputs are indexed.
+- [ ] Eventing plan folder exists.
+- [ ] Ocentra Games eventing semantics are indexed.
+- [ ] Pasted planning inputs are indexed.
 - [ ] Reusable `crates/ocentra-eventing` exists.
 - [ ] Workspace includes `crates/ocentra-eventing`.
 - [ ] Core event types, runtime newtypes, and validation errors are

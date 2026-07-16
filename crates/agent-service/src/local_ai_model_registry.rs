@@ -1,6 +1,7 @@
-use std::path::PathBuf;
-
 use ocentra_parent_agent_protocol::constants;
+use std::path::Path;
+
+use crate::local_ai_runtime_config_values::{LocalAiRuntimePath, LocalAiRuntimeText};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct LocalAiKnownModel {
@@ -11,11 +12,11 @@ pub(crate) struct LocalAiKnownModel {
 }
 
 impl LocalAiKnownModel {
-    pub(crate) fn cache_path(&self, cache_root: PathBuf) -> PathBuf {
-        let mut path = cache_root;
+    pub(crate) fn cache_path(&self, cache_root: impl AsRef<Path>) -> LocalAiRuntimePath {
+        let mut path = cache_root.as_ref().to_path_buf();
         path.push(constants::local_ai_runtime::LOCAL_AI_MODELS_CACHE_DIR);
         path.push(self.file_name);
-        path
+        LocalAiRuntimePath(path)
     }
 }
 
@@ -28,9 +29,9 @@ pub(crate) fn default_local_ai_model() -> LocalAiKnownModel {
     }
 }
 
-pub(crate) fn known_model_for_id(model_id: &str) -> Option<LocalAiKnownModel> {
+pub(crate) fn known_model_for_id(model_id: &LocalAiRuntimeText) -> Option<LocalAiKnownModel> {
     let default_model = default_local_ai_model();
-    if model_id == default_model.model_id {
+    if model_id.0 == default_model.model_id {
         Some(default_model)
     } else {
         None

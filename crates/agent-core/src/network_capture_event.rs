@@ -1,8 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind,
-    ACTIVITY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use crate::network_capture::{collect_network_snapshot, NetworkObservation};
 use crate::network_capture_event_fields::{
@@ -22,6 +23,32 @@ pub fn network_observation_event(
     observed_at: &str,
     sequence_index: usize,
 ) -> ActivityEvent {
+    let NetworkObservation {
+        status,
+        protocol,
+        local_ip,
+        local_port,
+        destination_ip,
+        destination_port,
+        destination_domain,
+        tcp_state,
+        pid,
+        process_name,
+        associated_pid_count,
+    } = observation;
+    let observation = NetworkObservation {
+        status,
+        protocol,
+        local_ip,
+        local_port,
+        destination_ip,
+        destination_port,
+        destination_domain,
+        tcp_state,
+        pid,
+        process_name,
+        associated_pid_count,
+    };
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: network_event_id(&observation, observed_at, sequence_index),

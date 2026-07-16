@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-01T15:32:00Z",
+  "discoverySource": "physical-household-lan",
+  "addDeviceState": "paired",
+  "localServiceDiscoveryState": "paired",
+  "physicalHouseholdLanState": "discovered",
+  "cloudRelayState": "unavailable",
+  "scanSummary": {
+    "schemaVersion": 1,
+    "sourceLabels": ["local-service", "windows-neighbor-table"],
+    "scannedDeviceCount": 1,
+    "agentDeviceCount": 1,
+    "passiveDeviceCount": 0,
+    "infrastructureDeviceCount": 0,
+    "unsupportedDeviceCount": 0
+  },
+  "discoveredDevices": [
+    {
+      "schemaVersion": 1,
+      "discoveredAt": "2026-06-01T15:32:04Z",
+      "childDevice": {
+        "deviceId": "local-dev-agent",
+        "childProfileId": "child-profile-1",
+        "label": "GAMEDEV",
+        "platform": "windows",
+        "ipAddress": "192.168.2.77",
+        "macAddress": "b4-2e-99-3e-72-b9",
+        "hostname": "GAMEDEV",
+        "networkInterface": "Ethernet 2",
+        "agentStatus": "ocentra-child-agent",
+        "hardwareProfile": {
+          "manufacturer": "Gigabyte Technology Co., Ltd.",
+          "model": "X570 AORUS MASTER",
+          "cpuModel": "AMD Ryzen 9 3900X 12-Core Processor",
+          "cpuCores": "12 cores / 24 logical",
+          "memoryTotal": "63 GiB",
+          "gpuModel": "GeForce RTX 2070 SUPER",
+          "gpuDriver": "456.71",
+          "gpuMemory": "8192 MiB",
+          "nvidiaSmi": "GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM"
+        }
+      },
+      "agentPeerId": "child-peer-1",
+      "routeId": "lan-route-local-network",
+      "networkMode": "local-network",
+      "reachability": "online",
+      "addressRef": "lan-address-ref-local-agent-new-ip",
+      "discoveryStatus": "websocket-direct",
+      "discoveryState": "paired"
+    }
+  ],
+  "pairingRequests": [],
+  "trustedDeviceRegistry": [
+    {
+      "schemaVersion": 1,
+      "pairingId": "pairing-local-agent-1",
+      "childDevice": {
+        "deviceId": "local-dev-agent",
+        "childProfileId": "child-profile-1",
+        "label": "GAMEDEV",
+        "platform": "windows"
+      },
+      "parentDevice": {
+        "deviceId": "portal-dev",
+        "childProfileId": "parent-profile-1",
+        "label": "Parent portal",
+        "platform": "windows"
+      },
+      "routeId": "lan-route-local-network",
+      "origin": "http://127.0.0.1:4678",
+      "proofDigest": "sha256:local-agent-proof",
+      "trustState": "paired",
+      "trustedAt": "2026-06-01T15:20:00Z",
+      "expiresAt": "2026-06-01T16:20:00Z",
+      "revokedAt": null
+    }
+  ],
+  "householdDeviceDecisions": [
+    {
+      "schemaVersion": 1,
+      "actionId": "lan-action-assign-local-agent",
+      "actionKind": "assign",
+      "canonicalDeviceId": "lan-physical-mac-b42e993e72b9",
+      "childProfileId": "child-profile-1",
+      "displayName": "GAMEDEV",
+      "deviceKind": "desktop",
+      "parentActorId": "parent-actor-1",
+      "decidedAt": "2026-06-01T15:21:05Z",
+      "revokedAt": null
+    }
+  ],
+  "canonicalHouseholdDevices": [
+    {
+      "schemaVersion": 1,
+      "canonicalDeviceId": "lan-physical-mac-b42e993e72b9",
+      "displayName": "GAMEDEV",
+      "classification": "child-agent",
+      "roleBadges": ["child-agent", "parent-controller"],
+      "enrollable": true,
+      "discoveryState": "paired",
+      "trustState": "paired",
+      "routeId": "lan-route-local-network",
+      "routeState": "local-network",
+      "networkMode": "local-network",
+      "sourceLabels": ["local-service", "windows-neighbor-table"],
+      "networkIdentity": {
+        "hostname": "GAMEDEV",
+        "ipAddresses": ["192.168.2.77"],
+        "macAddress": "b4-2e-99-3e-72-b9",
+        "macVendor": null,
+        "networkInterfaces": ["Ethernet 2"],
+        "reachability": "online",
+        "confidence": "mac-ip-match",
+        "staleAt": null,
+        "offlineAt": null
+      },
+      "childAgentInventory": {
+        "deviceName": "GAMEDEV",
+        "platform": "windows",
+        "os": "Windows",
+        "cpuModel": "AMD Ryzen 9 3900X 12-Core Processor",
+        "cpuCores": "12 cores / 24 logical",
+        "memoryTotal": "63 GiB",
+        "gpuModel": "GeForce RTX 2070 SUPER",
+        "gpuDriver": "456.71",
+        "gpuMemory": "8192 MiB",
+        "nvidiaSmi": "GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM",
+        "networkInterfaces": ["Ethernet 2"],
+        "capabilities": ["direct-websocket", "device-inventory"],
+        "roleState": "implemented",
+        "routeState": "local-network",
+        "pairingTrustState": "paired"
+      },
+      "policyTargetSurfaces": ["devices", "policy", "browser", "activity", "tracking"]
+    }
+  ],
+  "trustedDeviceIds": ["local-dev-agent"],
+  "revokedDeviceIds": [],
+  "selectedDeviceReadiness": {
+    "schemaVersion": 1,
+    "selectedChildDeviceId": "local-dev-agent",
+    "routeId": "lan-route-local-network",
+    "pairingId": "pairing-local-agent-1",
+    "trustState": "paired",
+    "reachability": "online",
+    "readyForControl": true,
+    "staleAt": null,
+    "offlineAt": null
+  },
+  "controllerAuthority": "observer",
+  "observerAuthority": "observer",
+  "routeRequirementLabels": ["Canonical MAC identity survives IP change"],
+  "auditCheckLabels": ["IP rollover retained without creating a second device row"],
+  "honestNonClaims": ["previous-ip-removed-from-live-state"]
+}

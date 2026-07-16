@@ -37,7 +37,7 @@
 
 ## Validation
 
-- `cmd /c npx prettier --check packages/agent-protocol-domain/src/app-game-timer-parent-surface-read-model.ts packages/portal-domain/src/app-game-timer-parent-surface-panel.ts apps/portal/src/app-game-timer-parent-surface-panel.ts apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx apps/portal/tests/app-game-timer-parent-surface-panel.test.ts apps/portal/src/live-activity-state.ts apps/portal/src/event-results.ts apps/portal/src/ParentPortalRoute.tsx packages/text-domain/src/portal-dev.ts packages/portal-domain/src/contracts.ts`
+- `cmd /c npx prettier --check packages/agent-protocol-domain/src/app-game-timer-parent-surface-read-model.ts packages/portal-domain/src/app-game-timer-parent-surface-panel.ts apps/portal/src/app-game-timer-parent-surface-panel.ts apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx apps/portal/tests/app-game-timer-parent-surface-panel.test.ts apps/portal/src/live-activity-state.ts packages/portal-domain/src/command-results.ts apps/portal/src/ParentPortalRoute.tsx packages/text-domain/src/portal-dev.ts packages/portal-domain/src/contracts.ts`
 - `cmd /c "npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain"`
 - `cmd /c npm run test --workspace @ocentra-parent/portal -- app-game-timer-parent-surface-panel`
 

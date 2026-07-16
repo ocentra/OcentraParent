@@ -14,11 +14,14 @@ Do not use mocks, fakes, stubs, spies, MSW, Nock, Sinon, `vi.mock`, `vi.fn`, `je
 
 Allowed evidence:
 
-- real Effect Schema parsers
-- real TypeScript contracts
+- real Rust-owned schemas, serializers, and read-model builders
+- generated TypeScript bridge DTOs and edge validators
+- real Effect Schema parsers only at untrusted TS edges or generated validation
+  edges
 - real Rust serde structs
 - real localhost service process
-- real WebSocket loop
+- real HostBridge/dev-transport loop or Rust-owned WebSocket loop where that is
+  the scoped transport under test
 - real filesystem temp directories when testing filesystem behavior
 - real HTTP requests to local test servers owned by the test
 
@@ -29,6 +32,12 @@ If an OS feature is not available yet, test the real contract/parser/state trans
 - One top-level `describe` per TypeScript test file.
 - Prefer flat `it` blocks with behavior names.
 - Rust tests should name the behavior under test directly.
+- Rust crate tests should live in visible `tests/<taxonomy>` folders whenever
+  practical: `unit`, `contract`, `integration`, `e2e`, `property`,
+  `differential`, `security`, `authz`, `idempotency`, `ordering`,
+  `migration`, `observability`, `performance`, or the smallest applicable
+  crate-specific group. Inline `src` tests are reserved for tiny private
+  invariants.
 - Do not hide important behavior in shared setup.
 - Duplicate small setup when that makes the test easier to audit.
 
@@ -56,10 +65,12 @@ Use exact values, exact error tags, exact event types, exact route ids, exact lo
 
 ## Test Layers
 
-- Unit tests prove domain functions, parsers, constants, and Rust serializers.
-- Contract tests prove TypeScript and Rust agree at the protocol boundary.
+- Unit tests prove Rust domain functions, parsers, constants, and serializers.
+- Contract tests prove Rust-owned schema and generated TypeScript/edge
+  consumers agree at the boundary.
 - Integration tests prove a real local agent service can respond.
-- E2E smoke tests prove the portal can reach the local service.
+- E2E smoke tests prove the UI reaches Rust through HostBridge or a clearly
+  dev-only local transport.
 
 One layer does not replace another.
 
@@ -71,4 +82,3 @@ When a test fails:
 2. If the expectation is wrong, fix the test as a specification bug.
 3. If the expectation is correct, fix the implementation.
 4. Never weaken assertions to make the run green.
-

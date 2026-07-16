@@ -40,8 +40,9 @@ builder, policy preview, portal, and tests can display why local AI is not ready
 
 The repo has these V0.7 pieces in the local provider/runtime boundary track:
 
-- `LocalModelRuntimeStatus` and `LocalProviderCapability` contracts in
-  `@ocentra-parent/parent-domain`.
+- `LocalModelRuntimeStatus` and `LocalProviderCapability` are migration-era TS
+  contract names; new product truth belongs in Rust-owned contracts and
+  generated DTOs.
 - Rust protocol parity for local AI runtime status.
 - `agent.local-ai.runtime.status.get` and
   `agent.local-ai.runtime.status.reported` protocol names.
@@ -145,11 +146,12 @@ The current status contract carries these explicit boundary fields:
 - `readinessState`: not ready, ready, or invalid readiness for the adapter
   probe.
 
-Future code slices should follow the same order: add fields contract-first in
-`packages/parent-domain`, mirror into `crates/agent-protocol` only when the Rust
-service reports them, expose through `packages/agent-protocol-domain` defaults
-only when a consumer reads them, and render by the portal as status. They must
-not trigger model execution.
+Future code slices should follow the Rust-first order: add fields in
+`crates/schema`, `crates/parent-runtime-core`, or the owning Rust runtime crate;
+mirror into `crates/agent-protocol` only when transport-specific Rust code needs
+that shape; expose generated TypeScript DTOs or edge decoders only when a
+consumer reads them; and render by the portal as status. They must not trigger
+model execution.
 
 ## Prohibited Shortcuts
 
@@ -191,15 +193,15 @@ cmd /c npm run lanes:guard
 cmd /c npm run hub:guard
 ```
 
-For a future contract/status hardening update:
+For a future contract/status hardening update, use scoped Rust-first gates for
+the touched owner and keep TS package gates only where an edge decoder or
+generated consumer remains:
 
 ```powershell
-cmd /c npm --workspace @ocentra-parent/parent-domain run test
-cmd /c npm --workspace @ocentra-parent/parent-domain run lint:exec
-cmd /c npm --workspace @ocentra-parent/agent-protocol-domain run test
-cmd /c npm --workspace @ocentra-parent/agent-protocol-domain run lint:exec
+cargo test -p <owning-rust-crate> <focused-filter>
 cargo test -p ocentra-parent-agent-protocol local_ai_runtime
 cargo test -p ocentra-parent-agent-service local_ai_runtime
+cmd /c npm --workspace <generated-or-edge-ts-consumer> run test -- <focused-filter>
 node scripts/check-source-shape.mjs
 git diff --check
 cmd /c npm run lanes:guard

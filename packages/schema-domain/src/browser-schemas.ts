@@ -1,0 +1,95 @@
+import {
+  BrowserEvidenceSchemaVersion as GeneratedBrowserEvidenceSchemaVersion,
+  BrowserFamilySchema as GeneratedBrowserFamilySchema,
+  BrowserChannelSchema as GeneratedBrowserChannelSchema,
+  BrowserCapabilityStatusSchema as GeneratedBrowserCapabilityStatusSchema,
+  BrowserManagedStateSchema as GeneratedBrowserManagedStateSchema,
+  BrowserBridgeKindSchema as GeneratedBrowserBridgeKindSchema,
+  BrowserActiveTabStateSchema as GeneratedBrowserActiveTabStateSchema,
+  BrowserActiveProofSourceSchema as GeneratedBrowserActiveProofSourceSchema,
+  BrowserCustodyLabelSchema as GeneratedBrowserCustodyLabelSchema,
+  BrowserQueryVisibilityLabelSchema as GeneratedBrowserQueryVisibilityLabelSchema,
+  BrowserAdapterIdSchema as GeneratedBrowserAdapterIdSchema,
+  BrowserBridgeEndpointRefSchema as GeneratedBrowserBridgeEndpointRefSchema,
+  BrowserDegradedReasonSchema as GeneratedBrowserDegradedReasonSchema,
+  BrowserDomainSchema as GeneratedBrowserDomainSchema,
+  BrowserManagedSessionIdSchema as GeneratedBrowserManagedSessionIdSchema,
+  BrowserOriginSchema as GeneratedBrowserOriginSchema,
+  BrowserPageTitleSchema as GeneratedBrowserPageTitleSchema,
+  BrowserProfileIdSchema as GeneratedBrowserProfileIdSchema,
+  BrowserProfilePathRefSchema as GeneratedBrowserProfilePathRefSchema,
+  BrowserTabIdSchema as GeneratedBrowserTabIdSchema,
+  BrowserUrlSchema as GeneratedBrowserUrlSchema,
+  BrowserVersionSchema as GeneratedBrowserVersionSchema,
+  BrowserWindowIdSchema as GeneratedBrowserWindowIdSchema,
+  BrowserUnmanagedProcessEvidenceSchema as GeneratedBrowserUnmanagedProcessEvidenceSchema,
+  BrowserUnmanagedProcessReadModelSchema as GeneratedBrowserUnmanagedProcessReadModelSchema,
+  BrowserTabEvidenceSchema as GeneratedBrowserTabEvidenceSchema,
+  BrowserEvidenceRecentSummarySchema as GeneratedBrowserEvidenceRecentSummarySchema,
+  BrowserEvidenceReadModelSchema as GeneratedBrowserEvidenceReadModelSchema,
+  BrowserManagedSessionStatusSchema as GeneratedBrowserManagedSessionStatusSchema,
+  decodeBrowserUrl as GenerateddecodeBrowserUrl,
+} from './generated-browser-schemas';
+import type {
+  BrowserFamily as GeneratedBrowserFamily,
+  BrowserChannel as GeneratedBrowserChannel,
+  BrowserCapabilityStatus as GeneratedBrowserCapabilityStatus,
+  BrowserManagedState as GeneratedBrowserManagedState,
+  BrowserBridgeKind as GeneratedBrowserBridgeKind,
+  BrowserActiveTabState as GeneratedBrowserActiveTabState,
+  BrowserActiveProofSource as GeneratedBrowserActiveProofSource,
+  BrowserCustodyLabel as GeneratedBrowserCustodyLabel,
+  BrowserQueryVisibilityLabel as GeneratedBrowserQueryVisibilityLabel,
+  BrowserUnmanagedProcessEvidence as GeneratedBrowserUnmanagedProcessEvidence,
+  BrowserUnmanagedProcessReadModel as GeneratedBrowserUnmanagedProcessReadModel,
+  BrowserTabEvidence as GeneratedBrowserTabEvidence,
+  BrowserEvidenceRecentSummary as GeneratedBrowserEvidenceRecentSummary,
+  BrowserEvidenceReadModel as GeneratedBrowserEvidenceReadModel,
+  BrowserManagedSessionStatus as GeneratedBrowserManagedSessionStatus,
+} from './generated-browser-schemas';
+
+export const BrowserEvidenceSchemaVersion = GeneratedBrowserEvidenceSchemaVersion;
+export const BrowserFamilySchema = GeneratedBrowserFamilySchema;
+export const BrowserChannelSchema = GeneratedBrowserChannelSchema;
+export const BrowserCapabilityStatusSchema = GeneratedBrowserCapabilityStatusSchema;
+export const BrowserManagedStateSchema = GeneratedBrowserManagedStateSchema;
+export const BrowserBridgeKindSchema = GeneratedBrowserBridgeKindSchema;
+export const BrowserActiveTabStateSchema = GeneratedBrowserActiveTabStateSchema;
+export const BrowserActiveProofSourceSchema = GeneratedBrowserActiveProofSourceSchema;
+export const BrowserCustodyLabelSchema = GeneratedBrowserCustodyLabelSchema;
+export const BrowserQueryVisibilityLabelSchema = GeneratedBrowserQueryVisibilityLabelSchema;
+export const BrowserAdapterIdSchema = GeneratedBrowserAdapterIdSchema;
+export const BrowserBridgeEndpointRefSchema = GeneratedBrowserBridgeEndpointRefSchema;
+export const BrowserDegradedReasonSchema = GeneratedBrowserDegradedReasonSchema;
+export const BrowserDomainSchema = GeneratedBrowserDomainSchema;
+export const BrowserManagedSessionIdSchema = GeneratedBrowserManagedSessionIdSchema;
+export const BrowserOriginSchema = GeneratedBrowserOriginSchema;
+export const BrowserPageTitleSchema = GeneratedBrowserPageTitleSchema;
+export const BrowserProfileIdSchema = GeneratedBrowserProfileIdSchema;
+export const BrowserProfilePathRefSchema = GeneratedBrowserProfilePathRefSchema;
+export const BrowserTabIdSchema = GeneratedBrowserTabIdSchema;
+export const BrowserUrlSchema = GeneratedBrowserUrlSchema;
+export const BrowserVersionSchema = GeneratedBrowserVersionSchema;
+export const BrowserWindowIdSchema = GeneratedBrowserWindowIdSchema;
+export const BrowserUnmanagedProcessEvidenceSchema = GeneratedBrowserUnmanagedProcessEvidenceSchema;
+export const BrowserUnmanagedProcessReadModelSchema = GeneratedBrowserUnmanagedProcessReadModelSchema;
+export const BrowserTabEvidenceSchema = GeneratedBrowserTabEvidenceSchema;
+export const BrowserEvidenceRecentSummarySchema = GeneratedBrowserEvidenceRecentSummarySchema;
+export const BrowserEvidenceReadModelSchema = GeneratedBrowserEvidenceReadModelSchema;
+export const BrowserManagedSessionStatusSchema = GeneratedBrowserManagedSessionStatusSchema;
+export const decodeBrowserUrl = GenerateddecodeBrowserUrl;
+export type BrowserFamily = GeneratedBrowserFamily;
+export type BrowserChannel = GeneratedBrowserChannel;
+export type BrowserCapabilityStatus = GeneratedBrowserCapabilityStatus;
+export type BrowserManagedState = GeneratedBrowserManagedState;
+export type BrowserBridgeKind = GeneratedBrowserBridgeKind;
+export type BrowserActiveTabState = GeneratedBrowserActiveTabState;
+export type BrowserActiveProofSource = GeneratedBrowserActiveProofSource;
+export type BrowserCustodyLabel = GeneratedBrowserCustodyLabel;
+export type BrowserQueryVisibilityLabel = GeneratedBrowserQueryVisibilityLabel;
+export type BrowserUnmanagedProcessEvidence = GeneratedBrowserUnmanagedProcessEvidence;
+export type BrowserUnmanagedProcessReadModel = GeneratedBrowserUnmanagedProcessReadModel;
+export type BrowserTabEvidence = GeneratedBrowserTabEvidence;
+export type BrowserEvidenceRecentSummary = GeneratedBrowserEvidenceRecentSummary;
+export type BrowserEvidenceReadModel = GeneratedBrowserEvidenceReadModel;
+export type BrowserManagedSessionStatus = GeneratedBrowserManagedSessionStatus;

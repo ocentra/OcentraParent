@@ -39,6 +39,22 @@ README agree on the status. Runtime claims also follow the
 [real evidence proof expectations](expectations/real-evidence-proof.md) and the
 [pre-AI proof matrix](expectations/pre-ai-proof-matrix.json).
 
+## Current Architecture Authority
+
+Current parent architecture is Rust-first. Product flow is TSX UI through
+HostBridge into the Rust parent app facade, Rust event bus/domain, Rust read
+models, then back through HostBridge to TSX UI. Vite/web is a development and
+HMR surface only. WebSocket remains valid for dev transport or Rust-owned
+parent/child LAN/WAN runtime concerns, but it is not the product `TSX UI <->
+parent Rust` path.
+
+Rust owns schema truth, contracts, actions, route snapshots, read models,
+projections, business logic, policy, activity, tracking, network, browser,
+enforcement, logging, and mobile bridge shapes. TypeScript owns presentation,
+generated bridge DTO consumption, thin adapters, and minimal local visual state.
+Older roadmap bullets that name TypeScript domain packages, Effect Schema,
+WebSocket, or Vite as product authority are scaffold history or migration debt.
+
 ## Product Goal
 
 Ocentra Parent helps parents understand and guide what children do on connected devices. The product should answer concrete parent questions:
@@ -182,11 +198,15 @@ current worker checkpoint records, not from stale proof-spine wording.
 Completed foundation:
 
 - Repository scaffold with TypeScript workspaces, Rust crates, platform package scaffolds, validation gates, security scans, pre-commit hooks, and CI.
-- Local Rust agent service and Vite portal using fixed ports.
+- Local Rust agent service, Rust parent runtime direction, and Vite dev portal
+  using fixed ports for development visibility.
 - Loopback and LAN development modes with origin checks.
-- WebSocket intent/event protocol between portal and agent.
-- TypeScript domain contracts using Effect Schema.
-- Rust protocol parity for shared contracts.
+- Dev WebSocket intent/event protocol between portal and agent.
+- Historical TypeScript domain contracts using Effect Schema, now migration
+  debt unless they are presentation helpers, generated DTO consumers, thin
+  adapters, or temporary edge decoders.
+- Rust-owned contract/schema direction with parity and generated bridge DTO
+  checks for shared product contracts.
 - Encrypted append-only activity journal.
 - Journal rotation and replay validation.
 - Windows MSI, updater scaffold, package-preview workflow, and production-branch release separation.
@@ -203,7 +223,7 @@ Current local slice:
   reference proof; it must not be described as real blocking until an OS adapter
   path and product proof exist.
 - V0.9 LAN work now includes controller lease/write-authority, observer
-  read-only behavior, selected-device state, direct WebSocket routing, and LAN
+  read-only behavior, selected-device state, Rust-owned LAN routing, and LAN
   AI provider pool proof for opt-in, capability advertisement, result,
   rejection, busy, unavailable, and degraded states. The current hardening proof
   also covers trusted selected-route recovery after restart and explicit
@@ -284,7 +304,7 @@ Next product checkpoint:
 The storage architecture is:
 
 ```text
-capture -> encrypted NDJSON journal -> SQLite query store -> local AI/policy/enforcement -> local API -> portal/reports
+capture -> encrypted NDJSON journal -> SQLite query store -> local AI/policy/enforcement -> Rust read models -> HostBridge -> TSX UI/reports
 ```
 
 Rules:
@@ -292,7 +312,8 @@ Rules:
 - The encrypted journal is the required source of truth on every platform.
 - SQLite is the default query/index store on every platform.
 - Query stores are rebuildable from the journal.
-- Portal code talks to typed service/query APIs, not directly to SQLite files.
+- Portal code talks to HostBridge or explicit dev transports, not directly to
+  SQLite files.
 - Portal code authors rules, approvals, and visibility requests; child-device agents validate and execute them.
 - Portal code must not run OS commands, capture adapters, AI safety evaluation, policy evaluation, enforcement, timers, or scripts.
 - Parent-authored rules decide household outcomes. Product defaults and category
@@ -346,8 +367,9 @@ Validation expectations:
   [real evidence proof expectations](expectations/real-evidence-proof.md).
 - Completed runtime claims are mapped in
   [pre-AI proof matrix](expectations/pre-ai-proof-matrix.json).
-- TypeScript contracts use Effect Schema.
-- Rust protocol structs mirror shared contract shape.
+- Rust owns product contracts and schema truth.
+- TypeScript uses generated bridge DTOs and Effect Schema only at untrusted or
+  generated validation edges.
 - No Zod.
 - No naked domain strings.
 - No app/runtime inline string literals.
@@ -379,7 +401,7 @@ Deliverables:
 
 - Workspace scaffold.
 - Rust agent crates.
-- Vite portal.
+- Vite dev portal, not product runtime.
 - Local and LAN dev scripts.
 - Fixed ports.
 - CI, hooks, security scan, dependency policy, SBOM.
@@ -392,7 +414,8 @@ Acceptance:
 
 - Full validation passes.
 - CI runs package previews.
-- Contract tests prove TypeScript and Rust shape parity.
+- Contract tests prove Rust-owned shape, generated TypeScript DTO, and edge
+  decoder parity.
 - README explains product intent and local dev loop.
 
 Status:
@@ -916,9 +939,8 @@ Purpose:
 
 Support the parent-away-from-home use case without making Ocentra the family-data
 store. V2 is the remote capability fabric milestone: remote health, route
-status, rule/query/approval relay, report access, screen visibility, and the
-remote desktop/control horizon all attach to one typed route, session,
-capability, custody, and audit model.
+status, rule/query/approval relay, report access, and live screen view all
+attach to one typed route, session, capability, custody, and audit model.
 
 Expectation links:
 
@@ -949,8 +971,8 @@ Deliverables:
 - Stateless report compile contract where remote compilation exists.
 - Conflict handling.
 - Direct-first and forced-relay proof modes.
-- Remote desktop capability taxonomy, with view-only live screen and remote
-  input/control modeled separately before implementation.
+- Remote capability taxonomy, with view-only live screen as the current pass
+  and remote input/control kept as a deferred capability family.
 - `family.ocentra.ca` download/account/subscription/status surface.
 - Packaged parent portal direction, with Tauri as preferred desktop candidate.
 
@@ -964,7 +986,7 @@ Acceptance:
 - Device rule updates, approval decisions, and visibility requests are authenticated and auditable.
 - Ocentra-hosted infrastructure does not retain child activity evidence or
   generated reports by default.
-- Remote desktop and remote control are represented as explicit staged
+- Remote view is current, and remote input/control are represented as staged
   capability families rather than a separate utility outside the Ocentra
   contracts.
 

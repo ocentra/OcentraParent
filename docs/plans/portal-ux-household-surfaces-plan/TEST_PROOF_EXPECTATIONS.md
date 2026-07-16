@@ -1,64 +1,104 @@
-# Portal UX Household Surfaces Plan Test and Proof Expectations
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `portal-ux-household-surfaces-plan`
-> Doc: `Portal UX Household Surfaces Plan Test and Proof Expectations`
-> Kind: plan-local test and proof decision tree.
-> Read when: After the assigned workpack/checklist row is known; use to choose required tests/proof.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: This file defines required local tests/proof; missing tests keep rows open.
+> Doc: `Portal UX Household Surfaces Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
 <!-- /agent-capsule -->
 
-Use this after the assigned portal UX workpack is known. Portal proof must use real service-backed state, not fake UI-only green paths.
+# Portal UX Household Surfaces Test Proof Expectations
 
-## Where tests should live
+## Proof root
 
-When the portal/household implementation package exists, tests belong under its test tree and proof output under its proof folder. Until then, colocate with the owning portal package and record paths in the workpack and `PROOF_INDEX.md`.
+```text
+output/portal-ux-household-surfaces-plan-proof/<workpack-file-stem>/
+```
 
-## Decision Tree
+## Common commands
 
-| If the assigned work is...               | Read next                                | Expected tests or proof                                                                         |
-| ---------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Service-backed shell/navigation          | assigned workpack                        | route/DOM contract tests, real service smoke, empty/error/loading states.                       |
-| First-run/profiles/household setup       | assigned workpack                        | authN/authZ, double-submit, stale session, cross-family isolation, misuse proof.                |
-| Device inventory/selected device/context | assigned workpack                        | source/custody labels, offline/degraded/manual-required states, stale device negatives.         |
-| Policy authoring/time budgets/templates  | assigned workpack                        | schema validation, authZ matrix, schedule/DST/clock skew, preview vs execution boundary.        |
-| Reports/notifications/sync surfaces      | assigned workpack                        | read-model proof, notification state, retry/offline, audit trail, export/delete custody.        |
-| AI/assistant portal surfaces             | assigned workpack; AI plan only if named | prompt/output invariant proof, redaction, human-review state, no AI authority escalation.       |
-| Visual/UI polish or state rendering      | assigned workpack                        | Playwright screenshots for all touched states, accessibility-relevant assertions, no fake data. |
-| PR/rollout gate                          | `PROOF_INDEX.md`                         | screenshot manifest, command logs, selected risk rows, remaining gaps.                          |
+Use the subset relevant to the selected workpack:
 
-## Expected test/proof inventory
+```bash
+npm run build --workspace @ocentra-parent/portal-domain
+npm run test --workspace @ocentra-parent/portal-domain
+npm run test --workspace @ocentra-parent/portal
+npm run test:e2e --workspace @ocentra-parent/portal
+npm run lint:architecture -- --files packages/portal-domain apps/portal docs/plans/portal-ux-household-surfaces-plan
+```
 
-Use these names as proof intent labels in the assigned workpack/proof note. Implementers choose the actual crate/package test names after the owning implementation boundary exists.
+Run through `npm run agent:run --` when collecting proof if the wrapper is available.
 
-- `portal.read-model.no-direct-source`: UI consumes approved read models and does not scan source systems directly.
-- `portal.authz.visible-state-matrix`: parent/child/household/device visibility rejects cross-family or unauthorized state.
-- `portal.empty-error-stale-degraded`: empty, error, stale, unsupported, and degraded states have screenshot proof.
-- `portal.action.double-submit-replay`: parent actions reject duplicate, stale, refresh-abuse, and double-submit behavior.
-- `portal.accessibility.keyboard-responsive`: core surfaces cover keyboard, responsive, focus, and accessible state expectations.
-- `portal.logging.trace-proof`: UI actions and read-model loads produce safe logs/traces without leaking sensitive data.
-- `portal.no-fake-data`: proof uses service-backed or contract-backed state, not hardcoded fake success data.
+## Command ownership notes
 
-## Required proof contents
+- `apps/portal` owns rendered route composition and focused UI/e2e proof.
+- `portal-domain` owns public portal route/panel/projection contracts.
+- `schema-domain`, `agent-protocol-domain`, and domain packages own typed read-model contracts consumed by portal.
+- Setup, account, device-trust, LAN, browser, app-game, network, screen, tracking, AI, payment, custody, notification, and enforcement scopes run only when the selected workpack names the handoff.
 
-- Playwright/browser command and screenshot path for each touched state.
-- Service/log/trace ref showing data came through the intended runtime path.
-- Auth/custody negatives for profile, household, device, and policy surfaces.
+## Portal UX E2E meaning
 
-## Failure conditions
+Do not use one proof family to claim the whole portal path. For this plan, E2E has separate meanings:
 
-Do not claim DONE or PR_READY if any apply:
+```text
+service-backed shell/navigation E2E: route/nav/shell -> service state -> loading/degraded/error labels.
+first-run/profile E2E: setup/account read model -> household/profile presentation -> no setup completion claim.
+device inventory E2E: device read model -> source/capability/stale state -> no device-trust claim.
+selected-device context E2E: selected device -> projected panels -> no domain runtime claim.
+policy authoring/preview E2E: policy read model -> preview/confirm UI -> no policy source/enforcement claim.
+requests/approval E2E: request/approval state -> role-gated UI -> no approval without account/device-trust handoff.
+activity diagnostics E2E: activity/evidence read model -> diagnostics surface -> no capture truth claim.
+domain-surface projection E2E: browser/app/network/screen/tracking read model -> visible projection -> no domain runtime claim.
+LAN state consumption E2E: LAN read model -> selected device/peer state -> no transport proof claim.
+assistant preview E2E: assistant output -> cited explanation/typed action preview -> parent confirmation boundary.
+reports/notifications/custody E2E: report/notification/custody read model -> visible labels -> no custody/export/send claim.
+degraded/empty/error E2E: missing/stale/error/manual-required state -> user-visible status -> no fake green.
+a11y/responsive/keyboard E2E: route under keyboard/mobile/screen-reader relevant states -> no product runtime claim.
+no-fake-data E2E: fixture/runtime/service source labels -> schema decode and invalid payload handling.
+screenshot proof E2E: Playwright route + console/page-error check + screenshots -> review artifact only.
+mobile shell readiness E2E: narrow-width/parent mobile shell scaffold -> no parent package or child mobile claim.
+manual user review E2E: route list, artifacts, commands, known gaps -> user visual decision required.
+```
 
-- The expected test/proof row for the touched work type is missing.
-- The implementation crate/package test folder does not exist and the missing expected location is not recorded.
-- Only happy-path tests pass for a trust, policy, persistence, protocol, UI, AI, platform, security, performance, or observability boundary.
-- A product/checklist row moved without command logs and proof artifact path.
-- A manual-required/platform limitation was converted into a runtime capability claim.
-- A proof artifact lacks negative cases, logs/traces where relevant, or exact workpack/checklist linkage.
-- A sibling plan or broad source tree was read without a route reason recorded in the workpack/proof note.
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Product/runtime-safe logging:
+
+```text
+redact child private data, account/session secrets, raw screenshots unless artifact-scoped, assistant chat content unless fixture-scoped, support-private notes, and private URLs or payloads
+log workpack, route, viewport, role, read-model source, source/custody label, fixture/runtime state, degraded/error/manual-required state, screenshot state, accessibility state, console/page-error state, artifact pointer, and no-claim boundary when safe
+separate portal projection, source contract, runtime service, domain truth, policy truth, AI runtime, transport, custody, and enforcement states
+never treat screenshots, fixtures, route presence, portal-local state, or happy-path UI logs as product readiness without selected proof root and no-claim boundary
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr and screenshots by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, route, viewport, role, exit code, result, artifact pointer, diagnostics summary, manual-required note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
+
+## Required negative states
+
+```text
+loading/empty/error/degraded visible
+manual-required visible
+fake data not shown as real
+UI does not own domain truth
+UI does not execute device work
+source/custody labels visible
+browser console warnings handled or documented
+screenshot proof not used as service-backed validation
+portal route existence not used as product readiness
+happy-path UI tests not used as PR_READY
+portal projection not used as domain runtime proof
+```

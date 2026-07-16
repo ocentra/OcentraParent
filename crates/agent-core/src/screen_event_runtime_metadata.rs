@@ -1,14 +1,15 @@
 use ocentra_eventing::{
-    CorrelationId, EventCustody, EventId, EventMetadata, EventSource, EventingError, RecordedAt,
-    RuntimeInstanceId, SourceComponent, SourceService, TargetHandler,
+    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
+    ids::EventCustody, ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimePhase;
 
 use crate::{
     screen_event_runtime_input::{
         ScreenRuntimeCaptureInput, ScreenRuntimeDeletionInput, ScreenRuntimeInput,
     },
-    screen_event_runtime_phase::ScreenRuntimePhase,
     screen_event_runtime_refs::screen_correlation_id,
     screen_event_runtime_state::custody_state,
 };
@@ -59,7 +60,7 @@ pub(crate) fn screen_deletion_event_metadata(
 fn screen_event_source(phase: ScreenRuntimePhase) -> Result<EventSource, EventingError> {
     Ok(EventSource::new(
         EventCustody::parse(custody_state(phase))?,
-        phase.runtime_role(),
+        phase.runtime_role()?,
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(constants::screen_flow::RUNTIME_COMPONENT_SCREEN_SPINE)?,
         RuntimeInstanceId::parse(constants::screen_flow::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,

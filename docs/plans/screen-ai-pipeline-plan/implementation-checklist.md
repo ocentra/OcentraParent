@@ -15,7 +15,7 @@
 
 <!-- /agent-capsule -->
 
-A checkbox may be marked `[x]` only after the matching artifact exists under:
+A checkbox may be marked `[ ]` only after the matching artifact exists under:
 
 ```text
 output/screen-ai-pipeline-proof/
@@ -100,120 +100,120 @@ proofs into physical LAN product execution.
 
 ## Prerequisite Gates
 
-- [x] Screen capture proof PR merged or explicitly stacked.
-- [x] AI analysis proof PR merged or explicitly stacked.
-- [x] Pipeline branch contains both prerequisite implementations.
-- [x] Prerequisite commits recorded in proof artifacts.
-- [x] Pipeline branch proves the screen -> AI -> policy -> action/read-model/
+- [ ] Screen capture proof PR merged or explicitly stacked.
+- [ ] AI analysis proof PR merged or explicitly stacked.
+- [ ] Pipeline branch contains both prerequisite implementations.
+- [ ] Prerequisite commits recorded in proof artifacts.
+- [ ] Pipeline branch proves the screen -> AI -> policy -> action/read-model/
       deletion handoff through `crates/ocentra-eventing`, not direct module
       calls, for the in-process successful runtime chain, and the final gate
       now requires service producer/subscriber proof artifacts for the service
       event path.
-- [x] Mesh route proof, when household provider execution is used, proves
+- [ ] Mesh route proof, when household provider execution is used, proves
       provider advertisement/heartbeat eligibility, claim/lease lifecycle,
       result-validation, and no raw screenshot transfer.
 
 ## Real Trigger Gates
 
-- [x] Managed browser social/video trigger. Browser trigger proof composes the
+- [ ] Managed browser social/video trigger. Browser trigger proof composes the
       managed browser/video evidence row with screen-analysis evidence into a
       ready local-AI context; live-operator surface proof remains the live
       external evidence gate, not managed-browser enforcement.
-- [x] Managed browser education/video trigger. Browser trigger proof composes a
+- [ ] Managed browser education/video trigger. Browser trigger proof composes a
       managed browser URL evidence row with screen-analysis evidence into a
       ready local-AI context; live-operator school/video rows remain separate
       operator-run evidence.
-- [x] Managed browser social/feed trigger. Browser trigger proof carries a
+- [ ] Managed browser social/feed trigger. Browser trigger proof carries a
       social/feed row into a partial local-AI context and keeps it
       manual-required; authenticated-account social content and enforcement stay
       unclaimed.
-- [x] Managed browser game/cloud-game trigger. Browser trigger proof carries a
+- [ ] Managed browser game/cloud-game trigger. Browser trigger proof carries a
       cloud-game/protected-surface row into a partial local-AI context and keeps
       it unavailable; cloud-frame analysis and broad browser-game enforcement
       stay unclaimed.
-- [x] Native app foreground trigger. Scheduler proof and service-owned foreground watcher proof exist.
-- [x] Native game or controlled game-window trigger. Controlled native window analysis exists, and service-owned foreground capture plus analysis now proves a game-classified `localVision` row; a dedicated installed-game identity producer remains app/game evidence scope.
-- [x] Unknown process/app trigger.
-- [x] Timed cadence trigger. Scheduler-due proof and service-owned three-frame timer loop proof exist; service pending-queue backpressure is proven, while model-runtime flood control remains.
-- [x] Disabled setting suppression.
-- [x] Protected/permission-required skip.
+- [ ] Native app foreground trigger. Scheduler proof and service-owned foreground watcher proof exist.
+- [ ] Native game or controlled game-window trigger. Controlled native window analysis exists, and service-owned foreground capture plus analysis now proves a game-classified `localVision` row; a dedicated installed-game identity producer remains app/game evidence scope.
+- [ ] Unknown process/app trigger.
+- [ ] Timed cadence trigger. Scheduler-due proof and service-owned three-frame timer loop proof exist; service pending-queue backpressure is proven, while model-runtime flood control remains.
+- [ ] Disabled setting suppression.
+- [ ] Protected/permission-required skip.
 
 ## AI Analysis Gates
 
-- [x] OCR route proof where visible text is enough.
-- [x] Real Windows WinRT OCR worker proof over captured browser/native pixels.
-- [x] Service-owned WinRT OCR local adapter analysis over live public browser
+- [ ] OCR route proof where visible text is enough.
+- [ ] Real Windows WinRT OCR worker proof over captured browser/native pixels.
+- [ ] Service-owned WinRT OCR local adapter analysis over live public browser
       capture.
-- [x] Guided VLM route proof where visual classification is needed.
-- [x] Guided VLM worker contract proof before runtime use.
-- [x] VLM execution readiness/status handoff proof before runtime queue
+- [ ] Guided VLM route proof where visual classification is needed.
+- [ ] Guided VLM worker contract proof before runtime use.
+- [ ] VLM execution readiness/status handoff proof before runtime queue
       integration.
-- [x] Model-runtime flood-control/backpressure proof before high-cadence local
+- [ ] Model-runtime flood-control/backpressure proof before high-cadence local
       model execution claims.
-- [x] Service-owned local adapter analysis over an encrypted screen queue job.
-- [x] AI analysis starts from a typed screen evidence event and publishes a
+- [ ] Service-owned local adapter analysis over an encrypted screen queue job.
+- [ ] AI analysis starts from a typed screen evidence event and publishes a
       typed AI result event for successful and degraded service event-chain
       paths.
-- [x] Household provider route, when used, starts from child-owned AI work,
+- [ ] Household provider route, when used, starts from child-owned AI work,
       grants one lease, and returns only a provider result for child validation.
-- [x] LAN AI service job events surface selected provider, route reason,
+- [ ] LAN AI service job events surface selected provider, route reason,
       claim/lease ids, child-agent-only authority, no provider policy publish,
       no raw screen transfer, and child-validation metadata after normal LAN
       authorization.
-- [x] Local text model route proof over typed context.
-- [x] Deterministic route proof where structured evidence is enough.
-- [x] Low confidence degrades safely.
-- [x] Invalid output cannot reach policy.
+- [ ] Local text model route proof over typed context.
+- [ ] Deterministic route proof where structured evidence is enough.
+- [ ] Low confidence degrades safely.
+- [ ] Invalid output cannot reach policy.
 
 ## Policy And Action Gates
 
-- [x] Observe policy result.
-- [x] Allow policy result.
-- [x] Warn policy result.
-- [x] Ask-parent policy result.
-- [x] Time-limit policy result.
-- [x] Block dry-run result.
-- [x] Block real adapter result for the owned-process Windows adapter path.
-- [x] Unknown/manual-required result.
-- [x] AI cannot override stricter parent rule.
-- [x] Service WinRT OCR Activity Screen row feeds a typed parent policy dry-run.
-- [x] Policy consumes a typed AI result event from the eventing runtime in the
+- [ ] Observe policy result.
+- [ ] Allow policy result.
+- [ ] Warn policy result.
+- [ ] Ask-parent policy result.
+- [ ] Time-limit policy result.
+- [ ] Block dry-run result.
+- [ ] Block real adapter result for the owned-process Windows adapter path.
+- [ ] Unknown/manual-required result.
+- [ ] AI cannot override stricter parent rule.
+- [ ] Service WinRT OCR Activity Screen row feeds a typed parent policy dry-run.
+- [ ] Policy consumes a typed AI result event from the eventing runtime in the
       successful event-chain proof path.
-- [x] Policy consumes only child-accepted provider results, never raw provider
+- [ ] Policy consumes only child-accepted provider results, never raw provider
       output or provider-originated policy/enforcement events.
-- [x] Real Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination proof.
-- [x] Screen-derived broad/browser/network/mobile adapter readiness states
+- [ ] Real Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination proof.
+- [ ] Screen-derived broad/browser/network/mobile adapter readiness states
       remain manual-required, not-claimed, or unavailable without claim
       upgrades.
 - [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.
 
 ## Portal And Proof Gates
 
-- [x] Journal/read model contains trigger, capture, AI, policy, and deletion refs.
-- [x] Parent portal screenshot shows the full chain.
-- [x] Parent explanation cites evidence and rules.
-- [x] Raw image deletion proof linked.
-- [x] Remote/cloud screenshot upload disabled.
-- [x] Live operator proof harness readiness artifact exists:
+- [ ] Journal/read model contains trigger, capture, AI, policy, and deletion refs.
+- [ ] Parent portal screenshot shows the full chain.
+- [ ] Parent explanation cites evidence and rules.
+- [ ] Raw image deletion proof linked.
+- [ ] Remote/cloud screenshot upload disabled.
+- [ ] Live operator proof harness readiness artifact exists:
       `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`.
-- [x] Full live operator proof completed for all nine required rows:
+- [ ] Full live operator proof completed for all nine required rows:
       `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`.
-- [x] Live operator artifact gate validates the retained proof summaries,
+- [ ] Live operator artifact gate validates the retained proof summaries,
       redacted live surface evidence, local VLM rows, policy dry-runs,
       protected-surface non-claims, parent screenshots, and deletion custody:
       `output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json`.
-- [x] Live operator evidence bundle copies the retained redacted source, AI,
+- [ ] Live operator evidence bundle copies the retained redacted source, AI,
       policy, deletion, model-log, and parent-explanation artifacts needed for
       remote review without copying raw screenshots or encrypted queue payloads:
       `output/screen-ai-pipeline-proof/live-operator-evidence-bundle/proof-summary.json`.
-- [x] Final product path artifact gate validates the retained live/operator,
+- [ ] Final product path artifact gate validates the retained live/operator,
       AI, policy, action, portal/read-model, service-backed Activity Screen
       read-model, portable live-operator evidence bundle, service WinRT OCR
       live-capture policy proof, retention, deletion custody, household mesh
       no-raw/provider validation artifacts, custody-aware final adapter audit,
       adapter blocker ledger, and adapter dependency handoff artifacts:
       `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`.
-- [x] Final adapter dependency audit validates that product-complete
+- [ ] Final adapter dependency audit validates that product-complete
       broad/browser/network/mobile adapter claims remain blocked until their
       own screen-derived execution artifacts exist, and now consumes the
       WSL2 Linux host execution artifact, Linux/Android/iOS custody artifacts,
@@ -221,22 +221,22 @@ proofs into physical LAN product execution.
       upgrading screen adapter claims while keeping product-complete claims
       blocked:
       `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`.
-- [x] Adapter blocker ledger proof names the exact missing adapter source
+- [ ] Adapter blocker ledger proof names the exact missing adapter source
       boundaries, required apply/rollback/audit custody artifacts, and rows
       unblocked by each artifact without closing the product-complete row:
       `output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json`.
-- [x] Product checklist delta proof emits exact locked-file replacement rows
+- [ ] Product checklist delta proof emits exact locked-file replacement rows
       for Local screen evidence summaries and Child-safety AI decision without
       editing `docs/product-capability-checklist.md`:
       `output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json`.
-- [x] Adapter dependency handoff proof maps each remaining upstream adapter
+- [ ] Adapter dependency handoff proof maps each remaining upstream adapter
       artifact to its owner, expected proof file, contract shape, and final
       screen-AI/product rows it unblocks; broad installed-app now names current
       app/game and app-install context artifacts but still requires a
       screen-derived apply/rollback/audit artifact where `appBlockingClaimed`
       is true:
       `output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json`.
-- [x] Upstream adapter prerequisite bridge proof consumes existing app/game
+- [ ] Upstream adapter prerequisite bridge proof consumes existing app/game
       broad-blocking gates, app-install package-source/provider-store/external-
       writer transport context, network action-result readiness, managed-browser
       CDP capture, Android MediaProjection capability, and iOS ReplayKit
@@ -247,29 +247,29 @@ proofs into physical LAN product execution.
       execution is tracked by the separate Linux execution artifact, with native
       Linux desktop/Wayland/PipeWire product parity still unclaimed:
       `output/screen-ai-pipeline-proof/upstream-adapter-prerequisite-bridge/proof-summary.json`.
-- [x] Linux host adapter custody artifact records screen-derived apply,
+- [ ] Linux host adapter custody artifact records screen-derived apply,
       rollback, and audit custody for the Linux blocker while preserving
       not-executed target-unavailable state and keeping product-complete Linux
       host control blocked:
       `output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json`.
-- [x] WSL2 Linux host adapter execution artifact applies and rolls back a
+- [ ] WSL2 Linux host adapter execution artifact applies and rolls back a
       dedicated `iptables` rule from a screen-derived block decision, proves the
       host mutation was removed, and keeps native Linux desktop/Wayland/PipeWire
       product parity unclaimed:
       `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`.
-- [x] Android mobile-control custody artifact records screen-derived apply,
+- [ ] Android mobile-control custody artifact records screen-derived apply,
       rollback, and audit custody for the Android blocker while preserving
       not-executed manual-required state and keeping Device Owner,
       managed-profile, UsageStats, Accessibility, VPN/DNS, and physical-device
       control claims blocked:
       `output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json`.
-- [x] iOS mobile-control custody artifact records screen-derived apply,
+- [ ] iOS mobile-control custody artifact records screen-derived apply,
       rollback, and audit custody for the iOS blocker while preserving
       not-executed manual-required state and keeping Family Controls,
       DeviceActivity, Network Extension, ReplayKit physical execution, live iOS
       pixels, deletion proof, and rollback claims blocked:
       `output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json`.
-- [x] Fresh event-driven runtime path proof proves capture event, AI
+- [ ] Fresh event-driven runtime path proof proves capture event, AI
       result event, policy event, action/dry-run event, portal/read-model event,
       and deletion/custody event in one in-process runtime chain. Service
       producer/subscriber coverage is required through the capture producer,
@@ -277,16 +277,16 @@ proofs into physical LAN product execution.
       subscription artifacts; the final product path now also requires the
       service OCR policy proof to rerun the source live service OCR proof in
       the same validation flow.
-- [x] Household mesh screen AI proof, when mesh route is used, records provider
+- [ ] Household mesh screen AI proof, when mesh route is used, records provider
       discovery, provider route selection, advertisement/heartbeat eligibility,
       claim/lease lifecycle, no-raw-transfer, provider result validation, mesh
       bridge mediation, child-agent-only policy authority, mobile dormant/
       fallback behavior, and custody artifacts.
-- [x] LAN AI service route metadata proof records the same worker-only route
+- [ ] LAN AI service route metadata proof records the same worker-only route
       semantics on the Rust `AgentLanAiJobSubmit` service event without claiming
       physical LAN sockets, provider gossip, production model quality,
       enforcement, or raw screenshot transfer.
-- [x] LAN AI provider heartbeat runtime proof records service-owned stale/
+- [ ] LAN AI provider heartbeat runtime proof records service-owned stale/
       offline heartbeat handling before screen-derived provider selection:
       stale heartbeat degrades routing, offline heartbeat makes the provider
       unavailable, job events stay degraded instead of completed, and raw screen
@@ -294,40 +294,40 @@ proofs into physical LAN product execution.
       multicast provider gossip, production model execution, policy authority,
       enforcement, or raw screenshot transfer:
       `output/ai-plan-proof/lan-ai-provider-heartbeat-runtime-proof/proof-summary.json`.
-- [x] Final product path requires household route selection, mesh bridge,
+- [ ] Final product path requires household route selection, mesh bridge,
       no-raw-transfer, provider result validation, child-agent authority, mobile
       dormant/fallback, and provider advertisement/claim/lease artifacts before
       its retained pipeline proof can pass.
-- [x] Final product path requires service event capture producer, analysis
+- [ ] Final product path requires service event capture producer, analysis
       row-ready, policy-ref producer, deletion producer, bridge, and subscriber
       artifacts before its retained pipeline proof can pass.
-- [x] Final product path requires the service WinRT OCR policy artifact proving
+- [ ] Final product path requires the service WinRT OCR policy artifact proving
       live public browser capture, Windows OCR, WebSocket read-model projection,
       typed policy dry-run, queue drain, temp deletion, no raw retention, and
       a source service OCR proof rerun assertion.
-- [x] Parent explanation refs survive service-backed Activity Screen read-model
+- [ ] Parent explanation refs survive service-backed Activity Screen read-model
       projection:
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`.
-- [x] Windows WinRT OCR worker proof completed:
+- [ ] Windows WinRT OCR worker proof completed:
       `output/ai-plan-proof/screen-winrt-ocr-worker/proof-summary.json`.
-- [x] Guided VLM worker contract proof completed:
+- [ ] Guided VLM worker contract proof completed:
       `output/screen-ai-pipeline-proof/screen-vlm-worker-contract-proof/proof-summary.json`.
-- [x] VLM execution readiness/status handoff proof completed:
+- [ ] VLM execution readiness/status handoff proof completed:
       `output/screen-ai-pipeline-proof/screen-vlm-execution-readiness-proof/proof-summary.json`.
-- [x] VLM journal/read-model proof completed:
+- [ ] VLM journal/read-model proof completed:
       `output/screen-ai-pipeline-proof/screen-vlm-journal-read-model-proof/proof-summary.json`.
-- [x] Degraded OCR/VLM Activity Screen rows render on the real Screen Analysis
+- [ ] Degraded OCR/VLM Activity Screen rows render on the real Screen Analysis
       portal route:
       `output/ai-plan-proof/activity-screen-ai-degraded-portal-proof/proof-summary.json`.
-- [x] Service WinRT OCR proof completed:
+- [ ] Service WinRT OCR proof completed:
       `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json`.
-- [x] Service WinRT OCR policy dry-run proof completed:
+- [ ] Service WinRT OCR policy dry-run proof completed:
       `output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json`.
-- [x] Screen-derived adapter readiness proof completed:
+- [ ] Screen-derived adapter readiness proof completed:
       `output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json`.
-- [x] Operator live proof completed before product-complete claim.
-- [x] Live external URL/surface proof completed for real YouTube/Vimeo/public social/shopping/school surfaces; controlled fixture rows are harness proof only, and authenticated-account social proof remains a separate non-claimed artifact gate.
-- [x] Authenticated-account social proof is now an explicit external evidence
+- [ ] Operator live proof completed before product-complete claim.
+- [ ] Live external URL/surface proof completed for real YouTube/Vimeo/public social/shopping/school surfaces; controlled fixture rows are harness proof only, and authenticated-account social proof remains a separate non-claimed artifact gate.
+- [ ] Authenticated-account social proof is now an explicit external evidence
       gate in `output/screen-plan-proof/external-gates/proof-summary.json`
       and an optional live-operator manifest/gate row. It remains missing until
       a digest-backed operator-consented logged-in account capture artifact with
@@ -336,73 +336,73 @@ proofs into physical LAN product execution.
 
 ## Validation
 
-- [x] Screen focused validation rerun on pipeline branch.
-- [x] AI focused validation rerun on pipeline branch.
-- [x] Pipeline E2E/proof script run.
-- [x] Playwright screenshot proof run.
-- [x] Security negative tests run.
-- [x] Deletion/retention/custody proof run:
+- [ ] Screen focused validation rerun on pipeline branch.
+- [ ] AI focused validation rerun on pipeline branch.
+- [ ] Pipeline E2E/proof script run.
+- [ ] Playwright screenshot proof run.
+- [ ] Security negative tests run.
+- [ ] Deletion/retention/custody proof run:
       `node --check scripts/test/screen-ai-deletion-retention-custody-proof.mjs` and
       `node scripts/test/screen-ai-deletion-retention-custody-proof.mjs`.
-- [x] Performance/cadence proof run.
-- [x] Service cadence proof run: `node scripts/test/screen-ai-service-cadence-proof.mjs`.
-- [x] Service foreground proof run: `node scripts/test/screen-ai-service-foreground-proof.mjs`.
-- [x] Service analysis proof run: `node --check scripts/test/screen-ai-service-analysis-proof.mjs` and
+- [ ] Performance/cadence proof run.
+- [ ] Service cadence proof run: `node scripts/test/screen-ai-service-cadence-proof.mjs`.
+- [ ] Service foreground proof run: `node scripts/test/screen-ai-service-foreground-proof.mjs`.
+- [ ] Service analysis proof run: `node --check scripts/test/screen-ai-service-analysis-proof.mjs` and
       `node scripts/test/screen-ai-service-analysis-proof.mjs`.
-- [x] Service WinRT OCR proof run:
+- [ ] Service WinRT OCR proof run:
       `node --check scripts/test/screen-ai-service-winrt-ocr-proof.mjs` and
       `node scripts/test/screen-ai-service-winrt-ocr-proof.mjs`.
-- [x] Guided VLM worker contract proof run:
+- [ ] Guided VLM worker contract proof run:
       `node --check scripts/test/screen-ai-vlm-worker-contract-proof.mjs` and
       `node scripts/test/screen-ai-vlm-worker-contract-proof.mjs`.
-- [x] VLM execution readiness/status handoff proof run:
+- [ ] VLM execution readiness/status handoff proof run:
       `node --check scripts/test/screen-ai-vlm-execution-readiness-proof.mjs`
       and `node scripts/test/screen-ai-vlm-execution-readiness-proof.mjs`.
-- [x] VLM journal/read-model proof run:
+- [ ] VLM journal/read-model proof run:
       `node --check scripts/test/screen-ai-vlm-journal-read-model-proof.mjs`
       and `node scripts/test/screen-ai-vlm-journal-read-model-proof.mjs`.
-- [x] Degraded OCR/VLM Activity Screen portal proof run:
+- [ ] Degraded OCR/VLM Activity Screen portal proof run:
       `node --check scripts/test/screen-ai-degraded-portal-proof.mjs` and
       `node scripts/test/screen-ai-degraded-portal-proof.mjs`.
-- [x] Service WinRT OCR policy proof run:
+- [ ] Service WinRT OCR policy proof run:
       `node --check scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs` and
       `node scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs`.
-- [x] Screen-derived adapter readiness proof run:
+- [ ] Screen-derived adapter readiness proof run:
       `node --check scripts/test/screen-ai-adapter-readiness-proof.mjs` and
       `node scripts/test/screen-ai-adapter-readiness-proof.mjs`.
-- [x] Screen-AI browser trigger proof run:
+- [ ] Screen-AI browser trigger proof run:
       `node scripts/test/screen-ai-browser-trigger-proof.mjs`.
-- [x] Model runtime backpressure proof run:
+- [ ] Model runtime backpressure proof run:
       `node --check scripts/test/screen-ai-model-runtime-backpressure-proof.mjs` and
       `node scripts/test/screen-ai-model-runtime-backpressure-proof.mjs`.
-- [x] Service native game analysis proof run:
+- [ ] Service native game analysis proof run:
       `node --check scripts/test/screen-ai-service-native-game-analysis-proof.mjs` and
       `node scripts/test/screen-ai-service-native-game-analysis-proof.mjs`.
-- [x] Service disabled suppression proof run:
+- [ ] Service disabled suppression proof run:
       `node --check scripts/test/screen-ai-service-disabled-suppression-proof.mjs` and
       `node scripts/test/screen-ai-service-disabled-suppression-proof.mjs`.
-- [x] Service retention sweeper proof run:
+- [ ] Service retention sweeper proof run:
       `node --check scripts/test/screen-ai-service-retention-sweeper-proof.mjs` and
       `node scripts/test/screen-ai-service-retention-sweeper-proof.mjs`.
-- [x] Screen-derived block adapter proof run: `node --check scripts/test/screen-ai-block-action-dispatch-proof.mjs`,
+- [ ] Screen-derived block adapter proof run: `node --check scripts/test/screen-ai-block-action-dispatch-proof.mjs`,
       `OCENTRA_SCREEN_AI_SCENARIOS=bypass-tool node scripts/test/screen-ai-local-vlm-proof.mjs`,
       and `node scripts/test/screen-ai-block-action-dispatch-proof.mjs`.
-- [x] Live operator harness readiness run:
+- [ ] Live operator harness readiness run:
       `node --check scripts/test/screen-ai-live-operator-proof.mjs`,
       `node scripts/test/screen-ai-live-operator-proof.mjs --verify-harness`,
       and `node scripts/test/screen-ai-live-operator-proof.mjs --print-template`.
-- [x] Live operator artifact gate run:
+- [ ] Live operator artifact gate run:
       `node --check scripts/test/screen-ai-live-operator-artifact-gate.mjs` and
       `node scripts/test/screen-ai-live-operator-artifact-gate.mjs`.
-- [x] Final product path artifact gate run:
+- [ ] Final product path artifact gate run:
       `node --check scripts/test/screen-ai-final-product-path-proof.mjs` and
       `node scripts/test/screen-ai-final-product-path-proof.mjs`.
-- [x] Final product path now consumes screen-plan and AI-plan closure audits
+- [ ] Final product path now consumes screen-plan and AI-plan closure audits
       while keeping final product-complete blocked by broad/browser/network/mobile
       adapter execution, and now requires the adapter blocker ledger plus
       dependency handoff before the final retained-artifact proof can pass:
       `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`.
-- [x] Full-scope readiness audit now requires the screen-plan live-view
+- [ ] Full-scope readiness audit now requires the screen-plan live-view
       closure guard, proving live-view captured-frame transport/deletion and
       relay/cache no-retention/no-input evidence are present while product live
       view remains blocked. It now also consumes the optional Android physical
@@ -410,63 +410,63 @@ proofs into physical LAN product execution.
       `blocked-by-physical-android-external-gate-and-external-adapter-dependencies`
       while the real physical-device proof is absent or the target phone is
       locked.
-- [x] Final adapter dependency audit run:
+- [ ] Final adapter dependency audit run:
       `npm run build --workspace @ocentra-parent/parent-domain`,
       `node --check scripts/test/screen-ai-final-adapter-dependency-audit.mjs` and
       `node scripts/test/screen-ai-final-adapter-dependency-audit.mjs`.
-- [x] Adapter blocker ledger proof run:
+- [ ] Adapter blocker ledger proof run:
       `node --check scripts/test/screen-ai-adapter-blocker-ledger-proof.mjs`
       and `node scripts/test/screen-ai-adapter-blocker-ledger-proof.mjs`.
-- [x] Product checklist delta proof run:
+- [ ] Product checklist delta proof run:
       `node --check scripts/test/screen-ai-product-checklist-delta-proof.mjs`
       and `node scripts/test/screen-ai-product-checklist-delta-proof.mjs`.
-- [x] Adapter dependency handoff proof run:
+- [ ] Adapter dependency handoff proof run:
       `node --check scripts/test/screen-ai-adapter-dependency-handoff-proof.mjs`
       and `node scripts/test/screen-ai-adapter-dependency-handoff-proof.mjs`.
-- [x] Upstream adapter prerequisite bridge proof run:
+- [ ] Upstream adapter prerequisite bridge proof run:
       `node --check scripts/test/screen-ai-upstream-adapter-prerequisite-bridge-proof.mjs`
       and
       `node scripts/test/screen-ai-upstream-adapter-prerequisite-bridge-proof.mjs`.
-- [x] Linux host adapter custody proof run:
+- [ ] Linux host adapter custody proof run:
       `node --check scripts/test/screen-ai-linux-host-adapter-custody-proof.mjs`
       and `node scripts/test/screen-ai-linux-host-adapter-custody-proof.mjs`.
-- [x] WSL2 Linux host adapter execution proof run:
+- [ ] WSL2 Linux host adapter execution proof run:
       `node --check scripts/test/screen-ai-linux-host-adapter-execution-proof.mjs`
       and `node scripts/test/screen-ai-linux-host-adapter-execution-proof.mjs`.
-- [x] Android mobile-control custody proof run:
+- [ ] Android mobile-control custody proof run:
       `node --check scripts/test/screen-ai-android-mobile-control-custody-proof.mjs`
       and
       `node scripts/test/screen-ai-android-mobile-control-custody-proof.mjs`.
-- [x] iOS mobile-control custody proof run:
+- [ ] iOS mobile-control custody proof run:
       `node --check scripts/test/screen-ai-ios-mobile-control-custody-proof.mjs`
       and `node scripts/test/screen-ai-ios-mobile-control-custody-proof.mjs`.
-- [x] Event-driven Screen-AI runtime chain proof run:
+- [ ] Event-driven Screen-AI runtime chain proof run:
       `node --check scripts/test/screen-ai-event-driven-runtime-proof.mjs` and
       `node scripts/test/screen-ai-event-driven-runtime-proof.mjs`.
-- [x] Screen service event bridge proof run:
+- [ ] Screen service event bridge proof run:
       `node --check scripts/test/screen-service-event-bridge-proof.mjs` and
       `node scripts/test/screen-service-event-bridge-proof.mjs`.
-- [x] Household mesh screen AI route proof run:
+- [ ] Household mesh screen AI route proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.
-- [x] LAN AI service route metadata proof run:
+- [ ] LAN AI service route metadata proof run:
       `node --check scripts/test/lan-ai-household-route-metadata-proof.mjs` and
       `node scripts/test/lan-ai-household-route-metadata-proof.mjs`.
-- [x] LAN AI provider heartbeat runtime proof run:
+- [ ] LAN AI provider heartbeat runtime proof run:
       `node --check scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs`
       and `node scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs`.
-- [x] No-raw-screen-transfer mesh proof run:
+- [ ] No-raw-screen-transfer mesh proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.
-- [x] Child-agent provider-result validation proof run:
+- [ ] Child-agent provider-result validation proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.
-- [x] Dependency policy rerun after capture dependency narrowing.
-- [x] Android emulator MediaProjection proof run.
-- [x] Android physical MediaProjection external-gate runner added and validated
+- [ ] Dependency policy rerun after capture dependency narrowing.
+- [ ] Android emulator MediaProjection proof run.
+- [ ] Android physical MediaProjection external-gate runner added and validated
       in locked-target mode:
       `node --check scripts/test/screen-android-physical-external-gate-proof.mjs`;
       physical capture remains blocked until the Samsung S9 target is unlocked.
-- [x] `git diff --check`.
-- [x] lane/hub guards.
-- [x] `npm run validate`.
+- [ ] `git diff --check`.
+- [ ] lane/hub guards.
+- [ ] `npm run validate`.

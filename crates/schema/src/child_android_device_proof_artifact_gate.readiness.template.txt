@@ -1,0 +1,72 @@
+function childAndroidDeviceProofArtifactGateIsHonest(
+  readModel: ChildAndroidDeviceProofArtifactGateReadModelCandidate
+): boolean {
+  return (
+    readModel.readinessDecision === 'manual-device-evidence-required-before-child-android-readiness' &&
+    readModel.packageMechanicalProofState === 'ci-package-only' &&
+    installAuthorityStateIsHonest(readModel.installAuthorityState) &&
+    addDevicePairingReadinessIsHonest(readModel.addDevicePairingReadiness) &&
+    readModel.childAndroidDeviceReadinessState === 'manual-required' &&
+    sourceProofsAreComplete(readModel.sourceProofs) &&
+    artifactRequirementsAreHonest(readModel.artifactRequirements) &&
+    manualEvidenceCustodyIsHonest(readModel.manualEvidenceStatus, readModel.artifactRequirements) &&
+    claimsStayInsideCiBoundary(readModel.claimsProved, readModel.claimsNotProved)
+  );
+}
+
+function installAuthorityStateIsHonest(
+  state: ChildAndroidDeviceProofArtifactGateReadModelCandidate['installAuthorityState']
+): boolean {
+  return [
+    state.childAgentArtifactState === 'debug-apk-built',
+    state.installMode === 'debug-apk-sideload',
+    state.installState === 'manual-install-proof-required',
+    state.launchState === 'manual-launch-proof-required',
+    state.removalState === 'manual-removal-proof-required',
+    state.deviceOwnerAuthorityState === 'manual-required',
+    state.managedProfileAuthorityState === 'manual-required',
+    state.childAgentArtifactBoundary.includes('child-agent artifact'),
+    state.installModeBoundary.includes('debug APK sideload mode'),
+    state.installStateBoundary.includes('manual-required'),
+    state.launchStateBoundary.includes('manual-required'),
+    state.removalStateBoundary.includes('manual-required'),
+    state.deviceOwnerBoundary.includes('no device-owner claim'),
+    state.managedProfileBoundary.includes('no managed-profile claim'),
+  ].every(Boolean);
+}
+
+function addDevicePairingReadinessIsHonest(
+  readiness: ChildAndroidDeviceProofArtifactGateReadModelCandidate['addDevicePairingReadiness']
+): boolean {
+  return (
+    readiness.surface === 'parent-add-device-pairing' &&
+    readiness.readinessState === 'manual-required' &&
+    addDevicePairingInputsAreHonest(readiness.inputs) &&
+    readiness.parentVisibleSummary.includes('add-device/pairing readiness remains manual-required')
+  );
+}
+
+function addDevicePairingInputsAreHonest(
+  inputs: ReadonlyArray<ChildAndroidAddDevicePairingReadiness['inputs'][number]>
+): boolean {
+  const byInput = new Map(inputs.map((entry) => [entry.input, entry] as const));
+  return (
+    byInput.size === inputs.length &&
+    Object.entries(AddDevicePairingInputExpectations).every(([input, expected]) => {
+      const entry = byInput.get(input as ChildAndroidAddDevicePairingReadinessInput);
+      return (
+        entry?.source === expected.source &&
+        entry.readinessState === expected.readinessState &&
+        entry.parentVisibleSummary.includes(entry.readinessState)
+      );
+    })
+  );
+}
+
+function sourceProofsAreComplete(proofs: ReadonlyArray<ChildAndroidDeviceProofSourceInput>): boolean {
+  const bySource = new Map(proofs.map((proof) => [proof.source, proof] as const));
+  return (
+    bySource.size === proofs.length &&
+    RequiredSourceProofs.every((source) => bySource.get(source)?.sourceStatus === 'ci-mechanical-proof')
+  );
+}

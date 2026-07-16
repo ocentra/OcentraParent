@@ -1,19 +1,14 @@
 import { useEffect, type MutableRefObject } from 'react';
-import { AgentCommand } from '@ocentra-parent/agent-protocol-domain/contracts';
-import {
-  isPortalNetworkEvidenceDrawerRoute,
-  type PortalConnectionState as PortalConnectionStateValue,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import type { ParentBridgeConnectionState, ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
-import { shouldRequestNetworkFlowReadModelForRoute } from './portal-route-refresh';
+import { isNetworkEvidenceDrawerRoute, shouldRequestNetworkFlowReadModelForRoute } from './portal-route-refresh';
 
 type PortalNetworkActivityRefreshHook = {
   readonly actions: PortalRenderActions;
-  readonly connectionState: PortalConnectionStateValue;
+  readonly connectionState: ParentBridgeConnectionState;
   readonly hasNetworkFlowReadModelEvent: boolean;
   readonly networkActivityRefreshRequestedForRouteRef: MutableRefObject<boolean>;
-  readonly route: PortalRouteValue;
+  readonly route: ParentRouteId;
 };
 
 export function usePortalNetworkActivityRefresh({
@@ -24,7 +19,7 @@ export function usePortalNetworkActivityRefresh({
   route,
 }: PortalNetworkActivityRefreshHook): void {
   useEffect(() => {
-    if (!isPortalNetworkEvidenceDrawerRoute(route)) {
+    if (!isNetworkEvidenceDrawerRoute(route)) {
       networkActivityRefreshRequestedForRouteRef.current = false;
       return;
     }
@@ -39,6 +34,6 @@ export function usePortalNetworkActivityRefresh({
       return;
     }
     networkActivityRefreshRequestedForRouteRef.current = true;
-    actions.sendCommand(AgentCommand.NetworkFlowReadModelGet, {});
+    void actions.requestNetworkFlowReadModelRefresh?.();
   }, [actions, connectionState, hasNetworkFlowReadModelEvent, networkActivityRefreshRequestedForRouteRef, route]);
 }

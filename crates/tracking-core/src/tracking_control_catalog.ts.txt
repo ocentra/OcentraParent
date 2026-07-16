@@ -1,0 +1,1 @@
+/* generated from fragments; exact output is assembled in generated_bridge.rs */

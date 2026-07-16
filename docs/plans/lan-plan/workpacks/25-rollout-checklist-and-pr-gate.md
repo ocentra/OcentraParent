@@ -1,16 +1,16 @@
-# 05 Rollout Checklist And PR Gate
+# 25 Rollout Checklist And PR Gate
 
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `lan-plan`
-> Doc: `05 Rollout Checklist And PR Gate`
-> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
-> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
-> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+> Doc: `25 Rollout Checklist And PR Gate`
+> Kind: assigned active workpack; read only when this exact workpack is selected.
+> Read when: Only when this exact workpack is explicitly selected from `WORKPACK_INDEX.md`.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack's own proof rows and tests support the claim.
+> Proves: only this workpack's current rollout-gate boundary and progress explicitly recorded here.
+> Does not prove: current PR readiness for sibling workpacks or broad LAN completion.
+> Proof rule: Rewrite any stale TS-first gate text before using this file for execution or release claims.
 
 <!-- /agent-capsule -->
 
@@ -18,103 +18,109 @@ Sources: [folder README](../README.md), [feature doc](../../../features/family-s
 [family setup expectations](../../../expectations/family-setup.md),
 [LAN pairing expectations](../../../expectations/lan-pairing.md),
 [PR/DONE flow](../../../agent/PR_DONE_FLOW.md).
-Assumes WP01–04 all complete.
+
+## Active scope status
+
+This workpack is part of the authoritative `01-25` LAN execution model. It is
+active and still open.
+
+Historical TS-first gate text from older copies of this draft is stale. Current
+direction for this workpack is:
+
+- Rust-owned shared schemas, protocol/runtime parity, and host-bridge snapshots
+  remain the contract source of truth.
+- TS stays pure UI/presentation only.
+- UI compile or browser checks may still exist as presentation sanity only, but
+  they do not create contract ownership, runtime truth, read-model truth, or
+  proof closure.
 
 ## Where We Are
 
-At the start of WP05 all prior workpacks must be done:
+This workpack describes a later rollout gate that only makes sense after the
+earlier household/setup follow-on workpacks are actually closed with real
+proof.
 
-- WP01: Domain schemas in `packages/parent-domain/src/` and Rust parity in `crates/agent-protocol/src/household.rs`.
-- WP02: SQLite tables `households`, `child_profiles`, `parent_members`, `controller_leases`, `observer_permissions`; `HouseholdReadModel` handler; `RouteState` closed enum.
-- WP03: `household_commands.rs` with `RevokeDevice`, `StartRecovery`, `ConfirmPairing`; `setup_audit_events` table; stale-TTL read model; wrong-device rejection; `family-setup-pairing-and-route-proof.mjs` proof script.
-- WP04: `/setup` wizard routes, `DeviceRecoveryPanel`, `DeviceRouteLabel`, Playwright tests covering setup/recovery/degraded/observer-role states.
+## PR Gate For Active Scope
 
-## PR Gate: Required Before Any PR_READY Claim
+All of the following would need to be true before any broad PR-ready claim:
 
-All of the following must be true. If any is false, keep the plan state open.
+- earlier active household/setup workpacks explicitly closed or reduced to
+  explicit manual-required/harness blockers with current proof
+- Rust-owned schema, protocol, runtime, and bridge tests green
+- supporting UI presentation checks green for the surfaces that actually exist
+  and already consume honest Rust proof roots
+- no false product claims about protection, readiness, or physical household LAN
+  proof
 
-### Automated gates (must pass in CI)
+Current verified rollout truth on 2026-06-28:
 
-| Check               | Command                                                                 | Expected Output                                                                                      |
-| ------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| TypeScript compile  | `pnpm tsc --noEmit -p packages/parent-domain/tsconfig.json`             | No errors                                                                                            |
-| Parent-domain tests | `pnpm test --filter parent-domain`                                      | All household/child/lease/invite schemas pass                                                        |
-| Rust compile        | `cargo build -p agent-protocol -p agent-service`                        | No errors                                                                                            |
-| Rust tests          | `cargo test -p agent-protocol -p agent-service -- household`            | All household tests pass                                                                             |
-| Portal Playwright   | `pnpm playwright test packages/portal/tests/family-setup.playwright.ts` | All 5 tests pass; screenshots saved                                                                  |
-| Integration script  | `node scripts/test/family-setup-pairing-and-route-proof.mjs`            | Proof JSON written to `output/lan-plan-proof/03-pairing-and-route-proof/03-pairing-cycle-proof.json` |
+- Focused LAN runtime validations are green in this lane:
+  `cargo test -p ocentra-parent-agent-service lan_pairing -- --nocapture`,
+  `cargo test -p ocentra-parent-runtime-core policy_network_route_load_keeps_host_bridge_surface_and_attaches_lan_read_model -- --nocapture`,
+  `cargo test -p ocentra-parent-runtime-core parent_subscription_event_keeps_lan_diagnostics_and_history_surface_intact -- --nocapture`,
+  `cargo test -p ocentra-parent-runtime-core parent_subscription_event_preserves_explicit_lan_history_state_labels -- --nocapture`,
+  `cargo test -p ocentra-parent-runtime-core lan_agent_command_requested_for_devices_route_forwards_signed_child_observe_payload_and_replay_fields -- --nocapture`,
+  `cargo test -p ocentra-parent-runtime-core lan_scan_action_returns_bounded_error_when_response_times_out -- --nocapture`,
+  `cargo test -p ocentra-parent-runtime-core product_bridge_actions_return_route_snapshots_without_invented_overlay_data -- --nocapture`,
+  `$env:OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC='portal-ui.spec.ts'; node scripts/test/portal-playwright-runner.mjs`,
+  `cargo lint-architecture crates/agent-service/tests/unit/lan_pairing.rs crates/agent-service/tests/unit/lan_pairing_household_device_spine.rs crates/parent-runtime-core/tests/unit/parent_ui_bridge/snapshot_and_dispatch_tests.rs`,
+  and
+  `npm run lint:architecture -- --files apps/portal/e2e/portal-ui.spec.ts apps/portal/e2e/portal-route-scaffold-assertions.ts`.
+- The broader wrapper gates are green in this lane on 2026-06-28:
+  `cmd /c npm run build:contracts` and
+  `node scripts/test/v0-9-lan-source-matrix-plan-completion.mjs`.
+- The current Windows portal Playwright rerun is green in this lane on
+  2026-06-28:
+  `$env:OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC='portal-ui.spec.ts'; node scripts/test/portal-playwright-runner.mjs`.
+- W14 is locally complete; W18, W19, W23, and W25 are reduced to honest
+  manual/open rows rather than stale checklist drift.
+- Broad PR-ready/DONE still cannot be claimed while physical multi-device,
+  router/firewall, signed-artifact, browser-side replay consumption of the
+  backend LAN stream, and other manual-required LAN proof remain open.
+- The accepted Windows LAN portal rerun is fresh supporting evidence from
+  2026-06-28 rather than historical-only proof.
 
-### Proof artifact checklist
+## Automated Gates For Active Scope
 
-- [ ] `output/lan-plan-proof/01-contract-boundary-and-domain-schemas/01-schema-validation-proof.log` exists and shows 0 failures.
-- [ ] `output/lan-plan-proof/02-current-state-and-gap-map/02-gap-map-integration-proof.log` exists; SQLite migration up/rollback shown.
-- [ ] `output/lan-plan-proof/03-pairing-and-route-proof/03-pairing-cycle-proof.json` exists; revoke→reject→recover→re-pair cycle shown.
-- [ ] `output/lan-plan-proof/04-portal-ux-and-first-run-handoff/06-ui-snapshots/` contains screenshots for: setup-wizard-step-1, setup-wizard-step-3-device, setup-summary, recovery-panel-stale, recovery-panel-confirmed, degraded-service-offline, source-label-relay, source-label-cache, observer-role-readonly.
-- [ ] `output/lan-plan-proof/05-rollout-checklist-and-pr-gate/05-pr-gate-validation.log` exists; all CI commands recorded with pass/fail output.
+| Check | Direction |
+| --- | --- |
+| Shared schema / bridge drift | focused Rust-owned schema and generated bridge drift checks pass |
+| Rust compile | owning protocol/service/runtime crates compile cleanly |
+| Rust tests | owning contract/runtime test groups pass |
+| UI compile | pure UI compile passes without becoming contract authority |
+| Portal browser checks | real presentation-only UI flows pass where the route exists and only after the consumed Rust proof roots are already honest |
+| Proof scripts | only current, non-stale proof scripts are accepted |
 
-### Security no-claim checks
+Only real organized test folders/groups count in these gates. Inline
+source-owned tests, placeholder directories, `.gitkeep` trees, fake coverage,
+and mock-only readiness do not satisfy rollout closure.
 
-- [ ] No portal surface claims a device is "protected" before `capabilityStatus` confirms the child agent is active and capable.
-- [ ] Observer role cannot issue `AssignDevice`, `RenameDevice`, `TrustDevice`, `RevokeDevice`, `StartRecovery`, or `ConfirmPairing` commands — confirmed by Rust test.
-- [ ] Revoked device command rejection confirmed by Rust test; audit event confirmed in SQLite.
-- [ ] Wrong-device rejection confirmed by Rust test; audit event confirmed in SQLite.
-- [ ] `SetupInvite` delivery (email/SMS) is explicitly not claimed; deferred item recorded.
+## Proof Artifact Checklist For Active Scope
 
-### Feature doc checklist update
+- rollout validation log exists under a current proof root
+- earlier packet proof roots exist and match the current Rust-owned direction
+- UI screenshot/snapshot proof exists only for real surfaces
+- any UI/browser artifact is attached as supporting presentation evidence, not
+  as LAN proof authority
+- manual-required proof remains open where physical two-device LAN evidence is
+  still missing
 
-Update `docs/features/family-setup-device-roles.md` to move the following rows from `[ ]` to `[x]` only after proof artifacts exist:
+## Security no-claim checks
 
-- "Household profile contract" → check after WP01 + WP02 proof.
-- "Child profile contract and UI" → check after WP01 + WP04 Playwright proof.
-- "Parent-controller and parent-observer role UI" → check after WP04 observer-role test.
-- "First-run add-device UX" → check after WP04 Playwright wizard proof.
-- "Revocation and recovery flow" → check after WP03 revoke + WP04 recovery panel proof.
-- "Source labels: local, LAN, relay, cache, parent-owned storage, unavailable" → check after WP04 source-label tooltip proof.
-- "Portal tests for full setup, recovery, and degraded first-run states" → check after WP04 all Playwright tests pass.
+- no portal surface claims a device is protected before the Rust-owned
+  capability/runtime status proves it
+- observer-style roles cannot issue write commands
+- revoked and wrong-device command paths reject cleanly and are audited
+- deferred delivery or notification paths remain explicitly unclaimed
 
-Do **not** check "Real LAN proof before claiming multi-device household readiness" — this row remains manual-required until two physical hosts are proven.
+## Feature doc checklist updates
 
-### Manual-required proof before broad household LAN readiness claim
+Only move feature or product checklist rows when real proof artifacts exist.
+Do not convert a draft rollout gate into product readiness by documentation
+alone.
 
-If the team wants to claim V0.9 household multi-device readiness:
+## Manual-required gaps
 
-- Two distinct physical hosts (parent host + child host on different IPs).
-- Both running `crates/agent-service` with signed hello/heartbeat.
-- Full pair → assign → revoke → recover cycle executed on real hardware.
-- Evidence: `output/lan-plan-proof/05-rollout-checklist-and-pr-gate/05-manual-two-device-lan-proof.md` containing:
-  - Service logs from both hosts showing pairing handshake.
-  - Packet capture excerpt showing signed advertisement.
-  - Screenshot of portal Devices/LAN showing two distinct hosts with `lan` route label.
-  - Date, hostnames, network topology (e.g., same subnet, distinct IPs).
-
-## Touched Paths
-
-- `output/lan-plan-proof/05-rollout-checklist-and-pr-gate/` (new — proof logs)
-- `docs/features/family-setup-device-roles.md` (update checklist rows after proof)
-- `docs/plans/account-identity-family-plan/PLAN_STATE.md` (update family/account workpack summary when proof changes shared household readiness)
-- `docs/product-capability-checklist.md` (update household readiness row after proof)
-
-## AI Worker Checklist
-
-Fill this before reporting `DONE` or PR-ready:
-
-- [ ] Confirm source docs read: [folder README](../README.md), [feature doc](../../../features/family-setup-device-roles.md), [LAN pairing expectations](../../../expectations/lan-pairing.md), [PR/DONE flow](../../../agent/PR_DONE_FLOW.md), [current PLAN_STATE](../PLAN_STATE.md), and this workpack.
-- [ ] All WP01–04 checklist rows confirmed complete; no open items in prior workpacks.
-- [ ] All automated CI commands run and outputs saved to proof folder.
-- [ ] All proof artifact files exist at the paths listed above.
-- [ ] Security no-claim checks confirmed; no false "protected" claim in portal.
-- [ ] Feature doc checklist rows updated (only provable rows; LAN multi-device row stays open).
-- [ ] `PLAN_STATE.md` checklist summary updated to reflect current checked/unchecked counts.
-- [ ] `docs/product-capability-checklist.md` row updated only for claims with proof artifacts.
-- [ ] If manual two-device LAN proof is complete: `05-manual-two-device-lan-proof.md` exists in proof folder.
-- [ ] If manual proof is not yet complete: row stays open; no claim of multi-device household readiness.
-
-## Manual-Required Gaps
-
-Two-device physical LAN pairing remains the final gap before production household
-multi-device readiness can be claimed. All automated proof can be complete while
-this row stays open. Do not close the feature doc LAN readiness row until
-`05-manual-two-device-lan-proof.md` exists.
-
-Co-parent invite email delivery, push notification routing, and iOS/Android
-child agent pairing all remain deferred and must not be claimed by this plan.
+Two-device physical LAN proof remains manual-required before any broad
+multi-device household readiness claim. Automated proof can be complete while
+that row stays open.

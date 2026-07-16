@@ -5,9 +5,12 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityJournalCipher, ActivityJournalLine,
-    ActivityJournalRotationPolicy, ActivityJournalStatus, ACTIVITY_JOURNAL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::journal::ACTIVITY_JOURNAL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::journal::{
+    ActivityJournalCipher, ActivityJournalLine, ActivityJournalRotationPolicy,
+    ActivityJournalStatus,
 };
 
 use crate::{

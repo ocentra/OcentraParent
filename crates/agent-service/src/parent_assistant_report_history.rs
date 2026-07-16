@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{ActivityHistoricalReportList, AgentCommandEnvelope};
+use ocentra_parent_agent_protocol::activity_surface::ActivityHistoricalReportList;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
 use crate::{
     activity_surface_report_store::history_list,

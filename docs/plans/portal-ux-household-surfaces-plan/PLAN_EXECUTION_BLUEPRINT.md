@@ -1,77 +1,55 @@
-# Portal UX Household Surfaces Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `portal-ux-household-surfaces-plan`
+> Doc: `Portal UX Household Surfaces Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: portal product readiness or PR readiness.
 
-Make household portal behaviors service-backed, state-complete, and safe with explicit error, degraded, and manual paths.
+<!-- /agent-capsule -->
 
-## Slice 01 � Service-Backed Shell and Routes
+# Portal UX Household Surfaces Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- All household screens use service data + explicit fallback handling.
+Portal UX work must render typed domain/read-model state. It must not invent product truth, execute device work in the browser, or show fake readiness.
 
-### Tests
+Use this loop:
 
-- `portal.action.double-submit-replay`
-- `portal.authz.visible-state-matrix`
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
 
-### Proof
+## Deterministic proof root
 
-- `docs/proof/portal-ux-household-surfaces-plan/slice-01-service-shell.md`
+```text
+output/portal-ux-household-surfaces-plan-proof/<workpack-file-stem>/
+```
 
-## Slice 02 � Setup and Profile State Machine
+## Focused commands
 
-### Acceptance
+```bash
+npm run build --workspace @ocentra-parent/portal-domain
+npm run test --workspace @ocentra-parent/portal-domain
+npm run test --workspace @ocentra-parent/portal
+npm run test:e2e --workspace @ocentra-parent/portal
+npm run lint:architecture -- --files packages/portal-domain apps/portal docs/plans/portal-ux-household-surfaces-plan
+```
 
-- Household setup/profile transitions are explicit and fail-safe.
+If a command/test path does not exist, record the blocker and keep rows open.
 
-### Tests
+## Universal proof files
 
-- `portal.state-machine.integrity`
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
 
-### Proof
+## No-claim boundaries
 
-- `docs/proof/portal-ux-household-surfaces-plan/slice-02-setup-state-machine.md`
-
-## Slice 03 � Policy/UI and Logging Proof
-
-### Acceptance
-
-- UI surfaces cannot bypass policy authority; logs trace action decisions.
-
-### Tests
-
-- `portal.logging.trace-proof`
-- `portal.no-fake-data`
-
-### Proof
-
-- `docs/proof/portal-ux-household-surfaces-plan/slice-03-policy-logging.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/portal-ux-household-surfaces-plan/workpacks/01-service-backed-shell-and-navigation.md
-- Slice 02: docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md
-- Slice 03: docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md
-
-## PR-ready gate
-
-- No UI claim until screenshots for empty/error/degraded/permissions states are stored.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: portal contract schema checks
-- Integration: data flow from service to household UI
-- E2E: visible state/error transitions
-- Security: authZ leaks and unauthorized state transitions
-- Non-functional: render and accessibility checks under failure
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+Do not claim account, setup, policy, payment, data custody, device trust, or runtime readiness from portal UI alone.

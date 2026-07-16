@@ -1,18 +1,29 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_integrity_alert_status_bridge as bridge, policy_constants,
-    V08IntegrityAlertAuditState, V08IntegrityAlertDeliveryState,
-    V08IntegrityAlertNotificationIntentState, V08IntegrityAlertParentVisibleStatus,
-    V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry,
-    V08IntegrityAlertStatusBridgeReadModel,
-};
+use ocentra_parent_agent_protocol::constants::v08_integrity_alert_status_bridge as bridge;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertAuditState;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertDeliveryState;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertNotificationIntentState;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertParentVisibleStatus;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertState;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertStatusBridgeEntry;
+use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertStatusBridgeReadModel;
+use ocentra_parent_agent_protocol::policy_constants;
 
-pub(crate) fn v08_integrity_alert_status_bridge_read_model(
-    generated_at: &str,
+#[derive(Clone, Copy)]
+pub(crate) struct GeneratedAtTextRef<'a>(pub(crate) &'a str);
+
+#[derive(Clone, Copy)]
+struct StaticTextRefs(&'static [&'static str]);
+
+struct BridgeTextList(Vec<String>);
+
+pub(crate) fn v08_integrity_alert_status_bridge_read_model<'a>(
+    generated_at: impl Into<GeneratedAtTextRef<'a>>,
 ) -> V08IntegrityAlertStatusBridgeReadModel {
+    let generated_at = generated_at.into();
     V08IntegrityAlertStatusBridgeReadModel {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: bridge::READ_MODEL_ID.to_string(),
-        generated_at: generated_at.to_string(),
+        generated_at: generated_at.0.to_string(),
         source_read_model_ids: vec![
             bridge::SOURCE_ENFORCEMENT_INTEGRITY_RUNTIME_AUDIT.to_string(),
             bridge::SOURCE_SUPPORTED_ADAPTER_RUNTIME_PROOF.to_string(),
@@ -119,7 +130,10 @@ fn entry_specs() -> Vec<EntrySpec> {
     ]
 }
 
-fn entry_from_spec(spec: &EntrySpec, generated_at: &str) -> V08IntegrityAlertStatusBridgeEntry {
+fn entry_from_spec(
+    spec: &EntrySpec,
+    generated_at: GeneratedAtTextRef<'_>,
+) -> V08IntegrityAlertStatusBridgeEntry {
     V08IntegrityAlertStatusBridgeEntry {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         bridge_entry_id: spec.bridge_entry_id.to_string(),
@@ -130,12 +144,12 @@ fn entry_from_spec(spec: &EntrySpec, generated_at: &str) -> V08IntegrityAlertSta
         audit_state: spec.audit_state,
         reason_code_ref: spec.reason_code_ref.to_string(),
         status_ref: spec.status_ref.to_string(),
-        notification_intent_refs: to_strings(spec.notification_intent_refs),
-        notification_status_refs: to_strings(spec.notification_status_refs),
-        audit_refs: to_strings(spec.audit_refs),
-        integrity_refs: to_strings(spec.integrity_refs),
-        drill_in_refs: to_strings(spec.drill_in_refs),
-        manual_proof_requirements: to_strings(spec.manual_proof_requirements),
+        notification_intent_refs: to_strings(StaticTextRefs(spec.notification_intent_refs)).0,
+        notification_status_refs: to_strings(StaticTextRefs(spec.notification_status_refs)).0,
+        audit_refs: to_strings(StaticTextRefs(spec.audit_refs)).0,
+        integrity_refs: to_strings(StaticTextRefs(spec.integrity_refs)).0,
+        drill_in_refs: to_strings(StaticTextRefs(spec.drill_in_refs)).0,
+        manual_proof_requirements: to_strings(StaticTextRefs(spec.manual_proof_requirements)).0,
         boundary: spec.boundary.to_string(),
         provider_delivery_claimed: false,
         broad_blocking_claimed: false,
@@ -143,10 +157,10 @@ fn entry_from_spec(spec: &EntrySpec, generated_at: &str) -> V08IntegrityAlertSta
         mobile_enforcement_claimed: false,
         stealth_persistence_claimed: false,
         privilege_escalation_claimed: false,
-        last_checked_at: generated_at.to_string(),
+        last_checked_at: generated_at.0.to_string(),
     }
 }
 
-fn to_strings(values: &[&str]) -> Vec<String> {
-    values.iter().map(|value| (*value).to_string()).collect()
+fn to_strings(values: StaticTextRefs) -> BridgeTextList {
+    BridgeTextList(values.0.iter().map(|value| (*value).to_string()).collect())
 }

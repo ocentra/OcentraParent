@@ -24,12 +24,12 @@ This is part of capture MVP because it prevents unnecessary screenshots.
 
 ## Checklist
 
-- [x] Define managed browser structured extraction contract.
-- [x] Capture URL/title/meta safely.
-- [x] Capture DOM visible text with strict limits.
-- [x] Prefer platform/domain parser before image capture.
-- [x] Redact private content and raw DOM overflow.
-- [x] Produce `no_screen_needed` when structured evidence is enough.
+- [ ] Define managed browser structured extraction contract.
+- [ ] Capture URL/title/meta safely.
+- [ ] Capture DOM visible text with strict limits.
+- [ ] Prefer platform/domain parser before image capture.
+- [ ] Redact private content and raw DOM overflow.
+- [ ] Produce `no_screen_needed` when structured evidence is enough.
 
 ## Proof
 

@@ -1,0 +1,262 @@
+/* generated from crates/schema/src/parent_ui_bridge.rs */
+
+export type ParentRouteId =
+  | 'overview'
+  | 'assistant'
+  | 'start'
+  | 'activity'
+  | 'browser'
+  | 'browser-settings'
+  | 'policy'
+  | 'policy-apps'
+  | 'policy-games'
+  | 'policy-screen'
+  | 'policy-network'
+  | 'policy-tracking'
+  | 'policy-remote-screen'
+  | 'rule-management'
+  | 'schedules'
+  | 'approvals'
+  | 'enforcement'
+  | 'privacy-design'
+  | 'memory'
+  | 'memory-settings'
+  | 'ai-guide'
+  | 'ai-runtime'
+  | 'api-providers'
+  | 'reports-guide'
+  | 'screen-analysis'
+  | 'app-game-sessions'
+  | 'network-activity'
+  | 'devices'
+  | 'lan-pairing'
+  | 'capability-status'
+  | 'notifications'
+  | 'notification-channels'
+  | 'drive-connections'
+  | 'export-retention'
+  | 'remote-access'
+  | 'report-compiler'
+  | 'audit-history'
+  | 'subscription'
+  | 'entitlements'
+  | 'platforms-install'
+  | 'install-updates'
+  | 'diagnostics'
+  | 'proof-panels'
+  | 'settings-rules'
+  | 'app-layout'
+  | 'frame-tuner'
+  | 'commands'
+  | 'events'
+  | 'logs';
+
+export const ParentRoute = {
+  Overview: 'overview',
+  Assistant: 'assistant',
+  Start: 'start',
+  Activity: 'activity',
+  Browser: 'browser',
+  BrowserSettings: 'browser-settings',
+  Policy: 'policy',
+  PolicyApps: 'policy-apps',
+  PolicyGames: 'policy-games',
+  PolicyScreen: 'policy-screen',
+  PolicyNetwork: 'policy-network',
+  PolicyTracking: 'policy-tracking',
+  PolicyRemoteScreen: 'policy-remote-screen',
+  RuleManagement: 'rule-management',
+  Schedules: 'schedules',
+  Approvals: 'approvals',
+  Enforcement: 'enforcement',
+  PrivacyDesign: 'privacy-design',
+  Memory: 'memory',
+  MemorySettings: 'memory-settings',
+  AiGuide: 'ai-guide',
+  AiRuntime: 'ai-runtime',
+  ApiProviders: 'api-providers',
+  ReportsGuide: 'reports-guide',
+  ScreenAnalysis: 'screen-analysis',
+  AppGameSessions: 'app-game-sessions',
+  NetworkActivity: 'network-activity',
+  Devices: 'devices',
+  LanPairing: 'lan-pairing',
+  CapabilityStatus: 'capability-status',
+  Notifications: 'notifications',
+  NotificationChannels: 'notification-channels',
+  DriveConnections: 'drive-connections',
+  ExportRetention: 'export-retention',
+  RemoteAccess: 'remote-access',
+  ReportCompiler: 'report-compiler',
+  AuditHistory: 'audit-history',
+  Subscription: 'subscription',
+  Entitlements: 'entitlements',
+  PlatformsInstall: 'platforms-install',
+  InstallUpdates: 'install-updates',
+  Diagnostics: 'diagnostics',
+  ProofPanels: 'proof-panels',
+  SettingsRules: 'settings-rules',
+  AppLayout: 'app-layout',
+  FrameTuner: 'frame-tuner',
+  Commands: 'commands',
+  Events: 'events',
+  Logs: 'logs',
+} as const;
+
+export const ParentRoutes: readonly ParentRouteId[] = [
+  ParentRoute.Overview,
+  ParentRoute.Assistant,
+  ParentRoute.Start,
+  ParentRoute.Activity,
+  ParentRoute.Browser,
+  ParentRoute.BrowserSettings,
+  ParentRoute.Policy,
+  ParentRoute.PolicyApps,
+  ParentRoute.PolicyGames,
+  ParentRoute.PolicyScreen,
+  ParentRoute.PolicyNetwork,
+  ParentRoute.PolicyTracking,
+  ParentRoute.PolicyRemoteScreen,
+  ParentRoute.RuleManagement,
+  ParentRoute.Schedules,
+  ParentRoute.Approvals,
+  ParentRoute.Enforcement,
+  ParentRoute.PrivacyDesign,
+  ParentRoute.Memory,
+  ParentRoute.MemorySettings,
+  ParentRoute.AiGuide,
+  ParentRoute.AiRuntime,
+  ParentRoute.ApiProviders,
+  ParentRoute.ReportsGuide,
+  ParentRoute.ScreenAnalysis,
+  ParentRoute.AppGameSessions,
+  ParentRoute.NetworkActivity,
+  ParentRoute.Devices,
+  ParentRoute.LanPairing,
+  ParentRoute.CapabilityStatus,
+  ParentRoute.Notifications,
+  ParentRoute.NotificationChannels,
+  ParentRoute.DriveConnections,
+  ParentRoute.ExportRetention,
+  ParentRoute.RemoteAccess,
+  ParentRoute.ReportCompiler,
+  ParentRoute.AuditHistory,
+  ParentRoute.Subscription,
+  ParentRoute.Entitlements,
+  ParentRoute.PlatformsInstall,
+  ParentRoute.InstallUpdates,
+  ParentRoute.Diagnostics,
+  ParentRoute.ProofPanels,
+  ParentRoute.SettingsRules,
+  ParentRoute.AppLayout,
+  ParentRoute.FrameTuner,
+  ParentRoute.Commands,
+  ParentRoute.Events,
+  ParentRoute.Logs,
+] as const;
+
+export const ParentRouteTitle: Readonly<Record<ParentRouteId, string>> = {
+  [ParentRoute.Overview]: 'Overview',
+  [ParentRoute.Assistant]: 'Assistant',
+  [ParentRoute.Start]: 'Start',
+  [ParentRoute.Activity]: 'Activity',
+  [ParentRoute.Browser]: 'Browser',
+  [ParentRoute.BrowserSettings]: 'Browser settings',
+  [ParentRoute.Policy]: 'Policy',
+  [ParentRoute.PolicyApps]: 'Policy apps',
+  [ParentRoute.PolicyGames]: 'Policy games',
+  [ParentRoute.PolicyScreen]: 'Policy screen',
+  [ParentRoute.PolicyNetwork]: 'Policy network',
+  [ParentRoute.PolicyTracking]: 'Policy tracking',
+  [ParentRoute.PolicyRemoteScreen]: 'Policy remote screen',
+  [ParentRoute.RuleManagement]: 'Rule management',
+  [ParentRoute.Schedules]: 'Schedules',
+  [ParentRoute.Approvals]: 'Approvals',
+  [ParentRoute.Enforcement]: 'Enforcement',
+  [ParentRoute.PrivacyDesign]: 'Privacy design',
+  [ParentRoute.Memory]: 'Memory',
+  [ParentRoute.MemorySettings]: 'Memory settings',
+  [ParentRoute.AiGuide]: 'AI guide',
+  [ParentRoute.AiRuntime]: 'AI runtime',
+  [ParentRoute.ApiProviders]: 'API providers',
+  [ParentRoute.ReportsGuide]: 'Reports guide',
+  [ParentRoute.ScreenAnalysis]: 'Screen analysis',
+  [ParentRoute.AppGameSessions]: 'App game sessions',
+  [ParentRoute.NetworkActivity]: 'Network activity',
+  [ParentRoute.Devices]: 'Devices',
+  [ParentRoute.LanPairing]: 'LAN pairing',
+  [ParentRoute.CapabilityStatus]: 'Capability status',
+  [ParentRoute.Notifications]: 'Notifications',
+  [ParentRoute.NotificationChannels]: 'Notification channels',
+  [ParentRoute.DriveConnections]: 'Drive connections',
+  [ParentRoute.ExportRetention]: 'Export retention',
+  [ParentRoute.RemoteAccess]: 'Remote access',
+  [ParentRoute.ReportCompiler]: 'Report compiler',
+  [ParentRoute.AuditHistory]: 'Audit history',
+  [ParentRoute.Subscription]: 'Subscription',
+  [ParentRoute.Entitlements]: 'Entitlements',
+  [ParentRoute.PlatformsInstall]: 'Platforms install',
+  [ParentRoute.InstallUpdates]: 'Install updates',
+  [ParentRoute.Diagnostics]: 'Diagnostics',
+  [ParentRoute.ProofPanels]: 'Proof panels',
+  [ParentRoute.SettingsRules]: 'Settings rules',
+  [ParentRoute.AppLayout]: 'App layout',
+  [ParentRoute.FrameTuner]: 'Frame tuner',
+  [ParentRoute.Commands]: 'Commands',
+  [ParentRoute.Events]: 'Events',
+  [ParentRoute.Logs]: 'Logs',
+} as const;
+
+export const ParentDevDiagnosticRoutes: readonly ParentRouteId[] = [
+  ParentRoute.Diagnostics,
+  ParentRoute.ProofPanels,
+  ParentRoute.AppLayout,
+  ParentRoute.FrameTuner,
+  ParentRoute.Commands,
+  ParentRoute.Events,
+  ParentRoute.Logs,
+] as const;
+
+export const ParentNetworkEvidenceDrawerRoutes: readonly ParentRouteId[] = [
+  ParentRoute.Activity,
+  ParentRoute.NetworkActivity,
+] as const;
+
+export const ParentInlineNetworkEvidenceDrawerRoutes: readonly ParentRouteId[] = [
+  ParentRoute.Activity,
+] as const;
+
+export const ParentAppGameParentSurfaceRoutes: readonly ParentRouteId[] = [
+  ParentRoute.AppGameSessions,
+] as const;
+
+export const ParentAiRuntimeRoutes: readonly ParentRouteId[] = [
+  ParentRoute.AiRuntime,
+] as const;
+
+export const ParentBrowserParentSurfaceRoutes: readonly ParentRouteId[] = [
+  ParentRoute.ProofPanels,
+] as const;
+
+export const ParentPolicyPreviewRoutes: readonly ParentRouteId[] = [
+  ParentRoute.RuleManagement,
+  ParentRoute.Schedules,
+  ParentRoute.Approvals,
+  ParentRoute.Enforcement,
+] as const;
+
+export const ParentScreenSettingsRoutes: readonly ParentRouteId[] = [
+  ParentRoute.SettingsRules,
+] as const;
+
+export const ParentScreenSummaryRoutes: readonly ParentRouteId[] = [
+  ParentRoute.ScreenAnalysis,
+] as const;
+
+export const ParentSetupFirstRunRoutes: readonly ParentRouteId[] = [
+  ParentRoute.Start,
+] as const;
+
+export const ParentTrackingStatusRoutes: readonly ParentRouteId[] = [
+  ParentRoute.PolicyTracking,
+] as const;

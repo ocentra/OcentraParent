@@ -21,12 +21,12 @@ capture, AI, policy, action/dry-run, and deletion chain.
 
 ## Checklist
 
-- [x] Journal entry contains trigger ref.
-- [x] Journal entry contains capture ref.
-- [x] Journal entry contains AI result ref.
-- [x] Journal entry contains policy decision ref.
-- [x] Read model replays the chain.
-- [x] Portal screenshot shows explanation.
+- [ ] Journal entry contains trigger ref.
+- [ ] Journal entry contains capture ref.
+- [ ] Journal entry contains AI result ref.
+- [ ] Journal entry contains policy decision ref.
+- [ ] Read model replays the chain.
+- [ ] Portal screenshot shows explanation.
 
 ## Proof
 

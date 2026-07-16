@@ -24,13 +24,13 @@ This workpack is required for the capture MVP. It does not select the final OCR/
 
 ## Checklist
 
-- [x] Define route enum.
-- [x] Define route input contract.
-- [x] Check browser/app/game/network/session evidence before capture.
-- [x] Route managed browser to structured extraction first.
-- [x] Route native app/game/launcher/unknown process to active-window or selected-window path when allowed.
-- [x] Return manual-required/unavailable when capture is not allowed.
-- [x] Add policy question and sensitivity fields.
+- [ ] Define route enum.
+- [ ] Define route input contract.
+- [ ] Check browser/app/game/network/session evidence before capture.
+- [ ] Route managed browser to structured extraction first.
+- [ ] Route native app/game/launcher/unknown process to active-window or selected-window path when allowed.
+- [ ] Return manual-required/unavailable when capture is not allowed.
+- [ ] Add policy question and sensitivity fields.
 
 ## Proof
 

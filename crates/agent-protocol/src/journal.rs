@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+pub const ACTIVITY_JOURNAL_SCHEMA_VERSION: u16 = crate::ACTIVITY_JOURNAL_SCHEMA_VERSION;
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityJournalCipher {
     #[serde(rename = "xchacha20poly1305")]

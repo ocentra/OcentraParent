@@ -1,77 +1,69 @@
-# Eventing Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Eventing Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: implementation completion or PR readiness.
 
-Complete the reusable eventing contract with clear separation from consumer behavior.
+<!-- /agent-capsule -->
 
-## Slice 01 � Envelope and Version Contract
+# Eventing Plan Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- Version-skew and envelope parse failures fail closed.
+Use this loop:
 
-### Tests
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
 
-- `eventing.versioning.schema-drift`
-- `eventing.idempotency.replay-duplicate`
+## Proof root
 
-### Proof
+```text
+output/eventing-plan-proof/<workpack-file-stem>/
+```
 
-- `docs/proof/eventing-plan/slice-01-envelope-version.md`
+## Focused commands
 
-## Slice 02 � Ordering, Replay, Dead-letter
+```bash
+cargo test -p ocentra-eventing --test unit
+cargo test -p ocentra-eventing --test contract
+cargo test -p ocentra-eventing --test journal_replay
+cargo test -p ocentra-eventing --test integration
+cargo test -p ocentra-eventing --test version_skew
+npm run test --workspace @ocentra-parent/event-domain
+npm run type-check --workspace @ocentra-parent/event-domain
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts
+cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet
+npm run lint:architecture -- --files crates/ocentra-eventing crates/agent-protocol packages/event-domain docs/plans/eventing-plan
+```
 
-### Acceptance
+If a command/test path does not exist, record the blocker and keep rows open.
 
-- Replay, duplication, timeout, ordering and dead-letter behavior are explicit.
+## Proof references
 
-### Tests
+```text
+docs/proof/eventing-plan/slice-01-envelope-version.md
+docs/proof/eventing-plan/slice-02-ordering-replay.md
+docs/proof/eventing-plan/slice-03-consumer-boundary.md
+```
 
-- `eventing.idempotency.replay-duplicate`
-- `eventing.journal.recover-corruption`
+## Rollout proof bundle
 
-### Proof
+```text
+output/eventing-plan-proof/rollout-proof/proof-summary.json
+test-results/eventing-rollout-proof/proof.json
+output/eventing-plan-proof/rollout-proof/pr-done-report.md
+output/eventing-plan-proof/rollout-proof/command-logs/
+```
 
-- `docs/proof/eventing-plan/slice-02-ordering-replay.md`
+If the rollout bundle or the `docs/proof/eventing-plan/` slice files are
+absent, record the blocker and keep WP12 open.
 
-## Slice 03 � Consumer Boundary and Product Claims
+## DONE rule
 
-### Acceptance
-
-- Reusable eventing crate does not claim downstream product semantics.
-
-### Tests
-
-- `eventing.consumer.no-product-claim`
-
-### Proof
-
-- `docs/proof/eventing-plan/slice-03-consumer-boundary.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/eventing-plan/workpacks/01-source-boundary-and-semantics-audit.md
-- Slice 02: docs/plans/eventing-plan/workpacks/02-crate-contract-and-type-boundary.md
-- Slice 03: docs/plans/eventing-plan/workpacks/03-dispatch-runtime-and-lifecycle.md
-
-## PR-ready gate
-
-- Any downstream plan claiming behavior must cite its own proof files; eventing proof remains transport/domain-only.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: envelope/version parsing
-- Integration: ordering, dead-letter, and consumer parity
-- E2E: restart/replay recovery
-- Security: version skew and schema abuse probes
-- Non-functional: throughput/queue stability under load
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+One workpack is DONE only after focused commands or blockers are recorded and proof artifacts exist under that workpack root.

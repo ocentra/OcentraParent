@@ -34,6 +34,50 @@
   overflow: hidden;
 }
 
+.portal-dev-route-panel {
+  position: absolute;
+  inset: clamp(72px, 10vh, 106px) clamp(24px, 4vw, 72px) clamp(16px, 3vh, 28px) clamp(250px, 20vw, 380px);
+  z-index: 2;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+  color: #e5f7ff;
+  pointer-events: auto;
+}
+
+.portal-dev-route-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.portal-dev-route-toolbar button[data-active='true'] {
+  border-color: rgba(87, 229, 255, 0.72);
+  color: #ffffff;
+  background: rgba(13, 80, 118, 0.56);
+  box-shadow: 0 0 0 1px rgba(87, 229, 255, 0.18) inset;
+}
+
+.portal-dev-route-content {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.portal-dev-route-panel .tracking-status-overlay {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  margin: 0;
+  overflow: visible;
+}
+
+.portal-dev-route-panel .tracking-status-overlay-content {
+  height: auto;
+}
+
 .tracking-status-overlay {
   position: absolute;
   inset: clamp(72px, 10vh, 106px) clamp(24px, 4vw, 72px) clamp(16px, 3vh, 28px) clamp(250px, 20vw, 380px);

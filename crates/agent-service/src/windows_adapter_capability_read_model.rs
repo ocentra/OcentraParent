@@ -1,35 +1,46 @@
-use ocentra_parent_agent_core::broad_os_adapter_readiness;
-use ocentra_parent_agent_protocol::{
-    constants::{enforcement, host_identity, windows_adapter_capability as windows_adapter},
-    policy_constants as policy, EnforcementAdapterKind, EnforcementBroadAdapterCapability,
-    EnforcementBroadAdapterReadinessEntry, EnforcementBroadOsAdapterReadinessMatrix,
-    EnforcementCapabilityState, EnforcementMode, EnforcementReadinessProofLevel,
-    EnforcementReadinessRuntimeOwner, EnforcementReadinessState, HostIdentityEvidenceKind,
-    HostIdentityReadModel, ParentPlatform, WindowsAdapterCapabilityOutcome,
-    WindowsAdapterCapabilityProof, WindowsAdapterCapabilityProofEntry,
-    WindowsAdapterCapabilitySurface,
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
+use ocentra_parent_agent_protocol::constants::{
+    enforcement, host_identity, windows_adapter_capability as windows_adapter,
+};
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementMode, ParentPlatform,
+};
+use ocentra_parent_agent_protocol::enforcement_readiness::{
+    EnforcementBroadAdapterCapability, EnforcementBroadAdapterReadinessEntry,
+    EnforcementBroadOsAdapterReadinessMatrix, EnforcementReadinessProofLevel,
+    EnforcementReadinessRuntimeOwner, EnforcementReadinessState,
+};
+use ocentra_parent_agent_protocol::host_identity::{
+    HostIdentityEvidenceKind, HostIdentityReadModel,
+};
+use ocentra_parent_agent_protocol::policy_constants as policy;
+use ocentra_parent_agent_protocol::windows_adapter_capability::{
+    WindowsAdapterCapabilityOutcome, WindowsAdapterCapabilityProof,
+    WindowsAdapterCapabilityProofEntry, WindowsAdapterCapabilitySurface,
 };
 
-use crate::host_identity_read_model::host_identity_read_model;
+use crate::host_identity_read_model::{host_identity_read_model, GeneratedAtText};
 
 pub(crate) fn windows_adapter_capability_proof(
-    generated_at: &str,
+    generated_at: GeneratedAtText,
 ) -> WindowsAdapterCapabilityProof {
-    let readiness = broad_os_adapter_readiness(generated_at);
-    let host_identity_model = host_identity_read_model(generated_at);
+    let generated_at = GeneratedAtText(generated_at.0);
+    let readiness = broad_os_adapter_readiness(generated_at.0.as_str());
+    let host_identity_model = host_identity_read_model(generated_at.clone());
 
     WindowsAdapterCapabilityProof {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: windows_adapter::READ_MODEL_ID_V0_8.to_string(),
-        generated_at: generated_at.to_string(),
+        generated_at: generated_at.0.clone(),
         platform: ParentPlatform::Windows,
         entries: vec![
-            app_target_entry(&readiness, &host_identity_model, generated_at),
-            domain_network_target_entry(&readiness, generated_at),
-            managed_browser_target_entry(&readiness, generated_at),
-            unmanaged_browser_target_entry(&readiness, generated_at),
-            unsupported_os_target_entry(generated_at),
-            rollback_audit_target_entry(&readiness, &host_identity_model, generated_at),
+            app_target_entry(&readiness, &host_identity_model, &generated_at),
+            domain_network_target_entry(&readiness, &generated_at),
+            managed_browser_target_entry(&readiness, &generated_at),
+            unmanaged_browser_target_entry(&readiness, &generated_at),
+            unsupported_os_target_entry(&generated_at),
+            rollback_audit_target_entry(&readiness, &host_identity_model, &generated_at),
         ],
     }
 }
@@ -50,23 +61,30 @@ struct CapabilityProofSpec {
 fn app_target_entry(
     readiness: &EnforcementBroadOsAdapterReadinessMatrix,
     host_identity_model: &HostIdentityReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> WindowsAdapterCapabilityProofEntry {
     let primary = readiness_entry(
         readiness,
         EnforcementBroadAdapterCapability::BroadAppBlocking,
     );
-    let host_entries = host_identity_entries(
-        host_identity_model,
-        &[
-            HostIdentityEvidenceKind::InstalledAppInventory,
-            HostIdentityEvidenceKind::ProcessLineage,
-            HostIdentityEvidenceKind::ExecutableIdentity,
-            HostIdentityEvidenceKind::PackageIdentity,
-            HostIdentityEvidenceKind::PublisherSignature,
-            HostIdentityEvidenceKind::InventoryProcessLink,
-        ],
-    );
+    let host_entries = [
+        HostIdentityEvidenceKind::InstalledAppInventory,
+        HostIdentityEvidenceKind::ProcessLineage,
+        HostIdentityEvidenceKind::ExecutableIdentity,
+        HostIdentityEvidenceKind::PackageIdentity,
+        HostIdentityEvidenceKind::PublisherSignature,
+        HostIdentityEvidenceKind::InventoryProcessLink,
+    ]
+    .iter()
+    .map(|evidence_kind| {
+        host_identity_model
+            .entries
+            .iter()
+            .find(|entry| entry.evidence_kind == *evidence_kind)
+            .map(|entry| entry.read_model_entry_id.clone())
+            .expect_value(windows_adapter::READ_MODEL_ID_V0_8)
+    })
+    .collect();
 
     proof_entry(
         primary,
@@ -88,7 +106,7 @@ fn app_target_entry(
 
 fn domain_network_target_entry(
     readiness: &EnforcementBroadOsAdapterReadinessMatrix,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> WindowsAdapterCapabilityProofEntry {
     let primary = readiness_entry(
         readiness,
@@ -115,7 +133,7 @@ fn domain_network_target_entry(
 
 fn managed_browser_target_entry(
     readiness: &EnforcementBroadOsAdapterReadinessMatrix,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> WindowsAdapterCapabilityProofEntry {
     let primary = readiness_entry(
         readiness,
@@ -149,7 +167,7 @@ fn managed_browser_target_entry(
 
 fn unmanaged_browser_target_entry(
     readiness: &EnforcementBroadOsAdapterReadinessMatrix,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> WindowsAdapterCapabilityProofEntry {
     let primary = readiness_entry(
         readiness,
@@ -175,13 +193,20 @@ fn unmanaged_browser_target_entry(
             fallback_behavior: windows_adapter::FALLBACK_UNMANAGED_BROWSER_TARGET,
             exact_url_claimed: false,
             broad_blocking_claimed: false,
-            required_artifacts: artifacts_for_process_only(primary.readiness_state),
+            required_artifacts: if primary.readiness_state == EnforcementReadinessState::Implemented
+            {
+                &[]
+            } else {
+                &[windows_adapter::ARTIFACT_WINDOWS_UNMANAGED_BROWSER]
+            },
         },
         generated_at,
     )
 }
 
-fn unsupported_os_target_entry(generated_at: &str) -> WindowsAdapterCapabilityProofEntry {
+fn unsupported_os_target_entry(
+    generated_at: &GeneratedAtText,
+) -> WindowsAdapterCapabilityProofEntry {
     WindowsAdapterCapabilityProofEntry {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         proof_entry_id: windows_adapter::ENTRY_ID_UNSUPPORTED_OS_TARGET.to_string(),
@@ -204,26 +229,33 @@ fn unsupported_os_target_entry(generated_at: &str) -> WindowsAdapterCapabilityPr
         exact_url_claimed: false,
         broad_blocking_claimed: false,
         required_artifacts: vec![windows_adapter::ARTIFACT_UNSUPPORTED_OS.to_string()],
-        last_checked_at: generated_at.to_string(),
+        last_checked_at: generated_at.0.clone(),
     }
 }
 
 fn rollback_audit_target_entry(
     readiness: &EnforcementBroadOsAdapterReadinessMatrix,
     host_identity_model: &HostIdentityReadModel,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> WindowsAdapterCapabilityProofEntry {
     let primary = readiness_entry(
         readiness,
         EnforcementBroadAdapterCapability::AdminAntiTamperRollback,
     );
-    let host_entries = host_identity_entries(
-        host_identity_model,
-        &[
-            HostIdentityEvidenceKind::RollbackReadiness,
-            HostIdentityEvidenceKind::AuditCustody,
-        ],
-    );
+    let host_entries = [
+        HostIdentityEvidenceKind::RollbackReadiness,
+        HostIdentityEvidenceKind::AuditCustody,
+    ]
+    .iter()
+    .map(|evidence_kind| {
+        host_identity_model
+            .entries
+            .iter()
+            .find(|entry| entry.evidence_kind == *evidence_kind)
+            .map(|entry| entry.read_model_entry_id.clone())
+            .expect_value(windows_adapter::READ_MODEL_ID_V0_8)
+    })
+    .collect();
 
     proof_entry(
         primary,
@@ -246,7 +278,7 @@ fn rollback_audit_target_entry(
 fn proof_entry(
     primary: &EnforcementBroadAdapterReadinessEntry,
     spec: CapabilityProofSpec,
-    generated_at: &str,
+    generated_at: &GeneratedAtText,
 ) -> WindowsAdapterCapabilityProofEntry {
     WindowsAdapterCapabilityProofEntry {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
@@ -267,8 +299,12 @@ fn proof_entry(
         fallback_behavior: spec.fallback_behavior.to_string(),
         exact_url_claimed: spec.exact_url_claimed,
         broad_blocking_claimed: spec.broad_blocking_claimed,
-        required_artifacts: strings(spec.required_artifacts),
-        last_checked_at: generated_at.to_string(),
+        required_artifacts: spec
+            .required_artifacts
+            .iter()
+            .map(|artifact| (*artifact).to_string())
+            .collect(),
+        last_checked_at: generated_at.0.clone(),
     }
 }
 
@@ -280,24 +316,7 @@ fn readiness_entry(
         .entries
         .iter()
         .find(|entry| entry.capability == capability)
-        .expect(enforcement::READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER)
-}
-
-fn host_identity_entries(
-    model: &HostIdentityReadModel,
-    evidence_kinds: &[HostIdentityEvidenceKind],
-) -> Vec<String> {
-    evidence_kinds
-        .iter()
-        .map(|evidence_kind| {
-            model
-                .entries
-                .iter()
-                .find(|entry| entry.evidence_kind == *evidence_kind)
-                .map(|entry| entry.read_model_entry_id.clone())
-                .expect(host_identity::READ_MODEL_ID_V0_8)
-        })
-        .collect()
+        .expect_value(windows_adapter::READ_MODEL_ID_V0_8)
 }
 
 fn spec_supported_modes(primary: &EnforcementBroadAdapterReadinessEntry) -> Vec<EnforcementMode> {
@@ -322,18 +341,4 @@ fn unmanaged_outcome(
     } else {
         WindowsAdapterCapabilityOutcome::Unavailable
     }
-}
-
-fn artifacts_for_process_only(
-    readiness_state: EnforcementReadinessState,
-) -> &'static [&'static str] {
-    if readiness_state == EnforcementReadinessState::Implemented {
-        &[]
-    } else {
-        &[windows_adapter::ARTIFACT_WINDOWS_UNMANAGED_BROWSER]
-    }
-}
-
-fn strings(values: &[&str]) -> Vec<String> {
-    values.iter().map(|value| (*value).to_string()).collect()
 }

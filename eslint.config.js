@@ -3,18 +3,47 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import ocentraParentRules from './eslint-rules/index.js';
 
-export default tseslint.config(
-  {
-    ignores: [
-      '**/dist/**',
-      '**/node_modules/**',
-      '**/coverage/**',
-      '**/.turbo/**',
-      '**/target/**',
-      '**/*.d.ts',
-      '**/*.tsbuildinfo',
+const architectureRulesEnabled = process.env.OCENTRA_ARCHITECTURE_LINT === '1';
+const sharedIgnores = {
+  ignores: [
+    '**/dist/**',
+    '**/node_modules/**',
+    '**/coverage/**',
+    '**/.turbo/**',
+    '**/target/**',
+    '**/*.d.ts',
+    '**/*.tsbuildinfo',
+  ],
+};
+const architectureRuleConfig = tseslint.config(sharedIgnores, {
+  files: ['apps/**/*.{js,jsx,ts,tsx,mjs,mts,cjs,cts}', 'packages/**/*.{js,jsx,ts,tsx,mjs,mts,cjs,cts}'],
+  languageOptions: {
+    parser: tseslint.parser,
+    ecmaVersion: 2022,
+    globals: {
+      ...globals.browser,
+      ...globals.node,
+    },
+  },
+  rules: {
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector: 'ExportAllDeclaration',
+        message:
+          'BARREL/REEXPORT BAN: `export * from ...` and namespace re-exports are forbidden. Import from the concrete module path directly.',
+      },
+      {
+        selector: 'ExportNamedDeclaration[source]',
+        message:
+          'BARREL/REEXPORT BAN: `export { ... } from ...`, `export type { ... } from ...`, and default re-exports are forbidden. Import from the concrete module path directly.',
+      },
     ],
   },
+});
+
+const standardConfig = tseslint.config(
+  sharedIgnores,
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -98,5 +127,34 @@ export default tseslint.config(
       ecmaVersion: 2022,
       globals: globals.node,
     },
+  },
+  {
+    files: ['packages/schema-domain/src/generated/**/*.ts', 'packages/schema-domain/src/generated-*.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': 'off',
+      complexity: 'off',
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
+      'ocentra-parent/no-naked-domain-string-types': 'off',
+    },
+  },
+  {
+    files: ['packages/portal-domain/src/generated/**/*.ts', 'packages/portal-domain/src/generated-*.ts'],
+    rules: {
+      'max-lines': 'off',
+    },
+  },
+  {
+    files: [
+      'packages/schema-domain/src/browser-control-full-catalog-data-*.ts',
+      'packages/schema-domain/src/network-control-catalog-data.ts',
+      'packages/schema-domain/src/screen-control-catalog-data-*.ts',
+      'packages/schema-domain/src/tracking-control-catalog-data.ts',
+    ],
+    rules: {
+      'max-lines': 'off',
+    },
   }
 );
+
+export default architectureRulesEnabled ? architectureRuleConfig : standardConfig;

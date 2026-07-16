@@ -15,14 +15,18 @@
 # Native Apps Plan Next Actions
 
 1. Select the smallest current workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md).
-2. Confirm product source docs in [DOC_INDEX.md](DOC_INDEX.md).
-3. Select required test/proof intents from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
-4. Record any adjacent-plan handoff in the selected workpack before opening that adjacent plan.
-5. Keep status open until proof artifacts exist and checklist/proof rows are updated.
+2. Read `workpacks/00-owner-boundary-proof-gate.md` to apply current app-plan owner/import/proof rules.
+3. If the selected workpack owner path is unclear, classify it with [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md).
+4. Confirm product source docs in [DOC_INDEX.md](DOC_INDEX.md).
+5. Select required test/proof intents from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
+6. Record any adjacent-plan handoff in the selected workpack before opening that adjacent plan.
+7. Keep status open until proof artifacts exist and checklist/proof rows are updated.
 
 ## Actioned completion tracker
 
 - [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
+- [ ] Apply `workpacks/00-owner-boundary-proof-gate.md` to the selected workpack before source changes.
+- [ ] Classify ambiguous/generated workpacks with `WORKPACK_FAMILIES.md` before opening source.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
 - [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
 

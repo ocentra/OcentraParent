@@ -1,0 +1,301 @@
+/* generated from crates/schema/src/parent_storage_settings_apply_flow.rs */
+
+import {{ brandedNonEmptyStringSchema }} from './effect';
+
+import type {{
+  GeneratedParentOwnedSyncDeleteVisibilityState,
+  GeneratedParentOwnedSyncDisconnectVisibilityState,
+  GeneratedParentOwnedSyncExportDataClass,
+  GeneratedParentOwnedSyncProviderMode,
+  GeneratedParentOwnedSyncProviderStatus,
+  GeneratedParentOwnedSyncState,
+}} from './generated-parent-owned-sync-export-contracts';
+
+export const ParentStorageSettingsApplyFlowContractRuntime = {{
+  SchemaVersion: '__PARENT_STORAGE_SETTINGS_APPLY_FLOW_SCHEMA_VERSION__',
+}} as const;
+
+export type GeneratedParentContractSchemaVersion = 'v0.6';
+export const GeneratedParentStorageSettingsRowIdSchema = brandedNonEmptyStringSchema('ParentStorageSettingsRowId');
+export const GeneratedParentStoragePreviewIdSchema = brandedNonEmptyStringSchema('ParentStoragePreviewId');
+export const GeneratedParentStorageApplyIdSchema = brandedNonEmptyStringSchema('ParentStorageApplyId');
+export const GeneratedParentStorageActionIdSchema = brandedNonEmptyStringSchema('ParentStorageActionId');
+export const GeneratedParentStorageTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
+
+export type GeneratedParentStorageSettingsRowId = typeof GeneratedParentStorageSettingsRowIdSchema.Type;
+export type GeneratedParentStoragePreviewId = typeof GeneratedParentStoragePreviewIdSchema.Type;
+export type GeneratedParentStorageApplyId = typeof GeneratedParentStorageApplyIdSchema.Type;
+export type GeneratedParentStorageActionId = typeof GeneratedParentStorageActionIdSchema.Type;
+export type GeneratedParentStorageTimestamp = typeof GeneratedParentStorageTimestampSchema.Type;
+export type GeneratedParentStorageModeLabel =
+  | 'local-only'
+  | 'local-plus-encrypted-backup'
+  | 'local-plus-encrypted-provider-sync'
+  | 'provider-disconnected'
+  | 'provider-error'
+  | 'manual-required'
+  | 'disabled';
+export type GeneratedParentStorageUiState =
+  | 'providerNotConfigured'
+  | 'providerAuthExpired'
+  | 'providerPermissionMissing'
+  | 'providerRevoked'
+  | 'providerQuotaExceeded'
+  | 'providerUnavailable'
+  | 'localStoreUnavailable'
+  | 'keyUnavailable'
+  | 'keyRevoked'
+  | 'wrongHousehold'
+  | 'wrongDevice'
+  | 'schemaUnsupported'
+  | 'bundleCorrupt'
+  | 'tombstoneConflict'
+  | 'manualRequired'
+  | 'offlineQueued'
+  | 'syncDisabled'
+  | 'remoteDisabled'
+  | 'ocentraHostedStorageNotUsed'
+  | 'ready';
+export type GeneratedParentStorageEncryptionStatus =
+  | 'encrypted-before-upload'
+  | 'human-readable-parent-authorized'
+  | 'not-applicable'
+  | 'manual-required';
+export type GeneratedParentStorageKeyStatus = 'keyAvailable' | 'keyUnavailable' | 'keyRevoked' | 'manualRequired';
+export type GeneratedParentStoragePreviewState =
+  | 'importPreviewPassed'
+  | 'partialRestore'
+  | 'wrongHousehold'
+  | 'wrongKey'
+  | 'schemaUnsupported'
+  | 'bundleCorrupt'
+  | 'tombstoneConflict'
+  | 'manualRequired';
+export type GeneratedParentStorageApplyState =
+  | 'notStarted'
+  | 'applyRequiresConfirmation'
+  | 'applyPending'
+  | 'applied'
+  | 'partial'
+  | 'rollbackManualRequired'
+  | 'blockedManualRequired';
+export type GeneratedParentStorageDeleteActionKind =
+  | 'delete-local-child-evidence'
+  | 'delete-parent-portal-cache'
+  | 'delete-generated-report'
+  | 'delete-provider-backup-copy'
+  | 'delete-support-bundle'
+  | 'delete-ocentra-metadata';
+export type GeneratedParentStorageCopyKey =
+  | 'custody-boundary'
+  | 'metadata-leakage'
+  | 'sensitive-encrypted-before-upload'
+  | 'lost-key-may-be-unrecoverable'
+  | 'disconnect-does-not-delete'
+  | 'tombstones-may-be-required'
+  | 'backup-queued'
+  | 'provider-upload-pending'
+  | 'provider-upload-failed'
+  | 'provider-upload-confirmed'
+  | 'import-preview-passed'
+  | 'apply-requires-confirmation'
+  | 'deleted-locally-provider-delete-pending'
+  | 'provider-disconnected-existing-files-may-remain'
+  | 'manual-proof-required';
+export type GeneratedParentStorageNoClaim =
+  | 'no-portal-implementation-ready'
+  | 'no-provider-runtime-ready'
+  | 'no-auto-apply'
+  | 'no-disconnect-deletes-provider-data'
+  | 'no-delete-disconnect-collapse'
+  | 'no-ts-business-owner'
+  | 'no-lan-ownership';
+
+export const GeneratedParentStorageModeLabels = [
+  'local-only',
+  'local-plus-encrypted-backup',
+  'local-plus-encrypted-provider-sync',
+  'provider-disconnected',
+  'provider-error',
+  'manual-required',
+  'disabled',
+] as const satisfies readonly GeneratedParentStorageModeLabel[];
+export const GeneratedParentStorageUiStates = [
+  'providerNotConfigured',
+  'providerAuthExpired',
+  'providerPermissionMissing',
+  'providerRevoked',
+  'providerQuotaExceeded',
+  'providerUnavailable',
+  'localStoreUnavailable',
+  'keyUnavailable',
+  'keyRevoked',
+  'wrongHousehold',
+  'wrongDevice',
+  'schemaUnsupported',
+  'bundleCorrupt',
+  'tombstoneConflict',
+  'manualRequired',
+  'offlineQueued',
+  'syncDisabled',
+  'remoteDisabled',
+  'ocentraHostedStorageNotUsed',
+  'ready',
+] as const satisfies readonly GeneratedParentStorageUiState[];
+export const GeneratedParentStorageEncryptionStatuses = [
+  'encrypted-before-upload',
+  'human-readable-parent-authorized',
+  'not-applicable',
+  'manual-required',
+] as const satisfies readonly GeneratedParentStorageEncryptionStatus[];
+export const GeneratedParentStorageKeyStatuses = [
+  'keyAvailable',
+  'keyUnavailable',
+  'keyRevoked',
+  'manualRequired',
+] as const satisfies readonly GeneratedParentStorageKeyStatus[];
+export const GeneratedParentStoragePreviewStates = [
+  'importPreviewPassed',
+  'partialRestore',
+  'wrongHousehold',
+  'wrongKey',
+  'schemaUnsupported',
+  'bundleCorrupt',
+  'tombstoneConflict',
+  'manualRequired',
+] as const satisfies readonly GeneratedParentStoragePreviewState[];
+export const GeneratedParentStorageApplyStates = [
+  'notStarted',
+  'applyRequiresConfirmation',
+  'applyPending',
+  'applied',
+  'partial',
+  'rollbackManualRequired',
+  'blockedManualRequired',
+] as const satisfies readonly GeneratedParentStorageApplyState[];
+export const GeneratedParentStorageDeleteActionKinds = [
+  'delete-local-child-evidence',
+  'delete-parent-portal-cache',
+  'delete-generated-report',
+  'delete-provider-backup-copy',
+  'delete-support-bundle',
+  'delete-ocentra-metadata',
+] as const satisfies readonly GeneratedParentStorageDeleteActionKind[];
+export const GeneratedParentStorageCopyKeys = [
+  'custody-boundary',
+  'metadata-leakage',
+  'sensitive-encrypted-before-upload',
+  'lost-key-may-be-unrecoverable',
+  'disconnect-does-not-delete',
+  'tombstones-may-be-required',
+  'backup-queued',
+  'provider-upload-pending',
+  'provider-upload-failed',
+  'provider-upload-confirmed',
+  'import-preview-passed',
+  'apply-requires-confirmation',
+  'deleted-locally-provider-delete-pending',
+  'provider-disconnected-existing-files-may-remain',
+  'manual-proof-required',
+] as const satisfies readonly GeneratedParentStorageCopyKey[];
+export const GeneratedParentStorageNoClaims = [
+  'no-portal-implementation-ready',
+  'no-provider-runtime-ready',
+  'no-auto-apply',
+  'no-disconnect-deletes-provider-data',
+  'no-delete-disconnect-collapse',
+  'no-ts-business-owner',
+  'no-lan-ownership',
+] as const satisfies readonly GeneratedParentStorageNoClaim[];
+
+export interface GeneratedParentStorageModeCard {{
+  readonly rowId: GeneratedParentStorageSettingsRowId;
+  readonly currentModeLabel: GeneratedParentStorageModeLabel;
+  readonly uiState: GeneratedParentStorageUiState;
+  readonly providerMode: GeneratedParentOwnedSyncProviderMode;
+  readonly providerStatus: GeneratedParentOwnedSyncProviderStatus;
+  readonly syncState: GeneratedParentOwnedSyncState;
+  readonly encryptionStatus: GeneratedParentStorageEncryptionStatus;
+  readonly keyStatus: GeneratedParentStorageKeyStatus;
+  readonly manualRequiredVisible: boolean;
+  readonly disconnectVisible: boolean;
+  readonly deleteVisible: boolean;
+  readonly restorePreviewAvailable: boolean;
+  readonly applyBackAvailable: boolean;
+  readonly lastSuccessAt: GeneratedParentStorageTimestamp | null;
+  readonly lastFailureAt: GeneratedParentStorageTimestamp | null;
+  readonly summary: string;
+}}
+
+export interface GeneratedParentStorageRestorePreview {{
+  readonly previewId: GeneratedParentStoragePreviewId;
+  readonly previewState: GeneratedParentStoragePreviewState;
+  readonly createdAt: GeneratedParentStorageTimestamp;
+  readonly productVersion: string;
+  readonly schemaVersion: string;
+  readonly householdMatch: boolean;
+  readonly deviceMatch: boolean;
+  readonly dataClasses: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly conflicts: readonly string[];
+  readonly rejectedSections: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly partialRestore: boolean;
+  readonly confirmationRequired: boolean;
+  readonly localTruthAuthoritative: boolean;
+  readonly tombstonesPreserved: boolean;
+  readonly manualRequiredNote: string | null;
+}}
+
+export interface GeneratedParentStorageApplyDecision {{
+  readonly applyId: GeneratedParentStorageApplyId;
+  readonly applyState: GeneratedParentStorageApplyState;
+  readonly confirmationRequired: boolean;
+  readonly willChange: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly willNotChange: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly preservedTombstones: readonly GeneratedParentOwnedSyncExportDataClass[];
+  readonly manualReviewRequired: readonly string[];
+  readonly rollbackAvailable: boolean;
+  readonly manualRequiredNote: string | null;
+}}
+
+export interface GeneratedParentStorageDeleteActionRow {{
+  readonly actionId: GeneratedParentStorageActionId;
+  readonly actionKind: GeneratedParentStorageDeleteActionKind;
+  readonly state: GeneratedParentOwnedSyncDeleteVisibilityState;
+  readonly separateFromDisconnect: boolean;
+  readonly proofRequired: boolean;
+  readonly notes: string;
+}}
+
+export interface GeneratedParentStorageDisconnectRow {{
+  readonly actionId: GeneratedParentStorageActionId;
+  readonly state: GeneratedParentOwnedSyncDisconnectVisibilityState;
+  readonly existingFilesMayRemain: boolean;
+  readonly providerDeleteRequestedSeparately: boolean;
+  readonly notes: string;
+}}
+
+export interface GeneratedParentStorageClaimSafeCopyRow {{
+  readonly copyKey: GeneratedParentStorageCopyKey;
+  readonly statement: string;
+  readonly forbiddenWithoutState: boolean;
+  readonly notes: string;
+}}
+
+export interface GeneratedParentStorageSettingsApplyFlowContractProof {{
+  readonly schemaVersion: typeof ParentStorageSettingsApplyFlowContractRuntime.SchemaVersion;
+  readonly contractVersion: GeneratedParentContractSchemaVersion;
+  readonly modeCard: GeneratedParentStorageModeCard;
+  readonly restorePreview: GeneratedParentStorageRestorePreview;
+  readonly applyDecision: GeneratedParentStorageApplyDecision;
+  readonly deleteActions: readonly GeneratedParentStorageDeleteActionRow[];
+  readonly disconnectAction: GeneratedParentStorageDisconnectRow;
+  readonly claimSafeCopy: readonly GeneratedParentStorageClaimSafeCopyRow[];
+  readonly noClaims: readonly GeneratedParentStorageNoClaim[];
+  readonly updatedAt: GeneratedParentStorageTimestamp;
+}}
+
+export const GeneratedParentStorageKnownGaps = [
+__PARENT_STORAGE_SETTINGS_APPLY_FLOW_KNOWN_GAPS__
+] as const;
+
+export const GeneratedParentStorageSettingsApplyFlowContractProof = __PARENT_STORAGE_SETTINGS_APPLY_FLOW_PROOF_JSON__ as const;

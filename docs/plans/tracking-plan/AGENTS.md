@@ -14,8 +14,7 @@
 
 # Tracking Plan Agent Route
 
-Use this file only when `docs/PLAN_INDEX.md` or a hub assignment selects
-`docs/plans/tracking-plan`.
+Use this file only when `docs/PLAN_INDEX.md` or a hub assignment selects `docs/plans/tracking-plan`.
 
 ## High-density execution contract
 
@@ -27,20 +26,85 @@ Test rule: expected tests are obligations, not suggestions. If the test crate/fo
 Proof rule: proof must contain command log, negative case, artifact path, updated row, and skipped-risk note when applicable.
 Authoring rule: this plan describes outcomes, boundaries, expected tests, proof, and failure conditions; it must not prescribe implementation code except for minimal public contract or artifact-shape examples.
 Failure condition: no DONE/PR_READY when tests are happy-path only, proof is missing, product status moved without evidence, or validation scope is not listed.
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
+
+## Ownership And Schema Authority Contract
+
+This plan owns tracking evidence, tracking runtime contracts, location/geofence/expected-place/nearby-place semantics, tracking read models, tracking proof roots, and tracking no-claim boundaries. It does not own generic schema authority, generic event-bus mechanics, generic journal/replay mechanics, custody policy, account or household authority, policy authority, notification provider runtime, AI provider runtime, OS/platform behavior, broad portal shell completion, or real-device proof outside selected workpacks.
+
+Current Rust-first authority comes from
+`../../agent/RUST_FIRST_PARENT_ARCHITECTURE.md`. Older tracking docs that name
+`schema-domain`, `tracking-domain`, `agent-protocol-domain`, WebSocket, or Vite
+as product authority are migration/debt inventory, not current architecture
+truth.
+
+Canonical schema rule:
+
+```text
+crates/schema owns cross-boundary tracking DTOs, route snapshots, actions,
+results, generated bridge artifacts, and encoded-shape drift proof.
+The owning Rust tracking/runtime crates own tracking behavior, projections, read
+models, state machines, and policy/activity handoff logic.
+tracking-domain, schema-domain, and agent-protocol-domain are transitional TS
+edge/helper surfaces only until Rust/generated consumers replace them.
+TypeScript must not invent divergent canonical tracking schemas.
+```
+
+A product shape must be promoted to `crates/schema` or the owning Rust
+domain/runtime crate when it crosses package, crate, plan, protocol, event,
+portal DTO, runtime command, policy input, notification input, custody/export,
+read-model, or proof-metadata boundaries.
+
+Tracking-local schemas are allowed only when private, implementation-local, and not used as public contracts.
+
+Required Rust-owned schema/domain families:
+
+```text
+location evidence
+device status
+permission and capability state
+geofence rule and transition
+expected-place schedule and status
+nearby-place analysis and ambiguity
+tracking retention and custody refs
+tracking policy refs and decision inputs
+notification intent and dispatch result refs
+escalation intent and result refs
+temporary live tracking mode
+missing-device mode
+tracking event payloads and protocol constants
+tracking read-model DTOs
+proof metadata and evidence refs
+```
+
+Forbidden claims and shortcuts:
+
+```text
+local tracking schema used as public protocol shape
+local event string invented where schema/protocol/eventing owns the type
+private event bus, journal, replay, provider-status, custody, notification, AI-provider, LAN, network, browser, or app-game mechanics duplicated inside tracking-specific source
+LAN/IP/Wi-Fi hint upgraded into GPS/current-location proof
+low-accuracy nearby-place evidence upgraded into exact-place or accusation copy
+AI output upgraded into household authority, policy decision, notification, escalation, or enforcement
+fixture/proof file upgraded into real-device, provider-runtime, production-worker, or product-ready proof
+portal screenshot upgraded into runtime delivery or product UI proof
+```
 
 ## Default read order
 
 1. [PLAN_STATE.md](PLAN_STATE.md) - current state, open gaps, default no-read list.
 2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
 3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
-4. Assigned workpack under `workpacks/`, if any.
-5. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
-6. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
-7. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
+4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when owner/proof family is unclear.
+5. Assigned workpack under `workpacks/`, if any.
+6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
+7. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
+8. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
 
 ## Local decision tree
 
 - If the hub assignment names a workpack, open only that workpack, then use `TEST_PROOF_EXPECTATIONS.md` to choose expected tests/proof for that work type.
+- If owner/proof family is unclear, use `WORKPACK_FAMILIES.md`; do not scan every family.
 - If the assignment names a checklist row but no workpack, use `CHECKLIST_INDEX.md` to locate the row, then use `TEST_PROOF_EXPECTATIONS.md` for required tests/proof.
 - If the assignment is docs/status only, use `DOC_INDEX.md` and the docs/status rows in `TEST_PROOF_EXPECTATIONS.md`; do not inspect source or sibling plans unless the row names them.
 - If the assignment touches source, contracts, runtime, UI, AI, platform, security, persistence, or observability, read `../../agent/SOURCE_BOUNDARY_FLOW.md` only after the local workpack is known.
@@ -76,6 +140,4 @@ After the assigned workpack is known, use [TEST_PROOF_EXPECTATIONS.md](TEST_PROO
 
 ## Before DONE / PR_READY
 
-Read `PLAN_HEALTH.md` if you are making a broad completion/staleness claim. Update the assigned workpack, relevant checklist rows, proof references, and
-feature/product docs as needed. Then follow `../../agent/PR_DONE_FLOW.md` and
-`../../agent/VALIDATION_FLOW.md`.
+Read `PLAN_HEALTH.md` if you are making a broad completion/staleness claim. Update the assigned workpack, relevant checklist rows, proof references, and feature/product docs as needed. Then follow `../../agent/PR_DONE_FLOW.md` and `../../agent/VALIDATION_FLOW.md`.

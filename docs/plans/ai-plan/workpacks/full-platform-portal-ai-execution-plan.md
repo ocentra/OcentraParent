@@ -25,9 +25,10 @@ PRs, CI, and merges.
 Ocentra Parent is not a web parent portal product.
 
 The Vite React portal is a development and HMR surface. The production parent
-portal is a packaged parent app. React/TypeScript owns the user interface. Rust
-owns product runtime behavior, contracts, storage, policy, AI scheduling,
-device routing, timers, enforcement adapters, and service state.
+portal is a packaged parent app. React/TypeScript owns presentation only. Rust
+owns product runtime behavior, contracts, schemas, route snapshots, storage,
+policy, AI scheduling, device routing, timers, enforcement adapters, read
+models, and service state.
 
 Tauri is the preferred desktop parent shell. Tauri mobile is the first mobile
 parent proof path because it preserves the Rust-first direction and allows the
@@ -278,7 +279,8 @@ API AI cannot override local child safety, policy, timers, or enforcement.
 
 Parent desktop is React UI inside Tauri plus Rust service/runtime boundary.
 The Tauri shell embeds the built portal UI and connects through typed local
-service/WebSocket commands. Tauri itself is not the business-logic backend.
+HostBridge/dev-transport commands. The shell is not the business-logic owner;
+the Rust parent facade/runtime is.
 
 Required work:
 
@@ -419,18 +421,18 @@ The correct path is:
 
 ```text
 Activity UI
-  -> typed activity-domain request/response contracts
-  -> agent-protocol-domain WebSocket command/event contracts
-  -> Rust agent-protocol parity
-  -> Rust service/read-model adapter
+  -> generated bridge DTO/action
+  -> Rust parent app facade
+  -> Rust event bus/domain
+  -> Rust read-model adapter
   -> encrypted journal / SQLite query store / stored evidence summaries
-  -> typed result back to UI
+  -> HostBridge snapshot/result back to UI
 ```
 
 Tauri commands may wrap or launch the local runtime where needed, but Activity
-product data should be service/read-model backed first. Direct Tauri command
-wiring is not the product source of truth unless an explicit shell-only command
-is being added.
+product data should be Rust read-model backed first. Direct Tauri or
+TypeScript command wiring is not the product source of truth unless an explicit
+shell-only command is being added.
 
 Behavioral target:
 
@@ -478,30 +480,31 @@ the merged service-backed adapter instead of adding Vite-owned fixture data.
 
 The Activity adapter foundation has these source/proof requirements:
 
-- [x] Pull or rebase latest `main`.
-- [x] Run `npm run hub:inbox`, acknowledge current hub mail, report `STARTED`,
+- [ ] Pull or rebase latest `main`.
+- [ ] Run `npm run hub:inbox`, acknowledge current hub mail, report `STARTED`,
       and lock intended paths.
-- [x] Add `packages/activity-domain` Effect Schema contracts for Activity target
-      scope, report frequency, report request, report list item, report document,
-      report sections, and tab view rows for Screen, App Use, Browser, Games, and
-      Network.
-- [x] Add portal/agent command names and response contracts in the appropriate
-      domain/protocol package. Avoid naked strings in app/runtime source.
-- [x] Add Rust protocol parity in `crates/agent-protocol`.
-- [x] Add Rust service/read-model adapter stubs in `crates/agent-service` that
-      return real typed unavailable or local-read-model responses.
-- [x] Ensure Vite does not own or fake Activity product data.
-- [x] Keep Data storage selection as a typed unavailable/stubbed state if the
+- [ ] Add Rust-owned Activity target scope, report frequency, report request,
+      report list item, report document, report section, and tab view row DTOs
+      in `crates/schema` or the owning Rust domain/runtime crate before any UI
+      consumer uses them.
+- [ ] Generate or expose bridge DTO/action names and response shapes from the
+      Rust owner. Avoid naked strings in app/runtime source.
+- [ ] Add Rust protocol/serialization coverage where the shape crosses a
+      transport boundary.
+- [ ] Add Rust service/read-model adapter stubs that return real typed
+      unavailable or local-read-model responses.
+- [ ] Ensure Vite does not own or fake Activity product data.
+- [ ] Keep Data storage selection as a typed unavailable/stubbed state if the
       Data surface is not wired yet.
-- [x] Add TypeScript contract tests for accepted and rejected report
-      requests/responses.
-- [x] Add Rust protocol serialization/parity tests.
-- [x] Add command/service adapter boundary tests.
-- [x] Add focused portal smoke or Playwright coverage proving Reports plus
+- [ ] Add generated bridge/edge-decoder checks for accepted and rejected report
+      requests/responses when TypeScript consumes the shape.
+- [ ] Add Rust protocol serialization/parity tests.
+- [ ] Add command/service adapter boundary tests.
+- [ ] Add focused portal smoke or Playwright coverage proving Reports plus
       Screen/App Use/Browser/Games/Network can call the adapter and render typed
       states.
-- [x] Run focused validation for touched packages/crates for the current branch.
-- [x] Run `npm run validate` before PR-ready unless primary explicitly accepts
+- [ ] Run focused validation for touched packages/crates for the current branch.
+- [ ] Run `npm run validate` before PR-ready unless primary explicitly accepts
       an omission with reason.
 - [ ] Commit locally on the worker branch after validation, push the branch when
       ready for review, open a PR when the user or primary asks, and report
@@ -772,18 +775,18 @@ Choices still needing explicit product confirmation:
 
 This plan is successful when:
 
-- [x] A current V0.8 branch is reviewed, PR'd, CI-green, and merged.
-- [x] B current V0.9 branch is rebased/fixed, PR'd, CI-green, and merged.
-- [x] A then lands the AI provider/scheduler slice with proof.
-- [x] B then lands the controller lease/LAN routing/LAN AI job slice with proof.
-- [x] Activity surface backend contracts/protocol/Rust adapter foundation and
+- [ ] A current V0.8 branch is reviewed, PR'd, CI-green, and merged.
+- [ ] B current V0.9 branch is rebased/fixed, PR'd, CI-green, and merged.
+- [ ] A then lands the AI provider/scheduler slice with proof.
+- [ ] B then lands the controller lease/LAN routing/LAN AI job slice with proof.
+- [ ] Activity surface backend contracts/protocol/Rust adapter foundation and
       Parent Assistant local-runtime backend are merged with proof.
 - [ ] Portal/UI Activity fake-data paths consume the typed service-backed
       adapter and no longer rely on UI-check data.
-- [x] Parent desktop, parent mobile, child desktop, child Android, and child iOS are
+- [ ] Parent desktop, parent mobile, child desktop, child Android, and child iOS are
       each tracked with honest implemented/scaffold/manual-required/unavailable
       states.
-- [x] Roadmap and architecture docs match actual product architecture instead of
+- [ ] Roadmap and architecture docs match actual product architecture instead of
       vague cross-platform promises.
 
 ## Live Completion Audit - 2026-05-27
@@ -793,26 +796,26 @@ This audit supersedes the older immediate-state notes above. `main` is at
 
 ### Done On Main
 
-- [x] Full platform/portal/AI plan exists in this document.
-- [x] V0.8 Windows enforcement/time-limit spine has landed through PR #103,
+- [ ] Full platform/portal/AI plan exists in this document.
+- [ ] V0.8 Windows enforcement/time-limit spine has landed through PR #103,
       PR #105, and PR #107.
-- [x] Local AI provider singleton scheduler has landed through PR #109:
+- [ ] Local AI provider singleton scheduler has landed through PR #109:
       one scheduler/runtime lane per physical device, child-safety priority,
       queued/degraded/unavailable states, and dual-role sharing proof.
-- [x] V0.9 LAN pairing/control spine has landed through PR #104, PR #106, and
+- [ ] V0.9 LAN pairing/control spine has landed through PR #104, PR #106, and
       PR #108.
-- [x] Controller lease/write authority, observer read-only behavior, trusted
+- [ ] Controller lease/write authority, observer read-only behavior, trusted
       device registry checks, wrong-device/wrong-origin/stale/replay rejection,
       revocation-before-control, selected-device stale/offline state, LAN AI
       provider advertisement, and LAN AI submit/reject/degraded result proof are
       on `main`.
-- [x] Full PR CI was green for both PR #109 and PR #108 before merge.
-- [x] The local commit hook remains light; full Playwright/package validation is
+- [ ] Full PR CI was green for both PR #109 and PR #108 before merge.
+- [ ] The local commit hook remains light; full Playwright/package validation is
       intentionally kept for PR-ready/CI gates, not every local commit.
-- [x] Platform roles, parent desktop package proof, parent mobile scaffold
+- [ ] Platform roles, parent desktop package proof, parent mobile scaffold
       state, LAN AI provider pool routing, and proof-matrix/roadmap
       reconciliation landed through PR #111 with green CI.
-- [x] Activity surface contracts/protocol/Rust service adapter and Parent
+- [ ] Activity surface contracts/protocol/Rust service adapter and Parent
       Assistant/MIA local-runtime backend through the local AI provider
       scheduler landed through PR #110 with green CI.
 
@@ -830,16 +833,16 @@ This audit supersedes the older immediate-state notes above. `main` is at
 - [ ] API AI provider is not implemented. It remains optional and must require
       explicit parent authorization, custody labels, retention/deletion rules,
       and evidence citations.
-- [x] LAN AI provider pool has local direct WebSocket proof for provider opt-in,
+- [ ] LAN AI provider pool has local direct WebSocket proof for provider opt-in,
       capability advertisement, authorized completed result, unsupported
       capability rejection, observer rejection, degraded provider-unavailable
       result, and audit events. Production discovery, household provider
       selection policy, and streaming UX remain future work.
-- [x] Parent desktop packaged app has a Tauri command proof that connects to the
+- [ ] Parent desktop packaged app has a Tauri command proof that connects to the
       Rust service and exposes controller lease, route, device-role, and AI
       provider state without treating Vite as the backend. Installer lifecycle
       and final product UI still need separate proof.
-- [x] Parent mobile has proof-first scaffold coverage for observer state,
+- [ ] Parent mobile has proof-first scaffold coverage for observer state,
       controller-takeover/degraded behavior, and LAN AI provider unavailable
       behavior through the role read model and real-service proof harness.
       Complete mobile UI/device proof remains open.
@@ -863,7 +866,7 @@ This audit supersedes the older immediate-state notes above. `main` is at
       explicit discovery states, selected-route restart recovery, and LAN AI
       provider authorized/unsupported/busy/unavailable routing states, but that
       is not a physical household LAN claim.
-- [x] Roadmap/current-position docs have been reconciled after PR #108/#109 so
+- [ ] Roadmap/current-position docs have been reconciled after PR #108/#109 so
       V0.8/V0.9 status stays honest and new platform/LAN AI provider work is
       visible.
 
@@ -876,24 +879,24 @@ This audit supersedes the older immediate-state notes above. `main` is at
 A must start from fresh `main` and own a full implementation slice, not a doc or
 contract-only slice:
 
-- [x] Activity surface contracts for family/device scope, report frequency,
+- [ ] Activity surface contracts for family/device scope, report frequency,
       report request, report document, report sections, saved report metadata,
       and Screen/App Use/Browser/Games/Network read models.
-- [x] Agent protocol command/event contracts for Activity report generation,
+- [ ] Agent protocol command/event contracts for Activity report generation,
       historical report list/save, and tab read models.
-- [x] Rust protocol parity in `crates/agent-protocol`.
-- [x] Rust service/read-model adapter in `crates/agent-service` using existing
+- [ ] Rust protocol parity in `crates/agent-protocol`.
+- [ ] Rust service/read-model adapter in `crates/agent-service` using existing
       activity store/query paths where possible and typed unavailable/local
       states where storage is not wired yet.
-- [x] Parent Assistant / MIA contracts and protocol commands for local-provider
+- [ ] Parent Assistant / MIA contracts and protocol commands for local-provider
       answer generation, cited evidence context, unavailable/configured states,
       and action-preview output.
-- [x] Rust parent assistant runtime modules that route allowed parent assistant
+- [ ] Rust parent assistant runtime modules that route allowed parent assistant
       work through the existing local AI provider scheduler.
-- [x] Proof that parent assistant requests do not bypass child-agent contracts,
+- [ ] Proof that parent assistant requests do not bypass child-agent contracts,
       do not enforce directly, and degrade when the local provider is
       unavailable or busy.
-- [x] TypeScript contract tests, Rust protocol tests, Rust service tests,
+- [ ] TypeScript contract tests, Rust protocol tests, Rust service tests,
       focused proof harness, portal smoke for typed Activity adapter states, and
       `npm run validate`.
 
@@ -905,25 +908,25 @@ and Parent Assistant product gaps are tracked in the final-pass section below.
 B must start from fresh `main` and own a full implementation/proof slice, not a
 docs-only slice:
 
-- [x] Device role runtime contract/read model for parent-controller,
+- [ ] Device role runtime contract/read model for parent-controller,
       parent-observer, child-agent, and ai-provider roles on one physical
       device.
-- [x] Packaged parent desktop Tauri proof path that launches or connects to the
+- [ ] Packaged parent desktop Tauri proof path that launches or connects to the
       real Rust service and exposes controller lease, device-role, route, and AI
       provider state without treating Vite as the backend.
-- [x] Parent mobile Tauri proof-first path with observer/controller-takeover
+- [ ] Parent mobile Tauri proof-first path with observer/controller-takeover
       state and LAN AI provider unavailable/degraded behavior.
-- [x] LAN AI provider pool routing beyond the degraded stub: provider opt-in,
+- [ ] LAN AI provider pool routing beyond the degraded stub: provider opt-in,
       capability advertisement, authorized job accept/reject/result/degraded
       flow, and audit events.
-- [x] Two-service or multi-service proof that parent mobile/observer and parent
+- [ ] Two-service or multi-service proof that parent mobile/observer and parent
       desktop/controller behavior do not race commands.
-- [x] Platform proof matrix refresh for parent desktop, parent mobile, child
+- [ ] Platform proof matrix refresh for parent desktop, parent mobile, child
       desktop, child Android, and child iOS, with implemented/scaffold/manual
       required/unavailable states.
-- [x] Roadmap/current-position reconciliation after PR #108/#109 so V0.8/V0.9
+- [ ] Roadmap/current-position reconciliation after PR #108/#109 so V0.8/V0.9
       status is honest and no stale proof-spine language hides new work.
-- [x] TypeScript contract tests, Rust protocol parity tests, Rust service tests,
+- [ ] TypeScript contract tests, Rust protocol parity tests, Rust service tests,
       Tauri/package checks where practical, LAN proof harness, focused platform
       smoke/proof scripts, and `npm run validate`.
 
@@ -960,44 +963,44 @@ files unless primary explicitly reassigns those paths after C lands.
 
 #### B Final Pass: V0.8/V0.9 Product-Proof Hardening
 
-- [x] Start from current `origin/main`, acknowledge hub mail, report `STARTED`,
+- [ ] Start from current `origin/main`, acknowledge hub mail, report `STARTED`,
       and lock only non-C paths.
-- [x] V0.8: harden real enforcement-adapter proof around process/app limit
+- [ ] V0.8: harden real enforcement-adapter proof around process/app limit
       behavior, parent cancel/override, rollback/unavailable states, restart
       recovery, and audit. Do not claim real blocking unless the adapter proof
       demonstrates it.
-- [x] V0.9: harden multi-device/LAN behavior around controller lease conflict
+- [ ] V0.9: harden multi-device/LAN behavior around controller lease conflict
       and takeover, stale/offline selected devices, trusted registry
       persistence, provider selection states, and wrong-origin/wrong-device
       rejection.
-- [x] V0.9: local multi-service hardening proof covers explicit
+- [ ] V0.9: local multi-service hardening proof covers explicit
       discovered/pending/paired/revoked/stale/offline/unavailable state labels,
       selected-route recovery after restart, controller lease conflict/takeover
       checks, and LAN AI provider authorized/unsupported/busy/unavailable
       routing states. Physical two-device household proof remains
       manual-required.
-- [x] Package/runtime proof: keep parent desktop service lifecycle and Android
+- [ ] Package/runtime proof: keep parent desktop service lifecycle and Android
       or iOS states honest as implemented/scaffold/manual-required/unavailable.
       Do not claim mobile parity, device-owner, Family Controls, signing, or
       store proof without real evidence.
-- [x] Add or update real-service proof harnesses and roadmap/proof-matrix
+- [ ] Add or update real-service proof harnesses and roadmap/proof-matrix
       entries for what changed.
-- [x] Platform/LAN/enforcement production proof command records V0.8 owned
+- [ ] Platform/LAN/enforcement production proof command records V0.8 owned
       process time-limit behavior, V0.8 manual-required broad-adapter states,
       V0.9 local multi-service LAN hardening, parent mobile/backend scaffold
       states, Android/iOS manual-required capability states, and cloud relay as
       not implemented.
-- [x] OS/LAN/mobile proof command adds owned-process terminate service proof,
+- [ ] OS/LAN/mobile proof command adds owned-process terminate service proof,
       capability-specific Android/iOS child states, explicit parent mobile
       backend scaffold/manual-required states, household two-device proof
       checklist requirements, and the same cloud relay non-claim.
-- [x] Run focused Rust/service/package/LAN proof tests and `npm run validate`.
+- [ ] Run focused Rust/service/package/LAN proof tests and `npm run validate`.
       `DONE/PR_READY` must include exact scope, touched files, validation, known
       gaps, and remaining manual proof requirements.
 
 #### Primary Final Pass
 
-- [x] Reconcile stale plan checkboxes after PR #110 and PR #111.
+- [ ] Reconcile stale plan checkboxes after PR #110 and PR #111.
 - [ ] Assign A and B final-pass branches from current `origin/main`.
 - [ ] Watch hub reports, review diffs and validation, create PRs only after
       acceptable local proof, merge only after green CI, then pull latest

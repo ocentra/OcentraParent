@@ -73,6 +73,38 @@ State the lane/mode, plan, feature doc, assigned workpack, files you intend to
 edit, and validation you expect to run. Claim ownership through the hub/ledger
 when working in a lane.
 
+## Architecture hard gate: no barrels / no re-exports
+
+The repository bans TypeScript/JavaScript re-exports and Rust public re-exports.
+
+Forbidden TypeScript/JavaScript:
+
+- `export * from "..."`;
+- `export * as X from "..."`;
+- `export { X } from "..."`;
+- `export type { X } from "..."`;
+- `export { default as X } from "..."`.
+
+Forbidden Rust:
+
+- `pub use ...`;
+- `pub(crate) use ...`;
+- `pub(super) use ...`;
+- `pub(in ...) use ...`.
+
+Required validation before claiming completion when the touched scope includes
+TypeScript/JavaScript or Rust source:
+
+- `npm run lint:architecture -- --files <touched-file-or-dir> [more files or dirs]` or `npm run lint:architecture -- --base <base> --head <head>`.
+
+Use directory paths to run the same architecture gate per module, crate, or domain before escalating to repo-wide validation.
+
+For a full debt sweep instead of focused change validation:
+
+- `npm run lint:architecture:all`.
+
+Do not add inline lint disables, bypass knobs, or new barrel-like export shims.
+
 ## Before DONE or PR_READY
 
 Run the route in `docs/agent/PR_DONE_FLOW.md`. Reports must include the exact

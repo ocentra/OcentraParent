@@ -15,20 +15,68 @@
 <!-- /agent-capsule -->
 
 Sources: [20-step plan](../v0-8-enforcement-control-20-step-plan.md),
-[test blueprint](../v0-8-enforcement-control-test-blueprint.md), and
-[folder README](../README.md).
+[test blueprint](../v0-8-enforcement-control-test-blueprint.md),
+[folder README](../README.md),
+[enforcement-integrity-tamper feature](../../features/enforcement-integrity-tamper.md), and
+[enforcement expectation](../../expectations/enforcement.md).
 
-## Where We Are
+## Purpose
 
-Enforcement action states exist, but product trust requires durable audit for
-actions, failures, previews, timer transitions, and approvals.
+Define the durable audit and journal trail for every enforcement state
+transition so parent surfaces, reports, and proof scripts can reconstruct what
+happened and why.
 
-## Where We Want To Be
+## Central schema boundary
+
+```text
+schema-domain owns public audit event, action result, reason, and reference schemas when they cross package/crate/protocol boundaries.
+eventing-plan owns generic replay, idempotency, and journal mechanics.
+policy-control-plane-plan owns upstream policy authority and approval semantics.
+v0-8-enforcement-control-plan owns enforcement-specific action, rollback, approval, and visibility event meaning.
+```
+
+## Source Inputs
+
+- `../v0-8-enforcement-control-20-step-plan.md`
+- `../v0-8-enforcement-control-test-blueprint.md`
+- `../../features/enforcement-integrity-tamper.md`
+- `../../expectations/enforcement.md`
+
+## Target State
 
 Every product-control transition has a durable event that can be queried by
 portal, reports, and proof scripts with evidence and policy references.
 
-## Requirement Checklist
+## Required proof fields
+
+```text
+canonical_schema_owner_state
+accepted_state
+rejected_state
+adapter_result_state
+no_op_state
+rollback_state
+approval_state
+evidence_ref_state
+actor_route_target_state
+query_state
+redaction_state
+no_summary_invention_claim
+no_claim
+```
+
+## Tests And Proof
+
+Proof root: `output/v0-8-enforcement-control-plan-proof/11-audit-journal-events/`
+
+Focused validation should record:
+
+- `cargo test -p ocentra-parent-agent-service enforcement`
+- `cargo test -p ocentra-parent-agent-core enforcement`
+- selected eventing or journal query proof for this slice
+- selected portal/report consumers only when they render audit-backed history
+
+## AI Worker Checklist
 
 - [ ] Journal action accepted, action rejected, adapter result, and no-op.
 - [ ] Journal timer and rollback transitions.
@@ -36,12 +84,31 @@ portal, reports, and proof scripts with evidence and policy references.
 - [ ] Include evidence, policy, actor, route, and target references.
 - [ ] Add read-model/query coverage for recent action history.
 
-## Acceptance And Proof
+## Where We Are
 
-Audit tests can reconstruct what happened, why, who requested it, and whether it
-changed device behavior.
+Enforcement action states exist, but product trust requires durable audit for
+actions, failures, previews, timer transitions, and approvals.
 
-## Parallel Ownership Notes
+## Negative Cases
 
-Reports and assistant surfaces should consume this history instead of inventing
-summaries.
+- missing audit entries must block ready claims
+- redaction gaps must not be hidden behind generic success summaries
+- replay/idempotency drift must stay explicit rather than silently duplicating outcomes
+- actor, target, or route-less events must not count as complete audit proof
+- UI/report summaries must not invent action history that the journal cannot query
+
+## Manual-Required Gaps
+
+- Export, long-term retention, and sync/report delivery remain separate
+  dependency-owned slices when selected.
+- Cross-process or cross-device replay behavior remains unclaimed unless the
+  selected proof explicitly covers it.
+- Assistant or notification consumers remain downstream, not proof of audit
+  completeness.
+
+## Fill This Before Reporting DONE Or PR-ready
+
+- [ ] Workpack id and branch recorded.
+- [ ] Validation commands and results recorded in `16-validation-commands.log`.
+- [ ] Proof artifacts under `output/v0-8-enforcement-control-plan-proof/11-audit-journal-events/`.
+- [ ] Known gaps/manual-required states listed here and in the proof note.

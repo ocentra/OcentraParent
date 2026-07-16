@@ -16,14 +16,23 @@
 
 ## Owns
 
-- native app identity, installed inventory, process/runtime, foreground app evidence, app-only policy targets, app catalog/settings, and legacy app-plan reconciliation.
+- App-only narrowing and reconciliation for native app identity, installed inventory, process/runtime, foreground app evidence, app-only policy targets, app catalog/settings, and legacy app-plan rows.
+- App-specific proof expectations where the selected workpack is not better owned by the shared `app-game-plan` evidence spine.
+- App-only route hygiene and no-claim boundaries for app-specific product docs.
+
+## Shared boundary with app-game-plan
+
+- `app-game-plan` owns the shared native app/game evidence spine, combined app/game runtime/read-model chains, native game slices, most generated source-gated timer/read-model handoff rows, and broad app/game control proof gates.
+- `app-plan` narrows app-only meaning, app-only reconciliation, and app-specific proof routing.
+- If a selected app-plan workpack touches shared inventory/runtime/foreground/session/journal/service/portal/policy/timer/enforcement chains, first classify the owner path in `WORKPACK_FAMILIES.md` and record whether this plan owns the app-only slice or whether `app-game-plan` owns the shared implementation.
 
 ## Does Not Own
 
-- Adjacent implementation completion in: app-game-plan, v0-8-enforcement-control-plan, portal-ux-household-surfaces-plan
+- Adjacent implementation completion in: app-game-plan, v0-8-enforcement-control-plan, portal-ux-household-surfaces-plan.
 - Broad source rewrites without selected workpack proof.
+- Shared native app/game spine completion without app-game-plan proof.
 - Release or production claims outside this plan's evidence.
 
 ## Handoff Rule
 
-Open an adjacent plan only after the selected workpack records the exact handoff reason and expected proof.
+Open an adjacent plan only after the selected workpack records the exact handoff reason, owner path, expected proof, and no-claim boundary.

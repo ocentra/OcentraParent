@@ -1,4 +1,6 @@
-use ocentra_parent_agent_protocol::{constants, ActivityEvidenceRef, LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use rusqlite::{params, Connection};
 use std::collections::HashSet;
 

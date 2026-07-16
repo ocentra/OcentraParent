@@ -1,33 +1,63 @@
-use std::path::PathBuf;
-
+use super::app_game_timer_parent_preference_setup_request::AppGameTimerSetupStorePath;
 use super::app_game_timer_parent_preference_setup_request_outbox::append_setup_outbox_record;
 
-use ocentra_parent_agent_core::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope,
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
+};
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_JOURNAL_AUTHORITY_SUBJECT_ID, APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL,
+    APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL, APP_GAME_JOURNAL_FIELD_REPLAY_STATE,
+    APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
+    APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_ROW_KIND_APPROVAL_ACTION_RESULT,
+    APP_GAME_JOURNAL_SOURCE_ID,
+};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     AppGameControlActionResult, AppGameControlApprovalDecision, AppGameControlApprovalRequest,
     AppGameEnforcementCapabilityStatus, AppGameParentActionReference, AppGameParentActorReference,
     AppGameParentDeviceReference, AppGameParentEvidenceReference, AppGamePolicyTarget,
-    AppGameTimerParentPreferenceSetupRequestResult, LogFieldValue, LogFields,
-    ACTIVITY_SCHEMA_VERSION, APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
+    APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
     APP_GAME_CONTROL_APPROVAL_STATE_MANUAL_REQUIRED, APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED,
     APP_GAME_CONTROL_DECISION_APPROVED, APP_GAME_CONTROL_EVIDENCE_PROOF_APP_IDENTITY,
     APP_GAME_CONTROL_PARENT_RESPONSE_ALLOW_ONCE, APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE,
     APP_GAME_CONTROL_POLICY_KIND_APP, APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY,
     APP_GAME_ENFORCEMENT_ADAPTER_PROCESS_CONTROL, APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED,
-    APP_GAME_JOURNAL_AUTHORITY_SUBJECT_ID, APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL,
-    APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL, APP_GAME_JOURNAL_FIELD_REPLAY_STATE,
-    APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
-    APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_ROW_KIND_APPROVAL_ACTION_RESULT,
-    APP_GAME_JOURNAL_SOURCE_ID, APP_GAME_PARENT_ACTOR_ROLE_PARENT,
-    APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION, APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT,
-    APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH, APP_GAME_POLICY_TARGET_TYPE_APP,
+    APP_GAME_PARENT_ACTOR_ROLE_PARENT, APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+    APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT, APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH,
+    APP_GAME_POLICY_TARGET_TYPE_APP,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::AppGameTimerParentPreferenceSetupRequestResult;
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
+
+use crate::json_contract::serialize_json_string;
+
+struct SetupRequestTextRef<'a>(&'a str);
+
+struct ProviderAuditEventRef<'a> {
+    event_id: SetupRequestTextRef<'a>,
+    capability_status: SetupRequestTextRef<'a>,
+}
+
+macro_rules! provider_audit_event_ref {
+    ($result:expr, $field:ident, $status:expr) => {
+        ProviderAuditEventRef {
+            event_id: SetupRequestTextRef($result.$field.as_str()),
+            capability_status: SetupRequestTextRef($status),
+        }
+    };
+}
 
 macro_rules! provider_setup_audit_event {
     ($command:expr, $result:expr, $field:ident, $status:expr) => {
-        provider_audit_activity_event($command, $result, &$result.$field, $status)
+        provider_audit_activity_event(
+            $command,
+            $result,
+            &provider_audit_event_ref!($result, $field, $status),
+        )
     };
 }
 
@@ -83,7 +113,7 @@ macro_rules! provider_delivery_events {
 pub(crate) async fn persist_setup_handoff(
     command: &AgentCommandEnvelope,
     result: &AppGameTimerParentPreferenceSetupRequestResult,
-    store_path: PathBuf,
+    store_path: AppGameTimerSetupStorePath,
 ) -> bool {
     let persisted_result = persisted_result(result);
     let action_result_event = action_result_activity_event(command, &persisted_result);
@@ -100,7 +130,7 @@ pub(crate) async fn persist_setup_handoff(
         child_runtime_delivery_receipt_pending_activity_event(command, &persisted_result);
     let provider_delivery_events = provider_delivery_events!(command, &persisted_result);
     tokio::task::spawn_blocking(move || {
-        let store = ActivityStore::open(&store_path).map_err(|_| ())?;
+        let store = ActivityStore::open(&store_path.0).map_err(|_error| ())?;
         store
             .ingest_events(&[
                 action_result_event,
@@ -111,11 +141,11 @@ pub(crate) async fn persist_setup_handoff(
                 child_runtime_delivery_receipt_requirement_event,
                 child_runtime_delivery_receipt_pending_event,
             ])
-            .map_err(|_| ())?;
+            .map_err(|_error| ())?;
         append_setup_outbox_record(&persisted_result, &store_path)?;
         store
             .ingest_events(&provider_delivery_events)
-            .map_err(|_| ())?;
+            .map_err(|_error| ())?;
         Ok::<(), ()>(())
     })
     .await
@@ -199,8 +229,7 @@ fn persisted_result(
 fn provider_audit_activity_event(
     command: &AgentCommandEnvelope,
     result: &AppGameTimerParentPreferenceSetupRequestResult,
-    event_id: &str,
-    capability_status: &str,
+    event: &ProviderAuditEventRef<'_>,
 ) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
@@ -209,12 +238,12 @@ fn provider_audit_activity_event(
     );
     fields.insert(
         constants::field::CAPABILITY_STATUS.to_string(),
-        LogFieldValue::String(capability_status.to_string()),
+        LogFieldValue::String(event.capability_status.0.to_string()),
     );
 
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
-        event_id: event_id.to_string(),
+        event_id: event.event_id.0.to_string(),
         observed_at: result.accepted_at.clone(),
         source: ActivitySource {
             device_id: command.target.device_id.clone(),
@@ -226,7 +255,7 @@ fn provider_audit_activity_event(
         subject: ActivitySubject {
             kind: ActivitySubjectKind::Device,
             subject_id: result.parent_preference_setup_reference_id.clone(),
-            display_name: Some(capability_status.to_string()),
+            display_name: Some(event.capability_status.0.to_string()),
         },
         fields,
         evidence: evidence_references(result)
@@ -249,9 +278,7 @@ fn child_runtime_delivery_receipt_pending_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING
             .to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -312,9 +339,7 @@ fn child_runtime_delivery_receipt_requirement_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIREMENT
             .to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -377,9 +402,7 @@ fn child_runtime_delivery_dispatch_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_DISPATCH
             .to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -440,9 +463,7 @@ fn child_runtime_delivery_queue_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE
             .to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -503,9 +524,7 @@ fn child_runtime_delivery_handoff_activity_event(
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF
             .to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -565,9 +584,7 @@ fn mutation_receipt_activity_event(
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(serialize_json_string(result).0),
     );
     fields.insert(
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
@@ -618,6 +635,13 @@ fn action_result_activity_event(
     result: &AppGameTimerParentPreferenceSetupRequestResult,
 ) -> ActivityEvent {
     let row = action_result_row(command, result);
+    let row_json = serialize_json_string(&row).0;
+    let AppGameControlActionResult {
+        result_id,
+        result_status,
+        recorded_at,
+        ..
+    } = row;
     let mut fields = LogFields::new();
     fields.insert(
         APP_GAME_JOURNAL_FIELD_ROW_KIND.to_string(),
@@ -633,15 +657,13 @@ fn action_result_activity_event(
     );
     fields.insert(
         APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
-        LogFieldValue::String(
-            serde_json::to_string(&row).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        ),
+        LogFieldValue::String(row_json),
     );
 
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
-        event_id: row.result_id.clone(),
-        observed_at: row.recorded_at.clone(),
+        event_id: result_id,
+        observed_at: recorded_at,
         source: ActivitySource {
             device_id: command.target.device_id.clone(),
             platform: command.target.platform.clone(),
@@ -652,7 +674,7 @@ fn action_result_activity_event(
         subject: ActivitySubject {
             kind: ActivitySubjectKind::Device,
             subject_id: APP_GAME_JOURNAL_AUTHORITY_SUBJECT_ID.to_string(),
-            display_name: Some(row.result_status.clone()),
+            display_name: Some(result_status),
         },
         fields,
         evidence: Vec::new(),

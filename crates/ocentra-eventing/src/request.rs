@@ -4,10 +4,13 @@ use std::{
     time::Duration,
 };
 
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tokio::sync::oneshot;
 
-use crate::{DomainEvent, EventRequestMetrics, EventingError, PublishReport, RequestId};
+use crate::bus::reports::EventRequestMetrics;
+use crate::{DomainEvent, EventingError, ExpectValue, PublishReport, RequestId};
+
+mod request_helpers;
 
 const TERMINAL_REQUEST_RETENTION_LIMIT: usize = 4096;
 
@@ -45,14 +48,16 @@ impl RequestOptions {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum RequestCompletionOutcome {
     Completed,
     Duplicate,
     Late,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RequestCompletionReport {
     pub request_id: RequestId,
     pub outcome: RequestCompletionOutcome,
@@ -79,11 +84,9 @@ impl RequestRegistry {
         request_id: RequestId,
     ) -> Result<oneshot::Receiver<RequestPayload>, EventingError> {
         let (sender, receiver) = oneshot::channel();
-        let mut state = self.state.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect_value("request registry lock");
         if state.entries.contains_key(&request_id) {
-            return Err(EventingError::DuplicateRequest {
-                request_id: request_id.clone(),
-            });
+            return Err(EventingError::DuplicateRequest { request_id });
         }
         state
             .entries
@@ -100,7 +103,7 @@ impl RequestRegistry {
         R: EventResponseContract,
     {
         let payload = RequestPayload::from_response(&request_id, response)?;
-        let mut state = self.state.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect_value("request registry lock");
         let Some(entry) = state.entries.get_mut(&request_id) else {
             return Ok(completion_report(
                 request_id,
@@ -109,31 +112,7 @@ impl RequestRegistry {
         };
         match entry.state {
             RequestState::Pending => {
-                entry.state = RequestState::Completed;
-                if let Some(sender) = entry.sender.take() {
-                    if sender.send(payload).is_ok() {
-                        mark_terminal(&mut state, &request_id);
-                        trim_terminal_requests(&mut state);
-                        Ok(completion_report(
-                            request_id,
-                            RequestCompletionOutcome::Completed,
-                        ))
-                    } else {
-                        mark_terminal(&mut state, &request_id);
-                        trim_terminal_requests(&mut state);
-                        Ok(completion_report(
-                            request_id,
-                            RequestCompletionOutcome::Late,
-                        ))
-                    }
-                } else {
-                    mark_terminal(&mut state, &request_id);
-                    trim_terminal_requests(&mut state);
-                    Ok(completion_report(
-                        request_id,
-                        RequestCompletionOutcome::Late,
-                    ))
-                }
+                request_helpers::complete_pending_request(&mut state, request_id, payload)
             }
             RequestState::Completed => Ok(completion_report(
                 request_id,
@@ -147,19 +126,19 @@ impl RequestRegistry {
     }
 
     pub(crate) fn timeout(&self, request_id: &RequestId) {
-        let mut state = self.state.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect_value("request registry lock");
         if let Some(entry) = state.entries.get_mut(request_id) {
             if entry.state == RequestState::Pending {
                 entry.state = RequestState::TimedOut;
                 entry.sender.take();
-                mark_terminal(&mut state, request_id);
+                request_helpers::mark_terminal(&mut state, request_id);
             }
         }
-        trim_terminal_requests(&mut state);
+        request_helpers::trim_terminal_requests(&mut state);
     }
 
     pub(crate) fn cancel(&self, request_id: &RequestId) -> bool {
-        let mut state = self.state.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect_value("request registry lock");
         let removed = state.entries.remove(request_id).is_some();
         if removed {
             state
@@ -170,7 +149,7 @@ impl RequestRegistry {
     }
 
     pub(crate) fn metrics(&self) -> EventRequestMetrics {
-        let state = self.state.lock().expect("request registry lock");
+        let state = self.state.lock().expect_value("request registry lock");
         EventRequestMetrics {
             pending_request_count: state
                 .entries
@@ -199,24 +178,8 @@ impl RequestRegistry {
     }
 
     fn clear_entries(&self) -> RequestRegistryClearReport {
-        let mut state = self.state.lock().expect("request registry lock");
-        let report = RequestRegistryClearReport {
-            pending_request_count: state
-                .entries
-                .values()
-                .filter(|entry| entry.state == RequestState::Pending)
-                .count(),
-            completed_request_count: state
-                .entries
-                .values()
-                .filter(|entry| entry.state == RequestState::Completed)
-                .count(),
-            timed_out_request_count: state
-                .entries
-                .values()
-                .filter(|entry| entry.state == RequestState::TimedOut)
-                .count(),
-        };
+        let mut state = self.state.lock().expect_value("request registry lock");
+        let report = request_helpers::request_registry_report(&state);
         state.entries.clear();
         state.terminal_order.clear();
         report
@@ -290,36 +253,12 @@ impl RequestPayload {
     }
 }
 
-fn completion_report(
+pub(super) fn completion_report(
     request_id: RequestId,
     outcome: RequestCompletionOutcome,
 ) -> RequestCompletionReport {
     RequestCompletionReport {
         request_id,
         outcome,
-    }
-}
-
-fn mark_terminal(state: &mut RequestRegistryState, request_id: &RequestId) {
-    if !state
-        .terminal_order
-        .iter()
-        .any(|terminal_id| terminal_id == request_id)
-    {
-        state.terminal_order.push_back(request_id.clone());
-    }
-}
-
-fn trim_terminal_requests(state: &mut RequestRegistryState) {
-    while state.terminal_order.len() > TERMINAL_REQUEST_RETENTION_LIMIT {
-        if let Some(request_id) = state.terminal_order.pop_front() {
-            if state
-                .entries
-                .get(&request_id)
-                .is_some_and(|entry| entry.state != RequestState::Pending)
-            {
-                state.entries.remove(&request_id);
-            }
-        }
     }
 }

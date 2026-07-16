@@ -1,25 +1,15 @@
-<!-- agent-capsule -->
+# Checklist Index
 
-> Agent Capsule
-> Plan: `app-plan`
-> Doc: `CHECKLIST_INDEX.md`
-> Kind: checklist route index.
-> Read when: Only when a workpack or DONE/PR_READY flow names checklist rows.
-> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Checklist status changes require proof rows and feature/product status sync.
+Status: reset.
 
-<!-- /agent-capsule -->
+This checklist tracks execution only. Proof artifacts are collected in the designated local artifact path for the workpack or crate, not in this plan folder.
 
-# Native Apps Plan Checklist Index
-
-Use this file to locate checklist intent without opening broad checklists.
-
-| Area                      | Required status rule                                                                  |
-| ------------------------- | ------------------------------------------------------------------------------------- |
-| Source and acceptance map | Keep status open until feature, expectation, capability, and route rows agree.        |
-| Current state and gaps    | Do not close gaps without proof artifact paths.                                       |
-| Contracts and boundaries  | Expected schema/protocol/read-model shapes must have negative proof.                  |
-| Runtime/user flow handoff | UI/runtime/service handoffs need logs, screenshots, traces, or manual-required proof. |
-| Rollout and PR gate       | DONE/PR_READY requires selected proof intents and known gaps.                         |
+- [ ] Read the plan and route docs.
+- [ ] Write or update the code.
+- [ ] Write or update the tests.
+- [ ] Compile and validate the touched code.
+- [ ] Run the tests.
+- [ ] Run full crate or package validation.
+- [ ] Collect proof artifacts in the designated local artifact path.
+- [ ] Record the proof location outside the plan folder.
+- [ ] Prepare PR-ready notes.

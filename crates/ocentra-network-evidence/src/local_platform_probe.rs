@@ -1,4 +1,14 @@
+mod claims;
+mod metrics;
+mod observations;
+
 use serde::{Deserialize, Serialize};
+
+use self::{
+    claims::{reject_input_claims, reject_status_claims},
+    metrics::{count_apple_ci_unavailable, count_host},
+    observations::{normalize_observations, validate_observations},
+};
 
 use crate::{
     NetworkAdapterCapabilityStatusProof, NetworkAdapterCapabilityStatusState,
@@ -138,197 +148,7 @@ pub fn build_network_local_platform_probe_proof(
     })
 }
 
-fn reject_input_claims(
-    claims: &NetworkLocalPlatformProbeUnsupportedClaims,
-) -> Result<(), NetworkLocalPlatformProbeError> {
-    if claims.exact_url_claimed {
-        return Err(NetworkLocalPlatformProbeError::ExactUrlClaimRejected);
-    }
-    if claims.decrypted_payload_claimed {
-        return Err(NetworkLocalPlatformProbeError::DecryptedPayloadClaimRejected);
-    }
-    if claims.page_content_claimed {
-        return Err(NetworkLocalPlatformProbeError::PageContentClaimRejected);
-    }
-    if claims.live_adapter_execution_claimed {
-        return Err(NetworkLocalPlatformProbeError::LiveAdapterExecutionClaimRejected);
-    }
-    if claims.enforcement_command_claimed {
-        return Err(NetworkLocalPlatformProbeError::EnforcementCommandClaimRejected);
-    }
-    if claims.ui_policy_authority_claimed {
-        return Err(NetworkLocalPlatformProbeError::UiPolicyAuthorityClaimRejected);
-    }
-    if claims.production_platform_support_claimed {
-        return Err(NetworkLocalPlatformProbeError::ProductionPlatformSupportClaimRejected);
-    }
-    Ok(())
-}
-
-fn reject_status_claims(
-    status: &NetworkAdapterCapabilityStatusProof,
-) -> Result<(), NetworkLocalPlatformProbeError> {
-    if !status.no_live_adapter_execution_claimed {
-        return Err(NetworkLocalPlatformProbeError::AdapterStatusClaimsLiveExecution);
-    }
-    if !status.no_enforcement_commands_published {
-        return Err(NetworkLocalPlatformProbeError::AdapterStatusPublishesEnforcementCommand);
-    }
-    if !status.ui_has_no_policy_authority {
-        return Err(NetworkLocalPlatformProbeError::AdapterStatusAllowsUiPolicyAuthority);
-    }
-    Ok(())
-}
-
-fn normalize_observations(
-    observations: Vec<NetworkLocalPlatformProbeObservation>,
-) -> Result<Vec<NetworkLocalPlatformProbeObservation>, NetworkLocalPlatformProbeError> {
-    let mut normalized = Vec::new();
-    for mut observation in observations {
-        if normalized
-            .iter()
-            .any(|current: &NetworkLocalPlatformProbeObservation| {
-                current.target == observation.target
-            })
-        {
-            return Err(NetworkLocalPlatformProbeError::DuplicateTargetObservation(
-                observation.target,
-            ));
-        }
-        observation.evidence_refs =
-            normalized_refs(observation.target, &observation.evidence_refs)?;
-        reject_observation_claims(&observation)?;
-        normalized.push(observation);
-    }
-    Ok(normalized)
-}
-
-fn reject_observation_claims(
-    observation: &NetworkLocalPlatformProbeObservation,
-) -> Result<(), NetworkLocalPlatformProbeError> {
-    if observation.adapter_execution_attempted {
-        return Err(
-            NetworkLocalPlatformProbeError::AdapterExecutionAttemptRejected(observation.target),
-        );
-    }
-    if observation.exact_url_claimed {
-        return Err(NetworkLocalPlatformProbeError::ExactUrlClaimRejected);
-    }
-    if observation.decrypted_payload_claimed {
-        return Err(NetworkLocalPlatformProbeError::DecryptedPayloadClaimRejected);
-    }
-    if observation.page_content_claimed {
-        return Err(NetworkLocalPlatformProbeError::PageContentClaimRejected);
-    }
-    if observation.production_platform_support_claimed {
-        return Err(NetworkLocalPlatformProbeError::ProductionPlatformSupportClaimRejected);
-    }
-    if observation.probe_state == NetworkLocalPlatformProbeState::ReadOnlyObserved
-        && !observation.read_only_probe_executed
-    {
-        return Err(
-            NetworkLocalPlatformProbeError::ReadOnlyProbeExecutionRefMissing(observation.target),
-        );
-    }
-    Ok(())
-}
-
-fn validate_observations(
-    observations: &[NetworkLocalPlatformProbeObservation],
-    status: &NetworkAdapterCapabilityStatusProof,
-) -> Result<(), NetworkLocalPlatformProbeError> {
-    for observation in observations {
-        let status_entry = status
-            .entries
-            .iter()
-            .find(|entry| entry.target == observation.target)
-            .ok_or(NetworkLocalPlatformProbeError::MissingAdapterStatusEntry(
-                observation.target,
-            ))?;
-        if status_entry.capability_status != observation.capability_status {
-            return Err(NetworkLocalPlatformProbeError::CapabilityStatusMismatch(
-                observation.target,
-            ));
-        }
-        if !probe_state_supports_status(observation.probe_state, observation.capability_status) {
-            return Err(
-                NetworkLocalPlatformProbeError::ProbeStateDoesNotSupportCapability(
-                    observation.target,
-                ),
-            );
-        }
-    }
-    Ok(())
-}
-
-fn probe_state_supports_status(
-    state: NetworkLocalPlatformProbeState,
-    status: NetworkAdapterCapabilityStatusState,
-) -> bool {
-    match state {
-        NetworkLocalPlatformProbeState::ReadOnlyObserved => {
-            status == NetworkAdapterCapabilityStatusState::DryRun
-        }
-        NetworkLocalPlatformProbeState::LabReady => matches!(
-            status,
-            NetworkAdapterCapabilityStatusState::LabReady
-                | NetworkAdapterCapabilityStatusState::DistroReady
-        ),
-        NetworkLocalPlatformProbeState::ManualRequired => {
-            status == NetworkAdapterCapabilityStatusState::ManualRequired
-        }
-        NetworkLocalPlatformProbeState::Unavailable | NetworkLocalPlatformProbeState::CiOnly => {
-            status == NetworkAdapterCapabilityStatusState::Unavailable
-        }
-    }
-}
-
-fn count_host(
-    observations: &[NetworkLocalPlatformProbeObservation],
-    host: NetworkLocalPlatformProbeHost,
-) -> usize {
-    observations
-        .iter()
-        .filter(|observation| observation.host == host)
-        .count()
-}
-
-fn count_apple_ci_unavailable(observations: &[NetworkLocalPlatformProbeObservation]) -> usize {
-    observations
-        .iter()
-        .filter(|observation| {
-            matches!(
-                observation.host,
-                NetworkLocalPlatformProbeHost::MacOsCi | NetworkLocalPlatformProbeHost::IosCi
-            ) && observation.probe_state == NetworkLocalPlatformProbeState::CiOnly
-        })
-        .count()
-}
-
-fn normalized_refs(
-    target: NetworkPlatformClaimTarget,
-    refs: &[String],
-) -> Result<Vec<String>, NetworkLocalPlatformProbeError> {
-    let mut normalized = Vec::new();
-    for value in refs {
-        let Some(ref_value) = normalize_ref(value) else {
-            return Err(NetworkLocalPlatformProbeError::EmptyObservationEvidenceRef(
-                target,
-            ));
-        };
-        if !normalized.contains(&ref_value) {
-            normalized.push(ref_value);
-        }
-    }
-    if normalized.is_empty() {
-        return Err(NetworkLocalPlatformProbeError::EmptyObservationEvidenceRef(
-            target,
-        ));
-    }
-    Ok(normalized)
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
+pub(super) fn normalize_ref(value: &str) -> Option<String> {
     let trimmed = value.trim();
     if trimmed.is_empty() {
         None

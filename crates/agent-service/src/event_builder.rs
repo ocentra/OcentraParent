@@ -1,27 +1,93 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentEventEnvelope, AgentEventName, AgentLogSnapshot, AgentPeer, AgentPeerRole,
-    LogFields, LogLevel, AGENT_PROTOCOL_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{AgentLogSnapshot, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{
+    AgentEventEnvelope, AgentEventName, AgentPeer, AgentPeerRole,
 };
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::time::timestamp_now;
 
-pub fn build_event(
-    event_id_suffix: &str,
-    correlation_id: &str,
+pub struct EventIdSuffixText(pub String);
+
+pub struct EventCorrelationIdText(pub String);
+
+pub trait IntoEventIdSuffixText {
+    fn into_event_id_suffix_text(self) -> EventIdSuffixText;
+}
+
+pub trait IntoEventCorrelationIdText {
+    fn into_event_correlation_id_text(self) -> EventCorrelationIdText;
+}
+
+impl IntoEventIdSuffixText for EventIdSuffixText {
+    fn into_event_id_suffix_text(self) -> EventIdSuffixText {
+        self
+    }
+}
+
+impl IntoEventCorrelationIdText for EventCorrelationIdText {
+    fn into_event_correlation_id_text(self) -> EventCorrelationIdText {
+        self
+    }
+}
+
+impl IntoEventIdSuffixText for &str {
+    fn into_event_id_suffix_text(self) -> EventIdSuffixText {
+        EventIdSuffixText(self.to_string())
+    }
+}
+
+impl IntoEventIdSuffixText for String {
+    fn into_event_id_suffix_text(self) -> EventIdSuffixText {
+        EventIdSuffixText(self)
+    }
+}
+
+impl IntoEventIdSuffixText for &String {
+    fn into_event_id_suffix_text(self) -> EventIdSuffixText {
+        EventIdSuffixText(self.clone())
+    }
+}
+
+impl IntoEventCorrelationIdText for &str {
+    fn into_event_correlation_id_text(self) -> EventCorrelationIdText {
+        EventCorrelationIdText(self.to_string())
+    }
+}
+
+impl IntoEventCorrelationIdText for String {
+    fn into_event_correlation_id_text(self) -> EventCorrelationIdText {
+        EventCorrelationIdText(self)
+    }
+}
+
+impl IntoEventCorrelationIdText for &String {
+    fn into_event_correlation_id_text(self) -> EventCorrelationIdText {
+        EventCorrelationIdText(self.clone())
+    }
+}
+
+pub fn build_event<S, C>(
+    event_id_suffix: S,
+    correlation_id: C,
     target: AgentPeer,
     event: AgentEventName,
     severity: LogLevel,
     payload: LogFields,
     snapshot: Option<AgentLogSnapshot>,
-) -> AgentEventEnvelope {
-    let mut event_id = String::from(event_id_suffix);
+) -> AgentEventEnvelope
+where
+    S: IntoEventIdSuffixText,
+    C: IntoEventCorrelationIdText,
+{
+    let mut event_id = event_id_suffix.into_event_id_suffix_text().0;
     event_id.push(constants::delimiter::HYPHEN);
     event_id.push_str(&std::process::id().to_string());
 
     AgentEventEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         event_id,
-        correlation_id: correlation_id.to_string(),
+        correlation_id: correlation_id.into_event_correlation_id_text().0,
         sent_at: timestamp_now(),
         source: AgentPeer {
             peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
@@ -39,34 +105,5 @@ pub fn portal_peer() -> AgentPeer {
     AgentPeer {
         peer_id: constants::peer::PORTAL_DEV.to_string(),
         role: AgentPeerRole::Portal,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use ocentra_parent_agent_protocol::{constants, AgentEventName, LogFieldValue, LogLevel};
-
-    use crate::{
-        event_builder::{build_event, portal_peer},
-        fields::fields_from_pairs,
-    };
-
-    #[test]
-    fn build_event_targets_portal_peer_without_inline_literals() {
-        let event = build_event(
-            constants::event_id::HEALTH_REPORTED,
-            constants::event_id::HEALTH_REPORTED,
-            portal_peer(),
-            AgentEventName::AgentHealthReported,
-            LogLevel::Info,
-            fields_from_pairs(vec![(
-                constants::field::ONLINE,
-                LogFieldValue::Boolean(true),
-            )]),
-            None,
-        );
-
-        assert_eq!(event.target.peer_id, constants::peer::PORTAL_DEV);
-        assert!(event.payload.contains_key(constants::field::ONLINE));
     }
 }

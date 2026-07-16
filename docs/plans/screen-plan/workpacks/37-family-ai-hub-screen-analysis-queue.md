@@ -27,12 +27,12 @@ state for household-provider-required cases.
 
 ## Checklist
 
-- [x] Define trusted household provider availability state.
-- [x] Define local-network custody boundary.
-- [x] Define summary/image transfer rules if any.
-- [x] Prefer redacted/cropped input.
-- [x] Record parent approval requirements.
-- [x] Add fallback to manual-required when no trusted household provider is
+- [ ] Define trusted household provider availability state.
+- [ ] Define local-network custody boundary.
+- [ ] Define summary/image transfer rules if any.
+- [ ] Prefer redacted/cropped input.
+- [ ] Record parent approval requirements.
+- [ ] Add fallback to manual-required when no trusted household provider is
       available.
 
 ## Proof

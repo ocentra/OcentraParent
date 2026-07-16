@@ -1,0 +1,25 @@
+import {
+  BrowserUnmanagedDetectionConfidenceSchema as GeneratedBrowserUnmanagedDetectionConfidenceSchema,
+  BrowserUnmanagedProcessKindSchema as GeneratedBrowserUnmanagedProcessKindSchema,
+  BrowserUnmanagedDetectionReasonSchema as GeneratedBrowserUnmanagedDetectionReasonSchema,
+  BrowserUnmanagedExecutablePathRefSchema as GeneratedBrowserUnmanagedExecutablePathRefSchema,
+  BrowserUnmanagedProcessHashRefSchema as GeneratedBrowserUnmanagedProcessHashRefSchema,
+  BrowserUnmanagedProcessNameSchema as GeneratedBrowserUnmanagedProcessNameSchema,
+  BrowserUnmanagedSignatureRefSchema as GeneratedBrowserUnmanagedSignatureRefSchema,
+} from './generated-browser-unmanaged-process-schemas';
+import type {
+  BrowserUnmanagedDetectionConfidence as GeneratedBrowserUnmanagedDetectionConfidence,
+  BrowserUnmanagedDetectionReason as GeneratedBrowserUnmanagedDetectionReason,
+  BrowserUnmanagedProcessKind as GeneratedBrowserUnmanagedProcessKind,
+} from './generated-browser-unmanaged-process-schemas';
+
+export const BrowserUnmanagedDetectionConfidenceSchema = GeneratedBrowserUnmanagedDetectionConfidenceSchema;
+export const BrowserUnmanagedProcessKindSchema = GeneratedBrowserUnmanagedProcessKindSchema;
+export const BrowserUnmanagedDetectionReasonSchema = GeneratedBrowserUnmanagedDetectionReasonSchema;
+export const BrowserUnmanagedExecutablePathRefSchema = GeneratedBrowserUnmanagedExecutablePathRefSchema;
+export const BrowserUnmanagedProcessHashRefSchema = GeneratedBrowserUnmanagedProcessHashRefSchema;
+export const BrowserUnmanagedProcessNameSchema = GeneratedBrowserUnmanagedProcessNameSchema;
+export const BrowserUnmanagedSignatureRefSchema = GeneratedBrowserUnmanagedSignatureRefSchema;
+export type BrowserUnmanagedDetectionConfidence = GeneratedBrowserUnmanagedDetectionConfidence;
+export type BrowserUnmanagedDetectionReason = GeneratedBrowserUnmanagedDetectionReason;
+export type BrowserUnmanagedProcessKind = GeneratedBrowserUnmanagedProcessKind;

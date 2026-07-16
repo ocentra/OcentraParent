@@ -1,25 +1,23 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventBus, EventContract, EventContractRegistry,
-    EventResponseContract, EventSubscriber, EventTopologyManifest, EventTopologyPublisher,
-    EventTopologySubscriber, EventType, EventingError, IdempotencyKey, RequestEvent, RequestId,
-    RequestOptions, SchemaVersion, SourceComponent, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, contract_registry::EventContractRegistry,
+    envelope::DomainEvent, envelope::EventContract, error::EventingError, ids::AggregateKey,
+    ids::EventType, ids::IdempotencyKey, ids::RequestId, ids::SchemaVersion, ids::SourceComponent,
+    ids::SubscriberId, ids::TargetHandler, request::RequestEvent, request::RequestOptions,
+    topology::EventTopologyManifest, topology::EventTopologyPublisher,
+    topology::EventTopologySubscriber,
 };
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
-use crate::{BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimePhase};
+use super::{
+    browser_aggregate_key, browser_event_metadata, BrowserRuntimeEventPayload, BrowserRuntimeInput,
+};
 
-use super::{browser_aggregate_key, browser_event_metadata};
-
-#[derive(Clone, Debug)]
-pub struct BrowserRuntimeSocialProviderReceiptStatusReport {
-    pub request_report:
-        ocentra_eventing::RequestReport<BrowserRuntimeSocialProviderReceiptStatusResponse>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
-}
+pub type BrowserRuntimeSocialProviderReceiptStatusReport =
+    ocentra_parent_agent_protocol::browser::social_provider_receipt::BrowserRuntimeSocialProviderReceiptStatusReport;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 struct BrowserRuntimeSocialProviderReceiptStatusRequest {
@@ -58,66 +56,42 @@ impl RequestEvent for BrowserRuntimeSocialProviderReceiptStatusRequest {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct BrowserRuntimeSocialProviderReceiptStatusResponse {
-    pub receipt_boundary_row_count: usize,
-    pub provider_dispatch_required_count: usize,
-    pub manual_receipt_required_count: usize,
-    pub provider_attempt_ref: Option<String>,
-    pub provider_receipt_proof_ref: Option<String>,
-    pub source_ref: String,
-    pub evidence_ref: String,
-    pub action_intent_id: Option<String>,
-    pub receipt_boundary_state: String,
-    pub receipt_runtime_state: String,
-    pub provider_receipt_count: u8,
-    pub provider_dispatch_count: u8,
-    pub provider_webhook_count: u8,
-    pub provider_credentials_count: u8,
-    pub parent_notification_ui_delivery_count: u8,
-    pub report_delivery_execution_count: u8,
-    pub final_policy_execution_count: u8,
-    pub connector_native_runtime_count: u8,
-    pub enforcement_execution_count: u8,
-}
+pub type BrowserRuntimeSocialProviderReceiptStatusResponse =
+    ocentra_parent_agent_protocol::browser::social_provider_receipt::BrowserRuntimeSocialProviderReceiptStatusResponse;
 
-impl BrowserRuntimeSocialProviderReceiptStatusResponse {
-    fn from_payload(payload: &BrowserRuntimeEventPayload) -> Self {
-        let provider_dispatch_required = social_provider_dispatch_required(payload);
-        Self {
-            receipt_boundary_row_count: 1,
-            provider_dispatch_required_count: usize::from(provider_dispatch_required),
-            manual_receipt_required_count: usize::from(!provider_dispatch_required),
-            provider_attempt_ref: provider_dispatch_required.then(|| {
-                constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REF.to_string()
-            }),
-            provider_receipt_proof_ref: Some(
-                constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REF
-                    .to_string(),
-            ),
-            source_ref: payload.source_ref.clone(),
-            evidence_ref: payload.evidence_ref.clone(),
-            action_intent_id: provider_dispatch_required
-                .then(|| payload.action_intent_id.clone())
-                .flatten(),
-            receipt_boundary_state: receipt_boundary_state(provider_dispatch_required).to_string(),
-            receipt_runtime_state:
-                constants::browser::SOCIAL_PROVIDER_RECEIPT_RUNTIME_STATE_MANUAL_REQUIRED
-                    .to_string(),
-            provider_receipt_count: 0,
-            provider_dispatch_count: 0,
-            provider_webhook_count: 0,
-            provider_credentials_count: 0,
-            parent_notification_ui_delivery_count: 0,
-            report_delivery_execution_count: 0,
-            final_policy_execution_count: 0,
-            connector_native_runtime_count: 0,
-            enforcement_execution_count: 0,
-        }
+fn social_provider_receipt_status_response_from_payload(
+    payload: &BrowserRuntimeEventPayload,
+) -> BrowserRuntimeSocialProviderReceiptStatusResponse {
+    let provider_dispatch_required = social_provider_dispatch_required(payload);
+    BrowserRuntimeSocialProviderReceiptStatusResponse {
+        receipt_boundary_row_count: 1,
+        provider_dispatch_required_count: usize::from(provider_dispatch_required),
+        manual_receipt_required_count: usize::from(!provider_dispatch_required),
+        provider_attempt_ref: provider_dispatch_required.then(|| {
+            constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REF.to_string()
+        }),
+        provider_receipt_proof_ref: Some(
+            constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REF.to_string(),
+        ),
+        source_ref: payload.source_ref.clone(),
+        evidence_ref: payload.evidence_ref.clone(),
+        action_intent_id: provider_dispatch_required
+            .then(|| payload.action_intent_id.clone())
+            .flatten(),
+        receipt_boundary_state: receipt_boundary_state(provider_dispatch_required).to_string(),
+        receipt_runtime_state:
+            constants::browser::SOCIAL_PROVIDER_RECEIPT_RUNTIME_STATE_MANUAL_REQUIRED.to_string(),
+        provider_receipt_count: 0,
+        provider_dispatch_count: 0,
+        provider_webhook_count: 0,
+        provider_credentials_count: 0,
+        parent_notification_ui_delivery_count: 0,
+        report_delivery_execution_count: 0,
+        final_policy_execution_count: 0,
+        connector_native_runtime_count: 0,
+        enforcement_execution_count: 0,
     }
 }
-
-impl EventResponseContract for BrowserRuntimeSocialProviderReceiptStatusResponse {}
 
 pub async fn request_browser_runtime_social_provider_receipt_status_for_input(
     input: BrowserRuntimeInput,
@@ -137,11 +111,9 @@ pub async fn request_browser_runtime_social_provider_receipt_status_for_input(
         ),
         |context| async move {
             context
-                .complete_request(
-                    BrowserRuntimeSocialProviderReceiptStatusResponse::from_payload(
-                        &context.payload().payload,
-                    ),
-                )
+                .complete_request(social_provider_receipt_status_response_from_payload(
+                    &context.payload().payload,
+                ))
                 .await?;
             Ok(())
         },
@@ -149,7 +121,7 @@ pub async fn request_browser_runtime_social_provider_receipt_status_for_input(
     .await?;
 
     let phase = BrowserRuntimePhase::PolicyDecisionCompleted;
-    let payload = BrowserRuntimeEventPayload::from_input(phase, &input);
+    let payload = super::browser_runtime_event_payload_from_input(phase, &input);
     let request = BrowserRuntimeSocialProviderReceiptStatusRequest {
         request_id: RequestId::parse(social_provider_receipt_status_request_id(&payload))?,
         payload,
@@ -178,7 +150,7 @@ pub async fn request_browser_runtime_social_provider_receipt_status_for_input(
 
 pub fn browser_runtime_social_provider_receipt_status_topology_manifest(
 ) -> Result<EventTopologyManifest, EventingError> {
-    let payload = BrowserRuntimeEventPayload::from_input(
+    let payload = super::browser_runtime_event_payload_from_input(
         BrowserRuntimePhase::PolicyDecisionCompleted,
         &BrowserRuntimeInput::dry_run_action_handoff_fixture(),
     );

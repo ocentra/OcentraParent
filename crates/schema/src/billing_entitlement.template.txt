@@ -1,0 +1,120 @@
+/* generated from crates/schema/src/billing_entitlement_ts.rs */
+
+import { type Infer, Schema, withParser } from './effect';
+import { ParentAccountReferenceSchema, FamilyReferenceSchema, ParentActorReferenceSchema } from './family-references';
+import { ParentDeviceReferenceSchema } from './family-references';
+import { ParentTimestampSchema } from './family-reference-primitives';
+import { billingEntitlementProofIsHonest } from './generated-billing-entitlement-proof';
+import {
+  BillingAuditReferenceSchema,
+  BillingChildActivityCustodyClaimSchema,
+  BillingChildActivityCustodySchema,
+  BillingDeviceLimitDecisionIdSchema,
+  BillingDeviceLimitDecisionStateSchema,
+  BillingDeviceLimitReasonSchema,
+  BillingDeviceActivationBehaviorSchema,
+  BillingDisplayTextTokenSchema,
+  BillingEntitlementDecisionStateSchema,
+  BillingEntitlementNonClaimSchema,
+  BillingEntitlementSchemaVersionSchema,
+  BillingEntitlementSnapshotIdSchema,
+  BillingEntitlementSourceSchema,
+  BillingEvidenceExportAccessSchema,
+  BillingExtraParentSlotStateSchema,
+  BillingFeatureCodeSchema,
+  BillingIncludedParentPortalCountSchema,
+  BillingLocalSafetyBehaviorSchema,
+  BillingParentVisibleStateSchema,
+  BillingPlanActiveStateSchema,
+  BillingPlanIdSchema,
+  BillingPortalUiClaimSchema,
+  BillingPriceReferenceSchema,
+  BillingProviderBackendClaimSchema,
+  BillingProviderBoundarySchema,
+  BillingProviderReferenceSchema,
+  BillingReasonCodeSchema,
+  BillingSignatureStateSchema,
+  BillingStripeSdkClaimSchema,
+  BillingSubscriptionStatusSchema,
+  BillingSyncEventIdSchema,
+  NonNegativeBillingCountSchema,
+  PositiveBillingLimitSchema,
+} from './billing-entitlement-values';
+import { buildBillingFailureStateSchema } from './generated-billing-support-admin-common-values';
+
+const RejectedBillingGameEconomyPattern = /\b(coin|coins|gem|gems|loot|battle-?pass|skin|crate|marketplace)\b/i;
+
+export const BillingFeatureEntitlementSchema = withParser(
+  Schema.Struct({
+    featureCode: BillingFeatureCodeSchema,
+    included: Schema.Boolean,
+    gateable: Schema.Boolean,
+    safetyCritical: Schema.Boolean,
+    localSafetyBehavior: BillingLocalSafetyBehaviorSchema,
+    childActivityCustody: BillingChildActivityCustodySchema,
+  }).pipe(
+    Schema.filter(
+      (feature) =>
+        !feature.safetyCritical ||
+        !feature.gateable ||
+        'Expected safety-critical local behavior to stay outside paid entitlement gates'
+    )
+  )
+);
+
+export const BillingPlanSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingEntitlementSchemaVersionSchema,
+    planId: BillingPlanIdSchema,
+    displayTextToken: BillingDisplayTextTokenSchema,
+    activeState: BillingPlanActiveStateSchema,
+    parentPortalAccess: Schema.Struct({
+      includedParentPortalCount: BillingIncludedParentPortalCountSchema,
+      extraParentSlotState: BillingExtraParentSlotStateSchema,
+    }),
+    deviceLimit: PositiveBillingLimitSchema,
+    featureEntitlements: Schema.Array(BillingFeatureEntitlementSchema),
+    retentionExportAllowance: Schema.Struct({
+      advancedReportDays: PositiveBillingLimitSchema,
+      exportAllowed: Schema.Boolean,
+      parentOwnedStorageRequired: Schema.Boolean,
+    }),
+    priceReference: BillingPriceReferenceSchema,
+    updatedAt: ParentTimestampSchema,
+  }).pipe(
+    Schema.filter(
+      (plan) =>
+        plan.displayTextToken.startsWith('billing.plan.') ||
+        'Expected billing plan display tokens to stay inside the billing plan namespace'
+    ),
+    Schema.filter(
+      (plan) =>
+        (!RejectedBillingGameEconomyPattern.test(plan.displayTextToken) &&
+          !RejectedBillingGameEconomyPattern.test(plan.priceReference)) ||
+        'Expected billing plans to reject game-economy pricing tokens or marketplace semantics'
+    )
+  )
+);
+
+export const BillingFailureStateSchema = buildBillingFailureStateSchema('billing');
+
+export const BillingSubscriptionStatusProofRowSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingEntitlementSchemaVersionSchema,
+    subscriptionStatus: BillingSubscriptionStatusSchema,
+    source: BillingEntitlementSourceSchema,
+    parentVisibleState: BillingParentVisibleStateSchema,
+    localSafetyBehavior: BillingLocalSafetyBehaviorSchema,
+    evidenceExportAccess: BillingEvidenceExportAccessSchema,
+    childActivityCustody: BillingChildActivityCustodySchema,
+    deviceActivationBehavior: BillingDeviceActivationBehaviorSchema,
+    failureState: Schema.Union(BillingFailureStateSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (row) =>
+        !['past-due', 'expired', 'unknown', 'unavailable'].includes(row.subscriptionStatus) ||
+        row.failureState !== null ||
+        'Expected degraded subscription status rows to carry a parent-visible failure state'
+    )
+  )
+);

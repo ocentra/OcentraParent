@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "parent-log-20260615T000000000Z-fixture",
+  "timestamp": "2026-06-15T00:00:00.000Z",
+  "level": "info",
+  "source": "agent-service",
+  "message": "Agent service dev runtime started.",
+  "fields": {}
+}

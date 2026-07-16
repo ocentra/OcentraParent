@@ -58,10 +58,10 @@ pub fn browser_windows_inventory_candidate_paths_from_live_sources(
 fn live_windows_browser_registry_install_entries(
     limit: usize,
 ) -> Vec<BrowserWindowsLiveRegistryInstallEntry> {
-    use ocentra_parent_agent_protocol::{
-        APP_GAME_WINDOWS_REGISTRY_CURRENT_USER_HIVE, APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE,
-        APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH, APP_GAME_WINDOWS_REGISTRY_WOW6432_UNINSTALL_PATH,
-    };
+    use ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_REGISTRY_CURRENT_USER_HIVE;
+    use ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE;
+    use ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH;
+    use ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_REGISTRY_WOW6432_UNINSTALL_PATH;
     use winreg::{
         enums::{HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE},
         RegKey,
@@ -148,10 +148,8 @@ fn collect_registry_entries_from_root(
 fn install_entry_from_registry_key(
     key: &winreg::RegKey,
 ) -> Option<BrowserWindowsLiveRegistryInstallEntry> {
-    use ocentra_parent_agent_protocol::{
-        APP_GAME_WINDOWS_REGISTRY_DISPLAY_ICON_VALUE,
-        APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE,
-    };
+    use ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_REGISTRY_DISPLAY_ICON_VALUE;
+    use ocentra_parent_agent_protocol::app_game::APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE;
 
     let display_icon = registry_string_value(key, APP_GAME_WINDOWS_REGISTRY_DISPLAY_ICON_VALUE);
     let install_location =

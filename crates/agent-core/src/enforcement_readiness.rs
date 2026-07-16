@@ -1,10 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants::enforcement as enforcement_constants, policy_constants, EnforcementAdapterKind,
-    EnforcementBroadAdapterCapability, EnforcementBroadAdapterReadinessEntry,
-    EnforcementBroadOsAdapterReadinessMatrix, EnforcementCapabilityState, EnforcementMode,
-    EnforcementReadinessProofLevel, EnforcementReadinessRuntimeOwner, EnforcementReadinessState,
-    ParentPlatform,
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementMode, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::enforcement_readiness::{
+    EnforcementBroadAdapterCapability, EnforcementBroadAdapterReadinessEntry,
+    EnforcementBroadOsAdapterReadinessMatrix, EnforcementReadinessProofLevel,
+    EnforcementReadinessRuntimeOwner, EnforcementReadinessState,
+};
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::enforcement_adapter::{
     app_block_control_capability, managed_browser_control_capability, network_control_capability,

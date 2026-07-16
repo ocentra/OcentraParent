@@ -50,12 +50,12 @@ production OCR runtime.
 
 ## Checklist
 
-- [x] Verify current Tesseract project/docs and license.
-- [x] Test local packaging on Windows first.
-- [x] Test basic UI text extraction.
-- [x] Measure CPU/memory/runtime.
-- [x] Record failure modes on small fonts/messy UI.
-- [x] Compare against PaddleOCR/PP-OCR before selecting.
+- [ ] Verify current Tesseract project/docs and license.
+- [ ] Test local packaging on Windows first.
+- [ ] Test basic UI text extraction.
+- [ ] Measure CPU/memory/runtime.
+- [ ] Record failure modes on small fonts/messy UI.
+- [ ] Compare against PaddleOCR/PP-OCR before selecting.
 
 ## Proof
 

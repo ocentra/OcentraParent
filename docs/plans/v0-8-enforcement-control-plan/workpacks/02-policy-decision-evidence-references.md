@@ -31,16 +31,35 @@ policy decision, target, schedule/budget, evidence refs, and validated actor.
 
 ## Requirement Checklist
 
-- [ ] Require evidence refs for action-capable states.
-- [ ] Preserve dry-run, observe-only, ask-parent, and unknown outcomes.
-- [ ] Reject stale, missing, wrong-device, or malformed decision references.
-- [ ] Show parent-visible reason codes.
-- [ ] Record all references in audit output.
+- [x] Require evidence refs for action-capable states.
+- [x] Preserve dry-run, observe-only, ask-parent, and unknown outcomes.
+- [x] Reject stale, missing, wrong-device, or malformed decision references.
+- [x] Show parent-visible reason codes.
+- [x] Record all references in audit output.
 
 ## Acceptance And Proof
 
-Tests prove missing or invalid references produce typed rejection or unknown
-state, not adapter execution.
+Tests now prove missing or invalid references produce typed rejection or unknown
+state, not adapter execution. Current proof runs:
+`node scripts/test/v0-8-enforcement-policy-dispatch-proof.mjs`.
+Rust owns the dispatch contract and consumer validation through
+`crates/agent-protocol/src/constants/v08_enforcement_policy_dispatch.rs`,
+`crates/agent-protocol/src/enforcement_policy_dispatch.rs`,
+`crates/agent-protocol/tests/unit/enforcement_policy_dispatch_tests.rs`,
+`crates/agent-core/src/enforcement_policy_dispatch.rs`,
+`crates/agent-core/tests/unit/enforcement_policy_dispatch_tests.rs`,
+`crates/agent-service/src/enforcement_policy_dispatch_read_model.rs`, and
+`crates/agent-service/tests/unit/enforcement_policy_dispatch_read_model_tests.rs`.
+The generated TypeScript DTO surface is
+`packages/schema-domain/src/enforcement-policy-dispatch.ts`.
+Current proof artifacts live under
+`test-results/v0-8-enforcement-policy-dispatch-proof/`,
+`output/v0-8-enforcement-control-plan-proof/02-policy-decision-evidence-references/`,
+and
+`docs/proof/v0-8-enforcement-control-plan/slice-06-policy-decision-evidence-references.md`.
+The named feature docs already described the typed policy/evidence/ask-parent
+and no-claim boundaries this slice proves, so no additional feature-doc or
+product-checklist text change was required for this closure.
 
 ## Parallel Ownership Notes
 

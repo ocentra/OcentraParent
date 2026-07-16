@@ -20,21 +20,24 @@ tracking-control truth.
 
 ## Repo Source Inputs
 
-| Source                                              | Why it matters                                                                                                                                                   |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `docs/features/location-geofence-device-status.md`  | Feature owner, current status, gap, roadmap anchors, and next AI instructions.                                                                                   |
-| `docs/expectations/location-geofence.md`            | Parent/child outcome, data scope, contract families, validation, and non-goals.                                                                                  |
-| `docs/tracking-control-settings-inventory.md`       | Generated 338-setting inventory, including posture modes, execution modes, capability states, heartbeat, battery, sync, pending upload, and missing-device rows. |
-| `docs/device-location-tracking-capability-guide.md` | Capability terms, location history, live tracking, geofence, check-in, last known, custody, and platform limits.                                                 |
-| `docs/device-location-tracking-schema-proposal.md`  | Authoring manifest, policy value, effective policy, update protocol, and capability registry guidance.                                                           |
-| `docs/expectations/platforms.md`                    | Platform claim rule and proof requirements for Windows, macOS, Linux, Android, iOS, Web, and parent app boundaries.                                              |
-| `docs/expectations/notifications.md`                | Notification intent, provider minimization, retry, quiet hours, escalation, and audit requirements.                                                              |
-| `docs/expectations/policy.md`                       | Parent policy owns action authority; portal authors rules but child-device agents validate/evaluate locally.                                                     |
-| `docs/expectations/ai.md`                           | AI is evidence, not authority; remote AI disabled by default; custody and evidence refs are mandatory.                                                           |
-| `docs/expectations/data-custody.md`                 | Local/LAN-first storage, no default Ocentra-hosted child activity store, and explicit export/delete boundaries.                                                  |
-| `docs/features/reports-notifications-sync.md`       | Broad reports, notifications, and sync ownership. Tracking emits location alert intents but does not own provider delivery globally.                             |
-| `docs/features/local-ai-safety-evaluator.md`        | General local AI runtime/provider status ownership. Tracking owns location-specific AI contracts only.                                                           |
-| `docs/features/parent-assistant-actions.md`         | Assistant can explain or draft tracking policy, but must not bypass typed preview, parent confirmation, or child-agent validation.                               |
+| Source                                                                 | Why it matters                                                                                                                                                   |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/features/location-geofence-device-status.md`                     | Feature owner, current status, gap, roadmap anchors, and next AI instructions.                                                                                   |
+| `docs/expectations/location-geofence.md`                               | Parent/child outcome, data scope, contract families, validation, and non-goals.                                                                                  |
+| `docs/plans/tracking-plan/workpacks/tracking-control-settings-inventory.md` | Generated 338-setting inventory, including posture modes, execution modes, capability states, heartbeat, battery, sync, pending upload, and missing-device rows. |
+| `docs/device-location-tracking-capability-guide.md`                    | Capability terms, location history, live tracking, geofence, check-in, last known, custody, and platform limits.                                                 |
+| `docs/device-location-tracking-schema-proposal.md`                     | Authoring manifest, policy value, effective policy, update protocol, and capability registry guidance.                                                           |
+| `docs/expectations/platforms.md`                                       | Platform claim rule and proof requirements for Windows, macOS, Linux, Android, iOS, Web, and parent app boundaries.                                              |
+| `docs/expectations/notifications.md`                                   | Notification intent, provider minimization, retry, quiet hours, escalation, and audit requirements.                                                              |
+| `docs/expectations/policy.md`                                          | Parent policy owns action authority; portal authors rules but child-device agents validate/evaluate locally.                                                     |
+| `docs/expectations/ai.md`                                              | AI is evidence, not authority; remote AI disabled by default; custody and evidence refs are mandatory.                                                           |
+| `docs/expectations/data-custody.md`                                    | Local/LAN-first storage, no default Ocentra-hosted child activity store, and explicit export/delete boundaries.                                                  |
+| `docs/features/reports-notifications-sync.md`                          | Broad reports, notifications, and sync ownership. Tracking emits location alert intents but does not own provider delivery globally.                             |
+| `docs/features/local-ai-safety-evaluator.md`                           | General local AI runtime/provider status ownership. Tracking owns location-specific AI contracts only.                                                           |
+| `docs/features/parent-assistant-actions.md`                            | Assistant can explain or draft tracking policy, but must not bypass typed preview, parent confirmation, or child-agent validation.                               |
+| `docs/plans/eventing-plan/03-event-taxonomy-and-parent-integration.md` | Shared event taxonomy and Parent runtime boundary. Tracking must add first-class consumer event families instead of creating a private bus.                      |
+| `docs/plans/eventing-plan/05-implementation-workpacks.md`              | Reusable `ocentra-eventing` implementation and consumer-proof sequencing. Tracking event work consumes this crate/plan after protocol/domain contracts exist.    |
+| `docs/plans/tracking-plan/event-driven-runtime-test-matrix.md`         | Real test matrix for tracking/eventing implementation. Future proof artifacts must cite real source files, real tests, commands, and observed chains.            |
 
 ## Product Source Docs
 
@@ -58,27 +61,77 @@ delivery, general AI provider runtime, browser telemetry, app/game telemetry,
 LAN discovery, or the shared evidence-store feature except through explicit
 evidence refs.
 
+Tracking must reuse adjacent runtime infrastructure instead of cloning it:
+generic eventing/journal/replay from `crates/ocentra-eventing`, shared evidence
+refs and query-store mechanics, LAN/device presence as hint-only inputs,
+network/browser/app-game evidence through stored refs, provider status
+boundaries, and AI request/result boundary contracts. Tracking-specific code
+should only add location/geofence/expected-place/nearby-place meaning,
+tracking-side state transitions, and policy-evidence preparation.
+
+Tracking also owns the consumer-layer event contracts for location/geofence
+runtime chains: `tracking.*`, `location.*`, `geofence.*`, `expected_place.*`,
+`nearby_place.*`, `tracking.live_mode.*`, tracking notification intent/status,
+and tracking escalation state. The reusable eventing crate remains generic and
+must not depend on tracking product types.
+
 ## TypeScript Ownership
 
-Expected TypeScript contract homes are domain packages, not app screens:
+TypeScript is presentation and migration support for tracking, not contract or
+runtime authority. Current buckets:
 
-- `packages/parent-domain` for family, child, place, schedule, policy, and
-  acknowledgement product contracts when implementation starts;
-- `packages/activity-domain` for device activity, location evidence,
-  geofence transitions, and tracking query contracts when implementation
-  starts;
-- `packages/agent-protocol-domain` for portal/agent WebSocket command and
-  event contracts after the TypeScript product contracts exist;
+- `packages/tracking-domain` is a transitional helper/projection and
+  proof-accounting surface. Do not add new canonical tracking evidence,
+  geofence, place, retention, read-model, event, or policy truth there.
+- `packages/schema-domain` and `packages/agent-protocol-domain` are temporary
+  edge decoder/dev protocol mirrors until Rust-owned generated DTOs and Rust
+  protocol consumers replace them.
+- `packages/parent-domain` and `packages/activity-domain` keep only
+  migration/proof surfaces or presentation-safe helpers until Rust owners expose
+  replacements.
 - `packages/endpoint-domain`, `packages/portal-domain`, and
-  `packages/text-domain` for routes, DOM ids, command ids, and display text
-  tokens used by portal surfaces.
+  `packages/text-domain` may keep presentation-only route/DOM/dev descriptor
+  and display text helpers when they do not encode product state.
+- `apps/portal` renders Rust-owned/generated tracking snapshots and dispatches
+  generated Rust-owned actions or explicit dev transport commands only.
+- `scripts/test/tracking-*.mjs`, hosted proof helpers, artifact inventories,
+  handoff proofs, blocker proofs, and closure proofs are proof/accounting
+  harnesses. Do not move or expand them as runtime code.
 
 ## Rust Ownership
 
-Rust-facing protocol shapes belong in `crates/agent-protocol` only after the
-TypeScript contracts are explicit and test-backed. Runtime service behavior
-must keep Rust string constants in protocol crates and must not infer precise
-location from LAN, IP, or pairing metadata.
+Cross-boundary tracking DTOs, route snapshots, action/result shapes, and
+generated bridge artifacts belong in `crates/schema` unless a narrower Rust
+domain/runtime crate owns a crate-local shape. Runtime tracking behavior belongs
+in Rust before portal proof or TypeScript helper expansion.
+
+- `crates/tracking-core` is the current runtime owner for tracking state
+  helpers, local durable state, read-model guards, location validation,
+  geofence/expected-place evaluation, nearby-place decisions, retention
+  application, and portal notification candidate logic.
+- `crates/schema` owns shared tracking DTO shape when the value crosses the
+  parent UI bridge, route snapshot, action/result, or generated TypeScript
+  boundary.
+- `crates/agent-protocol` owns Rust tracking structs, constants, command names,
+  event names, field names, and state labels only for protocol/transport
+  surfaces that are not schema-wide DTOs.
+- `crates/agent-service` owns WebSocket/API transport and event response
+  construction only. Source-adjacent service tracking tests are allowed only for
+  private binary-service transport seams until those seams move behind an
+  importable public crate boundary.
+- Pending service organization: once active `agent-service` locks clear, group
+  service tracking transport helpers under `crates/agent-service/src/tracking/`
+  and leave WebSocket modules as thin dispatchers.
+- `crates/ocentra-eventing` stays generic; tracking consumes it after
+  tracking-specific protocol payloads exist.
+- Shared event/journal/replay/provider/status code must stay shared across
+  tracking, LAN, network, browser, app/game, notification, and AI lanes. Do not
+  create tracking-local copies of common runtime mechanics.
+- New Rust tracking tests should live in crate-level `tests/` folders when
+  testing public crate APIs.
+
+Runtime service behavior must keep Rust string constants in protocol crates and
+must not infer precise location from LAN, IP, or pairing metadata.
 
 ## Portal Ownership
 
@@ -94,6 +147,8 @@ and root-gate only when the workpack is PR-ready:
 
 - TypeScript contract/parser tests for domain packages;
 - Rust protocol conversion tests after protocol mirroring;
+- crate-level Rust integration tests for tracking behavior exposed through
+  public crate APIs;
 - service/WebSocket smoke for real local transport;
 - Playwright screenshots for parent/child UI states;
 - manual Android/iOS/desktop proof scripts for platform claims;
@@ -101,9 +156,21 @@ and root-gate only when the workpack is PR-ready:
 
 ## Current Test Files
 
-No runtime tracking test suite exists yet. The intended starting point is the
-folder shape in `v0-5-location-test-blueprint.md`, with proof artifacts under
-`output/tracking-plan-proof/<workpack-id>/`.
+Focused tracking proof scripts now exist under `scripts/test/` and write
+evidence under `output/tracking-plan-proof/<workpack-id>/` plus
+`test-results/<proof-mode>/`. The source/gap-map reconciliation gate is
+`node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs`; the
+product-readiness closure gate is
+`node scripts/test/tracking-product-readiness-closure-proof.mjs`. Runtime,
+platform, hosted UI, provider, authority, production, and manual-required proof
+scripts stay scoped to their owning workpacks and proof tiers.
+
+Audit note:
+
+- `tracking-source-reconciliation-gap-map-proof.mjs` is not standalone; it
+  depends on `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- `tracking-claim-audit-proof.mjs` and closure proofs depend on
+  `@ocentra-parent/parent-domain` building cleanly.
 
 ## Source Truth Rule
 
@@ -160,7 +227,10 @@ claims. Planning inputs include:
 ## Claim Boundary
 
 This folder does not replace source docs. It turns them into implementation and
-proof workpacks.
+proof workpacks. WP01/WP02 source and gap-map proof must continue to cite the
+current feature doc, expectation docs, product checklist row, tracking settings
+inventory, current snapshot, pasted-content audit, and product-readiness closure
+proof instead of inventing another status ledger.
 
 Do not:
 

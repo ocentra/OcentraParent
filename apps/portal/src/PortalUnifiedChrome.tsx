@@ -1,17 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
-import {
-  PortalAssets,
-  PortalDom,
-  PortalRoute,
-  PortalText,
-  PortalTextToken,
-  PortalTheme,
-  PortalUnifiedChrome,
-  type PortalThemeValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom, PortalTheme, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
+import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
+import { ParentRoute, parentRouteHashPath } from '../generated/parent-ui-bridge';
 import { UnifiedFooter } from '../../../vendor/ocentra-parent-core-ui/Footer/UnifiedFooter';
 import { BrandedLoadingSpinner } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/BrandedLoadingSpinner';
-import { ScopeToggle } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ScopeToggle';
+import { ScopeToggle } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ScopeToggle/ScopeToggle';
 import { UnifiedPageShell } from '../../../vendor/ocentra-parent-core-ui/Shell/UnifiedPageShell';
 import { PortalBackgroundLayer } from './PortalBackgroundLayer';
 import { PortalHeaderSvgFrame } from './PortalHeaderSvgFrame';
@@ -122,7 +116,7 @@ const shellHeaderExtensionAttributes = {
 } as const;
 
 function goHome(): void {
-  window.location.hash = `${PortalDom.HashPrefix}${PortalRoute.Overview}`;
+  window.location.hash = parentRouteHashPath(ParentRoute.Overview);
 }
 
 function PortalHeaderConnector({ children }: { readonly children?: ReactNode }): ReactElement {
@@ -167,89 +161,101 @@ function PortalOutlineHeader({
   routeTransitionActive,
   theme,
 }: PortalOutlineHeaderProps): ReactElement {
+  return (
+    <header {...shellHeaderExtensionAttributes} className={PortalUnifiedChrome.Classes.OutlineHeader}>
+      <PortalHeaderHomeAction />
+      <PortalHeaderConnector />
+      <PortalHeaderBrand routeTransitionActive={routeTransitionActive} />
+      <PortalHeaderConnector>
+        <PortalHeaderThemeToggle onThemeChange={onThemeChange} theme={theme} />
+      </PortalHeaderConnector>
+      <PortalHeaderLoginAction onAuthOpen={onAuthOpen} />
+    </header>
+  );
+}
+
+function PortalHeaderHomeAction(): ReactElement {
+  return (
+    <button
+      aria-label={resolvePortalDevText(PortalDevTextToken.HeaderHome)}
+      className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
+      onClick={goHome}
+      type={PortalDom.ButtonType.Button}
+    >
+      <PortalHeaderSvgFrame>
+        <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionContent}>
+          <PortalHeaderActionIcon src={PortalAssets.HeaderHomeIcon} />
+          <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
+            {resolvePortalDevText(PortalDevTextToken.HeaderHome)}
+          </span>
+        </span>
+      </PortalHeaderSvgFrame>
+    </button>
+  );
+}
+
+function PortalHeaderBrand({ routeTransitionActive }: { readonly routeTransitionActive: boolean }): ReactElement {
   const logoMountAttributes = routeTransitionActive
     ? { [PortalUnifiedChrome.Attributes.HeaderLogoLoading]: PortalDom.Attributes.True }
     : undefined;
   return (
-    <header {...shellHeaderExtensionAttributes} className={PortalUnifiedChrome.Classes.OutlineHeader}>
-      <button
-        aria-label={PortalText.Resolve(PortalTextToken.HeaderHome)}
-        className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
-        onClick={goHome}
-        type={PortalDom.ButtonType.Button}
+    <div className={PortalUnifiedChrome.Classes.OutlineHeaderBrand}>
+      <PortalHeaderSvgFrame />
+      <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPart}>
+        {resolvePortalDevText(PortalDevTextToken.HeaderBrandLeft)}
+      </span>
+      <span
+        aria-hidden={PortalDom.Attributes.True}
+        className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoMount}
+        {...logoMountAttributes}
       >
-        <PortalHeaderSvgFrame>
-          <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionContent}>
-            <span
-              aria-hidden={PortalDom.Attributes.True}
-              className={PortalUnifiedChrome.Classes.OutlineHeaderActionIcon}
-            >
-              <img
-                alt={PortalUnifiedChrome.Alt.DecorativeImage}
-                className={PortalUnifiedChrome.Classes.OutlineHeaderActionIconImage}
-                src={PortalAssets.HeaderHomeIcon}
-              />
-            </span>
-            <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
-              {PortalText.Resolve(PortalTextToken.HeaderHome)}
-            </span>
+        <img
+          alt={PortalUnifiedChrome.Alt.DecorativeImage}
+          className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogo}
+          src={PortalAssets.HeaderLogo}
+        />
+        {routeTransitionActive ? (
+          <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoSpinner}>
+            <BrandedLoadingSpinner size="small" />
           </span>
-        </PortalHeaderSvgFrame>
-      </button>
-      <PortalHeaderConnector />
-      <div className={PortalUnifiedChrome.Classes.OutlineHeaderBrand}>
-        <PortalHeaderSvgFrame />
-        <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPart}>
-          {PortalText.Resolve(PortalTextToken.HeaderBrandLeft)}
-        </span>
-        <span
-          aria-hidden={PortalDom.Attributes.True}
-          className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoMount}
-          {...logoMountAttributes}
-        >
-          <img
-            alt={PortalUnifiedChrome.Alt.DecorativeImage}
-            className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogo}
-            src={PortalAssets.HeaderLogo}
-          />
-          {routeTransitionActive ? (
-            <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoSpinner}>
-              <BrandedLoadingSpinner size="small" />
-            </span>
-          ) : null}
-        </span>
-        <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPartMuted}>
-          {PortalText.Resolve(PortalTextToken.HeaderBrandRight)}
-        </span>
-      </div>
-      <PortalHeaderConnector>
-        <PortalHeaderThemeToggle onThemeChange={onThemeChange} theme={theme} />
-      </PortalHeaderConnector>
-      <button
-        aria-label={PortalText.Resolve(PortalTextToken.HeaderLogin)}
-        className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
-        onClick={onAuthOpen}
-        type={PortalDom.ButtonType.Button}
-      >
-        <PortalHeaderSvgFrame>
-          <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionContent}>
-            <span
-              aria-hidden={PortalDom.Attributes.True}
-              className={PortalUnifiedChrome.Classes.OutlineHeaderActionIcon}
-            >
-              <img
-                alt={PortalUnifiedChrome.Alt.DecorativeImage}
-                className={PortalUnifiedChrome.Classes.OutlineHeaderActionIconImage}
-                src={PortalAssets.HeaderLoginIcon}
-              />
-            </span>
-            <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
-              {PortalText.Resolve(PortalTextToken.HeaderLogin)}
-            </span>
+        ) : null}
+      </span>
+      <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPartMuted}>
+        {resolvePortalDevText(PortalDevTextToken.HeaderBrandRight)}
+      </span>
+    </div>
+  );
+}
+
+function PortalHeaderLoginAction({ onAuthOpen }: { readonly onAuthOpen: () => void }): ReactElement {
+  return (
+    <button
+      aria-label={resolvePortalDevText(PortalDevTextToken.HeaderLogin)}
+      className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
+      onClick={onAuthOpen}
+      type={PortalDom.ButtonType.Button}
+    >
+      <PortalHeaderSvgFrame>
+        <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionContent}>
+          <PortalHeaderActionIcon src={PortalAssets.HeaderLoginIcon} />
+          <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
+            {resolvePortalDevText(PortalDevTextToken.HeaderLogin)}
           </span>
-        </PortalHeaderSvgFrame>
-      </button>
-    </header>
+        </span>
+      </PortalHeaderSvgFrame>
+    </button>
+  );
+}
+
+function PortalHeaderActionIcon({ src }: { readonly src: string }): ReactElement {
+  return (
+    <span aria-hidden={PortalDom.Attributes.True} className={PortalUnifiedChrome.Classes.OutlineHeaderActionIcon}>
+      <img
+        alt={PortalUnifiedChrome.Alt.DecorativeImage}
+        className={PortalUnifiedChrome.Classes.OutlineHeaderActionIconImage}
+        src={src}
+      />
+    </span>
   );
 }
 
@@ -266,7 +272,7 @@ function PortalHeaderThemeToggle({
   const darkIcon = darkActive ? headerThemeDarkSelectedIcon : headerThemeDarkIdleIcon;
   return (
     <span
-      aria-label={PortalText.Resolve(PortalTextToken.DisplayTheme)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.DisplayTheme)}
       className={PortalUnifiedChrome.Classes.OutlineHeaderTheme}
       role="group"
     >
@@ -276,20 +282,20 @@ function PortalHeaderThemeToggle({
         options={[
           {
             value: PortalTheme.Light,
-            label: PortalText.Resolve(PortalTextToken.ThemeLight),
+            label: resolvePortalDevText(PortalDevTextToken.ThemeLight),
             iconHref: lightIcon,
           },
           {
             value: PortalTheme.Dark,
-            label: PortalText.Resolve(PortalTextToken.ThemeDark),
+            label: resolvePortalDevText(PortalDevTextToken.ThemeDark),
             iconHref: darkIcon,
           },
         ]}
-        title={PortalText.Resolve(PortalTextToken.DisplayTheme)}
+        title={resolvePortalDevText(PortalDevTextToken.DisplayTheme)}
         value={theme}
       />
       <button
-        aria-label={PortalText.Resolve(PortalTextToken.ThemeLight)}
+        aria-label={resolvePortalDevText(PortalDevTextToken.ThemeLight)}
         aria-pressed={lightActive ? PortalDom.Attributes.True : PortalDom.Attributes.False}
         className={[
           PortalUnifiedChrome.Classes.OutlineHeaderThemeButton,
@@ -299,7 +305,7 @@ function PortalHeaderThemeToggle({
         type={PortalDom.ButtonType.Button}
       />
       <button
-        aria-label={PortalText.Resolve(PortalTextToken.ThemeDark)}
+        aria-label={resolvePortalDevText(PortalDevTextToken.ThemeDark)}
         aria-pressed={darkActive ? PortalDom.Attributes.True : PortalDom.Attributes.False}
         className={[
           PortalUnifiedChrome.Classes.OutlineHeaderThemeButton,

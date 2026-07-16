@@ -55,8 +55,8 @@ Proof root: `output/tracking-plan-proof/11-ios-core-location-foreground-adapter/
       remains pending.
 - [ ] Preserve accuracy/freshness.
 - [ ] Do not claim Always/background from this workpack.
-- [x] Generate the iOS simulator/local proof artifact plan before device work.
-- [x] Route simulator package build/install/launch proof through the tracking
+- [ ] Generate the iOS simulator/local proof artifact plan before device work.
+- [ ] Route simulator package build/install/launch proof through the tracking
       proof harness and macOS package-preview artifacts without claiming Core
       Location authorization or samples.
 
@@ -77,7 +77,9 @@ authorization or foreground sample proof.
 `node scripts/test/tracking-ios-location-manual-required-proof.mjs` now writes
 parent-domain read-model proof rows for When In Use authorization, foreground
 sample, and denied/restricted/services-disabled gaps under this workpack root.
-Those rows attach simulator package/manual proof refs and keep authorization,
+Those rows attach simulator package/manual proof refs plus an explicit runtime
+artifact inventory for the missing When In Use authorization state, foreground
+location events, and degraded location state artifacts, and keep authorization,
 sample capture, physical-device, notification, provider, authority, and
 product-ready claims false.
 `node scripts/test/tracking-ios-location-wp33-gate-proof.mjs` now wraps the same
@@ -112,19 +114,19 @@ This workpack can be assigned independently, implemented against the owning doma
 ## Fill This Before Reporting DONE Or PR-ready
 
 - [ ] Workpack id and branch.
-- [x] Touched files: proof script, root script wiring, package-preview CI
+- [ ] Touched files: proof script, root script wiring, package-preview CI
       upload wiring, feature doc, checklist, and this workpack doc.
-- [x] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
+- [ ] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
       writes local proof; macOS package-preview runs it with
       `--require-simulator` after the real iOS simulator smoke.
-- [x] Proof artifacts under `output/tracking-plan-proof/11-ios-core-location-foreground-adapter/`.
-- [x] Product doc/checklist updates or reason none were needed: feature doc and
+- [ ] Proof artifacts under `output/tracking-plan-proof/11-ios-core-location-foreground-adapter/`.
+- [ ] Product doc/checklist updates or reason none were needed: feature doc and
       tracking checklist updated; central product checklist delta remains
       primary-owned through hub.
-- [x] Known gaps/manual-required states: Core Location authorization/sample,
+- [ ] Known gaps/manual-required states: Core Location authorization/sample,
       background/region behavior, notification delivery, signing/TestFlight,
       physical-device, and authority proof remain unclaimed.
-- [x] Parent-domain manual-required proof added:
+- [ ] Parent-domain manual-required proof added:
       `test-results/tracking-ios-location-manual-required-proof/proof.json`.
-- [x] WP33 companion gate added:
+- [ ] WP33 companion gate added:
       `test-results/tracking-ios-location-wp33-gate-proof/proof.json`.

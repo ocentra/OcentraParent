@@ -1,0 +1,233 @@
+/* generated from crates/schema/src/child_android_device_proof_artifact_gate_ts.rs */
+
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from './effect';
+import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from './capabilities';
+import { ParentTimestampSchema } from './family-reference-primitives';
+
+export const ChildAndroidDeviceProofArtifactGateSchemaVersionSchema = withParser(
+  Schema.Literal('child-android-device-proof-artifact-gate')
+);
+export const ChildAndroidDeviceProofSourceSchema = withParser(
+  Schema.Literal(
+    'child-android-protocol-package-lifecycle-proof',
+    'child-android-storage-protocol-capability-proof',
+    'child-android-service-protocol-capability-proof',
+    'child-android-permission-capability-proof',
+    'child-android-privileged-capability-proof'
+  )
+);
+export const ChildAndroidDeviceProofReadinessDecisionSchema = withParser(
+  Schema.Literal('manual-device-evidence-required-before-child-android-readiness')
+);
+export const ChildAndroidDeviceProofReadinessStateSchema = withParser(
+  Schema.Literal('ci-package-only', 'manual-required', 'device-proof-required')
+);
+export const ChildAndroidInstallModeSchema = withParser(Schema.Literal('debug-apk-sideload'));
+export const ChildAndroidChildAgentArtifactStateSchema = withParser(Schema.Literal('debug-apk-built'));
+export const ChildAndroidInstallStateSchema = withParser(Schema.Literal('manual-install-proof-required'));
+export const ChildAndroidLaunchStateSchema = withParser(Schema.Literal('manual-launch-proof-required'));
+export const ChildAndroidRemovalStateSchema = withParser(Schema.Literal('manual-removal-proof-required'));
+export const ChildAndroidPlatformAuthorityStateSchema = withParser(Schema.Literal('manual-required'));
+export const ChildAndroidAddDevicePairingReadinessStateSchema = withParser(
+  Schema.Literal('implemented', 'scaffold', 'manual-required', 'unavailable', 'not-implemented')
+);
+export const ChildAndroidAddDevicePairingReadinessSurfaceSchema = withParser(
+  Schema.Literal('parent-add-device-pairing')
+);
+export const ChildAndroidAddDevicePairingReadinessInputSchema = withParser(
+  Schema.Literal('package', 'service', 'storage', 'protocol', 'permission', 'privileged')
+);
+export const ChildAndroidDeviceProofArtifactClassSchema = withParser(
+  Schema.Literal(
+    'ci-package-artifact',
+    'package-local-status',
+    'emulator-device-artifact',
+    'permission-grant-artifact',
+    'privileged-adapter-artifact',
+    'enrollment-artifact',
+    'store-signing-artifact',
+    'external-transport-artifact'
+  )
+);
+export const ChildAndroidDeviceProofArtifactRequirementSchema = withParser(
+  Schema.Literal(
+    'debug-apk-build',
+    'apk-sha256-checksum',
+    'package-local-status-bundles',
+    'real-device-install-artifact',
+    'launch-activity-runtime-artifact',
+    'foreground-service-runtime-artifact',
+    'notification-runtime-grant-artifact',
+    'usage-stats-settings-grant-artifact',
+    'usage-stats-observation-artifact',
+    'accessibility-service-grant-artifact',
+    'vpn-service-grant-artifact',
+    'dns-filtering-behavior-artifact',
+    'package-removal-artifact',
+    'device-owner-enrollment-artifact',
+    'managed-profile-enrollment-artifact',
+    'play-store-signing-artifact',
+    'external-child-agent-transport-artifact'
+  )
+);
+export const ChildAndroidDeviceProofArtifactStatusSchema = withParser(
+  Schema.Literal(
+    'ci-mechanical-proof',
+    'package-local-scaffold',
+    'manual-required',
+    'device-proof-required',
+    'settings-grant-required',
+    'unavailable',
+    'blocked',
+    'not-implemented',
+    'planned'
+  )
+);
+export const ChildAndroidDeviceProofCustodyStateSchema = withParser(
+  Schema.Literal('not-collected', 'ci-artifacts-only', 'ready-for-human-review', 'rejected-overclaim')
+);
+
+export const ChildAndroidDeviceProofPathSchema = brandedNonEmptyStringSchema('ChildAndroidDeviceProofPath');
+export const ChildAndroidDeviceProofCommandSchema = brandedNonEmptyStringSchema('ChildAndroidDeviceProofCommand');
+export const ChildAndroidDeviceProofSummarySchema = brandedNonEmptyStringSchema('ChildAndroidDeviceProofSummary');
+export const ChildAndroidDeviceProofBoundarySchema = brandedNonEmptyStringSchema('ChildAndroidDeviceProofBoundary');
+
+export const ChildAndroidDeviceProofSourceInputSchema = withParser(
+  Schema.Struct({
+    source: ChildAndroidDeviceProofSourceSchema,
+    outputPath: ChildAndroidDeviceProofPathSchema,
+    command: ChildAndroidDeviceProofCommandSchema,
+    sourceStatus: ChildAndroidDeviceProofArtifactStatusSchema,
+  })
+);
+
+export const ChildAndroidDeviceProofArtifactRequirementEvidenceSchema = withParser(
+  Schema.Struct({
+    requirement: ChildAndroidDeviceProofArtifactRequirementSchema,
+    parentCapability: ParentControlCapabilityNameSchema,
+    parentCapabilityStatus: ParentControlCapabilityStatusSchema,
+    artifactClass: ChildAndroidDeviceProofArtifactClassSchema,
+    artifactStatus: ChildAndroidDeviceProofArtifactStatusSchema,
+    requiredArtifactSummary: ChildAndroidDeviceProofSummarySchema,
+    evidencePath: Schema.Union(ChildAndroidDeviceProofPathSchema, Schema.Null),
+    evidenceCapturedAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+    source: ChildAndroidDeviceProofSourceSchema,
+  })
+);
+
+export const ChildAndroidDeviceProofManualEvidenceCustodySchema = withParser(
+  Schema.Struct({
+    custodyState: ChildAndroidDeviceProofCustodyStateSchema,
+    requiredArtifactCount: Schema.Number,
+    ciArtifactCount: Schema.Number,
+    collectedDeviceArtifactCount: Schema.Number,
+    missingDeviceArtifactCount: Schema.Number,
+    reviewerSummary: ChildAndroidDeviceProofBoundarySchema,
+  })
+);
+
+export const ChildAndroidAddDevicePairingReadinessSchema = withParser(
+  Schema.Struct({
+    surface: ChildAndroidAddDevicePairingReadinessSurfaceSchema,
+    readinessState: ChildAndroidAddDevicePairingReadinessStateSchema,
+    inputs: Schema.Array(
+      Schema.Struct({
+        input: ChildAndroidAddDevicePairingReadinessInputSchema,
+        source: ChildAndroidDeviceProofSourceSchema,
+        readinessState: ChildAndroidAddDevicePairingReadinessStateSchema,
+        parentVisibleSummary: ChildAndroidDeviceProofBoundarySchema,
+      })
+    ),
+    parentVisibleSummary: ChildAndroidDeviceProofBoundarySchema,
+  })
+);
+
+export const ChildAndroidInstallAuthorityStateSchema = withParser(
+  Schema.Struct({
+    childAgentArtifactState: ChildAndroidChildAgentArtifactStateSchema,
+    installMode: ChildAndroidInstallModeSchema,
+    installState: ChildAndroidInstallStateSchema,
+    launchState: ChildAndroidLaunchStateSchema,
+    removalState: ChildAndroidRemovalStateSchema,
+    deviceOwnerAuthorityState: ChildAndroidPlatformAuthorityStateSchema,
+    managedProfileAuthorityState: ChildAndroidPlatformAuthorityStateSchema,
+    childAgentArtifactBoundary: ChildAndroidDeviceProofBoundarySchema,
+    installModeBoundary: ChildAndroidDeviceProofBoundarySchema,
+    installStateBoundary: ChildAndroidDeviceProofBoundarySchema,
+    launchStateBoundary: ChildAndroidDeviceProofBoundarySchema,
+    removalStateBoundary: ChildAndroidDeviceProofBoundarySchema,
+    deviceOwnerBoundary: ChildAndroidDeviceProofBoundarySchema,
+    managedProfileBoundary: ChildAndroidDeviceProofBoundarySchema,
+  })
+);
+
+export const ChildAndroidDeviceProofClaimBoundariesSchema = withParser(
+  Schema.Struct({
+    addDevicePairingReadiness: ChildAndroidDeviceProofBoundarySchema,
+    childAndroidDeviceReadiness: ChildAndroidDeviceProofBoundarySchema,
+    emulatorRuntime: ChildAndroidDeviceProofBoundarySchema,
+    physicalDeviceRuntime: ChildAndroidDeviceProofBoundarySchema,
+    privilegedPermissions: ChildAndroidDeviceProofBoundarySchema,
+    deviceOwnerManagedProfile: ChildAndroidDeviceProofBoundarySchema,
+    playStoreSigning: ChildAndroidDeviceProofBoundarySchema,
+    externalChildAgentTransport: ChildAndroidDeviceProofBoundarySchema,
+  })
+);
+
+const ChildAndroidDeviceProofArtifactGateReadModelBaseSchema = Schema.Struct({
+  schemaVersion: ChildAndroidDeviceProofArtifactGateSchemaVersionSchema,
+  checkedAt: ParentTimestampSchema,
+  readinessDecision: ChildAndroidDeviceProofReadinessDecisionSchema,
+  packageMechanicalProofState: ChildAndroidDeviceProofReadinessStateSchema,
+  installAuthorityState: ChildAndroidInstallAuthorityStateSchema,
+  addDevicePairingReadiness: ChildAndroidAddDevicePairingReadinessSchema,
+  childAndroidDeviceReadinessState: ChildAndroidDeviceProofReadinessStateSchema,
+  sourceProofs: Schema.Array(ChildAndroidDeviceProofSourceInputSchema),
+  artifactRequirements: Schema.Array(ChildAndroidDeviceProofArtifactRequirementEvidenceSchema),
+  manualEvidenceStatus: ChildAndroidDeviceProofManualEvidenceCustodySchema,
+  claimBoundaries: ChildAndroidDeviceProofClaimBoundariesSchema,
+  claimsProved: Schema.Array(ChildAndroidDeviceProofSummarySchema),
+  claimsNotProved: Schema.Array(ChildAndroidDeviceProofBoundarySchema),
+});
+
+type ChildAndroidDeviceProofArtifactGateReadModelCandidate = Infer<
+  typeof ChildAndroidDeviceProofArtifactGateReadModelBaseSchema
+>;
+
+export const ChildAndroidDeviceProofArtifactGateReadModelSchema = withParser(
+  ChildAndroidDeviceProofArtifactGateReadModelBaseSchema.pipe(
+    Schema.filter(
+      (readModel) =>
+        childAndroidDeviceProofArtifactGateIsHonest(readModel) ||
+        'Expected Child Android device proof artifact gate to keep device readiness manual-required while only APK/checksum/package-local status bundles have CI or package-local evidence'
+    )
+  )
+);
+
+const RequiredSourceProofs = [
+  'child-android-protocol-package-lifecycle-proof',
+  'child-android-storage-protocol-capability-proof',
+  'child-android-service-protocol-capability-proof',
+  'child-android-permission-capability-proof',
+  'child-android-privileged-capability-proof',
+] as const satisfies ReadonlyArray<ChildAndroidDeviceProofSource>;
+
+const RequiredArtifactRequirements = [
+  'debug-apk-build',
+  'apk-sha256-checksum',
+  'package-local-status-bundles',
+  'real-device-install-artifact',
+  'launch-activity-runtime-artifact',
+  'foreground-service-runtime-artifact',
+  'notification-runtime-grant-artifact',
+  'usage-stats-settings-grant-artifact',
+  'usage-stats-observation-artifact',
+  'accessibility-service-grant-artifact',
+  'vpn-service-grant-artifact',
+  'dns-filtering-behavior-artifact',
+  'package-removal-artifact',
+  'device-owner-enrollment-artifact',
+  'managed-profile-enrollment-artifact',
+  'play-store-signing-artifact',
+  'external-child-agent-transport-artifact',
+] as const satisfies ReadonlyArray<ChildAndroidDeviceProofArtifactRequirement>;

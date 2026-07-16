@@ -1,0 +1,474 @@
+export type __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEntryStatus =
+  | 'usable'
+  | 'degraded'
+  | 'stale'
+  | 'rejected';
+
+export const __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEntryStatus = {
+  Usable: 'usable',
+  Degraded: 'degraded',
+  Stale: 'stale',
+  Rejected: 'rejected',
+} as const;
+
+export type __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeKind =
+  | 'child-profile'
+  | 'device'
+  | 'browser-url'
+  | 'domain'
+  | 'video'
+  | 'app'
+  | 'game'
+  | 'activity-session';
+
+export const __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeKind = {
+  ChildProfile: 'child-profile',
+  Device: 'device',
+  BrowserUrl: 'browser-url',
+  Domain: 'domain',
+  Video: 'video',
+  App: 'app',
+  Game: 'game',
+  ActivitySession: 'activity-session',
+} as const;
+
+export type __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeKind =
+  | 'visited'
+  | 'watched'
+  | 'played'
+  | 'active-during'
+  | 'performed-by-child'
+  | 'derived-from-evidence';
+
+export const __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeKind = {
+  Visited: 'visited',
+  Watched: 'watched',
+  Played: 'played',
+  ActiveDuring: 'active-during',
+  PerformedByChild: 'performed-by-child',
+  DerivedFromEvidence: 'derived-from-evidence',
+} as const;
+
+export type __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQueryKind =
+  | 'visited-urls'
+  | 'played-games'
+  | 'watched-videos'
+  | 'activity-by-time-range'
+  | 'explain-evidence';
+
+export const __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQueryKind = {
+  VisitedUrls: 'visited-urls',
+  PlayedGames: 'played-games',
+  WatchedVideos: 'watched-videos',
+  ActivityByTimeRange: 'activity-by-time-range',
+  ExplainEvidence: 'explain-evidence',
+} as const;
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEvidenceReferenceSnapshot {
+  readonly evidenceReferenceId: string;
+  readonly kind: string;
+  readonly observedAt: string;
+}
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphParentActionReferenceSnapshot {
+  readonly actionReferenceId: string;
+  readonly actor: {
+    readonly actorId: string;
+    readonly role: string;
+  };
+  readonly policyVersion: string;
+  readonly createdAt: string;
+}
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphDeviceReferenceSnapshot {
+  readonly deviceId: string;
+  readonly childProfileId: string | null;
+  readonly label: string;
+  readonly platform: string;
+}
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphChildProfileReferenceSnapshot {
+  readonly childProfileId: string;
+  readonly displayName: string;
+}
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshot {
+  readonly entryStatus: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEntryStatus;
+  readonly sourceEvidenceReferences: readonly __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEvidenceReferenceSnapshot[];
+  readonly sourcePolicyVersion: string | null;
+  readonly sourceParentActionReferences: readonly __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphParentActionReferenceSnapshot[];
+  readonly generatedAt: string;
+  readonly expiresAt: string | null;
+  readonly confidence: number;
+  readonly derivedIndexVersion: string;
+  readonly degradedReasons: readonly string[];
+}
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTimeRangeSnapshot {
+  readonly observedFrom: string;
+  readonly observedUntil: string;
+}
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeSnapshot {
+  readonly graphId: string;
+  readonly nodeId: string;
+  readonly nodeKind: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeKind;
+  readonly label: string;
+  readonly childProfile: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphChildProfileReferenceSnapshot | null;
+  readonly device: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphDeviceReferenceSnapshot | null;
+  readonly trace: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshot;
+}
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeSnapshot {
+  readonly graphId: string;
+  readonly edgeId: string;
+  readonly edgeKind: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeKind;
+  readonly fromNodeId: string;
+  readonly toNodeId: string;
+  readonly observedFrom: string;
+  readonly observedUntil: string | null;
+  readonly durationMs: number | null;
+  readonly trace: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshot;
+}
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQuerySnapshot {
+  readonly queryId: string;
+  readonly queryKind: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQueryKind;
+  readonly childProfile: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphChildProfileReferenceSnapshot | null;
+  readonly device: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphDeviceReferenceSnapshot;
+  readonly timeRange: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTimeRangeSnapshot;
+  readonly asOf: string;
+  readonly limit: number;
+}
+
+export interface __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly custody: string;
+  readonly capabilityStatus: string;
+  readonly query: __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQuerySnapshot;
+  readonly readAt: string;
+  readonly nodes: readonly __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeSnapshot[];
+  readonly edges: readonly __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeSnapshot[];
+  readonly returnedNodeCount: number;
+  readonly returnedEdgeCount: number;
+  readonly omittedEdgeCount: number;
+  readonly degradedReasons: readonly string[];
+}
+
+export type __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeId =
+  __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeSnapshot['nodeId'];
+
+export function decode__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphDigest(
+  digest: string
+): __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshot | null {
+  try {
+    return decode__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshot(JSON.parse(digest) as unknown);
+  } catch {
+    return null;
+  }
+}
+
+export function decode__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshot(
+  value: unknown
+): __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshot | null {
+  return is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshot(value) ? value : null;
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshot(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshot {
+  if (!is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value)) {
+    return false;
+  }
+  const nodes = value['nodes'];
+  const edges = value['edges'];
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshotMetadata(value) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshotCollections(
+      value,
+      nodes,
+      edges
+    )
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshotMetadata(
+  value: Record<string, unknown>
+): boolean {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNonNegativeInteger(value['schemaVersion']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['generatedAt']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['custody']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['capabilityStatus']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQuerySnapshot(value['query']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['readAt']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphStringArray(value['degradedReasons'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphReadModelSnapshotCollections(
+  value: Record<string, unknown>,
+  nodes: unknown,
+  edges: unknown
+): boolean {
+  return (
+    Array.isArray(nodes) &&
+    nodes.every(is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeSnapshot) &&
+    Array.isArray(edges) &&
+    edges.every(is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeSnapshot) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNonNegativeInteger(value['returnedNodeCount']) &&
+    value['returnedNodeCount'] === nodes.length &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNonNegativeInteger(value['returnedEdgeCount']) &&
+    value['returnedEdgeCount'] === edges.length &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNonNegativeInteger(value['omittedEdgeCount'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQuerySnapshot(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQuerySnapshot {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['queryId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQueryKind(value['queryKind']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableChildProfile(value['childProfile']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphDevice(value['device']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTimeRange(value['timeRange']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['asOf']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNonNegativeInteger(value['limit'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeSnapshot(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeSnapshot {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['graphId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['nodeId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeKind(value['nodeKind']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['label']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableChildProfile(value['childProfile']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableDevice(value['device']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshot(value['trace'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeSnapshot(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeSnapshot {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['graphId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['edgeId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeKind(value['edgeKind']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['fromNodeId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['toNodeId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['observedFrom']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableString(value['observedUntil']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableCount(value['durationMs']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshot(value['trace'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshot(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshot {
+  if (!is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value)) {
+    return false;
+  }
+  const evidenceRefs = value['sourceEvidenceReferences'];
+  const parentActionRefs = value['sourceParentActionReferences'];
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshotMetadata(
+      value,
+      evidenceRefs,
+      parentActionRefs
+    )
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshotMetadata(
+  value: Record<string, unknown>,
+  evidenceRefs: unknown,
+  parentActionRefs: unknown
+): boolean {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshotReferencesValid(
+      value,
+      evidenceRefs,
+      parentActionRefs
+    ) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshotFieldsValid(value)
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshotReferencesValid(
+  value: Record<string, unknown>,
+  evidenceRefs: unknown,
+  parentActionRefs: unknown
+): boolean {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEntryStatus(value['entryStatus']) &&
+    Array.isArray(evidenceRefs) &&
+    evidenceRefs.every(is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEvidenceReference) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableString(value['sourcePolicyVersion']) &&
+    Array.isArray(parentActionRefs) &&
+    parentActionRefs.every(is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphParentActionReference) &&
+    (evidenceRefs.length > 0 || value['sourcePolicyVersion'] !== null || parentActionRefs.length > 0)
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTraceSnapshotFieldsValid(
+  value: Record<string, unknown>
+): boolean {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['generatedAt']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableString(value['expiresAt']) &&
+    typeof value['confidence'] === 'number' &&
+    value['confidence'] >= 0 &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['derivedIndexVersion']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphStringArray(value['degradedReasons'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEvidenceReference(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEvidenceReferenceSnapshot {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['evidenceReferenceId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['kind']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['observedAt'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphParentActionReference(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphParentActionReferenceSnapshot {
+  if (!is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value)) {
+    return false;
+  }
+  const actor = value['actor'];
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['actionReferenceId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(actor) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(actor['actorId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(actor['role']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['policyVersion']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['createdAt'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphDevice(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphDeviceReferenceSnapshot {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['deviceId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableString(value['childProfileId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['label']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['platform'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphChildProfile(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphChildProfileReferenceSnapshot {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['childProfileId']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['displayName'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTimeRange(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphTimeRangeSnapshot {
+  return (
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['observedFrom']) &&
+    is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value['observedUntil'])
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableChildProfile(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphChildProfileReferenceSnapshot | null {
+  return value === null || is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphChildProfile(value);
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableDevice(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphDeviceReferenceSnapshot | null {
+  return value === null || is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphDevice(value);
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableString(value: unknown): value is string | null {
+  return value === null || is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value);
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNullableCount(value: unknown): value is number | null {
+  return value === null || is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNonNegativeInteger(value);
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeKind(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeKind {
+  return (
+    typeof value === 'string' &&
+    Object.values(__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeKind).includes(
+      value as __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNodeKind
+    )
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeKind(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeKind {
+  return (
+    typeof value === 'string' &&
+    Object.values(__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeKind).includes(
+      value as __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEdgeKind
+    )
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEntryStatus(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEntryStatus {
+  return (
+    typeof value === 'string' &&
+    Object.values(__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEntryStatus).includes(
+      value as __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphEntryStatus
+    )
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQueryKind(
+  value: unknown
+): value is __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQueryKind {
+  return (
+    typeof value === 'string' &&
+    Object.values(__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQueryKind).includes(
+      value as __ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphQueryKind
+    )
+  );
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphNonNegativeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0;
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphStringArray(value: unknown): value is readonly string[] {
+  return Array.isArray(value) && value.every(is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString);
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function is__ACTIVITY_MEMORY_GRAPH_PREFIX__ActivityMemoryGraphRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}

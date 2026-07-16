@@ -35,12 +35,12 @@ capture claims.
 
 ## Checklist
 
-- [x] Define X11 path.
-- [x] Define Wayland portal/PipeWire path.
-- [x] Define GNOME/KDE/wlroots states.
-- [x] Define unsupported compositor state.
-- [x] Prove protected/permission-limited states.
-- [~] Prove local OCR and deletion where capture works.
+- [ ] Define X11 path.
+- [ ] Define Wayland portal/PipeWire path.
+- [ ] Define GNOME/KDE/wlroots states.
+- [ ] Define unsupported compositor state.
+- [ ] Prove protected/permission-limited states.
+- [ ] Prove local OCR and deletion where capture works.
 
 ## Proof
 

@@ -1,3 +1,5 @@
+import { PortalRoute } from './portal-contract-adapter';
+import { portalRouteHashPath } from './routes';
 import type { ParentPortalGuideTopic } from './parent-portal-guide-types';
 import { PARENT_PORTAL_NAV_LABELS } from './parent-portal-nav';
 
@@ -53,21 +55,21 @@ export const PARENT_PORTAL_PRIVACY_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Review privacy',
         body: 'Open Private to inspect source and custody labels.',
         tone: 'gold',
-        targetRoutePath: '#/privacy-design',
+        targetRoutePath: portalRouteHashPath(PortalRoute.PrivacyDesign),
         targetNavLabel: 'PRIVATE',
       },
       {
         label: 'Export carefully',
         body: 'Use Export/Delete to choose data class, destination, retention, delete, and audit behavior.',
         tone: 'cyan',
-        targetRoutePath: '#/export-retention',
+        targetRoutePath: portalRouteHashPath(PortalRoute.ExportRetention),
         targetNavLabel: PARENT_PORTAL_NAV_LABELS.Export,
       },
       {
         label: 'Audit movement',
         body: 'Review export, import, sync, retention, delete, and support-bundle history.',
         tone: 'purple',
-        targetRoutePath: '#/audit-history',
+        targetRoutePath: portalRouteHashPath(PortalRoute.AuditHistory),
         targetNavLabel: 'AUDIT',
       },
     ],
@@ -123,14 +125,14 @@ export const PARENT_PORTAL_PRIVACY_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Connect drive',
         body: 'Open Drives to choose provider, folder, scope, and retention.',
         tone: 'cyan',
-        targetRoutePath: '#/drive-connections',
+        targetRoutePath: portalRouteHashPath(PortalRoute.DriveConnections),
         targetNavLabel: 'DRIVES',
       },
       {
         label: 'Delete or revoke',
         body: 'Use revocation and delete controls when changing providers or family devices.',
         tone: 'gold',
-        targetRoutePath: '#/export-retention',
+        targetRoutePath: portalRouteHashPath(PortalRoute.ExportRetention),
         targetNavLabel: PARENT_PORTAL_NAV_LABELS.Export,
       },
     ],
@@ -186,21 +188,21 @@ export const PARENT_PORTAL_PRIVACY_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Check source',
         body: 'Look for live, cache, drive, relay, or unavailable labels before trusting a remote view.',
         tone: 'cyan',
-        targetRoutePath: '#/remote-access',
+        targetRoutePath: portalRouteHashPath(PortalRoute.RemoteAccess),
         targetNavLabel: 'REMOTE',
       },
       {
         label: 'Relay capability',
         body: 'Use Capability to see whether the selected device can support LAN, relay, or local-only state.',
         tone: 'purple',
-        targetRoutePath: '#/capability-status',
+        targetRoutePath: portalRouteHashPath(PortalRoute.CapabilityStatus),
         targetNavLabel: 'CAPABILITY',
       },
       {
         label: 'Set storage',
         body: 'Use Drives for away-from-home reports that do not require Ocentra custody.',
         tone: 'gold',
-        targetRoutePath: '#/drive-connections',
+        targetRoutePath: portalRouteHashPath(PortalRoute.DriveConnections),
         targetNavLabel: 'DRIVES',
       },
     ],

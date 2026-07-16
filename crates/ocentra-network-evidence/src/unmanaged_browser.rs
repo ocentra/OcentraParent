@@ -1,6 +1,10 @@
+mod validation;
+
 use serde::{Deserialize, Serialize};
 
-use crate::NetworkEvidenceGrade;
+use self::validation::validate_unmanaged_browser_input;
+
+use crate::dns::types::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum UnmanagedBrowserProcessKind {
@@ -190,87 +194,6 @@ fn base_unmanaged_browser_correlation(
         evidence_refs: vec![input.observation_ref],
         evidence_grade,
     }
-}
-
-fn validate_unmanaged_browser_input(
-    input: &UnmanagedBrowserCorrelationInput,
-) -> Result<(), UnmanagedBrowserCorrelationError> {
-    if input.observation_ref.trim().is_empty() {
-        return Err(UnmanagedBrowserCorrelationError::EmptyObservationRef);
-    }
-    validate_optional_ref(
-        input.process_name.as_ref(),
-        UnmanagedBrowserCorrelationError::EmptyProcessName,
-    )?;
-    validate_optional_ref(
-        input.redacted_executable_path_ref.as_ref(),
-        UnmanagedBrowserCorrelationError::EmptyRedactedExecutablePathRef,
-    )?;
-    validate_optional_ref(
-        input.signature_ref.as_ref(),
-        UnmanagedBrowserCorrelationError::EmptySignatureRef,
-    )?;
-    validate_optional_ref(
-        input.hash_ref.as_ref(),
-        UnmanagedBrowserCorrelationError::EmptyHashRef,
-    )?;
-    validate_optional_ref(
-        input.browser_family.as_ref(),
-        UnmanagedBrowserCorrelationError::EmptyBrowserFamily,
-    )?;
-    validate_optional_ref(
-        input.possible_bypass_reason_ref.as_ref(),
-        UnmanagedBrowserCorrelationError::EmptyPossibleBypassReasonRef,
-    )?;
-    if let Some(confidence) = input.confidence {
-        if confidence > 100 {
-            return Err(UnmanagedBrowserCorrelationError::InvalidConfidence(
-                confidence,
-            ));
-        }
-    }
-    validate_unmanaged_browser_non_claims(input)?;
-    Ok(())
-}
-
-fn validate_unmanaged_browser_non_claims(
-    input: &UnmanagedBrowserCorrelationInput,
-) -> Result<(), UnmanagedBrowserCorrelationError> {
-    if input.exact_url_claimed {
-        return Err(UnmanagedBrowserCorrelationError::UnsupportedExactUrlClaim);
-    }
-    if input.active_tab_claimed {
-        return Err(UnmanagedBrowserCorrelationError::UnsupportedActiveTabClaim);
-    }
-    if input.page_title_claimed {
-        return Err(UnmanagedBrowserCorrelationError::UnsupportedPageTitleClaim);
-    }
-    if input.page_content_claimed {
-        return Err(UnmanagedBrowserCorrelationError::UnsupportedPageContentClaim);
-    }
-    if input.decrypted_payload_claimed {
-        return Err(UnmanagedBrowserCorrelationError::UnsupportedDecryptedPayloadClaim);
-    }
-    if input.policy_action_authority {
-        return Err(UnmanagedBrowserCorrelationError::UnsupportedPolicyAuthorityClaim);
-    }
-    if input.adapter_action_authorized {
-        return Err(UnmanagedBrowserCorrelationError::UnsupportedAdapterAuthorityClaim);
-    }
-    if input.enforcement_command_published {
-        return Err(UnmanagedBrowserCorrelationError::UnsupportedEnforcementCommandClaim);
-    }
-    Ok(())
-}
-
-fn validate_optional_ref(
-    value: Option<&String>,
-    error: UnmanagedBrowserCorrelationError,
-) -> Result<(), UnmanagedBrowserCorrelationError> {
-    if value.is_some_and(|value| value.trim().is_empty()) {
-        return Err(error);
-    }
-    Ok(())
 }
 
 fn trimmed_option(value: Option<String>) -> Option<String> {

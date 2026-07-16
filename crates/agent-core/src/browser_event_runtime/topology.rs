@@ -1,16 +1,17 @@
-#[cfg(test)]
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, IdempotencyKey, SchemaVersion,
+    contract_registry::EventContractRegistry, error::EventingError, ids::SourceComponent,
+    ids::SubscriberId, ids::TargetHandler, topology::EventTopologyManifest,
+    topology::EventTopologyPublisher, topology::EventTopologySubscriber,
 };
 use ocentra_eventing::{
-    EventContractRegistry, EventTopologyManifest, EventTopologyPublisher, EventTopologySubscriber,
-    EventingError, SourceComponent, SubscriberId, TargetHandler,
+    envelope::DomainEvent, envelope::EventContract, ids::AggregateKey, ids::EventType,
+    ids::IdempotencyKey, ids::SchemaVersion,
 };
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;
-#[cfg(test)]
 use serde::{Deserialize, Serialize};
 
-use crate::{BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimePhase};
+use super::BrowserRuntimeInput;
 
 pub fn browser_runtime_chain_topology_manifest() -> Result<EventTopologyManifest, EventingError> {
     let input = BrowserRuntimeInput::managed_decision_fixture();
@@ -18,7 +19,7 @@ pub fn browser_runtime_chain_topology_manifest() -> Result<EventTopologyManifest
     let mut publishers = Vec::new();
     let mut subscribers = Vec::new();
     for phase in BrowserRuntimePhase::ordered_chain() {
-        let payload = BrowserRuntimeEventPayload::from_input(*phase, &input);
+        let payload = super::browser_runtime_event_payload_from_input(*phase, &input);
         let event_type = registry.register_event(&payload)?.event_type().clone();
         publishers.push(EventTopologyPublisher {
             event_type: event_type.clone(),
@@ -41,7 +42,6 @@ pub fn browser_runtime_chain_topology_manifest() -> Result<EventTopologyManifest
     ))
 }
 
-#[cfg(test)]
 pub fn browser_runtime_stream_report_topology_manifest(
 ) -> Result<EventTopologyManifest, EventingError> {
     let request = BrowserRuntimeStreamReportTopologyRequest;
@@ -73,7 +73,6 @@ pub fn browser_runtime_stream_report_topology_manifest(
     ))
 }
 
-#[cfg(test)]
 pub fn browser_runtime_parent_surface_status_topology_manifest(
 ) -> Result<EventTopologyManifest, EventingError> {
     let request = BrowserRuntimeParentSurfaceStatusTopologyRequest;
@@ -105,11 +104,9 @@ pub fn browser_runtime_parent_surface_status_topology_manifest(
     ))
 }
 
-#[cfg(test)]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 struct BrowserRuntimeStreamReportTopologyRequest;
 
-#[cfg(test)]
 impl DomainEvent for BrowserRuntimeStreamReportTopologyRequest {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
@@ -127,11 +124,9 @@ impl DomainEvent for BrowserRuntimeStreamReportTopologyRequest {
     }
 }
 
-#[cfg(test)]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 struct BrowserRuntimeParentSurfaceStatusTopologyRequest;
 
-#[cfg(test)]
 impl DomainEvent for BrowserRuntimeParentSurfaceStatusTopologyRequest {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(

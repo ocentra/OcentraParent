@@ -1,4 +1,4 @@
-﻿# LAN Plan Next Actions
+# LAN Plan Next Actions
 
 <!-- agent-capsule -->
 
@@ -14,46 +14,159 @@
 
 <!-- /agent-capsule -->
 
-This file is the short resume list for the next worker. It is derived from open workpack/checklist status and does not replace the assigned workpack.
+This file is the short resume list for the next worker. It is derived from open
+workpack/checklist status and does not replace the assigned workpack.
 
 ## How to use
 
 1. Confirm the hub assignment and lane.
 2. Pick only the assigned workpack from the list below.
 3. Open that workpack and exact checklist rows only.
-4. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
+4. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are
+   updated and validation is listed.
 
-## Highest-open workpacks by unchecked boxes
+## Highest-open workpacks by current remaining work
 
-- [16 Read Models And LAN Events](workpacks/16-read-models-and-lan-events.md): 6 open of 13 boxes.
-- [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md): 5 open of 5 boxes.
-- [02 Evidence Model And Device Record](workpacks/02-evidence-model-and-device-record.md): 5 open of 5 boxes.
-- [03 Interface Detection](workpacks/03-interface-detection.md): 5 open of 5 boxes.
-- [04 Neighbor Table Ingestion](workpacks/04-neighbor-table-ingestion.md): 5 open of 5 boxes.
-- [05 Targeted ARP Checks](workpacks/05-targeted-arp-checks.md): 5 open of 5 boxes.
-- [06 Bounded ARP Sweep](workpacks/06-bounded-arp-sweep.md): 5 open of 5 boxes.
-- [07 Passive Discovery Listeners](workpacks/07-passive-discovery-listeners.md): 5 open of 5 boxes.
-- [08 mDNS And DNS-SD Discovery](workpacks/08-mdns-dns-sd-discovery.md): 5 open of 5 boxes.
-- [09 SSDP And UPnP Discovery](workpacks/09-ssdp-upnp-discovery.md): 5 open of 5 boxes.
-- [10 NetBIOS, LLMNR, And Reverse DNS](workpacks/10-netbios-llmnr-reverse-dns.md): 5 open of 5 boxes.
-- [11 Light Service Probing](workpacks/11-light-service-probing.md): 5 open of 5 boxes.
-- [12 OUI And Vendor Lookup](workpacks/12-oui-vendor-lookup.md): 5 open of 5 boxes.
-- [13 Merge And De-Duplication Engine](workpacks/13-merge-deduplication-engine.md): 5 open of 5 boxes.
-- [14 Explainable Classification](workpacks/14-explainable-classification.md): 5 open of 5 boxes.
-- [17 Parent And Child mDNS Advertisements](workpacks/17-parent-child-mdns-advertisements.md): 5 open of 5 boxes.
-- [18 Signed Child Hello And Heartbeat](workpacks/18-signed-child-hello-heartbeat.md): 5 open of 8 boxes.
-- [20 Proof Gates, Fixtures, And Rollout](workpacks/20-proof-gates-fixtures-rollout.md): 5 open of 11 boxes.
-- [15 Household Device Store](workpacks/15-household-device-store.md): 3 open of 3 boxes.
-- [19 Assignment, Revocation, And Audit](workpacks/19-assignment-revocation-audit.md): 2 open of 9 boxes.
+- [16 Read Models And LAN Events](workpacks/16-read-models-and-lan-events.md): backend `agent-service` LAN runtime event-chain stream is locally green; remaining W16 work is richer network-flow evidence breadth, browser-side stream replay consumption, and physical/manual artifacts, not another local backend stream code gap.
+- [19 Assignment, Revocation, And Audit](workpacks/19-assignment-revocation-audit.md): main-lane route/runtime/UI verification bucket now reduced to broader physical/manual topology artifacts after the restart/readback Rust proof closed locally.
+- [20 Proof Gates, Fixtures, And Rollout](workpacks/20-proof-gates-fixtures-rollout.md): proof-gate wrapper stays open until the real physical/manual artifact family exists.
+- [23 Pairing And Route Proof](workpacks/23-pairing-and-route-proof.md): locally green Rust route/revoke proof with real two-device/manual topology artifacts still open.
+- [25 Rollout Checklist And PR Gate](workpacks/25-rollout-checklist-and-pr-gate.md): final wrapper stays open until the remaining manual-required LAN proofs are real; the broader wrapper gates and current Windows portal rerun are green in this lane.
+- [18 Signed Child Hello And Heartbeat](workpacks/18-signed-child-hello-heartbeat.md): local Rust/core closure is green; explicit iOS/manual and second-device physical proof remain open.
+
+## Active note
+
+- Current LAN-plan truth stays Rust-owned: contracts, business logic, read
+  models, route snapshots, and runtime proof belong to Rust crates; TS remains
+  presentation-only and must not be reintroduced as a contract or test owner
+  because of older plan wording.
+- `01 Rust-Owned Contract Boundary And Bridge Validation` is now locally proven:
+  Rust-owned LAN protocol contracts reject wrong schema versions, reject future
+  enum drift, keep signed-child and mDNS contract families explicit, and stay
+  covered by focused `agent-protocol` contract tests plus scoped architecture
+  lint without adding TS-owned LAN contract truth.
+- `16 Read Models And LAN Events` now has a real parent-Rust inventory-backed
+  `LanBrowserAddDeviceReadModel` for the product host bridge, forwards
+  Devices-route scan actions into `agent-service`, auto-scans the real Tauri
+  Devices route into visible LAN inventory, and emits typed Tauri
+  host-subscription updates plus subscribed route events into the portal shell
+  without a UI WebSocket. The portal now applies subscribed
+  `ParentSubscriptionEvent.events` through the same event-buffer path used by
+  command responses, and now rejects stale subscribed route snapshots or event
+  batches once a newer Rust-backed view is buffered, so subscribed LAN route
+  updates no longer drop or regress Rust-owned event history while refreshing
+  the latest snapshot.
+  Main-lane reruns are now green across `parent-runtime-core` route snapshot
+  tests, schema bridge contract tests, portal LAN consumer vitest coverage, and
+  the real Playwright LAN source-matrix plus network-evidence proof. Remaining
+  `16` work is the broader service/runtime parity path, canonical replay/event
+  proof, and richer explicit event-history diagnostics beyond the current
+  snapshot-backed `/devices` path.
+- The latest `03` slice lifts gateway, DNS server, DHCP server,
+  broadcast-address, and IPv6-prefix capture into the shared Rust
+  local-interface shape and persists that interface map into
+  `LanDiscoveryScanPlan` plus scan-history metadata under focused `lan-core`
+  and `agent-service` proof. Explicit manual interface selection,
+  ignored-interface reason-code proof, and selected-interface attribution
+  through the relevant discovery-evidence and runtime serialization paths are
+  now locally proven.
+- The latest `04` slice is now locally code-complete: Windows/Linux/macOS
+  neighbor parsing covers IPv4/IPv6 rows, malformed/incomplete/duplicate-row
+  normalization, and downstream `observed_at` propagation under green reruns.
+  The remaining `04` gap is live macOS/manual platform proof, not another
+  local Rust implementation hole.
+- The latest `06`/`15` slice keeps passive LAN inventory honest while
+  suppressing costly service-identity probes for durable paired,
+  child-agent-backed, ignored/revoked, and router truth reconstructed from
+  registry JSON plus previous canonical household state. Bounded active refresh
+  now suppresses a stored child/paired IP only when live neighbor state still
+  confirms the same MAC, so stale IP-only truth cannot hide a reused address.
+  Durable truth still feeds passive identity hints for matching neighbors. This
+  is not closure for Workpack `11`; safe-port probing and broader bounded
+  service-proof remain open.
+- The latest `02`/`15` slice now persists canonical `knownHouseholdDevices`
+  into trusted-registry JSON, merges evidence `firstSeenAt`/`lastSeenAt`
+  across updates, restores that known-device store into the add-device read
+  model as stale restart truth under explicit runtime proof, and uses it for
+  later scan suppression before falling back to scan-history reconstruction.
+  The latest `02` packet also preserves distinct source-backed evidence rows in
+  the durable registry and enriches an existing paired-child/router scan-truth
+  row instead of emitting a duplicate suppression candidate for the same
+  device. `02` is now locally closed for its owned Rust scope after the
+  focused `agent-core`, `agent-service`, and scoped architecture reruns.
+- `07 Passive Discovery Listeners` now has focused Rust proof for passive ARP
+  weak hints, DHCP, mDNS, SSDP, WS-Discovery, LLMNR, NetBIOS, Ocentra beacon
+  observations through the signed-child hello or heartbeat path, and allowed
+  SNMP response history bridging. The local code path is now fully rerun green;
+  the exact remaining gap is real long-running DHCP listener proof plus
+  broader packet/platform/manual artifacts.
+- `08 mDNS And DNS-SD Discovery` now has focused Rust proof for selected
+  service enumeration/types, PTR/SRV/TXT/A/AAAA parsing, hostile-name
+  sanitization, and hint-only agent handling. Remaining work is broader
+  packet/manual proof only; mDNS alone still does not confirm signed-child
+  identity or physical household topology.
+- `09 SSDP And UPnP Discovery` now has focused Rust proof for bounded
+  `M-SEARCH`, private-only descriptor fetch rules, router-visible or
+  non-enrollable handling, malformed or timeout or oversize rejection, and
+  safe descriptor parsing. Remaining work is broader packet/manual proof only.
+- `10 NetBIOS, LLMNR, And Reverse DNS` is now locally closed for the owned
+  Rust slice: hostname evidence stays weak and name-only, malformed or unsafe
+  values are rejected, duplicate names stay below auto-merge thresholds, child
+  identity is never inferred, and the exact W10 source-matrix validation
+  target now exists as a real test entry point.
+- `11 Light Service Probing` now has focused Rust proof for bounded
+  HTTP/HTTPS/TLS identity probing, selected-interface gating, trusted/router
+  suppression, bounded WSD/SNMP queries, and weak-only probe evidence. The one
+  honest open box in `11` is optional/manual-gated OS fingerprint proof.
+- `13 Merge And De-Duplication Engine` is now locally closed for the owned
+  Rust slice: install-id and pairing-id carry through as strong merge
+  evidence, the canonical path already emits explicit
+  `dedupe-decision/score/reasons` output, and the old local blocker was stale.
+- `14 Explainable Classification` is now locally complete for current LAN
+  scope: weighted Rust classification, explicit reasons and confidence, router
+  or unsupported or unknown states, scanner-only non-child boundaries, focused
+  portal label rendering, and the refreshed `/devices` Rust-snapshot proof are
+  all green. Broader installability or physical/manual claims remain owned by
+  later workpacks.
+- `17 Parent And Child mDNS Advertisements` now has focused Rust proof for
+  parent/child advertisement contracts, opaque metadata, packet encoding, and
+  lifecycle evaluation through agent-service sync tests. Remaining work is
+  signed-child confirmation plus broader Android/iOS/macOS manual multicast
+  proof.
+- `18 Signed Child Hello And Heartbeat` now has focused Rust/core proof for
+  verifier rejection states, future-safe capability passthrough, unpaired
+  runtime rejection, stale/offline/manual-required projection without deleting
+  the device record, and focused portal/manual-required label rendering.
+  Remaining work is explicit iOS/manual platform proof plus second-device
+  physical proof.
+- `19 Assignment, Revocation, And Audit` now has focused Rust/service/portal
+  proof for route trust, rename, ignore/restore, restart recovery, route
+  select, revoke audit evidence, rename/type refresh persistence, and
+  selected-route LAN command routing into the real local-network child target.
+  The current Windows `/devices` Playwright route is green. Remaining work is
+  broader physical/manual topology artifacts.
+- `05 Targeted ARP Checks` now has real bounded Rust host-refresh support with
+  selected-interface/local-subnet gating, response/no-response evidence,
+  throttling, packet-IO abstraction coverage, and scan-plan metadata
+  persistence. Remaining `05` work is proof/checklist truth closure only.
 
 ## PR readiness guard
 
-A PR-ready slice should close a named workpack or clearly explain the exact remaining rows. Do not create a tiny PR that only updates one proof note while leaving the assigned workpack/checklist state stale.
+A PR-ready slice should close a named workpack or clearly explain the exact
+remaining rows. Do not create a tiny PR that only updates one proof note while
+leaving the assigned workpack/checklist state stale.
 
-Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), proof reference(s), and feature/product docs if product status changed.
+Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s),
+proof reference(s), and feature/product docs if product status changed.
 
 ## Actioned completion tracker
 
-- [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
-- [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
-- [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+- [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned
+      workpack path.
+- [ ] Update one assigned workpack and matching checklist/proof rows before
+      reporting progress.
+- [ ] Record failure conditions, skipped checks, and evidence path in
+      PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+- [ ] Confirm every claimed test lives in a real test folder/group; placeholder
+      directories, `.gitkeep`, and inline source-owned tests do not count as
+      coverage.

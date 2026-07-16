@@ -1,0 +1,57 @@
+import {
+  BrowserControlManifestIdSchema as GeneratedBrowserControlManifestIdSchema,
+  BrowserControlSectionIdSchema as GeneratedBrowserControlSectionIdSchema,
+  BrowserControlFieldIdSchema as GeneratedBrowserControlFieldIdSchema,
+  BrowserControlOptionIdSchema as GeneratedBrowserControlOptionIdSchema,
+  BrowserControlPolicyIdSchema as GeneratedBrowserControlPolicyIdSchema,
+  BrowserControlRuleIdSchema as GeneratedBrowserControlRuleIdSchema,
+  BrowserControlScheduleIdSchema as GeneratedBrowserControlScheduleIdSchema,
+  BrowserControlBudgetIdSchema as GeneratedBrowserControlBudgetIdSchema,
+  BrowserControlCapabilityIdSchema as GeneratedBrowserControlCapabilityIdSchema,
+  BrowserControlRevisionIdSchema as GeneratedBrowserControlRevisionIdSchema,
+  BrowserControlHashIdSchema as GeneratedBrowserControlHashIdSchema,
+  BrowserControlAuditEventIdSchema as GeneratedBrowserControlAuditEventIdSchema,
+  BrowserControlRequestIdSchema as GeneratedBrowserControlRequestIdSchema,
+} from './generated-browser-control-identifiers';
+import type {
+  BrowserControlManifestId as GeneratedBrowserControlManifestId,
+  BrowserControlSectionId as GeneratedBrowserControlSectionId,
+  BrowserControlFieldId as GeneratedBrowserControlFieldId,
+  BrowserControlOptionId as GeneratedBrowserControlOptionId,
+  BrowserControlPolicyId as GeneratedBrowserControlPolicyId,
+  BrowserControlRuleId as GeneratedBrowserControlRuleId,
+  BrowserControlScheduleId as GeneratedBrowserControlScheduleId,
+  BrowserControlBudgetId as GeneratedBrowserControlBudgetId,
+  BrowserControlCapabilityId as GeneratedBrowserControlCapabilityId,
+  BrowserControlRevisionId as GeneratedBrowserControlRevisionId,
+  BrowserControlHashId as GeneratedBrowserControlHashId,
+  BrowserControlAuditEventId as GeneratedBrowserControlAuditEventId,
+  BrowserControlRequestId as GeneratedBrowserControlRequestId,
+} from './generated-browser-control-identifiers';
+
+export const BrowserControlManifestIdSchema = GeneratedBrowserControlManifestIdSchema;
+export const BrowserControlSectionIdSchema = GeneratedBrowserControlSectionIdSchema;
+export const BrowserControlFieldIdSchema = GeneratedBrowserControlFieldIdSchema;
+export const BrowserControlOptionIdSchema = GeneratedBrowserControlOptionIdSchema;
+export const BrowserControlPolicyIdSchema = GeneratedBrowserControlPolicyIdSchema;
+export const BrowserControlRuleIdSchema = GeneratedBrowserControlRuleIdSchema;
+export const BrowserControlScheduleIdSchema = GeneratedBrowserControlScheduleIdSchema;
+export const BrowserControlBudgetIdSchema = GeneratedBrowserControlBudgetIdSchema;
+export const BrowserControlCapabilityIdSchema = GeneratedBrowserControlCapabilityIdSchema;
+export const BrowserControlRevisionIdSchema = GeneratedBrowserControlRevisionIdSchema;
+export const BrowserControlHashIdSchema = GeneratedBrowserControlHashIdSchema;
+export const BrowserControlAuditEventIdSchema = GeneratedBrowserControlAuditEventIdSchema;
+export const BrowserControlRequestIdSchema = GeneratedBrowserControlRequestIdSchema;
+export type BrowserControlManifestId = GeneratedBrowserControlManifestId;
+export type BrowserControlSectionId = GeneratedBrowserControlSectionId;
+export type BrowserControlFieldId = GeneratedBrowserControlFieldId;
+export type BrowserControlOptionId = GeneratedBrowserControlOptionId;
+export type BrowserControlPolicyId = GeneratedBrowserControlPolicyId;
+export type BrowserControlRuleId = GeneratedBrowserControlRuleId;
+export type BrowserControlScheduleId = GeneratedBrowserControlScheduleId;
+export type BrowserControlBudgetId = GeneratedBrowserControlBudgetId;
+export type BrowserControlCapabilityId = GeneratedBrowserControlCapabilityId;
+export type BrowserControlRevisionId = GeneratedBrowserControlRevisionId;
+export type BrowserControlHashId = GeneratedBrowserControlHashId;
+export type BrowserControlAuditEventId = GeneratedBrowserControlAuditEventId;
+export type BrowserControlRequestId = GeneratedBrowserControlRequestId;

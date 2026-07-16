@@ -1,7 +1,7 @@
-use ocentra_eventing::SourceComponent;
+use ocentra_eventing::ids::SourceComponent;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_cross_process_custody_readiness;
+use super::remote_delivery_cross_process_custody_readiness::prove_network_runtime_remote_delivery_cross_process_custody_readiness;
 use super::remote_delivery_cross_process_custody_readiness_types::{
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
@@ -30,7 +30,7 @@ pub async fn prove_network_runtime_remote_delivery_cross_process_replay() -> Res
     )
 }
 
-pub(crate) fn prove_network_runtime_remote_delivery_cross_process_replay_from_custody_readiness(
+pub fn prove_network_runtime_remote_delivery_cross_process_replay_from_custody_readiness(
     cross_process_custody_readiness: NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
 ) -> Result<
     NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,

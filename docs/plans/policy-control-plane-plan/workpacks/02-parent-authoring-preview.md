@@ -1,47 +1,128 @@
 # Workpack 02: Parent Authoring Preview
 
-Goal: define nontechnical policy authoring and preview.
+Goal: define nontechnical parent authoring and preview so policy can be created without exposing implementation internals or pretending enforcement already happened.
 
-Expected shape:
+Owns: templates, manual rule creation, preview, confirmation, conflict visibility, unsupported/manualRequired states, stale/offline visibility, accessibility, mobile behavior, and assistant-draft preview-only behavior.
 
-- Parents choose goals, templates, schedules, exceptions, and target children/devices/apps/sites/places.
-- Preview explains impact before confirmation.
-- Conflicts, unsupported targets, manual-required states, and stale device states are visible.
+Handoff: portal UX owns the rendered surfaces. AI may draft only. This workpack defines the expected policy-authoring contract, not styling.
 
-Expected proof:
+## Ownership boundary
 
-- UI state proof.
-- Conflict and validation proof.
-- No fake green proof.
-- Accessibility and mobile proof when UI is touched.
+```text
+policy-control-plane-plan owns authoring contract, preview states, confirmation requirements, no-claim boundaries, and proof route.
+portal-ux-household-surfaces-plan owns rendered UI surfaces and accessibility implementation.
+ai-plan owns draft suggestions only; AI cannot confirm or apply policy.
+account-identity-family-plan owns parent actor/session authority.
+device-trust-bootstrap-plan owns high-risk step-up where selected.
+```
 
-Failure: policy UI that saves ambiguous rules without preview, explanation, or conflict handling.
+## Required UI states
 
-## Execution Detail
+```text
+draft
+previewLoading
+previewReady
+previewFailed
+conflictDetected
+unsupportedTarget
+manualRequired
+staleDevice
+offlineChild
+scheduleAmbiguous
+scheduleInvalid
+confirmationRequired
+confirmed
+queued
+delivered
+acknowledged
+active
+partiallyActive
+rejected
+rolledBack
+superseded
+expired
+```
 
-Minimum context:
+## Required behavior
 
-- `docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md`
-- `docs/plans/portal-ux-household-surfaces-plan/workpacks/06-schedules-time-budgets-and-templates.md`
-- `docs/features/policy-schedules-approvals.md`
+- Parent can create rules from templates or manual input.
+- Preview explains target, time, condition, action, exception, unsupported/manualRequired state, and expected domain effect before save.
+- Preview does not enforce.
+- Save requires confirmation.
+- Cancel does not mutate source truth.
+- Unsupported, offline, stale, and manualRequired states stay visible.
+- AI drafts remain preview-only until parent confirmation.
+- Mobile and accessibility coverage are required, not implied.
 
-Required UX outcomes:
+## Required proof fields
 
-- Parent can understand target, time, condition, action, and exception before saving.
-- Preview explains expected effect and unsupported/manual-required states.
-- Conflict handling covers overlapping schedules, timezone/DST, device offline, unsupported platform, and domain capability gaps.
-- Accessibility and mobile behavior are not optional for parent-critical controls.
+The selected proof must name, at minimum:
 
-Expected tests/proof names:
+```text
+authoring_surface_state
+template_state
+manual_rule_state
+preview_state
+conflict_state
+unsupported_state
+stale_offline_state
+manual_required_state
+confirmation_state
+cancel_mutation_state
+assistant_draft_state
+mobile_accessibility_state
+portal_handoff_state
+no_enforcement_claim
+no_claim
+```
 
-- `policy-authoring.preview-before-save`
-- `policy-authoring.conflict-visible`
-- `policy-authoring.dst-boundary`
-- `policy-authoring.unsupported-target-visible`
-- `policy-authoring.no-fake-green`
+These are proof-routing fields, not implementation code prescriptions.
 
-Proof artifact expectations:
+## Required proof IDs
 
-- Screenshot proof for preview/conflict/error/degraded states.
-- Fixture cases for schedule and conflict.
-- Copy review for parent-readable explanations.
+```text
+policy-authoring.template-create
+policy-authoring.manual-rule-create
+policy-authoring.preview-before-save
+policy-authoring.preview-no-enforcement
+policy-authoring.conflict-visible
+policy-authoring.unsupported-target-visible
+policy-authoring.stale-device-visible
+policy-authoring.offline-child-visible
+policy-authoring.manual-required-visible
+policy-authoring.no-fake-green
+policy-authoring.mobile-accessible-state
+policy-authoring.copy-parent-readable
+policy-authoring.cancel-draft-no-mutation
+policy-authoring.confirmed-version-created
+policy-authoring.assistant-draft-preview-only
+```
+
+## Negative cases
+
+```text
+rule saves without preview
+preview enforces runtime behavior
+unsupported target hidden
+offline child shown as ready
+stale device shown as successful
+manual-required hidden behind green check
+cancelled draft still changes policy
+assistant draft saves without confirmation
+```
+
+## Proof artifact expectations
+
+```text
+docs/proof/policy-control-plane-plan/02-authoring-preview-proof.md
+docs/proof/policy-control-plane-plan/02-conflict-visible-proof.md
+docs/proof/policy-control-plane-plan/02-unsupported-target-proof.md
+docs/proof/policy-control-plane-plan/02-no-fake-green-proof.md
+docs/proof/policy-control-plane-plan/02-assistant-draft-preview-only-proof.md
+```
+
+## Failure
+
+Do not let the policy UI save ambiguous rules without preview, explanation, or conflict handling, and do not treat assistant-drafted text as applied policy.
+
+Keep WP02 open until targeted portal/authoring/preview proof exists or dependency blockers are explicitly carried.

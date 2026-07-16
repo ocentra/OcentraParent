@@ -1,11 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserActiveTabCapability, BrowserCapabilityStatus, BrowserChannel,
-    BrowserExactUrlCapability, BrowserFamily, BrowserInventoryInstallState,
-    BrowserInventoryRunningState, BrowserManagedProfileState, BrowserManagementTier,
-    BrowserSupportTier, BrowserUnmanagedFallbackCapability,
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_inventory::{
+    BrowserInventoryInstallState, BrowserInventoryRunningState,
 };
 
 use crate::browser_windows_inventory::BrowserWindowsInventoryObservation;
+
+#[path = "browser_windows_package_inventory_capability.rs"]
+mod browser_windows_package_inventory_capability;
+#[path = "browser_windows_package_inventory_identity.rs"]
+mod browser_windows_package_inventory_identity;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct BrowserWindowsPackageIdentity {
@@ -47,7 +50,10 @@ pub fn windows_browser_package_observations(
 fn windows_browser_package_observation(
     package_identity: &BrowserWindowsPackageIdentity,
 ) -> Option<BrowserWindowsInventoryObservation> {
-    let (identity, support_kind) = windows_browser_package_identity(package_identity)?;
+    let (identity, support_kind) =
+        browser_windows_package_inventory_identity::windows_browser_package_identity(
+            package_identity,
+        )?;
     let (
         management_tier,
         support_tier,
@@ -57,7 +63,7 @@ fn windows_browser_package_observation(
         unmanaged_fallback_capability,
         capability_status,
         reason_code,
-    ) = package_capability_state(support_kind);
+    ) = browser_windows_package_inventory_capability::package_capability_state(support_kind);
     Some(BrowserWindowsInventoryObservation {
         executable_path: None,
         process_id: None,
@@ -75,166 +81,4 @@ fn windows_browser_package_observation(
         capability_status,
         reason_code,
     })
-}
-
-fn package_capability_state(
-    support_kind: BrowserWindowsPackageSupportKind,
-) -> (
-    BrowserManagementTier,
-    BrowserSupportTier,
-    BrowserExactUrlCapability,
-    BrowserActiveTabCapability,
-    BrowserManagedProfileState,
-    BrowserUnmanagedFallbackCapability,
-    BrowserCapabilityStatus,
-    &'static str,
-) {
-    match support_kind {
-        BrowserWindowsPackageSupportKind::ManualChromium => (
-            BrowserManagementTier::ManualRequired,
-            BrowserSupportTier::ManualRequired,
-            BrowserExactUrlCapability::ManualRequired,
-            BrowserActiveTabCapability::ManualRequired,
-            BrowserManagedProfileState::ManualRequired,
-            BrowserUnmanagedFallbackCapability::OsBlockManualRequired,
-            BrowserCapabilityStatus::PermissionLimited,
-            constants::browser::INVENTORY_REASON_WINDOWS_PACKAGE_MANUAL_REQUIRED,
-        ),
-        BrowserWindowsPackageSupportKind::Unsupported => (
-            BrowserManagementTier::Unsupported,
-            BrowserSupportTier::Unsupported,
-            BrowserExactUrlCapability::Unsupported,
-            BrowserActiveTabCapability::Unsupported,
-            BrowserManagedProfileState::NotApplicable,
-            BrowserUnmanagedFallbackCapability::Unsupported,
-            BrowserCapabilityStatus::UnsupportedBrowser,
-            constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER,
-        ),
-    }
-}
-
-fn windows_browser_package_identity(
-    package_identity: &BrowserWindowsPackageIdentity,
-) -> Option<(
-    BrowserWindowsPackageDisplayIdentity,
-    BrowserWindowsPackageSupportKind,
-)> {
-    let mut normalized = package_identity.package_name.to_ascii_lowercase();
-    if let Some(display_name) = package_identity.display_name.as_deref() {
-        normalized.push_str(&display_name.to_ascii_lowercase());
-    }
-    if let Some(app_user_model_id) = package_identity.app_user_model_id.as_deref() {
-        normalized.push_str(&app_user_model_id.to_ascii_lowercase());
-    }
-    package_identity_from_normalized(&normalized)
-}
-
-fn package_identity_from_normalized(
-    value: &str,
-) -> Option<(
-    BrowserWindowsPackageDisplayIdentity,
-    BrowserWindowsPackageSupportKind,
-)> {
-    if value.contains(constants::browser::PACKAGE_FRAGMENT_MICROSOFT_EDGE)
-        || value.contains(constants::browser::PACKAGE_FRAGMENT_EDGE)
-    {
-        return Some((
-            manual_identity(
-                BrowserFamily::Edge,
-                constants::browser::PRODUCT_NAME_MICROSOFT_EDGE,
-            ),
-            BrowserWindowsPackageSupportKind::ManualChromium,
-        ));
-    }
-    if value.contains(constants::browser::PACKAGE_FRAGMENT_CHROME) {
-        return Some((
-            manual_identity(
-                BrowserFamily::Chrome,
-                constants::browser::PRODUCT_NAME_GOOGLE_CHROME,
-            ),
-            BrowserWindowsPackageSupportKind::ManualChromium,
-        ));
-    }
-    package_chromium_fork_identity(value).or_else(|| package_unsupported_identity(value))
-}
-
-fn package_chromium_fork_identity(
-    value: &str,
-) -> Option<(
-    BrowserWindowsPackageDisplayIdentity,
-    BrowserWindowsPackageSupportKind,
-)> {
-    let (family, product_name) = if value.contains(constants::browser::PACKAGE_FRAGMENT_BRAVE) {
-        (
-            BrowserFamily::Brave,
-            constants::browser::PRODUCT_NAME_BRAVE_BROWSER,
-        )
-    } else if value.contains(constants::browser::PACKAGE_FRAGMENT_VIVALDI) {
-        (
-            BrowserFamily::UnknownChromium,
-            constants::browser::PRODUCT_NAME_VIVALDI_BROWSER,
-        )
-    } else if value.contains(constants::browser::PACKAGE_FRAGMENT_OPERA) {
-        (
-            BrowserFamily::Opera,
-            constants::browser::PRODUCT_NAME_OPERA_BROWSER,
-        )
-    } else if value.contains(constants::browser::PACKAGE_FRAGMENT_CHROMIUM) {
-        (
-            BrowserFamily::UnknownChromium,
-            constants::browser::PRODUCT_NAME_CHROMIUM,
-        )
-    } else {
-        return None;
-    };
-    Some((
-        manual_identity(family, product_name),
-        BrowserWindowsPackageSupportKind::ManualChromium,
-    ))
-}
-
-fn package_unsupported_identity(
-    value: &str,
-) -> Option<(
-    BrowserWindowsPackageDisplayIdentity,
-    BrowserWindowsPackageSupportKind,
-)> {
-    let (family, product_name) = if value.contains(constants::browser::PACKAGE_FRAGMENT_FIREFOX) {
-        (
-            BrowserFamily::Firefox,
-            constants::browser::PRODUCT_NAME_MOZILLA_FIREFOX,
-        )
-    } else if value.contains(constants::browser::PACKAGE_FRAGMENT_TOR) {
-        (
-            BrowserFamily::Unknown,
-            constants::browser::PRODUCT_NAME_TOR_BROWSER,
-        )
-    } else if value.contains(constants::browser::PACKAGE_FRAGMENT_DUCKDUCKGO) {
-        (
-            BrowserFamily::Unknown,
-            constants::browser::PRODUCT_NAME_DUCKDUCKGO_BROWSER,
-        )
-    } else if value.contains(constants::browser::PACKAGE_FRAGMENT_ARC) {
-        (
-            BrowserFamily::UnknownChromium,
-            constants::browser::PRODUCT_NAME_ARC_BROWSER,
-        )
-    } else {
-        return None;
-    };
-    Some((
-        manual_identity(family, product_name),
-        BrowserWindowsPackageSupportKind::Unsupported,
-    ))
-}
-
-fn manual_identity(
-    browser_family: BrowserFamily,
-    product_name: &'static str,
-) -> BrowserWindowsPackageDisplayIdentity {
-    BrowserWindowsPackageDisplayIdentity {
-        browser_family,
-        browser_channel: BrowserChannel::Stable,
-        product_name,
-    }
 }

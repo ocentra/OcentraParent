@@ -1,24 +1,23 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventBus, EventContract, EventContractRegistry,
-    EventResponseContract, EventSubscriber, EventTopologyManifest, EventTopologyPublisher,
-    EventTopologySubscriber, EventType, EventingError, IdempotencyKey, RequestEvent, RequestId,
-    RequestOptions, SchemaVersion, SourceComponent, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, contract_registry::EventContractRegistry,
+    envelope::DomainEvent, envelope::EventContract, error::EventingError, ids::AggregateKey,
+    ids::EventType, ids::IdempotencyKey, ids::RequestId, ids::SchemaVersion, ids::SourceComponent,
+    ids::SubscriberId, ids::TargetHandler, request::RequestEvent, request::RequestOptions,
+    topology::EventTopologyManifest, topology::EventTopologyPublisher,
+    topology::EventTopologySubscriber,
 };
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
-use crate::{BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimePhase};
+use super::{
+    browser_aggregate_key, browser_event_metadata, BrowserRuntimeEventPayload, BrowserRuntimeInput,
+};
 
-use super::{browser_aggregate_key, browser_event_metadata};
-
-#[derive(Clone, Debug)]
-pub struct BrowserRuntimeActionIntentStatusReport {
-    pub request_report: ocentra_eventing::RequestReport<BrowserRuntimeActionIntentStatusResponse>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
-}
+pub type BrowserRuntimeActionIntentStatusReport =
+    ocentra_parent_agent_protocol::browser::action_status::BrowserRuntimeActionIntentStatusReport;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 struct BrowserRuntimeActionIntentStatusRequest {
@@ -54,49 +53,35 @@ impl RequestEvent for BrowserRuntimeActionIntentStatusRequest {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct BrowserRuntimeActionIntentStatusResponse {
-    pub candidate_count: usize,
-    pub policy_preview_id: Option<String>,
-    pub action_intent_id: Option<String>,
-    pub source_ref: String,
-    pub evidence_ref: String,
-    pub dry_run_only: bool,
-    pub policy_authority_only: bool,
-    pub dispatch_attempt_count: u8,
-    pub adapter_execution_count: u8,
-    pub child_intervention_execution_count: u8,
-    pub enforcement_execution_count: u8,
-}
+pub type BrowserRuntimeActionIntentStatusResponse =
+    ocentra_parent_agent_protocol::browser::action_status::BrowserRuntimeActionIntentStatusResponse;
 
-impl BrowserRuntimeActionIntentStatusResponse {
-    fn from_payload(payload: &BrowserRuntimeEventPayload) -> Self {
-        let has_candidate = payload.phase == BrowserRuntimePhase::PolicyDecisionCompleted
-            && payload.dry_run
-            && payload.policy_authority
-            && payload.policy_preview_id.is_some()
-            && payload.action_intent_id.is_some();
-        Self {
-            candidate_count: usize::from(has_candidate),
-            policy_preview_id: has_candidate
-                .then(|| payload.policy_preview_id.clone())
-                .flatten(),
-            action_intent_id: has_candidate
-                .then(|| payload.action_intent_id.clone())
-                .flatten(),
-            source_ref: payload.source_ref.clone(),
-            evidence_ref: payload.evidence_ref.clone(),
-            dry_run_only: true,
-            policy_authority_only: true,
-            dispatch_attempt_count: 0,
-            adapter_execution_count: 0,
-            child_intervention_execution_count: 0,
-            enforcement_execution_count: 0,
-        }
+fn action_intent_status_response_from_payload(
+    payload: &BrowserRuntimeEventPayload,
+) -> BrowserRuntimeActionIntentStatusResponse {
+    let has_candidate = payload.phase == BrowserRuntimePhase::PolicyDecisionCompleted
+        && payload.dry_run
+        && payload.policy_authority
+        && payload.policy_preview_id.is_some()
+        && payload.action_intent_id.is_some();
+    BrowserRuntimeActionIntentStatusResponse {
+        candidate_count: usize::from(has_candidate),
+        policy_preview_id: has_candidate
+            .then(|| payload.policy_preview_id.clone())
+            .flatten(),
+        action_intent_id: has_candidate
+            .then(|| payload.action_intent_id.clone())
+            .flatten(),
+        source_ref: payload.source_ref.clone(),
+        evidence_ref: payload.evidence_ref.clone(),
+        dry_run_only: true,
+        policy_authority_only: true,
+        dispatch_attempt_count: 0,
+        adapter_execution_count: 0,
+        child_intervention_execution_count: 0,
+        enforcement_execution_count: 0,
     }
 }
-
-impl EventResponseContract for BrowserRuntimeActionIntentStatusResponse {}
 
 pub async fn request_browser_runtime_action_intent_status_for_input(
     input: BrowserRuntimeInput,
@@ -110,7 +95,7 @@ pub async fn request_browser_runtime_action_intent_status_for_input(
         ),
         |context| async move {
             context
-                .complete_request(BrowserRuntimeActionIntentStatusResponse::from_payload(
+                .complete_request(action_intent_status_response_from_payload(
                     &context.payload().payload,
                 ))
                 .await?;
@@ -120,7 +105,7 @@ pub async fn request_browser_runtime_action_intent_status_for_input(
     .await?;
 
     let phase = BrowserRuntimePhase::PolicyDecisionCompleted;
-    let payload = BrowserRuntimeEventPayload::from_input(phase, &input);
+    let payload = super::browser_runtime_event_payload_from_input(phase, &input);
     let request = BrowserRuntimeActionIntentStatusRequest {
         request_id: RequestId::parse(action_intent_status_request_id(&payload))?,
         payload,
@@ -149,7 +134,7 @@ pub async fn request_browser_runtime_action_intent_status_for_input(
 
 pub fn browser_runtime_action_intent_status_topology_manifest(
 ) -> Result<EventTopologyManifest, EventingError> {
-    let payload = BrowserRuntimeEventPayload::from_input(
+    let payload = super::browser_runtime_event_payload_from_input(
         BrowserRuntimePhase::PolicyDecisionCompleted,
         &BrowserRuntimeInput::dry_run_action_handoff_fixture(),
     );

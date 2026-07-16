@@ -1,0 +1,126 @@
+export function evaluateTrackingGeofenceTransitionGenerated(input: TrackingGeofenceEvaluationInput) {
+  const distanceMeters = distanceFromRule(input.rule, input.location);
+  const reasonCodes: TrackingReasonCode[] = [];
+  const blocked = [
+    [!input.rule.enabled, ['geofence-rule-disabled']],
+    [input.location.capabilityStatus !== 'live' && input.location.capabilityStatus !== 'recent', ['fresh-location-required']],
+    [input.location.coordinate === null || distanceMeters === null, ['precise-location-required']],
+    [
+      input.location.accuracyMeters === null || input.location.accuracyMeters > input.rule.minAccuracyMeters,
+      ['location-accuracy-below-rule-threshold'],
+    ],
+  ] as const;
+  const failed = blocked.find(([matched]) => matched);
+  let transition: TrackingGeofenceTransition['transition'] = 'ambiguous';
+  if (failed !== undefined) {
+    reasonCodes.push(reasonCode(failed[1][0]));
+  } else {
+    const inside = locationInsideRule(input.rule, input.location, distanceMeters);
+    transition = inside ? (input.wasInside ? 'dwell' : 'enter') : input.wasInside ? 'exit' : 'ambiguous';
+    reasonCodes.push(reasonCode(inside ? 'inside-geofence-with-accuracy' : 'outside-geofence-with-accuracy'));
+  }
+
+  return {
+    schemaVersion: input.rule.schemaVersion,
+    transitionId: input.transitionId,
+    observedAt: input.observedAt,
+    ruleId: input.rule.ruleId,
+    geofenceId: input.rule.geofenceId,
+    locationEvidenceId: input.location.evidenceId,
+    transition,
+    capabilityStatus: input.location.capabilityStatus,
+    distanceMeters,
+    reasonCodes,
+    evidence: [
+      ...input.location.evidence,
+      {
+        evidenceId: input.location.evidenceId,
+        kind: ActivityEvidenceKind.LocalDbRow,
+        digest: null,
+        uri: null,
+      },
+    ],
+  };
+}
+
+export function evaluateTrackingExpectedPlaceDecisionGenerated(input: TrackingExpectedPlaceEvaluationInput) {
+  const observedAt = Date.parse(input.observedAt);
+  const activeWindow = input.schedule.windows.find(
+    (window) => observedAt >= Date.parse(window.startsAt) && observedAt <= Date.parse(window.endsAt)
+  );
+  const reasonCodes: TrackingReasonCode[] = [];
+  const result = [
+    [!input.schedule.enabled, () => ({ outcome: 'manual-required' as const, reason: 'expected-place-schedule-disabled' })],
+    [capabilityRequiresManualReview(input.location.capabilityStatus), () => ({ outcome: 'manual-required' as const, reason: 'fresh-location-required' })],
+    [
+      input.schedule.activeException !== null,
+      () => ({
+        outcome: 'unknown' as const,
+        exceptionState: input.schedule.activeException!.state,
+        exceptionAuditRef: input.schedule.activeException!.auditRef,
+        reason: reasonCodeForExpectedPlaceException(input.schedule.activeException!.state),
+      }),
+    ],
+    [activeWindow === undefined, () => ({ outcome: 'unknown' as const, reason: 'outside-expected-place-window' })],
+    [input.transition.transition === 'enter' || input.transition.transition === 'dwell', () => ({ outcome: 'where-expected' as const, reason: 'inside-expected-place-window' })],
+    [input.transition.transition === 'exit', () => ({ outcome: 'left-expected-place' as const, reason: 'exited-expected-place-window' })],
+    [input.transition.transition === 'missed-arrival', () => ({ outcome: 'late-arrival' as const, reason: 'missed-expected-place-arrival' })],
+  ] as const;
+  const matched = result.find(([condition]) => condition);
+  const selected = matched === undefined ? { outcome: 'unknown' as const, reason: 'expected-place-ambiguous' } : matched[1]();
+  reasonCodes.push(reasonCode(selected.reason));
+
+  return {
+    schemaVersion: input.schedule.schemaVersion,
+    decisionId: input.decisionId,
+    observedAt: input.observedAt,
+    scheduleId: input.schedule.scheduleId,
+    transitionId: input.transition.transitionId,
+    outcome: selected.outcome,
+    exceptionState: "exceptionState" in selected ? selected.exceptionState : null,
+    exceptionAuditRef: "exceptionAuditRef" in selected ? selected.exceptionAuditRef : null,
+    activeWindow: activeWindow ?? null,
+    capabilityStatus: input.location.capabilityStatus,
+    reasonCodes,
+    evidence: [...input.transition.evidence, ...input.location.evidence],
+  };
+}
+
+function distanceFromRule(rule: TrackingGeofenceRule, location: TrackingLocationEvidence) {
+  if (location.coordinate === null) {
+    return null;
+  }
+  return distanceMeters(
+    rule.center.latitude,
+    rule.center.longitude,
+    location.coordinate.latitude,
+    location.coordinate.longitude
+  );
+}
+
+function locationInsideRule(rule: TrackingGeofenceRule, location: TrackingLocationEvidence, distance: number | null) {
+  return distance !== null && rule.shape.kind === 'circle' && distance <= rule.shape.radiusMeters;
+}
+
+function distanceMeters(startLatitude: number, startLongitude: number, endLatitude: number, endLongitude: number) {
+  const deltaLatitude = (endLatitude - startLatitude) * RadiansPerDegree;
+  const deltaLongitude = (endLongitude - startLongitude) * RadiansPerDegree;
+  const latitudeA = startLatitude * RadiansPerDegree;
+  const latitudeB = endLatitude * RadiansPerDegree;
+  const arc =
+    Math.sin(deltaLatitude / 2) * Math.sin(deltaLatitude / 2) +
+    Math.cos(latitudeA) * Math.cos(latitudeB) * Math.sin(deltaLongitude / 2) * Math.sin(deltaLongitude / 2);
+  return 2 * EarthRadiusMeters * Math.atan2(Math.sqrt(arc), Math.sqrt(1 - arc));
+}
+
+function capabilityRequiresManualReview(capabilityStatus: TrackingLocationEvidence['capabilityStatus']) {
+  return ManualReviewCapabilityStatuses.has(capabilityStatus);
+}
+
+function reasonCodeForExpectedPlaceException(exceptionState: TrackingExpectedPlaceExceptionState) {
+  return ({
+    active: 'expected-place-exception-active',
+    resolved: 'expected-place-exception-resolved',
+    suppressed: 'expected-place-exception-suppressed',
+  } as const)[exceptionState];
+}

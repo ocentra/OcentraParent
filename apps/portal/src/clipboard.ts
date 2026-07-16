@@ -1,6 +1,6 @@
-import { PortalClipboard, type PortalClipboardText, PortalDom } from '@ocentra-parent/portal-domain/contracts';
-
-export async function writeClipboardText(text: PortalClipboardText): Promise<boolean> {
+import { PortalClipboard, PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { type ParentPortalClipboardText } from '../generated/parent-ui-bridge';
+export async function writeClipboardText(text: ParentPortalClipboardText): Promise<boolean> {
   if (navigator.clipboard !== undefined) {
     try {
       await navigator.clipboard.writeText(text);
@@ -12,7 +12,7 @@ export async function writeClipboardText(text: PortalClipboardText): Promise<boo
   return writeClipboardTextWithSelection(text);
 }
 
-function writeClipboardTextWithSelection(text: PortalClipboardText): boolean {
+function writeClipboardTextWithSelection(text: ParentPortalClipboardText): boolean {
   const buffer = document.createElement(PortalDom.Tags.TextArea);
   buffer.className = PortalDom.Classes.ClipboardBuffer;
   buffer.setAttribute(PortalDom.Attributes.ReadOnly, PortalDom.Attributes.ReadOnly);

@@ -232,7 +232,7 @@ only with explicit parent settings.
   `scripts/test/screen-ai-invalid-output-proof.mjs` proves invalid category,
   confidence, risk-signal, or missing-text output cannot become a screen analysis
   result or policy candidate.
-- `selectStricterPolicyAction` in `@ocentra-parent/parent-domain/policy` and
+- `selectStricterPolicyAction` in `@ocentra-parent/schema-domain/policy` and
   `scripts/test/screen-ai-stricter-rule-proof.mjs` prove local AI cannot weaken
   a stricter parent rule before policy handoff. This is a policy candidate gate;
   it does not claim final enforcement execution.

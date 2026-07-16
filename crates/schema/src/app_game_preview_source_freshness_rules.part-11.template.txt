@@ -1,0 +1,30 @@
+      requirementKind,
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.Missing,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.MissingSourceStatusRow,
+      matchedSourceKinds: [],
+      sourceEvidenceRefs: [],
+      lastObservedAt: null,
+    };
+  }
+
+  const freshRow = rows.find(
+    (row) =>
+      row.state === AppGameSourceFreshnessReadModelStateGenerated.Ready &&
+      row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.Available &&
+      row.rowCount > 0 &&
+      row.evidence.length > 0 &&
+      appGameSourceFreshnessRequirementFailureGenerated(row, evaluatedAt, request.maxSourceAgeMs) === null
+  );
+
+  if (freshRow !== undefined) {
+    return {
+      requirementKind,
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.Satisfied,
+      reasonCode: null,
+      matchedSourceKinds: [freshRow.sourceKind],
+      sourceEvidenceRefs: freshRow.evidence,
+      lastObservedAt: freshRow.lastObservedAt,
+    };
+  }
+
+  const firstRow = rows[0];

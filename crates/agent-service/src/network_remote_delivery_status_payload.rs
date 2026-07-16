@@ -1,24 +1,35 @@
-use ocentra_parent_agent_core::{
-    prove_network_runtime_remote_delivery_delete_export_propagation,
-    prove_network_runtime_remote_delivery_external_cross_process_transport,
-    prove_network_runtime_remote_delivery_transport_dispatch_state,
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
-    NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
-    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-    NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport, NetworkRuntimeRemoteDeliveryState,
-    NetworkRuntimeRemoteDeliveryStatusReport,
-    NetworkRuntimeRemoteDeliveryTransportDispatchState as RuntimeTransportDispatchState,
-    NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
+use ocentra_parent_agent_core::network_event_runtime::{
+    remote_delivery_cross_process_custody_readiness_types::NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
+    remote_delivery_cross_process_replay_types::NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation,
+    remote_delivery_delete_export_propagation_types::NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
+    remote_delivery_durable_envelope_types::NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+    remote_delivery_external_cross_process_transport::prove_network_runtime_remote_delivery_external_cross_process_transport,
+    remote_delivery_external_cross_process_transport_types::NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
+    remote_delivery_fixture_transport_types::NetworkRuntimeRemoteDeliveryFixtureTransportReport,
+    remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
+    remote_delivery_provider_child_readiness_types::NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+    remote_delivery_status::{
+        NetworkRuntimeRemoteDeliveryState, NetworkRuntimeRemoteDeliveryStatusReport,
+    },
+    remote_delivery_transport_dispatch_state::prove_network_runtime_remote_delivery_transport_dispatch_state,
+    remote_delivery_transport_dispatch_state_types::{
+        NetworkRuntimeRemoteDeliveryTransportDispatchState as RuntimeTransportDispatchState,
+        NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
+    },
 };
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
-    NetworkRemoteDeliveryTransportDispatchState,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryStatus;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryStatusState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryTransportDispatchState;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+use std::future::Future;
+use std::pin::Pin;
 use tokio::sync::OnceCell;
 
 use crate::{
@@ -33,75 +44,88 @@ use crate::{
 static NETWORK_REMOTE_DELIVERY_STATUS: OnceCell<NetworkRemoteDeliveryStatus> =
     OnceCell::const_new();
 
-pub(crate) async fn build_network_remote_delivery_status_report(
+pub(crate) fn build_network_remote_delivery_status_report(
     command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    let correlation_id = command.message_id.clone();
-    let target = command.source;
-    match network_remote_delivery_status_payload().await {
-        Ok(payload) => build_event(
-            constants::event_id::NETWORK_REMOTE_DELIVERY_STATUS_REPORTED,
-            &correlation_id,
-            target,
-            AgentEventName::AgentNetworkRemoteDeliveryStatusReported,
-            LogLevel::Info,
-            payload,
-            None,
-        ),
-        Err(()) => build_event(
-            constants::event_id::COMMAND_REJECTED,
-            &correlation_id,
-            target,
-            AgentEventName::AgentCommandRejected,
-            LogLevel::Warn,
-            fields_from_pairs(vec![(
-                constants::field::REASON,
-                LogFieldValue::String(
-                    constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE
-                        .to_string(),
-                ),
-            )]),
-            None,
-        ),
-    }
+) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send>> {
+    Box::pin(async move {
+        let correlation_id = command.message_id.clone();
+        let target = command.source;
+        match network_remote_delivery_status_payload().await {
+            Ok(payload) => build_event(
+                constants::event_id::NETWORK_REMOTE_DELIVERY_STATUS_REPORTED,
+                &correlation_id,
+                target,
+                AgentEventName::AgentNetworkRemoteDeliveryStatusReported,
+                LogLevel::Info,
+                payload,
+                None,
+            ),
+            Err(()) => build_event(
+                constants::event_id::COMMAND_REJECTED,
+                &correlation_id,
+                target,
+                AgentEventName::AgentCommandRejected,
+                LogLevel::Warn,
+                fields_from_pairs(vec![(
+                    constants::field::REASON,
+                    LogFieldValue::String(
+                        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE
+                            .to_string(),
+                    ),
+                )]),
+                None,
+            ),
+        }
+    })
 }
 
-pub(crate) async fn network_remote_delivery_status_payload() -> Result<LogFields, ()> {
-    let status = network_remote_delivery_status().await?;
-    let serialized = serde_json::to_string(&status).map_err(|_| ())?;
-    Ok(fields_from_pairs(vec![(
-        constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
-        LogFieldValue::String(serialized),
-    )]))
+pub(crate) fn network_remote_delivery_status_payload(
+) -> Pin<Box<dyn Future<Output = Result<LogFields, ()>> + Send>> {
+    Box::pin(async move {
+        let status = network_remote_delivery_status().await?;
+        let serialized = serde_json::to_string(&status).map_err(|_error| ())?;
+        Ok(fields_from_pairs(vec![(
+            constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
+            LogFieldValue::String(serialized),
+        )]))
+    })
 }
 
-async fn network_remote_delivery_status() -> Result<&'static NetworkRemoteDeliveryStatus, ()> {
-    NETWORK_REMOTE_DELIVERY_STATUS
-        .get_or_try_init(|| async {
-            let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
+fn network_remote_delivery_status(
+) -> Pin<Box<dyn Future<Output = Result<&'static NetworkRemoteDeliveryStatus, ()>> + Send>> {
+    Box::pin(async move {
+        NETWORK_REMOTE_DELIVERY_STATUS
+            .get_or_try_init(network_remote_delivery_status_value)
+            .await
+    })
+}
+
+fn network_remote_delivery_status_value(
+) -> Pin<Box<dyn Future<Output = Result<NetworkRemoteDeliveryStatus, ()>> + Send>> {
+    Box::pin(async move {
+        let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
+            .await
+            .map_err(|_error| ())?;
+        let delete_export_report =
+            prove_network_runtime_remote_delivery_delete_export_propagation()
                 .await
-                .map_err(|_| ())?;
-            let delete_export_report =
-                prove_network_runtime_remote_delivery_delete_export_propagation()
-                    .await
-                    .map_err(|_| ())?;
-            let external_cross_process_transport =
-                prove_network_runtime_remote_delivery_external_cross_process_transport()
-                    .await
-                    .map_err(|_| ())?;
-            let cross_process_replay = &external_cross_process_transport.cross_process_replay;
-            Ok::<NetworkRemoteDeliveryStatus, ()>(status_from_report(
-                &report,
-                &delete_export_report,
-                &cross_process_replay
-                    .cross_process_custody_readiness
-                    .provider_child_readiness,
-                &cross_process_replay.cross_process_custody_readiness,
-                cross_process_replay,
-                &external_cross_process_transport,
-            ))
-        })
-        .await
+                .map_err(|_error| ())?;
+        let external_cross_process_transport =
+            prove_network_runtime_remote_delivery_external_cross_process_transport()
+                .await
+                .map_err(|_error| ())?;
+        let cross_process_replay = &external_cross_process_transport.cross_process_replay;
+        Ok::<NetworkRemoteDeliveryStatus, ()>(status_from_report(
+            &report,
+            &delete_export_report,
+            &cross_process_replay
+                .cross_process_custody_readiness
+                .provider_child_readiness,
+            &cross_process_replay.cross_process_custody_readiness,
+            cross_process_replay,
+            &external_cross_process_transport,
+        ))
+    })
 }
 
 fn status_from_report(
@@ -174,18 +198,16 @@ fn apply_durable_status(
     outbox_report: &NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
     durable_report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
 ) {
-    let (event_chain_journal_ref, receipt_ledger_ref, local_receipt_ack_ref) =
-        receipt_refs(durable_report);
-    let (durable_replay_ref, durable_delete_export_ref, durable_support_status_ref) =
-        durable_refs(durable_report);
-    status.event_chain_journal_ref = event_chain_journal_ref;
-    status.receipt_ledger_ref = receipt_ledger_ref;
-    status.local_receipt_ack_ref = local_receipt_ack_ref;
+    let receipt_refs = receipt_refs(durable_report);
+    let durable_refs = durable_refs(durable_report);
+    status.event_chain_journal_ref = receipt_refs.event_chain_journal_ref;
+    status.receipt_ledger_ref = receipt_refs.receipt_ledger_ref;
+    status.local_receipt_ack_ref = receipt_refs.local_receipt_ack_ref;
     status.durable_envelope_ref = outbox_report.durable_envelope_ref.as_str().to_string();
     status.durable_store_ref = outbox_report.durable_store_ref.as_str().to_string();
-    status.durable_replay_ref = durable_replay_ref;
-    status.durable_delete_export_ref = durable_delete_export_ref;
-    status.durable_support_status_ref = durable_support_status_ref;
+    status.durable_replay_ref = durable_refs.durable_replay_ref;
+    status.durable_delete_export_ref = durable_refs.durable_delete_export_ref;
+    status.durable_support_status_ref = durable_refs.durable_support_status_ref;
     status.durable_envelope_ready = durable_envelope_ready(durable_report);
     status.durable_envelope_missing_artifact_count = 0;
 }
@@ -326,36 +348,44 @@ pub(crate) fn blocked_dispatch_records_match_outbox_candidates(
         })
 }
 
-fn receipt_refs(
-    report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-) -> (String, String, String) {
-    (
-        report
+struct ReceiptRefs {
+    event_chain_journal_ref: String,
+    receipt_ledger_ref: String,
+    local_receipt_ack_ref: String,
+}
+
+fn receipt_refs(report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport) -> ReceiptRefs {
+    ReceiptRefs {
+        event_chain_journal_ref: report
             .receipt_ledger
             .event_chain_journal_ref
             .as_str()
             .to_string(),
-        report
+        receipt_ledger_ref: report
             .receipt_ledger
             .receipt_ledger_ref
             .as_str()
             .to_string(),
-        report
+        local_receipt_ack_ref: report
             .receipt_ledger
             .local_receipt_ack_ref
             .as_str()
             .to_string(),
-    )
+    }
 }
 
-fn durable_refs(
-    report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-) -> (String, String, String) {
-    (
-        report.durable_replay_ref.as_str().to_string(),
-        report.delete_export_readiness_ref.as_str().to_string(),
-        report.durable_support_status_ref.as_str().to_string(),
-    )
+struct DurableRefs {
+    durable_replay_ref: String,
+    durable_delete_export_ref: String,
+    durable_support_status_ref: String,
+}
+
+fn durable_refs(report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport) -> DurableRefs {
+    DurableRefs {
+        durable_replay_ref: report.durable_replay_ref.as_str().to_string(),
+        durable_delete_export_ref: report.delete_export_readiness_ref.as_str().to_string(),
+        durable_support_status_ref: report.durable_support_status_ref.as_str().to_string(),
+    }
 }
 
 fn durable_envelope_ready(report: &NetworkRuntimeRemoteDeliveryDurableEnvelopeReport) -> bool {

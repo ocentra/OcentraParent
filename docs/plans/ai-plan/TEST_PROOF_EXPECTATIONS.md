@@ -1,69 +1,150 @@
-# AI Plan Test and Proof Expectations
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `ai-plan`
-> Doc: `AI Plan Test and Proof Expectations`
-> Kind: plan-local test and proof decision tree.
-> Read when: After the assigned workpack/checklist row is known; use to choose required tests/proof.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: This file defines required local tests/proof; missing tests keep rows open.
+> Doc: `AI Plan Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
 <!-- /agent-capsule -->
 
-Use this after the assigned AI workpack is known. The goal is to force local/remote AI work to prove custody, deterministic fallbacks, output invariants, and provider boundaries without reading unrelated browser, screen, or tracking plans.
+# AI Plan Test Proof Expectations
 
-## Where tests should live
+## General rule
 
-When the AI implementation crate/package exists, AI tests belong in that implementation test tree and proof output under its proof folder. Until then, colocate with the owning AI/domain/runtime package and record the path in the workpack and `PROOF_INDEX.md`.
+Use focused commands first. Broader validation is allowed only after focused commands pass or a precise blocker is recorded.
 
-## Decision Tree
+For a selected workpack, use proof root:
 
-| If the assigned work is...                                                                 | Read next                                        | Expected tests or proof                                                                                                                              |
-| ------------------------------------------------------------------------------------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| WP02 snapshot/gap map                                                                      | `DOC_INDEX.md`, exact source docs only           | `ai-doc-link-sanity`, `ai-gap-map-no-product-claim-proof`.                                                                                           |
-| WP03-WP04 contracts and Rust protocol parity                                               | owning domain README, source-boundary flow       | schema decode negatives, branded ids, TS/Rust serialization parity, version-skew tests.                                                              |
-| WP05-WP08 runtime status, provider capability, job queue, provider routing                 | assigned workpack                                | provider-state matrix, queue idempotency/replay, duplicate job prevention, retry/dead-letter, fallback routing proof.                                |
-| WP09-WP12 context builder, evidence refs, rule context, prompt registry                    | assigned workpack                                | evidence custody invariants, redaction tests, prompt template version tests, no raw private payload leakage.                                         |
-| WP13-WP18 classifier, LLM adapter, output parser, degraded handling, policy evaluator      | assigned workpack                                | deterministic no-model regression, prompt injection, hallucination/output invariant tests, timeout/invalid-output handling, temperature sensitivity. |
-| WP19-WP25 result journal, explanation, memory, graph refs                                  | assigned workpack                                | journal replay, migration/rollback, memory custody, graph edge invariants, stale evidence negatives.                                                 |
-| WP26-WP29 TabAgent reuse candidates                                                        | exact workpack only                              | reuse audit proof, boundary mapping, no imported authority bypass, lifecycle/cache compatibility proof.                                              |
-| WP30-WP39 OCR/VLM/domain lanes                                                             | assigned workpack plus owning plan only if named | cross-plan handoff proof, image/text fixture invariants, redaction, model-fit/resource proof.                                                        |
-| WP40-WP47 model artifacts, settings, portal, provider API, remote assistant, security/perf | assigned workpack                                | artifact integrity/hash/cache tests, API auth custody, prompt-injection/redaction, resource/battery proof, performance limits.                       |
-| WP48 rollout gate                                                                          | `PROOF_INDEX.md`                                 | complete proof manifest, selected risk rows, skipped-heavy-check risks, PR validation list.                                                          |
+```text
+output/ai-plan-proof/<workpack-file-stem>/
+```
 
-## Expected test/proof inventory
+## Common command families
 
-Use these names as proof intent labels in the assigned workpack/proof note. Implementers choose the actual crate/package test names after the owning implementation boundary exists.
+Use the subset relevant to the selected workpack:
 
-- `ai.contract.schema-negative-decode`: invalid AI request/result/context shapes are rejected with safe diagnostics.
-- `ai.provider.routing-capability-matrix`: provider choice respects local capability, custody, battery/resource, and unavailable states.
-- `ai.output.invariant-regression`: model/classifier output stays schema-valid, bounded, and policy-neutral across regression fixtures.
-- `ai.prompt-injection.boundary`: prompt/input attempts cannot override safety rules, custody, or parent policy authority.
-- `ai.redaction.no-raw-sensitive-transfer`: remote/API paths receive only approved redacted summaries.
-- `ai.result-journal.replay-idempotency`: duplicate/stale AI results do not create duplicate policy/audit state.
-- `ai.parent-explanation.evidence-citation`: explanations cite evidence/rule/model refs and show degraded states.
-- `ai.no-direct-enforcement`: AI evidence cannot execute or imply enforcement without deterministic policy handoff proof.
+```bash
+# Canonical shared AI schema and encoded-shape contract scope
+cargo test -p ocentra-schema
+cargo lint-architecture crates/schema
 
-## Required proof contents
+# Transitional TypeScript validation edge only when the selected workpack still touches it
+npm run build --workspace @ocentra-parent/schema-domain
+npm run type-check --workspace @ocentra-parent/schema-domain
 
-- Prompt/input/output fixtures with schema validation result.
-- Safety and redaction assertions for every assistant/classifier output.
-- Provider state, fallback, timeout, retry, and invalid-output evidence.
-- Artifact integrity and cache/retention proof for local models.
-- Exact command logs and proof path linked from the workpack.
+# AI helper/projection scope
+npm run build --workspace @ocentra-parent/ai-domain
+npm run test --workspace @ocentra-parent/ai-domain
+
+# Text/prompt/display-token scope only when selected workpack touches text-domain
+npm run build --workspace @ocentra-parent/text-domain
+npm run test --workspace @ocentra-parent/text-domain
+
+# Rust runtime/parity scope only when selected workpack touches Rust AI runtime or parity
+cargo test -p ocentra-child-ai-core ai
+cargo test -p ocentra-screen-ai-core ai
+cargo test -p ocentra-parent-agent-protocol ai
+cargo test -p ocentra-parent-agent-service ai
+
+# Parent-visible UI scope only when selected workpack touches portal projection or route rendering
+npm run test --workspace @ocentra-parent/portal -- ai
+
+# Architecture scope: start with touched files; expand only when the workpack requires it
+npm run lint:architecture -- --files packages/schema-domain packages/ai-domain packages/text-domain crates/child-ai-core crates/screen-ai-core crates/agent-protocol crates/agent-service apps/portal docs/plans/ai-plan
+```
+
+Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
+
+## Command ownership notes
+
+- `crates/schema` owns canonical AI context, runtime, primitive, reference, model artifact, memory, graph, prompt, provider, result, and bridge DTO shapes when they cross packages/crates/apps/plans.
+- `packages/schema-domain` is transitional only. Use it when a temporary generated-validation or edge-decoder surface still exists and changes.
+- `packages/ai-domain` proves helper/projection behavior only. It must not re-own canonical shared AI contracts that belong in `crates/schema` or the owning Rust crate.
+- `crates/child-ai-core` proves child-local AI runtime/evaluator behavior only when runtime work is selected.
+- `crates/screen-ai-core` proves screen AI worker/router behavior only when screen AI work is selected.
+- `crates/agent-protocol` and `crates/agent-service` are protocol/service proof only when wire or service behavior is selected.
+- `apps/portal` and `portal-domain` prove parent-visible status/explanation projection only; they do not prove child-local safety execution.
+- Browser, screen, tracking, network, app/game, policy, enforcement, LAN, and remote plans remain sibling owners. Do not validate or edit their implementation unless the selected AI workpack explicitly names a handoff proof.
+
+## AI E2E meaning
+
+Do not use one proof family to claim the whole AI product path. For this plan, E2E has separate meanings:
+
+```text
+contract E2E: Rust-owned AI shape -> generated DTO or temporary edge decoder -> ai-domain helper/projection -> TypeScript tests.
+Rust parity E2E: canonical AI shape/protocol expectation -> child-ai-core or screen-ai-core behavior -> Rust tests.
+context-builder E2E: stored evidence refs + parent rules + runtime refs + memory/graph refs -> validated AI context build result.
+provider/runtime E2E: AI job request -> provider selection/lease/result -> child-agent validation -> accepted or rejected AI result.
+policy-handoff E2E: schema-valid AI result -> deterministic policy input -> audit event, without AI owning enforcement.
+portal explanation E2E: accepted AI result/read model -> portal projection -> UI proof with evidence/source/status labels.
+remote assistant E2E: parent-authorized source bundle -> redacted request/result -> cited answer outside the normal blocking path.
+```
+
+A workpack can be complete for one tier while the other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Every AI implementation/proof slice must preserve both product-safe logging and local harness logging.
+
+Product/runtime-safe logging:
+
+```text
+redact prompt payloads, provider raw output, model tokens, source secrets, report bodies, and child activity content unless the selected expectation explicitly allows the field
+log evidence refs, model/runtime refs, prompt/template version, provider id, decision state, degraded reason, validation result, and audit reference when safe
+separate local child-safety evaluation from parent-report or remote-assistant activity
+never use remote/API AI logs as default child-activity storage
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, owner module, exit code, result, artifact pointer, diagnostics summary, redaction note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
+
+The logging evidence should let a human, Codex, or project MCP ask what failed, where it failed, which artifact contains raw output, which evidence refs were involved, and what the result proves without reading an entire terminal dump.
+
+## Required proof themes
+
+Any selected workpack must state which of these apply:
+
+```text
+contract/schema proof
+fixture/replay proof
+local no-model deterministic proof
+provider adapter proof
+timeout/degraded proof
+invalid output proof
+redaction/custody proof
+source-reference/citation proof
+journal/replay proof
+parent-visible UI proof
+performance/resource proof
+security/privacy proof
+```
+
+## Required negative states
+
+```text
+invalid provider output rejected
+timeout returns degraded/manual-required state
+missing evidence refs block claim
+private payload not included in prompt/output/logs
+mock provider does not prove product readiness
+memory/reference without source proof is rejected
+assistant action cannot bypass policy/account/device authority
+model unavailable state is visible
+```
 
 ## Failure conditions
 
-Do not claim DONE or PR_READY if any apply:
-
-- The expected test/proof row for the touched work type is missing.
-- The implementation crate/package test folder does not exist and the missing expected location is not recorded.
-- Only happy-path tests pass for a trust, policy, persistence, protocol, UI, AI, platform, security, performance, or observability boundary.
-- A product/checklist row moved without command logs and proof artifact path.
-- A manual-required/platform limitation was converted into a runtime capability claim.
-- A proof artifact lacks negative cases, logs/traces where relevant, or exact workpack/checklist linkage.
-- A sibling plan or broad source tree was read without a route reason recorded in the workpack/proof note.
+- Do not mark DONE or PR_READY until code, tests, validation, and proof are complete for the selected slice.
+- Do not store proof inventories inside this plan folder.
+- Do not claim AI product readiness from docs-only work, mock-only proof, or happy-path-only tests.

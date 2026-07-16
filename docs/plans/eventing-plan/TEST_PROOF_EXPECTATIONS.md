@@ -1,63 +1,145 @@
-# Reusable Rust Eventing Plan Test and Proof Expectations
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `eventing-plan`
-> Doc: `Reusable Rust Eventing Plan Test and Proof Expectations`
-> Kind: plan-local test and proof decision tree.
-> Read when: After the assigned workpack/checklist row is known; use to choose required tests/proof.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: This file defines required local tests/proof; missing tests keep rows open.
+> Doc: `Eventing Plan Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
 <!-- /agent-capsule -->
 
-Use this after the eventing task/checklist row is known. Eventing proof must stay about reusable local bus semantics unless a consumer plan explicitly owns transport/product behavior.
+# Eventing Plan Test Proof Expectations
 
-## Where tests should live
+## Proof root
 
-When the eventing crate/package test tree exists, tests belong under that crate's tests and proof output under its proof folder. Consumer-specific tests belong in the consumer plan implementation crate/package.
+```text
+output/eventing-plan-proof/<workpack-file-stem>/
+```
 
-## Decision Tree
+`docs/proof/eventing-plan/` is accepted only for the current WP12 route-proof manifest bundle. New implementation/workpack proof should use `output/eventing-plan-proof/<workpack-file-stem>/` unless preserving a historical route pointer.
 
-| If the assigned work is...           | Read next                                    | Expected tests or proof                                                                                              |
-| ------------------------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Envelope/type contract               | `CHECKLIST_INDEX.md`, source-boundary flow   | schema/serialization tests, version skew, invalid envelope negatives.                                                |
-| Idempotency, TTL, retry, dead-letter | exact checklist row                          | replay/idempotency, TTL expiry boundary, retry storm, dead-letter ordering proof.                                    |
-| Aggregate ordering/request-response  | exact checklist row                          | ordering invariants, duplicate prevention, cancellation, timeout, partial response proof.                            |
-| Journal/replay                       | exact checklist row                          | append/replay, corruption handling, migration/rollback if format changes.                                            |
-| External transport boundary          | exact checklist row and owning consumer plan | route-decision proof only unless consumer implements live transport; no cross-device product claim from crate alone. |
-| Consumer integration                 | consumer plan `AGENTS.md`                    | local bus publish/consume proof plus consumer-specific auth/policy/UI tests.                                         |
+## Common commands
 
-## Expected test/proof inventory
+Use the subset relevant to the selected workpack:
 
-Use these names as proof intent labels in the assigned workpack/proof note. Implementers choose the actual crate/package test names after the owning implementation boundary exists.
+```bash
+cargo test -p ocentra-eventing --test unit
+cargo test -p ocentra-eventing --test contract
+cargo test -p ocentra-eventing --test journal_replay
+cargo test -p ocentra-eventing --test integration
+cargo test -p ocentra-eventing --test version_skew
+cargo test -p ocentra-eventing --tests
+cargo lint-architecture crates/ocentra-eventing/src crates/ocentra-eventing/tests
+npm run test --workspace @ocentra-parent/event-domain
+npm run type-check --workspace @ocentra-parent/event-domain
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts
+cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet
+npm run type-check --workspace @ocentra-parent/agent-protocol-domain
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- policy-control-audit-redaction.test.ts policy-control-delivery-read-model.test.ts contracts.test.ts
+npm run lint:architecture -- --files packages/agent-protocol-domain/src/contracts.ts packages/agent-protocol-domain/src/policy-control-audit-redaction.ts packages/agent-protocol-domain/src/policy-control-delivery-read-model.ts
+node scripts/test/eventing-rollout-proof.mjs
+git diff --check -- docs/proof/eventing-plan docs/plans/eventing-plan
+```
 
-- `eventing.envelope.version-skew`: envelope decode handles old/new/unknown versions without silent corruption.
-- `eventing.malformed.reject-safe`: malformed events fail closed with safe diagnostics.
-- `eventing.idempotency.replay-duplicate`: duplicate and replayed events do not duplicate downstream state.
-- `eventing.ttl.expiry-boundary`: TTL and clock-skew boundaries drop expired work predictably.
-- `eventing.ordering.aggregate`: aggregate ordering, cancellation, timeout, and partial response behavior is deterministic.
-- `eventing.retry.dead-letter`: retry storms are bounded and failed events reach dead-letter proof.
-- `eventing.journal.recover-corruption`: journal replay handles corruption, migration, and rollback boundaries.
-- `eventing.consumer.no-product-claim`: reusable crate proof does not claim consumer/product behavior.
+Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
 
-## Required proof contents
+## Command ownership notes
 
-- Command logs from Rust tests/checks.
-- Negative cases for duplicate, expired, malformed, and out-of-order events.
-- Explicit statement when a product claim is outside reusable crate scope.
+- `crates/ocentra-eventing` owns local event bus semantics: typed envelopes, event ids, idempotency, ordering, queue/dead-letter, request/response, journal/replay, topology, contract registry, local dispatch lifecycle, and testkit helpers.
+- `schema-domain` owns neutral shared event/contract shapes when they cross package or plan boundaries.
+- `packages/event-domain` is package-boundary metadata only unless a selected workpack names an explicit public surface.
+- `crates/agent-protocol`, `crates/agent-service`, and `packages/agent-protocol-domain` prove protocol/service/TS mirror behavior only when selected.
+- LAN, remote, network, AI, policy, enforcement, portal, data-custody, setup, payment, account, browser, app-game, screen, and tracking scopes run only when the selected workpack explicitly touches their handoff.
 
-## Failure conditions
+## Eventing E2E meaning
 
-Do not claim DONE or PR_READY if any apply:
+Do not use one proof family to claim the whole eventing path. For this plan, E2E has separate meanings:
 
-- The expected test/proof row for the touched work type is missing.
-- The implementation crate/package test folder does not exist and the missing expected location is not recorded.
-- Only happy-path tests pass for a trust, policy, persistence, protocol, UI, AI, platform, security, performance, or observability boundary.
-- A product/checklist row moved without command logs and proof artifact path.
-- A manual-required/platform limitation was converted into a runtime capability claim.
-- A proof artifact lacks negative cases, logs/traces where relevant, or exact workpack/checklist linkage.
-- A sibling plan or broad source tree was read without a route reason recorded in the workpack/proof note.
+```text
+crate contract E2E: typed ids + event contract + envelope + registry/topology shape -> crate tests.
+dispatch lifecycle E2E: publisher/subscriber/registrar -> local dispatch -> lifecycle/shutdown report.
+queue/dead-letter E2E: duplicate/no-subscriber/overflow/TTL/retry -> queue/dead-letter metrics/report.
+request-response E2E: request id + response contract -> completion/timeout/cancel/duplicate behavior.
+journal/replay E2E: stored envelope -> append/hash chain -> replay/filter/version-skew proof.
+protocol-shape E2E: Rust/TS protocol event shape -> serde/parser tests -> no service-delivery claim.
+consumer-handoff E2E: consumer-owned event shape -> local publish/read-model bridge -> owning consumer proof path.
+LAN mesh E2E: selected export/import -> LAN authority/transport validation -> local republish only after validation.
+rollout gate E2E: accepted proof roots + carried blockers -> route proof -> no-claim and open workpack state.
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Every eventing proof slice must preserve product-safe logging and local harness logging.
+
+Product/runtime-safe logging:
+
+```text
+redact private payload bodies, child activity payloads, provider secrets, account tokens, raw policy/enforcement payloads, and consumer-private data unless a selected expectation explicitly allows the field
+log event namespace/type, schema version, aggregate key, event id, idempotency key, correlation id, causation id, request id, queue state, retry/dead-letter state, journal/replay state, delivery route, consumer handoff state, blocker note, and no-claim boundary when safe
+separate local bus, transport, protocol, consumer read-model, storage/custody, policy/enforcement, and portal/UI states
+never treat crate logs, protocol logs, route docs, or consumer read-model logs as proof of another owner without a selected proof root
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, owner module, event family, exit code, result, artifact pointer, diagnostics summary, blocker note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
+
+## Current local proof roots
+
+```text
+docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md
+docs/proof/eventing-plan/slice-01-envelope-version.md
+docs/proof/eventing-plan/slice-02-ordering-replay.md
+docs/proof/eventing-plan/slice-03-consumer-boundary.md
+output/eventing-plan-proof/rollout-proof/
+test-results/eventing-rollout-proof/
+output/eventing-plan-proof/13-test-folder-layout-regression-audit/
+test-results/eventing-test-folder-layout-regression-audit/
+output/eventing-plan-proof/63-type-safety-source-gate/
+test-results/eventing-type-safety-source-gate-proof/
+output/eventing-plan-proof/66-76-source-safety/
+output/eventing-plan-proof/67-lock-await/
+output/eventing-plan-proof/68-fixture-parity/
+```
+
+## Required states
+
+```text
+envelope schema
+idempotency
+ordering/replay
+retry/dead-letter
+request-response
+consumer contract
+consumer handoff
+LAN mesh handoff
+redaction
+manual-required blockers
+proof-root presence
+WP12 rollout-proof route restored without PR_READY claims
+WP13 source-side test scaffold cleanup locally proved
+WP11 scoped proof roots restored locally, package-wide agent-protocol-domain type-check passes again, and focused policy-control plus contracts validation is green
+WP10 remains open until its proof roots and blocking validation exist
+```
+
+## Required negative states
+
+```text
+crate-local proof cannot claim cross-device transport
+journal/replay proof cannot claim production retention/deletion/export
+protocol shape proof cannot claim service delivery
+consumer read-model proof cannot claim reusable crate readiness
+provider or peer device cannot direct-publish policy/enforcement events
+WP12/WP13 proof cannot close WP10
+```

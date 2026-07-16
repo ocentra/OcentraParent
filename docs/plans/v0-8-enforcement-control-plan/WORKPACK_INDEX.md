@@ -14,15 +14,17 @@
 
 <!-- /agent-capsule -->
 
-Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
+Use this index to open exactly one assigned workpack. Do not read every file in
+`workpacks/`.
 
 | Status  | Workpack                                                                                          |  Size | Boxes               |
 | ------- | ------------------------------------------------------------------------------------------------- | ----: | ------------------- |
+| checked | [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md)   | 1,310 | 5/5 checked; 0 open |
+| checked | [02 Policy Decision Evidence References](workpacks/02-policy-decision-evidence-references.md)     | 1,197 | 5/5 checked; 0 open |
+| checked | [03 Adapter Capability Matrix](workpacks/03-adapter-capability-matrix.md)                         | 1,185 | 5/5 checked; 0 open |
 | checked | [07 Unmanaged Browser Fallback](workpacks/07-unmanaged-browser-fallback.md)                       | 1,781 | 5/5 checked; 0 open |
 | checked | [09 Timer Recovery And Rollback](workpacks/09-timer-recovery-and-rollback.md)                     | 1,667 | 5/5 checked; 0 open |
-| open    | [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md)   | 1,310 | 0/5 checked; 5 open |
-| open    | [02 Policy Decision Evidence References](workpacks/02-policy-decision-evidence-references.md)     | 1,197 | 0/5 checked; 5 open |
-| open    | [03 Adapter Capability Matrix](workpacks/03-adapter-capability-matrix.md)                         | 1,185 | 0/5 checked; 5 open |
+| checked | [18 Proof Command And Matrix](workpacks/18-proof-command-and-matrix.md)                           | 1,592 | 5/5 checked; 0 open |
 | open    | [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md)                           | 1,096 | 0/5 checked; 5 open |
 | open    | [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md)                       | 1,126 | 0/5 checked; 5 open |
 | open    | [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md)             | 1,127 | 0/5 checked; 5 open |
@@ -35,6 +37,24 @@ Use this index to open exactly one assigned workpack. Do not read every file in 
 | open    | [15 Integrity Heartbeat And Permission Loss](workpacks/15-integrity-heartbeat-permission-loss.md) | 1,082 | 0/5 checked; 5 open |
 | open    | [16 Tamper/Uninstall Non-Claim Design](workpacks/16-tamper-uninstall-non-claim-design.md)         | 1,125 | 0/5 checked; 5 open |
 | open    | [17 Cross-Platform Unavailable States](workpacks/17-cross-platform-unavailable-states.md)         | 1,118 | 0/5 checked; 5 open |
-| open    | [18 Proof Command And Matrix](workpacks/18-proof-command-and-matrix.md)                           | 1,130 | 0/5 checked; 5 open |
 | open    | [19 Playwright And UI Proof](workpacks/19-playwright-ui-proof.md)                                 | 1,145 | 0/5 checked; 5 open |
 | open    | [20 Rollout Docs And CI/PR Gate](workpacks/20-rollout-docs-ci-pr-gate.md)                         | 1,139 | 0/5 checked; 5 open |
+
+## Workpack family route
+
+Use [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when the selected
+workpack's owner or handoff boundary is unclear. Do not treat it as permission
+to read every sibling plan.
+
+## High-risk open families
+
+- Action authority and adapter execution: WP04, WP05, WP06, WP08.
+- Approval, audit, and read-model truth: WP10, WP11, WP13.
+- Integrity and non-claim boundaries: WP15, WP16, WP17.
+- Surface and rollout gate: WP12, WP14, WP19, WP20.
+
+## Closure rule
+
+Checked workpacks prove only their named slices. Broad enforcement readiness
+remains blocked until the open workpacks above are either closed with proof or
+carried forward explicitly as manual-required or not-ready gaps.

@@ -1,6 +1,5 @@
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_fixture_transport;
 use super::remote_delivery_delete_export_propagation_types::{
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
@@ -8,6 +7,7 @@ use super::remote_delivery_delete_export_propagation_types::{
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
 };
 use super::remote_delivery_event_chain_store::source_component;
+use super::remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport;
 use super::remote_delivery_fixture_transport_types::{
     NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
@@ -25,18 +25,7 @@ pub async fn prove_network_runtime_remote_delivery_delete_export_propagation() -
     )
 }
 
-#[cfg(test)]
-pub(crate) fn prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport(
-    fixture_transport: NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-) -> Result<
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
-> {
-    build_delete_export_propagation_report(fixture_transport)
-}
-
-#[cfg(not(test))]
-fn prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport(
+pub fn prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport(
     fixture_transport: NetworkRuntimeRemoteDeliveryFixtureTransportReport,
 ) -> Result<
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
@@ -122,9 +111,9 @@ fn build_delete_export_propagation_report(
 
 fn propagation_record(
     fixture_record: &NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
-    delete_export_propagation_ref: &ocentra_eventing::SourceComponent,
-    remote_delete_readiness_ref: &ocentra_eventing::SourceComponent,
-    remote_export_readiness_ref: &ocentra_eventing::SourceComponent,
+    delete_export_propagation_ref: &ocentra_eventing::ids::SourceComponent,
+    remote_delete_readiness_ref: &ocentra_eventing::ids::SourceComponent,
+    remote_export_readiness_ref: &ocentra_eventing::ids::SourceComponent,
 ) -> NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord {
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord {
         sequence: fixture_record.sequence,

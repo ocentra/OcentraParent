@@ -71,16 +71,16 @@ notifications, or dispatching adapters.
 
 ## DONE Checklist
 
-- [x] Hub lock covers implementation, test, package export, README, docs, and
+- [ ] Hub lock covers implementation, test, package export, README, docs, and
       proof paths.
-- [x] Existing app/game policy compiler and parent-domain policy primitives
+- [ ] Existing app/game policy compiler and parent-domain policy primitives
       inspected.
-- [x] TypeScript contract parses compiled decisions before building preview
+- [ ] TypeScript contract parses compiled decisions before building preview
       rows.
-- [x] Native app and native game rows remain separate product meanings while
+- [ ] Native app and native game rows remain separate product meanings while
       sharing the compiler evidence spine.
-- [x] Manual-required block-launch remains manual-required and
+- [ ] Manual-required block-launch remains manual-required and
       not-dispatched.
-- [x] Proof pack records no policy evaluator runtime, timer runtime, child
+- [ ] Proof pack records no policy evaluator runtime, timer runtime, child
       delivery, adapter dispatch, broad blocking, or platform enforcement
       claim.

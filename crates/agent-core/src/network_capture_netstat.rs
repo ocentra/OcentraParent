@@ -1,12 +1,16 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
+use ocentra_parent_agent_protocol::constants;
 
 use crate::network_capture::NetworkObservation;
 
-pub(crate) fn netstat_observations(
+#[path = "network_capture_netstat_state.rs"]
+mod network_capture_netstat_state;
+
+pub fn netstat_observations(
     output: &str,
     process_names: &BTreeMap<u32, String>,
 ) -> Vec<NetworkObservation> {
@@ -126,25 +130,7 @@ fn is_unspecified_ip(value: &str) -> bool {
 }
 
 fn tcp_state_from_netstat(state: &str) -> ActivityNetworkTcpState {
-    match state {
-        constants::activity_capture::NETSTAT_STATE_CLOSED => ActivityNetworkTcpState::Closed,
-        constants::activity_capture::NETSTAT_STATE_LISTENING => ActivityNetworkTcpState::Listen,
-        constants::activity_capture::NETSTAT_STATE_SYN_SENT => ActivityNetworkTcpState::SynSent,
-        constants::activity_capture::NETSTAT_STATE_SYN_RECEIVED => {
-            ActivityNetworkTcpState::SynReceived
-        }
-        constants::activity_capture::NETSTAT_STATE_ESTABLISHED => {
-            ActivityNetworkTcpState::Established
-        }
-        constants::activity_capture::NETSTAT_STATE_FIN_WAIT_1 => ActivityNetworkTcpState::FinWait1,
-        constants::activity_capture::NETSTAT_STATE_FIN_WAIT_2 => ActivityNetworkTcpState::FinWait2,
-        constants::activity_capture::NETSTAT_STATE_CLOSE_WAIT => ActivityNetworkTcpState::CloseWait,
-        constants::activity_capture::NETSTAT_STATE_CLOSING => ActivityNetworkTcpState::Closing,
-        constants::activity_capture::NETSTAT_STATE_LAST_ACK => ActivityNetworkTcpState::LastAck,
-        constants::activity_capture::NETSTAT_STATE_TIME_WAIT => ActivityNetworkTcpState::TimeWait,
-        constants::activity_capture::NETSTAT_STATE_DELETE_TCB => ActivityNetworkTcpState::DeleteTcb,
-        _ => ActivityNetworkTcpState::Unknown,
-    }
+    network_capture_netstat_state::tcp_state_from_netstat(state)
 }
 
 fn attributed_pid_count(pid: Option<u32>) -> usize {

@@ -4,16 +4,17 @@ use std::{
 };
 
 use base64::prelude::{Engine as _, BASE64_URL_SAFE_NO_PAD};
-#[cfg(windows)]
-use ocentra_parent_agent_protocol::{
-    constants, APP_GAME_WINDOWS_PATH_MICROSOFT, APP_GAME_WINDOWS_PATH_PROGRAMS,
-    APP_GAME_WINDOWS_PATH_START_MENU, APP_GAME_WINDOWS_PATH_WINDOWS,
-};
-use ocentra_parent_agent_protocol::{
-    ActivityEvent, APP_GAME_CONFIDENCE_SHORTCUT_INVENTORY, APP_GAME_DESKTOP_ENTRY_ID_PREFIX,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CONFIDENCE_SHORTCUT_INVENTORY, APP_GAME_DESKTOP_ENTRY_ID_PREFIX,
     APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT, APP_GAME_INVENTORY_ENTRY_ID_PREFIX,
     APP_GAME_INVENTORY_SOURCE_SHORTCUT, APP_GAME_INVENTORY_STATE_INSTALLED,
     APP_GAME_WINDOWS_SHORTCUT_EXTENSION,
+};
+#[cfg(windows)]
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_WINDOWS_PATH_MICROSOFT, APP_GAME_WINDOWS_PATH_PROGRAMS,
+    APP_GAME_WINDOWS_PATH_START_MENU, APP_GAME_WINDOWS_PATH_WINDOWS,
 };
 use sha2::{Digest, Sha256};
 
@@ -37,7 +38,7 @@ impl From<AppGameJournalSqliteIngestError> for AppGameLiveInventorySourceError {
     }
 }
 
-pub(crate) fn live_windows_inventory_records_from_roots(
+pub fn live_windows_inventory_records_from_roots(
     observed_at: &str,
     roots: &[PathBuf],
     limit: usize,
@@ -170,7 +171,7 @@ fn record_from_shortcut_path(
     Some(WindowsInstalledAppInventoryRecord {
         observed_at: observed_at.to_string(),
         source_kind: APP_GAME_INVENTORY_SOURCE_SHORTCUT.to_string(),
-        source_ref: source_ref.clone(),
+        source_ref,
         custody_state: APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT.to_string(),
         display_label,
         identity_id: None,
@@ -204,3 +205,5 @@ fn opaque_ref(prefix: &str, path: &Path) -> String {
     reference.push_str(&BASE64_URL_SAFE_NO_PAD.encode(digest));
     reference
 }
+#[cfg(target_os = "windows")]
+use ocentra_parent_agent_protocol::constants;

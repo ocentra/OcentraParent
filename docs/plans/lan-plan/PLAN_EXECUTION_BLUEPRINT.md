@@ -1,93 +1,54 @@
-# LAN Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `lan-plan`
+> Doc: `LAN Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: implementation completion or PR readiness.
 
-Implement trusted local device discovery/pairing with explicit replay-safe lease lifecycle and physical proof.
+<!-- /agent-capsule -->
 
-## Slice 01 � Contract and Evidence Models
+# LAN Plan Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- Discovery, add-device, and pairing models are schema-backed and invalid cases fail.
+Use this loop:
 
-### Tests
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
 
-- `lan.peer.authn-authz-matrix`
-- `lan.lease.token-lifecycle`
+## Proof root
 
-### Proof
+```text
+output/lan-plan-proof/<workpack-file-stem>/
+```
 
-- `docs/proof/lan-plan/slice-01-contract-evidence.md`
+## Focused commands
 
-## Slice 02 � Discovery and Trust Surface
+```bash
+cargo test -p ocentra-lan-core lan
+cargo test -p ocentra-parent-agent-protocol lan
+cargo test -p ocentra-parent-agent-service lan
+npm run test --workspace @ocentra-parent/portal -- lan
+npm run lint:architecture -- --files crates/lan-core crates/agent-protocol crates/agent-service apps/portal docs/plans/lan-plan
+cargo lint-architecture crates/lan-core crates/agent-protocol crates/agent-service
+```
 
-### Acceptance
+Use real organized test folders/crates only. Do not count inline source-owned tests, placeholder directories, or mock-only coverage as workpack closure.
 
-- mDNS/ARP/scan listeners are bounded and reject spoofed sources and stale artifacts.
+## Proof files
 
-### Tests
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
 
-- `lan.discovery.partial-outage`
-- `lan.mesh.no-raw-sensitive-transfer`
+## DONE rule
 
-### Proof
-
-- `docs/proof/lan-plan/slice-02-discovery-trust.md`
-
-## Slice 03 � Pairing, Revocation, and Audit
-
-### Acceptance
-
-- Pairing lifecycle supports revoke, double-submit rejection, and replay-safe tokens.
-
-### Tests
-
-- `lan.lease.token-lifecycle`
-- `lan.audit.trace-completeness`
-
-### Proof
-
-- `docs/proof/lan-plan/slice-03-pairing-audit.md`
-
-## Slice 04 � Physical Household Proof
-
-### Acceptance
-
-- Proof for 2-device/actual-network validation and environment details are attached before household claims.
-
-### Tests
-
-- `lan.two-device.physical-proof`
-
-### Proof
-
-- `docs/proof/lan-plan/slice-04-physical-hardware.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/lan-plan/workpacks/01-contract-boundary-and-effect-schemas.md
-- Slice 02: docs/plans/lan-plan/workpacks/02-evidence-model-and-device-record.md
-- Slice 03: docs/plans/lan-plan/workpacks/03-interface-detection.md
-- Slice 04: docs/plans/lan-plan/workpacks/04-neighbor-table-ingestion.md
-
-## PR-ready gate
-
-- No household claim unless signed hello/heartbeat, pairing authZ, and replay safeguards are linked in proof.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: discovery/trust contract validation
-- Integration: pairing lifecycle and lease renewal/revocation
-- E2E: two-device claim and live offline/online transitions
-- Security: signed hello, replay, privilege split
-- Non-functional: outage and retry behavior
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+One workpack is DONE only after focused commands or blockers are recorded and proof artifacts exist under that workpack root.

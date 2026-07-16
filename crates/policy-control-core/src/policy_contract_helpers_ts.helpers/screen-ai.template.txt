@@ -1,0 +1,51 @@
+export function generatedScreenAiStricterParentRuleInputIsReady(
+  input: GeneratedScreenAiStricterParentRuleInputLike
+): boolean {
+  return (
+    input.sourceDecision.dryRun &&
+    input.sourceDecision.enforcementHandoffState !== 'handed-off' &&
+    input.sourceDecision.localAiResultId !== null &&
+    input.stricterParentRule.enabled &&
+    compareGeneratedPolicyActionStrictness(input.stricterParentRule.action, input.sourceDecision.action) > 0 &&
+    input.expectedFinalAction ===
+      selectGeneratedStricterPolicyAction(input.stricterParentRule.action, input.sourceDecision.action)
+  );
+}
+
+export function generatedScreenAiStricterParentRuleProofIsHonest(
+  proof: GeneratedScreenAiStricterParentRuleProofLike
+): boolean {
+  return (
+    proof.finalAction === proof.stricterParentRuleAction &&
+    proof.finalDecision.action === proof.stricterParentRuleAction &&
+    proof.finalDecision.localAiResultId === proof.sourceDecision.localAiResultId &&
+    proof.finalDecision.evidenceReferences.length === proof.sourceDecision.evidenceReferences.length &&
+    proof.finalDecision.ruleIds.includes(proof.stricterParentRule.ruleId) &&
+    proof.finalDecision.dryRun &&
+    proof.finalDecision.enforcementHandoffState !== 'handed-off' &&
+    Object.values(proof.claimBoundaries).every((claim) => claim === false)
+  );
+}
+
+export function resolveGeneratedPolicyPreviewBudgetBoundaryState(
+  boundary: GeneratedPolicyScheduleBoundaryLike | null
+): GeneratedPolicyPreviewBudgetBoundaryState {
+  if (boundary === null) {
+    return 'within-budget';
+  }
+
+  if (generatedPolicyPreviewBoundaryNeedsManualResolution(boundary)) {
+    return 'manual-required';
+  }
+
+  if (boundary.state === 'expired') {
+    return 'expired';
+  }
+
+  const bonusTimeState = generatedPolicyPreviewBoundaryBonusTimeState(boundary);
+  if (bonusTimeState !== null) {
+    return bonusTimeState;
+  }
+
+  return 'within-budget';
+}

@@ -177,41 +177,30 @@ pub const RUNTIME_OWNER_MANAGED_BROWSER_BOUNDARY: &str = "managed-browser-bounda
 pub const RUNTIME_OWNER_MANUAL_PROOF: &str = "manual-proof";
 pub const RUNTIME_OWNER_NOT_IMPLEMENTED: &str = "not-implemented";
 
-pub const CLAIM_BOUNDARY_OWNED_PROCESS_TERMINATE: &str =
-    "Only owned-process pid plus expected-process-name termination is proved; this is not global app blocking.";
-pub const CLAIM_BOUNDARY_APP_TIME_LIMIT: &str =
-    "App time-limit proof is tied to owned-process expiration, restart recovery, cancel, expiry, audit, and storage.";
-pub const CLAIM_BOUNDARY_BROAD_APP_BLOCKING: &str =
-    "Broad installed-app blocking is not proved by owned-process termination or app time-limit behavior.";
-pub const CLAIM_BOUNDARY_NETWORK_DOMAIN_BLOCKING: &str =
-    "Network flow metadata is not decrypted content and does not prove domain blocking enforcement.";
+pub const CLAIM_BOUNDARY_OWNED_PROCESS_TERMINATE: &str = "Only owned-process pid plus expected-process-name termination is proved; this is not global app blocking.";
+pub const CLAIM_BOUNDARY_APP_TIME_LIMIT: &str = "App time-limit proof is tied to owned-process expiration, restart recovery, cancel, expiry, audit, and storage.";
+pub const CLAIM_BOUNDARY_BROAD_APP_BLOCKING: &str = "Broad installed-app blocking is not proved by owned-process termination or app time-limit behavior.";
+pub const CLAIM_BOUNDARY_NETWORK_DOMAIN_BLOCKING: &str = "Network flow metadata is not decrypted content and does not prove domain blocking enforcement.";
 pub const CLAIM_BOUNDARY_MANAGED_BROWSER_SERVICE_COMMAND: &str =
     "A managed-browser service-command target string is not exact URL enforcement proof.";
 pub const CLAIM_BOUNDARY_MANAGED_BROWSER_EXACT_URL: &str =
     "Exact URL, active tab, and page-title control require the managed browser boundary.";
-pub const CLAIM_BOUNDARY_UNMANAGED_BROWSER_PROCESS_ONLY: &str =
-    "Unmanaged browser proof is process-only and cannot become URL, tab, title, download, page, or intent evidence.";
-pub const CLAIM_BOUNDARY_UNMANAGED_BROWSER_EXACT_EVIDENCE: &str =
-    "Unmanaged browser process/window/network evidence does not prove exact URL, active tab, title, download source, page text, HTTPS content, or intent.";
-pub const CLAIM_BOUNDARY_ADMIN_ANTI_TAMPER_ROLLBACK: &str =
-    "Admin hardening, anti-tamper, bypass resistance, and broad rollback are not proved by V0.8 adapter tests.";
+pub const CLAIM_BOUNDARY_UNMANAGED_BROWSER_PROCESS_ONLY: &str = "Unmanaged browser proof is process-only and cannot become URL, tab, title, download, page, or intent evidence.";
+pub const CLAIM_BOUNDARY_UNMANAGED_BROWSER_EXACT_EVIDENCE: &str = "Unmanaged browser process/window/network evidence does not prove exact URL, active tab, title, download source, page text, HTTPS content, or intent.";
+pub const CLAIM_BOUNDARY_ADMIN_ANTI_TAMPER_ROLLBACK: &str = "Admin hardening, anti-tamper, bypass resistance, and broad rollback are not proved by V0.8 adapter tests.";
 
 pub const FALLBACK_OWNED_PROCESS_TERMINATE: &str =
     "Reject missing pid/name mismatch and return unavailable on unsupported hosts.";
-pub const FALLBACK_APP_TIME_LIMIT: &str =
-    "Return unavailable when the active timer state or platform adapter cannot support the request.";
-pub const FALLBACK_BROAD_APP_BLOCKING: &str =
-    "Return manual-required or unavailable and avoid an adapter request until OS-approved proof exists.";
+pub const FALLBACK_APP_TIME_LIMIT: &str = "Return unavailable when the active timer state or platform adapter cannot support the request.";
+pub const FALLBACK_BROAD_APP_BLOCKING: &str = "Return manual-required or unavailable and avoid an adapter request until OS-approved proof exists.";
 pub const FALLBACK_NETWORK_DOMAIN_BLOCKING: &str =
     "Return manual-required or unavailable until a host network control adapter has proof.";
 pub const FALLBACK_MANAGED_BROWSER_SERVICE_COMMAND: &str =
     "Return manual-required or unavailable until managed browser command enforcement proof exists.";
-pub const FALLBACK_MANAGED_BROWSER_EXACT_URL: &str =
-    "Keep exact URL control manual-required unless managed browser evidence and enforcement proof are present.";
+pub const FALLBACK_MANAGED_BROWSER_EXACT_URL: &str = "Keep exact URL control manual-required unless managed browser evidence and enforcement proof are present.";
 pub const FALLBACK_UNMANAGED_BROWSER_PROCESS_ONLY: &str =
     "Restrict control to pid/name guardrails and preserve exact browser evidence as not-claimed.";
-pub const FALLBACK_UNMANAGED_BROWSER_EXACT_EVIDENCE: &str =
-    "Use managed browser or another explicit browser integration before representing exact evidence.";
+pub const FALLBACK_UNMANAGED_BROWSER_EXACT_EVIDENCE: &str = "Use managed browser or another explicit browser integration before representing exact evidence.";
 pub const FALLBACK_ADMIN_ANTI_TAMPER_ROLLBACK: &str =
     "Keep product claims manual-required until real host hardening and rollback evidence exists.";
 

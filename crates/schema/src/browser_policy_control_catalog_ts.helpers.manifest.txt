@@ -1,0 +1,38 @@
+interface ControlKindRuleGenerated {
+  readonly pattern: RegExp;
+  readonly resolve: (sourceText: string) => (typeof GeneratedBrowserControlFullCatalogControlKindValues)[number];
+}
+
+const BrowserControlFullCatalogControlKindRulesGenerated: readonly ControlKindRuleGenerated[] = [
+  { pattern: /schedule|time window|bedtime|school hours/u, resolve: () => 'schedule' },
+  { pattern: /budget|limit|minutes|seconds|retention days/u, resolve: numericOrDurationControlGenerated },
+  { pattern: /retention|custody|delete|redact/u, resolve: () => 'retention' },
+  { pattern: /rule items|target list|allowlist|blocklist/u, resolve: () => 'rule-list' },
+  { pattern: /actions|approval actions|notification actions/u, resolve: () => 'action-list' },
+  { pattern: /status|state|capability|proof/u, resolve: () => 'read-only-status' },
+];
+
+function browserControlConditionIsMetGenerated(
+  condition: BrowserControlConditionGenerated,
+  values: Record<string, BrowserControlFieldValueGenerated>
+): boolean {
+  if (condition.kind === 'default-posture') {
+    return values[GeneratedBrowserControlWritesToPath.DefaultPosture] === condition.defaultPosture;
+  }
+  if (condition.writesTo === null) {
+    return false;
+  }
+  const actual = values[condition.writesTo];
+  if (condition.kind === 'equals') {
+    return actual === condition.expectedValue;
+  }
+  if (condition.kind === 'not-equals' || condition.kind === 'notEquals') {
+    return actual !== condition.expectedValue;
+  }
+  if (Array.isArray(actual) && typeof condition.expectedValue === 'string') {
+    return condition.kind === 'includes'
+      ? actual.includes(condition.expectedValue)
+      : !actual.includes(condition.expectedValue);
+  }
+  return false;
+}

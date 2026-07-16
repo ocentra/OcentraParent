@@ -22,11 +22,15 @@ This file records documentation health and consistency checks for the plan. It i
 - Preserved full README: `README_FULL_ORIGINAL.md`
 - Current snapshot: `current-browser-snapshot.md`
 - Implementation checklist present: true
-- Workpacks indexed: 24
+- Numbered workpacks indexed: 24
 
 ## Consistency warnings
 
-- No high-level checklist/workpack contradiction detected by the generated health check. Still verify the assigned workpack and checklist rows before DONE/PR_READY.
+- A high-level checklist/workpack contradiction exists: the numbered workpack files still contain open checkbox rows even though older generated summaries marked them as checked.
+- The expected plan-local proof roots under `output/browser-plan-proof/<workpack-file-stem>/` are absent in this checkout.
+- The browser-plan docs still require localized cleanup where older generated summaries or legacy ownership notes conflict with the audited source/test truth.
+- `browser-domain` direct sibling dependencies are migration-sensitive unless they are approved public helper/contract consumption.
+- Reference/settings inventory workpacks are large and must not be treated as implementation scope unless explicitly selected.
 
 ## Required hygiene before PR_READY
 
@@ -35,13 +39,21 @@ This file records documentation health and consistency checks for the plan. It i
 - Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
+- Do not claim READY from settings inventory/reference rows.
+- Do not claim READY from managed intervention harness alone.
+- Do not claim READY from CDP target-list proof without active-tab proof when exact active URL is claimed.
+- Do not claim READY from unmanaged process detection as exact URL evidence.
+- Do not claim READY from portal UI without browser source, service, protocol, or runtime proof when the claim needs those layers.
+- Do not claim READY from policy authoring without intervention/action/audit handoff proof when action readiness is claimed.
+- Do not claim platform readiness without real platform/browser/permission proof.
+- Do not claim feature completeness until the relevant E2E tier in `TEST_PROOF_EXPECTATIONS.md` is explicitly proven or blocked.
 
 ## Agent Route Walkthrough
 
 - Landing decision: root `AGENTS.md` routes browser inventory, managed profile, active tab, URL, browser intervention, browser settings, browser UI, and browser AI evidence here.
-- Scope split: browser facts stay separate from native app/game, decrypted network payloads, screen content analysis, and enforcement execution. Those plans are read only when the assigned workpack names the handoff.
-- Minimum read set: one workpack, exact checklist row, browser source index only for ownership ambiguity, and `TEST_PROOF_EXPECTATIONS.md` for test/proof selection.
-- Test/proof decision: require managed/unmanaged profile, custody/redaction, URL normalization, redirect/URL-hijack, origin/header/security, authZ, rollback, idempotency, rate-limit, and UI screenshot/log proof where touched.
+- Scope split: browser facts stay separate from native app/game, network evidence, screen analysis, and enforcement execution. Those plans are read only when the assigned workpack names the handoff.
+- Minimum read set: one workpack, exact checklist row, `WORKPACK_FAMILIES.md` only when owner path is unclear, browser source index only for ownership ambiguity, and `TEST_PROOF_EXPECTATIONS.md` for test/proof selection.
+- Test/proof decision: require managed/unmanaged profile, custody/redaction, URL normalization, origin/security, authZ, rollback, idempotency, rate-limit, and UI proof where touched.
 - DONE blocker: no browser claim may move unless proof distinguishes installed/running browser state, managed profile custody, active tab evidence, policy intent, and actual intervention authority.
 
 ## High-Information-Density Gate
@@ -53,12 +65,12 @@ This file records documentation health and consistency checks for the plan. It i
 
 ### State
 
-- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
-- Current action: keep this file and `browser-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+- Current state: route and schema hygiene are present, but documentation truth is not yet fully aligned with actual workpack/proof state, and implementation/closure proof remains incomplete.
+- Current action: reconcile status, ownership, and proof-routing docs before any DONE/PR_READY claim.
 
 ### Decision routes and failure controls
 
-- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Decision route: follow this plan's AGENTS landing decision, the selected workpack path, `WORKPACK_FAMILIES.md` when owner path is unclear, and the feature/doc proof matrix referenced in this file.
 - Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
 
 ### Proof mapping

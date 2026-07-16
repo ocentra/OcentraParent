@@ -1,4 +1,4 @@
-use crate::JournalError;
+use crate::journal_error::JournalError;
 
 #[derive(Debug)]
 pub enum ActivityStoreError {

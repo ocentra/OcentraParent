@@ -30,17 +30,26 @@ confidence, controllability, and next action without duplicate truths.
 
 ## Requirement Checklist
 
-- [ ] Distinguish local agent, LAN agent, passive neighbor, router, ignored,
+- [x] Distinguish local agent, LAN agent, passive neighbor, router, ignored,
       stale, offline, and revoked states.
-- [ ] Show controllable versus visible-only.
-- [ ] Show source/custody labels.
-- [ ] Show `Not reported` instead of inventing hardware details.
-- [ ] Test long hostnames and many-device layouts.
+- [x] Show controllable versus visible-only.
+- [x] Show source/custody labels.
+- [x] Show `Not reported` instead of inventing hardware details.
+- [x] Test long hostnames and many-device layouts.
 
 ## Acceptance And Proof
 
 Device UI reads service state and never treats passive LAN neighbors as policy
 targets.
+
+Current checkpoint truth on this branch/worktree (2026-06-18):
+
+- Focused proof is now recorded under `output/portal-ux-household-surfaces-plan-proof/03-device-inventory-and-source-states/`.
+- The current packet proves the LAN inventory owner seam on current source: local child-agent, LAN child-agent, passive neighbor, router, ignored, stale, offline, and revoked states are all distinguished in the service-backed slot model instead of collapsing into fake green readiness.
+- Passive LAN neighbors remain visible inventory rows but do not become canonical policy targets; ignored and revoked neighbors stay excluded from `createParentPortalCanonicalDeviceSlots(...)`.
+- The selected-device surface now carries explicit source/custody/control-state consumption for the service-backed LAN slots, including distinct `Ignored`, `Revoked`, `Stale`, and `Offline` control labels.
+- Missing LAN hardware details stay on the `Not reported` fallback path instead of inventing CPU/GPU/memory values, and the dense grid render proof keeps long selected labels and many-device layouts visible without synthetic hardware fill-in.
+- This checklist row is now locally closed on this branch/worktree because the owner seam, focused portal tests, and portal app typecheck all reran green after the WP03 state and detail-surface corrections.
 
 ## Parallel Ownership Notes
 

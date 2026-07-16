@@ -14,20 +14,55 @@
 
 <!-- /agent-capsule -->
 
+## Ownership boundary
+
+```text
+screen-ai-pipeline-plan owns scenario proof for raw image deletion, queue encryption, redaction, and no-remote-upload behavior inside the pipeline.
+data-custody-storage-plan owns product retention/export/delete/privacy policy and parent retention controls.
+screen-plan owns screen capture/screenshot custody settings.
+ai-plan owns AI output custody only through typed result/citation handoffs.
+```
+
 ## Target State
 
-Raw image custody is explicit. Default behavior deletes temporary images and
-does not upload raw screenshots remotely.
+Raw image custody is explicit. Default behavior deletes temporary images and does not upload raw screenshots remotely.
+
+## Required proof fields
+
+The selected proof must name, at minimum:
+
+```text
+scenario_id
+queue_encryption_state
+raw_path_redaction_state
+delete_success_state
+delete_after_ttl_state
+delete_failure_visible_state
+remote_upload_state
+retention_mode_state
+retention_opt_in_state
+unsupported_retention_state
+custody_policy_state
+expired_record_state
+activity_row_state
+ai_result_custody_state
+proof_artifact_redaction_state
+no_raw_remote_upload_claim
+no_product_retention_claim
+no_claim
+```
+
+These are proof-routing fields, not implementation code prescriptions.
 
 ## Checklist
 
-- [x] Queue image encrypted.
-- [x] Raw path redacted outside child agent.
-- [x] Delete after success.
-- [x] Delete after TTL.
-- [x] Delete failure visible.
-- [x] Remote/cloud screenshot upload disabled.
-- [x] Retention requires explicit opt-in if used.
+- [ ] Queue image encrypted.
+- [ ] Raw path redacted outside child agent.
+- [ ] Delete after success.
+- [ ] Delete after TTL.
+- [ ] Delete failure visible.
+- [ ] Remote/cloud screenshot upload disabled.
+- [ ] Retention requires explicit opt-in if used.
 
 ## Proof
 
@@ -41,10 +76,12 @@ does not upload raw screenshots remotely.
   `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`,
   `output/ai-plan-proof/real-analysis/proof-summary.json`, and
   `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`.
-- TTL/delete-failure/retention-mode contract proof:
-  `output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json`.
-- The service retention sweeper proof removes an expired encrypted queue record
-  and records an `expiredDeleted` Activity Screen row through the real Rust
-  service/WebSocket path. The retention proof rejects unsupported raw
-  screenshot retention. Production parent UI retention controls remain a
-  non-claim.
+- TTL/delete-failure/retention-mode contract proof: `output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json`.
+- The service retention sweeper proof removes an expired encrypted queue record and records an `expiredDeleted` Activity Screen row through the real Rust service/WebSocket path. The retention proof rejects unsupported raw screenshot retention. Production parent UI retention controls remain a non-claim.
+
+## Failure conditions
+
+- Do not claim custody readiness without deletion/TTL/failure-visible proof.
+- Do not claim parent retention controls from pipeline deletion proof.
+- Do not upload raw screenshots remotely by default.
+- Do not expose raw paths outside the child agent/proof boundary.

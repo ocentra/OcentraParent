@@ -1,0 +1,54 @@
+export function browserControlFieldDefaultMatchesOptionsGenerated(field: BrowserControlFieldGenerated): boolean {
+  if (
+    field.controlKind === 'toggle' ||
+    field.controlKind === 'boolean' ||
+    field.controlKind === 'number' ||
+    field.controlKind === 'duration' ||
+    field.controlKind === 'schedule' ||
+    field.controlKind === 'rule-list' ||
+    field.controlKind === 'target-list' ||
+    field.controlKind === 'action-list' ||
+    field.controlKind === 'readonly-status' ||
+    field.controlKind === 'read-only-status'
+  ) {
+    return true;
+  }
+
+  if (Array.isArray(field.defaultValue)) {
+    return field.defaultValue.every((value) => field.options.some((optionItem) => optionItem.value === value));
+  }
+
+  return field.options.some((optionItem) => optionItem.value === field.defaultValue);
+}
+
+export function browserControlFieldIdsAreUniqueGenerated(fields: readonly BrowserControlFieldGenerated[]): boolean {
+  return new Set(fields.map((field) => field.fieldId)).size === fields.length;
+}
+
+export function browserControlSectionIdsAreUniqueGenerated(
+  sections: readonly BrowserControlSectionGenerated[]
+): boolean {
+  return new Set(sections.map((section) => section.sectionId)).size === sections.length;
+}
+
+export function browserControlLimitPostureIsConsistentGenerated(policy: BrowserControlPolicyGenerated): boolean {
+  return (
+    policy.defaultPosture !== 'limit' ||
+    (policy.budgets.enabled && policy.budgets.defaultDailyMinutes !== null) ||
+    policy.fallbackPosture !== null
+  );
+}
+
+export function browserControlEffectiveLimitPostureIsConsistentGenerated(
+  policy: BrowserControlEffectivePolicyGenerated
+): boolean {
+  return (
+    policy.defaultPosture !== 'limit' ||
+    (policy.budgets.enabled && policy.budgets.defaultDailyMinutes !== null) ||
+    policy.fallbackPosture !== null
+  );
+}
+
+export function browserControlRuleTargetIsSpecifiedGenerated(rule: BrowserControlRuleGenerated): boolean {
+  return (rule.targetType !== null && rule.targetValue !== null) || rule.target !== null;
+}

@@ -1,58 +1,60 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { AgentAppGameChildRuntimeTransportReceiptResult } from '@ocentra-parent/agent-protocol-domain/app-game-child-runtime-transport-receipt';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
-  PortalDetails,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  isPortalAppGameParentSurfaceRoute,
-  type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+  isParentAppGameParentSurfaceRoute,
+  type ParentAppGamePanelDetailSnapshot,
+  type ParentAppGamePanelRowSnapshot,
+  type ParentAppGamePanelSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
-import {
-  createAppGameChildRuntimeTransportReceiptPanelIntent,
-  type AppGameChildRuntimeTransportReceiptPanelDetail,
-  type AppGameChildRuntimeTransportReceiptPanelIntent,
-  type AppGameChildRuntimeTransportReceiptPanelRow,
-} from './app-game-child-runtime-transport-receipt-panel';
 
-export function shouldRenderAppGameChildRuntimeTransportReceiptRoute(route: PortalRouteValue): boolean {
-  return isPortalAppGameParentSurfaceRoute(route);
+const EmptyChildRuntimeTransportReceiptPanel: ParentAppGamePanelSnapshot = {
+  eyebrow: 'Rust-owned panel',
+  title: 'App/game child runtime transport receipt',
+  body: 'Rust has not reported an app/game child runtime transport receipt panel yet.',
+  loadState: 'unavailable',
+  summaryDetails: [
+    { label: PortalDetails.ProductClaim, value: 'Child runtime transport status has not been reported yet.' },
+  ],
+  rows: [],
+  emptyMessage: 'No app/game child runtime transport receipt panel has been reported yet.',
+  productClaim: 'Runtime transport, runtime receipt, and provider delivery remain unclaimed.',
+};
+
+export function shouldRenderAppGameChildRuntimeTransportReceiptRoute(route: ParentRouteId): boolean {
+  return isParentAppGameParentSurfaceRoute(route);
 }
 
 export function AppGameChildRuntimeTransportReceiptRoutePanel({
   actions,
   commandEnabled,
-  readModelResult,
+  panel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly readModelResult: AgentAppGameChildRuntimeTransportReceiptResult | null;
+  readonly panel: ParentAppGamePanelSnapshot | null;
 }): ReactElement {
-  const readModel = readModelResult?.ok === true ? readModelResult.value : null;
-  const intent = createAppGameChildRuntimeTransportReceiptPanelIntent(readModel);
+  const resolvedPanel = panel ?? EmptyChildRuntimeTransportReceiptPanel;
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{resolvedPanel.eyebrow}</p>
+          <h2>{resolvedPanel.title}</h2>
+          <p>{resolvedPanel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGameChildRuntimeTransportReceiptReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGameChildRuntimeTransportReceiptReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel)}
           </button>
         </header>
         <div
@@ -60,11 +62,11 @@ export function AppGameChildRuntimeTransportReceiptRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <AppGameChildRuntimeTransportReceiptSummaryCard intent={intent} />
-          {intent.rows.length === 0 ? (
-            <AppGameChildRuntimeTransportReceiptEmptyCard intent={intent} />
+          <AppGameChildRuntimeTransportReceiptSummaryCard panel={resolvedPanel} />
+          {resolvedPanel.rows.length === 0 ? (
+            <AppGameChildRuntimeTransportReceiptEmptyCard panel={resolvedPanel} />
           ) : (
-            intent.rows.map((row, index) => (
+            resolvedPanel.rows.map((row, index) => (
               <AppGameChildRuntimeTransportReceiptRowCard key={`${String(row.title)}:${index}`} row={row} />
             ))
           )}
@@ -75,9 +77,9 @@ export function AppGameChildRuntimeTransportReceiptRoutePanel({
 }
 
 function AppGameChildRuntimeTransportReceiptSummaryCard({
-  intent,
+  panel,
 }: {
-  readonly intent: AppGameChildRuntimeTransportReceiptPanelIntent;
+  readonly panel: ParentAppGamePanelSnapshot;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
@@ -85,30 +87,25 @@ function AppGameChildRuntimeTransportReceiptSummaryCard({
   return (
     <article className={className}>
       <h2>{PortalDetails.ChildDelivery}</h2>
-      <AppGameChildRuntimeTransportReceiptDetails details={intent.summaryDetails} />
+      <AppGameChildRuntimeTransportReceiptDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
 function AppGameChildRuntimeTransportReceiptEmptyCard({
-  intent,
+  panel,
 }: {
-  readonly intent: AppGameChildRuntimeTransportReceiptPanelIntent;
+  readonly panel: ParentAppGamePanelSnapshot;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
   return (
     <article className={className}>
-      <h2>{intent.loadState}</h2>
-      <p>{intent.emptyMessage}</p>
+      <h2>{panel.loadState}</h2>
+      <p>{panel.emptyMessage}</p>
       <AppGameChildRuntimeTransportReceiptDetails
-        details={[
-          {
-            label: PortalDetails.ProductClaim,
-            value: intent.productClaim,
-          },
-        ]}
+        details={[{ label: PortalDetails.ProductClaim, value: panel.productClaim }]}
       />
     </article>
   );
@@ -117,7 +114,7 @@ function AppGameChildRuntimeTransportReceiptEmptyCard({
 function AppGameChildRuntimeTransportReceiptRowCard({
   row,
 }: {
-  readonly row: AppGameChildRuntimeTransportReceiptPanelRow;
+  readonly row: ParentAppGamePanelRowSnapshot;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
@@ -133,7 +130,7 @@ function AppGameChildRuntimeTransportReceiptRowCard({
 function AppGameChildRuntimeTransportReceiptDetails({
   details,
 }: {
-  readonly details: readonly AppGameChildRuntimeTransportReceiptPanelDetail[];
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
@@ -148,8 +145,8 @@ function AppGameChildRuntimeTransportReceiptDetail({
   label,
   value,
 }: {
-  readonly label: PortalDisplayText;
-  readonly value: PortalDisplayText;
+  readonly label: string;
+  readonly value: string;
 }): ReactElement {
   return (
     <div>

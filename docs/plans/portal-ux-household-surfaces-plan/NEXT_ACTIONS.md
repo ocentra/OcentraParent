@@ -1,4 +1,4 @@
-﻿# Portal UX Household Surfaces Plan Next Actions
+# Portal UX Household Surfaces Plan Next Actions
 
 <!-- agent-capsule -->
 
@@ -20,16 +20,13 @@ This file is the short resume list for the next worker. It is derived from open 
 
 1. Confirm the hub assignment and lane.
 2. Pick only the assigned workpack from the list below.
-3. Open that workpack and exact checklist rows only.
-4. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
+3. Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+4. Open that workpack and exact checklist rows only.
+5. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
 
 ## Highest-open workpacks by unchecked boxes
 
-- [01 Service-Backed Shell And Navigation](workpacks/01-service-backed-shell-and-navigation.md): 5 open of 5 boxes.
-- [02 Household First-Run And Profiles](workpacks/02-household-first-run-and-profiles.md): 5 open of 5 boxes.
-- [03 Device Inventory And Source States](workpacks/03-device-inventory-and-source-states.md): 5 open of 5 boxes.
-- [04 Selected Device Context](workpacks/04-selected-device-context.md): 5 open of 5 boxes.
-- [05 Policy Authoring Control Center](workpacks/05-policy-authoring-control-center.md): 5 open of 5 boxes.
+- [05 Policy Authoring Control Center](workpacks/05-policy-authoring-control-center.md): 5 open of 5 boxes; current exact next gap is preview-envelope bridge plus parent-confirmation action wiring.
 - [06 Schedules, Time Budgets, And Templates](workpacks/06-schedules-time-budgets-and-templates.md): 5 open of 5 boxes.
 - [07 Parent Requests And Approvals](workpacks/07-parent-requests-and-approvals.md): 5 open of 5 boxes.
 - [08 Activity Evidence And Diagnostics](workpacks/08-activity-evidence-and-diagnostics.md): 5 open of 5 boxes.
@@ -54,5 +51,7 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 ## Actioned completion tracker
 
 - [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
+- [ ] Classify selected owner/proof family through `WORKPACK_FAMILIES.md` when unclear.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
 - [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+- [ ] Keep portal projection claims separate from sibling domain/runtime readiness.

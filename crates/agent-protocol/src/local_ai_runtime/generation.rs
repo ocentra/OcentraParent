@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::LocalAiGenerationState;
+use super::lifecycle::LocalAiGenerationState;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

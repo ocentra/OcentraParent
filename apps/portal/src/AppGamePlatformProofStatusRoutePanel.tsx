@@ -1,58 +1,58 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { AgentAppGamePlatformProofStatusResult } from '@ocentra-parent/agent-protocol-domain/app-game-platform-proof-status';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
-  PortalDetails,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  isPortalAppGameParentSurfaceRoute,
-  type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+  isParentAppGameParentSurfaceRoute,
+  type ParentAppGamePanelDetailSnapshot,
+  type ParentAppGamePanelRowSnapshot,
+  type ParentAppGamePanelSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
-import {
-  createAppGamePlatformProofStatusPanelIntent,
-  type AppGamePlatformProofStatusPanelDetail,
-  type AppGamePlatformProofStatusPanelIntent,
-  type AppGamePlatformProofStatusPanelRow,
-} from './app-game-platform-proof-status-panel';
 
-export function shouldRenderAppGamePlatformProofStatusRoute(route: PortalRouteValue): boolean {
-  return isPortalAppGameParentSurfaceRoute(route);
+const EmptyPlatformProofStatusPanel: ParentAppGamePanelSnapshot = {
+  eyebrow: 'Rust-owned panel',
+  title: 'App/game platform proof status',
+  body: 'Rust has not reported an app/game platform proof-status panel yet.',
+  loadState: 'unavailable',
+  summaryDetails: [{ label: PortalDetails.ProductClaim, value: 'Platform proof status has not been reported yet.' }],
+  rows: [],
+  emptyMessage: 'No app/game platform proof-status panel has been reported yet.',
+  productClaim: 'Broad blocking, platform enforcement, and child delivery remain unclaimed.',
+};
+
+export function shouldRenderAppGamePlatformProofStatusRoute(route: ParentRouteId): boolean {
+  return isParentAppGameParentSurfaceRoute(route);
 }
 
 export function AppGamePlatformProofStatusRoutePanel({
   actions,
   commandEnabled,
-  readModelResult,
+  panel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
-  readonly readModelResult: AgentAppGamePlatformProofStatusResult | null;
+  readonly panel: ParentAppGamePanelSnapshot | null;
 }): ReactElement {
-  const readModel = readModelResult?.ok === true ? readModelResult.value : null;
-  const intent = createAppGamePlatformProofStatusPanelIntent(readModel);
+  const resolvedPanel = panel ?? EmptyPlatformProofStatusPanel;
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{resolvedPanel.eyebrow}</p>
+          <h2>{resolvedPanel.title}</h2>
+          <p>{resolvedPanel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.ActivityAppGamePlatformProofStatusReadModelReported);
-              actions.sendCommand(AgentCommand.ActivityAppGamePlatformProofStatusReadModelGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
-            {PortalText.Resolve(PortalTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
+            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGamePlatformProofStatusReadModel)}
           </button>
         </header>
         <div
@@ -60,11 +60,11 @@ export function AppGamePlatformProofStatusRoutePanel({
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <AppGamePlatformProofStatusSummaryCard intent={intent} />
-          {intent.rows.length === 0 ? (
-            <AppGamePlatformProofStatusEmptyCard intent={intent} />
+          <AppGamePlatformProofStatusSummaryCard panel={resolvedPanel} />
+          {resolvedPanel.rows.length === 0 ? (
+            <AppGamePlatformProofStatusEmptyCard panel={resolvedPanel} />
           ) : (
-            intent.rows.map((row, index) => (
+            resolvedPanel.rows.map((row, index) => (
               <AppGamePlatformProofStatusRowCard key={`${String(row.title)}:${index}`} row={row} />
             ))
           )}
@@ -75,9 +75,9 @@ export function AppGamePlatformProofStatusRoutePanel({
 }
 
 function AppGamePlatformProofStatusSummaryCard({
-  intent,
+  panel,
 }: {
-  readonly intent: AppGamePlatformProofStatusPanelIntent;
+  readonly panel: ParentAppGamePanelSnapshot;
 }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
@@ -85,40 +85,25 @@ function AppGamePlatformProofStatusSummaryCard({
   return (
     <article className={className}>
       <h2>{PortalDetails.PlatformState}</h2>
-      <AppGamePlatformProofStatusDetails details={intent.summaryDetails} />
+      <AppGamePlatformProofStatusDetails details={panel.summaryDetails} />
     </article>
   );
 }
 
-function AppGamePlatformProofStatusEmptyCard({
-  intent,
-}: {
-  readonly intent: AppGamePlatformProofStatusPanelIntent;
-}): ReactElement {
+function AppGamePlatformProofStatusEmptyCard({ panel }: { readonly panel: ParentAppGamePanelSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
   return (
     <article className={className}>
-      <h2>{intent.loadState}</h2>
-      <p>{intent.emptyMessage}</p>
-      <AppGamePlatformProofStatusDetails
-        details={[
-          {
-            label: PortalDetails.ProductClaim,
-            value: intent.productClaim,
-          },
-        ]}
-      />
+      <h2>{panel.loadState}</h2>
+      <p>{panel.emptyMessage}</p>
+      <AppGamePlatformProofStatusDetails details={[{ label: PortalDetails.ProductClaim, value: panel.productClaim }]} />
     </article>
   );
 }
 
-function AppGamePlatformProofStatusRowCard({
-  row,
-}: {
-  readonly row: AppGamePlatformProofStatusPanelRow;
-}): ReactElement {
+function AppGamePlatformProofStatusRowCard({ row }: { readonly row: ParentAppGamePanelRowSnapshot }): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
@@ -133,7 +118,7 @@ function AppGamePlatformProofStatusRowCard({
 function AppGamePlatformProofStatusDetails({
   details,
 }: {
-  readonly details: readonly AppGamePlatformProofStatusPanelDetail[];
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
@@ -152,8 +137,8 @@ function AppGamePlatformProofStatusDetail({
   label,
   value,
 }: {
-  readonly label: PortalDisplayText;
-  readonly value: PortalDisplayText;
+  readonly label: string;
+  readonly value: string;
 }): ReactElement {
   return (
     <div>

@@ -40,11 +40,11 @@ preference mutation, or runtime service production behavior.
 
 ## Validation
 
-- [x] Schema-backed native app parent-surface intent rows render route-level
+- [ ] Schema-backed native app parent-surface intent rows render route-level
       status and manual-proof metadata.
-- [x] Missing service input stays explicit instead of inventing rows.
-- [x] No live service event, parent preference mutation, provider delivery,
+- [ ] Missing service input stays explicit instead of inventing rows.
+- [ ] No live service event, parent preference mutation, provider delivery,
       receipt ingestion, credentials, production runtime, child delivery, broad
       app blocking, mobile UI, or platform support is claimed.
-- [x] Product checklist unchanged because this proof does not move feature
+- [ ] Product checklist unchanged because this proof does not move feature
       status and runtime/provider/platform gaps remain.

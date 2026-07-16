@@ -17,7 +17,7 @@
 Default local ports:
 
 - Rust agent: `127.0.0.1:4477`
-- Vite portal: `127.0.0.1:4478`
+- Dev portal: `127.0.0.1:4478`
 
 Worker lanes that need visible demos may set:
 

@@ -1,7 +1,16 @@
+use std::io::{self, Write};
+
 use ocentra_eventing::{
-    CorrelationId, DeadLetterEvent, DeadLetterReason, EventContractRegistry, EventId,
-    EventNamespace, EventTopologyFamilyVariant, EventTopologyManifest, EventTopologyPublisher,
-    EventTopologySubscriber, EventType, SourceComponent, SubscriberId, TargetHandler,
+    bus::reports::dead_letter::{DeadLetterEvent, DeadLetterReason},
+    contract_registry::EventContractRegistry,
+    ids::{
+        CorrelationId, EventId, EventNamespace, EventType, SourceComponent, SubscriberId,
+        TargetHandler,
+    },
+    topology::{
+        EventTopologyFamilyVariant, EventTopologyManifest, EventTopologyPublisher,
+        EventTopologySubscriber,
+    },
 };
 
 const EXAMPLE_ORIGINAL_EVENT_ID: &str = "eventing-topology-original-1";
@@ -41,6 +50,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }],
         &[],
     );
-    print!("{}", manifest.render_markdown());
+    io::stdout()
+        .lock()
+        .write_all(manifest.render_markdown().as_bytes())?;
     Ok(())
 }

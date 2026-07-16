@@ -7,8 +7,9 @@ use std::{
 use tokio::sync::{RwLock, Semaphore};
 
 use crate::{
-    queue::EventQueue, AggregateKey, DomainEvent, EventType, EventingError, HandlerExecutionPolicy,
-    JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal, StoredEventEnvelope,
+    AggregateKey, DomainEvent, EventQueue, EventType, EventingError, ExpectValue,
+    HandlerExecutionPolicy, JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal,
+    StoredEventEnvelope,
 };
 
 mod active_dispatch;
@@ -18,22 +19,19 @@ mod dispatch;
 mod journaling;
 mod lifecycle;
 mod publish;
-mod publisher;
+pub mod publisher;
 mod queue_drain;
-mod reports;
-mod subscriber;
+pub mod reports;
+pub mod subscriber;
 
 use subscriber::{insert_subscriber, record_for, remove_subscriber, SubscriberRecord};
 
 use active_dispatch::ActiveDispatchTracker;
 
-pub use publisher::{EventContext, EventPublisher};
-pub use reports::{
-    dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent, DeadLetterReason,
-    EventMetricsSnapshot, EventQueueMetrics, EventRequestMetrics, EventTraceFields, HandlerOutcome,
-    HandlerReport, PublishReport, QueueDrainReport,
-};
-pub use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
+use publisher::{EventContext, EventPublisher};
+use reports::dead_letter::DeadLetter;
+use reports::handler::{EventMetricsSnapshot, HandlerReport, PublishReport, QueueDrainReport};
+use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DispatchMode {
@@ -114,7 +112,7 @@ impl EventBus {
             target_handler: subscriber.target_handler.clone(),
             drain_report: empty_queue_drain_report(),
         };
-        self.insert_subscriber(record_for(subscriber, handler)?)?;
+        self.insert_subscriber(record_for(&subscriber, handler)?)?;
         let drain_report = self.drain_after_subscribe(&report).await?;
         let report = SubscriptionReport {
             drain_report,
@@ -139,7 +137,7 @@ impl EventBus {
             target_handler: subscriber.target_handler.clone(),
             drain_report: empty_queue_drain_report(),
         };
-        self.insert_subscriber(record_for(subscriber, handler)?)?;
+        self.insert_subscriber(record_for(&subscriber, handler)?)?;
         let drain_report = self.drain_after_subscribe(&report).await?;
         let report = SubscriptionReport {
             drain_report,
@@ -170,7 +168,7 @@ impl EventBus {
         let subscription_count = self
             .registry
             .lock()
-            .expect("event registry lock")
+            .expect_value("event registry lock")
             .values()
             .map(Vec::len)
             .sum();
@@ -200,7 +198,8 @@ impl EventBus {
     }
 
     fn ensure_active(&self) -> Result<(), EventingError> {
-        if *self.shutdown.lock().expect("event bus shutdown lock") != EventBusLifecycleState::Active
+        if *self.shutdown.lock().expect_value("event bus shutdown lock")
+            != EventBusLifecycleState::Active
         {
             return Err(EventingError::BusShutdown);
         }
@@ -208,7 +207,7 @@ impl EventBus {
     }
 
     fn begin_shutdown(&self) -> bool {
-        let mut shutdown = self.shutdown.lock().expect("event bus shutdown lock");
+        let mut shutdown = self.shutdown.lock().expect_value("event bus shutdown lock");
         match *shutdown {
             EventBusLifecycleState::Active => {
                 *shutdown = EventBusLifecycleState::ShuttingDown;
@@ -219,11 +218,12 @@ impl EventBus {
     }
 
     fn mark_shutdown(&self) {
-        *self.shutdown.lock().expect("event bus shutdown lock") = EventBusLifecycleState::Shutdown;
+        *self.shutdown.lock().expect_value("event bus shutdown lock") =
+            EventBusLifecycleState::Shutdown;
     }
 
     fn rollback_shutdown(&self) {
-        let mut shutdown = self.shutdown.lock().expect("event bus shutdown lock");
+        let mut shutdown = self.shutdown.lock().expect_value("event bus shutdown lock");
         if *shutdown == EventBusLifecycleState::ShuttingDown {
             *shutdown = EventBusLifecycleState::Active;
         }

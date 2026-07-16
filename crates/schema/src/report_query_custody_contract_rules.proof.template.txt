@@ -1,0 +1,19 @@
+export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQueryCustodyContractProof): boolean {
+  return (
+    GeneratedReportQueryCustodyStates.every((state) => proof.rows.some((row) => row.state === state)) &&
+    GeneratedReportQueryCustodyNonClaims.every((nonClaim) => proof.nonClaims.includes(nonClaim)) &&
+    reportQueryCustodyRequestIsHonestGenerated(proof.request) &&
+    proof.reportRuntimeClaimed === false &&
+    proof.portalUiClaimed === false &&
+    proof.providerRoutingClaimed === false &&
+    proof.ocentraHostedFamilyDataCustodyClaimed === false &&
+    proof.secondTruthStoreClaimed === false &&
+    proof.rawChildEvidenceClaimed === false &&
+    proof.rows.every((row) => reportQueryCustodyRowIsHonestGenerated(row)) &&
+    proof.rows.every((row) => row.requestId === proof.request.requestId) &&
+    proof.rows.every((row) => row.pageSize === proof.request.pageSize) &&
+    proof.rows.every((row) => row.notificationPayloadBoundary === proof.request.notificationPayloadBoundary) &&
+    proof.rows.every((row, index) => row.pageIndex === index + 1) &&
+    new Set(proof.rows.map((row) => row.cursorRef)).size === proof.rows.length
+  );
+}

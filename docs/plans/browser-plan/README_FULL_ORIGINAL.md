@@ -196,16 +196,16 @@ Ocentra Parent needs an end-to-end managed browser subsystem that:
 Checked items below mean concrete proof exists in merged `main` or current
 source files. They do not mark the whole browser plan complete.
 
-- [x] Browser URL/tab evidence research/spec exists.
-- [x] Browser evidence contracts exist in `packages/activity-domain`.
-- [x] Browser policy authoring/catalog contracts exist in `packages/parent-domain`.
-- [x] Browser policy command/event adapter exists in `packages/agent-protocol-domain`.
-- [x] Rust browser protocol/read-model/state mirrors exist in `crates/agent-protocol`.
-- [x] Managed launch planning rejects default/unowned profile paths in `crates/agent-core`.
-- [x] CDP bridge polling maps `/json/version` and `/json/list` page targets with active state `unknown`.
-- [x] Browser events can be recorded through the activity journal and SQLite path.
-- [x] Portal can render managed browser status, browser evidence summary, and browser intervention state.
-- [x] Real/proof scripts exist for managed-browser matrix, service proof, intervention proof, and Windows managed/unmanaged enforcement.
+- [ ] Browser URL/tab evidence research/spec exists.
+- [ ] Browser evidence contracts exist in `packages/activity-domain`.
+- [ ] Browser policy authoring/catalog contracts exist in `packages/parent-domain`.
+- [ ] Browser policy command/event adapter exists in `packages/agent-protocol-domain`.
+- [ ] Rust browser protocol/read-model/state mirrors exist in `crates/agent-protocol`.
+- [ ] Managed launch planning rejects default/unowned profile paths in `crates/agent-core`.
+- [ ] CDP bridge polling maps `/json/version` and `/json/list` page targets with active state `unknown`.
+- [ ] Browser events can be recorded through the activity journal and SQLite path.
+- [ ] Portal can render managed browser status, browser evidence summary, and browser intervention state.
+- [ ] Real/proof scripts exist for managed-browser matrix, service proof, intervention proof, and Windows managed/unmanaged enforcement.
 - [ ] Full browser inventory/read model is not product-complete.
 - [ ] Active-tab proof is not complete beyond target-list/unknown handling.
 - [ ] Managed warning/block is proof-gated and not a general product claim.

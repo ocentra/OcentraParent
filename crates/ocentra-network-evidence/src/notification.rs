@@ -1,4 +1,12 @@
+mod normalization;
+mod severity;
+
 use serde::{Deserialize, Serialize};
+
+use self::{
+    normalization::{normalize_ref, normalized_evidence_refs, normalized_optional_ref},
+    severity::severity_for,
+};
 
 use crate::{
     NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
@@ -58,7 +66,7 @@ pub enum NetworkParentNotificationCandidateError {
 }
 
 pub fn map_network_parent_notification_candidate(
-    input: NetworkParentNotificationCandidateInput,
+    input: &NetworkParentNotificationCandidateInput,
 ) -> Result<NetworkParentNotificationCandidate, NetworkParentNotificationCandidateError> {
     if input.provider_delivery_available {
         return Err(NetworkParentNotificationCandidateError::ProviderDeliveryClaimRejected);
@@ -99,59 +107,4 @@ pub fn map_network_parent_notification_candidate(
         adapter_action_authorized: false,
         enforcement_command_authorized: false,
     })
-}
-
-fn severity_for(mapping: &NetworkEvidencePolicyMapping) -> NetworkParentNotificationSeverity {
-    match mapping.mode {
-        NetworkEvidencePolicyMode::ObserveOnly => NetworkParentNotificationSeverity::Info,
-        NetworkEvidencePolicyMode::ParentReview => NetworkParentNotificationSeverity::Review,
-        NetworkEvidencePolicyMode::DryRun => match mapping.mapped_action {
-            NetworkEvidencePolicyAction::Block | NetworkEvidencePolicyAction::Limit => {
-                NetworkParentNotificationSeverity::Urgent
-            }
-            NetworkEvidencePolicyAction::WarnChild | NetworkEvidencePolicyAction::Monitor => {
-                NetworkParentNotificationSeverity::Warning
-            }
-            NetworkEvidencePolicyAction::AskParent => NetworkParentNotificationSeverity::Review,
-            NetworkEvidencePolicyAction::None => NetworkParentNotificationSeverity::Info,
-        },
-    }
-}
-
-fn normalized_evidence_refs(
-    refs: &[String],
-) -> Result<Vec<String>, NetworkParentNotificationCandidateError> {
-    let mut normalized = Vec::new();
-    for value in refs {
-        let Some(ref_value) = normalize_ref(value) else {
-            return Err(NetworkParentNotificationCandidateError::EmptyEvidenceRef);
-        };
-        if !normalized.contains(&ref_value) {
-            normalized.push(ref_value);
-        }
-    }
-    if normalized.is_empty() {
-        return Err(NetworkParentNotificationCandidateError::EmptyEvidenceRef);
-    }
-    Ok(normalized)
-}
-
-fn normalized_optional_ref(
-    value: Option<&str>,
-) -> Result<Option<String>, NetworkParentNotificationCandidateError> {
-    match value {
-        Some(raw) => normalize_ref(raw)
-            .map(Some)
-            .ok_or(NetworkParentNotificationCandidateError::EmptyLocalAiResultRef),
-        None => Ok(None),
-    }
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_owned())
-    }
 }

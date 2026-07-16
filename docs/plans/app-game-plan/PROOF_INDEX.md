@@ -1,25 +1,100 @@
-# App + Game Plan Proof Index
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `app-game-plan`
-> Doc: `App + Game Plan Proof Index`
-> Kind: proof artifact locator and PR evidence router.
-> Read when: Only when validating proof, PR_READY, DONE, or broad status claims.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Use this file to locate proof artifacts; proof must include command logs and negative cases.
+> Doc: `App Game Plan Proof Index`
+> Kind: proof artifact router.
+> Read when: selected workpack needs proof paths or PR_READY/DONE proof validation.
+> Stop rule: use only the proof root for the selected workpack.
+> Proves: proof location routing only.
+> Does not prove: implementation completion by itself.
+> Proof rule: proof artifacts are valid only after focused commands run or precise blockers are recorded.
 
 <!-- /agent-capsule -->
 
-Proof/checkpoint files are validation context, not default context. Open only the proof named by a workpack, checklist row, hub assignment, or PR review.
+# App Game Plan Proof Index
 
-## Plan-local proof/reference files
+## Deterministic proof root
 
-- No plan-local proof/reference files detected by filename heuristic.
+```text
+output/app-game-plan-proof/<workpack-file-stem>/
+```
 
-## Related global checkpoints
+## Required universal proof files
 
-- [V0.8 Enforcement Timer Recovery MVP Proof](../../checkpoints/v0-8-enforcement-timer-recovery-mvp-2026-05-26.md) (10,777 bytes)
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
+
+## Command log format
+
+```text
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <path or n/a>
+notes: <short note>
+```
+
+If blocked:
+
+```text
+blocker:
+required environment:
+why this does not prove completion:
+next command:
+```
+
+## Structured proof metadata
+
+For new proof artifacts and new command-log entries, include structured metadata when available:
+
+```text
+plan: app-game-plan
+workpack: <workpack id and name>
+owner: schema-domain | app-game-domain | app-game-core | agent-protocol | agent-service | portal-domain | apps/portal | policy/enforcement-handoff | notification-handoff | platform-proof | docs-only
+run_id: <wrapper run id or n/a>
+command_id: <wrapper command id or n/a>
+correlation_id: <runtime/proof/evidence/session/action correlation id or n/a>
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <raw stdout/stderr artifact pointer, test-results path, proof file, screenshot/report path, platform output path, or n/a>
+diagnostics_summary: <short unique failure or proof summary>
+source_custody_note: <local evidence ref | opaque source ref | parent-visible status only | n/a>
+platform_note: <os/version/permission/capability/manual-required note or n/a>
+no_claim: <what this result does not prove>
+```
+
+The command log is a compact index, not a raw terminal transcript. Store raw stdout/stderr, Playwright artifacts, platform logs, screenshots, service traces, or long failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
+
+## Runtime and local harness split
+
+Runtime/product-safe proof must show source, custody, redaction, capability, and authority boundaries. Local harness proof may include richer diagnostics, but it still stores raw logs by pointer and keeps plan docs compact.
+
+```text
+runtime-safe: no private launcher tokens, chat/content, raw screenshots, decrypted payloads, raw account identifiers, or child private activity payloads unless an explicit expectation allows the field.
+local harness: enough file/line/command/artifact/evidence-ref/platform context for Codex/MCP/humans to debug without reading terminal walls.
+```
+
+## Required proof themes
+
+```text
+owned package/crate/route boundary
+source/custody labels
+unsupported/manual-required states
+negative cases
+portal proof when UI changes
+service/protocol proof when runtime changes
+source freshness proof before policy preview
+authority proof before adapter action
+platform capability proof before platform readiness
+no historical checked-row overclaim
+```
+
+## No-claim language
+
+Do not claim broad app/game product readiness from a single workpack, historical checklist row, generated read model, staged journal proof, portal row, policy dry-run, docs-only update, or mock/platform-preflight-only proof.

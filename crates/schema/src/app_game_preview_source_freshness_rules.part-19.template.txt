@@ -1,0 +1,30 @@
+  !row.platformEnforcementClaimed &&
+  !row.rawPrivateSourceRowsIncluded;
+
+export const appGameSourceGatedPolicyPreviewReadModelRowMatchesGateStateGenerated = (
+  row: SourceGatedPolicyPreviewReadModelRowLike
+) => {
+  if (row.gateState === AppGameSourceFreshnessPreviewGateStateGenerated.SourceFresh) {
+    return sourceFreshRowMatchesProjectionGenerated(row);
+  }
+
+  if (row.gateState === AppGameSourceFreshnessPreviewGateStateGenerated.SourceManualRequired) {
+    return sourceManualRowMatchesProjectionGenerated(row);
+  }
+
+  if (row.gateState === AppGameSourceFreshnessPreviewGateStateGenerated.CompilerManualRequired) {
+    return compilerManualRowMatchesProjectionGenerated(row);
+  }
+
+  return false;
+};
+
+const sourceFreshRowMatchesProjectionGenerated = (row: SourceGatedPolicyPreviewReadModelRowLike) =>
+  row.projectionState === AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated.PreviewReadyVisible &&
+  row.previewStatus === AppGameSourceFreshnessPreviewGateStatusGenerated.PreviewReady &&
+  row.sourcePolicyCompileAllowed &&
+  row.previewDecisionRef !== null &&
+  row.sourceEvidenceRefs.length > 0;
+
+const sourceManualRowMatchesProjectionGenerated = (row: SourceGatedPolicyPreviewReadModelRowLike) =>
+  row.projectionState ===

@@ -1,59 +1,88 @@
-use std::{
-    env,
-    fs::{create_dir_all, OpenOptions},
-    io::Write,
-    path::PathBuf,
+#[path = "dev_log/message.rs"]
+mod message;
+
+use ocentra_parent_agent_protocol::logging::LogFieldValue as ProtocolLogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_logging_core::{
+    dev_log::DevLogger,
+    field::{LogFieldValue, LogFields as CoreLogFields},
+    level::LogLevel,
+    source::LogSource,
 };
 
-use ocentra_parent_agent_protocol::{
-    constants, DevLogEntry, LogFields, LogLevel, LogSource, LOG_SCHEMA_VERSION,
-};
+// Compatibility local-dev writer until WP04 migrates agent-service logging into crates/logging-core.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct AgentLogMessageRef<'a>(pub &'a str);
 
-use crate::time::timestamp_now;
-
-pub fn write_agent_info(message: &str, fields: LogFields) -> std::io::Result<()> {
-    let timestamp = timestamp_now();
-    let entry = DevLogEntry {
-        schema_version: LOG_SCHEMA_VERSION,
-        id: create_log_id(&timestamp),
-        timestamp,
-        level: LogLevel::Info,
-        source: LogSource::AgentService,
-        message: message.to_owned(),
-        fields,
-    };
-    let path = dev_log_path(&entry.timestamp)?;
-    let mut file = OpenOptions::new().create(true).append(true).open(path)?;
-    let mut line = serde_json::to_string(&entry).expect(constants::error::DEV_LOG_SERIALIZES);
-    line.push(constants::delimiter::NEWLINE);
-    file.write_all(line.as_bytes())
+pub trait AgentLogMessageSource {
+    fn as_agent_log_message_ref(&self) -> AgentLogMessageRef<'_>;
 }
 
-fn create_log_id(timestamp: &str) -> String {
-    let mut id = String::from(constants::dev_log::ID_PREFIX);
-    id.extend(timestamp.chars().filter(char::is_ascii_alphanumeric));
-    id
+struct AgentLogMessageValue<T>(T);
+
+pub fn write_agent_info(
+    message: impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
+    let message = AgentLogMessageValue(message);
+    write_agent_log(&LogLevel::Info, &message.0, fields)
 }
 
-fn dev_log_path(timestamp: &str) -> std::io::Result<PathBuf> {
-    let directory = env::var(constants::env_var::DEV_LOG_DIR)
-        .unwrap_or_else(|_| constants::dev_log::DEFAULT_DIR.to_owned());
-    let mut path = PathBuf::from(directory);
-    create_dir_all(&path)?;
-    path.push(file_name(timestamp));
-    Ok(path)
+pub fn write_agent_warn(
+    message: impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
+    let message = AgentLogMessageValue(message);
+    write_agent_log(&LogLevel::Warn, &message.0, fields)
 }
 
-fn file_name(timestamp: &str) -> String {
-    let day = timestamp
-        .chars()
-        .take(constants::dev_log::DATE_CHARS)
-        .collect::<String>();
-    let mut name = String::new();
-    name.push_str(constants::dev_log::AGENT_FILE_PREFIX);
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(&day);
-    name.push(constants::delimiter::DOT);
-    name.push_str(constants::dev_log::FILE_EXTENSION);
-    name
+pub fn write_agent_error(
+    message: impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
+    let message = AgentLogMessageValue(message);
+    write_agent_log(&LogLevel::Error, &message.0, fields)
+}
+
+pub fn write_agent_debug(
+    message: impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
+    let message = AgentLogMessageValue(message);
+    write_agent_log(&LogLevel::Debug, &message.0, fields)
+}
+
+fn write_agent_log(
+    level: &LogLevel,
+    message: &impl AgentLogMessageSource,
+    fields: LogFields,
+) -> std::io::Result<()> {
+    let logger = DevLogger::from_env(LogSource::AgentService)?;
+    let core_fields = into_core_fields(fields);
+    let message = message.as_agent_log_message_ref();
+    match *level {
+        LogLevel::Info => logger.info(message.0, core_fields),
+        LogLevel::Warn => logger.warn(message.0, core_fields),
+        LogLevel::Error => logger.error(message.0, core_fields),
+        LogLevel::Debug => logger.debug(message.0, core_fields),
+        LogLevel::Trace => logger.log(LogLevel::Trace, message.0, core_fields),
+    }
+    .map(|_| ())
+}
+
+fn into_core_fields(fields: LogFields) -> CoreLogFields {
+    fields
+        .into_inner()
+        .into_iter()
+        .map(|(key, value)| (key, into_core_field_value(value)))
+        .collect()
+}
+
+fn into_core_field_value(value: ProtocolLogFieldValue) -> LogFieldValue {
+    match value {
+        ProtocolLogFieldValue::String(value) => LogFieldValue::String(value),
+        ProtocolLogFieldValue::Number(value) => LogFieldValue::Number(value),
+        ProtocolLogFieldValue::Boolean(value) => LogFieldValue::Boolean(value),
+        ProtocolLogFieldValue::Null(value) => LogFieldValue::Null(value),
+    }
 }

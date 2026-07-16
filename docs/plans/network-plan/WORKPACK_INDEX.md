@@ -16,6 +16,8 @@
 
 Use this file to select exactly one network slice. Do not read all network docs, the full checklist, or the large control inventories by default.
 
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
 Source truth for historical scope is [03-network-implementation-checklist-and-workpacks.md](03-network-implementation-checklist-and-workpacks.md). The route workpacks below split that scope into high-density execution paths.
 
 | Status | Workpack                                                                                            | Source rows       | Required proof tier | Open condition                                                                                                                    |
@@ -32,6 +34,10 @@ Source truth for historical scope is [03-network-implementation-checklist-and-wo
 ## Selection Rules
 
 - If the task names a numbered row from `03-network-implementation-checklist-and-workpacks.md`, choose the workpack whose source-row range contains it.
+- If the selected workpack owner/proof family is unclear, classify it through `WORKPACK_FAMILIES.md`; do not scan every family.
 - If the task is about a root-level moved control guide, choose WP08 first, then the precise referenced file.
 - If the task implies exact URL/video/message/search content from network-only evidence, stop and record a failure condition.
 - If platform intervention is touched, choose WP05 and require the platform proof tier before claiming enforcement.
+- Do not use checklist count as proof.
+- Do not use `network-domain` metadata/package proof as runtime proof.
+- Do not use WP08 control catalog reference material as implementation proof.

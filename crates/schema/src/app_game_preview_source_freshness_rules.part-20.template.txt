@@ -1,0 +1,30 @@
+    AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated.SourceManualRequiredVisible &&
+  row.previewStatus === AppGameSourceFreshnessPreviewGateStatusGenerated.ManualRequired &&
+  !row.sourcePolicyCompileAllowed &&
+  row.previewDecisionRef === null;
+
+const compilerManualRowMatchesProjectionGenerated = (row: SourceGatedPolicyPreviewReadModelRowLike) =>
+  row.projectionState ===
+    AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated.CompilerManualRequiredVisible &&
+  row.previewStatus === AppGamePolicyPreviewStatusGenerated.ManualRequired &&
+  row.sourcePolicyCompileAllowed &&
+  row.previewDecisionRef !== null &&
+  row.sourceEvidenceRefs.length > 0;
+
+export const countAppGameSourceGatedPolicyPreviewRowsGenerated = (
+  rows: readonly SourceGatedPolicyPreviewReadModelRowLike[],
+  targetDomain: AppGamePolicyPreviewTargetDomainValue
+) => rows.filter((row) => row.targetDomain === targetDomain).length;
+
+export const countAppGameSourceGatedPolicyPreviewProjectionStatesGenerated = (
+  rows: readonly SourceGatedPolicyPreviewReadModelRowLike[],
+  projectionState: AppGameSourceGatedPolicyPreviewProjectionStateValue
+) => rows.filter((row) => row.projectionState === projectionState).length;
+
+export const countAppGameSourceGatedPolicyPreviewReadModelRowsGenerated = (
+  rows: readonly SourceGatedPolicyPreviewReadModelRowLike[]
+) => ({
+  nativeAppRowCount: countAppGameSourceGatedPolicyPreviewRowsGenerated(
+    rows,
+    AppGamePolicyPreviewTargetDomainGenerated.NativeApp
+  ),

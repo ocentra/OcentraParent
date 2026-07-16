@@ -1,0 +1,40 @@
+
+export const NetworkControlProposalSettingCount = NetworkControlCatalogSettingSeeds.filter(
+  (seed) => seed[0] === 'docs/network-control-schema-proposal.md'
+).length;
+
+export const NetworkControlGuideSettingCount = NetworkControlCatalogSettingSeeds.filter(
+  (seed) => seed[0] === 'docs/network-control-capability-guide.md'
+).length;
+
+export const NetworkControlSourceOptionCount = NetworkControlCatalogSettingSeeds.reduce(
+  (count, seed) => count + seed[15].length,
+  0
+);
+
+export const policyLaneFor = networkPolicyLaneFor;
+export const questionFromSourceText = networkQuestionFromSourceText;
+export const explicitOptionLabels = networkExplicitOptionLabels;
+
+export const NetworkControlCapabilities: readonly NetworkControlCapability[] = NetworkControlCapabilitySeeds.map(
+  (seed) =>
+    NetworkControlCapabilitySchema.parse({
+      capabilityId: NetworkControlCapabilityIdSchema.parse(seed[0]),
+      state: capabilityStateFromSourceState(seed[1]),
+      sourceState: seed[1],
+      proof: seed[2],
+      affectsSettings: seed[3].map((settingId) => NetworkControlSettingIdSchema.parse(settingId)),
+    })
+);
+
+export const BaselineNetworkControlCatalog: NetworkControlCatalog = NetworkControlCatalogSchema.parse({
+  schemaVersion: ParentContractSchemaVersion.V0_6,
+  catalogId: NetworkControlCatalogIdSchema.parse('network-control-catalog-v1'),
+  sidePanelCategory: 'network',
+  sourceDocuments: [...NetworkControlCatalogSourceDocuments],
+  settingCount: NetworkControlCatalogSettingSeeds.length,
+  acceptedOptionCount: networkControlCatalogAcceptedOptionCountFromSeeds(NetworkControlCatalogSettingSeeds),
+  targetScopeOptions: NetworkControlTargetScopeOptions,
+  effectModeOptions: NetworkControlEffectModeOptions,
+  tabs: buildTabs(NetworkControlCatalogSettingSeeds),
+});

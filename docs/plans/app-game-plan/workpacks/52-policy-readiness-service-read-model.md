@@ -54,14 +54,14 @@ rows before any policy evaluator or adapter path is allowed to consume it.
 
 ## DONE Checklist
 
-- [x] Hub lock covers the exact implementation, docs, proof, and validation
+- [ ] Hub lock covers the exact implementation, docs, proof, and validation
       paths.
-- [x] Existing app/game boundary read-model and service-store source inspected.
-- [x] TypeScript contract/parser rejects wrong events, invalid JSON, invalid
+- [ ] Existing app/game boundary read-model and service-store source inspected.
+- [ ] TypeScript contract/parser rejects wrong events, invalid JSON, invalid
       payloads, and `adapterDispatchClaimed=true`.
-- [x] Rust protocol DTO serializes readiness rows and keeps
+- [ ] Rust protocol DTO serializes readiness rows and keeps
       `adapterDispatchClaimed=false`.
-- [x] Agent-service WebSocket command reports readiness from the real app/game
+- [ ] Agent-service WebSocket command reports readiness from the real app/game
       activity-store read model.
-- [x] Proof pack records no portal UI, no product checklist change, no policy
+- [ ] Proof pack records no portal UI, no product checklist change, no policy
       execution, no adapter dispatch, and no platform support claim.

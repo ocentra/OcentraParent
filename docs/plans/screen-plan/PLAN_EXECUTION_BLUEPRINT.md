@@ -1,92 +1,56 @@
-# Screen Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `screen-plan`
+> Doc: `Screen Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: screen capture, screen analysis, enforcement, or PR readiness.
 
-Make capture/storage/inference path explicit with retention safety and policy handoff proof.
+<!-- /agent-capsule -->
 
-## Slice 01 � Capture Permission and Custody
+# Screen Plan Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- Permission gating and raw artifact custody are explicit and test-covered.
+Screen evidence is high-risk. Do not claim capture, analysis, retention, or enforcement readiness from screenshots, UI mockups, or local-only fixtures alone.
 
-### Tests
+Use this loop:
 
-- `screen.capture.permission-authn`
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
 
-### Proof
+## Deterministic proof root
 
-- `docs/proof/screen-plan/slice-01-capture-custody.md`
+```text
+output/screen-plan-proof/<workpack-file-stem>/
+```
 
-## Slice 02 � OCR and Redaction
+## Focused commands
 
-### Acceptance
+```bash
+npm run build --workspace @ocentra-parent/screen-domain
+npm run test --workspace @ocentra-parent/screen-domain
+cargo test -p ocentra-parent-agent-protocol screen
+cargo test -p ocentra-parent-agent-service screen
+npm run test --workspace @ocentra-parent/portal -- screen
+npm run lint:architecture -- --files packages/screen-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/screen-plan
+```
 
-- OCR/VLM outputs pass schema checks and do not leak private text.
+If a command/test path does not exist, record the blocker and keep rows open.
 
-### Tests
+## Universal proof files
 
-- `screen.ocr.output-invariants`
-- `screen.storage.redaction`
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
 
-### Proof
+## No-claim boundaries
 
-- `docs/proof/screen-plan/slice-02-ocr-redaction.md`
-
-## Slice 03 � Retention, Deletion, and Read-Model
-
-### Acceptance
-
-- Deletion and retention tombstones are proven in read-model and journal.
-
-### Tests
-
-- `screen.storage.retention-tombstone`
-- `screen.read-model.replay-ordering`
-
-### Proof
-
-- `docs/proof/screen-plan/slice-03-retention-journal.md`
-
-## Slice 04 � Integration to Policy and Alerts
-
-### Acceptance
-
-- Handoff to downstream policy/audit is deterministic and non-authoritative from AI layer.
-
-### Tests
-
-- `screen.policy-handoff.state-machine`
-
-### Proof
-
-- `docs/proof/screen-plan/slice-04-policy-handoff.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/screen-plan/workpacks/01-source-index-and-doc-reconciliation.md
-- Slice 02: docs/plans/screen-plan/workpacks/02-current-screen-snapshot-and-gap-map.md
-- Slice 03: docs/plans/screen-plan/workpacks/03-contract-boundary-and-effect-schemas.md
-- Slice 04: docs/plans/screen-plan/workpacks/04-parent-opt-in-settings-contract.md
-
-## PR-ready gate
-
-- No screen claim with unproven deletion or custody behavior.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: capture/session schema checks
-- Integration: custody, deletion, and handoff plumbing
-- E2E: child-parent visibility and consent branches
-- Security: permission, auth lifecycle, replay ordering
-- Non-functional: event sequencing and retention timing
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+Do not claim raw image storage, content analysis, local AI readiness, cloud processing, deletion/retention, remote view, or enforcement readiness unless the selected proof root proves the claim and custody/privacy states are explicit.

@@ -1,42 +1,39 @@
-use ocentra_parent_agent_protocol::{
-    constants::{
-        v08_browser_domain_adapter_proof as browser_proof,
-        v08_cross_platform_enforcement_capability_proof as cross_proof,
-        v08_os_adapter_product_proof as os_proof,
-    },
-    V08BrowserDomainAdapterProofReadModel, V08CrossPlatformEnforcementCapabilityProofReadModel,
-    V08OsAdapterProductProofReadModel,
-};
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofReadModel;
+
+use super::ProofEntryId;
 
 pub(super) fn expect_cross(
     read_model: &V08CrossPlatformEnforcementCapabilityProofReadModel,
-    proof_entry_id: &'static str,
+    proof_entry_id: ProofEntryId,
 ) {
     read_model
         .entries
         .iter()
-        .find(|entry| entry.proof_entry_id == proof_entry_id)
-        .expect(cross_proof::READ_MODEL_ID);
+        .find(|entry| entry.proof_entry_id == proof_entry_id.0)
+        .expect_value(proof_entry_id.0);
 }
 
 pub(super) fn expect_browser(
     read_model: &V08BrowserDomainAdapterProofReadModel,
-    proof_entry_id: &'static str,
+    proof_entry_id: ProofEntryId,
 ) {
     read_model
         .entries
         .iter()
-        .find(|entry| entry.proof_entry_id == proof_entry_id)
-        .expect(browser_proof::READ_MODEL_ID);
+        .find(|entry| entry.proof_entry_id == proof_entry_id.0)
+        .expect_value(proof_entry_id.0);
 }
 
 pub(super) fn expect_os(
     read_model: &V08OsAdapterProductProofReadModel,
-    proof_entry_id: &'static str,
+    proof_entry_id: ProofEntryId,
 ) {
     read_model
         .entries
         .iter()
-        .find(|entry| entry.proof_entry_id == proof_entry_id)
-        .expect(os_proof::READ_MODEL_ID);
+        .find(|entry| entry.proof_entry_id == proof_entry_id.0)
+        .expect_value(proof_entry_id.0);
 }

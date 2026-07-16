@@ -62,14 +62,14 @@ delivery/runtime support.
 
 ## DONE Checklist
 
-- [x] Hub lock covers bridge source/test, proof harness, proof roots, product
+- [ ] Hub lock covers bridge source/test, proof harness, proof roots, product
       docs, and workpack docs.
-- [x] Existing app/game notification intent contract and notification local
+- [ ] Existing app/game notification intent contract and notification local
       outbox adapter proof inspected and reused.
-- [x] Eligible app/game notification intents become existing local outbox
+- [ ] Eligible app/game notification intents become existing local outbox
       records and round-trip through JSONL parsing.
-- [x] Manual-required and unavailable app/game notification intents do not
+- [ ] Manual-required and unavailable app/game notification intents do not
       queue delivery records.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no
       scheduler runtime, no parent UI, no child delivery, no policy execution,
       no adapter dispatch, no broad blocking, and no platform support claim.

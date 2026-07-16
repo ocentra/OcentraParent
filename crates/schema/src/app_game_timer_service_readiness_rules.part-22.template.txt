@@ -1,0 +1,30 @@
+    readModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedByCompilerDecision);
+
+export const appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateForHandoffGenerated = (
+  handoffState: TimerServiceReadinessHandoffStateValue
+): TimerServiceReadinessReadModelStateValue => {
+  if (
+    handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.ServiceReadApiProofRequired
+  ) {
+    return AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.ServiceReadModelProofRequired;
+  }
+
+  if (
+    handoffState === AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.BlockedBySourceFreshness
+  ) {
+    return AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedBySourceFreshness;
+  }
+
+  return AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedByCompilerDecision;
+};
+
+export const countAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelRowsGenerated = (
+  rows: readonly TimerServiceReadinessReadModelRowLike[]
+) => ({
+  serviceReadModelProofRequiredCount: rows.filter(
+    (row) =>
+      row.serviceReadinessReadModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.ServiceReadModelProofRequired
+  ).length,

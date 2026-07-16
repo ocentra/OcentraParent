@@ -43,13 +43,20 @@ perform scoped process action where proved.
 ## Acceptance And Proof
 
 Unmanaged browser tests fail if exact URL action is inferred from process or
-network metadata. Current proof lives in
-`packages/parent-domain/tests/v0-8-browser-enforcement-timer-recovery-proof.test.ts`
+network metadata. Current proof runs:
+`npm run test --workspace @ocentra-parent/enforcement-domain -- v0-8-browser-enforcement-timer-recovery-proof`
+and `node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`.
+Supporting proof surfaces live in
+`packages/enforcement-domain/tests/unit/v0-8-browser-enforcement-timer-recovery-proof.test.ts`
+and `scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`.
+Current artifacts live under
+`test-results/windows-managed-unmanaged-browser-enforcement-proof/`,
+`output/v0-8-enforcement-control-plan-proof/07-unmanaged-browser-fallback/`,
 and
-`scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`; latest
-evidence rows include report-only, parent-review, terminate-process,
-relaunch-managed manual-required, degraded, unavailable, and exact
-URL/tab/title/content not-claimed states.
+`docs/proof/v0-8-enforcement-control-plan/slice-01-unmanaged-browser-fallback.md`.
+Latest evidence rows include process-identity-required rejection, report-only,
+warn-child, parent-review, terminate-process, relaunch-managed manual-required,
+degraded, unavailable, and exact URL/tab/title/content not-claimed states.
 
 ## Parallel Ownership Notes
 

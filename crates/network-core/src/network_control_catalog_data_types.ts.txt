@@ -1,0 +1,36 @@
+
+export type NetworkControlCatalogOptionSeed =
+  | string
+  | {
+      readonly value: string;
+      readonly label: string;
+      readonly meaning?: string;
+    };
+
+export type NetworkControlCatalogDefaultValue = string | number | boolean | readonly string[] | null;
+
+export type NetworkControlCatalogSettingSeed = readonly [
+  sourceDocument: string,
+  sectionId: string,
+  sectionTitle: string,
+  sectionOrder: number,
+  groupId: string,
+  groupTitle: string,
+  groupOrder: number,
+  settingId: string,
+  sourceOrder: number,
+  sourceLine: number,
+  sourceText: string,
+  controlKind: string | null,
+  uiQuestionText: string | null,
+  writesTo: string | null,
+  defaultValue: NetworkControlCatalogDefaultValue,
+  options: readonly NetworkControlCatalogOptionSeed[],
+];
+
+export type NetworkControlCapabilitySeed = readonly [
+  capabilityId: string,
+  state: string,
+  proof: string,
+  affectsSettings: readonly string[],
+];

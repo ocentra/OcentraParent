@@ -1,25 +1,27 @@
 import type { CSSProperties, ReactElement } from 'react';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
-  PortalConnectionState,
-  PortalDom,
-  PortalFrameTuner,
-  PortalRouteGroup,
-  PortalSidebarRouteDescriptors,
-  PortalText,
-  PortalTextToken,
-  type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
-  type PortalRouteDescriptor,
-} from '@ocentra-parent/portal-domain/contracts';
+  PortalRouteDescriptors as ParentPortalRouteDescriptors,
+  PortalRouteGroup as ParentPortalRouteGroup,
+} from '@ocentra-parent/portal-domain/routes';
+import {
+  ParentBridgeConnectionState,
+  ParentRouteGroup,
+  ParentRouteMetadata,
+  ParentSidebarRouteGroups,
+  parentRouteHashPath,
+  type ParentRouteGroupId,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
-import { routeDescriptor } from './portal-route-descriptor';
-import {
-  frameContentStyle,
-  frameContentTarget,
-  frameHostClassName,
-  type PortalFrameLayout,
-} from './portal-frame-layout';
+import type { PortalRouteDescriptor } from '@ocentra-parent/portal-domain/routes';
+import { frameContentStyle, frameHostClassName } from './portal-frame-layout-style';
+import { frameContentTarget } from './portal-frame-layout-state';
+import type { PortalFrameLayout } from './portal-frame-layout-types';
 import type { PortalRuntimeState } from './portal-state';
 
 export function PortalSidebar({
@@ -30,10 +32,10 @@ export function PortalSidebar({
 }: {
   readonly actions: PortalRenderActions;
   readonly frameLayout: PortalFrameLayout;
-  readonly route: PortalRouteValue;
+  readonly route: ParentRouteId;
   readonly state: PortalRuntimeState;
 }): ReactElement {
-  const activeGroup = routeDescriptor(route).group;
+  const activeGroup = ParentRouteMetadata[route].group;
   const sideTopContent = frameContentTarget(frameLayout, PortalFrameTuner.FrameTarget.SideTop);
   const sideBottomContent = frameContentTarget(frameLayout, PortalFrameTuner.FrameTarget.SideBottom);
   return (
@@ -46,9 +48,9 @@ export function PortalSidebar({
         <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.TargetSideTop} controls={frameLayout.sideTop} />
         <PortalFrameBoundsOverlay content={sideTopContent} />
         <nav className={PortalDom.Classes.Routes} role={PortalDom.Attributes.TabList}>
-          <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Monitor} />
-          <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Guide} />
-          <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Operate} />
+          {ParentSidebarRouteGroups.map((group) => (
+            <RouteGroup activeGroup={activeGroup} activeRoute={route} group={group} key={group} />
+          ))}
         </nav>
       </section>
       <section
@@ -69,25 +71,39 @@ function RouteGroup({
   activeRoute,
   group,
 }: {
-  readonly activeGroup: PortalDisplayText;
-  readonly activeRoute: PortalRouteValue;
-  readonly group: PortalDisplayText;
+  readonly activeGroup: ParentRouteGroupId;
+  readonly activeRoute: ParentRouteId;
+  readonly group: ParentRouteGroupId;
 }): ReactElement {
+  const label = parentRouteGroupLabel(group);
   return (
     <details className={PortalDom.Classes.RouteGroup} open={group === activeGroup}>
-      <summary className={PortalDom.Classes.RouteGroupLabel}>{group}</summary>
-      {PortalSidebarRouteDescriptors.filter((candidate) => candidate.group === group).map((descriptor) => (
+      <summary className={PortalDom.Classes.RouteGroupLabel}>{label}</summary>
+      {ParentPortalRouteDescriptors.filter((candidate) => candidate.group === group).map((descriptor) => (
         <RouteLink activeRoute={activeRoute} descriptor={descriptor} key={descriptor.route} />
       ))}
     </details>
   );
 }
 
+function parentRouteGroupLabel(group: ParentRouteGroupId): PortalDisplayText {
+  switch (group) {
+    case ParentRouteGroup.Monitor:
+      return ParentPortalRouteGroup.Monitor;
+    case ParentRouteGroup.Guide:
+      return ParentPortalRouteGroup.Guide;
+    case ParentRouteGroup.Operate:
+      return ParentPortalRouteGroup.Operate;
+    case ParentRouteGroup.DevTools:
+      return ParentPortalRouteGroup.DevTools;
+  }
+}
+
 function RouteLink({
   activeRoute,
   descriptor,
 }: {
-  readonly activeRoute: PortalRouteValue;
+  readonly activeRoute: ParentRouteId;
   readonly descriptor: PortalRouteDescriptor;
 }): ReactElement {
   const isActive = descriptor.route === activeRoute;
@@ -97,7 +113,7 @@ function RouteLink({
       aria-selected={isActive ? PortalDom.Attributes.True : PortalDom.Attributes.False}
       className={PortalDom.Classes.RouteLink}
       data-ocentra-parent-route-id={descriptor.route}
-      href={`${PortalDom.HashPrefix}${descriptor.route}`}
+      href={parentRouteHashPath(descriptor.route)}
       role={PortalDom.Attributes.Tab}
     >
       <span aria-hidden={true} className={PortalDom.Classes.RouteLinkFrame} />
@@ -133,7 +149,7 @@ function SidebarStatus({
           onClick={actions.reconnect}
           type={PortalDom.ButtonType.Button}
         >
-          {PortalText.Resolve(PortalTextToken.Reconnect)}
+          {resolvePortalDevText(PortalDevTextToken.Reconnect)}
         </button>
       </div>
     </div>
@@ -141,8 +157,8 @@ function SidebarStatus({
 }
 
 function connectionStatus(state: PortalRuntimeState): PortalDisplayText {
-  if (state.connectionState === PortalConnectionState.Connected) {
-    return PortalText.Resolve(PortalTextToken.Connected);
+  if (state.connectionState === ParentBridgeConnectionState.Connected) {
+    return resolvePortalDevText(PortalDevTextToken.Connected);
   }
-  return PortalText.Resolve(PortalTextToken.Unavailable);
+  return resolvePortalDevText(PortalDevTextToken.PendingServiceReadModel);
 }

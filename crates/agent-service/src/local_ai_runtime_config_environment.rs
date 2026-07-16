@@ -7,7 +7,7 @@ use crate::{
     local_ai_runtime_config_parts::{LocalAiRuntimeConfigParts, LocalAiRuntimeModelConfig},
     local_ai_runtime_config_values::{
         env_flag, env_llama_release_tag, env_local_ai_model_id, env_path, env_u32, env_u64,
-        env_value,
+        env_value, LocalAiRuntimeEnvVar, LocalAiRuntimePath, LocalAiRuntimeText,
     },
     local_ai_runtime_install_plan::{
         default_install_plan_from_environment, LocalAiRequiredArtifactStatus,
@@ -15,24 +15,37 @@ use crate::{
 };
 
 pub(crate) fn runtime_config_from_environment() -> LocalAiRuntimeConfigSnapshot {
-    let release_tag = env_llama_release_tag(constants::env_var::LOCAL_AI_LLAMA_CPP_RELEASE_TAG);
-    let model_id = env_local_ai_model_id(constants::env_var::LOCAL_AI_MODEL_ID);
+    let release_tag = env_llama_release_tag(LocalAiRuntimeEnvVar(
+        constants::env_var::LOCAL_AI_LLAMA_CPP_RELEASE_TAG,
+    ));
+    let model_id =
+        env_local_ai_model_id(LocalAiRuntimeEnvVar(constants::env_var::LOCAL_AI_MODEL_ID));
     let acceleration = LocalAiRuntimeAccelerationConfig::from_environment();
-    let execution_enabled = env_flag(constants::env_var::LOCAL_AI_EXECUTION_ENABLED);
-    let install_plan = default_install_plan_from_environment(&release_tag, &acceleration);
+    let execution_enabled = env_flag(LocalAiRuntimeEnvVar(
+        constants::env_var::LOCAL_AI_EXECUTION_ENABLED,
+    ));
+    let install_plan = default_install_plan_from_environment(release_tag.0.as_str(), &acceleration);
     if let Some(plan) = install_plan.as_ref() {
         if plan.runtime_status != LocalAiRequiredArtifactStatus::Unsupported {
             let _ = plan.ensure_cache_directories();
         }
     }
-    let runtime_binary = env_path(constants::env_var::LOCAL_AI_RUNTIME_BINARY).or_else(|| {
+    let runtime_binary = env_path(LocalAiRuntimeEnvVar(
+        constants::env_var::LOCAL_AI_RUNTIME_BINARY,
+    ))
+    .map(|path| path.0)
+    .or_else(|| {
         install_plan
             .as_ref()
             .and_then(|plan| plan.runtime.as_ref())
             .map(|runtime| runtime.binary_path.clone())
     });
     let known_model = known_model_for_id(&model_id);
-    let model_file = env_path(constants::env_var::LOCAL_AI_MODEL_FILE).or_else(|| {
+    let model_file = env_path(LocalAiRuntimeEnvVar(
+        constants::env_var::LOCAL_AI_MODEL_FILE,
+    ))
+    .map(|path| path.0)
+    .or_else(|| {
         if execution_enabled && known_model.is_some() {
             install_plan
                 .as_ref()
@@ -43,14 +56,14 @@ pub(crate) fn runtime_config_from_environment() -> LocalAiRuntimeConfigSnapshot 
     });
     LocalAiRuntimeConfigSnapshot::from_config_parts(LocalAiRuntimeConfigParts {
         runtime_binary,
-        model: runtime_model_config(model_id, model_file),
+        model: runtime_model_config(model_id, model_file.map(LocalAiRuntimePath)),
         execution_enabled,
         generation_timeout_ms: env_u64(
-            constants::env_var::LOCAL_AI_GENERATION_TIMEOUT_MS,
+            LocalAiRuntimeEnvVar(constants::env_var::LOCAL_AI_GENERATION_TIMEOUT_MS),
             constants::local_ai_runtime::DEFAULT_GENERATION_TIMEOUT_MS,
         ),
         generation_max_tokens: env_u32(
-            constants::env_var::LOCAL_AI_GENERATION_MAX_TOKENS,
+            LocalAiRuntimeEnvVar(constants::env_var::LOCAL_AI_GENERATION_MAX_TOKENS),
             constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
         ),
     })
@@ -58,15 +71,21 @@ pub(crate) fn runtime_config_from_environment() -> LocalAiRuntimeConfigSnapshot 
 }
 
 fn runtime_model_config(
-    model_id: String,
-    model_file: Option<std::path::PathBuf>,
+    model_id: LocalAiRuntimeText,
+    model_file: Option<LocalAiRuntimePath>,
 ) -> LocalAiRuntimeModelConfig {
     let known_model = known_model_for_id(&model_id);
     LocalAiRuntimeModelConfig {
-        model_id,
-        model_file,
-        artifact_ref: env_value(constants::env_var::LOCAL_AI_MODEL_ARTIFACT_REF),
-        manifest_ref: env_value(constants::env_var::LOCAL_AI_MODEL_MANIFEST_REF),
+        model_id: model_id.0,
+        model_file: model_file.map(|path| path.0),
+        artifact_ref: env_value(LocalAiRuntimeEnvVar(
+            constants::env_var::LOCAL_AI_MODEL_ARTIFACT_REF,
+        ))
+        .map(|value| value.0),
+        manifest_ref: env_value(LocalAiRuntimeEnvVar(
+            constants::env_var::LOCAL_AI_MODEL_MANIFEST_REF,
+        ))
+        .map(|value| value.0),
         default_artifact_ref: known_model
             .map(|model| model.artifact_ref)
             .unwrap_or(constants::local_ai_runtime::MODEL_REFERENCE_LOCAL_GGUF_CONFIGURED),

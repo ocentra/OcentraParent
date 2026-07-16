@@ -1,39 +1,88 @@
 # Remote Access Plan State
 
-Status: first-pass plan created because remote desktop/control and remote live view were scattered across screen, LAN, architecture, and roadmap docs.
+Status: execution-grade live-view-first plan. Standing paired access is the current model; remote control is deferred to a later slice.
 
-Research status: incomplete. This plan requires a full follow-up research pass against existing screen capture, LAN transport, portal remote routes, local service capabilities, RustDesk comparison docs, and Sujan's privacy/control decisions before implementation claims.
+Research status: current access model defined. This plan still needs focused proof work against screen capture, LAN transport, portal remote routes, local service capabilities, and RustDesk comparison docs before implementation claims, but repeated permission prompts are not part of the model.
 
-Current truth:
+## Current ownership interpretation
+
+```text
+remote-access-plan:
+  Remote live-view capability authority, standing grant semantics, pairing/revocation/remove-device lifecycle, relay session semantics, abuse controls, and proof route.
+
+screen-plan:
+  Capture primitives, protected-surface behavior, screenshot custody, local screen retention settings, and screen-specific disclosure.
+
+lan-plan:
+  Local pairing, LAN transport, local peer discovery, and LAN-only proof.
+
+account-identity-family-plan:
+  Account, household, role, session, parent actor, selected-device, and authority proof.
+
+device-trust-bootstrap-plan:
+  Parent presence proof, trusted-device bootstrap, and step-up gating for remote grants.
+
+data-custody-storage-plan:
+  Retention, export, deletion, privacy, and custody for remote artifacts or diagnostics.
+
+portal-ux-household-surfaces-plan:
+  Rendered remote state, parent/child visible status, and UI proof once remote read models exist.
+
+eventing-plan:
+  Reusable idempotency, replay, journal, request/response, and audit mechanics.
+```
+
+## Current truth
 
 - `screen-plan` can own capture primitives, but not the remote session product.
 - `lan-plan` can own local transport, but not relay-backed remote access.
-- Remote input/control is higher risk than remote viewing and must have separate authority, proof, and failure states.
-- Remote access requires account/household/device authority before any session is opened.
+- Initial pairing creates standing parent access until revoke or device removal.
+- Remote access requires account/household/device authority before pairing is opened.
+- Remote control is deferred; the current pass only proves live view and standing access.
+- Relay availability is not permission to retain raw screen/input/child-private data.
+- Support/admin remote access requires parent-visible grant and audit; no hidden support tunnel is in scope.
+
+## Current coupling risks
+
+```text
+- Local screen proof is not remote access proof.
+- LAN pairing proof is not relay-backed remote access proof.
+- Relay route existence is not remote readiness.
+- UI-only proof is not remote product proof.
+- Live-view proof is not remote input/control proof.
+- Standing access without revoke/remove-device proof is unsafe.
+- Reconnect cannot resurrect revoked or removed grants.
+- Relay diagnostics must not retain raw screen/input/private payloads by default.
+```
+
+## Current proof interpretation
+
+```text
+output/remote-access-plan-proof/<workpack>/ is the deterministic proof root.
+Remote control WP03 is deferred and must not be consumed by current live-view readiness claims.
+Runtime rows remain open until selected code, tests, negative cases, redacted diagnostics, custody notes, rollback/teardown notes, validation logs, and proof bundles exist.
+```
 
 Open gaps:
 
-- No remote capability grant model.
-- No remote session lifecycle with consent, expiry, revocation, and audit.
+- No remote pairing/access lifecycle with standing authority, revoke, removal, and audit.
 - No relay availability/fallback state machine.
-- No proof matrix for remote viewing versus remote control.
+- No proof matrix for live view and standing access.
 - No retention/delete/export boundary for remote artifacts.
+- No child-visible disclosure state proof.
+- No relay abuse/load/replay/cross-household proof.
 
-## HID Execution Guard (added 2026-06-12)
+## HID Execution Guard
 
 - Scope and completion source:
   - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
+  - use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
   - do not mark this plan complete from checklist deltas alone.
 - Before any checked update, attach:
-  - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under docs/proof/remote-access-plan/.
-- Required proof manifest names:
-  - docs/proof/remote-access-plan/slice-01-\*.md
-  - docs/proof/remote-access-plan/slice-02-\*.md
-  - docs/proof/remote-access-plan/slice-03-\*.md
-  - each proof file must include commands, pass/fail,
-    negative-cases, and manual-required notes.
-- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
+  - a real test run log or explicit known blocker from the assigned implementation boundary,
+  - a proof manifest under `output/remote-access-plan-proof/<workpack>/`.
+- Required proof must include commands, pass/fail, negative cases, manual-required notes, redaction/custody notes, and no-control no-claim for the current live-view pass.
+- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, revocation/remove-device, relay degraded-state, custody, abuse, and rollback/teardown proofs are present for the assigned slice. No PR-ready claim may imply control in this pass.
 
 ## HID execution blueprint
 

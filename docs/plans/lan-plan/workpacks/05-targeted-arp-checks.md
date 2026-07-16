@@ -21,9 +21,14 @@ Sources: [20-step plan](../v0-9-lan-discovery-20-step-plan.md),
 
 ## Where We Are
 
-Current proof can observe neighbor data, but targeted host refresh is not yet a
-first-class scanner capability. The system needs a way to refresh known hosts
-without a full subnet sweep.
+Current branch truth: targeted ARP refresh now exists as a bounded Rust scanner
+capability for already-known or parent-selected IPv4 hosts. It is gated to the
+selected LAN interface and local subnet, records response/no-response/malformed
+ARP evidence without deleting device truth, rate-limits repeated refreshes per
+host/interface, persists scan-plan metadata through the agent-service scan
+history, and has focused packet-IO/deduplicated-reply coverage. It remains
+weak network evidence only and does not assign child profile or control
+authority.
 
 ## Where We Want To Be
 
@@ -33,19 +38,22 @@ without becoming broad scanning.
 
 ## Requirement Checklist
 
-- [ ] Add a targeted ARP request contract and service command path.
-- [ ] Restrict checks to selected LAN interfaces and local subnets.
-- [ ] Store response IP, MAC, interface, timestamp, and source as evidence.
-- [ ] Treat no-response as stale/presence evidence, not deletion.
-- [ ] Rate-limit repeated checks per host and interface.
+- [x] Add a targeted ARP request contract and service command path.
+- [x] Restrict checks to selected LAN interfaces and local subnets.
+- [x] Store response IP, MAC, interface, timestamp, and source as evidence.
+- [x] Treat no-response as stale/presence evidence, not deletion.
+- [x] Rate-limit repeated checks per host and interface.
 
 ## Acceptance And Proof
 
-- Tests cover valid response, no response, malformed response, off-subnet
-  rejection, ignored interface rejection, and repeated refresh throttling.
-- Existing device records update `lastSeen` when the same strong identity
-  returns.
-- No targeted ARP result can assign a child profile by itself.
+- Focused Rust tests cover selected-host targeting, valid response, no
+  response, malformed response, off-subnet rejection, ignored-interface
+  rejection, repeated refresh throttling, packet-IO reply handling, and
+  observation-budget/no-false-no-response behavior.
+- Existing device records remain unchanged by targeted ARP alone; the refresh
+  path records persisted scan metadata evidence but does not assign child
+  profile or control authority.
+- Proof note: `output/lan-plan-proof/05-targeted-arp-checks/00-validation-note.md`
 
 ## Parallel Ownership Notes
 

@@ -1,5 +1,9 @@
 # Ocentra Parent
 
+<p align="center">
+  <img src="docs/slides/slides.gif" alt="Ocentra Parent overview slides" width="900" />
+</p>
+
 Ocentra Parent is a local-first family-safety system from Ocentra. It is designed
 to run mostly inside the household: a child-device agent records real activity
 evidence locally, parent-owned apps and devices show visibility/control, and
@@ -11,7 +15,13 @@ truth for child activity data.
 
 ## Contents
 
+- [Important Capability And Data Notice](#important-capability-and-data-notice)
 - [What This App Is](#what-this-app-is)
+- [What Problem We Are Solving](#what-problem-we-are-solving)
+- [Why Existing Approaches Are Not Enough](#why-existing-approaches-are-not-enough)
+- [What Ocentra Offers](#what-ocentra-offers)
+- [Your House, Your Rules](#your-house-your-rules)
+- [Parent Control, Child Trust, And Transparency](#parent-control-child-trust-and-transparency)
 - [Why Ocentra](#why-ocentra)
 - [Product Capability Contract](#product-capability-contract)
 - [Data Custody Rule](#data-custody-rule)
@@ -19,13 +29,50 @@ truth for child activity data.
 - [Remote Parent Access](#remote-parent-access)
 - [Security And Privacy Model](#security-and-privacy-model)
 - [Current Repository State](#current-repository-state)
+- [Repo Navigation](#repo-navigation)
 - [Important Docs](#important-docs)
-- [Commands](#commands)
-- [Release Scaffold](#release-scaffold)
-- [Local Dev Loop](#local-dev-loop)
-- [LAN Dev Loop](#lan-dev-loop)
+- [Engineering Principles](#engineering-principles)
+- [Current Shape](#current-shape)
+- [Transparency And Commercial Use Notice](#transparency-and-commercial-use-notice)
+
+## Important Capability And Data Notice
+
+> [!IMPORTANT]
+> Ocentra Parent is a powerful household safety tool. When enabled by a parent or
+> guardian, the child-device agent can process sensitive device signals such as
+> location/device status, browser activity, app/game sessions, network metadata,
+> screen-analysis summaries, policy/enforcement state, and audit/proof records.
+> It is designed to be visible, typed, parent-controlled, and proof-gated, not a
+> hidden surveillance system. Install and configure it only when you understand
+> the enabled capabilities, household rules, child disclosures, and applicable
+> consent or legal requirements.
+
+> [!CAUTION]
+> Do not use Ocentra Parent for unauthorized monitoring, access, control, or
+> invasion of privacy. The project is intended for legitimate parent/guardian
+> administration of household devices and must be used within the law and the
+> rules of the devices, accounts, schools, and platforms involved.
+
+> [!IMPORTANT]
+> By default, Ocentra does not collect, sell, host, or retain family activity
+> records. Evidence, configuration, reports, proof records, and parent-owned
+> exports are stored locally or in a parent-selected destination. The product
+> design requires encrypted storage and authenticated parent/child-device access;
+> Ocentra-hosted services are not the default custody holder and do not receive a
+> default copy of the family data. If Ocentra never receives the data or keys, it
+> cannot restore them. Parents are responsible for any configured storage
+> destination, backup, retention, access control, and deletion policy.
+
+Read the detailed rules in [Data Custody And Local-First Expectations](docs/expectations/data-custody.md),
+[Security And Privacy Model](#security-and-privacy-model), and
+[Product Constitution](docs/product-constitution.md).
 
 ## What This App Is
+
+Ocentra Parent is a parent-controlled local agent, parent portal, and policy
+system for household devices. It is built to observe real device activity where
+that activity actually happens: inside the device, not only from a cloud account,
+a platform profile, or an after-the-fact dashboard.
 
 The product exists for a real parent problem: children live inside browsers,
 games, chats, short-form video, school apps, and social feeds, while parents
@@ -49,6 +96,103 @@ transparent capabilities, honest status, typed rules, local privacy boundaries,
 and auditable outcomes. Parents decide which observation modes, schedules,
 categories, time limits, report paths, and enforcement actions fit their child
 and household.
+
+## What Problem We Are Solving
+
+The internet is no longer a single browser window a parent can check. It is a
+mix of browsers, profiles, apps, games, chats, video feeds, school tools,
+notifications, VPNs, side-loaded clients, shared devices, and recommendation
+systems built to hold attention.
+
+Parents need more than a cloud dashboard that assumes the child uses the right
+account or profile. They need local, explainable, device-level visibility and
+control that can answer practical questions:
+
+- What app, site, game, screen, network, location, or policy state was actually
+  involved?
+- Which local record supports an alert, report, rule, block, approval, or action
+  result?
+- Is the source live, stale, unavailable, degraded, manual-required, or only a
+  scaffold?
+- Did the device enforce the parent rule, or only record a proof/checkpoint that
+  more work is required?
+
+## Why Existing Approaches Are Not Enough
+
+Many parental-control tools start outside the device: from a cloud account,
+phone ecosystem, browser profile, DNS setting, router rule, or platform policy.
+Those controls can help, but they often depend on assumptions that fail in real
+households:
+
+- the child stays inside the expected profile;
+- the platform correctly knows the child's age;
+- the browser, app, game, or video service cooperates;
+- the device does not have another account, local app, unmanaged browser, VPN,
+  hotspot, side-loaded client, or borrowed device path;
+- the parent sees enough context to distinguish homework, harmless use,
+  distraction, risky behavior, or actual danger.
+
+A platform age gate or government-level under-age ban can move pressure onto
+large platforms, but it cannot replace household-level supervision on the device
+itself. Real protection needs a local control point that can see the device state
+and enforce the parent's rules where the activity happens.
+
+## What Ocentra Offers
+
+Ocentra's intended difference is local-first, device-level, evidence-backed
+control:
+
+- **Inside-the-device guardrail:** The child agent runs locally, observes typed
+  device facts, and gives the parent a closer view than cloud-only dashboards.
+- **Evidence-backed decisions:** Alerts, reports, limits, approvals, and actions
+  should point to local records and clear source labels.
+- **Parent-owned rules:** Parents define schedules, limits, categories,
+  approvals, visibility modes, report paths, and enforcement choices.
+- **Local AI and policy:** AI assistance and deterministic rules are designed to
+  run close to the evidence instead of making Ocentra the default data holder.
+- **Honest status:** Unsupported, degraded, manual-required, scaffold-only, and
+  proof-only paths must be labeled instead of marketed as finished features.
+- **Parent-owned data custody:** Ocentra-hosted systems are for account, billing,
+  downloads, entitlement, updates, minimal notification routing, relay, and
+  optional stateless compile boundaries; they are not the default family-data
+  warehouse.
+
+## Your House, Your Rules
+
+> [!NOTE]
+> Ocentra's core motto is: **your house, your rules; your child, your
+> responsibility.** Governments, platforms, schools, and app stores can set broad
+> policies, but they cannot understand every household, child, schedule, device,
+> risk level, and parenting decision. Ocentra is built to give parents the local
+> tools to define and enforce their own rules, with visible status and evidence
+> instead of blind trust in a remote platform.
+
+A ban alone rarely solves the practical problem. It often moves responsibility
+from one place to another: from government to platform, from platform to profile,
+from profile to device, and finally back to the parent when the child finds a
+path around it. Ocentra is built around the final control point: the device and
+the household rule.
+
+## Parent Control, Child Trust, And Transparency
+
+> [!NOTE]
+> Ocentra is intentionally capable, but capabilities should not all be enabled by
+> default. Parents choose the rules and features they need. Ocentra provides the
+> tools, typed controls, evidence labels, and safety boundaries; the household
+> decides what is appropriate.
+
+This is not about assuming a child is bad or untrustworthy. It is about not
+trusting the environment around them. Modern feeds, ads, games, notifications,
+shorts, reels, and recommendation systems are engineered to compete for
+attention. Young minds wander; adults do too. Screen-time discipline is not only
+about punishment or control. It is about helping the household build healthier
+boundaries around systems designed to be addictive.
+
+Ocentra endorses transparency between parent and child wherever safety allows.
+The goal is not secret control for its own sake. The goal is a parent-visible,
+child-aware, auditable control surface that protects the child from a noisy and
+aggressive digital environment while keeping family data out of Ocentra custody
+by default.
 
 ## Why Ocentra
 
@@ -101,6 +245,14 @@ live in:
   define what each feature must prove.
 - [Product Roadmap](docs/product-roadmap.md): milestone order from V0.1 through
   production hardening.
+
+Repo navigation and module ownership live in:
+
+- [Repo Mindmap](docs/REPO_MINDMAP.md): top-down path through the repository.
+- [Module Map](docs/MODULE_MAP.md): product area to module/plan ownership.
+- [Module README Coverage](docs/MODULE_README_COVERAGE.md): exact module README target set.
+- [Dependency Boundary Matrix](docs/DEPENDENCY_BOUNDARY_MATRIX.md): intended package/crate dependency boundaries.
+- [Event Flow Map](docs/EVENT_FLOW_MAP.md): event/request/read-model chain standard.
 
 User-facing product copy may describe the intended finished product. Repository
 status must still point back to the checklist and roadmap so "what we have" and
@@ -174,6 +326,10 @@ NDJSON is the append-only source of truth. SQLite is the default cross-platform
 query/index layer for time windows, joins, summaries, and reports. Local AI and
 policy evaluation happen after evidence is written or from a typed observation
 that will be written.
+
+For the full code-level flow from UI to TypeScript contracts, Rust protocol,
+service orchestration, runtime crates, eventing, read models, and reports, see
+[System Overview](docs/architecture/system-overview.md).
 
 ## Remote Parent Access
 
@@ -272,11 +428,15 @@ Security and privacy commitments:
 
 ## Current Repository State
 
-This repository is beyond the initial scaffold, but it is not yet a finished
-consumer parental-control product. The committed foundation includes workspace
-layout, domain boundaries, validation gates, Rust crate boundaries, local and
-LAN dev APIs, a Vite development portal, MSI/update scaffolding, package-preview
-scaffolds for target platforms, dependency/security gates, and SBOM generation.
+> [!WARNING]
+> This repository is beyond the initial scaffold, but it is not a finished
+> consumer parental-control product. It is an active commercial-development
+> repository with substantial workspace layout, domain boundaries, validation
+> gates, Rust crate boundaries, local/LAN development APIs, a Vite development
+> portal, MSI/update scaffolding, package-preview scaffolds for target platforms,
+> dependency/security gates, and SBOM generation already present. Product
+> completion, platform parity, distribution, support, and some enforcement/mobile
+> claims remain proof-gated and under development.
 
 Implemented foundation:
 
@@ -315,7 +475,54 @@ Not product-complete yet:
 Use [Product Capability Checklist](docs/product-capability-checklist.md) for the
 current feature-by-feature status.
 
+## Repo Navigation
+
+This README is the product-facing front door. It keeps the parent/problem/product
+story in one place and routes deeper readers into the repo map, architecture,
+module boundaries, feature docs, expectation docs, plan routes, and proof records.
+
+```mermaid
+flowchart LR
+  Readme["README.md\nproduct front door"]
+  Start["docs/START_HERE.md\nshort orientation"]
+  Mindmap["docs/REPO_MINDMAP.md\nfull repo map"]
+  System["docs/architecture/system-overview.md\nend-to-end flow"]
+  Modules["apps / packages / crates\nmodule READMEs"]
+  Features["docs/feature-list.md\nfeature docs"]
+  Expectations["docs/feature-expectations.md\nexpectation docs"]
+  Plans["docs/PLAN_INDEX.md\nplan routes"]
+  Proof["checkpoints / output / test-results\nproof records"]
+
+  Readme --> Start --> Mindmap
+  Mindmap --> System
+  Mindmap --> Modules
+  Mindmap --> Features --> Expectations --> Plans --> Proof
+```
+
+Primary navigation paths:
+
+- [Start Here](docs/START_HERE.md): short human orientation route.
+- [Repo Mindmap](docs/REPO_MINDMAP.md): full visual map from README to architecture, modules, features, expectations, plans, and proof.
+- [System Overview](docs/architecture/system-overview.md): UI -> TypeScript contracts -> Rust protocol/service -> runtime -> journal/read model -> policy/action/report flow.
+- [Module Map](docs/MODULE_MAP.md): product area to app/package/crate/feature/plan ownership matrix.
+- [Module README Coverage](docs/MODULE_README_COVERAGE.md): repo-derived target list for app, package, and crate READMEs.
+- [Dependency Boundary Matrix](docs/DEPENDENCY_BOUNDARY_MATRIX.md): intended dependency direction and feature-to-feature communication rules.
+- [Event Flow Map](docs/EVENT_FLOW_MAP.md): command -> owner -> event/request -> consumer -> stored result -> read model/UI chain.
+
 ## Important Docs
+
+Primary navigation:
+
+- [Start Here](docs/START_HERE.md)
+- [Repo Mindmap](docs/REPO_MINDMAP.md)
+- [System Overview](docs/architecture/system-overview.md)
+- [Module Map](docs/MODULE_MAP.md)
+- [Module README Coverage](docs/MODULE_README_COVERAGE.md)
+- [Dependency Boundary Matrix](docs/DEPENDENCY_BOUNDARY_MATRIX.md)
+- [Event Flow Map](docs/EVENT_FLOW_MAP.md)
+- [Module README Standard](docs/MODULE_README_STANDARD.md)
+
+Product and feature truth:
 
 - [Product Roadmap](docs/product-roadmap.md)
 - [Product Constitution](docs/product-constitution.md)
@@ -362,170 +569,119 @@ current feature-by-feature status.
 
 ## Current Shape
 
+This repository is source-visible for transparency, so this section describes the
+source tree without treating the repository as an open-source distribution or a
+self-hosting guide. For module-to-plan ownership, see
+[Module Plan Map](docs/MODULE_PLAN_MAP.md). For exact README coverage targets,
+see [Module README Coverage](docs/MODULE_README_COVERAGE.md).
+
 ```text
-apps/
-  portal/          Vite dev portal for local and LAN agent visibility.
-  parent-desktop/  Tauri parent desktop shell candidate.
-  local-api/       Reserved TypeScript API boundary.
-packages/
-  schema-domain/          Shared Effect Schema helpers.
-  endpoint-domain/        Endpoint/path/header brand boundaries.
-  agent-protocol-domain/  WebSocket command/event contracts.
-  text-domain/            Schema-backed display text tokens.
-  portal-domain/          Portal route, DOM, nav, and service-state contracts.
-  parent-domain/          Family, policy, enforcement, AI, LAN, mobile, and control contracts.
-  activity-domain/        Capture, evidence, journal, query, browser, app/game, network, and screen contracts.
-  logging-domain/         Effect Schema operational logging contracts.
-crates/
-  agent-core/      Local runtime core and adapter helpers.
-  agent-protocol/  Rust protocol structs/constants matching shared contracts.
-  agent-service/   Rust local/LAN HTTP and WebSocket service.
-  agent-updater/   Update and maintenance binaries.
-scripts/
-  validation, dependency policy, platform packaging, smoke, and git hook guardrails.
-platforms/
-  android/      Android scaffold and future Android child-agent/parent-mobile proof.
-  ios/          iOS simulator scaffold and future entitlement/device proof.
-docs/
-  constitution, roadmap, capability checklist, expectations, architecture, and checkpoints.
+OcentraParent/
+  README.md                 Product-facing front door and transparency notice.
+  AGENTS.md                 Agent/doc routing entry point.
+  package.json              npm workspace root: apps/* and packages/*.
+  Cargo.toml                Rust workspace root: 31 crates, UNLICENSED.
+  docs/                     Product truth, expectations, features, plans, architecture, audits, route indexes.
+  .ocentra-ai/rules/        Repo-specific engineering and agent rules.
+  .github/                  CI, validation, release, and branch-protection workflows.
+  apps/                     Parent-facing app workspaces.
+    local-api/              TypeScript local API manifest/route metadata.
+    parent-desktop/         Tauri parent desktop shell candidate.
+    portal/                 Vite parent portal surface.
+  packages/                 TypeScript domain/contract workspaces.
+    activity-domain/        Activity, evidence projection, journal/query/read-model contracts.
+    agent-protocol-domain/  TypeScript command/event protocol boundary.
+    ai-domain/              Local AI, evaluator, provider, context, assistant contracts.
+    app-game-domain/        App/game identity, session, approval, and action-readiness contracts.
+    billing-domain/         Billing, entitlement, subscription, device-limit, support contracts.
+    browser-domain/         Browser URL/tab, managed/unmanaged, browser-control contracts.
+    capability-domain/      Capability, status, manual/degraded/unavailable state contracts.
+    child-runtime-domain/   Child runtime handoff, queue, dispatch, receipt contracts.
+    data-custody-domain/    Storage, retention, export, delete, sync-boundary contracts.
+    endpoint-domain/        Endpoint, path, header, query, and version constants.
+    enforcement-domain/     Action, adapter, integrity, rollback, and audit contracts.
+    event-domain/           Shared event/request/result envelope contracts.
+    evidence-domain/        Evidence ids, refs, source labels, and record primitives.
+    family-domain/          Household, profile, device role, and family identity contracts.
+    lan-domain/             LAN discovery, pairing, route, trust, lease, and role contracts.
+    logging-domain/         Structured logging, redaction, app/test/proof log contracts.
+    network-domain/         Network flow, domain, analyzer, and remote-delivery contracts.
+    notification-domain/    Notification intent, outbox, scheduler, provider, receipt contracts.
+    parent-domain/          Parent-facing product projections and cross-feature composition.
+    policy-domain/          Rules, schedules, budgets, overrides, and preview contracts.
+    portal-domain/          Portal route ids, panel ids, DOM ids, and dev-command descriptors.
+    production-domain/      Release, support, publication, package, production-readiness contracts.
+    remote-access-domain/   Remote route, session, relay/cache/storage, capability-fabric contracts.
+    schema-domain/          Canonical Effect Schema and brand foundation.
+    screen-domain/          Screen analysis, visibility, queue, retention, live-view contracts.
+    setup-domain/           Setup, provisioning, bootstrap, pairing, install/setup contracts.
+    text-domain/            Schema-backed display text tokens.
+    tracking-domain/        Location, geofence, device status, place, check-in contracts.
+  crates/                   Rust runtime, protocol, evidence, eventing, storage, and platform crates.
+    agent-core/             Shared local runtime helpers and reusable feature logic.
+    agent-protocol/         Rust protocol parity and wire constants.
+    agent-service/          Local/LAN service transport and orchestration.
+    agent-updater/          Update/package maintenance boundary.
+    app-core/               Shared app/runtime primitives.
+    app-game-core/          App/game runtime logic and proof-gated adapters.
+    billing-core/           Billing/entitlement runtime helpers.
+    browser-core/           Browser runtime logic and proof-gated adapters.
+    child-ai-core/          Child-local evaluator/provider runtime boundary.
+    child-enforcement-core/ Child action/adapters/integrity boundary.
+    child-notification-core/ Child notification handoff boundary.
+    child-policy-core/      Child policy evaluation and schedule/budget runtime boundary.
+    child-runtime/          Child runtime handoff, queue, dispatch, receipt, status boundary.
+    entitlement-core/       Entitlement and license state boundary.
+    family-identity-core/   Household/profile/device identity runtime boundary.
+    lan-core/               LAN discovery, route, pairing, and lease runtime boundary.
+    logging-core/           Rust logging/proof trace boundary.
+    network-core/           Network runtime/read-model/adapter boundary.
+    ocentra-eventing/       Event bus, request, journal, replay, proof primitives.
+    ocentra-evidence/       Evidence refs, record helpers, local record primitives.
+    ocentra-network-evidence/ Network metadata parser/replay helpers.
+    parent-runtime-core/    Parent runtime route/read-model helpers.
+    policy-control-core/    Policy control-plane runtime helpers.
+    provisioning-core/      Setup/provisioning/bootstrap runtime boundary.
+    remote-access-core/     Remote route/session/capability runtime boundary.
+    screen-ai-core/         Screen AI job/result/runtime boundary.
+    screen-capture-adapter/ Platform screen capture adapter boundary.
+    screen-core/            Screen record/read-model/runtime boundary.
+    screen-live-view-core/  Screen live-view session/capability boundary.
+    storage-custody-core/   Storage, export, delete, retention, sync runtime boundary.
+    tracking-core/          Tracking/location/geofence/read-model runtime boundary.
+  scripts/                  Internal validation, CI, release, proof, dev, ledger, and guardrail tooling.
+  platforms/                Android/iOS scaffold and future platform proof surfaces.
+  infra/                    Hosted/control-plane infrastructure where applicable.
+  output/                   Generated proof/output artifacts when present; not product truth by itself.
+  test-results/             Test/proof artifacts when present; route through checklist and feature docs.
 ```
 
-## Commands
+This tree is documentation for transparency. It does not grant permission to reuse the product source.
 
-```powershell
-npm install
-npm run hooks:install
-npm run validate
-```
+## Transparency And Commercial Use Notice
 
-Use `cmd /c npm ...` on Windows if PowerShell execution policy blocks npm shims.
+> [!IMPORTANT]
+> This repository is source-visible for product transparency. It is published so
+> families, reviewers, researchers, platforms, and safety/privacy readers can
+> understand what Ocentra Parent is intended to do, how it is designed to work,
+> where data custody boundaries sit, and where people can raise concerns or give
+> feedback.
 
-## Release Scaffold
+> [!CAUTION]
+> This repository is **not open source**. No GPL, MIT, Apache, or other open-source
+> license is granted. All code, architecture, product design, documentation,
+> names, workflows, proof systems, and implementation details remain proprietary
+> to Ocentra unless a separate written license says otherwise.
 
-Releases are part of the scaffold because the Windows agent needs a repeatable
-install/update path from the beginning.
+> [!CAUTION]
+> Reading this repository for transparency, review, or feedback is allowed. Reuse,
+> redistribution, repackaging, commercial use, or incorporation into another
+> product requires explicit written permission from Ocentra.
 
-```powershell
-cmd /c npm run release:version
-cmd /c npm run release:package:windows
-```
-
-Source pushes to `main` run the CI gate and build package-preview artifacts for
-Windows, Linux, macOS, Android, and iOS simulator, but they do not publish GitHub
-Releases. README-only, Markdown-only, and `docs/**` pushes are ignored by CI.
-
-Production releases happen from the `production` branch only. After `main` is
-green and the version is intentionally bumped, pushing/merging to `production`
-builds the signed Windows release, creates tag `v<version>`, and publishes
-GitHub Release assets. If the version tag already exists, the production
-workflow still runs its gates and package previews, then skips publishing.
-Package previews for Linux, macOS, Android, and iOS stay as CI artifacts until
-their signing/store/update paths are deliberately promoted.
-
-Package previews are not just archive builds. CI now performs install or launch
-smoke checks for each scaffolded platform: MSI install/uninstall on Windows, DEB
-install/remove on Linux, PKG payload validation on macOS, APK install/launch in
-Android emulator, and app install/launch in iOS simulator.
-
-Once a release exists, install on another Windows PC from an elevated PowerShell
-session:
-
-Latest Windows MSI download:
-
-https://github.com/ocentra/OcentraParent/releases/latest/download/ocentra-parent-agent-windows-x64-latest.msi
-
-That URL is intended for a future `family.ocentra.ca` download button. A browser
-click downloads the MSI; Windows still requires the parent to open it and approve
-the installer.
-
-Support/admin one-line install:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/ocentra/OcentraParent/releases/latest/download/install-ocentra-parent-agent-windows.ps1 | iex"
-```
-
-See [Release And Update Architecture](docs/architecture/release-update.md) for
-the updater boundary. The MSI installs the headless service under
-`%ProgramFiles%\Ocentra\Ocentra Parent Agent`, registers it as
-`OcentraParentAgent`, starts it on install, and gives Windows a normal
-uninstall/upgrade entry. It also installs `OcentraParentUpdater`, a separate
-signed-manifest updater service that checks GitHub Release metadata and runs
-quiet MSI upgrades.
-
-The production Windows update manifest requires
-`OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64`. Future platform signing secrets for
-Authenticode, macOS, Android store, and Apple store distribution are documented
-in the repo but are not required until those release paths are implemented.
-
-## Local Dev Loop
-
-Run the loopback-only stack:
-
-```powershell
-cmd /c npm run dev
-```
-
-Or run the pieces separately:
-
-```powershell
-cmd /c npm run dev:agent
-cmd /c npm run dev:portal
-```
-
-The portal connects to `ws://127.0.0.1:4477/api/dev/ws`, sends typed intent
-envelopes from `@ocentra-parent/agent-protocol-domain`, and validates returned
-events through Effect Schema. The Rust service still exposes
-`http://127.0.0.1:4477/api/dev/log-snapshot` as a plain HTTP smoke endpoint.
-
-Local development uses fixed Ocentra Parent ports:
-
-- Rust agent service: `127.0.0.1:4477`
-- Vite portal: `127.0.0.1:4478`
-
-Use `npm run dev`, `npm run dev:agent`, or `npm run dev:portal` so
-`scripts/dev/*` can reclaim only stale Ocentra Parent processes. Do not run the
-portal on generic Vite ports like `5173` or the Ocentra Games asset-editor port
-`5174`.
-
-Parallel worker lanes can override those defaults without rewriting commands:
-
-```powershell
-$env:OCENTRA_PARENT_AGENT_PORT = "4677"
-$env:OCENTRA_PARENT_PORTAL_PORT = "4678"
-cmd /c npm run dev
-```
-
-With those overrides, the portal opens at `http://127.0.0.1:4678/#/commands`
-and connects to `ws://127.0.0.1:4677/api/dev/ws`.
-
-## LAN Dev Loop
-
-Run the same scaffold over your local network:
-
-```powershell
-cmd /c npm run dev:lan
-```
-
-LAN mode keeps the same ports but binds both dev surfaces to the network:
-
-- Rust agent service bind: `0.0.0.0:4477` by default, or
-  `OCENTRA_PARENT_AGENT_PORT`
-- Vite portal bind: `0.0.0.0:4478` by default, or
-  `OCENTRA_PARENT_PORTAL_PORT`
-- Portal URL from another device: `http://<this-pc-lan-ip>:4478/#/commands` by
-  default
-- Agent WebSocket URL from the portal: `ws://<this-pc-lan-ip>:4477/api/dev/ws`
-  by default
-
-The managed scripts auto-detect the first non-internal IPv4 address. If Windows
-has multiple active network adapters, set the host explicitly:
-
-```powershell
-$env:OCENTRA_PARENT_LAN_HOST = "192.168.1.25"
-cmd /c npm run dev:lan
-```
-
-LAN mode is explicit because it exposes the agent to other devices on the
-network. The Rust service refuses non-loopback binds unless
-`OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED=true`, and browser origins are
-restricted through `OCENTRA_PARENT_AGENT_ALLOWED_ORIGINS`.
+> [!NOTE]
+> Build, self-host, and local-run instructions are intentionally not provided in
+> this public README. Product installation, support, and commercial access are
+> provided only through official Ocentra channels. Feedback about safety,
+> privacy, documentation, product behavior, or capability boundaries is welcome;
+> code contributions are not assumed accepted unless Ocentra explicitly requests
+> them under separate terms.

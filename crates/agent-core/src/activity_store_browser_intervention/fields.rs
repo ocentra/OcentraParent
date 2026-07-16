@@ -1,11 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel,
-    BrowserExactUrlClaimState, BrowserFamily, BrowserInterventionAction,
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserCustodyLabel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_intervention_values::{
+    BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
     BrowserInterventionDeliveryState, BrowserInterventionMechanism, BrowserInterventionOutcome,
-    BrowserInterventionTargetType, BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState,
-    BrowserUnmanagedEnforcementState, LogFieldValue, LogFields,
+    BrowserInterventionTargetType, BrowserUnmanagedDetectionState,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_unmanaged_enforcement::BrowserUnmanagedEnforcementState;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 pub(super) fn string_field(fields: &LogFields, key: &str) -> Option<String> {
     match fields.get(key) {

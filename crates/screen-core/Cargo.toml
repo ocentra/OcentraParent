@@ -1,0 +1,30 @@
+[package]
+name = "ocentra-screen-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-evidence = { path = "../ocentra-evidence" }
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-parent-screen-capture-adapter = { path = "../screen-capture-adapter" }
+serde = { version = "1.0.228", features = ["derive"] }
+
+[[test]]
+name = "contract_observation_intent"
+path = "tests/contract/observation_intent.rs"
+
+[[test]]
+name = "contract_screen_flow"
+path = "tests/contract/screen_flow.rs"
+
+[[test]]
+name = "unit_runtime_decision"
+path = "tests/unit/runtime_decision.rs"

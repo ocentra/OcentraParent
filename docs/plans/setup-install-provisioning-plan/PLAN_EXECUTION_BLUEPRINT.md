@@ -1,90 +1,165 @@
-# Setup + Install + Provisioning Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `setup-install-provisioning-plan`
+> Doc: `Setup Install Provisioning Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: implementation completion, installer readiness, deployed site, pairing readiness, or PR readiness.
 
-Create deterministic first-run flow from website to paired household-ready state with failure paths and manual recovery.
+<!-- /agent-capsule -->
 
-## Slice 01 � Website-to-Account Handoff
+# Setup Install Provisioning Plan Execution Blueprint
 
-### Acceptance
+## Execution order
 
-- Registration/login handoff into account/household identity is auditable.
+```text
+1. WP01 Family Web Info Site
+2. WP02 Registration Login Entry
+3. WP03 Parent Install Journey
+4. WP04 Child Install Permission Journey
+5. WP05 Pairing Readiness Recovery
+6. WP07 First-Run Setup UI And State Machine
+7. WP06 Rollout Proof And Route Gate
+```
 
-### Tests
+## Codex startup prompt
 
-- `setup.account-handoff.authn-authz`
+```text
+You are working in OcentraParent on setup-install-provisioning-plan.
+Read only:
+- docs/plans/setup-install-provisioning-plan/AGENTS.md
+- docs/plans/setup-install-provisioning-plan/PLAN_STATE.md
+- docs/plans/setup-install-provisioning-plan/NEXT_ACTIONS.md
+- docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md
+Then open exactly one assigned workpack.
+Do not read sibling plan folders unless the selected workpack names a handoff.
+Do not claim setup readiness from website-only, installer-only, UI-only, or pairing-only proof.
+Do not claim installer package/signing/update readiness without runtime-distribution proof.
+Do not claim account/session readiness without account-identity proof.
+```
 
-### Proof
+## Pre-edit note
 
-- `docs/proof/setup-install-provisioning-plan/slice-01-handoff.md`
+Before editing source or docs, write:
 
-## Slice 02 � First-Run State Machine
+```text
+Assigned workpack:
+Implementation slice:
+Expected source/doc files:
+Expected tests/proof files:
+Proof root:
+Adjacent handoffs that are read-only:
+No-claim boundaries:
+```
 
-### Acceptance
+## Source ownership map
 
-- Parent/device/permission lifecycle includes success, partial failure, and rollback branches.
+Likely owned docs/source paths for this plan:
 
-### Tests
+```text
+docs/plans/setup-install-provisioning-plan/**
+packages/family-domain/src/** only for setup state contract work named by workpack
+packages/parent-domain/src/** only for setup/readiness read-model rows named by workpack
+packages/portal-domain/src/** only for stable setup UI text/DOM ids named by workpack
+apps/portal/src/** only for selected first-run/setup surface work
+apps/portal/tests/** only for selected setup tests
+apps/portal/e2e/** only for selected setup proof
+scripts/test/** only for selected setup proof runner
+```
 
-- `setup.first-run.state-machine`
+Read-only or handoff-only paths:
 
-### Proof
+```text
+docs/plans/account-identity-family-plan/**
+docs/plans/parent-desktop-runtime-package-plan/**
+docs/plans/child-agent-runtime-distribution-plan/**
+docs/plans/device-trust-bootstrap-plan/**
+docs/plans/lan-plan/**
+docs/plans/portal-ux-household-surfaces-plan/**
+docs/plans/data-custody-storage-plan/**
+docs/plans/payment-subscription-plan/**
+docs/plans/policy-control-plane-plan/**
+```
 
-- `docs/proof/setup-install-provisioning-plan/slice-02-state-machine.md`
+Do not edit handoff plans unless the user explicitly assigns route-sync work.
 
-## Slice 03 � Platform Install Matrix
+## Research-backed architecture constraints
 
-### Acceptance
+```text
+Cloudflare Pages is acceptable for public family information site and static/dynamic page routing.
+Cloudflare Workers static assets are acceptable if the shared worker/control-plane route owns hosting.
+Public family pages cannot collect child activity data.
+Tauri/package signing/notarization/update/rollback belongs to runtime distribution plans.
+Android/iOS/macOS/Windows install claims need platform-owner proof before production-ready wording.
+```
 
-- Platform installers/install states are verified with smoke coverage.
+## Focused command policy
 
-### Tests
+Use relevant commands only:
 
-- `setup.platform.install.smoke`
+```bash
+npm run build --workspace @ocentra-parent/family-domain
+npm run build --workspace @ocentra-parent/portal-domain
+npm run test --workspace @ocentra-parent/portal -- setup
+npm run test:e2e --workspace @ocentra-parent/portal -- setup
+npm run lint:architecture -- --files docs/plans/setup-install-provisioning-plan packages/family-domain packages/portal-domain apps/portal
+```
 
-### Proof
+If a command or test path does not exist, record the missing location and keep the row open.
 
-- `docs/proof/setup-install-provisioning-plan/slice-03-platform-install.md`
+## Proof update rule
 
-## Slice 04 � Recovery and Manual States
+Each completed row needs:
 
-### Acceptance
+```text
+exact command
+exit code
+proof file path
+test/proof id
+negative case status
+remaining gaps/no-claim boundary
+```
 
-- Recovery/manual handoff path is explicit and tested.
+Proof roots are under:
 
-### Tests
+```text
+output/setup-install-provisioning-plan-proof/<workpack-id>/
+```
 
-- `setup.recovery.manual-fallback`
+Test result roots are under:
 
-### Proof
+```text
+test-results/setup-install-provisioning-plan-<workpack-id>/
+```
 
-- `docs/proof/setup-install-provisioning-plan/slice-04-recovery.md`
+## DONE / PR_READY criteria
 
-## Workpacks (execution lane)
+DONE for one workpack requires:
 
-### Slice-to-workpack binding
+```text
+source/docs/tests updated
+focused commands run or blocker recorded
+negative cases covered or explicitly open
+proof artifacts written
+CHECKLIST_INDEX.md rows updated
+selected workpack Fill-before-DONE section updated
+PLAN_STATE.md open gaps updated if state changed
+```
 
-- Slice 01: docs/plans/setup-install-provisioning-plan/workpacks/01-family-web-info-site.md
-- Slice 02: docs/plans/setup-install-provisioning-plan/workpacks/02-registration-login-entry.md
-- Slice 03: docs/plans/setup-install-provisioning-plan/workpacks/03-parent-install-journey.md
-- Slice 04: docs/plans/setup-install-provisioning-plan/workpacks/04-child-install-permission-journey.md
+PR_READY for the whole plan requires WP06 route gate proof and all prior workpack proof roots.
 
-## PR-ready gate
+## Global no-touch rule
 
-- No setup claim until end-to-end state machine and artifacts matrix are attached.
+This plan must not update policy/eventing work while those are active in other Codex lanes.
 
-## HID test floor (this plan)
+Do not edit:
 
-### Required test families for closed slice
+```text
+docs/plans/policy-control-plane-plan/**
+docs/plans/eventing-plan/**
+```
 
-- Unit: identity/site/setup contract checks
-- Integration: website-to-runtime handoff
-- E2E: first-run install + recovery paths
-- Security: onboarding abuse and unauthorized state entry
-- Non-functional: platform matrix and manual fallback behavior
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+unless the user explicitly assigns that route-sync after active lanes finish.

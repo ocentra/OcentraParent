@@ -1,5 +1,6 @@
-import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { attachPortalGoldenCardFrame } from './portal-golden-card-frame';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 
 type ControlCardAccent =
   | typeof PortalDom.Classes.ControlCardAccentPrimary

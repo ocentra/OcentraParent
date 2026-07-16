@@ -25,13 +25,13 @@ This is AI-pass work. Capture MVP should define the route/result contracts and d
 
 ## Checklist
 
-- [x] Verify configured local image capability for the current Windows proof route.
-- [x] Evaluate Qwen2.5-VL/Qwen2-VL candidates when the default runtime is insufficient.
-- [x] Use detector-specific JSON prompts.
-- [x] Limit image pixels and crop regions.
-- [x] Reject open-ended descriptions.
-- [x] Measure runtime and public-live crop quality.
-- [x] Record uncertainty/manual-required and fallback behavior.
+- [ ] Verify configured local image capability for the current Windows proof route.
+- [ ] Evaluate Qwen2.5-VL/Qwen2-VL candidates when the default runtime is insufficient.
+- [ ] Use detector-specific JSON prompts.
+- [ ] Limit image pixels and crop regions.
+- [ ] Reject open-ended descriptions.
+- [ ] Measure runtime and public-live crop quality.
+- [ ] Record uncertainty/manual-required and fallback behavior.
 
 ## Proof
 

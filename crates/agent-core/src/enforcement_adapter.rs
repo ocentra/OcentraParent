@@ -1,10 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants::enforcement as enforcement_constants, policy_constants, EnforcementAdapterKind,
-    EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementMode, EnforcementPermissionState,
-    EnforcementResultStatus, EnforcementRollbackState, EnforcementUnavailableReason,
-    ParentPlatform,
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementCapabilityState,
+    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementMode,
+    EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
+    EnforcementUnavailableReason, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EnforcementAdapterOutcome {
@@ -170,8 +171,13 @@ fn terminate_owned_process_impl(
 ) -> EnforcementAdapterOutcome {
     use sysinfo::{Pid, ProcessesToUpdate, System};
 
+    let OwnedProcessTerminationTarget {
+        pid,
+        expected_process_name,
+    } = target;
+
     let mut system = System::new();
-    let pid = Pid::from_u32(target.pid);
+    let pid = Pid::from_u32(pid);
     system.refresh_processes(ProcessesToUpdate::Some(&[pid]), true);
     let Some(process) = system.process(pid) else {
         return adapter_outcome(
@@ -185,7 +191,7 @@ fn terminate_owned_process_impl(
         );
     };
 
-    if process.name().to_string_lossy() != target.expected_process_name {
+    if process.name().to_string_lossy() != expected_process_name {
         return adapter_outcome(
             EnforcementResultStatus::Failed,
             EnforcementAdapterResultCode::AdapterFailed,

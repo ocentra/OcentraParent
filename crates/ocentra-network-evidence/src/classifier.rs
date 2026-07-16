@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    CategoryFreshnessState, CategoryMatchKind, DomainCategoryLookup, NetworkCategory,
-    NetworkEvidenceGrade,
-};
+use crate::{CategoryMatchKind, DomainCategoryLookup, NetworkCategory, NetworkEvidenceGrade};
+
+mod matching;
+mod validation;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkClassifierBasis {
@@ -70,11 +70,11 @@ pub enum NetworkClassifierError {
 pub fn classify_social_video_game_activity(
     input: NetworkActivityClassifierInput,
 ) -> Result<NetworkActivityClassification, NetworkClassifierError> {
-    validate_input(&input)?;
+    validation::validate_input(&input)?;
 
-    if target_category(input.domain_lookup.category)
+    if matching::target_category(input.domain_lookup.category)
         && input.domain_lookup.match_kind != CategoryMatchKind::NoMatch
-        && fresh_enough(input.domain_lookup.freshness)
+        && matching::fresh_enough(input.domain_lookup.freshness)
     {
         return Ok(NetworkActivityClassification {
             category: input.domain_lookup.category,
@@ -88,16 +88,16 @@ pub fn classify_social_video_game_activity(
         });
     }
 
-    if let Some(classification) = browser_confirmed_cdn(&input) {
+    if let Some(classification) = matching::browser_confirmed_cdn(&input) {
         return Ok(classification);
     }
 
-    if let Some(classification) = browser_confirmed_process(&input) {
+    if let Some(classification) = matching::browser_confirmed_process(&input) {
         return Ok(classification);
     }
 
     if let Some(hint) = input.cdn_hint {
-        if target_category(hint.category_hint) {
+        if matching::target_category(hint.category_hint) {
             return Ok(NetworkActivityClassification {
                 category: hint.category_hint,
                 basis: NetworkClassifierBasis::CdnCandidateNeedsConfirmation,
@@ -112,7 +112,7 @@ pub fn classify_social_video_game_activity(
     }
 
     if let Some(hint) = input.process_hint {
-        if target_category(hint.category_hint) {
+        if matching::target_category(hint.category_hint) {
             return Ok(NetworkActivityClassification {
                 category: hint.category_hint,
                 basis: NetworkClassifierBasis::ProcessCandidateNeedsConfirmation,
@@ -129,78 +129,6 @@ pub fn classify_social_video_game_activity(
     Ok(unknown_classification())
 }
 
-fn browser_confirmed_cdn(
-    input: &NetworkActivityClassifierInput,
-) -> Option<NetworkActivityClassification> {
-    let hint = input.cdn_hint.as_ref()?;
-    let confirmation = input.browser_confirmation.as_ref()?;
-    if hint.category_hint != confirmation.category || !target_category(hint.category_hint) {
-        return None;
-    }
-
-    Some(NetworkActivityClassification {
-        category: hint.category_hint,
-        basis: NetworkClassifierBasis::BrowserConfirmedCdn,
-        confidence_percent: hint.confidence_percent.max(85),
-        evidence_refs: vec![hint.source_ref.clone(), confirmation.source_ref.clone()],
-        browser_confirmation_required: false,
-        evidence_grade: NetworkEvidenceGrade::C,
-        exact_url_available: false,
-        decrypted_payload_available: false,
-    })
-}
-
-fn browser_confirmed_process(
-    input: &NetworkActivityClassifierInput,
-) -> Option<NetworkActivityClassification> {
-    let hint = input.process_hint.as_ref()?;
-    let confirmation = input.browser_confirmation.as_ref()?;
-    if hint.category_hint != confirmation.category || !target_category(hint.category_hint) {
-        return None;
-    }
-
-    Some(NetworkActivityClassification {
-        category: hint.category_hint,
-        basis: NetworkClassifierBasis::BrowserConfirmedProcess,
-        confidence_percent: hint.confidence_percent.max(80),
-        evidence_refs: vec![hint.source_ref.clone(), confirmation.source_ref.clone()],
-        browser_confirmation_required: false,
-        evidence_grade: NetworkEvidenceGrade::C,
-        exact_url_available: false,
-        decrypted_payload_available: false,
-    })
-}
-
-fn validate_input(input: &NetworkActivityClassifierInput) -> Result<(), NetworkClassifierError> {
-    if let Some(hint) = &input.cdn_hint {
-        if hint.confidence_percent > 100 {
-            return Err(NetworkClassifierError::InvalidCdnConfidence(
-                hint.confidence_percent,
-            ));
-        }
-        if hint.source_ref.trim().is_empty() {
-            return Err(NetworkClassifierError::EmptyCdnSourceRef);
-        }
-    }
-    if let Some(hint) = &input.process_hint {
-        if hint.confidence_percent > 100 {
-            return Err(NetworkClassifierError::InvalidProcessConfidence(
-                hint.confidence_percent,
-            ));
-        }
-        if hint.source_ref.trim().is_empty() {
-            return Err(NetworkClassifierError::EmptyProcessSourceRef);
-        }
-    }
-    if let Some(confirmation) = &input.browser_confirmation {
-        if confirmation.source_ref.trim().is_empty() {
-            return Err(NetworkClassifierError::EmptyBrowserConfirmationRef);
-        }
-    }
-
-    Ok(())
-}
-
 fn unknown_classification() -> NetworkActivityClassification {
     NetworkActivityClassification {
         category: NetworkCategory::Unknown,
@@ -212,18 +140,4 @@ fn unknown_classification() -> NetworkActivityClassification {
         exact_url_available: false,
         decrypted_payload_available: false,
     }
-}
-
-fn fresh_enough(freshness: CategoryFreshnessState) -> bool {
-    matches!(freshness, CategoryFreshnessState::Fresh { .. })
-}
-
-fn target_category(category: NetworkCategory) -> bool {
-    matches!(
-        category,
-        NetworkCategory::Social
-            | NetworkCategory::Video
-            | NetworkCategory::Game
-            | NetworkCategory::CloudGaming
-    )
 }

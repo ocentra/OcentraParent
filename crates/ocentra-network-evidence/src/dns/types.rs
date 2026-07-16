@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::packet::PacketParseError;
+use crate::packet::types::PacketParseError;
 use crate::pcap::PcapReplayError;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -62,11 +62,12 @@ pub enum DnsQueryType {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum NetworkEvidenceGrade {
-    A,
-    B,
-    C,
-    D,
+    A = 0,
+    B = 1,
+    C = 2,
+    D = 3,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

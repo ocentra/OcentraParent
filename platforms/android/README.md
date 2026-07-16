@@ -59,9 +59,25 @@ area.
 - `test:tracking-plan-android-emulator-proof` covers tracking-plan Android
   emulator package mechanics: debug APK build, install, launch, foreground
   service observation, UI tree, screenshot, logcat, battery dump, and
-  connectivity dump. It records foreground location, background/geofence,
-  notification delivery, physical-device, Device Owner, and managed-profile
-  behavior as not claimed/manual-required.
+  connectivity dump. It records foreground location, background permission,
+  foreground-service-backed background sample storage, app-owned local geofence
+  enter/exit/dwell rows, `LocationManager.addProximityAlert` registration
+  metadata, separate Android proximity-alert broadcast transition counters,
+  active geofence-limit representation, and Android status-gap bridge proof
+  while keeping Android system geofence delivery unclaimed unless those separate
+  system counters are nonzero. Android system dwell, notification delivery,
+  physical-device, Device Owner, and managed-profile behavior are not
+  claimed/manual-required.
+- `tracking-android-physical-device-runtime-proof` covers the Samsung S9
+  physical-device package/service/status and registration boundary over Wi-Fi ADB
+  (`192.168.2.45:5555`): debug APK install, launch attempt, foreground-service
+  `ServiceRecord`, foreground/background location permission grants,
+  foreground-service-backed background GPS samples, app-owned geofence
+  registration, Android proximity registration metadata, device metadata,
+  battery/connectivity dumps, UI/keyguard screenshot, and logcat artifacts. It
+  does not claim physical geofence/dwell transition delivery, Android system
+  geofence delivery, Device Owner, managed-profile behavior, production workers,
+  or product-ready tracking.
 - `browser-platform-android-owned-shell-proof` covers the browser-plan WP05
   owned-browser-shell package boundary. It builds the separate
   `platforms/android/agent/browser-shell` APK, creates a disposable AOSP ATD

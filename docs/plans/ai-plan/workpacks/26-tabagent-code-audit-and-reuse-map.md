@@ -26,12 +26,12 @@ Local TabAgent and TabAgentServer files were inspected and indexed in
 
 ## Checklist
 
-- [x] Confirm current local TabAgent file list.
-- [x] Map native bridge code to Ocentra command/status contracts.
-- [x] Map model lifecycle code to Ocentra runtime/provider contracts.
-- [x] Map cache code to Ocentra model artifact/cache contracts.
-- [x] Map graph code to Ocentra source-cited memory/graph contracts.
-- [x] List non-reused UI/persona/remote/string ids.
+- [ ] Confirm current local TabAgent file list.
+- [ ] Map native bridge code to Ocentra command/status contracts.
+- [ ] Map model lifecycle code to Ocentra runtime/provider contracts.
+- [ ] Map cache code to Ocentra model artifact/cache contracts.
+- [ ] Map graph code to Ocentra source-cited memory/graph contracts.
+- [ ] List non-reused UI/persona/remote/string ids.
 - [ ] Add extraction-specific Rust parity, route unavailable/timeout/invalid
       payload proof, and license/ownership notes before any TabAgent code is
       copied or adapted.

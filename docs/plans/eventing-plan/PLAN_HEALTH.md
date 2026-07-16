@@ -22,12 +22,18 @@ This file records documentation health and consistency checks for the plan. It i
 - Preserved full README: `README_FULL_ORIGINAL.md`
 - Current snapshot: `current-eventing-snapshot.md`
 - Implementation checklist present: true
-- Workpacks indexed: 12 route workpacks
+- Workpacks indexed: 13 route workpacks
+- `docs/proof/eventing-plan/` now exists as the local WP12 route-proof bundle.
 
 ## Consistency warnings
 
-- Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`. The plan now has 12 focused route workpacks under `workpacks/`.
+- Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`.
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match the current proof.
+- Historical proof and rollout rows currently overclaim checkout state; cited `output/eventing-plan-proof/*` roots outside WP11/WP12/WP13 are still incomplete for open workpacks.
+- WP11 now has focused local proof roots plus passing package-wide `@ocentra-parent/agent-protocol-domain` type-check, focused policy-control/contract tests, and a passing touched-file architecture gate.
+- WP12 now has a focused local route-proof bundle and WP13 has a focused local regression proof root.
+- Do not treat focused `cargo test` passes or stale checked rows as plan closure; WP11/WP12/WP13 are locally proved, but the full plan still remains open because WP10 lacks current local proof.
+- The route/proof split must stay explicit: `output/eventing-plan-proof/<workpack>/` for implementation proof; `docs/proof/eventing-plan/` only for the current WP12 route-proof manifest bundle.
 
 ## Required hygiene before PR_READY
 
@@ -36,6 +42,19 @@ This file records documentation health and consistency checks for the plan. It i
 - Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
+- Do not claim READY from crate tests alone.
+- Do not claim READY from event-domain metadata alone.
+- Do not claim READY from protocol shape proof as service delivery.
+- Do not claim READY from local bus proof as cross-device transport.
+- Do not claim READY from NDJSON journal proof as production durability, retention, deletion, or export proof.
+- Do not claim READY from consumer route docs as LAN/remote delivery proof.
+- Do not claim READY from WP12/WP13 while WP10 remains open.
+- Do not claim feature completeness until the relevant E2E tier in `TEST_PROOF_EXPECTATIONS.md` is explicitly proven or blocked.
+
+## Current rollout note
+
+- WP11 source-boundary hardening is locally proved. WP12 route-proof reconciliation is locally restored, and WP13 also has a local proof root and focused revalidation.
+- WP10 remains open until household mesh import/export proof and owning LAN/remote-access handoff verification exist.
 
 ## Agent Route Walkthrough
 
@@ -54,12 +73,12 @@ This file records documentation health and consistency checks for the plan. It i
 
 ### State
 
-- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
-- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+- Current state: route and schema hygiene are improved, WP13 local proof is present, WP12 local route proof is restored, and WP11 is locally proved through its proof roots plus focused package validation.
+- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned while the remaining WP10 gap is handled.
 
 ### Decision routes and failure controls
 
-- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Decision route: follow this plan's AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
 - Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
 
 ### Proof mapping

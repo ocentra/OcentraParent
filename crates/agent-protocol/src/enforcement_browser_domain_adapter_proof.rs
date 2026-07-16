@@ -2,7 +2,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::{constants::v08_browser_domain_adapter_proof as proof, ParentPlatform};
 
+macro_rules! protocol_str_lookup {
+    ($self:expr, [$($value:expr),+ $(,)?]) => {{
+        const VALUES: &[&str] = &[$($value),+];
+        VALUES[*$self as usize]
+    }};
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08BrowserDomainAdapterProofSurface {
     #[serde(rename = "windows-managed-browser-intervention-state")]
     WindowsManagedBrowserInterventionState,
@@ -36,30 +44,30 @@ pub enum V08BrowserDomainAdapterProofSurface {
 
 impl V08BrowserDomainAdapterProofSurface {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::WindowsManagedBrowserInterventionState => proof::SURFACE_MANAGED_INTERVENTION,
-            Self::WindowsManagedBrowserExactUrlManual => proof::SURFACE_MANAGED_EXACT_URL,
-            Self::WindowsUnmanagedBrowserTerminateBoundary => proof::SURFACE_UNMANAGED_TERMINATE,
-            Self::WindowsUnmanagedBrowserWarnNoop => proof::SURFACE_UNMANAGED_WARN,
-            Self::WindowsUnmanagedBrowserExactEvidenceNotClaimed => {
-                proof::SURFACE_UNMANAGED_EXACT_EVIDENCE
-            }
-            Self::WindowsNetworkDomainFilterManual => proof::SURFACE_NETWORK_FILTER_MANUAL,
-            Self::WindowsNetworkDomainAdapterUnavailable => {
-                proof::SURFACE_NETWORK_ADAPTER_UNAVAILABLE
-            }
-            Self::WindowsAuditVisibilityBoundary => proof::SURFACE_AUDIT_VISIBILITY,
-            Self::WindowsRestartRecoveryVisibilityBoundary => proof::SURFACE_RESTART_RECOVERY,
-            Self::WindowsBrowserPolicyRollbackVisibility => proof::SURFACE_BROWSER_POLICY_ROLLBACK,
-            Self::LinuxBrowserDomainAdapterUnavailable => proof::SURFACE_LINUX_ADAPTER,
-            Self::MacosBrowserDomainAdapterUnavailable => proof::SURFACE_MACOS_ADAPTER,
-            Self::AndroidBrowserDomainAdapterManual => proof::SURFACE_ANDROID_ADAPTER,
-            Self::IosBrowserDomainAdapterManual => proof::SURFACE_IOS_ADAPTER,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::SURFACE_MANAGED_INTERVENTION,
+                proof::SURFACE_MANAGED_EXACT_URL,
+                proof::SURFACE_UNMANAGED_TERMINATE,
+                proof::SURFACE_UNMANAGED_WARN,
+                proof::SURFACE_UNMANAGED_EXACT_EVIDENCE,
+                proof::SURFACE_NETWORK_FILTER_MANUAL,
+                proof::SURFACE_NETWORK_ADAPTER_UNAVAILABLE,
+                proof::SURFACE_AUDIT_VISIBILITY,
+                proof::SURFACE_RESTART_RECOVERY,
+                proof::SURFACE_BROWSER_POLICY_ROLLBACK,
+                proof::SURFACE_LINUX_ADAPTER,
+                proof::SURFACE_MACOS_ADAPTER,
+                proof::SURFACE_ANDROID_ADAPTER,
+                proof::SURFACE_IOS_ADAPTER,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08BrowserDomainAdapterProofCapabilityName {
     #[serde(rename = "app-time-limit")]
     AppTimeLimit,
@@ -79,19 +87,23 @@ pub enum V08BrowserDomainAdapterProofCapabilityName {
 
 impl V08BrowserDomainAdapterProofCapabilityName {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::AppTimeLimit => proof::CAPABILITY_APP_TIME_LIMIT,
-            Self::LocalStorage => proof::CAPABILITY_LOCAL_STORAGE,
-            Self::ManagedBrowserControl => proof::CAPABILITY_MANAGED_BROWSER_CONTROL,
-            Self::NetworkDomainBlocking => proof::CAPABILITY_NETWORK_DOMAIN_BLOCKING,
-            Self::NetworkExtension => proof::CAPABILITY_NETWORK_EXTENSION,
-            Self::UnmanagedBrowserDetection => proof::CAPABILITY_UNMANAGED_BROWSER_DETECTION,
-            Self::VpnDnsFiltering => proof::CAPABILITY_VPN_DNS_FILTERING,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::CAPABILITY_APP_TIME_LIMIT,
+                proof::CAPABILITY_LOCAL_STORAGE,
+                proof::CAPABILITY_MANAGED_BROWSER_CONTROL,
+                proof::CAPABILITY_NETWORK_DOMAIN_BLOCKING,
+                proof::CAPABILITY_NETWORK_EXTENSION,
+                proof::CAPABILITY_UNMANAGED_BROWSER_DETECTION,
+                proof::CAPABILITY_VPN_DNS_FILTERING,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08BrowserDomainAdapterProofCapabilityStatus {
     #[serde(rename = "implemented")]
     Implemented,
@@ -107,17 +119,21 @@ pub enum V08BrowserDomainAdapterProofCapabilityStatus {
 
 impl V08BrowserDomainAdapterProofCapabilityStatus {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Implemented => proof::STATUS_IMPLEMENTED,
-            Self::Supported => proof::STATUS_SUPPORTED,
-            Self::ManualRequired => proof::STATUS_MANUAL_REQUIRED,
-            Self::Unavailable => proof::STATUS_UNAVAILABLE,
-            Self::NotImplemented => proof::STATUS_NOT_IMPLEMENTED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::STATUS_IMPLEMENTED,
+                proof::STATUS_SUPPORTED,
+                proof::STATUS_MANUAL_REQUIRED,
+                proof::STATUS_UNAVAILABLE,
+                proof::STATUS_NOT_IMPLEMENTED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08BrowserDomainAdapterProofEvidenceKind {
     #[serde(rename = "managed-browser")]
     ManagedBrowser,
@@ -137,19 +153,23 @@ pub enum V08BrowserDomainAdapterProofEvidenceKind {
 
 impl V08BrowserDomainAdapterProofEvidenceKind {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ManagedBrowser => proof::EVIDENCE_MANAGED_BROWSER,
-            Self::UnmanagedBrowser => proof::EVIDENCE_UNMANAGED_BROWSER,
-            Self::NetworkDomain => proof::EVIDENCE_NETWORK_DOMAIN,
-            Self::Audit => proof::EVIDENCE_AUDIT,
-            Self::RestartRecovery => proof::EVIDENCE_RESTART_RECOVERY,
-            Self::Rollback => proof::EVIDENCE_ROLLBACK,
-            Self::UnsupportedTarget => proof::EVIDENCE_UNSUPPORTED_TARGET,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::EVIDENCE_MANAGED_BROWSER,
+                proof::EVIDENCE_UNMANAGED_BROWSER,
+                proof::EVIDENCE_NETWORK_DOMAIN,
+                proof::EVIDENCE_AUDIT,
+                proof::EVIDENCE_RESTART_RECOVERY,
+                proof::EVIDENCE_ROLLBACK,
+                proof::EVIDENCE_UNSUPPORTED_TARGET,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08BrowserDomainAdapterProofClaimState {
     #[serde(rename = "implemented-boundary")]
     ImplementedBoundary,
@@ -165,17 +185,21 @@ pub enum V08BrowserDomainAdapterProofClaimState {
 
 impl V08BrowserDomainAdapterProofClaimState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ImplementedBoundary => proof::CLAIM_IMPLEMENTED_BOUNDARY,
-            Self::DegradedBoundary => proof::CLAIM_DEGRADED_BOUNDARY,
-            Self::ManualRequired => proof::CLAIM_MANUAL_REQUIRED,
-            Self::Unavailable => proof::CLAIM_UNAVAILABLE,
-            Self::NotClaimed => proof::CLAIM_NOT_CLAIMED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::CLAIM_IMPLEMENTED_BOUNDARY,
+                proof::CLAIM_DEGRADED_BOUNDARY,
+                proof::CLAIM_MANUAL_REQUIRED,
+                proof::CLAIM_UNAVAILABLE,
+                proof::CLAIM_NOT_CLAIMED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08BrowserDomainAdapterExecutionState {
     #[serde(rename = "executes-real-service")]
     ExecutesRealService,
@@ -191,17 +215,21 @@ pub enum V08BrowserDomainAdapterExecutionState {
 
 impl V08BrowserDomainAdapterExecutionState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ExecutesRealService => proof::EXECUTES_REAL_SERVICE,
-            Self::ReturnsDegradedNoop => proof::RETURNS_DEGRADED_NOOP,
-            Self::ReturnsManualRequired => proof::RETURNS_MANUAL_REQUIRED,
-            Self::ReturnsUnavailable => proof::RETURNS_UNAVAILABLE,
-            Self::NotInvoked => proof::NOT_INVOKED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::EXECUTES_REAL_SERVICE,
+                proof::RETURNS_DEGRADED_NOOP,
+                proof::RETURNS_MANUAL_REQUIRED,
+                proof::RETURNS_UNAVAILABLE,
+                proof::NOT_INVOKED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08WindowsAppControlReadinessState {
     #[serde(rename = "readiness-check")]
     ReadinessCheck,
@@ -219,18 +247,22 @@ pub enum V08WindowsAppControlReadinessState {
 
 impl V08WindowsAppControlReadinessState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ReadinessCheck => proof::APP_CONTROL_READINESS_CHECK,
-            Self::AuditOnly => proof::APP_CONTROL_AUDIT_ONLY,
-            Self::Enforced => proof::APP_CONTROL_ENFORCED,
-            Self::ManualRequired => proof::APP_CONTROL_MANUAL_REQUIRED,
-            Self::Unavailable => proof::APP_CONTROL_UNAVAILABLE,
-            Self::Failed => proof::APP_CONTROL_FAILED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::APP_CONTROL_READINESS_CHECK,
+                proof::APP_CONTROL_AUDIT_ONLY,
+                proof::APP_CONTROL_ENFORCED,
+                proof::APP_CONTROL_MANUAL_REQUIRED,
+                proof::APP_CONTROL_UNAVAILABLE,
+                proof::APP_CONTROL_FAILED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08WindowsAppControlPolicyMutationState {
     #[serde(rename = "detect-only")]
     DetectOnly,
@@ -248,20 +280,22 @@ pub enum V08WindowsAppControlPolicyMutationState {
 
 impl V08WindowsAppControlPolicyMutationState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::DetectOnly => proof::APP_CONTROL_POLICY_DETECT_ONLY,
-            Self::AuditOnlyVisible => proof::APP_CONTROL_POLICY_AUDIT_ONLY_VISIBLE,
-            Self::CreateUpdateManualRequired => {
-                proof::APP_CONTROL_POLICY_CREATE_UPDATE_MANUAL_REQUIRED
-            }
-            Self::ManualSetupRequired => proof::APP_CONTROL_POLICY_MANUAL_SETUP_REQUIRED,
-            Self::Unavailable => proof::APP_CONTROL_POLICY_UNAVAILABLE,
-            Self::Failed => proof::APP_CONTROL_POLICY_FAILED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::APP_CONTROL_POLICY_DETECT_ONLY,
+                proof::APP_CONTROL_POLICY_AUDIT_ONLY_VISIBLE,
+                proof::APP_CONTROL_POLICY_CREATE_UPDATE_MANUAL_REQUIRED,
+                proof::APP_CONTROL_POLICY_MANUAL_SETUP_REQUIRED,
+                proof::APP_CONTROL_POLICY_UNAVAILABLE,
+                proof::APP_CONTROL_POLICY_FAILED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08WindowsAppControlRuleIdentityKind {
     #[serde(rename = "publisher")]
     Publisher,
@@ -275,16 +309,20 @@ pub enum V08WindowsAppControlRuleIdentityKind {
 
 impl V08WindowsAppControlRuleIdentityKind {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Publisher => proof::APP_CONTROL_IDENTITY_PUBLISHER,
-            Self::Path => proof::APP_CONTROL_IDENTITY_PATH,
-            Self::Hash => proof::APP_CONTROL_IDENTITY_HASH,
-            Self::Package => proof::APP_CONTROL_IDENTITY_PACKAGE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::APP_CONTROL_IDENTITY_PUBLISHER,
+                proof::APP_CONTROL_IDENTITY_PATH,
+                proof::APP_CONTROL_IDENTITY_HASH,
+                proof::APP_CONTROL_IDENTITY_PACKAGE,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08WindowsAppControlAdminRequirement {
     #[serde(rename = "administrator-required")]
     AdministratorRequired,
@@ -298,16 +336,20 @@ pub enum V08WindowsAppControlAdminRequirement {
 
 impl V08WindowsAppControlAdminRequirement {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::AdministratorRequired => proof::APP_CONTROL_ADMINISTRATOR_REQUIRED,
-            Self::ServicePermissionRequired => proof::APP_CONTROL_SERVICE_PERMISSION_REQUIRED,
-            Self::ManualOperatorRequired => proof::APP_CONTROL_MANUAL_OPERATOR_REQUIRED,
-            Self::NotApplicable => proof::APP_CONTROL_ADMIN_NOT_APPLICABLE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::APP_CONTROL_ADMINISTRATOR_REQUIRED,
+                proof::APP_CONTROL_SERVICE_PERMISSION_REQUIRED,
+                proof::APP_CONTROL_MANUAL_OPERATOR_REQUIRED,
+                proof::APP_CONTROL_ADMIN_NOT_APPLICABLE,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08WindowsAppControlEventState {
     #[serde(rename = "audit-visible")]
     AuditVisible,
@@ -323,13 +365,16 @@ pub enum V08WindowsAppControlEventState {
 
 impl V08WindowsAppControlEventState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::AuditVisible => proof::APP_CONTROL_EVENT_AUDIT_VISIBLE,
-            Self::RollbackVisible => proof::APP_CONTROL_EVENT_ROLLBACK_VISIBLE,
-            Self::FailureVisible => proof::APP_CONTROL_EVENT_FAILURE_VISIBLE,
-            Self::ManualProofRequired => proof::APP_CONTROL_EVENT_MANUAL_PROOF_REQUIRED,
-            Self::Unavailable => proof::APP_CONTROL_EVENT_UNAVAILABLE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::APP_CONTROL_EVENT_AUDIT_VISIBLE,
+                proof::APP_CONTROL_EVENT_ROLLBACK_VISIBLE,
+                proof::APP_CONTROL_EVENT_FAILURE_VISIBLE,
+                proof::APP_CONTROL_EVENT_MANUAL_PROOF_REQUIRED,
+                proof::APP_CONTROL_EVENT_UNAVAILABLE,
+            ]
+        )
     }
 }
 

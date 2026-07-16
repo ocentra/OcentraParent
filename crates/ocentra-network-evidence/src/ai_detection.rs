@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+mod evaluation;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkAiDetectionLabel {
     BenignExpected,
@@ -197,9 +199,9 @@ pub enum NetworkAiDetectionEvaluationError {
 }
 
 pub fn evaluate_network_ai_detection_fixtures(
-    input: NetworkAiDetectionEvaluationInput,
+    input: &NetworkAiDetectionEvaluationInput,
 ) -> Result<NetworkAiDetectionEvaluationProof, NetworkAiDetectionEvaluationError> {
-    reject_global_claims(&input)?;
+    evaluation::reject_global_claims(input)?;
     if input.minimum_precision_basis_points > 10_000
         || input.minimum_recall_basis_points > 10_000
         || input.maximum_average_drift_basis_points > 10_000
@@ -210,30 +212,32 @@ pub fn evaluate_network_ai_detection_fixtures(
         return Err(NetworkAiDetectionEvaluationError::EmptyFixtureCases);
     }
 
-    let evaluation_run_ref = normalize_ref(&input.evaluation_run_ref)
+    let evaluation_run_ref = evaluation::normalize_ref(&input.evaluation_run_ref)
         .ok_or(NetworkAiDetectionEvaluationError::EmptyEvaluationRunRef)?;
-    let fixture_set_ref = normalize_ref(&input.fixture_set_ref)
+    let fixture_set_ref = evaluation::normalize_ref(&input.fixture_set_ref)
         .ok_or(NetworkAiDetectionEvaluationError::EmptyFixtureSetRef)?;
-    let model_card_ref = normalize_ref(&input.model_card_ref)
+    let model_card_ref = evaluation::normalize_ref(&input.model_card_ref)
         .ok_or(NetworkAiDetectionEvaluationError::EmptyModelCardRef)?;
-    let model_version_ref = normalize_ref(&input.model_version_ref)
+    let model_version_ref = evaluation::normalize_ref(&input.model_version_ref)
         .ok_or(NetworkAiDetectionEvaluationError::EmptyModelVersionRef)?;
-    let baseline_ref = normalize_ref(&input.baseline_ref)
+    let baseline_ref = evaluation::normalize_ref(&input.baseline_ref)
         .ok_or(NetworkAiDetectionEvaluationError::EmptyBaselineRef)?;
 
-    let results = normalize_results(&input)?;
-    let counts = count_detection_results(&results);
+    let results = evaluation::normalize_results(input)?;
+    let counts = evaluation::count_detection_results(&results);
     let precision_basis_points =
-        ratio_basis_points(counts.true_positive, counts.predicted_positive);
-    let recall_basis_points = ratio_basis_points(counts.true_positive, counts.expected_positive);
+        evaluation::ratio_basis_points(counts.true_positive, counts.predicted_positive);
+    let recall_basis_points =
+        evaluation::ratio_basis_points(counts.true_positive, counts.expected_positive);
     let accuracy_basis_points =
-        ratio_basis_points(counts.true_positive + counts.true_negative, results.len())
+        evaluation::ratio_basis_points(counts.true_positive + counts.true_negative, results.len())
             .unwrap_or_default();
-    let average_confidence_drift_basis_points = average_drift_basis_points(&results);
+    let average_confidence_drift_basis_points = evaluation::average_drift_basis_points(&results);
     let precision_state =
-        precision_state(precision_basis_points, input.minimum_precision_basis_points);
-    let recall_state = recall_state(recall_basis_points, input.minimum_recall_basis_points);
-    let drift_state = drift_state(
+        evaluation::precision_state(precision_basis_points, input.minimum_precision_basis_points);
+    let recall_state =
+        evaluation::recall_state(recall_basis_points, input.minimum_recall_basis_points);
+    let drift_state = evaluation::drift_state(
         average_confidence_drift_basis_points,
         input.maximum_average_drift_basis_points,
     );
@@ -256,7 +260,7 @@ pub fn evaluate_network_ai_detection_fixtures(
         precision_state,
         recall_state,
         drift_state,
-        evaluation_state: evaluation_state(precision_state, recall_state, drift_state),
+        evaluation_state: evaluation::evaluation_state(precision_state, recall_state, drift_state),
         results,
         model_executed: false,
         remote_ai_used: false,
@@ -264,333 +268,4 @@ pub fn evaluate_network_ai_detection_fixtures(
         adapter_authority: false,
         enforcement_commands_published: 0,
     })
-}
-
-fn normalize_results(
-    input: &NetworkAiDetectionEvaluationInput,
-) -> Result<Vec<NetworkAiDetectionResult>, NetworkAiDetectionEvaluationError> {
-    let mut detection_refs = Vec::new();
-    let mut results = Vec::new();
-    for case in &input.cases {
-        reject_case_claims(case)?;
-        let detection_ref = normalize_ref(&case.detection_ref)
-            .ok_or(NetworkAiDetectionEvaluationError::EmptyDetectionRef)?;
-        if detection_refs.contains(&detection_ref) {
-            return Err(NetworkAiDetectionEvaluationError::DuplicateDetectionRef);
-        }
-        detection_refs.push(detection_ref.clone());
-        results.push(normalize_case_result(
-            case,
-            detection_ref,
-            input.maximum_average_drift_basis_points,
-        )?);
-    }
-    Ok(results)
-}
-
-fn normalize_case_result(
-    case: &NetworkAiDetectionFixtureCase,
-    detection_ref: String,
-    maximum_case_drift_basis_points: u16,
-) -> Result<NetworkAiDetectionResult, NetworkAiDetectionEvaluationError> {
-    let fixture_ref = normalize_ref(&case.fixture_ref)
-        .ok_or(NetworkAiDetectionEvaluationError::EmptyFixtureRef)?;
-    let summary_ref = normalize_ref(&case.summary_ref)
-        .ok_or(NetworkAiDetectionEvaluationError::EmptySummaryRef)?;
-    let evidence_refs = normalized_evidence_refs(&case.evidence_refs)?;
-    let analyzer_alert_refs = normalized_analyzer_alert_refs(&case.analyzer_alert_refs)?;
-    let input_kinds = normalized_input_kinds(&case.input_kinds)?;
-    let label_match = case.expected_label == case.predicted_label;
-    let expected_positive = is_positive_label(case.expected_label);
-    let predicted_positive = is_positive_label(case.predicted_label);
-    let confidence_drift_basis_points = case
-        .confidence_basis_points
-        .abs_diff(case.baseline_confidence_basis_points);
-
-    Ok(NetworkAiDetectionResult {
-        detection_ref,
-        fixture_ref,
-        summary_ref,
-        evidence_refs,
-        analyzer_alert_refs,
-        expected_label: case.expected_label,
-        predicted_label: case.predicted_label,
-        confidence_basis_points: case.confidence_basis_points,
-        baseline_confidence_basis_points: case.baseline_confidence_basis_points,
-        confidence_drift_basis_points,
-        risk_level: case.risk_level,
-        input_kinds,
-        label_match,
-        expected_positive,
-        predicted_positive,
-        true_positive: expected_positive && label_match,
-        false_positive: predicted_positive && !label_match,
-        false_negative: expected_positive && !label_match,
-        true_negative: !expected_positive && !predicted_positive && label_match,
-        uncertainty_codes: uncertainty_codes(
-            case,
-            confidence_drift_basis_points,
-            maximum_case_drift_basis_points,
-        ),
-        raw_pcap_available: false,
-        exact_url_available: false,
-        decrypted_payload_available: false,
-        page_content_available: false,
-        policy_authority: false,
-        adapter_authority: false,
-        enforcement_command_published: false,
-    })
-}
-
-fn reject_global_claims(
-    input: &NetworkAiDetectionEvaluationInput,
-) -> Result<(), NetworkAiDetectionEvaluationError> {
-    if input.model_execution_claimed {
-        return Err(NetworkAiDetectionEvaluationError::ModelExecutionClaimRejected);
-    }
-    if input.remote_ai_claimed {
-        return Err(NetworkAiDetectionEvaluationError::RemoteAiClaimRejected);
-    }
-    if input.raw_pcap_input_claimed {
-        return Err(NetworkAiDetectionEvaluationError::RawPcapInputRejected);
-    }
-    if input.decrypted_payload_claimed {
-        return Err(NetworkAiDetectionEvaluationError::DecryptedPayloadClaimRejected);
-    }
-    if input.page_content_claimed {
-        return Err(NetworkAiDetectionEvaluationError::PageContentClaimRejected);
-    }
-    if input.exact_url_claimed {
-        return Err(NetworkAiDetectionEvaluationError::ExactUrlClaimRejected);
-    }
-    if input.policy_authority_claimed {
-        return Err(NetworkAiDetectionEvaluationError::PolicyAuthorityClaimRejected);
-    }
-    if input.adapter_authority_claimed {
-        return Err(NetworkAiDetectionEvaluationError::AdapterAuthorityClaimRejected);
-    }
-    if input.enforcement_command_claimed {
-        return Err(NetworkAiDetectionEvaluationError::EnforcementCommandClaimRejected);
-    }
-    Ok(())
-}
-
-fn reject_case_claims(
-    case: &NetworkAiDetectionFixtureCase,
-) -> Result<(), NetworkAiDetectionEvaluationError> {
-    if case.confidence_basis_points > 10_000 || case.baseline_confidence_basis_points > 10_000 {
-        return Err(NetworkAiDetectionEvaluationError::BasisPointsOutOfRange);
-    }
-    if case.raw_pcap_input_claimed {
-        return Err(NetworkAiDetectionEvaluationError::RawPcapInputRejected);
-    }
-    if case.decrypted_payload_claimed {
-        return Err(NetworkAiDetectionEvaluationError::DecryptedPayloadClaimRejected);
-    }
-    if case.page_content_claimed {
-        return Err(NetworkAiDetectionEvaluationError::PageContentClaimRejected);
-    }
-    if case.exact_url_claimed {
-        return Err(NetworkAiDetectionEvaluationError::ExactUrlClaimRejected);
-    }
-    Ok(())
-}
-
-fn normalized_evidence_refs(
-    values: &[String],
-) -> Result<Vec<String>, NetworkAiDetectionEvaluationError> {
-    if values.is_empty() {
-        return Err(NetworkAiDetectionEvaluationError::EmptyEvidenceRefs);
-    }
-    let mut refs = Vec::new();
-    for value in values {
-        let Some(normalized) = normalize_ref(value) else {
-            return Err(NetworkAiDetectionEvaluationError::EmptyEvidenceRef);
-        };
-        if !refs.contains(&normalized) {
-            refs.push(normalized);
-        }
-    }
-    Ok(refs)
-}
-
-fn normalized_analyzer_alert_refs(
-    values: &[String],
-) -> Result<Vec<String>, NetworkAiDetectionEvaluationError> {
-    let mut refs = Vec::new();
-    for value in values {
-        let Some(normalized) = normalize_ref(value) else {
-            return Err(NetworkAiDetectionEvaluationError::EmptyAnalyzerAlertRef);
-        };
-        if !refs.contains(&normalized) {
-            refs.push(normalized);
-        }
-    }
-    Ok(refs)
-}
-
-fn normalized_input_kinds(
-    values: &[NetworkAiDetectionInputKind],
-) -> Result<Vec<NetworkAiDetectionInputKind>, NetworkAiDetectionEvaluationError> {
-    if values.is_empty() {
-        return Err(NetworkAiDetectionEvaluationError::EmptyInputKinds);
-    }
-    let mut kinds = Vec::new();
-    for value in values {
-        if !kinds.contains(value) {
-            kinds.push(*value);
-        }
-    }
-    Ok(kinds)
-}
-
-fn uncertainty_codes(
-    case: &NetworkAiDetectionFixtureCase,
-    drift_basis_points: u16,
-    maximum_drift_basis_points: u16,
-) -> Vec<NetworkAiDetectionUncertaintyCode> {
-    let mut codes = Vec::new();
-    if case.expected_label != case.predicted_label {
-        codes.push(NetworkAiDetectionUncertaintyCode::LabelMismatch);
-    }
-    if is_positive_label(case.predicted_label) && case.expected_label != case.predicted_label {
-        codes.push(NetworkAiDetectionUncertaintyCode::FalsePositiveFixture);
-    }
-    if is_positive_label(case.expected_label) && case.expected_label != case.predicted_label {
-        codes.push(NetworkAiDetectionUncertaintyCode::FalseNegativeFixture);
-    }
-    if case.predicted_label == NetworkAiDetectionLabel::Unknown {
-        codes.push(NetworkAiDetectionUncertaintyCode::UnknownPrediction);
-    }
-    if drift_basis_points > maximum_drift_basis_points {
-        codes.push(NetworkAiDetectionUncertaintyCode::ConfidenceDriftExceeded);
-    }
-    if case.confidence_basis_points < 5_000 {
-        codes.push(NetworkAiDetectionUncertaintyCode::LowConfidence);
-    }
-    codes
-}
-
-fn count_detection_results(results: &[NetworkAiDetectionResult]) -> DetectionCounts {
-    DetectionCounts {
-        true_positive: results.iter().filter(|result| result.true_positive).count(),
-        false_positive: results
-            .iter()
-            .filter(|result| result.false_positive)
-            .count(),
-        false_negative: results
-            .iter()
-            .filter(|result| result.false_negative)
-            .count(),
-        true_negative: results.iter().filter(|result| result.true_negative).count(),
-        predicted_positive: results
-            .iter()
-            .filter(|result| result.predicted_positive)
-            .count(),
-        expected_positive: results
-            .iter()
-            .filter(|result| result.expected_positive)
-            .count(),
-    }
-}
-
-fn ratio_basis_points(numerator: usize, denominator: usize) -> Option<u16> {
-    if denominator == 0 {
-        return None;
-    }
-    let scaled = (numerator as u32 * 10_000 + denominator as u32 / 2) / denominator as u32;
-    Some(scaled as u16)
-}
-
-fn average_drift_basis_points(results: &[NetworkAiDetectionResult]) -> u16 {
-    let total: u32 = results
-        .iter()
-        .map(|result| result.confidence_drift_basis_points as u32)
-        .sum();
-    ((total + results.len() as u32 / 2) / results.len() as u32) as u16
-}
-
-fn precision_state(
-    precision_basis_points: Option<u16>,
-    minimum_precision_basis_points: u16,
-) -> NetworkAiDetectionPrecisionState {
-    match precision_basis_points {
-        None => NetworkAiDetectionPrecisionState::NoPositivePredictions,
-        Some(precision) if precision >= minimum_precision_basis_points => {
-            NetworkAiDetectionPrecisionState::MeetsThreshold
-        }
-        Some(_) => NetworkAiDetectionPrecisionState::BelowThreshold,
-    }
-}
-
-fn recall_state(
-    recall_basis_points: Option<u16>,
-    minimum_recall_basis_points: u16,
-) -> NetworkAiDetectionRecallState {
-    match recall_basis_points {
-        None => NetworkAiDetectionRecallState::NoExpectedPositives,
-        Some(recall) if recall >= minimum_recall_basis_points => {
-            NetworkAiDetectionRecallState::MeetsThreshold
-        }
-        Some(_) => NetworkAiDetectionRecallState::BelowThreshold,
-    }
-}
-
-fn drift_state(
-    average_confidence_drift_basis_points: u16,
-    maximum_average_drift_basis_points: u16,
-) -> NetworkAiDetectionDriftState {
-    if average_confidence_drift_basis_points > maximum_average_drift_basis_points {
-        NetworkAiDetectionDriftState::ExceededTolerance
-    } else {
-        NetworkAiDetectionDriftState::WithinTolerance
-    }
-}
-
-fn evaluation_state(
-    precision_state: NetworkAiDetectionPrecisionState,
-    recall_state: NetworkAiDetectionRecallState,
-    drift_state: NetworkAiDetectionDriftState,
-) -> NetworkAiDetectionEvaluationState {
-    let quality_passed = precision_state == NetworkAiDetectionPrecisionState::MeetsThreshold
-        && recall_state == NetworkAiDetectionRecallState::MeetsThreshold;
-    match (quality_passed, drift_state) {
-        (true, NetworkAiDetectionDriftState::WithinTolerance) => {
-            NetworkAiDetectionEvaluationState::MeetsFixtureGate
-        }
-        (true, NetworkAiDetectionDriftState::ExceededTolerance) => {
-            NetworkAiDetectionEvaluationState::DriftExceeded
-        }
-        (false, NetworkAiDetectionDriftState::WithinTolerance) => {
-            NetworkAiDetectionEvaluationState::BelowQualityThreshold
-        }
-        (false, NetworkAiDetectionDriftState::ExceededTolerance) => {
-            NetworkAiDetectionEvaluationState::BelowQualityAndDriftExceeded
-        }
-    }
-}
-
-fn is_positive_label(label: NetworkAiDetectionLabel) -> bool {
-    !matches!(
-        label,
-        NetworkAiDetectionLabel::BenignExpected | NetworkAiDetectionLabel::Unknown
-    )
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_owned())
-    }
-}
-
-struct DetectionCounts {
-    true_positive: usize,
-    false_positive: usize,
-    false_negative: usize,
-    true_negative: usize,
-    predicted_positive: usize,
-    expected_positive: usize,
 }

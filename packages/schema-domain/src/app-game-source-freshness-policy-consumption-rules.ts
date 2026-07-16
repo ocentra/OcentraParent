@@ -1,0 +1,25 @@
+/* thin adapter over Rust-generated app-game preview/source-freshness rules */
+
+import {
+  appGameSourceFreshnessReadinessIsPolicyReadyGenerated,
+  appGameSourceFreshnessRequirementFailureGenerated,
+  appGameSourceFreshnessRequirementIsSatisfiedGenerated,
+  appGameSourceFreshnessRowHasEvidenceGenerated,
+  appGameSourceFreshnessRowIsFreshGenerated,
+  appGameSourceFreshnessRowsForRequirementGenerated,
+  appGameSourceFreshnessSourceKindSatisfiesRequirementGenerated,
+  appGameSourceFreshnessTargetAllowsNullRefGenerated,
+  evaluateAppGameSourceFreshnessPolicyReadinessGenerated as evaluateAppGameSourceFreshnessPolicyReadinessGeneratedImpl,
+} from './generated-app-game-preview-source-freshness-rules';
+
+export const appGameSourceFreshnessTargetAllowsNullRef = appGameSourceFreshnessTargetAllowsNullRefGenerated;
+export const appGameSourceFreshnessSourceKindSatisfiesRequirement =
+  appGameSourceFreshnessSourceKindSatisfiesRequirementGenerated;
+export const appGameSourceFreshnessRowsForRequirement = appGameSourceFreshnessRowsForRequirementGenerated;
+export const appGameSourceFreshnessRowIsFresh = appGameSourceFreshnessRowIsFreshGenerated;
+export const appGameSourceFreshnessRowHasEvidence = appGameSourceFreshnessRowHasEvidenceGenerated;
+export const appGameSourceFreshnessRequirementIsSatisfied = appGameSourceFreshnessRequirementIsSatisfiedGenerated;
+export const appGameSourceFreshnessReadinessIsPolicyReady = appGameSourceFreshnessReadinessIsPolicyReadyGenerated;
+export const appGameSourceFreshnessRequirementFailure = appGameSourceFreshnessRequirementFailureGenerated;
+export const evaluateAppGameSourceFreshnessPolicyReadinessGenerated =
+  evaluateAppGameSourceFreshnessPolicyReadinessGeneratedImpl;

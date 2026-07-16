@@ -1,0 +1,30 @@
+/* thin adapter over Rust-owned generated social alert report intent value contracts */
+
+import * as Generated from './generated-social-alert-report-intent-values';
+
+export const SocialAlertReportIntentKind = Generated.SocialAlertReportIntentKind;
+export const SocialAlertReportIntentStatus = Generated.SocialAlertReportIntentStatus;
+export const SocialAlertReportDeliveryClaimState = Generated.SocialAlertReportDeliveryClaimState;
+export const SocialAlertReportPriority = Generated.SocialAlertReportPriority;
+export const SocialAlertReportReasonCode = Generated.SocialAlertReportReasonCode;
+export const SocialAlertReportParentCopyToken = Generated.SocialAlertReportParentCopyToken;
+export const SocialAlertReportPayloadField = Generated.SocialAlertReportPayloadField;
+export const SocialAlertReportAdapterDispatchState = Generated.SocialAlertReportAdapterDispatchState;
+export const SocialAlertReportIntentIdSchema = Generated.SocialAlertReportIntentIdSchema;
+export const SocialAlertReportReferenceSchema = Generated.SocialAlertReportReferenceSchema;
+export const SocialAlertReportIntentKindSchema = Generated.SocialAlertReportIntentKindSchema;
+export const SocialAlertReportIntentStatusSchema = Generated.SocialAlertReportIntentStatusSchema;
+export const SocialAlertReportDeliveryClaimStateSchema = Generated.SocialAlertReportDeliveryClaimStateSchema;
+export const SocialAlertReportPrioritySchema = Generated.SocialAlertReportPrioritySchema;
+export const SocialAlertReportReasonCodeSchema = Generated.SocialAlertReportReasonCodeSchema;
+export const SocialAlertReportParentCopyTokenSchema = Generated.SocialAlertReportParentCopyTokenSchema;
+export const SocialAlertReportPayloadFieldSchema = Generated.SocialAlertReportPayloadFieldSchema;
+export const SocialAlertReportAdapterDispatchStateSchema = Generated.SocialAlertReportAdapterDispatchStateSchema;
+
+export type SocialAlertReportIntentKindValue = Generated.SocialAlertReportIntentKindValue;
+export type SocialAlertReportIntentStatusValue = Generated.SocialAlertReportIntentStatusValue;
+export type SocialAlertReportDeliveryClaimStateValue = Generated.SocialAlertReportDeliveryClaimStateValue;
+export type SocialAlertReportReasonCodeValue = Generated.SocialAlertReportReasonCodeValue;
+export type SocialAlertReportParentCopyTokenValue = Generated.SocialAlertReportParentCopyTokenValue;
+export type SocialAlertReportPayloadFieldValue = Generated.SocialAlertReportPayloadFieldValue;
+export type SocialAlertReportAdapterDispatchStateValue = Generated.SocialAlertReportAdapterDispatchStateValue;

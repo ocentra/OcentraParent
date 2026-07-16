@@ -1,7 +1,6 @@
-use ocentra_eventing::{ReplayReadReport, StoredEventEnvelope};
+use ocentra_eventing::{envelope::StoredEventEnvelope, replay::ReplayReadReport};
 use ocentra_parent_agent_protocol::constants;
-
-use crate::network_event_runtime_state::NetworkInterventionState;
+use ocentra_parent_agent_protocol::network_flow::NetworkInterventionState;
 
 use super::remote_delivery_event_chain_journal_types::{
     NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeRemoteEventChainJournalReport,
@@ -11,10 +10,10 @@ use super::remote_delivery_event_chain_store::{
     exported_event_type_count, publish_network_runtime_remote_event_chain_store, source_component,
     unsupported_claim_counts,
 };
-use super::{
-    prove_network_runtime_remote_delivery_status, NetworkRuntimeEventPayload,
-    NetworkRuntimeRemoteDeliveryStatusReport,
+use super::remote_delivery_status::{
+    prove_network_runtime_remote_delivery_status, NetworkRuntimeRemoteDeliveryStatusReport,
 };
+use super::NetworkRuntimeEventPayload;
 
 pub async fn prove_network_runtime_remote_event_chain_journal(
 ) -> Result<NetworkRuntimeRemoteEventChainJournalReport, NetworkRuntimeRemoteEventChainJournalError>
@@ -30,18 +29,18 @@ pub async fn prove_network_runtime_remote_event_chain_journal(
     build_report(
         remote_delivery_status,
         &store.stored_events,
-        store.projection,
-        store.payloads,
-        unsupported,
+        &store.projection,
+        &store.payloads,
+        &unsupported,
     )
 }
 
 fn build_report(
     remote_delivery_status: NetworkRuntimeRemoteDeliveryStatusReport,
     stored_events: &[StoredEventEnvelope],
-    projection: ReplayReadReport,
-    payloads: Vec<NetworkRuntimeEventPayload>,
-    unsupported: UnsupportedClaimCounts,
+    projection: &ReplayReadReport,
+    payloads: &[NetworkRuntimeEventPayload],
+    unsupported: &UnsupportedClaimCounts,
 ) -> Result<NetworkRuntimeRemoteEventChainJournalReport, NetworkRuntimeRemoteEventChainJournalError>
 {
     if stored_events.is_empty() || projection.records.is_empty() {

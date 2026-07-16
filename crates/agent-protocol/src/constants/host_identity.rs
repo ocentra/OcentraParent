@@ -28,24 +28,15 @@ pub const CLASS_PUBLISHER_SIGNATURE: &str = "publisher-signature";
 pub const CLASS_ROLLBACK: &str = "rollback";
 pub const CLASS_AUDIT: &str = "audit";
 
-pub const REQUIREMENT_INSTALLED_APP_INVENTORY: &str =
-    "Installed app inventory must come from a real Windows host source before broad app blocking can target it.";
-pub const REQUIREMENT_PROCESS_LINEAGE: &str =
-    "Process lineage must identify pid, parent pid when available, executable path, start time, and observation source.";
-pub const REQUIREMENT_EXECUTABLE_IDENTITY: &str =
-    "Executable identity must include canonical path plus a host-derived fingerprint before it can support app identity.";
-pub const REQUIREMENT_PACKAGE_IDENTITY: &str =
-    "Package identity must distinguish packaged apps from unpackaged Win32 executables without silently upgrading unknown apps.";
-pub const REQUIREMENT_PUBLISHER_SIGNATURE: &str =
-    "Publisher and signature evidence must be captured or explicitly unavailable before trust-sensitive app identity claims upgrade.";
-pub const REQUIREMENT_INVENTORY_PROCESS_LINK: &str =
-    "Inventory and running-process evidence must agree before the runtime can claim a target is the same app.";
-pub const REQUIREMENT_UNSUPPORTED_IDENTITY: &str =
-    "Unsupported, permission-limited, or unknown host identity must remain unavailable instead of becoming app proof.";
-pub const REQUIREMENT_ROLLBACK_READINESS: &str =
-    "Rollback readiness for broad app blocking is not claimed until the same app identity has apply and rollback artifacts.";
-pub const REQUIREMENT_AUDIT_CUSTODY: &str =
-    "Audit custody must tie identity evidence, parent rule, adapter outcome, fallback, and evidence refs together.";
+pub const REQUIREMENT_INSTALLED_APP_INVENTORY: &str = "Installed app inventory must come from a real Windows host source before broad app blocking can target it.";
+pub const REQUIREMENT_PROCESS_LINEAGE: &str = "Process lineage must identify pid, parent pid when available, executable path, start time, and observation source.";
+pub const REQUIREMENT_EXECUTABLE_IDENTITY: &str = "Executable identity must include canonical path plus a host-derived fingerprint before it can support app identity.";
+pub const REQUIREMENT_PACKAGE_IDENTITY: &str = "Package identity must distinguish packaged apps from unpackaged Win32 executables without silently upgrading unknown apps.";
+pub const REQUIREMENT_PUBLISHER_SIGNATURE: &str = "Publisher and signature evidence must be captured or explicitly unavailable before trust-sensitive app identity claims upgrade.";
+pub const REQUIREMENT_INVENTORY_PROCESS_LINK: &str = "Inventory and running-process evidence must agree before the runtime can claim a target is the same app.";
+pub const REQUIREMENT_UNSUPPORTED_IDENTITY: &str = "Unsupported, permission-limited, or unknown host identity must remain unavailable instead of becoming app proof.";
+pub const REQUIREMENT_ROLLBACK_READINESS: &str = "Rollback readiness for broad app blocking is not claimed until the same app identity has apply and rollback artifacts.";
+pub const REQUIREMENT_AUDIT_CUSTODY: &str = "Audit custody must tie identity evidence, parent rule, adapter outcome, fallback, and evidence refs together.";
 
 pub const ARTIFACTS_INSTALLED_APP_INVENTORY: &[&str] = &[
     "Windows installed app inventory source and timestamp",
@@ -134,17 +125,12 @@ pub const FALLBACK_INSTALLED_APP_INVENTORY: &str =
     "Keep broad app targets manual-required when installed inventory is missing or stale.";
 pub const FALLBACK_PROCESS_LINEAGE: &str =
     "Treat unknown or stale lineage as unavailable for broad app identity matching.";
-pub const FALLBACK_EXECUTABLE_IDENTITY: &str =
-    "Use unavailable or manual-required when canonical path or fingerprint evidence cannot be collected.";
-pub const FALLBACK_PACKAGE_IDENTITY: &str =
-    "Keep the app target manual-required when package identity is unknown, ambiguous, or unpackaged without proof.";
-pub const FALLBACK_PUBLISHER_SIGNATURE: &str =
-    "Represent missing signature evidence as manual-required or unavailable; do not invent trust state.";
+pub const FALLBACK_EXECUTABLE_IDENTITY: &str = "Use unavailable or manual-required when canonical path or fingerprint evidence cannot be collected.";
+pub const FALLBACK_PACKAGE_IDENTITY: &str = "Keep the app target manual-required when package identity is unknown, ambiguous, or unpackaged without proof.";
+pub const FALLBACK_PUBLISHER_SIGNATURE: &str = "Represent missing signature evidence as manual-required or unavailable; do not invent trust state.";
 pub const FALLBACK_INVENTORY_PROCESS_LINK: &str =
     "Reject broad app targeting when inventory and process evidence cannot be joined.";
-pub const FALLBACK_UNSUPPORTED_IDENTITY: &str =
-    "Return unavailable and require manual proof when host identity is unsupported or permission-limited.";
-pub const FALLBACK_ROLLBACK_READINESS: &str =
-    "Keep broad app rollback not-claimed until apply and rollback artifacts exist for the same identity.";
+pub const FALLBACK_UNSUPPORTED_IDENTITY: &str = "Return unavailable and require manual proof when host identity is unsupported or permission-limited.";
+pub const FALLBACK_ROLLBACK_READINESS: &str = "Keep broad app rollback not-claimed until apply and rollback artifacts exist for the same identity.";
 pub const FALLBACK_AUDIT_CUSTODY: &str =
     "Require real service audit custody before any process/package identity claim can upgrade.";

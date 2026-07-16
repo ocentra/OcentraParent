@@ -1,0 +1,144 @@
+/* generated from crates/schema/src/child_domain_runtime_events_ts.rs */
+
+import { AgentEventDeliveryMode, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/event-primitives';
+import { EventingEventTypeSchema } from '@ocentra-parent/schema-domain/eventing';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+
+export const ChildDomainChildDeviceIdSchema = brandedNonEmptyStringSchema('ChildDomainChildDeviceId');
+export const ChildDomainChildProfileIdSchema = brandedNonEmptyStringSchema('ChildDomainChildProfileId');
+export const ChildDomainObservationIdSchema = brandedNonEmptyStringSchema('ChildDomainObservationId');
+export const ChildDomainSubjectRefSchema = brandedNonEmptyStringSchema('ChildDomainSubjectRef');
+export const ChildDomainObservedStateSchema = brandedNonEmptyStringSchema('ChildDomainObservedState');
+export const ChildDomainObservedAtSchema = brandedNonEmptyStringSchema('ChildDomainObservedAt');
+export const ChildDomainEvidenceRefSchema = brandedNonEmptyStringSchema('ChildDomainEvidenceRef');
+export const ChildDomainAiRequestIdSchema = brandedNonEmptyStringSchema('ChildDomainAiRequestId');
+export const ChildDomainAnalysisPurposeSchema = brandedNonEmptyStringSchema('ChildDomainAnalysisPurpose');
+export const ChildDomainFactRefSchema = brandedNonEmptyStringSchema('ChildDomainFactRef');
+export const ChildDomainPolicyRequestIdSchema = brandedNonEmptyStringSchema('ChildDomainPolicyRequestId');
+export const ChildDomainPolicyViolationIdSchema = brandedNonEmptyStringSchema('ChildDomainPolicyViolationId');
+export const ChildDomainPolicyRuleRefSchema = brandedNonEmptyStringSchema('ChildDomainPolicyRuleRef');
+export const ChildDomainPolicySeveritySchema = brandedNonEmptyStringSchema('ChildDomainPolicySeverity');
+export const ChildDomainNotificationIdSchema = brandedNonEmptyStringSchema('ChildDomainNotificationId');
+export const ChildDomainNotificationChannelSchema = brandedNonEmptyStringSchema('ChildDomainNotificationChannel');
+
+export const ChildRuntimeDomainLiteral = {
+  App: 'app',
+  AppGame: 'app-game',
+  Browser: 'browser',
+  Lan: 'lan',
+  Network: 'network',
+  Screen: 'screen',
+  ScreenLiveView: 'screen-live-view',
+} as const;
+
+__CHILD_DOMAIN_RUNTIME_EVENT_TYPE_LITERALS__
+
+export const ChildDomainAiAnalysisRequirementLiteral = {
+  Required: 'required',
+  NotRequired: 'not-required',
+} as const;
+
+export const ChildDomainPolicyEvaluationRequirementLiteral = {
+  Required: 'required',
+  NotRequired: 'not-required',
+} as const;
+
+export const ChildDomainPrivatePayloadStateLiteral = {
+  Excluded: 'excluded',
+} as const;
+
+export const ChildRuntimeDomainSchema = withParser(
+  Schema.Literal(
+    ChildRuntimeDomainLiteral.App,
+    ChildRuntimeDomainLiteral.AppGame,
+    ChildRuntimeDomainLiteral.Browser,
+    ChildRuntimeDomainLiteral.Lan,
+    ChildRuntimeDomainLiteral.Network,
+    ChildRuntimeDomainLiteral.Screen,
+    ChildRuntimeDomainLiteral.ScreenLiveView
+  )
+);
+
+export const ChildDomainRuntimeEventTypeSchema = withParser(
+  Schema.Literal(
+    ChildDomainRuntimeEventTypeLiteral.AppObserved,
+    ChildDomainRuntimeEventTypeLiteral.AppEvidenceRecorded,
+    ChildDomainRuntimeEventTypeLiteral.AppAiAnalysisRequested,
+    ChildDomainRuntimeEventTypeLiteral.AppPolicyEvaluationRequested,
+    ChildDomainRuntimeEventTypeLiteral.AppGameObserved,
+    ChildDomainRuntimeEventTypeLiteral.AppGameEvidenceRecorded,
+    ChildDomainRuntimeEventTypeLiteral.AppGameAiAnalysisRequested,
+    ChildDomainRuntimeEventTypeLiteral.AppGamePolicyEvaluationRequested,
+    ChildDomainRuntimeEventTypeLiteral.BrowserObserved,
+    ChildDomainRuntimeEventTypeLiteral.BrowserEvidenceRecorded,
+    ChildDomainRuntimeEventTypeLiteral.BrowserAiAnalysisRequested,
+    ChildDomainRuntimeEventTypeLiteral.BrowserPolicyEvaluationRequested,
+    ChildDomainRuntimeEventTypeLiteral.LanObserved,
+    ChildDomainRuntimeEventTypeLiteral.LanEvidenceRecorded,
+    ChildDomainRuntimeEventTypeLiteral.LanAiAnalysisRequested,
+    ChildDomainRuntimeEventTypeLiteral.LanPolicyEvaluationRequested,
+    ChildDomainRuntimeEventTypeLiteral.NetworkObserved,
+    ChildDomainRuntimeEventTypeLiteral.NetworkEvidenceRecorded,
+    ChildDomainRuntimeEventTypeLiteral.NetworkAiAnalysisRequested,
+    ChildDomainRuntimeEventTypeLiteral.NetworkPolicyEvaluationRequested,
+    ChildDomainRuntimeEventTypeLiteral.ScreenObserved,
+    ChildDomainRuntimeEventTypeLiteral.ScreenEvidenceRecorded,
+    ChildDomainRuntimeEventTypeLiteral.ScreenAiAnalysisRequested,
+    ChildDomainRuntimeEventTypeLiteral.ScreenPolicyEvaluationRequested,
+    ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewObserved,
+    ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewEvidenceRecorded,
+    ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewAiAnalysisRequested,
+    ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewPolicyEvaluationRequested,
+    ChildDomainRuntimeEventTypeLiteral.AiAnalysisCompleted,
+    ChildDomainRuntimeEventTypeLiteral.PolicyViolationDetected,
+    ChildDomainRuntimeEventTypeLiteral.NotificationRequested
+  ).pipe(
+    Schema.filter(
+      (eventType) =>
+        EventingEventTypeSchema.safeParse(eventType).success ||
+        'Expected child runtime event type to satisfy the shared eventing taxonomy'
+    )
+  )
+);
+
+export const ChildDomainAiAnalysisRequirementSchema = withParser(
+  Schema.Literal(ChildDomainAiAnalysisRequirementLiteral.Required, ChildDomainAiAnalysisRequirementLiteral.NotRequired)
+);
+
+export const ChildDomainPolicyEvaluationRequirementSchema = withParser(
+  Schema.Literal(
+    ChildDomainPolicyEvaluationRequirementLiteral.Required,
+    ChildDomainPolicyEvaluationRequirementLiteral.NotRequired
+  )
+);
+
+export const ChildDomainPrivatePayloadStateSchema = withParser(
+  Schema.Literal(ChildDomainPrivatePayloadStateLiteral.Excluded)
+);
+
+export const ChildDomainRuntimeEventEnvelopeSchema = withParser(
+  Schema.Struct({
+    envelope: AgentEventEnvelopeSchema,
+    domain: ChildRuntimeDomainSchema,
+    eventType: ChildDomainRuntimeEventTypeSchema,
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        event.envelope.eventName === event.eventType ||
+        'Expected child runtime envelope eventName to match the child runtime event type'
+    ),
+    Schema.filter(
+      (event) =>
+        childDomainRuntimeEventTypeMatchesDomain(event.domain, event.eventType) ||
+        'Expected child runtime event type to match the owning child runtime domain'
+    ),
+    Schema.filter(
+      (event) =>
+        event.envelope.deliveryMode === AgentEventDeliveryMode.FireAndForget ||
+        event.envelope.deliveryMode === AgentEventDeliveryMode.RequestResponse ||
+        'Expected child runtime event delivery to use the shared event-domain delivery modes'
+    )
+  )
+);
+
+const ChildDomainEvidenceRefsSchema = Schema.Array(ChildDomainEvidenceRefSchema).pipe(Schema.minItems(1));

@@ -1,0 +1,705 @@
+use super::*;
+
+pub(super) fn network_remote_delivery_status_ref_descriptors(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(network_remote_delivery_status_ref_descriptors_core());
+    descriptors.extend(network_remote_delivery_status_ref_descriptors_outbox());
+    descriptors.extend(network_remote_delivery_status_ref_descriptors_readiness());
+    descriptors.extend(network_remote_delivery_status_ref_descriptors_transport());
+    descriptors
+}
+
+fn network_remote_delivery_status_ref_descriptors_core(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor(
+            "StatusRef",
+            network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_STATUS_REF,
+        ),
+        field_descriptor(
+            "EventChainJournalRef",
+            network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_REF,
+        ),
+        field_descriptor(
+            "ReceiptLedgerRef",
+            network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_LEDGER_REF,
+        ),
+        field_descriptor(
+            "LocalReceiptAckRef",
+            network_flow::TEST_REMOTE_EVENT_CHAIN_RECEIPT_ACK_REF,
+        ),
+        field_descriptor(
+            "DurableEnvelopeRef",
+            network_flow::TEST_REMOTE_DELIVERY_DURABLE_ENVELOPE_REF,
+        ),
+        field_descriptor(
+            "DurableStoreRef",
+            network_flow::TEST_REMOTE_DELIVERY_DURABLE_STORE_REF,
+        ),
+        field_descriptor(
+            "DurableReplayRef",
+            network_flow::TEST_REMOTE_DELIVERY_DURABLE_REPLAY_REF,
+        ),
+        field_descriptor(
+            "DurableDeleteExportRef",
+            network_flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF,
+        ),
+        field_descriptor(
+            "DurableSupportStatusRef",
+            network_flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF,
+        ),
+    ]
+}
+
+fn network_remote_delivery_status_ref_descriptors_outbox(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor("OutboxRef", network_flow::TEST_REMOTE_DELIVERY_OUTBOX_REF),
+        field_descriptor(
+            "OutboxHandoffRef",
+            network_flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF,
+        ),
+        field_descriptor(
+            "OutboxReplayRef",
+            network_flow::TEST_REMOTE_DELIVERY_OUTBOX_REPLAY_REF,
+        ),
+        field_descriptor(
+            "OutboxSupportStatusRef",
+            network_flow::TEST_REMOTE_DELIVERY_OUTBOX_SUPPORT_STATUS_REF,
+        ),
+        field_descriptor(
+            "TransportDispatchStateRef",
+            network_flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF,
+        ),
+        field_descriptor(
+            "BlockedDispatchRef",
+            network_flow::TEST_REMOTE_DELIVERY_DISPATCH_BLOCKED_MANUAL_REF,
+        ),
+        field_descriptor(
+            "FutureTransportSeamRef",
+            network_flow::TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF,
+        ),
+        field_descriptor(
+            "FixtureTransportRef",
+            network_flow::TEST_REMOTE_DELIVERY_FIXTURE_TRANSPORT_REF,
+        ),
+        field_descriptor(
+            "FixtureDispatchAttemptRef",
+            network_flow::TEST_REMOTE_DELIVERY_FIXTURE_DISPATCH_ATTEMPT_REF,
+        ),
+        field_descriptor(
+            "FixtureAckRef",
+            network_flow::TEST_REMOTE_DELIVERY_FIXTURE_ACK_REF,
+        ),
+    ]
+}
+
+fn network_remote_delivery_status_ref_descriptors_readiness(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor(
+            "DeleteExportPropagationRef",
+            network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_PROPAGATION_REF,
+        ),
+        field_descriptor(
+            "RemoteDeleteReadinessRef",
+            network_flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_REF,
+        ),
+        field_descriptor(
+            "RemoteExportReadinessRef",
+            network_flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_REF,
+        ),
+        field_descriptor(
+            "ProviderRouteRef",
+            network_flow::TEST_REMOTE_DELIVERY_PROVIDER_ROUTE_REF,
+        ),
+        field_descriptor(
+            "ChildDeviceRouteRef",
+            network_flow::TEST_REMOTE_DELIVERY_CHILD_DEVICE_ROUTE_REF,
+        ),
+        field_descriptor(
+            "ProviderDeliveryReadinessRef",
+            network_flow::TEST_REMOTE_DELIVERY_PROVIDER_READINESS_REF,
+        ),
+        field_descriptor(
+            "ChildDeviceDeliveryReadinessRef",
+            network_flow::TEST_REMOTE_DELIVERY_CHILD_DEVICE_READINESS_REF,
+        ),
+        field_descriptor(
+            "CrossProcessCustodyStatusRef",
+            network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF,
+        ),
+        field_descriptor(
+            "CrossProcessReplayReadinessRef",
+            network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_READINESS_REF,
+        ),
+        field_descriptor(
+            "RemoteRetentionReadinessRef",
+            network_flow::TEST_REMOTE_DELIVERY_REMOTE_RETENTION_READINESS_REF,
+        ),
+        field_descriptor(
+            "RemoteDeleteCustodyReadinessRef",
+            network_flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_CUSTODY_REF,
+        ),
+        field_descriptor(
+            "RemoteExportCustodyReadinessRef",
+            network_flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_CUSTODY_REF,
+        ),
+    ]
+}
+
+fn network_remote_delivery_status_ref_descriptors_transport(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor(
+            "CrossProcessReplayRef",
+            network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_REF,
+        ),
+        field_descriptor(
+            "CrossProcessReplayStoreRef",
+            network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STORE_REF,
+        ),
+        field_descriptor(
+            "CrossProcessReplayCursorRef",
+            network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_CURSOR_REF,
+        ),
+        field_descriptor(
+            "ExternalCrossProcessTransportRef",
+            network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_REF,
+        ),
+        field_descriptor(
+            "ExternalCrossProcessTransportEnvelopeRef",
+            network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ENVELOPE_REF,
+        ),
+        field_descriptor(
+            "ExternalCrossProcessTransportAckRef",
+            network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ACK_REF,
+        ),
+    ]
+}
+
+pub(super) fn network_live_capture_status_ref_descriptors(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(network_live_capture_status_ref_descriptors_proof());
+    descriptors.extend(network_live_capture_status_ref_descriptors_execution());
+    descriptors.extend(network_live_capture_status_ref_descriptors_raw_capture());
+    descriptors
+}
+
+fn network_live_capture_status_ref_descriptors_proof(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor("StatusRef", network_flow::TEST_LIVE_CAPTURE_STATUS_REF),
+        field_descriptor(
+            "Row13StatusRef",
+            network_flow::TEST_LIVE_CAPTURE_ROW13_STATUS_REF,
+        ),
+        field_descriptor(
+            "ExecutionStatusRef",
+            network_flow::TEST_LIVE_CAPTURE_EXECUTION_STATUS_REF,
+        ),
+        field_descriptor(
+            "RawStorageStatusRef",
+            network_flow::TEST_LIVE_CAPTURE_STORAGE_STATUS_REF,
+        ),
+        field_descriptor(
+            "WindowsProofRef",
+            network_flow::TEST_LIVE_CAPTURE_WINDOWS_PROOF_REF,
+        ),
+        field_descriptor(
+            "ManualProofRef",
+            network_flow::TEST_LIVE_CAPTURE_MANUAL_PROOF_REF,
+        ),
+        field_descriptor(
+            "LinuxProofRef",
+            network_flow::TEST_LIVE_CAPTURE_LINUX_PROOF_REF,
+        ),
+        field_descriptor(
+            "MacosProofRef",
+            network_flow::TEST_LIVE_CAPTURE_MACOS_PROOF_REF,
+        ),
+        field_descriptor(
+            "InterfaceRef",
+            network_flow::TEST_LIVE_CAPTURE_INTERFACE_REF,
+        ),
+        field_descriptor("DriverRef", network_flow::TEST_LIVE_CAPTURE_DRIVER_REF),
+        field_descriptor(
+            "PermissionRef",
+            network_flow::TEST_LIVE_CAPTURE_PERMISSION_REF,
+        ),
+    ]
+}
+
+fn network_live_capture_status_ref_descriptors_execution(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor(
+            "BoundedCaptureRef",
+            network_flow::TEST_LIVE_CAPTURE_BOUNDED_REF,
+        ),
+        field_descriptor(
+            "CleanStopRef",
+            network_flow::TEST_LIVE_CAPTURE_CLEAN_STOP_REF,
+        ),
+        field_descriptor("QuotaRef", network_flow::TEST_LIVE_CAPTURE_QUOTA_REF),
+        field_descriptor(
+            "RetentionRef",
+            network_flow::TEST_LIVE_CAPTURE_RETENTION_REF,
+        ),
+        field_descriptor("CustodyRef", network_flow::TEST_LIVE_CAPTURE_CUSTODY_REF),
+        field_descriptor(
+            "PrivateTrafficExclusionRef",
+            network_flow::TEST_LIVE_CAPTURE_PRIVATE_TRAFFIC_EXCLUSION_REF,
+        ),
+        field_descriptor(
+            "WindowsExecutionRef",
+            network_flow::TEST_LIVE_CAPTURE_WINDOWS_EXECUTION_REF,
+        ),
+        field_descriptor(
+            "ManualExecutionRef",
+            network_flow::TEST_LIVE_CAPTURE_MANUAL_EXECUTION_REF,
+        ),
+        field_descriptor(
+            "LinuxExecutionRef",
+            network_flow::TEST_LIVE_CAPTURE_LINUX_EXECUTION_REF,
+        ),
+        field_descriptor(
+            "MacosExecutionRef",
+            network_flow::TEST_LIVE_CAPTURE_MACOS_EXECUTION_REF,
+        ),
+        field_descriptor(
+            "DriverInvocationRef",
+            network_flow::TEST_LIVE_CAPTURE_DRIVER_INVOCATION_REF,
+        ),
+        field_descriptor(
+            "InterfaceObservationRef",
+            network_flow::TEST_LIVE_CAPTURE_INTERFACE_OBSERVATION_REF,
+        ),
+        field_descriptor(
+            "ExecutionPermissionRef",
+            network_flow::TEST_LIVE_CAPTURE_EXECUTION_PERMISSION_REF,
+        ),
+        field_descriptor(
+            "BoundedWindowRef",
+            network_flow::TEST_LIVE_CAPTURE_BOUNDED_WINDOW_REF,
+        ),
+        field_descriptor(
+            "ExecutionCleanStopRef",
+            network_flow::TEST_LIVE_CAPTURE_EXECUTION_CLEAN_STOP_REF,
+        ),
+        field_descriptor(
+            "ExecutionCustodyRef",
+            network_flow::TEST_LIVE_CAPTURE_EXECUTION_CUSTODY_REF,
+        ),
+        field_descriptor(
+            "ExecutionRetentionRef",
+            network_flow::TEST_LIVE_CAPTURE_EXECUTION_RETENTION_REF,
+        ),
+        field_descriptor(
+            "MetadataSanitizationRef",
+            network_flow::TEST_LIVE_CAPTURE_METADATA_SANITIZATION_REF,
+        ),
+        field_descriptor(
+            "ExecutionPrivateTrafficExclusionRef",
+            network_flow::TEST_LIVE_CAPTURE_EXECUTION_PRIVATE_TRAFFIC_EXCLUSION_REF,
+        ),
+    ]
+}
+
+fn network_live_capture_status_ref_descriptors_raw_capture(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor(
+            "RawManifestRef",
+            network_flow::TEST_RAW_CAPTURE_MANIFEST_REF,
+        ),
+        field_descriptor(
+            "RawStorageLocationRef",
+            network_flow::TEST_RAW_CAPTURE_STORAGE_LOCATION_REF,
+        ),
+        field_descriptor(
+            "RawEncryptionRef",
+            network_flow::TEST_RAW_CAPTURE_ENCRYPTION_REF,
+        ),
+        field_descriptor("RawQuotaRef", network_flow::TEST_RAW_CAPTURE_QUOTA_REF),
+        field_descriptor(
+            "RawRetentionRef",
+            network_flow::TEST_RAW_CAPTURE_RETENTION_REF,
+        ),
+        field_descriptor(
+            "RawDeleteExportRef",
+            network_flow::TEST_RAW_CAPTURE_DELETE_EXPORT_REF,
+        ),
+        field_descriptor(
+            "RawCustodyChainRef",
+            network_flow::TEST_RAW_CAPTURE_CUSTODY_CHAIN_REF,
+        ),
+        field_descriptor(
+            "RawPrivateTrafficExclusionRef",
+            network_flow::TEST_RAW_CAPTURE_PRIVATE_TRAFFIC_EXCLUSION_REF,
+        ),
+    ]
+}
+
+pub(super) fn network_linux_nftables_lab_status_ref_descriptors(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor(
+            "StatusRef",
+            network_flow::TEST_LINUX_NFTABLES_LAB_STATUS_REF,
+        ),
+        field_descriptor("LabRef", network_flow::TEST_LINUX_NFTABLES_LAB_REF),
+        field_descriptor(
+            "LinuxAdapterGateRef",
+            network_flow::TEST_LINUX_ADAPTER_GATE_REF,
+        ),
+        field_descriptor(
+            "PolicyDecisionRef",
+            network_flow::TEST_LINUX_ADAPTER_POLICY_DECISION_REF,
+        ),
+        field_descriptor(
+            "ParentRuleRef",
+            network_flow::TEST_LINUX_ADAPTER_PARENT_RULE_REF,
+        ),
+        field_descriptor("EvidenceRef", network_flow::TEST_LINUX_ADAPTER_EVIDENCE_REF),
+        field_descriptor("DistroRef", network_flow::TEST_LINUX_DISTRO_REF),
+        field_descriptor("KernelRef", network_flow::TEST_LINUX_KERNEL_REF),
+        field_descriptor("TableName", network_flow::TEST_LINUX_NFTABLES_TABLE_NAME),
+        field_descriptor("ChainName", network_flow::TEST_LINUX_NFTABLES_CHAIN_NAME),
+        field_descriptor(
+            "TargetRemoteAddress",
+            network_flow::TEST_LINUX_NFTABLES_TARGET_REMOTE_ADDRESS,
+        ),
+        field_descriptor(
+            "CreateTableCommandRef",
+            network_flow::TEST_LINUX_NFTABLES_CREATE_TABLE_COMMAND_REF,
+        ),
+        field_descriptor(
+            "CreateChainCommandRef",
+            network_flow::TEST_LINUX_NFTABLES_CREATE_CHAIN_COMMAND_REF,
+        ),
+        field_descriptor(
+            "AddRuleCommandRef",
+            network_flow::TEST_LINUX_NFTABLES_ADD_RULE_COMMAND_REF,
+        ),
+        field_descriptor(
+            "VerifyRuleCommandRef",
+            network_flow::TEST_LINUX_NFTABLES_VERIFY_RULE_COMMAND_REF,
+        ),
+        field_descriptor(
+            "DeleteTableCommandRef",
+            network_flow::TEST_LINUX_NFTABLES_DELETE_TABLE_COMMAND_REF,
+        ),
+        field_descriptor(
+            "VerifyRemovedCommandRef",
+            network_flow::TEST_LINUX_NFTABLES_VERIFY_REMOVED_COMMAND_REF,
+        ),
+        field_descriptor(
+            "CreateTableOutputSha256",
+            network_flow::TEST_LINUX_NFTABLES_CREATE_TABLE_OUTPUT_SHA256,
+        ),
+        field_descriptor(
+            "CreateChainOutputSha256",
+            network_flow::TEST_LINUX_NFTABLES_CREATE_CHAIN_OUTPUT_SHA256,
+        ),
+        field_descriptor(
+            "AddRuleOutputSha256",
+            network_flow::TEST_LINUX_NFTABLES_ADD_RULE_OUTPUT_SHA256,
+        ),
+        field_descriptor(
+            "VerifyRuleOutputSha256",
+            network_flow::TEST_LINUX_NFTABLES_VERIFY_RULE_OUTPUT_SHA256,
+        ),
+        field_descriptor(
+            "DeleteTableOutputSha256",
+            network_flow::TEST_LINUX_NFTABLES_DELETE_TABLE_OUTPUT_SHA256,
+        ),
+        field_descriptor(
+            "VerifyRemovedOutputSha256",
+            network_flow::TEST_LINUX_NFTABLES_VERIFY_REMOVED_OUTPUT_SHA256,
+        ),
+    ]
+}
+
+pub(super) fn network_windows_firewall_lab_status_ref_descriptors(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor(
+            "StatusRef",
+            network_flow::TEST_WINDOWS_FIREWALL_LAB_STATUS_REF,
+        ),
+        field_descriptor("LabRef", network_flow::TEST_WINDOWS_FIREWALL_LAB_REF),
+        field_descriptor(
+            "FirewallAdapterPlanRef",
+            network_flow::TEST_WINDOWS_FIREWALL_ADAPTER_PLAN_REF,
+        ),
+        field_descriptor(
+            "PolicyDecisionRef",
+            network_flow::TEST_WINDOWS_FIREWALL_POLICY_DECISION_REF,
+        ),
+        field_descriptor(
+            "ParentRuleRef",
+            network_flow::TEST_WINDOWS_FIREWALL_PARENT_RULE_REF,
+        ),
+        field_descriptor(
+            "EvidenceRef",
+            network_flow::TEST_WINDOWS_FIREWALL_EVIDENCE_REF,
+        ),
+        field_descriptor(
+            "WindowsOsScopeRef",
+            network_flow::TEST_WINDOWS_FIREWALL_OS_SCOPE_REF,
+        ),
+        field_descriptor("TargetRef", network_flow::TEST_WINDOWS_FIREWALL_TARGET_REF),
+        field_descriptor(
+            "FirewallRuleRef",
+            network_flow::TEST_WINDOWS_FIREWALL_RULE_REF,
+        ),
+        field_descriptor("RuleName", network_flow::TEST_WINDOWS_FIREWALL_RULE_NAME),
+        field_descriptor(
+            "TargetRemoteAddress",
+            network_flow::TEST_WINDOWS_FIREWALL_TARGET_REMOTE_ADDRESS,
+        ),
+        field_descriptor(
+            "ApplyRuleCommandRef",
+            network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_COMMAND_REF,
+        ),
+        field_descriptor(
+            "VerifyPresentCommandRef",
+            network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_COMMAND_REF,
+        ),
+        field_descriptor(
+            "RollbackRuleCommandRef",
+            network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_COMMAND_REF,
+        ),
+        field_descriptor(
+            "VerifyRemovedCommandRef",
+            network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_COMMAND_REF,
+        ),
+        field_descriptor(
+            "ApplyRuleOutputSha256",
+            network_flow::TEST_WINDOWS_FIREWALL_APPLY_RULE_OUTPUT_SHA256,
+        ),
+        field_descriptor(
+            "VerifyPresentOutputSha256",
+            network_flow::TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_OUTPUT_SHA256,
+        ),
+        field_descriptor(
+            "RollbackRuleOutputSha256",
+            network_flow::TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_OUTPUT_SHA256,
+        ),
+        field_descriptor(
+            "VerifyRemovedOutputSha256",
+            network_flow::TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_OUTPUT_SHA256,
+        ),
+    ]
+}
+
+pub(super) fn network_windows_wfp_gate_status_ref_descriptors(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor("StatusRef", network_flow::TEST_WINDOWS_WFP_GATE_STATUS_REF),
+        field_descriptor("WfpGateRef", network_flow::TEST_WINDOWS_WFP_GATE_REF),
+        field_descriptor(
+            "PolicyDecisionRef",
+            network_flow::TEST_WINDOWS_WFP_POLICY_DECISION_REF,
+        ),
+        field_descriptor(
+            "ParentRuleRef",
+            network_flow::TEST_WINDOWS_WFP_PARENT_RULE_REF,
+        ),
+        field_descriptor("EvidenceRef", network_flow::TEST_WINDOWS_WFP_EVIDENCE_REF),
+        field_descriptor(
+            "LocalAiResultRef",
+            network_flow::TEST_WINDOWS_WFP_LOCAL_AI_RESULT_REF,
+        ),
+        field_descriptor("TargetRef", network_flow::TEST_WINDOWS_WFP_TARGET_REF),
+        field_descriptor(
+            "WfpProviderRef",
+            network_flow::TEST_WINDOWS_WFP_PROVIDER_REF,
+        ),
+        field_descriptor("WfpLayerRef", network_flow::TEST_WINDOWS_WFP_LAYER_REF),
+        field_descriptor(
+            "AdministratorPermissionProofRef",
+            network_flow::TEST_WINDOWS_WFP_ADMIN_PERMISSION_PROOF_REF,
+        ),
+        field_descriptor(
+            "DriverSigningProofRef",
+            network_flow::TEST_WINDOWS_WFP_DRIVER_SIGNING_PROOF_REF,
+        ),
+        field_descriptor(
+            "DriverPackageProofRef",
+            network_flow::TEST_WINDOWS_WFP_DRIVER_PACKAGE_PROOF_REF,
+        ),
+        field_descriptor(
+            "ProviderRegistrationPlanRef",
+            network_flow::TEST_WINDOWS_WFP_PROVIDER_REGISTRATION_PLAN_REF,
+        ),
+        field_descriptor(
+            "LayerCapabilityMatrixRef",
+            network_flow::TEST_WINDOWS_WFP_LAYER_CAPABILITY_MATRIX_REF,
+        ),
+        field_descriptor(
+            "RollbackPlanRef",
+            network_flow::TEST_WINDOWS_WFP_ROLLBACK_PLAN_REF,
+        ),
+        field_descriptor(
+            "LabResultArtifactRef",
+            network_flow::TEST_WINDOWS_WFP_LAB_RESULT_ARTIFACT_REF,
+        ),
+        field_descriptor(
+            "AuditEventRef",
+            network_flow::TEST_WINDOWS_WFP_AUDIT_EVENT_REF,
+        ),
+    ]
+}
+
+pub(super) fn network_android_vpn_service_gate_status_ref_descriptors(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor(
+            "StatusRef",
+            network_flow::TEST_ANDROID_VPN_SERVICE_GATE_STATUS_REF,
+        ),
+        field_descriptor(
+            "AndroidVpnServiceGateRef",
+            network_flow::TEST_ANDROID_VPN_SERVICE_GATE_REF,
+        ),
+        field_descriptor(
+            "PolicyDecisionRef",
+            network_flow::TEST_ANDROID_VPN_SERVICE_POLICY_DECISION_REF,
+        ),
+        field_descriptor(
+            "ParentRuleRef",
+            network_flow::TEST_ANDROID_VPN_SERVICE_PARENT_RULE_REF,
+        ),
+        field_descriptor(
+            "EvidenceRef",
+            network_flow::TEST_ANDROID_VPN_SERVICE_EVIDENCE_REF,
+        ),
+        field_descriptor(
+            "LocalAiResultRef",
+            network_flow::TEST_ANDROID_VPN_SERVICE_LOCAL_AI_RESULT_REF,
+        ),
+        field_descriptor(
+            "PackageRef",
+            network_flow::TEST_ANDROID_VPN_SERVICE_PACKAGE_REF,
+        ),
+        field_descriptor("VpnServiceRef", network_flow::TEST_ANDROID_VPN_SERVICE_REF),
+        field_descriptor(
+            "VpnServiceDeclarationRef",
+            network_flow::TEST_ANDROID_VPN_SERVICE_DECLARATION_REF,
+        ),
+        field_descriptor(
+            "UserConsentProofRef",
+            network_flow::TEST_ANDROID_VPN_USER_CONSENT_PROOF_REF,
+        ),
+        field_descriptor(
+            "PhysicalDeviceProofRef",
+            network_flow::TEST_ANDROID_VPN_PHYSICAL_DEVICE_PROOF_REF,
+        ),
+        field_descriptor(
+            "PackageIdentityProofRef",
+            network_flow::TEST_ANDROID_VPN_PACKAGE_IDENTITY_PROOF_REF,
+        ),
+        field_descriptor(
+            "VirtualInterfaceProofRef",
+            network_flow::TEST_ANDROID_VPN_VIRTUAL_INTERFACE_PROOF_REF,
+        ),
+        field_descriptor(
+            "TrafficObservationProofRef",
+            network_flow::TEST_ANDROID_VPN_TRAFFIC_OBSERVATION_PROOF_REF,
+        ),
+        field_descriptor(
+            "RollbackPlanRef",
+            network_flow::TEST_ANDROID_VPN_ROLLBACK_PLAN_REF,
+        ),
+        field_descriptor(
+            "AuditEventRef",
+            network_flow::TEST_ANDROID_VPN_AUDIT_EVENT_REF,
+        ),
+        field_descriptor(
+            "DeviceOwnerProofRef",
+            network_flow::TEST_ANDROID_VPN_DEVICE_OWNER_PROOF_REF,
+        ),
+    ]
+}
+
+pub(super) fn network_apple_network_extension_gate_status_ref_descriptors(
+) -> Vec<ProtocolLiteralDescriptor<&'static str>> {
+    vec![
+        field_descriptor(
+            "StatusRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_GATE_STATUS_REF,
+        ),
+        field_descriptor(
+            "AppleNetworkExtensionGateRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_GATE_REF,
+        ),
+        field_descriptor(
+            "PolicyDecisionRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_POLICY_DECISION_REF,
+        ),
+        field_descriptor(
+            "ParentRuleRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_PARENT_RULE_REF,
+        ),
+        field_descriptor(
+            "EvidenceRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_EVIDENCE_REF,
+        ),
+        field_descriptor(
+            "LocalAiResultRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_LOCAL_AI_RESULT_REF,
+        ),
+        field_descriptor(
+            "BundleRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_BUNDLE_REF,
+        ),
+        field_descriptor(
+            "NetworkExtensionRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_REF,
+        ),
+        field_descriptor(
+            "DeveloperTeamProofRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_DEVELOPER_TEAM_PROOF_REF,
+        ),
+        field_descriptor(
+            "EntitlementApprovalProofRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_ENTITLEMENT_APPROVAL_PROOF_REF,
+        ),
+        field_descriptor(
+            "ProvisioningProfileProofRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_PROVISIONING_PROFILE_PROOF_REF,
+        ),
+        field_descriptor(
+            "SigningProofRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_SIGNING_PROOF_REF,
+        ),
+        field_descriptor(
+            "DeviceOrTestFlightProofRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_DEVICE_OR_TESTFLIGHT_PROOF_REF,
+        ),
+        field_descriptor(
+            "NetworkExtensionDeclarationRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_DECLARATION_REF,
+        ),
+        field_descriptor(
+            "ExtensionConfigurationProofRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_CONFIGURATION_PROOF_REF,
+        ),
+        field_descriptor(
+            "RollbackPlanRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_ROLLBACK_PLAN_REF,
+        ),
+        field_descriptor(
+            "AuditEventRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_AUDIT_EVENT_REF,
+        ),
+        field_descriptor(
+            "SupervisionOrMdmProofRef",
+            network_flow::TEST_APPLE_NETWORK_EXTENSION_SUPERVISION_OR_MDM_PROOF_REF,
+        ),
+    ]
+}

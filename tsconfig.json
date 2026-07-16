@@ -5,22 +5,7 @@
       "path": "./packages/schema-domain"
     },
     {
-      "path": "./packages/endpoint-domain"
-    },
-    {
-      "path": "./packages/parent-domain"
-    },
-    {
-      "path": "./packages/activity-domain"
-    },
-    {
       "path": "./packages/logging-domain"
-    },
-    {
-      "path": "./packages/agent-protocol-domain"
-    },
-    {
-      "path": "./packages/text-domain"
     },
     {
       "path": "./packages/portal-domain"

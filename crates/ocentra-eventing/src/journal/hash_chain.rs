@@ -27,7 +27,8 @@ pub(super) fn hash_entry(
         phase,
         envelope,
     };
-    let bytes = serde_json::to_vec(&input).map_err(EventingError::journal_encode)?;
+    let bytes =
+        serde_json::to_vec(&input).map_err(|error| EventingError::journal_encode(&error))?;
     let digest = Sha256::digest(&bytes);
     JournalHash::parse(format!("{JOURNAL_HASH_PREFIX}{:x}", digest))
 }

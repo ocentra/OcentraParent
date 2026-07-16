@@ -1,105 +1,121 @@
-# 02 Current State And Gap Map
+# 22 Current State And Gap Map
 
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `lan-plan`
-> Doc: `02 Current State And Gap Map`
-> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
-> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
-> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+> Doc: `22 Current State And Gap Map`
+> Kind: assigned active workpack; read only when this exact workpack is selected.
+> Read when: Only when this exact workpack is explicitly selected from `WORKPACK_INDEX.md`.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack's own proof rows and tests support the claim.
+> Proves: only this workpack's current gap-map boundary and progress explicitly recorded here.
+> Does not prove: current completion of sibling workpacks or broad LAN readiness.
+> Proof rule: Rewrite any stale TS-first file targets before using this file for execution claims.
 
 <!-- /agent-capsule -->
 
-Sources: [folder README](../README.md), [feature doc](../../features/family-setup-device-roles.md),
-[family setup expectations](../../expectations/family-setup.md),
-[LAN pairing expectations](../../expectations/lan-pairing.md).
-Assumes workpack 01 domain schemas exist before this workpack executes.
+Sources: [folder README](../README.md), [feature doc](../../../features/family-setup-device-roles.md),
+[family setup expectations](../../../expectations/family-setup.md),
+[LAN pairing expectations](../../../expectations/lan-pairing.md).
+
+## Active scope status
+
+This workpack is part of the authoritative `01-25` LAN execution model. It is
+locally complete for the current gap-map truth-sync slice.
+
+Historical TS-domain file targets from older copies of this draft are stale.
+Current direction for this workpack is:
+
+- Rust owns the shared route/source enums, read-model contracts, and runtime
+  behavior.
+- TS remains presentation only and may consume generated bridge artifacts at
+  the UI edge.
+- Any path list that still points to TS contract ownership must be rewritten
+  before implementation starts.
 
 ## Where We Are
 
-The V0.9 LAN spine produces a service-backed add-device read model with:
+The current LAN spine already exposes a service-backed add-device read model
+with:
 
-- Household device rows: trusted registry, route custody, stale/offline selected-device.
-- Signed discovery/relay spine rows: signed hello/heartbeat manual-required.
-- LAN source-matrix rows: 20 plan workpacks and discovery sources visible.
-- Parent decision fields: assign/rename/ignore/restore/trust/revoke.
-- Live B-lane Playwright proof: `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`.
+- trusted-registry and route-custody device rows
+- signed discovery / relay / stale / offline labels
+- LAN source-matrix rows for workpacks and discovery sources
+- parent decision fields such as assign, rename, ignore, restore, trust, and
+  revoke
 
-What is **missing from the current read model and runtime**:
-
-1. `HouseholdProfile` and `ChildProfile` are not stored, persisted, or served by `crates/agent-service`. The add-device model has device rows but no parent-tier household grouping.
-2. `ParentControllerLease` is conceptually present (controller assigns exist) but no typed lease id, expiry time, or revocation state is stored in SQLite or returned in the read model.
-3. `ObserverPermission` does not exist. Co-parent and observer are not distinguishable in the current model.
-4. Portal tests cover LAN slot/parser fixture states but have no tests for full setup, recovery, or degraded first-run states (feature doc checklist row open).
-5. Parent recovery UX is absent — no typed flow for "my parent device was lost/replaced, re-pair to the household."
-6. Source labels `local`, `lan`, `relay`, `cache`, `parent-owned storage`, `unavailable` exist as read-model labels but are not enforced as a closed enum in the TypeScript domain; raw strings can be passed.
+This locally complete workpack captures the current family-setup-oriented gap
+map around household grouping, controller leases, observer permissions,
+recovery UX, and route/source label closure.
 
 ## Where We Want To Be
 
-Map every gap to a specific file/crate change, tag it as: **implement now** (contracts exist from WP01), **deferred to later workpack**, or **manual-required**. A future agent must be able to read this workpack, see the gap table, and know exactly which file to open first.
+Map every remaining gap to a Rust-owned boundary and classify it as:
 
-## Scope
+- implement now
+- deferred to later workpack
+- manual-required
 
-Gap table — implement all "implement now" rows in this workpack:
+A future worker should be able to read this file and know which Rust boundary
+owns the next move without being sent back to TS contract ownership or a portal
+execution path.
 
-| Gap                                           | File/Crate                                                           | Action                                                                                                          | Target WP       |
-| --------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------- |
-| `HouseholdProfile` not stored in SQLite       | `crates/agent-service/src/db/household.rs` (new)                     | Add SQLite table `households`, `child_profiles`, `parent_members` and CRUD handlers                             | now             |
-| `HouseholdProfile` not in read model response | `crates/agent-service/src/read_models/household_read_model.rs` (new) | Emit `HouseholdReadModel` on `agent.household.read-model.get` command                                           | now             |
-| `ParentControllerLease` missing expiry/revoke | `crates/agent-service/src/db/leases.rs` (new)                        | Add `controller_leases` table with `issued_at`, `expires_at`, `revocation_state`; check expiry on every command | now             |
-| `ObserverPermission` not modelled             | `crates/agent-service/src/db/permissions.rs` (new)                   | Add `observer_permissions` table; reject write commands from observer role                                      | now             |
-| Route label closed enum missing               | `packages/parent-domain/src/device-registration.ts`                  | Replace `routeState: string` with `RouteState` Effect Schema enum                                               | now             |
-| Portal missing full setup/recovery tests      | `packages/portal/tests/family-setup.playwright.ts` (new)             | Add Playwright tests for: create household, add child profile, assign device, revoke device, recovery flow      | WP04            |
-| Physical two-device LAN proof                 | manual                                                               | Record manual-required; cannot be automated in CI                                                               | manual-required |
+## Gap inventory
 
-For the "implement now" rows: implement SQLite tables and read model handlers in Rust, then write integration tests confirming the read model returns typed household data when the service is queried.
+The current verified gaps for this workpack are now:
 
-## Touched Paths
+1. physical two-device household LAN proof for route/revoke/re-pair behavior
+2. router/firewall/manual network proof beyond local single-host validation
+3. broader passive DHCP, WS-Discovery, and active WSD live proof
+4. broader service-probe, weighted-classification, and install-eligibility
+   proof beyond the current bounded Rust slices
+5. replay/restart/event-stream proof and broader downstream consumer proof
 
-- `crates/agent-service/src/db/household.rs` (new)
-- `crates/agent-service/src/db/leases.rs` (new)
-- `crates/agent-service/src/db/permissions.rs` (new)
-- `crates/agent-service/src/db/mod.rs` (add new modules)
-- `crates/agent-service/src/read_models/household_read_model.rs` (new)
-- `crates/agent-service/src/read_models/mod.rs` (add `household_read_model`)
-- `packages/parent-domain/src/device-registration.ts` (fix `routeState` enum)
+## Owning Rust boundaries
+
+The likely Rust-first owners are:
+
+- the Rust persistence boundary for household, lease, and permission state
+- the Rust read-model boundary for household and LAN device presentation state
+- the Rust shared schema or bridge/schema boundary for route/source enums
+- supporting presentation checks only after the Rust-owned read-model proof is
+  already honest
+
+Do not revive any older `packages/parent-domain` contract-first path from this
+workpack.
 
 ## Tests And Proof
 
-- Rust integration test: insert a `HouseholdProfile` via the db layer, query the read model handler, assert the response JSON matches the WP01 TypeScript schema shape.
-- Rust negative test: command from an observer role that requests a write action must return `PermissionDenied`.
-- Rust negative test: controller lease past `expires_at` must be rejected by the command handler with `LeaseExpired`.
-- Rust negative test: wrong-device command (device id mismatch) must return `WrongDevice`.
-- SQLite migration test: run schema up-migration, verify all tables created, run rollback, verify clean.
-- TypeScript test: `RouteState` enum rejects raw string `"foo"` and accepts only `"local" | "lan" | "relay" | "cache" | "unavailable"`.
-- Proof artifact: `output/lan-plan-proof/02-current-state-and-gap-map/02-gap-map-integration-proof.log`.
+- Current WP22 closure is a truth-sync/gap-map slice, not a new DB or runtime
+  implementation slice.
+- Supporting Rust validation is the current LAN row proof set: `21` contract
+  proof, `23` route/rejection proof, `24` presentation proof, and the focused
+  LAN runtime checks recorded in `25`.
+- Deferred DB/migration/lease runtime implementation remains outside WP22 until
+  a future selected workpack names that exact owner and proof path.
+- Test proof must live in real organized Rust crate test folders or explicit UI
+  presentation checks that stay supplementary. Inline source-owned tests,
+  placeholder directories, `.gitkeep` trees, fake coverage, or mock-only
+  readiness do not count.
+- Proof artifact: `output/lan-plan-proof/22-current-state-and-gap-map/01-local-validation.md`
 
 ## AI Worker Checklist
 
-Fill this before reporting `DONE` or PR-ready:
-
-- [ ] Confirm source docs read: [folder README](../README.md), [feature doc](../../features/family-setup-device-roles.md), [family setup expectations](../../expectations/family-setup.md), [LAN pairing expectations](../../expectations/lan-pairing.md), [current PLAN_STATE](../PLAN_STATE.md), and this workpack.
-- [ ] Confirmed WP01 contracts exist in `packages/parent-domain/src/` before starting Rust implementation.
-- [ ] Check enhancement overlap: `lan-plan` owns discovery/heartbeat rows; do not duplicate them in household tables.
-- [ ] Hub lock covers this workpack and exact implementation/docs paths.
-- [ ] Existing `crates/agent-service/src/db/` inspected; no parallel table for household truth that conflicts with existing LAN slot tables.
-- [ ] SQLite migration tested: up and rollback verified.
-- [ ] Read model handler tested with typed Rust integration test using WP01 schema shape.
-- [ ] Observer write-command rejection test written and passes.
-- [ ] Lease expiry rejection test written and passes.
-- [ ] `RouteState` enum fix in TypeScript tested; raw string rejected.
-- [ ] Proof command logs saved to `output/lan-plan-proof/02-current-state-and-gap-map/`.
-- [ ] [main checklist](../implementation-checklist.md) rows 02 updated.
-- [ ] Deferred items (Playwright tests, physical LAN proof) recorded in [main checklist](../implementation-checklist.md) as open.
+- [x] Confirm WP22 is the assigned active workpack.
+- [x] Rewrite any stale TS-first ownership or file-target language before code
+      moves.
+- [x] Confirm WP01 Rust-owned contracts exist before runtime implementation.
+- [x] Existing db/read-model layout inspected; no duplicate household truth
+      created alongside existing LAN slot tables.
+- [x] SQLite migration work remains deferred because this WP22 pass did not add
+      a DB/migration implementation surface.
+- [x] Read-model/runtime truth is covered by the selected Rust proof rows
+      referenced in the proof artifact.
+- [x] Route/source enum ownership remains Rust-owned before UI projection.
+- [x] Deferred items and manual-required items remain recorded honestly.
 
 ## Manual-Required Gaps
 
-Physical two-device LAN proof cannot be automated in CI. The SQLite tables and
-read model can be integration-tested with a single-machine local service, but
-real household multi-device proof requires two distinct hosts running signed
-hello/heartbeat. Mark `signed hello/heartbeat` rows manual-required in the
-checklist; they belong to workpack 03.
+Physical two-device LAN proof and broader router/firewall topology proof cannot
+be automated in CI here and remain separate from this gap map unless a later
+proof packet proves them.

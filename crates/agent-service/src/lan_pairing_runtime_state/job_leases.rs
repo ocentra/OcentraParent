@@ -1,4 +1,7 @@
-use ocentra_parent_agent_protocol::{constants, LanPairingRejectionReason};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
+use std::fmt::Display;
 
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
@@ -25,28 +28,33 @@ pub(crate) enum LanAiJobLeaseTransition {
 impl LanPairingRuntime {
     pub(crate) fn claim_lan_ai_job_lease(
         &self,
-        job_id: &str,
+        job_id: &impl Display,
     ) -> Result<LanAiJobLeaseTransition, LanPairingRejectionReason> {
-        let now = timestamp_now();
-        let mut leases = self
-            .lan_ai_job_leases
-            .lock()
-            .map_err(|_| LanPairingRejectionReason::Malformed)?;
-        match leases.iter_mut().find(|lease| lease.job_id == job_id) {
+        let job_id = LanPairingText(job_id.to_string());
+        let now: LanPairingText = timestamp_now::<String>().into();
+        let mut leases = self.lan_ai_job_leases.lock().map_err(|error| {
+            let _ = error;
+            LanPairingRejectionReason::Malformed
+        })?;
+        match leases.iter_mut().find(|lease| lease.job_id == job_id.0) {
             Some(lease) => Ok(transition_existing_lease(lease, &now)),
             None => {
-                let lease = new_claimed_lease(job_id);
+                let lease = new_claimed_lease(&job_id);
                 leases.push(lease.clone());
                 Ok(LanAiJobLeaseTransition::Claimed(lease))
             }
         }
     }
 
-    pub(crate) fn complete_lan_ai_job_lease(&self, job_id: &str) -> Option<LanAiJobLeaseState> {
+    pub(crate) fn complete_lan_ai_job_lease(
+        &self,
+        job_id: &impl Display,
+    ) -> Option<LanAiJobLeaseState> {
+        let job_id = LanPairingText(job_id.to_string());
         self.lan_ai_job_leases.lock().ok().and_then(|mut leases| {
             leases
                 .iter_mut()
-                .find(|lease| lease.job_id == job_id)
+                .find(|lease| lease.job_id == job_id.0)
                 .map(|lease| {
                     lease.lease_state = constants::value::LAN_AI_LEASE_STATE_COMPLETED;
                     lease.dead_letter_reason = None;
@@ -54,31 +62,12 @@ impl LanPairingRuntime {
                 })
         })
     }
-
-    #[cfg(test)]
-    pub fn seed_lan_ai_job_lease_for_test(
-        &self,
-        job_id: &str,
-        lease_state: &'static str,
-        attempt_count: u64,
-        expires_at: &str,
-    ) {
-        if let Ok(mut leases) = self.lan_ai_job_leases.lock() {
-            leases.retain(|lease| lease.job_id != job_id);
-            leases.push(LanAiJobLeaseState {
-                job_id: job_id.to_string(),
-                claim_id: lan_ai_claim_id(job_id),
-                lease_id: lan_ai_lease_id(job_id),
-                lease_state,
-                attempt_count,
-                expires_at: expires_at.to_string(),
-                dead_letter_reason: None,
-            });
-        }
-    }
 }
 
-fn transition_existing_lease(lease: &mut LanAiJobLeaseState, now: &str) -> LanAiJobLeaseTransition {
+fn transition_existing_lease(
+    lease: &mut LanAiJobLeaseState,
+    now: &LanPairingText,
+) -> LanAiJobLeaseTransition {
     match lease.lease_state {
         constants::value::LAN_AI_LEASE_STATE_COMPLETED => {
             LanAiJobLeaseTransition::DuplicateCompleted(lease.clone())
@@ -86,7 +75,7 @@ fn transition_existing_lease(lease: &mut LanAiJobLeaseState, now: &str) -> LanAi
         constants::value::LAN_AI_LEASE_STATE_DEAD_LETTERED => {
             LanAiJobLeaseTransition::DeadLettered(lease.clone())
         }
-        _ if lease.expires_at.as_str() > now => {
+        _ if lease.expires_at.as_str() > now.0.as_str() => {
             lease.lease_state = constants::value::LAN_AI_LEASE_STATE_DUPLICATE_REJECTED;
             LanAiJobLeaseTransition::DuplicateActiveRejected(lease.clone())
         }
@@ -107,11 +96,11 @@ fn transition_expired_lease(lease: &mut LanAiJobLeaseState) -> LanAiJobLeaseTran
     }
 }
 
-fn new_claimed_lease(job_id: &str) -> LanAiJobLeaseState {
+fn new_claimed_lease(job_id: &LanPairingText) -> LanAiJobLeaseState {
     LanAiJobLeaseState {
         job_id: job_id.to_string(),
-        claim_id: lan_ai_claim_id(job_id),
-        lease_id: lan_ai_lease_id(job_id),
+        claim_id: lan_ai_claim_id(job_id).0,
+        lease_id: lan_ai_lease_id(job_id).0,
         lease_state: constants::value::LAN_AI_LEASE_STATE_CLAIMED,
         attempt_count: 1,
         expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
@@ -119,14 +108,14 @@ fn new_claimed_lease(job_id: &str) -> LanAiJobLeaseState {
     }
 }
 
-fn lan_ai_claim_id(job_id: &str) -> String {
+fn lan_ai_claim_id(job_id: &LanPairingText) -> LanPairingText {
     let mut claim_id = String::from(constants::lan_pairing::LAN_AI_CLAIM_ID_PREFIX);
-    claim_id.push_str(job_id);
-    claim_id
+    claim_id.push_str(job_id.0.as_str());
+    LanPairingText(claim_id)
 }
 
-fn lan_ai_lease_id(job_id: &str) -> String {
+fn lan_ai_lease_id(job_id: &LanPairingText) -> LanPairingText {
     let mut lease_id = String::from(constants::lan_pairing::LAN_AI_LEASE_ID_PREFIX);
-    lease_id.push_str(job_id);
-    lease_id
+    lease_id.push_str(job_id.0.as_str());
+    LanPairingText(lease_id)
 }

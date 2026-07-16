@@ -1,11 +1,9 @@
-mod types;
+pub mod types;
 mod validation;
 
-pub use types::{
-    NetworkLinuxNftablesLabCommandEvidence, NetworkLinuxNftablesLabCommandKind,
+use types::{
     NetworkLinuxNftablesLabExecutionError, NetworkLinuxNftablesLabExecutionInput,
     NetworkLinuxNftablesLabExecutionProof, NetworkLinuxNftablesLabExecutionState,
-    NetworkLinuxNftablesLabUnsupportedClaims,
 };
 
 use validation::{command_flags, execution_state, normalize_input};

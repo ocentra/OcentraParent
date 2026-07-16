@@ -1,13 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityMemoryGraphEdge, ActivityMemoryGraphEdgeKind, ActivityMemoryGraphNode,
-    ActivityMemoryGraphNodeKind, ActivityMemoryGraphReadModel, ActivityMemoryGraphTrace,
-    ParentEvidenceReferenceKind, ACTIVITY_MEMORY_GRAPH_INDEX_VERSION,
-};
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphEdge;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphEdgeKind;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphNode;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphNodeKind;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphReadModel;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphTrace;
+use ocentra_parent_agent_protocol::activity_memory_graph::ACTIVITY_MEMORY_GRAPH_INDEX_VERSION;
+use ocentra_parent_agent_protocol::constants;
 use rusqlite::{params, Connection};
 
 use crate::ActivityStoreError;
 
-pub(crate) fn persist_read_model(
+pub fn persist_read_model(
     connection: &Connection,
     read_model: &ActivityMemoryGraphReadModel,
     source_event_count: u64,
@@ -116,19 +120,19 @@ fn persist_citations(
 }
 
 fn node_kind_label(kind: &ActivityMemoryGraphNodeKind) -> Result<String, ActivityStoreError> {
-    json_label(serde_json::to_string(kind)?)
+    json_label(&serde_json::to_string(kind)?)
 }
 
 fn edge_kind_label(kind: &ActivityMemoryGraphEdgeKind) -> Result<String, ActivityStoreError> {
-    json_label(serde_json::to_string(kind)?)
+    json_label(&serde_json::to_string(kind)?)
 }
 
 fn evidence_kind_label(kind: &ParentEvidenceReferenceKind) -> Result<String, ActivityStoreError> {
-    json_label(serde_json::to_string(kind)?)
+    json_label(&serde_json::to_string(kind)?)
 }
 
-fn json_label(json: String) -> Result<String, ActivityStoreError> {
-    match serde_json::from_str::<serde_json::Value>(&json)? {
+fn json_label(json: &str) -> Result<String, ActivityStoreError> {
+    match serde_json::from_str::<serde_json::Value>(json)? {
         serde_json::Value::String(label) => Ok(label),
         value => Ok(value.to_string()),
     }

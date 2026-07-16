@@ -1,0 +1,404 @@
+/* generated from crates/child-enforcement-core/src/tamper_uninstall_artifact_status.rs */
+
+import { type Infer, Schema, withParser, NonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
+import {
+  ParentControlCapabilityName,
+  ParentControlCapabilityNameSchema,
+  ParentControlCapabilityStatus,
+  ParentControlCapabilityStatusSchema,
+  ParentControlPlatformSchema,
+  ParentContractSchemaVersion,
+  ParentContractSchemaVersionSchema,
+  ParentTimestampSchema,
+  enforcementProofClaimFlagsAreUnset,
+  enforcementProofEntriesHaveUniqueField,
+  enforcementProofRequiredUniqueValuesAreCovered,
+} from './tamper_uninstall_artifact_status_support';
+
+const tamperUninstallArtifactText = <Brand extends string>(brand: Brand) =>
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
+
+export const TamperUninstallArtifactStatusReadModelIdSchema = tamperUninstallArtifactText(
+  'TamperUninstallArtifactStatusReadModelId'
+);
+export const TamperUninstallArtifactStatusEntryIdSchema = tamperUninstallArtifactText(
+  'TamperUninstallArtifactStatusEntryId'
+);
+export const TamperUninstallArtifactStatusReferenceSchema = tamperUninstallArtifactText(
+  'TamperUninstallArtifactStatusReference'
+);
+export const TamperUninstallArtifactStatusRequirementSchema = tamperUninstallArtifactText(
+  'TamperUninstallArtifactStatusRequirement'
+);
+export const TamperUninstallArtifactStatusBoundarySchema = tamperUninstallArtifactText(
+  'TamperUninstallArtifactStatusBoundary'
+);
+export const TamperUninstallRemovalFlowReferenceSchema = tamperUninstallArtifactText(
+  'TamperUninstallRemovalFlowReference'
+);
+export const TamperUninstallChildSelfAuthorizationStateSchema = withParser(
+  Schema.Literal('child-self-authorize-forbidden')
+);
+export const TamperUninstallParentAuthorizationStateSchema = withParser(
+  Schema.Literal('required-where-platform-allows')
+);
+export const TamperUninstallRevokedTrustStateSchema = withParser(
+  Schema.Literal('inactive-until-parent-reauthorizes')
+);
+export const TamperUninstallRevocationAuditStateSchema = withParser(Schema.Literal('audit-trail-required'));
+export const TamperUninstallTeardownStateSchema = withParser(
+  Schema.Literal('authority-ends-cleanly-when-removal-is-proved')
+);
+export const TamperUninstallResidualStateVisibilitySchema = withParser(
+  Schema.Literal('reported-until-cleanup-proof')
+);
+
+export const TamperUninstallArtifactSurfaceSchema = withParser(
+  Schema.Literal(
+    'windows-service-stop',
+    'windows-package-uninstall',
+    'linux-service-package',
+    'macos-launchd-package',
+    'android-package-removed',
+    'android-device-owner-managed-profile',
+    'ios-family-controls-device-activity',
+    'admin-removal-flow'
+  )
+);
+export const TamperUninstallArtifactStateSchema = withParser(
+  Schema.Literal('manual-required', 'device-proof-required', 'not-collected', 'unsupported', 'documented-admin-removal')
+);
+export const TamperUninstallParentVisibleStatusSchema = withParser(
+  Schema.Literal('artifact-needed', 'device-proof-needed', 'status-only', 'unsupported', 'admin-removal-documented')
+);
+export const TamperUninstallArtifactCustodySchema = withParser(
+  Schema.Literal('not-collected', 'manual-review-required', 'package-local-status-only', 'documented-flow-only')
+);
+
+const RequiredSurfaces = [
+  'windows-service-stop',
+  'windows-package-uninstall',
+  'linux-service-package',
+  'macos-launchd-package',
+  'android-package-removed',
+  'android-device-owner-managed-profile',
+  'ios-family-controls-device-activity',
+  'admin-removal-flow',
+] as const satisfies ReadonlyArray<TamperUninstallArtifactSurface>;
+
+const TamperUninstallArtifactStatusEntryBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  statusEntryId: TamperUninstallArtifactStatusEntryIdSchema,
+  surface: TamperUninstallArtifactSurfaceSchema,
+  platform: ParentControlPlatformSchema,
+  capability: ParentControlCapabilityNameSchema,
+  capabilityStatus: ParentControlCapabilityStatusSchema,
+  artifactState: TamperUninstallArtifactStateSchema,
+  parentVisibleStatus: TamperUninstallParentVisibleStatusSchema,
+  custodyState: TamperUninstallArtifactCustodySchema,
+  requiredArtifacts: Schema.Array(TamperUninstallArtifactStatusRequirementSchema),
+  sourceProofRefs: Schema.Array(TamperUninstallArtifactStatusReferenceSchema),
+  auditRefs: Schema.Array(TamperUninstallArtifactStatusReferenceSchema),
+  integrityRefs: Schema.Array(TamperUninstallArtifactStatusReferenceSchema),
+  adminRemovalFlowRefs: Schema.Array(TamperUninstallArtifactStatusReferenceSchema),
+  boundary: TamperUninstallArtifactStatusBoundarySchema,
+  uninstallDetectionClaimed: Schema.Boolean,
+  tamperResistanceClaimed: Schema.Boolean,
+  stealthPersistenceClaimed: Schema.Boolean,
+  privilegeEscalationClaimed: Schema.Boolean,
+  adminRemovalBlockingClaimed: Schema.Boolean,
+  providerDeliveryClaimed: Schema.Boolean,
+  rawChildDataIncluded: Schema.Boolean,
+  lastCheckedAt: ParentTimestampSchema,
+});
+
+type TamperUninstallArtifactStatusEntryCandidate = Infer<typeof TamperUninstallArtifactStatusEntryBaseSchema>;
+const TamperUninstallRemovalFlowSummaryBaseSchema = Schema.Struct({
+  childSelfAuthorizationState: TamperUninstallChildSelfAuthorizationStateSchema,
+  parentAuthorizationState: TamperUninstallParentAuthorizationStateSchema,
+  revokedTrustState: TamperUninstallRevokedTrustStateSchema,
+  revocationAuditState: TamperUninstallRevocationAuditStateSchema,
+  teardownState: TamperUninstallTeardownStateSchema,
+  residualStateVisibility: TamperUninstallResidualStateVisibilitySchema,
+  parentAuthorizationRefs: Schema.Array(TamperUninstallRemovalFlowReferenceSchema),
+  revocationAuditRefs: Schema.Array(TamperUninstallRemovalFlowReferenceSchema),
+  teardownProofRefs: Schema.Array(TamperUninstallRemovalFlowReferenceSchema),
+  cleanupProofRefs: Schema.Array(TamperUninstallRemovalFlowReferenceSchema),
+  boundary: TamperUninstallArtifactStatusBoundarySchema,
+});
+
+type TamperUninstallRemovalFlowSummaryCandidate = Infer<typeof TamperUninstallRemovalFlowSummaryBaseSchema>;
+
+export const TamperUninstallRemovalFlowSummarySchema = withParser(
+  TamperUninstallRemovalFlowSummaryBaseSchema.pipe(
+    Schema.filter(
+      (summary) =>
+        tamperUninstallRemovalFlowSummaryIsHonest(summary) ||
+        'Expected child uninstall removal flow summary to forbid child self-authorization, require parent authorization where supported, keep revoked trust inactive, require an auditable removal trail, and preserve cleanup/teardown proof boundaries'
+    )
+  )
+);
+
+export const TamperUninstallArtifactStatusEntrySchema = withParser(
+  TamperUninstallArtifactStatusEntryBaseSchema.pipe(
+    Schema.filter(
+      (entry) =>
+        tamperUninstallArtifactStatusEntryIsHonest(entry) ||
+        'Expected tamper uninstall artifact status entries to require manual/device proof without uninstall, anti-tamper, provider-delivery, admin-removal-blocking, privilege, stealth, or raw child data claims'
+    )
+  )
+);
+
+export const TamperUninstallArtifactStatusReadModelSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    readModelId: TamperUninstallArtifactStatusReadModelIdSchema,
+    generatedAt: ParentTimestampSchema,
+    sourceReadModelIds: Schema.Array(TamperUninstallArtifactStatusReferenceSchema),
+    removalFlow: TamperUninstallRemovalFlowSummarySchema,
+    entries: Schema.Array(TamperUninstallArtifactStatusEntrySchema),
+  }).pipe(
+    Schema.filter(
+      (readModel) =>
+        enforcementProofEntriesHaveUniqueField(readModel.entries, (entry) => entry.statusEntryId) ||
+        'Expected tamper uninstall artifact status entry ids to be unique'
+    ),
+    Schema.filter(
+      (readModel) =>
+        enforcementProofRequiredUniqueValuesAreCovered(
+          readModel.entries.map((entry) => entry.surface),
+          RequiredSurfaces
+        ) || 'Expected tamper uninstall artifact status to cover every required platform/removal surface'
+    )
+  )
+);
+
+const ExpectedRemovalFlowBoundary =
+  'Child trust removal cannot self-authorize; parent authorization is required where the platform allows uninstall control, revoked trust becomes inactive until parent reauthorization, audit trail and cleanup proof stay attached, and residual state remains visible until teardown proof completes.';
+
+function tamperUninstallArtifactStatusEntryIsHonest(entry: TamperUninstallArtifactStatusEntryCandidate): boolean {
+  return (
+    !tamperUninstallArtifactStatusHasClaimUpgrade(entry) &&
+    entry.requiredArtifacts.length > 0 &&
+    entry.sourceProofRefs.length > 0 &&
+    entry.auditRefs.length > 0 &&
+    entry.integrityRefs.length > 0 &&
+    tamperUninstallArtifactStatusMatchesState(entry)
+  );
+}
+
+function tamperUninstallArtifactStatusHasClaimUpgrade(entry: TamperUninstallArtifactStatusEntryCandidate): boolean {
+  return !enforcementProofClaimFlagsAreUnset([
+    entry.uninstallDetectionClaimed,
+    entry.tamperResistanceClaimed,
+    entry.stealthPersistenceClaimed,
+    entry.privilegeEscalationClaimed,
+    entry.adminRemovalBlockingClaimed,
+    entry.providerDeliveryClaimed,
+    entry.rawChildDataIncluded,
+  ]);
+}
+
+function tamperUninstallRemovalFlowSummaryIsHonest(summary: TamperUninstallRemovalFlowSummaryCandidate): boolean {
+  return (
+    summary.childSelfAuthorizationState === 'child-self-authorize-forbidden' &&
+    summary.parentAuthorizationState === 'required-where-platform-allows' &&
+    summary.revokedTrustState === 'inactive-until-parent-reauthorizes' &&
+    summary.revocationAuditState === 'audit-trail-required' &&
+    summary.teardownState === 'authority-ends-cleanly-when-removal-is-proved' &&
+    summary.residualStateVisibility === 'reported-until-cleanup-proof' &&
+    summary.parentAuthorizationRefs.length > 0 &&
+    summary.revocationAuditRefs.length > 0 &&
+    summary.teardownProofRefs.length > 0 &&
+    summary.cleanupProofRefs.length > 0 &&
+    summary.boundary === ExpectedRemovalFlowBoundary
+  );
+}
+
+function tamperUninstallArtifactStatusMatchesState(entry: TamperUninstallArtifactStatusEntryCandidate): boolean {
+  if (entry.surface === 'admin-removal-flow') {
+    return (
+      entry.artifactState === 'documented-admin-removal' &&
+      entry.parentVisibleStatus === 'admin-removal-documented' &&
+      entry.custodyState === 'documented-flow-only' &&
+      entry.adminRemovalFlowRefs.length > 0
+    );
+  }
+  if (entry.platform === 'android' || entry.platform === 'ios') {
+    return entry.artifactState === 'device-proof-required' && entry.parentVisibleStatus === 'device-proof-needed';
+  }
+  return entry.artifactState === 'manual-required' && entry.parentVisibleStatus === 'artifact-needed';
+}
+
+export type TamperUninstallArtifactSurface = Infer<typeof TamperUninstallArtifactSurfaceSchema>;
+export type TamperUninstallArtifactState = Infer<typeof TamperUninstallArtifactStateSchema>;
+export type TamperUninstallParentVisibleStatus = Infer<typeof TamperUninstallParentVisibleStatusSchema>;
+export type TamperUninstallArtifactCustody = Infer<typeof TamperUninstallArtifactCustodySchema>;
+export type TamperUninstallRemovalFlowSummary = Infer<typeof TamperUninstallRemovalFlowSummarySchema>;
+export type TamperUninstallArtifactStatusEntry = Infer<typeof TamperUninstallArtifactStatusEntrySchema>;
+export type TamperUninstallArtifactStatusReadModel = Infer<typeof TamperUninstallArtifactStatusReadModelSchema>;
+
+export const decodeTamperUninstallArtifactStatusEntry = Schema.decodeUnknownSync(
+  TamperUninstallArtifactStatusEntrySchema
+);
+export const decodeTamperUninstallArtifactStatusReadModel = Schema.decodeUnknownSync(
+  TamperUninstallArtifactStatusReadModelSchema
+);
+
+type TamperUninstallArtifactStatusEntryInput = {
+  statusEntryId: string;
+  surface: TamperUninstallArtifactSurface;
+  platform: typeof ParentControlPlatformSchema.Type;
+  capability: typeof ParentControlCapabilityNameSchema.Type;
+  capabilityStatus: typeof ParentControlCapabilityStatusSchema.Type;
+  artifactState: TamperUninstallArtifactState;
+  parentVisibleStatus: TamperUninstallParentVisibleStatus;
+  custodyState: TamperUninstallArtifactCustody;
+  requiredArtifacts: readonly string[];
+  boundary: string;
+  adminRemovalFlowRefs?: readonly string[];
+};
+
+const generatedAt = '2026-06-03T10:15:06.243Z';
+const SourceReadModelIds = [
+  'tamper-integrity-audit-contract-proof',
+  'v0-8-integrity-alert-status-bridge',
+  'v0-8-os-adapter-manual-artifact-gates',
+] as const;
+
+export const TamperUninstallArtifactStatusReadModel = TamperUninstallArtifactStatusReadModelSchema.parse({
+  schemaVersion: ParentContractSchemaVersion.V0_6,
+  readModelId: 'tamper-uninstall-artifact-status-proof',
+  generatedAt,
+  sourceReadModelIds: SourceReadModelIds,
+  removalFlow: removalFlowSummary(),
+  entries: [
+    hostEntry('windows-service-stop', ParentControlCapabilityName.HeadlessAgentService, [
+      'Windows service manager stopped-state artifact',
+      'operator consent or admin action ref',
+      'post-stop heartbeat/status ref',
+    ]),
+    hostEntry('windows-package-uninstall', ParentControlCapabilityName.PackageLifecycle, [
+      'Windows installer uninstall or rollback artifact',
+      'package identity and version ref',
+      'post-uninstall agent absence ref',
+    ]),
+    hostEntry('linux-service-package', ParentControlCapabilityName.HeadlessAgentService, [
+      'Linux service manager stop/remove artifact',
+      'Linux package identity ref',
+      'post-remove heartbeat/status ref',
+    ]),
+    hostEntry('macos-launchd-package', ParentControlCapabilityName.HeadlessAgentService, [
+      'macOS launchd/helper stop or removal artifact',
+      'bundle/package identity ref',
+      'post-remove heartbeat/status ref',
+    ]),
+    deviceEntry('android-package-removed', 'android', ParentControlCapabilityName.PackageLifecycle, [
+      'Android package removed broadcast or package manager artifact',
+      'foreground service stopped artifact',
+      'device install identity ref',
+    ]),
+    deviceEntry('android-device-owner-managed-profile', 'android', ParentControlCapabilityName.DeviceOwnerPolicy, [
+      'Android device-owner or managed-profile enrollment artifact',
+      'policy removal/admin action artifact',
+      'post-removal package lifecycle ref',
+    ]),
+    deviceEntry('ios-family-controls-device-activity', 'ios', ParentControlCapabilityName.FamilyControlsEntitlement, [
+      'iOS Family Controls authorization artifact',
+      'DeviceActivity monitor status artifact',
+      'device install or entitlement ref',
+    ]),
+    entry({
+      statusEntryId: 'tamper-uninstall-admin-removal-flow',
+      surface: 'admin-removal-flow',
+      platform: 'windows',
+      capability: ParentControlCapabilityName.PackageLifecycle,
+      capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+      artifactState: 'documented-admin-removal',
+      parentVisibleStatus: 'admin-removal-documented',
+      custodyState: 'documented-flow-only',
+      requiredArtifacts: ['documented parent/admin removal path', 'support/admin drill-in ref'],
+      adminRemovalFlowRefs: ['documented-parent-admin-removal-flow-ref'],
+      boundary:
+        'Admin removal is documented as a parent/admin flow and is not blocked by this proof or upgraded to anti-removal behavior.',
+    }),
+  ],
+});
+
+function removalFlowSummary(): TamperUninstallRemovalFlowSummary {
+  return TamperUninstallRemovalFlowSummarySchema.parse({
+    childSelfAuthorizationState: 'child-self-authorize-forbidden',
+    parentAuthorizationState: 'required-where-platform-allows',
+    revokedTrustState: 'inactive-until-parent-reauthorizes',
+    revocationAuditState: 'audit-trail-required',
+    teardownState: 'authority-ends-cleanly-when-removal-is-proved',
+    residualStateVisibility: 'reported-until-cleanup-proof',
+    parentAuthorizationRefs: ['parent-authorized-uninstall-request-ref'],
+    revocationAuditRefs: ['trust-revocation-audit-trail-ref'],
+    teardownProofRefs: ['child-authority-teardown-proof-ref'],
+    cleanupProofRefs: ['residual-state-cleanup-review-ref'],
+    boundary:
+      'Child trust removal cannot self-authorize; parent authorization is required where the platform allows uninstall control, revoked trust becomes inactive until parent reauthorization, audit trail and cleanup proof stay attached, and residual state remains visible until teardown proof completes.',
+  });
+}
+
+function hostEntry(
+  surface: Exclude<TamperUninstallArtifactSurface, 'admin-removal-flow'>,
+  capability: typeof ParentControlCapabilityNameSchema.Type,
+  requiredArtifacts: readonly string[]
+): TamperUninstallArtifactStatusEntry {
+  return entry({
+    statusEntryId: `tamper-uninstall-${surface}`,
+    surface,
+    platform: surface.startsWith('linux') ? 'linux' : surface.startsWith('macos') ? 'macos' : 'windows',
+    capability,
+    capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+    artifactState: 'manual-required',
+    parentVisibleStatus: 'artifact-needed',
+    custodyState: 'manual-review-required',
+    requiredArtifacts,
+    boundary:
+      'Desktop uninstall or stopped-service artifact status remains manual-required until platform-specific service/package evidence is attached.',
+  });
+}
+
+function deviceEntry(
+  surface: Exclude<TamperUninstallArtifactSurface, 'admin-removal-flow'>,
+  platform: 'android' | 'ios',
+  capability: typeof ParentControlCapabilityNameSchema.Type,
+  requiredArtifacts: readonly string[]
+): TamperUninstallArtifactStatusEntry {
+  return entry({
+    statusEntryId: `tamper-uninstall-${surface}`,
+    surface,
+    platform,
+    capability,
+    capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+    artifactState: 'device-proof-required',
+    parentVisibleStatus: 'device-proof-needed',
+    custodyState: 'not-collected',
+    requiredArtifacts,
+    boundary:
+      'Mobile uninstall artifact status requires real emulator or physical-device evidence before any detection claim can upgrade.',
+  });
+}
+
+function entry(input: TamperUninstallArtifactStatusEntryInput): TamperUninstallArtifactStatusEntry {
+  return TamperUninstallArtifactStatusEntrySchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    sourceProofRefs: [...SourceReadModelIds],
+    auditRefs: ['tamper-integrity-audit-ref'],
+    integrityRefs: ['integrity-alert-status-bridge-ref'],
+    adminRemovalFlowRefs: [...(input.adminRemovalFlowRefs ?? [])],
+    uninstallDetectionClaimed: false,
+    tamperResistanceClaimed: false,
+    stealthPersistenceClaimed: false,
+    privilegeEscalationClaimed: false,
+    adminRemovalBlockingClaimed: false,
+    providerDeliveryClaimed: false,
+    rawChildDataIncluded: false,
+    lastCheckedAt: generatedAt,
+    ...input,
+    requiredArtifacts: [...input.requiredArtifacts],
+  });
+}

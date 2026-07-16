@@ -1,32 +1,40 @@
+#[path = "screen_ai_analysis_runtime/adapter.rs"]
 mod adapter;
-mod adapter_output_fields;
+#[path = "screen_ai_analysis_runtime/adapter_process.rs"]
 mod adapter_process;
+#[path = "screen_ai_analysis_runtime/adapter_redaction.rs"]
 mod adapter_redaction;
-#[cfg(test)]
-mod adapter_tests;
-mod config;
+#[path = "screen_ai_analysis_runtime/config.rs"]
+pub(crate) mod config;
+#[path = "screen_ai_analysis_runtime/event_record.rs"]
 mod event_record;
+#[path = "screen_ai_analysis_runtime/queue.rs"]
 mod queue;
 
 use std::time::Duration;
 
-use ocentra_parent_agent_core::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityScreenReadModelRow, LocalAiProviderSchedulerJobClass,
-    SCREEN_PROVIDER_SERVICE_METADATA,
+use ocentra_parent_agent_core::{
+    activity_store::ActivityStore, screen_evidence_queue::ScreenEvidenceQueue,
 };
+use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_SERVICE_METADATA;
 
 use crate::{
     activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
     activity_surface_read_models::activity_screen_row_from_result,
     local_ai_provider_scheduler::local_ai_provider_scheduler,
-    screen_ai_service_event_subscription::ScreenAiServiceEventRuntime,
+    screen_ai_service_event_subscription::{
+        ActionRefText, ObservedAtText, ScreenAiServiceEventRuntime,
+    },
 };
 
-pub(crate) use config::{
+use config::{
     ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenAiAnalysisRuntimeConfig,
 };
 use event_record::{analysis_event_record, outcome_for_generation, screen_analysis_event};
+use queue::QueuedScreenImage;
 use queue::{first_queued_screen_image, load_existing_screen_key, metadata_result_for_queue_job};
 
 pub(crate) fn spawn_screen_ai_analysis_runtime() {
@@ -63,14 +71,6 @@ async fn run_screen_ai_analysis_runtime(config: ScreenAiAnalysisRuntimeConfig) {
     }
 }
 
-#[cfg(test)]
-pub(crate) async fn record_screen_ai_analysis_cycle(
-    config: &ScreenAiAnalysisRuntimeConfig,
-    clock: ScreenAiAnalysisCycleClock,
-) -> Result<ScreenAiAnalysisCycleOutcome, ActivityCaptureError> {
-    record_screen_ai_analysis_cycle_with_events(config, clock, None).await
-}
-
 pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
     config: &ScreenAiAnalysisRuntimeConfig,
     clock: ScreenAiAnalysisCycleClock,
@@ -82,11 +82,11 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
     let Some(key) = load_existing_screen_key(&config.journal_key_path)? else {
         return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
     };
-    let queue = ocentra_parent_agent_core::ScreenEvidenceQueue::open(&config.queue_dir, key)?;
+    let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
     let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan)? else {
         return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
     };
-    let metadata = metadata_result_for_queue_job(&config.store_path, &image.queue_job_id, &clock)?;
+    let metadata = metadata_result_for_queue_job(&config.store_path, &image, &clock)?;
     if metadata
         .as_ref()
         .is_some_and(|result| result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA)
@@ -112,7 +112,7 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
         &generation,
         &config.ocr_redaction_policy,
     );
-    let outcome = outcome_for_generation(&image.queue_job_id, &generation, &event_record);
+    let outcome = outcome_for_generation(&image, &generation, &event_record);
     record_activity_events_to_paths(
         &config.journal_path,
         &config.journal_key_path,
@@ -121,13 +121,13 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
     )?;
     if let (Some(runtime), Some(row)) = (
         event_runtime,
-        latest_analysis_row_for_queue_job(config, &image.queue_job_id, &clock.timestamp)?,
+        latest_analysis_row_for_queue_job(config, &image, &clock)?,
     ) {
         let _ = runtime
             .publish_row_ready(
                 row,
-                constants::screen_flow::SCREEN_ACTION_EVENT_REF,
-                &clock.timestamp,
+                ActionRefText(constants::screen_flow::SCREEN_ACTION_EVENT_REF.to_string()),
+                ObservedAtText(clock.timestamp.clone()),
             )
             .await;
     }
@@ -137,19 +137,19 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
 
 fn latest_analysis_row_for_queue_job(
     config: &ScreenAiAnalysisRuntimeConfig,
-    queue_job_id: &str,
-    generated_at: &str,
+    image: &QueuedScreenImage,
+    clock: &ScreenAiAnalysisCycleClock,
 ) -> Result<Option<ActivityScreenReadModelRow>, ActivityCaptureError> {
     let store = ActivityStore::open(&config.store_path)?;
     let summary = store.screen_evidence_recent_summary(
         constants::activity_store::DEFAULT_RECENT_LIMIT,
-        generated_at,
+        clock.timestamp.as_str(),
     )?;
     Ok(summary
         .results
         .into_iter()
         .find(|result| {
-            result.queue_job_id == queue_job_id
+            result.queue_job_id == image.queue_job_id.as_str()
                 && result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA
         })
         .map(activity_screen_row_from_result))

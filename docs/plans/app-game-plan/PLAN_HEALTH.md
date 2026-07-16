@@ -27,6 +27,10 @@ This file records documentation health and consistency checks for the plan. It i
 ## Consistency warnings
 
 - No high-level checklist/workpack contradiction detected by the generated health check. Still verify the assigned workpack and checklist rows before DONE/PR_READY.
+- Current execution source is the assigned workpack plus proof root. Historical checked rows and generated long-name handoff rows do not override the selected workpack scope.
+- Central app/game contracts belong in `schema-domain` when the shape crosses package, crate, app, or plan boundaries. Do not repair stale app/game work by recreating shared contracts in sibling feature domains.
+- Direct runtime coupling from app/game to AI, policy, enforcement, notification, portal, child-runtime, LAN, remote, setup, payment, or data-custody owners is unhealthy unless the selected workpack records a temporary compatibility reason and a handoff replacement route.
+- Use `WORKPACK_FAMILIES.md` to classify the selected workpack owner path when the `WORKPACK_INDEX.md` row is generated, long, or ambiguous.
 
 ## Required hygiene before PR_READY
 
@@ -35,12 +39,18 @@ This file records documentation health and consistency checks for the plan. It i
 - Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
+- Do not claim PR_READY from checked generated handoff rows alone.
+- Do not claim PR_READY from staged journal/read-model proof alone.
+- Do not claim PR_READY from portal rows without source, service, protocol, or runtime proof when the claim needs those layers.
+- Do not claim PR_READY from policy dry-run without adapter proof or explicit manual-required proof.
+- Do not claim platform parity from platform preflight alone.
+- Do not claim feature completeness until the relevant E2E tier in `TEST_PROOF_EXPECTATIONS.md` is explicitly proven or blocked.
 
 ## Agent Route Walkthrough
 
 - Landing decision: root `AGENTS.md` routes native app/game evidence work here; browser games/cloud gaming route to browser-plan, and app-only legacy reconciliation routes only when the assigned row says so.
 - Scope split: installed app/game identity, inventory, runtime, foreground, launcher, session, app/game policy targets, platform authority, and parent/child UX stay here. URL/page/screen/network content stays out unless referenced as evidence handoff.
-- Minimum read set: one assigned workpack, its exact checklist row, `source-index.md` only when source ownership is unclear, and `TEST_PROOF_EXPECTATIONS.md` before DONE.
+- Minimum read set: one assigned workpack, its exact checklist row, `WORKPACK_FAMILIES.md` only when owner path is unclear, `source-index.md` only when source ownership is unclear, and `TEST_PROOF_EXPECTATIONS.md` before DONE.
 - Test/proof decision: require contract, invariant, foreground-not-content, runtime-not-foreground, launcher ambiguity, authZ, replay/idempotency, platform-capability, degraded-state UI, and no-fake-green proof where applicable.
 - DONE blocker: no product row may claim app/game control until the proof separates observation, classification, policy decision, adapter authority, and manual-required platform states.
 
@@ -58,7 +68,7 @@ This file records documentation health and consistency checks for the plan. It i
 
 ### Decision routes and failure controls
 
-- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Decision route: follow this plan's AGENTS landing decision, the selected workpack path, `WORKPACK_FAMILIES.md` when owner path is unclear, and the feature/doc proof matrix referenced in this file.
 - Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
 
 ### Proof mapping

@@ -1,17 +1,17 @@
-use ocentra_parent_agent_protocol::{
-    constants, ChildCommandAcceptedEvent, ChildCommandKind, ChildCommandReceivedEvent,
-    ParentReadModelProjectedEvent,
+use ocentra_parent_agent_protocol::child_agent::child_agent_events::{
+    ChildCommandAcceptedEvent, ChildCommandKind, ChildCommandReceivedEvent,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::parent_controller_events::ParentReadModelProjectedEvent;
 
 use super::action_handoff_child_status_types::{
     BrowserRuntimeActionIntentChildStatusError,
     BrowserRuntimeActionIntentChildStatusReadModelState,
     BrowserRuntimeActionIntentChildStatusRecord, BrowserRuntimeActionIntentChildStatusReport,
 };
-use crate::{
-    publish_parent_child_runtime_for_validated_intent, ParentChildRuntimeEventPayload,
-    ParentChildRuntimeInput,
-};
+use crate::parent_child_event_runtime::publish_parent_child_runtime_for_validated_intent;
+use ocentra_parent_agent_protocol::transport::parent_child_runtime_input::ParentChildRuntimeInput;
+use ocentra_parent_agent_protocol::transport::ParentChildRuntimeEventPayload;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 struct BrowserRuntimeActionIntentExecutionCounts {
@@ -23,14 +23,13 @@ struct BrowserRuntimeActionIntentExecutionCounts {
     enforcement_execution_count: usize,
 }
 
-#[cfg(test)]
 pub async fn prove_browser_runtime_action_intent_child_status(
 ) -> Result<BrowserRuntimeActionIntentChildStatusReport, BrowserRuntimeActionIntentChildStatusError>
 {
     let durable =
         super::action_handoff_durable::prove_browser_runtime_action_intent_durable_handoff()
             .await
-            .map_err(|_| BrowserRuntimeActionIntentChildStatusError::Handoff)?;
+            .map_err(BrowserRuntimeActionIntentChildStatusError::Handoff)?;
     if durable.rows.len() != 1 || has_unsupported_claims(&durable) {
         return Err(BrowserRuntimeActionIntentChildStatusError::UnsupportedClaim);
     }
@@ -42,7 +41,7 @@ pub async fn prove_browser_runtime_action_intent_child_status(
         ParentChildRuntimeInput::browser_action_intent_handoff_fixture(),
     )
     .await
-    .map_err(|_| BrowserRuntimeActionIntentChildStatusError::ParentChildRuntime)?;
+    .map_err(BrowserRuntimeActionIntentChildStatusError::ParentChildRuntime)?;
     let payloads = child_report
         .stored_events
         .iter()
@@ -52,7 +51,7 @@ pub async fn prove_browser_runtime_action_intent_child_status(
                 .map(|envelope| envelope.payload)
         })
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| BrowserRuntimeActionIntentChildStatusError::MissingPayload)?;
+        .map_err(BrowserRuntimeActionIntentChildStatusError::PayloadDecode)?;
     let received = child_command_received(&payloads)?;
     let accepted = child_command_accepted(&payloads)?;
     let parent_read_model = parent_read_model_projected(&payloads)?;
@@ -71,9 +70,9 @@ pub async fn prove_browser_runtime_action_intent_child_status(
             final_policy_execution_count: durable.final_policy_execution_count,
             enforcement_execution_count: durable.enforcement_execution_count,
         },
-        received,
-        accepted,
-        parent_read_model,
+        &received,
+        &accepted,
+        &parent_read_model,
         BrowserRuntimeActionIntentChildStatusRecord {
             policy_preview_id: durable_row.policy_preview_id.clone(),
             action_intent_id: durable_row.action_intent_id.clone(),
@@ -81,7 +80,7 @@ pub async fn prove_browser_runtime_action_intent_child_status(
             durable_read_model_ref: durable_row.read_model_ref.as_str().to_string(),
             outbox_ref: durable_row.outbox_ref.as_str().to_string(),
             handoff_ref: durable_row.handoff_ref.as_str().to_string(),
-            child_command_ref: durable_row.handoff_ref.as_str().to_string(),
+            child_command_ref: String::new(),
             child_command_received_event_ref: String::new(),
             child_command_accepted_event_ref: String::new(),
             parent_read_model_ref: String::new(),
@@ -95,9 +94,9 @@ pub async fn prove_browser_runtime_action_intent_child_status(
 fn child_status_report_from_events(
     handoff_candidate_count: usize,
     execution_counts: BrowserRuntimeActionIntentExecutionCounts,
-    received: ChildCommandReceivedEvent,
-    accepted: ChildCommandAcceptedEvent,
-    parent_read_model: ParentReadModelProjectedEvent,
+    received: &ChildCommandReceivedEvent,
+    accepted: &ChildCommandAcceptedEvent,
+    parent_read_model: &ParentReadModelProjectedEvent,
     mut row: BrowserRuntimeActionIntentChildStatusRecord,
 ) -> BrowserRuntimeActionIntentChildStatusReport {
     row.child_command_ref = received.child_command_ref.clone();
@@ -170,7 +169,6 @@ fn parent_read_model_projected(
         .ok_or(BrowserRuntimeActionIntentChildStatusError::MissingPayload)
 }
 
-#[cfg(test)]
 fn handoff_matches_child_status(
     durable_row: &super::action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffRecord,
     received: &ChildCommandReceivedEvent,
@@ -186,7 +184,6 @@ fn handoff_matches_child_status(
         && parent_read_model.visible_to_portal
 }
 
-#[cfg(test)]
 fn has_unsupported_claims(
     durable: &super::action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffReport,
 ) -> bool {

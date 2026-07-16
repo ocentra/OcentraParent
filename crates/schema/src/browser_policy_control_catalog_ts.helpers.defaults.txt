@@ -1,0 +1,81 @@
+export function defaultBrowserGamesGenerated() {
+  return {
+    educationalGameMode: 'allow' as const,
+    unknownGameMode: 'parent-review' as const,
+    cloudGamingApproval: 'parent-review' as const,
+    purchaseAccountApproval: 'parent-review' as const,
+    unblockedPortalMode: 'warn' as const,
+    webglCanvasMode: 'observe' as const,
+    defaultDailyMinutes: 30,
+  };
+}
+
+export function defaultChildFacingGenerated() {
+  return {
+    showWarnText: false,
+    showBlockReason: false,
+    showAskParentState: false,
+    showTimeLeft: false,
+    showUseManagedBrowserAction: false,
+    hideParentDiagnostics: false,
+  };
+}
+
+export function defaultDiscoveryGenerated() {
+  return {
+    scanInstalledBrowsers: false,
+    scanRunningBrowsers: true,
+    detectUnmanagedBrowsers: true,
+  };
+}
+
+export function defaultPortalAiGenerated() {
+  return {
+    allowSummaries: false,
+    allowPolicyExplanation: false,
+    allowRuleSuggestions: false,
+    allowEvidenceRefs: false,
+    allowRawContent: false,
+    requiresManualReview: false,
+    fallbackWhenUnavailable: null,
+  };
+}
+
+export function defaultPlatformCapabilityGenerated() {
+  return {
+    enabled: false,
+    state: null,
+    allowedAdapters: [],
+    manualRequiredAdapters: [],
+    authoringOnly: false,
+    mayRunCapture: false,
+    mayConnectToBrowserBridge: false,
+  };
+}
+
+export function defaultPlatformsGenerated() {
+  return {
+    windows: defaultPlatformCapabilityGenerated(),
+    macos: defaultPlatformCapabilityGenerated(),
+    linux: defaultPlatformCapabilityGenerated(),
+    android: defaultPlatformCapabilityGenerated(),
+    ios: defaultPlatformCapabilityGenerated(),
+    webPortal: defaultPlatformCapabilityGenerated(),
+  };
+}
+
+export function defaultFallbacksGenerated() {
+  return {
+    managedProfileMissing: null,
+    bridgeMissing: null,
+    extensionDisabled: null,
+    nativeHostMissing: null,
+    unsupportedBrowser: null,
+    staleEvidence: null,
+    networkAdapterUnavailable: null,
+    processControlUnavailable: null,
+    enforcementFailure: null,
+    childDeviceOffline: null,
+    platformUnsupported: null,
+  };
+}

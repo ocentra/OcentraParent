@@ -6,7 +6,22 @@ alwaysApply: false
 
 # Ocentra Parent Validation Rules
 
-Run the smallest useful check while working. Before handing off, run the full gate unless the user asked for analysis only.
+Run the smallest useful check that proves the assigned slice. Do not escalate validation by habit.
+
+When working through `docs/repo-audits/lane-manager-coordination/`, first read:
+
+- `docs/repo-audits/lane-manager-coordination/VALIDATION_BUDGET_LADDER.md`
+
+## Slice validation rule
+
+| Work type | Default validation |
+| --- | --- |
+| docs-only / inventory-only | path checks and `git diff --check` on touched docs only |
+| touched script | syntax/static check for the touched script plus exact proof command only if assigned |
+| touched package source | targeted package test for touched file or owner package |
+| touched Rust crate source | targeted `cargo test -p <crate> <filter>` or assigned crate check |
+| touched UI proof | one assigned test/spec, not full UI suite |
+| final PR/main-lane readiness | explicit full gate if assigned by coordinator |
 
 ## Main Gate
 
@@ -14,19 +29,13 @@ Run the smallest useful check while working. Before handing off, run the full ga
 npm run validate
 ```
 
-This runs:
+This is a final readiness gate, not a default slice handoff gate.
 
-- schema and string boundary checks
-- no test double check
-- source shape check
-- Turbo lint/type-check/test
-- TypeScript unit and contract tests
-- Rust check and tests
-- real local WebSocket smoke
-- real LAN bind/origin smoke
-- real portal smoke
+Do not run it for normal plan slices, docs-only work, audit inventory, or proof-root normalization unless the dispatch packet explicitly says to run it.
 
 ## Supporting Gates
+
+Use supporting gates only when scoped to touched files, packages, or crates.
 
 ```powershell
 npm run build
@@ -35,14 +44,48 @@ npm run security:scan-repo
 cargo test
 ```
 
+The unscoped forms above are not default slice commands. Prefer workspace/package/crate/touched-file forms named by the assigned workpack.
+
+Architecture policy gates:
+
+```powershell
+npm run lint:architecture -- --files <touched-file-or-dir> [more files or dirs]
+cargo lint-architecture <touched-rs-file-or-dir> [more files or dirs]
+```
+
+Use directory paths to run the same hard gate per module, crate, or domain without waiting for full validation.
+
+For PR diffs or full debt sweeps, use the explicit diff or all-files forms only when assigned:
+
+```powershell
+npm run lint:architecture -- --base <base> --head <head>
+npm run lint:architecture:all
+cargo lint-architecture --base <base> --head <head>
+cargo lint-architecture --all
+```
+
+`lint:architecture` covers:
+
+- TypeScript/JavaScript and Rust re-export bans
+- no validation-bypass directives
+- no focused/skipped/todo tests
+- no weak test assertions
+- no placeholder implementation markers in production source
+- import ownership boundaries
+- Rust raw domain primitive bans
+- Rust string-boundary checks
+- Rust dependency policy checks
+
 ## Stale Dev Services
 
 If `cargo build` or `cargo test` cannot overwrite the service binary on Windows, check whether the dev service is still running on port `4477` and stop it before rebuilding.
 
-Parent fixed ports are `4477` for the headless Rust agent and `4478` for the Vite portal. LAN mode uses the same ports through `npm run dev:lan`. Do not use generic Vite port `5173` or the Ocentra Games asset-editor port `5174`.
+Parent fixed ports are `4477` for the headless Rust agent and `4478` for the
+dev portal. LAN mode uses the same ports through `npm run dev:lan`. Do not use
+generic Vite port `5173` or the Ocentra Games asset-editor port `5174`.
 
 If smoke tests need ports, make sure stale processes are not providing a fake pass. Use the managed scripts in `scripts/dev/` so only clearly Ocentra Parent processes are reclaimed.
 
 ## Validation Reports
 
-Report exact commands run and exact failures. Do not summarize a failed gate as "mostly passing".
+Report exact commands run, exact validation level, exact failures, and which broader gates were intentionally skipped. Do not summarize a failed gate as "mostly passing".

@@ -1,69 +1,87 @@
-# Tracking Plan Test and Proof Expectations
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `tracking-plan`
-> Doc: `Tracking Plan Test and Proof Expectations`
-> Kind: plan-local test and proof decision tree.
-> Read when: After the assigned workpack/checklist row is known; use to choose required tests/proof.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: This file defines required local tests/proof; missing tests keep rows open.
+> Doc: `Tracking Plan Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
 <!-- /agent-capsule -->
 
-Use this file only after `AGENTS.md`, `PLAN_STATE.md`, `WORKPACK_INDEX.md`, and the assigned tracking workpack are known. It is the local decision tree for tests and proof. Do not open full checklists or checkpoints unless this file or `PROOF_INDEX.md` points there.
+# Tracking Plan Test Proof Expectations
 
-## Where tests should live
+## General rule
 
-When the tracking implementation crate/package exists, tracking tests belong under that plan/feature implementation test tree, with proof output under that implementation's proof/output folder. Until that lands, colocate tests with the owning domain package/crate and record the path in the workpack and `PROOF_INDEX.md`.
+Use the selected workpack's named proof artifacts first. If missing, derive:
 
-## Decision Tree
+```text
+output/tracking-plan-proof/<workpack-file-stem>/
+```
 
-| If the assigned work is...                                           | Read next                                             | Expected tests or proof                                                                                                                                                                  |
-| -------------------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| WP01-WP02 source, snapshot, gap map, routing docs                    | `DOC_INDEX.md`, exact source rows only                | `tracking-doc-link-sanity`, `tracking-source-coverage-gap-proof`; no product status move without evidence.                                                                               |
-| WP03-WP07 evidence, status, capability, retention, custody contracts | `CHECKLIST_INDEX.md` exact rows; owning domain README | schema decode/encode negatives, branded id tests, invariant tests for no raw location/device strings, retention/delete/export contract negatives.                                        |
-| WP08-WP13 Android/iOS/desktop adapters                               | assigned workpack; platform expectation docs only     | platform adapter integration smoke, permission/capability matrix, degraded/manual-required states, offline/last-known-only negatives, battery/low-power behavior, manual artifact proof. |
-| WP14-WP18 geofence, expected-place, acknowledgement, child check-in  | assigned workpack; expectation docs named there       | transition ordering, clock skew/DST, replay/idempotency, double-submit, stale location, parent override/exception, child misuse proof.                                                   |
-| WP19-WP22 nearby-place/POI/taxonomy/local place DB                   | assigned workpack; provider docs named there          | provider schema fuzzing, ambiguity/risk taxonomy invariants, cache/custody proof, quota/rate-limit, no direct enforcement from weak POI evidence.                                        |
-| WP23-WP24 AI location safety/provider routing                        | assigned workpack; AI expectation only if named       | prompt-injection, hallucination regression, output schema invariants, redaction, provider fallback, temperature sensitivity, no AI authority-to-enforce proof.                           |
-| WP25-WP29 policy, alerts, escalation, temporary live, missing-device | assigned workpack; notification/policy expectations   | authZ matrix, replay/idempotency, alert severity invariants, escalation ordering, token/session lifecycle, rate limit/abuse, rollback/expiry proof.                                      |
-| WP30 parent/child UI                                                 | assigned workpack; UI guide only                      | Playwright/e2e real state proof, empty/error/offline/degraded states, permission states, screenshots, logging/trace refs for clicked/acknowledged flows.                                 |
-| WP31-WP33 platform proof, journal/SQLite, rollout gate               | `PROOF_INDEX.md`, exact checklist rows                | migration/rollback/schema drift, journal replay, read-model differential proof, proof artifact completeness, PR gate validation list.                                                    |
+## Central schema proof rule
 
-## Expected test/proof inventory
+Every proof that touches a cross-boundary tracking shape must identify the canonical owner:
 
-Use these names as proof intent labels in the assigned workpack/proof note. Implementers choose the actual crate/package test names after the owning implementation boundary exists.
+```text
+schema-domain or neutral protocol/event/evidence boundary: canonical schema
+tracking-domain: helper, projection, proof adapter, and focused tests
+tracking-core: Rust mirror/parser/runtime helper
+```
 
-- `tracking.location.schema-negative-decode`: location/device/geofence contracts reject malformed or ambiguous inputs.
-- `tracking.permission.manual-required`: missing permission, background restriction, battery saver, and platform limitation states remain explicit.
-- `tracking.geofence.transition-invariants`: enter/exit/dwell transitions handle jitter, duplicates, stale samples, and ordering.
-- `tracking.schedule.clock-dst-boundary`: expected-place schedules handle timezone, DST, expiry, and clock skew.
-- `tracking.session.idempotency-replay`: location/session/read-model ingestion is idempotent under replay and partial outage.
-- `tracking.authz.family-isolation`: parent/child/device access rejects cross-family and stale-token cases.
-- `tracking.alert.rate-limit-escalation`: alerts are rate-limited, severity-bounded, and auditable.
-- `tracking.ui.proof-screenshot-log`: parent/child surfaces show empty, stale, degraded, and manual-required states with screenshots/logs.
+A proof is incomplete when a public contract, event payload, protocol shape, read-model DTO, policy input, notification input, custody/export shape, or proof metadata shape exists only as a tracking-local schema.
 
-## Required proof contents
+## Common command families
 
-- Command logs for every validation command.
-- Negative-case output, not only passing happy path.
-- Proof artifact path and exact workpack/checklist row updated.
-- For UI proof: screenshot path plus Playwright/browser command and relevant log/trace reference.
-- For platform proof: OS/device/version, permission/enrollment state, adapter output, limitation/manual-required note.
-- For AI proof: input fixture, prompt/output fixture, schema validation result, safety/redaction result.
+Use the subset relevant to the selected workpack:
+
+```bash
+npm run build --workspace @ocentra-parent/tracking-domain
+npm run test --workspace @ocentra-parent/tracking-domain
+cargo test -p ocentra-tracking-core
+cargo test -p ocentra-parent-agent-protocol tracking
+npm run test --workspace @ocentra-parent/portal -- tracking
+npm run lint:architecture -- --files packages/tracking-domain crates/tracking-core packages/agent-protocol-domain crates/agent-protocol apps/portal docs/plans/tracking-plan
+```
+
+Audit note:
+
+- `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs` is a dependent proof step, not a cheap standalone green check. It requires the product-readiness closure proof artifact first.
+- `node scripts/test/tracking-claim-audit-proof.mjs` now reruns from `packages/tracking-domain` source and is the cheap WP33 aggregate proof gate that should stay green before closure/source-reconciliation reruns.
+- `node scripts/test/tracking-product-readiness-closure-proof.mjs` must carry blocker rows rather than changing product-ready claims when upstream artifacts are missing.
+
+## Tracking E2E meaning
+
+```text
+schema E2E: canonical schema owner -> helper/runtime mirror -> invalid shape rejection.
+evidence E2E: sample -> accuracy/source/freshness -> stale/manual-required handling.
+status E2E: heartbeat/battery/connectivity -> degraded/offline state.
+rule E2E: evidence + parent rule -> evaluated state -> no weak-evidence overclaim.
+retention E2E: evidence refs -> retention/delete/export/tombstone -> custody proof.
+policy E2E: evidence refs -> policy decision -> no AI/direct notification authority.
+event-chain E2E: canonical events -> journal/replay/projection -> no duplicate side effects.
+portal E2E: service/event read model -> UI state -> screenshot/accessibility proof only.
+rollout E2E: accepted proof roots + blockers -> claim audit -> product-ready remains false unless hard proof exists.
+```
+
+## Required negative states
+
+```text
+low accuracy produces ambiguous/check-in state
+wrong household/device denied
+stale evidence visible
+offline state visible
+manual-required state visible
+single-machine proof not physical-device proof
+UI read-only proof not delivery/runtime proof
+local schema not accepted as public contract unless promoted
+```
 
 ## Failure conditions
 
-Do not claim DONE or PR_READY if any apply:
-
-- The expected test/proof row for the touched work type is missing.
-- The implementation crate/package test folder does not exist and the missing expected location is not recorded.
-- Only happy-path tests pass for a trust, policy, persistence, protocol, UI, AI, platform, security, performance, or observability boundary.
-- A product/checklist row moved without command logs and proof artifact path.
-- A manual-required/platform limitation was converted into a runtime capability claim.
-- A proof artifact lacks negative cases, logs/traces where relevant, or exact workpack/checklist linkage.
-- A sibling plan or broad source tree was read without a route reason recorded in the workpack/proof note.
+- Do not mark DONE or PR_READY from happy-path-only proof.
+- Do not store proof inventories inside this plan folder.
+- Do not claim physical platform behavior unless the selected workpack explicitly proves it.
+- Do not allow tracking-domain/tracking-core to become canonical schema owners for cross-boundary shapes.

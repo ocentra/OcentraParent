@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{NetworkEvidenceGrade, NormalizedDomainEvidence};
+use crate::dns::types::NetworkEvidenceGrade;
+use crate::domain::NormalizedDomainEvidence;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkCategory {

@@ -17,6 +17,9 @@ public final class OcentraParentAgentService extends Service {
     private Bundle serviceProof;
     private Bundle permissionProof;
     private Bundle privilegedProof;
+    private Bundle foregroundLocationProof;
+    private Bundle backgroundLocationProof;
+    private Bundle backgroundLocationSampleProof;
 
     @Override
     public void onCreate() {
@@ -26,8 +29,15 @@ public final class OcentraParentAgentService extends Service {
         serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
         permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
         privilegedProof = ChildAndroidPrivilegedCapabilityProof.createPrivilegedCapabilityBundle();
+        foregroundLocationProof = TrackingAndroidForegroundLocationProof.createForegroundLocationBundle(this);
+        TrackingAndroidBackgroundLocationProof.registerEmulatorGeofenceProof(this);
+        backgroundLocationProof = TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(this);
+        backgroundLocationSampleProof =
+            TrackingAndroidBackgroundLocationSampleProof.createBackgroundSampleBundle(this);
         ensureNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
+        backgroundLocationSampleProof =
+            TrackingAndroidBackgroundLocationSampleProof.startBackgroundSampleProof(this);
     }
 
     @Override
@@ -37,6 +47,11 @@ public final class OcentraParentAgentService extends Service {
         serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
         permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
         privilegedProof = ChildAndroidPrivilegedCapabilityProof.createPrivilegedCapabilityBundle();
+        foregroundLocationProof = TrackingAndroidForegroundLocationProof.createForegroundLocationBundle(this);
+        TrackingAndroidBackgroundLocationProof.registerEmulatorGeofenceProof(this);
+        backgroundLocationProof = TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(this);
+        backgroundLocationSampleProof =
+            TrackingAndroidBackgroundLocationSampleProof.startBackgroundSampleProof(this);
         return START_STICKY;
     }
 
@@ -75,7 +90,23 @@ public final class OcentraParentAgentService extends Service {
                 " " +
                 permissionProof.getString(ChildAndroidPermissionCapabilityProof.FIELD_PERMISSION_BRIDGE_STATE) +
                 " " +
-                privilegedProof.getString(ChildAndroidPrivilegedCapabilityProof.FIELD_PRIVILEGED_BRIDGE_STATE)
+                privilegedProof.getString(ChildAndroidPrivilegedCapabilityProof.FIELD_PRIVILEGED_BRIDGE_STATE) +
+                " " +
+                foregroundLocationProof.getString(
+                    TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_PERMISSION_STATE
+                ) +
+                " " +
+                foregroundLocationProof.getString(
+                    TrackingAndroidForegroundLocationProof.FIELD_FOREGROUND_LOCATION_SAMPLE_STATE
+                ) +
+                " " +
+                backgroundLocationProof.getString(
+                    TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_STATE
+                ) +
+                " " +
+                backgroundLocationSampleProof.getString(
+                    TrackingAndroidBackgroundLocationSampleProof.FIELD_BACKGROUND_SAMPLE_STATE
+                )
             )
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setOngoing(true)

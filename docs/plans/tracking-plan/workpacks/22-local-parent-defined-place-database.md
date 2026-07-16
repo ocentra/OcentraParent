@@ -86,25 +86,25 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-local-place-store-proof`.
-- [x] Touched files: `packages/activity-domain/src/tracking-local-place-store.ts`,
+- [ ] Workpack id and branch: `codex/tracking-local-place-store-proof`.
+- [ ] Touched files: `packages/activity-domain/src/tracking-local-place-store.ts`,
       `packages/activity-domain/src/tracking.ts`,
       `packages/activity-domain/tests/tracking-local-place-store.test.ts`,
       `scripts/test/tracking-plan-local-place-store-proof.mjs`, root
       `package.json`, this workpack doc, implementation checklist, feature doc,
       activity-domain README, and WP22 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-local-place-store-proof` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/22-local-parent-defined-place-database/`,
       including `07-nearby-place-proof.json`,
       `14-retention-delete-proof.json`, and
       `17-parent-owned-export-proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, this workpack doc, and activity-domain README updated.
       Central product capability checklist movement is queued through the hub
       DOC_DELTA flow instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: Android/iOS physical proof, precise
+- [ ] Known gaps/manual-required states: Android/iOS physical proof, precise
       desktop OS location, provider delivery, production persistence, live UI,
       hosted accessibility, notifications, and authority-enrolled behavior
       remain proof-gated as applicable.

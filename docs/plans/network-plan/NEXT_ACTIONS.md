@@ -25,14 +25,43 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. [WP01 Foundation Contracts And Eventing](workpacks/01-foundation-contracts-and-eventing.md) - required before network runtime or policy claims.
-2. [WP02 Passive Capture And Parsing](workpacks/02-passive-capture-and-parsing.md) - required before live-capture, parser, or metadata claims.
-3. [WP03 Classification And Correlation](workpacks/03-classification-and-correlation.md) - required before category, tunnel, app/browser/screen correlation, or ambiguity claims.
-4. [WP04 Cross Slice Cascade And Parent Surface](workpacks/04-cross-slice-cascade-and-parent-surface.md) - required before parent-visible network rows, AI queue, policy mapping, or notification candidates.
-5. [WP05 Intervention Adapter Proof Gates](workpacks/05-intervention-adapter-proof-gates.md) - required before DNS/firewall/VPN/WFP/NetworkExtension/Linux intervention claims.
-6. [WP06 Analyzer AI Audit And Risk Budget](workpacks/06-analyzer-ai-audit-and-risk-budget.md) - required before analyzer, AI narrative, or risk-budget claims.
-7. [WP07 Performance Security Rollout](workpacks/07-performance-security-rollout.md) - required before production readiness or support claims.
-8. [WP08 Control Catalog Reference Routing](workpacks/08-control-catalog-reference-routing.md) - use only to route exact large reference-doc lookups.
+1. Plan-truth repair: keep `PLAN_STATE.md`, `source-index.md`, and `PROOF_INDEX.md` aligned with the real source roots and current proof state before claiming any row progress.
+2. [WP01 Foundation Contracts And Eventing](workpacks/01-foundation-contracts-and-eventing.md) - fix canonical contract ownership drift and remove architecture-ban re-exports before treating the foundation as complete.
+3. [WP08 Control Catalog Reference Routing](workpacks/08-control-catalog-reference-routing.md) - keep the 363-setting catalog honest as a generated reference surface, not a runtime-complete control surface.
+4. [WP02 Passive Capture And Parsing](workpacks/02-passive-capture-and-parsing.md) - regenerate real proof only from the current Rust/TS surfaces, not from stale planned artifact paths.
+5. [WP03 Classification And Correlation](workpacks/03-classification-and-correlation.md) - keep classifier/correlation claims tied to real evidence refs, typed tests, and negative cases.
+6. [WP04 Cross Slice Cascade And Parent Surface](workpacks/04-cross-slice-cascade-and-parent-surface.md) - keep portal/service/runtime claims sourced from service-backed tests and real runtime-chain refs.
+7. [WP05 Intervention Adapter Proof Gates](workpacks/05-intervention-adapter-proof-gates.md) - Windows, Android, and Linux proof are expected locally where relevant; macOS/iOS real proof remains external-platform constrained from this host.
+8. [WP06 Analyzer AI Audit And Risk Budget](workpacks/06-analyzer-ai-audit-and-risk-budget.md) - keep AI/risk claims fixture-backed unless real runtime execution artifacts are attached.
+9. [WP07 Performance Security Rollout](workpacks/07-performance-security-rollout.md) - treat monitoring, metrics, tracing, alerting, and rollout claims as open until focused evidence exists.
+
+## Blocker routing
+
+### Real dependency blockers
+
+- Browser exact-URL or managed-browser authority rows owned by `browser-plan`.
+- Cross-slice screen fallback rows owned by `screen-plan`.
+- AI runtime/provider ownership rows owned by `ai-plan`.
+- Reusable eventing, replay, delivery, or idempotency semantics owned by `eventing-plan`.
+- LAN/family-hub delivery rows owned by `lan-plan`.
+- Enforcement-authority rows owned by `v0-8-enforcement-control-plan`.
+
+### External platform constraints
+
+- Real macOS proof.
+- Real iOS proof.
+
+### Avoidable local execution gaps
+
+- Only the `01-network-foundation-shim-cleanup` proof pack exists; broader plan proof docs and artifacts are still missing.
+- WSL installed but not started.
+- Docker Desktop binary present but engine unavailable.
+- Android SDK/emulator available, but no current device attached and the remembered Samsung Wi-Fi endpoint may need reconnect/auth.
+
+## Current slice contradiction
+
+- The old `network-foundation-shim-cleanup` contradiction is now locally closed: dead parent-domain `network-flow` and `network-contracts` frontage files are retired, and the stale `@ocentra-parent/parent-domain` `./network-control-catalog` surface is already retired.
+- The next network move must reopen a real `WP01` contract/eventing or plan-truth packet, not another parent-domain shim-cleanup pass.
 
 ## PR readiness guard
 
@@ -43,5 +72,7 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 ## Actioned completion tracker
 
 - [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
+- [ ] Repair plan-level truth docs before updating any workpack progress rows.
+- [ ] Remove source-index drift and architecture-ban re-export drift from the canonical network surface before calling WP01 truthful.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
 - [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.

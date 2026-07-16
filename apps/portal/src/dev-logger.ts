@@ -1,42 +1,73 @@
 import {
-  DevLogEndpoint,
-  DevLogField,
-  DevLogHttp,
-  DevLogIdPrefix,
-  DevLogMessage,
-  DevLogEntrySchema,
-  LogLevel,
-  LogSource,
-  decodeLogEntryId,
-  decodeLogTimestamp,
-  type LogFields,
-  type LogMessage,
-} from '@ocentra-parent/logging-domain/contracts';
+  type GeneratedLogFields as LogFields,
+  type GeneratedLogMessage as LogMessage,
+  type GeneratedStackTrace as StackTrace,
+} from '@ocentra-parent/logging-domain/generated/logging-contracts';
+import { decodeLogMessage } from '@ocentra-parent/logging-domain/logging-contracts';
+import {
+  resolvePortalDevLogBridgeUrl as resolvePortalDomainDevLogBridgeUrl,
+  resolvePortalProofTraceConfig as resolvePortalDomainProofTraceConfig,
+  sendPortalDevLogWithContext,
+  sendPortalProofTraceLogWithContext,
+  type PortalLoggerRuntime,
+  type PortalProofTraceConfig as PortalDomainProofTraceConfig,
+  type PortalProofTraceOptions as PortalDomainProofTraceOptions,
+} from '@ocentra-parent/portal-domain/dev-logger';
 
-export { DevLogField, DevLogMessage };
+export type PortalProofTraceOptions = PortalDomainProofTraceOptions;
+export type PortalProofTraceConfig = PortalDomainProofTraceConfig;
 
-export function writePortalDevLog(message: LogMessage, fields: LogFields = {}): void {
-  const entry = DevLogEntrySchema.parse({
-    schemaVersion: 1,
-    id: createPortalLogId(),
-    timestamp: decodeLogTimestamp(new Date().toISOString()),
-    level: LogLevel.Info,
-    source: LogSource.Portal,
-    message,
-    fields,
-  });
-
-  void fetch(DevLogEndpoint.Write, {
-    method: DevLogHttp.MethodPost,
-    headers: {
-      [DevLogHttp.HeaderContentType]: DevLogHttp.ContentTypeJson,
-    },
-    body: JSON.stringify(entry),
-    credentials: DevLogHttp.CredentialsSameOrigin,
-  }).catch(() => undefined);
+function decodePortalLogMessage(message: unknown): LogMessage {
+  return decodeLogMessage(message) as unknown as LogMessage;
 }
 
-function createPortalLogId() {
-  const randomId = globalThis.crypto?.randomUUID?.() ?? String(Date.now());
-  return decodeLogEntryId(`${DevLogIdPrefix.Portal}${randomId}`);
+export function writePortalDevLog(message: unknown, fields: LogFields = {}): void {
+  void sendPortalDevLog(message, fields);
+}
+
+export function writePortalProofTraceLog(
+  message: unknown,
+  proofTrace: PortalProofTraceOptions,
+  fields: LogFields = {}
+): void {
+  void sendPortalProofTraceLog(message, proofTrace, fields);
+}
+
+export async function sendPortalDevLog(
+  message: unknown,
+  fields: LogFields = {},
+  endpoint = resolvePortalDevLogBridgeUrl(),
+  runtime: PortalLoggerRuntime = globalThis as PortalLoggerRuntime
+): Promise<boolean> {
+  return sendPortalDevLogWithContext(decodePortalLogMessage(message), fields, {
+    endpoint,
+    runtime,
+    stackTrace: (new Error().stack ?? String()) as StackTrace,
+    moduleUrl: import.meta.url,
+  });
+}
+
+export function resolvePortalDevLogBridgeUrl(runtime: PortalLoggerRuntime = globalThis as PortalLoggerRuntime) {
+  return resolvePortalDomainDevLogBridgeUrl(runtime);
+}
+
+export async function sendPortalProofTraceLog(
+  message: unknown,
+  proofTrace: PortalProofTraceOptions,
+  fields: LogFields = {},
+  endpoint = resolvePortalDevLogBridgeUrl(),
+  runtime: PortalLoggerRuntime = globalThis as PortalLoggerRuntime
+): Promise<boolean> {
+  return sendPortalProofTraceLogWithContext(decodePortalLogMessage(message), proofTrace, fields, {
+    endpoint,
+    runtime,
+    stackTrace: (new Error().stack ?? String()) as StackTrace,
+    moduleUrl: import.meta.url,
+  });
+}
+
+export function resolvePortalProofTraceConfig(
+  runtime: PortalLoggerRuntime = globalThis as PortalLoggerRuntime
+): PortalProofTraceConfig {
+  return resolvePortalDomainProofTraceConfig(runtime);
 }

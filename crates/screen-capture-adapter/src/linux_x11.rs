@@ -1,8 +1,8 @@
-use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 
 use crate::{
     degraded_capture, CapturedScreenImage, ScreenCaptureAttempt, ScreenCaptureMetadata,
-    ScreenCaptureScope,
+    ScreenCaptureScope, ScreenCaptureWindowTitleQuery,
 };
 
 pub(super) fn capture_active_window_png() -> ScreenCaptureAttempt {
@@ -15,8 +15,10 @@ pub(super) fn capture_active_window_png() -> ScreenCaptureAttempt {
     capture_x11_window_png(&window_id, ScreenCaptureScope::ActiveWindow, None)
 }
 
-pub(super) fn capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    let Some(selection) = find_x11_window_by_title(title_contains) else {
+pub(super) fn capture_window_title_contains_png(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
+    let Some(selection) = find_x11_window_by_title(title_query) else {
         return degraded_capture(
             ActivityCaptureCapabilityStatus::NoActiveWindow,
             ScreenCaptureScope::SelectedWindow,
@@ -55,7 +57,9 @@ fn active_x11_window_id() -> Option<String> {
     }
 }
 
-fn find_x11_window_by_title(title_contains: &str) -> Option<X11WindowSelection> {
+fn find_x11_window_by_title(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> Option<X11WindowSelection> {
     let output = std::process::Command::new("xwininfo")
         .args(["-root", "-tree"])
         .output()
@@ -65,7 +69,7 @@ fn find_x11_window_by_title(title_contains: &str) -> Option<X11WindowSelection> 
     }
     let stdout = String::from_utf8(output.stdout).ok()?;
     stdout.lines().find_map(|line| {
-        if !line.contains(title_contains) {
+        if !line.contains(title_query.as_str()) {
             return None;
         }
         let window_id = line.split_whitespace().next()?.to_owned();

@@ -1,133 +1,41 @@
-use ocentra_parent_agent_protocol::constants;
-use serde::{Deserialize, Serialize};
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
+    ScreenPolicyState, ScreenRuntimePhase,
+};
 
-use crate::screen_event_runtime_phase::ScreenRuntimePhase;
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenEvidenceScope {
-    EncryptedLocalImage,
-    DeletedQueryStoreSummary,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenAiAuditState {
-    NotRequested,
-    Requested,
-    Completed,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenPolicyState {
-    NotReady,
-    ReadyForDryRun,
-    Completed,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenActionState {
-    NotReady,
-    DryRunRecorded,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenDeletionState {
-    Pending,
-    Committed,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ScreenRuntimeClaimBoundary {
-    pub raw_image_available_to_ai_provider: bool,
-    pub raw_image_available_to_policy: bool,
-    pub raw_image_available_to_portal: bool,
-    pub adapter_action_executed: bool,
-}
-
-impl ScreenRuntimeClaimBoundary {
-    pub(crate) fn child_owned_no_raw_escape() -> Self {
-        Self {
-            raw_image_available_to_ai_provider: false,
-            raw_image_available_to_policy: false,
-            raw_image_available_to_portal: false,
-            adapter_action_executed: false,
-        }
-    }
-}
+#[path = "screen_event_runtime_state_action.rs"]
+mod screen_event_runtime_state_action;
+#[path = "screen_event_runtime_state_audit.rs"]
+mod screen_event_runtime_state_audit;
+#[path = "screen_event_runtime_state_custody.rs"]
+mod screen_event_runtime_state_custody;
+#[path = "screen_event_runtime_state_deletion.rs"]
+mod screen_event_runtime_state_deletion;
+#[path = "screen_event_runtime_state_policy.rs"]
+mod screen_event_runtime_state_policy;
+#[path = "screen_event_runtime_state_scope.rs"]
+mod screen_event_runtime_state_scope;
 
 pub(crate) fn evidence_scope(phase: ScreenRuntimePhase) -> ScreenEvidenceScope {
-    match phase {
-        ScreenRuntimePhase::CaptureObserved
-        | ScreenRuntimePhase::QueueEncrypted
-        | ScreenRuntimePhase::AiAnalysisRequested => ScreenEvidenceScope::EncryptedLocalImage,
-        ScreenRuntimePhase::AiAnalysisCompleted
-        | ScreenRuntimePhase::SummaryCommitted
-        | ScreenRuntimePhase::PolicyDecisionCompleted
-        | ScreenRuntimePhase::ActionDryRunRecorded
-        | ScreenRuntimePhase::DeletionCommitted
-        | ScreenRuntimePhase::PortalReadModelUpdated => {
-            ScreenEvidenceScope::DeletedQueryStoreSummary
-        }
-    }
+    screen_event_runtime_state_scope::evidence_scope(phase)
 }
 
 pub(crate) fn ai_audit_state(phase: ScreenRuntimePhase) -> ScreenAiAuditState {
-    match phase {
-        ScreenRuntimePhase::AiAnalysisRequested => ScreenAiAuditState::Requested,
-        ScreenRuntimePhase::AiAnalysisCompleted
-        | ScreenRuntimePhase::SummaryCommitted
-        | ScreenRuntimePhase::PolicyDecisionCompleted
-        | ScreenRuntimePhase::ActionDryRunRecorded
-        | ScreenRuntimePhase::DeletionCommitted
-        | ScreenRuntimePhase::PortalReadModelUpdated => ScreenAiAuditState::Completed,
-        _ => ScreenAiAuditState::NotRequested,
-    }
+    screen_event_runtime_state_audit::ai_audit_state(phase)
 }
 
 pub(crate) fn policy_state(phase: ScreenRuntimePhase) -> ScreenPolicyState {
-    match phase {
-        ScreenRuntimePhase::AiAnalysisCompleted | ScreenRuntimePhase::SummaryCommitted => {
-            ScreenPolicyState::ReadyForDryRun
-        }
-        ScreenRuntimePhase::PolicyDecisionCompleted
-        | ScreenRuntimePhase::ActionDryRunRecorded
-        | ScreenRuntimePhase::DeletionCommitted
-        | ScreenRuntimePhase::PortalReadModelUpdated => ScreenPolicyState::Completed,
-        _ => ScreenPolicyState::NotReady,
-    }
+    screen_event_runtime_state_policy::policy_state(phase)
 }
 
 pub(crate) fn action_state(phase: ScreenRuntimePhase) -> ScreenActionState {
-    match phase {
-        ScreenRuntimePhase::ActionDryRunRecorded
-        | ScreenRuntimePhase::DeletionCommitted
-        | ScreenRuntimePhase::PortalReadModelUpdated => ScreenActionState::DryRunRecorded,
-        _ => ScreenActionState::NotReady,
-    }
+    screen_event_runtime_state_action::action_state(phase)
 }
 
 pub(crate) fn deletion_state(phase: ScreenRuntimePhase) -> ScreenDeletionState {
-    match phase {
-        ScreenRuntimePhase::DeletionCommitted | ScreenRuntimePhase::PortalReadModelUpdated => {
-            ScreenDeletionState::Committed
-        }
-        _ => ScreenDeletionState::Pending,
-    }
+    screen_event_runtime_state_deletion::deletion_state(phase)
 }
 
 pub(crate) fn custody_state(phase: ScreenRuntimePhase) -> &'static str {
-    match phase {
-        ScreenRuntimePhase::CaptureObserved
-        | ScreenRuntimePhase::QueueEncrypted
-        | ScreenRuntimePhase::AiAnalysisRequested => constants::eventing_source::CUSTODY_LOCAL_ONLY,
-        ScreenRuntimePhase::AiAnalysisCompleted
-        | ScreenRuntimePhase::SummaryCommitted
-        | ScreenRuntimePhase::PolicyDecisionCompleted
-        | ScreenRuntimePhase::ActionDryRunRecorded
-        | ScreenRuntimePhase::DeletionCommitted => {
-            constants::eventing_source::CUSTODY_LOCAL_JOURNAL
-        }
-        ScreenRuntimePhase::PortalReadModelUpdated => {
-            constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE
-        }
-    }
+    screen_event_runtime_state_custody::custody_state(phase)
 }

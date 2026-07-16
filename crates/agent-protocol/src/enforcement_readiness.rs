@@ -5,7 +5,15 @@ use crate::{
     EnforcementCapabilityState, EnforcementMode, ParentPlatform,
 };
 
+macro_rules! protocol_str_lookup {
+    ($self:expr, [$($value:expr),+ $(,)?]) => {{
+        const VALUES: &[&str] = &[$($value),+];
+        VALUES[*$self as usize]
+    }};
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementBroadAdapterCapability {
     #[serde(rename = "owned-process-terminate")]
     OwnedProcessTerminate,
@@ -29,35 +37,25 @@ pub enum EnforcementBroadAdapterCapability {
 
 impl EnforcementBroadAdapterCapability {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::OwnedProcessTerminate => {
-                enforcement_constants::BROAD_CAPABILITY_OWNED_PROCESS_TERMINATE
-            }
-            Self::AppTimeLimit => enforcement_constants::BROAD_CAPABILITY_APP_TIME_LIMIT,
-            Self::BroadAppBlocking => enforcement_constants::BROAD_CAPABILITY_BROAD_APP_BLOCKING,
-            Self::NetworkDomainBlocking => {
-                enforcement_constants::BROAD_CAPABILITY_NETWORK_DOMAIN_BLOCKING
-            }
-            Self::ManagedBrowserServiceCommand => {
-                enforcement_constants::BROAD_CAPABILITY_MANAGED_BROWSER_SERVICE_COMMAND
-            }
-            Self::ManagedBrowserExactUrlControl => {
-                enforcement_constants::BROAD_CAPABILITY_MANAGED_BROWSER_EXACT_URL_CONTROL
-            }
-            Self::UnmanagedBrowserProcessOnly => {
-                enforcement_constants::BROAD_CAPABILITY_UNMANAGED_BROWSER_PROCESS_ONLY
-            }
-            Self::UnmanagedBrowserExactEvidence => {
-                enforcement_constants::BROAD_CAPABILITY_UNMANAGED_BROWSER_EXACT_EVIDENCE
-            }
-            Self::AdminAntiTamperRollback => {
-                enforcement_constants::BROAD_CAPABILITY_ADMIN_ANTI_TAMPER_ROLLBACK
-            }
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                enforcement_constants::BROAD_CAPABILITY_OWNED_PROCESS_TERMINATE,
+                enforcement_constants::BROAD_CAPABILITY_APP_TIME_LIMIT,
+                enforcement_constants::BROAD_CAPABILITY_BROAD_APP_BLOCKING,
+                enforcement_constants::BROAD_CAPABILITY_NETWORK_DOMAIN_BLOCKING,
+                enforcement_constants::BROAD_CAPABILITY_MANAGED_BROWSER_SERVICE_COMMAND,
+                enforcement_constants::BROAD_CAPABILITY_MANAGED_BROWSER_EXACT_URL_CONTROL,
+                enforcement_constants::BROAD_CAPABILITY_UNMANAGED_BROWSER_PROCESS_ONLY,
+                enforcement_constants::BROAD_CAPABILITY_UNMANAGED_BROWSER_EXACT_EVIDENCE,
+                enforcement_constants::BROAD_CAPABILITY_ADMIN_ANTI_TAMPER_ROLLBACK,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementReadinessState {
     #[serde(rename = "implemented")]
     Implemented,
@@ -71,16 +69,20 @@ pub enum EnforcementReadinessState {
 
 impl EnforcementReadinessState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Implemented => enforcement_constants::READINESS_IMPLEMENTED,
-            Self::ManualRequired => enforcement_constants::READINESS_MANUAL_REQUIRED,
-            Self::Unavailable => enforcement_constants::READINESS_UNAVAILABLE,
-            Self::NotClaimed => enforcement_constants::READINESS_NOT_CLAIMED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                enforcement_constants::READINESS_IMPLEMENTED,
+                enforcement_constants::READINESS_MANUAL_REQUIRED,
+                enforcement_constants::READINESS_UNAVAILABLE,
+                enforcement_constants::READINESS_NOT_CLAIMED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementReadinessProofLevel {
     #[serde(rename = "real-service-proof")]
     RealServiceProof,
@@ -94,16 +96,20 @@ pub enum EnforcementReadinessProofLevel {
 
 impl EnforcementReadinessProofLevel {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::RealServiceProof => enforcement_constants::PROOF_REAL_SERVICE,
-            Self::CiMechanicalProof => enforcement_constants::PROOF_CI_MECHANICAL,
-            Self::ManualProofRequired => enforcement_constants::PROOF_MANUAL_REQUIRED,
-            Self::NotProved => enforcement_constants::PROOF_NOT_PROVED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                enforcement_constants::PROOF_REAL_SERVICE,
+                enforcement_constants::PROOF_CI_MECHANICAL,
+                enforcement_constants::PROOF_MANUAL_REQUIRED,
+                enforcement_constants::PROOF_NOT_PROVED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementReadinessRuntimeOwner {
     #[serde(rename = "rust-service")]
     RustService,
@@ -119,15 +125,16 @@ pub enum EnforcementReadinessRuntimeOwner {
 
 impl EnforcementReadinessRuntimeOwner {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::RustService => enforcement_constants::RUNTIME_OWNER_RUST_SERVICE,
-            Self::OsAdapter => enforcement_constants::RUNTIME_OWNER_OS_ADAPTER,
-            Self::ManagedBrowserBoundary => {
-                enforcement_constants::RUNTIME_OWNER_MANAGED_BROWSER_BOUNDARY
-            }
-            Self::ManualProof => enforcement_constants::RUNTIME_OWNER_MANUAL_PROOF,
-            Self::NotImplemented => enforcement_constants::RUNTIME_OWNER_NOT_IMPLEMENTED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                enforcement_constants::RUNTIME_OWNER_RUST_SERVICE,
+                enforcement_constants::RUNTIME_OWNER_OS_ADAPTER,
+                enforcement_constants::RUNTIME_OWNER_MANAGED_BROWSER_BOUNDARY,
+                enforcement_constants::RUNTIME_OWNER_MANUAL_PROOF,
+                enforcement_constants::RUNTIME_OWNER_NOT_IMPLEMENTED,
+            ]
+        )
     }
 }
 

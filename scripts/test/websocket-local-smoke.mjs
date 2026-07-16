@@ -3,7 +3,6 @@ import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
-import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   ParentDevEnv,
   ParentDevPort,
@@ -14,6 +13,9 @@ import {
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import { resolveDebugAgentServicePath } from './agent-service-process.mjs';
+import { createPortalSmokeCommandEnvelope } from './websocket-command-envelope.mjs';
+import { parseAgentEventEnvelope } from './websocket-event-envelope.mjs';
+import { runAgentEventWebSocketSession } from './websocket-smoke-client.mjs';
 
 const port = ParentDevPort.WebSocketSmokeAgent;
 const healthUrl = createAgentHealthUrl(port);
@@ -67,55 +69,32 @@ async function waitForHttp(url) {
 }
 
 function runWebSocketSmoke() {
-  return new Promise((resolve, reject) => {
-    const events = [];
-    const socket = new WebSocket(wsUrl);
-    const timer = setTimeout(() => {
-      socket.close();
-      reject(new Error('WebSocket smoke timed out'));
-    }, 10000);
-
-    socket.addEventListener('open', () => {
-      socket.send(
-        JSON.stringify({
-          schemaVersion: 1,
-          messageId: 'cmd-integration-health',
-          sentAt: new Date().toISOString(),
-          source: { peerId: 'portal-dev', role: 'portal' },
-          target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
-          command: 'agent.health.check',
-          payload: {},
-        })
-      );
-    });
-
-    socket.addEventListener('message', (message) => {
-      const parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
+  const events = [];
+  return runAgentEventWebSocketSession({
+    wsUrl,
+    timeoutMs: 10000,
+    timeoutMessage: 'WebSocket smoke timed out',
+    errorMessage: 'WebSocket smoke failed',
+    closeMessage: 'WebSocket smoke closed before receiving expected events',
+    parseMessage: (message) => parseAgentEventEnvelope(JSON.parse(String(message.data))),
+    onOpen: ({ sendJson }) => {
+      sendJson(createPortalSmokeCommandEnvelope('cmd-integration-health', 'agent.health.check', {}));
+    },
+    onEvent: (parsed, { sendJson, complete }) => {
       events.push(parsed.event);
       if (parsed.event === 'agent.health.reported') {
-        socket.send(
-          JSON.stringify({
-            schemaVersion: 1,
-            messageId: 'cmd-integration-activity-ingest-status',
-            sentAt: new Date().toISOString(),
-            source: { peerId: 'portal-dev', role: 'portal' },
-            target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
-            command: 'agent.activity.ingest.status.get',
-            payload: {},
-          })
+        sendJson(
+          createPortalSmokeCommandEnvelope(
+            'cmd-integration-activity-ingest-status',
+            'agent.activity.ingest.status.get',
+            {}
+          )
         );
       }
       if (parsed.event === 'agent.activity.ingest.status.reported') {
-        clearTimeout(timer);
-        socket.close();
-        resolve(events);
+        complete(events);
       }
-    });
-
-    socket.addEventListener('error', () => {
-      clearTimeout(timer);
-      reject(new Error('WebSocket smoke failed'));
-    });
+    },
   });
 }
 

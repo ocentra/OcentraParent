@@ -4,6 +4,8 @@ Goal: define reports and queries as derived views over governed evidence, not a 
 
 Context to read:
 
+- `docs/plans/data-custody-storage-plan/EVENT_MODEL.md`
+- `docs/plans/data-custody-storage-plan/DATA_CLASSIFICATION.md`
 - `docs/features/reports-notifications-sync.md`
 - `docs/features/evidence-store-query.md`
 - `docs/expectations/notifications.md`
@@ -13,9 +15,9 @@ In scope:
 
 - Report source references, query cursors, pagination, citations, redaction, retention, and export/delete behavior.
 - Notification payload boundaries.
-- Assistant/report Q&A evidence references.
+- Assistant and report Q&A evidence references.
 - Query performance and abuse limits.
-- Derived materialization rules, cache invalidation, delete/tombstone effects, and cross-device stale/conflict states.
+- Derived materialization rules, cache invalidation, delete and tombstone effects, and cross-device stale or conflict states.
 
 Out of scope:
 
@@ -23,52 +25,22 @@ Out of scope:
 - Portal rendering owned by `portal-ux-household-surfaces-plan`.
 - Creating a second uncontrolled report database outside custody rules.
 
-Decision tree:
+Acceptance:
 
-| If the assignment touches... | Route                                                                  |
-| ---------------------------- | ---------------------------------------------------------------------- |
-| Report/query source truth    | this workpack and WP01 custody source of truth                         |
-| Notification payloads        | reports/notifications feature plus notification owning plan            |
-| Assistant Q&A over reports   | ai-plan for answer generation, this workpack for evidence refs/custody |
-| Portal report UI             | portal-ux-household-surfaces-plan                                      |
-| Delete/export interaction    | WP04 and WP05 before report claim changes                              |
+- Derived views cite allowed source data only.
+- Notification payloads are redacted to the chosen custody boundary.
+- Query pagination and cursor behavior are stable.
+- Stale or conflicting sync state is explicit and claim-safe.
 
-Required query/report states:
+Required query and report states:
 
-- `derivedFresh`: report derived from current allowed evidence.
-- `derivedStale`: report may be shown with age/source warning and no live claim.
-- `partiallyRedacted`: some evidence hidden due to retention, role, or custody boundary.
-- `deletedSource`: report row remains only as allowed minimal audit/citation shell.
-- `syncConflict`: provider/local state conflict prevents final report claim.
-- `cursorExpired`: query cursor cannot continue safely.
-- `rateLimited`: abuse/rate guard blocks query.
-
-Decisions required:
-
-- What report data is materialized versus derived.
-- How citations point to evidence after retention/delete.
-- What notification payloads may leave the device/cloud boundary.
-- How queries behave during provider sync conflict or partial outage.
-- Which report summaries can be shared remotely and which require local parent-owned storage.
-
-Expected artifacts:
-
-- Report/query custody matrix.
-- Citation and redaction rules.
-- Notification payload allow/deny list.
-- Query abuse and pagination proof plan.
-- Materialized-view invalidation and cache freshness rules.
-- Assistant/report Q&A evidence reference rules.
-
-Expected proof:
-
-- Deleted/expired evidence does not leak through reports.
-- Notification payload redaction.
-- Query pagination/cursor stability.
-- Assistant answer cites only allowed evidence.
-- Rate limit/abuse proof.
-- Stale/partial sync report state proof.
-- Exported report respects retention/delete proof.
+- `derivedFresh`
+- `derivedStale`
+- `partiallyRedacted`
+- `deletedSource`
+- `syncConflict`
+- `cursorExpired`
+- `rateLimited`
 
 Expected proof names:
 
@@ -84,5 +56,51 @@ Failure conditions:
 
 - Reports duplicate sensitive evidence outside retention control.
 - Notifications leak child activity details beyond the chosen custody boundary.
-- Assistant/report answers cite evidence the parent role cannot access.
+- Assistant or report answers cite evidence the parent role cannot access.
 - Query cache returns deleted, expired, wrong-household, or wrong-child data.
+
+## Completion
+
+- Status: complete for WP06 only; no broader plan or PR readiness claim is made.
+- Proof root: `output/data-custody-storage-plan-proof/06-report-query-custody/`
+- Canonical owners: `crates/schema`, `crates/storage-custody-core`, and the thin/generated adapter surface in `packages/schema-domain`.
+
+## Required states proved
+
+- `derivedFresh`, `derivedStale`, and `partiallyRedacted` are covered by the Rust runtime derivation tests and the schema-domain derived source matrix proof.
+- `deletedSource` is covered by the tombstone-required runtime test and the deleted/expired no-leak schema proof.
+- `syncConflict` is covered by the missing-conflict negative runtime test and the stale/conflict schema proof.
+- `cursorExpired` and `rateLimited` are covered by the non-advancing runtime derivation test and the pagination/rate-limit schema proofs.
+
+## Proof artifacts
+
+- `00-derived-source-matrix-proof.md`
+- `01-deleted-expired-not-returned-proof.md`
+- `02-query-cursor-pagination-proof.md`
+- `03-query-rate-limit-proof.md`
+- `04-notification-payload-allow-deny-proof.md`
+- `05-portal-cache-custody-proof.md`
+- `06-assistant-allowed-citation-proof.md`
+- `07-stale-conflict-state-proof.md`
+- `16-validation-commands.log`
+
+## Focused validations
+
+- `cargo test -p ocentra-schema --test contract report_query_custody`
+- `cargo test -p ocentra-storage-custody-core report_query_custody`
+- `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
+- `cmd /c npm run test --workspace @ocentra-parent/schema-domain -- tests/contract/report-query-custody.test.ts`
+- `cargo lint-architecture crates/schema/src/report_query_custody.rs crates/schema/src/report_query_custody_ts.rs crates/storage-custody-core/src/report_query_custody.rs crates/schema/tests/contract/report_query_custody.rs crates/storage-custody-core/tests/unit/report_query_custody.rs`
+- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/report-query-custody.ts packages/schema-domain/src/report-query-custody-rules.ts packages/schema-domain/src/generated/report-query-custody-contracts.ts packages/schema-domain/tests/contract/report-query-custody.test.ts`
+
+## Adjacent handoffs
+
+- AI and notification runtime owners remain sibling consumers of this shared custody boundary; this packet does not re-own their runtime behavior.
+- Portal owners remain downstream consumers; WP06 proves no second truth store or portal-cache mutation claim at the shared contract/runtime layer only.
+
+## No-claim boundary
+
+- No portal rendering claim is made.
+- No notification delivery-runtime claim is made.
+- No AI answer-runtime claim is made.
+- No hosted report/query store claim is made.

@@ -342,9 +342,8 @@ Current intended branch:
 The user pasted a hub warning:
 
 - Current `main` no longer has `scripts/dev/worktree-lanes.mjs`.
-- Hooks should call:
-  - `scripts/dev/ocentra-ledger-guard.mjs`
-  - `scripts/dev/ocentra-ledger-compat.mjs`
+- Hooks should call Enforcer coordination through:
+  - `scripts/enforcer/run-ocentra-enforcer.mjs coordination hub:guard`
 - `git pull` on a feature branch may only pull that branch's upstream; use
   `git merge origin/main` or rebase to bring main into the branch.
 - Avoid broad `npm run format`; for docs-only use targeted prettier if needed.
@@ -360,7 +359,7 @@ Actual issue found:
 Fix performed:
 
 - Ran `npm run hooks:install`.
-- Confirmed the hook file now calls `scripts/dev/ocentra-ledger-guard.mjs`.
+- Confirmed the hook file now calls Enforcer coordination directly.
 - Ran:
   - `git fetch origin`
   - `git merge origin/main`

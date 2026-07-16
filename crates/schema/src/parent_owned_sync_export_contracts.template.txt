@@ -1,0 +1,361 @@
+/* generated from crates/schema/src/parent_owned_sync_export.rs */
+
+import {{ brandedNonEmptyStringSchema }} from './effect';
+
+export const ParentOwnedSyncExportContractRuntime = {{
+  SchemaVersion: '__PARENT_OWNED_SYNC_EXPORT_SCHEMA_VERSION__',
+}} as const;
+
+export type GeneratedParentContractSchemaVersion = 'v0.6';
+export const GeneratedFamilyIdSchema = brandedNonEmptyStringSchema('FamilyId');
+export const GeneratedChildProfileIdSchema = brandedNonEmptyStringSchema('ChildProfileId');
+export const GeneratedParentDeviceIdSchema = brandedNonEmptyStringSchema('ParentDeviceId');
+export const GeneratedParentDeviceLabelSchema = brandedNonEmptyStringSchema('ParentDeviceLabel');
+export const GeneratedParentActorIdSchema = brandedNonEmptyStringSchema('ParentActorId');
+export const GeneratedParentPolicyVersionSchema = brandedNonEmptyStringSchema('ParentPolicyVersion');
+export const GeneratedParentEvidenceReferenceIdSchema = brandedNonEmptyStringSchema('ParentEvidenceReferenceId');
+export const GeneratedParentActionReferenceIdSchema = brandedNonEmptyStringSchema('ParentActionReferenceId');
+export const GeneratedParentTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
+export const GeneratedParentOwnedSyncManifestIdSchema = brandedNonEmptyStringSchema('ParentOwnedSyncManifestId');
+export const GeneratedParentOwnedSyncItemIdSchema = brandedNonEmptyStringSchema('ParentOwnedSyncItemId');
+export const GeneratedParentOwnedSyncVersionLabelSchema = brandedNonEmptyStringSchema('ParentOwnedSyncVersionLabel');
+export const GeneratedParentOwnedSyncPolicyRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncPolicyRef');
+export const GeneratedParentOwnedSyncProviderIdSchema = brandedNonEmptyStringSchema('ParentOwnedSyncProviderId');
+export const GeneratedParentOwnedSyncProviderRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncProviderRef');
+export const GeneratedParentOwnedSyncStatusRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncStatusRef');
+export const GeneratedParentOwnedSyncCursorRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncCursorRef');
+export const GeneratedParentOwnedSyncBatchRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncBatchRef');
+export const GeneratedParentOwnedSyncConflictRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncConflictRef');
+export const GeneratedParentOwnedSyncChecksumRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncChecksumRef');
+export const GeneratedParentOwnedSyncSignatureRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncSignatureRef');
+export const GeneratedParentOwnedSyncTombstoneRefSchema = brandedNonEmptyStringSchema('ParentOwnedSyncTombstoneRef');
+export const GeneratedParentOwnedSyncDeleteRequestRefSchema = brandedNonEmptyStringSchema(
+  'ParentOwnedSyncDeleteRequestRef'
+);
+
+export type GeneratedFamilyId = typeof GeneratedFamilyIdSchema.Type;
+export type GeneratedChildProfileId = typeof GeneratedChildProfileIdSchema.Type;
+export type GeneratedParentDeviceId = typeof GeneratedParentDeviceIdSchema.Type;
+export type GeneratedParentDeviceLabel = typeof GeneratedParentDeviceLabelSchema.Type;
+export type GeneratedParentActorId = typeof GeneratedParentActorIdSchema.Type;
+export type GeneratedParentPolicyVersion = typeof GeneratedParentPolicyVersionSchema.Type;
+export type GeneratedParentEvidenceReferenceId = typeof GeneratedParentEvidenceReferenceIdSchema.Type;
+export type GeneratedParentActionReferenceId = typeof GeneratedParentActionReferenceIdSchema.Type;
+export type GeneratedParentTimestamp = typeof GeneratedParentTimestampSchema.Type;
+export type GeneratedParentOwnedSyncManifestId = typeof GeneratedParentOwnedSyncManifestIdSchema.Type;
+export type GeneratedParentOwnedSyncItemId = typeof GeneratedParentOwnedSyncItemIdSchema.Type;
+export type GeneratedParentOwnedSyncVersionLabel = typeof GeneratedParentOwnedSyncVersionLabelSchema.Type;
+export type GeneratedParentOwnedSyncPolicyRef = typeof GeneratedParentOwnedSyncPolicyRefSchema.Type;
+export type GeneratedParentOwnedSyncProviderId = typeof GeneratedParentOwnedSyncProviderIdSchema.Type;
+export type GeneratedParentOwnedSyncProviderRef = typeof GeneratedParentOwnedSyncProviderRefSchema.Type;
+export type GeneratedParentOwnedSyncStatusRef = typeof GeneratedParentOwnedSyncStatusRefSchema.Type;
+export type GeneratedParentOwnedSyncCursorRef = typeof GeneratedParentOwnedSyncCursorRefSchema.Type;
+export type GeneratedParentOwnedSyncBatchRef = typeof GeneratedParentOwnedSyncBatchRefSchema.Type;
+export type GeneratedParentOwnedSyncConflictRef = typeof GeneratedParentOwnedSyncConflictRefSchema.Type;
+export type GeneratedParentOwnedSyncChecksumRef = typeof GeneratedParentOwnedSyncChecksumRefSchema.Type;
+export type GeneratedParentOwnedSyncSignatureRef = typeof GeneratedParentOwnedSyncSignatureRefSchema.Type;
+export type GeneratedParentOwnedSyncTombstoneRef = typeof GeneratedParentOwnedSyncTombstoneRefSchema.Type;
+export type GeneratedParentOwnedSyncDeleteRequestRef = typeof GeneratedParentOwnedSyncDeleteRequestRefSchema.Type;
+
+export type GeneratedParentPlatform = 'windows' | 'linux' | 'macos' | 'android' | 'ios';
+export type GeneratedParentActorRole = 'parent' | 'guardian' | 'system';
+export type GeneratedParentEvidenceReferenceKind = 'journal-event' | 'query-store-summary' | 'audit-trail';
+export type GeneratedParentOwnedSyncExportDataClass =
+  | 'encrypted-journal-segment'
+  | 'sqlite-query-row'
+  | 'parent-rule'
+  | 'approval-decision'
+  | 'device-registry-entry'
+  | 'notification-history'
+  | 'audit-event'
+  | 'generated-summary';
+export type GeneratedParentOwnedSyncExportFormat =
+  | 'encrypted-machine-readable'
+  | 'encrypted-support-bundle'
+  | 'human-readable-parent-report';
+export type GeneratedParentOwnedSyncExportDestinationOwnership =
+  | 'child-local'
+  | 'parent-device-local'
+  | 'parent-owned-external-storage'
+  | 'ocentra-hosted-non-activity-metadata';
+export type GeneratedParentOwnedSyncExportEncryptionState =
+  | 'encrypted-at-rest'
+  | 'human-readable-parent-authorized'
+  | 'not-applicable';
+export type GeneratedParentOwnedSyncProviderMode =
+  | 'google-drive-appdata'
+  | 'google-drive-picker-file'
+  | 'onedrive-approot'
+  | 'onedrive-parent-selected-folder'
+  | 'icloud-drive-app-container'
+  | 'icloud-drive-parent-selected-location'
+  | 'dropbox-app-folder'
+  | 'dropbox-parent-selected-folder'
+  | 'nas-folder'
+  | 'local-folder'
+  | 'disabled';
+export type GeneratedParentOwnedSyncProviderStatus =
+  | 'ready'
+  | 'manual-required'
+  | 'revoked'
+  | 'wrong-account'
+  | 'folder-unavailable'
+  | 'partial-upload'
+  | 'disconnected'
+  | 'disabled'
+  | 'not-configured';
+export type GeneratedParentOwnedSyncManifestIntegrityState = 'verified' | 'mismatch' | 'corrupt' | 'not-applicable';
+export type GeneratedParentOwnedSyncState =
+  | 'synced'
+  | 'stale'
+  | 'missing'
+  | 'conflict'
+  | 'offline-retry-pending'
+  | 'partial-outage'
+  | 'manual-required'
+  | 'not-started';
+export type GeneratedParentOwnedSyncTombstonePropagationState =
+  | 'not-requested'
+  | 'pending'
+  | 'propagated'
+  | 'blocked'
+  | 'manual-required';
+export type GeneratedParentOwnedSyncDisconnectVisibilityState =
+  | 'not-disconnected'
+  | 'disconnect-visible'
+  | 'manual-required';
+export type GeneratedParentOwnedSyncDeleteVisibilityState =
+  | 'not-requested'
+  | 'delete-visible'
+  | 'delete-confirmed'
+  | 'delete-failed'
+  | 'manual-required';
+export type GeneratedParentOwnedSyncExportNonClaim =
+  | 'no-transfer-runtime'
+  | 'no-connector-oauth'
+  | 'no-upload-runtime'
+  | 'no-delete-runtime'
+  | 'no-default-ocentra-custody'
+  | 'no-raw-child-evidence-upload-by-default';
+
+export const GeneratedParentOwnedSyncExportDataClasses = [
+  'encrypted-journal-segment',
+  'sqlite-query-row',
+  'parent-rule',
+  'approval-decision',
+  'device-registry-entry',
+  'notification-history',
+  'audit-event',
+  'generated-summary',
+] as const satisfies readonly GeneratedParentOwnedSyncExportDataClass[];
+export const GeneratedParentOwnedSyncExportFormats = [
+  'encrypted-machine-readable',
+  'encrypted-support-bundle',
+  'human-readable-parent-report',
+] as const satisfies readonly GeneratedParentOwnedSyncExportFormat[];
+export const GeneratedParentOwnedSyncExportDestinationOwnerships = [
+  'child-local',
+  'parent-device-local',
+  'parent-owned-external-storage',
+  'ocentra-hosted-non-activity-metadata',
+] as const satisfies readonly GeneratedParentOwnedSyncExportDestinationOwnership[];
+export const GeneratedParentOwnedSyncExportEncryptionStates = [
+  'encrypted-at-rest',
+  'human-readable-parent-authorized',
+  'not-applicable',
+] as const satisfies readonly GeneratedParentOwnedSyncExportEncryptionState[];
+export const GeneratedParentOwnedSyncProviderModes = [
+  'google-drive-appdata',
+  'google-drive-picker-file',
+  'onedrive-approot',
+  'onedrive-parent-selected-folder',
+  'icloud-drive-app-container',
+  'icloud-drive-parent-selected-location',
+  'dropbox-app-folder',
+  'dropbox-parent-selected-folder',
+  'nas-folder',
+  'local-folder',
+  'disabled',
+] as const satisfies readonly GeneratedParentOwnedSyncProviderMode[];
+export const GeneratedParentOwnedSyncProviderStatuses = [
+  'ready',
+  'manual-required',
+  'revoked',
+  'wrong-account',
+  'folder-unavailable',
+  'partial-upload',
+  'disconnected',
+  'disabled',
+  'not-configured',
+] as const satisfies readonly GeneratedParentOwnedSyncProviderStatus[];
+export const GeneratedParentOwnedSyncManifestIntegrityStates = [
+  'verified',
+  'mismatch',
+  'corrupt',
+  'not-applicable',
+] as const satisfies readonly GeneratedParentOwnedSyncManifestIntegrityState[];
+export const GeneratedParentOwnedSyncStates = [
+  'synced',
+  'stale',
+  'missing',
+  'conflict',
+  'offline-retry-pending',
+  'partial-outage',
+  'manual-required',
+  'not-started',
+] as const satisfies readonly GeneratedParentOwnedSyncState[];
+export const GeneratedParentOwnedSyncTombstonePropagationStates = [
+  'not-requested',
+  'pending',
+  'propagated',
+  'blocked',
+  'manual-required',
+] as const satisfies readonly GeneratedParentOwnedSyncTombstonePropagationState[];
+export const GeneratedParentOwnedSyncDisconnectVisibilityStates = [
+  'not-disconnected',
+  'disconnect-visible',
+  'manual-required',
+] as const satisfies readonly GeneratedParentOwnedSyncDisconnectVisibilityState[];
+export const GeneratedParentOwnedSyncDeleteVisibilityStates = [
+  'not-requested',
+  'delete-visible',
+  'delete-confirmed',
+  'delete-failed',
+  'manual-required',
+] as const satisfies readonly GeneratedParentOwnedSyncDeleteVisibilityState[];
+export const GeneratedParentOwnedSyncExportNonClaims = [
+  'no-transfer-runtime',
+  'no-connector-oauth',
+  'no-upload-runtime',
+  'no-delete-runtime',
+  'no-default-ocentra-custody',
+  'no-raw-child-evidence-upload-by-default',
+] as const satisfies readonly GeneratedParentOwnedSyncExportNonClaim[];
+
+export interface GeneratedParentActorReference {{
+  readonly actorId: GeneratedParentActorId;
+  readonly role: GeneratedParentActorRole;
+}}
+
+export interface GeneratedFamilyReference {{
+  readonly familyId: GeneratedFamilyId;
+}}
+
+export interface GeneratedParentDeviceReference {{
+  readonly deviceId: GeneratedParentDeviceId;
+  readonly childProfileId: GeneratedChildProfileId | null;
+  readonly label: GeneratedParentDeviceLabel;
+  readonly platform: GeneratedParentPlatform;
+}}
+
+export interface GeneratedParentEvidenceReference {{
+  readonly evidenceReferenceId: GeneratedParentEvidenceReferenceId;
+  readonly kind: GeneratedParentEvidenceReferenceKind;
+  readonly observedAt: GeneratedParentTimestamp;
+}}
+
+export interface GeneratedParentActionReference {{
+  readonly actionReferenceId: GeneratedParentActionReferenceId;
+  readonly actor: GeneratedParentActorReference;
+  readonly policyVersion: GeneratedParentPolicyVersion;
+  readonly createdAt: GeneratedParentTimestamp;
+}}
+
+export interface GeneratedParentOwnedSyncExportEncryptionMetadata {{
+  readonly encryptionState: GeneratedParentOwnedSyncExportEncryptionState;
+  readonly encryptedBeforeUpload: boolean;
+  readonly keyOwner: GeneratedParentOwnedSyncExportDestinationOwnership;
+  readonly proofRequirementRef: GeneratedParentOwnedSyncPolicyRef;
+}}
+
+export interface GeneratedParentOwnedSyncExportManifestItem {{
+  readonly itemId: GeneratedParentOwnedSyncItemId;
+  readonly dataClass: GeneratedParentOwnedSyncExportDataClass;
+  readonly exportFormat: GeneratedParentOwnedSyncExportFormat;
+  readonly destinationOwnership: GeneratedParentOwnedSyncExportDestinationOwnership;
+  readonly schemaVersionLabel: GeneratedParentOwnedSyncVersionLabel;
+  readonly encryption: GeneratedParentOwnedSyncExportEncryptionMetadata;
+  readonly parentActionRequired: boolean;
+  readonly rawChildEvidenceUploadedByDefault: boolean;
+  readonly ocentraHostedFamilyDataStored: boolean;
+  readonly claimSafe: boolean;
+}}
+
+export interface GeneratedParentOwnedSyncExportManifest {{
+  readonly schemaVersion: typeof ParentOwnedSyncExportContractRuntime.SchemaVersion;
+  readonly manifestId: GeneratedParentOwnedSyncManifestId;
+  readonly family: GeneratedFamilyReference;
+  readonly device: GeneratedParentDeviceReference;
+  readonly parentAction: GeneratedParentActionReference;
+  readonly productVersion: GeneratedParentOwnedSyncVersionLabel;
+  readonly manifestVersion: GeneratedParentOwnedSyncVersionLabel;
+  readonly generatedAt: GeneratedParentTimestamp;
+  readonly items: readonly GeneratedParentOwnedSyncExportManifestItem[];
+}}
+
+export interface GeneratedParentOwnedSyncProviderStatusRow {{
+  readonly providerId: GeneratedParentOwnedSyncProviderId;
+  readonly providerMode: GeneratedParentOwnedSyncProviderMode;
+  readonly providerStatus: GeneratedParentOwnedSyncProviderStatus;
+  readonly destinationOwnership: GeneratedParentOwnedSyncExportDestinationOwnership;
+  readonly accountRef: GeneratedParentOwnedSyncProviderRef | null;
+  readonly folderRef: GeneratedParentOwnedSyncProviderRef | null;
+  readonly statusRef: GeneratedParentOwnedSyncStatusRef;
+  readonly revocationRef: GeneratedParentOwnedSyncProviderRef | null;
+  readonly disconnectVisibilityState: GeneratedParentOwnedSyncDisconnectVisibilityState;
+  readonly deleteVisibilityState: GeneratedParentOwnedSyncDeleteVisibilityState;
+  readonly lastCheckedAt: GeneratedParentTimestamp;
+  readonly oauthRuntimeClaimed: boolean;
+  readonly uploadRuntimeClaimed: boolean;
+  readonly deleteRuntimeClaimed: boolean;
+  readonly ocentraHostedFamilyDataStored: boolean;
+  readonly claimSafe: boolean;
+}}
+
+export interface GeneratedParentOwnedSyncStateRow {{
+  readonly syncState: GeneratedParentOwnedSyncState;
+  readonly providerStatusRef: GeneratedParentOwnedSyncStatusRef;
+  readonly cursorRef: GeneratedParentOwnedSyncCursorRef | null;
+  readonly batchRef: GeneratedParentOwnedSyncBatchRef | null;
+  readonly manifestIntegrityState: GeneratedParentOwnedSyncManifestIntegrityState;
+  readonly manifestChecksumRef: GeneratedParentOwnedSyncChecksumRef | null;
+  readonly manifestSignatureRef: GeneratedParentOwnedSyncSignatureRef | null;
+  readonly lastSuccessfulSyncAt: GeneratedParentTimestamp | null;
+  readonly conflictRef: GeneratedParentOwnedSyncConflictRef | null;
+  readonly retryQueueRef: GeneratedParentOwnedSyncPolicyRef | null;
+  readonly parentActionRequired: boolean;
+  readonly claimSafe: boolean;
+}}
+
+export interface GeneratedParentOwnedSyncTombstoneRow {{
+  readonly tombstoneRef: GeneratedParentOwnedSyncTombstoneRef;
+  readonly dataClass: GeneratedParentOwnedSyncExportDataClass;
+  readonly propagationState: GeneratedParentOwnedSyncTombstonePropagationState;
+  readonly deleteRequestRef: GeneratedParentOwnedSyncDeleteRequestRef | null;
+  readonly providerStatusRef: GeneratedParentOwnedSyncStatusRef;
+  readonly lastPropagatedAt: GeneratedParentTimestamp | null;
+  readonly blockedReasonRef: GeneratedParentOwnedSyncPolicyRef | null;
+  readonly claimSafe: boolean;
+}}
+
+export interface GeneratedParentOwnedSyncExportContractProof {{
+  readonly schemaVersion: typeof ParentOwnedSyncExportContractRuntime.SchemaVersion;
+  readonly contractVersion: GeneratedParentContractSchemaVersion;
+  readonly manifest: GeneratedParentOwnedSyncExportManifest;
+  readonly providerStatuses: readonly GeneratedParentOwnedSyncProviderStatusRow[];
+  readonly syncStates: readonly GeneratedParentOwnedSyncStateRow[];
+  readonly tombstones: readonly GeneratedParentOwnedSyncTombstoneRow[];
+  readonly nonClaims: readonly GeneratedParentOwnedSyncExportNonClaim[];
+  readonly transferRuntimeClaimed: boolean;
+  readonly connectorOAuthClaimed: boolean;
+  readonly uploadRuntimeClaimed: boolean;
+  readonly deleteRuntimeClaimed: boolean;
+  readonly ocentraHostedChildEvidenceStored: boolean;
+  readonly updatedAt: GeneratedParentTimestamp;
+}}
+
+export const GeneratedParentOwnedSyncExportKnownGaps = [
+__PARENT_OWNED_SYNC_EXPORT_KNOWN_GAPS__
+] as const;
+
+export const GeneratedParentOwnedSyncExportContractProof = __PARENT_OWNED_SYNC_EXPORT_PROOF_JSON__ as const;

@@ -39,13 +39,13 @@ separate gates.
 
 ## Checklist
 
-- [x] Record product decision.
-- [x] Keep default `retainRawImage=false`.
-- [x] Define explicit opt-in setting if approved.
-- [x] Define custody and TTL.
-- [x] Define export/delete behavior.
-- [x] Define disclosure/audit.
-- [x] Add separate proof.
+- [ ] Record product decision.
+- [ ] Keep default `retainRawImage=false`.
+- [ ] Define explicit opt-in setting if approved.
+- [ ] Define custody and TTL.
+- [ ] Define export/delete behavior.
+- [ ] Define disclosure/audit.
+- [ ] Add separate proof.
 
 ## Proof
 

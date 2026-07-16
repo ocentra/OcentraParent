@@ -37,16 +37,16 @@ relay/cache unavailable states, assign/rename/ignore/revoke decisions,
 degraded/offline/manual-required states, and Activity/Network LAN diagnostics.
 C still owns broad shell visual coherence and general portal look/feel.
 
-- [x] The LAN plan and feature docs now identify B as the owner of the
+- [ ] The LAN plan and feature docs now identify B as the owner of the
       service-to-UI LAN workflow for this slice.
-- [x] Existing portal screenshots prove there are visible Devices/LAN,
+- [ ] Existing portal screenshots prove there are visible Devices/LAN,
       Activity/Network, and Network policy surfaces to wire against.
-- [x] B now wires LAN-specific selected-device detail, Activity/Network
+- [ ] B now wires LAN-specific selected-device detail, Activity/Network
       diagnostics, signed discovery, route custody, relay/cache unavailable,
       manual-required proof, parent-decision/audit state, first-class LAN
       action controls, and the existing add-device/route command surfaces
       through typed service/domain state.
-- [x] Browser/Playwright snapshots prove the current service-backed LAN UX
+- [ ] Browser/Playwright snapshots prove the current service-backed LAN UX
       surfaces on B-lane ports. Proof artifacts:
       `output/playwright/lan-ux-proof/devices-lan-controls.png`,
       `output/playwright/lan-ux-proof/activity-network-diagnostics.png`, and

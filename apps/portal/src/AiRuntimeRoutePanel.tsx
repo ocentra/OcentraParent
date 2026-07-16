@@ -1,22 +1,19 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   createLocalAiRuntimePanelIntent,
-  isPortalAiRuntimeRoute,
-  PortalDetails,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
   type LocalAiRuntimePanelDetail,
   type LocalAiRuntimePanelIntent,
-  type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/local-ai-runtime-panel';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { isParentAiRuntimeRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
 import type { PortalRenderActions } from './portal-actions';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import type { PortalLiveActivityState } from './live-activity-state';
 
-export function shouldRenderAiRuntimeRoute(route: PortalRouteValue): boolean {
-  return isPortalAiRuntimeRoute(route);
+export function shouldRenderAiRuntimeRoute(route: ParentRouteId): boolean {
+  return isParentAiRuntimeRoute(route);
 }
 
 export function AiRuntimeRoutePanel({
@@ -36,7 +33,7 @@ export function AiRuntimeRoutePanel({
   );
   return (
     <section
-      aria-label={PortalText.Resolve(PortalTextToken.AiRuntime)}
+      aria-label={resolvePortalDevText(PortalDevTextToken.AiRuntime)}
       className={PortalDom.Classes.TrackingStatusOverlay}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -48,12 +45,9 @@ export function AiRuntimeRoutePanel({
             className={PortalDom.Classes.CommandResultTab}
             disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => {
-              actions.selectCommandResult(AgentEvent.LocalAiRuntimeStatusReported);
-              actions.sendCommand(AgentCommand.LocalAiRuntimeStatusGet, {});
-            }}
+            onClick={() => void actions.refreshRouteSnapshot?.()}
           >
-            {PortalText.Resolve(PortalTextToken.GetLocalAiRuntimeStatus)}
+            {resolvePortalDevText(PortalDevTextToken.GetLocalAiRuntimeStatus)}
           </button>
         </header>
         <AiRuntimeCards intent={intent} />

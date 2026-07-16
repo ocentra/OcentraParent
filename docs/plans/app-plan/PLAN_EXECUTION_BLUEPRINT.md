@@ -1,76 +1,90 @@
-# Native Apps Plan � HID Execution Blueprint
+<!-- agent-capsule -->
 
-## Execution objective
+> Agent Capsule
+> Plan: `app-plan`
+> Doc: `Native Apps Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: platform runtime readiness, package readiness, child-agent readiness, or PR readiness.
 
-Convert app ownership docs into executable boundaries with idempotent state transitions and family authorization.
+<!-- /agent-capsule -->
 
-## Slice 01 � Domain and Contract Baseline
+# Native Apps Plan Execution Blueprint
 
-### Acceptance
+## Execution rule
 
-- Shared app-domain schemas and contracts are explicit and invalid input is rejected.
+This plan owns native app and local-service app boundaries. Do not use it to absorb account, setup, package-distribution, policy, LAN, remote, data-custody, or child-agent distribution ownership.
 
-### Tests
+Use this loop:
 
-- `app-plan.contract.schema-negative`
-- `app-plan.authz.family-device-boundary`
+```text
+AGENTS.md
+  -> PLAN_STATE.md
+  -> NEXT_ACTIONS.md
+  -> WORKPACK_INDEX.md
+  -> exactly one selected workpack
+  -> TEST_PROOF_EXPECTATIONS.md
+  -> PROOF_INDEX.md
+```
 
-### Proof
+## Deterministic proof root
 
-- `docs/proof/app-plan/slice-01-domain-contract.md`
+```text
+output/app-plan-proof/<workpack-file-stem>/
+```
 
-## Slice 02 � Replay and Ordering
+## Pre-edit note
 
-### Acceptance
+```text
+Assigned workpack:
+Implementation slice:
+Expected source/doc files:
+Expected tests/proof files:
+Proof root:
+Adjacent handoffs that are read-only:
+No-claim boundaries:
+```
 
-- App actions are safe under duplicate, stale, and out-of-order inputs.
+## Focused command policy
 
-### Tests
+Use the subset relevant to the selected workpack:
 
-- `app-plan.replay.idempotency-ordering`
+```bash
+cargo test -p ocentra-parent-agent-service
+cargo test -p ocentra-parent-agent-protocol
+npm run build --workspace @ocentra-parent/agent-protocol-domain
+npm run test --workspace @ocentra-parent/agent-protocol-domain
+npm run test --workspace @ocentra-parent/portal -- app
+npm run lint:architecture -- --files crates/agent-service crates/agent-protocol packages/agent-protocol-domain apps/portal docs/plans/app-plan
+```
 
-### Proof
+If a command or test path does not exist, record the missing location and keep the row open.
 
-- `docs/proof/app-plan/slice-02-state-ordering.md`
+## Universal proof files
 
-## Slice 03 � Observability and PR Gate
+Every selected workpack needs:
 
-### Acceptance
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
 
-- Logs/traces cover action denial/allow decisions without sensitive payload leakage.
+## Native app no-claim boundaries
 
-### Tests
+Do not claim:
 
-- `app-plan.observability`
+```text
+Android child support ready
+parent mobile support ready
+iOS support ready
+permission support ready
+service lifecycle ready
+package/install readiness
+policy/enforcement runtime ready
+```
 
-### Proof
-
-- `docs/proof/app-plan/slice-03-observability.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md
-- Slice 02: docs/plans/app-plan/workpacks/02-source-index-and-doc-reconciliation.md
-- Slice 03: docs/plans/app-plan/workpacks/03-current-app-snapshot-and-gap-map.md
-
-## PR-ready gate
-
-- No app-plan checkbox flips to checked without a linked proof manifest and negative-case execution.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: domain contract and family boundary assertions
-- Integration: app state transitions and replay/idempotency
-- E2E: ownership and family flow visibility
-- Security: authZ and sensitive-action denial paths
-- Non-functional: logging and tracing completeness
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+unless the selected proof root proves the claim and the rollout gate aggregates it.

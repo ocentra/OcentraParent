@@ -1,13 +1,16 @@
 use ocentra_eventing::{
-    EventCustody, EventId, EventMetadata, EventSource, EventingError, RecordedAt,
-    RuntimeInstanceId, RuntimeRole, SourceComponent, SourceService, TargetHandler,
+    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::EventCustody,
+    ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId, ids::RuntimeRole, ids::SourceComponent,
+    ids::SourceService, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::household_mesh::{
+    household_mesh_bridge_input::HouseholdMeshBridgeInput, HouseholdMeshBridgePhase,
+};
 
 use crate::{
-    household_mesh_bridge_runtime_phase::HouseholdMeshBridgePhase,
     household_mesh_bridge_runtime_refs::bridge_aggregate_key,
-    household_mesh_bridge_runtime_state::bridge_custody_label, HouseholdMeshBridgeInput,
+    household_mesh_bridge_runtime_state::bridge_custody_label,
 };
 
 pub(crate) fn bridge_event_metadata(
@@ -16,7 +19,7 @@ pub(crate) fn bridge_event_metadata(
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
-        ocentra_eventing::CorrelationId::parse(bridge_aggregate_key(&input.correlation_id))?,
+        ocentra_eventing::ids::CorrelationId::parse(bridge_aggregate_key(&input.correlation_id))?,
         bridge_event_source(phase)?,
         RecordedAt::parse(&input.observed_at)?,
         Some(TargetHandler::parse(phase.target_handler())?),

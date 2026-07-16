@@ -1,6 +1,8 @@
-use ocentra_parent_agent_core::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogLevel,
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use crate::{
@@ -8,7 +10,7 @@ use crate::{
     activity_store_path::activity_db_path, event_builder::build_event, time::timestamp_now,
 };
 
-use super::activity_store_error_event;
+use super::activity_store_error_event::activity_store_error_event;
 
 pub async fn build_activity_memory_graph_report(
     command: AgentCommandEnvelope,
@@ -25,21 +27,23 @@ pub async fn build_activity_memory_graph_report(
         ),
         None => activity_store_error_event(
             command,
-            constants::event_id::ACTIVITY_MEMORY_GRAPH_REPORTED,
+            crate::activity_api::ActivityEventId(
+                constants::event_id::ACTIVITY_MEMORY_GRAPH_REPORTED,
+            ),
             AgentEventName::AgentActivityMemoryGraphReported,
         ),
     }
 }
 
 async fn load_activity_memory_graph(
-) -> Option<ocentra_parent_agent_protocol::ActivityMemoryGraphReadModel> {
+) -> Option<ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphReadModel> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(path).ok()?;
         store
             .activity_memory_graph_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
-                &timestamp_now(),
+                timestamp_now::<String>().as_str(),
             )
             .ok()
     })

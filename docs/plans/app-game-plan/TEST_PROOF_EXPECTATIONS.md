@@ -1,69 +1,129 @@
-# App + Game Plan Test and Proof Expectations
-
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `app-game-plan`
-> Doc: `App + Game Plan Test and Proof Expectations`
-> Kind: plan-local test and proof decision tree.
-> Read when: After the assigned workpack/checklist row is known; use to choose required tests/proof.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: This file defines required local tests/proof; missing tests keep rows open.
+> Doc: `App Game Plan Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
 <!-- /agent-capsule -->
 
-Use this after the assigned app/game workpack is known. App/game proof must separate inventory, runtime, foreground, launcher, identity, policy, approval, timer, and UI claims.
+# App Game Plan Test Proof Expectations
 
-## Where tests should live
+## Proof root
 
-When the app/game implementation crate/package exists, tests belong under its test tree and proof output under its proof folder. Until then, colocate with the owning domain/runtime package and record paths in the workpack and `PROOF_INDEX.md`.
+```text
+output/app-game-plan-proof/<workpack-file-stem>/
+```
 
-## Decision Tree
+## Common commands
 
-| If the assigned work is...                                   | Read next                                | Expected tests or proof                                                                                                  |
-| ------------------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Source/snapshot/gap or doc routing                           | `DOC_INDEX.md`, exact rows               | doc link sanity, source coverage proof, no product status move without runtime evidence.                                 |
-| Identity, inventory, runtime, foreground, launcher contracts | assigned workpack; source-boundary flow  | schema negatives, branded ids, Rust parity, inventory-is-not-use, runtime-is-not-foreground, foreground-is-not-content.  |
-| Journal/SQLite/read models                                   | assigned workpack; `PROOF_INDEX.md`      | ingest/replay, migration/rollback, ordering, idempotency, read-model differential proof.                                 |
-| Unknown approval, parent actions, app/game authority         | assigned workpack; policy expectations   | authZ matrix, replay, stale candidate, expiry, manual-required blocks, privilege escalation negatives.                   |
-| Budget/timer/policy compiler                                 | assigned workpack                        | schedule/DST/clock skew, restart recovery, bonus-time audit refs, dry-run-only/manual-required proof.                    |
-| Child-facing or parent portal UI                             | assigned workpack; UI guide only         | Playwright/e2e screenshots for warning, approval, limit, denied, manual-required, unavailable, error/empty states.       |
-| Platform adapter/execution                                   | assigned workpack                        | capability matrix, platform manual proof, rollback/unblock/unshield proof, no execution without authority-tier evidence. |
-| AI classifier/digest                                         | assigned workpack; AI plan only if named | output schema invariants, weak candidate negatives, no AI enforcement authority, redaction proof.                        |
-| Notification/local outbox/audit                              | assigned workpack                        | local outbox payload-minimization, delivery eligibility, audit history, retry/idempotency.                               |
-| Rollout/PR gate                                              | `PROOF_INDEX.md`                         | complete proof pack 00-12 where required by checklist, selected risk rows, validation commands.                          |
+Use the subset relevant to the selected workpack:
 
-## Expected test/proof inventory
+```bash
+# Canonical shared app/game schema and handoff-shape scope
+npm run build --workspace @ocentra-parent/schema-domain
+npm run test --workspace @ocentra-parent/schema-domain -- app-game
+npm run type-check --workspace @ocentra-parent/schema-domain
 
-Use these names as proof intent labels in the assigned workpack/proof note. Implementers choose the actual crate/package test names after the owning implementation boundary exists.
+# App/game helper/projection scope
+npm run build --workspace @ocentra-parent/app-game-domain
+npm run test --workspace @ocentra-parent/app-game-domain
 
-- `app-game.identity.schema-negative-decode`: app/game ids, aliases, launchers, and catalog refs reject malformed or ambiguous input.
-- `app-game.inventory.not-usage`: installed inventory is not counted as runtime, foreground, or usage.
-- `app-game.runtime.not-foreground`: process/runtime evidence does not claim active use without foreground proof.
-- `app-game.launcher.ambiguity`: launcher and child game candidates preserve uncertainty until stronger evidence exists.
-- `app-game.session.ordering-idempotency`: session transitions handle duplicate, stale, missing, and out-of-order events.
-- `app-game.policy.authz-replay`: parent policy updates reject unauthorized, stale, replayed, or cross-child actions.
-- `app-game.platform.manual-required`: unsupported or unproven platform capabilities stay manual-required.
-- `app-game.ui.degraded-proof`: parent/child surfaces show empty, stale, unsupported, and limitation states with screenshot/log proof.
-- `app-game.no-fake-green`: proof uses real contracts/adapters/read models, not mocked scanner or policy success.
+# Rust app/game runtime/event scope
+cargo test -p ocentra-app-game-core app_game
 
-## Required proof contents
+# Protocol/service scope only when selected workpack touches wire, service handler, read API, or service read model
+cargo test -p ocentra-parent-agent-protocol app_game
+cargo test -p ocentra-parent-agent-service app_game
 
-- Negative proof for every boundary claim: inventory/use, runtime/foreground, foreground/content, AI/enforcement.
-- Journal/read-model rows where persistence is touched.
-- Screenshots and Playwright logs for UI states.
-- Authority tier, rollback, and manual-required proof for adapter behavior.
+# UI scope only when selected workpack touches parent portal, child UX preview, or rendered status
+npm run test --workspace @ocentra-parent/portal -- app
+
+# Architecture scope: start with touched files; expand only when the workpack requires it
+npm run lint:architecture -- --files packages/schema-domain packages/app-game-domain packages/agent-protocol-domain crates/app-game-core crates/agent-protocol crates/agent-service apps/portal docs/plans/app-game-plan
+```
+
+Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
+
+## Command ownership notes
+
+- `packages/schema-domain` owns canonical shared app/game shapes when contracts cross package/crate/app/plan boundaries.
+- `packages/app-game-domain` proves helper/projection behavior only. It must not re-own shared shapes or aggregate policy, enforcement, notification, portal, or production runtime behavior.
+- `crates/app-game-core` proves child-local app/game observation, sessionization, event handoff, and source-readiness runtime behavior when selected.
+- `crates/agent-protocol` and `crates/agent-service` are protocol/service proof only when wire, service handler, read API, or service read-model behavior is selected.
+- `parent-domain`, `policy-domain`, `enforcement-domain`, `notification-domain`, `portal-domain`, and `apps/portal` are sibling/consumer scopes. Run them only when the selected workpack explicitly touches the handoff or rendered projection.
+- AI consumes stored evidence or structured digest refs. Do not test AI runtime as app/game proof unless the selected workpack is an AI classifier/digest handoff.
+
+## App/game E2E meaning
+
+Do not use one proof family to claim the whole app/game path. For this plan, E2E has separate meanings:
+
+```text
+contract E2E: schema-domain app/game shape -> app-game-domain helper/projection -> TypeScript tests.
+Rust event E2E: app/game observation intent -> evidence-recorded event -> optional AI/policy requested event -> Rust tests.
+inventory E2E: platform inventory source -> local evidence record -> journal/SQLite row -> service/read-model row.
+runtime E2E: process/runtime source -> running-now row -> session/duration summary -> source freshness status.
+foreground E2E: foreground-window source -> foreground row -> no-content private title handling -> parent-visible status.
+classifier digest E2E: stored evidence/digest -> AI/classifier result handoff -> validated result ref, without AI scanning OS state.
+policy preview E2E: source readiness + parent rule target -> dry-run policy preview -> manual-required or ready status.
+timer/budget E2E: session summary + schedule/budget/bonus state -> timer read model -> audit/rollback proof.
+enforcement E2E: source-ready target + policy decision -> adapter preflight/action-result -> rollback/manual-required status.
+portal E2E: service/read-model state -> portal projection -> parent-visible status with source/custody/manual-required labels.
+child UX/notification E2E: child-facing status or request -> local outbox/receipt/audit handoff -> notification/UX proof.
+platform E2E: real platform/OS/permission state -> adapter output -> cleanup/rollback/manual-required proof.
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Every app/game implementation/proof slice must preserve both product-safe logging and local harness logging.
+
+Product/runtime-safe logging:
+
+```text
+redact private window titles when required, executable paths when policy says opaque refs only, launcher account tokens, store account ids, chat/content data, and child private activity payloads
+log evidence refs, source freshness, adapter name/version, platform/permission state, session id, action/result state, degraded reason, and audit reference when safe
+separate observe-only, dry-run, manual-required, unavailable, adapter-error, and enforcement-result states
+never treat portal logs, AI logs, or notification logs as source evidence
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, owner module, exit code, result, artifact pointer, diagnostics summary, source/custody note, platform note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
+
+The logging evidence should let a human, Codex, or project MCP ask what failed, where it failed, which artifact contains raw output, which source/evidence refs were involved, and what the result proves without reading an entire terminal dump.
+
+## Required negative states
+
+```text
+unsupported platform visible
+unknown app/game state visible
+stale evidence visible
+manual-required state visible
+permission-limited source blocks readiness
+adapter-error blocks readiness
+mock evidence not product proof
+historical checked row not used as new proof
+UI cannot claim runtime action without service/protocol proof
+policy dry-run cannot claim enforcement
+AI classifier digest cannot claim AI scanned the machine
+enforcement adapter cannot run without source-ready target and authority proof
+```
 
 ## Failure conditions
 
-Do not claim DONE or PR_READY if any apply:
-
-- The expected test/proof row for the touched work type is missing.
-- The implementation crate/package test folder does not exist and the missing expected location is not recorded.
-- Only happy-path tests pass for a trust, policy, persistence, protocol, UI, AI, platform, security, performance, or observability boundary.
-- A product/checklist row moved without command logs and proof artifact path.
-- A manual-required/platform limitation was converted into a runtime capability claim.
-- A proof artifact lacks negative cases, logs/traces where relevant, or exact workpack/checklist linkage.
-- A sibling plan or broad source tree was read without a route reason recorded in the workpack/proof note.
+- Do not mark DONE or PR_READY from happy-path-only proof.
+- Do not store proof inventories inside this plan folder.
+- Do not use generated long-name handoff rows as implementation scope without a fresh selected proof target.
+- Do not claim feature completeness until the relevant E2E tier above is explicitly proven or blocked.

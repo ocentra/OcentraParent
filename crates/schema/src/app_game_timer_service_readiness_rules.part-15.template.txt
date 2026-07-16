@@ -1,0 +1,30 @@
+      AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedByCompilerDecision
+  ).length,
+});
+
+export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessRequiredProofRefsGenerated = (
+  refs: TimerRuntimeReadinessProofRefsLike,
+  runtimeReadinessState: TimerRuntimeReadinessStateValue,
+  inheritedProofRefs: readonly string[]
+) =>
+  runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired
+    ? [refs.timerRuntimeProofRef, refs.schedulerPersistenceProofRef, refs.auditProofRef, refs.rollbackProofRef]
+    : [...inheritedProofRefs];
+
+export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessCountsMatchGenerated = (
+  readiness: TimerRuntimeReadinessLike
+) =>
+  readiness.runtimeProofRequiredCount ===
+    readiness.rows.filter(
+      (row) =>
+        row.runtimeReadinessState ===
+          AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired &&
+        row.timerRuntimeProofRequired &&
+        row.schedulerPersistenceProofRequired &&
+        row.auditProofRequired &&
+        row.rollbackProofRequired &&
+        !row.timerScheduled
+    ).length &&
+  readiness.blockedBySourceFreshnessCount ===
+    readiness.rows.filter(
+      (row) =>

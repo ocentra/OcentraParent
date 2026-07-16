@@ -1,0 +1,31 @@
+export function validationRulesForGenerated(
+  sectionTitle: string,
+  sourceText: string
+): BrowserControlFullCatalogRuleGenerated[] {
+  const proof = proofRequirementForGenerated(sectionTitle, sourceText);
+  const rules = [
+    ruleGenerated('Selected option ids must belong to this setting acceptedOptions list.'),
+    ruleGenerated(
+      'Portal writes only authored intent; child runtime owns compile, persistence, evaluation, and audit.'
+    ),
+  ];
+  if (proof !== null) {
+    rules.push(ruleGenerated(`Enforcement requires proof: ${proof}.`));
+  }
+  return rules;
+}
+
+export function sectionKindForTitleGenerated(
+  sectionTitle: string
+): 'setting-section' | 'rule-dimension-section' | 'candidate-mvp-section' | 'planning-gap-section' {
+  if (sectionTitle === 'Global Rule Dimensions') {
+    return 'rule-dimension-section';
+  }
+  if (sectionTitle === 'Candidate MVP Setting Set') {
+    return 'candidate-mvp-section';
+  }
+  if (sectionTitle === 'Gaps To Decide Before UI Contracts') {
+    return 'planning-gap-section';
+  }
+  return 'setting-section';
+}

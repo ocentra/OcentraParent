@@ -1,70 +1,63 @@
-# Workpack 06: Security Privacy Observability
+# Workpack 06: Security, Privacy, and Observability
 
-Goal: define security and privacy controls for billing.
+## Goal
 
-Expected shape:
+Define the non-negotiable controls around monetization data, secret handling, privacy, observability, and test/live separation.
 
-- No child names, activity, location, screenshots, policy details, or sensitive evidence in Stripe metadata.
-- Logs and metrics redact payment identifiers where appropriate.
-- Rate limits, Turnstile or equivalent abuse controls, and webhook DoS handling are required.
-- PCI scope stays low by using Stripe-hosted payment UI unless a later decision proves otherwise.
+## First-touch surface
 
-Expected proof:
+- `packages/billing-domain/src/billing-security-privacy-observability.ts`
+- `packages/billing-domain/tests/unit/billing-security-privacy-observability.test.ts`
 
-- Metadata privacy review.
-- Secret scan.
-- Rate limit/abuse proof.
-- Webhook smuggling/desync proof where applicable.
-- Alerts and reconciliation reports.
+## Read inputs
 
-Failure: payment observability leaking family or child safety data.
+- [PLAN_STATE.md](../PLAN_STATE.md)
+- [PLAN_EXECUTION_BLUEPRINT.md](../PLAN_EXECUTION_BLUEPRINT.md)
+- [SECURITY_PRIVACY_OBSERVABILITY.md](../SECURITY_PRIVACY_OBSERVABILITY.md)
+- [BILLING_API_BOUNDARY.md](../BILLING_API_BOUNDARY.md)
+- [PROOF_AND_TEST_INVENTORY.md](../PROOF_AND_TEST_INVENTORY.md)
+- [REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
+- [DECISIONS.md](../DECISIONS.md)
 
-## Execution Detail
+## Output files
 
-Minimum context:
+- [SECURITY_PRIVACY_OBSERVABILITY.md](../SECURITY_PRIVACY_OBSERVABILITY.md)
+- [PROOF_AND_TEST_INVENTORY.md](../PROOF_AND_TEST_INVENTORY.md)
+- `output/payment-subscription-plan-proof/06-security-privacy-observability/`
 
-- `docs/expectations/static-analysis-security.md`
-- `docs/expectations/data-custody.md`
-- `E:\ocentra-games\infra\cloudflare\src\utils\stripe-webhook-signature.ts`
-- `E:\ocentra-games\infra\cloudflare\src\monitoring\security.ts`
+## Acceptance
 
-Research required:
+- Provider and webhook secrets stay server-side.
+- Support and admin actions are authenticated, audited, and redacted by default.
+- Child data never appears in payment telemetry or provider metadata.
+- Test and live mode separation is visible in the ledger and dashboard.
+- Queue retries and dead-letter events are observable.
+- Provider metadata allow/deny boundaries are explicit.
 
-- Confirm current security expectations for Parent logs and support diagnostics.
-- Discuss with Sujan what billing support data Ocentra is allowed to see.
-- Confirm provider metadata policy before checkout/webhook implementation.
+## Proof IDs
 
-Forbidden Stripe metadata:
-
-- Child names.
-- Child activity.
-- Location/geofence data.
-- Browser/app/network history.
-- Screenshot or screen analysis data.
-- Policy details.
-- AI safety analysis.
-
-Expected controls:
-
-- Rate limits.
-- Bot protection.
-- Webhook signature and timestamp tolerance.
-- Secret scanning.
-- Redacted logs.
-- Alerting for webhook failures, payment drift, fraud signals, and repeated checkout abuse.
-
-Expected tests/proof names:
-
+- `payment-security.no-child-data-metadata`
 - `payment-security.secret-scan`
-- `payment-security.webhook-replay`
-- `payment-security.metadata-no-child-data`
-- `payment-security.rate-limit`
+- `payment-security.support-view-minimized`
+- `payment-security.test-live-separated`
 - `payment-security.redacted-logs`
-- `payment-security.alert-fired`
 
-Proof artifact expectations:
+## Validation
 
-- Metadata allow/deny list.
-- Log redaction proof.
-- Alert/metric examples.
-- Abuse test logs.
+- Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
+- Required proof families: `payment-security.provider-metadata-allow-deny`, `payment-security.no-child-data-metadata`, `payment-security.secret-scan`, `payment-security.webhook-smuggling-negative`, `payment-security.webhook-replay`, `payment-security.rate-limit`, `payment-security.bot-abuse-gate`, `payment-security.open-redirect-negative`, `payment-security.redacted-logs`, `payment-security.support-view-minimized`, `payment-security.pci-hosted-checkout-boundary`, `payment-security.referral-abuse-signals`, `payment-security.admin-audit-required`
+- Proof bundle: `output/payment-subscription-plan-proof/06-security-privacy-observability/06-metadata-privacy-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-secret-scan-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-referral-abuse-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-support-view-minimized-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-pci-hosted-boundary-proof.md`
+
+## Negative cases
+
+- Reject raw secret logging.
+- Reject child data in payment telemetry.
+- Reject admin-only timelines on parent surfaces.
+- Reject support views that are not redacted by default.
+
+## Failure conditions
+
+- Do not leak secrets.
+- Do not log child data.
+- Do not expose admin-only timelines to parent surfaces.
+- Do not let provider metadata carry child content or policy details.

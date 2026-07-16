@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-01T15:01:00Z",
+  "discoverySource": "local-service",
+  "addDeviceState": "manual-required",
+  "localServiceDiscoveryState": "manual-required",
+  "physicalHouseholdLanState": "manual-required",
+  "cloudRelayState": "unavailable",
+  "scanSummary": {
+    "schemaVersion": 1,
+    "sourceLabels": [],
+    "scannedDeviceCount": 0,
+    "agentDeviceCount": 0,
+    "passiveDeviceCount": 0,
+    "infrastructureDeviceCount": 0,
+    "unsupportedDeviceCount": 0
+  },
+  "discoveredDevices": [],
+  "pairingRequests": [],
+  "trustedDeviceRegistry": [],
+  "householdDeviceDecisions": [],
+  "canonicalHouseholdDevices": [],
+  "trustedDeviceIds": [],
+  "revokedDeviceIds": [],
+  "selectedDeviceReadiness": {
+    "schemaVersion": 1,
+    "selectedChildDeviceId": null,
+    "routeId": null,
+    "pairingId": null,
+    "trustState": "unpaired",
+    "reachability": "stale",
+    "readyForControl": false,
+    "staleAt": "2026-06-01T15:01:00Z",
+    "offlineAt": null
+  },
+  "controllerAuthority": "observer",
+  "observerAuthority": "observer",
+  "routeRequirementLabels": ["No LAN child route selected"],
+  "auditCheckLabels": ["No LAN discovery evidence available"],
+  "honestNonClaims": ["no-lan-devices-reported"]
+}

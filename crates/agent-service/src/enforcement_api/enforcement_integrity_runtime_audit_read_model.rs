@@ -1,23 +1,45 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_enforcement_integrity_runtime_audit as proof, policy_constants, ParentPlatform,
-    V08EnforcementIntegrityRuntimeAuditAuditState, V08EnforcementIntegrityRuntimeAuditChildState,
-    V08EnforcementIntegrityRuntimeAuditEntry, V08EnforcementIntegrityRuntimeAuditExecution,
-    V08EnforcementIntegrityRuntimeAuditIntegrityState,
-    V08EnforcementIntegrityRuntimeAuditIntentState, V08EnforcementIntegrityRuntimeAuditReadModel,
-    V08EnforcementIntegrityRuntimeAuditResult, V08EnforcementIntegrityRuntimeAuditRollbackState,
-    V08EnforcementIntegrityRuntimeAuditSurface, V08EnforcementIntegrityRuntimeAuditTimerState,
+use ocentra_parent_agent_protocol::constants::v08_enforcement_integrity_runtime_audit as proof;
+use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditAuditState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditChildState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditEntry;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditExecution;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditIntegrityState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditIntentState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditReadModel;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditResult;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditRollbackState;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditSurface;
+use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditTimerState;
+use ocentra_parent_agent_protocol::policy_constants;
+
+use super::integrity_alert_status_bridge_read_model::{
+    v08_integrity_alert_status_bridge_read_model,
+    GeneratedAtTextRef as IntegrityAlertGeneratedAtTextRef,
 };
-
-use super::integrity_alert_status_bridge_read_model::v08_integrity_alert_status_bridge_read_model;
 use super::notification_provider_status_boundary_read_model::v08_notification_provider_status_boundary_read_model;
+use super::notification_provider_status_boundary_read_model::GeneratedAtTextRef as NotificationProviderGeneratedAtTextRef;
 
-pub(crate) fn v08_enforcement_integrity_runtime_audit_read_model(
-    generated_at: &str,
+#[derive(Clone, Copy)]
+pub(crate) struct GeneratedAtTextRef<'a>(pub(crate) &'a str);
+
+#[derive(Clone, Copy)]
+struct AuditEntryId(pub(crate) &'static str);
+
+#[derive(Clone, Copy)]
+struct StaticTextRefs(pub(crate) &'static [&'static str]);
+
+#[derive(Clone, Copy)]
+struct BoundaryText(pub(crate) &'static str);
+
+pub(crate) fn v08_enforcement_integrity_runtime_audit_read_model<'a>(
+    generated_at: impl Into<GeneratedAtTextRef<'a>>,
 ) -> V08EnforcementIntegrityRuntimeAuditReadModel {
+    let generated_at = generated_at.into();
     V08EnforcementIntegrityRuntimeAuditReadModel {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: proof::READ_MODEL_ID.to_string(),
-        generated_at: generated_at.to_string(),
+        generated_at: generated_at.0.to_string(),
         source_read_model_ids: vec![
             proof::SOURCE_SUPPORTED_ADAPTER_RUNTIME_PROOF.to_string(),
             proof::SOURCE_POLICY_DISPATCH_PROOF.to_string(),
@@ -30,9 +52,11 @@ pub(crate) fn v08_enforcement_integrity_runtime_audit_read_model(
             .iter()
             .map(|spec| entry_from_spec(spec, generated_at))
             .collect(),
-        integrity_alert_status_bridge: v08_integrity_alert_status_bridge_read_model(generated_at),
+        integrity_alert_status_bridge: v08_integrity_alert_status_bridge_read_model(
+            IntegrityAlertGeneratedAtTextRef(generated_at.0),
+        ),
         notification_provider_status_boundary: v08_notification_provider_status_boundary_read_model(
-            generated_at,
+            NotificationProviderGeneratedAtTextRef(generated_at.0),
         ),
     }
 }
@@ -62,6 +86,7 @@ struct EntrySpec {
     boundary: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct SupportedSpecInput {
     audit_entry_id: &'static str,
     result: V08EnforcementIntegrityRuntimeAuditResult,
@@ -72,6 +97,7 @@ struct SupportedSpecInput {
     boundary: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct NoExecutionSpecInput {
     audit_entry_id: &'static str,
     surface: V08EnforcementIntegrityRuntimeAuditSurface,
@@ -83,6 +109,7 @@ struct NoExecutionSpecInput {
     boundary: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct IntegrityUnavailableSpecInput {
     audit_entry_id: &'static str,
     surface: V08EnforcementIntegrityRuntimeAuditSurface,
@@ -190,13 +217,13 @@ fn no_execution_entry_specs() -> Vec<EntrySpec> {
 fn manual_unavailable_entry_specs() -> Vec<EntrySpec> {
     vec![
         manual_spec(
-            proof::ENTRY_HOST_NETWORK_MANUAL,
+            AuditEntryId(proof::ENTRY_HOST_NETWORK_MANUAL),
             V08EnforcementIntegrityRuntimeAuditSurface::HostNetworkDomainFilter,
-            &[
+            StaticTextRefs(&[
                 proof::REQUIREMENT_HOST_DNS_OR_FILTER_APPLY,
                 proof::REQUIREMENT_HOST_FILTER_ROLLBACK,
-            ],
-            proof::BOUNDARY_HOST_NETWORK_MANUAL,
+            ]),
+            BoundaryText(proof::BOUNDARY_HOST_NETWORK_MANUAL),
         ),
         unavailable_spec(IntegrityUnavailableSpecInput {
             audit_entry_id: proof::ENTRY_PERMISSION_LOSS,
@@ -301,13 +328,13 @@ fn no_execution_spec(input: NoExecutionSpecInput) -> EntrySpec {
 }
 
 fn manual_spec(
-    audit_entry_id: &'static str,
+    audit_entry_id: AuditEntryId,
     surface: V08EnforcementIntegrityRuntimeAuditSurface,
-    manual_proof_requirements: &'static [&'static str],
-    boundary: &'static str,
+    manual_proof_requirements: StaticTextRefs,
+    boundary: BoundaryText,
 ) -> EntrySpec {
     EntrySpec {
-        audit_entry_id,
+        audit_entry_id: audit_entry_id.0,
         surface,
         platform: ParentPlatform::Windows,
         result: V08EnforcementIntegrityRuntimeAuditResult::ManualRequired,
@@ -327,8 +354,8 @@ fn manual_spec(
         child_status_refs: &[],
         integrity_refs: &[],
         parent_intent_refs: &[],
-        manual_proof_requirements,
-        boundary,
+        manual_proof_requirements: manual_proof_requirements.0,
+        boundary: boundary.0,
     }
 }
 
@@ -397,14 +424,14 @@ fn unsupported_spec() -> EntrySpec {
 
 fn manual_tamper_spec() -> EntrySpec {
     let mut spec = manual_spec(
-        proof::ENTRY_TAMPER_MANUAL,
+        AuditEntryId(proof::ENTRY_TAMPER_MANUAL),
         V08EnforcementIntegrityRuntimeAuditSurface::TamperUninstallSignal,
-        &[
+        StaticTextRefs(&[
             proof::REQUIREMENT_SERVICE_MANAGER_STOP_PROOF,
             proof::REQUIREMENT_UNINSTALL_DETECTION_ARTIFACT,
             proof::REQUIREMENT_SECURITY_REVIEW,
-        ],
-        proof::BOUNDARY_TAMPER_MANUAL,
+        ]),
+        BoundaryText(proof::BOUNDARY_TAMPER_MANUAL),
     );
     spec.integrity_state =
         V08EnforcementIntegrityRuntimeAuditIntegrityState::TamperSignalManualRequired;
@@ -413,7 +440,7 @@ fn manual_tamper_spec() -> EntrySpec {
 
 fn entry_from_spec(
     spec: &EntrySpec,
-    generated_at: &str,
+    generated_at: GeneratedAtTextRef<'_>,
 ) -> V08EnforcementIntegrityRuntimeAuditEntry {
     V08EnforcementIntegrityRuntimeAuditEntry {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
@@ -428,16 +455,56 @@ fn entry_from_spec(
         child_state: spec.child_state,
         integrity_state: spec.integrity_state,
         audit_state: spec.audit_state,
-        policy_decision_refs: to_strings(spec.policy_decision_refs),
-        evidence_refs: to_strings(spec.evidence_refs),
-        adapter_outcome_refs: to_strings(spec.adapter_outcome_refs),
-        audit_refs: to_strings(spec.audit_refs),
-        rollback_refs: to_strings(spec.rollback_refs),
-        timer_refs: to_strings(spec.timer_refs),
-        child_status_refs: to_strings(spec.child_status_refs),
-        integrity_refs: to_strings(spec.integrity_refs),
-        parent_intent_refs: to_strings(spec.parent_intent_refs),
-        manual_proof_requirements: to_strings(spec.manual_proof_requirements),
+        policy_decision_refs: StaticTextRefs(spec.policy_decision_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        evidence_refs: StaticTextRefs(spec.evidence_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        adapter_outcome_refs: StaticTextRefs(spec.adapter_outcome_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        audit_refs: StaticTextRefs(spec.audit_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        rollback_refs: StaticTextRefs(spec.rollback_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        timer_refs: StaticTextRefs(spec.timer_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        child_status_refs: StaticTextRefs(spec.child_status_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        integrity_refs: StaticTextRefs(spec.integrity_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        parent_intent_refs: StaticTextRefs(spec.parent_intent_refs)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        manual_proof_requirements: StaticTextRefs(spec.manual_proof_requirements)
+            .0
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
         boundary: spec.boundary.to_string(),
         broad_installed_app_blocking_claimed: false,
         host_network_domain_blocking_claimed: false,
@@ -447,10 +514,6 @@ fn entry_from_spec(
         mobile_privilege_claimed: false,
         stealth_persistence_claimed: false,
         privilege_escalation_claimed: false,
-        last_checked_at: generated_at.to_string(),
+        last_checked_at: generated_at.0.to_string(),
     }
-}
-
-fn to_strings(values: &[&str]) -> Vec<String> {
-    values.iter().map(|value| (*value).to_string()).collect()
 }

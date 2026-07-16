@@ -1,34 +1,17 @@
 use ocentra_eventing::{
-    decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
-    EventDeliveryDecisionInput, EventDeliveryDecisionProof, EventDeliveryDecisionState,
-    EventDeliveryRouteKind, EventDeliverySubscriberFilter, EventNamespace, EventType,
-    EventingError, SourceComponent, SubscriberId, TargetHandler,
+    delivery::decide_event_delivery_route, delivery::validation::EventDeliveryBackpressurePolicy,
+    delivery::validation::EventDeliveryDecisionError,
+    delivery::validation::EventDeliveryDecisionInput,
+    delivery::validation::EventDeliveryDecisionProof,
+    delivery::validation::EventDeliveryDecisionState, delivery::validation::EventDeliveryRouteKind,
+    delivery::validation::EventDeliverySubscriberFilter, error::EventingError, ids::EventNamespace,
+    ids::EventType, ids::SourceComponent, ids::SubscriberId, ids::TargetHandler,
 };
+use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;
 
-use crate::BrowserRuntimePhase;
-
-#[derive(Clone, Debug)]
-pub struct BrowserRuntimeDeliveryDecisionReport {
-    pub chain_delivery: EventDeliveryDecisionProof,
-    pub action_intent_status_delivery: EventDeliveryDecisionProof,
-    pub action_intent_handoff_delivery: EventDeliveryDecisionProof,
-    pub runtime_stream_report_delivery: EventDeliveryDecisionProof,
-    pub social_provider_receipt_status_delivery: EventDeliveryDecisionProof,
-    pub social_report_writer_delivery_status_delivery: EventDeliveryDecisionProof,
-    pub social_parent_notification_delivery_status_delivery: EventDeliveryDecisionProof,
-    pub social_parent_surface_status_delivery: EventDeliveryDecisionProof,
-    pub external_transport_delivery: EventDeliveryDecisionProof,
-    pub local_ready_route_count: usize,
-    pub external_transport_manual_required: bool,
-    pub external_transport_delivery_implemented: bool,
-    pub external_relay_delivery_implemented: bool,
-    pub adapter_dispatch_claimed: bool,
-    pub browser_mutation_claimed: bool,
-    pub child_intervention_execution_claimed: bool,
-    pub final_policy_execution_claimed: bool,
-    pub enforcement_claimed: bool,
-}
+pub type BrowserRuntimeDeliveryDecisionReport =
+    ocentra_parent_agent_protocol::browser::delivery::BrowserRuntimeDeliveryDecisionReport;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum BrowserRuntimeDeliveryDecisionError {

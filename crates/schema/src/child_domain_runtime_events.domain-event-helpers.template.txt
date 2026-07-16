@@ -1,0 +1,18 @@
+
+function childDomainRuntimeEventTypeMatchesDomain(
+  domain: ChildRuntimeDomain,
+  eventType: ChildDomainRuntimeEventType
+): boolean {
+  if (childDomainRuntimeEventTypeIsCrossDomain(eventType)) {
+    return true;
+  }
+  return eventType.startsWith(`${domain}.`);
+}
+
+function childDomainRuntimeEventTypeIsCrossDomain(eventType: ChildDomainRuntimeEventType): boolean {
+  return (
+    eventType === ChildDomainRuntimeEventType.AiAnalysisCompleted ||
+    eventType === ChildDomainRuntimeEventType.PolicyViolationDetected ||
+    eventType === ChildDomainRuntimeEventType.NotificationRequested
+  );
+}

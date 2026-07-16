@@ -16,32 +16,32 @@
 
 ## AI Worker Checklist
 
-- [x] Confirm source docs read: `docs/feature-list.md`,
+- [ ] Confirm source docs read: `docs/feature-list.md`,
       `docs/features/app-game-control.md`,
       `docs/expectations/app-game-evidence.md`,
       `docs/expectations/enforcement.md`, and
       `packages/parent-domain/README.md`.
-- [x] Confirm browser-game scope remains in browser-plan.
-- [x] Confirm apps and games share low-level evidence but keep separate product
+- [ ] Confirm browser-game scope remains in browser-plan.
+- [ ] Confirm apps and games share low-level evidence but keep separate product
       meaning.
-- [x] Hub lock covers this workpack and exact implementation/docs paths.
-- [x] Existing source layout inspected; no parallel app-control or game-control
+- [ ] Hub lock covers this workpack and exact implementation/docs paths.
+- [ ] Existing source layout inspected; no parallel app-control or game-control
       truth created.
-- [x] Before-state source snapshot recorded in
+- [ ] Before-state source snapshot recorded in
       `output/app-game-plan-proof/94-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff/00-source-snapshot.md`.
-- [x] Contracts updated first where behavior changes.
-- [x] Rust/service/portal parity not updated because this is a parent-domain
+- [ ] Contracts updated first where behavior changes.
+- [ ] Rust/service/portal parity not updated because this is a parent-domain
       read-API response consumer handoff proof only.
-- [x] Tests/proof listed in this workpack are implemented.
-- [x] Security/no-claim negative proof captured: response-consumer handoff does
+- [ ] Tests/proof listed in this workpack are implemented.
+- [ ] Security/no-claim negative proof captured: response-consumer handoff does
       not implement agent-protocol contracts, mirror Rust protocol, register
       service commands, implement service handlers, implement service read APIs,
       implement service responses or response consumers, emit service events,
       render portal UI, run timers, persist scheduler/audit storage, execute
       rollback, dispatch adapters, deliver child UX, enforce platform controls,
       or expose raw private source rows.
-- [x] Feature/expectation/product-checklist/README update decision recorded.
-- [x] Known gaps, deferred items, and no-claim boundaries recorded.
+- [ ] Feature/expectation/product-checklist/README update decision recorded.
+- [ ] Known gaps, deferred items, and no-claim boundaries recorded.
 
 ## Scope
 

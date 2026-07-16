@@ -12,7 +12,9 @@
 
 # Remote Access Plan
 
-This plan owns remote capability sessions: remote screen/live view, remote desktop/control, relay fallback, capability grants, consent/disclosure, remote input authority, abuse controls, and proof.
+This plan owns remote capability sessions: remote screen/live view, relay fallback, capability grants, standing paired access, revocation, abuse controls, and proof.
+
+Remote input/control is a deferred extension. The current pass is live view plus standing paired access, not repeated permission prompts.
 
 It does not own screen capture primitives, LAN discovery internals, account identity, or package build mechanics. Those remain handoffs.
 

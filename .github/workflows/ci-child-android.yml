@@ -30,15 +30,15 @@ jobs:
       matrix:
         include:
           - proof_name: Lifecycle
-            test_file: tests/child-android-lifecycle-proof.test.ts
+            test_script: test:child-android-protocol-package-lifecycle-proof
           - proof_name: Permission Capability
-            test_file: tests/child-android-permission-capability-proof.test.ts
+            test_script: test:child-android-permission-capability-proof
           - proof_name: Privileged Capability
-            test_file: tests/child-android-privileged-capability-proof.test.ts
+            test_script: test:child-android-privileged-capability-proof
           - proof_name: Storage Protocol
-            test_file: tests/child-android-storage-protocol-proof.test.ts
+            test_script: test:child-android-storage-protocol-capability-proof
           - proof_name: Service Protocol
-            test_file: tests/child-android-service-protocol-proof.test.ts
+            test_script: test:child-android-service-protocol-capability-proof
     steps:
       - uses: actions/checkout@v6
 
@@ -48,4 +48,4 @@ jobs:
         run: npm run build:contracts
 
       - name: Android protocol and capability contract proof
-        run: npm run test --workspace @ocentra-parent/parent-domain -- ${{ matrix.test_file }}
+        run: npm run ${{ matrix.test_script }}

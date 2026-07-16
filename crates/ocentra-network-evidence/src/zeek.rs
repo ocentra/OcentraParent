@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{DnsObservation, NetworkEvidenceGrade, NetworkFlowProtocol, NetworkFlowSession};
+mod rows;
+mod validation;
+
+use crate::dns::types::{DnsObservation, NetworkEvidenceGrade};
+use crate::flow::{NetworkFlowProtocol, NetworkFlowSession};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkZeekLogKind {
@@ -187,9 +191,9 @@ pub fn generate_network_zeek_analyzer_proof(
     input: NetworkZeekAnalyzerInput,
 ) -> Result<NetworkZeekAnalyzerProof, NetworkZeekAnalyzerError> {
     reject_unsupported_claims(&input)?;
-    let analyzer_run_ref = normalize_ref(&input.analyzer_run_ref)
+    let analyzer_run_ref = rows::normalize_ref(&input.analyzer_run_ref)
         .ok_or(NetworkZeekAnalyzerError::EmptyAnalyzerRunRef)?;
-    let source_fixture_ref = normalize_ref(&input.source_fixture_ref)
+    let source_fixture_ref = rows::normalize_ref(&input.source_fixture_ref)
         .ok_or(NetworkZeekAnalyzerError::EmptySourceFixtureRef)?;
 
     let connection_rows =
@@ -255,28 +259,7 @@ fn connection_rows(
     source_fixture_ref: &str,
     sessions: &[NetworkFlowSession],
 ) -> Vec<NetworkZeekConnectionRow> {
-    sessions
-        .iter()
-        .enumerate()
-        .map(|(index, session)| NetworkZeekConnectionRow {
-            row_ref: row_ref(analyzer_run_ref, NetworkZeekLogKind::Conn, index),
-            source_fixture_ref: source_fixture_ref.to_owned(),
-            source_ip: session.key.initiator_ip.clone(),
-            source_port: session.key.initiator_port,
-            destination_ip: session.key.responder_ip.clone(),
-            destination_port: session.key.responder_port,
-            protocol: session.key.protocol,
-            first_seen_micros: session.first_seen_micros,
-            duration_micros: session.duration_micros,
-            origin_bytes: session.initiator_to_responder_bytes,
-            response_bytes: session.responder_to_initiator_bytes,
-            origin_packets: session.initiator_to_responder_packets,
-            response_packets: session.responder_to_initiator_packets,
-            evidence_grade: session.evidence_grade,
-            exact_url_available: false,
-            decrypted_payload_available: false,
-        })
-        .collect()
+    rows::connection_rows(analyzer_run_ref, source_fixture_ref, sessions)
 }
 
 fn dns_rows(
@@ -284,22 +267,7 @@ fn dns_rows(
     source_fixture_ref: &str,
     observations: &[DnsObservation],
 ) -> Vec<NetworkZeekDnsRow> {
-    observations
-        .iter()
-        .enumerate()
-        .map(|(index, observation)| NetworkZeekDnsRow {
-            row_ref: row_ref(analyzer_run_ref, NetworkZeekLogKind::Dns, index),
-            source_fixture_ref: source_fixture_ref.to_owned(),
-            query_name: observation.query_name.clone(),
-            query_type: format!("{:?}", observation.query_type),
-            source_ip: observation.source_ip.clone(),
-            destination_ip: observation.destination_ip.clone(),
-            observed_at_micros: observation.observed_at_micros,
-            evidence_grade: observation.evidence_grade,
-            exact_url_available: false,
-            decrypted_payload_available: false,
-        })
-        .collect()
+    rows::dns_rows(analyzer_run_ref, source_fixture_ref, observations)
 }
 
 fn http_rows(
@@ -307,34 +275,7 @@ fn http_rows(
     source_fixture_ref: &str,
     evidence: &[NetworkZeekHttpEvidence],
 ) -> Result<Vec<NetworkZeekHttpRow>, NetworkZeekAnalyzerError> {
-    evidence
-        .iter()
-        .enumerate()
-        .map(|(index, input)| {
-            let evidence_ref = normalize_ref(&input.evidence_ref)
-                .ok_or(NetworkZeekAnalyzerError::EmptyHttpEvidenceRef)?;
-            let flow_ref =
-                normalize_ref(&input.flow_ref).ok_or(NetworkZeekAnalyzerError::EmptyHttpFlowRef)?;
-            if input.visibility_state == NetworkZeekVisibilityState::Visible
-                && normalized_optional_text(input.host.as_deref()).is_none()
-            {
-                return Err(NetworkZeekAnalyzerError::VisibleHttpHostMissing);
-            }
-
-            Ok(NetworkZeekHttpRow {
-                row_ref: row_ref(analyzer_run_ref, NetworkZeekLogKind::Http, index),
-                evidence_ref,
-                flow_ref,
-                source_fixture_ref: source_fixture_ref.to_owned(),
-                observed_at_micros: input.observed_at_micros,
-                host: normalized_optional_text(input.host.as_deref()),
-                visibility_state: input.visibility_state,
-                exact_url_available: false,
-                decrypted_payload_available: false,
-                page_content_available: false,
-            })
-        })
-        .collect()
+    rows::http_rows(analyzer_run_ref, source_fixture_ref, evidence)
 }
 
 fn build_tls_rows(
@@ -342,52 +283,13 @@ fn build_tls_rows(
     source_fixture_ref: &str,
     evidence: &[NetworkZeekTlsEvidence],
 ) -> Result<Vec<NetworkZeekTlsRow>, NetworkZeekAnalyzerError> {
-    evidence
-        .iter()
-        .enumerate()
-        .map(|(index, input)| {
-            let evidence_ref = normalize_ref(&input.evidence_ref)
-                .ok_or(NetworkZeekAnalyzerError::EmptyTlsEvidenceRef)?;
-            let flow_ref =
-                normalize_ref(&input.flow_ref).ok_or(NetworkZeekAnalyzerError::EmptyTlsFlowRef)?;
-            if input.visibility_state == NetworkZeekVisibilityState::Visible
-                && normalized_optional_text(input.server_name.as_deref()).is_none()
-            {
-                return Err(NetworkZeekAnalyzerError::VisibleTlsServerNameMissing);
-            }
-
-            Ok(NetworkZeekTlsRow {
-                row_ref: row_ref(analyzer_run_ref, NetworkZeekLogKind::Tls, index),
-                evidence_ref,
-                flow_ref,
-                source_fixture_ref: source_fixture_ref.to_owned(),
-                observed_at_micros: input.observed_at_micros,
-                server_name: normalized_optional_text(input.server_name.as_deref()),
-                visibility_state: input.visibility_state,
-                exact_url_available: false,
-                decrypted_payload_available: false,
-                page_content_available: false,
-            })
-        })
-        .collect()
+    rows::build_tls_rows(analyzer_run_ref, source_fixture_ref, evidence)
 }
 
 fn validate_comparison_artifacts(
     artifacts: &[NetworkZeekAnalyzerComparisonArtifact],
 ) -> Result<(), NetworkZeekAnalyzerError> {
-    for artifact in artifacts {
-        if normalize_ref(&artifact.artifact_ref).is_none() {
-            return Err(NetworkZeekAnalyzerError::EmptyComparisonArtifactRef(
-                artifact.log_kind,
-            ));
-        }
-        if !artifact.approved_fixture_output {
-            return Err(NetworkZeekAnalyzerError::MissingApprovedComparison(
-                artifact.log_kind,
-            ));
-        }
-    }
-    Ok(())
+    validation::validate_comparison_artifacts(artifacts)
 }
 
 fn required_log_kinds(
@@ -397,32 +299,14 @@ fn required_log_kinds(
     tls_rows: &[NetworkZeekTlsRow],
     ssl_rows: &[NetworkZeekTlsRow],
 ) -> Vec<NetworkZeekLogKind> {
-    let mut kinds = Vec::new();
-    push_required(
-        &mut kinds,
-        NetworkZeekLogKind::Conn,
-        !connection_rows.is_empty(),
-    );
-    push_required(&mut kinds, NetworkZeekLogKind::Dns, !dns_rows.is_empty());
-    push_required(&mut kinds, NetworkZeekLogKind::Http, !http_rows.is_empty());
-    push_required(&mut kinds, NetworkZeekLogKind::Tls, !tls_rows.is_empty());
-    push_required(&mut kinds, NetworkZeekLogKind::Ssl, !ssl_rows.is_empty());
-    kinds
+    validation::required_log_kinds(connection_rows, dns_rows, http_rows, tls_rows, ssl_rows)
 }
 
 fn missing_comparison_log_kinds(
     required_log_kinds: &[NetworkZeekLogKind],
     artifacts: &[NetworkZeekAnalyzerComparisonArtifact],
 ) -> Vec<NetworkZeekLogKind> {
-    required_log_kinds
-        .iter()
-        .copied()
-        .filter(|kind| {
-            !artifacts
-                .iter()
-                .any(|artifact| artifact.log_kind == *kind && artifact.approved_fixture_output)
-        })
-        .collect()
+    validation::missing_comparison_log_kinds(required_log_kinds, artifacts)
 }
 
 fn validate_comparison_counts(
@@ -433,96 +317,18 @@ fn validate_comparison_counts(
     tls_rows: &[NetworkZeekTlsRow],
     ssl_rows: &[NetworkZeekTlsRow],
 ) -> Result<(), NetworkZeekAnalyzerError> {
-    for artifact in artifacts {
-        let row_count = row_count(
-            artifact.log_kind,
-            connection_rows,
-            dns_rows,
-            http_rows,
-            tls_rows,
-            ssl_rows,
-        );
-        if artifact.expected_row_count != row_count
-            || artifact.observed_row_count != row_count
-            || artifact.matched_row_count != row_count
-        {
-            return Err(NetworkZeekAnalyzerError::ComparisonMismatch(
-                artifact.log_kind,
-            ));
-        }
-    }
-    Ok(())
-}
-
-fn row_count(
-    log_kind: NetworkZeekLogKind,
-    connection_rows: &[NetworkZeekConnectionRow],
-    dns_rows: &[NetworkZeekDnsRow],
-    http_rows: &[NetworkZeekHttpRow],
-    tls_rows: &[NetworkZeekTlsRow],
-    ssl_rows: &[NetworkZeekTlsRow],
-) -> usize {
-    match log_kind {
-        NetworkZeekLogKind::Conn => connection_rows.len(),
-        NetworkZeekLogKind::Dns => dns_rows.len(),
-        NetworkZeekLogKind::Http => http_rows.len(),
-        NetworkZeekLogKind::Tls => tls_rows.len(),
-        NetworkZeekLogKind::Ssl => ssl_rows.len(),
-    }
+    validation::validate_comparison_counts(
+        artifacts,
+        connection_rows,
+        dns_rows,
+        http_rows,
+        tls_rows,
+        ssl_rows,
+    )
 }
 
 fn reject_unsupported_claims(
     input: &NetworkZeekAnalyzerInput,
 ) -> Result<(), NetworkZeekAnalyzerError> {
-    if input.exact_url_claimed {
-        return Err(NetworkZeekAnalyzerError::ExactUrlClaimRejected);
-    }
-    if input.decrypted_payload_claimed {
-        return Err(NetworkZeekAnalyzerError::DecryptedPayloadClaimRejected);
-    }
-    if input.page_content_claimed {
-        return Err(NetworkZeekAnalyzerError::PageContentClaimRejected);
-    }
-    if input.signature_alert_claimed {
-        return Err(NetworkZeekAnalyzerError::SignatureAlertClaimRejected);
-    }
-    if input.live_analyzer_invocation_claimed {
-        return Err(NetworkZeekAnalyzerError::LiveAnalyzerInvocationClaimRejected);
-    }
-    if input.policy_authority_claimed {
-        return Err(NetworkZeekAnalyzerError::PolicyAuthorityClaimRejected);
-    }
-    if input.adapter_authority_claimed {
-        return Err(NetworkZeekAnalyzerError::AdapterAuthorityClaimRejected);
-    }
-    if input.enforcement_command_claimed {
-        return Err(NetworkZeekAnalyzerError::EnforcementCommandClaimRejected);
-    }
-    Ok(())
-}
-
-fn row_ref(analyzer_run_ref: &str, log_kind: NetworkZeekLogKind, index: usize) -> String {
-    format!("{analyzer_run_ref}::{:?}::{index}", log_kind).to_ascii_lowercase()
-}
-
-fn push_required(kinds: &mut Vec<NetworkZeekLogKind>, kind: NetworkZeekLogKind, required: bool) {
-    if required {
-        kinds.push(kind);
-    }
-}
-
-fn normalized_optional_text(value: Option<&str>) -> Option<String> {
-    value
-        .map(str::trim)
-        .filter(|trimmed| !trimmed.is_empty())
-        .map(|trimmed| trimmed.to_ascii_lowercase())
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_owned())
-    }
+    validation::reject_unsupported_claims(input)
 }
