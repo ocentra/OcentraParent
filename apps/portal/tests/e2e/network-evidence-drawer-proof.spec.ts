@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { ParentRoute } from '../../generated/parent-ui-bridge';
+import { ParentAgentEvent, ParentRoute } from '../../generated/parent-ui-bridge';
 import { NetworkEvidenceDrawerProof } from '../fixtures/network/network-evidence-drawer-proof-fixture';
 
 test.setTimeout(120_000);
@@ -14,13 +14,15 @@ test('network evidence drawer renders service-backed refs without unsupported cl
   await expect(page.getByRole('heading', { exact: true, name: 'Device controls' })).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });
+  const commandResult = page.locator('.command-result-panel');
+  await expect(commandResult.getByText(ParentAgentEvent.LogSnapshotReported)).toHaveCount(1, {
+    timeout: shellReadyTimeoutMs,
+  });
   const networkCommand = page.getByRole('button', { exact: true, name: 'Refresh network activity' });
   await expect(networkCommand).toBeEnabled({ timeout: shellReadyTimeoutMs });
 
   await networkCommand.click();
-  await networkCommand.click();
-  const commandResult = page.locator('.command-result-panel');
-  await expect(commandResult.getByText('agent.network.flow.read-model.reported')).toHaveCount(1, {
+  await expect(commandResult.getByText(ParentAgentEvent.NetworkFlowReadModelReported)).toHaveCount(1, {
     timeout: shellReadyTimeoutMs,
   });
   await expect(commandResult.getByText(NetworkEvidenceDrawerProof.evidenceId)).toBeVisible({
