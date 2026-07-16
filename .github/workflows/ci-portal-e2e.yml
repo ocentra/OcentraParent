@@ -35,7 +35,9 @@ jobs:
 
       - name: Report portal proof failure
         if: ${{ steps.portal_e2e.outcome == 'failure' }}
-        run: node scripts/enforcer/run-ocentra-enforcer.mjs proof last-failure --json
+        run: |
+          node scripts/enforcer/run-ocentra-enforcer.mjs proof last-failure --json
+          node scripts/enforcer/run-ocentra-enforcer.mjs proof artifact --proof ocentra-parent.portal-local-smoke --artifact raw/stdout.log
 
       - name: Enforce portal E2E result
         if: ${{ steps.portal_e2e.outcome == 'failure' }}

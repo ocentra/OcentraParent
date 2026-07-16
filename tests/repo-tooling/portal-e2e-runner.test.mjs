@@ -61,6 +61,10 @@ test('portal e2e CI preserves platform results and reports Enforcer proof diagno
   assert.equal(workflowSource.includes('id: portal_e2e'), true);
   assert.equal(workflowSource.includes('continue-on-error: true'), true);
   assert.equal(workflowSource.includes('proof last-failure --json'), true);
+  assert.equal(
+    workflowSource.includes('proof artifact --proof ocentra-parent.portal-local-smoke --artifact raw/stdout.log'),
+    true
+  );
   assert.equal(workflowSource.includes("steps.portal_e2e.outcome == 'failure'"), true);
   assert.equal(workflowSource.includes('node -e "process.exit(1)"'), true);
 });
