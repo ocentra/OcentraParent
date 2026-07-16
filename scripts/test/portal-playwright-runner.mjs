@@ -23,6 +23,7 @@ import {
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import {
+  buildPortalE2eRustServices,
   ensureParentDevBridgeBinaryUnlocked,
   spawnAgentService,
   spawnParentDevBridge,
@@ -87,6 +88,7 @@ function playwrightArguments(argumentsToFilter) {
 }
 
 try {
+  buildPortalE2eRustServices(repoRoot);
   await requireManagedPortFree('agent', agentPort, isLikelyParentAgentOccupant, ParentDevEnv.AgentPort);
   await requireManagedPortFree('portal', portalPort, isLikelyParentPortalOccupant, ParentDevEnv.PortalPort);
   await requireManagedPortFree(

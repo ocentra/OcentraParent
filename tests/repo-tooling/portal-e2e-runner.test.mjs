@@ -40,6 +40,7 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
   assert.equal(configSource.includes('webServer'), false);
   assert.equal(configSource.includes('OCENTRA_PARENT_PORTAL_PORT'), true);
   assert.equal(runnerSource.includes('stopProcessTree'), true);
+  assert.equal(runnerSource.includes('buildPortalE2eRustServices(repoRoot)'), true);
   assert.equal(runnerSource.includes('ensureParentDevBridgeBinaryUnlocked'), true);
   assert.equal(runnerSource.includes('signal !== null'), true);
   assert.equal(runnerSource.includes('SIGKILL'), true);
@@ -48,6 +49,9 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
   assert.equal(processSource.includes('child.exitCode !== null || child.signalCode !== null'), true);
   assert.equal(processSource.includes("taskkill', ['/IM', imageName, '/T', '/F']"), true);
   assert.equal(processSource.includes('ocentra-parent-dev-bridge.exe'), true);
+  assert.equal(processSource.includes('resolveAgentServiceManifestPath(repoRoot)'), true);
+  assert.equal(processSource.includes('resolveParentDevBridgeManifestPath(repoRoot)'), true);
+  assert.equal(processSource.includes('CARGO_BUILD_JOBS'), false);
 });
 
 test('portal local smoke waits for process shutdown before temp cleanup', () => {

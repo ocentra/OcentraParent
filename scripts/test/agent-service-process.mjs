@@ -22,6 +22,29 @@ export function resolveParentDevBridgeManifestPath(repoRoot = process.cwd()) {
   return join(repoRoot, 'crates', 'parent-dev-bridge', 'Cargo.toml');
 }
 
+export function buildPortalE2eRustServices(repoRoot = process.cwd()) {
+  const targetDir = join(repoRoot, 'target');
+  const manifests = [resolveAgentServiceManifestPath(repoRoot), resolveParentDevBridgeManifestPath(repoRoot)];
+
+  for (const manifestPath of manifests) {
+    const result = spawnSync('cargo', ['build', '--quiet', '--manifest-path', manifestPath], {
+      cwd: repoRoot,
+      env: {
+        ...process.env,
+        CARGO_TARGET_DIR: targetDir,
+      },
+      shell: process.platform === 'win32',
+      stdio: 'inherit',
+    });
+    if (result.error !== undefined) {
+      throw result.error;
+    }
+    if (result.status !== 0) {
+      throw new Error(`Failed to build portal E2E Rust service from ${manifestPath}`);
+    }
+  }
+}
+
 export function spawnAgentService(env, repoRoot = process.cwd()) {
   return spawn('cargo', ['run', '--quiet', '--manifest-path', resolveAgentServiceManifestPath(repoRoot)], {
     cwd: repoRoot,
