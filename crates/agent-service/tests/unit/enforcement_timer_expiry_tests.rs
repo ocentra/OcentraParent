@@ -13,7 +13,9 @@ use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
-use super::test_text::{optional_log_string, test_ok, test_some, TestResult, TestText};
+use super::test_text::TestResult;
+#[cfg(windows)]
+use super::test_text::{optional_log_string, test_ok, test_some, TestText};
 use crate::{
     enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
     enforcement_timer_api::build_enforcement_timer_report_with_paths,
@@ -318,18 +320,16 @@ fn read_state(
 
 #[cfg(not(windows))]
 fn assert_missing_state_file(paths: &EnforcementJournalPaths) {
-    let error = match read_to_string(&paths.timer_state_path) {
-        Ok(_) => {
-            assert!(
-                false,
-                "{}",
-                constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED
-            );
-            return;
-        }
-        Err(error) => error,
-    };
-    assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+    let error_kind = read_to_string(&paths.timer_state_path)
+        .as_ref()
+        .err()
+        .map(std::io::Error::kind);
+    assert_eq!(
+        error_kind,
+        Some(std::io::ErrorKind::NotFound),
+        "{}",
+        constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED
+    );
 }
 
 #[cfg(windows)]
