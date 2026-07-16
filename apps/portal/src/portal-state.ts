@@ -11,6 +11,7 @@ import {
   type ParentBridgeConnectionState as ParentBridgeConnectionStateValue,
   type ParentRouteEventSnapshot,
   type ParentRouteAgentEndpoint,
+  type ParentRouteId,
   type ParentRouteSnapshot,
   type ParentSubscriptionEvent,
   type ParentUiDisplayText,
@@ -45,6 +46,14 @@ export function createPortalRuntimeState(): PortalRuntimeState {
     lastHostMessage: null,
     events: [],
   };
+}
+
+export function beginParentRouteLoad(state: PortalRuntimeState, route: ParentRouteId): void {
+  if (state.routeSnapshot?.route !== route) {
+    state.routeSnapshot = null;
+  }
+  state.connectionState = ParentBridgeConnectionState.Connecting;
+  state.commandEnabled = false;
 }
 
 export function applyParentRouteSnapshot(state: PortalRuntimeState, snapshot: ParentRouteSnapshot): void {
@@ -91,7 +100,7 @@ export function applyParentSubscriptionEvent(state: PortalRuntimeState, event: P
   if (!isStaleIncomingEventBatch(state, event.events ?? [])) {
     applyParentRouteEvents(state, event.events ?? []);
   }
-  if (!isStaleIncomingRouteSnapshot(state, event.snapshot)) {
+  if (event.snapshot.route === event.route && !isStaleIncomingRouteSnapshot(state, event.snapshot)) {
     applyParentRouteSnapshot(state, event.snapshot);
   }
 }

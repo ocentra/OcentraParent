@@ -3,6 +3,7 @@ import {
   applyParentRouteEvents,
   applyParentRouteSnapshot,
   applyParentSubscriptionEvent,
+  beginParentRouteLoad,
   createPortalRuntimeState,
 } from '../../src/portal-state';
 
@@ -98,6 +99,28 @@ it('createPortalRuntimeState: starts disconnected until the host bridge supplies
   expect(state.agentEndpoint).toBe('host-bridge://pending');
   expect(state.commandEnabled).toBe(false);
   expect(state.routeSnapshot).toBeNull();
+});
+
+it('beginParentRouteLoad: clears rows from a different route before the next bridge response arrives', () => {
+  const state = createPortalRuntimeState();
+  applyParentRouteSnapshot(state, currentSubscribedDevicesRouteSnapshot);
+
+  beginParentRouteLoad(state, 'browser');
+
+  expect(state.routeSnapshot).toBeNull();
+  expect(state.connectionState).toBe('connecting');
+  expect(state.commandEnabled).toBe(false);
+});
+
+it('beginParentRouteLoad: preserves same-route rows as stale reconnect evidence', () => {
+  const state = createPortalRuntimeState();
+  applyParentRouteSnapshot(state, currentSubscribedDevicesRouteSnapshot);
+
+  beginParentRouteLoad(state, 'devices');
+
+  expect(state.routeSnapshot).toBe(currentSubscribedDevicesRouteSnapshot);
+  expect(state.connectionState).toBe('connecting');
+  expect(state.commandEnabled).toBe(false);
 });
 
 it('applyParentRouteSnapshot: updates portal runtime state from the Rust-owned bridge snapshot', () => {
@@ -347,4 +370,17 @@ it('applyParentSubscriptionEvent: rejects stale subscribed batches instead of re
   expect(state.routeSnapshot?.agentEndpoint).toBe('host-bridge://tauri-parent');
   expect(state.events).toHaveLength(1);
   expect(state.events[0]?.eventId).toBe('evt-lan-status-newer');
+});
+
+it('applyParentSubscriptionEvent: rejects a snapshot whose route disagrees with the subscription event', () => {
+  const state = createPortalRuntimeState();
+
+  applyParentSubscriptionEvent(state, {
+    schemaVersion: 1,
+    route: 'browser',
+    snapshot: currentSubscribedDevicesRouteSnapshot,
+    events: [],
+  });
+
+  expect(state.routeSnapshot).toBeNull();
 });
