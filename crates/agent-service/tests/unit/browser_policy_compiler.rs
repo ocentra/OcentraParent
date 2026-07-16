@@ -3,6 +3,8 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
+use std::sync::atomic::{AtomicU64, Ordering};
+
 #[path = "../../src/browser_policy_compiler.rs"]
 mod browser_policy_compiler;
 #[path = "../../src/browser_policy_compiler_assessment.rs"]
@@ -37,6 +39,8 @@ use ocentra_parent_agent_protocol::policy_constants as policy;
 use ocentra_parent_agent_protocol::{
     BrowserPolicyEffectivePolicy, BrowserPolicyUpdateStatus, BrowserPolicyValue,
 };
+
+static TEST_POLICY_STORE_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[cfg(test)]
 mod clippy_linkage {
@@ -164,8 +168,9 @@ async fn browser_policy_compiler_roundtrip_helpers(
     ),
     Box<dyn std::error::Error>,
 > {
+    let sequence = TEST_POLICY_STORE_COUNTER.fetch_add(1, Ordering::Relaxed);
     let store_path = std::env::temp_dir().join(format!(
-        "ocentra-browser-policy-compiler-smoke-{}-{}.json",
+        "ocentra-browser-policy-compiler-smoke-{}-{}-{sequence}.json",
         std::process::id(),
         constants::browser_policy::REVISION_PREFIX
     ));
