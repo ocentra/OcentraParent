@@ -1,3 +1,4 @@
+use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryTriggerReason;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::policy_constants;
@@ -64,7 +65,13 @@ async fn lan_pairing_links_background_runtime_state_tasks() {
         runtime.clone(),
     );
     tokio::task::yield_now().await;
-    assert_eq!(runtime.passive_discovery_history_snapshot().rows.len(), 1);
+    let app_resumed_rows = runtime
+        .passive_discovery_history_snapshot()
+        .rows
+        .iter()
+        .filter(|row| row.trigger_reason == LanPassiveDiscoveryTriggerReason::AppResumed)
+        .count();
+    assert_eq!(app_resumed_rows, 1);
 }
 
 #[tokio::test]

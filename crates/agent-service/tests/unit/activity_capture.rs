@@ -26,6 +26,7 @@ mod time;
 mod activity_capture_browser_tests;
 #[path = "activity_capture_freshness_tests.rs"]
 mod activity_capture_freshness_tests;
+#[cfg(windows)]
 #[path = "activity_capture_inventory_tests.rs"]
 mod activity_capture_inventory_tests;
 #[path = "activity_capture_tests.rs"]
