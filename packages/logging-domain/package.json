@@ -111,6 +111,6 @@
     "test": "vitest run --config vitest.config.ts"
   },
   "dependencies": {
-    "duckdb": "^1.4.4"
+    "@duckdb/node-api": "^1.5.4-r.1"
   }
 }

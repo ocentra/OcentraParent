@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRequire } from 'node:module';
+import { DuckDBInstance, type DuckDBConnection, type DuckDBValue } from '@duckdb/node-api';
 import { getChangedFiles, removeManifest, updateManifest } from './ingestManifest';
 import { getDbDir, getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
@@ -19,23 +19,6 @@ import {
   rowToGeneratedStoredLog,
 } from '../duckdb-log-query';
 import { type StoredTestLogLine, type TestLogScope as TestLogScopeType, type TestLogStats } from './types';
-
-const require = createRequire(import.meta.url);
-
-type DuckDbConnection = {
-  readonly all: (sql: string, ...args: unknown[]) => void;
-  readonly run: (sql: string, ...args: unknown[]) => void;
-  readonly close: (callback: (error: Error | null) => void) => void;
-};
-
-type DuckDbDatabase = {
-  readonly connect: () => DuckDbConnection;
-  readonly close: (callback: (error: Error | null) => void) => void;
-};
-
-type DuckDbModule = {
-  readonly Database: new (filename: string, callback: (error: Error | null) => void) => DuckDbDatabase;
-};
 
 export interface IngestResult {
   readonly mode: 'rebuild' | 'incremental';
@@ -75,73 +58,33 @@ interface StatsRow {
   readonly newest_timestamp: number | null;
 }
 
-function loadDuckDb(): DuckDbModule {
-  return require('duckdb') as DuckDbModule;
-}
-
 function getDefaultDbPath(scope: TestLogScopeType, rootDir?: string): string {
   return path.join(getDbDir(rootDir), getGeneratedDefaultDuckDbFileName(scope));
 }
 
-function openDatabase(filePath: string): Promise<DuckDbDatabase> {
-  const DuckDb = loadDuckDb();
-  return new Promise((resolve, reject) => {
-    const database = new DuckDb.Database(filePath, (error) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve(database);
-    });
-  });
+function openDatabase(filePath: string): Promise<DuckDBInstance> {
+  return DuckDBInstance.create(filePath);
 }
 
-function runAsync(connection: DuckDbConnection, sql: string, ...params: unknown[]): Promise<void> {
-  return new Promise((resolve, reject) => {
-    connection.run(sql, ...params, (error: Error | null) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve();
-    });
-  });
+function runAsync(connection: DuckDBConnection, sql: string, ...params: DuckDBValue[]): Promise<void> {
+  return connection.run(sql, params).then(() => undefined);
 }
 
-function allAsync<T extends object>(connection: DuckDbConnection, sql: string, ...params: unknown[]): Promise<T[]> {
-  return new Promise((resolve, reject) => {
-    connection.all(sql, ...params, (error: Error | null, rows: T[]) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve(rows);
-    });
-  });
+async function allAsync<T extends object>(
+  connection: DuckDBConnection,
+  sql: string,
+  ...params: DuckDBValue[]
+): Promise<T[]> {
+  const reader = await connection.runAndReadAll(sql, params);
+  return reader.getRowObjects() as T[];
 }
 
-function closeConnection(connection: DuckDbConnection): Promise<void> {
-  return new Promise((resolve, reject) => {
-    connection.close((error) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve();
-    });
-  });
+function closeConnection(connection: DuckDBConnection): void {
+  connection.disconnectSync();
 }
 
-function closeDatabase(database: DuckDbDatabase): Promise<void> {
-  return new Promise((resolve, reject) => {
-    database.close((error) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve();
-    });
-  });
+function closeDatabase(database: DuckDBInstance): void {
+  database.closeSync();
 }
 
 function rowToStoredLog(row: StoredLogRow): StoredTestLogLine {
@@ -154,10 +97,10 @@ function rowToStats(row: StatsRow | undefined): TestLogStats {
 
 export class TestLogDuckDb {
   private readonly dbPath: string;
-  private readonly database: DuckDbDatabase;
-  private readonly connection: DuckDbConnection;
+  private readonly database: DuckDBInstance;
+  private readonly connection: DuckDBConnection;
 
-  private constructor(dbPath: string, database: DuckDbDatabase, connection: DuckDbConnection) {
+  private constructor(dbPath: string, database: DuckDBInstance, connection: DuckDBConnection) {
     this.dbPath = dbPath;
     this.database = database;
     this.connection = connection;
@@ -167,15 +110,15 @@ export class TestLogDuckDb {
     const dbPath = getDefaultDbPath(scope, rootDir);
     fs.mkdirSync(path.dirname(dbPath), { recursive: true });
     const database = await openDatabase(dbPath);
-    const connection = database.connect();
+    const connection = await database.connect();
     const instance = new TestLogDuckDb(dbPath, database, connection);
     await instance.ensureSchema();
     return instance;
   }
 
   async close(): Promise<void> {
-    await closeConnection(this.connection);
-    await closeDatabase(this.database);
+    closeConnection(this.connection);
+    closeDatabase(this.database);
   }
 
   async ensureSchema(): Promise<void> {
