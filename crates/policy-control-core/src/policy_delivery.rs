@@ -364,5 +364,12 @@ pub fn apply_policy_delivery_transition(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
 ) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
-    transitions::apply_policy_delivery_transition(current, transition)
+    apply_policy_delivery_transition_without_execution_receipt(current, transition)
+}
+
+pub fn apply_policy_delivery_transition_without_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    transitions::apply_policy_delivery_transition_without_execution_receipt(current, transition)
 }

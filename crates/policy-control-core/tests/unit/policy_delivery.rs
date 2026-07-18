@@ -1,10 +1,12 @@
 use super::policy_delivery_helpers as helpers;
 use super::TestResult;
-use helpers::{audit_ref, reason, sample_queued_delivery, transition, transition_or_context};
+use helpers::{
+    adapter_execution, audit_ref, reason, sample_queued_delivery, transition, transition_or_context,
+};
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, PolicyDeliveryApplyOutcome, PolicyDeliveryParentVisibleState,
-    PolicyDeliveryState,
+    apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryParentVisibleState, PolicyDeliveryState,
 };
 use ocentra_policy_control_core::policy_source::{PolicyConsumerDomain, PolicyVersion};
 
@@ -76,8 +78,8 @@ fn conflicting_same_sequence_replay_is_rejected() -> TestResult {
             &delivered_record,
             transition(
                 2,
-                "attempt-acknowledged-conflict",
-                PolicyDeliveryState::Acknowledged,
+                "attempt-delivering-conflict",
+                PolicyDeliveryState::Delivering,
             )?,
         ),
         "same-sequence replay with changed state must be rejected"
@@ -120,12 +122,14 @@ fn delivering_state_stays_pending_until_ack_or_apply() -> TestResult {
 #[test]
 fn acknowledged_delivery_stays_pending_and_is_not_active() -> TestResult {
     let queued = sample_queued_delivery()?;
+    let acknowledged_transition =
+        transition(2, "attempt-acknowledged", PolicyDeliveryState::Acknowledged)?;
     let acknowledged = test_ok!(
-        apply_policy_delivery_transition(
+        apply_policy_delivery_adapter_execution(
             &queued,
-            transition(2, "attempt-acknowledged", PolicyDeliveryState::Acknowledged)?,
+            adapter_execution(&queued, &acknowledged_transition),
         ),
-        "acknowledge policy delivery"
+        "acknowledge policy delivery with execution receipt"
     )
     .into_record();
 
@@ -190,12 +194,13 @@ fn queued_delivery_redacts_raw_policy_source_payload_from_structured_and_debug_o
 #[test]
 fn applied_transition_stays_active_when_intermediate_events_arrive_late() -> TestResult {
     let queued = sample_queued_delivery()?;
+    let applied_transition = transition(4, "attempt-applied", PolicyDeliveryState::Applied)?;
     let applied = test_ok!(
-        apply_policy_delivery_transition(
+        apply_policy_delivery_adapter_execution(
             &queued,
-            transition(4, "attempt-applied", PolicyDeliveryState::Applied)?,
+            adapter_execution(&queued, &applied_transition),
         ),
-        "applied transition can arrive before intermediate steps"
+        "applied transition with receipt can arrive before intermediate steps"
     )
     .into_record();
 
@@ -387,12 +392,13 @@ fn rejected_and_rolled_back_transitions_require_reason_and_reference_context() -
         }
     );
 
+    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
     let applied = test_ok!(
-        apply_policy_delivery_transition(
+        apply_policy_delivery_adapter_execution(
             &queued,
-            transition(3, "attempt-applied", PolicyDeliveryState::Applied)?,
+            adapter_execution(&queued, &applied_transition),
         ),
-        "apply transition"
+        "apply transition with receipt"
     )
     .into_record();
 
@@ -402,8 +408,11 @@ fn rejected_and_rolled_back_transitions_require_reason_and_reference_context() -
     rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
 
     let rolled_back = test_ok!(
-        apply_policy_delivery_transition(&applied, rollback_transition),
-        "rollback transition"
+        apply_policy_delivery_adapter_execution(
+            &applied,
+            adapter_execution(&applied, &rollback_transition),
+        ),
+        "rollback transition with receipt"
     )
     .into_record();
 
@@ -425,12 +434,13 @@ fn rejected_and_rolled_back_transitions_require_reason_and_reference_context() -
 #[test]
 fn superseded_transition_requires_newer_policy_version_and_blocks_regressions() -> TestResult {
     let queued = sample_queued_delivery()?;
+    let applied_transition = transition(2, "attempt-applied", PolicyDeliveryState::Applied)?;
     let applied = test_ok!(
-        apply_policy_delivery_transition(
+        apply_policy_delivery_adapter_execution(
             &queued,
-            transition(2, "attempt-applied", PolicyDeliveryState::Applied)?,
+            adapter_execution(&queued, &applied_transition),
         ),
-        "apply transition"
+        "apply transition with receipt"
     )
     .into_record();
 

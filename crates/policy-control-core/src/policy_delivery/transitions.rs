@@ -1,10 +1,10 @@
 #![forbid(unsafe_code)]
 
 use super::{
-    policy_control, state_values, transition_rules, validation, CompiledDomainPolicyArtifact,
-    EventingError, PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId,
-    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryTarget, PolicyDeliveryTransition,
-    POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
+    adapter_execution_validation, policy_control, state_values, transition_rules, validation,
+    CompiledDomainPolicyArtifact, EventingError, PolicyDeliveryApplyOutcome,
+    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
+    PolicyDeliveryTarget, PolicyDeliveryTransition, POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
 };
 
 pub(super) fn queue_policy_delivery(
@@ -37,13 +37,40 @@ pub(super) fn queue_policy_delivery(
     Ok(record)
 }
 
-pub(super) fn apply_policy_delivery_transition(
+pub(super) fn apply_policy_delivery_transition_without_execution_receipt(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
 ) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
-    validation::validate_policy_delivery_record(current)?;
-    validation::validate_policy_delivery_transition(&transition, current.policy_version)?;
+    validate_policy_delivery_transition_application(current, &transition)?;
+    adapter_execution_validation::validate_policy_delivery_execution_receipt(
+        current,
+        &transition,
+        None,
+    )?;
+    apply_validated_policy_delivery_transition(current, transition)
+}
 
+pub(super) fn apply_policy_delivery_transition_after_execution_validation(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    validate_policy_delivery_transition_application(current, &transition)?;
+    apply_validated_policy_delivery_transition(current, transition)
+}
+
+fn validate_policy_delivery_transition_application(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+) -> Result<(), EventingError> {
+    validation::validate_policy_delivery_record(current)?;
+    validation::validate_policy_delivery_transition(transition, current.policy_version)?;
+    Ok(())
+}
+
+fn apply_validated_policy_delivery_transition(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
     match transition
         .sequence
         .value()

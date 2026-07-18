@@ -268,6 +268,46 @@ fn delivery_duplicate_and_stale_transitions_are_noops() {
 }
 
 #[test]
+fn delivery_handoff_rejects_receipt_required_states_without_receipts() {
+    let queued = queued_delivery();
+    let cases = [
+        (
+            PolicyDeliveryState::Acknowledged,
+            "attempt-acknowledged-without-receipt",
+            "acknowledged",
+        ),
+        (
+            PolicyDeliveryState::Applied,
+            "attempt-applied-without-receipt",
+            "applied",
+        ),
+    ];
+
+    for (state, attempt_id, state_name) in cases {
+        let error = apply_policy_control_delivery_handoff(
+            &queued,
+            transition(
+                2,
+                PolicyDeliveryAttemptId::parse(attempt_id).expect_value("policy attempt id"),
+                state,
+            ),
+        )
+        .expect_err_value("receipt-required child handoff must fail closed");
+
+        assert_eq!(
+            error,
+            EventingError::InvalidValue {
+                field: "policy_delivery.state",
+                value: format!("missing adapter execution receipt for {state_name}"),
+            }
+        );
+    }
+
+    assert_eq!(queued.state, PolicyDeliveryState::Queued);
+    assert!(!queued.is_active());
+}
+
+#[test]
 fn delivery_offline_and_expired_before_delivery_stay_degraded_or_fail_closed() {
     let queued = queued_delivery();
     let mut offline_transition = transition(

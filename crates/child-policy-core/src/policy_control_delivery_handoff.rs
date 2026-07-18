@@ -1,8 +1,8 @@
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryApplyOutcome,
-    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliveryTarget,
-    PolicyDeliveryTransition,
+    apply_policy_delivery_transition_without_execution_receipt, queue_policy_delivery,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord,
+    PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     CompiledDomainPolicyArtifact, PolicyAuditReferenceId,
@@ -34,7 +34,7 @@ pub fn apply_policy_control_delivery_handoff(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
 ) -> Result<PolicyControlDeliveryApplyReport, EventingError> {
-    let outcome = apply_policy_delivery_transition(current, transition)?;
+    let outcome = apply_policy_delivery_transition_without_execution_receipt(current, transition)?;
     Ok(PolicyControlDeliveryApplyReport {
         delivery: outcome.clone().into_record(),
         outcome,

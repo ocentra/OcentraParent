@@ -355,12 +355,13 @@ fn rolled_back_execution_receipt_rejects_wrong_reference_state() -> TestResult {
         "deliver policy"
     )
     .into_record();
+    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
     let applied_record = test_ok!(
-        apply_policy_delivery_transition(
+        apply_policy_delivery_adapter_execution(
             &delivered_record,
-            transition(3, "attempt-applied", PolicyDeliveryState::Applied)?,
+            adapter_execution(&delivered_record, &applied_transition),
         ),
-        "apply policy"
+        "apply policy with receipt"
     )
     .into_record();
     let mut rollback_transition = transition(
@@ -403,12 +404,13 @@ fn rolled_back_execution_receipt_requires_rollback_reference_state() -> TestResu
         "deliver policy"
     )
     .into_record();
+    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
     let applied_record = test_ok!(
-        apply_policy_delivery_transition(
+        apply_policy_delivery_adapter_execution(
             &delivered_record,
-            transition(3, "attempt-applied", PolicyDeliveryState::Applied)?,
+            adapter_execution(&delivered_record, &applied_transition),
         ),
-        "apply policy"
+        "apply policy with receipt"
     )
     .into_record();
     let mut rollback_transition = transition(
@@ -450,12 +452,13 @@ fn rolled_back_execution_receipt_applies_successfully() -> TestResult {
         "deliver policy"
     )
     .into_record();
+    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
     let applied_record = test_ok!(
-        apply_policy_delivery_transition(
+        apply_policy_delivery_adapter_execution(
             &delivered_record,
-            transition(3, "attempt-applied", PolicyDeliveryState::Applied)?,
+            adapter_execution(&delivered_record, &applied_transition),
         ),
-        "apply policy"
+        "apply policy with receipt"
     )
     .into_record();
     let mut rollback_transition = transition(

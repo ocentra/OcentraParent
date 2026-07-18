@@ -14,9 +14,10 @@ use helpers::{
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
-    derive_policy_delivery_id, queue_policy_delivery, validate_policy_delivery_execution_receipt,
-    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryParentVisibleState,
-    PolicyDeliverySequence, PolicyDeliveryState,
+    apply_policy_delivery_transition_without_execution_receipt, derive_policy_delivery_id,
+    queue_policy_delivery, validate_policy_delivery_execution_receipt, PolicyDeliveryAttemptId,
+    PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliveryRecord,
+    PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, ParentPolicyDocumentId, PolicyConsumerDomain, PolicyScheduleId,
@@ -245,12 +246,14 @@ fn ack_applied_and_rolled_back_receipts_require_explicit_adapter_provenance() ->
         "deliver policy"
     )
     .into_record();
+    let applied_transition =
+        transition(3, "attempt-applied-receipt", PolicyDeliveryState::Applied)?;
     let applied_record = test_ok!(
-        apply_policy_delivery_transition(
+        apply_policy_delivery_adapter_execution(
             &delivered_record,
-            transition(3, "attempt-applied-receipt", PolicyDeliveryState::Applied)?,
+            adapter_execution(&delivered_record, &applied_transition),
         ),
-        "apply policy"
+        "apply policy with receipt"
     )
     .into_record();
     let cases = [
@@ -330,6 +333,70 @@ fn rolled_back_delivery_requires_an_explicit_execution_receipt() -> TestResult {
         }
     );
 
+    Ok(())
+}
+
+#[test]
+fn bare_transition_apis_reject_every_receipt_required_state() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let applied_setup = transition(2, "attempt-applied-setup", PolicyDeliveryState::Applied)?;
+    let applied = test_ok!(
+        apply_policy_delivery_adapter_execution(
+            &queued,
+            adapter_execution(&queued, &applied_setup),
+        ),
+        "apply setup transition with receipt"
+    )
+    .into_record();
+
+    let acknowledged = transition(
+        2,
+        "attempt-acknowledged-without-receipt",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+    let applied_without_receipt = transition(
+        2,
+        "attempt-applied-without-receipt",
+        PolicyDeliveryState::Applied,
+    )?;
+    let mut rolled_back = transition(
+        3,
+        "attempt-rolled-back-without-receipt",
+        PolicyDeliveryState::RolledBack,
+    )?;
+    rolled_back.reason_code = Some(reason("adapter-failed")?);
+    rolled_back.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+
+    assert_bare_transition_rejected(&queued, acknowledged, "acknowledged")?;
+    assert_bare_transition_rejected(&queued, applied_without_receipt, "applied")?;
+    assert_bare_transition_rejected(&applied, rolled_back, "rolled-back")?;
+
+    assert!(!queued.is_active());
+    assert!(applied.is_active());
+    assert_eq!(applied.state, PolicyDeliveryState::Applied);
+    Ok(())
+}
+
+fn assert_bare_transition_rejected(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+    state_name: &str,
+) -> TestResult {
+    let compatibility_error = test_err!(
+        apply_policy_delivery_transition(current, transition.clone()),
+        "compatibility transition API must reject receipt-required state"
+    );
+    let explicit_error = test_err!(
+        apply_policy_delivery_transition_without_execution_receipt(current, transition),
+        "explicit non-receipt transition API must reject receipt-required state"
+    );
+    let expected = EventingError::InvalidValue {
+        field: "policy_delivery.state",
+        value: format!("missing adapter execution receipt for {state_name}"),
+    };
+
+    assert_eq!(compatibility_error, expected);
+    assert_eq!(explicit_error, expected);
     Ok(())
 }
 

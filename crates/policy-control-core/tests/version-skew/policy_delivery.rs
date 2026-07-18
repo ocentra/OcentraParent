@@ -275,7 +275,7 @@ fn conflicting_same_sequence_replay_is_rejected() -> TestResult {
     let error = test_err!(
         apply_policy_delivery_transition(
             &delivered_record,
-            transition(3, "attempt-conflict", PolicyDeliveryState::Acknowledged)?,
+            transition(3, "attempt-conflict", PolicyDeliveryState::Delivering)?,
         ),
         "conflicting replay must be rejected"
     );
@@ -403,11 +403,15 @@ fn policy_delivery_round_trips_explicit_wp04_delivery_states() -> TestResult {
                 Some(test_ok!(PolicyVersion::new(8), "policy version"));
         }
 
-        let record = test_ok!(
-            apply_policy_delivery_transition(&queued, transition),
-            "explicit wp04 delivery state transition"
-        )
-        .into_record();
+        let outcome = if state == PolicyDeliveryState::Acknowledged {
+            apply_policy_delivery_adapter_execution(
+                &queued,
+                adapter_execution(&queued, &transition),
+            )
+        } else {
+            apply_policy_delivery_transition(&queued, transition)
+        };
+        let record = test_ok!(outcome, "explicit wp04 delivery state transition").into_record();
 
         let serialized = test_ok!(
             serde_json::to_value(&record),

@@ -28,6 +28,12 @@ docs/proof/policy-control-plane-plan/
 | WP07 schedule/conflict | Present | `07-schedule-timezone-proof.md`, `07-dst-boundary-proof.md`, `07-time-budget-reset-proof.md`, `07-conflict-precedence-proof.md`, `07-offline-timer-recovery-proof.md` |
 | WP08 event model | Present | `08-event-family-registry-proof.md`, `08-event-idempotency-proof.md`, `08-event-replay-ordering-proof.md`, `08-rollback-event-linkage-proof.md`, `08-event-redaction-proof.md` |
 
+WP04 currentness was revalidated on 2026-07-18. All four listed artifacts now
+name current Rust owners and runnable Rust validation commands; none relies on
+the retired `packages/policy-domain` workspace. `Present` means the WP04
+policy-owned contract bundle is current, not that WP02, WP05, portal rendering,
+event transport, or enforcement execution is complete.
+
 ## Universal guardrails
 
 - `00-scope-summary.md`

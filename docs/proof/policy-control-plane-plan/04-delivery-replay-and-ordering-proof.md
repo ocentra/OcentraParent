@@ -1,13 +1,13 @@
 # WP04 Delivery Replay and Ordering Proof
 
-Run id: `019ed32a-fdd2-74b0-bb81-6e152680ac97/2026-06-17T20:17:50Z`
+Run id: `019f773f-d986-7db2-8a0d-2fba41e42bd2/2026-07-18-policy-replay-ordering-refresh`
 
 Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit / replay-ordering`
 
 ## Validation source
 
-- `cargo test -p ocentra-policy-control-core policy_delivery`
-- `cargo test -p ocentra-policy-control-core policy_source`
+- `cargo test -p ocentra-policy-control-core --test unit --test version-skew`
+- `cargo test -p ocentra-child-policy-core --test replay_policy_control_delivery_handoff`
 
 ## Proof mapping
 
@@ -20,7 +20,8 @@ Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit 
 
 ## Source-backed constraints
 
-- `apply_policy_delivery_transition` returns `Stale` for older sequence numbers, `Duplicate` for identical replays at the same sequence, and rejects same-sequence conflicts with an explicit `policy_delivery.sequence` error.
+- The public transition-only path returns `Stale` for older non-execution sequence numbers, `Duplicate` for identical non-execution replays at the same sequence, and rejects same-sequence conflicts with an explicit `policy_delivery.sequence` error.
+- Acknowledged, applied, and rolled-back transitions use the receipt-aware adapter path; the transition-only path rejects them before they can advance state.
 - `transition_allowed` prevents regressions from terminal states such as `Superseded` back to `Delivered`.
 - `active_status_requires_acknowledged_delivery_for_every_target` keeps source truth from presenting active policy globally until the delivery side has explicit acknowledgement coverage.
 
