@@ -21,15 +21,15 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 ## Status
 
-- `blocked / proof-present`
+- `blocked / proof-required`
 - Proof root: `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`
 
 ## Execution truth
 
 - `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` exited `0` and emitted an explicit blocked local-start state plus an explicit blocked seed state.
 - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` exited `0` and proved that start, seed, teardown, fixture families, and blocker reporting stay explicit.
-- Local start remains command-backed but blocked before runtime boot by missing billing-domain boundary imports.
-- Local seed remains command-backed but blocked because `infra/cloudflare/src/fixtures.ts` cannot import `packages/billing-domain/src/billing-account-runtime-boundary.js`.
+- Local start remains command-backed but blocked before runtime boot by the live generated billing-contract source surface and the fact that focused reruns have not been refreshed here.
+- Local seed remains command-backed but blocked because `infra/cloudflare/src/fixtures.ts` still has TypeScript return-path lint debt and the focused reruns against the live generated billing-contract source surface have not been refreshed here.
 - Teardown remains explicit: stop `wrangler dev --local`, remove harness-created `--persist-to` temp state, and remove `infra/cloudflare/.dev.vars` only when the harness created it.
 
 ## Fixture families proved
@@ -43,11 +43,8 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 ## Exact blockers
 
-- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-- `packages/billing-domain/src/billing-referral-boundary.js`
-- `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-- `packages/billing-domain/src/billing-account-runtime-boundary.js`
-- `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
+- `infra/cloudflare/src/fixtures.ts` TypeScript return-path errors
+- unrun local-start and seed reruns against the live generated billing-contract source surface
 
 ## Validations run
 
