@@ -1,6 +1,4 @@
-#[path = "policy_delivery_helpers.rs"]
-mod helpers;
-
+use super::policy_delivery_helpers as helpers;
 use super::TestResult;
 use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::constants::policy_control;

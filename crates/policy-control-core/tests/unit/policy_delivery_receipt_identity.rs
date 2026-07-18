@@ -1,8 +1,6 @@
-#[path = "policy_delivery_helpers.rs"]
-mod helpers;
-
 use std::any::TypeId;
 
+use super::policy_delivery_helpers as helpers;
 use super::policy_delivery_receipt_helpers::{
     assert_unexpected_adapter_execution_receipt, execution_receipt_with_sequence,
 };
@@ -17,8 +15,8 @@ use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
     derive_policy_delivery_id, validate_policy_delivery_execution_receipt, PolicyDeliveryAttemptId,
-    PolicyDeliveryExecutionReceipt, PolicyDeliveryId, PolicyDeliveryParentVisibleState,
-    PolicyDeliverySequence, PolicyDeliveryState,
+    PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliverySequence,
+    PolicyDeliveryState,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, ParentPolicyDocumentId, PolicyConsumerDomain, PolicyScheduleId,
@@ -88,7 +86,7 @@ fn policy_delivery_id_is_derived_from_full_scope_and_is_stable() -> TestResult {
         expected
     );
 
-    let mut source_document = source.clone();
+    let mut source_document = source;
     source_document.document_id = ParentPolicyDocumentId::parse("policy-source-other")?;
     let alternate_compiled = test_ok!(
         compile_domain_policy_artifact(&source_document, PolicyConsumerDomain::Tracking),
@@ -408,7 +406,7 @@ fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
         PolicyDeliveryState::Acknowledged,
     )?;
 
-    let provenance_cases: [(&str, String, fn(&mut PolicyDeliveryExecutionReceipt)); 6] = [
+    let provenance_cases: [helpers::ProvenanceCase; 6] = [
         (
             "policy_source.document_id",
             "expected source document policy-source-household-default but receipt reported policy-source-mismatch"

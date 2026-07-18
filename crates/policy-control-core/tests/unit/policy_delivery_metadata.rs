@@ -1,6 +1,4 @@
-#[path = "policy_delivery_helpers.rs"]
-mod helpers;
-
+use super::policy_delivery_helpers as helpers;
 use super::TestResult;
 use helpers::{
     attempt, audit_ref, sample_delivery_target, sample_policy_rollback_ref,

@@ -1,6 +1,4 @@
-#[path = "policy_delivery_helpers.rs"]
-mod helpers;
-
+use super::policy_delivery_helpers as helpers;
 use super::TestResult;
 use helpers::{audit_ref, reason, sample_queued_delivery, transition, transition_or_context};
 use ocentra_eventing::error::EventingError;

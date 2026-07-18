@@ -4,10 +4,10 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    derive_policy_delivery_id, queue_policy_delivery, validate_policy_delivery_execution_receipt,
-    PolicyDeliveryAdapterExecution, PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt,
-    PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryState,
-    PolicyDeliveryTarget, PolicyDeliveryTransition,
+    derive_policy_delivery_id, queue_policy_delivery, PolicyDeliveryAdapterExecution,
+    PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt, PolicyDeliveryId,
+    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget,
+    PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
@@ -20,6 +20,12 @@ use ocentra_policy_control_core::policy_source::{
     PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget, PolicyScheduleWindow,
     PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
 };
+
+pub(super) type ProvenanceCase = (
+    &'static str,
+    String,
+    fn(&mut PolicyDeliveryExecutionReceipt),
+);
 
 pub(super) fn sample_policy_source_document() -> TestResult<ParentPolicySourceDocument> {
     Ok(ParentPolicySourceDocument {

@@ -19,6 +19,9 @@ mod policy_conflict;
 #[path = "policy_compiler.rs"]
 mod policy_compiler;
 
+#[path = "policy_delivery_helpers.rs"]
+mod policy_delivery_helpers;
+
 #[path = "policy_delivery.rs"]
 mod policy_delivery;
 

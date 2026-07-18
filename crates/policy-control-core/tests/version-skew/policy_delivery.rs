@@ -110,10 +110,10 @@ fn policy_delivery_execution_receipt_rejects_missing_provenance_in_version_skew_
         serde_json::to_value(&receipt),
         "serialize execution receipt"
     );
-    serialized
+    let serialized_object = serialized
         .as_object_mut()
-        .expect("serialized execution receipt object")
-        .remove("source_document_id");
+        .ok_or_else(|| std::io::Error::other("serialized execution receipt must be an object"))?;
+    serialized_object.remove("source_document_id");
 
     let error = test_err!(
         serde_json::from_value::<PolicyDeliveryExecutionReceipt>(serialized),
@@ -140,10 +140,10 @@ fn policy_delivery_adapter_execution_rejects_missing_receipt_in_version_skew_jso
         serde_json::to_value(&execution),
         "serialize adapter execution"
     );
-    serialized
+    let serialized_object = serialized
         .as_object_mut()
-        .expect("serialized adapter execution object")
-        .remove("receipt");
+        .ok_or_else(|| std::io::Error::other("serialized adapter execution must be an object"))?;
+    serialized_object.remove("receipt");
 
     let error = test_err!(
         serde_json::from_value::<PolicyDeliveryAdapterExecution>(serialized),

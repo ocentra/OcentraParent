@@ -1,23 +1,17 @@
-#[path = "policy_delivery_helpers.rs"]
-mod helpers;
-
+use super::policy_delivery_helpers as helpers;
 use super::TestResult;
 use helpers::{
     adapter_execution, execution_receipt, mutate_provenance_child_profile,
     mutate_provenance_device, mutate_provenance_domain, mutate_provenance_household,
-    mutate_provenance_policy_version, mutate_provenance_reason_code,
-    mutate_provenance_source_document, reason, sample_queued_delivery, transition,
-    transition_or_context,
+    mutate_provenance_policy_version, mutate_provenance_source_document, reason,
+    sample_queued_delivery, transition,
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
     validate_policy_delivery_adapter_execution, validate_policy_delivery_execution_receipt,
-    PolicyDeliveryAdapterExecution, PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt,
-    PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliveryRecord,
-    PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTransition,
+    PolicyDeliveryAttemptId, PolicyDeliveryParentVisibleState, PolicyDeliveryState,
 };
-use ocentra_policy_control_core::policy_source::{PolicyReasonCode, PolicyVersion};
 
 #[test]
 fn execution_receipt_validation_rejects_attempt_identity_mismatch() -> TestResult {
@@ -85,7 +79,7 @@ fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
         PolicyDeliveryState::Acknowledged,
     )?;
 
-    let provenance_cases: [(&str, String, fn(&mut PolicyDeliveryExecutionReceipt)); 6] = [
+    let provenance_cases: [helpers::ProvenanceCase; 6] = [
         (
             "policy_source.document_id",
             "expected source document policy-source-household-default but receipt reported policy-source-mismatch"
@@ -183,7 +177,7 @@ fn adapter_execution_validation_matches_apply_for_forbidden_receipts_and_invalid
             label
         );
         let apply_error = test_err!(
-            apply_policy_delivery_adapter_execution(&queued, execution.clone()),
+            apply_policy_delivery_adapter_execution(&queued, execution),
             label
         );
 
@@ -245,7 +239,7 @@ fn execution_receipt_validation_rejects_duplicate_receipts() -> TestResult {
         PolicyDeliveryState::Delivered,
     )?;
     let delivered_record = test_ok!(
-        apply_policy_delivery_transition(&queued, delivered_transition.clone()),
+        apply_policy_delivery_transition(&queued, delivered_transition),
         "deliver policy"
     )
     .into_record();
@@ -424,15 +418,14 @@ fn rolled_back_execution_receipt_requires_rollback_reference_state() -> TestResu
     )?;
     rollback_transition.reason_code = Some(reason("adapter-failed")?);
     rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
-    let rollback_execution = adapter_execution(&applied_record, &rollback_transition);
+    let mut missing_reference_receipt =
+        adapter_execution(&applied_record, &rollback_transition).receipt;
+    missing_reference_receipt.rollback_reference_state = None;
     let missing_reference_error = test_err!(
         validate_policy_delivery_execution_receipt(
             &applied_record,
             &rollback_transition,
-            Some(&PolicyDeliveryExecutionReceipt {
-                rollback_reference_state: None,
-                ..rollback_execution.receipt.clone()
-            }),
+            Some(&missing_reference_receipt),
         ),
         "rollback execution receipt missing its reference state must fail"
     );
