@@ -1,5 +1,7 @@
 # Checklist Index
 
+> **Live-code audit (2026-07-17):** [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) records current implementation, blockers, dependencies, and next unblocker. Rows remain proof-gated; this audit does not check unsupported work.
+
 Status: WP11 type-safety hardening locally proved; WP12 rollout-proof route
 complete; WP13 regression audit complete; plan remains open on WP10.
 
