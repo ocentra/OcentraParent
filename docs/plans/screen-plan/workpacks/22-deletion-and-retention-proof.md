@@ -28,7 +28,11 @@ Delete after success, delete after expiry, delete-failed visible state, deletion
 
 ## Current State
 
-Retention/deletion is specified but not fully proved.
+Five local deletion outcomes are proved by the WP22 packet at
+[`docs/proof/screen-plan/wp22-deletion-retention-proof.md`](../../../proof/screen-plan/wp22-deletion-retention-proof.md).
+The portal unit contract is green, but the rendered-screenshot row remains
+open. Its shared Playwright runner runs unrelated network E2E coverage and
+times out there before the screen screenshot artifacts are produced.
 
 ## Required proof fields
 
@@ -56,18 +60,31 @@ These are proof-routing fields, not implementation code prescriptions.
 
 ## Checklist
 
-- [ ] Delete raw image after success.
-- [ ] Delete raw image after expiry.
-- [ ] Record delete-failed state.
-- [ ] Record deletion proof ref.
+- [x] Delete raw image after success.
+- [x] Delete raw image after expiry.
+- [x] Record delete-failed state.
+- [x] Record deletion proof ref.
 - [ ] Show deletion state in portal.
-- [ ] Prove no default long-term raw image retention.
+- [x] Prove no default long-term raw image retention.
 
 ## Proof
 
 - Queue directory before/after proof.
 - Store record deletion proof.
 - Portal screenshot.
+
+## WP22 evidence (2026-07-18)
+
+- Real Windows P3 capture run `8HIf9RVzwxgAAAAAAAAAAA` wrote encrypted queue
+  custody and confirms the temporary raw PNG existed before encryption and was
+  absent afterward. Artifact root:
+  `output/screen-plan-proof/22-deletion-and-retention-proof/runtime-capture/`.
+- Focused Rust evidence covers encrypted queue removal, expiry/restart-safe
+  sweeps, durable deletion-event/read-model projection, delete-failed contract
+  serialization, and redaction of raw image payloads.
+- The packet is strictly local deletion/custody evidence. It does not claim
+  product retention controls, raw-retention opt-in, remote upload, AI quality,
+  policy authority, enforcement, or broad portal completion.
 
 ## Failure conditions
 

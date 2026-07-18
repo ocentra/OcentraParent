@@ -15,3 +15,16 @@ This checklist tracks execution only. Proof artifacts are collected in the desig
 - [ ] Collect proof artifacts in the designated local artifact path.
 - [ ] Record the proof location outside the plan folder.
 - [ ] Prepare PR-ready notes.
+
+## WP22 Deletion And Retention Proof
+
+- [x] Delete raw image after success: real Windows capture proof confirms the
+  raw temporary PNG is removed after encrypted queue custody.
+- [x] Delete raw image after expiry: focused sweeper test passes.
+- [x] Record delete-failed state: protocol contract serialization test passes.
+- [x] Record deletion proof reference: focused queue and sweeper tests pass.
+- [ ] Show deletion state in portal: portal unit tests pass, but the shared
+  Playwright runner times out in unrelated network E2E before screenshots are
+  produced; no rendered portal screenshot is claimed.
+- [x] Prove no default long-term raw image retention: protocol serialization
+  excludes raw payloads and the real capture proof uses no raw retention.

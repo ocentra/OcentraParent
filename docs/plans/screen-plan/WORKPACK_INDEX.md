@@ -54,7 +54,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | open    | [18 Screen Analysis Result Schema](workpacks/18-screen-analysis-result-schema.md)                                     |   638 | 0/7 checked; 7 open   |
 | open    | [20 Result Validator And Invalid Output Handling](workpacks/20-result-validator-and-invalid-output-handling.md)       |   650 | 0/7 checked; 7 open   |
 | open    | [21 Journal And SQLite Ingest](workpacks/21-journal-and-sqlite-ingest.md)                                             |   564 | 0/6 checked; 6 open   |
-| open    | [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md)                                       |   627 | 0/6 checked; 6 open   |
+| open    | [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md)                                       |   627 | 5/6 checked; 1 open   |
 | open    | [23 Policy Compiler For Screen Derived Evidence](workpacks/23-policy-compiler-for-screen-derived-evidence.md)         |   547 | 0/6 checked; 6 open   |
 | open    | [28 Live View Optional Mode](workpacks/28-live-view-optional-mode.md)                                                 | 5,886 | 12/14 checked; 2 open |
 | open    | [29 Proof Tiers And Proof Packs](workpacks/29-proof-tiers-and-proof-packs.md)                                         |   629 | 0/6 checked; 6 open   |
