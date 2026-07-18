@@ -2,7 +2,7 @@
 
 ## Goal
 
-Define exactly what `payment-subscription-plan` may assume from the shared Cloudflare module and what remains blocked.
+Define exactly what `payment-subscription-plan` may assume from the shared Cloudflare module, what remains blocked, and how to keep current checkout output inventory separate from historical plan references.
 
 ## First-touch surface
 
@@ -64,11 +64,18 @@ These are field requirements for proof routing, not implementation code prescrip
 
 ## Execution truth
 
-- The handoff artifact now records the current accepted Cloudflare proof roots relevant to payment assumptions from WP01 through WP11.
-- No Cloudflare proof roots remain missing in the current handoff inventory.
-- Payment remains blocked because the accepted roots still carry external billing-boundary blockers, WP02 lint debt, manual-required authority and deployment states, and no downstream payment acknowledgment is owned or recorded here.
+- The handoff artifact now records the current checkout output inventory and the historical plan references separately.
+- The current checkout output tree only contains the WP12 proof root.
+- WP01 through WP11 remain historical plan references in the plan docs and are not present artifacts in this checkout's output tree.
+- Payment remains blocked because the focused gates are unrun here, WP02 still carries `src/fixtures.ts` TypeScript return-path lint debt, account/trusted-device/deployment states remain manual-required or blocked, and no downstream payment acknowledgment is owned or recorded here.
+- This packet is docs-only, so no runtime proof is being manufactured here.
 
-## Accepted proof roots
+## Current checkout output inventory
+
+- Present in this checkout's output tree:
+  - `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/`
+
+## Historical plan references
 
 - `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/`
 - `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/`
@@ -85,15 +92,9 @@ These are field requirements for proof routing, not implementation code prescrip
 ## Exact blocker set
 
 - Missing proof roots:
-  - none under the current Cloudflare proof inventory
+  - WP01 through WP11 are missing from the current checkout output tree
 - Accepted-root carried blockers:
-  - broader Cloudflare runtime and validation reruns remain blocked on:
-    - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - broader Cloudflare module, local-dev, and deploy dry-run surfaces also remain blocked on:
-    - `packages/billing-domain/src/billing-referral-boundary.js`
-    - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-    - `packages/billing-domain/src/billing-account-runtime-boundary.js`
-    - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
+  - the live source already imports `./generated/billing-contracts.js` in `infra/cloudflare/src/index.ts` and `infra/cloudflare/src/fixtures.ts`, so the remaining blocker is unrun focused validation in this checkout, not missing source ownership
   - WP02 also carries module-lint debt from:
     - `infra/cloudflare/src/fixtures.ts` TypeScript return-path errors
 - Dependency and readiness states:
@@ -107,20 +108,22 @@ These are field requirements for proof routing, not implementation code prescrip
 
 ## Validations run
 
-- Powershell proof-root gate check for WP01 through WP11
-- `git diff --check -- output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/00-scope-summary.md output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/01-negative-case-proof.md output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/02-rollback-or-teardown-proof.md output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/16-validation-commands.log output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md docs/plans/cloudflare-control-plane-plan/NEXT_ACTIONS.md docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md`
 - `npm run lint:architecture -- --files docs/plans/cloudflare-control-plane-plan output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate`
+- `git diff --check`
 
 ## No-claim boundary
 
 - This workpack does not unblock `payment-subscription-plan`.
 - This workpack does not prove Cloudflare runtime readiness.
-- This workpack does not convert blocked-state WP01 through WP11 proof into payment readiness.
+- This workpack does not convert historical plan references for WP01 through WP11 into current checkout proof roots.
 - This workpack does not close account authority, trusted-device authority, deployment readiness, or data-custody ownership.
+- This workpack does not convert unrun focused gates into payment readiness.
 
 ## Failure conditions
 
 - Reject unblocking payment from docs alone when core Cloudflare blockers remain.
+- Reject unblocking payment from historical plan references alone when the current checkout output tree does not contain WP01 through WP11.
+- Reject unblocking payment from the live generated billing-contract source surface alone when the focused gates are still unrun.
 - Reject unblocking payment from source presence or route manifest presence alone.
 - Reject unblocking payment from local dev proof as production deploy proof.
 - Reject unblocking payment from auth adapter proof as production account/trusted-device authority proof.

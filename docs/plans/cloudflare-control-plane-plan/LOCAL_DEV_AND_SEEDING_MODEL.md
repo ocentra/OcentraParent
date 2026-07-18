@@ -15,12 +15,9 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 - Interactive local start is explicit but currently blocked.
 - Blocked runtime dependencies:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - `packages/billing-domain/src/billing-referral-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-  - `packages/billing-domain/src/billing-account-runtime-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
-- Do not claim local-start success until those runtime imports resolve or a narrower accepted blocker replaces them.
+  - the local-start rerun has not yet been executed in this checkout against the live generated billing-contract source surface
+  - the dependency/bootstrap path for the local worker has not been re-verified here
+- Do not claim local-start success until those focused reruns and bootstrap steps are evidenced here.
 
 ## Seed commands
 
@@ -31,23 +28,23 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 ### Current seed truth
 
-- The seed command family is explicit but currently blocked by the same missing runtime-boundary imports that prevent `infra/cloudflare/src/fixtures.ts` from loading.
+- The seed command family is explicit but currently blocked because the seed/bootstrap reruns have not been executed in this checkout against the live generated billing-contract source surface.
 - Do not describe the billing fixtures as populated while those seed commands are blocked.
 
 ## Required fixture families
 
 - `pricing-catalog`
   - source: `seed:products:local`
-  - current state: blocked until `billing-account-runtime-boundary.js` resolves
+  - current state: blocked until the local seed/bootstrap reruns are evidenced here
 - `parent-test-accounts`
   - source: `seed:local`
-  - current state: blocked until `billing-account-runtime-boundary.js` resolves
+  - current state: blocked until the local seed/bootstrap reruns are evidenced here
 - `support-admin-test-accounts`
   - source: `seed:test-accounts:local`
-  - current state: blocked until `billing-account-runtime-boundary.js` resolves
+  - current state: blocked until the local seed/bootstrap reruns are evidenced here
 - `referral-test-graph`
   - source: `seed:referrals:local`
-  - current state: blocked until `billing-account-runtime-boundary.js` resolves
+  - current state: blocked until the local seed/bootstrap reruns are evidenced here
 - `webhook-payload-fixtures`
   - source: `infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts`, `infra/cloudflare/tests/integration/worker-runtime-real.test.ts`
   - current state: explicit test-fixture-backed family, not a seed placeholder
