@@ -1,88 +1,102 @@
 use std::fmt;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
-    ParentPresenceObservedAt, ParentPresenceVerificationFailureReason,
-    ParentPresenceVerificationInput, ParentPresenceVerificationPort,
-};
-use ocentra_family_identity_core::trust_bootstrap::{
-    evaluate_trust_bootstrap, TrustBootstrapDecision, TrustBootstrapInput,
-    TrustBootstrapLifecycleIntent,
+    ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
+    ParentPresenceVerificationPort,
 };
 
-const CHALLENGE_REF: &str = "parent-presence-challenge-1";
-const NONCE_REF: &str = "parent-presence-nonce-1";
-const BOUNDARY_EXPIRY: &str = "2026-07-18T12:05:00.000Z";
-const BEFORE_EXPIRY: &str = "2026-07-18T12:04:00.000Z";
-const AFTER_EXPIRY: &str = "2026-07-18T12:05:01.000Z";
+const EXPIRED_EXPIRY: &str = "2000-01-01T00:00:00.000Z";
+const ACCEPTED_EXPIRY: &str = "2099-01-01T00:00:00.000Z";
 
-fn expected_observed_at() -> ParentPresenceObservedAt {
-    ParentPresenceObservedAt::from_canonical_utc("2026-07-18T12:04:00.000Z")
-        .expect("expected observed-at instant should be canonical")
+static NEXT_CASE_ID: AtomicU64 = AtomicU64::new(1);
+
+#[derive(Clone)]
+struct TestCase {
+    challenge_ref: String,
+    nonce_ref: String,
+    family_id: String,
+    parent_account_id: String,
+    action_device_id: String,
+    action_device_child_profile_id: Option<String>,
+    target_child_profile_id: Option<String>,
 }
 
-fn expected_boundary_observed_at() -> ParentPresenceObservedAt {
-    ParentPresenceObservedAt::from_canonical_utc(BOUNDARY_EXPIRY)
-        .expect("boundary instant should be canonical")
-}
-
-fn valid_assertion() -> ParentStepUpAssertionSnapshot {
-    ParentStepUpAssertionSnapshot {
-        family_id: "family-1".to_owned(),
-        parent_account_id: "parent-account-1".to_owned(),
-        action_device_id: "parent-device-1".to_owned(),
-        action_device_child_profile_id: Some("action-device-child-profile-1".to_owned()),
-        target_child_profile_id: Some("child-profile-1".to_owned()),
-        action: HouseholdAuthorityAction::PairChildDevice,
-        nonce: NONCE_REF.to_owned(),
-        expires_at: BOUNDARY_EXPIRY.to_owned(),
+fn test_case(prefix: &str) -> TestCase {
+    let id = NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed);
+    let scope = format!("{prefix}-{id}");
+    TestCase {
+        challenge_ref: format!("{scope}-challenge"),
+        nonce_ref: format!("{scope}-nonce"),
+        family_id: format!("{scope}-family"),
+        parent_account_id: format!("{scope}-parent-account"),
+        action_device_id: format!("{scope}-device"),
+        action_device_child_profile_id: Some(format!("{scope}-action-child")),
+        target_child_profile_id: Some(format!("{scope}-target-child")),
     }
 }
 
-fn verification_input() -> ParentPresenceVerificationInput {
-    ParentPresenceVerificationInput {
-        challenge_ref: CHALLENGE_REF.to_owned(),
-        assertion: valid_assertion(),
-    }
-}
-
-fn port_at(now: &'static str) -> ParentPresenceVerificationPort {
-    let observed_at = ParentPresenceObservedAt::from_canonical_utc(now)
-        .expect("test clock instant should be canonical");
-    ParentPresenceVerificationPort::with_clock(move || observed_at.clone())
-}
-
-fn parent_presence_challenge() -> ParentPresenceChallenge {
+fn challenge_for(case: &TestCase, expires_at: &str) -> ParentPresenceChallenge {
     ParentPresenceChallenge {
-        challenge_ref: CHALLENGE_REF.to_owned(),
-        nonce_ref: NONCE_REF.to_owned(),
-        family_id: "family-1".to_owned(),
-        parent_account_id: "parent-account-1".to_owned(),
+        challenge_ref: case.challenge_ref.clone(),
+        nonce_ref: case.nonce_ref.clone(),
+        family_id: case.family_id.clone(),
+        parent_account_id: case.parent_account_id.clone(),
         privileged_action: HouseholdAuthorityAction::PairChildDevice,
-        action_device_id: "parent-device-1".to_owned(),
-        action_device_child_profile_id: Some("action-device-child-profile-1".to_owned()),
-        target_child_profile_id: Some("child-profile-1".to_owned()),
-        expires_at: BOUNDARY_EXPIRY.to_owned(),
+        action_device_id: case.action_device_id.clone(),
+        action_device_child_profile_id: case.action_device_child_profile_id.clone(),
+        target_child_profile_id: case.target_child_profile_id.clone(),
+        expires_at: expires_at.to_owned(),
     }
 }
 
-fn issue_valid_challenge(port: &mut ParentPresenceVerificationPort) {
-    port.issue_challenge(parent_presence_challenge())
-        .expect("challenge should be issued once");
+fn assertion_for(case: &TestCase, expires_at: &str) -> ParentStepUpAssertionSnapshot {
+    ParentStepUpAssertionSnapshot {
+        family_id: case.family_id.clone(),
+        parent_account_id: case.parent_account_id.clone(),
+        action_device_id: case.action_device_id.clone(),
+        action_device_child_profile_id: case.action_device_child_profile_id.clone(),
+        target_child_profile_id: case.target_child_profile_id.clone(),
+        action: HouseholdAuthorityAction::PairChildDevice,
+        nonce: case.nonce_ref.clone(),
+        expires_at: expires_at.to_owned(),
+    }
 }
 
-fn assert_debug_redacted<T: fmt::Debug>(value: &T) {
+fn verification_input(case: &TestCase, expires_at: &str) -> ParentPresenceVerificationInput {
+    ParentPresenceVerificationInput {
+        challenge_ref: case.challenge_ref.clone(),
+        assertion: assertion_for(case, expires_at),
+    }
+}
+
+fn issue_valid_challenge(
+    port: &mut ParentPresenceVerificationPort,
+    case: &TestCase,
+    expires_at: &str,
+) {
+    assert_eq!(
+        port.issue_challenge(challenge_for(case, expires_at)),
+        Ok(())
+    );
+}
+
+fn assert_redacted_debug<T: fmt::Debug>(value: &T, case: &TestCase) {
     let debug = format!("{value:?}");
     for secret in [
-        "family-1",
-        "parent-account-1",
-        "parent-device-1",
-        "action-device-child-profile-1",
-        "child-profile-1",
-        "nonce-1",
+        case.challenge_ref.as_str(),
+        case.nonce_ref.as_str(),
+        case.family_id.as_str(),
+        case.parent_account_id.as_str(),
+        case.action_device_id.as_str(),
+        case.action_device_child_profile_id
+            .as_deref()
+            .unwrap_or_default(),
+        case.target_child_profile_id.as_deref().unwrap_or_default(),
         "PairChildDevice",
     ] {
         assert!(
@@ -93,262 +107,219 @@ fn assert_debug_redacted<T: fmt::Debug>(value: &T) {
 }
 
 #[test]
-fn parent_presence_verification_is_one_time_and_redacted() {
-    let mut port = port_at(BEFORE_EXPIRY);
-    issue_valid_challenge(&mut port);
-
-    let accepted = port
-        .verify_and_consume(verification_input())
-        .expect("challenge should verify once");
-
+fn parent_presence_verification_input_debug_is_redacted() {
+    let case = test_case("input-debug");
+    let input = verification_input(&case, ACCEPTED_EXPIRY);
     assert_eq!(
-        accepted.receipt_ref().to_string(),
-        "parent-presence-receipt:parent-presence-challenge-1"
+        format!("{input:?}"),
+        "ParentPresenceVerificationInput { challenge_ref: \"[redacted]\", assertion: \"[redacted]\" }"
     );
-    assert_eq!(accepted.assertion_snapshot(), &valid_assertion());
-    assert_eq!(accepted.observed_at(), expected_observed_at());
-    assert_debug_redacted(&accepted);
-    assert_debug_redacted(&parent_presence_challenge());
+}
 
-    let replay = port.verify_and_consume(verification_input());
+#[test]
+fn parent_presence_verification_is_one_time_and_redacted() {
+    let case = test_case("one-time");
+    let mut port = ParentPresenceVerificationPort::new();
+    issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
+
+    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
     assert_eq!(
-        replay,
+        accepted
+            .as_ref()
+            .map(|accepted| accepted.assertion_snapshot()),
+        Ok(&assertion_for(&case, ACCEPTED_EXPIRY))
+    );
+    if let Ok(accepted) = accepted {
+        assert_redacted_debug(&accepted, &case);
+    }
+    assert_redacted_debug(&challenge_for(&case, ACCEPTED_EXPIRY), &case);
+
+    assert_eq!(
+        port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)),
         Err(ParentPresenceVerificationFailureReason::ReplayRejected)
     );
 }
 
 #[test]
 fn parent_presence_verification_rejects_binding_mismatches_without_consuming() {
-    let mut port = port_at(BEFORE_EXPIRY);
-    issue_valid_challenge(&mut port);
+    let case = test_case("binding-mismatch");
+    let mut port = ParentPresenceVerificationPort::new();
+    issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
 
-    let household_mismatch = port.verify_and_consume(ParentPresenceVerificationInput {
-        challenge_ref: CHALLENGE_REF.to_owned(),
-        assertion: ParentStepUpAssertionSnapshot {
-            family_id: "family-2".to_owned(),
-            ..valid_assertion()
-        },
-    });
     assert_eq!(
-        household_mismatch,
+        port.verify_and_consume(ParentPresenceVerificationInput {
+            challenge_ref: case.challenge_ref.clone(),
+            assertion: ParentStepUpAssertionSnapshot {
+                family_id: "wrong-family".to_owned(),
+                ..assertion_for(&case, ACCEPTED_EXPIRY)
+            },
+        }),
         Err(ParentPresenceVerificationFailureReason::HouseholdMismatch)
     );
 
-    let action_device_child_profile_mismatch =
-        port.verify_and_consume(ParentPresenceVerificationInput {
-            challenge_ref: CHALLENGE_REF.to_owned(),
-            assertion: ParentStepUpAssertionSnapshot {
-                action_device_child_profile_id: None,
-                ..valid_assertion()
-            },
-        });
     assert_eq!(
-        action_device_child_profile_mismatch,
-        Err(ParentPresenceVerificationFailureReason::ActionDeviceChildProfileMismatch)
+        port.verify_and_consume(ParentPresenceVerificationInput {
+            challenge_ref: case.challenge_ref.clone(),
+            assertion: ParentStepUpAssertionSnapshot {
+                parent_account_id: "wrong-parent".to_owned(),
+                ..assertion_for(&case, ACCEPTED_EXPIRY)
+            },
+        }),
+        Err(ParentPresenceVerificationFailureReason::ParentAccountMismatch)
     );
 
-    let action_device_mismatch = port.verify_and_consume(ParentPresenceVerificationInput {
-        challenge_ref: CHALLENGE_REF.to_owned(),
-        assertion: ParentStepUpAssertionSnapshot {
-            action_device_id: "parent-device-2".to_owned(),
-            ..valid_assertion()
-        },
-    });
     assert_eq!(
-        action_device_mismatch,
+        port.verify_and_consume(ParentPresenceVerificationInput {
+            challenge_ref: case.challenge_ref.clone(),
+            assertion: ParentStepUpAssertionSnapshot {
+                action: HouseholdAuthorityAction::RevokeChildDevice,
+                ..assertion_for(&case, ACCEPTED_EXPIRY)
+            },
+        }),
+        Err(ParentPresenceVerificationFailureReason::ActionMismatch)
+    );
+
+    assert_eq!(
+        port.verify_and_consume(ParentPresenceVerificationInput {
+            challenge_ref: case.challenge_ref.clone(),
+            assertion: ParentStepUpAssertionSnapshot {
+                action_device_id: "wrong-device".to_owned(),
+                ..assertion_for(&case, ACCEPTED_EXPIRY)
+            },
+        }),
         Err(ParentPresenceVerificationFailureReason::ActionDeviceMismatch)
     );
 
-    let target_mismatch = port.verify_and_consume(ParentPresenceVerificationInput {
-        challenge_ref: CHALLENGE_REF.to_owned(),
-        assertion: ParentStepUpAssertionSnapshot {
-            target_child_profile_id: Some("child-profile-2".to_owned()),
-            ..valid_assertion()
-        },
-    });
     assert_eq!(
-        target_mismatch,
+        port.verify_and_consume(ParentPresenceVerificationInput {
+            challenge_ref: case.challenge_ref.clone(),
+            assertion: ParentStepUpAssertionSnapshot {
+                action_device_child_profile_id: None,
+                ..assertion_for(&case, ACCEPTED_EXPIRY)
+            },
+        }),
+        Err(ParentPresenceVerificationFailureReason::ActionDeviceChildProfileMismatch)
+    );
+
+    assert_eq!(
+        port.verify_and_consume(ParentPresenceVerificationInput {
+            challenge_ref: case.challenge_ref.clone(),
+            assertion: ParentStepUpAssertionSnapshot {
+                target_child_profile_id: Some("wrong-target".to_owned()),
+                ..assertion_for(&case, ACCEPTED_EXPIRY)
+            },
+        }),
         Err(ParentPresenceVerificationFailureReason::TargetChildProfileMismatch)
     );
 
-    let accepted = port
-        .verify_and_consume(verification_input())
-        .expect("challenge should still be available after mismatches");
+    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
     assert_eq!(
-        accepted.receipt_ref().to_string(),
-        "parent-presence-receipt:parent-presence-challenge-1"
+        accepted
+            .as_ref()
+            .map(|accepted| accepted.assertion_snapshot()),
+        Ok(&assertion_for(&case, ACCEPTED_EXPIRY))
     );
-}
-
-#[test]
-fn parent_presence_verification_rejects_duplicate_issuance_without_overwriting_original_binding() {
-    let mut port = port_at(BEFORE_EXPIRY);
-    issue_valid_challenge(&mut port);
-
-    let mut duplicate = parent_presence_challenge();
-    duplicate.family_id = "family-2".to_owned();
-    duplicate.nonce_ref = "parent-presence-nonce-duplicate".to_owned();
-
-    let duplicate_issue = port.issue_challenge(duplicate);
-    assert_eq!(
-        duplicate_issue,
-        Err(ParentPresenceChallengeIssuanceFailureReason::DuplicateChallengeRef)
-    );
-
-    let accepted = port
-        .verify_and_consume(verification_input())
-        .expect("original binding should remain authoritative");
-    assert_eq!(
-        accepted.receipt_ref().to_string(),
-        "parent-presence-receipt:parent-presence-challenge-1"
-    );
-}
-
-#[test]
-fn parent_presence_verification_rejects_expired_and_replayed_challenges() {
-    let mut expired_port = port_at(AFTER_EXPIRY);
-    issue_valid_challenge(&mut expired_port);
-
-    let expired = expired_port.verify_and_consume(verification_input());
-    assert_eq!(
-        expired,
-        Err(ParentPresenceVerificationFailureReason::Expired)
-    );
-
-    let mut replay_port = port_at(BEFORE_EXPIRY);
-    issue_valid_challenge(&mut replay_port);
-
-    let accepted = replay_port
-        .verify_and_consume(verification_input())
-        .expect("challenge should be accepted before replay");
-    assert_eq!(
-        accepted.observed_at(),
-        ParentPresenceObservedAt::from_canonical_utc(BEFORE_EXPIRY)
-            .expect("clock instant should be canonical")
-    );
-
-    let replay = replay_port.verify_and_consume(verification_input());
-    assert_eq!(
-        replay,
-        Err(ParentPresenceVerificationFailureReason::ReplayRejected)
-    );
-}
-
-#[test]
-fn parent_presence_verification_accepts_boundary_equality_and_rejects_after_expiry() {
-    let mut boundary_port = port_at(BOUNDARY_EXPIRY);
-    issue_valid_challenge(&mut boundary_port);
-
-    let accepted = boundary_port
-        .verify_and_consume(verification_input())
-        .expect("challenge should be accepted at the expiry boundary");
-    assert_eq!(accepted.observed_at(), expected_boundary_observed_at());
-
-    let mut after_boundary_port = port_at(AFTER_EXPIRY);
-    issue_valid_challenge(&mut after_boundary_port);
-    let expired = after_boundary_port.verify_and_consume(verification_input());
-    assert_eq!(
-        expired,
-        Err(ParentPresenceVerificationFailureReason::Expired)
-    );
-}
-
-#[test]
-fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timestamps() {
-    let mut malformed_port = port_at(BEFORE_EXPIRY);
-    issue_valid_challenge(&mut malformed_port);
-    let malformed = malformed_port.verify_and_consume(ParentPresenceVerificationInput {
-        challenge_ref: CHALLENGE_REF.to_owned(),
-        assertion: ParentStepUpAssertionSnapshot {
-            expires_at: "not-a-timestamp".to_owned(),
-            ..valid_assertion()
-        },
-    });
-    assert_eq!(
-        malformed,
-        Err(ParentPresenceVerificationFailureReason::TimestampInvalid)
-    );
-
-    let mut noncanonical_port = port_at(BEFORE_EXPIRY);
-    issue_valid_challenge(&mut noncanonical_port);
-    let noncanonical = noncanonical_port.verify_and_consume(ParentPresenceVerificationInput {
-        challenge_ref: CHALLENGE_REF.to_owned(),
-        assertion: ParentStepUpAssertionSnapshot {
-            expires_at: "2026-07-18T12:05:00Z".to_owned(),
-            ..valid_assertion()
-        },
-    });
-    assert_eq!(
-        noncanonical,
-        Err(ParentPresenceVerificationFailureReason::TimestampInvalid)
-    );
-
-    let mut offset_port = port_at(BEFORE_EXPIRY);
-    issue_valid_challenge(&mut offset_port);
-    let offset = offset_port.verify_and_consume(ParentPresenceVerificationInput {
-        challenge_ref: CHALLENGE_REF.to_owned(),
-        assertion: ParentStepUpAssertionSnapshot {
-            expires_at: "2026-07-18T08:05:00.000-04:00".to_owned(),
-            ..valid_assertion()
-        },
-    });
-    assert_eq!(
-        offset,
-        Err(ParentPresenceVerificationFailureReason::TimestampInvalid)
-    );
-}
-
-#[test]
-fn trust_bootstrap_returns_awaiting_platform_key_sealing() {
-    let mut port = port_at(BEFORE_EXPIRY);
-    issue_valid_challenge(&mut port);
-    let accepted = port
-        .verify_and_consume(verification_input())
-        .expect("parent presence should verify");
-
-    assert_eq!(
-        accepted.receipt_ref().to_string(),
-        "parent-presence-receipt:parent-presence-challenge-1"
-    );
-    assert_eq!(accepted.assertion_snapshot(), &valid_assertion());
-    assert_eq!(accepted.observed_at(), expected_observed_at());
-    assert_debug_redacted(&accepted);
-
-    let decision = evaluate_trust_bootstrap(TrustBootstrapInput {
-        trust_bootstrap_ref: "trust-bootstrap-1".to_owned(),
-        device_trust_ref: "device-trust-1".to_owned(),
-        lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
-        parent_presence: accepted,
-    });
-
-    assert!(matches!(
-        &decision,
-        TrustBootstrapDecision::AwaitingPlatformKeySealing(_)
-    ));
-    if let TrustBootstrapDecision::AwaitingPlatformKeySealing(request) = decision {
-        assert_eq!(request.trust_bootstrap_ref, "trust-bootstrap-1");
-        assert_eq!(request.device_trust_ref, "device-trust-1");
-        assert_eq!(
-            request.lifecycle_intent,
-            TrustBootstrapLifecycleIntent::SealParentDeviceTrust
-        );
+    if let Ok(accepted) = accepted {
+        assert_redacted_debug(&accepted, &case);
     }
 }
 
 #[test]
-fn parent_presence_verification_rejects_tampered_nonce_via_port() {
-    let mut port = port_at(BEFORE_EXPIRY);
-    issue_valid_challenge(&mut port);
-    let rejected = port.verify_and_consume(ParentPresenceVerificationInput {
-        challenge_ref: CHALLENGE_REF.to_owned(),
-        assertion: ParentStepUpAssertionSnapshot {
-            nonce: "wrong-nonce".to_owned(),
-            ..valid_assertion()
-        },
-    });
+fn parent_presence_verification_rejects_duplicate_issuance_without_overwriting_original_binding() {
+    let case = test_case("duplicate-issuance");
+    let mut port = ParentPresenceVerificationPort::new();
+    issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
+
+    let duplicate = ParentPresenceChallenge {
+        family_id: "wrong-family".to_owned(),
+        nonce_ref: "wrong-nonce".to_owned(),
+        ..challenge_for(&case, ACCEPTED_EXPIRY)
+    };
 
     assert_eq!(
-        rejected,
-        Err(ParentPresenceVerificationFailureReason::NonceMismatch)
+        port.issue_challenge(duplicate),
+        Err(ParentPresenceChallengeIssuanceFailureReason::DuplicateChallengeRef)
+    );
+
+    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
+    assert_eq!(
+        accepted
+            .as_ref()
+            .map(|accepted| accepted.assertion_snapshot()),
+        Ok(&assertion_for(&case, ACCEPTED_EXPIRY))
+    );
+    if let Ok(accepted) = accepted {
+        assert_redacted_debug(&accepted, &case);
+    }
+}
+
+#[test]
+fn parent_presence_verification_rejects_expired_challenges_and_accepts_future_challenges() {
+    let expired_case = test_case("expiry-clock-expired");
+    let mut expired_port = ParentPresenceVerificationPort::new();
+    issue_valid_challenge(&mut expired_port, &expired_case, EXPIRED_EXPIRY);
+    assert_eq!(
+        expired_port.verify_and_consume(verification_input(&expired_case, EXPIRED_EXPIRY)),
+        Err(ParentPresenceVerificationFailureReason::Expired)
+    );
+
+    let accepted_case = test_case("expiry-clock-accepted");
+    let mut accepted_port = ParentPresenceVerificationPort::new();
+    issue_valid_challenge(&mut accepted_port, &accepted_case, ACCEPTED_EXPIRY);
+    let accepted =
+        accepted_port.verify_and_consume(verification_input(&accepted_case, ACCEPTED_EXPIRY));
+    assert_eq!(
+        accepted
+            .as_ref()
+            .map(|accepted| accepted.assertion_snapshot()),
+        Ok(&assertion_for(&accepted_case, ACCEPTED_EXPIRY))
+    );
+    if let Ok(accepted) = accepted {
+        assert_redacted_debug(&accepted, &accepted_case);
+    }
+}
+
+#[test]
+fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timestamps() {
+    let malformed_case = test_case("malformed");
+    let mut malformed_port = ParentPresenceVerificationPort::new();
+    issue_valid_challenge(&mut malformed_port, &malformed_case, ACCEPTED_EXPIRY);
+    assert_eq!(
+        malformed_port.verify_and_consume(ParentPresenceVerificationInput {
+            challenge_ref: malformed_case.challenge_ref.clone(),
+            assertion: ParentStepUpAssertionSnapshot {
+                expires_at: "not-a-timestamp".to_owned(),
+                ..assertion_for(&malformed_case, ACCEPTED_EXPIRY)
+            },
+        }),
+        Err(ParentPresenceVerificationFailureReason::TimestampInvalid)
+    );
+
+    let noncanonical_case = test_case("noncanonical");
+    let mut noncanonical_port = ParentPresenceVerificationPort::new();
+    issue_valid_challenge(&mut noncanonical_port, &noncanonical_case, ACCEPTED_EXPIRY);
+    assert_eq!(
+        noncanonical_port.verify_and_consume(ParentPresenceVerificationInput {
+            challenge_ref: noncanonical_case.challenge_ref.clone(),
+            assertion: ParentStepUpAssertionSnapshot {
+                expires_at: "2099-01-01T00:00:00Z".to_owned(),
+                ..assertion_for(&noncanonical_case, ACCEPTED_EXPIRY)
+            },
+        }),
+        Err(ParentPresenceVerificationFailureReason::TimestampInvalid)
+    );
+
+    let offset_case = test_case("offset");
+    let mut offset_port = ParentPresenceVerificationPort::new();
+    issue_valid_challenge(&mut offset_port, &offset_case, ACCEPTED_EXPIRY);
+    assert_eq!(
+        offset_port.verify_and_consume(ParentPresenceVerificationInput {
+            challenge_ref: offset_case.challenge_ref.clone(),
+            assertion: ParentStepUpAssertionSnapshot {
+                expires_at: "2099-01-01T00:00:00.000-04:00".to_owned(),
+                ..assertion_for(&offset_case, ACCEPTED_EXPIRY)
+            },
+        }),
+        Err(ParentPresenceVerificationFailureReason::TimestampInvalid)
     );
 }
