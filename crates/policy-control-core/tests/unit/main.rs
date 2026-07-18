@@ -31,6 +31,9 @@ mod policy_delivery_receipt_helpers;
 #[path = "policy_delivery_receipt_identity.rs"]
 mod policy_delivery_receipt_identity;
 
+#[path = "policy_delivery_receipt_redaction.rs"]
+mod policy_delivery_receipt_redaction;
+
 #[path = "policy_delivery_metadata.rs"]
 mod policy_delivery_metadata;
 

@@ -245,9 +245,11 @@ fn execution_receipt_round_trip_and_validation_cover_legacy_payloads() -> TestRe
         ),
         "duplicate receipt must fail after replay"
     );
-    assert!(duplicate_error
-        .to_string()
-        .contains("duplicate execution receipt for sequence 2"));
+    let duplicate_diagnostic = duplicate_error.to_string();
+    assert_eq!(
+        duplicate_diagnostic,
+        "invalid eventing value for policy_delivery.sequence: execution receipt sequence replay: expected=new-sequence, reported=current-sequence(2) (duplicate)"
+    );
     Ok(())
 }
 

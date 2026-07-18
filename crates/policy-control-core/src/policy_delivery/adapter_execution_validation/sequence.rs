@@ -5,7 +5,7 @@ use std::cmp::Ordering;
 use super::{
     EventingError, PolicyDeliveryExecutionReceipt, PolicyDeliveryRecord, PolicyDeliveryTransition,
 };
-use crate::policy_delivery::{policy_control, state_values};
+use crate::policy_delivery::policy_control;
 
 pub(super) fn validate_policy_delivery_receipt_sequence(
     current: &PolicyDeliveryRecord,
@@ -61,9 +61,9 @@ fn stale_execution_receipt(
     Err(EventingError::InvalidValue {
         field: policy_control::delivery::FIELD_SEQUENCE,
         value: format!(
-            "stale execution receipt for sequence {} on {}",
+            "execution receipt sequence mismatch: expected=greater-than-current({}), reported={} (stale)",
+            current.last_sequence.value(),
             receipt.sequence.value(),
-            current.delivery_id.as_str()
         ),
     })
 }
@@ -76,15 +76,17 @@ fn validate_current_sequence_replay(
         return Err(EventingError::InvalidValue {
             field: policy_control::delivery::FIELD_SEQUENCE,
             value: format!(
-                "duplicate execution receipt for sequence {} on {}",
+                "execution receipt sequence replay: expected=new-sequence, reported=current-sequence({}) (duplicate)",
                 receipt.sequence.value(),
-                current.delivery_id.as_str()
             ),
         });
     }
 
     Err(EventingError::InvalidValue {
         field: policy_control::delivery::FIELD_SEQUENCE,
-        value: state_values::conflicting_replay_value(receipt.sequence, &current.delivery_id),
+        value: format!(
+            "execution receipt replay conflict: expected=current-record-provenance, reported=mismatched-receipt-provenance at sequence {}",
+            receipt.sequence.value()
+        ),
     })
 }

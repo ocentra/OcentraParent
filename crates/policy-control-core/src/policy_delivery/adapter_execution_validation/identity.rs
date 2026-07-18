@@ -4,9 +4,13 @@ use super::{
     EventingError, PolicyDeliveryExecutionReceipt, PolicyDeliveryRecord, PolicyDeliveryTransition,
 };
 use crate::policy_delivery::{policy_control, state_values};
-use crate::policy_source::{PolicyConsumerDomain, PolicyReasonCode};
+use crate::policy_source::PolicyConsumerDomain;
 
 const FIELD_TARGET_DOMAIN: &str = "policy_delivery.target.domain";
+const CURRENT_RECORD_IDENTITY_MISMATCH: &str =
+    "execution receipt identity mismatch: expected=current-record, reported=execution-receipt";
+const TRANSITION_IDENTITY_MISMATCH: &str =
+    "execution receipt identity mismatch: expected=transition, reported=execution-receipt";
 
 pub(super) fn validate_policy_delivery_receipt_identity(
     current: &PolicyDeliveryRecord,
@@ -25,20 +29,12 @@ fn validate_policy_delivery_receipt_delivery_identity(
         (
             receipt.delivery_id != current.delivery_id,
             policy_control::delivery::FIELD_DELIVERY_ID,
-            format!(
-                "expected delivery {} but receipt reported {}",
-                current.delivery_id.as_str(),
-                receipt.delivery_id.as_str()
-            ),
+            CURRENT_RECORD_IDENTITY_MISMATCH.to_string(),
         ),
         (
             receipt.household_id != current.household_id,
             policy_control::source::FIELD_HOUSEHOLD_ID,
-            format!(
-                "expected household {} but receipt reported {}",
-                current.household_id.as_str(),
-                receipt.household_id.as_str()
-            ),
+            CURRENT_RECORD_IDENTITY_MISMATCH.to_string(),
         ),
         (
             receipt.policy_version != current.policy_version,
@@ -52,29 +48,17 @@ fn validate_policy_delivery_receipt_delivery_identity(
         (
             receipt.source_document_id != current.source_document_id,
             policy_control::source::FIELD_DOCUMENT_ID,
-            format!(
-                "expected source document {} but receipt reported {}",
-                current.source_document_id.as_str(),
-                receipt.source_document_id.as_str()
-            ),
+            CURRENT_RECORD_IDENTITY_MISMATCH.to_string(),
         ),
         (
             receipt.target.child_profile_id != current.target.child_profile_id,
             policy_control::source::FIELD_CHILD_PROFILE_ID,
-            format!(
-                "expected child profile {} but receipt reported {}",
-                current.target.child_profile_id.as_str(),
-                receipt.target.child_profile_id.as_str()
-            ),
+            CURRENT_RECORD_IDENTITY_MISMATCH.to_string(),
         ),
         (
             receipt.target.device_id != current.target.device_id,
             policy_control::source::FIELD_DEVICE_ID,
-            format!(
-                "expected device {} but receipt reported {}",
-                current.target.device_id.as_str(),
-                receipt.target.device_id.as_str()
-            ),
+            CURRENT_RECORD_IDENTITY_MISMATCH.to_string(),
         ),
         (
             receipt.target.domain != current.target.domain,
@@ -104,11 +88,7 @@ fn validate_policy_delivery_receipt_execution_identity(
         (
             receipt.attempt_id != transition.attempt_id,
             policy_control::delivery::FIELD_ATTEMPT_ID,
-            format!(
-                "expected attempt {} but receipt reported {}",
-                transition.attempt_id.as_str(),
-                receipt.attempt_id.as_str()
-            ),
+            TRANSITION_IDENTITY_MISMATCH.to_string(),
         ),
         (
             receipt.state != transition.state,
@@ -127,11 +107,7 @@ fn validate_policy_delivery_receipt_execution_identity(
         (
             receipt.reason_code != transition.reason_code,
             policy_control::delivery::FIELD_REASON_CODE,
-            format!(
-                "expected receipt reason code {} but receipt reported {}",
-                policy_delivery_reason_code_name(transition.reason_code.as_ref()),
-                policy_delivery_reason_code_name(receipt.reason_code.as_ref())
-            ),
+            TRANSITION_IDENTITY_MISMATCH.to_string(),
         ),
     ]
     .into_iter()
@@ -153,10 +129,4 @@ fn policy_delivery_domain_name(domain: PolicyConsumerDomain) -> String {
         PolicyConsumerDomain::Screen => String::from("screen"),
         PolicyConsumerDomain::Ai => String::from("ai"),
     }
-}
-
-fn policy_delivery_reason_code_name(reason_code: Option<&PolicyReasonCode>) -> String {
-    reason_code
-        .map(|reason_code| reason_code.as_str().to_string())
-        .unwrap_or_else(|| String::from("none"))
 }

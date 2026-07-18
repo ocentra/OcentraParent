@@ -34,6 +34,13 @@ the retired `packages/policy-domain` workspace. `Present` means the WP04
 policy-owned contract bundle is current, not that WP02, WP05, portal rendering,
 event transport, or enforcement execution is complete.
 
+The WP04 redaction inventory now includes the 131-test policy-control unit run,
+the 33-test version-skew run, and
+`formatted_receipt_validation_errors_redact_sensitive_identifiers`. That
+negative matrix proves receipt identity, audit, reason, and replay diagnostics
+remain actionable without formatting raw policy or child identifiers. WP02 and
+WP05 remain independently open.
+
 ## Universal guardrails
 
 - `00-scope-summary.md`

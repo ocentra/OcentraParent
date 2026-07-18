@@ -435,7 +435,7 @@ fn execution_receipt_validation_rejects_source_document_identity_mismatch() -> T
         error,
         EventingError::InvalidValue {
             field: "policy_source.document_id",
-            value: "expected source document policy-source-household-default but receipt reported policy-source-mismatch"
+            value: "execution receipt identity mismatch: expected=current-record, reported=execution-receipt"
                 .to_string(),
         }
     );
@@ -478,7 +478,7 @@ fn execution_receipt_validation_rejects_reason_code_identity_mismatch() -> TestR
         error,
         EventingError::InvalidValue {
             field: "policy_delivery.reason_code",
-            value: "expected receipt reason code acknowledged-reason but receipt reported adapter-failed-mismatch"
+            value: "execution receipt identity mismatch: expected=transition, reported=execution-receipt"
                 .to_string(),
         }
     );
@@ -509,13 +509,13 @@ fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
     let provenance_cases: [helpers::ProvenanceCase; 6] = [
         (
             "policy_source.document_id",
-            "expected source document policy-source-household-default but receipt reported policy-source-mismatch"
+            "execution receipt identity mismatch: expected=current-record, reported=execution-receipt"
                 .to_string(),
             mutate_provenance_source_document,
         ),
         (
             "policy_source.household_id",
-            "expected household household-default but receipt reported household-mismatch"
+            "execution receipt identity mismatch: expected=current-record, reported=execution-receipt"
                 .to_string(),
             mutate_provenance_household,
         ),
@@ -529,12 +529,14 @@ fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
         ),
         (
             "policy_source.child_profile_id",
-            "expected child profile child-primary but receipt reported child-mismatch".to_string(),
+            "execution receipt identity mismatch: expected=current-record, reported=execution-receipt"
+                .to_string(),
             mutate_provenance_child_profile,
         ),
         (
             "policy_source.device_id",
-            "expected device device-laptop but receipt reported device-mismatch".to_string(),
+            "execution receipt identity mismatch: expected=current-record, reported=execution-receipt"
+                .to_string(),
             mutate_provenance_device,
         ),
         (

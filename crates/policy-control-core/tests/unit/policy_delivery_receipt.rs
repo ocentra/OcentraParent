@@ -51,7 +51,7 @@ fn execution_receipt_validation_rejects_attempt_identity_mismatch() -> TestResul
         error,
         EventingError::InvalidValue {
             field: "policy_delivery.attempt_id",
-            value: "expected attempt attempt-acknowledged-receipt but receipt reported attempt-mismatch"
+            value: "execution receipt identity mismatch: expected=transition, reported=execution-receipt"
                 .to_string(),
         }
     );
@@ -82,13 +82,13 @@ fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
     let provenance_cases: [helpers::ProvenanceCase; 6] = [
         (
             "policy_source.document_id",
-            "expected source document policy-source-household-default but receipt reported policy-source-mismatch"
+            "execution receipt identity mismatch: expected=current-record, reported=execution-receipt"
                 .to_string(),
             mutate_provenance_source_document,
         ),
         (
             "policy_source.household_id",
-            "expected household household-default but receipt reported household-mismatch"
+            "execution receipt identity mismatch: expected=current-record, reported=execution-receipt"
                 .to_string(),
             mutate_provenance_household,
         ),
@@ -102,12 +102,14 @@ fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
         ),
         (
             "policy_source.child_profile_id",
-            "expected child profile child-primary but receipt reported child-mismatch".to_string(),
+            "execution receipt identity mismatch: expected=current-record, reported=execution-receipt"
+                .to_string(),
             mutate_provenance_child_profile,
         ),
         (
             "policy_source.device_id",
-            "expected device device-laptop but receipt reported device-mismatch".to_string(),
+            "execution receipt identity mismatch: expected=current-record, reported=execution-receipt"
+                .to_string(),
             mutate_provenance_device,
         ),
         (
@@ -221,10 +223,8 @@ fn execution_receipt_validation_rejects_stale_receipt() -> TestResult {
         error,
         EventingError::InvalidValue {
             field: "policy_delivery.sequence",
-            value: format!(
-                "stale execution receipt for sequence 1 on {}",
-                queued.delivery_id.as_str()
-            ),
+            value: "execution receipt sequence mismatch: expected=greater-than-current(2), reported=1 (stale)"
+                .to_string(),
         }
     );
     Ok(())
@@ -270,10 +270,8 @@ fn execution_receipt_validation_rejects_duplicate_receipts() -> TestResult {
         duplicate_error,
         EventingError::InvalidValue {
             field: "policy_delivery.sequence",
-            value: format!(
-                "duplicate execution receipt for sequence 3 on {}",
-                acknowledged_record.delivery_id.as_str()
-            ),
+            value: "execution receipt sequence replay: expected=new-sequence, reported=current-sequence(3) (duplicate)"
+                .to_string(),
         }
     );
     Ok(())
