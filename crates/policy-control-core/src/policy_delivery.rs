@@ -8,9 +8,11 @@ use serde::{Deserialize, Serialize};
 use crate::policy_source::{
     CompiledDomainPolicyArtifact, ParentPolicyDocumentId, PolicyAuditReferenceId,
     PolicyChildProfileId, PolicyConsumerDomain, PolicyDeviceId, PolicyHouseholdId,
-    PolicyReasonCode, PolicyRollbackRef, PolicyVersion,
+    PolicyReasonCode, PolicyRollbackRef, PolicyScheduleId, PolicyVersion,
 };
 
+mod adapter_execution;
+mod adapter_execution_validation;
 mod state_context;
 mod state_values;
 mod transition_rules;
@@ -19,73 +21,8 @@ mod validation;
 
 const POLICY_DELIVERY_SCHEMA_VERSION_VALUE: u16 = 1;
 const POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE: u64 = 1;
-
-fn parse_delivery_text_id(
-    value: impl Into<String>,
-    field: &'static str,
-) -> Result<String, EventingError> {
-    let value = value.into();
-    if value.trim().is_empty() {
-        return Err(EventingError::EmptyValue { field });
-    }
-    Ok(value)
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-#[serde(try_from = "String", into = "String")]
-pub struct PolicyDeliveryId(String);
-
-impl PolicyDeliveryId {
-    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-        parse_delivery_text_id(value, policy_control::delivery::FIELD_DELIVERY_ID).map(Self)
-    }
-
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
-}
-
-impl TryFrom<String> for PolicyDeliveryId {
-    type Error = EventingError;
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        Self::parse(value)
-    }
-}
-
-impl From<PolicyDeliveryId> for String {
-    fn from(value: PolicyDeliveryId) -> Self {
-        value.0
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-#[serde(try_from = "String", into = "String")]
-pub struct PolicyDeliveryAttemptId(String);
-
-impl PolicyDeliveryAttemptId {
-    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-        parse_delivery_text_id(value, policy_control::delivery::FIELD_ATTEMPT_ID).map(Self)
-    }
-
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
-}
-
-impl TryFrom<String> for PolicyDeliveryAttemptId {
-    type Error = EventingError;
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        Self::parse(value)
-    }
-}
-
-impl From<PolicyDeliveryAttemptId> for String {
-    fn from(value: PolicyDeliveryAttemptId) -> Self {
-        value.0
-    }
-}
+pub type PolicyDeliveryId = ParentPolicyDocumentId;
+pub type PolicyDeliveryAttemptId = PolicyScheduleId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "u64", into = "u64")]
@@ -222,6 +159,22 @@ pub struct PolicyDeliveryTransition {
     pub rollback_reference_state: Option<PolicyDeliveryState>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PolicyDeliveryExecutionReceipt {
+    pub delivery_id: PolicyDeliveryId,
+    pub attempt_id: PolicyDeliveryAttemptId,
+    pub sequence: PolicyDeliverySequence,
+    pub state: PolicyDeliveryState,
+    pub audit_reference_ids: Vec<PolicyAuditReferenceId>,
+    pub rollback_reference_state: Option<PolicyDeliveryState>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PolicyDeliveryAdapterExecution {
+    pub transition: PolicyDeliveryTransition,
+    pub receipt: PolicyDeliveryExecutionReceipt,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PolicyDeliveryApplyOutcome {
     Advanced(PolicyDeliveryRecord),
@@ -259,6 +212,36 @@ pub fn queue_policy_delivery(
 
 pub fn validate_policy_delivery_record(record: &PolicyDeliveryRecord) -> Result<(), EventingError> {
     validation::validate_policy_delivery_record(record)
+}
+
+pub fn validate_policy_delivery_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+    receipt: Option<&PolicyDeliveryExecutionReceipt>,
+) -> Result<(), EventingError> {
+    state_context::assert_execution_receipt(current, transition, receipt)
+}
+
+pub fn validate_policy_delivery_adapter_execution(
+    current: &PolicyDeliveryRecord,
+    execution: &PolicyDeliveryAdapterExecution,
+) -> Result<(), EventingError> {
+    adapter_execution::validate_policy_delivery_adapter_execution(current, execution)
+}
+
+pub fn apply_policy_delivery_adapter_execution(
+    current: &PolicyDeliveryRecord,
+    execution: PolicyDeliveryAdapterExecution,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    adapter_execution::apply_policy_delivery_adapter_execution(current, execution)
+}
+
+pub fn apply_policy_delivery_execution_transition(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+    receipt: PolicyDeliveryExecutionReceipt,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    adapter_execution::apply_policy_delivery_execution_transition(current, transition, receipt)
 }
 
 pub fn apply_policy_delivery_transition(

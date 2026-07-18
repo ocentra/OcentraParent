@@ -4,10 +4,37 @@ mod helpers;
 use super::TestResult;
 use helpers::{audit_ref, sample_queued_delivery, transition, transition_or_context};
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, PolicyDeliveryApplyOutcome, PolicyDeliveryRecord,
-    PolicyDeliveryState,
+    apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
+    validate_policy_delivery_execution_receipt, PolicyDeliveryAdapterExecution,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryExecutionReceipt, PolicyDeliveryRecord,
+    PolicyDeliveryState, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{PolicyReasonCode, PolicyVersion};
+
+fn execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+) -> PolicyDeliveryExecutionReceipt {
+    PolicyDeliveryExecutionReceipt {
+        delivery_id: current.delivery_id.clone(),
+        attempt_id: transition.attempt_id.clone(),
+        sequence: transition.sequence,
+        state: transition.state,
+        audit_reference_ids: transition.audit_reference_ids.clone(),
+        rollback_reference_state: transition.rollback_reference_state,
+    }
+}
+
+fn adapter_execution(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+) -> PolicyDeliveryAdapterExecution {
+    PolicyDeliveryAdapterExecution {
+        transition: transition.clone(),
+        receipt: execution_receipt(current, transition),
+    }
+}
+
 #[test]
 fn policy_delivery_serde_rejects_zero_schema_version() -> TestResult {
     let error = test_err!(
@@ -38,6 +65,52 @@ fn policy_delivery_serde_rejects_zero_schema_version() -> TestResult {
     assert!(error
         .to_string()
         .contains("event schema version must be nonzero"));
+    Ok(())
+}
+
+#[test]
+fn policy_delivery_execution_receipt_rejects_missing_field_in_version_skew_json() -> TestResult {
+    let error = test_err!(
+        serde_json::from_str::<PolicyDeliveryExecutionReceipt>(
+            r#"{
+            "attempt_id": "attempt-acknowledged",
+            "sequence": 2,
+            "state": "acknowledged",
+            "audit_reference_ids": ["audit-attempt-acknowledged-2"]
+        }"#,
+        ),
+        "missing receipt field must be rejected"
+    );
+
+    assert!(error.to_string().contains("missing field `delivery_id`"));
+    Ok(())
+}
+
+#[test]
+fn policy_delivery_adapter_execution_rejects_missing_receipt_in_version_skew_json() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let transition = transition(
+        2,
+        "attempt-acknowledged-version-skew",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+    let execution = adapter_execution(&queued, &transition);
+
+    let mut serialized = test_ok!(
+        serde_json::to_value(&execution),
+        "serialize adapter execution"
+    );
+    serialized
+        .as_object_mut()
+        .expect("serialized adapter execution object")
+        .remove("receipt");
+
+    let error = test_err!(
+        serde_json::from_value::<PolicyDeliveryAdapterExecution>(serialized),
+        "missing adapter receipt must be rejected"
+    );
+
+    assert!(error.to_string().contains("missing field `receipt`"));
     Ok(())
 }
 
@@ -82,6 +155,57 @@ fn delivery_replay_same_sequence_is_duplicate_and_older_sequence_is_stale() -> T
             .into());
         }
     }
+    Ok(())
+}
+
+#[test]
+fn execution_receipt_round_trip_and_validation_cover_legacy_payloads() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let transition = transition(
+        2,
+        "attempt-acknowledged-version-skew",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+    let receipt = execution_receipt(&queued, &transition);
+    let execution = adapter_execution(&queued, &transition);
+
+    let encoded = test_ok!(
+        serde_json::to_value(&receipt),
+        "serialize execution receipt"
+    );
+    let decoded: PolicyDeliveryExecutionReceipt = test_ok!(
+        serde_json::from_value(encoded),
+        "deserialize execution receipt"
+    );
+
+    assert_eq!(decoded, receipt);
+
+    let execution_round_trip: PolicyDeliveryAdapterExecution = test_ok!(
+        serde_json::from_value(test_ok!(
+            serde_json::to_value(&execution),
+            "serialize adapter execution"
+        )),
+        "deserialize adapter execution"
+    );
+    assert_eq!(execution_round_trip, execution);
+
+    let acknowledged_record = test_ok!(
+        apply_policy_delivery_adapter_execution(&queued, execution),
+        "acknowledge with explicit receipt"
+    )
+    .into_record();
+
+    let duplicate_error = test_err!(
+        validate_policy_delivery_execution_receipt(
+            &acknowledged_record,
+            &transition,
+            Some(&receipt),
+        ),
+        "duplicate receipt must fail after replay"
+    );
+    assert!(duplicate_error
+        .to_string()
+        .contains("duplicate execution receipt for sequence 2"));
     Ok(())
 }
 
