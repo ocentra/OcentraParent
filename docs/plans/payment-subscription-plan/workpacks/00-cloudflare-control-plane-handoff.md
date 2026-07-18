@@ -133,10 +133,7 @@ Current validation truth:
   - WP01-WP11 are historical plan references only
   - WP12's generated proof is absent/not produced in this checkout
 - Missing Cloudflare proof roots still carried by the upstream handoff:
-  - `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
-  - `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/`
-  - `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/`
-  - `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
+  - no tracked WP00-WP12 proof roots are present in this checkout; WP00-WP11 are historical plan references only and WP12's generated proof is absent/not produced
 - Current blockers still carried upstream:
   - no tracked Cloudflare handoff proof bundle in this checkout
   - the handoff proof path remains absent/not produced: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
