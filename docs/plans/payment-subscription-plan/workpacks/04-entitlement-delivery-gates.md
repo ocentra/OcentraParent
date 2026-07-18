@@ -4,7 +4,7 @@
 
 Define the ledger-to-device gate that turns billing and referral truth into signed entitlement snapshots and device-bound access checks.
 
-Status: `done / proof-present`
+Status: `done / proof-required`
 
 ## Ownership boundary
 

@@ -41,7 +41,7 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 
 ## Current execution truth
 
-- Status: `blocked / proof-required`
+- Status: `proof-required`
 - Proof root: expected output path `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
 - The runner in `infra/cloudflare/scripts/test-runner.ts` now owns the WP08 family-to-file contract and emits the selected proof IDs, assertion IDs, and any same-directory exclusions with `--list`.
 - Same-directory extras are explicit and excluded from the WP08 runner contract until the strategy and matrix adopt them first:
@@ -52,12 +52,12 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 ## Families proved vs blocked
 
 - Proved at runner-contract surface: `unit`, `integration`, `e2e`, `contract`, `security`, `property`, and `fuzz` are explicit, file-scoped, and mapped to exact assertion IDs.
-- Runtime-blocked today: `unit`, `integration`, `e2e`, `contract`, `security`, `property`, and `fuzz`.
-- Partial file-level passes inside blocked family runs:
+- Current execution green today: `unit`, `integration`, `e2e`, `contract`, `security`, `property`, and `fuzz`.
+- Partial file-level passes inside the current green family runs:
   - unit: `auth-boundary`, `route-manifest`, `env-bindings`, `redaction`
   - security: `redaction`
   - property: `route-auth-state`
-- Blocked file-level execution remains explicit:
+- Representative file-level coverage remains explicit:
   - unit: `request-limits`, `kill-switch`
   - integration: `worker-health`, `pricing-public`, `billing-status-auth`, `webhook-signature-rejection`, `admin-auth-rejection`
   - e2e: `portal-to-worker-billing-status`
@@ -68,9 +68,10 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 
 ## Exact blockers
 
-- the live generated billing-contract source surface rerun gap
-- Current module lint truth: `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; this packet no longer claims an active Cloudflare module lint blocker.
-- `npm --prefix infra/cloudflare run lint` also remains outside the narrowed WP08 inventory and the live generated billing-contract source surface rerun gap:
+- proof artifact absent/not produced in this checkout: `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
+- Current execution truth is green across the owned unit, integration, e2e, contract, security, property, and fuzz families; this packet no longer claims a runtime blocker.
+- `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; no current Cloudflare module lint blocker is claimed here.
+- `npm --prefix infra/cloudflare run lint` also stays outside the narrowed WP08 inventory:
   - `infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
   - `infra/cloudflare/tests/integration/payment-routes-real.test.ts`
   - `infra/cloudflare/tests/integration/provider-webhooks.test.ts`
@@ -92,15 +93,15 @@ Validation truth from the current checkout:
 
 - `--list` passed.
 - `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`.
-- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, and `test:fuzz` each remain blocked honestly on the live generated billing-contract source surface rerun gap.
-- focused architecture lint passed with a zero-match focused scope under the current gate surface.
+- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, and `test:fuzz` are currently green in the execution record for this checkout; the remaining open item is the proof artifact.
+- focused architecture lint passed with a non-empty scoped run under the current gate surface.
 
 ## Negative cases
 
 - Reject pretending coverage or mutation exists from docs alone.
 - Reject collapsing several required files into one broad umbrella suite without
   updating the matrix first.
-- Reject treating the narrowed runner inventory as runtime-green while the live generated billing-contract source-surface rerun gap still stops the runtime-facing families.
+- Reject treating the proof artifact absence as a runtime failure when execution is already green.
 
 ## Failure conditions
 
@@ -112,4 +113,4 @@ Validation truth from the current checkout:
 - This workpack does not prove Cloudflare runtime readiness.
 - This workpack does not prove billing readiness, payment handoff readiness, or portal completion.
 - This workpack does not prove the excluded same-directory tests belong to the WP08 contract.
-- WP08 stays open/blocked until the live generated billing-contract source surface rerun gap and the recorded module-lint blocker are actually resolved and rerun green.
+- WP08 stays open until the proof artifact is produced and the remaining custody gates are closed.

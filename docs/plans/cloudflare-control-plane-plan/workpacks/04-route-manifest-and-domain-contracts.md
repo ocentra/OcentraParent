@@ -36,7 +36,7 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 - `infra/cloudflare/tests/unit/route-manifest.test.ts` now proves the manifest route-key list is exact, not merely pattern-valid.
 - `infra/cloudflare/tests/property/route-auth-state.property.test.ts` now proves `/auth/billing/manual-invoice` is the only elevated support-owned exception inside `/auth/billing/*`.
 - `ROUTE_MANIFEST_MODEL.md` and `AUTH_BOUNDARY_MODEL.md` now make that support exception explicit so consumer plans do not infer a second support-only API surface.
-- Contract and integration proof remain blocked because the rerun set against the live generated billing-contract source surface has not been refreshed here, so WP04 cannot claim request/response contract readiness or live worker dispatch readiness.
+- Contract and integration proof remain proof-required because the current checkout still lacks the physical proof bundle, so WP04 cannot claim request/response contract readiness or live worker dispatch readiness.
 
 ## Proof IDs
 
@@ -55,7 +55,7 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 
 ## Exact blocker set
 
-- `infra/cloudflare/tests/contract/billing-api-contract.test.ts` and the boot-dependent integration suites remain blocked until the live generated billing-contract source surface rerun is refreshed.
+- `infra/cloudflare/tests/contract/billing-api-contract.test.ts` and the boot-dependent integration suites remain proof-required until the current execution record is captured in the proof bundle.
 - `infra/cloudflare/src/index.ts` and `infra/cloudflare/tests/contract/billing-api-contract.test.ts` are the route surfaces that need the refreshed rerun before dispatch-proof can be claimed.
 
 ## Validation

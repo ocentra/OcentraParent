@@ -27,8 +27,8 @@ Current scoped proof rerun uses `--dry-run` against both commands because no rea
 ## Current blocked state
 
 - Current module lint truth: `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; this file no longer treats the Cloudflare module lint as active debt.
-- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` is currently blocked before publish because the rerun set against the live generated billing-contract source surface has not been refreshed here.
-- `npm --prefix infra/cloudflare run deploy -- --dry-run` is currently blocked for the same reason.
+- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` is currently green in the execution record; the remaining blocker is the absent proof artifact plus placeholder deployment custody.
+- `npm --prefix infra/cloudflare run deploy -- --dry-run` is currently green in the execution record for the same reason.
 - Both commands also emit a Wrangler warning because the scripts pass `--env development` or `--env production` without matching `[env.*]` sections in the chosen config file.
 - Both configs still expose placeholder-backed D1 and KV identifiers and manual-required auth/key references, so no promotion or rollback readiness may be inferred.
 

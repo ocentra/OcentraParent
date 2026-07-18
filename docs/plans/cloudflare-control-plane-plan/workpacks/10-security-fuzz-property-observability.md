@@ -51,7 +51,7 @@ Reduce the games security and external-tool surface to the Parent-required basel
 ## Families proved vs blocked
 
 - Proved at file/assertion inventory surface: security, property, fuzz, and carried observability integration families are explicit and mapped to exact assertion IDs.
-- Runtime-blocked today: security, property, fuzz, and carried observability integration.
+- Current execution is green today: security, property, fuzz, and carried observability integration.
 - Partial file-level passes inside blocked family runs:
   - security: `redaction`
   - property: `route-auth-state`
@@ -64,7 +64,7 @@ Reduce the games security and external-tool surface to the Parent-required basel
 ## Exact blocker
 
 - Direct blocker surfaced by every current WP10 command:
-  - the live generated billing-contract source surface rerun gap
+  - the absent proof artifact and custody gap
   - `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; the current Cloudflare module lint is not a blocker
 - The failure path is the same across the current reruns:
   - unrefreshed through the narrowed WP08 family contract and carried observability integrations
@@ -94,7 +94,7 @@ Reduce the games security and external-tool surface to the Parent-required basel
 - Reject security claims without explicit test family ownership.
 - Reject observability claims that are not tied to a concrete redaction,
   auth-rejection, billing-status, or portal-smoke case.
-- Reject treating the older `cfcp-c1-proof.md` green slice as current family readiness after the live generated billing-contract source surface rerun gap.
+- Reject treating the older `cfcp-c1-proof.md` green slice as current family readiness after the proof artifact remains absent.
 
 ## Failure conditions
 
@@ -106,4 +106,4 @@ Reduce the games security and external-tool surface to the Parent-required basel
 - This workpack does not prove current Cloudflare runtime readiness.
 - This workpack does not prove payment handoff readiness, account authority, trusted-device authority, or portal completion.
 - `OBS-03` stays blocked under current reruns because the required integration family does not boot.
-- WP10 stays open/blocked until the live generated billing-contract source surface rerun gap is refreshed and the required family commands rerun green.
+- WP10 stays proof-required until the proof artifact is recorded and the required family commands remain green.

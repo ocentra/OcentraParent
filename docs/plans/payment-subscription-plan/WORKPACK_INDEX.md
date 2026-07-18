@@ -21,10 +21,10 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | Status | Workpack | Boxes | Proof root |
 | --- | --- | ---: | --- |
 | blocked / proof-required | [WP00 Cloudflare Control Plane Handoff](workpacks/00-cloudflare-control-plane-handoff.md) | 8/9 | `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/` |
-| done / proof-present | [WP01 Product Pricing Entitlement](workpacks/01-product-pricing-entitlement.md) | 12/12 | `output/payment-subscription-plan-proof/01-product-pricing-entitlement/` |
-| blocked / proof-present | [WP02 Checkout Billing Portal](workpacks/02-checkout-billing-portal.md) | 12/12 | `output/payment-subscription-plan-proof/02-checkout-billing-portal/` |
+| done / proof-required | [WP01 Product Pricing Entitlement](workpacks/01-product-pricing-entitlement.md) | 12/12 | `output/payment-subscription-plan-proof/01-product-pricing-entitlement/` |
+| blocked / proof-required | [WP02 Checkout Billing Portal](workpacks/02-checkout-billing-portal.md) | 12/12 | `output/payment-subscription-plan-proof/02-checkout-billing-portal/` |
 | done | [WP03 Subscription Webhook Lifecycle](workpacks/03-subscription-webhook-lifecycle.md) | 12/12 | `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` |
-| done / proof-present | [WP04 Entitlement Delivery Gates](workpacks/04-entitlement-delivery-gates.md) | 12/12 | `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/` |
+| done / proof-required | [WP04 Entitlement Delivery Gates](workpacks/04-entitlement-delivery-gates.md) | 12/12 | `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/` |
 | open | [WP05 Invoice Tax Refund Dispute](workpacks/05-invoice-tax-refund-dispute.md) | 0/12 | `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/` |
 | open | [WP06 Security Privacy Observability](workpacks/06-security-privacy-observability.md) | 0/12 | `output/payment-subscription-plan-proof/06-security-privacy-observability/` |
 | open | [WP08 Provider Adapter Portability](workpacks/08-provider-adapter-portability.md) | 0/12 | `output/payment-subscription-plan-proof/08-provider-adapter-portability/` |

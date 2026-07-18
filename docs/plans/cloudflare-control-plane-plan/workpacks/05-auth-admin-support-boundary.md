@@ -65,7 +65,7 @@ Focused outcome:
 
 External blocker:
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:security`, and `test:integration` all remain unrefreshed against the live generated billing-contract source surface.
+- `npm --prefix infra/cloudflare run test:unit`, `test:security`, and `test:integration` are green in the execution record; the remaining gap is the absent proof artifact.
 - The account-provider decision remains manual-required, so WP05 is not green; it is blocked / proof-required with an exact carried dependency gap.
 
 Proof root:

@@ -41,7 +41,7 @@ Define deployment commands, environment promotion, and rollback expectations for
 
 ## Exact blocker set
 
-- Live generated billing-contract source surface rerun gap remains unrefreshed:
+- Current execution remains green; the proof artifact is still absent:
   - `npm --prefix infra/cloudflare run deploy:dev -- --dry-run`
   - `npm --prefix infra/cloudflare run deploy -- --dry-run`
 - Placeholder-backed resource identifiers remain in both configs.

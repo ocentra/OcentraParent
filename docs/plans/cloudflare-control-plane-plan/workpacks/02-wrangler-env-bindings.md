@@ -65,7 +65,7 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare run test:unit` remains blocked until the rerun against the live generated billing-contract source surface is refreshed here.
+- `npm --prefix infra/cloudflare run test:unit` remains proof-required until the current green execution record is captured into the output proof bundle.
 - `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; the broader rerun set still has not been refreshed here, but the current Cloudflare module lint is not a blocker.
 - Those failures are outside the owned WP02 wrangler/dev-vars surface, so they are carried as blockers rather than fixed here.
 

@@ -1,6 +1,6 @@
 # Execution Blueprint
 
-Status: engineering-spec complete / runtime execution open with WP00 `blocked / proof-required`, WP01 `done / proof-present`, and WP02 `blocked / proof-present`.
+Status: engineering-spec complete / runtime execution open with WP00 `blocked / proof-required`, WP01 `done / proof-required`, and WP02 `blocked / proof-required`.
 
 ## Execution objective
 

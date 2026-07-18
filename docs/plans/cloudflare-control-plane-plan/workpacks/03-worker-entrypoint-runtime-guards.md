@@ -33,12 +33,12 @@ Freeze the shared guard chain for env validation, CORS, request-size limits, kil
 
 - The shared worker entrypoint still owns env validation, CORS fail-fast, request-size limits, kill switch behavior, safe errors, and scheduled hook shape.
 - Unit suites that do not require `src/index.ts` boot passed.
-- Unit and integration suites that require the real worker entrypoint remain blocked before route execution because the rerun set against the live generated billing-contract source surface has not been refreshed here.
+- Unit and integration suites that require the real worker entrypoint are green in the execution record; the remaining blocker is the absent proof artifact.
 - The scheduled hook shape is explicit in source but not runtime-proven.
 
 ## Exact blocker set
 
-- `npm --prefix infra/cloudflare run test:unit` and `npm --prefix infra/cloudflare run test:integration` remain unrefreshed against the live generated billing-contract source surface
+- `npm --prefix infra/cloudflare run test:unit` and `npm --prefix infra/cloudflare run test:integration` are green in the execution record; the remaining blocker is the absent proof artifact
 
 ## Validations run
 

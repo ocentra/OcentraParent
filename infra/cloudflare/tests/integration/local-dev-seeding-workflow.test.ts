@@ -9,6 +9,42 @@ import { collectMissingRuntimeDependencyBlockers, inspectLocalDevWorkflow } from
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const localDevWorkflowModuleUrl = new URL('../../scripts/local-dev-workflow.ts', import.meta.url).href;
+const loggerModuleUrl = new URL('../../../../packages/logging-domain/src/core/logger.ts', import.meta.url).href;
+const stackTraceModuleUrl = new URL('../../../../packages/logging-domain/src/core/stackTrace.ts', import.meta.url).href;
+
+function buildProofChainPrelude(runId: string, boundary: string): string {
+  return `
+    const { Logger } = await import(${JSON.stringify(loggerModuleUrl)});
+    const { getStackTrace } = await import(${JSON.stringify(stackTraceModuleUrl)});
+    const proofChain = {
+      run: ${JSON.stringify(runId)},
+      correlationId: ${JSON.stringify(runId)},
+      owner: 'infra/cloudflare/scripts/local-dev-workflow.ts',
+      boundary: ${JSON.stringify(boundary)},
+      redaction: 'not-applicable',
+    };
+    const logProofChainEvent = (
+      result: 'started' | 'passed' | 'failed',
+      error?: unknown
+    ): void => {
+      const fields = {
+        run: ${JSON.stringify(runId)},
+        correlationId: ${JSON.stringify(runId)},
+        owner: 'infra/cloudflare/scripts/local-dev-workflow.ts',
+        boundary: ${JSON.stringify(boundary)},
+        redaction: 'not-applicable',
+        result,
+        ...(error === undefined ? {} : { error }),
+      };
+
+      if (result === 'failed') {
+        Logger.instance.logError('local-dev workflow proof chain', getStackTrace(), fields);
+      } else {
+        Logger.instance.logInfo('local-dev workflow proof chain', getStackTrace(), fields);
+      }
+    };
+  `;
+}
 
 describe('local dev seeding workflow', () => {
   it('resolves the generated billing-contract sidecar from the module default even when cwd changes', () => {
@@ -23,12 +59,21 @@ describe('local dev seeding workflow', () => {
           '--eval',
           `
             (async () => {
-              const { collectMissingRuntimeDependencyBlockers } = await import(${JSON.stringify(localDevWorkflowModuleUrl)});
-              process.chdir(${JSON.stringify(tempCwd)});
-              const blockers = collectMissingRuntimeDependencyBlockers();
-              process.stdout.write(JSON.stringify(blockers));
+              ${buildProofChainPrelude('cwd-independence', 'module-default-sidecar-resolution')}
+              try {
+                logProofChainEvent('started');
+                const { collectMissingRuntimeDependencyBlockers } = await import(${JSON.stringify(localDevWorkflowModuleUrl)});
+                process.chdir(${JSON.stringify(tempCwd)});
+                const blockers = collectMissingRuntimeDependencyBlockers();
+                process.stdout.write(JSON.stringify(blockers));
+                logProofChainEvent('passed');
+              } catch (error) {
+                logProofChainEvent('failed', error);
+                process.stderr.write(error instanceof Error ? error.name + ': ' + error.message : String(error));
+                process.exit(1);
+              }
             })().catch((error) => {
-              console.error(error instanceof Error ? error.name + ': ' + error.message : String(error));
+              process.stderr.write(error instanceof Error ? error.name + ': ' + error.message : String(error));
               process.exit(1);
             });
           `,
@@ -80,6 +125,8 @@ describe('local dev seeding workflow', () => {
     assert.equal(workflow.seed.aggregateCommand, 'npm --prefix infra/cloudflare run seed:local');
     assert.equal(workflow.teardown.status, 'explicit');
     assert.equal(workflow.start.status, 'runnable');
+    assert.equal(workflow.start.importCheckStatus, 'passed');
+    assert.equal(workflow.start.runtimeBootStatus, 'unproven');
     assert.deepEqual(workflow.start.blockers, []);
     assert.equal(workflow.seed.status, 'runnable');
     assert.ok(workflow.seed.fixtureFamilies.every((family) => family.populationState !== 'blocked'));
@@ -116,15 +163,24 @@ describe('local dev seeding workflow', () => {
         'tsx',
         '--eval',
         `
-          (async () => {
-            const { inspectLocalDevWorkflow } = await import(${JSON.stringify(localDevWorkflowModuleUrl)});
-            const workflow = inspectLocalDevWorkflow();
-            process.stdout.write(JSON.stringify(workflow));
-          })().catch((error) => {
-            console.error(error instanceof Error ? error.name + ': ' + error.message : String(error));
-            process.exit(1);
-          });
-        `,
+            (async () => {
+              ${buildProofChainPrelude('seed-unavailable', 'local-dev-seeding-workflow')}
+              try {
+                logProofChainEvent('started');
+                const { inspectLocalDevWorkflow } = await import(${JSON.stringify(localDevWorkflowModuleUrl)});
+                const workflow = inspectLocalDevWorkflow();
+                process.stdout.write(JSON.stringify(workflow));
+                logProofChainEvent('passed');
+              } catch (error) {
+                logProofChainEvent('failed', error);
+                process.stderr.write(error instanceof Error ? error.name + ': ' + error.message : String(error));
+                process.exit(1);
+              }
+            })().catch((error) => {
+              process.stderr.write(error instanceof Error ? error.name + ': ' + error.message : String(error));
+              process.exit(1);
+            });
+          `,
       ],
       {
         cwd: repoRoot,
@@ -140,6 +196,8 @@ describe('local dev seeding workflow', () => {
 
     const workflow = JSON.parse(child.stdout.trim());
     assert.equal(workflow.start.status, 'runnable');
+    assert.equal(workflow.start.importCheckStatus, 'passed');
+    assert.equal(workflow.start.runtimeBootStatus, 'unproven');
     assert.equal(workflow.seed.status, 'blocked');
     assert.ok(
       workflow.seed.fixtureFamilies.some(

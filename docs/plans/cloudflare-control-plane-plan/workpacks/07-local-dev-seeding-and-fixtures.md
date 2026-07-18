@@ -26,7 +26,7 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 ## Execution truth
 
-- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` now succeeds in this checkout and reaches the generated billing-contract source surface through the local probe.
+- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` now succeeds in this checkout and reaches the checked-in billing-contract sidecar through the local probe.
 - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` now succeeds and asserts start, seed, teardown, and fixture-family truth.
 - Local start is import-check passed; runtime boot remains unproven.
 - Local seed is command-backed and runnable.
@@ -48,11 +48,11 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 ## Validations run
 
-- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` -> passed; `start.status = runnable`, `seed.status = runnable`
+- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` -> passed; `start.status = runnable`, `importCheckStatus = passed`, `runtimeBootStatus = unproven`, `seed.status = runnable`
 - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` -> passed
 - `npm --prefix infra/cloudflare run lint` -> passed at head `c121ba5eb`
 - `npm run lint:architecture -- --files infra/cloudflare/scripts/local-dev-workflow.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
-  Result: passed with an honest zero-match report for the focused re-export gate scope.
+  Result: passed with a non-empty focused scope over both touched TS files.
 
 ## No-claim boundary
 

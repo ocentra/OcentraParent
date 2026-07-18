@@ -19,6 +19,8 @@ export interface LocalStartPath {
   origin: string;
   authAdapterMode: string;
   status: 'blocked' | 'runnable';
+  importCheckStatus: 'blocked' | 'passed';
+  runtimeBootStatus: 'proven' | 'unproven';
   blockers: ReadonlyArray<RuntimeDependencyBlocker>;
 }
 
@@ -157,6 +159,8 @@ function runCloudflareScript(command: string): CommandProbeResult {
 function inspectLocalStartPath(): LocalStartPath {
   const workspaceScripts = readWorkspaceScripts();
   const blockers: RuntimeDependencyBlocker[] = [...collectMissingRuntimeDependencyBlockers()];
+  let importCheckStatus: 'blocked' | 'passed' = 'blocked';
+  const runtimeBootStatus: 'proven' | 'unproven' = 'unproven';
 
   if (workspaceScripts['dev:cloudflare'] !== 'npm --prefix infra/cloudflare run dev') {
     blockers.push({
@@ -189,6 +193,8 @@ function inspectLocalStartPath(): LocalStartPath {
           'Cloudflare worker runtime import failed without diagnostics'
         ).trim(),
       });
+    } else {
+      importCheckStatus = 'passed';
     }
   }
 
@@ -199,6 +205,8 @@ function inspectLocalStartPath(): LocalStartPath {
     origin: 'http://localhost:3000',
     authAdapterMode: 'account-auth-adapter-manual-required',
     status: blockers.length === 0 ? 'runnable' : 'blocked',
+    importCheckStatus,
+    runtimeBootStatus,
     blockers,
   };
 }

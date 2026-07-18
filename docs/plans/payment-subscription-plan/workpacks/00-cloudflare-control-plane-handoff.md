@@ -98,6 +98,15 @@ portal_worker_smoke_state
 payment_route_group_state
 secret_boundary_state
 runtime_block_state
+accepted_proof_roots
+missing_proof_roots
+carried_blockers
+trusted_device_dependency_state
+provider_webhook_dependency_state
+storage_queue_dependency_state
+deployment_promotion_state
+data_custody_state
+downstream_payment_ack_state
 upstream_handoff_artifact
 payment_runtime_no_claim
 ```
@@ -142,8 +151,12 @@ Current validation truth:
   - payment runtime remains blocked until the handoff proof is explicit and downstream-consumed
   - `account-auth-adapter-manual-required`
   - trusted-device authority remains owned outside the Cloudflare plan
+  - provider-webhook readiness remains `blocked / proof-required`
+  - storage and queue operations readiness remains `blocked / proof-required`
   - portal-to-worker smoke proof missing
   - deployment/promotion proof missing
+  - data-custody readiness remains `blocked / proof-required`
+  - downstream payment acknowledgment remains `blocked / not-recorded`
 
 ## Negative cases
 

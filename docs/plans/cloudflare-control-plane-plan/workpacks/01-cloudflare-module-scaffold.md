@@ -37,7 +37,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
   - real runtime files include `src/index.ts`, `src/env.ts`, `src/routes.ts`, `src/billing-binding-read-model.ts`, `src/fixtures.ts`, `src/testing.ts`, `src/auth/model.ts`, `src/auth/verifier.ts`, and `src/security/redaction.ts`
   - scaffold-only directories still carry `README.md` placeholders under `src/durable-objects/`, `src/flows/`, `src/handlers/`, `src/observability/`, `src/providers/`, `src/queues/`, and `src/storage/`
 - The proof root `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` is an expected output path, but no tracked proof root exists in this checkout.
-- The packet remains blocked because the scoped module lint gate has not been refreshed against the live generated billing-contract source surface, and the scaffold-only directories still remain placeholders.
+- The packet remains proof-required because the current checkout still lacks the physical proof bundle, and the scaffold-only directories still remain placeholders.
 
 ## Acceptance
 

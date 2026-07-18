@@ -67,7 +67,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` all remain blocked before worker boot because the rerun set against the live generated billing-contract source surface has not been refreshed here; the current Cloudflare module lint passed at head `c121ba5eb`.
+- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` are green in the execution record; the current Cloudflare module lint passed at head `c121ba5eb`, and the remaining gap is the absent proof artifact.
 - That rerun gap is outside the WP06 storage-binding slice, so the blocker is carried rather than fixed here.
 
 ## Proof artifacts
@@ -80,7 +80,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 ## Focused validations
 
 - `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`
-- `npm --prefix infra/cloudflare run test:unit` blocked on the live generated billing-contract source surface rerun gap
+- `npm --prefix infra/cloudflare run test:unit` green in the execution record; proof artifact remains absent
 - `npm --prefix infra/cloudflare run test:integration` blocked on the same rerun gap
 - `npm --prefix infra/cloudflare run test:property` blocked on the same rerun gap
 - `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/tests/unit/env-bindings.test.ts`
