@@ -31,7 +31,7 @@
 Current status:
 
 ```text
-WP04 is now fully proved locally after the pinned npm bootstrap restored the fresh worktree dependency surface and the exact TS/Rust fixture parity command passed. WP06 has a canonical proof root plus live agent-query/MCP proof-inventory detection, and WP08 has its canonical partial-proof root; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
+WP04 is complete-proven at 12/12 from recorded local commands after the pinned npm bootstrap restored the fresh worktree dependency surface, the exact TS/Rust fixture parity command passed, and final full crate/downstream acceptance passed. Its ignored output artifacts are reproducible and are not expected after a fresh checkout. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
 ```
 
 Expected result:

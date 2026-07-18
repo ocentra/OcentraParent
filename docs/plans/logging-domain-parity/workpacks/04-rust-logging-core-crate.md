@@ -78,7 +78,7 @@ crates/logging-core/src/snapshot.rs
 ## Required proof root
 
 ```text
-output/logging-domain-parity-proof/04-rust-logging-core-crate/
+output/logging-domain-parity-proof/04-rust-logging-core-crate/ (generated locally and intentionally ignored; regenerate from the recorded commands, do not expect it in Git)
 ```
 
 Required artifacts:
@@ -93,18 +93,18 @@ Required artifacts:
 
 ## Checklist rows
 
-- [ ] `crates/logging-core` created.
-- [ ] Workspace manifest updated.
-- [ ] Rust log event types added.
-- [ ] NDJSON writer added.
-- [ ] Artifact writer added.
-- [ ] Redaction helpers added.
-- [ ] Agent run/diagnostic structs added.
-- [ ] Agent-service delegates dev logging to logging-core.
-- [ ] Rust tests added.
-- [ ] TS/Rust fixture parity tests added.
-- [ ] Focused cargo/npm commands pass.
-- [ ] Proof root and workpack completion filled.
+- [x] `crates/logging-core` created.
+- [x] Workspace manifest updated.
+- [x] Rust log event types added.
+- [x] NDJSON writer added.
+- [x] Artifact writer added.
+- [x] Redaction helpers added.
+- [x] Agent run/diagnostic structs added.
+- [x] Agent-service delegates dev logging to logging-core.
+- [x] Rust tests added.
+- [x] TS/Rust fixture parity tests added.
+- [x] Focused cargo/npm commands pass.
+- [x] Proof root and workpack completion filled.
 
 ## Expected source changes
 
@@ -181,15 +181,15 @@ The local proof root records the July 18, 2026 closure rerun: `cargo fmt
 ocentra-parent-logging-core`, clippy with warnings denied, focused agent-service
 `dev_log` coverage, and TS/Rust fixture parity all passed. The fresh worktree
 was bootstrapped with the pinned `npm ci` lockfile path; it made no lockfile
-change. WP04 is complete for its local Rust logging-core scope.
+change. The generated directory is intentionally ignored, so its existence is not a checkout-state claim. WP04 is complete-proven for its local Rust logging-core scope from the tracked completion record below.
 
 ## Completion record
 
 ```text
-Workpack id and branch: 04-rust-logging-core-crate; codex/logging-domain-parity-wp04
-Touched files: logging-plan state, next-actions, checklist, and this workpack; local ignored proof artifacts under output/logging-domain-parity-proof/04-rust-logging-core-crate/
-Validation commands and results: cargo fmt/check/test/clippy for logging-core, focused agent-service dev_log test, exact logging-domain fixture-parity test, scoped Enforcer checks, and architecture lint all passed
-Proof artifacts: 00-rust-crate-file-map.json, 01-rust-ndjson-writer-proof.json, 02-artifact-writer-proof.json, 03-ts-rust-fixture-parity.json, 16-validation-commands.log
+Workpack id and branch: 04-rust-logging-core-crate; codex/logging-domain-parity-wp04; base 4ef87397a00c1db4309c02ab6f90ae7afefe4626; final local run wp04-local-20260718-1825
+Touched files: logging-core dev-log, NDJSON, artifact, observability, and unit concurrency coverage; logging-plan state, next-actions, index, and this workpack; local ignored proof artifacts under output/logging-domain-parity-proof/04-rust-logging-core-crate/
+Validation commands and results: historical Enforcer runs PASS 20260718165751-17c17f52 cargo fmt --check; PASS 20260718165801-64348b4b cargo check; PASS 20260718165945-b72a12e7 cargo test; PASS 20260718170146-4521c1a4 cargo clippy; PASS 20260718170341-cbd1bf83 focused agent-service dev_log; PASS 20260718171307-9dc48f27 fixture parity. Final local run PASS cargo fmt/check/clippy/test -p ocentra-parent-logging-core; cargo test -p ocentra-parent-agent-service; npm run build and test --workspace @ocentra-parent/logging-domain; npm run lint:architecture -- --files crates/logging-core crates/agent-service/src/dev_log.rs; git diff --check. One prior full agent-service attempt failed only policy_request_confirm and its isolated rerun passed; the final current-head full run passed.
+Proof artifacts: generated locally at the ignored output route as 00-rust-crate-file-map.json, 01-rust-ndjson-writer-proof.json, 02-artifact-writer-proof.json, 03-ts-rust-fixture-parity.json, and 16-validation-commands.log; they are intentionally untracked and must be regenerated from the recorded commands when needed
 Product/runtime claims: local Rust logging-core and agent-service dev-log delegation only
 Known gaps/manual-required states: no production telemetry, agent-run, or DuckDB-wrapper claim
 ```

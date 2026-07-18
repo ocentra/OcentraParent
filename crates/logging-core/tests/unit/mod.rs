@@ -20,6 +20,8 @@ use serde_json::json;
 #[path = "../support/mod.rs"]
 mod support;
 
+mod concurrency_artifact;
+
 #[test]
 fn ndjson_writer_appends_json_lines_in_order() {
     let result = ndjson_writer_appends_json_lines_in_order_impl();

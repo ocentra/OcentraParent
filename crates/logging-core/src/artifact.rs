@@ -1,7 +1,8 @@
 use std::{
-    fs::{create_dir_all, write},
-    io,
+    fs::{create_dir_all, hard_link, read, remove_file, OpenOptions},
+    io::{self, Write},
     path::PathBuf,
+    sync::atomic::{AtomicU64, Ordering},
 };
 
 use serde::{Deserialize, Serialize};
@@ -10,6 +11,8 @@ use sha2::{Digest, Sha256};
 use crate::path::{path_string, sanitize_segment, timestamp_now};
 
 pub const ARTIFACT_SCHEMA_VERSION: u16 = 1;
+
+static TEMPORARY_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -66,7 +69,7 @@ impl ArtifactWriter {
             .join(&command_id);
         create_dir_all(&path)?;
         path.push(kind_file_name(&kind));
-        write(&path, content.as_bytes())?;
+        publish_immutable(&path, content.as_bytes())?;
 
         let digest = Sha256::digest(content.as_bytes());
         let sha256 = format!("{digest:x}");
@@ -86,6 +89,61 @@ impl ArtifactWriter {
             created_at: timestamp_now(),
         })
     }
+}
+
+fn publish_immutable(path: &std::path::Path, content: &[u8]) -> io::Result<()> {
+    if let Ok(existing) = read(path) {
+        return compare_existing(&existing, content);
+    }
+
+    let temporary = temporary_path(path)?;
+    let write_result = write_temporary(&temporary, content);
+    if let Err(error) = write_result {
+        let _ = remove_file(&temporary);
+        return Err(error);
+    }
+
+    let publish_result = hard_link(&temporary, path);
+    let cleanup_result = remove_file(&temporary);
+    match publish_result {
+        Ok(()) => cleanup_result,
+        Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
+            let existing = read(path)?;
+            compare_existing(&existing, content)
+        }
+        Err(error) => Err(error),
+    }
+}
+
+fn compare_existing(existing: &[u8], content: &[u8]) -> io::Result<()> {
+    if existing == content {
+        Ok(())
+    } else {
+        Err(io::Error::new(
+            io::ErrorKind::AlreadyExists,
+            "artifact path already contains different content",
+        ))
+    }
+}
+
+fn temporary_path(path: &std::path::Path) -> io::Result<PathBuf> {
+    let name = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "artifact path has no file name",
+            )
+        })?;
+    let sequence = TEMPORARY_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+    Ok(path.with_file_name(format!(".{name}.{}.{}.tmp", std::process::id(), sequence)))
+}
+
+fn write_temporary(path: &std::path::Path, content: &[u8]) -> io::Result<()> {
+    let mut file = OpenOptions::new().write(true).create_new(true).open(path)?;
+    file.write_all(content)?;
+    file.sync_all()
 }
 
 fn kind_file_name(kind: &ArtifactKind) -> &'static str {

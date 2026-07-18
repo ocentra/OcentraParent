@@ -1,5 +1,5 @@
 use std::{
-    fs::{create_dir_all, OpenOptions},
+    fs::{create_dir_all, File, OpenOptions},
     io::{self, Write},
     path::PathBuf,
 };
@@ -28,10 +28,26 @@ impl NdjsonWriter {
         let directory = self.root.join(scope).join("ndjson").join(stream);
         create_dir_all(&directory)?;
         let path = directory.join(format!("{}.ndjson", date_stamp_now()));
-        let mut file = OpenOptions::new().create(true).append(true).open(&path)?;
-        serde_json::to_writer(&mut file, event)
+        let mut record = serde_json::to_vec(event)
             .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
-        file.write_all(b"\n")?;
+        record.push(b'\n');
+        append_record(&path, &record)?;
         Ok(path)
     }
+}
+
+pub fn append_record(path: &std::path::Path, record: &[u8]) -> io::Result<()> {
+    let mut file = OpenOptions::new()
+        .read(true)
+        .create(true)
+        .append(true)
+        .open(path)?;
+    lock_and_append(&mut file, record)
+}
+
+fn lock_and_append(file: &mut File, record: &[u8]) -> io::Result<()> {
+    file.lock()?;
+    let result = file.write_all(record).and_then(|_| file.sync_data());
+    let unlock_result = file.unlock();
+    result.and(unlock_result)
 }
