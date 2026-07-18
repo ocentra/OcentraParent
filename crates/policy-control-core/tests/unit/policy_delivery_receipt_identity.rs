@@ -461,3 +461,48 @@ fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn execution_receipt_and_adapter_debug_redact_sensitive_provenance() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let mut acknowledged_transition = transition(
+        2,
+        "attempt-debug-redaction",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+    acknowledged_transition.reason_code = Some(reason("reason-debug-redaction")?);
+    let execution = adapter_execution(&queued, &acknowledged_transition);
+
+    let receipt_debug = format!("{:?}", execution.receipt);
+    let adapter_debug = format!("{execution:?}");
+    let sensitive_values = [
+        "delivery-policy-household-default",
+        "household-default",
+        "policy-source-household-default",
+        "child-primary",
+        "device-laptop",
+        "Tracking",
+        "attempt-debug-redaction",
+        "audit-attempt-debug-redaction-2",
+        "reason-debug-redaction",
+    ];
+
+    for debug in [&receipt_debug, &adapter_debug] {
+        for sensitive_value in sensitive_values {
+            assert!(
+                !debug.contains(sensitive_value),
+                "debug output exposed sensitive value {sensitive_value}: {debug}"
+            );
+        }
+    }
+    assert_eq!(
+        receipt_debug,
+        "PolicyDeliveryExecutionReceipt { delivery_id: \"<redacted>\", household_id: \"<redacted>\", policy_version: 3, source_document_id: \"<redacted>\", target: \"<redacted>\", attempt_id: \"<redacted>\", sequence: 2, state: Acknowledged, audit_reference_count: 1, reason_code_present: true, rollback_reference_state: None }"
+    );
+    assert_eq!(
+        adapter_debug,
+        "PolicyDeliveryAdapterExecution { transition_sequence: 2, transition_state: Acknowledged, transition_audit_reference_count: 1, transition_reason_code_present: true, transition_superseded_by_policy_version: None, transition_rollback_reference_state: None, receipt: PolicyDeliveryExecutionReceipt { delivery_id: \"<redacted>\", household_id: \"<redacted>\", policy_version: 3, source_document_id: \"<redacted>\", target: \"<redacted>\", attempt_id: \"<redacted>\", sequence: 2, state: Acknowledged, audit_reference_count: 1, reason_code_present: true, rollback_reference_state: None } }"
+    );
+
+    Ok(())
+}

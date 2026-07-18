@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+use std::fmt;
+
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::SchemaVersion;
 use ocentra_parent_agent_protocol::constants::policy_control;
@@ -213,7 +215,7 @@ pub struct PolicyDeliveryTransition {
     pub rollback_reference_state: Option<PolicyDeliveryState>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyDeliveryExecutionReceipt {
     pub delivery_id: PolicyDeliveryId,
     pub household_id: PolicyHouseholdId,
@@ -228,10 +230,56 @@ pub struct PolicyDeliveryExecutionReceipt {
     pub rollback_reference_state: Option<PolicyDeliveryState>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+impl fmt::Debug for PolicyDeliveryExecutionReceipt {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("PolicyDeliveryExecutionReceipt")
+            .field("delivery_id", &"<redacted>")
+            .field("household_id", &"<redacted>")
+            .field("policy_version", &self.policy_version.value())
+            .field("source_document_id", &"<redacted>")
+            .field("target", &"<redacted>")
+            .field("attempt_id", &"<redacted>")
+            .field("sequence", &self.sequence.value())
+            .field("state", &self.state)
+            .field("audit_reference_count", &self.audit_reference_ids.len())
+            .field("reason_code_present", &self.reason_code.is_some())
+            .field("rollback_reference_state", &self.rollback_reference_state)
+            .finish()
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyDeliveryAdapterExecution {
     pub transition: PolicyDeliveryTransition,
     pub receipt: PolicyDeliveryExecutionReceipt,
+}
+
+impl fmt::Debug for PolicyDeliveryAdapterExecution {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("PolicyDeliveryAdapterExecution")
+            .field("transition_sequence", &self.transition.sequence.value())
+            .field("transition_state", &self.transition.state)
+            .field(
+                "transition_audit_reference_count",
+                &self.transition.audit_reference_ids.len(),
+            )
+            .field(
+                "transition_reason_code_present",
+                &self.transition.reason_code.is_some(),
+            )
+            .field(
+                "transition_superseded_by_policy_version",
+                &self.transition.superseded_by_policy_version,
+            )
+            .field(
+                "transition_rollback_reference_state",
+                &self.transition.rollback_reference_state,
+            )
+            .field("receipt", &self.receipt)
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

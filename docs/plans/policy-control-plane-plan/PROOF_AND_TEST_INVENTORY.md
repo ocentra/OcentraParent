@@ -22,7 +22,7 @@ docs/proof/policy-control-plane-plan/
 | WP01 source of truth | Present | `01-source-of-truth-matrix-proof.md`, `01-schema-negative-proof.md`, `01-version-skew-proof.md`, `01-duplicate-truth-negative-proof.md`, `01-ai-preview-not-write-proof.md`, `01-authz-negative-proof.md` |
 | WP02 parent authoring/preview | Open | no `02-*.md` closeout bundle under the canonical root; `02-no-claim-boundary.md` is universal only |
 | WP03 domain policy compilers | Open | no `03-*.md` closeout bundle under the canonical root; deleted stale `03-*.md` files do not count |
-| WP04 delivery/ack/audit | Open | no `04-*.md` closeout bundle under the canonical root |
+| WP04 delivery/ack/audit | Present | `04-delivery-state-machine-proof.md`, `04-delivery-replay-and-ordering-proof.md`, `04-delivery-degraded-and-parent-visible-proof.md`, `04-delivery-audit-rollback-proof.md` |
 | WP05 ask-parent/overrides | Open | no `05-*.md` closeout bundle under the canonical root |
 | WP06 rollout proof/route gate | Present | `00-scope-summary.md`, `06-rollout-proof-pack.md`, `06-route-sync-proof.md`, `06-no-overclaim-proof.md`, `06-manual-required-gap-register.md`, `PLAN_PROOF_MANIFEST.md`, `16-validation-commands.log` |
 | WP07 schedule/conflict | Present | `07-schedule-timezone-proof.md`, `07-dst-boundary-proof.md`, `07-time-budget-reset-proof.md`, `07-conflict-precedence-proof.md`, `07-offline-timer-recovery-proof.md` |
