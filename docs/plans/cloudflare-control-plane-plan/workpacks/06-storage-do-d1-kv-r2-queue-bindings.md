@@ -67,7 +67,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` all remain blocked before worker boot because the rerun set against the live generated billing-contract source surface has not been refreshed here, and `src/fixtures.ts` still carries TypeScript return-path debt.
+- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` all remain blocked before worker boot because the rerun set against the live generated billing-contract source surface has not been refreshed here; the current Cloudflare module lint passed at head `c121ba5eb`.
 - That rerun gap is outside the WP06 storage-binding slice, so the blocker is carried rather than fixed here.
 
 ## Proof artifacts

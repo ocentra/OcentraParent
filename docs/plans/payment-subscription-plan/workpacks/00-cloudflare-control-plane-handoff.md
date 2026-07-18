@@ -81,7 +81,8 @@ data-custody-storage-plan owns billing-record privacy/retention/export/delete bo
 - [x] Shared local dev and required test family shapes exist, and the blocked-state proof remains absent/not produced in this checkout.
 - [x] Portal-to-worker smoke remains visible as `blocked / proof-missing` rather than being silently ignored.
 - [x] Secret ownership remains server-only; payment does not claim provider secret or webhook secret exposure.
-- [x] Payment runtime remains explicitly blocked until the upstream Cloudflare blocker set is cleared.
+- [x] Payment runtime remains explicitly blocked until the upstream Cloudflare handoff proof is generated, validated, and downstream-consumed.
+- [ ] Shared handoff proof is generated, validated, and downstream-consumed; the current checkout output tree still has no tracked WP00-WP12 proof roots.
 
 ## Required proof fields
 
@@ -125,6 +126,7 @@ Current validation truth:
 
 - `cmd /c npm run format:check` -> `fail`; repo-wide Prettier drift outside WP00.
 - `cmd /c npm run lint:schema-boundaries` -> `fail`; weak assertion guard failures in `crates/agent-protocol/tests/contract/*` and `crates/agent-service/tests/unit/lan_pairing.rs`, outside payment WP00 ownership.
+- Current Cloudflare lint truth: `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; no current Cloudflare module lint blocker is claimed here.
 
 ## Exact upstream blocker set
 
@@ -138,7 +140,6 @@ Current validation truth:
   - no tracked Cloudflare handoff proof bundle in this checkout
   - the handoff proof path remains absent/not produced: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
   - payment runtime remains blocked until the handoff proof is explicit and downstream-consumed
-  - `infra/cloudflare/src/fixtures.ts` TypeScript return-path lint debt
   - `account-auth-adapter-manual-required`
   - trusted-device authority remains owned outside the Cloudflare plan
   - portal-to-worker smoke proof missing

@@ -66,7 +66,7 @@ Define development and production Wrangler config, binding names, and secret cus
 ## Blocked truth
 
 - `npm --prefix infra/cloudflare run test:unit` remains blocked until the rerun against the live generated billing-contract source surface is refreshed here.
-- `npm --prefix infra/cloudflare run lint` remains red outside WP02 because broader Cloudflare files still carry `src/fixtures.ts` TypeScript return-path errors and the broader rerun set has not been refreshed here.
+- `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; the broader rerun set still has not been refreshed here, but the current Cloudflare module lint is not a blocker.
 - Those failures are outside the owned WP02 wrangler/dev-vars surface, so they are carried as blockers rather than fixed here.
 
 ## Proof artifacts

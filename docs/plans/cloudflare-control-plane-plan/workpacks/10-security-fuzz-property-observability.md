@@ -65,7 +65,7 @@ Reduce the games security and external-tool surface to the Parent-required basel
 
 - Direct blocker surfaced by every current WP10 command:
   - the live generated billing-contract source surface rerun gap
-  - `src/fixtures.ts` TypeScript return-path errors remain part of the carried module-wide debt
+  - `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; the current Cloudflare module lint is not a blocker
 - The failure path is the same across the current reruns:
   - unrefreshed through the narrowed WP08 family contract and carried observability integrations
 

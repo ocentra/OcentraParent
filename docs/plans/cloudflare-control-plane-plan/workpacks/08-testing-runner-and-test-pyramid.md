@@ -69,8 +69,8 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 ## Exact blockers
 
 - the live generated billing-contract source surface rerun gap
-- `src/fixtures.ts` TypeScript return-path errors remain part of the carried module-wide debt
-- `npm --prefix infra/cloudflare run lint` also remains blocked by module-wide debt outside the narrowed WP08 inventory and the live generated billing-contract source surface rerun gap:
+- Current module lint truth: `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; this packet no longer claims an active Cloudflare module lint blocker.
+- `npm --prefix infra/cloudflare run lint` also remains outside the narrowed WP08 inventory and the live generated billing-contract source surface rerun gap:
   - `infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
   - `infra/cloudflare/tests/integration/payment-routes-real.test.ts`
   - `infra/cloudflare/tests/integration/provider-webhooks.test.ts`
@@ -91,7 +91,8 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 Validation truth from the current checkout:
 
 - `--list` passed.
-- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, `test:fuzz`, and `lint` each remain blocked honestly on the live generated billing-contract source surface rerun gap and the module-wide debt above.
+- `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`.
+- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, and `test:fuzz` each remain blocked honestly on the live generated billing-contract source surface rerun gap.
 - focused architecture lint passed with a zero-match focused scope under the current gate surface.
 
 ## Negative cases
@@ -99,7 +100,7 @@ Validation truth from the current checkout:
 - Reject pretending coverage or mutation exists from docs alone.
 - Reject collapsing several required files into one broad umbrella suite without
   updating the matrix first.
-- Reject treating the narrowed runner inventory as runtime-green while the live generated billing-contract source-surface rerun gap and module-wide lint debt still stop the runtime-facing families.
+- Reject treating the narrowed runner inventory as runtime-green while the live generated billing-contract source-surface rerun gap still stops the runtime-facing families.
 
 ## Failure conditions
 
@@ -111,4 +112,4 @@ Validation truth from the current checkout:
 - This workpack does not prove Cloudflare runtime readiness.
 - This workpack does not prove billing readiness, payment handoff readiness, or portal completion.
 - This workpack does not prove the excluded same-directory tests belong to the WP08 contract.
-- WP08 stays open/blocked until the live generated billing-contract source surface rerun gap and the recorded module-lint debt are actually resolved and rerun green.
+- WP08 stays open/blocked until the live generated billing-contract source surface rerun gap and the recorded module-lint blocker are actually resolved and rerun green.

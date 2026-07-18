@@ -68,7 +68,7 @@ These are field requirements for proof routing, not implementation code prescrip
 - `accepted_proof_roots` for this checkout truth is `none-present`.
 - WP01 through WP11 remain historical plan references in the plan docs and are not present artifacts in this checkout's output tree.
 - WP12 has a defined expected output path in the plan docs, but the generated proof is absent/not produced in this checkout.
-- Payment remains blocked because the focused gates are unrun here, WP02 still carries `src/fixtures.ts` TypeScript return-path lint debt, account/trusted-device/deployment states remain manual-required or blocked, and no downstream payment acknowledgment is owned or recorded here.
+- Payment remains blocked because the focused gates are unrun here, account/trusted-device/deployment states remain manual-required or blocked, and no downstream payment acknowledgment is owned or recorded here; current module lint truth passed at head `c121ba5eb`, so no current Cloudflare module lint blocker is claimed here.
 - This packet is docs-only, so no runtime proof is being manufactured here.
 
 ## Current checkout output inventory
@@ -98,8 +98,7 @@ These are field requirements for proof routing, not implementation code prescrip
   - WP00 through WP12 are missing from the current checkout output tree
 - Accepted-root carried blockers:
   - the live source already imports `./generated/billing-contracts.js` in `infra/cloudflare/src/index.ts` and `infra/cloudflare/src/fixtures.ts`, so the remaining blocker is unrun focused validation in this checkout, not missing source ownership
-  - WP02 also carries module-lint debt from:
-    - `infra/cloudflare/src/fixtures.ts` TypeScript return-path errors
+  - current module lint truth passed at head `c121ba5eb`, so no current Cloudflare module lint blocker is claimed here
 - Dependency and readiness states:
   - account/session authority: `manual-required / blocked`
   - trusted-parent-device authority: `manual-required / blocked`

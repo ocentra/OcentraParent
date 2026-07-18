@@ -28,7 +28,7 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 - `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` now succeeds in this checkout and reaches the generated billing-contract source surface through the local probe.
 - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` now succeeds and asserts start, seed, teardown, and fixture-family truth.
-- Local start is command-backed and runnable.
+- Local start is import-check passed; runtime boot remains unproven.
 - Local seed is command-backed and runnable.
 - Teardown remains explicit: stop `wrangler dev --local`, remove harness-created `--persist-to` temp state, and remove `infra/cloudflare/.dev.vars` only when the harness created it.
 
@@ -44,12 +44,13 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 ## Exact blockers
 
 - Proof artifact absent/not produced in this checkout: `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`
-- `infra/cloudflare/src/fixtures.ts` TypeScript return-path debt remains open for broader Cloudflare lint gates
+- Current module lint truth: `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; no current Cloudflare module lint blocker is claimed here.
 
 ## Validations run
 
 - `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` -> passed; `start.status = runnable`, `seed.status = runnable`
 - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` -> passed
+- `npm --prefix infra/cloudflare run lint` -> passed at head `c121ba5eb`
 - `npm run lint:architecture -- --files infra/cloudflare/scripts/local-dev-workflow.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
   Result: passed with an honest zero-match report for the focused re-export gate scope.
 

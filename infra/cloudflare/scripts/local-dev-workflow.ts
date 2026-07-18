@@ -56,6 +56,12 @@ const cloudflareDir = path.resolve(scriptDir, '..');
 const repoRoot = path.resolve(cloudflareDir, '..', '..');
 const rootPackageJsonPath = path.join(repoRoot, 'package.json');
 const knownRuntimeDependencyPaths = ['src/generated/billing-contracts.ts'] as const;
+const allowedCloudflareScriptCommands = new Set([
+  'seed:local',
+  'seed:products:local',
+  'seed:referrals:local',
+  'seed:test-accounts:local',
+]);
 
 function resolveCloudflareModulePath(cloudflareRoot: string, relativePath: string): string {
   return path.resolve(cloudflareRoot, relativePath);
@@ -98,11 +104,29 @@ function readWorkspaceScripts(): Record<string, string> {
 }
 
 function runCloudflareScript(command: string): CommandProbeResult {
-  const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const result = spawnSync(npmCommand, ['run', command], {
-    cwd: cloudflareDir,
-    encoding: 'utf8',
-  });
+  if (!allowedCloudflareScriptCommands.has(command)) {
+    return {
+      command: `npm --prefix infra/cloudflare run ${command}`,
+      status: 'blocked',
+      stdout: '',
+      stderr: '',
+      blocker: {
+        kind: 'missing-runtime-dependency',
+        details: `unsupported Cloudflare script command: ${command}`,
+      },
+    };
+  }
+
+  const result =
+    process.platform === 'win32'
+      ? spawnSync('cmd.exe', ['/d', '/s', '/c', `npm run ${command}`], {
+          cwd: cloudflareDir,
+          encoding: 'utf8',
+        })
+      : spawnSync('npm', ['run', command], {
+          cwd: cloudflareDir,
+          encoding: 'utf8',
+        });
 
   if (result.status === 0) {
     return {
@@ -120,7 +144,12 @@ function runCloudflareScript(command: string): CommandProbeResult {
     stderr: result.stderr,
     blocker: {
       kind: 'missing-runtime-dependency',
-      details: (result.stderr || result.stdout || `${command} failed without diagnostics`).trim(),
+      details: (
+        result.stderr ||
+        result.stdout ||
+        result.error?.message ||
+        `${command} failed without diagnostics`
+      ).trim(),
     },
   };
 }
