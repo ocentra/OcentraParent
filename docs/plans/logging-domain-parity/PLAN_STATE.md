@@ -63,7 +63,7 @@ Product/support telemetry owners:
 ```text
 output/logging-domain-parity-proof/<workpack>/ is the active proof route.
 test-results/logging-domain-parity-* roots are supporting result roots and must exist before cited.
-WP03, WP06, WP07, WP08, and WP10 have canonical proof roots in this checkout.
+WP03, WP04, WP06, WP07, WP08, and WP10 have canonical proof roots in this checkout.
 WP07 and WP10 proof roots exist, but checklist/workpack closeout remains open.
 WP08 is a bounded partial-proof for portal dev logger, logging-domain source/context storage/query, and agent-service startup/dev-log only.
 WP06 remains partial-proof while the root routing validation failure is outside this delegated logging-owned slice.
@@ -94,7 +94,7 @@ Workpack route: added
 WP01 audit closeout: audit docs present, but the named proof root is absent in this checkout
 WP02 TypeScript package parity: source/tests present, but the named proof root is absent in this checkout
 WP03 parent architecture/routing: the portal dev-log consumer slice now has a canonical proof root, parent scopes are defined in the logging package, and focused portal/logging checks pass; the broader workpack remains open only for the Rust-side agent-service mapping row outside this delegated slice
-WP04 Rust logging core: source/tests present, but the named proof root is absent in this checkout
+WP04 Rust logging core: source/tests and the named local proof root are present; cargo fmt/check/test/clippy and focused agent-service dev-log coverage passed, but TS/Rust fixture execution is blocked in this fresh worktree because `vitest` is unavailable, so WP04 remains open
 WP05 local validation evidence: source/tests/smokes present, but the named proof root is absent in this checkout
 WP06 validation/enforcement: root checker scripts, wrapper scripts, and local evidence smoke are present; logging-owned proof-inventory query surfaces now detect missing/stale proof roots and stale closeout claims through agent-query/MCP plus focused tests, and the canonical WP06 proof root is present; full focused validation remains open because one root routing check fails against an owning surface outside this delegated slice
 WP07 MCP query interface: server, integration coverage, and canonical MCP proof roots are present; fresh-root latest-failures/run-diagnostics/artifact-slice plus CLI parity now prove the deterministic local evidence path, but checklist/workpack closeout is still open
@@ -102,7 +102,7 @@ WP08 logger instrumentation/adoption: a canonical partial-proof root now exists 
 WP09 log control/retention/bridge lifecycle: source/tests present, but the named proof root is absent in this checkout
 WP10 proof trace pipeline: focused portal proof-trace tests pass, the standalone MCP proof-trace smoke is now self-seeding in a clean workspace, and the canonical proof root is present; checklist/workpack closeout is still open
 Checklist state: WP03 now reflects its written proof root, WP06 now has 11/12 rows checked against focused proof, WP08 now has 8/12 rows checked against its canonical partial-proof root, and the remaining workpacks stay open as documented in CHECKLIST_INDEX.md
-Proof inventory root: output/logging-domain-parity-proof/ now contains canonical WP03, WP06, WP07, WP08, and WP10 roots in this checkout
+Proof inventory root: output/logging-domain-parity-proof/ now contains canonical WP03, WP04 (partial; fixture gate blocked), WP06, WP07, WP08, and WP10 roots in this checkout
 Test-results roots: test-results/logging-domain-parity-mcp/ and test-results/logging-domain-parity-proof-trace/ now exist; the other named test-results/logging-domain-parity-* roots are still absent
 PR-ready: false
 ```
@@ -123,7 +123,7 @@ PR-ready: false
 ## Open gaps
 
 ```text
-- Recreate or remove the remaining claimed proof roots under output/logging-domain-parity-proof/*
+- Recreate or remove the remaining claimed proof roots under output/logging-domain-parity-proof/*; WP04 now needs only a dependency-ready TypeScript fixture rerun before its proof can become complete
 - Recreate or remove the remaining claimed test-results/logging-domain-parity-* roots
 - Reconcile the remaining WP07/WP10 checklist closeout and keep WP08 scoped to its canonical partial-proof boundary instead of inflating it to repo-wide adoption
 - Decide whether done in this plan means source present, proof present, or both; the current docs mix those states
@@ -152,7 +152,7 @@ Workpacks are indexed in `WORKPACK_INDEX.md`.
 Current default execution order:
 
 ```text
-1. remaining proof-inventory restoration or claim reduction for WP01/WP02/WP04/WP05/WP09 now that WP08 has a canonical partial-proof root
+1. remaining proof-inventory restoration or claim reduction for WP01/WP02/WP05/WP09, then rerun WP04 fixture parity in a dependency-ready worktree
 2. resolve or reduce the remaining WP03 Rust-side agent-service mapping claim under its owning slice
 3. hand off the root lint:dev-log-routing failure to the owning portal/agent-service slice before claiming full WP06 focused-validation closure
 ```

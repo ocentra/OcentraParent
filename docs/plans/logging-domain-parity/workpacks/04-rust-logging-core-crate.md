@@ -176,9 +176,11 @@ assets, and downstream use from `crates/agent-service/src/dev_log.rs`. The June
 16, 2026 audit re-verified the live delegation path with
 `cargo test -p ocentra-parent-agent-service dev_log`, which passed.
 
-The prior completion block should still not be trusted as durable proof. The
-named proof root
-`output/logging-domain-parity-proof/04-rust-logging-core-crate/` is absent in
-this checkout, and this audit pass did not re-run the full WP04 command set.
-Treat WP04 as source-present with partial live re-check, not as fully proved
-complete.
+The local proof root now exists and records the July 18, 2026 rerun: `cargo fmt
+--check`, `cargo check -p ocentra-parent-logging-core`, `cargo test -p
+ocentra-parent-logging-core`, clippy with warnings denied, and focused
+agent-service `dev_log` coverage passed. The TypeScript fixture command could
+not start because this fresh worktree has no `vitest` binary. Treat WP04 as
+source-present with partial proof, not as fully proved complete, until
+`npm run test --workspace @ocentra-parent/logging-domain -- dev-log-fixture`
+passes in a dependency-ready worktree.
