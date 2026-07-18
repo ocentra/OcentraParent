@@ -59,20 +59,23 @@ These are field requirements for proof routing, not implementation code prescrip
 
 ## Status
 
-- `blocked / proof-present`
+- `blocked / proof-required`
 - Proof root: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/`
 
 ## Execution truth
 
-- The handoff artifact now records the current checkout output inventory and the historical plan references separately.
-- The current checkout output tree only contains the WP12 proof root.
+- The current checkout output tree contains no tracked WP00-WP12 proof roots.
+- `accepted_proof_roots` for this checkout truth is `none-present`.
 - WP01 through WP11 remain historical plan references in the plan docs and are not present artifacts in this checkout's output tree.
+- WP12 has a defined expected output path in the plan docs, but the generated proof is absent/not produced in this checkout.
 - Payment remains blocked because the focused gates are unrun here, WP02 still carries `src/fixtures.ts` TypeScript return-path lint debt, account/trusted-device/deployment states remain manual-required or blocked, and no downstream payment acknowledgment is owned or recorded here.
 - This packet is docs-only, so no runtime proof is being manufactured here.
 
 ## Current checkout output inventory
 
 - Present in this checkout's output tree:
+  - none
+- Expected only in plan docs:
   - `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/`
 
 ## Historical plan references
@@ -92,7 +95,7 @@ These are field requirements for proof routing, not implementation code prescrip
 ## Exact blocker set
 
 - Missing proof roots:
-  - WP01 through WP11 are missing from the current checkout output tree
+  - WP00 through WP12 are missing from the current checkout output tree
 - Accepted-root carried blockers:
   - the live source already imports `./generated/billing-contracts.js` in `infra/cloudflare/src/index.ts` and `infra/cloudflare/src/fixtures.ts`, so the remaining blocker is unrun focused validation in this checkout, not missing source ownership
   - WP02 also carries module-lint debt from:
@@ -100,10 +103,10 @@ These are field requirements for proof routing, not implementation code prescrip
 - Dependency and readiness states:
   - account/session authority: `manual-required / blocked`
   - trusted-parent-device authority: `manual-required / blocked`
-  - provider webhook readiness: `blocked / proof-present`
-  - storage and queue operations readiness: `blocked / proof-present`
-  - portal smoke: `blocked / proof-present`
-  - deployment promotion: `blocked / proof-present`
+  - provider webhook readiness: `blocked / proof-required`
+  - storage and queue operations readiness: `blocked / proof-required`
+  - portal smoke: `blocked / proof-required`
+  - deployment promotion: `blocked / proof-required`
   - downstream payment acknowledgment: `blocked / not-recorded`
 
 ## Validations run

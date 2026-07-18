@@ -15,8 +15,8 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 - Interactive local start is explicit but currently blocked.
 - Blocked runtime dependencies:
+  - the current tracked checkout contains no WP00-WP12 proof roots
   - the local-start rerun has not yet been executed in this checkout against the live generated billing-contract source surface
-  - the dependency/bootstrap path for the local worker has not been re-verified here
 - Do not claim local-start success until those focused reruns and bootstrap steps are evidenced here.
 
 ## Seed commands
@@ -28,7 +28,7 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 ### Current seed truth
 
-- The seed command family is explicit but currently blocked because the seed/bootstrap reruns have not been executed in this checkout against the live generated billing-contract source surface.
+- The seed command family is explicit but currently blocked because the current tracked checkout contains no proof artifact and the seed/bootstrap reruns have not been executed here against the live generated billing-contract source surface.
 - Do not describe the billing fixtures as populated while those seed commands are blocked.
 
 ## Required fixture families
