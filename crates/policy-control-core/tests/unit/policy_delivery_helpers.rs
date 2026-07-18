@@ -4,8 +4,10 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    queue_policy_delivery, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord,
-    PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    queue_policy_delivery, validate_policy_delivery_execution_receipt,
+    PolicyDeliveryAdapterExecution, PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt,
+    PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryState,
+    PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
@@ -234,4 +236,107 @@ pub(super) fn transition(
         superseded_by_policy_version: None,
         rollback_reference_state: None,
     })
+}
+
+pub(super) fn execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+) -> PolicyDeliveryExecutionReceipt {
+    PolicyDeliveryExecutionReceipt {
+        delivery_id: current.delivery_id.clone(),
+        household_id: current.household_id.clone(),
+        policy_version: current.policy_version,
+        target: current.target.clone(),
+        attempt_id: transition.attempt_id.clone(),
+        sequence: transition.sequence,
+        state: transition.state,
+        audit_reference_ids: transition.audit_reference_ids.clone(),
+        rollback_reference_state: transition.rollback_reference_state,
+    }
+}
+
+pub(super) fn adapter_execution(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+) -> PolicyDeliveryAdapterExecution {
+    PolicyDeliveryAdapterExecution {
+        transition: transition.clone(),
+        receipt: execution_receipt(current, transition),
+    }
+}
+
+pub(super) fn execution_receipt_with_sequence(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+    sequence: u64,
+) -> PolicyDeliveryExecutionReceipt {
+    PolicyDeliveryExecutionReceipt {
+        sequence: test_ok!(
+            PolicyDeliverySequence::new(sequence),
+            "policy delivery receipt sequence"
+        ),
+        ..execution_receipt(current, transition)
+    }
+}
+
+pub(super) fn delivery_state_name(state: PolicyDeliveryState) -> String {
+    test_ok!(
+        serde_json::to_string(&state),
+        "serialize delivery state for assertions"
+    )
+    .trim_matches('"')
+    .to_string()
+}
+
+pub(super) fn assert_unexpected_adapter_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    state: PolicyDeliveryState,
+) -> TestResult {
+    let transition = transition(2, "attempt-unexpected-receipt", state)?;
+    let receipt = execution_receipt(current, &transition);
+
+    let error = test_err!(
+        validate_policy_delivery_execution_receipt(current, &transition, Some(&receipt)),
+        "unexpected adapter execution receipt must fail"
+    );
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: format!(
+                "unexpected adapter execution receipt for {} with receipt sequence 2",
+                delivery_state_name(state)
+            ),
+        }
+    );
+    Ok(())
+}
+
+pub(super) fn mutate_provenance_household(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.household_id = test_ok!(
+        PolicyHouseholdId::parse("household-mismatch"),
+        "mismatched household id"
+    );
+}
+
+pub(super) fn mutate_provenance_policy_version(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.policy_version = test_ok!(PolicyVersion::new(8), "mismatched policy version");
+}
+
+pub(super) fn mutate_provenance_child_profile(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.target.child_profile_id = test_ok!(
+        PolicyChildProfileId::parse("child-mismatch"),
+        "mismatched child profile id"
+    );
+}
+
+pub(super) fn mutate_provenance_device(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.target.device_id = test_ok!(
+        PolicyDeviceId::parse("device-mismatch"),
+        "mismatched device id"
+    );
+}
+
+pub(super) fn mutate_provenance_domain(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.target.domain = PolicyConsumerDomain::Browser;
 }

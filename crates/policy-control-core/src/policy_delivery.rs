@@ -216,6 +216,9 @@ pub struct PolicyDeliveryTransition {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyDeliveryExecutionReceipt {
     pub delivery_id: PolicyDeliveryId,
+    pub household_id: PolicyHouseholdId,
+    pub policy_version: PolicyVersion,
+    pub target: PolicyDeliveryTarget,
     pub attempt_id: PolicyDeliveryAttemptId,
     pub sequence: PolicyDeliverySequence,
     pub state: PolicyDeliveryState,

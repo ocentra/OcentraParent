@@ -17,6 +17,9 @@ fn execution_receipt(
 ) -> PolicyDeliveryExecutionReceipt {
     PolicyDeliveryExecutionReceipt {
         delivery_id: current.delivery_id.clone(),
+        household_id: current.household_id.clone(),
+        policy_version: current.policy_version,
+        target: current.target.clone(),
         attempt_id: transition.attempt_id.clone(),
         sequence: transition.sequence,
         state: transition.state,
@@ -83,6 +86,35 @@ fn policy_delivery_execution_receipt_rejects_missing_field_in_version_skew_json(
     );
 
     assert!(error.to_string().contains("missing field `delivery_id`"));
+    Ok(())
+}
+
+#[test]
+fn policy_delivery_execution_receipt_rejects_missing_provenance_in_version_skew_json() -> TestResult
+{
+    let queued = sample_queued_delivery()?;
+    let transition = transition(
+        2,
+        "attempt-acknowledged-provenance",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+    let receipt = execution_receipt(&queued, &transition);
+
+    let mut serialized = test_ok!(
+        serde_json::to_value(&receipt),
+        "serialize execution receipt"
+    );
+    serialized
+        .as_object_mut()
+        .expect("serialized execution receipt object")
+        .remove("household_id");
+
+    let error = test_err!(
+        serde_json::from_value::<PolicyDeliveryExecutionReceipt>(serialized),
+        "missing provenance field must be rejected"
+    );
+
+    assert!(error.to_string().contains("missing field `household_id`"));
     Ok(())
 }
 

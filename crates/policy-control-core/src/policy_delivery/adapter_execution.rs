@@ -1,22 +1,22 @@
 #![forbid(unsafe_code)]
 
-use std::cmp::Ordering;
-
 use super::{
-    adapter_execution_validation, policy_control, state_values, transitions, EventingError,
-    PolicyDeliveryAdapterExecution, PolicyDeliveryApplyOutcome, PolicyDeliveryExecutionReceipt,
-    PolicyDeliveryRecord, PolicyDeliveryTransition,
+    adapter_execution_validation, transitions, EventingError, PolicyDeliveryAdapterExecution,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryExecutionReceipt, PolicyDeliveryRecord,
+    PolicyDeliveryTransition,
 };
 
 pub(super) fn validate_policy_delivery_adapter_execution(
     current: &PolicyDeliveryRecord,
     execution: &PolicyDeliveryAdapterExecution,
 ) -> Result<(), EventingError> {
-    validate_policy_delivery_execution_receipt(
+    adapter_execution_validation::validate_policy_delivery_execution_receipt(
         current,
         &execution.transition,
         Some(&execution.receipt),
-    )
+    )?;
+
+    transitions::apply_policy_delivery_transition(current, execution.transition.clone()).map(|_| ())
 }
 
 pub(super) fn validate_policy_delivery_execution_receipt(
@@ -24,22 +24,8 @@ pub(super) fn validate_policy_delivery_execution_receipt(
     transition: &PolicyDeliveryTransition,
     receipt: Option<&PolicyDeliveryExecutionReceipt>,
 ) -> Result<(), EventingError> {
-    let Some(receipt) = receipt else {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_STATE,
-            value: format!(
-                "missing adapter execution receipt for {}",
-                super::state_values::policy_delivery_state_name(transition.state)
-            ),
-        });
-    };
-
-    adapter_execution_validation::validate_policy_delivery_receipt_identity(
+    adapter_execution_validation::validate_policy_delivery_execution_receipt(
         current, transition, receipt,
-    )?;
-    validate_policy_delivery_receipt_sequence(current, transition, receipt)?;
-    adapter_execution_validation::validate_policy_delivery_receipt_rollback_reference(
-        transition, receipt,
     )
 }
 
@@ -63,83 +49,4 @@ pub(super) fn apply_policy_delivery_execution_transition(
             receipt,
         },
     )
-}
-
-fn validate_policy_delivery_receipt_sequence(
-    current: &PolicyDeliveryRecord,
-    transition: &PolicyDeliveryTransition,
-    receipt: &PolicyDeliveryExecutionReceipt,
-) -> Result<(), EventingError> {
-    validate_receipt_sequence_alignment(transition, receipt)?;
-
-    match receipt.sequence.value().cmp(&current.last_sequence.value()) {
-        Ordering::Less => stale_execution_receipt(receipt, current),
-        Ordering::Equal => validate_current_sequence_replay(current, receipt),
-        Ordering::Greater => Ok(()),
-    }
-}
-
-fn is_duplicate_execution_receipt(
-    current: &PolicyDeliveryRecord,
-    receipt: &PolicyDeliveryExecutionReceipt,
-) -> bool {
-    receipt.sequence == current.last_sequence
-        && receipt.delivery_id == current.delivery_id
-        && receipt.attempt_id == current.last_attempt_id
-        && receipt.state == current.state
-        && receipt.audit_reference_ids == current.audit_reference_ids
-        && receipt.rollback_reference_state == current.rollback_reference_state
-}
-
-fn stale_execution_receipt(
-    receipt: &PolicyDeliveryExecutionReceipt,
-    current: &PolicyDeliveryRecord,
-) -> Result<(), EventingError> {
-    Err(EventingError::InvalidValue {
-        field: policy_control::delivery::FIELD_SEQUENCE,
-        value: format!(
-            "stale execution receipt for sequence {} on {}",
-            receipt.sequence.value(),
-            current.delivery_id.as_str()
-        ),
-    })
-}
-
-fn validate_current_sequence_replay(
-    current: &PolicyDeliveryRecord,
-    receipt: &PolicyDeliveryExecutionReceipt,
-) -> Result<(), EventingError> {
-    if is_duplicate_execution_receipt(current, receipt) {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_SEQUENCE,
-            value: format!(
-                "duplicate execution receipt for sequence {} on {}",
-                receipt.sequence.value(),
-                current.delivery_id.as_str()
-            ),
-        });
-    }
-
-    Err(EventingError::InvalidValue {
-        field: policy_control::delivery::FIELD_SEQUENCE,
-        value: state_values::conflicting_replay_value(receipt.sequence, &current.delivery_id),
-    })
-}
-
-fn validate_receipt_sequence_alignment(
-    transition: &PolicyDeliveryTransition,
-    receipt: &PolicyDeliveryExecutionReceipt,
-) -> Result<(), EventingError> {
-    if receipt.sequence != transition.sequence {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_SEQUENCE,
-            value: format!(
-                "expected receipt sequence {} but receipt reported {}",
-                transition.sequence.value(),
-                receipt.sequence.value()
-            ),
-        });
-    }
-
-    Ok(())
 }
