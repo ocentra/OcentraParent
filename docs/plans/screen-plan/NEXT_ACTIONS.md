@@ -40,7 +40,6 @@ This file is the short resume list for the next worker. It is derived from open 
 - [15 Encrypted Temporary Image Queue](workpacks/15-encrypted-temporary-image-queue.md): 6 open of 6 boxes.
 - [16 Queue Scheduler And Debouncer](workpacks/16-queue-scheduler-and-debouncer.md): 6 open of 6 boxes.
 - [21 Journal And SQLite Ingest](workpacks/21-journal-and-sqlite-ingest.md): 6 open of 6 boxes.
-- [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md): 1 open of 6 boxes (rendered portal deletion-state screenshot; the shared Playwright runner times out in unrelated network E2E before screenshot output).
 - [23 Policy Compiler For Screen Derived Evidence](workpacks/23-policy-compiler-for-screen-derived-evidence.md): 6 open of 6 boxes.
 - [29 Proof Tiers And Proof Packs](workpacks/29-proof-tiers-and-proof-packs.md): 6 open of 6 boxes.
 - [12 Android MediaProjection Adapter Plan Proof](workpacks/12-android-mediaprojection-adapter-plan-proof.md): 2 open of 9 boxes.

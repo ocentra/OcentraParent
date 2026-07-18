@@ -23,8 +23,8 @@ This checklist tracks execution only. Proof artifacts are collected in the desig
 - [x] Delete raw image after expiry: focused sweeper test passes.
 - [x] Record delete-failed state: protocol contract serialization test passes.
 - [x] Record deletion proof reference: focused queue and sweeper tests pass.
-- [ ] Show deletion state in portal: portal unit tests pass, but the shared
-  Playwright runner times out in unrelated network E2E before screenshots are
-  produced; no rendered portal screenshot is claimed.
+- [x] Show deletion state in portal: exact-spec Playwright proof passes with
+  service-backed desktop and mobile screenshots; the rendered route asserts
+  that raw screenshots are absent.
 - [x] Prove no default long-term raw image retention: protocol serialization
   excludes raw payloads and the real capture proof uses no raw retention.

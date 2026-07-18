@@ -28,11 +28,10 @@ Delete after success, delete after expiry, delete-failed visible state, deletion
 
 ## Current State
 
-Five local deletion outcomes are proved by the WP22 packet at
+All six local deletion outcomes are proved by the WP22 packet at
 [`docs/proof/screen-plan/wp22-deletion-retention-proof.md`](../../../proof/screen-plan/wp22-deletion-retention-proof.md).
-The portal unit contract is green, but the rendered-screenshot row remains
-open. Its shared Playwright runner runs unrelated network E2E coverage and
-times out there before the screen screenshot artifacts are produced.
+The portal proof uses the runner's exact-spec environment route, so it runs the
+screen-summary proof without fan-out into unrelated E2E suites.
 
 ## Required proof fields
 
@@ -64,7 +63,7 @@ These are proof-routing fields, not implementation code prescriptions.
 - [x] Delete raw image after expiry.
 - [x] Record delete-failed state.
 - [x] Record deletion proof ref.
-- [ ] Show deletion state in portal.
+- [x] Show deletion state in portal.
 - [x] Prove no default long-term raw image retention.
 
 ## Proof

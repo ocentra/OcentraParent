@@ -9,7 +9,7 @@ platform: windows
 queue_state: deleted
 image_custody_state: deleted
 retention_state: no-raw-retention
-portal_state: not-claimed
+portal_state: screenshot
 run_id: 8HIf9RVzwxgAAAAAAAAAAA
 
 ## Runtime evidence
@@ -25,6 +25,13 @@ The redacted JSON records `existedBeforeEncryption: true`,
 `encryptedQueueContainsRawDigest: false`. It contains no image bytes, OCR text,
 or private window/app values.
 
+artifact_sha256: `232e14d8b613890c2b616d77eafb905656362da73dd6e11d3babf22877bde174`
+artifact_commit: `29f34dbc0` (proof run was executed from this checkpoint)
+
+The artifact is ignored local evidence, not shipped content. The digest and the
+four redacted boolean outcomes above are the tracked verification anchor; the
+manifest deliberately omits its raw temporary path and any image content.
+
 ## Focused validation
 
 - `cargo test -p ocentra-parent-agent-core screen_evidence_queue -- --nocapture` — pass; 4 queue tests.
@@ -32,7 +39,28 @@ or private window/app values.
 - `cargo test -p ocentra-parent-agent-protocol screen_evidence -- --nocapture` — pass; 4 contract/serialization tests.
 - `npm run test --workspace @ocentra-parent/portal -- screen` — pass; 37 files and 144 tests.
 - `cargo build --manifest-path crates/parent-dev-bridge/Cargo.toml` — pass.
-- `SCREEN_PARENT_PORTAL_SUMMARY_UI_PROOF=1 OCENTRA_PARENT_PORTAL_PORT=4478 npm run test:e2e --workspace @ocentra-parent/portal -- tests/e2e/screen-summary-ui-proof.spec.ts` — blocked: the shared runner executes unrelated network E2E coverage and times out there before screen screenshot artifacts are emitted.
+- `SCREEN_PARENT_PORTAL_SUMMARY_UI_PROOF=1 OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC=tests/e2e/screen-summary-ui-proof.spec.ts npm run test:e2e --workspace @ocentra-parent/portal` — pass; exact Chromium spec, Rust dev bridge, local portal, and log bridge.
+
+## Rendered portal evidence
+
+route: `#/screen-analysis`
+project: `chromium`
+service_context: Rust agent service plus parent dev bridge
+sanitized_state_assertion: named screen-analysis region is visible; deleted
+custody/evidence state is rendered; raw screenshot text has count zero; no raw
+image path, bytes, OCR text, or private window/app fields are recorded here.
+
+The ignored screenshot artifacts are verified by these tracked digests:
+
+| Artifact | Viewport | SHA-256 |
+| --- | --- | --- |
+| `output/screen-plan-proof/screen-parent-portal-summary-ui/screenshots/screen-analysis-route-desktop.png` | 1280x720 | `044068fe2abe75ea5131f762528f74073b92dbab33713fc40c907e58e32a8b2c` |
+| `output/screen-plan-proof/screen-parent-portal-summary-ui/screenshots/screen-analysis-route-mobile.png` | 390x844 | `e655caec9b4e9fa52e9227b9c81d2da0e2c713ad3fb80e382a72cf87f8afb067` |
+
+Command context: `SCREEN_PARENT_PORTAL_SUMMARY_UI_PROOF=1`
+and `OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC=tests/e2e/screen-summary-ui-proof.spec.ts`.
+The matching ignored accessibility summary records desktop/mobile screenshot
+assertions, a named region, deleted evidence, and raw-screenshot absence.
 
 ## Outcome mapping
 
@@ -42,7 +70,7 @@ or private window/app values.
 | raw image after expiry | agent-service sweeper test | proved |
 | durable delete-failed state | agent-protocol contract test | proved |
 | durable deletion proof ref | queue/sweeper tests | proved |
-| sanitized portal-visible state | portal unit test / Playwright screenshot | open: shared E2E runner timeout before screenshot |
+| sanitized portal-visible state | exact-spec Playwright screenshots and accessibility summary | proved |
 | no default long-term raw retention | protocol serialization and P3 capture | proved |
 
 ## No-claim boundary
