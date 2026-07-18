@@ -3,10 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import {
-  collectMissingRuntimeDependencyBlockers,
-  inspectLocalDevWorkflow,
-} from '../../scripts/local-dev-workflow.js';
+import { collectMissingRuntimeDependencyBlockers, inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
 
 describe('local dev seeding workflow', () => {
   it('resolves the generated billing-contract sidecar relative to infra/cloudflare from any cwd', () => {
