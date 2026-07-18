@@ -20,7 +20,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Proof root |
 | --- | --- | ---: | --- |
-| blocked / proof-present | [WP00 Cloudflare Control Plane Handoff](workpacks/00-cloudflare-control-plane-handoff.md) | 8/8 | `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/` |
+| blocked / proof-required | [WP00 Cloudflare Control Plane Handoff](workpacks/00-cloudflare-control-plane-handoff.md) | 0/8 | `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/` |
 | done / proof-present | [WP01 Product Pricing Entitlement](workpacks/01-product-pricing-entitlement.md) | 12/12 | `output/payment-subscription-plan-proof/01-product-pricing-entitlement/` |
 | blocked / proof-present | [WP02 Checkout Billing Portal](workpacks/02-checkout-billing-portal.md) | 12/12 | `output/payment-subscription-plan-proof/02-checkout-billing-portal/` |
 | done | [WP03 Subscription Webhook Lifecycle](workpacks/03-subscription-webhook-lifecycle.md) | 12/12 | `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` |

@@ -26,10 +26,10 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 ## Execution truth
 
-- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` exited `0` and emitted an explicit blocked local-start state plus an explicit blocked seed state.
-- `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` exited `0` and proved that start, seed, teardown, fixture families, and blocker reporting stay explicit.
-- Local start remains command-backed but blocked before runtime boot by the live generated billing-contract source surface and the fact that focused reruns have not been refreshed here.
-- Local seed remains command-backed but blocked because `infra/cloudflare/src/fixtures.ts` still has TypeScript return-path lint debt and the focused reruns against the live generated billing-contract source surface have not been refreshed here.
+- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` currently fails in this checkout with `ERR_MODULE_NOT_FOUND: Cannot find package 'tsx' imported from C:\\Users\\sujan\\.codex\\worktrees\\4e8a\\OcentraParent\\`, so the workflow cannot reach the generated billing-contract source surface yet.
+- `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` currently fails with the same `ERR_MODULE_NOT_FOUND` bootstrap error before it can assert start, seed, teardown, and fixture-family truth.
+- Local start remains command-backed but blocked before runtime boot by workspace bootstrap failure (`tsx` missing in this checkout) and the fact that focused reruns have not been refreshed here.
+- Local seed remains command-backed but blocked because the workspace bootstrap fails before the seed commands execute and `infra/cloudflare/src/fixtures.ts` still has TypeScript return-path lint debt.
 - Teardown remains explicit: stop `wrangler dev --local`, remove harness-created `--persist-to` temp state, and remove `infra/cloudflare/.dev.vars` only when the harness created it.
 
 ## Fixture families proved
@@ -43,13 +43,14 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 ## Exact blockers
 
+- workspace bootstrap failure: `node --import tsx ...` and `node --import tsx --test ...` fail immediately with `ERR_MODULE_NOT_FOUND: Cannot find package 'tsx' imported from C:\\Users\\sujan\\.codex\\worktrees\\4e8a\\OcentraParent\\`
 - `infra/cloudflare/src/fixtures.ts` TypeScript return-path errors
 - unrun local-start and seed reruns against the live generated billing-contract source surface
 
 ## Validations run
 
-- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts`
-- `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
+- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` -> failed with `ERR_MODULE_NOT_FOUND: Cannot find package 'tsx' imported from C:\\Users\\sujan\\.codex\\worktrees\\4e8a\\OcentraParent\\`
+- `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` -> failed with `ERR_MODULE_NOT_FOUND: Cannot find package 'tsx' imported from C:\\Users\\sujan\\.codex\\worktrees\\4e8a\\OcentraParent\\`
 - `npm run lint:architecture -- --files infra/cloudflare/scripts/local-dev-workflow.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
   Result: passed with an honest zero-match report for the focused re-export gate scope.
 

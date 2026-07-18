@@ -35,7 +35,8 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | blocked / proof-required | [WP12 Payment Plan Handoff Gate](workpacks/12-payment-plan-handoff-gate.md) | 0/10 | prior proof roots | `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/` |
 
 Several rows already have real source or test implementations. Boxes stay `0/x`
-until matching output proof artifacts exist.
+until matching output proof artifacts are generated, validated, and consumed
+downstream.
 
 ## Default execution order
 
