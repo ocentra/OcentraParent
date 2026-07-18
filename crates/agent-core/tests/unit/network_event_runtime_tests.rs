@@ -50,6 +50,7 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() -> TestResult
         NetworkRuntimePhase::ordered_chain().len()
     );
     assert!(report.dead_letters.is_empty());
+    assert_eq!(report.handled_phases, NetworkRuntimePhase::ordered_chain());
     assert!(!report.manual_required());
     assert_eq!(payloads[0].phase, NetworkRuntimePhase::FlowObserved);
     assert_eq!(payloads[3].ai_audit_state, NetworkAiAuditState::Requested);
@@ -71,8 +72,12 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() -> TestResult
     assert!(payloads.iter().all(|payload| {
         payload.evidence_scope == NetworkEvidenceScope::MetadataOnly
             && payload.evidence_grade == NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata
+            && payload.evidence_grade_contract
+                == ocentra_parent_agent_protocol::NetworkEvidenceGrade::B
             && payload.risk_budget_state == NetworkRiskBudgetState::ObserveOnly
             && payload.intervention_state == NetworkInterventionState::DryRunOnly
+            && payload.policy_action
+                == ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Observe
             && !payload.claim_boundary.decrypted_https_payload_available
             && !payload.claim_boundary.exact_url_available
             && !payload.claim_boundary.page_content_available
@@ -115,6 +120,13 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
 
     assert!(report.manual_required());
     assert_eq!(
+        report.handled_phases,
+        payloads
+            .iter()
+            .map(|payload| payload.phase)
+            .collect::<Vec<_>>()
+    );
+    assert_eq!(
         report.publish_reports.len(),
         NetworkRuntimePhase::ordered_chain().len() - 2
     );
@@ -136,6 +148,10 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
         payload.evidence_grade == NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata
             && payload.risk_budget_state == NetworkRiskBudgetState::ManualReviewRequired
             && payload.intervention_state == NetworkInterventionState::ManualRequired
+            && payload.evidence_grade_contract
+                == ocentra_parent_agent_protocol::NetworkEvidenceGrade::C
+            && payload.policy_action
+                == ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::AskParent
             && !payload.claim_boundary.exact_url_available
             && !payload.claim_boundary.adapter_action_executed
     }));
@@ -173,6 +189,13 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() -> Tes
 
     assert!(!report.manual_required());
     assert_eq!(
+        report.handled_phases,
+        payloads
+            .iter()
+            .map(|payload| payload.phase)
+            .collect::<Vec<_>>()
+    );
+    assert_eq!(
         report.publish_reports.len(),
         NetworkRuntimePhase::ordered_chain().len() - 2
     );
@@ -195,6 +218,10 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() -> Tes
             && payload.evidence_grade == NetworkRuntimeEvidenceGrade::AdapterUnavailable
             && payload.risk_budget_state == NetworkRiskBudgetState::Unavailable
             && payload.intervention_state == NetworkInterventionState::Unavailable
+            && payload.evidence_grade_contract
+                == ocentra_parent_agent_protocol::NetworkEvidenceGrade::D
+            && payload.policy_action
+                == ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::ManualReview
             && !payload.claim_boundary.decrypted_https_payload_available
             && !payload.claim_boundary.adapter_action_executed
     }));

@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use ocentra_eventing::{
     bus::{subscriber::EventSubscriber, EventBus},
-    envelope::{EventMetadata, EventSource},
+    envelope::{EventEnvelope, EventMetadata, EventSource},
     expect_value::ExpectValue,
     ids::{
         CorrelationId, EventCustody, EventId, EventType, RecordedAt, RuntimeInstanceId,
@@ -44,8 +44,8 @@ fn network_evidence_grade_wire_values_match_evidence_contract() {
 
     for (protocol_grade, evidence_grade) in protocol_grades.into_iter().zip(evidence_grades) {
         assert_eq!(
-            serde_json::to_value(protocol_grade).unwrap_or_default(),
-            serde_json::to_value(evidence_grade).unwrap_or_default()
+            serde_json::to_value(protocol_grade).expect(CONTRACT_EXPECTATION),
+            serde_json::to_value(evidence_grade).expect(CONTRACT_EXPECTATION)
         );
     }
 
@@ -63,6 +63,102 @@ fn network_evidence_grade_wire_values_match_evidence_contract() {
             .map(|error| error.classify()),
         Some(serde_json::error::Category::Data)
     );
+}
+
+#[test]
+fn network_runtime_payload_schema_mutations_fail_closed() {
+    let payload = payload();
+    let valid = serde_json::to_value(&payload).expect(CONTRACT_EXPECTATION);
+    assert_eq!(
+        serde_json::from_value::<NetworkRuntimeEventPayload>(valid.clone())
+            .expect(CONTRACT_EXPECTATION),
+        payload
+    );
+
+    let mut unknown_enum = valid.clone();
+    unknown_enum["evidence_grade_contract"] = serde_json::json!("future-grade");
+    let mut missing = valid.clone();
+    missing
+        .as_object_mut()
+        .expect(CONTRACT_EXPECTATION)
+        .remove("evidence_ref");
+    let mut extra = valid.clone();
+    extra["futureField"] = serde_json::json!(true);
+    let mut type_corruption = valid;
+    type_corruption["destination_port"] = serde_json::json!("not-a-port");
+
+    for mutation in [unknown_enum, missing, extra, type_corruption] {
+        assert_eq!(
+            serde_json::from_value::<NetworkRuntimeEventPayload>(mutation)
+                .err()
+                .map(|error| error.classify()),
+            Some(serde_json::error::Category::Data)
+        );
+    }
+}
+
+#[test]
+fn network_runtime_payload_schema_version_skew_fails_closed() {
+    let live = EventEnvelope::from_event(payload(), metadata()).expect(CONTRACT_EXPECTATION);
+    let mut newer = live.store().expect(CONTRACT_EXPECTATION);
+    newer.contract.schema_version = ocentra_eventing::ids::SchemaVersion::new(
+        constants::network_flow::EVENT_SCHEMA_VERSION + 1,
+    )
+    .expect(CONTRACT_EXPECTATION);
+    assert_eq!(
+        newer
+            .decode::<NetworkRuntimeEventPayload>()
+            .err()
+            .map(|error| error.to_string()),
+        Some(format!(
+            "event contract mismatch: expected {}@{}, received {}@{}",
+            NetworkRuntimePhase::FlowObserved.event_type(),
+            constants::network_flow::EVENT_SCHEMA_VERSION,
+            NetworkRuntimePhase::FlowObserved.event_type(),
+            constants::network_flow::EVENT_SCHEMA_VERSION + 1,
+        ))
+    );
+
+    let mut older_json = serde_json::to_value(live.store().expect(CONTRACT_EXPECTATION))
+        .expect(CONTRACT_EXPECTATION);
+    older_json["contract"]["schemaVersion"] = serde_json::json!(0);
+    assert!(
+        serde_json::from_value::<ocentra_eventing::envelope::StoredEventEnvelope>(older_json)
+            .is_err()
+    );
+}
+
+#[test]
+fn network_runtime_payload_exhaustively_round_trips_canonical_grade_and_policy_values() {
+    let grades = [
+        ocentra_parent_agent_protocol::NetworkEvidenceGrade::A,
+        ocentra_parent_agent_protocol::NetworkEvidenceGrade::B,
+        ocentra_parent_agent_protocol::NetworkEvidenceGrade::C,
+        ocentra_parent_agent_protocol::NetworkEvidenceGrade::D,
+    ];
+    let actions = [
+        ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Observe,
+        ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Warn,
+        ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::AskParent,
+        ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Limit,
+        ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Block,
+        ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::ManualReview,
+        ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Unknown,
+    ];
+
+    for grade in grades {
+        for action in actions {
+            let mut candidate = payload();
+            candidate.evidence_grade_contract = grade;
+            candidate.policy_action = action;
+            let encoded = serde_json::to_value(&candidate).expect(CONTRACT_EXPECTATION);
+            assert_eq!(
+                serde_json::from_value::<NetworkRuntimeEventPayload>(encoded)
+                    .expect(CONTRACT_EXPECTATION),
+                candidate
+            );
+        }
+    }
 }
 
 #[tokio::test]
@@ -156,9 +252,11 @@ fn payload() -> NetworkRuntimeEventPayload {
         process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
         evidence_scope: NetworkEvidenceScope::MetadataOnly,
         evidence_grade: NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata,
+        evidence_grade_contract: ocentra_parent_agent_protocol::NetworkEvidenceGrade::B,
         ai_audit_state: NetworkAiAuditState::NotRequested,
         risk_budget_state: NetworkRiskBudgetState::ObserveOnly,
         intervention_state: NetworkInterventionState::DryRunOnly,
+        policy_action: ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Observe,
         claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
         previous_phase_ref: None,
         evidence_ref: constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),

@@ -26,7 +26,7 @@ This file is the short resume list for the next worker. It is derived from open 
 ## Highest-open workpacks by route dependency
 
 1. Plan-truth repair: keep `PLAN_STATE.md`, `source-index.md`, and `PROOF_INDEX.md` aligned with the real source roots and current proof state before claiming any row progress.
-2. [WP01 Foundation Contracts And Eventing](workpacks/01-foundation-contracts-and-eventing.md) - fix canonical contract ownership drift and remove architecture-ban re-exports before treating the foundation as complete.
+2. [WP01 Foundation Contracts And Eventing](workpacks/01-foundation-contracts-and-eventing.md) - validate the Rust-owned `network-core` / `agent-protocol` / `agent-core` contract-eventing boundary before treating the foundation as complete.
 3. [WP08 Control Catalog Reference Routing](workpacks/08-control-catalog-reference-routing.md) - keep the 363-setting catalog honest as a generated reference surface, not a runtime-complete control surface.
 4. [WP02 Passive Capture And Parsing](workpacks/02-passive-capture-and-parsing.md) - regenerate real proof only from the current Rust/TS surfaces, not from stale planned artifact paths.
 5. [WP03 Classification And Correlation](workpacks/03-classification-and-correlation.md) - keep classifier/correlation claims tied to real evidence refs, typed tests, and negative cases.

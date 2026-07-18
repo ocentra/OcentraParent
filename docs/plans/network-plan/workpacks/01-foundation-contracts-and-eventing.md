@@ -15,7 +15,7 @@ Read next:
 
 ```text
 crates/schema or the owning Rust crate owns canonical shared network contracts and generated DTOs. `packages/schema-domain` is temporary generated-validation or edge-decoder surface only where migration is still incomplete.
-network-domain is metadata/proof-consumer unless explicit public exports exist.
+`crates/network-core`, `crates/agent-protocol`, and `crates/agent-core` are the selected Rust domain, protocol, and runtime owners for this workpack.
 ocentra-network-evidence owns Rust evidence/proof helper logic.
 agent-protocol, agent-core, and agent-service own protocol/runtime/service proof only when selected.
 eventing-plan owns reusable local event bus semantics only.
@@ -65,7 +65,7 @@ These are proof-routing fields, not implementation code prescriptions.
 - Do not claim exact content, exact URL, exact video, search text, or private message truth from network-only evidence.
 - Do not allow AI/network observations to publish enforcement commands.
 - Do not use the giant settings inventory as implementation proof.
-- Do not use `network-domain` package metadata as canonical schema ownership proof. Rust-owned schema proof is required for canonical network contract authority.
+- Do not introduce a TypeScript-owned network schema or a private network event bus. Rust-owned contract proof and `ocentra-eventing` integration are required.
 - Do not use schema proof as Rust parity, eventing, service runtime, or platform proof.
 
 ## Current slice note

@@ -913,6 +913,7 @@ impl NetworkRuntimeClaimBoundary {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkRuntimeEventPayload {
     pub phase: NetworkRuntimePhase,
     pub capability_status: ActivityCaptureCapabilityStatus,
@@ -929,9 +930,13 @@ pub struct NetworkRuntimeEventPayload {
     pub process_name: Option<String>,
     pub evidence_scope: NetworkEvidenceScope,
     pub evidence_grade: NetworkRuntimeEvidenceGrade,
+    /// Canonical A-D grade carried across the runtime event boundary.
+    pub evidence_grade_contract: NetworkEvidenceGrade,
     pub ai_audit_state: NetworkAiAuditState,
     pub risk_budget_state: NetworkRiskBudgetState,
     pub intervention_state: NetworkInterventionState,
+    /// Canonical policy intent; the evidence crate maps its local action into this boundary.
+    pub policy_action: NetworkPolicyDecisionAction,
     pub claim_boundary: NetworkRuntimeClaimBoundary,
     pub previous_phase_ref: Option<String>,
     pub evidence_ref: String,
