@@ -23,7 +23,7 @@ pub struct TrustBootstrapInput {
     pub parent_presence: ParentPresenceVerificationAccepted,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct AwaitingPlatformKeySealingRequest {
     pub trust_bootstrap_ref: String,
     pub device_trust_ref: String,
@@ -37,7 +37,7 @@ pub struct TrustBootstrapRejection {
     pub parent_step_up_failure_reason: ParentStepUpValidationFailureReason,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum TrustBootstrapDecision {
     AwaitingPlatformKeySealing(AwaitingPlatformKeySealingRequest),
     Rejected(TrustBootstrapRejection),

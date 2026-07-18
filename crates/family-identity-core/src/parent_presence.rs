@@ -11,6 +11,8 @@ pub enum ParentPresenceVerificationFailureReason {
     ChallengeNotIssued,
     #[serde(rename = "replay-rejected")]
     ReplayRejected,
+    #[serde(rename = "duplicate-challenge-ref")]
+    DuplicateChallengeRef,
     #[serde(rename = "household-mismatch")]
     HouseholdMismatch,
     #[serde(rename = "parent-account-mismatch")]
@@ -25,11 +27,26 @@ pub enum ParentPresenceVerificationFailureReason {
     TargetChildProfileMismatch,
     #[serde(rename = "nonce-mismatch")]
     NonceMismatch,
+    #[serde(rename = "timestamp-invalid")]
+    TimestampInvalid,
     #[serde(rename = "expired")]
     Expired,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentPresenceChallengeIssuanceFailureReason {
+    #[serde(rename = "duplicate-challenge-ref")]
+    DuplicateChallengeRef,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ParentPresenceTimestampParseFailureReason {
+    Malformed,
+    NonCanonical,
+    OffsetNotAllowed,
+}
+
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ParentPresenceChallenge {
     pub challenge_ref: String,
     pub nonce_ref: String,
@@ -46,15 +63,26 @@ pub struct ParentPresenceChallenge {
 pub struct ParentPresenceVerificationInput {
     pub challenge_ref: String,
     pub assertion: ParentStepUpAssertionSnapshot,
-    pub observed_at: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub struct ParentPresenceReceiptRef(String);
 
 impl ParentPresenceReceiptRef {
-    pub fn from_static(bytes: &'static [u8]) -> Self {
-        Self(String::from_utf8_lossy(bytes).into_owned())
+    pub(crate) fn from_string(value: String) -> Self {
+        Self(value)
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl fmt::Debug for ParentPresenceReceiptRef {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("ParentPresenceReceiptRef")
+            .field(&"[redacted]")
+            .finish()
     }
 }
 
@@ -64,43 +92,59 @@ impl fmt::Display for ParentPresenceReceiptRef {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParentPresenceObservedAt(String);
-
-impl ParentPresenceObservedAt {
-    pub fn from_static(bytes: &'static [u8]) -> Self {
-        Self(String::from_utf8_lossy(bytes).into_owned())
-    }
+#[derive(Clone, PartialEq, Eq)]
+pub struct ParentPresenceObservedAt {
+    pub(crate) epoch_millis: i128,
+    pub(crate) canonical: String,
 }
 
-impl fmt::Display for ParentPresenceObservedAt {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.0)
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct ParentPresenceVerificationReceipt {
-    receipt_ref: ParentPresenceReceiptRef,
-}
-
-impl ParentPresenceVerificationReceipt {
-    pub fn receipt_ref(&self) -> ParentPresenceReceiptRef {
-        self.receipt_ref.clone()
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub struct ParentPresenceVerificationAccepted {
-    receipt: ParentPresenceVerificationReceipt,
+    receipt_ref: ParentPresenceReceiptRef,
     challenge: ParentPresenceChallenge,
     assertion_snapshot: ParentStepUpAssertionSnapshot,
     observed_at: ParentPresenceObservedAt,
 }
 
+pub struct ParentPresenceVerificationPort {
+    pub(crate) clock: Box<dyn Fn() -> ParentPresenceObservedAt>,
+    pub(crate) issued_challenges: BTreeMap<String, ParentPresenceChallenge>,
+    pub(crate) consumed_challenge_refs: BTreeSet<String>,
+}
+
+impl fmt::Debug for ParentPresenceChallenge {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ParentPresenceChallenge")
+            .field("challenge_ref", &self.challenge_ref)
+            .field("expires_at", &self.expires_at)
+            .field("family_id", &"[redacted]")
+            .field("parent_account_id", &"[redacted]")
+            .field("privileged_action", &"[redacted]")
+            .field("action_device_id", &"[redacted]")
+            .field("action_device_child_profile_id", &"[redacted]")
+            .field("target_child_profile_id", &"[redacted]")
+            .field("nonce_ref", &"[redacted]")
+            .finish()
+    }
+}
+
 impl ParentPresenceVerificationAccepted {
-    pub fn receipt_ref(&self) -> ParentPresenceReceiptRef {
-        self.receipt.receipt_ref()
+    pub(crate) fn new(
+        receipt_ref: ParentPresenceReceiptRef,
+        challenge: ParentPresenceChallenge,
+        assertion_snapshot: ParentStepUpAssertionSnapshot,
+        observed_at: ParentPresenceObservedAt,
+    ) -> Self {
+        Self {
+            receipt_ref,
+            challenge,
+            assertion_snapshot,
+            observed_at,
+        }
+    }
+
+    pub fn receipt_ref(&self) -> &ParentPresenceReceiptRef {
+        &self.receipt_ref
     }
 
     pub fn assertion_snapshot(&self) -> &ParentStepUpAssertionSnapshot {
@@ -122,89 +166,13 @@ impl ParentPresenceVerificationAccepted {
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct ParentPresenceVerificationPort {
-    issued_challenges: BTreeMap<String, ParentPresenceChallenge>,
-    consumed_challenge_refs: BTreeSet<String>,
-}
-
-impl ParentPresenceVerificationPort {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn issue_challenge(&mut self, challenge: ParentPresenceChallenge) {
-        self.issued_challenges
-            .insert(challenge.challenge_ref.clone(), challenge);
-    }
-
-    pub fn verify_and_consume(
-        &mut self,
-        input: ParentPresenceVerificationInput,
-    ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
-        if self.consumed_challenge_refs.contains(&input.challenge_ref) {
-            return Err(ParentPresenceVerificationFailureReason::ReplayRejected);
-        }
-
-        let Some(challenge) = self.issued_challenges.get(&input.challenge_ref) else {
-            return Err(ParentPresenceVerificationFailureReason::ChallengeNotIssued);
-        };
-
-        if challenge.family_id != input.assertion.family_id {
-            return Err(ParentPresenceVerificationFailureReason::HouseholdMismatch);
-        }
-
-        if challenge.parent_account_id != input.assertion.parent_account_id {
-            return Err(ParentPresenceVerificationFailureReason::ParentAccountMismatch);
-        }
-
-        if challenge.privileged_action != input.assertion.action {
-            return Err(ParentPresenceVerificationFailureReason::ActionMismatch);
-        }
-
-        if challenge.action_device_id != input.assertion.action_device_id {
-            return Err(ParentPresenceVerificationFailureReason::ActionDeviceMismatch);
-        }
-
-        if challenge.action_device_child_profile_id
-            != input.assertion.action_device_child_profile_id
-        {
-            return Err(ParentPresenceVerificationFailureReason::ActionDeviceChildProfileMismatch);
-        }
-
-        if challenge.target_child_profile_id != input.assertion.target_child_profile_id {
-            return Err(ParentPresenceVerificationFailureReason::TargetChildProfileMismatch);
-        }
-
-        if challenge.nonce_ref != input.assertion.nonce {
-            return Err(ParentPresenceVerificationFailureReason::NonceMismatch);
-        }
-
-        if challenge.expires_at != input.assertion.expires_at {
-            return Err(ParentPresenceVerificationFailureReason::Expired);
-        }
-
-        if input.observed_at > challenge.expires_at {
-            return Err(ParentPresenceVerificationFailureReason::Expired);
-        }
-
-        let challenge = self
-            .issued_challenges
-            .remove(&input.challenge_ref)
-            .expect("challenge must still exist after a successful lookup");
-        self.consumed_challenge_refs
-            .insert(challenge.challenge_ref.clone());
-
-        Ok(ParentPresenceVerificationAccepted {
-            receipt: ParentPresenceVerificationReceipt {
-                receipt_ref: ParentPresenceReceiptRef(format!(
-                    "parent-presence-receipt:{}",
-                    challenge.challenge_ref
-                )),
-            },
-            challenge,
-            assertion_snapshot: input.assertion,
-            observed_at: ParentPresenceObservedAt(input.observed_at),
-        })
+impl fmt::Debug for ParentPresenceVerificationAccepted {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ParentPresenceVerificationAccepted")
+            .field("receipt_ref", &self.receipt_ref)
+            .field("observed_at", &self.observed_at)
+            .field("challenge", &"[redacted]")
+            .field("assertion_snapshot", &"[redacted]")
+            .finish()
     }
 }
