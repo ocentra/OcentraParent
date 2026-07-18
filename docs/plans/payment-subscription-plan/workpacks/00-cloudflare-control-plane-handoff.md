@@ -55,7 +55,7 @@ data-custody-storage-plan owns billing-record privacy/retention/export/delete bo
 | `module_spec_state` | exists / source-backed / consumed | `docs/plans/cloudflare-control-plane-plan/PARENT_CLOUDFLARE_MODULE_SPEC.md` |
 | `auth_boundary_state` | exists / consumed / `account-auth-adapter-manual-required` | `docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md`; upstream handoff artifact |
 | `route_manifest_state` | exists / consumed / payment route groups explicit | `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md` |
-| `local_dev_test_state` | blocked / bootstrap-incomplete | `docs/plans/cloudflare-control-plane-plan/TESTING_STRATEGY.md`; `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` |
+| `local_dev_test_state` | runnable / probe-verified; generated billing-contract sidecar resolution is correct and the proof bundle remains absent/not produced | `docs/plans/cloudflare-control-plane-plan/TESTING_STRATEGY.md`; `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts`; `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` |
 | `portal_worker_smoke_state` | blocked / proof-missing | upstream handoff artifact |
 | `payment_route_group_state` | documented / no-runtime-claim | `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md` |
 | `secret_boundary_state` | server-only-secret contract explicit | `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`; module spec |
@@ -78,7 +78,7 @@ data-custody-storage-plan owns billing-record privacy/retention/export/delete bo
 - [x] `infra/cloudflare/` module spec exists and is consumed rather than redefined in payment.
 - [x] Shared auth boundary exists and unresolved authority remains explicit as `manual-required`.
 - [x] Shared route manifest defines the billing, webhook, and admin route groups payment must consume.
-- [ ] Shared local dev and required test family shapes exist, but the blocked-state proof remains absent/not produced in this checkout.
+- [x] Shared local dev and required test family shapes exist, and the blocked-state proof remains absent/not produced in this checkout.
 - [x] Portal-to-worker smoke remains visible as `blocked / proof-missing` rather than being silently ignored.
 - [x] Secret ownership remains server-only; payment does not claim provider secret or webhook secret exposure.
 - [x] Payment runtime remains explicitly blocked until the upstream Cloudflare blocker set is cleared.
@@ -135,8 +135,8 @@ Current validation truth:
   - `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
 - Current blockers still carried upstream:
   - no tracked Cloudflare handoff proof bundle in this checkout
-  - workspace bootstrap failure: `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` and `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` fail immediately with `ERR_MODULE_NOT_FOUND: Cannot find package 'tsx'`
-  - unrun focused Cloudflare reruns against the live generated billing-contract source surface
+  - the handoff proof path remains absent/not produced: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
+  - payment runtime remains blocked until the handoff proof is explicit and downstream-consumed
   - `infra/cloudflare/src/fixtures.ts` TypeScript return-path lint debt
   - `account-auth-adapter-manual-required`
   - trusted-device authority remains owned outside the Cloudflare plan

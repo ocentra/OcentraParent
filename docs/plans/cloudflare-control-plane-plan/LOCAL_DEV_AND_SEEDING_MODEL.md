@@ -13,11 +13,11 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 ### Current local start truth
 
-- Interactive local start is explicit but currently blocked.
-- Blocked runtime dependencies:
-  - the workspace bootstrap is incomplete in this checkout: `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` fails immediately with `ERR_MODULE_NOT_FOUND: Cannot find package 'tsx' imported from C:\Users\sujan\.codex\worktrees\4e8a\OcentraParent\`
-  - the local-start rerun has not yet been executed successfully in this checkout against the live generated billing-contract source surface
-- Do not claim local-start success until those focused reruns and bootstrap steps are evidenced here.
+- Interactive local start is explicit and runnable in this checkout.
+- Verified probe:
+  - `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts`
+  - Result: `start.status = runnable`
+- Do not treat the runnable local probe as payment readiness; it only proves the local dev path is callable from this checkout.
 
 ## Seed commands
 
@@ -28,23 +28,26 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 ### Current seed truth
 
-- The seed command family is explicit but currently blocked because the workspace bootstrap fails before the seed commands can execute in this checkout and the seed/bootstrap reruns have not been executed here against the live generated billing-contract source surface.
-- Do not describe the billing fixtures as populated while those seed commands are blocked.
+- The seed command family is explicit and runnable in this checkout.
+- Verified probe:
+  - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
+  - Result: `seed.status = runnable`
+- Do not describe the billing fixtures as payment-ready; they are local seed fixtures only.
 
 ## Required fixture families
 
 - `pricing-catalog`
   - source: `seed:products:local`
-  - current state: blocked until the workspace bootstrap and local seed/bootstrap reruns are evidenced here
+  - current state: populated in the runnable local seed probe
 - `parent-test-accounts`
   - source: `seed:local`
-  - current state: blocked until the workspace bootstrap and local seed/bootstrap reruns are evidenced here
+  - current state: populated in the runnable local seed probe
 - `support-admin-test-accounts`
   - source: `seed:test-accounts:local`
-  - current state: blocked until the workspace bootstrap and local seed/bootstrap reruns are evidenced here
+  - current state: populated in the runnable local seed probe
 - `referral-test-graph`
   - source: `seed:referrals:local`
-  - current state: blocked until the workspace bootstrap and local seed/bootstrap reruns are evidenced here
+  - current state: populated in the runnable local seed probe
 - `webhook-payload-fixtures`
   - source: `infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts`, `infra/cloudflare/tests/integration/worker-runtime-real.test.ts`
   - current state: explicit test-fixture-backed family, not a seed placeholder

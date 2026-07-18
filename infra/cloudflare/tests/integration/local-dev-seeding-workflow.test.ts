@@ -1,8 +1,41 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, it } from 'node:test';
-import { inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
+import {
+  collectMissingRuntimeDependencyBlockers,
+  inspectLocalDevWorkflow,
+} from '../../scripts/local-dev-workflow.js';
 
 describe('local dev seeding workflow', () => {
+  it('resolves the generated billing-contract sidecar relative to infra/cloudflare from any cwd', () => {
+    const tempRoot = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-dev-'));
+
+    try {
+      const generatedPath = path.join(tempRoot, 'src/generated/billing-contracts.ts');
+      mkdirSync(path.dirname(generatedPath), { recursive: true });
+      writeFileSync(generatedPath, '// generated sidecar');
+
+      assert.deepEqual(collectMissingRuntimeDependencyBlockers(tempRoot), []);
+
+      const missingBlockers = collectMissingRuntimeDependencyBlockers(tempRoot, [
+        'src/generated/missing-billing-contracts.ts',
+      ]);
+
+      assert.deepEqual(missingBlockers, [
+        {
+          kind: 'missing-runtime-dependency',
+          path: 'infra/cloudflare/src/generated/missing-billing-contracts.ts',
+          details:
+            'required generated billing-contract sidecar missing at infra/cloudflare/src/generated/missing-billing-contracts.ts',
+        },
+      ]);
+    } finally {
+      rmSync(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   it('keeps start, seed, teardown, and blocker truth explicit', () => {
     const workflow = inspectLocalDevWorkflow();
 
@@ -46,7 +79,8 @@ describe('local dev seeding workflow', () => {
       assert.ok(
         workflow.seed.fixtureFamilies.some(
           (family) =>
-            family.populationState === 'blocked' && family.blocker?.details.includes('billing-account-runtime-boundary')
+            family.populationState === 'blocked' &&
+            family.blocker?.details.includes('generated billing-contract sidecar')
         )
       );
     }

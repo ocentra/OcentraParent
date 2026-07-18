@@ -57,6 +57,34 @@ const repoRoot = path.resolve(cloudflareDir, '..', '..');
 const rootPackageJsonPath = path.join(repoRoot, 'package.json');
 const knownRuntimeDependencyPaths = ['src/generated/billing-contracts.ts'] as const;
 
+function resolveCloudflareModulePath(cloudflareRoot: string, relativePath: string): string {
+  return path.resolve(cloudflareRoot, relativePath);
+}
+
+function formatCloudflareModulePath(relativePath: string): string {
+  return path.posix.join('infra', 'cloudflare', relativePath.replace(/\\/g, '/'));
+}
+
+export function collectMissingRuntimeDependencyBlockers(
+  cloudflareRoot: string = cloudflareDir,
+  dependencyPaths: ReadonlyArray<string> = knownRuntimeDependencyPaths
+): ReadonlyArray<RuntimeDependencyBlocker> {
+  const blockers: RuntimeDependencyBlocker[] = [];
+
+  for (const relativePath of dependencyPaths) {
+    const absolutePath = resolveCloudflareModulePath(cloudflareRoot, relativePath);
+    if (!existsSync(absolutePath)) {
+      blockers.push({
+        kind: 'missing-runtime-dependency',
+        path: formatCloudflareModulePath(relativePath),
+        details: `required generated billing-contract sidecar missing at ${formatCloudflareModulePath(relativePath)}`,
+      });
+    }
+  }
+
+  return blockers;
+}
+
 interface CommandProbeResult {
   command: string;
   status: 'blocked' | 'runnable';
@@ -98,23 +126,13 @@ function runCloudflareScript(command: string): CommandProbeResult {
 
 function inspectLocalStartPath(): LocalStartPath {
   const workspaceScripts = readWorkspaceScripts();
-  const blockers: RuntimeDependencyBlocker[] = [];
+  const blockers: RuntimeDependencyBlocker[] = [...collectMissingRuntimeDependencyBlockers()];
 
   if (workspaceScripts['dev:cloudflare'] !== 'npm --prefix infra/cloudflare run dev') {
     blockers.push({
       kind: 'runtime-import-check',
       details: 'root package.json no longer exposes dev:cloudflare -> npm --prefix infra/cloudflare run dev',
     });
-  }
-
-  for (const relativePath of knownRuntimeDependencyPaths) {
-    if (!existsSync(path.join(repoRoot, relativePath))) {
-      blockers.push({
-        kind: 'missing-runtime-dependency',
-        path: relativePath,
-        details: 'required by the Cloudflare worker runtime before wrangler local start can import src/index.ts',
-      });
-    }
   }
 
   if (blockers.length === 0) {
