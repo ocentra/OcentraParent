@@ -69,7 +69,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `data-custody-storage-plan` | 8 | 7 | 1 | 0 | Workpack index and checklist disagree in both directions on several rows. |
 | `device-trust-bootstrap-plan` | 9 | 0 | 9 | 0 | Five partial, three blocked, one docs-only; adapter-backed runtime closure is missing. |
 | `eventing-plan` | 4 | 3 | 1 | 0 | Nine historical rows are excluded and must not be rescheduled. |
-| `lan-plan` | 25 | 12 | 13 | 0 | Remaining rows are mainly partial/manual physical proof, not thirteen ordinary code packets. |
+| `lan-plan` | 25 | 13 | 12 | 0 | Remaining rows are mainly partial/manual physical proof, not twelve ordinary code packets. |
 | `logging-domain-parity` | 10 | 0 | 10 | 0 | Five partial-proof, four source-present, one audit-open. |
 | `network-plan` | 8 | 0 | 8 | 0 | Index correctly keeps the execution set open. |
 | `parent-client-runtime-distribution-plan` | 11 | 7 | 4 | 0 | Routed through `parent-desktop-runtime-package-plan`; state/index and checklist disagree on WP03/WP04. |
@@ -79,10 +79,10 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `remote-access-plan` | 6 | 0 | 6 | 0 | Five planned rows and one deferred control row. |
 | `screen-ai-pipeline-plan` | 10 | 0 | 10 | 0 | Proof manifest/root is absent; rows correctly remain open. |
 | `screen-plan` | 40 | 18 | 22 | 0 | Eighteen checked workpacks are not reflected by the generic checklist. |
-| `setup-install-provisioning-plan` | 7 | 7 | 0 | 0 | WP06 is explicitly done-but-blocked for whole-plan closure; 93/93 checklist is not product completion. |
+| `setup-install-provisioning-plan` | 7 | 6 | 1 | 0 | WP06 is done as a blocker/aggregation packet but remains open for whole-plan scheduling; 93/93 checklist is not product completion. |
 | `tracking-plan` | 39 | 0 | 39 | 0 | Internally checked rows were intentionally reopened for audit/proof reruns. |
 | `v0-8-enforcement-control-plan` | 20 | 6 | 14 | 0 | Six checked workpacks are not reflected by the generic checklist. |
-| **Total** | **524** | **145** | **379** | **0** | Plus 145 reference/source-only rows and 9 historical rows excluded from execution scheduling. |
+| **Total** | **524** | **144** | **380** | **0** | Plus 145 reference/source-only rows and 9 historical rows excluded from execution scheduling. |
 
 ### Acceptance state for each workpack
 
@@ -102,12 +102,12 @@ post-merge reverified`. Only the final state counts toward `Freshly reverified`.
 | `agent-service` | nearly every product plan | It joins feature crates into commands, read models, proof logs, and HostBridge state. |
 | `storage-custody-core` | custody, tracking, screen, AI, account, payment | Retention/delete/export safety is a cross-cutting closure requirement. |
 | `lan-core` | LAN, setup, remote, portal, child runtime | Device pairing and household transport unblock multi-device product proof. |
-| `infra/cloudflare` + billing boundaries | payment, account, setup, portal | Currently the highest explicit hard blocker for cloud billing/runtime work. |
+| `infra/cloudflare` + generated billing contracts | payment, account, setup, portal | Current source exists; focused worker/billing gates and stale proof reconciliation decide the next cloud packet. |
 | `apps/portal` | portal, setup, policy, tracking, LAN, remote, reports | Presentation closes only after service read models and typed actions are available. |
 
 ## Dependency and unblock order
 
-1. **Repair Cloudflare billing boundaries**: restore/replace the missing billing-domain runtime boundary modules. This removes the explicit blocker on Cloudflare and payment execution.
+1. **Refresh Cloudflare and billing proof**: run the current generated-contract lint, unit, contract, worker-boot, and billing-core gates; then replace stale missing-`billing-domain` blocker text with the observed result. Do not restore removed TypeScript contract ownership.
 2. **Build device trust runtime**: parent presence and sealed device trust unblock safe account, setup, payment, remote, and enforcement decisions.
 3. **Close policy to enforcement vertical slice**: compiler -> service -> adapter -> receipt -> rollback. This becomes the reusable control path for browser, app/game, network, and screen.
 4. **Use LAN/service as the first physical household proof**: pairing -> device state -> portal read model establishes the multi-device integration baseline.
