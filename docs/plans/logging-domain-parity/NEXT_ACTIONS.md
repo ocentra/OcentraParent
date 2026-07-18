@@ -31,7 +31,7 @@
 Current status:
 
 ```text
-WP04 now has a canonical partial proof root with green Rust/downstream evidence, but its TS/Rust fixture command is blocked by the missing `vitest` dependency in this fresh worktree. WP06 has a canonical proof root plus live agent-query/MCP proof-inventory detection, and WP08 has its canonical partial-proof root; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09 plus a dependency-ready WP04 fixture rerun
+WP04 is now fully proved locally after the pinned npm bootstrap restored the fresh worktree dependency surface and the exact TS/Rust fixture parity command passed. WP06 has a canonical proof root plus live agent-query/MCP proof-inventory detection, and WP08 has its canonical partial-proof root; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
 ```
 
 Expected result:
@@ -82,7 +82,7 @@ Do not create a PR that only updates checklist text, adds proof prose, renames d
 - [x] Re-check this plan route from `README.md`, `AGENTS.md`, and `PLAN_STATE.md`.
 - [x] Audit the current source/test/proof state against the plan claims.
 - [x] Reconcile plan-state and workpack docs with the restored WP03/WP06/WP07/WP10 proof truth.
-- [ ] Rebuild the remaining missing proof roots or remove the claims that say they already exist; rerun WP04 TS/Rust fixture parity after dependencies are present.
+- [ ] Rebuild the remaining missing proof roots or remove the claims that say they already exist.
 - [x] Write the canonical WP03 portal-dev-log consumer proof root and truth-sync the workpack/checklist for that bounded slice.
 - [x] Write the canonical WP06 validation/enforcement proof root and truth-sync the bounded workpack/checklist state.
 - [x] Write the canonical WP08 logger instrumentation proof root and truth-sync the bounded partial-proof state.

@@ -91,18 +91,18 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP04 Rust Logging Core Crate
 
-- [ ] `crates/logging-core` created.
-- [ ] Workspace manifest updated.
-- [ ] Rust log event types added.
-- [ ] NDJSON writer added.
-- [ ] Artifact writer added.
-- [ ] Redaction helpers added.
-- [ ] Agent run/diagnostic structs added.
-- [ ] Agent-service delegates dev logging to logging-core.
-- [ ] Rust tests added.
-- [ ] TS/Rust fixture parity tests added.
-- [ ] Focused cargo/npm commands pass.
-- [ ] Proof root and workpack completion filled.
+- [x] `crates/logging-core` created.
+- [x] Workspace manifest updated.
+- [x] Rust log event types added.
+- [x] NDJSON writer added.
+- [x] Artifact writer added.
+- [x] Redaction helpers added.
+- [x] Agent run/diagnostic structs added.
+- [x] Agent-service delegates dev logging to logging-core.
+- [x] Rust tests added.
+- [x] TS/Rust fixture parity tests added.
+- [x] Focused cargo/npm commands pass.
+- [x] Proof root and workpack completion filled.
 
 ## WP05 Local Validation Evidence
 
