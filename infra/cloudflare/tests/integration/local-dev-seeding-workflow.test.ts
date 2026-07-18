@@ -6,44 +6,40 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
 import { collectMissingRuntimeDependencyBlockers, inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
+import { redactPayload } from '../../src/security/redaction.js';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const localDevWorkflowModuleUrl = new URL('../../scripts/local-dev-workflow.ts', import.meta.url).href;
 const loggerModuleUrl = new URL('../../../../packages/logging-domain/src/core/logger.ts', import.meta.url).href;
 const stackTraceModuleUrl = new URL('../../../../packages/logging-domain/src/core/stackTrace.ts', import.meta.url).href;
+const bridgeServerModuleUrl = new URL(
+  '../../../../packages/logging-domain/src/transport/bridgeServer.ts',
+  import.meta.url
+).href;
+const loggingTypesModuleUrl = new URL('../../../../packages/logging-domain/src/test-log/types.ts', import.meta.url)
+  .href;
+const ndjsonPathsModuleUrl = new URL('../../../../packages/logging-domain/src/test-log/ndjsonPaths.ts', import.meta.url)
+  .href;
+const ndjsonWriterModuleUrl = new URL(
+  '../../../../packages/logging-domain/src/test-log/ndjsonWriter.ts',
+  import.meta.url
+).href;
 
-function buildProofChainPrelude(runId: string, boundary: string): string {
-  return `
-    const { Logger } = await import(${JSON.stringify(loggerModuleUrl)});
-    const { getStackTrace } = await import(${JSON.stringify(stackTraceModuleUrl)});
-    const proofChain = {
-      run: ${JSON.stringify(runId)},
-      correlationId: ${JSON.stringify(runId)},
-      owner: 'infra/cloudflare/scripts/local-dev-workflow.ts',
-      boundary: ${JSON.stringify(boundary)},
-      redaction: 'not-applicable',
-    };
-    const logProofChainEvent = (
-      result: 'started' | 'passed' | 'failed',
-      error?: unknown
-    ): void => {
-      const fields = {
-        run: ${JSON.stringify(runId)},
-        correlationId: ${JSON.stringify(runId)},
-        owner: 'infra/cloudflare/scripts/local-dev-workflow.ts',
-        boundary: ${JSON.stringify(boundary)},
-        redaction: 'not-applicable',
-        result,
-        ...(error === undefined ? {} : { error }),
-      };
+const proofRunId = 'cloudflare-wp07-local-dev-proof';
+const proofCorrelationId = 'cloudflare-wp07-local-dev-correlation';
+const proofOwner = 'infra/cloudflare/scripts/local-dev-workflow.ts';
+const proofNoClaimReason = 'wrangler-runtime-boot-unproven;production-deployment-not-owned';
+const proofRedactionState = 'redacted-safe-fields-only';
 
-      if (result === 'failed') {
-        Logger.instance.logError('local-dev workflow proof chain', getStackTrace(), fields);
-      } else {
-        Logger.instance.logInfo('local-dev workflow proof chain', getStackTrace(), fields);
-      }
-    };
-  `;
+interface PersistedProofMilestone {
+  runId: string;
+  correlationId: string;
+  owner: string;
+  boundary: string;
+  result: string;
+  noClaimReason: string;
+  redactionState: string;
+  redactionProbe?: Readonly<Record<string, unknown>>;
 }
 
 describe('local dev seeding workflow', () => {
@@ -59,16 +55,12 @@ describe('local dev seeding workflow', () => {
           '--eval',
           `
             (async () => {
-              ${buildProofChainPrelude('cwd-independence', 'module-default-sidecar-resolution')}
               try {
-                logProofChainEvent('started');
                 const { collectMissingRuntimeDependencyBlockers } = await import(${JSON.stringify(localDevWorkflowModuleUrl)});
                 process.chdir(${JSON.stringify(tempCwd)});
                 const blockers = collectMissingRuntimeDependencyBlockers();
                 process.stdout.write(JSON.stringify(blockers));
-                logProofChainEvent('passed');
               } catch (error) {
-                logProofChainEvent('failed', error);
                 process.stderr.write(error instanceof Error ? error.name + ': ' + error.message : String(error));
                 process.exit(1);
               }
@@ -116,42 +108,193 @@ describe('local dev seeding workflow', () => {
     }
   });
 
-  it('keeps start, seed, teardown, and blocker truth explicit on the current source surface', () => {
-    const workflow = inspectLocalDevWorkflow();
+  it('persists a correlated redacted proof chain for ready preflight, populated seeds, and teardown', async () => {
+    const proofStoreRoot = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-dev-proof-'));
+    const originalLogLevel = process.env.OCENTRA_PARENT_LOG_LEVEL;
+    const [{ Logger }, { getStackTrace }, { createBridgeServer }, loggingTypes, ndjsonPaths, ndjsonWriter] =
+      await Promise.all([
+        import(loggerModuleUrl),
+        import(stackTraceModuleUrl),
+        import(bridgeServerModuleUrl),
+        import(loggingTypesModuleUrl),
+        import(ndjsonPathsModuleUrl),
+        import(ndjsonWriterModuleUrl),
+      ]);
+    const server = createBridgeServer({ rootDir: proofStoreRoot });
 
-    assert.equal(workflow.start.rootCommand, 'npm run dev:cloudflare');
-    assert.equal(workflow.start.moduleCommand, 'npm --prefix infra/cloudflare run dev');
-    assert.equal(workflow.start.wranglerCommand, 'wrangler dev --local');
-    assert.equal(workflow.seed.aggregateCommand, 'npm --prefix infra/cloudflare run seed:local');
-    assert.equal(workflow.teardown.status, 'explicit');
-    assert.equal(workflow.start.status, 'runnable');
-    assert.equal(workflow.start.importCheckStatus, 'passed');
-    assert.equal(workflow.start.runtimeBootStatus, 'unproven');
-    assert.deepEqual(workflow.start.blockers, []);
-    assert.equal(workflow.seed.status, 'runnable');
-    assert.ok(workflow.seed.fixtureFamilies.every((family) => family.populationState !== 'blocked'));
+    try {
+      const address = await new Promise<{ port: number }>((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(0, '127.0.0.1', () => {
+          const boundAddress = server.address();
+          if (boundAddress == null || typeof boundAddress === 'string') {
+            reject(new Error('Cloudflare WP07 proof bridge did not bind a TCP port'));
+            return;
+          }
+          resolve({ port: boundAddress.port });
+        });
+      });
 
-    const fixtureFamilies = workflow.seed.fixtureFamilies.map((family) => family.family);
-    assert.deepEqual(fixtureFamilies, [
-      'pricing-catalog',
-      'parent-test-accounts',
-      'support-admin-test-accounts',
-      'referral-test-graph',
-      'webhook-payload-fixtures',
-      'queue-replay-fixtures',
-    ]);
+      process.env.OCENTRA_PARENT_LOG_LEVEL = 'debug';
+      Logger.instance.reset();
+      Logger.instance.configure({
+        bridgeEndpoint: `http://127.0.0.1:${address.port}`,
+        runId: proofRunId,
+        testName: 'local-dev-seeding-workflow.test.ts',
+        scope: loggingTypes.TestLogScope.ParentCloudflare,
+        runType: loggingTypes.RunType.Single,
+        suiteType: loggingTypes.TestSuiteType.Integration,
+        origin: loggingTypes.TestLogOrigin.Test,
+        environment: 'local-test',
+        correlationId: proofCorrelationId,
+        skipHealthCheck: true,
+      });
+      Logger.instance.register(import.meta.url);
 
-    const seededFamilies = workflow.seed.fixtureFamilies.filter(
-      (family) => family.populationState !== 'test-fixture-backed'
-    );
-    for (const family of seededFamilies) {
-      if (family.populationState === 'blocked') {
-        assert.ok(family.blocker);
-        assert.ok(family.blocker?.details.length > 0);
-      } else {
-        assert.equal(family.populationState, 'populated');
-        assert.ok((family.itemCount ?? 0) > 0);
+      const emitProofMilestone = (
+        boundary: string,
+        result: 'accepted' | 'consumed' | 'stored',
+        details: Readonly<Record<string, unknown>>
+      ): void => {
+        Logger.instance.logInfo(
+          'cloudflare WP07 local workflow proof milestone',
+          getStackTrace(),
+          redactPayload({
+            runId: proofRunId,
+            correlationId: proofCorrelationId,
+            owner: proofOwner,
+            boundary,
+            result,
+            noClaimReason: proofNoClaimReason,
+            redactionState: proofRedactionState,
+            ...details,
+          }),
+          true
+        );
+      };
+
+      emitProofMilestone('workflow-command', 'accepted', {
+        command: 'node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts',
+        redactionProbe: {
+          authorization: 'Bearer private-token',
+          stripeWebhookSecret: 'whsec_private',
+          childProfile: 'child-name-private',
+        },
+      });
+
+      const workflow = inspectLocalDevWorkflow();
+
+      assert.equal(workflow.start.rootCommand, 'npm run dev:cloudflare');
+      assert.equal(workflow.start.moduleCommand, 'npm --prefix infra/cloudflare run dev');
+      assert.equal(workflow.start.wranglerCommand, 'wrangler dev --local');
+      assert.equal(workflow.start.preflightStatus, 'ready');
+      assert.equal(workflow.start.importCheckStatus, 'passed');
+      assert.equal(workflow.start.runtimeBootStatus, 'unproven');
+      assert.match(workflow.start.runtimeBootEvidence, /does not start Wrangler/);
+      assert.deepEqual(workflow.start.blockers, []);
+      emitProofMilestone('import-preflight', 'accepted', {
+        preflightStatus: workflow.start.preflightStatus,
+        importCheckStatus: workflow.start.importCheckStatus,
+        runtimeBootStatus: workflow.start.runtimeBootStatus,
+        authAdapterMode: workflow.start.authAdapterMode,
+      });
+
+      assert.equal(workflow.seed.aggregateCommand, 'npm --prefix infra/cloudflare run seed:local');
+      assert.equal(workflow.seed.status, 'runnable');
+      assert.deepEqual(
+        workflow.seed.fixtureFamilies.map(({ family, populationState, itemCount }) => ({
+          family,
+          populationState,
+          itemCount,
+        })),
+        [
+          { family: 'pricing-catalog', populationState: 'populated', itemCount: 3 },
+          { family: 'parent-test-accounts', populationState: 'populated', itemCount: 4 },
+          { family: 'support-admin-test-accounts', populationState: 'populated', itemCount: 4 },
+          { family: 'referral-test-graph', populationState: 'populated', itemCount: 2 },
+          { family: 'webhook-payload-fixtures', populationState: 'test-fixture-backed', itemCount: 5 },
+          { family: 'queue-replay-fixtures', populationState: 'test-fixture-backed', itemCount: 2 },
+        ]
+      );
+      emitProofMilestone('seed-fixtures', 'consumed', {
+        seedStatus: workflow.seed.status,
+        fixtureFamilyCount: workflow.seed.fixtureFamilies.length,
+        populatedItemCount: workflow.seed.fixtureFamilies.reduce((total, family) => total + (family.itemCount ?? 0), 0),
+      });
+
+      assert.equal(workflow.teardown.status, 'explicit');
+      assert.equal(workflow.teardown.steps.length, 3);
+      emitProofMilestone('teardown-contract', 'accepted', {
+        teardownStatus: workflow.teardown.status,
+        teardownStepCount: workflow.teardown.steps.length,
+      });
+      emitProofMilestone('proof-chain', 'stored', { milestoneCount: 5 });
+      await Logger.instance.flush();
+
+      const proofFiles = ndjsonPaths.listNdjsonFiles(
+        ndjsonPaths.getTestLogScopeDir(loggingTypes.TestLogScope.ParentCloudflare, proofStoreRoot)
+      );
+      assert.equal(proofFiles.length, 1);
+      const persistedRows = ndjsonWriter.readTestLogEntriesFromFile(proofFiles[0]);
+      assert.equal(persistedRows.length, 5);
+      assert.ok(persistedRows.every((row: { runId: string }) => row.runId === proofRunId));
+      assert.ok(
+        persistedRows.every((row: { correlationId: string | null }) => row.correlationId === proofCorrelationId)
+      );
+
+      const persistedMilestones: PersistedProofMilestone[] = persistedRows.map((row: { data: string | null }) => {
+        assert.notEqual(row.data, null);
+        return JSON.parse(row.data ?? '{}') as PersistedProofMilestone;
+      });
+      assert.deepEqual(
+        persistedMilestones.map(({ boundary, result }) => ({ boundary, result })),
+        [
+          { boundary: 'workflow-command', result: 'accepted' },
+          { boundary: 'import-preflight', result: 'accepted' },
+          { boundary: 'seed-fixtures', result: 'consumed' },
+          { boundary: 'teardown-contract', result: 'accepted' },
+          { boundary: 'proof-chain', result: 'stored' },
+        ]
+      );
+      assert.ok(
+        persistedMilestones.every(
+          (milestone) =>
+            milestone.runId === proofRunId &&
+            milestone.correlationId === proofCorrelationId &&
+            milestone.owner === proofOwner &&
+            milestone.noClaimReason === proofNoClaimReason &&
+            milestone.redactionState === proofRedactionState
+        )
+      );
+
+      const persistedProofText = JSON.stringify(persistedRows);
+      assert.deepEqual(persistedMilestones[0]?.redactionProbe, {
+        authorization: '[redacted]',
+        stripeWebhookSecret: '[redacted]',
+        childProfile: '[redacted]',
+      });
+      assert.equal(persistedProofText.includes('[redacted]'), true);
+      for (const forbiddenValue of ['Bearer private-token', 'whsec_private', 'child-name-private']) {
+        assert.equal(persistedProofText.includes(forbiddenValue), false);
       }
+    } finally {
+      Logger.instance.reset();
+      if (originalLogLevel == null) {
+        delete process.env.OCENTRA_PARENT_LOG_LEVEL;
+      } else {
+        process.env.OCENTRA_PARENT_LOG_LEVEL = originalLogLevel;
+      }
+      server.closeAllConnections();
+      await new Promise<void>((resolve, reject) => {
+        server.close((error: Error | undefined) => {
+          if (error != null) {
+            reject(error);
+            return;
+          }
+          resolve();
+        });
+      });
+      rmSync(proofStoreRoot, { recursive: true, force: true });
     }
   });
 
@@ -164,15 +307,11 @@ describe('local dev seeding workflow', () => {
         '--eval',
         `
             (async () => {
-              ${buildProofChainPrelude('seed-unavailable', 'local-dev-seeding-workflow')}
               try {
-                logProofChainEvent('started');
                 const { inspectLocalDevWorkflow } = await import(${JSON.stringify(localDevWorkflowModuleUrl)});
                 const workflow = inspectLocalDevWorkflow();
                 process.stdout.write(JSON.stringify(workflow));
-                logProofChainEvent('passed');
               } catch (error) {
-                logProofChainEvent('failed', error);
                 process.stderr.write(error instanceof Error ? error.name + ': ' + error.message : String(error));
                 process.exit(1);
               }
@@ -195,12 +334,16 @@ describe('local dev seeding workflow', () => {
     assert.equal(child.status, 0, child.stderr || child.stdout);
 
     const workflow = JSON.parse(child.stdout.trim());
-    assert.equal(workflow.start.status, 'runnable');
+    assert.equal(workflow.start.preflightStatus, 'ready');
     assert.equal(workflow.start.importCheckStatus, 'passed');
     assert.equal(workflow.start.runtimeBootStatus, 'unproven');
     assert.equal(workflow.seed.status, 'blocked');
+    const blockedSeedFamilies = workflow.seed.fixtureFamilies.filter(
+      (family: { populationState: string }) => family.populationState === 'blocked'
+    );
+    assert.equal(blockedSeedFamilies.length, 4);
     assert.ok(
-      workflow.seed.fixtureFamilies.some(
+      blockedSeedFamilies.every(
         (family: { populationState: string; blocker?: { kind?: string; details?: string } }) =>
           family.populationState === 'blocked' &&
           family.blocker?.kind === 'missing-runtime-dependency' &&

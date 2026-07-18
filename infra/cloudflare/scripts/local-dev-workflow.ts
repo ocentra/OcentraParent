@@ -18,9 +18,10 @@ export interface LocalStartPath {
   wranglerCommand: string;
   origin: string;
   authAdapterMode: string;
-  status: 'blocked' | 'runnable';
+  preflightStatus: 'blocked' | 'ready';
   importCheckStatus: 'blocked' | 'passed';
   runtimeBootStatus: 'proven' | 'unproven';
+  runtimeBootEvidence: string;
   blockers: ReadonlyArray<RuntimeDependencyBlocker>;
 }
 
@@ -204,9 +205,11 @@ function inspectLocalStartPath(): LocalStartPath {
     wranglerCommand: 'wrangler dev --local',
     origin: 'http://localhost:3000',
     authAdapterMode: 'account-auth-adapter-manual-required',
-    status: blockers.length === 0 ? 'runnable' : 'blocked',
+    preflightStatus: blockers.length === 0 ? 'ready' : 'blocked',
     importCheckStatus,
     runtimeBootStatus,
+    runtimeBootEvidence:
+      'unproven: this probe imports the Worker entrypoint but does not start Wrangler or perform a bounded health request',
     blockers,
   };
 }
@@ -321,6 +324,12 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
 
 function inspectLocalSeedPath(): LocalSeedPath {
   const fixtureFamilies = buildFixtureFamilies();
+  const allFixtureFamiliesPopulated = fixtureFamilies.every(
+    (family) =>
+      (family.populationState === 'populated' || family.populationState === 'test-fixture-backed') &&
+      (family.itemCount ?? 0) > 0
+  );
+
   return {
     aggregateCommand: 'npm --prefix infra/cloudflare run seed:local',
     commands: [
@@ -329,7 +338,7 @@ function inspectLocalSeedPath(): LocalSeedPath {
       'npm --prefix infra/cloudflare run seed:referrals:local',
       'npm --prefix infra/cloudflare run seed:test-accounts:local',
     ],
-    status: fixtureFamilies.some((family) => family.populationState === 'blocked') ? 'blocked' : 'runnable',
+    status: allFixtureFamiliesPopulated ? 'runnable' : 'blocked',
     fixtureFamilies,
   };
 }
@@ -359,5 +368,5 @@ export function inspectLocalDevWorkflow(): LocalDevWorkflowReport {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  console.log(JSON.stringify(inspectLocalDevWorkflow(), null, 2));
+  process.stdout.write(`${JSON.stringify(inspectLocalDevWorkflow(), null, 2)}\n`);
 }

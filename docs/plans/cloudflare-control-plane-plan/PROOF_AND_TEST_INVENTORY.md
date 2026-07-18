@@ -37,7 +37,9 @@ No shared-module, auth, binding, queue, test-runner, or payment-handoff claim is
 - `cloudflare-control.queue-bindings`
 - `cloudflare-control.kv-bindings`
 - `cloudflare-control.r2-audit-binding-manual-required`
-- `cloudflare-control.local-dev-start`
+- `cloudflare-control.local-dev-preflight`
+- `cloudflare-control.local-dev-runtime-boot-integration`
+- `cloudflare-control.local-dev-structured-proof-chain`
 - `cloudflare-control.seed-local`
 - `cloudflare-control.portal-to-worker-smoke`
 - `cloudflare-control.no-secrets-in-repo`
@@ -86,7 +88,7 @@ Every WP08 or WP10 proof artifact must record:
 | WP04 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:contract`; `npm --prefix infra/cloudflare run test:integration`; `npm run lint:architecture -- --files infra/cloudflare/src/routes.ts infra/cloudflare/tests/contract/billing-api-contract.test.ts` | `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/` |
 | WP05 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:security`; `npm run lint:architecture -- --files infra/cloudflare/src/auth` | `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/` |
 | WP06 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:property`; `npm run lint:architecture -- --files infra/cloudflare` | `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/` |
-| WP07 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration` | `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/` |
+| WP07 | `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts`; `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`; `npm --prefix infra/cloudflare run lint`; `npm --prefix infra/cloudflare run test:integration`; focused architecture, source-shape, required-tests, no-test-doubles, and validation-bypass checks over the two owned TS files | `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/` |
 | WP08 | `node --import tsx infra/cloudflare/scripts/test-runner.ts --list`; `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:e2e`; `npm --prefix infra/cloudflare run test:contract`; `npm --prefix infra/cloudflare run test:security`; `npm --prefix infra/cloudflare run test:property`; `npm --prefix infra/cloudflare run test:fuzz`; `npm --prefix infra/cloudflare run lint` | `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/` |
 | WP09 | `npm --prefix infra/cloudflare run test:e2e` | `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/` |
 | WP10 | `npm --prefix infra/cloudflare run test:security`; `npm --prefix infra/cloudflare run test:property`; `npm --prefix infra/cloudflare run test:fuzz`; `npm --prefix infra/cloudflare run test:integration` | `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/` |
@@ -98,3 +100,13 @@ Every WP08 or WP10 proof artifact must record:
 If a command cannot run because a runtime surface or dependency is missing,
 record the exact blocker in the proof artifact and
 `SOURCE_SURFACE_STATUS_MATRIX.md` instead of implying success.
+
+## Current WP07 packet
+
+- Validation candidate base: `a259534c2` plus the exact WP07 branch diff.
+- Standalone report: preflight ready, import passed, runtime boot unproven, seed runnable.
+- Positive fixture counts: `3`, `4`, `4`, `2`, `5`, `2`.
+- Focused workflow test: 3/3 with five persisted and asserted logging-domain milestones.
+- Full integration: 61/61, including the separate real Wrangler local runtime suite at 10/10.
+- Canonical packet: `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`.
+- Open boundary: branch acceptance, production deployment proof, WP12 handoff proof, and downstream payment acknowledgment are not implied by this packet.
