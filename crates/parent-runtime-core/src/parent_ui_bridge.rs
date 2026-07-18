@@ -40,7 +40,8 @@ use crate::agent_service_client::{
     load_app_game_notification_readiness_read_model_snapshot,
     load_app_game_platform_proof_status_read_model_snapshot,
     load_app_game_policy_readiness_read_model_snapshot,
-    load_app_game_timer_parent_surface_read_model_snapshot, load_network_flow_read_model_snapshot,
+    load_app_game_timer_parent_surface_read_model_snapshot,
+    load_lan_runtime_event_chain_replay_events, load_network_flow_read_model_snapshot,
     load_network_runtime_event_chain_stream_snapshot, load_policy_preview_read_model_snapshot,
     load_tracking_read_model_snapshot,
 };
@@ -106,7 +107,13 @@ pub fn load_parent_subscription_event(
     context: Option<&ParentRouteContext>,
 ) -> ParentSubscriptionEvent {
     let lan_route_query = lan_route_query_for_load(&route, context);
-    let events = dedupe_route_events_by_event_id(lan_route_query.events());
+    let mut events = if matches!(&lan_route_query, LanRouteQuery::Available(_)) {
+        load_lan_runtime_event_chain_replay_events().unwrap_or_default()
+    } else {
+        Vec::new()
+    };
+    events.extend_from_slice(lan_route_query.events());
+    let events = dedupe_route_events_by_event_id(&events);
     let snapshot = build_parent_route_snapshot(route.clone(), &lan_route_query, None, None);
     ParentSubscriptionEvent {
         schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,

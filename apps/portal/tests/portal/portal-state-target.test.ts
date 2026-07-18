@@ -348,6 +348,68 @@ it('applyParentSubscriptionEvent: applies subscribed route events before the lat
   expect(state.events[0]?.event).toBe('agent.lan-pairing.status.reported');
 });
 
+it('applyParentSubscriptionEvent: buffers Rust-replayed LAN stream rows newest first', () => {
+  const state = createPortalRuntimeState();
+
+  applyParentSubscriptionEvent(state, {
+    schemaVersion: 1,
+    route: 'devices',
+    snapshot: currentSubscribedDevicesRouteSnapshot,
+    events: [
+      {
+        event: 'scan-started',
+        eventId: 'lan-history-1',
+        correlationId: 'lan-scan-1',
+        sentAt: '2026-06-28T17:00:01Z',
+        sourcePeerId: 'local-dev-agent',
+        sourceRole: 'agent-service',
+        targetPeerId: 'portal-dev',
+        targetRole: 'portal',
+        severity: 'info',
+        payload: {
+          schemaVersion: 1,
+          eventId: 'lan-history-1',
+          eventKind: 'scan-started',
+          occurredAt: '2026-06-28T17:00:01Z',
+          previousEventId: null,
+          scanSessionId: 'lan-scan-1',
+          affectedDeviceId: null,
+          evidenceId: null,
+          summary: 'LAN discovery scan started',
+        },
+        snapshot: null,
+      },
+      {
+        event: 'device-found',
+        eventId: 'lan-history-2',
+        correlationId: 'lan-scan-1',
+        sentAt: '2026-06-28T17:00:02Z',
+        sourcePeerId: 'local-dev-agent',
+        sourceRole: 'agent-service',
+        targetPeerId: 'portal-dev',
+        targetRole: 'portal',
+        severity: 'info',
+        payload: {
+          schemaVersion: 1,
+          eventId: 'lan-history-2',
+          eventKind: 'device-found',
+          occurredAt: '2026-06-28T17:00:02Z',
+          previousEventId: 'lan-history-1',
+          scanSessionId: 'lan-scan-1',
+          affectedDeviceId: 'network-neighbor-1',
+          evidenceId: 'evidence-1',
+          summary: 'Study Laptop was found on the local network',
+        },
+        snapshot: null,
+      },
+    ],
+  });
+
+  expect(state.events.map((event) => event.eventId)).toEqual(['lan-history-2', 'lan-history-1']);
+  expect(state.events[0]?.payload?.['previousEventId']).toBe('lan-history-1');
+  expect(state.routeSnapshot).toBe(currentSubscribedDevicesRouteSnapshot);
+});
+
 it('applyParentSubscriptionEvent: rejects stale subscribed batches instead of regressing the current Rust route view', () => {
   const state = createPortalRuntimeState();
 

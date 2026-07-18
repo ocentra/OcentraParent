@@ -88,7 +88,7 @@
 | `22` | complete | LAN state/gap map is synced to current Rust/runtime/UI truth instead of stale TS-first assumptions |
 | `23` | partial/manual | current pairing/route proof truth is locally green across Rust/service/read-model tests; physical/manual topology artifacts remain open |
 | `24` | complete | household/setup/account handoff truth is green on the current Windows portal/runtime proof path; TS remains presentation-only |
-| `25` | partial/manual | rollout wrapper truth is synced to active `01-25` scope and current focused validations; manual-only LAN proof still gates full closure |
+| `25` | partial/manual | Rust-owned backend-to-host-to-portal LAN replay consumption is locally green with ordered replay plus duplicate, stale, malformed, offline, and manual-required coverage; physical multi-device, router/firewall, signed-artifact, restart, and manual topology proof still gate full closure |
 
 Rows `21-25` remain active scope, but only `23` and `25` are currently open.
 Keep all follow-on rows aligned to the current Rust-first ownership and

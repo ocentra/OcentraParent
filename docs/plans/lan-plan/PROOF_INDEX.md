@@ -450,10 +450,14 @@ output/lan-plan-proof/25-rollout-checklist-and-pr-gate/
 Files present for the current rollout truth-sync slice:
 
 - `01-rollout-gate-truth.md`
+- `16-validation-commands.log`
 
-This proof root currently proves the active rollout gate truth after the fresh
-Windows `portal-ui.spec.ts` rerun and green wrapper validations on 2026-06-28.
-It does not claim PR-ready or broad DONE while manual LAN artifacts remain
+This proof root now proves the active rollout-gate truth through 2026-07-18,
+including the Rust-owned backend-to-host-to-portal LAN replay consumer,
+ordered delivery, fail-closed duplicate/stale/malformed handling, preserved
+offline/manual-required state, and the focused validation commands recorded in
+the log. It does not claim PR-ready or broad DONE while physical multi-device,
+router/firewall, signed-artifact, restart, and manual topology artifacts remain
 open.
 
 If a proof script emits `test-results/.../proof.json`, the workpack proof pack must reference that file and must not imply the artifact exists until it has been regenerated on this branch/worktree.

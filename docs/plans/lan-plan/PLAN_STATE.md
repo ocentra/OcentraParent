@@ -212,8 +212,9 @@ Expected evidence for `B2`:
   not own the LAN truth model.
 - Product route refresh now flows through typed Tauri host subscriptions that
   emit `ParentSubscriptionEvent` snapshots plus subscribed route events into
-  the portal shell; product TSX still does not own a WebSocket transport or
-  canonical backend event replay.
+  the portal shell. Canonical backend LAN stream replay is now loaded,
+  validated, ordered, and projected by Rust; product TSX still does not own a
+  WebSocket transport or replay business logic.
 - Stored child/known-device IPs no longer leave the bounded active-refresh
   target list on historical truth alone; current neighbor-state MAC
   confirmation or the live default-gateway path is now required before
@@ -246,7 +247,8 @@ Expected evidence for `B2`:
 - weighted classification and installability proof for
   unknown/probable/not-installable states
 - real signed child hello/heartbeat artifacts
-- replay/restart/event-stream proof completion
+- restart and physical cross-session event-stream proof completion; local
+  backend-to-host-to-portal replay consumption is green
 - additional downstream consumer proof artifacts beyond the current Rust-backed
   `/devices`, policy-target, and Start-route first-run portal snapshots
 - Android/mobile-controller proof where the plan still keeps those claims

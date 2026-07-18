@@ -1,3 +1,4 @@
+use super::snapshots_lan_replay::lan_runtime_replay_events_from_payload;
 use super::*;
 
 pub(super) fn lan_snapshot_from_result(
@@ -33,6 +34,27 @@ pub(super) fn lan_snapshot_from_result(
         events,
         read_model,
     })
+}
+
+pub(super) fn lan_runtime_replay_events_from_result(
+    result: AgentServiceCommandResult,
+) -> Result<Vec<ParentRouteEventSnapshot>, String> {
+    let AgentServiceCommandResult {
+        events: _,
+        response_event,
+    } = result;
+    if response_event.event == AgentEventName::AgentCommandRejected {
+        return Err(rejection_message(&response_event));
+    }
+    if response_event.event != AgentEventName::AgentLanRuntimeEventChainStreamReported {
+        return Err(format!(
+            "agent-service expected {}, received {}",
+            serialized_enum_label(&AgentEventName::AgentLanRuntimeEventChainStreamReported),
+            serialized_enum_label(&response_event.event)
+        ));
+    }
+
+    lan_runtime_replay_events_from_payload(&response_event.payload)
 }
 
 pub(crate) fn network_flow_snapshot_from_parts(

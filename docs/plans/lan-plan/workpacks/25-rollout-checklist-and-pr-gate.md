@@ -75,10 +75,31 @@ Current verified rollout truth on 2026-06-28:
 - W14 is locally complete; W18, W19, W23, and W25 are reduced to honest
   manual/open rows rather than stale checklist drift.
 - Broad PR-ready/DONE still cannot be claimed while physical multi-device,
-  router/firewall, signed-artifact, browser-side replay consumption of the
-  backend LAN stream, and other manual-required LAN proof remain open.
+  router/firewall, signed-artifact, restart, and other manual-required LAN
+  topology proof remain open.
 - The accepted Windows LAN portal rerun is fresh supporting evidence from
   2026-06-28 rather than historical-only proof.
+
+Current verified LAN replay-consumer truth on 2026-07-18:
+
+- The parent-owned Rust agent-service client now loads the canonical
+  `AgentLanRuntimeEventChainStreamGet` response and converts validated discovery
+  rows into existing `ParentRouteEventSnapshot` values before the typed host
+  subscription reaches the portal.
+- Replay order is preserved. Duplicate IDs, stale or out-of-order chains,
+  broken references, inconsistent metadata, and malformed payloads reject the
+  whole replay batch. The last live LAN status events remain authoritative on
+  an ID collision.
+- Replay rejection does not erase the status snapshot, so explicit
+  `agent-offline` and `manual-required` read-model states remain visible.
+- Focused protocol and agent-service stream tests, the parent runtime
+  diagnostics/history/replay integration group, the portal-state edge test,
+  strict clippy, contract build, architecture, source-shape, required-tests,
+  and no-test-doubles checks are green. Exact commands and counts are recorded
+  in the current proof root.
+- WP25 remains `partial/manual`. This local consumer proof does not close the
+  physical multi-device, router/firewall, signed-artifact, restart, or manual
+  topology evidence rows and does not support broad PR-ready or DONE.
 
 ## Automated Gates For Active Scope
 
