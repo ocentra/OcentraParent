@@ -22,6 +22,12 @@ mod policy_compiler;
 #[path = "policy_delivery.rs"]
 mod policy_delivery;
 
+#[path = "policy_delivery_receipt_helpers.rs"]
+mod policy_delivery_receipt_helpers;
+
+#[path = "policy_delivery_receipt_identity.rs"]
+mod policy_delivery_receipt_identity;
+
 #[path = "policy_delivery_metadata.rs"]
 mod policy_delivery_metadata;
 

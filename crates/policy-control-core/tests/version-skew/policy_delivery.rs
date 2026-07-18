@@ -2,7 +2,9 @@
 mod helpers;
 
 use super::TestResult;
-use helpers::{audit_ref, sample_queued_delivery, transition, transition_or_context};
+use helpers::{
+    audit_ref, sample_delivery_id, sample_queued_delivery, transition, transition_or_context,
+};
 use ocentra_policy_control_core::policy_delivery::{
     apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
     validate_policy_delivery_execution_receipt, PolicyDeliveryAdapterExecution,
@@ -19,11 +21,13 @@ fn execution_receipt(
         delivery_id: current.delivery_id.clone(),
         household_id: current.household_id.clone(),
         policy_version: current.policy_version,
+        source_document_id: current.source_document_id.clone(),
         target: current.target.clone(),
         attempt_id: transition.attempt_id.clone(),
         sequence: transition.sequence,
         state: transition.state,
         audit_reference_ids: transition.audit_reference_ids.clone(),
+        reason_code: transition.reason_code.clone(),
         rollback_reference_state: transition.rollback_reference_state,
     }
 }
@@ -79,7 +83,9 @@ fn policy_delivery_execution_receipt_rejects_missing_field_in_version_skew_json(
             "attempt_id": "attempt-acknowledged",
             "sequence": 2,
             "state": "acknowledged",
-            "audit_reference_ids": ["audit-attempt-acknowledged-2"]
+            "audit_reference_ids": ["audit-attempt-acknowledged-2"],
+            "reason_code": null,
+            "rollback_reference_state": null
         }"#,
         ),
         "missing receipt field must be rejected"
@@ -107,14 +113,16 @@ fn policy_delivery_execution_receipt_rejects_missing_provenance_in_version_skew_
     serialized
         .as_object_mut()
         .expect("serialized execution receipt object")
-        .remove("household_id");
+        .remove("source_document_id");
 
     let error = test_err!(
         serde_json::from_value::<PolicyDeliveryExecutionReceipt>(serialized),
         "missing provenance field must be rejected"
     );
 
-    assert!(error.to_string().contains("missing field `household_id`"));
+    assert!(error
+        .to_string()
+        .contains("missing field `source_document_id`"));
     Ok(())
 }
 
@@ -211,6 +219,8 @@ fn execution_receipt_round_trip_and_validation_cover_legacy_payloads() -> TestRe
     );
 
     assert_eq!(decoded, receipt);
+    assert_eq!(decoded.source_document_id, queued.source_document_id);
+    assert_eq!(decoded.reason_code, transition.reason_code);
 
     let execution_round_trip: PolicyDeliveryAdapterExecution = test_ok!(
         serde_json::from_value(test_ok!(
@@ -238,6 +248,14 @@ fn execution_receipt_round_trip_and_validation_cover_legacy_payloads() -> TestRe
     assert!(duplicate_error
         .to_string()
         .contains("duplicate execution receipt for sequence 2"));
+    Ok(())
+}
+
+#[test]
+fn queued_delivery_uses_canonical_derived_delivery_id() -> TestResult {
+    let queued = sample_queued_delivery()?;
+
+    assert_eq!(queued.delivery_id, sample_delivery_id()?);
     Ok(())
 }
 

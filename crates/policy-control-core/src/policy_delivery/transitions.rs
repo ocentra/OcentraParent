@@ -10,10 +10,13 @@ use super::{
 pub(super) fn queue_policy_delivery(
     artifact: &CompiledDomainPolicyArtifact,
     target: PolicyDeliveryTarget,
-    delivery_id: PolicyDeliveryId,
+    _delivery_id: PolicyDeliveryId,
     attempt_id: PolicyDeliveryAttemptId,
     audit_reference_ids: Vec<super::PolicyAuditReferenceId>,
 ) -> Result<PolicyDeliveryRecord, EventingError> {
+    let last_sequence = PolicyDeliverySequence::new(POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE)?;
+    let delivery_id =
+        validation::derive_policy_delivery_id(artifact, &target, &attempt_id, last_sequence)?;
     let record = PolicyDeliveryRecord {
         schema_version: validation::policy_delivery_schema_version()?,
         delivery_id,
@@ -22,7 +25,7 @@ pub(super) fn queue_policy_delivery(
         source_document_id: artifact.source_document_id.clone(),
         target,
         state: super::PolicyDeliveryState::Queued,
-        last_sequence: PolicyDeliverySequence::new(POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE)?,
+        last_sequence,
         last_attempt_id: attempt_id,
         audit_reference_ids,
         source_audit_reference_ids: artifact.audit_reference_ids.clone(),

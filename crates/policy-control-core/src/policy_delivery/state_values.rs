@@ -4,6 +4,7 @@ use super::{
     policy_control, PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliverySequence,
     PolicyDeliveryState, PolicyReasonCode, PolicyVersion,
 };
+use crate::policy_source::PolicyConsumerDomain;
 
 const PARENT_VISIBLE_STATE_BY_DELIVERY_STATE: &[(
     PolicyDeliveryState,
@@ -147,6 +148,17 @@ pub(super) fn policy_delivery_state_name(state: PolicyDeliveryState) -> &'static
         .iter()
         .find_map(|(candidate, name)| (candidate == &state).then_some(*name))
         .unwrap_or("manual-required")
+}
+
+pub(super) fn policy_delivery_domain_name(domain: PolicyConsumerDomain) -> &'static str {
+    match domain {
+        PolicyConsumerDomain::App => "app",
+        PolicyConsumerDomain::Browser => "browser",
+        PolicyConsumerDomain::Network => "network",
+        PolicyConsumerDomain::Tracking => "tracking",
+        PolicyConsumerDomain::Screen => "screen",
+        PolicyConsumerDomain::Ai => "ai",
+    }
 }
 
 pub(super) fn conflicting_replay_value(

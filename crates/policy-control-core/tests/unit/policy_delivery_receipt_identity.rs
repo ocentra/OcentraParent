@@ -1,0 +1,465 @@
+#[path = "policy_delivery_helpers.rs"]
+mod helpers;
+
+use std::any::TypeId;
+
+use super::policy_delivery_receipt_helpers::{
+    assert_unexpected_adapter_execution_receipt, execution_receipt_with_sequence,
+};
+use super::TestResult;
+use helpers::{
+    adapter_execution, mutate_provenance_child_profile, mutate_provenance_device,
+    mutate_provenance_domain, mutate_provenance_household, mutate_provenance_policy_version,
+    mutate_provenance_reason_code, mutate_provenance_source_document, reason, sample_delivery_id,
+    sample_delivery_target, sample_policy_source_document, sample_queued_delivery, transition,
+};
+use ocentra_eventing::error::EventingError;
+use ocentra_policy_control_core::policy_delivery::{
+    apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
+    derive_policy_delivery_id, validate_policy_delivery_execution_receipt, PolicyDeliveryAttemptId,
+    PolicyDeliveryExecutionReceipt, PolicyDeliveryId, PolicyDeliveryParentVisibleState,
+    PolicyDeliverySequence, PolicyDeliveryState,
+};
+use ocentra_policy_control_core::policy_source::{
+    compile_domain_policy_artifact, ParentPolicyDocumentId, PolicyConsumerDomain, PolicyScheduleId,
+};
+
+#[test]
+fn policy_delivery_ids_are_distinct_opaque_types_with_delivery_specific_validation() -> TestResult {
+    assert_ne!(
+        TypeId::of::<PolicyDeliveryId>(),
+        TypeId::of::<ParentPolicyDocumentId>()
+    );
+    assert_ne!(
+        TypeId::of::<PolicyDeliveryAttemptId>(),
+        TypeId::of::<PolicyScheduleId>()
+    );
+
+    let delivery_error = test_err!(
+        PolicyDeliveryId::parse(""),
+        "empty delivery id must be rejected"
+    );
+    assert_eq!(
+        delivery_error,
+        EventingError::EmptyValue {
+            field: "policy_delivery.delivery_id",
+        }
+    );
+
+    let attempt_error = test_err!(
+        PolicyDeliveryAttemptId::parse(""),
+        "empty attempt id must be rejected"
+    );
+    assert_eq!(
+        attempt_error,
+        EventingError::EmptyValue {
+            field: "policy_delivery.attempt_id",
+        }
+    );
+    Ok(())
+}
+
+#[test]
+fn policy_delivery_id_is_derived_from_full_scope_and_is_stable() -> TestResult {
+    let source = sample_policy_source_document()?;
+    let compiled = test_ok!(
+        compile_domain_policy_artifact(&source, PolicyConsumerDomain::Tracking),
+        "compiled domain policy artifact"
+    );
+    let target = sample_delivery_target()?;
+    let attempt_id = helpers::attempt("attempt-queued")?;
+    let sequence = test_ok!(
+        PolicyDeliverySequence::new(1),
+        "policy delivery initial sequence"
+    );
+    let expected = test_ok!(
+        derive_policy_delivery_id(&compiled, &target, &attempt_id, sequence,),
+        "derived policy delivery id"
+    );
+    let queued = sample_queued_delivery()?;
+
+    assert_eq!(queued.delivery_id, expected);
+    assert_eq!(expected, sample_delivery_id()?);
+    assert_eq!(
+        test_ok!(
+            derive_policy_delivery_id(&compiled, &target, &attempt_id, sequence,),
+            "rederived policy delivery id"
+        ),
+        expected
+    );
+
+    let mut source_document = source.clone();
+    source_document.document_id = ParentPolicyDocumentId::parse("policy-source-other")?;
+    let alternate_compiled = test_ok!(
+        compile_domain_policy_artifact(&source_document, PolicyConsumerDomain::Tracking),
+        "compiled alternate domain policy artifact"
+    );
+    let alternate_source_id = test_ok!(
+        derive_policy_delivery_id(&alternate_compiled, &target, &attempt_id, sequence,),
+        "derived alternate source policy delivery id"
+    );
+
+    let mut alternate_target = sample_delivery_target()?;
+    alternate_target.domain = PolicyConsumerDomain::Browser;
+    let alternate_target_id = test_ok!(
+        derive_policy_delivery_id(&compiled, &alternate_target, &attempt_id, sequence,),
+        "derived alternate target policy delivery id"
+    );
+    let alternate_attempt_id = helpers::attempt("attempt-other")?;
+    let alternate_attempt_delivery_id = test_ok!(
+        derive_policy_delivery_id(&compiled, &target, &alternate_attempt_id, sequence,),
+        "derived alternate attempt policy delivery id"
+    );
+    let alternate_sequence_delivery_id = test_ok!(
+        derive_policy_delivery_id(
+            &compiled,
+            &target,
+            &attempt_id,
+            PolicyDeliverySequence::new(2)?,
+        ),
+        "derived alternate sequence policy delivery id"
+    );
+
+    let derived_ids = [
+        expected.as_str(),
+        alternate_source_id.as_str(),
+        alternate_target_id.as_str(),
+        alternate_attempt_delivery_id.as_str(),
+        alternate_sequence_delivery_id.as_str(),
+    ];
+    let unique_count = derived_ids
+        .into_iter()
+        .collect::<std::collections::BTreeSet<_>>()
+        .len();
+    assert_eq!(unique_count, derived_ids.len());
+
+    Ok(())
+}
+
+#[test]
+fn acknowledged_delivery_requires_an_explicit_execution_receipt() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let acknowledged_transition = transition(
+        2,
+        "attempt-acknowledged-receipt",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+    let acknowledged_execution = adapter_execution(&queued, &acknowledged_transition);
+
+    let missing_receipt_error = test_err!(
+        validate_policy_delivery_execution_receipt(&queued, &acknowledged_transition, None,),
+        "acknowledged delivery missing execution receipt must fail"
+    );
+    assert_eq!(
+        missing_receipt_error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for acknowledged".to_string(),
+        }
+    );
+
+    let acknowledged = test_ok!(
+        apply_policy_delivery_adapter_execution(&queued, acknowledged_execution),
+        "acknowledged delivery with explicit receipt"
+    )
+    .into_record();
+
+    assert_eq!(acknowledged.state, PolicyDeliveryState::Acknowledged);
+    assert_eq!(
+        acknowledged.parent_visible_state(),
+        PolicyDeliveryParentVisibleState::Pending
+    );
+    assert!(!acknowledged.is_active());
+    Ok(())
+}
+
+#[test]
+fn execution_receipt_matrix_rejects_unexpected_receipts_for_non_adapter_states() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let states = [
+        PolicyDeliveryState::Queued,
+        PolicyDeliveryState::Delivering,
+        PolicyDeliveryState::Delivered,
+        PolicyDeliveryState::Rejected,
+        PolicyDeliveryState::Superseded,
+        PolicyDeliveryState::Degraded,
+        PolicyDeliveryState::Offline,
+        PolicyDeliveryState::ExpiredBeforeDelivery,
+        PolicyDeliveryState::RetryScheduled,
+        PolicyDeliveryState::PartialDomainApply,
+        PolicyDeliveryState::BlockedByPermission,
+        PolicyDeliveryState::BlockedByCapability,
+        PolicyDeliveryState::ManualRequired,
+    ];
+
+    for state in states {
+        assert_unexpected_adapter_execution_receipt(&queued, state)?;
+    }
+
+    Ok(())
+}
+
+#[test]
+fn ack_applied_and_rolled_back_receipts_require_explicit_adapter_provenance() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered_record = test_ok!(
+        apply_policy_delivery_transition(
+            &queued,
+            transition(
+                2,
+                "attempt-delivered-receipt",
+                PolicyDeliveryState::Delivered
+            )?,
+        ),
+        "deliver policy"
+    )
+    .into_record();
+    let applied_record = test_ok!(
+        apply_policy_delivery_transition(
+            &delivered_record,
+            transition(3, "attempt-applied-receipt", PolicyDeliveryState::Applied)?,
+        ),
+        "apply policy"
+    )
+    .into_record();
+    let cases = [
+        PolicyDeliveryState::Acknowledged,
+        PolicyDeliveryState::Applied,
+        PolicyDeliveryState::RolledBack,
+    ];
+
+    for state in cases {
+        let current = if state == PolicyDeliveryState::RolledBack {
+            &applied_record
+        } else {
+            &queued
+        };
+        let sequence = if state == PolicyDeliveryState::RolledBack {
+            4
+        } else {
+            2
+        };
+        let mut transition = transition(sequence, format!("attempt-{state:?}-receipt"), state)?;
+        if state == PolicyDeliveryState::RolledBack {
+            transition.reason_code = Some(reason("adapter-failed")?);
+            transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+        }
+        let receipt = execution_receipt_with_sequence(current, &transition, sequence);
+
+        test_ok!(
+            validate_policy_delivery_execution_receipt(current, &transition, Some(&receipt)),
+            "required adapter receipt should validate"
+        );
+    }
+
+    Ok(())
+}
+
+#[test]
+fn applied_delivery_requires_an_explicit_execution_receipt() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let applied_transition =
+        transition(3, "attempt-applied-receipt", PolicyDeliveryState::Applied)?;
+
+    let missing_receipt_error = test_err!(
+        validate_policy_delivery_execution_receipt(&queued, &applied_transition, None),
+        "applied delivery missing execution receipt must fail"
+    );
+    assert_eq!(
+        missing_receipt_error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for applied".to_string(),
+        }
+    );
+
+    Ok(())
+}
+
+#[test]
+fn rolled_back_delivery_requires_an_explicit_execution_receipt() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let mut rollback_transition = transition(
+        4,
+        "attempt-rollback-receipt",
+        PolicyDeliveryState::RolledBack,
+    )?;
+    rollback_transition.reason_code = Some(reason("adapter-failed")?);
+    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+
+    let missing_receipt_error = test_err!(
+        validate_policy_delivery_execution_receipt(&queued, &rollback_transition, None),
+        "rolled-back delivery missing execution receipt must fail"
+    );
+    assert_eq!(
+        missing_receipt_error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for rolled-back".to_string(),
+        }
+    );
+
+    Ok(())
+}
+
+#[test]
+fn execution_receipt_validation_rejects_source_document_identity_mismatch() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered_record = test_ok!(
+        apply_policy_delivery_transition(
+            &queued,
+            transition(
+                2,
+                "attempt-delivered-source-document",
+                PolicyDeliveryState::Delivered,
+            )?,
+        ),
+        "deliver policy"
+    )
+    .into_record();
+    let acknowledged_transition = transition(
+        3,
+        "attempt-acknowledged-source-document",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+    let mut receipt = helpers::execution_receipt(&delivered_record, &acknowledged_transition);
+    mutate_provenance_source_document(&mut receipt);
+
+    let error = test_err!(
+        validate_policy_delivery_execution_receipt(
+            &delivered_record,
+            &acknowledged_transition,
+            Some(&receipt),
+        ),
+        "source document provenance mismatch must fail"
+    );
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_source.document_id",
+            value: "expected source document policy-source-household-default but receipt reported policy-source-mismatch"
+                .to_string(),
+        }
+    );
+    Ok(())
+}
+
+#[test]
+fn execution_receipt_validation_rejects_reason_code_identity_mismatch() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered_record = test_ok!(
+        apply_policy_delivery_transition(
+            &queued,
+            transition(
+                2,
+                "attempt-delivered-reason-code",
+                PolicyDeliveryState::Delivered,
+            )?,
+        ),
+        "deliver policy"
+    )
+    .into_record();
+    let mut acknowledged_transition = transition(
+        3,
+        "attempt-acknowledged-reason-code",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+    acknowledged_transition.reason_code = Some(reason("acknowledged-reason")?);
+    let mut receipt = helpers::execution_receipt(&delivered_record, &acknowledged_transition);
+    mutate_provenance_reason_code(&mut receipt);
+
+    let error = test_err!(
+        validate_policy_delivery_execution_receipt(
+            &delivered_record,
+            &acknowledged_transition,
+            Some(&receipt),
+        ),
+        "reason code provenance mismatch must fail"
+    );
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.reason_code",
+            value: "expected receipt reason code acknowledged-reason but receipt reported adapter-failed-mismatch"
+                .to_string(),
+        }
+    );
+    Ok(())
+}
+
+#[test]
+fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered_record = test_ok!(
+        apply_policy_delivery_transition(
+            &queued,
+            transition(
+                2,
+                "attempt-delivered-provenance",
+                PolicyDeliveryState::Delivered,
+            )?,
+        ),
+        "deliver policy"
+    )
+    .into_record();
+    let acknowledged_transition = transition(
+        3,
+        "attempt-acknowledged-provenance",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+
+    let provenance_cases: [(&str, String, fn(&mut PolicyDeliveryExecutionReceipt)); 6] = [
+        (
+            "policy_source.document_id",
+            "expected source document policy-source-household-default but receipt reported policy-source-mismatch"
+                .to_string(),
+            mutate_provenance_source_document,
+        ),
+        (
+            "policy_source.household_id",
+            "expected household household-default but receipt reported household-mismatch"
+                .to_string(),
+            mutate_provenance_household,
+        ),
+        (
+            "policy_source.policy_version",
+            format!(
+                "expected policy version {} but receipt reported 8",
+                delivered_record.policy_version.value()
+            ),
+            mutate_provenance_policy_version,
+        ),
+        (
+            "policy_source.child_profile_id",
+            "expected child profile child-primary but receipt reported child-mismatch".to_string(),
+            mutate_provenance_child_profile,
+        ),
+        (
+            "policy_source.device_id",
+            "expected device device-laptop but receipt reported device-mismatch".to_string(),
+            mutate_provenance_device,
+        ),
+        (
+            "policy_delivery.target.domain",
+            "expected delivery domain tracking but receipt reported browser".to_string(),
+            mutate_provenance_domain,
+        ),
+    ];
+
+    for (field, value, mutate) in provenance_cases {
+        let mut receipt = helpers::execution_receipt(&delivered_record, &acknowledged_transition);
+        mutate(&mut receipt);
+
+        let error = test_err!(
+            validate_policy_delivery_execution_receipt(
+                &delivered_record,
+                &acknowledged_transition,
+                Some(&receipt),
+            ),
+            "mismatched provenance must fail"
+        );
+        assert_eq!(error, EventingError::InvalidValue { field, value });
+    }
+
+    Ok(())
+}

@@ -4,7 +4,9 @@ use super::{
     EventingError, PolicyDeliveryExecutionReceipt, PolicyDeliveryRecord, PolicyDeliveryTransition,
 };
 use crate::policy_delivery::{policy_control, state_values};
-use crate::policy_source::PolicyConsumerDomain;
+use crate::policy_source::{PolicyConsumerDomain, PolicyReasonCode};
+
+const FIELD_TARGET_DOMAIN: &str = "policy_delivery.target.domain";
 
 pub(super) fn validate_policy_delivery_receipt_identity(
     current: &PolicyDeliveryRecord,
@@ -48,6 +50,15 @@ fn validate_policy_delivery_receipt_delivery_identity(
             ),
         ),
         (
+            receipt.source_document_id != current.source_document_id,
+            policy_control::source::FIELD_DOCUMENT_ID,
+            format!(
+                "expected source document {} but receipt reported {}",
+                current.source_document_id.as_str(),
+                receipt.source_document_id.as_str()
+            ),
+        ),
+        (
             receipt.target.child_profile_id != current.target.child_profile_id,
             policy_control::source::FIELD_CHILD_PROFILE_ID,
             format!(
@@ -67,7 +78,7 @@ fn validate_policy_delivery_receipt_delivery_identity(
         ),
         (
             receipt.target.domain != current.target.domain,
-            policy_control::delivery::FIELD_STATE,
+            FIELD_TARGET_DOMAIN,
             format!(
                 "expected delivery domain {} but receipt reported {}",
                 policy_delivery_domain_name(current.target.domain),
@@ -113,6 +124,15 @@ fn validate_policy_delivery_receipt_execution_identity(
             policy_control::delivery::FIELD_AUDIT_REFERENCE_IDS,
             String::from("expected audit references to match execution receipt"),
         ),
+        (
+            receipt.reason_code != transition.reason_code,
+            policy_control::delivery::FIELD_REASON_CODE,
+            format!(
+                "expected receipt reason code {} but receipt reported {}",
+                policy_delivery_reason_code_name(transition.reason_code.as_ref()),
+                policy_delivery_reason_code_name(receipt.reason_code.as_ref())
+            ),
+        ),
     ]
     .into_iter()
     .find(|(mismatch, _, _)| *mismatch);
@@ -125,5 +145,18 @@ fn validate_policy_delivery_receipt_execution_identity(
 }
 
 fn policy_delivery_domain_name(domain: PolicyConsumerDomain) -> String {
-    format!("{domain:?}").to_lowercase()
+    match domain {
+        PolicyConsumerDomain::App => String::from("app"),
+        PolicyConsumerDomain::Browser => String::from("browser"),
+        PolicyConsumerDomain::Network => String::from("network"),
+        PolicyConsumerDomain::Tracking => String::from("tracking"),
+        PolicyConsumerDomain::Screen => String::from("screen"),
+        PolicyConsumerDomain::Ai => String::from("ai"),
+    }
+}
+
+fn policy_delivery_reason_code_name(reason_code: Option<&PolicyReasonCode>) -> String {
+    reason_code
+        .map(|reason_code| reason_code.as_str().to_string())
+        .unwrap_or_else(|| String::from("none"))
 }

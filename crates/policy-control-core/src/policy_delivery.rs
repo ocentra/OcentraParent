@@ -218,11 +218,13 @@ pub struct PolicyDeliveryExecutionReceipt {
     pub delivery_id: PolicyDeliveryId,
     pub household_id: PolicyHouseholdId,
     pub policy_version: PolicyVersion,
+    pub source_document_id: ParentPolicyDocumentId,
     pub target: PolicyDeliveryTarget,
     pub attempt_id: PolicyDeliveryAttemptId,
     pub sequence: PolicyDeliverySequence,
     pub state: PolicyDeliveryState,
     pub audit_reference_ids: Vec<PolicyAuditReferenceId>,
+    pub reason_code: Option<PolicyReasonCode>,
     pub rollback_reference_state: Option<PolicyDeliveryState>,
 }
 
@@ -249,6 +251,15 @@ impl PolicyDeliveryApplyOutcome {
 
 pub fn policy_delivery_schema_version() -> Result<SchemaVersion, EventingError> {
     validation::policy_delivery_schema_version()
+}
+
+pub fn derive_policy_delivery_id(
+    artifact: &CompiledDomainPolicyArtifact,
+    target: &PolicyDeliveryTarget,
+    attempt_id: &PolicyDeliveryAttemptId,
+    sequence: PolicyDeliverySequence,
+) -> Result<PolicyDeliveryId, EventingError> {
+    validation::derive_policy_delivery_id(artifact, target, attempt_id, sequence)
 }
 
 pub fn queue_policy_delivery(

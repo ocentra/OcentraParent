@@ -2688,6 +2688,7 @@ dependencies = [
  "ocentra-parent-agent-protocol",
  "serde",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]
