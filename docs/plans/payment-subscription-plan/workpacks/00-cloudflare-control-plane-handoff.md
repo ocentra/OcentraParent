@@ -53,10 +53,10 @@ data-custody-storage-plan owns billing-record privacy/retention/export/delete bo
 | --- | --- | --- |
 | `cloudflare_plan_state` | exists / source-backed / proof-required | `docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md`; `docs/plans/cloudflare-control-plane-plan/NEXT_ACTIONS.md` |
 | `module_spec_state` | exists / source-backed / consumed | `docs/plans/cloudflare-control-plane-plan/PARENT_CLOUDFLARE_MODULE_SPEC.md` |
-| `auth_boundary_state` | exists / consumed / `account-auth-adapter-manual-required` | `docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md`; upstream handoff artifact |
+| `auth_boundary_state` | exists / consumed / `account-auth-adapter-manual-required` | `docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md`; `docs/plans/payment-subscription-plan/PLAN_STATE.md` |
 | `route_manifest_state` | exists / consumed / payment route groups explicit | `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md` |
 | `local_dev_test_state` | runnable / probe-verified; generated billing-contract sidecar resolution is correct and the proof bundle remains absent/not produced | `docs/plans/cloudflare-control-plane-plan/TESTING_STRATEGY.md`; `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts`; `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` |
-| `portal_worker_smoke_state` | blocked / proof-missing | upstream handoff artifact |
+| `portal_worker_smoke_state` | blocked / proof-missing | `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md`; `docs/plans/payment-subscription-plan/PLAN_STATE.md` |
 | `payment_route_group_state` | documented / no-runtime-claim | `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md` |
 | `secret_boundary_state` | server-only-secret contract explicit | `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`; module spec |
 | `runtime_block_state` | blocked / payment-runtime-must-not-start | expected upstream handoff artifact path only; no tracked payment proof bundle in this checkout |
@@ -128,6 +128,10 @@ Current validation truth:
 
 ## Exact upstream blocker set
 
+- Current tracked checkout output inventory:
+  - no WP00-WP12 proof roots are present in this checkout
+  - WP01-WP11 are historical plan references only
+  - WP12's generated proof is absent/not produced in this checkout
 - Missing Cloudflare proof roots still carried by the upstream handoff:
   - `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
   - `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/`
