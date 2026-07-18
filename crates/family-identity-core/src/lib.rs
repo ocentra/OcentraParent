@@ -10,6 +10,8 @@ mod family_identity_profiles_validation;
 mod family_identity_setup_records;
 pub mod household_authority;
 mod household_authority_validation;
+pub mod parent_presence;
 pub mod session_lifecycle;
 pub mod setup_lifecycle;
 mod setup_lifecycle_validation;
+pub mod trust_bootstrap;
