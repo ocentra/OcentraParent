@@ -27,11 +27,12 @@ use crate::test_invariants::require_ok;
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[test]
-fn screen_retention_sweeper_runtime_is_disabled_by_default() {
-    assert_eq!(
-        ScreenAiRetentionSweeperRuntimeConfig::from_environment(),
-        None
-    );
+fn screen_retention_sweeper_runtime_is_enabled_by_default() {
+    let config = ScreenAiRetentionSweeperRuntimeConfig::from_environment()
+        .expect("default retention sweeper configuration");
+    assert_eq!(config.poll_seconds, 5);
+    assert_eq!(config.max_sweeps, None);
+    assert_eq!(config.max_ticks, None);
 }
 
 #[tokio::test]

@@ -163,7 +163,7 @@ impl ScreenAiRetentionSweeperRuntimeConfig {
     pub(crate) fn from_environment() -> Option<Self> {
         if !env_flag(
             ScreenAiEnvVar(SCREEN_SERVICE_RETENTION_SWEEPER_RUNTIME_ENABLED_ENV),
-            false,
+            true,
         ) {
             return None;
         }

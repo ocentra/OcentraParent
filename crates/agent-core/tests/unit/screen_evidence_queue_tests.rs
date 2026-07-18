@@ -2,7 +2,11 @@ use std::{
     fmt::Display,
     fs::{read_to_string, remove_dir_all},
     path::{Path, PathBuf},
-    sync::atomic::{AtomicU64, Ordering},
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
+    thread,
 };
 
 use ocentra_eventing::expect_value::ExpectValue;
@@ -221,6 +225,90 @@ fn screen_evidence_queue_removes_processed_entries_without_touching_pending_entr
         entry.image_bytes,
         constants::activity_store::TEST_SCREEN_SUMMARY.as_bytes()
     );
+}
+
+#[test]
+fn screen_evidence_queue_sweeps_malformed_expiry_fail_closed() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([4; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let malformed_job = screen_queue_job_with_expiry(
+        constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID,
+        "not-a-timestamp",
+    );
+    queue
+        .append_encrypted_image(&malformed_job, b"malformed-expiry")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(sweep.expired_entries.len(), 1);
+    assert_eq!(sweep.retained_count, 0);
+    assert_eq!(
+        sweep.expired_entries[0].queue_job_id,
+        malformed_job.queue_job_id
+    );
+}
+
+#[test]
+fn screen_evidence_queue_serializes_concurrent_appends() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue = Arc::new(
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([3; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS),
+    );
+    let mut workers = Vec::new();
+    for index in 0..8 {
+        let queue = Arc::clone(&queue);
+        workers.push(thread::spawn(move || {
+            let queue_job_id = format!(
+                "{}-{index}",
+                constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID
+            );
+            let job = screen_queue_job_with_id(queue_job_id);
+            queue.append_encrypted_image(&job, b"concurrent-image")
+        }));
+    }
+    for worker in workers {
+        worker
+            .join()
+            .expect_value(constants::error::JOURNAL_APPENDS)
+            .expect_value(constants::error::JOURNAL_APPENDS);
+    }
+    let entries = queue
+        .read_decrypted_entries(16)
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(entries.len(), 8);
+}
+
+#[test]
+fn screen_evidence_queue_missing_file_is_an_idempotent_removal() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([2; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    std::fs::remove_file(queue.path()).expect_value(constants::error::JOURNAL_APPENDS);
+
+    let removed = queue
+        .remove_entries(&[String::from(
+            constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID,
+        )])
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(removed, 0);
 }
 
 fn screen_queue_job() -> ScreenAnalysisQueueJob {

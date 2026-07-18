@@ -1,4 +1,11 @@
-use std::path::{Path, PathBuf};
+use std::{
+    fs::{File, OpenOptions},
+    io::{self, Write},
+    path::{Path, PathBuf},
+};
+
+use atomicwrites::{AllowOverwrite, AtomicFile};
+use fs2::FileExt;
 
 use crate::journal_crypto::JournalKey;
 
@@ -42,6 +49,73 @@ pub struct ScreenEvidenceExpiredQueueEntry {
 pub struct ScreenEvidenceQueueSweep {
     pub expired_entries: Vec<ScreenEvidenceExpiredQueueEntry>,
     pub retained_count: u64,
+}
+
+pub(crate) fn with_exclusive_queue_lock<T>(
+    queue: &ScreenEvidenceQueue,
+    operation: impl FnOnce() -> Result<T, crate::JournalError>,
+) -> Result<T, crate::JournalError> {
+    let lock = queue_lock_file(queue)?;
+    lock.lock_exclusive()?;
+    let result = operation();
+    match result {
+        Ok(value) => {
+            FileExt::unlock(&lock)?;
+            Ok(value)
+        }
+        Err(error) => {
+            let _ = FileExt::unlock(&lock);
+            Err(error)
+        }
+    }
+}
+
+pub(crate) fn replace_queue_lines(
+    queue: &ScreenEvidenceQueue,
+    lines: &[&str],
+) -> Result<(), crate::JournalError> {
+    AtomicFile::new(&queue.path, AllowOverwrite)
+        .write(|file| write_queue_lines(file, lines))
+        .map_err(|error| io::Error::other(error.to_string()))?;
+    sync_parent_directory(&queue.path)?;
+    Ok(())
+}
+
+pub(crate) fn read_queue_contents(
+    queue: &ScreenEvidenceQueue,
+) -> Result<Option<String>, crate::JournalError> {
+    match std::fs::read_to_string(&queue.path) {
+        Ok(contents) => Ok(Some(contents)),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(error.into()),
+    }
+}
+
+fn queue_lock_file(queue: &ScreenEvidenceQueue) -> Result<File, crate::JournalError> {
+    let lock_path = queue.path.with_extension("lock");
+    Ok(OpenOptions::new()
+        .create(true)
+        .read(true)
+        .write(true)
+        .open(lock_path)?)
+}
+
+fn write_queue_lines(file: &mut File, lines: &[&str]) -> io::Result<()> {
+    for line in lines {
+        file.write_all(line.as_bytes())?;
+        file.write_all(b"\n")?;
+    }
+    file.sync_all()
+}
+
+#[cfg(not(windows))]
+fn sync_parent_directory(path: &Path) -> io::Result<()> {
+    File::open(path.parent().unwrap_or_else(|| Path::new(".")))?.sync_all()
+}
+
+#[cfg(windows)]
+fn sync_parent_directory(_path: &Path) -> io::Result<()> {
+    Ok(())
 }
 
 impl ScreenEvidenceQueue {

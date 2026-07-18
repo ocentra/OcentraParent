@@ -69,11 +69,11 @@ pub(crate) fn decrypted_record_from_line(
 
 pub(crate) fn queue_record_expired(expires_at: Option<&str>, now: &str) -> bool {
     let Some(expires_at) = expires_at else {
-        return false;
+        return true;
     };
     match (parse_timestamp(expires_at), parse_timestamp(now)) {
         (Some(expires_at), Some(now)) => expires_at <= now,
-        _ => false,
+        _ => true,
     }
 }
 

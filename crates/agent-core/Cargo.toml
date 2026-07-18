@@ -9,8 +9,10 @@ workspace = true
 
 [dependencies]
 base64 = "0.22.1"
+atomicwrites = "0.4.4"
 chacha20poly1305 = "0.10.1"
 chrono = "0.4.44"
+fs2 = "0.4.3"
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-network-evidence = { path = "../ocentra-network-evidence" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }

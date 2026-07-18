@@ -19,9 +19,16 @@ pub(crate) fn open(
     key: JournalKey,
 ) -> Result<ScreenEvidenceQueue, JournalError> {
     create_dir_all(directory.as_ref())?;
-    let path = directory
-        .as_ref()
-        .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
+    let metadata = std::fs::symlink_metadata(directory.as_ref())?;
+    if metadata.file_type().is_symlink() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "screen evidence queue directory must not be a symlink",
+        )
+        .into());
+    }
+    let directory = directory.as_ref().canonicalize()?;
+    let path = directory.join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
     OpenOptions::new().create(true).append(true).open(&path)?;
     Ok(ScreenEvidenceQueue { path, key })
 }
@@ -33,22 +40,22 @@ pub(crate) fn append_encrypted_image(
 ) -> Result<(), JournalError> {
     let encrypted = encrypt_payload(&queue.key, image_bytes)?;
     let record = super::screen_evidence_queue_record::encrypted_record_from_job(job, encrypted);
-    let mut file = OpenOptions::new().append(true).open(&queue.path)?;
-    serde_json::to_writer(&mut file, &record)?;
-    file.write_all(&[constants::byte::NEWLINE])?;
-    file.sync_data()?;
-    Ok(())
+    super::with_exclusive_queue_lock(queue, || {
+        let mut file = OpenOptions::new().append(true).open(&queue.path)?;
+        serde_json::to_writer(&mut file, &record)?;
+        file.write_all(&[constants::byte::NEWLINE])?;
+        file.sync_all()?;
+        Ok(())
+    })
 }
 
 pub(crate) fn read_decrypted_entries(
     queue: &ScreenEvidenceQueue,
     max_entries: usize,
 ) -> Result<Vec<DecryptedScreenEvidenceQueueEntry>, JournalError> {
-    let contents = match std::fs::read_to_string(&queue.path) {
-        Ok(contents) => contents,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
-        Err(error) => return Err(error.into()),
-    };
+    let contents = super::with_exclusive_queue_lock(queue, || {
+        Ok(super::read_queue_contents(queue)?.unwrap_or_default())
+    })?;
     let mut entries = Vec::new();
     for line in contents.lines().filter(|line| !line.trim().is_empty()) {
         if entries.len() >= max_entries {

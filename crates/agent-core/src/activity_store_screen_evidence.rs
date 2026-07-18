@@ -4,8 +4,9 @@ use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::screen_evidence::{
     ScreenAnalysisResult, ScreenCategoryCandidate, ScreenEvidenceQueueHealth,
     ScreenEvidenceRecentSummary, SCREEN_CUSTODY_QUERY_STORE, SCREEN_DELETION_DELETED,
-    SCREEN_DELETION_DELETE_FAILED, SCREEN_DELETION_EXPIRED_DELETED, SCREEN_QUEUE_STATUS_DELETED,
-    SCREEN_QUEUE_STATUS_EXPIRED, SCREEN_QUEUE_STATUS_FAILED,
+    SCREEN_DELETION_DELETE_FAILED, SCREEN_DELETION_EXPIRED_DELETED, SCREEN_DELETION_REQUIRED,
+    SCREEN_QUEUE_STATUS_DELETED, SCREEN_QUEUE_STATUS_EXPIRED, SCREEN_QUEUE_STATUS_FAILED,
+    SCREEN_QUEUE_STATUS_QUEUED,
 };
 use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use rusqlite::{params, Connection};
@@ -90,7 +91,7 @@ fn queue_health(
         custody_state: SCREEN_CUSTODY_QUERY_STORE.to_string(),
         pending_count: 0,
         expired_count: deletion_state_count(results, SCREEN_DELETION_EXPIRED_DELETED),
-        delete_pending_count: 0,
+        delete_pending_count: deletion_state_count(results, SCREEN_DELETION_REQUIRED),
         delete_failed_count: deletion_state_count(results, SCREEN_DELETION_DELETE_FAILED),
         latest_queue_job_id: latest.map(|result| result.queue_job_id.clone()),
         latest_status: latest.map(queue_status_from_result),
@@ -110,7 +111,8 @@ fn queue_status_from_result(result: &ScreenAnalysisResult) -> String {
         SCREEN_DELETION_DELETE_FAILED => SCREEN_QUEUE_STATUS_FAILED.to_string(),
         SCREEN_DELETION_EXPIRED_DELETED => SCREEN_QUEUE_STATUS_EXPIRED.to_string(),
         SCREEN_DELETION_DELETED => SCREEN_QUEUE_STATUS_DELETED.to_string(),
-        _ => SCREEN_QUEUE_STATUS_DELETED.to_string(),
+        SCREEN_DELETION_REQUIRED => SCREEN_QUEUE_STATUS_QUEUED.to_string(),
+        _ => SCREEN_QUEUE_STATUS_FAILED.to_string(),
     }
 }
 
