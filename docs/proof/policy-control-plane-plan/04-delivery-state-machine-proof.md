@@ -1,25 +1,24 @@
 # WP04 Delivery State Machine Proof
 
-Run id: `019ed32a-fdd2-74b0-bb81-6e152680ac97/2026-06-17T20:17:50Z`
+Run id: `019f6fe7-dac3-7031-94a5-f52f72225614/2026-07-18-policy-delivery-id-compat`
 
 Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit / state-machine`
 
 ## Validation used
 
-- `npm run test --workspace @ocentra-parent/policy-domain -- tests/unit/policy-compiler.test.ts tests/unit/policy-event.test.ts`
-- `cargo test -p ocentra-policy-control-core policy_delivery`
-- `cargo test -p ocentra-policy-control-core policy_source`
-- `npm run lint:architecture -- --files packages/policy-domain/src/policy.ts packages/policy-domain/src/policy-compiler.ts packages/policy-domain/src/policy-event.ts packages/policy-domain/tests/unit/policy-compiler.test.ts packages/policy-domain/tests/unit/policy-event.test.ts`
-- `cargo lint-architecture crates/policy-control-core/src/policy_delivery.rs crates/policy-control-core/src/policy_source.rs crates/policy-control-core/tests/unit/policy_delivery.rs crates/policy-control-core/tests/version-skew/policy_source.rs`
+- `cargo test -p ocentra-policy-control-core --test unit --test version-skew`
+- `cargo test -p ocentra-child-policy-core --test replay_policy_control_delivery_handoff`
+- `cargo clippy -p ocentra-policy-control-core -p ocentra-child-policy-core --all-targets -- -D warnings`
+- `cargo fmt --all -- --check`
+- `npm run lint:architecture -- --files crates/policy-control-core crates/child-policy-core docs/proof/policy-control-plane-plan/04-delivery-state-machine-proof.md`
 
-All commands passed on 2026-06-17.
+All commands passed on 2026-07-18.
 
 ## Owner source surfaces
 
-- `crates/policy-control-core/src/policy_delivery.rs` defines the delivery state enum, transition gate, parent-visible state mapping, active-state gate, reason-code requirements, supersede constraints, rollback reference constraints, and replay handling.
+- `crates/policy-control-core/src/policy_delivery.rs` defines the delivery state enum, transition gate, parent-visible state mapping, active-state gate, reason-code requirements, supersede constraints, rollback reference constraints, replay handling, the caller-owned queue identity contract, and an opt-in deterministic identity helper.
 - `crates/policy-control-core/src/policy_source.rs` keeps source-truth lifecycle separate from delivery state and requires acknowledged delivery evidence for active source states.
-- `packages/policy-domain/src/policy-compiler.ts` keeps delivery targets and audit references explicit on compiled artifacts.
-- `packages/policy-domain/src/policy-event.ts` defines explicit delivery, retry, rollback, audit, and manual-required event kinds.
+- `crates/child-policy-core/src/policy_control_delivery_handoff.rs` forwards the caller-owned delivery identity into the policy-control queue without replacement.
 
 ## Required lifecycle coverage
 
@@ -50,7 +49,8 @@ All commands passed on 2026-06-17.
 | `policy-delivery.ack-required` | `acknowledged_delivery_stays_pending_and_is_not_active` plus `active_status_requires_acknowledged_delivery_for_every_target` |
 | `policy-delivery.parent-visible-state` | `queued_delivery_starts_pending_per_child_device_domain`, `delivering_state_stays_pending_until_ack_or_apply`, `acknowledged_delivery_stays_pending_and_is_not_active`, `offline_delivery_is_degraded_and_requires_reason_code`, `retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progress`, `blocked_and_manual_required_transitions_require_reason_and_surface_manual_required`, `superseded_transition_requires_newer_policy_version_and_blocks_regressions` |
 | `policy-delivery.per-device-domain-status` | `queued_delivery_starts_pending_per_child_device_domain` plus explicit `PolicyDeliveryTarget { child_profile_id, device_id, domain }` ownership in `policy_delivery.rs` |
+| `policy-delivery.identity-compatibility` | `queue_preserves_caller_delivery_id_while_derivation_remains_opt_in`, `queued_delivery_preserves_caller_provided_delivery_id`, and `delivery_queue_starts_pending_per_child_device_domain` prove that the established queue API and production handoff preserve the supplied correlation identity; `policy_delivery_id_is_derived_from_full_scope_and_is_stable` separately proves deterministic opt-in derivation |
 
 ## Honest boundary
 
-This proof closes the delivery state-machine contract on policy-owned surfaces only. It does not claim portal rendering, shared event transport mechanics, or enforcement runtime execution.
+This proof closes the delivery state-machine contract on policy-owned surfaces only. It proves queue identity compatibility and deterministic identity derivation as separate contracts. It does not claim portal rendering, shared event transport mechanics, or enforcement runtime execution.

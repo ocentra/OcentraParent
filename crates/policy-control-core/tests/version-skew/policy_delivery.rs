@@ -252,10 +252,11 @@ fn execution_receipt_round_trip_and_validation_cover_legacy_payloads() -> TestRe
 }
 
 #[test]
-fn queued_delivery_uses_canonical_derived_delivery_id() -> TestResult {
+fn queued_delivery_preserves_caller_provided_delivery_id() -> TestResult {
     let queued = sample_queued_delivery()?;
 
-    assert_eq!(queued.delivery_id, sample_delivery_id()?);
+    assert_eq!(queued.delivery_id.as_str(), "delivery-version-skew");
+    assert_ne!(queued.delivery_id, sample_delivery_id()?);
     Ok(())
 }
 

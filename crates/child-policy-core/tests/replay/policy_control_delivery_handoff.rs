@@ -174,6 +174,10 @@ fn delivery_queue_starts_pending_per_child_device_domain() {
 
     assert_eq!(queued.state, PolicyDeliveryState::Queued);
     assert_eq!(queued.last_sequence.value(), 1);
+    assert_eq!(
+        queued.delivery_id.as_str(),
+        "delivery-policy-household-default"
+    );
     assert_eq!(queued.target.domain, PolicyConsumerDomain::Tracking);
     assert_eq!(
         queued.source_audit_reference_ids,

@@ -14,9 +14,9 @@ use helpers::{
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
-    derive_policy_delivery_id, validate_policy_delivery_execution_receipt, PolicyDeliveryAttemptId,
-    PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliverySequence,
-    PolicyDeliveryState,
+    derive_policy_delivery_id, queue_policy_delivery, validate_policy_delivery_execution_receipt,
+    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryParentVisibleState,
+    PolicyDeliverySequence, PolicyDeliveryState,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, ParentPolicyDocumentId, PolicyConsumerDomain, PolicyScheduleId,
@@ -74,9 +74,6 @@ fn policy_delivery_id_is_derived_from_full_scope_and_is_stable() -> TestResult {
         derive_policy_delivery_id(&compiled, &target, &attempt_id, sequence,),
         "derived policy delivery id"
     );
-    let queued = sample_queued_delivery()?;
-
-    assert_eq!(queued.delivery_id, expected);
     assert_eq!(expected, sample_delivery_id()?);
     assert_eq!(
         test_ok!(
@@ -131,6 +128,42 @@ fn policy_delivery_id_is_derived_from_full_scope_and_is_stable() -> TestResult {
         .len();
     assert_eq!(unique_count, derived_ids.len());
 
+    Ok(())
+}
+
+#[test]
+fn queue_preserves_caller_delivery_id_while_derivation_remains_opt_in() -> TestResult {
+    let source = sample_policy_source_document()?;
+    let compiled = test_ok!(
+        compile_domain_policy_artifact(&source, PolicyConsumerDomain::Tracking),
+        "compiled domain policy artifact"
+    );
+    let target = sample_delivery_target()?;
+    let attempt_id = helpers::attempt("attempt-caller-selected")?;
+    let sequence = test_ok!(
+        PolicyDeliverySequence::new(1),
+        "policy delivery initial sequence"
+    );
+    let derived_id = test_ok!(
+        derive_policy_delivery_id(&compiled, &target, &attempt_id, sequence),
+        "derived policy delivery id"
+    );
+    let caller_id = PolicyDeliveryId::parse("delivery-caller-selected")?;
+
+    assert_ne!(caller_id, derived_id);
+
+    let queued = test_ok!(
+        queue_policy_delivery(
+            &compiled,
+            target,
+            caller_id.clone(),
+            attempt_id,
+            vec![helpers::audit_ref("audit-caller-selected")?],
+        ),
+        "queue policy delivery with caller-selected id"
+    );
+
+    assert_eq!(queued.delivery_id, caller_id);
     Ok(())
 }
 
