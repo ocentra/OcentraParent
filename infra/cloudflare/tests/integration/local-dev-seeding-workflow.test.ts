@@ -80,7 +80,8 @@ describe('local dev seeding workflow', () => {
         workflow.seed.fixtureFamilies.some(
           (family) =>
             family.populationState === 'blocked' &&
-            family.blocker?.details.includes('generated billing-contract sidecar')
+            family.blocker?.kind === 'missing-runtime-dependency' &&
+            family.blocker.details.length > 0
         )
       );
     }

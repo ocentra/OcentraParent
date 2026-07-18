@@ -13,11 +13,11 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 ### Current local start truth
 
-- Interactive local start is explicit and runnable in this checkout.
+- Interactive local start is import-checked in this checkout; it does not boot wrangler or accept traffic.
 - Verified probe:
   - `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts`
-  - Result: `start.status = runnable`
-- Do not treat the runnable local probe as payment readiness; it only proves the local dev path is callable from this checkout.
+  - Result: `start.import_check = passed`
+- Do not treat the import-only local probe as payment readiness; it only proves the local dev path is callable from this checkout.
 
 ## Seed commands
 

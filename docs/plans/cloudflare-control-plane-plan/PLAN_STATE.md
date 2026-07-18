@@ -1,6 +1,6 @@
 # Cloudflare Control Plane Plan State
 
-Status: engineering-grade Cloudflare control-plane spec is complete, the current tracked checkout contains no WP00-WP12 proof roots, WP12 has a defined expected output path under `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` but its generated proof is absent/not produced, and the repo-local module is largely implemented; scoped validation is real, but the current blocker is unrun focused gates, the live generated billing-contract source-surface rerun gap, and the still-open `src/fixtures.ts` TypeScript return-path debt.
+Status: engineering-grade Cloudflare control-plane spec is complete, the current tracked checkout contains no WP00-WP12 proof roots, WP12 has a defined expected output path under `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` but its generated proof is absent/not produced, the checked-in TS sidecar is the operational billing-contract source surface consumed by Cloudflare, `crates/schema` currently reads/exposes that sidecar, and Rust-first canonical generation/ownership remains an explicit migration gap/blocker; scoped validation is real, but the current blocker is unrun focused gates, the live generated billing-contract source-surface rerun gap, and the still-open `src/fixtures.ts` TypeScript return-path debt.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 
@@ -11,12 +11,15 @@ infra/cloudflare:
   Shared Worker module, env guards, route manifest, auth adapter boundary, DO/D1/KV/R2/Queue bindings, local dev/seeding, test runner, deployment proof, observability/redaction boundary, and consumer handoff gates.
 
 infra/cloudflare/src/generated/billing-contracts:
-  Consumed generated edge surface emitted from `crates/schema`; the Worker reads it, but it is not the canonical owner of billing contracts.
+  Checked-in TS sidecar consumed by Cloudflare; current operational billing-contract source surface.
+
+billing-core:
+  Rust webhook intake, provider lifecycle classification, event/idempotency, dispute/manual-review, and downstream entitlement update helpers.
 
 crates/schema:
-  Canonical billing-contract generator and shared schema shapes.
+  Rust-owned billing-contract schema generation and shared contract shapes under migration; the checked-in TS sidecar remains the current consumed edge surface until that migration closes.
 
-billing-domain, billing-core, and payment-subscription-plan:
+payment-subscription-plan:
   Billing/payment semantics, provider semantics, subscription lifecycle, invoice/grace/referral qualification, and payment runtime readiness.
 
 account-identity-family-plan:

@@ -98,7 +98,8 @@ function readWorkspaceScripts(): Record<string, string> {
 }
 
 function runCloudflareScript(command: string): CommandProbeResult {
-  const result = spawnSync('cmd.exe', ['/d', '/s', '/c', `npm run ${command}`], {
+  const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const result = spawnSync(npmCommand, ['run', command], {
     cwd: cloudflareDir,
     encoding: 'utf8',
   });

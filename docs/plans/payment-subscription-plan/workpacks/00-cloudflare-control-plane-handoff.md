@@ -4,7 +4,7 @@
 
 - Verdict: `blocked / proof-required`
 - Expected payment proof root: `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/`
-- Expected upstream handoff artifact: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
+- Expected upstream handoff artifact (absent/not produced in this checkout): `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
 - Runtime effect: payment runtime remains blocked; this packet only records the shared Cloudflare dependency truth and its exact carried blockers.
 
 ## Goal
@@ -36,7 +36,7 @@ data-custody-storage-plan owns billing-record privacy/retention/export/delete bo
 - [../../cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md](../../cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md)
 - [../../cloudflare-control-plane-plan/TESTING_STRATEGY.md](../../cloudflare-control-plane-plan/TESTING_STRATEGY.md)
 - [../../cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md](../../cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md)
-- `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
+- `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` (expected-only; absent/not produced in this checkout)
 - [../REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
 
 ## Output files
@@ -118,7 +118,7 @@ These are proof-routing fields, not implementation code prescriptions.
 ## Validation
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
-- Upstream handoff artifact: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
+- Upstream handoff artifact (expected-only / absent in this checkout): `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
 - Proof bundle: `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md`
 
 Current validation truth:

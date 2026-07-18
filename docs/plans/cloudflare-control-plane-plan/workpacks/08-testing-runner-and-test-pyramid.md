@@ -88,10 +88,10 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 - `npm --prefix infra/cloudflare run lint`
 - `npm run lint:architecture -- --files infra/cloudflare/scripts/test-runner.ts`
 
-Validation truth from the current proof root:
+Validation truth from the current checkout:
 
 - `--list` passed.
-- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, `test:fuzz`, and `lint` each blocked honestly on the live generated billing-contract source surface rerun gap and the module-wide debt above.
+- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, `test:fuzz`, and `lint` each remain blocked honestly on the live generated billing-contract source surface rerun gap and the module-wide debt above.
 - focused architecture lint passed with a zero-match focused scope under the current gate surface.
 
 ## Negative cases
@@ -99,7 +99,7 @@ Validation truth from the current proof root:
 - Reject pretending coverage or mutation exists from docs alone.
 - Reject collapsing several required files into one broad umbrella suite without
   updating the matrix first.
-- Reject treating the narrowed runner inventory as runtime-green while the blocked billing-domain boundaries still stop the runtime-facing families.
+- Reject treating the narrowed runner inventory as runtime-green while the live generated billing-contract source-surface rerun gap and module-wide lint debt still stop the runtime-facing families.
 
 ## Failure conditions
 
