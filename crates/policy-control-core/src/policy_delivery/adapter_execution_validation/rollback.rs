@@ -21,19 +21,17 @@ pub(super) fn validate_policy_delivery_receipt_rollback_reference(
     receipt: &PolicyDeliveryExecutionReceipt,
 ) -> Result<(), EventingError> {
     if transition.state != PolicyDeliveryState::RolledBack {
-        return if receipt.rollback_reference_state.is_some() {
-            Err(EventingError::InvalidValue {
-                field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
-                value: format!(
-                    "unexpected rollback reference state {} in execution receipt",
-                    state_values::policy_delivery_state_name(
-                        receipt.rollback_reference_state.expect("checked is_some"),
-                    )
-                ),
-            })
-        } else {
-            Ok(())
+        let Some(receipt_reference_state) = receipt.rollback_reference_state else {
+            return Ok(());
         };
+
+        return Err(EventingError::InvalidValue {
+            field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
+            value: format!(
+                "unexpected rollback reference state {} in execution receipt",
+                state_values::policy_delivery_state_name(receipt_reference_state)
+            ),
+        });
     }
 
     let Some(transition_reference_state) = transition.rollback_reference_state else {
