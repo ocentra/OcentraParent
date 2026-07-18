@@ -2610,8 +2610,10 @@ version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
+ "ocentra-network-evidence",
  "serde",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]
