@@ -6,6 +6,7 @@ use super::{
     policy_control, state_context, EventingError, PolicyAuditReferenceId, PolicyDeliveryRecord,
     PolicyDeliveryTransition, PolicyVersion, SchemaVersion, POLICY_DELIVERY_SCHEMA_VERSION_VALUE,
 };
+use crate::policy_source::{ParentPolicyDocumentId, PolicyScheduleId};
 
 pub(super) fn policy_delivery_schema_version() -> Result<SchemaVersion, EventingError> {
     SchemaVersion::new(POLICY_DELIVERY_SCHEMA_VERSION_VALUE)
@@ -36,6 +37,35 @@ pub(super) fn validate_policy_delivery_transition(
         transition.rollback_reference_state,
         current_policy_version,
     )
+}
+
+pub(super) fn validate_policy_delivery_id(
+    value: impl Into<String>,
+) -> Result<String, EventingError> {
+    map_delivery_id_error(
+        ParentPolicyDocumentId::parse(value).map(Into::into),
+        policy_control::delivery::FIELD_DELIVERY_ID,
+    )
+}
+
+pub(super) fn validate_policy_delivery_attempt_id(
+    value: impl Into<String>,
+) -> Result<String, EventingError> {
+    map_delivery_id_error(
+        PolicyScheduleId::parse(value).map(Into::into),
+        policy_control::delivery::FIELD_ATTEMPT_ID,
+    )
+}
+
+fn map_delivery_id_error<T>(
+    value: Result<T, EventingError>,
+    field: &'static str,
+) -> Result<T, EventingError> {
+    match value {
+        Ok(value) => Ok(value),
+        Err(EventingError::EmptyValue { .. }) => Err(EventingError::EmptyValue { field }),
+        Err(error) => Err(error),
+    }
 }
 
 fn assert_audit_refs(audit_reference_ids: &[PolicyAuditReferenceId]) -> Result<(), EventingError> {

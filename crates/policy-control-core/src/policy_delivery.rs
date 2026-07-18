@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use crate::policy_source::{
     CompiledDomainPolicyArtifact, ParentPolicyDocumentId, PolicyAuditReferenceId,
     PolicyChildProfileId, PolicyConsumerDomain, PolicyDeviceId, PolicyHouseholdId,
-    PolicyReasonCode, PolicyRollbackRef, PolicyScheduleId, PolicyVersion,
+    PolicyReasonCode, PolicyRollbackRef, PolicyVersion,
 };
 
 mod adapter_execution;
@@ -21,8 +21,62 @@ mod validation;
 
 const POLICY_DELIVERY_SCHEMA_VERSION_VALUE: u16 = 1;
 const POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE: u64 = 1;
-pub type PolicyDeliveryId = ParentPolicyDocumentId;
-pub type PolicyDeliveryAttemptId = PolicyScheduleId;
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct PolicyDeliveryId(String);
+
+impl PolicyDeliveryId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        validation::validate_policy_delivery_id(value).map(Self)
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for PolicyDeliveryId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<PolicyDeliveryId> for String {
+    fn from(value: PolicyDeliveryId) -> Self {
+        value.0
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct PolicyDeliveryAttemptId(String);
+
+impl PolicyDeliveryAttemptId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+        validation::validate_policy_delivery_attempt_id(value).map(Self)
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for PolicyDeliveryAttemptId {
+    type Error = EventingError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::parse(value)
+    }
+}
+
+impl From<PolicyDeliveryAttemptId> for String {
+    fn from(value: PolicyDeliveryAttemptId) -> Self {
+        value.0
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "u64", into = "u64")]

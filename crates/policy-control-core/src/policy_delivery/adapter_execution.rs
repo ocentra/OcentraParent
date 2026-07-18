@@ -3,7 +3,7 @@
 use std::cmp::Ordering;
 
 use super::{
-    adapter_execution_validation, policy_control, transitions, EventingError,
+    adapter_execution_validation, policy_control, state_values, transitions, EventingError,
     PolicyDeliveryAdapterExecution, PolicyDeliveryApplyOutcome, PolicyDeliveryExecutionReceipt,
     PolicyDeliveryRecord, PolicyDeliveryTransition,
 };
@@ -70,10 +70,12 @@ fn validate_policy_delivery_receipt_sequence(
     transition: &PolicyDeliveryTransition,
     receipt: &PolicyDeliveryExecutionReceipt,
 ) -> Result<(), EventingError> {
+    validate_receipt_sequence_alignment(transition, receipt)?;
+
     match receipt.sequence.value().cmp(&current.last_sequence.value()) {
         Ordering::Less => stale_execution_receipt(receipt, current),
-        Ordering::Equal => validate_duplicate_execution_receipt(current, receipt),
-        Ordering::Greater => validate_receipt_sequence_alignment(transition, receipt),
+        Ordering::Equal => validate_current_sequence_replay(current, receipt),
+        Ordering::Greater => Ok(()),
     }
 }
 
@@ -103,7 +105,7 @@ fn stale_execution_receipt(
     })
 }
 
-fn validate_duplicate_execution_receipt(
+fn validate_current_sequence_replay(
     current: &PolicyDeliveryRecord,
     receipt: &PolicyDeliveryExecutionReceipt,
 ) -> Result<(), EventingError> {
@@ -118,7 +120,10 @@ fn validate_duplicate_execution_receipt(
         });
     }
 
-    Ok(())
+    Err(EventingError::InvalidValue {
+        field: policy_control::delivery::FIELD_SEQUENCE,
+        value: state_values::conflicting_replay_value(receipt.sequence, &current.delivery_id),
+    })
 }
 
 fn validate_receipt_sequence_alignment(

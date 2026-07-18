@@ -22,6 +22,12 @@ mod policy_compiler;
 #[path = "policy_delivery.rs"]
 mod policy_delivery;
 
+#[path = "policy_delivery_metadata.rs"]
+mod policy_delivery_metadata;
+
+#[path = "policy_delivery_receipt.rs"]
+mod policy_delivery_receipt;
+
 #[path = "policy_event.rs"]
 mod policy_event;
 
