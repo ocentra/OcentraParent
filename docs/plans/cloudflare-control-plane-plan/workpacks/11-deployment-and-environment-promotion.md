@@ -28,8 +28,8 @@ Define deployment commands, environment promotion, and rollback expectations for
 
 ## Status
 
-- `blocked / proof-present`
-- Proof root: `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
+- `blocked / proof-required`
+- Proof root: expected output path `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
 
 ## Execution truth
 
@@ -41,12 +41,9 @@ Define deployment commands, environment promotion, and rollback expectations for
 
 ## Exact blocker set
 
-- Missing billing-domain runtime boundary modules:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - `packages/billing-domain/src/billing-referral-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-  - `packages/billing-domain/src/billing-account-runtime-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
+- Live generated billing-contract source surface rerun gap remains unrefreshed:
+  - `npm --prefix infra/cloudflare run deploy:dev -- --dry-run`
+  - `npm --prefix infra/cloudflare run deploy -- --dry-run`
 - Placeholder-backed resource identifiers remain in both configs.
 - `AUTH_ADAPTER_MODE = "account-auth-adapter-manual-required"` remains active in both configs.
 - The current deploy scripts emit `--env` warnings because they do not point at matching `[env.*]` sections in the selected config file.

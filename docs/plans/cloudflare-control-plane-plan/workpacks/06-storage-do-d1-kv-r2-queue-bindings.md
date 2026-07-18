@@ -51,8 +51,8 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Completion
 
-- Status: blocked / proof-present for WP06 only; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
-- Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
+- Status: blocked / proof-required for WP06 only; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
+- Proof root: expected output path `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 - Runtime/source owner: `infra/cloudflare/src/env.ts`
 - Owned test surface: `infra/cloudflare/tests/unit/env-bindings.test.ts`
 
@@ -67,8 +67,8 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` all remain blocked before worker boot because `infra/cloudflare/src/index.ts` cannot import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
-- That billing-domain boundary import is outside the WP06 storage-binding slice, so the blocker is carried rather than fixed here.
+- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` all remain blocked before worker boot because the rerun set against the live generated billing-contract source surface has not been refreshed here, and `src/fixtures.ts` still carries TypeScript return-path debt.
+- That rerun gap is outside the WP06 storage-binding slice, so the blocker is carried rather than fixed here.
 
 ## Proof artifacts
 
@@ -80,9 +80,9 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 ## Focused validations
 
 - `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`
-- `npm --prefix infra/cloudflare run test:unit` blocked on `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-- `npm --prefix infra/cloudflare run test:integration` blocked on the same import
-- `npm --prefix infra/cloudflare run test:property` blocked on the same import
+- `npm --prefix infra/cloudflare run test:unit` blocked on the live generated billing-contract source surface rerun gap
+- `npm --prefix infra/cloudflare run test:integration` blocked on the same rerun gap
+- `npm --prefix infra/cloudflare run test:property` blocked on the same rerun gap
 - `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/tests/unit/env-bindings.test.ts`
 
 ## No-claim boundary

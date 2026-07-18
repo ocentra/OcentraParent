@@ -26,7 +26,7 @@ Current scoped proof rerun uses `--dry-run` against both commands because no rea
 
 ## Current blocked state
 
-- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` is currently blocked before publish because `src/index.ts` and `src/fixtures.ts` still import missing billing-domain runtime boundary modules.
+- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` is currently blocked before publish because the rerun set against the live generated billing-contract source surface has not been refreshed here, and `src/fixtures.ts` still carries TypeScript return-path debt.
 - `npm --prefix infra/cloudflare run deploy -- --dry-run` is currently blocked for the same reason.
 - Both commands also emit a Wrangler warning because the scripts pass `--env development` or `--env production` without matching `[env.*]` sections in the chosen config file.
 - Both configs still expose placeholder-backed D1 and KV identifiers and manual-required auth/key references, so no promotion or rollback readiness may be inferred.

@@ -51,7 +51,7 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Completion
 
-- Status: blocked / proof-present for WP02 only; no deploy-ready, runtime-ready, or payment-ready claim is made.
+- Status: blocked / proof-required for WP02 only; no deploy-ready, runtime-ready, or payment-ready claim is made.
 - Proof root: `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/`
 - Owned config surface: `infra/cloudflare/wrangler.toml`, `infra/cloudflare/wrangler.production.toml`, `infra/cloudflare/.dev.vars.example`
 - Owned test surface: `infra/cloudflare/tests/unit/env-bindings.test.ts`
@@ -65,8 +65,8 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare run test:unit` still blocks before worker boot because `infra/cloudflare/src/index.ts` cannot import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
-- `npm --prefix infra/cloudflare run lint` remains red outside WP02 because broader Cloudflare files import missing billing-domain boundary modules and `src/fixtures.ts` already carries TypeScript return-path errors.
+- `npm --prefix infra/cloudflare run test:unit` remains blocked until the rerun against the live generated billing-contract source surface is refreshed here.
+- `npm --prefix infra/cloudflare run lint` remains red outside WP02 because broader Cloudflare files still carry `src/fixtures.ts` TypeScript return-path errors and the broader rerun set has not been refreshed here.
 - Those failures are outside the owned WP02 wrangler/dev-vars surface, so they are carried as blockers rather than fixed here.
 
 ## Proof artifacts

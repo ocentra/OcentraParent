@@ -41,8 +41,8 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 
 ## Current execution truth
 
-- Status: `blocked / proof-present`
-- Proof root: `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
+- Status: `blocked / proof-required`
+- Proof root: expected output path `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
 - The runner in `infra/cloudflare/scripts/test-runner.ts` now owns the WP08 family-to-file contract and emits the selected proof IDs, assertion IDs, and any same-directory exclusions with `--list`.
 - Same-directory extras are explicit and excluded from the WP08 runner contract until the strategy and matrix adopt them first:
   - unit: `tests/unit/billing-binding-read-model.test.ts`
@@ -68,12 +68,9 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 
 ## Exact blockers
 
-- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-- `packages/billing-domain/src/billing-referral-boundary.js`
-- `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-- `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
-- `packages/billing-domain/src/billing-account-runtime-boundary.js`
-- `npm --prefix infra/cloudflare run lint` also remains blocked by module-wide debt outside the narrowed WP08 inventory:
+- the live generated billing-contract source surface rerun gap
+- `src/fixtures.ts` TypeScript return-path errors remain part of the carried module-wide debt
+- `npm --prefix infra/cloudflare run lint` also remains blocked by module-wide debt outside the narrowed WP08 inventory and the live generated billing-contract source surface rerun gap:
   - `infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
   - `infra/cloudflare/tests/integration/payment-routes-real.test.ts`
   - `infra/cloudflare/tests/integration/provider-webhooks.test.ts`
@@ -94,7 +91,7 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 Validation truth from the current proof root:
 
 - `--list` passed.
-- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, `test:fuzz`, and `lint` each blocked honestly on the exact blocker set above.
+- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, `test:fuzz`, and `lint` each blocked honestly on the live generated billing-contract source surface rerun gap and the module-wide debt above.
 - focused architecture lint passed with a zero-match focused scope under the current gate surface.
 
 ## Negative cases
@@ -114,4 +111,4 @@ Validation truth from the current proof root:
 - This workpack does not prove Cloudflare runtime readiness.
 - This workpack does not prove billing readiness, payment handoff readiness, or portal completion.
 - This workpack does not prove the excluded same-directory tests belong to the WP08 contract.
-- WP08 stays open/blocked until the missing billing-domain boundaries and the recorded module-lint debt are actually resolved and rerun green.
+- WP08 stays open/blocked until the live generated billing-contract source surface rerun gap and the recorded module-lint debt are actually resolved and rerun green.

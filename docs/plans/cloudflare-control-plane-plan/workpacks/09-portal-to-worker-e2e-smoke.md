@@ -27,19 +27,19 @@ Define the first consumer-side smoke that proves a parent portal route can talk 
 
 ## Status
 
-- `blocked / proof-present`
-- Proof root: `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/`
+- `blocked / proof-required`
+- Proof root: expected output path `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/`
 
 ## Execution truth
 
 - The owned e2e family stays explicitly scoped to `tests/e2e/portal-to-worker-billing-status.test.ts`.
 - The test contract stays explicitly scoped to `/auth/billing/status`.
-- The owned command blocked before route execution because `infra/cloudflare/src/index.ts` could not import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
+- The owned command blocked before route execution because the rerun set against the live generated billing-contract source surface has not been refreshed here.
 - Secret/private leakage assumptions remain denied by the owned test contract, but runtime success is not proven because the worker never booted.
 
 ## Exact blocker set
 
-- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
+- `cmd /c npm --prefix infra/cloudflare run test:e2e` remains blocked on the live generated billing-contract source surface rerun gap
 
 ## Validations run
 

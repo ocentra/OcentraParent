@@ -39,8 +39,8 @@ Reduce the games security and external-tool surface to the Parent-required basel
 
 ## Current execution truth
 
-- Status: `blocked / proof-present`
-- Proof root: `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/`
+- Status: `blocked / proof-required`
+- Proof root: expected output path `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/`
 - The current WP10 reruns use the narrowed WP08 family contract:
   - security: `tests/security/no-provider-secrets-in-client.test.ts`, `cors-origin-rejection.test.ts`, `request-smuggling.test.ts`, `redaction.test.ts`
   - property: `tests/property/route-auth-state.property.test.ts`, `billing-idempotency.property.test.ts`
@@ -64,9 +64,10 @@ Reduce the games security and external-tool surface to the Parent-required basel
 ## Exact blocker
 
 - Direct blocker surfaced by every current WP10 command:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
+  - the live generated billing-contract source surface rerun gap
+  - `src/fixtures.ts` TypeScript return-path errors remain part of the carried module-wide debt
 - The failure path is the same across the current reruns:
-  - imported through `infra/cloudflare/src/index.ts`
+  - unrefreshed through the narrowed WP08 family contract and carried observability integrations
 
 ## Validation truth
 
@@ -93,7 +94,7 @@ Reduce the games security and external-tool surface to the Parent-required basel
 - Reject security claims without explicit test family ownership.
 - Reject observability claims that are not tied to a concrete redaction,
   auth-rejection, billing-status, or portal-smoke case.
-- Reject treating the older `cfcp-c1-proof.md` green slice as current family readiness after the billing-domain boundary drift.
+- Reject treating the older `cfcp-c1-proof.md` green slice as current family readiness after the live generated billing-contract source surface rerun gap.
 
 ## Failure conditions
 
@@ -105,4 +106,4 @@ Reduce the games security and external-tool surface to the Parent-required basel
 - This workpack does not prove current Cloudflare runtime readiness.
 - This workpack does not prove payment handoff readiness, account authority, trusted-device authority, or portal completion.
 - `OBS-03` stays blocked under current reruns because the required integration family does not boot.
-- WP10 stays open/blocked until the missing billing-domain boundary import is restored and the required family commands rerun green.
+- WP10 stays open/blocked until the live generated billing-contract source surface rerun gap is refreshed and the required family commands rerun green.
