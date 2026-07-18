@@ -1,6 +1,6 @@
-# WP22 Deletion And Retention Proof
+# WP22 Deletion And Retention Proof — Invalidated
 
-plan: screen-plan
+review_status: invalidated
 workpack: 22 Deletion And Retention Proof
 owner: screen-plan
 artifact_shape: proof-pack
@@ -9,10 +9,19 @@ platform: windows
 queue_state: deleted
 image_custody_state: deleted
 retention_state: no-raw-retention
-portal_state: screenshot
+portal_state: not-claimed
 run_id: 8HIf9RVzwxgAAAAAAAAAAA
 
-## Runtime evidence
+## Review outcome
+
+Do not use this manifest or its prior artifacts as WP22 completion evidence.
+Independent review found disabled default sweeping, malformed-expiry indefinite
+retention, unlocked in-place queue rewrites, non-transactional deletion state,
+capture-path leakage, fabricated portal final-row seeding, and proof-custody
+leakage. Replacement implementation and fresh production-path proof are
+required before any checkbox is restored.
+
+## Superseded runtime evidence
 
 `cargo run -p ocentra-parent-screen-capture-adapter --example screen_capture_real_proof -- output/screen-plan-proof/22-deletion-and-retention-proof/runtime-capture`
 

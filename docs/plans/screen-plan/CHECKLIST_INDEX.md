@@ -18,13 +18,13 @@ This checklist tracks execution only. Proof artifacts are collected in the desig
 
 ## WP22 Deletion And Retention Proof
 
-- [x] Delete raw image after success: real Windows capture proof confirms the
+- [ ] Delete raw image after success: prior proof is invalidated by production-path review; the
   raw temporary PNG is removed after encrypted queue custody.
-- [x] Delete raw image after expiry: focused sweeper test passes.
-- [x] Record delete-failed state: protocol contract serialization test passes.
-- [x] Record deletion proof reference: focused queue and sweeper tests pass.
-- [x] Show deletion state in portal: exact-spec Playwright proof passes with
+- [ ] Delete raw image after expiry: disabled default sweeper and malformed-expiry retention require repair.
+- [ ] Record delete-failed state: contract serialization is not durable transactional deletion proof.
+- [ ] Record deletion proof reference: queue/sweeper proof must be production-safe and tamper-resistant.
+- [ ] Show deletion state in portal: exact-spec Playwright proof passes with
   service-backed desktop and mobile screenshots; the rendered route asserts
   that raw screenshots are absent.
-- [x] Prove no default long-term raw image retention: protocol serialization
+- [ ] Prove no default long-term raw image retention: protocol serialization
   excludes raw payloads and the real capture proof uses no raw retention.

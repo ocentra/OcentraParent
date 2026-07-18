@@ -28,7 +28,10 @@ Delete after success, delete after expiry, delete-failed visible state, deletion
 
 ## Current State
 
-All six local deletion outcomes are proved by the WP22 packet at
+Independent review invalidated the prior WP22 packet: it exercised a proof
+harness rather than the production-safe deletion path. All six outcomes are
+open pending retention, durable queue mutation, transactional deletion state,
+capture redaction, production projection, and hardened proof custody work.
 [`docs/proof/screen-plan/wp22-deletion-retention-proof.md`](../../../proof/screen-plan/wp22-deletion-retention-proof.md).
 The portal proof uses the runner's exact-spec environment route, so it runs the
 screen-summary proof without fan-out into unrelated E2E suites.
@@ -59,12 +62,12 @@ These are proof-routing fields, not implementation code prescriptions.
 
 ## Checklist
 
-- [x] Delete raw image after success.
-- [x] Delete raw image after expiry.
-- [x] Record delete-failed state.
-- [x] Record deletion proof ref.
-- [x] Show deletion state in portal.
-- [x] Prove no default long-term raw image retention.
+- [ ] Delete raw image after success.
+- [ ] Delete raw image after expiry.
+- [ ] Record delete-failed state.
+- [ ] Record deletion proof ref.
+- [ ] Show deletion state in portal.
+- [ ] Prove no default long-term raw image retention.
 
 ## Proof
 

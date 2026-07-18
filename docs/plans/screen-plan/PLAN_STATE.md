@@ -149,7 +149,7 @@ Closure/external gates: remaining platform/live-view/model-quality gaps are enum
 - [15 Encrypted Temporary Image Queue](workpacks/15-encrypted-temporary-image-queue.md) - 0/6 checked, 6 open.
 - [16 Queue Scheduler And Debouncer](workpacks/16-queue-scheduler-and-debouncer.md) - 0/6 checked, 6 open.
 - [21 Journal And SQLite Ingest](workpacks/21-journal-and-sqlite-ingest.md) - 0/6 checked, 6 open.
-- [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md) - 6/6 checked, 0 open.
+- [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md) - 0/6 checked, 6 open (independent production-path review rejected prior proof).
 - [23 Policy Compiler For Screen Derived Evidence](workpacks/23-policy-compiler-for-screen-derived-evidence.md) - 0/6 checked, 6 open.
 - [29 Proof Tiers And Proof Packs](workpacks/29-proof-tiers-and-proof-packs.md) - 0/6 checked, 6 open.
 - [12 Android MediaProjection Adapter Plan Proof](workpacks/12-android-mediaprojection-adapter-plan-proof.md) - 7/9 checked, 2 open.
