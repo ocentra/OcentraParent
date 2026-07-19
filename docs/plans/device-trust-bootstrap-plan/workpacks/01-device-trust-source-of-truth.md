@@ -24,9 +24,9 @@ Purpose: define trust ownership, trust states, bootstrap lifecycle, and cross-pl
 ## Current audit state
 
 - A runtime-security proof now exists at `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/00-runtime-security-proof.md` for the narrow Rust parent-presence custody slice.
-- `crates/family-identity-core` now owns an explicit caller-path SQLite repository for issued and consumed parent-presence challenges. Challenge refs and nonce refs are durable unique identities; consumption uses `BEGIN IMMEDIATE`; public receipt refs are stored 256-bit OS-random opaque capabilities while the database sequence stays private.
+- `crates/family-identity-core` now owns an explicit caller-path SQLite repository for issued and consumed parent-presence challenges. Existing stores are validated before initialization across exact columns, nullability, primary keys, strict/rowid shape, unique indexes, the named nonce-integrity index, private receipt sequence, and receipt foreign-key target/delete behavior. Challenge refs and nonce refs are durable unique identities; consumption uses `BEGIN IMMEDIATE`; public receipt refs are stored 256-bit OS-random opaque capabilities while the database sequence stays private.
 - Focused real-process tests prove concurrent consume contention, durable replay rejection after restart, and concurrent different-challenge issuance against one nonce yielding exactly one issue plus one duplicate-nonce rejection.
-- Custody tests reject corrupt databases without recreation, relative or missing-parent paths, read-only files, and final/ancestor symbolic substitution when the host can create those links.
+- Custody tests reject corrupt databases without recreation, malformed schemas without silent repair or byte changes, relative or missing-parent paths, read-only files, and final/ancestor symbolic substitution. On Windows both links must be created before rejection counts as proof; link-creation denial fails the test and remains an external platform constraint.
 - This is still a partial WP01 result. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, or platform-wide path guarantees.
 
 ## Negative cases

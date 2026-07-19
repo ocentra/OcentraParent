@@ -1,45 +1,18 @@
 use std::path::PathBuf;
 use std::time::Duration;
 
-use rusqlite::{params, Connection, ErrorCode, OptionalExtension, TransactionBehavior};
+use rusqlite::{params, Connection, ErrorCode, OpenFlags, OptionalExtension, TransactionBehavior};
 
 use crate::parent_presence::{
     ParentPresenceChallenge, ParentPresenceReceiptRef, ParentPresenceVerificationFailureReason,
 };
-use crate::parent_presence_store_integrity::{validate_store_schema, verified_challenge};
+use crate::parent_presence_store_integrity::verified_challenge;
 use crate::parent_presence_store_path::validate_caller_custody_path;
 use crate::parent_presence_store_receipt::generate_opaque_receipt_ref;
+use crate::parent_presence_store_schema::open_initialized_store;
 
 const CHALLENGE_STATE_ISSUED: &str = "issued";
 const CHALLENGE_STATE_CONSUMED: &str = "consumed";
-
-const INITIALIZE_PARENT_PRESENCE_STORE: &str = r#"
-PRAGMA journal_mode = WAL;
-PRAGMA synchronous = FULL;
-PRAGMA foreign_keys = ON;
-
-CREATE TABLE IF NOT EXISTS parent_presence_challenges (
-    challenge_ref TEXT PRIMARY KEY NOT NULL,
-    challenge_json TEXT NOT NULL,
-    privileged_action_json TEXT NOT NULL,
-    expires_at TEXT NOT NULL,
-    nonce_ref TEXT NOT NULL UNIQUE,
-    lifecycle_state TEXT NOT NULL CHECK (
-        lifecycle_state IN ('issued', 'consumed')
-    )
-) STRICT;
-
-CREATE TABLE IF NOT EXISTS parent_presence_receipts (
-    receipt_sequence INTEGER PRIMARY KEY AUTOINCREMENT,
-    challenge_ref TEXT NOT NULL UNIQUE,
-    receipt_ref TEXT NOT NULL UNIQUE,
-    FOREIGN KEY (challenge_ref)
-        REFERENCES parent_presence_challenges(challenge_ref)
-) STRICT;
-
-CREATE UNIQUE INDEX IF NOT EXISTS parent_presence_nonce_identity
-ON parent_presence_challenges(nonce_ref);
-"#;
 
 const INSERT_CHALLENGE: &str = r#"
 INSERT INTO parent_presence_challenges (
@@ -114,11 +87,7 @@ impl ParentPresenceStore {
         let path = path.into();
         validate_caller_custody_path(&path)?;
         let store = Self { path };
-        let connection = store.connection()?;
-        connection
-            .execute_batch(INITIALIZE_PARENT_PRESENCE_STORE)
-            .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
-        validate_store_schema(&connection)?;
+        open_initialized_store(&store.path)?;
         Ok(store)
     }
 
@@ -251,8 +220,17 @@ impl ParentPresenceStore {
     }
 
     fn connection(&self) -> Result<Connection, ParentPresenceStoreError> {
-        let connection =
-            Connection::open(&self.path).map_err(|_error| ParentPresenceStoreError::Unavailable)?;
+        self.connection_with_flags(
+            OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NOFOLLOW,
+        )
+    }
+
+    fn connection_with_flags(
+        &self,
+        flags: OpenFlags,
+    ) -> Result<Connection, ParentPresenceStoreError> {
+        let connection = Connection::open_with_flags(&self.path, flags)
+            .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
         connection
             .busy_timeout(Duration::from_secs(10))
             .map_err(|_error| ParentPresenceStoreError::Unavailable)?;

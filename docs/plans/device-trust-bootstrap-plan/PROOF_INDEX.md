@@ -37,7 +37,7 @@ WP01 currently has one narrow canonical runtime artifact:
 output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/00-runtime-security-proof.md
 ```
 
-It proves only the Rust parent-presence custody slice recorded inside it; it does not substitute for the remaining universal files or broader WP01/WP09 closure.
+It proves only the Rust parent-presence custody slice recorded inside it; it does not substitute for the remaining universal files or broader WP01/WP09 closure. Its Windows symbolic-substitution claim is valid only when both final-file and ancestor-directory links are actually created and rejected; link-creation denial is an external platform constraint, not a passing proof result.
 
 ## Command log format
 

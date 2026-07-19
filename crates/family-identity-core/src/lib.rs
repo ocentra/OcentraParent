@@ -16,6 +16,7 @@ mod parent_presence_store;
 mod parent_presence_store_integrity;
 mod parent_presence_store_path;
 mod parent_presence_store_receipt;
+mod parent_presence_store_schema;
 pub mod session_lifecycle;
 pub mod setup_lifecycle;
 mod setup_lifecycle_validation;

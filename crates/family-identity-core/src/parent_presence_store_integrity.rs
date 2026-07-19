@@ -1,22 +1,6 @@
 use crate::parent_presence::ParentPresenceChallenge;
 use crate::parent_presence_store::{ParentPresenceStoreError, StoredChallengeRow};
 
-pub(crate) fn validate_store_schema(
-    connection: &rusqlite::Connection,
-) -> Result<(), ParentPresenceStoreError> {
-    let receipt_ref_column_count = connection
-        .query_row(
-            "SELECT COUNT(*) FROM pragma_table_info('parent_presence_receipts') WHERE name = 'receipt_ref'",
-            [],
-            |row| row.get::<_, i64>(0),
-        )
-        .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
-    if receipt_ref_column_count != 1 {
-        return Err(ParentPresenceStoreError::IntegrityRejected);
-    }
-    Ok(())
-}
-
 pub(crate) fn verified_challenge(
     expected_challenge_ref: &str,
     stored: &StoredChallengeRow,

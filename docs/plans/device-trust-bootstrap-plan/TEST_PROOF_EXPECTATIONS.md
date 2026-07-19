@@ -64,7 +64,9 @@ cargo clippy -p ocentra-family-identity-core --tests -- -D warnings
 npm run lint:architecture -- --files crates/family-identity-core/src crates/family-identity-core/tests/unit
 ```
 
-This focused proof covers explicit-path SQLite custody, durable challenge and nonce identity, opaque receipt generation/redaction, concurrent process consumption/issuance, restart replay rejection, and selected fail-closed path cases. It does not cover backup, export, restore, platform key stores, or all filesystem substitution behavior on every target OS.
+This focused proof covers explicit-path SQLite custody, durable challenge and nonce identity, opaque receipt generation/redaction, concurrent process consumption/issuance, restart replay rejection, complete integrity-critical SQLite schema metadata validation before initialization, and selected fail-closed path cases. Malformed existing schemas must be rejected before any `CREATE ... IF NOT EXISTS` statement can repair them, and fixtures must prove the existing database bytes remain unchanged.
+
+On Windows, the final-file and ancestor-directory symbolic-substitution test passes only after both links are successfully created and rejected. If `symlink_file` or `symlink_dir` is denied by host policy or privilege state, the test must fail with that creation error; record the run as an external platform constraint and do not claim symbolic-substitution coverage. This proof still does not cover backup, export, restore, platform key stores, or equivalent filesystem-substitution behavior on every target OS.
 
 ## Common commands
 

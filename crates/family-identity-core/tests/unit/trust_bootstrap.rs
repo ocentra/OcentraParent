@@ -14,6 +14,20 @@ use ocentra_family_identity_core::parent_presence::{
 
 const EXPIRED_EXPIRY: &str = "2000-01-01T00:00:00.000Z";
 const ACCEPTED_EXPIRY: &str = "2099-01-01T00:00:00.000Z";
+const VALID_CHALLENGE_STORE_SCHEMA: &str = r#"
+CREATE TABLE parent_presence_challenges (
+    challenge_ref TEXT PRIMARY KEY NOT NULL,
+    challenge_json TEXT NOT NULL,
+    privileged_action_json TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    nonce_ref TEXT NOT NULL UNIQUE,
+    lifecycle_state TEXT NOT NULL CHECK (
+        lifecycle_state IN ('issued', 'consumed')
+    )
+) STRICT;
+CREATE UNIQUE INDEX parent_presence_nonce_identity
+ON parent_presence_challenges(nonce_ref);
+"#;
 
 static NEXT_CASE_ID: AtomicU64 = AtomicU64::new(1);
 
@@ -364,21 +378,73 @@ fn parent_presence_store_rejects_corruption_without_recreation() {
 }
 
 #[test]
-fn parent_presence_store_rejects_legacy_receipt_schema_at_open() -> TestResult {
-    let store = TestStore::new("legacy-receipt-schema");
+fn parent_presence_store_rejects_nonunique_receipt_and_wrong_sequence_without_repair() -> TestResult
+{
+    let store = TestStore::new("malformed-receipt-schema");
     let connection = rusqlite::Connection::open(store.path())
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     connection
-        .execute_batch(
-            "CREATE TABLE parent_presence_challenges (challenge_ref TEXT PRIMARY KEY NOT NULL, challenge_json TEXT NOT NULL, privileged_action_json TEXT NOT NULL, expires_at TEXT NOT NULL, nonce_ref TEXT NOT NULL UNIQUE, lifecycle_state TEXT NOT NULL) STRICT;
-             CREATE TABLE parent_presence_receipts (receipt_sequence INTEGER PRIMARY KEY AUTOINCREMENT, challenge_ref TEXT NOT NULL UNIQUE) STRICT;",
-        )
+        .execute_batch(&format!(
+            "{VALID_CHALLENGE_STORE_SCHEMA}
+             CREATE TABLE parent_presence_receipts (
+                 receipt_sequence TEXT NOT NULL,
+                 challenge_ref TEXT NOT NULL UNIQUE,
+                 receipt_ref TEXT NOT NULL
+             ) STRICT;
+             INSERT INTO parent_presence_challenges VALUES (
+                 'sentinel-challenge', '{{}}', '{{}}', '2099-01-01T00:00:00.000Z',
+                 'sentinel-nonce', 'issued'
+             );
+             INSERT INTO parent_presence_receipts VALUES (
+                 'sentinel-sequence', 'sentinel-challenge', 'sentinel-receipt'
+             );"
+        ))
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     drop(connection);
+    let store_before = fs::read(store.path())
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     assert!(matches!(
         ParentPresenceVerificationPort::open(store.path()),
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
     ));
+    assert_eq!(
+        fs::read(store.path())
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
+        store_before
+    );
+    Ok(())
+}
+
+#[test]
+fn parent_presence_store_rejects_wrong_receipt_foreign_key_without_repair() -> TestResult {
+    let store = TestStore::new("wrong-receipt-foreign-key");
+    let connection = rusqlite::Connection::open(store.path())
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    connection
+        .execute_batch(&format!(
+            "{VALID_CHALLENGE_STORE_SCHEMA}
+             CREATE TABLE parent_presence_receipts (
+                 receipt_sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                 challenge_ref TEXT NOT NULL UNIQUE,
+                 receipt_ref TEXT NOT NULL UNIQUE,
+                 FOREIGN KEY (challenge_ref)
+                     REFERENCES parent_presence_challenges(challenge_ref)
+                     ON DELETE CASCADE
+             ) STRICT;"
+        ))
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    drop(connection);
+    let store_before = fs::read(store.path())
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert!(matches!(
+        ParentPresenceVerificationPort::open(store.path()),
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    ));
+    assert_eq!(
+        fs::read(store.path())
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
+        store_before
+    );
     Ok(())
 }
 
@@ -425,27 +491,40 @@ fn parent_presence_store_rejects_read_only_database() -> TestResult {
 
 #[cfg(windows)]
 #[test]
-fn parent_presence_store_rejects_final_and_ancestor_symbolic_substitution() -> TestResult {
+fn parent_presence_store_rejects_final_and_ancestor_symbolic_substitution(
+) -> Result<(), Box<dyn std::error::Error>> {
     use std::os::windows::fs::{symlink_dir, symlink_file};
 
     let store = TestStore::new("symbolic-substitution");
-    drop(store.port()?);
+    drop(store.port().map_err(|_error| {
+        std::io::Error::other("failed to initialize the symbolic-substitution fixture")
+    })?);
     let final_link = store.root.join("linked-parent-presence.sqlite");
-    if symlink_file(store.path(), &final_link).is_ok() {
-        assert!(matches!(
-            ParentPresenceVerificationPort::open(&final_link),
-            Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
-        ));
-    }
+    symlink_file(store.path(), &final_link).map_err(|error| {
+        std::io::Error::new(
+            error.kind(),
+            format!("Windows final-file symbolic-link coverage could not be exercised: {error}"),
+        )
+    })?;
+    assert!(matches!(
+        ParentPresenceVerificationPort::open(&final_link),
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    ));
 
     let alias = store.root.with_extension("alias");
-    if symlink_dir(&store.root, &alias).is_ok() {
-        assert!(matches!(
-            ParentPresenceVerificationPort::open(alias.join("parent-presence.sqlite")),
-            Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
-        ));
-        assert!(matches!(fs::remove_dir(&alias), Ok(())));
-    }
+    symlink_dir(&store.root, &alias).map_err(|error| {
+        std::io::Error::new(
+            error.kind(),
+            format!(
+                "Windows ancestor-directory symbolic-link coverage could not be exercised: {error}"
+            ),
+        )
+    })?;
+    assert!(matches!(
+        ParentPresenceVerificationPort::open(alias.join("parent-presence.sqlite")),
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    ));
+    fs::remove_dir(&alias)?;
     Ok(())
 }
 

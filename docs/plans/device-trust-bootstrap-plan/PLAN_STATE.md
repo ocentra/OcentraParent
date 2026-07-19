@@ -110,7 +110,7 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 - `packages/family-domain` contains typed trust-adjacent authority and recovery contracts, including `DeviceTrustState`, privileged device actions, setup invite rules, and recovery authorization boundaries.
 - `packages/lan-domain` plus the Rust LAN pairing runtime contain trusted-route and selected-device registry contracts, restart behavior, and explicit manual proof gaps for LAN pairing.
 - `packages/parent-domain` is mostly frontage for this slice and currently fails the repo re-export architecture gate on the named LAN/tamper bridge files.
-- `crates/family-identity-core` has durable explicit-path SQLite issuance/consumption for parent-presence challenges, global nonce uniqueness, opaque OS-random receipt capabilities, concurrent process/restart replay proof, and selected fail-closed custody-path proof.
+- `crates/family-identity-core` has durable explicit-path SQLite issuance/consumption for parent-presence challenges, pre-initialization validation of the complete integrity-critical store schema, global nonce uniqueness, opaque OS-random receipt capabilities, concurrent process/restart replay proof, and exercised Windows-host final/ancestor symbolic-substitution rejection.
 - No complete device-trust state machine exists yet beyond that narrow parent-presence bootstrap boundary.
 - No execution-grade local key sealing implementation exists yet in repo code.
 - No execution-grade parent step-up, phone QR approval bridge, encrypted recovery bundle handling, entitlement-binding runtime, or child uninstall authorization runtime exists yet in repo code.
