@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::{
 };
 use ocentra_parent_desktop::parent_route_subscription_delivery::{
     deliver_parent_route_subscription_event, ParentRouteSubscriptionDelivery,
-    ParentRouteSubscriptionDeliveryState,
+    ParentRouteSubscriptionDeliveryState, PARENT_ROUTE_SUBSCRIPTION_EVENT_ID_WINDOW,
 };
 use ocentra_parent_desktop::{
     agent_service_connects, parent_platform_proof_state_for_address,
@@ -28,16 +28,26 @@ fn subscription_event_with_ids(
     snapshot: &ParentRouteSnapshot,
     event_ids: &[&str],
 ) -> ParentSubscriptionEvent {
+    subscription_event_with_owned_ids(
+        snapshot,
+        event_ids.iter().map(|event_id| (*event_id).to_string()),
+    )
+}
+
+fn subscription_event_with_owned_ids(
+    snapshot: &ParentRouteSnapshot,
+    event_ids: impl IntoIterator<Item = String>,
+) -> ParentSubscriptionEvent {
     ParentSubscriptionEvent {
         schema_version: 1,
         route: snapshot.route.clone(),
         snapshot: snapshot.clone(),
         events: Some(
             event_ids
-                .iter()
+                .into_iter()
                 .map(|event_id| ParentRouteEventSnapshot {
                     event: Some("lan-replay-row".to_string()),
-                    event_id: ParentRouteEventId::parse((*event_id).to_string()),
+                    event_id: ParentRouteEventId::parse(event_id),
                     correlation_id: None,
                     sent_at: None,
                     source_peer_id: None,
@@ -51,6 +61,33 @@ fn subscription_event_with_ids(
                 })
                 .collect(),
         ),
+    }
+}
+
+fn replay_warning(
+    snapshot: &ParentRouteSnapshot,
+    event_id: &str,
+    sent_at: &str,
+) -> ParentSubscriptionEvent {
+    let warning = ParentRouteEventSnapshot {
+        event: Some("lan-runtime-event-chain-replay-rejected".to_string()),
+        event_id: ParentRouteEventId::parse(event_id.to_string()),
+        correlation_id: None,
+        sent_at: Some(sent_at.to_string()),
+        source_peer_id: ParentRoutePeerId::parse(constants::peer::LOCAL_DEV_AGENT.to_string()),
+        source_role: Some(ParentRoutePeerRole::AgentService),
+        target_peer_id: ParentRoutePeerId::parse(constants::peer::PORTAL_DEV.to_string()),
+        target_role: Some(ParentRoutePeerRole::Portal),
+        severity: Some("warn".to_string()),
+        payload: None,
+        snapshot: None,
+        command_result_projection: None,
+    };
+    ParentSubscriptionEvent {
+        schema_version: 1,
+        route: snapshot.route.clone(),
+        snapshot: snapshot.clone(),
+        events: Some(vec![warning]),
     }
 }
 
@@ -153,45 +190,112 @@ fn parent_route_subscription_delivery_emits_new_event_ids_with_stable_snapshot_o
 }
 
 #[test]
-fn parent_route_subscription_delivery_emits_safe_replay_warning_once() {
+fn parent_route_subscription_delivery_bounds_identity_state_to_the_portal_window() {
     let snapshot = load_parent_route_snapshot(ParentRouteId::Devices, None);
-    let warning = ParentRouteEventSnapshot {
-        event: Some("lan-runtime-event-chain-replay-rejected".to_string()),
-        event_id: ParentRouteEventId::parse(
-            "lan-runtime-event-chain-replay-rejected-host-1".to_string(),
-        ),
-        correlation_id: None,
-        sent_at: Some("2026-07-19T05:00:00.000Z".to_string()),
-        source_peer_id: ParentRoutePeerId::parse(constants::peer::LOCAL_DEV_AGENT.to_string()),
-        source_role: Some(ParentRoutePeerRole::AgentService),
-        target_peer_id: ParentRoutePeerId::parse(constants::peer::PORTAL_DEV.to_string()),
-        target_role: Some(ParentRoutePeerRole::Portal),
-        severity: Some("warn".to_string()),
-        payload: None,
-        snapshot: None,
-        command_result_projection: None,
-    };
-    let subscription = ParentSubscriptionEvent {
-        schema_version: 1,
-        route: snapshot.route.clone(),
-        snapshot: snapshot.clone(),
-        events: Some(vec![warning]),
-    };
-    let mut state = ParentRouteSubscriptionDeliveryState::new(snapshot);
+    let event_ids = (0..=PARENT_ROUTE_SUBSCRIPTION_EVENT_ID_WINDOW)
+        .map(|index| format!("lan-replay-{index:03}"))
+        .collect::<Vec<_>>();
+    let first = subscription_event_with_owned_ids(&snapshot, event_ids.clone());
+    let mut state = ParentRouteSubscriptionDeliveryState::new(snapshot.clone());
     let mut emitted = 0;
 
-    let first = deliver_parent_route_subscription_event(&mut state, &subscription, |_event| {
+    let first_delivery = deliver_parent_route_subscription_event(&mut state, &first, |_event| {
         emitted += 1;
         Ok::<(), ()>(())
     });
-    let repeated = deliver_parent_route_subscription_event(&mut state, &subscription, |_event| {
-        emitted += 1;
-        Ok::<(), ()>(())
-    });
+    assert_eq!(first_delivery, Ok(ParentRouteSubscriptionDelivery::Emitted));
+    assert_eq!(
+        state.tracked_event_id_count(),
+        PARENT_ROUTE_SUBSCRIPTION_EVENT_ID_WINDOW
+    );
 
-    assert_eq!(first, Ok(ParentRouteSubscriptionDelivery::Emitted));
+    let repeated = deliver_parent_route_subscription_event(&mut state, &first, |_event| {
+        emitted += 1;
+        Ok::<(), ()>(())
+    });
     assert_eq!(repeated, Ok(ParentRouteSubscriptionDelivery::Suppressed));
-    assert_eq!(emitted, 1);
+
+    let mut outside_window_changed_ids = event_ids.clone();
+    outside_window_changed_ids[0] = "lan-replay-outside-window".to_string();
+    let outside_window_changed =
+        subscription_event_with_owned_ids(&snapshot, outside_window_changed_ids);
+    let outside_window_delivery =
+        deliver_parent_route_subscription_event(&mut state, &outside_window_changed, |_event| {
+            emitted += 1;
+            Ok::<(), ()>(())
+        });
+    assert_eq!(
+        outside_window_delivery,
+        Ok(ParentRouteSubscriptionDelivery::Suppressed)
+    );
+
+    let mut newest_changed_ids = event_ids;
+    newest_changed_ids[PARENT_ROUTE_SUBSCRIPTION_EVENT_ID_WINDOW] = "lan-replay-newest".to_string();
+    let newest_changed = subscription_event_with_owned_ids(&snapshot, newest_changed_ids);
+    let newest_delivery =
+        deliver_parent_route_subscription_event(&mut state, &newest_changed, |_event| {
+            emitted += 1;
+            Ok::<(), ()>(())
+        });
+    assert_eq!(
+        newest_delivery,
+        Ok(ParentRouteSubscriptionDelivery::Emitted)
+    );
+    assert_eq!(
+        state.tracked_event_id_count(),
+        PARENT_ROUTE_SUBSCRIPTION_EVENT_ID_WINDOW
+    );
+    assert_eq!(emitted, 2);
+}
+
+#[test]
+fn parent_route_subscription_delivery_emits_each_safe_replay_warning_episode_once() {
+    let snapshot = load_parent_route_snapshot(ParentRouteId::Devices, None);
+    let first_episode = replay_warning(
+        &snapshot,
+        "lan-runtime-event-chain-replay-rejected-host-1",
+        "2026-07-19T05:00:00.000Z",
+    );
+    let later_episode = replay_warning(
+        &snapshot,
+        "lan-runtime-event-chain-replay-rejected-host-2",
+        "2026-07-19T05:01:00.000Z",
+    );
+    let mut state = ParentRouteSubscriptionDeliveryState::new(snapshot);
+    let mut emitted_ids = Vec::new();
+
+    for subscription in [
+        &first_episode,
+        &first_episode,
+        &later_episode,
+        &later_episode,
+    ] {
+        let _delivery =
+            deliver_parent_route_subscription_event(&mut state, subscription, |event| {
+                emitted_ids.extend(
+                    event
+                        .events
+                        .as_deref()
+                        .unwrap_or_default()
+                        .iter()
+                        .filter_map(|event| {
+                            event
+                                .event_id
+                                .as_ref()
+                                .map(|event_id| event_id.as_str().to_string())
+                        }),
+                );
+                Ok::<(), ()>(())
+            });
+    }
+
+    assert_eq!(
+        emitted_ids,
+        vec![
+            "lan-runtime-event-chain-replay-rejected-host-1",
+            "lan-runtime-event-chain-replay-rejected-host-2"
+        ]
+    );
 }
 
 fn assert_parent_platform_proof_state_shell_identity(state: &Value) {

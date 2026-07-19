@@ -1,4 +1,5 @@
 mod action_dispatch;
+pub mod lan_replay_rejection_episode;
 mod lan_route;
 mod presentation;
 pub(crate) mod route_metadata;
@@ -9,18 +10,14 @@ mod route_snapshot;
 mod snapshot_overlay;
 
 use std::collections::HashSet;
-use std::sync::atomic::{AtomicU64, Ordering};
 
-use chrono::{SecondsFormat, Utc};
 use ocentra_parent_agent_protocol::{
     constants,
     transport::{AgentCommandName, AgentEventName},
 };
 use ocentra_schema::parent_ui_bridge::{
-    ParentPortalParentAccessState, ParentRouteContext, ParentRouteEventId,
-    ParentRouteEventSnapshot, ParentRouteId, ParentRoutePeerId, ParentRoutePeerRole,
-    ParentRouteSnapshot, ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind,
-    ParentUiActionResult,
+    ParentPortalParentAccessState, ParentRouteContext, ParentRouteId, ParentRouteSnapshot,
+    ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind, ParentUiActionResult,
 };
 use serde_json::Value;
 
@@ -51,6 +48,7 @@ use crate::agent_service_client::{
     load_tracking_read_model_snapshot,
 };
 
+use self::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use self::lan_route::{
     command_enabled_for_route, connection_state_for_route, data_source_for_route,
     is_dev_tools_route, lan_route_query_for_action, lan_route_query_for_load, LanRouteQuery,
@@ -66,9 +64,6 @@ use self::route_snapshot::build_parent_route_snapshot_impl;
 const PARENT_UI_BRIDGE_SCHEMA_VERSION: u16 = 1;
 const EMPTY_TIMESTAMP: &str = "";
 const HOST_BRIDGE_URL: &str = "host-bridge://tauri-parent";
-const LAN_REPLAY_REJECTION_EVENT: &str = "lan-runtime-event-chain-replay-rejected";
-const LAN_REPLAY_REJECTION_SEVERITY: &str = "warn";
-static LAN_REPLAY_REJECTION_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Default)]
 struct ParentRouteSnapshotOverlay {
@@ -114,8 +109,17 @@ pub fn load_parent_subscription_event(
     route: ParentRouteId,
     context: Option<&ParentRouteContext>,
 ) -> ParentSubscriptionEvent {
+    ParentRouteSubscriptionLoadState::default().load(route, context)
+}
+
+fn load_parent_subscription_event_with_state(
+    state: &mut ParentRouteSubscriptionLoadState,
+    route: ParentRouteId,
+    context: Option<&ParentRouteContext>,
+) -> ParentSubscriptionEvent {
     let lan_route_query = lan_route_query_for_load(&route, context);
-    let (mut events, replay_rejected) = if matches!(&lan_route_query, LanRouteQuery::Available(_)) {
+    let replay_attempted = matches!(&lan_route_query, LanRouteQuery::Available(_));
+    let (mut events, replay_rejected) = if replay_attempted {
         match load_lan_runtime_event_chain_replay_events() {
             Ok(replay) if lan_replay_is_bound_to_status(&replay, &lan_route_query) => {
                 (replay.events, false)
@@ -128,7 +132,9 @@ pub fn load_parent_subscription_event(
     };
     events.extend_from_slice(lan_route_query.events());
     if replay_rejected {
-        events.push(lan_replay_rejection_diagnostic());
+        events.push(state.replay_rejection_diagnostic());
+    } else if replay_attempted {
+        state.complete_replay_rejection_episode();
     }
     let events = dedupe_route_events_by_event_id(&events);
     let snapshot = build_parent_route_snapshot(route.clone(), &lan_route_query, None, None);
@@ -137,29 +143,6 @@ pub fn load_parent_subscription_event(
         route,
         snapshot,
         events: (!events.is_empty()).then_some(events),
-    }
-}
-
-fn lan_replay_rejection_diagnostic() -> ParentRouteEventSnapshot {
-    let now = Utc::now();
-    let sequence = LAN_REPLAY_REJECTION_SEQUENCE.fetch_add(1, Ordering::Relaxed);
-    let event_id = format!(
-        "{LAN_REPLAY_REJECTION_EVENT}-{}-{sequence}",
-        now.timestamp_micros()
-    );
-    ParentRouteEventSnapshot {
-        event: Some(LAN_REPLAY_REJECTION_EVENT.to_string()),
-        event_id: ParentRouteEventId::parse(event_id),
-        correlation_id: None,
-        sent_at: Some(now.to_rfc3339_opts(SecondsFormat::Millis, true)),
-        source_peer_id: ParentRoutePeerId::parse(constants::peer::LOCAL_DEV_AGENT.to_string()),
-        source_role: Some(ParentRoutePeerRole::AgentService),
-        target_peer_id: ParentRoutePeerId::parse(constants::peer::PORTAL_DEV.to_string()),
-        target_role: Some(ParentRoutePeerRole::Portal),
-        severity: Some(LAN_REPLAY_REJECTION_SEVERITY.to_string()),
-        payload: None,
-        snapshot: None,
-        command_result_projection: None,
     }
 }
 

@@ -3597,6 +3597,7 @@ dependencies = [
  "ocentra-evidence",
  "ocentra-parent-agent-protocol",
  "serde",
+ "sha2",
 ]
 
 [[package]]

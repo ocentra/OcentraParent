@@ -15,8 +15,9 @@ use ocentra_parent_agent_protocol::{
     DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState,
     DeviceRuntimeSurface, LanPairingParentAuthority,
 };
+use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use ocentra_parent_runtime_core::parent_ui_bridge::{
-    dispatch_parent_ui_action, load_parent_route_snapshot, load_parent_subscription_event,
+    dispatch_parent_ui_action, load_parent_route_snapshot,
 };
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteContext, ParentRouteId, ParentRouteSnapshot, ParentSubscriptionEvent,
@@ -225,6 +226,7 @@ fn spawn_parent_route_subscription(
     active: Arc<AtomicBool>,
 ) {
     thread::spawn(move || {
+        let mut load_state = ParentRouteSubscriptionLoadState::default();
         let mut delivery_state = ParentRouteSubscriptionDeliveryState::new(
             load_parent_route_snapshot(route.clone(), context.as_ref()),
         );
@@ -235,7 +237,7 @@ fn spawn_parent_route_subscription(
             if !active.load(Ordering::SeqCst) {
                 break;
             }
-            let event = load_parent_subscription_event(route.clone(), context.as_ref());
+            let event = load_state.load(route.clone(), context.as_ref());
             if deliver_parent_route_subscription_event(&mut delivery_state, &event, |event| {
                 emit_parent_route_subscription_event(&app, &subscription_id, event)
             })

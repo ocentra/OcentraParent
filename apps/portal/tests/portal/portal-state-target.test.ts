@@ -555,7 +555,7 @@ it('applyParentRouteEvents: replaying a 129-row full history preserves the ident
   expect(state.events.map((event) => event.eventId)).toEqual(expectedNewest);
 });
 
-it('applyParentSubscriptionEvent: buffers one safe host replay warning exactly once', () => {
+it('applyParentSubscriptionEvent: buffers one row per safe host replay warning episode', () => {
   const state = createPortalRuntimeState();
   const statusHistory = [replayEvent('lan-history-1', 'scan-started', '2026-06-28T17:00:01Z', null)];
   const warning: ParentRouteEventSnapshot = {
@@ -583,6 +583,22 @@ it('applyParentSubscriptionEvent: buffers one safe host replay warning exactly o
 
   expect(state.events).toHaveLength(1);
   expect(state.events[0]).toBe(warning);
+
+  const laterWarning = {
+    ...warning,
+    eventId: 'lan-runtime-event-chain-replay-rejected-host-2',
+    sentAt: '2026-06-28T17:01:09Z',
+  } as const;
+  const laterSubscription = { ...subscription, events: [laterWarning] } as const;
+
+  applyParentSubscriptionEvent(state, laterSubscription);
+  applyParentSubscriptionEvent(state, laterSubscription);
+
+  expect(
+    state.events
+      .filter((event) => event.event === 'lan-runtime-event-chain-replay-rejected')
+      .map((event) => event.eventId)
+  ).toEqual(['lan-runtime-event-chain-replay-rejected-host-2', 'lan-runtime-event-chain-replay-rejected-host-1']);
 });
 
 it('applyParentSubscriptionEvent: rejects a snapshot whose route disagrees with the subscription event', () => {

@@ -1,3 +1,4 @@
+use chrono::DateTime;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingProductionDiscoveryState, LanPairingText,
@@ -19,6 +20,45 @@ mod network_device_events;
 
 use super::physical_lan_scan::LanNetworkDeviceScanResult;
 use super::scan_history;
+use std::cmp::Ordering;
+
+#[derive(Eq, PartialEq)]
+struct Rfc3339Timestamp {
+    text: LanPairingText,
+    instant: Option<DateTime<chrono::FixedOffset>>,
+}
+
+impl Rfc3339Timestamp {
+    fn parse(text: LanPairingText) -> Self {
+        let instant = DateTime::parse_from_rfc3339(&text.0).ok();
+        Self { text, instant }
+    }
+
+    fn compare_instant(&self, other: &Self) -> Ordering {
+        self.instant.cmp(&other.instant)
+    }
+}
+
+#[derive(Eq, PartialEq)]
+struct DiscoveryEventSortKey {
+    timestamp: Rfc3339Timestamp,
+    event_id: LanPairingText,
+}
+
+impl Ord for DiscoveryEventSortKey {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.timestamp
+            .compare_instant(&other.timestamp)
+            .then_with(|| self.event_id.0.cmp(&other.event_id.0))
+            .then_with(|| self.timestamp.text.0.cmp(&other.timestamp.text.0))
+    }
+}
+
+impl PartialOrd for DiscoveryEventSortKey {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
 
 pub(crate) fn discovery_event_history(
     scan_result: &LanNetworkDeviceScanResult,
@@ -78,16 +118,27 @@ pub(crate) fn ordered_discovery_event_rows(
         scan_result,
         read_model,
     );
-    rows.sort_by(|left, right| {
-        left.occurred_at
-            .cmp(&right.occurred_at)
-            .then_with(|| left.event_id.cmp(&right.event_id))
+    rows.sort_by_cached_key(|row| DiscoveryEventSortKey {
+        timestamp: Rfc3339Timestamp::parse(LanPairingText(row.occurred_at.clone())),
+        event_id: LanPairingText(row.event_id.clone()),
     });
     for index in 1..rows.len() {
         let previous_event_id = rows[index - 1].event_id.clone();
         rows[index].previous_event_id = Some(previous_event_id);
     }
     rows
+}
+
+pub(super) fn latest_rfc3339_timestamp(
+    timestamps: impl Iterator<Item = LanPairingText>,
+) -> Option<LanPairingText> {
+    timestamps
+        .map(Rfc3339Timestamp::parse)
+        .max_by(|left, right| {
+            left.compare_instant(right)
+                .then_with(|| left.text.0.cmp(&right.text.0))
+        })
+        .map(|timestamp| timestamp.text)
 }
 
 fn has_agent_offline_history_state(read_model: &LanBrowserAddDeviceReadModel) -> bool {

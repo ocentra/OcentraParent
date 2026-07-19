@@ -12,6 +12,8 @@ use ocentra_parent_agent_protocol::transport::{
 use ocentra_schema::parent_ui_bridge::{ParentRouteId, ParentRoutePeerRole};
 use serde_json::{json, Value};
 
+use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
+
 use super::common::helpers::{
     require_some, sample_lan_read_model_with_explicit_history,
     sample_lan_read_model_with_history_state, TestContext,
@@ -121,6 +123,7 @@ fn parent_subscription_event_rejects_duplicate_and_stale_lan_replay_batches() {
         let events = subscription_events_for_stream(
             &read_model,
             replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false),
+            None,
         );
         assert_redacted_replay_rejection_diagnostic(&events);
         assert!(events.iter().all(|event| {
@@ -185,6 +188,7 @@ fn parent_subscription_event_accepts_metadata_only_empty_history_per_canonical_p
     let events = subscription_events_for_stream(
         &read_model,
         replay_event(&entries, LanDiscoveryEventHistoryState::Empty, false),
+        None,
     );
 
     assert_eq!(events.len(), 4);
@@ -204,6 +208,7 @@ fn parent_subscription_event_accepts_unavailable_replay_rows_per_canonical_prece
     let events = subscription_events_for_stream(
         &read_model,
         replay_event(&entries, LanDiscoveryEventHistoryState::Unavailable, false),
+        None,
     );
 
     assert_eq!(events.len(), 4);
@@ -221,6 +226,7 @@ fn parent_subscription_event_accepts_degraded_replay_rows_per_canonical_preceden
     let events = subscription_events_for_stream(
         &read_model,
         replay_event(&entries, LanDiscoveryEventHistoryState::Degraded, false),
+        None,
     );
 
     assert_eq!(events.len(), 4);
@@ -238,6 +244,7 @@ fn parent_subscription_event_accepts_agent_offline_replay_rows_per_canonical_pre
     let events = subscription_events_for_stream(
         &read_model,
         replay_event(&entries, LanDiscoveryEventHistoryState::AgentOffline, false),
+        None,
     );
 
     assert_eq!(events.len(), 4);
@@ -262,6 +269,7 @@ fn parent_subscription_event_orders_lan_replay_rows_by_rfc3339_instant() {
             LanDiscoveryEventHistoryState::Ready,
             false,
         ),
+        None,
     );
     assert!(ordered_events.iter().any(|event| {
         event
@@ -453,7 +461,7 @@ fn parent_subscription_event_fails_closed_on_malformed_lan_replay_payload() {
         "",
     );
 
-    let events = subscription_events_for_stream(&read_model, malformed_event);
+    let events = subscription_events_for_stream(&read_model, malformed_event, None);
 
     assert_redacted_replay_rejection_diagnostic(&events);
     assert!(events.iter().all(|event| {
@@ -465,7 +473,7 @@ fn parent_subscription_event_fails_closed_on_malformed_lan_replay_payload() {
 }
 
 #[test]
-fn parent_subscription_event_emits_one_unique_safe_host_warning_per_rejected_replay() {
+fn parent_subscription_event_reuses_one_safe_warning_until_valid_replay_closes_the_episode() {
     let read_model = sample_lan_read_model_with_explicit_history();
     let entries = replay_entries(&read_model.discovery_event_history.rows);
     let mut rejected = replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false);
@@ -474,20 +482,37 @@ fn parent_subscription_event_emits_one_unique_safe_host_warning_per_rejected_rep
         constants::field::LATEST_EVENT_ID.to_string(),
         LogFieldValue::String(rejected_identifier.to_string()),
     );
+    let valid = replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false);
+    let mut state = ParentRouteSubscriptionLoadState::default();
 
-    let first_events = subscription_events_for_stream(&read_model, rejected.clone());
-    let second_events = subscription_events_for_stream(&read_model, rejected);
+    let first_events =
+        subscription_events_for_stream(&read_model, rejected.clone(), Some(&mut state));
+    let second_events =
+        subscription_events_for_stream(&read_model, rejected.clone(), Some(&mut state));
+    let recovery_events = subscription_events_for_stream(&read_model, valid, Some(&mut state));
+    let later_events = subscription_events_for_stream(&read_model, rejected, Some(&mut state));
     assert_redacted_replay_rejection_diagnostic(&first_events);
     assert_redacted_replay_rejection_diagnostic(&second_events);
+    assert_redacted_replay_rejection_diagnostic(&later_events);
+    assert!(recovery_events
+        .iter()
+        .all(|event| event.event.as_deref() != Some(LAN_REPLAY_REJECTION_EVENT)));
 
-    let warning_id = |events: &[ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot]| {
+    let warning = |events: &[ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot]| {
         events
             .iter()
             .find(|event| event.event.as_deref() == Some(LAN_REPLAY_REJECTION_EVENT))
-            .and_then(|event| event.event_id.as_ref())
-            .map(|event_id| event_id.as_str().to_string())
+            .cloned()
     };
-    assert_ne!(warning_id(&first_events), warning_id(&second_events));
+    let first_warning = warning(&first_events);
+    assert_eq!(first_warning, warning(&second_events));
+    assert_ne!(first_warning, warning(&later_events));
+    assert!(first_events.iter().all(|event| {
+        event.event_id.as_ref().is_none_or(|event_id| {
+            !event_id.as_str().contains(rejected_identifier)
+                && !event_id.as_str().starts_with("lan-history-")
+        })
+    }));
 }
 
 #[test]
@@ -529,14 +554,18 @@ fn parent_subscription_event_preserves_offline_and_manual_required_lan_states() 
 fn subscription_events_for_stream(
     read_model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
     stream_event: AgentEventEnvelope,
+    state: Option<&mut ParentRouteSubscriptionLoadState>,
 ) -> Vec<ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot> {
+    let mut default_state = ParentRouteSubscriptionLoadState::default();
+    let state = state.unwrap_or(&mut default_state);
     let responses = vec![
         lan_event(AgentEventName::AgentLanPairingStatusReported, read_model),
         stream_event,
     ];
     let (address, _requests) = start_local_server_with_capture_responses(responses);
     with_agent_addr(&address, || {
-        load_parent_subscription_event(ParentRouteId::Devices, None)
+        state
+            .load(ParentRouteId::Devices, None)
             .events
             .unwrap_or_default()
     })
@@ -546,7 +575,7 @@ fn assert_replay_rejected(
     read_model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
     stream_event: AgentEventEnvelope,
 ) {
-    let events = subscription_events_for_stream(read_model, stream_event);
+    let events = subscription_events_for_stream(read_model, stream_event, None);
     assert_redacted_replay_rejection_diagnostic(&events);
     assert!(events.iter().all(|event| {
         event

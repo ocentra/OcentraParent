@@ -4,6 +4,9 @@ use ocentra_schema::parent_ui_bridge::{
     ParentRouteEventSnapshot, ParentRouteSnapshot, ParentSubscriptionEvent,
 };
 
+/// Maximum event identity window mirrored by the portal's bounded event buffer.
+pub const PARENT_ROUTE_SUBSCRIPTION_EVENT_ID_WINDOW: usize = 128;
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ParentRouteSubscriptionDelivery {
     Emitted,
@@ -34,6 +37,7 @@ impl ParentRouteSubscriptionDeliveryState {
         let Some(events) = events else {
             return false;
         };
+        let events = newest_delivery_window(events);
         let has_new_event_id = events.iter().any(|event| {
             event
                 .event_id
@@ -48,17 +52,31 @@ impl ParentRouteSubscriptionDeliveryState {
 
     fn record_delivery(&mut self, event: &ParentSubscriptionEvent) {
         self.last_snapshot = Some(event.snapshot.clone());
-        self.last_event_batch = event.events.clone();
-        if let Some(events) = event.events.as_deref() {
-            self.delivered_event_ids
-                .extend(events.iter().filter_map(|event| {
-                    event
-                        .event_id
-                        .as_ref()
-                        .map(|event_id| event_id.as_str().to_string())
-                }));
-        }
+        let events = event.events.as_deref().map(newest_delivery_window);
+        self.last_event_batch = events.map(<[ParentRouteEventSnapshot]>::to_vec);
+        self.delivered_event_ids = events
+            .unwrap_or_default()
+            .iter()
+            .filter_map(|event| {
+                event
+                    .event_id
+                    .as_ref()
+                    .map(|event_id| event_id.as_str().to_string())
+            })
+            .collect();
     }
+
+    /// Returns the bounded identity count retained after the last delivery.
+    pub fn tracked_event_id_count(&self) -> usize {
+        self.delivered_event_ids.len()
+    }
+}
+
+fn newest_delivery_window(events: &[ParentRouteEventSnapshot]) -> &[ParentRouteEventSnapshot] {
+    let start = events
+        .len()
+        .saturating_sub(PARENT_ROUTE_SUBSCRIPTION_EVENT_ID_WINDOW);
+    &events[start..]
 }
 
 pub fn deliver_parent_route_subscription_event<E>(
