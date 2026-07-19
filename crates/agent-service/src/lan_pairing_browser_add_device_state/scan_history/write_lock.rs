@@ -52,6 +52,7 @@ fn non_windows_scan_history_write_lock(path: &LanScanHistoryPath) -> Option<Scan
         .read(true)
         .write(true)
         .create(true)
+        .truncate(false)
         .open(&lock_path)
         .ok()?;
     for _ in 0..LOCK_RETRY_COUNT {
