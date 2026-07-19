@@ -1,10 +1,13 @@
+use chrono::{DateTime, FixedOffset};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEventHistoryState;
-use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use serde_json::Value;
 
 use super::payload_fields::log_field_string;
-use super::snapshots_common::{optional_bool_field, optional_string_field, optional_u64_field};
+use super::snapshots_common::{optional_bool_field, optional_u64_field};
+
+pub(super) mod envelope;
 
 pub(super) const LAN_REPLAY_CONTEXT: &str = "agent-service LAN runtime replay payload";
 
@@ -14,7 +17,8 @@ pub(super) fn validate_report_metadata(
     latest_event_id: Option<&str>,
     latest_observed_at: Option<&str>,
 ) -> Result<(), String> {
-    required_text_field(payload, constants::field::GENERATED_AT)?;
+    let generated_at = required_text_field(payload, constants::field::GENERATED_AT)?;
+    parse_rfc3339_timestamp(generated_at, constants::field::GENERATED_AT)?;
     let observed = required_count(payload, constants::field::LAN_RUNTIME_OBSERVED_EVENTS)?;
     let streamed = required_count(payload, constants::field::LAN_RUNTIME_STREAMED_EVENTS)?;
     let failed = required_count(payload, constants::field::LAN_RUNTIME_FAILED_EVENTS)?;
@@ -28,13 +32,19 @@ pub(super) fn validate_report_metadata(
     }
 
     validate_history_state(payload)?;
+    let reported_event_id = optional_reported_text(payload, constants::field::LATEST_EVENT_ID)?;
     validate_latest_metadata(
-        optional_string_field(payload, constants::field::LATEST_EVENT_ID).as_deref(),
+        reported_event_id,
         latest_event_id,
         constants::field::LATEST_EVENT_ID,
     )?;
+    let reported_observed_at =
+        optional_reported_text(payload, constants::field::LATEST_OBSERVED_AT)?;
+    if let Some(reported_observed_at) = reported_observed_at {
+        parse_rfc3339_timestamp(reported_observed_at, constants::field::LATEST_OBSERVED_AT)?;
+    }
     validate_latest_metadata(
-        optional_string_field(payload, constants::field::LATEST_OBSERVED_AT).as_deref(),
+        reported_observed_at,
         latest_observed_at,
         constants::field::LATEST_OBSERVED_AT,
     )
@@ -68,7 +78,7 @@ fn validate_latest_metadata(
     actual: Option<&str>,
     field: &'static str,
 ) -> Result<(), String> {
-    if reported.is_some_and(|reported| Some(reported) != actual) {
+    if reported != actual {
         return Err(format!(
             "{LAN_REPLAY_CONTEXT} rejected {field} that does not match the final stream entry"
         ));
@@ -76,17 +86,38 @@ fn validate_latest_metadata(
     Ok(())
 }
 
+fn optional_reported_text<'a>(
+    payload: &'a LogFields,
+    field: &'static str,
+) -> Result<Option<&'a str>, String> {
+    match payload.get(field) {
+        None => Ok(None),
+        Some(LogFieldValue::String(value)) if value.is_empty() => Ok(None),
+        Some(LogFieldValue::String(value)) => canonical_text(value, field).map(Some),
+        Some(_) => Err(format!("{LAN_REPLAY_CONTEXT} missing or invalid {field}")),
+    }
+}
+
 fn required_text_field<'a>(payload: &'a LogFields, field: &'static str) -> Result<&'a str, String> {
-    payload
+    let value = payload
         .get(field)
         .and_then(log_field_string)
-        .and_then(|value| canonical_text(value, field).ok())
-        .ok_or_else(|| format!("{LAN_REPLAY_CONTEXT} missing or invalid {field}"))
+        .ok_or_else(|| format!("{LAN_REPLAY_CONTEXT} missing or invalid {field}"))?;
+    canonical_text(value, field)
 }
 
 fn required_count(payload: &LogFields, field: &'static str) -> Result<u64, String> {
     optional_u64_field(payload, field)
         .ok_or_else(|| format!("{LAN_REPLAY_CONTEXT} missing or invalid {field}"))
+}
+
+pub(super) fn parse_rfc3339_timestamp(
+    value: &str,
+    field: &'static str,
+) -> Result<DateTime<FixedOffset>, String> {
+    let value = canonical_text(value, field)?;
+    DateTime::parse_from_rfc3339(value)
+        .map_err(|error| format!("{LAN_REPLAY_CONTEXT} rejected invalid {field}: {error}"))
 }
 
 pub(super) fn validate_optional_text(

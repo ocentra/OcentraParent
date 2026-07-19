@@ -18,6 +18,7 @@ use super::common::helpers::{
 use super::load_parent_subscription_event;
 use super::tests_support::{
     lan_event, require_ok, start_local_server_with_capture_responses, with_agent_addr,
+    REQUEST_MESSAGE_ID_CORRELATION,
 };
 
 #[test]
@@ -62,6 +63,21 @@ fn parent_subscription_event_replays_ordered_lan_stream_rows() {
         Some(ParentRoutePeerRole::AgentService)
     );
     assert_eq!(events[1].target_role, Some(ParentRoutePeerRole::Portal));
+    assert_eq!(
+        events[1]
+            .source_peer_id
+            .as_ref()
+            .map(|peer_id| peer_id.as_str()),
+        Some(constants::peer::LOCAL_DEV_AGENT)
+    );
+    assert_eq!(
+        events[1]
+            .target_peer_id
+            .as_ref()
+            .map(|peer_id| peer_id.as_str()),
+        Some(constants::peer::PORTAL_DEV)
+    );
+    assert_eq!(events[1].severity.as_deref(), Some("info"));
     assert_eq!(
         events[1]
             .payload
@@ -110,6 +126,141 @@ fn parent_subscription_event_rejects_duplicate_and_stale_lan_replay_batches() {
 }
 
 #[test]
+fn parent_subscription_event_orders_lan_replay_rows_by_rfc3339_instant() {
+    let read_model = sample_lan_read_model_with_explicit_history();
+    let mut ordered_entries = replay_entries(&read_model.discovery_event_history.rows);
+    ordered_entries[0]["payload"]["occurredAt"] = json!("2026-06-23T01:00:00+02:00");
+    ordered_entries[1]["payload"]["occurredAt"] = json!("2026-06-23T00:30:00Z");
+
+    let ordered_events = subscription_events_for_stream(
+        &read_model,
+        replay_event(
+            &ordered_entries,
+            LanDiscoveryEventHistoryState::Ready,
+            false,
+        ),
+    );
+    assert!(ordered_events.iter().any(|event| {
+        event
+            .event_id
+            .as_ref()
+            .is_some_and(|event_id| event_id.as_str() == "lan-history-2")
+    }));
+
+    let mut stale_entries = replay_entries(&read_model.discovery_event_history.rows);
+    stale_entries[0]["payload"]["occurredAt"] = json!("2026-06-23T00:30:00Z");
+    stale_entries[1]["payload"]["occurredAt"] = json!("2026-06-23T01:00:00+02:00");
+    assert_replay_rejected(
+        &read_model,
+        replay_event(&stale_entries, LanDiscoveryEventHistoryState::Ready, false),
+    );
+}
+
+#[test]
+fn parent_subscription_event_rejects_invalid_lan_replay_envelope_contract() {
+    let read_model = sample_lan_read_model_with_explicit_history();
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+    let valid = replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false);
+    let mut invalid_envelopes = Vec::new();
+
+    let mut invalid = valid.clone();
+    invalid.schema_version = 2;
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.event_id.clear();
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.sent_at = "not-rfc3339".to_string();
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.event = AgentEventName::AgentLanPairingStatusReported;
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.source.peer_id.clear();
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.source.peer_id = "spoofed-agent".to_string();
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.source.role = AgentPeerRole::Portal;
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.target.peer_id.clear();
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.target.peer_id = "spoofed-portal".to_string();
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.target.role = AgentPeerRole::AgentService;
+    invalid_envelopes.push(invalid);
+    let mut invalid = valid.clone();
+    invalid.severity = LogLevel::Warn;
+    invalid_envelopes.push(invalid);
+
+    for invalid in invalid_envelopes {
+        assert_replay_rejected(&read_model, invalid);
+    }
+
+    let mut wrong_correlation = valid;
+    wrong_correlation.correlation_id = "wrong-command-message-id".to_string();
+    assert_replay_rejected(&read_model, wrong_correlation);
+}
+
+#[test]
+fn parent_subscription_event_requires_exact_nonempty_lan_replay_latest_metadata() {
+    let read_model = sample_lan_read_model_with_explicit_history();
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+    let valid = replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false);
+
+    for (field, replacement) in [
+        (constants::field::LATEST_EVENT_ID, None),
+        (constants::field::LATEST_EVENT_ID, Some("")),
+        (constants::field::LATEST_EVENT_ID, Some("wrong-event")),
+        (constants::field::LATEST_OBSERVED_AT, None),
+        (constants::field::LATEST_OBSERVED_AT, Some("")),
+        (
+            constants::field::LATEST_OBSERVED_AT,
+            Some("2026-06-23T00:00:00Z"),
+        ),
+    ] {
+        let mut invalid = valid.clone();
+        if let Some(replacement) = replacement {
+            invalid.payload.insert(
+                field.to_string(),
+                LogFieldValue::String(replacement.to_string()),
+            );
+        } else {
+            remove_payload_field(&mut invalid, field);
+        }
+        assert_replay_rejected(&read_model, invalid);
+    }
+}
+
+#[test]
+fn parent_subscription_event_rejects_non_rfc3339_lan_replay_payload_timestamps() {
+    let read_model = sample_lan_read_model_with_explicit_history();
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+    let mut invalid_generated_at =
+        replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false);
+    invalid_generated_at.payload.insert(
+        constants::field::GENERATED_AT.to_string(),
+        LogFieldValue::String("not-rfc3339".to_string()),
+    );
+    assert_replay_rejected(&read_model, invalid_generated_at);
+
+    let mut invalid_entries = entries;
+    invalid_entries[1]["payload"]["occurredAt"] = json!("not-rfc3339");
+    assert_replay_rejected(
+        &read_model,
+        replay_event(
+            &invalid_entries,
+            LanDiscoveryEventHistoryState::Ready,
+            false,
+        ),
+    );
+}
+
+#[test]
 fn parent_subscription_event_fails_closed_on_malformed_lan_replay_payload() {
     let read_model = sample_lan_read_model_with_explicit_history();
     let malformed_event = replay_event_with_stream(
@@ -117,6 +268,8 @@ fn parent_subscription_event_fails_closed_on_malformed_lan_replay_payload() {
         2,
         LanDiscoveryEventHistoryState::Ready,
         false,
+        "",
+        "",
     );
 
     let events = subscription_events_for_stream(&read_model, malformed_event);
@@ -170,15 +323,39 @@ fn subscription_events_for_stream(
     read_model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
     stream_event: AgentEventEnvelope,
 ) -> Vec<ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot> {
-    let (address, _requests) = start_local_server_with_capture_responses(vec![
+    let responses = vec![
         lan_event(AgentEventName::AgentLanPairingStatusReported, read_model),
         stream_event,
-    ]);
+    ];
+    let (address, _requests) = start_local_server_with_capture_responses(responses);
     with_agent_addr(&address, || {
         load_parent_subscription_event(ParentRouteId::Devices, None)
             .events
             .unwrap_or_default()
     })
+}
+
+fn assert_replay_rejected(
+    read_model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
+    stream_event: AgentEventEnvelope,
+) {
+    let events = subscription_events_for_stream(read_model, stream_event);
+    assert_eq!(events.len(), 2);
+    assert!(events.iter().all(|event| {
+        event
+            .event_id
+            .as_ref()
+            .is_none_or(|event_id| !event_id.as_str().starts_with("lan-history-"))
+    }));
+}
+
+fn remove_payload_field(event: &mut AgentEventEnvelope, field: &str) {
+    event.payload = event
+        .payload
+        .iter()
+        .filter(|(key, _value)| key.as_str() != field)
+        .map(|(key, value)| (key.clone(), value.clone()))
+        .collect();
 }
 
 fn replay_entries(rows: &[LanDiscoveryEventRow]) -> Vec<Value> {
@@ -202,11 +379,21 @@ fn replay_event(
     manual_required: bool,
 ) -> AgentEventEnvelope {
     let count = entries.len();
+    let latest_event_id = entries
+        .last()
+        .and_then(|entry| entry["payload"]["eventId"].as_str())
+        .unwrap_or_default();
+    let latest_observed_at = entries
+        .last()
+        .and_then(|entry| entry["payload"]["occurredAt"].as_str())
+        .unwrap_or_default();
     replay_event_with_stream(
         require_ok(serde_json::to_string(&entries), "replay entries serialize"),
         count,
         history_state,
         manual_required,
+        latest_event_id,
+        latest_observed_at,
     )
 }
 
@@ -215,6 +402,8 @@ fn replay_event_with_stream(
     count: usize,
     history_state: LanDiscoveryEventHistoryState,
     manual_required: bool,
+    latest_event_id: &str,
+    latest_observed_at: &str,
 ) -> AgentEventEnvelope {
     let history_state = require_ok(
         serde_json::to_value(history_state),
@@ -248,11 +437,11 @@ fn replay_event_with_stream(
     );
     payload.insert(
         constants::field::LATEST_EVENT_ID.to_string(),
-        LogFieldValue::String(String::new()),
+        LogFieldValue::String(latest_event_id.to_string()),
     );
     payload.insert(
         constants::field::LATEST_OBSERVED_AT.to_string(),
-        LogFieldValue::String(String::new()),
+        LogFieldValue::String(latest_observed_at.to_string()),
     );
     payload.insert(
         constants::field::LAN_RUNTIME_EVENT_CHAIN_STREAM.to_string(),
@@ -262,7 +451,7 @@ fn replay_event_with_stream(
     AgentEventEnvelope {
         schema_version: 1,
         event_id: "agent.lan.runtime.event-chain.stream.reported-1".to_string(),
-        correlation_id: "lan-runtime-stream".to_string(),
+        correlation_id: REQUEST_MESSAGE_ID_CORRELATION.to_string(),
         sent_at: "2026-06-23T00:00:03Z".to_string(),
         source: AgentPeer {
             peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),

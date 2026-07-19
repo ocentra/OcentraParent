@@ -8,7 +8,9 @@ use ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadi
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceReadModel;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
 use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
-use ocentra_parent_agent_protocol::transport::{AgentEventEnvelope, AgentEventName};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandName, AgentEventEnvelope, AgentEventName,
+};
 use ocentra_schema::parent_ui_bridge::{
     ParentActivityTrackingReadModelResultSnapshot, ParentNetworkRuntimeEventChainStreamSnapshot,
     ParentPolicyPreviewReadModelSnapshot, ParentRouteEventSnapshot,
@@ -94,6 +96,8 @@ pub(crate) struct AppGameTimerParentSurfaceAgentServiceSnapshot {
 }
 
 pub(crate) struct AgentServiceCommandResult {
+    pub(crate) command: AgentCommandName,
+    pub(crate) command_message_id: String,
     pub(crate) events: Vec<ParentRouteEventSnapshot>,
     pub(crate) response_event: AgentEventEnvelope,
 }

@@ -8,13 +8,23 @@ State: `partial/manual`
 
 - The parent Rust agent-service client requests the canonical LAN runtime
   event-chain stream through the localhost transport.
-- Rust validates the stream envelope, count/state metadata, row schema,
-  canonical event type and reference, unique IDs, chronological order, and
-  previous-event chain before producing `ParentRouteEventSnapshot` values.
+- Rust binds the response to the exact LAN replay command message ID and
+  validates the response schema, event and event ID, RFC3339 timestamp,
+  source/target peers and roles, severity, and no-snapshot acceptance shape.
+- Rust validates generated/latest metadata, count/state consistency, row
+  schema, canonical event type and reference, unique IDs, RFC3339 instant
+  order across timezone offsets, and the previous-event chain before producing
+  `ParentRouteEventSnapshot` values.
+- Derived replay rows preserve the already-validated envelope source, target,
+  roles, and severity; blank or spoofed route identity is rejected rather than
+  replaced with manufactured defaults.
 - Valid entries reach `ParentSubscriptionEvent` in producer order. Live status
   events are merged last so they retain authority on an event-ID collision.
-- Duplicate, stale/out-of-order, broken-chain, inconsistent, and malformed
-  replay batches fail closed without erasing the live LAN status snapshot.
+- Wrong-command correlation, invalid/spoofed envelopes, missing or mismatched
+  nonempty latest-row metadata, invalid timestamps, duplicate rows,
+  stale/out-of-order instants, broken chains, inconsistent counts, and
+  malformed replay batches fail closed without erasing the live LAN status
+  snapshot.
 - The portal state edge buffers the Rust-supplied events newest first without
   acquiring LAN replay business logic.
 - Explicit offline and manual-required read-model states remain visible when

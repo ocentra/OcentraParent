@@ -1,17 +1,21 @@
 use std::collections::HashSet;
 
+use chrono::{DateTime, FixedOffset};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEventRow;
-use ocentra_parent_agent_protocol::logging::{LogFields, LogLevel};
+use ocentra_parent_agent_protocol::transport::{AgentCommandName, AgentEventEnvelope};
 use ocentra_schema::parent_ui_bridge::{
-    ParentRouteEventCorrelationId, ParentRouteEventId, ParentRouteEventSnapshot, ParentRoutePeerId,
-    ParentRoutePeerRole,
+    ParentRouteEventCorrelationId, ParentRouteEventId, ParentRouteEventSnapshot,
 };
 use serde::Deserialize;
 
 use super::payload_fields::{log_field_string, serialized_enum_label};
+use super::snapshots_lan_replay_validation::envelope::{
+    validate_replay_envelope, LanReplayEnvelopeIdentity,
+};
 use super::snapshots_lan_replay_validation::{
-    canonical_text, validate_optional_text, validate_report_metadata, LAN_REPLAY_CONTEXT,
+    canonical_text, parse_rfc3339_timestamp, validate_optional_text, validate_report_metadata,
+    LAN_REPLAY_CONTEXT,
 };
 
 #[derive(Deserialize)]
@@ -23,8 +27,12 @@ struct LanRuntimeReplayEntry {
 }
 
 pub(super) fn lan_runtime_replay_events_from_payload(
-    payload: &LogFields,
+    response_event: &AgentEventEnvelope,
+    command: &AgentCommandName,
+    command_message_id: &str,
 ) -> Result<Vec<ParentRouteEventSnapshot>, String> {
+    let identity = validate_replay_envelope(response_event, command, command_message_id)?;
+    let payload = &response_event.payload;
     let stream_json = payload
         .get(constants::field::LAN_RUNTIME_EVENT_CHAIN_STREAM)
         .and_then(log_field_string)
@@ -37,6 +45,7 @@ pub(super) fn lan_runtime_replay_events_from_payload(
     let entries = serde_json::from_str::<Vec<LanRuntimeReplayEntry>>(stream_json)
         .map_err(|error| format!("{LAN_REPLAY_CONTEXT} stream parse failed: {error}"))?;
 
+    let events = entries_to_route_events(&entries, &identity)?;
     validate_report_metadata(
         payload,
         entries.len(),
@@ -45,15 +54,16 @@ pub(super) fn lan_runtime_replay_events_from_payload(
             .last()
             .map(|entry| entry.payload.occurred_at.as_str()),
     )?;
-    entries_to_route_events(entries)
+    Ok(events)
 }
 
 fn entries_to_route_events(
-    entries: Vec<LanRuntimeReplayEntry>,
+    entries: &[LanRuntimeReplayEntry],
+    identity: &LanReplayEnvelopeIdentity,
 ) -> Result<Vec<ParentRouteEventSnapshot>, String> {
     let mut event_ids = HashSet::new();
     let mut previous_event_id: Option<String> = None;
-    let mut previous_occurred_at: Option<String> = None;
+    let mut previous_occurred_at: Option<DateTime<FixedOffset>> = None;
     let mut events = Vec::with_capacity(entries.len());
 
     for entry in entries {
@@ -78,10 +88,11 @@ fn entries_to_route_events(
             ));
         }
 
-        let occurred_at = canonical_text(&entry.payload.occurred_at, "payload.occurredAt")?;
+        let occurred_at =
+            parse_rfc3339_timestamp(&entry.payload.occurred_at, "payload.occurredAt")?;
         if previous_occurred_at
-            .as_deref()
-            .is_some_and(|previous| occurred_at < previous)
+            .as_ref()
+            .is_some_and(|previous| &occurred_at < previous)
         {
             return Err(format!(
                 "{LAN_REPLAY_CONTEXT} rejected stale or out-of-order eventId {event_id}"
@@ -110,9 +121,13 @@ fn entries_to_route_events(
             }
         }
 
-        events.push(route_event_from_entry(&entry, &canonical_event_type)?);
+        events.push(route_event_from_entry(
+            entry,
+            &canonical_event_type,
+            identity,
+        )?);
         previous_event_id = Some(event_id.to_string());
-        previous_occurred_at = Some(occurred_at.to_string());
+        previous_occurred_at = Some(occurred_at);
     }
 
     Ok(events)
@@ -121,6 +136,7 @@ fn entries_to_route_events(
 fn route_event_from_entry(
     entry: &LanRuntimeReplayEntry,
     event_type: &str,
+    identity: &LanReplayEnvelopeIdentity,
 ) -> Result<ParentRouteEventSnapshot, String> {
     let event_id = ParentRouteEventId::parse(entry.payload.event_id.clone())
         .ok_or_else(|| format!("{LAN_REPLAY_CONTEXT} rejected empty payload.eventId"))?;
@@ -137,11 +153,11 @@ fn route_event_from_entry(
         event_id: Some(event_id),
         correlation_id,
         sent_at: Some(entry.payload.occurred_at.clone()),
-        source_peer_id: ParentRoutePeerId::parse(constants::peer::LOCAL_DEV_AGENT),
-        source_role: Some(ParentRoutePeerRole::AgentService),
-        target_peer_id: ParentRoutePeerId::parse(constants::peer::PORTAL_DEV),
-        target_role: Some(ParentRoutePeerRole::Portal),
-        severity: Some(serialized_enum_label(&LogLevel::Info)),
+        source_peer_id: Some(identity.source_peer_id.clone()),
+        source_role: Some(identity.source_role.clone()),
+        target_peer_id: Some(identity.target_peer_id.clone()),
+        target_role: Some(identity.target_role.clone()),
+        severity: Some(identity.severity.clone()),
         payload: Some(payload),
         snapshot: None,
         command_result_projection: None,
