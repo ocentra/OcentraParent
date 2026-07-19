@@ -293,7 +293,7 @@ fn parent_subscription_event_serializes_for_host_bridge() {
     assert_eq!(value["snapshot"]["dataSource"], "rust-read-model");
     assert_eq!(
         value["events"].as_array().map(|events| events.len()),
-        Some(2)
+        Some(3)
     );
     assert_eq!(
         value["events"][0]["eventId"],
@@ -304,6 +304,23 @@ fn parent_subscription_event_serializes_for_host_bridge() {
         json!("agent.lan-pairing.status.reported")
     );
     assert_eq!(value["events"][1]["correlationId"], json!("lan"));
+    assert_eq!(
+        value["events"][2],
+        json!({
+            "event": "lan-runtime-event-chain-replay-rejected",
+            "eventId": null,
+            "correlationId": null,
+            "sentAt": null,
+            "sourcePeerId": null,
+            "sourceRole": null,
+            "targetPeerId": null,
+            "targetRole": null,
+            "severity": "warn",
+            "payload": null,
+            "snapshot": null,
+            "commandResultProjection": null
+        })
+    );
 }
 
 #[test]
@@ -325,7 +342,7 @@ fn parent_subscription_event_dedupes_duplicate_event_ids_while_preserving_latest
 
     assert_eq!(
         value["events"].as_array().map(|events| events.len()),
-        Some(1)
+        Some(2)
     );
     assert_eq!(
         value["events"][0]["eventId"],
@@ -336,6 +353,13 @@ fn parent_subscription_event_dedupes_duplicate_event_ids_while_preserving_latest
         json!("agent.lan-pairing.status.reported")
     );
     assert_eq!(value["events"][0]["correlationId"], json!("lan"));
+    assert_eq!(
+        value["events"][1]["event"],
+        json!("lan-runtime-event-chain-replay-rejected")
+    );
+    assert_eq!(value["events"][1]["eventId"], json!(null));
+    assert_eq!(value["events"][1]["correlationId"], json!(null));
+    assert_eq!(value["events"][1]["payload"], json!(null));
     assert_eq!(
         value["snapshot"]["liveActivity"]["lanAddDeviceReadModel"]["discoveryEventHistory"]
             ["latestEventId"],

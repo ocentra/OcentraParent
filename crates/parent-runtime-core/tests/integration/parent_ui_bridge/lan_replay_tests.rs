@@ -13,13 +13,16 @@ use ocentra_schema::parent_ui_bridge::{ParentRouteId, ParentRoutePeerRole};
 use serde_json::{json, Value};
 
 use super::common::helpers::{
-    sample_lan_read_model_with_explicit_history, sample_lan_read_model_with_history_state,
+    require_some, sample_lan_read_model_with_explicit_history,
+    sample_lan_read_model_with_history_state, TestContext,
 };
 use super::load_parent_subscription_event;
 use super::tests_support::{
     lan_event, require_ok, start_local_server_with_capture_responses, with_agent_addr,
     REQUEST_MESSAGE_ID_CORRELATION,
 };
+
+const LAN_REPLAY_REJECTION_EVENT: &str = "lan-runtime-event-chain-replay-rejected";
 
 #[test]
 fn parent_subscription_event_replays_ordered_lan_stream_rows() {
@@ -115,7 +118,7 @@ fn parent_subscription_event_rejects_duplicate_and_stale_lan_replay_batches() {
             &read_model,
             replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false),
         );
-        assert_eq!(events.len(), 2);
+        assert_redacted_replay_rejection_diagnostic(&events);
         assert!(events.iter().all(|event| {
             event
                 .event_id
@@ -123,6 +126,49 @@ fn parent_subscription_event_rejects_duplicate_and_stale_lan_replay_batches() {
                 .is_none_or(|event_id| !event_id.as_str().starts_with("lan-history-"))
         }));
     }
+}
+
+#[test]
+fn parent_subscription_event_rejects_history_states_that_disagree_with_replay_entries() {
+    let read_model = sample_lan_read_model_with_explicit_history();
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+
+    for (history_state, manual_required) in [
+        (LanDiscoveryEventHistoryState::Empty, false),
+        (LanDiscoveryEventHistoryState::Unavailable, false),
+        (LanDiscoveryEventHistoryState::ManualRequired, true),
+    ] {
+        assert_replay_rejected(
+            &read_model,
+            replay_event(&entries, history_state, manual_required),
+        );
+    }
+
+    let empty_ready_model =
+        sample_lan_read_model_with_history_state(LanDiscoveryEventHistoryState::Ready);
+    assert_replay_rejected(
+        &empty_ready_model,
+        replay_event(&[], LanDiscoveryEventHistoryState::Ready, false),
+    );
+}
+
+#[test]
+fn parent_subscription_event_accepts_agent_offline_replay_rows_per_canonical_precedence() {
+    let mut read_model = sample_lan_read_model_with_explicit_history();
+    read_model.discovery_event_history.state = LanDiscoveryEventHistoryState::AgentOffline;
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+
+    let events = subscription_events_for_stream(
+        &read_model,
+        replay_event(&entries, LanDiscoveryEventHistoryState::AgentOffline, false),
+    );
+
+    assert_eq!(events.len(), 4);
+    assert_eq!(events[0].event.as_deref(), Some("scan-started"));
+    assert_eq!(events[1].event.as_deref(), Some("device-found"));
+    assert!(events
+        .iter()
+        .all(|event| event.event.as_deref() != Some(LAN_REPLAY_REJECTION_EVENT)));
 }
 
 #[test]
@@ -274,7 +320,7 @@ fn parent_subscription_event_fails_closed_on_malformed_lan_replay_payload() {
 
     let events = subscription_events_for_stream(&read_model, malformed_event);
 
-    assert_eq!(events.len(), 2);
+    assert_redacted_replay_rejection_diagnostic(&events);
     assert!(events.iter().all(|event| {
         event
             .event_id
@@ -340,13 +386,36 @@ fn assert_replay_rejected(
     stream_event: AgentEventEnvelope,
 ) {
     let events = subscription_events_for_stream(read_model, stream_event);
-    assert_eq!(events.len(), 2);
+    assert_redacted_replay_rejection_diagnostic(&events);
     assert!(events.iter().all(|event| {
         event
             .event_id
             .as_ref()
             .is_none_or(|event_id| !event_id.as_str().starts_with("lan-history-"))
     }));
+}
+
+fn assert_redacted_replay_rejection_diagnostic(
+    events: &[ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot],
+) {
+    assert_eq!(events.len(), 3);
+    let diagnostic = require_some(
+        events
+            .iter()
+            .find(|event| event.event.as_deref() == Some(LAN_REPLAY_REJECTION_EVENT)),
+        TestContext("rejected replay emits a safe host diagnostic"),
+    );
+    assert_eq!(diagnostic.severity.as_deref(), Some("warn"));
+    assert_eq!(diagnostic.event_id, None);
+    assert_eq!(diagnostic.correlation_id, None);
+    assert_eq!(diagnostic.sent_at, None);
+    assert_eq!(diagnostic.source_peer_id, None);
+    assert_eq!(diagnostic.source_role, None);
+    assert_eq!(diagnostic.target_peer_id, None);
+    assert_eq!(diagnostic.target_role, None);
+    assert_eq!(diagnostic.payload, None);
+    assert_eq!(diagnostic.snapshot, None);
+    assert_eq!(diagnostic.command_result_projection, None);
 }
 
 fn remove_payload_field(event: &mut AgentEventEnvelope, field: &str) {

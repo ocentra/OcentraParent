@@ -84,22 +84,32 @@ Current verified LAN replay-consumer truth on 2026-07-18:
 
 - The parent-owned Rust agent-service client now loads the canonical
   `AgentLanRuntimeEventChainStreamGet` response and converts validated discovery
-  rows into existing `ParentRouteEventSnapshot` values before the typed host
-  subscription reaches the portal.
+  rows into existing `ParentRouteEventSnapshot` values for Rust-owned
+  `ParentSubscriptionEvent` construction. This does not by itself prove that a
+  real Tauri emitter delivered the batch to the portal listener.
 - Replay order is preserved. Duplicate IDs, stale or out-of-order chains,
-  broken references, inconsistent metadata, and malformed payloads reject the
-  whole replay batch. The last live LAN status events remain authoritative on
-  an ID collision.
+  broken references, inconsistent metadata, history-state/entry-count drift,
+  and malformed payloads reject the whole replay batch. Empty, unavailable,
+  and manual-required histories cannot carry rows; ready history cannot be
+  empty; agent-offline precedence remains explicit. The last live LAN status
+  events remain authoritative on an ID collision.
 - Replay rejection does not erase the status snapshot, so explicit
-  `agent-offline` and `manual-required` read-model states remain visible.
+  `agent-offline` and `manual-required` read-model states remain visible. The
+  bridge also emits a stable warning milestone with no event, correlation,
+  peer, timestamp, payload, or snapshot identifiers from the rejected input.
+- The Tauri host delivery decision now emits a new replay event ID even when
+  the route snapshot is unchanged and suppresses already delivered IDs. That
+  exact decision seam has focused crate-level coverage. A real `AppHandle`
+  emit observed by the portal listener is still open.
 - Focused protocol and agent-service stream tests, the parent runtime
-  diagnostics/history/replay integration group, the portal-state edge test,
-  strict clippy, contract build, architecture, source-shape, required-tests,
-  and no-test-doubles checks are green. Exact commands and counts are recorded
-  in the current proof root.
+  diagnostics/history/replay integration group, the desktop host-decision test,
+  and the isolated portal-state edge test are green. Exact commands and counts,
+  including later scoped gates, are recorded in the current proof root. These
+  separate tests do not constitute end-to-end backend-to-portal proof.
 - WP25 remains `partial/manual`. This local consumer proof does not close the
-  physical multi-device, router/firewall, signed-artifact, restart, or manual
-  topology evidence rows and does not support broad PR-ready or DONE.
+  Tauri-emitter-to-portal-listener gap, physical multi-device, router/firewall,
+  signed-artifact, restart, or manual topology evidence rows and does not
+  support broad PR-ready or DONE.
 
 ## Automated Gates For Active Scope
 

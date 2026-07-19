@@ -3,16 +3,55 @@ use std::{net::TcpListener, sync::atomic::Ordering};
 use ocentra_parent_agent_protocol::{
     constants, DeviceRuntimeAiProviderState, DeviceRuntimeLocalAiClaim, DeviceRuntimeRouteState,
 };
+use ocentra_parent_desktop::parent_route_subscription_delivery::{
+    deliver_parent_route_subscription_event, ParentRouteSubscriptionDelivery,
+    ParentRouteSubscriptionDeliveryState,
+};
 use ocentra_parent_desktop::{
     agent_service_connects, parent_platform_proof_state_for_address,
     parent_route_subscription_event_name, ParentDesktopAgentAddress, ParentRouteSubscriptionId,
     ParentRouteSubscriptionRegistry,
+};
+use ocentra_parent_runtime_core::parent_ui_bridge::load_parent_route_snapshot;
+use ocentra_schema::parent_ui_bridge::{
+    ParentRouteEventId, ParentRouteEventSnapshot, ParentRouteId, ParentRouteSnapshot,
+    ParentSubscriptionEvent,
 };
 use serde_json::Value;
 
 fn proof_state_json(agent_address: ParentDesktopAgentAddress) -> Value {
     serde_json::to_value(parent_platform_proof_state_for_address(agent_address))
         .expect("parent desktop proof state serializes")
+}
+
+fn subscription_event_with_ids(
+    snapshot: &ParentRouteSnapshot,
+    event_ids: &[&str],
+) -> ParentSubscriptionEvent {
+    ParentSubscriptionEvent {
+        schema_version: 1,
+        route: snapshot.route.clone(),
+        snapshot: snapshot.clone(),
+        events: Some(
+            event_ids
+                .iter()
+                .map(|event_id| ParentRouteEventSnapshot {
+                    event: Some("lan-replay-row".to_string()),
+                    event_id: ParentRouteEventId::parse((*event_id).to_string()),
+                    correlation_id: None,
+                    sent_at: None,
+                    source_peer_id: None,
+                    source_role: None,
+                    target_peer_id: None,
+                    target_role: None,
+                    severity: Some("info".to_string()),
+                    payload: None,
+                    snapshot: None,
+                    command_result_projection: None,
+                })
+                .collect(),
+        ),
+    }
 }
 
 #[test]
@@ -67,6 +106,49 @@ fn parent_route_subscription_event_name_uses_stable_prefix() {
     assert_eq!(
         parent_route_subscription_event_name(&ParentRouteSubscriptionId("42".to_string())).0,
         "parent-route-subscription-42"
+    );
+}
+
+#[test]
+fn parent_route_subscription_delivery_emits_new_event_ids_with_stable_snapshot_once() {
+    let snapshot = load_parent_route_snapshot(ParentRouteId::Devices, None);
+    let mut state = ParentRouteSubscriptionDeliveryState::new(snapshot.clone());
+    let first_event = subscription_event_with_ids(&snapshot, &["lan-replay-1"]);
+    let mut emitted_batches = Vec::new();
+
+    let first_delivery =
+        deliver_parent_route_subscription_event(&mut state, &first_event, |event| {
+            emitted_batches.push(event.clone());
+            Ok::<(), ()>(())
+        });
+    assert_eq!(first_delivery, Ok(ParentRouteSubscriptionDelivery::Emitted));
+
+    let repeated_delivery =
+        deliver_parent_route_subscription_event(&mut state, &first_event, |event| {
+            emitted_batches.push(event.clone());
+            Ok::<(), ()>(())
+        });
+    assert_eq!(
+        repeated_delivery,
+        Ok(ParentRouteSubscriptionDelivery::Suppressed)
+    );
+
+    let next_event = subscription_event_with_ids(&snapshot, &["lan-replay-1", "lan-replay-2"]);
+    let next_delivery = deliver_parent_route_subscription_event(&mut state, &next_event, |event| {
+        emitted_batches.push(event.clone());
+        Ok::<(), ()>(())
+    });
+    assert_eq!(next_delivery, Ok(ParentRouteSubscriptionDelivery::Emitted));
+    assert_eq!(emitted_batches.len(), 2);
+    assert_eq!(
+        emitted_batches[1]
+            .events
+            .as_deref()
+            .unwrap_or_default()
+            .iter()
+            .filter_map(|event| event.event_id.as_ref().map(|event_id| event_id.as_str()))
+            .collect::<Vec<_>>(),
+        vec!["lan-replay-1", "lan-replay-2"]
     );
 }
 

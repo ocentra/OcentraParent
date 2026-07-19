@@ -13,11 +13,22 @@ GREEN cargo test -p ocentra-parent-agent-service --test lan_runtime lan_runtime_
   2 passed; 0 failed; 78 filtered out.
 
 GREEN cargo test -p ocentra-parent-runtime-core --test integration parent_subscription_event_ -- --nocapture
-  13 passed; 0 failed; 24 filtered out.
+  15 passed; 0 failed; 24 filtered out.
   Includes exact command correlation and full-envelope rejection, exact latest
   metadata, RFC3339 validation, offset-aware instant ordering and stale
-  rejection, malformed fail-closed, offline/manual-required preservation, and
-  existing subscription diagnostics/history regressions.
+  rejection, history-state/entry-count mismatch rejection, explicit
+  agent-offline precedence, malformed fail-closed with a redacted warning
+  milestone, offline/manual-required preservation, and existing subscription
+  diagnostics/history regressions.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit parent_route_subscription_delivery_ -- --nocapture
+  1 passed; 0 failed; 4 filtered out.
+  The real host delivery decision emits an unseen replay event ID while the
+  route snapshot is stable, suppresses the already delivered ID, and emits the
+  next unseen ID.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit -- --nocapture
+  5 passed; 0 failed.
 
 GREEN cargo test -p ocentra-parent-runtime-core --test unit -- --nocapture
   24 passed; 0 failed.
@@ -27,6 +38,8 @@ GREEN npm run build:contracts
 
 GREEN npm exec --workspace @ocentra-parent/portal -- vitest run tests/portal/portal-state-target.test.ts
   1 file passed; 11 tests passed.
+  This is isolated portal state-edge coverage, not proof that a real Tauri
+  AppHandle emitter delivered the backend replay batch to the portal listener.
 
 GREEN cargo clippy -p ocentra-parent-runtime-core --all-targets -- -D warnings
   Finished dev profile successfully with warnings denied.
@@ -53,10 +66,40 @@ GREEN npm run lint:enforcer:reexports -- --files <touched Rust files>
 GREEN npm run lint:enforcer:validation-bypass -- --files <touched Rust files>
   Ocentra Enforcer validation-bypass passed.
 
-GREEN npm run precommit (claimed implementation and proof files staged)
+GREEN npm run precommit (initial packet implementation and proof files staged)
   Fast pre-commit gate passed generated-artifacts, architecture and Enforcer
   guards, 37 parent-runtime integration tests, 24 runtime unit tests, doc tests,
   and Rust formatting.
 
+Exact-head review repair gates:
+
+GREEN cargo check --locked -p ocentra-parent-runtime-core
+  Finished dev profile successfully.
+
+GREEN cargo check --locked --manifest-path apps/parent-desktop/src-tauri/Cargo.toml
+  Finished the standalone desktop dev profile successfully.
+
+GREEN cargo clippy -p ocentra-parent-runtime-core --all-targets -- -D warnings
+  Finished dev profile successfully after the history-state validator split.
+
+GREEN cargo clippy --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all-targets -- -D warnings
+  Finished standalone desktop dev profile successfully.
+
+GREEN cargo fmt --all -- --check
+GREEN cargo fmt --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all -- --check
+  Root workspace and standalone desktop formatting passed.
+
+GREEN npm run lint:architecture -- --files <exact repair Rust files>
+  Architecture policy passed after the history-state validator moved into its
+  claimed sibling module to restore the branch budget.
+
+GREEN npm run lint:enforcer:source-shape -- --files <exact repair Rust files>
+GREEN npm run lint:enforcer:required-tests -- --files <exact repair Rust files>
+GREEN npm run lint:enforcer:no-test-doubles -- --files <exact repair Rust files>
+GREEN npm run lint:enforcer:reexports -- --files <exact repair Rust files>
+GREEN npm run lint:enforcer:validation-bypass -- --files <exact repair Rust files>
+  All five exact-file Enforcer guards passed.
+
 NON-CLAIM physical multi-device, router/firewall, signed-artifact, restart,
-and manual topology evidence remain open. WP25 remains partial/manual.
+manual topology, and real backend-to-Tauri-emitter-to-portal-listener evidence
+remain open. WP25 remains partial/manual.

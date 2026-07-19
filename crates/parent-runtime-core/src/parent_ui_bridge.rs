@@ -15,8 +15,9 @@ use ocentra_parent_agent_protocol::{
     transport::{AgentCommandName, AgentEventName},
 };
 use ocentra_schema::parent_ui_bridge::{
-    ParentPortalParentAccessState, ParentRouteContext, ParentRouteId, ParentRouteSnapshot,
-    ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind, ParentUiActionResult,
+    ParentPortalParentAccessState, ParentRouteContext, ParentRouteEventSnapshot, ParentRouteId,
+    ParentRouteSnapshot, ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind,
+    ParentUiActionResult,
 };
 use serde_json::Value;
 
@@ -61,6 +62,8 @@ use self::route_snapshot::build_parent_route_snapshot_impl;
 const PARENT_UI_BRIDGE_SCHEMA_VERSION: u16 = 1;
 const EMPTY_TIMESTAMP: &str = "";
 const HOST_BRIDGE_URL: &str = "host-bridge://tauri-parent";
+const LAN_REPLAY_REJECTION_EVENT: &str = "lan-runtime-event-chain-replay-rejected";
+const LAN_REPLAY_REJECTION_SEVERITY: &str = "warn";
 
 #[derive(Default)]
 struct ParentRouteSnapshotOverlay {
@@ -107,12 +110,18 @@ pub fn load_parent_subscription_event(
     context: Option<&ParentRouteContext>,
 ) -> ParentSubscriptionEvent {
     let lan_route_query = lan_route_query_for_load(&route, context);
-    let mut events = if matches!(&lan_route_query, LanRouteQuery::Available(_)) {
-        load_lan_runtime_event_chain_replay_events().unwrap_or_default()
+    let (mut events, replay_rejected) = if matches!(&lan_route_query, LanRouteQuery::Available(_)) {
+        match load_lan_runtime_event_chain_replay_events() {
+            Ok(events) => (events, false),
+            Err(_redacted_error) => (Vec::new(), true),
+        }
     } else {
-        Vec::new()
+        (Vec::new(), false)
     };
     events.extend_from_slice(lan_route_query.events());
+    if replay_rejected {
+        events.push(lan_replay_rejection_diagnostic());
+    }
     let events = dedupe_route_events_by_event_id(&events);
     let snapshot = build_parent_route_snapshot(route.clone(), &lan_route_query, None, None);
     ParentSubscriptionEvent {
@@ -120,6 +129,23 @@ pub fn load_parent_subscription_event(
         route,
         snapshot,
         events: (!events.is_empty()).then_some(events),
+    }
+}
+
+fn lan_replay_rejection_diagnostic() -> ParentRouteEventSnapshot {
+    ParentRouteEventSnapshot {
+        event: Some(LAN_REPLAY_REJECTION_EVENT.to_string()),
+        event_id: None,
+        correlation_id: None,
+        sent_at: None,
+        source_peer_id: None,
+        source_role: None,
+        target_peer_id: None,
+        target_role: None,
+        severity: Some(LAN_REPLAY_REJECTION_SEVERITY.to_string()),
+        payload: None,
+        snapshot: None,
+        command_result_projection: None,
     }
 }
 

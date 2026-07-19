@@ -210,11 +210,14 @@ Expected evidence for `B2`:
   locally closed by their own proof and `23`/`25` still open.
 - Portal LAN proof still depends on source/service-backed truth; portal does
   not own the LAN truth model.
-- Product route refresh now flows through typed Tauri host subscriptions that
-  emit `ParentSubscriptionEvent` snapshots plus subscribed route events into
-  the portal shell. Canonical backend LAN stream replay is now loaded,
-  validated, ordered, and projected by Rust; product TSX still does not own a
-  WebSocket transport or replay business logic.
+- Canonical backend LAN stream replay is loaded, validated, ordered, and
+  projected into Rust-owned `ParentSubscriptionEvent` values. The Tauri host
+  delivery decision now treats unseen event IDs and changed anonymous event
+  batches as emit-worthy even when the route snapshot is stable. Focused tests
+  cover that host decision, but no current proof observes the same replay batch
+  through the real Tauri `AppHandle` emitter and portal listener. The complete
+  backend-to-host-to-portal chain therefore remains open; product TSX still
+  does not own replay business logic.
 - Stored child/known-device IPs no longer leave the bounded active-refresh
   target list on historical truth alone; current neighbor-state MAC
   confirmation or the live default-gateway path is now required before
@@ -247,8 +250,11 @@ Expected evidence for `B2`:
 - weighted classification and installability proof for
   unknown/probable/not-installable states
 - real signed child hello/heartbeat artifacts
-- restart and physical cross-session event-stream proof completion; local
-  backend-to-host-to-portal replay consumption is green
+- restart and physical cross-session event-stream proof completion
+- real Tauri `AppHandle` emission plus portal-listener observation of a
+  backend replay batch; backend validation, bridge construction, the host
+  delivery decision, and an isolated portal state edge are locally covered,
+  but they do not yet prove the complete chain
 - additional downstream consumer proof artifacts beyond the current Rust-backed
   `/devices`, policy-target, and Start-route first-run portal snapshots
 - Android/mobile-controller proof where the plan still keeps those claims

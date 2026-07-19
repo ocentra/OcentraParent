@@ -26,6 +26,12 @@ use ocentra_schema::parent_ui_bridge::{
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, State as TauriState};
 
+use self::parent_route_subscription_delivery::{
+    deliver_parent_route_subscription_event, ParentRouteSubscriptionDeliveryState,
+};
+
+pub mod parent_route_subscription_delivery;
+
 const SERVICE_CONNECT_TIMEOUT_MS: u64 = 250;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, serde::Deserialize)]
@@ -219,7 +225,9 @@ fn spawn_parent_route_subscription(
     active: Arc<AtomicBool>,
 ) {
     thread::spawn(move || {
-        let mut last_snapshot = Some(load_parent_route_snapshot(route.clone(), context.as_ref()));
+        let mut delivery_state = ParentRouteSubscriptionDeliveryState::new(
+            load_parent_route_snapshot(route.clone(), context.as_ref()),
+        );
         while active.load(Ordering::SeqCst) {
             thread::sleep(Duration::from_millis(
                 PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS,
@@ -228,13 +236,13 @@ fn spawn_parent_route_subscription(
                 break;
             }
             let event = load_parent_subscription_event(route.clone(), context.as_ref());
-            if last_snapshot.as_ref() == Some(&event.snapshot) {
-                continue;
-            }
-            if emit_parent_route_subscription_event(&app, &subscription_id, &event).is_err() {
+            if deliver_parent_route_subscription_event(&mut delivery_state, &event, |event| {
+                emit_parent_route_subscription_event(&app, &subscription_id, event)
+            })
+            .is_err()
+            {
                 break;
             }
-            last_snapshot = Some(event.snapshot);
         }
         let _ = registry.unregister(&subscription_id);
     });

@@ -1,13 +1,14 @@
 use chrono::{DateTime, FixedOffset};
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEventHistoryState;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
-use serde_json::Value;
 
 use super::payload_fields::log_field_string;
-use super::snapshots_common::{optional_bool_field, optional_u64_field};
+use super::snapshots_common::optional_u64_field;
 
 pub(super) mod envelope;
+mod history_state;
+
+use self::history_state::validate_history_state;
 
 pub(super) const LAN_REPLAY_CONTEXT: &str = "agent-service LAN runtime replay payload";
 
@@ -31,7 +32,7 @@ pub(super) fn validate_report_metadata(
         ));
     }
 
-    validate_history_state(payload)?;
+    validate_history_state(payload, entry_count)?;
     let reported_event_id = optional_reported_text(payload, constants::field::LATEST_EVENT_ID)?;
     validate_latest_metadata(
         reported_event_id,
@@ -48,29 +49,6 @@ pub(super) fn validate_report_metadata(
         latest_observed_at,
         constants::field::LATEST_OBSERVED_AT,
     )
-}
-
-fn validate_history_state(payload: &LogFields) -> Result<(), String> {
-    let history_state_label =
-        required_text_field(payload, constants::field::LAN_RUNTIME_EVENT_HISTORY_STATE)?;
-    let history_state = serde_json::from_value::<LanDiscoveryEventHistoryState>(Value::String(
-        history_state_label.to_string(),
-    ))
-    .map_err(|error| format!("{LAN_REPLAY_CONTEXT} history state parse failed: {error}"))?;
-    let manual_required =
-        optional_bool_field(payload, constants::field::LAN_RUNTIME_MANUAL_REQUIRED_STATE)
-            .ok_or_else(|| {
-                format!(
-                    "{LAN_REPLAY_CONTEXT} missing {}",
-                    constants::field::LAN_RUNTIME_MANUAL_REQUIRED_STATE
-                )
-            })?;
-    if manual_required != matches!(history_state, LanDiscoveryEventHistoryState::ManualRequired) {
-        return Err(format!(
-            "{LAN_REPLAY_CONTEXT} rejected inconsistent history and manual-required state"
-        ));
-    }
-    Ok(())
 }
 
 fn validate_latest_metadata(
