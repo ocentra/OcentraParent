@@ -18,18 +18,13 @@ pub(super) fn intervention_state_from_budget(
 
 pub(super) fn should_publish_phase(
     phase: NetworkRuntimePhase,
-    observation: &NetworkObservation,
+    _observation: &NetworkObservation,
 ) -> bool {
-    match observation_risk_budget_state(observation) {
-        NetworkRiskBudgetState::ObserveOnly => true,
-        NetworkRiskBudgetState::ManualReviewRequired | NetworkRiskBudgetState::Unavailable => {
-            !matches!(
-                phase,
-                NetworkRuntimePhase::EnforcementCommandIssued
-                    | NetworkRuntimePhase::EnforcementResultObserved
-            )
-        }
-    }
+    !matches!(
+        phase,
+        NetworkRuntimePhase::EnforcementCommandIssued
+            | NetworkRuntimePhase::EnforcementResultObserved
+    )
 }
 
 pub(super) fn event_custody(
@@ -72,8 +67,4 @@ pub(super) fn network_aggregate_key(
     }
     value.push_str(payload.capability_status.as_protocol_str());
     value
-}
-
-fn observation_risk_budget_state(observation: &NetworkObservation) -> NetworkRiskBudgetState {
-    crate::network_event_runtime_state::risk_budget_state(observation)
 }

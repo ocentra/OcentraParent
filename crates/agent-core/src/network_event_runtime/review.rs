@@ -89,8 +89,13 @@ pub async fn request_network_runtime_review_for_observation(
     .await?;
 
     let phase = NetworkRuntimePhase::PolicyEvaluationRequested;
-    let payload =
-        super::network_runtime_event_payload_from_observation(phase, &observation, observed_at);
+    let decision = super::network_runtime_decision_from_observation(&observation);
+    let payload = super::network_runtime_event_payload_from_observation(
+        phase,
+        &observation,
+        observed_at,
+        decision,
+    );
     let request = NetworkRuntimeReviewRequest {
         request_id: RequestId::parse(network_review_request_id(&payload))?,
         payload,

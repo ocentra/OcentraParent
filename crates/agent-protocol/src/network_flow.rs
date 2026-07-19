@@ -886,6 +886,7 @@ pub enum NetworkInterventionState {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkRuntimeClaimBoundary {
     pub raw_pcap_available: bool,
     pub decrypted_https_payload_available: bool,
@@ -953,6 +954,7 @@ pub struct NetworkRuntimeEventPayload {
 
 impl DomainEvent for NetworkRuntimeEventPayload {
     fn contract(&self) -> Result<EventContract, EventingError> {
+        self.validate_semantics()?;
         Ok(EventContract::new(
             EventType::parse(self.phase.event_type())?,
             SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)?,
@@ -971,6 +973,44 @@ impl DomainEvent for NetworkRuntimeEventPayload {
         value.push(constants::delimiter::HYPHEN);
         value.push_str(&self.observed_at);
         IdempotencyKey::parse(value)
+    }
+}
+
+impl NetworkRuntimeEventPayload {
+    pub fn validate_semantics(&self) -> Result<(), EventingError> {
+        let expected = match self.evidence_grade {
+            NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata => (
+                NetworkEvidenceGrade::B,
+                NetworkRiskBudgetState::ObserveOnly,
+                NetworkInterventionState::DryRunOnly,
+                NetworkPolicyDecisionAction::Observe,
+            ),
+            NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata => (
+                NetworkEvidenceGrade::C,
+                NetworkRiskBudgetState::ManualReviewRequired,
+                NetworkInterventionState::ManualRequired,
+                NetworkPolicyDecisionAction::AskParent,
+            ),
+            NetworkRuntimeEvidenceGrade::AdapterUnavailable => (
+                NetworkEvidenceGrade::D,
+                NetworkRiskBudgetState::Unavailable,
+                NetworkInterventionState::Unavailable,
+                NetworkPolicyDecisionAction::ManualReview,
+            ),
+        };
+        if (
+            self.evidence_grade_contract,
+            self.risk_budget_state,
+            self.intervention_state,
+            self.policy_action,
+        ) != expected
+        {
+            return Err(EventingError::InvalidValue {
+                field: "network_runtime_payload_semantics",
+                value: "evidence/risk/intervention/policy tuple is inconsistent".to_string(),
+            });
+        }
+        Ok(())
     }
 }
 

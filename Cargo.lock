@@ -2574,6 +2574,7 @@ dependencies = [
  "chacha20poly1305",
  "chrono",
  "ocentra-eventing",
+ "ocentra-network-core",
  "ocentra-network-evidence",
  "ocentra-parent-agent-protocol",
  "ocentra-tracking-core",

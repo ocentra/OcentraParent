@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use ocentra_eventing::{
     bus::{subscriber::EventSubscriber, EventBus},
-    envelope::{EventEnvelope, EventMetadata, EventSource},
+    envelope::{DomainEvent, EventEnvelope, EventMetadata, EventSource},
     expect_value::ExpectValue,
     ids::{
         CorrelationId, EventCustody, EventId, EventType, RecordedAt, RuntimeInstanceId,
@@ -126,6 +126,21 @@ fn network_runtime_payload_schema_version_skew_fails_closed() {
         serde_json::from_value::<ocentra_eventing::envelope::StoredEventEnvelope>(older_json)
             .is_err()
     );
+
+    let mut v1_fixture = live.store().expect(CONTRACT_EXPECTATION);
+    v1_fixture.contract.schema_version =
+        ocentra_eventing::ids::SchemaVersion::new(1).expect(CONTRACT_EXPECTATION);
+    assert_eq!(
+        v1_fixture
+            .decode::<NetworkRuntimeEventPayload>()
+            .err()
+            .map(|error| error.to_string()),
+        Some(format!(
+            "event contract mismatch: expected {}@2, received {}@1",
+            NetworkRuntimePhase::FlowObserved.event_type(),
+            NetworkRuntimePhase::FlowObserved.event_type(),
+        ))
+    );
 }
 
 #[test]
@@ -159,6 +174,53 @@ fn network_runtime_payload_exhaustively_round_trips_canonical_grade_and_policy_v
             );
         }
     }
+}
+
+#[test]
+fn network_runtime_payload_rejects_impossible_semantic_tuple_before_dispatch() {
+    let mut candidate = payload();
+    candidate.evidence_grade_contract = ocentra_parent_agent_protocol::NetworkEvidenceGrade::A;
+    candidate.policy_action = ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Block;
+    assert_eq!(
+        candidate.validate_semantics().err().map(|error| error.to_string()),
+        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+    );
+    assert_eq!(
+        candidate.contract().err().map(|error| error.to_string()),
+        Some("invalid value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+    );
+}
+
+#[tokio::test]
+async fn invalid_serialized_runtime_payload_is_rejected_before_handler_receipt() {
+    let bus = EventBus::new();
+    let delivered = Arc::new(Mutex::new(Vec::new()));
+    let captured = Arc::clone(&delivered);
+    bus.subscribe::<NetworkRuntimeEventPayload, _, _>(subscriber(), move |context| {
+        let captured = Arc::clone(&captured);
+        async move {
+            captured
+                .lock()
+                .expect(CONTRACT_EXPECTATION)
+                .push(context.payload().phase);
+            Ok(())
+        }
+    })
+    .await
+    .expect(CONTRACT_EXPECTATION);
+
+    let mut serialized = serde_json::to_value(payload()).expect(CONTRACT_EXPECTATION);
+    serialized["policy_action"] = serde_json::json!("block");
+    let invalid = serde_json::from_value::<NetworkRuntimeEventPayload>(serialized)
+        .expect(CONTRACT_EXPECTATION);
+    assert_eq!(
+        bus.publish_and_wait(invalid, metadata())
+            .await
+            .err()
+            .map(|error| error.to_string()),
+        Some("invalid value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+    );
+    assert!(delivered.lock().expect(CONTRACT_EXPECTATION).is_empty());
 }
 
 #[tokio::test]

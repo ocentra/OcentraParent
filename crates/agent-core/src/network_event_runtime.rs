@@ -13,6 +13,11 @@ use ocentra_eventing::{
     ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent, ids::SourceService,
     ids::SubscriberId, ids::TargetHandler,
 };
+use ocentra_network_core::network_runtime::{
+    evaluate_network_runtime, NetworkAdapterState, NetworkCapturePermissionState,
+    NetworkObservationIntent, NetworkParserState, NetworkRuntimeActionState,
+    NetworkRuntimeDecision, NetworkRuntimeInput,
+};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
     NetworkInterventionState, NetworkRuntimeClaimBoundary,
@@ -84,9 +89,16 @@ fn network_runtime_event_payload_from_observation(
     phase: NetworkRuntimePhase,
     observation: &NetworkObservation,
     observed_at: &str,
+    decision: NetworkRuntimeDecision,
 ) -> NetworkRuntimeEventPayload {
     let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at);
-    let risk_budget_state = risk_budget_state(observation);
+    let risk_budget_state = if decision.runtime_action_state
+        == NetworkRuntimeActionState::ManualRequired
+    {
+        ocentra_parent_agent_protocol::network_flow::NetworkRiskBudgetState::ManualReviewRequired
+    } else {
+        risk_budget_state(observation)
+    };
     NetworkRuntimeEventPayload {
         phase,
         capability_status: observation.status,
@@ -107,7 +119,12 @@ fn network_runtime_event_payload_from_observation(
         ai_audit_state: ai_audit_state(phase),
         risk_budget_state,
         intervention_state: helpers::intervention_state_from_budget(&risk_budget_state),
-        policy_action: policy_action(observation),
+        policy_action: if decision.runtime_action_state == NetworkRuntimeActionState::ManualRequired
+        {
+            ocentra_parent_agent_protocol::network_flow::NetworkPolicyDecisionAction::AskParent
+        } else {
+            policy_action(observation)
+        },
         claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
         previous_phase_ref: chain_refs.previous_phase_ref,
         evidence_ref: chain_refs.evidence_ref,
@@ -139,6 +156,33 @@ pub(super) fn network_correlation_id(
 
 pub(super) fn network_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
     helpers::network_aggregate_key(payload)
+}
+
+pub(super) fn network_runtime_decision_from_observation(
+    observation: &NetworkObservation,
+) -> NetworkRuntimeDecision {
+    evaluate_network_runtime(NetworkRuntimeInput {
+        adapter_state: if observation.status
+            == ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus::Available
+        {
+            NetworkAdapterState::Available
+        } else {
+            NetworkAdapterState::Missing
+        },
+        capture_permission_state: if observation.status
+            == ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus::Available
+        {
+            NetworkCapturePermissionState::Granted
+        } else {
+            NetworkCapturePermissionState::Missing
+        },
+        parser_state: NetworkParserState::Valid,
+        observation_intent: if observation.destination_domain.is_some() {
+            NetworkObservationIntent::FlowRequiresPolicy
+        } else {
+            NetworkObservationIntent::UnknownRouteRequiresAi
+        },
+    })
 }
 
 pub async fn publish_network_runtime_chain_for_observation(
@@ -174,14 +218,28 @@ impl NetworkRuntimeSpine {
         observation: NetworkObservation,
         observed_at: &str,
     ) -> Result<NetworkRuntimeReport, EventingError> {
+        let runtime_decision = network_runtime_decision_from_observation(&observation);
         let mut reports = Vec::new();
         for phase in NetworkRuntimePhase::ordered_chain()
             .iter()
             .copied()
-            .filter(|phase| helpers::should_publish_phase(*phase, &observation))
+            .filter(|phase| {
+                helpers::should_publish_phase(*phase, &observation)
+                    && !(runtime_decision.runtime_action_state
+                        == NetworkRuntimeActionState::ManualRequired
+                        && matches!(
+                            phase,
+                            NetworkRuntimePhase::PolicyEvaluationRequested
+                                | NetworkRuntimePhase::PolicyDecisionCompleted
+                        ))
+            })
         {
-            let payload =
-                network_runtime_event_payload_from_observation(phase, &observation, observed_at);
+            let payload = network_runtime_event_payload_from_observation(
+                phase,
+                &observation,
+                observed_at,
+                runtime_decision,
+            );
             let metadata =
                 network_event_metadata(phase, &observation, observed_at, phase.target_handler())?;
             reports.push(self.bus.publish(payload, metadata).await?);

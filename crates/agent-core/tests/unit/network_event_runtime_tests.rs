@@ -43,14 +43,20 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() -> TestResult
 
     assert_eq!(
         report.publish_reports.len(),
-        NetworkRuntimePhase::ordered_chain().len()
+        NetworkRuntimePhase::ordered_chain().len() - 2
     );
     assert_eq!(
         report.stored_events.len(),
-        NetworkRuntimePhase::ordered_chain().len()
+        NetworkRuntimePhase::ordered_chain().len() - 2
     );
     assert!(report.dead_letters.is_empty());
-    assert_eq!(report.handled_phases, NetworkRuntimePhase::ordered_chain());
+    assert_eq!(
+        report.handled_phases,
+        payloads
+            .iter()
+            .map(|payload| payload.phase)
+            .collect::<Vec<_>>()
+    );
     assert!(!report.manual_required());
     assert_eq!(payloads[0].phase, NetworkRuntimePhase::FlowObserved);
     assert_eq!(payloads[3].ai_audit_state, NetworkAiAuditState::Requested);
@@ -60,14 +66,14 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() -> TestResult
             &report,
             constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
         ),
-        1
+        0
     );
     assert_eq!(
         count_event_type(
             &report,
             constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED
         ),
-        1
+        0
     );
     assert!(payloads.iter().all(|payload| {
         payload.evidence_scope == NetworkEvidenceScope::MetadataOnly
