@@ -1,0 +1,122 @@
+import {
+  ParentHostBridgeRuntime,
+  type ParentLanDiscoveryEventHistorySnapshot,
+  type ParentLanDiscoveryEventRowSnapshot,
+  type ParentRouteEventSnapshot,
+  type ParentRouteSnapshot,
+} from '../generated/parent-ui-bridge';
+import {
+  hasRequiredSnapshotEventIdentity,
+  isLanReplaySnapshot,
+  lanReplayPayloadCandidate,
+  parentRouteSnapshotTimestampMs,
+  parentRouteTimestampMs,
+  type LanReplayPayloadCandidate,
+} from './parent-route-event-snapshot';
+
+export function isReplayBatchBoundToSnapshot(
+  snapshots: readonly ParentRouteEventSnapshot[],
+  snapshot: ParentRouteSnapshot
+): boolean {
+  const history = snapshot.liveActivity?.lanAddDeviceReadModel?.discoveryEventHistory;
+  const replaySnapshots = snapshots.filter((event) => isLanReplaySnapshot(event, history?.rows ?? []));
+  if (replaySnapshots.length === 0) {
+    return true;
+  }
+  if (history === undefined || history === null) {
+    return false;
+  }
+
+  const snapshotTimestamp = parentRouteSnapshotTimestampMs(snapshot);
+  const historyGeneratedAt = parentRouteTimestampMs(history.generatedAt);
+  if (snapshotTimestamp === null) {
+    return false;
+  }
+  if (historyGeneratedAt === null) {
+    return false;
+  }
+  if (!historyMatchesBatchShape(history, replaySnapshots.length)) {
+    return false;
+  }
+  return replayRowsMatchHistory(replaySnapshots, history, snapshotTimestamp, historyGeneratedAt);
+}
+
+function historyMatchesBatchShape(history: ParentLanDiscoveryEventHistorySnapshot, replayCount: number): boolean {
+  return [
+    history.rows.length === replayCount,
+    typeof history.state === ParentHostBridgeRuntime.StringType,
+    history.state.length > 0,
+  ].every(Boolean);
+}
+
+function replayRowsMatchHistory(
+  replaySnapshots: readonly ParentRouteEventSnapshot[],
+  history: ParentLanDiscoveryEventHistorySnapshot,
+  snapshotTimestamp: number,
+  historyGeneratedAt: number
+): boolean {
+  for (const [index, replay] of replaySnapshots.entries()) {
+    const row = history.rows[index];
+    if (row === undefined) {
+      return false;
+    }
+    if (!replayRowMatchesHistory(replay, row, snapshotTimestamp, historyGeneratedAt)) {
+      return false;
+    }
+  }
+  const latestReplay = replaySnapshots.at(-1);
+  if (latestReplay === undefined) {
+    return false;
+  }
+  return [
+    history.latestEventId === latestReplay.eventId,
+    history.latestObservedAt === latestReplay.sentAt,
+    parentRouteTimestampMs(history.latestObservedAt) !== null,
+  ].every(Boolean);
+}
+
+function replayRowMatchesHistory(
+  replay: ParentRouteEventSnapshot,
+  row: ParentLanDiscoveryEventRowSnapshot,
+  snapshotTimestamp: number,
+  historyGeneratedAt: number
+): boolean {
+  if (!hasRequiredSnapshotEventIdentity(replay)) {
+    return false;
+  }
+  const eventTimestamp = parentRouteTimestampMs(replay.sentAt);
+  if (eventTimestamp === null) {
+    return false;
+  }
+  const payload = lanReplayPayloadCandidate(replay.payload);
+  if (payload === null) {
+    return false;
+  }
+  return [
+    eventTimestamp <= snapshotTimestamp,
+    eventTimestamp <= historyGeneratedAt,
+    replayPayloadMatchesEvent(payload, replay),
+    historyRowMatchesEvent(row, replay, payload),
+  ].every(Boolean);
+}
+
+function replayPayloadMatchesEvent(payload: LanReplayPayloadCandidate, replay: ParentRouteEventSnapshot): boolean {
+  return [
+    payload.eventId === replay.eventId,
+    payload.eventKind === replay.event,
+    payload.occurredAt === replay.sentAt,
+  ].every(Boolean);
+}
+
+function historyRowMatchesEvent(
+  row: ParentLanDiscoveryEventRowSnapshot,
+  replay: ParentRouteEventSnapshot,
+  payload: LanReplayPayloadCandidate
+): boolean {
+  return [
+    row.eventId === replay.eventId,
+    row.eventKind === replay.event,
+    row.occurredAt === replay.sentAt,
+    (row.previousEventId ?? null) === (payload.previousEventId ?? null),
+  ].every(Boolean);
+}

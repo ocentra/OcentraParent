@@ -212,14 +212,15 @@ Expected evidence for `B2`:
   locally closed by their own proof and `23`/`25` still open.
 - Portal LAN proof still depends on source/service-backed truth; portal does
   not own the LAN truth model.
-- Canonical backend LAN stream replay is loaded, validated, ordered, and
-  projected into Rust-owned `ParentSubscriptionEvent` values. The Tauri host
-  delivery decision now treats unseen event IDs and changed anonymous event
-  batches as emit-worthy even when the route snapshot is stable. Focused tests
-  cover that host decision, but no current proof observes the same replay batch
+- Canonical backend LAN stream replay is loaded, validated, ordered, and bound
+  to the independently loaded status history state/latest ID/latest time before
+  Rust constructs `ParentSubscriptionEvent`. Rejection emits a safe host-owned
+  warning identity. The Tauri host delivery decision and isolated portal state
+  edge separately prove unseen-ID delivery, replay-only snapshot binding, and
+  stable newest-128 buffering. No current proof observes the same replay batch
   through the real Tauri `AppHandle` emitter and portal listener. The complete
-  backend-to-host-to-portal chain therefore remains open; product TSX still
-  does not own replay business logic.
+  backend-to-host-to-portal chain and manual runtime proof therefore remain
+  open; product TSX still does not own replay business logic.
 - The current WP25 rollout truth and validation history are tracked under
   `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/`; generated `output/`
   files are not accepted as tracked source proof.

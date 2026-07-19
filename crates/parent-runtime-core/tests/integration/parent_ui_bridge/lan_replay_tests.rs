@@ -360,6 +360,35 @@ fn parent_subscription_event_requires_exact_nonempty_lan_replay_latest_metadata(
 }
 
 #[test]
+fn parent_subscription_event_rejects_status_and_replay_history_mutated_between_reads() {
+    let read_model = sample_lan_read_model_with_explicit_history();
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+
+    let state_changed = replay_event(&entries, LanDiscoveryEventHistoryState::Degraded, false);
+
+    let mut id_changed_entries = entries.clone();
+    id_changed_entries[1]["eventRef"] = json!("lan-history-after-status");
+    id_changed_entries[1]["payload"]["eventId"] = json!("lan-history-after-status");
+    let id_changed = replay_event(
+        &id_changed_entries,
+        LanDiscoveryEventHistoryState::Ready,
+        false,
+    );
+
+    let mut time_changed_entries = entries;
+    time_changed_entries[1]["payload"]["occurredAt"] = json!("2026-06-23T00:00:02.500Z");
+    let time_changed = replay_event(
+        &time_changed_entries,
+        LanDiscoveryEventHistoryState::Ready,
+        false,
+    );
+
+    for independently_changed_replay in [state_changed, id_changed, time_changed] {
+        assert_replay_rejected(&read_model, independently_changed_replay);
+    }
+}
+
+#[test]
 fn parent_subscription_event_rejects_non_rfc3339_lan_replay_payload_timestamps() {
     let read_model = sample_lan_read_model_with_explicit_history();
     let entries = replay_entries(&read_model.discovery_event_history.rows);
@@ -436,6 +465,32 @@ fn parent_subscription_event_fails_closed_on_malformed_lan_replay_payload() {
 }
 
 #[test]
+fn parent_subscription_event_emits_one_unique_safe_host_warning_per_rejected_replay() {
+    let read_model = sample_lan_read_model_with_explicit_history();
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+    let mut rejected = replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false);
+    let rejected_identifier = "attacker-controlled-rejected-event-id";
+    rejected.payload.insert(
+        constants::field::LATEST_EVENT_ID.to_string(),
+        LogFieldValue::String(rejected_identifier.to_string()),
+    );
+
+    let first_events = subscription_events_for_stream(&read_model, rejected.clone());
+    let second_events = subscription_events_for_stream(&read_model, rejected);
+    assert_redacted_replay_rejection_diagnostic(&first_events);
+    assert_redacted_replay_rejection_diagnostic(&second_events);
+
+    let warning_id = |events: &[ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot]| {
+        events
+            .iter()
+            .find(|event| event.event.as_deref() == Some(LAN_REPLAY_REJECTION_EVENT))
+            .and_then(|event| event.event_id.as_ref())
+            .map(|event_id| event_id.as_str().to_string())
+    };
+    assert_ne!(warning_id(&first_events), warning_id(&second_events));
+}
+
+#[test]
 fn parent_subscription_event_preserves_offline_and_manual_required_lan_states() {
     for (state, expected_manual_required, expected_state) in [
         (
@@ -505,6 +560,13 @@ fn assert_redacted_replay_rejection_diagnostic(
     events: &[ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot],
 ) {
     assert_eq!(events.len(), 3);
+    assert_eq!(
+        events
+            .iter()
+            .filter(|event| event.event.as_deref() == Some(LAN_REPLAY_REJECTION_EVENT))
+            .count(),
+        1
+    );
     let diagnostic = require_some(
         events
             .iter()
@@ -512,9 +574,43 @@ fn assert_redacted_replay_rejection_diagnostic(
         TestContext("rejected replay emits a safe host diagnostic"),
     );
     assert_eq!(diagnostic.severity.as_deref(), Some("warn"));
-    assert_eq!(diagnostic.event_id, None);
+    let event_id = require_some(
+        diagnostic.event_id.as_ref(),
+        TestContext("rejected replay warning has host event identity"),
+    );
+    let event_id_suffix = require_some(
+        event_id
+            .as_str()
+            .strip_prefix(&format!("{LAN_REPLAY_REJECTION_EVENT}-")),
+        TestContext("rejected replay warning uses the host-owned prefix"),
+    );
+    let (timestamp_micros, sequence) = require_some(
+        event_id_suffix.rsplit_once('-'),
+        TestContext("rejected replay warning identity has timestamp and sequence"),
+    );
+    let timestamp_micros = require_ok(
+        timestamp_micros.parse::<i64>(),
+        "rejected replay warning identity timestamp parses",
+    );
+    let sequence = require_ok(
+        sequence.parse::<u64>(),
+        "rejected replay warning identity sequence parses",
+    );
+    assert!(timestamp_micros > 0);
+    assert!(sequence < u64::MAX);
     assert_eq!(diagnostic.correlation_id, None);
-    assert_eq!(diagnostic.sent_at, None);
+    let sent_at = require_some(
+        diagnostic.sent_at.as_ref(),
+        TestContext("rejected replay warning has host timestamp"),
+    );
+    let parsed_sent_at = require_ok(
+        chrono::DateTime::parse_from_rfc3339(sent_at),
+        "rejected replay warning timestamp parses",
+    );
+    assert_eq!(
+        parsed_sent_at.to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+        sent_at.as_str()
+    );
     assert_eq!(
         diagnostic
             .source_peer_id

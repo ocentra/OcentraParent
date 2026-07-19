@@ -14,8 +14,8 @@ use ocentra_parent_desktop::{
 };
 use ocentra_parent_runtime_core::parent_ui_bridge::load_parent_route_snapshot;
 use ocentra_schema::parent_ui_bridge::{
-    ParentRouteEventId, ParentRouteEventSnapshot, ParentRouteId, ParentRouteSnapshot,
-    ParentSubscriptionEvent,
+    ParentRouteEventId, ParentRouteEventSnapshot, ParentRouteId, ParentRoutePeerId,
+    ParentRoutePeerRole, ParentRouteSnapshot, ParentSubscriptionEvent,
 };
 use serde_json::Value;
 
@@ -150,6 +150,48 @@ fn parent_route_subscription_delivery_emits_new_event_ids_with_stable_snapshot_o
             .collect::<Vec<_>>(),
         vec!["lan-replay-1", "lan-replay-2"]
     );
+}
+
+#[test]
+fn parent_route_subscription_delivery_emits_safe_replay_warning_once() {
+    let snapshot = load_parent_route_snapshot(ParentRouteId::Devices, None);
+    let warning = ParentRouteEventSnapshot {
+        event: Some("lan-runtime-event-chain-replay-rejected".to_string()),
+        event_id: ParentRouteEventId::parse(
+            "lan-runtime-event-chain-replay-rejected-host-1".to_string(),
+        ),
+        correlation_id: None,
+        sent_at: Some("2026-07-19T05:00:00.000Z".to_string()),
+        source_peer_id: ParentRoutePeerId::parse(constants::peer::LOCAL_DEV_AGENT.to_string()),
+        source_role: Some(ParentRoutePeerRole::AgentService),
+        target_peer_id: ParentRoutePeerId::parse(constants::peer::PORTAL_DEV.to_string()),
+        target_role: Some(ParentRoutePeerRole::Portal),
+        severity: Some("warn".to_string()),
+        payload: None,
+        snapshot: None,
+        command_result_projection: None,
+    };
+    let subscription = ParentSubscriptionEvent {
+        schema_version: 1,
+        route: snapshot.route.clone(),
+        snapshot: snapshot.clone(),
+        events: Some(vec![warning]),
+    };
+    let mut state = ParentRouteSubscriptionDeliveryState::new(snapshot);
+    let mut emitted = 0;
+
+    let first = deliver_parent_route_subscription_event(&mut state, &subscription, |_event| {
+        emitted += 1;
+        Ok::<(), ()>(())
+    });
+    let repeated = deliver_parent_route_subscription_event(&mut state, &subscription, |_event| {
+        emitted += 1;
+        Ok::<(), ()>(())
+    });
+
+    assert_eq!(first, Ok(ParentRouteSubscriptionDelivery::Emitted));
+    assert_eq!(repeated, Ok(ParentRouteSubscriptionDelivery::Suppressed));
+    assert_eq!(emitted, 1);
 }
 
 fn assert_parent_platform_proof_state_shell_identity(state: &Value) {

@@ -136,11 +136,16 @@ pub(crate) fn browser_add_device_read_model(
     command: &AgentCommandEnvelope,
     discovery_state: &LanPairingText,
 ) -> LanBrowserAddDeviceReadModel {
-    let generated_at: LanPairingText = timestamp_now::<String>().into();
+    let scan_result = network_device_scan_result_for_command(runtime, command);
+    let generated_at = scan_result
+        .current_scan_snapshot
+        .as_ref()
+        .or(scan_result.previous_scan_snapshot.as_ref())
+        .map(|snapshot| LanPairingText(snapshot.updated_at.clone()))
+        .unwrap_or_else(|| timestamp_now::<String>().into());
     let selected = runtime.selected_target();
     let trusted_device_registry = trusted_device_registry(runtime);
     let household_device_decisions = household_device_decisions(runtime);
-    let scan_result = network_device_scan_result_for_command(runtime, command);
     let platform_data_available = platform_data_available_for_scan_result(&scan_result);
     let network_devices = scan_result.devices.clone();
     let has_network_devices = !network_devices.is_empty();

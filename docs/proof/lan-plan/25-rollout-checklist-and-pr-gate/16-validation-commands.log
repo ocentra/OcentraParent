@@ -156,3 +156,72 @@ GREEN npm run precommit (seven exact repair and proof files staged)
 NON-CLAIM physical multi-device, router/firewall, signed-artifact, restart,
 manual topology, and real backend-to-Tauri-emitter-to-portal-listener evidence
 remain open. WP25 remains partial/manual.
+
+Stable-finding repair gates (2026-07-19):
+
+GREEN cargo test -p ocentra-parent-agent-service lan_pairing_browser_add_device_state_physical_lan_scan_tests -- --nocapture
+  16 passed; 0 failed; 65 filtered out.
+  Recent and stale cached scan context now produce byte-equivalent canonical
+  status and runtime-stream history metadata without a second wall-clock ID.
+
+GREEN cargo test -p ocentra-parent-agent-service --test lan_runtime lan_runtime_stream -- --nocapture
+  3 passed; 0 failed; 78 filtered out.
+  Covers serialized replay rows, persisted-cache restart behavior without
+  fabricated deltas, and exact status/stream history binding.
+
+GREEN cargo test -p ocentra-parent-runtime-core --test integration parent_ui_bridge::lan_replay_tests -- --nocapture
+  17 passed; 0 failed; 29 filtered out.
+  Covers exact status/replay metadata binding, mutation rejection, safe unique
+  warning identity, RFC3339 timestamps, envelope ceilings, first-predecessor
+  validation, and canonical history-state precedence.
+
+GREEN cargo test -p ocentra-parent-runtime-core --test integration parent_subscription_event_ -- --nocapture
+  22 passed; 0 failed; 24 filtered out.
+  Adjacent host-bridge serialization and dedupe assertions now preserve the
+  same safe-warning identity and timestamp contract.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit -- --nocapture
+  6 passed; 0 failed.
+  The desktop delivery seam emits a safe rejected-replay warning once. This is
+  still not real Tauri AppHandle-to-portal listener evidence.
+
+GREEN npm run test --workspace @ocentra-parent/portal -- --run tests/portal/portal-state-target.test.ts
+  37 files passed; 149 tests passed.
+  Covers snapshot-bound LAN replay with a later live status event, deterministic
+  newest-128 history retention, idempotent repeated delivery, and one buffered
+  safe warning while status history is nonempty.
+
+GREEN npm run lint:exec --workspace @ocentra-parent/portal
+  Portal ESLint and no-emit TypeScript compilation passed.
+
+GREEN cargo check --locked -p ocentra-parent-agent-service -p ocentra-parent-runtime-core
+GREEN cargo check --locked --manifest-path apps/parent-desktop/src-tauri/Cargo.toml
+  Agent service, parent runtime, and standalone desktop compile checks passed.
+
+GREEN cargo clippy -p ocentra-parent-agent-service -p ocentra-parent-runtime-core --all-targets -- -D warnings
+GREEN cargo clippy --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all-targets -- -D warnings
+  Workspace packages and standalone desktop clippy passed with warnings denied.
+
+GREEN cargo fmt --all -- --check
+GREEN cargo fmt --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all -- --check
+  Root workspace and standalone desktop formatting passed.
+
+GREEN npm run lint:architecture -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:source-shape -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:required-tests -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:no-test-doubles -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:reexports -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:validation-bypass -- --files <18 exact repair code and test files>
+  Architecture policy and all five exact-file Enforcer guards passed.
+
+GREEN npm run precommit (24 exact stable-finding implementation, test, and proof files staged)
+  Fast pre-commit passed Prettier, generated artifacts, architecture and
+  Enforcer guards, portal build/type-check with 149 tests, standalone desktop
+  build/check/tests, agent-service tests and doc tests, 46 parent-runtime
+  integration tests, 24 parent-runtime unit tests, doc tests, and Rust format.
+  Existing non-blocking tracking-panel React key, portal bundle-size, and
+  desktop PDB output-collision warnings remain outside this repair slice.
+
+NON-CLAIM real process restart, physical multi-device, router/firewall,
+signed-artifact, manual topology, and real backend-to-Tauri-AppHandle-to-portal
+listener evidence remain open. WP25 remains partial/manual.

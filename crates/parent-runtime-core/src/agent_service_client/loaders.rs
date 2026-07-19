@@ -24,9 +24,9 @@ use super::types::{
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
     AppGameTimerParentSurfaceAgentServiceSnapshot, LanAgentServiceSnapshot,
-    NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
-    PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
-    TrackingReadModelAgentServiceSnapshot,
+    LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
+    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
+    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
 use super::*;
 
@@ -59,7 +59,7 @@ pub(crate) fn request_lan_browser_discovery_scan(
 }
 
 pub(crate) fn load_lan_runtime_event_chain_replay_events(
-) -> AgentServiceResult<Vec<ParentRouteEventSnapshot>> {
+) -> AgentServiceResult<LanRuntimeReplaySnapshot> {
     send_agent_command(
         AgentCommandName::AgentLanRuntimeEventChainStreamGet,
         LogFields::new(),

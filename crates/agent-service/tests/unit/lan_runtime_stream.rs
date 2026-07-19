@@ -27,7 +27,7 @@ use crate::{
         },
         websocket::handle_command_text_for_test,
     },
-    test_invariants::{require_ok, serialize_test_json},
+    test_invariants::{require_ok, require_some, serialize_test_json},
     test_text::TestText,
 };
 
@@ -71,7 +71,8 @@ fn lan_runtime_stream_payload_serializes_replayable_discovery_event_rows() {
 }
 
 #[tokio::test]
-async fn websocket_lan_runtime_stream_command_reports_service_backed_stream() {
+async fn websocket_lan_runtime_stream_command_does_not_fabricate_scan_delta_events_from_persisted_cache(
+) {
     let temp_dir = std::env::temp_dir().join(format!(
         "lan-runtime-stream-{}",
         SystemTime::now()
@@ -115,8 +116,101 @@ async fn websocket_lan_runtime_stream_command_reports_service_backed_stream() {
     );
     assert!(entries.iter().any(|entry| {
         entry[constants::field::PAYLOAD]["affectedDeviceId"]
-            == serde_json::json!("persisted-lan-device")
+            == serde_json::json!("lan-physical-mac-001122334455-persistedlandevice")
     }));
+    assert!(entries.iter().all(|entry| {
+        !matches!(
+            entry[constants::field::EVENT_TYPE].as_str(),
+            Some(
+                "scan-started"
+                    | "scan-finished"
+                    | "device-found"
+                    | "device-updated"
+                    | "device-online"
+                    | "device-offline"
+            )
+        )
+    }));
+}
+
+#[tokio::test]
+async fn persisted_cached_status_and_stream_report_identical_history_binding() {
+    let temp_dir = std::env::temp_dir().join(format!(
+        "lan-runtime-status-stream-parity-{}",
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_nanos()
+    ));
+    require_ok(
+        fs::create_dir_all(&temp_dir),
+        "temporary LAN status-stream parity directory is created",
+    );
+    let registry_path = temp_dir.join("registry.json");
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    crate::lan_pairing_browser_add_device_state::scan_history::save_scan_history(
+        &runtime,
+        &[persisted_network_device()],
+        None,
+    );
+    let restarted_runtime = LanPairingRuntime::persistent_json(&registry_path);
+    let status_body = TestText::from_display(serialize_test_json(&status_command_envelope()));
+    let status_event =
+        handle_command_text_for_test(status_body, restarted_runtime.clone(), None).await;
+    let stream_body = TestText::from_display(serialize_test_json(&command_envelope()));
+    let stream_event = handle_command_text_for_test(stream_body, restarted_runtime, None).await;
+    let status_read_model = require_some(
+        match status_event
+            .payload
+            .get(constants::field::LAN_ADD_DEVICE_READ_MODEL)
+        {
+            Some(LogFieldValue::String(read_model)) => Some(read_model.as_str()),
+            _ => None,
+        },
+        "status event includes the LAN add-device read model",
+    );
+    let status_history = require_ok(
+        serde_json::from_str::<
+            ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
+        >(status_read_model),
+        "status LAN read model parses",
+    )
+    .discovery_event_history;
+    let stream_entries = stream_entries(&stream_event.payload);
+    let status_rows = status_history
+        .rows
+        .iter()
+        .map(|row| require_ok(serde_json::to_value(row), "status history row serializes"))
+        .collect::<Vec<_>>();
+    let streamed_rows = stream_entries
+        .iter()
+        .map(|entry| entry[constants::field::PAYLOAD].clone())
+        .collect::<Vec<_>>();
+    require_ok(
+        fs::remove_dir_all(&temp_dir),
+        "temporary LAN status-stream parity directory is removed",
+    );
+
+    assert_eq!(streamed_rows, status_rows);
+    assert_eq!(
+        payload_string(&stream_event.payload, constants::field::LATEST_EVENT_ID),
+        status_history.latest_event_id.as_deref()
+    );
+    assert_eq!(
+        payload_string(&stream_event.payload, constants::field::LATEST_OBSERVED_AT),
+        status_history.latest_observed_at.as_deref()
+    );
+    assert_eq!(
+        payload_string(
+            &stream_event.payload,
+            constants::field::LAN_RUNTIME_EVENT_HISTORY_STATE
+        ),
+        require_ok(
+            serde_json::to_value(&status_history.state),
+            "status history state serializes"
+        )
+        .as_str()
+    );
 }
 
 fn discovery_event_history() -> LanDiscoveryEventHistory {
@@ -179,6 +273,17 @@ fn command_envelope() -> AgentCommandEnvelope {
     }
 }
 
+fn status_command_envelope() -> AgentCommandEnvelope {
+    AgentCommandEnvelope {
+        command: AgentCommandName::AgentLanPairingStatusGet,
+        target: AgentMessageTarget {
+            route: AgentRoute::Localhost,
+            ..command_envelope().target
+        },
+        ..command_envelope()
+    }
+}
+
 fn persisted_network_device() -> LanNetworkInventoryDevice {
     LanNetworkInventoryDevice {
         device_id: "persisted-lan-device".to_string(),
@@ -201,5 +306,12 @@ fn stream_entries(payload: &LogFields) -> Vec<Value> {
     match payload.get(constants::field::LAN_RUNTIME_EVENT_CHAIN_STREAM) {
         Some(LogFieldValue::String(text)) => serde_json::from_str(text).unwrap_or_default(),
         _ => Vec::new(),
+    }
+}
+
+fn payload_string<'a>(payload: &'a LogFields, field: &str) -> Option<&'a str> {
+    match payload.get(field) {
+        Some(LogFieldValue::String(value)) => Some(value.as_str()),
+        _ => None,
     }
 }

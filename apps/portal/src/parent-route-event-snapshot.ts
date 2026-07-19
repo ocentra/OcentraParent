@@ -1,9 +1,17 @@
 import {
   ParentHostBridgeRuntime,
+  type ParentLanDiscoveryEventRowSnapshot,
   type ParentRouteEventName,
   type ParentRouteEventSnapshot,
   type ParentRouteSnapshot,
 } from '../generated/parent-ui-bridge';
+
+export interface LanReplayPayloadCandidate {
+  readonly eventId?: unknown;
+  readonly eventKind?: unknown;
+  readonly occurredAt?: unknown;
+  readonly previousEventId?: unknown;
+}
 
 export function latestParentRouteEventSnapshot(
   events: readonly ParentRouteEventSnapshot[],
@@ -26,7 +34,7 @@ export function hasRequiredSnapshotEventIdentity(snapshot: ParentRouteEventSnaps
 }
 
 export function parentRouteSnapshotTimestampMs(snapshot: ParentRouteSnapshot | null | undefined): number | null {
-  return timestampMs(snapshot?.generatedAt) ?? timestampMs(snapshot?.lastUpdated);
+  return parentRouteTimestampMs(snapshot?.generatedAt) ?? parentRouteTimestampMs(snapshot?.lastUpdated);
 }
 
 export function latestParentRouteEventTimestampMs(events: readonly ParentRouteEventSnapshot[]): number | null {
@@ -35,7 +43,7 @@ export function latestParentRouteEventTimestampMs(events: readonly ParentRouteEv
     if (!hasRequiredSnapshotEventIdentity(event)) {
       continue;
     }
-    const eventTimestamp = timestampMs(event.sentAt);
+    const eventTimestamp = parentRouteTimestampMs(event.sentAt);
     if (eventTimestamp === null) {
       continue;
     }
@@ -44,7 +52,7 @@ export function latestParentRouteEventTimestampMs(events: readonly ParentRouteEv
   return latestTimestamp;
 }
 
-function timestampMs(value: unknown): number | null {
+export function parentRouteTimestampMs(value: unknown): number | null {
   if (typeof value !== ParentHostBridgeRuntime.StringType) {
     return null;
   }
@@ -54,6 +62,37 @@ function timestampMs(value: unknown): number | null {
   }
   const parsed = Date.parse(timestamp);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function isLanReplaySnapshot(
+  snapshot: ParentRouteEventSnapshot,
+  historyRows: readonly ParentLanDiscoveryEventRowSnapshot[]
+): boolean {
+  if (lanReplayPayloadCandidate(snapshot.payload) !== null) {
+    return true;
+  }
+  return historyRows.some((row) => row.eventId === snapshot.eventId);
+}
+
+export function lanReplayPayloadCandidate(value: unknown): LanReplayPayloadCandidate | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+  const candidate = value as LanReplayPayloadCandidate;
+  const hasNoReplayFields = [
+    candidate.eventId,
+    candidate.eventKind,
+    candidate.occurredAt,
+    candidate.previousEventId,
+  ].every((field) => field === undefined);
+  return hasNoReplayFields ? null : candidate;
+}
+
+function isRecord(value: unknown): value is Readonly<Record<PropertyKey, unknown>> {
+  if (value === null || Array.isArray(value)) {
+    return false;
+  }
+  return Object(value) === value;
 }
 
 function hasValue(value: unknown): boolean {

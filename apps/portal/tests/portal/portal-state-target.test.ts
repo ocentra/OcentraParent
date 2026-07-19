@@ -6,6 +6,7 @@ import {
   beginParentRouteLoad,
   createPortalRuntimeState,
 } from '../../src/portal-state';
+import type { ParentRouteEventSnapshot, ParentRouteSnapshot } from '../../generated/parent-ui-bridge';
 
 const currentSubscribedDevicesRouteSnapshot = {
   schemaVersion: 1,
@@ -92,6 +93,70 @@ const staleSubscribedDevicesRouteEvent = {
   payload: { route: 'devices', freshness: 'stale' },
   snapshot: null,
 } as const;
+
+function replayEvent(
+  eventId: string,
+  event: string,
+  sentAt: string,
+  previousEventId: string | null
+): ParentRouteEventSnapshot {
+  return {
+    event,
+    eventId,
+    correlationId: 'lan-scan-1',
+    sentAt,
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    severity: 'info',
+    payload: {
+      schemaVersion: 1,
+      eventId,
+      eventKind: event,
+      occurredAt: sentAt,
+      previousEventId,
+      scanSessionId: 'lan-scan-1',
+      affectedDeviceId: event === 'device-found' ? 'network-neighbor-1' : null,
+      evidenceId: event === 'device-found' ? 'evidence-1' : null,
+      summary: `LAN replay ${event}`,
+    },
+    snapshot: null,
+  };
+}
+
+function devicesSnapshotWithReplayHistory(
+  replayRows: readonly ParentRouteEventSnapshot[],
+  historyOverrides: Readonly<Record<string, unknown>> = {}
+): ParentRouteSnapshot {
+  const latest = replayRows.at(-1);
+  return {
+    ...currentSubscribedDevicesRouteSnapshot,
+    liveActivity: {
+      lanAddDeviceReadModel: {
+        discoveryEventHistory: {
+          schemaVersion: 1,
+          generatedAt: currentSubscribedDevicesRouteSnapshot.generatedAt,
+          state: replayRows.length === 0 ? 'empty' : 'ready',
+          latestEventId: latest?.eventId ?? null,
+          latestObservedAt: latest?.sentAt ?? null,
+          rows: replayRows.map((row) => ({
+            schemaVersion: 1,
+            eventId: row.eventId,
+            eventKind: row.event,
+            occurredAt: row.sentAt,
+            previousEventId: row.payload?.['previousEventId'] ?? null,
+            scanSessionId: row.payload?.['scanSessionId'] ?? null,
+            affectedDeviceId: row.payload?.['affectedDeviceId'] ?? null,
+            evidenceId: row.payload?.['evidenceId'] ?? null,
+            summary: row.payload?.['summary'] ?? '',
+          })),
+          ...historyOverrides,
+        },
+      },
+    },
+  } as unknown as ParentRouteSnapshot;
+}
 
 it('createPortalRuntimeState: starts disconnected until the host bridge supplies a snapshot', () => {
   const state = createPortalRuntimeState();
@@ -350,64 +415,22 @@ it('applyParentSubscriptionEvent: applies subscribed route events before the lat
 
 it('applyParentSubscriptionEvent: buffers Rust-replayed LAN stream rows newest first', () => {
   const state = createPortalRuntimeState();
+  const replayRows = [
+    replayEvent('lan-history-1', 'scan-started', '2026-06-28T17:00:01Z', null),
+    replayEvent('lan-history-2', 'device-found', '2026-06-28T17:00:02Z', 'lan-history-1'),
+  ];
+  const snapshot = devicesSnapshotWithReplayHistory(replayRows);
 
   applyParentSubscriptionEvent(state, {
     schemaVersion: 1,
     route: 'devices',
-    snapshot: currentSubscribedDevicesRouteSnapshot,
-    events: [
-      {
-        event: 'scan-started',
-        eventId: 'lan-history-1',
-        correlationId: 'lan-scan-1',
-        sentAt: '2026-06-28T17:00:01Z',
-        sourcePeerId: 'local-dev-agent',
-        sourceRole: 'agent-service',
-        targetPeerId: 'portal-dev',
-        targetRole: 'portal',
-        severity: 'info',
-        payload: {
-          schemaVersion: 1,
-          eventId: 'lan-history-1',
-          eventKind: 'scan-started',
-          occurredAt: '2026-06-28T17:00:01Z',
-          previousEventId: null,
-          scanSessionId: 'lan-scan-1',
-          affectedDeviceId: null,
-          evidenceId: null,
-          summary: 'LAN discovery scan started',
-        },
-        snapshot: null,
-      },
-      {
-        event: 'device-found',
-        eventId: 'lan-history-2',
-        correlationId: 'lan-scan-1',
-        sentAt: '2026-06-28T17:00:02Z',
-        sourcePeerId: 'local-dev-agent',
-        sourceRole: 'agent-service',
-        targetPeerId: 'portal-dev',
-        targetRole: 'portal',
-        severity: 'info',
-        payload: {
-          schemaVersion: 1,
-          eventId: 'lan-history-2',
-          eventKind: 'device-found',
-          occurredAt: '2026-06-28T17:00:02Z',
-          previousEventId: 'lan-history-1',
-          scanSessionId: 'lan-scan-1',
-          affectedDeviceId: 'network-neighbor-1',
-          evidenceId: 'evidence-1',
-          summary: 'Study Laptop was found on the local network',
-        },
-        snapshot: null,
-      },
-    ],
+    snapshot,
+    events: replayRows,
   });
 
   expect(state.events.map((event) => event.eventId)).toEqual(['lan-history-2', 'lan-history-1']);
   expect(state.events[0]?.payload?.['previousEventId']).toBe('lan-history-1');
-  expect(state.routeSnapshot).toBe(currentSubscribedDevicesRouteSnapshot);
+  expect(state.routeSnapshot).toBe(snapshot);
 });
 
 it('applyParentSubscriptionEvent: rejects stale subscribed batches instead of regressing the current Rust route view', () => {
@@ -434,17 +457,132 @@ it('applyParentSubscriptionEvent: rejects stale subscribed batches instead of re
   expect(state.events[0]?.eventId).toBe('evt-lan-status-newer');
 });
 
-it('applyParentSubscriptionEvent: does not apply replay rows newer than their status snapshot', () => {
+it('applyParentSubscriptionEvent: binds replay rows while accepting a realistic later status event', () => {
   const state = createPortalRuntimeState();
+  const replayRows = [
+    replayEvent('lan-history-1', 'scan-started', '2026-06-28T17:00:01Z', null),
+    replayEvent('lan-history-2', 'device-found', '2026-06-28T17:00:02Z', 'lan-history-1'),
+  ];
   applyParentSubscriptionEvent(state, {
     schemaVersion: 1,
     route: 'devices',
-    snapshot: currentSubscribedDevicesRouteSnapshot,
+    snapshot: devicesSnapshotWithReplayHistory(replayRows),
     events: [
-      { ...currentSubscribedDevicesRouteEvent, eventId: 'replay-after-snapshot', sentAt: '2026-06-28T17:00:11Z' },
+      ...replayRows,
+      { ...currentSubscribedDevicesRouteEvent, eventId: 'status-after-snapshot', sentAt: '2026-06-28T17:00:11Z' },
     ],
   });
-  expect(state.events).toEqual([]);
+
+  expect(state.events.map((event) => event.eventId)).toEqual([
+    'status-after-snapshot',
+    'lan-history-2',
+    'lan-history-1',
+  ]);
+});
+
+it('applyParentSubscriptionEvent: fails closed for missing, invalid, or mismatched replay metadata', () => {
+  const validReplay = replayEvent('lan-history-1', 'scan-started', '2026-06-28T17:00:01Z', null);
+  const replayWithoutTimestamp = {
+    event: 'scan-started',
+    eventId: 'lan-history-1',
+    correlationId: 'lan-scan-1',
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    severity: 'info',
+    payload: validReplay.payload ?? null,
+    snapshot: null,
+  } satisfies ParentRouteEventSnapshot;
+  const validSnapshot = devicesSnapshotWithReplayHistory([validReplay]);
+  const invalidBatches: ReadonlyArray<{
+    snapshot: ParentRouteSnapshot;
+    events: readonly ParentRouteEventSnapshot[];
+  }> = [
+    {
+      snapshot: validSnapshot,
+      events: [replayWithoutTimestamp],
+    },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, sentAt: 'not-rfc3339' }],
+    },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, payload: null }],
+    },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, payload: { ...validReplay.payload, occurredAt: '2026-06-28T17:00:00Z' } }],
+    },
+    {
+      snapshot: devicesSnapshotWithReplayHistory([validReplay], { latestEventId: 'different-history-row' }),
+      events: [validReplay],
+    },
+  ];
+
+  for (const invalid of invalidBatches) {
+    const state = createPortalRuntimeState();
+    applyParentSubscriptionEvent(state, {
+      schemaVersion: 1,
+      route: 'devices',
+      snapshot: invalid.snapshot,
+      events: invalid.events,
+    });
+    expect(state.events).toEqual([]);
+  }
+});
+
+it('applyParentRouteEvents: replaying a 129-row full history preserves the identical newest 128 rows', () => {
+  const state = createPortalRuntimeState();
+  const history = Array.from(
+    { length: 129 },
+    (_, index): ParentRouteEventSnapshot => ({
+      ...currentSubscribedDevicesRouteEvent,
+      eventId: `full-history-${index.toString().padStart(3, '0')}`,
+      correlationId: `full-history-correlation-${index.toString().padStart(3, '0')}`,
+      sentAt: new Date(Date.UTC(2026, 5, 28, 17, 0, index)).toISOString(),
+    })
+  );
+  const expectedNewest = history
+    .slice(-128)
+    .reverse()
+    .map((event) => event.eventId);
+
+  applyParentRouteEvents(state, history);
+  expect(state.events.map((event) => event.eventId)).toEqual(expectedNewest);
+  applyParentRouteEvents(state, history);
+  expect(state.events.map((event) => event.eventId)).toEqual(expectedNewest);
+});
+
+it('applyParentSubscriptionEvent: buffers one safe host replay warning exactly once', () => {
+  const state = createPortalRuntimeState();
+  const statusHistory = [replayEvent('lan-history-1', 'scan-started', '2026-06-28T17:00:01Z', null)];
+  const warning: ParentRouteEventSnapshot = {
+    event: 'lan-runtime-event-chain-replay-rejected',
+    eventId: 'lan-runtime-event-chain-replay-rejected-host-1',
+    correlationId: null,
+    sentAt: '2026-06-28T17:00:09Z',
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    severity: 'warn',
+    payload: null,
+    snapshot: null,
+  };
+  const subscription = {
+    schemaVersion: 1,
+    route: 'devices',
+    snapshot: devicesSnapshotWithReplayHistory(statusHistory),
+    events: [warning],
+  } as const;
+
+  applyParentSubscriptionEvent(state, subscription);
+  applyParentSubscriptionEvent(state, subscription);
+
+  expect(state.events).toHaveLength(1);
+  expect(state.events[0]).toBe(warning);
 });
 
 it('applyParentSubscriptionEvent: rejects a snapshot whose route disagrees with the subscription event', () => {

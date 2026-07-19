@@ -2,7 +2,9 @@ use std::collections::HashSet;
 
 use chrono::{DateTime, FixedOffset};
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEventRow;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
+    LanDiscoveryEventHistoryState, LanDiscoveryEventRow,
+};
 use ocentra_parent_agent_protocol::transport::{AgentCommandName, AgentEventEnvelope};
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteEventCorrelationId, ParentRouteEventId, ParentRouteEventSnapshot,
@@ -17,6 +19,7 @@ use super::snapshots_lan_replay_validation::{
     canonical_text, parse_rfc3339_timestamp, validate_optional_text, validate_report_metadata,
     LAN_REPLAY_CONTEXT,
 };
+use super::types::LanRuntimeReplaySnapshot;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -30,7 +33,7 @@ pub(super) fn lan_runtime_replay_events_from_payload(
     response_event: &AgentEventEnvelope,
     command: &AgentCommandName,
     command_message_id: &str,
-) -> Result<Vec<ParentRouteEventSnapshot>, String> {
+) -> Result<LanRuntimeReplaySnapshot, String> {
     let identity = validate_replay_envelope(response_event, command, command_message_id)?;
     let payload = &response_event.payload;
     let stream_json = payload
@@ -64,7 +67,30 @@ pub(super) fn lan_runtime_replay_events_from_payload(
             .last()
             .map(|entry| entry.payload.occurred_at.as_str()),
     )?;
-    Ok(events)
+    let history_state_label = payload
+        .get(constants::field::LAN_RUNTIME_EVENT_HISTORY_STATE)
+        .and_then(log_field_string)
+        .ok_or_else(|| {
+            format!(
+                "{LAN_REPLAY_CONTEXT} missing {}",
+                constants::field::LAN_RUNTIME_EVENT_HISTORY_STATE
+            )
+        })?;
+    let history_state = serde_json::from_value::<LanDiscoveryEventHistoryState>(
+        serde_json::Value::String(history_state_label.to_string()),
+    )
+    .map_err(|error| format!("{LAN_REPLAY_CONTEXT} history state parse failed: {error}"))?;
+    let latest_event_id = entries.last().map(|entry| entry.payload.event_id.clone());
+    let latest_observed_at = entries
+        .last()
+        .map(|entry| entry.payload.occurred_at.clone());
+
+    Ok(LanRuntimeReplaySnapshot {
+        events,
+        history_state,
+        latest_event_id,
+        latest_observed_at,
+    })
 }
 
 fn entries_to_route_events(

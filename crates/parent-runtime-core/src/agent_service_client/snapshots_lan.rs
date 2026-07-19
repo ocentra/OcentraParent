@@ -1,4 +1,5 @@
 use super::snapshots_lan_replay::lan_runtime_replay_events_from_payload;
+use super::types::LanRuntimeReplaySnapshot;
 use super::*;
 
 pub(super) fn lan_snapshot_from_result(
@@ -39,7 +40,7 @@ pub(super) fn lan_snapshot_from_result(
 
 pub(super) fn lan_runtime_replay_events_from_result(
     result: AgentServiceCommandResult,
-) -> Result<Vec<ParentRouteEventSnapshot>, String> {
+) -> Result<LanRuntimeReplaySnapshot, String> {
     let AgentServiceCommandResult {
         events: _,
         command,

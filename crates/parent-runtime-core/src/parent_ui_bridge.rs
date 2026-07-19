@@ -9,15 +9,18 @@ mod route_snapshot;
 mod snapshot_overlay;
 
 use std::collections::HashSet;
+use std::sync::atomic::{AtomicU64, Ordering};
 
+use chrono::{SecondsFormat, Utc};
 use ocentra_parent_agent_protocol::{
     constants,
     transport::{AgentCommandName, AgentEventName},
 };
 use ocentra_schema::parent_ui_bridge::{
-    ParentPortalParentAccessState, ParentRouteContext, ParentRouteEventSnapshot, ParentRouteId,
-    ParentRoutePeerId, ParentRoutePeerRole, ParentRouteSnapshot, ParentSubscriptionEvent,
-    ParentUiAction, ParentUiActionKind, ParentUiActionResult,
+    ParentPortalParentAccessState, ParentRouteContext, ParentRouteEventId,
+    ParentRouteEventSnapshot, ParentRouteId, ParentRoutePeerId, ParentRoutePeerRole,
+    ParentRouteSnapshot, ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind,
+    ParentUiActionResult,
 };
 use serde_json::Value;
 
@@ -29,9 +32,10 @@ use crate::agent_service_client::types::{
     AppGameChildRuntimeTransportReceiptAgentServiceSnapshot,
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
-    AppGameTimerParentSurfaceAgentServiceSnapshot, NetworkFlowAgentServiceSnapshot,
-    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
-    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
+    AppGameTimerParentSurfaceAgentServiceSnapshot, LanRuntimeReplaySnapshot,
+    NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
+    PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
+    TrackingReadModelAgentServiceSnapshot,
 };
 use crate::agent_service_client::{
     dispatch_agent_command, dispatch_known_agent_command, load_activity_screen_read_model_snapshot,
@@ -64,6 +68,7 @@ const EMPTY_TIMESTAMP: &str = "";
 const HOST_BRIDGE_URL: &str = "host-bridge://tauri-parent";
 const LAN_REPLAY_REJECTION_EVENT: &str = "lan-runtime-event-chain-replay-rejected";
 const LAN_REPLAY_REJECTION_SEVERITY: &str = "warn";
+static LAN_REPLAY_REJECTION_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Default)]
 struct ParentRouteSnapshotOverlay {
@@ -112,7 +117,10 @@ pub fn load_parent_subscription_event(
     let lan_route_query = lan_route_query_for_load(&route, context);
     let (mut events, replay_rejected) = if matches!(&lan_route_query, LanRouteQuery::Available(_)) {
         match load_lan_runtime_event_chain_replay_events() {
-            Ok(events) => (events, false),
+            Ok(replay) if lan_replay_is_bound_to_status(&replay, &lan_route_query) => {
+                (replay.events, false)
+            }
+            Ok(_unbound_replay) => (Vec::new(), true),
             Err(_redacted_error) => (Vec::new(), true),
         }
     } else {
@@ -133,11 +141,17 @@ pub fn load_parent_subscription_event(
 }
 
 fn lan_replay_rejection_diagnostic() -> ParentRouteEventSnapshot {
+    let now = Utc::now();
+    let sequence = LAN_REPLAY_REJECTION_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+    let event_id = format!(
+        "{LAN_REPLAY_REJECTION_EVENT}-{}-{sequence}",
+        now.timestamp_micros()
+    );
     ParentRouteEventSnapshot {
         event: Some(LAN_REPLAY_REJECTION_EVENT.to_string()),
-        event_id: None,
+        event_id: ParentRouteEventId::parse(event_id),
         correlation_id: None,
-        sent_at: None,
+        sent_at: Some(now.to_rfc3339_opts(SecondsFormat::Millis, true)),
         source_peer_id: ParentRoutePeerId::parse(constants::peer::LOCAL_DEV_AGENT.to_string()),
         source_role: Some(ParentRoutePeerRole::AgentService),
         target_peer_id: ParentRoutePeerId::parse(constants::peer::PORTAL_DEV.to_string()),
@@ -147,6 +161,22 @@ fn lan_replay_rejection_diagnostic() -> ParentRouteEventSnapshot {
         snapshot: None,
         command_result_projection: None,
     }
+}
+
+fn lan_replay_is_bound_to_status(
+    replay: &LanRuntimeReplaySnapshot,
+    lan_route_query: &LanRouteQuery,
+) -> bool {
+    let Some(status_history) = lan_route_query
+        .read_model()
+        .map(|read_model| &read_model.discovery_event_history)
+    else {
+        return false;
+    };
+
+    replay.history_state == status_history.state
+        && replay.latest_event_id == status_history.latest_event_id
+        && replay.latest_observed_at == status_history.latest_observed_at
 }
 
 pub fn dispatch_parent_ui_action(action: &ParentUiAction) -> ParentUiActionResult {

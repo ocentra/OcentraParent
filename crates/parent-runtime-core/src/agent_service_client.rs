@@ -70,7 +70,7 @@ pub(crate) fn request_lan_browser_discovery_scan(
 }
 
 pub(crate) fn load_lan_runtime_event_chain_replay_events(
-) -> AgentServiceResult<Vec<ParentRouteEventSnapshot>> {
+) -> AgentServiceResult<types::LanRuntimeReplaySnapshot> {
     loaders::load_lan_runtime_event_chain_replay_events()
 }
 

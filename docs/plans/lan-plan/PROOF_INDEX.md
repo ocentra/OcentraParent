@@ -456,15 +456,15 @@ These two WP25 artifacts are tracked source-of-record proof documents. Generated
 or rerun output remains local or CI-owned and must not be committed under
 `output/`.
 
-This proof root now proves the active rollout-gate truth through 2026-07-18,
-including Rust-owned backend replay validation and bridge projection, the Tauri
-host decision for unseen event IDs with a stable snapshot, redacted rejection
-milestones, fail-closed duplicate/stale/malformed/state-count handling,
-preserved offline/manual-required state, and the focused validation commands
-recorded in the log. It does not prove a real backend-to-Tauri-emitter-to-portal
-listener chain and does not claim PR-ready or broad DONE while physical
-multi-device, router/firewall, signed-artifact, restart, and manual topology
-artifacts remain open.
+This proof root now proves the active rollout-gate truth through 2026-07-19,
+including Rust-owned replay validation and status-history state/latest binding,
+safe host-owned rejection warnings, recent/stale persisted-cache parity, the
+Tauri host decision for unseen event IDs with a stable snapshot, and isolated
+portal-state replay binding plus stable newest-128 buffering. These are separate
+automated seams. The root does not prove a real backend-to-Tauri-`AppHandle`-to-
+portal-listener chain or manual runtime behavior and does not claim PR-ready or
+broad DONE while physical multi-device, router/firewall, signed-artifact,
+restart, and manual topology artifacts remain open.
 
 If a proof script emits `test-results/.../proof.json`, the workpack proof pack must reference that file and must not imply the artifact exists until it has been regenerated on this branch/worktree.
 

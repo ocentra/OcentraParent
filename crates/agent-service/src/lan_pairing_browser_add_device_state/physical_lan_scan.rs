@@ -119,7 +119,7 @@ fn cached_scan_result_for_command(
         .or_else(|| cached_runtime_event_stream_scan_result(command, previous_scan_snapshot, now))
 }
 
-fn cached_runtime_event_stream_scan_result(
+pub(crate) fn cached_runtime_event_stream_scan_result(
     command: &AgentCommandEnvelope,
     previous_scan_snapshot: Option<LanScanHistorySnapshot>,
     now: DateTime<Utc>,
@@ -129,13 +129,10 @@ fn cached_runtime_event_stream_scan_result(
     {
         return None;
     }
-    let snapshot = previous_scan_snapshot?;
-    Some(LanNetworkDeviceScanResult {
-        devices: snapshot.devices.clone(),
-        previous_scan_snapshot: None,
-        current_scan_snapshot: Some(snapshot.clone()),
-        reused_recent_snapshot: scan_history_is_recent(&snapshot.updated_at.into(), now),
-    })
+    Some(cached_scan_result_from_snapshot(
+        previous_scan_snapshot,
+        now,
+    ))
 }
 
 pub(super) fn refresh_network_device_scan_history(
@@ -156,22 +153,32 @@ pub(crate) fn cached_localhost_status_scan_result(
         return None;
     }
 
+    Some(cached_scan_result_from_snapshot(
+        previous_scan_snapshot,
+        now,
+    ))
+}
+
+fn cached_scan_result_from_snapshot(
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+) -> LanNetworkDeviceScanResult {
     let Some(snapshot) = previous_scan_snapshot else {
-        return Some(LanNetworkDeviceScanResult::default());
+        return LanNetworkDeviceScanResult::default();
     };
     if !scan_history_is_recent(&LanPairingText(snapshot.updated_at.clone()), now) {
-        return Some(LanNetworkDeviceScanResult {
+        return LanNetworkDeviceScanResult {
             previous_scan_snapshot: Some(snapshot),
             ..LanNetworkDeviceScanResult::default()
-        });
+        };
     }
 
-    Some(LanNetworkDeviceScanResult {
+    LanNetworkDeviceScanResult {
         devices: snapshot.devices.clone(),
         previous_scan_snapshot: Some(snapshot.clone()),
         current_scan_snapshot: Some(snapshot),
         reused_recent_snapshot: true,
-    })
+    }
 }
 
 pub(crate) fn cached_status_snapshot_devices(
