@@ -1,11 +1,14 @@
-use std::fs::OpenOptions;
-use std::io::ErrorKind;
 use std::path::Path;
 use std::time::Duration;
 
 use rusqlite::{Connection, OpenFlags};
 
 use crate::parent_presence_store::ParentPresenceStoreError;
+use crate::parent_presence_store_file::{open_store_file_guard, StoreFileGuard};
+use crate::parent_presence_store_file_creation::publish_initialized_store_if_absent;
+use crate::parent_presence_store_schema_objects::{
+    validate_foreign_keys_enabled, validate_schema_objects,
+};
 use crate::parent_presence_store_sql_shape::{
     challenge_lifecycle_column_is_canonical, receipt_sequence_column_is_canonical,
 };
@@ -15,8 +18,6 @@ const RECEIPT_TABLE: &str = "parent_presence_receipts";
 const NONCE_IDENTITY_INDEX: &str = "parent_presence_nonce_identity";
 
 const INITIALIZE_PARENT_PRESENCE_STORE: &str = r#"
-PRAGMA journal_mode = WAL;
-PRAGMA synchronous = FULL;
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS parent_presence_challenges (
@@ -72,8 +73,37 @@ struct ForeignKeyShape {
     match_kind: String,
 }
 
-pub(crate) fn open_initialized_store(path: &Path) -> Result<(), ParentPresenceStoreError> {
-    let store_exists = reserve_store_path(path)?;
+pub(crate) fn open_initialized_store(
+    path: &Path,
+) -> Result<(Connection, StoreFileGuard), ParentPresenceStoreError> {
+    publish_initialized_store_if_absent(path, initialize_temporary_store)?;
+    let file_guard = open_store_file_guard(path)?;
+    let connection = open_connection(path)?;
+    file_guard.validate_path_identity(path)?;
+    validate_store_schema(&connection)?;
+    configure_runtime_durability(&connection)?;
+    file_guard.validate_path_identity(path)?;
+    Ok((connection, file_guard))
+}
+
+fn initialize_temporary_store(path: &Path) -> Result<(), ParentPresenceStoreError> {
+    let connection = open_connection(path)?;
+    connection
+        .execute_batch("PRAGMA journal_mode = DELETE; PRAGMA synchronous = FULL;")
+        .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
+    connection
+        .execute_batch(INITIALIZE_PARENT_PRESENCE_STORE)
+        .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
+    validate_store_schema(&connection)?;
+    connection
+        .execute_batch("PRAGMA optimize;")
+        .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
+    connection
+        .close()
+        .map_err(|(_connection, _error)| ParentPresenceStoreError::Unavailable)
+}
+
+fn open_connection(path: &Path) -> Result<Connection, ParentPresenceStoreError> {
     let connection = Connection::open_with_flags(
         path,
         OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NOFOLLOW,
@@ -85,40 +115,30 @@ pub(crate) fn open_initialized_store(path: &Path) -> Result<(), ParentPresenceSt
     connection
         .execute_batch("PRAGMA foreign_keys = ON;")
         .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
-    if store_exists {
-        validate_store_schema(&connection)?;
-    }
-    connection
-        .execute_batch(INITIALIZE_PARENT_PRESENCE_STORE)
-        .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
-    validate_store_schema(&connection)
+    Ok(connection)
 }
 
-fn reserve_store_path(path: &Path) -> Result<bool, ParentPresenceStoreError> {
-    match OpenOptions::new().write(true).create_new(true).open(path) {
-        Ok(file) => {
-            drop(file);
-            Ok(false)
-        }
-        Err(error) if error.kind() == ErrorKind::AlreadyExists => Ok(true),
-        Err(_error) => Err(ParentPresenceStoreError::Unavailable),
-    }
+fn configure_runtime_durability(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
+    connection
+        .execute_batch("PRAGMA journal_mode = WAL; PRAGMA synchronous = FULL;")
+        .map_err(|_error| ParentPresenceStoreError::Unavailable)
 }
 
 pub(crate) fn validate_store_schema(
     connection: &Connection,
 ) -> Result<(), ParentPresenceStoreError> {
     validate_foreign_keys_enabled(connection)?;
+    validate_schema_objects(
+        connection,
+        &[
+            ("index", NONCE_IDENTITY_INDEX, CHALLENGE_TABLE),
+            ("table", CHALLENGE_TABLE, CHALLENGE_TABLE),
+            ("table", RECEIPT_TABLE, RECEIPT_TABLE),
+        ],
+    )?;
     validate_challenge_table(connection)?;
     validate_receipt_table(connection)?;
     validate_receipt_foreign_key(connection)
-}
-
-fn validate_foreign_keys_enabled(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
-    let enabled = connection
-        .query_row("PRAGMA foreign_keys", [], |row| row.get::<_, i64>(0))
-        .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
-    require(enabled == 1)
 }
 
 fn validate_challenge_table(connection: &Connection) -> Result<(), ParentPresenceStoreError> {

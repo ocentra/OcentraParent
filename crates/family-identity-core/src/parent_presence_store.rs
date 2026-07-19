@@ -1,11 +1,11 @@
 use std::path::PathBuf;
-use std::time::Duration;
 
-use rusqlite::{params, Connection, ErrorCode, OpenFlags, OptionalExtension, TransactionBehavior};
+use rusqlite::{params, Connection, ErrorCode, OptionalExtension, TransactionBehavior};
 
 use crate::parent_presence::{
     ParentPresenceChallenge, ParentPresenceReceiptRef, ParentPresenceVerificationFailureReason,
 };
+use crate::parent_presence_store_file::StoreFileGuard;
 use crate::parent_presence_store_integrity::verified_challenge;
 use crate::parent_presence_store_path::validate_caller_custody_path;
 use crate::parent_presence_store_receipt::generate_opaque_receipt_ref;
@@ -47,9 +47,9 @@ INSERT INTO parent_presence_receipts (challenge_ref, receipt_ref)
 VALUES (?1, ?2)
 "#;
 
-#[derive(Clone)]
 pub(crate) struct ParentPresenceStore {
-    path: PathBuf,
+    connection: Connection,
+    _file_guard: StoreFileGuard,
 }
 
 pub(crate) struct ConsumedParentPresenceChallenge {
@@ -86,13 +86,15 @@ impl ParentPresenceStore {
     pub(crate) fn open(path: impl Into<PathBuf>) -> Result<Self, ParentPresenceStoreError> {
         let path = path.into();
         validate_caller_custody_path(&path)?;
-        let store = Self { path };
-        open_initialized_store(&store.path)?;
-        Ok(store)
+        let (connection, file_guard) = open_initialized_store(&path)?;
+        Ok(Self {
+            connection,
+            _file_guard: file_guard,
+        })
     }
 
     pub(crate) fn issue_challenge(
-        &self,
+        &mut self,
         challenge: ParentPresenceChallenge,
     ) -> Result<(), ParentPresenceStoreIssueError> {
         let challenge_json = serde_json::to_string(&challenge).map_err(|_error| {
@@ -108,10 +110,8 @@ impl ParentPresenceStore {
             nonce_ref,
             ..
         } = challenge;
-        let mut connection = self
-            .connection()
-            .map_err(ParentPresenceStoreIssueError::Store)?;
-        let transaction = connection
+        let transaction = self
+            .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_error| {
                 ParentPresenceStoreIssueError::Store(ParentPresenceStoreError::Unavailable)
@@ -154,14 +154,14 @@ impl ParentPresenceStore {
     }
 
     pub(crate) fn consume_challenge(
-        &self,
+        &mut self,
         challenge_ref: &str,
         validate: impl FnOnce(
             &ParentPresenceChallenge,
         ) -> Option<ParentPresenceVerificationFailureReason>,
     ) -> Result<ConsumeChallengeResult, ParentPresenceStoreError> {
-        let mut connection = self.connection()?;
-        let transaction = connection
+        let transaction = self
+            .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
         let stored = transaction
@@ -217,27 +217,6 @@ impl ParentPresenceStore {
                 challenge,
             },
         )))
-    }
-
-    fn connection(&self) -> Result<Connection, ParentPresenceStoreError> {
-        self.connection_with_flags(
-            OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NOFOLLOW,
-        )
-    }
-
-    fn connection_with_flags(
-        &self,
-        flags: OpenFlags,
-    ) -> Result<Connection, ParentPresenceStoreError> {
-        let connection = Connection::open_with_flags(&self.path, flags)
-            .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
-        connection
-            .busy_timeout(Duration::from_secs(10))
-            .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
-        connection
-            .execute_batch("PRAGMA foreign_keys = ON;")
-            .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
-        Ok(connection)
     }
 }
 

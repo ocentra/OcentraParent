@@ -1,6 +1,6 @@
 use super::trust_bootstrap_store_schema::{
-    assert_store_rejected_without_byte_changes, create_existing_store, TestResult, TestStore,
-    VALID_CHALLENGE_STORE_SCHEMA, VALID_RECEIPT_STORE_SCHEMA,
+    assert_store_rejected_without_byte_changes, create_existing_store, execute_existing_store_sql,
+    TestResult, TestStore, VALID_CHALLENGE_STORE_SCHEMA, VALID_RECEIPT_STORE_SCHEMA,
 };
 
 fn mutate_once(schema: &str, original: &str, replacement: &str) -> String {
@@ -123,4 +123,59 @@ fn parent_presence_store_rejects_extra_receipt_integrity_index_without_writes() 
         ") STRICT;\n",
         ") STRICT;\nCREATE UNIQUE INDEX parent_presence_receipt_sequence_lookup\nON parent_presence_receipts(receipt_sequence);\n",
     )
+}
+
+#[test]
+fn parent_presence_store_rejects_executable_trigger_without_byte_changes() -> TestResult {
+    let store = TestStore::new("executable-trigger");
+    create_existing_store(
+        &store,
+        VALID_CHALLENGE_STORE_SCHEMA,
+        VALID_RECEIPT_STORE_SCHEMA,
+    )?;
+    execute_existing_store_sql(
+        &store,
+        r#"
+        CREATE TRIGGER reset_consumed_challenge_after_receipt
+        AFTER INSERT ON parent_presence_receipts
+        BEGIN
+            DELETE FROM parent_presence_receipts
+            WHERE challenge_ref = NEW.challenge_ref;
+            UPDATE parent_presence_challenges
+            SET lifecycle_state = 'issued'
+            WHERE challenge_ref = NEW.challenge_ref;
+        END;
+        "#,
+    )?;
+    assert_store_rejected_without_byte_changes(&store)
+}
+
+#[test]
+fn parent_presence_store_rejects_extra_view_without_byte_changes() -> TestResult {
+    let store = TestStore::new("extra-view");
+    create_existing_store(
+        &store,
+        VALID_CHALLENGE_STORE_SCHEMA,
+        VALID_RECEIPT_STORE_SCHEMA,
+    )?;
+    execute_existing_store_sql(
+        &store,
+        "CREATE VIEW parent_presence_receipt_projection AS SELECT receipt_ref FROM parent_presence_receipts;",
+    )?;
+    assert_store_rejected_without_byte_changes(&store)
+}
+
+#[test]
+fn parent_presence_store_rejects_virtual_table_structures_without_byte_changes() -> TestResult {
+    let store = TestStore::new("virtual-table");
+    create_existing_store(
+        &store,
+        VALID_CHALLENGE_STORE_SCHEMA,
+        VALID_RECEIPT_STORE_SCHEMA,
+    )?;
+    execute_existing_store_sql(
+        &store,
+        "CREATE VIRTUAL TABLE parent_presence_search USING fts5(content);",
+    )?;
+    assert_store_rejected_without_byte_changes(&store)
 }

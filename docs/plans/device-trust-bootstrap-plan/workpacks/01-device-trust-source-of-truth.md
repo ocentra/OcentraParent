@@ -20,14 +20,18 @@ Purpose: define trust ownership, trust states, bootstrap lifecycle, and cross-pl
 
 - `output/device-trust-bootstrap-plan-proof/01-*`
 - Route-sync note at `output/device-trust-bootstrap-plan-proof/09-cross-plan-route-gate/06-route-sync-proof.md`.
+- Both paths are local generated evidence only and must remain untracked.
 
 ## Current audit state
 
-- A runtime-security proof now exists at `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/00-runtime-security-proof.md` for the narrow Rust parent-presence custody slice.
-- `crates/family-identity-core` now owns an explicit caller-path SQLite repository for issued and consumed parent-presence challenges. Existing stores are validated before initialization across exact columns, nullability, primary keys, strict/rowid shape, unique indexes, the named nonce-integrity index, private receipt sequence, and receipt foreign-key target/delete behavior. Challenge refs and nonce refs are durable unique identities; consumption uses `BEGIN IMMEDIATE`; public receipt refs are stored 256-bit OS-random opaque capabilities while the database sequence stays private.
+- No generated proof file is committed. The narrow Rust parent-presence custody slice is reviewable through its source, visible crate tests, and current validation runs.
+- `crates/family-identity-core` owns an explicit caller-path SQLite repository for issued and consumed parent-presence challenges. Existing stores are validated before initialization across an exact object allowlist plus columns, nullability, primary keys, strict/rowid shape, unique indexes, the named nonce-integrity index, private receipt sequence, and receipt foreign-key target/delete behavior. Triggers, views, extra tables, and virtual-table shadow objects are rejected without byte changes. Challenge refs and nonce refs are durable unique identities; public receipt refs are 256-bit OS-random opaque capabilities while the database sequence stays private.
 - Focused real-process tests prove concurrent consume contention, durable replay rejection after restart, and concurrent different-challenge issuance against one nonce yielding exactly one issue plus one duplicate-nonce rejection.
-- Custody tests reject corrupt databases without recreation, malformed schemas without silent repair or byte changes, relative or missing-parent paths, read-only files, and final/ancestor symbolic substitution. On Windows both links must be created before rejection counts as proof; link-creation denial fails the test and remains an external platform constraint.
-- This is still a partial WP01 result. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, or platform-wide path guarantees.
+- First creation is initialized privately and published atomically without overwrite; concurrency, stale unpublished artifacts, and restart are exercised by visible tests.
+- Windows production custody retains no-delete-share handles for the final file and every ancestor and fails unavailable when a runtime filesystem probe cannot prove rename denial. Unix production custody fails unavailable before path creation; owner-private Unix creation and permission tests run only through an explicit debug-only seam.
+- `device_trust_ref` generation is opaque, CSPRNG-backed, and input-independent. Sealing remains manual-required because no specifically authorized high-risk device-trust sealing action exists; low-risk actions are never promoted.
+- Parent-presence decisions construct correlated, redacted `ocentra-eventing` artifacts with explicit owner, boundary, result, and no-publication fields. This workpack does not claim logger, journal, or bus delivery.
+- This is still a partial, unchecked WP01 result. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, Unix production custody, or platform-wide path guarantees.
 
 ## Negative cases
 
@@ -37,3 +41,5 @@ Purpose: define trust ownership, trust states, bootstrap lifecycle, and cross-pl
 - A nonce cannot be issued under two challenge refs, including across processes or restart.
 - A consumed challenge cannot be replayed after process restart.
 - Corrupt or substituted custody paths fail closed without deleting or recreating the caller's data.
+- Unsupported production custody fails unavailable before accepting challenge custody.
+- Missing high-risk sealing authority produces manual-required and no device trust reference.

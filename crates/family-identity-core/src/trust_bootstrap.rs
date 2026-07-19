@@ -3,10 +3,10 @@ use std::fmt;
 use serde::Serialize;
 
 use crate::household_authority::{
-    validate_parent_step_up_assertion, ParentStepUpValidationFailureReason,
-    ParentStepUpValidationInput,
+    validate_parent_step_up_assertion, HouseholdAuthorityAction,
+    ParentStepUpValidationFailureReason, ParentStepUpValidationInput,
 };
-use crate::parent_presence::{ParentPresenceReceiptRef, ParentPresenceVerificationAccepted};
+use crate::parent_presence::ParentPresenceVerificationAccepted;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Default)]
 struct TrustBootstrapSealingMarker;
@@ -27,7 +27,7 @@ pub struct TrustBootstrapInput {
 #[derive(PartialEq, Eq, Serialize)]
 pub struct AwaitingPlatformKeySealingRequest {
     pub trust_bootstrap_ref: String,
-    pub device_trust_ref: String,
+    pub device_trust_ref: DeviceTrustRef,
     pub lifecycle_intent: TrustBootstrapLifecycleIntent,
     #[serde(skip)]
     sealing_marker: TrustBootstrapSealingMarker,
@@ -38,10 +38,54 @@ pub struct TrustBootstrapRejection {
     pub parent_step_up_failure_reason: ParentStepUpValidationFailureReason,
 }
 
+#[derive(PartialEq, Eq, Serialize)]
+#[serde(transparent)]
+pub struct DeviceTrustRef(String);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum DeviceTrustRefGenerationFailure {
+    EntropyUnavailable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum TrustBootstrapManualRequirementReason {
+    AuthorizedChallengeActionUnavailable,
+    DeviceTrustReferenceGenerationUnavailable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct TrustBootstrapManualRequirement {
+    pub reason: TrustBootstrapManualRequirementReason,
+}
+
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum TrustBootstrapDecision {
     AwaitingPlatformKeySealing(AwaitingPlatformKeySealingRequest),
     Rejected(TrustBootstrapRejection),
+    ManualRequired(TrustBootstrapManualRequirement),
+}
+
+impl DeviceTrustRef {
+    pub fn generate() -> Result<Self, DeviceTrustRefGenerationFailure> {
+        let mut random = [0_u8; 32];
+        getrandom::fill(&mut random)
+            .map_err(|_error| DeviceTrustRefGenerationFailure::EntropyUnavailable)?;
+        Ok(Self(encode_hex(&random)))
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl fmt::Debug for DeviceTrustRef {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("DeviceTrustRef")
+            .field(&"[redacted]")
+            .finish()
+    }
 }
 
 impl fmt::Debug for TrustBootstrapInput {
@@ -73,18 +117,11 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
     } = input;
 
     let (
-        parent_presence_receipt_ref,
+        _parent_presence_receipt_ref,
         parent_presence_challenge,
         parent_step_up_assertion,
         observed_at,
     ) = parent_presence.into_trust_bootstrap_parts();
-
-    let device_trust_ref = derive_device_trust_ref(
-        &trust_bootstrap_ref,
-        &parent_presence_receipt_ref,
-        &parent_presence_challenge,
-        lifecycle_intent,
-    );
 
     let validation_input = ParentStepUpValidationInput {
         assertion: Some(parent_step_up_assertion),
@@ -106,6 +143,25 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
         });
     }
 
+    if !challenge_action_is_authorized_for_lifecycle_intent(
+        lifecycle_intent,
+        parent_presence_challenge.privileged_action,
+    ) {
+        return TrustBootstrapDecision::ManualRequired(TrustBootstrapManualRequirement {
+            reason: TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable,
+        });
+    }
+
+    let device_trust_ref = match DeviceTrustRef::generate() {
+        Ok(reference) => reference,
+        Err(DeviceTrustRefGenerationFailure::EntropyUnavailable) => {
+            return TrustBootstrapDecision::ManualRequired(TrustBootstrapManualRequirement {
+                reason:
+                    TrustBootstrapManualRequirementReason::DeviceTrustReferenceGenerationUnavailable,
+            });
+        }
+    };
+
     TrustBootstrapDecision::AwaitingPlatformKeySealing(AwaitingPlatformKeySealingRequest {
         device_trust_ref,
         trust_bootstrap_ref,
@@ -114,26 +170,24 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
     })
 }
 
-fn derive_device_trust_ref(
-    trust_bootstrap_ref: &str,
-    receipt_ref: &ParentPresenceReceiptRef,
-    challenge: &crate::parent_presence::ParentPresenceChallenge,
+fn challenge_action_is_authorized_for_lifecycle_intent(
     lifecycle_intent: TrustBootstrapLifecycleIntent,
-) -> String {
-    format!(
-        "device-trust:{trust_bootstrap_ref}:{}:{}:{}:{}:{}:{}:{}:{:?}:{}:{:?}",
-        receipt_ref.as_str(),
-        challenge.family_id,
-        challenge.parent_account_id,
-        challenge.action_device_id,
-        challenge
-            .action_device_child_profile_id
-            .as_deref()
-            .unwrap_or("-"),
-        challenge.target_child_profile_id.as_deref().unwrap_or("-"),
-        challenge.nonce_ref,
-        challenge.privileged_action,
-        challenge.expires_at,
-        lifecycle_intent
-    )
+    challenge_action: HouseholdAuthorityAction,
+) -> bool {
+    const SEAL_PARENT_DEVICE_TRUST_ACTIONS: &[HouseholdAuthorityAction] = &[];
+    match lifecycle_intent {
+        TrustBootstrapLifecycleIntent::SealParentDeviceTrust => {
+            SEAL_PARENT_DEVICE_TRUST_ACTIONS.contains(&challenge_action)
+        }
+    }
+}
+
+fn encode_hex(bytes: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut encoded = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        encoded.push(char::from(HEX[usize::from(byte >> 4)]));
+        encoded.push(char::from(HEX[usize::from(byte & 0x0f)]));
+    }
+    encoded
 }

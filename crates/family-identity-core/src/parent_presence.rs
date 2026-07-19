@@ -1,5 +1,6 @@
 use std::fmt;
 
+use ocentra_eventing::ids::CorrelationId;
 use serde::{Deserialize, Serialize};
 
 use crate::household_authority::{HouseholdAuthorityAction, ParentStepUpAssertionSnapshot};
@@ -74,6 +75,7 @@ pub struct ParentPresenceChallenge {
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ParentPresenceVerificationInput {
+    pub correlation_id: CorrelationId,
     pub challenge_ref: String,
     pub assertion: ParentStepUpAssertionSnapshot,
 }
@@ -81,6 +83,7 @@ pub struct ParentPresenceVerificationInput {
 impl fmt::Debug for ParentPresenceVerificationInput {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("ParentPresenceVerificationInput")
+            .field("correlation_id", &self.correlation_id)
             .field("challenge_ref", &"[redacted]")
             .field("assertion", &"[redacted]")
             .finish()
@@ -128,9 +131,55 @@ pub struct ParentPresenceVerificationAccepted {
     observed_at: ParentPresenceObservedAt,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentPresenceCustodyDecisionOwner {
+    FamilyIdentityCore,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentPresenceCustodyDecisionBoundary {
+    VerifyAndConsume,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentPresenceCustodyDecisionResult {
+    Accepted,
+    ReplayRejected,
+    IntegrityRejected,
+    CustodyUnavailable,
+    Rejected,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentPresenceCustodyDecisionNoClaim {
+    EventPublicationNotOwnedByDomain,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentPresenceCustodyDecisionRedaction {
+    SensitiveInputsOmitted,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentPresenceCustodyDecisionArtifact {
+    pub correlation_id: CorrelationId,
+    pub owner: ParentPresenceCustodyDecisionOwner,
+    pub boundary: ParentPresenceCustodyDecisionBoundary,
+    pub result: ParentPresenceCustodyDecisionResult,
+    pub no_claim: ParentPresenceCustodyDecisionNoClaim,
+    pub redaction: ParentPresenceCustodyDecisionRedaction,
+}
+
 pub struct ParentPresenceVerificationPort {
     pub(crate) clock: Box<dyn Fn() -> ParentPresenceObservedAt + Send + Sync>,
     pub(crate) store: crate::parent_presence_store::ParentPresenceStore,
+    pub(crate) custody_artifact: Option<ParentPresenceCustodyDecisionArtifact>,
 }
 
 impl fmt::Debug for ParentPresenceChallenge {
@@ -190,6 +239,22 @@ impl ParentPresenceVerificationAccepted {
             self.assertion_snapshot,
             self.observed_at,
         )
+    }
+}
+
+impl ParentPresenceCustodyDecisionArtifact {
+    pub(crate) fn new(
+        correlation_id: CorrelationId,
+        result: ParentPresenceCustodyDecisionResult,
+    ) -> Self {
+        Self {
+            correlation_id,
+            owner: ParentPresenceCustodyDecisionOwner::FamilyIdentityCore,
+            boundary: ParentPresenceCustodyDecisionBoundary::VerifyAndConsume,
+            result,
+            no_claim: ParentPresenceCustodyDecisionNoClaim::EventPublicationNotOwnedByDomain,
+            redaction: ParentPresenceCustodyDecisionRedaction::SensitiveInputsOmitted,
+        }
     }
 }
 

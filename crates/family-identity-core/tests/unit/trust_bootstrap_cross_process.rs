@@ -5,13 +5,16 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::thread;
 use std::time::{Duration, Instant};
 
+use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceVerificationFailureReason,
-    ParentPresenceVerificationInput, ParentPresenceVerificationPort,
+    ParentPresenceVerificationInput,
 };
+
+use super::open_parent_presence_test_port;
 
 const EXPIRY: &str = "2099-01-01T00:00:00.000Z";
 const SCOPE_ENV: &str = "OCENTRA_PARENT_PRESENCE_PROBE_SCOPE";
@@ -48,7 +51,12 @@ impl Drop for Store {
     }
 }
 
-fn input(scope: &str) -> (ParentPresenceChallenge, ParentPresenceVerificationInput) {
+fn input(
+    scope: &str,
+) -> Result<
+    (ParentPresenceChallenge, ParentPresenceVerificationInput),
+    ocentra_eventing::error::EventingError,
+> {
     let challenge_ref = format!("{scope}-challenge");
     let nonce_ref = format!("{scope}-nonce");
     let family_id = format!("{scope}-family");
@@ -68,6 +76,7 @@ fn input(scope: &str) -> (ParentPresenceChallenge, ParentPresenceVerificationInp
         expires_at: EXPIRY.to_owned(),
     };
     let verification = ParentPresenceVerificationInput {
+        correlation_id: CorrelationId::parse("parent-presence-cross-process-correlation")?,
         challenge_ref,
         assertion: ParentStepUpAssertionSnapshot {
             family_id,
@@ -80,7 +89,7 @@ fn input(scope: &str) -> (ParentPresenceChallenge, ParentPresenceVerificationInp
             expires_at: EXPIRY.to_owned(),
         },
     };
-    (challenge, verification)
+    Ok((challenge, verification))
 }
 
 fn worker(
@@ -126,9 +135,9 @@ fn parent_presence_replay_is_durable_across_processes_and_restart(
         NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
     );
     let store = Store::new();
-    let mut issuer = ParentPresenceVerificationPort::open(&store.path)
+    let mut issuer = open_parent_presence_test_port(&store.path)
         .map_err(|_error| std::io::Error::other("issuer store unavailable"))?;
-    let (challenge, _) = input(&scope);
+    let (challenge, _) = input(&scope)?;
     assert_eq!(issuer.issue_challenge(challenge), Ok(()));
     let first_path = store.outcome("first");
     let second_path = store.outcome("second");
@@ -190,9 +199,9 @@ fn parent_presence_cross_process_worker() -> Result<(), Box<dyn std::error::Erro
     let start = PathBuf::from(std::env::var_os(START_ENV).ok_or("missing process start path")?);
     fs::write(ready, "ready")?;
     wait_until(|| start.exists())?;
-    let mut port = ParentPresenceVerificationPort::open(store)
+    let mut port = open_parent_presence_test_port(store)
         .map_err(|_error| std::io::Error::other("worker store unavailable"))?;
-    let (_, verification) = input(&scope);
+    let (_, verification) = input(&scope)?;
     let result = port.verify_and_consume(verification);
     let value = if result.is_ok() {
         "accepted"

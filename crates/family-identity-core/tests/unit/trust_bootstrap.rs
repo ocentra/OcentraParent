@@ -3,14 +3,20 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
+use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
-    ParentPresenceStorageFailureReason, ParentPresenceVerificationFailureReason,
-    ParentPresenceVerificationInput, ParentPresenceVerificationPort,
+    ParentPresenceCustodyDecisionBoundary, ParentPresenceCustodyDecisionNoClaim,
+    ParentPresenceCustodyDecisionOwner, ParentPresenceCustodyDecisionRedaction,
+    ParentPresenceCustodyDecisionResult, ParentPresenceStorageFailureReason,
+    ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
+    ParentPresenceVerificationPort,
 };
+
+use super::open_parent_presence_test_port;
 
 const EXPIRED_EXPIRY: &str = "2000-01-01T00:00:00.000Z";
 const ACCEPTED_EXPIRY: &str = "2099-01-01T00:00:00.000Z";
@@ -48,7 +54,7 @@ impl TestStore {
     }
 
     fn port(&self) -> Result<ParentPresenceVerificationPort, ParentPresenceStorageFailureReason> {
-        ParentPresenceVerificationPort::open(&self.path)
+        open_parent_presence_test_port(&self.path)
     }
 
     fn path(&self) -> &Path {
@@ -103,11 +109,20 @@ fn assertion_for(case: &TestCase, expires_at: &str) -> ParentStepUpAssertionSnap
     }
 }
 
-fn verification_input(case: &TestCase, expires_at: &str) -> ParentPresenceVerificationInput {
-    ParentPresenceVerificationInput {
+fn verification_input(
+    case: &TestCase,
+    expires_at: &str,
+) -> Result<ParentPresenceVerificationInput, ParentPresenceStorageFailureReason> {
+    Ok(ParentPresenceVerificationInput {
+        correlation_id: correlation_id()?,
         challenge_ref: case.challenge_ref.clone(),
         assertion: assertion_for(case, expires_at),
-    }
+    })
+}
+
+fn correlation_id() -> Result<CorrelationId, ParentPresenceStorageFailureReason> {
+    CorrelationId::parse("parent-presence-unit-correlation")
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
 }
 
 fn issue_valid_challenge(
@@ -143,13 +158,14 @@ fn assert_redacted_debug<T: fmt::Debug>(value: &T, case: &TestCase) {
 }
 
 #[test]
-fn parent_presence_verification_input_debug_is_redacted() {
+fn parent_presence_verification_input_debug_is_redacted() -> TestResult {
     let case = test_case("input-debug");
-    let input = verification_input(&case, ACCEPTED_EXPIRY);
+    let input = verification_input(&case, ACCEPTED_EXPIRY)?;
     assert_eq!(
         format!("{input:?}"),
-        "ParentPresenceVerificationInput { challenge_ref: \"[redacted]\", assertion: \"[redacted]\" }"
+        "ParentPresenceVerificationInput { correlation_id: CorrelationId(\"parent-presence-unit-correlation\"), challenge_ref: \"[redacted]\", assertion: \"[redacted]\" }"
     );
+    Ok(())
 }
 
 #[test]
@@ -159,7 +175,7 @@ fn parent_presence_verification_is_one_time_and_redacted() -> TestResult {
     let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
 
-    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
+    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?);
     assert_eq!(
         accepted
             .as_ref()
@@ -172,9 +188,102 @@ fn parent_presence_verification_is_one_time_and_redacted() -> TestResult {
     assert_redacted_debug(&challenge_for(&case, ACCEPTED_EXPIRY), &case);
 
     assert_eq!(
-        port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)),
+        port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?),
         Err(ParentPresenceVerificationFailureReason::ReplayRejected)
     );
+    Ok(())
+}
+
+#[test]
+fn custody_decisions_return_correlated_redacted_eventing_artifacts() -> TestResult {
+    let accepted_case = test_case("custody-artifact-accepted");
+    let accepted_store = TestStore::new("custody-artifact-accepted");
+    let mut accepted_port = accepted_store.port()?;
+    issue_valid_challenge(&mut accepted_port, &accepted_case, ACCEPTED_EXPIRY);
+    assert!(accepted_port
+        .verify_and_consume(verification_input(&accepted_case, ACCEPTED_EXPIRY)?)
+        .is_ok());
+    assert_custody_artifact(
+        &mut accepted_port,
+        ParentPresenceCustodyDecisionResult::Accepted,
+        &accepted_case,
+    )?;
+    assert_eq!(
+        accepted_port.verify_and_consume(verification_input(&accepted_case, ACCEPTED_EXPIRY)?),
+        Err(ParentPresenceVerificationFailureReason::ReplayRejected)
+    );
+    assert_custody_artifact(
+        &mut accepted_port,
+        ParentPresenceCustodyDecisionResult::ReplayRejected,
+        &accepted_case,
+    )?;
+
+    let integrity_case = test_case("custody-artifact-integrity");
+    let integrity_store = TestStore::new("custody-artifact-integrity");
+    let mut integrity_port = integrity_store.port()?;
+    issue_valid_challenge(&mut integrity_port, &integrity_case, ACCEPTED_EXPIRY);
+    let connection = rusqlite::Connection::open(integrity_store.path())
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    connection
+        .execute(
+            "UPDATE parent_presence_challenges SET challenge_json = '{}' WHERE challenge_ref = ?1",
+            [&integrity_case.challenge_ref],
+        )
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    drop(connection);
+    assert_eq!(
+        integrity_port.verify_and_consume(verification_input(&integrity_case, ACCEPTED_EXPIRY)?),
+        Err(ParentPresenceVerificationFailureReason::CustodyIntegrityRejected)
+    );
+    assert_custody_artifact(
+        &mut integrity_port,
+        ParentPresenceCustodyDecisionResult::IntegrityRejected,
+        &integrity_case,
+    )?;
+    Ok(())
+}
+
+fn assert_custody_artifact(
+    port: &mut ParentPresenceVerificationPort,
+    expected_result: ParentPresenceCustodyDecisionResult,
+    case: &TestCase,
+) -> TestResult {
+    let artifact = port
+        .take_custody_artifact()
+        .ok_or(ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_eq!(artifact.correlation_id, correlation_id()?);
+    assert_eq!(
+        artifact.owner,
+        ParentPresenceCustodyDecisionOwner::FamilyIdentityCore
+    );
+    assert_eq!(
+        artifact.boundary,
+        ParentPresenceCustodyDecisionBoundary::VerifyAndConsume
+    );
+    assert_eq!(artifact.result, expected_result);
+    assert_eq!(
+        artifact.no_claim,
+        ParentPresenceCustodyDecisionNoClaim::EventPublicationNotOwnedByDomain
+    );
+    assert_eq!(
+        artifact.redaction,
+        ParentPresenceCustodyDecisionRedaction::SensitiveInputsOmitted
+    );
+    let serialized = serde_json::to_value(&artifact)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_eq!(
+        serialized,
+        serde_json::json!({
+            "correlationId": "parent-presence-unit-correlation",
+            "owner": "family-identity-core",
+            "boundary": "verify-and-consume",
+            "result": expected_result,
+            "noClaim": "event-publication-not-owned-by-domain",
+            "redaction": "sensitive-inputs-omitted"
+        })
+    );
+    assert_redacted_debug(&artifact, case);
+    assert!(port.take_custody_artifact().is_none());
     Ok(())
 }
 
@@ -187,6 +296,7 @@ fn parent_presence_verification_rejects_binding_mismatches_without_consuming() -
 
     assert_eq!(
         port.verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: correlation_id()?,
             challenge_ref: case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 family_id: "wrong-family".to_owned(),
@@ -198,6 +308,7 @@ fn parent_presence_verification_rejects_binding_mismatches_without_consuming() -
 
     assert_eq!(
         port.verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: correlation_id()?,
             challenge_ref: case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 parent_account_id: "wrong-parent".to_owned(),
@@ -209,6 +320,7 @@ fn parent_presence_verification_rejects_binding_mismatches_without_consuming() -
 
     assert_eq!(
         port.verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: correlation_id()?,
             challenge_ref: case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 action: HouseholdAuthorityAction::RevokeChildDevice,
@@ -220,6 +332,7 @@ fn parent_presence_verification_rejects_binding_mismatches_without_consuming() -
 
     assert_eq!(
         port.verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: correlation_id()?,
             challenge_ref: case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 action_device_id: "wrong-device".to_owned(),
@@ -231,6 +344,7 @@ fn parent_presence_verification_rejects_binding_mismatches_without_consuming() -
 
     assert_eq!(
         port.verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: correlation_id()?,
             challenge_ref: case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 action_device_child_profile_id: None,
@@ -242,6 +356,7 @@ fn parent_presence_verification_rejects_binding_mismatches_without_consuming() -
 
     assert_eq!(
         port.verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: correlation_id()?,
             challenge_ref: case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 target_child_profile_id: Some("wrong-target".to_owned()),
@@ -251,7 +366,7 @@ fn parent_presence_verification_rejects_binding_mismatches_without_consuming() -
         Err(ParentPresenceVerificationFailureReason::TargetChildProfileMismatch)
     );
 
-    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
+    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?);
     assert_eq!(
         accepted
             .as_ref()
@@ -283,7 +398,7 @@ fn parent_presence_verification_rejects_duplicate_issuance_without_overwriting_o
         Err(ParentPresenceChallengeIssuanceFailureReason::DuplicateChallengeRef)
     );
 
-    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
+    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?);
     assert_eq!(
         accepted
             .as_ref()
@@ -313,7 +428,7 @@ fn parent_presence_nonce_identity_is_unique_across_challenge_refs_and_restart() 
     );
     assert_eq!(
         restarted
-            .verify_and_consume(verification_input(&first, ACCEPTED_EXPIRY))
+            .verify_and_consume(verification_input(&first, ACCEPTED_EXPIRY)?)
             .as_ref()
             .map(|accepted| accepted.assertion_snapshot()),
         Ok(&assertion_for(&first, ACCEPTED_EXPIRY))
@@ -330,10 +445,10 @@ fn parent_presence_receipt_is_unique_opaque_and_redacted() -> TestResult {
     issue_valid_challenge(&mut port, &first, ACCEPTED_EXPIRY);
     issue_valid_challenge(&mut port, &second, ACCEPTED_EXPIRY);
     let first_accepted = port
-        .verify_and_consume(verification_input(&first, ACCEPTED_EXPIRY))
+        .verify_and_consume(verification_input(&first, ACCEPTED_EXPIRY)?)
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     let second_accepted = port
-        .verify_and_consume(verification_input(&second, ACCEPTED_EXPIRY))
+        .verify_and_consume(verification_input(&second, ACCEPTED_EXPIRY)?)
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     let first_ref = first_accepted.receipt_ref().to_string();
     let second_ref = second_accepted.receipt_ref().to_string();
@@ -352,7 +467,7 @@ fn parent_presence_receipt_is_unique_opaque_and_redacted() -> TestResult {
 fn parent_presence_store_requires_existing_absolute_caller_custody_parent() {
     let relative = PathBuf::from("parent-presence-relative.sqlite");
     assert!(matches!(
-        ParentPresenceVerificationPort::open(&relative),
+        open_parent_presence_test_port(&relative),
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
     ));
     assert!(!relative.exists());
@@ -364,7 +479,7 @@ fn parent_presence_store_requires_existing_absolute_caller_custody_parent() {
     ));
     let path = missing_parent.join("nested").join("parent-presence.sqlite");
     assert!(matches!(
-        ParentPresenceVerificationPort::open(&path),
+        open_parent_presence_test_port(&path),
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
     ));
     assert!(!missing_parent.exists());
@@ -383,7 +498,7 @@ fn parent_presence_store_rejects_read_only_database() -> TestResult {
         Ok(())
     ));
     assert!(matches!(
-        ParentPresenceVerificationPort::open(store.path()),
+        open_parent_presence_test_port(store.path()),
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
     ));
     Ok(())
@@ -407,7 +522,7 @@ fn parent_presence_store_rejects_final_and_ancestor_symbolic_substitution(
         )
     })?;
     assert!(matches!(
-        ParentPresenceVerificationPort::open(&final_link),
+        open_parent_presence_test_port(&final_link),
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
     ));
 
@@ -421,7 +536,7 @@ fn parent_presence_store_rejects_final_and_ancestor_symbolic_substitution(
         )
     })?;
     assert!(matches!(
-        ParentPresenceVerificationPort::open(alias.join("parent-presence.sqlite")),
+        open_parent_presence_test_port(alias.join("parent-presence.sqlite")),
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
     ));
     fs::remove_dir(&alias)?;
@@ -436,7 +551,7 @@ fn parent_presence_verification_rejects_expired_challenges_and_accepts_future_ch
     let mut expired_port = store.port()?;
     issue_valid_challenge(&mut expired_port, &expired_case, EXPIRED_EXPIRY);
     assert_eq!(
-        expired_port.verify_and_consume(verification_input(&expired_case, EXPIRED_EXPIRY)),
+        expired_port.verify_and_consume(verification_input(&expired_case, EXPIRED_EXPIRY)?),
         Err(ParentPresenceVerificationFailureReason::Expired)
     );
 
@@ -444,7 +559,7 @@ fn parent_presence_verification_rejects_expired_challenges_and_accepts_future_ch
     let mut accepted_port = store.port()?;
     issue_valid_challenge(&mut accepted_port, &accepted_case, ACCEPTED_EXPIRY);
     let accepted =
-        accepted_port.verify_and_consume(verification_input(&accepted_case, ACCEPTED_EXPIRY));
+        accepted_port.verify_and_consume(verification_input(&accepted_case, ACCEPTED_EXPIRY)?);
     assert_eq!(
         accepted
             .as_ref()
@@ -466,6 +581,7 @@ fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timest
     issue_valid_challenge(&mut malformed_port, &malformed_case, ACCEPTED_EXPIRY);
     assert_eq!(
         malformed_port.verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: correlation_id()?,
             challenge_ref: malformed_case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 expires_at: "not-a-timestamp".to_owned(),
@@ -480,6 +596,7 @@ fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timest
     issue_valid_challenge(&mut noncanonical_port, &noncanonical_case, ACCEPTED_EXPIRY);
     assert_eq!(
         noncanonical_port.verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: correlation_id()?,
             challenge_ref: noncanonical_case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 expires_at: "2099-01-01T00:00:00Z".to_owned(),
@@ -494,6 +611,7 @@ fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timest
     issue_valid_challenge(&mut offset_port, &offset_case, ACCEPTED_EXPIRY);
     assert_eq!(
         offset_port.verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: correlation_id()?,
             challenge_ref: offset_case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 expires_at: "2099-01-01T00:00:00.000-04:00".to_owned(),

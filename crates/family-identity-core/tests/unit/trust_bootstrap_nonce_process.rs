@@ -7,8 +7,9 @@ use std::time::{Duration, Instant};
 use ocentra_family_identity_core::household_authority::HouseholdAuthorityAction;
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
-    ParentPresenceVerificationPort,
 };
+
+use super::open_parent_presence_test_port;
 
 const STORE_ENV: &str = "OCENTRA_PARENT_NONCE_STORE";
 const SCOPE_ENV: &str = "OCENTRA_PARENT_NONCE_SCOPE";
@@ -78,7 +79,7 @@ fn parent_presence_nonce_is_single_use_across_concurrent_processes_and_restart(
     fs::create_dir_all(&root)?;
     let store = root.join("parent-presence.sqlite");
     drop(
-        ParentPresenceVerificationPort::open(&store)
+        open_parent_presence_test_port(&store)
             .map_err(|_error| std::io::Error::other("nonce store unavailable"))?,
     );
     let scope = format!("nonce-process-{}", std::process::id());
@@ -161,7 +162,7 @@ fn parent_presence_nonce_process_worker() -> Result<(), Box<dyn std::error::Erro
     let start = PathBuf::from(std::env::var_os(START_ENV).ok_or("missing nonce start")?);
     fs::write(ready, "ready")?;
     wait_for(&start)?;
-    let mut port = ParentPresenceVerificationPort::open(store)
+    let mut port = open_parent_presence_test_port(store)
         .map_err(|_error| std::io::Error::other("nonce worker store unavailable"))?;
     let result = port.issue_challenge(challenge(&scope, &challenge_label));
     let value = match result {

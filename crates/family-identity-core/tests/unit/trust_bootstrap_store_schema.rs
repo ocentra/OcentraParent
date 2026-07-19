@@ -2,9 +2,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use ocentra_family_identity_core::parent_presence::{
-    ParentPresenceStorageFailureReason, ParentPresenceVerificationPort,
-};
+use ocentra_family_identity_core::parent_presence::ParentPresenceStorageFailureReason;
+
+use super::open_parent_presence_test_port;
 
 pub(super) const VALID_CHALLENGE_STORE_SCHEMA: &str = r#"
 CREATE TABLE parent_presence_challenges (
@@ -30,13 +30,6 @@ CREATE TABLE parent_presence_receipts (
         REFERENCES parent_presence_challenges(challenge_ref)
         ON DELETE RESTRICT
 ) STRICT;
-"#;
-
-const BYTE_PRESERVATION_SENTINEL: &str = r#"
-CREATE TABLE fixture_byte_sentinel (
-    marker TEXT NOT NULL
-) STRICT;
-INSERT INTO fixture_byte_sentinel VALUES ('preserve-existing-store');
 "#;
 
 static NEXT_CASE_ID: AtomicU64 = AtomicU64::new(1);
@@ -79,11 +72,37 @@ pub(super) fn create_existing_store(
     let connection = rusqlite::Connection::open(store.path())
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     connection
-        .execute_batch(&format!(
-            "{challenge_schema}\n{receipt_schema}\n{BYTE_PRESERVATION_SENTINEL}"
-        ))
+        .execute_batch(&format!("{challenge_schema}\n{receipt_schema}"))
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     drop(connection);
+    set_private_fixture_permissions(store.path())?;
+    Ok(())
+}
+
+pub(super) fn execute_existing_store_sql(store: &TestStore, sql: &str) -> TestResult {
+    let connection = rusqlite::Connection::open(store.path())
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    connection
+        .execute_batch(sql)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    drop(connection);
+    set_private_fixture_permissions(store.path())
+}
+
+#[cfg(unix)]
+fn set_private_fixture_permissions(path: &Path) -> TestResult {
+    use std::os::unix::fs::PermissionsExt;
+
+    let mut permissions = fs::metadata(path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?
+        .permissions();
+    permissions.set_mode(0o600);
+    fs::set_permissions(path, permissions)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
+}
+
+#[cfg(windows)]
+fn set_private_fixture_permissions(_path: &Path) -> TestResult {
     Ok(())
 }
 
@@ -91,7 +110,7 @@ pub(super) fn assert_store_rejected_without_byte_changes(store: &TestStore) -> T
     let store_before = fs::read(store.path())
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     assert!(matches!(
-        ParentPresenceVerificationPort::open(store.path()),
+        open_parent_presence_test_port(store.path()),
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
     ));
     assert_eq!(
@@ -132,7 +151,7 @@ fn parent_presence_store_accepts_canonical_tokens_across_comments_case_and_white
         ) strict;
     "#;
     create_existing_store(&store, challenge_schema, receipt_schema)?;
-    let port = ParentPresenceVerificationPort::open(store.path())?;
+    let port = open_parent_presence_test_port(store.path())?;
     drop(port);
     Ok(())
 }
@@ -143,7 +162,7 @@ fn parent_presence_store_rejects_corruption_without_recreation() {
     let corrupt = b"not-a-sqlite-database";
     assert!(matches!(fs::write(store.path(), corrupt), Ok(())));
     assert!(matches!(
-        ParentPresenceVerificationPort::open(store.path()),
+        open_parent_presence_test_port(store.path()),
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
     ));
     assert!(matches!(

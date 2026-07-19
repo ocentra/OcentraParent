@@ -2,18 +2,35 @@ use std::path::PathBuf;
 
 use crate::parent_presence::{
     ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
-    ParentPresenceObservedAt, ParentPresenceStorageFailureReason,
-    ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason,
-    ParentPresenceVerificationInput, ParentPresenceVerificationPort,
+    ParentPresenceCustodyDecisionArtifact, ParentPresenceObservedAt,
+    ParentPresenceStorageFailureReason, ParentPresenceVerificationAccepted,
+    ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
+    ParentPresenceVerificationPort,
 };
-use crate::parent_presence_store::{
-    ConsumeChallengeResult, ParentPresenceStore, ParentPresenceStoreError,
-    ParentPresenceStoreIssueError,
-};
+use crate::parent_presence_port_decision::finish_parent_presence_verification;
+use crate::parent_presence_store::{ParentPresenceStore, ParentPresenceStoreIssueError};
 use crate::trust_bootstrap_validation::parent_presence_verification_failure_reason;
 
 impl ParentPresenceVerificationPort {
+    #[cfg(windows)]
     pub fn open(
+        store_path: impl Into<PathBuf>,
+    ) -> Result<Self, ParentPresenceStorageFailureReason> {
+        Self::with_clock(store_path, || {
+            ParentPresenceObservedAt::from_system_time(std::time::SystemTime::now())
+        })
+    }
+
+    #[cfg(unix)]
+    pub fn open(
+        store_path: impl Into<PathBuf>,
+    ) -> Result<Self, ParentPresenceStorageFailureReason> {
+        let _unsupported_path = store_path.into();
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    }
+
+    #[cfg(all(unix, debug_assertions))]
+    pub fn open_unsealed_test_custody(
         store_path: impl Into<PathBuf>,
     ) -> Result<Self, ParentPresenceStorageFailureReason> {
         Self::with_clock(store_path, || {
@@ -30,6 +47,7 @@ impl ParentPresenceVerificationPort {
         Ok(Self {
             clock: Box::new(clock),
             store,
+            custody_artifact: None,
         })
     }
 
@@ -57,40 +75,25 @@ impl ParentPresenceVerificationPort {
         input: ParentPresenceVerificationInput,
     ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
         let ParentPresenceVerificationInput {
+            correlation_id,
             challenge_ref,
             assertion,
         } = input;
         let observed_at = (self.clock)();
-        let consumed = self
-            .store
-            .consume_challenge(&challenge_ref, |challenge| {
-                parent_presence_verification_failure_reason(challenge, &assertion, &observed_at)
-            })
-            .map_err(parent_presence_store_failure_reason)?;
+        let consumed = self.store.consume_challenge(&challenge_ref, |challenge| {
+            parent_presence_verification_failure_reason(challenge, &assertion, &observed_at)
+        });
 
-        match consumed {
-            ConsumeChallengeResult::Accepted(accepted) => {
-                Ok(ParentPresenceVerificationAccepted::new(
-                    accepted.receipt_ref,
-                    accepted.challenge,
-                    assertion,
-                    observed_at,
-                ))
-            }
-            ConsumeChallengeResult::Rejected(failure_reason) => Err(failure_reason),
-        }
+        finish_parent_presence_verification(
+            &mut self.custody_artifact,
+            correlation_id,
+            assertion,
+            observed_at,
+            consumed,
+        )
     }
-}
 
-fn parent_presence_store_failure_reason(
-    error: ParentPresenceStoreError,
-) -> ParentPresenceVerificationFailureReason {
-    match error {
-        ParentPresenceStoreError::Unavailable => {
-            ParentPresenceVerificationFailureReason::CustodyUnavailable
-        }
-        ParentPresenceStoreError::IntegrityRejected => {
-            ParentPresenceVerificationFailureReason::CustodyIntegrityRejected
-        }
+    pub fn take_custody_artifact(&mut self) -> Option<ParentPresenceCustodyDecisionArtifact> {
+        self.custody_artifact.take()
     }
 }

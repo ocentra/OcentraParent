@@ -5,6 +5,7 @@ use std::process::Command;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, UNIX_EPOCH};
 
+use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
 };
@@ -14,9 +15,11 @@ use ocentra_family_identity_core::parent_presence::{
     ParentPresenceVerificationPort,
 };
 use ocentra_family_identity_core::trust_bootstrap::{
-    evaluate_trust_bootstrap, TrustBootstrapDecision, TrustBootstrapInput,
-    TrustBootstrapLifecycleIntent,
+    evaluate_trust_bootstrap, DeviceTrustRef, TrustBootstrapDecision, TrustBootstrapInput,
+    TrustBootstrapLifecycleIntent, TrustBootstrapManualRequirementReason,
 };
+
+use super::open_parent_presence_test_port;
 
 const ACCEPTED_EXPIRY: &str = "2099-01-01T00:00:00.000Z";
 
@@ -58,7 +61,7 @@ impl TestStore {
     }
 
     fn port(&self) -> Result<ParentPresenceVerificationPort, ParentPresenceStorageFailureReason> {
-        ParentPresenceVerificationPort::open(&self.path)
+        open_parent_presence_test_port(&self.path)
     }
 }
 
@@ -114,11 +117,16 @@ fn assertion_for(case: &TestCase, expires_at: &str) -> ParentStepUpAssertionSnap
     }
 }
 
-fn verification_input(case: &TestCase, expires_at: &str) -> ParentPresenceVerificationInput {
-    ParentPresenceVerificationInput {
+fn verification_input(
+    case: &TestCase,
+    expires_at: &str,
+) -> Result<ParentPresenceVerificationInput, ParentPresenceStorageFailureReason> {
+    Ok(ParentPresenceVerificationInput {
+        correlation_id: CorrelationId::parse("parent-presence-probe-correlation")
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
         challenge_ref: case.challenge_ref.clone(),
         assertion: assertion_for(case, expires_at),
-    }
+    })
 }
 
 fn issue_valid_challenge(
@@ -214,29 +222,29 @@ fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
     let store = TestStore::new("multi-instance");
     let mut issuer = store.port()?;
     issue_valid_challenge(&mut issuer, &case, ACCEPTED_EXPIRY);
-    let mut first = ParentPresenceVerificationPort::open(store.path())?;
-    let mut second = ParentPresenceVerificationPort::open(store.path())?;
+    let mut first = open_parent_presence_test_port(store.path())?;
+    let mut second = open_parent_presence_test_port(store.path())?;
     assert_eq!(
         first
-            .verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY))
+            .verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?)
             .as_ref()
             .map(|accepted| accepted.assertion_snapshot()),
         Ok(&assertion_for(&case, ACCEPTED_EXPIRY))
     );
     assert_eq!(
-        second.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)),
+        second.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?),
         Err(ParentPresenceVerificationFailureReason::ReplayRejected)
     );
     Ok(())
 }
 
 #[test]
-fn trust_bootstrap_returns_awaiting_platform_key_sealing() -> TestResult {
-    let case = test_case("awaiting-seal");
-    let store = TestStore::new("awaiting-seal");
+fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() -> TestResult {
+    let case = test_case("manual-seal");
+    let store = TestStore::new("manual-seal");
     let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
-    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
+    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?);
     assert_eq!(
         accepted
             .as_ref()
@@ -246,7 +254,6 @@ fn trust_bootstrap_returns_awaiting_platform_key_sealing() -> TestResult {
     let accepted =
         accepted.map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     assert_redacted_debug(&accepted, &case);
-    let receipt_ref = accepted.receipt_ref().to_string();
     let decision = evaluate_trust_bootstrap(TrustBootstrapInput {
         trust_bootstrap_ref: case.trust_bootstrap_ref.clone(),
         lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
@@ -255,33 +262,74 @@ fn trust_bootstrap_returns_awaiting_platform_key_sealing() -> TestResult {
 
     assert!(matches!(
         decision,
-        TrustBootstrapDecision::AwaitingPlatformKeySealing(_)
+        TrustBootstrapDecision::ManualRequired(requirement)
+            if requirement.reason
+                == TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable
     ));
-    if let TrustBootstrapDecision::AwaitingPlatformKeySealing(request) = &decision {
-        assert_eq!(request.trust_bootstrap_ref, case.trust_bootstrap_ref);
-        assert_eq!(
-            request.lifecycle_intent,
-            TrustBootstrapLifecycleIntent::SealParentDeviceTrust
-        );
-        assert_eq!(
-            request.device_trust_ref,
-            format!(
-                "device-trust:{}:{}:{}:{}:{}:{}:{}:{}:{:?}:{}:{:?}",
-                case.trust_bootstrap_ref,
-                receipt_ref,
-                case.family_id,
-                case.parent_account_id,
-                case.action_device_id,
-                case.action_device_child_profile_id
-                    .as_deref()
-                    .unwrap_or("-"),
-                case.target_child_profile_id.as_deref().unwrap_or("-"),
-                case.nonce_ref,
-                HouseholdAuthorityAction::PairChildDevice,
-                ACCEPTED_EXPIRY,
-                TrustBootstrapLifecycleIntent::SealParentDeviceTrust
-            )
-        );
+    Ok(())
+}
+
+#[test]
+fn trust_bootstrap_never_promotes_matching_low_risk_action_into_sealing() -> TestResult {
+    let case = test_case("low-risk-manual-seal");
+    let store = TestStore::new("low-risk-manual-seal");
+    let mut port = store.port()?;
+    let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
+    challenge.privileged_action = HouseholdAuthorityAction::ViewChildStatus;
+    assert_eq!(port.issue_challenge(challenge), Ok(()));
+    let mut assertion = assertion_for(&case, ACCEPTED_EXPIRY);
+    assertion.action = HouseholdAuthorityAction::ViewChildStatus;
+    let accepted = port
+        .verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: CorrelationId::parse("low-risk-sealing-correlation")
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
+            challenge_ref: case.challenge_ref.clone(),
+            assertion,
+        })
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+
+    assert!(matches!(
+        evaluate_trust_bootstrap(TrustBootstrapInput {
+            trust_bootstrap_ref: case.trust_bootstrap_ref,
+            lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+            parent_presence: accepted,
+        }),
+        TrustBootstrapDecision::ManualRequired(requirement)
+            if requirement.reason
+                == TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable
+    ));
+    Ok(())
+}
+
+#[test]
+fn device_trust_reference_is_random_opaque_and_input_independent() -> TestResult {
+    let case = test_case("opaque-device-trust-ref");
+    let first = DeviceTrustRef::generate()
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let second = DeviceTrustRef::generate()
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_eq!(first.as_str().len(), 64);
+    assert!(first
+        .as_str()
+        .chars()
+        .all(|character| character.is_ascii_hexdigit()));
+    assert_ne!(first, second);
+    let serialized = serde_json::to_value(&first)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_eq!(serialized, serde_json::json!(first.as_str()));
+    for protected in [
+        case.trust_bootstrap_ref.as_str(),
+        case.challenge_ref.as_str(),
+        case.nonce_ref.as_str(),
+        case.family_id.as_str(),
+        case.parent_account_id.as_str(),
+        case.action_device_id.as_str(),
+        case.action_device_child_profile_id
+            .as_deref()
+            .unwrap_or_default(),
+        case.target_child_profile_id.as_deref().unwrap_or_default(),
+    ] {
+        assert_ne!(first.as_str(), protected);
     }
     Ok(())
 }
@@ -292,7 +340,7 @@ fn trust_bootstrap_operational_debug_redacts_identity_and_capability_material() 
     let store = TestStore::new("operational-debug");
     let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
-    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
+    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?);
     assert_eq!(accepted.as_ref().map(|_| 1), Ok(1));
 
     let accepted =

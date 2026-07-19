@@ -31,7 +31,7 @@ Current direction from research and the pasted plan set:
 - Device trust is separate from account login, subscription entitlement, policy delivery, and remote-access grant state.
 - RustDesk is useful as architecture reference material for remote-desktop patterns, but not as embedded trust-root product code by default.
 - Android Play Integrity is a supporting signal only; it is not the trust root.
-- A narrow runtime proof now exists under `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/00-runtime-security-proof.md` for Rust parent-presence challenge custody. Other workpack proof roots remain absent.
+- A narrow Rust parent-presence custody slice is present in `crates/family-identity-core` and is exercised by visible crate tests. Generated command logs may be written below `output/device-trust-bootstrap-plan-proof/` for a local run, but no generated proof file is committed as product truth.
 - The current plan-local tests are mostly doc-shape and route-alignment checks, not runtime trust-bootstrap proof.
 
 ## Current ownership interpretation
@@ -74,7 +74,7 @@ remote-access-plan and policy-control-plane-plan:
 ## Current coupling risks
 
 ```text
-- An execution-grade parent-presence custody repository now exists in `crates/family-identity-core`; the broader device-trust runtime state machine remains open.
+- A partial parent-presence custody repository now exists in `crates/family-identity-core`. Windows production custody is guarded and exercised; Unix production custody deliberately returns unavailable because the current filesystem boundary cannot exclude same-user substitution. The broader device-trust runtime state machine remains open.
 - `family-domain` contains trust-adjacent authority helpers but not platform key sealing, QR approval runtime, recovery bundle runtime, or trust-root state machine.
 - `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
 - Current plan-local tests prove document and route shape only, not runtime trust.
@@ -100,7 +100,7 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 
 ## Proof Coverage
 
-- The WP01 parent-presence runtime-security artifact is present; the remaining planned proof roots are absent.
+- WP01 has visible Rust source and focused tests for its parent-presence slice, but no committed generated proof artifact and no full workpack closure. The remaining planned proof roots are absent.
 - Device-trust tests now live under `tests/device-trust-bootstrap-plan/<major-category>/`.
 - Current top-level categories are `unit`, `contract`, `integration`, `e2e`, and `security`.
 - The legacy `docs/proof/device-trust-bootstrap-plan/*` path is also absent on disk.
@@ -110,7 +110,10 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 - `packages/family-domain` contains typed trust-adjacent authority and recovery contracts, including `DeviceTrustState`, privileged device actions, setup invite rules, and recovery authorization boundaries.
 - `packages/lan-domain` plus the Rust LAN pairing runtime contain trusted-route and selected-device registry contracts, restart behavior, and explicit manual proof gaps for LAN pairing.
 - `packages/parent-domain` is mostly frontage for this slice and currently fails the repo re-export architecture gate on the named LAN/tamper bridge files.
-- `crates/family-identity-core` has durable explicit-path SQLite issuance/consumption for parent-presence challenges, pre-initialization validation of the complete integrity-critical store schema, global nonce uniqueness, opaque OS-random receipt capabilities, concurrent process/restart replay proof, and exercised Windows-host final/ancestor symbolic-substitution rejection.
+- `crates/family-identity-core` has durable explicit-path SQLite issuance/consumption for parent-presence challenges, exact pre-initialization allowlisting of integrity-critical schema objects, global nonce uniqueness, opaque OS-random receipt capabilities, atomic first publication, concurrent process/restart replay proof, and exercised Windows final-file plus every-ancestor custody handles. A runtime capability probe rejects Windows filesystems that do not honor the required no-delete-share contract.
+- Unix production parent-presence custody is fail-closed before path creation. A debug-only test seam exercises Unix owner-private creation and permission rejection without making an operational production claim.
+- Trust-bootstrap sealing remains manual-required because the authority contract has no specifically authorized device-trust sealing action. Low-risk authority actions are not promoted into sealing authority.
+- Parent-presence decisions produce correlated, redacted, serializable `ocentra-eventing`-compatible artifacts with explicit owner, boundary, result, and no-publication fields. This crate does not claim to publish, journal, or log those artifacts.
 - No complete device-trust state machine exists yet beyond that narrow parent-presence bootstrap boundary.
 - No execution-grade local key sealing implementation exists yet in repo code.
 - No execution-grade parent step-up, phone QR approval bridge, encrypted recovery bundle handling, entitlement-binding runtime, or child uninstall authorization runtime exists yet in repo code.
@@ -122,5 +125,5 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 - Update this plan only through the blueprint and the selected workpack.
 - Do not mark this plan complete from checklist deltas alone.
 - Use [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) only when the selected workpack owner/proof family is unclear.
-- Proof must be collected in the designated local artifact path or crate-local proof folder, not inside this plan folder.
+- Generated command output may be collected in the designated local artifact path or a crate-local ignored proof folder, not inside this plan folder and not as a tracked repository file. Source, visible tests, and current CI or harness results remain the reviewable evidence.
 - True completion remains blocked until the runtime ownership split is resolved across the actual source owners and real proof artifacts exist for the missing trust-bootstrap slices.
