@@ -7,7 +7,7 @@ use crate::parent_presence_store::ParentPresenceStoreError;
 use crate::parent_presence_store_file::{open_store_file_guard, StoreFileGuard};
 use crate::parent_presence_store_file_creation::publish_initialized_store_if_absent;
 use crate::parent_presence_store_schema_objects::{
-    validate_foreign_keys_enabled, validate_schema_objects,
+    validate_foreign_key_rows, validate_foreign_keys_enabled, validate_schema_objects,
 };
 use crate::parent_presence_store_sql_shape::{
     challenge_lifecycle_column_is_canonical, receipt_sequence_column_is_canonical,
@@ -138,7 +138,8 @@ pub(crate) fn validate_store_schema(
     )?;
     validate_challenge_table(connection)?;
     validate_receipt_table(connection)?;
-    validate_receipt_foreign_key(connection)
+    validate_receipt_foreign_key(connection)?;
+    validate_foreign_key_rows(connection)
 }
 
 fn validate_challenge_table(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
