@@ -1,5 +1,6 @@
 use chrono::{DateTime, FixedOffset};
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEventKind;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use super::payload_fields::log_field_string;
@@ -12,9 +13,10 @@ use self::history_state::validate_history_state;
 
 pub(super) const LAN_REPLAY_CONTEXT: &str = "agent-service LAN runtime replay payload";
 
-pub(super) fn validate_report_metadata(
+pub(super) fn validate_report_metadata<'a>(
     payload: &LogFields,
     entry_count: usize,
+    event_kinds: impl Iterator<Item = &'a LanDiscoveryEventKind>,
     latest_event_id: Option<&str>,
     latest_observed_at: Option<&str>,
 ) -> Result<(), String> {
@@ -32,7 +34,7 @@ pub(super) fn validate_report_metadata(
         ));
     }
 
-    validate_history_state(payload, entry_count)?;
+    validate_history_state(payload, entry_count, event_kinds)?;
     let reported_event_id = optional_reported_text(payload, constants::field::LATEST_EVENT_ID)?;
     validate_latest_metadata(
         reported_event_id,

@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-    LanDiscoveryEventHistoryState, LanDiscoveryEventRow,
+    LanDiscoveryEventHistoryState, LanDiscoveryEventKind, LanDiscoveryEventRow,
 };
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogLevel};
 use ocentra_parent_agent_protocol::transport::{
@@ -135,7 +135,6 @@ fn parent_subscription_event_rejects_history_states_that_disagree_with_replay_en
 
     for (history_state, manual_required) in [
         (LanDiscoveryEventHistoryState::Empty, false),
-        (LanDiscoveryEventHistoryState::Unavailable, false),
         (LanDiscoveryEventHistoryState::ManualRequired, true),
     ] {
         assert_replay_rejected(
@@ -150,6 +149,80 @@ fn parent_subscription_event_rejects_history_states_that_disagree_with_replay_en
         &empty_ready_model,
         replay_event(&[], LanDiscoveryEventHistoryState::Ready, false),
     );
+}
+
+#[test]
+fn parent_subscription_event_rejects_metadata_only_ready_history() {
+    let mut read_model = sample_lan_read_model_with_explicit_history();
+    read_model.discovery_event_history.rows[1].event_kind = LanDiscoveryEventKind::ScanFinished;
+    read_model.discovery_event_history.rows[1].affected_device_id = None;
+    read_model.discovery_event_history.rows[1].evidence_id = None;
+    read_model.discovery_event_history.rows[1].summary =
+        "LAN discovery scan finished with 0 devices".to_string();
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+
+    assert_replay_rejected(
+        &read_model,
+        replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false),
+    );
+}
+
+#[test]
+fn parent_subscription_event_accepts_metadata_only_empty_history_per_canonical_producer() {
+    let mut read_model = sample_lan_read_model_with_explicit_history();
+    read_model.discovery_event_history.state = LanDiscoveryEventHistoryState::Empty;
+    read_model.discovery_event_history.rows[1].event_kind = LanDiscoveryEventKind::ScanFinished;
+    read_model.discovery_event_history.rows[1].affected_device_id = None;
+    read_model.discovery_event_history.rows[1].evidence_id = None;
+    read_model.discovery_event_history.rows[1].summary =
+        "LAN discovery scan finished with 0 devices".to_string();
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+
+    let events = subscription_events_for_stream(
+        &read_model,
+        replay_event(&entries, LanDiscoveryEventHistoryState::Empty, false),
+    );
+
+    assert_eq!(events.len(), 4);
+    assert_eq!(events[0].event.as_deref(), Some("scan-started"));
+    assert_eq!(events[1].event.as_deref(), Some("scan-finished"));
+    assert!(events
+        .iter()
+        .all(|event| event.event.as_deref() != Some(LAN_REPLAY_REJECTION_EVENT)));
+}
+
+#[test]
+fn parent_subscription_event_accepts_unavailable_replay_rows_per_canonical_precedence() {
+    let mut read_model = sample_lan_read_model_with_explicit_history();
+    read_model.discovery_event_history.state = LanDiscoveryEventHistoryState::Unavailable;
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+
+    let events = subscription_events_for_stream(
+        &read_model,
+        replay_event(&entries, LanDiscoveryEventHistoryState::Unavailable, false),
+    );
+
+    assert_eq!(events.len(), 4);
+    assert!(events
+        .iter()
+        .all(|event| event.event.as_deref() != Some(LAN_REPLAY_REJECTION_EVENT)));
+}
+
+#[test]
+fn parent_subscription_event_accepts_degraded_replay_rows_per_canonical_precedence() {
+    let mut read_model = sample_lan_read_model_with_explicit_history();
+    read_model.discovery_event_history.state = LanDiscoveryEventHistoryState::Degraded;
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+
+    let events = subscription_events_for_stream(
+        &read_model,
+        replay_event(&entries, LanDiscoveryEventHistoryState::Degraded, false),
+    );
+
+    assert_eq!(events.len(), 4);
+    assert!(events
+        .iter()
+        .all(|event| event.event.as_deref() != Some(LAN_REPLAY_REJECTION_EVENT)));
 }
 
 #[test]

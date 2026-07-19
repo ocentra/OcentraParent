@@ -49,6 +49,7 @@ pub(super) fn lan_runtime_replay_events_from_payload(
     validate_report_metadata(
         payload,
         entries.len(),
+        entries.iter().map(|entry| &entry.payload.event_kind),
         entries.last().map(|entry| entry.payload.event_id.as_str()),
         entries
             .last()

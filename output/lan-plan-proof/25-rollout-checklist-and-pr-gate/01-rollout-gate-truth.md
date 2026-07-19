@@ -14,9 +14,12 @@ State: `partial/manual`
 - Rust validates generated/latest metadata, count/state consistency, row
   schema, canonical event type and reference, unique IDs, RFC3339 instant
   order across timezone offsets, and the previous-event chain before producing
-  `ParentRouteEventSnapshot` values. Empty, unavailable, and manual-required
-  histories reject nonempty streams; ready history rejects an empty stream;
-  agent-offline and degraded precedence are handled explicitly.
+  `ParentRouteEventSnapshot` values. Empty history accepts canonical
+  metadata-only interface-change and scan-lifecycle rows while rejecting
+  material discovery rows; ready history requires at least one material row;
+  manual-required history rejects nonempty streams. Unavailable takes
+  precedence before row inspection, and degraded and agent-offline precedence
+  are handled explicitly.
 - Derived replay rows preserve the already-validated envelope source, target,
   roles, and severity; blank or spoofed route identity is rejected rather than
   replaced with manufactured defaults.

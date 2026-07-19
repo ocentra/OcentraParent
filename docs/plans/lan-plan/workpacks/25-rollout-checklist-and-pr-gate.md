@@ -88,11 +88,15 @@ Current verified LAN replay-consumer truth on 2026-07-18:
   `ParentSubscriptionEvent` construction. This does not by itself prove that a
   real Tauri emitter delivered the batch to the portal listener.
 - Replay order is preserved. Duplicate IDs, stale or out-of-order chains,
-  broken references, inconsistent metadata, history-state/entry-count drift,
-  and malformed payloads reject the whole replay batch. Empty, unavailable,
-  and manual-required histories cannot carry rows; ready history cannot be
-  empty; agent-offline precedence remains explicit. The last live LAN status
-  events remain authoritative on an ID collision.
+  broken references, inconsistent metadata, producer-incompatible
+  history-state/material-row combinations, and malformed payloads reject the
+  whole replay batch. Empty history accepts canonical metadata-only
+  `interface-changed`, `scan-started`, and `scan-finished` rows but rejects
+  material discovery rows; ready history requires at least one material row;
+  manual-required history cannot carry rows. Unavailable takes precedence
+  before row inspection, while degraded and agent-offline precedence also
+  remains explicit. The last live LAN status events remain authoritative on an
+  ID collision.
 - Replay rejection does not erase the status snapshot, so explicit
   `agent-offline` and `manual-required` read-model states remain visible. The
   bridge also emits a stable warning milestone with no event, correlation,

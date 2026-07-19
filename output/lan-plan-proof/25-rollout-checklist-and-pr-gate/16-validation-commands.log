@@ -16,10 +16,12 @@ GREEN cargo test -p ocentra-parent-runtime-core --test integration parent_subscr
   15 passed; 0 failed; 24 filtered out.
   Includes exact command correlation and full-envelope rejection, exact latest
   metadata, RFC3339 validation, offset-aware instant ordering and stale
-  rejection, history-state/entry-count mismatch rejection, explicit
-  agent-offline precedence, malformed fail-closed with a redacted warning
-  milestone, offline/manual-required preservation, and existing subscription
-  diagnostics/history regressions.
+  rejection, malformed fail-closed with a redacted warning milestone,
+  offline/manual-required preservation, and existing subscription
+  diagnostics/history regressions. The then-current total-entry-count history
+  check was later found too strict for metadata-only empty history and
+  unavailable precedence; the producer-compatibility repair gates below
+  supersede that state-semantics claim.
 
 GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit parent_route_subscription_delivery_ -- --nocapture
   1 passed; 0 failed; 4 filtered out.
@@ -99,6 +101,57 @@ GREEN npm run lint:enforcer:no-test-doubles -- --files <exact repair Rust files>
 GREEN npm run lint:enforcer:reexports -- --files <exact repair Rust files>
 GREEN npm run lint:enforcer:validation-bypass -- --files <exact repair Rust files>
   All five exact-file Enforcer guards passed.
+
+NON-CLAIM physical multi-device, router/firewall, signed-artifact, restart,
+manual topology, and real backend-to-Tauri-emitter-to-portal-listener evidence
+remain open. WP25 remains partial/manual.
+
+Producer-compatibility review repair gates (2026-07-18):
+
+GREEN cargo test -p ocentra-parent-agent-service --test lan_runtime metadata_only_scan_history_stays_empty_not_ready -- --nocapture
+  1 passed; 0 failed; 79 filtered out.
+  The canonical producer keeps metadata-only ScanStarted/ScanFinished history
+  Empty rather than Ready.
+
+GREEN cargo test -p ocentra-parent-runtime-core --test integration parent_ui_bridge::lan_replay_tests -- --nocapture
+  14 passed; 0 failed; 29 filtered out.
+  Covers metadata-only Empty acceptance, metadata-only Ready rejection,
+  material-row rejection for Empty and ManualRequired, Unavailable precedence
+  before row inspection, Degraded and AgentOffline precedence, envelope and
+  latest metadata, RFC3339 ordering, and the safe rejection diagnostic.
+
+GREEN cargo check --locked -p ocentra-parent-runtime-core
+GREEN cargo check --locked --manifest-path apps/parent-desktop/src-tauri/Cargo.toml
+  Runtime and standalone desktop compile checks passed.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit parent_route_subscription_delivery_ -- --nocapture
+  1 passed; 0 failed; 4 filtered out.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit -- --nocapture
+  5 passed; 0 failed.
+  The host delivery seam remains green; this is not a real AppHandle-to-portal
+  listener proof.
+
+GREEN cargo clippy -p ocentra-parent-runtime-core --all-targets -- -D warnings
+GREEN cargo clippy --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all-targets -- -D warnings
+  Runtime and standalone desktop clippy passed with warnings denied.
+
+GREEN cargo fmt --all -- --check
+GREEN cargo fmt --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all -- --check
+  Root workspace and standalone desktop formatting passed.
+
+GREEN npm run lint:architecture -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:source-shape -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:required-tests -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:no-test-doubles -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:reexports -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:validation-bypass -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+  Architecture policy and all five exact-file Enforcer guards passed.
+
+GREEN npm run precommit (seven exact repair and proof files staged)
+  Fast pre-commit passed formatting, generated artifacts, architecture and
+  Enforcer guards, 43 parent-runtime integration tests, 24 runtime unit tests,
+  Rust doc tests, and Rust formatting.
 
 NON-CLAIM physical multi-device, router/firewall, signed-artifact, restart,
 manual topology, and real backend-to-Tauri-emitter-to-portal-listener evidence
