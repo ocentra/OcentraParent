@@ -523,6 +523,12 @@ it('applyParentSubscriptionEvent: fails closed for missing, invalid, or mismatch
       snapshot: validSnapshot,
       events: [{ ...validReplay, payload: null }],
     },
+    { snapshot: validSnapshot, events: [{ ...validReplay, sourcePeerId: '' }] },
+    { snapshot: validSnapshot, events: [{ ...validReplay, sourcePeerId: 'spoofed-agent' }] },
+    { snapshot: validSnapshot, events: [{ ...validReplay, sourceRole: 'portal' }] },
+    { snapshot: validSnapshot, events: [{ ...validReplay, targetPeerId: 'spoofed-portal' }] },
+    { snapshot: validSnapshot, events: [{ ...validReplay, targetRole: 'agent-service' }] },
+    { snapshot: validSnapshot, events: [{ ...validReplay, severity: 'warning' }] },
     {
       snapshot: validSnapshot,
       events: [{ ...validReplay, payload: { ...validReplay.payload, occurredAt: '2026-06-28T17:00:00Z' } }],

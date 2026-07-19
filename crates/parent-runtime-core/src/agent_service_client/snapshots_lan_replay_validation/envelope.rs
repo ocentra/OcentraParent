@@ -66,7 +66,7 @@ fn validate_response_ids(
     response_event: &AgentEventEnvelope,
     command_message_id: &str,
 ) -> Result<(), String> {
-    canonical_text(&response_event.event_id, "envelope.eventId")?;
+    validate_runtime_stream_event_id(&response_event.event_id)?;
     let expected_correlation_id = canonical_text(command_message_id, "command.messageId")?;
     let correlation_id = canonical_text(&response_event.correlation_id, "envelope.correlationId")?;
     if correlation_id != expected_correlation_id {
@@ -75,6 +75,21 @@ fn validate_response_ids(
         ));
     }
     parse_rfc3339_timestamp(&response_event.sent_at, "envelope.sentAt")?;
+    Ok(())
+}
+
+fn validate_runtime_stream_event_id(event_id: &str) -> Result<(), String> {
+    let prefix = constants::lan_pairing::EVENT_RUNTIME_EVENT_CHAIN_STREAM_REPORTED;
+    let suffix = event_id
+        .strip_prefix(prefix)
+        .and_then(|value| value.strip_prefix('-'));
+    if suffix
+        .is_none_or(|value| value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()))
+    {
+        return Err(format!(
+            "{LAN_REPLAY_CONTEXT} rejected noncanonical runtime stream envelope eventId"
+        ));
+    }
     Ok(())
 }
 

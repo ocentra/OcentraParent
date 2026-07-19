@@ -300,6 +300,17 @@ fn parent_subscription_event_rejects_invalid_lan_replay_envelope_contract() {
     let mut invalid = valid.clone();
     invalid.event_id.clear();
     invalid_envelopes.push(invalid);
+    for event_id in [
+        "agent.lan.runtime.event-chain.stream.reported",
+        "other-event-1",
+        "agent.lan.runtime.event-chain.stream.reported-",
+        "agent.lan.runtime.event-chain.stream.reported-1x",
+        "agent.lan.runtime.event-chain.stream.reported- 1",
+    ] {
+        let mut invalid = valid.clone();
+        invalid.event_id = event_id.to_string();
+        invalid_envelopes.push(invalid);
+    }
     let mut invalid = valid.clone();
     invalid.sent_at = "not-rfc3339".to_string();
     invalid_envelopes.push(invalid);

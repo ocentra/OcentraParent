@@ -13,6 +13,7 @@ import {
   parentRouteTimestampMs,
   type LanReplayPayloadCandidate,
 } from './parent-route-event-snapshot';
+import { hasCanonicalLanReplayProvenance } from './lan-replay-provenance';
 
 export function isReplayBatchBoundToSnapshot(
   snapshots: readonly ParentRouteEventSnapshot[],
@@ -95,6 +96,7 @@ function replayRowMatchesHistory(
   return [
     eventTimestamp <= snapshotTimestamp,
     eventTimestamp <= historyGeneratedAt,
+    hasCanonicalLanReplayProvenance(replay),
     replayPayloadMatchesEvent(payload, replay),
     historyRowMatchesEvent(row, replay, payload),
   ].every(Boolean);

@@ -160,7 +160,7 @@ pub(crate) fn browser_add_device_read_model(
         runtime,
         command,
         discovery_state,
-        &history_generated_at,
+        &observed_at,
         &network_devices,
     );
     let physical_household_lan_state = physical_household_lan_state(has_network_devices);
