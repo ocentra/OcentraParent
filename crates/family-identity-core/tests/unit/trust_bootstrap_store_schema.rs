@@ -6,7 +6,7 @@ use ocentra_family_identity_core::parent_presence::{
     ParentPresenceStorageFailureReason, ParentPresenceVerificationPort,
 };
 
-const VALID_CHALLENGE_STORE_SCHEMA: &str = r#"
+pub(super) const VALID_CHALLENGE_STORE_SCHEMA: &str = r#"
 CREATE TABLE parent_presence_challenges (
     challenge_ref TEXT PRIMARY KEY NOT NULL,
     challenge_json TEXT NOT NULL,
@@ -21,7 +21,7 @@ CREATE UNIQUE INDEX parent_presence_nonce_identity
 ON parent_presence_challenges(nonce_ref);
 "#;
 
-const VALID_RECEIPT_STORE_SCHEMA: &str = r#"
+pub(super) const VALID_RECEIPT_STORE_SCHEMA: &str = r#"
 CREATE TABLE parent_presence_receipts (
     receipt_sequence INTEGER PRIMARY KEY AUTOINCREMENT,
     challenge_ref TEXT NOT NULL UNIQUE,
@@ -32,24 +32,24 @@ CREATE TABLE parent_presence_receipts (
 ) STRICT;
 "#;
 
-const SENTINEL_CHALLENGE: &str = r#"
-INSERT INTO parent_presence_challenges VALUES (
-    'sentinel-challenge', '{}', '{}', '2099-01-01T00:00:00.000Z',
-    'sentinel-nonce', 'issued'
-);
+const BYTE_PRESERVATION_SENTINEL: &str = r#"
+CREATE TABLE fixture_byte_sentinel (
+    marker TEXT NOT NULL
+) STRICT;
+INSERT INTO fixture_byte_sentinel VALUES ('preserve-existing-store');
 "#;
 
 static NEXT_CASE_ID: AtomicU64 = AtomicU64::new(1);
 
-type TestResult = Result<(), ParentPresenceStorageFailureReason>;
+pub(super) type TestResult = Result<(), ParentPresenceStorageFailureReason>;
 
-struct TestStore {
+pub(super) struct TestStore {
     root: PathBuf,
     path: PathBuf,
 }
 
 impl TestStore {
-    fn new(prefix: &str) -> Self {
+    pub(super) fn new(prefix: &str) -> Self {
         let id = NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed);
         let root = std::env::temp_dir().join(format!(
             "ocentra-parent-presence-schema-{prefix}-{}-{id}",
@@ -60,7 +60,7 @@ impl TestStore {
         Self { root, path }
     }
 
-    fn path(&self) -> &Path {
+    pub(super) fn path(&self) -> &Path {
         &self.path
     }
 }
@@ -71,7 +71,7 @@ impl Drop for TestStore {
     }
 }
 
-fn create_existing_store(
+pub(super) fn create_existing_store(
     store: &TestStore,
     challenge_schema: &str,
     receipt_schema: &str,
@@ -80,14 +80,14 @@ fn create_existing_store(
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     connection
         .execute_batch(&format!(
-            "{challenge_schema}\n{receipt_schema}\n{SENTINEL_CHALLENGE}"
+            "{challenge_schema}\n{receipt_schema}\n{BYTE_PRESERVATION_SENTINEL}"
         ))
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     drop(connection);
     Ok(())
 }
 
-fn assert_store_rejected_without_byte_changes(store: &TestStore) -> TestResult {
+pub(super) fn assert_store_rejected_without_byte_changes(store: &TestStore) -> TestResult {
     let store_before = fs::read(store.path())
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     assert!(matches!(
@@ -193,8 +193,9 @@ fn parent_presence_store_rejects_lifecycle_check_comment_and_literal_decoys_with
 }
 
 #[test]
-fn parent_presence_store_rejects_nonunique_receipt_ref_only_without_writes() -> TestResult {
-    let store = TestStore::new("nonunique-receipt-only");
+fn parent_presence_store_rejects_missing_receipt_ref_integrity_index_without_writes() -> TestResult
+{
+    let store = TestStore::new("missing-receipt-ref-integrity-index");
     let receipt_schema = r#"
         CREATE TABLE parent_presence_receipts (
             receipt_sequence INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -242,11 +243,30 @@ fn parent_presence_store_rejects_wrong_receipt_foreign_key_target_only_without_w
 }
 
 #[test]
-fn parent_presence_store_rejects_wrong_receipt_sequence_shape_only_without_writes() -> TestResult {
-    let store = TestStore::new("wrong-receipt-sequence-only");
+fn parent_presence_store_rejects_receipt_sequence_wrong_nullability_only_without_writes(
+) -> TestResult {
+    let store = TestStore::new("receipt-sequence-wrong-nullability-only");
     let receipt_schema = r#"
         CREATE TABLE parent_presence_receipts (
-            receipt_sequence INTEGER NOT NULL,
+            receipt_sequence INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            challenge_ref TEXT NOT NULL UNIQUE,
+            receipt_ref TEXT NOT NULL UNIQUE,
+            FOREIGN KEY (challenge_ref)
+                REFERENCES parent_presence_challenges(challenge_ref)
+                ON DELETE RESTRICT
+        ) STRICT;
+    "#;
+    create_existing_store(&store, VALID_CHALLENGE_STORE_SCHEMA, receipt_schema)?;
+    assert_store_rejected_without_byte_changes(&store)
+}
+
+#[test]
+fn parent_presence_store_rejects_receipt_sequence_missing_primary_key_and_autoincrement_only_without_writes(
+) -> TestResult {
+    let store = TestStore::new("receipt-sequence-missing-pk-autoincrement-only");
+    let receipt_schema = r#"
+        CREATE TABLE parent_presence_receipts (
+            receipt_sequence INTEGER,
             challenge_ref TEXT NOT NULL UNIQUE,
             receipt_ref TEXT NOT NULL UNIQUE,
             FOREIGN KEY (challenge_ref)

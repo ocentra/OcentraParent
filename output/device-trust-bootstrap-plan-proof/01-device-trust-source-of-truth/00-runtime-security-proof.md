@@ -15,7 +15,7 @@ manual_required_note: cross-platform parity remains unproven; a Windows host una
 - Challenge refs and nonce refs are durable unique identities. `BEGIN IMMEDIATE` serializes issuance/consumption, and database uniqueness is the final race guard.
 - The public receipt is a stored 256-bit value from the operating-system CSPRNG. The transactional integer sequence remains private and is never returned or logged.
 - Existing stores are metadata-validated before any `CREATE ... IF NOT EXISTS` statement runs. Exact columns, types, nullability, primary-key positions, hidden/generated-column absence, strict/rowid table shape, required unique indexes, the named nonce-integrity index, receipt `AUTOINCREMENT`, and the receipt foreign-key target/delete behavior must all match. Lifecycle and sequence column definitions are tokenized structurally so comments or quoted decoy text cannot satisfy them; valid casing, whitespace, quoted identifiers, and inter-token comments remain accepted.
-- Independent byte-preservation fixtures reject a missing `AUTOINCREMENT` hidden behind a comment decoy, a missing lifecycle `CHECK` hidden behind comment/literal decoys, a present-but-nonunique `receipt_ref`, an invalid private-sequence shape, a missing foreign key, a wrong foreign-key target, and a wrong `ON DELETE` action. A combined malformed fixture remains defense-in-depth only and is not the evidence for those individual checks.
+- Independent byte-preservation fixtures demonstrate rejection of a missing required challenge column, an extra unexpected challenge column, wrong challenge-column nullability, and a missing challenge primary-key position. Index fixtures separately demonstrate a missing named nonce index, a non-unique named nonce index, a partial nonce-index signature, wrong nonce-index column order, a missing `receipt_ref` integrity index, a wrong composite receipt-integrity signature, and an extra receipt integrity index. Receipt-sequence fixtures separately demonstrate wrong nullability, missing primary-key/`AUTOINCREMENT` shape, and a missing `AUTOINCREMENT` hidden behind a comment decoy. Existing isolated fixtures continue to demonstrate a missing lifecycle `CHECK` hidden behind comment/literal decoys, a missing foreign key, a wrong foreign-key target, and a wrong `ON DELETE` action. A combined malformed fixture remains defense-in-depth only and is not the evidence for those individual checks.
 - Two synchronized child processes contend for one challenge: exactly one consumes it, the other observes replay rejection, and a fresh process after restart remains rejected.
 - Two synchronized child processes issue different challenge refs with the same nonce: exactly one issues, the other receives duplicate-nonce rejection, and restart issuance remains rejected.
 - Corrupt SQLite input is rejected without recreation or data replacement. Relative paths, missing parents, and read-only database files fail closed. This Windows-host run created both the final-file and ancestor-directory symbolic links and proved rejection; failure to create either link on another Windows host is a failing external platform constraint and cannot be reported as coverage.
@@ -24,17 +24,23 @@ manual_required_note: cross-platform parity remains unproven; a Windows host una
 ## Validation
 
 ```text
+command: cargo test -p ocentra-family-identity-core --test unit parent_presence_store -- --nocapture
+result: pass (24 focused store tests)
+
 command: cargo test -p ocentra-family-identity-core --test unit trust_bootstrap
-result: pass (30 focused tests)
+result: pass (41 focused Trust tests)
 
 command: cargo test -p ocentra-family-identity-core
-result: pass (12 contract tests, 84 unit tests, library and doc-test targets green)
+result: pass (12 contract tests, 95 unit tests, library and doc-test targets green)
 
 command: cargo clippy -p ocentra-family-identity-core --tests -- -D warnings
 result: pass
 
 command: npm run lint:architecture -- --files <focused Rust source/test/docs/proof paths>
-result: pass for focused Rust source/test paths; final docs/proof-inclusive rerun recorded before commit
+result: pass for the exact touched test/docs/proof paths
+
+commands: npm run lint:enforcer:{source-shape,required-tests,no-test-doubles,validation-bypass,reexports}
+result: pass for each individual Enforcer rule
 ```
 
 ## No-claim boundary
