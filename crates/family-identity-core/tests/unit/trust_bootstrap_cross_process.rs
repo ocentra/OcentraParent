@@ -2,6 +2,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::thread;
+use std::time::{Duration, Instant};
 
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
@@ -15,6 +17,8 @@ const EXPIRY: &str = "2099-01-01T00:00:00.000Z";
 const SCOPE_ENV: &str = "OCENTRA_PARENT_PRESENCE_PROBE_SCOPE";
 const STORE_ENV: &str = "OCENTRA_PARENT_PRESENCE_PROBE_STORE";
 const OUTCOME_ENV: &str = "OCENTRA_PARENT_PRESENCE_PROBE_OUTCOME";
+const READY_ENV: &str = "OCENTRA_PARENT_PRESENCE_PROBE_READY";
+const START_ENV: &str = "OCENTRA_PARENT_PRESENCE_PROBE_START";
 static NEXT_CASE_ID: AtomicU64 = AtomicU64::new(1);
 
 struct Store {
@@ -28,6 +32,7 @@ impl Store {
             std::process::id(),
             NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
         ));
+        assert!(matches!(fs::create_dir_all(&root), Ok(())));
         Self {
             path: root.join("parent-presence.sqlite"),
             root,
@@ -78,7 +83,13 @@ fn input(scope: &str) -> (ParentPresenceChallenge, ParentPresenceVerificationInp
     (challenge, verification)
 }
 
-fn worker(scope: &str, store: &Path, outcome: &Path) -> std::io::Result<Command> {
+fn worker(
+    scope: &str,
+    store: &Path,
+    outcome: &Path,
+    ready: &Path,
+    start: &Path,
+) -> std::io::Result<Command> {
     let mut command = Command::new(std::env::current_exe()?);
     command
         .arg("parent_presence_cross_process_worker")
@@ -86,9 +97,25 @@ fn worker(scope: &str, store: &Path, outcome: &Path) -> std::io::Result<Command>
         .env(SCOPE_ENV, scope)
         .env(STORE_ENV, store)
         .env(OUTCOME_ENV, outcome)
+        .env(READY_ENV, ready)
+        .env(START_ENV, start)
         .stdout(Stdio::null())
         .stderr(Stdio::null());
     Ok(command)
+}
+
+fn wait_until(predicate: impl Fn() -> bool) -> std::io::Result<()> {
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !predicate() {
+        if Instant::now() >= deadline {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::TimedOut,
+                "cross-process synchronization timed out",
+            ));
+        }
+        thread::sleep(Duration::from_millis(5));
+    }
+    Ok(())
 }
 
 #[test]
@@ -105,12 +132,15 @@ fn parent_presence_replay_is_durable_across_processes_and_restart(
     assert_eq!(issuer.issue_challenge(challenge), Ok(()));
     let first_path = store.outcome("first");
     let second_path = store.outcome("second");
-    let first = worker(&scope, &store.path, &first_path)?
-        .spawn()?
-        .wait_with_output()?;
-    let second = worker(&scope, &store.path, &second_path)?
-        .spawn()?
-        .wait_with_output()?;
+    let first_ready = store.outcome("first-ready");
+    let second_ready = store.outcome("second-ready");
+    let start = store.outcome("start");
+    let first = worker(&scope, &store.path, &first_path, &first_ready, &start)?.spawn()?;
+    let second = worker(&scope, &store.path, &second_path, &second_ready, &start)?.spawn()?;
+    wait_until(|| first_ready.exists() && second_ready.exists())?;
+    fs::write(&start, "start")?;
+    let first = first.wait_with_output()?;
+    let second = second.wait_with_output()?;
     assert!(first.status.success());
     assert!(second.status.success());
     let outcomes = [
@@ -132,7 +162,17 @@ fn parent_presence_replay_is_durable_across_processes_and_restart(
         1
     );
     let restart_path = store.outcome("restart");
-    let restart = worker(&scope, &store.path, &restart_path)?.output()?;
+    let restart_ready = store.outcome("restart-ready");
+    let restart_start = store.outcome("restart-start");
+    fs::write(&restart_start, "start")?;
+    let restart = worker(
+        &scope,
+        &store.path,
+        &restart_path,
+        &restart_ready,
+        &restart_start,
+    )?
+    .output()?;
     assert!(restart.status.success());
     assert_eq!(fs::read_to_string(restart_path)?, "replay-rejected");
     Ok(())
@@ -146,6 +186,10 @@ fn parent_presence_cross_process_worker() -> Result<(), Box<dyn std::error::Erro
     let store = PathBuf::from(std::env::var_os(STORE_ENV).ok_or("missing process store path")?);
     let outcome =
         PathBuf::from(std::env::var_os(OUTCOME_ENV).ok_or("missing process outcome path")?);
+    let ready = PathBuf::from(std::env::var_os(READY_ENV).ok_or("missing process ready path")?);
+    let start = PathBuf::from(std::env::var_os(START_ENV).ok_or("missing process start path")?);
+    fs::write(ready, "ready")?;
+    wait_until(|| start.exists())?;
     let mut port = ParentPresenceVerificationPort::open(store)
         .map_err(|_error| std::io::Error::other("worker store unavailable"))?;
     let (_, verification) = input(&scope);

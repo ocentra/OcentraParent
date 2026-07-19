@@ -52,6 +52,19 @@ Implementation-adjacent coverage currently lives in:
 - `crates/agent-protocol/src/lan_pairing_tests.rs`
 - `crates/agent-service/src/lan_pairing_tests.rs`
 - `crates/agent-service/src/lan_pairing_multidevice_tests.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_cross_process.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_nonce_process.rs`
+
+WP01 parent-presence runtime custody:
+
+```powershell
+cargo test -p ocentra-family-identity-core --test unit trust_bootstrap
+cargo clippy -p ocentra-family-identity-core --tests -- -D warnings
+npm run lint:architecture -- --files crates/family-identity-core/src crates/family-identity-core/tests/unit
+```
+
+This focused proof covers explicit-path SQLite custody, durable challenge and nonce identity, opaque receipt generation/redaction, concurrent process consumption/issuance, restart replay rejection, and selected fail-closed path cases. It does not cover backup, export, restore, platform key stores, or all filesystem substitution behavior on every target OS.
 
 ## Common commands
 

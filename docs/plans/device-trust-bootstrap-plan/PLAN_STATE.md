@@ -31,7 +31,7 @@ Current direction from research and the pasted plan set:
 - Device trust is separate from account login, subscription entitlement, policy delivery, and remote-access grant state.
 - RustDesk is useful as architecture reference material for remote-desktop patterns, but not as embedded trust-root product code by default.
 - Android Play Integrity is a supporting signal only; it is not the trust root.
-- No proof roots currently exist on disk under `output/device-trust-bootstrap-plan-proof/` or `docs/proof/device-trust-bootstrap-plan/`.
+- A narrow runtime proof now exists under `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/00-runtime-security-proof.md` for Rust parent-presence challenge custody. Other workpack proof roots remain absent.
 - The current plan-local tests are mostly doc-shape and route-alignment checks, not runtime trust-bootstrap proof.
 
 ## Current ownership interpretation
@@ -74,7 +74,7 @@ remote-access-plan and policy-control-plane-plan:
 ## Current coupling risks
 
 ```text
-- No execution-grade device-trust runtime module exists yet.
+- An execution-grade parent-presence custody repository now exists in `crates/family-identity-core`; the broader device-trust runtime state machine remains open.
 - `family-domain` contains trust-adjacent authority helpers but not platform key sealing, QR approval runtime, recovery bundle runtime, or trust-root state machine.
 - `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
 - Current plan-local tests prove document and route shape only, not runtime trust.
@@ -100,7 +100,7 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 
 ## Proof Coverage
 
-- Proof roots are planned under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`, but they are absent on disk today.
+- The WP01 parent-presence runtime-security artifact is present; the remaining planned proof roots are absent.
 - Device-trust tests now live under `tests/device-trust-bootstrap-plan/<major-category>/`.
 - Current top-level categories are `unit`, `contract`, `integration`, `e2e`, and `security`.
 - The legacy `docs/proof/device-trust-bootstrap-plan/*` path is also absent on disk.
@@ -110,7 +110,8 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 - `packages/family-domain` contains typed trust-adjacent authority and recovery contracts, including `DeviceTrustState`, privileged device actions, setup invite rules, and recovery authorization boundaries.
 - `packages/lan-domain` plus the Rust LAN pairing runtime contain trusted-route and selected-device registry contracts, restart behavior, and explicit manual proof gaps for LAN pairing.
 - `packages/parent-domain` is mostly frontage for this slice and currently fails the repo re-export architecture gate on the named LAN/tamper bridge files.
-- No execution-grade device-trust state machine exists yet in repo code.
+- `crates/family-identity-core` has durable explicit-path SQLite issuance/consumption for parent-presence challenges, global nonce uniqueness, opaque OS-random receipt capabilities, concurrent process/restart replay proof, and selected fail-closed custody-path proof.
+- No complete device-trust state machine exists yet beyond that narrow parent-presence bootstrap boundary.
 - No execution-grade local key sealing implementation exists yet in repo code.
 - No execution-grade parent step-up, phone QR approval bridge, encrypted recovery bundle handling, entitlement-binding runtime, or child uninstall authorization runtime exists yet in repo code.
 - Login alone does not create trust, child devices do not own the trust root, and revocation must win over stale state.

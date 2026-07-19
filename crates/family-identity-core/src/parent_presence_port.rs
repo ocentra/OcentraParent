@@ -40,8 +40,11 @@ impl ParentPresenceVerificationPort {
         self.store
             .issue_challenge(challenge)
             .map_err(|error| match error {
-                ParentPresenceStoreIssueError::Duplicate => {
+                ParentPresenceStoreIssueError::DuplicateChallenge => {
                     ParentPresenceChallengeIssuanceFailureReason::DuplicateChallengeRef
+                }
+                ParentPresenceStoreIssueError::DuplicateNonce => {
+                    ParentPresenceChallengeIssuanceFailureReason::DuplicateNonceRef
                 }
                 ParentPresenceStoreIssueError::Store(_error) => {
                     ParentPresenceChallengeIssuanceFailureReason::CustodyUnavailable

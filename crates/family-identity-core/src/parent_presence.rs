@@ -40,6 +40,8 @@ pub enum ParentPresenceVerificationFailureReason {
 pub enum ParentPresenceChallengeIssuanceFailureReason {
     #[serde(rename = "duplicate-challenge-ref")]
     DuplicateChallengeRef,
+    #[serde(rename = "duplicate-nonce-ref")]
+    DuplicateNonceRef,
     #[serde(rename = "custody-unavailable")]
     CustodyUnavailable,
 }

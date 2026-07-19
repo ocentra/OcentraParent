@@ -1,5 +1,4 @@
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::time::Duration;
 
 use rusqlite::{params, Connection, ErrorCode, OptionalExtension, TransactionBehavior};
@@ -7,6 +6,9 @@ use rusqlite::{params, Connection, ErrorCode, OptionalExtension, TransactionBeha
 use crate::parent_presence::{
     ParentPresenceChallenge, ParentPresenceReceiptRef, ParentPresenceVerificationFailureReason,
 };
+use crate::parent_presence_store_integrity::{validate_store_schema, verified_challenge};
+use crate::parent_presence_store_path::validate_caller_custody_path;
+use crate::parent_presence_store_receipt::generate_opaque_receipt_ref;
 
 const CHALLENGE_STATE_ISSUED: &str = "issued";
 const CHALLENGE_STATE_CONSUMED: &str = "consumed";
@@ -21,7 +23,7 @@ CREATE TABLE IF NOT EXISTS parent_presence_challenges (
     challenge_json TEXT NOT NULL,
     privileged_action_json TEXT NOT NULL,
     expires_at TEXT NOT NULL,
-    nonce_ref TEXT NOT NULL,
+    nonce_ref TEXT NOT NULL UNIQUE,
     lifecycle_state TEXT NOT NULL CHECK (
         lifecycle_state IN ('issued', 'consumed')
     )
@@ -30,9 +32,13 @@ CREATE TABLE IF NOT EXISTS parent_presence_challenges (
 CREATE TABLE IF NOT EXISTS parent_presence_receipts (
     receipt_sequence INTEGER PRIMARY KEY AUTOINCREMENT,
     challenge_ref TEXT NOT NULL UNIQUE,
+    receipt_ref TEXT NOT NULL UNIQUE,
     FOREIGN KEY (challenge_ref)
         REFERENCES parent_presence_challenges(challenge_ref)
 ) STRICT;
+
+CREATE UNIQUE INDEX IF NOT EXISTS parent_presence_nonce_identity
+ON parent_presence_challenges(nonce_ref);
 "#;
 
 const INSERT_CHALLENGE: &str = r#"
@@ -64,8 +70,8 @@ WHERE challenge_ref = ?1 AND lifecycle_state = 'issued'
 "#;
 
 const INSERT_RECEIPT: &str = r#"
-INSERT INTO parent_presence_receipts (challenge_ref)
-VALUES (?1)
+INSERT INTO parent_presence_receipts (challenge_ref, receipt_ref)
+VALUES (?1, ?2)
 "#;
 
 #[derive(Clone)]
@@ -84,7 +90,8 @@ pub(crate) enum ConsumeChallengeResult {
 }
 
 pub(crate) enum ParentPresenceStoreIssueError {
-    Duplicate,
+    DuplicateChallenge,
+    DuplicateNonce,
     Store(ParentPresenceStoreError),
 }
 
@@ -94,23 +101,24 @@ pub(crate) enum ParentPresenceStoreError {
     IntegrityRejected,
 }
 
-struct StoredChallengeRow {
-    challenge_json: String,
-    privileged_action_json: String,
-    expires_at: String,
-    nonce_ref: String,
-    lifecycle_state: String,
+pub(crate) struct StoredChallengeRow {
+    pub(crate) challenge_json: String,
+    pub(crate) privileged_action_json: String,
+    pub(crate) expires_at: String,
+    pub(crate) nonce_ref: String,
+    pub(crate) lifecycle_state: String,
 }
 
 impl ParentPresenceStore {
     pub(crate) fn open(path: impl Into<PathBuf>) -> Result<Self, ParentPresenceStoreError> {
         let path = path.into();
-        create_parent_directory(&path)?;
+        validate_caller_custody_path(&path)?;
         let store = Self { path };
         let connection = store.connection()?;
         connection
             .execute_batch(INITIALIZE_PARENT_PRESENCE_STORE)
             .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
+        validate_store_schema(&connection)?;
         Ok(store)
     }
 
@@ -131,10 +139,30 @@ impl ParentPresenceStore {
             nonce_ref,
             ..
         } = challenge;
-        let connection = self
+        let mut connection = self
             .connection()
             .map_err(ParentPresenceStoreIssueError::Store)?;
-        match connection.execute(
+        let transaction = connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_error| {
+                ParentPresenceStoreIssueError::Store(ParentPresenceStoreError::Unavailable)
+            })?;
+        let duplicate = transaction
+            .query_row(
+                "SELECT challenge_ref, nonce_ref FROM parent_presence_challenges WHERE challenge_ref = ?1 OR nonce_ref = ?2 LIMIT 1",
+                params![challenge_ref, nonce_ref],
+                |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+            )
+            .optional()
+            .map_err(|_error| ParentPresenceStoreIssueError::Store(ParentPresenceStoreError::Unavailable))?;
+        if let Some((stored_challenge_ref, _stored_nonce_ref)) = duplicate {
+            return if stored_challenge_ref == challenge_ref {
+                Err(ParentPresenceStoreIssueError::DuplicateChallenge)
+            } else {
+                Err(ParentPresenceStoreIssueError::DuplicateNonce)
+            };
+        }
+        match transaction.execute(
             INSERT_CHALLENGE,
             params![
                 challenge_ref,
@@ -144,9 +172,11 @@ impl ParentPresenceStore {
                 nonce_ref,
             ],
         ) {
-            Ok(_) => Ok(()),
+            Ok(_) => transaction.commit().map_err(|_error| {
+                ParentPresenceStoreIssueError::Store(ParentPresenceStoreError::Unavailable)
+            }),
             Err(error) if is_constraint_violation(&error) => {
-                Err(ParentPresenceStoreIssueError::Duplicate)
+                Err(ParentPresenceStoreIssueError::DuplicateNonce)
             }
             Err(_error) => Err(ParentPresenceStoreIssueError::Store(
                 ParentPresenceStoreError::Unavailable,
@@ -198,8 +228,9 @@ impl ParentPresenceStore {
         if changed != 1 {
             return Err(ParentPresenceStoreError::IntegrityRejected);
         }
+        let receipt_ref = generate_opaque_receipt_ref()?;
         transaction
-            .execute(INSERT_RECEIPT, params![challenge_ref])
+            .execute(INSERT_RECEIPT, params![challenge_ref, receipt_ref])
             .map_err(|error| {
                 if is_constraint_violation(&error) {
                     ParentPresenceStoreError::IntegrityRejected
@@ -207,16 +238,13 @@ impl ParentPresenceStore {
                     ParentPresenceStoreError::Unavailable
                 }
             })?;
-        let receipt_sequence = transaction.last_insert_rowid();
         transaction
             .commit()
             .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
 
         Ok(ConsumeChallengeResult::Accepted(Box::new(
             ConsumedParentPresenceChallenge {
-                receipt_ref: ParentPresenceReceiptRef::from_string(format!(
-                    "parent-presence-receipt-{receipt_sequence}"
-                )),
+                receipt_ref: ParentPresenceReceiptRef::from_string(receipt_ref),
                 challenge,
             },
         )))
@@ -235,16 +263,6 @@ impl ParentPresenceStore {
     }
 }
 
-fn create_parent_directory(path: &Path) -> Result<(), ParentPresenceStoreError> {
-    let Some(parent) = path.parent() else {
-        return Ok(());
-    };
-    if parent.as_os_str().is_empty() {
-        return Ok(());
-    }
-    fs::create_dir_all(parent).map_err(|_error| ParentPresenceStoreError::Unavailable)
-}
-
 fn stored_challenge_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<StoredChallengeRow> {
     Ok(StoredChallengeRow {
         challenge_json: row.get(0)?,
@@ -253,24 +271,6 @@ fn stored_challenge_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<StoredChall
         nonce_ref: row.get(3)?,
         lifecycle_state: row.get(4)?,
     })
-}
-
-fn verified_challenge(
-    expected_challenge_ref: &str,
-    stored: &StoredChallengeRow,
-) -> Result<ParentPresenceChallenge, ParentPresenceStoreError> {
-    let challenge = serde_json::from_str::<ParentPresenceChallenge>(&stored.challenge_json)
-        .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
-    let privileged_action_json = serde_json::to_string(&challenge.privileged_action)
-        .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
-    if challenge.challenge_ref != expected_challenge_ref
-        || privileged_action_json != stored.privileged_action_json
-        || challenge.expires_at != stored.expires_at
-        || challenge.nonce_ref != stored.nonce_ref
-    {
-        return Err(ParentPresenceStoreError::IntegrityRejected);
-    }
-    Ok(challenge)
 }
 
 fn is_constraint_violation(error: &rusqlite::Error) -> bool {

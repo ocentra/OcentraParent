@@ -31,6 +31,14 @@ output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
 17-blockers.md
 ```
 
+WP01 currently has one narrow canonical runtime artifact:
+
+```text
+output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/00-runtime-security-proof.md
+```
+
+It proves only the Rust parent-presence custody slice recorded inside it; it does not substitute for the remaining universal files or broader WP01/WP09 closure.
+
 ## Command log format
 
 ```text

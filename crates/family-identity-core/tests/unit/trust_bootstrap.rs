@@ -1,6 +1,6 @@
 use std::fmt;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ocentra_family_identity_core::household_authority::{
@@ -42,12 +42,17 @@ impl TestStore {
             "ocentra-parent-presence-{prefix}-{}-{id}",
             std::process::id()
         ));
+        assert!(matches!(fs::create_dir_all(&root), Ok(())));
         let path = root.join("parent-presence.sqlite");
         Self { root, path }
     }
 
     fn port(&self) -> Result<ParentPresenceVerificationPort, ParentPresenceStorageFailureReason> {
         ParentPresenceVerificationPort::open(&self.path)
+    }
+
+    fn path(&self) -> &Path {
+        &self.path
     }
 }
 
@@ -287,6 +292,159 @@ fn parent_presence_verification_rejects_duplicate_issuance_without_overwriting_o
     );
     if let Ok(accepted) = accepted {
         assert_redacted_debug(&accepted, &case);
+    }
+    Ok(())
+}
+
+#[test]
+fn parent_presence_nonce_identity_is_unique_across_challenge_refs_and_restart() -> TestResult {
+    let first = test_case("nonce-first");
+    let mut second = test_case("nonce-second");
+    second.nonce_ref = first.nonce_ref.clone();
+    let store = TestStore::new("nonce-identity");
+    let mut issuer = store.port()?;
+    issue_valid_challenge(&mut issuer, &first, ACCEPTED_EXPIRY);
+    drop(issuer);
+
+    let mut restarted = store.port()?;
+    assert_eq!(
+        restarted.issue_challenge(challenge_for(&second, ACCEPTED_EXPIRY)),
+        Err(ParentPresenceChallengeIssuanceFailureReason::DuplicateNonceRef)
+    );
+    assert_eq!(
+        restarted
+            .verify_and_consume(verification_input(&first, ACCEPTED_EXPIRY))
+            .as_ref()
+            .map(|accepted| accepted.assertion_snapshot()),
+        Ok(&assertion_for(&first, ACCEPTED_EXPIRY))
+    );
+    Ok(())
+}
+
+#[test]
+fn parent_presence_receipt_is_unique_opaque_and_redacted() -> TestResult {
+    let first = test_case("opaque-receipt-first");
+    let second = test_case("opaque-receipt-second");
+    let store = TestStore::new("opaque-receipt");
+    let mut port = store.port()?;
+    issue_valid_challenge(&mut port, &first, ACCEPTED_EXPIRY);
+    issue_valid_challenge(&mut port, &second, ACCEPTED_EXPIRY);
+    let first_accepted = port
+        .verify_and_consume(verification_input(&first, ACCEPTED_EXPIRY))
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let second_accepted = port
+        .verify_and_consume(verification_input(&second, ACCEPTED_EXPIRY))
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let first_ref = first_accepted.receipt_ref().to_string();
+    let second_ref = second_accepted.receipt_ref().to_string();
+    let first_entropy = first_ref.strip_prefix("parent-presence-receipt:");
+    assert_eq!(first_entropy.map(str::len), Some(64));
+    assert_eq!(
+        first_entropy.map(|value| value.chars().all(|character| character.is_ascii_hexdigit())),
+        Some(true)
+    );
+    assert_ne!(first_ref, second_ref);
+    assert!(!format!("{first_accepted:?}").contains(&first_ref));
+    Ok(())
+}
+
+#[test]
+fn parent_presence_store_rejects_corruption_without_recreation() {
+    let store = TestStore::new("corrupt-store");
+    let corrupt = b"not-a-sqlite-database";
+    assert!(matches!(fs::write(store.path(), corrupt), Ok(())));
+    assert!(matches!(
+        ParentPresenceVerificationPort::open(store.path()),
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    ));
+    assert!(matches!(
+        fs::read(store.path()),
+        Ok(content) if content == corrupt
+    ));
+}
+
+#[test]
+fn parent_presence_store_rejects_legacy_receipt_schema_at_open() -> TestResult {
+    let store = TestStore::new("legacy-receipt-schema");
+    let connection = rusqlite::Connection::open(store.path())
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    connection
+        .execute_batch(
+            "CREATE TABLE parent_presence_challenges (challenge_ref TEXT PRIMARY KEY NOT NULL, challenge_json TEXT NOT NULL, privileged_action_json TEXT NOT NULL, expires_at TEXT NOT NULL, nonce_ref TEXT NOT NULL UNIQUE, lifecycle_state TEXT NOT NULL) STRICT;
+             CREATE TABLE parent_presence_receipts (receipt_sequence INTEGER PRIMARY KEY AUTOINCREMENT, challenge_ref TEXT NOT NULL UNIQUE) STRICT;",
+        )
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    drop(connection);
+    assert!(matches!(
+        ParentPresenceVerificationPort::open(store.path()),
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    ));
+    Ok(())
+}
+
+#[test]
+fn parent_presence_store_requires_existing_absolute_caller_custody_parent() {
+    let relative = PathBuf::from("parent-presence-relative.sqlite");
+    assert!(matches!(
+        ParentPresenceVerificationPort::open(&relative),
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    ));
+    assert!(!relative.exists());
+
+    let missing_parent = std::env::temp_dir().join(format!(
+        "ocentra-parent-presence-missing-parent-{}-{}",
+        std::process::id(),
+        NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
+    ));
+    let path = missing_parent.join("nested").join("parent-presence.sqlite");
+    assert!(matches!(
+        ParentPresenceVerificationPort::open(&path),
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    ));
+    assert!(!missing_parent.exists());
+}
+
+#[test]
+fn parent_presence_store_rejects_read_only_database() -> TestResult {
+    let store = TestStore::new("read-only-store");
+    drop(store.port()?);
+    let mut permissions = fs::metadata(store.path())
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?
+        .permissions();
+    permissions.set_readonly(true);
+    assert!(matches!(
+        fs::set_permissions(store.path(), permissions),
+        Ok(())
+    ));
+    assert!(matches!(
+        ParentPresenceVerificationPort::open(store.path()),
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    ));
+    Ok(())
+}
+
+#[cfg(windows)]
+#[test]
+fn parent_presence_store_rejects_final_and_ancestor_symbolic_substitution() -> TestResult {
+    use std::os::windows::fs::{symlink_dir, symlink_file};
+
+    let store = TestStore::new("symbolic-substitution");
+    drop(store.port()?);
+    let final_link = store.root.join("linked-parent-presence.sqlite");
+    if symlink_file(store.path(), &final_link).is_ok() {
+        assert!(matches!(
+            ParentPresenceVerificationPort::open(&final_link),
+            Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+        ));
+    }
+
+    let alias = store.root.with_extension("alias");
+    if symlink_dir(&store.root, &alias).is_ok() {
+        assert!(matches!(
+            ParentPresenceVerificationPort::open(alias.join("parent-presence.sqlite")),
+            Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+        ));
+        assert!(matches!(fs::remove_dir(&alias), Ok(())));
     }
     Ok(())
 }

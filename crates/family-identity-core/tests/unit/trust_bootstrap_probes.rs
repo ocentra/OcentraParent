@@ -48,6 +48,7 @@ impl TestStore {
             "ocentra-parent-presence-probe-{prefix}-{}-{id}",
             std::process::id()
         ));
+        assert!(matches!(fs::create_dir_all(&root), Ok(())));
         let path = root.join("parent-presence.sqlite");
         Self { root, path }
     }
@@ -228,101 +229,6 @@ fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
     );
     Ok(())
 }
-
-/* Moved to trust_bootstrap_cross_process.rs to keep each proof module within source-shape limits.
-#[test]
-fn parent_presence_replay_is_durable_across_processes_and_restart() {
-    let scope = format!(
-        "cross-process-{}-{}",
-        std::process::id(),
-        NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
-    );
-    let case = test_case_for_scope(&scope);
-    let store = TestStore::new("cross-process");
-    let mut issuer = store
-        .port()
-        .expect("issuer opens the shared parent-presence store");
-    issue_valid_challenge(&mut issuer, &case, ACCEPTED_EXPIRY);
-
-    let first_outcome_path = store.outcome_path("first");
-    let second_outcome_path = store.outcome_path("second");
-    let first = cross_process_worker(&scope, store.path(), &first_outcome_path)
-        .spawn()
-        .expect("first cross-process worker starts");
-    let second = cross_process_worker(&scope, store.path(), &second_outcome_path)
-        .spawn()
-        .expect("second cross-process worker starts");
-    let first = first
-        .wait_with_output()
-        .expect("first cross-process worker completes");
-    let second = second
-        .wait_with_output()
-        .expect("second cross-process worker completes");
-    assert!(
-        first.status.success(),
-        "first cross-process worker must pass"
-    );
-    assert!(
-        second.status.success(),
-        "second cross-process worker must pass"
-    );
-    let outcomes = [
-        cross_process_outcome(&first_outcome_path),
-        cross_process_outcome(&second_outcome_path),
-    ];
-
-    assert_eq!(
-        outcomes
-            .iter()
-            .filter(|outcome| outcome.as_deref() == Some("accepted"))
-            .count(),
-        1,
-        "exactly one independent process must consume the challenge: {outcomes:?}"
-    );
-    assert_eq!(
-        outcomes
-            .iter()
-            .filter(|outcome| outcome.as_deref() == Some("replay-rejected"))
-            .count(),
-        1,
-        "the competing independent process must observe durable replay rejection: {outcomes:?}"
-    );
-
-    let restart_outcome_path = store.outcome_path("restart");
-    let _restarted = cross_process_worker(&scope, store.path(), &restart_outcome_path)
-        .output()
-        .expect("restart probe completes");
-    assert_eq!(
-        cross_process_outcome(&restart_outcome_path).as_deref(),
-        Some("replay-rejected"),
-        "a fresh process after both consumers exit must retain replay rejection"
-    );
-}
-
-#[test]
-fn parent_presence_cross_process_worker() {
-    let O k(scope) = std::env::var(CROSS_PROCESS_SCOPE_ENV) els e {
-        return;
-    };
-    let store_path = std::env::var_os(CROSS_PROCESS_STORE_ENV)
-        .map(PathBuf::from)
-        .expect("cross-process worker receives an explicit store path");
-    let outcome_path = std::env::var_os(CROSS_PROCESS_OUTCOME_ENV)
-        .map(PathBuf::from)
-        .expect("cross-process worker receives an explicit outcome path");
-    let case = test_case_for_scope(&scope);
-    let mut port = ParentPresenceVerificationPort::open(store_path)
-        .expect("cross-process worker opens the shared parent-presence store");
-    let result = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
-    let outcome = mat ch result {
-        Ok(_) => "accepted",
-        Er r(ParentPresenceVerificationFailureReason::ReplayRejected) => "replay-rejected",
-        Er r(ParentPresenceVerificationFailureReason::ChallengeNotIssued) => "challenge-not-issued",
-        Er r(_) => "rejected",
-    };
-    fs::write(outcome_path, outcome).expect("cross-process worker records its exact outcome");
-}
-*/
 
 #[test]
 fn trust_bootstrap_returns_awaiting_platform_key_sealing() -> TestResult {
