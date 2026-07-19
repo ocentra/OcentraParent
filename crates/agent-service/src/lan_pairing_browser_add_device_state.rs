@@ -145,10 +145,43 @@ pub(crate) fn browser_add_device_read_model(
         .or(scan_result.previous_scan_snapshot.as_ref())
         .map(|snapshot| LanPairingText(snapshot.updated_at.clone()))
         .unwrap_or_else(|| observed_at.clone());
-    let selected = runtime.selected_target();
-    let trusted_device_registry = trusted_device_registry(runtime);
-    let household_device_decisions = household_device_decisions(runtime);
-    let platform_data_available = platform_data_available_for_scan_result(&scan_result);
+    let mut model = build_live_read_model(
+        runtime,
+        command,
+        discovery_state,
+        &scan_result,
+        &observed_at,
+    );
+    let current_canonical_household_devices = model.canonical_household_devices.clone();
+    restore_live_canonical_household_devices(
+        &mut model,
+        runtime,
+        &current_canonical_household_devices,
+        &observed_at,
+    );
+    let mut replay_history_model = replay_history_model(&model, &history_generated_at);
+    let has_persisted_projection = assign_replay_projection(
+        &mut replay_history_model,
+        &scan_result,
+        &current_canonical_household_devices,
+    );
+    scan_history::save_replay_canonical_devices(runtime, &current_canonical_household_devices);
+    model.discovery_event_history = discovery_event_history::replay_discovery_event_history(
+        &scan_result,
+        &replay_history_model,
+        &history_generated_at,
+        has_persisted_projection,
+    );
+    model
+}
+
+fn build_live_read_model(
+    runtime: &LanPairingRuntime,
+    command: &AgentCommandEnvelope,
+    discovery_state: &LanPairingText,
+    scan_result: &LanNetworkDeviceScanResult,
+    observed_at: &LanPairingText,
+) -> LanBrowserAddDeviceReadModel {
     let network_devices = scan_result.devices.clone();
     let has_network_devices = !network_devices.is_empty();
     let discovery_source = if has_network_devices {
@@ -156,29 +189,25 @@ pub(crate) fn browser_add_device_read_model(
     } else {
         LanPairingDiscoverySource::LocalService
     };
-    let discovered_devices = discovered_devices(
-        runtime,
-        command,
-        discovery_state,
-        &observed_at,
-        &network_devices,
-    );
-    let physical_household_lan_state = physical_household_lan_state(has_network_devices);
-    let selected_device_readiness = selected_device_readiness(selected);
-
-    let mut model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
-        generated_at: history_generated_at.0.clone(),
+    build_lan_add_device_read_model(LanAddDeviceReadModelInput {
+        generated_at: observed_at.0.clone(),
         discovery_source,
         service_data_available: true,
-        platform_data_available,
+        platform_data_available: platform_data_available_for_scan_result(scan_result),
         add_device_state: discovery_state_for(discovery_state),
         local_service_discovery_state: discovery_state_for(discovery_state),
-        physical_household_lan_state,
+        physical_household_lan_state: physical_household_lan_state(has_network_devices),
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
-        discovered_devices,
-        pairing_requests: pairing_requests(runtime, &observed_at),
-        trusted_device_registry,
-        household_device_decisions,
+        discovered_devices: discovered_devices(
+            runtime,
+            command,
+            discovery_state,
+            observed_at,
+            &network_devices,
+        ),
+        pairing_requests: pairing_requests(runtime, observed_at),
+        trusted_device_registry: trusted_device_registry(runtime),
+        household_device_decisions: household_device_decisions(runtime),
         trusted_device_ids: runtime
             .trusted_device_ids()
             .into_iter()
@@ -189,24 +218,53 @@ pub(crate) fn browser_add_device_read_model(
             .into_iter()
             .map(|value| value.0)
             .collect(),
-        selected_device_readiness,
+        selected_device_readiness: selected_device_readiness(runtime.selected_target()),
         controller_authority: LanPairingParentAuthority::ActiveController,
         observer_authority: LanPairingParentAuthority::Observer,
-    });
-    let current_canonical_household_devices = model.canonical_household_devices.clone();
-    persist_known_household_devices(runtime, &current_canonical_household_devices);
+    })
+}
+
+fn restore_live_canonical_household_devices(
+    model: &mut LanBrowserAddDeviceReadModel,
+    runtime: &LanPairingRuntime,
+    current_canonical_household_devices: &[ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice],
+    observed_at: &LanPairingText,
+) {
+    persist_known_household_devices(runtime, current_canonical_household_devices);
     model.canonical_household_devices = merged_known_household_devices_for_read_model(
         runtime,
-        &current_canonical_household_devices,
-        &history_generated_at,
+        current_canonical_household_devices,
+        observed_at,
     );
-    model.discovery_event_history = discovery_event_history::discovery_event_history(
-        &scan_result,
-        &model,
-        &history_generated_at,
-    );
-    model.generated_at = observed_at.0;
-    model
+}
+
+fn replay_history_model(
+    live_model: &LanBrowserAddDeviceReadModel,
+    history_generated_at: &LanPairingText,
+) -> LanBrowserAddDeviceReadModel {
+    let mut replay_model = live_model.clone();
+    replay_model.generated_at = history_generated_at.0.clone();
+    replay_model
+}
+
+fn assign_replay_projection(
+    replay_model: &mut LanBrowserAddDeviceReadModel,
+    scan_result: &LanNetworkDeviceScanResult,
+    current_canonical_household_devices: &[ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice],
+) -> bool {
+    let persisted_projection = scan_result
+        .current_scan_snapshot
+        .as_ref()
+        .or(scan_result.previous_scan_snapshot.as_ref())
+        .and_then(|snapshot| snapshot.replay_canonical_devices.clone());
+    let has_persisted_projection =
+        !scan_result.reused_recent_snapshot || persisted_projection.is_some();
+    replay_model.canonical_household_devices = if scan_result.reused_recent_snapshot {
+        persisted_projection.unwrap_or_default()
+    } else {
+        persisted_projection.unwrap_or_else(|| current_canonical_household_devices.to_vec())
+    };
+    has_persisted_projection
 }
 
 pub(crate) fn browser_read_model_generated_at(

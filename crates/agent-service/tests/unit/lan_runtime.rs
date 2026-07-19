@@ -343,32 +343,6 @@ mod lan_pairing_browser_add_device_scan_tests {
     }
 }
 
-mod lan_pairing_browser_add_device_state_private_tests {
-    use super::lan_pairing_browser_add_device_state::discovery_event_history::{
-        discovery_event_history_state, ordered_discovery_event_rows,
-    };
-    use super::lan_pairing_browser_add_device_state::discovery_projection::selected_device_readiness;
-    use super::lan_pairing_browser_add_device_state::physical_lan_scan::LanNetworkDeviceScanResult;
-    use super::lan_pairing_browser_add_device_state::{
-        network_neighbor_child_device,
-        platform_data_available_for_scan_result_with_manual_required_override,
-    };
-
-    mod scan_history {
-        pub(crate) type LanScanHistoryMetadata =
-            crate::lan_pairing_browser_add_device_state::scan_history::LanScanHistoryMetadata;
-        pub(crate) type LanScanHistorySnapshot =
-            crate::lan_pairing_browser_add_device_state::scan_history::LanScanHistorySnapshot;
-    }
-
-    mod tests {
-        include!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/tests/unit/lan_pairing_browser_add_device_state_private.rs"
-        ));
-    }
-}
-
 mod lan_pairing_browser_add_device_state_physical_lan_scan_tests {
     use super::lan_pairing_browser_add_device_state::physical_lan_scan::*;
     use super::lan_pairing_browser_add_device_state::scan_history::{

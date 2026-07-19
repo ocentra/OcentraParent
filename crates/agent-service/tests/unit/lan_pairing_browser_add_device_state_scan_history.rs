@@ -93,6 +93,7 @@ fn recent_previous_scan_agent_truth_ignores_agentless_history() {
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
         metadata: None,
         devices: vec![sample_agent_truth_device(), agentless_network_device()],
+        replay_canonical_devices: None,
     };
 
     let devices = recent_previous_scan_agent_truth_devices(Some(&snapshot), now);

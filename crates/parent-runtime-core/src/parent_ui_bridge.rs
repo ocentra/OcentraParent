@@ -133,7 +133,7 @@ fn load_parent_subscription_event_with_state(
     events.extend_from_slice(lan_route_query.events());
     if replay_rejected {
         events.push(state.replay_rejection_diagnostic());
-    } else if replay_attempted {
+    } else {
         state.complete_replay_rejection_episode();
     }
     let events = dedupe_route_events_by_event_id(&events);

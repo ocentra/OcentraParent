@@ -513,6 +513,14 @@ function invalidLanReplayBatches(
       snapshot: validSnapshot,
       events: [{ ...validReplay, payload: null }],
     },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, eventId: 'substituted-replay-id', payload: null }],
+    },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, eventId: 'substituted-replay-id', payload: {} }],
+    },
     { snapshot: validSnapshot, events: [{ ...validReplay, sourcePeerId: '' }] },
     { snapshot: validSnapshot, events: [{ ...validReplay, sourcePeerId: 'spoofed-agent' }] },
     { snapshot: validSnapshot, events: [{ ...validReplay, sourceRole: 'portal' }] },

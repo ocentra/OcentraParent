@@ -67,6 +67,7 @@ fn future_previous_scan_never_advances_read_model_observation_time_or_pairing_ex
             updated_at: "2026-06-28T18:00:00.000Z".to_string(),
             metadata: None,
             devices: Vec::new(),
+            replay_canonical_devices: None,
         }),
         ..LanNetworkDeviceScanResult::default()
     };
@@ -660,6 +661,7 @@ fn scan_history_snapshot(metadata: Option<LanScanHistoryMetadata>) -> LanScanHis
         updated_at: "2026-06-26T20:45:47.000Z".to_string(),
         metadata,
         devices: Vec::new(),
+        replay_canonical_devices: None,
     }
 }
 
@@ -672,6 +674,7 @@ fn scan_history_snapshot_with_devices(
         updated_at: "2026-06-26T20:45:47.000Z".to_string(),
         metadata,
         devices,
+        replay_canonical_devices: None,
     }
 }
 

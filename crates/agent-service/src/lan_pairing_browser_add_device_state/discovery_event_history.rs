@@ -13,8 +13,6 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 mod canonical_device_events;
 #[path = "discovery_event_history/event_row.rs"]
 mod event_row;
-#[path = "discovery_event_history/metadata_events.rs"]
-mod metadata_events;
 #[path = "discovery_event_history/network_device_events.rs"]
 mod network_device_events;
 
@@ -60,19 +58,31 @@ impl PartialOrd for DiscoveryEventSortKey {
     }
 }
 
-pub(crate) fn discovery_event_history(
+pub(crate) fn replay_discovery_event_history(
     scan_result: &LanNetworkDeviceScanResult,
     read_model: &LanBrowserAddDeviceReadModel,
     generated_at: &LanPairingText,
+    has_persisted_projection: bool,
 ) -> LanDiscoveryEventHistory {
-    let mut historical_read_model = read_model.clone();
-    historical_read_model.generated_at = generated_at.0.clone();
-    let rows = ordered_discovery_event_rows(scan_result, &historical_read_model);
+    let mut replay_read_model = read_model.clone();
+    replay_read_model.generated_at = generated_at.0.clone();
+    let mut rows = Vec::new();
+    network_device_events::push_scan_device_event_rows(&mut rows, scan_result);
+    canonical_device_events::push_canonical_household_event_rows(
+        &mut rows,
+        scan_result,
+        &replay_read_model,
+    );
+    let rows = finalize_discovery_event_rows(rows);
     let latest = rows.last();
     LanDiscoveryEventHistory {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        generated_at: historical_read_model.generated_at.clone(),
-        state: discovery_event_history_state(scan_result, &rows, &historical_read_model),
+        generated_at: generated_at.0.clone(),
+        state: if has_persisted_projection {
+            discovery_event_history_state(scan_result, &rows, &replay_read_model)
+        } else {
+            LanDiscoveryEventHistoryState::Degraded
+        },
         latest_event_id: latest.map(|event| event.event_id.clone()),
         latest_observed_at: latest.map(|event| event.occurred_at.clone()),
         rows,
@@ -109,18 +119,7 @@ pub(crate) fn discovery_event_history_state(
     LanDiscoveryEventHistoryState::Empty
 }
 
-pub(crate) fn ordered_discovery_event_rows(
-    scan_result: &LanNetworkDeviceScanResult,
-    read_model: &LanBrowserAddDeviceReadModel,
-) -> Vec<LanDiscoveryEventRow> {
-    let mut rows = Vec::new();
-    metadata_events::push_scan_metadata_event_rows(&mut rows, scan_result, read_model);
-    network_device_events::push_scan_device_event_rows(&mut rows, scan_result);
-    canonical_device_events::push_canonical_household_event_rows(
-        &mut rows,
-        scan_result,
-        read_model,
-    );
+fn finalize_discovery_event_rows(mut rows: Vec<LanDiscoveryEventRow>) -> Vec<LanDiscoveryEventRow> {
     rows.sort_by_cached_key(|row| DiscoveryEventSortKey {
         timestamp: Rfc3339Timestamp::parse(LanPairingText(row.occurred_at.clone())),
         event_id: LanPairingText(row.event_id.clone()),

@@ -1,5 +1,7 @@
 import {
+  ParentAgentLanDiscoveryEventKind,
   ParentHostBridgeRuntime,
+  type ParentAgentLanDiscoveryEventKind as ParentAgentLanDiscoveryEventKindValue,
   type ParentLanDiscoveryEventHistorySnapshot,
   type ParentLanDiscoveryEventRowSnapshot,
   type ParentRouteEventSnapshot,
@@ -15,12 +17,18 @@ import {
 } from './parent-route-event-snapshot';
 import { hasCanonicalLanReplayProvenance } from './lan-replay-provenance';
 
+const LAN_DISCOVERY_REPLAY_EVENT_KINDS: ReadonlySet<ParentAgentLanDiscoveryEventKindValue> = new Set(
+  Object.values(ParentAgentLanDiscoveryEventKind)
+);
+
 export function isReplayBatchBoundToSnapshot(
   snapshots: readonly ParentRouteEventSnapshot[],
   snapshot: ParentRouteSnapshot
 ): boolean {
   const history = snapshot.liveActivity?.lanAddDeviceReadModel?.discoveryEventHistory;
-  const replaySnapshots = snapshots.filter((event) => isLanReplaySnapshot(event, history?.rows ?? []));
+  const replaySnapshots = snapshots.filter(
+    (event) => isLanReplaySnapshot(event, history?.rows ?? []) || isLanDiscoveryReplayCandidate(event)
+  );
   if (replaySnapshots.length === 0) {
     return true;
   }
@@ -40,6 +48,17 @@ export function isReplayBatchBoundToSnapshot(
     return false;
   }
   return replayRowsMatchHistory(replaySnapshots, history, snapshotTimestamp, historyGeneratedAt);
+}
+
+function isLanDiscoveryReplayCandidate(event: ParentRouteEventSnapshot): boolean {
+  return isGeneratedLanDiscoveryEventKind(event.event);
+}
+
+function isGeneratedLanDiscoveryEventKind(value: unknown): value is ParentAgentLanDiscoveryEventKindValue {
+  return (
+    typeof value === ParentHostBridgeRuntime.StringType &&
+    LAN_DISCOVERY_REPLAY_EVENT_KINDS.has(value as ParentAgentLanDiscoveryEventKindValue)
+  );
 }
 
 function historyMatchesBatchShape(history: ParentLanDiscoveryEventHistorySnapshot, replayCount: number): boolean {

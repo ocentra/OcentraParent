@@ -11,9 +11,9 @@ mod network_refs;
 
 use self::commands::command_descriptors;
 use self::descriptors::{
-    lan_household_action_kind_descriptors, lan_intent_kind_descriptors,
-    lan_parent_authority_descriptors, log_level_descriptors, peer_default_descriptors,
-    peer_role_descriptors, route_descriptors, target_default_descriptors,
+    lan_discovery_event_kind_descriptors, lan_household_action_kind_descriptors,
+    lan_intent_kind_descriptors, lan_parent_authority_descriptors, log_level_descriptors,
+    peer_default_descriptors, peer_role_descriptors, route_descriptors, target_default_descriptors,
 };
 use self::events::event_descriptors;
 use self::fields::field_descriptors;
@@ -28,7 +28,7 @@ use self::network_refs::{
 
 fn lan_value_typescript(names: &ProtocolBridgeNames) -> String {
     format!(
-        "{} {} {} export const {} = {} as const; export type {} = (typeof {})[number]; export const {} = {}.LanHouseholdActionDeviceKind;",
+        "{} {} {} {} export const {} = {} as const; export type {} = (typeof {})[number]; export const {} = {}.LanHouseholdActionDeviceKind;",
         literal_typescript(
             names.lan_household_action_kind_const,
             names.lan_household_action_kind_type,
@@ -43,6 +43,11 @@ fn lan_value_typescript(names: &ProtocolBridgeNames) -> String {
             names.lan_parent_authority_const,
             names.lan_parent_authority_type,
             &lan_parent_authority_descriptors(),
+        ),
+        literal_typescript(
+            names.lan_discovery_event_kind_const,
+            names.lan_discovery_event_kind_type,
+            &lan_discovery_event_kind_descriptors(),
         ),
         names.lan_household_device_kind_values_const,
         json_literal(&lan_pairing::HOUSEHOLD_DEVICE_KINDS),

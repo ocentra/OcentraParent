@@ -138,10 +138,10 @@ async fn websocket_lan_runtime_stream_command_does_not_fabricate_scan_delta_even
             .get(constants::field::LAN_RUNTIME_FAILED_EVENTS),
         Some(&LogFieldValue::Number(0.0))
     );
-    assert!(entries.iter().any(|entry| {
-        entry[constants::field::PAYLOAD]["affectedDeviceId"]
-            == serde_json::json!("lan-physical-mac-001122334455-persistedlandevice")
-    }));
+    assert!(
+        entries.is_empty(),
+        "a persisted inventory without a persisted canonical replay projection must not fabricate replay rows"
+    );
     assert!(entries.iter().all(|entry| {
         !matches!(
             entry[constants::field::EVENT_TYPE].as_str(),
@@ -179,6 +179,8 @@ async fn persisted_cached_status_and_stream_report_identical_history_binding() {
     );
     let restarted_runtime = LanPairingRuntime::persistent_json(&registry_path);
     let status_body = TestText::from_display(serialize_test_json(&status_command_envelope()));
+    let _projection_seed_event =
+        handle_command_text_for_test(status_body.clone(), restarted_runtime.clone(), None).await;
     let status_event =
         handle_command_text_for_test(status_body, restarted_runtime.clone(), None).await;
     let stream_body = TestText::from_display(serialize_test_json(&command_envelope()));

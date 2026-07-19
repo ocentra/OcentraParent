@@ -101,6 +101,8 @@ struct ProtocolBridgeNames {
     lan_intent_kind_type: &'static str,
     lan_parent_authority_const: &'static str,
     lan_parent_authority_type: &'static str,
+    lan_discovery_event_kind_const: &'static str,
+    lan_discovery_event_kind_type: &'static str,
     lan_household_device_kind_values_const: &'static str,
     lan_household_device_kind_type: &'static str,
     lan_household_action_device_kind_field_const: &'static str,
@@ -211,6 +213,8 @@ fn parent_bridge_names() -> ProtocolBridgeNames {
         lan_intent_kind_type: "ParentAgentLanIntentKind",
         lan_parent_authority_const: "ParentAgentLanParentAuthority",
         lan_parent_authority_type: "ParentAgentLanParentAuthority",
+        lan_discovery_event_kind_const: "ParentAgentLanDiscoveryEventKind",
+        lan_discovery_event_kind_type: "ParentAgentLanDiscoveryEventKind",
         lan_household_device_kind_values_const: "ParentAgentLanHouseholdDeviceKindValues",
         lan_household_device_kind_type: "ParentAgentLanHouseholdDeviceKind",
         lan_household_action_device_kind_field_const:
@@ -285,6 +289,8 @@ fn generated_portal_bridge_names() -> ProtocolBridgeNames {
         lan_intent_kind_type: "GeneratedPortalAgentLanIntentKind",
         lan_parent_authority_const: "GeneratedPortalAgentLanParentAuthority",
         lan_parent_authority_type: "GeneratedPortalAgentLanParentAuthority",
+        lan_discovery_event_kind_const: "GeneratedPortalAgentLanDiscoveryEventKind",
+        lan_discovery_event_kind_type: "GeneratedPortalAgentLanDiscoveryEventKind",
         lan_household_device_kind_values_const: "GeneratedPortalAgentLanHouseholdDeviceKindValues",
         lan_household_device_kind_type: "GeneratedPortalAgentLanHouseholdDeviceKind",
         lan_household_action_device_kind_field_const:

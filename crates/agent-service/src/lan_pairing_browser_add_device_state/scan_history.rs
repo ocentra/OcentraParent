@@ -6,6 +6,7 @@ use ocentra_lan_core::network_inventory::{LanDiscoveryScanPlan, LanNetworkInvent
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -15,6 +16,7 @@ use crate::{
 
 pub(crate) const LAN_SCAN_HISTORY_SCHEMA_VERSION: u16 = 2;
 const LAN_SCAN_HISTORY_FILE_SUFFIX: &str = "-lan-scan-history.json";
+const LAN_SCAN_HISTORY_TEMPORARY_EXTENSION: &str = "tmp";
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct LanScanHistoryRegistryPath(PathBuf);
@@ -68,6 +70,8 @@ pub(crate) struct LanScanHistorySnapshot {
     #[serde(default)]
     pub(crate) metadata: Option<LanScanHistoryMetadata>,
     pub(crate) devices: Vec<LanNetworkInventoryDevice>,
+    #[serde(default)]
+    pub(crate) replay_canonical_devices: Option<Vec<LanCanonicalHouseholdDevice>>,
 }
 
 pub(crate) fn recent_previous_scan_agent_truth_devices(
@@ -111,9 +115,35 @@ pub(crate) fn save_scan_history(
         updated_at: timestamp_now(),
         metadata,
         devices: devices.to_vec(),
+        replay_canonical_devices: None,
     };
-    if let Ok(json) = serde_json::to_vec_pretty(&snapshot) {
-        let _ = fs::write(path, json);
+    write_scan_history(&path, &snapshot);
+}
+
+pub(crate) fn save_replay_canonical_devices(
+    runtime: &LanPairingRuntime,
+    replay_canonical_devices: &[LanCanonicalHouseholdDevice],
+) {
+    let Some(path) = scan_history_path(runtime) else {
+        return;
+    };
+    let Some(mut snapshot) = read_scan_history(&path) else {
+        return;
+    };
+    if snapshot.replay_canonical_devices.is_some() {
+        return;
+    }
+    snapshot.replay_canonical_devices = Some(replay_canonical_devices.to_vec());
+    write_scan_history(&path, &snapshot);
+}
+
+fn write_scan_history(path: &LanScanHistoryPath, snapshot: &LanScanHistorySnapshot) {
+    let Ok(json) = serde_json::to_vec_pretty(snapshot) else {
+        return;
+    };
+    let temporary_path = path.0.with_extension(LAN_SCAN_HISTORY_TEMPORARY_EXTENSION);
+    if fs::write(&temporary_path, json).is_ok() {
+        let _ = fs::rename(temporary_path, path.0.as_path());
     }
 }
 
