@@ -2773,9 +2773,12 @@ dependencies = [
 name = "ocentra-storage-custody-core"
 version = "0.1.1"
 dependencies = [
+ "atomicwrites",
+ "fs2",
  "ocentra-eventing",
  "ocentra-schema",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
