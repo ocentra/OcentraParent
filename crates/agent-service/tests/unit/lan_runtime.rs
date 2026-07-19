@@ -102,6 +102,7 @@ mod app {
 
         pub(crate) const STREAM_LAN_RUNTIME_EVENT_CHAIN_FOR_HISTORY: fn(
             &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEventHistory,
+            ocentra_parent_agent_protocol::lan_pairing::LanPairingText,
         ) -> LanRuntimeServiceStreamReport =
             crate::lan_runtime_stream_payload::stream_lan_runtime_event_chain_for_history;
 

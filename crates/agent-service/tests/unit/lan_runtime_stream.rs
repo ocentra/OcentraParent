@@ -34,7 +34,8 @@ use crate::{
 #[test]
 fn lan_runtime_stream_payload_serializes_replayable_discovery_event_rows() {
     let history = discovery_event_history();
-    let report = STREAM_LAN_RUNTIME_EVENT_CHAIN_FOR_HISTORY(&history);
+    let report =
+        STREAM_LAN_RUNTIME_EVENT_CHAIN_FOR_HISTORY(&history, history.generated_at.clone().into());
     let payload = LAN_RUNTIME_EVENT_CHAIN_STREAM_PAYLOAD(&report);
     let entries = stream_entries(&payload);
 
@@ -67,6 +68,29 @@ fn lan_runtime_stream_payload_serializes_replayable_discovery_event_rows() {
     assert_eq!(
         entries[1][constants::field::PAYLOAD]["affectedDeviceId"],
         serde_json::json!(constants::lan_pairing::CHILD_DEVICE_ID)
+    );
+}
+
+#[test]
+fn stream_report_uses_current_observation_time_without_rewriting_cached_history_rows() {
+    let history = discovery_event_history();
+    let observed_at = "2026-06-29T00:00:00.000Z".to_string();
+    let report = STREAM_LAN_RUNTIME_EVENT_CHAIN_FOR_HISTORY(&history, observed_at.clone().into());
+    let entries = stream_entries(&LAN_RUNTIME_EVENT_CHAIN_STREAM_PAYLOAD(&report));
+    let history_rows = history
+        .rows
+        .iter()
+        .map(|row| require_ok(serde_json::to_value(row), "cached history row serializes"))
+        .collect::<Vec<_>>();
+
+    assert_eq!(report.generated_at, observed_at);
+    assert_ne!(report.generated_at, history.generated_at);
+    assert_eq!(
+        entries
+            .iter()
+            .map(|entry| entry[constants::field::PAYLOAD].clone())
+            .collect::<Vec<_>>(),
+        history_rows
     );
 }
 
