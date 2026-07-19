@@ -1,7 +1,11 @@
 use std::fs::{self, File, OpenOptions};
-use std::path::{Path, PathBuf};
+use std::path::Path;
+
+#[cfg(windows)]
+use std::path::PathBuf;
 
 use crate::parent_presence_store::ParentPresenceStoreError;
+#[cfg(windows)]
 use crate::parent_presence_store_file_temporary::{
     reserve_private_temporary_artifact, TemporaryStoreArtifact,
 };
