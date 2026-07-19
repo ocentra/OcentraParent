@@ -202,6 +202,15 @@ async fn persisted_cached_status_and_stream_report_identical_history_binding() {
         "status LAN read model parses",
     )
     .discovery_event_history;
+    let replay_generated_at = require_ok(
+        chrono::DateTime::parse_from_rfc3339(&status_history.generated_at),
+        "first persisted replay seed uses a portal-compatible RFC3339 timestamp",
+    );
+    assert_eq!(
+        replay_generated_at.to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+        status_history.generated_at,
+        "portal replay timestamp remains canonical after first legacy seed"
+    );
     let stream_entries = stream_entries(&stream_event.payload);
     let status_rows = status_history
         .rows
@@ -218,6 +227,11 @@ async fn persisted_cached_status_and_stream_report_identical_history_binding() {
     );
 
     assert_eq!(streamed_rows, status_rows);
+    assert_ne!(
+        payload_string(&stream_event.payload, constants::field::GENERATED_AT),
+        Some(status_history.generated_at.as_str()),
+        "stream report envelope is current while replay rows retain persisted history time"
+    );
     assert_eq!(
         payload_string(&stream_event.payload, constants::field::LATEST_EVENT_ID),
         status_history.latest_event_id.as_deref()

@@ -19,7 +19,7 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDisc
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanPairingDiscoverySource;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
-use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentCommandName};
 
 #[path = "lan_pairing_browser_add_device_state/discovery_event_history.rs"]
 pub(crate) mod discovery_event_history;
@@ -29,6 +29,8 @@ pub(crate) mod discovery_projection;
 pub(crate) mod physical_lan_scan;
 #[path = "lan_pairing_browser_add_device_state/registry_projection.rs"]
 pub(crate) mod registry_projection;
+#[path = "lan_pairing_browser_add_device_state/replay_projection.rs"]
+mod replay_projection;
 #[path = "lan_pairing_browser_add_device_state/scan_history.rs"]
 pub(crate) mod scan_history;
 
@@ -48,6 +50,7 @@ use self::registry_projection::{
     household_device_decisions, merged_known_household_devices_for_read_model, pairing_requests,
     persist_known_household_devices, trusted_device_registry,
 };
+use self::replay_projection::effective_replay_projection;
 
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 const APPLE_LAN_DISCOVERY_MANUAL_REQUIRED: bool = true;
@@ -139,12 +142,6 @@ pub(crate) fn browser_add_device_read_model(
     let scan_result = network_device_scan_result_for_command(runtime, command);
     let observed_at =
         browser_read_model_generated_at(timestamp_now::<String>().into(), &scan_result);
-    let history_generated_at = scan_result
-        .current_scan_snapshot
-        .as_ref()
-        .or(scan_result.previous_scan_snapshot.as_ref())
-        .map(|snapshot| LanPairingText(snapshot.updated_at.clone()))
-        .unwrap_or_else(|| observed_at.clone());
     let mut model = build_live_read_model(
         runtime,
         command,
@@ -159,13 +156,33 @@ pub(crate) fn browser_add_device_read_model(
         &current_canonical_household_devices,
         &observed_at,
     );
+    let expected_snapshot = scan_result.current_scan_snapshot.as_ref();
+    let persisted_projection = if !scan_result.reused_recent_snapshot
+        || command.command == AgentCommandName::AgentLanPairingStatusGet
+    {
+        expected_snapshot.and_then(|expected_snapshot| {
+            scan_history::save_replay_canonical_devices(
+                runtime,
+                expected_snapshot,
+                &current_canonical_household_devices,
+                &observed_at,
+            )
+        })
+    } else {
+        None
+    };
+    let effective_projection = effective_replay_projection(&scan_result, persisted_projection);
+    let history_generated_at = effective_projection
+        .as_ref()
+        .map(|projection| LanPairingText(projection.generated_at.clone()))
+        .unwrap_or_else(|| observed_at.clone());
     let mut replay_history_model = replay_history_model(&model, &history_generated_at);
     let has_persisted_projection = assign_replay_projection(
         &mut replay_history_model,
         &scan_result,
+        effective_projection.as_ref(),
         &current_canonical_household_devices,
     );
-    scan_history::save_replay_canonical_devices(runtime, &current_canonical_household_devices);
     model.discovery_event_history = discovery_event_history::replay_discovery_event_history(
         &scan_result,
         &replay_history_model,
@@ -250,19 +267,18 @@ fn replay_history_model(
 fn assign_replay_projection(
     replay_model: &mut LanBrowserAddDeviceReadModel,
     scan_result: &LanNetworkDeviceScanResult,
+    persisted_projection: Option<&scan_history::LanReplayCanonicalProjection>,
     current_canonical_household_devices: &[ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice],
 ) -> bool {
-    let persisted_projection = scan_result
-        .current_scan_snapshot
-        .as_ref()
-        .or(scan_result.previous_scan_snapshot.as_ref())
-        .and_then(|snapshot| snapshot.replay_canonical_devices.clone());
-    let has_persisted_projection =
-        !scan_result.reused_recent_snapshot || persisted_projection.is_some();
+    let has_persisted_projection = persisted_projection.is_some();
     replay_model.canonical_household_devices = if scan_result.reused_recent_snapshot {
-        persisted_projection.unwrap_or_default()
+        persisted_projection
+            .map(|projection| projection.canonical_devices.clone())
+            .unwrap_or_default()
     } else {
-        persisted_projection.unwrap_or_else(|| current_canonical_household_devices.to_vec())
+        persisted_projection
+            .map(|projection| projection.canonical_devices.clone())
+            .unwrap_or_else(|| current_canonical_household_devices.to_vec())
     };
     has_persisted_projection
 }

@@ -29,6 +29,7 @@ use crate::lan_pairing::{LanPairingChallengeState, LanPairingRuntime};
 use crate::lan_pairing_browser_add_device_state::browser_read_model_generated_at;
 use crate::lan_pairing_browser_add_device_state::discovery_event_history::discovery_event_history;
 use crate::lan_pairing_browser_add_device_state::registry_projection::pairing_requests;
+use crate::lan_pairing_browser_add_device_state::replay_projection::effective_replay_projection;
 use crate::test_invariants::require_ok;
 use assertions::{
     assert_first_row_has_no_previous_event, assert_previous_event_chain, assert_row_contract,
@@ -59,6 +60,28 @@ fn apple_manual_required_platform_keeps_physical_lan_state_manual_not_unavailabl
 }
 
 #[test]
+fn previous_projection_cannot_restore_replay_authority_without_current_snapshot() {
+    let scan_result = LanNetworkDeviceScanResult {
+        previous_scan_snapshot: Some(LanScanHistorySnapshot {
+            schema_version: 2,
+            updated_at: "2026-06-28T17:00:00.000Z".to_string(),
+            metadata: None,
+            devices: Vec::new(),
+            replay_canonical_projection: Some(
+                crate::lan_pairing_browser_add_device_state::scan_history::LanReplayCanonicalProjection {
+                    schema_version: 1,
+                    generated_at: "2026-06-28T17:00:00.000Z".to_string(),
+                    canonical_devices: Vec::new(),
+                },
+            ),
+        }),
+        ..LanNetworkDeviceScanResult::default()
+    };
+
+    assert!(effective_replay_projection(&scan_result, None).is_none());
+}
+
+#[test]
 fn future_previous_scan_never_advances_read_model_observation_time_or_pairing_expiry() {
     let observed_at = "2026-06-28T17:00:00.000Z".into();
     let scan_result = LanNetworkDeviceScanResult {
@@ -67,7 +90,7 @@ fn future_previous_scan_never_advances_read_model_observation_time_or_pairing_ex
             updated_at: "2026-06-28T18:00:00.000Z".to_string(),
             metadata: None,
             devices: Vec::new(),
-            replay_canonical_devices: None,
+            replay_canonical_projection: None,
         }),
         ..LanNetworkDeviceScanResult::default()
     };
@@ -661,7 +684,7 @@ fn scan_history_snapshot(metadata: Option<LanScanHistoryMetadata>) -> LanScanHis
         updated_at: "2026-06-26T20:45:47.000Z".to_string(),
         metadata,
         devices: Vec::new(),
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
     }
 }
 
@@ -674,7 +697,7 @@ fn scan_history_snapshot_with_devices(
         updated_at: "2026-06-26T20:45:47.000Z".to_string(),
         metadata,
         devices,
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
     }
 }
 

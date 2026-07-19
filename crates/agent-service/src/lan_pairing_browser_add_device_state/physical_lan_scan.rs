@@ -16,11 +16,14 @@ use super::scan_history::{
     LanScanHistorySnapshot,
 };
 
+#[path = "physical_lan_scan/persisted_result.rs"]
+mod persisted_result;
 #[path = "physical_lan_scan/scan_truth.rs"]
 mod scan_truth;
 #[path = "physical_lan_scan/suppression_device.rs"]
 mod suppression_device;
 
+use self::persisted_result::persisted_scan_result_or_fail;
 use self::suppression_device::scan_session_id;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -85,27 +88,18 @@ pub(crate) fn network_device_scan_result_for_command(
             selected_interface_scope,
             Some(&allowed_snmp_response_observer),
         );
-        save_scan_history(
+        return persisted_scan_result_or_fail(
             runtime,
-            &devices,
-            Some(LanScanHistoryMetadata {
+            devices,
+            LanScanHistoryMetadata {
                 scan_id: scan_session_id(now).0,
                 paired_registry_truth_count: scan_truth.paired_registry_truth_count,
                 recent_previous_agent_truth_count: scan_truth.recent_previous_agent_truth_count,
                 durable_household_truth_count: scan_truth.durable_household_truth_count,
                 scan_plan,
-            }),
-        );
-        let current_scan_snapshot = load_scan_history_snapshot(runtime);
-        return LanNetworkDeviceScanResult {
-            devices: current_scan_snapshot
-                .as_ref()
-                .map(|snapshot| snapshot.devices.clone())
-                .unwrap_or(devices),
+            },
             previous_scan_snapshot,
-            current_scan_snapshot,
-            reused_recent_snapshot: false,
-        };
+        );
     }
     LanNetworkDeviceScanResult::default()
 }

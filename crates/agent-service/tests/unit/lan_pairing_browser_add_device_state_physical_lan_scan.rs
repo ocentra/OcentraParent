@@ -57,7 +57,7 @@ fn recent_previous_scan_child_truth_is_reused_for_probe_suppression_only() {
     let snapshot = LanScanHistorySnapshot {
         schema_version: 1,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -88,7 +88,7 @@ fn stale_previous_scan_child_truth_does_not_suppress_probe_forever() {
     let snapshot = LanScanHistorySnapshot {
         schema_version: 1,
         updated_at: stale_updated_at,
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -150,7 +150,7 @@ fn localhost_status_and_runtime_stream_preserve_recent_cached_snapshot_context()
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -212,7 +212,7 @@ fn localhost_status_and_runtime_stream_preserve_stale_previous_snapshot_context(
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: stale_updated_at,
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -248,7 +248,7 @@ fn local_network_status_does_not_take_cached_snapshot_fast_path() {
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -269,7 +269,7 @@ fn previous_router_truth_becomes_scan_suppression_without_upgrading_identity_tru
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![router_scan_device()],
     };
@@ -294,7 +294,7 @@ fn ignored_previous_household_device_becomes_scan_suppression_truth() {
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -396,7 +396,7 @@ async fn scan_truth_context_reuses_registry_and_history_truth_without_agentless_
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-        replay_canonical_devices: None,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![
             previous_scan_device(constants::lan_pairing::LOCAL_AGENT_STATUS),
