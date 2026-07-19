@@ -57,7 +57,7 @@ domain plans:
 - The shared architecture gate for the selected validation slice is not green because `packages/agent-protocol-domain` still contains banned re-exports.
 - Feature-owned parent authoring and assistant approval surfaces remain incomplete and cannot be claimed done from contract tests alone.
 - The canonical proof root for this plan is `docs/proof/policy-control-plane-plan/`, and the touched route docs in this slice now agree on that single root.
-- `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md` records current file presence and route status: checked closeout bundles for WP01, WP03, WP04, WP06, WP07, and WP08; open gaps remain for WP02/WP05.
+- `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md` records current file presence and route status: checked closeout bundles for WP01, WP03, WP06, WP07, and WP08; WP04 has a checked policy contract but remains runtime-blocked; open gaps remain for WP02/WP05.
 
 ## Current coupling risks
 
@@ -79,7 +79,8 @@ domain plans:
 ```text
 docs/proof/policy-control-plane-plan/ is the canonical proof root.
 PLAN_PROOF_MANIFEST.md records file presence and workpack proof status only.
-WP01, WP03, WP04, WP06, WP07, and WP08 have closeout bundles recorded in current route docs.
+WP01, WP03, WP06, WP07, and WP08 have closeout bundles recorded in current route docs.
+WP04 has current contract, negative, receipt-validation, compatibility, audit, and parent-visible proof, but no trusted adapter authority, inspectable execution trace, or real enforcement side-effect proof; it is dependency-blocked rather than complete.
 WP02 and WP05 remain open until targeted authoring/preview and ask-parent/override proof bundles exist or explicit dependency blockers are carried.
 Universal guardrail files supplement workpack closeouts; they do not replace them.
 ```
@@ -90,6 +91,7 @@ Real dependency blockers:
 - `portal-ux-household-surfaces-plan` still owns unfinished rendered policy authoring, conflict, approval, and audit surfaces required by WP02.
 - The parent-assistant and portal chat surfaces still need parent confirmation, child-agent validation, and portal chat/audit integration required by WP05.
 - Device-trust, data-custody, and enforcement handoffs remain dependency-owned and are not proven complete here.
+- WP04 requires a trusted domain- or enforcement-owned adapter that performs the real side effect, emits the required inspectable execution trace, and supplies non-forgeable execution authority; the current public policy surface intentionally exposes no production execution entry and cannot advance acknowledged, applied, or rolled-back state.
 
 External platform constraints:
 - Real iOS and macOS proof is not currently expected from this Windows host and should be tracked as an external-platform constraint when selected work requires it.

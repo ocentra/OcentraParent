@@ -3,8 +3,9 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    policy_delivery_schema_version, PolicyDeliveryAttemptId, PolicyDeliveryId,
-    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget,
+    apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryAttemptId,
+    PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryState,
+    PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_request::{
     policy_request_schema_version, ChildPolicyRequest, PolicyApprovalId, PolicyDurationMinutes,
@@ -13,9 +14,10 @@ use ocentra_policy_control_core::policy_request::{
     PolicyTemporaryOverride,
 };
 use ocentra_policy_control_core::policy_source::{
-    ParentPolicyDocumentId, PolicyAuditReferenceId, PolicyChildProfileId, PolicyConsumerDomain,
-    PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRuleAction, PolicyRuleId,
-    PolicyTargetKind, PolicyTargetReferenceId, PolicyVersion,
+    CompiledDomainPolicyArtifact, ParentPolicyDocumentId, PolicyAuditReferenceId,
+    PolicyChildProfileId, PolicyConsumerDomain, PolicyDeviceId, PolicyHouseholdId,
+    PolicyReasonCode, PolicyRuleAction, PolicyRuleId, PolicyTargetKind, PolicyTargetReferenceId,
+    PolicyVersion,
 };
 
 #[derive(Clone, Debug)]
@@ -159,40 +161,71 @@ fn delivery_record(
     state: PolicyDeliveryState,
     reason_code: Option<NotificationText>,
 ) -> PolicyDeliveryRecord {
-    PolicyDeliveryRecord {
-        schema_version: policy_delivery_schema_version()
-            .expect_value("policy delivery schema version"),
-        delivery_id: PolicyDeliveryId::parse(&delivery_id.0).expect_value("policy delivery id"),
+    let initial_attempt = match state {
+        PolicyDeliveryState::Queued => attempt_id.0.as_str(),
+        _ => "attempt-queued",
+    };
+    let queued = queue_policy_delivery(
+        &delivery_artifact(),
+        delivery_target(),
+        PolicyDeliveryId::parse(&delivery_id.0).expect_value("policy delivery id"),
+        PolicyDeliveryAttemptId::parse(initial_attempt).expect_value("policy attempt id"),
+        vec![audit_ref(&notification_text!("audit-policy-queued"))],
+    )
+    .expect_value("queued policy delivery");
+    if state == PolicyDeliveryState::Queued {
+        return queued;
+    }
+    apply_policy_delivery_transition(
+        &queued,
+        PolicyDeliveryTransition {
+            attempt_id: PolicyDeliveryAttemptId::parse(&attempt_id.0)
+                .expect_value("policy attempt id"),
+            sequence: PolicyDeliverySequence::new(sequence).expect_value("policy delivery seq"),
+            state,
+            audit_reference_ids: vec![delivery_audit_ref(state)],
+            reason_code: reason_code
+                .map(|value| PolicyReasonCode::parse(value.0).expect_value("policy reason code")),
+            superseded_by_policy_version: None,
+            rollback_reference_state: None,
+        },
+    )
+    .expect_value("validated policy delivery transition")
+    .into_record()
+}
+
+fn delivery_artifact() -> CompiledDomainPolicyArtifact {
+    CompiledDomainPolicyArtifact {
         household_id: PolicyHouseholdId::parse("household-default")
             .expect_value("policy household id"),
         policy_version: PolicyVersion::new(7).expect_value("policy version"),
         source_document_id: ParentPolicyDocumentId::parse("policy-source-default")
             .expect_value("policy source id"),
-        target: PolicyDeliveryTarget {
-            child_profile_id: PolicyChildProfileId::parse("child-primary")
-                .expect_value("child profile id"),
-            device_id: PolicyDeviceId::parse("device-laptop").expect_value("policy device id"),
-            domain: PolicyConsumerDomain::Tracking,
-        },
-        state,
-        last_sequence: PolicyDeliverySequence::new(sequence).expect_value("policy delivery seq"),
-        last_attempt_id: PolicyDeliveryAttemptId::parse(&attempt_id.0)
-            .expect_value("policy attempt id"),
-        audit_reference_ids: vec![audit_ref(&notification_text!(match state {
-            PolicyDeliveryState::Queued => "audit-policy-queued",
-            PolicyDeliveryState::Applied => "audit-policy-applied",
-            PolicyDeliveryState::RetryScheduled => "audit-policy-retry",
-            PolicyDeliveryState::BlockedByPermission => "audit-policy-blocked",
-            _ => "audit-policy-delivery",
-        }))],
-        source_audit_reference_ids: vec![audit_ref(&notification_text!("audit-request-created"))],
-        source_superseded_by_policy_version: None,
-        source_rollback_ref: None,
-        reason_code: reason_code
-            .map(|value| PolicyReasonCode::parse(&value.0).expect_value("policy reason code")),
+        domain: PolicyConsumerDomain::Tracking,
+        rule_count: 1,
+        schedules: Vec::new(),
+        audit_reference_ids: vec![audit_ref(&notification_text!("audit-request-created"))],
         superseded_by_policy_version: None,
-        rollback_reference_state: None,
+        rollback_ref: None,
     }
+}
+
+fn delivery_target() -> PolicyDeliveryTarget {
+    PolicyDeliveryTarget {
+        child_profile_id: PolicyChildProfileId::parse("child-primary")
+            .expect_value("child profile id"),
+        device_id: PolicyDeviceId::parse("device-laptop").expect_value("policy device id"),
+        domain: PolicyConsumerDomain::Tracking,
+    }
+}
+
+fn delivery_audit_ref(state: PolicyDeliveryState) -> PolicyAuditReferenceId {
+    let value = match state {
+        PolicyDeliveryState::RetryScheduled => "audit-policy-retry",
+        PolicyDeliveryState::BlockedByPermission => "audit-policy-blocked",
+        _ => "audit-policy-delivery",
+    };
+    audit_ref(&notification_text!(value))
 }
 
 pub fn queued_delivery() -> PolicyDeliveryRecord {
@@ -205,14 +238,25 @@ pub fn queued_delivery() -> PolicyDeliveryRecord {
     )
 }
 
-pub fn applied_delivery() -> PolicyDeliveryRecord {
-    delivery_record(
-        &notification_text!("delivery-policy-applied"),
-        &notification_text!("attempt-applied"),
-        2,
-        PolicyDeliveryState::Applied,
+pub fn legacy_unverified_acknowledged_delivery() -> PolicyDeliveryRecord {
+    let queued = delivery_record(
+        &notification_text!("delivery-policy-legacy-acknowledged"),
+        &notification_text!("attempt-queued"),
+        1,
+        PolicyDeliveryState::Queued,
         None,
-    )
+    );
+    let mut serialized =
+        serde_json::to_value(queued).expect_value("serialize legacy acknowledged delivery");
+    serialized["schema_version"] = serde_json::json!(1);
+    serialized["state"] = serde_json::json!("acknowledged");
+    serialized["last_sequence"] = serde_json::json!(2);
+    serialized["last_attempt_id"] = serde_json::json!("attempt-legacy-acknowledged");
+    serialized["audit_reference_ids"] = serde_json::json!(["audit-policy-legacy-acknowledged"]);
+    serialized["execution_receipt"] = serde_json::Value::Null;
+
+    serde_json::from_value(serialized)
+        .expect_value("hydrate schema-v1 receiptless acknowledged delivery")
 }
 
 pub fn retry_delivery() -> PolicyDeliveryRecord {
