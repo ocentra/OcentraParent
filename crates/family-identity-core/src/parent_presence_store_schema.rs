@@ -6,6 +6,9 @@ use std::time::Duration;
 use rusqlite::{Connection, OpenFlags};
 
 use crate::parent_presence_store::ParentPresenceStoreError;
+use crate::parent_presence_store_sql_shape::{
+    challenge_lifecycle_column_is_canonical, receipt_sequence_column_is_canonical,
+};
 
 const CHALLENGE_TABLE: &str = "parent_presence_challenges";
 const RECEIPT_TABLE: &str = "parent_presence_receipts";
@@ -141,8 +144,8 @@ fn validate_challenge_table(connection: &Connection) -> Result<(), ParentPresenc
         ],
     )?;
     validate_named_nonce_index(connection)?;
-    let table_sql = normalized_table_sql(connection, CHALLENGE_TABLE)?;
-    require(table_sql.contains("CHECK(LIFECYCLE_STATEIN('ISSUED','CONSUMED'))"))
+    let table_sql = table_sql(connection, CHALLENGE_TABLE)?;
+    require(challenge_lifecycle_column_is_canonical(&table_sql))
 }
 
 fn validate_receipt_table(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
@@ -160,8 +163,8 @@ fn validate_receipt_table(connection: &Connection) -> Result<(), ParentPresenceS
         RECEIPT_TABLE,
         &["challenge_ref|u|true|false", "receipt_ref|u|true|false"],
     )?;
-    let table_sql = normalized_table_sql(connection, RECEIPT_TABLE)?;
-    require(table_sql.contains("RECEIPT_SEQUENCEINTEGERPRIMARYKEYAUTOINCREMENT"))
+    let table_sql = table_sql(connection, RECEIPT_TABLE)?;
+    require(receipt_sequence_column_is_canonical(&table_sql))
 }
 
 fn validate_table_properties(
@@ -335,22 +338,17 @@ fn validate_receipt_foreign_key(connection: &Connection) -> Result<(), ParentPre
     )
 }
 
-fn normalized_table_sql(
+fn table_sql(
     connection: &Connection,
     table_name: &str,
 ) -> Result<String, ParentPresenceStoreError> {
-    let sql = connection
+    connection
         .query_row(
             "SELECT sql FROM sqlite_schema WHERE type = 'table' AND name = ?1",
             [table_name],
             |row| row.get::<_, String>(0),
         )
-        .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
-    Ok(sql
-        .chars()
-        .filter(|character| !character.is_ascii_whitespace())
-        .collect::<String>()
-        .to_ascii_uppercase())
+        .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)
 }
 
 fn column(

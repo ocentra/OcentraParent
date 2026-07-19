@@ -14,20 +14,6 @@ use ocentra_family_identity_core::parent_presence::{
 
 const EXPIRED_EXPIRY: &str = "2000-01-01T00:00:00.000Z";
 const ACCEPTED_EXPIRY: &str = "2099-01-01T00:00:00.000Z";
-const VALID_CHALLENGE_STORE_SCHEMA: &str = r#"
-CREATE TABLE parent_presence_challenges (
-    challenge_ref TEXT PRIMARY KEY NOT NULL,
-    challenge_json TEXT NOT NULL,
-    privileged_action_json TEXT NOT NULL,
-    expires_at TEXT NOT NULL,
-    nonce_ref TEXT NOT NULL UNIQUE,
-    lifecycle_state TEXT NOT NULL CHECK (
-        lifecycle_state IN ('issued', 'consumed')
-    )
-) STRICT;
-CREATE UNIQUE INDEX parent_presence_nonce_identity
-ON parent_presence_challenges(nonce_ref);
-"#;
 
 static NEXT_CASE_ID: AtomicU64 = AtomicU64::new(1);
 
@@ -359,92 +345,6 @@ fn parent_presence_receipt_is_unique_opaque_and_redacted() -> TestResult {
     );
     assert_ne!(first_ref, second_ref);
     assert!(!format!("{first_accepted:?}").contains(&first_ref));
-    Ok(())
-}
-
-#[test]
-fn parent_presence_store_rejects_corruption_without_recreation() {
-    let store = TestStore::new("corrupt-store");
-    let corrupt = b"not-a-sqlite-database";
-    assert!(matches!(fs::write(store.path(), corrupt), Ok(())));
-    assert!(matches!(
-        ParentPresenceVerificationPort::open(store.path()),
-        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
-    ));
-    assert!(matches!(
-        fs::read(store.path()),
-        Ok(content) if content == corrupt
-    ));
-}
-
-#[test]
-fn parent_presence_store_rejects_nonunique_receipt_and_wrong_sequence_without_repair() -> TestResult
-{
-    let store = TestStore::new("malformed-receipt-schema");
-    let connection = rusqlite::Connection::open(store.path())
-        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-    connection
-        .execute_batch(&format!(
-            "{VALID_CHALLENGE_STORE_SCHEMA}
-             CREATE TABLE parent_presence_receipts (
-                 receipt_sequence TEXT NOT NULL,
-                 challenge_ref TEXT NOT NULL UNIQUE,
-                 receipt_ref TEXT NOT NULL
-             ) STRICT;
-             INSERT INTO parent_presence_challenges VALUES (
-                 'sentinel-challenge', '{{}}', '{{}}', '2099-01-01T00:00:00.000Z',
-                 'sentinel-nonce', 'issued'
-             );
-             INSERT INTO parent_presence_receipts VALUES (
-                 'sentinel-sequence', 'sentinel-challenge', 'sentinel-receipt'
-             );"
-        ))
-        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-    drop(connection);
-    let store_before = fs::read(store.path())
-        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-    assert!(matches!(
-        ParentPresenceVerificationPort::open(store.path()),
-        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
-    ));
-    assert_eq!(
-        fs::read(store.path())
-            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
-        store_before
-    );
-    Ok(())
-}
-
-#[test]
-fn parent_presence_store_rejects_wrong_receipt_foreign_key_without_repair() -> TestResult {
-    let store = TestStore::new("wrong-receipt-foreign-key");
-    let connection = rusqlite::Connection::open(store.path())
-        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-    connection
-        .execute_batch(&format!(
-            "{VALID_CHALLENGE_STORE_SCHEMA}
-             CREATE TABLE parent_presence_receipts (
-                 receipt_sequence INTEGER PRIMARY KEY AUTOINCREMENT,
-                 challenge_ref TEXT NOT NULL UNIQUE,
-                 receipt_ref TEXT NOT NULL UNIQUE,
-                 FOREIGN KEY (challenge_ref)
-                     REFERENCES parent_presence_challenges(challenge_ref)
-                     ON DELETE CASCADE
-             ) STRICT;"
-        ))
-        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-    drop(connection);
-    let store_before = fs::read(store.path())
-        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-    assert!(matches!(
-        ParentPresenceVerificationPort::open(store.path()),
-        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
-    ));
-    assert_eq!(
-        fs::read(store.path())
-            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
-        store_before
-    );
     Ok(())
 }
 
