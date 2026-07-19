@@ -71,6 +71,16 @@ impl<'de> Deserialize<'de> for PolicyDeliveryRecord {
 }
 
 fn validate_untrusted_hydration(record: &PolicyDeliveryRecord) -> Result<(), EventingError> {
+    let current_schema_version = validation::policy_delivery_schema_version()?;
+    if record.schema_version > current_schema_version {
+        return Err(EventingError::InvalidValue {
+            field: "policy_delivery.schema_version",
+            value: format!(
+                "unsupported future schema version {}",
+                record.schema_version.value()
+            ),
+        });
+    }
     if record.state == PolicyDeliveryState::Applied {
         return Err(EventingError::InvalidValue {
             field: policy_control::delivery::FIELD_STATE,

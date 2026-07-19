@@ -102,7 +102,7 @@ fn apply_validated_policy_delivery_transition(
     }
 
     let next = PolicyDeliveryRecord {
-        schema_version: current.schema_version,
+        schema_version: validation::policy_delivery_schema_version()?,
         delivery_id: current.delivery_id.clone(),
         household_id: current.household_id.clone(),
         policy_version: current.policy_version,

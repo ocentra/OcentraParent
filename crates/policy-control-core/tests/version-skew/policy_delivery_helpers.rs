@@ -211,7 +211,7 @@ pub(super) fn transition_or_context<T>(
     }
 }
 
-pub(super) fn transition(
+pub(crate) fn transition(
     sequence: u64,
     attempt_id: impl std::fmt::Display,
     state: PolicyDeliveryState,

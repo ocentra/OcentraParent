@@ -1,7 +1,7 @@
 #[path = "policy_delivery/applied_hydration.rs"]
 mod applied_hydration;
 #[path = "policy_delivery_helpers.rs"]
-mod helpers;
+pub(super) mod helpers;
 
 use super::TestResult;
 use helpers::{
