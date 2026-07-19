@@ -12,6 +12,7 @@ pub mod household_authority;
 mod household_authority_validation;
 pub mod parent_presence;
 mod parent_presence_port;
+mod parent_presence_store;
 pub mod session_lifecycle;
 pub mod setup_lifecycle;
 mod setup_lifecycle_validation;

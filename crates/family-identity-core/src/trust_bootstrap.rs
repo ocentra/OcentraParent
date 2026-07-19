@@ -1,10 +1,12 @@
+use std::fmt;
+
 use serde::Serialize;
 
 use crate::household_authority::{
     validate_parent_step_up_assertion, ParentStepUpValidationFailureReason,
     ParentStepUpValidationInput,
 };
-use crate::parent_presence::ParentPresenceVerificationAccepted;
+use crate::parent_presence::{ParentPresenceReceiptRef, ParentPresenceVerificationAccepted};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Default)]
 struct TrustBootstrapSealingMarker;
@@ -15,15 +17,14 @@ pub enum TrustBootstrapLifecycleIntent {
     SealParentDeviceTrust,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub struct TrustBootstrapInput {
     pub trust_bootstrap_ref: String,
-    pub device_trust_ref: String,
     pub lifecycle_intent: TrustBootstrapLifecycleIntent,
     pub parent_presence: ParentPresenceVerificationAccepted,
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize)]
+#[derive(PartialEq, Eq, Serialize)]
 pub struct AwaitingPlatformKeySealingRequest {
     pub trust_bootstrap_ref: String,
     pub device_trust_ref: String,
@@ -43,16 +44,47 @@ pub enum TrustBootstrapDecision {
     Rejected(TrustBootstrapRejection),
 }
 
+impl fmt::Debug for TrustBootstrapInput {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("TrustBootstrapInput")
+            .field("trust_bootstrap_ref", &"[redacted]")
+            .field("lifecycle_intent", &self.lifecycle_intent)
+            .field("parent_presence", &"[redacted]")
+            .finish()
+    }
+}
+
+impl fmt::Debug for AwaitingPlatformKeySealingRequest {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("AwaitingPlatformKeySealingRequest")
+            .field("trust_bootstrap_ref", &"[redacted]")
+            .field("device_trust_ref", &"[redacted]")
+            .field("lifecycle_intent", &self.lifecycle_intent)
+            .field("sealing_marker", &self.sealing_marker)
+            .finish()
+    }
+}
+
 pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDecision {
     let TrustBootstrapInput {
         trust_bootstrap_ref,
-        device_trust_ref,
         lifecycle_intent,
         parent_presence,
     } = input;
 
-    let (parent_presence_challenge, parent_step_up_assertion, observed_at) =
-        parent_presence.into_trust_bootstrap_parts();
+    let (
+        parent_presence_receipt_ref,
+        parent_presence_challenge,
+        parent_step_up_assertion,
+        observed_at,
+    ) = parent_presence.into_trust_bootstrap_parts();
+
+    let device_trust_ref = derive_device_trust_ref(
+        &trust_bootstrap_ref,
+        &parent_presence_receipt_ref,
+        &parent_presence_challenge,
+        lifecycle_intent,
+    );
 
     let validation_input = ParentStepUpValidationInput {
         assertion: Some(parent_step_up_assertion),
@@ -75,9 +107,33 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
     }
 
     TrustBootstrapDecision::AwaitingPlatformKeySealing(AwaitingPlatformKeySealingRequest {
-        trust_bootstrap_ref,
         device_trust_ref,
+        trust_bootstrap_ref,
         lifecycle_intent,
         sealing_marker: TrustBootstrapSealingMarker,
     })
+}
+
+fn derive_device_trust_ref(
+    trust_bootstrap_ref: &str,
+    receipt_ref: &ParentPresenceReceiptRef,
+    challenge: &crate::parent_presence::ParentPresenceChallenge,
+    lifecycle_intent: TrustBootstrapLifecycleIntent,
+) -> String {
+    format!(
+        "device-trust:{trust_bootstrap_ref}:{}:{}:{}:{}:{}:{}:{}:{:?}:{}:{:?}",
+        receipt_ref.as_str(),
+        challenge.family_id,
+        challenge.parent_account_id,
+        challenge.action_device_id,
+        challenge
+            .action_device_child_profile_id
+            .as_deref()
+            .unwrap_or("-"),
+        challenge.target_child_profile_id.as_deref().unwrap_or("-"),
+        challenge.nonce_ref,
+        challenge.privileged_action,
+        challenge.expires_at,
+        lifecycle_intent
+    )
 }

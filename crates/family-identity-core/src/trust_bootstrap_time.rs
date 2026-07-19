@@ -108,5 +108,5 @@ fn parse_slice(
         .get(start..end)
         .ok_or(ParentPresenceTimestampParseFailureReason::Malformed)?
         .parse()
-        .map_err(|_| ParentPresenceTimestampParseFailureReason::Malformed)
+        .map_err(|_error| ParentPresenceTimestampParseFailureReason::Malformed)
 }

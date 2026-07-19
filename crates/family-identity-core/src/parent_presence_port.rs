@@ -1,125 +1,93 @@
-use std::collections::{BTreeMap, BTreeSet};
-use std::sync::{Mutex, OnceLock};
+use std::path::PathBuf;
 
 use crate::parent_presence::{
     ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
-    ParentPresenceObservedAt, ParentPresenceReceiptRef, ParentPresenceVerificationAccepted,
-    ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
-    ParentPresenceVerificationPort,
+    ParentPresenceObservedAt, ParentPresenceStorageFailureReason,
+    ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason,
+    ParentPresenceVerificationInput, ParentPresenceVerificationPort,
+};
+use crate::parent_presence_store::{
+    ConsumeChallengeResult, ParentPresenceStore, ParentPresenceStoreError,
+    ParentPresenceStoreIssueError,
 };
 use crate::trust_bootstrap_validation::parent_presence_verification_failure_reason;
 
-#[derive(Default)]
-struct ParentPresenceRegistry {
-    issued_challenges: BTreeMap<String, ParentPresenceChallenge>,
-    consumed_challenge_refs: BTreeSet<String>,
-    next_receipt_sequence: u64,
-}
-
-fn registry_mutex() -> &'static Mutex<ParentPresenceRegistry> {
-    static REGISTRY: OnceLock<Mutex<ParentPresenceRegistry>> = OnceLock::new();
-    REGISTRY.get_or_init(|| Mutex::new(ParentPresenceRegistry::default()))
-}
-
-fn with_registry<R>(action: impl FnOnce(&mut ParentPresenceRegistry) -> R) -> R {
-    // This adapter is intentionally process-local and partial until a durable store exists.
-    let mut registry = registry_mutex()
-        .lock()
-        .unwrap_or_else(|poisoned| poisoned.into_inner());
-    action(&mut registry)
-}
-
 impl ParentPresenceVerificationPort {
-    pub fn new() -> Self {
-        Self::with_clock(
-            || ParentPresenceObservedAt::from_system_time(std::time::SystemTime::now()),
-        )
+    pub fn open(
+        store_path: impl Into<PathBuf>,
+    ) -> Result<Self, ParentPresenceStorageFailureReason> {
+        Self::with_clock(store_path, || {
+            ParentPresenceObservedAt::from_system_time(std::time::SystemTime::now())
+        })
     }
 
-    fn with_clock(clock: impl Fn() -> ParentPresenceObservedAt + Send + Sync + 'static) -> Self {
-        Self {
+    fn with_clock(
+        store_path: impl Into<PathBuf>,
+        clock: impl Fn() -> ParentPresenceObservedAt + Send + Sync + 'static,
+    ) -> Result<Self, ParentPresenceStorageFailureReason> {
+        let store = ParentPresenceStore::open(store_path)
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+        Ok(Self {
             clock: Box::new(clock),
-        }
+            store,
+        })
     }
 
     pub fn issue_challenge(
         &mut self,
         challenge: ParentPresenceChallenge,
     ) -> Result<(), ParentPresenceChallengeIssuanceFailureReason> {
-        with_registry(|registry| {
-            if registry
-                .issued_challenges
-                .contains_key(&challenge.challenge_ref)
-                || registry
-                    .consumed_challenge_refs
-                    .contains(&challenge.challenge_ref)
-            {
-                return Err(ParentPresenceChallengeIssuanceFailureReason::DuplicateChallengeRef);
-            }
-
-            registry
-                .issued_challenges
-                .insert(challenge.challenge_ref.clone(), challenge);
-            Ok(())
-        })
+        self.store
+            .issue_challenge(challenge)
+            .map_err(|error| match error {
+                ParentPresenceStoreIssueError::Duplicate => {
+                    ParentPresenceChallengeIssuanceFailureReason::DuplicateChallengeRef
+                }
+                ParentPresenceStoreIssueError::Store(_error) => {
+                    ParentPresenceChallengeIssuanceFailureReason::CustodyUnavailable
+                }
+            })
     }
 
     pub fn verify_and_consume(
         &mut self,
         input: ParentPresenceVerificationInput,
     ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
-        with_registry(|registry| {
-            if registry
-                .consumed_challenge_refs
-                .contains(&input.challenge_ref)
-            {
-                return Err(ParentPresenceVerificationFailureReason::ReplayRejected);
+        let ParentPresenceVerificationInput {
+            challenge_ref,
+            assertion,
+        } = input;
+        let observed_at = (self.clock)();
+        let consumed = self
+            .store
+            .consume_challenge(&challenge_ref, |challenge| {
+                parent_presence_verification_failure_reason(challenge, &assertion, &observed_at)
+            })
+            .map_err(parent_presence_store_failure_reason)?;
+
+        match consumed {
+            ConsumeChallengeResult::Accepted(accepted) => {
+                Ok(ParentPresenceVerificationAccepted::new(
+                    accepted.receipt_ref,
+                    accepted.challenge,
+                    assertion,
+                    observed_at,
+                ))
             }
-
-            let Some(challenge) = registry
-                .issued_challenges
-                .get(&input.challenge_ref)
-                .cloned()
-            else {
-                return Err(ParentPresenceVerificationFailureReason::ChallengeNotIssued);
-            };
-
-            let observed_at = (self.clock)();
-            if let Some(failure_reason) = parent_presence_verification_failure_reason(
-                &challenge,
-                &input.assertion,
-                &observed_at,
-            ) {
-                return Err(failure_reason);
-            }
-
-            let removed_challenge = registry
-                .issued_challenges
-                .remove(&input.challenge_ref)
-                .ok_or(ParentPresenceVerificationFailureReason::ChallengeNotIssued)?;
-
-            registry
-                .consumed_challenge_refs
-                .insert(removed_challenge.challenge_ref.clone());
-            registry.next_receipt_sequence += 1;
-
-            let receipt_ref = ParentPresenceReceiptRef::from_string(format!(
-                "parent-presence-receipt-{}",
-                registry.next_receipt_sequence
-            ));
-
-            Ok(ParentPresenceVerificationAccepted::new(
-                receipt_ref,
-                removed_challenge,
-                input.assertion,
-                observed_at,
-            ))
-        })
+            ConsumeChallengeResult::Rejected(failure_reason) => Err(failure_reason),
+        }
     }
 }
 
-impl Default for ParentPresenceVerificationPort {
-    fn default() -> Self {
-        Self::new()
+fn parent_presence_store_failure_reason(
+    error: ParentPresenceStoreError,
+) -> ParentPresenceVerificationFailureReason {
+    match error {
+        ParentPresenceStoreError::Unavailable => {
+            ParentPresenceVerificationFailureReason::CustodyUnavailable
+        }
+        ParentPresenceStoreError::IntegrityRejected => {
+            ParentPresenceVerificationFailureReason::CustodyIntegrityRejected
+        }
     }
 }

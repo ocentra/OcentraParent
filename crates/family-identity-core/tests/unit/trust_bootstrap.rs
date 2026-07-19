@@ -1,4 +1,6 @@
 use std::fmt;
+use std::fs;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ocentra_family_identity_core::household_authority::{
@@ -6,14 +8,16 @@ use ocentra_family_identity_core::household_authority::{
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
-    ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
-    ParentPresenceVerificationPort,
+    ParentPresenceStorageFailureReason, ParentPresenceVerificationFailureReason,
+    ParentPresenceVerificationInput, ParentPresenceVerificationPort,
 };
 
 const EXPIRED_EXPIRY: &str = "2000-01-01T00:00:00.000Z";
 const ACCEPTED_EXPIRY: &str = "2099-01-01T00:00:00.000Z";
 
 static NEXT_CASE_ID: AtomicU64 = AtomicU64::new(1);
+
+type TestResult = Result<(), ParentPresenceStorageFailureReason>;
 
 #[derive(Clone)]
 struct TestCase {
@@ -24,6 +28,33 @@ struct TestCase {
     action_device_id: String,
     action_device_child_profile_id: Option<String>,
     target_child_profile_id: Option<String>,
+}
+
+struct TestStore {
+    root: PathBuf,
+    path: PathBuf,
+}
+
+impl TestStore {
+    fn new(prefix: &str) -> Self {
+        let id = NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed);
+        let root = std::env::temp_dir().join(format!(
+            "ocentra-parent-presence-{prefix}-{}-{id}",
+            std::process::id()
+        ));
+        let path = root.join("parent-presence.sqlite");
+        Self { root, path }
+    }
+
+    fn port(&self) -> Result<ParentPresenceVerificationPort, ParentPresenceStorageFailureReason> {
+        ParentPresenceVerificationPort::open(&self.path)
+    }
+}
+
+impl Drop for TestStore {
+    fn drop(&mut self) {
+        let _cleanup_result = fs::remove_dir_all(&self.root);
+    }
 }
 
 fn test_case(prefix: &str) -> TestCase {
@@ -117,9 +148,10 @@ fn parent_presence_verification_input_debug_is_redacted() {
 }
 
 #[test]
-fn parent_presence_verification_is_one_time_and_redacted() {
+fn parent_presence_verification_is_one_time_and_redacted() -> TestResult {
     let case = test_case("one-time");
-    let mut port = ParentPresenceVerificationPort::new();
+    let store = TestStore::new("one-time");
+    let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
 
     let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
@@ -138,12 +170,14 @@ fn parent_presence_verification_is_one_time_and_redacted() {
         port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)),
         Err(ParentPresenceVerificationFailureReason::ReplayRejected)
     );
+    Ok(())
 }
 
 #[test]
-fn parent_presence_verification_rejects_binding_mismatches_without_consuming() {
+fn parent_presence_verification_rejects_binding_mismatches_without_consuming() -> TestResult {
     let case = test_case("binding-mismatch");
-    let mut port = ParentPresenceVerificationPort::new();
+    let store = TestStore::new("binding-mismatch");
+    let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
 
     assert_eq!(
@@ -222,12 +256,15 @@ fn parent_presence_verification_rejects_binding_mismatches_without_consuming() {
     if let Ok(accepted) = accepted {
         assert_redacted_debug(&accepted, &case);
     }
+    Ok(())
 }
 
 #[test]
-fn parent_presence_verification_rejects_duplicate_issuance_without_overwriting_original_binding() {
+fn parent_presence_verification_rejects_duplicate_issuance_without_overwriting_original_binding(
+) -> TestResult {
     let case = test_case("duplicate-issuance");
-    let mut port = ParentPresenceVerificationPort::new();
+    let store = TestStore::new("duplicate-issuance");
+    let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
 
     let duplicate = ParentPresenceChallenge {
@@ -251,12 +288,15 @@ fn parent_presence_verification_rejects_duplicate_issuance_without_overwriting_o
     if let Ok(accepted) = accepted {
         assert_redacted_debug(&accepted, &case);
     }
+    Ok(())
 }
 
 #[test]
-fn parent_presence_verification_rejects_expired_challenges_and_accepts_future_challenges() {
+fn parent_presence_verification_rejects_expired_challenges_and_accepts_future_challenges(
+) -> TestResult {
+    let store = TestStore::new("expiry-clock");
     let expired_case = test_case("expiry-clock-expired");
-    let mut expired_port = ParentPresenceVerificationPort::new();
+    let mut expired_port = store.port()?;
     issue_valid_challenge(&mut expired_port, &expired_case, EXPIRED_EXPIRY);
     assert_eq!(
         expired_port.verify_and_consume(verification_input(&expired_case, EXPIRED_EXPIRY)),
@@ -264,7 +304,7 @@ fn parent_presence_verification_rejects_expired_challenges_and_accepts_future_ch
     );
 
     let accepted_case = test_case("expiry-clock-accepted");
-    let mut accepted_port = ParentPresenceVerificationPort::new();
+    let mut accepted_port = store.port()?;
     issue_valid_challenge(&mut accepted_port, &accepted_case, ACCEPTED_EXPIRY);
     let accepted =
         accepted_port.verify_and_consume(verification_input(&accepted_case, ACCEPTED_EXPIRY));
@@ -277,12 +317,15 @@ fn parent_presence_verification_rejects_expired_challenges_and_accepts_future_ch
     if let Ok(accepted) = accepted {
         assert_redacted_debug(&accepted, &accepted_case);
     }
+    Ok(())
 }
 
 #[test]
-fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timestamps() {
+fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timestamps() -> TestResult
+{
+    let store = TestStore::new("timestamp-validation");
     let malformed_case = test_case("malformed");
-    let mut malformed_port = ParentPresenceVerificationPort::new();
+    let mut malformed_port = store.port()?;
     issue_valid_challenge(&mut malformed_port, &malformed_case, ACCEPTED_EXPIRY);
     assert_eq!(
         malformed_port.verify_and_consume(ParentPresenceVerificationInput {
@@ -296,7 +339,7 @@ fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timest
     );
 
     let noncanonical_case = test_case("noncanonical");
-    let mut noncanonical_port = ParentPresenceVerificationPort::new();
+    let mut noncanonical_port = store.port()?;
     issue_valid_challenge(&mut noncanonical_port, &noncanonical_case, ACCEPTED_EXPIRY);
     assert_eq!(
         noncanonical_port.verify_and_consume(ParentPresenceVerificationInput {
@@ -310,7 +353,7 @@ fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timest
     );
 
     let offset_case = test_case("offset");
-    let mut offset_port = ParentPresenceVerificationPort::new();
+    let mut offset_port = store.port()?;
     issue_valid_challenge(&mut offset_port, &offset_case, ACCEPTED_EXPIRY);
     assert_eq!(
         offset_port.verify_and_consume(ParentPresenceVerificationInput {
@@ -322,4 +365,5 @@ fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timest
         }),
         Err(ParentPresenceVerificationFailureReason::TimestampInvalid)
     );
+    Ok(())
 }

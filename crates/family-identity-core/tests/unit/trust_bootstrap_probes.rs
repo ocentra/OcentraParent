@@ -3,16 +3,15 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, Barrier};
-use std::thread;
 use std::time::{Duration, UNIX_EPOCH};
 
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
 };
 use ocentra_family_identity_core::parent_presence::{
-    ParentPresenceChallenge, ParentPresenceObservedAt, ParentPresenceVerificationFailureReason,
-    ParentPresenceVerificationInput, ParentPresenceVerificationPort,
+    ParentPresenceChallenge, ParentPresenceObservedAt, ParentPresenceStorageFailureReason,
+    ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
+    ParentPresenceVerificationPort,
 };
 use ocentra_family_identity_core::trust_bootstrap::{
     evaluate_trust_bootstrap, TrustBootstrapDecision, TrustBootstrapInput,
@@ -22,6 +21,8 @@ use ocentra_family_identity_core::trust_bootstrap::{
 const ACCEPTED_EXPIRY: &str = "2099-01-01T00:00:00.000Z";
 
 static NEXT_CASE_ID: AtomicU64 = AtomicU64::new(1);
+
+type TestResult = Result<(), ParentPresenceStorageFailureReason>;
 
 #[derive(Clone)]
 struct TestCase {
@@ -35,9 +36,44 @@ struct TestCase {
     trust_bootstrap_ref: String,
 }
 
+struct TestStore {
+    root: PathBuf,
+    path: PathBuf,
+}
+
+impl TestStore {
+    fn new(prefix: &str) -> Self {
+        let id = NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed);
+        let root = std::env::temp_dir().join(format!(
+            "ocentra-parent-presence-probe-{prefix}-{}-{id}",
+            std::process::id()
+        ));
+        let path = root.join("parent-presence.sqlite");
+        Self { root, path }
+    }
+
+    fn path(&self) -> &Path {
+        &self.path
+    }
+
+    fn port(&self) -> Result<ParentPresenceVerificationPort, ParentPresenceStorageFailureReason> {
+        ParentPresenceVerificationPort::open(&self.path)
+    }
+}
+
+impl Drop for TestStore {
+    fn drop(&mut self) {
+        let _cleanup_result = fs::remove_dir_all(&self.root);
+    }
+}
+
 fn test_case(prefix: &str) -> TestCase {
     let id = NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed);
     let scope = format!("{prefix}-{id}");
+    test_case_for_scope(&scope)
+}
+
+fn test_case_for_scope(scope: &str) -> TestCase {
     TestCase {
         challenge_ref: format!("{scope}-challenge"),
         nonce_ref: format!("{scope}-nonce"),
@@ -159,9 +195,10 @@ ocentra-family-identity-core = {{ path = "{manifest_path}" }}
 };
 
 fn main() {
-    let _ = ParentPresenceVerificationPort::with_clock(|| {
-        ParentPresenceObservedAt::from_canonical_utc("2000-01-01T00:00:00.000Z").unwrap()
-    });
+    let _ = ParentPresenceVerificationPort::with_clock(
+        "parent-presence.sqlite",
+        || ParentPresenceObservedAt::from_canonical_utc("2000-01-01T00:00:00.000Z").unwrap(),
+    );
 }
 "#,
         )
@@ -171,63 +208,127 @@ fn main() {
 }
 
 #[test]
-fn parent_presence_verification_consumes_once_across_ports_and_threads() {
+fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
     let case = test_case("multi-instance");
-    let mut issuer = ParentPresenceVerificationPort::new();
+    let store = TestStore::new("multi-instance");
+    let mut issuer = store.port()?;
+    issue_valid_challenge(&mut issuer, &case, ACCEPTED_EXPIRY);
+    let mut first = ParentPresenceVerificationPort::open(store.path())?;
+    let mut second = ParentPresenceVerificationPort::open(store.path())?;
+    assert_eq!(
+        first
+            .verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY))
+            .as_ref()
+            .map(|accepted| accepted.assertion_snapshot()),
+        Ok(&assertion_for(&case, ACCEPTED_EXPIRY))
+    );
+    assert_eq!(
+        second.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)),
+        Err(ParentPresenceVerificationFailureReason::ReplayRejected)
+    );
+    Ok(())
+}
+
+/* Moved to trust_bootstrap_cross_process.rs to keep each proof module within source-shape limits.
+#[test]
+fn parent_presence_replay_is_durable_across_processes_and_restart() {
+    let scope = format!(
+        "cross-process-{}-{}",
+        std::process::id(),
+        NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
+    );
+    let case = test_case_for_scope(&scope);
+    let store = TestStore::new("cross-process");
+    let mut issuer = store
+        .port()
+        .expect("issuer opens the shared parent-presence store");
     issue_valid_challenge(&mut issuer, &case, ACCEPTED_EXPIRY);
 
-    let barrier = Arc::new(Barrier::new(2));
-    let first_case = case.clone();
-    let first_barrier = Arc::clone(&barrier);
-    let first = thread::spawn(move || {
-        let mut port = ParentPresenceVerificationPort::new();
-        first_barrier.wait();
-        port.verify_and_consume(verification_input(&first_case, ACCEPTED_EXPIRY))
-    });
+    let first_outcome_path = store.outcome_path("first");
+    let second_outcome_path = store.outcome_path("second");
+    let first = cross_process_worker(&scope, store.path(), &first_outcome_path)
+        .spawn()
+        .expect("first cross-process worker starts");
+    let second = cross_process_worker(&scope, store.path(), &second_outcome_path)
+        .spawn()
+        .expect("second cross-process worker starts");
+    let first = first
+        .wait_with_output()
+        .expect("first cross-process worker completes");
+    let second = second
+        .wait_with_output()
+        .expect("second cross-process worker completes");
+    assert!(
+        first.status.success(),
+        "first cross-process worker must pass"
+    );
+    assert!(
+        second.status.success(),
+        "second cross-process worker must pass"
+    );
+    let outcomes = [
+        cross_process_outcome(&first_outcome_path),
+        cross_process_outcome(&second_outcome_path),
+    ];
 
-    let second_case = case.clone();
-    let second_barrier = Arc::clone(&barrier);
-    let second = thread::spawn(move || {
-        let mut port = ParentPresenceVerificationPort::new();
-        second_barrier.wait();
-        port.verify_and_consume(verification_input(&second_case, ACCEPTED_EXPIRY))
-    });
-
-    let first = first.join();
-    let second = second.join();
-    assert_eq!(first.as_ref().map(|_| 1).map_err(|_error| ()), Ok(1));
-    assert_eq!(second.as_ref().map(|_| 1).map_err(|_error| ()), Ok(1));
-
-    if let (Ok(first), Ok(second)) = (first, second) {
-        let expected_assertion = assertion_for(&case, ACCEPTED_EXPIRY);
-        let accepted_count = [first.as_ref(), second.as_ref()]
+    assert_eq!(
+        outcomes
             .iter()
-            .filter(|result| {
-                matches!(
-                    result,
-                    Ok(accepted) if accepted.assertion_snapshot() == &expected_assertion
-                )
-            })
-            .count();
-        let replay_count = [first.as_ref(), second.as_ref()]
+            .filter(|outcome| outcome.as_deref() == Some("accepted"))
+            .count(),
+        1,
+        "exactly one independent process must consume the challenge: {outcomes:?}"
+    );
+    assert_eq!(
+        outcomes
             .iter()
-            .filter(|result| {
-                matches!(
-                    result,
-                    Err(ParentPresenceVerificationFailureReason::ReplayRejected)
-                )
-            })
-            .count();
+            .filter(|outcome| outcome.as_deref() == Some("replay-rejected"))
+            .count(),
+        1,
+        "the competing independent process must observe durable replay rejection: {outcomes:?}"
+    );
 
-        assert_eq!(accepted_count, 1);
-        assert_eq!(replay_count, 1);
-    }
+    let restart_outcome_path = store.outcome_path("restart");
+    let _restarted = cross_process_worker(&scope, store.path(), &restart_outcome_path)
+        .output()
+        .expect("restart probe completes");
+    assert_eq!(
+        cross_process_outcome(&restart_outcome_path).as_deref(),
+        Some("replay-rejected"),
+        "a fresh process after both consumers exit must retain replay rejection"
+    );
 }
 
 #[test]
-fn trust_bootstrap_returns_awaiting_platform_key_sealing() {
+fn parent_presence_cross_process_worker() {
+    let O k(scope) = std::env::var(CROSS_PROCESS_SCOPE_ENV) els e {
+        return;
+    };
+    let store_path = std::env::var_os(CROSS_PROCESS_STORE_ENV)
+        .map(PathBuf::from)
+        .expect("cross-process worker receives an explicit store path");
+    let outcome_path = std::env::var_os(CROSS_PROCESS_OUTCOME_ENV)
+        .map(PathBuf::from)
+        .expect("cross-process worker receives an explicit outcome path");
+    let case = test_case_for_scope(&scope);
+    let mut port = ParentPresenceVerificationPort::open(store_path)
+        .expect("cross-process worker opens the shared parent-presence store");
+    let result = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
+    let outcome = mat ch result {
+        Ok(_) => "accepted",
+        Er r(ParentPresenceVerificationFailureReason::ReplayRejected) => "replay-rejected",
+        Er r(ParentPresenceVerificationFailureReason::ChallengeNotIssued) => "challenge-not-issued",
+        Er r(_) => "rejected",
+    };
+    fs::write(outcome_path, outcome).expect("cross-process worker records its exact outcome");
+}
+*/
+
+#[test]
+fn trust_bootstrap_returns_awaiting_platform_key_sealing() -> TestResult {
     let case = test_case("awaiting-seal");
-    let mut port = ParentPresenceVerificationPort::new();
+    let store = TestStore::new("awaiting-seal");
+    let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
     let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
     assert_eq!(
@@ -236,44 +337,87 @@ fn trust_bootstrap_returns_awaiting_platform_key_sealing() {
             .map(|accepted| accepted.assertion_snapshot()),
         Ok(&assertion_for(&case, ACCEPTED_EXPIRY))
     );
-    if let Ok(accepted) = accepted {
-        assert_redacted_debug(&accepted, &case);
-        let receipt_ref = accepted.receipt_ref().to_string();
-        let decision = evaluate_trust_bootstrap(TrustBootstrapInput {
-            trust_bootstrap_ref: case.trust_bootstrap_ref.clone(),
-            lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
-            parent_presence: accepted,
-        });
+    let accepted =
+        accepted.map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_redacted_debug(&accepted, &case);
+    let receipt_ref = accepted.receipt_ref().to_string();
+    let decision = evaluate_trust_bootstrap(TrustBootstrapInput {
+        trust_bootstrap_ref: case.trust_bootstrap_ref.clone(),
+        lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+        parent_presence: accepted,
+    });
 
-        assert!(matches!(
-            decision,
-            TrustBootstrapDecision::AwaitingPlatformKeySealing(_)
-        ));
-        if let TrustBootstrapDecision::AwaitingPlatformKeySealing(request) = &decision {
-            assert_eq!(request.trust_bootstrap_ref, case.trust_bootstrap_ref);
-            assert_eq!(
-                request.lifecycle_intent,
+    assert!(matches!(
+        decision,
+        TrustBootstrapDecision::AwaitingPlatformKeySealing(_)
+    ));
+    if let TrustBootstrapDecision::AwaitingPlatformKeySealing(request) = &decision {
+        assert_eq!(request.trust_bootstrap_ref, case.trust_bootstrap_ref);
+        assert_eq!(
+            request.lifecycle_intent,
+            TrustBootstrapLifecycleIntent::SealParentDeviceTrust
+        );
+        assert_eq!(
+            request.device_trust_ref,
+            format!(
+                "device-trust:{}:{}:{}:{}:{}:{}:{}:{}:{:?}:{}:{:?}",
+                case.trust_bootstrap_ref,
+                receipt_ref,
+                case.family_id,
+                case.parent_account_id,
+                case.action_device_id,
+                case.action_device_child_profile_id
+                    .as_deref()
+                    .unwrap_or("-"),
+                case.target_child_profile_id.as_deref().unwrap_or("-"),
+                case.nonce_ref,
+                HouseholdAuthorityAction::PairChildDevice,
+                ACCEPTED_EXPIRY,
                 TrustBootstrapLifecycleIntent::SealParentDeviceTrust
-            );
-            assert_eq!(
-                request.device_trust_ref,
-                format!(
-                    "device-trust:{}:{}:{}:{}:{}:{}:{}:{}:{:?}",
-                    case.trust_bootstrap_ref,
-                    receipt_ref,
-                    case.family_id,
-                    case.parent_account_id,
-                    case.action_device_id,
-                    case.action_device_child_profile_id
-                        .as_deref()
-                        .unwrap_or("-"),
-                    case.target_child_profile_id.as_deref().unwrap_or("-"),
-                    case.nonce_ref,
-                    TrustBootstrapLifecycleIntent::SealParentDeviceTrust
-                )
-            );
-        }
+            )
+        );
     }
+    Ok(())
+}
+
+#[test]
+fn trust_bootstrap_operational_debug_redacts_identity_and_capability_material() -> TestResult {
+    let case = test_case("operational-debug");
+    let store = TestStore::new("operational-debug");
+    let mut port = store.port()?;
+    issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
+    let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY));
+    assert_eq!(accepted.as_ref().map(|_| 1), Ok(1));
+
+    let accepted =
+        accepted.map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let receipt_ref = accepted.receipt_ref().to_string();
+    let decision = evaluate_trust_bootstrap(TrustBootstrapInput {
+        trust_bootstrap_ref: case.trust_bootstrap_ref.clone(),
+        lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+        parent_presence: accepted,
+    });
+    let debug = format!("{decision:?}");
+
+    for protected in [
+        case.trust_bootstrap_ref.as_str(),
+        receipt_ref.as_str(),
+        case.family_id.as_str(),
+        case.parent_account_id.as_str(),
+        case.action_device_id.as_str(),
+        case.action_device_child_profile_id
+            .as_deref()
+            .unwrap_or_default(),
+        case.target_child_profile_id.as_deref().unwrap_or_default(),
+        case.nonce_ref.as_str(),
+        ACCEPTED_EXPIRY,
+    ] {
+        assert!(
+            !debug.contains(protected),
+            "operational Debug leaked protected trust material {protected}: {debug}"
+        );
+    }
+    Ok(())
 }
 
 #[test]

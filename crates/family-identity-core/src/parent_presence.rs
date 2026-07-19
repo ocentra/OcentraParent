@@ -1,4 +1,3 @@
-use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
@@ -31,12 +30,24 @@ pub enum ParentPresenceVerificationFailureReason {
     TimestampInvalid,
     #[serde(rename = "expired")]
     Expired,
+    #[serde(rename = "custody-unavailable")]
+    CustodyUnavailable,
+    #[serde(rename = "custody-integrity-rejected")]
+    CustodyIntegrityRejected,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentPresenceChallengeIssuanceFailureReason {
     #[serde(rename = "duplicate-challenge-ref")]
     DuplicateChallengeRef,
+    #[serde(rename = "custody-unavailable")]
+    CustodyUnavailable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentPresenceStorageFailureReason {
+    #[serde(rename = "custody-unavailable")]
+    CustodyUnavailable,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -59,10 +70,19 @@ pub struct ParentPresenceChallenge {
     pub expires_at: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ParentPresenceVerificationInput {
     pub challenge_ref: String,
     pub assertion: ParentStepUpAssertionSnapshot,
+}
+
+impl fmt::Debug for ParentPresenceVerificationInput {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ParentPresenceVerificationInput")
+            .field("challenge_ref", &"[redacted]")
+            .field("assertion", &"[redacted]")
+            .finish()
+    }
 }
 
 #[derive(PartialEq, Eq)]
@@ -107,15 +127,14 @@ pub struct ParentPresenceVerificationAccepted {
 }
 
 pub struct ParentPresenceVerificationPort {
-    pub(crate) clock: Box<dyn Fn() -> ParentPresenceObservedAt>,
-    pub(crate) issued_challenges: BTreeMap<String, ParentPresenceChallenge>,
-    pub(crate) consumed_challenge_refs: BTreeSet<String>,
+    pub(crate) clock: Box<dyn Fn() -> ParentPresenceObservedAt + Send + Sync>,
+    pub(crate) store: crate::parent_presence_store::ParentPresenceStore,
 }
 
 impl fmt::Debug for ParentPresenceChallenge {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("ParentPresenceChallenge")
-            .field("challenge_ref", &self.challenge_ref)
+            .field("challenge_ref", &"[redacted]")
             .field("expires_at", &self.expires_at)
             .field("family_id", &"[redacted]")
             .field("parent_account_id", &"[redacted]")
@@ -158,11 +177,17 @@ impl ParentPresenceVerificationAccepted {
     pub(crate) fn into_trust_bootstrap_parts(
         self,
     ) -> (
+        ParentPresenceReceiptRef,
         ParentPresenceChallenge,
         ParentStepUpAssertionSnapshot,
         ParentPresenceObservedAt,
     ) {
-        (self.challenge, self.assertion_snapshot, self.observed_at)
+        (
+            self.receipt_ref,
+            self.challenge,
+            self.assertion_snapshot,
+            self.observed_at,
+        )
     }
 }
 

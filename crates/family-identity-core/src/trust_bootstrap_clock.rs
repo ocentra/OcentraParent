@@ -5,10 +5,13 @@ use crate::parent_presence::ParentPresenceObservedAt;
 
 impl ParentPresenceObservedAt {
     pub fn from_system_time(value: SystemTime) -> Self {
-        let duration = value
-            .duration_since(UNIX_EPOCH)
-            .expect("system clock must not predate the Unix epoch");
-        let epoch_millis = duration.as_secs() as i128 * 1_000 + duration.subsec_millis() as i128;
+        let epoch_millis = match value.duration_since(UNIX_EPOCH) {
+            Ok(duration) => duration.as_secs() as i128 * 1_000 + duration.subsec_millis() as i128,
+            Err(error) => {
+                let duration = error.duration();
+                -((duration.as_secs() as i128 * 1_000) + duration.subsec_millis() as i128)
+            }
+        };
         Self {
             epoch_millis,
             canonical: format_canonical_utc(epoch_millis),
