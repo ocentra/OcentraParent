@@ -3,8 +3,8 @@ use ocentra_policy_control_core::policy_authority::{
     resolve_policy_evaluation_request, PolicyDecisionResolvedEvent, PolicyEvaluationRequestedEvent,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId,
-    PolicyDeliveryRecord, PolicyDeliveryState, PolicyDeliveryTransition,
+    apply_policy_delivery_transition_without_execution_receipt, PolicyDeliveryApplyOutcome,
+    PolicyDeliveryAttemptId, PolicyDeliveryRecord, PolicyDeliveryState, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{PolicyAuditReferenceId, PolicyReasonCode};
 
@@ -115,22 +115,29 @@ fn apply_policy_control_delivery_flow(
         == ParentRuntimePolicyControlPublishState::Publish
     {
         let delivered_transition = delivered_transition(&current, dispatch_event)?;
-        let delivered_outcome =
-            apply_policy_delivery_transition(&current, delivered_transition.clone())?;
+        let delivered_outcome = apply_policy_delivery_transition_without_execution_receipt(
+            &current,
+            delivered_transition.clone(),
+        )?;
         current = delivered_outcome.clone().into_record();
         attempted_transitions.push(delivered_transition);
         delivery_outcomes.push(delivered_outcome);
 
         for transition in child_runtime_transitions {
-            let outcome = apply_policy_delivery_transition(&current, transition.clone())?;
+            let outcome = apply_policy_delivery_transition_without_execution_receipt(
+                &current,
+                transition.clone(),
+            )?;
             current = outcome.clone().into_record();
             attempted_transitions.push(transition.clone());
             delivery_outcomes.push(outcome);
         }
     } else {
         let blocked_transition = blocked_transition(&current, dispatch_event)?;
-        let blocked_outcome =
-            apply_policy_delivery_transition(&current, blocked_transition.clone())?;
+        let blocked_outcome = apply_policy_delivery_transition_without_execution_receipt(
+            &current,
+            blocked_transition.clone(),
+        )?;
         attempted_transitions.push(blocked_transition);
         delivery_outcomes.push(blocked_outcome);
     }

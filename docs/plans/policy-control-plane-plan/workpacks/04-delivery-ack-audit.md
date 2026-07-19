@@ -6,6 +6,16 @@ Owns: event-driven delivery lifecycle, per-child/device/domain status, offline d
 
 Handoff: eventing and enforcement plans own runtime mechanics; this workpack defines the policy delivery contract and proof.
 
+## Current implementation boundary
+
+- [x] The policy-owned delivery contract covers explicit lifecycle states, audit and rollback linkage, fail-closed receipt-required transitions, receipt evidence validation, and degraded parent-visible behavior.
+- [x] No production execution-authority entry is exposed; caller-supplied receipt fields are evidence only, cannot advance delivery state, and cannot generically hydrate schema-v2 acknowledged, applied, or rolled-back history.
+- [x] Schema-v1 receiptless acknowledged and rolled-back history is retained as explicitly unverified compatibility data and surfaces `manualRequired` rather than active success.
+- [x] Until a trusted adapter exists, the child-policy handoff converts acknowledged and applied requests into typed `manualRequired` state rather than fabricating active success.
+- [ ] A trusted domain- or enforcement-owned adapter must perform the real side effect, emit the required inspectable execution trace, and provide non-forgeable execution authority before acknowledged, applied, or rolled-back advancement can be proven at runtime.
+
+Status: contract checked; runtime blocked on the domain/enforcement handoff. The current public policy surface fails closed and cannot advance receipt-required acknowledged, applied, or rolled-back state.
+
 ## Ownership boundary
 
 ```text

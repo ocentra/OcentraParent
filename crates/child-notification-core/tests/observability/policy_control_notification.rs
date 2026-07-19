@@ -10,8 +10,8 @@ use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus
 use ocentra_policy_control_core::policy_delivery::PolicyDeliveryParentVisibleState;
 
 use policy_control_notification_support::{
-    applied_delivery, approved_override, approved_request, blocked_delivery, preview_request,
-    queued_delivery, replay_rejected_request, retry_delivery,
+    approved_override, approved_request, blocked_delivery, legacy_unverified_acknowledged_delivery,
+    preview_request, queued_delivery, replay_rejected_request, retry_delivery,
 };
 
 #[test]
@@ -65,27 +65,27 @@ fn approved_request_and_queued_delivery_keep_override_and_audit_context() {
 }
 
 #[test]
-fn applied_delivery_promotes_parent_visible_state() {
+fn legacy_unverified_acknowledged_delivery_requires_manual_parent_action() {
     let request = approved_request();
     let temporary_override = approved_override();
-    let applied = applied_delivery();
+    let legacy_acknowledged = legacy_unverified_acknowledged_delivery();
 
     let notification = build_policy_control_parent_notification(
         &request,
         Some(&temporary_override),
-        Some(&applied),
+        Some(&legacy_acknowledged),
     )
-    .expect_value("applied delivery notification");
+    .expect_value("legacy acknowledged delivery notification");
 
     assert_eq!(
         notification.state,
-        PolicyControlNotificationState::DeliveryApplied
+        PolicyControlNotificationState::DeliveryManualRequired
     );
     assert_eq!(
         notification
             .delivery_parent_visible_state
             .expect_value("delivery parent visible state"),
-        PolicyDeliveryParentVisibleState::Applied
+        PolicyDeliveryParentVisibleState::ManualRequired
     );
     assert_eq!(notification.audit_reference_ids.len(), 4);
 }

@@ -16,6 +16,9 @@ mod policy_compiler;
 #[path = "policy_delivery.rs"]
 mod policy_delivery;
 
+#[path = "policy_delivery_hydration_boundaries.rs"]
+mod policy_delivery_hydration_boundaries;
+
 #[path = "policy_event.rs"]
 mod policy_event;
 
