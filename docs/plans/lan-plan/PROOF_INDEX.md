@@ -444,13 +444,17 @@ platform artifacts.
 `25 Rollout Checklist And PR Gate` proof root:
 
 ```text
-output/lan-plan-proof/25-rollout-checklist-and-pr-gate/
+docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/
 ```
 
 Files present for the current rollout truth-sync slice:
 
 - `01-rollout-gate-truth.md`
 - `16-validation-commands.log`
+
+These two WP25 artifacts are tracked source-of-record proof documents. Generated
+or rerun output remains local or CI-owned and must not be committed under
+`output/`.
 
 This proof root now proves the active rollout-gate truth through 2026-07-18,
 including Rust-owned backend replay validation and bridge projection, the Tauri

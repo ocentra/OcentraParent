@@ -88,7 +88,7 @@
 | `22` | complete | LAN state/gap map is synced to current Rust/runtime/UI truth instead of stale TS-first assumptions |
 | `23` | partial/manual | current pairing/route proof truth is locally green across Rust/service/read-model tests; physical/manual topology artifacts remain open |
 | `24` | complete | household/setup/account handoff truth is green on the current Windows portal/runtime proof path; TS remains presentation-only |
-| `25` | partial/manual | Rust-owned backend replay validation, bridge projection, redacted rejection diagnostics, and the host delivery decision are locally green with ordered replay plus duplicate, stale, malformed, state/count, offline, and manual-required coverage. Actual Tauri emitter-to-portal-listener replay observation remains unproven; physical multi-device, router/firewall, signed-artifact, restart, and manual topology proof also gate closure. |
+| `25` | partial/manual | Rust-owned backend replay validation, bridge projection, redacted rejection diagnostics, and the host delivery decision are locally green with ordered replay plus duplicate, stale, malformed, state/count, offline, and manual-required coverage. Tracked proof: `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/`. Actual Tauri emitter-to-portal-listener replay observation remains unproven; physical multi-device, router/firewall, signed-artifact, restart, and manual topology proof also gate closure. |
 
 Rows `21-25` remain active scope, but only `23` and `25` are currently open.
 Keep all follow-on rows aligned to the current Rust-first ownership and

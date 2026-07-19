@@ -82,6 +82,10 @@ Current verified rollout truth on 2026-06-28:
 
 Current verified LAN replay-consumer truth on 2026-07-18:
 
+- The tracked WP25 proof source is
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/`. Generated rerun
+  output remains untracked and does not replace this source-of-record proof.
+
 - The parent-owned Rust agent-service client now loads the canonical
   `AgentLanRuntimeEventChainStreamGet` response and converts validated discovery
   rows into existing `ParentRouteEventSnapshot` values for Rust-owned
@@ -132,7 +136,11 @@ and mock-only readiness do not satisfy rollout closure.
 
 ## Proof Artifact Checklist For Active Scope
 
-- rollout validation log exists under a current proof root
+- rollout truth exists at
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/01-rollout-gate-truth.md`
+- rollout validation history exists at
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/16-validation-commands.log`
+- generated rerun output stays untracked under `output/` or in CI artifacts
 - earlier packet proof roots exist and match the current Rust-owned direction
 - UI screenshot/snapshot proof exists only for real surfaces
 - any UI/browser artifact is attached as supporting presentation evidence, not

@@ -23,6 +23,8 @@
 - Slice A evidence root: `output/lan-plan-proof/00-plan-model-reconciliation/`
 - B1 evidence root: `output/lan-plan-proof/01-lan-b1-proof-regeneration/`
 - B2 evidence root: `output/lan-plan-proof/02-lan-b2-test-truth-repair/`
+- WP25 tracked evidence root:
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/`
 
 ## Current ownership interpretation
 
@@ -218,6 +220,9 @@ Expected evidence for `B2`:
   through the real Tauri `AppHandle` emitter and portal listener. The complete
   backend-to-host-to-portal chain therefore remains open; product TSX still
   does not own replay business logic.
+- The current WP25 rollout truth and validation history are tracked under
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/`; generated `output/`
+  files are not accepted as tracked source proof.
 - Stored child/known-device IPs no longer leave the bounded active-refresh
   target list on historical truth alone; current neighbor-state MAC
   confirmation or the live default-gateway path is now required before
