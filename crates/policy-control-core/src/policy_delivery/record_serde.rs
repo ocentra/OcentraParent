@@ -3,10 +3,10 @@
 use serde::{Deserialize, Deserializer};
 
 use super::{
-    validation, ParentPolicyDocumentId, PolicyAuditReferenceId, PolicyDeliveryAttemptId,
-    PolicyDeliveryExecutionReceipt, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
-    PolicyDeliveryState, PolicyDeliveryTarget, PolicyHouseholdId, PolicyReasonCode,
-    PolicyRollbackRef, PolicyVersion, SchemaVersion,
+    policy_control, validation, EventingError, ParentPolicyDocumentId, PolicyAuditReferenceId,
+    PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt, PolicyDeliveryId,
+    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget,
+    PolicyHouseholdId, PolicyReasonCode, PolicyRollbackRef, PolicyVersion, SchemaVersion,
 };
 
 #[derive(Deserialize)]
@@ -64,7 +64,17 @@ impl<'de> Deserialize<'de> for PolicyDeliveryRecord {
         D: Deserializer<'de>,
     {
         let record = Self::from(PolicyDeliveryRecordWire::deserialize(deserializer)?);
-        validation::validate_policy_delivery_record(&record).map_err(serde::de::Error::custom)?;
+        validate_untrusted_hydration(&record).map_err(serde::de::Error::custom)?;
         Ok(record)
     }
+}
+
+fn validate_untrusted_hydration(record: &PolicyDeliveryRecord) -> Result<(), EventingError> {
+    if record.state == PolicyDeliveryState::Applied {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::delivery::FIELD_STATE,
+            value: "generic applied record hydration is unsupported".to_string(),
+        });
+    }
+    validation::validate_policy_delivery_record(record)
 }

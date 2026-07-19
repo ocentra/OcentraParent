@@ -168,13 +168,13 @@ fn applied_state_without_receipt_evidence_fails_closed() -> TestResult {
     );
     assert_eq!(
         hydration_error.to_string(),
-        "invalid eventing value for policy_delivery.state: missing adapter execution receipt for applied"
+        "invalid eventing value for policy_delivery.state: generic applied record hydration is unsupported"
     );
     Ok(())
 }
 
 #[test]
-fn receipt_validated_applied_record_round_trips_as_active() -> TestResult {
+fn receipt_validated_applied_record_serializes_but_generic_hydration_is_rejected() -> TestResult {
     let queued = helpers::sample_queued_delivery()?;
     let transition =
         helpers::transition(2, "attempt-receipt-validated", PolicyDeliveryState::Applied)?;
@@ -200,12 +200,14 @@ fn receipt_validated_applied_record_round_trips_as_active() -> TestResult {
         payload["execution_receipt"]["attempt_id"],
         "attempt-receipt-validated"
     );
-    let hydrated: PolicyDeliveryRecord = test_ok!(
-        serde_json::from_value(payload),
-        "hydrate receipt-validated applied record"
+    let hydration_error = test_err!(
+        serde_json::from_value::<PolicyDeliveryRecord>(payload),
+        "generic hydration cannot establish Applied authenticity"
     );
-    assert_eq!(hydrated, applied);
-    assert!(hydrated.is_active());
+    assert_eq!(
+        hydration_error.to_string(),
+        "invalid eventing value for policy_delivery.state: generic applied record hydration is unsupported"
+    );
     Ok(())
 }
 

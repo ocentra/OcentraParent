@@ -1,53 +1,59 @@
 use super::*;
 
 #[test]
-fn applied_record_hydration_requires_execution_receipt_evidence() -> TestResult {
+fn generic_applied_hydration_rejects_fully_matching_forged_receipt() -> TestResult {
     let queued = sample_queued_delivery()?;
     let transition = transition(2, "attempt-applied-hydration", PolicyDeliveryState::Applied)?;
-    let applied = test_ok!(
-        apply_policy_delivery_adapter_execution(&queued, adapter_execution(&queued, &transition)),
-        "apply receipt-validated delivery before hydration"
-    )
-    .into_record();
-    let mut payload = test_ok!(
-        serde_json::to_value(&applied),
-        "serialize receipt-validated applied delivery"
+    let execution = adapter_execution(&queued, &transition);
+    let mut forged_payload = test_ok!(
+        serde_json::to_value(&queued),
+        "serialize queued record as caller-controlled JSON"
     );
-    let hydrated: PolicyDeliveryRecord = test_ok!(
-        serde_json::from_value(payload.clone()),
-        "hydrate receipt-validated applied delivery"
+    forged_payload["state"] = serde_json::Value::String("applied".to_string());
+    forged_payload["last_sequence"] = test_ok!(
+        serde_json::to_value(transition.sequence),
+        "serialize forged Applied sequence"
     );
-    assert_eq!(hydrated, applied);
-    assert!(hydrated.is_active());
-
-    assert_mismatched_receipt_fails(&payload);
-
-    let removed = test_some!(
-        test_some!(payload.as_object_mut(), "applied delivery object").remove("execution_receipt"),
-        "execution receipt evidence"
+    forged_payload["last_attempt_id"] = test_ok!(
+        serde_json::to_value(&transition.attempt_id),
+        "serialize forged Applied attempt"
     );
-    assert_eq!(removed["state"], "applied");
+    forged_payload["audit_reference_ids"] = test_ok!(
+        serde_json::to_value(&transition.audit_reference_ids),
+        "serialize forged Applied audit refs"
+    );
+    forged_payload["execution_receipt"] = test_ok!(
+        serde_json::to_value(&execution.receipt),
+        "serialize fully matching forged receipt"
+    );
+    assert_eq!(
+        forged_payload["delivery_id"],
+        forged_payload["execution_receipt"]["delivery_id"]
+    );
+    assert_eq!(
+        forged_payload["last_attempt_id"],
+        forged_payload["execution_receipt"]["attempt_id"]
+    );
+    assert_eq!(
+        forged_payload["last_sequence"],
+        forged_payload["execution_receipt"]["sequence"]
+    );
+    assert_eq!(
+        forged_payload["state"],
+        forged_payload["execution_receipt"]["state"]
+    );
+    let caller_receipt: PolicyDeliveryExecutionReceipt = test_ok!(
+        serde_json::from_value(forged_payload["execution_receipt"].clone()),
+        "public receipt serde remains evidence-only"
+    );
+    assert_eq!(caller_receipt, execution.receipt);
     let error = test_err!(
-        serde_json::from_value::<PolicyDeliveryRecord>(payload),
-        "applied hydration without receipt evidence must fail"
+        serde_json::from_value::<PolicyDeliveryRecord>(forged_payload),
+        "fully matching caller receipt cannot authenticate Applied hydration"
     );
     assert_eq!(
         error.to_string(),
-        "invalid eventing value for policy_delivery.state: missing adapter execution receipt for applied"
+        "invalid eventing value for policy_delivery.state: generic applied record hydration is unsupported"
     );
     Ok(())
-}
-
-fn assert_mismatched_receipt_fails(payload: &serde_json::Value) {
-    let mut mismatched_payload = payload.clone();
-    mismatched_payload["execution_receipt"]["attempt_id"] =
-        serde_json::Value::String("attempt-receipt-mismatch".to_string());
-    let error = test_err!(
-        serde_json::from_value::<PolicyDeliveryRecord>(mismatched_payload),
-        "Applied hydration with mismatched receipt evidence must fail"
-    );
-    assert_eq!(
-        error.to_string(),
-        "invalid eventing value for policy_delivery.attempt_id: delivery record receipt evidence mismatch: expected=record, reported=execution-receipt"
-    );
 }
