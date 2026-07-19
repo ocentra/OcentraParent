@@ -270,12 +270,6 @@ pub struct PolicyDeliveryExecutionReceipt {
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct PolicyDeliveryAdapterExecution {
-    transition: PolicyDeliveryTransition,
-    receipt: PolicyDeliveryExecutionReceipt,
-}
-
-#[derive(Clone, PartialEq, Eq)]
 pub enum PolicyDeliveryApplyOutcome {
     Advanced(PolicyDeliveryRecord),
     Duplicate(PolicyDeliveryRecord),
@@ -329,28 +323,6 @@ pub fn validate_policy_delivery_execution_receipt(
     receipt: Option<&PolicyDeliveryExecutionReceipt>,
 ) -> Result<(), EventingError> {
     state_context::assert_execution_receipt(current, transition, receipt)
-}
-
-pub fn validate_policy_delivery_adapter_execution(
-    current: &PolicyDeliveryRecord,
-    execution: &PolicyDeliveryAdapterExecution,
-) -> Result<(), EventingError> {
-    adapter_execution::validate_policy_delivery_adapter_execution(current, execution)
-}
-
-pub fn apply_policy_delivery_adapter_execution(
-    current: &PolicyDeliveryRecord,
-    execution: PolicyDeliveryAdapterExecution,
-) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
-    adapter_execution::apply_policy_delivery_adapter_execution(current, execution)
-}
-
-pub fn replay_policy_delivery_execution_receipt(
-    current: &PolicyDeliveryRecord,
-    transition: &PolicyDeliveryTransition,
-    receipt: &PolicyDeliveryExecutionReceipt,
-) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
-    adapter_execution::replay_policy_delivery_execution_receipt(current, transition, receipt)
 }
 
 pub fn apply_policy_delivery_transition(

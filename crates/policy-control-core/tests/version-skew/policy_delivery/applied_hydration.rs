@@ -1,7 +1,31 @@
 use super::*;
 
 #[test]
-fn acknowledged_record_with_stored_receipt_round_trips_as_pending_evidence() -> TestResult {
+fn schema_v1_receiptless_applied_is_not_legacy_compatible() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let mut serialized = test_ok!(
+        serde_json::to_value(&queued),
+        "serialize schema-v1 applied fixture"
+    );
+    serialized["schema_version"] = serde_json::json!(1);
+    serialized["state"] = serde_json::json!("applied");
+    serialized["last_sequence"] = serde_json::json!(2);
+    serialized["last_attempt_id"] = serde_json::json!("attempt-schema-v1-applied");
+    serialized["audit_reference_ids"] = serde_json::json!(["audit-attempt-schema-v1-applied-2"]);
+
+    let error = test_err!(
+        serde_json::from_value::<PolicyDeliveryRecord>(serialized),
+        "schema-v1 receiptless applied history is not legacy-compatible"
+    );
+    assert_eq!(
+        error.to_string(),
+        "invalid eventing value for policy_delivery.state: generic receipt-required record hydration is unsupported"
+    );
+    Ok(())
+}
+
+#[test]
+fn generic_acknowledged_hydration_rejects_matching_public_receipt() -> TestResult {
     let queued = sample_queued_delivery()?;
     let transition = transition(
         2,
@@ -23,14 +47,64 @@ fn acknowledged_record_with_stored_receipt_round_trips_as_pending_evidence() -> 
         "serialize acknowledged receipt evidence"
     );
 
-    let record: PolicyDeliveryRecord = test_ok!(
-        serde_json::from_value(serialized),
-        "hydrate acknowledged evidence record"
+    let error = test_err!(
+        serde_json::from_value::<PolicyDeliveryRecord>(serialized),
+        "caller-controlled receipt cannot authenticate acknowledged history"
     );
-    assert_eq!(record.state, PolicyDeliveryState::Acknowledged);
     assert_eq!(
-        record.parent_visible_state(),
-        PolicyDeliveryParentVisibleState::Pending
+        error.to_string(),
+        "invalid eventing value for policy_delivery.state: generic receipt-required record hydration is unsupported"
+    );
+    Ok(())
+}
+
+#[test]
+fn generic_rolled_back_hydration_rejects_matching_public_receipt() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered = test_ok!(
+        apply_policy_delivery_transition(
+            &queued,
+            transition(
+                2,
+                "attempt-delivered-before-rollback",
+                PolicyDeliveryState::Delivered
+            )?,
+        ),
+        "deliver before forged rollback"
+    )
+    .into_record();
+    let mut rollback = transition(
+        3,
+        "attempt-rolled-back-hydration",
+        PolicyDeliveryState::RolledBack,
+    )?;
+    rollback.reason_code = Some(test_ok!(
+        PolicyReasonCode::parse("adapter-failed"),
+        "rollback reason"
+    ));
+    rollback.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+    let receipt = execution_receipt(&delivered, &rollback);
+    let mut serialized = test_ok!(
+        serde_json::to_value(&delivered),
+        "serialize delivered record"
+    );
+    serialized["state"] = serde_json::json!("rolled-back");
+    serialized["last_sequence"] = serde_json::json!(3);
+    serialized["last_attempt_id"] = serde_json::json!("attempt-rolled-back-hydration");
+    serialized["audit_reference_ids"] =
+        serde_json::json!(["audit-attempt-rolled-back-hydration-3"]);
+    serialized["reason_code"] = serde_json::json!("adapter-failed");
+    serialized["rollback_reference_state"] = serde_json::json!("delivered");
+    serialized["execution_receipt"] =
+        test_ok!(serde_json::to_value(receipt), "serialize rollback receipt");
+
+    let error = test_err!(
+        serde_json::from_value::<PolicyDeliveryRecord>(serialized),
+        "caller-controlled receipt cannot authenticate rolled-back history"
+    );
+    assert_eq!(
+        error.to_string(),
+        "invalid eventing value for policy_delivery.state: generic receipt-required record hydration is unsupported"
     );
     Ok(())
 }
@@ -88,7 +162,7 @@ fn generic_applied_hydration_rejects_fully_matching_forged_receipt() -> TestResu
     );
     assert_eq!(
         error.to_string(),
-        "invalid eventing value for policy_delivery.state: generic applied record hydration is unsupported"
+        "invalid eventing value for policy_delivery.state: generic receipt-required record hydration is unsupported"
     );
     Ok(())
 }

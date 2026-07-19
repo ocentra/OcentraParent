@@ -42,7 +42,7 @@ const SENSITIVE_IDENTIFIERS: &[&str] = &[
 fn formatted_receipt_validation_errors_redact_sensitive_identifiers() -> TestResult {
     let fixture = redaction_fixture()?;
     assert_identity_mismatch_errors_redact(&fixture)?;
-    assert_replay_errors_redact(&fixture)?;
+    assert_receipt_required_hydration_errors_redact(&fixture)?;
     Ok(())
 }
 
@@ -114,7 +114,7 @@ fn assert_identity_mismatch_errors_redact(fixture: &RedactionFixture) -> TestRes
     Ok(())
 }
 
-fn assert_replay_errors_redact(fixture: &RedactionFixture) -> TestResult {
+fn assert_receipt_required_hydration_errors_redact(fixture: &RedactionFixture) -> TestResult {
     let stale_transition = helpers::transition(
         1,
         "attempt-sensitive-stale",
@@ -142,31 +142,21 @@ fn assert_replay_errors_redact(fixture: &RedactionFixture) -> TestResult {
         serde_json::to_value(&fixture.base_receipt),
         "serialize existing receipt evidence"
     );
-    let acknowledged_record: PolicyDeliveryRecord = test_ok!(
-        serde_json::from_value(acknowledged_payload),
-        "hydrate existing acknowledged receipt replay fixture"
-    );
-    let mut conflicting_transition = (*fixture.acknowledged_transition).clone();
-    conflicting_transition.audit_reference_ids =
-        vec![helpers::audit_ref("audit-sensitive-conflicting")?];
-    let conflicting_receipt =
-        helpers::execution_receipt(&acknowledged_record, &conflicting_transition);
-    let conflicting = test_err!(
-        validate_policy_delivery_execution_receipt(
-            &acknowledged_record,
-            &conflicting_transition,
-            Some(&conflicting_receipt),
-        ),
-        "conflicting receipt replay must fail"
+    let hydration_error = test_err!(
+        serde_json::from_value::<PolicyDeliveryRecord>(acknowledged_payload),
+        "generic schema-v2 acknowledged hydration must fail"
     );
 
     assert_formatted_error_redacts(&stale);
-    assert_formatted_error_redacts(&conflicting);
+    assert_outputs_redact([format!("{hydration_error:?}"), hydration_error.to_string()]);
     Ok(())
 }
 
 fn assert_formatted_error_redacts(error: &EventingError) {
-    let outputs = vec![format!("{error:?}"), error.to_string()];
+    assert_outputs_redact([format!("{error:?}"), error.to_string()]);
+}
+
+fn assert_outputs_redact(outputs: impl IntoIterator<Item = String>) {
     for output in outputs {
         for sensitive_identifier in SENSITIVE_IDENTIFIERS {
             assert!(

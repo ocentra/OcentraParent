@@ -3,9 +3,8 @@
 use super::{
     adapter_execution_validation, policy_control, state_values, transition_rules, validation,
     CompiledDomainPolicyArtifact, EventingError, PolicyDeliveryApplyOutcome,
-    PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt, PolicyDeliveryId,
-    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryTarget, PolicyDeliveryTransition,
-    POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
+    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
+    PolicyDeliveryTarget, PolicyDeliveryTransition, POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
 };
 
 pub(super) fn queue_policy_delivery(
@@ -49,16 +48,7 @@ pub(super) fn apply_policy_delivery_transition_without_execution_receipt(
         &transition,
         None,
     )?;
-    apply_validated_policy_delivery_transition(current, transition, None)
-}
-
-pub(super) fn apply_policy_delivery_transition_after_execution_validation(
-    current: &PolicyDeliveryRecord,
-    transition: PolicyDeliveryTransition,
-    receipt: PolicyDeliveryExecutionReceipt,
-) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
-    validate_policy_delivery_transition_application(current, &transition)?;
-    apply_validated_policy_delivery_transition(current, transition, Some(receipt))
+    apply_validated_policy_delivery_transition(current, transition)
 }
 
 fn validate_policy_delivery_transition_application(
@@ -73,7 +63,6 @@ fn validate_policy_delivery_transition_application(
 fn apply_validated_policy_delivery_transition(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
-    execution_receipt: Option<PolicyDeliveryExecutionReceipt>,
 ) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
     match transition
         .sequence
@@ -118,7 +107,7 @@ fn apply_validated_policy_delivery_transition(
         reason_code: transition.reason_code,
         superseded_by_policy_version: transition.superseded_by_policy_version,
         rollback_reference_state: transition.rollback_reference_state,
-        execution_receipt,
+        execution_receipt: None,
     };
     validation::validate_policy_delivery_record(&next)?;
     Ok(PolicyDeliveryApplyOutcome::Advanced(next))

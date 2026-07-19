@@ -3,9 +3,8 @@
 use std::fmt;
 
 use super::{
-    PolicyDeliveryAdapterExecution, PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId,
-    PolicyDeliveryExecutionReceipt, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliveryTarget,
-    PolicyDeliveryTransition,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt,
+    PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 
 impl fmt::Debug for PolicyDeliveryId {
@@ -110,33 +109,6 @@ impl fmt::Debug for PolicyDeliveryExecutionReceipt {
             .field("audit_reference_count", &self.audit_reference_ids.len())
             .field("reason_code_present", &self.reason_code.is_some())
             .field("rollback_reference_state", &self.rollback_reference_state)
-            .finish()
-    }
-}
-
-impl fmt::Debug for PolicyDeliveryAdapterExecution {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter
-            .debug_struct("PolicyDeliveryAdapterExecution")
-            .field("transition_sequence", &self.transition.sequence.value())
-            .field("transition_state", &self.transition.state)
-            .field(
-                "transition_audit_reference_count",
-                &self.transition.audit_reference_ids.len(),
-            )
-            .field(
-                "transition_reason_code_present",
-                &self.transition.reason_code.is_some(),
-            )
-            .field(
-                "transition_superseded_by_policy_version",
-                &self.transition.superseded_by_policy_version,
-            )
-            .field(
-                "transition_rollback_reference_state",
-                &self.transition.rollback_reference_state,
-            )
-            .field("receipt", &self.receipt)
             .finish()
     }
 }

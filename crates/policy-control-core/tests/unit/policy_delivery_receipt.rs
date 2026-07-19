@@ -7,8 +7,7 @@ use helpers::{
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, replay_policy_delivery_execution_receipt,
-    validate_policy_delivery_execution_receipt, PolicyDeliveryApplyOutcome,
+    apply_policy_delivery_transition, validate_policy_delivery_execution_receipt,
     PolicyDeliveryAttemptId, PolicyDeliveryRecord, PolicyDeliveryState,
 };
 
@@ -224,82 +223,6 @@ fn execution_receipt_validation_rejects_stale_receipt() -> TestResult {
 }
 
 #[test]
-fn exact_execution_receipt_retry_returns_duplicate_and_mismatch_is_rejected() -> TestResult {
-    let queued = sample_queued_delivery()?;
-    let delivered_transition = transition(
-        2,
-        "attempt-delivered-receipt",
-        PolicyDeliveryState::Delivered,
-    )?;
-    let delivered_record = test_ok!(
-        apply_policy_delivery_transition(&queued, delivered_transition),
-        "deliver policy"
-    )
-    .into_record();
-    let acknowledged_transition = transition(
-        3,
-        "attempt-acknowledged-receipt",
-        PolicyDeliveryState::Acknowledged,
-    )?;
-    let acknowledged_receipt = execution_receipt(&delivered_record, &acknowledged_transition);
-    let mut acknowledged_payload = test_ok!(
-        serde_json::to_value(&delivered_record),
-        "serialize delivered record for existing receipt fixture"
-    );
-    acknowledged_payload["state"] = serde_json::json!("acknowledged");
-    acknowledged_payload["last_sequence"] = serde_json::json!(3);
-    acknowledged_payload["last_attempt_id"] = serde_json::json!("attempt-acknowledged-receipt");
-    acknowledged_payload["audit_reference_ids"] =
-        serde_json::json!(["audit-attempt-acknowledged-receipt-3"]);
-    acknowledged_payload["execution_receipt"] = test_ok!(
-        serde_json::to_value(&acknowledged_receipt),
-        "serialize existing execution receipt"
-    );
-    let acknowledged_record: PolicyDeliveryRecord = test_ok!(
-        serde_json::from_value(acknowledged_payload),
-        "hydrate existing acknowledged receipt fixture"
-    );
-
-    let duplicate = test_ok!(
-        replay_policy_delivery_execution_receipt(
-            &acknowledged_record,
-            &acknowledged_transition,
-            &acknowledged_receipt,
-        ),
-        "exact execution receipt retry"
-    );
-    match duplicate {
-        PolicyDeliveryApplyOutcome::Duplicate(record) => assert_eq!(record, acknowledged_record),
-        other => {
-            return Err(std::io::Error::other(format!(
-                "expected duplicate execution receipt outcome, got {other:?}"
-            ))
-            .into());
-        }
-    }
-
-    let mut mismatched_receipt = acknowledged_receipt;
-    mismatched_receipt.audit_reference_ids =
-        vec![helpers::audit_ref("audit-mismatched-same-sequence")?];
-    let mismatch = test_err!(
-        replay_policy_delivery_execution_receipt(
-            &acknowledged_record,
-            &acknowledged_transition,
-            &mismatched_receipt,
-        ),
-        "mismatched same-sequence receipt must fail"
-    );
-    assert_eq!(
-        mismatch,
-        EventingError::InvalidValue {
-            field: "policy_delivery.audit_reference_ids",
-            value: "expected audit references to match execution receipt".to_string(),
-        }
-    );
-    Ok(())
-}
-
-#[test]
 fn non_rollback_receipt_rejects_rollback_reference_state() -> TestResult {
     let queued = sample_queued_delivery()?;
     let delivered_record = test_ok!(
@@ -485,8 +408,7 @@ fn rolled_back_execution_receipt_validates_without_minting_adapter_authority() -
 }
 
 #[test]
-fn exact_stored_rolled_back_receipt_replay_is_duplicate_and_mismatched_reference_rejects(
-) -> TestResult {
+fn generic_stored_rolled_back_receipt_is_rejected_as_unauthenticated() -> TestResult {
     let queued = sample_queued_delivery()?;
     let delivered = test_ok!(
         apply_policy_delivery_transition(
@@ -520,29 +442,13 @@ fn exact_stored_rolled_back_receipt_replay_is_duplicate_and_mismatched_reference
     payload["rollback_reference_state"] = serde_json::json!("delivered");
     payload["execution_receipt"] =
         test_ok!(serde_json::to_value(&receipt), "serialize rollback receipt");
-    let stored: PolicyDeliveryRecord = test_ok!(
-        serde_json::from_value(payload),
-        "hydrate stored rollback receipt"
-    );
-    assert!(matches!(
-        test_ok!(
-            replay_policy_delivery_execution_receipt(&stored, &rollback, &receipt),
-            "exact rollback replay"
-        ),
-        PolicyDeliveryApplyOutcome::Duplicate(_)
-    ));
-    let mut mismatched = rollback;
-    mismatched.rollback_reference_state = Some(PolicyDeliveryState::Applied);
-    let mismatch = test_err!(
-        replay_policy_delivery_execution_receipt(&stored, &mismatched, &receipt),
-        "mismatched same-sequence rollback reference must reject"
+    let error = test_err!(
+        serde_json::from_value::<PolicyDeliveryRecord>(payload),
+        "generic hydration cannot authenticate stored rollback receipt"
     );
     assert_eq!(
-        mismatch,
-        EventingError::InvalidValue {
-            field: "policy_delivery.sequence",
-            value: "execution receipt replay conflict: expected=current-record-provenance, reported=mismatched-receipt-provenance at sequence 3".to_string(),
-        }
+        error.to_string(),
+        "invalid eventing value for policy_delivery.state: generic receipt-required record hydration is unsupported"
     );
     Ok(())
 }

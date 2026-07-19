@@ -81,17 +81,24 @@ fn validate_untrusted_hydration(record: &PolicyDeliveryRecord) -> Result<(), Eve
             ),
         });
     }
-    if record.state == PolicyDeliveryState::Applied {
+    let legacy_unverified = record.execution_receipt_provenance()
+        == PolicyDeliveryReceiptProvenance::LegacySchemaV1Unverified;
+    if matches!(
+        record.state,
+        PolicyDeliveryState::Acknowledged
+            | PolicyDeliveryState::Applied
+            | PolicyDeliveryState::RolledBack
+    ) && !legacy_unverified
+    {
         return Err(EventingError::InvalidValue {
             field: policy_control::delivery::FIELD_STATE,
-            value: "generic applied record hydration is unsupported".to_string(),
+            value: "generic receipt-required record hydration is unsupported".to_string(),
         });
     }
-    match record.execution_receipt_provenance() {
-        PolicyDeliveryReceiptProvenance::LegacySchemaV1Unverified => {
-            validate_legacy_schema_v1_unverified_record(record)
-        }
-        _ => validation::validate_policy_delivery_record(record),
+    if legacy_unverified {
+        validate_legacy_schema_v1_unverified_record(record)
+    } else {
+        validation::validate_policy_delivery_record(record)
     }
 }
 

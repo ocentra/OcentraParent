@@ -502,7 +502,7 @@ fn schema_v2_receipt_required_state_rejects_missing_receipt() -> TestResult {
     );
     assert_eq!(
         error.to_string(),
-        "invalid eventing value for policy_delivery.state: missing adapter execution receipt for acknowledged"
+        "invalid eventing value for policy_delivery.state: generic receipt-required record hydration is unsupported"
     );
     Ok(())
 }

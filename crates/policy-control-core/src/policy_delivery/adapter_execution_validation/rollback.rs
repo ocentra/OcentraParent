@@ -48,10 +48,7 @@ pub(super) fn validate_policy_delivery_receipt_rollback_reference(
         });
     };
 
-    let exact_stored_replay = current.state == PolicyDeliveryState::RolledBack
-        && current.rollback_reference_state == Some(transition_reference_state)
-        && current.execution_receipt() == Some(receipt);
-    if !exact_stored_replay && transition_reference_state != current.state {
+    if transition_reference_state != current.state {
         return Err(EventingError::InvalidValue {
             field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
             value: format!(
@@ -62,7 +59,7 @@ pub(super) fn validate_policy_delivery_receipt_rollback_reference(
         });
     }
 
-    if !exact_stored_replay && receipt_reference_state != current.state {
+    if receipt_reference_state != current.state {
         return Err(EventingError::InvalidValue {
             field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
             value: format!(
@@ -73,17 +70,12 @@ pub(super) fn validate_policy_delivery_receipt_rollback_reference(
         });
     }
 
-    let source_state = if exact_stored_replay {
-        transition_reference_state
-    } else {
-        current.state
-    };
-    if !ROLLED_BACK_REFERENCE_STATES.contains(&source_state) {
+    if !ROLLED_BACK_REFERENCE_STATES.contains(&current.state) {
         return Err(EventingError::InvalidValue {
             field: policy_control::delivery::FIELD_ROLLBACK_REFERENCE_STATE,
             value: format!(
                 "invalid rollback source state {} for rolled-back transition",
-                state_values::policy_delivery_state_name(source_state)
+                state_values::policy_delivery_state_name(current.state)
             ),
         });
     }

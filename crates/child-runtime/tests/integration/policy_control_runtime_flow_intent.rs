@@ -316,7 +316,7 @@ fn assistant_preview_and_confirmation_stay_gated_until_parent_review() {
 }
 
 #[test]
-fn resolved_request_can_queue_and_apply_delivery_without_losing_audit_refs() {
+fn resolved_request_queues_delivery_and_surfaces_manual_required_without_losing_audit_refs() {
     let request = child_request();
     let resolved = resolve_policy_control_request_handoff(
         &request,
@@ -371,12 +371,14 @@ fn resolved_request_can_queue_and_apply_delivery_without_losing_audit_refs() {
             rollback_reference_state: None,
         },
     )
-    .required("applied delivery handoff");
+    .required("receipt-required delivery handoff surfaces dependency state");
 
     assert_eq!(
         applied.parent_notification.state,
-        ocentra_child_notification_core::policy_control_notification::PolicyControlNotificationState::DeliveryApplied
+        ocentra_child_notification_core::policy_control_notification::PolicyControlNotificationState::DeliveryManualRequired
     );
+    assert_eq!(applied.delivery.state, PolicyDeliveryState::ManualRequired);
+    assert!(!applied.delivery.is_active());
     assert_eq!(applied.parent_notification.audit_reference_ids.len(), 3);
 }
 

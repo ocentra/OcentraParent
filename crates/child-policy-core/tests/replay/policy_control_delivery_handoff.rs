@@ -268,23 +268,21 @@ fn delivery_duplicate_and_stale_transitions_are_noops() {
 }
 
 #[test]
-fn delivery_handoff_rejects_receipt_required_states_without_receipts() {
+fn delivery_handoff_surfaces_receipt_required_states_as_manual_required() {
     let queued = queued_delivery();
     let cases = [
         (
             PolicyDeliveryState::Acknowledged,
             "attempt-acknowledged-without-receipt",
-            "acknowledged",
         ),
         (
             PolicyDeliveryState::Applied,
             "attempt-applied-without-receipt",
-            "applied",
         ),
     ];
 
-    for (state, attempt_id, state_name) in cases {
-        let error = apply_policy_control_delivery_handoff(
+    for (state, attempt_id) in cases {
+        let report = apply_policy_control_delivery_handoff(
             &queued,
             transition(
                 2,
@@ -292,15 +290,18 @@ fn delivery_handoff_rejects_receipt_required_states_without_receipts() {
                 state,
             ),
         )
-        .expect_err_value("receipt-required child handoff must fail closed");
+        .expect_value("receipt-required child handoff surfaces dependency state");
 
+        assert_eq!(report.delivery.state, PolicyDeliveryState::ManualRequired);
         assert_eq!(
-            error,
-            EventingError::InvalidValue {
-                field: "policy_delivery.state",
-                value: format!("missing adapter execution receipt for {state_name}"),
-            }
+            report
+                .delivery
+                .reason_code
+                .as_ref()
+                .map(|value| value.as_str()),
+            Some("trusted-adapter-required")
         );
+        assert!(!report.delivery.is_active());
     }
 
     assert_eq!(queued.state, PolicyDeliveryState::Queued);

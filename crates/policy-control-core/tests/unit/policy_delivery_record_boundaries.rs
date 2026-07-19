@@ -3,9 +3,8 @@ use super::TestResult;
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     apply_policy_delivery_transition, validate_policy_delivery_execution_receipt,
-    validate_policy_delivery_record, PolicyDeliveryAdapterExecution,
-    PolicyDeliveryParentVisibleState, PolicyDeliveryRecord, PolicyDeliverySequence,
-    PolicyDeliveryState,
+    validate_policy_delivery_record, PolicyDeliveryParentVisibleState, PolicyDeliveryRecord,
+    PolicyDeliverySequence, PolicyDeliveryState,
 };
 
 const SENSITIVE_IDENTIFIERS: &[&str] = &[
@@ -21,18 +20,6 @@ const SENSITIVE_IDENTIFIERS: &[&str] = &[
     "audit-debug-sensitive",
     "reason-debug-sensitive",
 ];
-
-#[test]
-fn fabricated_receipt_cannot_be_deserialized_into_adapter_execution_authority() {
-    trait AmbiguousIfDeserialize<Marker> {
-        fn marker() {}
-    }
-
-    impl<T: ?Sized> AmbiguousIfDeserialize<()> for T {}
-    impl<T: serde::de::DeserializeOwned> AmbiguousIfDeserialize<u8> for T {}
-
-    let _ = <PolicyDeliveryAdapterExecution as AmbiguousIfDeserialize<_>>::marker;
-}
 
 #[test]
 fn operational_debug_redacts_identifiers_while_wire_contract_preserves_them() -> TestResult {
@@ -181,7 +168,7 @@ fn applied_state_without_receipt_evidence_fails_closed() -> TestResult {
     );
     assert_eq!(
         hydration_error.to_string(),
-        "invalid eventing value for policy_delivery.state: generic applied record hydration is unsupported"
+        "invalid eventing value for policy_delivery.state: generic receipt-required record hydration is unsupported"
     );
     Ok(())
 }
@@ -219,7 +206,7 @@ fn fully_matching_public_receipt_remains_untrusted_for_applied_hydration() -> Te
     );
     assert_eq!(
         hydration_error.to_string(),
-        "invalid eventing value for policy_delivery.state: generic applied record hydration is unsupported"
+        "invalid eventing value for policy_delivery.state: generic receipt-required record hydration is unsupported"
     );
     Ok(())
 }

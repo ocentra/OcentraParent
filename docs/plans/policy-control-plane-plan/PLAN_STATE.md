@@ -80,7 +80,7 @@ domain plans:
 docs/proof/policy-control-plane-plan/ is the canonical proof root.
 PLAN_PROOF_MANIFEST.md records file presence and workpack proof status only.
 WP01, WP03, WP06, WP07, and WP08 have closeout bundles recorded in current route docs.
-WP04 has current contract, negative, replay, compatibility, audit, and parent-visible proof, but no trusted adapter mint or real enforcement side-effect proof; it is dependency-blocked rather than complete.
+WP04 has current contract, negative, receipt-validation, compatibility, audit, and parent-visible proof, but no trusted adapter authority, inspectable execution trace, or real enforcement side-effect proof; it is dependency-blocked rather than complete.
 WP02 and WP05 remain open until targeted authoring/preview and ask-parent/override proof bundles exist or explicit dependency blockers are carried.
 Universal guardrail files supplement workpack closeouts; they do not replace them.
 ```
@@ -91,7 +91,7 @@ Real dependency blockers:
 - `portal-ux-household-surfaces-plan` still owns unfinished rendered policy authoring, conflict, approval, and audit surfaces required by WP02.
 - The parent-assistant and portal chat surfaces still need parent confirmation, child-agent validation, and portal chat/audit integration required by WP05.
 - Device-trust, data-custody, and enforcement handoffs remain dependency-owned and are not proven complete here.
-- WP04 requires a trusted domain- or enforcement-owned adapter that performs the real side effect and mints opaque execution authority; the current public policy surface intentionally cannot advance acknowledged, applied, or rolled-back state.
+- WP04 requires a trusted domain- or enforcement-owned adapter that performs the real side effect, emits the required inspectable execution trace, and supplies non-forgeable execution authority; the current public policy surface intentionally exposes no production execution entry and cannot advance acknowledged, applied, or rolled-back state.
 
 External platform constraints:
 - Real iOS and macOS proof is not currently expected from this Windows host and should be tracked as an external-platform constraint when selected work requires it.
