@@ -483,3 +483,66 @@ fn rolled_back_execution_receipt_validates_without_minting_adapter_authority() -
     );
     Ok(())
 }
+
+#[test]
+fn exact_stored_rolled_back_receipt_replay_is_duplicate_and_mismatched_reference_rejects(
+) -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered = test_ok!(
+        apply_policy_delivery_transition(
+            &queued,
+            transition(
+                2,
+                "attempt-delivered-replay",
+                PolicyDeliveryState::Delivered
+            )?
+        ),
+        "deliver policy"
+    )
+    .into_record();
+    let mut rollback = transition(
+        3,
+        "attempt-rollback-replay",
+        PolicyDeliveryState::RolledBack,
+    )?;
+    rollback.reason_code = Some(reason("adapter-failed")?);
+    rollback.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+    let receipt = execution_receipt(&delivered, &rollback);
+    let mut payload = test_ok!(
+        serde_json::to_value(&delivered),
+        "serialize rollback fixture"
+    );
+    payload["state"] = serde_json::json!("rolled-back");
+    payload["last_sequence"] = serde_json::json!(3);
+    payload["last_attempt_id"] = serde_json::json!("attempt-rollback-replay");
+    payload["audit_reference_ids"] = serde_json::json!(["audit-attempt-rollback-replay-3"]);
+    payload["reason_code"] = serde_json::json!("adapter-failed");
+    payload["rollback_reference_state"] = serde_json::json!("delivered");
+    payload["execution_receipt"] =
+        test_ok!(serde_json::to_value(&receipt), "serialize rollback receipt");
+    let stored: PolicyDeliveryRecord = test_ok!(
+        serde_json::from_value(payload),
+        "hydrate stored rollback receipt"
+    );
+    assert!(matches!(
+        test_ok!(
+            replay_policy_delivery_execution_receipt(&stored, &rollback, &receipt),
+            "exact rollback replay"
+        ),
+        PolicyDeliveryApplyOutcome::Duplicate(_)
+    ));
+    let mut mismatched = rollback;
+    mismatched.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+    let mismatch = test_err!(
+        replay_policy_delivery_execution_receipt(&stored, &mismatched, &receipt),
+        "mismatched same-sequence rollback reference must reject"
+    );
+    assert_eq!(
+        mismatch,
+        EventingError::InvalidValue {
+            field: "policy_delivery.sequence",
+            value: "execution receipt replay conflict: expected=current-record-provenance, reported=mismatched-receipt-provenance at sequence 3".to_string(),
+        }
+    );
+    Ok(())
+}
