@@ -480,25 +480,15 @@ it('applyParentSubscriptionEvent: binds replay rows while accepting a realistic 
   ]);
 });
 
-it('applyParentSubscriptionEvent: fails closed for missing, invalid, or mismatched replay metadata', () => {
-  const validReplay = replayEvent('lan-history-1', 'scan-started', '2026-06-28T17:00:01Z', null);
-  const replayWithoutTimestamp = {
-    event: 'scan-started',
-    eventId: 'lan-history-1',
-    correlationId: 'lan-scan-1',
-    sourcePeerId: 'local-dev-agent',
-    sourceRole: 'agent-service',
-    targetPeerId: 'portal-dev',
-    targetRole: 'portal',
-    severity: 'info',
-    payload: validReplay.payload ?? null,
-    snapshot: null,
-  } satisfies ParentRouteEventSnapshot;
+function invalidLanReplayBatches(
+  validReplay: ParentRouteEventSnapshot,
+  replayWithoutTimestamp: ParentRouteEventSnapshot
+): ReadonlyArray<{
+  snapshot: ParentRouteSnapshot;
+  events: readonly ParentRouteEventSnapshot[];
+}> {
   const validSnapshot = devicesSnapshotWithReplayHistory([validReplay]);
-  const invalidBatches: ReadonlyArray<{
-    snapshot: ParentRouteSnapshot;
-    events: readonly ParentRouteEventSnapshot[];
-  }> = [
+  return [
     {
       snapshot: validSnapshot,
       events: [replayWithoutTimestamp],
@@ -555,6 +545,23 @@ it('applyParentSubscriptionEvent: fails closed for missing, invalid, or mismatch
       events: [{ ...validReplay, payload: { ...validReplay.payload, summary: 'different summary' } }],
     },
   ];
+}
+
+it('applyParentSubscriptionEvent: fails closed for missing, invalid, or mismatched replay metadata', () => {
+  const validReplay = replayEvent('lan-history-1', 'scan-started', '2026-06-28T17:00:01Z', null);
+  const replayWithoutTimestamp = {
+    event: 'scan-started',
+    eventId: 'lan-history-1',
+    correlationId: 'lan-scan-1',
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    severity: 'info',
+    payload: validReplay.payload ?? null,
+    snapshot: null,
+  } satisfies ParentRouteEventSnapshot;
+  const invalidBatches = invalidLanReplayBatches(validReplay, replayWithoutTimestamp);
 
   for (const invalid of invalidBatches) {
     const state = createPortalRuntimeState();
