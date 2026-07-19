@@ -38,7 +38,7 @@ pub(crate) fn network_device_scan_result_for_command(
     let now = Utc::now();
     let previous_scan_snapshot = load_scan_history_snapshot(runtime);
     if let Some(scan_result) =
-        cached_localhost_status_scan_result(command, previous_scan_snapshot.clone(), now)
+        cached_scan_result_for_command(command, previous_scan_snapshot.clone(), now)
     {
         return scan_result;
     }
@@ -108,6 +108,34 @@ pub(crate) fn network_device_scan_result_for_command(
         };
     }
     LanNetworkDeviceScanResult::default()
+}
+
+fn cached_scan_result_for_command(
+    command: &AgentCommandEnvelope,
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+) -> Option<LanNetworkDeviceScanResult> {
+    cached_localhost_status_scan_result(command, previous_scan_snapshot.clone(), now)
+        .or_else(|| cached_runtime_event_stream_scan_result(command, previous_scan_snapshot, now))
+}
+
+fn cached_runtime_event_stream_scan_result(
+    command: &AgentCommandEnvelope,
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+) -> Option<LanNetworkDeviceScanResult> {
+    if command.command != AgentCommandName::AgentLanRuntimeEventChainStreamGet
+        || command.target.route != AgentRoute::LocalNetwork
+    {
+        return None;
+    }
+    let snapshot = previous_scan_snapshot?;
+    Some(LanNetworkDeviceScanResult {
+        devices: snapshot.devices.clone(),
+        previous_scan_snapshot: None,
+        current_scan_snapshot: Some(snapshot.clone()),
+        reused_recent_snapshot: scan_history_is_recent(&snapshot.updated_at.into(), now),
+    })
 }
 
 pub(super) fn refresh_network_device_scan_history(

@@ -101,6 +101,10 @@ fn parent_subscription_event_replays_ordered_lan_stream_rows() {
         replay_request.command["command"],
         json!(constants::lan_pairing::COMMAND_RUNTIME_EVENT_CHAIN_STREAM_GET)
     );
+    assert_eq!(
+        replay_request.command["target"]["route"],
+        json!("local-network")
+    );
 }
 
 #[test]
@@ -249,7 +253,7 @@ fn parent_subscription_event_orders_lan_replay_rows_by_rfc3339_instant() {
     let read_model = sample_lan_read_model_with_explicit_history();
     let mut ordered_entries = replay_entries(&read_model.discovery_event_history.rows);
     ordered_entries[0]["payload"]["occurredAt"] = json!("2026-06-23T01:00:00+02:00");
-    ordered_entries[1]["payload"]["occurredAt"] = json!("2026-06-23T00:30:00Z");
+    ordered_entries[1]["payload"]["occurredAt"] = json!("2026-06-23T00:00:02Z");
 
     let ordered_events = subscription_events_for_stream(
         &read_model,
@@ -267,7 +271,7 @@ fn parent_subscription_event_orders_lan_replay_rows_by_rfc3339_instant() {
     }));
 
     let mut stale_entries = replay_entries(&read_model.discovery_event_history.rows);
-    stale_entries[0]["payload"]["occurredAt"] = json!("2026-06-23T00:30:00Z");
+    stale_entries[0]["payload"]["occurredAt"] = json!("2026-06-23T00:00:02Z");
     stale_entries[1]["payload"]["occurredAt"] = json!("2026-06-23T01:00:00+02:00");
     assert_replay_rejected(
         &read_model,

@@ -10,7 +10,14 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use serde_json::Value;
-use std::fmt::Display;
+use std::{
+    fmt::Display,
+    fs,
+    time::{SystemTime, UNIX_EPOCH},
+};
+
+use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 
 use crate::{
     app::{
@@ -20,7 +27,7 @@ use crate::{
         },
         websocket::handle_command_text_for_test,
     },
-    test_invariants::serialize_test_json,
+    test_invariants::{require_ok, serialize_test_json},
     test_text::TestText,
 };
 
@@ -65,8 +72,32 @@ fn lan_runtime_stream_payload_serializes_replayable_discovery_event_rows() {
 
 #[tokio::test]
 async fn websocket_lan_runtime_stream_command_reports_service_backed_stream() {
+    let temp_dir = std::env::temp_dir().join(format!(
+        "lan-runtime-stream-{}",
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_nanos()
+    ));
+    require_ok(
+        fs::create_dir_all(&temp_dir),
+        "temporary LAN stream directory is created",
+    );
+    let registry_path = temp_dir.join("registry.json");
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    crate::lan_pairing_browser_add_device_state::scan_history::save_scan_history(
+        &runtime,
+        &[persisted_network_device()],
+        None,
+    );
+    let restarted_runtime = LanPairingRuntime::persistent_json(&registry_path);
     let body = TestText::from_display(serialize_test_json(&command_envelope()));
-    let event = handle_command_text_for_test(body, LanPairingRuntime::empty(), None).await;
+    let event = handle_command_text_for_test(body, restarted_runtime, None).await;
+    let entries = stream_entries(&event.payload);
+    require_ok(
+        fs::remove_dir_all(&temp_dir),
+        "temporary LAN stream directory is removed",
+    );
 
     assert_eq!(
         event.event,
@@ -82,6 +113,10 @@ async fn websocket_lan_runtime_stream_command_reports_service_backed_stream() {
             .get(constants::field::LAN_RUNTIME_FAILED_EVENTS),
         Some(&LogFieldValue::Number(0.0))
     );
+    assert!(entries.iter().any(|entry| {
+        entry[constants::field::PAYLOAD]["affectedDeviceId"]
+            == serde_json::json!("persisted-lan-device")
+    }));
 }
 
 fn discovery_event_history() -> LanDiscoveryEventHistory {
@@ -137,10 +172,28 @@ fn command_envelope() -> AgentCommandEnvelope {
         target: AgentMessageTarget {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
             platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
-            route: AgentRoute::Localhost,
+            route: AgentRoute::LocalNetwork,
         },
         command: AgentCommandName::AgentLanRuntimeEventChainStreamGet,
         payload: LogFields::new(),
+    }
+}
+
+fn persisted_network_device() -> LanNetworkInventoryDevice {
+    LanNetworkInventoryDevice {
+        device_id: "persisted-lan-device".to_string(),
+        label: "Persisted LAN Device".to_string(),
+        platform: "windows".to_string(),
+        ip_address: "192.168.1.25".to_string(),
+        mac_address: "00-11-22-33-44-55".to_string(),
+        hostname: Some("persisted-device".to_string()),
+        network_interface: Some("Ethernet".to_string()),
+        observed_at: constants::lan_pairing::OBSERVED_AT.to_string(),
+        reachability: LanPairingDeviceReachability::Online,
+        agent_status: None,
+        scan_sources: vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()],
+        used_previous_scan_hint: true,
+        service_identity_probe_evidence: Vec::new(),
     }
 }
 
