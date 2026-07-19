@@ -52,7 +52,10 @@ pub fn sanitize_segment(segment: &str) -> io::Result<String> {
 }
 
 pub fn path_string(path: &Path) -> String {
-    path.to_string_lossy().replace('\\', "/")
+    path.to_string_lossy()
+        .replace('\\', "/")
+        .trim_start_matches("//?/")
+        .to_owned()
 }
 
 pub fn timestamp_now() -> String {

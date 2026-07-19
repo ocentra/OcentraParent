@@ -1,0 +1,84 @@
+use std::{
+    fs::{remove_file, File},
+    io::{self, Seek, SeekFrom, Write},
+    path::Path,
+};
+
+use crate::ndjson_operation_marker::{
+    marker_content, operation_paths, read_intent_offset, record_matches_at,
+    validate_operation_marker, write_marker,
+};
+use crate::ndjson_writer::{recover_partial_tail, rollback_append, validate_record};
+
+pub(crate) fn append_operation_locked(
+    file: &mut File,
+    path: &Path,
+    operation_id: &str,
+    record: &[u8],
+) -> io::Result<()> {
+    append_operation_with_fault(file, path, operation_id, record, |_| Ok(()))
+}
+
+pub(crate) fn append_operation_with_fault<F>(
+    file: &mut File,
+    path: &Path,
+    operation_id: &str,
+    record: &[u8],
+    mut before: F,
+) -> io::Result<()>
+where
+    F: FnMut(FaultPoint) -> io::Result<()>,
+{
+    validate_record(record)?;
+    recover_partial_tail(file)?;
+    let operation = operation_paths(path, operation_id)?;
+    if operation.commit.exists() {
+        return validate_operation_marker(&operation.commit, operation_id, record);
+    }
+
+    let offset = match read_intent_offset(&operation.intent, operation_id, record)? {
+        Some(offset) if record_matches_at(file, offset, record)? => {
+            before(FaultPoint::Sync)?;
+            file.sync_data()?;
+            write_marker(
+                &operation.commit,
+                &marker_content(operation_id, record, offset),
+            )?;
+            return Ok(());
+        }
+        Some(_) => {
+            remove_intent(&operation.intent)?;
+            file.seek(SeekFrom::End(0))?
+        }
+        None => file.seek(SeekFrom::End(0))?,
+    };
+
+    write_marker(
+        &operation.intent,
+        &marker_content(operation_id, record, offset),
+    )?;
+    if let Err(error) = before(FaultPoint::Write).and_then(|_| file.write_all(record)) {
+        remove_intent(&operation.intent)?;
+        return rollback_append(file, offset, error);
+    }
+    before(FaultPoint::Sync)?;
+    file.sync_data()?;
+    write_marker(
+        &operation.commit,
+        &marker_content(operation_id, record, offset),
+    )
+}
+
+#[derive(Clone, Copy)]
+pub(crate) enum FaultPoint {
+    Write,
+    Sync,
+}
+
+fn remove_intent(path: &Path) -> io::Result<()> {
+    match remove_file(path) {
+        Ok(()) => Ok(()),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(error),
+    }
+}

@@ -1,8 +1,10 @@
-use std::{error::Error, fs, sync::Arc, thread};
+use std::{
+    collections::BTreeSet, env, error::Error, fs, path::Path, process::Command, sync::Arc, thread,
+};
 
 use ocentra_parent_logging_core::{
     artifact::{ArtifactKind, ArtifactWriter},
-    ndjson_writer::NdjsonWriter,
+    ndjson_writer::{append_record, append_record_for_operation, NdjsonWriter},
 };
 use serde_json::json;
 
@@ -21,6 +23,31 @@ fn artifact_writer_is_idempotent_and_rejects_conflicts() {
 #[test]
 fn artifact_writer_is_race_safe_and_rejects_traversal() {
     let result = artifact_writer_is_race_safe_and_rejects_traversal_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_writer_subprocess_worker() {
+    let result = ndjson_writer_subprocess_worker_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_writer_recovers_partial_tail_and_preserves_distinct_identical_records() {
+    let result =
+        ndjson_writer_recovers_partial_tail_and_preserves_distinct_identical_records_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_writer_deduplicates_only_matching_operation_identity() {
+    let result = ndjson_writer_deduplicates_only_matching_operation_identity_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_writer_keeps_subprocess_records_exact_and_terminal() {
+    let result = ndjson_writer_keeps_subprocess_records_exact_and_terminal_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -65,6 +92,82 @@ fn append_worker_records(
     path.ok_or_else(|| std::io::Error::other("worker wrote no records"))
 }
 
+fn ndjson_writer_subprocess_worker_impl() -> Result<(), Box<dyn Error>> {
+    let Some(path) = env::var_os("OCENTRA_NDJSON_SUBPROCESS_PATH") else {
+        return Ok(());
+    };
+    let record = env::var("OCENTRA_NDJSON_SUBPROCESS_RECORD")?;
+    append_record(Path::new(&path), record.as_bytes())?;
+    Ok(())
+}
+
+fn ndjson_writer_recovers_partial_tail_and_preserves_distinct_identical_records_impl(
+) -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("recovery.ndjson");
+    fs::write(&path, b"{\"partial\":true")?;
+    let record = b"{\"id\":\"retry-safe\"}\n";
+    append_record(&path, record)?;
+    append_record(&path, record)?;
+    let payload = fs::read(&path)?;
+    assert_eq!(payload, [record.as_slice(), record.as_slice()].concat());
+    Ok(())
+}
+
+fn ndjson_writer_deduplicates_only_matching_operation_identity_impl() -> Result<(), Box<dyn Error>>
+{
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("operations.ndjson");
+    let record = b"{\"samePayload\":true}\n";
+    append_record_for_operation(&path, "retry-1", record)?;
+    append_record_for_operation(&path, "retry-1", record)?;
+    append_record_for_operation(&path, "distinct-2", record)?;
+    assert_eq!(
+        fs::read(&path)?,
+        [record.as_slice(), record.as_slice()].concat()
+    );
+    Ok(())
+}
+
+fn ndjson_writer_keeps_subprocess_records_exact_and_terminal_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    let path = root.join("subprocess.ndjson");
+    let executable = env::current_exe()?;
+    let expected = (0..16)
+        .map(|worker| format!("{{\"subprocessWorker\":{worker}}}\n"))
+        .collect::<BTreeSet<_>>();
+    let mut children = Vec::new();
+    for record in &expected {
+        children.push(
+            Command::new(&executable)
+                .args([
+                    "--exact",
+                    "concurrency_artifact::ndjson_writer_subprocess_worker",
+                    "--nocapture",
+                ])
+                .env("OCENTRA_NDJSON_SUBPROCESS_PATH", &path)
+                .env("OCENTRA_NDJSON_SUBPROCESS_RECORD", record)
+                .spawn()?,
+        );
+    }
+    for mut child in children {
+        let status = child.wait()?;
+        if !status.success() {
+            return Err(std::io::Error::other("NDJSON subprocess worker failed").into());
+        }
+    }
+    let payload = fs::read(&path)?;
+    assert_eq!(payload.last(), Some(&b'\n'));
+    let actual = String::from_utf8(payload)?
+        .split_inclusive('\n')
+        .map(str::to_owned)
+        .collect::<BTreeSet<_>>();
+    assert_eq!(actual, expected);
+    Ok(())
+}
+
 fn artifact_writer_is_idempotent_and_rejects_conflicts_impl() -> Result<(), Box<dyn Error>> {
     let root = temp_dir!();
     let writer = ArtifactWriter::new(&root);
@@ -73,6 +176,7 @@ fn artifact_writer_is_idempotent_and_rejects_conflicts_impl() -> Result<(), Box<
     let replay =
         writer.write_text_artifact("scope", "run", "command", ArtifactKind::Stdout, "same")?;
     assert_eq!(first.sha256, replay.sha256);
+    assert_eq!(first.created_at, replay.created_at);
     let conflict = match writer.write_text_artifact(
         "scope",
         "run",

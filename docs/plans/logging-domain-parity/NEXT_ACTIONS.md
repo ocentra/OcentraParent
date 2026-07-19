@@ -31,7 +31,7 @@
 Current status:
 
 ```text
-WP04 is complete-proven at 12/12 from recorded local commands after the pinned npm bootstrap restored the fresh worktree dependency surface, the exact TS/Rust fixture parity command passed, and final full crate/downstream acceptance passed. Its ignored output artifacts are reproducible and are not expected after a fresh checkout. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
+WP04 is partial-proof at 6/12 pending repaired crash/failure-safe NDJSON append semantics, real subprocess custody tests, artifact durability/replay metadata proof, normalized redaction adversarial coverage, and regenerated current-head proof custody. Its ignored output artifacts are not evidence for the current head. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
 ```
 
 Expected result:

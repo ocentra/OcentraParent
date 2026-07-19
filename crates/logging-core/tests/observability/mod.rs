@@ -1,8 +1,9 @@
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     env,
     error::Error,
     fs,
+    process::Command,
     sync::{Mutex, OnceLock},
     thread,
 };
@@ -45,6 +46,18 @@ fn dev_logger_redacts_secret_fields_before_persisting() {
 #[test]
 fn dev_logger_compat_file_keeps_concurrent_records_parseable() {
     let result = dev_logger_compat_file_keeps_concurrent_records_parseable_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn dev_logger_subprocess_worker() {
+    let result = dev_logger_subprocess_worker_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn dev_logger_ids_do_not_collide_across_subprocess_restarts() {
+    let result = dev_logger_ids_do_not_collide_across_subprocess_restarts_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -184,5 +197,52 @@ fn dev_logger_compat_file_keeps_concurrent_records_parseable_impl() -> Result<()
         .map(serde_json::from_str::<serde_json::Value>)
         .collect::<Result<Vec<_>, _>>()?;
     assert_eq!(rows.len(), 256);
+    Ok(())
+}
+
+fn dev_logger_subprocess_worker_impl() -> Result<(), Box<dyn Error>> {
+    if env::var_os("OCENTRA_DEV_LOG_SUBPROCESS").is_none() {
+        return Ok(());
+    }
+    write_agent_info(
+        LogSource::AgentService,
+        "restart collision check",
+        Default::default(),
+    )?;
+    Ok(())
+}
+
+fn dev_logger_ids_do_not_collide_across_subprocess_restarts_impl() -> Result<(), Box<dyn Error>> {
+    let _guard = env_lock()
+        .lock()
+        .map_err(|error| std::io::Error::other(format!("failed to lock env mutex: {error:?}")))?;
+    let directory = temp_dir!();
+    let executable = env::current_exe()?;
+    let mut children = Vec::new();
+    for _ in 0..8 {
+        children.push(
+            Command::new(&executable)
+                .args(["--exact", "dev_logger_subprocess_worker", "--nocapture"])
+                .env("OCENTRA_DEV_LOG_SUBPROCESS", "1")
+                .env(DEV_LOG_DIR_ENV, &directory)
+                .env_remove(LOG_ROOT_ENV)
+                .spawn()?,
+        );
+    }
+    for mut child in children {
+        if !child.wait()?.success() {
+            return Err(std::io::Error::other("dev log subprocess worker failed").into());
+        }
+    }
+    let mut records = BTreeSet::new();
+    for file in fs::read_dir(&directory)?.filter_map(Result::ok) {
+        if file.file_name().to_string_lossy().ends_with(".ndjson") {
+            for entry in fs::read_to_string(file.path())?.lines() {
+                let _: serde_json::Value = serde_json::from_str(entry)?;
+                records.insert(entry.to_owned());
+            }
+        }
+    }
+    assert_eq!(records.len(), 8);
     Ok(())
 }

@@ -21,6 +21,8 @@ use serde_json::json;
 mod support;
 
 mod concurrency_artifact;
+#[cfg(feature = "test-support")]
+mod ndjson_failure_recovery;
 
 #[test]
 fn ndjson_writer_appends_json_lines_in_order() {
@@ -61,6 +63,43 @@ fn redaction_replaces_secret_like_fields() {
     assert_eq!(
         redacted.get("safe"),
         Some(&LogFieldValue::String("visible".to_owned()))
+    );
+}
+
+#[test]
+fn redaction_normalizes_secret_key_variants_without_hiding_safe_context() {
+    let fields = [
+        ("X-API-Key", "one"),
+        ("credential.id", "two"),
+        ("PRIVATE_key", "three"),
+        ("nested/private-key", "four"),
+        ("request-id", "safe"),
+        ("attemptCount", "7"),
+    ]
+    .into_iter()
+    .map(|(key, value)| (key.to_owned(), LogFieldValue::String(value.to_owned())))
+    .collect::<LogFields>();
+
+    let redacted = redact_fields(&fields);
+
+    for key in [
+        "X-API-Key",
+        "credential.id",
+        "PRIVATE_key",
+        "nested/private-key",
+    ] {
+        assert_eq!(
+            redacted.get(key),
+            Some(&LogFieldValue::String(REDACTED_VALUE.to_owned()))
+        );
+    }
+    assert_eq!(
+        redacted.get("request-id"),
+        Some(&LogFieldValue::String("safe".to_owned()))
+    );
+    assert_eq!(
+        redacted.get("attemptCount"),
+        Some(&LogFieldValue::String("7".to_owned()))
     );
 }
 

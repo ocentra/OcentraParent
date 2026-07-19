@@ -96,15 +96,15 @@ Required artifacts:
 - [x] `crates/logging-core` created.
 - [x] Workspace manifest updated.
 - [x] Rust log event types added.
-- [x] NDJSON writer added.
-- [x] Artifact writer added.
-- [x] Redaction helpers added.
+- [ ] NDJSON writer added.
+- [ ] Artifact writer added.
+- [ ] Redaction helpers added.
 - [x] Agent run/diagnostic structs added.
 - [x] Agent-service delegates dev logging to logging-core.
-- [x] Rust tests added.
+- [ ] Rust tests added.
 - [x] TS/Rust fixture parity tests added.
-- [x] Focused cargo/npm commands pass.
-- [x] Proof root and workpack completion filled.
+- [ ] Focused cargo/npm commands pass.
+- [ ] Proof root and workpack completion filled.
 
 ## Expected source changes
 
@@ -176,12 +176,12 @@ assets, and downstream use from `crates/agent-service/src/dev_log.rs`. The June
 16, 2026 audit re-verified the live delegation path with
 `cargo test -p ocentra-parent-agent-service dev_log`, which passed.
 
-The local proof root records the July 18, 2026 closure rerun: `cargo fmt
+The prior local proof root records a July 18, 2026 closure rerun: `cargo fmt
 --check`, `cargo check -p ocentra-parent-logging-core`, `cargo test -p
 ocentra-parent-logging-core`, clippy with warnings denied, focused agent-service
 `dev_log` coverage, and TS/Rust fixture parity all passed. The fresh worktree
 was bootstrapped with the pinned `npm ci` lockfile path; it made no lockfile
-change. The generated directory is intentionally ignored, so its existence is not a checkout-state claim. WP04 is complete-proven for its local Rust logging-core scope from the tracked completion record below.
+change. The generated directory is intentionally ignored, so its existence is not a checkout-state claim. Independent review found the recorded base and behavior insufficient; WP04 is partial-proof until current-head recovery, durability, custody, replay, and redaction evidence is regenerated.
 
 ## Completion record
 

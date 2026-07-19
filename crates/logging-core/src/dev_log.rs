@@ -11,7 +11,7 @@ use crate::{
     event::{ParentLogEvent, LOG_SCHEMA_VERSION},
     field::LogFields,
     level::LogLevel,
-    ndjson_writer::{append_record, NdjsonWriter},
+    ndjson_writer::{append_record_for_operation, NdjsonWriter},
     path::{
         resolve_lane_id, resolve_log_root, resolve_log_run_id, resolve_log_scope, timestamp_now,
         DEV_LOG_DIR_ENV, LOG_ROOT_ENV,
@@ -94,9 +94,12 @@ impl DevLogger {
         };
 
         match &self.target {
-            DevLogTarget::Scoped { writer, scope } => {
-                writer.append_event(scope, DEV_LOG_STREAM, &event)
-            }
+            DevLogTarget::Scoped { writer, scope } => writer.append_event_for_operation(
+                scope,
+                DEV_LOG_STREAM,
+                &event.entry_id.to_string(),
+                &event,
+            ),
             DevLogTarget::CompatFile { directory } => append_compat_event(directory, &event),
         }
     }
@@ -125,8 +128,13 @@ fn ensure_directory(directory: PathBuf) -> io::Result<PathBuf> {
 }
 
 fn create_log_id(timestamp: &str, source: &LogSource, message: &str) -> io::Result<LogEntryId> {
+    let nonce = random_nonce()?;
     let digest = Sha256::digest(
-        format!("{}:{}:{message}", source.compat_file_prefix(), timestamp).as_bytes(),
+        format!(
+            "{}:{timestamp}:{nonce}:{message}",
+            source.compat_file_prefix()
+        )
+        .as_bytes(),
     );
     LogEntryId::parse(format!(
         "parent-log-{}-{}",
@@ -134,9 +142,16 @@ fn create_log_id(timestamp: &str, source: &LogSource, message: &str) -> io::Resu
             .chars()
             .filter(char::is_ascii_alphanumeric)
             .collect::<String>(),
-        &format!("{digest:x}")[..8]
+        &format!("{digest:x}")[..12]
     ))
     .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "generated log id is invalid"))
+}
+
+fn random_nonce() -> io::Result<String> {
+    let mut bytes = [0_u8; 16];
+    getrandom::fill(&mut bytes)
+        .map_err(|error| io::Error::other(format!("random nonce generation failed: {error}")))?;
+    Ok(bytes.iter().map(|byte| format!("{byte:02x}")).collect())
 }
 
 fn append_compat_event(directory: &Path, event: &ParentLogEvent) -> io::Result<PathBuf> {
@@ -144,7 +159,7 @@ fn append_compat_event(directory: &Path, event: &ParentLogEvent) -> io::Result<P
     let mut record = serde_json::to_vec(event)
         .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
     record.push(b'\n');
-    append_record(&path, &record)?;
+    append_record_for_operation(&path, &event.entry_id.to_string(), &record)?;
     Ok(path)
 }
 
