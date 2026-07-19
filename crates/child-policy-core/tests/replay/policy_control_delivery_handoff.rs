@@ -174,6 +174,10 @@ fn delivery_queue_starts_pending_per_child_device_domain() {
 
     assert_eq!(queued.state, PolicyDeliveryState::Queued);
     assert_eq!(queued.last_sequence.value(), 1);
+    assert_eq!(
+        queued.delivery_id.as_str(),
+        "delivery-policy-household-default"
+    );
     assert_eq!(queued.target.domain, PolicyConsumerDomain::Tracking);
     assert_eq!(
         queued.source_audit_reference_ids,
@@ -264,6 +268,47 @@ fn delivery_duplicate_and_stale_transitions_are_noops() {
 }
 
 #[test]
+fn delivery_handoff_surfaces_receipt_required_states_as_manual_required() {
+    let queued = queued_delivery();
+    let cases = [
+        (
+            PolicyDeliveryState::Acknowledged,
+            "attempt-acknowledged-without-receipt",
+        ),
+        (
+            PolicyDeliveryState::Applied,
+            "attempt-applied-without-receipt",
+        ),
+    ];
+
+    for (state, attempt_id) in cases {
+        let report = apply_policy_control_delivery_handoff(
+            &queued,
+            transition(
+                2,
+                PolicyDeliveryAttemptId::parse(attempt_id).expect_value("policy attempt id"),
+                state,
+            ),
+        )
+        .expect_value("receipt-required child handoff surfaces dependency state");
+
+        assert_eq!(report.delivery.state, PolicyDeliveryState::ManualRequired);
+        assert_eq!(
+            report
+                .delivery
+                .reason_code
+                .as_ref()
+                .map(|value| value.as_str()),
+            Some("trusted-adapter-required")
+        );
+        assert!(!report.delivery.is_active());
+    }
+
+    assert_eq!(queued.state, PolicyDeliveryState::Queued);
+    assert!(!queued.is_active());
+}
+
+#[test]
 fn delivery_offline_and_expired_before_delivery_stay_degraded_or_fail_closed() {
     let queued = queued_delivery();
     let mut offline_transition = transition(
@@ -297,7 +342,7 @@ fn delivery_offline_and_expired_before_delivery_stay_degraded_or_fail_closed() {
         invalid_error,
         EventingError::InvalidValue {
             field: "policy_delivery.reason_code",
-            value: "unexpected reason code expired-before-delivery for queued".to_string(),
+            value: "unexpected reason code present for queued".to_string(),
         }
     );
 }

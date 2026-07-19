@@ -56,7 +56,7 @@ applicable, and explicit no-claim boundaries.
 | `22` | complete | The current-state and gap map is now synchronized to live Rust/runtime/UI truth: local code-complete slices, manual-required LAN proofs, and the exact Windows first-run portal proof result are reflected from current validation instead of stale TS-first assumptions. |
 | `23` | partial/manual | Rust-owned route-custody, stale/offline, rejection, revoke, and read-model projection proof is locally green across protocol and agent-service tests; remaining gaps are physical two-device/manual topology proof and broader restart/manual artifacts, not local Rust code gaps. |
 | `24` | complete | Rust-owned `setupFirstRunPanel` snapshot shape, parent-runtime snapshot builder, portal route wiring, focused unit/runtime tests, portal build, and the exact Windows `setup-first-run-ui-proof` Playwright command are green; broader physical/manual LAN closure remains owned by sibling workpacks, not this portal slice. |
-| `25` | partial/manual | rollout/PR gate truth is now synced to active `01-25` scope, current focused Rust/UI validations, refreshed proof routing, and the exact remaining blockers: manual multi-device, router/firewall, signed-artifact, browser-side replay consumption of the backend LAN stream, and other manual-required LAN proofs. |
+| `25` | partial/manual | Rust replay parsing/status binding, the host delivery decision, and isolated portal-state consumption are separately green under focused protocol, service, runtime, desktop, and portal tests. The real backend-to-Tauri-`AppHandle`-to-portal-listener chain is not proved; physical multi-device, router/firewall, signed-artifact, restart, and other manual topology/runtime artifacts also remain open. |
 
 ## Selection Rules
 

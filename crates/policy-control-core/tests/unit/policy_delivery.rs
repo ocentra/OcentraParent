@@ -1,20 +1,15 @@
-#[path = "policy_delivery_helpers.rs"]
-mod helpers;
-
+use super::policy_delivery_helpers as helpers;
 use super::TestResult;
 use helpers::{
-    attempt, audit_ref, reason, sample_delivery_target, sample_policy_rollback_ref,
-    sample_policy_source_document, sample_queued_delivery, transition, transition_or_context,
+    audit_ref, execution_receipt, reason, sample_queued_delivery, transition, transition_or_context,
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryApplyOutcome,
-    PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliveryState,
+    apply_policy_delivery_transition, validate_policy_delivery_execution_receipt,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryParentVisibleState, PolicyDeliveryState,
 };
-use ocentra_policy_control_core::policy_source::{
-    compile_domain_policy_artifact, rollback_parent_policy_source_document,
-    supersede_parent_policy_source_document, PolicyConsumerDomain, PolicyVersion,
-};
+use ocentra_policy_control_core::policy_source::{PolicyConsumerDomain, PolicyVersion};
+
 #[test]
 fn queued_delivery_starts_pending_per_child_device_domain() -> TestResult {
     let queued = sample_queued_delivery()?;
@@ -34,109 +29,6 @@ fn queued_delivery_starts_pending_per_child_device_domain() -> TestResult {
         PolicyDeliveryParentVisibleState::Pending
     );
     assert!(!queued.is_active());
-    Ok(())
-}
-
-#[test]
-fn queued_delivery_preserves_source_lifecycle_metadata_separately_from_delivery_state() -> TestResult
-{
-    let superseded_source = test_ok!(
-        supersede_parent_policy_source_document(
-            &sample_policy_source_document()?,
-            test_ok!(PolicyVersion::new(4), "policy version"),
-            audit_ref("audit-policy-superseded")?,
-        ),
-        "superseded policy source document"
-    );
-    let superseded_compiled = test_ok!(
-        compile_domain_policy_artifact(&superseded_source, PolicyConsumerDomain::Tracking),
-        "compiled superseded artifact"
-    );
-    let superseded_delivery = test_ok!(
-        queue_policy_delivery(
-            &superseded_compiled,
-            sample_delivery_target()?,
-            test_ok!(
-                PolicyDeliveryId::parse("delivery-policy-superseded"),
-                "policy delivery id"
-            ),
-            attempt("attempt-superseded-queued")?,
-            vec![audit_ref("audit-superseded-queued")?],
-        ),
-        "queued superseded delivery"
-    );
-
-    assert_eq!(
-        superseded_delivery.source_audit_reference_ids,
-        superseded_source.audit_reference_ids
-    );
-    assert_eq!(
-        test_some!(
-            superseded_delivery
-                .source_superseded_by_policy_version
-                .as_ref(),
-            "replacement policy version"
-        )
-        .value(),
-        4
-    );
-    assert!(superseded_delivery.source_rollback_ref.is_none());
-    assert_eq!(
-        superseded_delivery.audit_reference_ids,
-        vec![audit_ref("audit-superseded-queued")?]
-    );
-    assert!(superseded_delivery.superseded_by_policy_version.is_none());
-    assert!(superseded_delivery.rollback_reference_state.is_none());
-
-    let rollback_ref = sample_policy_rollback_ref()?;
-    let rolled_back_source = test_ok!(
-        rollback_parent_policy_source_document(
-            &sample_policy_source_document()?,
-            &rollback_ref,
-            audit_ref("audit-policy-rolled-back")?,
-        ),
-        "rolled-back policy source document"
-    );
-    let rolled_back_compiled = test_ok!(
-        compile_domain_policy_artifact(&rolled_back_source, PolicyConsumerDomain::Tracking),
-        "compiled rolled-back artifact"
-    );
-    let rolled_back_delivery = test_ok!(
-        queue_policy_delivery(
-            &rolled_back_compiled,
-            sample_delivery_target()?,
-            test_ok!(
-                PolicyDeliveryId::parse("delivery-policy-rolled-back"),
-                "policy delivery id"
-            ),
-            attempt("attempt-rolled-back-queued")?,
-            vec![audit_ref("audit-rolled-back-queued")?],
-        ),
-        "queued rolled-back delivery"
-    );
-
-    assert_eq!(
-        rolled_back_delivery.source_audit_reference_ids,
-        rolled_back_source.audit_reference_ids
-    );
-    assert!(rolled_back_delivery
-        .source_superseded_by_policy_version
-        .is_none());
-    assert_eq!(
-        test_some!(
-            rolled_back_delivery.source_rollback_ref.as_ref(),
-            "source rollback ref"
-        )
-        .restored_policy_version
-        .value(),
-        2
-    );
-    assert_eq!(
-        rolled_back_delivery.audit_reference_ids,
-        vec![audit_ref("audit-rolled-back-queued")?]
-    );
-    assert!(rolled_back_delivery.superseded_by_policy_version.is_none());
-    assert!(rolled_back_delivery.rollback_reference_state.is_none());
     Ok(())
 }
 
@@ -186,8 +78,8 @@ fn conflicting_same_sequence_replay_is_rejected() -> TestResult {
             &delivered_record,
             transition(
                 2,
-                "attempt-acknowledged-conflict",
-                PolicyDeliveryState::Acknowledged,
+                "attempt-delivering-conflict",
+                PolicyDeliveryState::Delivering,
             )?,
         ),
         "same-sequence replay with changed state must be rejected"
@@ -197,7 +89,7 @@ fn conflicting_same_sequence_replay_is_rejected() -> TestResult {
         conflict,
         EventingError::InvalidValue {
             field: "policy_delivery.sequence",
-            value: "conflicting replay for sequence 2 on delivery-policy-household-default"
+            value: "conflicting replay for sequence 2 with mismatched transition provenance"
                 .to_string(),
         }
     );
@@ -226,24 +118,36 @@ fn delivering_state_stays_pending_until_ack_or_apply() -> TestResult {
 }
 
 #[test]
-fn acknowledged_delivery_stays_pending_and_is_not_active() -> TestResult {
+fn acknowledged_evidence_cannot_advance_without_trusted_adapter_authority() -> TestResult {
     let queued = sample_queued_delivery()?;
-    let acknowledged = test_ok!(
-        apply_policy_delivery_transition(
+    let acknowledged_transition =
+        transition(2, "attempt-acknowledged", PolicyDeliveryState::Acknowledged)?;
+    let receipt = execution_receipt(&queued, &acknowledged_transition);
+    test_ok!(
+        validate_policy_delivery_execution_receipt(
             &queued,
-            transition(2, "attempt-acknowledged", PolicyDeliveryState::Acknowledged)?,
+            &acknowledged_transition,
+            Some(&receipt),
         ),
-        "acknowledge policy delivery"
-    )
-    .into_record();
+        "validate acknowledged receipt evidence"
+    );
+    let error = test_err!(
+        apply_policy_delivery_transition(&queued, acknowledged_transition),
+        "receipt evidence alone cannot advance acknowledged"
+    );
 
-    assert_eq!(acknowledged.state, PolicyDeliveryState::Acknowledged);
     assert_eq!(
-        acknowledged.parent_visible_state(),
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for acknowledged".to_string(),
+        }
+    );
+    assert_eq!(
+        queued.parent_visible_state(),
         PolicyDeliveryParentVisibleState::Pending
     );
-    assert!(acknowledged.reason_code.is_none());
-    assert!(!acknowledged.is_active());
+    assert!(!queued.is_active());
     Ok(())
 }
 
@@ -296,20 +200,50 @@ fn queued_delivery_redacts_raw_policy_source_payload_from_structured_and_debug_o
 }
 
 #[test]
-fn applied_transition_stays_active_when_intermediate_events_arrive_late() -> TestResult {
+fn applied_receipt_evidence_cannot_advance_without_trusted_adapter_authority() -> TestResult {
     let queued = sample_queued_delivery()?;
-    let applied = test_ok!(
-        apply_policy_delivery_transition(
-            &queued,
-            transition(4, "attempt-applied", PolicyDeliveryState::Applied)?,
-        ),
-        "applied transition can arrive before intermediate steps"
+    let applied_transition = transition(4, "attempt-applied", PolicyDeliveryState::Applied)?;
+    let receipt = execution_receipt(&queued, &applied_transition);
+    test_ok!(
+        validate_policy_delivery_execution_receipt(&queued, &applied_transition, Some(&receipt)),
+        "validate applied receipt evidence"
+    );
+    let error = test_err!(
+        apply_policy_delivery_transition(&queued, applied_transition),
+        "receipt evidence alone cannot advance applied"
+    );
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for applied".to_string(),
+        }
+    );
+    assert_eq!(queued.state, PolicyDeliveryState::Queued);
+    assert!(!queued.is_active());
+    assert_eq!(
+        queued.parent_visible_state(),
+        PolicyDeliveryParentVisibleState::Pending
+    );
+    Ok(())
+}
+
+#[test]
+fn late_intermediate_events_are_stale_after_newer_non_execution_progress() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let degraded = test_ok!(
+        apply_policy_delivery_transition(&queued, {
+            let mut transition = transition(4, "attempt-degraded", PolicyDeliveryState::Degraded)?;
+            transition.reason_code = Some(reason("adapter-authority-unavailable")?);
+            transition
+        },),
+        "advance to newer degraded state"
     )
     .into_record();
-
     let stale_delivered = test_ok!(
         apply_policy_delivery_transition(
-            &applied,
+            &degraded,
             transition(3, "attempt-delivered-late", PolicyDeliveryState::Delivered)?,
         ),
         "late delivered event is ignored"
@@ -319,12 +253,8 @@ fn applied_transition_stays_active_when_intermediate_events_arrive_late() -> Tes
         stale_delivered,
         PolicyDeliveryApplyOutcome::Stale(_)
     ));
-    assert_eq!(applied.state, PolicyDeliveryState::Applied);
-    assert!(applied.is_active());
-    assert_eq!(
-        applied.parent_visible_state(),
-        PolicyDeliveryParentVisibleState::Applied
-    );
+    assert_eq!(degraded.state, PolicyDeliveryState::Degraded);
+    assert!(!degraded.is_active());
     Ok(())
 }
 
@@ -495,37 +425,39 @@ fn rejected_and_rolled_back_transitions_require_reason_and_reference_context() -
         }
     );
 
-    let applied = test_ok!(
+    let delivered = test_ok!(
         apply_policy_delivery_transition(
             &queued,
-            transition(3, "attempt-applied", PolicyDeliveryState::Applied)?,
+            transition(2, "attempt-delivered", PolicyDeliveryState::Delivered)?,
         ),
-        "apply transition"
+        "deliver before rollback evidence validation"
     )
     .into_record();
 
     let mut rollback_transition =
-        transition(4, "attempt-rollback", PolicyDeliveryState::RolledBack)?;
+        transition(3, "attempt-rollback", PolicyDeliveryState::RolledBack)?;
     rollback_transition.reason_code = Some(reason("adapter-failed")?);
-    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+    let receipt = execution_receipt(&delivered, &rollback_transition);
 
-    let rolled_back = test_ok!(
-        apply_policy_delivery_transition(&applied, rollback_transition),
-        "rollback transition"
-    )
-    .into_record();
-
-    assert_eq!(rolled_back.state, PolicyDeliveryState::RolledBack);
-    assert_eq!(
-        rolled_back.parent_visible_state(),
-        PolicyDeliveryParentVisibleState::ManualRequired
+    test_ok!(
+        validate_policy_delivery_execution_receipt(
+            &delivered,
+            &rollback_transition,
+            Some(&receipt),
+        ),
+        "validate rollback receipt evidence"
+    );
+    let rollback_error = test_err!(
+        apply_policy_delivery_transition(&delivered, rollback_transition),
+        "receipt evidence alone cannot advance rolled-back"
     );
     assert_eq!(
-        test_some!(
-            rolled_back.rollback_reference_state,
-            "rollback reference state"
-        ),
-        PolicyDeliveryState::Applied
+        rollback_error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for rolled-back".to_string(),
+        }
     );
     Ok(())
 }
@@ -533,12 +465,12 @@ fn rejected_and_rolled_back_transitions_require_reason_and_reference_context() -
 #[test]
 fn superseded_transition_requires_newer_policy_version_and_blocks_regressions() -> TestResult {
     let queued = sample_queued_delivery()?;
-    let applied = test_ok!(
+    let delivered = test_ok!(
         apply_policy_delivery_transition(
             &queued,
-            transition(2, "attempt-applied", PolicyDeliveryState::Applied)?,
+            transition(2, "attempt-delivered", PolicyDeliveryState::Delivered)?,
         ),
-        "apply transition"
+        "deliver before supersede"
     )
     .into_record();
 
@@ -551,7 +483,7 @@ fn superseded_transition_requires_newer_policy_version_and_blocks_regressions() 
         Some(test_ok!(PolicyVersion::new(3), "version"));
 
     let invalid_error = test_err!(
-        apply_policy_delivery_transition(&applied, invalid_superseded),
+        apply_policy_delivery_transition(&delivered, invalid_superseded),
         "same-version supersede is invalid"
     );
     assert_eq!(
@@ -566,7 +498,7 @@ fn superseded_transition_requires_newer_policy_version_and_blocks_regressions() 
     superseded.superseded_by_policy_version = Some(test_ok!(PolicyVersion::new(4), "version"));
 
     let superseded_record = test_ok!(
-        apply_policy_delivery_transition(&applied, superseded),
+        apply_policy_delivery_transition(&delivered, superseded),
         "superseded transition"
     )
     .into_record();

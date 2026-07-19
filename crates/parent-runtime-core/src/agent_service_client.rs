@@ -49,6 +49,8 @@ mod payload_fields;
 pub(crate) mod snapshots_app_game;
 pub(crate) mod snapshots_common;
 pub(crate) mod snapshots_lan;
+mod snapshots_lan_replay;
+mod snapshots_lan_replay_validation;
 pub(crate) mod snapshots_network;
 pub(crate) mod snapshots_policy;
 pub(crate) mod snapshots_tracking;
@@ -65,6 +67,11 @@ pub(crate) fn request_lan_browser_discovery_scan(
     context: Option<&ParentRouteContext>,
 ) -> AgentServiceResult<types::LanAgentServiceSnapshot> {
     loaders::request_lan_browser_discovery_scan(context)
+}
+
+pub(crate) fn load_lan_runtime_event_chain_replay_events(
+) -> AgentServiceResult<types::LanRuntimeReplaySnapshot> {
+    loaders::load_lan_runtime_event_chain_replay_events()
 }
 
 pub(crate) fn load_network_flow_read_model_snapshot(

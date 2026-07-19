@@ -206,8 +206,8 @@ pub(crate) fn sample_lan_read_model_with_explicit_history() -> LanBrowserAddDevi
         schema_version: 1,
         generated_at: "2026-06-23T00:00:03Z".to_string(),
         state: LanDiscoveryEventHistoryState::Ready,
-        latest_event_id: None,
-        latest_observed_at: None,
+        latest_event_id: Some("lan-history-2".to_string()),
+        latest_observed_at: Some("2026-06-23T00:00:02Z".to_string()),
         rows: vec![
             LanDiscoveryEventRow {
                 schema_version: 1,

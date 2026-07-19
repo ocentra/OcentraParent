@@ -59,6 +59,8 @@ mod export_import_backup_recovery;
 mod family_reference_primitives;
 #[path = "family_references.rs"]
 mod family_references;
+#[path = "lan_discovery_event_kind_generated.rs"]
+mod lan_discovery_event_kind_generated;
 #[path = "logging_contracts.rs"]
 mod logging_contracts;
 #[path = "notification_local_outbox_contracts.rs"]

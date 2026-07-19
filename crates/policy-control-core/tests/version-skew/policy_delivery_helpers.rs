@@ -168,6 +168,32 @@ pub(super) fn sample_queued_delivery() -> TestResult<PolicyDeliveryRecord> {
     ))
 }
 
+pub(super) fn sample_delivery_id() -> TestResult<PolicyDeliveryId> {
+    let source = sample_policy_source_document(7)?;
+    let compiled = test_ok!(
+        compile_domain_policy_artifact(&source, PolicyConsumerDomain::Tracking),
+        "compiled domain policy artifact"
+    );
+    let target = sample_delivery_target()?;
+    let attempt_id = test_ok!(
+        PolicyDeliveryAttemptId::parse("attempt-queued"),
+        "policy attempt id"
+    );
+    let sequence = test_ok!(
+        PolicyDeliverySequence::new(1),
+        "policy delivery initial sequence"
+    );
+
+    Ok(
+        ocentra_policy_control_core::policy_delivery::derive_policy_delivery_id(
+            &compiled,
+            &target,
+            &attempt_id,
+            sequence,
+        )?,
+    )
+}
+
 pub(super) fn audit_ref(value: impl std::fmt::Display) -> TestResult<PolicyAuditReferenceId> {
     Ok(test_ok!(
         PolicyAuditReferenceId::parse(value.to_string()),
@@ -185,7 +211,7 @@ pub(super) fn transition_or_context<T>(
     }
 }
 
-pub(super) fn transition(
+pub(crate) fn transition(
     sequence: u64,
     attempt_id: impl std::fmt::Display,
     state: PolicyDeliveryState,
