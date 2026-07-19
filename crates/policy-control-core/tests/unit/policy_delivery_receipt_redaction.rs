@@ -2,10 +2,9 @@ use super::policy_delivery_helpers as helpers;
 use super::TestResult;
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
-    validate_policy_delivery_execution_receipt, PolicyDeliveryAttemptId,
-    PolicyDeliveryExecutionReceipt, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliveryState,
-    PolicyDeliveryTransition,
+    apply_policy_delivery_transition, validate_policy_delivery_execution_receipt,
+    PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt, PolicyDeliveryId,
+    PolicyDeliveryRecord, PolicyDeliveryState, PolicyDeliveryTransition,
 };
 
 type ReceiptMutation = fn(&mut PolicyDeliveryExecutionReceipt);
@@ -130,25 +129,22 @@ fn assert_replay_errors_redact(fixture: &RedactionFixture) -> TestResult {
         ),
         "stale receipt must fail"
     );
-    let acknowledged_record =
-        test_ok!(
-            apply_policy_delivery_adapter_execution(
-                &fixture.delivered_record,
-                helpers::adapter_execution(
-                    &fixture.delivered_record,
-                    &fixture.acknowledged_transition,
-                ),
-            ),
-            "acknowledge policy before receipt replay redaction matrix"
-        )
-        .into_record();
-    let duplicate = test_err!(
-        validate_policy_delivery_execution_receipt(
-            &acknowledged_record,
-            &fixture.acknowledged_transition,
-            Some(&fixture.base_receipt),
-        ),
-        "duplicate receipt must fail"
+    let mut acknowledged_payload = test_ok!(
+        serde_json::to_value(&fixture.delivered_record),
+        "serialize existing receipt replay fixture"
+    );
+    acknowledged_payload["state"] = serde_json::json!("acknowledged");
+    acknowledged_payload["last_sequence"] = serde_json::json!(3);
+    acknowledged_payload["last_attempt_id"] = serde_json::json!("attempt-sensitive-acknowledged");
+    acknowledged_payload["audit_reference_ids"] =
+        serde_json::json!(["audit-sensitive-acknowledged"]);
+    acknowledged_payload["execution_receipt"] = test_ok!(
+        serde_json::to_value(&fixture.base_receipt),
+        "serialize existing receipt evidence"
+    );
+    let acknowledged_record: PolicyDeliveryRecord = test_ok!(
+        serde_json::from_value(acknowledged_payload),
+        "hydrate existing acknowledged receipt replay fixture"
     );
     let mut conflicting_transition = (*fixture.acknowledged_transition).clone();
     conflicting_transition.audit_reference_ids =
@@ -165,7 +161,6 @@ fn assert_replay_errors_redact(fixture: &RedactionFixture) -> TestResult {
     );
 
     assert_formatted_error_redacts(&stale);
-    assert_formatted_error_redacts(&duplicate);
     assert_formatted_error_redacts(&conflicting);
     Ok(())
 }

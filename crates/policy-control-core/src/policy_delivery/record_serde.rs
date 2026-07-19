@@ -5,8 +5,9 @@ use serde::{Deserialize, Deserializer};
 use super::{
     policy_control, validation, EventingError, ParentPolicyDocumentId, PolicyAuditReferenceId,
     PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt, PolicyDeliveryId,
-    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget,
-    PolicyHouseholdId, PolicyReasonCode, PolicyRollbackRef, PolicyVersion, SchemaVersion,
+    PolicyDeliveryReceiptProvenance, PolicyDeliveryRecord, PolicyDeliverySequence,
+    PolicyDeliveryState, PolicyDeliveryTarget, PolicyHouseholdId, PolicyReasonCode,
+    PolicyRollbackRef, PolicyVersion, SchemaVersion,
 };
 
 #[derive(Deserialize)]
@@ -76,5 +77,16 @@ fn validate_untrusted_hydration(record: &PolicyDeliveryRecord) -> Result<(), Eve
             value: "generic applied record hydration is unsupported".to_string(),
         });
     }
+    match record.execution_receipt_provenance() {
+        PolicyDeliveryReceiptProvenance::LegacySchemaV1Unverified => {
+            validate_legacy_schema_v1_unverified_record(record)
+        }
+        _ => validation::validate_policy_delivery_record(record),
+    }
+}
+
+fn validate_legacy_schema_v1_unverified_record(
+    record: &PolicyDeliveryRecord,
+) -> Result<(), EventingError> {
     validation::validate_policy_delivery_record(record)
 }

@@ -1,16 +1,15 @@
 use super::policy_delivery_helpers as helpers;
 use super::TestResult;
 use helpers::{
-    adapter_execution, execution_receipt, mutate_provenance_child_profile,
-    mutate_provenance_device, mutate_provenance_domain, mutate_provenance_household,
-    mutate_provenance_policy_version, mutate_provenance_source_document, reason,
-    sample_queued_delivery, transition,
+    execution_receipt, mutate_provenance_child_profile, mutate_provenance_device,
+    mutate_provenance_domain, mutate_provenance_household, mutate_provenance_policy_version,
+    mutate_provenance_source_document, reason, sample_queued_delivery, transition,
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
-    validate_policy_delivery_adapter_execution, validate_policy_delivery_execution_receipt,
-    PolicyDeliveryAttemptId, PolicyDeliveryParentVisibleState, PolicyDeliveryState,
+    apply_policy_delivery_transition, replay_policy_delivery_execution_receipt,
+    validate_policy_delivery_execution_receipt, PolicyDeliveryApplyOutcome,
+    PolicyDeliveryAttemptId, PolicyDeliveryRecord, PolicyDeliveryState,
 };
 
 #[test]
@@ -138,53 +137,47 @@ fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
 }
 
 #[test]
-fn adapter_execution_validation_matches_apply_for_forbidden_receipts_and_invalid_audits(
-) -> TestResult {
+fn execution_receipt_validation_rejects_forbidden_receipts_and_invalid_audits() -> TestResult {
     let queued = sample_queued_delivery()?;
-    let cases = [
-        {
-            let mut transition = transition(
-                2,
-                "attempt-forbidden-delivered",
-                PolicyDeliveryState::Delivered,
-            )?;
-            transition.audit_reference_ids = vec![test_ok!(
-                helpers::audit_ref("audit-forbidden-delivered"),
-                "audit ref"
-            )];
-            ("forbidden receipt state", transition)
-        },
-        {
-            let mut transition =
-                transition(2, "attempt-empty-audit", PolicyDeliveryState::Acknowledged)?;
-            transition.audit_reference_ids.clear();
-            ("empty audit refs", transition)
-        },
-        {
-            let mut transition = transition(
-                2,
-                "attempt-duplicate-audit",
-                PolicyDeliveryState::Acknowledged,
-            )?;
-            let duplicate_audit = test_ok!(helpers::audit_ref("audit-duplicate"), "audit ref");
-            transition.audit_reference_ids = vec![duplicate_audit.clone(), duplicate_audit];
-            ("duplicate audit refs", transition)
-        },
-    ];
+    let mut forbidden = transition(
+        2,
+        "attempt-forbidden-delivered",
+        PolicyDeliveryState::Delivered,
+    )?;
+    forbidden.audit_reference_ids = vec![helpers::audit_ref("audit-forbidden-delivered")?];
+    let forbidden_receipt = execution_receipt(&queued, &forbidden);
+    let forbidden_error = test_err!(
+        validate_policy_delivery_execution_receipt(&queued, &forbidden, Some(&forbidden_receipt)),
+        "forbidden receipt state"
+    );
+    assert!(matches!(
+        forbidden_error,
+        EventingError::InvalidValue { .. }
+    ));
 
-    for (label, transition) in cases {
-        let execution = adapter_execution(&queued, &transition);
-        let validate_error = test_err!(
-            validate_policy_delivery_adapter_execution(&queued, &execution),
-            label
-        );
-        let apply_error = test_err!(
-            apply_policy_delivery_adapter_execution(&queued, execution),
-            label
-        );
+    let mut empty_audit = transition(2, "attempt-empty-audit", PolicyDeliveryState::Acknowledged)?;
+    empty_audit.audit_reference_ids.clear();
+    let empty_error = test_err!(
+        apply_policy_delivery_transition(&queued, empty_audit),
+        "empty audit refs"
+    );
+    assert!(matches!(empty_error, EventingError::InvalidValue { .. }));
 
-        assert_eq!(validate_error, apply_error);
-    }
+    let mut duplicate_audit = transition(
+        2,
+        "attempt-duplicate-audit",
+        PolicyDeliveryState::Acknowledged,
+    )?;
+    let duplicate = helpers::audit_ref("audit-duplicate")?;
+    duplicate_audit.audit_reference_ids = vec![duplicate.clone(), duplicate];
+    let duplicate_error = test_err!(
+        apply_policy_delivery_transition(&queued, duplicate_audit),
+        "duplicate audit refs"
+    );
+    assert!(matches!(
+        duplicate_error,
+        EventingError::InvalidValue { .. }
+    ));
 
     Ok(())
 }
@@ -231,7 +224,7 @@ fn execution_receipt_validation_rejects_stale_receipt() -> TestResult {
 }
 
 #[test]
-fn execution_receipt_validation_rejects_duplicate_receipts() -> TestResult {
+fn exact_execution_receipt_retry_returns_duplicate_and_mismatch_is_rejected() -> TestResult {
     let queued = sample_queued_delivery()?;
     let delivered_transition = transition(
         2,
@@ -248,30 +241,59 @@ fn execution_receipt_validation_rejects_duplicate_receipts() -> TestResult {
         "attempt-acknowledged-receipt",
         PolicyDeliveryState::Acknowledged,
     )?;
-    let acknowledged_record = test_ok!(
-        apply_policy_delivery_adapter_execution(
-            &delivered_record,
-            adapter_execution(&delivered_record, &acknowledged_transition),
-        ),
-        "acknowledged delivery with receipt"
-    )
-    .into_record();
     let acknowledged_receipt = execution_receipt(&delivered_record, &acknowledged_transition);
+    let mut acknowledged_payload = test_ok!(
+        serde_json::to_value(&delivered_record),
+        "serialize delivered record for existing receipt fixture"
+    );
+    acknowledged_payload["state"] = serde_json::json!("acknowledged");
+    acknowledged_payload["last_sequence"] = serde_json::json!(3);
+    acknowledged_payload["last_attempt_id"] = serde_json::json!("attempt-acknowledged-receipt");
+    acknowledged_payload["audit_reference_ids"] =
+        serde_json::json!(["audit-attempt-acknowledged-receipt-3"]);
+    acknowledged_payload["execution_receipt"] = test_ok!(
+        serde_json::to_value(&acknowledged_receipt),
+        "serialize existing execution receipt"
+    );
+    let acknowledged_record: PolicyDeliveryRecord = test_ok!(
+        serde_json::from_value(acknowledged_payload),
+        "hydrate existing acknowledged receipt fixture"
+    );
 
-    let duplicate_error = test_err!(
-        validate_policy_delivery_execution_receipt(
+    let duplicate = test_ok!(
+        replay_policy_delivery_execution_receipt(
             &acknowledged_record,
             &acknowledged_transition,
-            Some(&acknowledged_receipt),
+            &acknowledged_receipt,
         ),
-        "duplicate execution receipt must fail"
+        "exact execution receipt retry"
+    );
+    match duplicate {
+        PolicyDeliveryApplyOutcome::Duplicate(record) => assert_eq!(record, acknowledged_record),
+        other => {
+            return Err(std::io::Error::other(format!(
+                "expected duplicate execution receipt outcome, got {other:?}"
+            ))
+            .into());
+        }
+    }
+
+    let mut mismatched_receipt = acknowledged_receipt;
+    mismatched_receipt.audit_reference_ids =
+        vec![helpers::audit_ref("audit-mismatched-same-sequence")?];
+    let mismatch = test_err!(
+        replay_policy_delivery_execution_receipt(
+            &acknowledged_record,
+            &acknowledged_transition,
+            &mismatched_receipt,
+        ),
+        "mismatched same-sequence receipt must fail"
     );
     assert_eq!(
-        duplicate_error,
+        mismatch,
         EventingError::InvalidValue {
-            field: "policy_delivery.sequence",
-            value: "execution receipt sequence replay: expected=new-sequence, reported=current-sequence(3) (duplicate)"
-                .to_string(),
+            field: "policy_delivery.audit_reference_ids",
+            value: "expected audit references to match execution receipt".to_string(),
         }
     );
     Ok(())
@@ -353,28 +375,19 @@ fn rolled_back_execution_receipt_rejects_wrong_reference_state() -> TestResult {
         "deliver policy"
     )
     .into_record();
-    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
-    let applied_record = test_ok!(
-        apply_policy_delivery_adapter_execution(
-            &delivered_record,
-            adapter_execution(&delivered_record, &applied_transition),
-        ),
-        "apply policy with receipt"
-    )
-    .into_record();
     let mut rollback_transition = transition(
-        4,
+        3,
         "attempt-rollback-receipt",
         PolicyDeliveryState::RolledBack,
     )?;
     rollback_transition.reason_code = Some(reason("adapter-failed")?);
-    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
-    let mut receipt = adapter_execution(&applied_record, &rollback_transition).receipt;
-    receipt.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+    let mut receipt = execution_receipt(&delivered_record, &rollback_transition);
+    receipt.rollback_reference_state = Some(PolicyDeliveryState::Applied);
 
     let error = test_err!(
         validate_policy_delivery_execution_receipt(
-            &applied_record,
+            &delivered_record,
             &rollback_transition,
             Some(&receipt),
         ),
@@ -384,7 +397,7 @@ fn rolled_back_execution_receipt_rejects_wrong_reference_state() -> TestResult {
         error,
         EventingError::InvalidValue {
             field: "policy_delivery.rollback_reference_state",
-            value: "expected rollback reference state applied but receipt reported delivered"
+            value: "expected rollback reference state delivered but receipt reported applied"
                 .to_string(),
         }
     );
@@ -402,28 +415,18 @@ fn rolled_back_execution_receipt_requires_rollback_reference_state() -> TestResu
         "deliver policy"
     )
     .into_record();
-    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
-    let applied_record = test_ok!(
-        apply_policy_delivery_adapter_execution(
-            &delivered_record,
-            adapter_execution(&delivered_record, &applied_transition),
-        ),
-        "apply policy with receipt"
-    )
-    .into_record();
     let mut rollback_transition = transition(
-        4,
+        3,
         "attempt-rollback-receipt",
         PolicyDeliveryState::RolledBack,
     )?;
     rollback_transition.reason_code = Some(reason("adapter-failed")?);
-    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
-    let mut missing_reference_receipt =
-        adapter_execution(&applied_record, &rollback_transition).receipt;
+    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+    let mut missing_reference_receipt = execution_receipt(&delivered_record, &rollback_transition);
     missing_reference_receipt.rollback_reference_state = None;
     let missing_reference_error = test_err!(
         validate_policy_delivery_execution_receipt(
-            &applied_record,
+            &delivered_record,
             &rollback_transition,
             Some(&missing_reference_receipt),
         ),
@@ -440,7 +443,7 @@ fn rolled_back_execution_receipt_requires_rollback_reference_state() -> TestResu
 }
 
 #[test]
-fn rolled_back_execution_receipt_applies_successfully() -> TestResult {
+fn rolled_back_execution_receipt_validates_without_minting_adapter_authority() -> TestResult {
     let queued = sample_queued_delivery()?;
     let delivered_record = test_ok!(
         apply_policy_delivery_transition(
@@ -450,35 +453,33 @@ fn rolled_back_execution_receipt_applies_successfully() -> TestResult {
         "deliver policy"
     )
     .into_record();
-    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
-    let applied_record = test_ok!(
-        apply_policy_delivery_adapter_execution(
-            &delivered_record,
-            adapter_execution(&delivered_record, &applied_transition),
-        ),
-        "apply policy with receipt"
-    )
-    .into_record();
     let mut rollback_transition = transition(
-        4,
+        3,
         "attempt-rollback-receipt",
         PolicyDeliveryState::RolledBack,
     )?;
     rollback_transition.reason_code = Some(reason("adapter-failed")?);
-    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
-    let rollback_execution = adapter_execution(&applied_record, &rollback_transition);
+    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+    let receipt = execution_receipt(&delivered_record, &rollback_transition);
 
-    let rolled_back = test_ok!(
-        apply_policy_delivery_adapter_execution(&applied_record, rollback_execution),
-        "rolled back delivery with receipt"
-    )
-    .into_record();
-
-    assert_eq!(rolled_back.state, PolicyDeliveryState::RolledBack);
-    assert_eq!(
-        rolled_back.parent_visible_state(),
-        PolicyDeliveryParentVisibleState::ManualRequired
+    test_ok!(
+        validate_policy_delivery_execution_receipt(
+            &delivered_record,
+            &rollback_transition,
+            Some(&receipt),
+        ),
+        "validate rolled-back receipt evidence"
     );
-    assert!(!rolled_back.is_active());
+    let error = test_err!(
+        apply_policy_delivery_transition(&delivered_record, rollback_transition),
+        "receipt evidence alone cannot advance rolled-back"
+    );
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for rolled-back".to_string(),
+        }
+    );
     Ok(())
 }

@@ -2,12 +2,26 @@
 
 use super::{
     policy_control, state_values, EventingError, PolicyDeliveryExecutionReceipt,
-    PolicyDeliveryRecord, PolicyDeliveryState,
+    PolicyDeliveryParentVisibleState, PolicyDeliveryReceiptProvenance, PolicyDeliveryRecord,
+    PolicyDeliveryState,
 };
 
 const FIELD_TARGET_DOMAIN: &str = "policy_delivery.target.domain";
 const RECORD_RECEIPT_MISMATCH: &str =
     "delivery record receipt evidence mismatch: expected=record, reported=execution-receipt";
+
+pub(super) fn parent_visible_state(
+    record: &PolicyDeliveryRecord,
+) -> PolicyDeliveryParentVisibleState {
+    if record.execution_receipt_provenance()
+        == PolicyDeliveryReceiptProvenance::LegacySchemaV1Unverified
+        || (record.state == PolicyDeliveryState::Applied && !record.is_active())
+    {
+        PolicyDeliveryParentVisibleState::ManualRequired
+    } else {
+        state_values::policy_delivery_parent_visible_state(record.state)
+    }
+}
 
 pub(super) fn validate(record: &PolicyDeliveryRecord) -> Result<(), EventingError> {
     let Some(receipt) = required_receipt(record)? else {
@@ -35,6 +49,12 @@ fn required_receipt(
     );
     match (required, record.execution_receipt.as_ref()) {
         (true, Some(receipt)) => Ok(Some(receipt)),
+        (true, None)
+            if record.execution_receipt_provenance()
+                == PolicyDeliveryReceiptProvenance::LegacySchemaV1Unverified =>
+        {
+            Ok(None)
+        }
         (true, None) => Err(EventingError::InvalidValue {
             field: policy_control::delivery::FIELD_STATE,
             value: format!(

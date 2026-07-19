@@ -1,11 +1,11 @@
 use super::policy_delivery_helpers as helpers;
 use super::TestResult;
 use helpers::{
-    adapter_execution, audit_ref, reason, sample_queued_delivery, transition, transition_or_context,
+    audit_ref, execution_receipt, reason, sample_queued_delivery, transition, transition_or_context,
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
+    apply_policy_delivery_transition, validate_policy_delivery_execution_receipt,
     PolicyDeliveryApplyOutcome, PolicyDeliveryParentVisibleState, PolicyDeliveryState,
 };
 use ocentra_policy_control_core::policy_source::{PolicyConsumerDomain, PolicyVersion};
@@ -118,26 +118,36 @@ fn delivering_state_stays_pending_until_ack_or_apply() -> TestResult {
 }
 
 #[test]
-fn acknowledged_delivery_stays_pending_and_is_not_active() -> TestResult {
+fn acknowledged_evidence_cannot_advance_without_trusted_adapter_authority() -> TestResult {
     let queued = sample_queued_delivery()?;
     let acknowledged_transition =
         transition(2, "attempt-acknowledged", PolicyDeliveryState::Acknowledged)?;
-    let acknowledged = test_ok!(
-        apply_policy_delivery_adapter_execution(
+    let receipt = execution_receipt(&queued, &acknowledged_transition);
+    test_ok!(
+        validate_policy_delivery_execution_receipt(
             &queued,
-            adapter_execution(&queued, &acknowledged_transition),
+            &acknowledged_transition,
+            Some(&receipt),
         ),
-        "acknowledge policy delivery with execution receipt"
-    )
-    .into_record();
+        "validate acknowledged receipt evidence"
+    );
+    let error = test_err!(
+        apply_policy_delivery_transition(&queued, acknowledged_transition),
+        "receipt evidence alone cannot advance acknowledged"
+    );
 
-    assert_eq!(acknowledged.state, PolicyDeliveryState::Acknowledged);
     assert_eq!(
-        acknowledged.parent_visible_state(),
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for acknowledged".to_string(),
+        }
+    );
+    assert_eq!(
+        queued.parent_visible_state(),
         PolicyDeliveryParentVisibleState::Pending
     );
-    assert!(acknowledged.reason_code.is_none());
-    assert!(!acknowledged.is_active());
+    assert!(!queued.is_active());
     Ok(())
 }
 
@@ -190,21 +200,50 @@ fn queued_delivery_redacts_raw_policy_source_payload_from_structured_and_debug_o
 }
 
 #[test]
-fn applied_transition_stays_active_when_intermediate_events_arrive_late() -> TestResult {
+fn applied_receipt_evidence_cannot_advance_without_trusted_adapter_authority() -> TestResult {
     let queued = sample_queued_delivery()?;
     let applied_transition = transition(4, "attempt-applied", PolicyDeliveryState::Applied)?;
-    let applied = test_ok!(
-        apply_policy_delivery_adapter_execution(
-            &queued,
-            adapter_execution(&queued, &applied_transition),
-        ),
-        "applied transition with receipt can arrive before intermediate steps"
+    let receipt = execution_receipt(&queued, &applied_transition);
+    test_ok!(
+        validate_policy_delivery_execution_receipt(&queued, &applied_transition, Some(&receipt)),
+        "validate applied receipt evidence"
+    );
+    let error = test_err!(
+        apply_policy_delivery_transition(&queued, applied_transition),
+        "receipt evidence alone cannot advance applied"
+    );
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for applied".to_string(),
+        }
+    );
+    assert_eq!(queued.state, PolicyDeliveryState::Queued);
+    assert!(!queued.is_active());
+    assert_eq!(
+        queued.parent_visible_state(),
+        PolicyDeliveryParentVisibleState::Pending
+    );
+    Ok(())
+}
+
+#[test]
+fn late_intermediate_events_are_stale_after_newer_non_execution_progress() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let degraded = test_ok!(
+        apply_policy_delivery_transition(&queued, {
+            let mut transition = transition(4, "attempt-degraded", PolicyDeliveryState::Degraded)?;
+            transition.reason_code = Some(reason("adapter-authority-unavailable")?);
+            transition
+        },),
+        "advance to newer degraded state"
     )
     .into_record();
-
     let stale_delivered = test_ok!(
         apply_policy_delivery_transition(
-            &applied,
+            &degraded,
             transition(3, "attempt-delivered-late", PolicyDeliveryState::Delivered)?,
         ),
         "late delivered event is ignored"
@@ -214,12 +253,8 @@ fn applied_transition_stays_active_when_intermediate_events_arrive_late() -> Tes
         stale_delivered,
         PolicyDeliveryApplyOutcome::Stale(_)
     ));
-    assert_eq!(applied.state, PolicyDeliveryState::Applied);
-    assert!(applied.is_active());
-    assert_eq!(
-        applied.parent_visible_state(),
-        PolicyDeliveryParentVisibleState::Applied
-    );
+    assert_eq!(degraded.state, PolicyDeliveryState::Degraded);
+    assert!(!degraded.is_active());
     Ok(())
 }
 
@@ -390,41 +425,39 @@ fn rejected_and_rolled_back_transitions_require_reason_and_reference_context() -
         }
     );
 
-    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
-    let applied = test_ok!(
-        apply_policy_delivery_adapter_execution(
+    let delivered = test_ok!(
+        apply_policy_delivery_transition(
             &queued,
-            adapter_execution(&queued, &applied_transition),
+            transition(2, "attempt-delivered", PolicyDeliveryState::Delivered)?,
         ),
-        "apply transition with receipt"
+        "deliver before rollback evidence validation"
     )
     .into_record();
 
     let mut rollback_transition =
-        transition(4, "attempt-rollback", PolicyDeliveryState::RolledBack)?;
+        transition(3, "attempt-rollback", PolicyDeliveryState::RolledBack)?;
     rollback_transition.reason_code = Some(reason("adapter-failed")?);
-    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+    let receipt = execution_receipt(&delivered, &rollback_transition);
 
-    let rolled_back = test_ok!(
-        apply_policy_delivery_adapter_execution(
-            &applied,
-            adapter_execution(&applied, &rollback_transition),
+    test_ok!(
+        validate_policy_delivery_execution_receipt(
+            &delivered,
+            &rollback_transition,
+            Some(&receipt),
         ),
-        "rollback transition with receipt"
-    )
-    .into_record();
-
-    assert_eq!(rolled_back.state, PolicyDeliveryState::RolledBack);
-    assert_eq!(
-        rolled_back.parent_visible_state(),
-        PolicyDeliveryParentVisibleState::ManualRequired
+        "validate rollback receipt evidence"
+    );
+    let rollback_error = test_err!(
+        apply_policy_delivery_transition(&delivered, rollback_transition),
+        "receipt evidence alone cannot advance rolled-back"
     );
     assert_eq!(
-        test_some!(
-            rolled_back.rollback_reference_state,
-            "rollback reference state"
-        ),
-        PolicyDeliveryState::Applied
+        rollback_error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for rolled-back".to_string(),
+        }
     );
     Ok(())
 }
@@ -432,13 +465,12 @@ fn rejected_and_rolled_back_transitions_require_reason_and_reference_context() -
 #[test]
 fn superseded_transition_requires_newer_policy_version_and_blocks_regressions() -> TestResult {
     let queued = sample_queued_delivery()?;
-    let applied_transition = transition(2, "attempt-applied", PolicyDeliveryState::Applied)?;
-    let applied = test_ok!(
-        apply_policy_delivery_adapter_execution(
+    let delivered = test_ok!(
+        apply_policy_delivery_transition(
             &queued,
-            adapter_execution(&queued, &applied_transition),
+            transition(2, "attempt-delivered", PolicyDeliveryState::Delivered)?,
         ),
-        "apply transition with receipt"
+        "deliver before supersede"
     )
     .into_record();
 
@@ -451,7 +483,7 @@ fn superseded_transition_requires_newer_policy_version_and_blocks_regressions() 
         Some(test_ok!(PolicyVersion::new(3), "version"));
 
     let invalid_error = test_err!(
-        apply_policy_delivery_transition(&applied, invalid_superseded),
+        apply_policy_delivery_transition(&delivered, invalid_superseded),
         "same-version supersede is invalid"
     );
     assert_eq!(
@@ -466,7 +498,7 @@ fn superseded_transition_requires_newer_policy_version_and_blocks_regressions() 
     superseded.superseded_by_policy_version = Some(test_ok!(PolicyVersion::new(4), "version"));
 
     let superseded_record = test_ok!(
-        apply_policy_delivery_transition(&applied, superseded),
+        apply_policy_delivery_transition(&delivered, superseded),
         "superseded transition"
     )
     .into_record();

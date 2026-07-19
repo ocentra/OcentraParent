@@ -3,10 +3,9 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
-    queue_policy_delivery, PolicyDeliveryAdapterExecution, PolicyDeliveryAttemptId,
-    PolicyDeliveryExecutionReceipt, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
-    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryAttemptId,
+    PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryState,
+    PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_request::{
     policy_request_schema_version, ChildPolicyRequest, PolicyApprovalId, PolicyDurationMinutes,
@@ -239,46 +238,25 @@ pub fn queued_delivery() -> PolicyDeliveryRecord {
     )
 }
 
-pub fn applied_delivery() -> PolicyDeliveryRecord {
+pub fn legacy_unverified_acknowledged_delivery() -> PolicyDeliveryRecord {
     let queued = delivery_record(
-        &notification_text!("delivery-policy-applied"),
+        &notification_text!("delivery-policy-legacy-acknowledged"),
         &notification_text!("attempt-queued"),
         1,
         PolicyDeliveryState::Queued,
         None,
     );
-    let transition = PolicyDeliveryTransition {
-        attempt_id: PolicyDeliveryAttemptId::parse("attempt-applied")
-            .expect_value("policy attempt id"),
-        sequence: PolicyDeliverySequence::new(2).expect_value("policy delivery seq"),
-        state: PolicyDeliveryState::Applied,
-        audit_reference_ids: vec![audit_ref(&notification_text!("audit-policy-applied"))],
-        reason_code: None,
-        superseded_by_policy_version: None,
-        rollback_reference_state: None,
-    };
-    let receipt = PolicyDeliveryExecutionReceipt {
-        delivery_id: queued.delivery_id.clone(),
-        household_id: queued.household_id.clone(),
-        policy_version: queued.policy_version,
-        source_document_id: queued.source_document_id.clone(),
-        target: queued.target.clone(),
-        attempt_id: transition.attempt_id.clone(),
-        sequence: transition.sequence,
-        state: transition.state,
-        audit_reference_ids: transition.audit_reference_ids.clone(),
-        reason_code: transition.reason_code.clone(),
-        rollback_reference_state: transition.rollback_reference_state,
-    };
-    apply_policy_delivery_adapter_execution(
-        &queued,
-        PolicyDeliveryAdapterExecution {
-            transition,
-            receipt,
-        },
-    )
-    .expect_value("receipt-validated applied delivery")
-    .into_record()
+    let mut serialized =
+        serde_json::to_value(queued).expect_value("serialize legacy acknowledged delivery");
+    serialized["schema_version"] = serde_json::json!(1);
+    serialized["state"] = serde_json::json!("acknowledged");
+    serialized["last_sequence"] = serde_json::json!(2);
+    serialized["last_attempt_id"] = serde_json::json!("attempt-legacy-acknowledged");
+    serialized["audit_reference_ids"] = serde_json::json!(["audit-policy-legacy-acknowledged"]);
+    serialized["execution_receipt"] = serde_json::Value::Null;
+
+    serde_json::from_value(serialized)
+        .expect_value("hydrate schema-v1 receiptless acknowledged delivery")
 }
 
 pub fn retry_delivery() -> PolicyDeliveryRecord {

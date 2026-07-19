@@ -2,9 +2,10 @@ use super::policy_delivery_helpers as helpers;
 use super::TestResult;
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
-    validate_policy_delivery_record, PolicyDeliveryParentVisibleState, PolicyDeliveryRecord,
-    PolicyDeliverySequence, PolicyDeliveryState,
+    apply_policy_delivery_transition, validate_policy_delivery_execution_receipt,
+    validate_policy_delivery_record, PolicyDeliveryAdapterExecution,
+    PolicyDeliveryParentVisibleState, PolicyDeliveryRecord, PolicyDeliverySequence,
+    PolicyDeliveryState,
 };
 
 const SENSITIVE_IDENTIFIERS: &[&str] = &[
@@ -20,6 +21,18 @@ const SENSITIVE_IDENTIFIERS: &[&str] = &[
     "audit-debug-sensitive",
     "reason-debug-sensitive",
 ];
+
+#[test]
+fn fabricated_receipt_cannot_be_deserialized_into_adapter_execution_authority() {
+    trait AmbiguousIfDeserialize<Marker> {
+        fn marker() {}
+    }
+
+    impl<T: ?Sized> AmbiguousIfDeserialize<()> for T {}
+    impl<T: serde::de::DeserializeOwned> AmbiguousIfDeserialize<u8> for T {}
+
+    let _ = <PolicyDeliveryAdapterExecution as AmbiguousIfDeserialize<_>>::marker;
+}
 
 #[test]
 fn operational_debug_redacts_identifiers_while_wire_contract_preserves_them() -> TestResult {
@@ -174,27 +187,27 @@ fn applied_state_without_receipt_evidence_fails_closed() -> TestResult {
 }
 
 #[test]
-fn receipt_validated_applied_record_serializes_but_generic_hydration_is_rejected() -> TestResult {
+fn fully_matching_public_receipt_remains_untrusted_for_applied_hydration() -> TestResult {
     let queued = helpers::sample_queued_delivery()?;
     let transition =
         helpers::transition(2, "attempt-receipt-validated", PolicyDeliveryState::Applied)?;
-    let execution = helpers::adapter_execution(&queued, &transition);
-    let expected_receipt = execution.receipt.clone();
-    let applied = test_ok!(
-        apply_policy_delivery_adapter_execution(&queued, execution),
-        "apply policy with validated receipt"
-    )
-    .into_record();
-
-    assert_eq!(applied.execution_receipt(), Some(&expected_receipt));
-    assert!(applied.is_active());
-    assert_eq!(
-        applied.parent_visible_state(),
-        PolicyDeliveryParentVisibleState::Applied
+    let receipt = helpers::execution_receipt(&queued, &transition);
+    test_ok!(
+        validate_policy_delivery_execution_receipt(&queued, &transition, Some(&receipt)),
+        "matching receipt remains structurally valid evidence"
     );
-    let payload = test_ok!(
-        serde_json::to_value(&applied),
-        "serialize receipt-validated applied record"
+
+    let mut payload = test_ok!(
+        serde_json::to_value(&queued),
+        "serialize queued record before forged applied hydration"
+    );
+    payload["state"] = serde_json::json!("applied");
+    payload["last_sequence"] = serde_json::json!(2);
+    payload["last_attempt_id"] = serde_json::json!("attempt-receipt-validated");
+    payload["audit_reference_ids"] = serde_json::json!(["audit-attempt-receipt-validated-2"]);
+    payload["execution_receipt"] = test_ok!(
+        serde_json::to_value(&receipt),
+        "serialize caller-fabricated receipt evidence"
     );
     assert_eq!(
         payload["execution_receipt"]["attempt_id"],
@@ -202,7 +215,7 @@ fn receipt_validated_applied_record_serializes_but_generic_hydration_is_rejected
     );
     let hydration_error = test_err!(
         serde_json::from_value::<PolicyDeliveryRecord>(payload),
-        "generic hydration cannot establish Applied authenticity"
+        "public receipt evidence cannot establish Applied authenticity"
     );
     assert_eq!(
         hydration_error.to_string(),

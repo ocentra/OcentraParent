@@ -22,7 +22,7 @@ mod transition_rules;
 mod transitions;
 mod validation;
 
-const POLICY_DELIVERY_SCHEMA_VERSION_VALUE: u16 = 1;
+const POLICY_DELIVERY_SCHEMA_VERSION_VALUE: u16 = 2;
 const POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE: u64 = 1;
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -197,13 +197,17 @@ pub struct PolicyDeliveryRecord {
     execution_receipt: Option<PolicyDeliveryExecutionReceipt>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PolicyDeliveryReceiptProvenance {
+    NotRequired,
+    EvidencePresent,
+    LegacySchemaV1Unverified,
+    MissingRequired,
+}
+
 impl PolicyDeliveryRecord {
     pub fn parent_visible_state(&self) -> PolicyDeliveryParentVisibleState {
-        if self.state == PolicyDeliveryState::Applied && !self.is_active() {
-            PolicyDeliveryParentVisibleState::ManualRequired
-        } else {
-            state_values::policy_delivery_parent_visible_state(self.state)
-        }
+        record_receipt_validation::parent_visible_state(self)
     }
 
     pub fn is_active(&self) -> bool {
@@ -213,6 +217,29 @@ impl PolicyDeliveryRecord {
 
     pub fn execution_receipt(&self) -> Option<&PolicyDeliveryExecutionReceipt> {
         self.execution_receipt.as_ref()
+    }
+
+    pub fn execution_receipt_provenance(&self) -> PolicyDeliveryReceiptProvenance {
+        if self.execution_receipt.is_some() {
+            return PolicyDeliveryReceiptProvenance::EvidencePresent;
+        }
+        if self.schema_version.value() == 1
+            && matches!(
+                self.state,
+                PolicyDeliveryState::Acknowledged | PolicyDeliveryState::RolledBack
+            )
+        {
+            return PolicyDeliveryReceiptProvenance::LegacySchemaV1Unverified;
+        }
+        if matches!(
+            self.state,
+            PolicyDeliveryState::Acknowledged
+                | PolicyDeliveryState::Applied
+                | PolicyDeliveryState::RolledBack
+        ) {
+            return PolicyDeliveryReceiptProvenance::MissingRequired;
+        }
+        PolicyDeliveryReceiptProvenance::NotRequired
     }
 }
 
@@ -242,10 +269,10 @@ pub struct PolicyDeliveryExecutionReceipt {
     pub rollback_reference_state: Option<PolicyDeliveryState>,
 }
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PolicyDeliveryAdapterExecution {
-    pub transition: PolicyDeliveryTransition,
-    pub receipt: PolicyDeliveryExecutionReceipt,
+    transition: PolicyDeliveryTransition,
+    receipt: PolicyDeliveryExecutionReceipt,
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -318,12 +345,12 @@ pub fn apply_policy_delivery_adapter_execution(
     adapter_execution::apply_policy_delivery_adapter_execution(current, execution)
 }
 
-pub fn apply_policy_delivery_execution_transition(
+pub fn replay_policy_delivery_execution_receipt(
     current: &PolicyDeliveryRecord,
-    transition: PolicyDeliveryTransition,
-    receipt: PolicyDeliveryExecutionReceipt,
+    transition: &PolicyDeliveryTransition,
+    receipt: &PolicyDeliveryExecutionReceipt,
 ) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
-    adapter_execution::apply_policy_delivery_execution_transition(current, transition, receipt)
+    adapter_execution::replay_policy_delivery_execution_receipt(current, transition, receipt)
 }
 
 pub fn apply_policy_delivery_transition(

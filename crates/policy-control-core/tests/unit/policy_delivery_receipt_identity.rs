@@ -6,18 +6,17 @@ use super::policy_delivery_receipt_helpers::{
 };
 use super::TestResult;
 use helpers::{
-    adapter_execution, mutate_provenance_child_profile, mutate_provenance_device,
-    mutate_provenance_domain, mutate_provenance_household, mutate_provenance_policy_version,
-    mutate_provenance_reason_code, mutate_provenance_source_document, reason, sample_delivery_id,
-    sample_delivery_target, sample_policy_source_document, sample_queued_delivery, transition,
+    mutate_provenance_child_profile, mutate_provenance_device, mutate_provenance_domain,
+    mutate_provenance_household, mutate_provenance_policy_version, mutate_provenance_reason_code,
+    mutate_provenance_source_document, reason, sample_delivery_id, sample_delivery_target,
+    sample_policy_source_document, sample_queued_delivery, transition,
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_adapter_execution, apply_policy_delivery_transition,
-    apply_policy_delivery_transition_without_execution_receipt, derive_policy_delivery_id,
-    queue_policy_delivery, validate_policy_delivery_execution_receipt, PolicyDeliveryAttemptId,
-    PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliveryRecord,
-    PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTransition,
+    apply_policy_delivery_transition, apply_policy_delivery_transition_without_execution_receipt,
+    derive_policy_delivery_id, queue_policy_delivery, validate_policy_delivery_execution_receipt,
+    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
+    PolicyDeliveryState, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, ParentPolicyDocumentId, PolicyConsumerDomain, PolicyScheduleId,
@@ -176,7 +175,7 @@ fn acknowledged_delivery_requires_an_explicit_execution_receipt() -> TestResult 
         "attempt-acknowledged-receipt",
         PolicyDeliveryState::Acknowledged,
     )?;
-    let acknowledged_execution = adapter_execution(&queued, &acknowledged_transition);
+    let acknowledged_receipt = helpers::execution_receipt(&queued, &acknowledged_transition);
 
     let missing_receipt_error = test_err!(
         validate_policy_delivery_execution_receipt(&queued, &acknowledged_transition, None,),
@@ -190,18 +189,14 @@ fn acknowledged_delivery_requires_an_explicit_execution_receipt() -> TestResult 
         }
     );
 
-    let acknowledged = test_ok!(
-        apply_policy_delivery_adapter_execution(&queued, acknowledged_execution),
-        "acknowledged delivery with explicit receipt"
-    )
-    .into_record();
-
-    assert_eq!(acknowledged.state, PolicyDeliveryState::Acknowledged);
-    assert_eq!(
-        acknowledged.parent_visible_state(),
-        PolicyDeliveryParentVisibleState::Pending
+    test_ok!(
+        validate_policy_delivery_execution_receipt(
+            &queued,
+            &acknowledged_transition,
+            Some(&acknowledged_receipt),
+        ),
+        "acknowledged receipt evidence validates structurally"
     );
-    assert!(!acknowledged.is_active());
     Ok(())
 }
 
@@ -246,16 +241,6 @@ fn ack_applied_and_rolled_back_receipts_require_explicit_adapter_provenance() ->
         "deliver policy"
     )
     .into_record();
-    let applied_transition =
-        transition(3, "attempt-applied-receipt", PolicyDeliveryState::Applied)?;
-    let applied_record = test_ok!(
-        apply_policy_delivery_adapter_execution(
-            &delivered_record,
-            adapter_execution(&delivered_record, &applied_transition),
-        ),
-        "apply policy with receipt"
-    )
-    .into_record();
     let cases = [
         PolicyDeliveryState::Acknowledged,
         PolicyDeliveryState::Applied,
@@ -264,19 +249,19 @@ fn ack_applied_and_rolled_back_receipts_require_explicit_adapter_provenance() ->
 
     for state in cases {
         let current = if state == PolicyDeliveryState::RolledBack {
-            &applied_record
+            &delivered_record
         } else {
             &queued
         };
         let sequence = if state == PolicyDeliveryState::RolledBack {
-            4
+            3
         } else {
             2
         };
         let mut transition = transition(sequence, format!("attempt-{state:?}-receipt"), state)?;
         if state == PolicyDeliveryState::RolledBack {
             transition.reason_code = Some(reason("adapter-failed")?);
-            transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+            transition.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
         }
         let receipt = execution_receipt_with_sequence(current, &transition, sequence);
 
@@ -339,13 +324,12 @@ fn rolled_back_delivery_requires_an_explicit_execution_receipt() -> TestResult {
 #[test]
 fn bare_transition_apis_reject_every_receipt_required_state() -> TestResult {
     let queued = sample_queued_delivery()?;
-    let applied_setup = transition(2, "attempt-applied-setup", PolicyDeliveryState::Applied)?;
-    let applied = test_ok!(
-        apply_policy_delivery_adapter_execution(
+    let delivered = test_ok!(
+        apply_policy_delivery_transition(
             &queued,
-            adapter_execution(&queued, &applied_setup),
+            transition(2, "attempt-delivered-setup", PolicyDeliveryState::Delivered)?,
         ),
-        "apply setup transition with receipt"
+        "deliver setup transition"
     )
     .into_record();
 
@@ -365,15 +349,15 @@ fn bare_transition_apis_reject_every_receipt_required_state() -> TestResult {
         PolicyDeliveryState::RolledBack,
     )?;
     rolled_back.reason_code = Some(reason("adapter-failed")?);
-    rolled_back.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+    rolled_back.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
 
     assert_bare_transition_rejected(&queued, acknowledged, "acknowledged")?;
     assert_bare_transition_rejected(&queued, applied_without_receipt, "applied")?;
-    assert_bare_transition_rejected(&applied, rolled_back, "rolled-back")?;
+    assert_bare_transition_rejected(&delivered, rolled_back, "rolled-back")?;
 
     assert!(!queued.is_active());
-    assert!(applied.is_active());
-    assert_eq!(applied.state, PolicyDeliveryState::Applied);
+    assert!(!delivered.is_active());
+    assert_eq!(delivered.state, PolicyDeliveryState::Delivered);
     Ok(())
 }
 
@@ -565,7 +549,7 @@ fn execution_receipt_validation_rejects_provenance_mismatches() -> TestResult {
 }
 
 #[test]
-fn execution_receipt_and_adapter_debug_redact_sensitive_provenance() -> TestResult {
+fn execution_receipt_debug_redacts_sensitive_provenance() -> TestResult {
     let queued = sample_queued_delivery()?;
     let mut acknowledged_transition = transition(
         2,
@@ -573,10 +557,9 @@ fn execution_receipt_and_adapter_debug_redact_sensitive_provenance() -> TestResu
         PolicyDeliveryState::Acknowledged,
     )?;
     acknowledged_transition.reason_code = Some(reason("reason-debug-redaction")?);
-    let execution = adapter_execution(&queued, &acknowledged_transition);
+    let receipt = helpers::execution_receipt(&queued, &acknowledged_transition);
 
-    let receipt_debug = format!("{:?}", execution.receipt);
-    let adapter_debug = format!("{execution:?}");
+    let receipt_debug = format!("{receipt:?}");
     let sensitive_values = [
         "delivery-policy-household-default",
         "household-default",
@@ -589,22 +572,15 @@ fn execution_receipt_and_adapter_debug_redact_sensitive_provenance() -> TestResu
         "reason-debug-redaction",
     ];
 
-    for debug in [&receipt_debug, &adapter_debug] {
-        for sensitive_value in sensitive_values {
-            assert!(
-                !debug.contains(sensitive_value),
-                "debug output exposed sensitive value {sensitive_value}: {debug}"
-            );
-        }
+    for sensitive_value in sensitive_values {
+        assert!(
+            !receipt_debug.contains(sensitive_value),
+            "debug output exposed sensitive value {sensitive_value}: {receipt_debug}"
+        );
     }
     assert_eq!(
         receipt_debug,
         "PolicyDeliveryExecutionReceipt { delivery_id: \"<redacted>\", household_id: \"<redacted>\", policy_version: 3, source_document_id: \"<redacted>\", target: \"<redacted>\", attempt_id: \"<redacted>\", sequence: 2, state: Acknowledged, audit_reference_count: 1, reason_code_present: true, rollback_reference_state: None }"
     );
-    assert_eq!(
-        adapter_debug,
-        "PolicyDeliveryAdapterExecution { transition_sequence: 2, transition_state: Acknowledged, transition_audit_reference_count: 1, transition_reason_code_present: true, transition_superseded_by_policy_version: None, transition_rollback_reference_state: None, receipt: PolicyDeliveryExecutionReceipt { delivery_id: \"<redacted>\", household_id: \"<redacted>\", policy_version: 3, source_document_id: \"<redacted>\", target: \"<redacted>\", attempt_id: \"<redacted>\", sequence: 2, state: Acknowledged, audit_reference_count: 1, reason_code_present: true, rollback_reference_state: None } }"
-    );
-
     Ok(())
 }

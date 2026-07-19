@@ -16,7 +16,7 @@ pub(super) fn validate_policy_delivery_receipt_sequence(
 
     match receipt.sequence.value().cmp(&current.last_sequence.value()) {
         Ordering::Less => stale_execution_receipt(receipt, current),
-        Ordering::Equal => validate_current_sequence_replay(current, receipt),
+        Ordering::Equal => validate_current_sequence_replay(current, transition, receipt),
         Ordering::Greater => Ok(()),
     }
 }
@@ -41,17 +41,17 @@ fn validate_receipt_sequence_alignment(
 
 fn is_duplicate_execution_receipt(
     current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
     receipt: &PolicyDeliveryExecutionReceipt,
 ) -> bool {
-    receipt.sequence == current.last_sequence
-        && receipt.delivery_id == current.delivery_id
-        && receipt.household_id == current.household_id
-        && receipt.policy_version == current.policy_version
-        && receipt.target == current.target
-        && receipt.attempt_id == current.last_attempt_id
-        && receipt.state == current.state
-        && receipt.audit_reference_ids == current.audit_reference_ids
-        && receipt.rollback_reference_state == current.rollback_reference_state
+    transition.sequence == current.last_sequence
+        && transition.attempt_id == current.last_attempt_id
+        && transition.state == current.state
+        && transition.audit_reference_ids == current.audit_reference_ids
+        && transition.reason_code == current.reason_code
+        && transition.superseded_by_policy_version == current.superseded_by_policy_version
+        && transition.rollback_reference_state == current.rollback_reference_state
+        && current.execution_receipt() == Some(receipt)
 }
 
 fn stale_execution_receipt(
@@ -70,16 +70,11 @@ fn stale_execution_receipt(
 
 fn validate_current_sequence_replay(
     current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
     receipt: &PolicyDeliveryExecutionReceipt,
 ) -> Result<(), EventingError> {
-    if is_duplicate_execution_receipt(current, receipt) {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::delivery::FIELD_SEQUENCE,
-            value: format!(
-                "execution receipt sequence replay: expected=new-sequence, reported=current-sequence({}) (duplicate)",
-                receipt.sequence.value(),
-            ),
-        });
+    if is_duplicate_execution_receipt(current, transition, receipt) {
+        return Ok(());
     }
 
     Err(EventingError::InvalidValue {

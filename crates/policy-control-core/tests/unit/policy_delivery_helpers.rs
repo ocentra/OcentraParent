@@ -4,10 +4,9 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    derive_policy_delivery_id, queue_policy_delivery, PolicyDeliveryAdapterExecution,
-    PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt, PolicyDeliveryId,
-    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget,
-    PolicyDeliveryTransition,
+    derive_policy_delivery_id, queue_policy_delivery, PolicyDeliveryAttemptId,
+    PolicyDeliveryExecutionReceipt, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
+    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
@@ -281,16 +280,6 @@ pub(super) fn execution_receipt(
         audit_reference_ids: transition.audit_reference_ids.clone(),
         reason_code: transition.reason_code.clone(),
         rollback_reference_state: transition.rollback_reference_state,
-    }
-}
-
-pub(super) fn adapter_execution(
-    current: &PolicyDeliveryRecord,
-    transition: &PolicyDeliveryTransition,
-) -> PolicyDeliveryAdapterExecution {
-    PolicyDeliveryAdapterExecution {
-        transition: transition.clone(),
-        receipt: execution_receipt(current, transition),
     }
 }
 

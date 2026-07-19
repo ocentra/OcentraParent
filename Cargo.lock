@@ -2452,6 +2452,7 @@ dependencies = [
  "ocentra-parent-agent-protocol",
  "ocentra-policy-control-core",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

@@ -24,7 +24,7 @@ Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit 
 | `policy-delivery.partial-domain-apply` | `retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progress` |
 | `policy-delivery.expired-before-delivery` | `retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progress` |
 | `policy-delivery.permission-loss-blocked` | `blocked_and_manual_required_transitions_require_reason_and_surface_manual_required` |
-| `policy-delivery.parent-visible-state` | parent-visible assertions across `queued_delivery_starts_pending_per_child_device_domain`, `delivering_state_stays_pending_until_ack_or_apply`, `acknowledged_delivery_stays_pending_and_is_not_active`, `offline_delivery_is_degraded_and_requires_reason_code`, `retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progress`, `blocked_and_manual_required_transitions_require_reason_and_surface_manual_required`, `superseded_before_ack_stays_superseded_and_never_becomes_active`, `applied_state_without_receipt_evidence_fails_closed`, and `receipt_validated_applied_record_serializes_but_generic_hydration_is_rejected` |
+| `policy-delivery.parent-visible-state` | parent-visible assertions across `queued_delivery_starts_pending_per_child_device_domain`, `delivering_state_stays_pending_until_ack_or_apply`, `acknowledged_evidence_cannot_advance_without_trusted_adapter_authority`, `acknowledged_record_with_stored_receipt_round_trips_as_pending_evidence`, `offline_delivery_is_degraded_and_requires_reason_code`, `retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progress`, `blocked_and_manual_required_transitions_require_reason_and_surface_manual_required`, `superseded_before_ack_stays_superseded_and_never_becomes_active`, `applied_state_without_receipt_evidence_fails_closed`, `fully_matching_public_receipt_remains_untrusted_for_applied_hydration`, `schema_v1_receiptless_acknowledged_hydrates_as_unverified_manual_required`, and `legacy_unverified_acknowledged_delivery_requires_manual_parent_action` |
 
 ## Current Rust owner support
 
@@ -36,12 +36,13 @@ Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit 
 
 Current owner proof shows:
 
-- queued, delivering, delivered, and acknowledged stay `Pending` to parents
+- queued, delivering, and delivered stay `Pending` to parents; a future trusted schema-v2 acknowledged record maps to `Pending`, but the current public surface cannot mint one
 - offline, retry-scheduled, expired-before-delivery, and partial-domain-apply stay `Degraded`
 - blocked-by-permission, blocked-by-capability, rejected, rolled-back, and manual-required stay `ManualRequired`
 - superseded stays `Superseded`
-- only in-process receipt-validated adapter application creates active `Applied`: it stores receipt evidence that record validation matches to the transition, while transition-only callers cannot create it
+- no current public policy path creates active `Applied`: raw receipts are evidence, not authority, and the opaque adapter capability has no public mint until a trusted domain/enforcement adapter is implemented
 - generic/untrusted record deserialization rejects every `Applied` payload, including a caller-built payload with a fully self-consistent receipt; WP04 defines no authenticated persistence capability for rehydrating `Applied`, so persisted `Applied` hydration is unsupported and not claimed
 - a directly forged `Applied` record without the private stored receipt remains inactive and maps to parent-visible `ManualRequired`
+- schema-v1 receiptless acknowledged and rolled-back records preserve their historical state, audit, rollback, and source facts under `LegacySchemaV1Unverified`, but surface parent-visible `ManualRequired` and never become active
 
-That is the plan-owned no-fake-success contract for WP04.
+That is the plan-owned no-fake-success contract for WP04. Real positive execution remains dependency-blocked.
