@@ -137,12 +137,14 @@ pub(crate) fn browser_add_device_read_model(
     discovery_state: &LanPairingText,
 ) -> LanBrowserAddDeviceReadModel {
     let scan_result = network_device_scan_result_for_command(runtime, command);
-    let generated_at = scan_result
+    let observed_at =
+        browser_read_model_generated_at(timestamp_now::<String>().into(), &scan_result);
+    let history_generated_at = scan_result
         .current_scan_snapshot
         .as_ref()
         .or(scan_result.previous_scan_snapshot.as_ref())
         .map(|snapshot| LanPairingText(snapshot.updated_at.clone()))
-        .unwrap_or_else(|| timestamp_now::<String>().into());
+        .unwrap_or_else(|| observed_at.clone());
     let selected = runtime.selected_target();
     let trusted_device_registry = trusted_device_registry(runtime);
     let household_device_decisions = household_device_decisions(runtime);
@@ -158,14 +160,14 @@ pub(crate) fn browser_add_device_read_model(
         runtime,
         command,
         discovery_state,
-        &generated_at,
+        &history_generated_at,
         &network_devices,
     );
     let physical_household_lan_state = physical_household_lan_state(has_network_devices);
     let selected_device_readiness = selected_device_readiness(selected);
 
     let mut model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
-        generated_at: generated_at.0.clone(),
+        generated_at: history_generated_at.0.clone(),
         discovery_source,
         service_data_available: true,
         platform_data_available,
@@ -174,7 +176,7 @@ pub(crate) fn browser_add_device_read_model(
         physical_household_lan_state,
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
         discovered_devices,
-        pairing_requests: pairing_requests(runtime, &generated_at),
+        pairing_requests: pairing_requests(runtime, &observed_at),
         trusted_device_registry,
         household_device_decisions,
         trusted_device_ids: runtime
@@ -196,11 +198,22 @@ pub(crate) fn browser_add_device_read_model(
     model.canonical_household_devices = merged_known_household_devices_for_read_model(
         runtime,
         &current_canonical_household_devices,
-        &generated_at,
+        &history_generated_at,
     );
-    model.discovery_event_history =
-        discovery_event_history::discovery_event_history(&scan_result, &model);
+    model.discovery_event_history = discovery_event_history::discovery_event_history(
+        &scan_result,
+        &model,
+        &history_generated_at,
+    );
+    model.generated_at = observed_at.0;
     model
+}
+
+pub(crate) fn browser_read_model_generated_at(
+    observed_at: LanPairingText,
+    _scan_result: &LanNetworkDeviceScanResult,
+) -> LanPairingText {
+    observed_at
 }
 
 fn platform_data_available_for_scan_result(scan_result: &LanNetworkDeviceScanResult) -> bool {

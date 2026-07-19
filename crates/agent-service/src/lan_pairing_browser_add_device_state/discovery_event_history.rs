@@ -63,13 +63,16 @@ impl PartialOrd for DiscoveryEventSortKey {
 pub(crate) fn discovery_event_history(
     scan_result: &LanNetworkDeviceScanResult,
     read_model: &LanBrowserAddDeviceReadModel,
+    generated_at: &LanPairingText,
 ) -> LanDiscoveryEventHistory {
-    let rows = ordered_discovery_event_rows(scan_result, read_model);
+    let mut historical_read_model = read_model.clone();
+    historical_read_model.generated_at = generated_at.0.clone();
+    let rows = ordered_discovery_event_rows(scan_result, &historical_read_model);
     let latest = rows.last();
     LanDiscoveryEventHistory {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        generated_at: read_model.generated_at.clone(),
-        state: discovery_event_history_state(scan_result, &rows, read_model),
+        generated_at: historical_read_model.generated_at.clone(),
+        state: discovery_event_history_state(scan_result, &rows, &historical_read_model),
         latest_event_id: latest.map(|event| event.event_id.clone()),
         latest_observed_at: latest.map(|event| event.occurred_at.clone()),
         rows,

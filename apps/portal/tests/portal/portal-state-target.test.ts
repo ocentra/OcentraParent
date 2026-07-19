@@ -509,6 +509,18 @@ it('applyParentSubscriptionEvent: fails closed for missing, invalid, or mismatch
     },
     {
       snapshot: validSnapshot,
+      events: [{ ...validReplay, sentAt: '2026-06-28' }],
+    },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, sentAt: '2026-06-28T17:00:01' }],
+    },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, sentAt: '2026-02-30T17:00:01Z' }],
+    },
+    {
+      snapshot: validSnapshot,
       events: [{ ...validReplay, payload: null }],
     },
     {
@@ -518,6 +530,23 @@ it('applyParentSubscriptionEvent: fails closed for missing, invalid, or mismatch
     {
       snapshot: devicesSnapshotWithReplayHistory([validReplay], { latestEventId: 'different-history-row' }),
       events: [validReplay],
+    },
+    { snapshot: validSnapshot, events: [{ ...validReplay, payload: { ...validReplay.payload, schemaVersion: 2 } }] },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, payload: { ...validReplay.payload, scanSessionId: 'different-scan' } }],
+    },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, payload: { ...validReplay.payload, affectedDeviceId: 'different-device' } }],
+    },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, payload: { ...validReplay.payload, evidenceId: 'different-evidence' } }],
+    },
+    {
+      snapshot: validSnapshot,
+      events: [{ ...validReplay, payload: { ...validReplay.payload, summary: 'different summary' } }],
     },
   ];
 

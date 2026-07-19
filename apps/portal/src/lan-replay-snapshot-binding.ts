@@ -117,6 +117,11 @@ function historyRowMatchesEvent(
     row.eventId === replay.eventId,
     row.eventKind === replay.event,
     row.occurredAt === replay.sentAt,
+    row.schemaVersion === payload.schemaVersion,
     (row.previousEventId ?? null) === (payload.previousEventId ?? null),
+    (row.scanSessionId ?? null) === (payload.scanSessionId ?? null),
+    (row.affectedDeviceId ?? null) === (payload.affectedDeviceId ?? null),
+    (row.evidenceId ?? null) === (payload.evidenceId ?? null),
+    row.summary === payload.summary,
   ].every(Boolean);
 }

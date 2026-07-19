@@ -1,16 +1,21 @@
 import {
-  ParentHostBridgeRuntime,
   type ParentLanDiscoveryEventRowSnapshot,
   type ParentRouteEventName,
   type ParentRouteEventSnapshot,
   type ParentRouteSnapshot,
 } from '../generated/parent-ui-bridge';
+import { parentRouteRfc3339TimestampMs } from './parent-route-rfc3339';
 
 export interface LanReplayPayloadCandidate {
+  readonly schemaVersion?: unknown;
   readonly eventId?: unknown;
   readonly eventKind?: unknown;
   readonly occurredAt?: unknown;
   readonly previousEventId?: unknown;
+  readonly scanSessionId?: unknown;
+  readonly affectedDeviceId?: unknown;
+  readonly evidenceId?: unknown;
+  readonly summary?: unknown;
 }
 
 export function latestParentRouteEventSnapshot(
@@ -53,15 +58,7 @@ export function latestParentRouteEventTimestampMs(events: readonly ParentRouteEv
 }
 
 export function parentRouteTimestampMs(value: unknown): number | null {
-  if (typeof value !== ParentHostBridgeRuntime.StringType) {
-    return null;
-  }
-  const timestamp = String(value);
-  if (timestamp.length === 0) {
-    return null;
-  }
-  const parsed = Date.parse(timestamp);
-  return Number.isFinite(parsed) ? parsed : null;
+  return parentRouteRfc3339TimestampMs(value);
 }
 
 export function isLanReplaySnapshot(
@@ -84,6 +81,11 @@ export function lanReplayPayloadCandidate(value: unknown): LanReplayPayloadCandi
     candidate.eventKind,
     candidate.occurredAt,
     candidate.previousEventId,
+    candidate.schemaVersion,
+    candidate.scanSessionId,
+    candidate.affectedDeviceId,
+    candidate.evidenceId,
+    candidate.summary,
   ].every((field) => field === undefined);
   return hasNoReplayFields ? null : candidate;
 }

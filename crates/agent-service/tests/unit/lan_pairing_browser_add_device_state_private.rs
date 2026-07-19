@@ -6,7 +6,7 @@ use ocentra_lan_core::read_model_builder::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingNetworkMode, LanPairingProductionDiscoveryState,
-    LanPairingTrustState, LanSelectedRouteTarget,
+    LanPairingText, LanPairingTrustState, LanSelectedRouteTarget,
 };
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
@@ -25,7 +25,11 @@ mod assertions;
 
 use super::scan_history::{LanScanHistoryMetadata, LanScanHistorySnapshot};
 use super::{discovery_event_history_state, ordered_discovery_event_rows};
+use crate::lan_pairing::{LanPairingChallengeState, LanPairingRuntime};
+use crate::lan_pairing_browser_add_device_state::browser_read_model_generated_at;
 use crate::lan_pairing_browser_add_device_state::discovery_event_history::discovery_event_history;
+use crate::lan_pairing_browser_add_device_state::registry_projection::pairing_requests;
+use crate::test_invariants::require_ok;
 use assertions::{
     assert_first_row_has_no_previous_event, assert_previous_event_chain, assert_row_contract,
     discovery_row,
@@ -51,6 +55,44 @@ fn apple_manual_required_platform_keeps_physical_lan_state_manual_not_unavailabl
             &LanNetworkDeviceScanResult::default(),
             false,
         )
+    );
+}
+
+#[test]
+fn future_previous_scan_never_advances_read_model_observation_time_or_pairing_expiry() {
+    let observed_at = "2026-06-28T17:00:00.000Z".into();
+    let scan_result = LanNetworkDeviceScanResult {
+        previous_scan_snapshot: Some(LanScanHistorySnapshot {
+            schema_version: 1,
+            updated_at: "2026-06-28T18:00:00.000Z".to_string(),
+            metadata: None,
+            devices: Vec::new(),
+        }),
+        ..LanNetworkDeviceScanResult::default()
+    };
+    let generated_at = browser_read_model_generated_at(observed_at, &scan_result);
+    let runtime = LanPairingRuntime::empty();
+    let mut challenges = require_ok(
+        runtime.challenges.lock(),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    challenges.push(LanPairingChallengeState {
+        challenge_id: "expired-challenge".to_string(),
+        child_device_id: "child-device".to_string(),
+        parent_device_id: "parent-device".to_string(),
+        route_id: "local-network".to_string(),
+        origin: "http://localhost".to_string(),
+        proof_digest: "proof".to_string(),
+        issued_at: "2026-06-28T16:00:00.000Z".to_string(),
+        expires_at: "2026-06-28T16:59:59.000Z".to_string(),
+        accepted: false,
+    });
+    drop(challenges);
+
+    assert_eq!(generated_at.0, "2026-06-28T17:00:00.000Z");
+    assert_eq!(
+        pairing_requests(&runtime, &generated_at)[0].pairing_state,
+        LanPairingProductionDiscoveryState::Expired
     );
 }
 
@@ -456,7 +498,11 @@ fn discovery_event_history_orders_and_selects_latest_rows_by_rfc3339_instant() {
     child_agent.network_identity.offline_at = Some("2026-06-23T02:00:02+02:00".to_string());
     read_model.canonical_household_devices = vec![child_agent];
 
-    let history = discovery_event_history(&scan_result, &read_model);
+    let history = discovery_event_history(
+        &scan_result,
+        &read_model,
+        &LanPairingText(read_model.generated_at.clone()),
+    );
     let rows = &history.rows;
     let child_agent_id = "lan-canonical-child-agent".to_string();
     let earlier_evidence_id = "lan-offset-earlier-evidence".to_string();
