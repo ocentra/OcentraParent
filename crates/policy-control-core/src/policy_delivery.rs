@@ -1,7 +1,5 @@
 #![forbid(unsafe_code)]
 
-use std::fmt;
-
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::SchemaVersion;
 use ocentra_parent_agent_protocol::constants::policy_control;
@@ -15,6 +13,9 @@ use crate::policy_source::{
 
 mod adapter_execution;
 mod adapter_execution_validation;
+mod debug;
+mod record_receipt_validation;
+mod record_serde;
 mod state_context;
 mod state_values;
 mod transition_rules;
@@ -24,7 +25,7 @@ mod validation;
 const POLICY_DELIVERY_SCHEMA_VERSION_VALUE: u16 = 1;
 const POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE: u64 = 1;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct PolicyDeliveryId(String);
 
@@ -52,7 +53,7 @@ impl From<PolicyDeliveryId> for String {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct PolicyDeliveryAttemptId(String);
 
@@ -164,14 +165,14 @@ pub enum PolicyDeliveryParentVisibleState {
     Superseded,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyDeliveryTarget {
     pub child_profile_id: PolicyChildProfileId,
     pub device_id: PolicyDeviceId,
     pub domain: PolicyConsumerDomain,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize)]
 pub struct PolicyDeliveryRecord {
     pub schema_version: SchemaVersion,
     pub delivery_id: PolicyDeliveryId,
@@ -192,19 +193,30 @@ pub struct PolicyDeliveryRecord {
     pub reason_code: Option<PolicyReasonCode>,
     pub superseded_by_policy_version: Option<PolicyVersion>,
     pub rollback_reference_state: Option<PolicyDeliveryState>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    execution_receipt: Option<PolicyDeliveryExecutionReceipt>,
 }
 
 impl PolicyDeliveryRecord {
     pub fn parent_visible_state(&self) -> PolicyDeliveryParentVisibleState {
-        state_values::policy_delivery_parent_visible_state(self.state)
+        if self.state == PolicyDeliveryState::Applied && !self.is_active() {
+            PolicyDeliveryParentVisibleState::ManualRequired
+        } else {
+            state_values::policy_delivery_parent_visible_state(self.state)
+        }
     }
 
     pub fn is_active(&self) -> bool {
         self.state == PolicyDeliveryState::Applied
+            && validation::validate_policy_delivery_record(self).is_ok()
+    }
+
+    pub fn execution_receipt(&self) -> Option<&PolicyDeliveryExecutionReceipt> {
+        self.execution_receipt.as_ref()
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyDeliveryTransition {
     pub attempt_id: PolicyDeliveryAttemptId,
     pub sequence: PolicyDeliverySequence,
@@ -230,59 +242,13 @@ pub struct PolicyDeliveryExecutionReceipt {
     pub rollback_reference_state: Option<PolicyDeliveryState>,
 }
 
-impl fmt::Debug for PolicyDeliveryExecutionReceipt {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter
-            .debug_struct("PolicyDeliveryExecutionReceipt")
-            .field("delivery_id", &"<redacted>")
-            .field("household_id", &"<redacted>")
-            .field("policy_version", &self.policy_version.value())
-            .field("source_document_id", &"<redacted>")
-            .field("target", &"<redacted>")
-            .field("attempt_id", &"<redacted>")
-            .field("sequence", &self.sequence.value())
-            .field("state", &self.state)
-            .field("audit_reference_count", &self.audit_reference_ids.len())
-            .field("reason_code_present", &self.reason_code.is_some())
-            .field("rollback_reference_state", &self.rollback_reference_state)
-            .finish()
-    }
-}
-
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyDeliveryAdapterExecution {
     pub transition: PolicyDeliveryTransition,
     pub receipt: PolicyDeliveryExecutionReceipt,
 }
 
-impl fmt::Debug for PolicyDeliveryAdapterExecution {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter
-            .debug_struct("PolicyDeliveryAdapterExecution")
-            .field("transition_sequence", &self.transition.sequence.value())
-            .field("transition_state", &self.transition.state)
-            .field(
-                "transition_audit_reference_count",
-                &self.transition.audit_reference_ids.len(),
-            )
-            .field(
-                "transition_reason_code_present",
-                &self.transition.reason_code.is_some(),
-            )
-            .field(
-                "transition_superseded_by_policy_version",
-                &self.transition.superseded_by_policy_version,
-            )
-            .field(
-                "transition_rollback_reference_state",
-                &self.transition.rollback_reference_state,
-            )
-            .field("receipt", &self.receipt)
-            .finish()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum PolicyDeliveryApplyOutcome {
     Advanced(PolicyDeliveryRecord),
     Duplicate(PolicyDeliveryRecord),

@@ -89,10 +89,8 @@ fn conflicting_same_sequence_replay_is_rejected() -> TestResult {
         conflict,
         EventingError::InvalidValue {
             field: "policy_delivery.sequence",
-            value: format!(
-                "conflicting replay for sequence 2 on {}",
-                delivered_record.delivery_id.as_str()
-            ),
+            value: "conflicting replay for sequence 2 with mismatched transition provenance"
+                .to_string(),
         }
     );
     Ok(())

@@ -16,7 +16,6 @@ use crate::policy_source::{
 
 const POLICY_DELIVERY_ID_DOMAIN_SEPARATOR: &str = "policy-delivery-id:v1";
 const POLICY_DELIVERY_ID_PREFIX: &str = "policy-delivery:v1:sha256:";
-
 pub(super) fn policy_delivery_schema_version() -> Result<SchemaVersion, EventingError> {
     SchemaVersion::new(POLICY_DELIVERY_SCHEMA_VERSION_VALUE)
 }
@@ -31,7 +30,8 @@ pub(super) fn validate_policy_delivery_record(
         record.superseded_by_policy_version,
         record.rollback_reference_state,
         record.policy_version,
-    )
+    )?;
+    super::record_receipt_validation::validate(record)
 }
 
 pub(super) fn validate_policy_delivery_transition(
@@ -132,7 +132,7 @@ fn assert_audit_refs(audit_reference_ids: &[PolicyAuditReferenceId]) -> Result<(
         if !seen.insert(audit_reference_id.clone()) {
             return Err(EventingError::InvalidValue {
                 field: policy_control::delivery::FIELD_AUDIT_REFERENCE_IDS,
-                value: audit_reference_id.as_str().to_string(),
+                value: String::from("duplicate audit reference"),
             });
         }
     }

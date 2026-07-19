@@ -19,6 +19,7 @@ pub(super) fn validate_policy_delivery_adapter_execution(
     transitions::apply_policy_delivery_transition_after_execution_validation(
         current,
         execution.transition.clone(),
+        execution.receipt.clone(),
     )
     .map(|_| ())
 }
@@ -38,9 +39,12 @@ pub(super) fn apply_policy_delivery_adapter_execution(
     execution: PolicyDeliveryAdapterExecution,
 ) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
     validate_policy_delivery_adapter_execution(current, &execution)?;
+    let PolicyDeliveryAdapterExecution {
+        transition,
+        receipt,
+    } = execution;
     transitions::apply_policy_delivery_transition_after_execution_validation(
-        current,
-        execution.transition,
+        current, transition, receipt,
     )
 }
 

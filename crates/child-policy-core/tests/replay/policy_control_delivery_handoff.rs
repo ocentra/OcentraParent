@@ -341,7 +341,7 @@ fn delivery_offline_and_expired_before_delivery_stay_degraded_or_fail_closed() {
         invalid_error,
         EventingError::InvalidValue {
             field: "policy_delivery.reason_code",
-            value: "unexpected reason code expired-before-delivery for queued".to_string(),
+            value: "unexpected reason code present for queued".to_string(),
         }
     );
 }

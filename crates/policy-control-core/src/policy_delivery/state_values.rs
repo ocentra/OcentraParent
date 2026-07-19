@@ -1,8 +1,8 @@
 #![forbid(unsafe_code)]
 
 use super::{
-    policy_control, PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliverySequence,
-    PolicyDeliveryState, PolicyReasonCode, PolicyVersion,
+    policy_control, PolicyDeliveryParentVisibleState, PolicyDeliverySequence, PolicyDeliveryState,
+    PolicyVersion,
 };
 use crate::policy_source::PolicyConsumerDomain;
 
@@ -161,15 +161,11 @@ pub(super) fn policy_delivery_domain_name(domain: PolicyConsumerDomain) -> &'sta
     }
 }
 
-pub(super) fn conflicting_replay_value(
-    sequence: PolicyDeliverySequence,
-    delivery_id: &PolicyDeliveryId,
-) -> String {
+pub(super) fn conflicting_replay_value(sequence: PolicyDeliverySequence) -> String {
     let mut value =
         String::from(policy_control::delivery::VALUE_CONFLICTING_REPLAY_FOR_SEQUENCE_PREFIX);
     value.push_str(&sequence.value().to_string());
-    value.push_str(policy_control::delivery::VALUE_CONFLICTING_REPLAY_ON_SEPARATOR);
-    value.push_str(delivery_id.as_str());
+    value.push_str(" with mismatched transition provenance");
     value
 }
 
@@ -184,13 +180,9 @@ pub(super) fn invalid_transition_value(
     value
 }
 
-pub(super) fn unexpected_reason_code_value(
-    reason_code: &PolicyReasonCode,
-    state: PolicyDeliveryState,
-) -> String {
+pub(super) fn unexpected_reason_code_value(state: PolicyDeliveryState) -> String {
     let mut value = String::from(policy_control::delivery::VALUE_UNEXPECTED_REASON_CODE_PREFIX);
-    value.push_str(reason_code.as_str());
-    value.push_str(policy_control::delivery::VALUE_FOR_STATE_SEPARATOR);
+    value.push_str("present for ");
     value.push_str(policy_delivery_state_name(state));
     value
 }

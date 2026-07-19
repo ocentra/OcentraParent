@@ -1,3 +1,5 @@
+#[path = "policy_delivery/applied_hydration.rs"]
+mod applied_hydration;
 #[path = "policy_delivery_helpers.rs"]
 mod helpers;
 
@@ -282,9 +284,10 @@ fn conflicting_same_sequence_replay_is_rejected() -> TestResult {
         "conflicting replay must be rejected"
     );
 
-    assert!(error
-        .to_string()
-        .contains("conflicting replay for sequence 3"));
+    assert_eq!(
+        error.to_string(),
+        "invalid eventing value for policy_delivery.sequence: conflicting replay for sequence 3 with mismatched transition provenance"
+    );
     Ok(())
 }
 

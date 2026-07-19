@@ -2,13 +2,16 @@
 
 Run id: `019f773f-d986-7db2-8a0d-2fba41e42bd2/2026-07-18-degraded-parent-visible-refresh`
 
+Receipt-hydration refresh: `policy-wp04-record-boundary/2026-07-18`
+
 Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit / degraded-parent-visible`
 
 ## Validation source
 
 - `cargo test -p ocentra-policy-control-core --test unit --test version-skew`
 - `cargo test -p ocentra-child-policy-core --test replay_policy_control_delivery_handoff`
-- `cargo test -p ocentra-parent-runtime-core --test unit policy_control_update_flow`
+- `cargo test -p ocentra-parent-runtime-core --test unit policy_control_`
+- `cargo test -p ocentra-child-notification-core --test observability_policy_control_notification`
 
 ## Proof mapping
 
@@ -19,7 +22,7 @@ Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit 
 | `policy-delivery.partial-domain-apply` | `retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progress` |
 | `policy-delivery.expired-before-delivery` | `retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progress` |
 | `policy-delivery.permission-loss-blocked` | `blocked_and_manual_required_transitions_require_reason_and_surface_manual_required` |
-| `policy-delivery.parent-visible-state` | parent-visible assertions across `queued_delivery_starts_pending_per_child_device_domain`, `delivering_state_stays_pending_until_ack_or_apply`, `acknowledged_delivery_stays_pending_and_is_not_active`, `offline_delivery_is_degraded_and_requires_reason_code`, `retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progress`, `blocked_and_manual_required_transitions_require_reason_and_surface_manual_required`, and `superseded_before_ack_stays_superseded_and_never_becomes_active` |
+| `policy-delivery.parent-visible-state` | parent-visible assertions across `queued_delivery_starts_pending_per_child_device_domain`, `delivering_state_stays_pending_until_ack_or_apply`, `acknowledged_delivery_stays_pending_and_is_not_active`, `offline_delivery_is_degraded_and_requires_reason_code`, `retry_partial_and_expired_transitions_stay_degraded_until_real_delivery_progress`, `blocked_and_manual_required_transitions_require_reason_and_surface_manual_required`, `superseded_before_ack_stays_superseded_and_never_becomes_active`, `applied_state_without_receipt_evidence_fails_closed`, and `receipt_validated_applied_record_round_trips_as_active` |
 
 ## Current Rust owner support
 
@@ -35,6 +38,7 @@ Current owner proof shows:
 - offline, retry-scheduled, expired-before-delivery, and partial-domain-apply stay `Degraded`
 - blocked-by-permission, blocked-by-capability, rejected, rolled-back, and manual-required stay `ManualRequired`
 - superseded stays `Superseded`
-- only receipt-validated `Applied` becomes active; transition-only callers cannot create it
+- only receipt-validated `Applied` becomes active: adapter application stores receipt evidence, record validation and custom deserialization require that evidence to match the record, and transition-only callers cannot create it
+- a forged or hydrated `Applied` record with missing or mismatched receipt evidence fails validation/deserialization, is not active, and maps to parent-visible `ManualRequired`
 
 That is the plan-owned no-fake-success contract for WP04.
