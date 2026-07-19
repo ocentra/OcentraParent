@@ -23,6 +23,8 @@
 - Slice A evidence root: `output/lan-plan-proof/00-plan-model-reconciliation/`
 - B1 evidence root: `output/lan-plan-proof/01-lan-b1-proof-regeneration/`
 - B2 evidence root: `output/lan-plan-proof/02-lan-b2-test-truth-repair/`
+- WP25 tracked evidence root:
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/`
 
 ## Current ownership interpretation
 
@@ -210,10 +212,18 @@ Expected evidence for `B2`:
   locally closed by their own proof and `23`/`25` still open.
 - Portal LAN proof still depends on source/service-backed truth; portal does
   not own the LAN truth model.
-- Product route refresh now flows through typed Tauri host subscriptions that
-  emit `ParentSubscriptionEvent` snapshots plus subscribed route events into
-  the portal shell; product TSX still does not own a WebSocket transport or
-  canonical backend event replay.
+- Canonical backend LAN stream replay is loaded, validated, ordered, and bound
+  to the independently loaded status history state/latest ID/latest time before
+  Rust constructs `ParentSubscriptionEvent`. Rejection emits a safe host-owned
+  warning identity. The Tauri host delivery decision and isolated portal state
+  edge separately prove unseen-ID delivery, replay-only snapshot binding, and
+  stable newest-128 buffering. No current proof observes the same replay batch
+  through the real Tauri `AppHandle` emitter and portal listener. The complete
+  backend-to-host-to-portal chain and manual runtime proof therefore remain
+  open; product TSX still does not own replay business logic.
+- The current WP25 rollout truth and validation history are tracked under
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/`; generated `output/`
+  files are not accepted as tracked source proof.
 - Stored child/known-device IPs no longer leave the bounded active-refresh
   target list on historical truth alone; current neighbor-state MAC
   confirmation or the live default-gateway path is now required before
@@ -246,7 +256,11 @@ Expected evidence for `B2`:
 - weighted classification and installability proof for
   unknown/probable/not-installable states
 - real signed child hello/heartbeat artifacts
-- replay/restart/event-stream proof completion
+- restart and physical cross-session event-stream proof completion
+- real Tauri `AppHandle` emission plus portal-listener observation of a
+  backend replay batch; backend validation, bridge construction, the host
+  delivery decision, and an isolated portal state edge are locally covered,
+  but they do not yet prove the complete chain
 - additional downstream consumer proof artifacts beyond the current Rust-backed
   `/devices`, policy-target, and Start-route first-run portal snapshots
 - Android/mobile-controller proof where the plan still keeps those claims

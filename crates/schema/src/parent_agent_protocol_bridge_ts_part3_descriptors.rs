@@ -117,3 +117,58 @@ pub(super) fn lan_parent_authority_descriptors() -> Vec<ProtocolLiteralDescripto
         value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
     )]
 }
+
+pub(super) fn lan_discovery_event_kind_descriptors() -> Vec<
+    ProtocolLiteralDescriptor<
+        ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEventKind,
+    >,
+> {
+    use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEventKind;
+
+    vec![
+        ProtocolLiteralDescriptor {
+            key: "InterfaceChanged",
+            value: LanDiscoveryEventKind::InterfaceChanged,
+        },
+        ProtocolLiteralDescriptor {
+            key: "ScanStarted",
+            value: LanDiscoveryEventKind::ScanStarted,
+        },
+        ProtocolLiteralDescriptor {
+            key: "ScanFinished",
+            value: LanDiscoveryEventKind::ScanFinished,
+        },
+        ProtocolLiteralDescriptor {
+            key: "EvidenceFound",
+            value: LanDiscoveryEventKind::EvidenceFound,
+        },
+        ProtocolLiteralDescriptor {
+            key: "DeviceFound",
+            value: LanDiscoveryEventKind::DeviceFound,
+        },
+        ProtocolLiteralDescriptor {
+            key: "DeviceUpdated",
+            value: LanDiscoveryEventKind::DeviceUpdated,
+        },
+        ProtocolLiteralDescriptor {
+            key: "DeviceOnline",
+            value: LanDiscoveryEventKind::DeviceOnline,
+        },
+        ProtocolLiteralDescriptor {
+            key: "DeviceOffline",
+            value: LanDiscoveryEventKind::DeviceOffline,
+        },
+        ProtocolLiteralDescriptor {
+            key: "AgentDiscovered",
+            value: LanDiscoveryEventKind::AgentDiscovered,
+        },
+        ProtocolLiteralDescriptor {
+            key: "AgentConfirmed",
+            value: LanDiscoveryEventKind::AgentConfirmed,
+        },
+        ProtocolLiteralDescriptor {
+            key: "UnknownDetected",
+            value: LanDiscoveryEventKind::UnknownDetected,
+        },
+    ]
+}

@@ -49,8 +49,20 @@ mod clippy_linkage {
     use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
     use std::{env, fs::remove_file};
 
+    struct ActivityDbPathRestore(Option<String>);
+
+    impl Drop for ActivityDbPathRestore {
+        fn drop(&mut self) {
+            match self.0.take() {
+                Some(value) => env::set_var(constants::env_var::ACTIVITY_DB_PATH, value),
+                None => env::remove_var(constants::env_var::ACTIVITY_DB_PATH),
+            }
+        }
+    }
+
     #[tokio::test]
     async fn public_wrapper_and_helpers_are_linked() {
+        let _guard = activity_report_env_lock::REPORT_ENV_LOCK.lock().await;
         let encoded = serialize_test_json(&serde_json::json!({
             "policy_request_confirm": true
         }));
@@ -81,7 +93,8 @@ mod clippy_linkage {
 
         let store_path = temp_store_path("policy-request-confirm-clippy");
         cleanup_path(&store_path);
-        let previous_store_path = env::var(constants::env_var::ACTIVITY_DB_PATH).ok();
+        let _restore_activity_db_path =
+            ActivityDbPathRestore(env::var(constants::env_var::ACTIVITY_DB_PATH).ok());
         env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
         let event = policy_request_confirm::build_policy_request_assistant_preview_confirm_report(
@@ -94,10 +107,6 @@ mod clippy_linkage {
             AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported
         );
 
-        match previous_store_path {
-            Some(value) => env::set_var(constants::env_var::ACTIVITY_DB_PATH, value),
-            None => env::remove_var(constants::env_var::ACTIVITY_DB_PATH),
-        }
         cleanup_path(&store_path);
     }
 

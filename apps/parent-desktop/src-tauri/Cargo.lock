@@ -3566,6 +3566,7 @@ dependencies = [
 name = "ocentra-parent-runtime-core"
 version = "0.1.1"
 dependencies = [
+ "chrono",
  "ocentra-child-runtime",
  "ocentra-eventing",
  "ocentra-parent-agent-protocol",
@@ -3596,6 +3597,7 @@ dependencies = [
  "ocentra-evidence",
  "ocentra-parent-agent-protocol",
  "serde",
+ "sha2",
 ]
 
 [[package]]

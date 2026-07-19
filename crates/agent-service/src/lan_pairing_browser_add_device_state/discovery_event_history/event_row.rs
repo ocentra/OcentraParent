@@ -4,10 +4,7 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanDiscoveryEventKind, LanDiscoveryEventRow,
 };
 
-const LAN_DISCOVERY_INTERFACE_CHANGED_EVENT_PREFIX: &str = "lan-discovery-interface-changed-";
 const LAN_DISCOVERY_EVENT_PREFIX: &str = "lan-discovery-";
-const LAN_DISCOVERY_SCAN_FINISHED_SUMMARY_PREFIX: &str = "LAN scan finished with ";
-const LAN_DISCOVERY_SCAN_FINISHED_SUMMARY_SUFFIX: &str = " visible devices";
 const LAN_DISCOVERY_OBSERVED_SUMMARY_PREFIX: &str = "Observed ";
 const LAN_DISCOVERY_EVIDENCE_FOR_SEPARATOR: &str = " evidence for ";
 const LAN_DISCOVERY_AGENT_CONFIRMED_SUMMARY_PREFIX: &str = "Confirmed child agent inventory for ";
@@ -47,12 +44,6 @@ pub(super) fn push_discovery_event_row(
     rows.push(row);
 }
 
-pub(super) fn interface_changed_event_id(scan_key: &LanPairingText) -> LanPairingText {
-    let mut event_id = String::from(LAN_DISCOVERY_INTERFACE_CHANGED_EVENT_PREFIX);
-    event_id.push_str(&scan_key.0);
-    LanPairingText(event_id)
-}
-
 pub(super) fn keyed_discovery_event_id(
     prefix: LanPairingText,
     scan_key: &LanPairingText,
@@ -77,13 +68,6 @@ pub(super) fn reachability_discovery_event_id(
     event_id.push('-');
     event_id.push_str(&entity_id.0);
     LanPairingText(event_id)
-}
-
-pub(super) fn scan_finished_summary(scanned_device_count: u32) -> LanPairingText {
-    let mut summary = String::from(LAN_DISCOVERY_SCAN_FINISHED_SUMMARY_PREFIX);
-    summary.push_str(&scanned_device_count.to_string());
-    summary.push_str(LAN_DISCOVERY_SCAN_FINISHED_SUMMARY_SUFFIX);
-    LanPairingText(summary)
 }
 
 pub(super) fn evidence_found_summary(

@@ -1,3 +1,5 @@
+use super::snapshots_lan_replay::lan_runtime_replay_events_from_payload;
+use super::types::LanRuntimeReplaySnapshot;
 use super::*;
 
 pub(super) fn lan_snapshot_from_result(
@@ -6,6 +8,7 @@ pub(super) fn lan_snapshot_from_result(
     let AgentServiceCommandResult {
         events,
         response_event,
+        ..
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));
@@ -33,6 +36,21 @@ pub(super) fn lan_snapshot_from_result(
         events,
         read_model,
     })
+}
+
+pub(super) fn lan_runtime_replay_events_from_result(
+    result: AgentServiceCommandResult,
+) -> Result<LanRuntimeReplaySnapshot, String> {
+    let AgentServiceCommandResult {
+        events: _,
+        command,
+        command_message_id,
+        response_event,
+    } = result;
+    if response_event.event == AgentEventName::AgentCommandRejected {
+        return Err(rejection_message(&response_event));
+    }
+    lan_runtime_replay_events_from_payload(&response_event, &command, &command_message_id)
 }
 
 pub(crate) fn network_flow_snapshot_from_parts(
@@ -68,6 +86,7 @@ pub(super) fn network_flow_snapshot_from_result(
     let AgentServiceCommandResult {
         events,
         response_event,
+        ..
     } = result;
     network_flow_snapshot_from_parts(&response_event, &events)
 }
@@ -78,6 +97,7 @@ pub(super) fn network_runtime_event_chain_snapshot_from_result(
     let AgentServiceCommandResult {
         events: _,
         response_event,
+        ..
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));
@@ -101,6 +121,7 @@ pub(super) fn policy_preview_snapshot_from_result(
     let AgentServiceCommandResult {
         events,
         response_event,
+        ..
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));

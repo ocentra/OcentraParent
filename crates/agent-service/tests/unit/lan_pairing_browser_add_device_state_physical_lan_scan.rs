@@ -20,10 +20,11 @@ use ocentra_parent_agent_protocol::transport::{
 };
 
 use super::{
-    cached_localhost_status_scan_result, cached_status_snapshot_devices,
-    command_uses_physical_lan_scan, inventory_refresh_mode_after_targeted_refresh,
-    network_device_scan_result_for_command, recent_previous_scan_agent_truth_devices,
-    refresh_mode_for_command, scan_history_is_recent, scan_truth_context,
+    cached_localhost_status_scan_result, cached_runtime_event_stream_scan_result,
+    cached_status_snapshot_devices, command_uses_physical_lan_scan,
+    inventory_refresh_mode_after_targeted_refresh, network_device_scan_result_for_command,
+    recent_previous_scan_agent_truth_devices, refresh_mode_for_command, scan_history_is_recent,
+    scan_truth_context,
 };
 use crate::app::lan_pairing::LanPairingRuntime;
 use crate::app::lan_pairing_browser_add_device_state::scan_history::LanScanHistorySnapshot;
@@ -56,6 +57,7 @@ fn recent_previous_scan_child_truth_is_reused_for_probe_suppression_only() {
     let snapshot = LanScanHistorySnapshot {
         schema_version: 1,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -86,6 +88,7 @@ fn stale_previous_scan_child_truth_does_not_suppress_probe_forever() {
     let snapshot = LanScanHistorySnapshot {
         schema_version: 1,
         updated_at: stale_updated_at,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -142,11 +145,12 @@ fn active_scan_commands_probe_once_then_read_inventory_passively() {
 }
 
 #[test]
-fn localhost_status_prefers_recent_cached_scan_snapshot() {
+fn localhost_status_and_runtime_stream_preserve_recent_cached_snapshot_context() {
     let now = Utc::now();
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -162,6 +166,27 @@ fn localhost_status_prefers_recent_cached_scan_snapshot() {
 
     assert_eq!(devices.len(), 1);
     assert_eq!(devices[0].ip_address, constants::lan_pairing::TEST_LAN_IP);
+    let status = require_some(
+        cached_localhost_status_scan_result(
+            &status_command_for_route(AgentRoute::Localhost),
+            Some(snapshot.clone()),
+            now,
+        ),
+        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+    );
+    let stream = require_some(
+        cached_runtime_event_stream_scan_result(
+            &runtime_stream_command_for_route(AgentRoute::LocalNetwork),
+            Some(snapshot.clone()),
+            now,
+        ),
+        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+    );
+
+    assert_eq!(stream, status);
+    assert_eq!(stream.previous_scan_snapshot, Some(snapshot.clone()));
+    assert_eq!(stream.current_scan_snapshot, Some(snapshot));
+    assert!(stream.reused_recent_snapshot);
 }
 
 #[test]
@@ -177,7 +202,7 @@ fn localhost_status_without_cache_returns_without_physical_refresh() {
 }
 
 #[test]
-fn localhost_status_with_stale_cache_reports_previous_snapshot_without_reusing_it() {
+fn localhost_status_and_runtime_stream_preserve_stale_previous_snapshot_context() {
     let now = Utc::now();
     let stale_updated_at = (now
         - Duration::seconds(
@@ -187,6 +212,7 @@ fn localhost_status_with_stale_cache_reports_previous_snapshot_without_reusing_i
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: stale_updated_at,
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -196,11 +222,20 @@ fn localhost_status_with_stale_cache_reports_previous_snapshot_without_reusing_i
     let expected_snapshot = snapshot.clone();
     let result = cached_localhost_status_scan_result(
         &status_command_for_route(AgentRoute::Localhost),
-        Some(snapshot),
+        Some(snapshot.clone()),
         now,
     );
     let result = require_some(result, constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
+    let stream = require_some(
+        cached_runtime_event_stream_scan_result(
+            &runtime_stream_command_for_route(AgentRoute::LocalNetwork),
+            Some(snapshot),
+            now,
+        ),
+        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+    );
 
+    assert_eq!(stream, result);
     assert_eq!(result.devices.len(), 0);
     assert!(!result.reused_recent_snapshot);
     assert_eq!(result.previous_scan_snapshot, Some(expected_snapshot));
@@ -213,6 +248,7 @@ fn local_network_status_does_not_take_cached_snapshot_fast_path() {
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -233,6 +269,7 @@ fn previous_router_truth_becomes_scan_suppression_without_upgrading_identity_tru
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![router_scan_device()],
     };
@@ -257,6 +294,7 @@ fn ignored_previous_household_device_becomes_scan_suppression_truth() {
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![previous_scan_device(
             constants::lan_pairing::LOCAL_AGENT_STATUS,
@@ -358,6 +396,7 @@ async fn scan_truth_context_reuses_registry_and_history_truth_without_agentless_
     let snapshot = LanScanHistorySnapshot {
         schema_version: 2,
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
+        replay_canonical_projection: None,
         metadata: None,
         devices: vec![
             previous_scan_device(constants::lan_pairing::LOCAL_AGENT_STATUS),
@@ -419,6 +458,13 @@ fn status_command_for_route(route: AgentRoute) -> AgentCommandEnvelope {
         },
         command: AgentCommandName::AgentLanPairingStatusGet,
         payload: ocentra_parent_agent_protocol::logging::LogFields::new(),
+    }
+}
+
+fn runtime_stream_command_for_route(route: AgentRoute) -> AgentCommandEnvelope {
+    AgentCommandEnvelope {
+        command: AgentCommandName::AgentLanRuntimeEventChainStreamGet,
+        ..status_command_for_route(route)
     }
 }
 
