@@ -97,12 +97,24 @@ export function applyParentRouteEvents(
 }
 
 export function applyParentSubscriptionEvent(state: PortalRuntimeState, event: ParentSubscriptionEvent): void {
-  if (!isStaleIncomingEventBatch(state, event.events ?? [])) {
+  if (
+    isReplayBatchBoundToSnapshot(event.events ?? [], event.snapshot) &&
+    !isStaleIncomingEventBatch(state, event.events ?? [])
+  ) {
     applyParentRouteEvents(state, event.events ?? []);
   }
   if (event.snapshot.route === event.route && !isStaleIncomingRouteSnapshot(state, event.snapshot)) {
     applyParentRouteSnapshot(state, event.snapshot);
   }
+}
+
+function isReplayBatchBoundToSnapshot(
+  snapshots: readonly ParentRouteEventSnapshot[],
+  snapshot: ParentRouteSnapshot
+): boolean {
+  const latestEventTimestamp = latestParentRouteEventTimestampMs(snapshots);
+  const snapshotTimestamp = parentRouteSnapshotTimestampMs(snapshot);
+  return latestEventTimestamp === null || snapshotTimestamp === null || latestEventTimestamp <= snapshotTimestamp;
 }
 
 function portalEventBufferKey(event: ParentRouteEventSnapshot) {

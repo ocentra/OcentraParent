@@ -10,6 +10,7 @@ use crate::lan_pairing::{
     },
     lan_ai_job::lan_ai_provider_status_get,
 };
+use crate::lan_runtime_stream_api::build_lan_runtime_event_chain_stream_report;
 
 use super::{LanCommandDecision, LanCommandOrigin, LanPairingRuntime};
 
@@ -20,6 +21,9 @@ pub(super) async fn owned_lan_response(
 ) -> Option<LanCommandDecision> {
     let origin_text = origin.0.clone();
     let event = match command.command.clone() {
+        AgentCommandName::AgentLanRuntimeEventChainStreamGet => {
+            build_lan_runtime_event_chain_stream_report(&runtime, command).await
+        }
         AgentCommandName::AgentLanPairingProofSubmit => {
             submit_pairing_proof(runtime, origin.0.clone(), command).await
         }

@@ -380,6 +380,35 @@ fn parent_subscription_event_rejects_non_rfc3339_lan_replay_payload_timestamps()
 }
 
 #[test]
+fn parent_subscription_event_rejects_lan_replay_rows_after_report_or_envelope_time_and_a_first_predecessor(
+) {
+    let read_model = sample_lan_read_model_with_explicit_history();
+    let entries = replay_entries(&read_model.discovery_event_history.rows);
+
+    let mut after_report = replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false);
+    after_report.payload.insert(
+        constants::field::GENERATED_AT.to_string(),
+        LogFieldValue::String("2026-06-23T00:00:01Z".to_string()),
+    );
+    assert_replay_rejected(&read_model, after_report);
+
+    let mut after_envelope = replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false);
+    after_envelope.sent_at = "2026-06-23T00:00:01Z".to_string();
+    assert_replay_rejected(&read_model, after_envelope);
+
+    let mut first_has_predecessor = entries;
+    first_has_predecessor[0]["payload"]["previousEventId"] = json!("outside-history");
+    assert_replay_rejected(
+        &read_model,
+        replay_event(
+            &first_has_predecessor,
+            LanDiscoveryEventHistoryState::Ready,
+            false,
+        ),
+    );
+}
+
+#[test]
 fn parent_subscription_event_fails_closed_on_malformed_lan_replay_payload() {
     let read_model = sample_lan_read_model_with_explicit_history();
     let malformed_event = replay_event_with_stream(
@@ -482,10 +511,25 @@ fn assert_redacted_replay_rejection_diagnostic(
     assert_eq!(diagnostic.event_id, None);
     assert_eq!(diagnostic.correlation_id, None);
     assert_eq!(diagnostic.sent_at, None);
-    assert_eq!(diagnostic.source_peer_id, None);
-    assert_eq!(diagnostic.source_role, None);
-    assert_eq!(diagnostic.target_peer_id, None);
-    assert_eq!(diagnostic.target_role, None);
+    assert_eq!(
+        diagnostic
+            .source_peer_id
+            .as_ref()
+            .map(|value| value.as_str()),
+        Some(constants::peer::LOCAL_DEV_AGENT)
+    );
+    assert_eq!(
+        diagnostic.source_role,
+        Some(ParentRoutePeerRole::AgentService)
+    );
+    assert_eq!(
+        diagnostic
+            .target_peer_id
+            .as_ref()
+            .map(|value| value.as_str()),
+        Some(constants::peer::PORTAL_DEV)
+    );
+    assert_eq!(diagnostic.target_role, Some(ParentRoutePeerRole::Portal));
     assert_eq!(diagnostic.payload, None);
     assert_eq!(diagnostic.snapshot, None);
     assert_eq!(diagnostic.command_result_projection, None);

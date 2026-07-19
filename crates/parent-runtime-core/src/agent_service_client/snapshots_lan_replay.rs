@@ -45,7 +45,16 @@ pub(super) fn lan_runtime_replay_events_from_payload(
     let entries = serde_json::from_str::<Vec<LanRuntimeReplayEntry>>(stream_json)
         .map_err(|error| format!("{LAN_REPLAY_CONTEXT} stream parse failed: {error}"))?;
 
-    let events = entries_to_route_events(&entries, &identity)?;
+    let report_generated_at = parse_rfc3339_timestamp(
+        payload
+            .get(constants::field::GENERATED_AT)
+            .and_then(log_field_string)
+            .ok_or_else(|| format!("{LAN_REPLAY_CONTEXT} missing generatedAt"))?,
+        constants::field::GENERATED_AT,
+    )?;
+    let envelope_sent_at = parse_rfc3339_timestamp(&response_event.sent_at, "envelope.sentAt")?;
+    let events =
+        entries_to_route_events(&entries, &identity, report_generated_at, envelope_sent_at)?;
     validate_report_metadata(
         payload,
         entries.len(),
@@ -61,13 +70,15 @@ pub(super) fn lan_runtime_replay_events_from_payload(
 fn entries_to_route_events(
     entries: &[LanRuntimeReplayEntry],
     identity: &LanReplayEnvelopeIdentity,
+    report_generated_at: DateTime<FixedOffset>,
+    envelope_sent_at: DateTime<FixedOffset>,
 ) -> Result<Vec<ParentRouteEventSnapshot>, String> {
     let mut event_ids = HashSet::new();
     let mut previous_event_id: Option<String> = None;
     let mut previous_occurred_at: Option<DateTime<FixedOffset>> = None;
     let mut events = Vec::with_capacity(entries.len());
 
-    for entry in entries {
+    for (index, entry) in entries.iter().enumerate() {
         let event_id = canonical_text(&entry.payload.event_id, "payload.eventId")?;
         let event_ref = canonical_text(&entry.event_ref, "eventRef")?;
         if event_ref != event_id {
@@ -91,18 +102,18 @@ fn entries_to_route_events(
 
         let occurred_at =
             parse_rfc3339_timestamp(&entry.payload.occurred_at, "payload.occurredAt")?;
-        if previous_occurred_at
-            .as_ref()
-            .is_some_and(|previous| &occurred_at < previous)
-        {
-            return Err(format!(
-                "{LAN_REPLAY_CONTEXT} rejected stale or out-of-order eventId {event_id}"
-            ));
-        }
+        validate_entry_timing(
+            event_id,
+            &occurred_at,
+            &report_generated_at,
+            &envelope_sent_at,
+        )?;
+        validate_event_order(event_id, &occurred_at, previous_occurred_at.as_ref())?;
         validate_optional_text(
             entry.payload.previous_event_id.as_deref(),
             "payload.previousEventId",
         )?;
+        validate_first_predecessor(index, entry.payload.previous_event_id.as_deref())?;
         validate_optional_text(
             entry.payload.scan_session_id.as_deref(),
             "payload.scanSessionId",
@@ -132,6 +143,42 @@ fn entries_to_route_events(
     }
 
     Ok(events)
+}
+
+fn validate_entry_timing(
+    event_id: &str,
+    occurred_at: &DateTime<FixedOffset>,
+    report_generated_at: &DateTime<FixedOffset>,
+    envelope_sent_at: &DateTime<FixedOffset>,
+) -> Result<(), String> {
+    if occurred_at > report_generated_at || occurred_at > envelope_sent_at {
+        return Err(format!(
+            "{LAN_REPLAY_CONTEXT} rejected eventId {event_id} later than report or envelope timestamp"
+        ));
+    }
+    Ok(())
+}
+
+fn validate_event_order(
+    event_id: &str,
+    occurred_at: &DateTime<FixedOffset>,
+    previous: Option<&DateTime<FixedOffset>>,
+) -> Result<(), String> {
+    if previous.is_some_and(|value| occurred_at < value) {
+        return Err(format!(
+            "{LAN_REPLAY_CONTEXT} rejected stale or out-of-order eventId {event_id}"
+        ));
+    }
+    Ok(())
+}
+
+fn validate_first_predecessor(index: usize, previous_event_id: Option<&str>) -> Result<(), String> {
+    if index == 0 && previous_event_id.is_some() {
+        return Err(format!(
+            "{LAN_REPLAY_CONTEXT} rejected first stream entry with previousEventId"
+        ));
+    }
+    Ok(())
 }
 
 fn route_event_from_entry(

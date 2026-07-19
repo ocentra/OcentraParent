@@ -434,6 +434,19 @@ it('applyParentSubscriptionEvent: rejects stale subscribed batches instead of re
   expect(state.events[0]?.eventId).toBe('evt-lan-status-newer');
 });
 
+it('applyParentSubscriptionEvent: does not apply replay rows newer than their status snapshot', () => {
+  const state = createPortalRuntimeState();
+  applyParentSubscriptionEvent(state, {
+    schemaVersion: 1,
+    route: 'devices',
+    snapshot: currentSubscribedDevicesRouteSnapshot,
+    events: [
+      { ...currentSubscribedDevicesRouteEvent, eventId: 'replay-after-snapshot', sentAt: '2026-06-28T17:00:11Z' },
+    ],
+  });
+  expect(state.events).toEqual([]);
+});
+
 it('applyParentSubscriptionEvent: rejects a snapshot whose route disagrees with the subscription event', () => {
   const state = createPortalRuntimeState();
 

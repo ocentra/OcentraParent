@@ -39,7 +39,7 @@ pub(crate) fn load_lan_status_snapshot(
         AgentCommandName::AgentLanPairingStatusGet,
         LogFields::new(),
         None,
-        AgentRoute::Localhost,
+        AgentRoute::LocalNetwork,
     )
     .and_then(lan_snapshot_from_result)
     .map_err(AgentServiceError::from_display)

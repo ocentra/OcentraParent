@@ -16,8 +16,8 @@ use ocentra_parent_agent_protocol::{
 };
 use ocentra_schema::parent_ui_bridge::{
     ParentPortalParentAccessState, ParentRouteContext, ParentRouteEventSnapshot, ParentRouteId,
-    ParentRouteSnapshot, ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind,
-    ParentUiActionResult,
+    ParentRoutePeerId, ParentRoutePeerRole, ParentRouteSnapshot, ParentSubscriptionEvent,
+    ParentUiAction, ParentUiActionKind, ParentUiActionResult,
 };
 use serde_json::Value;
 
@@ -138,10 +138,10 @@ fn lan_replay_rejection_diagnostic() -> ParentRouteEventSnapshot {
         event_id: None,
         correlation_id: None,
         sent_at: None,
-        source_peer_id: None,
-        source_role: None,
-        target_peer_id: None,
-        target_role: None,
+        source_peer_id: ParentRoutePeerId::parse(constants::peer::LOCAL_DEV_AGENT.to_string()),
+        source_role: Some(ParentRoutePeerRole::AgentService),
+        target_peer_id: ParentRoutePeerId::parse(constants::peer::PORTAL_DEV.to_string()),
+        target_role: Some(ParentRoutePeerRole::Portal),
         severity: Some(LAN_REPLAY_REJECTION_SEVERITY.to_string()),
         payload: None,
         snapshot: None,
