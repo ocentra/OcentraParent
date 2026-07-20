@@ -31,7 +31,7 @@
 Current status:
 
 ```text
-WP04 is partial-proof at 6/12 pending repaired crash/failure-safe NDJSON append semantics, real subprocess custody tests, artifact durability/replay metadata proof, normalized redaction adversarial coverage, and regenerated current-head proof custody. Its ignored output artifacts are not evidence for the current head. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
+WP04 is complete-proven at 12/12 against pushed source head `973ec18108adfecae2a870e964b18dcfd46dc453`: operation-identity semantics, real subprocess artifact publish/replay/conflict custody, persisted adversarial redaction, scoped gates, and all five ignored proof artifacts are current. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
 ```
 
 Expected result:
@@ -87,3 +87,4 @@ Do not create a PR that only updates checklist text, adds proof prose, renames d
 - [x] Write the canonical WP06 validation/enforcement proof root and truth-sync the bounded workpack/checklist state.
 - [x] Write the canonical WP08 logger instrumentation proof root and truth-sync the bounded partial-proof state.
 - [x] Fix the standalone proof-trace smoke claim with a self-seeding clean-workspace harness and canonical proof roots.
+- [x] Close WP04 with current-head subprocess artifact custody, persisted adversarial redaction, scoped gates, and regenerated proof custody.

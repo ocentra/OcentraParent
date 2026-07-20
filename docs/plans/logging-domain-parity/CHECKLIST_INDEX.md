@@ -104,6 +104,8 @@ test-results/logging-domain-parity-<proof-mode>/
 - [x] Focused cargo/npm commands pass.
 - [x] Proof root and workpack completion filled.
 
+Proof custody: regenerated locally at `output/logging-domain-parity-proof/04-rust-logging-core-crate/` against pushed source head `973ec18108adfecae2a870e964b18dcfd46dc453`; the ignored root contains the five artifacts named by WP04.
+
 ## WP05 Local Validation Evidence
 
 - [ ] `agent:run` root script added.
