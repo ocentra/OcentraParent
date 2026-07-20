@@ -414,10 +414,7 @@ fn assert_audit_and_portal_refs(
             .to_string()
         )
     );
-    assert_eq!(
-        audit_entry.enforcement_result_ref,
-        None
-    );
+    assert_eq!(audit_entry.enforcement_result_ref, None);
     assert_eq!(
         audit_entry.audit_entry_ref,
         Some(

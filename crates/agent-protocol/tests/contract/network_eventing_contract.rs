@@ -202,7 +202,10 @@ fn network_contract_schema_fuzz_seeded_mutation_cases_fail_closed() {
     unknown_enum["evidence_grade_contract"] = serde_json::json!(format!("future-{SEED:x}"));
     cases.push(unknown_enum);
     let mut missing = valid.clone();
-    missing.as_object_mut().expect(CONTRACT_EXPECTATION).remove("evidence_ref");
+    missing
+        .as_object_mut()
+        .expect(CONTRACT_EXPECTATION)
+        .remove("evidence_ref");
     cases.push(missing);
     let mut extra = valid.clone();
     extra["seeded_future_field"] = serde_json::json!(SEED);

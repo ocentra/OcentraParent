@@ -14,6 +14,7 @@ Run context: 2026-07-18, branch `codex/network-wp01-foundation-contract-eventing
 | `cargo clippy -p ocentra-parent-agent-protocol -p ocentra-parent-agent-core -p ocentra-network-core -- -D warnings` | pass | touched Rust owners |
 | `cargo fmt --check` and `git diff --check` | pass | formatting and diff integrity |
 | `npm run lint:architecture -- --files crates/agent-core crates/agent-protocol` | pass | architecture, source-shape, no re-export gate |
+| `cargo fmt --check`; `cargo check -p ocentra-parent-agent-protocol -p ocentra-parent-agent-core -p ocentra-network-core`; `cargo clippy -p ocentra-parent-agent-protocol -p ocentra-parent-agent-core -p ocentra-network-core -- -D warnings` | pass | final scoped formatting, compile, and lint validation using `E:\\OcentraBuild\\network-wp01` |
 
 ## WP01 attestation
 
@@ -29,5 +30,13 @@ Run context: 2026-07-18, branch `codex/network-wp01-foundation-contract-eventing
 - `rust_parity_ref`: `crates/agent-protocol/tests/contract/network_eventing_contract.rs` and `crates/agent-core/tests/unit/network_event_runtime_tests.rs`.
 - `eventing_workpack_ref`: `docs/plans/eventing-plan` reusable `ocentra-eventing` contract; this packet consumes that bus and does not define an alternate registry, retry queue, or request registry.
 - `no_claim`: this proof does not claim live packet capture, host mutation, product enforcement, exact content/URL, or external-platform readiness.
+
+## Obligation Mapping
+
+- `network.contract.schema-unit`: `network_runtime_payload_schema_mutations_fail_closed`.
+- `network.contract.schema-fuzz`: `network_contract_schema_fuzz_seeded_mutation_cases_fail_closed` with seed `0x4e57_5030_315f_7632` and five bounded unknown/missing/extra/type/semantic cases.
+- `network.rust-protocol.parity`: `network_evidence_grade_wire_values_match_evidence_contract` and `network_runtime_payload_exhaustively_round_trips_canonical_grade_and_policy_values`.
+- `network.evidence-grade.boundary-negative`: `network_runtime_payload_rejects_impossible_semantic_tuple_before_dispatch`.
+- `network.eventing.integration-contract`: `network_runtime_payload_dispatches_once_through_shared_event_bus` and `invalid_serialized_runtime_payload_is_rejected_before_handler_receipt`.
 
 Independent re-review remains required before treating WP01 as approved.
