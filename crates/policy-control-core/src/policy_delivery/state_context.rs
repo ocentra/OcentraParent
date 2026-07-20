@@ -1,7 +1,8 @@
 #![forbid(unsafe_code)]
 
 use super::{
-    policy_control, state_values, EventingError, PolicyDeliveryState, PolicyReasonCode,
+    policy_control, state_values, EventingError, PolicyDeliveryExecutionReceipt,
+    PolicyDeliveryRecord, PolicyDeliveryState, PolicyDeliveryTransition, PolicyReasonCode,
     PolicyVersion,
 };
 
@@ -59,6 +60,16 @@ pub(super) fn assert_state_context(
         rule.superseded,
     )?;
     validate_rollback(rollback_reference_state, state, rule.rollback)
+}
+
+pub(super) fn assert_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+    receipt: Option<&PolicyDeliveryExecutionReceipt>,
+) -> Result<(), EventingError> {
+    super::adapter_execution::validate_policy_delivery_execution_receipt(
+        current, transition, receipt,
+    )
 }
 
 fn state_context_rule(state: PolicyDeliveryState) -> StateContextRule {

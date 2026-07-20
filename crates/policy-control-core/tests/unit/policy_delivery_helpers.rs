@@ -4,8 +4,9 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    queue_policy_delivery, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord,
-    PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    derive_policy_delivery_id, queue_policy_delivery, PolicyDeliveryAttemptId,
+    PolicyDeliveryExecutionReceipt, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
+    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
@@ -18,6 +19,12 @@ use ocentra_policy_control_core::policy_source::{
     PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget, PolicyScheduleWindow,
     PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
 };
+
+pub(super) type ProvenanceCase = (
+    &'static str,
+    String,
+    fn(&mut PolicyDeliveryExecutionReceipt),
+);
 
 pub(super) fn sample_policy_source_document() -> TestResult<ParentPolicySourceDocument> {
     Ok(ParentPolicySourceDocument {
@@ -185,6 +192,27 @@ pub(super) fn sample_queued_delivery() -> TestResult<PolicyDeliveryRecord> {
     ))
 }
 
+pub(super) fn sample_delivery_id() -> TestResult<PolicyDeliveryId> {
+    let source = sample_policy_source_document()?;
+    let compiled = test_ok!(
+        compile_domain_policy_artifact(&source, PolicyConsumerDomain::Tracking),
+        "compiled domain policy artifact"
+    );
+    let target = sample_delivery_target()?;
+    let attempt_id = attempt("attempt-queued")?;
+    let sequence = test_ok!(
+        PolicyDeliverySequence::new(1),
+        "policy delivery initial sequence"
+    );
+
+    Ok(derive_policy_delivery_id(
+        &compiled,
+        &target,
+        &attempt_id,
+        sequence,
+    )?)
+}
+
 pub(super) fn audit_ref(value: impl std::fmt::Display) -> TestResult<PolicyAuditReferenceId> {
     Ok(test_ok!(
         PolicyAuditReferenceId::parse(value.to_string()),
@@ -234,4 +262,66 @@ pub(super) fn transition(
         superseded_by_policy_version: None,
         rollback_reference_state: None,
     })
+}
+
+pub(super) fn execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+) -> PolicyDeliveryExecutionReceipt {
+    PolicyDeliveryExecutionReceipt {
+        delivery_id: current.delivery_id.clone(),
+        household_id: current.household_id.clone(),
+        policy_version: current.policy_version,
+        source_document_id: current.source_document_id.clone(),
+        target: current.target.clone(),
+        attempt_id: transition.attempt_id.clone(),
+        sequence: transition.sequence,
+        state: transition.state,
+        audit_reference_ids: transition.audit_reference_ids.clone(),
+        reason_code: transition.reason_code.clone(),
+        rollback_reference_state: transition.rollback_reference_state,
+    }
+}
+
+pub(super) fn mutate_provenance_household(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.household_id = test_ok!(
+        PolicyHouseholdId::parse("household-mismatch"),
+        "mismatched household id"
+    );
+}
+
+pub(super) fn mutate_provenance_policy_version(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.policy_version = test_ok!(PolicyVersion::new(8), "mismatched policy version");
+}
+
+pub(super) fn mutate_provenance_child_profile(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.target.child_profile_id = test_ok!(
+        PolicyChildProfileId::parse("child-mismatch"),
+        "mismatched child profile id"
+    );
+}
+
+pub(super) fn mutate_provenance_device(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.target.device_id = test_ok!(
+        PolicyDeviceId::parse("device-mismatch"),
+        "mismatched device id"
+    );
+}
+
+pub(super) fn mutate_provenance_source_document(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.source_document_id = test_ok!(
+        ParentPolicyDocumentId::parse("policy-source-mismatch"),
+        "mismatched source document id"
+    );
+}
+
+pub(super) fn mutate_provenance_reason_code(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.reason_code = Some(test_ok!(
+        PolicyReasonCode::parse("adapter-failed-mismatch"),
+        "mismatched reason code"
+    ));
+}
+
+pub(super) fn mutate_provenance_domain(receipt: &mut PolicyDeliveryExecutionReceipt) {
+    receipt.target.domain = PolicyConsumerDomain::Browser;
 }

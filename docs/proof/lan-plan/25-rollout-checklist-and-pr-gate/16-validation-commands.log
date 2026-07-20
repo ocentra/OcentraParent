@@ -1,0 +1,227 @@
+WP25 LAN replay consumer validation log
+Date: 2026-07-18
+Worktree: C:\Users\sujan\.codex\worktrees\lan_replay_consumer\OcentraParent
+Branch: codex/lan-stream-replay-consumer
+
+GREEN cargo check -p ocentra-parent-runtime-core
+  Finished dev profile successfully.
+
+GREEN cargo test -p ocentra-parent-agent-protocol lan_runtime_stream_command_and_event_names_serialize_to_contract_shape -- --nocapture
+  1 passed; 0 failed; 69 filtered out in the owning unit target.
+
+GREEN cargo test -p ocentra-parent-agent-service --test lan_runtime lan_runtime_stream -- --nocapture
+  2 passed; 0 failed; 78 filtered out.
+
+GREEN cargo test -p ocentra-parent-runtime-core --test integration parent_subscription_event_ -- --nocapture
+  15 passed; 0 failed; 24 filtered out.
+  Includes exact command correlation and full-envelope rejection, exact latest
+  metadata, RFC3339 validation, offset-aware instant ordering and stale
+  rejection, malformed fail-closed with a redacted warning milestone,
+  offline/manual-required preservation, and existing subscription
+  diagnostics/history regressions. The then-current total-entry-count history
+  check was later found too strict for metadata-only empty history and
+  unavailable precedence; the producer-compatibility repair gates below
+  supersede that state-semantics claim.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit parent_route_subscription_delivery_ -- --nocapture
+  1 passed; 0 failed; 4 filtered out.
+  The real host delivery decision emits an unseen replay event ID while the
+  route snapshot is stable, suppresses the already delivered ID, and emits the
+  next unseen ID.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit -- --nocapture
+  5 passed; 0 failed.
+
+GREEN cargo test -p ocentra-parent-runtime-core --test unit -- --nocapture
+  24 passed; 0 failed.
+
+GREEN npm run build:contracts
+  schema-domain, logging-domain, and portal-domain builds passed.
+
+GREEN npm exec --workspace @ocentra-parent/portal -- vitest run tests/portal/portal-state-target.test.ts
+  1 file passed; 11 tests passed.
+  This is isolated portal state-edge coverage, not proof that a real Tauri
+  AppHandle emitter delivered the backend replay batch to the portal listener.
+
+GREEN cargo clippy -p ocentra-parent-runtime-core --all-targets -- -D warnings
+  Finished dev profile successfully with warnings denied.
+
+GREEN cargo fmt --all -- --check
+  Workspace Rust formatting passed.
+
+GREEN npm run lint:architecture -- --files <touched parent-runtime-core files>
+  Ocentra Enforcer architecture-policy passed.
+
+GREEN npm run lint:enforcer:source-shape -- --files <touched parent-runtime-core files>
+  Ocentra Enforcer source-shape passed after splitting replay validation into
+  its claimed sibling module.
+
+GREEN npm run lint:enforcer:required-tests -- --files <touched parent-runtime-core files>
+  Ocentra Enforcer required-tests passed.
+
+GREEN npm run lint:enforcer:no-test-doubles -- --files crates/parent-runtime-core/src/parent_ui_bridge/tests_support.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+  Ocentra Enforcer no-test-doubles passed.
+
+GREEN npm run lint:enforcer:reexports -- --files <touched Rust files>
+  Ocentra Enforcer reexports passed.
+
+GREEN npm run lint:enforcer:validation-bypass -- --files <touched Rust files>
+  Ocentra Enforcer validation-bypass passed.
+
+GREEN npm run precommit (initial packet implementation and proof files staged)
+  Fast pre-commit gate passed generated-artifacts, architecture and Enforcer
+  guards, 37 parent-runtime integration tests, 24 runtime unit tests, doc tests,
+  and Rust formatting.
+
+Exact-head review repair gates:
+
+GREEN cargo check --locked -p ocentra-parent-runtime-core
+  Finished dev profile successfully.
+
+GREEN cargo check --locked --manifest-path apps/parent-desktop/src-tauri/Cargo.toml
+  Finished the standalone desktop dev profile successfully.
+
+GREEN cargo clippy -p ocentra-parent-runtime-core --all-targets -- -D warnings
+  Finished dev profile successfully after the history-state validator split.
+
+GREEN cargo clippy --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all-targets -- -D warnings
+  Finished standalone desktop dev profile successfully.
+
+GREEN cargo fmt --all -- --check
+GREEN cargo fmt --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all -- --check
+  Root workspace and standalone desktop formatting passed.
+
+GREEN npm run lint:architecture -- --files <exact repair Rust files>
+  Architecture policy passed after the history-state validator moved into its
+  claimed sibling module to restore the branch budget.
+
+GREEN npm run lint:enforcer:source-shape -- --files <exact repair Rust files>
+GREEN npm run lint:enforcer:required-tests -- --files <exact repair Rust files>
+GREEN npm run lint:enforcer:no-test-doubles -- --files <exact repair Rust files>
+GREEN npm run lint:enforcer:reexports -- --files <exact repair Rust files>
+GREEN npm run lint:enforcer:validation-bypass -- --files <exact repair Rust files>
+  All five exact-file Enforcer guards passed.
+
+NON-CLAIM physical multi-device, router/firewall, signed-artifact, restart,
+manual topology, and real backend-to-Tauri-emitter-to-portal-listener evidence
+remain open. WP25 remains partial/manual.
+
+Producer-compatibility review repair gates (2026-07-18):
+
+GREEN cargo test -p ocentra-parent-agent-service --test lan_runtime metadata_only_scan_history_stays_empty_not_ready -- --nocapture
+  1 passed; 0 failed; 79 filtered out.
+  The canonical producer keeps metadata-only ScanStarted/ScanFinished history
+  Empty rather than Ready.
+
+GREEN cargo test -p ocentra-parent-runtime-core --test integration parent_ui_bridge::lan_replay_tests -- --nocapture
+  14 passed; 0 failed; 29 filtered out.
+  Covers metadata-only Empty acceptance, metadata-only Ready rejection,
+  material-row rejection for Empty and ManualRequired, Unavailable precedence
+  before row inspection, Degraded and AgentOffline precedence, envelope and
+  latest metadata, RFC3339 ordering, and the safe rejection diagnostic.
+
+GREEN cargo check --locked -p ocentra-parent-runtime-core
+GREEN cargo check --locked --manifest-path apps/parent-desktop/src-tauri/Cargo.toml
+  Runtime and standalone desktop compile checks passed.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit parent_route_subscription_delivery_ -- --nocapture
+  1 passed; 0 failed; 4 filtered out.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit -- --nocapture
+  5 passed; 0 failed.
+  The host delivery seam remains green; this is not a real AppHandle-to-portal
+  listener proof.
+
+GREEN cargo clippy -p ocentra-parent-runtime-core --all-targets -- -D warnings
+GREEN cargo clippy --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all-targets -- -D warnings
+  Runtime and standalone desktop clippy passed with warnings denied.
+
+GREEN cargo fmt --all -- --check
+GREEN cargo fmt --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all -- --check
+  Root workspace and standalone desktop formatting passed.
+
+GREEN npm run lint:architecture -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:source-shape -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:required-tests -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:no-test-doubles -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:reexports -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+GREEN npm run lint:enforcer:validation-bypass -- --files crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation.rs crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay_validation/history_state.rs crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs
+  Architecture policy and all five exact-file Enforcer guards passed.
+
+GREEN npm run precommit (seven exact repair and proof files staged)
+  Fast pre-commit passed formatting, generated artifacts, architecture and
+  Enforcer guards, 43 parent-runtime integration tests, 24 runtime unit tests,
+  Rust doc tests, and Rust formatting.
+
+NON-CLAIM physical multi-device, router/firewall, signed-artifact, restart,
+manual topology, and real backend-to-Tauri-emitter-to-portal-listener evidence
+remain open. WP25 remains partial/manual.
+
+Stable-finding repair gates (2026-07-19):
+
+GREEN cargo test -p ocentra-parent-agent-service lan_pairing_browser_add_device_state_physical_lan_scan_tests -- --nocapture
+  16 passed; 0 failed; 65 filtered out.
+  Recent and stale cached scan context now produce byte-equivalent canonical
+  status and runtime-stream history metadata without a second wall-clock ID.
+
+GREEN cargo test -p ocentra-parent-agent-service --test lan_runtime lan_runtime_stream -- --nocapture
+  3 passed; 0 failed; 78 filtered out.
+  Covers serialized replay rows, persisted-cache restart behavior without
+  fabricated deltas, and exact status/stream history binding.
+
+GREEN cargo test -p ocentra-parent-runtime-core --test integration parent_ui_bridge::lan_replay_tests -- --nocapture
+  17 passed; 0 failed; 29 filtered out.
+  Covers exact status/replay metadata binding, mutation rejection, safe unique
+  warning identity, RFC3339 timestamps, envelope ceilings, first-predecessor
+  validation, and canonical history-state precedence.
+
+GREEN cargo test -p ocentra-parent-runtime-core --test integration parent_subscription_event_ -- --nocapture
+  22 passed; 0 failed; 24 filtered out.
+  Adjacent host-bridge serialization and dedupe assertions now preserve the
+  same safe-warning identity and timestamp contract.
+
+GREEN cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --test unit -- --nocapture
+  6 passed; 0 failed.
+  The desktop delivery seam emits a safe rejected-replay warning once. This is
+  still not real Tauri AppHandle-to-portal listener evidence.
+
+GREEN npm run test --workspace @ocentra-parent/portal -- --run tests/portal/portal-state-target.test.ts
+  37 files passed; 149 tests passed.
+  Covers snapshot-bound LAN replay with a later live status event, deterministic
+  newest-128 history retention, idempotent repeated delivery, and one buffered
+  safe warning while status history is nonempty.
+
+GREEN npm run lint:exec --workspace @ocentra-parent/portal
+  Portal ESLint and no-emit TypeScript compilation passed.
+
+GREEN cargo check --locked -p ocentra-parent-agent-service -p ocentra-parent-runtime-core
+GREEN cargo check --locked --manifest-path apps/parent-desktop/src-tauri/Cargo.toml
+  Agent service, parent runtime, and standalone desktop compile checks passed.
+
+GREEN cargo clippy -p ocentra-parent-agent-service -p ocentra-parent-runtime-core --all-targets -- -D warnings
+GREEN cargo clippy --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all-targets -- -D warnings
+  Workspace packages and standalone desktop clippy passed with warnings denied.
+
+GREEN cargo fmt --all -- --check
+GREEN cargo fmt --manifest-path apps/parent-desktop/src-tauri/Cargo.toml --all -- --check
+  Root workspace and standalone desktop formatting passed.
+
+GREEN npm run lint:architecture -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:source-shape -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:required-tests -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:no-test-doubles -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:reexports -- --files <18 exact repair code and test files>
+GREEN npm run lint:enforcer:validation-bypass -- --files <18 exact repair code and test files>
+  Architecture policy and all five exact-file Enforcer guards passed.
+
+GREEN npm run precommit (24 exact stable-finding implementation, test, and proof files staged)
+  Fast pre-commit passed Prettier, generated artifacts, architecture and
+  Enforcer guards, portal build/type-check with 149 tests, standalone desktop
+  build/check/tests, agent-service tests and doc tests, 46 parent-runtime
+  integration tests, 24 parent-runtime unit tests, doc tests, and Rust format.
+  Existing non-blocking tracking-panel React key, portal bundle-size, and
+  desktop PDB output-collision warnings remain outside this repair slice.
+
+NON-CLAIM real process restart, physical multi-device, router/firewall,
+signed-artifact, manual topology, and real backend-to-Tauri-AppHandle-to-portal
+listener evidence remain open. WP25 remains partial/manual.

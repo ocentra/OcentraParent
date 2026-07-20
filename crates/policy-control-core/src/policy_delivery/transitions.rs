@@ -1,10 +1,10 @@
 #![forbid(unsafe_code)]
 
 use super::{
-    policy_control, state_values, transition_rules, validation, CompiledDomainPolicyArtifact,
-    EventingError, PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId,
-    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryTarget, PolicyDeliveryTransition,
-    POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
+    adapter_execution_validation, policy_control, state_values, transition_rules, validation,
+    CompiledDomainPolicyArtifact, EventingError, PolicyDeliveryApplyOutcome,
+    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
+    PolicyDeliveryTarget, PolicyDeliveryTransition, POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
 };
 
 pub(super) fn queue_policy_delivery(
@@ -14,6 +14,7 @@ pub(super) fn queue_policy_delivery(
     attempt_id: PolicyDeliveryAttemptId,
     audit_reference_ids: Vec<super::PolicyAuditReferenceId>,
 ) -> Result<PolicyDeliveryRecord, EventingError> {
+    let last_sequence = PolicyDeliverySequence::new(POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE)?;
     let record = PolicyDeliveryRecord {
         schema_version: validation::policy_delivery_schema_version()?,
         delivery_id,
@@ -22,7 +23,7 @@ pub(super) fn queue_policy_delivery(
         source_document_id: artifact.source_document_id.clone(),
         target,
         state: super::PolicyDeliveryState::Queued,
-        last_sequence: PolicyDeliverySequence::new(POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE)?,
+        last_sequence,
         last_attempt_id: attempt_id,
         audit_reference_ids,
         source_audit_reference_ids: artifact.audit_reference_ids.clone(),
@@ -31,18 +32,38 @@ pub(super) fn queue_policy_delivery(
         reason_code: None,
         superseded_by_policy_version: None,
         rollback_reference_state: None,
+        execution_receipt: None,
     };
     validation::validate_policy_delivery_record(&record)?;
     Ok(record)
 }
 
-pub(super) fn apply_policy_delivery_transition(
+pub(super) fn apply_policy_delivery_transition_without_execution_receipt(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
 ) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
-    validation::validate_policy_delivery_record(current)?;
-    validation::validate_policy_delivery_transition(&transition, current.policy_version)?;
+    validate_policy_delivery_transition_application(current, &transition)?;
+    adapter_execution_validation::validate_policy_delivery_execution_receipt(
+        current,
+        &transition,
+        None,
+    )?;
+    apply_validated_policy_delivery_transition(current, transition)
+}
 
+fn validate_policy_delivery_transition_application(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+) -> Result<(), EventingError> {
+    validation::validate_policy_delivery_record(current)?;
+    validation::validate_policy_delivery_transition(transition, current.policy_version)?;
+    Ok(())
+}
+
+fn apply_validated_policy_delivery_transition(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
     match transition
         .sequence
         .value()
@@ -56,10 +77,7 @@ pub(super) fn apply_policy_delivery_transition(
 
             return Err(EventingError::InvalidValue {
                 field: policy_control::delivery::FIELD_SEQUENCE,
-                value: state_values::conflicting_replay_value(
-                    transition.sequence,
-                    &current.delivery_id,
-                ),
+                value: state_values::conflicting_replay_value(transition.sequence),
             });
         }
         std::cmp::Ordering::Greater => {}
@@ -73,7 +91,7 @@ pub(super) fn apply_policy_delivery_transition(
     }
 
     let next = PolicyDeliveryRecord {
-        schema_version: current.schema_version,
+        schema_version: validation::policy_delivery_schema_version()?,
         delivery_id: current.delivery_id.clone(),
         household_id: current.household_id.clone(),
         policy_version: current.policy_version,
@@ -89,6 +107,7 @@ pub(super) fn apply_policy_delivery_transition(
         reason_code: transition.reason_code,
         superseded_by_policy_version: transition.superseded_by_policy_version,
         rollback_reference_state: transition.rollback_reference_state,
+        execution_receipt: None,
     };
     validation::validate_policy_delivery_record(&next)?;
     Ok(PolicyDeliveryApplyOutcome::Advanced(next))

@@ -10,9 +10,9 @@ pub(super) fn validate(
     rule: ReasonRule,
 ) -> Result<(), EventingError> {
     match (reason_code, rule) {
-        (Some(reason_code), ReasonRule::MustBeAbsent) => Err(EventingError::InvalidValue {
+        (Some(_), ReasonRule::MustBeAbsent) => Err(EventingError::InvalidValue {
             field: policy_control::delivery::FIELD_REASON_CODE,
-            value: state_values::unexpected_reason_code_value(reason_code, state),
+            value: state_values::unexpected_reason_code_value(state),
         }),
         (None, ReasonRule::Required) => Err(EventingError::InvalidValue {
             field: policy_control::delivery::FIELD_REASON_CODE,

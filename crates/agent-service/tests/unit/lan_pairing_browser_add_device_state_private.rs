@@ -6,7 +6,7 @@ use ocentra_lan_core::read_model_builder::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingNetworkMode, LanPairingProductionDiscoveryState,
-    LanPairingTrustState, LanSelectedRouteTarget,
+    LanPairingText, LanPairingTrustState, LanSelectedRouteTarget,
 };
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
@@ -25,6 +25,12 @@ mod assertions;
 
 use super::scan_history::{LanScanHistoryMetadata, LanScanHistorySnapshot};
 use super::{discovery_event_history_state, ordered_discovery_event_rows};
+use crate::lan_pairing::{LanPairingChallengeState, LanPairingRuntime};
+use crate::lan_pairing_browser_add_device_state::browser_read_model_generated_at;
+use crate::lan_pairing_browser_add_device_state::discovery_event_history::discovery_event_history;
+use crate::lan_pairing_browser_add_device_state::registry_projection::pairing_requests;
+use crate::lan_pairing_browser_add_device_state::replay_projection::effective_replay_projection;
+use crate::test_invariants::require_ok;
 use assertions::{
     assert_first_row_has_no_previous_event, assert_previous_event_chain, assert_row_contract,
     discovery_row,
@@ -50,6 +56,67 @@ fn apple_manual_required_platform_keeps_physical_lan_state_manual_not_unavailabl
             &LanNetworkDeviceScanResult::default(),
             false,
         )
+    );
+}
+
+#[test]
+fn previous_projection_cannot_restore_replay_authority_without_current_snapshot() {
+    let scan_result = LanNetworkDeviceScanResult {
+        previous_scan_snapshot: Some(LanScanHistorySnapshot {
+            schema_version: 2,
+            updated_at: "2026-06-28T17:00:00.000Z".to_string(),
+            metadata: None,
+            devices: Vec::new(),
+            replay_canonical_projection: Some(
+                crate::lan_pairing_browser_add_device_state::scan_history::LanReplayCanonicalProjection {
+                    schema_version: 1,
+                    generated_at: "2026-06-28T17:00:00.000Z".to_string(),
+                    canonical_devices: Vec::new(),
+                },
+            ),
+        }),
+        ..LanNetworkDeviceScanResult::default()
+    };
+
+    assert!(effective_replay_projection(&scan_result, None).is_none());
+}
+
+#[test]
+fn future_previous_scan_never_advances_read_model_observation_time_or_pairing_expiry() {
+    let observed_at = "2026-06-28T17:00:00.000Z".into();
+    let scan_result = LanNetworkDeviceScanResult {
+        previous_scan_snapshot: Some(LanScanHistorySnapshot {
+            schema_version: 1,
+            updated_at: "2026-06-28T18:00:00.000Z".to_string(),
+            metadata: None,
+            devices: Vec::new(),
+            replay_canonical_projection: None,
+        }),
+        ..LanNetworkDeviceScanResult::default()
+    };
+    let generated_at = browser_read_model_generated_at(observed_at, &scan_result);
+    let runtime = LanPairingRuntime::empty();
+    let mut challenges = require_ok(
+        runtime.challenges.lock(),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    challenges.push(LanPairingChallengeState {
+        challenge_id: "expired-challenge".to_string(),
+        child_device_id: "child-device".to_string(),
+        parent_device_id: "parent-device".to_string(),
+        route_id: "local-network".to_string(),
+        origin: "http://localhost".to_string(),
+        proof_digest: "proof".to_string(),
+        issued_at: "2026-06-28T16:00:00.000Z".to_string(),
+        expires_at: "2026-06-28T16:59:59.000Z".to_string(),
+        accepted: false,
+    });
+    drop(challenges);
+
+    assert_eq!(generated_at.0, "2026-06-28T17:00:00.000Z");
+    assert_eq!(
+        pairing_requests(&runtime, &generated_at)[0].pairing_state,
+        LanPairingProductionDiscoveryState::Expired
     );
 }
 
@@ -184,11 +251,12 @@ fn ordered_discovery_event_rows_emit_interface_device_and_agent_rows_with_contra
     current_metadata.scan_plan.selected_interface = Some("Ethernet".to_string());
     current_metadata.scan_plan.ipv4_cidr = Some("10.0.0.7/24".to_string());
 
-    let discovered_device = inventory_device(
+    let discovered_device = inventory_device_with_reachability(
         "lan-new-agent",
         "office-agent.local",
         "10.0.0.88",
         "00-11-22-33-44-77",
+        LanPairingDeviceReachability::Online,
         Some(constants::lan_pairing::LOCAL_AGENT_STATUS.to_string()),
     );
     let scan_result = LanNetworkDeviceScanResult {
@@ -435,6 +503,77 @@ fn ordered_discovery_event_rows_emit_canonical_household_rows_and_previous_event
     assert_previous_event_chain(&rows);
 }
 
+#[test]
+fn discovery_event_history_orders_and_selects_latest_rows_by_rfc3339_instant() {
+    let scan_result = LanNetworkDeviceScanResult::default();
+    let mut read_model = sample_read_model();
+    let mut child_agent = canonical_child_agent_household_device();
+    let mut later_evidence = canonical_evidence_record();
+    later_evidence.evidence_id = "lan-offset-later-evidence".to_string();
+    later_evidence.first_seen_at = "2026-06-23T00:00:02Z".to_string();
+    later_evidence.last_seen_at = later_evidence.first_seen_at.clone();
+    let mut earlier_evidence = canonical_evidence_record();
+    earlier_evidence.evidence_id = "lan-offset-earlier-evidence".to_string();
+    earlier_evidence.first_seen_at = "2026-06-23T01:00:00+02:00".to_string();
+    earlier_evidence.last_seen_at = earlier_evidence.first_seen_at.clone();
+    child_agent.network_identity.evidence_records = vec![later_evidence, earlier_evidence];
+    child_agent.network_identity.reachability = LanPairingDeviceReachability::Offline;
+    child_agent.network_identity.stale_at = Some("2026-06-23T01:00:01+01:00".to_string());
+    child_agent.network_identity.offline_at = Some("2026-06-23T02:00:02+02:00".to_string());
+    read_model.canonical_household_devices = vec![child_agent];
+
+    let history = discovery_event_history(
+        &scan_result,
+        &read_model,
+        &LanPairingText(read_model.generated_at.clone()),
+    );
+    let rows = &history.rows;
+    let child_agent_id = "lan-canonical-child-agent".to_string();
+    let earlier_evidence_id = "lan-offset-earlier-evidence".to_string();
+    let later_evidence_id = "lan-offset-later-evidence".to_string();
+    let earlier_row = discovery_row(
+        rows,
+        &LanDiscoveryEventKind::EvidenceFound,
+        Some(&child_agent_id),
+        Some(&earlier_evidence_id),
+        "mixed-offset earlier evidence row should be emitted",
+    );
+    let agent_confirmed_row = discovery_row(
+        rows,
+        &LanDiscoveryEventKind::AgentConfirmed,
+        Some(&child_agent_id),
+        None,
+        "mixed-offset agent confirmation row should be emitted",
+    );
+    let later_row = discovery_row(
+        rows,
+        &LanDiscoveryEventKind::EvidenceFound,
+        Some(&child_agent_id),
+        Some(&later_evidence_id),
+        "mixed-offset later evidence row should be emitted",
+    );
+
+    assert_eq!(rows.first(), Some(earlier_row));
+    assert_eq!(earlier_row.occurred_at, "2026-06-23T01:00:00+02:00");
+    assert_eq!(
+        agent_confirmed_row.occurred_at,
+        "2026-06-23T02:00:02+02:00",
+        "canonical latest-observed selection must compare parsed instants across evidence, offline, and stale timestamps"
+    );
+    assert_eq!(rows.last(), Some(later_row));
+    assert_eq!(later_row.occurred_at, "2026-06-23T00:00:02Z");
+    assert_first_row_has_no_previous_event(rows);
+    assert_previous_event_chain(rows);
+    assert_eq!(
+        history.latest_event_id.as_deref(),
+        Some(later_row.event_id.as_str())
+    );
+    assert_eq!(
+        history.latest_observed_at.as_deref(),
+        Some(later_row.occurred_at.as_str())
+    );
+}
+
 fn update_and_reachability_scan_fixture() -> (
     LanNetworkDeviceScanResult,
     TestText,
@@ -545,6 +684,7 @@ fn scan_history_snapshot(metadata: Option<LanScanHistoryMetadata>) -> LanScanHis
         updated_at: "2026-06-26T20:45:47.000Z".to_string(),
         metadata,
         devices: Vec::new(),
+        replay_canonical_projection: None,
     }
 }
 
@@ -557,28 +697,8 @@ fn scan_history_snapshot_with_devices(
         updated_at: "2026-06-26T20:45:47.000Z".to_string(),
         metadata,
         devices,
+        replay_canonical_projection: None,
     }
-}
-
-fn inventory_device(
-    device_id: impl Into<TestText>,
-    hostname: impl Into<TestText>,
-    ip_address: impl Into<TestText>,
-    mac_address: impl Into<TestText>,
-    agent_status: Option<TestText>,
-) -> LanNetworkInventoryDevice {
-    let device_id: TestText = device_id.into();
-    let hostname: TestText = hostname.into();
-    let ip_address: TestText = ip_address.into();
-    let mac_address: TestText = mac_address.into();
-    inventory_device_with_reachability(
-        device_id,
-        hostname,
-        ip_address,
-        mac_address,
-        LanPairingDeviceReachability::Online,
-        agent_status,
-    )
 }
 
 fn inventory_device_with_reachability(

@@ -10,6 +10,7 @@ pub(super) fn tracking_read_model_snapshot_from_result(
     let AgentServiceCommandResult {
         events,
         response_event,
+        ..
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));
@@ -75,6 +76,7 @@ pub(super) fn activity_screen_read_model_snapshot_from_result(
     let AgentServiceCommandResult {
         events,
         response_event,
+        ..
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));

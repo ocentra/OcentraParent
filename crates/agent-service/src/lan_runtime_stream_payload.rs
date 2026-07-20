@@ -1,4 +1,5 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanBrowserAddDeviceReadModel, LanDiscoveryEventHistory, LanDiscoveryEventHistoryState,
     LanDiscoveryEventRow,
@@ -50,11 +51,15 @@ impl Serialize for LanRuntimeServiceStreamEntry {
 pub(crate) fn stream_lan_runtime_event_chain_for_read_model(
     read_model: &LanBrowserAddDeviceReadModel,
 ) -> LanRuntimeServiceStreamReport {
-    stream_lan_runtime_event_chain_for_history(&read_model.discovery_event_history)
+    stream_lan_runtime_event_chain_for_history(
+        &read_model.discovery_event_history,
+        LanPairingText(read_model.generated_at.clone()),
+    )
 }
 
 pub(crate) fn stream_lan_runtime_event_chain_for_history(
     history: &LanDiscoveryEventHistory,
+    generated_at: LanPairingText,
 ) -> LanRuntimeServiceStreamReport {
     let entries = history
         .rows
@@ -62,7 +67,7 @@ pub(crate) fn stream_lan_runtime_event_chain_for_history(
         .map(stream_entry_from_row)
         .collect::<Vec<_>>();
     LanRuntimeServiceStreamReport {
-        generated_at: history.generated_at.clone(),
+        generated_at: generated_at.0,
         observed_events: history.rows.len(),
         streamed_events: entries.len(),
         failed_events: 0,
