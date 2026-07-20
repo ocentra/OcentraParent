@@ -32,7 +32,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | blocked / proof-required | [WP09 Portal To Worker E2E Smoke](workpacks/09-portal-to-worker-e2e-smoke.md) | 0/10 | `TESTING_STRATEGY.md`; `REQUIRED_TEST_ASSERTION_MATRIX.md` | `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/` |
 | blocked / proof-required | [WP10 Security Fuzz Property Observability](workpacks/10-security-fuzz-property-observability.md) | 0/12 | `SECURITY_PRIVACY_OBSERVABILITY.md`; `REQUIRED_TEST_ASSERTION_MATRIX.md` | `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/` |
 | blocked / proof-required | [WP11 Deployment And Environment Promotion](workpacks/11-deployment-and-environment-promotion.md) | 0/10 | `DEPLOYMENT_MODEL.md` | `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/` |
-| blocked / proof-required | [WP12 Payment Plan Handoff Gate](workpacks/12-payment-plan-handoff-gate.md) | 0/10 | prior proof roots | `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/` |
+| blocked / retained-receipt-present / downstream-ack-required | [WP12 Payment Plan Handoff Gate](workpacks/12-payment-plan-handoff-gate.md) | 0/10 | prior proof roots; retained blocker receipt | `docs/proof/cloudflare-control-plane-plan/12-payment-plan-handoff-gate.md`; raw `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/` |
 
 Several rows already have real source or test implementations. Boxes stay `0/x`
 until matching output proof artifacts are generated, validated, and consumed

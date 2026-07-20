@@ -139,6 +139,12 @@ Proof artifacts live under:
 
 ```text
 output/cloudflare-control-plane-plan-proof/<workpack-id>/
+docs/proof/cloudflare-control-plane-plan/<workpack-id>.md
 ```
 
-Do not write new proof artifacts under `docs/proof/cloudflare-control-plane-plan/` unless preserving old references; new work should use `output/` proof roots.
+Keep raw logs, generated bundles, Wrangler output, and test reports under
+ignored `output/` or external diagnostic paths. When proof must survive
+worktree cleanup or cross a plan boundary, write one compact tracked receipt
+under `docs/proof/cloudflare-control-plane-plan/` with the exact commit,
+commands/results, accepted and missing roots, blockers, and no-claim boundary.
+Do not copy raw generated artifacts into that receipt.

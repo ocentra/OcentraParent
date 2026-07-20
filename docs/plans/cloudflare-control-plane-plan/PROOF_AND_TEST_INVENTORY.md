@@ -93,7 +93,7 @@ Every WP08 or WP10 proof artifact must record:
 | WP09 | `npm --prefix infra/cloudflare run test:e2e` | `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/` |
 | WP10 | `npm --prefix infra/cloudflare run test:security`; `npm --prefix infra/cloudflare run test:property`; `npm --prefix infra/cloudflare run test:fuzz`; `npm --prefix infra/cloudflare run test:integration` | `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/` |
 | WP11 | `npm --prefix infra/cloudflare run deploy:dev`; `npm --prefix infra/cloudflare run deploy`; post-deploy `/health`, `/public/pricing`, and `/auth/billing/status` smoke in the promoted environment | `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/` |
-| WP12 | Aggregate accepted WP03-WP11 proof roots, then record downstream payment assumptions and blockers | `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/`; required artifact: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` |
+| WP12 | Aggregate accepted WP03-WP11 proof roots, then record downstream payment assumptions and blockers | retained receipt: `docs/proof/cloudflare-control-plane-plan/12-payment-plan-handoff-gate.md`; raw/generated root: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/` |
 
 ## Honesty rule
 
@@ -101,12 +101,10 @@ If a command cannot run because a runtime surface or dependency is missing,
 record the exact blocker in the proof artifact and
 `SOURCE_SURFACE_STATUS_MATRIX.md` instead of implying success.
 
-## Current WP07 packet
+## Current WP07 state
 
-- Validation candidate base: `a259534c2` plus the exact WP07 branch diff.
-- Standalone report: preflight ready, import passed, runtime boot unproven, seed runnable.
-- Positive fixture counts: `3`, `4`, `4`, `2`, `5`, `2`.
-- Focused workflow test: 3/3 with five persisted and asserted logging-domain milestones.
-- Full integration: 61/61, including the separate real Wrangler local runtime suite at 10/10.
-- Canonical packet: `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`.
-- Open boundary: branch acceptance, production deployment proof, WP12 handoff proof, and downstream payment acknowledgment are not implied by this packet.
+- WP07 source and focused local behavior remain present.
+- The former tracked generated packet under `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/` was removed at `cbb8421875492176bd2a3d5b95eaa7fa0dd8210e` because generated output is not source.
+- Historical command counts are not accepted current-head proof after that removal.
+- Next proof action: rerun the WP07 command family and retain a compact current-head receipt while keeping raw logs/output ignored.
+- Open boundary: local behavior does not imply production deployment, WP12 acceptance, or downstream payment acknowledgment.

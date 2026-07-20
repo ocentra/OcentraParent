@@ -59,16 +59,17 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 - `npm run lint:architecture -- --files infra/cloudflare/scripts/local-dev-workflow.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
   Result: passed with a non-empty focused scope over both touched TS files.
 - Focused Enforcer `source-shape`, `required-tests`, `no-test-doubles`, and `validation-bypass` checks -> passed.
-- Proof: `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`.
+- Historical raw proof route: `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`; its former tracked files were removed at `cbb8421875492176bd2a3d5b95eaa7fa0dd8210e` and do not count as current retained proof.
+- Required next proof: rerun this exact command family at current head and retain a compact receipt without tracking raw/generated output.
 
 ## No-claim boundary
 
-- This workpack does not prove the WP07 packet has been accepted downstream merely because it is produced on this branch.
+- This workpack does not prove a WP07 packet is accepted downstream from source presence or historical command records.
 - This workpack does not prove payment readiness, deploy readiness, or production runtime authority.
 - This workpack does not prove the local seed data is the final production dataset.
 - The standalone preflight report does not inherit the separate integration suite's Wrangler boot result.
 
 ## Failure conditions
 
-- Reject import-only readiness claims and proof-bundle claims without the exact output artifact.
+- Reject import-only readiness claims and proof-bundle claims without current-head validation plus a retained receipt.
 - Do not let fixture population claims imply payment readiness.
