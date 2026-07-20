@@ -7,7 +7,7 @@ use super::snapshots_app_game::{
     app_game_policy_readiness_snapshot_from_result,
     app_game_timer_parent_surface_snapshot_from_result,
 };
-use super::snapshots_lan::lan_snapshot_from_result;
+use super::snapshots_lan::{lan_runtime_replay_events_from_result, lan_snapshot_from_result};
 use super::snapshots_lan::{
     network_flow_snapshot_from_result, network_runtime_event_chain_snapshot_from_result,
     policy_preview_snapshot_from_result,
@@ -24,9 +24,9 @@ use super::types::{
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
     AppGameTimerParentSurfaceAgentServiceSnapshot, LanAgentServiceSnapshot,
-    NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
-    PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
-    TrackingReadModelAgentServiceSnapshot,
+    LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
+    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
+    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
 use super::*;
 
@@ -55,6 +55,18 @@ pub(crate) fn request_lan_browser_discovery_scan(
         AgentRoute::LocalNetwork,
     )
     .and_then(lan_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_lan_runtime_event_chain_replay_events(
+) -> AgentServiceResult<LanRuntimeReplaySnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentLanRuntimeEventChainStreamGet,
+        LogFields::new(),
+        None,
+        AgentRoute::LocalNetwork,
+    )
+    .and_then(lan_runtime_replay_events_from_result)
     .map_err(AgentServiceError::from_display)
 }
 

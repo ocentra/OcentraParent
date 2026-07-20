@@ -7,7 +7,7 @@ Use this file to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only wh
 | [01-policy-source-of-truth](workpacks/01-policy-source-of-truth.md) | Typed policy source truth, versioning, ownership. | Checked |
 | [02-parent-authoring-preview](workpacks/02-parent-authoring-preview.md) | Parent UI intent, templates, preview, confirmation. | Open |
 | [03-domain-policy-compilers](workpacks/03-domain-policy-compilers.md) | Domain compiler contracts and handoffs. | Checked |
-| [04-delivery-ack-audit](workpacks/04-delivery-ack-audit.md) | Delivery, ack, retry, rollback, and audit. | Checked |
+| [04-delivery-ack-audit](workpacks/04-delivery-ack-audit.md) | Delivery, ack, retry, rollback, and audit. | Contract checked / runtime blocked |
 | [05-ask-parent-overrides](workpacks/05-ask-parent-overrides.md) | Ask-parent, bonus time, overrides, approvals. | Open |
 | [06-rollout-proof-and-route-gate](workpacks/06-rollout-proof-and-route-gate.md) | Proof pack, route sync, and no-overclaim gate. | Checked |
 | [07-schedule-time-budget-conflict-model](workpacks/07-schedule-time-budget-conflict-model.md) | Timezone/DST, budgets, and conflict precedence. | Checked |
@@ -17,6 +17,7 @@ Use this file to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only wh
 
 ```text
 Checked: current route docs say the selected workpack has focused closeout artifacts under docs/proof/policy-control-plane-plan/ and matching validation notes.
+Contract checked / runtime blocked: the policy-owned contract and negative proof are current, but a dependency-owned trusted adapter and real execution proof are still missing.
 Open: workpack remains blocked or incomplete and cannot be promoted by related contract tests alone.
 ```
 

@@ -1,3 +1,4 @@
+use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
@@ -52,42 +53,40 @@ macro_rules! reason {
 }
 
 #[test]
-fn parent_runtime_policy_control_flow_applies_delivered_acknowledged_and_applied_chain() {
+fn parent_runtime_policy_control_flow_rejects_receipt_required_child_transitions() {
     let queued_delivery = sample_queued_delivery();
     let evaluation_event = authorized_evaluation_event(PolicyDecisionMode::Enforce);
-    let transitions = vec![
-        transition(
-            3,
+    let cases = [
+        (
             acknowledged_attempt_id(),
             PolicyDeliveryState::Acknowledged,
+            "acknowledged",
         ),
-        transition(4, applied_attempt_id(), PolicyDeliveryState::Applied),
+        (
+            applied_attempt_id(),
+            PolicyDeliveryState::Applied,
+            "applied",
+        ),
     ];
 
-    let flow_report = publish_parent_policy_control_delivery_event_flow(
-        &queued_delivery,
-        &evaluation_event,
-        &transitions,
-        ParentPolicyControlAcknowledgementState::Required,
-        ParentRuntimePolicyControlOriginState::TrustedLocalUi,
-    );
-    let flow_report = result_or_unreachable!(flow_report, "policy control delivery flow");
+    for (attempt_id, state, state_name) in cases {
+        assert_eq!(
+            publish_parent_policy_control_delivery_event_flow(
+                &queued_delivery,
+                &evaluation_event,
+                &[transition(3, attempt_id, state)],
+                ParentPolicyControlAcknowledgementState::Required,
+                ParentRuntimePolicyControlOriginState::TrustedLocalUi,
+            ),
+            Err(EventingError::InvalidValue {
+                field: "policy_delivery.state",
+                value: format!("missing adapter execution receipt for {state_name}"),
+            })
+        );
+    }
 
-    assert_eq!(
-        flow_report
-            .dispatch_event
-            .decision
-            .child_runtime_publish_state,
-        ParentRuntimePolicyControlPublishState::Publish
-    );
-    assert_eq!(flow_report.attempted_transitions.len(), 3);
-    assert_eq!(flow_report.delivery_outcomes.len(), 3);
-    assert_eq!(flow_report.final_record.state, PolicyDeliveryState::Applied);
-    assert!(flow_report.final_record.is_active());
-    assert_eq!(
-        flow_report.final_record.parent_visible_state(),
-        ocentra_policy_control_core::policy_delivery::PolicyDeliveryParentVisibleState::Applied
-    );
+    assert_eq!(queued_delivery.state, PolicyDeliveryState::Queued);
+    assert!(!queued_delivery.is_active());
 }
 
 #[test]
