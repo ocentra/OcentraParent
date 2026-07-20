@@ -6,9 +6,13 @@ use ocentra_parent_agent_protocol::app_game_notification_readiness::AppGameNotif
 use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessReadModel;
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceReadModel;
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
+    LanBrowserAddDeviceReadModel, LanDiscoveryEventHistoryState,
+};
 use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
-use ocentra_parent_agent_protocol::transport::{AgentEventEnvelope, AgentEventName};
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandName, AgentEventEnvelope, AgentEventName,
+};
 use ocentra_schema::parent_ui_bridge::{
     ParentActivityTrackingReadModelResultSnapshot, ParentNetworkRuntimeEventChainStreamSnapshot,
     ParentPolicyPreviewReadModelSnapshot, ParentRouteEventSnapshot,
@@ -39,6 +43,13 @@ pub(crate) struct LanAgentServiceSnapshot {
     pub(crate) event: ParentRouteEventSnapshot,
     pub(crate) events: Vec<ParentRouteEventSnapshot>,
     pub(crate) read_model: LanBrowserAddDeviceReadModel,
+}
+
+pub(crate) struct LanRuntimeReplaySnapshot {
+    pub(crate) events: Vec<ParentRouteEventSnapshot>,
+    pub(crate) history_state: LanDiscoveryEventHistoryState,
+    pub(crate) latest_event_id: Option<String>,
+    pub(crate) latest_observed_at: Option<String>,
 }
 
 pub(crate) struct NetworkFlowAgentServiceSnapshot {
@@ -94,6 +105,8 @@ pub(crate) struct AppGameTimerParentSurfaceAgentServiceSnapshot {
 }
 
 pub(crate) struct AgentServiceCommandResult {
+    pub(crate) command: AgentCommandName,
+    pub(crate) command_message_id: String,
     pub(crate) events: Vec<ParentRouteEventSnapshot>,
     pub(crate) response_event: AgentEventEnvelope,
 }

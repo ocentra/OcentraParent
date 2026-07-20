@@ -21,6 +21,7 @@ import {
   latestParentRouteEventTimestampMs,
   parentRouteSnapshotTimestampMs,
 } from './parent-route-event-snapshot';
+import { isReplayBatchBoundToSnapshot } from './lan-replay-snapshot-binding';
 
 const MAX_BUFFERED_PORTAL_EVENTS = 128;
 
@@ -73,7 +74,8 @@ export function applyParentRouteEvents(
   }
 
   const bufferedEventKeys = new Set(state.events.map(portalEventBufferKey));
-  for (const snapshot of snapshots) {
+  const boundedSnapshots = snapshots.slice(-MAX_BUFFERED_PORTAL_EVENTS);
+  for (const snapshot of boundedSnapshots) {
     if (!hasRequiredSnapshotEventIdentity(snapshot)) {
       continue;
     }
@@ -97,7 +99,10 @@ export function applyParentRouteEvents(
 }
 
 export function applyParentSubscriptionEvent(state: PortalRuntimeState, event: ParentSubscriptionEvent): void {
-  if (!isStaleIncomingEventBatch(state, event.events ?? [])) {
+  if (
+    isReplayBatchBoundToSnapshot(event.events ?? [], event.snapshot) &&
+    !isStaleIncomingEventBatch(state, event.events ?? [])
+  ) {
     applyParentRouteEvents(state, event.events ?? []);
   }
   if (event.snapshot.route === event.route && !isStaleIncomingRouteSnapshot(state, event.snapshot)) {

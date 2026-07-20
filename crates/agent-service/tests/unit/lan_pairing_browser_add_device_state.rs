@@ -172,7 +172,7 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
     );
     assert_eq!(
         read_model["discoveryEventHistory"]["state"],
-        serde_json::json!("unavailable")
+        serde_json::json!("degraded")
     );
     assert_eq!(
         read_model["discoveryEventHistory"]["latestEventId"]
