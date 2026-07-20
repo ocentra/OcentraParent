@@ -27,12 +27,13 @@ use crate::test_invariants::require_ok;
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[test]
-fn screen_retention_sweeper_runtime_is_enabled_by_default() {
+fn screen_retention_sweeper_runtime_is_enabled_by_default() -> Result<(), IoError> {
     let config = ScreenAiRetentionSweeperRuntimeConfig::from_environment()
-        .expect("default retention sweeper configuration");
+        .ok_or_else(|| IoError::other("default retention sweeper configuration is disabled"))?;
     assert_eq!(config.poll_seconds, 5);
     assert_eq!(config.max_sweeps, None);
     assert_eq!(config.max_ticks, None);
+    Ok(())
 }
 
 #[tokio::test]
@@ -189,11 +190,11 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
     );
     let replayed = publish_swept_deletion_events(&store_path, &restarted).await;
     let acknowledged = require_ok(
-        queue.acknowledge_expired_entries(&[expired_job.queue_job_id.clone()]),
+        queue.acknowledge_expired_entries(std::slice::from_ref(&expired_job.queue_job_id)),
         constants::error::JOURNAL_APPENDS,
     );
     let repeat_acknowledgement = require_ok(
-        queue.acknowledge_expired_entries(&[expired_job.queue_job_id.clone()]),
+        queue.acknowledge_expired_entries(std::slice::from_ref(&expired_job.queue_job_id)),
         constants::error::JOURNAL_APPENDS,
     );
     let after_acknowledgement = require_ok(
