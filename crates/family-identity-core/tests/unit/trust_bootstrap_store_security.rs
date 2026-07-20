@@ -2,9 +2,9 @@ use std::fs;
 use std::sync::{Arc, Barrier};
 use std::thread;
 
-use ocentra_family_identity_core::parent_presence::ParentPresenceStorageFailureReason;
-#[cfg(unix)]
-use ocentra_family_identity_core::parent_presence::ParentPresenceVerificationPort;
+use ocentra_family_identity_core::parent_presence::{
+    ParentPresenceStorageFailureReason, ParentPresenceVerificationPort,
+};
 
 use super::open_parent_presence_test_port;
 use super::trust_bootstrap_store_schema::{TestResult, TestStore};
@@ -125,10 +125,9 @@ fn unix_test_custody_creates_owner_private_file_and_rejects_permissive_existing_
     Ok(())
 }
 
-#[cfg(unix)]
 #[test]
-fn unix_production_custody_fails_closed_before_creating_a_path() {
-    let store = TestStore::new("unix-production-fail-closed");
+fn production_custody_fails_closed_before_creating_a_path() {
+    let store = TestStore::new("production-fail-closed");
     assert!(matches!(
         ParentPresenceVerificationPort::open(store.path()),
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)

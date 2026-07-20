@@ -5,6 +5,7 @@ mod session_lifecycle;
 mod setup_lifecycle;
 mod trust_bootstrap;
 mod trust_bootstrap_cross_process;
+mod trust_bootstrap_expiry;
 mod trust_bootstrap_nonce_process;
 mod trust_bootstrap_probes;
 mod trust_bootstrap_store_integrity;
@@ -18,12 +19,5 @@ fn open_parent_presence_test_port(
     ocentra_family_identity_core::parent_presence::ParentPresenceVerificationPort,
     ocentra_family_identity_core::parent_presence::ParentPresenceStorageFailureReason,
 > {
-    #[cfg(windows)]
-    {
-        ocentra_family_identity_core::parent_presence::ParentPresenceVerificationPort::open(path)
-    }
-    #[cfg(unix)]
-    {
-        ocentra_family_identity_core::parent_presence::ParentPresenceVerificationPort::open_unsealed_test_custody(path)
-    }
+    ocentra_family_identity_core::parent_presence::ParentPresenceVerificationPort::open_unsealed_test_custody(path)
 }

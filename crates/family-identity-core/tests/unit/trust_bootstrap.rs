@@ -590,6 +590,9 @@ fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timest
         }),
         Err(ParentPresenceVerificationFailureReason::TimestampInvalid)
     );
+    assert!(malformed_port
+        .verify_and_consume(verification_input(&malformed_case, ACCEPTED_EXPIRY)?)
+        .is_ok());
 
     let noncanonical_case = test_case("noncanonical");
     let mut noncanonical_port = store.port()?;

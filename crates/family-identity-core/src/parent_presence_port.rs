@@ -12,16 +12,6 @@ use crate::parent_presence_store::{ParentPresenceStore, ParentPresenceStoreIssue
 use crate::trust_bootstrap_validation::parent_presence_verification_failure_reason;
 
 impl ParentPresenceVerificationPort {
-    #[cfg(windows)]
-    pub fn open(
-        store_path: impl Into<PathBuf>,
-    ) -> Result<Self, ParentPresenceStorageFailureReason> {
-        Self::with_clock(store_path, || {
-            ParentPresenceObservedAt::from_system_time(std::time::SystemTime::now())
-        })
-    }
-
-    #[cfg(unix)]
     pub fn open(
         store_path: impl Into<PathBuf>,
     ) -> Result<Self, ParentPresenceStorageFailureReason> {
@@ -29,7 +19,7 @@ impl ParentPresenceVerificationPort {
         Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
     }
 
-    #[cfg(all(unix, debug_assertions))]
+    #[cfg(debug_assertions)]
     pub fn open_unsealed_test_custody(
         store_path: impl Into<PathBuf>,
     ) -> Result<Self, ParentPresenceStorageFailureReason> {
@@ -58,6 +48,9 @@ impl ParentPresenceVerificationPort {
         self.store
             .issue_challenge(challenge)
             .map_err(|error| match error {
+                ParentPresenceStoreIssueError::TimestampInvalid => {
+                    ParentPresenceChallengeIssuanceFailureReason::TimestampInvalid
+                }
                 ParentPresenceStoreIssueError::DuplicateChallenge => {
                     ParentPresenceChallengeIssuanceFailureReason::DuplicateChallengeRef
                 }

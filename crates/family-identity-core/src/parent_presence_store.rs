@@ -3,7 +3,8 @@ use std::path::PathBuf;
 use rusqlite::{params, Connection, ErrorCode, OptionalExtension, TransactionBehavior};
 
 use crate::parent_presence::{
-    ParentPresenceChallenge, ParentPresenceReceiptRef, ParentPresenceVerificationFailureReason,
+    ParentPresenceChallenge, ParentPresenceObservedAt, ParentPresenceReceiptRef,
+    ParentPresenceVerificationFailureReason,
 };
 use crate::parent_presence_store_file::StoreFileGuard;
 use crate::parent_presence_store_integrity::verified_challenge;
@@ -63,6 +64,7 @@ pub(crate) enum ConsumeChallengeResult {
 }
 
 pub(crate) enum ParentPresenceStoreIssueError {
+    TimestampInvalid,
     DuplicateChallenge,
     DuplicateNonce,
     Store(ParentPresenceStoreError),
@@ -97,6 +99,8 @@ impl ParentPresenceStore {
         &mut self,
         challenge: ParentPresenceChallenge,
     ) -> Result<(), ParentPresenceStoreIssueError> {
+        ParentPresenceObservedAt::from_canonical_utc(&challenge.expires_at)
+            .map_err(|_error| ParentPresenceStoreIssueError::TimestampInvalid)?;
         let challenge_json = serde_json::to_string(&challenge).map_err(|_error| {
             ParentPresenceStoreIssueError::Store(ParentPresenceStoreError::Unavailable)
         })?;

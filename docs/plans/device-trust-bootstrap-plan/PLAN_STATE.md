@@ -74,7 +74,7 @@ remote-access-plan and policy-control-plane-plan:
 ## Current coupling risks
 
 ```text
-- A partial parent-presence custody repository now exists in `crates/family-identity-core`. Windows production custody is guarded and exercised; Unix production custody deliberately returns unavailable because the current filesystem boundary cannot exclude same-user substitution. The broader device-trust runtime state machine remains open.
+- A partial parent-presence custody repository now exists in `crates/family-identity-core`. Production custody deliberately returns unavailable on every platform until a trusted custody provider can exclude same-user challenge-store writers. The broader device-trust runtime state machine remains open.
 - `family-domain` contains trust-adjacent authority helpers but not platform key sealing, QR approval runtime, recovery bundle runtime, or trust-root state machine.
 - `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
 - Current plan-local tests prove document and route shape only, not runtime trust.
@@ -110,8 +110,8 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 - `packages/family-domain` contains typed trust-adjacent authority and recovery contracts, including `DeviceTrustState`, privileged device actions, setup invite rules, and recovery authorization boundaries.
 - `packages/lan-domain` plus the Rust LAN pairing runtime contain trusted-route and selected-device registry contracts, restart behavior, and explicit manual proof gaps for LAN pairing.
 - `packages/parent-domain` is mostly frontage for this slice and currently fails the repo re-export architecture gate on the named LAN/tamper bridge files.
-- `crates/family-identity-core` has durable explicit-path SQLite issuance/consumption for parent-presence challenges, exact pre-initialization allowlisting of integrity-critical schema objects, global nonce uniqueness, opaque OS-random receipt capabilities, atomic first publication, concurrent process/restart replay proof, and exercised Windows final-file plus every-ancestor custody handles. A runtime capability probe rejects Windows filesystems that do not honor the required no-delete-share contract.
-- Unix production parent-presence custody is fail-closed before path creation. A debug-only test seam exercises Unix owner-private creation and permission rejection without making an operational production claim.
+- `crates/family-identity-core` has durable explicit-path SQLite issuance/consumption for debug/test parent-presence challenges, exact pre-initialization allowlisting of integrity-critical schema objects, global nonce uniqueness, opaque OS-random receipt capabilities, atomic first publication, and concurrent process/restart replay proof. Windows file and ancestor custody checks remain exercised only through the explicit debug/test seam; they are not production custody proof.
+- Production parent-presence custody is fail-closed before path creation on every platform. A debug-only test seam exercises owner-private creation, path checks, and permission rejection without making an operational production claim.
 - Trust-bootstrap sealing remains manual-required because the authority contract has no specifically authorized device-trust sealing action. Low-risk authority actions are not promoted into sealing authority.
 - Parent-presence decisions produce correlated, redacted, serializable `ocentra-eventing`-compatible artifacts with explicit owner, boundary, result, and no-publication fields. This crate does not claim to publish, journal, or log those artifacts.
 - No complete device-trust state machine exists yet beyond that narrow parent-presence bootstrap boundary.

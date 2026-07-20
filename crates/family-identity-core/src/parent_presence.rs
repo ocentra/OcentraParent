@@ -39,6 +39,8 @@ pub enum ParentPresenceVerificationFailureReason {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentPresenceChallengeIssuanceFailureReason {
+    #[serde(rename = "timestamp-invalid")]
+    TimestampInvalid,
     #[serde(rename = "duplicate-challenge-ref")]
     DuplicateChallengeRef,
     #[serde(rename = "duplicate-nonce-ref")]
