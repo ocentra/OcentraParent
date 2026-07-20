@@ -55,6 +55,8 @@ pub(super) fn send_agent_command(
     }
 
     let command_envelope = lan_command_envelope(command, payload, context, route);
+    let command = command_envelope.command.clone();
+    let command_message_id = command_envelope.message_id.clone();
     let body = serde_json::to_string(&command_envelope)
         .map_err(|error| format!("agent-service command serialization failed: {error}"))?;
     socket
@@ -64,6 +66,8 @@ pub(super) fn send_agent_command(
     let response_event = read_agent_event(&mut socket, "command-response", timeout)?;
 
     Ok(AgentServiceCommandResult {
+        command,
+        command_message_id,
         events: vec![
             parent_route_event_snapshot(&ready_event),
             parent_route_event_snapshot(&response_event),

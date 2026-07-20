@@ -75,10 +75,58 @@ Current verified rollout truth on 2026-06-28:
 - W14 is locally complete; W18, W19, W23, and W25 are reduced to honest
   manual/open rows rather than stale checklist drift.
 - Broad PR-ready/DONE still cannot be claimed while physical multi-device,
-  router/firewall, signed-artifact, browser-side replay consumption of the
-  backend LAN stream, and other manual-required LAN proof remain open.
+  router/firewall, signed-artifact, restart, and other manual-required LAN
+  topology proof remain open.
 - The accepted Windows LAN portal rerun is fresh supporting evidence from
   2026-06-28 rather than historical-only proof.
+
+Current verified LAN replay-consumer truth on 2026-07-19:
+
+- The tracked WP25 proof source is
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/`. Generated rerun
+  output remains untracked and does not replace this source-of-record proof.
+
+- The parent-owned Rust agent-service client loads the canonical
+  `AgentLanRuntimeEventChainStreamGet` response and converts validated discovery
+  rows into existing `ParentRouteEventSnapshot` values for Rust-owned
+  `ParentSubscriptionEvent` construction. This does not by itself prove that a
+  real Tauri emitter delivered the batch to the portal listener.
+- The independently loaded status and replay histories must agree on state,
+  latest event ID, and latest observed time. A mutation between those two reads
+  rejects the replay batch instead of combining different history versions.
+- Replay order is preserved. Duplicate IDs, stale or out-of-order chains,
+  broken references, inconsistent metadata, producer-incompatible
+  history-state/material-row combinations, and malformed payloads reject the
+  whole replay batch. Empty history accepts canonical metadata-only
+  `interface-changed`, `scan-started`, and `scan-finished` rows but rejects
+  material discovery rows; ready history requires at least one material row;
+  manual-required history cannot carry rows. Unavailable takes precedence
+  before row inspection, while degraded and agent-offline precedence also
+  remains explicit. The last live LAN status events remain authoritative on an
+  ID collision.
+- Replay rejection does not erase the status snapshot, so explicit
+  `agent-offline` and `manual-required` read-model states remain visible. The
+  bridge emits one host-owned warning event with a unique safe event ID, valid
+  RFC3339 timestamp, fixed service-to-portal peers and roles, warning severity,
+  and no rejected input identifiers or payload.
+- The Tauri host delivery decision now emits a new replay event ID even when
+  the route snapshot is unchanged and suppresses already delivered IDs. That
+  exact decision seam has focused crate-level coverage. A real `AppHandle`
+  emit observed by the portal listener is still open.
+- The isolated portal state edge accepts a later live status event without
+  applying its timestamp ceiling to replay rows, fails closed on nonempty replay
+  rows with missing, invalid, or mismatched snapshot metadata, and preserves the
+  identical newest 128 rows when a 129-plus full history is repeated.
+- Focused protocol and agent-service stream tests, the parent runtime
+  diagnostics/history/replay integration group, the desktop host-decision test,
+  and the isolated portal-state edge test are green. Exact commands and counts,
+  including later scoped gates, are recorded in the current proof root. These
+  are separate automated seams and do not constitute backend-to-Tauri-emitter-
+  to-portal-listener proof or manual runtime proof.
+- WP25 remains `partial/manual`. This local consumer proof does not close the
+  Tauri-emitter-to-portal-listener gap, physical multi-device, router/firewall,
+  signed-artifact, restart, or manual topology evidence rows and does not
+  support broad PR-ready or DONE.
 
 ## Automated Gates For Active Scope
 
@@ -97,7 +145,11 @@ and mock-only readiness do not satisfy rollout closure.
 
 ## Proof Artifact Checklist For Active Scope
 
-- rollout validation log exists under a current proof root
+- rollout truth exists at
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/01-rollout-gate-truth.md`
+- rollout validation history exists at
+  `docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/16-validation-commands.log`
+- generated rerun output stays untracked under `output/` or in CI artifacts
 - earlier packet proof roots exist and match the current Rust-owned direction
 - UI screenshot/snapshot proof exists only for real surfaces
 - any UI/browser artifact is attached as supporting presentation evidence, not

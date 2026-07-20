@@ -1,5 +1,7 @@
 use std::fs::remove_file;
 use std::path::{Path, PathBuf as TestPathBuf};
+use std::thread;
+use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use chrono::SecondsFormat;
@@ -8,11 +10,13 @@ use ocentra_lan_core::network_inventory::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanServiceIdentityProbeEvidence, LanServiceIdentityProbeEvidenceKind,
 };
 
 use super::*;
+use crate::lan_pairing_browser_add_device_state::scan_history::write_lock::scan_history_write_lock;
 use crate::test_invariants::{require_ok, require_some};
 
 #[test]
@@ -93,6 +97,7 @@ fn recent_previous_scan_agent_truth_ignores_agentless_history() {
         updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
         metadata: None,
         devices: vec![sample_agent_truth_device(), agentless_network_device()],
+        replay_canonical_projection: None,
     };
 
     let devices = recent_previous_scan_agent_truth_devices(Some(&snapshot), now);
@@ -139,6 +144,120 @@ fn legacy_snapshot_without_metadata_still_loads() {
     cleanup_test_files(&registry_path);
 }
 
+#[test]
+fn newer_scan_waits_for_projection_lock_and_is_not_lost() {
+    let registry_path = temp_registry_path();
+    cleanup_test_files(&registry_path);
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    assert!(save_scan_history(
+        &runtime,
+        &[sample_network_device()],
+        None
+    ));
+    let path =
+        scan_history_path_for_registry(&LanScanHistoryRegistryPath::from(registry_path.as_path()));
+    let lock = require_some(
+        scan_history_write_lock(&path),
+        "scan history lock is acquired",
+    );
+    let mut newer = sample_network_device();
+    newer.device_id = "lan-device-newer".to_string();
+    let writer_device = newer.clone();
+    let writer_runtime = runtime.clone();
+    let writer = thread::spawn(move || save_scan_history(&writer_runtime, &[writer_device], None));
+    thread::sleep(Duration::from_millis(20));
+    drop(lock);
+    assert!(require_ok(writer.join(), "writer joins"));
+    assert_eq!(load_scan_history(&runtime), vec![newer]);
+    cleanup_test_files(&registry_path);
+}
+
+#[test]
+fn held_sidecar_lock_fails_closed_without_replacing_existing_scan() {
+    let registry_path = temp_registry_path();
+    cleanup_test_files(&registry_path);
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    let original = sample_network_device();
+    assert!(save_scan_history(
+        &runtime,
+        std::slice::from_ref(&original),
+        None
+    ));
+    let path =
+        scan_history_path_for_registry(&LanScanHistoryRegistryPath::from(registry_path.as_path()));
+    let lock = require_some(
+        scan_history_write_lock(&path),
+        "scan history lock is acquired",
+    );
+    let mut newer = sample_network_device();
+    newer.device_id = "lan-device-blocked".to_string();
+
+    assert!(!save_scan_history(&runtime, &[newer], None));
+    assert_eq!(load_scan_history(&runtime), vec![original]);
+    drop(lock);
+    cleanup_test_files(&registry_path);
+}
+
+#[test]
+fn stale_projection_seed_cannot_attach_to_newer_scan_generation() {
+    let registry_path = temp_registry_path();
+    cleanup_test_files(&registry_path);
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    assert!(save_scan_history(
+        &runtime,
+        &[sample_network_device()],
+        None
+    ));
+    let expected = require_some(load_scan_history_snapshot(&runtime), "scan A persists");
+    thread::sleep(Duration::from_millis(5));
+    let mut newer = sample_network_device();
+    newer.device_id = "lan-device-b".to_string();
+    assert!(save_scan_history(&runtime, &[newer.clone()], None));
+
+    assert!(save_replay_canonical_devices(
+        &runtime,
+        &expected,
+        &[],
+        &LanPairingText(expected.updated_at.clone()),
+    )
+    .is_none());
+    let current = require_some(load_scan_history_snapshot(&runtime), "scan B survives");
+    assert_eq!(current.devices, vec![newer]);
+    assert!(current.replay_canonical_projection.is_none());
+    cleanup_test_files(&registry_path);
+}
+
+#[test]
+fn projection_seed_rejects_same_millisecond_different_scan_contents() {
+    let registry_path = temp_registry_path();
+    cleanup_test_files(&registry_path);
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    assert!(save_scan_history(
+        &runtime,
+        &[sample_network_device()],
+        None
+    ));
+    let expected = require_some(load_scan_history_snapshot(&runtime), "scan persists");
+    let mut aliased_generation = expected.clone();
+    let mut different_device = sample_network_device();
+    different_device.device_id = "lan-device-same-millisecond".to_string();
+    aliased_generation.devices = vec![different_device];
+
+    assert!(save_replay_canonical_devices(
+        &runtime,
+        &aliased_generation,
+        &[],
+        &LanPairingText(expected.updated_at),
+    )
+    .is_none());
+    let current = require_some(
+        load_scan_history_snapshot(&runtime),
+        "original scan survives",
+    );
+    assert!(current.replay_canonical_projection.is_none());
+    cleanup_test_files(&registry_path);
+}
+
 fn temp_registry_path() -> TestPathBuf {
     let unique_id = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -150,7 +269,9 @@ fn temp_registry_path() -> TestPathBuf {
 fn cleanup_test_files(registry_path: &Path) {
     let _ = remove_file(registry_path);
     let scan_history_registry_path = LanScanHistoryRegistryPath::from(registry_path);
-    let _ = remove_file(scan_history_path_for_registry(&scan_history_registry_path).as_ref());
+    let history_path = scan_history_path_for_registry(&scan_history_registry_path);
+    let _ = remove_file(history_path.as_ref());
+    let _ = remove_file(history_path.as_ref().with_extension("lock"));
 }
 
 fn sample_network_device() -> LanNetworkInventoryDevice {

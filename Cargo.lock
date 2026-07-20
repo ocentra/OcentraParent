@@ -2452,6 +2452,7 @@ dependencies = [
  "ocentra-parent-agent-protocol",
  "ocentra-policy-control-core",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -2656,6 +2657,7 @@ dependencies = [
 name = "ocentra-parent-runtime-core"
 version = "0.1.1"
 dependencies = [
+ "chrono",
  "ocentra-child-runtime",
  "ocentra-eventing",
  "ocentra-lan-core",
@@ -2689,6 +2691,7 @@ dependencies = [
  "ocentra-parent-agent-protocol",
  "serde",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]

@@ -19,8 +19,29 @@ mod policy_conflict;
 #[path = "policy_compiler.rs"]
 mod policy_compiler;
 
+#[path = "policy_delivery_helpers.rs"]
+mod policy_delivery_helpers;
+
 #[path = "policy_delivery.rs"]
 mod policy_delivery;
+
+#[path = "policy_delivery_receipt_helpers.rs"]
+mod policy_delivery_receipt_helpers;
+
+#[path = "policy_delivery_receipt_identity.rs"]
+mod policy_delivery_receipt_identity;
+
+#[path = "policy_delivery_receipt_redaction.rs"]
+mod policy_delivery_receipt_redaction;
+
+#[path = "policy_delivery_record_boundaries.rs"]
+mod policy_delivery_record_boundaries;
+
+#[path = "policy_delivery_metadata.rs"]
+mod policy_delivery_metadata;
+
+#[path = "policy_delivery_receipt.rs"]
+mod policy_delivery_receipt;
 
 #[path = "policy_event.rs"]
 mod policy_event;
