@@ -21,8 +21,12 @@ async fn service_network_read_model_delivers_local_runtime_chain() {
     assert_eq!(report.failed_rows, 0);
     assert_eq!(report.dead_letters, 0);
     assert_eq!(report.manual_required_rows, 0);
-    assert_eq!(report.enforcement_command_events, 1);
+    assert_eq!(report.enforcement_command_events, 0);
     assert!(report.publish_reports > 0);
+    assert_eq!(
+        report.publish_reports,
+        NetworkRuntimePhase::ordered_chain().len() - 2
+    );
     assert_eq!(report.publish_reports, report.stored_events);
 }
 

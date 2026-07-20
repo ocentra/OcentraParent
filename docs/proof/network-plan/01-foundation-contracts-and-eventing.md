@@ -43,5 +43,7 @@ Run context: 2026-07-18, branch `codex/network-wp01-foundation-contract-eventing
 
 - Branch-budget repair extracted the private evidence-grade tuple map to `crates/agent-protocol/src/network_flow/runtime_semantics.rs`; `NetworkRuntimeEventPayload` remains the unchanged public contract and retains the same fail-closed semantic error.
 - `cargo fmt --check`, `cargo test -p ocentra-parent-agent-protocol network` (37), `cargo test -p ocentra-parent-agent-core network` (54), scoped `cargo check`, scoped `cargo clippy -- -D warnings`, and scoped architecture lint passed with `CARGO_TARGET_DIR=E:\\OcentraBuild\\network-wp01`.
+- CI service parity was reproduced in `network_bridge_runtime`: three stale assertions still required the retired enforcement phases. The service correctly emitted nine events and zero enforcement commands; the tests now assert audit/portal continuity and `adapter_action_executed: false` without restoring enforcement behavior.
+- `cargo test -p ocentra-parent-agent-service --test network_bridge_runtime -- --test-threads=1` passed 38 tests, and the exact CI command `cargo test -p ocentra-parent-agent-service --all-targets` passed. Agent-service `cargo check`, `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check`, and exact-file architecture lint also passed.
 
 Independent re-review remains required before treating WP01 as approved.

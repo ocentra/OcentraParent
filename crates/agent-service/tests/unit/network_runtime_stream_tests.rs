@@ -52,11 +52,11 @@ async fn service_network_runtime_streams_protocol_event_chain_entries(
     assert_eq!(report.observed_rows, 1);
     assert_eq!(
         report.streamed_events,
-        NetworkRuntimePhase::ordered_chain().len()
+        NetworkRuntimePhase::ordered_chain().len() - 2
     );
     assert_eq!(report.failed_rows, 0);
     assert_eq!(report.manual_required_rows, 0);
-    assert_eq!(report.enforcement_command_events, 1);
+    assert_eq!(report.enforcement_command_events, 0);
     assert_eq!(report.active_rows, 1);
     assert_eq!(report.exportable_rows, 1);
     assert_eq!(
@@ -82,11 +82,25 @@ async fn service_network_runtime_streams_protocol_event_chain_entries(
     );
     assert_eq!(
         entries[7][constants::field::EVENT_TYPE],
-        constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+        constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED
     );
     assert_eq!(
-        entries[8][constants::field::PAYLOAD][constants::field::ADAPTER_ACTION_EXECUTED],
+        entries[0][constants::field::PAYLOAD][constants::field::CLAIM_BOUNDARY]
+            [constants::field::ADAPTER_ACTION_EXECUTED],
         false
+    );
+    assert_eq!(
+        entries
+            .iter()
+            .filter(|entry| {
+                matches!(
+                    entry[constants::field::EVENT_TYPE].as_str(),
+                    Some(constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED)
+                        | Some(constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED)
+                )
+            })
+            .count(),
+        0
     );
     Ok(())
 }
@@ -165,17 +179,20 @@ async fn websocket_network_runtime_stream_command_reports_store_backed_chain(
         event.event,
         AgentEventName::AgentNetworkRuntimeEventChainStreamReported
     );
-    assert_eq!(entries.len(), NetworkRuntimePhase::ordered_chain().len());
+    assert_eq!(
+        entries.len(),
+        NetworkRuntimePhase::ordered_chain().len() - 2
+    );
     assert_eq!(
         event
             .payload
             .get(constants::field::NETWORK_RUNTIME_STREAMED_EVENTS),
         Some(&LogFieldValue::Number(
-            NetworkRuntimePhase::ordered_chain().len() as f64
+            (NetworkRuntimePhase::ordered_chain().len() - 2) as f64
         ))
     );
     assert_eq!(
-        entries[10][constants::field::EVENT_TYPE],
+        entries[8][constants::field::EVENT_TYPE],
         constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED
     );
     Ok(())
