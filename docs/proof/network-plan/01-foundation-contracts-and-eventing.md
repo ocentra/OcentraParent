@@ -39,4 +39,9 @@ Run context: 2026-07-18, branch `codex/network-wp01-foundation-contract-eventing
 - `network.evidence-grade.boundary-negative`: `network_runtime_payload_rejects_impossible_semantic_tuple_before_dispatch`.
 - `network.eventing.integration-contract`: `network_runtime_payload_dispatches_once_through_shared_event_bus` and `invalid_serialized_runtime_payload_is_rejected_before_handler_receipt`.
 
+## Final Scoped Validation
+
+- Branch-budget repair extracted the private evidence-grade tuple map to `crates/agent-protocol/src/network_flow/runtime_semantics.rs`; `NetworkRuntimeEventPayload` remains the unchanged public contract and retains the same fail-closed semantic error.
+- `cargo fmt --check`, `cargo test -p ocentra-parent-agent-protocol network` (37), `cargo test -p ocentra-parent-agent-core network` (54), scoped `cargo check`, scoped `cargo clippy -- -D warnings`, and scoped architecture lint passed with `CARGO_TARGET_DIR=E:\\OcentraBuild\\network-wp01`.
+
 Independent re-review remains required before treating WP01 as approved.

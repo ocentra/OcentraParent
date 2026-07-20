@@ -12,6 +12,8 @@ use crate::{
 pub mod broker_delivery;
 pub mod remote_delivery_reports;
 pub mod review;
+#[path = "network_flow/runtime_semantics.rs"]
+mod runtime_semantics;
 
 pub const NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE: &str = "child-device-query-store";
 pub const NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT: &str = "parent-owned-export";
@@ -978,39 +980,29 @@ impl DomainEvent for NetworkRuntimeEventPayload {
 
 impl NetworkRuntimeEventPayload {
     pub fn validate_semantics(&self) -> Result<(), EventingError> {
-        let expected = match self.evidence_grade {
-            NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata => (
-                NetworkEvidenceGrade::B,
-                NetworkRiskBudgetState::ObserveOnly,
-                NetworkInterventionState::DryRunOnly,
-                NetworkPolicyDecisionAction::Observe,
-            ),
-            NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata => (
-                NetworkEvidenceGrade::C,
-                NetworkRiskBudgetState::ManualReviewRequired,
-                NetworkInterventionState::ManualRequired,
-                NetworkPolicyDecisionAction::AskParent,
-            ),
-            NetworkRuntimeEvidenceGrade::AdapterUnavailable => (
-                NetworkEvidenceGrade::D,
-                NetworkRiskBudgetState::Unavailable,
-                NetworkInterventionState::Unavailable,
-                NetworkPolicyDecisionAction::ManualReview,
-            ),
-        };
-        if (
+        self.runtime_semantics()
+            .eq(&runtime_semantics::expected(self.evidence_grade))
+            .then_some(())
+            .ok_or_else(|| EventingError::InvalidValue {
+                field: "network_runtime_payload_semantics",
+                value: "evidence/risk/intervention/policy tuple is inconsistent".to_string(),
+            })
+    }
+
+    fn runtime_semantics(
+        &self,
+    ) -> (
+        NetworkEvidenceGrade,
+        NetworkRiskBudgetState,
+        NetworkInterventionState,
+        NetworkPolicyDecisionAction,
+    ) {
+        (
             self.evidence_grade_contract,
             self.risk_budget_state,
             self.intervention_state,
             self.policy_action,
-        ) != expected
-        {
-            return Err(EventingError::InvalidValue {
-                field: "network_runtime_payload_semantics",
-                value: "evidence/risk/intervention/policy tuple is inconsistent".to_string(),
-            });
-        }
-        Ok(())
+        )
     }
 }
 
