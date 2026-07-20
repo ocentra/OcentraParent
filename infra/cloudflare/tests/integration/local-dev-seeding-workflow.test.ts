@@ -1,11 +1,17 @@
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
 import { collectMissingRuntimeDependencyBlockers, inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
+import {
+  LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY,
+  LOCAL_WEBHOOK_FIXTURE_INVENTORY,
+  type LocalSeedMutationReceipt,
+} from '../../scripts/local-seed-runtime.js';
 import { redactPayload } from '../../src/security/redaction.js';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
@@ -25,9 +31,7 @@ const ndjsonWriterModuleUrl = new URL(
   import.meta.url
 ).href;
 
-const proofRunId = 'cloudflare-wp07-local-dev-proof';
-const proofCorrelationId = 'cloudflare-wp07-local-dev-correlation';
-const proofOwner = 'infra/cloudflare/scripts/local-dev-workflow.ts';
+const proofOwner = 'infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts';
 const proofNoClaimReason = 'wrangler-runtime-boot-unproven;production-deployment-not-owned';
 const proofRedactionState = 'redacted-safe-fields-only';
 
@@ -40,6 +44,85 @@ interface PersistedProofMilestone {
   noClaimReason: string;
   redactionState: string;
   redactionProbe?: Readonly<Record<string, unknown>>;
+}
+
+interface SeedCommandOutput extends Record<string, unknown> {
+  mutationReceipt: LocalSeedMutationReceipt;
+}
+
+function runSeedCommand(command: string, persistenceRoot: string, runId: string): SeedCommandOutput {
+  const child =
+    process.platform === 'win32'
+      ? spawnSync('cmd.exe', ['/d', '/s', '/c', `npm run ${command}`], {
+          cwd: path.join(repoRoot, 'infra', 'cloudflare'),
+          encoding: 'utf8',
+          env: {
+            ...process.env,
+            OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
+            OCENTRA_CLOUDFLARE_SEED_RUN_ID: runId,
+          },
+        })
+      : spawnSync('npm', ['run', command], {
+          cwd: path.join(repoRoot, 'infra', 'cloudflare'),
+          encoding: 'utf8',
+          env: {
+            ...process.env,
+            OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
+            OCENTRA_CLOUDFLARE_SEED_RUN_ID: runId,
+          },
+        });
+  assert.equal(child.status, 0, child.stderr || child.stdout);
+  const jsonStart = child.stdout.indexOf('{');
+  assert.notEqual(jsonStart, -1, child.stdout);
+  return JSON.parse(child.stdout.slice(jsonStart)) as SeedCommandOutput;
+}
+
+function resolveNpmExecPath(): string {
+  const configured = process.env.npm_execpath?.trim();
+  if (configured) {
+    return configured;
+  }
+  const bundled = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
+  assert.equal(existsSync(bundled), true, 'npm CLI is required for local Wrangler persistence assertions');
+  return bundled;
+}
+
+function runLocalD1Command(persistenceRoot: string, sql: string): ReadonlyArray<Record<string, unknown>> {
+  const child = spawnSync(
+    process.execPath,
+    [
+      resolveNpmExecPath(),
+      'exec',
+      '--',
+      'wrangler',
+      'd1',
+      'execute',
+      'BILLING_D1',
+      '--config',
+      'wrangler.toml',
+      '--local',
+      '--persist-to',
+      persistenceRoot,
+      '--command',
+      sql,
+      '--json',
+    ],
+    {
+      cwd: path.join(repoRoot, 'infra', 'cloudflare'),
+      encoding: 'utf8',
+      windowsHide: true,
+    }
+  );
+  assert.equal(child.status, 0, child.stderr || child.stdout);
+  const jsonStart = child.stdout.indexOf('[');
+  assert.notEqual(jsonStart, -1, child.stdout);
+  const operations = JSON.parse(child.stdout.slice(jsonStart)) as Array<{ results?: Array<Record<string, unknown>> }>;
+  return operations.flatMap((operation) => operation.results ?? []);
+}
+
+function readStatusRowCount(persistenceRoot: string): number {
+  const rows = runLocalD1Command(persistenceRoot, 'SELECT COUNT(*) AS row_count FROM billing_status');
+  return Number(rows[0]?.row_count ?? 0);
 }
 
 describe('local dev seeding workflow', () => {
@@ -56,8 +139,8 @@ describe('local dev seeding workflow', () => {
           `
             (async () => {
               try {
-                const { collectMissingRuntimeDependencyBlockers } = await import(${JSON.stringify(localDevWorkflowModuleUrl)});
                 process.chdir(${JSON.stringify(tempCwd)});
+                const { collectMissingRuntimeDependencyBlockers } = await import(${JSON.stringify(localDevWorkflowModuleUrl)});
                 const blockers = collectMissingRuntimeDependencyBlockers();
                 process.stdout.write(JSON.stringify(blockers));
               } catch (error) {
@@ -108,9 +191,57 @@ describe('local dev seeding workflow', () => {
     }
   });
 
+  it('persists the real Wrangler seed idempotently and isolates explicit local stores', { timeout: 120_000 }, () => {
+    const persistenceA = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-seed-a-'));
+    const persistenceB = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-seed-b-'));
+    const runA = `cloudflare-wp07-seed-a-${randomUUID()}`;
+    const runB = `cloudflare-wp07-seed-b-${randomUUID()}`;
+
+    try {
+      const firstA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
+      const firstACount = readStatusRowCount(persistenceA);
+      const secondA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
+      const secondACount = readStatusRowCount(persistenceA);
+      const firstB = runSeedCommand('seed:local', persistenceB, runB).mutationReceipt;
+      const firstBCount = readStatusRowCount(persistenceB);
+
+      assert.equal(firstA.runId, runA);
+      assert.equal(secondA.runId, runA);
+      assert.equal(firstB.runId, runB);
+      assert.notEqual(runA, runB);
+      assert.equal(firstA.persistenceTarget, 'explicit');
+      assert.equal(firstA.runtimeBootStatus, 'proven');
+      assert.equal(firstA.fullBindingSeedApplied, true);
+      assert.ok(Object.values(firstA.persistence).every((count) => count > 0));
+      assert.deepEqual(secondA.persistence, firstA.persistence);
+      assert.equal(secondACount, firstACount);
+      assert.equal(firstBCount, firstACount);
+
+      runLocalD1Command(persistenceA, "DELETE FROM billing_status WHERE subject = 'parent:demo-review'");
+      assert.equal(readStatusRowCount(persistenceA), firstACount - 1);
+      assert.equal(readStatusRowCount(persistenceB), firstBCount);
+    } finally {
+      rmSync(persistenceA, { recursive: true, force: true });
+      rmSync(persistenceB, { recursive: true, force: true });
+    }
+  });
+
   it('persists a correlated redacted proof chain for ready preflight, populated seeds, and teardown', async () => {
     const proofStoreRoot = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-dev-proof-'));
-    const originalLogLevel = process.env.OCENTRA_PARENT_LOG_LEVEL;
+    const proofRunId =
+      process.env.OCENTRA_PARENT_PROOF_RUN_ID?.trim() || `cloudflare-wp07-local-dev-proof-${randomUUID()}`;
+    const proofCorrelationId = `${proofRunId}:local-dev-seeding`;
+    const forcedProofEnvironment: Readonly<Record<string, string>> = {
+      NODE_ENV: 'test',
+      OCENTRA_PARENT_TEST_MODE: 'true',
+      OCENTRA_PARENT_LOG_ENABLED: 'true',
+      OCENTRA_PARENT_LOG_STORE: 'true',
+      OCENTRA_PARENT_LOG_LEVEL: 'debug',
+      OCENTRA_PARENT_LOG_CONSOLE: 'false',
+    };
+    const originalProofEnvironment = new Map(
+      Object.keys(forcedProofEnvironment).map((key) => [key, process.env[key]] as const)
+    );
     const [{ Logger }, { getStackTrace }, { createBridgeServer }, loggingTypes, ndjsonPaths, ndjsonWriter] =
       await Promise.all([
         import(loggerModuleUrl),
@@ -121,6 +252,9 @@ describe('local dev seeding workflow', () => {
         import(ndjsonWriterModuleUrl),
       ]);
     const server = createBridgeServer({ rootDir: proofStoreRoot });
+    for (const [key, value] of Object.entries(forcedProofEnvironment)) {
+      process.env[key] = value;
+    }
 
     try {
       const address = await new Promise<{ port: number }>((resolve, reject) => {
@@ -135,7 +269,6 @@ describe('local dev seeding workflow', () => {
         });
       });
 
-      process.env.OCENTRA_PARENT_LOG_LEVEL = 'debug';
       Logger.instance.reset();
       Logger.instance.configure({
         bridgeEndpoint: `http://127.0.0.1:${address.port}`,
@@ -175,6 +308,7 @@ describe('local dev seeding workflow', () => {
 
       emitProofMilestone('workflow-command', 'accepted', {
         command: 'node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts',
+        subject: 'infra/cloudflare/scripts/local-dev-workflow.ts',
         redactionProbe: {
           authorization: 'Bearer private-token',
           stripeWebhookSecret: 'whsec_private',
@@ -212,8 +346,16 @@ describe('local dev seeding workflow', () => {
           { family: 'parent-test-accounts', populationState: 'populated', itemCount: 4 },
           { family: 'support-admin-test-accounts', populationState: 'populated', itemCount: 4 },
           { family: 'referral-test-graph', populationState: 'populated', itemCount: 2 },
-          { family: 'webhook-payload-fixtures', populationState: 'test-fixture-backed', itemCount: 5 },
-          { family: 'queue-replay-fixtures', populationState: 'test-fixture-backed', itemCount: 2 },
+          {
+            family: 'webhook-payload-fixtures',
+            populationState: 'test-fixture-backed',
+            itemCount: LOCAL_WEBHOOK_FIXTURE_INVENTORY.length,
+          },
+          {
+            family: 'queue-replay-fixtures',
+            populationState: 'test-fixture-backed',
+            itemCount: LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY.length,
+          },
         ]
       );
       emitProofMilestone('seed-fixtures', 'consumed', {
@@ -279,10 +421,12 @@ describe('local dev seeding workflow', () => {
       }
     } finally {
       Logger.instance.reset();
-      if (originalLogLevel == null) {
-        delete process.env.OCENTRA_PARENT_LOG_LEVEL;
-      } else {
-        process.env.OCENTRA_PARENT_LOG_LEVEL = originalLogLevel;
+      for (const [key, value] of originalProofEnvironment) {
+        if (value == null) {
+          delete process.env[key];
+        } else {
+          process.env[key] = value;
+        }
       }
       server.closeAllConnections();
       await new Promise<void>((resolve, reject) => {

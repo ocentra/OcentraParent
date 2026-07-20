@@ -886,10 +886,25 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
   adminAccountCount: number;
   referralFixtureCount: number;
   manualReviewAccountCount: number;
+  persistence: {
+    d1StatusRows: number;
+    d1AdminAccountRows: number;
+    d1ReferralRows: number;
+    kvPricingPlanRows: number;
+    r2AuditEventRows: number;
+  };
 }> {
   const pricingPlans = await loadPricingPlans(env);
   const adminAccounts = await loadAdminBillingAccounts(env, null);
   const referrals = await loadAdminBillingReferrals(env, null);
+  const [statusRowCount, storedAdminAccounts, storedReferrals, storedPricingPlans, storedAuditEvents] =
+    await Promise.all([
+      d1First<RowCountRow>(env.BILLING_D1, SELECT_STATUS_ROW_COUNT_SQL),
+      d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_ACCOUNTS_SQL),
+      d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_REFERRALS_SQL),
+      env.BILLING_CONFIG_KV?.get(PRICING_PLANS_KEY, 'json'),
+      readStoredAuditEvents(env),
+    ]);
   return {
     generatedAt: GENERATED_AT,
     environment: env.ENVIRONMENT,
@@ -898,6 +913,13 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
     adminAccountCount: adminAccounts.length,
     referralFixtureCount: referrals.length,
     manualReviewAccountCount: adminAccounts.filter((account) => account.manualRequired).length,
+    persistence: {
+      d1StatusRows: Number(statusRowCount?.row_count ?? 0),
+      d1AdminAccountRows: storedAdminAccounts.length,
+      d1ReferralRows: storedReferrals.length,
+      kvPricingPlanRows: Array.isArray(storedPricingPlans) ? storedPricingPlans.length : 0,
+      r2AuditEventRows: storedAuditEvents.length,
+    },
   };
 }
 

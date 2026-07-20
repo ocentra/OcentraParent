@@ -6,6 +6,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import {
+  acquireLocalWranglerRuntimeLease,
+  LOCAL_WEBHOOK_FIXTURE_INVENTORY,
+} from '../../scripts/local-seed-runtime.js';
 
 interface RuntimeHandle {
   baseUrl: string;
@@ -21,6 +25,13 @@ interface HealthResponse {
     pricingPlanCount: number;
     adminAccountCount: number;
     referralFixtureCount: number;
+    persistence: {
+      d1StatusRows: number;
+      d1AdminAccountRows: number;
+      d1ReferralRows: number;
+      kvPricingPlanRows: number;
+      r2AuditEventRows: number;
+    };
   };
 }
 
@@ -200,6 +211,7 @@ function quoteWindowsArgument(argument: string): string {
 }
 
 let runtimePromise: Promise<RuntimeHandle> | null = null;
+const executedLocalWebhookFixtures = new Set<string>();
 
 function sleep(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
@@ -456,6 +468,7 @@ async function startRuntime(): Promise<RuntimeHandle> {
     '--log-level',
     'warn',
   ];
+  const runtimeLease = await acquireLocalWranglerRuntimeLease();
   const child =
     process.platform === 'win32'
       ? spawn('cmd.exe', ['/d', '/s', '/c', [wranglerCommand, ...wranglerArgs].map(quoteWindowsArgument).join(' ')], {
@@ -481,13 +494,18 @@ async function startRuntime(): Promise<RuntimeHandle> {
     await waitForHealthyRuntime(baseUrl, child, logs);
   } catch (error) {
     await stopRuntimeProcess(child, persistPath, runtimeDevVars.created);
+    runtimeLease.release();
     throw error;
   }
 
   return {
     baseUrl,
     stop: async (): Promise<void> => {
-      await stopRuntimeProcess(child, persistPath, runtimeDevVars.created);
+      try {
+        await stopRuntimeProcess(child, persistPath, runtimeDevVars.created);
+      } finally {
+        runtimeLease.release();
+      }
     },
   };
 }
@@ -518,6 +536,7 @@ describe('wrangler local runtime', () => {
     assert.equal(body.status, 'ok');
     assert.equal(body.service, 'cloudflare-control-plane');
     assert.equal(body.bindingStatus, 'ready');
+    assert.ok(Object.values(body.seedSummary.persistence).every((count) => count > 0));
     assert.equal(body.missingBindingCount, 0);
     assert.equal(body.seedSummary.pricingPlanCount, 3);
     assert.equal(body.seedSummary.adminAccountCount, 4);
@@ -738,6 +757,7 @@ describe('wrangler local runtime', () => {
     assert.equal(firstResponse.status, 202);
     assert.equal(firstBody.status, 'accepted');
     assert.equal(firstBody.provider, 'stripe');
+    executedLocalWebhookFixtures.add(firstBody.provider);
     assert.equal(firstBody.eventId, 'evt_runtime_invoice_paid');
 
     const replayResponse = await fetch(`${runtime.baseUrl}/webhooks/stripe`, {
@@ -1089,6 +1109,7 @@ describe('wrangler local runtime', () => {
     assert.equal(razorpayResponse.status, 202);
     assert.equal(razorpayBody.status, 'accepted');
     assert.equal(razorpayBody.provider, 'razorpay');
+    executedLocalWebhookFixtures.add(razorpayBody.provider);
 
     const activatedStatusResponse = await fetch(`${runtime.baseUrl}/auth/billing/status`, {
       headers: {
@@ -1124,6 +1145,7 @@ describe('wrangler local runtime', () => {
     assert.equal(paypalResponse.status, 202);
     assert.equal(paypalBody.status, 'accepted');
     assert.equal(paypalBody.provider, 'paypal');
+    executedLocalWebhookFixtures.add(paypalBody.provider);
 
     const graceStatusResponse = await fetch(`${runtime.baseUrl}/auth/billing/status`, {
       headers: {
@@ -1158,6 +1180,7 @@ describe('wrangler local runtime', () => {
     assert.equal(googleResponse.status, 202);
     assert.equal(googleBody.status, 'accepted');
     assert.equal(googleBody.provider, 'google');
+    executedLocalWebhookFixtures.add(googleBody.provider);
 
     const applePayload = JSON.stringify({
       id: 'apple_evt_runtime_renewed',
@@ -1175,6 +1198,11 @@ describe('wrangler local runtime', () => {
     assert.equal(appleResponse.status, 202);
     assert.equal(appleBody.status, 'accepted');
     assert.equal(appleBody.provider, 'apple');
+    executedLocalWebhookFixtures.add(appleBody.provider);
+    assert.deepEqual(
+      [...executedLocalWebhookFixtures].sort(),
+      [...LOCAL_WEBHOOK_FIXTURE_INVENTORY].sort()
+    );
 
     const recoveredStatusResponse = await fetch(`${runtime.baseUrl}/auth/billing/status`, {
       headers: {

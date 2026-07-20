@@ -2,6 +2,7 @@
 
 import { buildLocalSeedSnapshot } from '../src/billing-binding-read-model.js';
 import type { Env } from '../src/env.js';
+import { runLocalSeedMutation } from './local-seed-runtime.js';
 
 const env: Env = {
   ENVIRONMENT: 'development',
@@ -11,4 +12,15 @@ const env: Env = {
   ENTITLEMENT_SIGNING_KEY_REF: 'manual-required-local-ref',
 };
 
-console.log(JSON.stringify(buildLocalSeedSnapshot(env), null, 2));
+const mutationReceipt = await runLocalSeedMutation('composite-local-seed');
+
+console.log(
+  JSON.stringify(
+    {
+      ...buildLocalSeedSnapshot(env),
+      mutationReceipt,
+    },
+    null,
+    2
+  )
+);

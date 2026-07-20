@@ -1,7 +1,11 @@
 import type { Queue } from '@cloudflare/workers-types';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY } from '../../scripts/local-seed-runtime.js';
 import { createStripeSignature, createTestHarness, executeRequest, readJson } from '../../src/testing.js';
+
+const executedLocalQueueReplayFixtures = new Set<string>();
+const [acceptedReplayFixture, deadLetterReplayFixture] = LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY;
 
 interface WebhookResponse {
   status: string;
@@ -92,7 +96,7 @@ describe('billing write idempotency', () => {
 
   it('reuses durable-object outcomes for repeated change-plan writes per subject', async () => {
     for (let index = 0; index < 12; index += 1) {
-      const token = 'parent:demo-active';
+      const parentSubject = 'parent:demo-active';
       const harness = createTestHarness();
       const first = await executeRequest({
         path: '/auth/billing/change-plan',
@@ -100,7 +104,7 @@ describe('billing write idempotency', () => {
         harness,
         headers: {
           origin: 'http://localhost:3000',
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${parentSubject}`,
           'x-ocentra-csrf': 'interactive-parent-session',
         },
         body: {
@@ -115,7 +119,7 @@ describe('billing write idempotency', () => {
         harness,
         headers: {
           origin: 'http://localhost:3000',
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${parentSubject}`,
           'x-ocentra-csrf': 'interactive-parent-session',
         },
         body: {
@@ -168,6 +172,7 @@ describe('billing write idempotency', () => {
       assert.deepEqual(await readJson<unknown>(first.response), await readJson<unknown>(second.response));
       assert.equal(harness.queueMessages.length, 1);
     }
+    executedLocalQueueReplayFixtures.add(acceptedReplayFixture);
   });
 
   it('keeps a dead-lettered reconciliation replay stable for the same request id', async () => {
@@ -210,6 +215,11 @@ describe('billing write idempotency', () => {
       const deadLetter = harness.deadLetterMessages[0] as Record<string, unknown>;
       assert.equal(deadLetter.reason, 'reconciliation-queue-send-failed');
     }
+    executedLocalQueueReplayFixtures.add(deadLetterReplayFixture);
+    assert.deepEqual(
+      [...executedLocalQueueReplayFixtures].sort(),
+      [...LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY].sort()
+    );
   });
 
   it('keeps out-of-order duplicate webhook deliveries stable for the same event id', async () => {

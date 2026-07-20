@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'node:fs';
-import { existsSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import {
+  LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY,
+  LOCAL_WEBHOOK_FIXTURE_INVENTORY,
+} from './local-seed-runtime.js';
 
 export interface RuntimeDependencyBlocker {
   kind: 'missing-runtime-dependency' | 'runtime-import-check';
@@ -102,11 +107,19 @@ interface CommandProbeResult {
   blocker?: RuntimeDependencyBlocker;
 }
 
+interface MutationReceiptProbe {
+  runId?: unknown;
+  requestedFamily?: unknown;
+  runtimeBootStatus?: unknown;
+  fullBindingSeedApplied?: unknown;
+  persistence?: unknown;
+}
+
 function readWorkspaceScripts(): Record<string, string> {
   return JSON.parse(readFileSync(rootPackageJsonPath, 'utf8')).scripts as Record<string, string>;
 }
 
-function runCloudflareScript(command: string): CommandProbeResult {
+function runCloudflareScript(command: string, persistenceRoot: string, seedRunId: string): CommandProbeResult {
   if (!allowedCloudflareScriptCommands.has(command)) {
     return {
       command: `npm --prefix infra/cloudflare run ${command}`,
@@ -125,10 +138,20 @@ function runCloudflareScript(command: string): CommandProbeResult {
       ? spawnSync('cmd.exe', ['/d', '/s', '/c', `npm run ${command}`], {
           cwd: cloudflareDir,
           encoding: 'utf8',
+          env: {
+            ...process.env,
+            OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
+            OCENTRA_CLOUDFLARE_SEED_RUN_ID: seedRunId,
+          },
         })
       : spawnSync('npm', ['run', command], {
           cwd: cloudflareDir,
           encoding: 'utf8',
+          env: {
+            ...process.env,
+            OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
+            OCENTRA_CLOUDFLARE_SEED_RUN_ID: seedRunId,
+          },
         });
 
   if (result.status === 0) {
@@ -215,10 +238,8 @@ function inspectLocalStartPath(): LocalStartPath {
 }
 
 function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
-  const localSeed = runCloudflareScript('seed:local');
-  const productsSeed = runCloudflareScript('seed:products:local');
-  const referralsSeed = runCloudflareScript('seed:referrals:local');
-  const accountsSeed = runCloudflareScript('seed:test-accounts:local');
+  const persistenceRoot = mkdtempSync(path.join(os.tmpdir(), 'ocentra-cloudflare-seed-probe-'));
+  const seedRunId = `cloudflare-local-seed-probe-${randomUUID()}`;
 
   const parseJsonPayload = (probe: CommandProbeResult): Record<string, unknown> | null => {
     if (probe.status !== 'runnable') {
@@ -248,78 +269,105 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
     return null;
   };
 
-  return [
-    {
-      family: 'pricing-catalog',
-      source: productsSeed.command,
-      populationState:
-        productsSeed.status === 'blocked'
-          ? 'blocked'
-          : (parseCount(productsSeed, 'pricingPlans') ?? 0) > 0
-            ? 'populated'
-            : 'placeholder',
-      itemCount: parseCount(productsSeed, 'pricingPlans'),
-      notes: 'Local pricing plans should come from seed-products-local.ts, not a doc placeholder.',
-      blocker: productsSeed.blocker,
-    },
-    {
-      family: 'parent-test-accounts',
-      source: localSeed.command,
-      populationState:
-        localSeed.status === 'blocked'
-          ? 'blocked'
-          : (parseCount(localSeed, 'statusBySubject') ?? 0) > 0
-            ? 'populated'
-            : 'placeholder',
-      itemCount: parseCount(localSeed, 'statusBySubject'),
-      notes:
-        'Composite seed snapshot should include per-subject status, invoices, referrals, and entitlement snapshots.',
-      blocker: localSeed.blocker,
-    },
-    {
-      family: 'support-admin-test-accounts',
-      source: accountsSeed.command,
-      populationState:
-        accountsSeed.status === 'blocked'
-          ? 'blocked'
-          : (parseCount(accountsSeed, 'accounts') ?? 0) > 0
-            ? 'populated'
-            : 'placeholder',
-      itemCount: parseCount(accountsSeed, 'accounts'),
-      notes:
-        'Support/admin test accounts must come from the real seed script output, not a manual count written into docs.',
-      blocker: accountsSeed.blocker,
-    },
-    {
-      family: 'referral-test-graph',
-      source: referralsSeed.command,
-      populationState:
-        referralsSeed.status === 'blocked'
-          ? 'blocked'
-          : (parseCount(referralsSeed, 'referrals') ?? 0) > 0
-            ? 'populated'
-            : 'placeholder',
-      itemCount: parseCount(referralsSeed, 'referrals'),
-      notes: 'Referral fixtures should back both per-subject referral summaries and admin referral views.',
-      blocker: referralsSeed.blocker,
-    },
-    {
-      family: 'webhook-payload-fixtures',
-      source:
-        'infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts and infra/cloudflare/tests/integration/worker-runtime-real.test.ts',
-      populationState: 'test-fixture-backed',
-      itemCount: 5,
-      notes:
-        'Stripe, PayPal, Razorpay, Google, and Apple webhook payload families are explicit test fixtures, not seed placeholders.',
-    },
-    {
-      family: 'queue-replay-fixtures',
-      source: 'infra/cloudflare/tests/property/billing-idempotency.property.test.ts',
-      populationState: 'test-fixture-backed',
-      itemCount: 2,
-      notes: 'Queue fixtures explicitly cover accepted reconciliation flow and dead-letter replay stability.',
-    },
-  ];
+  const hasPersistedMutation = (probe: CommandProbeResult, requestedFamily: string): boolean => {
+    const body = parseJsonPayload(probe);
+    const receipt = body?.mutationReceipt as MutationReceiptProbe | undefined;
+    if (
+      receipt?.runId !== seedRunId ||
+      receipt.requestedFamily !== requestedFamily ||
+      receipt.runtimeBootStatus !== 'proven' ||
+      receipt.fullBindingSeedApplied !== true ||
+      receipt.persistence == null ||
+      typeof receipt.persistence !== 'object'
+    ) {
+      return false;
+    }
+    return Object.values(receipt.persistence).every(
+      (count) => typeof count === 'number' && Number.isInteger(count) && count > 0
+    );
+  };
+
+  try {
+    const localSeed = runCloudflareScript('seed:local', persistenceRoot, seedRunId);
+    const productsSeed = runCloudflareScript('seed:products:local', persistenceRoot, seedRunId);
+    const referralsSeed = runCloudflareScript('seed:referrals:local', persistenceRoot, seedRunId);
+    const accountsSeed = runCloudflareScript('seed:test-accounts:local', persistenceRoot, seedRunId);
+    const localSeedPersisted = hasPersistedMutation(localSeed, 'composite-local-seed');
+    const productsSeedPersisted = hasPersistedMutation(productsSeed, 'pricing-catalog');
+    const referralsSeedPersisted = hasPersistedMutation(referralsSeed, 'referral-test-graph');
+    const accountsSeedPersisted = hasPersistedMutation(accountsSeed, 'support-admin-test-accounts');
+
+    return [
+      {
+        family: 'pricing-catalog',
+        source: productsSeed.command,
+        populationState:
+          productsSeed.status === 'blocked'
+            ? 'blocked'
+            : productsSeedPersisted && (parseCount(productsSeed, 'pricingPlans') ?? 0) > 0
+              ? 'populated'
+              : 'placeholder',
+        itemCount: parseCount(productsSeed, 'pricingPlans'),
+        notes: 'Pricing plans are accepted only after Wrangler proves direct D1/KV/R2 persistence.',
+        blocker: productsSeed.blocker,
+      },
+      {
+        family: 'parent-test-accounts',
+        source: localSeed.command,
+        populationState:
+          localSeed.status === 'blocked'
+            ? 'blocked'
+            : localSeedPersisted && (parseCount(localSeed, 'statusBySubject') ?? 0) > 0
+              ? 'populated'
+              : 'placeholder',
+        itemCount: parseCount(localSeed, 'statusBySubject'),
+        notes: 'Composite parent seed is accepted only after direct local binding readback.',
+        blocker: localSeed.blocker,
+      },
+      {
+        family: 'support-admin-test-accounts',
+        source: accountsSeed.command,
+        populationState:
+          accountsSeed.status === 'blocked'
+            ? 'blocked'
+            : accountsSeedPersisted && (parseCount(accountsSeed, 'accounts') ?? 0) > 0
+              ? 'populated'
+              : 'placeholder',
+        itemCount: parseCount(accountsSeed, 'accounts'),
+        notes: 'Support/admin fixtures are accepted only after direct local binding readback.',
+        blocker: accountsSeed.blocker,
+      },
+      {
+        family: 'referral-test-graph',
+        source: referralsSeed.command,
+        populationState:
+          referralsSeed.status === 'blocked'
+            ? 'blocked'
+            : referralsSeedPersisted && (parseCount(referralsSeed, 'referrals') ?? 0) > 0
+              ? 'populated'
+              : 'placeholder',
+        itemCount: parseCount(referralsSeed, 'referrals'),
+        notes: 'Referral fixtures are accepted only after direct local binding readback.',
+        blocker: referralsSeed.blocker,
+      },
+      {
+        family: 'webhook-payload-fixtures',
+        source: 'infra/cloudflare/tests/integration/worker-runtime-real.test.ts',
+        populationState: 'test-fixture-backed',
+        itemCount: LOCAL_WEBHOOK_FIXTURE_INVENTORY.length,
+        notes: 'Count comes from the shared provider inventory executed by the real Worker runtime test.',
+      },
+      {
+        family: 'queue-replay-fixtures',
+        source: 'infra/cloudflare/tests/property/billing-idempotency.property.test.ts',
+        populationState: 'test-fixture-backed',
+        itemCount: LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY.length,
+        notes: 'Count comes from the shared accepted/dead-letter replay inventory executed by property tests.',
+      },
+    ];
+  } finally {
+    rmSync(persistenceRoot, { recursive: true, force: true });
+  }
 }
 
 function inspectLocalSeedPath(): LocalSeedPath {
