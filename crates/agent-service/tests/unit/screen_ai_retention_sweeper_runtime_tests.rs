@@ -180,10 +180,25 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
 
     assert!(failed_publication.is_empty());
     assert!(after_failure.is_empty());
-    assert_sweep_outcome(first, &expired_job)?;
-    assert_sweep_outcome(restarted, &expired_job)?;
+    assert_replayed_outbox_outcome(first, &expired_job)?;
+    assert_replayed_outbox_outcome(restarted, &expired_job)?;
     assert_sweep_deletion_events(&replayed, &expired_job);
     Ok(())
+}
+
+fn assert_replayed_outbox_outcome(
+    outcome: ScreenAiRetentionSweeperOutcome,
+    expired_job: &ScreenAnalysisQueueJob,
+) -> Result<(), IoError> {
+    match outcome {
+        ScreenAiRetentionSweeperOutcome::Swept { expired_entries, retained_count } => {
+            assert_eq!(retained_count, 0);
+            assert_eq!(expired_entries.len(), 1);
+            assert_eq!(expired_entries[0].queue_job_id, expired_job.queue_job_id);
+            Ok(())
+        }
+        other => Err(IoError::other(format!("expected durable outbox replay, got {other:?}"))),
+    }
 }
 
 async fn publish_swept_deletion_events(

@@ -1,6 +1,6 @@
 # WP22 Deletion And Retention Proof — Invalidated
 
-review_status: invalidated
+review_status: partial-current-head
 workpack: 22 Deletion And Retention Proof
 owner: screen-plan
 artifact_shape: proof-pack
@@ -20,6 +20,23 @@ retention, unlocked in-place queue rewrites, non-transactional deletion state,
 capture-path leakage, fabricated portal final-row seeding, and proof-custody
 leakage. Replacement implementation and fresh production-path proof are
 required before any checkbox is restored.
+
+## Current-head transactional outbox addendum (2026-07-20)
+
+`7847f2df2` introduces a Rust-owned encrypted-queue deletion outbox. Expired
+entries are persisted to that outbox before the queue rewrite, and each later
+sweep reloads the outbox even after the queue is empty. A publication failure
+therefore leaves a redacted deletion intent available for restart replay rather
+than silently losing the queue entry.
+
+Validation at `b2a5caee6c493fd2605a367853170b6c324b3c61`:
+
+- `CARGO_TARGET_DIR=E:\\OcentraBuild\\screen-wp22 cargo test -p ocentra-parent-agent-service --test screen_ai_runtime screen_retention_sweeper --no-fail-fast` — pass; 4 tests, including injected missing-store publication failure followed by restart/outbox replay and terminal deletion-event publication.
+- `npm run lint:architecture -- --files crates/agent-core/src/screen_evidence_queue.rs crates/agent-core/src/screen_evidence_queue_sweep.rs crates/agent-service/tests/unit/screen_ai_retention_sweeper_runtime_tests.rs` — pass.
+
+This is focused custody/runtime proof only. It does not restore the invalidated
+portal or product-retention claims, and WP22 remains open pending the complete
+accepted proof pack.
 
 ## Superseded runtime evidence
 
