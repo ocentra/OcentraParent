@@ -25,7 +25,10 @@ pub struct RetentionDeleteTombstoneStore {
 impl RetentionDeleteTombstoneStore {
     pub fn open(directory: impl AsRef<Path>) -> io::Result<Self> {
         fs::create_dir_all(directory.as_ref())?;
-        if fs::symlink_metadata(directory.as_ref())?.file_type().is_symlink() {
+        if fs::symlink_metadata(directory.as_ref())?
+            .file_type()
+            .is_symlink()
+        {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
                 "custody store directory must not be a symlink",
@@ -90,6 +93,7 @@ impl RetentionDeleteTombstoneStore {
             .create(true)
             .read(true)
             .write(true)
+            .truncate(false)
             .open(self.path.with_extension("lock"))
     }
 }

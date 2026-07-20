@@ -97,6 +97,7 @@ fn queue_lock_file(queue: &ScreenEvidenceQueue) -> Result<File, crate::JournalEr
         .create(true)
         .read(true)
         .write(true)
+        .truncate(false)
         .open(lock_path)?)
 }
 

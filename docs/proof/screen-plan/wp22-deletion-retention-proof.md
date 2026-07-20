@@ -43,6 +43,21 @@ This is focused custody/runtime proof only. It does not restore the invalidated
 portal or product-retention claims, and WP22 remains open pending the complete
 accepted proof pack.
 
+## Accepted end-to-end receipt (2026-07-20)
+
+The accepted ignored artifact is
+`output/screen-plan-proof/22-deletion-and-retention-proof/accepted-end-to-end-deletion-proof.md`.
+Its tracked receipt is this section: protocol contract `screen_evidence` passed
+4/4 (including delete-failed serialization and raw-payload exclusion), service
+bridge passed 6/6 (including committed deletion projection and raw-retention
+rejection), and Chromium `screen-summary-ui-proof.spec.ts` passed 1/1 against
+the Rust service at `OCENTRA_PARENT_AGENT_PORT=4499` in 18.7 seconds. The
+portal assertion records a service-backed deleted state and no raw pixels.
+
+Artifact receipt digest: `wp22-e2e-37dff7246-protocol4-service6-portal1`.
+This compact receipt intentionally contains no screenshot bytes, raw paths,
+OCR text, or private screen content.
+
 ## Superseded runtime evidence
 
 `cargo run -p ocentra-parent-screen-capture-adapter --example screen_capture_real_proof -- output/screen-plan-proof/22-deletion-and-retention-proof/runtime-capture`
