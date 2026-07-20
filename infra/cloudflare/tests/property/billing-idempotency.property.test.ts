@@ -216,10 +216,7 @@ describe('billing write idempotency', () => {
       assert.equal(deadLetter.reason, 'reconciliation-queue-send-failed');
     }
     executedLocalQueueReplayFixtures.add(deadLetterReplayFixture);
-    assert.deepEqual(
-      [...executedLocalQueueReplayFixtures].sort(),
-      [...LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY].sort()
-    );
+    assert.deepEqual([...executedLocalQueueReplayFixtures].sort(), [...LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY].sort());
   });
 
   it('keeps out-of-order duplicate webhook deliveries stable for the same event id', async () => {

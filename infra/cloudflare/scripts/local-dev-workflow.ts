@@ -6,10 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import {
-  LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY,
-  LOCAL_WEBHOOK_FIXTURE_INVENTORY,
-} from './local-seed-runtime.js';
+import { LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY, LOCAL_WEBHOOK_FIXTURE_INVENTORY } from './local-seed-runtime.js';
 
 export interface RuntimeDependencyBlocker {
   kind: 'missing-runtime-dependency' | 'runtime-import-check';

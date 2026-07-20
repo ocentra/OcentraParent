@@ -6,10 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import {
-  acquireLocalWranglerRuntimeLease,
-  LOCAL_WEBHOOK_FIXTURE_INVENTORY,
-} from '../../scripts/local-seed-runtime.js';
+import { acquireLocalWranglerRuntimeLease, LOCAL_WEBHOOK_FIXTURE_INVENTORY } from '../../scripts/local-seed-runtime.js';
 
 interface RuntimeHandle {
   baseUrl: string;
@@ -1199,10 +1196,7 @@ describe('wrangler local runtime', () => {
     assert.equal(appleBody.status, 'accepted');
     assert.equal(appleBody.provider, 'apple');
     executedLocalWebhookFixtures.add(appleBody.provider);
-    assert.deepEqual(
-      [...executedLocalWebhookFixtures].sort(),
-      [...LOCAL_WEBHOOK_FIXTURE_INVENTORY].sort()
-    );
+    assert.deepEqual([...executedLocalWebhookFixtures].sort(), [...LOCAL_WEBHOOK_FIXTURE_INVENTORY].sort());
 
     const recoveredStatusResponse = await fetch(`${runtime.baseUrl}/auth/billing/status`, {
       headers: {
