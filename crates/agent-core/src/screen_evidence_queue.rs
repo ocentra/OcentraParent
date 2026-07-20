@@ -37,7 +37,7 @@ pub struct DecryptedScreenEvidenceQueueEntry {
     pub image_bytes: Vec<u8>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct ScreenEvidenceExpiredQueueEntry {
     pub queue_job_id: String,
     pub image_digest: String,
@@ -152,5 +152,12 @@ impl ScreenEvidenceQueue {
         deletion_proof_prefix: &str,
     ) -> Result<ScreenEvidenceQueueSweep, crate::JournalError> {
         screen_evidence_queue_sweep::remove_expired_entries(self, now, deletion_proof_prefix)
+    }
+
+    pub fn acknowledge_expired_entries(
+        &self,
+        queue_job_ids: &[String],
+    ) -> Result<u64, crate::JournalError> {
+        screen_evidence_queue_sweep::acknowledge_expired_entries(self, queue_job_ids)
     }
 }
