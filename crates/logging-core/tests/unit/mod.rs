@@ -20,6 +20,7 @@ use serde_json::json;
 #[path = "../support/mod.rs"]
 mod support;
 
+mod artifact_subprocess;
 mod concurrency_artifact;
 #[cfg(feature = "test-support")]
 mod ndjson_failure_recovery;

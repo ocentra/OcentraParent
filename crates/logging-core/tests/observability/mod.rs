@@ -9,6 +9,7 @@ use std::{
 };
 
 use ocentra_parent_logging_core::{
+    artifact::{ArtifactKind, ArtifactRef, ArtifactWriter},
     dev_log::write_agent_info,
     field::{LogFieldValue, LogFields},
     path::{DEV_LOG_DIR_ENV, LANE_ID_ENV, LEDGER_LANE_ENV, LOG_ROOT_ENV, LOG_RUN_ID_ENV},
@@ -25,6 +26,10 @@ fn env_lock() -> &'static Mutex<()> {
     LOCK.get_or_init(|| Mutex::new(()))
 }
 
+fn assert_text_omits_secret(surface: &str, secret: &str) {
+    assert_eq!(surface.replace(secret, ""), surface);
+}
+
 #[test]
 fn dev_logger_writes_compat_file_when_dev_log_dir_is_set() {
     let result = dev_logger_writes_compat_file_when_dev_log_dir_is_set_impl();
@@ -38,8 +43,9 @@ fn dev_logger_prefers_shared_runtime_env_names() {
 }
 
 #[test]
-fn dev_logger_redacts_secret_fields_before_persisting() {
-    let result = dev_logger_redacts_secret_fields_before_persisting_impl();
+fn dev_logger_redacts_adversarial_key_variants_before_ndjson_and_artifact_metadata() {
+    let result =
+        dev_logger_redacts_adversarial_key_variants_before_ndjson_and_artifact_metadata_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -127,7 +133,8 @@ fn dev_logger_prefers_shared_runtime_env_names_impl() -> Result<(), Box<dyn Erro
     Ok(())
 }
 
-fn dev_logger_redacts_secret_fields_before_persisting_impl() -> Result<(), Box<dyn Error>> {
+fn dev_logger_redacts_adversarial_key_variants_before_ndjson_and_artifact_metadata_impl(
+) -> Result<(), Box<dyn Error>> {
     let _guard = env_lock()
         .lock()
         .map_err(|error| std::io::Error::other(format!("failed to lock env mutex: {error:?}")))?;
@@ -135,19 +142,54 @@ fn dev_logger_redacts_secret_fields_before_persisting_impl() -> Result<(), Box<d
     let temp = temp_dir!();
     env::remove_var(LOG_ROOT_ENV);
     env::set_var(DEV_LOG_DIR_ENV, &temp);
+    let secret_fields = [
+        ("X-API-Key", "raw-x-api-key-value"),
+        ("AUTHORIZATION", "raw-authorization-value"),
+        ("client.secret", "raw-client-secret-value"),
+        ("private/key", "raw-private-key-value"),
+        ("session-cookie", "raw-session-cookie-value"),
+        ("Pass_word", "raw-password-value"),
+        ("credential.id", "raw-credential-value"),
+        ("access TOKEN", "raw-access-token-value"),
+    ];
     let mut fields = LogFields::new();
+    for (key, value) in secret_fields {
+        fields.insert(key.to_owned(), LogFieldValue::String(value.to_owned()));
+    }
     fields.insert(
-        "apiToken".to_owned(),
-        LogFieldValue::String("persisted-secret-value".to_owned()),
+        "request-id".to_owned(),
+        LogFieldValue::String("visible-request-id".to_owned()),
     );
+    fields.insert("attempt_count".to_owned(), LogFieldValue::Number(2.0));
 
-    let path = write_agent_info(LogSource::AgentService, "redaction check", fields)?;
-
+    let write_result = write_agent_info(LogSource::AgentService, "redaction check", fields);
     env::remove_var(DEV_LOG_DIR_ENV);
-    let payload = fs::read_to_string(path)?;
+    let payload = fs::read_to_string(write_result?)?;
     let entry: serde_json::Value = serde_json::from_str(payload.trim())?;
-    assert_eq!(entry["fields"]["apiToken"], REDACTED_VALUE);
-    assert_ne!(entry["fields"]["apiToken"], "persisted-secret-value");
+    for (key, value) in secret_fields {
+        assert_eq!(entry["fields"][key], REDACTED_VALUE);
+        assert_text_omits_secret(&payload, value);
+    }
+    assert_eq!(entry["fields"]["request-id"], "visible-request-id");
+    assert_eq!(entry["fields"]["attempt_count"].as_f64(), Some(2.0));
+
+    let artifact_root = temp_dir!();
+    let artifact = ArtifactWriter::new(&artifact_root).write_text_artifact(
+        "redaction",
+        "safe-run",
+        "safe-command",
+        ArtifactKind::Diagnostic,
+        &payload,
+    )?;
+    let artifact_payload = fs::read_to_string(&artifact.artifact_path)?;
+    let metadata_payload = fs::read_to_string(format!("{}.metadata.json", artifact.artifact_path))?;
+    let persisted_artifact: ArtifactRef = serde_json::from_str(&metadata_payload)?;
+    assert_eq!(persisted_artifact, artifact);
+    for (_, value) in secret_fields {
+        assert_text_omits_secret(&artifact_payload, value);
+        assert_text_omits_secret(&metadata_payload, value);
+    }
+    assert_eq!(artifact_payload, payload);
     Ok(())
 }
 
