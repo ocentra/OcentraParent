@@ -67,8 +67,9 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` are green in the execution record; the current Cloudflare module lint passed at head `c121ba5eb`, and the remaining gap is the absent proof artifact.
-- That rerun gap is outside the WP06 storage-binding slice, so the blocker is carried rather than fixed here.
+- `npm --prefix infra/cloudflare run test:unit` and `test:integration` are green at validated source base `cbb842187`; the retained WP12 receipt records those broader command outcomes.
+- `npm --prefix infra/cloudflare run test:property` was not freshly rerun for that retained receipt, so its current WP06 result is unverified rather than green or test-failed.
+- WP06 remains proof-required because it lacks an accepted current-head retained receipt, a current property-family result, and live queue/retry/dead-letter/D1/KV/R2 operations proof. Proof-file absence is a custody gap, not a reason to relabel an unrun test command as blocked.
 
 ## Proof artifacts
 
@@ -77,13 +78,15 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - `02-rollback-or-teardown-proof.md`
 - `16-validation-commands.log`
 
-## Focused validations
+## Focused validation truth
 
-- `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`
-- `npm --prefix infra/cloudflare run test:unit` green in the execution record; proof artifact remains absent
-- `npm --prefix infra/cloudflare run test:integration` blocked on the same rerun gap
-- `npm --prefix infra/cloudflare run test:property` blocked on the same rerun gap
-- `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/tests/unit/env-bindings.test.ts`
+| Command | Current evidenced state |
+| --- | --- |
+| `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts` | Expected focused test; no separate current-head retained receipt is present. |
+| `npm --prefix infra/cloudflare run test:unit` | Passed at validated source base `cbb842187`; retained only as a broader WP12 command result, not WP06 closure proof. |
+| `npm --prefix infra/cloudflare run test:integration` | Passed at validated source base `cbb842187`; retained only as a broader WP12 command result, not live storage/queue operations proof. |
+| `npm --prefix infra/cloudflare run test:property` | Not freshly rerun for the retained receipt; unverified. |
+| `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/tests/unit/env-bindings.test.ts` | Required before WP06 closure; no new source/test edit or new WP06 receipt is claimed by this docs-only reconciliation. |
 
 ## No-claim boundary
 
