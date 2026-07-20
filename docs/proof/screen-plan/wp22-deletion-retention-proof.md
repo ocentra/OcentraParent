@@ -29,6 +29,11 @@ sweep reloads the outbox even after the queue is empty. A publication failure
 therefore leaves a redacted deletion intent available for restart replay rather
 than silently losing the queue entry.
 
+The current runtime acknowledges only successful terminal publications. The
+same focused restart test proves acknowledgement removes one pending entry,
+repeating that acknowledgement removes zero, and the next sweep is queue-empty.
+This prevents both silent loss and endless duplicate terminal publication.
+
 Validation at `b2a5caee6c493fd2605a367853170b6c324b3c61`:
 
 - `CARGO_TARGET_DIR=E:\\OcentraBuild\\screen-wp22 cargo test -p ocentra-parent-agent-service --test screen_ai_runtime screen_retention_sweeper --no-fail-fast` — pass; 4 tests, including injected missing-store publication failure followed by restart/outbox replay and terminal deletion-event publication.

@@ -102,12 +102,13 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
             expired_entries, ..
         }) = outcome
         {
-            let _ = publish_screen_retention_deletion_events(
+            let published = publish_screen_retention_deletion_events(
                 &config.store_path,
                 &expired_entries,
                 ObservedAtText(observed_at),
             )
             .await;
+            acknowledge_published_deletion_outbox(&config, published);
             sweep_count += 1;
         }
         if config.max_sweeps.is_some_and(|max| sweep_count >= max) {
@@ -117,6 +118,28 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
             break;
         }
     }
+}
+
+fn acknowledge_published_deletion_outbox(
+    config: &ScreenAiRetentionSweeperRuntimeConfig,
+    published: Vec<
+        crate::screen_ai_retention_sweeper_deletion_events::ScreenAiRetentionSweeperDeletionEventOutcome,
+    >,
+) {
+    if published.is_empty() {
+        return;
+    }
+    let Ok(Some(key)) = key_loader::load_existing_screen_key(&config.journal_key_path) else {
+        return;
+    };
+    let Ok(queue) = ScreenEvidenceQueue::open(&config.queue_dir, key) else {
+        return;
+    };
+    let queue_job_ids = published
+        .into_iter()
+        .map(|outcome| outcome.queue_job_id)
+        .collect::<Vec<_>>();
+    let _ = queue.acknowledge_expired_entries(&queue_job_ids);
 }
 
 pub(crate) fn record_screen_ai_retention_sweeper_tick(

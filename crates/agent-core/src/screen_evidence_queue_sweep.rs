@@ -91,7 +91,9 @@ fn outbox_path(queue: &ScreenEvidenceQueue) -> std::path::PathBuf {
     queue.path().with_extension("deletion-outbox")
 }
 
-fn read_outbox(queue: &ScreenEvidenceQueue) -> Result<Vec<ScreenEvidenceExpiredQueueEntry>, JournalError> {
+fn read_outbox(
+    queue: &ScreenEvidenceQueue,
+) -> Result<Vec<ScreenEvidenceExpiredQueueEntry>, JournalError> {
     let path = outbox_path(queue);
     match std::fs::read_to_string(path) {
         Ok(contents) => contents
@@ -105,7 +107,10 @@ fn read_outbox(queue: &ScreenEvidenceQueue) -> Result<Vec<ScreenEvidenceExpiredQ
     }
 }
 
-fn write_outbox(queue: &ScreenEvidenceQueue, entries: &[ScreenEvidenceExpiredQueueEntry]) -> Result<(), JournalError> {
+fn write_outbox(
+    queue: &ScreenEvidenceQueue,
+    entries: &[ScreenEvidenceExpiredQueueEntry],
+) -> Result<(), JournalError> {
     let path = outbox_path(queue);
     let body = entries
         .iter()
@@ -113,7 +118,14 @@ fn write_outbox(queue: &ScreenEvidenceQueue, entries: &[ScreenEvidenceExpiredQue
         .collect::<Result<Vec<_>, _>>()?
         .join("\n");
     let temp = path.with_extension("deletion-outbox.tmp");
-    std::fs::write(&temp, if body.is_empty() { body } else { format!("{body}\n") })?;
+    std::fs::write(
+        &temp,
+        if body.is_empty() {
+            body
+        } else {
+            format!("{body}\n")
+        },
+    )?;
     std::fs::rename(temp, path)?;
     Ok(())
 }

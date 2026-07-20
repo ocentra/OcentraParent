@@ -138,9 +138,18 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
     let store_path = root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX);
     let missing_store_path = root.join("missing-store.db");
     let key = JournalKey::from_bytes([7; JOURNAL_KEY_BYTES]);
-    require_ok(fs::create_dir_all(&root), constants::error::ACTIVITY_STORE_OPENS);
-    require_ok(fs::write(&key_path, key.as_bytes()), constants::error::ACTIVITY_STORE_OPENS);
-    let queue = require_ok(ScreenEvidenceQueue::open(&queue_dir, key), constants::error::JOURNAL_OPENS);
+    require_ok(
+        fs::create_dir_all(&root),
+        constants::error::ACTIVITY_STORE_OPENS,
+    );
+    require_ok(
+        fs::write(&key_path, key.as_bytes()),
+        constants::error::ACTIVITY_STORE_OPENS,
+    );
+    let queue = require_ok(
+        ScreenEvidenceQueue::open(&queue_dir, key),
+        constants::error::JOURNAL_OPENS,
+    );
     let expired_job = screen_queue_job_with_expiry(
         "screen-retention-outbox-restart",
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
@@ -167,7 +176,10 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
         constants::error::ACTIVITY_STORE_OPENS,
     );
     let failed_publication = publish_swept_deletion_events(&missing_store_path, &first).await;
-    let after_failure = require_ok(queue.read_decrypted_entries(4), constants::error::JOURNAL_READS);
+    let after_failure = require_ok(
+        queue.read_decrypted_entries(4),
+        constants::error::JOURNAL_READS,
+    );
     let restarted = require_ok(
         record_screen_ai_retention_sweeper_tick(
             &config,
@@ -176,6 +188,21 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
         constants::error::ACTIVITY_STORE_OPENS,
     );
     let replayed = publish_swept_deletion_events(&store_path, &restarted).await;
+    let acknowledged = require_ok(
+        queue.acknowledge_expired_entries(&[expired_job.queue_job_id.clone()]),
+        constants::error::JOURNAL_APPENDS,
+    );
+    let repeat_acknowledgement = require_ok(
+        queue.acknowledge_expired_entries(&[expired_job.queue_job_id.clone()]),
+        constants::error::JOURNAL_APPENDS,
+    );
+    let after_acknowledgement = require_ok(
+        record_screen_ai_retention_sweeper_tick(
+            &config,
+            sweeper_clock(constants::activity_store::TEST_THIRD_OBSERVED_AT),
+        ),
+        constants::error::ACTIVITY_STORE_OPENS,
+    );
     let _ = remove_dir_all(&root);
 
     assert!(failed_publication.is_empty());
@@ -183,6 +210,12 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
     assert_replayed_outbox_outcome(first, &expired_job)?;
     assert_replayed_outbox_outcome(restarted, &expired_job)?;
     assert_sweep_deletion_events(&replayed, &expired_job);
+    assert_eq!(acknowledged, 1);
+    assert_eq!(repeat_acknowledgement, 0);
+    assert_eq!(
+        after_acknowledgement,
+        ScreenAiRetentionSweeperOutcome::QueueEmpty
+    );
     Ok(())
 }
 
@@ -191,13 +224,18 @@ fn assert_replayed_outbox_outcome(
     expired_job: &ScreenAnalysisQueueJob,
 ) -> Result<(), IoError> {
     match outcome {
-        ScreenAiRetentionSweeperOutcome::Swept { expired_entries, retained_count } => {
+        ScreenAiRetentionSweeperOutcome::Swept {
+            expired_entries,
+            retained_count,
+        } => {
             assert_eq!(retained_count, 0);
             assert_eq!(expired_entries.len(), 1);
             assert_eq!(expired_entries[0].queue_job_id, expired_job.queue_job_id);
             Ok(())
         }
-        other => Err(IoError::other(format!("expected durable outbox replay, got {other:?}"))),
+        other => Err(IoError::other(format!(
+            "expected durable outbox replay, got {other:?}"
+        ))),
     }
 }
 
