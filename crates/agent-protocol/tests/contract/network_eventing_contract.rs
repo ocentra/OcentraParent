@@ -187,7 +187,49 @@ fn network_runtime_payload_rejects_impossible_semantic_tuple_before_dispatch() {
     );
     assert_eq!(
         candidate.contract().err().map(|error| error.to_string()),
-        Some("invalid value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+    );
+}
+
+#[test]
+fn network_contract_schema_fuzz_seeded_mutation_cases_fail_closed() {
+    const SEED: u64 = 0x4e57_5030_315f_7632;
+    const CASE_COUNT: usize = 5;
+    let valid = serde_json::to_value(payload()).expect(CONTRACT_EXPECTATION);
+    let mut cases = Vec::with_capacity(CASE_COUNT);
+
+    let mut unknown_enum = valid.clone();
+    unknown_enum["evidence_grade_contract"] = serde_json::json!(format!("future-{SEED:x}"));
+    cases.push(unknown_enum);
+    let mut missing = valid.clone();
+    missing.as_object_mut().expect(CONTRACT_EXPECTATION).remove("evidence_ref");
+    cases.push(missing);
+    let mut extra = valid.clone();
+    extra["seeded_future_field"] = serde_json::json!(SEED);
+    cases.push(extra);
+    let mut type_corruption = valid.clone();
+    type_corruption["destination_port"] = serde_json::json!(format!("seed-{SEED:x}"));
+    cases.push(type_corruption);
+    let mut semantic_tuple = valid;
+    semantic_tuple["policy_action"] = serde_json::json!("block");
+    cases.push(semantic_tuple);
+
+    assert_eq!(cases.len(), CASE_COUNT);
+    let semantic = serde_json::from_value::<NetworkRuntimeEventPayload>(
+        cases.pop().expect(CONTRACT_EXPECTATION),
+    )
+    .expect(CONTRACT_EXPECTATION);
+    for candidate in cases {
+        assert_eq!(
+            serde_json::from_value::<NetworkRuntimeEventPayload>(candidate)
+                .err()
+                .map(|error| error.classify()),
+            Some(serde_json::error::Category::Data)
+        );
+    }
+    assert_eq!(
+        semantic.validate_semantics().err().map(|error| error.to_string()),
+        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
     );
 }
 
@@ -218,7 +260,7 @@ async fn invalid_serialized_runtime_payload_is_rejected_before_handler_receipt()
             .await
             .err()
             .map(|error| error.to_string()),
-        Some("invalid value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
     );
     assert!(delivered.lock().expect(CONTRACT_EXPECTATION).is_empty());
 }

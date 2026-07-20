@@ -106,7 +106,13 @@ async fn network_runtime_chain_carries_exact_refs_without_direct_enforcement_sho
 
     assert_ai_request_refs(&payloads, observed_at)?;
     assert_policy_evaluation_refs(&payloads, observed_at)?;
-    assert_enforcement_command_refs(&payloads, observed_at)?;
+    assert!(payloads.iter().all(|payload| {
+        !matches!(
+            payload.phase,
+            NetworkRuntimePhase::EnforcementCommandIssued
+                | NetworkRuntimePhase::EnforcementResultObserved
+        )
+    }));
     assert_audit_and_portal_refs(&payloads, observed_at)?;
 
     Ok(())
@@ -203,7 +209,7 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() -> Tes
     );
     assert_eq!(
         report.publish_reports.len(),
-        NetworkRuntimePhase::ordered_chain().len() - 2
+        NetworkRuntimePhase::ordered_chain().len() - 4
     );
     assert_eq!(
         count_event_type(
@@ -392,61 +398,6 @@ fn assert_policy_evaluation_refs(
     Ok(())
 }
 
-fn assert_enforcement_command_refs(
-    payloads: &[NetworkRuntimeEventPayload],
-    observed_at: impl Display,
-) -> TestResult {
-    let observed_at = TestText::from_display(observed_at);
-    let enforcement_command =
-        payload_for_phase(payloads, NetworkRuntimePhase::EnforcementCommandIssued)?;
-    let mut adapter_ref = expected_correlation_ref(
-        &ActivityCaptureCapabilityStatus::Available,
-        observed_at.0.as_str(),
-    )
-    .to_string();
-    adapter_ref.push(constants::delimiter::HYPHEN);
-    adapter_ref.push_str(constants::network_flow::TARGET_ENFORCEMENT_DRY_RUN);
-
-    assert_eq!(
-        enforcement_command.previous_phase_ref,
-        Some(
-            expected_available_ref(
-                observed_at.0.as_str(),
-                NetworkRuntimePhase::PolicyDecisionCompleted
-            )
-            .to_string()
-        )
-    );
-    assert_eq!(
-        enforcement_command.policy_decision_ref,
-        Some(
-            expected_available_ref(
-                observed_at.0.as_str(),
-                NetworkRuntimePhase::PolicyDecisionCompleted
-            )
-            .to_string()
-        )
-    );
-    assert_eq!(
-        enforcement_command.adapter_capability_ref,
-        Some(adapter_ref)
-    );
-    assert_eq!(
-        enforcement_command.enforcement_command_ref,
-        Some(
-            expected_available_ref(
-                observed_at.0.as_str(),
-                NetworkRuntimePhase::EnforcementCommandIssued
-            )
-            .to_string()
-        )
-    );
-    assert_eq!(enforcement_command.enforcement_result_ref, None);
-    assert!(!enforcement_command.claim_boundary.adapter_action_executed);
-
-    Ok(())
-}
-
 fn assert_audit_and_portal_refs(
     payloads: &[NetworkRuntimeEventPayload],
     observed_at: impl Display,
@@ -458,20 +409,14 @@ fn assert_audit_and_portal_refs(
         Some(
             expected_available_ref(
                 observed_at.0.as_str(),
-                NetworkRuntimePhase::EnforcementResultObserved
+                NetworkRuntimePhase::PolicyDecisionCompleted
             )
             .to_string()
         )
     );
     assert_eq!(
         audit_entry.enforcement_result_ref,
-        Some(
-            expected_available_ref(
-                observed_at.0.as_str(),
-                NetworkRuntimePhase::EnforcementResultObserved
-            )
-            .to_string()
-        )
+        None
     );
     assert_eq!(
         audit_entry.audit_entry_ref,

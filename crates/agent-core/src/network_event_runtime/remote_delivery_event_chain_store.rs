@@ -34,6 +34,7 @@ pub(super) async fn publish_network_runtime_remote_event_chain_store(
     );
     let bus = event_chain_bus_with_journal(&journal).await?;
     let observation = remote_event_chain_observation();
+    let decision = super::network_runtime_decision_from_observation(&observation);
     for phase in NetworkRuntimePhase::ordered_chain()
         .iter()
         .copied()
@@ -43,6 +44,7 @@ pub(super) async fn publish_network_runtime_remote_event_chain_store(
             phase,
             &observation,
             constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            decision,
         );
         let metadata = network_event_metadata(
             phase,

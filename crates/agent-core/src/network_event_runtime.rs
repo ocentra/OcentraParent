@@ -89,16 +89,10 @@ fn network_runtime_event_payload_from_observation(
     phase: NetworkRuntimePhase,
     observation: &NetworkObservation,
     observed_at: &str,
-    decision: NetworkRuntimeDecision,
+    _decision: NetworkRuntimeDecision,
 ) -> NetworkRuntimeEventPayload {
     let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at);
-    let risk_budget_state = if decision.runtime_action_state
-        == NetworkRuntimeActionState::ManualRequired
-    {
-        ocentra_parent_agent_protocol::network_flow::NetworkRiskBudgetState::ManualReviewRequired
-    } else {
-        risk_budget_state(observation)
-    };
+    let risk_budget_state = risk_budget_state(observation);
     NetworkRuntimeEventPayload {
         phase,
         capability_status: observation.status,
@@ -119,12 +113,7 @@ fn network_runtime_event_payload_from_observation(
         ai_audit_state: ai_audit_state(phase),
         risk_budget_state,
         intervention_state: helpers::intervention_state_from_budget(&risk_budget_state),
-        policy_action: if decision.runtime_action_state == NetworkRuntimeActionState::ManualRequired
-        {
-            ocentra_parent_agent_protocol::network_flow::NetworkPolicyDecisionAction::AskParent
-        } else {
-            policy_action(observation)
-        },
+        policy_action: policy_action(observation),
         claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
         previous_phase_ref: chain_refs.previous_phase_ref,
         evidence_ref: chain_refs.evidence_ref,
