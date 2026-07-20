@@ -70,7 +70,7 @@ These are field requirements for proof routing, not implementation code prescrip
 - The current checkout output tree contains no tracked WP00-WP12 generated proof roots; generated output is intentionally not source.
 - A compact tracked WP12 receipt records current-head local validation and the exact blocker handoff without promoting ignored output into source.
 - `accepted_proof_roots` for this checkout truth is `none-present`.
-- WP01 through WP11 remain historical plan references in the plan docs and are not present artifacts in this checkout's output tree.
+- WP00 through WP11 remain historical plan references in the plan docs and are not present artifacts in this checkout's output tree. WP00 is parity-extraction history; it is included here as historical-but-absent rather than left ambiguous as never produced.
 - WP12 retains its raw/generated output route, but payment handoff truth survives cleanup in the tracked receipt.
 - Current Cloudflare lint, unit, contract, real Wrangler integration, generated-artifact lint, and billing-core unit gates are green at `cbb8421875492176bd2a3d5b95eaa7fa0dd8210e`.
 - Remaining blockers are absent accepted WP00-WP11 receipts, account/trusted-device/provider/storage/portal/deployment/data-custody states, and no downstream payment acknowledgment.
@@ -87,6 +87,7 @@ These are field requirements for proof routing, not implementation code prescrip
 
 ## Historical plan references
 
+- `output/cloudflare-control-plane-plan-proof/00-games-infra-parity-extraction/`
 - `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/`
 - `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/`
 - `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
@@ -131,14 +132,14 @@ These are field requirements for proof routing, not implementation code prescrip
 
 - This workpack does not unblock `payment-subscription-plan`.
 - This workpack does not prove Cloudflare runtime readiness.
-- This workpack does not convert historical plan references or the retained blocker receipt into accepted WP01 through WP11 proof roots.
+- This workpack does not convert historical plan references or the retained blocker receipt into accepted WP00 through WP11 proof roots.
 - This workpack does not close account authority, trusted-device authority, deployment readiness, or data-custody ownership.
 - This workpack does not convert proof absence into payment readiness.
 
 ## Failure conditions
 
 - Reject unblocking payment from docs alone when core Cloudflare blockers remain.
-- Reject unblocking payment from historical plan references alone when the current checkout output tree does not contain WP01 through WP11.
+- Reject unblocking payment from historical plan references alone when the current checkout output tree does not contain WP00 through WP11.
 - Reject unblocking payment from the checked-in billing-contract sidecar or the retained blocker receipt while custody/dependency gates or downstream acknowledgment remain unresolved.
 - Reject unblocking payment from source presence or route manifest presence alone.
 - Reject unblocking payment from local dev proof as production deploy proof.

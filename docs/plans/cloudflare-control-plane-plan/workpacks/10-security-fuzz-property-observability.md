@@ -51,34 +51,27 @@ Reduce the games security and external-tool surface to the Parent-required basel
 ## Families proved vs blocked
 
 - Proved at file/assertion inventory surface: security, property, fuzz, and carried observability integration families are explicit and mapped to exact assertion IDs.
-- Current execution is green today: security, property, fuzz, and carried observability integration.
-- Partial file-level passes inside blocked family runs:
-  - security: `redaction`
-  - property: `route-auth-state`
-- Blocked file-level execution remains explicit:
-  - security: `no-provider-secrets-in-client`, `cors-origin-rejection`, `request-smuggling`
-  - property: `billing-idempotency`
-  - fuzz: `provider-webhook-payload`
-  - carried observability integration: `worker-health`, `pricing-public`, `billing-status-auth`, `webhook-signature-rejection`, `admin-auth-rejection`
+- `npm --prefix infra/cloudflare run test:integration` passed at validated source base `cbb842187`, but the retained WP12 receipt does not map that broader result to every WP10 observability assertion.
+- Security, property, and fuzz families were not freshly rerun for the retained receipt. Their current execution state is unverified, not green and not test-failed.
+- No file-level pass/fail claim is carried forward without a current assertion-mapped WP10 receipt.
 
 ## Exact blocker
 
-- Direct blocker surfaced by every current WP10 command:
-  - the absent proof artifact and custody gap
-  - `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; the current Cloudflare module lint is not a blocker
-- The failure path is the same across the current reruns:
-  - unrefreshed through the narrowed WP08 family contract and carried observability integrations
+- The WP10 proof root and cleanup-safe retained receipt are absent.
+- Security, property, and fuzz commands lack current assertion-mapped results; the broader integration pass does not substitute for those families.
+- `npm --prefix infra/cloudflare run lint` passed at validated source base `cbb842187`; module lint is not the WP10 blocker.
+- `OBS-03` remains receipt-required because no current WP10 artifact maps the carried integration assertions, not because the currently retained evidence proves that integration cannot boot.
 
 ## Validation truth
 
 - `npm --prefix infra/cloudflare run test:security`
-  - blocked
+  - not freshly rerun for the retained receipt; unverified
 - `npm --prefix infra/cloudflare run test:property`
-  - blocked
+  - not freshly rerun for the retained receipt; unverified
 - `npm --prefix infra/cloudflare run test:fuzz`
-  - blocked
+  - not freshly rerun for the retained receipt; unverified
 - `npm --prefix infra/cloudflare run test:integration`
-  - blocked
+  - passed at validated source base `cbb842187`; no current assertion-mapped WP10 receipt exists
 - No architecture gate was applicable in this packet because no WP10 TypeScript source or test file changed; this closure pass records current family truth through proof/docs only.
 
 ## Validation
@@ -105,5 +98,5 @@ Reduce the games security and external-tool surface to the Parent-required basel
 
 - This workpack does not prove current Cloudflare runtime readiness.
 - This workpack does not prove payment handoff readiness, account authority, trusted-device authority, or portal completion.
-- `OBS-03` stays blocked under current reruns because the required integration family does not boot.
-- WP10 stays proof-required until the proof artifact is recorded and the required family commands remain green.
+- `OBS-03` stays proof-required until the carried integration assertions have current retained, assertion-mapped evidence.
+- WP10 stays proof-required until security, property, fuzz, and integration results are current and the required proof artifact is recorded.

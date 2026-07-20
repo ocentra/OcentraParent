@@ -4,7 +4,9 @@
 
 Define the ledger-to-device gate that turns billing and referral truth into signed entitlement snapshots and device-bound access checks.
 
-Status: `done / proof-required`
+Status: `source-and-focused-tests-present / workpack-blocked / proof-required / WP00-blocked`
+
+The Rust source and named focused tests remain independently inspectable implementation evidence. The canonical WP04 proof directory is physically absent in this checkout, so ledger/snapshot/device-gate closure is not proven and account/device-trust plus WP00 dependencies remain open.
 
 ## Ownership boundary
 
@@ -93,13 +95,13 @@ These are proof-routing fields, not implementation code prescriptions.
 
 ## Validation
 
-Focused validation used for this packet:
+Previously recorded focused source/test commands for this packet; their physical validation log is absent in this checkout and must be rerun and retained before closure:
 
 - `cargo test -p ocentra-entitlement-core --test unit`
 - `cargo lint-architecture crates/entitlement-core/src/entitlement_access.rs crates/entitlement-core/tests/unit.rs crates/entitlement-core/tests/unit/capability_gate.rs crates/entitlement-core/tests/unit/capability_access.rs crates/entitlement-core/tests/unit/signed_snapshot_delivery.rs`
 - `cmd /c npm exec -- prettier --check docs/plans/payment-subscription-plan/APP_OWNED_BILLING_LEDGER.md docs/plans/payment-subscription-plan/APP_OWNED_REFERRAL_LEDGER.md docs/plans/payment-subscription-plan/APP_OWNED_ENTITLEMENT_LEDGER.md docs/plans/payment-subscription-plan/SIGNED_ENTITLEMENT_SNAPSHOT_MODEL.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/00-scope-summary.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-entitlement-ledger-proof.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-signed-snapshot-proof.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-local-device-trust-required-proof.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-referral-loss-recalculation-proof.md output/payment-subscription-plan-proof/04-entitlement-delivery-gates/05-no-claim-boundary.md`
 
-Proof bundle:
+Expected proof bundle, currently absent:
 
 - `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/00-scope-summary.md`
 - `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-entitlement-ledger-proof.md`
@@ -123,3 +125,4 @@ Proof bundle:
 - Do not let provider state bypass the entitlement ledger.
 - Do not reuse a snapshot across households or devices.
 - Do not let entitlement proof claim policy/enforcement behavior.
+- Do not claim WP04 complete while WP00/account/device-trust handoffs are unaccepted or the canonical physical proof bundle is absent.
