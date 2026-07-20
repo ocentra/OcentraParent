@@ -102,23 +102,12 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
             expired_entries, ..
         }) = outcome
         {
-            let published = publish_screen_retention_deletion_events(
+            let _ = publish_screen_retention_deletion_events(
                 &config.store_path,
                 &expired_entries,
                 ObservedAtText(observed_at),
             )
             .await;
-            if !published.is_empty() {
-                if let Some(key) = key_loader::load_existing_screen_key(&config.journal_key_path).ok().flatten() {
-                    if let Ok(queue) = ScreenEvidenceQueue::open(&config.queue_dir, key) {
-                        let published_ids = published
-                            .into_iter()
-                            .map(|outcome| outcome.queue_job_id)
-                            .collect::<Vec<_>>();
-                        let _ = queue.acknowledge_expired_entries(&published_ids);
-                    }
-                }
-            }
             sweep_count += 1;
         }
         if config.max_sweeps.is_some_and(|max| sweep_count >= max) {
