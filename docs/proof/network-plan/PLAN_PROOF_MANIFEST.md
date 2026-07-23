@@ -22,4 +22,4 @@
 | `output/network-plan-proof/01-network-foundation-shim-cleanup/01-negative-case-proof.md` | focused negative-case note for the remaining contradiction |
 | `output/network-plan-proof/01-network-foundation-shim-cleanup/02-no-claim-boundary.md` | no-overclaim note for the control-catalog/public-surface boundary |
 | `output/network-plan-proof/01-network-foundation-shim-cleanup/16-validation-commands.log` | focused TS validation run during this slice |
-| `output/network-plan-proof/01-foundation-contracts-and-eventing/16-validation-commands.log` | focused Rust protocol/runtime and architecture validation for the WP01 packet |
+| `docs/proof/network-plan/01-foundation-contracts-and-eventing.md` | tracked validation receipt for the WP01 packet; the ignored raw-output log is not retained, so this row makes no raw-log artifact claim |

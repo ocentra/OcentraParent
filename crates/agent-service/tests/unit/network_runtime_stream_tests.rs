@@ -19,9 +19,10 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::network_flow::{
     ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
-    ActivityNetworkFlowReadModel, NetworkEvidenceGrade, NetworkFlowObservedEvent,
-    NetworkPolicyDecisionAction, NetworkPolicyDecisionCompletedEvent, NetworkRuntimePhase,
-    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+    ActivityNetworkFlowReadModel, NetworkAuditEntryCommittedEvent, NetworkEvidenceGrade,
+    NetworkFlowObservedEvent, NetworkPolicyDecisionAction, NetworkPolicyDecisionCompletedEvent,
+    NetworkRuntimePhase, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
     NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
     NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
@@ -156,6 +157,12 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
     assert_eq!(
         entries[6][constants::field::PAYLOAD][constants::field::VISIBLE_MANUAL_REQUIRED],
         true
+    );
+    let audit_event: NetworkAuditEntryCommittedEvent =
+        serde_json::from_value(entries[5][constants::field::PAYLOAD].clone())?;
+    assert_eq!(
+        audit_event.policy_decision_ref,
+        policy_constants::HANDOFF_NOT_REQUESTED
     );
     Ok(())
 }

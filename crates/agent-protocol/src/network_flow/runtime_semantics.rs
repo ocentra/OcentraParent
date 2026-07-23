@@ -28,7 +28,7 @@ pub(super) fn expected(
             NetworkEvidenceGrade::D,
             NetworkRiskBudgetState::Unavailable,
             NetworkInterventionState::Unavailable,
-            NetworkPolicyDecisionAction::ManualReview,
+            NetworkPolicyDecisionAction::Unknown,
         ),
     }
 }

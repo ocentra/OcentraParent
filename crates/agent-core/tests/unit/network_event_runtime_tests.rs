@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::activity_capture::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
-    NetworkEvidenceScope, NetworkInterventionState, NetworkRiskBudgetState,
+    NetworkAiAuditState, NetworkEvidenceScope, NetworkInterventionState, NetworkRiskBudgetState,
     NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
 };
 
@@ -80,6 +80,9 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() -> TestResult
             NetworkRuntimePhase::AiAnalysisRequested | NetworkRuntimePhase::AiAnalysisCompleted
         )
     }));
+    assert!(payloads
+        .iter()
+        .all(|payload| payload.ai_audit_state == NetworkAiAuditState::NotRequested));
     assert_eq!(
         count_event_type(
             &report,
@@ -261,7 +264,8 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() -> Tes
             && payload.evidence_grade_contract
                 == ocentra_parent_agent_protocol::NetworkEvidenceGrade::D
             && payload.policy_action
-                == ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::ManualReview
+                == ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Unknown
+            && payload.ai_audit_state == NetworkAiAuditState::NotRequested
             && !payload.claim_boundary.decrypted_https_payload_available
             && !payload.claim_boundary.adapter_action_executed
     }));

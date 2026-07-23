@@ -18,7 +18,9 @@ use crate::NetworkObservation;
 use super::remote_delivery_event_chain_journal_types::{
     count_payloads, NetworkRuntimeRemoteEventChainJournalError, UnsupportedClaimCounts,
 };
-use super::{network_event_metadata, should_publish_phase, NetworkRuntimeEventPayload};
+use super::{
+    network_event_metadata, should_publish_phase_for_runtime_decision, NetworkRuntimeEventPayload,
+};
 
 pub(super) struct NetworkRuntimeRemoteEventChainStore {
     pub stored_events: Vec<StoredEventEnvelope>,
@@ -38,7 +40,7 @@ pub(super) async fn publish_network_runtime_remote_event_chain_store(
     for phase in NetworkRuntimePhase::ordered_chain()
         .iter()
         .copied()
-        .filter(|phase| should_publish_phase(*phase, &observation))
+        .filter(|phase| should_publish_phase_for_runtime_decision(*phase, &observation, &decision))
     {
         let payload = super::network_runtime_event_payload_from_observation(
             phase,

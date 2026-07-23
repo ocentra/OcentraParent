@@ -110,7 +110,7 @@ fn network_runtime_event_payload_from_observation(
         evidence_scope: evidence_scope(observation),
         evidence_grade: evidence_grade(observation),
         evidence_grade_contract: evidence_grade_contract(observation),
-        ai_audit_state: ai_audit_state(phase),
+        ai_audit_state: ai_audit_state(phase, decision.ai_handoff_state),
         risk_budget_state,
         intervention_state: helpers::intervention_state_from_budget(&risk_budget_state),
         policy_action: policy_action(observation),
@@ -127,13 +127,6 @@ fn network_runtime_event_payload_from_observation(
         audit_entry_ref: chain_refs.audit_entry_ref,
         observed_at: observed_at.to_string(),
     }
-}
-
-pub(super) fn should_publish_phase(
-    phase: NetworkRuntimePhase,
-    observation: &NetworkObservation,
-) -> bool {
-    helpers::should_publish_phase(phase, observation)
 }
 
 pub(super) fn should_publish_phase_for_runtime_decision(

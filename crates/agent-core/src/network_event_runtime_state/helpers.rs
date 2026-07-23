@@ -1,3 +1,4 @@
+use ocentra_network_core::network_runtime::NetworkAiHandoffState;
 use ocentra_parent_agent_protocol::activity_capture::{
     ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
     ActivityProcessAttributionStatus,
@@ -30,7 +31,13 @@ pub(crate) fn evidence_grade(observation: &NetworkObservation) -> NetworkRuntime
     NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata
 }
 
-pub(crate) fn ai_audit_state(phase: NetworkRuntimePhase) -> NetworkAiAuditState {
+pub(crate) fn ai_audit_state(
+    phase: NetworkRuntimePhase,
+    handoff_state: NetworkAiHandoffState,
+) -> NetworkAiAuditState {
+    if handoff_state == NetworkAiHandoffState::NotRequired {
+        return NetworkAiAuditState::NotRequested;
+    }
     match phase {
         NetworkRuntimePhase::AiAnalysisRequested => NetworkAiAuditState::Requested,
         NetworkRuntimePhase::AiAnalysisCompleted

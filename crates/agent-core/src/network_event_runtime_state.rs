@@ -1,3 +1,4 @@
+use ocentra_network_core::network_runtime::NetworkAiHandoffState;
 use ocentra_parent_agent_protocol::network_flow::{
     NetworkAiAuditState, NetworkEvidenceGrade, NetworkEvidenceScope, NetworkPolicyDecisionAction,
     NetworkRiskBudgetState, NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
@@ -16,8 +17,11 @@ pub(crate) fn evidence_grade(observation: &NetworkObservation) -> NetworkRuntime
     helpers::evidence_grade(observation)
 }
 
-pub(crate) fn ai_audit_state(phase: NetworkRuntimePhase) -> NetworkAiAuditState {
-    helpers::ai_audit_state(phase)
+pub(crate) fn ai_audit_state(
+    phase: NetworkRuntimePhase,
+    handoff_state: NetworkAiHandoffState,
+) -> NetworkAiAuditState {
+    helpers::ai_audit_state(phase, handoff_state)
 }
 
 pub(crate) fn risk_budget_state(observation: &NetworkObservation) -> NetworkRiskBudgetState {
@@ -38,6 +42,6 @@ pub(crate) fn policy_action(observation: &NetworkObservation) -> NetworkPolicyDe
     match risk_budget_state(observation) {
         NetworkRiskBudgetState::ObserveOnly => NetworkPolicyDecisionAction::Observe,
         NetworkRiskBudgetState::ManualReviewRequired => NetworkPolicyDecisionAction::AskParent,
-        NetworkRiskBudgetState::Unavailable => NetworkPolicyDecisionAction::ManualReview,
+        NetworkRiskBudgetState::Unavailable => NetworkPolicyDecisionAction::Unknown,
     }
 }
