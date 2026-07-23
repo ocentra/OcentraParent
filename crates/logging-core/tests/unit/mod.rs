@@ -313,7 +313,8 @@ fn ndjson_writer_rejects_invalid_segments_impl() -> Result<(), Box<dyn Error>> {
 }
 
 fn artifact_writer_writes_text_and_hashes_content_impl() -> Result<(), Box<dyn Error>> {
-    let root = temp_dir!();
+    let root = temp_dir!().join("fresh").join("nested");
+    assert!(!root.exists());
     let writer = ArtifactWriter::new(&root);
     let artifact = writer.write_text_artifact(
         "parent-codex",
@@ -344,5 +345,6 @@ fn artifact_writer_writes_text_and_hashes_content_impl() -> Result<(), Box<dyn E
             .join("stdout.log"),
     )?;
     assert_eq!(file_text, "alpha\nbeta\n");
+    assert!(root.join("parent-codex").join("artifacts").is_dir());
     Ok(())
 }

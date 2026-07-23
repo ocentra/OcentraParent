@@ -2,10 +2,7 @@ use std::{
     fs::{remove_file, OpenOptions},
     io,
     path::{Path, PathBuf},
-    sync::atomic::{AtomicU64, Ordering},
 };
-
-static TEMPORARY_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 pub(crate) fn with_publish_lock<T>(
     path: &Path,
@@ -32,8 +29,7 @@ pub(crate) fn with_publish_lock<T>(
 }
 pub(crate) fn temporary_path(path: &Path) -> io::Result<PathBuf> {
     let name = file_name(path)?;
-    let sequence = TEMPORARY_SEQUENCE.fetch_add(1, Ordering::Relaxed);
-    Ok(path.with_file_name(format!(".{name}.{}.{}.tmp", std::process::id(), sequence)))
+    Ok(path.with_file_name(format!(".{name}.tmp")))
 }
 pub(crate) fn remove_temporary(path: &Path) -> io::Result<()> {
     match remove_file(path) {

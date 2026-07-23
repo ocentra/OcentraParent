@@ -3,6 +3,7 @@
 pub mod agent_run;
 pub mod artifact;
 mod artifact_custody;
+mod artifact_directory;
 mod artifact_publish;
 mod artifact_publish_copy;
 mod artifact_publish_copy_owned;

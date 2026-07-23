@@ -1,5 +1,5 @@
 use std::{
-    fs::{create_dir, create_dir_all, read},
+    fs::{read, symlink_metadata},
     io,
     path::{Path, PathBuf},
 };
@@ -8,6 +8,7 @@ use sha2::{Digest, Sha256};
 
 use crate::{
     artifact::{ArtifactKind, ArtifactRef, ARTIFACT_RECORD_TYPE, ARTIFACT_SCHEMA_VERSION},
+    artifact_directory::{create_and_sync_directory, create_durable_directory_hierarchy},
     path::path_string,
 };
 
@@ -99,8 +100,13 @@ pub(crate) fn custody_sha256(artifact: &ArtifactRef) -> String {
 }
 
 fn ensure_safe_root(root: &Path) -> io::Result<PathBuf> {
-    create_dir_all(root)?;
-    if std::fs::symlink_metadata(root)?.file_type().is_symlink() {
+    let root = if root.is_absolute() {
+        root.to_path_buf()
+    } else {
+        std::env::current_dir()?.join(root)
+    };
+    create_durable_directory_hierarchy(&root)?;
+    if symlink_metadata(&root)?.file_type().is_symlink() {
         return Err(io::Error::new(
             io::ErrorKind::PermissionDenied,
             "artifact root must not be a symlink",
@@ -108,23 +114,17 @@ fn ensure_safe_root(root: &Path) -> io::Result<PathBuf> {
     }
     root.canonicalize()
 }
+
 fn ensure_safe_directory(root: &Path, directory: &Path) -> io::Result<()> {
     if directory.exists() {
-        if std::fs::symlink_metadata(directory)?
-            .file_type()
-            .is_symlink()
-        {
+        if symlink_metadata(directory)?.file_type().is_symlink() {
             return Err(io::Error::new(
                 io::ErrorKind::PermissionDenied,
                 "artifact directory must not be a symlink",
             ));
         }
     } else {
-        match create_dir(directory) {
-            Ok(()) => {}
-            Err(error) if error.kind() == io::ErrorKind::AlreadyExists && directory.exists() => {}
-            Err(error) => return Err(error),
-        }
+        create_and_sync_directory(directory)?;
     }
     if !directory.canonicalize()?.starts_with(root) {
         return Err(io::Error::new(

@@ -11,7 +11,7 @@ use crate::{
     event::{ParentLogEvent, LOG_SCHEMA_VERSION},
     field::LogFields,
     level::LogLevel,
-    ndjson_writer::{append_record_for_operation, NdjsonWriter},
+    ndjson_writer::{append_record, NdjsonWriter},
     path::{
         resolve_lane_id, resolve_log_root, resolve_log_run_id, resolve_log_scope, timestamp_now,
         DEV_LOG_DIR_ENV, LOG_ROOT_ENV,
@@ -94,12 +94,9 @@ impl DevLogger {
         };
 
         match &self.target {
-            DevLogTarget::Scoped { writer, scope } => writer.append_event_for_operation(
-                scope,
-                DEV_LOG_STREAM,
-                &event.entry_id.to_string(),
-                &event,
-            ),
+            DevLogTarget::Scoped { writer, scope } => {
+                writer.append_event(scope, DEV_LOG_STREAM, &event)
+            }
             DevLogTarget::CompatFile { directory } => append_compat_event(directory, &event),
         }
     }
@@ -159,7 +156,7 @@ fn append_compat_event(directory: &Path, event: &ParentLogEvent) -> io::Result<P
     let mut record = serde_json::to_vec(event)
         .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
     record.push(b'\n');
-    append_record_for_operation(&path, &event.entry_id.to_string(), &record)?;
+    append_record(&path, &record)?;
     Ok(path)
 }
 

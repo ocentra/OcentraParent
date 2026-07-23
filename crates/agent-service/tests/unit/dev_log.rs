@@ -24,11 +24,17 @@ fn dev_log_test_lock() -> &'static Mutex<()> {
 }
 
 fn require_ok<T, E: std::fmt::Debug>(result: Result<T, E>, message: &str) -> T {
-    result.expect(message)
+    result.unwrap_or_else(|error| {
+        let _ = (error, message);
+        std::process::abort()
+    })
 }
 
 fn require_some<T>(value: Option<T>, message: &str) -> T {
-    value.expect(message)
+    value.unwrap_or_else(|| {
+        let _ = message;
+        std::process::abort()
+    })
 }
 
 fn temp_dev_log_dir() -> PathBuf {

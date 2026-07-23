@@ -99,6 +99,11 @@ fn dev_logger_writes_compat_file_when_dev_log_dir_is_set_impl() -> Result<(), Bo
         path.file_name().and_then(|name| name.to_str()),
         Some(expected_name.as_str())
     );
+    let operation_directory = path.with_file_name(format!(".{expected_name}.operations"));
+    assert!(
+        !operation_directory.exists(),
+        "one-shot dev logging must not retain an operation journal"
+    );
     assert_eq!(value["message"], "Agent service dev runtime started.");
     Ok(())
 }
