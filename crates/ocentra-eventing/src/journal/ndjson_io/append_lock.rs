@@ -75,7 +75,9 @@ async fn acquire(
             Err(std::fs::TryLockError::WouldBlock) => {
                 tokio::time::sleep(LOCK_RETRY_DELAY).await;
             }
-            Err(error) => return Err(EventingError::journal_io(journal.path_string(), &error)),
+            Err(std::fs::TryLockError::Error(error)) => {
+                return Err(EventingError::journal_io(journal.path_string(), &error));
+            }
         }
     }
     Err(lock_timeout(journal))

@@ -212,6 +212,63 @@ async fn concurrent_idempotent_journal_instances_serialize_one_valid_hash_chain(
     cleanup_idempotent_journal(path).await;
 }
 
+#[cfg(not(target_os = "windows"))]
+#[tokio::test]
+async fn non_windows_idempotent_append_waits_for_would_block_lock_contention() {
+    use std::fs::OpenOptions;
+
+    let path = journal_path(TestText("idempotent-would-block".to_owned()));
+    let lock_path = append_lock_path(&path);
+    let lock_file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(&lock_path)
+        .expect_value("contention lock opens");
+    lock_file.try_lock().expect_value("contention lock holds");
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let append = tokio::spawn(async move {
+        journal
+            .append_idempotent(&unique_stored_event("would-block event", 41))
+            .await
+    });
+
+    tokio::time::sleep(std::time::Duration::from_millis(25)).await;
+    assert!(!append.is_finished());
+    lock_file.unlock().expect_value("contention lock releases");
+    let append_receipt = append
+        .await
+        .expect_value("append task joins")
+        .expect_value("append succeeds after contention");
+    assert_eq!(append_receipt.sequence, 1);
+    cleanup_idempotent_journal(path).await;
+}
+
+#[cfg(not(target_os = "windows"))]
+#[tokio::test]
+async fn non_windows_append_lock_open_error_maps_to_journal_io() {
+    let path = journal_path(TestText("idempotent-lock-io-error".to_owned()));
+    let lock_path = append_lock_path(&path);
+    tokio::fs::create_dir(&lock_path)
+        .await
+        .expect_value("directory blocks lock-file open");
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+
+    let result = journal
+        .append_idempotent(&unique_stored_event("lock io error", 42))
+        .await;
+
+    assert!(matches!(
+        result,
+        Err(EventingError::JournalIo {
+            path: error_path,
+            reason,
+        }) if error_path == path.0.display().to_string() && !reason.is_empty()
+    ));
+    let _cleanup_lock = tokio::fs::remove_dir(lock_path).await;
+}
+
 #[tokio::test]
 async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
     let path = journal_path(TestText("reopen-tampered-hash-chain".to_owned()));
@@ -251,9 +308,15 @@ async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
 }
 
 async fn cleanup_idempotent_journal(path: JournalPath) {
-    let lock_path = std::path::PathBuf::from(format!("{}.append.lock", path.0.display()));
+    let lock_path = append_lock_path(&path);
     cleanup(path).await;
     let _cleanup_lock = tokio::fs::remove_file(lock_path).await;
+}
+
+fn append_lock_path(path: &JournalPath) -> std::path::PathBuf {
+    let mut lock_path = path.0.as_os_str().to_os_string();
+    lock_path.push(".append.lock");
+    std::path::PathBuf::from(lock_path)
 }
 
 fn unique_stored_event(
