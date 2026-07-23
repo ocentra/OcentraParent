@@ -7,6 +7,12 @@ use std::{
 use crate::ndjson_operation::{append_operation_with_fault, FaultPoint};
 
 #[derive(Clone, Copy)]
+pub enum ArtifactFallbackFault {
+    Copy,
+    Sync,
+}
+
+#[derive(Clone, Copy)]
 pub enum AppendFault {
     Write,
     Sync,
@@ -14,6 +20,18 @@ pub enum AppendFault {
 
 pub fn publish_artifact_with_forced_fallback(path: &Path, content: &[u8]) -> io::Result<()> {
     crate::artifact_publish::publish_immutable_with_fallback(path, content, true)
+}
+
+pub fn publish_artifact_with_forced_fallback_fault(
+    path: &Path,
+    content: &[u8],
+    fault: ArtifactFallbackFault,
+) -> io::Result<()> {
+    let fault = match fault {
+        ArtifactFallbackFault::Copy => crate::artifact_publish_copy::FallbackPublishFault::Copy,
+        ArtifactFallbackFault::Sync => crate::artifact_publish_copy::FallbackPublishFault::Sync,
+    };
+    crate::artifact_publish::publish_immutable_with_fallback_fault(path, content, fault)
 }
 
 pub fn append_record_with_fault(

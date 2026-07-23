@@ -4,6 +4,7 @@ pub mod agent_run;
 pub mod artifact;
 mod artifact_custody;
 mod artifact_publish;
+mod artifact_publish_copy;
 mod artifact_publish_lock;
 mod artifact_publish_platform;
 pub mod bridge_log_runtime;
