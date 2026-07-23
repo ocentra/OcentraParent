@@ -6,7 +6,7 @@ Status: open.
 
 All items begin unchecked. Proof is collected outside the plan folder.
 
-WP01 review refresh (2026-07-19): DTB-01 remains unchecked. A partial Rust parent-presence slice is visible and focused tests are green on Windows, but Unix production custody is unavailable, a specifically authorized sealing action is absent, no platform key sealing exists, and no event publication boundary is implemented. Generated output is local-only and untracked.
+WP01 review refresh (2026-07-19): DTB-01 remains unchecked. A partial Rust parent-presence slice is visible and focused tests are green on Windows, but Unix production custody is unavailable, a specifically authorized sealing action is absent, and no platform key sealing exists. The implemented boundary is durable local delivery into a hash-chained `ocentra-eventing` journal; subscriber delivery and a broader event-bus runtime remain unimplemented. Generated output is local-only and untracked.
 
 | ID | Checklist | Workpack | Status | Proof target |
 | --- | --- | --- | --- | --- |

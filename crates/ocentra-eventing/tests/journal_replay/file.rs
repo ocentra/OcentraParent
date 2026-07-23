@@ -169,6 +169,86 @@ async fn first_creation_directory_sync_failure_prevents_append_acknowledgement()
 }
 
 #[tokio::test]
+async fn ordinary_append_refreshes_state_after_a_failed_durable_sync() {
+    let path = journal_path(TestText("ordinary-sync-failure-refresh".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let first = unique_stored_event("ordinary failed sync", 45);
+    let second = unique_stored_event("ordinary retry", 46);
+    journal.inject_next_sync_failure_for_debug();
+
+    let failed = journal.append(&first).await;
+    assert!(matches!(failed, Err(EventingError::JournalIo { .. })));
+    let second_append = journal
+        .append(&second)
+        .await
+        .expect_value("next ordinary append refreshes the durable tail");
+
+    assert_eq!(second_append.sequence, 2);
+    let entries = read_lines(path.clone())
+        .await
+        .into_iter()
+        .map(|line| {
+            serde_json::from_str::<NdjsonJournalEntry>(&line)
+                .expect_value("ordinary append line decodes")
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0].append.sequence, 1);
+    assert_eq!(entries[1].append.sequence, 2);
+    assert_eq!(
+        entries[1].append.previous_hash,
+        entries[0].append.current_hash
+    );
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
+async fn ordinary_and_idempotent_journal_instances_share_the_append_file_lock() {
+    let path = journal_path(TestText("mixed-append-file-lock".to_owned()));
+    let barrier = Arc::new(Barrier::new(2));
+    let ordinary_path = path.clone();
+    let ordinary_barrier = Arc::clone(&barrier);
+    let ordinary = tokio::spawn(async move {
+        let journal =
+            NdjsonEventJournal::with_options(&ordinary_path, NdjsonJournalOptions::hash_chain());
+        let event = unique_stored_event("mixed ordinary", 47);
+        ordinary_barrier.wait().await;
+        journal
+            .append(&event)
+            .await
+            .expect_value("ordinary append succeeds")
+    });
+    let idempotent_path = path.clone();
+    let idempotent_barrier = Arc::clone(&barrier);
+    let idempotent = tokio::spawn(async move {
+        let journal =
+            NdjsonEventJournal::with_options(&idempotent_path, NdjsonJournalOptions::hash_chain());
+        let event = unique_stored_event("mixed idempotent", 48);
+        idempotent_barrier.wait().await;
+        journal
+            .append_idempotent(&event)
+            .await
+            .expect_value("idempotent append succeeds")
+    });
+    let mut appends = [
+        ordinary.await.expect_value("ordinary task joins"),
+        idempotent.await.expect_value("idempotent task joins"),
+    ];
+    appends.sort_by_key(|append| append.sequence);
+
+    assert_eq!(
+        appends
+            .iter()
+            .map(|append| append.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2]
+    );
+    assert_eq!(appends[1].previous_hash, appends[0].current_hash);
+    assert_eq!(read_lines(path.clone()).await.len(), 2);
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
 async fn alternating_idempotent_journal_instances_refresh_the_hash_chain_tail() {
     let path = journal_path(TestText("idempotent-alternating-instances".to_owned()));
     let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());

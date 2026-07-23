@@ -13,23 +13,6 @@ impl NdjsonEventJournal {
         Ok(())
     }
 
-    pub(crate) async fn recover_state(&self) -> Result<(), EventingError> {
-        if self
-            .state
-            .lock()
-            .expect_value("journal state lock")
-            .recovered
-        {
-            return Ok(());
-        }
-        let recovered = self.read_recovered_state().await?;
-        let mut state = self.state.lock().expect_value("journal state lock");
-        if !state.recovered {
-            *state = recovered;
-        }
-        Ok(())
-    }
-
     pub(crate) async fn read_recovered_state(
         &self,
     ) -> Result<super::super::ndjson_state::NdjsonJournalState, EventingError> {
