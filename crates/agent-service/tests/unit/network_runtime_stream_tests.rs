@@ -189,19 +189,48 @@ async fn websocket_network_runtime_stream_command_reports_store_backed_chain(
     );
     assert_eq!(
         entries.len(),
-        NetworkRuntimePhase::ordered_chain().len() - 2
+        NetworkRuntimePhase::ordered_chain().len() - 4
     );
     assert_eq!(
         event
             .payload
             .get(constants::field::NETWORK_RUNTIME_STREAMED_EVENTS),
         Some(&LogFieldValue::Number(
-            (NetworkRuntimePhase::ordered_chain().len() - 2) as f64
+            (NetworkRuntimePhase::ordered_chain().len() - 4) as f64
         ))
     );
+    let event_types = entries
+        .iter()
+        .map(|entry| {
+            entry[constants::field::EVENT_TYPE]
+                .as_str()
+                .unwrap_or_default()
+        })
+        .collect::<Vec<_>>();
     assert_eq!(
-        entries[8][constants::field::EVENT_TYPE],
+        event_types,
+        vec![
+            constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
+            constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
+            constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
+            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
+            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
+            constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
+            constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
+        ]
+    );
+    assert_eq!(
+        entries[6][constants::field::EVENT_TYPE],
         constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED
+    );
+    let flow_event: NetworkFlowObservedEvent =
+        serde_json::from_value(entries[0][constants::field::PAYLOAD].clone())?;
+    assert_eq!(flow_event.evidence_grade, NetworkEvidenceGrade::B);
+    let policy_event: NetworkPolicyDecisionCompletedEvent =
+        serde_json::from_value(entries[4][constants::field::PAYLOAD].clone())?;
+    assert_eq!(
+        policy_event.decision_action,
+        NetworkPolicyDecisionAction::Observe
     );
     Ok(())
 }
