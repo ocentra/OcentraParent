@@ -1,0 +1,41 @@
+plan: logging-domain-parity
+workpack: WP04 Rust Logging Core Crate
+owner: logging-core
+scope: parent-agent-service
+run_id: n/a
+command_id: n/a
+
+command: cargo check -p ocentra-parent-logging-core
+exit: 0
+result: pass
+artifact: output/logging-domain-parity-proof/04-rust-logging-core-crate/00-rust-crate-file-map.json
+diagnostics_summary: Crate check completed successfully.
+no_claim: This does not prove downstream runtime adoption.
+
+command: cargo test -p ocentra-parent-logging-core
+exit: 0
+result: pass
+artifact: output/logging-domain-parity-proof/04-rust-logging-core-crate/01-rust-ndjson-writer-proof.json
+diagnostics_summary: 25 focused bridge, contract, observability, parent-runtime, stack-trace, NDJSON, artifact, and redaction tests passed.
+no_claim: Local helper tests do not prove production telemetry or retention behavior.
+
+command: cargo clippy -p ocentra-parent-logging-core --all-targets -- -D warnings
+exit: 0
+result: pass
+artifact: output/logging-domain-parity-proof/04-rust-logging-core-crate/00-rust-crate-file-map.json
+diagnostics_summary: All-target Clippy completed with warnings denied.
+no_claim: Clippy success does not prove product runtime logging readiness.
+
+command: cargo test -p ocentra-parent-agent-service dev_log
+exit: 0
+result: pass
+artifact: output/logging-domain-parity-proof/04-rust-logging-core-crate/03-ts-rust-fixture-parity.json
+diagnostics_summary: Focused direct agent-service dev-log consumer harness completed successfully.
+no_claim: One consumer test does not prove full agent-service logging migration.
+
+command: npm run test --workspace @ocentra-parent/logging-domain -- dev-log-fixture
+exit: 0
+result: pass
+artifact: output/logging-domain-parity-proof/04-rust-logging-core-crate/03-ts-rust-fixture-parity.json
+diagnostics_summary: 1 test file and 2 tests passed.
+no_claim: Fixture parity does not prove production telemetry or full TypeScript logging parity.

@@ -1,0 +1,15 @@
+{
+  "plan": "logging-domain-parity",
+  "workpack": "WP04 Rust Logging Core Crate",
+  "owner": "logging-core",
+  "tests": [
+    "artifact_writer_writes_text_and_hashes_content",
+    "redaction_replaces_secret_like_fields",
+    "dev_logger_writes_compat_file_when_dev_log_dir_is_set"
+  ],
+  "command": "cargo test -p ocentra-parent-logging-core",
+  "exit": 0,
+  "result": "pass",
+  "validation_state": "passed",
+  "noClaim": "Artifact and redaction helper coverage does not prove customer-facing support diagnostics or product retention policy."
+}

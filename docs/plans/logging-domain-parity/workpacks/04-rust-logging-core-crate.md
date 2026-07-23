@@ -182,3 +182,18 @@ named proof root
 this checkout, and this audit pass did not re-run the full WP04 command set.
 Treat WP04 as source-present with partial live re-check, not as fully proved
 complete.
+
+## Proof restoration (2026-07-23)
+
+The canonical WP04 proof root now contains a bounded Rust crate map, NDJSON and
+artifact/redaction test evidence, TypeScript/Rust fixture parity evidence, and
+the exact focused command log. All required WP04 commands passed:
+`cargo check`, `cargo test`, and all-target `cargo clippy -D warnings` for
+`ocentra-parent-logging-core`; the direct
+`ocentra-parent-agent-service dev_log` consumer test; and the named
+`@ocentra-parent/logging-domain` `dev-log-fixture` test.
+
+This closes the WP04 local Rust-helper and direct-consumer proof slice only. It
+does not claim local validation-wrapper completion, full agent-service logging
+migration, production telemetry readiness, product-runtime logging readiness,
+or repository-wide instrumentation adoption.
