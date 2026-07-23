@@ -15,12 +15,14 @@ use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION
 
 use super::screen_ai_service_event_bridge::{
     publish_screen_capture_queue_event_chain, publish_screen_degraded_event_chain,
-    publish_screen_deletion_event_chain, publish_screen_service_row_event_chain,
-    screen_runtime_capture_input_from_service_row, screen_runtime_degraded_input_from_service_row,
-    screen_runtime_deletion_input_from_service_row, screen_runtime_input_from_service_row,
-    ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
+    publish_screen_service_row_event_chain, screen_runtime_capture_input_from_service_row,
+    screen_runtime_degraded_input_from_service_row, screen_runtime_deletion_input_from_service_row,
+    screen_runtime_input_from_service_row, ScreenAiServiceEventBridgeError,
+    ScreenAiServiceEventBridgeRefs,
 };
-use super::screen_ai_service_event_subscription::{ActionRefText, ObservedAtText};
+use super::screen_ai_service_event_subscription::{
+    ActionRefText, ObservedAtText, ScreenAiServiceEventRuntime,
+};
 use crate::test_invariants::require_ok;
 
 #[test]
@@ -133,11 +135,16 @@ async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture
 
 #[tokio::test]
 async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row() {
-    let report = publish_screen_deletion_event_chain(
-        service_screen_row(),
-        ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
-    )
-    .await;
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let report = runtime
+        .publish_deletion_row(
+            service_screen_row(),
+            ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        )
+        .await;
     let report = require_ok(
         report,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -158,6 +165,41 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
     assert_eq!(report.publish_reports.len(), 1);
     assert_eq!(report.dead_letters.len(), 0);
     assert!(!report.raw_image_escaped());
+}
+
+#[tokio::test]
+async fn screen_service_event_runtime_retains_deletion_journal_across_publications() {
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let first = require_ok(
+        runtime
+            .publish_deletion_row(
+                service_screen_row(),
+                ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+            )
+            .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let mut second_row = service_screen_row();
+    second_row.queue_job_id.push_str("-second");
+    second_row.row_id.push_str("-second");
+    let second = require_ok(
+        runtime
+            .publish_deletion_row(
+                second_row,
+                ObservedAtText(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+            )
+            .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+
+    assert_eq!(first.publish_reports.len(), 1);
+    assert_eq!(first.stored_events.len(), 1);
+    assert_eq!(second.publish_reports.len(), 1);
+    assert_eq!(second.stored_events.len(), 2);
+    assert!(!second.raw_image_escaped());
 }
 
 #[tokio::test]

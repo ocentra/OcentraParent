@@ -1,12 +1,9 @@
 use crate::JournalError;
-use atomicwrites::{AllowOverwrite, AtomicFile};
 use std::collections::HashSet;
-use std::fs::File;
-use std::io::Write;
 
 use super::{
-    screen_evidence_queue_record, ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue,
-    ScreenEvidenceQueueSweep,
+    screen_evidence_queue_outbox, screen_evidence_queue_record, ScreenEvidenceExpiredQueueEntry,
+    ScreenEvidenceQueue, ScreenEvidenceQueueSweep,
 };
 
 pub(crate) fn remove_expired_entries(
@@ -24,20 +21,19 @@ fn remove_expired_entries_locked(
     now: &str,
     deletion_proof_prefix: &str,
 ) -> Result<ScreenEvidenceQueueSweep, JournalError> {
-    let contents = match super::read_queue_contents(queue)? {
-        Some(contents) => contents,
-        None => {
-            return Ok(ScreenEvidenceQueueSweep {
-                expired_entries: read_outbox(queue)?,
-                retained_count: 0,
-            });
-        }
-    };
+    let contents = super::read_queue_contents(queue)?.unwrap_or_default();
+    let leases = super::screen_evidence_queue_read::read_leases(queue)?;
     let mut retained = Vec::new();
     let mut newly_expired = Vec::new();
     for line in contents.lines().filter(|line| !line.trim().is_empty()) {
         let record = screen_evidence_queue_record::decrypted_record_from_line(line)?;
-        if screen_evidence_queue_record::queue_record_expired(record.expires_at.as_deref(), now) {
+        let actively_leased = leases.iter().any(|lease| {
+            lease.queue_job_id == record.queue_job_id
+                && screen_evidence_queue_record::timestamp_is_after(&lease.lease_expires_at, now)
+        });
+        if !actively_leased
+            && screen_evidence_queue_record::queue_record_expired(record.expires_at.as_deref(), now)
+        {
             newly_expired.push(ScreenEvidenceExpiredQueueEntry {
                 queue_job_id: record.queue_job_id.clone(),
                 image_digest: record.image_digest,
@@ -54,21 +50,30 @@ fn remove_expired_entries_locked(
     // The deletion outbox is the durable intent. It is synced before the queue
     // is mutated, so a process crash or later publication failure cannot lose a
     // deletion that still needs a terminal read-model/event projection.
-    let mut pending = read_outbox(queue)?;
+    let outbox = screen_evidence_queue_outbox::read_outbox(queue)?;
+    screen_evidence_queue_outbox::repair_corrupt_outbox(queue, &outbox)?;
+    let failures = screen_evidence_queue_outbox::outbox_failures(&outbox.corrupt_lines);
+    let mut pending = outbox.entries;
     let known = pending
         .iter()
         .map(|entry| entry.queue_job_id.clone())
         .collect::<HashSet<_>>();
-    pending.extend(
-        newly_expired
-            .into_iter()
-            .filter(|entry| !known.contains(&entry.queue_job_id)),
-    );
-    write_outbox(queue, &pending)?;
-    super::replace_queue_lines(queue, &retained)?;
+    if !newly_expired.is_empty() {
+        pending.extend(
+            newly_expired
+                .into_iter()
+                .filter(|entry| !known.contains(&entry.queue_job_id)),
+        );
+        screen_evidence_queue_outbox::write_outbox(queue, &pending)?;
+        // The replacement directory entry is durable before any queue record
+        // can disappear.
+        super::sync_parent_directory(&screen_evidence_queue_outbox::outbox_path(queue))?;
+        super::replace_queue_lines(queue, &retained)?;
+    }
     Ok(ScreenEvidenceQueueSweep {
         expired_entries: pending,
         retained_count: retained.len() as u64,
+        outbox_failures: failures,
     })
 }
 
@@ -78,63 +83,19 @@ pub(crate) fn acknowledge_expired_entries(
 ) -> Result<u64, JournalError> {
     super::with_exclusive_queue_lock(queue, || {
         let ids = queue_job_ids.iter().collect::<HashSet<_>>();
-        let pending = read_outbox(queue)?;
+        let outbox = screen_evidence_queue_outbox::read_outbox(queue)?;
+        screen_evidence_queue_outbox::repair_corrupt_outbox(queue, &outbox)?;
+        let pending = outbox.entries;
         let retained = pending
             .iter()
             .filter(|entry| !ids.contains(&entry.queue_job_id))
             .cloned()
             .collect::<Vec<_>>();
         let removed = pending.len().saturating_sub(retained.len()) as u64;
-        write_outbox(queue, &retained)?;
+        if removed == 0 {
+            return Ok(0);
+        }
+        screen_evidence_queue_outbox::write_outbox(queue, &retained)?;
         Ok(removed)
     })
-}
-
-fn outbox_path(queue: &ScreenEvidenceQueue) -> std::path::PathBuf {
-    queue.path().with_extension("deletion-outbox")
-}
-
-fn read_outbox(
-    queue: &ScreenEvidenceQueue,
-) -> Result<Vec<ScreenEvidenceExpiredQueueEntry>, JournalError> {
-    let path = outbox_path(queue);
-    match std::fs::read_to_string(path) {
-        Ok(contents) => contents
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .map(serde_json::from_str)
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(Into::into),
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(Vec::new()),
-        Err(error) => Err(error.into()),
-    }
-}
-
-fn write_outbox(
-    queue: &ScreenEvidenceQueue,
-    entries: &[ScreenEvidenceExpiredQueueEntry],
-) -> Result<(), JournalError> {
-    let path = outbox_path(queue);
-    let body = entries
-        .iter()
-        .map(serde_json::to_string)
-        .collect::<Result<Vec<_>, _>>()?
-        .join("\n");
-    // AtomicFile owns the platform replacement operation. In particular, its
-    // AllowOverwrite mode performs an overwrite-capable replacement on Windows
-    // instead of relying on `rename`, which cannot replace an existing file
-    // there. The closure syncs the staged contents before that replacement is
-    // allowed to make the durable deletion intent observable.
-    AtomicFile::new(&path, AllowOverwrite)
-        .write(|file| write_outbox_contents(file, &body))
-        .map_err(|error| std::io::Error::other(error.to_string()))?;
-    Ok(())
-}
-
-fn write_outbox_contents(file: &mut File, body: &str) -> std::io::Result<()> {
-    file.write_all(body.as_bytes())?;
-    if !body.is_empty() {
-        file.write_all(b"\n")?;
-    }
-    file.sync_all()
 }

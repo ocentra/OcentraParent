@@ -180,7 +180,7 @@ mod screen_ai_analysis_runtime {
             return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
         };
         let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
-        let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan)? else {
+        let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan, &clock)? else {
             return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
         };
         let metadata = metadata_result_for_queue_job(&config.store_path, &image, &clock)?;
@@ -188,7 +188,7 @@ mod screen_ai_analysis_runtime {
             .as_ref()
             .is_some_and(|result| result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA)
         {
-            queue.remove_entries(std::slice::from_ref(&image.queue_job_id))?;
+            queue.complete_claimed_entry(&image.queue_job_id)?;
             return Ok(ScreenAiAnalysisCycleOutcome::AlreadyAnalyzed {
                 queue_job_id: image.queue_job_id,
             });
@@ -216,7 +216,7 @@ mod screen_ai_analysis_runtime {
             &clock.timestamp,
         )
         .await?;
-        queue.remove_entries(std::slice::from_ref(&image.queue_job_id))?;
+        queue.complete_claimed_entry(&image.queue_job_id)?;
         Ok(outcome)
     }
 

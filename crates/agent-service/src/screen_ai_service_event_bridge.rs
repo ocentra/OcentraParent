@@ -4,8 +4,8 @@ use ocentra_parent_agent_core::{
     activity_store::ActivityStore,
     screen_event_runtime::{
         publish_screen_capture_queue_events_for_input,
-        publish_screen_degraded_event_chain_for_input, publish_screen_deletion_event_for_input,
-        publish_screen_runtime_chain_for_input, ScreenRuntimeReport,
+        publish_screen_degraded_event_chain_for_input, publish_screen_runtime_chain_for_input,
+        ScreenRuntimeReport,
     },
     screen_event_runtime_input::{
         ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput, ScreenRuntimeDeletionInput,
@@ -21,8 +21,6 @@ use crate::{
     activity_surface_read_models::activity_screen_row_from_result,
     screen_ai_service_event_subscription::{ActionRefText, ObservedAtText},
 };
-
-const COMPLETE_SCREEN_RETENTION_BATCH_LIMIT: u64 = i64::MAX as u64;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct ScreenAiServiceEventBridgeRefs {
@@ -67,16 +65,6 @@ pub(crate) async fn publish_screen_capture_queue_event_chain(
         .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
 
-pub(crate) async fn publish_screen_deletion_event_chain(
-    row: ActivityScreenReadModelRow,
-    observed_at: ObservedAtText,
-) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
-    let input = screen_runtime_deletion_input_from_service_row(row)?;
-    publish_screen_deletion_event_for_input(input, observed_at.0.as_str())
-        .await
-        .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
-}
-
 pub(crate) async fn publish_screen_degraded_event_chain(
     row: ActivityScreenReadModelRow,
     observed_at: ObservedAtText,
@@ -97,20 +85,6 @@ pub(crate) async fn publish_screen_capture_queue_events_for_queue_job(
         return Ok(None);
     };
     Ok(publish_screen_capture_queue_event_chain(row, observed_at)
-        .await
-        .ok())
-}
-
-pub(crate) async fn publish_screen_deletion_event_for_queue_job(
-    store_path: &Path,
-    queue_job_id: ScreenAiQueueJobId,
-    observed_at: ObservedAtText,
-) -> Result<Option<ScreenRuntimeReport>, ActivityCaptureError> {
-    let Some(row) = latest_screen_row_for_queue_job(store_path, &queue_job_id, &observed_at)?
-    else {
-        return Ok(None);
-    };
-    Ok(publish_screen_deletion_event_chain(row, observed_at)
         .await
         .ok())
 }
@@ -237,20 +211,11 @@ pub(crate) fn screen_runtime_degraded_input_from_service_row(
 fn latest_screen_row_for_queue_job(
     store_path: &Path,
     queue_job_id: &ScreenAiQueueJobId,
-    generated_at: &ObservedAtText,
+    _generated_at: &ObservedAtText,
 ) -> Result<Option<ActivityScreenReadModelRow>, ActivityCaptureError> {
     let store = ActivityStore::open(store_path)?;
-    let summary = store.screen_evidence_recent_summary(
-        // Retention publication is a durable outbox drain, not a UI summary.
-        // Read the complete retained batch so a job outside the recent-ten
-        // window is neither skipped nor acknowledged without publication.
-        COMPLETE_SCREEN_RETENTION_BATCH_LIMIT,
-        &generated_at.0,
-    )?;
-    Ok(summary
-        .results
-        .into_iter()
-        .find(|result| result.queue_job_id == queue_job_id.0)
+    Ok(store
+        .screen_evidence_result_for_queue_job(&queue_job_id.0)?
         .map(activity_screen_row_from_result))
 }
 

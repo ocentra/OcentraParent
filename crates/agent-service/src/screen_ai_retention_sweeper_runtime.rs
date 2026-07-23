@@ -30,12 +30,16 @@ use crate::{
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     fields::fields_from_pairs,
     screen_ai_retention_sweeper_deletion_events::publish_screen_retention_deletion_events,
-    screen_ai_service_event_subscription::ObservedAtText,
+    screen_ai_service_event_subscription::{ObservedAtText, ScreenAiServiceEventRuntime},
     time::timestamp_now,
 };
 
+#[path = "screen_ai_retention_sweeper_failure_events.rs"]
+mod failure_events;
 #[path = "screen_ai_retention_sweeper_runtime/key_loader.rs"]
 mod key_loader;
+
+use failure_events::{deletion_failure_event, outbox_failure_event};
 
 const DEFAULT_POLL_SECONDS: u64 = 5;
 
@@ -89,6 +93,9 @@ pub(crate) fn spawn_screen_ai_retention_sweeper_runtime() {
 }
 
 async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweeperRuntimeConfig) {
+    let Ok(event_runtime) = ScreenAiServiceEventRuntime::start().await else {
+        return;
+    };
     let mut interval = tokio::time::interval(Duration::from_secs(config.poll_seconds));
     let mut sweep_count = 0;
     let mut tick_count = 0;
@@ -103,12 +110,29 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
         }) = outcome
         {
             let published = publish_screen_retention_deletion_events(
+                &event_runtime,
                 &config.store_path,
                 &expired_entries,
                 ObservedAtText(observed_at),
             )
             .await;
-            acknowledge_published_deletion_outbox(&config, published);
+            if acknowledge_published_deletion_outbox(&config, &published).is_err() {
+                let published_ids = published
+                    .iter()
+                    .map(|outcome| outcome.queue_job_id.as_str())
+                    .collect::<std::collections::HashSet<_>>();
+                let failures = expired_entries
+                    .iter()
+                    .filter(|entry| published_ids.contains(entry.queue_job_id.as_str()))
+                    .map(|entry| deletion_failure_event(entry, ScreenAiObservedAt(timestamp_now())))
+                    .collect::<Vec<_>>();
+                let _ = record_activity_events_to_paths(
+                    &config.journal_path,
+                    &config.journal_key_path,
+                    &config.store_path,
+                    &failures,
+                );
+            }
             sweep_count += 1;
         }
         if config.max_sweeps.is_some_and(|max| sweep_count >= max) {
@@ -120,26 +144,26 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
     }
 }
 
-fn acknowledge_published_deletion_outbox(
+pub(crate) fn acknowledge_published_deletion_outbox(
     config: &ScreenAiRetentionSweeperRuntimeConfig,
-    published: Vec<
-        crate::screen_ai_retention_sweeper_deletion_events::ScreenAiRetentionSweeperDeletionEventOutcome,
-    >,
-) {
+    published: &[crate::screen_ai_retention_sweeper_deletion_events::ScreenAiRetentionSweeperDeletionEventOutcome],
+) -> Result<u64, ActivityCaptureError> {
     if published.is_empty() {
-        return;
+        return Ok(0);
     }
-    let Ok(Some(key)) = key_loader::load_existing_screen_key(&config.journal_key_path) else {
-        return;
+    let Some(key) = key_loader::load_existing_screen_key(&config.journal_key_path)? else {
+        return Err(ActivityCaptureError::Io);
     };
-    let Ok(queue) = ScreenEvidenceQueue::open(&config.queue_dir, key) else {
-        return;
-    };
+    let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
     let queue_job_ids = published
-        .into_iter()
-        .map(|outcome| outcome.queue_job_id)
+        .iter()
+        .map(|outcome| outcome.queue_job_id.clone())
         .collect::<Vec<_>>();
-    let _ = queue.acknowledge_expired_entries(&queue_job_ids);
+    let acknowledged = queue.acknowledge_expired_entries(&queue_job_ids)?;
+    if acknowledged != queue_job_ids.len() as u64 {
+        return Err(ActivityCaptureError::Io);
+    }
+    Ok(acknowledged)
 }
 
 pub(crate) fn record_screen_ai_retention_sweeper_tick(
@@ -156,18 +180,26 @@ pub(crate) fn record_screen_ai_retention_sweeper_tick(
         observed_at.0.as_str(),
         SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
     )?;
-    if !sweep.expired_entries.is_empty() {
-        let events = sweep
-            .expired_entries
+    let mut events = sweep
+        .expired_entries
+        .iter()
+        .map(|entry| expired_entry_event(entry, observed_at.clone()))
+        .collect::<Vec<_>>();
+    events.extend(
+        sweep
+            .outbox_failures
             .iter()
-            .map(|entry| expired_entry_event(entry, observed_at.clone()))
-            .collect::<Vec<_>>();
+            .map(|failure| outbox_failure_event(failure, observed_at.clone())),
+    );
+    if !events.is_empty() {
         record_activity_events_to_paths(
             &config.journal_path,
             &config.journal_key_path,
             &config.store_path,
             &events,
         )?;
+    }
+    if !sweep.expired_entries.is_empty() {
         return Ok(ScreenAiRetentionSweeperOutcome::Swept {
             expired_entries: sweep.expired_entries,
             retained_count: sweep.retained_count,

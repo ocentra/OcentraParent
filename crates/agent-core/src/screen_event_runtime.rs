@@ -215,12 +215,12 @@ pub async fn publish_screen_degraded_event_chain_for_input(
     spine.publish_degraded_event_chain(input, observed_at).await
 }
 
-struct ScreenRuntimeSpine {
+pub struct ScreenRuntimeSpine {
     bus: EventBus,
 }
 
 impl ScreenRuntimeSpine {
-    async fn with_default_handlers() -> Result<Self, EventingError> {
+    pub async fn with_default_handlers() -> Result<Self, EventingError> {
         let bus = EventBus::new();
         for phase in ScreenRuntimePhase::ordered_chain() {
             bus.subscribe::<ScreenRuntimeEventPayload, _, _>(
@@ -276,7 +276,7 @@ impl ScreenRuntimeSpine {
         })
     }
 
-    async fn publish_deletion_event(
+    pub async fn publish_deletion_event(
         &self,
         input: ScreenRuntimeDeletionInput,
         observed_at: &str,

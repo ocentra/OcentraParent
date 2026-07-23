@@ -45,13 +45,41 @@ pub(crate) fn screen_evidence_recent_summary(
     let mut results = Vec::new();
     for row in rows {
         let (_event_id, observed_at, fields_json, evidence_json) = row?;
-        let fields = serde_json::from_str::<LogFields>(&fields_json)?;
-        let evidence = serde_json::from_str::<Vec<ActivityEvidenceRef>>(&evidence_json)?;
-        if let Some(result) = result_from_fields(observed_at, &fields, evidence) {
+        if let Some(result) = result_from_json(observed_at, &fields_json, &evidence_json)? {
             results.push(result);
         }
     }
     Ok(summary_from_results(limit, generated_at, results))
+}
+
+pub(crate) fn screen_evidence_result_for_queue_job(
+    connection: &Connection,
+    queue_job_id: &str,
+) -> Result<Option<ScreenAnalysisResult>, ActivityStoreError> {
+    let mut statement = connection
+        .prepare(constants::sqlite::SELECT_LATEST_SCREEN_ANALYSIS_ACTIVITY_FOR_QUEUE_JOB)?;
+    let mut rows = statement.query(params![
+        constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED,
+        constants::activity_observer::LOCAL_AI,
+        queue_job_id,
+    ])?;
+    let Some(row) = rows.next()? else {
+        return Ok(None);
+    };
+    let observed_at = row.get(1)?;
+    let fields_json = row.get::<_, String>(2)?;
+    let evidence_json = row.get::<_, String>(3)?;
+    result_from_json(observed_at, &fields_json, &evidence_json)
+}
+
+fn result_from_json(
+    observed_at: String,
+    fields_json: &str,
+    evidence_json: &str,
+) -> Result<Option<ScreenAnalysisResult>, ActivityStoreError> {
+    let fields = serde_json::from_str::<LogFields>(fields_json)?;
+    let evidence = serde_json::from_str::<Vec<ActivityEvidenceRef>>(evidence_json)?;
+    Ok(result_from_fields(observed_at, &fields, evidence))
 }
 
 fn summary_from_results(

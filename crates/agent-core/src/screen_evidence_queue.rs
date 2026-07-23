@@ -9,6 +9,8 @@ use fs2::FileExt;
 
 use crate::journal_crypto::JournalKey;
 
+#[path = "screen_evidence_queue_outbox.rs"]
+mod screen_evidence_queue_outbox;
 #[path = "screen_evidence_queue_read.rs"]
 mod screen_evidence_queue_read;
 #[path = "screen_evidence_queue_record.rs"]
@@ -49,6 +51,20 @@ pub struct ScreenEvidenceExpiredQueueEntry {
 pub struct ScreenEvidenceQueueSweep {
     pub expired_entries: Vec<ScreenEvidenceExpiredQueueEntry>,
     pub retained_count: u64,
+    pub outbox_failures: Vec<ScreenEvidenceOutboxFailure>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ScreenEvidenceOutboxFailure {
+    pub queue_job_id: String,
+    pub malformed_record_digest: String,
+    pub deletion_proof_ref: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub(crate) struct ScreenEvidenceQueueLease {
+    pub(crate) queue_job_id: String,
+    pub(crate) lease_expires_at: String,
 }
 
 pub(crate) fn with_exclusive_queue_lock<T>(
@@ -110,12 +126,12 @@ fn write_queue_lines(file: &mut File, lines: &[&str]) -> io::Result<()> {
 }
 
 #[cfg(not(windows))]
-fn sync_parent_directory(path: &Path) -> io::Result<()> {
+pub(crate) fn sync_parent_directory(path: &Path) -> io::Result<()> {
     File::open(path.parent().unwrap_or_else(|| Path::new(".")))?.sync_all()
 }
 
 #[cfg(windows)]
-fn sync_parent_directory(_path: &Path) -> io::Result<()> {
+pub(crate) fn sync_parent_directory(_path: &Path) -> io::Result<()> {
     Ok(())
 }
 
@@ -141,6 +157,24 @@ impl ScreenEvidenceQueue {
         max_entries: usize,
     ) -> Result<Vec<DecryptedScreenEvidenceQueueEntry>, crate::JournalError> {
         screen_evidence_queue_read::read_decrypted_entries(self, max_entries)
+    }
+
+    pub fn claim_first_decrypted_entry(
+        &self,
+        max_entries: usize,
+        now: &str,
+        lease_expires_at: &str,
+    ) -> Result<Option<DecryptedScreenEvidenceQueueEntry>, crate::JournalError> {
+        screen_evidence_queue_read::claim_first_decrypted_entry(
+            self,
+            max_entries,
+            now,
+            lease_expires_at,
+        )
+    }
+
+    pub fn complete_claimed_entry(&self, queue_job_id: &str) -> Result<(), crate::JournalError> {
+        screen_evidence_queue_remove::complete_claimed_entry(self, queue_job_id)
     }
 
     pub fn remove_entries(&self, queue_job_ids: &[String]) -> Result<u64, crate::JournalError> {

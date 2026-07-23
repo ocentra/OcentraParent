@@ -107,6 +107,13 @@ fn required_u16(value: &Value, key: &str) -> Result<u16, JournalError> {
     )?)
 }
 
+pub(crate) fn timestamp_is_after(value: &str, reference: &str) -> bool {
+    match (parse_timestamp(value), parse_timestamp(reference)) {
+        (Some(value), Some(reference)) => value > reference,
+        _ => false,
+    }
+}
+
 fn parse_timestamp(value: &str) -> Option<DateTime<Utc>> {
     DateTime::parse_from_rfc3339(value)
         .ok()

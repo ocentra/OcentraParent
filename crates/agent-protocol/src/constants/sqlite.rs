@@ -16,6 +16,13 @@ CREATE TABLE IF NOT EXISTS activity_events (
 );
 CREATE INDEX IF NOT EXISTS activity_events_recent_idx
   ON activity_events (observed_at DESC, event_id DESC);
+CREATE INDEX IF NOT EXISTS activity_events_screen_queue_job_idx
+  ON activity_events (
+    kind,
+    observer,
+    json_extract(fields_json, '$.queueJobId'),
+    observed_at DESC
+  );
 CREATE TABLE IF NOT EXISTS parent_rule_contexts (
   parent_rule_ref_id TEXT PRIMARY KEY,
   updated_at TEXT NOT NULL,
@@ -120,8 +127,37 @@ SELECT
 FROM activity_events
 WHERE kind = ?1
   AND observer = ?2
-ORDER BY observed_at DESC, event_id DESC
+ORDER BY observed_at DESC,
+  CASE json_extract(fields_json, '$.imageDeletionState')
+    WHEN 'deleteFailed' THEN 4
+    WHEN 'expiredDeleted' THEN 3
+    WHEN 'deleted' THEN 2
+    WHEN 'deletionRequired' THEN 1
+    ELSE 0
+  END DESC,
+  rowid DESC
 LIMIT ?3;";
+
+pub const SELECT_LATEST_SCREEN_ANALYSIS_ACTIVITY_FOR_QUEUE_JOB: &str = "
+SELECT
+  event_id,
+  observed_at,
+  fields_json,
+  evidence_json
+FROM activity_events
+WHERE kind = ?1
+  AND observer = ?2
+  AND json_extract(fields_json, '$.queueJobId') = ?3
+ORDER BY observed_at DESC,
+  CASE json_extract(fields_json, '$.imageDeletionState')
+    WHEN 'deleteFailed' THEN 4
+    WHEN 'expiredDeleted' THEN 3
+    WHEN 'deleted' THEN 2
+    WHEN 'deletionRequired' THEN 1
+    ELSE 0
+  END DESC,
+  rowid DESC
+LIMIT 1;";
 
 pub const SELECT_RECENT_BROWSER_INTERVENTION_ACTIVITY: &str = "
 SELECT

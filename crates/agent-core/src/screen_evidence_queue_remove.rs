@@ -27,3 +27,35 @@ pub(crate) fn remove_entries(
         Ok(removed_count)
     })
 }
+
+pub(crate) fn complete_claimed_entry(
+    queue: &ScreenEvidenceQueue,
+    queue_job_id: &str,
+) -> Result<(), JournalError> {
+    super::with_exclusive_queue_lock(queue, || {
+        let contents = super::read_queue_contents(queue)?.unwrap_or_default();
+        let mut retained = Vec::new();
+        let mut removed_count = 0_u64;
+        for line in contents.lines().filter(|line| !line.trim().is_empty()) {
+            let record = screen_evidence_queue_record::decrypted_record_from_line(line)?;
+            if record.queue_job_id == queue_job_id {
+                removed_count += 1;
+            } else {
+                retained.push(line);
+            }
+        }
+        if removed_count != 1 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "claimed screen queue job was not removed exactly once",
+            )
+            .into());
+        }
+        super::replace_queue_lines(queue, &retained)?;
+        let leases = super::screen_evidence_queue_read::read_leases(queue)?
+            .into_iter()
+            .filter(|lease| lease.queue_job_id != queue_job_id)
+            .collect::<Vec<_>>();
+        super::screen_evidence_queue_read::write_leases(queue, &leases)
+    })
+}

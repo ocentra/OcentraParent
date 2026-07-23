@@ -224,6 +224,73 @@ fn activity_store_queue_health_uses_latest_deletion_state_per_job() -> TestResul
 }
 
 #[test]
+fn activity_store_tied_screen_transitions_prefer_terminal_state_and_indexed_job_lookup(
+) -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
+    let terminal = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-tied-terminal",
+        SCREEN_DELETION_EXPIRED_DELETED,
+    );
+    let pending = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-tied-pending",
+        SCREEN_DELETION_REQUIRED,
+    );
+    store.ingest_events(&[terminal, pending]).map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_INGESTS
+        ))
+    })?;
+
+    let summary = store
+        .screen_evidence_recent_summary(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
+    let indexed = store
+        .screen_evidence_result_for_queue_job(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID)
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?
+        .ok_or_else(|| TestText::from_display(constants::error::ACTIVITY_STORE_QUERIES))?;
+    let index_count: i64 = store
+        .connection_for_test()
+        .query_row(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = 'activity_events_screen_queue_job_idx'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|error| TestText::from_display(error.to_string()))?;
+
+    assert_eq!(
+        summary.latest_image_deletion_state.as_deref(),
+        Some(SCREEN_DELETION_EXPIRED_DELETED)
+    );
+    assert_eq!(
+        indexed.image_deletion_state,
+        SCREEN_DELETION_EXPIRED_DELETED
+    );
+    assert_eq!(index_count, 1);
+    Ok(())
+}
+
+#[test]
 fn activity_store_skips_incomplete_screen_summary_rows() -> TestResult {
     let store = ActivityStore::open_in_memory().map_err(|error| {
         TestText::from_display(format!(

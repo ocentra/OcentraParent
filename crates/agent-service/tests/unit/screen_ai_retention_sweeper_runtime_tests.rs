@@ -19,8 +19,9 @@ use crate::screen_ai_retention_sweeper_deletion_events::{
     publish_screen_retention_deletion_events, ScreenAiRetentionSweeperDeletionEventOutcome,
 };
 use crate::screen_ai_retention_sweeper_runtime::{
-    record_screen_ai_retention_sweeper_tick, ScreenAiRetentionSweeperClock,
-    ScreenAiRetentionSweeperOutcome, ScreenAiRetentionSweeperRuntimeConfig,
+    acknowledge_published_deletion_outbox, record_screen_ai_retention_sweeper_tick,
+    ScreenAiRetentionSweeperClock, ScreenAiRetentionSweeperOutcome,
+    ScreenAiRetentionSweeperRuntimeConfig,
 };
 use crate::test_invariants::require_ok;
 
@@ -220,6 +221,42 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
     Ok(())
 }
 
+#[test]
+fn screen_retention_acknowledgement_rejects_zero_removal_as_failed_retry() -> Result<(), IoError> {
+    let root = test_path("retention-ack-zero");
+    let _ = remove_dir_all(&root);
+    let queue_dir = root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    let key_path = root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX);
+    let key = JournalKey::from_bytes([15; JOURNAL_KEY_BYTES]);
+    fs::create_dir_all(&root)?;
+    fs::write(&key_path, key.as_bytes())?;
+    ScreenEvidenceQueue::open(&queue_dir, key)
+        .map_err(|error| IoError::other(format!("{error:?}")))?;
+    let config = ScreenAiRetentionSweeperRuntimeConfig {
+        poll_seconds: 1,
+        max_sweeps: Some(1),
+        max_ticks: Some(1),
+        queue_dir,
+        journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
+        journal_key_path: key_path,
+        store_path: root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX),
+    };
+    let published = vec![ScreenAiRetentionSweeperDeletionEventOutcome {
+        queue_job_id: "screen-ack-missing".to_string(),
+        downstream_event_count: 1,
+        raw_image_escaped: false,
+    }];
+
+    let acknowledgement = acknowledge_published_deletion_outbox(&config, &published);
+    let _ = remove_dir_all(&root);
+
+    assert_eq!(
+        acknowledgement,
+        Err(crate::activity_capture::ActivityCaptureError::Io)
+    );
+    Ok(())
+}
+
 fn assert_replayed_outbox_outcome(
     outcome: ScreenAiRetentionSweeperOutcome,
     expired_job: &ScreenAnalysisQueueJob,
@@ -244,11 +281,16 @@ async fn publish_swept_deletion_events(
     store_path: &std::path::Path,
     outcome: &ScreenAiRetentionSweeperOutcome,
 ) -> Vec<ScreenAiRetentionSweeperDeletionEventOutcome> {
+    let runtime = require_ok(
+        crate::screen_ai_service_event_subscription::ScreenAiServiceEventRuntime::start().await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
     match outcome {
         ScreenAiRetentionSweeperOutcome::Swept {
             expired_entries, ..
         } => {
             publish_screen_retention_deletion_events(
+                &runtime,
                 store_path,
                 expired_entries,
                 crate::screen_ai_service_event_subscription::ObservedAtText(

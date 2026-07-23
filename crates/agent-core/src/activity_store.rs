@@ -11,7 +11,9 @@ use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, AppGameSe
 use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
-use ocentra_parent_agent_protocol::screen_evidence::ScreenEvidenceRecentSummary;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenAnalysisResult, ScreenEvidenceRecentSummary,
+};
 use rusqlite::{params, Connection};
 
 use crate::{
@@ -23,7 +25,9 @@ use crate::{
     activity_store_parent_rule_context::replace_parent_rule_contexts,
     activity_store_policy_preview::policy_preview_read_model,
     activity_store_rows::{row_from_sqlite, summary_from_rows},
-    activity_store_screen_evidence::screen_evidence_recent_summary,
+    activity_store_screen_evidence::{
+        screen_evidence_recent_summary, screen_evidence_result_for_queue_job,
+    },
     ActivityJournal, ActivityStoreError,
 };
 
@@ -136,6 +140,13 @@ impl ActivityStore {
         generated_at: &str,
     ) -> Result<ScreenEvidenceRecentSummary, ActivityStoreError> {
         screen_evidence_recent_summary(&self.connection, limit, generated_at)
+    }
+
+    pub fn screen_evidence_result_for_queue_job(
+        &self,
+        queue_job_id: &str,
+    ) -> Result<Option<ScreenAnalysisResult>, ActivityStoreError> {
+        screen_evidence_result_for_queue_job(&self.connection, queue_job_id)
     }
 
     pub fn policy_preview_read_model(

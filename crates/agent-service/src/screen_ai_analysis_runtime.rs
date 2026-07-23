@@ -83,7 +83,7 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
         return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
     };
     let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
-    let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan)? else {
+    let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan, &clock)? else {
         return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
     };
     let metadata = metadata_result_for_queue_job(&config.store_path, &image, &clock)?;
@@ -91,7 +91,7 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
         .as_ref()
         .is_some_and(|result| result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA)
     {
-        queue.remove_entries(std::slice::from_ref(&image.queue_job_id))?;
+        queue.complete_claimed_entry(&image.queue_job_id)?;
         return Ok(ScreenAiAnalysisCycleOutcome::AlreadyAnalyzed {
             queue_job_id: image.queue_job_id,
         });
@@ -131,7 +131,7 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
             )
             .await;
     }
-    queue.remove_entries(std::slice::from_ref(&image.queue_job_id))?;
+    queue.complete_claimed_entry(&image.queue_job_id)?;
     Ok(outcome)
 }
 
@@ -141,17 +141,10 @@ fn latest_analysis_row_for_queue_job(
     clock: &ScreenAiAnalysisCycleClock,
 ) -> Result<Option<ActivityScreenReadModelRow>, ActivityCaptureError> {
     let store = ActivityStore::open(&config.store_path)?;
-    let summary = store.screen_evidence_recent_summary(
-        constants::activity_store::DEFAULT_RECENT_LIMIT,
-        clock.timestamp.as_str(),
-    )?;
-    Ok(summary
-        .results
-        .into_iter()
-        .find(|result| {
-            result.queue_job_id == image.queue_job_id.as_str()
-                && result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA
-        })
+    let _ = clock;
+    Ok(store
+        .screen_evidence_result_for_queue_job(&image.queue_job_id)?
+        .filter(|result| result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA)
         .map(activity_screen_row_from_result))
 }
 
