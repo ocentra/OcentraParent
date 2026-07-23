@@ -30,6 +30,7 @@ pub(crate) mod live_view_service_runtime;
 
 pub(crate) struct ScreenAiServiceEventRuntime {
     bus: EventBus,
+    deletion_spine: ScreenRuntimeSpine,
 }
 
 impl ScreenAiServiceEventRuntime {
@@ -37,7 +38,18 @@ impl ScreenAiServiceEventRuntime {
         let bus = EventBus::new();
         let state = ScreenAiServiceEventSubscriptionState::default();
         subscribe_screen_service_row_ready_events(&bus, state.clone()).await?;
-        Ok(Self { bus })
+        let deletion_spine =
+            ScreenRuntimeSpine::with_default_handlers()
+                .await
+                .map_err(|_start_error| EventingError::InvalidValue {
+                    field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
+                    value: constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS
+                        .to_string(),
+                })?;
+        Ok(Self {
+            bus,
+            deletion_spine,
+        })
     }
 
     pub(crate) async fn publish_row_ready(
@@ -60,12 +72,17 @@ impl ScreenAiServiceEventRuntime {
         observed_at: ObservedAtText,
     ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
         let input = screen_runtime_deletion_input_from_service_row(row)?;
-        ScreenRuntimeSpine::with_default_handlers()
-            .await
-            .map_err(|_start_error| ScreenAiServiceEventBridgeError::EventPublishFailed)?
+        let report = self
+            .deletion_spine
             .publish_deletion_event(input, observed_at.0.as_str())
             .await
-            .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
+            .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)?;
+        let stored_events = report.stored_events.last().cloned().into_iter().collect();
+        Ok(ScreenRuntimeReport {
+            publish_reports: report.publish_reports,
+            stored_events,
+            dead_letters: report.dead_letters,
+        })
     }
 }
 

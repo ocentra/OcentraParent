@@ -181,10 +181,15 @@ fn activity_store_queue_health_uses_latest_deletion_state_per_job() -> TestResul
             constants::error::ACTIVITY_STORE_OPENS
         ))
     })?;
-    let pending = screen_event_with_deletion_state(
+    let mut pending = screen_event_with_deletion_state(
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         "screen-health-pending",
         SCREEN_DELETION_REQUIRED,
+    );
+    insert_log_field(
+        &mut pending.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String("screen-health-pending-job".to_string()),
     );
     let deleted = screen_event_with_deletion_state(
         constants::activity_store::TEST_THIRD_OBSERVED_AT,
@@ -217,7 +222,8 @@ fn activity_store_queue_health_uses_latest_deletion_state_per_job() -> TestResul
             ))
         })?;
 
-    assert_eq!(summary.queue_health.delete_pending_count, 0);
+    assert_eq!(summary.queue_health.pending_count, 1);
+    assert_eq!(summary.queue_health.delete_pending_count, 1);
     assert_eq!(summary.queue_health.expired_count, 1);
     assert_eq!(summary.queue_health.delete_failed_count, 0);
     Ok(())

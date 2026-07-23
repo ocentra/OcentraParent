@@ -411,12 +411,14 @@ fn screen_evidence_queue_active_analysis_lease_blocks_sweep_and_restart_recovers
 
     let restarted =
         ScreenEvidenceQueue::open(&directory, key).expect_value(constants::error::JOURNAL_OPENS);
+    let lease_path = restarted.path().with_extension("analysis-leases");
     let recovered = restarted
         .remove_expired_entries(
             "2099-01-01T00:00:00Z",
             SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
         )
         .expect_value(constants::error::JOURNAL_READS);
+    let remaining_leases = std::fs::read_to_string(&lease_path).unwrap_or_default();
     let _ = remove_dir_all(&directory);
 
     assert_eq!(
@@ -428,6 +430,7 @@ fn screen_evidence_queue_active_analysis_lease_blocks_sweep_and_restart_recovers
     assert_eq!(protected.retained_count, 1);
     assert_eq!(recovered.expired_entries.len(), 1);
     assert_eq!(recovered.expired_entries[0].queue_job_id, job.queue_job_id);
+    assert!(remaining_leases.trim().is_empty());
 }
 
 #[test]

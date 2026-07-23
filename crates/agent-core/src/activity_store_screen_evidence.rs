@@ -117,7 +117,7 @@ fn queue_health(
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
         generated_at: generated_at.to_string(),
         custody_state: SCREEN_CUSTODY_QUERY_STORE.to_string(),
-        pending_count: 0,
+        pending_count: queue_status_count(results, SCREEN_QUEUE_STATUS_QUEUED),
         expired_count: deletion_state_count(results, SCREEN_DELETION_EXPIRED_DELETED),
         delete_pending_count: deletion_state_count(results, SCREEN_DELETION_REQUIRED),
         delete_failed_count: deletion_state_count(results, SCREEN_DELETION_DELETE_FAILED),
@@ -135,6 +135,15 @@ fn deletion_state_count(results: &[ScreenAnalysisResult], state: &str) -> u64 {
         // historical pending/deleted/expired transitions do not inflate health.
         .filter(|result| observed_jobs.insert(result.queue_job_id.as_str()))
         .filter(|result| result.image_deletion_state == state)
+        .count() as u64
+}
+
+fn queue_status_count(results: &[ScreenAnalysisResult], status: &str) -> u64 {
+    let mut observed_jobs = std::collections::HashSet::new();
+    results
+        .iter()
+        .filter(|result| observed_jobs.insert(result.queue_job_id.as_str()))
+        .filter(|result| queue_status_from_result(result) == status)
         .count() as u64
 }
 

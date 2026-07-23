@@ -25,8 +25,15 @@ fn remove_expired_entries_locked(
     let leases = super::screen_evidence_queue_leases::read_leases(queue)?;
     let mut retained = Vec::new();
     let mut newly_expired = Vec::new();
-    for line in contents.lines().filter(|line| !line.trim().is_empty()) {
-        let record = screen_evidence_queue_record::decrypted_record_from_line(line)?;
+    let mut queue_job_ids = HashSet::new();
+    let records = decrypted_queue_records(&contents)?;
+    queue_job_ids.extend(records.iter().map(|record| record.queue_job_id.clone()));
+    let leases = prune_expired_or_orphaned_leases(queue, leases, &queue_job_ids, now)?;
+    for (line, record) in contents
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .zip(records)
+    {
         let actively_leased = leases.iter().any(|lease| {
             lease.queue_job_id == record.queue_job_id
                 && screen_evidence_queue_record::timestamp_is_after(&lease.lease_expires_at, now)
@@ -79,6 +86,36 @@ fn remove_expired_entries_locked(
         retained_count: retained.len() as u64,
         outbox_failures: failures,
     })
+}
+
+fn prune_expired_or_orphaned_leases(
+    queue: &ScreenEvidenceQueue,
+    leases: Vec<super::ScreenEvidenceQueueLease>,
+    queue_job_ids: &HashSet<String>,
+    now: &str,
+) -> Result<Vec<super::ScreenEvidenceQueueLease>, JournalError> {
+    let lease_count = leases.len();
+    let retained = leases
+        .into_iter()
+        .filter(|lease| {
+            queue_job_ids.contains(&lease.queue_job_id)
+                && screen_evidence_queue_record::timestamp_is_after(&lease.lease_expires_at, now)
+        })
+        .collect::<Vec<_>>();
+    if retained.len() != lease_count {
+        super::screen_evidence_queue_leases::write_leases(queue, &retained)?;
+    }
+    Ok(retained)
+}
+
+fn decrypted_queue_records(
+    contents: &str,
+) -> Result<Vec<screen_evidence_queue_record::EncryptedScreenEvidenceQueueRecord>, JournalError> {
+    contents
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .map(screen_evidence_queue_record::decrypted_record_from_line)
+        .collect()
 }
 
 pub(crate) fn acknowledge_expired_entries(
