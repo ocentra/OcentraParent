@@ -31,7 +31,7 @@
 Current status:
 
 ```text
-WP04 is complete-proven at 12/12 against pushed source head `973ec18108adfecae2a870e964b18dcfd46dc453`: operation-identity semantics, real subprocess artifact publish/replay/conflict custody, persisted adversarial redaction, scoped gates, and all five ignored proof artifacts are current. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
+WP04 is complete-proven at 12/12 against source commit `268b1f93d01d8410bf1fa5eccacf79dedad4f9aa`: bounded NDJSON tail recovery, retry-safe intent/commit markers, complete artifact replay custody validation, extended UNC preservation, parent-directory re-sync on matching replay, real subprocess conflict custody, persisted adversarial redaction, and both normal and `test-support` gates are current. All five ignored proof artifacts were regenerated against that source tree. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
 ```
 
 Expected result:
