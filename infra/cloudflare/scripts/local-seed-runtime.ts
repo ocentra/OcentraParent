@@ -356,6 +356,8 @@ async function startRuntime(persistTo: string): Promise<RuntimeHandle> {
       'wrangler',
       'dev',
       '--local',
+      '--var',
+      'ENVIRONMENT:local',
       '--port',
       String(port),
       '--ip',

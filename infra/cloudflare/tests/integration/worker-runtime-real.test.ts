@@ -233,7 +233,7 @@ function parseDotEnvFile(contents: string): Readonly<Record<string, string>> {
 
 function buildRuntimeDevVarsContents(): string {
   return [
-    'ENVIRONMENT=development',
+    'ENVIRONMENT=local',
     'APP_ORIGIN=http://localhost:3000',
     'CORS_ALLOWED_ORIGINS=http://localhost:3000',
     'REQUEST_MAX_BYTES=1048576',
@@ -452,6 +452,8 @@ async function startRuntime(): Promise<RuntimeHandle> {
     'wrangler',
     'dev',
     '--local',
+    '--var',
+    'ENVIRONMENT:local',
     '--port',
     String(port),
     '--ip',

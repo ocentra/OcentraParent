@@ -299,6 +299,7 @@ describe('local dev seeding workflow', () => {
 
         const preservedStatusPayload = JSON.stringify({
           subject: 'parent:demo-active',
+          parentAccountRef: 'parent-account:demo-active',
           parentVisibleState: 'manual-review',
           auditReference: 'audit:operator-preserved-state',
         });
@@ -308,6 +309,25 @@ describe('local dev seeding workflow', () => {
         );
         runSeedCommand('seed:local', persistenceA, runA);
         assert.equal(await readStatusPayload(persistenceA, 'parent:demo-active'), preservedStatusPayload);
+
+        const mismatchedStatusPayload = JSON.stringify({
+          subject: 'parent:demo-active',
+          parentAccountRef: 'parent-account:wrong-family',
+          parentVisibleState: 'manual-review',
+          auditReference: 'audit:mismatched-parent-account',
+        });
+        await runLocalD1Command(
+          persistenceA,
+          `UPDATE billing_status SET payload_json = '${mismatchedStatusPayload.replaceAll("'", "''")}' WHERE subject = 'parent:demo-active'`
+        );
+        assert.throws(
+          () => runSeedCommand('seed:local', persistenceA, runA),
+          /local seed health did not prove D1\/KV\/R2 persistence/
+        );
+        await runLocalD1Command(
+          persistenceA,
+          `UPDATE billing_status SET payload_json = '${preservedStatusPayload.replaceAll("'", "''")}' WHERE subject = 'parent:demo-active'`
+        );
 
         const additionalStatusPayload = JSON.stringify({
           subject: 'parent:local-activity',
