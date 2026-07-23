@@ -36,22 +36,21 @@ no_claim: this receipt does not unblock payment or prove production Cloudflare, 
 
 ## Current-head validation receipt
 
-Validated worktree content was committed and pushed as
-`cbb8421875492176bd2a3d5b95eaa7fa0dd8210e`.
+The exact runtime and harness source tree validated for this receipt is
+`82445200637a7829c718f2a212c8c227b8b756dd`. The receipt commit is deliberately
+separate so its documentation edit does not change that tested source tree.
 
 | Gate | Result | Evidence boundary |
 | --- | --- | --- |
-| `npm run lint --workspace @ocentra-parent/cloudflare-control-plane` | pass | TypeScript module lint only. |
-| `npm run test:unit --workspace @ocentra-parent/cloudflare-control-plane` | 49/49 pass | Local unit behavior only. |
-| `npm run test:contract --workspace @ocentra-parent/cloudflare-control-plane` | 14/14 pass | Contract behavior only. |
-| `npm run test:integration --workspace @ocentra-parent/cloudflare-control-plane` | 61/61 pass | Local Wrangler Worker runtime only; not deployed production. |
-| `npm run lint:generated-artifacts` | pass | No generated `output/` artifacts remain tracked. |
-| `cargo test -p ocentra-billing-core --test unit` | 37/37 pass | Billing-core unit behavior only; not provider or subscription E2E. |
+| `npm --prefix infra/cloudflare run lint` | pass | TypeScript module lint only. |
+| `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` | 4/4 pass | Real local Wrangler D1 idempotency/isolation, bounded subprocess cleanup, and redacted proof-chain teardown only; not deployed production. |
+| `npm run lint:architecture -- --files infra/cloudflare/src/billing-binding-read-model.ts infra/cloudflare/src/index.ts infra/cloudflare/scripts/local-dev-workflow.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` | pass | Focused no-barrel architecture policy only. |
+| `npm run lint:enforcer:source-shape -- --files infra/cloudflare/src/billing-binding-read-model.ts infra/cloudflare/src/index.ts infra/cloudflare/scripts/local-dev-workflow.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` | pass | Focused source-shape policy only. |
+| `git diff --check` | pass | No whitespace errors in the validated change set. |
 
-The integration runner's raw diagnostic log was captured locally at
-`E:\ocentra-parent-build-cache\cloudflare-wp12-integration.log`. That machine-local
-path is a diagnostic pointer, not retained repository proof and not a reason to
-raise readiness.
+The integration runner reported 4 passing subtests in 61.75 seconds. Its raw
+machine-local output remains diagnostic-only and is not retained repository proof
+or a reason to raise readiness.
 
 ## Negative and rollback boundary
 
