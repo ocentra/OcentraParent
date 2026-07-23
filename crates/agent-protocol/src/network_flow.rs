@@ -1020,13 +1020,8 @@ fn expected_runtime_semantics(
 fn expected_runtime_evidence_grade(
     payload: &NetworkRuntimeEventPayload,
 ) -> NetworkRuntimeEvidenceGrade {
-    let unavailable = [
-        payload.evidence_scope == NetworkEvidenceScope::AdapterUnavailable,
-        payload.capability_status != ActivityCaptureCapabilityStatus::Available,
-        payload.domain_attribution_status == ActivityDomainAttributionStatus::Unavailable,
-    ]
-    .into_iter()
-    .any(|value| value);
+    let unavailable = payload.evidence_scope == NetworkEvidenceScope::AdapterUnavailable
+        || payload.capability_status != ActivityCaptureCapabilityStatus::Available;
     let fully_attributed = payload.domain_attribution_status
         == ActivityDomainAttributionStatus::DomainObserved
         && payload.process_attribution_status
