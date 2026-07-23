@@ -200,7 +200,8 @@ export async function acquireLocalWranglerRuntimeLease(
       }
       try {
         const current = parseLeaseRecord(readFileSync(lockPath, 'utf8'));
-        const invalidRecordIsStale = current === null && Date.now() - statSync(lockPath).mtimeMs > invalidRecordStaleAfterMs;
+        const invalidRecordIsStale =
+          current === null && Date.now() - statSync(lockPath).mtimeMs > invalidRecordStaleAfterMs;
         if ((current !== null && !isProcessAlive(current.ownerPid)) || invalidRecordIsStale) {
           rmSync(lockPath, { force: true });
           continue;
@@ -364,11 +365,7 @@ export async function runLocalSeedMutation(requestedFamily: string): Promise<Loc
   });
   log.register(import.meta.url);
 
-  const emitMilestone = (
-    boundary: string,
-    result: SeedRuntimeMilestone['result'],
-    failureKind?: string
-  ): void => {
+  const emitMilestone = (boundary: string, result: SeedRuntimeMilestone['result'], failureKind?: string): void => {
     const milestone: SeedRuntimeMilestone = {
       runId,
       correlationId,
