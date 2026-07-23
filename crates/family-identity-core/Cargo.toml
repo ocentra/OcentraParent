@@ -11,11 +11,16 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+getrandom = "0.3.4"
 ocentra-eventing = { path = "../ocentra-eventing" }
+rusqlite = { version = "0.39.0", features = ["bundled"] }
+same-file = "1.0.6"
 serde = { version = "1.0.228", features = ["derive"] }
-
-[dev-dependencies]
 serde_json = "1.0.145"
+tokio = { version = "1.48.0", features = ["rt"] }
+
+[target.'cfg(unix)'.dependencies]
+rustix = { version = "1.1.4", features = ["fs", "process"] }
 
 [[test]]
 name = "unit"

@@ -19,6 +19,8 @@
 output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
 ```
 
+This root is local generated evidence only. Do not commit files below it.
+
 ## Test layout
 
 ```text
@@ -52,6 +54,26 @@ Implementation-adjacent coverage currently lives in:
 - `crates/agent-protocol/src/lan_pairing_tests.rs`
 - `crates/agent-service/src/lan_pairing_tests.rs`
 - `crates/agent-service/src/lan_pairing_multidevice_tests.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_cross_process.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_nonce_process.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_store_security.rs`
+
+WP01 parent-presence runtime custody:
+
+```powershell
+cargo test -p ocentra-family-identity-core --test unit trust_bootstrap
+cargo clippy -p ocentra-family-identity-core --tests -- -D warnings
+npm run lint:architecture -- --files crates/family-identity-core/src crates/family-identity-core/tests/unit
+```
+
+This focused proof covers explicit-path SQLite custody, durable challenge and nonce identity, opaque receipt generation/redaction, concurrent process consumption/issuance, restart replay rejection, exact integrity-critical SQLite object allowlisting before initialization, and fail-closed path cases. Malformed or executable extra objects must be rejected before initialization can repair them, and isolated trigger, view, virtual-table, and structural fixtures must prove the existing database bytes remain unchanged.
+
+On Windows, production custody requires retained handles for the final database file and every ancestor, all opened without delete sharing. A runtime probe must demonstrate that the active filesystem denies rename while such a handle is held; otherwise opening returns unavailable. The focused security test must prove both final-file and ancestor rename denial while custody is live.
+
+On Unix, production custody currently returns unavailable before creating or opening the database because this boundary cannot exclude same-user pathname substitution. The explicit debug-only custody seam may exercise owner-private `0600` creation, atomic first publication, restart, concurrency, and permissive-existing-file rejection, but those tests are not a production custody claim.
+
+Trust sealing must remain manual-required until the authority contract exposes a specifically authorized high-risk sealing action. `device_trust_ref` values must come from a CSPRNG and remain opaque and input-independent. Parent-presence decisions must be correlated and redacted, committed to a canonical transactional outbox with custody state, and delivered fail-closed into the owned `ocentra-eventing` hash-chained journal. Focused proof must cover accepted and rejected decisions, delivery failure, restart recovery, replay, and idempotent re-delivery. The no-claim boundary remains subscriber delivery, a broader event-bus runtime, and complete device-trust integration.
 
 ## Common commands
 
@@ -125,13 +147,14 @@ A workpack can be complete for one tier while other tiers remain open. Record th
 
 Every device-trust proof slice must preserve product-safe logging and local harness logging.
 
-Product/runtime-safe logging:
+Product/runtime-safe logging and artifacts:
 
 ```text
 redact protected auth material, sealed key bytes, recovery payloads, QR private values, entitlement signing material, private device identifiers beyond opaque refs, and support-private diagnostics unless explicitly selected for proof
 log trust subject, device role, actor role, trust state, sealed-key state, platform store, step-up state, QR challenge state, entitlement binding state, recovery state, tamper/uninstall state, revocation state, replay state, platform note, proof ref, manual-required note, and no-claim boundary when safe
 separate login/session, setup, LAN pairing, package install, license, trust, key sealing, step-up, QR approval, recovery, tamper/uninstall, and route-gate states
 never treat document tests, route tests, login logs, LAN logs, package logs, or license logs as trust proof without selected runtime proof or exact blocker
+do not claim an artifact was emitted, published, journaled, or logged when the domain only constructed and returned it
 ```
 
 Local Codex/MCP/debug harness logging:

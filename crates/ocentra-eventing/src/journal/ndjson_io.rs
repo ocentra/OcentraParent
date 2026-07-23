@@ -5,6 +5,14 @@ use super::{
 
 #[path = "ndjson_io/append.rs"]
 mod append;
+#[path = "ndjson_io/append_lock.rs"]
+mod append_lock;
+#[path = "ndjson_io/idempotent.rs"]
+mod idempotent;
+#[path = "ndjson_io/idempotent_match.rs"]
+mod idempotent_match;
+#[path = "ndjson_io/idempotent_recovery.rs"]
+mod idempotent_recovery;
 #[path = "ndjson_io/recover.rs"]
 mod recover;
 #[path = "ndjson_io/write.rs"]
