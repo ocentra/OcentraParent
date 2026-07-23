@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use crate::runtime_ids::{AppAggregateId, AppRuntimeDecisionId};
 use crate::{app_observed_event, AppObservationIntent};
 
-const APP_SCHEMA_VERSION: u16 = 1;
-const APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE: &str = "app.runtime.decision-recorded";
+pub const APP_RUNTIME_DECISION_SCHEMA_VERSION: u16 = 1;
+pub const APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE: &str = "app.runtime.decision-recorded";
 const APP_IDEMPOTENCY_SEPARATOR: &str = ":";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -92,7 +92,7 @@ impl DomainEvent for AppRuntimeDecisionRecordedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
             EventType::parse(APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE)?,
-            SchemaVersion::new(APP_SCHEMA_VERSION)?,
+            SchemaVersion::new(APP_RUNTIME_DECISION_SCHEMA_VERSION)?,
         ))
     }
 
@@ -153,7 +153,7 @@ fn foreground_decision(classification_state: AppClassificationState) -> AppRunti
             policy_handoff_state: AppPolicyHandoffState::DoNotPublish,
         },
         AppClassificationState::InventoryOnly => {
-            inventory_decision(AppRuntimeActionState::RecordForeground)
+            inventory_decision(AppRuntimeActionState::RecordInventory)
         }
     }
 }
