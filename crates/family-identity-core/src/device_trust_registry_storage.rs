@@ -20,7 +20,6 @@ struct MutationInput<'a> {
     parent_account_id: &'a str,
     device_id: &'a str,
     action: &'a str,
-    recovery_repair_authorized: bool,
     correlation_id: &'a str,
     receipt_ref: &'a str,
 }
@@ -57,7 +56,6 @@ pub(crate) fn pair(
     family_id: &str,
     parent_account_id: &str,
     device_id: &str,
-    recovery_repair_authorized: bool,
     correlation_id: &str,
     receipt_ref: &str,
 ) -> Result<DeviceTrustRegistryDecision, DeviceTrustRegistryFailure> {
@@ -68,7 +66,6 @@ pub(crate) fn pair(
             parent_account_id,
             device_id,
             action: "pair-child-device",
-            recovery_repair_authorized,
             correlation_id,
             receipt_ref,
         },
@@ -90,7 +87,6 @@ pub(crate) fn revoke(
             parent_account_id,
             device_id,
             action: "revoke-child-device",
-            recovery_repair_authorized: false,
             correlation_id,
             receipt_ref,
         },
@@ -115,12 +111,7 @@ fn mutate(
     let existing = existing
         .as_ref()
         .map(|(family, state)| (family.as_str(), state.as_str()));
-    let decision = match mutation_plan(
-        existing,
-        input.family_id,
-        input.action,
-        input.recovery_repair_authorized,
-    )? {
+    let decision = match mutation_plan(existing, input.family_id, input.action)? {
         MutationPlan::Rejected(rejection) => DeviceTrustRegistryDecision::Rejected(rejection),
         MutationPlan::PairPendingSealing => {
             transaction

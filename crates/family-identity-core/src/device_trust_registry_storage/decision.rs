@@ -10,12 +10,11 @@ pub(super) fn mutation_plan(
     existing: Option<(&str, &str)>,
     family_id: &str,
     action: &str,
-    recovery_repair_authorized: bool,
 ) -> Result<MutationPlan, DeviceTrustRegistryFailure> {
     if action != "pair-child-device" && action != "revoke-child-device" {
         return Err(DeviceTrustRegistryFailure::StorageIntegrityRejected);
     }
-    if let Some((_existing_family, "trusted")) = existing {
+    if let Some((_existing_family, "trusted" | "revoked")) = existing {
         return Err(DeviceTrustRegistryFailure::StorageIntegrityRejected);
     }
     if let Some((existing_family, _state)) = existing {
@@ -24,14 +23,6 @@ pub(super) fn mutation_plan(
                 DeviceTrustRegistryRejection::OwnershipConflict,
             ));
         }
-    }
-    if matches!(existing, Some((_family, "revoked")))
-        && action == "pair-child-device"
-        && !recovery_repair_authorized
-    {
-        return Ok(MutationPlan::Rejected(
-            DeviceTrustRegistryRejection::RevokedDeviceCannotRePair,
-        ));
     }
     if existing.is_none() && action == "revoke-child-device" {
         return Ok(MutationPlan::Rejected(

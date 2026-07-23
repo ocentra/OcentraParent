@@ -75,6 +75,8 @@ pub enum HouseholdAuthorizationFailureReason {
     ControllerLeaseRevoked,
     #[serde(rename = "role-not-authorized")]
     RoleNotAuthorized,
+    #[serde(rename = "authority-adapter-unavailable")]
+    AuthorityAdapterUnavailable,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -139,19 +141,6 @@ pub struct DeviceTrustAuthorizationRequest {
     pub parent_account_id: String,
     pub target_child_device_id: String,
     pub action: HouseholdAuthorityAction,
-}
-
-/// The runtime owner resolves current household membership and device state
-/// before this boundary issues an opaque device-trust grant. Raw caller flags
-/// are intentionally not accepted by `authorize_device_trust_action`.
-pub trait HouseholdAuthoritySource {
-    fn resolve_device_trust_authority(
-        &self,
-        family_id: &str,
-        parent_account_id: &str,
-        target_child_device_id: &str,
-        action: HouseholdAuthorityAction,
-    ) -> Option<HouseholdAuthorityInput>;
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -230,37 +219,15 @@ pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAu
 /// This is the only producer for the opaque device-trust grant. It deliberately
 /// keeps raw `HouseholdAuthorityInput` on the household side of the boundary.
 pub fn authorize_device_trust_action(
-    source: &impl HouseholdAuthoritySource,
     request: DeviceTrustAuthorizationRequest,
 ) -> Result<AcceptedDeviceTrustAuthorization, HouseholdAuthorizationFailureReason> {
     if request.target_child_device_id.trim().is_empty() {
         return Err(HouseholdAuthorizationFailureReason::ChildProfileNotBound);
     }
-    let Some(authority) = source.resolve_device_trust_authority(
-        &request.family_id,
-        &request.parent_account_id,
-        &request.target_child_device_id,
-        request.action,
-    ) else {
-        return Err(HouseholdAuthorizationFailureReason::MembershipNotActive);
-    };
-    if authority.action != request.action {
-        return Err(HouseholdAuthorizationFailureReason::RoleNotAuthorized);
-    }
-    let action = authority.action;
-    let decision = authorize_household_action(authority);
-    if decision.authorization_state != HouseholdAuthorizationState::Authorized {
-        return Err(decision
-            .failure_reason
-            .unwrap_or(HouseholdAuthorizationFailureReason::RoleNotAuthorized));
-    }
-    Ok(AcceptedDeviceTrustAuthorization {
-        family_id: request.family_id,
-        parent_account_id: request.parent_account_id,
-        target_child_device_id: request.target_child_device_id,
-        action,
-        recovery_repair_authorized: authority.recovery_repair_authorized,
-    })
+    let _request = request;
+    // This crate has no authenticated household/member/device state adapter.
+    // Do not promote caller identifiers or flags into a trust capability.
+    Err(HouseholdAuthorizationFailureReason::AuthorityAdapterUnavailable)
 }
 
 impl AcceptedDeviceTrustAuthorization {
@@ -338,3 +305,7 @@ fn rejected_parent_step_up_validation(
         failure_reason: Some(failure_reason),
     }
 }
+
+#[cfg(test)]
+#[path = "household_authority_device_trust_private_tests.rs"]
+mod household_authority_device_trust_private_tests;

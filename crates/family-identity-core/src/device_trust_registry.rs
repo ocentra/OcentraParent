@@ -113,7 +113,7 @@ impl DeviceTrustRegistry {
             parent_account_id,
             device_id,
             action,
-            recovery_repair_authorized,
+            _recovery_repair_authorized,
             correlation_id,
             receipt_ref,
         ) = authority.into_registry_parts();
@@ -125,7 +125,6 @@ impl DeviceTrustRegistry {
                     &family_id,
                     &parent_account_id,
                     &device_id,
-                    recovery_repair_authorized,
                     &correlation_id,
                     &receipt_ref,
                 )
