@@ -83,25 +83,50 @@ function appRuntimeDecisionHasSafeBoundary(event: AppRuntimeDecisionRecordedEven
   if (!hasOpaqueIdSuffix(event.decision_id, 'app.runtime-decision-')) {
     return false;
   }
-  if (event.input.classification_state === AppClassificationState.InventoryOnly) {
-    return (
-      event.decision.observation_intent === AppObservationIntent.InventoryObservationOnly &&
-      event.decision.runtime_action_state === AppRuntimeActionState.RecordInventory &&
-      event.decision.ai_handoff_state === AppAiHandoffState.NotRequired &&
-      event.decision.policy_handoff_state === AppPolicyHandoffState.DoNotPublish
-    );
+  const expected = deriveRustRuntimeDecision(event.input);
+  return (
+    event.decision.observation_intent === expected.observation_intent &&
+    event.decision.runtime_action_state === expected.runtime_action_state &&
+    event.decision.ai_handoff_state === expected.ai_handoff_state &&
+    event.decision.policy_handoff_state === expected.policy_handoff_state
+  );
+}
+
+function deriveRustRuntimeDecision(input: Infer<typeof AppRuntimeInputSchema>): Infer<typeof AppRuntimeDecisionSchema> {
+  if (input.capability_state === AppCapabilityState.Missing) {
+    return inventoryDecision(AppRuntimeActionState.ManualRequired);
   }
-  if (event.decision.runtime_action_state === AppRuntimeActionState.ManualRequired) {
-    return (
-      event.decision.observation_intent === AppObservationIntent.InventoryObservationOnly &&
-      event.decision.ai_handoff_state === AppAiHandoffState.NotRequired &&
-      event.decision.policy_handoff_state === AppPolicyHandoffState.DoNotPublish
-    );
+  if (input.foreground_state !== AppForegroundState.Foreground) {
+    return inventoryDecision(AppRuntimeActionState.RecordInventory);
   }
-  if (event.decision.ai_handoff_state === AppAiHandoffState.Required) {
-    return event.decision.policy_handoff_state === AppPolicyHandoffState.DoNotPublish;
+  if (input.classification_state === AppClassificationState.KnownPolicyApp) {
+    return {
+      observation_intent: AppObservationIntent.ForegroundAppRequiresPolicy,
+      runtime_action_state: AppRuntimeActionState.RecordForeground,
+      ai_handoff_state: AppAiHandoffState.NotRequired,
+      policy_handoff_state: AppPolicyHandoffState.Publish,
+    };
   }
-  return true;
+  if (input.classification_state === AppClassificationState.UnknownApp) {
+    return {
+      observation_intent: AppObservationIntent.UnknownAppRequiresAi,
+      runtime_action_state: AppRuntimeActionState.RecordForeground,
+      ai_handoff_state: AppAiHandoffState.Required,
+      policy_handoff_state: AppPolicyHandoffState.DoNotPublish,
+    };
+  }
+  return inventoryDecision(AppRuntimeActionState.RecordInventory);
+}
+
+function inventoryDecision(
+  runtime_action_state: Infer<typeof AppRuntimeDecisionSchema>['runtime_action_state']
+): Infer<typeof AppRuntimeDecisionSchema> {
+  return {
+    observation_intent: AppObservationIntent.InventoryObservationOnly,
+    runtime_action_state,
+    ai_handoff_state: AppAiHandoffState.NotRequired,
+    policy_handoff_state: AppPolicyHandoffState.DoNotPublish,
+  };
 }
 
 function hasOpaqueIdSuffix(value: string, prefix: string): boolean {
