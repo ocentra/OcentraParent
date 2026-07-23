@@ -1,6 +1,7 @@
 import { type Infer, NonEmptyStringSchema, Schema, withParser } from './effect';
+import { RustOwnedAppRuntimeDecisionContracts } from './app-runtime-decision-contract-data';
 
-export const AppRuntimeDecisionSchemaVersion = 1;
+export const AppRuntimeDecisionSchemaVersion = RustOwnedAppRuntimeDecisionContracts.currentSchemaVersion;
 export const AppRuntimeDecisionRecordedEventType = 'app.runtime.decision-recorded' as const;
 
 export const AppCapabilityState = {
@@ -64,9 +65,29 @@ const AppRuntimeDecisionRecordedEventBaseSchema = Schema.Struct({
 
 type AppRuntimeDecisionRecordedEvent = Infer<typeof AppRuntimeDecisionRecordedEventBaseSchema>;
 
+const AppRuntimeDecisionRecordedEventEnvelopeBaseSchema = Schema.Struct({
+  event_type: Schema.Literal(AppRuntimeDecisionRecordedEventType),
+  schema_version: Schema.Literal(1, AppRuntimeDecisionSchemaVersion),
+  payload: AppRuntimeDecisionRecordedEventBaseSchema,
+});
+
+type AppRuntimeDecisionRecordedEventEnvelope = Infer<typeof AppRuntimeDecisionRecordedEventEnvelopeBaseSchema>;
+
 export const AppRuntimeDecisionRecordedEventSchema = withParser(
   AppRuntimeDecisionRecordedEventBaseSchema.pipe(
-    Schema.filter((event) => appRuntimeDecisionHasSafeBoundary(event) || 'Invalid app runtime boundary')
+    Schema.filter(
+      (event) =>
+        appRuntimeDecisionHasSafeBoundary(event, AppRuntimeDecisionSchemaVersion) || 'Invalid app runtime boundary'
+    )
+  )
+);
+
+export const AppRuntimeDecisionRecordedEventEnvelopeSchema = withParser(
+  AppRuntimeDecisionRecordedEventEnvelopeBaseSchema.pipe(
+    Schema.filter(
+      (envelope) =>
+        appRuntimeDecisionHasSafeBoundary(envelope.payload, envelope.schema_version) || 'Invalid app runtime boundary'
+    )
   )
 );
 
@@ -76,14 +97,22 @@ export function decodeAppRuntimeDecisionRecordedEvent(input: unknown): AppRuntim
   return event;
 }
 
-function appRuntimeDecisionHasSafeBoundary(event: AppRuntimeDecisionRecordedEvent): boolean {
+export function decodeAppRuntimeDecisionRecordedEventEnvelope(input: unknown): AppRuntimeDecisionRecordedEventEnvelope {
+  assertExactKeys(input, ['event_type', 'schema_version', 'payload']);
+  return AppRuntimeDecisionRecordedEventEnvelopeSchema.parse(input);
+}
+
+function appRuntimeDecisionHasSafeBoundary(event: AppRuntimeDecisionRecordedEvent, schemaVersion: number): boolean {
   if (!hasOpaqueIdSuffix(event.aggregate_id, 'app.aggregate.')) {
     return false;
   }
   if (!hasOpaqueIdSuffix(event.decision_id, 'app.runtime-decision-')) {
     return false;
   }
-  const expected = deriveRustRuntimeDecision(event.input);
+  const expected = expectedRustRuntimeDecision(event.input, schemaVersion);
+  if (expected === undefined) {
+    return false;
+  }
   return (
     event.decision.observation_intent === expected.observation_intent &&
     event.decision.runtime_action_state === expected.runtime_action_state &&
@@ -92,45 +121,58 @@ function appRuntimeDecisionHasSafeBoundary(event: AppRuntimeDecisionRecordedEven
   );
 }
 
-function deriveRustRuntimeDecision(input: Infer<typeof AppRuntimeInputSchema>): Infer<typeof AppRuntimeDecisionSchema> {
-  if (input.capability_state === AppCapabilityState.Missing) {
-    return inventoryDecision(AppRuntimeActionState.ManualRequired);
+function expectedRustRuntimeDecision(
+  input: Infer<typeof AppRuntimeInputSchema>,
+  schemaVersion: number
+): Infer<typeof AppRuntimeDecisionSchema> | undefined {
+  const decisions =
+    schemaVersion === 1
+      ? [
+          ...RustOwnedAppRuntimeDecisionContracts.currentDecisions,
+          ...RustOwnedAppRuntimeDecisionContracts.legacyV1DecisionDeltas,
+        ]
+      : RustOwnedAppRuntimeDecisionContracts.currentDecisions;
+  const matching = decisions.find(
+    ([capabilityState, foregroundState, classificationState]) =>
+      input.capability_state === capabilityState &&
+      input.foreground_state === foregroundState &&
+      input.classification_state === classificationState
+  );
+  if (matching === undefined) {
+    return undefined;
   }
-  if (input.foreground_state !== AppForegroundState.Foreground) {
-    return inventoryDecision(AppRuntimeActionState.RecordInventory);
+  const [, , , observation_intent, runtime_action_state, ai_handoff_state, policy_handoff_state] = matching;
+  if (schemaVersion === 1) {
+    const legacy = RustOwnedAppRuntimeDecisionContracts.legacyV1DecisionDeltas.find(
+      ([capabilityState, foregroundState, classificationState]) =>
+        input.capability_state === capabilityState &&
+        input.foreground_state === foregroundState &&
+        input.classification_state === classificationState
+    );
+    if (legacy !== undefined) {
+      const [, , , legacyIntent, legacyAction, legacyAiHandoff, legacyPolicyHandoff] = legacy;
+      return decisionFromContract(legacyIntent, legacyAction, legacyAiHandoff, legacyPolicyHandoff);
+    }
   }
-  if (input.classification_state === AppClassificationState.KnownPolicyApp) {
-    return {
-      observation_intent: AppObservationIntent.ForegroundAppRequiresPolicy,
-      runtime_action_state: AppRuntimeActionState.RecordForeground,
-      ai_handoff_state: AppAiHandoffState.NotRequired,
-      policy_handoff_state: AppPolicyHandoffState.Publish,
-    };
-  }
-  if (input.classification_state === AppClassificationState.UnknownApp) {
-    return {
-      observation_intent: AppObservationIntent.UnknownAppRequiresAi,
-      runtime_action_state: AppRuntimeActionState.RecordForeground,
-      ai_handoff_state: AppAiHandoffState.Required,
-      policy_handoff_state: AppPolicyHandoffState.DoNotPublish,
-    };
-  }
-  return inventoryDecision(AppRuntimeActionState.RecordInventory);
+  return decisionFromContract(observation_intent, runtime_action_state, ai_handoff_state, policy_handoff_state);
 }
 
-function inventoryDecision(
-  runtime_action_state: Infer<typeof AppRuntimeDecisionSchema>['runtime_action_state']
+function decisionFromContract(
+  observation_intent: string,
+  runtime_action_state: string,
+  ai_handoff_state: string,
+  policy_handoff_state: string
 ): Infer<typeof AppRuntimeDecisionSchema> {
   return {
-    observation_intent: AppObservationIntent.InventoryObservationOnly,
-    runtime_action_state,
-    ai_handoff_state: AppAiHandoffState.NotRequired,
-    policy_handoff_state: AppPolicyHandoffState.DoNotPublish,
+    observation_intent: observation_intent as Infer<typeof AppRuntimeDecisionSchema>['observation_intent'],
+    runtime_action_state: runtime_action_state as Infer<typeof AppRuntimeDecisionSchema>['runtime_action_state'],
+    ai_handoff_state: ai_handoff_state as Infer<typeof AppRuntimeDecisionSchema>['ai_handoff_state'],
+    policy_handoff_state: policy_handoff_state as Infer<typeof AppRuntimeDecisionSchema>['policy_handoff_state'],
   };
 }
 
 function hasOpaqueIdSuffix(value: string, prefix: string): boolean {
-  return value.startsWith(prefix) && value.slice(prefix.length).trim().length > 0;
+  return value.startsWith(prefix) && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(value.slice(prefix.length));
 }
 
 function assertExactKeys(input: unknown, expectedKeys: readonly string[]): asserts input is Record<string, unknown> {

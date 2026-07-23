@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::runtime_ids::{AppAggregateId, AppRuntimeDecisionId};
 use crate::{app_observed_event, AppObservationIntent};
 
-pub const APP_RUNTIME_DECISION_SCHEMA_VERSION: u16 = 1;
+pub const APP_RUNTIME_DECISION_SCHEMA_VERSION: u16 = 2;
 pub const APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE: &str = "app.runtime.decision-recorded";
 const APP_IDEMPOTENCY_SEPARATOR: &str = ":";
 
