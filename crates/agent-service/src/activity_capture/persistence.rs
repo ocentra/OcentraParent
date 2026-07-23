@@ -29,8 +29,20 @@ pub(super) fn record_unseen_activity_events(
     }
     let key = load_or_create_journal_key(key_path)?;
     let mut journal = ActivityJournal::open(journal_path.to_path_buf(), key)?;
-    let existing_line_count = journal.lines()?.len();
+    let replay_status = store.ingest_journal(&journal)?;
+    let mut events_missing_after_replay = Vec::new();
     for event in events_to_append {
+        if !store.contains_event_id(&event.event_id)? {
+            events_missing_after_replay.push(event);
+        }
+    }
+    if events_missing_after_replay.is_empty() {
+        let mut status = replay_status;
+        status.duplicate_events += duplicate_events_in_batch;
+        return Ok(status);
+    }
+    let existing_line_count = journal.lines()?.len();
+    for event in events_missing_after_replay {
         journal.append(event)?;
     }
     let mut appended_events = Vec::new();
@@ -38,6 +50,7 @@ pub(super) fn record_unseen_activity_events(
         appended_events.push(journal.decrypt_line(&line)?);
     }
     let mut status = store.ingest_events(&appended_events)?;
-    status.duplicate_events += duplicate_events_in_batch;
+    status.events_ingested += replay_status.events_ingested;
+    status.duplicate_events += replay_status.duplicate_events + duplicate_events_in_batch;
     Ok(status)
 }
