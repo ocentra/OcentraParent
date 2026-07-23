@@ -52,10 +52,10 @@ pub(crate) fn complete_claimed_entry(
             .into());
         }
         super::replace_queue_lines(queue, &retained)?;
-        let leases = super::screen_evidence_queue_read::read_leases(queue)?
+        let leases = super::screen_evidence_queue_leases::read_leases(queue)?
             .into_iter()
             .filter(|lease| lease.queue_job_id != queue_job_id)
             .collect::<Vec<_>>();
-        super::screen_evidence_queue_read::write_leases(queue, &leases)
+        super::screen_evidence_queue_leases::write_leases(queue, &leases)
     })
 }

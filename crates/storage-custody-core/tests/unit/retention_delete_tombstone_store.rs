@@ -60,3 +60,29 @@ fn tombstone_outbox_serializes_concurrent_intents() {
     assert_eq!(count, 8);
     let _ = std::fs::remove_dir_all(&directory);
 }
+
+#[test]
+fn tombstone_outbox_atomic_replacements_survive_reopen() {
+    let directory =
+        std::env::temp_dir().join(format!("ocentra-tombstone-replace-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&directory);
+    let store = RetentionDeleteTombstoneStore::open(&directory).expect("open");
+    store
+        .persist_intent("delete:first".to_string(), "proof:first".to_string())
+        .expect("first intent");
+    store
+        .persist_intent("delete:second".to_string(), "proof:second".to_string())
+        .expect("second intent");
+    store
+        .mark_terminal_published("delete:first")
+        .expect("first terminal");
+
+    let records = RetentionDeleteTombstoneStore::open(&directory)
+        .expect("reopen")
+        .records()
+        .expect("records");
+    assert_eq!(records.len(), 1);
+    assert_eq!(records[0].deletion_ref, "delete:second");
+    assert!(records[0].terminal_pending);
+    let _ = std::fs::remove_dir_all(&directory);
+}

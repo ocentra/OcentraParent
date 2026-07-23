@@ -431,6 +431,113 @@ fn screen_evidence_queue_active_analysis_lease_blocks_sweep_and_restart_recovers
 }
 
 #[test]
+fn screen_evidence_queue_refuses_to_lease_already_expired_entries() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([18; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let job = screen_queue_job_with_expiry(
+        "screen-expired-before-claim",
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    );
+    queue
+        .append_encrypted_image(&job, b"expired-before-claim")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let claimed = queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert!(claimed.is_none());
+    assert_eq!(sweep.expired_entries.len(), 1);
+}
+
+#[test]
+fn screen_evidence_queue_quarantines_malformed_leases_and_keeps_claiming() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([19; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    queue
+        .append_encrypted_image(&screen_queue_job(), b"lease-recovery")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let lease_path = queue.path().with_extension("analysis-leases");
+    std::fs::write(&lease_path, b"{malformed-lease\n")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let claimed = queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let quarantine_path = lease_path.with_extension("analysis-leases.quarantine");
+    let quarantine_exists = quarantine_path.is_file();
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(
+        claimed.map(|entry| entry.queue_job_id),
+        Some(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string())
+    );
+    assert!(quarantine_exists);
+}
+
+#[test]
+fn screen_evidence_queue_renewed_lease_stays_valid_for_the_running_job() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([20; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let job = screen_queue_job_with_expiry(
+        "screen-renewed-analysis-lease",
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    );
+    queue
+        .append_encrypted_image(&job, b"renewed-lease")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS)
+        .expect_value(constants::error::JOURNAL_READS);
+    let renewed = queue
+        .renew_claimed_entry(
+            "screen-renewed-analysis-lease",
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert!(renewed);
+    assert!(sweep.expired_entries.is_empty());
+    assert_eq!(sweep.retained_count, 1);
+}
+
+#[test]
 fn screen_evidence_queue_claim_completion_requires_exactly_one_removal() {
     let directory = temp_queue_dir();
     let _ = remove_dir_all(&directory);
@@ -505,12 +612,30 @@ fn screen_evidence_queue_quarantines_corrupt_outbox_and_continues_valid_deletion
             SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
         )
         .expect_value(constants::error::JOURNAL_READS);
+    let retry = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let acknowledged = queue
+        .acknowledge_outbox_failures(&retry.outbox_failures)
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let projected = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
     let quarantine = read_to_string(outbox_path.with_extension("deletion-outbox-quarantine"))
         .expect_value(constants::error::JOURNAL_READS);
     let _ = remove_dir_all(&directory);
 
     assert_eq!(sweep.expired_entries.len(), 2);
     assert_eq!(sweep.outbox_failures.len(), 1);
+    assert_eq!(retry.outbox_failures, sweep.outbox_failures);
+    assert_eq!(acknowledged, 1);
+    assert!(projected.outbox_failures.is_empty());
     let quarantined: Value =
         serde_json::from_str(quarantine.trim()).expect_value(constants::error::JOURNAL_READS);
     assert_eq!(quarantined["rawRecord"].as_str(), Some("{not-valid-json}"));

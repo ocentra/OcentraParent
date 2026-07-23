@@ -8,6 +8,8 @@ mod adapter_redaction;
 pub(crate) mod config;
 #[path = "screen_ai_analysis_runtime/event_record.rs"]
 mod event_record;
+#[path = "screen_ai_analysis_runtime/lease_heartbeat.rs"]
+mod lease_heartbeat;
 #[path = "screen_ai_analysis_runtime/queue.rs"]
 mod queue;
 
@@ -34,6 +36,7 @@ use config::{
     ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenAiAnalysisRuntimeConfig,
 };
 use event_record::{analysis_event_record, outcome_for_generation, screen_analysis_event};
+use lease_heartbeat::{start_analysis_lease_heartbeat, ScreenAnalysisLeaseHeartbeatInput};
 use queue::QueuedScreenImage;
 use queue::{first_queued_screen_image, load_existing_screen_key, metadata_result_for_queue_job};
 
@@ -82,10 +85,22 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
     let Some(key) = load_existing_screen_key(&config.journal_key_path)? else {
         return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
     };
-    let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
-    let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan, &clock)? else {
+    let queue = ScreenEvidenceQueue::open(&config.queue_dir, key.clone())?;
+    let Some(image) = first_queued_screen_image(
+        &queue,
+        config.max_queue_scan,
+        &clock,
+        config.adapter_timeout_ms,
+    )?
+    else {
         return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
     };
+    let _lease_heartbeat = start_analysis_lease_heartbeat(ScreenAnalysisLeaseHeartbeatInput {
+        queue_dir: config.queue_dir.clone(),
+        key,
+        queue_job_id: image.queue_job_id.clone(),
+        adapter_timeout_ms: config.adapter_timeout_ms,
+    });
     let metadata = metadata_result_for_queue_job(&config.store_path, &image, &clock)?;
     if metadata
         .as_ref()

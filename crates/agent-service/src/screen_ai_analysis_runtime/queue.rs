@@ -11,8 +11,10 @@ use crate::activity_capture::ActivityCaptureError;
 
 use super::ScreenAiAnalysisCycleClock;
 
-const SCREEN_ANALYSIS_LEASE_SECONDS: i64 = 30 * 60;
+const SCREEN_ANALYSIS_LEASE_MINIMUM_MS: u64 = 5 * 60 * 1_000;
+const SCREEN_ANALYSIS_LEASE_SAFETY_MS: u64 = 60 * 1_000;
 
+pub(super) struct AnalysisLeaseExpiresAt(pub(super) String);
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct QueuedScreenImage {
     pub(crate) queue_job_id: String,
@@ -25,17 +27,14 @@ pub(super) fn first_queued_screen_image(
     queue: &ScreenEvidenceQueue,
     max_queue_scan: usize,
     clock: &ScreenAiAnalysisCycleClock,
+    adapter_timeout_ms: u64,
 ) -> Result<Option<QueuedScreenImage>, ActivityCaptureError> {
-    let lease_expires_at = chrono::DateTime::parse_from_rfc3339(&clock.timestamp)
-        .map_err(|_parse_error| ActivityCaptureError::Io)?
-        .checked_add_signed(chrono::Duration::seconds(SCREEN_ANALYSIS_LEASE_SECONDS))
-        .ok_or(ActivityCaptureError::Io)?
-        .to_rfc3339();
+    let lease_expires_at = analysis_lease_expires_at(clock, adapter_timeout_ms)?;
     Ok(queue
         .claim_first_decrypted_entry(
             max_queue_scan,
             clock.timestamp.as_str(),
-            lease_expires_at.as_str(),
+            &lease_expires_at.0,
         )?
         .map(|entry| QueuedScreenImage {
             queue_job_id: entry.queue_job_id,
@@ -43,6 +42,22 @@ pub(super) fn first_queued_screen_image(
             image_digest: entry.image_digest,
             image_bytes: entry.image_bytes,
         }))
+}
+
+pub(super) fn analysis_lease_expires_at(
+    clock: &ScreenAiAnalysisCycleClock,
+    adapter_timeout_ms: u64,
+) -> Result<AnalysisLeaseExpiresAt, ActivityCaptureError> {
+    let lease_duration_ms = adapter_timeout_ms
+        .saturating_add(SCREEN_ANALYSIS_LEASE_SAFETY_MS)
+        .max(SCREEN_ANALYSIS_LEASE_MINIMUM_MS);
+    let lease_duration_ms =
+        i64::try_from(lease_duration_ms).map_err(|_overflow| ActivityCaptureError::Io)?;
+    chrono::DateTime::parse_from_rfc3339(&clock.timestamp)
+        .map_err(|_parse_error| ActivityCaptureError::Io)?
+        .checked_add_signed(chrono::Duration::milliseconds(lease_duration_ms))
+        .ok_or(ActivityCaptureError::Io)
+        .map(|timestamp| AnalysisLeaseExpiresAt(timestamp.to_rfc3339()))
 }
 
 pub(super) fn metadata_result_for_queue_job(

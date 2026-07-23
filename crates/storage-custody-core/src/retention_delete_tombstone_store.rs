@@ -85,7 +85,8 @@ impl RetentionDeleteTombstoneStore {
                 serde_json::to_writer(&mut *file, records).map_err(io::Error::other)?;
                 file.sync_all()
             })
-            .map_err(|error| io::Error::other(error.to_string()))
+            .map_err(|error| io::Error::other(error.to_string()))?;
+        sync_parent_directory(&self.path)
     }
 
     fn lock(&self) -> io::Result<std::fs::File> {
@@ -96,4 +97,14 @@ impl RetentionDeleteTombstoneStore {
             .truncate(false)
             .open(self.path.with_extension("lock"))
     }
+}
+
+#[cfg(not(windows))]
+fn sync_parent_directory(path: &Path) -> io::Result<()> {
+    std::fs::File::open(path.parent().unwrap_or_else(|| Path::new(".")))?.sync_all()
+}
+
+#[cfg(windows)]
+fn sync_parent_directory(_path: &Path) -> io::Result<()> {
+    Ok(())
 }

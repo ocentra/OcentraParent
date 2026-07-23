@@ -10,13 +10,6 @@ use ocentra_parent_agent_protocol::screen_evidence::{
 
 use super::{expired_entry_event, ScreenAiObservedAt};
 
-pub(super) fn deletion_failure_event(
-    entry: &ScreenEvidenceExpiredQueueEntry,
-    observed_at: ScreenAiObservedAt,
-) -> ActivityEvent {
-    failed_deletion_event(entry, observed_at)
-}
-
 pub(super) fn outbox_failure_event(
     failure: &ScreenEvidenceOutboxFailure,
     observed_at: ScreenAiObservedAt,

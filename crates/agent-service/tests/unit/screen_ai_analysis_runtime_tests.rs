@@ -163,7 +163,7 @@ fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> TestText {
                 store_path: &config.store_path,
             },
             image: &captured_test_image(),
-            clock: capture_clock(2, constants::activity_store::TEST_SECOND_OBSERVED_AT),
+            clock: capture_clock(constants::activity_store::TEST_SECOND_OBSERVED_AT),
             sequence_index: 1,
             capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE,
             source_id: SCREEN_SERVICE_SOURCE_ID,
@@ -192,11 +192,11 @@ fn analysis_clock(
     }
 }
 
-fn capture_clock(
-    epoch_seconds: u64,
-    timestamp: impl std::fmt::Display,
-) -> ScreenAiServiceCaptureClock {
+fn capture_clock(timestamp: impl std::fmt::Display) -> ScreenAiServiceCaptureClock {
     let timestamp = timestamp.to_string();
+    let epoch_seconds = chrono::DateTime::parse_from_rfc3339(&timestamp)
+        .expect("test capture timestamp parses")
+        .timestamp() as u64;
     ScreenAiServiceCaptureClock {
         epoch_seconds,
         timestamp,

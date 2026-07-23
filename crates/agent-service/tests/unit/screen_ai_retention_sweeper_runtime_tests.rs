@@ -12,16 +12,16 @@ use ocentra_parent_agent_core::screen_evidence_queue::ScreenEvidenceQueue;
 use ocentra_parent_agent_protocol as parent_protocol;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
-    ScreenAnalysisQueueJob, ScreenEvidenceRecentSummary,
+    ScreenAnalysisQueueJob, ScreenEvidenceRecentSummary, SCREEN_DELETION_EXPIRED_DELETED,
 };
 
 use crate::screen_ai_retention_sweeper_deletion_events::{
     publish_screen_retention_deletion_events, ScreenAiRetentionSweeperDeletionEventOutcome,
 };
 use crate::screen_ai_retention_sweeper_runtime::{
-    acknowledge_published_deletion_outbox, record_screen_ai_retention_sweeper_tick,
-    ScreenAiRetentionSweeperClock, ScreenAiRetentionSweeperOutcome,
-    ScreenAiRetentionSweeperRuntimeConfig,
+    acknowledge_published_deletion_outbox, finalize_published_deletion_outbox,
+    record_screen_ai_retention_sweeper_tick, ScreenAiRetentionSweeperClock,
+    ScreenAiRetentionSweeperOutcome, ScreenAiRetentionSweeperRuntimeConfig,
 };
 use crate::test_invariants::require_ok;
 
@@ -253,6 +253,73 @@ fn screen_retention_acknowledgement_rejects_zero_removal_as_failed_retry() -> Re
     assert_eq!(
         acknowledgement,
         Err(crate::activity_capture::ActivityCaptureError::Io)
+    );
+    Ok(())
+}
+
+#[test]
+fn screen_retention_acknowledgement_failure_does_not_relabel_successful_deletion(
+) -> Result<(), IoError> {
+    let root = test_path("retention-ack-not-delete-failure");
+    let _ = remove_dir_all(&root);
+    let queue_dir = root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    let key_path = root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX);
+    let journal_path = root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX);
+    let store_path = root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX);
+    let key = JournalKey::from_bytes([16; JOURNAL_KEY_BYTES]);
+    fs::create_dir_all(&root)?;
+    fs::write(&key_path, key.as_bytes())?;
+    let queue = ScreenEvidenceQueue::open(&queue_dir, key)
+        .map_err(|error| IoError::other(format!("{error:?}")))?;
+    let job = screen_queue_job_with_expiry(
+        "screen-ack-failure-is-not-delete-failure",
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    );
+    queue
+        .append_encrypted_image(&job, b"already-deleted-image")
+        .map_err(|error| IoError::other(format!("{error:?}")))?;
+    let config = ScreenAiRetentionSweeperRuntimeConfig {
+        poll_seconds: 1,
+        max_sweeps: Some(1),
+        max_ticks: Some(1),
+        queue_dir,
+        journal_path,
+        journal_key_path: key_path,
+        store_path: store_path.clone(),
+    };
+    record_screen_ai_retention_sweeper_tick(
+        &config,
+        sweeper_clock(constants::activity_store::TEST_SECOND_OBSERVED_AT),
+    )
+    .map_err(|error| IoError::other(format!("{error:?}")))?;
+    assert_eq!(
+        queue
+            .acknowledge_expired_entries(std::slice::from_ref(&job.queue_job_id))
+            .map_err(|error| IoError::other(format!("{error:?}")))?,
+        1
+    );
+    let published = vec![ScreenAiRetentionSweeperDeletionEventOutcome {
+        queue_job_id: job.queue_job_id,
+        downstream_event_count: 1,
+        raw_image_escaped: false,
+    }];
+
+    assert_eq!(
+        finalize_published_deletion_outbox(&config, &published),
+        Err(crate::activity_capture::ActivityCaptureError::Io)
+    );
+    let summary = ActivityStore::open(&store_path)
+        .map_err(|error| IoError::other(format!("{error:?}")))?
+        .screen_evidence_recent_summary(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .map_err(|error| IoError::other(format!("{error:?}")))?;
+    let _ = remove_dir_all(&root);
+
+    assert_eq!(
+        summary.latest_image_deletion_state.as_deref(),
+        Some(SCREEN_DELETION_EXPIRED_DELETED)
     );
     Ok(())
 }

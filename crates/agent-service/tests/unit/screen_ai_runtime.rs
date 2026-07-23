@@ -131,6 +131,12 @@ mod screen_ai_analysis_runtime {
             "/src/screen_ai_analysis_runtime/event_record.rs"
         ));
     }
+    pub(crate) mod lease_heartbeat {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/lease_heartbeat.rs"
+        ));
+    }
     mod event_record_tests {
         include!(concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -164,8 +170,11 @@ mod screen_ai_analysis_runtime {
 
     use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
 
-    use self::queue::{
-        first_queued_screen_image, load_existing_screen_key, metadata_result_for_queue_job,
+    use self::{
+        lease_heartbeat::{start_analysis_lease_heartbeat, ScreenAnalysisLeaseHeartbeatInput},
+        queue::{
+            first_queued_screen_image, load_existing_screen_key, metadata_result_for_queue_job,
+        },
     };
 
     pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
@@ -179,10 +188,22 @@ mod screen_ai_analysis_runtime {
         let Some(key) = load_existing_screen_key(&config.journal_key_path)? else {
             return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
         };
-        let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
-        let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan, &clock)? else {
+        let queue = ScreenEvidenceQueue::open(&config.queue_dir, key.clone())?;
+        let Some(image) = first_queued_screen_image(
+            &queue,
+            config.max_queue_scan,
+            &clock,
+            config.adapter_timeout_ms,
+        )?
+        else {
             return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
         };
+        let _lease_heartbeat = start_analysis_lease_heartbeat(ScreenAnalysisLeaseHeartbeatInput {
+            queue_dir: config.queue_dir.clone(),
+            key,
+            queue_job_id: image.queue_job_id.clone(),
+            adapter_timeout_ms: config.adapter_timeout_ms,
+        });
         let metadata = metadata_result_for_queue_job(&config.store_path, &image, &clock)?;
         if metadata
             .as_ref()

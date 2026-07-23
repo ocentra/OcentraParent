@@ -38,8 +38,10 @@ use crate::{
 mod failure_events;
 #[path = "screen_ai_retention_sweeper_runtime/key_loader.rs"]
 mod key_loader;
+#[path = "screen_ai_retention_sweeper_runtime/outbox_projection.rs"]
+mod outbox_projection;
 
-use failure_events::{deletion_failure_event, outbox_failure_event};
+use failure_events::outbox_failure_event;
 
 const DEFAULT_POLL_SECONDS: u64 = 5;
 
@@ -116,23 +118,7 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
                 ObservedAtText(observed_at),
             )
             .await;
-            if acknowledge_published_deletion_outbox(&config, &published).is_err() {
-                let published_ids = published
-                    .iter()
-                    .map(|outcome| outcome.queue_job_id.as_str())
-                    .collect::<std::collections::HashSet<_>>();
-                let failures = expired_entries
-                    .iter()
-                    .filter(|entry| published_ids.contains(entry.queue_job_id.as_str()))
-                    .map(|entry| deletion_failure_event(entry, ScreenAiObservedAt(timestamp_now())))
-                    .collect::<Vec<_>>();
-                let _ = record_activity_events_to_paths(
-                    &config.journal_path,
-                    &config.journal_key_path,
-                    &config.store_path,
-                    &failures,
-                );
-            }
+            let _ = finalize_published_deletion_outbox(&config, &published);
             sweep_count += 1;
         }
         if config.max_sweeps.is_some_and(|max| sweep_count >= max) {
@@ -164,6 +150,13 @@ pub(crate) fn acknowledge_published_deletion_outbox(
         return Err(ActivityCaptureError::Io);
     }
     Ok(acknowledged)
+}
+
+pub(crate) fn finalize_published_deletion_outbox(
+    config: &ScreenAiRetentionSweeperRuntimeConfig,
+    published: &[crate::screen_ai_retention_sweeper_deletion_events::ScreenAiRetentionSweeperDeletionEventOutcome],
+) -> Result<u64, ActivityCaptureError> {
+    acknowledge_published_deletion_outbox(config, published)
 }
 
 pub(crate) fn record_screen_ai_retention_sweeper_tick(
@@ -198,6 +191,7 @@ pub(crate) fn record_screen_ai_retention_sweeper_tick(
             &config.store_path,
             &events,
         )?;
+        outbox_projection::acknowledge_projected_outbox_failures(&queue, &sweep.outbox_failures)?;
     }
     if !sweep.expired_entries.is_empty() {
         return Ok(ScreenAiRetentionSweeperOutcome::Swept {

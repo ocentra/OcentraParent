@@ -36,6 +36,14 @@ capture redaction, production projection, and hardened proof custody work.
 The portal proof uses the runner's exact-spec environment route, so it runs the
 screen-summary proof without fan-out into unrelated E2E suites.
 
+The 2026-07-23 PR 574 review repair closes eight local runtime defects covering
+acknowledgement semantics, screen query ordering, whole-job analysis leases,
+bounded deletion publication reports, retryable corrupt outbox projection,
+malformed lease recovery, expired-queue claim refusal, and tombstone directory
+sync. Focused Rust tests and the architecture gate are recorded in the proof
+manifest. These repairs do not restore any checklist item below: the workpack
+remains open until the complete accepted proof pack satisfies the target state.
+
 ## Required proof fields
 
 The selected proof must name, at minimum:

@@ -30,7 +30,6 @@ pub(crate) mod live_view_service_runtime;
 
 pub(crate) struct ScreenAiServiceEventRuntime {
     bus: EventBus,
-    screen_runtime: ScreenRuntimeSpine,
 }
 
 impl ScreenAiServiceEventRuntime {
@@ -38,11 +37,7 @@ impl ScreenAiServiceEventRuntime {
         let bus = EventBus::new();
         let state = ScreenAiServiceEventSubscriptionState::default();
         subscribe_screen_service_row_ready_events(&bus, state.clone()).await?;
-        let screen_runtime = ScreenRuntimeSpine::with_default_handlers().await?;
-        Ok(Self {
-            bus,
-            screen_runtime,
-        })
+        Ok(Self { bus })
     }
 
     pub(crate) async fn publish_row_ready(
@@ -65,7 +60,9 @@ impl ScreenAiServiceEventRuntime {
         observed_at: ObservedAtText,
     ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
         let input = screen_runtime_deletion_input_from_service_row(row)?;
-        self.screen_runtime
+        ScreenRuntimeSpine::with_default_handlers()
+            .await
+            .map_err(|_start_error| ScreenAiServiceEventBridgeError::EventPublishFailed)?
             .publish_deletion_event(input, observed_at.0.as_str())
             .await
             .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)

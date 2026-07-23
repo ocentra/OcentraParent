@@ -9,8 +9,12 @@ use fs2::FileExt;
 
 use crate::journal_crypto::JournalKey;
 
+#[path = "screen_evidence_queue_leases.rs"]
+mod screen_evidence_queue_leases;
 #[path = "screen_evidence_queue_outbox.rs"]
 mod screen_evidence_queue_outbox;
+#[path = "screen_evidence_queue_outbox_quarantine.rs"]
+mod screen_evidence_queue_outbox_quarantine;
 #[path = "screen_evidence_queue_read.rs"]
 mod screen_evidence_queue_read;
 #[path = "screen_evidence_queue_record.rs"]
@@ -177,6 +181,14 @@ impl ScreenEvidenceQueue {
         screen_evidence_queue_remove::complete_claimed_entry(self, queue_job_id)
     }
 
+    pub fn renew_claimed_entry(
+        &self,
+        queue_job_id: &str,
+        lease_expires_at: &str,
+    ) -> Result<bool, crate::JournalError> {
+        screen_evidence_queue_leases::renew_claimed_entry(self, queue_job_id, lease_expires_at)
+    }
+
     pub fn remove_entries(&self, queue_job_ids: &[String]) -> Result<u64, crate::JournalError> {
         screen_evidence_queue_remove::remove_entries(self, queue_job_ids)
     }
@@ -194,5 +206,12 @@ impl ScreenEvidenceQueue {
         queue_job_ids: &[String],
     ) -> Result<u64, crate::JournalError> {
         screen_evidence_queue_sweep::acknowledge_expired_entries(self, queue_job_ids)
+    }
+
+    pub fn acknowledge_outbox_failures(
+        &self,
+        failures: &[ScreenEvidenceOutboxFailure],
+    ) -> Result<u64, crate::JournalError> {
+        screen_evidence_queue_sweep::acknowledge_outbox_failures(self, failures)
     }
 }

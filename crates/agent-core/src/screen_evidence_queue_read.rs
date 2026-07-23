@@ -4,7 +4,6 @@ use std::{
     path::Path,
 };
 
-use atomicwrites::{AllowOverwrite, AtomicFile};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::ScreenAnalysisQueueJob;
 
@@ -89,7 +88,7 @@ pub(crate) fn claim_first_decrypted_entry(
 ) -> Result<Option<DecryptedScreenEvidenceQueueEntry>, JournalError> {
     super::with_exclusive_queue_lock(queue, || {
         let contents = super::read_queue_contents(queue)?.unwrap_or_default();
-        let mut leases = read_leases(queue)?;
+        let mut leases = super::screen_evidence_queue_leases::read_leases(queue)?;
         let original_lease_count = leases.len();
         leases.retain(|lease| {
             super::screen_evidence_queue_record::timestamp_is_after(&lease.lease_expires_at, now)
@@ -100,6 +99,12 @@ pub(crate) fn claim_first_decrypted_entry(
             .take(max_entries)
         {
             let record = super::screen_evidence_queue_record::decrypted_record_from_line(line)?;
+            if super::screen_evidence_queue_record::queue_record_expired(
+                record.expires_at.as_deref(),
+                now,
+            ) {
+                continue;
+            }
             if leases
                 .iter()
                 .any(|lease| lease.queue_job_id == record.queue_job_id)
@@ -111,56 +116,14 @@ pub(crate) fn claim_first_decrypted_entry(
                 queue_job_id: record.queue_job_id.clone(),
                 lease_expires_at: lease_expires_at.to_string(),
             });
-            write_leases(queue, &leases)?;
+            super::screen_evidence_queue_leases::write_leases(queue, &leases)?;
             return Ok(Some(decrypted_entry(record, image_bytes)));
         }
         if leases.len() != original_lease_count {
-            write_leases(queue, &leases)?;
+            super::screen_evidence_queue_leases::write_leases(queue, &leases)?;
         }
         Ok(None)
     })
-}
-
-pub(crate) fn read_leases(
-    queue: &ScreenEvidenceQueue,
-) -> Result<Vec<ScreenEvidenceQueueLease>, JournalError> {
-    match std::fs::read_to_string(lease_path(queue)) {
-        Ok(contents) => contents
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .map(serde_json::from_str)
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(Into::into),
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(Vec::new()),
-        Err(error) => Err(error.into()),
-    }
-}
-
-pub(crate) fn write_leases(
-    queue: &ScreenEvidenceQueue,
-    leases: &[ScreenEvidenceQueueLease],
-) -> Result<(), JournalError> {
-    let path = lease_path(queue);
-    let body = leases
-        .iter()
-        .map(serde_json::to_string)
-        .collect::<Result<Vec<_>, _>>()?
-        .join("\n");
-    AtomicFile::new(&path, AllowOverwrite)
-        .write(|file| {
-            file.write_all(body.as_bytes())?;
-            if !body.is_empty() {
-                file.write_all(b"\n")?;
-            }
-            file.sync_all()
-        })
-        .map_err(|error| std::io::Error::other(error.to_string()))?;
-    super::sync_parent_directory(&path)?;
-    Ok(())
-}
-
-fn lease_path(queue: &ScreenEvidenceQueue) -> std::path::PathBuf {
-    queue.path().with_extension("analysis-leases")
 }
 
 fn decrypted_entry(

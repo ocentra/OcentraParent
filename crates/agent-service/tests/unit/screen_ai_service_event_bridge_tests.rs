@@ -168,7 +168,7 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
 }
 
 #[tokio::test]
-async fn screen_service_event_runtime_retains_deletion_journal_across_publications() {
+async fn screen_service_event_runtime_bounds_each_deletion_publication_report() {
     let runtime = require_ok(
         ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -198,7 +198,7 @@ async fn screen_service_event_runtime_retains_deletion_journal_across_publicatio
     assert_eq!(first.publish_reports.len(), 1);
     assert_eq!(first.stored_events.len(), 1);
     assert_eq!(second.publish_reports.len(), 1);
-    assert_eq!(second.stored_events.len(), 2);
+    assert_eq!(second.stored_events.len(), 1);
     assert!(!second.raw_image_escaped());
 }
 

@@ -43,6 +43,38 @@ This is focused custody/runtime proof only. It does not restore the invalidated
 portal or product-retention claims, and WP22 remains open pending the complete
 accepted proof pack.
 
+## PR 574 review-repair addendum (2026-07-23)
+
+The current branch hardens the local Rust deletion and custody path without
+restoring the invalidated WP22 completion claim:
+
+- a successful image deletion is not relabeled `deleteFailed` when only durable
+  outbox acknowledgement fails;
+- the screen-analysis query, rather than the browser query, owns deletion-state
+  tie-breaking for equal timestamps;
+- analysis leases reject already-expired queue rows, quarantine malformed lease
+  records, and renew while a scheduled provider job is waiting or running;
+- each deletion publication returns only its operation-local event journal;
+- malformed deletion-outbox rows remain in the canonical outbox until their
+  failure projection succeeds and is explicitly acknowledged;
+- storage-custody tombstone replacement syncs the owning directory on platforms
+  that support directory fsync.
+
+Focused validation:
+
+- `cargo test -p ocentra-parent-agent-service --test screen_ai_runtime -- --test-threads=1` — pass; 41 tests.
+- `cargo test -p ocentra-parent-agent-core --test unit screen_evidence_queue_ -- --test-threads=1` — pass; 15 tests.
+- `cargo test -p ocentra-parent-agent-core --test unit activity_store_screen_evidence_tests -- --test-threads=1` — pass; 6 tests.
+- `cargo test -p ocentra-parent-agent-core --test unit activity_store_browser_tests -- --test-threads=1` — pass; 5 tests.
+- `cargo test -p ocentra-storage-custody-core --test unit retention_delete_tombstone_store -- --test-threads=1` — pass; 4 tests.
+- focused `npm run lint:architecture -- --files ...` for the touched Rust source — pass.
+
+The screen service suite is run serially because two unrelated capture tests
+share process-global fixture state in parallel mode; each also passes
+individually. This addendum proves the eight review repairs only. It does not
+prove product retention policy, portal completion, remote deletion, or broad
+WP22 completion.
+
 ## Accepted end-to-end receipt (2026-07-20)
 
 The accepted ignored artifact is

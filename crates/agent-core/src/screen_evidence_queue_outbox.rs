@@ -4,7 +4,6 @@ use std::io::Write;
 use atomicwrites::{AllowOverwrite, AtomicFile};
 use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_SERVICE_DELETION_OUTBOX_CORRUPT_ID_PREFIX, SCREEN_SERVICE_DELETION_OUTBOX_EXTENSION,
-    SCREEN_SERVICE_DELETION_OUTBOX_QUARANTINE_EXTENSION,
     SCREEN_SERVICE_DELETION_OUTBOX_QUARANTINE_PROOF_PREFIX,
 };
 use sha2::{Digest, Sha256};
@@ -55,18 +54,23 @@ fn parse_outbox_contents(contents: &str) -> OutboxRead {
     }
 }
 
-pub(crate) fn write_outbox(
+pub(crate) fn write_outbox_with_corrupt_lines(
     queue: &ScreenEvidenceQueue,
     entries: &[ScreenEvidenceExpiredQueueEntry],
+    corrupt_lines: &[(usize, String)],
 ) -> Result<(), JournalError> {
     let path = outbox_path(queue);
-    let body = entries
+    let mut lines = entries
         .iter()
         .map(serde_json::to_string)
-        .collect::<Result<Vec<_>, _>>()?
-        .join("\n");
+        .collect::<Result<Vec<_>, _>>()?;
+    lines.extend(
+        corrupt_lines
+            .iter()
+            .map(|(_, raw_record)| raw_record.clone()),
+    );
     AtomicFile::new(&path, AllowOverwrite)
-        .write(|file| write_outbox_contents(file, &body))
+        .write(|file| write_outbox_contents(file, &lines.join("\n")))
         .map_err(|error| std::io::Error::other(error.to_string()))?;
     crate::screen_evidence_queue::sync_parent_directory(&path)?;
     Ok(())
@@ -80,48 +84,18 @@ fn write_outbox_contents(file: &mut File, body: &str) -> std::io::Result<()> {
     file.sync_all()
 }
 
-pub(crate) fn repair_corrupt_outbox(
-    queue: &ScreenEvidenceQueue,
-    outbox: &OutboxRead,
-) -> Result<(), JournalError> {
-    if outbox.corrupt_lines.is_empty() {
-        return Ok(());
-    }
-    let quarantine_path =
-        outbox_path(queue).with_extension(SCREEN_SERVICE_DELETION_OUTBOX_QUARANTINE_EXTENSION);
-    let mut quarantine = std::fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(&quarantine_path)?;
-    for (line_number, raw_record) in &outbox.corrupt_lines {
-        serde_json::to_writer(
-            &mut quarantine,
-            &serde_json::json!({
-                "lineNumber": line_number,
-                "rawRecord": raw_record,
-            }),
-        )?;
-        quarantine.write_all(b"\n")?;
-    }
-    quarantine.sync_all()?;
-    crate::screen_evidence_queue::sync_parent_directory(&quarantine_path)?;
-    write_outbox(queue, &outbox.entries)
-}
-
 pub(crate) fn outbox_failures(
     corrupt_lines: &[(usize, String)],
 ) -> Vec<ScreenEvidenceOutboxFailure> {
     corrupt_lines
         .iter()
-        .map(|(line_number, raw_record)| {
+        .map(|(_line_number, raw_record)| {
             let digest = format!("{:x}", Sha256::digest(raw_record.as_bytes()));
             ScreenEvidenceOutboxFailure {
-                queue_job_id: format!(
-                    "{SCREEN_SERVICE_DELETION_OUTBOX_CORRUPT_ID_PREFIX}{line_number}-{digest}"
-                ),
+                queue_job_id: format!("{SCREEN_SERVICE_DELETION_OUTBOX_CORRUPT_ID_PREFIX}{digest}"),
                 malformed_record_digest: digest.clone(),
                 deletion_proof_ref: format!(
-                    "{SCREEN_SERVICE_DELETION_OUTBOX_QUARANTINE_PROOF_PREFIX}{line_number}-{digest}"
+                    "{SCREEN_SERVICE_DELETION_OUTBOX_QUARANTINE_PROOF_PREFIX}{digest}"
                 ),
             }
         })

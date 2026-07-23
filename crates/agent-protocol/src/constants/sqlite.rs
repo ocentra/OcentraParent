@@ -127,15 +127,7 @@ SELECT
 FROM activity_events
 WHERE kind = ?1
   AND observer = ?2
-ORDER BY observed_at DESC,
-  CASE json_extract(fields_json, '$.imageDeletionState')
-    WHEN 'deleteFailed' THEN 4
-    WHEN 'expiredDeleted' THEN 3
-    WHEN 'deleted' THEN 2
-    WHEN 'deletionRequired' THEN 1
-    ELSE 0
-  END DESC,
-  rowid DESC
+ORDER BY observed_at DESC, event_id DESC
 LIMIT ?3;";
 
 pub const SELECT_LATEST_SCREEN_ANALYSIS_ACTIVITY_FOR_QUEUE_JOB: &str = "
@@ -226,7 +218,15 @@ SELECT
 FROM activity_events
 WHERE kind = ?1
   AND observer = ?2
-ORDER BY observed_at DESC, event_id DESC
+ORDER BY observed_at DESC,
+  CASE json_extract(fields_json, '$.imageDeletionState')
+    WHEN 'deleteFailed' THEN 4
+    WHEN 'expiredDeleted' THEN 3
+    WHEN 'deleted' THEN 2
+    WHEN 'deletionRequired' THEN 1
+    ELSE 0
+  END DESC,
+  rowid DESC
 LIMIT ?3;";
 
 pub const DELETE_PARENT_RULE_CONTEXTS: &str = "DELETE FROM parent_rule_contexts;";
