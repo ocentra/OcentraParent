@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -36,6 +36,8 @@ const ndjsonWriterModuleUrl = new URL(
 const proofOwner = 'infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts';
 const proofNoClaimReason = 'wrangler-runtime-boot-unproven;production-deployment-not-owned';
 const proofRedactionState = 'redacted-safe-fields-only';
+const localD1ReadTimeoutMs = 30_000;
+const localRuntimeCleanupTimeoutMs = 5_000;
 
 interface PersistedProofMilestone {
   runId: string;
@@ -79,24 +81,17 @@ function runSeedCommand(command: string, persistenceRoot: string, runId: string)
   return JSON.parse(child.stdout.slice(jsonStart)) as SeedCommandOutput;
 }
 
-function resolveNpmExecPath(): string {
-  const configured = process.env.npm_execpath?.trim();
-  if (configured) {
-    return configured;
-  }
-  const bundled = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
-  assert.equal(existsSync(bundled), true, 'npm CLI is required for local Wrangler persistence assertions');
-  return bundled;
+function resolveWranglerCliPath(): string {
+  const cliPath = path.join(repoRoot, 'infra', 'cloudflare', 'node_modules', 'wrangler', 'bin', 'wrangler.js');
+  assert.equal(existsSync(cliPath), true, 'the declared local Wrangler CLI is required for local D1 readback assertions');
+  return cliPath;
 }
 
-function runLocalD1Command(persistenceRoot: string, sql: string): ReadonlyArray<Record<string, unknown>> {
-  const child = spawnSync(
+async function runLocalD1Command(persistenceRoot: string, sql: string): Promise<ReadonlyArray<Record<string, unknown>>> {
+  const child = spawn(
     process.execPath,
     [
-      resolveNpmExecPath(),
-      'exec',
-      '--',
-      'wrangler',
+      resolveWranglerCliPath(),
       'd1',
       'execute',
       'BILLING_D1',
@@ -111,35 +106,61 @@ function runLocalD1Command(persistenceRoot: string, sql: string): ReadonlyArray<
     ],
     {
       cwd: path.join(repoRoot, 'infra', 'cloudflare'),
-      encoding: 'utf8',
       windowsHide: true,
     }
   );
-  assert.equal(child.status, 0, child.stderr || child.stdout);
-  const jsonStart = child.stdout.indexOf('[');
-  assert.notEqual(jsonStart, -1, child.stdout);
-  const operations = JSON.parse(child.stdout.slice(jsonStart)) as Array<{ results?: Array<Record<string, unknown>> }>;
+  const output = await new Promise<{ code: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+    let stdout = ''; let stderr = '';
+    const timeout = setTimeout(() => {
+      if (child.pid != null && process.platform === 'win32') spawnSync('taskkill.exe', ['/pid', String(child.pid), '/t', '/f']);
+      reject(new Error(`Wrangler D1 readback timed out after ${localD1ReadTimeoutMs}ms: ${sql}`));
+    }, localD1ReadTimeoutMs);
+    child.stdout.setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
+    child.stderr.setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
+    child.once('error', reject);
+    child.once('close', (code) => { clearTimeout(timeout); resolve({ code, stdout, stderr }); });
+  });
+  assert.equal(output.code, 0, output.stderr || output.stdout);
+  const jsonStart = output.stdout.indexOf('[');
+  assert.notEqual(jsonStart, -1, output.stdout);
+  const operations = JSON.parse(output.stdout.slice(jsonStart)) as Array<{ results?: Array<Record<string, unknown>> }>;
   return operations.flatMap((operation) => operation.results ?? []);
 }
 
-function readStatusRowCount(persistenceRoot: string): number {
-  const rows = runLocalD1Command(persistenceRoot, 'SELECT COUNT(*) AS row_count FROM billing_status');
+async function removeLocalRuntimeDirectory(directory: string): Promise<void> {
+  const deadline = Date.now() + localRuntimeCleanupTimeoutMs;
+  for (;;) {
+    try {
+      rmSync(directory, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      const code = error instanceof Error && 'code' in error ? error.code : undefined;
+      if ((code !== 'EBUSY' && code !== 'EPERM') || Date.now() >= deadline) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+}
+
+async function readStatusRowCount(persistenceRoot: string): Promise<number> {
+  const rows = await runLocalD1Command(persistenceRoot, 'SELECT COUNT(*) AS row_count FROM billing_status');
   return Number(rows[0]?.row_count ?? 0);
 }
 
-function readStatusPayload(persistenceRoot: string, subject: string): string {
-  const rows = runLocalD1Command(
+async function readStatusPayload(persistenceRoot: string, subject: string): Promise<string> {
+  const rows = await runLocalD1Command(
     persistenceRoot,
     `SELECT payload_json FROM billing_status WHERE subject = '${subject.replaceAll("'", "''")}'`
   );
   return String(rows[0]?.payload_json ?? '');
 }
 
-function readSeedTableRowCount(
+async function readSeedTableRowCount(
   persistenceRoot: string,
   table: 'billing_admin_accounts' | 'billing_admin_referrals'
-): number {
-  const rows = runLocalD1Command(persistenceRoot, `SELECT COUNT(*) AS row_count FROM ${table}`);
+): Promise<number> {
+  const rows = await runLocalD1Command(persistenceRoot, `SELECT COUNT(*) AS row_count FROM ${table}`);
   return Number(rows[0]?.row_count ?? 0);
 }
 
@@ -220,11 +241,11 @@ describe('local dev seeding workflow', () => {
 
       try {
         const firstA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
-        const firstACount = readStatusRowCount(persistenceA);
+        const firstACount = await readStatusRowCount(persistenceA);
         const secondA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
-        const secondACount = readStatusRowCount(persistenceA);
+        const secondACount = await readStatusRowCount(persistenceA);
         const firstB = runSeedCommand('seed:local', persistenceB, runB).mutationReceipt;
-        const firstBCount = readStatusRowCount(persistenceB);
+        const firstBCount = await readStatusRowCount(persistenceB);
 
         assert.equal(firstA.runId, runA);
         assert.equal(secondA.runId, runA);
@@ -238,7 +259,7 @@ describe('local dev seeding workflow', () => {
         assert.equal(secondACount, firstACount);
         assert.equal(firstBCount, firstACount);
 
-        runLocalD1Command(
+        await runLocalD1Command(
           persistenceA,
           [
             'DELETE FROM billing_invoices',
@@ -250,14 +271,14 @@ describe('local dev seeding workflow', () => {
             'DELETE FROM billing_admin_referrals',
           ].join('; ')
         );
-        assert.equal(readStatusRowCount(persistenceA), firstACount);
-        assert.equal(readSeedTableRowCount(persistenceA, 'billing_admin_accounts'), 0);
-        assert.equal(readSeedTableRowCount(persistenceA, 'billing_admin_referrals'), 0);
+        assert.equal(await readStatusRowCount(persistenceA), firstACount);
+        assert.equal(await readSeedTableRowCount(persistenceA, 'billing_admin_accounts'), 0);
+        assert.equal(await readSeedTableRowCount(persistenceA, 'billing_admin_referrals'), 0);
 
         const repairedA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
-        assert.equal(readStatusRowCount(persistenceA), firstACount);
-        assert.ok(readSeedTableRowCount(persistenceA, 'billing_admin_accounts') > 0);
-        assert.ok(readSeedTableRowCount(persistenceA, 'billing_admin_referrals') > 0);
+        assert.equal(await readStatusRowCount(persistenceA), firstACount);
+        assert.ok((await readSeedTableRowCount(persistenceA, 'billing_admin_accounts')) > 0);
+        assert.ok((await readSeedTableRowCount(persistenceA, 'billing_admin_referrals')) > 0);
         assert.deepEqual(repairedA.persistence, firstA.persistence);
 
         const preservedStatusPayload = JSON.stringify({
@@ -265,30 +286,30 @@ describe('local dev seeding workflow', () => {
           parentVisibleState: 'manual-review',
           auditReference: 'audit:operator-preserved-state',
         });
-        runLocalD1Command(
+        await runLocalD1Command(
           persistenceA,
           `UPDATE billing_status SET payload_json = '${preservedStatusPayload.replaceAll("'", "''")}' WHERE subject = 'parent:demo-active'`
         );
         runSeedCommand('seed:local', persistenceA, runA);
-        assert.equal(readStatusPayload(persistenceA, 'parent:demo-active'), preservedStatusPayload);
+        assert.equal(await readStatusPayload(persistenceA, 'parent:demo-active'), preservedStatusPayload);
 
         const additionalStatusPayload = JSON.stringify({
           subject: 'parent:local-activity',
           parentVisibleState: 'active',
           auditReference: 'audit:local-activity-preserved',
         });
-        runLocalD1Command(
+        await runLocalD1Command(
           persistenceA,
           `INSERT INTO billing_status (subject, payload_json) VALUES ('parent:local-activity', '${additionalStatusPayload.replaceAll("'", "''")}')`
         );
         const extendedA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
-        assert.equal(readStatusRowCount(persistenceA), firstACount + 1);
-        assert.equal(readStatusPayload(persistenceA, 'parent:local-activity'), additionalStatusPayload);
+        assert.equal(await readStatusRowCount(persistenceA), firstACount + 1);
+        assert.equal(await readStatusPayload(persistenceA, 'parent:local-activity'), additionalStatusPayload);
         assert.equal(extendedA.persistence.d1StatusRows, firstA.persistence.d1StatusRows + 1);
 
-        runLocalD1Command(persistenceA, "DELETE FROM billing_status WHERE subject = 'parent:demo-review'");
-        assert.equal(readStatusRowCount(persistenceA), firstACount);
-        assert.equal(readStatusRowCount(persistenceB), firstBCount);
+        await runLocalD1Command(persistenceA, "DELETE FROM billing_status WHERE subject = 'parent:demo-review'");
+        assert.equal(await readStatusRowCount(persistenceA), firstACount);
+        assert.equal(await readStatusRowCount(persistenceB), firstBCount);
 
         const activeLeasePath = path.join(persistenceA, 'active-runtime.lock');
         const activeLease = await acquireLocalWranglerRuntimeLease({
@@ -343,8 +364,8 @@ describe('local dev seeding workflow', () => {
         );
         recoveredLease.release();
       } finally {
-        rmSync(persistenceA, { recursive: true, force: true });
-        rmSync(persistenceB, { recursive: true, force: true });
+        await removeLocalRuntimeDirectory(persistenceA);
+        await removeLocalRuntimeDirectory(persistenceB);
       }
     }
   );
@@ -603,7 +624,7 @@ describe('local dev seeding workflow', () => {
           resolve();
         });
       });
-      rmSync(proofStoreRoot, { recursive: true, force: true });
+      await removeLocalRuntimeDirectory(proofStoreRoot);
     }
   });
 

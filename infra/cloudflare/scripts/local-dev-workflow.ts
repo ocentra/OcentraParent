@@ -371,10 +371,10 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
         populationState:
           localSeed.status === 'blocked'
             ? 'blocked'
-            : localSeedPersisted && (parseCount(localSeed, 'accounts') ?? 0) > 0
+            : localSeedPersisted && (parseCount(localSeed, 'adminAccounts') ?? 0) > 0
               ? 'populated'
               : 'placeholder',
-        itemCount: parseCount(localSeed, 'accounts'),
+        itemCount: parseCount(localSeed, 'adminAccounts'),
         notes: 'Support/admin fixtures are accepted only after direct local binding readback.',
         blocker: localSeed.blocker,
       },
@@ -384,10 +384,10 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
         populationState:
           localSeed.status === 'blocked'
             ? 'blocked'
-            : localSeedPersisted && (parseCount(localSeed, 'referrals') ?? 0) > 0
+            : localSeedPersisted && (parseCount(localSeed, 'adminReferrals') ?? 0) > 0
               ? 'populated'
               : 'placeholder',
-        itemCount: parseCount(localSeed, 'referrals'),
+        itemCount: parseCount(localSeed, 'adminReferrals'),
         notes: 'Referral fixtures are accepted only after direct local binding readback.',
         blocker: localSeed.blocker,
       },
@@ -407,7 +407,7 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
       },
     ];
   } finally {
-    rmSync(persistenceRoot, { recursive: true, force: true });
+    rmSync(persistenceRoot, { recursive: true, force: true, maxRetries: 50, retryDelay: 100 });
   }
 }
 
