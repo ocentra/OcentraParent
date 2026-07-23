@@ -35,30 +35,24 @@ impl NdjsonEventJournal {
         envelope: &StoredEventEnvelope,
     ) -> Result<Option<JournalAppend>, EventingError> {
         let contents = read_journal(self).await?;
-        let matches = contents
+        let mut matches = contents
             .lines()
             .enumerate()
             .filter(|(_index, line)| !line.trim().is_empty())
-            .map(|(index, line)| {
-                decode_entry(line, index + 1).map(|entry| {
-                    matching_append(entry, envelope, JournalDispatchPhase::AfterDispatch)
-                })
-            })
+            .map(|(index, line)| decode_entry(line, index + 1))
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
-            .flatten()
+            .filter(|entry| {
+                entry.envelope != *envelope || entry.phase == JournalDispatchPhase::AfterDispatch
+            })
+            .filter_map(|entry| {
+                matching_append(entry, envelope, JournalDispatchPhase::AfterDispatch)
+            })
             .collect::<Vec<_>>();
-        if let Some(append) = matches
-            .iter()
-            .find_map(|matched| matched.as_ref().ok())
-            .cloned()
-        {
-            return Ok(Some(append));
+        if let Some(index) = matches.iter().position(Result::is_err) {
+            return matches.swap_remove(index).map(Some);
         }
-        matches
-            .into_iter()
-            .find_map(Result::err)
-            .map_or(Ok(None), Err)
+        Ok(matches.into_iter().find_map(Result::ok))
     }
 }
 

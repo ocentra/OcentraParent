@@ -150,6 +150,7 @@ fn append_on_isolated_runtime(
         .name("parent-presence-custody-delivery".to_owned())
         .spawn(move || {
             let runtime = tokio::runtime::Builder::new_current_thread()
+                .enable_time()
                 .build()
                 .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
             runtime

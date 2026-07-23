@@ -19,6 +19,9 @@ use ocentra_family_identity_core::parent_presence::{
 
 use super::open_parent_presence_test_port;
 
+#[path = "trust_bootstrap_event_delivery_recovery.rs"]
+mod recovery_regressions;
+
 const EXPIRY: &str = "2099-01-01T00:00:00.000Z";
 static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 

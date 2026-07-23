@@ -124,6 +124,35 @@ async fn ndjson_idempotent_append_rejects_key_reuse_for_a_different_event() {
 }
 
 #[tokio::test]
+async fn idempotent_retry_rejects_a_collision_even_when_an_exact_record_exists_later() {
+    use ocentra_eventing::journal::policy::JournalDispatchPhase;
+
+    let path = journal_path(TestText("idempotent-collision-before-exact".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let exact = unique_stored_event("collision before exact", 52);
+    let mut collision = exact.clone();
+    collision.idempotency_key =
+        IdempotencyKey::parse("conflicting-idempotency-key").expect_value("idempotency key");
+    journal
+        .append_phase(&collision, JournalDispatchPhase::AfterDispatch)
+        .await
+        .expect_value("conflicting ordinary append");
+    journal
+        .append_phase(&exact, JournalDispatchPhase::AfterDispatch)
+        .await
+        .expect_value("later exact ordinary append");
+
+    let result = journal.append_idempotent(&exact).await;
+
+    assert!(matches!(
+        result,
+        Err(EventingError::DuplicateEventId { .. })
+    ));
+    assert_eq!(read_lines(path.clone()).await.len(), 2);
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
 async fn idempotent_restart_truncates_only_an_incomplete_trailing_record() {
     let path = journal_path(TestText("idempotent-partial-recovery".to_owned()));
     let event = unique_stored_event("partial recovery", 43);
@@ -145,6 +174,42 @@ async fn idempotent_restart_truncates_only_an_incomplete_trailing_record() {
         .expect_value("restart repairs incomplete trailing record");
     assert_eq!(append.sequence, 1);
     assert_eq!(read_lines(path.clone()).await.len(), 1);
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
+async fn idempotent_recovery_preserves_a_hash_valid_final_record_without_newline() {
+    let path = journal_path(TestText("idempotent-valid-tail-no-newline".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let first = unique_stored_event("valid final record", 53);
+    let second = unique_stored_event("after valid final record", 54);
+    let first_append = journal
+        .append_idempotent(&first)
+        .await
+        .expect_value("first append");
+    let length = tokio::fs::metadata(&path.0)
+        .await
+        .expect_value("journal metadata")
+        .len();
+    tokio::fs::OpenOptions::new()
+        .write(true)
+        .open(&path.0)
+        .await
+        .expect_value("journal opens for one-byte truncation")
+        .set_len(length.saturating_sub(1))
+        .await
+        .expect_value("trailing newline truncates");
+
+    let second_append = journal
+        .append_idempotent(&second)
+        .await
+        .expect_value("append repairs valid final record");
+    let lines = read_lines(path.clone()).await;
+
+    assert_eq!(first_append.sequence, 1);
+    assert_eq!(second_append.sequence, 2);
+    assert_eq!(second_append.previous_hash, first_append.current_hash);
+    assert_eq!(lines.len(), 2);
     cleanup_idempotent_journal(path).await;
 }
 

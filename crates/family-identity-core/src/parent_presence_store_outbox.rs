@@ -29,6 +29,7 @@ WHERE decision_id = ?3
         AND (
                 delivery_claimed_at IS NULL
              OR delivery_claimed_at < ?4
+             OR delivery_claimed_at > ?2
         )
      )
   )
@@ -157,7 +158,8 @@ fn claim_next(
     };
     let claimable = delivery_state == "pending"
         || delivery_state == "claimed"
-            && delivery_claimed_at.is_none_or(|claimed| claimed < stale_before);
+            && delivery_claimed_at
+                .is_none_or(|claimed| claimed < stale_before || claimed > claimed_at);
     if !claimable {
         return if delivery_state == "claimed" {
             Ok(NextCustodyDecision::WaitingForClaim)
