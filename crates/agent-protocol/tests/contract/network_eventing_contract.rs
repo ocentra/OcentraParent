@@ -254,6 +254,41 @@ fn available_destination_less_capture_remains_partial_metadata_publishable() {
 }
 
 #[test]
+fn available_metadata_free_capture_remains_diagnostics_only_grade_d() {
+    let mut candidate = payload();
+    candidate.domain_attribution_status = ActivityDomainAttributionStatus::Unavailable;
+    candidate.process_attribution_status = ActivityProcessAttributionStatus::ProcessUnknown;
+    candidate.protocol = None;
+    candidate.tcp_state = None;
+    candidate.local_ip = None;
+    candidate.local_port = None;
+    candidate.destination_ip = None;
+    candidate.destination_port = None;
+    candidate.destination_domain = None;
+    candidate.process_id = None;
+    candidate.process_name = None;
+    candidate.evidence_grade = NetworkRuntimeEvidenceGrade::AdapterUnavailable;
+    candidate.evidence_grade_contract = ocentra_parent_agent_protocol::NetworkEvidenceGrade::D;
+    candidate.risk_budget_state = NetworkRiskBudgetState::Unavailable;
+    candidate.intervention_state = NetworkInterventionState::Unavailable;
+    candidate.policy_action = ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Unknown;
+
+    assert_eq!(
+        candidate
+            .validate_semantics()
+            .map_err(|error| error.to_string()),
+        Ok(())
+    );
+    assert_eq!(
+        candidate
+            .contract()
+            .map(|_| ())
+            .map_err(|error| error.to_string()),
+        Ok(())
+    );
+}
+
+#[test]
 fn network_contract_schema_fuzz_seeded_mutation_cases_fail_closed() {
     const SEED: u64 = 0x4e57_5030_315f_7632;
     let valid = serde_json::to_value(payload()).expect(CONTRACT_EXPECTATION);

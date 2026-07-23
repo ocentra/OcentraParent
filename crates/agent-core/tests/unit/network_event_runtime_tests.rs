@@ -143,6 +143,71 @@ async fn network_runtime_chain_carries_exact_refs_without_direct_enforcement_sho
 }
 
 #[tokio::test]
+async fn destination_less_same_timestamp_rows_keep_distinct_local_endpoint_identity() -> TestResult
+{
+    let observed_at = constants::activity_store::TEST_FIRST_OBSERVED_AT;
+    let first = ok(
+        publish_network_runtime_chain_for_observation(
+            destination_less_observation(constants::activity_store::TEST_NETWORK_LOCAL_PORT),
+            observed_at,
+        )
+        .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES,
+    )?;
+    let second = ok(
+        publish_network_runtime_chain_for_observation(
+            destination_less_observation(
+                constants::activity_store::TEST_NETWORK_LOCAL_PORT.saturating_add(1),
+            ),
+            observed_at,
+        )
+        .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES,
+    )?;
+
+    assert_ne!(
+        first.stored_events[0].correlation_id,
+        second.stored_events[0].correlation_id
+    );
+    assert!(first
+        .stored_events
+        .iter()
+        .all(|event| event.correlation_id == first.stored_events[0].correlation_id));
+    assert!(second
+        .stored_events
+        .iter()
+        .all(|event| event.correlation_id == second.stored_events[0].correlation_id));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn metadata_free_available_observation_stays_diagnostics_only_grade_d() -> TestResult {
+    let report = ok(
+        publish_network_runtime_chain_for_observation(
+            NetworkObservation::degraded(ActivityCaptureCapabilityStatus::Available),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )
+        .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES,
+    )?;
+    let payloads = decode_payloads(&report)?;
+
+    assert!(!report.manual_required());
+    assert!(payloads.iter().all(|payload| {
+        payload.evidence_grade == NetworkRuntimeEvidenceGrade::AdapterUnavailable
+            && payload.evidence_grade_contract
+                == ocentra_parent_agent_protocol::NetworkEvidenceGrade::D
+            && payload.risk_budget_state == NetworkRiskBudgetState::Unavailable
+            && payload.intervention_state == NetworkInterventionState::Unavailable
+            && payload.policy_action
+                == ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Unknown
+    }));
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn manual_required_network_evidence_does_not_publish_enforcement_command() -> TestResult {
     let report = ok(
         publish_network_runtime_chain_for_observation(
@@ -343,6 +408,11 @@ async fn network_runtime_review_request_resolves_associated_response() -> TestRe
         report.stored_events[0].contract.event_type.as_str(),
         constants::network_flow::EVENT_NETWORK_REVIEW_REQUESTED
     );
+    assert_eq!(
+        report.stored_events[0].contract.schema_version.value(),
+        constants::network_flow::REVIEW_EVENT_SCHEMA_VERSION
+    );
+    assert_eq!(constants::network_flow::REVIEW_EVENT_SCHEMA_VERSION, 2);
     assert!(report.dead_letters.is_empty());
 
     Ok(())
@@ -530,6 +600,22 @@ fn ip_only_unknown_process_observation() -> NetworkObservation {
         destination_port: Some(constants::activity_store::TEST_NETWORK_DESTINATION_PORT),
         destination_domain: None,
         tcp_state: Some(ActivityNetworkTcpState::Established),
+        pid: None,
+        process_name: None,
+        associated_pid_count: 0,
+    }
+}
+
+fn destination_less_observation(local_port: u16) -> NetworkObservation {
+    NetworkObservation {
+        status: ActivityCaptureCapabilityStatus::Available,
+        protocol: Some(ActivityNetworkProtocol::Udp),
+        local_ip: Some(constants::test_network::LOOPBACK_IP.to_string()),
+        local_port: Some(local_port),
+        destination_ip: None,
+        destination_port: None,
+        destination_domain: None,
+        tcp_state: None,
         pid: None,
         process_name: None,
         associated_pid_count: 0,

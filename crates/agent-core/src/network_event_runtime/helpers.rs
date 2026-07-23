@@ -46,7 +46,31 @@ pub(super) fn network_correlation_id(
     value.push_str(observation.status.as_protocol_str());
     value.push(constants::delimiter::HYPHEN);
     value.push_str(observed_at);
+    if observation.destination_ip.is_none() && observation.destination_domain.is_none() {
+        append_destination_less_identity(&mut value, observation);
+    }
     value
+}
+
+fn append_destination_less_identity(value: &mut String, observation: &NetworkObservation) {
+    for identity in [
+        observation
+            .protocol
+            .map(|protocol| protocol.as_protocol_str()),
+        observation.local_ip.as_deref(),
+        observation
+            .local_port
+            .map(|port| port.to_string())
+            .as_deref(),
+        observation.tcp_state.map(|state| state.as_protocol_str()),
+        observation.pid.map(|pid| pid.to_string()).as_deref(),
+    ]
+    .into_iter()
+    .flatten()
+    {
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(identity);
+    }
 }
 
 pub(super) fn network_aggregate_key(

@@ -28,7 +28,7 @@ impl DomainEvent for NetworkRuntimeReviewRequest {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
             EventType::parse(constants::network_flow::EVENT_NETWORK_REVIEW_REQUESTED)?,
-            SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)?,
+            SchemaVersion::new(constants::network_flow::REVIEW_EVENT_SCHEMA_VERSION)?,
         ))
     }
 

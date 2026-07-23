@@ -1026,17 +1026,30 @@ fn expected_runtime_evidence_grade(
         == ActivityDomainAttributionStatus::DomainObserved
         && payload.process_attribution_status
             == ActivityProcessAttributionStatus::ProcessAttributed;
+    let partial_metadata = payload.protocol.is_some()
+        || payload.tcp_state.is_some()
+        || payload.local_ip.is_some()
+        || payload.local_port.is_some()
+        || payload.destination_ip.is_some()
+        || payload.destination_port.is_some()
+        || payload.destination_domain.is_some()
+        || payload.process_id.is_some()
+        || payload.process_name.is_some();
     [
         (unavailable, NetworkRuntimeEvidenceGrade::AdapterUnavailable),
         (
             fully_attributed,
             NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata,
         ),
+        (
+            partial_metadata,
+            NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata,
+        ),
     ]
     .into_iter()
     .find(|(selected, _)| *selected)
     .map(|(_, grade)| grade)
-    .unwrap_or(NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata)
+    .unwrap_or(NetworkRuntimeEvidenceGrade::AdapterUnavailable)
 }
 
 fn network_runtime_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
