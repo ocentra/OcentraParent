@@ -1,4 +1,8 @@
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex, MutexGuard},
+};
 
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
@@ -6,7 +10,7 @@ use ocentra_eventing::{
     error::EventingError, ids::AggregateKey, ids::CorrelationId, ids::EventCustody, ids::EventId,
     ids::EventType, ids::IdempotencyKey, ids::RecordedAt, ids::RuntimeInstanceId,
     ids::SchemaVersion, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
-    ids::TargetHandler,
+    ids::TargetHandler, journal::ndjson::NdjsonEventJournal, journal::ndjson::NdjsonJournalOptions,
 };
 use ocentra_parent_agent_core::screen_event_runtime::{ScreenRuntimeReport, ScreenRuntimeSpine};
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
@@ -30,7 +34,7 @@ pub(crate) mod live_view_service_runtime;
 
 pub(crate) struct ScreenAiServiceEventRuntime {
     bus: EventBus,
-    pub(crate) deletion_spine: ScreenRuntimeSpine,
+    deletion_journals: Arc<Mutex<BTreeMap<PathBuf, NdjsonEventJournal>>>,
 }
 
 impl ScreenAiServiceEventRuntime {
@@ -38,10 +42,9 @@ impl ScreenAiServiceEventRuntime {
         let bus = EventBus::new();
         let state = ScreenAiServiceEventSubscriptionState::default();
         subscribe_screen_service_row_ready_events(&bus, state.clone()).await?;
-        let deletion_spine = ScreenRuntimeSpine::with_default_handlers().await?;
         Ok(Self {
             bus,
-            deletion_spine,
+            deletion_journals: Arc::new(Mutex::new(BTreeMap::new())),
         })
     }
 
@@ -63,12 +66,29 @@ impl ScreenAiServiceEventRuntime {
         &self,
         row: ActivityScreenReadModelRow,
         observed_at: ObservedAtText,
+        journal_path: &Path,
     ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
         let input = screen_runtime_deletion_input_from_service_row(row)?;
-        self.deletion_spine
+        let deletion_spine =
+            ScreenRuntimeSpine::with_durable_deletion_handler(self.deletion_journal(journal_path))
+                .await
+                .map_err(|_subscription_error| {
+                    ScreenAiServiceEventBridgeError::EventPublishFailed
+                })?;
+        deletion_spine
             .publish_deletion_event(input, observed_at.0.as_str())
             .await
             .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
+    }
+
+    fn deletion_journal(&self, journal_path: &Path) -> NdjsonEventJournal {
+        let mut journals = lock_recover(&self.deletion_journals);
+        journals
+            .entry(journal_path.to_path_buf())
+            .or_insert_with(|| {
+                NdjsonEventJournal::with_options(journal_path, NdjsonJournalOptions::hash_chain())
+            })
+            .clone()
     }
 }
 

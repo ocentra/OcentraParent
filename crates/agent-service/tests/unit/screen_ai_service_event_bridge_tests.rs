@@ -1,3 +1,10 @@
+use std::{
+    fs,
+    sync::atomic::{AtomicU64, Ordering},
+};
+
+use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
+use ocentra_eventing::replay::ReplayFilter;
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
@@ -24,6 +31,8 @@ use super::screen_ai_service_event_subscription::{
     ActionRefText, ObservedAtText, ScreenAiServiceEventRuntime,
 };
 use crate::test_invariants::require_ok;
+
+static SCREEN_SERVICE_EVENT_TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[test]
 fn screen_service_event_bridge_maps_service_row_to_existing_screen_runtime_input() {
@@ -135,6 +144,8 @@ async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture
 
 #[tokio::test]
 async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row() {
+    let journal_path = screen_deletion_journal_path("retention-row");
+    let _ = fs::remove_file(&journal_path);
     let runtime = require_ok(
         ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -143,6 +154,7 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
         .publish_deletion_row(
             service_screen_row(),
             ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+            &journal_path,
         )
         .await;
     let report = require_ok(
@@ -154,6 +166,7 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
         constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
     )
     .payload;
+    let _ = fs::remove_file(&journal_path);
 
     assert_eq!(payload.phase, ScreenRuntimePhase::DeletionCommitted);
     assert_eq!(payload.policy_decision_ref, None);
@@ -169,6 +182,8 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
 
 #[tokio::test]
 async fn screen_service_event_runtime_bounds_each_deletion_publication_report() {
+    let journal_path = screen_deletion_journal_path("bounded-report");
+    let _ = fs::remove_file(&journal_path);
     let runtime = require_ok(
         ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -178,6 +193,7 @@ async fn screen_service_event_runtime_bounds_each_deletion_publication_report() 
             .publish_deletion_row(
                 service_screen_row(),
                 ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+                &journal_path,
             )
             .await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -190,6 +206,7 @@ async fn screen_service_event_runtime_bounds_each_deletion_publication_report() 
             .publish_deletion_row(
                 second_row,
                 ObservedAtText(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+                &journal_path,
             )
             .await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -200,10 +217,13 @@ async fn screen_service_event_runtime_bounds_each_deletion_publication_report() 
     assert_eq!(second.publish_reports.len(), 1);
     assert_eq!(second.stored_events.len(), 1);
     assert!(!second.raw_image_escaped());
+    let _ = fs::remove_file(&journal_path);
 }
 
 #[tokio::test]
-async fn screen_service_event_runtime_retains_deletion_events_without_growing_reports() {
+async fn screen_service_event_runtime_bounds_memory_while_durable_journal_retains_proof() {
+    let journal_path = screen_deletion_journal_path("bounded-memory");
+    let _ = fs::remove_file(&journal_path);
     let runtime = require_ok(
         ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -213,6 +233,7 @@ async fn screen_service_event_runtime_retains_deletion_events_without_growing_re
             .publish_deletion_row(
                 service_screen_row(),
                 ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+                &journal_path,
             )
             .await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -225,18 +246,29 @@ async fn screen_service_event_runtime_retains_deletion_events_without_growing_re
             .publish_deletion_row(
                 second_row,
                 ObservedAtText(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+                &journal_path,
             )
             .await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
     );
 
-    assert_eq!(runtime.deletion_spine.retained_event_count().await, 2);
+    let replay = require_ok(
+        NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain())
+            .replay_projection(ReplayFilter::all())
+            .await,
+        constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES,
+    );
+    let _ = fs::remove_file(&journal_path);
+
     assert_eq!(first.stored_events.len(), 1);
     assert_eq!(second.stored_events.len(), 1);
+    assert_eq!(replay.records.len(), 2);
 }
 
 #[tokio::test]
 async fn screen_service_event_runtime_isolates_concurrent_deletion_publication_reports() {
+    let journal_path = screen_deletion_journal_path("concurrent");
+    let _ = fs::remove_file(&journal_path);
     let runtime = require_ok(
         ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -252,10 +284,12 @@ async fn screen_service_event_runtime_isolates_concurrent_deletion_publication_r
         runtime.publish_deletion_row(
             first_row,
             ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+            &journal_path,
         ),
         runtime.publish_deletion_row(
             second_row,
             ObservedAtText(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+            &journal_path,
         )
     );
     let first = require_ok(
@@ -281,6 +315,15 @@ async fn screen_service_event_runtime_isolates_concurrent_deletion_publication_r
     assert_eq!(second.stored_events.len(), 1);
     assert_eq!(first_payload.queue_job_id, first_queue_job_id);
     assert_eq!(second_payload.queue_job_id, second_queue_job_id);
+    let _ = fs::remove_file(&journal_path);
+}
+
+fn screen_deletion_journal_path(suffix: &str) -> std::path::PathBuf {
+    let sequence = SCREEN_SERVICE_EVENT_TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+    std::env::temp_dir().join(format!(
+        "ocentra-screen-service-deletion-{suffix}-{}-{sequence}.ndjson",
+        std::process::id()
+    ))
 }
 
 #[tokio::test]
