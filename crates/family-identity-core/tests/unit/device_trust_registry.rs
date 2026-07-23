@@ -114,14 +114,36 @@ fn authority_for_family_actor(
     ocentra_family_identity_core::device_trust_authority::VerifiedParentDeviceTrustAuthority,
     String,
 > {
+    authority_for_family_actor_with_role(
+        store,
+        action,
+        device_id,
+        family_id,
+        parent_account_id,
+        HouseholdRole::ParentOwner,
+    )
+}
+
+fn authority_for_family_actor_with_role(
+    store: &TestStore,
+    action: HouseholdAuthorityAction,
+    device_id: &str,
+    family_id: &str,
+    parent_account_id: &str,
+    actor_role: HouseholdRole,
+) -> Result<
+    ocentra_family_identity_core::device_trust_authority::VerifiedParentDeviceTrustAuthority,
+    String,
+> {
     let accepted = accepted_for_identity(store, action, family_id, parent_account_id)?;
     verify_parent_device_trust_authority(DeviceTrustAuthorityInput {
         parent_presence: accepted,
-        household_authorization: authorization_grant(
+        household_authorization: authorization_grant_for_role(
             family_id,
             parent_account_id,
             device_id,
             action,
+            actor_role,
         )?,
     })
     .map_err(|error| format!("{error:?}"))
@@ -136,11 +158,30 @@ fn authorization_grant(
     ocentra_family_identity_core::household_authority::AcceptedDeviceTrustAuthorization,
     String,
 > {
+    authorization_grant_for_role(
+        family_id,
+        parent_account_id,
+        target_child_device_id,
+        action,
+        HouseholdRole::ParentOwner,
+    )
+}
+
+fn authorization_grant_for_role(
+    family_id: &str,
+    parent_account_id: &str,
+    target_child_device_id: &str,
+    action: HouseholdAuthorityAction,
+    actor_role: HouseholdRole,
+) -> Result<
+    ocentra_family_identity_core::household_authority::AcceptedDeviceTrustAuthorization,
+    String,
+> {
     authorize_device_trust_action(DeviceTrustAuthorizationRequest {
         family_id: family_id.to_owned(),
         parent_account_id: parent_account_id.to_owned(),
         target_child_device_id: target_child_device_id.to_owned(),
-        authority: authorized_household_authority(action),
+        authority: authorized_household_authority_for_role(action, actor_role),
     })
     .map_err(|error| format!("{error:?}"))
 }
@@ -202,9 +243,12 @@ fn accepted_for_identity(
     Ok(accepted)
 }
 
-fn authorized_household_authority(action: HouseholdAuthorityAction) -> HouseholdAuthorityInput {
+fn authorized_household_authority_for_role(
+    action: HouseholdAuthorityAction,
+    actor_role: HouseholdRole,
+) -> HouseholdAuthorityInput {
     HouseholdAuthorityInput {
-        actor_role: HouseholdRole::ParentOwner,
+        actor_role,
         same_family: true,
         actor_account_state: ActorAccountState::Active,
         membership_state: HouseholdMembershipState::Active,
@@ -269,8 +313,10 @@ fn household_authorization_grant_rejects_unauthorized_actor_before_device_trust_
     let store = TestStore::new("authority-rejected")?;
     let accepted =
         accepted_for_family(&store, HouseholdAuthorityAction::PairChildDevice, "family")?;
-    let mut unauthorized =
-        authorized_household_authority(HouseholdAuthorityAction::PairChildDevice);
+    let mut unauthorized = authorized_household_authority_for_role(
+        HouseholdAuthorityAction::PairChildDevice,
+        HouseholdRole::ParentOwner,
+    );
     unauthorized.same_family = false;
     let _accepted = accepted;
     assert!(
@@ -399,12 +445,13 @@ fn authorized_coparent_can_revoke_without_reassigning_household_device_ownership
     ));
     assert_eq!(
         registry
-            .apply_verified_parent_authority(authority_for_family_actor(
+            .apply_verified_parent_authority(authority_for_family_actor_with_role(
                 &store,
                 HouseholdAuthorityAction::RevokeChildDevice,
                 "child-device",
                 "family",
                 "coparent-guardian",
+                HouseholdRole::CoParentGuardian,
             )?)
             .map_err(|error| format!("{error:?}"))?,
         DeviceTrustRegistryDecision::Revoked(
