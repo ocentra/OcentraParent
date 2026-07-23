@@ -111,12 +111,11 @@ export function spawnVitePortal(port, env, repoRoot = process.cwd()) {
 
 export function stopProcessTree(child) {
   if (child.pid === undefined) {
-    return;
+    return Promise.resolve();
   }
 
   if (process.platform === 'win32') {
-    spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
-    return;
+    return runTaskkill(child.pid);
   }
 
   try {
@@ -124,6 +123,7 @@ export function stopProcessTree(child) {
   } catch {
     child.kill('SIGTERM');
   }
+  return Promise.resolve();
 }
 
 export async function stopProcessTreeAndWait(child, { shutdownTimeoutMs = 5000, forceTimeoutMs = 2000 } = {}) {
@@ -132,12 +132,12 @@ export async function stopProcessTreeAndWait(child, { shutdownTimeoutMs = 5000, 
   }
 
   const gracefulExit = waitForExit(child, shutdownTimeoutMs);
-  stopProcessTree(child);
+  await stopProcessTree(child);
   if (await gracefulExit) {
     return;
   }
 
-  forceKillProcessTree(child);
+  await forceKillProcessTree(child);
   await waitForExit(child, forceTimeoutMs);
 }
 
@@ -165,12 +165,11 @@ async function waitForExit(child, timeoutMs) {
 
 function forceKillProcessTree(child) {
   if (child.pid === undefined) {
-    return;
+    return Promise.resolve();
   }
 
   if (process.platform === 'win32') {
-    spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
-    return;
+    return runTaskkill(child.pid);
   }
 
   try {
@@ -178,6 +177,15 @@ function forceKillProcessTree(child) {
   } catch {
     child.kill('SIGKILL');
   }
+  return Promise.resolve();
+}
+
+function runTaskkill(pid) {
+  const taskkill = spawn('taskkill', ['/PID', String(pid), '/T', '/F'], {
+    stdio: 'ignore',
+    windowsHide: true,
+  });
+  return once(taskkill, 'close');
 }
 
 function isRetriableRemoveError(error) {
