@@ -336,27 +336,21 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
 
   try {
     const localSeed = runCloudflareScript('seed:local', persistenceRoot, seedRunId);
-    const productsSeed = runCloudflareScript('seed:products:local', persistenceRoot, seedRunId);
-    const referralsSeed = runCloudflareScript('seed:referrals:local', persistenceRoot, seedRunId);
-    const accountsSeed = runCloudflareScript('seed:test-accounts:local', persistenceRoot, seedRunId);
     const localSeedPersisted = hasPersistedMutation(localSeed, 'composite-local-seed');
-    const productsSeedPersisted = hasPersistedMutation(productsSeed, 'pricing-catalog');
-    const referralsSeedPersisted = hasPersistedMutation(referralsSeed, 'referral-test-graph');
-    const accountsSeedPersisted = hasPersistedMutation(accountsSeed, 'support-admin-test-accounts');
 
     return [
       {
         family: 'pricing-catalog',
-        source: productsSeed.command,
+        source: localSeed.command,
         populationState:
-          productsSeed.status === 'blocked'
+          localSeed.status === 'blocked'
             ? 'blocked'
-            : productsSeedPersisted && (parseCount(productsSeed, 'pricingPlans') ?? 0) > 0
+            : localSeedPersisted && (parseCount(localSeed, 'pricingPlans') ?? 0) > 0
               ? 'populated'
               : 'placeholder',
-        itemCount: parseCount(productsSeed, 'pricingPlans'),
+        itemCount: parseCount(localSeed, 'pricingPlans'),
         notes: 'Pricing plans are accepted only after Wrangler proves direct D1/KV/R2 persistence.',
-        blocker: productsSeed.blocker,
+        blocker: localSeed.blocker,
       },
       {
         family: 'parent-test-accounts',
@@ -373,29 +367,29 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
       },
       {
         family: 'support-admin-test-accounts',
-        source: accountsSeed.command,
+        source: localSeed.command,
         populationState:
-          accountsSeed.status === 'blocked'
+          localSeed.status === 'blocked'
             ? 'blocked'
-            : accountsSeedPersisted && (parseCount(accountsSeed, 'accounts') ?? 0) > 0
+            : localSeedPersisted && (parseCount(localSeed, 'accounts') ?? 0) > 0
               ? 'populated'
               : 'placeholder',
-        itemCount: parseCount(accountsSeed, 'accounts'),
+        itemCount: parseCount(localSeed, 'accounts'),
         notes: 'Support/admin fixtures are accepted only after direct local binding readback.',
-        blocker: accountsSeed.blocker,
+        blocker: localSeed.blocker,
       },
       {
         family: 'referral-test-graph',
-        source: referralsSeed.command,
+        source: localSeed.command,
         populationState:
-          referralsSeed.status === 'blocked'
+          localSeed.status === 'blocked'
             ? 'blocked'
-            : referralsSeedPersisted && (parseCount(referralsSeed, 'referrals') ?? 0) > 0
+            : localSeedPersisted && (parseCount(localSeed, 'referrals') ?? 0) > 0
               ? 'populated'
               : 'placeholder',
-        itemCount: parseCount(referralsSeed, 'referrals'),
+        itemCount: parseCount(localSeed, 'referrals'),
         notes: 'Referral fixtures are accepted only after direct local binding readback.',
-        blocker: referralsSeed.blocker,
+        blocker: localSeed.blocker,
       },
       {
         family: 'webhook-payload-fixtures',

@@ -21,6 +21,7 @@ import {
   loadBillingReferralSummary,
   loadBillingStatusSummary,
   loadLocalSeedSummary,
+  isLocalFixtureEnvironment,
   loadPricingPlans,
   type BillingStateMutation,
 } from './billing-binding-read-model.js';
@@ -1109,7 +1110,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         implementedHandlerCount: IMPLEMENTED_HANDLER_KEYS.length,
         bindingStatus: missingBindings.length === 0 ? 'ready' : 'degraded',
         missingBindingCount: missingBindings.length,
-        seedSummary: await loadLocalSeedSummary(env),
+        seedSummary: isLocalFixtureEnvironment(env.ENVIRONMENT) ? await loadLocalSeedSummary(env) : undefined,
       });
     },
 

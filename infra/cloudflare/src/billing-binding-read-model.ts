@@ -46,6 +46,10 @@ const PRICING_PLANS_KEY = 'billing:pricing-plans';
 const AUDIT_EVENTS_KEY = 'billing/audit-events.json';
 const TOUCH_KEY_PREFIX = 'billing-touch:';
 
+export function isLocalFixtureEnvironment(environment: string): boolean {
+  return environment === 'local' || environment === 'test' || environment === 'development';
+}
+
 function normalizeSql(sql: string): string {
   return sql.replace(/\s+/g, ' ').trim();
 }
@@ -891,6 +895,9 @@ async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch
 }
 
 async function ensureReadModelSeedOnce(env: Env): Promise<void> {
+  if (!isLocalFixtureEnvironment(env.ENVIRONMENT)) {
+    return;
+  }
   const patch = buildDefaultBillingBindingSeed(env);
 
   if (env.BILLING_D1) {
