@@ -2,7 +2,8 @@ use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
 use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::EventBus, error::EventingError, ids::EventType,
-    ids::SubscriberId, ids::TargetHandler,
+    ids::SubscriberId, ids::TargetHandler, journal::ndjson::NdjsonEventJournal,
+    journal::policy::JournalPolicy, journal::policy::JournalSelector,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
@@ -215,12 +216,12 @@ pub async fn publish_screen_degraded_event_chain_for_input(
     spine.publish_degraded_event_chain(input, observed_at).await
 }
 
-struct ScreenRuntimeSpine {
+pub struct ScreenRuntimeSpine {
     bus: EventBus,
 }
 
 impl ScreenRuntimeSpine {
-    async fn with_default_handlers() -> Result<Self, EventingError> {
+    pub async fn with_default_handlers() -> Result<Self, EventingError> {
         let bus = EventBus::new();
         for phase in ScreenRuntimePhase::ordered_chain() {
             bus.subscribe::<ScreenRuntimeEventPayload, _, _>(
@@ -233,6 +234,29 @@ impl ScreenRuntimeSpine {
             )
             .await?;
         }
+        Ok(Self { bus })
+    }
+
+    pub async fn with_durable_deletion_handler(
+        journal: NdjsonEventJournal,
+    ) -> Result<Self, EventingError> {
+        let deletion_event_type =
+            EventType::parse(constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED)?;
+        let bus = EventBus::with_journal(
+            JournalPolicy::after_dispatch(JournalSelector::EventTypes(vec![
+                deletion_event_type.clone()
+            ])),
+            journal.shared(),
+        );
+        bus.subscribe::<ScreenRuntimeEventPayload, _, _>(
+            EventSubscriber::new(
+                SubscriberId::parse(constants::screen_flow::SUBSCRIBER_SCREEN_DELETION_WORKER)?,
+                deletion_event_type,
+                TargetHandler::parse(constants::screen_flow::TARGET_SCREEN_DELETION_WORKER)?,
+            ),
+            |context| async move { handle_terminal_deletion_delivery(context.payload()) },
+        )
+        .await?;
         Ok(Self { bus })
     }
 
@@ -276,7 +300,7 @@ impl ScreenRuntimeSpine {
         })
     }
 
-    async fn publish_deletion_event(
+    pub async fn publish_deletion_event(
         &self,
         input: ScreenRuntimeDeletionInput,
         observed_at: &str,
@@ -284,11 +308,30 @@ impl ScreenRuntimeSpine {
         let payload = screen_runtime_event_payload_from_deletion_input(&input, observed_at);
         let metadata = screen_deletion_event_metadata(&input, observed_at)?;
         let report = self.bus.publish(payload, metadata).await?;
+        let published_event_id = report.event_id.clone();
+        let stored_events = self
+            .bus
+            .journal()
+            .await
+            .into_iter()
+            .filter(|event| event.event_id == published_event_id)
+            .collect();
+        let dead_letters = self
+            .bus
+            .dead_letters()
+            .await
+            .into_iter()
+            .filter(|dead_letter| dead_letter.envelope.event_id == published_event_id)
+            .collect();
         Ok(ScreenRuntimeReport {
             publish_reports: vec![report],
-            stored_events: self.bus.journal().await,
-            dead_letters: self.bus.dead_letters().await,
+            stored_events,
+            dead_letters,
         })
+    }
+
+    pub async fn retained_event_count(&self) -> usize {
+        self.bus.journal().await.len()
     }
 
     async fn publish_degraded_event_chain(
@@ -320,4 +363,28 @@ impl ScreenRuntimeSpine {
             dead_letters: self.bus.dead_letters().await,
         })
     }
+}
+
+fn handle_terminal_deletion_delivery(
+    payload: &ScreenRuntimeEventPayload,
+) -> Result<(), EventingError> {
+    let deletion_proof_present = payload
+        .deletion_proof_ref
+        .as_deref()
+        .is_some_and(|value| !value.trim().is_empty());
+    let no_raw_image_escape = !payload.claim_boundary.raw_image_available_to_ai_provider
+        && !payload.claim_boundary.raw_image_available_to_policy
+        && !payload.claim_boundary.raw_image_available_to_portal;
+    if payload.phase == ScreenRuntimePhase::DeletionCommitted
+        && payload.deletion_state == ScreenDeletionState::Committed
+        && payload.evidence_scope == ScreenEvidenceScope::DeletedQueryStoreSummary
+        && deletion_proof_present
+        && no_raw_image_escape
+    {
+        return Ok(());
+    }
+    Err(EventingError::InvalidValue {
+        field: constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED,
+        value: constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES.to_string(),
+    })
 }

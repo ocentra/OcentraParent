@@ -16,6 +16,13 @@ CREATE TABLE IF NOT EXISTS activity_events (
 );
 CREATE INDEX IF NOT EXISTS activity_events_recent_idx
   ON activity_events (observed_at DESC, event_id DESC);
+CREATE INDEX IF NOT EXISTS activity_events_screen_queue_job_idx
+  ON activity_events (
+    kind,
+    observer,
+    json_extract(fields_json, '$.queueJobId'),
+    observed_at DESC
+  );
 CREATE TABLE IF NOT EXISTS parent_rule_contexts (
   parent_rule_ref_id TEXT PRIMARY KEY,
   updated_at TEXT NOT NULL,
@@ -123,6 +130,83 @@ WHERE kind = ?1
 ORDER BY observed_at DESC, event_id DESC
 LIMIT ?3;";
 
+pub const SELECT_LATEST_SCREEN_ANALYSIS_ACTIVITY_FOR_QUEUE_JOB: &str = "
+SELECT
+  event_id,
+  observed_at,
+  fields_json,
+  evidence_json
+FROM activity_events
+WHERE kind = ?1
+  AND observer = ?2
+  AND json_extract(fields_json, '$.queueJobId') = ?3
+ORDER BY observed_at DESC,
+  CASE json_extract(fields_json, '$.imageDeletionState')
+    WHEN 'deleteFailed' THEN 4
+    WHEN 'expiredDeleted' THEN 3
+    WHEN 'deleted' THEN 2
+    WHEN 'deletionRequired' THEN 1
+    ELSE 0
+  END DESC,
+  rowid DESC
+LIMIT 1;";
+
+pub const SELECT_LATEST_SCREEN_ANALYSIS_ACTIVITY_PER_QUEUE_JOB: &str = "
+WITH ranked_screen_analysis_activity AS (
+  SELECT
+    event_id,
+    observed_at,
+    fields_json,
+    evidence_json,
+    CASE json_extract(fields_json, '$.imageDeletionState')
+      WHEN 'deleteFailed' THEN 4
+      WHEN 'expiredDeleted' THEN 3
+      WHEN 'deleted' THEN 2
+      WHEN 'deletionRequired' THEN 1
+      ELSE 0
+    END AS deletion_priority,
+    rowid AS ordering_rowid,
+    ROW_NUMBER() OVER (
+      PARTITION BY json_extract(fields_json, '$.queueJobId')
+      ORDER BY observed_at DESC,
+        CASE json_extract(fields_json, '$.imageDeletionState')
+          WHEN 'deleteFailed' THEN 4
+          WHEN 'expiredDeleted' THEN 3
+          WHEN 'deleted' THEN 2
+          WHEN 'deletionRequired' THEN 1
+          ELSE 0
+        END DESC,
+        rowid DESC
+    ) AS queue_job_rank
+  FROM activity_events
+  WHERE kind = ?1
+    AND observer = ?2
+    AND json_type(fields_json, '$.confidence') IN ('integer', 'real')
+    AND json_type(fields_json, '$.primaryCategory') = 'text'
+    AND json_type(fields_json, '$.modelRuntimeRef') = 'text'
+    AND json_type(fields_json, '$.screenAnalysisResultId') = 'text'
+    AND json_type(fields_json, '$.queueJobId') = 'text'
+    AND json_type(fields_json, '$.modelId') = 'text'
+    AND json_type(fields_json, '$.providerKind') = 'text'
+    AND json_type(fields_json, '$.promptOrTemplateVersion') = 'text'
+    AND json_type(fields_json, '$.captureReason') = 'text'
+    AND json_type(fields_json, '$.captureScope') = 'text'
+    AND json_type(fields_json, '$.capabilityStatus') = 'text'
+    AND json_type(fields_json, '$.summary') = 'text'
+    AND json_type(fields_json, '$.imageDigest') = 'text'
+    AND json_type(fields_json, '$.imageDeletionState') = 'text'
+    AND json_type(fields_json, '$.custodyState') = 'text'
+    AND json_type(fields_json, '$.policyEligible') IN ('true', 'false')
+)
+SELECT
+  event_id,
+  observed_at,
+  fields_json,
+  evidence_json
+FROM ranked_screen_analysis_activity
+WHERE queue_job_rank = 1
+ORDER BY observed_at DESC, deletion_priority DESC, ordering_rowid DESC;";
+
 pub const SELECT_RECENT_BROWSER_INTERVENTION_ACTIVITY: &str = "
 SELECT
   event_id,
@@ -190,7 +274,31 @@ SELECT
 FROM activity_events
 WHERE kind = ?1
   AND observer = ?2
-ORDER BY observed_at DESC, event_id DESC
+  AND json_type(fields_json, '$.confidence') IN ('integer', 'real')
+  AND json_type(fields_json, '$.primaryCategory') = 'text'
+  AND json_type(fields_json, '$.modelRuntimeRef') = 'text'
+  AND json_type(fields_json, '$.screenAnalysisResultId') = 'text'
+  AND json_type(fields_json, '$.queueJobId') = 'text'
+  AND json_type(fields_json, '$.modelId') = 'text'
+  AND json_type(fields_json, '$.providerKind') = 'text'
+  AND json_type(fields_json, '$.promptOrTemplateVersion') = 'text'
+  AND json_type(fields_json, '$.captureReason') = 'text'
+  AND json_type(fields_json, '$.captureScope') = 'text'
+  AND json_type(fields_json, '$.capabilityStatus') = 'text'
+  AND json_type(fields_json, '$.summary') = 'text'
+  AND json_type(fields_json, '$.imageDigest') = 'text'
+  AND json_type(fields_json, '$.imageDeletionState') = 'text'
+  AND json_type(fields_json, '$.custodyState') = 'text'
+  AND json_type(fields_json, '$.policyEligible') IN ('true', 'false')
+ORDER BY observed_at DESC,
+  CASE json_extract(fields_json, '$.imageDeletionState')
+    WHEN 'deleteFailed' THEN 4
+    WHEN 'expiredDeleted' THEN 3
+    WHEN 'deleted' THEN 2
+    WHEN 'deletionRequired' THEN 1
+    ELSE 0
+  END DESC,
+  rowid DESC
 LIMIT ?3;";
 
 pub const DELETE_PARENT_RULE_CONTEXTS: &str = "DELETE FROM parent_rule_contexts;";
