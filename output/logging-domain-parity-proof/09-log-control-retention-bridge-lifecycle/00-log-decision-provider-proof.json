@@ -1,0 +1,1 @@
+{"command":"npm run test --workspace @ocentra-parent/logging-domain -- log-decision","status":"passed","tests":4,"scope":"local log decision controls"}

@@ -63,7 +63,7 @@ Product/support telemetry owners:
 ```text
 output/logging-domain-parity-proof/<workpack>/ is the active proof route.
 test-results/logging-domain-parity-* roots are supporting result roots and must exist before cited.
-WP03, WP06, WP07, WP08, and WP10 have canonical proof roots in this checkout.
+WP03, WP06, WP07, WP08, WP09, and WP10 have canonical proof roots in this checkout.
 WP07 and WP10 proof roots exist, but checklist/workpack closeout remains open.
 WP08 is a bounded partial-proof for portal dev logger, logging-domain source/context storage/query, and agent-service startup/dev-log only.
 WP06 remains partial-proof while the root routing validation failure is outside this delegated logging-owned slice.
@@ -99,10 +99,10 @@ WP05 local validation evidence: source/tests/smokes present, but the named proof
 WP06 validation/enforcement: root checker scripts, wrapper scripts, and local evidence smoke are present; logging-owned proof-inventory query surfaces now detect missing/stale proof roots and stale closeout claims through agent-query/MCP plus focused tests, and the canonical WP06 proof root is present; full focused validation remains open because one root routing check fails against an owning surface outside this delegated slice
 WP07 MCP query interface: server, integration coverage, and canonical MCP proof roots are present; fresh-root latest-failures/run-diagnostics/artifact-slice plus CLI parity now prove the deterministic local evidence path, but checklist/workpack closeout is still open
 WP08 logger instrumentation/adoption: a canonical partial-proof root now exists for the portal dev logger path, logging-domain storage/query path, and agent-service startup/dev-log path; repo-wide adoption is still not proved
-WP09 log control/retention/bridge lifecycle: source/tests present, but the named proof root is absent in this checkout
+WP09 log control/retention/bridge lifecycle: focused log-decision, wipe, retention, and bridge lifecycle commands now have a canonical proof root; detailed checklist closeout remains open
 WP10 proof trace pipeline: focused portal proof-trace tests pass, the standalone MCP proof-trace smoke is now self-seeding in a clean workspace, and the canonical proof root is present; checklist/workpack closeout is still open
 Checklist state: WP03 now reflects its written proof root, WP06 now has 11/12 rows checked against focused proof, WP08 now has 8/12 rows checked against its canonical partial-proof root, and the remaining workpacks stay open as documented in CHECKLIST_INDEX.md
-Proof inventory root: output/logging-domain-parity-proof/ now contains canonical WP03, WP06, WP07, WP08, and WP10 roots in this checkout
+Proof inventory root: output/logging-domain-parity-proof/ now contains canonical WP03, WP06, WP07, WP08, WP09, and WP10 roots in this checkout
 Test-results roots: test-results/logging-domain-parity-mcp/ and test-results/logging-domain-parity-proof-trace/ now exist; the other named test-results/logging-domain-parity-* roots are still absent
 PR-ready: false
 ```

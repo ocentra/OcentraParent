@@ -23,7 +23,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | audit-open | [WP01 Current State and Reference Audit](workpacks/01-current-state-and-reference-audit.md) | 0/10 | `00-current-state-and-reference-audit.md` |
 | source-present | [WP02 TypeScript Logging Package Parity](workpacks/02-typescript-logging-package-parity.md) | 0/12 | `00-current-state-and-reference-audit.md` |
 | partial-proof | [WP03 Parent Logging Architecture and Routing](workpacks/03-parent-logging-architecture-and-routing.md) | 10/11 | `01-parent-logging-architecture.md` |
-| source-present | [WP09 Log Control, Retention, and Bridge Lifecycle](workpacks/09-log-control-retention-bridge-lifecycle.md) | 0/13 | `08-log-control-retention-bridge-lifecycle.md` |
+| partial-proof | [WP09 Log Control, Retention, and Bridge Lifecycle](workpacks/09-log-control-retention-bridge-lifecycle.md) | 0/13 | `08-log-control-retention-bridge-lifecycle.md` |
 | source-present | [WP04 Rust Logging Core Crate](workpacks/04-rust-logging-core-crate.md) | 0/12 | `02-rust-logging-core-crate.md` |
 | source-present | [WP05 Local Validation Evidence](workpacks/05-local-validation-evidence.md) | 0/12 | `03-local-validation-evidence.md` |
 | partial-proof | [WP07 MCP Query Interface](workpacks/07-mcp-query-interface.md) | 0/18 | `06-mcp-query-interface.md` |

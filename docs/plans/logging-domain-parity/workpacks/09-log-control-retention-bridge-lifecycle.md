@@ -196,8 +196,6 @@ tree, including `logConfig`, `logDecisionProvider`, `wipeNdjsonScope`,
 `testLogRetention`, the app log writer, and the bridge/retention scripts plus
 their unit-test counterparts.
 
-What is missing is durable proof. The appended completion block named
-`output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/`,
-but that proof root is absent in this checkout, and this audit pass did not
-re-run the dedicated wipe/retention/bridge command set. Treat WP09 as
-implemented-in-source but unproved from current workspace evidence.
+The canonical proof root now records the focused build and log-decision, wipe,
+retention, and bridge command results. Treat WP09 as partial-proof until each
+individual checklist row is reconciled against that source and test evidence.

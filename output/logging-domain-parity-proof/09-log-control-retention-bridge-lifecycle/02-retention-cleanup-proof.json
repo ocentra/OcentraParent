@@ -1,0 +1,1 @@
+{"command":"npm run test --workspace @ocentra-parent/logging-domain -- retention","status":"passed","tests":3,"scope":"local retention cleanup"}

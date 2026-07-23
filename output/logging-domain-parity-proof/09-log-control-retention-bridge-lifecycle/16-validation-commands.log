@@ -1,0 +1,7 @@
+PASS npm run build --workspace @ocentra-parent/logging-domain
+PASS npm run test --workspace @ocentra-parent/logging-domain -- log-decision (4 tests)
+PASS npm run test --workspace @ocentra-parent/logging-domain -- wipe (3 tests)
+PASS npm run test --workspace @ocentra-parent/logging-domain -- retention (3 tests)
+PASS npm run test --workspace @ocentra-parent/logging-domain -- bridge (7 tests)
+
+This evidence is limited to local log control, retention, and bridge lifecycle behavior.

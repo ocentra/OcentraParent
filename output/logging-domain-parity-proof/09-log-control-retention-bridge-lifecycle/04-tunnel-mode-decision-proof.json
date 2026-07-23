@@ -1,0 +1,1 @@
+{"defaultMode":"local","tunnelMode":"optional and condition-gated","claim":"No tunnel is required for normal local Node, Vitest, Rust, or portal execution."}
