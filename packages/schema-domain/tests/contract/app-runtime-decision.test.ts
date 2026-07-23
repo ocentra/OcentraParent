@@ -76,6 +76,27 @@ describe('schema-domain app runtime decision edge decoder', () => {
       })
     ).toThrow(/invalid app runtime boundary/i);
   });
+
+  it('rejects a known-policy foreground input downgraded to inventory-only', () => {
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEvent({
+        ...knownPolicyAppDecision(),
+        decision: inventoryDecision().decision,
+      })
+    ).toThrow(/invalid app runtime boundary/i);
+  });
+
+  it('rejects an unknown foreground app that omits its required AI handoff', () => {
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEvent({
+        ...unknownAppDecision(),
+        decision: {
+          ...unknownAppDecision().decision,
+          ai_handoff_state: AppAiHandoffState.NotRequired,
+        },
+      })
+    ).toThrow(/invalid app runtime boundary/i);
+  });
 });
 
 function appRuntimeDecisionGolden(): {
@@ -132,6 +153,24 @@ function unknownAppDecision() {
       runtime_action_state: AppRuntimeActionState.RecordForeground,
       ai_handoff_state: AppAiHandoffState.Required,
       policy_handoff_state: AppPolicyHandoffState.DoNotPublish,
+    },
+  } as const;
+}
+
+function knownPolicyAppDecision() {
+  return {
+    aggregate_id: 'app.aggregate.child-device-1',
+    decision_id: 'app.runtime-decision-3',
+    input: {
+      capability_state: 'supported',
+      foreground_state: 'foreground',
+      classification_state: AppClassificationState.KnownPolicyApp,
+    },
+    decision: {
+      observation_intent: AppObservationIntent.ForegroundAppRequiresPolicy,
+      runtime_action_state: AppRuntimeActionState.RecordForeground,
+      ai_handoff_state: AppAiHandoffState.NotRequired,
+      policy_handoff_state: AppPolicyHandoffState.Publish,
     },
   } as const;
 }
