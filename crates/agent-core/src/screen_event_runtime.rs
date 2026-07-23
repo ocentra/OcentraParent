@@ -284,11 +284,30 @@ impl ScreenRuntimeSpine {
         let payload = screen_runtime_event_payload_from_deletion_input(&input, observed_at);
         let metadata = screen_deletion_event_metadata(&input, observed_at)?;
         let report = self.bus.publish(payload, metadata).await?;
+        let published_event_id = report.event_id.clone();
+        let stored_events = self
+            .bus
+            .journal()
+            .await
+            .into_iter()
+            .filter(|event| event.event_id == published_event_id)
+            .collect();
+        let dead_letters = self
+            .bus
+            .dead_letters()
+            .await
+            .into_iter()
+            .filter(|dead_letter| dead_letter.envelope.event_id == published_event_id)
+            .collect();
         Ok(ScreenRuntimeReport {
             publish_reports: vec![report],
-            stored_events: self.bus.journal().await,
-            dead_letters: self.bus.dead_letters().await,
+            stored_events,
+            dead_letters,
         })
+    }
+
+    pub async fn retained_event_count(&self) -> usize {
+        self.bus.journal().await.len()
     }
 
     async fn publish_degraded_event_chain(

@@ -8,9 +8,7 @@ use ocentra_eventing::{
     ids::SchemaVersion, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
     ids::TargetHandler,
 };
-use ocentra_parent_agent_core::screen_event_runtime::{
-    publish_screen_deletion_event_for_input, ScreenRuntimeReport,
-};
+use ocentra_parent_agent_core::screen_event_runtime::{ScreenRuntimeReport, ScreenRuntimeSpine};
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
@@ -32,6 +30,7 @@ pub(crate) mod live_view_service_runtime;
 
 pub(crate) struct ScreenAiServiceEventRuntime {
     bus: EventBus,
+    pub(crate) deletion_spine: ScreenRuntimeSpine,
 }
 
 impl ScreenAiServiceEventRuntime {
@@ -39,7 +38,11 @@ impl ScreenAiServiceEventRuntime {
         let bus = EventBus::new();
         let state = ScreenAiServiceEventSubscriptionState::default();
         subscribe_screen_service_row_ready_events(&bus, state.clone()).await?;
-        Ok(Self { bus })
+        let deletion_spine = ScreenRuntimeSpine::with_default_handlers().await?;
+        Ok(Self {
+            bus,
+            deletion_spine,
+        })
     }
 
     pub(crate) async fn publish_row_ready(
@@ -62,7 +65,8 @@ impl ScreenAiServiceEventRuntime {
         observed_at: ObservedAtText,
     ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
         let input = screen_runtime_deletion_input_from_service_row(row)?;
-        publish_screen_deletion_event_for_input(input, observed_at.0.as_str())
+        self.deletion_spine
+            .publish_deletion_event(input, observed_at.0.as_str())
             .await
             .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
     }

@@ -203,6 +203,39 @@ async fn screen_service_event_runtime_bounds_each_deletion_publication_report() 
 }
 
 #[tokio::test]
+async fn screen_service_event_runtime_retains_deletion_events_without_growing_reports() {
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let first = require_ok(
+        runtime
+            .publish_deletion_row(
+                service_screen_row(),
+                ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+            )
+            .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let mut second_row = service_screen_row();
+    second_row.queue_job_id.push_str("-retained");
+    second_row.row_id.push_str("-retained");
+    let second = require_ok(
+        runtime
+            .publish_deletion_row(
+                second_row,
+                ObservedAtText(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+            )
+            .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+
+    assert_eq!(runtime.deletion_spine.retained_event_count().await, 2);
+    assert_eq!(first.stored_events.len(), 1);
+    assert_eq!(second.stored_events.len(), 1);
+}
+
+#[tokio::test]
 async fn screen_service_event_runtime_isolates_concurrent_deletion_publication_reports() {
     let runtime = require_ok(
         ScreenAiServiceEventRuntime::start().await,
