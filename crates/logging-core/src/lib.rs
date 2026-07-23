@@ -25,6 +25,9 @@ pub mod local_ndjson_log_typescript;
 mod ndjson_append_rollback;
 #[cfg(feature = "test-support")]
 #[doc(hidden)]
+pub mod ndjson_failure_test_support;
+#[cfg(feature = "test-support")]
+#[doc(hidden)]
 pub mod ndjson_interop_test_support;
 mod ndjson_operation;
 mod ndjson_operation_append;

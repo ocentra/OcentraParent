@@ -6,6 +6,9 @@ use ocentra_parent_logging_core::{
         publish_artifact_with_forced_fallback_fault, publish_artifact_with_hard_link_fault,
         publish_artifact_with_parent_sync_fault, ArtifactFallbackFault, HardLinkFault,
     },
+    ndjson_failure_test_support::{
+        append_plain_record_with_parent_sync_fault, operation_intent_after_failed_rollback,
+    },
     ndjson_test_support::{
         append_plain_record_with_external_after_sync_fault, append_plain_record_with_sync_fault,
         append_record_with_fault, append_record_with_marker_fault, AppendFault,
@@ -23,6 +26,18 @@ fn ndjson_writer_recovers_from_injected_write_and_sync_failures() {
 #[test]
 fn ndjson_operation_recovers_from_partial_intent_and_commit_markers() {
     let result = ndjson_operation_recovers_from_partial_intent_and_commit_markers_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_operation_retains_intent_when_tail_rollback_fails() {
+    let result = ndjson_operation_retains_intent_when_tail_rollback_fails_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn plain_ndjson_first_creation_requires_parent_directory_sync() {
+    let result = plain_ndjson_first_creation_requires_parent_directory_sync_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -271,6 +286,39 @@ fn ndjson_writer_recovers_from_injected_write_and_sync_failures_impl() -> Result
         fs::read(&mixed_path)?,
         [record.as_slice(), external.as_slice()].concat()
     );
+    Ok(())
+}
+
+fn ndjson_operation_retains_intent_when_tail_rollback_fails_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("rollback-failure.ndjson");
+    let intent = root.join("rollback-failure.intent");
+    let (intent_exists, error) =
+        operation_intent_after_failed_rollback(&path, &intent, b"{\"retry\":true}\n")?;
+    assert!(intent_exists);
+    assert_eq!(
+        error,
+        "NDJSON append failed (injected NDJSON append failure); rollback also failed (injected NDJSON rollback failure)"
+    );
+    assert_eq!(fs::read(&path)?, b"{\"partial\":");
+    Ok(())
+}
+
+fn plain_ndjson_first_creation_requires_parent_directory_sync_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("plain-parent-sync.ndjson");
+    let error = injected_error(append_plain_record_with_parent_sync_fault(
+        &path,
+        b"{\"durable\":true}\n",
+    ))?;
+    assert_eq!(error.kind(), std::io::ErrorKind::Other);
+    assert_eq!(
+        error.to_string(),
+        "injected NDJSON parent directory sync failure"
+    );
+    assert_eq!(fs::read(&path)?, b"");
     Ok(())
 }
 

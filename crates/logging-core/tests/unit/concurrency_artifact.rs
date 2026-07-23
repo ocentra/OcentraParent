@@ -74,6 +74,49 @@ fn ndjson_operation_state_cleanup_waits_for_the_stream_lock() {
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
+#[test]
+fn routed_operation_waits_for_each_historical_stream_lock() {
+    let result = routed_operation_waits_for_each_historical_stream_lock_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+fn routed_operation_waits_for_each_historical_stream_lock_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    let directory = root.join("route-lock").join("ndjson").join("events");
+    let historical = directory.join("2000-01-01.ndjson");
+    append_record(&historical, b"{\"historical\":true}\n")?;
+    let lock_path = historical.with_file_name(".2000-01-01.ndjson.operations.lock");
+    let lock_file = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(lock_path)?;
+    lock_file.lock()?;
+
+    let writer = NdjsonWriter::new(&root);
+    let (result_sender, result_receiver) = mpsc::sync_channel(1);
+    let routed = thread::spawn(move || {
+        let result = writer.append_event_for_operation(
+            "route-lock",
+            "events",
+            "new-routed-operation",
+            &json!({"routed": true}),
+        );
+        let _send_result = result_sender.send(result);
+    });
+    assert!(result_receiver
+        .recv_timeout(Duration::from_millis(100))
+        .is_err());
+
+    lock_file.unlock()?;
+    let routed_path = result_receiver.recv_timeout(Duration::from_secs(5))??;
+    routed
+        .join()
+        .map_err(|_panic| std::io::Error::other("routed append worker panicked"))?;
+    assert_ne!(routed_path, historical);
+    assert_eq!(fs::read_to_string(historical)?, "{\"historical\":true}\n");
+    Ok(())
+}
+
 fn ndjson_operation_state_cleanup_waits_for_the_stream_lock_impl() -> Result<(), Box<dyn Error>> {
     let root = temp_dir!();
     let writer = Arc::new(NdjsonWriter::new(&root));

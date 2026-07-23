@@ -16,11 +16,7 @@ pub(crate) fn append_routed_operation(
         let mut paths = daily_stream_paths(directory)?;
         paths.sort();
         for path in paths {
-            if crate::ndjson_operation_recovery::operation_state_exists(
-                &path,
-                operation_id,
-                record,
-            )? {
+            if operation_state_exists_stream_locked(&path, operation_id, record)? {
                 append_record_for_operation(&path, operation_id, record)?;
                 return Ok(path);
             }
@@ -28,6 +24,20 @@ pub(crate) fn append_routed_operation(
         append_record_for_operation(current_path, operation_id, record)?;
         Ok(current_path.to_owned())
     })
+}
+
+fn operation_state_exists_stream_locked(
+    path: &Path,
+    operation_id: &str,
+    record: &[u8],
+) -> io::Result<bool> {
+    let mut exists = false;
+    crate::ndjson_operation_state_lock::with_stream_lock(path, || {
+        exists =
+            crate::ndjson_operation_recovery::operation_state_exists(path, operation_id, record)?;
+        Ok(())
+    })?;
+    Ok(exists)
 }
 
 pub(crate) fn with_route_lock<T>(

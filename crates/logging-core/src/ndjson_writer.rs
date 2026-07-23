@@ -67,12 +67,23 @@ impl NdjsonWriter {
 }
 
 pub fn append_record(path: &std::path::Path, record: &[u8]) -> io::Result<()> {
+    append_record_with_parent_sync(path, record, crate::artifact_publish_platform::sync_parent)
+}
+
+pub(crate) fn append_record_with_parent_sync(
+    path: &Path,
+    record: &[u8],
+    sync_parent: impl FnOnce(&Path) -> io::Result<()>,
+) -> io::Result<()> {
     crate::ndjson_record_validation::validate_record(record)?;
     if let Some(parent) = path.parent() {
         create_directory_hierarchy(parent)?;
     }
     crate::ndjson_operation_state_lock::with_stream_lock(path, || {
         let mut file = open_append_file(path)?;
+        if file.metadata()?.len() == 0 {
+            sync_parent(path)?;
+        }
         lock_and_append(&mut file, record)
     })
 }
