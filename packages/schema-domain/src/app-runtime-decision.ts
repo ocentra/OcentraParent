@@ -65,9 +65,29 @@ const AppRuntimeDecisionRecordedEventBaseSchema = Schema.Struct({
 
 type AppRuntimeDecisionRecordedEvent = Infer<typeof AppRuntimeDecisionRecordedEventBaseSchema>;
 
+const AppRuntimeDecisionRecordedEventContractSchema = Schema.Struct({
+  eventType: Schema.Literal(AppRuntimeDecisionRecordedEventType),
+  schemaVersion: Schema.Literal(1, AppRuntimeDecisionSchemaVersion),
+});
+
 const AppRuntimeDecisionRecordedEventEnvelopeBaseSchema = Schema.Struct({
-  event_type: Schema.Literal(AppRuntimeDecisionRecordedEventType),
-  schema_version: Schema.Literal(1, AppRuntimeDecisionSchemaVersion),
+  contract: AppRuntimeDecisionRecordedEventContractSchema,
+  eventId: NonEmptyStringSchema,
+  correlationId: NonEmptyStringSchema,
+  causationId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  aggregateKey: NonEmptyStringSchema,
+  idempotencyKey: NonEmptyStringSchema,
+  source: Schema.Struct({
+    custody: NonEmptyStringSchema,
+    role: NonEmptyStringSchema,
+    service: NonEmptyStringSchema,
+    component: NonEmptyStringSchema,
+    instanceId: NonEmptyStringSchema,
+  }),
+  observedAt: NonEmptyStringSchema,
+  targetHandler: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  priority: Schema.Literal('low', 'normal', 'high', 'critical'),
+  deadline: Schema.Union(NonEmptyStringSchema, Schema.Null),
   payload: AppRuntimeDecisionRecordedEventBaseSchema,
 });
 
@@ -86,7 +106,8 @@ export const AppRuntimeDecisionRecordedEventEnvelopeSchema = withParser(
   AppRuntimeDecisionRecordedEventEnvelopeBaseSchema.pipe(
     Schema.filter(
       (envelope) =>
-        appRuntimeDecisionHasSafeBoundary(envelope.payload, envelope.schema_version) || 'Invalid app runtime boundary'
+        appRuntimeDecisionHasSafeBoundary(envelope.payload, envelope.contract.schemaVersion) ||
+        'Invalid app runtime boundary'
     )
   )
 );
@@ -98,15 +119,28 @@ export function decodeAppRuntimeDecisionRecordedEvent(input: unknown): AppRuntim
 }
 
 export function decodeAppRuntimeDecisionRecordedEventEnvelope(input: unknown): AppRuntimeDecisionRecordedEventEnvelope {
-  assertExactKeys(input, ['event_type', 'schema_version', 'payload']);
+  assertExactKeys(input, [
+    'contract',
+    'eventId',
+    'correlationId',
+    'causationId',
+    'aggregateKey',
+    'idempotencyKey',
+    'source',
+    'observedAt',
+    'targetHandler',
+    'priority',
+    'deadline',
+    'payload',
+  ]);
   return AppRuntimeDecisionRecordedEventEnvelopeSchema.parse(input);
 }
 
 function appRuntimeDecisionHasSafeBoundary(event: AppRuntimeDecisionRecordedEvent, schemaVersion: number): boolean {
-  if (!hasOpaqueIdSuffix(event.aggregate_id, 'app.aggregate.')) {
+  if (!hasVersionedRuntimeId(event.aggregate_id, 'app.aggregate.', schemaVersion)) {
     return false;
   }
-  if (!hasOpaqueIdSuffix(event.decision_id, 'app.runtime-decision-')) {
+  if (!hasVersionedRuntimeId(event.decision_id, 'app.runtime-decision-', schemaVersion)) {
     return false;
   }
   const expected = expectedRustRuntimeDecision(event.input, schemaVersion);
@@ -171,7 +205,10 @@ function decisionFromContract(
   };
 }
 
-function hasOpaqueIdSuffix(value: string, prefix: string): boolean {
+function hasVersionedRuntimeId(value: string, prefix: string, schemaVersion: number): boolean {
+  if (schemaVersion === 1) {
+    return value.trim().length > 0;
+  }
   return value.startsWith(prefix) && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(value.slice(prefix.length));
 }
 

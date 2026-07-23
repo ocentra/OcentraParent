@@ -7,8 +7,12 @@ use ocentra_app_core::runtime_ids::{
     AppAggregateId, AppRuntimeDecisionId, APP_AGGREGATE_ID_PREFIX, APP_RUNTIME_DECISION_ID_PREFIX,
 };
 use ocentra_app_core::AppObservationIntent;
-use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::envelope::{DomainEvent, EventEnvelope, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    CorrelationId, EventCustody, EventId, RecordedAt, RuntimeInstanceId, RuntimeRole,
+    SourceComponent, SourceService,
+};
 use serde::Deserialize;
 
 const APP_RUNTIME_DECISION_CONTRACTS: &str =
@@ -110,6 +114,49 @@ fn current_rust_contract_matrix_exhaustively_matches_runtime_evaluation() {
             case.decision
         );
     }
+}
+
+#[test]
+fn rust_event_envelope_serializes_the_edge_decoder_contract_shape() {
+    let input = AppRuntimeInput {
+        capability_state: AppCapabilityState::Supported,
+        foreground_state: AppForegroundState::Foreground,
+        classification_state: AppClassificationState::InventoryOnly,
+    };
+    let event = app_runtime_decision_recorded_event(
+        AppAggregateId::parse("app.aggregate.child-device-1").expect("aggregate id parses"),
+        AppRuntimeDecisionId::parse("app.runtime-decision-1").expect("decision id parses"),
+        input,
+    );
+    let metadata = EventMetadata::from_parts(
+        EventId::parse("event-app-runtime-decision-1").expect("event id parses"),
+        CorrelationId::parse("correlation-app-runtime-decision-1").expect("correlation id parses"),
+        EventSource::new(
+            EventCustody::parse("local-only").expect("custody parses"),
+            RuntimeRole::parse("parent").expect("role parses"),
+            SourceService::parse("app-core").expect("service parses"),
+            SourceComponent::parse("runtime-decision").expect("component parses"),
+            RuntimeInstanceId::parse("app-core-test").expect("instance id parses"),
+        ),
+        RecordedAt::parse("2026-07-23T00:00:00Z").expect("observed at parses"),
+        None,
+    );
+    let envelope = EventEnvelope::from_event(event, metadata).expect("event envelope builds");
+    let serialized = serde_json::to_value(envelope).expect("event envelope serializes");
+
+    assert_eq!(
+        serialized["contract"]["eventType"],
+        APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE
+    );
+    assert_eq!(
+        serialized["contract"]["schemaVersion"],
+        APP_RUNTIME_DECISION_SCHEMA_VERSION
+    );
+    assert!(serialized.get("event_id").is_none());
+    assert_eq!(
+        serialized["payload"]["aggregate_id"],
+        "app.aggregate.child-device-1"
+    );
 }
 
 #[test]

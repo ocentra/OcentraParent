@@ -19,11 +19,7 @@ describe('schema-domain app runtime decision edge decoder', () => {
     expect(contracts.event_type).toBe(AppRuntimeDecisionRecordedEventType);
     expect(contracts.current_schema_version).toBe(AppRuntimeDecisionSchemaVersion);
     contracts.current_decisions.forEach(({ input, decision }, index) => {
-      const envelope = {
-        event_type: AppRuntimeDecisionRecordedEventType,
-        schema_version: AppRuntimeDecisionSchemaVersion,
-        payload: runtimeDecision(input, decision, index + 1),
-      } as const;
+      const envelope = rustEventEnvelope(runtimeDecision(input, decision, index + 1), AppRuntimeDecisionSchemaVersion);
       expect(decodeAppRuntimeDecisionRecordedEventEnvelope(envelope)).toEqual(envelope);
     });
   });
@@ -117,11 +113,10 @@ describe('schema-domain app runtime decision edge decoder', () => {
     if (legacy === undefined) {
       throw new TypeError('Missing Rust-owned v1 compatibility delta');
     }
-    const legacyEnvelope = {
-      event_type: AppRuntimeDecisionRecordedEventType,
-      schema_version: 1,
-      payload: runtimeDecision(legacy.input, legacy.decision, 99),
-    } as const;
+    const legacyEnvelope = rustEventEnvelope(
+      runtimeDecision(legacy.input, legacy.decision, 99, 'child-device-1', 'decision-1'),
+      1
+    );
     expect(decodeAppRuntimeDecisionRecordedEventEnvelope(legacyEnvelope)).toEqual(legacyEnvelope);
 
     const current = appRuntimeDecisionContracts().current_decisions.find(
@@ -134,11 +129,9 @@ describe('schema-domain app runtime decision edge decoder', () => {
       throw new TypeError('Missing current Rust-owned decision matrix entry');
     }
     expect(() =>
-      decodeAppRuntimeDecisionRecordedEventEnvelope({
-        event_type: AppRuntimeDecisionRecordedEventType,
-        schema_version: 1,
-        payload: runtimeDecision(current.input, current.decision, 100),
-      })
+      decodeAppRuntimeDecisionRecordedEventEnvelope(
+        rustEventEnvelope(runtimeDecision(current.input, current.decision, 100, 'child-device-1', 'decision-1'), 1)
+      )
     ).toThrow(/invalid app runtime boundary/i);
   });
 });
@@ -179,13 +172,45 @@ function appRuntimeDecisionContracts(): AppRuntimeDecisionContracts {
   return parsed as AppRuntimeDecisionContracts;
 }
 
-function runtimeDecision(input: RuntimeInput, decision: RuntimeDecision, id: number) {
+function runtimeDecision(
+  input: RuntimeInput,
+  decision: RuntimeDecision,
+  id: number,
+  aggregateId = 'app.aggregate.child-device-1',
+  decisionId = `app.runtime-decision-${id}`
+) {
   return {
-    aggregate_id: 'app.aggregate.child-device-1',
-    decision_id: `app.runtime-decision-${id}`,
+    aggregate_id: aggregateId,
+    decision_id: decisionId,
     input,
     decision,
   };
+}
+
+function rustEventEnvelope(payload: ReturnType<typeof runtimeDecision>, schemaVersion: number) {
+  return {
+    contract: {
+      eventType: AppRuntimeDecisionRecordedEventType,
+      schemaVersion,
+    },
+    eventId: 'event-app-runtime-decision-1',
+    correlationId: 'correlation-app-runtime-decision-1',
+    causationId: null,
+    aggregateKey: payload.aggregate_id,
+    idempotencyKey: `${AppRuntimeDecisionRecordedEventType}:${payload.decision_id}`,
+    source: {
+      custody: 'local-only',
+      role: 'parent',
+      service: 'app-core',
+      component: 'runtime-decision',
+      instanceId: 'app-core-test',
+    },
+    observedAt: '2026-07-23T00:00:00Z',
+    targetHandler: null,
+    priority: 'normal',
+    deadline: null,
+    payload,
+  } as const;
 }
 
 function inventoryDecision() {
