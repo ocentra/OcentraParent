@@ -37,18 +37,26 @@ fn tombstone_outbox_rejects_corrupt_durable_metadata() {
 
 #[test]
 fn tombstone_outbox_serializes_concurrent_intents() {
-    let directory = std::env::temp_dir().join(format!("ocentra-tombstone-race-{}", std::process::id()));
+    let directory =
+        std::env::temp_dir().join(format!("ocentra-tombstone-race-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&directory);
     let mut workers = Vec::new();
     for index in 0..8 {
         let directory = directory.clone();
         workers.push(std::thread::spawn(move || {
-            RetentionDeleteTombstoneStore::open(directory)
-                .and_then(|store| store.persist_intent(format!("delete:{index}"), format!("proof:{index}")))
+            RetentionDeleteTombstoneStore::open(directory).and_then(|store| {
+                store.persist_intent(format!("delete:{index}"), format!("proof:{index}"))
+            })
         }));
     }
-    for worker in workers { worker.join().expect("join").expect("intent"); }
-    let count = RetentionDeleteTombstoneStore::open(&directory).expect("open").records().expect("records").len();
+    for worker in workers {
+        worker.join().expect("join").expect("intent");
+    }
+    let count = RetentionDeleteTombstoneStore::open(&directory)
+        .expect("open")
+        .records()
+        .expect("records")
+        .len();
     assert_eq!(count, 8);
     let _ = std::fs::remove_dir_all(&directory);
 }
