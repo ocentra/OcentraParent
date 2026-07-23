@@ -4,7 +4,15 @@ import { describe, it } from 'node:test';
 import { LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY } from '../../scripts/local-seed-runtime.js';
 import { createStripeSignature, createTestHarness, executeRequest, readJson } from '../../src/testing.js';
 
-const [acceptedReplayFixture, deadLetterReplayFixture] = LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY;
+const queueReplayScenarioByFixture = {
+  'accepted-replay': 'repeated-stripe-webhook-delivery',
+  'dead-letter-replay': 'repeated-failed-reconciliation-delivery',
+} as const;
+
+function assertQueueReplayScenario(fixture: keyof typeof queueReplayScenarioByFixture, scenario: string): void {
+  assert.equal(LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY.includes(fixture), true);
+  assert.equal(queueReplayScenarioByFixture[fixture], scenario);
+}
 
 interface WebhookResponse {
   status: string;
@@ -171,7 +179,7 @@ describe('billing write idempotency', () => {
       assert.deepEqual(await readJson<unknown>(first.response), await readJson<unknown>(second.response));
       assert.equal(harness.queueMessages.length, 1);
     }
-    assert.equal(LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY.includes(acceptedReplayFixture), true);
+    assertQueueReplayScenario('accepted-replay', 'repeated-stripe-webhook-delivery');
   });
 
   it('keeps a dead-lettered reconciliation replay stable for the same request id', async () => {
@@ -214,7 +222,7 @@ describe('billing write idempotency', () => {
       const deadLetter = harness.deadLetterMessages[0] as Record<string, unknown>;
       assert.equal(deadLetter.reason, 'reconciliation-queue-send-failed');
     }
-    assert.equal(LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY.includes(deadLetterReplayFixture), true);
+    assertQueueReplayScenario('dead-letter-replay', 'repeated-failed-reconciliation-delivery');
   });
 
   it('keeps out-of-order duplicate webhook deliveries stable for the same event id', async () => {

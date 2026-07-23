@@ -103,6 +103,30 @@ const UPSERT_ADMIN_DISPUTE_SQL = normalizeSql(
 const UPSERT_ADMIN_REFERRAL_SQL = normalizeSql(
   'INSERT OR REPLACE INTO billing_admin_referrals (referral_code, payload_json) VALUES (?1, ?2)'
 );
+const INSERT_MISSING_STATUS_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_status (subject, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_INVOICE_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_invoices (subject, invoice_id, payload_json) VALUES (?1, ?2, ?3)'
+);
+const INSERT_MISSING_REFERRAL_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_referrals (subject, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_SNAPSHOT_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_snapshots (subject, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_ADMIN_ACCOUNT_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_admin_accounts (parent_account_ref, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_ADMIN_INVOICE_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_admin_invoices (invoice_id, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_ADMIN_DISPUTE_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_admin_disputes (dispute_id, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_ADMIN_REFERRAL_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_admin_referrals (referral_code, payload_json) VALUES (?1, ?2)'
+);
 
 const seedReadyByEnv = new WeakMap<Env, Promise<void>>();
 
@@ -406,57 +430,96 @@ class LocalD1Statement implements D1PreparedStatement {
 
   private executeMutation(): void {
     switch (this.normalizedQuery) {
-      case UPSERT_STATUS_SQL: {
+      case UPSERT_STATUS_SQL:
+      case INSERT_MISSING_STATUS_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
-        this.state.statusBySubject.set(subject, parsePayload<BillingStatusSummary>(payloadJson));
+        if (this.normalizedQuery === UPSERT_STATUS_SQL || !this.state.statusBySubject.has(subject)) {
+          this.state.statusBySubject.set(subject, parsePayload<BillingStatusSummary>(payloadJson));
+        }
         return;
       }
-      case UPSERT_INVOICE_SQL: {
+      case UPSERT_INVOICE_SQL:
+      case INSERT_MISSING_INVOICE_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[2] ?? '{}');
         const invoice = parsePayload<BillingInvoiceSummary>(payloadJson);
         const current = this.state.invoicesBySubject.get(subject) ?? [];
-        this.state.invoicesBySubject.set(
-          subject,
-          replaceByKey(current, invoice, (entry) => entry.invoiceId)
-        );
+        if (
+          this.normalizedQuery === UPSERT_INVOICE_SQL ||
+          !current.some((entry) => entry.invoiceId === invoice.invoiceId)
+        ) {
+          this.state.invoicesBySubject.set(
+            subject,
+            replaceByKey(current, invoice, (entry) => entry.invoiceId)
+          );
+        }
         return;
       }
-      case UPSERT_REFERRAL_SQL: {
+      case UPSERT_REFERRAL_SQL:
+      case INSERT_MISSING_REFERRAL_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
-        this.state.referralsBySubject.set(subject, parsePayload<BillingReferralSummary>(payloadJson));
+        if (this.normalizedQuery === UPSERT_REFERRAL_SQL || !this.state.referralsBySubject.has(subject)) {
+          this.state.referralsBySubject.set(subject, parsePayload<BillingReferralSummary>(payloadJson));
+        }
         return;
       }
-      case UPSERT_SNAPSHOT_SQL: {
+      case UPSERT_SNAPSHOT_SQL:
+      case INSERT_MISSING_SNAPSHOT_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
-        this.state.snapshotsBySubject.set(subject, parsePayload<BillingEntitlementSnapshotSummary>(payloadJson));
+        if (this.normalizedQuery === UPSERT_SNAPSHOT_SQL || !this.state.snapshotsBySubject.has(subject)) {
+          this.state.snapshotsBySubject.set(subject, parsePayload<BillingEntitlementSnapshotSummary>(payloadJson));
+        }
         return;
       }
-      case UPSERT_ADMIN_ACCOUNT_SQL: {
+      case UPSERT_ADMIN_ACCOUNT_SQL:
+      case INSERT_MISSING_ADMIN_ACCOUNT_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingAccountSummary>(payloadJson);
-        this.state.adminAccounts = replaceByKey(this.state.adminAccounts, nextRow, (entry) => entry.parentAccountRef);
+        if (
+          this.normalizedQuery === UPSERT_ADMIN_ACCOUNT_SQL ||
+          !this.state.adminAccounts.some((entry) => entry.parentAccountRef === nextRow.parentAccountRef)
+        ) {
+          this.state.adminAccounts = replaceByKey(this.state.adminAccounts, nextRow, (entry) => entry.parentAccountRef);
+        }
         return;
       }
-      case UPSERT_ADMIN_INVOICE_SQL: {
+      case UPSERT_ADMIN_INVOICE_SQL:
+      case INSERT_MISSING_ADMIN_INVOICE_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingInvoiceSummary>(payloadJson);
-        this.state.adminInvoices = replaceByKey(this.state.adminInvoices, nextRow, (entry) => entry.invoiceId);
+        if (
+          this.normalizedQuery === UPSERT_ADMIN_INVOICE_SQL ||
+          !this.state.adminInvoices.some((entry) => entry.invoiceId === nextRow.invoiceId)
+        ) {
+          this.state.adminInvoices = replaceByKey(this.state.adminInvoices, nextRow, (entry) => entry.invoiceId);
+        }
         return;
       }
-      case UPSERT_ADMIN_DISPUTE_SQL: {
+      case UPSERT_ADMIN_DISPUTE_SQL:
+      case INSERT_MISSING_ADMIN_DISPUTE_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingDisputeSummary>(payloadJson);
-        this.state.adminDisputes = replaceByKey(this.state.adminDisputes, nextRow, (entry) => entry.disputeId);
+        if (
+          this.normalizedQuery === UPSERT_ADMIN_DISPUTE_SQL ||
+          !this.state.adminDisputes.some((entry) => entry.disputeId === nextRow.disputeId)
+        ) {
+          this.state.adminDisputes = replaceByKey(this.state.adminDisputes, nextRow, (entry) => entry.disputeId);
+        }
         return;
       }
-      case UPSERT_ADMIN_REFERRAL_SQL: {
+      case UPSERT_ADMIN_REFERRAL_SQL:
+      case INSERT_MISSING_ADMIN_REFERRAL_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingReferralSummary>(payloadJson);
-        this.state.adminReferrals = replaceByKey(this.state.adminReferrals, nextRow, (entry) => entry.referralCode);
+        if (
+          this.normalizedQuery === UPSERT_ADMIN_REFERRAL_SQL ||
+          !this.state.adminReferrals.some((entry) => entry.referralCode === nextRow.referralCode)
+        ) {
+          this.state.adminReferrals = replaceByKey(this.state.adminReferrals, nextRow, (entry) => entry.referralCode);
+        }
         return;
       }
       default:
@@ -790,37 +853,40 @@ function hostedSessionAuditEventType(sessionKind: 'checkout-session-create' | 'b
 async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch): Promise<void> {
   if (patch.statusBySubject) {
     for (const [subject, row] of Object.entries(patch.statusBySubject)) {
-      await database.prepare(UPSERT_STATUS_SQL).bind(subject, JSON.stringify(row)).run();
+      await database.prepare(INSERT_MISSING_STATUS_SQL).bind(subject, JSON.stringify(row)).run();
     }
   }
   if (patch.invoicesBySubject) {
     for (const [subject, invoices] of Object.entries(patch.invoicesBySubject)) {
       for (const invoice of invoices) {
-        await database.prepare(UPSERT_INVOICE_SQL).bind(subject, invoice.invoiceId, JSON.stringify(invoice)).run();
+        await database
+          .prepare(INSERT_MISSING_INVOICE_SQL)
+          .bind(subject, invoice.invoiceId, JSON.stringify(invoice))
+          .run();
       }
     }
   }
   if (patch.referralsBySubject) {
     for (const [subject, referral] of Object.entries(patch.referralsBySubject)) {
-      await database.prepare(UPSERT_REFERRAL_SQL).bind(subject, JSON.stringify(referral)).run();
+      await database.prepare(INSERT_MISSING_REFERRAL_SQL).bind(subject, JSON.stringify(referral)).run();
     }
   }
   if (patch.snapshotsBySubject) {
     for (const [subject, snapshot] of Object.entries(patch.snapshotsBySubject)) {
-      await database.prepare(UPSERT_SNAPSHOT_SQL).bind(subject, JSON.stringify(snapshot)).run();
+      await database.prepare(INSERT_MISSING_SNAPSHOT_SQL).bind(subject, JSON.stringify(snapshot)).run();
     }
   }
   for (const row of patch.adminAccounts ?? []) {
-    await database.prepare(UPSERT_ADMIN_ACCOUNT_SQL).bind(row.parentAccountRef, JSON.stringify(row)).run();
+    await database.prepare(INSERT_MISSING_ADMIN_ACCOUNT_SQL).bind(row.parentAccountRef, JSON.stringify(row)).run();
   }
   for (const row of patch.adminInvoices ?? []) {
-    await database.prepare(UPSERT_ADMIN_INVOICE_SQL).bind(row.invoiceId, JSON.stringify(row)).run();
+    await database.prepare(INSERT_MISSING_ADMIN_INVOICE_SQL).bind(row.invoiceId, JSON.stringify(row)).run();
   }
   for (const row of patch.adminDisputes ?? []) {
-    await database.prepare(UPSERT_ADMIN_DISPUTE_SQL).bind(row.disputeId, JSON.stringify(row)).run();
+    await database.prepare(INSERT_MISSING_ADMIN_DISPUTE_SQL).bind(row.disputeId, JSON.stringify(row)).run();
   }
   for (const row of patch.adminReferrals ?? []) {
-    await database.prepare(UPSERT_ADMIN_REFERRAL_SQL).bind(row.referralCode, JSON.stringify(row)).run();
+    await database.prepare(INSERT_MISSING_ADMIN_REFERRAL_SQL).bind(row.referralCode, JSON.stringify(row)).run();
   }
 }
 

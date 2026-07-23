@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -87,6 +87,13 @@ const runtimeLeasePath = path.join(os.tmpdir(), 'ocentra-cloudflare-wrangler-run
 const seedRuntimeOwner = 'infra/cloudflare/scripts/local-seed-runtime.ts';
 const seedRuntimeNoClaimReason = 'local-seed-only;production-deployment-not-owned';
 const log = Logger.instance;
+const expectedPersistenceEvidence: LocalSeedPersistenceEvidence = {
+  d1StatusRows: 4,
+  d1AdminAccountRows: 4,
+  d1ReferralRows: 2,
+  kvPricingPlanRows: 3,
+  r2AuditEventRows: 8,
+};
 
 function sleep(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
@@ -149,6 +156,27 @@ function writeLeaseRecord(lockPath: string, record: RuntimeLeaseRecord, flag?: '
   writeFileSync(lockPath, JSON.stringify(record), flag ? { encoding: 'utf8', flag } : { encoding: 'utf8' });
 }
 
+function removeStaleLeaseIfTokenMatches(lockPath: string, observedToken: string): boolean {
+  const current = parseLeaseRecord(readFileSync(lockPath, 'utf8'));
+  if (current?.token !== observedToken) {
+    return false;
+  }
+  const quarantinePath = `${lockPath}.${observedToken.replaceAll(':', '-')}.stale`;
+  try {
+    renameSync(lockPath, quarantinePath);
+  } catch (error) {
+    if (hasErrorCode(error, 'ENOENT')) {
+      return false;
+    }
+    throw error;
+  }
+  try {
+    return parseLeaseRecord(readFileSync(quarantinePath, 'utf8'))?.token === observedToken;
+  } finally {
+    rmSync(quarantinePath, { force: true });
+  }
+}
+
 export async function acquireLocalWranglerRuntimeLease(
   options: LocalWranglerRuntimeLeaseOptions = {}
 ): Promise<LocalWranglerRuntimeLease> {
@@ -202,8 +230,15 @@ export async function acquireLocalWranglerRuntimeLease(
         const current = parseLeaseRecord(readFileSync(lockPath, 'utf8'));
         const invalidRecordIsStale =
           current === null && Date.now() - statSync(lockPath).mtimeMs > invalidRecordStaleAfterMs;
-        if ((current !== null && !isProcessAlive(current.ownerPid)) || invalidRecordIsStale) {
-          rmSync(lockPath, { force: true });
+        if (
+          (current !== null &&
+            !isProcessAlive(current.ownerPid) &&
+            removeStaleLeaseIfTokenMatches(lockPath, current.token)) ||
+          invalidRecordIsStale
+        ) {
+          if (invalidRecordIsStale) {
+            rmSync(lockPath, { force: true });
+          }
           continue;
         }
       } catch (statError) {
@@ -253,7 +288,28 @@ function formatRuntimeFailure(prefix: string, handle: RuntimeHandle, lastError?:
   );
 }
 
+async function waitForRuntimeExit(child: ChildProcess, timeoutMs: number): Promise<void> {
+  if (child.exitCode !== null) {
+    return;
+  }
+  await new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(
+      () => reject(new Error(`Wrangler runtime did not exit within ${timeoutMs}ms`)),
+      timeoutMs
+    );
+    child.once('exit', () => {
+      clearTimeout(timeout);
+      resolve();
+    });
+    child.once('error', (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+  });
+}
+
 async function stopRuntime(handle: RuntimeHandle): Promise<void> {
+  const exitWait = handle.child.exitCode === null ? waitForRuntimeExit(handle.child, 10_000) : Promise.resolve();
   if (handle.child.pid != null && handle.child.exitCode === null) {
     if (process.platform === 'win32') {
       spawnSync('taskkill', ['/pid', String(handle.child.pid), '/t', '/f'], {
@@ -261,10 +317,18 @@ async function stopRuntime(handle: RuntimeHandle): Promise<void> {
         windowsHide: true,
       });
     } else {
-      handle.child.kill('SIGTERM');
+      process.kill(-handle.child.pid, 'SIGTERM');
     }
   }
-  await sleep(250);
+  try {
+    await exitWait;
+  } catch (error) {
+    if (handle.child.pid == null || process.platform === 'win32') {
+      throw error;
+    }
+    process.kill(-handle.child.pid, 'SIGKILL');
+    await waitForRuntimeExit(handle.child, 5_000);
+  }
 }
 
 async function startRuntime(persistTo: string): Promise<RuntimeHandle> {
@@ -298,6 +362,7 @@ async function startRuntime(persistTo: string): Promise<RuntimeHandle> {
       cwd: cloudflareDir,
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,
+      detached: true,
     }
   );
   child.stdout?.setEncoding('utf8');
@@ -337,12 +402,20 @@ async function waitForSeededHealth(handle: RuntimeHandle): Promise<LocalSeedHeal
 
 function assertPersistedSeed(health: LocalSeedHealthResponse): LocalSeedPersistenceEvidence {
   const persistence = health.seedSummary?.persistence;
+  const persistenceKeys = persistence == null ? [] : Object.keys(persistence).sort();
+  const expectedKeys = Object.keys(expectedPersistenceEvidence).sort();
   if (
     health.status !== 'ok' ||
     health.bindingStatus !== 'ready' ||
     health.missingBindingCount !== 0 ||
     persistence == null ||
-    Object.values(persistence).some((count) => !Number.isInteger(count) || count <= 0)
+    persistenceKeys.length !== expectedKeys.length ||
+    persistenceKeys.some((key, index) => key !== expectedKeys[index]) ||
+    expectedKeys.some(
+      (key) =>
+        persistence[key as keyof LocalSeedPersistenceEvidence] !==
+        expectedPersistenceEvidence[key as keyof LocalSeedPersistenceEvidence]
+    )
   ) {
     throw new Error(`local seed health did not prove D1/KV/R2 persistence: ${JSON.stringify(health)}`);
   }

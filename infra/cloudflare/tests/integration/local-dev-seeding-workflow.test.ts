@@ -127,6 +127,14 @@ function readStatusRowCount(persistenceRoot: string): number {
   return Number(rows[0]?.row_count ?? 0);
 }
 
+function readStatusPayload(persistenceRoot: string, subject: string): string {
+  const rows = runLocalD1Command(
+    persistenceRoot,
+    `SELECT payload_json FROM billing_status WHERE subject = '${subject.replaceAll("'", "''")}'`
+  );
+  return String(rows[0]?.payload_json ?? '');
+}
+
 function readSeedTableRowCount(
   persistenceRoot: string,
   table: 'billing_admin_accounts' | 'billing_admin_referrals'
@@ -251,6 +259,18 @@ describe('local dev seeding workflow', () => {
         assert.ok(readSeedTableRowCount(persistenceA, 'billing_admin_accounts') > 0);
         assert.ok(readSeedTableRowCount(persistenceA, 'billing_admin_referrals') > 0);
         assert.deepEqual(repairedA.persistence, firstA.persistence);
+
+        const preservedStatusPayload = JSON.stringify({
+          subject: 'parent:demo-active',
+          parentVisibleState: 'manual-review',
+          auditReference: 'audit:operator-preserved-state',
+        });
+        runLocalD1Command(
+          persistenceA,
+          `UPDATE billing_status SET payload_json = '${preservedStatusPayload.replaceAll("'", "''")}' WHERE subject = 'parent:demo-active'`
+        );
+        runSeedCommand('seed:local', persistenceA, runA);
+        assert.equal(readStatusPayload(persistenceA, 'parent:demo-active'), preservedStatusPayload);
 
         runLocalD1Command(persistenceA, "DELETE FROM billing_status WHERE subject = 'parent:demo-review'");
         assert.equal(readStatusRowCount(persistenceA), firstACount - 1);

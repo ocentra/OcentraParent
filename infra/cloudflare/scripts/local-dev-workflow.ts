@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY, LOCAL_WEBHOOK_FIXTURE_INVENTORY } from './local-seed-runtime.js';
 
 export interface RuntimeDependencyBlocker {
-  kind: 'missing-runtime-dependency' | 'runtime-import-check';
+  kind: 'missing-runtime-dependency' | 'runtime-import-check' | 'seed-command-timeout';
   path?: string;
   details: string;
 }
@@ -67,6 +67,7 @@ const allowedCloudflareScriptCommands = new Set([
   'seed:referrals:local',
   'seed:test-accounts:local',
 ]);
+const seedCommandTimeoutMs = 120_000;
 
 function resolveCloudflareModulePath(cloudflareRoot: string, relativePath: string): string {
   return path.resolve(cloudflareRoot, relativePath);
@@ -140,6 +141,7 @@ function runCloudflareScript(command: string, persistenceRoot: string, seedRunId
             OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
             OCENTRA_CLOUDFLARE_SEED_RUN_ID: seedRunId,
           },
+          timeout: seedCommandTimeoutMs,
         })
       : spawnSync('npm', ['run', command], {
           cwd: cloudflareDir,
@@ -149,7 +151,21 @@ function runCloudflareScript(command: string, persistenceRoot: string, seedRunId
             OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
             OCENTRA_CLOUDFLARE_SEED_RUN_ID: seedRunId,
           },
+          timeout: seedCommandTimeoutMs,
         });
+
+  if (result.error instanceof Error && 'code' in result.error && result.error.code === 'ETIMEDOUT') {
+    return {
+      command: `npm --prefix infra/cloudflare run ${command}`,
+      status: 'blocked',
+      stdout: result.stdout,
+      stderr: result.stderr,
+      blocker: {
+        kind: 'seed-command-timeout',
+        details: `${command} exceeded the ${seedCommandTimeoutMs}ms subprocess limit`,
+      },
+    };
+  }
 
   if (result.status === 0) {
     return {
