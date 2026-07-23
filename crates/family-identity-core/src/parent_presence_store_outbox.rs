@@ -8,18 +8,12 @@ use crate::parent_presence_event_delivery::PendingCustodyDecision;
 use super::{ParentPresenceStore, ParentPresenceStoreError, INSERT_PENDING_DECISION};
 
 const CLAIM_STALE_AFTER_MILLIS: i64 = 300_000;
+const CLAIM_RECHECK_INTERVAL_MILLIS: u64 = 25;
 
-const SELECT_CLAIMABLE_DECISION: &str = r#"
-SELECT decision_id, envelope_json
+const SELECT_OLDEST_UNDELIVERED_DECISION: &str = r#"
+SELECT decision_id, envelope_json, delivery_state, delivery_claimed_at
 FROM parent_presence_decision_outbox
-WHERE delivery_state = 'pending'
-   OR (
-        delivery_state = 'claimed'
-    AND (
-            delivery_claimed_at IS NULL
-         OR delivery_claimed_at < ?1
-    )
-   )
+WHERE delivery_state != 'delivered'
 ORDER BY rowid
 LIMIT 1
 "#;
@@ -57,6 +51,12 @@ struct ClaimedCustodyDecision {
     claim: String,
 }
 
+enum NextCustodyDecision {
+    Claimed(ClaimedCustodyDecision),
+    WaitingForClaim,
+    Empty,
+}
+
 impl ParentPresenceStore {
     pub(crate) fn enqueue_decision(
         &mut self,
@@ -81,23 +81,28 @@ impl ParentPresenceStore {
             &PendingCustodyDecision,
         ) -> Result<(), ParentPresenceStorageFailureReason>,
     ) -> Result<(), ParentPresenceStoreError> {
-        while let Some(claimed) = {
-            let transaction = self.immediate_transaction()?;
-            let claimed = claim_next(&transaction)?;
-            commit(transaction)?;
-            claimed
-        } {
-            if deliver(&claimed.decision).is_err() {
-                let transaction = self.immediate_transaction()?;
-                release_claim(&transaction, &claimed)?;
-                commit(transaction)?;
-                return Err(ParentPresenceStoreError::Unavailable);
-            }
-            let transaction = self.immediate_transaction()?;
-            mark_delivered(&transaction, &claimed)?;
-            commit(transaction)?;
+        while let Some(claimed) = self.wait_for_next_claim()? {
+            deliver_claimed(self, &claimed, &mut deliver)?;
         }
         Ok(())
+    }
+
+    fn wait_for_next_claim(
+        &mut self,
+    ) -> Result<Option<ClaimedCustodyDecision>, ParentPresenceStoreError> {
+        loop {
+            let next = {
+                let transaction = self.immediate_transaction()?;
+                let next = claim_next(&transaction)?;
+                commit(transaction)?;
+                next
+            };
+            match next {
+                NextCustodyDecision::Claimed(claimed) => return Ok(Some(claimed)),
+                NextCustodyDecision::WaitingForClaim => wait_for_claim_recheck(),
+                NextCustodyDecision::Empty => return Ok(None),
+            }
+        }
     }
 
     fn immediate_transaction(&mut self) -> Result<Transaction<'_>, ParentPresenceStoreError> {
@@ -107,23 +112,59 @@ impl ParentPresenceStore {
     }
 }
 
+fn deliver_claimed(
+    store: &mut ParentPresenceStore,
+    claimed: &ClaimedCustodyDecision,
+    deliver: &mut impl FnMut(&PendingCustodyDecision) -> Result<(), ParentPresenceStorageFailureReason>,
+) -> Result<(), ParentPresenceStoreError> {
+    if deliver(&claimed.decision).is_err() {
+        let transaction = store.immediate_transaction()?;
+        release_claim(&transaction, claimed)?;
+        commit(transaction)?;
+        return Err(ParentPresenceStoreError::Unavailable);
+    }
+    let transaction = store.immediate_transaction()?;
+    mark_delivered(&transaction, claimed)?;
+    commit(transaction)
+}
+
+fn wait_for_claim_recheck() {
+    std::thread::sleep(std::time::Duration::from_millis(
+        CLAIM_RECHECK_INTERVAL_MILLIS,
+    ));
+}
+
 fn claim_next(
     transaction: &Transaction<'_>,
-) -> Result<Option<ClaimedCustodyDecision>, ParentPresenceStoreError> {
+) -> Result<NextCustodyDecision, ParentPresenceStoreError> {
     let claimed_at = current_time_millis()?;
     let stale_before = claimed_at.saturating_sub(CLAIM_STALE_AFTER_MILLIS);
-    let pending = transaction
-        .query_row(SELECT_CLAIMABLE_DECISION, [stale_before], |row| {
-            Ok(PendingCustodyDecision {
-                decision_id: row.get(0)?,
-                envelope_json: row.get(1)?,
-            })
+    let candidate = transaction
+        .query_row(SELECT_OLDEST_UNDELIVERED_DECISION, [], |row| {
+            Ok((
+                PendingCustodyDecision {
+                    decision_id: row.get(0)?,
+                    envelope_json: row.get(1)?,
+                },
+                row.get::<_, String>(2)?,
+                row.get::<_, Option<i64>>(3)?,
+            ))
         })
         .optional()
         .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
-    let Some(decision) = pending else {
-        return Ok(None);
+    let Some((decision, delivery_state, delivery_claimed_at)) = candidate else {
+        return Ok(NextCustodyDecision::Empty);
     };
+    let claimable = delivery_state == "pending"
+        || delivery_state == "claimed"
+            && delivery_claimed_at.is_none_or(|claimed| claimed < stale_before);
+    if !claimable {
+        return if delivery_state == "claimed" {
+            Ok(NextCustodyDecision::WaitingForClaim)
+        } else {
+            Err(ParentPresenceStoreError::IntegrityRejected)
+        };
+    }
     let claim = delivery_claim()?;
     let changed = transaction
         .execute(
@@ -139,7 +180,10 @@ fn claim_next(
     if changed != 1 {
         return Err(ParentPresenceStoreError::IntegrityRejected);
     }
-    Ok(Some(ClaimedCustodyDecision { decision, claim }))
+    Ok(NextCustodyDecision::Claimed(ClaimedCustodyDecision {
+        decision,
+        claim,
+    }))
 }
 
 fn mark_delivered(

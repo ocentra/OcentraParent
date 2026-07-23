@@ -287,6 +287,32 @@ async fn alternating_idempotent_journal_instances_refresh_the_hash_chain_tail() 
 }
 
 #[tokio::test]
+async fn idempotent_retry_finds_after_dispatch_past_the_before_dispatch_copy() {
+    use ocentra_eventing::journal::policy::JournalDispatchPhase;
+
+    let path = journal_path(TestText("idempotent-after-before-copy".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let event = unique_stored_event("before and after", 49);
+    journal
+        .append_phase(&event, JournalDispatchPhase::BeforeDispatch)
+        .await
+        .expect_value("before-dispatch append");
+    let after = journal
+        .append_phase(&event, JournalDispatchPhase::AfterDispatch)
+        .await
+        .expect_value("after-dispatch append");
+
+    let repeated = journal
+        .append_idempotent(&event)
+        .await
+        .expect_value("idempotent retry finds after-dispatch copy");
+
+    assert_eq!(repeated, after);
+    assert_eq!(read_lines(path.clone()).await.len(), 2);
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
 async fn concurrent_idempotent_journal_instances_serialize_one_valid_hash_chain() {
     let path = journal_path(TestText("idempotent-concurrent-instances".to_owned()));
     let barrier = Arc::new(Barrier::new(8));
@@ -429,6 +455,35 @@ async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
         }
         _other => std::process::abort(),
     }
+    cleanup(path).await;
+}
+
+#[tokio::test]
+async fn live_journal_rejects_same_length_hash_chain_tampering_before_append() {
+    let path = journal_path(TestText("live-same-length-tamper".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal
+        .append(&unique_stored_event("cached alpha", 50))
+        .await
+        .expect_value("first append");
+    let original = tokio::fs::read_to_string(&path.0)
+        .await
+        .expect_value("journal reads");
+    let tampered = original.replace("cached alpha 50", "cached omega 50");
+    assert_eq!(tampered.len(), original.len());
+    assert_ne!(tampered, original);
+    tokio::fs::write(&path.0, tampered)
+        .await
+        .expect_value("same-length tamper writes");
+
+    let result = journal
+        .append(&unique_stored_event("after tamper", 51))
+        .await;
+
+    assert!(matches!(
+        result,
+        Err(EventingError::JournalCorruptLine { line: 1, .. })
+    ));
     cleanup(path).await;
 }
 

@@ -288,6 +288,86 @@ fn concurrent_recovery_workers_claim_one_outbox_delivery_without_failing_other_p
 }
 
 #[test]
+fn recovery_waits_for_the_claimed_head_before_delivering_newer_decisions() -> TestResult {
+    let store = DeliveryStore::new("claimed-head-order");
+    let mut port = store.port()?;
+    let journal_path = port.custody_decision_journal_path().to_path_buf();
+    issue_challenge(&mut port, "claimed-head-first");
+    issue_challenge(&mut port, "claimed-head-second");
+    assert!(port
+        .verify_and_consume(input(
+            "claimed-head-first",
+            "claimed-head-first-correlation"
+        )?)
+        .is_ok());
+    assert!(port
+        .verify_and_consume(input(
+            "claimed-head-second",
+            "claimed-head-second-correlation"
+        )?)
+        .is_ok());
+    drop(port);
+    fs::remove_file(&journal_path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    reset_outbox_with_claimed_head(&store.store_path, current_time_millis()?)?;
+
+    let store_path = store.store_path.clone();
+    let recovery = thread::spawn(move || open_parent_presence_test_port(store_path).is_ok());
+    thread::sleep(std::time::Duration::from_millis(40));
+
+    assert!(!recovery.is_finished());
+    assert!(!journal_path.exists());
+    release_all_outbox_claims(&store.store_path)?;
+    assert!(recovery.join().unwrap_or(false));
+    let artifacts = decode_artifacts(&journal_entries(&journal_path)?)?;
+    assert_eq!(
+        artifacts
+            .iter()
+            .map(|artifact| artifact.correlation_id.as_str())
+            .collect::<Vec<_>>(),
+        [
+            "claimed-head-first-correlation",
+            "claimed-head-second-correlation"
+        ]
+    );
+    Ok(())
+}
+
+#[test]
+fn recovery_reclaims_a_head_claim_when_it_becomes_stale_without_another_open() -> TestResult {
+    let store = DeliveryStore::new("stale-claim-schedule");
+    let mut port = store.port()?;
+    let journal_path = port.custody_decision_journal_path().to_path_buf();
+    issue_challenge(&mut port, "stale-claim-schedule");
+    assert!(port
+        .verify_and_consume(input("stale-claim-schedule", "stale-claim-correlation")?)
+        .is_ok());
+    drop(port);
+    fs::remove_file(&journal_path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let nearly_stale = current_time_millis()?.saturating_sub(299_850);
+    reset_outbox_with_claimed_head(&store.store_path, nearly_stale)?;
+
+    let store_path = store.store_path.clone();
+    let recovery = thread::spawn(move || open_parent_presence_test_port(store_path).is_ok());
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    while !recovery.is_finished() && std::time::Instant::now() < deadline {
+        thread::sleep(std::time::Duration::from_millis(20));
+    }
+
+    assert!(recovery.is_finished());
+    assert!(recovery.join().unwrap_or(false));
+    assert_eq!(outbox_state(&store.store_path)?, "delivered");
+    let artifacts = decode_artifacts(&journal_entries(&journal_path)?)?;
+    assert_eq!(artifacts.len(), 1);
+    assert_eq!(
+        artifacts[0].correlation_id.as_str(),
+        "stale-claim-correlation"
+    );
+    Ok(())
+}
+
+#[test]
 fn custody_journal_suffix_preserves_distinct_store_extensions() -> TestResult {
     let store = DeliveryStore::new("extension-collision");
     let db_path = store.root.join("parent-presence.db");
@@ -426,4 +506,54 @@ fn set_outbox_pending(path: &Path) -> TestResult {
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     assert_eq!(changed, 1);
     Ok(())
+}
+
+fn reset_outbox_with_claimed_head(path: &Path, claimed_at: i64) -> TestResult {
+    let connection = rusqlite::Connection::open(path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    connection
+        .execute(
+            "UPDATE parent_presence_decision_outbox
+             SET delivery_state = 'pending', delivery_claim = NULL, delivery_claimed_at = NULL",
+            [],
+        )
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let changed = connection
+        .execute(
+            "UPDATE parent_presence_decision_outbox
+             SET delivery_state = 'claimed',
+                 delivery_claim = 'interrupted-worker',
+                 delivery_claimed_at = ?1
+             WHERE rowid = (
+                 SELECT MIN(rowid) FROM parent_presence_decision_outbox
+             )",
+            [claimed_at],
+        )
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_eq!(changed, 1);
+    Ok(())
+}
+
+fn release_all_outbox_claims(path: &Path) -> TestResult {
+    let connection = rusqlite::Connection::open(path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    connection
+        .execute(
+            "UPDATE parent_presence_decision_outbox
+             SET delivery_state = 'pending', delivery_claim = NULL, delivery_claimed_at = NULL
+             WHERE delivery_state = 'claimed'",
+            [],
+        )
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    Ok(())
+}
+
+fn current_time_millis() -> Result<i64, ParentPresenceStorageFailureReason> {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
+        .and_then(|duration| {
+            i64::try_from(duration.as_millis())
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
+        })
 }
