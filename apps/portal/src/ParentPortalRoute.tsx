@@ -1,6 +1,5 @@
 import type { ComponentProps, ReactElement } from 'react';
 import { PARENT_PORTAL_ROUTE, parentPortalRouteContext } from '@ocentra-parent/portal-domain/parent-portal-data';
-import { writeStoredManageTargetSelection } from '@ocentra-parent/portal-domain/manage-target-selection';
 import {
   type ParentBrowserPanelSnapshot,
   ParentBridgeConnectionState,
@@ -142,7 +141,6 @@ function ParentPortalRouteSurface({
       onMatchmaking={actions.reconnect}
       onNavigate={handleParentRouteNavigate}
       onAssistantCommand={actions.sendCommand}
-      onTargetChange={writeStoredManageTargetSelection}
     />
   );
 }
