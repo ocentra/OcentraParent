@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -317,6 +326,38 @@ describe('local dev seeding workflow', () => {
       }
     } finally {
       rmSync(tempCwd, { recursive: true, force: true });
+    }
+  });
+
+  it('boots seeded health from a clean checkout without creating a .dev.vars file', { timeout: 90_000 }, async () => {
+    const persistenceRoot = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-seed-clean-checkout-'));
+    const cloudflareDir = path.join(repoRoot, 'infra', 'cloudflare');
+    const devVarsPath = path.join(cloudflareDir, '.dev.vars');
+    const devVarsBackupPath = path.join(cloudflareDir, `.dev.vars.test-backup-${randomUUID()}`);
+    const hadExistingDevVars = existsSync(devVarsPath);
+
+    if (hadExistingDevVars) {
+      renameSync(devVarsPath, devVarsBackupPath);
+    }
+    try {
+      assert.equal(existsSync(devVarsPath), false);
+      const receipt = (
+        await runSeedCommand('seed:local', persistenceRoot, `cloudflare-wp07-clean-checkout-${randomUUID()}`)
+      ).mutationReceipt;
+
+      assert.equal(receipt.runtimeBootStatus, 'proven');
+      assert.equal(receipt.persistenceTarget, 'explicit');
+      assert.equal(receipt.fullBindingSeedApplied, true);
+      assert.equal(existsSync(devVarsPath), false, 'local seed must not persist runtime secrets to .dev.vars');
+    } finally {
+      try {
+        await removeLocalRuntimeDirectory(persistenceRoot);
+      } finally {
+        rmSync(devVarsPath, { force: true });
+        if (hadExistingDevVars) {
+          renameSync(devVarsBackupPath, devVarsPath);
+        }
+      }
     }
   });
 

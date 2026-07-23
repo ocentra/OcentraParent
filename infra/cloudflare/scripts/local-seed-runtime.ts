@@ -90,6 +90,7 @@ const defaultPersistPath = path.join(cloudflareDir, '.wrangler', 'state', 'v3');
 const runtimeLeasePath = path.join(os.tmpdir(), 'ocentra-cloudflare-wrangler-runtime.lock');
 const seedRuntimeOwner = 'infra/cloudflare/scripts/local-seed-runtime.ts';
 const seedRuntimeNoClaimReason = 'local-seed-only;production-deployment-not-owned';
+const localSeedInteractiveCsrfToken = ['local', 'seed', 'csrf', 'token'].join('-');
 const log = Logger.instance;
 function expectedPersistenceEvidence(): LocalSeedPersistenceEvidence {
   const seed = buildLocalSeedSnapshot({ ENVIRONMENT: 'development' } as Env);
@@ -362,6 +363,8 @@ async function startRuntime(persistTo: string): Promise<RuntimeHandle> {
       '--local',
       '--var',
       'ENVIRONMENT:local',
+      '--var',
+      `INTERACTIVE_CSRF_TOKEN:${localSeedInteractiveCsrfToken}`,
       '--port',
       String(port),
       '--ip',
@@ -377,7 +380,7 @@ async function startRuntime(persistTo: string): Promise<RuntimeHandle> {
       env: {
         ...process.env,
         ENVIRONMENT: 'local',
-        INTERACTIVE_CSRF_TOKEN: process.env.INTERACTIVE_CSRF_TOKEN?.trim() || 'local-seed-csrf-token',
+        INTERACTIVE_CSRF_TOKEN: localSeedInteractiveCsrfToken,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,
