@@ -829,10 +829,7 @@ async function ensureReadModelSeedOnce(env: Env): Promise<void> {
 
   if (env.BILLING_D1) {
     await env.BILLING_D1.exec(CREATE_READ_MODEL_SCHEMA_SQL);
-    const rowCount = await d1First<RowCountRow>(env.BILLING_D1, SELECT_STATUS_ROW_COUNT_SQL);
-    if (Number(rowCount?.row_count ?? 0) === 0) {
-      await seedD1Tables(env.BILLING_D1, patch);
-    }
+    await seedD1Tables(env.BILLING_D1, patch);
   }
 
   if (env.BILLING_CONFIG_KV) {

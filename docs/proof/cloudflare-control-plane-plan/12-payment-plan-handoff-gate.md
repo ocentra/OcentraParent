@@ -29,10 +29,10 @@ no_claim: this receipt does not unblock payment or prove production Cloudflare, 
 
 ## Custody inventory
 
-- Physical raw output in this checkout: WP07 and WP12 directories exist beneath ignored `output/cloudflare-control-plane-plan-proof/`.
+- Portable branch raw output: none retained; ignored `output/` directories are ephemeral local build state and are not claimed by this receipt.
 - Git-tracked raw output: none; `output/` is intentionally ignored.
 - Tracked retained receipts: WP07 is present but unaccepted; this WP12 receipt records blockers only.
-- Accepted handoff roots: none. A physical or ignored raw directory never substitutes for downstream acceptance.
+- Accepted handoff roots: none. A local ignored directory, when generated, never substitutes for a tracked receipt or downstream acceptance.
 
 ## Current-head validation receipt
 

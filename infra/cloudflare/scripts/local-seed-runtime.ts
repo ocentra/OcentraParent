@@ -49,10 +49,44 @@ export interface LocalWranglerRuntimeLease {
   release: () => void;
 }
 
+export interface LocalWranglerRuntimeLeaseOptions {
+  lockPath?: string;
+  acquireTimeoutMs?: number;
+  heartbeatIntervalMs?: number;
+  pollIntervalMs?: number;
+  invalidRecordStaleAfterMs?: number;
+}
+
+interface RuntimeLeaseRecord {
+  schema: 1;
+  token: string;
+  ownerPid: number;
+  createdAt: string;
+  heartbeatAt: string;
+}
+
+interface SeedRuntimeMilestone {
+  runId: string;
+  correlationId: string;
+  owner: string;
+  boundary: string;
+  result: 'accepted' | 'proven' | 'rejected' | 'released';
+  noClaimReason: string;
+  redactionState: 'redacted-safe-fields-only';
+  requestedFamily: string;
+  failureKind?: string;
+}
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const cloudflareDir = path.resolve(scriptDir, '..');
+const loggerModuleUrl = new URL('../../../packages/logging-domain/src/core/logger.ts', import.meta.url).href;
+const stackTraceModuleUrl = new URL('../../../packages/logging-domain/src/core/stackTrace.ts', import.meta.url).href;
+const [{ Logger }, { getStackTrace }] = await Promise.all([import(loggerModuleUrl), import(stackTraceModuleUrl)]);
 const defaultPersistPath = path.join(cloudflareDir, '.wrangler', 'state', 'v3');
 const runtimeLeasePath = path.join(os.tmpdir(), 'ocentra-cloudflare-wrangler-runtime.lock');
+const seedRuntimeOwner = 'infra/cloudflare/scripts/local-seed-runtime.ts';
+const seedRuntimeNoClaimReason = 'local-seed-only;production-deployment-not-owned';
+const log = Logger.instance;
 
 function sleep(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
@@ -64,18 +98,94 @@ function hasErrorCode(error: unknown, code: string): boolean {
   return typeof error === 'object' && error !== null && 'code' in error && (error as { code?: unknown }).code === code;
 }
 
-export async function acquireLocalWranglerRuntimeLease(): Promise<LocalWranglerRuntimeLease> {
+function buildLeaseRecord(token: string, createdAt: string = new Date().toISOString()): RuntimeLeaseRecord {
+  return {
+    schema: 1,
+    token,
+    ownerPid: process.pid,
+    createdAt,
+    heartbeatAt: new Date().toISOString(),
+  };
+}
+
+function parseLeaseRecord(raw: string): RuntimeLeaseRecord | null {
+  try {
+    const parsed = JSON.parse(raw) as Partial<RuntimeLeaseRecord>;
+    if (
+      parsed.schema === 1 &&
+      typeof parsed.token === 'string' &&
+      Number.isInteger(parsed.ownerPid) &&
+      typeof parsed.createdAt === 'string' &&
+      typeof parsed.heartbeatAt === 'string'
+    ) {
+      return parsed as RuntimeLeaseRecord;
+    }
+  } catch {
+    const legacyOwnerPid = Number(raw.split(':', 1)[0]);
+    if (Number.isInteger(legacyOwnerPid) && legacyOwnerPid > 0) {
+      const now = new Date().toISOString();
+      return {
+        schema: 1,
+        token: raw,
+        ownerPid: legacyOwnerPid,
+        createdAt: now,
+        heartbeatAt: now,
+      };
+    }
+  }
+  return null;
+}
+
+function isProcessAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return hasErrorCode(error, 'EPERM');
+  }
+}
+
+function writeLeaseRecord(lockPath: string, record: RuntimeLeaseRecord, flag?: 'wx'): void {
+  writeFileSync(lockPath, JSON.stringify(record), flag ? { encoding: 'utf8', flag } : { encoding: 'utf8' });
+}
+
+export async function acquireLocalWranglerRuntimeLease(
+  options: LocalWranglerRuntimeLeaseOptions = {}
+): Promise<LocalWranglerRuntimeLease> {
+  const lockPath = options.lockPath ?? runtimeLeasePath;
+  const acquireTimeoutMs = options.acquireTimeoutMs ?? 120_000;
+  const heartbeatIntervalMs = options.heartbeatIntervalMs ?? 10_000;
+  const pollIntervalMs = options.pollIntervalMs ?? 150;
+  const invalidRecordStaleAfterMs = options.invalidRecordStaleAfterMs ?? 180_000;
   const token = `${process.pid}:${randomUUID()}`;
-  const deadline = Date.now() + 120_000;
+  const deadline = Date.now() + acquireTimeoutMs;
 
   while (Date.now() < deadline) {
     try {
-      writeFileSync(runtimeLeasePath, token, { encoding: 'utf8', flag: 'wx' });
+      const record = buildLeaseRecord(token);
+      writeLeaseRecord(lockPath, record, 'wx');
+      const heartbeat = setInterval(() => {
+        try {
+          const current = parseLeaseRecord(readFileSync(lockPath, 'utf8'));
+          if (current?.token === token) {
+            writeLeaseRecord(lockPath, {
+              ...current,
+              heartbeatAt: new Date().toISOString(),
+            });
+          }
+        } catch (error) {
+          if (!hasErrorCode(error, 'ENOENT')) {
+            clearInterval(heartbeat);
+          }
+        }
+      }, heartbeatIntervalMs);
+      heartbeat.unref();
       return {
         release: (): void => {
+          clearInterval(heartbeat);
           try {
-            if (readFileSync(runtimeLeasePath, 'utf8') === token) {
-              rmSync(runtimeLeasePath, { force: true });
+            if (parseLeaseRecord(readFileSync(lockPath, 'utf8'))?.token === token) {
+              rmSync(lockPath, { force: true });
             }
           } catch (error) {
             if (!hasErrorCode(error, 'ENOENT')) {
@@ -89,8 +199,10 @@ export async function acquireLocalWranglerRuntimeLease(): Promise<LocalWranglerR
         throw error;
       }
       try {
-        if (Date.now() - statSync(runtimeLeasePath).mtimeMs > 180_000) {
-          rmSync(runtimeLeasePath, { force: true });
+        const current = parseLeaseRecord(readFileSync(lockPath, 'utf8'));
+        const invalidRecordIsStale = current === null && Date.now() - statSync(lockPath).mtimeMs > invalidRecordStaleAfterMs;
+        if ((current !== null && !isProcessAlive(current.ownerPid)) || invalidRecordIsStale) {
+          rmSync(lockPath, { force: true });
           continue;
         }
       } catch (statError) {
@@ -98,11 +210,11 @@ export async function acquireLocalWranglerRuntimeLease(): Promise<LocalWranglerR
           throw statError;
         }
       }
-      await sleep(150);
+      await sleep(pollIntervalMs);
     }
   }
 
-  throw new Error(`timed out waiting for local Wrangler runtime lease at ${runtimeLeasePath}`);
+  throw new Error(`timed out waiting for local Wrangler runtime lease at ${lockPath}`);
 }
 
 function getFreePort(): Promise<number> {
@@ -237,18 +349,61 @@ function assertPersistedSeed(health: LocalSeedHealthResponse): LocalSeedPersiste
 }
 
 export async function runLocalSeedMutation(requestedFamily: string): Promise<LocalSeedMutationReceipt> {
+  const runId = process.env.OCENTRA_CLOUDFLARE_SEED_RUN_ID?.trim() || `cloudflare-local-seed-${randomUUID()}`;
+  const correlationId = `${runId}:seed-runtime`;
   const explicitPersistPath = process.env.OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH?.trim();
   const persistTo = path.resolve(explicitPersistPath || defaultPersistPath);
   mkdirSync(persistTo, { recursive: true });
 
-  const lease = await acquireLocalWranglerRuntimeLease();
+  log.configure({
+    bridgeEndpoint: process.env.OCENTRA_CLOUDFLARE_SEED_LOG_BRIDGE_ENDPOINT?.trim() || '',
+    runId,
+    correlationId,
+    testName: 'local-seed-runtime.ts',
+    environment: 'local-seed',
+  });
+  log.register(import.meta.url);
+
+  const emitMilestone = (
+    boundary: string,
+    result: SeedRuntimeMilestone['result'],
+    failureKind?: string
+  ): void => {
+    const milestone: SeedRuntimeMilestone = {
+      runId,
+      correlationId,
+      owner: seedRuntimeOwner,
+      boundary,
+      result,
+      noClaimReason: seedRuntimeNoClaimReason,
+      redactionState: 'redacted-safe-fields-only',
+      requestedFamily,
+      ...(failureKind ? { failureKind } : {}),
+    };
+    if (result === 'rejected') {
+      log.logError('cloudflare local seed runtime failed', getStackTrace(), milestone);
+      return;
+    }
+    log.logInfo('cloudflare local seed runtime milestone', getStackTrace(), milestone, true);
+  };
+
+  let boundary = 'startup';
+  let lease: LocalWranglerRuntimeLease | null = null;
   let handle: RuntimeHandle | null = null;
+  let primaryError: unknown = null;
+  emitMilestone(boundary, 'accepted');
   try {
+    boundary = 'lease-acquire';
+    lease = await acquireLocalWranglerRuntimeLease();
+    boundary = 'runtime-start';
     handle = await startRuntime(persistTo);
+    emitMilestone(boundary, 'accepted');
+    boundary = 'seed-validation';
     const health = await waitForSeededHealth(handle);
     const persistence = assertPersistedSeed(health);
+    emitMilestone(boundary, 'proven');
     return {
-      runId: process.env.OCENTRA_CLOUDFLARE_SEED_RUN_ID?.trim() || `cloudflare-local-seed-${randomUUID()}`,
+      runId,
       requestedFamily,
       persistenceTarget: explicitPersistPath ? 'explicit' : 'wrangler-default',
       runtimeBootStatus: 'proven',
@@ -258,10 +413,32 @@ export async function runLocalSeedMutation(requestedFamily: string): Promise<Loc
       webhookFixtureCount: LOCAL_WEBHOOK_FIXTURE_INVENTORY.length,
       queueReplayFixtureCount: LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY.length,
     };
+  } catch (error) {
+    primaryError = error;
+    emitMilestone(boundary, 'rejected', error instanceof Error ? error.name : 'UnknownFailure');
+    throw error;
   } finally {
-    if (handle != null) {
-      await stopRuntime(handle);
+    let teardownError: unknown = null;
+    try {
+      if (handle != null) {
+        await stopRuntime(handle);
+      }
+    } catch (error) {
+      teardownError = error;
+      emitMilestone('teardown-runtime', 'rejected', error instanceof Error ? error.name : 'UnknownFailure');
     }
-    lease.release();
+    try {
+      lease?.release();
+    } catch (error) {
+      teardownError ??= error;
+      emitMilestone('teardown-lease', 'rejected', error instanceof Error ? error.name : 'UnknownFailure');
+    }
+    if (teardownError === null) {
+      emitMilestone('teardown', 'released');
+    }
+    await log.flush();
+    if (primaryError === null && teardownError !== null) {
+      throw teardownError;
+    }
   }
 }

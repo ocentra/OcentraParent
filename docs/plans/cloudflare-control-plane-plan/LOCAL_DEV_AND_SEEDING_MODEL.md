@@ -34,7 +34,7 @@ Purpose: define the first local worker workflow before payment runtime work star
 - The seed command family is explicit and runnable in this checkout.
 - Verified probe:
   - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
-  - Result: 3/3; `seed.status = runnable`; all six families have positive counts; five correlated/redacted proof milestones are flushed to and asserted from a test-owned NDJSON store.
+  - Result: 4/4; `seed.status = runnable`; all six families have positive counts; five correlated/redacted workflow milestones are flushed to and asserted from a test-owned NDJSON store.
 - Do not describe the billing fixtures as payment-ready; they are local seed fixtures only.
 
 ## Required fixture families

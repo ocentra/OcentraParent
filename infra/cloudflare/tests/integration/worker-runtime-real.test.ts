@@ -208,7 +208,6 @@ function quoteWindowsArgument(argument: string): string {
 }
 
 let runtimePromise: Promise<RuntimeHandle> | null = null;
-const executedLocalWebhookFixtures = new Set<string>();
 
 function sleep(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
@@ -754,7 +753,7 @@ describe('wrangler local runtime', () => {
     assert.equal(firstResponse.status, 202);
     assert.equal(firstBody.status, 'accepted');
     assert.equal(firstBody.provider, 'stripe');
-    executedLocalWebhookFixtures.add(firstBody.provider);
+    assert.equal(LOCAL_WEBHOOK_FIXTURE_INVENTORY.includes(firstBody.provider), true);
     assert.equal(firstBody.eventId, 'evt_runtime_invoice_paid');
 
     const replayResponse = await fetch(`${runtime.baseUrl}/webhooks/stripe`, {
@@ -1106,7 +1105,6 @@ describe('wrangler local runtime', () => {
     assert.equal(razorpayResponse.status, 202);
     assert.equal(razorpayBody.status, 'accepted');
     assert.equal(razorpayBody.provider, 'razorpay');
-    executedLocalWebhookFixtures.add(razorpayBody.provider);
 
     const activatedStatusResponse = await fetch(`${runtime.baseUrl}/auth/billing/status`, {
       headers: {
@@ -1142,7 +1140,6 @@ describe('wrangler local runtime', () => {
     assert.equal(paypalResponse.status, 202);
     assert.equal(paypalBody.status, 'accepted');
     assert.equal(paypalBody.provider, 'paypal');
-    executedLocalWebhookFixtures.add(paypalBody.provider);
 
     const graceStatusResponse = await fetch(`${runtime.baseUrl}/auth/billing/status`, {
       headers: {
@@ -1177,7 +1174,6 @@ describe('wrangler local runtime', () => {
     assert.equal(googleResponse.status, 202);
     assert.equal(googleBody.status, 'accepted');
     assert.equal(googleBody.provider, 'google');
-    executedLocalWebhookFixtures.add(googleBody.provider);
 
     const applePayload = JSON.stringify({
       id: 'apple_evt_runtime_renewed',
@@ -1195,8 +1191,11 @@ describe('wrangler local runtime', () => {
     assert.equal(appleResponse.status, 202);
     assert.equal(appleBody.status, 'accepted');
     assert.equal(appleBody.provider, 'apple');
-    executedLocalWebhookFixtures.add(appleBody.provider);
-    assert.deepEqual([...executedLocalWebhookFixtures].sort(), [...LOCAL_WEBHOOK_FIXTURE_INVENTORY].sort());
+    const executedProviders = [razorpayBody.provider, paypalBody.provider, googleBody.provider, appleBody.provider];
+    assert.deepEqual(
+      executedProviders.sort(),
+      LOCAL_WEBHOOK_FIXTURE_INVENTORY.filter((provider) => provider !== 'stripe').sort()
+    );
 
     const recoveredStatusResponse = await fetch(`${runtime.baseUrl}/auth/billing/status`, {
       headers: {

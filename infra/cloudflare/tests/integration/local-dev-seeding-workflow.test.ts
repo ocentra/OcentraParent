@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,8 @@ import { collectMissingRuntimeDependencyBlockers, inspectLocalDevWorkflow } from
 import {
   LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY,
   LOCAL_WEBHOOK_FIXTURE_INVENTORY,
+  acquireLocalWranglerRuntimeLease,
+  runLocalSeedMutation,
   type LocalSeedMutationReceipt,
 } from '../../scripts/local-seed-runtime.js';
 import { redactPayload } from '../../src/security/redaction.js';
@@ -125,6 +127,14 @@ function readStatusRowCount(persistenceRoot: string): number {
   return Number(rows[0]?.row_count ?? 0);
 }
 
+function readSeedTableRowCount(
+  persistenceRoot: string,
+  table: 'billing_admin_accounts' | 'billing_admin_referrals'
+): number {
+  const rows = runLocalD1Command(persistenceRoot, `SELECT COUNT(*) AS row_count FROM ${table}`);
+  return Number(rows[0]?.row_count ?? 0);
+}
+
 describe('local dev seeding workflow', () => {
   it('resolves the generated billing-contract sidecar from the module default even when cwd changes', () => {
     const tempCwd = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-dev-cwd-'));
@@ -191,7 +201,7 @@ describe('local dev seeding workflow', () => {
     }
   });
 
-  it('persists the real Wrangler seed idempotently and isolates explicit local stores', { timeout: 120_000 }, () => {
+  it('persists the real Wrangler seed idempotently and isolates explicit local stores', { timeout: 120_000 }, async () => {
     const persistenceA = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-seed-a-'));
     const persistenceB = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-seed-b-'));
     const runA = `cloudflare-wp07-seed-a-${randomUUID()}`;
@@ -217,9 +227,84 @@ describe('local dev seeding workflow', () => {
       assert.equal(secondACount, firstACount);
       assert.equal(firstBCount, firstACount);
 
+      runLocalD1Command(
+        persistenceA,
+        [
+          'DELETE FROM billing_invoices',
+          'DELETE FROM billing_referrals',
+          'DELETE FROM billing_snapshots',
+          'DELETE FROM billing_admin_accounts',
+          'DELETE FROM billing_admin_invoices',
+          'DELETE FROM billing_admin_disputes',
+          'DELETE FROM billing_admin_referrals',
+        ].join('; ')
+      );
+      assert.equal(readStatusRowCount(persistenceA), firstACount);
+      assert.equal(readSeedTableRowCount(persistenceA, 'billing_admin_accounts'), 0);
+      assert.equal(readSeedTableRowCount(persistenceA, 'billing_admin_referrals'), 0);
+
+      const repairedA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
+      assert.equal(readStatusRowCount(persistenceA), firstACount);
+      assert.ok(readSeedTableRowCount(persistenceA, 'billing_admin_accounts') > 0);
+      assert.ok(readSeedTableRowCount(persistenceA, 'billing_admin_referrals') > 0);
+      assert.deepEqual(repairedA.persistence, firstA.persistence);
+
       runLocalD1Command(persistenceA, "DELETE FROM billing_status WHERE subject = 'parent:demo-review'");
       assert.equal(readStatusRowCount(persistenceA), firstACount - 1);
       assert.equal(readStatusRowCount(persistenceB), firstBCount);
+
+      const activeLeasePath = path.join(persistenceA, 'active-runtime.lock');
+      const activeLease = await acquireLocalWranglerRuntimeLease({
+        lockPath: activeLeasePath,
+        heartbeatIntervalMs: 20,
+        pollIntervalMs: 10,
+      });
+      const firstHeartbeat = JSON.parse(readFileSync(activeLeasePath, 'utf8')) as { heartbeatAt: string };
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      const secondHeartbeat = JSON.parse(readFileSync(activeLeasePath, 'utf8')) as { heartbeatAt: string };
+      assert.notEqual(secondHeartbeat.heartbeatAt, firstHeartbeat.heartbeatAt);
+
+      const oldTimestamp = new Date(0);
+      utimesSync(activeLeasePath, oldTimestamp, oldTimestamp);
+      let contenderAcquired = false;
+      const contenderPromise = acquireLocalWranglerRuntimeLease({
+        lockPath: activeLeasePath,
+        acquireTimeoutMs: 1_000,
+        heartbeatIntervalMs: 20,
+        pollIntervalMs: 10,
+        invalidRecordStaleAfterMs: 1,
+      }).then((lease) => {
+        contenderAcquired = true;
+        return lease;
+      });
+      await new Promise((resolve) => setTimeout(resolve, 80));
+      assert.equal(contenderAcquired, false, 'lease age must not evict a live owner');
+      activeLease.release();
+      const contenderLease = await contenderPromise;
+      assert.equal(contenderAcquired, true);
+      contenderLease.release();
+
+      const crashedLeasePath = path.join(persistenceA, 'crashed-runtime.lock');
+      writeFileSync(
+        crashedLeasePath,
+        JSON.stringify({
+          schema: 1,
+          token: 'crashed-owner',
+          ownerPid: 2_147_483_647,
+          createdAt: new Date().toISOString(),
+          heartbeatAt: new Date().toISOString(),
+        })
+      );
+      const recoveredLease = await acquireLocalWranglerRuntimeLease({
+        lockPath: crashedLeasePath,
+        acquireTimeoutMs: 1_000,
+        pollIntervalMs: 10,
+      });
+      assert.notEqual(
+        (JSON.parse(readFileSync(crashedLeasePath, 'utf8')) as { token: string }).token,
+        'crashed-owner'
+      );
+      recoveredLease.release();
     } finally {
       rmSync(persistenceA, { recursive: true, force: true });
       rmSync(persistenceB, { recursive: true, force: true });
@@ -238,6 +323,7 @@ describe('local dev seeding workflow', () => {
       OCENTRA_PARENT_LOG_STORE: 'true',
       OCENTRA_PARENT_LOG_LEVEL: 'debug',
       OCENTRA_PARENT_LOG_CONSOLE: 'false',
+      OCENTRA_CLOUDFLARE_SEED_LOG_BRIDGE_ENDPOINT: '',
     };
     const originalProofEnvironment = new Map(
       Object.keys(forcedProofEnvironment).map((key) => [key, process.env[key]] as const)
@@ -268,7 +354,6 @@ describe('local dev seeding workflow', () => {
           resolve({ port: boundAddress.port });
         });
       });
-
       Logger.instance.reset();
       Logger.instance.configure({
         bridgeEndpoint: `http://127.0.0.1:${address.port}`,
@@ -419,6 +504,48 @@ describe('local dev seeding workflow', () => {
       for (const forbiddenValue of ['Bearer private-token', 'whsec_private', 'child-name-private']) {
         assert.equal(persistedProofText.includes(forbiddenValue), false);
       }
+
+      const originalNpmExecPath = process.env.npm_execpath;
+      const originalSeedRunId = process.env.OCENTRA_CLOUDFLARE_SEED_RUN_ID;
+      process.env.npm_execpath = path.join(proofStoreRoot, 'missing-npm-cli.js');
+      process.env.OCENTRA_CLOUDFLARE_SEED_RUN_ID = proofRunId;
+      process.env.OCENTRA_CLOUDFLARE_SEED_LOG_BRIDGE_ENDPOINT = `http://127.0.0.1:${address.port}`;
+      try {
+        await assert.rejects(runLocalSeedMutation('failure-path-proof'), /Wrangler seed runtime exited/);
+      } finally {
+        if (originalNpmExecPath == null) {
+          delete process.env.npm_execpath;
+        } else {
+          process.env.npm_execpath = originalNpmExecPath;
+        }
+        if (originalSeedRunId == null) {
+          delete process.env.OCENTRA_CLOUDFLARE_SEED_RUN_ID;
+        } else {
+          process.env.OCENTRA_CLOUDFLARE_SEED_RUN_ID = originalSeedRunId;
+        }
+      }
+
+      const rowsAfterFailure = ndjsonWriter.readTestLogEntriesFromFile(proofFiles[0]);
+      const runtimeMilestones: PersistedProofMilestone[] = rowsAfterFailure
+        .slice(persistedRows.length)
+        .map((row: { data: string | null }) => JSON.parse(row.data ?? '{}') as PersistedProofMilestone);
+      assert.deepEqual(
+        runtimeMilestones.map(({ boundary, result }) => ({ boundary, result })),
+        [
+          { boundary: 'startup', result: 'accepted' },
+          { boundary: 'runtime-start', result: 'accepted' },
+          { boundary: 'seed-validation', result: 'rejected' },
+          { boundary: 'teardown', result: 'released' },
+        ]
+      );
+      assert.ok(
+        runtimeMilestones.every(
+          (milestone) =>
+            milestone.runId === proofRunId &&
+            milestone.correlationId === `${proofRunId}:seed-runtime` &&
+            milestone.redactionState === proofRedactionState
+        )
+      );
     } finally {
       Logger.instance.reset();
       for (const [key, value] of originalProofEnvironment) {
