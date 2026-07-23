@@ -20,6 +20,8 @@ use serde_json::json;
 #[path = "../support/mod.rs"]
 mod support;
 
+#[cfg(unix)]
+mod artifact_leaf_security;
 mod artifact_subprocess;
 mod concurrency_artifact;
 #[cfg(feature = "test-support")]
@@ -27,6 +29,7 @@ mod ndjson_failure_recovery;
 mod ndjson_operation_custody;
 #[cfg(feature = "test-support")]
 mod ndjson_operation_state;
+mod ndjson_writer_boundaries;
 
 #[test]
 fn ndjson_writer_appends_json_lines_in_order() {

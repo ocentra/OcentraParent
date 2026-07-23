@@ -1,6 +1,7 @@
 use std::{env, error::Error, fs, path::Path, process::Command};
 
 use ocentra_parent_logging_core::artifact::{ArtifactKind, ArtifactRef, ArtifactWriter};
+use sha2::{Digest, Sha256};
 
 const ROOT_ENV: &str = "OCENTRA_ARTIFACT_SUBPROCESS_ROOT";
 const CONTENT_ENV: &str = "OCENTRA_ARTIFACT_SUBPROCESS_CONTENT";
@@ -22,6 +23,12 @@ fn artifact_writer_recovers_across_subprocess_replay_and_rejects_conflicting_pub
 #[test]
 fn artifact_writer_rejects_each_corrupted_integrity_metadata_field() {
     let result = artifact_writer_rejects_each_corrupted_integrity_metadata_field_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn artifact_writer_custody_digest_uses_fixed_field_order() {
+    let result = artifact_writer_custody_digest_uses_fixed_field_order_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -148,6 +155,35 @@ fn artifact_writer_rejects_each_corrupted_integrity_metadata_field_impl(
         ArtifactKind::Stdout,
         "line one\nline two\n",
     )?;
+    Ok(())
+}
+
+fn artifact_writer_custody_digest_uses_fixed_field_order_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    let artifact = ArtifactWriter::new(&root).write_text_artifact(
+        "canonical",
+        "run",
+        "command",
+        ArtifactKind::Diagnostic,
+        "canonical custody",
+    )?;
+    let canonical = format!(
+        "{{\"artifactId\":{},\"byteLength\":{},\"commandId\":{},\"createdAt\":{},\"eventType\":{},\"kind\":\"diagnostic\",\"lineCount\":{},\"path\":{},\"runId\":{},\"schemaVersion\":{},\"sha256\":{}}}",
+        serde_json::to_string(&artifact.artifact_id)?,
+        artifact.byte_length,
+        serde_json::to_string(&artifact.command_id)?,
+        serde_json::to_string(&artifact.created_at)?,
+        serde_json::to_string(&artifact.record_type)?,
+        artifact.line_count,
+        serde_json::to_string(&artifact.artifact_path)?,
+        serde_json::to_string(&artifact.run_id)?,
+        artifact.schema_version,
+        serde_json::to_string(&artifact.sha256)?,
+    );
+    assert_eq!(
+        artifact.custody_sha256,
+        format!("{:x}", Sha256::digest(canonical.as_bytes()))
+    );
     Ok(())
 }
 

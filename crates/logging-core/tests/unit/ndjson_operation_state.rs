@@ -4,9 +4,9 @@ use ocentra_parent_logging_core::{
     ndjson_interop_test_support::append_record_with_external_interleave,
     ndjson_test_support::{
         forget_operation_compaction_cache, operation_compaction_cache_counts,
-        operation_compaction_scan_bytes, operation_state_entry_count,
-        record_matches_with_short_reads, replace_operation_state_without_cache_notice,
-        seed_operation_compaction_cache,
+        operation_compaction_membership_segment_count, operation_compaction_scan_bytes,
+        operation_state_entry_count, record_matches_with_short_reads,
+        replace_operation_state_without_cache_notice, seed_operation_compaction_cache,
     },
     ndjson_writer::{append_record_for_operation, remove_record_file_with_operation_state},
 };
@@ -44,6 +44,18 @@ fn ndjson_operation_append_mode_preserves_external_rows_and_exact_replay() {
 #[test]
 fn ndjson_operation_compaction_cache_stays_bounded() {
     let result = ndjson_operation_compaction_cache_stays_bounded_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_operation_refuses_to_truncate_an_unowned_partial_tail() {
+    let result = ndjson_operation_refuses_to_truncate_an_unowned_partial_tail_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_operation_partitions_membership_before_bloom_saturation() {
+    let result = ndjson_operation_partitions_membership_before_bloom_saturation_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -163,5 +175,27 @@ fn ndjson_operation_compaction_cache_stays_bounded_impl() -> Result<(), Box<dyn 
     let (path_count, marker_count) = operation_compaction_cache_counts(&latest)?;
     assert!(path_count <= 8);
     assert!(marker_count <= 4_096);
+    Ok(())
+}
+
+fn ndjson_operation_refuses_to_truncate_an_unowned_partial_tail_impl() -> Result<(), Box<dyn Error>>
+{
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("live-external.ndjson");
+    let partial = b"{\"external\":\"still-writing";
+    fs::write(&path, partial)?;
+    let result = append_record_for_operation(&path, "must-not-truncate", b"{\"operation\":true}\n");
+    assert!(matches!(
+        result,
+        Err(error) if error.kind() == std::io::ErrorKind::WouldBlock
+    ));
+    assert_eq!(fs::read(&path)?, partial);
+    Ok(())
+}
+
+fn ndjson_operation_partitions_membership_before_bloom_saturation_impl(
+) -> Result<(), Box<dyn Error>> {
+    assert!(operation_compaction_membership_segment_count(130_000) >= 2);
     Ok(())
 }

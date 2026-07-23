@@ -11,7 +11,6 @@ use crate::ndjson_operation_marker_publish::write_marker;
 use crate::ndjson_operation_marker_state::{
     operation_paths, read_commit_offset, read_intent_offset,
 };
-use crate::ndjson_writer::{recover_partial_tail, validate_record};
 
 pub(crate) fn append_operation_locked(
     file: &mut File,
@@ -54,8 +53,7 @@ where
     F: FnMut(FaultPoint) -> io::Result<()>,
     M: FnMut(&Path, &str, OperationMarkerKind) -> io::Result<()>,
 {
-    validate_record(record)?;
-    recover_partial_tail(file)?;
+    crate::ndjson_record_validation::validate_record(record)?;
     let operation = operation_paths(path, operation_id)?;
     if let Some(offset) = read_commit_offset(&operation.commit, operation_id, record)? {
         verify_committed_record(file, offset, record)?;
@@ -69,7 +67,10 @@ where
         return Ok(());
     }
 
-    let offset = match read_intent_offset(&operation.intent, operation_id, record)? {
+    let intent_offset = read_intent_offset(&operation.intent, operation_id, record)?;
+    crate::ndjson_operation_recovery::prepare_uncommitted_tail(file, intent_offset.is_some())?;
+
+    let offset = match intent_offset {
         Some(offset) if record_matches_at(file, offset, record)? => {
             before(FaultPoint::Sync)?;
             file.sync_data()?;

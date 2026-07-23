@@ -52,16 +52,22 @@ impl NdjsonWriter {
         let stream = sanitize_segment(stream)?;
         let directory = self.root.join(scope).join("ndjson").join(stream);
         create_dir_all(&directory)?;
-        let path = directory.join(format!("{}.ndjson", date_stamp_now()));
+        let current_path = directory.join(format!("{}.ndjson", date_stamp_now()));
         let mut record = serde_json::to_vec(event)
             .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
         record.push(b'\n');
-        append_record_for_operation(&path, operation_id, &record)?;
-        Ok(path)
+        crate::ndjson_record_validation::validate_record(&record)?;
+        crate::ndjson_operation_route::append_routed_operation(
+            &directory,
+            &current_path,
+            operation_id,
+            &record,
+        )
     }
 }
 
 pub fn append_record(path: &std::path::Path, record: &[u8]) -> io::Result<()> {
+    crate::ndjson_record_validation::validate_record(record)?;
     if let Some(parent) = path.parent() {
         create_dir_all(parent)?;
     }
@@ -76,6 +82,7 @@ pub fn append_record_for_operation(
     operation_id: &str,
     record: &[u8],
 ) -> io::Result<()> {
+    crate::ndjson_record_validation::validate_record(record)?;
     if operation_id.trim().is_empty() || operation_id.contains('\r') || operation_id.contains('\n')
     {
         return Err(io::Error::new(
@@ -124,13 +131,7 @@ pub(crate) fn append_locked_record_with_sync(
     record: &[u8],
     sync: impl FnOnce(&File) -> io::Result<()>,
 ) -> io::Result<()> {
-    if record.is_empty() || record.last() != Some(&b'\n') {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "NDJSON records must end with a newline",
-        ));
-    }
-
+    crate::ndjson_record_validation::validate_record(record)?;
     recover_partial_tail(file)?;
     file.seek(SeekFrom::End(0))?;
     let committed_offset = match append_bytes(file, record) {
@@ -180,16 +181,6 @@ pub(crate) fn append_bytes(file: &mut File, bytes: &[u8]) -> io::Result<u64> {
     file.stream_position()?
         .checked_sub(bytes.len() as u64)
         .ok_or_else(|| io::Error::other("NDJSON append offset underflow"))
-}
-
-pub(crate) fn validate_record(record: &[u8]) -> io::Result<()> {
-    if record.is_empty() || record.last() != Some(&b'\n') {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "NDJSON records must end with a newline",
-        ));
-    }
-    Ok(())
 }
 
 pub(crate) fn recover_partial_tail(file: &mut File) -> io::Result<()> {

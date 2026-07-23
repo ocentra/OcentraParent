@@ -7,7 +7,7 @@ const SCAN_CHUNK_BYTES: usize = 8 * 1024;
 
 pub(crate) fn recover_partial_tail(file: &mut File) -> io::Result<()> {
     let length = file.seek(SeekFrom::End(0))?;
-    if length == 0 || last_byte_is_newline(file)? {
+    if tail_is_complete(file, length)? {
         file.seek(SeekFrom::End(0))?;
         return Ok(());
     }
@@ -16,6 +16,17 @@ pub(crate) fn recover_partial_tail(file: &mut File) -> io::Result<()> {
     file.set_len(retained)?;
     file.seek(SeekFrom::Start(retained))?;
     file.sync_data()
+}
+
+pub(crate) fn has_complete_tail(file: &mut File) -> io::Result<bool> {
+    let length = file.seek(SeekFrom::End(0))?;
+    let complete = tail_is_complete(file, length)?;
+    file.seek(SeekFrom::End(0))?;
+    Ok(complete)
+}
+
+fn tail_is_complete(file: &mut File, length: u64) -> io::Result<bool> {
+    Ok(length == 0 || last_byte_is_newline(file)?)
 }
 
 fn last_byte_is_newline(file: &mut File) -> io::Result<bool> {

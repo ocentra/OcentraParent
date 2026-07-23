@@ -136,6 +136,10 @@ pub fn operation_compaction_cache_counts(path: &Path) -> io::Result<(usize, usiz
     crate::ndjson_operation_compaction_cache::cache_counts(&directory.join("commits.state"))
 }
 
+pub fn operation_compaction_membership_segment_count(key_count: usize) -> usize {
+    crate::ndjson_operation_compaction_bloom::segment_count_after_inserts(key_count)
+}
+
 pub fn replace_operation_state_without_cache_notice(path: &Path) -> io::Result<()> {
     use std::io::Write;
 

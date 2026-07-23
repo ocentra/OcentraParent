@@ -1,14 +1,16 @@
 use std::{
-    fs::{read, symlink_metadata},
+    fs::symlink_metadata,
     io,
     path::{Path, PathBuf},
 };
 
+use serde::Serialize;
 use sha2::{Digest, Sha256};
 
 use crate::{
     artifact::{ArtifactKind, ArtifactRef, ARTIFACT_RECORD_TYPE, ARTIFACT_SCHEMA_VERSION},
     artifact_directory::{create_and_sync_directory, create_durable_directory_hierarchy},
+    artifact_publish_finish::read_immutable,
     path::path_string,
 };
 
@@ -41,7 +43,7 @@ pub(crate) fn artifact_metadata_path(path: &Path) -> io::Result<PathBuf> {
 }
 
 pub(crate) fn read_artifact_ref(path: &Path) -> io::Result<ArtifactRef> {
-    serde_json::from_slice(&read(path)?)
+    serde_json::from_slice(&read_immutable(path)?)
         .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))
 }
 
@@ -53,7 +55,7 @@ pub(crate) fn validate_replay(
     run_id: &str,
     command_id: &str,
 ) -> io::Result<()> {
-    if read(path)? != content.as_bytes() {
+    if read_immutable(path)? != content.as_bytes() {
         return Err(io::Error::new(
             io::ErrorKind::AlreadyExists,
             "artifact path already contains different content",
@@ -72,7 +74,7 @@ pub(crate) fn validate_replay(
         && artifact.byte_length == content.len() as u64
         && artifact.line_count == content.lines().count() as u64
         && chrono::DateTime::parse_from_rfc3339(&artifact.created_at).is_ok()
-        && artifact.custody_sha256 == custody_sha256(artifact);
+        && artifact.custody_sha256 == custody_sha256(artifact)?;
     if !metadata_matches {
         return Err(io::Error::new(
             io::ErrorKind::InvalidData,
@@ -82,21 +84,40 @@ pub(crate) fn validate_replay(
     Ok(())
 }
 
-pub(crate) fn custody_sha256(artifact: &ArtifactRef) -> String {
-    let canonical = serde_json::json!({
-        "schemaVersion": artifact.schema_version,
-        "eventType": artifact.record_type,
-        "artifactId": artifact.artifact_id,
-        "runId": artifact.run_id,
-        "commandId": artifact.command_id,
-        "path": artifact.artifact_path,
-        "kind": artifact.kind,
-        "sha256": artifact.sha256,
-        "byteLength": artifact.byte_length,
-        "lineCount": artifact.line_count,
-        "createdAt": artifact.created_at,
-    });
-    format!("{:x}", Sha256::digest(canonical.to_string().as_bytes()))
+pub(crate) fn custody_sha256(artifact: &ArtifactRef) -> io::Result<String> {
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct CanonicalCustody<'a> {
+        artifact_id: &'a str,
+        byte_length: u64,
+        command_id: &'a str,
+        created_at: &'a str,
+        #[serde(rename = "eventType")]
+        record_type: &'a str,
+        kind: &'a ArtifactKind,
+        line_count: u64,
+        #[serde(rename = "path")]
+        artifact_path: &'a str,
+        run_id: &'a str,
+        schema_version: u16,
+        sha256: &'a str,
+    }
+
+    let canonical = serde_json::to_vec(&CanonicalCustody {
+        artifact_id: &artifact.artifact_id,
+        byte_length: artifact.byte_length,
+        command_id: &artifact.command_id,
+        created_at: &artifact.created_at,
+        record_type: &artifact.record_type,
+        kind: &artifact.kind,
+        line_count: artifact.line_count,
+        artifact_path: &artifact.artifact_path,
+        run_id: &artifact.run_id,
+        schema_version: artifact.schema_version,
+        sha256: &artifact.sha256,
+    })
+    .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+    Ok(format!("{:x}", Sha256::digest(canonical)))
 }
 
 fn ensure_safe_root(root: &Path) -> io::Result<PathBuf> {

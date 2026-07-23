@@ -1,11 +1,11 @@
 use std::{
-    fs::{read, OpenOptions},
+    fs::OpenOptions,
     io::{self, Write},
     path::Path,
 };
 
 use crate::{
-    artifact_publish_finish::{compare_existing, finish_publication},
+    artifact_publish_finish::{compare_existing, finish_publication, read_immutable},
     artifact_publish_lock::{remove_temporary, temporary_path},
     artifact_publish_platform::{publish_temporary, sync_parent},
 };
@@ -92,7 +92,7 @@ where
     P: FnOnce(&Path, &Path) -> io::Result<()>,
     S: FnOnce(&Path) -> io::Result<()>,
 {
-    match read(path) {
+    match read_immutable(path) {
         Ok(existing) => compare_existing(&existing, content).and_then(|_| sync(path)),
         Err(error) if error.kind() == io::ErrorKind::NotFound => {
             publish_new(path, content, publish, sync)

@@ -74,7 +74,7 @@ impl ArtifactWriter {
                 sync_parent(&metadata_path)?;
                 return Ok(metadata);
             }
-            let artifact = build_artifact_ref(&path, content, kind, run_id, command_id);
+            let artifact = build_artifact_ref(&path, content, kind, run_id, command_id)?;
             publish_immutable(&path, content.as_bytes())?;
             let metadata = serde_json::to_vec(&artifact)
                 .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
@@ -90,7 +90,7 @@ fn build_artifact_ref(
     kind: ArtifactKind,
     run_id: String,
     command_id: String,
-) -> ArtifactRef {
+) -> io::Result<ArtifactRef> {
     let sha256 = format!("{:x}", Sha256::digest(content.as_bytes()));
     let mut artifact = ArtifactRef {
         schema_version: ARTIFACT_SCHEMA_VERSION,
@@ -106,8 +106,8 @@ fn build_artifact_ref(
         created_at: timestamp_now(),
         custody_sha256: String::new(),
     };
-    artifact.custody_sha256 = crate::artifact_custody::custody_sha256(&artifact);
-    artifact
+    artifact.custody_sha256 = crate::artifact_custody::custody_sha256(&artifact)?;
+    Ok(artifact)
 }
 
 fn kind_file_name(kind: &ArtifactKind) -> &'static str {
