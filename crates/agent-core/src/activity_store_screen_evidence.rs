@@ -20,18 +20,40 @@ use self::helpers::{
     bool_field, non_empty_string_list_field, number_field, string_field, string_list_field,
 };
 
+const UNBOUNDED_SCREEN_QUEUE_HEALTH_LIMIT: i64 = -1;
+
 pub(crate) fn screen_evidence_recent_summary(
     connection: &Connection,
     limit: u64,
     generated_at: &str,
 ) -> Result<ScreenEvidenceRecentSummary, ActivityStoreError> {
+    let queue_health_results =
+        screen_analysis_results(connection, UNBOUNDED_SCREEN_QUEUE_HEALTH_LIMIT)?;
+    let result_limit = usize::try_from(limit).unwrap_or(usize::MAX);
+    let results = queue_health_results
+        .iter()
+        .take(result_limit)
+        .cloned()
+        .collect();
+    Ok(summary_from_results(
+        limit,
+        generated_at,
+        results,
+        &queue_health_results,
+    ))
+}
+
+fn screen_analysis_results(
+    connection: &Connection,
+    limit: i64,
+) -> Result<Vec<ScreenAnalysisResult>, ActivityStoreError> {
     let mut statement =
         connection.prepare(constants::sqlite::SELECT_RECENT_SCREEN_ANALYSIS_ACTIVITY)?;
     let rows = statement.query_map(
         params![
             constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED,
             constants::activity_observer::LOCAL_AI,
-            limit as i64
+            limit
         ],
         |row| {
             Ok((
@@ -49,7 +71,7 @@ pub(crate) fn screen_evidence_recent_summary(
             results.push(result);
         }
     }
-    Ok(summary_from_results(limit, generated_at, results))
+    Ok(results)
 }
 
 pub(crate) fn screen_evidence_result_for_queue_job(
@@ -86,6 +108,7 @@ fn summary_from_results(
     limit: u64,
     generated_at: &str,
     results: Vec<ScreenAnalysisResult>,
+    queue_health_results: &[ScreenAnalysisResult],
 ) -> ScreenEvidenceRecentSummary {
     let latest = results.first();
     ScreenEvidenceRecentSummary {
@@ -94,7 +117,7 @@ fn summary_from_results(
         custody_state: SCREEN_CUSTODY_QUERY_STORE.to_string(),
         limit,
         returned: results.len() as u64,
-        queue_health: queue_health(generated_at, latest, &results),
+        queue_health: queue_health(generated_at, latest, queue_health_results),
         latest_result_id: latest.map(|result| result.screen_analysis_result_id.clone()),
         latest_summary: latest.map(|result| result.summary.clone()),
         latest_primary_category: latest.and_then(|result| result.primary_category.clone()),

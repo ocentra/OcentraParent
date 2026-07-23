@@ -230,6 +230,59 @@ fn activity_store_queue_health_uses_latest_deletion_state_per_job() -> TestResul
 }
 
 #[test]
+fn activity_store_queue_health_counts_pending_jobs_beyond_result_limit() -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
+    let mut older_pending = screen_event_with_deletion_state(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        "screen-health-older-pending",
+        SCREEN_DELETION_REQUIRED,
+    );
+    insert_log_field(
+        &mut older_pending.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String("screen-health-older-pending-job".to_string()),
+    );
+    let mut latest_pending = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-health-latest-pending",
+        SCREEN_DELETION_REQUIRED,
+    );
+    insert_log_field(
+        &mut latest_pending.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String("screen-health-latest-pending-job".to_string()),
+    );
+    store
+        .ingest_events(&[older_pending, latest_pending])
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
+
+    let summary = store
+        .screen_evidence_recent_summary(1, constants::activity_store::TEST_THIRD_OBSERVED_AT)
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
+
+    assert_eq!(summary.returned, 1);
+    assert_eq!(summary.results.len(), 1);
+    assert_eq!(summary.queue_health.pending_count, 2);
+    assert_eq!(summary.queue_health.delete_pending_count, 2);
+    Ok(())
+}
+
+#[test]
 fn activity_store_tied_screen_transitions_prefer_terminal_state_and_indexed_job_lookup(
 ) -> TestResult {
     let store = ActivityStore::open_in_memory().map_err(|error| {

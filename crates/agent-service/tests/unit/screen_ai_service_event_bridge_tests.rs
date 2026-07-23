@@ -203,6 +203,54 @@ async fn screen_service_event_runtime_bounds_each_deletion_publication_report() 
 }
 
 #[tokio::test]
+async fn screen_service_event_runtime_isolates_concurrent_deletion_publication_reports() {
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let first_row = service_screen_row();
+    let first_queue_job_id = first_row.queue_job_id.clone();
+    let mut second_row = service_screen_row();
+    second_row.queue_job_id.push_str("-concurrent");
+    second_row.row_id.push_str("-concurrent");
+    let second_queue_job_id = second_row.queue_job_id.clone();
+
+    let (first, second) = tokio::join!(
+        runtime.publish_deletion_row(
+            first_row,
+            ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        ),
+        runtime.publish_deletion_row(
+            second_row,
+            ObservedAtText(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+        )
+    );
+    let first = require_ok(
+        first,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let second = require_ok(
+        second,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let first_payload = require_ok(
+        first.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
+        constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
+    )
+    .payload;
+    let second_payload = require_ok(
+        second.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
+        constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
+    )
+    .payload;
+
+    assert_eq!(first.stored_events.len(), 1);
+    assert_eq!(second.stored_events.len(), 1);
+    assert_eq!(first_payload.queue_job_id, first_queue_job_id);
+    assert_eq!(second_payload.queue_job_id, second_queue_job_id);
+}
+
+#[tokio::test]
 async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
     let report = publish_screen_degraded_event_chain(
         degraded_service_screen_row(),
