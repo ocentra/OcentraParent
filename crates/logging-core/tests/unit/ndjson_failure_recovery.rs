@@ -2,13 +2,14 @@ use std::{error::Error, fs};
 
 use ocentra_parent_logging_core::{
     artifact_test_support::{
-        publish_artifact_with_forced_fallback, publish_artifact_with_forced_fallback_fault,
-        publish_artifact_with_hard_link_fault, publish_artifact_with_parent_sync_fault,
-        ArtifactFallbackFault, HardLinkFault,
+        publish_artifact_after_stale_temporary, publish_artifact_with_forced_fallback,
+        publish_artifact_with_forced_fallback_fault, publish_artifact_with_hard_link_fault,
+        publish_artifact_with_parent_sync_fault, ArtifactFallbackFault, HardLinkFault,
     },
     ndjson_test_support::{
-        append_plain_record_with_sync_fault, append_record_with_fault,
-        append_record_with_marker_fault, AppendFault, OperationMarkerFault,
+        append_plain_record_with_external_after_sync_fault, append_plain_record_with_sync_fault,
+        append_record_with_fault, append_record_with_marker_fault, AppendFault,
+        OperationMarkerFault,
     },
     ndjson_writer::{append_record, append_record_for_operation},
 };
@@ -181,6 +182,9 @@ fn artifact_fallback_publishes_immutably_and_cleans_temporary_file_impl(
     let root = temp_dir!();
     fs::create_dir_all(&root)?;
     let path = root.join("artifact.log");
+    publish_artifact_after_stale_temporary(&path, b"fallback content")?;
+    assert_eq!(fs::read(&path)?, b"fallback content");
+    fs::remove_file(&path)?;
     publish_artifact_with_forced_fallback(&path, b"fallback content")?;
     publish_artifact_with_forced_fallback(&path, b"fallback content")?;
     let conflict = match publish_artifact_with_forced_fallback(&path, b"different") {
@@ -234,6 +238,18 @@ fn ndjson_writer_recovers_from_injected_write_and_sync_failures_impl() -> Result
     assert_eq!(fs::read(&plain_path)?, b"");
     append_record(&plain_path, record)?;
     assert_eq!(fs::read(&plain_path)?, record);
+    let mixed_path = root.join("mixed-sync-failure.ndjson");
+    let external = b"{\"external\":true}\n";
+    let mixed_sync = injected_error(append_plain_record_with_external_after_sync_fault(
+        &mixed_path,
+        record,
+        external,
+    ))?;
+    assert_eq!(mixed_sync.kind(), std::io::ErrorKind::Other);
+    assert_eq!(
+        fs::read(&mixed_path)?,
+        [record.as_slice(), external.as_slice()].concat()
+    );
     Ok(())
 }
 

@@ -9,7 +9,10 @@ use std::io::Write;
 
 use serde::Serialize;
 
-use crate::path::{date_stamp_now, sanitize_segment};
+use crate::{
+    ndjson_append_rollback::{rollback_completed_append, rollback_partial_append},
+    path::{date_stamp_now, sanitize_segment},
+};
 
 pub struct NdjsonWriter {
     root: PathBuf,
@@ -117,12 +120,13 @@ pub(crate) fn append_locked_record_with_sync(
     }
 
     recover_partial_tail(file)?;
-    let start = file.seek(SeekFrom::End(0))?;
-    if let Err(error) = append_bytes(file, record) {
-        return rollback_append(file, start, error);
-    }
+    file.seek(SeekFrom::End(0))?;
+    let committed_offset = match append_bytes(file, record) {
+        Ok(offset) => offset,
+        Err(error) => return rollback_partial_append(file, error),
+    };
     if let Err(error) = sync(file) {
-        return rollback_append(file, start, error);
+        return rollback_completed_append(file, committed_offset, record, error);
     }
     Ok(())
 }
@@ -178,14 +182,4 @@ pub(crate) fn validate_record(record: &[u8]) -> io::Result<()> {
 
 pub(crate) fn recover_partial_tail(file: &mut File) -> io::Result<()> {
     crate::ndjson_tail_recovery::recover_partial_tail(file)
-}
-
-pub(crate) fn rollback_append(file: &File, start: u64, original: io::Error) -> io::Result<()> {
-    match file.set_len(start).and_then(|_| file.sync_data()) {
-        Ok(()) => Err(original),
-        Err(rollback) => Err(io::Error::new(
-            rollback.kind(),
-            format!("NDJSON append failed ({original}); rollback also failed ({rollback})"),
-        )),
-    }
 }

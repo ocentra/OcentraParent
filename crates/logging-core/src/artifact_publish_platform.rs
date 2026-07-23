@@ -41,24 +41,35 @@ pub(crate) fn publish_temporary_with_link_error(
 
 #[cfg(unix)]
 pub(crate) fn sync_parent(path: &Path) -> io::Result<()> {
-    use std::fs::File;
-
-    File::open(
+    sync_directory(
         path.parent()
             .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "artifact has no parent"))?,
-    )?
-    .sync_all()
+    )
 }
 
 #[cfg(windows)]
 pub(crate) fn sync_parent(path: &Path) -> io::Result<()> {
+    sync_directory(
+        path.parent()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "artifact has no parent"))?,
+    )
+}
+
+#[cfg(unix)]
+fn sync_directory(path: &Path) -> io::Result<()> {
+    std::fs::File::open(path)?.sync_all()
+}
+
+#[cfg(windows)]
+fn sync_directory(path: &Path) -> io::Result<()> {
     use std::{fs::OpenOptions, os::windows::fs::OpenOptionsExt};
 
+    const FILE_FLAG_BACKUP_SEMANTICS: u32 = 0x0200_0000;
     const FILE_FLAG_WRITE_THROUGH: u32 = 0x8000_0000;
     OpenOptions::new()
         .read(true)
         .write(true)
-        .custom_flags(FILE_FLAG_WRITE_THROUGH)
+        .custom_flags(FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_WRITE_THROUGH)
         .open(path)?
         .sync_all()
 }

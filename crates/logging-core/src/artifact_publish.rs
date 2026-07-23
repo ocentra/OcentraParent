@@ -77,6 +77,16 @@ pub(crate) fn publish_immutable_with_parent_sync_fault(
     })
 }
 
+#[cfg(feature = "test-support")]
+pub(crate) fn publish_immutable_with_stale_temporary(
+    path: &Path,
+    content: &[u8],
+) -> io::Result<()> {
+    let temporary = temporary_path(path)?;
+    std::fs::write(&temporary, b"stale temporary")?;
+    publish_new_using_temporary(path, content, &temporary, publish_temporary, sync_parent)
+}
+
 fn publish_immutable_using<P, S>(path: &Path, content: &[u8], publish: P, sync: S) -> io::Result<()>
 where
     P: FnOnce(&Path, &Path) -> io::Result<()>,
@@ -97,13 +107,37 @@ where
     S: FnOnce(&Path) -> io::Result<()>,
 {
     let temporary = temporary_path(path)?;
-    if let Err(error) = write_temporary(&temporary, content) {
-        let _ = remove_temporary(&temporary);
+    publish_new_using_temporary(path, content, &temporary, publish, sync)
+}
+
+fn publish_new_using_temporary<P, S>(
+    path: &Path,
+    content: &[u8],
+    temporary: &Path,
+    publish: P,
+    sync: S,
+) -> io::Result<()>
+where
+    P: FnOnce(&Path, &Path) -> io::Result<()>,
+    S: FnOnce(&Path) -> io::Result<()>,
+{
+    if let Err(error) = write_temporary_recovering_stale(temporary, content) {
+        let _ = remove_temporary(temporary);
         return Err(error);
     }
-    let result = publish(&temporary, path);
-    let cleanup = remove_temporary(&temporary);
+    let result = publish(temporary, path);
+    let cleanup = remove_temporary(temporary);
     finish_publication(result, cleanup, path, content, sync)
+}
+
+fn write_temporary_recovering_stale(path: &Path, content: &[u8]) -> io::Result<()> {
+    match write_temporary(path, content) {
+        Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
+            remove_temporary(path)?;
+            write_temporary(path, content)
+        }
+        result => result,
+    }
 }
 
 fn write_temporary(path: &Path, content: &[u8]) -> io::Result<()> {

@@ -12,14 +12,15 @@ pub(crate) fn remove_operation_state(path: &Path) -> io::Result<()> {
 }
 
 fn remove_operation_state_locked(path: &Path) -> io::Result<()> {
+    let directory = operation_directory(path)?;
     if path.exists() {
         sync_parent(path)?;
     }
     remove_temporary(path)?;
-    let directory = operation_directory(path)?;
-    forget_commit_index(&directory.join("commits.ndjson"))?;
-    match remove_dir_all(directory) {
-        Ok(()) => {}
+    sync_parent(path)?;
+    forget_commit_index(&directory.join("commits.state"))?;
+    match remove_dir_all(&directory) {
+        Ok(()) => sync_parent(&directory)?,
         Err(error) if error.kind() == io::ErrorKind::NotFound => {}
         Err(error) => return Err(error),
     }

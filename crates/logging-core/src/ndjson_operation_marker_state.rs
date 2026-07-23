@@ -6,7 +6,7 @@ use std::{
 
 use sha2::{Digest, Sha256};
 
-use crate::ndjson_operation_marker::marker_offset;
+use crate::{artifact_publish_platform::sync_parent, ndjson_operation_marker::marker_offset};
 
 pub(crate) struct OperationPaths {
     pub(crate) key: String,
@@ -18,12 +18,13 @@ pub(crate) struct OperationPaths {
 pub(crate) fn operation_paths(path: &Path, operation_id: &str) -> io::Result<OperationPaths> {
     let directory = operation_directory(path)?;
     create_dir_all(&directory)?;
+    sync_parent(&directory)?;
     let key = format!("{:x}", Sha256::digest(operation_id.as_bytes()));
     Ok(OperationPaths {
         key: key.clone(),
         intent: directory.join(format!("{key}.intent")),
         commit: directory.join(format!("{key}.commit")),
-        compacted: directory.join("commits.ndjson"),
+        compacted: directory.join("commits.state"),
     })
 }
 

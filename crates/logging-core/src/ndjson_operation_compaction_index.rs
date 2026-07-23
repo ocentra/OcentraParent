@@ -27,7 +27,17 @@ pub(crate) fn compacted_marker(path: &Path, key: &str) -> io::Result<Option<Stri
     let file_len = file.metadata()?.len();
     with_commit_index(path, |index| {
         refresh_index(&mut file, file_len, index)?;
-        Ok(index.markers.get(key).cloned())
+        if let Some(marker) = index.markers.get(key) {
+            return Ok(Some(marker.clone()));
+        }
+        if !index.might_contain(key) {
+            return Ok(None);
+        }
+        let marker = scan_marker(&mut file, key)?;
+        if let Some(marker) = &marker {
+            index.record_marker(key.to_owned(), marker.clone());
+        }
+        Ok(marker)
     })
 }
 
@@ -53,7 +63,7 @@ pub(crate) fn append_compacted_marker(path: &Path, key: &str, marker: &str) -> i
     let end = file.stream_position()?;
     with_commit_index(path, |index| {
         if index.scanned_len == start {
-            index.markers.insert(key.to_owned(), marker.to_owned());
+            index.record_marker(key.to_owned(), marker.to_owned());
             index.scanned_len = end;
         }
         Ok(())
@@ -66,15 +76,14 @@ fn refresh_index(
     index: &mut CachedCommitIndex,
 ) -> io::Result<()> {
     if file_len < index.scanned_len {
-        index.markers.clear();
-        index.scanned_len = 0;
+        index.clear();
     }
     let start = index.scanned_len;
     file.seek(SeekFrom::Start(start))?;
     for line in BufReader::new(file).lines() {
         let entry: CompactCommit = serde_json::from_str(&line?)
             .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
-        index.markers.insert(entry.key, entry.marker);
+        index.record_marker(entry.key, entry.marker);
     }
     index.scanned_len = file_len;
     #[cfg(feature = "test-support")]
@@ -82,4 +91,16 @@ fn refresh_index(
         index.scanned_bytes += file_len.saturating_sub(start);
     }
     Ok(())
+}
+
+fn scan_marker(file: &mut std::fs::File, key: &str) -> io::Result<Option<String>> {
+    file.seek(SeekFrom::Start(0))?;
+    for line in BufReader::new(file).lines() {
+        let entry: CompactCommit = serde_json::from_str(&line?)
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+        if entry.key == key {
+            return Ok(Some(entry.marker));
+        }
+    }
+    Ok(None)
 }

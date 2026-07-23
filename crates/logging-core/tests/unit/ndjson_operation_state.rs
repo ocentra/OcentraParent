@@ -3,8 +3,9 @@ use std::{error::Error, fs};
 use ocentra_parent_logging_core::{
     ndjson_interop_test_support::append_record_with_external_interleave,
     ndjson_test_support::{
-        forget_operation_compaction_cache, operation_compaction_scan_bytes,
-        operation_state_entry_count, record_matches_with_short_reads,
+        forget_operation_compaction_cache, operation_compaction_cache_counts,
+        operation_compaction_scan_bytes, operation_state_entry_count,
+        record_matches_with_short_reads, seed_operation_compaction_cache,
     },
     ndjson_writer::{append_record_for_operation, remove_record_file_with_operation_state},
 };
@@ -36,6 +37,12 @@ fn ndjson_operation_indexes_compacted_commits_without_repeated_full_scans() {
 #[test]
 fn ndjson_operation_append_mode_preserves_external_rows_and_exact_replay() {
     let result = ndjson_operation_append_mode_preserves_external_rows_and_exact_replay_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_operation_compaction_cache_stays_bounded() {
+    let result = ndjson_operation_compaction_cache_stays_bounded_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -109,8 +116,11 @@ fn ndjson_operation_indexes_compacted_commits_without_repeated_full_scans_impl(
     assert_eq!(operation_compaction_scan_bytes(&path)?, first_scan);
     assert_eq!(
         first_scan,
-        fs::metadata(root.join(".indexed-operations.ndjson.operations/commits.ndjson"))?.len()
+        fs::metadata(root.join(".indexed-operations.ndjson.operations/commits.state"))?.len()
     );
+    assert!(!root
+        .join(".indexed-operations.ndjson.operations/commits.ndjson")
+        .exists());
     Ok(())
 }
 
@@ -131,5 +141,21 @@ fn ndjson_operation_append_mode_preserves_external_rows_and_exact_replay_impl(
         fs::read(&path)?,
         [external.as_slice(), operation.as_slice()].concat()
     );
+    Ok(())
+}
+
+fn ndjson_operation_compaction_cache_stays_bounded_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let mut latest = None;
+    for path_index in 0..12 {
+        let path = root.join(format!("bounded-cache-{path_index}.ndjson"));
+        seed_operation_compaction_cache(&path, 5_000)?;
+        latest = Some(path);
+    }
+    let latest = latest.ok_or_else(|| std::io::Error::other("missing cache proof path"))?;
+    let (path_count, marker_count) = operation_compaction_cache_counts(&latest)?;
+    assert!(path_count <= 8);
+    assert!(marker_count <= 4_096);
     Ok(())
 }

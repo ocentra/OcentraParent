@@ -94,13 +94,8 @@ where
         &marker_content(operation_id, record, offset),
         OperationMarkerKind::Intent,
     )?;
-    let committed_offset = append_operation_record(
-        file,
-        &operation.intent,
-        offset,
-        record,
-        before(FaultPoint::Write),
-    )?;
+    let committed_offset =
+        append_operation_record(file, &operation.intent, record, before(FaultPoint::Write))?;
     before(FaultPoint::Sync)?;
     file.sync_data()?;
     write_operation_marker(

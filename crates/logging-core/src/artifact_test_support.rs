@@ -45,3 +45,7 @@ pub fn publish_artifact_with_hard_link_fault(
 pub fn publish_artifact_with_parent_sync_fault(path: &Path, content: &[u8]) -> io::Result<()> {
     crate::artifact_publish::publish_immutable_with_parent_sync_fault(path, content)
 }
+
+pub fn publish_artifact_after_stale_temporary(path: &Path, content: &[u8]) -> io::Result<()> {
+    crate::artifact_publish::publish_immutable_with_stale_temporary(path, content)
+}

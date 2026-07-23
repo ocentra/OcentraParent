@@ -57,6 +57,25 @@ pub fn append_plain_record_with_sync_fault(path: &Path, record: &[u8]) -> io::Re
     result.and(unlock_result)
 }
 
+pub fn append_plain_record_with_external_after_sync_fault(
+    path: &Path,
+    record: &[u8],
+    external_record: &[u8],
+) -> io::Result<()> {
+    use std::io::Write;
+
+    if let Some(parent) = path.parent() {
+        create_dir_all(parent)?;
+    }
+    let mut file = crate::ndjson_writer::open_append_file(path)?;
+    crate::ndjson_writer::append_locked_record_with_sync(&mut file, record, |_| {
+        let mut external = std::fs::OpenOptions::new().append(true).open(path)?;
+        external.write_all(external_record)?;
+        external.sync_data()?;
+        Err(io::Error::other("injected NDJSON sync failure"))
+    })
+}
+
 pub fn append_record_with_marker_fault(
     path: &Path,
     operation_id: &str,
@@ -91,12 +110,30 @@ pub fn operation_state_entry_count(path: &Path) -> io::Result<usize> {
 
 pub fn forget_operation_compaction_cache(path: &Path) -> io::Result<()> {
     let directory = crate::ndjson_operation_marker_state::operation_directory(path)?;
-    crate::ndjson_operation_compaction_cache::forget_commit_index(&directory.join("commits.ndjson"))
+    crate::ndjson_operation_compaction_cache::forget_commit_index(&directory.join("commits.state"))
 }
 
 pub fn operation_compaction_scan_bytes(path: &Path) -> io::Result<u64> {
     let directory = crate::ndjson_operation_marker_state::operation_directory(path)?;
-    crate::ndjson_operation_compaction_cache::scanned_bytes(&directory.join("commits.ndjson"))
+    crate::ndjson_operation_compaction_cache::scanned_bytes(&directory.join("commits.state"))
+}
+
+pub fn seed_operation_compaction_cache(path: &Path, marker_count: usize) -> io::Result<()> {
+    let directory = crate::ndjson_operation_marker_state::operation_directory(path)?;
+    crate::ndjson_operation_compaction_cache::with_commit_index(
+        &directory.join("commits.state"),
+        |index| {
+            (0..marker_count).for_each(|marker| {
+                index.record_marker(format!("key-{marker}"), format!("marker-{marker}"));
+            });
+            Ok(())
+        },
+    )
+}
+
+pub fn operation_compaction_cache_counts(path: &Path) -> io::Result<(usize, usize)> {
+    let directory = crate::ndjson_operation_marker_state::operation_directory(path)?;
+    crate::ndjson_operation_compaction_cache::cache_counts(&directory.join("commits.state"))
 }
 
 struct OneByteReader<R> {

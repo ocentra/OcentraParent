@@ -21,12 +21,14 @@ pub mod field;
 pub mod level;
 pub mod local_ndjson_log;
 pub mod local_ndjson_log_typescript;
+mod ndjson_append_rollback;
 #[cfg(feature = "test-support")]
 #[doc(hidden)]
 pub mod ndjson_interop_test_support;
 mod ndjson_operation;
 mod ndjson_operation_append;
 mod ndjson_operation_compaction;
+mod ndjson_operation_compaction_bloom;
 mod ndjson_operation_compaction_cache;
 mod ndjson_operation_compaction_index;
 #[cfg(feature = "test-support")]
