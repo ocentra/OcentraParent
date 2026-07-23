@@ -13,7 +13,6 @@ use ocentra_parent_agent_core::{
     },
 };
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_DELETED;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_EXPIRED_DELETED;
 
@@ -22,6 +21,8 @@ use crate::{
     activity_surface_read_models::activity_screen_row_from_result,
     screen_ai_service_event_subscription::{ActionRefText, ObservedAtText},
 };
+
+const COMPLETE_SCREEN_RETENTION_BATCH_LIMIT: u64 = i64::MAX as u64;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct ScreenAiServiceEventBridgeRefs {
@@ -240,7 +241,10 @@ fn latest_screen_row_for_queue_job(
 ) -> Result<Option<ActivityScreenReadModelRow>, ActivityCaptureError> {
     let store = ActivityStore::open(store_path)?;
     let summary = store.screen_evidence_recent_summary(
-        constants::activity_store::DEFAULT_RECENT_LIMIT,
+        // Retention publication is a durable outbox drain, not a UI summary.
+        // Read the complete retained batch so a job outside the recent-ten
+        // window is neither skipped nor acknowledged without publication.
+        COMPLETE_SCREEN_RETENTION_BATCH_LIMIT,
         &generated_at.0,
     )?;
     Ok(summary

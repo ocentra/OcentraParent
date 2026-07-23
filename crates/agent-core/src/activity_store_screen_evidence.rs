@@ -100,8 +100,12 @@ fn queue_health(
 }
 
 fn deletion_state_count(results: &[ScreenAnalysisResult], state: &str) -> u64 {
+    let mut observed_jobs = std::collections::HashSet::new();
     results
         .iter()
+        // The query is newest-first. Count only the first row for each job so
+        // historical pending/deleted/expired transitions do not inflate health.
+        .filter(|result| observed_jobs.insert(result.queue_job_id.as_str()))
         .filter(|result| result.image_deletion_state == state)
         .count() as u64
 }

@@ -184,6 +184,71 @@ fn screen_evidence_queue_sweeps_only_expired_entries_with_delete_proof_refs() {
 }
 
 #[test]
+fn screen_evidence_queue_durably_replaces_outbox_across_updates_acknowledgements_and_restart() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let key = JournalKey::from_bytes([5; JOURNAL_KEY_BYTES]);
+    let queue = ScreenEvidenceQueue::open(&directory, key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
+    let first_job = screen_queue_job();
+    let second_job = screen_queue_job_with_id("screen-outbox-second-expired-job");
+
+    queue
+        .append_encrypted_image(&first_job, b"first-expired-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let first_sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .append_encrypted_image(&second_job, b"second-expired-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let updated_sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let acknowledged = queue
+        .acknowledge_expired_entries(std::slice::from_ref(&first_job.queue_job_id))
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let restarted = ScreenEvidenceQueue::open(&directory, key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
+    let recovered = restarted
+        .remove_expired_entries(
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let second_acknowledged = restarted
+        .acknowledge_expired_entries(std::slice::from_ref(&second_job.queue_job_id))
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let final_restart =
+        ScreenEvidenceQueue::open(&directory, key).expect_value(constants::error::JOURNAL_OPENS);
+    let final_sweep = final_restart
+        .remove_expired_entries(
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(first_sweep.expired_entries.len(), 1);
+    assert_eq!(updated_sweep.expired_entries.len(), 2);
+    assert_eq!(acknowledged, 1);
+    assert_eq!(recovered.expired_entries.len(), 1);
+    assert_eq!(
+        recovered.expired_entries[0].queue_job_id,
+        second_job.queue_job_id
+    );
+    assert_eq!(second_acknowledged, 1);
+    assert_eq!(final_sweep.expired_entries.len(), 0);
+}
+
+#[test]
 fn screen_evidence_queue_removes_processed_entries_without_touching_pending_entries() {
     let directory = temp_queue_dir();
     let _ = remove_dir_all(&directory);

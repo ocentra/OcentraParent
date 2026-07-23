@@ -1,5 +1,8 @@
 use crate::JournalError;
+use atomicwrites::{AllowOverwrite, AtomicFile};
 use std::collections::HashSet;
+use std::fs::File;
+use std::io::Write;
 
 use super::{
     screen_evidence_queue_record, ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue,
@@ -117,15 +120,21 @@ fn write_outbox(
         .map(serde_json::to_string)
         .collect::<Result<Vec<_>, _>>()?
         .join("\n");
-    let temp = path.with_extension("deletion-outbox.tmp");
-    std::fs::write(
-        &temp,
-        if body.is_empty() {
-            body
-        } else {
-            format!("{body}\n")
-        },
-    )?;
-    std::fs::rename(temp, path)?;
+    // AtomicFile owns the platform replacement operation. In particular, its
+    // AllowOverwrite mode performs an overwrite-capable replacement on Windows
+    // instead of relying on `rename`, which cannot replace an existing file
+    // there. The closure syncs the staged contents before that replacement is
+    // allowed to make the durable deletion intent observable.
+    AtomicFile::new(&path, AllowOverwrite)
+        .write(|file| write_outbox_contents(file, &body))
+        .map_err(|error| std::io::Error::other(error.to_string()))?;
     Ok(())
+}
+
+fn write_outbox_contents(file: &mut File, body: &str) -> std::io::Result<()> {
+    file.write_all(body.as_bytes())?;
+    if !body.is_empty() {
+        file.write_all(b"\n")?;
+    }
+    file.sync_all()
 }

@@ -9,8 +9,9 @@ use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
     SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL,
-    SCREEN_DELETION_DELETED, SCREEN_DELETION_DELETE_FAILED, SCREEN_POLICY_CONFIDENCE_READY,
-    SCREEN_PROVIDER_LOCAL_VISION, SCREEN_QUEUE_STATUS_FAILED,
+    SCREEN_DELETION_DELETED, SCREEN_DELETION_DELETE_FAILED, SCREEN_DELETION_EXPIRED_DELETED,
+    SCREEN_DELETION_REQUIRED, SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION,
+    SCREEN_QUEUE_STATUS_FAILED,
 };
 
 use crate::test_text::{test_some as some, TestResult, TestText};
@@ -173,6 +174,56 @@ fn activity_store_surfaces_screen_delete_failed_queue_health() -> TestResult {
 }
 
 #[test]
+fn activity_store_queue_health_uses_latest_deletion_state_per_job() -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
+    let pending = screen_event_with_deletion_state(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        "screen-health-pending",
+        SCREEN_DELETION_REQUIRED,
+    );
+    let deleted = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-health-deleted",
+        SCREEN_DELETION_DELETED,
+    );
+    let expired = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-health-expired",
+        SCREEN_DELETION_EXPIRED_DELETED,
+    );
+
+    store
+        .ingest_events(&[pending, deleted, expired])
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
+    let summary = store
+        .screen_evidence_recent_summary(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
+
+    assert_eq!(summary.queue_health.delete_pending_count, 0);
+    assert_eq!(summary.queue_health.expired_count, 1);
+    assert_eq!(summary.queue_health.delete_failed_count, 0);
+    Ok(())
+}
+
+#[test]
 fn activity_store_skips_incomplete_screen_summary_rows() -> TestResult {
     let store = ActivityStore::open_in_memory().map_err(|error| {
         TestText::from_display(format!(
@@ -237,6 +288,22 @@ fn delete_failed_screen_summary_event() -> ActivityEvent {
     );
 
     screen_event(fields)
+}
+
+fn screen_event_with_deletion_state(
+    observed_at: &str,
+    event_id: &str,
+    deletion_state: &str,
+) -> ActivityEvent {
+    let mut event = screen_summary_event();
+    event.observed_at = observed_at.to_string();
+    event.event_id = event_id.to_string();
+    insert_log_field(
+        &mut event.fields,
+        constants::field::SCREEN_IMAGE_DELETION_STATE,
+        LogFieldValue::String(deletion_state.to_string()),
+    );
+    event
 }
 
 fn insert_screen_summary_core_fields(fields: &mut LogFields) {
