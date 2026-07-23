@@ -14,9 +14,9 @@ use ocentra_eventing::{
     ids::SubscriberId, ids::TargetHandler,
 };
 use ocentra_network_core::network_runtime::{
-    evaluate_network_runtime, NetworkAdapterState, NetworkCapturePermissionState,
-    NetworkObservationIntent, NetworkParserState, NetworkRuntimeActionState,
-    NetworkRuntimeDecision, NetworkRuntimeInput,
+    evaluate_network_runtime, NetworkAdapterState, NetworkAiHandoffState,
+    NetworkCapturePermissionState, NetworkObservationIntent, NetworkParserState,
+    NetworkPolicyHandoffState, NetworkRuntimeDecision, NetworkRuntimeInput,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
@@ -89,9 +89,9 @@ fn network_runtime_event_payload_from_observation(
     phase: NetworkRuntimePhase,
     observation: &NetworkObservation,
     observed_at: &str,
-    _decision: NetworkRuntimeDecision,
+    decision: NetworkRuntimeDecision,
 ) -> NetworkRuntimeEventPayload {
-    let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at);
+    let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at, &decision);
     let risk_budget_state = risk_budget_state(observation);
     NetworkRuntimeEventPayload {
         phase,
@@ -134,6 +134,24 @@ pub(super) fn should_publish_phase(
     observation: &NetworkObservation,
 ) -> bool {
     helpers::should_publish_phase(phase, observation)
+}
+
+pub(super) fn should_publish_phase_for_runtime_decision(
+    phase: NetworkRuntimePhase,
+    observation: &NetworkObservation,
+    decision: &NetworkRuntimeDecision,
+) -> bool {
+    helpers::should_publish_phase(phase, observation)
+        && match phase {
+            NetworkRuntimePhase::AiAnalysisRequested | NetworkRuntimePhase::AiAnalysisCompleted => {
+                decision.ai_handoff_state == NetworkAiHandoffState::Required
+            }
+            NetworkRuntimePhase::PolicyEvaluationRequested
+            | NetworkRuntimePhase::PolicyDecisionCompleted => {
+                decision.policy_handoff_state == NetworkPolicyHandoffState::Publish
+            }
+            _ => true,
+        }
 }
 
 pub(super) fn network_correlation_id(
@@ -213,14 +231,7 @@ impl NetworkRuntimeSpine {
             .iter()
             .copied()
             .filter(|phase| {
-                helpers::should_publish_phase(*phase, &observation)
-                    && !(runtime_decision.runtime_action_state
-                        == NetworkRuntimeActionState::ManualRequired
-                        && matches!(
-                            phase,
-                            NetworkRuntimePhase::PolicyEvaluationRequested
-                                | NetworkRuntimePhase::PolicyDecisionCompleted
-                        ))
+                should_publish_phase_for_runtime_decision(*phase, &observation, &runtime_decision)
             })
         {
             let payload = network_runtime_event_payload_from_observation(

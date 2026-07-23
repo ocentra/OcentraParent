@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 use ocentra_parent_agent_protocol::network_flow::{
-    self as flow, NetworkEvidenceGrade, NetworkRuntimeEventPayload,
+    self as flow, NetworkRuntimeEventPayload,
     NetworkRuntimeEvidenceGrade as CoreNetworkEvidenceGrade,
 };
 
@@ -13,14 +13,6 @@ pub(crate) fn custody(payload: &NetworkRuntimeEventPayload) -> NetworkRuntimeStr
         );
     }
     NetworkRuntimeStreamText(flow::NETWORK_FLOW_CUSTODY_UNAVAILABLE.to_string())
-}
-
-pub(crate) fn evidence_grade(payload: &NetworkRuntimeEventPayload) -> NetworkEvidenceGrade {
-    match payload.evidence_grade {
-        CoreNetworkEvidenceGrade::DomainAndProcessMetadata => NetworkEvidenceGrade::A,
-        CoreNetworkEvidenceGrade::IpOrProcessPartialMetadata => NetworkEvidenceGrade::C,
-        CoreNetworkEvidenceGrade::AdapterUnavailable => NetworkEvidenceGrade::D,
-    }
 }
 
 pub(crate) fn confidence(payload: &NetworkRuntimeEventPayload) -> f32 {

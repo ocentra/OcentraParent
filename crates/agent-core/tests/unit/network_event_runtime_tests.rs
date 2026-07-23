@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::activity_capture::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
-    NetworkAiAuditState, NetworkEvidenceScope, NetworkInterventionState, NetworkRiskBudgetState,
+    NetworkEvidenceScope, NetworkInterventionState, NetworkRiskBudgetState,
     NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
 };
 
@@ -43,11 +43,11 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() -> TestResult
 
     assert_eq!(
         report.publish_reports.len(),
-        NetworkRuntimePhase::ordered_chain().len() - 2
+        NetworkRuntimePhase::ordered_chain().len() - 4
     );
     assert_eq!(
         report.stored_events.len(),
-        NetworkRuntimePhase::ordered_chain().len() - 2
+        NetworkRuntimePhase::ordered_chain().len() - 4
     );
     assert!(report.dead_letters.is_empty());
     assert_eq!(
@@ -59,8 +59,27 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() -> TestResult
     );
     assert!(!report.manual_required());
     assert_eq!(payloads[0].phase, NetworkRuntimePhase::FlowObserved);
-    assert_eq!(payloads[3].ai_audit_state, NetworkAiAuditState::Requested);
-    assert_eq!(payloads[4].ai_audit_state, NetworkAiAuditState::Completed);
+    assert_eq!(
+        payloads
+            .iter()
+            .map(|payload| payload.phase)
+            .collect::<Vec<_>>(),
+        vec![
+            NetworkRuntimePhase::FlowObserved,
+            NetworkRuntimePhase::DomainObserved,
+            NetworkRuntimePhase::ActivityClassified,
+            NetworkRuntimePhase::PolicyEvaluationRequested,
+            NetworkRuntimePhase::PolicyDecisionCompleted,
+            NetworkRuntimePhase::AuditEntryCommitted,
+            NetworkRuntimePhase::PortalReadModelUpdated,
+        ]
+    );
+    assert!(payloads.iter().all(|payload| {
+        !matches!(
+            payload.phase,
+            NetworkRuntimePhase::AiAnalysisRequested | NetworkRuntimePhase::AiAnalysisCompleted
+        )
+    }));
     assert_eq!(
         count_event_type(
             &report,
@@ -104,7 +123,9 @@ async fn network_runtime_chain_carries_exact_refs_without_direct_enforcement_sho
     )?;
     let payloads = decode_payloads(&report)?;
 
-    assert_ai_request_refs(&payloads, observed_at)?;
+    assert!(payloads
+        .iter()
+        .all(|payload| { payload.ai_request_ref.is_none() && payload.ai_analysis_ref.is_none() }));
     assert_policy_evaluation_refs(&payloads, observed_at)?;
     assert!(payloads.iter().all(|payload| {
         !matches!(
@@ -140,7 +161,7 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
     );
     assert_eq!(
         report.publish_reports.len(),
-        NetworkRuntimePhase::ordered_chain().len() - 2
+        NetworkRuntimePhase::ordered_chain().len() - 4
     );
     assert_eq!(
         count_event_type(
@@ -168,6 +189,13 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
             && !payload.claim_boundary.adapter_action_executed
     }));
 
+    assert!(payloads.iter().all(|payload| {
+        !matches!(
+            payload.phase,
+            NetworkRuntimePhase::PolicyEvaluationRequested
+                | NetworkRuntimePhase::PolicyDecisionCompleted
+        )
+    }));
     let audit_entry = payload_for_phase(&payloads, NetworkRuntimePhase::AuditEntryCommitted)?;
     assert_eq!(
         audit_entry.previous_phase_ref,
@@ -175,7 +203,7 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
             expected_phase_ref(
                 &ActivityCaptureCapabilityStatus::Available,
                 constants::activity_store::TEST_FIRST_OBSERVED_AT,
-                NetworkRuntimePhase::PolicyDecisionCompleted
+                NetworkRuntimePhase::AiAnalysisCompleted
             )
             .to_string()
         )
@@ -209,7 +237,7 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() -> Tes
     );
     assert_eq!(
         report.publish_reports.len(),
-        NetworkRuntimePhase::ordered_chain().len() - 4
+        NetworkRuntimePhase::ordered_chain().len() - 6
     );
     assert_eq!(
         count_event_type(
@@ -307,44 +335,6 @@ fn count_event_type(report: &NetworkRuntimeReport, event_type: impl Display) -> 
         .count()
 }
 
-fn assert_ai_request_refs(
-    payloads: &[NetworkRuntimeEventPayload],
-    observed_at: impl Display,
-) -> TestResult {
-    let observed_at = TestText::from_display(observed_at);
-    let ai_request = payload_for_phase(payloads, NetworkRuntimePhase::AiAnalysisRequested)?;
-    assert_eq!(
-        ai_request.previous_phase_ref,
-        Some(
-            expected_available_ref(
-                observed_at.0.as_str(),
-                NetworkRuntimePhase::ActivityClassified
-            )
-            .to_string()
-        )
-    );
-    assert_eq!(
-        ai_request.evidence_ref,
-        expected_available_ref(observed_at.0.as_str(), NetworkRuntimePhase::FlowObserved)
-            .to_string()
-    );
-    assert_eq!(
-        ai_request.ai_request_ref,
-        Some(
-            expected_available_ref(
-                observed_at.0.as_str(),
-                NetworkRuntimePhase::AiAnalysisRequested
-            )
-            .to_string()
-        )
-    );
-    assert_eq!(ai_request.ai_analysis_ref, None);
-    assert_eq!(ai_request.policy_decision_ref, None);
-    assert_eq!(ai_request.enforcement_command_ref, None);
-
-    Ok(())
-}
-
 fn assert_policy_evaluation_refs(
     payloads: &[NetworkRuntimeEventPayload],
     observed_at: impl Display,
@@ -357,31 +347,13 @@ fn assert_policy_evaluation_refs(
         Some(
             expected_available_ref(
                 observed_at.0.as_str(),
-                NetworkRuntimePhase::AiAnalysisCompleted
+                NetworkRuntimePhase::ActivityClassified
             )
             .to_string()
         )
     );
-    assert_eq!(
-        policy_evaluation.ai_request_ref,
-        Some(
-            expected_available_ref(
-                observed_at.0.as_str(),
-                NetworkRuntimePhase::AiAnalysisRequested
-            )
-            .to_string()
-        )
-    );
-    assert_eq!(
-        policy_evaluation.ai_analysis_ref,
-        Some(
-            expected_available_ref(
-                observed_at.0.as_str(),
-                NetworkRuntimePhase::AiAnalysisCompleted
-            )
-            .to_string()
-        )
-    );
+    assert_eq!(policy_evaluation.ai_request_ref, None);
+    assert_eq!(policy_evaluation.ai_analysis_ref, None);
     assert_eq!(
         policy_evaluation.policy_evaluation_ref,
         Some(

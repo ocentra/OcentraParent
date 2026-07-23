@@ -19,7 +19,8 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::network_flow::{
     ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
-    ActivityNetworkFlowReadModel, NetworkRuntimePhase,
+    ActivityNetworkFlowReadModel, NetworkEvidenceGrade, NetworkFlowObservedEvent,
+    NetworkPolicyDecisionAction, NetworkPolicyDecisionCompletedEvent, NetworkRuntimePhase,
     NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
     NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
     NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
@@ -52,7 +53,7 @@ async fn service_network_runtime_streams_protocol_event_chain_entries(
     assert_eq!(report.observed_rows, 1);
     assert_eq!(
         report.streamed_events,
-        NetworkRuntimePhase::ordered_chain().len() - 2
+        NetworkRuntimePhase::ordered_chain().len() - 4
     );
     assert_eq!(report.failed_rows, 0);
     assert_eq!(report.manual_required_rows, 0);
@@ -81,8 +82,17 @@ async fn service_network_runtime_streams_protocol_event_chain_entries(
         false
     );
     assert_eq!(
-        entries[7][constants::field::EVENT_TYPE],
+        entries[5][constants::field::EVENT_TYPE],
         constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED
+    );
+    let flow_event: NetworkFlowObservedEvent =
+        serde_json::from_value(entries[0][constants::field::PAYLOAD].clone())?;
+    assert_eq!(flow_event.evidence_grade, NetworkEvidenceGrade::B);
+    let policy_event: NetworkPolicyDecisionCompletedEvent =
+        serde_json::from_value(entries[4][constants::field::PAYLOAD].clone())?;
+    assert_eq!(
+        policy_event.decision_action,
+        NetworkPolicyDecisionAction::Observe
     );
     assert_eq!(
         entries[0][constants::field::PAYLOAD][constants::field::CLAIM_BOUNDARY]
@@ -127,7 +137,7 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
     assert_eq!(report.observed_rows, 1);
     assert_eq!(
         report.streamed_events,
-        NetworkRuntimePhase::ordered_chain().len() - 2
+        NetworkRuntimePhase::ordered_chain().len() - 4
     );
     assert_eq!(report.manual_required_rows, 1);
     assert_eq!(report.enforcement_command_events, 0);
@@ -139,14 +149,12 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
             constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
             constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED,
             constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
-            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
-            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
             constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
             constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
         ]
     );
     assert_eq!(
-        entries[8][constants::field::PAYLOAD][constants::field::VISIBLE_MANUAL_REQUIRED],
+        entries[6][constants::field::PAYLOAD][constants::field::VISIBLE_MANUAL_REQUIRED],
         true
     );
     Ok(())
