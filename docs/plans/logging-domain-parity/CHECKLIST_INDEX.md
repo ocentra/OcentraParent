@@ -106,18 +106,18 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP05 Local Validation Evidence
 
-- [ ] `agent:run` root script added.
-- [ ] `agent:query` root script added.
-- [ ] `codex:evidence` root script added.
-- [ ] `scripts/dev/agent-run.mjs` implemented.
-- [ ] `scripts/dev/agent-query.mjs` implemented.
-- [ ] `scripts/dev/codex-evidence.mjs` implemented.
-- [ ] Local artifact layout implemented.
-- [ ] Agent run/diagnostics/artifacts NDJSON streams written.
-- [ ] DuckDB tables/indexes added.
-- [ ] Diagnostic parsers added for first supported toolchain set.
-- [ ] Smoke test passes.
-- [ ] Proof root and workpack completion filled.
+- [x] `agent:run` root script added.
+- [x] `agent:query` root script added.
+- [x] `codex:evidence` root script added.
+- [x] `scripts/dev/agent-run.mjs` implemented.
+- [x] `scripts/dev/agent-query.mjs` implemented.
+- [x] `scripts/dev/codex-evidence.mjs` implemented.
+- [x] Local artifact layout implemented.
+- [x] Agent run/diagnostics/artifacts NDJSON streams written.
+- [x] DuckDB tables/indexes added.
+- [x] Diagnostic parsers added for first supported toolchain set.
+- [x] Smoke test passes.
+- [x] Proof root and workpack completion filled.
 
 ## WP07 MCP Query Interface
 

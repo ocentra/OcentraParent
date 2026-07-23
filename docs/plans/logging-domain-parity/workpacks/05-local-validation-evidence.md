@@ -175,7 +175,9 @@ including `scripts/dev/agent-run.mjs`, `scripts/dev/agent-query.mjs`,
 `npm run validate:logging` and `npm run test:logging-evidence` both passed,
 showing the slice is at least partially wired.
 
-The canonical root now records a real controlled pass/fail wrapper run, compact
+The canonical root records a real controlled pass/fail wrapper run, compact
 query/evidence output, and the resulting local artifact, NDJSON, and DuckDB
-paths. Treat WP05 as partial-proof, not fully proved complete: the root does
-not yet prove every required diagnostic-parser class or checklist row.
+paths. `tests/repo-tooling/agent-diagnostic-parsers.test.mjs` proves the
+required first-set parser classes and structured evidence fields. WP05 is
+complete for its bounded local-wrapper scope; it makes no production telemetry
+or product-runtime logging readiness claim.

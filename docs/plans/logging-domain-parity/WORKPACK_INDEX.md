@@ -25,7 +25,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | partial-proof | [WP03 Parent Logging Architecture and Routing](workpacks/03-parent-logging-architecture-and-routing.md) | 10/11 | `01-parent-logging-architecture.md` |
 | source-present | [WP09 Log Control, Retention, and Bridge Lifecycle](workpacks/09-log-control-retention-bridge-lifecycle.md) | 0/13 | `08-log-control-retention-bridge-lifecycle.md` |
 | source-present | [WP04 Rust Logging Core Crate](workpacks/04-rust-logging-core-crate.md) | 0/12 | `02-rust-logging-core-crate.md` |
-| partial-proof | [WP05 Local Validation Evidence](workpacks/05-local-validation-evidence.md) | 0/12 | `03-local-validation-evidence.md` |
+| complete | [WP05 Local Validation Evidence](workpacks/05-local-validation-evidence.md) | 12/12 | `03-local-validation-evidence.md` |
 | partial-proof | [WP07 MCP Query Interface](workpacks/07-mcp-query-interface.md) | 0/18 | `06-mcp-query-interface.md` |
 | partial-proof | [WP08 Logger Instrumentation and Adoption](workpacks/08-logger-instrumentation-and-adoption.md) | 8/12 | `07-logger-instrumentation-pattern.md` |
 | partial-proof | [WP10 Proof Trace Pipeline](workpacks/10-proof-trace-pipeline.md) | 0/13 | `09-proof-trace-pipeline.md` |
