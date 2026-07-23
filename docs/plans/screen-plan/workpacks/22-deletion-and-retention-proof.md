@@ -28,7 +28,21 @@ Delete after success, delete after expiry, delete-failed visible state, deletion
 
 ## Current State
 
-Retention/deletion is specified but not fully proved.
+Independent review invalidated the prior WP22 packet: it exercised a proof
+harness rather than the production-safe deletion path. All six outcomes are
+open pending retention, durable queue mutation, transactional deletion state,
+capture redaction, production projection, and hardened proof custody work.
+[`docs/proof/screen-plan/wp22-deletion-retention-proof.md`](../../../proof/screen-plan/wp22-deletion-retention-proof.md).
+The portal proof uses the runner's exact-spec environment route, so it runs the
+screen-summary proof without fan-out into unrelated E2E suites.
+
+The 2026-07-23 PR 574 review repair closes eight local runtime defects covering
+acknowledgement semantics, screen query ordering, whole-job analysis leases,
+bounded deletion publication reports, retryable corrupt outbox projection,
+malformed lease recovery, expired-queue claim refusal, and tombstone directory
+sync. Focused Rust tests and the architecture gate are recorded in the proof
+manifest. These repairs do not restore any checklist item below: the workpack
+remains open until the complete accepted proof pack satisfies the target state.
 
 ## Required proof fields
 
@@ -68,6 +82,19 @@ These are proof-routing fields, not implementation code prescriptions.
 - Queue directory before/after proof.
 - Store record deletion proof.
 - Portal screenshot.
+
+## WP22 evidence (2026-07-18)
+
+- Real Windows P3 capture run `8HIf9RVzwxgAAAAAAAAAAA` wrote encrypted queue
+  custody and confirms the temporary raw PNG existed before encryption and was
+  absent afterward. Artifact root:
+  `output/screen-plan-proof/22-deletion-and-retention-proof/runtime-capture/`.
+- Focused Rust evidence covers encrypted queue removal, expiry/restart-safe
+  sweeps, durable deletion-event/read-model projection, delete-failed contract
+  serialization, and redaction of raw image payloads.
+- The packet is strictly local deletion/custody evidence. It does not claim
+  product retention controls, raw-retention opt-in, remote upload, AI quality,
+  policy authority, enforcement, or broad portal completion.
 
 ## Failure conditions
 

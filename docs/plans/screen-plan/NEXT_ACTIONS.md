@@ -26,6 +26,8 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by unchecked boxes
 
+- [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md): 6 open of 6 boxes; reopen after independent review found unsafe retention, non-atomic queue mutation, and fabricated proof boundaries.
+
 - [03 Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md): 8 open of 8 boxes.
 - [05 Capability Status Contract](workpacks/05-capability-status-contract.md): 8 open of 8 boxes.
 - [09 Windows Capture Adapter Plan Proof](workpacks/09-windows-capture-adapter-plan-proof.md): 7 open of 7 boxes.
@@ -40,7 +42,6 @@ This file is the short resume list for the next worker. It is derived from open 
 - [15 Encrypted Temporary Image Queue](workpacks/15-encrypted-temporary-image-queue.md): 6 open of 6 boxes.
 - [16 Queue Scheduler And Debouncer](workpacks/16-queue-scheduler-and-debouncer.md): 6 open of 6 boxes.
 - [21 Journal And SQLite Ingest](workpacks/21-journal-and-sqlite-ingest.md): 6 open of 6 boxes.
-- [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md): 6 open of 6 boxes.
 - [23 Policy Compiler For Screen Derived Evidence](workpacks/23-policy-compiler-for-screen-derived-evidence.md): 6 open of 6 boxes.
 - [29 Proof Tiers And Proof Packs](workpacks/29-proof-tiers-and-proof-packs.md): 6 open of 6 boxes.
 - [12 Android MediaProjection Adapter Plan Proof](workpacks/12-android-mediaprojection-adapter-plan-proof.md): 2 open of 9 boxes.

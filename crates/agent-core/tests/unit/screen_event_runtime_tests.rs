@@ -1,20 +1,29 @@
+use ocentra_eventing::bus::reports::handler::HandlerOutcome;
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
+use ocentra_eventing::replay::ReplayFilter;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
     ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
     ScreenPolicyState, ScreenRuntimePhase,
 };
-use std::fmt::Display;
+use std::{
+    fmt::Display,
+    fs,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
 use ocentra_parent_agent_core::screen_event_runtime::{
     publish_screen_capture_queue_events_for_input, publish_screen_degraded_event_chain_for_input,
     publish_screen_deletion_event_for_input, publish_screen_runtime_chain_for_input,
-    ScreenRuntimeEventPayload, ScreenRuntimeReport,
+    ScreenRuntimeEventPayload, ScreenRuntimeReport, ScreenRuntimeSpine,
 };
 use ocentra_parent_agent_core::screen_event_runtime_input::{
     ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput, ScreenRuntimeDeletionInput,
     ScreenRuntimeInput,
 };
+
+static SCREEN_EVENT_RUNTIME_TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[tokio::test]
 async fn screen_runtime_chain_publishes_uncoupled_lifecycle_flow() {
@@ -124,6 +133,47 @@ async fn screen_deletion_event_publishes_without_policy_or_action_claims() {
         ScreenEvidenceScope::DeletedQueryStoreSummary
     );
     assert!(!report.raw_image_escaped());
+}
+
+#[tokio::test]
+async fn screen_deletion_delivery_is_handled_and_survives_journal_reopen() {
+    let journal_path = screen_deletion_journal_path("handled-reopen");
+    let _ = fs::remove_file(&journal_path);
+    let spine = ScreenRuntimeSpine::with_durable_deletion_handler(
+        NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain()),
+    )
+    .await
+    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    let report = spine
+        .publish_deletion_event(
+            ScreenRuntimeDeletionInput::from(&ScreenRuntimeInput::proof_fixture()),
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        )
+        .await
+        .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    drop(spine);
+
+    let reopened =
+        NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain());
+    let replay = reopened
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    let _ = fs::remove_file(&journal_path);
+
+    assert_eq!(report.publish_reports.len(), 1);
+    assert_eq!(report.publish_reports[0].subscriber_count, 1);
+    assert_eq!(report.publish_reports[0].handled_count, 1);
+    assert_eq!(report.publish_reports[0].dead_letter_count, 0);
+    assert_eq!(
+        report.publish_reports[0].handler_reports[0].outcome,
+        HandlerOutcome::Handled
+    );
+    assert_eq!(replay.records.len(), 1);
+    assert_eq!(
+        replay.records[0].envelope.event_id,
+        report.publish_reports[0].event_id
+    );
 }
 
 #[tokio::test]
@@ -300,4 +350,12 @@ fn payload_for_phase(
         .iter()
         .find(|payload| payload.phase == phase)
         .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+}
+
+fn screen_deletion_journal_path(suffix: &str) -> std::path::PathBuf {
+    let sequence = SCREEN_EVENT_RUNTIME_TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+    std::env::temp_dir().join(format!(
+        "ocentra-screen-deletion-{suffix}-{}-{sequence}.ndjson",
+        std::process::id()
+    ))
 }
