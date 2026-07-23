@@ -370,7 +370,7 @@ async function startRuntime(persistTo: string): Promise<RuntimeHandle> {
       cwd: cloudflareDir,
       env: {
         ...process.env,
-    ENVIRONMENT: 'local',
+        ENVIRONMENT: 'local',
         INTERACTIVE_CSRF_TOKEN: process.env.INTERACTIVE_CSRF_TOKEN?.trim() || 'local-seed-csrf-token',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -429,8 +429,7 @@ function assertPersistedSeed(health: LocalSeedHealthResponse): LocalSeedPersiste
     persistenceKeys.some((key, index) => key !== expectedKeys[index]) ||
     expectedKeys.some(
       (key) =>
-        persistence[key as keyof LocalSeedPersistenceEvidence] <
-        expected[key as keyof LocalSeedPersistenceEvidence]
+        persistence[key as keyof LocalSeedPersistenceEvidence] < expected[key as keyof LocalSeedPersistenceEvidence]
     )
   ) {
     throw new Error(`local seed health did not prove D1/KV/R2 persistence: ${JSON.stringify(health)}`);

@@ -979,17 +979,19 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
       readStoredAuditEvents(env),
     ]);
   const expectedSubjects = Object.keys(buildDefaultBillingBindingSeed(env).statusBySubject ?? {});
-  const statusFixturesValid = (await Promise.all(
-    expectedSubjects.map(async (subject) => {
-      const row = await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject);
-      try {
-        const payload = JSON.parse(row?.payload_json ?? '{}') as Record<string, unknown>;
-        return payload.subject === subject && typeof payload.parentAccountRef === 'string';
-      } catch {
-        return false;
-      }
-    })
-  )).every(Boolean);
+  const statusFixturesValid = (
+    await Promise.all(
+      expectedSubjects.map(async (subject) => {
+        const row = await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject);
+        try {
+          const payload = JSON.parse(row?.payload_json ?? '{}') as Record<string, unknown>;
+          return payload.subject === subject && typeof payload.parentAccountRef === 'string';
+        } catch {
+          return false;
+        }
+      })
+    )
+  ).every(Boolean);
   return {
     generatedAt: GENERATED_AT,
     environment: env.ENVIRONMENT,

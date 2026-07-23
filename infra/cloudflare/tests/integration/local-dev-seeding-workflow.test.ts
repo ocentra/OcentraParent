@@ -83,11 +83,18 @@ function runSeedCommand(command: string, persistenceRoot: string, runId: string)
 
 function resolveWranglerCliPath(): string {
   const cliPath = path.join(repoRoot, 'infra', 'cloudflare', 'node_modules', 'wrangler', 'bin', 'wrangler.js');
-  assert.equal(existsSync(cliPath), true, 'the declared local Wrangler CLI is required for local D1 readback assertions');
+  assert.equal(
+    existsSync(cliPath),
+    true,
+    'the declared local Wrangler CLI is required for local D1 readback assertions'
+  );
   return cliPath;
 }
 
-async function runLocalD1Command(persistenceRoot: string, sql: string): Promise<ReadonlyArray<Record<string, unknown>>> {
+async function runLocalD1Command(
+  persistenceRoot: string,
+  sql: string
+): Promise<ReadonlyArray<Record<string, unknown>>> {
   const child = spawn(
     process.execPath,
     [
@@ -110,15 +117,24 @@ async function runLocalD1Command(persistenceRoot: string, sql: string): Promise<
     }
   );
   const output = await new Promise<{ code: number | null; stdout: string; stderr: string }>((resolve, reject) => {
-    let stdout = ''; let stderr = '';
+    let stdout = '';
+    let stderr = '';
     const timeout = setTimeout(() => {
-      if (child.pid != null && process.platform === 'win32') spawnSync('taskkill.exe', ['/pid', String(child.pid), '/t', '/f']);
+      if (child.pid != null && process.platform === 'win32')
+        spawnSync('taskkill.exe', ['/pid', String(child.pid), '/t', '/f']);
       reject(new Error(`Wrangler D1 readback timed out after ${localD1ReadTimeoutMs}ms: ${sql}`));
     }, localD1ReadTimeoutMs);
-    child.stdout.setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
-    child.stderr.setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
+    child.stdout.setEncoding('utf8').on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.setEncoding('utf8').on('data', (chunk) => {
+      stderr += chunk;
+    });
     child.once('error', reject);
-    child.once('close', (code) => { clearTimeout(timeout); resolve({ code, stdout, stderr }); });
+    child.once('close', (code) => {
+      clearTimeout(timeout);
+      resolve({ code, stdout, stderr });
+    });
   });
   assert.equal(output.code, 0, output.stderr || output.stdout);
   const jsonStart = output.stdout.indexOf('[');
