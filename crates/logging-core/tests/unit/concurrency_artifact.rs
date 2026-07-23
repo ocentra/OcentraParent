@@ -40,6 +40,12 @@ fn ndjson_writer_recovers_partial_tail_and_preserves_distinct_identical_records(
 }
 
 #[test]
+fn ndjson_writer_keeps_large_complete_tail_and_discards_large_partial_tail() {
+    let result = ndjson_writer_keeps_large_complete_tail_and_discards_large_partial_tail_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
 fn ndjson_writer_deduplicates_only_matching_operation_identity() {
     let result = ndjson_writer_deduplicates_only_matching_operation_identity_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
@@ -112,6 +118,32 @@ fn ndjson_writer_recovers_partial_tail_and_preserves_distinct_identical_records_
     append_record(&path, record)?;
     let payload = fs::read(&path)?;
     assert_eq!(payload, [record.as_slice(), record.as_slice()].concat());
+    Ok(())
+}
+
+fn ndjson_writer_keeps_large_complete_tail_and_discards_large_partial_tail_impl(
+) -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("large-recovery.ndjson");
+    let complete = [vec![b'x'; 2 * 1024 * 1024], vec![b'\n']].concat();
+    fs::write(&path, &complete)?;
+    let appended = b"{\"afterComplete\":true}\n";
+    append_record(&path, appended)?;
+    assert_eq!(
+        fs::metadata(&path)?.len(),
+        (complete.len() + appended.len()) as u64
+    );
+
+    let retained = b"{\"retained\":true}\n";
+    let partial = vec![b'y'; 2 * 1024 * 1024];
+    fs::write(&path, [retained.as_slice(), partial.as_slice()].concat())?;
+    let recovered = b"{\"afterPartial\":true}\n";
+    append_record(&path, recovered)?;
+    assert_eq!(
+        fs::read(&path)?,
+        [retained.as_slice(), recovered.as_slice()].concat()
+    );
     Ok(())
 }
 

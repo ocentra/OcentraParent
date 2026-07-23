@@ -1,6 +1,6 @@
 use std::{
-    fs::{create_dir_all, read, File, OpenOptions},
-    io::{self, Read, Seek, SeekFrom, Write},
+    fs::{create_dir_all, read, File},
+    io::{self, Read, Seek, SeekFrom},
     path::{Path, PathBuf},
 };
 
@@ -36,12 +36,6 @@ pub(crate) fn marker_content(operation_id: &str, record: &[u8], offset: u64) -> 
         Sha256::digest(record),
         record.len()
     )
-}
-
-pub(crate) fn write_marker(path: &Path, content: &str) -> io::Result<()> {
-    let mut marker = OpenOptions::new().write(true).create_new(true).open(path)?;
-    marker.write_all(content.as_bytes())?;
-    marker.sync_all()
 }
 
 pub(crate) fn read_intent_offset(

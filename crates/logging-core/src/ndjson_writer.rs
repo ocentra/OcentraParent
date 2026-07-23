@@ -1,6 +1,6 @@
 use std::{
     fs::{create_dir_all, File, OpenOptions},
-    io::{self, Read, Seek, SeekFrom, Write},
+    io::{self, Seek, SeekFrom, Write},
     path::{Path, PathBuf},
 };
 
@@ -130,22 +130,7 @@ pub(crate) fn validate_record(record: &[u8]) -> io::Result<()> {
 }
 
 pub(crate) fn recover_partial_tail(file: &mut File) -> io::Result<()> {
-    file.seek(SeekFrom::Start(0))?;
-    let mut payload = Vec::new();
-    file.read_to_end(&mut payload)?;
-    let Some(last) = payload.last() else {
-        return Ok(());
-    };
-    if *last == b'\n' {
-        return Ok(());
-    }
-    let retained = payload
-        .iter()
-        .rposition(|byte| *byte == b'\n')
-        .map_or(0, |index| index + 1) as u64;
-    file.set_len(retained)?;
-    file.seek(SeekFrom::Start(retained))?;
-    file.sync_data()
+    crate::ndjson_tail_recovery::recover_partial_tail(file)
 }
 
 pub(crate) fn rollback_append(file: &File, start: u64, original: io::Error) -> io::Result<()> {

@@ -4,7 +4,12 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::artifact::{ArtifactKind, ArtifactRef};
+use sha2::{Digest, Sha256};
+
+use crate::{
+    artifact::{ArtifactKind, ArtifactRef, ARTIFACT_RECORD_TYPE, ARTIFACT_SCHEMA_VERSION},
+    path::path_string,
+};
 
 pub(crate) fn ensure_artifact_directory(
     root: &Path,
@@ -47,20 +52,32 @@ pub(crate) fn validate_replay(
     run_id: &str,
     command_id: &str,
 ) -> io::Result<()> {
-    if artifact.run_id != run_id || artifact.command_id != command_id || &artifact.kind != kind {
+    if read(path)? != content.as_bytes() {
+        return Err(io::Error::new(
+            io::ErrorKind::AlreadyExists,
+            "artifact path already contains different content",
+        ));
+    }
+
+    let sha256 = format!("{:x}", Sha256::digest(content.as_bytes()));
+    let metadata_matches = artifact.schema_version == ARTIFACT_SCHEMA_VERSION
+        && artifact.record_type == ARTIFACT_RECORD_TYPE
+        && artifact.artifact_id == format!("artifact-{}", &sha256[..12])
+        && artifact.run_id == run_id
+        && artifact.command_id == command_id
+        && artifact.artifact_path == path_string(path)
+        && &artifact.kind == kind
+        && artifact.sha256 == sha256
+        && artifact.byte_length == content.len() as u64
+        && artifact.line_count == content.lines().count() as u64
+        && chrono::DateTime::parse_from_rfc3339(&artifact.created_at).is_ok();
+    if !metadata_matches {
         return Err(io::Error::new(
             io::ErrorKind::InvalidData,
             "artifact metadata does not match replay request",
         ));
     }
-    if read(path)? == content.as_bytes() {
-        Ok(())
-    } else {
-        Err(io::Error::new(
-            io::ErrorKind::AlreadyExists,
-            "artifact path already contains different content",
-        ))
-    }
+    Ok(())
 }
 
 fn ensure_safe_root(root: &Path) -> io::Result<PathBuf> {

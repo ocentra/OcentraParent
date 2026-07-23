@@ -19,6 +19,12 @@ fn artifact_writer_recovers_across_subprocess_replay_and_rejects_conflicting_pub
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
+#[test]
+fn artifact_writer_rejects_each_corrupted_integrity_metadata_field() {
+    let result = artifact_writer_rejects_each_corrupted_integrity_metadata_field_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
 fn artifact_writer_subprocess_worker_impl() -> Result<(), Box<dyn Error>> {
     let Some(root) = env::var_os(ROOT_ENV) else {
         return Ok(());
@@ -79,6 +85,68 @@ fn artifact_writer_recovers_across_subprocess_replay_and_rejects_conflicting_pub
     .filter(|entry| entry.file_name().to_string_lossy().ends_with(".tmp"))
     .count();
     assert_eq!(temporary_files, 0);
+    Ok(())
+}
+
+fn artifact_writer_rejects_each_corrupted_integrity_metadata_field_impl(
+) -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    let writer = ArtifactWriter::new(&root);
+    writer.write_text_artifact(
+        "corruption",
+        "run",
+        "command",
+        ArtifactKind::Stdout,
+        "line one\nline two\n",
+    )?;
+    let metadata_path = root
+        .join("corruption")
+        .join("artifacts")
+        .join("run")
+        .join("command")
+        .join("stdout.log.metadata.json");
+    let original = fs::read(&metadata_path)?;
+    let corruptions = [
+        ("schemaVersion", serde_json::json!(2)),
+        ("eventType", serde_json::json!("wrong-record")),
+        ("artifactId", serde_json::json!("artifact-wrong")),
+        ("runId", serde_json::json!("wrong-run")),
+        ("commandId", serde_json::json!("wrong-command")),
+        ("path", serde_json::json!("wrong/path")),
+        ("kind", serde_json::json!("stderr")),
+        ("sha256", serde_json::json!("wrong-sha")),
+        ("byteLength", serde_json::json!(999)),
+        ("lineCount", serde_json::json!(999)),
+        ("createdAt", serde_json::json!("not-a-timestamp")),
+    ];
+    for (field, replacement) in corruptions {
+        let mut metadata: serde_json::Value = serde_json::from_slice(&original)?;
+        metadata[field] = replacement;
+        fs::write(&metadata_path, serde_json::to_vec(&metadata)?)?;
+        let error = writer
+            .write_text_artifact(
+                "corruption",
+                "run",
+                "command",
+                ArtifactKind::Stdout,
+                "line one\nline two\n",
+            )
+            .err()
+            .ok_or_else(|| std::io::Error::other(format!("corrupted {field} was accepted")))?;
+        assert_eq!(
+            error.kind(),
+            std::io::ErrorKind::InvalidData,
+            "field={field}"
+        );
+    }
+    fs::write(&metadata_path, &original)?;
+    writer.write_text_artifact(
+        "corruption",
+        "run",
+        "command",
+        ArtifactKind::Stdout,
+        "line one\nline two\n",
+    )?;
     Ok(())
 }
 

@@ -13,6 +13,7 @@ use crate::{
 };
 
 pub const ARTIFACT_SCHEMA_VERSION: u16 = 1;
+pub const ARTIFACT_RECORD_TYPE: &str = "artifact";
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -90,7 +91,7 @@ fn build_artifact_ref(
     let sha256 = format!("{:x}", Sha256::digest(content.as_bytes()));
     ArtifactRef {
         schema_version: ARTIFACT_SCHEMA_VERSION,
-        record_type: "artifact".to_owned(),
+        record_type: ARTIFACT_RECORD_TYPE.to_owned(),
         artifact_id: format!("artifact-{}", &sha256[..12]),
         run_id,
         command_id,

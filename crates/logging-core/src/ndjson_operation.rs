@@ -6,8 +6,9 @@ use std::{
 
 use crate::ndjson_operation_marker::{
     marker_content, operation_paths, read_intent_offset, record_matches_at,
-    validate_operation_marker, write_marker,
+    validate_operation_marker,
 };
+use crate::ndjson_operation_marker_publish::write_marker;
 use crate::ndjson_writer::{recover_partial_tail, rollback_append, validate_record};
 
 pub(crate) fn append_operation_locked(
@@ -24,10 +25,32 @@ pub(crate) fn append_operation_with_fault<F>(
     path: &Path,
     operation_id: &str,
     record: &[u8],
-    mut before: F,
+    before: F,
 ) -> io::Result<()>
 where
     F: FnMut(FaultPoint) -> io::Result<()>,
+{
+    append_operation_with_hooks(
+        file,
+        path,
+        operation_id,
+        record,
+        before,
+        |path, content, _| write_marker(path, content),
+    )
+}
+
+pub(crate) fn append_operation_with_hooks<F, M>(
+    file: &mut File,
+    path: &Path,
+    operation_id: &str,
+    record: &[u8],
+    mut before: F,
+    mut write_operation_marker: M,
+) -> io::Result<()>
+where
+    F: FnMut(FaultPoint) -> io::Result<()>,
+    M: FnMut(&Path, &str, OperationMarkerKind) -> io::Result<()>,
 {
     validate_record(record)?;
     recover_partial_tail(file)?;
@@ -40,9 +63,10 @@ where
         Some(offset) if record_matches_at(file, offset, record)? => {
             before(FaultPoint::Sync)?;
             file.sync_data()?;
-            write_marker(
+            write_operation_marker(
                 &operation.commit,
                 &marker_content(operation_id, record, offset),
+                OperationMarkerKind::Commit,
             )?;
             return Ok(());
         }
@@ -53,9 +77,10 @@ where
         None => file.seek(SeekFrom::End(0))?,
     };
 
-    write_marker(
+    write_operation_marker(
         &operation.intent,
         &marker_content(operation_id, record, offset),
+        OperationMarkerKind::Intent,
     )?;
     if let Err(error) = before(FaultPoint::Write).and_then(|_| file.write_all(record)) {
         remove_intent(&operation.intent)?;
@@ -63,10 +88,17 @@ where
     }
     before(FaultPoint::Sync)?;
     file.sync_data()?;
-    write_marker(
+    write_operation_marker(
         &operation.commit,
         &marker_content(operation_id, record, offset),
+        OperationMarkerKind::Commit,
     )
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum OperationMarkerKind {
+    Intent,
+    Commit,
 }
 
 #[derive(Clone, Copy)]

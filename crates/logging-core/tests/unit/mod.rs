@@ -44,6 +44,24 @@ fn artifact_writer_writes_text_and_hashes_content() {
 }
 
 #[test]
+fn path_string_preserves_windows_unc_and_normalizes_extended_drive_paths() {
+    assert_eq!(
+        path_string(std::path::Path::new(
+            r"\\?\UNC\server\share\logs\artifact.log"
+        )),
+        "//server/share/logs/artifact.log"
+    );
+    assert_eq!(
+        path_string(std::path::Path::new(r"\\server\share\logs\artifact.log")),
+        "//server/share/logs/artifact.log"
+    );
+    assert_eq!(
+        path_string(std::path::Path::new(r"\\?\C:\logs\artifact.log")),
+        "C:/logs/artifact.log"
+    );
+}
+
+#[test]
 fn redaction_replaces_secret_like_fields() {
     let mut fields = LogFields::new();
     fields.insert(

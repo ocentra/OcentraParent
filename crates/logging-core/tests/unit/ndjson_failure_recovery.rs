@@ -2,8 +2,10 @@ use std::{error::Error, fs};
 
 use ocentra_parent_logging_core::{
     ndjson_test_support::{
-        append_record_with_fault, publish_artifact_with_forced_fallback,
-        publish_artifact_with_forced_fallback_fault, AppendFault, ArtifactFallbackFault,
+        append_record_with_fault, append_record_with_marker_fault,
+        publish_artifact_with_forced_fallback, publish_artifact_with_forced_fallback_fault,
+        publish_artifact_with_parent_sync_fault, AppendFault, ArtifactFallbackFault,
+        OperationMarkerFault,
     },
     ndjson_writer::append_record_for_operation,
 };
@@ -11,6 +13,12 @@ use ocentra_parent_logging_core::{
 #[test]
 fn ndjson_writer_recovers_from_injected_write_and_sync_failures() {
     let result = ndjson_writer_recovers_from_injected_write_and_sync_failures_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_operation_recovers_from_partial_intent_and_commit_markers() {
+    let result = ndjson_operation_recovers_from_partial_intent_and_commit_markers_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -29,6 +37,12 @@ fn artifact_fallback_failure_removes_partial_destination_and_allows_retry() {
 #[test]
 fn artifact_fallback_fault_does_not_delete_preexisting_artifact() {
     let result = artifact_fallback_fault_does_not_delete_preexisting_artifact_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn artifact_replay_retries_parent_directory_sync_before_success() {
+    let result = artifact_replay_retries_parent_directory_sync_before_success_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -83,6 +97,24 @@ fn artifact_fallback_fault_does_not_delete_preexisting_artifact_impl() -> Result
     Ok(())
 }
 
+fn artifact_replay_retries_parent_directory_sync_before_success_impl() -> Result<(), Box<dyn Error>>
+{
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("parent-sync-retry.log");
+    for _attempt in 0..2 {
+        let error = expected_artifact_error(publish_artifact_with_parent_sync_fault(
+            &path,
+            b"durable after replay",
+        ))?;
+        assert_eq!(error.kind(), std::io::ErrorKind::Other);
+        assert_eq!(error.to_string(), "injected parent directory sync failure");
+        assert_eq!(fs::read(&path)?, b"durable after replay");
+    }
+    publish_artifact_with_forced_fallback(&path, b"durable after replay")?;
+    Ok(())
+}
+
 fn artifact_fallback_publishes_immutably_and_cleans_temporary_file_impl(
 ) -> Result<(), Box<dyn Error>> {
     let root = temp_dir!();
@@ -134,6 +166,33 @@ fn ndjson_writer_recovers_from_injected_write_and_sync_failures_impl() -> Result
         fs::read(&path)?,
         [record.as_slice(), record.as_slice()].concat()
     );
+    Ok(())
+}
+
+fn ndjson_operation_recovers_from_partial_intent_and_commit_markers_impl(
+) -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    for (name, fault) in [
+        ("intent-write", OperationMarkerFault::IntentWrite),
+        ("intent-sync", OperationMarkerFault::IntentSync),
+        ("commit-write", OperationMarkerFault::CommitWrite),
+        ("commit-sync", OperationMarkerFault::CommitSync),
+    ] {
+        let path = root.join(format!("{name}.ndjson"));
+        let operation_id = format!("{name}-operation");
+        let record = format!("{{\"markerFault\":\"{name}\"}}\n");
+        let failure = expected_artifact_error(append_record_with_marker_fault(
+            &path,
+            &operation_id,
+            record.as_bytes(),
+            fault,
+        ))?;
+        assert_eq!(failure.kind(), std::io::ErrorKind::Other);
+        append_record_for_operation(&path, &operation_id, record.as_bytes())?;
+        append_record_for_operation(&path, &operation_id, record.as_bytes())?;
+        assert_eq!(fs::read(&path)?, record.as_bytes());
+    }
     Ok(())
 }
 

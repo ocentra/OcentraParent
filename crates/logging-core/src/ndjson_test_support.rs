@@ -5,6 +5,9 @@ use std::{
 };
 
 use crate::ndjson_operation::{append_operation_with_fault, FaultPoint};
+use crate::ndjson_operation_fault::{
+    append_operation_with_marker_fault, OperationMarkerFault as InternalOperationMarkerFault,
+};
 
 #[derive(Clone, Copy)]
 pub enum ArtifactFallbackFault {
@@ -16,6 +19,14 @@ pub enum ArtifactFallbackFault {
 pub enum AppendFault {
     Write,
     Sync,
+}
+
+#[derive(Clone, Copy)]
+pub enum OperationMarkerFault {
+    IntentWrite,
+    IntentSync,
+    CommitWrite,
+    CommitSync,
 }
 
 pub fn publish_artifact_with_forced_fallback(path: &Path, content: &[u8]) -> io::Result<()> {
@@ -32,6 +43,10 @@ pub fn publish_artifact_with_forced_fallback_fault(
         ArtifactFallbackFault::Sync => crate::artifact_publish_copy::FallbackPublishFault::Sync,
     };
     crate::artifact_publish::publish_immutable_with_fallback_fault(path, content, fault)
+}
+
+pub fn publish_artifact_with_parent_sync_fault(path: &Path, content: &[u8]) -> io::Result<()> {
+    crate::artifact_publish::publish_immutable_with_parent_sync_fault(path, content)
 }
 
 pub fn append_record_with_fault(
@@ -56,6 +71,33 @@ pub fn append_record_with_fault(
         }
         Ok(())
     });
+    let unlock_result = file.unlock();
+    result.and(unlock_result)
+}
+
+pub fn append_record_with_marker_fault(
+    path: &Path,
+    operation_id: &str,
+    record: &[u8],
+    fault: OperationMarkerFault,
+) -> io::Result<()> {
+    if let Some(parent) = path.parent() {
+        create_dir_all(parent)?;
+    }
+    let mut file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(path)?;
+    file.lock()?;
+    let fault = match fault {
+        OperationMarkerFault::IntentWrite => InternalOperationMarkerFault::IntentWrite,
+        OperationMarkerFault::IntentSync => InternalOperationMarkerFault::IntentSync,
+        OperationMarkerFault::CommitWrite => InternalOperationMarkerFault::CommitWrite,
+        OperationMarkerFault::CommitSync => InternalOperationMarkerFault::CommitSync,
+    };
+    let result = append_operation_with_marker_fault(&mut file, path, operation_id, record, fault);
     let unlock_result = file.unlock();
     result.and(unlock_result)
 }

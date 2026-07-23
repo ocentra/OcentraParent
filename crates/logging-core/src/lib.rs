@@ -17,7 +17,11 @@ pub mod level;
 pub mod local_ndjson_log;
 pub mod local_ndjson_log_typescript;
 mod ndjson_operation;
+#[cfg(feature = "test-support")]
+mod ndjson_operation_fault;
 mod ndjson_operation_marker;
+mod ndjson_operation_marker_publish;
+mod ndjson_tail_recovery;
 #[cfg(feature = "test-support")]
 #[doc(hidden)]
 pub mod ndjson_test_support;
