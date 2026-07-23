@@ -89,8 +89,27 @@ fn parse_app_text_id(
     let Some(suffix) = value.strip_prefix(required_prefix) else {
         return Err(EventingError::InvalidValue { field, value });
     };
-    if suffix.trim().is_empty() {
+    if !is_opaque_identifier_suffix(suffix) {
         return Err(EventingError::InvalidValue { field, value });
     }
     Ok(value)
+}
+
+fn is_opaque_identifier_suffix(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    let Some(first) = bytes.first() else {
+        return false;
+    };
+    let Some(last) = bytes.last() else {
+        return false;
+    };
+    if !first.is_ascii_lowercase() && !first.is_ascii_digit() {
+        return false;
+    }
+    if !last.is_ascii_lowercase() && !last.is_ascii_digit() {
+        return false;
+    }
+    bytes
+        .iter()
+        .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || *byte == b'-')
 }
