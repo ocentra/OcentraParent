@@ -44,7 +44,7 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
   assert.equal(runnerSource.includes('buildPortalE2eRustServices(repoRoot)'), true);
   assert.equal(runnerSource.includes('ensureParentDevBridgeBinaryUnlocked'), true);
   assert.equal(runnerSource.includes('signal !== null'), true);
-  assert.equal(runnerSource.includes('SIGKILL'), true);
+  assert.equal(processSource.includes('SIGKILL'), true);
   assert.equal(runnerSource.includes('resolveParentDevPort'), true);
   assert.equal(runnerSource.includes('assertAgentNetworkActivityReadModel'), true);
   assert.equal(processSource.includes('child.exitCode !== null || child.signalCode !== null'), true);
