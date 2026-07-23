@@ -140,6 +140,10 @@ pub fn operation_compaction_membership_segment_count(key_count: usize) -> usize 
     crate::ndjson_operation_compaction_bloom::segment_count_after_inserts(key_count)
 }
 
+pub fn created_directory_parent_sync_count(path: &Path) -> io::Result<usize> {
+    crate::ndjson_writer::created_directory_parent_sync_count(path)
+}
+
 pub fn replace_operation_state_without_cache_notice(path: &Path) -> io::Result<()> {
     use std::io::Write;
 

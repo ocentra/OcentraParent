@@ -30,7 +30,7 @@ pub(crate) fn append_routed_operation(
     })
 }
 
-fn with_route_lock<T>(
+pub(crate) fn with_route_lock<T>(
     directory: &Path,
     operation: impl FnOnce() -> io::Result<T>,
 ) -> io::Result<T> {

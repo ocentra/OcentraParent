@@ -16,6 +16,9 @@ use ocentra_parent_logging_core::{
 };
 use serde_json::json;
 
+#[cfg(feature = "test-support")]
+use ocentra_parent_logging_core::ndjson_test_support::created_directory_parent_sync_count;
+
 #[macro_use]
 #[path = "../support/mod.rs"]
 mod support;
@@ -41,6 +44,23 @@ fn ndjson_writer_appends_json_lines_in_order() {
 fn ndjson_writer_rejects_invalid_segments() {
     let result = ndjson_writer_rejects_invalid_segments_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[cfg(feature = "test-support")]
+#[test]
+fn ndjson_writer_syncs_each_new_directory_parent() {
+    let result = ndjson_writer_syncs_each_new_directory_parent_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[cfg(feature = "test-support")]
+fn ndjson_writer_syncs_each_new_directory_parent_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let directory = root.join("fresh").join("nested").join("stream");
+    let sync_count = created_directory_parent_sync_count(&directory)?;
+    assert_eq!(sync_count, 3);
+    Ok(())
 }
 
 #[test]

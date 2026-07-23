@@ -76,10 +76,19 @@ fn ndjson_operation_state_cleanup_waits_for_the_stream_lock() {
 
 fn ndjson_operation_state_cleanup_waits_for_the_stream_lock_impl() -> Result<(), Box<dyn Error>> {
     let root = temp_dir!();
-    fs::create_dir_all(&root)?;
-    let path = root.join("cleanup-lock.ndjson");
-    append_record_for_operation(&path, "cleanup-lock", b"{\"locked\":true}\n")?;
-    let lock_path = root.join(".cleanup-lock.ndjson.operations.lock");
+    let writer = Arc::new(NdjsonWriter::new(&root));
+    let path = writer.append_event_for_operation(
+        "cleanup",
+        "events",
+        "cleanup-lock",
+        &json!({"locked": true}),
+    )?;
+    let lock_path = path.with_file_name(format!(
+        ".{}.operations.lock",
+        path.file_name()
+            .and_then(|name| name.to_str())
+            .ok_or_else(|| std::io::Error::other("stream path has no UTF-8 name"))?
+    ));
     let lock_file = fs::OpenOptions::new()
         .read(true)
         .write(true)
@@ -97,12 +106,32 @@ fn ndjson_operation_state_cleanup_waits_for_the_stream_lock_impl() -> Result<(),
         .is_err());
     assert!(path.exists());
 
+    let retry_writer = Arc::clone(&writer);
+    let (retry_sender, retry_receiver) = mpsc::sync_channel(1);
+    let retry = thread::spawn(move || {
+        let result = retry_writer.append_event_for_operation(
+            "cleanup",
+            "events",
+            "cleanup-lock",
+            &json!({"locked": true}),
+        );
+        let _send_result = retry_sender.send(result);
+    });
+    assert!(retry_receiver
+        .recv_timeout(Duration::from_millis(100))
+        .is_err());
+
     lock_file.unlock()?;
     result_receiver.recv_timeout(Duration::from_secs(5))??;
     cleanup
         .join()
         .map_err(|_panic| std::io::Error::other("operation cleanup worker panicked"))?;
-    assert!(!path.exists());
+    let retried_path = retry_receiver.recv_timeout(Duration::from_secs(5))??;
+    retry
+        .join()
+        .map_err(|_panic| std::io::Error::other("routed retry worker panicked"))?;
+    assert_eq!(retried_path, path);
+    assert_eq!(fs::read_to_string(path)?, "{\"locked\":true}\n");
     Ok(())
 }
 

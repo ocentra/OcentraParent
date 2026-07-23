@@ -32,7 +32,7 @@ impl NdjsonWriter {
         let scope = sanitize_segment(scope)?;
         let stream = sanitize_segment(stream)?;
         let directory = self.root.join(scope).join("ndjson").join(stream);
-        create_dir_all(&directory)?;
+        create_directory_hierarchy(&directory)?;
         let path = directory.join(format!("{}.ndjson", date_stamp_now()));
         let mut record = serde_json::to_vec(event)
             .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
@@ -51,7 +51,7 @@ impl NdjsonWriter {
         let scope = sanitize_segment(scope)?;
         let stream = sanitize_segment(stream)?;
         let directory = self.root.join(scope).join("ndjson").join(stream);
-        create_dir_all(&directory)?;
+        create_directory_hierarchy(&directory)?;
         let current_path = directory.join(format!("{}.ndjson", date_stamp_now()));
         let mut record = serde_json::to_vec(event)
             .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
@@ -69,7 +69,7 @@ impl NdjsonWriter {
 pub fn append_record(path: &std::path::Path, record: &[u8]) -> io::Result<()> {
     crate::ndjson_record_validation::validate_record(record)?;
     if let Some(parent) = path.parent() {
-        create_dir_all(parent)?;
+        create_directory_hierarchy(parent)?;
     }
     crate::ndjson_operation_state_lock::with_stream_lock(path, || {
         let mut file = open_append_file(path)?;
@@ -91,11 +91,45 @@ pub fn append_record_for_operation(
         ));
     }
     if let Some(parent) = path.parent() {
-        create_dir_all(parent)?;
+        create_directory_hierarchy(parent)?;
     }
     crate::ndjson_operation_state_lock::with_stream_lock(path, || {
         append_record_for_operation_stream_locked(path, operation_id, record)
     })
+}
+
+fn create_directory_hierarchy(path: &Path) -> io::Result<()> {
+    create_directory_hierarchy_with_sync(path, crate::artifact_publish_platform::sync_parent)
+}
+
+fn create_directory_hierarchy_with_sync(
+    path: &Path,
+    mut sync_parent: impl FnMut(&Path) -> io::Result<()>,
+) -> io::Result<()> {
+    let mut missing = Vec::new();
+    let mut current = path;
+    while !current.exists() {
+        missing.push(current.to_path_buf());
+        let Some(parent) = current.parent() else {
+            break;
+        };
+        current = parent;
+    }
+    create_dir_all(path)?;
+    for directory in missing.iter().rev() {
+        sync_parent(directory)?;
+    }
+    Ok(())
+}
+
+#[cfg(feature = "test-support")]
+pub(crate) fn created_directory_parent_sync_count(path: &Path) -> io::Result<usize> {
+    let mut count = 0;
+    create_directory_hierarchy_with_sync(path, |_| {
+        count += 1;
+        Ok(())
+    })?;
+    Ok(count)
 }
 
 fn append_record_for_operation_stream_locked(
@@ -112,7 +146,15 @@ fn append_record_for_operation_stream_locked(
 }
 
 pub fn remove_record_file_with_operation_state(path: &Path) -> io::Result<()> {
-    crate::ndjson_operation_state_cleanup::remove_operation_state(path)
+    let directory = path.parent().ok_or_else(|| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "NDJSON stream path has no parent directory",
+        )
+    })?;
+    crate::ndjson_operation_route::with_route_lock(directory, || {
+        crate::ndjson_operation_state_cleanup::remove_operation_state(path)
+    })
 }
 
 fn lock_and_append(file: &mut File, record: &[u8]) -> io::Result<()> {

@@ -93,7 +93,11 @@ where
     S: FnOnce(&Path) -> io::Result<()>,
 {
     match read_immutable(path) {
-        Ok(existing) => compare_existing(&existing, content).and_then(|_| sync(path)),
+        Ok(existing) => {
+            compare_existing(&existing, content)?;
+            remove_temporary(&temporary_path(path)?)?;
+            sync(path)
+        }
         Err(error) if error.kind() == io::ErrorKind::NotFound => {
             publish_new(path, content, publish, sync)
         }

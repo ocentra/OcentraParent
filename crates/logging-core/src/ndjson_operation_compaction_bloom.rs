@@ -4,6 +4,7 @@ const MAX_KEYS_PER_SEGMENT: usize = 64 * 1024;
 
 pub(crate) struct CommitBloom {
     segments: Vec<CommitBloomSegment>,
+    saturated: bool,
 }
 
 struct CommitBloomSegment {
@@ -15,6 +16,7 @@ impl Default for CommitBloom {
     fn default() -> Self {
         Self {
             segments: vec![CommitBloomSegment::default()],
+            saturated: false,
         }
     }
 }
@@ -32,15 +34,20 @@ impl CommitBloom {
     pub(crate) fn clear(&mut self) {
         self.segments.clear();
         self.segments.push(CommitBloomSegment::default());
+        self.saturated = false;
     }
 
     pub(crate) fn insert(&mut self, key: &str) {
+        if self.saturated {
+            return;
+        }
         if self
             .segments
             .last()
             .is_some_and(|segment| segment.key_count >= MAX_KEYS_PER_SEGMENT)
         {
-            self.segments.push(CommitBloomSegment::default());
+            self.saturated = true;
+            return;
         }
         if let Some(segment) = self.segments.last_mut() {
             segment.insert(key);
@@ -48,9 +55,11 @@ impl CommitBloom {
     }
 
     pub(crate) fn might_contain(&self, key: &str) -> bool {
-        self.segments
-            .iter()
-            .any(|segment| segment.might_contain(key))
+        self.saturated
+            || self
+                .segments
+                .iter()
+                .any(|segment| segment.might_contain(key))
     }
 
     #[cfg(feature = "test-support")]

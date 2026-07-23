@@ -33,6 +33,12 @@ fn artifact_fallback_publishes_immutably_and_cleans_temporary_file() {
 }
 
 #[test]
+fn artifact_existing_replay_removes_owned_stale_temporary() {
+    let result = artifact_existing_replay_removes_owned_stale_temporary_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
 fn artifact_fallback_failure_removes_partial_destination_and_allows_retry() {
     let result = artifact_fallback_failure_removes_partial_destination_and_allows_retry_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
@@ -200,6 +206,21 @@ fn artifact_fallback_publishes_immutably_and_cleans_temporary_file_impl(
         .filter(|entry| entry.file_name().to_string_lossy().ends_with(".tmp"))
         .count();
     assert_eq!(temporary_files, 0);
+    Ok(())
+}
+
+fn artifact_existing_replay_removes_owned_stale_temporary_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("existing-replay.log");
+    publish_artifact_with_forced_fallback(&path, b"immutable replay")?;
+    let temporary = root.join(".existing-replay.log.tmp");
+    fs::write(&temporary, b"crash leftover")?;
+
+    publish_artifact_with_forced_fallback(&path, b"immutable replay")?;
+
+    assert_eq!(fs::read(&path)?, b"immutable replay");
+    assert!(!temporary.exists());
     Ok(())
 }
 

@@ -54,8 +54,8 @@ fn ndjson_operation_refuses_to_truncate_an_unowned_partial_tail() {
 }
 
 #[test]
-fn ndjson_operation_partitions_membership_before_bloom_saturation() {
-    let result = ndjson_operation_partitions_membership_before_bloom_saturation_impl();
+fn ndjson_operation_bounds_membership_after_bloom_saturation() {
+    let result = ndjson_operation_bounds_membership_after_bloom_saturation_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -194,8 +194,7 @@ fn ndjson_operation_refuses_to_truncate_an_unowned_partial_tail_impl() -> Result
     Ok(())
 }
 
-fn ndjson_operation_partitions_membership_before_bloom_saturation_impl(
-) -> Result<(), Box<dyn Error>> {
-    assert!(operation_compaction_membership_segment_count(130_000) >= 2);
+fn ndjson_operation_bounds_membership_after_bloom_saturation_impl() -> Result<(), Box<dyn Error>> {
+    assert_eq!(operation_compaction_membership_segment_count(130_000), 1);
     Ok(())
 }
