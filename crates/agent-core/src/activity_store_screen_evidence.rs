@@ -20,27 +20,48 @@ use self::helpers::{
     bool_field, non_empty_string_list_field, number_field, string_field, string_list_field,
 };
 
-const UNBOUNDED_SCREEN_QUEUE_HEALTH_LIMIT: i64 = -1;
-
 pub(crate) fn screen_evidence_recent_summary(
     connection: &Connection,
     limit: u64,
     generated_at: &str,
 ) -> Result<ScreenEvidenceRecentSummary, ActivityStoreError> {
-    let queue_health_results =
-        screen_analysis_results(connection, UNBOUNDED_SCREEN_QUEUE_HEALTH_LIMIT)?;
-    let result_limit = usize::try_from(limit).unwrap_or(usize::MAX);
-    let results = queue_health_results
-        .iter()
-        .take(result_limit)
-        .cloned()
-        .collect();
+    let results = screen_analysis_results(connection, limit as i64)?;
+    let queue_health_results = latest_screen_analysis_results_per_queue_job(connection)?;
     Ok(summary_from_results(
         limit,
         generated_at,
         results,
         &queue_health_results,
     ))
+}
+
+fn latest_screen_analysis_results_per_queue_job(
+    connection: &Connection,
+) -> Result<Vec<ScreenAnalysisResult>, ActivityStoreError> {
+    let mut statement = connection
+        .prepare(constants::sqlite::SELECT_LATEST_SCREEN_ANALYSIS_ACTIVITY_PER_QUEUE_JOB)?;
+    let rows = statement.query_map(
+        params![
+            constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED,
+            constants::activity_observer::LOCAL_AI,
+        ],
+        |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+            ))
+        },
+    )?;
+    let mut results = Vec::new();
+    for row in rows {
+        let (_event_id, observed_at, fields_json, evidence_json) = row?;
+        if let Some(result) = result_from_json(observed_at, &fields_json, &evidence_json)? {
+            results.push(result);
+        }
+    }
+    Ok(results)
 }
 
 fn screen_analysis_results(
