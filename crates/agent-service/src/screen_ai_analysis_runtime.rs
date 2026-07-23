@@ -101,33 +101,46 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
         queue_job_id: image.queue_job_id.clone(),
         adapter_timeout_ms: config.adapter_timeout_ms,
     });
-    let metadata = metadata_result_for_queue_job(&config.store_path, &image, &clock)?;
+    let result = record_claimed_analysis(config, clock, event_runtime, &queue, &image).await;
+    if result.is_err() {
+        queue.release_claimed_entry(&image.queue_job_id)?;
+    }
+    result
+}
+
+async fn record_claimed_analysis(
+    config: &ScreenAiAnalysisRuntimeConfig,
+    clock: ScreenAiAnalysisCycleClock,
+    event_runtime: Option<&ScreenAiServiceEventRuntime>,
+    queue: &ScreenEvidenceQueue,
+    image: &QueuedScreenImage,
+) -> Result<ScreenAiAnalysisCycleOutcome, ActivityCaptureError> {
+    let metadata = metadata_result_for_queue_job(&config.store_path, image, &clock)?;
     if metadata
         .as_ref()
         .is_some_and(|result| result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA)
     {
         queue.complete_claimed_entry(&image.queue_job_id)?;
         return Ok(ScreenAiAnalysisCycleOutcome::AlreadyAnalyzed {
-            queue_job_id: image.queue_job_id,
+            queue_job_id: image.queue_job_id.clone(),
         });
     }
-
     let runtime = adapter::runtime_status(config.adapter_command.as_deref(), &clock.timestamp);
     let generation = local_ai_provider_scheduler()
         .run_generation_job(
             LocalAiProviderSchedulerJobClass::ChildSafety,
             runtime,
-            || adapter::run_adapter(config, &image, metadata.as_ref()),
+            || adapter::run_adapter(config, image, metadata.as_ref()),
         )
         .await;
     let event_record = analysis_event_record(
-        &image,
+        image,
         metadata.as_ref(),
         &clock,
         &generation,
         &config.ocr_redaction_policy,
     );
-    let outcome = outcome_for_generation(&image, &generation, &event_record);
+    let outcome = outcome_for_generation(image, &generation, &event_record);
     record_activity_events_to_paths(
         &config.journal_path,
         &config.journal_key_path,
@@ -136,7 +149,7 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
     )?;
     if let (Some(runtime), Some(row)) = (
         event_runtime,
-        latest_analysis_row_for_queue_job(config, &image, &clock)?,
+        latest_analysis_row_for_queue_job(config, image, &clock)?,
     ) {
         let _ = runtime
             .publish_row_ready(

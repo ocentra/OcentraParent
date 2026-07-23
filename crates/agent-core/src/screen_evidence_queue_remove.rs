@@ -44,10 +44,10 @@ pub(crate) fn complete_claimed_entry(
                 retained.push(line);
             }
         }
-        if removed_count != 1 {
+        if removed_count == 0 {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
-                "claimed screen queue job was not removed exactly once",
+                "claimed screen queue job was not removed",
             )
             .into());
         }
@@ -58,4 +58,23 @@ pub(crate) fn complete_claimed_entry(
             .collect::<Vec<_>>();
         super::screen_evidence_queue_leases::write_leases(queue, &leases)
     })
+}
+
+pub(crate) fn release_claimed_entry(
+    queue: &ScreenEvidenceQueue,
+    queue_job_id: &str,
+) -> Result<(), JournalError> {
+    super::with_exclusive_queue_lock(queue, || {
+        let leases = super::screen_evidence_queue_leases::read_leases(queue)?
+            .into_iter()
+            .filter(|lease| lease.queue_job_id != queue_job_id)
+            .collect::<Vec<_>>();
+        super::screen_evidence_queue_leases::write_leases(queue, &leases)
+    })
+}
+
+impl ScreenEvidenceQueue {
+    pub fn release_claimed_entry(&self, queue_job_id: &str) -> Result<(), JournalError> {
+        release_claimed_entry(self, queue_job_id)
+    }
 }

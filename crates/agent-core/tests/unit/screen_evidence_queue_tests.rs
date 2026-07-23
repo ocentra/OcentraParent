@@ -538,7 +538,7 @@ fn screen_evidence_queue_renewed_lease_stays_valid_for_the_running_job() {
 }
 
 #[test]
-fn screen_evidence_queue_claim_completion_requires_exactly_one_removal() {
+fn screen_evidence_queue_claim_completion_removes_all_duplicate_job_records() {
     let directory = temp_queue_dir();
     let _ = remove_dir_all(&directory);
     let queue =
@@ -549,6 +549,9 @@ fn screen_evidence_queue_claim_completion_requires_exactly_one_removal() {
         .append_encrypted_image(&job, b"claimed-image")
         .expect_value(constants::error::JOURNAL_APPENDS);
     queue
+        .append_encrypted_image(&job, b"duplicate-claimed-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
         .claim_first_decrypted_entry(
             1,
             constants::activity_store::TEST_FIRST_OBSERVED_AT,
@@ -557,19 +560,53 @@ fn screen_evidence_queue_claim_completion_requires_exactly_one_removal() {
         .expect_value(constants::error::JOURNAL_READS)
         .expect_value(constants::error::JOURNAL_READS);
 
-    queue
+    let completion = queue
         .complete_claimed_entry(&job.queue_job_id)
         .expect_value(constants::error::JOURNAL_APPENDS);
-    let duplicate_completion = queue.complete_claimed_entry(&job.queue_job_id);
+    let remaining = queue
+        .read_decrypted_entries(4)
+        .expect_value(constants::error::JOURNAL_READS);
     let _ = remove_dir_all(&directory);
 
-    let error_kind = match duplicate_completion {
-        Err(ocentra_parent_agent_core::journal_error::JournalError::Io(error)) => {
-            Some(error.kind())
-        }
-        _ => None,
-    };
-    assert_eq!(error_kind, Some(std::io::ErrorKind::NotFound));
+    assert_eq!(completion, ());
+    assert!(remaining.is_empty());
+}
+
+#[test]
+fn screen_evidence_queue_release_claim_keeps_entry_available_for_retry() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([23; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let job = screen_queue_job();
+    queue
+        .append_encrypted_image(&job, b"retryable-claimed-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS)
+        .expect_value(constants::error::JOURNAL_READS);
+    queue
+        .release_claimed_entry(&job.queue_job_id)
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let reclaimed = queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(
+        reclaimed.map(|entry| entry.queue_job_id),
+        Some(job.queue_job_id)
+    );
 }
 
 #[test]

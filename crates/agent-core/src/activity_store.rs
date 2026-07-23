@@ -68,6 +68,10 @@ impl ActivityStore {
         self.status_with_counts(ingested, duplicate_events)
     }
 
+    pub fn contains_event_id(&self, event_id: &str) -> Result<bool, ActivityStoreError> {
+        internals::has_event_id(&self.connection, event_id)
+    }
+
     pub fn ingest_journal(
         &self,
         journal: &ActivityJournal,
