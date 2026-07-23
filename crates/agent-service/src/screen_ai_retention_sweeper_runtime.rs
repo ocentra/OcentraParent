@@ -94,6 +94,16 @@ pub(crate) fn spawn_screen_ai_retention_sweeper_runtime() {
     }
 }
 
+pub(crate) async fn run_screen_ai_retention_blocking<T, F>(
+    operation: F,
+) -> Result<T, tokio::task::JoinError>
+where
+    T: Send + 'static,
+    F: FnOnce() -> T + Send + 'static,
+{
+    tokio::task::spawn_blocking(operation).await
+}
+
 async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweeperRuntimeConfig) {
     let Ok(event_runtime) = ScreenAiServiceEventRuntime::start().await else {
         return;
@@ -106,7 +116,14 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
         tick_count += 1;
         let clock = ScreenAiRetentionSweeperClock::now();
         let observed_at = clock.timestamp.clone();
-        let outcome = record_screen_ai_retention_sweeper_tick(&config, clock);
+        let tick_config = config.clone();
+        let Ok(outcome) = run_screen_ai_retention_blocking(move || {
+            record_screen_ai_retention_sweeper_tick(&tick_config, clock)
+        })
+        .await
+        else {
+            return;
+        };
         if let Ok(ScreenAiRetentionSweeperOutcome::Swept {
             expired_entries, ..
         }) = outcome
@@ -118,7 +135,14 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
                 ObservedAtText(observed_at),
             )
             .await;
-            let _ = finalize_published_deletion_outbox(&config, &published);
+            let finalization_config = config.clone();
+            let Ok(_) = run_screen_ai_retention_blocking(move || {
+                finalize_published_deletion_outbox(&finalization_config, &published)
+            })
+            .await
+            else {
+                return;
+            };
             sweep_count += 1;
         }
         if config.max_sweeps.is_some_and(|max| sweep_count >= max) {
@@ -286,7 +310,11 @@ impl ScreenAiRetentionSweeperRuntimeConfig {
             )),
             queue_dir: env_path(ScreenAiEnvVar(SCREEN_SERVICE_QUEUE_DIR_ENV))
                 .map(|path| path.0)
-                .unwrap_or_else(|| default_queue_dir().0),
+                .unwrap_or_else(|| {
+                    let mut path = env::temp_dir();
+                    path.push(SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME);
+                    path
+                }),
             journal_path: activity_journal_path().into(),
             journal_key_path: activity_journal_key_path().into(),
             store_path: activity_db_path().into(),
@@ -330,12 +358,6 @@ fn env_path(env_var_name: ScreenAiEnvVar) -> Option<ScreenAiPath> {
         .filter(|value| !value.is_empty())
         .map(PathBuf::from)
         .map(ScreenAiPath)
-}
-
-fn default_queue_dir() -> ScreenAiPath {
-    let mut path = env::temp_dir();
-    path.push(SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME);
-    ScreenAiPath(path)
 }
 
 fn expired_entry_event(

@@ -3,7 +3,11 @@ use std::string::String as TestString;
 use std::{
     fs::{self, remove_dir_all},
     io::Error as IoError,
-    sync::atomic::{AtomicU64, Ordering},
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        mpsc,
+    },
+    time::Duration,
 };
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -21,8 +25,9 @@ use crate::screen_ai_retention_sweeper_deletion_events::{
 };
 use crate::screen_ai_retention_sweeper_runtime::{
     acknowledge_published_deletion_outbox, finalize_published_deletion_outbox,
-    record_screen_ai_retention_sweeper_tick, ScreenAiRetentionSweeperClock,
-    ScreenAiRetentionSweeperOutcome, ScreenAiRetentionSweeperRuntimeConfig,
+    record_screen_ai_retention_sweeper_tick, run_screen_ai_retention_blocking,
+    ScreenAiRetentionSweeperClock, ScreenAiRetentionSweeperOutcome,
+    ScreenAiRetentionSweeperRuntimeConfig,
 };
 use crate::test_invariants::require_ok;
 
@@ -35,6 +40,29 @@ fn screen_retention_sweeper_runtime_is_enabled_by_default() -> Result<(), IoErro
     assert_eq!(config.poll_seconds, 5);
     assert_eq!(config.max_sweeps, None);
     assert_eq!(config.max_ticks, None);
+    Ok(())
+}
+
+#[tokio::test(flavor = "current_thread")]
+async fn screen_retention_blocking_boundary_keeps_tokio_timer_live() -> Result<(), IoError> {
+    let (timer_sender, timer_receiver) = mpsc::channel();
+    tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_millis(10)).await;
+        let _ = timer_sender.send(());
+    });
+
+    let timer_advanced = run_screen_ai_retention_blocking(move || {
+        timer_receiver
+            .recv_timeout(Duration::from_millis(150))
+            .is_ok()
+    })
+    .await
+    .map_err(|error| IoError::other(format!("{error:?}")))?;
+
+    assert!(
+        timer_advanced,
+        "retention filesystem and SQLite work must not block the Tokio executor"
+    );
     Ok(())
 }
 
