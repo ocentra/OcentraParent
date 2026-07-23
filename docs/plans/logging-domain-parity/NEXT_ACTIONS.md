@@ -31,7 +31,7 @@
 Current status:
 
 ```text
-WP04 is complete-proven at 12/12 against source commit `268b1f93d01d8410bf1fa5eccacf79dedad4f9aa`: bounded NDJSON tail recovery, retry-safe intent/commit markers, complete artifact replay custody validation, extended UNC preservation, parent-directory re-sync on matching replay, real subprocess conflict custody, persisted adversarial redaction, and both normal and `test-support` gates are current. All five ignored proof artifacts were regenerated against that source tree. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
+WP04 is complete-proven at 12/12 against source commit `d21288ff68b1aa93aa839b2c49cd62f3009905ed`: bounded NDJSON tail and operation-state recovery, atomic repairable intent/commit markers, exact committed-record custody verification, complete artifact replay custody validation including createdAt, hard-link and crash-safe copy fallback, Windows publication durability, extended UNC preservation, real subprocess conflict custody, persisted adversarial redaction, and both normal and all-features gates are current. The registered agent-service dev-log target runs 3 tests, and checked-in CI now requires the logging-core all-features gate. All five ignored proof artifacts were regenerated against that source tree. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
 ```
 
 Expected result:

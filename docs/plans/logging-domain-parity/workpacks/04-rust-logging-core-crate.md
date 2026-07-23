@@ -179,21 +179,23 @@ assets, and downstream use from `crates/agent-service/src/dev_log.rs`. The June
 16, 2026 audit re-verified the live delegation path with
 `cargo test -p ocentra-parent-agent-service dev_log`, which passed.
 
-The July 20, 2026 closure merged `origin/main`, preserved explicit
-operation-identity semantics, added a real subprocess artifact
-publish/replay/conflict test, and expanded normalized secret-key coverage
-through persisted NDJSON, artifact content, and artifact metadata. The scoped
-Rust, fixture, formatting, clippy, and architecture gates passed. The generated
-directory is intentionally ignored, so its existence is local reproducible
-evidence rather than a tracked checkout prerequisite.
+The July 22, 2026 review closeout preserved explicit operation-identity
+semantics and added atomic marker repair, committed-record verification,
+bounded compacted operation state, full artifact custody including createdAt,
+hard-link and crash-safe copy fallback, real Windows publication durability,
+and extended UNC coverage. The agent-service dev-log target now runs three
+tests, and checked-in CI requires the logging-core all-features gate. The
+scoped Rust, fixture, formatting, clippy, architecture, and source-shape gates
+passed. The generated directory is intentionally ignored, so its existence is
+local reproducible evidence rather than a tracked checkout prerequisite.
 
 ## Completion record
 
 ```text
-Workpack id and branch: 04-rust-logging-core-crate; codex/logging-domain-parity-wp04; merged origin/main base dc27a632a852ee5ba5f85dc9188824ca8abe4308; proof-bound source commit 268b1f93d01d8410bf1fa5eccacf79dedad4f9aa
-Touched files: logging-core NDJSON tail/operation recovery, artifact publication and custody replay, path normalization, visible unit/fault/subprocess coverage, bounded logging-plan closeout docs, and five local ignored proof artifacts under output/logging-domain-parity-proof/04-rust-logging-core-crate/
-Validation commands and results: PASS cargo fmt -p ocentra-parent-logging-core -- --check; PASS cargo check -p ocentra-parent-logging-core with and without `test-support`; PASS cargo test -p ocentra-parent-logging-core (42 normal top-level tests; 48 with `test-support`, including 6 deterministic failure-recovery tests); PASS cargo clippy -p ocentra-parent-logging-core --all-targets with and without `test-support` and `-D warnings`; PASS focused large-tail, corrupted-custody-field, UNC-path, failure-recovery, subprocess-custody, and persisted-redaction tests; PASS cargo test -p ocentra-parent-agent-service dev_log (exit 0, with no matching test names in this revision); PASS npm run test --workspace @ocentra-parent/logging-domain -- dev-log-fixture (2/2); PASS npm run lint:architecture -- --files crates/logging-core; PASS source-shape; PASS git diff --check
-Proof artifacts: regenerated locally against source commit 268b1f93d01d8410bf1fa5eccacf79dedad4f9aa as 00-rust-crate-file-map.json, 01-rust-ndjson-writer-proof.json, 02-artifact-writer-proof.json, 03-ts-rust-fixture-parity.json, and 16-validation-commands.log; they are intentionally untracked and must be regenerated from the recorded commands when needed
+Workpack id and branch: 04-rust-logging-core-crate; codex/logging-domain-parity-wp04; merged origin/main base dc27a632a852ee5ba5f85dc9188824ca8abe4308; proof-bound source commit d21288ff68b1aa93aa839b2c49cd62f3009905ed
+Touched files: logging-core NDJSON tail/operation recovery and compacted state lifecycle, artifact publication/durability and custody replay, path normalization, visible unit/fault/subprocess coverage, registered agent-service dev-log test target, checked-in all-features CI gate, bounded logging-plan closeout docs, and five local ignored proof artifacts under output/logging-domain-parity-proof/04-rust-logging-core-crate/
+Validation commands and results: PASS cargo fmt for logging-core and agent-service with `--check`; PASS cargo check -p ocentra-parent-logging-core with and without `test-support`; PASS cargo test -p ocentra-parent-logging-core --all-targets (44 top-level tests); PASS cargo test -p ocentra-parent-logging-core --all-targets --all-features (55 top-level tests, including 11 deterministic recovery and operation-state tests); PASS cargo clippy -p ocentra-parent-logging-core --all-targets --all-features -- -D warnings; PASS focused large-tail, committed-record custody, marker repair, bounded operation-state lifecycle, corrupted-custody-field, UNC-path, crash-safe artifact fallback, subprocess-custody, and persisted-redaction tests; PASS cargo test -p ocentra-parent-agent-service --test dev_log (3/3); PASS cargo test -p ocentra-parent-agent-service --all-targets; PASS npm run test --workspace @ocentra-parent/logging-domain -- dev-log-fixture (2/2); PASS npm run lint:architecture -- --files crates/logging-core crates/agent-service; PASS source-shape; PASS git diff --check
+Proof artifacts: regenerated locally against source commit d21288ff68b1aa93aa839b2c49cd62f3009905ed as 00-rust-crate-file-map.json, 01-rust-ndjson-writer-proof.json, 02-artifact-writer-proof.json, 03-ts-rust-fixture-parity.json, and 16-validation-commands.log; they are intentionally untracked and must be regenerated from the recorded commands when needed
 Product/runtime claims: local Rust logging-core and agent-service dev-log delegation only
 Known gaps/manual-required states: no production telemetry, agent-run, or DuckDB-wrapper claim
 ```
