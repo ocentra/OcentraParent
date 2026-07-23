@@ -39,6 +39,7 @@ interface LocalSeedHealthResponse {
   missingBindingCount: number;
   seedSummary: {
     persistence: LocalSeedPersistenceEvidence;
+    fixtureValidation: { statusFixturesValid: boolean };
   };
 }
 
@@ -369,7 +370,7 @@ async function startRuntime(persistTo: string): Promise<RuntimeHandle> {
       cwd: cloudflareDir,
       env: {
         ...process.env,
-        ENVIRONMENT: process.env.ENVIRONMENT?.trim() || 'development',
+    ENVIRONMENT: 'local',
         INTERACTIVE_CSRF_TOKEN: process.env.INTERACTIVE_CSRF_TOKEN?.trim() || 'local-seed-csrf-token',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -422,6 +423,7 @@ function assertPersistedSeed(health: LocalSeedHealthResponse): LocalSeedPersiste
     health.status !== 'ok' ||
     health.bindingStatus !== 'ready' ||
     health.missingBindingCount !== 0 ||
+    health.seedSummary?.fixtureValidation?.statusFixturesValid !== true ||
     persistence == null ||
     persistenceKeys.length !== expectedKeys.length ||
     persistenceKeys.some((key, index) => key !== expectedKeys[index]) ||

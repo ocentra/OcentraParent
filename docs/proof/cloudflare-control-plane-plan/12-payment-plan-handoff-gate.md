@@ -14,7 +14,7 @@ cloudflare_module_state: local contract and Worker execution green; production r
 accepted_proof_roots: none accepted; raw-root presence, Git tracking, retained receipt, and acceptance are distinct states
 missing_proof_roots: WP00-WP06 and WP08-WP11 retained execution receipts; WP07 receipt acceptance; WP12 downstream payment acknowledgment
 carried_blockers: account authority; trusted-device authority; provider webhook readiness; storage/queue operations; portal smoke; deployment promotion; data custody; downstream payment acknowledgment
-payment_may_assume: generated billing contracts are consumed by current Worker source; current local lint/unit/contract/integration gates and billing-core unit tests pass
+payment_may_assume: generated billing contracts are consumed by current Worker source; only the exact focused checks recorded below passed on the named source tree
 payment_must_not_assume: production deployment; production auth or device trust; provider correctness; storage/queue operations; portal readiness; billing product semantics; entitlement readiness
 auth_account_dependency_state: manual-required / blocked
 trusted_device_dependency_state: manual-required / blocked

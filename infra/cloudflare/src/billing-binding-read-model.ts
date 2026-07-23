@@ -47,7 +47,7 @@ const AUDIT_EVENTS_KEY = 'billing/audit-events.json';
 const TOUCH_KEY_PREFIX = 'billing-touch:';
 
 export function isLocalFixtureEnvironment(environment: string): boolean {
-  return environment === 'local' || environment === 'test' || environment === 'development';
+  return environment === 'local' || environment === 'test';
 }
 
 function normalizeSql(sql: string): string {
@@ -895,13 +895,15 @@ async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch
 }
 
 async function ensureReadModelSeedOnce(env: Env): Promise<void> {
+  if (env.BILLING_D1) {
+    await env.BILLING_D1.exec(CREATE_READ_MODEL_SCHEMA_SQL);
+  }
   if (!isLocalFixtureEnvironment(env.ENVIRONMENT)) {
     return;
   }
   const patch = buildDefaultBillingBindingSeed(env);
 
   if (env.BILLING_D1) {
-    await env.BILLING_D1.exec(CREATE_READ_MODEL_SCHEMA_SQL);
     await seedD1Tables(env.BILLING_D1, patch);
   }
 
@@ -963,6 +965,7 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
     kvPricingPlanRows: number;
     r2AuditEventRows: number;
   };
+  fixtureValidation: { statusFixturesValid: boolean };
 }> {
   const pricingPlans = await loadPricingPlans(env);
   const adminAccounts = await loadAdminBillingAccounts(env, null);
@@ -975,6 +978,18 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
       env.BILLING_CONFIG_KV?.get(PRICING_PLANS_KEY, 'json'),
       readStoredAuditEvents(env),
     ]);
+  const expectedSubjects = Object.keys(buildDefaultBillingBindingSeed(env).statusBySubject ?? {});
+  const statusFixturesValid = (await Promise.all(
+    expectedSubjects.map(async (subject) => {
+      const row = await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject);
+      try {
+        const payload = JSON.parse(row?.payload_json ?? '{}') as Record<string, unknown>;
+        return payload.subject === subject && typeof payload.parentAccountRef === 'string';
+      } catch {
+        return false;
+      }
+    })
+  )).every(Boolean);
   return {
     generatedAt: GENERATED_AT,
     environment: env.ENVIRONMENT,
@@ -990,6 +1005,7 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
       kvPricingPlanRows: Array.isArray(storedPricingPlans) ? storedPricingPlans.length : 0,
       r2AuditEventRows: storedAuditEvents.length,
     },
+    fixtureValidation: { statusFixturesValid },
   };
 }
 
