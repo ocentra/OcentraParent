@@ -194,9 +194,11 @@ fn analysis_clock(
 
 fn capture_clock(timestamp: impl std::fmt::Display) -> ScreenAiServiceCaptureClock {
     let timestamp = timestamp.to_string();
-    let epoch_seconds = chrono::DateTime::parse_from_rfc3339(&timestamp)
-        .expect("test capture timestamp parses")
-        .timestamp() as u64;
+    let epoch_seconds = require_ok(
+        chrono::DateTime::parse_from_rfc3339(&timestamp),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )
+    .timestamp() as u64;
     ScreenAiServiceCaptureClock {
         epoch_seconds,
         timestamp,

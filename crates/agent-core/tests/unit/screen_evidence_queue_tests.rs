@@ -563,7 +563,7 @@ fn screen_evidence_queue_claim_completion_removes_all_duplicate_job_records() {
         .expect_value(constants::error::JOURNAL_READS)
         .expect_value(constants::error::JOURNAL_READS);
 
-    let completion = queue
+    queue
         .complete_claimed_entry(&job.queue_job_id)
         .expect_value(constants::error::JOURNAL_APPENDS);
     let remaining = queue
@@ -571,7 +571,6 @@ fn screen_evidence_queue_claim_completion_removes_all_duplicate_job_records() {
         .expect_value(constants::error::JOURNAL_READS);
     let _ = remove_dir_all(&directory);
 
-    assert_eq!(completion, ());
     assert!(remaining.is_empty());
 }
 
