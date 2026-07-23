@@ -7,25 +7,24 @@ pub(super) enum MutationPlan {
 }
 
 pub(super) fn mutation_plan(
-    existing: Option<(&str, &str, &str)>,
+    existing: Option<(&str, &str)>,
     family_id: &str,
-    parent_account_id: &str,
     action: &str,
 ) -> Result<MutationPlan, DeviceTrustRegistryFailure> {
     if action != "pair-child-device" && action != "revoke-child-device" {
         return Err(DeviceTrustRegistryFailure::StorageIntegrityRejected);
     }
-    if let Some((_existing_family, _existing_parent, "trusted")) = existing {
+    if let Some((_existing_family, "trusted")) = existing {
         return Err(DeviceTrustRegistryFailure::StorageIntegrityRejected);
     }
-    if let Some((existing_family, existing_parent, _state)) = existing {
-        if existing_family != family_id || existing_parent != parent_account_id {
+    if let Some((existing_family, _state)) = existing {
+        if existing_family != family_id {
             return Ok(MutationPlan::Rejected(
                 DeviceTrustRegistryRejection::OwnershipConflict,
             ));
         }
     }
-    if matches!(existing, Some((_family, _parent, "revoked"))) && action == "pair-child-device" {
+    if matches!(existing, Some((_family, "revoked"))) && action == "pair-child-device" {
         return Ok(MutationPlan::Rejected(
             DeviceTrustRegistryRejection::RevokedDeviceCannotRePair,
         ));

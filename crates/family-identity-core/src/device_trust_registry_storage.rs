@@ -92,23 +92,23 @@ fn mutate(
         .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
     let existing = transaction
         .query_row(
-            "SELECT family_id, parent_account_id, state FROM device_trust_registry WHERE device_id = ?1",
+            "SELECT family_id, state FROM device_trust_registry WHERE device_id = ?1",
             [device_id],
-            |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?)),
+            |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
         )
         .optional()
         .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
     let existing = existing
         .as_ref()
-        .map(|(family, parent, state)| (family.as_str(), parent.as_str(), state.as_str()));
-    let decision = match mutation_plan(existing, family_id, parent_account_id, action)? {
+        .map(|(family, state)| (family.as_str(), state.as_str()));
+    let decision = match mutation_plan(existing, family_id, action)? {
         MutationPlan::Rejected(rejection) => DeviceTrustRegistryDecision::Rejected(rejection),
         MutationPlan::PairPendingSealing => {
             transaction
         .execute(
             "INSERT INTO device_trust_registry (device_id, family_id, parent_account_id, state)
              VALUES (?1, ?2, ?3, ?4)
-             ON CONFLICT(device_id) DO UPDATE SET family_id = excluded.family_id, parent_account_id = excluded.parent_account_id, state = excluded.state",
+             ON CONFLICT(device_id) DO UPDATE SET state = excluded.state",
             params![device_id, family_id, parent_account_id, "pending-sealing"],
         )
         .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
@@ -132,7 +132,7 @@ fn mutate(
     };
     let (outcome, state) = journal_fields(&decision);
     transaction.execute(
-        "INSERT INTO device_trust_registry_journal (operation_id, correlation_id, receipt_ref, device_id, family_id, parent_account_id, action, outcome, state)
+        "INSERT INTO device_trust_registry_journal (operation_id, correlation_id, receipt_ref, device_id, family_id, acting_parent_account_id, action, outcome, state)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
         params![receipt_ref, correlation_id, receipt_ref, device_id, family_id, parent_account_id, action, outcome, state],
     ).map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;

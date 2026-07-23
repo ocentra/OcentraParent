@@ -3,8 +3,8 @@ use std::fmt;
 use serde::Serialize;
 
 use crate::household_authority::{
-    authorize_household_action, validate_parent_step_up_assertion, HouseholdAuthorityAction,
-    HouseholdAuthorityInput, HouseholdAuthorizationState, ParentStepUpValidationInput,
+    validate_parent_step_up_assertion, AcceptedDeviceTrustAuthorization, HouseholdAuthorityAction,
+    ParentStepUpValidationInput,
 };
 use crate::parent_presence::ParentPresenceVerificationAccepted;
 use ocentra_eventing::ids::CorrelationId;
@@ -13,20 +13,18 @@ use ocentra_eventing::ids::CorrelationId;
 #[serde(rename_all = "kebab-case")]
 pub enum DeviceTrustAuthorityVerificationFailure {
     ParentStepUpRejected,
-    HouseholdAuthorizationRejected,
+    HouseholdAuthorizationBindingMismatch,
     ActionNotAuthorized,
     TargetDeviceMissing,
     TargetDeviceMismatch,
     AuthorityActionMismatch,
 }
 
-/// Runtime input assembled by the owning household authorization command. A
-/// step-up receipt proves presence; it is deliberately insufficient without
-/// this independent household decision and an explicit child-device target.
+/// The household command owns raw authorization evaluation and supplies only
+/// its opaque accepted grant to this boundary.
 pub struct DeviceTrustAuthorityInput {
     pub parent_presence: ParentPresenceVerificationAccepted,
-    pub household_authority: HouseholdAuthorityInput,
-    pub target_child_device_id: String,
+    pub household_authorization: AcceptedDeviceTrustAuthorization,
 }
 
 #[derive(PartialEq, Eq)]
@@ -76,24 +74,22 @@ pub fn verify_parent_device_trust_authority(
     if !is_device_trust_action(challenge.privileged_action) {
         return Err(DeviceTrustAuthorityVerificationFailure::ActionNotAuthorized);
     }
-    if input.target_child_device_id.trim().is_empty() {
+    let target_child_device_id = challenge.target_child_device_id.as_deref();
+    let Some(target_child_device_id) = target_child_device_id else {
         return Err(DeviceTrustAuthorityVerificationFailure::TargetDeviceMissing);
-    }
-    if challenge.target_child_device_id.as_deref() != Some(input.target_child_device_id.as_str()) {
-        return Err(DeviceTrustAuthorityVerificationFailure::TargetDeviceMismatch);
-    }
-    if input.household_authority.action != challenge.privileged_action {
-        return Err(DeviceTrustAuthorityVerificationFailure::AuthorityActionMismatch);
-    }
-    if authorize_household_action(input.household_authority).authorization_state
-        != HouseholdAuthorizationState::Authorized
-    {
-        return Err(DeviceTrustAuthorityVerificationFailure::HouseholdAuthorizationRejected);
+    };
+    if !input.household_authorization.matches_device_trust_request(
+        &challenge.family_id,
+        &challenge.parent_account_id,
+        target_child_device_id,
+        challenge.privileged_action,
+    ) {
+        return Err(DeviceTrustAuthorityVerificationFailure::HouseholdAuthorizationBindingMismatch);
     }
     Ok(VerifiedParentDeviceTrustAuthority {
         family_id: challenge.family_id,
         parent_account_id: challenge.parent_account_id,
-        target_child_device_id: input.target_child_device_id,
+        target_child_device_id: target_child_device_id.to_owned(),
         correlation_id,
         receipt_ref: receipt_ref.as_str().to_owned(),
         action: challenge.privileged_action,

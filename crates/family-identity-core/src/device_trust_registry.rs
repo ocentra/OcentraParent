@@ -92,7 +92,7 @@ impl DeviceTrustRegistry {
                     receipt_ref TEXT UNIQUE NOT NULL,
                     device_id TEXT NOT NULL,
                     family_id TEXT NOT NULL,
-                    parent_account_id TEXT NOT NULL,
+                    acting_parent_account_id TEXT NOT NULL,
                     action TEXT NOT NULL,
                     outcome TEXT NOT NULL,
                     state TEXT NOT NULL
