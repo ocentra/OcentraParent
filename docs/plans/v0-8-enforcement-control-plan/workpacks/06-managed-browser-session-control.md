@@ -71,10 +71,15 @@ Proof root: `output/v0-8-enforcement-control-plan-proof/06-managed-browser-sessi
 
 Focused validation should record:
 
-- `npm run test --workspace @ocentra-parent/enforcement-domain -- enforcement`
-- selected browser managed-session proof or service tests
-- `npm run test --workspace @ocentra-parent/portal -- enforcement` when a parent-visible browser state changes
-- selected architecture gate for touched browser/enforcement/portal surfaces
+- `cargo test -p ocentra-parent-agent-core browser_managed_session`
+- `cargo test -p ocentra-parent-agent-core enforcement`
+- `cargo test -p ocentra-parent-agent-service enforcement`
+- selected browser managed-session/service tests when source changes
+- `npm run lint:architecture -- --files <touched Rust source/test directories>`
+
+These commands prove the Rust boundary and no-effect behavior; they do not
+prove browser action execution. A future real adapter must add focused
+execution, receipt/audit, rollback, and parent-visible-state coverage.
 
 ## AI Worker Checklist
 
@@ -86,8 +91,25 @@ Focused validation should record:
 
 ## Where We Are
 
-Managed browser status and manual-required exact URL states are represented, but
-managed browser enforcement is not product-complete.
+Live audit on 2026-07-23 found a real Rust-owned managed-profile/launch and
+bridge-status boundary in `agent-core` and `agent-service`, including rejection
+of default/unowned profiles and unreserved bridge ports. That boundary is not
+yet an enforcement adapter: policy targets `site`, `video`, and `channel` are
+classified as `ManagedBrowserControl` with a manual-required capability, and
+the service execution switch implements only owned-process termination. A
+managed-browser adapter request therefore cannot produce a browser action,
+receipt, rollback, or audit execution trace.
+
+The old TypeScript command was stale: neither `packages/enforcement-domain` nor
+`packages/agent-protocol-domain` exists in the current Rust-first repository.
+Do not create them to satisfy the former command. The execution owner is
+`crates/agent-core` plus `crates/agent-service`, with `crates/agent-protocol`
+for the typed boundary.
+
+Several proof/read-model surfaces label the managed-browser boundary as an
+implemented real service. Those labels are not completion evidence while the
+execution switch still rejects that adapter kind. They must be corrected or
+backed by a real adapter; this workpack remains open.
 
 ## Negative Cases
 

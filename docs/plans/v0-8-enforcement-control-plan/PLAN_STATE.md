@@ -141,6 +141,14 @@ policy decision refs
   `parent-domain` indirection.
 - Action-authority and adapter-execution gaps remain open in WP04, WP05, WP06,
   and WP08.
+- Live code audit (2026-07-23): WP06 has a Rust managed-profile/launch/bridge
+  boundary, but it is not an adapter-backed enforcement action. The policy
+  mapper returns `ManagedBrowserControl` as manual-required for browser
+  targets, and `agent-service` currently executes only
+  `ProcessControl + TerminateProcess`; no managed-browser execution outcome,
+  receipt, rollback, or audit trace exists. Existing proof/read-model labels
+  that say `ExecutesRealService` for managed browser must not be read as runtime
+  proof until this contradiction is removed.
 - Approval/audit/read-model visibility gaps remain open in WP10, WP11, WP12,
   WP13, and WP14.
 - Integrity and anti-claim boundaries remain open in WP15, WP16, and WP17.
