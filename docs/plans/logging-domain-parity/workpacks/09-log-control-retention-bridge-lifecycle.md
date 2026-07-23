@@ -196,6 +196,7 @@ tree, including `logConfig`, `logDecisionProvider`, `wipeNdjsonScope`,
 `testLogRetention`, the app log writer, and the bridge/retention scripts plus
 their unit-test counterparts.
 
-The canonical proof root now records the focused build and log-decision, wipe,
-retention, and bridge command results. Treat WP09 as partial-proof until each
-individual checklist row is reconciled against that source and test evidence.
+The canonical proof root records the focused build and log-decision, wipe,
+retention, and bridge command results. The named unit tests reconcile every
+WP09 checklist row; WP09 is complete for its bounded local lifecycle scope and
+does not claim product telemetry or production support readiness.

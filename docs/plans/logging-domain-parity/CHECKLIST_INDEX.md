@@ -75,19 +75,19 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP09 Log Control, Retention, and Bridge Lifecycle
 
-- [ ] Log decision provider implemented.
-- [ ] Error/warn are always stored.
-- [ ] Info/debug/log are controlled by environment/source/file/run selection.
-- [ ] Console and storage decisions are separate.
-- [ ] Fresh-run wipe can wipe selected scope/run/suite/file.
-- [ ] Retention cleanup keeps configurable recent local sessions/files.
-- [ ] Bridge health check exists.
-- [ ] Bridge run-start endpoint records current run metadata.
-- [ ] Stale run info is rejected or warned.
-- [ ] Local bridge is default.
-- [ ] Tunnel bridge mode is optional and condition-gated.
-- [ ] Tests cover controls, wipe, retention, and bridge lifecycle.
-- [ ] Proof root and workpack completion section filled.
+- [x] Log decision provider implemented.
+- [x] Error/warn are always stored.
+- [x] Info/debug/log are controlled by environment/source/file/run selection.
+- [x] Console and storage decisions are separate.
+- [x] Fresh-run wipe can wipe selected scope/run/suite/file.
+- [x] Retention cleanup keeps configurable recent local sessions/files.
+- [x] Bridge health check exists.
+- [x] Bridge run-start endpoint records current run metadata.
+- [x] Stale run info is rejected or warned.
+- [x] Local bridge is default.
+- [x] Tunnel bridge mode is optional and condition-gated.
+- [x] Tests cover controls, wipe, retention, and bridge lifecycle.
+- [x] Proof root and workpack completion section filled.
 
 ## WP04 Rust Logging Core Crate
 
