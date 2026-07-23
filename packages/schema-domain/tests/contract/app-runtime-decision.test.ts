@@ -24,6 +24,24 @@ describe('schema-domain app runtime decision edge decoder', () => {
     });
   });
 
+  it('decodes the full Rust-owned serialized EventEnvelope fixture', () => {
+    const envelope = rustEventEnvelopeFixture();
+    expect(decodeAppRuntimeDecisionRecordedEventEnvelope(envelope)).toEqual(envelope);
+  });
+
+  it('rejects envelopes whose Rust aggregate or idempotency bindings do not match the payload', () => {
+    const envelope = rustEventEnvelopeFixture();
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEventEnvelope({ ...envelope, aggregateKey: 'app.aggregate.other-device' })
+    ).toThrow(/invalid app runtime boundary/i);
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEventEnvelope({
+        ...envelope,
+        idempotencyKey: `${AppRuntimeDecisionRecordedEventType}:app.runtime-decision-other`,
+      })
+    ).toThrow(/invalid app runtime boundary/i);
+  });
+
   it('accepts the Rust app-core inventory decision contract', () => {
     expect(decodeAppRuntimeDecisionRecordedEvent(inventoryDecision())).toEqual(inventoryDecision());
   });
@@ -170,6 +188,18 @@ function appRuntimeDecisionContracts(): AppRuntimeDecisionContracts {
     throw new TypeError('Invalid Rust-owned app runtime decision contracts');
   }
   return parsed as AppRuntimeDecisionContracts;
+}
+
+function rustEventEnvelopeFixture(): unknown {
+  return JSON.parse(
+    readFileSync(
+      new URL(
+        '../../../../crates/app-core/tests/contract/fixtures/app-runtime-decision-event-envelope.json',
+        import.meta.url
+      ),
+      'utf8'
+    )
+  );
 }
 
 function runtimeDecision(

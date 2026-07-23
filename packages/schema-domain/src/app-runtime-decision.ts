@@ -106,7 +106,9 @@ export const AppRuntimeDecisionRecordedEventEnvelopeSchema = withParser(
   AppRuntimeDecisionRecordedEventEnvelopeBaseSchema.pipe(
     Schema.filter(
       (envelope) =>
-        appRuntimeDecisionHasSafeBoundary(envelope.payload, envelope.contract.schemaVersion) ||
+        (envelope.aggregateKey === envelope.payload.aggregate_id &&
+          envelope.idempotencyKey === `${AppRuntimeDecisionRecordedEventType}:${envelope.payload.decision_id}` &&
+          appRuntimeDecisionHasSafeBoundary(envelope.payload, envelope.contract.schemaVersion)) ||
         'Invalid app runtime boundary'
     )
   )
