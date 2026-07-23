@@ -1,7 +1,11 @@
 use std::{error::Error, fs};
 
 use ocentra_parent_logging_core::{
-    ndjson_test_support::{operation_state_entry_count, record_matches_with_short_reads},
+    ndjson_interop_test_support::append_record_with_external_interleave,
+    ndjson_test_support::{
+        forget_operation_compaction_cache, operation_compaction_scan_bytes,
+        operation_state_entry_count, record_matches_with_short_reads,
+    },
     ndjson_writer::{append_record_for_operation, remove_record_file_with_operation_state},
 };
 use sha2::{Digest, Sha256};
@@ -20,6 +24,18 @@ fn ndjson_operation_candidate_reader_handles_short_reads() {
 #[test]
 fn ndjson_operation_compacts_commit_inodes_and_cleans_data_lifecycle_state() {
     let result = ndjson_operation_compacts_commit_inodes_and_cleans_data_lifecycle_state_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_operation_indexes_compacted_commits_without_repeated_full_scans() {
+    let result = ndjson_operation_indexes_compacted_commits_without_repeated_full_scans_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_operation_append_mode_preserves_external_rows_and_exact_replay() {
+    let result = ndjson_operation_append_mode_preserves_external_rows_and_exact_replay_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -71,5 +87,49 @@ fn ndjson_operation_compacts_commit_inodes_and_cleans_data_lifecycle_state_impl(
     append_record_for_operation(&path, "operation-0", records[0].as_bytes())?;
     assert_eq!(fs::read(&path)?, records[0].as_bytes());
     assert_eq!(operation_state_entry_count(&path)?, 1);
+    Ok(())
+}
+
+fn ndjson_operation_indexes_compacted_commits_without_repeated_full_scans_impl(
+) -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("indexed-operations.ndjson");
+    let records = (0..128)
+        .map(|index| format!("{{\"indexed\":{index}}}\n"))
+        .collect::<Vec<_>>();
+    for (index, record) in records.iter().enumerate() {
+        append_record_for_operation(&path, &format!("indexed-{index}"), record.as_bytes())?;
+    }
+
+    forget_operation_compaction_cache(&path)?;
+    append_record_for_operation(&path, "indexed-0", records[0].as_bytes())?;
+    let first_scan = operation_compaction_scan_bytes(&path)?;
+    append_record_for_operation(&path, "indexed-127", records[127].as_bytes())?;
+    assert_eq!(operation_compaction_scan_bytes(&path)?, first_scan);
+    assert_eq!(
+        first_scan,
+        fs::metadata(root.join(".indexed-operations.ndjson.operations/commits.ndjson"))?.len()
+    );
+    Ok(())
+}
+
+fn ndjson_operation_append_mode_preserves_external_rows_and_exact_replay_impl(
+) -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("mixed-producers.ndjson");
+    let external = b"{\"producer\":\"external\"}\n";
+    let operation = b"{\"producer\":\"operation\"}\n";
+    append_record_with_external_interleave(&path, "mixed-producer-operation", operation, external)?;
+    assert_eq!(
+        fs::read(&path)?,
+        [external.as_slice(), operation.as_slice()].concat()
+    );
+    append_record_for_operation(&path, "mixed-producer-operation", operation)?;
+    assert_eq!(
+        fs::read(&path)?,
+        [external.as_slice(), operation.as_slice()].concat()
+    );
     Ok(())
 }

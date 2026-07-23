@@ -1,20 +1,12 @@
-use std::{
-    fs::OpenOptions,
-    io::{self, BufRead, BufReader, Seek, SeekFrom, Write},
-};
-
-use serde::{Deserialize, Serialize};
+use std::io;
 
 use crate::{
-    artifact_publish_lock::remove_temporary, ndjson_operation_marker::marker_offset,
-    ndjson_operation_marker_state::OperationPaths, ndjson_tail_recovery::recover_partial_tail,
+    artifact_publish_lock::remove_temporary,
+    artifact_publish_platform::sync_parent,
+    ndjson_operation_compaction_index::{append_compacted_marker, compacted_marker},
+    ndjson_operation_marker::marker_offset,
+    ndjson_operation_marker_state::OperationPaths,
 };
-
-#[derive(Deserialize, Serialize)]
-struct CompactCommit {
-    key: String,
-    marker: String,
-}
 
 pub(crate) fn compact_commit(
     paths: &OperationPaths,
@@ -24,9 +16,13 @@ pub(crate) fn compact_commit(
     let marker = std::fs::read(&paths.commit)?;
     let offset = marker_offset(&marker, operation_id, record)?;
     if compacted_offset(paths, operation_id, record)?.is_none() {
-        append_compacted(paths, &marker)?;
+        let marker = std::str::from_utf8(&marker)
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+        append_compacted_marker(&paths.compacted, &paths.key, marker)?;
     }
+    sync_parent(&paths.compacted)?;
     remove_temporary(&paths.commit)?;
+    sync_parent(&paths.compacted)?;
     Ok(offset)
 }
 
@@ -35,44 +31,7 @@ pub(crate) fn compacted_offset(
     operation_id: &str,
     record: &[u8],
 ) -> io::Result<Option<u64>> {
-    let mut file = match OpenOptions::new()
-        .read(true)
-        .write(true)
-        .open(&paths.compacted)
-    {
-        Ok(file) => file,
-        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
-        Err(error) => return Err(error),
-    };
-    recover_partial_tail(&mut file)?;
-    file.seek(SeekFrom::Start(0))?;
-    for line in BufReader::new(&mut file).lines() {
-        let entry: CompactCommit = serde_json::from_str(&line?)
-            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
-        if entry.key == paths.key {
-            return marker_offset(entry.marker.as_bytes(), operation_id, record).map(Some);
-        }
-    }
-    Ok(None)
-}
-
-fn append_compacted(paths: &OperationPaths, marker: &[u8]) -> io::Result<()> {
-    let mut file = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .truncate(false)
-        .open(&paths.compacted)?;
-    recover_partial_tail(&mut file)?;
-    file.seek(SeekFrom::End(0))?;
-    let entry = CompactCommit {
-        key: paths.key.clone(),
-        marker: std::str::from_utf8(marker)
-            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?
-            .to_owned(),
-    };
-    serde_json::to_writer(&mut file, &entry)
-        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
-    file.write_all(b"\n")?;
-    file.sync_data()
+    compacted_marker(&paths.compacted, &paths.key)?
+        .map(|marker| marker_offset(marker.as_bytes(), operation_id, record))
+        .transpose()
 }

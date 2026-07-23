@@ -1,16 +1,17 @@
 use std::{
     fs::{remove_file, File},
-    io::{self, Seek, SeekFrom, Write},
+    io::{self, Seek, SeekFrom},
     path::Path,
 };
 
+use crate::ndjson_operation_append::append_operation_record;
 use crate::ndjson_operation_compaction::{compact_commit, compacted_offset};
 use crate::ndjson_operation_marker::{marker_content, record_matches_at};
 use crate::ndjson_operation_marker_publish::write_marker;
 use crate::ndjson_operation_marker_state::{
     operation_paths, read_commit_offset, read_intent_offset,
 };
-use crate::ndjson_writer::{recover_partial_tail, rollback_append, validate_record};
+use crate::ndjson_writer::{recover_partial_tail, validate_record};
 
 pub(crate) fn append_operation_locked(
     file: &mut File,
@@ -93,15 +94,18 @@ where
         &marker_content(operation_id, record, offset),
         OperationMarkerKind::Intent,
     )?;
-    if let Err(error) = before(FaultPoint::Write).and_then(|_| file.write_all(record)) {
-        remove_intent(&operation.intent)?;
-        return rollback_append(file, offset, error);
-    }
+    let committed_offset = append_operation_record(
+        file,
+        &operation.intent,
+        offset,
+        record,
+        before(FaultPoint::Write),
+    )?;
     before(FaultPoint::Sync)?;
     file.sync_data()?;
     write_operation_marker(
         &operation.commit,
-        &marker_content(operation_id, record, offset),
+        &marker_content(operation_id, record, committed_offset),
         OperationMarkerKind::Commit,
     )?;
     compact_commit(&operation, operation_id, record)?;

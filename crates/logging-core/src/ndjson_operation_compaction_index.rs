@@ -1,0 +1,85 @@
+use std::{
+    fs::OpenOptions,
+    io::{self, BufRead, BufReader, Seek, SeekFrom, Write},
+    path::Path,
+};
+
+use serde::{Deserialize, Serialize};
+
+use crate::{
+    ndjson_operation_compaction_cache::{with_commit_index, CachedCommitIndex},
+    ndjson_tail_recovery::recover_partial_tail,
+};
+
+#[derive(Deserialize, Serialize)]
+struct CompactCommit {
+    key: String,
+    marker: String,
+}
+
+pub(crate) fn compacted_marker(path: &Path, key: &str) -> io::Result<Option<String>> {
+    let mut file = match OpenOptions::new().read(true).write(true).open(path) {
+        Ok(file) => file,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error),
+    };
+    recover_partial_tail(&mut file)?;
+    let file_len = file.metadata()?.len();
+    with_commit_index(path, |index| {
+        refresh_index(&mut file, file_len, index)?;
+        Ok(index.markers.get(key).cloned())
+    })
+}
+
+pub(crate) fn append_compacted_marker(path: &Path, key: &str, marker: &str) -> io::Result<()> {
+    let mut file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(path)?;
+    recover_partial_tail(&mut file)?;
+    let start = file.seek(SeekFrom::End(0))?;
+    serde_json::to_writer(
+        &mut file,
+        &CompactCommit {
+            key: key.to_owned(),
+            marker: marker.to_owned(),
+        },
+    )
+    .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+    file.write_all(b"\n")?;
+    file.sync_data()?;
+    let end = file.stream_position()?;
+    with_commit_index(path, |index| {
+        if index.scanned_len == start {
+            index.markers.insert(key.to_owned(), marker.to_owned());
+            index.scanned_len = end;
+        }
+        Ok(())
+    })
+}
+
+fn refresh_index(
+    file: &mut std::fs::File,
+    file_len: u64,
+    index: &mut CachedCommitIndex,
+) -> io::Result<()> {
+    if file_len < index.scanned_len {
+        index.markers.clear();
+        index.scanned_len = 0;
+    }
+    let start = index.scanned_len;
+    file.seek(SeekFrom::Start(start))?;
+    for line in BufReader::new(file).lines() {
+        let entry: CompactCommit = serde_json::from_str(&line?)
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+        index.markers.insert(entry.key, entry.marker);
+    }
+    index.scanned_len = file_len;
+    #[cfg(feature = "test-support")]
+    {
+        index.scanned_bytes += file_len.saturating_sub(start);
+    }
+    Ok(())
+}

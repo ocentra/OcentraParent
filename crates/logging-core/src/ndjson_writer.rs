@@ -1,8 +1,11 @@
 use std::{
     fs::{create_dir_all, File, OpenOptions},
-    io::{self, Seek, SeekFrom, Write},
+    io::{self, Seek, SeekFrom},
     path::{Path, PathBuf},
 };
+
+#[cfg(not(windows))]
+use std::io::Write;
 
 use serde::Serialize;
 
@@ -59,12 +62,7 @@ pub fn append_record(path: &std::path::Path, record: &[u8]) -> io::Result<()> {
     if let Some(parent) = path.parent() {
         create_dir_all(parent)?;
     }
-    let mut file = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .truncate(false)
-        .open(path)?;
+    let mut file = open_append_file(path)?;
     lock_and_append(&mut file, record)
 }
 
@@ -83,12 +81,7 @@ pub fn append_record_for_operation(
     if let Some(parent) = path.parent() {
         create_dir_all(parent)?;
     }
-    let mut file = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .truncate(false)
-        .open(path)?;
+    let mut file = open_append_file(path)?;
     file.lock()?;
     let result =
         crate::ndjson_operation::append_operation_locked(&mut file, path, operation_id, record);
@@ -117,11 +110,50 @@ fn append_locked_record(file: &mut File, record: &[u8]) -> io::Result<()> {
 
     recover_partial_tail(file)?;
     let start = file.seek(SeekFrom::End(0))?;
-    if let Err(error) = file.write_all(record) {
+    if let Err(error) = append_bytes(file, record) {
         return rollback_append(file, start, error);
     }
     file.sync_data()?;
     Ok(())
+}
+
+pub(crate) fn open_append_file(path: &Path) -> io::Result<File> {
+    let mut options = OpenOptions::new();
+    options.read(true).create(true);
+    #[cfg(windows)]
+    options.write(true);
+    #[cfg(not(windows))]
+    options.append(true);
+    options.open(path)
+}
+
+#[cfg(windows)]
+pub(crate) fn append_bytes(file: &File, bytes: &[u8]) -> io::Result<u64> {
+    use std::os::windows::fs::FileExt;
+
+    let mut written = 0;
+    while written < bytes.len() {
+        let count = file.seek_write(&bytes[written..], u64::MAX)?;
+        if count == 0 {
+            return Err(io::Error::new(
+                io::ErrorKind::WriteZero,
+                "failed to append the complete NDJSON record",
+            ));
+        }
+        written += count;
+    }
+    file.metadata()?
+        .len()
+        .checked_sub(bytes.len() as u64)
+        .ok_or_else(|| io::Error::other("NDJSON append offset underflow"))
+}
+
+#[cfg(not(windows))]
+pub(crate) fn append_bytes(file: &mut File, bytes: &[u8]) -> io::Result<u64> {
+    file.write_all(bytes)?;
+    file.stream_position()?
+        .checked_sub(bytes.len() as u64)
+        .ok_or_else(|| io::Error::other("NDJSON append offset underflow"))
 }
 
 pub(crate) fn validate_record(record: &[u8]) -> io::Result<()> {

@@ -2,6 +2,7 @@ use std::{fs::remove_dir_all, io, path::Path};
 
 use crate::{
     artifact_publish_lock::remove_temporary, artifact_publish_platform::sync_parent,
+    ndjson_operation_compaction_cache::forget_commit_index,
     ndjson_operation_marker_state::operation_directory,
 };
 
@@ -11,6 +12,7 @@ pub(crate) fn remove_operation_state(path: &Path) -> io::Result<()> {
     }
     remove_temporary(path)?;
     let directory = operation_directory(path)?;
+    forget_commit_index(&directory.join("commits.ndjson"))?;
     match remove_dir_all(directory) {
         Ok(()) => {}
         Err(error) if error.kind() == io::ErrorKind::NotFound => {}
