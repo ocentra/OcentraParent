@@ -1,0 +1,24 @@
+{
+  "plan": "logging-domain-parity",
+  "workpack": "WP04 Rust Logging Core Crate",
+  "owner": "logging-core",
+  "scope": "parent-agent-service",
+  "crate": "ocentra-parent-logging-core",
+  "sourceModules": [
+    "agent_run.rs",
+    "artifact.rs",
+    "dev_log.rs",
+    "diagnostic.rs",
+    "event.rs",
+    "field.rs",
+    "level.rs",
+    "local_ndjson_log.rs",
+    "parent_log_runtime.rs",
+    "redaction.rs",
+    "snapshot.rs",
+    "source.rs"
+  ],
+  "downstreamConsumer": "crates/agent-service/src/dev_log.rs",
+  "result": "pass",
+  "noClaim": "This map proves only the WP04 local Rust logging helper surface, not production telemetry or repo-wide service logging adoption."
+}

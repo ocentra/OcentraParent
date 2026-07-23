@@ -1,0 +1,15 @@
+{
+  "plan": "logging-domain-parity",
+  "workpack": "WP04 Rust Logging Core Crate",
+  "owner": "logging-core",
+  "tests": [
+    "ndjson_writer_appends_json_lines_in_order",
+    "ndjson_writer_rejects_invalid_segments",
+    "local_ndjson_log_sanitizes_and_builds_paths"
+  ],
+  "command": "cargo test -p ocentra-parent-logging-core",
+  "exit": 0,
+  "result": "pass",
+  "ndjson_state": "written",
+  "noClaim": "Local NDJSON writer tests do not prove production retention, remote replication, or product telemetry delivery."
+}
