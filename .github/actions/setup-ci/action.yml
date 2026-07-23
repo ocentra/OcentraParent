@@ -20,17 +20,17 @@ runs:
         node-version: 22
         cache: npm
 
-    - name: Checkout Ocentra Enforcer safety-main
+    - name: Checkout Ocentra Enforcer private Rust test allowlist repair
       shell: bash
       env:
         OCENTRA_ENFORCER_HOME: ${{ runner.temp }}/ocentra-enforcer
-        OCENTRA_ENFORCER_REF: safety-main
+        OCENTRA_ENFORCER_REF: codex/private-rust-test-allowlist
       run: |
         rm -rf "$OCENTRA_ENFORCER_HOME"
         git clone --depth 1 --branch "$OCENTRA_ENFORCER_REF" https://github.com/ocentra/ocentra-enforcer.git "$OCENTRA_ENFORCER_HOME"
         npm ci --prefix "$OCENTRA_ENFORCER_HOME"
         test -f "$OCENTRA_ENFORCER_HOME/scripts/rust-rules.mjs"
-        printf 'Ocentra Enforcer safety-main resolved to %s\n' "$(git -C "$OCENTRA_ENFORCER_HOME" rev-parse HEAD)"
+        printf 'Ocentra Enforcer %s resolved to %s\n' "$OCENTRA_ENFORCER_REF" "$(git -C "$OCENTRA_ENFORCER_HOME" rev-parse HEAD)"
         printf 'OCENTRA_ENFORCER_HOME=%s\n' "$OCENTRA_ENFORCER_HOME" >> "$GITHUB_ENV"
 
     - name: Setup Rust
