@@ -6,6 +6,8 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 
+use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
+use ocentra_eventing::replay::ReplayFilter;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_core::screen_evidence_queue::ScreenEvidenceQueue;
@@ -200,7 +202,8 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
     let key_path = root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX);
     let journal_path = root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX);
     let store_path = root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX);
-    let missing_store_path = root.join("missing-store.db");
+    let delivery_journal_path =
+        store_path.with_extension(constants::activity_store::DEFAULT_JOURNAL_FILE_NAME);
     let key = JournalKey::from_bytes([7; JOURNAL_KEY_BYTES]);
     require_ok(
         fs::create_dir_all(&root),
@@ -239,10 +242,19 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
         ),
         constants::error::ACTIVITY_STORE_OPENS,
     );
-    let failed_publication = publish_swept_deletion_events(&missing_store_path, &first).await;
+    require_ok(
+        fs::create_dir(&delivery_journal_path),
+        constants::error::JOURNAL_OPENS,
+    );
+    let failed_publication = publish_swept_deletion_events(&store_path, &first).await;
+    let failed_acknowledgement = finalize_published_deletion_outbox(&config, &failed_publication);
     let after_failure = require_ok(
         queue.read_decrypted_entries(4),
         constants::error::JOURNAL_READS,
+    );
+    require_ok(
+        fs::remove_dir(&delivery_journal_path),
+        constants::error::JOURNAL_OPENS,
     );
     let restarted = require_ok(
         record_screen_ai_retention_sweeper_tick(
@@ -252,6 +264,7 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
         constants::error::ACTIVITY_STORE_OPENS,
     );
     let replayed = publish_swept_deletion_events(&store_path, &restarted).await;
+    assert_durable_deletion_delivery(&delivery_journal_path).await?;
     let acknowledged = require_ok(
         queue.acknowledge_expired_entries(std::slice::from_ref(&expired_job.queue_job_id)),
         constants::error::JOURNAL_APPENDS,
@@ -270,6 +283,7 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
     let _ = remove_dir_all(&root);
 
     assert!(failed_publication.is_empty());
+    assert_eq!(failed_acknowledgement, Ok(0));
     assert!(after_failure.is_empty());
     assert_replayed_outbox_outcome(first, &expired_job)?;
     assert_replayed_outbox_outcome(restarted, &expired_job)?;
@@ -279,6 +293,26 @@ async fn screen_retention_sweeper_replays_durable_outbox_after_publication_failu
     assert_eq!(
         after_acknowledgement,
         ScreenAiRetentionSweeperOutcome::QueueEmpty
+    );
+    Ok(())
+}
+
+async fn assert_durable_deletion_delivery(
+    delivery_journal_path: &std::path::Path,
+) -> Result<(), IoError> {
+    let durable_delivery =
+        NdjsonEventJournal::with_options(delivery_journal_path, NdjsonJournalOptions::hash_chain())
+            .replay_projection(ReplayFilter::all())
+            .await
+            .map_err(|error| IoError::other(format!("{error:?}")))?;
+    assert_eq!(durable_delivery.records.len(), 1);
+    assert_eq!(
+        durable_delivery.records[0]
+            .envelope
+            .contract
+            .event_type
+            .as_str(),
+        constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED
     );
     Ok(())
 }
