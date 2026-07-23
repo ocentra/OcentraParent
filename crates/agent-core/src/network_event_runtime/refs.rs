@@ -147,7 +147,7 @@ fn previous_published_phase(
         .filter(|candidate| {
             should_publish_phase_for_runtime_decision(*candidate, observation, decision)
         })
-        .last()
+        .next_back()
 }
 
 fn phase_reaches(phase: NetworkRuntimePhase, threshold: NetworkRuntimePhase) -> bool {

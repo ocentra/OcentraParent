@@ -17,6 +17,8 @@ pub const LABEL_PROCESS_UNKNOWN: &str = "Unknown process";
 
 // Streamed network payloads remain compatible with the checked-in generated decoder.
 pub const EVENT_SCHEMA_VERSION: u16 = 1;
+// Runtime event payloads added required evidence-grade and policy-action fields in v2.
+pub const RUNTIME_EVENT_SCHEMA_VERSION: u16 = 2;
 pub const EVENT_NETWORK_FLOW_OBSERVED: &str = "network.flow.observed";
 pub const EVENT_NETWORK_DOMAIN_OBSERVED: &str = "network.domain.observed";
 pub const EVENT_NETWORK_ACTIVITY_CLASSIFIED: &str = "network.activity.classified";

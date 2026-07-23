@@ -164,7 +164,7 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
     );
     assert_eq!(
         report.publish_reports.len(),
-        NetworkRuntimePhase::ordered_chain().len() - 4
+        NetworkRuntimePhase::ordered_chain().len() - 2
     );
     assert_eq!(
         count_event_type(
@@ -192,13 +192,47 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
             && !payload.claim_boundary.adapter_action_executed
     }));
 
-    assert!(payloads.iter().all(|payload| {
-        !matches!(
-            payload.phase,
-            NetworkRuntimePhase::PolicyEvaluationRequested
-                | NetworkRuntimePhase::PolicyDecisionCompleted
+    assert_eq!(
+        payloads
+            .iter()
+            .map(|payload| payload.phase)
+            .collect::<Vec<_>>(),
+        vec![
+            NetworkRuntimePhase::FlowObserved,
+            NetworkRuntimePhase::DomainObserved,
+            NetworkRuntimePhase::ActivityClassified,
+            NetworkRuntimePhase::AiAnalysisRequested,
+            NetworkRuntimePhase::AiAnalysisCompleted,
+            NetworkRuntimePhase::PolicyEvaluationRequested,
+            NetworkRuntimePhase::PolicyDecisionCompleted,
+            NetworkRuntimePhase::AuditEntryCommitted,
+            NetworkRuntimePhase::PortalReadModelUpdated,
+        ]
+    );
+    let policy_evaluation =
+        payload_for_phase(&payloads, NetworkRuntimePhase::PolicyEvaluationRequested)?;
+    assert_eq!(
+        policy_evaluation.previous_phase_ref,
+        Some(
+            expected_phase_ref(
+                &ActivityCaptureCapabilityStatus::Available,
+                constants::activity_store::TEST_FIRST_OBSERVED_AT,
+                NetworkRuntimePhase::AiAnalysisCompleted
+            )
+            .to_string()
         )
-    }));
+    );
+    assert_eq!(
+        policy_evaluation.ai_analysis_ref,
+        Some(
+            expected_phase_ref(
+                &ActivityCaptureCapabilityStatus::Available,
+                constants::activity_store::TEST_FIRST_OBSERVED_AT,
+                NetworkRuntimePhase::AiAnalysisCompleted
+            )
+            .to_string()
+        )
+    );
     let audit_entry = payload_for_phase(&payloads, NetworkRuntimePhase::AuditEntryCommitted)?;
     assert_eq!(
         audit_entry.previous_phase_ref,
@@ -206,7 +240,7 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
             expected_phase_ref(
                 &ActivityCaptureCapabilityStatus::Available,
                 constants::activity_store::TEST_FIRST_OBSERVED_AT,
-                NetworkRuntimePhase::AiAnalysisCompleted
+                NetworkRuntimePhase::PolicyDecisionCompleted
             )
             .to_string()
         )

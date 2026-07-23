@@ -5,6 +5,7 @@
 - proof root restored for incremental slice work
 - current active slice: `01-foundation-contracts-and-eventing`
 - current slice state: `proof-backed review repair`; WP01 remains open for its broader planned scope.
+- routed truth: `PROOF_INDEX.md` and `PLAN_HEALTH.md` identify this active receipt while preserving the broader WP01 no-claim boundary.
 - current unresolved decision: the historical shim-cleanup slice remains closed; WP01 has no enforcement, live-capture, or platform-readiness claim.
 
 ## Slice Map

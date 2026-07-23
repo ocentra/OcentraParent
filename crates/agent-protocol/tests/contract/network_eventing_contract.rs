@@ -26,6 +26,7 @@ const SOURCE_SERVICE: &str = "network-eventing-contract-service";
 const SOURCE_COMPONENT: &str = "network-eventing-contract-component";
 const RUNTIME_INSTANCE_ID: &str = "network-eventing-contract-runtime";
 const OBSERVED_AT: &str = "2026-07-18T17:00:00Z";
+const INVALID_SEMANTICS: &str = "invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent";
 
 #[test]
 fn network_evidence_grade_wire_values_match_evidence_contract() {
@@ -102,7 +103,7 @@ fn network_runtime_payload_schema_version_skew_fails_closed() {
     let live = EventEnvelope::from_event(payload(), metadata()).expect(CONTRACT_EXPECTATION);
     let mut newer = live.store().expect(CONTRACT_EXPECTATION);
     newer.contract.schema_version = ocentra_eventing::ids::SchemaVersion::new(
-        constants::network_flow::EVENT_SCHEMA_VERSION + 1,
+        constants::network_flow::RUNTIME_EVENT_SCHEMA_VERSION + 1,
     )
     .expect(CONTRACT_EXPECTATION);
     assert_eq!(
@@ -113,32 +114,27 @@ fn network_runtime_payload_schema_version_skew_fails_closed() {
         Some(format!(
             "event contract mismatch: expected {}@{}, received {}@{}",
             NetworkRuntimePhase::FlowObserved.event_type(),
-            constants::network_flow::EVENT_SCHEMA_VERSION,
+            constants::network_flow::RUNTIME_EVENT_SCHEMA_VERSION,
             NetworkRuntimePhase::FlowObserved.event_type(),
-            constants::network_flow::EVENT_SCHEMA_VERSION + 1,
+            constants::network_flow::RUNTIME_EVENT_SCHEMA_VERSION + 1,
         ))
-    );
-
-    let mut older_json = serde_json::to_value(live.store().expect(CONTRACT_EXPECTATION))
-        .expect(CONTRACT_EXPECTATION);
-    older_json["contract"]["schemaVersion"] = serde_json::json!(0);
-    assert!(
-        serde_json::from_value::<ocentra_eventing::envelope::StoredEventEnvelope>(older_json)
-            .is_err()
     );
 
     let mut incompatible_fixture = live.store().expect(CONTRACT_EXPECTATION);
     incompatible_fixture.contract.schema_version =
-        ocentra_eventing::ids::SchemaVersion::new(2).expect(CONTRACT_EXPECTATION);
+        ocentra_eventing::ids::SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)
+            .expect(CONTRACT_EXPECTATION);
     assert_eq!(
         incompatible_fixture
             .decode::<NetworkRuntimeEventPayload>()
             .err()
             .map(|error| error.to_string()),
         Some(format!(
-            "event contract mismatch: expected {}@1, received {}@2",
+            "event contract mismatch: expected {}@{}, received {}@{}",
             NetworkRuntimePhase::FlowObserved.event_type(),
+            constants::network_flow::RUNTIME_EVENT_SCHEMA_VERSION,
             NetworkRuntimePhase::FlowObserved.event_type(),
+            constants::network_flow::EVENT_SCHEMA_VERSION,
         ))
     );
 }
@@ -182,12 +178,32 @@ fn network_runtime_payload_rejects_impossible_semantic_tuple_before_dispatch() {
     candidate.evidence_grade_contract = ocentra_parent_agent_protocol::NetworkEvidenceGrade::A;
     candidate.policy_action = ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Block;
     assert_eq!(
-        candidate.validate_semantics().err().map(|error| error.to_string()),
-        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+        candidate
+            .validate_semantics()
+            .err()
+            .map(|error| error.to_string()),
+        Some(INVALID_SEMANTICS.to_string())
     );
     assert_eq!(
         candidate.contract().err().map(|error| error.to_string()),
-        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+        Some(INVALID_SEMANTICS.to_string())
+    );
+
+    let mut unattributed = payload();
+    unattributed.process_attribution_status = ActivityProcessAttributionStatus::ProcessUnknown;
+    assert_eq!(
+        unattributed
+            .validate_semantics()
+            .expect_err(CONTRACT_EXPECTATION)
+            .to_string(),
+        INVALID_SEMANTICS
+    );
+    assert_eq!(
+        unattributed
+            .contract()
+            .expect_err(CONTRACT_EXPECTATION)
+            .to_string(),
+        INVALID_SEMANTICS
     );
 }
 
@@ -197,12 +213,15 @@ fn unavailable_capture_cannot_claim_domain_metadata_grade_before_dispatch() {
     candidate.capability_status = ActivityCaptureCapabilityStatus::Unavailable;
     candidate.evidence_scope = NetworkEvidenceScope::AdapterUnavailable;
     assert_eq!(
-        candidate.validate_semantics().err().map(|error| error.to_string()),
-        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+        candidate
+            .validate_semantics()
+            .err()
+            .map(|error| error.to_string()),
+        Some(INVALID_SEMANTICS.to_string())
     );
     assert_eq!(
         candidate.contract().err().map(|error| error.to_string()),
-        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+        Some(INVALID_SEMANTICS.to_string())
     );
 }
 
@@ -271,7 +290,7 @@ async fn invalid_serialized_runtime_payload_is_rejected_before_handler_receipt()
             .await
             .err()
             .map(|error| error.to_string()),
-        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+        Some(INVALID_SEMANTICS.to_string())
     );
     assert!(delivered.lock().expect(CONTRACT_EXPECTATION).is_empty());
 }

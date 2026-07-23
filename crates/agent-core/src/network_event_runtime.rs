@@ -142,6 +142,7 @@ pub(super) fn should_publish_phase_for_runtime_decision(
             NetworkRuntimePhase::PolicyEvaluationRequested
             | NetworkRuntimePhase::PolicyDecisionCompleted => {
                 decision.policy_handoff_state == NetworkPolicyHandoffState::Publish
+                    || decision.ai_handoff_state == NetworkAiHandoffState::Required
             }
             _ => true,
         }

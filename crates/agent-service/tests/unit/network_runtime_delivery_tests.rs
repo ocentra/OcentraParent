@@ -80,7 +80,7 @@ async fn service_network_read_model_keeps_partial_metadata_manual_required(
     assert_eq!(report.enforcement_command_events, 0);
     assert_eq!(
         report.publish_reports,
-        NetworkRuntimePhase::ordered_chain().len() - 4
+        NetworkRuntimePhase::ordered_chain().len() - 2
     );
     let event_types = event_types(&entries);
     assert_eq!(
@@ -91,6 +91,8 @@ async fn service_network_read_model_keeps_partial_metadata_manual_required(
             constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
             constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED,
             constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
+            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
+            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
             constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
             constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
         ]
@@ -98,6 +100,12 @@ async fn service_network_read_model_keeps_partial_metadata_manual_required(
     let flow_event: NetworkFlowObservedEvent =
         serde_json::from_value(entries[0][constants::field::PAYLOAD].clone())?;
     assert_eq!(flow_event.evidence_grade, NetworkEvidenceGrade::C);
+    let policy_event: NetworkPolicyDecisionCompletedEvent =
+        serde_json::from_value(entries[6][constants::field::PAYLOAD].clone())?;
+    assert_eq!(
+        policy_event.decision_action,
+        NetworkPolicyDecisionAction::AskParent
+    );
     Ok(())
 }
 

@@ -138,7 +138,7 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
     assert_eq!(report.observed_rows, 1);
     assert_eq!(
         report.streamed_events,
-        NetworkRuntimePhase::ordered_chain().len() - 4
+        NetworkRuntimePhase::ordered_chain().len() - 2
     );
     assert_eq!(report.manual_required_rows, 1);
     assert_eq!(report.enforcement_command_events, 0);
@@ -150,19 +150,23 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
             constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
             constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED,
             constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
+            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
+            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
             constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
             constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
         ]
     );
     assert_eq!(
-        entries[6][constants::field::PAYLOAD][constants::field::VISIBLE_MANUAL_REQUIRED],
+        entries[8][constants::field::PAYLOAD][constants::field::VISIBLE_MANUAL_REQUIRED],
         true
     );
     let audit_event: NetworkAuditEntryCommittedEvent =
-        serde_json::from_value(entries[5][constants::field::PAYLOAD].clone())?;
+        serde_json::from_value(entries[7][constants::field::PAYLOAD].clone())?;
     assert_eq!(
         audit_event.policy_decision_ref,
-        policy_constants::HANDOFF_NOT_REQUESTED
+        entries[6][constants::field::EVENT_REF]
+            .as_str()
+            .unwrap_or_default()
     );
     Ok(())
 }

@@ -573,7 +573,7 @@ fn network_runtime_event_payload_uses_rust_owned_contract_and_key_shapes(
     );
     assert_eq!(
         contract.schema_version.value(),
-        constants::network_flow::EVENT_SCHEMA_VERSION
+        constants::network_flow::RUNTIME_EVENT_SCHEMA_VERSION
     );
     assert_eq!(
         aggregate_key.as_str(),

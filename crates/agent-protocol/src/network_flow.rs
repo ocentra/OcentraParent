@@ -959,7 +959,7 @@ impl DomainEvent for NetworkRuntimeEventPayload {
         self.validate_semantics()?;
         Ok(EventContract::new(
             EventType::parse(self.phase.event_type())?,
-            SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)?,
+            SchemaVersion::new(constants::network_flow::RUNTIME_EVENT_SCHEMA_VERSION)?,
         ))
     }
 
@@ -980,13 +980,13 @@ impl DomainEvent for NetworkRuntimeEventPayload {
 
 impl NetworkRuntimeEventPayload {
     pub fn validate_semantics(&self) -> Result<(), EventingError> {
-        self.runtime_semantics()
-            .eq(&expected_runtime_semantics(self))
-            .then_some(())
-            .ok_or_else(|| EventingError::InvalidValue {
-                field: "network_runtime_payload_semantics",
-                value: "evidence/risk/intervention/policy tuple is inconsistent".to_string(),
-            })
+        (self.evidence_grade == expected_runtime_evidence_grade(self)
+            && self.runtime_semantics() == expected_runtime_semantics(self))
+        .then_some(())
+        .ok_or_else(|| EventingError::InvalidValue {
+            field: "network_runtime_payload_semantics",
+            value: "evidence/risk/intervention/policy tuple is inconsistent".to_string(),
+        })
     }
 
     fn runtime_semantics(
@@ -1014,6 +1014,12 @@ fn expected_runtime_semantics(
     NetworkInterventionState,
     NetworkPolicyDecisionAction,
 ) {
+    runtime_semantics::expected(expected_runtime_evidence_grade(payload))
+}
+
+fn expected_runtime_evidence_grade(
+    payload: &NetworkRuntimeEventPayload,
+) -> NetworkRuntimeEvidenceGrade {
     let unavailable = [
         payload.evidence_scope == NetworkEvidenceScope::AdapterUnavailable,
         payload.capability_status != ActivityCaptureCapabilityStatus::Available,
@@ -1021,9 +1027,21 @@ fn expected_runtime_semantics(
     ]
     .into_iter()
     .any(|value| value);
-    unavailable
-        .then(|| runtime_semantics::expected(NetworkRuntimeEvidenceGrade::AdapterUnavailable))
-        .unwrap_or_else(|| runtime_semantics::expected(payload.evidence_grade))
+    let fully_attributed = payload.domain_attribution_status
+        == ActivityDomainAttributionStatus::DomainObserved
+        && payload.process_attribution_status
+            == ActivityProcessAttributionStatus::ProcessAttributed;
+    [
+        (unavailable, NetworkRuntimeEvidenceGrade::AdapterUnavailable),
+        (
+            fully_attributed,
+            NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata,
+        ),
+    ]
+    .into_iter()
+    .find(|(selected, _)| *selected)
+    .map(|(_, grade)| grade)
+    .unwrap_or(NetworkRuntimeEvidenceGrade::IpOrProcessPartialMetadata)
 }
 
 fn network_runtime_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
