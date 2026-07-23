@@ -376,7 +376,7 @@ function getFreePort(): Promise<number> {
 }
 
 async function stopRuntimeProcess(child: ChildProcess, persistPath: string, createdDevVars: boolean): Promise<void> {
-  if (child.pid && child.exitCode === null) {
+  if (child.pid && child.exitCode === null && child.signalCode === null) {
     if (process.platform === 'win32') {
       spawnSync('taskkill', ['/pid', String(child.pid), '/t', '/f'], {
         stdio: 'ignore',
@@ -443,7 +443,6 @@ async function waitForHealthyRuntime(
 async function startRuntime(): Promise<RuntimeHandle> {
   const port = await getFreePort();
   const persistPath = path.join(os.tmpdir(), `ocentra-cloudflare-${randomSuffix()}`);
-  const runtimeDevVars = ensureRuntimeDevVars();
   const logs = {
     stdout: [] as string[],
     stderr: [] as string[],
@@ -467,16 +466,32 @@ async function startRuntime(): Promise<RuntimeHandle> {
     'warn',
   ];
   const runtimeLease = await acquireLocalWranglerRuntimeLease();
-  const child =
-    process.platform === 'win32'
-      ? spawn('cmd.exe', ['/d', '/s', '/c', [wranglerCommand, ...wranglerArgs].map(quoteWindowsArgument).join(' ')], {
-          cwd: cloudflareDir,
-          stdio: ['ignore', 'pipe', 'pipe'],
-        })
-      : spawn(wranglerCommand, wranglerArgs, {
-          cwd: cloudflareDir,
-          stdio: ['ignore', 'pipe', 'pipe'],
-        });
+  let runtimeDevVars: ReturnType<typeof ensureRuntimeDevVars>;
+  try {
+    runtimeDevVars = ensureRuntimeDevVars();
+  } catch (error) {
+    runtimeLease.release();
+    throw error;
+  }
+  let child: ChildProcess;
+  try {
+    child =
+      process.platform === 'win32'
+        ? spawn('cmd.exe', ['/d', '/s', '/c', [wranglerCommand, ...wranglerArgs].map(quoteWindowsArgument).join(' ')], {
+            cwd: cloudflareDir,
+            stdio: ['ignore', 'pipe', 'pipe'],
+          })
+        : spawn(wranglerCommand, wranglerArgs, {
+            cwd: cloudflareDir,
+            stdio: ['ignore', 'pipe', 'pipe'],
+          });
+  } catch (error) {
+    if (runtimeDevVars.created) {
+      rmSync(runtimeDevVarsPath, { force: true });
+    }
+    runtimeLease.release();
+    throw error;
+  }
 
   child.stdout?.setEncoding('utf8');
   child.stderr?.setEncoding('utf8');

@@ -50,6 +50,33 @@ export function isLocalFixtureEnvironment(environment: string): boolean {
   return environment === 'local' || environment === 'test';
 }
 
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isExpectedFixtureShape(actual: unknown, expected: unknown): boolean {
+  if (expected === null) {
+    return actual === null;
+  }
+  if (Array.isArray(expected)) {
+    if (!Array.isArray(actual)) {
+      return false;
+    }
+    const expectedElement = expected[0] as unknown;
+    return (
+      expected.length === 0 ||
+      (actual.length > 0 && actual.every((entry) => isExpectedFixtureShape(entry, expectedElement)))
+    );
+  }
+  if (isObjectRecord(expected)) {
+    return (
+      isObjectRecord(actual) &&
+      Object.entries(expected).every(([key, expectedValue]) => isExpectedFixtureShape(actual[key], expectedValue))
+    );
+  }
+  return typeof actual === typeof expected;
+}
+
 function normalizeSql(sql: string): string {
   return sql.replace(/\s+/g, ' ').trim();
 }
@@ -984,8 +1011,13 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
       expectedStatuses.map(async ([subject, expectedStatus]) => {
         const row = await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject);
         try {
-          const payload = JSON.parse(row?.payload_json ?? '{}') as Record<string, unknown>;
-          return payload.subject === subject && payload.parentAccountRef === expectedStatus.parentAccountRef;
+          const payload = JSON.parse(row?.payload_json ?? '{}') as unknown;
+          return (
+            isObjectRecord(payload) &&
+            isExpectedFixtureShape(payload, expectedStatus) &&
+            payload.subject === subject &&
+            payload.parentAccountRef === expectedStatus.parentAccountRef
+          );
         } catch {
           return false;
         }

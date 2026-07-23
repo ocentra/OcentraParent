@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -36,6 +36,7 @@ const ndjsonWriterModuleUrl = new URL(
 const proofOwner = 'infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts';
 const proofNoClaimReason = 'wrangler-runtime-boot-unproven;production-deployment-not-owned';
 const proofRedactionState = 'redacted-safe-fields-only';
+const localSeedCommandTimeoutMs = 60_000;
 const localD1ReadTimeoutMs = 30_000;
 const localRuntimeCleanupTimeoutMs = 5_000;
 
@@ -54,31 +55,118 @@ interface SeedCommandOutput extends Record<string, unknown> {
   mutationReceipt: LocalSeedMutationReceipt;
 }
 
-function runSeedCommand(command: string, persistenceRoot: string, runId: string): SeedCommandOutput {
+function hasChildExited(child: ChildProcess): boolean {
+  return child.exitCode !== null || child.signalCode !== null;
+}
+
+async function waitForChildExit(child: ChildProcess, timeoutMs: number): Promise<void> {
+  if (hasChildExited(child)) {
+    return;
+  }
+  await new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error(`child process did not exit within ${timeoutMs}ms`)), timeoutMs);
+    child.once('close', () => {
+      clearTimeout(timeout);
+      resolve();
+    });
+    child.once('error', (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+  });
+}
+
+async function terminateChildProcessTree(child: ChildProcess): Promise<void> {
+  if (child.pid == null || hasChildExited(child)) {
+    return;
+  }
+  if (process.platform === 'win32') {
+    spawnSync('taskkill.exe', ['/pid', String(child.pid), '/t', '/f'], {
+      stdio: 'ignore',
+      windowsHide: true,
+    });
+  } else {
+    try {
+      process.kill(-child.pid, 'SIGKILL');
+    } catch (error) {
+      const code = error instanceof Error && 'code' in error ? error.code : undefined;
+      if (code !== 'ESRCH') {
+        throw error;
+      }
+    }
+  }
+  await waitForChildExit(child, localRuntimeCleanupTimeoutMs);
+}
+
+async function collectBoundedChildOutput(
+  child: ChildProcess,
+  timeoutMs: number,
+  timeoutMessage: string
+): Promise<{ code: number | null; stdout: string; stderr: string }> {
+  return await new Promise((resolve, reject) => {
+    let stdout = '';
+    let stderr = '';
+    let timedOut = false;
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      void terminateChildProcessTree(child).then(
+        () => reject(new Error(timeoutMessage)),
+        (error) => reject(error)
+      );
+    }, timeoutMs);
+    child.stdout?.setEncoding('utf8');
+    child.stdout?.on('data', (chunk: string) => {
+      stdout += chunk;
+    });
+    child.stderr?.setEncoding('utf8');
+    child.stderr?.on('data', (chunk: string) => {
+      stderr += chunk;
+    });
+    child.once('error', (error) => {
+      if (!timedOut) {
+        clearTimeout(timeout);
+        reject(error);
+      }
+    });
+    child.once('close', (code) => {
+      if (!timedOut) {
+        clearTimeout(timeout);
+        resolve({ code, stdout, stderr });
+      }
+    });
+  });
+}
+
+async function runSeedCommand(command: string, persistenceRoot: string, runId: string): Promise<SeedCommandOutput> {
   const child =
     process.platform === 'win32'
-      ? spawnSync('cmd.exe', ['/d', '/s', '/c', `npm run ${command}`], {
+      ? spawn('cmd.exe', ['/d', '/s', '/c', `npm run ${command}`], {
           cwd: path.join(repoRoot, 'infra', 'cloudflare'),
-          encoding: 'utf8',
           env: {
             ...process.env,
             OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
             OCENTRA_CLOUDFLARE_SEED_RUN_ID: runId,
           },
+          windowsHide: true,
         })
-      : spawnSync('npm', ['run', command], {
+      : spawn('npm', ['run', command], {
           cwd: path.join(repoRoot, 'infra', 'cloudflare'),
-          encoding: 'utf8',
+          detached: true,
           env: {
             ...process.env,
             OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
             OCENTRA_CLOUDFLARE_SEED_RUN_ID: runId,
           },
         });
-  assert.equal(child.status, 0, child.stderr || child.stdout);
-  const jsonStart = child.stdout.indexOf('{');
-  assert.notEqual(jsonStart, -1, child.stdout);
-  return JSON.parse(child.stdout.slice(jsonStart)) as SeedCommandOutput;
+  const output = await collectBoundedChildOutput(
+    child,
+    localSeedCommandTimeoutMs,
+    `seed command ${command} timed out after ${localSeedCommandTimeoutMs}ms`
+  );
+  assert.equal(output.code, 0, output.stderr || output.stdout);
+  const jsonStart = output.stdout.indexOf('{');
+  assert.notEqual(jsonStart, -1, output.stdout);
+  return JSON.parse(output.stdout.slice(jsonStart)) as SeedCommandOutput;
 }
 
 function resolveWranglerCliPath(): string {
@@ -113,29 +201,15 @@ async function runLocalD1Command(
     ],
     {
       cwd: path.join(repoRoot, 'infra', 'cloudflare'),
+      detached: process.platform !== 'win32',
       windowsHide: true,
     }
   );
-  const output = await new Promise<{ code: number | null; stdout: string; stderr: string }>((resolve, reject) => {
-    let stdout = '';
-    let stderr = '';
-    const timeout = setTimeout(() => {
-      if (child.pid != null && process.platform === 'win32')
-        spawnSync('taskkill.exe', ['/pid', String(child.pid), '/t', '/f']);
-      reject(new Error(`Wrangler D1 readback timed out after ${localD1ReadTimeoutMs}ms: ${sql}`));
-    }, localD1ReadTimeoutMs);
-    child.stdout.setEncoding('utf8').on('data', (chunk) => {
-      stdout += chunk;
-    });
-    child.stderr.setEncoding('utf8').on('data', (chunk) => {
-      stderr += chunk;
-    });
-    child.once('error', reject);
-    child.once('close', (code) => {
-      clearTimeout(timeout);
-      resolve({ code, stdout, stderr });
-    });
-  });
+  const output = await collectBoundedChildOutput(
+    child,
+    localD1ReadTimeoutMs,
+    `Wrangler D1 readback timed out after ${localD1ReadTimeoutMs}ms`
+  );
   assert.equal(output.code, 0, output.stderr || output.stdout);
   const jsonStart = output.stdout.indexOf('[');
   assert.notEqual(jsonStart, -1, output.stdout);
@@ -248,7 +322,7 @@ describe('local dev seeding workflow', () => {
 
   it(
     'persists the real Wrangler seed idempotently and isolates explicit local stores',
-    { timeout: 120_000 },
+    { timeout: 180_000 },
     async () => {
       const persistenceA = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-seed-a-'));
       const persistenceB = mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-seed-b-'));
@@ -256,11 +330,11 @@ describe('local dev seeding workflow', () => {
       const runB = `cloudflare-wp07-seed-b-${randomUUID()}`;
 
       try {
-        const firstA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
+        const firstA = (await runSeedCommand('seed:local', persistenceA, runA)).mutationReceipt;
         const firstACount = await readStatusRowCount(persistenceA);
-        const secondA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
+        const secondA = (await runSeedCommand('seed:local', persistenceA, runA)).mutationReceipt;
         const secondACount = await readStatusRowCount(persistenceA);
-        const firstB = runSeedCommand('seed:local', persistenceB, runB).mutationReceipt;
+        const firstB = (await runSeedCommand('seed:local', persistenceB, runB)).mutationReceipt;
         const firstBCount = await readStatusRowCount(persistenceB);
 
         assert.equal(firstA.runId, runA);
@@ -291,15 +365,18 @@ describe('local dev seeding workflow', () => {
         assert.equal(await readSeedTableRowCount(persistenceA, 'billing_admin_accounts'), 0);
         assert.equal(await readSeedTableRowCount(persistenceA, 'billing_admin_referrals'), 0);
 
-        const repairedA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
+        const repairedA = (await runSeedCommand('seed:local', persistenceA, runA)).mutationReceipt;
         assert.equal(await readStatusRowCount(persistenceA), firstACount);
         assert.ok((await readSeedTableRowCount(persistenceA, 'billing_admin_accounts')) > 0);
         assert.ok((await readSeedTableRowCount(persistenceA, 'billing_admin_referrals')) > 0);
         assert.deepEqual(repairedA.persistence, firstA.persistence);
 
+        const originalStatusPayload = JSON.parse(await readStatusPayload(persistenceA, 'parent:demo-active')) as Record<
+          string,
+          unknown
+        >;
         const preservedStatusPayload = JSON.stringify({
-          subject: 'parent:demo-active',
-          parentAccountRef: 'parent-account:demo-active',
+          ...originalStatusPayload,
           parentVisibleState: 'manual-review',
           auditReference: 'audit:operator-preserved-state',
         });
@@ -307,11 +384,11 @@ describe('local dev seeding workflow', () => {
           persistenceA,
           `UPDATE billing_status SET payload_json = '${preservedStatusPayload.replaceAll("'", "''")}' WHERE subject = 'parent:demo-active'`
         );
-        runSeedCommand('seed:local', persistenceA, runA);
+        await runSeedCommand('seed:local', persistenceA, runA);
         assert.equal(await readStatusPayload(persistenceA, 'parent:demo-active'), preservedStatusPayload);
 
         const mismatchedStatusPayload = JSON.stringify({
-          subject: 'parent:demo-active',
+          ...originalStatusPayload,
           parentAccountRef: 'parent-account:wrong-family',
           parentVisibleState: 'manual-review',
           auditReference: 'audit:mismatched-parent-account',
@@ -320,8 +397,24 @@ describe('local dev seeding workflow', () => {
           persistenceA,
           `UPDATE billing_status SET payload_json = '${mismatchedStatusPayload.replaceAll("'", "''")}' WHERE subject = 'parent:demo-active'`
         );
-        assert.throws(
-          () => runSeedCommand('seed:local', persistenceA, runA),
+        await assert.rejects(
+          runSeedCommand('seed:local', persistenceA, runA),
+          /local seed health did not prove D1\/KV\/R2 persistence/
+        );
+        await runLocalD1Command(
+          persistenceA,
+          `UPDATE billing_status SET payload_json = '${preservedStatusPayload.replaceAll("'", "''")}' WHERE subject = 'parent:demo-active'`
+        );
+
+        const missingPlanStatus = { ...originalStatusPayload };
+        delete missingPlanStatus.plan;
+        const missingPlanStatusPayload = JSON.stringify(missingPlanStatus);
+        await runLocalD1Command(
+          persistenceA,
+          `UPDATE billing_status SET payload_json = '${missingPlanStatusPayload.replaceAll("'", "''")}' WHERE subject = 'parent:demo-active'`
+        );
+        await assert.rejects(
+          runSeedCommand('seed:local', persistenceA, runA),
           /local seed health did not prove D1\/KV\/R2 persistence/
         );
         await runLocalD1Command(
@@ -338,7 +431,7 @@ describe('local dev seeding workflow', () => {
           persistenceA,
           `INSERT INTO billing_status (subject, payload_json) VALUES ('parent:local-activity', '${additionalStatusPayload.replaceAll("'", "''")}')`
         );
-        const extendedA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
+        const extendedA = (await runSeedCommand('seed:local', persistenceA, runA)).mutationReceipt;
         assert.equal(await readStatusRowCount(persistenceA), firstACount + 1);
         assert.equal(await readStatusPayload(persistenceA, 'parent:local-activity'), additionalStatusPayload);
         assert.equal(extendedA.persistence.d1StatusRows, firstA.persistence.d1StatusRows + 1);

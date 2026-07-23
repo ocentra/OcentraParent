@@ -288,16 +288,20 @@ function formatRuntimeFailure(prefix: string, handle: RuntimeHandle, lastError?:
     [
       prefix,
       lastError ? `last error: ${lastError}` : null,
-      `stdout: ${handle.logs.stdout.join('').trim() || '<empty>'}`,
-      `stderr: ${handle.logs.stderr.join('').trim() || '<empty>'}`,
+      `stdout captured chars: ${handle.logs.stdout.join('').length}`,
+      `stderr captured chars: ${handle.logs.stderr.join('').length}`,
     ]
       .filter((line): line is string => line != null)
       .join('\n')
   );
 }
 
+function hasRuntimeExited(child: ChildProcess): boolean {
+  return child.exitCode !== null || child.signalCode !== null;
+}
+
 async function waitForRuntimeExit(child: ChildProcess, timeoutMs: number): Promise<void> {
-  if (child.exitCode !== null) {
+  if (hasRuntimeExited(child)) {
     return;
   }
   await new Promise<void>((resolve, reject) => {
@@ -317,8 +321,8 @@ async function waitForRuntimeExit(child: ChildProcess, timeoutMs: number): Promi
 }
 
 async function stopRuntime(handle: RuntimeHandle): Promise<void> {
-  const exitWait = handle.child.exitCode === null ? waitForRuntimeExit(handle.child, 10_000) : Promise.resolve();
-  if (handle.child.pid != null && handle.child.exitCode === null) {
+  const exitWait = hasRuntimeExited(handle.child) ? Promise.resolve() : waitForRuntimeExit(handle.child, 10_000);
+  if (handle.child.pid != null && !hasRuntimeExited(handle.child)) {
     if (process.platform === 'win32') {
       spawnSync('taskkill', ['/pid', String(handle.child.pid), '/t', '/f'], {
         stdio: 'ignore',
@@ -397,8 +401,13 @@ async function waitForSeededHealth(handle: RuntimeHandle): Promise<LocalSeedHeal
   let lastError = 'runtime did not answer';
 
   while (Date.now() < deadline) {
-    if (handle.child.exitCode !== null) {
-      throw formatRuntimeFailure(`Wrangler seed runtime exited with code ${handle.child.exitCode}`, handle);
+    if (hasRuntimeExited(handle.child)) {
+      throw formatRuntimeFailure(
+        `Wrangler seed runtime exited with code ${handle.child.exitCode ?? '<none>'} and signal ${
+          handle.child.signalCode ?? '<none>'
+        }`,
+        handle
+      );
     }
     try {
       const requestTimeout = AbortSignal.timeout(2_000);
@@ -406,9 +415,9 @@ async function waitForSeededHealth(handle: RuntimeHandle): Promise<LocalSeedHeal
       if (response.status === 200) {
         return (await response.json()) as LocalSeedHealthResponse;
       }
-      lastError = `health returned ${response.status}: ${await response.text()}`;
+      lastError = `health returned ${response.status}`;
     } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
+      lastError = error instanceof Error ? error.name : 'UnknownHealthFailure';
     }
     await sleep(400);
   }
@@ -434,7 +443,16 @@ function assertPersistedSeed(health: LocalSeedHealthResponse): LocalSeedPersiste
         persistence[key as keyof LocalSeedPersistenceEvidence] < expected[key as keyof LocalSeedPersistenceEvidence]
     )
   ) {
-    throw new Error(`local seed health did not prove D1/KV/R2 persistence: ${JSON.stringify(health)}`);
+    throw new Error(
+      [
+        'local seed health did not prove D1/KV/R2 persistence',
+        `status=${health.status}`,
+        `bindingStatus=${health.bindingStatus}`,
+        `missingBindingCount=${health.missingBindingCount}`,
+        `statusFixturesValid=${health.seedSummary?.fixtureValidation?.statusFixturesValid === true}`,
+        `persistenceKeys=${persistenceKeys.join(',') || '<none>'}`,
+      ].join('; ')
+    );
   }
   return persistence;
 }
@@ -511,20 +529,24 @@ export async function runLocalSeedMutation(requestedFamily: string): Promise<Loc
     throw error;
   } finally {
     let teardownError: unknown = null;
+    let runtimeStopped = handle === null;
     try {
       if (handle != null) {
         await stopRuntime(handle);
+        runtimeStopped = true;
       }
     } catch (error) {
       teardownError = error;
       emitMilestone('teardown-runtime', 'rejected', error instanceof Error ? error.name : 'UnknownFailure');
     }
-    rmSync(runtimePidPath, { force: true });
-    try {
-      lease?.release();
-    } catch (error) {
-      teardownError ??= error;
-      emitMilestone('teardown-lease', 'rejected', error instanceof Error ? error.name : 'UnknownFailure');
+    if (runtimeStopped) {
+      rmSync(runtimePidPath, { force: true });
+      try {
+        lease?.release();
+      } catch (error) {
+        teardownError ??= error;
+        emitMilestone('teardown-lease', 'rejected', error instanceof Error ? error.name : 'UnknownFailure');
+      }
     }
     if (teardownError === null) {
       emitMilestone('teardown', 'released');
