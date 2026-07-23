@@ -1,6 +1,6 @@
 use std::{
     path::{Path, PathBuf},
-    sync::{Arc, Mutex},
+    sync::{atomic::AtomicBool, Arc, Mutex},
 };
 
 use serde::{Deserialize, Serialize};
@@ -58,6 +58,9 @@ pub struct NdjsonEventJournal {
     options: NdjsonJournalOptions,
     state: Arc<Mutex<NdjsonJournalState>>,
     append_gate: Arc<Semaphore>,
+    sync_failure_for_debug: Arc<AtomicBool>,
+    partial_write_failure_for_debug: Arc<AtomicBool>,
+    directory_sync_failure_for_debug: Arc<AtomicBool>,
 }
 
 impl NdjsonEventJournal {
@@ -71,6 +74,9 @@ impl NdjsonEventJournal {
             options,
             state: Arc::new(Mutex::new(NdjsonJournalState::default())),
             append_gate: Arc::new(Semaphore::new(1)),
+            sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            partial_write_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            directory_sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
         }
     }
 
@@ -80,6 +86,24 @@ impl NdjsonEventJournal {
 
     pub fn shared(self) -> SharedEventJournal {
         Arc::new(self)
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_sync_failure_for_debug(&self) {
+        self.sync_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_partial_write_failure_for_debug(&self) {
+        self.partial_write_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_directory_sync_failure_for_debug(&self) {
+        self.directory_sync_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
     }
 
     pub(crate) fn path_string(&self) -> String {

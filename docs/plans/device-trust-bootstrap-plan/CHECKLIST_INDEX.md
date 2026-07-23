@@ -6,9 +6,11 @@ Status: open.
 
 All items begin unchecked. Proof is collected outside the plan folder.
 
+WP01 review refresh (2026-07-19): DTB-01 remains unchecked. A partial Rust parent-presence slice is visible and focused tests are green on Windows, but Unix production custody is unavailable, a specifically authorized sealing action is absent, and no platform key sealing exists. The implemented boundary is durable local delivery into a hash-chained `ocentra-eventing` journal; subscriber delivery and a broader event-bus runtime remain unimplemented. Generated output is local-only and untracked.
+
 | ID | Checklist | Workpack | Status | Proof target |
 | --- | --- | --- | --- | --- |
-| DTB-01 | Trust source of truth defined | 01-device-trust-source-of-truth | [ ] | `output/device-trust-bootstrap-plan-proof/01-*` |
+| DTB-01 | Trust source of truth defined | 01-device-trust-source-of-truth | [ ] partial runtime slice only | local untracked `output/device-trust-bootstrap-plan-proof/01-*` plus visible source/tests |
 | DTB-02 | Platform key sealing matrix defined | 02-local-key-sealing | [ ] | `output/device-trust-bootstrap-plan-proof/02-*` |
 | DTB-03 | Parent step-up policy defined | 03-parent-step-up-auth | [ ] | `output/device-trust-bootstrap-plan-proof/03-*` |
 | DTB-04 | QR approval bridge defined | 04-phone-qr-approval-bridge | [ ] | `output/device-trust-bootstrap-plan-proof/04-*` |

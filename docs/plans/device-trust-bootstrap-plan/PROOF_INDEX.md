@@ -20,6 +20,8 @@
 output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
 ```
 
+This is a local generated-output root. Files below it are transient harness evidence and must not be committed. A tracked output file is not canonical proof; durable review evidence lives in source, visible tests, and the current CI or harness run.
+
 ## Required universal proof files
 
 ```text
@@ -30,6 +32,18 @@ output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
 16-validation-commands.log
 17-blockers.md
 ```
+
+WP01 currently has one narrow source-and-test-backed runtime slice:
+
+```text
+crates/family-identity-core/src/parent_presence*.rs
+crates/family-identity-core/src/trust_bootstrap.rs
+crates/family-identity-core/tests/unit/trust_bootstrap*.rs
+crates/ocentra-eventing/src/journal/ndjson_io*.rs
+crates/ocentra-eventing/tests/journal_replay/file.rs
+```
+
+The visible tests cover the Rust parent-presence custody slice, including transactional decision outbox delivery, correlated and redacted accepted/replay journal entries, real journal failure, restart recovery, and idempotent re-delivery. The eventing journal tests separately prove stable idempotent append behavior across reopen and reject identity collisions. These tests do not substitute for broader WP01 or WP09 closure, subscriber delivery, or a broader event-bus runtime. Windows production custody is valid only when the final file and every ancestor remain pinned by no-delete-share handles and the runtime capability probe confirms that the filesystem denies substitution. Unix production custody remains unavailable; debug-only Unix file-mode tests are not production custody proof.
 
 ## Command log format
 
@@ -76,7 +90,7 @@ diagnostics_summary: <short unique failure or proof summary>
 no_claim: <what this result does not prove>
 ```
 
-The command log is a compact index, not a raw terminal transcript. Store command output, test reports, proof JSON, platform output, route-sync reports, or long failure dumps under artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
+The command log is a compact local index, not a raw terminal transcript or a tracked repository artifact. Store command output, test reports, proof JSON, platform output, route-sync reports, or long failure dumps under ignored artifact paths and reference them by pointer. If no wrapper exists, write `run_id: n/a` and `command_id: n/a`; do not omit the proof row.
 
 ## Platform proof status
 
@@ -127,4 +141,4 @@ unless the selected proof root proves that exact claim and WP09 aggregates it wh
 
 ## Legacy note
 
-Older `docs/proof/device-trust-bootstrap-plan/*` references are legacy pointers. New work should use `output/device-trust-bootstrap-plan-proof/`.
+Older `docs/proof/device-trust-bootstrap-plan/*` references are legacy pointers. New runs may use ignored local files below `output/device-trust-bootstrap-plan-proof/`; those files are not committed proof.
