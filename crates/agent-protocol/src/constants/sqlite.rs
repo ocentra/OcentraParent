@@ -181,6 +181,22 @@ WITH ranked_screen_analysis_activity AS (
   FROM activity_events
   WHERE kind = ?1
     AND observer = ?2
+    AND json_type(fields_json, '$.confidence') IN ('integer', 'real')
+    AND json_type(fields_json, '$.primaryCategory') = 'text'
+    AND json_type(fields_json, '$.modelRuntimeRef') = 'text'
+    AND json_type(fields_json, '$.screenAnalysisResultId') = 'text'
+    AND json_type(fields_json, '$.queueJobId') = 'text'
+    AND json_type(fields_json, '$.modelId') = 'text'
+    AND json_type(fields_json, '$.providerKind') = 'text'
+    AND json_type(fields_json, '$.promptOrTemplateVersion') = 'text'
+    AND json_type(fields_json, '$.captureReason') = 'text'
+    AND json_type(fields_json, '$.captureScope') = 'text'
+    AND json_type(fields_json, '$.capabilityStatus') = 'text'
+    AND json_type(fields_json, '$.summary') = 'text'
+    AND json_type(fields_json, '$.imageDigest') = 'text'
+    AND json_type(fields_json, '$.imageDeletionState') = 'text'
+    AND json_type(fields_json, '$.custodyState') = 'text'
+    AND json_type(fields_json, '$.policyEligible') IN ('true', 'false')
 )
 SELECT
   event_id,
@@ -258,6 +274,22 @@ SELECT
 FROM activity_events
 WHERE kind = ?1
   AND observer = ?2
+  AND json_type(fields_json, '$.confidence') IN ('integer', 'real')
+  AND json_type(fields_json, '$.primaryCategory') = 'text'
+  AND json_type(fields_json, '$.modelRuntimeRef') = 'text'
+  AND json_type(fields_json, '$.screenAnalysisResultId') = 'text'
+  AND json_type(fields_json, '$.queueJobId') = 'text'
+  AND json_type(fields_json, '$.modelId') = 'text'
+  AND json_type(fields_json, '$.providerKind') = 'text'
+  AND json_type(fields_json, '$.promptOrTemplateVersion') = 'text'
+  AND json_type(fields_json, '$.captureReason') = 'text'
+  AND json_type(fields_json, '$.captureScope') = 'text'
+  AND json_type(fields_json, '$.capabilityStatus') = 'text'
+  AND json_type(fields_json, '$.summary') = 'text'
+  AND json_type(fields_json, '$.imageDigest') = 'text'
+  AND json_type(fields_json, '$.imageDeletionState') = 'text'
+  AND json_type(fields_json, '$.custodyState') = 'text'
+  AND json_type(fields_json, '$.policyEligible') IN ('true', 'false')
 ORDER BY observed_at DESC,
   CASE json_extract(fields_json, '$.imageDeletionState')
     WHEN 'deleteFailed' THEN 4

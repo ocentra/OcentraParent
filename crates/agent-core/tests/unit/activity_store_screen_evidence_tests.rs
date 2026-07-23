@@ -131,7 +131,7 @@ fn activity_store_reports_empty_screen_summary_without_inventing_results() -> Te
 }
 
 #[test]
-fn activity_store_surfaces_screen_delete_failed_queue_health() -> TestResult {
+fn activity_store_surfaces_delete_failed_queue_health_without_policy_metadata() -> TestResult {
     let store = ActivityStore::open_in_memory().map_err(|error| {
         TestText::from_display(format!(
             "{}: {error:?}",
@@ -170,6 +170,8 @@ fn activity_store_surfaces_screen_delete_failed_queue_health() -> TestResult {
         Some(SCREEN_DELETION_DELETE_FAILED.to_string())
     );
     assert_eq!(summary.latest_policy_eligible, Some(false));
+    assert_eq!(summary.results[0].policy_decision_ref, None);
+    assert_eq!(summary.results[0].policy_action, None);
     Ok(())
 }
 
@@ -404,6 +406,55 @@ fn activity_store_skips_incomplete_screen_summary_rows() -> TestResult {
     assert_eq!(summary.latest_policy_eligible, None);
     assert_eq!(summary.queue_health.latest_status, None);
     assert_eq!(summary.evidence.len(), 0);
+    Ok(())
+}
+
+#[test]
+fn activity_store_uses_older_complete_screen_row_before_recent_limit() -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
+    let mut older_complete = screen_summary_event();
+    older_complete.event_id = "screen-complete-older".to_string();
+    older_complete.observed_at = constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string();
+    let mut newer_incomplete = incomplete_screen_summary_event();
+    newer_incomplete.event_id = "screen-incomplete-newer".to_string();
+    newer_incomplete.observed_at = constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string();
+    insert_log_field(
+        &mut newer_incomplete.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string()),
+    );
+    store
+        .ingest_events(&[older_complete, newer_incomplete])
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
+
+    let summary = store
+        .screen_evidence_recent_summary(1, constants::activity_store::TEST_THIRD_OBSERVED_AT)
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
+
+    assert_eq!(summary.returned, 1);
+    assert_eq!(
+        summary.results[0].analyzed_at,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT
+    );
+    assert_eq!(
+        summary.latest_result_id,
+        Some(constants::activity_store::TEST_SCREEN_RESULT_ID.to_string())
+    );
     Ok(())
 }
 
