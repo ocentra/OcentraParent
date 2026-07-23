@@ -5,6 +5,8 @@ import { createServer } from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildLocalSeedSnapshot } from '../src/billing-binding-read-model.js';
+import type { Env } from '../src/env.js';
 
 export const LOCAL_WEBHOOK_FIXTURE_INVENTORY = ['stripe', 'razorpay', 'paypal', 'google', 'apple'] as const;
 export const LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY = ['accepted-replay', 'dead-letter-replay'] as const;
@@ -88,13 +90,16 @@ const runtimeLeasePath = path.join(os.tmpdir(), 'ocentra-cloudflare-wrangler-run
 const seedRuntimeOwner = 'infra/cloudflare/scripts/local-seed-runtime.ts';
 const seedRuntimeNoClaimReason = 'local-seed-only;production-deployment-not-owned';
 const log = Logger.instance;
-const expectedPersistenceEvidence: LocalSeedPersistenceEvidence = {
-  d1StatusRows: 4,
-  d1AdminAccountRows: 4,
-  d1ReferralRows: 2,
-  kvPricingPlanRows: 3,
-  r2AuditEventRows: 8,
-};
+function expectedPersistenceEvidence(): LocalSeedPersistenceEvidence {
+  const seed = buildLocalSeedSnapshot({ ENVIRONMENT: 'development' } as Env);
+  return {
+    d1StatusRows: Object.keys(seed.statusBySubject ?? {}).length,
+    d1AdminAccountRows: seed.adminAccounts?.length ?? 0,
+    d1ReferralRows: seed.adminReferrals?.length ?? 0,
+    kvPricingPlanRows: seed.pricingPlans?.length ?? 0,
+    r2AuditEventRows: seed.auditEvents?.length ?? 0,
+  };
+}
 
 function sleep(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
@@ -362,6 +367,11 @@ async function startRuntime(persistTo: string): Promise<RuntimeHandle> {
     ],
     {
       cwd: cloudflareDir,
+      env: {
+        ...process.env,
+        ENVIRONMENT: process.env.ENVIRONMENT?.trim() || 'development',
+        INTERACTIVE_CSRF_TOKEN: process.env.INTERACTIVE_CSRF_TOKEN?.trim() || 'local-seed-csrf-token',
+      },
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,
       detached: process.platform !== 'win32',
@@ -388,7 +398,8 @@ async function waitForSeededHealth(handle: RuntimeHandle): Promise<LocalSeedHeal
       throw formatRuntimeFailure(`Wrangler seed runtime exited with code ${handle.child.exitCode}`, handle);
     }
     try {
-      const response = await fetch(`${handle.baseUrl}/health`);
+      const requestTimeout = AbortSignal.timeout(2_000);
+      const response = await fetch(`${handle.baseUrl}/health`, { signal: requestTimeout });
       if (response.status === 200) {
         return (await response.json()) as LocalSeedHealthResponse;
       }
@@ -405,7 +416,8 @@ async function waitForSeededHealth(handle: RuntimeHandle): Promise<LocalSeedHeal
 function assertPersistedSeed(health: LocalSeedHealthResponse): LocalSeedPersistenceEvidence {
   const persistence = health.seedSummary?.persistence;
   const persistenceKeys = persistence == null ? [] : Object.keys(persistence).sort();
-  const expectedKeys = Object.keys(expectedPersistenceEvidence).sort();
+  const expected = expectedPersistenceEvidence();
+  const expectedKeys = Object.keys(expected).sort();
   if (
     health.status !== 'ok' ||
     health.bindingStatus !== 'ready' ||
@@ -416,7 +428,7 @@ function assertPersistedSeed(health: LocalSeedHealthResponse): LocalSeedPersiste
     expectedKeys.some(
       (key) =>
         persistence[key as keyof LocalSeedPersistenceEvidence] <
-        expectedPersistenceEvidence[key as keyof LocalSeedPersistenceEvidence]
+        expected[key as keyof LocalSeedPersistenceEvidence]
     )
   ) {
     throw new Error(`local seed health did not prove D1/KV/R2 persistence: ${JSON.stringify(health)}`);
