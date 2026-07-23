@@ -64,7 +64,7 @@ fn remove_expired_entries_locked(
     super::screen_evidence_queue_outbox_quarantine::quarantine_corrupt_outbox(queue, &outbox)?;
     let failures = screen_evidence_queue_outbox::outbox_failures(&outbox.corrupt_lines);
     let mut pending = outbox.entries;
-    let known = pending
+    let mut known = pending
         .iter()
         .map(|entry| entry.queue_job_id.clone())
         .collect::<HashSet<_>>();
@@ -73,7 +73,7 @@ fn remove_expired_entries_locked(
         pending.extend(
             newly_expired
                 .into_iter()
-                .filter(|entry| !known.contains(&entry.queue_job_id)),
+                .filter(|entry| known.insert(entry.queue_job_id.clone())),
         );
         screen_evidence_queue_outbox::write_outbox_with_corrupt_lines(
             queue,

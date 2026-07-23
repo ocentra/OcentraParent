@@ -185,6 +185,59 @@ fn screen_evidence_queue_sweeps_only_expired_entries_with_delete_proof_refs() {
 }
 
 #[test]
+fn screen_evidence_queue_deduplicates_same_batch_expiry_job_ids_without_dropping_other_jobs() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([15; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let duplicate_job = screen_queue_job();
+    let other_job = screen_queue_job_with_id("screen-same-batch-other-expired-job");
+
+    queue
+        .append_encrypted_image(&duplicate_job, b"duplicate-image-first")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .append_encrypted_image(&duplicate_job, b"duplicate-image-second")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .append_encrypted_image(&other_job, b"other-expired-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let remaining = queue
+        .read_decrypted_entries(4)
+        .expect_value(constants::error::JOURNAL_READS);
+    let outbox_rows = read_to_string(queue.path().with_extension("deletion-outbox"))
+        .expect_value(constants::error::JOURNAL_READS)
+        .lines()
+        .count();
+    let expired_job_ids = sweep
+        .expired_entries
+        .iter()
+        .map(|entry| entry.queue_job_id.as_str())
+        .collect::<Vec<_>>();
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(sweep.expired_entries.len(), 2);
+    assert_eq!(outbox_rows, 2);
+    assert_eq!(sweep.retained_count, 0);
+    assert!(remaining.is_empty());
+    assert_eq!(
+        expired_job_ids,
+        [
+            duplicate_job.queue_job_id.as_str(),
+            other_job.queue_job_id.as_str()
+        ]
+    );
+}
+
+#[test]
 fn screen_evidence_queue_durably_replaces_outbox_across_updates_acknowledgements_and_restart() {
     let directory = temp_queue_dir();
     let _ = remove_dir_all(&directory);
