@@ -67,10 +67,10 @@ These are field requirements for proof routing, not implementation code prescrip
 
 ## Execution truth
 
-- The current checkout output tree contains no tracked WP00-WP12 generated proof roots; generated output is intentionally not source.
+- Raw proof-root custody is recorded separately from Git tracking and acceptance: WP07 and WP12 raw output directories are physically present in this checkout, but `output/` is ignored and neither directory is Git-tracked or accepted as a handoff root.
 - A compact tracked WP12 receipt records current-head local validation and the exact blocker handoff without promoting ignored output into source.
-- `accepted_proof_roots` for this checkout truth is `none-present`.
-- WP00 through WP11 remain historical plan references in the plan docs and are not present artifacts in this checkout's output tree. WP00 is parity-extraction history; it is included here as historical-but-absent rather than left ambiguous as never produced.
+- `accepted_proof_roots` for this checkout truth is `none accepted`; physical raw-root presence alone does not satisfy acceptance or downstream custody.
+- WP00 through WP06 and WP08 through WP11 remain historical plan references with no physical raw root in this checkout. WP07 is present-but-unaccepted through its raw directory and tracked retained receipt; WP12 is present as raw ignored output plus a tracked blocker receipt. WP00 is parity-extraction history; it is included here as historical-but-absent rather than left ambiguous as never produced.
 - WP12 retains its raw/generated output route, but payment handoff truth survives cleanup in the tracked receipt.
 - Current Cloudflare lint, unit, contract, real Wrangler integration, generated-artifact lint, and billing-core unit gates are green at `cbb8421875492176bd2a3d5b95eaa7fa0dd8210e`.
 - Remaining blockers are absent accepted WP00-WP11 receipts, account/trusted-device/provider/storage/portal/deployment/data-custody states, and no downstream payment acknowledgment.
@@ -78,10 +78,14 @@ These are field requirements for proof routing, not implementation code prescrip
 
 ## Current checkout output inventory
 
-- Present in this checkout's output tree:
-  - none
-- Retained outside generated output:
-  - `docs/proof/cloudflare-control-plane-plan/12-payment-plan-handoff-gate.md`
+- Physically present raw output roots in this checkout, ignored and untracked:
+  - `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`
+  - `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/`
+- Git-tracked raw output roots:
+  - none; `output/` is intentionally ignored
+- Retained tracked receipts outside generated output:
+  - `docs/proof/cloudflare-control-plane-plan/07-local-dev-seeding-and-fixtures.md` (present but unaccepted)
+  - `docs/proof/cloudflare-control-plane-plan/12-payment-plan-handoff-gate.md` (blocker receipt, not an accepted handoff)
 - Expected only in plan docs:
   - `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/`
 
@@ -102,8 +106,9 @@ These are field requirements for proof routing, not implementation code prescrip
 
 ## Exact blocker set
 
-- Missing proof roots:
-  - accepted current-head WP00 through WP11 retained receipts are missing
+- Missing accepted proof roots:
+  - WP00 through WP06 and WP08 through WP11 have no retained receipt in this checkout
+  - WP07 has a retained receipt but remains unaccepted
   - WP12 downstream payment acknowledgment is missing
 - Accepted-root carried blockers:
   - the checked-in billing-contract sidecar is consumed by `infra/cloudflare/src/index.ts` and `infra/cloudflare/src/fixtures.ts`, so the remaining blocker is proof-artifact absence in this checkout, not missing source ownership
@@ -139,7 +144,7 @@ These are field requirements for proof routing, not implementation code prescrip
 ## Failure conditions
 
 - Reject unblocking payment from docs alone when core Cloudflare blockers remain.
-- Reject unblocking payment from historical plan references alone when the current checkout output tree does not contain WP00 through WP11.
+- Reject unblocking payment from historical plan references or ignored raw output alone; physical presence, Git tracking, retained receipt, and acceptance are distinct custody states.
 - Reject unblocking payment from the checked-in billing-contract sidecar or the retained blocker receipt while custody/dependency gates or downstream acknowledgment remain unresolved.
 - Reject unblocking payment from source presence or route manifest presence alone.
 - Reject unblocking payment from local dev proof as production deploy proof.

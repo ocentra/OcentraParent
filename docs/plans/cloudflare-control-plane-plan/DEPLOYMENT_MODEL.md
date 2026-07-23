@@ -26,8 +26,8 @@ Current scoped proof rerun uses `--dry-run` against both commands because no rea
 
 ## Current dry-run and blocked promotion state
 
-- Current module lint truth: `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; this file no longer treats the Cloudflare module lint as active debt.
-- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` exited 0 against source base `4573ab436` on 2026-07-20, completed local bundling, and stopped at the explicit dry-run boundary without publishing.
+- Current module lint truth: `npm --prefix infra/cloudflare run lint` passed at source base `2aab6310c`; this file no longer treats the Cloudflare module lint as active debt.
+- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` exited 0 against source base `2aab6310c` on 2026-07-23, completed local bundling, and stopped at the explicit dry-run boundary without publishing.
 - `npm --prefix infra/cloudflare run deploy -- --dry-run` exited 0 against the same source base, completed local bundling, and stopped at the explicit dry-run boundary without publishing.
 - Both commands also emit a Wrangler warning because the scripts pass `--env development` or `--env production` without matching `[env.*]` sections in the chosen config file.
 - No promoted endpoint exists from those commands, so post-deploy `/health`, `/public/pricing`, and `/auth/billing/status` smoke remains unrun and blocked.

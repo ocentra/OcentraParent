@@ -11,8 +11,8 @@ external local diagnostic path; it is not committed as source.
 ```text
 handoff_id: cloudflare-wp12-cbb842187-2026-07-20
 cloudflare_module_state: local contract and Worker execution green; production readiness blocked
-accepted_proof_roots: none from WP00-WP11; this receipt records current validation and blockers only
-missing_proof_roots: WP00-WP11 retained execution receipts; WP12 downstream payment acknowledgment
+accepted_proof_roots: none accepted; raw-root presence, Git tracking, retained receipt, and acceptance are distinct states
+missing_proof_roots: WP00-WP06 and WP08-WP11 retained execution receipts; WP07 receipt acceptance; WP12 downstream payment acknowledgment
 carried_blockers: account authority; trusted-device authority; provider webhook readiness; storage/queue operations; portal smoke; deployment promotion; data custody; downstream payment acknowledgment
 payment_may_assume: generated billing contracts are consumed by current Worker source; current local lint/unit/contract/integration gates and billing-core unit tests pass
 payment_must_not_assume: production deployment; production auth or device trust; provider correctness; storage/queue operations; portal readiness; billing product semantics; entitlement readiness
@@ -26,6 +26,13 @@ data_custody_state: blocked / owning-plan proof-required
 downstream_payment_ack_state: blocked / not-recorded
 no_claim: this receipt does not unblock payment or prove production Cloudflare, account, trust, provider, storage, portal, deployment, custody, or subscription readiness
 ```
+
+## Custody inventory
+
+- Physical raw output in this checkout: WP07 and WP12 directories exist beneath ignored `output/cloudflare-control-plane-plan-proof/`.
+- Git-tracked raw output: none; `output/` is intentionally ignored.
+- Tracked retained receipts: WP07 is present but unaccepted; this WP12 receipt records blockers only.
+- Accepted handoff roots: none. A physical or ignored raw directory never substitutes for downstream acceptance.
 
 ## Current-head validation receipt
 

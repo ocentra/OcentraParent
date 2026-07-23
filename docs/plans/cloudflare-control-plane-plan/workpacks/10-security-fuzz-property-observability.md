@@ -51,27 +51,26 @@ Reduce the games security and external-tool surface to the Parent-required basel
 ## Families proved vs blocked
 
 - Proved at file/assertion inventory surface: security, property, fuzz, and carried observability integration families are explicit and mapped to exact assertion IDs.
-- `npm --prefix infra/cloudflare run test:integration` passed at validated source base `cbb842187`, but the retained WP12 receipt does not map that broader result to every WP10 observability assertion.
-- Security, property, and fuzz families were not freshly rerun for the retained receipt. Their current execution state is unverified, not green and not test-failed.
-- No file-level pass/fail claim is carried forward without a current assertion-mapped WP10 receipt.
+- `npm --prefix infra/cloudflare run test:integration` passed at source base `2aab6310c`; the retained WP10 receipt records its local observability boundary.
+- Security, property, and fuzz families were freshly rerun at source base `2aab6310c` and passed. Their passing local results do not prove production security, deployment, or payment readiness.
+- The tracked WP10 receipt maps current command results, while acceptance and the required operational proof remain open.
 
 ## Exact blocker
 
-- The WP10 proof root and cleanup-safe retained receipt are absent.
-- Security, property, and fuzz commands lack current assertion-mapped results; the broader integration pass does not substitute for those families.
-- `npm --prefix infra/cloudflare run lint` passed at validated source base `cbb842187`; module lint is not the WP10 blocker.
-- `OBS-03` remains receipt-required because no current WP10 artifact maps the carried integration assertions, not because the currently retained evidence proves that integration cannot boot.
+- The raw WP10 proof root is absent and the new tracked receipt is not an accepted completion root.
+- Current local command results do not substitute for production security, real provider traffic, or deployed observability evidence.
+- `OBS-03` remains proof-required for accepted observability evidence, not because the current local integration command failed to boot.
 
 ## Validation truth
 
 - `npm --prefix infra/cloudflare run test:security`
-  - not freshly rerun for the retained receipt; unverified
+  - passed 16/16 at source base `2aab6310c`; local security behavior only
 - `npm --prefix infra/cloudflare run test:property`
-  - not freshly rerun for the retained receipt; unverified
+  - passed 9/9 at source base `2aab6310c`; local property behavior only
 - `npm --prefix infra/cloudflare run test:fuzz`
-  - not freshly rerun for the retained receipt; unverified
+  - passed 5/5 at source base `2aab6310c`; local fuzz behavior only
 - `npm --prefix infra/cloudflare run test:integration`
-  - passed at validated source base `cbb842187`; no current assertion-mapped WP10 receipt exists
+  - passed at source base `2aab6310c`; local Worker behavior only
 - No architecture gate was applicable in this packet because no WP10 TypeScript source or test file changed; this closure pass records current family truth through proof/docs only.
 
 ## Validation

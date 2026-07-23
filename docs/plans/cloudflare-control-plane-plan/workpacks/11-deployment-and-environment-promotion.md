@@ -41,7 +41,7 @@ Define deployment commands, environment promotion, and rollback expectations for
 
 ## Exact blocker set
 
-- Dry-run command execution is green against source base `4573ab436` on 2026-07-20; deployment and promotion proof remain absent:
+- Dry-run command execution is green against source base `2aab6310c` on 2026-07-23; deployment and promotion proof remain absent:
   - `npm --prefix infra/cloudflare run deploy:dev -- --dry-run`
   - `npm --prefix infra/cloudflare run deploy -- --dry-run`
 - Each command completed local bundling, emitted the existing missing matching `[env.*]` warning, and stopped without publishing.
