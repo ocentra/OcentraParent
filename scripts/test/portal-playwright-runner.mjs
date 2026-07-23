@@ -28,7 +28,7 @@ import {
   spawnAgentService,
   spawnParentDevBridge,
   spawnVitePortal,
-  stopProcessTree,
+  stopProcessTreeAndWait,
 } from './agent-service-process.mjs';
 import {
   assertAgentNetworkActivityReadModel,
@@ -370,46 +370,7 @@ async function stopChildren() {
 }
 
 async function stopChild(child) {
-  if (child.exitCode !== null || child.signalCode !== null) {
-    return;
-  }
-
-  const exitPromise = waitForExit(child, 5000);
-  stopProcessTree(child);
-  if (await exitPromise) {
-    return;
-  }
-
-  forceKill(child);
-  await waitForExit(child, 2000);
-}
-
-function waitForExit(child, timeout) {
-  if (child.exitCode !== null || child.signalCode !== null) {
-    return true;
-  }
-
-  return Promise.race([
-    once(child, 'exit').then(() => true),
-    delay(timeout).then(() => child.exitCode !== null || child.signalCode !== null),
-  ]);
-}
-
-function forceKill(child) {
-  if (child.pid === undefined) {
-    return;
-  }
-
-  if (process.platform === 'win32') {
-    spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
-    return;
-  }
-
-  try {
-    process.kill(-child.pid, 'SIGKILL');
-  } catch {
-    child.kill('SIGKILL');
-  }
+  await stopProcessTreeAndWait(child);
 }
 
 function isLikelyParentLogBridgeOccupant(occupant) {
