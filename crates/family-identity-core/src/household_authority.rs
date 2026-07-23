@@ -165,7 +165,7 @@ pub enum ParentStepUpValidationFailureReason {
     ReplayRejected,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ParentStepUpAssertionSnapshot {
     pub family_id: String,
     pub parent_account_id: String,
@@ -176,6 +176,22 @@ pub struct ParentStepUpAssertionSnapshot {
     pub action: HouseholdAuthorityAction,
     pub nonce: String,
     pub expires_at: String,
+}
+
+impl std::fmt::Debug for ParentStepUpAssertionSnapshot {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ParentStepUpAssertionSnapshot")
+            .field("family_id", &"[redacted]")
+            .field("parent_account_id", &"[redacted]")
+            .field("action_device_id", &"[redacted]")
+            .field("action_device_child_profile_id", &"[redacted]")
+            .field("target_child_profile_id", &"[redacted]")
+            .field("target_child_device_id", &"[redacted]")
+            .field("action", &"[redacted]")
+            .field("nonce", &"[redacted]")
+            .field("expires_at", &"[redacted]")
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
