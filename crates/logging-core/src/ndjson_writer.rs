@@ -101,6 +101,14 @@ fn lock_and_append(file: &mut File, record: &[u8]) -> io::Result<()> {
 }
 
 fn append_locked_record(file: &mut File, record: &[u8]) -> io::Result<()> {
+    append_locked_record_with_sync(file, record, File::sync_data)
+}
+
+pub(crate) fn append_locked_record_with_sync(
+    file: &mut File,
+    record: &[u8],
+    sync: impl FnOnce(&File) -> io::Result<()>,
+) -> io::Result<()> {
     if record.is_empty() || record.last() != Some(&b'\n') {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
@@ -113,7 +121,9 @@ fn append_locked_record(file: &mut File, record: &[u8]) -> io::Result<()> {
     if let Err(error) = append_bytes(file, record) {
         return rollback_append(file, start, error);
     }
-    file.sync_data()?;
+    if let Err(error) = sync(file) {
+        return rollback_append(file, start, error);
+    }
     Ok(())
 }
 

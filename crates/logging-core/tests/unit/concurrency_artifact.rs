@@ -1,10 +1,21 @@
 use std::{
-    collections::BTreeSet, env, error::Error, fs, path::Path, process::Command, sync::Arc, thread,
+    collections::BTreeSet,
+    env,
+    error::Error,
+    fs,
+    path::Path,
+    process::Command,
+    sync::{mpsc, Arc},
+    thread,
+    time::Duration,
 };
 
 use ocentra_parent_logging_core::{
     artifact::{ArtifactKind, ArtifactWriter},
-    ndjson_writer::{append_record, append_record_for_operation, NdjsonWriter},
+    ndjson_writer::{
+        append_record, append_record_for_operation, remove_record_file_with_operation_state,
+        NdjsonWriter,
+    },
 };
 use serde_json::json;
 
@@ -55,6 +66,40 @@ fn ndjson_writer_deduplicates_only_matching_operation_identity() {
 fn ndjson_writer_keeps_subprocess_records_exact_and_terminal() {
     let result = ndjson_writer_keeps_subprocess_records_exact_and_terminal_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_operation_state_cleanup_waits_for_the_stream_lock() {
+    let result = ndjson_operation_state_cleanup_waits_for_the_stream_lock_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+fn ndjson_operation_state_cleanup_waits_for_the_stream_lock_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("cleanup-lock.ndjson");
+    append_record_for_operation(&path, "cleanup-lock", b"{\"locked\":true}\n")?;
+    let lock_file = fs::OpenOptions::new().read(true).write(true).open(&path)?;
+    lock_file.lock()?;
+
+    let cleanup_path = path.clone();
+    let (result_sender, result_receiver) = mpsc::sync_channel(1);
+    let cleanup = thread::spawn(move || {
+        let result = remove_record_file_with_operation_state(&cleanup_path);
+        let _send_result = result_sender.send(result);
+    });
+    assert!(result_receiver
+        .recv_timeout(Duration::from_millis(100))
+        .is_err());
+    assert!(path.exists());
+
+    lock_file.unlock()?;
+    result_receiver.recv_timeout(Duration::from_secs(5))??;
+    cleanup
+        .join()
+        .map_err(|_panic| std::io::Error::other("operation cleanup worker panicked"))?;
+    assert!(!path.exists());
+    Ok(())
 }
 
 fn ndjson_writer_keeps_concurrent_records_parseable_impl() -> Result<(), Box<dyn Error>> {

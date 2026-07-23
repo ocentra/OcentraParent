@@ -44,6 +44,19 @@ pub fn append_record_with_fault(
     result.and(unlock_result)
 }
 
+pub fn append_plain_record_with_sync_fault(path: &Path, record: &[u8]) -> io::Result<()> {
+    if let Some(parent) = path.parent() {
+        create_dir_all(parent)?;
+    }
+    let mut file = crate::ndjson_writer::open_append_file(path)?;
+    file.lock()?;
+    let result = crate::ndjson_writer::append_locked_record_with_sync(&mut file, record, |_| {
+        Err(io::Error::other("injected NDJSON sync failure"))
+    });
+    let unlock_result = file.unlock();
+    result.and(unlock_result)
+}
+
 pub fn append_record_with_marker_fault(
     path: &Path,
     operation_id: &str,

@@ -9,6 +9,7 @@ use crate::{
     },
     artifact_publish::publish_immutable,
     artifact_publish_lock::with_publish_lock,
+    artifact_publish_platform::sync_parent,
     path::{path_string, sanitize_segment, timestamp_now},
 };
 
@@ -70,6 +71,7 @@ impl ArtifactWriter {
             if metadata_path.exists() {
                 let metadata = read_artifact_ref(&metadata_path)?;
                 validate_replay(&metadata, &path, content, &kind, &run_id, &command_id)?;
+                sync_parent(&metadata_path)?;
                 return Ok(metadata);
             }
             let artifact = build_artifact_ref(&path, content, kind, run_id, command_id);

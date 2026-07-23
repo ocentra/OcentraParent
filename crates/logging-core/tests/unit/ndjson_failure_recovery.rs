@@ -7,10 +7,10 @@ use ocentra_parent_logging_core::{
         ArtifactFallbackFault, HardLinkFault,
     },
     ndjson_test_support::{
-        append_record_with_fault, append_record_with_marker_fault, AppendFault,
-        OperationMarkerFault,
+        append_plain_record_with_sync_fault, append_record_with_fault,
+        append_record_with_marker_fault, AppendFault, OperationMarkerFault,
     },
-    ndjson_writer::append_record_for_operation,
+    ndjson_writer::{append_record, append_record_for_operation},
 };
 
 #[test]
@@ -227,6 +227,13 @@ fn ndjson_writer_recovers_from_injected_write_and_sync_failures_impl() -> Result
         fs::read(&path)?,
         [record.as_slice(), record.as_slice()].concat()
     );
+    let plain_path = root.join("plain-sync-retry.ndjson");
+    let plain_sync = injected_error(append_plain_record_with_sync_fault(&plain_path, record))?;
+    assert_eq!(plain_sync.kind(), std::io::ErrorKind::Other);
+    assert_eq!(plain_sync.to_string(), "injected NDJSON sync failure");
+    assert_eq!(fs::read(&plain_path)?, b"");
+    append_record(&plain_path, record)?;
+    assert_eq!(fs::read(&plain_path)?, record);
     Ok(())
 }
 

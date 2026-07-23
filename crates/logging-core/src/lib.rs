@@ -36,6 +36,7 @@ mod ndjson_operation_marker_publish;
 mod ndjson_operation_marker_publish_state;
 mod ndjson_operation_marker_state;
 mod ndjson_operation_state_cleanup;
+mod ndjson_operation_state_lock;
 mod ndjson_tail_recovery;
 #[cfg(feature = "test-support")]
 #[doc(hidden)]

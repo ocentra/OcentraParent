@@ -4,9 +4,14 @@ use crate::{
     artifact_publish_lock::remove_temporary, artifact_publish_platform::sync_parent,
     ndjson_operation_compaction_cache::forget_commit_index,
     ndjson_operation_marker_state::operation_directory,
+    ndjson_operation_state_lock::with_stream_lock,
 };
 
 pub(crate) fn remove_operation_state(path: &Path) -> io::Result<()> {
+    with_stream_lock(path, || remove_operation_state_locked(path))
+}
+
+fn remove_operation_state_locked(path: &Path) -> io::Result<()> {
     if path.exists() {
         sync_parent(path)?;
     }
