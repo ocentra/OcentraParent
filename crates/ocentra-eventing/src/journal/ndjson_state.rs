@@ -5,6 +5,7 @@ pub(crate) struct NdjsonJournalState {
     pub(super) next_sequence: u64,
     pub(super) previous_hash: Option<JournalHash>,
     pub(super) recovered: bool,
+    pub(super) file_len: u64,
 }
 
 impl NdjsonJournalState {
@@ -13,6 +14,7 @@ impl NdjsonJournalState {
             next_sequence: 0,
             previous_hash: None,
             recovered: true,
+            file_len: 0,
         }
     }
 }

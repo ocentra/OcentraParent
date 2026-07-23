@@ -44,8 +44,10 @@ CREATE TABLE IF NOT EXISTS parent_presence_receipts (
 CREATE TABLE IF NOT EXISTS parent_presence_decision_outbox (
     decision_id TEXT PRIMARY KEY NOT NULL,
     envelope_json TEXT NOT NULL,
+    delivery_claim TEXT,
+    delivery_claimed_at INTEGER,
     delivery_state TEXT NOT NULL CHECK (
-        delivery_state IN ('pending', 'delivered')
+        delivery_state IN ('pending', 'claimed', 'delivered')
     )
 ) STRICT;
 
@@ -153,6 +155,8 @@ pub(crate) fn validate_store_schema(
             == vec![
                 column("decision_id", "TEXT", true, 1),
                 column("envelope_json", "TEXT", true, 0),
+                column("delivery_claim", "TEXT", false, 0),
+                column("delivery_claimed_at", "INTEGER", false, 0),
                 column("delivery_state", "TEXT", true, 0),
             ],
     )?;

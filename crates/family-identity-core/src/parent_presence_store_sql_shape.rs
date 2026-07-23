@@ -28,8 +28,10 @@ const DECISION_OUTBOX_TABLE_SHAPE: &str = r#"
 CREATE TABLE parent_presence_decision_outbox (
     decision_id TEXT PRIMARY KEY NOT NULL,
     envelope_json TEXT NOT NULL,
+    delivery_claim TEXT,
+    delivery_claimed_at INTEGER,
     delivery_state TEXT NOT NULL CHECK (
-        delivery_state IN ('pending', 'delivered')
+        delivery_state IN ('pending', 'claimed', 'delivered')
     )
 ) STRICT
 "#;

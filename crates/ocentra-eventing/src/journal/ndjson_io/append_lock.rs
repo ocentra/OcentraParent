@@ -39,14 +39,24 @@ async fn acquire(
     use std::os::windows::fs::OpenOptionsExt;
 
     for _ in 0..LOCK_RETRY_COUNT {
-        match OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .truncate(false)
-            .share_mode(0)
-            .open(lock_path)
-        {
+        let lock_path = lock_path.to_owned();
+        let opened = tokio::task::spawn_blocking(move || {
+            OpenOptions::new()
+                .read(true)
+                .write(true)
+                .create(true)
+                .truncate(false)
+                .share_mode(0)
+                .open(lock_path)
+        })
+        .await
+        .map_err(|error| {
+            EventingError::journal_io(
+                journal.path_string(),
+                &std::io::Error::other(error.to_string()),
+            )
+        })?;
+        match opened {
             Ok(file) => return Ok(JournalAppendLock { _file: file }),
             Err(error) if matches!(error.raw_os_error(), Some(32 | 33)) => {
                 tokio::time::sleep(LOCK_RETRY_DELAY).await;
@@ -62,13 +72,23 @@ async fn acquire(
     lock_path: &Path,
     journal: &NdjsonEventJournal,
 ) -> Result<JournalAppendLock, EventingError> {
-    let file = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .truncate(false)
-        .open(lock_path)
-        .map_err(|error| EventingError::journal_io(journal.path_string(), &error))?;
+    let lock_path = lock_path.to_owned();
+    let file = tokio::task::spawn_blocking(move || {
+        OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(lock_path)
+    })
+    .await
+    .map_err(|error| {
+        EventingError::journal_io(
+            journal.path_string(),
+            &std::io::Error::other(error.to_string()),
+        )
+    })?
+    .map_err(|error| EventingError::journal_io(journal.path_string(), &error))?;
     for _ in 0..LOCK_RETRY_COUNT {
         match file.try_lock() {
             Ok(()) => return Ok(JournalAppendLock { _file: file }),

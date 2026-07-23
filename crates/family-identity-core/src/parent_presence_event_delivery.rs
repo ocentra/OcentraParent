@@ -146,17 +146,20 @@ fn append_on_isolated_runtime(
     journal: NdjsonEventJournal,
     envelope: StoredEventEnvelope,
 ) -> Result<(), ParentPresenceStorageFailureReason> {
-    thread::spawn(move || {
-        let runtime = tokio::runtime::Builder::new_current_thread()
-            .build()
-            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-        runtime
-            .block_on(journal.append_idempotent(&envelope))
-            .map(|_append| ())
-            .map_err(eventing_unavailable)
-    })
-    .join()
-    .map_err(|_panic| ParentPresenceStorageFailureReason::CustodyUnavailable)?
+    thread::Builder::new()
+        .name("parent-presence-custody-delivery".to_owned())
+        .spawn(move || {
+            let runtime = tokio::runtime::Builder::new_current_thread()
+                .build()
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+            runtime
+                .block_on(journal.append_idempotent(&envelope))
+                .map(|_append| ())
+                .map_err(eventing_unavailable)
+        })
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?
+        .join()
+        .map_err(|_panic| ParentPresenceStorageFailureReason::CustodyUnavailable)?
 }
 
 fn eventing_unavailable(_error: EventingError) -> ParentPresenceStorageFailureReason {

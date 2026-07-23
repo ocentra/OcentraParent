@@ -17,7 +17,7 @@ impl NdjsonEventJournal {
             .expect_value("journal append gate remains open");
         let _append_file_lock = self.acquire_append_file_lock().await?;
         self.repair_incomplete_trailing_record().await?;
-        self.refresh_state().await?;
+        self.refresh_state_if_unrecovered().await?;
         self.append_entry_with_gate(envelope, phase).await
     }
 
@@ -44,11 +44,16 @@ impl NdjsonEventJournal {
             }
         };
         self.write_entry(&append, envelope, phase).await?;
+        let file_len = tokio::fs::metadata(&self.path)
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?
+            .len();
         {
             let mut state = self.state.lock().expect_value("journal state lock");
             state.next_sequence = append.sequence;
             state.previous_hash = append.current_hash.clone();
             state.recovered = true;
+            state.file_len = file_len;
         }
         Ok(append)
     }

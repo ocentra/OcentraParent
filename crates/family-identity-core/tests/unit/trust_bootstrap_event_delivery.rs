@@ -1,6 +1,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Barrier};
+use std::thread;
 
 use ocentra_eventing::ids::CorrelationId;
 use ocentra_eventing::journal::ndjson::NdjsonJournalEntry;
@@ -249,6 +251,43 @@ fn pending_redelivery_is_idempotent_across_restart() -> TestResult {
 }
 
 #[test]
+fn concurrent_recovery_workers_claim_one_outbox_delivery_without_failing_other_ports() -> TestResult
+{
+    let store = DeliveryStore::new("concurrent-recovery-claim");
+    let mut port = store.port()?;
+    let journal_path = port.custody_decision_journal_path().to_path_buf();
+    issue_challenge(&mut port, "concurrent-recovery-claim");
+    assert!(port
+        .verify_and_consume(input(
+            "concurrent-recovery-claim",
+            "concurrent-recovery-correlation"
+        )?)
+        .is_ok());
+    drop(port);
+    set_outbox_pending(&store.store_path)?;
+
+    let workers = 8;
+    let start = Arc::new(Barrier::new(workers));
+    let joins = (0..workers)
+        .map(|_| {
+            let start = Arc::clone(&start);
+            let store_path = store.store_path.clone();
+            thread::spawn(move || {
+                start.wait();
+                open_parent_presence_test_port(store_path).is_ok()
+            })
+        })
+        .collect::<Vec<_>>();
+    for join in joins {
+        assert!(join.join().unwrap_or(false));
+    }
+
+    assert_eq!(outbox_state(&store.store_path)?, "delivered");
+    assert_eq!(journal_entries(&journal_path)?.len(), 1);
+    Ok(())
+}
+
+#[test]
 fn custody_journal_suffix_preserves_distinct_store_extensions() -> TestResult {
     let store = DeliveryStore::new("extension-collision");
     let db_path = store.root.join("parent-presence.db");
@@ -380,7 +419,8 @@ fn set_outbox_pending(path: &Path) -> TestResult {
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     let changed = connection
         .execute(
-            "UPDATE parent_presence_decision_outbox SET delivery_state = 'pending'",
+            "UPDATE parent_presence_decision_outbox
+             SET delivery_state = 'pending', delivery_claim = NULL, delivery_claimed_at = NULL",
             [],
         )
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;

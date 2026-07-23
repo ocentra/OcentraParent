@@ -7,8 +7,25 @@ use crate::{EventingError, ExpectValue};
 use super::{NdjsonEventJournal, NdjsonJournalEntry};
 
 impl NdjsonEventJournal {
+    pub(crate) async fn refresh_state_if_unrecovered(&self) -> Result<(), EventingError> {
+        let file_len = tokio::fs::metadata(&self.path)
+            .await
+            .map_or(0, |metadata| metadata.len());
+        let state_is_current = {
+            let state = self.state.lock().expect_value("journal state lock");
+            state.recovered && state.file_len == file_len
+        };
+        if state_is_current {
+            return Ok(());
+        }
+        self.refresh_state().await
+    }
+
     pub(crate) async fn refresh_state(&self) -> Result<(), EventingError> {
-        let recovered = self.read_recovered_state().await?;
+        let mut recovered = self.read_recovered_state().await?;
+        recovered.file_len = tokio::fs::metadata(&self.path)
+            .await
+            .map_or(0, |metadata| metadata.len());
         *self.state.lock().expect_value("journal state lock") = recovered;
         Ok(())
     }

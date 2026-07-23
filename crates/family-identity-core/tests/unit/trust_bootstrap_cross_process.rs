@@ -109,7 +109,7 @@ fn worker(
         .env(READY_ENV, ready)
         .env(START_ENV, start)
         .stdout(Stdio::null())
-        .stderr(Stdio::null());
+        .stderr(Stdio::piped());
     Ok(command)
 }
 
@@ -150,8 +150,16 @@ fn parent_presence_replay_is_durable_across_processes_and_restart(
     fs::write(&start, "start")?;
     let first = first.wait_with_output()?;
     let second = second.wait_with_output()?;
-    assert!(first.status.success());
-    assert!(second.status.success());
+    assert!(
+        first.status.success(),
+        "first worker failed: {}",
+        String::from_utf8_lossy(&first.stderr)
+    );
+    assert!(
+        second.status.success(),
+        "second worker failed: {}",
+        String::from_utf8_lossy(&second.stderr)
+    );
     let outcomes = [
         fs::read_to_string(&first_path)?,
         fs::read_to_string(&second_path)?,
