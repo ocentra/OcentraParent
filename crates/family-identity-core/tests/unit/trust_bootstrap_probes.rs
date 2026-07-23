@@ -345,7 +345,7 @@ fn trust_bootstrap_operational_debug_redacts_identity_and_capability_material() 
 
     let accepted =
         accepted.map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-    let receipt_ref = accepted.receipt_ref().to_string();
+    let receipt_ref = accepted.receipt_ref().as_str().to_owned();
     let decision = evaluate_trust_bootstrap(TrustBootstrapInput {
         trust_bootstrap_ref: case.trust_bootstrap_ref.clone(),
         lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,

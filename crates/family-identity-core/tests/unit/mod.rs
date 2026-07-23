@@ -9,6 +9,7 @@ mod trust_bootstrap_event_delivery;
 mod trust_bootstrap_expiry;
 mod trust_bootstrap_nonce_process;
 mod trust_bootstrap_probes;
+mod trust_bootstrap_receipt_integrity;
 mod trust_bootstrap_store_integrity;
 mod trust_bootstrap_store_metadata;
 mod trust_bootstrap_store_schema;

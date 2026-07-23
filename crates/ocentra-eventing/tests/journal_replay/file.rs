@@ -124,6 +124,51 @@ async fn ndjson_idempotent_append_rejects_key_reuse_for_a_different_event() {
 }
 
 #[tokio::test]
+async fn idempotent_restart_truncates_only_an_incomplete_trailing_record() {
+    let path = journal_path(TestText("idempotent-partial-recovery".to_owned()));
+    let event = unique_stored_event("partial recovery", 43);
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal.inject_next_partial_write_failure_for_debug();
+
+    let failed = journal.append_idempotent(&event).await;
+
+    assert!(matches!(failed, Err(EventingError::JournalIo { .. })));
+    let partial = tokio::fs::read(&path.0)
+        .await
+        .expect_value("partial record remains");
+    assert_eq!(partial.first(), Some(&b'{'));
+    assert_ne!(partial.last(), Some(&b'\n'));
+    let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let append = restarted
+        .append_idempotent(&event)
+        .await
+        .expect_value("restart repairs incomplete trailing record");
+    assert_eq!(append.sequence, 1);
+    assert_eq!(read_lines(path.clone()).await.len(), 1);
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
+async fn first_creation_directory_sync_failure_prevents_append_acknowledgement() {
+    let path = journal_path(TestText("directory-sync-order".to_owned()));
+    let event = unique_stored_event("directory sync", 44);
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal.inject_next_directory_sync_failure_for_debug();
+
+    let failed = journal.append_idempotent(&event).await;
+
+    assert!(matches!(failed, Err(EventingError::JournalIo { .. })));
+    assert_eq!(read_lines(path.clone()).await.len(), 1);
+    let append = journal
+        .append_idempotent(&event)
+        .await
+        .expect_value("retry syncs directory before acknowledgement");
+    assert_eq!(append.sequence, 1);
+    assert_eq!(read_lines(path.clone()).await.len(), 1);
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
 async fn alternating_idempotent_journal_instances_refresh_the_hash_chain_tail() {
     let path = journal_path(TestText("idempotent-alternating-instances".to_owned()));
     let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());

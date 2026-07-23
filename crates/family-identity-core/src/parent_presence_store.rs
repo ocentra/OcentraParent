@@ -10,7 +10,7 @@ use crate::parent_presence_event_delivery::PendingCustodyDecision;
 use crate::parent_presence_store_file::StoreFileGuard;
 use crate::parent_presence_store_integrity::verified_challenge;
 use crate::parent_presence_store_path::validate_caller_custody_path;
-use crate::parent_presence_store_receipt::generate_opaque_receipt_ref;
+use crate::parent_presence_store_receipt::{generate_opaque_receipt_ref, verify_consumed_receipt};
 use crate::parent_presence_store_schema::open_initialized_store;
 
 #[path = "parent_presence_store_outbox.rs"]
@@ -195,6 +195,8 @@ impl ParentPresenceStore {
             ));
         };
         if stored.lifecycle_state == CHALLENGE_STATE_CONSUMED {
+            verified_challenge(challenge_ref, &stored)?;
+            verify_consumed_receipt(&transaction, challenge_ref)?;
             return Ok(ConsumeChallengeResult::Rejected(
                 ParentPresenceVerificationFailureReason::ReplayRejected,
             ));

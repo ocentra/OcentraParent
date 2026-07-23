@@ -88,6 +88,21 @@ fn port(
     open_parent_presence_test_port(&path).map(|port| (root, port))
 }
 
+fn port_at(
+    prefix: &str,
+    observed_at: &str,
+) -> Result<(PathBuf, ParentPresenceVerificationPort), ParentPresenceStorageFailureReason> {
+    let root = std::env::temp_dir().join(format!(
+        "ocentra-parent-presence-expiry-at-{prefix}-{}",
+        NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
+    ));
+    fs::create_dir_all(&root)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let path = root.join("parent-presence.sqlite");
+    ParentPresenceVerificationPort::open_unsealed_test_custody_at(&path, observed_at)
+        .map(|port| (root, port))
+}
+
 #[test]
 fn parent_presence_issuance_rejects_invalid_expiry_without_reserving_identities(
 ) -> Result<(), ParentPresenceStorageFailureReason> {
@@ -159,6 +174,42 @@ fn parent_presence_verification_accepts_independently_valid_deadlines_and_reject
     );
     assert_eq!(
         port.verify_and_consume(input(&expired_challenge, ACCEPTED_EXPIRY)?),
+        Err(ParentPresenceVerificationFailureReason::Expired)
+    );
+    drop(port);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn parent_presence_verification_rejects_challenge_at_exact_expiry(
+) -> Result<(), ParentPresenceStorageFailureReason> {
+    let case = case("challenge-equality");
+    let (root, mut port) = port_at("challenge-equality", ACCEPTED_EXPIRY)?;
+    assert_eq!(
+        port.issue_challenge(challenge(&case, ACCEPTED_EXPIRY)),
+        Ok(())
+    );
+    assert_eq!(
+        port.verify_and_consume(input(&case, LATER_ACCEPTED_EXPIRY)?),
+        Err(ParentPresenceVerificationFailureReason::Expired)
+    );
+    drop(port);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn parent_presence_verification_rejects_assertion_at_exact_expiry(
+) -> Result<(), ParentPresenceStorageFailureReason> {
+    let case = case("assertion-equality");
+    let (root, mut port) = port_at("assertion-equality", ACCEPTED_EXPIRY)?;
+    assert_eq!(
+        port.issue_challenge(challenge(&case, LATER_ACCEPTED_EXPIRY)),
+        Ok(())
+    );
+    assert_eq!(
+        port.verify_and_consume(input(&case, ACCEPTED_EXPIRY)?),
         Err(ParentPresenceVerificationFailureReason::Expired)
     );
     drop(port);

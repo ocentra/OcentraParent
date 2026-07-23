@@ -81,6 +81,16 @@ impl ParentPresenceDecisionDelivery {
     pub(crate) fn inject_next_sync_failure_for_debug(&self) {
         self.journal.inject_next_sync_failure_for_debug();
     }
+
+    #[cfg(debug_assertions)]
+    pub(crate) fn inject_next_partial_write_failure_for_debug(&self) {
+        self.journal.inject_next_partial_write_failure_for_debug();
+    }
+
+    #[cfg(debug_assertions)]
+    pub(crate) fn inject_next_directory_sync_failure_for_debug(&self) {
+        self.journal.inject_next_directory_sync_failure_for_debug();
+    }
 }
 
 fn journal_path_for_store(store_path: &Path) -> PathBuf {

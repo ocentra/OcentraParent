@@ -159,17 +159,23 @@ fn parent_presence_replay_is_durable_across_processes_and_restart(
     assert_eq!(
         outcomes
             .iter()
-            .filter(|outcome| outcome.as_str() == "accepted")
+            .filter(|outcome| outcome.starts_with("accepted:"))
             .count(),
         1
     );
     assert_eq!(
         outcomes
             .iter()
-            .filter(|outcome| outcome.as_str() == "replay-rejected")
+            .filter(|outcome| outcome.starts_with("replay-rejected:"))
             .count(),
         1
     );
+    let concurrent_decision_ids = outcomes
+        .iter()
+        .filter_map(|outcome| outcome.split_once(':').map(|(_result, id)| id))
+        .collect::<Vec<_>>();
+    assert_eq!(concurrent_decision_ids.len(), 2);
+    assert_ne!(concurrent_decision_ids[0], concurrent_decision_ids[1]);
     let restart_path = store.outcome("restart");
     let restart_ready = store.outcome("restart-ready");
     let restart_start = store.outcome("restart-start");
@@ -183,7 +189,15 @@ fn parent_presence_replay_is_durable_across_processes_and_restart(
     )?
     .output()?;
     assert!(restart.status.success());
-    assert_eq!(fs::read_to_string(restart_path)?, "replay-rejected");
+    let restart_outcome = fs::read_to_string(restart_path)?;
+    assert!(restart_outcome.starts_with("replay-rejected:"));
+    let restart_id = restart_outcome
+        .split_once(':')
+        .map(|(_result, id)| id)
+        .ok_or("restart outcome has no decision id")?;
+    assert!(concurrent_decision_ids
+        .iter()
+        .all(|decision_id| *decision_id != restart_id));
     Ok(())
 }
 
@@ -203,13 +217,17 @@ fn parent_presence_cross_process_worker() -> Result<(), Box<dyn std::error::Erro
         .map_err(|_error| std::io::Error::other("worker store unavailable"))?;
     let (_, verification) = input(&scope)?;
     let result = port.verify_and_consume(verification);
-    let value = if result.is_ok() {
+    let result_label = if result.is_ok() {
         "accepted"
     } else if result == Err(ParentPresenceVerificationFailureReason::ReplayRejected) {
         "replay-rejected"
     } else {
         "rejected"
     };
-    fs::write(outcome, value)?;
+    let decision_id = port
+        .take_custody_artifact()
+        .ok_or("worker produced no custody artifact")?
+        .decision_id;
+    fs::write(outcome, format!("{result_label}:{}", decision_id.as_str()))?;
     Ok(())
 }

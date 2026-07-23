@@ -22,11 +22,11 @@ pub(crate) fn parent_presence_verification_failure_reason(
             Err(_) => return Some(ParentPresenceVerificationFailureReason::TimestampInvalid),
         };
 
-    if observed_at.is_after(&challenge_expires_at) {
+    if observed_at.epoch_millis >= challenge_expires_at.epoch_millis {
         return Some(ParentPresenceVerificationFailureReason::Expired);
     }
 
-    if observed_at.is_after(&assertion_expires_at) {
+    if observed_at.epoch_millis >= assertion_expires_at.epoch_millis {
         return Some(ParentPresenceVerificationFailureReason::Expired);
     }
 

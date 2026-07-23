@@ -31,6 +31,16 @@ impl ParentPresenceVerificationPort {
         })
     }
 
+    #[cfg(debug_assertions)]
+    pub fn open_unsealed_test_custody_at(
+        store_path: impl Into<PathBuf>,
+        observed_at: &str,
+    ) -> Result<Self, ParentPresenceStorageFailureReason> {
+        let observed_at = ParentPresenceObservedAt::from_canonical_utc(observed_at)
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+        Self::with_clock(store_path, move || observed_at.clone())
+    }
+
     fn with_clock(
         store_path: impl Into<PathBuf>,
         clock: impl Fn() -> ParentPresenceObservedAt + Send + Sync + 'static,
@@ -83,7 +93,8 @@ impl ParentPresenceVerificationPort {
         let accepted_artifact = ParentPresenceCustodyDecisionArtifact::new(
             correlation_id.clone(),
             crate::parent_presence::ParentPresenceCustodyDecisionResult::Accepted,
-        );
+        )
+        .map_err(|_error| ParentPresenceVerificationFailureReason::CustodyUnavailable)?;
         let accepted_pending = self
             .decision_delivery
             .prepare(&accepted_artifact, &observed_at)
@@ -102,7 +113,7 @@ impl ParentPresenceVerificationPort {
             observed_at,
             consumed,
             accepted_artifact,
-        );
+        )?;
         if !accepted {
             let pending = self
                 .decision_delivery
@@ -133,6 +144,18 @@ impl ParentPresenceVerificationPort {
     #[cfg(debug_assertions)]
     pub fn inject_next_custody_journal_sync_failure_for_debug(&self) {
         self.decision_delivery.inject_next_sync_failure_for_debug();
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_custody_journal_partial_write_failure_for_debug(&self) {
+        self.decision_delivery
+            .inject_next_partial_write_failure_for_debug();
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_custody_journal_directory_sync_failure_for_debug(&self) {
+        self.decision_delivery
+            .inject_next_directory_sync_failure_for_debug();
     }
 }
 

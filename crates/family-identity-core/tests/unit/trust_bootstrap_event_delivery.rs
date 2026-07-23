@@ -168,6 +168,66 @@ fn sync_failure_keeps_outbox_pending_until_restart_durably_redelivers() -> TestR
 }
 
 #[test]
+fn partial_journal_write_keeps_outbox_pending_and_restart_repairs_tail() -> TestResult {
+    let store = DeliveryStore::new("partial-write-recovery");
+    let mut port = store.port()?;
+    let journal_path = port.custody_decision_journal_path().to_path_buf();
+    issue_challenge(&mut port, "partial-write-recovery");
+    port.inject_next_custody_journal_partial_write_failure_for_debug();
+
+    assert_eq!(
+        port.verify_and_consume(input(
+            "partial-write-recovery",
+            "partial-write-correlation"
+        )?),
+        Err(ParentPresenceVerificationFailureReason::CustodyUnavailable)
+    );
+    assert_eq!(outbox_state(&store.store_path)?, "pending");
+    let partial = fs::read(&journal_path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_eq!(partial.first(), Some(&b'{'));
+    assert_ne!(partial.last(), Some(&b'\n'));
+    drop(port);
+
+    let restarted = store.port()?;
+    assert_eq!(outbox_state(&store.store_path)?, "delivered");
+    let artifacts = decode_artifacts(&journal_entries(&journal_path)?)?;
+    assert_eq!(artifacts.len(), 1);
+    assert_eq!(
+        artifacts[0].correlation_id.as_str(),
+        "partial-write-correlation"
+    );
+    drop(restarted);
+    Ok(())
+}
+
+#[test]
+fn directory_sync_failure_keeps_outbox_pending_until_durability_retry() -> TestResult {
+    let store = DeliveryStore::new("directory-sync-recovery");
+    let mut port = store.port()?;
+    let journal_path = port.custody_decision_journal_path().to_path_buf();
+    issue_challenge(&mut port, "directory-sync-recovery");
+    port.inject_next_custody_journal_directory_sync_failure_for_debug();
+
+    assert_eq!(
+        port.verify_and_consume(input(
+            "directory-sync-recovery",
+            "directory-sync-correlation"
+        )?),
+        Err(ParentPresenceVerificationFailureReason::CustodyUnavailable)
+    );
+    assert_eq!(outbox_state(&store.store_path)?, "pending");
+    assert_eq!(journal_entries(&journal_path)?.len(), 1);
+    drop(port);
+
+    let restarted = store.port()?;
+    assert_eq!(outbox_state(&store.store_path)?, "delivered");
+    assert_eq!(journal_entries(&journal_path)?.len(), 1);
+    drop(restarted);
+    Ok(())
+}
+
+#[test]
 fn pending_redelivery_is_idempotent_across_restart() -> TestResult {
     let store = DeliveryStore::new("idempotent-restart");
     let mut port = store.port()?;

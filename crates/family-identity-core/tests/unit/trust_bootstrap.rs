@@ -452,8 +452,8 @@ fn parent_presence_receipt_is_unique_opaque_and_redacted() -> TestResult {
     let second_accepted = port
         .verify_and_consume(verification_input(&second, ACCEPTED_EXPIRY)?)
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-    let first_ref = first_accepted.receipt_ref().to_string();
-    let second_ref = second_accepted.receipt_ref().to_string();
+    let first_ref = first_accepted.receipt_ref().as_str().to_owned();
+    let second_ref = second_accepted.receipt_ref().as_str().to_owned();
     let first_entropy = first_ref.strip_prefix("parent-presence-receipt:");
     assert_eq!(first_entropy.map(str::len), Some(64));
     assert_eq!(
@@ -461,6 +461,8 @@ fn parent_presence_receipt_is_unique_opaque_and_redacted() -> TestResult {
         Some(true)
     );
     assert_ne!(first_ref, second_ref);
+    assert_eq!(first_accepted.receipt_ref().to_string(), "[redacted]");
+    assert_eq!(format!("{}", first_accepted.receipt_ref()), "[redacted]");
     assert!(!format!("{first_accepted:?}").contains(&first_ref));
     Ok(())
 }

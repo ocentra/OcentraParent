@@ -115,7 +115,7 @@ impl fmt::Debug for ParentPresenceReceiptRef {
 
 impl fmt::Display for ParentPresenceReceiptRef {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.0)
+        f.write_str("[redacted]")
     }
 }
 
@@ -251,16 +251,17 @@ impl ParentPresenceCustodyDecisionArtifact {
     pub(crate) fn new(
         correlation_id: CorrelationId,
         result: ParentPresenceCustodyDecisionResult,
-    ) -> Self {
-        Self {
-            decision_id: EventId::generated(),
+    ) -> Result<Self, ParentPresenceStorageFailureReason> {
+        Ok(Self {
+            decision_id: crate::parent_presence_store_receipt::generate_opaque_decision_id()
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
             correlation_id,
             owner: ParentPresenceCustodyDecisionOwner::FamilyIdentityCore,
             boundary: ParentPresenceCustodyDecisionBoundary::VerifyAndConsume,
             result,
             delivery: ParentPresenceCustodyDecisionDelivery::EventingJournal,
             redaction: ParentPresenceCustodyDecisionRedaction::SensitiveInputsOmitted,
-        }
+        })
     }
 }
 

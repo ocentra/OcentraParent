@@ -14,12 +14,15 @@ pub(crate) fn finish_parent_presence_verification(
     observed_at: ParentPresenceObservedAt,
     consumed: Result<ConsumeChallengeResult, ParentPresenceStoreError>,
     accepted_artifact: ParentPresenceCustodyDecisionArtifact,
-) -> (
-    ParentPresenceCustodyDecisionArtifact,
-    Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason>,
-) {
+) -> Result<
+    (
+        ParentPresenceCustodyDecisionArtifact,
+        Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason>,
+    ),
+    ParentPresenceVerificationFailureReason,
+> {
     match consumed {
-        Ok(ConsumeChallengeResult::Accepted(accepted)) => record_decision(
+        Ok(ConsumeChallengeResult::Accepted(accepted)) => Ok(record_decision(
             accepted_artifact,
             Ok(ParentPresenceVerificationAccepted::new(
                 accepted.receipt_ref,
@@ -27,21 +30,23 @@ pub(crate) fn finish_parent_presence_verification(
                 assertion,
                 observed_at,
             )),
-        ),
-        Ok(ConsumeChallengeResult::Rejected(failure_reason)) => record_decision(
+        )),
+        Ok(ConsumeChallengeResult::Rejected(failure_reason)) => Ok(record_decision(
             ParentPresenceCustodyDecisionArtifact::new(
                 correlation_id,
                 rejection_artifact_result(failure_reason),
-            ),
+            )
+            .map_err(|_error| ParentPresenceVerificationFailureReason::CustodyUnavailable)?,
             Err(failure_reason),
-        ),
-        Err(error) => record_decision(
+        )),
+        Err(error) => Ok(record_decision(
             ParentPresenceCustodyDecisionArtifact::new(
                 correlation_id,
                 store_artifact_result(error),
-            ),
+            )
+            .map_err(|_error| ParentPresenceVerificationFailureReason::CustodyUnavailable)?,
             Err(store_failure_reason(error)),
-        ),
+        )),
     }
 }
 
