@@ -35,6 +35,7 @@ pub struct VerifiedParentDeviceTrustAuthority {
     correlation_id: CorrelationId,
     receipt_ref: String,
     action: HouseholdAuthorityAction,
+    recovery_repair_authorized: bool,
 }
 
 impl fmt::Debug for VerifiedParentDeviceTrustAuthority {
@@ -93,6 +94,7 @@ pub fn verify_parent_device_trust_authority(
         correlation_id,
         receipt_ref: receipt_ref.as_str().to_owned(),
         action: challenge.privileged_action,
+        recovery_repair_authorized: input.household_authorization.allows_recovery_repair(),
     })
 }
 
@@ -104,6 +106,7 @@ impl VerifiedParentDeviceTrustAuthority {
         String,
         String,
         HouseholdAuthorityAction,
+        bool,
         String,
         String,
     ) {
@@ -112,6 +115,7 @@ impl VerifiedParentDeviceTrustAuthority {
             self.parent_account_id,
             self.target_child_device_id,
             self.action,
+            self.recovery_repair_authorized,
             self.correlation_id.as_str().to_owned(),
             self.receipt_ref,
         )

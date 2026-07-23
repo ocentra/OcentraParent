@@ -35,6 +35,9 @@ pub(crate) fn map_parent_presence_validation_failure_reason(
         ParentStepUpValidationFailureReason::WrongTarget => {
             ParentPresenceVerificationFailureReason::TargetChildProfileMismatch
         }
+        ParentStepUpValidationFailureReason::WrongTargetDevice => {
+            ParentPresenceVerificationFailureReason::TargetChildDeviceMismatch
+        }
         ParentStepUpValidationFailureReason::Required => {
             ParentPresenceVerificationFailureReason::ChallengeNotIssued
         }

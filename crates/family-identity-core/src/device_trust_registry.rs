@@ -7,6 +7,7 @@
 
 use std::fmt;
 use std::path::PathBuf;
+use std::time::Duration;
 
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
@@ -34,6 +35,7 @@ pub struct DeviceTrustRegistryRecord {
 pub enum DeviceTrustRegistryRejection {
     RevokedDeviceCannotRePair,
     OwnershipConflict,
+    UnknownDevice,
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -106,8 +108,15 @@ impl DeviceTrustRegistry {
         &self,
         authority: VerifiedParentDeviceTrustAuthority,
     ) -> Result<DeviceTrustRegistryDecision, DeviceTrustRegistryFailure> {
-        let (family_id, parent_account_id, device_id, action, correlation_id, receipt_ref) =
-            authority.into_registry_parts();
+        let (
+            family_id,
+            parent_account_id,
+            device_id,
+            action,
+            recovery_repair_authorized,
+            correlation_id,
+            receipt_ref,
+        ) = authority.into_registry_parts();
         let mut connection = self.open_connection()?;
         match action {
             HouseholdAuthorityAction::PairChildDevice => {
@@ -116,6 +125,7 @@ impl DeviceTrustRegistry {
                     &family_id,
                     &parent_account_id,
                     &device_id,
+                    recovery_repair_authorized,
                     &correlation_id,
                     &receipt_ref,
                 )
@@ -136,14 +146,19 @@ impl DeviceTrustRegistry {
 
     pub fn record(
         &self,
+        family_id: &str,
         device_id: &str,
     ) -> Result<Option<DeviceTrustRegistryRecord>, DeviceTrustRegistryFailure> {
         let connection = self.open_connection()?;
-        crate::device_trust_registry_storage::record(&connection, device_id)
+        crate::device_trust_registry_storage::record(&connection, family_id, device_id)
     }
 
     fn open_connection(&self) -> Result<Connection, DeviceTrustRegistryFailure> {
-        Connection::open(&self.path)
-            .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)
+        let connection = Connection::open(&self.path)
+            .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
+        connection
+            .busy_timeout(Duration::from_secs(10))
+            .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
+        Ok(connection)
     }
 }

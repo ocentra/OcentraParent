@@ -12,7 +12,10 @@ pub(super) fn record_from_row(
         // WP01 has no platform-sealing receipt verifier. A preexisting trusted
         // row is hostile/unverifiable rather than a trust grant.
         "trusted" => return Err(DeviceTrustRegistryFailure::StorageIntegrityRejected),
-        "revoked" => DeviceTrustLifecycleState::Revoked,
+        // A registry row has no independently verifiable sealing or revocation
+        // receipt at this read boundary. Do not elevate copied revocation state
+        // into household-visible authority.
+        "revoked" => return Err(DeviceTrustRegistryFailure::StorageIntegrityRejected),
         "reset-required" => DeviceTrustLifecycleState::ResetRequired,
         _ => return Err(DeviceTrustRegistryFailure::StorageIntegrityRejected),
     };
@@ -33,6 +36,9 @@ pub(super) fn journal_fields(
         ) => ("rejected", "revoked"),
         DeviceTrustRegistryDecision::Rejected(DeviceTrustRegistryRejection::OwnershipConflict) => {
             ("rejected", "ownership-conflict")
+        }
+        DeviceTrustRegistryDecision::Rejected(DeviceTrustRegistryRejection::UnknownDevice) => {
+            ("rejected", "unknown-device")
         }
     }
 }

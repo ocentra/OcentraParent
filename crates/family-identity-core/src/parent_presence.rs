@@ -25,6 +25,8 @@ pub enum ParentPresenceVerificationFailureReason {
     ActionDeviceChildProfileMismatch,
     #[serde(rename = "target-child-profile-mismatch")]
     TargetChildProfileMismatch,
+    #[serde(rename = "target-child-device-mismatch")]
+    TargetChildDeviceMismatch,
     #[serde(rename = "nonce-mismatch")]
     NonceMismatch,
     #[serde(rename = "timestamp-invalid")]

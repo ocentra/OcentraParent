@@ -22,6 +22,7 @@ fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityI
         session_freshness_state: SessionFreshnessState::Fresh,
         capability_granted: true,
         controller_lease_state: None,
+        recovery_repair_authorized: false,
         action,
     }
 }

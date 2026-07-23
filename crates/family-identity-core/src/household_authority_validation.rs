@@ -93,7 +93,7 @@ pub(crate) fn parent_step_up_validation_failure_reason(
         ),
         (
             assertion.target_child_device_id != input.target_child_device_id,
-            ParentStepUpValidationFailureReason::WrongTarget,
+            ParentStepUpValidationFailureReason::WrongTargetDevice,
         ),
         (
             input

@@ -99,6 +99,7 @@ pub struct HouseholdAuthorityInput {
     pub session_freshness_state: SessionFreshnessState,
     pub capability_granted: bool,
     pub controller_lease_state: Option<ParentControllerLeaseState>,
+    pub recovery_repair_authorized: bool,
     pub action: HouseholdAuthorityAction,
 }
 
@@ -113,19 +114,44 @@ pub struct HouseholdAuthorityDecision {
 /// Opaque authority artifact issued by the household command boundary after it
 /// evaluates membership, role, session, device scope, and capability state.
 /// Device-trust code cannot construct or reinterpret this from raw inputs.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct AcceptedDeviceTrustAuthorization {
     family_id: String,
     parent_account_id: String,
     target_child_device_id: String,
     action: HouseholdAuthorityAction,
+    recovery_repair_authorized: bool,
+}
+
+impl std::fmt::Debug for AcceptedDeviceTrustAuthorization {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AcceptedDeviceTrustAuthorization")
+            .field("family_id", &"[redacted]")
+            .field("parent_account_id", &"[redacted]")
+            .field("target_child_device_id", &"[redacted]")
+            .field("action", &"[redacted]")
+            .finish()
+    }
 }
 
 pub struct DeviceTrustAuthorizationRequest {
     pub family_id: String,
     pub parent_account_id: String,
     pub target_child_device_id: String,
-    pub authority: HouseholdAuthorityInput,
+    pub action: HouseholdAuthorityAction,
+}
+
+/// The runtime owner resolves current household membership and device state
+/// before this boundary issues an opaque device-trust grant. Raw caller flags
+/// are intentionally not accepted by `authorize_device_trust_action`.
+pub trait HouseholdAuthoritySource {
+    fn resolve_device_trust_authority(
+        &self,
+        family_id: &str,
+        parent_account_id: &str,
+        target_child_device_id: &str,
+        action: HouseholdAuthorityAction,
+    ) -> Option<HouseholdAuthorityInput>;
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -144,6 +170,8 @@ pub enum ParentStepUpValidationFailureReason {
     WrongDevice,
     #[serde(rename = "wrong-target")]
     WrongTarget,
+    #[serde(rename = "wrong-target-device")]
+    WrongTargetDevice,
     #[serde(rename = "replay-rejected")]
     ReplayRejected,
 }
@@ -202,13 +230,25 @@ pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAu
 /// This is the only producer for the opaque device-trust grant. It deliberately
 /// keeps raw `HouseholdAuthorityInput` on the household side of the boundary.
 pub fn authorize_device_trust_action(
+    source: &impl HouseholdAuthoritySource,
     request: DeviceTrustAuthorizationRequest,
 ) -> Result<AcceptedDeviceTrustAuthorization, HouseholdAuthorizationFailureReason> {
     if request.target_child_device_id.trim().is_empty() {
         return Err(HouseholdAuthorizationFailureReason::ChildProfileNotBound);
     }
-    let action = request.authority.action;
-    let decision = authorize_household_action(request.authority);
+    let Some(authority) = source.resolve_device_trust_authority(
+        &request.family_id,
+        &request.parent_account_id,
+        &request.target_child_device_id,
+        request.action,
+    ) else {
+        return Err(HouseholdAuthorizationFailureReason::MembershipNotActive);
+    };
+    if authority.action != request.action {
+        return Err(HouseholdAuthorizationFailureReason::RoleNotAuthorized);
+    }
+    let action = authority.action;
+    let decision = authorize_household_action(authority);
     if decision.authorization_state != HouseholdAuthorizationState::Authorized {
         return Err(decision
             .failure_reason
@@ -219,10 +259,15 @@ pub fn authorize_device_trust_action(
         parent_account_id: request.parent_account_id,
         target_child_device_id: request.target_child_device_id,
         action,
+        recovery_repair_authorized: authority.recovery_repair_authorized,
     })
 }
 
 impl AcceptedDeviceTrustAuthorization {
+    pub(crate) fn allows_recovery_repair(&self) -> bool {
+        self.recovery_repair_authorized
+    }
+
     pub(crate) fn matches_device_trust_request(
         &self,
         family_id: &str,
