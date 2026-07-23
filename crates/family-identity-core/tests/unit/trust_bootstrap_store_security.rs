@@ -165,12 +165,12 @@ fn assert_canonical_schema(path: &std::path::Path) -> TestResult {
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     let objects = connection
         .query_row(
-            "SELECT COUNT(*) FROM sqlite_schema WHERE name IN ('parent_presence_challenges', 'parent_presence_receipts', 'parent_presence_nonce_identity')",
+            "SELECT COUNT(*) FROM sqlite_schema WHERE name IN ('parent_presence_challenges', 'parent_presence_receipts', 'parent_presence_decision_outbox', 'parent_presence_nonce_identity')",
             [],
             |row| row.get::<_, i64>(0),
         )
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-    assert_eq!(objects, 3);
+    assert_eq!(objects, 4);
     Ok(())
 }
 

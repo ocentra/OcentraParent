@@ -9,17 +9,18 @@ use crate::parent_presence::{
 use crate::parent_presence_store::{ConsumeChallengeResult, ParentPresenceStoreError};
 
 pub(crate) fn finish_parent_presence_verification(
-    artifact: &mut Option<ParentPresenceCustodyDecisionArtifact>,
     correlation_id: CorrelationId,
     assertion: ParentStepUpAssertionSnapshot,
     observed_at: ParentPresenceObservedAt,
     consumed: Result<ConsumeChallengeResult, ParentPresenceStoreError>,
-) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
+    accepted_artifact: ParentPresenceCustodyDecisionArtifact,
+) -> (
+    ParentPresenceCustodyDecisionArtifact,
+    Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason>,
+) {
     match consumed {
         Ok(ConsumeChallengeResult::Accepted(accepted)) => record_decision(
-            artifact,
-            correlation_id,
-            ParentPresenceCustodyDecisionResult::Accepted,
+            accepted_artifact,
             Ok(ParentPresenceVerificationAccepted::new(
                 accepted.receipt_ref,
                 accepted.challenge,
@@ -28,31 +29,30 @@ pub(crate) fn finish_parent_presence_verification(
             )),
         ),
         Ok(ConsumeChallengeResult::Rejected(failure_reason)) => record_decision(
-            artifact,
-            correlation_id,
-            rejection_artifact_result(failure_reason),
+            ParentPresenceCustodyDecisionArtifact::new(
+                correlation_id,
+                rejection_artifact_result(failure_reason),
+            ),
             Err(failure_reason),
         ),
         Err(error) => record_decision(
-            artifact,
-            correlation_id,
-            store_artifact_result(error),
+            ParentPresenceCustodyDecisionArtifact::new(
+                correlation_id,
+                store_artifact_result(error),
+            ),
             Err(store_failure_reason(error)),
         ),
     }
 }
 
 fn record_decision(
-    artifact: &mut Option<ParentPresenceCustodyDecisionArtifact>,
-    correlation_id: CorrelationId,
-    artifact_result: ParentPresenceCustodyDecisionResult,
+    artifact: ParentPresenceCustodyDecisionArtifact,
     result: Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason>,
-) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
-    *artifact = Some(ParentPresenceCustodyDecisionArtifact::new(
-        correlation_id,
-        artifact_result,
-    ));
-    result
+) -> (
+    ParentPresenceCustodyDecisionArtifact,
+    Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason>,
+) {
+    (artifact, result)
 }
 
 fn rejection_artifact_result(

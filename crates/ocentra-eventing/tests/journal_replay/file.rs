@@ -1,5 +1,6 @@
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::ids::EventId;
 use ocentra_eventing::journal::ndjson::{
     NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
 };
@@ -73,6 +74,49 @@ async fn ndjson_journal_reopen_continues_sequence_and_hash_chain() {
     assert_eq!(second_append.previous_hash, first_append.current_hash);
     assert_eq!(second_entry.append.previous_hash, first_append.current_hash);
     assert_eq!(second_entry.append.current_hash, second_append.current_hash);
+    cleanup(path).await;
+}
+
+#[tokio::test]
+async fn ndjson_idempotent_append_survives_reopen_without_duplicate_lines() {
+    let path = journal_path(TestText("idempotent-reopen".to_owned()));
+    let event = stored_event(test_event(TestText(TEST_LABEL.to_owned())));
+    let first = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain())
+        .append_idempotent(&event)
+        .await
+        .expect_value("first idempotent append");
+
+    let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let repeated = reopened
+        .append_idempotent(&event)
+        .await
+        .expect_value("repeated idempotent append");
+    let lines = read_lines(path.clone()).await;
+
+    assert_eq!(repeated, first);
+    assert_eq!(lines.len(), 1);
+    cleanup(path).await;
+}
+
+#[tokio::test]
+async fn ndjson_idempotent_append_rejects_key_reuse_for_a_different_event() {
+    let path = journal_path(TestText("idempotent-collision".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let event = stored_event(test_event(TestText(TEST_LABEL.to_owned())));
+    journal
+        .append_idempotent(&event)
+        .await
+        .expect_value("first idempotent append");
+    let mut collision = event.clone();
+    collision.event_id = EventId::parse("different-event-id").expect_value("event id");
+
+    let result = journal.append_idempotent(&collision).await;
+
+    assert!(matches!(
+        result,
+        Err(EventingError::DuplicateIdempotencyKey { .. })
+    ));
+    assert_eq!(read_lines(path.clone()).await.len(), 1);
     cleanup(path).await;
 }
 

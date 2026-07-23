@@ -16,6 +16,14 @@ impl NdjsonEventJournal {
             .await
             .expect_value("journal append gate remains open");
         self.recover_state().await?;
+        self.append_entry_with_gate(envelope, phase).await
+    }
+
+    pub(super) async fn append_entry_with_gate(
+        &self,
+        envelope: &StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> Result<JournalAppend, EventingError> {
         let append = {
             let state = self.state.lock().expect_value("journal state lock");
             let next_sequence = state.next_sequence.saturating_add(1);

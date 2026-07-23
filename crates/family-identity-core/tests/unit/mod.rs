@@ -5,6 +5,7 @@ mod session_lifecycle;
 mod setup_lifecycle;
 mod trust_bootstrap;
 mod trust_bootstrap_cross_process;
+mod trust_bootstrap_event_delivery;
 mod trust_bootstrap_expiry;
 mod trust_bootstrap_nonce_process;
 mod trust_bootstrap_probes;

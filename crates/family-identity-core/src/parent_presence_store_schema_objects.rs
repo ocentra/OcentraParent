@@ -14,6 +14,10 @@ const EXPECTED_INTERNAL_AUTOINDEXES: &[(&str, &str)] = &[
         "parent_presence_challenges",
     ),
     (
+        "sqlite_autoindex_parent_presence_decision_outbox_1",
+        "parent_presence_decision_outbox",
+    ),
+    (
         "sqlite_autoindex_parent_presence_receipts_1",
         "parent_presence_receipts",
     ),

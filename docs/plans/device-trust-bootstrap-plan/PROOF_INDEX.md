@@ -39,9 +39,11 @@ WP01 currently has one narrow source-and-test-backed runtime slice:
 crates/family-identity-core/src/parent_presence*.rs
 crates/family-identity-core/src/trust_bootstrap.rs
 crates/family-identity-core/tests/unit/trust_bootstrap*.rs
+crates/ocentra-eventing/src/journal/ndjson_io*.rs
+crates/ocentra-eventing/tests/journal_replay/file.rs
 ```
 
-The visible tests cover only the Rust parent-presence custody slice; they do not substitute for broader WP01 or WP09 closure. Windows production custody is valid only when the final file and every ancestor remain pinned by no-delete-share handles and the runtime capability probe confirms that the filesystem denies substitution. Unix production custody remains unavailable; debug-only Unix file-mode tests are not production custody proof.
+The visible tests cover the Rust parent-presence custody slice, including transactional decision outbox delivery, correlated and redacted accepted/replay journal entries, real journal failure, restart recovery, and idempotent re-delivery. The eventing journal tests separately prove stable idempotent append behavior across reopen and reject identity collisions. These tests do not substitute for broader WP01 or WP09 closure, subscriber delivery, or a broader event-bus runtime. Windows production custody is valid only when the final file and every ancestor remain pinned by no-delete-share handles and the runtime capability probe confirms that the filesystem denies substitution. Unix production custody remains unavailable; debug-only Unix file-mode tests are not production custody proof.
 
 ## Command log format
 

@@ -30,7 +30,7 @@ Purpose: define trust ownership, trust states, bootstrap lifecycle, and cross-pl
 - First creation is initialized privately and published atomically without overwrite; concurrency, stale unpublished artifacts, and restart are exercised by visible tests.
 - Production custody fails unavailable before path creation on every platform until a trusted custody provider can exclude same-user challenge-store writers. Windows final-file/ancestor handle checks and owner-private creation tests run only through an explicit debug-only seam and are not production custody proof.
 - `device_trust_ref` generation is opaque, CSPRNG-backed, and input-independent. Sealing remains manual-required because no specifically authorized high-risk device-trust sealing action exists; low-risk actions are never promoted.
-- Parent-presence decisions construct correlated, redacted `ocentra-eventing` artifacts with explicit owner, boundary, result, and no-publication fields. This workpack does not claim logger, journal, or bus delivery.
+- Parent-presence decisions are transactionally enqueued beside custody state and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Visible tests cover accepted and replay outcomes, correlation and redaction, real delivery failure, restart recovery, and idempotent re-delivery. This workpack does not claim subscriber delivery, a broader event-bus runtime, or broader device-trust lifecycle completion.
 - This is still a partial, unchecked WP01 result. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, Unix production custody, or platform-wide path guarantees.
 
 ## Negative cases

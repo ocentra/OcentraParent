@@ -6,11 +6,15 @@ use crate::parent_presence::{
     ParentPresenceChallenge, ParentPresenceObservedAt, ParentPresenceReceiptRef,
     ParentPresenceVerificationFailureReason,
 };
+use crate::parent_presence_event_delivery::PendingCustodyDecision;
 use crate::parent_presence_store_file::StoreFileGuard;
 use crate::parent_presence_store_integrity::verified_challenge;
 use crate::parent_presence_store_path::validate_caller_custody_path;
 use crate::parent_presence_store_receipt::generate_opaque_receipt_ref;
 use crate::parent_presence_store_schema::open_initialized_store;
+
+#[path = "parent_presence_store_outbox.rs"]
+mod outbox;
 
 const CHALLENGE_STATE_ISSUED: &str = "issued";
 const CHALLENGE_STATE_CONSUMED: &str = "consumed";
@@ -46,6 +50,14 @@ WHERE challenge_ref = ?1 AND lifecycle_state = 'issued'
 const INSERT_RECEIPT: &str = r#"
 INSERT INTO parent_presence_receipts (challenge_ref, receipt_ref)
 VALUES (?1, ?2)
+"#;
+
+const INSERT_PENDING_DECISION: &str = r#"
+INSERT INTO parent_presence_decision_outbox (
+    decision_id,
+    envelope_json,
+    delivery_state
+) VALUES (?1, ?2, 'pending')
 "#;
 
 pub(crate) struct ParentPresenceStore {
@@ -160,6 +172,7 @@ impl ParentPresenceStore {
     pub(crate) fn consume_challenge(
         &mut self,
         challenge_ref: &str,
+        accepted_decision: &PendingCustodyDecision,
         validate: impl FnOnce(
             &ParentPresenceChallenge,
         ) -> Option<ParentPresenceVerificationFailureReason>,
@@ -211,6 +224,15 @@ impl ParentPresenceStore {
                     ParentPresenceStoreError::Unavailable
                 }
             })?;
+        transaction
+            .execute(
+                INSERT_PENDING_DECISION,
+                params![
+                    accepted_decision.decision_id.as_str(),
+                    accepted_decision.envelope_json.as_str()
+                ],
+            )
+            .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
         transaction
             .commit()
             .map_err(|_error| ParentPresenceStoreError::Unavailable)?;

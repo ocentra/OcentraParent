@@ -9,7 +9,7 @@ use ocentra_family_identity_core::household_authority::{
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
-    ParentPresenceCustodyDecisionBoundary, ParentPresenceCustodyDecisionNoClaim,
+    ParentPresenceCustodyDecisionBoundary, ParentPresenceCustodyDecisionDelivery,
     ParentPresenceCustodyDecisionOwner, ParentPresenceCustodyDecisionRedaction,
     ParentPresenceCustodyDecisionResult, ParentPresenceStorageFailureReason,
     ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
@@ -261,9 +261,10 @@ fn assert_custody_artifact(
         ParentPresenceCustodyDecisionBoundary::VerifyAndConsume
     );
     assert_eq!(artifact.result, expected_result);
+    assert!(!artifact.decision_id.as_str().is_empty());
     assert_eq!(
-        artifact.no_claim,
-        ParentPresenceCustodyDecisionNoClaim::EventPublicationNotOwnedByDomain
+        artifact.delivery,
+        ParentPresenceCustodyDecisionDelivery::EventingJournal
     );
     assert_eq!(
         artifact.redaction,
@@ -274,11 +275,12 @@ fn assert_custody_artifact(
     assert_eq!(
         serialized,
         serde_json::json!({
+            "decisionId": artifact.decision_id.as_str(),
             "correlationId": "parent-presence-unit-correlation",
             "owner": "family-identity-core",
             "boundary": "verify-and-consume",
             "result": expected_result,
-            "noClaim": "event-publication-not-owned-by-domain",
+            "delivery": "eventing-journal",
             "redaction": "sensitive-inputs-omitted"
         })
     );

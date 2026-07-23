@@ -14,6 +14,7 @@ use crate::parent_presence_store_sql_shape::{
 };
 
 const CHALLENGE_TABLE: &str = "parent_presence_challenges";
+const DECISION_OUTBOX_TABLE: &str = "parent_presence_decision_outbox";
 const RECEIPT_TABLE: &str = "parent_presence_receipts";
 const NONCE_IDENTITY_INDEX: &str = "parent_presence_nonce_identity";
 
@@ -38,6 +39,14 @@ CREATE TABLE IF NOT EXISTS parent_presence_receipts (
     FOREIGN KEY (challenge_ref)
         REFERENCES parent_presence_challenges(challenge_ref)
         ON DELETE RESTRICT
+) STRICT;
+
+CREATE TABLE IF NOT EXISTS parent_presence_decision_outbox (
+    decision_id TEXT PRIMARY KEY NOT NULL,
+    envelope_json TEXT NOT NULL,
+    delivery_state TEXT NOT NULL CHECK (
+        delivery_state IN ('pending', 'delivered')
+    )
 ) STRICT;
 
 CREATE UNIQUE INDEX IF NOT EXISTS parent_presence_nonce_identity
@@ -133,10 +142,29 @@ pub(crate) fn validate_store_schema(
         &[
             ("index", NONCE_IDENTITY_INDEX, CHALLENGE_TABLE),
             ("table", CHALLENGE_TABLE, CHALLENGE_TABLE),
+            ("table", DECISION_OUTBOX_TABLE, DECISION_OUTBOX_TABLE),
             ("table", RECEIPT_TABLE, RECEIPT_TABLE),
         ],
     )?;
     validate_challenge_table(connection)?;
+    validate_table_properties(connection, DECISION_OUTBOX_TABLE)?;
+    require(
+        load_columns(connection, DECISION_OUTBOX_TABLE)?
+            == vec![
+                column("decision_id", "TEXT", true, 1),
+                column("envelope_json", "TEXT", true, 0),
+                column("delivery_state", "TEXT", true, 0),
+            ],
+    )?;
+    validate_index_signatures(
+        connection,
+        DECISION_OUTBOX_TABLE,
+        &["decision_id|pk|true|false"],
+    )?;
+    let outbox_sql = table_sql(connection, DECISION_OUTBOX_TABLE)?;
+    require(
+        crate::parent_presence_store_sql_shape::decision_delivery_column_is_canonical(&outbox_sql),
+    )?;
     validate_receipt_table(connection)?;
     validate_receipt_foreign_key(connection)?;
     validate_foreign_key_rows(connection)

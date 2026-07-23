@@ -5,6 +5,10 @@ use super::{
 
 #[path = "ndjson_io/append.rs"]
 mod append;
+#[path = "ndjson_io/idempotent.rs"]
+mod idempotent;
+#[path = "ndjson_io/idempotent_match.rs"]
+mod idempotent_match;
 #[path = "ndjson_io/recover.rs"]
 mod recover;
 #[path = "ndjson_io/write.rs"]

@@ -1,0 +1,265 @@
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
+
+use ocentra_eventing::ids::CorrelationId;
+use ocentra_eventing::journal::ndjson::NdjsonJournalEntry;
+use ocentra_family_identity_core::household_authority::{
+    HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
+};
+use ocentra_family_identity_core::parent_presence::{
+    ParentPresenceChallenge, ParentPresenceCustodyDecisionArtifact,
+    ParentPresenceCustodyDecisionDelivery, ParentPresenceCustodyDecisionRedaction,
+    ParentPresenceCustodyDecisionResult, ParentPresenceStorageFailureReason,
+    ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
+    ParentPresenceVerificationPort,
+};
+
+use super::open_parent_presence_test_port;
+
+const EXPIRY: &str = "2099-01-01T00:00:00.000Z";
+static NEXT_ID: AtomicU64 = AtomicU64::new(1);
+
+type TestResult = Result<(), ParentPresenceStorageFailureReason>;
+
+struct DeliveryStore {
+    root: PathBuf,
+    store_path: PathBuf,
+}
+
+impl DeliveryStore {
+    fn new(prefix: &str) -> Self {
+        let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
+        let root = std::env::temp_dir().join(format!(
+            "ocentra-parent-presence-delivery-{prefix}-{}-{id}",
+            std::process::id()
+        ));
+        assert!(matches!(fs::create_dir_all(&root), Ok(())));
+        let store_path = root.join("parent-presence.sqlite");
+        Self { root, store_path }
+    }
+
+    fn port(&self) -> Result<ParentPresenceVerificationPort, ParentPresenceStorageFailureReason> {
+        open_parent_presence_test_port(&self.store_path)
+    }
+}
+
+impl Drop for DeliveryStore {
+    fn drop(&mut self) {
+        let _cleanup = fs::remove_dir_all(&self.root);
+    }
+}
+
+#[test]
+fn custody_decisions_are_correlated_redacted_and_replayable_after_restart() -> TestResult {
+    let store = DeliveryStore::new("correlated-replay");
+    let mut port = store.port()?;
+    let journal_path = port.custody_decision_journal_path().to_path_buf();
+    issue_challenge(&mut port, "correlated-replay");
+
+    assert!(port
+        .verify_and_consume(input("correlated-replay", "accepted-correlation")?)
+        .is_ok());
+    assert_eq!(
+        port.verify_and_consume(input("correlated-replay", "replay-correlation")?),
+        Err(ParentPresenceVerificationFailureReason::ReplayRejected)
+    );
+    drop(port);
+
+    let mut restarted = store.port()?;
+    assert_eq!(
+        restarted.verify_and_consume(input("correlated-replay", "restart-correlation")?),
+        Err(ParentPresenceVerificationFailureReason::ReplayRejected)
+    );
+    let entries = journal_entries(&journal_path)?;
+    let artifacts = decode_artifacts(&entries)?;
+
+    assert_eq!(entries.len(), 3);
+    assert_eq!(entries[0].append.sequence, 1);
+    assert_eq!(entries[2].append.sequence, 3);
+    assert_eq!(
+        artifacts
+            .iter()
+            .map(|artifact| artifact.correlation_id.as_str())
+            .collect::<Vec<_>>(),
+        [
+            "accepted-correlation",
+            "replay-correlation",
+            "restart-correlation"
+        ]
+    );
+    assert_eq!(
+        artifacts[0].result,
+        ParentPresenceCustodyDecisionResult::Accepted
+    );
+    assert!(artifacts[1..].iter().all(|artifact| {
+        artifact.result == ParentPresenceCustodyDecisionResult::ReplayRejected
+    }));
+    assert!(artifacts.iter().all(|artifact| {
+        artifact.delivery == ParentPresenceCustodyDecisionDelivery::EventingJournal
+            && artifact.redaction == ParentPresenceCustodyDecisionRedaction::SensitiveInputsOmitted
+    }));
+    assert_journal_redacted(&journal_path, "correlated-replay")?;
+    Ok(())
+}
+
+#[test]
+fn journal_failure_fails_closed_and_pending_acceptance_delivers_on_restart() -> TestResult {
+    let store = DeliveryStore::new("failure-recovery");
+    let mut port = store.port()?;
+    let journal_path = port.custody_decision_journal_path().to_path_buf();
+    fs::create_dir(&journal_path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    issue_challenge(&mut port, "failure-recovery");
+
+    assert_eq!(
+        port.verify_and_consume(input("failure-recovery", "failure-correlation")?),
+        Err(ParentPresenceVerificationFailureReason::CustodyUnavailable)
+    );
+    assert_eq!(outbox_state(&store.store_path)?, "pending");
+    assert!(port.take_custody_artifact().is_none());
+    drop(port);
+    fs::remove_dir(&journal_path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+
+    let restarted = store.port()?;
+    assert_eq!(outbox_state(&store.store_path)?, "delivered");
+    let artifacts = decode_artifacts(&journal_entries(&journal_path)?)?;
+    assert_eq!(artifacts.len(), 1);
+    assert_eq!(
+        artifacts[0].result,
+        ParentPresenceCustodyDecisionResult::Accepted
+    );
+    assert_eq!(artifacts[0].correlation_id.as_str(), "failure-correlation");
+    drop(restarted);
+    Ok(())
+}
+
+#[test]
+fn pending_redelivery_is_idempotent_across_restart() -> TestResult {
+    let store = DeliveryStore::new("idempotent-restart");
+    let mut port = store.port()?;
+    let journal_path = port.custody_decision_journal_path().to_path_buf();
+    issue_challenge(&mut port, "idempotent-restart");
+    assert!(port
+        .verify_and_consume(input("idempotent-restart", "idempotent-correlation")?)
+        .is_ok());
+    drop(port);
+    set_outbox_pending(&store.store_path)?;
+
+    let restarted = store.port()?;
+    assert_eq!(outbox_state(&store.store_path)?, "delivered");
+    let entries = journal_entries(&journal_path)?;
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0].append.sequence, 1);
+    drop(restarted);
+    Ok(())
+}
+
+fn issue_challenge(port: &mut ParentPresenceVerificationPort, scope: &str) {
+    assert_eq!(
+        port.issue_challenge(ParentPresenceChallenge {
+            challenge_ref: format!("{scope}-challenge"),
+            nonce_ref: format!("{scope}-nonce"),
+            family_id: format!("{scope}-family"),
+            parent_account_id: format!("{scope}-parent"),
+            privileged_action: HouseholdAuthorityAction::PairChildDevice,
+            action_device_id: format!("{scope}-device"),
+            action_device_child_profile_id: Some(format!("{scope}-action-child")),
+            target_child_profile_id: Some(format!("{scope}-target-child")),
+            expires_at: EXPIRY.to_owned(),
+        }),
+        Ok(())
+    );
+}
+
+fn input(
+    scope: &str,
+    correlation: &str,
+) -> Result<ParentPresenceVerificationInput, ParentPresenceStorageFailureReason> {
+    Ok(ParentPresenceVerificationInput {
+        correlation_id: CorrelationId::parse(correlation)
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
+        challenge_ref: format!("{scope}-challenge"),
+        assertion: ParentStepUpAssertionSnapshot {
+            family_id: format!("{scope}-family"),
+            parent_account_id: format!("{scope}-parent"),
+            action_device_id: format!("{scope}-device"),
+            action_device_child_profile_id: Some(format!("{scope}-action-child")),
+            target_child_profile_id: Some(format!("{scope}-target-child")),
+            action: HouseholdAuthorityAction::PairChildDevice,
+            nonce: format!("{scope}-nonce"),
+            expires_at: EXPIRY.to_owned(),
+        },
+    })
+}
+
+fn journal_entries(
+    path: &Path,
+) -> Result<Vec<NdjsonJournalEntry>, ParentPresenceStorageFailureReason> {
+    let text = fs::read_to_string(path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    text.lines()
+        .map(|line| {
+            serde_json::from_str(line)
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
+        })
+        .collect()
+}
+
+fn decode_artifacts(
+    entries: &[NdjsonJournalEntry],
+) -> Result<Vec<ParentPresenceCustodyDecisionArtifact>, ParentPresenceStorageFailureReason> {
+    entries
+        .iter()
+        .map(|entry| {
+            entry
+                .envelope
+                .decode::<ParentPresenceCustodyDecisionArtifact>()
+                .map(|envelope| envelope.payload)
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
+        })
+        .collect()
+}
+
+fn assert_journal_redacted(path: &Path, scope: &str) -> TestResult {
+    let text = fs::read_to_string(path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    for protected in [
+        format!("{scope}-challenge"),
+        format!("{scope}-nonce"),
+        format!("{scope}-family"),
+        format!("{scope}-parent"),
+        format!("{scope}-device"),
+        format!("{scope}-action-child"),
+        format!("{scope}-target-child"),
+    ] {
+        assert_eq!(text.find(&protected), None);
+    }
+    Ok(())
+}
+
+fn outbox_state(path: &Path) -> Result<String, ParentPresenceStorageFailureReason> {
+    let connection = rusqlite::Connection::open(path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    connection
+        .query_row(
+            "SELECT delivery_state FROM parent_presence_decision_outbox",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
+}
+
+fn set_outbox_pending(path: &Path) -> TestResult {
+    let connection = rusqlite::Connection::open(path)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let changed = connection
+        .execute(
+            "UPDATE parent_presence_decision_outbox SET delivery_state = 'pending'",
+            [],
+        )
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_eq!(changed, 1);
+    Ok(())
+}

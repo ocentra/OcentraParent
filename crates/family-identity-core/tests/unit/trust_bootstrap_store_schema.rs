@@ -32,6 +32,16 @@ CREATE TABLE parent_presence_receipts (
 ) STRICT;
 "#;
 
+pub(super) const VALID_DECISION_OUTBOX_SCHEMA: &str = r#"
+CREATE TABLE parent_presence_decision_outbox (
+    decision_id TEXT PRIMARY KEY NOT NULL,
+    envelope_json TEXT NOT NULL,
+    delivery_state TEXT NOT NULL CHECK (
+        delivery_state IN ('pending', 'delivered')
+    )
+) STRICT;
+"#;
+
 static NEXT_CASE_ID: AtomicU64 = AtomicU64::new(1);
 
 pub(super) type TestResult = Result<(), ParentPresenceStorageFailureReason>;
@@ -72,7 +82,9 @@ pub(super) fn create_existing_store(
     let connection = rusqlite::Connection::open(store.path())
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     connection
-        .execute_batch(&format!("{challenge_schema}\n{receipt_schema}"))
+        .execute_batch(&format!(
+            "{challenge_schema}\n{receipt_schema}\n{VALID_DECISION_OUTBOX_SCHEMA}"
+        ))
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     drop(connection);
     set_private_fixture_permissions(store.path())?;

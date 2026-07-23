@@ -2532,6 +2532,7 @@ dependencies = [
  "same-file",
  "serde",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]

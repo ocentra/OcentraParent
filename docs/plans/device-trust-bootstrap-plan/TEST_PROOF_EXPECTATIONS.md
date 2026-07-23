@@ -73,7 +73,7 @@ On Windows, production custody requires retained handles for the final database 
 
 On Unix, production custody currently returns unavailable before creating or opening the database because this boundary cannot exclude same-user pathname substitution. The explicit debug-only custody seam may exercise owner-private `0600` creation, atomic first publication, restart, concurrency, and permissive-existing-file rejection, but those tests are not a production custody claim.
 
-Trust sealing must remain manual-required until the authority contract exposes a specifically authorized high-risk sealing action. `device_trust_ref` values must come from a CSPRNG and remain opaque and input-independent. Parent-presence decisions may return correlated, redacted `ocentra-eventing` artifacts, but this crate must record a no-publication boundary unless a real logger or event publisher owns delivery.
+Trust sealing must remain manual-required until the authority contract exposes a specifically authorized high-risk sealing action. `device_trust_ref` values must come from a CSPRNG and remain opaque and input-independent. Parent-presence decisions must be correlated and redacted, committed to a canonical transactional outbox with custody state, and delivered fail-closed into the owned `ocentra-eventing` hash-chained journal. Focused proof must cover accepted and rejected decisions, delivery failure, restart recovery, replay, and idempotent re-delivery. The no-claim boundary remains subscriber delivery, a broader event-bus runtime, and complete device-trust integration.
 
 ## Common commands
 

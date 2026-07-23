@@ -11,6 +11,7 @@ mod family_identity_setup_records;
 pub mod household_authority;
 mod household_authority_validation;
 pub mod parent_presence;
+mod parent_presence_event_delivery;
 mod parent_presence_port;
 mod parent_presence_port_decision;
 mod parent_presence_store;

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use ocentra_eventing::ids::CorrelationId;
+use ocentra_eventing::ids::{CorrelationId, EventId};
 use serde::{Deserialize, Serialize};
 
 use crate::household_authority::{HouseholdAuthorityAction, ParentStepUpAssertionSnapshot};
@@ -157,8 +157,8 @@ pub enum ParentPresenceCustodyDecisionResult {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum ParentPresenceCustodyDecisionNoClaim {
-    EventPublicationNotOwnedByDomain,
+pub enum ParentPresenceCustodyDecisionDelivery {
+    EventingJournal,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -170,11 +170,12 @@ pub enum ParentPresenceCustodyDecisionRedaction {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentPresenceCustodyDecisionArtifact {
+    pub decision_id: EventId,
     pub correlation_id: CorrelationId,
     pub owner: ParentPresenceCustodyDecisionOwner,
     pub boundary: ParentPresenceCustodyDecisionBoundary,
     pub result: ParentPresenceCustodyDecisionResult,
-    pub no_claim: ParentPresenceCustodyDecisionNoClaim,
+    pub delivery: ParentPresenceCustodyDecisionDelivery,
     pub redaction: ParentPresenceCustodyDecisionRedaction,
 }
 
@@ -182,6 +183,8 @@ pub struct ParentPresenceVerificationPort {
     pub(crate) clock: Box<dyn Fn() -> ParentPresenceObservedAt + Send + Sync>,
     pub(crate) store: crate::parent_presence_store::ParentPresenceStore,
     pub(crate) custody_artifact: Option<ParentPresenceCustodyDecisionArtifact>,
+    pub(crate) decision_delivery:
+        crate::parent_presence_event_delivery::ParentPresenceDecisionDelivery,
 }
 
 impl fmt::Debug for ParentPresenceChallenge {
@@ -250,11 +253,12 @@ impl ParentPresenceCustodyDecisionArtifact {
         result: ParentPresenceCustodyDecisionResult,
     ) -> Self {
         Self {
+            decision_id: EventId::generated(),
             correlation_id,
             owner: ParentPresenceCustodyDecisionOwner::FamilyIdentityCore,
             boundary: ParentPresenceCustodyDecisionBoundary::VerifyAndConsume,
             result,
-            no_claim: ParentPresenceCustodyDecisionNoClaim::EventPublicationNotOwnedByDomain,
+            delivery: ParentPresenceCustodyDecisionDelivery::EventingJournal,
             redaction: ParentPresenceCustodyDecisionRedaction::SensitiveInputsOmitted,
         }
     }

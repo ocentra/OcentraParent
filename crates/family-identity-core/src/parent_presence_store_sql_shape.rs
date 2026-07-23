@@ -37,6 +37,29 @@ pub(crate) fn receipt_sequence_column_is_canonical(sql: &str) -> bool {
     )
 }
 
+pub(crate) fn decision_delivery_column_is_canonical(sql: &str) -> bool {
+    definition_matches(
+        sql,
+        "DELIVERY_STATE",
+        &[
+            word("DELIVERY_STATE"),
+            word("TEXT"),
+            word("NOT"),
+            word("NULL"),
+            word("CHECK"),
+            SqlToken::Symbol('('),
+            word("DELIVERY_STATE"),
+            word("IN"),
+            SqlToken::Symbol('('),
+            SqlToken::Literal("pending".to_owned()),
+            SqlToken::Symbol(','),
+            SqlToken::Literal("delivered".to_owned()),
+            SqlToken::Symbol(')'),
+            SqlToken::Symbol(')'),
+        ],
+    )
+}
+
 fn definition_matches(sql: &str, column_name: &str, expected: &[SqlToken]) -> bool {
     tokenize(sql)
         .and_then(|tokens| column_definition(&tokens, column_name))
