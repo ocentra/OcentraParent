@@ -118,6 +118,7 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
 
     let (
         _parent_presence_receipt_ref,
+        _parent_presence_correlation_id,
         parent_presence_challenge,
         parent_step_up_assertion,
         observed_at,
@@ -130,6 +131,7 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
         action_device_id: parent_presence_challenge.action_device_id,
         action_device_child_profile_id: parent_presence_challenge.action_device_child_profile_id,
         target_child_profile_id: parent_presence_challenge.target_child_profile_id,
+        target_child_device_id: parent_presence_challenge.target_child_device_id,
         action: parent_presence_challenge.privileged_action,
         observed_at: observed_at.to_string(),
         expected_nonce: Some(parent_presence_challenge.nonce_ref),

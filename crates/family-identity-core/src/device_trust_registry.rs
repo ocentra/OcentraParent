@@ -33,6 +33,7 @@ pub struct DeviceTrustRegistryRecord {
 #[serde(rename_all = "kebab-case")]
 pub enum DeviceTrustRegistryRejection {
     RevokedDeviceCannotRePair,
+    OwnershipConflict,
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -84,6 +85,17 @@ impl DeviceTrustRegistry {
                     family_id TEXT NOT NULL,
                     parent_account_id TEXT NOT NULL,
                     state TEXT NOT NULL CHECK (state IN ('pending-sealing', 'trusted', 'revoked', 'reset-required'))
+                ) STRICT;
+                CREATE TABLE IF NOT EXISTS device_trust_registry_journal (
+                    operation_id TEXT PRIMARY KEY NOT NULL,
+                    correlation_id TEXT NOT NULL,
+                    receipt_ref TEXT UNIQUE NOT NULL,
+                    device_id TEXT NOT NULL,
+                    family_id TEXT NOT NULL,
+                    parent_account_id TEXT NOT NULL,
+                    action TEXT NOT NULL,
+                    outcome TEXT NOT NULL,
+                    state TEXT NOT NULL
                 ) STRICT;",
             )
             .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
@@ -94,23 +106,28 @@ impl DeviceTrustRegistry {
         &self,
         authority: VerifiedParentDeviceTrustAuthority,
     ) -> Result<DeviceTrustRegistryDecision, DeviceTrustRegistryFailure> {
-        let (family_id, parent_account_id, device_id, action) = authority.into_registry_parts();
-        let connection = self.open_connection()?;
+        let (family_id, parent_account_id, device_id, action, correlation_id, receipt_ref) =
+            authority.into_registry_parts();
+        let mut connection = self.open_connection()?;
         match action {
             HouseholdAuthorityAction::PairChildDevice => {
                 crate::device_trust_registry_storage::pair(
-                    &connection,
+                    &mut connection,
                     &family_id,
                     &parent_account_id,
                     &device_id,
+                    &correlation_id,
+                    &receipt_ref,
                 )
             }
             HouseholdAuthorityAction::RevokeChildDevice => {
                 crate::device_trust_registry_storage::revoke(
-                    &connection,
+                    &mut connection,
                     &family_id,
                     &parent_account_id,
                     &device_id,
+                    &correlation_id,
+                    &receipt_ref,
                 )
             }
             _ => Err(DeviceTrustRegistryFailure::StorageIntegrityRejected),

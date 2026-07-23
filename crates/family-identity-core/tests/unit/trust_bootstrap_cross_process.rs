@@ -73,6 +73,7 @@ fn input(
         action_device_id: action_device_id.clone(),
         action_device_child_profile_id: action_device_child_profile_id.clone(),
         target_child_profile_id: target_child_profile_id.clone(),
+        target_child_device_id: None,
         expires_at: EXPIRY.to_owned(),
     };
     let verification = ParentPresenceVerificationInput {
@@ -84,6 +85,7 @@ fn input(
             action_device_id,
             action_device_child_profile_id,
             target_child_profile_id,
+            target_child_device_id: None,
             action: HouseholdAuthorityAction::PairChildDevice,
             nonce: nonce_ref,
             expires_at: EXPIRY.to_owned(),

@@ -2,19 +2,28 @@ use std::fmt;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Barrier};
+use std::thread;
 
 use ocentra_eventing::ids::CorrelationId;
-use ocentra_family_identity_core::device_trust_authority::verify_parent_device_trust_authority;
+use ocentra_family_identity_core::device_trust_authority::{
+    verify_parent_device_trust_authority, DeviceTrustAuthorityInput,
+};
 use ocentra_family_identity_core::device_trust_registry::{
     DeviceTrustLifecycleState, DeviceTrustRegistry, DeviceTrustRegistryDecision,
     DeviceTrustRegistryRejection,
 };
+use ocentra_family_identity_core::family_identity::{
+    ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
+    HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
+};
 use ocentra_family_identity_core::household_authority::{
-    HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
+    HouseholdAuthorityAction, HouseholdAuthorityInput, ParentStepUpAssertionSnapshot,
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceVerificationInput,
 };
+use rusqlite::Connection;
 
 use super::open_parent_presence_test_port;
 
@@ -79,18 +88,46 @@ fn authority_for(
     ocentra_family_identity_core::device_trust_authority::VerifiedParentDeviceTrustAuthority,
     String,
 > {
+    authority_for_family(store, action, device_id, "family")
+}
+
+fn authority_for_family(
+    store: &TestStore,
+    action: HouseholdAuthorityAction,
+    device_id: &str,
+    family_id: &str,
+) -> Result<
+    ocentra_family_identity_core::device_trust_authority::VerifiedParentDeviceTrustAuthority,
+    String,
+> {
+    let accepted = accepted_for_family(store, action, family_id)?;
+    verify_parent_device_trust_authority(DeviceTrustAuthorityInput {
+        parent_presence: accepted,
+        household_authority: authorized_household_authority(action),
+        target_child_device_id: device_id.to_owned(),
+    })
+    .map_err(|error| format!("{error:?}"))
+}
+
+fn accepted_for_family(
+    store: &TestStore,
+    action: HouseholdAuthorityAction,
+    family_id: &str,
+) -> Result<ocentra_family_identity_core::parent_presence::ParentPresenceVerificationAccepted, String>
+{
     let id = NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed);
     let challenge_ref = format!("device-trust-challenge-{id}");
     let nonce_ref = format!("device-trust-nonce-{id}");
     let challenge = ParentPresenceChallenge {
         challenge_ref: challenge_ref.clone(),
         nonce_ref: nonce_ref.clone(),
-        family_id: "family".to_owned(),
+        family_id: family_id.to_owned(),
         parent_account_id: "parent-account".to_owned(),
         privileged_action: action,
-        action_device_id: device_id.to_owned(),
+        action_device_id: "parent-action-device".to_owned(),
         action_device_child_profile_id: None,
         target_child_profile_id: Some("child-profile".to_owned()),
+        target_child_device_id: Some("child-device".to_owned()),
         expires_at: ACCEPTED_EXPIRY.to_owned(),
     };
     let assertion = ParentStepUpAssertionSnapshot {
@@ -99,6 +136,7 @@ fn authority_for(
         action_device_id: challenge.action_device_id.clone(),
         action_device_child_profile_id: None,
         target_child_profile_id: challenge.target_child_profile_id.clone(),
+        target_child_device_id: challenge.target_child_device_id.clone(),
         action,
         nonce: nonce_ref,
         expires_at: ACCEPTED_EXPIRY.to_owned(),
@@ -115,7 +153,23 @@ fn authority_for(
             assertion,
         })
         .map_err(|error| format!("{error:?}"))?;
-    verify_parent_device_trust_authority(accepted).map_err(|error| format!("{error:?}"))
+    Ok(accepted)
+}
+
+fn authorized_household_authority(action: HouseholdAuthorityAction) -> HouseholdAuthorityInput {
+    HouseholdAuthorityInput {
+        actor_role: HouseholdRole::ParentOwner,
+        same_family: true,
+        actor_account_state: ActorAccountState::Active,
+        membership_state: HouseholdMembershipState::Active,
+        child_profile_binding_state: ChildProfileBindingState::Bound,
+        device_ownership_scope: DeviceOwnershipScope::ChildProfileDevice,
+        device_trust_state: DeviceTrustState::Trusted,
+        session_freshness_state: SessionFreshnessState::Fresh,
+        capability_granted: true,
+        controller_lease_state: None,
+        action,
+    }
 }
 
 #[test]
@@ -139,6 +193,13 @@ fn verified_parent_pair_persists_pending_sealing_without_a_trusted_transition() 
             }
         )
     );
+    assert_eq!(
+        store
+            .registry()?
+            .record("parent-action-device")
+            .map_err(|error| format!("{error:?}"))?,
+        None,
+    );
     drop(registry);
 
     assert_eq!(
@@ -152,6 +213,188 @@ fn verified_parent_pair_persists_pending_sealing_without_a_trusted_transition() 
                 state: DeviceTrustLifecycleState::PendingSealing,
             }
         )
+    );
+    Ok(())
+}
+
+#[test]
+fn device_trust_authority_rejects_step_up_without_household_authorization() -> TestResult {
+    let store = TestStore::new("authority-rejected")?;
+    let accepted =
+        accepted_for_family(&store, HouseholdAuthorityAction::PairChildDevice, "family")?;
+    let mut unauthorized =
+        authorized_household_authority(HouseholdAuthorityAction::PairChildDevice);
+    unauthorized.same_family = false;
+    assert_eq!(
+        verify_parent_device_trust_authority(DeviceTrustAuthorityInput {
+            parent_presence: accepted,
+            household_authority: unauthorized,
+            target_child_device_id: "child-device".to_owned(),
+        }),
+        Err(ocentra_family_identity_core::device_trust_authority::DeviceTrustAuthorityVerificationFailure::HouseholdAuthorizationRejected),
+    );
+    Ok(())
+}
+
+#[test]
+fn device_trust_authority_rejects_a_target_not_bound_to_the_step_up_assertion() -> TestResult {
+    let store = TestStore::new("target-device-mismatch")?;
+    let accepted =
+        accepted_for_family(&store, HouseholdAuthorityAction::PairChildDevice, "family")?;
+    assert_eq!(
+        verify_parent_device_trust_authority(DeviceTrustAuthorityInput {
+            parent_presence: accepted,
+            household_authority: authorized_household_authority(HouseholdAuthorityAction::PairChildDevice),
+            target_child_device_id: "other-child-device".to_owned(),
+        }),
+        Err(ocentra_family_identity_core::device_trust_authority::DeviceTrustAuthorityVerificationFailure::TargetDeviceMismatch),
+    );
+    Ok(())
+}
+
+#[test]
+fn copied_unsealed_trusted_row_is_rejected() -> TestResult {
+    let store = TestStore::new("unsealed-trusted")?;
+    let connection = Connection::open(&store.registry_path).map_err(|error| error.to_string())?;
+    connection.execute_batch(
+        "CREATE TABLE device_trust_registry (
+            device_id TEXT PRIMARY KEY NOT NULL,
+            family_id TEXT NOT NULL,
+            parent_account_id TEXT NOT NULL,
+            state TEXT NOT NULL CHECK (state IN ('pending-sealing', 'trusted', 'revoked', 'reset-required'))
+        ) STRICT;
+        INSERT INTO device_trust_registry VALUES ('child-device', 'family', 'parent-account', 'trusted');",
+    ).map_err(|error| error.to_string())?;
+    drop(connection);
+    assert_eq!(
+        store.registry()?.record("child-device"),
+        Err(ocentra_family_identity_core::device_trust_registry::DeviceTrustRegistryFailure::StorageIntegrityRejected),
+    );
+    Ok(())
+}
+
+#[test]
+fn household_conflict_cannot_transfer_or_revoke_an_existing_device() -> TestResult {
+    let store = TestStore::new("ownership-conflict")?;
+    let registry = store.registry()?;
+    assert!(matches!(
+        registry.apply_verified_parent_authority(authority_for_family(
+            &store,
+            HouseholdAuthorityAction::PairChildDevice,
+            "child-device",
+            "family-a",
+        )?),
+        Ok(DeviceTrustRegistryDecision::PendingSealing(_))
+    ));
+    assert_eq!(
+        registry
+            .apply_verified_parent_authority(authority_for_family(
+                &store,
+                HouseholdAuthorityAction::RevokeChildDevice,
+                "child-device",
+                "family-b",
+            )?)
+            .map_err(|error| format!("{error:?}"))?,
+        DeviceTrustRegistryDecision::Rejected(DeviceTrustRegistryRejection::OwnershipConflict),
+    );
+    assert_eq!(
+        registry
+            .record("child-device")
+            .map_err(|error| format!("{error:?}"))?,
+        Some(
+            ocentra_family_identity_core::device_trust_registry::DeviceTrustRegistryRecord {
+                device_id: "child-device".to_owned(),
+                state: DeviceTrustLifecycleState::PendingSealing,
+            }
+        ),
+    );
+    Ok(())
+}
+
+#[test]
+fn mutation_journal_is_committed_with_the_registry_state() -> TestResult {
+    let store = TestStore::new("mutation-journal")?;
+    let registry = store.registry()?;
+    assert!(matches!(
+        registry.apply_verified_parent_authority(authority_for(
+            &store,
+            HouseholdAuthorityAction::PairChildDevice,
+            "child-device",
+        )?),
+        Ok(DeviceTrustRegistryDecision::PendingSealing(_))
+    ));
+    let connection = Connection::open(&store.registry_path).map_err(|error| error.to_string())?;
+    let row = connection
+        .query_row(
+            "SELECT correlation_id, action, outcome, state FROM device_trust_registry_journal",
+            [],
+            |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, String>(3)?,
+                ))
+            },
+        )
+        .map_err(|error| error.to_string())?;
+    assert_eq!(
+        row,
+        (
+            "device-trust-registry-test".to_owned(),
+            "pair-child-device".to_owned(),
+            "accepted".to_owned(),
+            "pending-sealing".to_owned()
+        )
+    );
+    Ok(())
+}
+
+#[test]
+fn concurrent_pair_and_revoke_leave_the_device_revoked() -> TestResult {
+    let store = TestStore::new("pair-revoke-race")?;
+    let device_id = "child-device";
+    let pair_authority =
+        authority_for(&store, HouseholdAuthorityAction::PairChildDevice, device_id)?;
+    let revoke_authority = authority_for(
+        &store,
+        HouseholdAuthorityAction::RevokeChildDevice,
+        device_id,
+    )?;
+    let barrier = Arc::new(Barrier::new(3));
+    let pair_path = store.registry_path.clone();
+    let pair_barrier = Arc::clone(&barrier);
+    let pair = thread::spawn(move || {
+        pair_barrier.wait();
+        DeviceTrustRegistry::open(pair_path)
+            .and_then(|registry| registry.apply_verified_parent_authority(pair_authority))
+    });
+    let revoke_path = store.registry_path.clone();
+    let revoke_barrier = Arc::clone(&barrier);
+    let revoke = thread::spawn(move || {
+        revoke_barrier.wait();
+        DeviceTrustRegistry::open(revoke_path)
+            .and_then(|registry| registry.apply_verified_parent_authority(revoke_authority))
+    });
+    barrier.wait();
+    pair.join()
+        .map_err(|_panic| "pair thread panicked".to_owned())?
+        .map_err(|error| format!("{error:?}"))?;
+    revoke
+        .join()
+        .map_err(|_panic| "revoke thread panicked".to_owned())?
+        .map_err(|error| format!("{error:?}"))?;
+    assert_eq!(
+        store
+            .registry()?
+            .record(device_id)
+            .map_err(|error| format!("{error:?}"))?,
+        Some(
+            ocentra_family_identity_core::device_trust_registry::DeviceTrustRegistryRecord {
+                device_id: device_id.to_owned(),
+                state: DeviceTrustLifecycleState::Revoked,
+            }
+        ),
     );
     Ok(())
 }

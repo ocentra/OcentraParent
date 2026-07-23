@@ -72,6 +72,7 @@ pub struct ParentPresenceChallenge {
     pub action_device_id: String,
     pub action_device_child_profile_id: Option<String>,
     pub target_child_profile_id: Option<String>,
+    pub target_child_device_id: Option<String>,
     pub expires_at: String,
 }
 
@@ -128,6 +129,7 @@ pub struct ParentPresenceObservedAt {
 #[derive(PartialEq, Eq)]
 pub struct ParentPresenceVerificationAccepted {
     receipt_ref: ParentPresenceReceiptRef,
+    correlation_id: CorrelationId,
     challenge: ParentPresenceChallenge,
     assertion_snapshot: ParentStepUpAssertionSnapshot,
     observed_at: ParentPresenceObservedAt,
@@ -206,12 +208,14 @@ impl fmt::Debug for ParentPresenceChallenge {
 impl ParentPresenceVerificationAccepted {
     pub(crate) fn new(
         receipt_ref: ParentPresenceReceiptRef,
+        correlation_id: CorrelationId,
         challenge: ParentPresenceChallenge,
         assertion_snapshot: ParentStepUpAssertionSnapshot,
         observed_at: ParentPresenceObservedAt,
     ) -> Self {
         Self {
             receipt_ref,
+            correlation_id,
             challenge,
             assertion_snapshot,
             observed_at,
@@ -220,6 +224,12 @@ impl ParentPresenceVerificationAccepted {
 
     pub fn receipt_ref(&self) -> &ParentPresenceReceiptRef {
         &self.receipt_ref
+    }
+
+    /// Correlates the consumed step-up decision with its next durable owner.
+    /// It is opaque and must not be used as an identity or capability.
+    pub fn correlation_id(&self) -> &CorrelationId {
+        &self.correlation_id
     }
 
     pub fn assertion_snapshot(&self) -> &ParentStepUpAssertionSnapshot {
@@ -234,12 +244,14 @@ impl ParentPresenceVerificationAccepted {
         self,
     ) -> (
         ParentPresenceReceiptRef,
+        CorrelationId,
         ParentPresenceChallenge,
         ParentStepUpAssertionSnapshot,
         ParentPresenceObservedAt,
     ) {
         (
             self.receipt_ref,
+            self.correlation_id,
             self.challenge,
             self.assertion_snapshot,
             self.observed_at,

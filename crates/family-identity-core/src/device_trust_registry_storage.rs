@@ -1,11 +1,18 @@
+#[path = "device_trust_registry_storage/decision.rs"]
+mod decision;
+#[path = "device_trust_registry_storage/state.rs"]
+mod state;
+
 use std::path::Path;
 
-use rusqlite::{params, Connection, OptionalExtension};
+use rusqlite::{params, Connection, OptionalExtension, TransactionBehavior};
 
 use crate::device_trust_registry::{
     DeviceTrustLifecycleState, DeviceTrustRegistryDecision, DeviceTrustRegistryFailure,
-    DeviceTrustRegistryRecord, DeviceTrustRegistryRejection,
+    DeviceTrustRegistryRecord,
 };
+use decision::{mutation_plan, MutationPlan};
+use state::{journal_fields, record_from_row};
 
 pub(crate) fn validate_custody_path(path: &Path) -> Result<(), DeviceTrustRegistryFailure> {
     let Some(parent) = path.parent() else {
@@ -34,81 +41,105 @@ pub(crate) fn record(
 }
 
 pub(crate) fn pair(
-    connection: &Connection,
+    connection: &mut Connection,
     family_id: &str,
     parent_account_id: &str,
     device_id: &str,
+    correlation_id: &str,
+    receipt_ref: &str,
 ) -> Result<DeviceTrustRegistryDecision, DeviceTrustRegistryFailure> {
-    if record(connection, device_id)?
-        .as_ref()
-        .is_some_and(|record| record.state == DeviceTrustLifecycleState::Revoked)
-    {
-        return Ok(DeviceTrustRegistryDecision::Rejected(
-            DeviceTrustRegistryRejection::RevokedDeviceCannotRePair,
-        ));
-    }
-    write_state(
+    mutate(
         connection,
         family_id,
         parent_account_id,
         device_id,
-        "pending-sealing",
-    )?;
-    Ok(DeviceTrustRegistryDecision::PendingSealing(record_for(
-        device_id,
-        DeviceTrustLifecycleState::PendingSealing,
-    )))
+        "pair-child-device",
+        correlation_id,
+        receipt_ref,
+    )
 }
 
 pub(crate) fn revoke(
-    connection: &Connection,
+    connection: &mut Connection,
     family_id: &str,
     parent_account_id: &str,
     device_id: &str,
+    correlation_id: &str,
+    receipt_ref: &str,
 ) -> Result<DeviceTrustRegistryDecision, DeviceTrustRegistryFailure> {
-    write_state(
+    mutate(
         connection,
         family_id,
         parent_account_id,
         device_id,
-        "revoked",
-    )?;
-    Ok(DeviceTrustRegistryDecision::Revoked(record_for(
-        device_id,
-        DeviceTrustLifecycleState::Revoked,
-    )))
+        "revoke-child-device",
+        correlation_id,
+        receipt_ref,
+    )
 }
 
-fn write_state(
-    connection: &Connection,
+fn mutate(
+    connection: &mut Connection,
     family_id: &str,
     parent_account_id: &str,
     device_id: &str,
-    state: &str,
-) -> Result<(), DeviceTrustRegistryFailure> {
-    connection
+    action: &str,
+    correlation_id: &str,
+    receipt_ref: &str,
+) -> Result<DeviceTrustRegistryDecision, DeviceTrustRegistryFailure> {
+    let transaction = connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
+    let existing = transaction
+        .query_row(
+            "SELECT family_id, parent_account_id, state FROM device_trust_registry WHERE device_id = ?1",
+            [device_id],
+            |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?)),
+        )
+        .optional()
+        .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
+    let existing = existing
+        .as_ref()
+        .map(|(family, parent, state)| (family.as_str(), parent.as_str(), state.as_str()));
+    let decision = match mutation_plan(existing, family_id, parent_account_id, action)? {
+        MutationPlan::Rejected(rejection) => DeviceTrustRegistryDecision::Rejected(rejection),
+        MutationPlan::PairPendingSealing => {
+            transaction
         .execute(
             "INSERT INTO device_trust_registry (device_id, family_id, parent_account_id, state)
              VALUES (?1, ?2, ?3, ?4)
              ON CONFLICT(device_id) DO UPDATE SET family_id = excluded.family_id, parent_account_id = excluded.parent_account_id, state = excluded.state",
-            params![device_id, family_id, parent_account_id, state],
+            params![device_id, family_id, parent_account_id, "pending-sealing"],
         )
         .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
-    Ok(())
-}
-
-fn record_from_row(
-    device_id: &str,
-    state: &str,
-) -> Result<DeviceTrustRegistryRecord, DeviceTrustRegistryFailure> {
-    let state = match state {
-        "pending-sealing" => DeviceTrustLifecycleState::PendingSealing,
-        "trusted" => DeviceTrustLifecycleState::Trusted,
-        "revoked" => DeviceTrustLifecycleState::Revoked,
-        "reset-required" => DeviceTrustLifecycleState::ResetRequired,
-        _ => return Err(DeviceTrustRegistryFailure::StorageIntegrityRejected),
+            DeviceTrustRegistryDecision::PendingSealing(record_for(
+                device_id,
+                DeviceTrustLifecycleState::PendingSealing,
+            ))
+        }
+        MutationPlan::Revoke => {
+            transaction.execute(
+                "INSERT INTO device_trust_registry (device_id, family_id, parent_account_id, state)
+                 VALUES (?1, ?2, ?3, 'revoked')
+                 ON CONFLICT(device_id) DO UPDATE SET state = 'revoked'",
+                params![device_id, family_id, parent_account_id],
+            ).map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
+            DeviceTrustRegistryDecision::Revoked(record_for(
+                device_id,
+                DeviceTrustLifecycleState::Revoked,
+            ))
+        }
     };
-    Ok(record_for(device_id, state))
+    let (outcome, state) = journal_fields(&decision);
+    transaction.execute(
+        "INSERT INTO device_trust_registry_journal (operation_id, correlation_id, receipt_ref, device_id, family_id, parent_account_id, action, outcome, state)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+        params![receipt_ref, correlation_id, receipt_ref, device_id, family_id, parent_account_id, action, outcome, state],
+    ).map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
+    transaction
+        .commit()
+        .map_err(|_error| DeviceTrustRegistryFailure::StorageUnavailable)?;
+    Ok(decision)
 }
 
 fn record_for(device_id: &str, state: DeviceTrustLifecycleState) -> DeviceTrustRegistryRecord {

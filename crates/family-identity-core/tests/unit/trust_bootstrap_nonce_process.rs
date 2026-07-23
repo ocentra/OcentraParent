@@ -28,6 +28,7 @@ fn challenge(scope: &str, challenge_label: &str) -> ParentPresenceChallenge {
         action_device_id: format!("{scope}-device"),
         action_device_child_profile_id: Some(format!("{scope}-action-child")),
         target_child_profile_id: Some(format!("{scope}-target-child")),
+        target_child_device_id: None,
         expires_at: "2099-01-01T00:00:00.000Z".to_owned(),
     }
 }

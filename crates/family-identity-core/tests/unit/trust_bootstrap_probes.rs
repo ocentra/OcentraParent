@@ -100,6 +100,7 @@ fn challenge_for(case: &TestCase, expires_at: &str) -> ParentPresenceChallenge {
         action_device_id: case.action_device_id.clone(),
         action_device_child_profile_id: case.action_device_child_profile_id.clone(),
         target_child_profile_id: case.target_child_profile_id.clone(),
+        target_child_device_id: None,
         expires_at: expires_at.to_owned(),
     }
 }
@@ -111,6 +112,7 @@ fn assertion_for(case: &TestCase, expires_at: &str) -> ParentStepUpAssertionSnap
         action_device_id: case.action_device_id.clone(),
         action_device_child_profile_id: case.action_device_child_profile_id.clone(),
         target_child_profile_id: case.target_child_profile_id.clone(),
+        target_child_device_id: None,
         action: HouseholdAuthorityAction::PairChildDevice,
         nonce: case.nonce_ref.clone(),
         expires_at: expires_at.to_owned(),
