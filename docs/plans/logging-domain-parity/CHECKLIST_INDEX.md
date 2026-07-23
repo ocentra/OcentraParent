@@ -41,7 +41,7 @@ test-results/logging-domain-parity-<proof-mode>/
 - [ ] Reference-to-target mapping confirmed.
 - [ ] Existing parent exports listed before code changes.
 - [ ] No unrelated plan folders touched.
-- [ ] Proof root written.
+- [x] Proof root written with a bounded validation-blocker record; workpack completion remains open.
 - [ ] Workpack completion section filled.
 
 ## WP02 TypeScript Logging Package Parity

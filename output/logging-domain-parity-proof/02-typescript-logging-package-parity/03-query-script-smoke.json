@@ -1,0 +1,18 @@
+{
+  "plan": "logging-domain-parity",
+  "workpack": "WP02 TypeScript Logging Package Parity",
+  "owner": "logging-domain",
+  "scope": "parent-test",
+  "command": "npm run test:query --workspace @ocentra-parent/logging-domain -- stats --scope=parent-test",
+  "exit": 0,
+  "result": "pass",
+  "stats": {
+    "totalLogs": 0,
+    "errorLogs": 0,
+    "warnLogs": 0,
+    "distinctRuns": 0,
+    "distinctTests": 0,
+    "newestTimestamp": null
+  },
+  "noClaim": "An empty parent-test stats result proves only that the query script ran successfully in this clean worktree."
+}

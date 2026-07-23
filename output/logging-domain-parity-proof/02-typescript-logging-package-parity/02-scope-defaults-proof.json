@@ -1,0 +1,16 @@
+{
+  "plan": "logging-domain-parity",
+  "workpack": "WP02 TypeScript Logging Package Parity",
+  "owner": "logging-domain",
+  "scopeSource": "packages/logging-domain/src/test-log/types.ts",
+  "scopes": [
+    "parent-agent",
+    "parent-portal",
+    "parent-cloudflare",
+    "parent-codex",
+    "parent-test"
+  ],
+  "defaultBridgeConsumer": "parent-test",
+  "result": "source-present",
+  "noClaim": "The explicit parent-cloudflare scope does not establish Cloudflare as the generic parent logging default."
+}

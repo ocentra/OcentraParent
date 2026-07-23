@@ -1,0 +1,30 @@
+plan: logging-domain-parity
+workpack: WP02 TypeScript Logging Package Parity
+owner: logging-domain
+scope: parent-test
+run_id: n/a
+command_id: n/a
+
+command: npm run build --workspace @ocentra-parent/logging-domain
+exit: 0
+result: pass
+artifact: output/logging-domain-parity-proof/02-typescript-logging-package-parity/00-package-export-before-after.json
+diagnostics_summary: TypeScript build and ESM import fix completed.
+no_claim: Build success does not prove focused package test completion or production telemetry readiness.
+
+command: npm run test --workspace @ocentra-parent/logging-domain
+exit: 1
+result: blocked
+artifact: n/a
+diagnostics_summary: 46 of 47 tests passed. tests/integration/mcp-query-interface.test.ts failed because the clean-workspace proof-trace MCP smoke returned exit 1 where the test expects 0 (line 476).
+blocker: The WP10 proof-trace/MCP smoke cannot import node_modules/@ocentra-parent/schema-domain/dist/generated-logging-contracts.js in this fresh worktree after npm ci; see 04-clean-worktree-blocker-diagnosis.json.
+why this does not prove completion: WP02 requires its focused package build and test commands to pass.
+next command: Repair or independently validate the owning WP10 proof-trace smoke prerequisite, then rerun this exact WP02 package test.
+no_claim: This blocker record does not claim WP02 completion, MCP completion, or proof-trace completion.
+
+command: npm run test:query --workspace @ocentra-parent/logging-domain -- stats --scope=parent-test
+exit: 0
+result: pass
+artifact: output/logging-domain-parity-proof/02-typescript-logging-package-parity/03-query-script-smoke.json
+diagnostics_summary: Query completed with zero rows in the clean parent-test scope.
+no_claim: Empty stats prove only query-script execution, not ingest, bridge delivery, or package completion.

@@ -1,0 +1,12 @@
+{
+  "plan": "logging-domain-parity",
+  "workpack": "WP02 TypeScript Logging Package Parity",
+  "classification": "harness-environment dependency",
+  "owner": "schema-domain build artifact / WP10 proof-trace smoke harness",
+  "failingCommand": "node scripts/dev/mcp-logging-server.mjs --smoke proof-trace --smoke-root <clean-temp-root>",
+  "stderr": "ERR_MODULE_NOT_FOUND: Cannot find module node_modules/@ocentra-parent/schema-domain/dist/generated-logging-contracts.js imported from scripts/dev/logging-proof-trace-smoke.mjs",
+  "cause": "npm ci in a fresh worktree installs workspace links but does not build the schema-domain dist artifact required by the proof-trace smoke.",
+  "wp02SourceDefect": false,
+  "smallestRepairProposal": "In the owning WP10 proof-trace/MCP harness, either make the smoke self-provision its required generated schema artifact or declare and satisfy that build prerequisite before the smoke runs. Do not weaken the integration assertion.",
+  "noClaim": "This diagnosis does not prove the MCP proof-trace path, WP10, or WP02 package completion."
+}

@@ -188,3 +188,23 @@ The appended completion block was still overstated, because the named proof root
 `output/logging-domain-parity-proof/02-typescript-logging-package-parity/` is
 absent in this checkout and the plan checklist remains unchecked. Treat WP02 as
 source-present but not durably proved complete from current workspace evidence.
+
+## Bounded proof-restoration attempt (2026-07-23)
+
+The canonical WP02 proof root now records the live package inventory, explicit
+parent scopes, query-script smoke, and exact focused command outcomes. The
+package build passed and the `parent-test` query smoke passed. The required
+package test command did not pass: 46 of 47 tests passed, while the
+clean-workspace proof-trace MCP smoke in
+`tests/integration/mcp-query-interface.test.ts` returned exit `1` where that
+test expects `0`. Direct stderr diagnosis shows that the WP10 proof-trace
+harness requires the unbuilt
+`@ocentra-parent/schema-domain/dist/generated-logging-contracts.js` artifact
+after `npm ci`; this is a harness/build-prerequisite dependency, not a WP02
+TypeScript source defect.
+
+This is a bounded blocker record, not a WP02 closeout. The source surface and
+query script remain evidenced, but the focused package-test checklist row and
+the workpack completion section remain open until the owning proof-trace/MCP
+failure is resolved and the exact WP02 command is rerun. No Rust logging-core,
+validation-wrapper, production telemetry, or product-runtime claim is made.

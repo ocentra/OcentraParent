@@ -1,0 +1,34 @@
+{
+  "plan": "logging-domain-parity",
+  "workpack": "WP02 TypeScript Logging Package Parity",
+  "owner": "logging-domain",
+  "moduleGroupsPresent": {
+    "testLog": [
+      "bridgeConvert.ts",
+      "ingestManifest.ts",
+      "logsTree.ts",
+      "ndjsonLogFileWriter.ts",
+      "ndjsonPaths.ts",
+      "ndjsonWriter.ts",
+      "testLogDuckDb.ts",
+      "testLogRetention.ts",
+      "wipeNdjsonScope.ts"
+    ],
+    "transport": [
+      "bridgeLogPayload.ts",
+      "bridgeServer.ts",
+      "bridgeTransport.ts"
+    ],
+    "appLog": [
+      "appNdjsonWriter.ts",
+      "types.ts"
+    ]
+  },
+  "testEvidence": [
+    "tests/integration/mcp-query-interface.test.ts",
+    "tests/unit/logger.test.ts",
+    "tests/unit/dev-log-fixture.test.ts"
+  ],
+  "result": "source-present",
+  "noClaim": "File presence does not substitute for a passing focused package suite."
+}

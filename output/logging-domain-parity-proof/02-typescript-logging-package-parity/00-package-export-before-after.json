@@ -1,0 +1,27 @@
+{
+  "plan": "logging-domain-parity",
+  "workpack": "WP02 TypeScript Logging Package Parity",
+  "owner": "logging-domain",
+  "scope": "parent-test",
+  "capturedAt": "2026-07-23",
+  "package": "@ocentra-parent/logging-domain",
+  "exportsPresent": [
+    "./app-log/appNdjsonWriter",
+    "./core/logger",
+    "./test-log/bridgeConvert",
+    "./test-log/testLogDuckDb",
+    "./transport/bridgeServer",
+    "./transport/bridgeTransport"
+  ],
+  "scriptsPresent": [
+    "bridge",
+    "db:ensure",
+    "db:rebuild",
+    "db:ingest",
+    "logs:prepare",
+    "test:query",
+    "view:ndjson"
+  ],
+  "result": "source-present",
+  "noClaim": "This inventory does not prove package parity completion, production telemetry readiness, or any Rust logging-core behavior."
+}
