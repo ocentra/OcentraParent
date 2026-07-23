@@ -1,8 +1,13 @@
 use std::{
     fmt::Display,
-    fs::{read_to_string, remove_dir_all},
+    fs::{read_to_string, remove_dir_all, OpenOptions},
+    io::Write,
     path::{Path, PathBuf},
-    sync::atomic::{AtomicU64, Ordering},
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
+    thread,
 };
 
 use ocentra_eventing::expect_value::ExpectValue;
@@ -14,7 +19,8 @@ use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
 };
 use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
-use serde_json::Value;
+use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_core::screen_evidence_queue::ScreenEvidenceQueue;
@@ -180,6 +186,124 @@ fn screen_evidence_queue_sweeps_only_expired_entries_with_delete_proof_refs() {
 }
 
 #[test]
+fn screen_evidence_queue_deduplicates_same_batch_expiry_job_ids_without_dropping_other_jobs() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([15; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let duplicate_job = screen_queue_job();
+    let other_job = screen_queue_job_with_id("screen-same-batch-other-expired-job");
+
+    queue
+        .append_encrypted_image(&duplicate_job, b"duplicate-image-first")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .append_encrypted_image(&duplicate_job, b"duplicate-image-second")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .append_encrypted_image(&other_job, b"other-expired-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let remaining = queue
+        .read_decrypted_entries(4)
+        .expect_value(constants::error::JOURNAL_READS);
+    let outbox_rows = read_to_string(queue.path().with_extension("deletion-outbox"))
+        .expect_value(constants::error::JOURNAL_READS)
+        .lines()
+        .count();
+    let expired_job_ids = sweep
+        .expired_entries
+        .iter()
+        .map(|entry| entry.queue_job_id.as_str())
+        .collect::<Vec<_>>();
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(sweep.expired_entries.len(), 2);
+    assert_eq!(outbox_rows, 2);
+    assert_eq!(sweep.retained_count, 0);
+    assert!(remaining.is_empty());
+    assert_eq!(
+        expired_job_ids,
+        [
+            duplicate_job.queue_job_id.as_str(),
+            other_job.queue_job_id.as_str()
+        ]
+    );
+}
+
+#[test]
+fn screen_evidence_queue_durably_replaces_outbox_across_updates_acknowledgements_and_restart() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let key = JournalKey::from_bytes([5; JOURNAL_KEY_BYTES]);
+    let queue = ScreenEvidenceQueue::open(&directory, key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
+    let first_job = screen_queue_job();
+    let second_job = screen_queue_job_with_id("screen-outbox-second-expired-job");
+
+    queue
+        .append_encrypted_image(&first_job, b"first-expired-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let first_sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .append_encrypted_image(&second_job, b"second-expired-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let updated_sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let acknowledged = queue
+        .acknowledge_expired_entries(std::slice::from_ref(&first_job.queue_job_id))
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let restarted = ScreenEvidenceQueue::open(&directory, key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
+    let recovered = restarted
+        .remove_expired_entries(
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let second_acknowledged = restarted
+        .acknowledge_expired_entries(std::slice::from_ref(&second_job.queue_job_id))
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let final_restart =
+        ScreenEvidenceQueue::open(&directory, key).expect_value(constants::error::JOURNAL_OPENS);
+    let final_sweep = final_restart
+        .remove_expired_entries(
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(first_sweep.expired_entries.len(), 1);
+    assert_eq!(updated_sweep.expired_entries.len(), 2);
+    assert_eq!(acknowledged, 1);
+    assert_eq!(recovered.expired_entries.len(), 1);
+    assert_eq!(
+        recovered.expired_entries[0].queue_job_id,
+        second_job.queue_job_id
+    );
+    assert_eq!(second_acknowledged, 1);
+    assert_eq!(final_sweep.expired_entries.len(), 0);
+}
+
+#[test]
 fn screen_evidence_queue_removes_processed_entries_without_touching_pending_entries() {
     let directory = temp_queue_dir();
     let _ = remove_dir_all(&directory);
@@ -221,6 +345,570 @@ fn screen_evidence_queue_removes_processed_entries_without_touching_pending_entr
         entry.image_bytes,
         constants::activity_store::TEST_SCREEN_SUMMARY.as_bytes()
     );
+}
+
+#[test]
+fn screen_evidence_queue_sweeps_malformed_expiry_fail_closed() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([4; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let malformed_job = screen_queue_job_with_expiry(
+        constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID,
+        "not-a-timestamp",
+    );
+    queue
+        .append_encrypted_image(&malformed_job, b"malformed-expiry")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(sweep.expired_entries.len(), 1);
+    assert_eq!(sweep.retained_count, 0);
+    assert_eq!(
+        sweep.expired_entries[0].queue_job_id,
+        malformed_job.queue_job_id
+    );
+}
+
+#[test]
+fn screen_evidence_queue_serializes_concurrent_appends() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue = Arc::new(
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([3; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS),
+    );
+    let mut workers = Vec::new();
+    for index in 0..8 {
+        let queue = Arc::clone(&queue);
+        workers.push(thread::spawn(move || {
+            let queue_job_id = format!(
+                "{}-{index}",
+                constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID
+            );
+            let job = screen_queue_job_with_id(queue_job_id);
+            queue.append_encrypted_image(&job, b"concurrent-image")
+        }));
+    }
+    for worker in workers {
+        worker
+            .join()
+            .expect_value(constants::error::JOURNAL_APPENDS)
+            .expect_value(constants::error::JOURNAL_APPENDS);
+    }
+    let entries = queue
+        .read_decrypted_entries(16)
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(entries.len(), 8);
+}
+
+#[test]
+fn screen_evidence_queue_quarantines_malformed_rows_without_blocking_valid_expiry() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([25; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let expired_job = screen_queue_job();
+    queue
+        .append_encrypted_image(&expired_job, b"expired-valid-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let queue_contents = read_to_string(queue.path()).expect_value(constants::error::JOURNAL_READS);
+    let mut malformed_record: Value = serde_json::from_str(
+        queue_contents
+            .lines()
+            .next()
+            .expect_value(constants::error::JOURNAL_READS),
+    )
+    .expect_value(constants::error::JOURNAL_READS);
+    assert_eq!(
+        malformed_record[constants::field::CIPHERTEXT]
+            .as_str()
+            .map(str::is_empty),
+        Some(false)
+    );
+    assert_eq!(
+        malformed_record[constants::field::NONCE]
+            .as_str()
+            .map(str::is_empty),
+        Some(false)
+    );
+    malformed_record[constants::field::SCHEMA_VERSION] =
+        Value::String("invalid-schema-version".to_string());
+    let malformed_record =
+        serde_json::to_string(&malformed_record).expect_value(constants::error::JOURNAL_READS);
+    let malformed_record_digest = format!("{:x}", Sha256::digest(malformed_record.as_bytes()));
+    let mut queue_file = OpenOptions::new()
+        .append(true)
+        .open(queue.path())
+        .expect_value(constants::error::JOURNAL_OPENS);
+    queue_file
+        .write_all(malformed_record.as_bytes())
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue_file
+        .write_all(b"\n")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue_file
+        .sync_all()
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    drop(queue_file);
+
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let remaining = queue
+        .read_decrypted_entries(4)
+        .expect_value(constants::error::JOURNAL_READS);
+    let quarantine = read_to_string(queue.path().with_extension("queue-quarantine"))
+        .expect_value(constants::error::JOURNAL_READS);
+    let quarantined: Value =
+        serde_json::from_str(quarantine.trim()).expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(sweep.expired_entries.len(), 1);
+    assert_eq!(
+        sweep.expired_entries[0].queue_job_id,
+        expired_job.queue_job_id
+    );
+    assert!(remaining.is_empty());
+    assert_eq!(
+        quarantined,
+        json!({
+            "lineNumber": 2,
+            "malformedRecordDigest": malformed_record_digest,
+        })
+    );
+    assert!(quarantined.get("rawRecord").is_none());
+    assert!(quarantined.get(constants::field::CIPHERTEXT).is_none());
+    assert!(quarantined.get(constants::field::NONCE).is_none());
+}
+
+#[test]
+fn screen_evidence_queue_claim_scans_past_an_occupied_prefix() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([26; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let jobs = (0..17)
+        .map(|index| {
+            screen_queue_job_with_expiry(
+                format!("screen-claim-prefix-{index}"),
+                constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            )
+        })
+        .collect::<Vec<_>>();
+    for job in &jobs {
+        queue
+            .append_encrypted_image(job, b"claim-prefix-image")
+            .expect_value(constants::error::JOURNAL_APPENDS);
+    }
+    for _ in 0..16 {
+        queue
+            .claim_first_decrypted_entry(
+                16,
+                constants::activity_store::TEST_FIRST_OBSERVED_AT,
+                constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            )
+            .expect_value(constants::error::JOURNAL_READS)
+            .expect_value(constants::error::JOURNAL_READS);
+    }
+
+    let claimed = queue
+        .claim_first_decrypted_entry(
+            16,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(
+        claimed.map(|entry| entry.queue_job_id),
+        Some(jobs[16].queue_job_id.clone())
+    );
+}
+
+#[test]
+fn screen_evidence_queue_missing_file_is_an_idempotent_removal() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([2; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    std::fs::remove_file(queue.path()).expect_value(constants::error::JOURNAL_APPENDS);
+
+    let removed = queue
+        .remove_entries(&[String::from(
+            constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID,
+        )])
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(removed, 0);
+}
+
+#[test]
+fn screen_evidence_queue_active_analysis_lease_blocks_sweep_and_restart_recovers_expired_lease() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let key = JournalKey::from_bytes([11; JOURNAL_KEY_BYTES]);
+    let queue = ScreenEvidenceQueue::open(&directory, key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
+    let job = screen_queue_job();
+    queue
+        .append_encrypted_image(&job, b"leased-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let claimed = queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let racing_claim = queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let protected = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+
+    let restarted =
+        ScreenEvidenceQueue::open(&directory, key).expect_value(constants::error::JOURNAL_OPENS);
+    let lease_path = restarted.path().with_extension("analysis-leases");
+    let recovered = restarted
+        .remove_expired_entries(
+            "2099-01-01T00:00:00Z",
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let remaining_leases = std::fs::read_to_string(&lease_path).unwrap_or_default();
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(
+        claimed.map(|entry| entry.queue_job_id),
+        Some(job.queue_job_id.clone())
+    );
+    assert!(racing_claim.is_none());
+    assert!(protected.expired_entries.is_empty());
+    assert_eq!(protected.retained_count, 1);
+    assert_eq!(recovered.expired_entries.len(), 1);
+    assert_eq!(recovered.expired_entries[0].queue_job_id, job.queue_job_id);
+    assert!(remaining_leases.trim().is_empty());
+}
+
+#[test]
+fn screen_evidence_queue_refuses_to_lease_already_expired_entries() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([18; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let job = screen_queue_job_with_expiry(
+        "screen-expired-before-claim",
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    );
+    queue
+        .append_encrypted_image(&job, b"expired-before-claim")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let claimed = queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert!(claimed.is_none());
+    assert_eq!(sweep.expired_entries.len(), 1);
+}
+
+#[test]
+fn screen_evidence_queue_quarantines_malformed_leases_and_keeps_claiming() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([19; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    queue
+        .append_encrypted_image(&screen_queue_job(), b"lease-recovery")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let lease_path = queue.path().with_extension("analysis-leases");
+    std::fs::write(&lease_path, b"{malformed-lease\n")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let claimed = queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let quarantine_path = lease_path.with_extension("analysis-leases.quarantine");
+    let quarantine_exists = quarantine_path.is_file();
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(
+        claimed.map(|entry| entry.queue_job_id),
+        Some(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string())
+    );
+    assert!(quarantine_exists);
+}
+
+#[test]
+fn screen_evidence_queue_renewed_lease_stays_valid_for_the_running_job() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([20; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let job = screen_queue_job_with_expiry(
+        "screen-renewed-analysis-lease",
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    );
+    queue
+        .append_encrypted_image(&job, b"renewed-lease")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS)
+        .expect_value(constants::error::JOURNAL_READS);
+    let renewed = queue
+        .renew_claimed_entry(
+            "screen-renewed-analysis-lease",
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert!(renewed);
+    assert!(sweep.expired_entries.is_empty());
+    assert_eq!(sweep.retained_count, 1);
+}
+
+#[test]
+fn screen_evidence_queue_claim_completion_removes_all_duplicate_job_records() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([12; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let job = screen_queue_job();
+    queue
+        .append_encrypted_image(&job, b"claimed-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .append_encrypted_image(&job, b"duplicate-claimed-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS)
+        .expect_value(constants::error::JOURNAL_READS);
+
+    queue
+        .complete_claimed_entry(&job.queue_job_id)
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let remaining = queue
+        .read_decrypted_entries(4)
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert!(remaining.is_empty());
+}
+
+#[test]
+fn screen_evidence_queue_release_claim_keeps_entry_available_for_retry() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([23; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let job = screen_queue_job();
+    queue
+        .append_encrypted_image(&job, b"retryable-claimed-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS)
+        .expect_value(constants::error::JOURNAL_READS);
+    queue
+        .release_claimed_entry(&job.queue_job_id)
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let reclaimed = queue
+        .claim_first_decrypted_entry(
+            1,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(
+        reclaimed.map(|entry| entry.queue_job_id),
+        Some(job.queue_job_id)
+    );
+}
+
+#[test]
+fn screen_evidence_queue_quarantines_corrupt_outbox_and_continues_valid_deletions() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([13; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    let first = screen_queue_job();
+    let second = screen_queue_job_with_id("screen-corrupt-outbox-second");
+    queue
+        .append_encrypted_image(&first, b"first-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let outbox_path = queue.path().with_extension("deletion-outbox");
+    let mut outbox = OpenOptions::new()
+        .append(true)
+        .open(&outbox_path)
+        .expect_value(constants::error::JOURNAL_OPENS);
+    outbox
+        .write_all(b"{not-valid-json}\n")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    outbox
+        .sync_all()
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    drop(outbox);
+    queue
+        .append_encrypted_image(&second, b"second-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let retry = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let acknowledged = queue
+        .acknowledge_outbox_failures(&retry.outbox_failures)
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    let projected = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let quarantine = read_to_string(outbox_path.with_extension("deletion-outbox-quarantine"))
+        .expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(sweep.expired_entries.len(), 2);
+    assert_eq!(sweep.outbox_failures.len(), 1);
+    assert_eq!(retry.outbox_failures, sweep.outbox_failures);
+    assert_eq!(acknowledged, 1);
+    assert!(projected.outbox_failures.is_empty());
+    let quarantined: Value =
+        serde_json::from_str(quarantine.trim()).expect_value(constants::error::JOURNAL_READS);
+    assert_eq!(quarantined["rawRecord"].as_str(), Some("{not-valid-json}"));
+    assert_eq!(quarantined["lineNumber"].as_u64(), Some(2));
+}
+
+#[test]
+fn screen_evidence_queue_noop_poll_preserves_outbox_identity_and_mtime() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([14; JOURNAL_KEY_BYTES]))
+            .expect_value(constants::error::JOURNAL_OPENS);
+    queue
+        .append_encrypted_image(&screen_queue_job(), b"expired-image")
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let outbox_path = queue.path().with_extension("deletion-outbox");
+    let before_metadata =
+        std::fs::metadata(&outbox_path).expect_value(constants::error::JOURNAL_READS);
+    let before_contents =
+        read_to_string(&outbox_path).expect_value(constants::error::JOURNAL_READS);
+
+    let replay = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect_value(constants::error::JOURNAL_READS);
+    let after_metadata =
+        std::fs::metadata(&outbox_path).expect_value(constants::error::JOURNAL_READS);
+    let after_contents = read_to_string(&outbox_path).expect_value(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(replay.expired_entries.len(), 1);
+    assert_eq!(before_contents, after_contents);
+    assert_eq!(
+        before_metadata
+            .modified()
+            .expect_value(constants::error::JOURNAL_READS),
+        after_metadata
+            .modified()
+            .expect_value(constants::error::JOURNAL_READS)
+    );
+    assert_eq!(before_metadata.len(), after_metadata.len());
 }
 
 fn screen_queue_job() -> ScreenAnalysisQueueJob {
