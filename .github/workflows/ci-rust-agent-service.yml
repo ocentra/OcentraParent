@@ -45,3 +45,6 @@ jobs:
 
       - name: Service tests
         run: cargo test -p ocentra-parent-agent-service --all-targets
+
+      - name: Logging core required recovery gate
+        run: cargo test -p ocentra-parent-logging-core --all-targets --all-features

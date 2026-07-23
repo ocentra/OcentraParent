@@ -4,11 +4,12 @@ use std::{
     path::Path,
 };
 
-use crate::ndjson_operation_marker::{
-    marker_content, operation_paths, read_intent_offset, record_matches_at,
-    validate_operation_marker,
-};
+use crate::ndjson_operation_compaction::{compact_commit, compacted_offset};
+use crate::ndjson_operation_marker::{marker_content, record_matches_at};
 use crate::ndjson_operation_marker_publish::write_marker;
+use crate::ndjson_operation_marker_state::{
+    operation_paths, read_commit_offset, read_intent_offset,
+};
 use crate::ndjson_writer::{recover_partial_tail, rollback_append, validate_record};
 
 pub(crate) fn append_operation_locked(
@@ -55,8 +56,16 @@ where
     validate_record(record)?;
     recover_partial_tail(file)?;
     let operation = operation_paths(path, operation_id)?;
-    if operation.commit.exists() {
-        return validate_operation_marker(&operation.commit, operation_id, record);
+    if let Some(offset) = read_commit_offset(&operation.commit, operation_id, record)? {
+        verify_committed_record(file, offset, record)?;
+        compact_commit(&operation, operation_id, record)?;
+        remove_intent(&operation.intent)?;
+        return Ok(());
+    }
+    if let Some(offset) = compacted_offset(&operation, operation_id, record)? {
+        verify_committed_record(file, offset, record)?;
+        remove_intent(&operation.intent)?;
+        return Ok(());
     }
 
     let offset = match read_intent_offset(&operation.intent, operation_id, record)? {
@@ -68,6 +77,8 @@ where
                 &marker_content(operation_id, record, offset),
                 OperationMarkerKind::Commit,
             )?;
+            compact_commit(&operation, operation_id, record)?;
+            remove_intent(&operation.intent)?;
             return Ok(());
         }
         Some(_) => {
@@ -92,7 +103,9 @@ where
         &operation.commit,
         &marker_content(operation_id, record, offset),
         OperationMarkerKind::Commit,
-    )
+    )?;
+    compact_commit(&operation, operation_id, record)?;
+    remove_intent(&operation.intent)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -113,4 +126,14 @@ fn remove_intent(path: &Path) -> io::Result<()> {
         Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
         Err(error) => Err(error),
     }
+}
+
+fn verify_committed_record(file: &mut File, offset: u64, record: &[u8]) -> io::Result<()> {
+    if record_matches_at(file, offset, record)? {
+        return Ok(());
+    }
+    Err(io::Error::new(
+        io::ErrorKind::InvalidData,
+        "committed operation record is missing or corrupted",
+    ))
 }

@@ -1,10 +1,13 @@
 use std::{error::Error, fs};
 
 use ocentra_parent_logging_core::{
-    ndjson_test_support::{
-        append_record_with_fault, append_record_with_marker_fault,
+    artifact_test_support::{
         publish_artifact_with_forced_fallback, publish_artifact_with_forced_fallback_fault,
-        publish_artifact_with_parent_sync_fault, AppendFault, ArtifactFallbackFault,
+        publish_artifact_with_hard_link_fault, publish_artifact_with_parent_sync_fault,
+        ArtifactFallbackFault, HardLinkFault,
+    },
+    ndjson_test_support::{
+        append_record_with_fault, append_record_with_marker_fault, AppendFault,
         OperationMarkerFault,
     },
     ndjson_writer::append_record_for_operation,
@@ -44,6 +47,64 @@ fn artifact_fallback_fault_does_not_delete_preexisting_artifact() {
 fn artifact_replay_retries_parent_directory_sync_before_success() {
     let result = artifact_replay_retries_parent_directory_sync_before_success_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn artifact_hard_link_fallback_handles_permission_errors_but_not_conflicts() {
+    let result = artifact_hard_link_fallback_handles_permission_errors_but_not_conflicts_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn artifact_copy_fallback_recovers_owned_partial_temporary_after_process_death() {
+    let result = artifact_copy_fallback_recovers_owned_partial_temporary_after_process_death_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+fn artifact_hard_link_fallback_handles_permission_errors_but_not_conflicts_impl(
+) -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let fallback_path = root.join("permission-fallback.log");
+    publish_artifact_with_hard_link_fault(
+        &fallback_path,
+        b"permission fallback content",
+        HardLinkFault::PermissionDenied,
+    )?;
+    assert_eq!(fs::read(&fallback_path)?, b"permission fallback content");
+
+    let conflict_path = root.join("already-exists.log");
+    let conflict = expected_artifact_error(publish_artifact_with_hard_link_fault(
+        &conflict_path,
+        b"must not publish",
+        HardLinkFault::AlreadyExists,
+    ))?;
+    assert_eq!(conflict.kind(), std::io::ErrorKind::AlreadyExists);
+    assert!(!conflict_path.exists());
+    Ok(())
+}
+
+fn artifact_copy_fallback_recovers_owned_partial_temporary_after_process_death_impl(
+) -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let path = root.join("crash-recovery.log");
+    let error = expected_artifact_error(publish_artifact_with_forced_fallback_fault(
+        &path,
+        b"complete artifact after restart",
+        ArtifactFallbackFault::Crash,
+    ))?;
+    assert_eq!(
+        error.to_string(),
+        "injected artifact fallback process death"
+    );
+    assert!(!path.exists());
+    assert!(root.join(".crash-recovery.log.copy.tmp").exists());
+
+    publish_artifact_with_forced_fallback(&path, b"complete artifact after restart")?;
+    assert_eq!(fs::read(&path)?, b"complete artifact after restart");
+    assert!(!root.join(".crash-recovery.log.copy.tmp").exists());
+    Ok(())
 }
 
 fn artifact_fallback_failure_removes_partial_destination_and_allows_retry_impl(

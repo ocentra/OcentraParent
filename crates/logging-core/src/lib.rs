@@ -5,8 +5,13 @@ pub mod artifact;
 mod artifact_custody;
 mod artifact_publish;
 mod artifact_publish_copy;
+mod artifact_publish_copy_owned;
+mod artifact_publish_finish;
 mod artifact_publish_lock;
 mod artifact_publish_platform;
+#[cfg(feature = "test-support")]
+#[doc(hidden)]
+pub mod artifact_test_support;
 pub mod bridge_log_runtime;
 pub mod dev_log;
 pub mod diagnostic;
@@ -17,10 +22,14 @@ pub mod level;
 pub mod local_ndjson_log;
 pub mod local_ndjson_log_typescript;
 mod ndjson_operation;
+mod ndjson_operation_compaction;
 #[cfg(feature = "test-support")]
 mod ndjson_operation_fault;
 mod ndjson_operation_marker;
 mod ndjson_operation_marker_publish;
+mod ndjson_operation_marker_publish_state;
+mod ndjson_operation_marker_state;
+mod ndjson_operation_state_cleanup;
 mod ndjson_tail_recovery;
 #[cfg(feature = "test-support")]
 #[doc(hidden)]

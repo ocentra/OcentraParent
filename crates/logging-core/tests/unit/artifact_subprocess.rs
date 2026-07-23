@@ -107,7 +107,7 @@ fn artifact_writer_rejects_each_corrupted_integrity_metadata_field_impl(
         .join("stdout.log.metadata.json");
     let original = fs::read(&metadata_path)?;
     let corruptions = [
-        ("schemaVersion", serde_json::json!(2)),
+        ("schemaVersion", serde_json::json!(3)),
         ("eventType", serde_json::json!("wrong-record")),
         ("artifactId", serde_json::json!("artifact-wrong")),
         ("runId", serde_json::json!("wrong-run")),
@@ -117,7 +117,8 @@ fn artifact_writer_rejects_each_corrupted_integrity_metadata_field_impl(
         ("sha256", serde_json::json!("wrong-sha")),
         ("byteLength", serde_json::json!(999)),
         ("lineCount", serde_json::json!(999)),
-        ("createdAt", serde_json::json!("not-a-timestamp")),
+        ("createdAt", serde_json::json!("2020-01-01T00:00:00Z")),
+        ("custodySha256", serde_json::json!("wrong-custody-digest")),
     ];
     for (field, replacement) in corruptions {
         let mut metadata: serde_json::Value = serde_json::from_slice(&original)?;

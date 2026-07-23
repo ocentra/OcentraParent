@@ -4,6 +4,11 @@ use std::{
     path::Path,
 };
 
+use crate::{
+    artifact_publish_lock::{remove_temporary, temporary_path},
+    ndjson_operation_marker_publish_state::{accept_or_repair_existing, publish_marker},
+};
+
 pub(crate) fn write_marker(path: &Path, content: &str) -> io::Result<()> {
     write_marker_using(
         path,
@@ -55,16 +60,24 @@ where
     W: FnOnce(&mut File, &[u8]) -> io::Result<()>,
     S: FnOnce(&File) -> io::Result<()>,
 {
-    let mut marker = OpenOptions::new().write(true).create_new(true).open(path)?;
+    if accept_or_repair_existing(path, content.as_bytes())? {
+        return Ok(());
+    }
+    let temporary = temporary_path(path)?;
+    remove_temporary(&temporary)?;
+    let mut marker = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&temporary)?;
     let result = write_content(&mut marker, content.as_bytes()).and_then(|_| sync_marker(&marker));
     drop(marker);
     match result {
-        Ok(()) => Ok(()),
-        Err(error) => remove_failed_marker(path, error),
+        Ok(()) => publish_marker(&temporary, path, content.as_bytes()),
+        Err(error) => remove_failed_marker(&temporary, error),
     }
 }
 
-fn remove_failed_marker(path: &Path, marker_error: io::Error) -> io::Result<()> {
+pub(crate) fn remove_failed_marker(path: &Path, marker_error: io::Error) -> io::Result<()> {
     match remove_file(path) {
         Ok(()) => Err(marker_error),
         Err(error) if error.kind() == io::ErrorKind::NotFound => Err(marker_error),

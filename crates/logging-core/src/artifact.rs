@@ -12,7 +12,7 @@ use crate::{
     path::{path_string, sanitize_segment, timestamp_now},
 };
 
-pub const ARTIFACT_SCHEMA_VERSION: u16 = 1;
+pub const ARTIFACT_SCHEMA_VERSION: u16 = 2;
 pub const ARTIFACT_RECORD_TYPE: &str = "artifact";
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -40,6 +40,7 @@ pub struct ArtifactRef {
     pub byte_length: u64,
     pub line_count: u64,
     pub created_at: String,
+    pub custody_sha256: String,
 }
 
 pub struct ArtifactWriter {
@@ -89,7 +90,7 @@ fn build_artifact_ref(
     command_id: String,
 ) -> ArtifactRef {
     let sha256 = format!("{:x}", Sha256::digest(content.as_bytes()));
-    ArtifactRef {
+    let mut artifact = ArtifactRef {
         schema_version: ARTIFACT_SCHEMA_VERSION,
         record_type: ARTIFACT_RECORD_TYPE.to_owned(),
         artifact_id: format!("artifact-{}", &sha256[..12]),
@@ -101,7 +102,10 @@ fn build_artifact_ref(
         byte_length: content.len() as u64,
         line_count: content.lines().count() as u64,
         created_at: timestamp_now(),
-    }
+        custody_sha256: String::new(),
+    };
+    artifact.custody_sha256 = crate::artifact_custody::custody_sha256(&artifact);
+    artifact
 }
 
 fn kind_file_name(kind: &ArtifactKind) -> &'static str {

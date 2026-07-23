@@ -5,6 +5,7 @@ use std::{
 };
 
 use crate::{
+    artifact_publish_finish::{compare_existing, finish_publication},
     artifact_publish_lock::{remove_temporary, temporary_path},
     artifact_publish_platform::{publish_temporary, sync_parent},
 };
@@ -49,6 +50,24 @@ pub(crate) fn publish_immutable_with_fallback_fault(
 }
 
 #[cfg(feature = "test-support")]
+pub(crate) fn publish_immutable_with_link_error(
+    path: &Path,
+    content: &[u8],
+    kind: io::ErrorKind,
+) -> io::Result<()> {
+    publish_immutable_using(
+        path,
+        content,
+        |temporary, path| {
+            crate::artifact_publish_platform::publish_temporary_with_link_error(
+                temporary, path, kind,
+            )
+        },
+        sync_parent,
+    )
+}
+
+#[cfg(feature = "test-support")]
 pub(crate) fn publish_immutable_with_parent_sync_fault(
     path: &Path,
     content: &[u8],
@@ -85,36 +104,6 @@ where
     let result = publish(&temporary, path);
     let cleanup = remove_temporary(&temporary);
     finish_publication(result, cleanup, path, content, sync)
-}
-
-fn finish_publication<S>(
-    result: io::Result<()>,
-    cleanup: io::Result<()>,
-    path: &Path,
-    content: &[u8],
-    sync: S,
-) -> io::Result<()>
-where
-    S: FnOnce(&Path) -> io::Result<()>,
-{
-    match result {
-        Ok(()) => cleanup.and_then(|_| sync(path)),
-        Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
-            compare_existing(&read(path)?, content).and_then(|_| sync(path))
-        }
-        Err(error) => Err(error),
-    }
-}
-
-fn compare_existing(existing: &[u8], content: &[u8]) -> io::Result<()> {
-    if existing == content {
-        Ok(())
-    } else {
-        Err(io::Error::new(
-            io::ErrorKind::AlreadyExists,
-            "artifact path already contains different content",
-        ))
-    }
 }
 
 fn write_temporary(path: &Path, content: &[u8]) -> io::Result<()> {

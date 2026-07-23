@@ -24,6 +24,9 @@ mod artifact_subprocess;
 mod concurrency_artifact;
 #[cfg(feature = "test-support")]
 mod ndjson_failure_recovery;
+mod ndjson_operation_custody;
+#[cfg(feature = "test-support")]
+mod ndjson_operation_state;
 
 #[test]
 fn ndjson_writer_appends_json_lines_in_order() {
@@ -58,6 +61,12 @@ fn path_string_preserves_windows_unc_and_normalizes_extended_drive_paths() {
     assert_eq!(
         path_string(std::path::Path::new(r"\\?\C:\logs\artifact.log")),
         "C:/logs/artifact.log"
+    );
+    assert_eq!(
+        path_string(std::path::Path::new(
+            "//?/UNC/server/share/logs/artifact.log"
+        )),
+        "//server/share/logs/artifact.log"
     );
 }
 

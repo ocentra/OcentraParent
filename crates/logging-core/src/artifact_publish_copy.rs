@@ -1,5 +1,5 @@
 use std::{
-    fs::{remove_file, File, OpenOptions},
+    fs::{File, OpenOptions},
     io::{self, copy},
     path::Path,
 };
@@ -7,11 +7,16 @@ use std::{
 #[cfg(feature = "test-support")]
 use std::io::Read;
 
+use crate::artifact_publish_copy_owned::{
+    copy_temporary_path, publish_owned_temporary, remove_failed_destination, remove_owned_temporary,
+};
+
 #[cfg(feature = "test-support")]
 #[derive(Clone, Copy)]
 pub(crate) enum FallbackPublishFault {
     Copy,
     Sync,
+    Crash,
 }
 
 pub(crate) fn copy_without_replacement(temporary: &Path, path: &Path) -> io::Result<()> {
@@ -45,6 +50,7 @@ pub(crate) fn copy_without_replacement_with_fault(
             |source, destination| copy(source, destination).map(|_| ()),
             |_destination| Err(io::Error::other("injected artifact fallback sync failure")),
         ),
+        FallbackPublishFault::Crash => leave_partial_owned_temporary(temporary, path),
     }
 }
 
@@ -59,25 +65,31 @@ where
     S: FnOnce(&File) -> io::Result<()>,
 {
     let mut source = File::open(temporary)?;
-    let mut destination = OpenOptions::new().write(true).create_new(true).open(path)?;
+    let owned_temporary = copy_temporary_path(path)?;
+    remove_owned_temporary(&owned_temporary)?;
+    let mut destination = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&owned_temporary)?;
     let result = copy_to_destination(&mut source, &mut destination)
         .and_then(|()| sync_destination(&destination));
     drop(destination);
     match result {
-        Ok(()) => Ok(()),
-        Err(error) => remove_failed_destination(path, error),
+        Ok(()) => publish_owned_temporary(&owned_temporary, path),
+        Err(error) => remove_failed_destination(&owned_temporary, error),
     }
 }
 
-fn remove_failed_destination(path: &Path, publication_error: io::Error) -> io::Result<()> {
-    match remove_file(path) {
-        Ok(()) => Err(publication_error),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Err(publication_error),
-        Err(cleanup_error) => Err(io::Error::new(
-            cleanup_error.kind(),
-            format!(
-                "artifact fallback failed ({publication_error}) and partial destination cleanup failed ({cleanup_error})"
-            ),
-        )),
-    }
+#[cfg(feature = "test-support")]
+fn leave_partial_owned_temporary(temporary: &Path, path: &Path) -> io::Result<()> {
+    let owned_temporary = copy_temporary_path(path)?;
+    remove_owned_temporary(&owned_temporary)?;
+    let source = File::open(temporary)?;
+    let mut destination = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(owned_temporary)?;
+    copy(&mut source.take(1), &mut destination)?;
+    destination.sync_all()?;
+    Err(io::Error::other("injected artifact fallback process death"))
 }

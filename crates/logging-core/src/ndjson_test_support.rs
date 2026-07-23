@@ -1,6 +1,6 @@
 use std::{
     fs::{create_dir_all, OpenOptions},
-    io,
+    io::{self, Cursor, Read, Seek, SeekFrom},
     path::Path,
 };
 
@@ -8,12 +8,6 @@ use crate::ndjson_operation::{append_operation_with_fault, FaultPoint};
 use crate::ndjson_operation_fault::{
     append_operation_with_marker_fault, OperationMarkerFault as InternalOperationMarkerFault,
 };
-
-#[derive(Clone, Copy)]
-pub enum ArtifactFallbackFault {
-    Copy,
-    Sync,
-}
 
 #[derive(Clone, Copy)]
 pub enum AppendFault {
@@ -27,26 +21,6 @@ pub enum OperationMarkerFault {
     IntentSync,
     CommitWrite,
     CommitSync,
-}
-
-pub fn publish_artifact_with_forced_fallback(path: &Path, content: &[u8]) -> io::Result<()> {
-    crate::artifact_publish::publish_immutable_with_fallback(path, content, true)
-}
-
-pub fn publish_artifact_with_forced_fallback_fault(
-    path: &Path,
-    content: &[u8],
-    fault: ArtifactFallbackFault,
-) -> io::Result<()> {
-    let fault = match fault {
-        ArtifactFallbackFault::Copy => crate::artifact_publish_copy::FallbackPublishFault::Copy,
-        ArtifactFallbackFault::Sync => crate::artifact_publish_copy::FallbackPublishFault::Sync,
-    };
-    crate::artifact_publish::publish_immutable_with_fallback_fault(path, content, fault)
-}
-
-pub fn publish_artifact_with_parent_sync_fault(path: &Path, content: &[u8]) -> io::Result<()> {
-    crate::artifact_publish::publish_immutable_with_parent_sync_fault(path, content)
 }
 
 pub fn append_record_with_fault(
@@ -100,6 +74,33 @@ pub fn append_record_with_marker_fault(
     let result = append_operation_with_marker_fault(&mut file, path, operation_id, record, fault);
     let unlock_result = file.unlock();
     result.and(unlock_result)
+}
+
+pub fn record_matches_with_short_reads(record: &[u8]) -> io::Result<bool> {
+    let cursor = Cursor::new(record.to_vec());
+    let mut reader = OneByteReader { inner: cursor };
+    crate::ndjson_operation_marker::record_matches_at(&mut reader, 0, record)
+}
+
+pub fn operation_state_entry_count(path: &Path) -> io::Result<usize> {
+    crate::ndjson_operation_state_cleanup::operation_state_entry_count(path)
+}
+
+struct OneByteReader<R> {
+    inner: R,
+}
+
+impl<R: Read> Read for OneByteReader<R> {
+    fn read(&mut self, buffer: &mut [u8]) -> io::Result<usize> {
+        let length = buffer.len().min(1);
+        self.inner.read(&mut buffer[..length])
+    }
+}
+
+impl<R: Seek> Seek for OneByteReader<R> {
+    fn seek(&mut self, position: SeekFrom) -> io::Result<u64> {
+        self.inner.seek(position)
+    }
 }
 
 fn fault_matches(fault: AppendFault, point: FaultPoint) -> bool {

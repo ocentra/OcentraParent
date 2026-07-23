@@ -70,7 +70,8 @@ pub(crate) fn validate_replay(
         && artifact.sha256 == sha256
         && artifact.byte_length == content.len() as u64
         && artifact.line_count == content.lines().count() as u64
-        && chrono::DateTime::parse_from_rfc3339(&artifact.created_at).is_ok();
+        && chrono::DateTime::parse_from_rfc3339(&artifact.created_at).is_ok()
+        && artifact.custody_sha256 == custody_sha256(artifact);
     if !metadata_matches {
         return Err(io::Error::new(
             io::ErrorKind::InvalidData,
@@ -78,6 +79,23 @@ pub(crate) fn validate_replay(
         ));
     }
     Ok(())
+}
+
+pub(crate) fn custody_sha256(artifact: &ArtifactRef) -> String {
+    let canonical = serde_json::json!({
+        "schemaVersion": artifact.schema_version,
+        "eventType": artifact.record_type,
+        "artifactId": artifact.artifact_id,
+        "runId": artifact.run_id,
+        "commandId": artifact.command_id,
+        "path": artifact.artifact_path,
+        "kind": artifact.kind,
+        "sha256": artifact.sha256,
+        "byteLength": artifact.byte_length,
+        "lineCount": artifact.line_count,
+        "createdAt": artifact.created_at,
+    });
+    format!("{:x}", Sha256::digest(canonical.to_string().as_bytes()))
 }
 
 fn ensure_safe_root(root: &Path) -> io::Result<PathBuf> {

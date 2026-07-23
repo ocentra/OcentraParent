@@ -73,10 +73,11 @@ pub fn append_record_for_operation(
     operation_id: &str,
     record: &[u8],
 ) -> io::Result<()> {
-    if operation_id.trim().is_empty() {
+    if operation_id.trim().is_empty() || operation_id.contains('\r') || operation_id.contains('\n')
+    {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            "operation id is required",
+            "operation id must be nonblank and contain no line breaks",
         ));
     }
     if let Some(parent) = path.parent() {
@@ -93,6 +94,10 @@ pub fn append_record_for_operation(
         crate::ndjson_operation::append_operation_locked(&mut file, path, operation_id, record);
     let unlock_result = file.unlock();
     result.and(unlock_result)
+}
+
+pub fn remove_record_file_with_operation_state(path: &Path) -> io::Result<()> {
+    crate::ndjson_operation_state_cleanup::remove_operation_state(path)
 }
 
 fn lock_and_append(file: &mut File, record: &[u8]) -> io::Result<()> {
