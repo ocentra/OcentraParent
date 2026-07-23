@@ -175,8 +175,7 @@ including `scripts/dev/agent-run.mjs`, `scripts/dev/agent-query.mjs`,
 `npm run validate:logging` and `npm run test:logging-evidence` both passed,
 showing the slice is at least partially wired.
 
-The appended completion block remained stale because the named proof root
-`output/logging-domain-parity-proof/05-local-validation-evidence/` is absent in
-this checkout, and this audit pass did not recreate the original proof pack.
-Treat WP05 as source-present with focused validation signal, but not fully
-proved complete.
+The canonical root now records a real controlled pass/fail wrapper run, compact
+query/evidence output, and the resulting local artifact, NDJSON, and DuckDB
+paths. Treat WP05 as partial-proof, not fully proved complete: the root does
+not yet prove every required diagnostic-parser class or checklist row.

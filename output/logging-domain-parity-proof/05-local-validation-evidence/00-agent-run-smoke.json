@@ -1,0 +1,9 @@
+{
+  "workpack": "WP05",
+  "run": "run-20260723230754-369f6e52",
+  "command": ["node", "-e", "process.exit(0)"],
+  "status": "passed",
+  "exitCode": 0,
+  "diagnosticCount": 0,
+  "evidenceRoot": "test-results/logging-domain-parity-wp05-runtime/parent-codex"
+}

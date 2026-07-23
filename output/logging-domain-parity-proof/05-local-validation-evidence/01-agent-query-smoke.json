@@ -1,0 +1,9 @@
+{
+  "workpack": "WP05",
+  "command": ["npm", "run", "agent:query", "--", "latest-failures"],
+  "status": "passed",
+  "queriedRun": "run-20260723230755-b74a97b5",
+  "queriedCommand": "cmd-813d1e4f-f65",
+  "exitCode": 2,
+  "diagnosticSignature": "exit-code:2"
+}

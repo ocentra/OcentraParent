@@ -1,0 +1,7 @@
+# WP05 compact evidence smoke
+
+Command: `npm run codex:evidence -- latest-failures`
+
+The command returned a compact evidence packet for `run-20260723230755-b74a97b5`.
+It included the failed command, exact `exit-code:2` diagnostic, and local metadata,
+stdout, and stderr artifact references without printing raw artifact contents.

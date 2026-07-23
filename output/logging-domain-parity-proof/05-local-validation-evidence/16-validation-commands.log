@@ -1,0 +1,10 @@
+2026-07-23 WP05 local validation evidence
+
+PASS npm run validate:logging
+PASS npm run test:logging-evidence
+PASS npm run agent:run -- node -e "process.exit(0)" (exit 0)
+PASS npm run agent:run -- node -e "process.stderr.write('wp05 intentional failure'); process.exit(2)" (wrapper preserved exit 2)
+PASS npm run agent:query -- latest-failures
+PASS npm run codex:evidence -- latest-failures
+
+No product telemetry, production support, or runtime logging readiness claim is made.

@@ -1,0 +1,9 @@
+{
+  "runId": "run-20260723230755-b74a97b5",
+  "commandId": "cmd-813d1e4f-f65",
+  "metadata": "test-results/logging-domain-parity-wp05-runtime/parent-codex/artifacts/run-20260723230755-b74a97b5/cmd-813d1e4f-f65/metadata.json",
+  "stdout": "test-results/logging-domain-parity-wp05-runtime/parent-codex/artifacts/run-20260723230755-b74a97b5/cmd-813d1e4f-f65/stdout.log",
+  "stderr": "test-results/logging-domain-parity-wp05-runtime/parent-codex/artifacts/run-20260723230755-b74a97b5/cmd-813d1e4f-f65/stderr.log",
+  "ndjson": ["agent-run", "diagnostics", "artifacts"],
+  "duckDb": "test-results/logging-domain-parity-wp05-runtime/parent-codex/db/agent-evidence.duckdb"
+}

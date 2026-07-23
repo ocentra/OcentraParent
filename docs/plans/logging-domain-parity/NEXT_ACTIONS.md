@@ -31,7 +31,7 @@
 Current status:
 
 ```text
-WP06 has a canonical proof root plus live agent-query/MCP proof-inventory detection, and WP08 has its canonical partial-proof root; the remaining proof-inventory restoration queue is the still-missing WP01/WP02/WP04/WP05/WP09 roots
+WP05, WP06, and WP08 have canonical bounded proof roots; the remaining proof-inventory restoration queue is the still-missing WP01/WP02/WP04/WP09 roots
 ```
 
 Expected result:
