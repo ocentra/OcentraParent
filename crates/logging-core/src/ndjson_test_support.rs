@@ -136,6 +136,25 @@ pub fn operation_compaction_cache_counts(path: &Path) -> io::Result<(usize, usiz
     crate::ndjson_operation_compaction_cache::cache_counts(&directory.join("commits.state"))
 }
 
+pub fn replace_operation_state_without_cache_notice(path: &Path) -> io::Result<()> {
+    use std::io::Write;
+
+    let directory = crate::ndjson_operation_marker_state::operation_directory(path)?;
+    let compacted = directory.join("commits.state");
+    let previous_len = std::fs::metadata(&compacted)?.len() as usize;
+    crate::artifact_publish_lock::remove_temporary(path)?;
+    std::fs::remove_dir_all(&directory)?;
+    std::fs::create_dir_all(&directory)?;
+    let row = b"{\"key\":\"replacement-key\",\"marker\":\"replacement-marker\"}\n";
+    let content = row.repeat(previous_len / row.len() + 1);
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(compacted)?;
+    file.write_all(&content)?;
+    file.sync_all()
+}
+
 struct OneByteReader<R> {
     inner: R,
 }

@@ -5,7 +5,8 @@ use ocentra_parent_logging_core::{
     ndjson_test_support::{
         forget_operation_compaction_cache, operation_compaction_cache_counts,
         operation_compaction_scan_bytes, operation_state_entry_count,
-        record_matches_with_short_reads, seed_operation_compaction_cache,
+        record_matches_with_short_reads, replace_operation_state_without_cache_notice,
+        seed_operation_compaction_cache,
     },
     ndjson_writer::{append_record_for_operation, remove_record_file_with_operation_state},
 };
@@ -121,6 +122,11 @@ fn ndjson_operation_indexes_compacted_commits_without_repeated_full_scans_impl(
     assert!(!root
         .join(".indexed-operations.ndjson.operations/commits.ndjson")
         .exists());
+
+    replace_operation_state_without_cache_notice(&path)?;
+    let replacement = b"{\"indexed\":\"replacement\"}\n";
+    append_record_for_operation(&path, "indexed-0", replacement)?;
+    assert_eq!(fs::read(&path)?, replacement);
     Ok(())
 }
 

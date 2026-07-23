@@ -10,10 +10,18 @@ use crate::ndjson_operation_compaction_bloom::CommitBloom;
 const MAX_CACHED_PATHS: usize = 8;
 const MAX_HOT_MARKERS: usize = 4 * 1024;
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) struct CommitFileIdentity {
+    volume: u64,
+    index: u64,
+    generation: u64,
+}
+
 #[derive(Default)]
 pub(crate) struct CachedCommitIndex {
     pub(crate) markers: HashMap<String, String>,
     membership: CommitBloom,
+    identity: Option<CommitFileIdentity>,
     pub(crate) scanned_len: u64,
     #[cfg(feature = "test-support")]
     pub(crate) scanned_bytes: u64,
@@ -23,7 +31,15 @@ impl CachedCommitIndex {
     pub(crate) fn clear(&mut self) {
         self.markers.clear();
         self.membership.clear();
+        self.identity = None;
         self.scanned_len = 0;
+    }
+
+    pub(crate) fn prepare(&mut self, identity: CommitFileIdentity, file_len: u64) {
+        if self.identity != Some(identity) || file_len < self.scanned_len {
+            self.clear();
+            self.identity = Some(identity);
+        }
     }
 
     pub(crate) fn record_marker(&mut self, key: String, marker: String) {
@@ -38,6 +54,46 @@ impl CachedCommitIndex {
 
     pub(crate) fn might_contain(&self, key: &str) -> bool {
         self.membership.might_contain(key)
+    }
+}
+
+#[cfg(unix)]
+pub(crate) fn commit_file_identity(metadata: &std::fs::Metadata) -> CommitFileIdentity {
+    use std::os::unix::fs::MetadataExt;
+
+    CommitFileIdentity {
+        volume: metadata.dev(),
+        index: metadata.ino(),
+        generation: 0,
+    }
+}
+
+#[cfg(windows)]
+pub(crate) fn commit_file_identity(metadata: &std::fs::Metadata) -> CommitFileIdentity {
+    use std::os::windows::fs::MetadataExt;
+
+    CommitFileIdentity {
+        volume: 0,
+        index: 0,
+        generation: metadata.creation_time(),
+    }
+}
+
+#[cfg(not(any(unix, windows)))]
+pub(crate) fn commit_file_identity(metadata: &std::fs::Metadata) -> CommitFileIdentity {
+    use std::time::UNIX_EPOCH;
+
+    let generation = metadata
+        .created()
+        .or_else(|_| metadata.modified())
+        .ok()
+        .and_then(|time| time.duration_since(UNIX_EPOCH).ok())
+        .map(|duration| duration.as_nanos() as u64)
+        .unwrap_or(0);
+    CommitFileIdentity {
+        volume: 0,
+        index: 0,
+        generation,
     }
 }
 

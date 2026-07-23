@@ -1,4 +1,4 @@
-use std::io;
+use std::{fs::OpenOptions, io};
 
 use crate::{
     artifact_publish_lock::remove_temporary,
@@ -20,6 +20,11 @@ pub(crate) fn compact_commit(
             .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
         append_compacted_marker(&paths.compacted, &paths.key, marker)?;
     }
+    OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(&paths.compacted)?
+        .sync_data()?;
     sync_parent(&paths.compacted)?;
     remove_temporary(&paths.commit)?;
     sync_parent(&paths.compacted)?;

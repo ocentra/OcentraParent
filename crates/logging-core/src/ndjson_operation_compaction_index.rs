@@ -7,7 +7,9 @@ use std::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ndjson_operation_compaction_cache::{with_commit_index, CachedCommitIndex},
+    ndjson_operation_compaction_cache::{
+        commit_file_identity, with_commit_index, CachedCommitIndex, CommitFileIdentity,
+    },
     ndjson_tail_recovery::recover_partial_tail,
 };
 
@@ -24,9 +26,11 @@ pub(crate) fn compacted_marker(path: &Path, key: &str) -> io::Result<Option<Stri
         Err(error) => return Err(error),
     };
     recover_partial_tail(&mut file)?;
-    let file_len = file.metadata()?.len();
+    let metadata = file.metadata()?;
+    let file_len = metadata.len();
+    let identity = commit_file_identity(&metadata);
     with_commit_index(path, |index| {
-        refresh_index(&mut file, file_len, index)?;
+        refresh_index(&mut file, file_len, identity, index)?;
         if let Some(marker) = index.markers.get(key) {
             return Ok(Some(marker.clone()));
         }
@@ -61,7 +65,9 @@ pub(crate) fn append_compacted_marker(path: &Path, key: &str, marker: &str) -> i
     file.write_all(b"\n")?;
     file.sync_data()?;
     let end = file.stream_position()?;
+    let identity = commit_file_identity(&file.metadata()?);
     with_commit_index(path, |index| {
+        index.prepare(identity, start);
         if index.scanned_len == start {
             index.record_marker(key.to_owned(), marker.to_owned());
             index.scanned_len = end;
@@ -73,11 +79,10 @@ pub(crate) fn append_compacted_marker(path: &Path, key: &str, marker: &str) -> i
 fn refresh_index(
     file: &mut std::fs::File,
     file_len: u64,
+    identity: CommitFileIdentity,
     index: &mut CachedCommitIndex,
 ) -> io::Result<()> {
-    if file_len < index.scanned_len {
-        index.clear();
-    }
+    index.prepare(identity, file_len);
     let start = index.scanned_len;
     file.seek(SeekFrom::Start(start))?;
     for line in BufReader::new(file).lines() {

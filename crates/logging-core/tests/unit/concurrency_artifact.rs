@@ -79,7 +79,11 @@ fn ndjson_operation_state_cleanup_waits_for_the_stream_lock_impl() -> Result<(),
     fs::create_dir_all(&root)?;
     let path = root.join("cleanup-lock.ndjson");
     append_record_for_operation(&path, "cleanup-lock", b"{\"locked\":true}\n")?;
-    let lock_file = fs::OpenOptions::new().read(true).write(true).open(&path)?;
+    let lock_path = root.join(".cleanup-lock.ndjson.operations.lock");
+    let lock_file = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(lock_path)?;
     lock_file.lock()?;
 
     let cleanup_path = path.clone();

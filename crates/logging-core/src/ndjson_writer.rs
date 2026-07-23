@@ -65,8 +65,10 @@ pub fn append_record(path: &std::path::Path, record: &[u8]) -> io::Result<()> {
     if let Some(parent) = path.parent() {
         create_dir_all(parent)?;
     }
-    let mut file = open_append_file(path)?;
-    lock_and_append(&mut file, record)
+    crate::ndjson_operation_state_lock::with_stream_lock(path, || {
+        let mut file = open_append_file(path)?;
+        lock_and_append(&mut file, record)
+    })
 }
 
 pub fn append_record_for_operation(
@@ -84,6 +86,16 @@ pub fn append_record_for_operation(
     if let Some(parent) = path.parent() {
         create_dir_all(parent)?;
     }
+    crate::ndjson_operation_state_lock::with_stream_lock(path, || {
+        append_record_for_operation_stream_locked(path, operation_id, record)
+    })
+}
+
+fn append_record_for_operation_stream_locked(
+    path: &Path,
+    operation_id: &str,
+    record: &[u8],
+) -> io::Result<()> {
     let mut file = open_append_file(path)?;
     file.lock()?;
     let result =
