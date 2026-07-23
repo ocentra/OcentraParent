@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Generated/thin validation and edge-decoder helpers over Rust-owned contracts.",
   "exports": {
+    "./app-runtime-decision": {
+      "import": "./dist/app-runtime-decision.js",
+      "types": "./dist/app-runtime-decision.d.ts"
+    },
     "./app-game-policy-preview-handoff": {
       "import": "./dist/app-game-policy-preview-handoff.js",
       "types": "./dist/app-game-policy-preview-handoff.d.ts"

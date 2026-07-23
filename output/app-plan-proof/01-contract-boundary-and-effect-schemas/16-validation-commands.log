@@ -1,0 +1,215 @@
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: app-core
+command: cargo test -p ocentra-app-core --test contract_runtime_decision
+exit: 0
+result: pass
+artifact: local command output
+diagnostics_summary: Rust identifier negatives and shared serialized golden passed, 2 tests
+source_custody_note: opaque app aggregate and runtime-decision identifiers only
+platform_note: platform runtime not selected
+no_claim: does not prove production event publication
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: npm run test --workspace @ocentra-parent/schema-domain -- app-runtime-decision
+exit: 0
+result: pass
+artifact: local Vitest output
+diagnostics_summary: Rust golden decode and five negative boundary cases passed, 6 tests
+source_custody_note: shared checked-in Rust serialization golden
+platform_note: platform runtime not selected
+no_claim: does not prove a live TypeScript consumer
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: app-core
+command: cargo test -p ocentra-app-core
+exit: 0
+result: pass
+artifact: local cargo test output
+diagnostics_summary: 14 app-core contract, invariant, and unit tests passed
+source_custody_note: typed Rust event and opaque identifiers
+platform_note: platform runtime not selected
+no_claim: crate tests do not prove service wiring
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: app-core
+command: cargo clippy -p ocentra-app-core --all-targets -- -D warnings
+exit: 0
+result: pass
+artifact: local cargo clippy output
+diagnostics_summary: strict focused Clippy passed
+source_custody_note: n/a
+platform_note: n/a
+no_claim: no broad workspace Clippy claim
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: npm run build --workspace @ocentra-parent/schema-domain
+exit: 0
+result: pass
+artifact: local TypeScript build output
+diagnostics_summary: edge decoder and public export compiled
+source_custody_note: n/a
+platform_note: n/a
+no_claim: build does not prove runtime consumption
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: npm run type-check --workspace @ocentra-parent/schema-domain
+exit: 0
+result: pass
+artifact: local TypeScript type-check output
+diagnostics_summary: schema-domain type-check passed
+source_custody_note: n/a
+platform_note: n/a
+no_claim: type-check does not prove runtime consumption
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: app-core and schema-domain
+command: npm run lint:architecture -- --files crates/app-core/Cargo.toml crates/app-core/src/runtime_decision.rs crates/app-core/src/runtime_ids.rs crates/app-core/tests/contract/runtime_decision.rs crates/app-core/tests/invariant/runtime_decision.rs packages/schema-domain/package.json packages/schema-domain/src/app-runtime-decision.ts packages/schema-domain/tests/contract/app-runtime-decision.test.ts packages/schema-domain/tests/fixtures/app-runtime-decision-recorded-event.json
+exit: 0
+result: pass
+artifact: local architecture-policy output
+diagnostics_summary: focused architecture policy passed
+source_custody_note: n/a
+platform_note: n/a
+no_claim: no repo-wide architecture sweep
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: app-core and schema-domain
+command: node scripts/check-source-shape.mjs --files crates/app-core/src/runtime_decision.rs crates/app-core/src/runtime_ids.rs packages/schema-domain/src/app-runtime-decision.ts
+exit: 0
+result: pass
+artifact: local source-shape output
+diagnostics_summary: focused production source-shape passed
+source_custody_note: n/a
+platform_note: n/a
+no_claim: no repo-wide source-shape sweep
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: app-core
+command: cargo fmt --all -- --check
+exit: 1
+result: fail
+artifact: local rustfmt diff
+diagnostics_summary: two line-wrap differences in the new Rust contract test
+source_custody_note: n/a
+platform_note: n/a
+no_claim: initial format check was not green
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: app-core
+command: cargo fmt --all -- --check
+exit: 0
+result: pass
+artifact: local rustfmt output
+diagnostics_summary: exact rustfmt wraps applied and recheck passed
+source_custody_note: n/a
+platform_note: n/a
+no_claim: formatting does not prove runtime wiring
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: app-core and schema-domain
+command: git diff --check
+exit: 0
+result: pass
+artifact: local git diff output
+diagnostics_summary: no whitespace errors
+source_custody_note: n/a
+platform_note: n/a
+no_claim: diff check is not product readiness
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: git commit -m "fix(app-core): align app runtime decision contract"
+exit: 1
+result: fail
+artifact: installed pre-commit hook output
+diagnostics_summary: Prettier rejected packages/schema-domain/tests/contract/app-runtime-decision.test.ts
+source_custody_note: n/a
+platform_note: n/a
+no_claim: no commit was created
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: npx prettier --write packages/schema-domain/tests/contract/app-runtime-decision.test.ts
+exit: 0
+result: pass
+artifact: local Prettier output
+diagnostics_summary: exact claimed TypeScript contract test formatted
+source_custody_note: n/a
+platform_note: n/a
+no_claim: formatting does not prove behavior
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: git commit -m "fix(app-core): align app runtime decision contract"
+exit: 1
+result: fail
+artifact: installed pre-commit hook output
+diagnostics_summary: full schema suite reached 123 passing tests but stale ignored dist/child-android-storage-protocol-proof.js failed Vite import analysis
+source_custody_note: ignored composite build output, not product source
+platform_note: Android proof source was not changed by this slice
+no_claim: no commit was created and the failure was outside the claimed source diff
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: npx tsc -b packages/schema-domain/tsconfig.json --force; node scripts/fix-esm-imports.mjs packages/schema-domain/dist; node --check packages/schema-domain/dist/child-android-storage-protocol-proof.js; npm run test --workspace @ocentra-parent/schema-domain
+exit: 0
+result: pass
+artifact: local composite rebuild and Vitest output
+diagnostics_summary: stale ignored composite output rebuilt; 31 files and 129 tests passed
+source_custody_note: ignored generated dist refreshed from tracked source
+platform_note: no Android source or capability claim changed
+no_claim: generated-output repair does not widen WP01 product scope
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: npx turbo run build --filter=@ocentra-parent/schema-domain --force; npx turbo run build type-check test --filter=@ocentra-parent/schema-domain
+exit: 1
+result: fail
+artifact: local Turbo output
+diagnostics_summary: normal tsc -p build did not regenerate the stale composite-only storage proof output
+source_custody_note: ignored generated dist
+platform_note: Android proof source was not changed
+no_claim: refreshing the normal Turbo cache alone did not repair the external stale artifact
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: npx tsc -b packages/schema-domain/tsconfig.json --force; node scripts/fix-esm-imports.mjs packages/schema-domain/dist; node --check packages/schema-domain/dist/child-android-storage-protocol-proof.js; TURBO_FORCE=true npx turbo run build type-check test --filter=@ocentra-parent/schema-domain
+exit: 0
+result: pass
+artifact: local composite rebuild and hook-equivalent Turbo output
+diagnostics_summary: cache bypass preserved regenerated composite output; 31 files and 129 tests passed
+source_custody_note: ignored generated dist refreshed from tracked source
+platform_note: no Android source or capability claim changed
+no_claim: validation environment repair does not widen WP01 product scope
+
+plan: app-plan
+workpack: 01-contract-boundary-and-effect-schemas
+owner: schema-domain
+command: npx prettier --check packages/schema-domain/src/app-runtime-decision.ts packages/schema-domain/tests/contract/app-runtime-decision.test.ts packages/schema-domain/tests/fixtures/app-runtime-decision-recorded-event.json
+exit: 0
+result: pass
+artifact: local Prettier output
+diagnostics_summary: all touched TypeScript and JSON files match repository style
+source_custody_note: n/a
+platform_note: n/a
+no_claim: formatting does not prove behavior

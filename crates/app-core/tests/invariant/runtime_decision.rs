@@ -236,7 +236,7 @@ fn background_inventory_decision() -> AppRuntimeDecision {
 fn foreground_inventory_decision() -> AppRuntimeDecision {
     AppRuntimeDecision {
         observation_intent: AppObservationIntent::InventoryObservationOnly,
-        runtime_action_state: AppRuntimeActionState::RecordForeground,
+        runtime_action_state: AppRuntimeActionState::RecordInventory,
         ai_handoff_state: AppAiHandoffState::NotRequired,
         policy_handoff_state: AppPolicyHandoffState::DoNotPublish,
     }
