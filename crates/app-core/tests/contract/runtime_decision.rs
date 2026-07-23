@@ -17,6 +17,8 @@ use serde::Deserialize;
 
 const APP_RUNTIME_DECISION_CONTRACTS: &str =
     include_str!("fixtures/app-runtime-decision-contracts.json");
+const APP_RUNTIME_DECISION_EVENT_ENVELOPE: &str =
+    include_str!("fixtures/app-runtime-decision-event-envelope.json");
 
 #[derive(Deserialize)]
 struct RuntimeDecisionContracts {
@@ -143,20 +145,9 @@ fn rust_event_envelope_serializes_the_edge_decoder_contract_shape() {
     );
     let envelope = EventEnvelope::from_event(event, metadata).expect("event envelope builds");
     let serialized = serde_json::to_value(envelope).expect("event envelope serializes");
-
-    assert_eq!(
-        serialized["contract"]["eventType"],
-        APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE
-    );
-    assert_eq!(
-        serialized["contract"]["schemaVersion"],
-        APP_RUNTIME_DECISION_SCHEMA_VERSION
-    );
-    assert!(serialized.get("event_id").is_none());
-    assert_eq!(
-        serialized["payload"]["aggregate_id"],
-        "app.aggregate.child-device-1"
-    );
+    let expected = serde_json::from_str::<serde_json::Value>(APP_RUNTIME_DECISION_EVENT_ENVELOPE)
+        .expect("Rust-owned event envelope fixture parses");
+    assert_eq!(serialized, expected);
 }
 
 #[test]
