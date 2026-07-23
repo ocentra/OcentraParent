@@ -136,6 +136,38 @@ fn journal_failure_fails_closed_and_pending_acceptance_delivers_on_restart() -> 
 }
 
 #[test]
+fn sync_failure_keeps_outbox_pending_until_restart_durably_redelivers() -> TestResult {
+    let store = DeliveryStore::new("sync-failure-recovery");
+    let mut port = store.port()?;
+    let journal_path = port.custody_decision_journal_path().to_path_buf();
+    issue_challenge(&mut port, "sync-failure-recovery");
+    port.inject_next_custody_journal_sync_failure_for_debug();
+
+    assert_eq!(
+        port.verify_and_consume(input("sync-failure-recovery", "sync-failure-correlation")?),
+        Err(ParentPresenceVerificationFailureReason::CustodyUnavailable)
+    );
+    assert_eq!(outbox_state(&store.store_path)?, "pending");
+    assert_eq!(journal_entries(&journal_path)?.len(), 1);
+    drop(port);
+
+    let restarted = store.port()?;
+    assert_eq!(outbox_state(&store.store_path)?, "delivered");
+    let artifacts = decode_artifacts(&journal_entries(&journal_path)?)?;
+    assert_eq!(artifacts.len(), 1);
+    assert_eq!(
+        artifacts[0].result,
+        ParentPresenceCustodyDecisionResult::Accepted
+    );
+    assert_eq!(
+        artifacts[0].correlation_id.as_str(),
+        "sync-failure-correlation"
+    );
+    drop(restarted);
+    Ok(())
+}
+
+#[test]
 fn pending_redelivery_is_idempotent_across_restart() -> TestResult {
     let store = DeliveryStore::new("idempotent-restart");
     let mut port = store.port()?;
@@ -153,6 +185,38 @@ fn pending_redelivery_is_idempotent_across_restart() -> TestResult {
     assert_eq!(entries.len(), 1);
     assert_eq!(entries[0].append.sequence, 1);
     drop(restarted);
+    Ok(())
+}
+
+#[test]
+fn custody_journal_suffix_preserves_distinct_store_extensions() -> TestResult {
+    let store = DeliveryStore::new("extension-collision");
+    let db_path = store.root.join("parent-presence.db");
+    let sqlite_path = store.root.join("parent-presence.sqlite");
+    let mut db_port = open_parent_presence_test_port(&db_path)?;
+    let mut sqlite_port = open_parent_presence_test_port(&sqlite_path)?;
+    let db_journal = db_port.custody_decision_journal_path().to_path_buf();
+    let sqlite_journal = sqlite_port.custody_decision_journal_path().to_path_buf();
+
+    assert_ne!(db_journal, sqlite_journal);
+    assert_eq!(
+        db_journal.file_name().and_then(|name| name.to_str()),
+        Some("parent-presence.db.custody-decisions.ndjson")
+    );
+    assert_eq!(
+        sqlite_journal.file_name().and_then(|name| name.to_str()),
+        Some("parent-presence.sqlite.custody-decisions.ndjson")
+    );
+    issue_challenge(&mut db_port, "extension-db");
+    issue_challenge(&mut sqlite_port, "extension-sqlite");
+    assert!(db_port
+        .verify_and_consume(input("extension-db", "extension-db-correlation")?)
+        .is_ok());
+    assert!(sqlite_port
+        .verify_and_consume(input("extension-sqlite", "extension-sqlite-correlation")?)
+        .is_ok());
+    assert_eq!(journal_entries(&db_journal)?.len(), 1);
+    assert_eq!(journal_entries(&sqlite_journal)?.len(), 1);
     Ok(())
 }
 

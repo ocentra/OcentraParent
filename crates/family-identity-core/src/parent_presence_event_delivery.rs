@@ -23,7 +23,7 @@ const RUNTIME_ROLE: &str = "parent";
 const SOURCE_SERVICE: &str = "parent-presence";
 const SOURCE_COMPONENT: &str = "family-identity-core";
 const RUNTIME_INSTANCE: &str = "parent-presence-custody";
-const JOURNAL_EXTENSION: &str = "custody-decisions.ndjson";
+const JOURNAL_SUFFIX: &str = ".custody-decisions.ndjson";
 
 pub(crate) struct PendingCustodyDecision {
     pub(crate) decision_id: String,
@@ -37,7 +37,7 @@ pub(crate) struct ParentPresenceDecisionDelivery {
 
 impl ParentPresenceDecisionDelivery {
     pub(crate) fn for_store_path(store_path: &Path) -> Self {
-        let journal_path = store_path.with_extension(JOURNAL_EXTENSION);
+        let journal_path = journal_path_for_store(store_path);
         let journal =
             NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain());
         Self {
@@ -76,6 +76,17 @@ impl ParentPresenceDecisionDelivery {
     pub(crate) fn journal_path(&self) -> &Path {
         &self.journal_path
     }
+
+    #[cfg(debug_assertions)]
+    pub(crate) fn inject_next_sync_failure_for_debug(&self) {
+        self.journal.inject_next_sync_failure_for_debug();
+    }
+}
+
+fn journal_path_for_store(store_path: &Path) -> PathBuf {
+    let mut path = store_path.as_os_str().to_os_string();
+    path.push(JOURNAL_SUFFIX);
+    PathBuf::from(path)
 }
 
 impl DomainEvent for ParentPresenceCustodyDecisionArtifact {

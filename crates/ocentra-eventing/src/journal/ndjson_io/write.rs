@@ -1,4 +1,4 @@
-use tokio::fs::OpenOptions;
+use tokio::fs::{File, OpenOptions};
 use tokio::io::AsyncWriteExt;
 
 use crate::{EventingError, JournalDispatchPhase, StoredEventEnvelope};
@@ -30,10 +30,33 @@ impl NdjsonEventJournal {
             .await
             .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
         if self.options.flush == JournalFlushPolicy::Always {
-            file.flush()
-                .await
-                .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+            self.sync_file(&file).await?;
         }
         Ok(())
+    }
+
+    pub(super) async fn sync_existing_journal(&self) -> Result<(), EventingError> {
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&self.path)
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+        self.sync_file(&file).await
+    }
+
+    async fn sync_file(&self, file: &File) -> Result<(), EventingError> {
+        if self
+            .sync_failure_for_debug
+            .swap(false, std::sync::atomic::Ordering::AcqRel)
+        {
+            return Err(EventingError::journal_io(
+                self.path_string(),
+                &std::io::Error::other("injected journal sync failure"),
+            ));
+        }
+        file.sync_all()
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))
     }
 }

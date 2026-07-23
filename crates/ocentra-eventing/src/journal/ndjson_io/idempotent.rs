@@ -15,9 +15,13 @@ impl NdjsonEventJournal {
             .acquire_owned()
             .await
             .expect_value("journal append gate remains open");
-        self.recover_state().await?;
+        let _append_file_lock = self.acquire_append_file_lock().await?;
+        self.refresh_state().await?;
         match self.existing_append(envelope).await? {
-            Some(append) => Ok(append),
+            Some(append) => {
+                self.sync_existing_journal().await?;
+                Ok(append)
+            }
             None => {
                 self.append_entry_with_gate(envelope, JournalDispatchPhase::AfterDispatch)
                     .await

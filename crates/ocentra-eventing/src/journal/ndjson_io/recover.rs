@@ -7,6 +7,12 @@ use crate::{EventingError, ExpectValue};
 use super::{NdjsonEventJournal, NdjsonJournalEntry};
 
 impl NdjsonEventJournal {
+    pub(crate) async fn refresh_state(&self) -> Result<(), EventingError> {
+        let recovered = self.read_recovered_state().await?;
+        *self.state.lock().expect_value("journal state lock") = recovered;
+        Ok(())
+    }
+
     pub(crate) async fn recover_state(&self) -> Result<(), EventingError> {
         if self
             .state

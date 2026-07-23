@@ -1,15 +1,18 @@
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
-use ocentra_eventing::ids::EventId;
+use ocentra_eventing::ids::{EventId, IdempotencyKey};
 use ocentra_eventing::journal::ndjson::{
     NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
 };
 use ocentra_eventing::journal::EventJournal;
+use std::sync::Arc;
+use tokio::sync::Barrier;
 
 use super::{
     super::fixtures::{test_event, test_event_for_type, TestText, OTHER_EVENT_TYPE, TEST_LABEL},
     support::{
         cleanup, journal_path, read_lines, stored_event, tamper_first_journal_payload_label,
+        JournalPath,
     },
 };
 
@@ -121,6 +124,95 @@ async fn ndjson_idempotent_append_rejects_key_reuse_for_a_different_event() {
 }
 
 #[tokio::test]
+async fn alternating_idempotent_journal_instances_refresh_the_hash_chain_tail() {
+    let path = journal_path(TestText("idempotent-alternating-instances".to_owned()));
+    let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let second_journal =
+        NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let first = unique_stored_event("first alternating event", 1);
+    let second = unique_stored_event("second alternating event", 2);
+    let third = unique_stored_event("third alternating event", 3);
+
+    let first_append = first_journal
+        .append_idempotent(&first)
+        .await
+        .expect_value("first append");
+    let second_append = second_journal
+        .append_idempotent(&second)
+        .await
+        .expect_value("second append");
+    let third_append = first_journal
+        .append_idempotent(&third)
+        .await
+        .expect_value("third append");
+
+    assert_eq!(first_append.sequence, 1);
+    assert_eq!(second_append.sequence, 2);
+    assert_eq!(third_append.sequence, 3);
+    assert_eq!(second_append.previous_hash, first_append.current_hash);
+    assert_eq!(third_append.previous_hash, second_append.current_hash);
+    let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let repeated = reopened
+        .append_idempotent(&third)
+        .await
+        .expect_value("chain recovers after alternating instances");
+    assert_eq!(repeated, third_append);
+    assert_eq!(read_lines(path.clone()).await.len(), 3);
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
+async fn concurrent_idempotent_journal_instances_serialize_one_valid_hash_chain() {
+    let path = journal_path(TestText("idempotent-concurrent-instances".to_owned()));
+    let barrier = Arc::new(Barrier::new(8));
+    let handles = (0..8)
+        .map(|index| {
+            let path = path.clone();
+            let barrier = Arc::clone(&barrier);
+            tokio::spawn(async move {
+                let journal =
+                    NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+                let event = unique_stored_event("concurrent idempotent event", index);
+                barrier.wait().await;
+                journal
+                    .append_idempotent(&event)
+                    .await
+                    .expect_value("concurrent append")
+            })
+        })
+        .collect::<Vec<_>>();
+    let mut appends = Vec::new();
+    for handle in handles {
+        appends.push(handle.await.expect_value("append task joins"));
+    }
+    appends.sort_by_key(|append| append.sequence);
+
+    assert_eq!(
+        appends
+            .iter()
+            .map(|append| append.sequence)
+            .collect::<Vec<_>>(),
+        (1..=8).collect::<Vec<_>>()
+    );
+    for pair in appends.windows(2) {
+        assert_eq!(pair[1].previous_hash, pair[0].current_hash);
+    }
+    let lines = read_lines(path.clone()).await;
+    assert_eq!(lines.len(), 8);
+    let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let ninth = unique_stored_event("ninth event", 9);
+    assert_eq!(
+        reopened
+            .append_idempotent(&ninth)
+            .await
+            .expect_value("reopened chain append")
+            .sequence,
+        9
+    );
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
 async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
     let path = journal_path(TestText("reopen-tampered-hash-chain".to_owned()));
     let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
@@ -156,6 +248,24 @@ async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
         _other => std::process::abort(),
     }
     cleanup(path).await;
+}
+
+async fn cleanup_idempotent_journal(path: JournalPath) {
+    let lock_path = std::path::PathBuf::from(format!("{}.append.lock", path.0.display()));
+    cleanup(path).await;
+    let _cleanup_lock = tokio::fs::remove_file(lock_path).await;
+}
+
+fn unique_stored_event(
+    label: &str,
+    index: usize,
+) -> ocentra_eventing::envelope::StoredEventEnvelope {
+    let mut event = stored_event(test_event(TestText(format!("{label} {index}"))));
+    event.event_id =
+        EventId::parse(format!("idempotent-event-{index}")).expect_value("unique event id");
+    event.idempotency_key = IdempotencyKey::parse(format!("idempotent-key-{index}"))
+        .expect_value("unique idempotency key");
+    event
 }
 
 #[tokio::test]

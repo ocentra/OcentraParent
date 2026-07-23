@@ -1,6 +1,7 @@
 use super::trust_bootstrap_store_schema::{
-    assert_store_rejected_without_byte_changes, create_existing_store, execute_existing_store_sql,
-    TestResult, TestStore, VALID_CHALLENGE_STORE_SCHEMA, VALID_RECEIPT_STORE_SCHEMA,
+    assert_store_rejected_without_byte_changes, create_existing_store,
+    create_existing_store_with_outbox, execute_existing_store_sql, TestResult, TestStore,
+    VALID_CHALLENGE_STORE_SCHEMA, VALID_DECISION_OUTBOX_SCHEMA, VALID_RECEIPT_STORE_SCHEMA,
 };
 
 fn mutate_once(schema: &str, original: &str, replacement: &str) -> String {
@@ -123,6 +124,59 @@ fn parent_presence_store_rejects_extra_receipt_integrity_index_without_writes() 
         ") STRICT;\n",
         ") STRICT;\nCREATE UNIQUE INDEX parent_presence_receipt_sequence_lookup\nON parent_presence_receipts(receipt_sequence);\n",
     )
+}
+
+#[test]
+fn parent_presence_store_rejects_extra_table_check_constraint_without_writes() -> TestResult {
+    assert_challenge_schema_mutation_rejected(
+        "extra-table-check-constraint",
+        ") STRICT;\nCREATE UNIQUE INDEX",
+        ", CHECK (lifecycle_state = 'issued')) STRICT;\nCREATE UNIQUE INDEX",
+    )
+}
+
+#[test]
+fn parent_presence_store_rejects_extra_foreign_key_constraint_without_writes() -> TestResult {
+    assert_challenge_schema_mutation_rejected(
+        "extra-foreign-key-constraint",
+        ") STRICT;\nCREATE UNIQUE INDEX",
+        ", FOREIGN KEY (expires_at) REFERENCES parent_presence_challenges(expires_at)) STRICT;\nCREATE UNIQUE INDEX",
+    )
+}
+
+#[test]
+fn parent_presence_store_rejects_column_collation_without_writes() -> TestResult {
+    assert_challenge_schema_mutation_rejected(
+        "column-collation",
+        "    expires_at TEXT NOT NULL,\n",
+        "    expires_at TEXT COLLATE NOCASE NOT NULL,\n",
+    )
+}
+
+#[test]
+fn parent_presence_store_rejects_unique_conflict_clause_without_writes() -> TestResult {
+    assert_challenge_schema_mutation_rejected(
+        "unique-conflict-clause",
+        "    nonce_ref TEXT NOT NULL UNIQUE,\n",
+        "    nonce_ref TEXT NOT NULL UNIQUE ON CONFLICT IGNORE,\n",
+    )
+}
+
+#[test]
+fn parent_presence_store_rejects_extra_outbox_constraint_without_writes() -> TestResult {
+    let store = TestStore::new("extra-outbox-constraint");
+    let outbox_schema = mutate_once(
+        VALID_DECISION_OUTBOX_SCHEMA,
+        ") STRICT;\n",
+        ", CHECK (length(envelope_json) > 0)) STRICT;\n",
+    );
+    create_existing_store_with_outbox(
+        &store,
+        VALID_CHALLENGE_STORE_SCHEMA,
+        VALID_RECEIPT_STORE_SCHEMA,
+        &outbox_schema,
+    )?;
+    assert_store_rejected_without_byte_changes(&store)
 }
 
 #[test]

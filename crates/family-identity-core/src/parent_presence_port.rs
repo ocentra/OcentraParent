@@ -129,6 +129,11 @@ impl ParentPresenceVerificationPort {
     pub fn custody_decision_journal_path(&self) -> &std::path::Path {
         self.decision_delivery.journal_path()
     }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_custody_journal_sync_failure_for_debug(&self) {
+        self.decision_delivery.inject_next_sync_failure_for_debug();
+    }
 }
 
 fn drain_pending_decisions(

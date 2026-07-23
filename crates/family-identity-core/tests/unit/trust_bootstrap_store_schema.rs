@@ -79,11 +79,25 @@ pub(super) fn create_existing_store(
     challenge_schema: &str,
     receipt_schema: &str,
 ) -> TestResult {
+    create_existing_store_with_outbox(
+        store,
+        challenge_schema,
+        receipt_schema,
+        VALID_DECISION_OUTBOX_SCHEMA,
+    )
+}
+
+pub(super) fn create_existing_store_with_outbox(
+    store: &TestStore,
+    challenge_schema: &str,
+    receipt_schema: &str,
+    outbox_schema: &str,
+) -> TestResult {
     let connection = rusqlite::Connection::open(store.path())
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     connection
         .execute_batch(&format!(
-            "{challenge_schema}\n{receipt_schema}\n{VALID_DECISION_OUTBOX_SCHEMA}"
+            "{challenge_schema}\n{receipt_schema}\n{outbox_schema}"
         ))
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     drop(connection);

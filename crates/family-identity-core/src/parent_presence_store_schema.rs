@@ -10,7 +10,7 @@ use crate::parent_presence_store_schema_objects::{
     validate_foreign_key_rows, validate_foreign_keys_enabled, validate_schema_objects,
 };
 use crate::parent_presence_store_sql_shape::{
-    challenge_lifecycle_column_is_canonical, receipt_sequence_column_is_canonical,
+    challenge_table_is_canonical, decision_outbox_table_is_canonical, receipt_table_is_canonical,
 };
 
 const CHALLENGE_TABLE: &str = "parent_presence_challenges";
@@ -162,9 +162,7 @@ pub(crate) fn validate_store_schema(
         &["decision_id|pk|true|false"],
     )?;
     let outbox_sql = table_sql(connection, DECISION_OUTBOX_TABLE)?;
-    require(
-        crate::parent_presence_store_sql_shape::decision_delivery_column_is_canonical(&outbox_sql),
-    )?;
+    require(decision_outbox_table_is_canonical(&outbox_sql))?;
     validate_receipt_table(connection)?;
     validate_receipt_foreign_key(connection)?;
     validate_foreign_key_rows(connection)
@@ -194,7 +192,7 @@ fn validate_challenge_table(connection: &Connection) -> Result<(), ParentPresenc
     )?;
     validate_named_nonce_index(connection)?;
     let table_sql = table_sql(connection, CHALLENGE_TABLE)?;
-    require(challenge_lifecycle_column_is_canonical(&table_sql))
+    require(challenge_table_is_canonical(&table_sql))
 }
 
 fn validate_receipt_table(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
@@ -213,7 +211,7 @@ fn validate_receipt_table(connection: &Connection) -> Result<(), ParentPresenceS
         &["challenge_ref|u|true|false", "receipt_ref|u|true|false"],
     )?;
     let table_sql = table_sql(connection, RECEIPT_TABLE)?;
-    require(receipt_sequence_column_is_canonical(&table_sql))
+    require(receipt_table_is_canonical(&table_sql))
 }
 
 fn validate_table_properties(
