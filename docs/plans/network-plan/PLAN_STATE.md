@@ -93,7 +93,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - the canonical network contract source is Rust-owned: `crates/agent-protocol`, with `crates/network-core` and `crates/agent-core` owning domain/runtime behavior;
 - real network code exists across `crates/network-core`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
 - the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 and now record the bounded parent-domain frontage retirement;
-- only the slice-01 proof pack exists right now; broader plan proof bundles are still missing;
+- `docs/proof/network-plan/PLAN_PROOF_MANIFEST.md` and the WP01 foundation-contract receipt now tie the reviewed contract/runtime slice to its proof routing; broader plan proof bundles are still missing;
 - `implementation-checklist.md` shows 127/128 checked boxes, but that count is not a truthful completion signal while source paths, proof routing, and workpack state are out of sync.
 
 ## Current slice checkpoint
@@ -117,7 +117,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 ### Real dependency blockers
 
 - Cross-plan rows that depend on browser exact-URL evidence, screen-summary fallback, AI runtime ownership, eventing semantics, LAN/family-hub delivery, or enforcement authority remain dependent on their owning plans.
-- No current proof manifest or committed proof bundle ties the scattered TS, Rust, script, and portal surfaces back to this plan's workpacks.
+- The current proof manifest ties the reviewed WP01 contract/runtime slice to its retained proof route; it does not prove broader plan completion, live capture, or platform readiness.
 
 ### External platform constraints
 
@@ -128,7 +128,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - Windows proof is expected where a row needs it; current gaps are proof-generation and row-tracking gaps, not a host limitation.
 - Android tooling is present and an AVD exists, but no device is attached right now and the remembered Samsung Wi-Fi ADB endpoint did not answer during the audit refresh.
 - WSL is installed but stopped, and Docker Desktop's binary exists while the Linux engine is currently unavailable; Linux proof through WSL and/or Docker is therefore feasible but not currently active.
-- only `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` exist so far; all broader plan proof bundles still need to be generated before rows can close honestly.
+- The shim-cleanup proof and the WP01 foundation-contract manifest/receipt exist; all broader plan proof bundles still need to be generated before rows can close honestly.
 - Production live packet capture driver support and live raw artifact creation.
 - Router/log import implementation proof.
 - Local AI model execution or remote provider execution.

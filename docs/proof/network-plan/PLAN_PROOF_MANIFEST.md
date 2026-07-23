@@ -4,7 +4,7 @@
 
 - proof root restored for incremental slice work
 - current active slice: `01-foundation-contracts-and-eventing`
-- current slice state: `PR_READY` after focused Rust contract/runtime validation; WP01 remains open for its broader planned scope.
+- current slice state: `proof-backed review repair`; WP01 remains open for its broader planned scope.
 - current unresolved decision: the historical shim-cleanup slice remains closed; WP01 has no enforcement, live-capture, or platform-readiness claim.
 
 ## Slice Map
@@ -12,7 +12,7 @@
 | Slice | Workpack | Proof doc | Artifact root | Status |
 | --- | --- | --- | --- | --- |
 | `01-network-foundation-shim-cleanup` | `WP01` with `WP08` boundary note | `01-network-foundation-shim-cleanup.md` | `output/network-plan-proof/01-network-foundation-shim-cleanup/` | `done` |
-| `01-foundation-contracts-and-eventing` | `WP01` | `01-foundation-contracts-and-eventing.md` | `output/network-plan-proof/01-foundation-contracts-and-eventing/` | `PR_READY` |
+| `01-foundation-contracts-and-eventing` | `WP01` | `01-foundation-contracts-and-eventing.md` | `output/network-plan-proof/01-foundation-contracts-and-eventing/` | `proof-backed review repair; broader scope open` |
 
 ## Generator / Command Map
 

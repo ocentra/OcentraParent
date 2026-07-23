@@ -15,9 +15,8 @@ pub const INDICATOR_LABEL_VPN_PROXY_TUNNEL: &str = "VPN, proxy, or tunnel likely
 pub const LABEL_DESTINATION_UNKNOWN: &str = "Unknown destination";
 pub const LABEL_PROCESS_UNKNOWN: &str = "Unknown process";
 
-// Version 2 adds required canonical evidence-grade and policy-action fields.
-// Version 1 envelopes must fail closed rather than being silently reinterpreted.
-pub const EVENT_SCHEMA_VERSION: u16 = 2;
+// Streamed network payloads remain compatible with the checked-in generated decoder.
+pub const EVENT_SCHEMA_VERSION: u16 = 1;
 pub const EVENT_NETWORK_FLOW_OBSERVED: &str = "network.flow.observed";
 pub const EVENT_NETWORK_DOMAIN_OBSERVED: &str = "network.domain.observed";
 pub const EVENT_NETWORK_ACTIVITY_CLASSIFIED: &str = "network.activity.classified";

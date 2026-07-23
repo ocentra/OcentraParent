@@ -981,7 +981,7 @@ impl DomainEvent for NetworkRuntimeEventPayload {
 impl NetworkRuntimeEventPayload {
     pub fn validate_semantics(&self) -> Result<(), EventingError> {
         self.runtime_semantics()
-            .eq(&runtime_semantics::expected(self.evidence_grade))
+            .eq(&expected_runtime_semantics(self))
             .then_some(())
             .ok_or_else(|| EventingError::InvalidValue {
                 field: "network_runtime_payload_semantics",
@@ -1004,6 +1004,26 @@ impl NetworkRuntimeEventPayload {
             self.policy_action,
         )
     }
+}
+
+fn expected_runtime_semantics(
+    payload: &NetworkRuntimeEventPayload,
+) -> (
+    NetworkEvidenceGrade,
+    NetworkRiskBudgetState,
+    NetworkInterventionState,
+    NetworkPolicyDecisionAction,
+) {
+    let unavailable = [
+        payload.evidence_scope == NetworkEvidenceScope::AdapterUnavailable,
+        payload.capability_status != ActivityCaptureCapabilityStatus::Available,
+        payload.domain_attribution_status == ActivityDomainAttributionStatus::Unavailable,
+    ]
+    .into_iter()
+    .any(|value| value);
+    unavailable
+        .then(|| runtime_semantics::expected(NetworkRuntimeEvidenceGrade::AdapterUnavailable))
+        .unwrap_or_else(|| runtime_semantics::expected(payload.evidence_grade))
 }
 
 fn network_runtime_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {

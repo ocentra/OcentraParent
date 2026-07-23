@@ -127,16 +127,16 @@ fn network_runtime_payload_schema_version_skew_fails_closed() {
             .is_err()
     );
 
-    let mut v1_fixture = live.store().expect(CONTRACT_EXPECTATION);
-    v1_fixture.contract.schema_version =
-        ocentra_eventing::ids::SchemaVersion::new(1).expect(CONTRACT_EXPECTATION);
+    let mut incompatible_fixture = live.store().expect(CONTRACT_EXPECTATION);
+    incompatible_fixture.contract.schema_version =
+        ocentra_eventing::ids::SchemaVersion::new(2).expect(CONTRACT_EXPECTATION);
     assert_eq!(
-        v1_fixture
+        incompatible_fixture
             .decode::<NetworkRuntimeEventPayload>()
             .err()
             .map(|error| error.to_string()),
         Some(format!(
-            "event contract mismatch: expected {}@2, received {}@1",
+            "event contract mismatch: expected {}@1, received {}@2",
             NetworkRuntimePhase::FlowObserved.event_type(),
             NetworkRuntimePhase::FlowObserved.event_type(),
         ))
@@ -192,11 +192,25 @@ fn network_runtime_payload_rejects_impossible_semantic_tuple_before_dispatch() {
 }
 
 #[test]
+fn unavailable_capture_cannot_claim_domain_metadata_grade_before_dispatch() {
+    let mut candidate = payload();
+    candidate.capability_status = ActivityCaptureCapabilityStatus::Unavailable;
+    candidate.evidence_scope = NetworkEvidenceScope::AdapterUnavailable;
+    assert_eq!(
+        candidate.validate_semantics().err().map(|error| error.to_string()),
+        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+    );
+    assert_eq!(
+        candidate.contract().err().map(|error| error.to_string()),
+        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
+    );
+}
+
+#[test]
 fn network_contract_schema_fuzz_seeded_mutation_cases_fail_closed() {
     const SEED: u64 = 0x4e57_5030_315f_7632;
-    const CASE_COUNT: usize = 5;
     let valid = serde_json::to_value(payload()).expect(CONTRACT_EXPECTATION);
-    let mut cases = Vec::with_capacity(CASE_COUNT);
+    let mut cases = Vec::new();
 
     let mut unknown_enum = valid.clone();
     unknown_enum["evidence_grade_contract"] = serde_json::json!(format!("future-{SEED:x}"));
@@ -213,15 +227,13 @@ fn network_contract_schema_fuzz_seeded_mutation_cases_fail_closed() {
     let mut type_corruption = valid.clone();
     type_corruption["destination_port"] = serde_json::json!(format!("seed-{SEED:x}"));
     cases.push(type_corruption);
-    let mut semantic_tuple = valid;
-    semantic_tuple["policy_action"] = serde_json::json!("block");
-    cases.push(semantic_tuple);
-
-    assert_eq!(cases.len(), CASE_COUNT);
-    let semantic = serde_json::from_value::<NetworkRuntimeEventPayload>(
-        cases.pop().expect(CONTRACT_EXPECTATION),
-    )
-    .expect(CONTRACT_EXPECTATION);
+    let mut state = SEED;
+    for _ in 0..256 {
+        state = state.wrapping_mul(6364136223846793005).wrapping_add(1);
+        let mut candidate = valid.clone();
+        candidate["destination_port"] = serde_json::json!(format!("fuzz-{state:x}"));
+        cases.push(candidate);
+    }
     for candidate in cases {
         assert_eq!(
             serde_json::from_value::<NetworkRuntimeEventPayload>(candidate)
@@ -230,10 +242,6 @@ fn network_contract_schema_fuzz_seeded_mutation_cases_fail_closed() {
             Some(serde_json::error::Category::Data)
         );
     }
-    assert_eq!(
-        semantic.validate_semantics().err().map(|error| error.to_string()),
-        Some("invalid eventing value for network_runtime_payload_semantics: evidence/risk/intervention/policy tuple is inconsistent".to_string())
-    );
 }
 
 #[tokio::test]

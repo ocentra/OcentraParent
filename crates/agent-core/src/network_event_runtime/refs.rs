@@ -139,13 +139,14 @@ fn previous_published_phase(
     observation: &NetworkObservation,
     decision: &NetworkRuntimeDecision,
 ) -> Option<NetworkRuntimePhase> {
+    let target_phase_index = phase_index(phase);
     NetworkRuntimePhase::ordered_chain()
         .iter()
         .copied()
+        .filter(|candidate| phase_index(*candidate) < target_phase_index)
         .filter(|candidate| {
             should_publish_phase_for_runtime_decision(*candidate, observation, decision)
         })
-        .take_while(|candidate| *candidate != phase)
         .last()
 }
 
