@@ -151,6 +151,46 @@ ORDER BY observed_at DESC,
   rowid DESC
 LIMIT 1;";
 
+pub const SELECT_LATEST_SCREEN_ANALYSIS_ACTIVITY_PER_QUEUE_JOB: &str = "
+WITH ranked_screen_analysis_activity AS (
+  SELECT
+    event_id,
+    observed_at,
+    fields_json,
+    evidence_json,
+    CASE json_extract(fields_json, '$.imageDeletionState')
+      WHEN 'deleteFailed' THEN 4
+      WHEN 'expiredDeleted' THEN 3
+      WHEN 'deleted' THEN 2
+      WHEN 'deletionRequired' THEN 1
+      ELSE 0
+    END AS deletion_priority,
+    rowid AS ordering_rowid,
+    ROW_NUMBER() OVER (
+      PARTITION BY json_extract(fields_json, '$.queueJobId')
+      ORDER BY observed_at DESC,
+        CASE json_extract(fields_json, '$.imageDeletionState')
+          WHEN 'deleteFailed' THEN 4
+          WHEN 'expiredDeleted' THEN 3
+          WHEN 'deleted' THEN 2
+          WHEN 'deletionRequired' THEN 1
+          ELSE 0
+        END DESC,
+        rowid DESC
+    ) AS queue_job_rank
+  FROM activity_events
+  WHERE kind = ?1
+    AND observer = ?2
+)
+SELECT
+  event_id,
+  observed_at,
+  fields_json,
+  evidence_json
+FROM ranked_screen_analysis_activity
+WHERE queue_job_rank = 1
+ORDER BY observed_at DESC, deletion_priority DESC, ordering_rowid DESC;";
+
 pub const SELECT_RECENT_BROWSER_INTERVENTION_ACTIVITY: &str = "
 SELECT
   event_id,

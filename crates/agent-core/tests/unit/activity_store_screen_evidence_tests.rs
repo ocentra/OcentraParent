@@ -257,8 +257,18 @@ fn activity_store_queue_health_counts_pending_jobs_beyond_result_limit() -> Test
         constants::field::SCREEN_QUEUE_JOB_ID,
         LogFieldValue::String("screen-health-latest-pending-job".to_string()),
     );
+    let mut latest_pending_transition = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-health-latest-pending-transition",
+        SCREEN_DELETION_DELETED,
+    );
+    insert_log_field(
+        &mut latest_pending_transition.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String("screen-health-latest-pending-job".to_string()),
+    );
     store
-        .ingest_events(&[older_pending, latest_pending])
+        .ingest_events(&[older_pending, latest_pending, latest_pending_transition])
         .map_err(|error| {
             TestText::from_display(format!(
                 "{}: {error:?}",
@@ -277,8 +287,16 @@ fn activity_store_queue_health_counts_pending_jobs_beyond_result_limit() -> Test
 
     assert_eq!(summary.returned, 1);
     assert_eq!(summary.results.len(), 1);
-    assert_eq!(summary.queue_health.pending_count, 2);
-    assert_eq!(summary.queue_health.delete_pending_count, 2);
+    assert_eq!(
+        summary.results[0].queue_job_id,
+        "screen-health-latest-pending-job"
+    );
+    assert_eq!(
+        summary.latest_image_deletion_state.as_deref(),
+        Some(SCREEN_DELETION_DELETED)
+    );
+    assert_eq!(summary.queue_health.pending_count, 1);
+    assert_eq!(summary.queue_health.delete_pending_count, 1);
     Ok(())
 }
 
