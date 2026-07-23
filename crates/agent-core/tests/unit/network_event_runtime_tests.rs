@@ -182,6 +182,42 @@ async fn destination_less_same_timestamp_rows_keep_distinct_local_endpoint_ident
 }
 
 #[tokio::test]
+async fn destination_less_sparse_identity_preserves_field_positions() -> TestResult {
+    let observed_at = constants::activity_store::TEST_FIRST_OBSERVED_AT;
+    let local_port_only = ok(
+        publish_network_runtime_chain_for_observation(
+            destination_less_sparse_observation(
+                Some(constants::activity_store::TEST_NETWORK_LOCAL_PORT),
+                None,
+            ),
+            observed_at,
+        )
+        .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES,
+    )?;
+    let process_id_only = ok(
+        publish_network_runtime_chain_for_observation(
+            destination_less_sparse_observation(
+                None,
+                Some(u32::from(
+                    constants::activity_store::TEST_NETWORK_LOCAL_PORT,
+                )),
+            ),
+            observed_at,
+        )
+        .await,
+        constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES,
+    )?;
+
+    assert_ne!(
+        local_port_only.stored_events[0].correlation_id,
+        process_id_only.stored_events[0].correlation_id
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn metadata_free_available_observation_stays_diagnostics_only_grade_d() -> TestResult {
     let report = ok(
         publish_network_runtime_chain_for_observation(
@@ -203,6 +239,19 @@ async fn metadata_free_available_observation_stays_diagnostics_only_grade_d() ->
             && payload.policy_action
                 == ocentra_parent_agent_protocol::NetworkPolicyDecisionAction::Unknown
     }));
+    assert_eq!(
+        payloads
+            .iter()
+            .map(|payload| payload.phase)
+            .collect::<Vec<_>>(),
+        vec![
+            NetworkRuntimePhase::FlowObserved,
+            NetworkRuntimePhase::DomainObserved,
+            NetworkRuntimePhase::ActivityClassified,
+            NetworkRuntimePhase::AuditEntryCommitted,
+            NetworkRuntimePhase::PortalReadModelUpdated,
+        ]
+    );
 
     Ok(())
 }
@@ -619,5 +668,24 @@ fn destination_less_observation(local_port: u16) -> NetworkObservation {
         pid: None,
         process_name: None,
         associated_pid_count: 0,
+    }
+}
+
+fn destination_less_sparse_observation(
+    local_port: Option<u16>,
+    pid: Option<u32>,
+) -> NetworkObservation {
+    NetworkObservation {
+        status: ActivityCaptureCapabilityStatus::Available,
+        protocol: None,
+        local_ip: None,
+        local_port,
+        destination_ip: None,
+        destination_port: None,
+        destination_domain: None,
+        tcp_state: None,
+        pid,
+        process_name: None,
+        associated_pid_count: usize::from(pid.is_some()),
     }
 }

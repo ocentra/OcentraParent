@@ -598,6 +598,34 @@ fn network_runtime_event_payload_uses_rust_owned_contract_and_key_shapes(
 }
 
 #[test]
+fn network_runtime_event_contract_rejects_domain_attribution_without_domain_payload() {
+    let mut payload = network_runtime_event_payload_fixture();
+    payload.destination_domain = None;
+
+    assert!(matches!(
+        payload.contract(),
+        Err(EventingError::InvalidValue {
+            field: "network_runtime_payload_semantics",
+            ..
+        })
+    ));
+}
+
+#[test]
+fn network_runtime_event_contract_rejects_process_attribution_without_process_id_payload() {
+    let mut payload = network_runtime_event_payload_fixture();
+    payload.process_id = None;
+
+    assert!(matches!(
+        payload.contract(),
+        Err(EventingError::InvalidValue {
+            field: "network_runtime_payload_semantics",
+            ..
+        })
+    ));
+}
+
+#[test]
 fn network_observation_contracts_serialize_claim_boundaries() {
     assert_eq!(
         serialized_field!(

@@ -178,7 +178,11 @@ pub(super) fn network_runtime_decision_from_observation(
             NetworkCapturePermissionState::Missing
         },
         parser_state: NetworkParserState::Valid,
-        observation_intent: if observation.destination_domain.is_some() {
+        observation_intent: if evidence_grade(observation)
+            == ocentra_parent_agent_protocol::network_flow::NetworkRuntimeEvidenceGrade::AdapterUnavailable
+        {
+            NetworkObservationIntent::TelemetryObservationOnly
+        } else if observation.destination_domain.is_some() {
             NetworkObservationIntent::FlowRequiresPolicy
         } else {
             NetworkObservationIntent::UnknownRouteRequiresAi

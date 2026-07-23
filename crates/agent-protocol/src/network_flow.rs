@@ -980,7 +980,8 @@ impl DomainEvent for NetworkRuntimeEventPayload {
 
 impl NetworkRuntimeEventPayload {
     pub fn validate_semantics(&self) -> Result<(), EventingError> {
-        (self.evidence_grade == expected_runtime_evidence_grade(self)
+        (attribution_statuses_are_backed(self)
+            && self.evidence_grade == expected_runtime_evidence_grade(self)
             && self.runtime_semantics() == expected_runtime_semantics(self))
         .then_some(())
         .ok_or_else(|| EventingError::InvalidValue {
@@ -1006,6 +1007,14 @@ impl NetworkRuntimeEventPayload {
     }
 }
 
+fn attribution_statuses_are_backed(payload: &NetworkRuntimeEventPayload) -> bool {
+    (payload.domain_attribution_status != ActivityDomainAttributionStatus::DomainObserved
+        || payload.destination_domain.is_some())
+        && (payload.process_attribution_status
+            != ActivityProcessAttributionStatus::ProcessAttributed
+            || payload.process_id.is_some())
+}
+
 fn expected_runtime_semantics(
     payload: &NetworkRuntimeEventPayload,
 ) -> (
@@ -1024,8 +1033,10 @@ fn expected_runtime_evidence_grade(
         || payload.capability_status != ActivityCaptureCapabilityStatus::Available;
     let fully_attributed = payload.domain_attribution_status
         == ActivityDomainAttributionStatus::DomainObserved
+        && payload.destination_domain.is_some()
         && payload.process_attribution_status
-            == ActivityProcessAttributionStatus::ProcessAttributed;
+            == ActivityProcessAttributionStatus::ProcessAttributed
+        && payload.process_id.is_some();
     let partial_metadata = payload.protocol.is_some()
         || payload.tcp_state.is_some()
         || payload.local_ip.is_some()

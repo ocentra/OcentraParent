@@ -53,23 +53,29 @@ pub(super) fn network_correlation_id(
 }
 
 fn append_destination_less_identity(value: &mut String, observation: &NetworkObservation) {
-    for identity in [
-        observation
-            .protocol
-            .map(|protocol| protocol.as_protocol_str()),
-        observation.local_ip.as_deref(),
-        observation
-            .local_port
-            .map(|port| port.to_string())
-            .as_deref(),
-        observation.tcp_state.map(|state| state.as_protocol_str()),
-        observation.pid.map(|pid| pid.to_string()).as_deref(),
-    ]
-    .into_iter()
-    .flatten()
-    {
+    let local_port = observation.local_port.map(|port| port.to_string());
+    let process_id = observation.pid.map(|pid| pid.to_string());
+    for (field, identity) in [
+        (
+            constants::field::NETWORK_PROTOCOL,
+            observation
+                .protocol
+                .map(|protocol| protocol.as_protocol_str()),
+        ),
+        (constants::field::LOCAL_IP, observation.local_ip.as_deref()),
+        (constants::field::LOCAL_PORT, local_port.as_deref()),
+        (
+            constants::field::TCP_STATE,
+            observation.tcp_state.map(|state| state.as_protocol_str()),
+        ),
+        (constants::field::PROCESS_ID, process_id.as_deref()),
+    ] {
         value.push(constants::delimiter::HYPHEN);
-        value.push_str(identity);
+        value.push_str(field);
+        value.push(constants::delimiter::COLON);
+        if let Some(identity) = identity {
+            value.push_str(identity);
+        }
     }
 }
 
