@@ -19,7 +19,8 @@ use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
 };
 use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
-use serde_json::Value;
+use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_core::screen_evidence_queue::ScreenEvidenceQueue;
@@ -422,12 +423,40 @@ fn screen_evidence_queue_quarantines_malformed_rows_without_blocking_valid_expir
     queue
         .append_encrypted_image(&expired_job, b"expired-valid-image")
         .expect_value(constants::error::JOURNAL_APPENDS);
+    let queue_contents = read_to_string(queue.path()).expect_value(constants::error::JOURNAL_READS);
+    let mut malformed_record: Value = serde_json::from_str(
+        queue_contents
+            .lines()
+            .next()
+            .expect_value(constants::error::JOURNAL_READS),
+    )
+    .expect_value(constants::error::JOURNAL_READS);
+    assert_eq!(
+        malformed_record[constants::field::CIPHERTEXT]
+            .as_str()
+            .map(str::is_empty),
+        Some(false)
+    );
+    assert_eq!(
+        malformed_record[constants::field::NONCE]
+            .as_str()
+            .map(str::is_empty),
+        Some(false)
+    );
+    malformed_record[constants::field::SCHEMA_VERSION] =
+        Value::String("invalid-schema-version".to_string());
+    let malformed_record =
+        serde_json::to_string(&malformed_record).expect_value(constants::error::JOURNAL_READS);
+    let malformed_record_digest = format!("{:x}", Sha256::digest(malformed_record.as_bytes()));
     let mut queue_file = OpenOptions::new()
         .append(true)
         .open(queue.path())
         .expect_value(constants::error::JOURNAL_OPENS);
     queue_file
-        .write_all(b"{\"truncated\":\n")
+        .write_all(malformed_record.as_bytes())
+        .expect_value(constants::error::JOURNAL_APPENDS);
+    queue_file
+        .write_all(b"\n")
         .expect_value(constants::error::JOURNAL_APPENDS);
     queue_file
         .sync_all()
@@ -455,8 +484,16 @@ fn screen_evidence_queue_quarantines_malformed_rows_without_blocking_valid_expir
         expired_job.queue_job_id
     );
     assert!(remaining.is_empty());
-    assert_eq!(quarantined["lineNumber"].as_u64(), Some(2));
-    assert_eq!(quarantined["rawRecord"].as_str(), Some("{\"truncated\":"));
+    assert_eq!(
+        quarantined,
+        json!({
+            "lineNumber": 2,
+            "malformedRecordDigest": malformed_record_digest,
+        })
+    );
+    assert!(quarantined.get("rawRecord").is_none());
+    assert!(quarantined.get(constants::field::CIPHERTEXT).is_none());
+    assert!(quarantined.get(constants::field::NONCE).is_none());
 }
 
 #[test]
