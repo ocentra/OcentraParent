@@ -6,7 +6,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY, LOCAL_WEBHOOK_FIXTURE_INVENTORY } from './local-seed-runtime.js';
+import {
+  LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY,
+  LOCAL_SEED_RUNTIME_PID_FILE,
+  LOCAL_WEBHOOK_FIXTURE_INVENTORY,
+} from './local-seed-runtime.js';
 
 export interface RuntimeDependencyBlocker {
   kind: 'missing-runtime-dependency' | 'runtime-import-check' | 'seed-command-timeout';
@@ -117,6 +121,35 @@ function readWorkspaceScripts(): Record<string, string> {
   return JSON.parse(readFileSync(rootPackageJsonPath, 'utf8')).scripts as Record<string, string>;
 }
 
+function terminateTimedOutSeedProcess(pid: number | undefined, persistenceRoot: string): void {
+  const runtimePid = Number.parseInt(
+    existsSync(path.join(persistenceRoot, LOCAL_SEED_RUNTIME_PID_FILE))
+      ? readFileSync(path.join(persistenceRoot, LOCAL_SEED_RUNTIME_PID_FILE), 'utf8')
+      : '',
+    10
+  );
+  if (process.platform === 'win32') {
+    for (const processId of [pid, runtimePid]) {
+      if (processId != null && Number.isInteger(processId) && processId > 0) {
+        spawnSync('taskkill', ['/pid', String(processId), '/t', '/f'], { stdio: 'ignore', windowsHide: true });
+      }
+    }
+    return;
+  }
+  for (const processId of [pid, runtimePid]) {
+    if (processId == null || !Number.isInteger(processId) || processId <= 0) {
+      continue;
+    }
+    try {
+      process.kill(processId === runtimePid ? -processId : processId, 'SIGTERM');
+    } catch (error) {
+      if (!(error instanceof Error && 'code' in error && error.code === 'ESRCH')) {
+        throw error;
+      }
+    }
+  }
+}
+
 function runCloudflareScript(command: string, persistenceRoot: string, seedRunId: string): CommandProbeResult {
   if (!allowedCloudflareScriptCommands.has(command)) {
     return {
@@ -155,6 +188,7 @@ function runCloudflareScript(command: string, persistenceRoot: string, seedRunId
         });
 
   if (result.error instanceof Error && 'code' in result.error && result.error.code === 'ETIMEDOUT') {
+    terminateTimedOutSeedProcess(result.pid, persistenceRoot);
     return {
       command: `npm --prefix infra/cloudflare run ${command}`,
       status: 'blocked',

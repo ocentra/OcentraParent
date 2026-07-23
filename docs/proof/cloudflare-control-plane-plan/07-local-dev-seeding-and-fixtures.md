@@ -36,6 +36,13 @@
 
 The first full integration-family run exposed concurrent Wrangler startup contention between the WP07 seed proof and the existing real-runtime suite. A shared, stale-safe local runtime lease was added; the complete integration family then passed `62/62`. The failed run is not counted as proof.
 
+## Review repair receipt
+
+- The local seed health check accepts stores with additional developer-created rows while still requiring every expected D1/KV/R2 counter key to meet its fixture minimum.
+- Dead-owner lease recovery now acquires a token-specific reclaim claim before deleting the observed lock, so a second recovery attempt cannot remove a replacement owner lock.
+- A timed-out local-dev seed probe terminates its direct process and the seed runtime's recorded Wrangler process tree before reporting the timeout blocker.
+- `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` -> passed, `4/4`, including a persisted additional billing-status row that remains present after reseeding.
+
 ## No-claim boundary
 
 - This receipt does not prove production deployment, production data, or payment-plan acceptance.

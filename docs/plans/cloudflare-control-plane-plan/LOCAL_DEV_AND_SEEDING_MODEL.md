@@ -65,7 +65,7 @@ Purpose: define the first local worker workflow before payment runtime work star
 - Required persisted fields: run id, correlation id, owner, boundary, result, no-claim reason, and redaction state.
 - Required milestones: workflow command accepted, import preflight accepted, seed fixtures consumed, teardown contract accepted, and proof chain stored.
 - Teardown removes the temporary proof store only after flush and persisted-row assertions complete.
-- Durable branch proof is the compact packet at `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`; it does not contain raw private fixture values.
+- Durable branch proof is the retained receipt at `docs/proof/cloudflare-control-plane-plan/07-local-dev-seeding-and-fixtures.md`; the raw `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/` directory is absent/ephemeral and does not contain durable evidence.
 
 ## Manual-required states
 

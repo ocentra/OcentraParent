@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
-import { mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 export const LOCAL_WEBHOOK_FIXTURE_INVENTORY = ['stripe', 'razorpay', 'paypal', 'google', 'apple'] as const;
 export const LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY = ['accepted-replay', 'dead-letter-replay'] as const;
+export const LOCAL_SEED_RUNTIME_PID_FILE = '.ocentra-cloudflare-local-seed-runtime.pid';
 
 export interface LocalSeedPersistenceEvidence {
   d1StatusRows: number;
@@ -157,23 +158,24 @@ function writeLeaseRecord(lockPath: string, record: RuntimeLeaseRecord, flag?: '
 }
 
 function removeStaleLeaseIfTokenMatches(lockPath: string, observedToken: string): boolean {
-  const current = parseLeaseRecord(readFileSync(lockPath, 'utf8'));
-  if (current?.token !== observedToken) {
-    return false;
-  }
-  const quarantinePath = `${lockPath}.${observedToken.replaceAll(':', '-')}.stale`;
+  const reclaimPath = `${lockPath}.${observedToken.replaceAll(':', '-')}.reclaim`;
   try {
-    renameSync(lockPath, quarantinePath);
+    writeFileSync(reclaimPath, observedToken, { encoding: 'utf8', flag: 'wx' });
   } catch (error) {
-    if (hasErrorCode(error, 'ENOENT')) {
+    if (hasErrorCode(error, 'EEXIST') || hasErrorCode(error, 'ENOENT')) {
       return false;
     }
     throw error;
   }
   try {
-    return parseLeaseRecord(readFileSync(quarantinePath, 'utf8'))?.token === observedToken;
+    const current = parseLeaseRecord(readFileSync(lockPath, 'utf8'));
+    if (current?.token !== observedToken) {
+      return false;
+    }
+    rmSync(lockPath);
+    return true;
   } finally {
-    rmSync(quarantinePath, { force: true });
+    rmSync(reclaimPath, { force: true });
   }
 }
 
@@ -362,7 +364,7 @@ async function startRuntime(persistTo: string): Promise<RuntimeHandle> {
       cwd: cloudflareDir,
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,
-      detached: true,
+      detached: process.platform !== 'win32',
     }
   );
   child.stdout?.setEncoding('utf8');
@@ -413,7 +415,7 @@ function assertPersistedSeed(health: LocalSeedHealthResponse): LocalSeedPersiste
     persistenceKeys.some((key, index) => key !== expectedKeys[index]) ||
     expectedKeys.some(
       (key) =>
-        persistence[key as keyof LocalSeedPersistenceEvidence] !==
+        persistence[key as keyof LocalSeedPersistenceEvidence] <
         expectedPersistenceEvidence[key as keyof LocalSeedPersistenceEvidence]
     )
   ) {
@@ -460,6 +462,7 @@ export async function runLocalSeedMutation(requestedFamily: string): Promise<Loc
   let boundary = 'startup';
   let lease: LocalWranglerRuntimeLease | null = null;
   let handle: RuntimeHandle | null = null;
+  const runtimePidPath = path.join(persistTo, LOCAL_SEED_RUNTIME_PID_FILE);
   let primaryError: unknown = null;
   emitMilestone(boundary, 'accepted');
   try {
@@ -467,6 +470,10 @@ export async function runLocalSeedMutation(requestedFamily: string): Promise<Loc
     lease = await acquireLocalWranglerRuntimeLease();
     boundary = 'runtime-start';
     handle = await startRuntime(persistTo);
+    if (handle.child.pid == null) {
+      throw new Error('local seed runtime did not provide a Wrangler process id');
+    }
+    writeFileSync(runtimePidPath, String(handle.child.pid), 'utf8');
     emitMilestone(boundary, 'accepted');
     boundary = 'seed-validation';
     const health = await waitForSeededHealth(handle);
@@ -497,6 +504,7 @@ export async function runLocalSeedMutation(requestedFamily: string): Promise<Loc
       teardownError = error;
       emitMilestone('teardown-runtime', 'rejected', error instanceof Error ? error.name : 'UnknownFailure');
     }
+    rmSync(runtimePidPath, { force: true });
     try {
       lease?.release();
     } catch (error) {

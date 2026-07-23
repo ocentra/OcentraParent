@@ -272,8 +272,22 @@ describe('local dev seeding workflow', () => {
         runSeedCommand('seed:local', persistenceA, runA);
         assert.equal(readStatusPayload(persistenceA, 'parent:demo-active'), preservedStatusPayload);
 
+        const additionalStatusPayload = JSON.stringify({
+          subject: 'parent:local-activity',
+          parentVisibleState: 'active',
+          auditReference: 'audit:local-activity-preserved',
+        });
+        runLocalD1Command(
+          persistenceA,
+          `INSERT INTO billing_status (subject, payload_json) VALUES ('parent:local-activity', '${additionalStatusPayload.replaceAll("'", "''")}')`
+        );
+        const extendedA = runSeedCommand('seed:local', persistenceA, runA).mutationReceipt;
+        assert.equal(readStatusRowCount(persistenceA), firstACount + 1);
+        assert.equal(readStatusPayload(persistenceA, 'parent:local-activity'), additionalStatusPayload);
+        assert.equal(extendedA.persistence.d1StatusRows, firstA.persistence.d1StatusRows + 1);
+
         runLocalD1Command(persistenceA, "DELETE FROM billing_status WHERE subject = 'parent:demo-review'");
-        assert.equal(readStatusRowCount(persistenceA), firstACount - 1);
+        assert.equal(readStatusRowCount(persistenceA), firstACount);
         assert.equal(readStatusRowCount(persistenceB), firstBCount);
 
         const activeLeasePath = path.join(persistenceA, 'active-runtime.lock');
