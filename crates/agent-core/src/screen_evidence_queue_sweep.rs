@@ -1,4 +1,5 @@
 use crate::JournalError;
+use sha2::{Digest, Sha256};
 use std::{collections::HashSet, io::Write, path::Path};
 
 use super::{
@@ -148,20 +149,23 @@ fn quarantine_corrupt_queue_records(
     corrupt.is_empty().then_some(()).map_or_else(
         || {
             let path = queue.path().with_extension("queue-quarantine");
-            let existing_records = existing_quarantine_records(&path);
+            let existing_record_digests = existing_quarantine_record_digests(&path);
             let mut quarantine = std::fs::OpenOptions::new()
                 .create(true)
                 .append(true)
                 .open(&path)?;
             corrupt
                 .iter()
-                .filter(|(_, raw_record)| !existing_records.contains(*raw_record))
-                .try_for_each(|(line_number, raw_record)| -> Result<(), JournalError> {
+                .map(|(line_number, raw_record)| {
+                    (*line_number, malformed_record_digest(raw_record))
+                })
+                .filter(|(_, digest)| !existing_record_digests.contains(digest))
+                .try_for_each(|(line_number, digest)| -> Result<(), JournalError> {
                     serde_json::to_writer(
                         &mut quarantine,
                         &serde_json::json!({
                             "lineNumber": line_number,
-                            "rawRecord": raw_record,
+                            "malformedRecordDigest": digest,
                         }),
                     )?;
                     quarantine.write_all(b"\n")?;
@@ -175,7 +179,11 @@ fn quarantine_corrupt_queue_records(
     )
 }
 
-fn existing_quarantine_records(path: &Path) -> HashSet<String> {
+fn malformed_record_digest(raw_record: &str) -> String {
+    format!("{:x}", Sha256::digest(raw_record.as_bytes()))
+}
+
+fn existing_quarantine_record_digests(path: &Path) -> HashSet<String> {
     std::fs::read_to_string(path)
         .ok()
         .into_iter()
@@ -185,7 +193,7 @@ fn existing_quarantine_records(path: &Path) -> HashSet<String> {
                 .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
                 .filter_map(|value| {
                     value
-                        .get("rawRecord")
+                        .get("malformedRecordDigest")
                         .and_then(serde_json::Value::as_str)
                         .map(str::to_string)
                 })
