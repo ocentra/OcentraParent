@@ -1,5 +1,5 @@
 use crate::JournalError;
-use std::collections::HashSet;
+use std::{collections::HashSet, io::Write, path::Path};
 
 use super::{
     screen_evidence_queue_outbox, screen_evidence_queue_record, ScreenEvidenceExpiredQueueEntry,
@@ -26,14 +26,17 @@ fn remove_expired_entries_locked(
     let mut retained = Vec::new();
     let mut newly_expired = Vec::new();
     let mut queue_job_ids = HashSet::new();
-    let records = decrypted_queue_records(&contents)?;
-    queue_job_ids.extend(records.iter().map(|record| record.queue_job_id.clone()));
+    let records = parse_queue_records(&contents);
+    quarantine_corrupt_queue_records(queue, &records.corrupt)?;
+    let has_corrupt_records = !records.corrupt.is_empty();
+    queue_job_ids.extend(
+        records
+            .valid
+            .iter()
+            .map(|(_, record)| record.queue_job_id.clone()),
+    );
     let leases = prune_expired_or_orphaned_leases(queue, leases, &queue_job_ids, now)?;
-    for (line, record) in contents
-        .lines()
-        .filter(|line| !line.trim().is_empty())
-        .zip(records)
-    {
+    for (line, record) in records.valid {
         let actively_leased = leases.iter().any(|lease| {
             lease.queue_job_id == record.queue_job_id
                 && screen_evidence_queue_record::timestamp_is_after(&lease.lease_expires_at, now)
@@ -65,7 +68,8 @@ fn remove_expired_entries_locked(
         .iter()
         .map(|entry| entry.queue_job_id.clone())
         .collect::<HashSet<_>>();
-    if !newly_expired.is_empty() {
+    let has_newly_expired = !newly_expired.is_empty();
+    if has_newly_expired {
         pending.extend(
             newly_expired
                 .into_iter()
@@ -79,6 +83,8 @@ fn remove_expired_entries_locked(
         // The replacement directory entry is durable before any queue record
         // can disappear.
         super::sync_parent_directory(&screen_evidence_queue_outbox::outbox_path(queue))?;
+    }
+    if has_newly_expired || has_corrupt_records {
         super::replace_queue_lines(queue, &retained)?;
     }
     Ok(ScreenEvidenceQueueSweep {
@@ -108,13 +114,83 @@ fn prune_expired_or_orphaned_leases(
     Ok(retained)
 }
 
-fn decrypted_queue_records(
-    contents: &str,
-) -> Result<Vec<screen_evidence_queue_record::EncryptedScreenEvidenceQueueRecord>, JournalError> {
+struct ParsedQueueRecords<'a> {
+    valid: Vec<(
+        &'a str,
+        screen_evidence_queue_record::EncryptedScreenEvidenceQueueRecord,
+    )>,
+    corrupt: Vec<(usize, &'a str)>,
+}
+
+fn parse_queue_records(contents: &str) -> ParsedQueueRecords<'_> {
     contents
         .lines()
-        .filter(|line| !line.trim().is_empty())
-        .map(screen_evidence_queue_record::decrypted_record_from_line)
+        .enumerate()
+        .filter(|(_, line)| !line.trim().is_empty())
+        .fold(
+            ParsedQueueRecords {
+                valid: Vec::new(),
+                corrupt: Vec::new(),
+            },
+            |mut parsed, (index, line)| {
+                screen_evidence_queue_record::decrypted_record_from_line(line)
+                    .map(|record| parsed.valid.push((line, record)))
+                    .unwrap_or_else(|_| parsed.corrupt.push((index + 1, line)));
+                parsed
+            },
+        )
+}
+
+fn quarantine_corrupt_queue_records(
+    queue: &ScreenEvidenceQueue,
+    corrupt: &[(usize, &str)],
+) -> Result<(), JournalError> {
+    corrupt.is_empty().then_some(()).map_or_else(
+        || {
+            let path = queue.path().with_extension("queue-quarantine");
+            let existing_records = existing_quarantine_records(&path);
+            let mut quarantine = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(&path)?;
+            corrupt
+                .iter()
+                .filter(|(_, raw_record)| !existing_records.contains(*raw_record))
+                .try_for_each(|(line_number, raw_record)| -> Result<(), JournalError> {
+                    serde_json::to_writer(
+                        &mut quarantine,
+                        &serde_json::json!({
+                            "lineNumber": line_number,
+                            "rawRecord": raw_record,
+                        }),
+                    )?;
+                    quarantine.write_all(b"\n")?;
+                    Ok(())
+                })?;
+            quarantine.sync_all()?;
+            super::sync_parent_directory(&path)?;
+            Ok(())
+        },
+        |_| Ok(()),
+    )
+}
+
+fn existing_quarantine_records(path: &Path) -> HashSet<String> {
+    std::fs::read_to_string(path)
+        .ok()
+        .into_iter()
+        .flat_map(|contents| {
+            contents
+                .lines()
+                .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
+                .filter_map(|value| {
+                    value
+                        .get("rawRecord")
+                        .and_then(serde_json::Value::as_str)
+                        .map(str::to_string)
+                })
+                .collect::<Vec<_>>()
+        })
         .collect()
 }
 

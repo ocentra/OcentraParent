@@ -12,7 +12,8 @@ use ocentra_parent_agent_core::screen_evidence_queue::ScreenEvidenceQueue;
 use ocentra_parent_agent_protocol as parent_protocol;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
-    ScreenAnalysisQueueJob, ScreenEvidenceRecentSummary, SCREEN_DELETION_EXPIRED_DELETED,
+    ScreenAnalysisQueueJob, ScreenEvidenceRecentSummary, SCREEN_DELETION_DELETE_FAILED,
+    SCREEN_DELETION_EXPIRED_DELETED,
 };
 
 use crate::screen_ai_retention_sweeper_deletion_events::{
@@ -125,6 +126,67 @@ async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() -> R
         entries[0].queue_job_id.as_str(),
         &fresh_job,
         &screen_summary,
+    );
+    Ok(())
+}
+
+#[test]
+fn screen_retention_sweeper_records_delete_failed_when_outbox_replacement_is_blocked(
+) -> Result<(), IoError> {
+    let root = test_path("retention-outbox-replacement-failure");
+    let _ = remove_dir_all(&root);
+    let queue_dir = root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    let key_path = root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX);
+    let journal_path = root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX);
+    let store_path = root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX);
+    let key = JournalKey::from_bytes([27; JOURNAL_KEY_BYTES]);
+    fs::create_dir_all(&root)?;
+    fs::write(&key_path, key.as_bytes())?;
+    let queue = ScreenEvidenceQueue::open(&queue_dir, key)
+        .map_err(|error| IoError::other(format!("{error:?}")))?;
+    let expired_job = screen_queue_job_with_expiry(
+        "screen-retention-outbox-replacement-failure",
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    );
+    queue
+        .append_encrypted_image(&expired_job, b"retryable-expired-image")
+        .map_err(|error| IoError::other(format!("{error:?}")))?;
+    fs::create_dir(queue.path().with_extension("deletion-outbox"))?;
+    let config = ScreenAiRetentionSweeperRuntimeConfig {
+        poll_seconds: 1,
+        max_sweeps: Some(1),
+        max_ticks: Some(1),
+        queue_dir,
+        journal_path,
+        journal_key_path: key_path,
+        store_path: store_path.clone(),
+    };
+
+    let outcome = record_screen_ai_retention_sweeper_tick(
+        &config,
+        sweeper_clock(constants::activity_store::TEST_SECOND_OBSERVED_AT),
+    )
+    .map_err(|error| IoError::other(format!("{error:?}")))?;
+    let remaining = queue
+        .read_decrypted_entries(4)
+        .map_err(|error| IoError::other(format!("{error:?}")))?;
+    let summary = ActivityStore::open(&store_path)
+        .map_err(|error| IoError::other(format!("{error:?}")))?
+        .screen_evidence_recent_summary(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .map_err(|error| IoError::other(format!("{error:?}")))?;
+    let _ = remove_dir_all(&root);
+
+    assert_eq!(
+        outcome,
+        ScreenAiRetentionSweeperOutcome::NoExpired { pending_count: 1 }
+    );
+    assert_eq!(remaining.len(), 1);
+    assert_eq!(
+        summary.latest_image_deletion_state.as_deref(),
+        Some(SCREEN_DELETION_DELETE_FAILED)
     );
     Ok(())
 }

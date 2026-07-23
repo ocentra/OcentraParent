@@ -93,11 +93,13 @@ pub(crate) fn claim_first_decrypted_entry(
         leases.retain(|lease| {
             super::screen_evidence_queue_record::timestamp_is_after(&lease.lease_expires_at, now)
         });
-        for line in contents
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .take(max_entries)
-        {
+        if max_entries == 0 {
+            if leases.len() != original_lease_count {
+                super::screen_evidence_queue_leases::write_leases(queue, &leases)?;
+            }
+            return Ok(None);
+        }
+        for line in contents.lines().filter(|line| !line.trim().is_empty()) {
             let record = super::screen_evidence_queue_record::decrypted_record_from_line(line)?;
             if super::screen_evidence_queue_record::queue_record_expired(
                 record.expires_at.as_deref(),
