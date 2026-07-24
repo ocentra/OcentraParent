@@ -12,6 +12,9 @@ use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentCommandName;
 
 use crate::activity_api::GeneratedAtText;
+use crate::app_game_dispatch_evidence::{
+    validate_app_game_timer_session, AppGameDispatchEvidenceRejection, AppGameDispatchStorePath,
+};
 use crate::enforcement_api::EnforcementJournalPaths;
 use crate::enforcement_timer_payload::{
     parse_parent_override_payload, parse_timer_expiry_payload, parse_timer_recovery_payload,
@@ -38,6 +41,7 @@ pub(crate) enum EnforcementTimerCommandError {
     Payload(EnforcementTimerPayloadError),
     Report(TimerReportError),
     AppTimeLimitTarget(AppTimeLimitTargetRejection),
+    AppGameSessionEvidence(AppGameDispatchEvidenceRejection),
 }
 
 impl From<EnforcementTimerPayloadError> for EnforcementTimerCommandError {
@@ -117,6 +121,14 @@ async fn expire_timer(
         return Ok(active_timer_state_required_payload());
     };
     validate_expected_action(&request, &state)?;
+    if let Some(binding) = state.app_game_session.as_ref() {
+        validate_app_game_timer_session(
+            binding,
+            AppGameDispatchStorePath(paths.store_path.clone()),
+        )
+        .await
+        .map_err(EnforcementTimerCommandError::AppGameSessionEvidence)?;
+    }
     let target = app_time_limit_target_from_action(&state.action, request.process_id)?;
     let adapter_outcome =
         expire_app_time_limit_for_owned_process(target, &request.transition_ids.observed_at);

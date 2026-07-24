@@ -7,7 +7,9 @@ use ocentra_parent_agent_protocol::transport::{
 use crate::app_game_dispatch_evidence::{
     validate_app_game_dispatch_evidence, AppGameDispatchStorePath,
 };
-use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
+use crate::enforcement_api::{
+    build_enforcement_audit_report_with_app_game_session, EnforcementJournalPaths,
+};
 use crate::{event_builder::build_event, fields::fields_from_pairs};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -42,11 +44,16 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_execute_report_with
     )
     .await
     {
-        Ok(()) => {
+        Ok(app_game_session) => {
             let mut enforcement_command = command;
             enforcement_command.command =
                 ocentra_parent_agent_protocol::transport::AgentCommandName::AgentEnforcementExecute;
-            build_enforcement_audit_report_with_paths(enforcement_command, paths).await
+            build_enforcement_audit_report_with_app_game_session(
+                enforcement_command,
+                paths,
+                app_game_session,
+            )
+            .await
         }
         Err(reason) => dispatch_execute_rejected_from_value(command, reason.log_value()),
     }

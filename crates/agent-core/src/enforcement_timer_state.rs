@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementActiveTimerState, EnforcementResultStatus, EnforcementTimerEventKind,
-    ParentActionReference,
+    AppGameTimerSessionBinding, EnforcementActiveTimerState, EnforcementResultStatus,
+    EnforcementTimerEventKind, ParentActionReference,
 };
 
 use crate::enforcement_boundary::EnforcementBoundaryOutcome;
@@ -27,6 +27,7 @@ pub struct EnforcementTimerTransitionIds {
 pub fn active_timer_state_from_outcome(
     outcome: &EnforcementBoundaryOutcome,
     stored_at: &str,
+    app_game_session: Option<AppGameTimerSessionBinding>,
 ) -> Option<EnforcementActiveTimerState> {
     let timer_event = outcome.timer_event.clone()?;
     enforcement_timer_state_helpers::active_timer_event(&timer_event, &outcome.result).then(|| {
@@ -40,6 +41,7 @@ pub fn active_timer_state_from_outcome(
             audit_event: outcome.audit_event.clone(),
             timer_event,
             stored_at: stored_at.to_string(),
+            app_game_session,
         }
     })
 }

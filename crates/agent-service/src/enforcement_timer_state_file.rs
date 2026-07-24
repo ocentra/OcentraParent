@@ -1,6 +1,8 @@
 use ocentra_parent_agent_core::enforcement_boundary::EnforcementBoundaryOutcome;
 use ocentra_parent_agent_core::enforcement_timer_state::active_timer_state_from_outcome;
-use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
+use ocentra_parent_agent_protocol::enforcement::{
+    AppGameTimerSessionBinding, EnforcementActiveTimerState,
+};
 
 use crate::enforcement_timer_state_path::EnforcementTimerStatePath;
 
@@ -50,7 +52,20 @@ pub(crate) async fn store_active_timer_state_for_outcome(
     path: &EnforcementTimerStatePath,
     stored_at: impl EnforcementTimerStoredAtSource,
 ) -> Result<Option<EnforcementActiveTimerState>, EnforcementTimerStateFileError> {
-    match active_timer_state_from_outcome(outcome, stored_at.as_timer_stored_at_text_ref().0) {
+    store_active_timer_state_for_outcome_with_app_game_session(outcome, path, stored_at, None).await
+}
+
+pub(crate) async fn store_active_timer_state_for_outcome_with_app_game_session(
+    outcome: &EnforcementBoundaryOutcome,
+    path: &EnforcementTimerStatePath,
+    stored_at: impl EnforcementTimerStoredAtSource,
+    app_game_session: Option<AppGameTimerSessionBinding>,
+) -> Result<Option<EnforcementActiveTimerState>, EnforcementTimerStateFileError> {
+    match active_timer_state_from_outcome(
+        outcome,
+        stored_at.as_timer_stored_at_text_ref().0,
+        app_game_session,
+    ) {
         Some(state) => {
             io::write_active_timer_state(path, &state).await?;
             Ok(Some(state))

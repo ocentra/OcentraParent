@@ -566,4 +566,20 @@ pub struct EnforcementActiveTimerState {
     pub audit_event: EnforcementAuditEvent,
     pub timer_event: EnforcementTimerEvent,
     pub stored_at: String,
+    #[serde(default)]
+    pub app_game_session: Option<AppGameTimerSessionBinding>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameTimerSessionBinding {
+    pub session_id: String,
+    pub runtime_evidence_id: String,
+    pub process_identity: String,
+    pub process_id: u64,
+    pub process_name: String,
+    pub classification_state: String,
+    pub last_observed_at: String,
+    pub running_duration_ms: u64,
+    pub foreground_duration_ms: u64,
 }

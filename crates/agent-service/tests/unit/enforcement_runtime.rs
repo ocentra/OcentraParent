@@ -15,6 +15,8 @@ mod activity_api {
 }
 #[path = "../../src/activity_store_path.rs"]
 mod activity_store_path;
+#[path = "../../src/app_game_dispatch_evidence.rs"]
+mod app_game_dispatch_evidence;
 #[path = "../../src/dev_log.rs"]
 mod dev_log;
 #[path = "../../src/enforcement_api/enforcement_broad_adapter_proof_read_model.rs"]
