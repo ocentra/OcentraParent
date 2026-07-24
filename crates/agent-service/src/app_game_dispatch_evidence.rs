@@ -5,6 +5,11 @@ use ocentra_parent_agent_protocol::app_game::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
+#[path = "app_game_dispatch_evidence/payload.rs"]
+mod payload;
+
+use payload::AppGameDispatchEvidencePayload;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct AppGameDispatchStorePath(pub(crate) std::path::PathBuf);
 
@@ -28,16 +33,7 @@ pub(crate) async fn validate_app_game_dispatch_evidence(
     payload: &LogFields,
     store_path: AppGameDispatchStorePath,
 ) -> Result<(), AppGameDispatchEvidenceRejection> {
-    let runtime_evidence_id = match payload.get(constants::field::APP_GAME_RUNTIME_EVIDENCE_ID) {
-        Some(LogFieldValue::String(value)) if !value.trim().is_empty() => value.trim().to_string(),
-        _ => return Err(AppGameDispatchEvidenceRejection::Required),
-    };
-    let process_id = match payload.get(constants::field::PROCESS_ID) {
-        Some(LogFieldValue::Number(value)) if *value >= 0.0 && *value <= f64::from(u32::MAX) => {
-            *value as u32
-        }
-        _ => return Err(AppGameDispatchEvidenceRejection::Required),
-    };
+    let payload = AppGameDispatchEvidencePayload::parse(payload)?;
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(store_path.0)
             .map_err(|_| AppGameDispatchEvidenceRejection::Mismatch)?;
@@ -48,8 +44,9 @@ pub(crate) async fn validate_app_game_dispatch_evidence(
             )
             .map_err(|_| AppGameDispatchEvidenceRejection::Mismatch)?;
         let matches = model.running_now_rows.iter().any(|row| {
-            row.runtime_evidence_id == runtime_evidence_id
-                && row.process_id == u64::from(process_id)
+            row.runtime_evidence_id == payload.runtime_evidence_id.0
+                && row.process_id == u64::from(payload.process_id)
+                && row.process_name == payload.target_value.0
                 && row.runtime_state == APP_GAME_RUNTIME_RUNNING
                 && matches!(
                     row.classification_state.as_str(),

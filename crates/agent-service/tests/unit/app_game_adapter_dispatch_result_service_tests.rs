@@ -165,6 +165,14 @@ async fn app_game_adapter_dispatch_execute_rejects_unresolved_runtime_evidence()
         constants::field::PROCESS_ID.to_string(),
         LogFieldValue::Number(4242.0),
     );
+    command.payload.insert(
+        constants::field::POLICY_TARGET_VALUE.to_string(),
+        LogFieldValue::String("ocentra-fixture.exe".to_string()),
+    );
+    command.payload.insert(
+        constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
+        LogFieldValue::String("runtime-evidence-missing-from-store".to_string()),
+    );
     let event =
         build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone())
             .await;
