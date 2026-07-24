@@ -110,6 +110,7 @@ pub const REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED: &str =
     "enforcement-app-game-session-evidence-required";
 pub const REJECTION_APP_GAME_RUNTIME_EVIDENCE_MISMATCH: &str =
     "enforcement-app-game-runtime-evidence-mismatch";
+pub const APP_GAME_RUNTIME_EVIDENCE_GENERATED_AT: &str = "";
 
 pub const SOURCE_ID_AGENT_SERVICE: &str = "enforcement-agent-service";
 pub const JOURNAL_BEFORE_ACTION_ID_PREFIX: &str = "0-before-action-";

@@ -4,7 +4,9 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
-use crate::app_game_dispatch_evidence::validate_app_game_dispatch_evidence;
+use crate::app_game_dispatch_evidence::{
+    validate_app_game_dispatch_evidence, AppGameDispatchStorePath,
+};
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
 use crate::{event_builder::build_event, fields::fields_from_pairs};
 
@@ -34,15 +36,35 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_execute_report_with
             DispatchReason(constants::enforcement::REJECTION_UNSUPPORTED_CAPABILITY),
         );
     }
-    match validate_app_game_dispatch_evidence(&command.payload, paths.store_path.clone()).await {
+    match validate_app_game_dispatch_evidence(
+        &command.payload,
+        AppGameDispatchStorePath(paths.store_path.clone()),
+    )
+    .await
+    {
         Ok(()) => {
             let mut enforcement_command = command;
             enforcement_command.command =
                 ocentra_parent_agent_protocol::transport::AgentCommandName::AgentEnforcementExecute;
             build_enforcement_audit_report_with_paths(enforcement_command, paths).await
         }
-        Err(reason) => dispatch_execute_rejected(command, DispatchReason(reason.as_protocol_str())),
+        Err(reason) => dispatch_execute_rejected_from_value(command, reason.log_value()),
     }
+}
+
+fn dispatch_execute_rejected_from_value(
+    command: AgentCommandEnvelope,
+    reason: LogFieldValue,
+) -> AgentEventEnvelope {
+    build_event(
+        constants::event_id::COMMAND_REJECTED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentCommandRejected,
+        LogLevel::Warn,
+        fields_from_pairs(vec![(constants::field::REASON, reason)]),
+        None,
+    )
 }
 
 fn dispatch_execute_rejected(

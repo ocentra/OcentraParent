@@ -5,6 +5,9 @@ use ocentra_parent_agent_protocol::app_game::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct AppGameDispatchStorePath(pub(crate) std::path::PathBuf);
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum AppGameDispatchEvidenceRejection {
     Required,
@@ -12,17 +15,18 @@ pub(crate) enum AppGameDispatchEvidenceRejection {
 }
 
 impl AppGameDispatchEvidenceRejection {
-    pub(crate) fn as_protocol_str(self) -> &'static str {
-        match self {
+    pub(crate) fn log_value(self) -> LogFieldValue {
+        let value = match self {
             Self::Required => constants::enforcement::REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED,
             Self::Mismatch => constants::enforcement::REJECTION_APP_GAME_RUNTIME_EVIDENCE_MISMATCH,
-        }
+        };
+        LogFieldValue::String(value.to_string())
     }
 }
 
 pub(crate) async fn validate_app_game_dispatch_evidence(
     payload: &LogFields,
-    store_path: std::path::PathBuf,
+    store_path: AppGameDispatchStorePath,
 ) -> Result<(), AppGameDispatchEvidenceRejection> {
     let runtime_evidence_id = match payload.get(constants::field::APP_GAME_RUNTIME_EVIDENCE_ID) {
         Some(LogFieldValue::String(value)) if !value.trim().is_empty() => value.trim().to_string(),
@@ -35,10 +39,13 @@ pub(crate) async fn validate_app_game_dispatch_evidence(
         _ => return Err(AppGameDispatchEvidenceRejection::Required),
     };
     tokio::task::spawn_blocking(move || {
-        let store = ActivityStore::open(store_path)
+        let store = ActivityStore::open(store_path.0)
             .map_err(|_| AppGameDispatchEvidenceRejection::Mismatch)?;
         let model = store
-            .app_game_service_read_model(constants::activity_store::DEFAULT_RECENT_LIMIT, "")
+            .app_game_service_read_model(
+                constants::activity_store::DEFAULT_RECENT_LIMIT,
+                constants::enforcement::APP_GAME_RUNTIME_EVIDENCE_GENERATED_AT,
+            )
             .map_err(|_| AppGameDispatchEvidenceRejection::Mismatch)?;
         let matches = model.running_now_rows.iter().any(|row| {
             row.runtime_evidence_id == runtime_evidence_id
