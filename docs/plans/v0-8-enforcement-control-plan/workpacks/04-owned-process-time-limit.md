@@ -78,11 +78,11 @@ Focused validation should record:
 
 ## AI Worker Checklist
 
-- [ ] Require pid and process identity checks before action.
-- [ ] Record mismatch, already-exited, unavailable, and success outcomes.
-- [ ] Tie limits to policy decisions and app/game evidence refs.
-- [ ] Add rollback/recovery where the adapter supports it.
-- [ ] Keep broad app blocking manual-required.
+- [x] Require pid and process identity checks before action.
+- [x] Record mismatch, already-exited, unavailable, and success outcomes.
+- [x] Tie limits to policy decisions and app/game evidence refs.
+- [x] Add rollback/recovery where the adapter supports it.
+- [x] Keep broad app blocking manual-required.
 
 ## Where We Are
 
@@ -107,7 +107,7 @@ clearly separate from broad app blocking.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch recorded.
-- [ ] Validation commands and results recorded in `16-validation-commands.log`.
-- [ ] Proof artifacts under `output/v0-8-enforcement-control-plan-proof/04-owned-process-time-limit/`.
-- [ ] Known gaps/manual-required states listed here and in the proof note.
+- [x] Workpack id and branch recorded: `codex/enforcement-wp06-managed-browser-adapter`.
+- [x] Validation commands and results are recorded by `npm run test:enforcement-owned-process-time-limit-proof`.
+- [x] Retained proof route: `docs/proof/v0-8-enforcement-control-plan/slice-04-owned-process-time-limit.md`; runtime artifact is `test-results/v0-8-owned-process-time-limit-proof/proof.json`.
+- [x] Known gaps/manual-required states are listed in this workpack and the proof note.

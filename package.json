@@ -155,6 +155,7 @@
     "test:child-agent-browser-intervention-page": "npm run build:contracts && node scripts/enforcer/run-ocentra-enforcer.mjs proof run --proof ocentra-parent.child-agent-browser-intervention-page-proof",
     "test:managed-browser-intervention": "npm run build:contracts && node scripts/enforcer/run-ocentra-enforcer.mjs proof run --proof ocentra-parent.managed-browser-intervention-proof",
     "test:managed-browser-composited-block": "npm run build:contracts && node scripts/enforcer/run-ocentra-enforcer.mjs proof run --proof ocentra-parent.managed-browser-composited-block-proof",
+    "test:enforcement-owned-process-time-limit-proof": "node scripts/test/v0-8-owned-process-time-limit-proof.mjs",
     "test:pre-ai-proof": "node scripts/check-pre-ai-proof.mjs",
     "lint:generated-artifacts": "npm run lint:enforcer:generated-artifacts",
     "lint:architecture": "node scripts/check-architecture-policy.mjs",

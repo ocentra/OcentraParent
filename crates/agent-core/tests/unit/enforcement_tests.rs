@@ -1,4 +1,6 @@
 use std::fmt::Debug;
+#[cfg(windows)]
+use std::process::{Child, Command, Stdio};
 
 use crate::test_text::{TestResult, TestText};
 use crate::*;
@@ -363,6 +365,60 @@ fn process_adapter_reports_real_platform_result_with_explicit_rollback_state() -
             enforcement::ROLLBACK_UNAVAILABLE
         );
     }
+
+    Ok(())
+}
+
+#[cfg(windows)]
+struct OwnedProcessGuard(Child);
+
+#[cfg(windows)]
+impl Drop for OwnedProcessGuard {
+    fn drop(&mut self) {
+        let _ = self.0.kill();
+        let _ = self.0.wait();
+    }
+}
+
+#[cfg(windows)]
+#[test]
+fn owned_process_adapter_terminates_a_real_owned_windows_process() -> TestResult {
+    let child = Command::new("powershell.exe")
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Start-Sleep -Seconds 60",
+        ])
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .map_err(|error| TestText::from_display(format!("spawn owned process: {error}")))?;
+    let mut child = OwnedProcessGuard(child);
+
+    let outcome = terminate_owned_process(
+        OwnedProcessTerminationTarget {
+            pid: child.0.id(),
+            expected_process_name: "powershell.exe".to_string(),
+        },
+        policy::TEST_EVALUATED_AT,
+    );
+
+    assert_eq!(
+        outcome.adapter_result_code.as_protocol_str(),
+        enforcement::ADAPTER_PROCESS_TERMINATED
+    );
+    assert_eq!(outcome.status, EnforcementResultStatus::ActuallyEnforced);
+    assert_eq!(
+        outcome.rollback_state.as_protocol_str(),
+        enforcement::ROLLBACK_NOT_REQUIRED
+    );
+    let exit = child
+        .0
+        .wait()
+        .map_err(|error| TestText::from_display(format!("wait owned process: {error}")))?;
+    assert!(!exit.success());
 
     Ok(())
 }
