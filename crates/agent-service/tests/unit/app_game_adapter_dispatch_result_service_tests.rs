@@ -145,8 +145,40 @@ async fn app_game_adapter_dispatch_execute_requires_stored_session_evidence() {
         execute_event
             .payload
             .get(constants::field::REASON)
-            .and_then(|value| value.as_str()),
-        Some(constants::enforcement::REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED)
+            .and_then(string_log_value),
+        Some(TestText::from_display(
+            constants::enforcement::REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED,
+        ))
+    );
+}
+
+#[tokio::test]
+async fn app_game_adapter_dispatch_execute_rejects_unresolved_runtime_evidence() {
+    let paths = temp_paths("unresolved-runtime-evidence");
+    cleanup_paths(&paths);
+    let mut command = dispatch_execute_command();
+    command.payload.insert(
+        constants::field::APP_GAME_RUNTIME_EVIDENCE_ID.to_string(),
+        LogFieldValue::String("runtime-evidence-missing-from-store".to_string()),
+    );
+    command.payload.insert(
+        constants::field::PROCESS_ID.to_string(),
+        LogFieldValue::Number(4242.0),
+    );
+    let event =
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone())
+            .await;
+    cleanup_paths(&paths);
+
+    assert_eq!(event.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::REASON)
+            .and_then(string_log_value),
+        Some(TestText::from_display(
+            constants::enforcement::REJECTION_APP_GAME_RUNTIME_EVIDENCE_MISMATCH,
+        ))
     );
 }
 

@@ -4,7 +4,8 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
-use crate::enforcement_api::EnforcementJournalPaths;
+use crate::app_game_dispatch_evidence::validate_app_game_dispatch_evidence;
+use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
 use crate::{event_builder::build_event, fields::fields_from_pairs};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -25,7 +26,7 @@ pub async fn build_activity_app_game_adapter_dispatch_execute_report(
 
 pub(crate) async fn build_activity_app_game_adapter_dispatch_execute_report_with_paths(
     command: AgentCommandEnvelope,
-    _paths: EnforcementJournalPaths,
+    paths: EnforcementJournalPaths,
 ) -> AgentEventEnvelope {
     if command.target.platform != constants::enforcement::PLATFORM_WINDOWS {
         return dispatch_execute_rejected(
@@ -33,10 +34,15 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_execute_report_with
             DispatchReason(constants::enforcement::REJECTION_UNSUPPORTED_CAPABILITY),
         );
     }
-    dispatch_execute_rejected(
-        command,
-        DispatchReason(constants::enforcement::REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED),
-    )
+    match validate_app_game_dispatch_evidence(&command.payload, paths.store_path.clone()).await {
+        Ok(()) => {
+            let mut enforcement_command = command;
+            enforcement_command.command =
+                ocentra_parent_agent_protocol::transport::AgentCommandName::AgentEnforcementExecute;
+            build_enforcement_audit_report_with_paths(enforcement_command, paths).await
+        }
+        Err(reason) => dispatch_execute_rejected(command, DispatchReason(reason.as_protocol_str())),
+    }
 }
 
 fn dispatch_execute_rejected(

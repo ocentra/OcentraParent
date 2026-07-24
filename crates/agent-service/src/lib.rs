@@ -18,6 +18,7 @@ mod activity_surface_report_store;
 mod activity_surface_request;
 mod activity_surface_store;
 mod app;
+mod app_game_dispatch_evidence;
 mod browser_evidence_payload;
 mod browser_intervention_page;
 mod browser_inventory_read_model;

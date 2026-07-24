@@ -108,6 +108,8 @@ pub const REJECTION_ACTIVE_TIMER_STATE_MISMATCH: &str = "enforcement-active-time
 pub const REJECTION_PARENT_ACTION_REQUIRED: &str = "enforcement-parent-action-required";
 pub const REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED: &str =
     "enforcement-app-game-session-evidence-required";
+pub const REJECTION_APP_GAME_RUNTIME_EVIDENCE_MISMATCH: &str =
+    "enforcement-app-game-runtime-evidence-mismatch";
 
 pub const SOURCE_ID_AGENT_SERVICE: &str = "enforcement-agent-service";
 pub const JOURNAL_BEFORE_ACTION_ID_PREFIX: &str = "0-before-action-";
