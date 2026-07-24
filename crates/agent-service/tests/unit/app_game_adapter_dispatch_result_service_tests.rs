@@ -130,7 +130,7 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
 }
 
 #[tokio::test]
-async fn app_game_adapter_dispatch_execute_command_runs_scoped_enforcement_and_readback() {
+async fn app_game_adapter_dispatch_execute_requires_stored_session_evidence() {
     let paths = temp_paths(APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID);
     cleanup_paths(&paths);
     let execute_event = build_activity_app_game_adapter_dispatch_execute_report_with_paths(
@@ -138,39 +138,16 @@ async fn app_game_adapter_dispatch_execute_command_runs_scoped_enforcement_and_r
         paths.clone(),
     )
     .await;
-    let readback_event = build_activity_app_game_adapter_dispatch_result_report_with_store_path(
-        dispatch_result_command(),
-        ActivityStorePath(paths.store_path.clone()),
-    )
-    .await;
     cleanup_paths(&paths);
 
+    assert_eq!(execute_event.event, AgentEventName::AgentCommandRejected);
     assert_eq!(
-        execute_event.event,
-        AgentEventName::AgentActivityAppGameAdapterDispatchExecuted
-    );
-    let execute_result = dispatch_execute_result(&execute_event);
-    assert_eq!(
-        execute_result
-            .get(constants::field::EXECUTION_RESULT_ID)
+        execute_event
+            .payload
+            .get(constants::field::REASON)
             .and_then(|value| value.as_str()),
-        Some(constants::enforcement::TEST_RESULT_ID)
+        Some(constants::enforcement::REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED)
     );
-    assert_eq!(
-        execute_result
-            .get(constants::field::EXECUTION_AUDIT_EVENT_ID)
-            .and_then(|value| value.as_str()),
-        Some(constants::enforcement::TEST_AUDIT_EVENT_ID)
-    );
-    assert_eq!(
-        execute_result
-            .get(constants::field::BROAD_INSTALLED_APP_BLOCKING_CLAIMED)
-            .and_then(|value| value.as_bool()),
-        Some(false)
-    );
-    let read_model = dispatch_result_read_model(&readback_event);
-    assert_eq!(read_model.adapter_execution_reported_count, 1);
-    assert_eq!(read_model.adapter_execution_evidence_missing_count, 0);
 }
 
 #[tokio::test]
@@ -333,19 +310,6 @@ fn dispatch_result_read_model(
         event
             .payload
             .get(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL)
-            .and_then(string_log_value),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
-    require_json_decode(value, constants::error::AGENT_EVENT_SERIALIZES)
-}
-
-fn dispatch_execute_result(
-    event: &ocentra_parent_agent_protocol::transport::AgentEventEnvelope,
-) -> serde_json::Value {
-    let value = require_some(
-        event
-            .payload
-            .get(constants::field::APP_GAME_ADAPTER_DISPATCH_EXECUTE_RESULT)
             .and_then(string_log_value),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
