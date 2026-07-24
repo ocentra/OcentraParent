@@ -29,20 +29,25 @@ impl AppGameDispatchEvidenceRejection {
     }
 }
 
+fn mismatch_from_error<E>(error: &E) -> AppGameDispatchEvidenceRejection {
+    let _ = error;
+    AppGameDispatchEvidenceRejection::Mismatch
+}
+
 pub(crate) async fn validate_app_game_dispatch_evidence(
     payload: &LogFields,
     store_path: AppGameDispatchStorePath,
 ) -> Result<(), AppGameDispatchEvidenceRejection> {
     let payload = AppGameDispatchEvidencePayload::parse(payload)?;
     tokio::task::spawn_blocking(move || {
-        let store = ActivityStore::open(store_path.0)
-            .map_err(|_| AppGameDispatchEvidenceRejection::Mismatch)?;
+        let store =
+            ActivityStore::open(store_path.0).map_err(|error| mismatch_from_error(&error))?;
         let model = store
             .app_game_service_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
                 constants::enforcement::APP_GAME_RUNTIME_EVIDENCE_GENERATED_AT,
             )
-            .map_err(|_| AppGameDispatchEvidenceRejection::Mismatch)?;
+            .map_err(|error| mismatch_from_error(&error))?;
         let matches = model.running_now_rows.iter().any(|row| {
             row.runtime_evidence_id == payload.runtime_evidence_id.0
                 && row.process_id == u64::from(payload.process_id)
@@ -58,5 +63,5 @@ pub(crate) async fn validate_app_game_dispatch_evidence(
             .ok_or(AppGameDispatchEvidenceRejection::Mismatch)
     })
     .await
-    .map_err(|_| AppGameDispatchEvidenceRejection::Mismatch)?
+    .map_err(|error| mismatch_from_error(&error))?
 }
