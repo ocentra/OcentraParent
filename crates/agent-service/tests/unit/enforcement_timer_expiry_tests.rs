@@ -7,8 +7,9 @@ use ocentra_parent_agent_core::window_capture::ForegroundWindowObservation;
 use ocentra_parent_agent_core::window_capture_event::foreground_window_observation_event;
 use ocentra_parent_agent_protocol::app_game::{
     AppGameRuntimeEvidenceRow, APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_OBSERVATION_MODE_PROCESS_START, APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_OBSERVATION_MODE_PROCESS_START,
+    APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
@@ -68,7 +69,8 @@ async fn app_game_timer_session_evidence_requires_matching_persisted_runtime_and
         ActivityStore::open(&paths.store_path),
         constants::error::ACTIVITY_STORE_OPENS,
     )?;
-    let events = app_game_timer_session_events()?;
+    let runtime = app_game_timer_session_runtime_row();
+    let events = app_game_timer_session_events(&runtime)?;
     test_ok(
         store.ingest_events(&events),
         constants::error::ACTIVITY_STORE_INGESTS,
@@ -97,6 +99,35 @@ async fn app_game_timer_session_evidence_requires_matching_persisted_runtime_and
     assert_eq!(
         crate::app_game_dispatch_evidence::validate_app_game_timer_session(
             &wrong_process,
+            crate::app_game_dispatch_evidence::AppGameDispatchStorePath(paths.store_path.clone()),
+        )
+        .await,
+        Err(crate::app_game_dispatch_evidence::AppGameDispatchEvidenceRejection::Mismatch)
+    );
+    cleanup_paths(&paths);
+    Ok(())
+}
+
+#[tokio::test]
+async fn app_game_timer_session_evidence_rejects_unknown_runtime_identity() -> TestResult {
+    let paths = temp_paths("app-game-unknown-runtime-identity");
+    cleanup_paths(&paths);
+    let store = test_ok(
+        ActivityStore::open(&paths.store_path),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    let mut runtime = app_game_timer_session_runtime_row();
+    runtime.classification_state = APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS.to_string();
+    let events = app_game_timer_session_events(&runtime)?;
+    test_ok(
+        store.ingest_events(&events),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    drop(store);
+
+    assert_eq!(
+        crate::app_game_dispatch_evidence::validate_app_game_dispatch_evidence(
+            &app_game_timer_session_payload(),
             crate::app_game_dispatch_evidence::AppGameDispatchStorePath(paths.store_path.clone()),
         )
         .await,
@@ -371,9 +402,9 @@ fn app_game_timer_session_payload() -> LogFields {
 }
 
 fn app_game_timer_session_events(
+    runtime: &AppGameRuntimeEvidenceRow,
 ) -> Result<Vec<ocentra_parent_agent_protocol::activity::ActivityEvent>, TestText> {
     let observed_at = "2026-06-03T22:14:00Z";
-    let runtime = app_game_timer_session_runtime_row();
     Ok(vec![
         process_observation_event(
             ProcessObservation {

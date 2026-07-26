@@ -9,6 +9,8 @@ proves both sides of the persisted boundary:
 The dispatch harness additionally proves that a command with no session
 evidence is rejected as `app-game-session-evidence-required`, and one with an
 unresolved runtime evidence id is rejected as `app-game-runtime-evidence-mismatch`.
+An unknown runtime classification is also rejected, so weak identity cannot
+silently become app/game execution authority.
 
 The dispatch validator also requires known-app/known-game runtime state and a
 session summary with matching process identity and freshness. It does not
