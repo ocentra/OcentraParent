@@ -1,6 +1,6 @@
 # WP05 App/Game Session Handoff — Scope Summary
 
-Branch: `codex/enforcement-wp06-managed-browser-adapter`  
+Branch: `codex/enforcement-wp06-managed-browser-adapter`
 Commit under review: `bb23ed505`
 
 This packet proves the app/game timer handoff validates a persisted app/game
