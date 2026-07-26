@@ -431,7 +431,7 @@ fn app_game_timer_session_events(
             app_game_runtime_journal_event(
                 constants::peer::LOCAL_DEV_AGENT,
                 constants::enforcement::PLATFORM_WINDOWS,
-                &runtime,
+                runtime,
             ),
             constants::error::ACTIVITY_STORE_INGESTS,
         )?,
