@@ -28,7 +28,14 @@ expiry revalidates that stored evidence.
 
 - `cargo test -p ocentra-parent-agent-service --test enforcement_runtime app_game_timer_session_evidence --quiet` — 2 passed.
 - `cargo test -p ocentra-parent-agent-service --test app_game_activity_read_models app_game_adapter_dispatch_execute --quiet` — 3 passed.
+- `cargo test -p ocentra-parent-agent-service --test app_game_activity_read_models app_game_timer_parent_surface --quiet` — 3 passed.
+- `cargo test -p ocentra-parent-agent-protocol --test contract app_game_timer_parent_surface --quiet` — 2 passed.
+- `cargo test -p ocentra-parent-agent-core enforcement` — 49 passed.
 - Protocol, core, and service `cargo clippy --all-targets -- -D warnings` were run for this packet; the final CI-equivalent rerun is recorded with the PR check state.
+
+The historical `npm run test --workspace @ocentra-parent/enforcement-domain -- enforcement`
+command cannot run because that workspace is no longer present. WP05 now names
+the Rust protocol, core, and service validation that owns the same boundary.
 
 ## No-claim boundary
 
