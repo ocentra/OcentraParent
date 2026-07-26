@@ -6,6 +6,10 @@ command=cargo test -p ocentra-parent-agent-service --test enforcement_runtime ap
 result=pass
 evidence=1 passed; persisted SQLite process/foreground/runtime evidence positive and changed-process rejection
 
+command=cargo test -p ocentra-parent-agent-service --test app_game_activity_read_models app_game_adapter_dispatch_execute --quiet
+result=pass
+evidence=3 passed; missing session evidence, unresolved runtime evidence, and unsupported platform dispatch rejections
+
 command=cargo clippy -p ocentra-parent-agent-protocol --all-targets -- -D warnings
 result=pass
 

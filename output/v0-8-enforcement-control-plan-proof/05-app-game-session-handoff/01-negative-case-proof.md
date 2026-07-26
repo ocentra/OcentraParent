@@ -6,6 +6,10 @@ proves both sides of the persisted boundary:
 - matching session/runtime evidence binds and revalidates successfully;
 - a changed process id is rejected as `Mismatch`.
 
+The dispatch harness additionally proves that a command with no session
+evidence is rejected as `app-game-session-evidence-required`, and one with an
+unresolved runtime evidence id is rejected as `app-game-runtime-evidence-mismatch`.
+
 The dispatch validator also requires known-app/known-game runtime state and a
 session summary with matching process identity and freshness. It does not
 promote a portal value or AI classification into execution authority.
