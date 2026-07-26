@@ -1,0 +1,23 @@
+workpack=05-app-game-session-handoff
+branch=codex/enforcement-wp06-managed-browser-adapter
+commit=bb23ed505
+
+command=cargo test -p ocentra-parent-agent-service --test enforcement_runtime app_game_timer_session_evidence_requires_matching_persisted_runtime_and_session --quiet
+result=pass
+evidence=1 passed; persisted SQLite process/foreground/runtime evidence positive and changed-process rejection
+
+command=cargo clippy -p ocentra-parent-agent-protocol --all-targets -- -D warnings
+result=pass
+
+command=cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings
+result=pass
+
+command=cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings
+result=pass
+
+command=npm run lint:architecture -- --files crates/agent-core/src/enforcement_timer_state.rs crates/agent-protocol/tests/unit/enforcement_tests.rs crates/agent-service/src crates/agent-service/tests/unit
+result=pass
+
+command=GitHub Actions CI Gate run 30207602700
+result=in-progress-at-proof-write
+no-claim=Do not treat this packet as CI-green or full-workpack closure until the run completes and all WP05 checklist requirements are evidenced.
