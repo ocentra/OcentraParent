@@ -85,6 +85,29 @@ async fn app_game_timer_session_evidence_requires_matching_persisted_runtime_and
         .await,
         constants::error::ACTIVITY_STORE_QUERIES,
     )?;
+    let store = test_ok(
+        ActivityStore::open(&paths.store_path),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    let summary = test_some(
+        test_ok(
+            store.app_game_session_summaries(constants::activity_store::DEFAULT_RECENT_LIMIT),
+            constants::error::ACTIVITY_STORE_QUERIES,
+        )?
+        .into_iter()
+        .find(|summary| summary.primary_process_identity == runtime.process_identity),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
+    assert_eq!(binding.session_id, summary.session_id);
+    assert_eq!(binding.runtime_evidence_id, runtime.runtime_evidence_id);
+    assert_eq!(binding.process_identity, runtime.process_identity);
+    assert_eq!(binding.process_id, runtime.process_id);
+    assert_eq!(binding.process_name, runtime.process_name);
+    assert_eq!(binding.classification_state, runtime.classification_state);
+    assert_eq!(binding.last_observed_at, summary.last_observed_at);
+    assert_eq!(binding.running_duration_ms, summary.running_duration_ms);
+    assert_eq!(binding.foreground_duration_ms, summary.foreground_duration_ms);
+    drop(store);
     test_ok(
         crate::app_game_dispatch_evidence::validate_app_game_timer_session(
             &binding,
