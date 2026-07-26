@@ -69,7 +69,6 @@ pub(crate) async fn validate_app_game_dispatch_evidence(
             .into_iter()
             .find(|summary| {
                 summary.primary_process_identity == runtime.process_identity
-                    && summary.classification_state == runtime.classification_state
                     && summary.last_observed_at >= runtime.observed_at
             })
             .ok_or(AppGameDispatchEvidenceRejection::Mismatch)?;
@@ -122,7 +121,6 @@ pub(crate) async fn validate_app_game_timer_session(
             .find(|summary| {
                 summary.session_id == binding.session_id
                     && summary.primary_process_identity == runtime.process_identity
-                    && summary.classification_state == binding.classification_state
                     && summary.last_observed_at >= binding.last_observed_at
                     && summary.running_duration_ms >= binding.running_duration_ms
                     && summary.foreground_duration_ms >= binding.foreground_duration_ms

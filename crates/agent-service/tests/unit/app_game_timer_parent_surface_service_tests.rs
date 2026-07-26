@@ -205,10 +205,11 @@ async fn app_game_timer_parent_surface_timer_state_helpers_are_linked() -> Resul
         adapter_request: None,
     };
 
-    let stored = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome(
+    let stored = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome_with_app_game_session(
         &outcome,
         &timer_state_path,
         policy_constants::TEST_EVALUATED_AT,
+        None,
     )
     .await
     .map_err(|error| format!("{error:?}"))?;

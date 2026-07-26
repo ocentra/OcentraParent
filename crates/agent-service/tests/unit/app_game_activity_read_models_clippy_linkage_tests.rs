@@ -182,6 +182,9 @@ fn app_game_activity_read_models_clippy_linkage() {
     let _ = super::windows_adapter_artifact_gate_read_model::windows_adapter_artifact_gate_proof;
     let _ = super::windows_adapter_capability_read_model::windows_adapter_capability_proof;
     let _ = super::app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report;
+    let _ = super::app_game_dispatch_evidence::AppGameDispatchEvidenceRejection::log_value;
+    let _ = super::app_game_dispatch_evidence::validate_app_game_dispatch_evidence;
+    let _ = super::app_game_dispatch_evidence::validate_app_game_timer_session;
     let _ = super::app_game_adapter_dispatch_preflight_payload::build_activity_app_game_adapter_dispatch_preflight_report;
     let _ = super::app_game_adapter_execution_readiness_payload::build_activity_app_game_adapter_execution_readiness_report;
     let _ = super::app_game_child_runtime_transport_receipt_payload::build_activity_app_game_child_runtime_transport_receipt_report;

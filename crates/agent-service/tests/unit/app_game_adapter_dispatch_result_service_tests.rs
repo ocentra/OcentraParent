@@ -133,9 +133,11 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
 async fn app_game_adapter_dispatch_execute_requires_stored_session_evidence() {
     let paths = temp_paths(APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID);
     cleanup_paths(&paths);
-    let execute_event = build_activity_app_game_adapter_dispatch_execute_report_with_paths(
-        dispatch_execute_command(),
-        paths.clone(),
+    let execute_event = Box::pin(
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(
+            dispatch_execute_command(),
+            paths.clone(),
+        ),
     )
     .await;
     cleanup_paths(&paths);
@@ -173,9 +175,10 @@ async fn app_game_adapter_dispatch_execute_rejects_unresolved_runtime_evidence()
         constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
         LogFieldValue::String("runtime-evidence-missing-from-store".to_string()),
     );
-    let event =
-        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone())
-            .await;
+    let event = Box::pin(
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone()),
+    )
+    .await;
     cleanup_paths(&paths);
 
     assert_eq!(event.event, AgentEventName::AgentCommandRejected);
@@ -196,9 +199,10 @@ async fn app_game_adapter_dispatch_execute_rejects_non_windows_targets() {
     cleanup_paths(&paths);
     let mut command = dispatch_execute_command();
     command.target.platform = constants::enforcement::PLATFORM_LINUX.to_string();
-    let event =
-        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone())
-            .await;
+    let event = Box::pin(
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone()),
+    )
+    .await;
     cleanup_paths(&paths);
 
     assert_eq!(event.event, AgentEventName::AgentCommandRejected);

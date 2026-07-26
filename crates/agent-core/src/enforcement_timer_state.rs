@@ -27,6 +27,13 @@ pub struct EnforcementTimerTransitionIds {
 pub fn active_timer_state_from_outcome(
     outcome: &EnforcementBoundaryOutcome,
     stored_at: &str,
+) -> Option<EnforcementActiveTimerState> {
+    active_timer_state_from_outcome_with_app_game_session(outcome, stored_at, None)
+}
+
+pub fn active_timer_state_from_outcome_with_app_game_session(
+    outcome: &EnforcementBoundaryOutcome,
+    stored_at: &str,
     app_game_session: Option<AppGameTimerSessionBinding>,
 ) -> Option<EnforcementActiveTimerState> {
     let timer_event = outcome.timer_event.clone()?;

@@ -24,8 +24,8 @@ use crate::enforcement_timer_report::{
     record_timer_activity, timer_report_payload, unavailable_timer_payload, TimerReportError,
 };
 use crate::enforcement_timer_state_file::{
-    read_active_timer_state, remove_active_timer_state, store_active_timer_state_for_outcome,
-    EnforcementTimerStoredAtTextRef,
+    read_active_timer_state, remove_active_timer_state,
+    store_active_timer_state_for_outcome_with_app_game_session, EnforcementTimerStoredAtTextRef,
 };
 use crate::time::timestamp_now;
 
@@ -99,10 +99,11 @@ async fn recover_timer(
     let mut outcome = restart_recovered_timer_outcome(&state, request.transition_ids.clone());
     outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
     let status = record_timer_activity(&request, &outcome, &paths).await?;
-    let active_state = store_active_timer_state_for_outcome(
+    let active_state = store_active_timer_state_for_outcome_with_app_game_session(
         &outcome,
         &timer_state_path,
         EnforcementTimerStoredAtTextRef(&request.transition_ids.observed_at),
+        None,
     )
     .await
     .map_err(timer_state_file_error)?;

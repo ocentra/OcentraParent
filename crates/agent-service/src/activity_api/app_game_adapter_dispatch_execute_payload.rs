@@ -21,9 +21,11 @@ struct DispatchReason(&'static str);
 pub async fn build_activity_app_game_adapter_dispatch_execute_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    build_activity_app_game_adapter_dispatch_execute_report_with_paths(
-        command,
-        EnforcementJournalPaths::from_environment(),
+    Box::pin(
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(
+            command,
+            EnforcementJournalPaths::from_environment(),
+        ),
     )
     .await
 }

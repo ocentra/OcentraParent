@@ -308,10 +308,11 @@ mod clippy_linkage {
     async fn enforcement_timer_state_helpers_are_linked() {
         let timer_state_path = crate::enforcement_timer_state_path::enforcement_timer_state_path();
         let outcome = crate::timer_state_fixture::outcome();
-        let stored = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome(
+        let stored = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome_with_app_game_session(
             &outcome,
             &timer_state_path,
             "2026-06-29T00:00:00Z",
+            None,
         )
         .await;
         assert!(matches!(stored, Ok(Some(_))));

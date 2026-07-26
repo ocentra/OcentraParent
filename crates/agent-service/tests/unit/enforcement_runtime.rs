@@ -137,6 +137,9 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = test_invariants::require_log_string_field(Some(&log_field), "link");
     let _ = test_invariants::serialize_test_json(&decoded);
     let _ = enforcement_timer_api::build_enforcement_timer_report;
+    let _ = app_game_dispatch_evidence::AppGameDispatchEvidenceRejection::log_value;
+    let _ = app_game_dispatch_evidence::validate_app_game_dispatch_evidence;
+    let _ = app_game_dispatch_evidence::validate_app_game_timer_session;
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
 }
