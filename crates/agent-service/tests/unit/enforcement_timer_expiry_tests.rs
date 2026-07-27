@@ -106,7 +106,10 @@ async fn app_game_timer_session_evidence_requires_matching_persisted_runtime_and
     assert_eq!(binding.classification_state, runtime.classification_state);
     assert_eq!(binding.last_observed_at, summary.last_observed_at);
     assert_eq!(binding.running_duration_ms, summary.running_duration_ms);
-    assert_eq!(binding.foreground_duration_ms, summary.foreground_duration_ms);
+    assert_eq!(
+        binding.foreground_duration_ms,
+        summary.foreground_duration_ms
+    );
     drop(store);
     test_ok(
         crate::app_game_dispatch_evidence::validate_app_game_timer_session(
