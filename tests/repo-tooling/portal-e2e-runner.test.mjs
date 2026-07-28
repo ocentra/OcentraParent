@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
+import { Worker } from 'node:worker_threads';
 
 import { NetworkEvidenceDrawerProofFixture } from '../../scripts/test/network-evidence-drawer-fixture.mjs';
 import {
@@ -123,6 +124,29 @@ WHERE event_id = ?;
   }
 });
 
+test('portal network activity seed waits for a transient SQLite write lock before persisting evidence', async () => {
+  const runRoot = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-network-seed-lock-'));
+  const activityDbPath = path.join(runRoot, 'activity.sqlite');
+  const lock = holdDatabaseWriteLock(activityDbPath, 150);
+  try {
+    seedPortalNetworkActivityStore(activityDbPath);
+    await lock;
+    const database = new DatabaseSync(activityDbPath);
+    try {
+      const row = database
+        .prepare('SELECT evidence_json FROM activity_events WHERE event_id = ?;')
+        .get(PortalNetworkActivitySeed.EventId);
+
+      assert.equal(typeof row.evidence_json, 'string');
+      assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId), true);
+    } finally {
+      database.close();
+    }
+  } finally {
+    await rm(runRoot, { recursive: true, force: true });
+  }
+});
+
 test('portal network activity service preflight uses the Rust wire decoder and shared command helper', () => {
   const preflightSource = readFileSync('scripts/test/portal-network-activity-service-preflight.mjs', 'utf8');
 
@@ -152,3 +176,37 @@ test('network drawer proof ids stay single-sourced across scripts and portal tes
   assert.equal(proofSource.includes(NetworkEvidenceDrawerProofFixture.eventId), false);
   assert.equal(proofSource.includes(NetworkEvidenceDrawerProofFixture.evidenceId), false);
 });
+
+function holdDatabaseWriteLock(activityDbPath, holdMs) {
+  const state = new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT));
+  const worker = new Worker(
+    `
+      const { DatabaseSync } = require('node:sqlite');
+      const { workerData } = require('node:worker_threads');
+      const state = new Int32Array(workerData.state);
+      const database = new DatabaseSync(workerData.activityDbPath);
+      database.exec('BEGIN IMMEDIATE;');
+      Atomics.store(state, 0, 1);
+      Atomics.notify(state, 0);
+      Atomics.wait(state, 0, 1, workerData.holdMs);
+      database.exec('COMMIT;');
+      database.close();
+    `,
+    {
+      eval: true,
+      workerData: { activityDbPath, holdMs, state: state.buffer },
+    }
+  );
+  const acquired = Atomics.wait(state, 0, 0, 5000);
+  assert.notEqual(acquired, 'timed-out');
+  return new Promise((resolve, reject) => {
+    worker.once('error', reject);
+    worker.once('exit', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`SQLite lock worker exited with code ${code}.`));
+    });
+  });
+}

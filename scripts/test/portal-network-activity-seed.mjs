@@ -12,8 +12,29 @@ export const PortalNetworkActivitySeed = Object.freeze({
   JournalEvidenceId: NetworkEvidenceDrawerProofFixture.journalEvidenceId,
 });
 
+const DatabaseLockRetry = Object.freeze({
+  MaxAttempts: 8,
+  InitialDelayMs: 25,
+});
+
 export function seedPortalNetworkActivityStore(activityDbPath) {
-  const database = new DatabaseSync(activityDbPath);
+  for (let attempt = 1; attempt <= DatabaseLockRetry.MaxAttempts; attempt += 1) {
+    const database = new DatabaseSync(activityDbPath);
+    try {
+      seedNetworkActivityStore(database);
+      return;
+    } catch (error) {
+      if (!isRetriableDatabaseLockError(error) || attempt === DatabaseLockRetry.MaxAttempts) {
+        throw error;
+      }
+      waitForDatabaseLockRetry(attempt);
+    } finally {
+      database.close();
+    }
+  }
+}
+
+function seedNetworkActivityStore(database) {
   try {
     database.exec(`
 PRAGMA foreign_keys = ON;
@@ -107,8 +128,6 @@ INSERT OR REPLACE INTO activity_events (
       // Ignore rollback errors when SQLite already ended the transaction.
     }
     throw error;
-  } finally {
-    database.close();
   }
 }
 
@@ -239,4 +258,13 @@ function screenActivityEvidence() {
       uri: null,
     },
   ];
+}
+
+function isRetriableDatabaseLockError(error) {
+  return error instanceof Error && /database is (?:locked|busy)/iu.test(error.message);
+}
+
+function waitForDatabaseLockRetry(attempt) {
+  const retryDelayMs = DatabaseLockRetry.InitialDelayMs * attempt;
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT)), 0, 0, retryDelayMs);
 }
