@@ -12,12 +12,35 @@ export const PortalNetworkActivitySeed = Object.freeze({
   JournalEvidenceId: NetworkEvidenceDrawerProofFixture.journalEvidenceId,
 });
 
+const SeedDatabaseOptions = Object.freeze({
+  busyTimeoutMs: 1_500,
+  maxLockAttempts: 3,
+});
+
 export function seedPortalNetworkActivityStore(activityDbPath) {
-  const database = new DatabaseSync(activityDbPath);
+  let lastLockError;
+  for (let attempt = 1; attempt <= SeedDatabaseOptions.maxLockAttempts; attempt += 1) {
+    const database = new DatabaseSync(activityDbPath, { timeout: SeedDatabaseOptions.busyTimeoutMs });
+    try {
+      seedNetworkActivityStore(database);
+      return;
+    } catch (error) {
+      if (!isSqliteLockError(error) || attempt === SeedDatabaseOptions.maxLockAttempts) {
+        throw error;
+      }
+      lastLockError = error;
+    } finally {
+      database.close();
+    }
+  }
+  throw lastLockError;
+}
+
+function seedNetworkActivityStore(database) {
   try {
     database.exec(`
 PRAGMA foreign_keys = ON;
-PRAGMA journal_mode = DELETE;
+PRAGMA journal_mode = WAL;
 CREATE TABLE IF NOT EXISTS activity_events (
   event_id TEXT PRIMARY KEY,
   observed_at TEXT NOT NULL,
@@ -107,8 +130,6 @@ INSERT OR REPLACE INTO activity_events (
       // Ignore rollback errors when SQLite already ended the transaction.
     }
     throw error;
-  } finally {
-    database.close();
   }
 }
 
@@ -199,6 +220,10 @@ function seedEvidenceIds(value) {
     return [];
   }
   return parsed.map((entry) => entry?.evidenceId).filter((evidenceId) => typeof evidenceId === 'string');
+}
+
+function isSqliteLockError(error) {
+  return error instanceof Error && /SQLITE_(?:BUSY|LOCKED)|database is (?:locked|busy)/iu.test(error.message);
 }
 
 function screenActivityFields() {
