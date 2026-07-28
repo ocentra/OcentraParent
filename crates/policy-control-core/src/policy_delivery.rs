@@ -332,6 +332,19 @@ pub fn apply_policy_delivery_transition(
     apply_policy_delivery_transition_without_execution_receipt(current, transition)
 }
 
+/// Applies a state transition that is backed by the adapter's own execution
+/// receipt. Receipt-required states cannot be advanced through the legacy
+/// receiptless path.
+pub fn apply_policy_delivery_transition_with_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+    receipt: PolicyDeliveryExecutionReceipt,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    transitions::apply_policy_delivery_transition_with_execution_receipt(
+        current, transition, receipt,
+    )
+}
+
 pub fn apply_policy_delivery_transition_without_execution_receipt(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
