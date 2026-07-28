@@ -156,6 +156,28 @@ test('CI target workflows are split by runnable area', () => {
   }
 });
 
+test('non-desktop Rust workflows skip Tauri system dependencies without skipping Rust setup', () => {
+  const setupCi = readFileSync(join(repoRoot, '.github', 'actions', 'setup-ci', 'action.yml'), 'utf8');
+  const nonDesktopRustWorkflows = [
+    'ci-rust-adapters.yml',
+    'ci-rust-agent-core.yml',
+    'ci-rust-agent-protocol.yml',
+    'ci-rust-agent-service.yml',
+  ];
+
+  assert.match(setupCi, /install-tauri-system-dependencies:[\s\S]*default: 'true'/u);
+  assert.match(setupCi, /inputs\.install-rust == 'true' && inputs\.install-tauri-system-dependencies == 'true'/u);
+
+  for (const workflowName of nonDesktopRustWorkflows) {
+    const workflow = readFileSync(join(workflowsRoot, workflowName), 'utf8');
+    const setupUses = workflow.match(/uses: \.\/\.github\/actions\/setup-ci/g) ?? [];
+    const tauriOptOuts = workflow.match(/install-tauri-system-dependencies: 'false'/g) ?? [];
+
+    assert.equal(tauriOptOuts.length, setupUses.length, `${workflowName} opts every job out of Tauri packages`);
+    assert.equal(workflow.includes("install-rust: 'false'"), false, `${workflowName} keeps Rust setup enabled`);
+  }
+});
+
 test('CI aggregate gates parse needs results as JSON', () => {
   const workflow = readCiWorkflow();
 
