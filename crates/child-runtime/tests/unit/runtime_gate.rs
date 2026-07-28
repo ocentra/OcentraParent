@@ -17,7 +17,8 @@ use ocentra_entitlement_core::entitlement_snapshot_values::{
 };
 use ocentra_eventing::envelope::{DomainEvent, EventEnvelope, EventMetadata, EventSource};
 use ocentra_eventing::ids::{
-    CorrelationId, EventCustody, RuntimeInstanceId, RuntimeRole, SourceComponent, SourceService,
+    CorrelationId, EventCustody, IdempotencyKey, RuntimeInstanceId, RuntimeRole, SourceComponent,
+    SourceService,
 };
 use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
 use ocentra_family_identity_core::family_identity::{
@@ -325,10 +326,18 @@ async fn child_runtime_persists_and_recovers_typed_tombstone_action_before_ackno
     runtime_gate_tombstone::acknowledge_child_runtime_tombstone_publication(
         &store,
         &recovered[0].deletion_ref,
-    )?;
-    assert!(RetentionDeleteTombstoneStore::open(&directory)?
-        .records()?
-        .is_empty());
+    )
+    .await?;
+    let acknowledged = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(acknowledged.len(), 1);
+    assert!(!acknowledged[0].terminal_pending);
+    runtime_gate_tombstone::persist_child_runtime_tombstone_action(
+        &journal, &store, &envelope, &action,
+    )
+    .await?;
+    let replayed = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(replayed.len(), 1);
+    assert!(!replayed[0].terminal_pending);
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
 }
@@ -434,6 +443,45 @@ async fn child_runtime_rejects_a_journal_envelope_for_a_different_custody_action
     )
     .await
     .expect_err("a journal envelope for another action must not create a tombstone intent");
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+    assert!(store.records()?.is_empty());
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[tokio::test]
+async fn child_runtime_rejects_a_journal_envelope_with_a_different_idempotency_identity(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-tombstone-envelope-identity-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    std::fs::create_dir_all(&directory)?;
+    let action = storage_custody_action_planned_event(storage_custody_decision_recorded_event(
+        StorageCustodyAggregateId::parse("child-runtime-envelope-identity-family")?,
+        StorageCustodyDecisionId::parse("child-runtime-envelope-identity-decision")?,
+        StorageCustodyInput {
+            location: StorageCustodyLocation::ParentDeviceLocal,
+            retention_window_state: RetentionWindowState::Expired,
+            parent_export_state: ParentExportState::NotRequested,
+            remote_sync_state: RemoteSyncState::Disabled,
+        },
+    ));
+    let journal = NdjsonEventJournal::with_options(
+        directory.join("retention-delete.ndjson"),
+        NdjsonJournalOptions::hash_chain(),
+    );
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let mut envelope =
+        EventEnvelope::from_event(action.clone(), retention_delete_metadata()?)?.store()?;
+    envelope.idempotency_key = IdempotencyKey::parse("storage-custody.action.planned:forged")?;
+
+    let error = runtime_gate_tombstone::persist_child_runtime_tombstone_action(
+        &journal, &store, &envelope, &action,
+    )
+    .await
+    .expect_err("a forged envelope identity must not create a tombstone intent");
     assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
     assert!(store.records()?.is_empty());
     let _ = std::fs::remove_dir_all(&directory);

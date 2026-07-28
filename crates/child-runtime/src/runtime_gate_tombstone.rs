@@ -1,7 +1,7 @@
 //! Child-runtime boundary for typed retention tombstone publication.
 
 use ocentra_eventing::{
-    envelope::StoredEventEnvelope,
+    envelope::{DomainEvent, StoredEventEnvelope},
     journal::{ndjson::NdjsonEventJournal, JournalAppend},
 };
 use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
@@ -16,16 +16,19 @@ pub async fn persist_child_runtime_tombstone_action(
     envelope: &StoredEventEnvelope,
     action: &StorageCustodyActionPlannedEvent,
 ) -> std::io::Result<JournalAppend> {
-    let journaled_action = envelope
+    let journaled = envelope
         .decode::<StorageCustodyActionPlannedEvent>()
         .map_err(std::io::Error::other)?;
-    if journaled_action.payload != *action {
+    if journaled.payload != *action
+        || journaled.aggregate_key != action.aggregate_key().map_err(std::io::Error::other)?
+        || journaled.idempotency_key != action.idempotency_key().map_err(std::io::Error::other)?
+    {
         return Err(std::io::Error::new(
             std::io::ErrorKind::InvalidInput,
-            "child-runtime tombstone journal payload must match the typed custody action",
+            "child-runtime tombstone journal envelope must match the typed custody action identity",
         ));
     }
-    store.persist_action_plan_intent(action)?;
+    persist_durable_tombstone_intent(store.clone(), envelope.clone(), action.clone()).await?;
     journal
         .append_idempotent(envelope)
         .await
@@ -34,9 +37,23 @@ pub async fn persist_child_runtime_tombstone_action(
 
 /// Removes a durable tombstone intent only after the terminal publication is
 /// confirmed by the runtime's owning delivery path.
-pub fn acknowledge_child_runtime_tombstone_publication(
+pub async fn acknowledge_child_runtime_tombstone_publication(
     store: &RetentionDeleteTombstoneStore,
     deletion_ref: &str,
 ) -> std::io::Result<()> {
-    store.mark_terminal_published(deletion_ref)
+    let store = store.clone();
+    let deletion_ref = deletion_ref.to_owned();
+    tokio::task::spawn_blocking(move || store.mark_terminal_published(&deletion_ref))
+        .await
+        .map_err(std::io::Error::other)?
+}
+
+async fn persist_durable_tombstone_intent(
+    store: RetentionDeleteTombstoneStore,
+    envelope: StoredEventEnvelope,
+    action: StorageCustodyActionPlannedEvent,
+) -> std::io::Result<()> {
+    tokio::task::spawn_blocking(move || store.persist_action_plan_intent(envelope, action))
+        .await
+        .map_err(std::io::Error::other)?
 }
