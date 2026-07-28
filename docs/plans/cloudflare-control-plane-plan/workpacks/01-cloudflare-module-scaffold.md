@@ -6,7 +6,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 ## Current status
 
-`blocked / proof-present`
+`scoped acceptance complete / source-and-validation-evidence`
 
 ## First-touch surface
 
@@ -22,7 +22,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 - `infra/cloudflare/`
 - [SOURCE_SURFACE_STATUS_MATRIX.md](../SOURCE_SURFACE_STATUS_MATRIX.md)
-- `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/`
+- This workpack and `PLAN_STATE.md` retain the scoped evidence; generated `output/` artifacts are ignored and not committed.
 
 ## Execution truth
 
@@ -36,7 +36,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 - The concentrated runtime versus placeholder subdirectories is explicit:
   - real runtime files include `src/index.ts`, `src/env.ts`, `src/routes.ts`, `src/billing-binding-read-model.ts`, `src/fixtures.ts`, `src/testing.ts`, `src/auth/model.ts`, `src/auth/verifier.ts`, and `src/security/redaction.ts`
   - scaffold-only directories still carry `README.md` placeholders under `src/durable-objects/`, `src/flows/`, `src/handlers/`, `src/observability/`, `src/providers/`, `src/queues/`, and `src/storage/`
-- The retained proof root `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` is checked in and records the current source surface, negative boundary, rollback scope, and exact command results.
+- Current source and validation evidence is recorded in this workpack and `PLAN_STATE.md`; generated `output/` artifacts are intentionally ignored and not treated as tracked source proof.
 - Current-code audit on 2026-07-28 found the previous missing billing-domain import blocker stale: `infra/cloudflare` now consumes its local generated billing contracts. `npm --prefix infra/cloudflare run lint`, `npm --prefix infra/cloudflare run test:unit` (49 tests), and the module-directory architecture gate all pass.
 
 ## Acceptance
