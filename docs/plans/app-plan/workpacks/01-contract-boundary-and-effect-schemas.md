@@ -6,11 +6,13 @@ Sources: [folder README](../README.md), [source index](../source-index.md), [cur
 
 Historical notes referenced `packages/activity-domain`, `packages/parent-domain`, and `crates/agent-protocol/src/app_game.rs` as app/game contract owners. That is now migration context, not the default owner path for new cross-boundary shapes.
 
-Current owner path:
+Current owner path (Rust-first):
 
 ```text
-packages/schema-domain:
+crates/schema or the owning Rust domain/runtime crate:
   canonical shared native-app/app-game contracts when shapes cross package, crate, app, or plan boundaries.
+packages/schema-domain:
+  temporary generated edge decoders only; it is not product contract authority.
 crates/app-core:
   native-app observation/event consumer when selected.
 crates/agent-protocol / crates/agent-service:
@@ -99,6 +101,16 @@ Completed on codex/app-plan-proof-reconciliation by mirroring the shared app/gam
 - Current branch note: this historical reconciliation predates the plan-harness branch. On `codex/plan-harness-update`, treat it as prior proof evidence only; new edits must follow `workpacks/00-owner-boundary-proof-gate.md`, `WORKPACK_FAMILIES.md`, `TEST_PROOF_EXPECTATIONS.md`, and `PROOF_INDEX.md`.
 - Product-doc decision: no feature doc, expectation doc, roadmap, or product capability checklist status moved because this reconciliation does not add new runtime, service, portal, policy, enforcement, or platform capability proof.
 - Remaining boundary: app-plan follow-up work still owns app-only authority, taxonomy, sessionization, journal/read-model, portal, approval, policy, child UX, broad blocking, AI digest, install/purchase, performance, E2E, and rollout slices.
+
+## 2026-07-28 Rust Runtime-Decision Integration Evidence
+
+This narrow integration repaired the previously unmergeable PR #577 contract test and retained only Rust-owned runtime-decision behavior. The discarded TypeScript `schema-domain` contract files were a second product authority and are not part of this workpack's completed evidence.
+
+- Rust owner: `crates/app-core`.
+- Evidence: [`docs/proof/app-plan/01-contract-boundary-and-effect-schemas.md`](../../../proof/app-plan/01-contract-boundary-and-effect-schemas.md).
+- Proven: canonical runtime ID prefixes, all 18 capability/foreground/classification decision tuples, the version-2 event contract, and a serialized `EventEnvelope` fixture.
+- Negative boundaries: malformed/display-name IDs are rejected; missing capability does not publish AI or policy handoffs; inventory-only remains inventory recording.
+- No product status moved: this does not prove a live OS inventory/process source, service/read model, portal rendering, policy execution, enforcement adapter, or platform capability.
 
 ## Manual-Required Gaps
 

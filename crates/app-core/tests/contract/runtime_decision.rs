@@ -118,6 +118,16 @@ fn current_rust_contract_matrix_exhaustively_matches_runtime_evaluation() {
     }
 }
 
+fn fixture_event_source() -> Result<EventSource, EventingError> {
+    Ok(EventSource::new(
+        EventCustody::parse("local-only")?,
+        RuntimeRole::parse("parent")?,
+        SourceService::parse("app-core")?,
+        SourceComponent::parse("runtime-decision")?,
+        RuntimeInstanceId::parse("app-core-test")?,
+    ))
+}
+
 #[test]
 fn rust_event_envelope_serializes_the_edge_decoder_contract_shape() {
     let input = AppRuntimeInput {
@@ -125,28 +135,81 @@ fn rust_event_envelope_serializes_the_edge_decoder_contract_shape() {
         foreground_state: AppForegroundState::Foreground,
         classification_state: AppClassificationState::InventoryOnly,
     };
-    let event = app_runtime_decision_recorded_event(
-        AppAggregateId::parse("app.aggregate.child-device-1").expect("aggregate id parses"),
-        AppRuntimeDecisionId::parse("app.runtime-decision-1").expect("decision id parses"),
-        input,
+    let aggregate_id_result = AppAggregateId::parse("app.aggregate.child-device-1");
+    assert!(
+        aggregate_id_result.is_ok(),
+        "aggregate id parses: {aggregate_id_result:?}"
     );
-    let metadata = EventMetadata::from_parts(
-        EventId::parse("event-app-runtime-decision-1").expect("event id parses"),
-        CorrelationId::parse("correlation-app-runtime-decision-1").expect("correlation id parses"),
-        EventSource::new(
-            EventCustody::parse("local-only").expect("custody parses"),
-            RuntimeRole::parse("parent").expect("role parses"),
-            SourceService::parse("app-core").expect("service parses"),
-            SourceComponent::parse("runtime-decision").expect("component parses"),
-            RuntimeInstanceId::parse("app-core-test").expect("instance id parses"),
-        ),
-        RecordedAt::parse("2026-07-23T00:00:00Z").expect("observed at parses"),
-        None,
+    let Ok(aggregate_id) = aggregate_id_result else {
+        return;
+    };
+    let decision_id_result = AppRuntimeDecisionId::parse("app.runtime-decision-1");
+    assert!(
+        decision_id_result.is_ok(),
+        "decision id parses: {decision_id_result:?}"
     );
-    let envelope = EventEnvelope::from_event(event, metadata).expect("event envelope builds");
-    let serialized = serde_json::to_value(envelope).expect("event envelope serializes");
-    let expected = serde_json::from_str::<serde_json::Value>(APP_RUNTIME_DECISION_EVENT_ENVELOPE)
-        .expect("Rust-owned event envelope fixture parses");
+    let Ok(decision_id) = decision_id_result else {
+        return;
+    };
+    let event = app_runtime_decision_recorded_event(aggregate_id, decision_id, input);
+    let event_id_result = EventId::parse("event-app-runtime-decision-1");
+    assert!(
+        event_id_result.is_ok(),
+        "event id parses: {event_id_result:?}"
+    );
+    let Ok(event_id) = event_id_result else {
+        return;
+    };
+    let correlation_id_result = CorrelationId::parse("correlation-app-runtime-decision-1");
+    assert!(
+        correlation_id_result.is_ok(),
+        "correlation id parses: {correlation_id_result:?}"
+    );
+    let Ok(correlation_id) = correlation_id_result else {
+        return;
+    };
+    let observed_at_result = RecordedAt::parse("2026-07-23T00:00:00Z");
+    assert!(
+        observed_at_result.is_ok(),
+        "observed at parses: {observed_at_result:?}"
+    );
+    let Ok(observed_at) = observed_at_result else {
+        return;
+    };
+    let source_result = fixture_event_source();
+    assert!(
+        source_result.is_ok(),
+        "fixture source parses: {source_result:?}"
+    );
+    let Ok(source) = source_result else {
+        return;
+    };
+    let metadata = EventMetadata::from_parts(event_id, correlation_id, source, observed_at, None);
+    let envelope_result = EventEnvelope::from_event(event, metadata);
+    assert!(
+        envelope_result.is_ok(),
+        "event envelope builds: {envelope_result:?}"
+    );
+    let Ok(envelope) = envelope_result else {
+        return;
+    };
+    let serialized_result = serde_json::to_value(envelope);
+    assert!(
+        serialized_result.is_ok(),
+        "event envelope serializes: {serialized_result:?}"
+    );
+    let Ok(serialized) = serialized_result else {
+        return;
+    };
+    let expected_result =
+        serde_json::from_str::<serde_json::Value>(APP_RUNTIME_DECISION_EVENT_ENVELOPE);
+    assert!(
+        expected_result.is_ok(),
+        "Rust-owned event envelope fixture parses: {expected_result:?}"
+    );
+    let Ok(expected) = expected_result else {
+        return;
+    };
     assert_eq!(serialized, expected);
 }
 
