@@ -1,5 +1,7 @@
 # Workpack 03: Worker Entrypoint Runtime Guards
 
+> **2026-07-28 correction:** The later missing-private-billing-import blocker text is historical. `infra/cloudflare` now imports module-local generated billing contracts. This workpack remains open because it has no tracked proof bundle; rerun after installing dependencies and record the actual result.
+
 ## Goal
 
 Freeze the shared guard chain for env validation, CORS, request-size limits, kill switch, safe errors, and scheduled hooks.
