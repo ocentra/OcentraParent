@@ -38,6 +38,7 @@ mod browser_runtime_stream_api;
 mod browser_runtime_stream_events;
 mod browser_runtime_stream_payload;
 mod browser_runtime_stream_request;
+pub mod custody_tombstone_runtime;
 pub mod dev_log;
 mod enforcement_api;
 mod enforcement_browser_domain_adapter_app_control_proof_states;

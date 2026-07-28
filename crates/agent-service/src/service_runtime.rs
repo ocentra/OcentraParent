@@ -25,6 +25,7 @@ pub async fn run_agent_service() {
         startup_log_fields(&network),
     );
     crate::activity_capture::spawn_startup_activity_capture();
+    crate::custody_tombstone_runtime::spawn_startup_recovery();
     crate::screen_ai_cadence_runtime::spawn_screen_ai_cadence_runtime();
     crate::screen_ai_foreground_runtime::spawn_screen_ai_foreground_runtime();
     crate::screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();

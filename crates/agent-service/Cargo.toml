@@ -20,6 +20,7 @@ ocentra-lan-core = { path = "../lan-core" }
 ocentra-parent-logging-core = { path = "../logging-core" }
 ocentra-child-runtime = { path = "../child-runtime" }
 ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-storage-custody-core = { path = "../storage-custody-core" }
 ocentra-policy-control-core = { path = "../policy-control-core" }
 ocentra-parent-runtime-core = { path = "../parent-runtime-core" }
 ocentra-parent-screen-capture-adapter = { path = "../screen-capture-adapter" }
@@ -129,3 +130,7 @@ path = "tests/unit/social_activity_api.rs"
 [[test]]
 name = "tracking_read_model"
 path = "tests/unit/tracking_read_model.rs"
+
+[[test]]
+name = "custody_tombstone_runtime"
+path = "tests/unit/custody_tombstone_runtime.rs"
