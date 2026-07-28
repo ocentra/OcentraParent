@@ -124,7 +124,8 @@ pub(crate) fn elevated_confirmation_state(
 ) -> ElevatedConfirmationState {
     if matches!(
         action,
-        HouseholdAuthorityAction::RevokeChildDevice
+        HouseholdAuthorityAction::SealParentDeviceTrust
+            | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
             | HouseholdAuthorityAction::ManageBilling
@@ -139,6 +140,9 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
     matches!(
         (role, action),
         (
+            HouseholdRole::ParentOwner,
+            HouseholdAuthorityAction::SealParentDeviceTrust
+        ) | (
             HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian,
             HouseholdAuthorityAction::SealParentDeviceTrust
                 | HouseholdAuthorityAction::PairChildDevice
