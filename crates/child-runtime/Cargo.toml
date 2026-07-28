@@ -32,6 +32,7 @@ ocentra-screen-live-view-core = { path = "../screen-live-view-core" }
 ocentra-storage-custody-core = { path = "../storage-custody-core" }
 ocentra-tracking-core = { path = "../tracking-core" }
 serde = { version = "1.0.228", features = ["derive"] }
+tokio = { version = "1.48.0", features = ["rt"] }
 
 [dev-dependencies]
 ocentra-evidence = { path = "../ocentra-evidence" }

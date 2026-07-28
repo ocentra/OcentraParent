@@ -1,3 +1,7 @@
+use ocentra_eventing::envelope::{EventEnvelope, EventMetadata, EventSource};
+use ocentra_eventing::ids::{
+    CorrelationId, EventCustody, RuntimeInstanceId, RuntimeRole, SourceComponent, SourceService,
+};
 use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 use ocentra_storage_custody_core::storage_custody::{
     storage_custody_action_planned_event, storage_custody_decision_recorded_event,
@@ -7,85 +11,65 @@ use ocentra_storage_custody_core::storage_custody::{
 };
 
 #[test]
-fn tombstone_outbox_recovers_intent_until_terminal_publish() -> Result<(), String> {
+fn tombstone_outbox_recovers_intent_until_terminal_publish(
+) -> Result<(), Box<dyn std::error::Error>> {
     let directory = std::env::temp_dir().join(format!("ocentra-tombstone-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&directory);
-    let store = RetentionDeleteTombstoneStore::open(&directory)
-        .map_err(|error| format!("open tombstone outbox: {error}"))?;
-    store
-        .persist_intent("delete:one".to_string(), "proof:one".to_string())
-        .map_err(|error| format!("persist tombstone intent: {error}"))?;
-    let reopened = RetentionDeleteTombstoneStore::open(&directory)
-        .map_err(|error| format!("reopen tombstone outbox: {error}"))?;
-    assert_eq!(
-        reopened
-            .records()
-            .map_err(|error| format!("read persisted tombstone records: {error}"))?
-            .len(),
-        1
-    );
-    reopened
-        .mark_terminal_published("delete:one")
-        .map_err(|error| format!("mark terminal tombstone: {error}"))?;
-    assert_eq!(
-        reopened
-            .records()
-            .map_err(|error| format!("read empty tombstone records: {error}"))?
-            .len(),
-        0
-    );
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let action = action_for(RetentionWindowState::Expired)?;
+    store.persist_action_plan_intent(envelope_for(&action)?, action)?;
+    let reopened = RetentionDeleteTombstoneStore::open(&directory)?;
+    assert_eq!(reopened.records()?.len(), 1);
+    reopened.mark_terminal_published("storage-custody-delete:retention-delete-decision")?;
+    let records = reopened.records()?;
+    assert_eq!(records.len(), 1);
+    assert!(!records[0].terminal_pending);
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
 }
 
 #[test]
-fn tombstone_outbox_rejects_corrupt_durable_metadata() -> Result<(), String> {
+fn tombstone_outbox_rejects_corrupt_durable_metadata() {
     let directory =
         std::env::temp_dir().join(format!("ocentra-tombstone-corrupt-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&directory);
-    let store = RetentionDeleteTombstoneStore::open(&directory)
-        .map_err(|error| format!("open tombstone outbox: {error}"))?;
+    let store = RetentionDeleteTombstoneStore::open(&directory).expect("open");
     std::fs::write(
         directory.join("retention-delete-tombstones.json"),
         b"not-json",
     )
-    .map_err(|error| format!("write corrupt tombstone metadata: {error}"))?;
-    match store.records() {
-        Err(error) => assert_eq!(error.kind(), std::io::ErrorKind::InvalidData),
-        Ok(records) => {
-            return Err(format!(
-                "expected corrupt metadata rejection, got {records:?}"
-            ))
-        }
-    }
+    .expect("corrupt");
+    assert_eq!(
+        store.records().expect_err("corrupt metadata").kind(),
+        std::io::ErrorKind::InvalidData
+    );
     let _ = std::fs::remove_dir_all(&directory);
-    Ok(())
 }
 
 #[test]
-fn tombstone_outbox_serializes_concurrent_intents() -> Result<(), String> {
+fn tombstone_outbox_serializes_concurrent_intents() -> Result<(), Box<dyn std::error::Error>> {
     let directory =
         std::env::temp_dir().join(format!("ocentra-tombstone-race-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&directory);
     let mut workers = Vec::new();
     for index in 0..8 {
         let directory = directory.clone();
+        let action =
+            action_for_index(index).map_err(|error| std::io::Error::other(error.to_string()))?;
+        let envelope =
+            envelope_for(&action).map_err(|error| std::io::Error::other(error.to_string()))?;
         workers.push(std::thread::spawn(move || {
-            RetentionDeleteTombstoneStore::open(directory).and_then(|store| {
-                store.persist_intent(format!("delete:{index}"), format!("proof:{index}"))
-            })
+            RetentionDeleteTombstoneStore::open(directory)
+                .and_then(|store| store.persist_action_plan_intent(envelope, action))
         }));
     }
     for worker in workers {
         worker
             .join()
-            .map_err(|_error| "tombstone worker panicked".to_string())?
-            .map_err(|error| format!("persist concurrent tombstone intent: {error}"))?;
+            .map_err(|_| std::io::Error::other("tombstone writer thread panicked"))??;
     }
-    let count = RetentionDeleteTombstoneStore::open(&directory)
-        .map_err(|error| format!("reopen tombstone outbox: {error}"))?
-        .records()
-        .map_err(|error| format!("read concurrent tombstone records: {error}"))?
+    let count = RetentionDeleteTombstoneStore::open(&directory)?
+        .records()?
         .len();
     assert_eq!(count, 8);
     let _ = std::fs::remove_dir_all(&directory);
@@ -93,29 +77,25 @@ fn tombstone_outbox_serializes_concurrent_intents() -> Result<(), String> {
 }
 
 #[test]
-fn tombstone_outbox_atomic_replacements_survive_reopen() -> Result<(), String> {
+fn tombstone_outbox_atomic_replacements_survive_reopen() -> Result<(), Box<dyn std::error::Error>> {
     let directory =
         std::env::temp_dir().join(format!("ocentra-tombstone-replace-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&directory);
-    let store = RetentionDeleteTombstoneStore::open(&directory)
-        .map_err(|error| format!("open tombstone outbox: {error}"))?;
-    store
-        .persist_intent("delete:first".to_string(), "proof:first".to_string())
-        .map_err(|error| format!("persist first tombstone intent: {error}"))?;
-    store
-        .persist_intent("delete:second".to_string(), "proof:second".to_string())
-        .map_err(|error| format!("persist second tombstone intent: {error}"))?;
-    store
-        .mark_terminal_published("delete:first")
-        .map_err(|error| format!("mark first tombstone terminal: {error}"))?;
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let first = action_for_index(1)?;
+    let second = action_for_index(2)?;
+    store.persist_action_plan_intent(envelope_for(&first)?, first)?;
+    store.persist_action_plan_intent(envelope_for(&second)?, second)?;
+    store.mark_terminal_published("storage-custody-delete:retention-delete-decision-1")?;
 
-    let records = RetentionDeleteTombstoneStore::open(&directory)
-        .map_err(|error| format!("reopen tombstone outbox: {error}"))?
-        .records()
-        .map_err(|error| format!("read replacement tombstone records: {error}"))?;
-    assert_eq!(records.len(), 1);
-    assert_eq!(records[0].deletion_ref, "delete:second");
-    assert!(records[0].terminal_pending);
+    let records = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(records.len(), 2);
+    assert_eq!(
+        records[1].deletion_ref,
+        "storage-custody-delete:retention-delete-decision-2"
+    );
+    assert!(!records[0].terminal_pending);
+    assert!(records[1].terminal_pending);
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
 }
@@ -129,7 +109,8 @@ fn tombstone_outbox_persists_only_a_typed_delete_action() -> Result<(), Box<dyn 
     let store = RetentionDeleteTombstoneStore::open(&directory)?;
     let delete_action = action_for(RetentionWindowState::Expired)?;
 
-    store.persist_action_plan_intent(&delete_action)?;
+    let envelope = envelope_for(&delete_action)?;
+    store.persist_action_plan_intent(envelope.clone(), delete_action.clone())?;
 
     let records = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
     assert_eq!(records.len(), 1);
@@ -141,6 +122,8 @@ fn tombstone_outbox_persists_only_a_typed_delete_action() -> Result<(), Box<dyn 
         records[0].proof_ref,
         "storage-custody-action:retention-delete-decision"
     );
+    assert_eq!(records[0].action, delete_action);
+    assert_eq!(records[0].envelope, envelope);
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
 }
@@ -156,7 +139,7 @@ fn tombstone_outbox_rejects_a_typed_non_delete_action() -> Result<(), Box<dyn st
     let retain_action = action_for(RetentionWindowState::Active)?;
 
     let error = store
-        .persist_action_plan_intent(&retain_action)
+        .persist_action_plan_intent(envelope_for(&retain_action)?, retain_action)
         .expect_err("retain action must not enqueue a tombstone");
     assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
     assert!(store.records()?.is_empty());
@@ -177,7 +160,7 @@ fn tombstone_outbox_rejects_an_incoherent_delete_plan() -> Result<(), Box<dyn st
         LocalPayloadRetentionAction::Retain;
 
     let error = store
-        .persist_action_plan_intent(&incoherent_action)
+        .persist_action_plan_intent(envelope_for(&incoherent_action)?, incoherent_action)
         .expect_err(
             "a retain action must not enqueue a tombstone even when the tombstone field is write",
         );
@@ -205,4 +188,44 @@ fn action_for(
             },
         ),
     ))
+}
+
+fn action_for_index(
+    index: usize,
+) -> Result<
+    ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent,
+    Box<dyn std::error::Error>,
+> {
+    Ok(storage_custody_action_planned_event(
+        storage_custody_decision_recorded_event(
+            StorageCustodyAggregateId::parse(format!("retention-delete-family-{index}"))?,
+            StorageCustodyDecisionId::parse(format!("retention-delete-decision-{index}"))?,
+            StorageCustodyInput {
+                location: StorageCustodyLocation::ParentDeviceLocal,
+                retention_window_state: RetentionWindowState::Expired,
+                parent_export_state: ParentExportState::NotRequested,
+                remote_sync_state: RemoteSyncState::Disabled,
+            },
+        ),
+    ))
+}
+
+fn envelope_for(
+    action: &ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent,
+) -> Result<ocentra_eventing::envelope::StoredEventEnvelope, Box<dyn std::error::Error>> {
+    EventEnvelope::from_event(
+        action.clone(),
+        EventMetadata::new(
+            CorrelationId::parse("retention-delete-store-test")?,
+            EventSource::new(
+                EventCustody::parse("local-journal")?,
+                RuntimeRole::parse("controller")?,
+                SourceService::parse("storage-custody-core")?,
+                SourceComponent::parse("retention-delete-store")?,
+                RuntimeInstanceId::parse("retention-delete-store-test-instance")?,
+            ),
+        ),
+    )?
+    .store()
+    .map_err(Into::into)
 }
