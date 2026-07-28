@@ -2,7 +2,7 @@
 
 ## Current slice
 
-- Current slice: `CFCP-A truth-sync and proof-root canonicalization`
+- Current slice: `CFCP-A truth-sync and proof-root canonicalization`; WP01 evidence refresh complete
 - Current owner: `cloudflare-control-plane-plan`
 - Current status: `in_progress`
 
@@ -11,7 +11,7 @@
 | Order | Slice | Status | First-touch surface | Next action | Exit gate |
 | --- | --- | --- | --- | --- | --- |
 | 00 | Games infra parity extraction | blocked / proof-present | `GAMES_INFRA_PARITY_MAP.md` | Clear the repo-wide `npm run format:check` drift or carve a narrower accepted docs-validation gate, then rerun the WP00 formatting check without widening into unrelated runtime packets. | Parent parity map exists, the proof root is real, and the required docs-validation gate is no longer blocked outside the packet. |
-| 01 | Cloudflare module scaffold | blocked / proof-present | `infra/cloudflare/package.json` | Restore the missing billing-domain boundary modules imported by `infra/cloudflare`, then rerun scoped module lint and a meaningful architecture gate so the scaffold packet can move beyond the current blocked proof state. | `infra/cloudflare/` source shape and docs agree on what is real versus placeholder, and the scoped WP01 validation set is no longer blocked outside the packet. |
+| 01 | Cloudflare module scaffold | scoped acceptance complete / proof-present | `infra/cloudflare/package.json` | Maintain the retained proof and source-surface inventory when the module tree or script contract changes; do not reopen the stale missing-billing-domain import blocker without a fresh failing command. | Module source shape, no-claim boundaries, retained proof, module lint, unit family, and architecture gate agree. This does not close later runtime, binding, deployment, or payment workpacks. |
 | 02 | Wrangler env and bindings | blocked / proof-present | `infra/cloudflare/wrangler.toml` | Restore the missing billing-domain boundary modules and broader Cloudflare lint health, then rerun the required unit and lint commands so WP02 can move from direct wrangler/dev-vars proof to fully green scoped validation. | `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/` stays aligned with explicit dev/prod bindings, placeholder-only secret custody, and reruns that no longer fail outside the packet. |
 | 03 | Worker entrypoint runtime guards | blocked / proof-present | `infra/cloudflare/src/index.ts` | Restore `packages/billing-domain/src/billing-checkout-portal-boundary.js`, then rerun the scoped unit and integration families so the worker entrypoint can prove live fetch-path guards instead of blocking at module resolution. | Env validation, CORS, request-size, kill-switch, and safe error behavior are explicit in source and runtime-proven through the booted worker entrypoint. |
 | 04 | Route manifest and domain contracts | blocked / proof-present | `infra/cloudflare/src/routes.ts` | Restore `packages/billing-domain/src/billing-checkout-portal-boundary.js`, then rerun the scoped unit, property, contract, and integration families so the exact route list and auth exception proofs can pair with live contract and dispatch coverage. | `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/` stays aligned with the manifest and auth model, no raw route strings drift outside the manifest, and contract plus integration reruns no longer block on the missing billing boundary import. |

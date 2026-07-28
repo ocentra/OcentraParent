@@ -21,7 +21,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | blocked / proof-present | [WP00 Games Infra Parity Extraction](workpacks/00-games-infra-parity-extraction.md) | 0/8 | `GAMES_INFRA_PARITY_MAP.md` | `output/cloudflare-control-plane-plan-proof/00-games-infra-parity-extraction/` |
-| blocked / proof-present | [WP01 Cloudflare Module Scaffold](workpacks/01-cloudflare-module-scaffold.md) | 0/10 | `PARENT_CLOUDFLARE_MODULE_SPEC.md`; `SOURCE_SURFACE_STATUS_MATRIX.md` | `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` |
+| scoped acceptance complete / proof-present | [WP01 Cloudflare Module Scaffold](workpacks/01-cloudflare-module-scaffold.md) | 1/10 | `PARENT_CLOUDFLARE_MODULE_SPEC.md`; `SOURCE_SURFACE_STATUS_MATRIX.md` | `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` |
 | blocked / proof-present | [WP02 Wrangler Env Bindings](workpacks/02-wrangler-env-bindings.md) | 0/10 | `STORAGE_BINDING_MODEL.md`; `DEPLOYMENT_MODEL.md` | `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/` |
 | blocked / proof-present | [WP03 Worker Entrypoint Runtime Guards](workpacks/03-worker-entrypoint-runtime-guards.md) | 0/11 | `SECURITY_PRIVACY_OBSERVABILITY.md`; `DEPLOYMENT_MODEL.md` | `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/` |
 | blocked / proof-present | [WP04 Route Manifest And Domain Contracts](workpacks/04-route-manifest-and-domain-contracts.md) | 0/11 | `ROUTE_MANIFEST_MODEL.md`; `AUTH_BOUNDARY_MODEL.md` | `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/` |

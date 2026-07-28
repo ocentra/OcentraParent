@@ -27,7 +27,7 @@
 | Row | Owning workpack | Close when |
 | --- | --- | --- |
 | CF-00 | WP00 | Games parity map records keep/adapt/strip decisions and rejects game-only surfaces. |
-| CF-01 | WP01 | Module tree/package scripts exist or blocker recorded, and no-claim scaffold is explicit. |
+| [x] CF-01 | WP01 | Module tree/package scripts and no-claim scaffold are proven by `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/`; scoped lint, unit, and architecture results are recorded there. |
 | CF-02 | WP02 | Wrangler envs, bindings, vars, secret names, and dev/prod separation are documented/proven. |
 | CF-03 | WP03 | Entry guard chain, env validation, request-size/origin behavior, kill switch, and scheduled hook shape are explicit. |
 | CF-04 | WP04 | Route manifest, route groups, and domain contract ownership are explicit. |
