@@ -91,7 +91,11 @@ WP07 can aggregate only accepted proof roots plus exact carried blockers.
 - WP04 retention/delete/tombstone is now implemented and proved through `crates/schema/src/retention_delete_tombstone.rs`, `crates/storage-custody-core/src/retention_delete_tombstone.rs`, and `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/`.
 - WP05 export/import/backup/recovery is now implemented and proved through `crates/schema/src/export_import_backup_recovery.rs`, `crates/storage-custody-core/src/export_import_backup_recovery.rs`, and `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/`.
 - WP06 report/query custody is now implemented and proved through `crates/schema/src/report_query_custody.rs`, `crates/storage-custody-core/src/report_query_custody.rs`, `packages/schema-domain/src/generated/report-query-custody-contracts.ts`, and `output/data-custody-storage-plan-proof/06-report-query-custody/`.
-- WP07 rollout proof and route gate now has a real proof root under `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/`, but its aggregate text is stale relative to the new WP01 proof root and still requires a dedicated WP07 refresh before it can be used for aggregate route truth.
+- WP07 has a focused, real retention lifecycle through the Rust event journal,
+  child-runtime durable outbox, restart recovery, and explicit terminal
+  acknowledgement. Its cited aggregate `output/` proof root is not present in a
+  clean checkout because `output/` is ignored, so WP07 cannot yet be used for
+  aggregate route truth.
 - WP08 parent storage settings/apply flow is now implemented and proved through `crates/schema/src/parent_storage_settings_apply_flow.rs`, `crates/schema/src/parent_storage_settings_apply_flow_ts.rs`, `crates/storage-custody-core/src/parent_storage_settings_apply_flow.rs`, `packages/schema-domain/src/generated/parent-storage-settings-apply-flow-contracts.ts`, `packages/schema-domain/src/parent-storage-settings-apply-flow.ts`, and `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/`.
 
 ## Open Product Gaps
