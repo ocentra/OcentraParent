@@ -1,6 +1,7 @@
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { repoRoot, resolveScopedFiles } from '../check-architecture-scope.mjs';
 import { buildCrateRustValidationCommands } from '../ci/rust-validation-commands.mjs';
@@ -41,6 +42,7 @@ const prettierExtensions = new Set([
 ]);
 const maxPrettierChunkChars = process.platform === 'win32' ? 4000 : 16000;
 const maxScopedFileChunkChars = process.platform === 'win32' ? 4000 : 14000;
+const defaultCommandTimeoutMs = 30 * 60 * 1000;
 
 const fullValidations = [
   ['npm', ['run', 'format:check']],
@@ -95,27 +97,78 @@ function quoteWindowsCommandPart(value) {
   return quoted;
 }
 
-function runCommand(command, args) {
+function commandDisplay(command, args) {
+  return [command, ...args].map(quoteWindowsCommandPart).join(' ');
+}
+
+function commandTimeoutMs() {
+  const configured = Number.parseInt(process.env.OCENTRA_PRECOMMIT_COMMAND_TIMEOUT_MS ?? '', 10);
+  return Number.isSafeInteger(configured) && configured > 0 ? configured : defaultCommandTimeoutMs;
+}
+
+function terminateProcessTree(child) {
+  if (child.pid === undefined) {
+    return;
+  }
+
+  if (process.platform === 'win32') {
+    const killer = spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], {
+      stdio: 'ignore',
+      windowsHide: true,
+      shell: false,
+    });
+    killer.once('error', () => child.kill());
+    return;
+  }
+
+  try {
+    process.kill(-child.pid, 'SIGTERM');
+  } catch {
+    child.kill('SIGTERM');
+  }
+}
+
+export function runCommand(command, args, { timeoutMs = commandTimeoutMs() } = {}) {
   const env =
     process.platform === 'win32' && command === 'cargo'
       ? { ...process.env, CARGO_BUILD_JOBS: process.env.CARGO_BUILD_JOBS ?? '1' }
       : process.env;
 
-  if (process.platform === 'win32' && (command === 'npm' || command === 'npx')) {
-    const commandLine = [executableFor(command), ...args].map(quoteWindowsCommandPart).join(' ');
-    return spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', commandLine], {
+  const isWindowsBatchCommand = process.platform === 'win32' && (command === 'npm' || command === 'npx');
+  const file = isWindowsBatchCommand ? (process.env.ComSpec ?? 'cmd.exe') : executableFor(command);
+  const childArgs = isWindowsBatchCommand ? ['/d', '/s', '/c', commandDisplay(executableFor(command), args)] : args;
+  const display = commandDisplay(command, args);
+
+  console.log(`[validation] running: ${display}`);
+
+  return new Promise((resolve) => {
+    let timedOut = false;
+    let settled = false;
+    const child = spawn(file, childArgs, {
       cwd: repoRoot,
       stdio: 'inherit',
       shell: false,
       env,
+      windowsHide: true,
+      detached: process.platform !== 'win32',
     });
-  }
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      console.error(`[validation] timed out after ${timeoutMs}ms: ${display}`);
+      terminateProcessTree(child);
+    }, timeoutMs);
 
-  return spawnSync(executableFor(command), args, {
-    cwd: repoRoot,
-    stdio: 'inherit',
-    shell: false,
-    env,
+    const finish = (result) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timeout);
+      resolve(result);
+    };
+
+    child.once('error', (error) => finish({ status: 1, error, timedOut }));
+    child.once('close', (status, signal) => finish({ status: status ?? 1, signal, timedOut }));
   });
 }
 
@@ -392,30 +445,43 @@ function buildFastPreCommitValidations() {
   return validations;
 }
 
-const { fullMode, scopeArgs } = parseArgs(process.argv.slice(2));
-const scopedMode = scopeArgs.length > 0;
-const validations = fullMode
-  ? fullValidations
-  : scopedMode
-    ? buildScopedValidations(scopeArgs)
-    : buildFastPreCommitValidations();
+async function main() {
+  const { fullMode, scopeArgs } = parseArgs(process.argv.slice(2));
+  const scopedMode = scopeArgs.length > 0;
+  const validations = fullMode
+    ? fullValidations
+    : scopedMode
+      ? buildScopedValidations(scopeArgs)
+      : buildFastPreCommitValidations();
 
-console.log(
-  `[validation] Running ${fullMode ? 'full integration' : scopedMode ? 'scoped batch' : 'fast pre-commit'} gate.`
-);
+  console.log(
+    `[validation] Running ${fullMode ? 'full integration' : scopedMode ? 'scoped batch' : 'fast pre-commit'} gate.`
+  );
 
-if (validations.length === 0) {
-  console.log('[validation] No relevant working-tree files detected.');
-  process.exit(0);
+  if (validations.length === 0) {
+    console.log('[validation] No relevant working-tree files detected.');
+    return;
+  }
+
+  for (const [command, args] of validations) {
+    const result = await runCommand(command, args);
+    if (result.error) {
+      console.error(`[validation] failed to start ${commandDisplay(command, args)}: ${result.error.message}`);
+      process.exitCode = 1;
+      return;
+    }
+    if (result.timedOut) {
+      process.exitCode = 1;
+      return;
+    }
+    if (result.status !== 0) {
+      console.error(`[validation] failed with exit ${result.status}: ${commandDisplay(command, args)}`);
+      process.exitCode = result.status;
+      return;
+    }
+  }
 }
 
-for (const [command, args] of validations) {
-  const result = runCommand(command, args);
-  if (result.error) {
-    console.error(`[validation] ${result.error.message}`);
-    process.exit(1);
-  }
-  if ((result.status ?? 1) !== 0) {
-    process.exit(result.status ?? 1);
-  }
+if (process.argv[1] !== undefined && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  await main();
 }
