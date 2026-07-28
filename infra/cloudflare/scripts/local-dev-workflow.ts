@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'node:fs';
-import { existsSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import {
+  LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY,
+  LOCAL_SEED_RUNTIME_PID_FILE,
+  LOCAL_WEBHOOK_FIXTURE_INVENTORY,
+} from './local-seed-runtime.js';
 
 export interface RuntimeDependencyBlocker {
-  kind: 'missing-runtime-dependency' | 'runtime-import-check';
+  kind: 'missing-runtime-dependency' | 'runtime-import-check' | 'seed-command-timeout';
   path?: string;
   details: string;
 }
@@ -18,7 +24,10 @@ export interface LocalStartPath {
   wranglerCommand: string;
   origin: string;
   authAdapterMode: string;
-  status: 'blocked' | 'runnable';
+  preflightStatus: 'blocked' | 'ready';
+  importCheckStatus: 'blocked' | 'passed';
+  runtimeBootStatus: 'proven' | 'unproven';
+  runtimeBootEvidence: string;
   blockers: ReadonlyArray<RuntimeDependencyBlocker>;
 }
 
@@ -56,6 +65,41 @@ const cloudflareDir = path.resolve(scriptDir, '..');
 const repoRoot = path.resolve(cloudflareDir, '..', '..');
 const rootPackageJsonPath = path.join(repoRoot, 'package.json');
 const knownRuntimeDependencyPaths = ['src/generated/billing-contracts.ts'] as const;
+const allowedCloudflareScriptCommands = new Set([
+  'seed:local',
+  'seed:products:local',
+  'seed:referrals:local',
+  'seed:test-accounts:local',
+]);
+const seedCommandTimeoutMs = 120_000;
+
+function resolveCloudflareModulePath(cloudflareRoot: string, relativePath: string): string {
+  return path.resolve(cloudflareRoot, relativePath);
+}
+
+function formatCloudflareModulePath(relativePath: string): string {
+  return path.posix.join('infra', 'cloudflare', relativePath.replace(/\\/g, '/'));
+}
+
+export function collectMissingRuntimeDependencyBlockers(
+  cloudflareRoot: string = cloudflareDir,
+  dependencyPaths: ReadonlyArray<string> = knownRuntimeDependencyPaths
+): ReadonlyArray<RuntimeDependencyBlocker> {
+  const blockers: RuntimeDependencyBlocker[] = [];
+
+  for (const relativePath of dependencyPaths) {
+    const absolutePath = resolveCloudflareModulePath(cloudflareRoot, relativePath);
+    if (!existsSync(absolutePath)) {
+      blockers.push({
+        kind: 'missing-runtime-dependency',
+        path: formatCloudflareModulePath(relativePath),
+        details: `required generated billing-contract sidecar missing at ${formatCloudflareModulePath(relativePath)}`,
+      });
+    }
+  }
+
+  return blockers;
+}
 
 interface CommandProbeResult {
   command: string;
@@ -65,15 +109,97 @@ interface CommandProbeResult {
   blocker?: RuntimeDependencyBlocker;
 }
 
+interface MutationReceiptProbe {
+  runId?: unknown;
+  requestedFamily?: unknown;
+  runtimeBootStatus?: unknown;
+  fullBindingSeedApplied?: unknown;
+  persistence?: unknown;
+}
+
 function readWorkspaceScripts(): Record<string, string> {
   return JSON.parse(readFileSync(rootPackageJsonPath, 'utf8')).scripts as Record<string, string>;
 }
 
-function runCloudflareScript(command: string): CommandProbeResult {
-  const result = spawnSync('cmd.exe', ['/d', '/s', '/c', `npm run ${command}`], {
-    cwd: cloudflareDir,
-    encoding: 'utf8',
-  });
+function terminateTimedOutSeedProcess(pid: number | undefined, persistenceRoot: string): void {
+  const runtimePid = Number.parseInt(
+    existsSync(path.join(persistenceRoot, LOCAL_SEED_RUNTIME_PID_FILE))
+      ? readFileSync(path.join(persistenceRoot, LOCAL_SEED_RUNTIME_PID_FILE), 'utf8')
+      : '',
+    10
+  );
+  if (process.platform === 'win32') {
+    for (const processId of [pid, runtimePid]) {
+      if (processId != null && Number.isInteger(processId) && processId > 0) {
+        spawnSync('taskkill', ['/pid', String(processId), '/t', '/f'], { stdio: 'ignore', windowsHide: true });
+      }
+    }
+    return;
+  }
+  for (const processId of [pid, runtimePid]) {
+    if (processId == null || !Number.isInteger(processId) || processId <= 0) {
+      continue;
+    }
+    try {
+      process.kill(processId === runtimePid ? -processId : processId, 'SIGTERM');
+    } catch (error) {
+      if (!(error instanceof Error && 'code' in error && error.code === 'ESRCH')) {
+        throw error;
+      }
+    }
+  }
+}
+
+function runCloudflareScript(command: string, persistenceRoot: string, seedRunId: string): CommandProbeResult {
+  if (!allowedCloudflareScriptCommands.has(command)) {
+    return {
+      command: `npm --prefix infra/cloudflare run ${command}`,
+      status: 'blocked',
+      stdout: '',
+      stderr: '',
+      blocker: {
+        kind: 'missing-runtime-dependency',
+        details: `unsupported Cloudflare script command: ${command}`,
+      },
+    };
+  }
+
+  const result =
+    process.platform === 'win32'
+      ? spawnSync('cmd.exe', ['/d', '/s', '/c', `npm run ${command}`], {
+          cwd: cloudflareDir,
+          encoding: 'utf8',
+          env: {
+            ...process.env,
+            OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
+            OCENTRA_CLOUDFLARE_SEED_RUN_ID: seedRunId,
+          },
+          timeout: seedCommandTimeoutMs,
+        })
+      : spawnSync('npm', ['run', command], {
+          cwd: cloudflareDir,
+          encoding: 'utf8',
+          env: {
+            ...process.env,
+            OCENTRA_CLOUDFLARE_LOCAL_PERSIST_PATH: persistenceRoot,
+            OCENTRA_CLOUDFLARE_SEED_RUN_ID: seedRunId,
+          },
+          timeout: seedCommandTimeoutMs,
+        });
+
+  if (result.error instanceof Error && 'code' in result.error && result.error.code === 'ETIMEDOUT') {
+    terminateTimedOutSeedProcess(result.pid, persistenceRoot);
+    return {
+      command: `npm --prefix infra/cloudflare run ${command}`,
+      status: 'blocked',
+      stdout: result.stdout,
+      stderr: result.stderr,
+      blocker: {
+        kind: 'seed-command-timeout',
+        details: `${command} exceeded the ${seedCommandTimeoutMs}ms subprocess limit`,
+      },
+    };
+  }
 
   if (result.status === 0) {
     return {
@@ -91,30 +217,27 @@ function runCloudflareScript(command: string): CommandProbeResult {
     stderr: result.stderr,
     blocker: {
       kind: 'missing-runtime-dependency',
-      details: (result.stderr || result.stdout || `${command} failed without diagnostics`).trim(),
+      details: (
+        result.stderr ||
+        result.stdout ||
+        result.error?.message ||
+        `${command} failed without diagnostics`
+      ).trim(),
     },
   };
 }
 
 function inspectLocalStartPath(): LocalStartPath {
   const workspaceScripts = readWorkspaceScripts();
-  const blockers: RuntimeDependencyBlocker[] = [];
+  const blockers: RuntimeDependencyBlocker[] = [...collectMissingRuntimeDependencyBlockers()];
+  let importCheckStatus: 'blocked' | 'passed' = 'blocked';
+  const runtimeBootStatus: 'proven' | 'unproven' = 'unproven';
 
   if (workspaceScripts['dev:cloudflare'] !== 'npm --prefix infra/cloudflare run dev') {
     blockers.push({
       kind: 'runtime-import-check',
       details: 'root package.json no longer exposes dev:cloudflare -> npm --prefix infra/cloudflare run dev',
     });
-  }
-
-  for (const relativePath of knownRuntimeDependencyPaths) {
-    if (!existsSync(path.join(repoRoot, relativePath))) {
-      blockers.push({
-        kind: 'missing-runtime-dependency',
-        path: relativePath,
-        details: 'required by the Cloudflare worker runtime before wrangler local start can import src/index.ts',
-      });
-    }
   }
 
   if (blockers.length === 0) {
@@ -141,6 +264,8 @@ function inspectLocalStartPath(): LocalStartPath {
           'Cloudflare worker runtime import failed without diagnostics'
         ).trim(),
       });
+    } else {
+      importCheckStatus = 'passed';
     }
   }
 
@@ -150,16 +275,18 @@ function inspectLocalStartPath(): LocalStartPath {
     wranglerCommand: 'wrangler dev --local',
     origin: 'http://localhost:3000',
     authAdapterMode: 'account-auth-adapter-manual-required',
-    status: blockers.length === 0 ? 'runnable' : 'blocked',
+    preflightStatus: blockers.length === 0 ? 'ready' : 'blocked',
+    importCheckStatus,
+    runtimeBootStatus,
+    runtimeBootEvidence:
+      'unproven: this probe imports the Worker entrypoint but does not start Wrangler or perform a bounded health request',
     blockers,
   };
 }
 
 function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
-  const localSeed = runCloudflareScript('seed:local');
-  const productsSeed = runCloudflareScript('seed:products:local');
-  const referralsSeed = runCloudflareScript('seed:referrals:local');
-  const accountsSeed = runCloudflareScript('seed:test-accounts:local');
+  const persistenceRoot = mkdtempSync(path.join(os.tmpdir(), 'ocentra-cloudflare-seed-probe-'));
+  const seedRunId = `cloudflare-local-seed-probe-${randomUUID()}`;
 
   const parseJsonPayload = (probe: CommandProbeResult): Record<string, unknown> | null => {
     if (probe.status !== 'runnable') {
@@ -189,82 +316,109 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
     return null;
   };
 
-  return [
-    {
-      family: 'pricing-catalog',
-      source: productsSeed.command,
-      populationState:
-        productsSeed.status === 'blocked'
-          ? 'blocked'
-          : (parseCount(productsSeed, 'pricingPlans') ?? 0) > 0
-            ? 'populated'
-            : 'placeholder',
-      itemCount: parseCount(productsSeed, 'pricingPlans'),
-      notes: 'Local pricing plans should come from seed-products-local.ts, not a doc placeholder.',
-      blocker: productsSeed.blocker,
-    },
-    {
-      family: 'parent-test-accounts',
-      source: localSeed.command,
-      populationState:
-        localSeed.status === 'blocked'
-          ? 'blocked'
-          : (parseCount(localSeed, 'statusBySubject') ?? 0) > 0
-            ? 'populated'
-            : 'placeholder',
-      itemCount: parseCount(localSeed, 'statusBySubject'),
-      notes:
-        'Composite seed snapshot should include per-subject status, invoices, referrals, and entitlement snapshots.',
-      blocker: localSeed.blocker,
-    },
-    {
-      family: 'support-admin-test-accounts',
-      source: accountsSeed.command,
-      populationState:
-        accountsSeed.status === 'blocked'
-          ? 'blocked'
-          : (parseCount(accountsSeed, 'accounts') ?? 0) > 0
-            ? 'populated'
-            : 'placeholder',
-      itemCount: parseCount(accountsSeed, 'accounts'),
-      notes:
-        'Support/admin test accounts must come from the real seed script output, not a manual count written into docs.',
-      blocker: accountsSeed.blocker,
-    },
-    {
-      family: 'referral-test-graph',
-      source: referralsSeed.command,
-      populationState:
-        referralsSeed.status === 'blocked'
-          ? 'blocked'
-          : (parseCount(referralsSeed, 'referrals') ?? 0) > 0
-            ? 'populated'
-            : 'placeholder',
-      itemCount: parseCount(referralsSeed, 'referrals'),
-      notes: 'Referral fixtures should back both per-subject referral summaries and admin referral views.',
-      blocker: referralsSeed.blocker,
-    },
-    {
-      family: 'webhook-payload-fixtures',
-      source:
-        'infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts and infra/cloudflare/tests/integration/worker-runtime-real.test.ts',
-      populationState: 'test-fixture-backed',
-      itemCount: 5,
-      notes:
-        'Stripe, PayPal, Razorpay, Google, and Apple webhook payload families are explicit test fixtures, not seed placeholders.',
-    },
-    {
-      family: 'queue-replay-fixtures',
-      source: 'infra/cloudflare/tests/property/billing-idempotency.property.test.ts',
-      populationState: 'test-fixture-backed',
-      itemCount: 2,
-      notes: 'Queue fixtures explicitly cover accepted reconciliation flow and dead-letter replay stability.',
-    },
-  ];
+  const hasPersistedMutation = (probe: CommandProbeResult, requestedFamily: string): boolean => {
+    const body = parseJsonPayload(probe);
+    const receipt = body?.mutationReceipt as MutationReceiptProbe | undefined;
+    if (
+      receipt?.runId !== seedRunId ||
+      receipt.requestedFamily !== requestedFamily ||
+      receipt.runtimeBootStatus !== 'proven' ||
+      receipt.fullBindingSeedApplied !== true ||
+      receipt.persistence == null ||
+      typeof receipt.persistence !== 'object'
+    ) {
+      return false;
+    }
+    return Object.values(receipt.persistence).every(
+      (count) => typeof count === 'number' && Number.isInteger(count) && count > 0
+    );
+  };
+
+  try {
+    const localSeed = runCloudflareScript('seed:local', persistenceRoot, seedRunId);
+    const localSeedPersisted = hasPersistedMutation(localSeed, 'composite-local-seed');
+
+    return [
+      {
+        family: 'pricing-catalog',
+        source: localSeed.command,
+        populationState:
+          localSeed.status === 'blocked'
+            ? 'blocked'
+            : localSeedPersisted && (parseCount(localSeed, 'pricingPlans') ?? 0) > 0
+              ? 'populated'
+              : 'placeholder',
+        itemCount: parseCount(localSeed, 'pricingPlans'),
+        notes: 'Pricing plans are accepted only after Wrangler proves direct D1/KV/R2 persistence.',
+        blocker: localSeed.blocker,
+      },
+      {
+        family: 'parent-test-accounts',
+        source: localSeed.command,
+        populationState:
+          localSeed.status === 'blocked'
+            ? 'blocked'
+            : localSeedPersisted && (parseCount(localSeed, 'statusBySubject') ?? 0) > 0
+              ? 'populated'
+              : 'placeholder',
+        itemCount: parseCount(localSeed, 'statusBySubject'),
+        notes: 'Composite parent seed is accepted only after direct local binding readback.',
+        blocker: localSeed.blocker,
+      },
+      {
+        family: 'support-admin-test-accounts',
+        source: localSeed.command,
+        populationState:
+          localSeed.status === 'blocked'
+            ? 'blocked'
+            : localSeedPersisted && (parseCount(localSeed, 'adminAccounts') ?? 0) > 0
+              ? 'populated'
+              : 'placeholder',
+        itemCount: parseCount(localSeed, 'adminAccounts'),
+        notes: 'Support/admin fixtures are accepted only after direct local binding readback.',
+        blocker: localSeed.blocker,
+      },
+      {
+        family: 'referral-test-graph',
+        source: localSeed.command,
+        populationState:
+          localSeed.status === 'blocked'
+            ? 'blocked'
+            : localSeedPersisted && (parseCount(localSeed, 'adminReferrals') ?? 0) > 0
+              ? 'populated'
+              : 'placeholder',
+        itemCount: parseCount(localSeed, 'adminReferrals'),
+        notes: 'Referral fixtures are accepted only after direct local binding readback.',
+        blocker: localSeed.blocker,
+      },
+      {
+        family: 'webhook-payload-fixtures',
+        source: 'infra/cloudflare/tests/integration/worker-runtime-real.test.ts',
+        populationState: 'test-fixture-backed',
+        itemCount: LOCAL_WEBHOOK_FIXTURE_INVENTORY.length,
+        notes: 'Count comes from the shared provider inventory executed by the real Worker runtime test.',
+      },
+      {
+        family: 'queue-replay-fixtures',
+        source: 'infra/cloudflare/tests/property/billing-idempotency.property.test.ts',
+        populationState: 'test-fixture-backed',
+        itemCount: LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY.length,
+        notes: 'Count comes from the shared accepted/dead-letter replay inventory executed by property tests.',
+      },
+    ];
+  } finally {
+    rmSync(persistenceRoot, { recursive: true, force: true, maxRetries: 50, retryDelay: 100 });
+  }
 }
 
 function inspectLocalSeedPath(): LocalSeedPath {
   const fixtureFamilies = buildFixtureFamilies();
+  const allFixtureFamiliesPopulated = fixtureFamilies.every(
+    (family) =>
+      (family.populationState === 'populated' || family.populationState === 'test-fixture-backed') &&
+      (family.itemCount ?? 0) > 0
+  );
+
   return {
     aggregateCommand: 'npm --prefix infra/cloudflare run seed:local',
     commands: [
@@ -273,7 +427,7 @@ function inspectLocalSeedPath(): LocalSeedPath {
       'npm --prefix infra/cloudflare run seed:referrals:local',
       'npm --prefix infra/cloudflare run seed:test-accounts:local',
     ],
-    status: fixtureFamilies.some((family) => family.populationState === 'blocked') ? 'blocked' : 'runnable',
+    status: allFixtureFamiliesPopulated ? 'runnable' : 'blocked',
     fixtureFamilies,
   };
 }
@@ -303,5 +457,5 @@ export function inspectLocalDevWorkflow(): LocalDevWorkflowReport {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  console.log(JSON.stringify(inspectLocalDevWorkflow(), null, 2));
+  process.stdout.write(`${JSON.stringify(inspectLocalDevWorkflow(), null, 2)}\n`);
 }

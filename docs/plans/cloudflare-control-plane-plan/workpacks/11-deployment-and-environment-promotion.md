@@ -28,28 +28,27 @@ Define deployment commands, environment promotion, and rollback expectations for
 
 ## Status
 
-- `blocked / proof-present`
-- Proof root: `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
+- `blocked / proof-required`
+- Proof root: expected output path `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
 
 ## Execution truth
 
 - Development and production config are separate and keep explicit non-wildcard origins.
 - Secret values remain out of repo.
-- Both scoped deploy dry-runs block before any remote publish step.
+- Both scoped deploy commands exit 0 at the explicit `--dry-run` boundary and intentionally perform no remote publish.
 - Post-deploy `/health`, `/public/pricing`, and `/auth/billing/status` smoke are therefore still blocked.
 - Rollback stays explicit but manual-required because no deploy artifact or published version was produced.
 
 ## Exact blocker set
 
-- Missing billing-domain runtime boundary modules:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - `packages/billing-domain/src/billing-referral-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-  - `packages/billing-domain/src/billing-account-runtime-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
+- Dry-run command execution is green against source base `2aab6310c` on 2026-07-23; deployment and promotion proof remain absent:
+  - `npm --prefix infra/cloudflare run deploy:dev -- --dry-run`
+  - `npm --prefix infra/cloudflare run deploy -- --dry-run`
+- Each command completed local bundling, emitted the existing missing matching `[env.*]` warning, and stopped without publishing.
 - Placeholder-backed resource identifiers remain in both configs.
 - `AUTH_ADAPTER_MODE = "account-auth-adapter-manual-required"` remains active in both configs.
 - The current deploy scripts emit `--env` warnings because they do not point at matching `[env.*]` sections in the selected config file.
+- No promoted endpoint exists, so post-deploy smoke and rollback execution remain blocked rather than green.
 
 ## Validations run
 

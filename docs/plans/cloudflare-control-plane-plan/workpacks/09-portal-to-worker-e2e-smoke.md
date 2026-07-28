@@ -27,27 +27,27 @@ Define the first consumer-side smoke that proves a parent portal route can talk 
 
 ## Status
 
-- `blocked / proof-present`
-- Proof root: `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/`
+- `proof-required`
+- Proof root: expected output path `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/`
 
 ## Execution truth
 
 - The owned e2e family stays explicitly scoped to `tests/e2e/portal-to-worker-billing-status.test.ts`.
 - The test contract stays explicitly scoped to `/auth/billing/status`.
-- The owned command blocked before route execution because `infra/cloudflare/src/index.ts` could not import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
-- Secret/private leakage assumptions remain denied by the owned test contract, but runtime success is not proven because the worker never booted.
+- The owned e2e family is green in the current execution record; the remaining gap is the absent proof artifact in this checkout.
+- Secret/private leakage assumptions remain denied by the owned test contract, and runtime success is recorded rather than invented.
 
 ## Exact blocker set
 
-- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
+- `cmd /c npm --prefix infra/cloudflare run test:e2e` is green in the current execution record; the remaining blocker is the absent proof artifact
 
 ## Validations run
 
-- `cmd /c npm --prefix infra/cloudflare run test:e2e`
+- `cmd /c npm --prefix infra/cloudflare run test:e2e` -> green in the current execution record
 
 ## No-claim boundary
 
-- This workpack does not prove a green portal-to-worker smoke.
+- This workpack does not prove the proof artifact.
 - This workpack does not prove checkout, admin, or provider flows.
 - This workpack does not prove payment readiness or deployment readiness.
 

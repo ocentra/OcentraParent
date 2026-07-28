@@ -6,8 +6,8 @@ Purpose: define how the shared Cloudflare module promotes from local to producti
 
 | Environment | File | Notes |
 | --- | --- | --- |
-| Development | `wrangler.toml` | Local-friendly bindings, placeholder IDs, no real secrets in repo, current deploy dry-run blocked before publish |
-| Production | `wrangler.production.toml` | Production names, production origins, placeholder IDs only in repo, current deploy dry-run blocked before publish |
+| Development | `wrangler.toml` | Local-friendly bindings, placeholder IDs, no real secrets in repo; the current `--dry-run` exits 0 and intentionally performs no publish |
+| Production | `wrangler.production.toml` | Production names, production origins, placeholder IDs only in repo; the current `--dry-run` exits 0 and intentionally performs no publish |
 
 ## Required commands
 
@@ -24,11 +24,13 @@ Current scoped proof rerun uses `--dry-run` against both commands because no rea
 - A deploy script is not deployment proof when Wrangler stops at local bundling or placeholder-backed config.
 - Post-deploy `/health`, `/public/pricing`, and `/auth/billing/status` smoke only apply after a real promoted environment exists.
 
-## Current blocked state
+## Current dry-run and blocked promotion state
 
-- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` is currently blocked before publish because `src/index.ts` and `src/fixtures.ts` still import missing billing-domain runtime boundary modules.
-- `npm --prefix infra/cloudflare run deploy -- --dry-run` is currently blocked for the same reason.
+- Current module lint truth: `npm --prefix infra/cloudflare run lint` passed at source base `2aab6310c`; this file no longer treats the Cloudflare module lint as active debt.
+- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` exited 0 against source base `2aab6310c` on 2026-07-23, completed local bundling, and stopped at the explicit dry-run boundary without publishing.
+- `npm --prefix infra/cloudflare run deploy -- --dry-run` exited 0 against the same source base, completed local bundling, and stopped at the explicit dry-run boundary without publishing.
 - Both commands also emit a Wrangler warning because the scripts pass `--env development` or `--env production` without matching `[env.*]` sections in the chosen config file.
+- No promoted endpoint exists from those commands, so post-deploy `/health`, `/public/pricing`, and `/auth/billing/status` smoke remains unrun and blocked.
 - Both configs still expose placeholder-backed D1 and KV identifiers and manual-required auth/key references, so no promotion or rollback readiness may be inferred.
 
 ## Rollback rules

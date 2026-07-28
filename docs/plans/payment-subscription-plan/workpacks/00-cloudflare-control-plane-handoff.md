@@ -2,9 +2,9 @@
 
 ## Current status
 
-- Verdict: `blocked / proof-present`
-- Payment proof root: `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/`
-- Upstream handoff artifact: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
+- Verdict: `blocked / proof-required`
+- Expected payment proof root: `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/`
+- Expected upstream handoff artifact (absent/not produced in this checkout): `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
 - Runtime effect: payment runtime remains blocked; this packet only records the shared Cloudflare dependency truth and its exact carried blockers.
 
 ## Goal
@@ -36,7 +36,7 @@ data-custody-storage-plan owns billing-record privacy/retention/export/delete bo
 - [../../cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md](../../cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md)
 - [../../cloudflare-control-plane-plan/TESTING_STRATEGY.md](../../cloudflare-control-plane-plan/TESTING_STRATEGY.md)
 - [../../cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md](../../cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md)
-- `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
+- `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` (expected-only; absent/not produced in this checkout)
 - [../REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
 
 ## Output files
@@ -51,15 +51,15 @@ data-custody-storage-plan owns billing-record privacy/retention/export/delete bo
 
 | Field | Current state | Evidence |
 | --- | --- | --- |
-| `cloudflare_plan_state` | exists / consumed / blocked-upstream | `docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md`; `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` |
+| `cloudflare_plan_state` | exists / source-backed / proof-required | `docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md`; `docs/plans/cloudflare-control-plane-plan/NEXT_ACTIONS.md` |
 | `module_spec_state` | exists / source-backed / consumed | `docs/plans/cloudflare-control-plane-plan/PARENT_CLOUDFLARE_MODULE_SPEC.md` |
-| `auth_boundary_state` | exists / consumed / `account-auth-adapter-manual-required` | `docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md`; upstream handoff artifact |
+| `auth_boundary_state` | exists / consumed / `account-auth-adapter-manual-required` | `docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md`; `docs/plans/payment-subscription-plan/PLAN_STATE.md` |
 | `route_manifest_state` | exists / consumed / payment route groups explicit | `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md` |
-| `local_dev_test_state` | blocked / proof-present | `docs/plans/cloudflare-control-plane-plan/TESTING_STRATEGY.md`; upstream handoff artifact |
-| `portal_worker_smoke_state` | blocked / proof-missing | upstream handoff artifact |
+| `local_dev_test_state` | runnable / probe-verified; generated billing-contract sidecar resolution is correct and the proof bundle remains absent/not produced | `docs/plans/cloudflare-control-plane-plan/TESTING_STRATEGY.md`; `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts`; `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` |
+| `portal_worker_smoke_state` | blocked / proof-missing | `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md`; `docs/plans/payment-subscription-plan/PLAN_STATE.md` |
 | `payment_route_group_state` | documented / no-runtime-claim | `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md` |
 | `secret_boundary_state` | server-only-secret contract explicit | `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`; module spec |
-| `runtime_block_state` | blocked / payment-runtime-must-not-start | upstream handoff artifact and payment proof root |
+| `runtime_block_state` | blocked / payment-runtime-must-not-start | expected upstream handoff artifact path only; no tracked payment proof bundle in this checkout |
 
 ## Acceptance
 
@@ -78,10 +78,11 @@ data-custody-storage-plan owns billing-record privacy/retention/export/delete bo
 - [x] `infra/cloudflare/` module spec exists and is consumed rather than redefined in payment.
 - [x] Shared auth boundary exists and unresolved authority remains explicit as `manual-required`.
 - [x] Shared route manifest defines the billing, webhook, and admin route groups payment must consume.
-- [x] Shared local dev and required test family shapes exist, with blocked-state proof carried forward instead of fake green.
+- [x] Shared local dev and required test family shapes exist, and the blocked-state proof remains absent/not produced in this checkout.
 - [x] Portal-to-worker smoke remains visible as `blocked / proof-missing` rather than being silently ignored.
 - [x] Secret ownership remains server-only; payment does not claim provider secret or webhook secret exposure.
-- [x] Payment runtime remains explicitly blocked until the upstream Cloudflare blocker set is cleared.
+- [x] Payment runtime remains explicitly blocked until the upstream Cloudflare handoff proof is generated, validated, and downstream-consumed.
+- [ ] Shared handoff proof is generated, validated, and downstream-consumed; the current checkout output tree still has no tracked WP00-WP12 proof roots.
 
 ## Required proof fields
 
@@ -97,6 +98,15 @@ portal_worker_smoke_state
 payment_route_group_state
 secret_boundary_state
 runtime_block_state
+accepted_proof_roots
+missing_proof_roots
+carried_blockers
+trusted_device_dependency_state
+provider_webhook_dependency_state
+storage_queue_dependency_state
+deployment_promotion_state
+data_custody_state
+downstream_payment_ack_state
 upstream_handoff_artifact
 payment_runtime_no_claim
 ```
@@ -118,32 +128,35 @@ These are proof-routing fields, not implementation code prescriptions.
 ## Validation
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
-- Upstream handoff artifact: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
+- Upstream handoff artifact (expected-only / absent in this checkout): `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
 - Proof bundle: `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md`
 
 Current validation truth:
 
 - `cmd /c npm run format:check` -> `fail`; repo-wide Prettier drift outside WP00.
 - `cmd /c npm run lint:schema-boundaries` -> `fail`; weak assertion guard failures in `crates/agent-protocol/tests/contract/*` and `crates/agent-service/tests/unit/lan_pairing.rs`, outside payment WP00 ownership.
+- Current Cloudflare lint truth: `npm --prefix infra/cloudflare run lint` passed at head `c121ba5eb`; no current Cloudflare module lint blocker is claimed here.
 
 ## Exact upstream blocker set
 
+- Current tracked checkout output inventory:
+  - no WP00-WP12 proof roots are present in this checkout
+  - WP01-WP11 are historical plan references only
+  - WP12's generated proof is absent/not produced in this checkout
 - Missing Cloudflare proof roots still carried by the upstream handoff:
-  - `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
-  - `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/`
-  - `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/`
-  - `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
-- Missing billing-domain runtime boundary modules still blocking the upstream Cloudflare packet:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - `packages/billing-domain/src/billing-referral-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-  - `packages/billing-domain/src/billing-account-runtime-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
-- Dependency-gated authority and runtime blockers still carried upstream:
+  - no tracked WP00-WP12 proof roots are present in this checkout; WP00-WP11 are historical plan references only and WP12's generated proof is absent/not produced
+- Current blockers still carried upstream:
+  - no tracked Cloudflare handoff proof bundle in this checkout
+  - the handoff proof path remains absent/not produced: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
+  - payment runtime remains blocked until the handoff proof is explicit and downstream-consumed
   - `account-auth-adapter-manual-required`
   - trusted-device authority remains owned outside the Cloudflare plan
+  - provider-webhook readiness remains `blocked / proof-required`
+  - storage and queue operations readiness remains `blocked / proof-required`
   - portal-to-worker smoke proof missing
   - deployment/promotion proof missing
+  - data-custody readiness remains `blocked / proof-required`
+  - downstream payment acknowledgment remains `blocked / not-recorded`
 
 ## Negative cases
 

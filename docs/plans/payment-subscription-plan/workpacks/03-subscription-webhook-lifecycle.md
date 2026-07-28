@@ -2,10 +2,12 @@
 
 ## Current status
 
-- Verdict: `done`
-- Proof root: `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/`
+- Verdict: `source-and-focused-tests-present / workpack-blocked / proof-required / WP00-blocked`
+- Proof root: expected `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/`; physically absent in this checkout
 - Rust owner: `crates/billing-core/src/billing_subscription.rs`
 - No-claim boundary: this packet proves Rust-owned webhook lifecycle truth only; it does not claim Cloudflare shell ownership or entitlement delivery completion.
+
+The source and named tests remain independently inspectable implementation evidence. They do not prove workpack closure without the physical negative-case, replay/idempotency, dead-letter, reconciliation, rollback/teardown, validation-log, and no-claim artifacts, and they do not clear the unaccepted WP00 prerequisite.
 
 ## Goal
 
@@ -65,7 +67,7 @@ entitlement delivery happens through WP04 and must not be bypassed by provider e
 - Out-of-order events converge on the same final ledger state.
 - Retry or reconciliation work is queued when a webhook needs follow-up.
 
-## Acceptance status
+## Source/test acceptance evidence (not workpack closure)
 
 - [x] Every accepted provider event requires verified signature state, parsed payload state, and isolated test/live mode.
 - [x] Every accepted event projects an app-owned ledger transition through the Rust-owned contract.
@@ -110,9 +112,9 @@ These are proof-routing fields, not implementation code prescriptions.
 
 ## Validation
 
-- Focused validation: `cargo test -p ocentra-billing-core --test unit`; `cargo lint-architecture crates/billing-core/src/billing_subscription.rs crates/billing-core/tests/unit/provider_webhook.rs crates/billing-core/tests/unit/subscription_lifecycle.rs`; narrow Prettier check on touched WP03 docs/proof files
+- Previously recorded focused source/test commands: `cargo test -p ocentra-billing-core --test unit`; `cargo lint-architecture crates/billing-core/src/billing_subscription.rs crates/billing-core/tests/unit/provider_webhook.rs crates/billing-core/tests/unit/subscription_lifecycle.rs`; narrow Prettier check on touched WP03 docs/proof files. Their physical validation log is absent in this checkout, so they must be rerun and retained before closure.
 - Required proof families: `payment-webhook.stripe-signature-valid`, `payment-webhook.stripe-signature-invalid`, `payment-webhook.razorpay-signature-valid`, `payment-webhook.paypal-webhook-verified`, `payment-webhook.duplicate-event-idempotent`, `payment-webhook.replayed-event-rejected`, `payment-webhook.out-of-order-event-safe`, `payment-webhook.unknown-event-safe`, `payment-webhook.retry-no-double-grant`, `payment-webhook.dead-letter-manual-required`, `payment-webhook.reconciliation-repairs-drift`, `payment-webhook.test-live-separated`
-- Proof bundle: `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-provider-webhook-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-idempotency-replay-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-dead-letter-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-reconciliation-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-test-live-boundary-proof.md`
+- Expected proof bundle, currently absent: `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-provider-webhook-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-idempotency-replay-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-dead-letter-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-reconciliation-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-test-live-boundary-proof.md`
 
 ## Negative cases
 
@@ -128,3 +130,4 @@ These are proof-routing fields, not implementation code prescriptions.
 - Do not let a webhook change access without the ledger.
 - Do not double-grant entitlement on duplicate events.
 - Do not claim entitlement delivery from webhook acceptance alone; WP04 owns entitlement delivery proof.
+- Do not claim WP03 complete while WP00 is unaccepted or the canonical physical proof bundle is absent.

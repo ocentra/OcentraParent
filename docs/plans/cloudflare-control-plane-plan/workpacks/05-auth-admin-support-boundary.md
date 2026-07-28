@@ -49,7 +49,7 @@ Define the auth-state model and adapter interface for parent, admin, support, we
 
 ## Execution truth
 
-Status: `blocked / proof-present`.
+Status: `blocked / proof-required`.
 
 Implemented packet:
 
@@ -65,10 +65,8 @@ Focused outcome:
 
 External blocker:
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:security`, and `test:integration` are all blocked by the same external missing import:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - imported from `infra/cloudflare/src/index.ts`
-- This blocker is outside the WP05 owner surface, so WP05 is not green; it is proof-present with an exact carried dependency blocker.
+- `npm --prefix infra/cloudflare run test:unit`, `test:security`, and `test:integration` are green in the execution record; the remaining gap is the absent proof artifact.
+- The account-provider decision remains manual-required, so WP05 is not green; it is blocked / proof-required with an exact carried dependency gap.
 
 Proof root:
 

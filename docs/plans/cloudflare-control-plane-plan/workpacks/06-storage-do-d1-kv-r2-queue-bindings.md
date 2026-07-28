@@ -51,8 +51,8 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Completion
 
-- Status: blocked / proof-present for WP06 only; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
-- Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
+- Status: blocked / proof-required for WP06 only; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
+- Proof root: expected output path `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 - Runtime/source owner: `infra/cloudflare/src/env.ts`
 - Owned test surface: `infra/cloudflare/tests/unit/env-bindings.test.ts`
 
@@ -67,8 +67,8 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` all remain blocked before worker boot because `infra/cloudflare/src/index.ts` cannot import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
-- That billing-domain boundary import is outside the WP06 storage-binding slice, so the blocker is carried rather than fixed here.
+- `test:unit`, `test:integration`, and `test:property` passed at source base `2aab6310c`; the compact retained receipt records their exact local-only boundary.
+- WP06 remains proof-required because its retained receipt is not accepted as a closure root and live queue/retry/dead-letter/D1/KV/R2 operations proof remains absent. Proof-file absence is a custody gap, not a reason to relabel a passed command as blocked.
 
 ## Proof artifacts
 
@@ -77,13 +77,14 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - `02-rollback-or-teardown-proof.md`
 - `16-validation-commands.log`
 
-## Focused validations
+## Focused validation truth
 
-- `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`
-- `npm --prefix infra/cloudflare run test:unit` blocked on `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-- `npm --prefix infra/cloudflare run test:integration` blocked on the same import
-- `npm --prefix infra/cloudflare run test:property` blocked on the same import
-- `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/tests/unit/env-bindings.test.ts`
+| Command | Current evidenced state |
+| --- | --- |
+| `npm --prefix infra/cloudflare run test:unit` | Passed 49/49 at source base `2aab6310c`; local unit behavior only. |
+| `npm --prefix infra/cloudflare run test:integration` | Passed at source base `2aab6310c`; local Worker behavior only, not live storage/queue operations proof. |
+| `npm --prefix infra/cloudflare run test:property` | Passed 9/9 at source base `2aab6310c`; property behavior only. |
+| `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/tests/unit/env-bindings.test.ts` | Required before a source/test change; this receipt adds no source/test edit. |
 
 ## No-claim boundary
 

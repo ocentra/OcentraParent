@@ -67,7 +67,7 @@ Define the starter bundle, child-device seat math, referral credit application, 
 
 ## Execution truth
 
-- Status: `done / proof-present`
+- Status: `done / proof-required`
 - Rust-first override: canonical cross-boundary ownership stays with `crates/schema`; the `@ocentra-parent/schema-domain` edits in this packet are transitional thin edge validation and proof data only, not restored TS business ownership.
 - Actual implementation surface stays in `@ocentra-parent/schema-domain` proof and edge-decoder files plus the focused `@ocentra-parent/billing-domain` unit test; `packages/billing-domain/src/billing-pricing-matrix.ts` is not present in this worktree and was not revived as a TS business owner.
 - Proven families:
@@ -93,4 +93,4 @@ Define the starter bundle, child-device seat math, referral credit application, 
 ## No-claim boundary
 
 - This packet does not prove hosted checkout, billing portal, webhook lifecycle, Cloudflare payment runtime readiness, entitlement delivery, device-trust binding, parent dashboard readiness, or support/admin authority.
-- The carried WP00 Cloudflare blocker still prevents broader payment runtime readiness claims even though WP01 pricing and entitlement model proof is complete.
+- The carried WP00 Cloudflare blocker still prevents broader payment runtime readiness claims even though WP01 pricing and entitlement model proof remains tracked only as an expected output path here.

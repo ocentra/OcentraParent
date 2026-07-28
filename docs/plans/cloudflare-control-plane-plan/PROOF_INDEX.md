@@ -32,6 +32,19 @@ output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promoti
 output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/
 ```
 
+Raw command output and generated bundles under `output/` remain ignored build
+evidence. A compact tracked receipt is required when workpack state or a
+cross-plan handoff must survive worktree cleanup and remain reviewable from the
+remote branch:
+
+```text
+docs/proof/cloudflare-control-plane-plan/<workpack-id>.md
+```
+
+The receipt records exact commit, commands, results, accepted roots, missing
+roots, blockers, and no-claim boundaries. It must not embed raw logs, secrets,
+provider payloads, environment values, or generated output files.
+
 ## Required universal proof files
 
 Every proof root needs:
@@ -125,5 +138,11 @@ PR_READY
 
 unless the selected proof root proves the claim and WP12 aggregates it when broad readiness is claimed.
 
-Active proof routing for this plan is `output/cloudflare-control-plane-plan-proof/`.
-Legacy `docs/proof/cloudflare-control-plane-plan/` references should be removed as touched rather than treated as current proof truth.
+Active proof routing uses ignored raw/generated evidence under
+`output/cloudflare-control-plane-plan-proof/` plus compact retained receipts
+under `docs/proof/cloudflare-control-plane-plan/` when cleanup-safe proof or a
+cross-plan handoff is required.
+
+Old `docs/proof/cloudflare-control-plane-plan/` files remain invalid unless
+they use the retained-receipt contract above and cite current-head validation.
+File presence alone is never proof.

@@ -6,7 +6,7 @@ Extract the reusable games Cloudflare control-plane pattern and reduce it to Par
 
 ## Current status
 
-`blocked / proof-present`
+`blocked / proof-required`
 
 ## First-touch surface
 
@@ -29,7 +29,7 @@ Extract the reusable games Cloudflare control-plane pattern and reduce it to Par
 - The parity extraction is docs/proof-only in this packet.
 - `GAMES_INFRA_PARITY_MAP.md` now carries exact keep/adapt/strip decisions for the reusable games Cloudflare module pattern.
 - `SOURCE_SURFACE_STATUS_MATRIX.md` now records the parity map and parent module spec as real source-of-truth surfaces instead of leaving WP00 implicit.
-- The proof root `output/cloudflare-control-plane-plan-proof/00-games-infra-parity-extraction/` now exists with scope, negative-case, rollback/no-claim, and validation artifacts.
+- The proof root `output/cloudflare-control-plane-plan-proof/00-games-infra-parity-extraction/` is an expected output path in the plan, but no tracked proof root exists in this checkout.
 - The required docs validation is currently blocked outside WP00 because `npm run format:check` fails on repo-wide Prettier drift across 1010 files, including many untouched `apps/portal`, `packages/schema-domain`, `scripts/test`, and `vendor` paths.
 
 ## Acceptance
@@ -59,5 +59,5 @@ Extract the reusable games Cloudflare control-plane pattern and reduce it to Par
 
 - This workpack does not claim Cloudflare runtime readiness, account authority, trusted-device authority, deployment readiness, or payment readiness.
 - This workpack does not claim the reduced Parent module tree is fully implemented from docs alone.
-- This workpack only proves that the games module pattern has been reduced into a Parent-safe parity map with explicit carried non-goals.
+- This workpack only records that the games module pattern reduction target is Parent-safe and keeps the carried non-goals explicit.
 - This workpack is not validation-green while the repo-wide docs formatting gate remains red outside the packet.

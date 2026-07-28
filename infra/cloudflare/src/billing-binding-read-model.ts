@@ -46,6 +46,37 @@ const PRICING_PLANS_KEY = 'billing:pricing-plans';
 const AUDIT_EVENTS_KEY = 'billing/audit-events.json';
 const TOUCH_KEY_PREFIX = 'billing-touch:';
 
+export function isLocalFixtureEnvironment(environment: string): boolean {
+  return environment === 'local' || environment === 'test';
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isExpectedFixtureShape(actual: unknown, expected: unknown): boolean {
+  if (expected === null) {
+    return actual === null;
+  }
+  if (Array.isArray(expected)) {
+    if (!Array.isArray(actual)) {
+      return false;
+    }
+    const expectedElement = expected[0] as unknown;
+    return (
+      expected.length === 0 ||
+      (actual.length > 0 && actual.every((entry) => isExpectedFixtureShape(entry, expectedElement)))
+    );
+  }
+  if (isObjectRecord(expected)) {
+    return (
+      isObjectRecord(actual) &&
+      Object.entries(expected).every(([key, expectedValue]) => isExpectedFixtureShape(actual[key], expectedValue))
+    );
+  }
+  return typeof actual === typeof expected;
+}
+
 function normalizeSql(sql: string): string {
   return sql.replace(/\s+/g, ' ').trim();
 }
@@ -102,6 +133,30 @@ const UPSERT_ADMIN_DISPUTE_SQL = normalizeSql(
 );
 const UPSERT_ADMIN_REFERRAL_SQL = normalizeSql(
   'INSERT OR REPLACE INTO billing_admin_referrals (referral_code, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_STATUS_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_status (subject, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_INVOICE_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_invoices (subject, invoice_id, payload_json) VALUES (?1, ?2, ?3)'
+);
+const INSERT_MISSING_REFERRAL_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_referrals (subject, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_SNAPSHOT_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_snapshots (subject, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_ADMIN_ACCOUNT_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_admin_accounts (parent_account_ref, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_ADMIN_INVOICE_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_admin_invoices (invoice_id, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_ADMIN_DISPUTE_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_admin_disputes (dispute_id, payload_json) VALUES (?1, ?2)'
+);
+const INSERT_MISSING_ADMIN_REFERRAL_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_admin_referrals (referral_code, payload_json) VALUES (?1, ?2)'
 );
 
 const seedReadyByEnv = new WeakMap<Env, Promise<void>>();
@@ -406,57 +461,96 @@ class LocalD1Statement implements D1PreparedStatement {
 
   private executeMutation(): void {
     switch (this.normalizedQuery) {
-      case UPSERT_STATUS_SQL: {
+      case UPSERT_STATUS_SQL:
+      case INSERT_MISSING_STATUS_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
-        this.state.statusBySubject.set(subject, parsePayload<BillingStatusSummary>(payloadJson));
+        if (this.normalizedQuery === UPSERT_STATUS_SQL || !this.state.statusBySubject.has(subject)) {
+          this.state.statusBySubject.set(subject, parsePayload<BillingStatusSummary>(payloadJson));
+        }
         return;
       }
-      case UPSERT_INVOICE_SQL: {
+      case UPSERT_INVOICE_SQL:
+      case INSERT_MISSING_INVOICE_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[2] ?? '{}');
         const invoice = parsePayload<BillingInvoiceSummary>(payloadJson);
         const current = this.state.invoicesBySubject.get(subject) ?? [];
-        this.state.invoicesBySubject.set(
-          subject,
-          replaceByKey(current, invoice, (entry) => entry.invoiceId)
-        );
+        if (
+          this.normalizedQuery === UPSERT_INVOICE_SQL ||
+          !current.some((entry) => entry.invoiceId === invoice.invoiceId)
+        ) {
+          this.state.invoicesBySubject.set(
+            subject,
+            replaceByKey(current, invoice, (entry) => entry.invoiceId)
+          );
+        }
         return;
       }
-      case UPSERT_REFERRAL_SQL: {
+      case UPSERT_REFERRAL_SQL:
+      case INSERT_MISSING_REFERRAL_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
-        this.state.referralsBySubject.set(subject, parsePayload<BillingReferralSummary>(payloadJson));
+        if (this.normalizedQuery === UPSERT_REFERRAL_SQL || !this.state.referralsBySubject.has(subject)) {
+          this.state.referralsBySubject.set(subject, parsePayload<BillingReferralSummary>(payloadJson));
+        }
         return;
       }
-      case UPSERT_SNAPSHOT_SQL: {
+      case UPSERT_SNAPSHOT_SQL:
+      case INSERT_MISSING_SNAPSHOT_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
-        this.state.snapshotsBySubject.set(subject, parsePayload<BillingEntitlementSnapshotSummary>(payloadJson));
+        if (this.normalizedQuery === UPSERT_SNAPSHOT_SQL || !this.state.snapshotsBySubject.has(subject)) {
+          this.state.snapshotsBySubject.set(subject, parsePayload<BillingEntitlementSnapshotSummary>(payloadJson));
+        }
         return;
       }
-      case UPSERT_ADMIN_ACCOUNT_SQL: {
+      case UPSERT_ADMIN_ACCOUNT_SQL:
+      case INSERT_MISSING_ADMIN_ACCOUNT_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingAccountSummary>(payloadJson);
-        this.state.adminAccounts = replaceByKey(this.state.adminAccounts, nextRow, (entry) => entry.parentAccountRef);
+        if (
+          this.normalizedQuery === UPSERT_ADMIN_ACCOUNT_SQL ||
+          !this.state.adminAccounts.some((entry) => entry.parentAccountRef === nextRow.parentAccountRef)
+        ) {
+          this.state.adminAccounts = replaceByKey(this.state.adminAccounts, nextRow, (entry) => entry.parentAccountRef);
+        }
         return;
       }
-      case UPSERT_ADMIN_INVOICE_SQL: {
+      case UPSERT_ADMIN_INVOICE_SQL:
+      case INSERT_MISSING_ADMIN_INVOICE_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingInvoiceSummary>(payloadJson);
-        this.state.adminInvoices = replaceByKey(this.state.adminInvoices, nextRow, (entry) => entry.invoiceId);
+        if (
+          this.normalizedQuery === UPSERT_ADMIN_INVOICE_SQL ||
+          !this.state.adminInvoices.some((entry) => entry.invoiceId === nextRow.invoiceId)
+        ) {
+          this.state.adminInvoices = replaceByKey(this.state.adminInvoices, nextRow, (entry) => entry.invoiceId);
+        }
         return;
       }
-      case UPSERT_ADMIN_DISPUTE_SQL: {
+      case UPSERT_ADMIN_DISPUTE_SQL:
+      case INSERT_MISSING_ADMIN_DISPUTE_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingDisputeSummary>(payloadJson);
-        this.state.adminDisputes = replaceByKey(this.state.adminDisputes, nextRow, (entry) => entry.disputeId);
+        if (
+          this.normalizedQuery === UPSERT_ADMIN_DISPUTE_SQL ||
+          !this.state.adminDisputes.some((entry) => entry.disputeId === nextRow.disputeId)
+        ) {
+          this.state.adminDisputes = replaceByKey(this.state.adminDisputes, nextRow, (entry) => entry.disputeId);
+        }
         return;
       }
-      case UPSERT_ADMIN_REFERRAL_SQL: {
+      case UPSERT_ADMIN_REFERRAL_SQL:
+      case INSERT_MISSING_ADMIN_REFERRAL_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
         const nextRow = parsePayload<AdminBillingReferralSummary>(payloadJson);
-        this.state.adminReferrals = replaceByKey(this.state.adminReferrals, nextRow, (entry) => entry.referralCode);
+        if (
+          this.normalizedQuery === UPSERT_ADMIN_REFERRAL_SQL ||
+          !this.state.adminReferrals.some((entry) => entry.referralCode === nextRow.referralCode)
+        ) {
+          this.state.adminReferrals = replaceByKey(this.state.adminReferrals, nextRow, (entry) => entry.referralCode);
+        }
         return;
       }
       default:
@@ -790,49 +884,54 @@ function hostedSessionAuditEventType(sessionKind: 'checkout-session-create' | 'b
 async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch): Promise<void> {
   if (patch.statusBySubject) {
     for (const [subject, row] of Object.entries(patch.statusBySubject)) {
-      await database.prepare(UPSERT_STATUS_SQL).bind(subject, JSON.stringify(row)).run();
+      await database.prepare(INSERT_MISSING_STATUS_SQL).bind(subject, JSON.stringify(row)).run();
     }
   }
   if (patch.invoicesBySubject) {
     for (const [subject, invoices] of Object.entries(patch.invoicesBySubject)) {
       for (const invoice of invoices) {
-        await database.prepare(UPSERT_INVOICE_SQL).bind(subject, invoice.invoiceId, JSON.stringify(invoice)).run();
+        await database
+          .prepare(INSERT_MISSING_INVOICE_SQL)
+          .bind(subject, invoice.invoiceId, JSON.stringify(invoice))
+          .run();
       }
     }
   }
   if (patch.referralsBySubject) {
     for (const [subject, referral] of Object.entries(patch.referralsBySubject)) {
-      await database.prepare(UPSERT_REFERRAL_SQL).bind(subject, JSON.stringify(referral)).run();
+      await database.prepare(INSERT_MISSING_REFERRAL_SQL).bind(subject, JSON.stringify(referral)).run();
     }
   }
   if (patch.snapshotsBySubject) {
     for (const [subject, snapshot] of Object.entries(patch.snapshotsBySubject)) {
-      await database.prepare(UPSERT_SNAPSHOT_SQL).bind(subject, JSON.stringify(snapshot)).run();
+      await database.prepare(INSERT_MISSING_SNAPSHOT_SQL).bind(subject, JSON.stringify(snapshot)).run();
     }
   }
   for (const row of patch.adminAccounts ?? []) {
-    await database.prepare(UPSERT_ADMIN_ACCOUNT_SQL).bind(row.parentAccountRef, JSON.stringify(row)).run();
+    await database.prepare(INSERT_MISSING_ADMIN_ACCOUNT_SQL).bind(row.parentAccountRef, JSON.stringify(row)).run();
   }
   for (const row of patch.adminInvoices ?? []) {
-    await database.prepare(UPSERT_ADMIN_INVOICE_SQL).bind(row.invoiceId, JSON.stringify(row)).run();
+    await database.prepare(INSERT_MISSING_ADMIN_INVOICE_SQL).bind(row.invoiceId, JSON.stringify(row)).run();
   }
   for (const row of patch.adminDisputes ?? []) {
-    await database.prepare(UPSERT_ADMIN_DISPUTE_SQL).bind(row.disputeId, JSON.stringify(row)).run();
+    await database.prepare(INSERT_MISSING_ADMIN_DISPUTE_SQL).bind(row.disputeId, JSON.stringify(row)).run();
   }
   for (const row of patch.adminReferrals ?? []) {
-    await database.prepare(UPSERT_ADMIN_REFERRAL_SQL).bind(row.referralCode, JSON.stringify(row)).run();
+    await database.prepare(INSERT_MISSING_ADMIN_REFERRAL_SQL).bind(row.referralCode, JSON.stringify(row)).run();
   }
 }
 
 async function ensureReadModelSeedOnce(env: Env): Promise<void> {
+  if (env.BILLING_D1) {
+    await env.BILLING_D1.exec(CREATE_READ_MODEL_SCHEMA_SQL);
+  }
+  if (!isLocalFixtureEnvironment(env.ENVIRONMENT)) {
+    return;
+  }
   const patch = buildDefaultBillingBindingSeed(env);
 
   if (env.BILLING_D1) {
-    await env.BILLING_D1.exec(CREATE_READ_MODEL_SCHEMA_SQL);
-    const rowCount = await d1First<RowCountRow>(env.BILLING_D1, SELECT_STATUS_ROW_COUNT_SQL);
-    if (Number(rowCount?.row_count ?? 0) === 0) {
-      await seedD1Tables(env.BILLING_D1, patch);
-    }
+    await seedD1Tables(env.BILLING_D1, patch);
   }
 
   if (env.BILLING_CONFIG_KV) {
@@ -886,10 +985,45 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
   adminAccountCount: number;
   referralFixtureCount: number;
   manualReviewAccountCount: number;
+  persistence: {
+    d1StatusRows: number;
+    d1AdminAccountRows: number;
+    d1ReferralRows: number;
+    kvPricingPlanRows: number;
+    r2AuditEventRows: number;
+  };
+  fixtureValidation: { statusFixturesValid: boolean };
 }> {
   const pricingPlans = await loadPricingPlans(env);
   const adminAccounts = await loadAdminBillingAccounts(env, null);
   const referrals = await loadAdminBillingReferrals(env, null);
+  const [statusRowCount, storedAdminAccounts, storedReferrals, storedPricingPlans, storedAuditEvents] =
+    await Promise.all([
+      d1First<RowCountRow>(env.BILLING_D1, SELECT_STATUS_ROW_COUNT_SQL),
+      d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_ACCOUNTS_SQL),
+      d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_REFERRALS_SQL),
+      env.BILLING_CONFIG_KV?.get(PRICING_PLANS_KEY, 'json'),
+      readStoredAuditEvents(env),
+    ]);
+  const expectedStatuses = Object.entries(buildDefaultBillingBindingSeed(env).statusBySubject ?? {});
+  const statusFixturesValid = (
+    await Promise.all(
+      expectedStatuses.map(async ([subject, expectedStatus]) => {
+        const row = await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject);
+        try {
+          const payload = JSON.parse(row?.payload_json ?? '{}') as unknown;
+          return (
+            isObjectRecord(payload) &&
+            isExpectedFixtureShape(payload, expectedStatus) &&
+            payload.subject === subject &&
+            payload.parentAccountRef === expectedStatus.parentAccountRef
+          );
+        } catch {
+          return false;
+        }
+      })
+    )
+  ).every(Boolean);
   return {
     generatedAt: GENERATED_AT,
     environment: env.ENVIRONMENT,
@@ -898,6 +1032,14 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
     adminAccountCount: adminAccounts.length,
     referralFixtureCount: referrals.length,
     manualReviewAccountCount: adminAccounts.filter((account) => account.manualRequired).length,
+    persistence: {
+      d1StatusRows: Number(statusRowCount?.row_count ?? 0),
+      d1AdminAccountRows: storedAdminAccounts.length,
+      d1ReferralRows: storedReferrals.length,
+      kvPricingPlanRows: Array.isArray(storedPricingPlans) ? storedPricingPlans.length : 0,
+      r2AuditEventRows: storedAuditEvents.length,
+    },
+    fixtureValidation: { statusFixturesValid },
   };
 }
 

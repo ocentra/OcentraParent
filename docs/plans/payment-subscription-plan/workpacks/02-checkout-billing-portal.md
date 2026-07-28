@@ -1,6 +1,6 @@
 # Workpack 02: Checkout and Billing Portal
 
-Status: `blocked / proof-present`
+Status: `blocked / proof-required`
 
 ## Goal
 
@@ -67,7 +67,7 @@ Define the hosted checkout and billing portal boundary so payment actions stay s
 
 - This workpack still does not claim Cloudflare Worker runtime, provider backend runtime, account backend runtime, entitlement signing runtime, portal UI runtime, or live payment completion.
 - Separate household-membership authority beyond the request-role boundary remains an adjacent account-identity/runtime concern and is not claimed from WP02.
-- The packet remains `blocked / proof-present` because the required broader validation gates fail outside WP02 scope:
+- The packet remains `blocked / proof-required` because the required broader validation gates fail outside WP02 scope and the physical proof bundle is still absent:
   - `cmd /c npm run format:check` -> `Code style issues found in 1015 files. Run Prettier with --write to fix.`
   - `cmd /c npm run lint:schema-boundaries` -> `Weak assertion guard failed` in `crates/agent-protocol/tests/contract/*.rs` and `crates/agent-service/tests/unit/lan_pairing.rs`
 

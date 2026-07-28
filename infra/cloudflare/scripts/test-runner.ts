@@ -312,7 +312,12 @@ console.log(
   )
 );
 
-const result = spawnSync(process.execPath, ['--import', 'tsx', '--test', ...selectedFiles], {
+const nodeTestArgs = ['--import', 'tsx', '--test'];
+if (selectedFamilies.includes('integration')) {
+  nodeTestArgs.push('--test-concurrency=1');
+}
+
+const result = spawnSync(process.execPath, [...nodeTestArgs, ...selectedFiles], {
   cwd: moduleRoot,
   stdio: 'inherit',
 });

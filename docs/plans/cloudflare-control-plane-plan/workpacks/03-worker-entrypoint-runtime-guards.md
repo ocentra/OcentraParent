@@ -26,19 +26,19 @@ Freeze the shared guard chain for env validation, CORS, request-size limits, kil
 
 ## Status
 
-- `blocked / proof-present`
+- `blocked / proof-required`
 - Proof root: `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
 
 ## Execution truth
 
 - The shared worker entrypoint still owns env validation, CORS fail-fast, request-size limits, kill switch behavior, safe errors, and scheduled hook shape.
 - Unit suites that do not require `src/index.ts` boot passed.
-- Unit and integration suites that require the real worker entrypoint remain blocked before route execution because `src/index.ts` cannot import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
+- Unit and integration suites that require the real worker entrypoint are green in the execution record; the remaining blocker is the absent proof artifact.
 - The scheduled hook shape is explicit in source but not runtime-proven.
 
 ## Exact blocker set
 
-- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
+- `npm --prefix infra/cloudflare run test:unit` and `npm --prefix infra/cloudflare run test:integration` are green in the execution record; the remaining blocker is the absent proof artifact
 
 ## Validations run
 

@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { acquireLocalWranglerRuntimeLease, LOCAL_WEBHOOK_FIXTURE_INVENTORY } from '../../scripts/local-seed-runtime.js';
 
 interface RuntimeHandle {
   baseUrl: string;
@@ -21,6 +22,13 @@ interface HealthResponse {
     pricingPlanCount: number;
     adminAccountCount: number;
     referralFixtureCount: number;
+    persistence: {
+      d1StatusRows: number;
+      d1AdminAccountRows: number;
+      d1ReferralRows: number;
+      kvPricingPlanRows: number;
+      r2AuditEventRows: number;
+    };
   };
 }
 
@@ -225,7 +233,7 @@ function parseDotEnvFile(contents: string): Readonly<Record<string, string>> {
 
 function buildRuntimeDevVarsContents(): string {
   return [
-    'ENVIRONMENT=development',
+    'ENVIRONMENT=local',
     'APP_ORIGIN=http://localhost:3000',
     'CORS_ALLOWED_ORIGINS=http://localhost:3000',
     'REQUEST_MAX_BYTES=1048576',
@@ -368,7 +376,7 @@ function getFreePort(): Promise<number> {
 }
 
 async function stopRuntimeProcess(child: ChildProcess, persistPath: string, createdDevVars: boolean): Promise<void> {
-  if (child.pid && child.exitCode === null) {
+  if (child.pid && child.exitCode === null && child.signalCode === null) {
     if (process.platform === 'win32') {
       spawnSync('taskkill', ['/pid', String(child.pid), '/t', '/f'], {
         stdio: 'ignore',
@@ -435,7 +443,6 @@ async function waitForHealthyRuntime(
 async function startRuntime(): Promise<RuntimeHandle> {
   const port = await getFreePort();
   const persistPath = path.join(os.tmpdir(), `ocentra-cloudflare-${randomSuffix()}`);
-  const runtimeDevVars = ensureRuntimeDevVars();
   const logs = {
     stdout: [] as string[],
     stderr: [] as string[],
@@ -444,6 +451,10 @@ async function startRuntime(): Promise<RuntimeHandle> {
     'wrangler',
     'dev',
     '--local',
+    '--var',
+    'ENVIRONMENT:local',
+    '--var',
+    `INTERACTIVE_CSRF_TOKEN:${currentRuntimeDevVar('INTERACTIVE_CSRF_TOKEN', localRuntimeSecrets.interactiveCsrfToken)}`,
     '--port',
     String(port),
     '--ip',
@@ -456,16 +467,39 @@ async function startRuntime(): Promise<RuntimeHandle> {
     '--log-level',
     'warn',
   ];
-  const child =
-    process.platform === 'win32'
-      ? spawn('cmd.exe', ['/d', '/s', '/c', [wranglerCommand, ...wranglerArgs].map(quoteWindowsArgument).join(' ')], {
-          cwd: cloudflareDir,
-          stdio: ['ignore', 'pipe', 'pipe'],
-        })
-      : spawn(wranglerCommand, wranglerArgs, {
-          cwd: cloudflareDir,
-          stdio: ['ignore', 'pipe', 'pipe'],
-        });
+  const runtimeLease = await acquireLocalWranglerRuntimeLease();
+  let runtimeDevVars: ReturnType<typeof ensureRuntimeDevVars>;
+  try {
+    runtimeDevVars = ensureRuntimeDevVars();
+  } catch (error) {
+    runtimeLease.release();
+    throw error;
+  }
+  const runtimeEnvironment = {
+    ...process.env,
+    INTERACTIVE_CSRF_TOKEN: currentRuntimeDevVar('INTERACTIVE_CSRF_TOKEN', localRuntimeSecrets.interactiveCsrfToken),
+  };
+  let child: ChildProcess;
+  try {
+    child =
+      process.platform === 'win32'
+        ? spawn('cmd.exe', ['/d', '/s', '/c', [wranglerCommand, ...wranglerArgs].map(quoteWindowsArgument).join(' ')], {
+            cwd: cloudflareDir,
+            env: runtimeEnvironment,
+            stdio: ['ignore', 'pipe', 'pipe'],
+          })
+        : spawn(wranglerCommand, wranglerArgs, {
+            cwd: cloudflareDir,
+            env: runtimeEnvironment,
+            stdio: ['ignore', 'pipe', 'pipe'],
+          });
+  } catch (error) {
+    if (runtimeDevVars.created) {
+      rmSync(runtimeDevVarsPath, { force: true });
+    }
+    runtimeLease.release();
+    throw error;
+  }
 
   child.stdout?.setEncoding('utf8');
   child.stderr?.setEncoding('utf8');
@@ -481,13 +515,18 @@ async function startRuntime(): Promise<RuntimeHandle> {
     await waitForHealthyRuntime(baseUrl, child, logs);
   } catch (error) {
     await stopRuntimeProcess(child, persistPath, runtimeDevVars.created);
+    runtimeLease.release();
     throw error;
   }
 
   return {
     baseUrl,
     stop: async (): Promise<void> => {
-      await stopRuntimeProcess(child, persistPath, runtimeDevVars.created);
+      try {
+        await stopRuntimeProcess(child, persistPath, runtimeDevVars.created);
+      } finally {
+        runtimeLease.release();
+      }
     },
   };
 }
@@ -518,6 +557,7 @@ describe('wrangler local runtime', () => {
     assert.equal(body.status, 'ok');
     assert.equal(body.service, 'cloudflare-control-plane');
     assert.equal(body.bindingStatus, 'ready');
+    assert.ok(Object.values(body.seedSummary.persistence).every((count) => count > 0));
     assert.equal(body.missingBindingCount, 0);
     assert.equal(body.seedSummary.pricingPlanCount, 3);
     assert.equal(body.seedSummary.adminAccountCount, 4);
@@ -738,6 +778,7 @@ describe('wrangler local runtime', () => {
     assert.equal(firstResponse.status, 202);
     assert.equal(firstBody.status, 'accepted');
     assert.equal(firstBody.provider, 'stripe');
+    assert.equal(LOCAL_WEBHOOK_FIXTURE_INVENTORY.includes(firstBody.provider), true);
     assert.equal(firstBody.eventId, 'evt_runtime_invoice_paid');
 
     const replayResponse = await fetch(`${runtime.baseUrl}/webhooks/stripe`, {
@@ -1175,6 +1216,11 @@ describe('wrangler local runtime', () => {
     assert.equal(appleResponse.status, 202);
     assert.equal(appleBody.status, 'accepted');
     assert.equal(appleBody.provider, 'apple');
+    const executedProviders = [razorpayBody.provider, paypalBody.provider, googleBody.provider, appleBody.provider];
+    assert.deepEqual(
+      executedProviders.sort(),
+      LOCAL_WEBHOOK_FIXTURE_INVENTORY.filter((provider) => provider !== 'stripe').sort()
+    );
 
     const recoveredStatusResponse = await fetch(`${runtime.baseUrl}/auth/billing/status`, {
       headers: {

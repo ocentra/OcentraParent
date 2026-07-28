@@ -37,7 +37,9 @@ No shared-module, auth, binding, queue, test-runner, or payment-handoff claim is
 - `cloudflare-control.queue-bindings`
 - `cloudflare-control.kv-bindings`
 - `cloudflare-control.r2-audit-binding-manual-required`
-- `cloudflare-control.local-dev-start`
+- `cloudflare-control.local-dev-preflight`
+- `cloudflare-control.local-dev-runtime-boot-integration`
+- `cloudflare-control.local-dev-structured-proof-chain`
 - `cloudflare-control.seed-local`
 - `cloudflare-control.portal-to-worker-smoke`
 - `cloudflare-control.no-secrets-in-repo`
@@ -83,18 +85,26 @@ Every WP08 or WP10 proof artifact must record:
 | WP01 | `npm --prefix infra/cloudflare run lint`; `npm run lint:architecture -- --files infra/cloudflare` | `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` |
 | WP02 | `npm --prefix infra/cloudflare run test:unit`; `npm run lint:architecture -- --files infra/cloudflare` | `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/` |
 | WP03 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm run lint:architecture -- --files infra/cloudflare` | `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/` |
-| WP04 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:contract`; `npm --prefix infra/cloudflare run test:integration`; `npm run lint:architecture -- --files infra/cloudflare packages/billing-domain/src` | `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/` |
+| WP04 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:contract`; `npm --prefix infra/cloudflare run test:integration`; `npm run lint:architecture -- --files infra/cloudflare/src/routes.ts infra/cloudflare/tests/contract/billing-api-contract.test.ts` | `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/` |
 | WP05 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:security`; `npm run lint:architecture -- --files infra/cloudflare/src/auth` | `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/` |
 | WP06 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:property`; `npm run lint:architecture -- --files infra/cloudflare` | `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/` |
-| WP07 | `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration` | `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/` |
+| WP07 | `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts`; `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`; `npm --prefix infra/cloudflare run lint`; `npm --prefix infra/cloudflare run test:integration`; focused architecture, source-shape, required-tests, no-test-doubles, and validation-bypass checks over the two owned TS files | `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/` |
 | WP08 | `node --import tsx infra/cloudflare/scripts/test-runner.ts --list`; `npm --prefix infra/cloudflare run test:unit`; `npm --prefix infra/cloudflare run test:integration`; `npm --prefix infra/cloudflare run test:e2e`; `npm --prefix infra/cloudflare run test:contract`; `npm --prefix infra/cloudflare run test:security`; `npm --prefix infra/cloudflare run test:property`; `npm --prefix infra/cloudflare run test:fuzz`; `npm --prefix infra/cloudflare run lint` | `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/` |
 | WP09 | `npm --prefix infra/cloudflare run test:e2e` | `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/` |
 | WP10 | `npm --prefix infra/cloudflare run test:security`; `npm --prefix infra/cloudflare run test:property`; `npm --prefix infra/cloudflare run test:fuzz`; `npm --prefix infra/cloudflare run test:integration` | `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/` |
 | WP11 | `npm --prefix infra/cloudflare run deploy:dev`; `npm --prefix infra/cloudflare run deploy`; post-deploy `/health`, `/public/pricing`, and `/auth/billing/status` smoke in the promoted environment | `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/` |
-| WP12 | Aggregate accepted WP03-WP11 proof roots, then record downstream payment assumptions and blockers | `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/`; required artifact: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` |
+| WP12 | Aggregate accepted WP03-WP11 proof roots, then record downstream payment assumptions and blockers | retained receipt: `docs/proof/cloudflare-control-plane-plan/12-payment-plan-handoff-gate.md`; raw/generated root: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/` |
 
 ## Honesty rule
 
 If a command cannot run because a runtime surface or dependency is missing,
 record the exact blocker in the proof artifact and
 `SOURCE_SURFACE_STATUS_MATRIX.md` instead of implying success.
+
+## Current WP07 state
+
+- WP07 source and focused local behavior remain present.
+- The former tracked generated packet under `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/` was removed at `cbb8421875492176bd2a3d5b95eaa7fa0dd8210e` because generated output is not source.
+- Historical command counts are not accepted current-head proof after that removal.
+- Next proof action: rerun the WP07 command family and retain a compact current-head receipt while keeping raw logs/output ignored.
+- Open boundary: local behavior does not imply production deployment, WP12 acceptance, or downstream payment acknowledgment.

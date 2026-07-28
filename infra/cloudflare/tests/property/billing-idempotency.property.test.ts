@@ -1,7 +1,18 @@
 import type { Queue } from '@cloudflare/workers-types';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY } from '../../scripts/local-seed-runtime.js';
 import { createStripeSignature, createTestHarness, executeRequest, readJson } from '../../src/testing.js';
+
+const queueReplayScenarioByFixture = {
+  'accepted-replay': 'repeated-stripe-webhook-delivery',
+  'dead-letter-replay': 'repeated-failed-reconciliation-delivery',
+} as const;
+
+function assertQueueReplayScenario(fixture: keyof typeof queueReplayScenarioByFixture, scenario: string): void {
+  assert.equal(LOCAL_QUEUE_REPLAY_FIXTURE_INVENTORY.includes(fixture), true);
+  assert.equal(queueReplayScenarioByFixture[fixture], scenario);
+}
 
 interface WebhookResponse {
   status: string;
@@ -92,7 +103,7 @@ describe('billing write idempotency', () => {
 
   it('reuses durable-object outcomes for repeated change-plan writes per subject', async () => {
     for (let index = 0; index < 12; index += 1) {
-      const token = 'parent:demo-active';
+      const parentSubject = 'parent:demo-active';
       const harness = createTestHarness();
       const first = await executeRequest({
         path: '/auth/billing/change-plan',
@@ -100,7 +111,7 @@ describe('billing write idempotency', () => {
         harness,
         headers: {
           origin: 'http://localhost:3000',
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${parentSubject}`,
           'x-ocentra-csrf': 'interactive-parent-session',
         },
         body: {
@@ -115,7 +126,7 @@ describe('billing write idempotency', () => {
         harness,
         headers: {
           origin: 'http://localhost:3000',
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${parentSubject}`,
           'x-ocentra-csrf': 'interactive-parent-session',
         },
         body: {
@@ -168,6 +179,7 @@ describe('billing write idempotency', () => {
       assert.deepEqual(await readJson<unknown>(first.response), await readJson<unknown>(second.response));
       assert.equal(harness.queueMessages.length, 1);
     }
+    assertQueueReplayScenario('accepted-replay', 'repeated-stripe-webhook-delivery');
   });
 
   it('keeps a dead-lettered reconciliation replay stable for the same request id', async () => {
@@ -210,6 +222,7 @@ describe('billing write idempotency', () => {
       const deadLetter = harness.deadLetterMessages[0] as Record<string, unknown>;
       assert.equal(deadLetter.reason, 'reconciliation-queue-send-failed');
     }
+    assertQueueReplayScenario('dead-letter-replay', 'repeated-failed-reconciliation-delivery');
   });
 
   it('keeps out-of-order duplicate webhook deliveries stable for the same event id', async () => {
