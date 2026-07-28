@@ -16,9 +16,23 @@ use ocentra_parent_logging_core::{
 };
 use serde_json::json;
 
+#[cfg(feature = "test-support")]
+use ocentra_parent_logging_core::ndjson_test_support::created_directory_parent_sync_count;
+
 #[macro_use]
 #[path = "../support/mod.rs"]
 mod support;
+
+#[cfg(unix)]
+mod artifact_leaf_security;
+mod artifact_subprocess;
+mod concurrency_artifact;
+#[cfg(feature = "test-support")]
+mod ndjson_failure_recovery;
+mod ndjson_operation_custody;
+#[cfg(feature = "test-support")]
+mod ndjson_operation_state;
+mod ndjson_writer_boundaries;
 
 #[test]
 fn ndjson_writer_appends_json_lines_in_order() {
@@ -32,10 +46,51 @@ fn ndjson_writer_rejects_invalid_segments() {
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
+#[cfg(feature = "test-support")]
+#[test]
+fn ndjson_writer_syncs_each_new_directory_parent() {
+    let result = ndjson_writer_syncs_each_new_directory_parent_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[cfg(feature = "test-support")]
+fn ndjson_writer_syncs_each_new_directory_parent_impl() -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    fs::create_dir_all(&root)?;
+    let directory = root.join("fresh").join("nested").join("stream");
+    let sync_count = created_directory_parent_sync_count(&directory)?;
+    assert_eq!(sync_count, 3);
+    Ok(())
+}
+
 #[test]
 fn artifact_writer_writes_text_and_hashes_content() {
     let result = artifact_writer_writes_text_and_hashes_content_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn path_string_preserves_windows_unc_and_normalizes_extended_drive_paths() {
+    assert_eq!(
+        path_string(std::path::Path::new(
+            r"\\?\UNC\server\share\logs\artifact.log"
+        )),
+        "//server/share/logs/artifact.log"
+    );
+    assert_eq!(
+        path_string(std::path::Path::new(r"\\server\share\logs\artifact.log")),
+        "//server/share/logs/artifact.log"
+    );
+    assert_eq!(
+        path_string(std::path::Path::new(r"\\?\C:\logs\artifact.log")),
+        "C:/logs/artifact.log"
+    );
+    assert_eq!(
+        path_string(std::path::Path::new(
+            "//?/UNC/server/share/logs/artifact.log"
+        )),
+        "//server/share/logs/artifact.log"
+    );
 }
 
 #[test]
@@ -59,6 +114,43 @@ fn redaction_replaces_secret_like_fields() {
     assert_eq!(
         redacted.get("safe"),
         Some(&LogFieldValue::String("visible".to_owned()))
+    );
+}
+
+#[test]
+fn redaction_normalizes_secret_key_variants_without_hiding_safe_context() {
+    let fields = [
+        ("X-API-Key", "one"),
+        ("credential.id", "two"),
+        ("PRIVATE_key", "three"),
+        ("nested/private-key", "four"),
+        ("request-id", "safe"),
+        ("attemptCount", "7"),
+    ]
+    .into_iter()
+    .map(|(key, value)| (key.to_owned(), LogFieldValue::String(value.to_owned())))
+    .collect::<LogFields>();
+
+    let redacted = redact_fields(&fields);
+
+    for key in [
+        "X-API-Key",
+        "credential.id",
+        "PRIVATE_key",
+        "nested/private-key",
+    ] {
+        assert_eq!(
+            redacted.get(key),
+            Some(&LogFieldValue::String(REDACTED_VALUE.to_owned()))
+        );
+    }
+    assert_eq!(
+        redacted.get("request-id"),
+        Some(&LogFieldValue::String("safe".to_owned()))
+    );
+    assert_eq!(
+        redacted.get("attemptCount"),
+        Some(&LogFieldValue::String("7".to_owned()))
     );
 }
 
@@ -244,7 +336,8 @@ fn ndjson_writer_rejects_invalid_segments_impl() -> Result<(), Box<dyn Error>> {
 }
 
 fn artifact_writer_writes_text_and_hashes_content_impl() -> Result<(), Box<dyn Error>> {
-    let root = temp_dir!();
+    let root = temp_dir!().join("fresh").join("nested");
+    assert!(!root.exists());
     let writer = ArtifactWriter::new(&root);
     let artifact = writer.write_text_artifact(
         "parent-codex",
@@ -275,5 +368,6 @@ fn artifact_writer_writes_text_and_hashes_content_impl() -> Result<(), Box<dyn E
             .join("stdout.log"),
     )?;
     assert_eq!(file_text, "alpha\nbeta\n");
+    assert!(root.join("parent-codex").join("artifacts").is_dir());
     Ok(())
 }

@@ -31,7 +31,7 @@
 Current status:
 
 ```text
-WP06 has a canonical proof root plus live agent-query/MCP proof-inventory detection, and WP08 has its canonical partial-proof root; the remaining proof-inventory restoration queue is the still-missing WP01/WP02/WP04/WP05/WP09 roots
+WP04 is complete-proven at 12/12 against source commit `ca652e67d21e209c5e66573b69ddae43d2ba1a18`: bounded NDJSON tail and operation-state recovery, exactly-one-JSON raw append validation, UTC-rollover-stable operation routing, segmented Bloom membership, refusal to truncate unowned partial tails, atomic repairable intent/commit markers, exact committed-record custody verification, one-shot dev logging without retained operation journals, directory-durable hidden compacted commits with recovered-row re-sync, persistent-sidecar-locked and directory-synced cleanup, symlink-safe artifact leaves, feature-independent custody hashing, fully synced artifact hierarchy creation and metadata-directory re-sync, hard-link and crash-safe copy fallback, deterministic cross-process stale-temporary recovery, Windows directory durability, extended UNC preservation, real subprocess conflict custody, persisted adversarial redaction, an agent-service health logging blocking boundary, and both normal and all-features gates are current. The registered agent-service dev-log target runs 3 tests, and checked-in CI requires the logging-core all-features gate. All five ignored proof artifacts were regenerated against that source tree. WP06 has live agent-query/MCP proof-inventory detection, and WP08 has its bounded partial-proof evidence; the remaining proof-inventory restoration queue is WP01/WP02/WP05/WP09
 ```
 
 Expected result:
@@ -87,3 +87,4 @@ Do not create a PR that only updates checklist text, adds proof prose, renames d
 - [x] Write the canonical WP06 validation/enforcement proof root and truth-sync the bounded workpack/checklist state.
 - [x] Write the canonical WP08 logger instrumentation proof root and truth-sync the bounded partial-proof state.
 - [x] Fix the standalone proof-trace smoke claim with a self-seeding clean-workspace harness and canonical proof roots.
+- [x] Close WP04 with current-head subprocess artifact custody, persisted adversarial redaction, scoped gates, and regenerated proof custody.

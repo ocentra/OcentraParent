@@ -24,7 +24,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | source-present | [WP02 TypeScript Logging Package Parity](workpacks/02-typescript-logging-package-parity.md) | 0/12 | `00-current-state-and-reference-audit.md` |
 | partial-proof | [WP03 Parent Logging Architecture and Routing](workpacks/03-parent-logging-architecture-and-routing.md) | 10/11 | `01-parent-logging-architecture.md` |
 | source-present | [WP09 Log Control, Retention, and Bridge Lifecycle](workpacks/09-log-control-retention-bridge-lifecycle.md) | 0/13 | `08-log-control-retention-bridge-lifecycle.md` |
-| source-present | [WP04 Rust Logging Core Crate](workpacks/04-rust-logging-core-crate.md) | 0/12 | `02-rust-logging-core-crate.md` |
+| complete-proven | [WP04 Rust Logging Core Crate](workpacks/04-rust-logging-core-crate.md) | 12/12 | `02-rust-logging-core-crate.md` |
 | source-present | [WP05 Local Validation Evidence](workpacks/05-local-validation-evidence.md) | 0/12 | `03-local-validation-evidence.md` |
 | partial-proof | [WP07 MCP Query Interface](workpacks/07-mcp-query-interface.md) | 0/18 | `06-mcp-query-interface.md` |
 | partial-proof | [WP08 Logger Instrumentation and Adoption](workpacks/08-logger-instrumentation-and-adoption.md) | 8/12 | `07-logger-instrumentation-pattern.md` |
@@ -37,6 +37,7 @@ Status meanings:
 audit-open: audit docs exist, but the named proof root is absent in this checkout
 source-present: implementation/tests exist, but the named proof root and checklist closeout are not present in this checkout
 partial-proof: focused proof root exists or focused tests passed, but checklist/workpack closeout remains open or broader validation still has visible blockers
+complete-proven: every workpack and central checklist row is checked against recorded command evidence; locally generated ignored proof output is reproducible evidence, not a tracked checkout prerequisite
 ```
 
 The boxes column mirrors the current checklist completion count from `CHECKLIST_INDEX.md`, not the historical completion prose still embedded in some workpack closeout sections.
@@ -46,7 +47,7 @@ The boxes column mirrors the current checklist completion count from `CHECKLIST_
 Current audit note:
 
 ```text
-WP03, WP06, WP07, WP08, and WP10 now have canonical proof roots in this checkout. WP03 is still only partial-proof because the portal dev-log consumer slice is proved while the agent-service-to-logging-core row remains intentionally open outside this delegated boundary. WP06 is partial-proof because logging-owned proof-inventory checker/query behavior is real, but one root routing check still fails outside this delegated boundary. WP08 is honest partial-proof because its canonical root proves the portal dev logger path, the logging-domain source/context storage/query path, and the agent-service startup/dev-log path without claiming repo-wide instrumentation adoption. WP07 and WP10 have proof roots, but checklist closeout remains intentionally open.
+WP04 is complete-proven at 12/12 against source commit `ca652e67d21e209c5e66573b69ddae43d2ba1a18`: bounded partial-tail and compacted operation-state recovery, exactly-one-JSON raw append validation, UTC-rollover-stable operation identity, segmented Bloom membership, refusal to truncate unowned partial tails, directory-durable hidden compacted commits with recovered-row re-sync, persistent-sidecar-locked and directory-synced cleanup, exact committed-record verification, one-shot dev logging without retained operation journals, symlink-safe replay leaves, feature-independent custody hashing, fully synced artifact hierarchy creation, hard-link and crash-safe copy fallback, deterministic cross-process stale-primary-temporary retry, real Windows directory durability, extended UNC normalization, real subprocess custody/conflict coverage, persisted adversarial redaction, an async health logging blocking boundary, a registered 3-test agent-service dev-log target, and normal plus all-features gates in checked-in CI; all five ignored proof artifacts were regenerated against that source tree. WP03, WP06, WP07, WP08, and WP10 retain their documented partial-proof states. WP03 is still only partial-proof because the portal dev-log consumer slice is proved while the agent-service-to-logging-core row remains intentionally open outside this delegated boundary. WP06 is partial-proof because logging-owned proof-inventory checker/query behavior is real, but one root routing check still fails outside this delegated boundary. WP08 is honest partial-proof because its evidence proves the portal dev logger path, the logging-domain source/context storage/query path, and the agent-service startup/dev-log path without claiming repo-wide instrumentation adoption. WP07 and WP10 have proof evidence, but checklist closeout remains intentionally open.
 ```
 
 Default order:

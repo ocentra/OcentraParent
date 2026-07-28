@@ -91,18 +91,20 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP04 Rust Logging Core Crate
 
-- [ ] `crates/logging-core` created.
-- [ ] Workspace manifest updated.
-- [ ] Rust log event types added.
-- [ ] NDJSON writer added.
-- [ ] Artifact writer added.
-- [ ] Redaction helpers added.
-- [ ] Agent run/diagnostic structs added.
-- [ ] Agent-service delegates dev logging to logging-core.
-- [ ] Rust tests added.
-- [ ] TS/Rust fixture parity tests added.
-- [ ] Focused cargo/npm commands pass.
-- [ ] Proof root and workpack completion filled.
+- [x] `crates/logging-core` created.
+- [x] Workspace manifest updated.
+- [x] Rust log event types added.
+- [x] NDJSON writer added.
+- [x] Artifact writer added.
+- [x] Redaction helpers added.
+- [x] Agent run/diagnostic structs added.
+- [x] Agent-service delegates dev logging to logging-core.
+- [x] Rust tests added.
+- [x] TS/Rust fixture parity tests added.
+- [x] Focused cargo/npm commands pass.
+- [x] Proof root and workpack completion filled.
+
+Proof custody: regenerated locally at `output/logging-domain-parity-proof/04-rust-logging-core-crate/` against source commit `de9e28b21006ebeec24fa1cc0f84bc8ea9414be8`; the ignored root contains the five artifacts named by WP04 and records the Windows normal 49-test gate, test-support 69-test gate including the three review regressions, agent-service, fixture-parity, architecture, and source-shape validation commands.
 
 ## WP05 Local Validation Evidence
 
