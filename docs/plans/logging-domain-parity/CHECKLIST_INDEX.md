@@ -104,7 +104,7 @@ test-results/logging-domain-parity-<proof-mode>/
 - [x] Focused cargo/npm commands pass.
 - [x] Proof root and workpack completion filled.
 
-Proof custody: regenerated locally at `output/logging-domain-parity-proof/04-rust-logging-core-crate/` against source commit `de9e28b21006ebeec24fa1cc0f84bc8ea9414be8`; the ignored root contains the five artifacts named by WP04 and records the Windows normal 49-test gate, test-support 69-test gate including the three review regressions, agent-service, fixture-parity, architecture, and source-shape validation commands.
+Proof custody: regenerated locally at `output/logging-domain-parity-proof/04-rust-logging-core-crate/` against integration code commit `296d25b2d`; the ignored root contains the five named WP04 artifacts, normal crate validation, the 48-test all-features crate gate, both `-D warnings` Clippy gates, direct agent-service dev-log validation, TypeScript fixture parity, and focused architecture/source-shape validation. It proves the local Rust helper slice only.
 
 ## WP05 Local Validation Evidence
 

@@ -224,3 +224,28 @@ Proof artifacts: regenerated locally against source commit ca652e67d21e209c5e665
 Product/runtime claims: local Rust logging-core and agent-service dev-log delegation only
 Known gaps/manual-required states: no production telemetry, agent-run, or DuckDB-wrapper claim
 ```
+
+## Integration revalidation (2026-07-28)
+
+Integration code commit `296d25b2d` rebased the WP04 implementation onto current
+`main` and repaired three remaining custody/idempotency gaps: canonical JSON
+serialization before operation deduplication, atomic no-replace publication of
+the copy fallback, and conservative Unix compacted-journal cache invalidation.
+The visible regression proves that equal map values serialized in different key
+orders replay one operation instead of conflicting.
+
+The ignored proof root was regenerated against that code commit. Passing gates:
+
+```text
+cargo check -p ocentra-parent-logging-core
+cargo test -p ocentra-parent-logging-core
+cargo clippy -p ocentra-parent-logging-core --all-targets -- -D warnings
+cargo test -p ocentra-parent-logging-core --all-targets --all-features (48 tests)
+cargo clippy -p ocentra-parent-logging-core --all-targets --all-features -- -D warnings
+cargo test -p ocentra-parent-agent-service dev_log (2 selected consumer tests)
+npm run test --workspace @ocentra-parent/logging-domain -- dev-log-fixture (2 tests; unchanged TS fixture surface)
+npm run lint:architecture -- --files <touched logging-core files>
+```
+
+This remains a local Rust helper and direct consumer claim. It does not claim
+production telemetry, full agent-service logging adoption, or WP05 wrappers.
