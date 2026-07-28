@@ -3,8 +3,9 @@
 use super::{
     adapter_execution_validation, policy_control, state_values, transition_rules, validation,
     CompiledDomainPolicyArtifact, EventingError, PolicyDeliveryApplyOutcome,
-    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
-    PolicyDeliveryTarget, PolicyDeliveryTransition, POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
+    PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt, PolicyDeliveryId,
+    PolicyDeliveryRecord, PolicyDeliverySequence, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE,
 };
 
 pub(super) fn queue_policy_delivery(
@@ -48,7 +49,21 @@ pub(super) fn apply_policy_delivery_transition_without_execution_receipt(
         &transition,
         None,
     )?;
-    apply_validated_policy_delivery_transition(current, transition)
+    apply_validated_policy_delivery_transition(current, transition, None)
+}
+
+pub(super) fn apply_policy_delivery_transition_with_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+    receipt: PolicyDeliveryExecutionReceipt,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    validate_policy_delivery_transition_application(current, &transition)?;
+    adapter_execution_validation::validate_policy_delivery_execution_receipt(
+        current,
+        &transition,
+        Some(&receipt),
+    )?;
+    apply_validated_policy_delivery_transition(current, transition, Some(receipt))
 }
 
 fn validate_policy_delivery_transition_application(
@@ -63,6 +78,7 @@ fn validate_policy_delivery_transition_application(
 fn apply_validated_policy_delivery_transition(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
+    execution_receipt: Option<PolicyDeliveryExecutionReceipt>,
 ) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
     match transition
         .sequence
@@ -71,7 +87,7 @@ fn apply_validated_policy_delivery_transition(
     {
         std::cmp::Ordering::Less => return Ok(PolicyDeliveryApplyOutcome::Stale(current.clone())),
         std::cmp::Ordering::Equal => {
-            if transition_matches_record(current, &transition) {
+            if transition_matches_record(current, &transition, execution_receipt.as_ref()) {
                 return Ok(PolicyDeliveryApplyOutcome::Duplicate(current.clone()));
             }
 
@@ -107,7 +123,7 @@ fn apply_validated_policy_delivery_transition(
         reason_code: transition.reason_code,
         superseded_by_policy_version: transition.superseded_by_policy_version,
         rollback_reference_state: transition.rollback_reference_state,
-        execution_receipt: None,
+        execution_receipt,
     };
     validation::validate_policy_delivery_record(&next)?;
     Ok(PolicyDeliveryApplyOutcome::Advanced(next))
@@ -116,6 +132,7 @@ fn apply_validated_policy_delivery_transition(
 fn transition_matches_record(
     current: &PolicyDeliveryRecord,
     transition: &PolicyDeliveryTransition,
+    execution_receipt: Option<&PolicyDeliveryExecutionReceipt>,
 ) -> bool {
     current.state == transition.state
         && current.last_attempt_id == transition.attempt_id
@@ -123,4 +140,5 @@ fn transition_matches_record(
         && current.reason_code == transition.reason_code
         && current.superseded_by_policy_version == transition.superseded_by_policy_version
         && current.rollback_reference_state == transition.rollback_reference_state
+        && current.execution_receipt.as_ref() == execution_receipt
 }
