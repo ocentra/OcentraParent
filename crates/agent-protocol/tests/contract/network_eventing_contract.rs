@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use ocentra_eventing::{
     bus::{subscriber::EventSubscriber, EventBus},
     envelope::{DomainEvent, EventEnvelope, EventMetadata, EventSource},
-    expect_value::ExpectValue,
+    expect_value::{ExpectErrValue, ExpectValue},
     ids::{
         CorrelationId, EventCustody, EventId, EventType, RecordedAt, RuntimeInstanceId,
         RuntimeRole, SourceComponent, SourceService, SubscriberId, TargetHandler,
@@ -45,8 +45,8 @@ fn network_evidence_grade_wire_values_match_evidence_contract() {
 
     for (protocol_grade, evidence_grade) in protocol_grades.into_iter().zip(evidence_grades) {
         assert_eq!(
-            serde_json::to_value(protocol_grade).expect(CONTRACT_EXPECTATION),
-            serde_json::to_value(evidence_grade).expect(CONTRACT_EXPECTATION)
+            serde_json::to_value(protocol_grade).expect_value(CONTRACT_EXPECTATION),
+            serde_json::to_value(evidence_grade).expect_value(CONTRACT_EXPECTATION)
         );
     }
 
@@ -69,10 +69,10 @@ fn network_evidence_grade_wire_values_match_evidence_contract() {
 #[test]
 fn network_runtime_payload_schema_mutations_fail_closed() {
     let payload = payload();
-    let valid = serde_json::to_value(&payload).expect(CONTRACT_EXPECTATION);
+    let valid = serde_json::to_value(&payload).expect_value(CONTRACT_EXPECTATION);
     assert_eq!(
         serde_json::from_value::<NetworkRuntimeEventPayload>(valid.clone())
-            .expect(CONTRACT_EXPECTATION),
+            .expect_value(CONTRACT_EXPECTATION),
         payload
     );
 
@@ -81,7 +81,7 @@ fn network_runtime_payload_schema_mutations_fail_closed() {
     let mut missing = valid.clone();
     missing
         .as_object_mut()
-        .expect(CONTRACT_EXPECTATION)
+        .expect_value(CONTRACT_EXPECTATION)
         .remove("evidence_ref");
     let mut extra = valid.clone();
     extra["futureField"] = serde_json::json!(true);
@@ -100,12 +100,12 @@ fn network_runtime_payload_schema_mutations_fail_closed() {
 
 #[test]
 fn network_runtime_payload_schema_version_skew_fails_closed() {
-    let live = EventEnvelope::from_event(payload(), metadata()).expect(CONTRACT_EXPECTATION);
-    let mut newer = live.store().expect(CONTRACT_EXPECTATION);
+    let live = EventEnvelope::from_event(payload(), metadata()).expect_value(CONTRACT_EXPECTATION);
+    let mut newer = live.store().expect_value(CONTRACT_EXPECTATION);
     newer.contract.schema_version = ocentra_eventing::ids::SchemaVersion::new(
         constants::network_flow::RUNTIME_EVENT_SCHEMA_VERSION + 1,
     )
-    .expect(CONTRACT_EXPECTATION);
+    .expect_value(CONTRACT_EXPECTATION);
     assert_eq!(
         newer
             .decode::<NetworkRuntimeEventPayload>()
@@ -120,10 +120,10 @@ fn network_runtime_payload_schema_version_skew_fails_closed() {
         ))
     );
 
-    let mut incompatible_fixture = live.store().expect(CONTRACT_EXPECTATION);
+    let mut incompatible_fixture = live.store().expect_value(CONTRACT_EXPECTATION);
     incompatible_fixture.contract.schema_version =
         ocentra_eventing::ids::SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)
-            .expect(CONTRACT_EXPECTATION);
+            .expect_value(CONTRACT_EXPECTATION);
     assert_eq!(
         incompatible_fixture
             .decode::<NetworkRuntimeEventPayload>()
@@ -162,10 +162,10 @@ fn network_runtime_payload_exhaustively_round_trips_canonical_grade_and_policy_v
             let mut candidate = payload();
             candidate.evidence_grade_contract = grade;
             candidate.policy_action = action;
-            let encoded = serde_json::to_value(&candidate).expect(CONTRACT_EXPECTATION);
+            let encoded = serde_json::to_value(&candidate).expect_value(CONTRACT_EXPECTATION);
             assert_eq!(
                 serde_json::from_value::<NetworkRuntimeEventPayload>(encoded)
-                    .expect(CONTRACT_EXPECTATION),
+                    .expect_value(CONTRACT_EXPECTATION),
                 candidate
             );
         }
@@ -194,14 +194,14 @@ fn network_runtime_payload_rejects_impossible_semantic_tuple_before_dispatch() {
     assert_eq!(
         unattributed
             .validate_semantics()
-            .expect_err(CONTRACT_EXPECTATION)
+            .expect_err_value(CONTRACT_EXPECTATION)
             .to_string(),
         INVALID_SEMANTICS
     );
     assert_eq!(
         unattributed
             .contract()
-            .expect_err(CONTRACT_EXPECTATION)
+            .expect_err_value(CONTRACT_EXPECTATION)
             .to_string(),
         INVALID_SEMANTICS
     );
@@ -291,7 +291,7 @@ fn available_metadata_free_capture_remains_diagnostics_only_grade_d() {
 #[test]
 fn network_contract_schema_fuzz_seeded_mutation_cases_fail_closed() {
     const SEED: u64 = 0x4e57_5030_315f_7632;
-    let valid = serde_json::to_value(payload()).expect(CONTRACT_EXPECTATION);
+    let valid = serde_json::to_value(payload()).expect_value(CONTRACT_EXPECTATION);
     let mut cases = Vec::new();
 
     let mut unknown_enum = valid.clone();
@@ -300,7 +300,7 @@ fn network_contract_schema_fuzz_seeded_mutation_cases_fail_closed() {
     let mut missing = valid.clone();
     missing
         .as_object_mut()
-        .expect(CONTRACT_EXPECTATION)
+        .expect_value(CONTRACT_EXPECTATION)
         .remove("evidence_ref");
     cases.push(missing);
     let mut extra = valid.clone();
@@ -336,18 +336,18 @@ async fn invalid_serialized_runtime_payload_is_rejected_before_handler_receipt()
         async move {
             captured
                 .lock()
-                .expect(CONTRACT_EXPECTATION)
+                .expect_value(CONTRACT_EXPECTATION)
                 .push(context.payload().phase);
             Ok(())
         }
     })
     .await
-    .expect(CONTRACT_EXPECTATION);
+    .expect_value(CONTRACT_EXPECTATION);
 
-    let mut serialized = serde_json::to_value(payload()).expect(CONTRACT_EXPECTATION);
+    let mut serialized = serde_json::to_value(payload()).expect_value(CONTRACT_EXPECTATION);
     serialized["policy_action"] = serde_json::json!("block");
     let invalid = serde_json::from_value::<NetworkRuntimeEventPayload>(serialized)
-        .expect(CONTRACT_EXPECTATION);
+        .expect_value(CONTRACT_EXPECTATION);
     assert_eq!(
         bus.publish_and_wait(invalid, metadata())
             .await
@@ -355,7 +355,10 @@ async fn invalid_serialized_runtime_payload_is_rejected_before_handler_receipt()
             .map(|error| error.to_string()),
         Some(INVALID_SEMANTICS.to_string())
     );
-    assert!(delivered.lock().expect(CONTRACT_EXPECTATION).is_empty());
+    assert!(delivered
+        .lock()
+        .expect_value(CONTRACT_EXPECTATION)
+        .is_empty());
 }
 
 #[tokio::test]

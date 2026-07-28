@@ -72,4 +72,5 @@ These are proof-routing fields, not implementation code prescriptions.
 
 - The 2026-06-17 `network-foundation-shim-cleanup` slice is limited to the parent-domain TypeScript shim boundary and initial proof-root creation.
 - In this slice, `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` can be cleaned up without widening scope.
-- The remaining exact contradiction for WP01 is the public `./network-control-catalog` surface, which must be resolved before the control-catalog shim family can be removed honestly.
+- The historical `./network-control-catalog` parent-domain contradiction is resolved: the unpublished compatibility surface and shim family were retired, while the selected `network-domain` subpaths remain canonical for that boundary.
+- This does not close the broader WP01 outcome: Rust contract/eventing validation and the workpack's capture, platform, and enforcement no-claim boundaries remain independently required.

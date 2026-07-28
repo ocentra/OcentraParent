@@ -46,4 +46,26 @@ Run context: 2026-07-18, branch `codex/network-wp01-foundation-contract-eventing
 - CI service parity was reproduced in `network_bridge_runtime`: three stale assertions still required the retired enforcement phases. The service correctly emitted seven events and zero enforcement commands; the tests now assert audit/portal continuity and `adapter_action_executed: false` without restoring enforcement behavior.
 - `cargo test -p ocentra-parent-agent-service --test network_bridge_runtime -- --test-threads=1` passed 38 tests, and the exact CI command `cargo test -p ocentra-parent-agent-service --all-targets` passed. Agent-service `cargo check`, `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check`, and exact-file architecture lint also passed.
 
+## Current-main integration refresh
+
+On 2026-07-28, PR #573 was merged onto current `main` in
+`codex/integrate-network-wp01` and revalidated after a strict-Clippy repair to
+this contract test. The repair replaces raw `expect` and `expect_err` calls
+with the repository's typed `ExpectValue`/`ExpectErrValue` test boundary; it
+does not change the asserted contract behavior or relax a negative case.
+
+| Command | Result | Coverage |
+| --- | --- | --- |
+| `cargo test -p ocentra-parent-agent-protocol network -- --test-threads=1` | pass | 42 protocol/network contract tests, including schema mutation, version-skew, semantic tuple, and event-bus receipt negatives |
+| `cargo test -p ocentra-parent-agent-core network -- --test-threads=1` | pass | 57 network runtime, persistence, queue/idempotency, replay, and no-enforcement tests |
+| `cargo test -p ocentra-parent-agent-service --test network_bridge_runtime -- --test-threads=1` | pass | 38 real service read-model/stream/product-path bridge tests |
+| `cargo clippy -p ocentra-parent-agent-protocol --all-targets -- -D warnings` | pass | protocol owner and contract tests |
+| `cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings` | pass | runtime owner |
+| `cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings` | pass | service bridge owner |
+| `cargo fmt --check`, `git diff --check`, and `npm run lint:architecture -- --files crates/agent-core crates/agent-protocol crates/agent-service` | pass | formatting, diff integrity, no-re-export/source-shape gate |
+
+This refresh proves the Rust-owned WP01 contract/eventing foundation integrates
+with current `main`. It does not convert the broader workpack into a live
+capture, platform adapter, policy authority, or enforcement completion claim.
+
 Independent re-review remains required before treating WP01 as approved.
