@@ -348,6 +348,43 @@ async fn child_runtime_persists_and_recovers_typed_tombstone_action_before_ackno
 }
 
 #[tokio::test]
+async fn child_runtime_uses_the_durable_envelope_for_same_action_with_new_correlation(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-tombstone-canonical-envelope-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    std::fs::create_dir_all(&directory)?;
+    let action = expired_retention_delete_action("canonical-envelope")?;
+    let journal = NdjsonEventJournal::with_options(
+        directory.join("retention-delete.ndjson"),
+        NdjsonJournalOptions::hash_chain(),
+    );
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let original =
+        EventEnvelope::from_event(action.clone(), retention_delete_metadata()?)?.store()?;
+    let first = runtime_gate_tombstone::persist_child_runtime_tombstone_action(
+        &journal, &store, &original, &action,
+    )
+    .await?;
+    assert_eq!(first.sequence, 1);
+
+    let mut replay = original.clone();
+    replay.correlation_id = CorrelationId::parse("child-runtime-tombstone-retry")?;
+    let second = runtime_gate_tombstone::persist_child_runtime_tombstone_action(
+        &journal, &store, &replay, &action,
+    )
+    .await?;
+    assert_eq!(second.sequence, 1);
+    let records = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(records.len(), 1);
+    assert!(records[0].terminal_pending);
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[tokio::test]
 async fn child_runtime_replays_a_durable_tombstone_obligation_after_journal_failure(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let directory = std::env::temp_dir().join(format!(
