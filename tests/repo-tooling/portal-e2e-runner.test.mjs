@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
+import { Worker } from 'node:worker_threads';
 
 import { NetworkEvidenceDrawerProofFixture } from '../../scripts/test/network-evidence-drawer-fixture.mjs';
 import {
@@ -111,10 +112,34 @@ WHERE event_id = ?;
         )
         .get(PortalNetworkActivitySeed.EventId);
 
-      assert.equal(String(Object.values(journalMode)[0]), 'delete');
+      assert.equal(String(Object.values(journalMode)[0]), 'wal');
       assert.equal(typeof row.evidence_json, 'string');
       assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId), true);
       assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.JournalEvidenceId), true);
+    } finally {
+      database.close();
+    }
+  } finally {
+    await rm(runRoot, { recursive: true, force: true });
+  }
+});
+
+test('portal network activity seed commits while a concurrent reader holds the activity database open', async () => {
+  const runRoot = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-network-seed-reader-'));
+  const activityDbPath = path.join(runRoot, 'activity.sqlite');
+  try {
+    seedPortalNetworkActivityStore(activityDbPath);
+    const reader = holdDatabaseReadTransaction(activityDbPath, 150);
+    seedPortalNetworkActivityStore(activityDbPath);
+    await reader;
+    const database = new DatabaseSync(activityDbPath);
+    try {
+      const row = database
+        .prepare('SELECT evidence_json FROM activity_events WHERE event_id = ?;')
+        .get(PortalNetworkActivitySeed.EventId);
+
+      assert.equal(typeof row.evidence_json, 'string');
+      assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId), true);
     } finally {
       database.close();
     }
@@ -152,3 +177,38 @@ test('network drawer proof ids stay single-sourced across scripts and portal tes
   assert.equal(proofSource.includes(NetworkEvidenceDrawerProofFixture.eventId), false);
   assert.equal(proofSource.includes(NetworkEvidenceDrawerProofFixture.evidenceId), false);
 });
+
+function holdDatabaseReadTransaction(activityDbPath, holdMs) {
+  const state = new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT));
+  const worker = new Worker(
+    `
+      const { DatabaseSync } = require('node:sqlite');
+      const { workerData } = require('node:worker_threads');
+      const state = new Int32Array(workerData.state);
+      const database = new DatabaseSync(workerData.activityDbPath);
+      database.exec('BEGIN;');
+      database.prepare('SELECT event_id FROM activity_events LIMIT 1;').get();
+      Atomics.store(state, 0, 1);
+      Atomics.notify(state, 0);
+      Atomics.wait(state, 0, 1, workerData.holdMs);
+      database.exec('COMMIT;');
+      database.close();
+    `,
+    {
+      eval: true,
+      workerData: { activityDbPath, holdMs, state: state.buffer },
+    }
+  );
+  const acquired = Atomics.wait(state, 0, 0, 5_000);
+  assert.notEqual(acquired, 'timed-out');
+  return new Promise((resolve, reject) => {
+    worker.once('error', reject);
+    worker.once('exit', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`SQLite reader worker exited with code ${code}.`));
+    });
+  });
+}
