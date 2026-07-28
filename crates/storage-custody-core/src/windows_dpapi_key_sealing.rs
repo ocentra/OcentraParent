@@ -6,15 +6,21 @@
 
 use std::fmt;
 
-use ocentra_family_identity_core::household_authority::HouseholdAuthorityInput;
 use ocentra_family_identity_core::trust_bootstrap::{
-    current_parent_device_trust_authority, AwaitingPlatformKeySealingRequest,
-    PersistedPlatformKeyUnsealingCredential,
+    current_authority::{
+        current_parent_device_trust_authority_for_sealed_device,
+        CurrentParentDeviceTrustAuthorityInput,
+    },
+    AwaitingPlatformKeySealingRequest, PersistedPlatformKeyUnsealingCredential,
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 const SEALED_KEY_FORMAT_VERSION: u8 = 1;
+#[cfg(windows)]
+const WINDOWS_MACHINE_CRYPTOGRAPHY_PATH: &str = "SOFTWARE\\Microsoft\\Cryptography";
+#[cfg(windows)]
+const WINDOWS_MACHINE_GUID_VALUE: &str = "MachineGuid";
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DpapiKeySealingContext {
@@ -35,8 +41,17 @@ impl DpapiKeySealingContext {
     }
 
     #[cfg(windows)]
-    fn entropy(&self, credential: &PersistedPlatformKeyUnsealingCredential) -> Vec<u8> {
-        hex_encode(&authorization_binding(self, credential)).into_bytes()
+    fn entropy(
+        &self,
+        credential: &PersistedPlatformKeyUnsealingCredential,
+        device_local_binding: &[u8; 32],
+    ) -> Vec<u8> {
+        hex_encode(&authorization_binding(
+            self,
+            credential,
+            device_local_binding,
+        ))
+        .into_bytes()
     }
 }
 
@@ -105,9 +120,15 @@ pub fn seal_for_current_windows_user(
     }
 
     let unsealing_credential = authorization.consume_for_platform_key_sealing();
-    let authorization_binding = authorization_binding(&context, &unsealing_credential);
-    let ciphertext =
-        seal_for_current_windows_user_inner(trust_material, &context, &unsealing_credential)?;
+    let device_local_binding = current_windows_device_local_binding()?;
+    let authorization_binding =
+        authorization_binding(&context, &unsealing_credential, &device_local_binding);
+    let ciphertext = seal_for_current_windows_user_inner(
+        trust_material,
+        &context,
+        &unsealing_credential,
+        &device_local_binding,
+    )?;
     Ok(DpapiSealedKey {
         format_version: SEALED_KEY_FORMAT_VERSION,
         context,
@@ -119,11 +140,15 @@ pub fn seal_for_current_windows_user(
 
 pub fn unseal_for_current_windows_user(
     sealed_key: &DpapiSealedKey,
-    current_authority_input: HouseholdAuthorityInput,
+    current_authority_input: &CurrentParentDeviceTrustAuthorityInput,
     expected_context: &DpapiKeySealingContext,
 ) -> Result<Vec<u8>, DpapiKeySealingError> {
-    current_parent_device_trust_authority(current_authority_input)
-        .map_err(|_error| DpapiKeySealingError::CurrentAuthorityRequired)?;
+    current_parent_device_trust_authority_for_sealed_device(
+        current_authority_input,
+        &expected_context.trust_subject,
+        &expected_context.device_ref,
+    )
+    .map_err(|_error| DpapiKeySealingError::CurrentAuthorityRequired)?;
     expected_context.validate()?;
     if sealed_key.format_version != SEALED_KEY_FORMAT_VERSION {
         return Err(DpapiKeySealingError::UnsupportedFormat);
@@ -131,8 +156,13 @@ pub fn unseal_for_current_windows_user(
     if sealed_key.context != *expected_context {
         return Err(DpapiKeySealingError::BindingMismatch);
     }
+    let device_local_binding = current_windows_device_local_binding()?;
     if sealed_key.authorization_binding
-        != authorization_binding(expected_context, &sealed_key.unsealing_credential)
+        != authorization_binding(
+            expected_context,
+            &sealed_key.unsealing_credential,
+            &device_local_binding,
+        )
     {
         return Err(DpapiKeySealingError::AuthorizationMismatch);
     }
@@ -144,6 +174,7 @@ pub fn unseal_for_current_windows_user(
         &sealed_key.ciphertext,
         expected_context,
         &sealed_key.unsealing_credential,
+        &device_local_binding,
     )
 }
 
@@ -152,11 +183,12 @@ fn seal_for_current_windows_user_inner(
     trust_material: &[u8],
     context: &DpapiKeySealingContext,
     credential: &PersistedPlatformKeyUnsealingCredential,
+    device_local_binding: &[u8; 32],
 ) -> Result<Vec<u8>, DpapiKeySealingError> {
     windows_dpapi::encrypt_data(
         trust_material,
         windows_dpapi::Scope::User,
-        Some(&context.entropy(credential)),
+        Some(&context.entropy(credential, device_local_binding)),
     )
     .map_err(|_error| DpapiKeySealingError::PlatformUnavailable)
 }
@@ -166,6 +198,7 @@ fn seal_for_current_windows_user_inner(
     _trust_material: &[u8],
     _context: &DpapiKeySealingContext,
     _credential: &PersistedPlatformKeyUnsealingCredential,
+    _device_local_binding: &[u8; 32],
 ) -> Result<Vec<u8>, DpapiKeySealingError> {
     Err(DpapiKeySealingError::PlatformUnavailable)
 }
@@ -175,11 +208,12 @@ fn unseal_for_current_windows_user_inner(
     ciphertext: &[u8],
     context: &DpapiKeySealingContext,
     credential: &PersistedPlatformKeyUnsealingCredential,
+    device_local_binding: &[u8; 32],
 ) -> Result<Vec<u8>, DpapiKeySealingError> {
     windows_dpapi::decrypt_data(
         ciphertext,
         windows_dpapi::Scope::User,
-        Some(&context.entropy(credential)),
+        Some(&context.entropy(credential, device_local_binding)),
     )
     .map_err(|_error| DpapiKeySealingError::UnsealFailed)
 }
@@ -189,6 +223,7 @@ fn unseal_for_current_windows_user_inner(
     _ciphertext: &[u8],
     _context: &DpapiKeySealingContext,
     _credential: &PersistedPlatformKeyUnsealingCredential,
+    _device_local_binding: &[u8; 32],
 ) -> Result<Vec<u8>, DpapiKeySealingError> {
     Err(DpapiKeySealingError::PlatformUnavailable)
 }
@@ -196,13 +231,20 @@ fn unseal_for_current_windows_user_inner(
 fn authorization_binding(
     context: &DpapiKeySealingContext,
     credential: &PersistedPlatformKeyUnsealingCredential,
+    device_local_binding: &[u8; 32],
 ) -> [u8; 32] {
-    Sha256::digest(canonical_binding_bytes(context, credential)).into()
+    Sha256::digest(canonical_binding_bytes(
+        context,
+        credential,
+        device_local_binding,
+    ))
+    .into()
 }
 
 fn canonical_binding_bytes(
     context: &DpapiKeySealingContext,
     credential: &PersistedPlatformKeyUnsealingCredential,
+    device_local_binding: &[u8; 32],
 ) -> Vec<u8> {
     let fields = [
         format!("ocentra-device-trust-dpapi-v{SEALED_KEY_FORMAT_VERSION}"),
@@ -211,6 +253,7 @@ fn canonical_binding_bytes(
         context.device_role.clone(),
         credential.trust_bootstrap_ref().to_owned(),
         credential.device_trust_ref().as_str().to_owned(),
+        hex_encode(device_local_binding),
     ];
     let mut encoded = Vec::new();
     for field in fields {
@@ -219,6 +262,27 @@ fn canonical_binding_bytes(
         encoded.extend_from_slice(field.as_bytes());
     }
     encoded
+}
+
+#[cfg(windows)]
+fn current_windows_device_local_binding() -> Result<[u8; 32], DpapiKeySealingError> {
+    use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
+
+    let machine_hive = RegKey::predef(HKEY_LOCAL_MACHINE);
+    let cryptography_key = machine_hive
+        .open_subkey(WINDOWS_MACHINE_CRYPTOGRAPHY_PATH)
+        .map_err(|_error| DpapiKeySealingError::PlatformUnavailable)?;
+    let machine_guid = cryptography_key
+        .get_value::<String, _>(WINDOWS_MACHINE_GUID_VALUE)
+        .map_err(|_error| DpapiKeySealingError::PlatformUnavailable)?;
+    (!machine_guid.trim().is_empty())
+        .then(|| Sha256::digest(machine_guid.as_bytes()).into())
+        .ok_or(DpapiKeySealingError::PlatformUnavailable)
+}
+
+#[cfg(not(windows))]
+fn current_windows_device_local_binding() -> Result<[u8; 32], DpapiKeySealingError> {
+    Err(DpapiKeySealingError::PlatformUnavailable)
 }
 
 fn hex_encode(bytes: &[u8]) -> String {

@@ -79,7 +79,7 @@ remote-access-plan and policy-control-plane-plan:
 - `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
 - Current plan-local tests prove document and route shape only, not runtime trust.
 - Login/session proof, LAN pairing proof, package install proof, and license proof are all insufficient for device trust.
-- Platform key sealing is modelled but not proven at runtime.
+- A narrow Windows-only DPAPI adapter now seals the parent trust material with fresh parent-device authority that must match the sealed trust subject and device reference. Its DPAPI entropy also incorporates the current Windows machine registry binding, which is read again at unseal and is not serialized with the sealed blob. Focused Windows tests cover same-device success, a different still-trusted device rejection, revoked authority rejection, and persisted-blob round trip. This is partial adapter proof only: it does not establish a cross-platform platform-store lifecycle, recovery, or complete device-trust runtime.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
 ```
@@ -115,7 +115,7 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 - Trust-bootstrap sealing remains manual-required because the authority contract has no specifically authorized device-trust sealing action. Low-risk authority actions are not promoted into sealing authority.
 - Parent-presence decisions are correlated and redacted, inserted transactionally into the canonical parent-presence SQLite outbox, and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Pending rows drain on restart, and stable event identities make recovery idempotent. This is durable local journal evidence only; it does not claim subscriber delivery, a broader event-bus runtime, or complete device-trust lifecycle integration.
 - No complete device-trust state machine exists yet beyond that narrow parent-presence bootstrap boundary.
-- No execution-grade local key sealing implementation exists yet in repo code.
+- The repo has a narrow execution-grade Windows DPAPI key-sealing adapter only. It fails closed when current device authority, the sealed identity binding, DPAPI, or the local Windows machine binding is unavailable; Android, Linux, macOS, iOS, recovery, and complete lifecycle integration remain open.
 - No execution-grade parent step-up, phone QR approval bridge, encrypted recovery bundle handling, entitlement-binding runtime, or child uninstall authorization runtime exists yet in repo code.
 - Login alone does not create trust, child devices do not own the trust root, and revocation must win over stale state.
 

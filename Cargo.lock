@@ -2791,6 +2791,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "windows-dpapi",
+ "winreg",
 ]
 
 [[package]]
