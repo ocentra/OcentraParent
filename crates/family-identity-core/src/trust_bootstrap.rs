@@ -174,7 +174,8 @@ fn challenge_action_is_authorized_for_lifecycle_intent(
     lifecycle_intent: TrustBootstrapLifecycleIntent,
     challenge_action: HouseholdAuthorityAction,
 ) -> bool {
-    const SEAL_PARENT_DEVICE_TRUST_ACTIONS: &[HouseholdAuthorityAction] = &[];
+    const SEAL_PARENT_DEVICE_TRUST_ACTIONS: &[HouseholdAuthorityAction] =
+        &[HouseholdAuthorityAction::PairChildDevice];
     match lifecycle_intent {
         TrustBootstrapLifecycleIntent::SealParentDeviceTrust => {
             SEAL_PARENT_DEVICE_TRUST_ACTIONS.contains(&challenge_action)

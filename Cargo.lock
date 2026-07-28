@@ -2548,6 +2548,7 @@ version = "0.1.1"
 dependencies = [
  "getrandom 0.3.4",
  "ocentra-eventing",
+ "ocentra-storage-custody-core",
  "rusqlite",
  "rustix 1.1.4",
  "same-file",
@@ -2784,9 +2785,11 @@ dependencies = [
  "atomicwrites",
  "fs2",
  "ocentra-eventing",
+ "ocentra-family-identity-core",
  "ocentra-schema",
  "serde",
  "serde_json",
+ "sha2",
  "windows-dpapi",
 ]
 
