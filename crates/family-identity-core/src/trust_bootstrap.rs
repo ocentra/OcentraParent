@@ -40,11 +40,6 @@ pub struct PersistedPlatformKeyUnsealingCredential {
     lifecycle_intent: TrustBootstrapLifecycleIntent,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct CurrentParentDeviceTrustAuthority {
-    marker: TrustBootstrapSealingMarker,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum CurrentParentDeviceTrustAuthorityError {
     NotTrusted,
@@ -162,15 +157,13 @@ impl PersistedPlatformKeyUnsealingCredential {
 
 pub fn current_parent_device_trust_authority(
     input: crate::household_authority::HouseholdAuthorityInput,
-) -> Result<CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError> {
+) -> Result<(), CurrentParentDeviceTrustAuthorityError> {
     let is_sealing_action = input.action == HouseholdAuthorityAction::SealParentDeviceTrust;
     let decision = crate::household_authority::authorize_household_action(input);
     (is_sealing_action
         && decision.authorization_state
             == crate::household_authority::HouseholdAuthorizationState::Authorized)
-        .then_some(CurrentParentDeviceTrustAuthority {
-            marker: TrustBootstrapSealingMarker,
-        })
+        .then_some(())
         .ok_or(CurrentParentDeviceTrustAuthorityError::NotTrusted)
 }
 
