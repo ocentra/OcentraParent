@@ -5,8 +5,9 @@ use helpers::{
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, validate_policy_delivery_execution_receipt,
-    PolicyDeliveryApplyOutcome, PolicyDeliveryParentVisibleState, PolicyDeliveryState,
+    apply_policy_delivery_transition, apply_policy_delivery_transition_with_execution_receipt,
+    validate_policy_delivery_execution_receipt, PolicyDeliveryApplyOutcome,
+    PolicyDeliveryParentVisibleState, PolicyDeliveryState,
 };
 use ocentra_policy_control_core::policy_source::{PolicyConsumerDomain, PolicyVersion};
 
@@ -226,6 +227,88 @@ fn applied_receipt_evidence_cannot_advance_without_trusted_adapter_authority() -
         queued.parent_visible_state(),
         PolicyDeliveryParentVisibleState::Pending
     );
+    Ok(())
+}
+
+#[test]
+fn trusted_adapter_receipt_advances_applied_delivery_and_is_replay_safe() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered_transition = transition(2, "attempt-delivered", PolicyDeliveryState::Delivered)?;
+    let delivered = test_ok!(
+        apply_policy_delivery_transition(&queued, delivered_transition),
+        "deliver policy before adapter execution"
+    )
+    .into_record();
+    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
+    let receipt = execution_receipt(&delivered, &applied_transition);
+
+    let applied = test_ok!(
+        apply_policy_delivery_transition_with_execution_receipt(
+            &delivered,
+            applied_transition.clone(),
+            receipt.clone(),
+        ),
+        "trusted adapter receipt advances applied delivery"
+    );
+    let applied_record = applied.clone().into_record();
+
+    assert!(matches!(applied, PolicyDeliveryApplyOutcome::Advanced(_)));
+    assert_eq!(applied_record.state, PolicyDeliveryState::Applied);
+    assert_eq!(applied_record.execution_receipt(), Some(&receipt));
+    assert!(applied_record.is_active());
+    assert_eq!(
+        applied_record.parent_visible_state(),
+        PolicyDeliveryParentVisibleState::Applied
+    );
+
+    let duplicate = test_ok!(
+        apply_policy_delivery_transition_with_execution_receipt(
+            &applied_record,
+            applied_transition,
+            receipt,
+        ),
+        "same trusted adapter receipt is idempotent"
+    );
+    assert!(matches!(
+        duplicate,
+        PolicyDeliveryApplyOutcome::Duplicate(_)
+    ));
+    Ok(())
+}
+
+#[test]
+fn forged_or_missing_adapter_receipts_cannot_advance_applied_delivery() -> TestResult {
+    let queued = sample_queued_delivery()?;
+    let delivered = test_ok!(
+        apply_policy_delivery_transition(
+            &queued,
+            transition(2, "attempt-delivered", PolicyDeliveryState::Delivered)?,
+        ),
+        "deliver policy before forged receipt check"
+    )
+    .into_record();
+    let applied_transition = transition(3, "attempt-applied", PolicyDeliveryState::Applied)?;
+    let mut forged_receipt = execution_receipt(&delivered, &applied_transition);
+    forged_receipt.target.device_id = helpers::sample_delivery_target()?.device_id;
+    forged_receipt.audit_reference_ids = vec![audit_ref("audit-forged")?];
+
+    let error = test_err!(
+        apply_policy_delivery_transition_with_execution_receipt(
+            &delivered,
+            applied_transition,
+            forged_receipt,
+        ),
+        "forged adapter receipt must be rejected"
+    );
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.audit_reference_ids",
+            value: "expected audit references to match execution receipt".to_string(),
+        }
+    );
+    assert_eq!(delivered.state, PolicyDeliveryState::Delivered);
+    assert!(!delivered.is_active());
     Ok(())
 }
 
