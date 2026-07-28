@@ -18,6 +18,9 @@ ocentra-schema = { path = "../schema" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 
+[target.'cfg(windows)'.dependencies]
+windows-dpapi = "0.2.0"
+
 [[test]]
 name = "unit"
 path = "tests/unit/mod.rs"
