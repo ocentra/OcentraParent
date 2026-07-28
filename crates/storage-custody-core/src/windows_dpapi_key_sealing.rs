@@ -26,6 +26,7 @@ impl DpapiKeySealingContext {
         Ok(())
     }
 
+    #[cfg(windows)]
     fn entropy(&self) -> Vec<u8> {
         format!(
             "ocentra-device-trust-dpapi-v{SEALED_KEY_FORMAT_VERSION}\u{1f}{}\u{1f}{}\u{1f}{}",
