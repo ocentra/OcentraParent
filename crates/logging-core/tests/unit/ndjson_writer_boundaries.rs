@@ -3,6 +3,7 @@ use std::{error::Error, fs};
 use ocentra_parent_logging_core::ndjson_writer::{
     append_record, append_record_for_operation, NdjsonWriter,
 };
+use serde::{ser::SerializeMap, Serialize, Serializer};
 use serde_json::json;
 
 #[test]
@@ -15,6 +16,51 @@ fn ndjson_writer_rejects_non_json_and_multi_record_raw_appends() {
 fn ndjson_writer_preserves_operation_identity_across_daily_stream_rollover() {
     let result = ndjson_writer_preserves_operation_identity_across_daily_stream_rollover_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+#[test]
+fn ndjson_writer_canonicalizes_equivalent_operation_events_before_deduplication() {
+    let result =
+        ndjson_writer_canonicalizes_equivalent_operation_events_before_deduplication_impl();
+    assert!(matches!(result, Ok(())), "{result:?}");
+}
+
+fn ndjson_writer_canonicalizes_equivalent_operation_events_before_deduplication_impl(
+) -> Result<(), Box<dyn Error>> {
+    let root = temp_dir!();
+    let writer = NdjsonWriter::new(&root);
+    let first = OrderedFields::new([("alpha", 1), ("beta", 2)]);
+    let second = OrderedFields::new([("beta", 2), ("alpha", 1)]);
+
+    let path =
+        writer.append_event_for_operation("canonical", "events", "same-operation", &first)?;
+    let replay =
+        writer.append_event_for_operation("canonical", "events", "same-operation", &second)?;
+
+    assert_eq!(replay, path);
+    assert_eq!(fs::read_to_string(path)?, "{\"alpha\":1,\"beta\":2}\n");
+    Ok(())
+}
+
+struct OrderedFields(Vec<(&'static str, u8)>);
+
+impl OrderedFields {
+    fn new<const N: usize>(fields: [(&'static str, u8); N]) -> Self {
+        Self(fields.into())
+    }
+}
+
+impl Serialize for OrderedFields {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut map = serializer.serialize_map(Some(self.0.len()))?;
+        for (key, value) in &self.0 {
+            map.serialize_entry(key, value)?;
+        }
+        map.end()
+    }
 }
 
 fn ndjson_writer_rejects_non_json_and_multi_record_raw_appends_impl() -> Result<(), Box<dyn Error>>

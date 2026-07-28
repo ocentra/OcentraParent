@@ -64,7 +64,10 @@ pub(crate) fn commit_file_identity(metadata: &std::fs::Metadata) -> CommitFileId
     CommitFileIdentity {
         volume: metadata.dev(),
         index: metadata.ino(),
-        generation: 0,
+        // Unix does not expose a portable creation generation. ctime changes whenever
+        // this journal is replaced or rewritten, so using it makes cache reuse
+        // conservative rather than retaining markers from a prior inode lifecycle.
+        generation: (metadata.ctime() as u64).rotate_left(32) ^ metadata.ctime_nsec() as u64,
     }
 }
 

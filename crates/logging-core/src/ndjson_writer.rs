@@ -34,8 +34,7 @@ impl NdjsonWriter {
         let directory = self.root.join(scope).join("ndjson").join(stream);
         create_directory_hierarchy(&directory)?;
         let path = directory.join(format!("{}.ndjson", date_stamp_now()));
-        let mut record = serde_json::to_vec(event)
-            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+        let mut record = crate::ndjson_canonical_json::serialize(event)?;
         record.push(b'\n');
         append_record(&path, &record)?;
         Ok(path)
@@ -53,8 +52,7 @@ impl NdjsonWriter {
         let directory = self.root.join(scope).join("ndjson").join(stream);
         create_directory_hierarchy(&directory)?;
         let current_path = directory.join(format!("{}.ndjson", date_stamp_now()));
-        let mut record = serde_json::to_vec(event)
-            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+        let mut record = crate::ndjson_canonical_json::serialize(event)?;
         record.push(b'\n');
         crate::ndjson_record_validation::validate_record(&record)?;
         crate::ndjson_operation_route::append_routed_operation(

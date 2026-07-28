@@ -23,6 +23,7 @@ pub mod level;
 pub mod local_ndjson_log;
 pub mod local_ndjson_log_typescript;
 mod ndjson_append_rollback;
+mod ndjson_canonical_json;
 #[cfg(feature = "test-support")]
 #[doc(hidden)]
 pub mod ndjson_failure_test_support;
