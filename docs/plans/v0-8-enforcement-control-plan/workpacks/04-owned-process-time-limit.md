@@ -89,6 +89,21 @@ Focused validation should record:
 Owned-process terminate/time-limit proof exists in narrow form. It must remain
 clearly separate from broad app blocking.
 
+### 2026-07-28 receipt persistence precondition
+
+The policy-delivery owner can now persist an `Applied` adapter receipt only
+through `apply_policy_delivery_transition_with_execution_receipt`; identity,
+sequence, audit references, and rollback source must match the prior delivery.
+The child-policy handoff exposes that path separately from the receiptless
+manual-required flow. This is a fail-closed receipt-persistence precondition,
+not a claim that a portal envelope has trusted authority or that an OS adapter
+has executed.
+
+The remaining execution boundary is explicit: agent-service currently rebuilds
+policy inputs from command payload fields and does not yet consume an
+authenticated persisted trusted-delivery record. Until that bridge exists,
+direct service payloads cannot be used as WP04 trusted-adapter proof.
+
 ## Negative Cases
 
 - pid mismatch or stale process identity must reject rather than hit the wrong target

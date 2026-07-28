@@ -1,5 +1,6 @@
 use ocentra_child_policy_core::policy_control_delivery_handoff::{
-    apply_policy_control_delivery_handoff, queue_policy_control_delivery_handoff,
+    apply_policy_control_delivery_handoff, apply_trusted_adapter_delivery_handoff,
+    queue_policy_control_delivery_handoff,
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
@@ -7,8 +8,9 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliverySequence,
-    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt,
+    PolicyDeliveryId, PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget,
+    PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version,
@@ -306,6 +308,49 @@ fn delivery_handoff_surfaces_receipt_required_states_as_manual_required() {
 
     assert_eq!(queued.state, PolicyDeliveryState::Queued);
     assert!(!queued.is_active());
+}
+
+#[test]
+fn trusted_adapter_handoff_persists_applied_execution_receipt() {
+    let queued = queued_delivery();
+    let delivered = apply_policy_control_delivery_handoff(
+        &queued,
+        transition(
+            2,
+            PolicyDeliveryAttemptId::parse("attempt-delivered").expect_value("policy attempt id"),
+            PolicyDeliveryState::Delivered,
+        ),
+    )
+    .expect_value("delivered transition");
+    let applied_transition = transition(
+        3,
+        PolicyDeliveryAttemptId::parse("attempt-applied").expect_value("policy attempt id"),
+        PolicyDeliveryState::Applied,
+    );
+    let receipt = PolicyDeliveryExecutionReceipt {
+        delivery_id: delivered.delivery.delivery_id.clone(),
+        household_id: delivered.delivery.household_id.clone(),
+        policy_version: delivered.delivery.policy_version,
+        source_document_id: delivered.delivery.source_document_id.clone(),
+        target: delivered.delivery.target.clone(),
+        attempt_id: applied_transition.attempt_id.clone(),
+        sequence: applied_transition.sequence,
+        state: applied_transition.state,
+        audit_reference_ids: applied_transition.audit_reference_ids.clone(),
+        reason_code: None,
+        rollback_reference_state: None,
+    };
+
+    let applied = apply_trusted_adapter_delivery_handoff(
+        &delivered.delivery,
+        applied_transition,
+        receipt.clone(),
+    )
+    .expect_value("trusted adapter receipt applies delivery");
+
+    assert_eq!(applied.delivery.state, PolicyDeliveryState::Applied);
+    assert_eq!(applied.delivery.execution_receipt(), Some(&receipt));
+    assert!(applied.delivery.is_active());
 }
 
 #[test]
