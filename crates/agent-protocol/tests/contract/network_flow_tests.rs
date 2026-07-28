@@ -6,12 +6,12 @@ use super::{
     NetworkAiAnalysisCompletedEvent, NetworkAiAnalysisRequestedEvent, NetworkAiAuditState,
     NetworkAuditEntryCommittedEvent, NetworkDomainObservedEvent,
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
-    NetworkEnforcementResultStatus, NetworkEvidenceScope, NetworkFlowObservedEvent,
-    NetworkInterventionState, NetworkPolicyDecisionCompletedEvent,
-    NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRemoteDeliveryCrossProcessCustodyReadinessState, NetworkRemoteDeliveryStatus,
-    NetworkRiskBudgetState, NetworkRuntimeClaimBoundary, NetworkRuntimeEventPayload,
-    NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
+    NetworkEnforcementResultStatus, NetworkEvidenceGrade, NetworkEvidenceScope,
+    NetworkFlowObservedEvent, NetworkInterventionState, NetworkPolicyDecisionAction,
+    NetworkPolicyDecisionCompletedEvent, NetworkPolicyEvaluationRequestedEvent,
+    NetworkPortalReadModelUpdatedEvent, NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
+    NetworkRemoteDeliveryStatus, NetworkRiskBudgetState, NetworkRuntimeClaimBoundary,
+    NetworkRuntimeEventPayload, NetworkRuntimeEvidenceGrade, NetworkRuntimePhase,
     NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
 };
 use crate::network_flow::{
@@ -573,7 +573,7 @@ fn network_runtime_event_payload_uses_rust_owned_contract_and_key_shapes(
     );
     assert_eq!(
         contract.schema_version.value(),
-        constants::network_flow::EVENT_SCHEMA_VERSION
+        constants::network_flow::RUNTIME_EVENT_SCHEMA_VERSION
     );
     assert_eq!(
         aggregate_key.as_str(),
@@ -595,6 +595,34 @@ fn network_runtime_event_payload_uses_rust_owned_contract_and_key_shapes(
     );
 
     Ok(())
+}
+
+#[test]
+fn network_runtime_event_contract_rejects_domain_attribution_without_domain_payload() {
+    let mut payload = network_runtime_event_payload_fixture();
+    payload.destination_domain = None;
+
+    assert!(matches!(
+        payload.contract(),
+        Err(EventingError::InvalidValue {
+            field: "network_runtime_payload_semantics",
+            ..
+        })
+    ));
+}
+
+#[test]
+fn network_runtime_event_contract_rejects_process_attribution_without_process_id_payload() {
+    let mut payload = network_runtime_event_payload_fixture();
+    payload.process_id = None;
+
+    assert!(matches!(
+        payload.contract(),
+        Err(EventingError::InvalidValue {
+            field: "network_runtime_payload_semantics",
+            ..
+        })
+    ));
 }
 
 #[test]
@@ -749,9 +777,11 @@ fn network_runtime_event_payload_fixture() -> NetworkRuntimeEventPayload {
         process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
         evidence_scope: NetworkEvidenceScope::MetadataOnly,
         evidence_grade: NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata,
+        evidence_grade_contract: NetworkEvidenceGrade::B,
         ai_audit_state: NetworkAiAuditState::NotRequested,
         risk_budget_state: NetworkRiskBudgetState::ObserveOnly,
         intervention_state: NetworkInterventionState::DryRunOnly,
+        policy_action: NetworkPolicyDecisionAction::Observe,
         claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
         previous_phase_ref: None,
         evidence_ref: constants::network_flow::TEST_FLOW_EVIDENCE_REF.to_string(),

@@ -23,14 +23,14 @@ output/network-plan-proof/<workpack-file-stem>/
 ## Active slice proof root
 
 ```text
-docs/proof/network-plan/01-network-foundation-shim-cleanup.md
-output/network-plan-proof/01-network-foundation-shim-cleanup/
+docs/proof/network-plan/01-foundation-contracts-and-eventing.md
 ```
 
 ## Current audit truth
 
-- `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 for the active foundation shim cleanup slice.
-- The proof root is still only a slice-01 skeleton; broader workpack proof bundles remain missing.
+- `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` and its output root retain the closed 2026-06-17 frontage-cleanup receipt.
+- `docs/proof/network-plan/01-foundation-contracts-and-eventing.md` is the active tracked WP01 contract/eventing validation receipt.
+- The active receipt proves only its reviewed contract/runtime slice; broader WP01 and sibling workpack proof bundles remain open.
 - `test-results/` currently contains no network-plan proof artifacts in this checkout.
 - Proof scripts exist under `scripts/test/`, but script presence alone is not proof completion.
 - Stale doc references to `docs/proof/network-plan/` or `output/network-plan-proof/` must be rebuilt or removed before a row can be treated as proved.
@@ -139,7 +139,7 @@ Do not claim a proof complete from a planned artifact path. A proof becomes curr
 2. the resulting artifact exists in the committed proof location or the blocker is written explicitly;
 3. the workpack/checklist row points at that exact artifact or blocker.
 
-For the current `network-foundation-shim-cleanup` slice, the proof root is allowed to stay as a skeleton if the only unresolved item is the single `./network-control-catalog` public-export decision recorded by the slice proof doc.
+The historical `network-foundation-shim-cleanup` receipt remains bounded to frontage cleanup. The active WP01 receipt must stay aligned with `PLAN_PROOF_MANIFEST.md`, `PLAN_STATE.md`, and `PLAN_HEALTH.md`.
 
 ## No-claim language
 
