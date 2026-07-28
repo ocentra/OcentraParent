@@ -2417,6 +2417,7 @@ dependencies = [
  "ocentra-eventing",
  "ocentra-parent-agent-protocol",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
