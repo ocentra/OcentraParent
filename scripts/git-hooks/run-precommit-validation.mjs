@@ -157,7 +157,7 @@ export function runCommand(command, args, { timeoutMs = commandTimeoutMs() } = {
       console.error(`[validation] timed out after ${timeoutMs}ms: ${command}`);
       terminateProcessTree(child);
       setTimeout(() => {
-        if (settled === false) terminateProcessTree(child, 'SIGKILL');
+        terminateProcessTree(child, 'SIGKILL');
       }, 5_000).unref();
     }, timeoutMs);
 
@@ -179,6 +179,7 @@ export function runCommand(command, args, { timeoutMs = commandTimeoutMs() } = {
 for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, () => {
     if (activeValidationChild !== null) terminateProcessTree(activeValidationChild, signal);
+    setTimeout(() => process.exit(128), 250).unref();
   });
 }
 
@@ -421,7 +422,11 @@ function buildScopedValidations(scopeArgs, { prettierFiles: explicitPrettierFile
       ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'reexports', '--files', crateDirs.join(',')],
     ]);
     for (const [crateDir] of scope.crates) {
-      validations.push(...buildCrateRustValidationCommands(crateDir, { testArgs: ['--lib'] }));
+      validations.push(
+        ...buildCrateRustValidationCommands(crateDir, {
+          excludedTestTargets: crateDir === 'crates/agent-service' ? ['lan_pairing'] : [],
+        })
+      );
     }
   }
 

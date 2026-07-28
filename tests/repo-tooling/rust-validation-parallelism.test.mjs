@@ -23,10 +23,12 @@ test('changed-crate Rust validation uses the native parallel test harness', () =
   assert.doesNotMatch(commandText(commands), /test-threads/u);
 });
 
-test('bounded pre-commit Rust validation excludes live integration binaries', () => {
-  const commands = buildCrateRustValidationCommands('crates/agent-service', { testArgs: ['--lib'] });
+test('bounded pre-commit Rust validation excludes only named live integration binaries', () => {
+  const commands = buildCrateRustValidationCommands('crates/agent-service', { excludedTestTargets: ['lan_pairing'] });
 
-  assert.deepEqual(commands[1], ['cargo', ['test', '--manifest-path', 'crates/agent-service/Cargo.toml', '--lib']]);
+  const args = commands[1][1];
+  assert.ok(args.includes('--test'));
+  assert.ok(args.includes('lan_pairing') === false);
 });
 
 test('workspace Rust validation keeps compilation and tests parallel by default', () => {
