@@ -8,7 +8,9 @@ use atomicwrites::{AllowOverwrite, AtomicFile};
 use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 
-use crate::storage_custody::{StorageCustodyActionPlannedEvent, StorageTombstoneState};
+use crate::storage_custody::{
+    LocalPayloadRetentionAction, StorageCustodyActionPlannedEvent, StorageTombstoneState,
+};
 
 const STORE_VERSION: u16 = 1;
 
@@ -77,10 +79,13 @@ impl RetentionDeleteTombstoneStore {
         &self,
         action: &StorageCustodyActionPlannedEvent,
     ) -> io::Result<()> {
-        if action.action_plan.tombstone_state != StorageTombstoneState::Write {
+        if action.action_plan.tombstone_state != StorageTombstoneState::Write
+            || action.action_plan.local_payload_retention_action
+                != LocalPayloadRetentionAction::Delete
+        {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                "a non-delete custody action cannot create a tombstone intent",
+                "only a coherent delete custody action can create a tombstone intent",
             ));
         }
 
