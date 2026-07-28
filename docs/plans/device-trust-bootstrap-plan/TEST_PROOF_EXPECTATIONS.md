@@ -43,6 +43,8 @@ Current device-trust coverage starts in:
 
 These plan-local tests currently prove document and route alignment only. They do not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle execution, or child uninstall execution by themselves.
 
+The narrow Windows DPAPI adapter is separately covered by `crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs`. That proof requires a current authorized parent-device authority input whose trust subject and device reference exactly match the sealed context, and incorporates a machine-local Windows registry binding that is read at seal/unseal rather than serialized in the blob. It proves only the Windows adapter boundary: same-device unseal, different trusted-device rejection, revoked rejection, and persisted-blob round trip. It does not close WP02 or claim Android, Linux, macOS, iOS, recovery, or complete trust lifecycle coverage.
+
 Implementation-adjacent coverage currently lives in:
 
 - `packages/family-domain/tests/unit/household-authority.test.ts`
@@ -74,6 +76,18 @@ On Windows, production custody requires retained handles for the final database 
 On Unix, production custody currently returns unavailable before creating or opening the database because this boundary cannot exclude same-user pathname substitution. The explicit debug-only custody seam may exercise owner-private `0600` creation, atomic first publication, restart, concurrency, and permissive-existing-file rejection, but those tests are not a production custody claim.
 
 Trust sealing must remain manual-required until the authority contract exposes a specifically authorized high-risk sealing action. `device_trust_ref` values must come from a CSPRNG and remain opaque and input-independent. Parent-presence decisions must be correlated and redacted, committed to a canonical transactional outbox with custody state, and delivered fail-closed into the owned `ocentra-eventing` hash-chained journal. Focused proof must cover accepted and rejected decisions, delivery failure, restart recovery, replay, and idempotent re-delivery. The no-claim boundary remains subscriber delivery, a broader event-bus runtime, and complete device-trust integration.
+
+Windows DPAPI adapter validation:
+
+```powershell
+cargo check -p ocentra-storage-custody-core
+cargo test -p ocentra-family-identity-core --test unit trust_bootstrap_probes
+cargo clippy -p ocentra-storage-custody-core --lib -- -D warnings
+cargo clippy -p ocentra-family-identity-core --all-targets -- -D warnings
+npm run lint:architecture -- --files crates/storage-custody-core/src/windows_dpapi_key_sealing.rs crates/family-identity-core/src/trust_bootstrap.rs crates/family-identity-core/src/trust_bootstrap/current_authority.rs crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs
+```
+
+The Windows adapter must fail closed when the local machine binding cannot be read; no roaming, plaintext, or portable-key fallback is permitted.
 
 ## Common commands
 

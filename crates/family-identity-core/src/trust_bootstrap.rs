@@ -8,6 +8,8 @@ use crate::parent_presence::{ParentPresenceChallenge, ParentPresenceVerification
 #[path = "trust_bootstrap_authority.rs"]
 mod trust_bootstrap_authority;
 
+pub mod current_authority;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Default)]
 pub(crate) struct TrustBootstrapSealingMarker;
 
@@ -60,11 +62,6 @@ pub struct PersistedPlatformKeyUnsealingCredential {
     trust_bootstrap_ref: String,
     device_trust_ref: DeviceTrustRef,
     lifecycle_intent: TrustBootstrapLifecycleIntent,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-pub enum CurrentParentDeviceTrustAuthorityError {
-    NotTrusted,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -177,18 +174,6 @@ impl PersistedPlatformKeyUnsealingCredential {
     pub fn trust_bootstrap_ref(&self) -> &str {
         &self.trust_bootstrap_ref
     }
-}
-
-pub fn current_parent_device_trust_authority(
-    input: crate::household_authority::HouseholdAuthorityInput,
-) -> Result<(), CurrentParentDeviceTrustAuthorityError> {
-    let is_sealing_action = input.action == HouseholdAuthorityAction::SealParentDeviceTrust;
-    let decision = crate::household_authority::authorize_household_action(input);
-    (is_sealing_action
-        && decision.authorization_state
-            == crate::household_authority::HouseholdAuthorizationState::Authorized)
-        .then_some(())
-        .ok_or(CurrentParentDeviceTrustAuthorityError::NotTrusted)
 }
 
 pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDecision {
