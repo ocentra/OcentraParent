@@ -26,6 +26,7 @@ pub(crate) fn finish_parent_presence_verification(
             accepted_artifact,
             Ok(ParentPresenceVerificationAccepted::new(
                 accepted.receipt_ref,
+                correlation_id,
                 accepted.challenge,
                 assertion,
                 observed_at,

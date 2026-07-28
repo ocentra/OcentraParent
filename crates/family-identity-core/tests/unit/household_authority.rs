@@ -22,6 +22,7 @@ fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityI
         session_freshness_state: SessionFreshnessState::Fresh,
         capability_granted: true,
         controller_lease_state: None,
+        recovery_repair_authorized: false,
         action,
     }
 }
@@ -395,6 +396,7 @@ fn validates_parent_step_up_assertions_as_action_device_and_target_bound() {
             action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
             action_device_child_profile_id: None,
             target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+            target_child_device_id: None,
             action: HouseholdAuthorityAction::PairChildDevice,
             nonce: "step-up-nonce-1".to_owned(),
             expires_at: "2026-06-13T16:01:00.000Z".to_owned(),
@@ -404,6 +406,7 @@ fn validates_parent_step_up_assertions_as_action_device_and_target_bound() {
         action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
         action_device_child_profile_id: None,
         target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+        target_child_device_id: None,
         action: HouseholdAuthorityAction::PairChildDevice,
         observed_at: "2026-06-13T15:58:00.000Z".to_owned(),
         expected_nonce: Some("step-up-nonce-1".to_owned()),
@@ -427,6 +430,7 @@ fn rejects_expired_or_replayed_parent_step_up_assertions() {
             action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
             action_device_child_profile_id: None,
             target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+            target_child_device_id: None,
             action: HouseholdAuthorityAction::PairChildDevice,
             nonce: "step-up-nonce-1".to_owned(),
             expires_at: "2026-06-13T16:01:00.000Z".to_owned(),
@@ -436,6 +440,7 @@ fn rejects_expired_or_replayed_parent_step_up_assertions() {
         action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
         action_device_child_profile_id: None,
         target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+        target_child_device_id: None,
         action: HouseholdAuthorityAction::PairChildDevice,
         observed_at: "2026-06-13T16:02:00.000Z".to_owned(),
         expected_nonce: Some("step-up-nonce-1".to_owned()),
@@ -453,6 +458,7 @@ fn rejects_expired_or_replayed_parent_step_up_assertions() {
             action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
             action_device_child_profile_id: None,
             target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+            target_child_device_id: None,
             action: HouseholdAuthorityAction::PairChildDevice,
             nonce: "step-up-nonce-1".to_owned(),
             expires_at: "2026-06-13T16:01:00.000Z".to_owned(),
@@ -462,6 +468,7 @@ fn rejects_expired_or_replayed_parent_step_up_assertions() {
         action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
         action_device_child_profile_id: None,
         target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+        target_child_device_id: None,
         action: HouseholdAuthorityAction::PairChildDevice,
         observed_at: "2026-06-13T15:58:00.000Z".to_owned(),
         expected_nonce: Some("different-nonce".to_owned()),
@@ -470,5 +477,26 @@ fn rejects_expired_or_replayed_parent_step_up_assertions() {
     assert_eq!(
         replayed.failure_reason,
         Some(ParentStepUpValidationFailureReason::ReplayRejected)
+    );
+}
+
+#[test]
+fn parent_step_up_assertion_debug_redacts_identity_device_and_nonce_material() {
+    let assertion = ParentStepUpAssertionSnapshot {
+        family_id: "family-sensitive".to_owned(),
+        parent_account_id: "parent-sensitive".to_owned(),
+        action_device_id: "parent-device-sensitive".to_owned(),
+        action_device_child_profile_id: Some("parent-child-sensitive".to_owned()),
+        target_child_profile_id: Some("target-profile-sensitive".to_owned()),
+        target_child_device_id: Some("target-device-sensitive".to_owned()),
+        action: HouseholdAuthorityAction::PairChildDevice,
+        nonce: "step-up-nonce-sensitive".to_owned(),
+        expires_at: "2099-01-01T00:00:00.000Z".to_owned(),
+    };
+
+    let debug = format!("{assertion:?}");
+    assert_eq!(
+        debug,
+        "ParentStepUpAssertionSnapshot { family_id: \"[redacted]\", parent_account_id: \"[redacted]\", action_device_id: \"[redacted]\", action_device_child_profile_id: \"[redacted]\", target_child_profile_id: \"[redacted]\", target_child_device_id: \"[redacted]\", action: \"[redacted]\", nonce: \"[redacted]\", expires_at: \"[redacted]\" }"
     );
 }

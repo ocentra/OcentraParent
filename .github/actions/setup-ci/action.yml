@@ -20,17 +20,22 @@ runs:
         node-version: 22
         cache: npm
 
-    - name: Checkout Ocentra Enforcer safety-main
+    - name: Checkout pinned Ocentra Enforcer private Rust test allowlist repair
       shell: bash
       env:
         OCENTRA_ENFORCER_HOME: ${{ runner.temp }}/ocentra-enforcer
-        OCENTRA_ENFORCER_REF: safety-main
+        OCENTRA_ENFORCER_COMMIT: 9d21780f9a4f5a498fb16a6b1ae1c05ac2d83e36
       run: |
         rm -rf "$OCENTRA_ENFORCER_HOME"
-        git clone --depth 1 --branch "$OCENTRA_ENFORCER_REF" https://github.com/ocentra/ocentra-enforcer.git "$OCENTRA_ENFORCER_HOME"
+        git init "$OCENTRA_ENFORCER_HOME"
+        git -C "$OCENTRA_ENFORCER_HOME" remote add origin https://github.com/ocentra/ocentra-enforcer.git
+        git -C "$OCENTRA_ENFORCER_HOME" fetch --depth 1 origin "$OCENTRA_ENFORCER_COMMIT"
+        git -C "$OCENTRA_ENFORCER_HOME" checkout --detach FETCH_HEAD
+        resolved_enforcer_commit="$(git -C "$OCENTRA_ENFORCER_HOME" rev-parse HEAD)"
+        test "$resolved_enforcer_commit" = "$OCENTRA_ENFORCER_COMMIT"
         npm ci --prefix "$OCENTRA_ENFORCER_HOME"
         test -f "$OCENTRA_ENFORCER_HOME/scripts/rust-rules.mjs"
-        printf 'Ocentra Enforcer safety-main resolved to %s\n' "$(git -C "$OCENTRA_ENFORCER_HOME" rev-parse HEAD)"
+        printf 'Ocentra Enforcer pinned commit resolved to %s\n' "$resolved_enforcer_commit"
         printf 'OCENTRA_ENFORCER_HOME=%s\n' "$OCENTRA_ENFORCER_HOME" >> "$GITHUB_ENV"
 
     - name: Setup Rust

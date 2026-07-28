@@ -75,6 +75,8 @@ pub enum HouseholdAuthorizationFailureReason {
     ControllerLeaseRevoked,
     #[serde(rename = "role-not-authorized")]
     RoleNotAuthorized,
+    #[serde(rename = "authority-adapter-unavailable")]
+    AuthorityAdapterUnavailable,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -99,6 +101,7 @@ pub struct HouseholdAuthorityInput {
     pub session_freshness_state: SessionFreshnessState,
     pub capability_granted: bool,
     pub controller_lease_state: Option<ParentControllerLeaseState>,
+    pub recovery_repair_authorized: bool,
     pub action: HouseholdAuthorityAction,
 }
 
@@ -108,6 +111,36 @@ pub struct HouseholdAuthorityDecision {
     pub audit_requirement_state: AuditRequirementState,
     pub elevated_confirmation_state: ElevatedConfirmationState,
     pub failure_reason: Option<HouseholdAuthorizationFailureReason>,
+}
+
+/// Opaque authority artifact issued by the household command boundary after it
+/// evaluates membership, role, session, device scope, and capability state.
+/// Device-trust code cannot construct or reinterpret this from raw inputs.
+#[derive(Clone, PartialEq, Eq)]
+pub struct AcceptedDeviceTrustAuthorization {
+    family_id: String,
+    parent_account_id: String,
+    target_child_device_id: String,
+    action: HouseholdAuthorityAction,
+    recovery_repair_authorized: bool,
+}
+
+impl std::fmt::Debug for AcceptedDeviceTrustAuthorization {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AcceptedDeviceTrustAuthorization")
+            .field("family_id", &"[redacted]")
+            .field("parent_account_id", &"[redacted]")
+            .field("target_child_device_id", &"[redacted]")
+            .field("action", &"[redacted]")
+            .finish()
+    }
+}
+
+pub struct DeviceTrustAuthorizationRequest {
+    pub family_id: String,
+    pub parent_account_id: String,
+    pub target_child_device_id: String,
+    pub action: HouseholdAuthorityAction,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -126,20 +159,39 @@ pub enum ParentStepUpValidationFailureReason {
     WrongDevice,
     #[serde(rename = "wrong-target")]
     WrongTarget,
+    #[serde(rename = "wrong-target-device")]
+    WrongTargetDevice,
     #[serde(rename = "replay-rejected")]
     ReplayRejected,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ParentStepUpAssertionSnapshot {
     pub family_id: String,
     pub parent_account_id: String,
     pub action_device_id: String,
     pub action_device_child_profile_id: Option<String>,
     pub target_child_profile_id: Option<String>,
+    pub target_child_device_id: Option<String>,
     pub action: HouseholdAuthorityAction,
     pub nonce: String,
     pub expires_at: String,
+}
+
+impl std::fmt::Debug for ParentStepUpAssertionSnapshot {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ParentStepUpAssertionSnapshot")
+            .field("family_id", &"[redacted]")
+            .field("parent_account_id", &"[redacted]")
+            .field("action_device_id", &"[redacted]")
+            .field("action_device_child_profile_id", &"[redacted]")
+            .field("target_child_profile_id", &"[redacted]")
+            .field("target_child_device_id", &"[redacted]")
+            .field("action", &"[redacted]")
+            .field("nonce", &"[redacted]")
+            .field("expires_at", &"[redacted]")
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -150,6 +202,7 @@ pub struct ParentStepUpValidationInput {
     pub action_device_id: String,
     pub action_device_child_profile_id: Option<String>,
     pub target_child_profile_id: Option<String>,
+    pub target_child_device_id: Option<String>,
     pub action: HouseholdAuthorityAction,
     pub observed_at: String,
     pub expected_nonce: Option<String>,
@@ -176,6 +229,39 @@ pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAu
         elevated_confirmation_state:
             crate::household_authority_validation::elevated_confirmation_state(input.action),
         failure_reason: None,
+    }
+}
+
+/// This is the only producer for the opaque device-trust grant. It deliberately
+/// keeps raw `HouseholdAuthorityInput` on the household side of the boundary.
+pub fn authorize_device_trust_action(
+    request: DeviceTrustAuthorizationRequest,
+) -> Result<AcceptedDeviceTrustAuthorization, HouseholdAuthorizationFailureReason> {
+    if request.target_child_device_id.trim().is_empty() {
+        return Err(HouseholdAuthorizationFailureReason::ChildProfileNotBound);
+    }
+    let _request = request;
+    // This crate has no authenticated household/member/device state adapter.
+    // Do not promote caller identifiers or flags into a trust capability.
+    Err(HouseholdAuthorizationFailureReason::AuthorityAdapterUnavailable)
+}
+
+impl AcceptedDeviceTrustAuthorization {
+    pub(crate) fn allows_recovery_repair(&self) -> bool {
+        self.recovery_repair_authorized
+    }
+
+    pub(crate) fn matches_device_trust_request(
+        &self,
+        family_id: &str,
+        parent_account_id: &str,
+        target_child_device_id: &str,
+        action: HouseholdAuthorityAction,
+    ) -> bool {
+        self.family_id == family_id
+            && self.parent_account_id == parent_account_id
+            && self.target_child_device_id == target_child_device_id
+            && self.action == action
     }
 }
 
@@ -235,3 +321,7 @@ fn rejected_parent_step_up_validation(
         failure_reason: Some(failure_reason),
     }
 }
+
+#[cfg(test)]
+#[path = "household_authority_device_trust_private_tests.rs"]
+mod household_authority_device_trust_private_tests;

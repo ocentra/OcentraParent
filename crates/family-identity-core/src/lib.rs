@@ -2,6 +2,9 @@
 
 #[macro_use]
 mod family_identity_text_ids;
+pub mod device_trust_authority;
+pub mod device_trust_registry;
+mod device_trust_registry_storage;
 pub mod family_identity;
 mod family_identity_contract_text;
 mod family_identity_helpers;

@@ -1,4 +1,5 @@
 mod device_scope;
+mod device_trust_registry;
 #[path = "household_authority.rs"]
 mod household_authority_tests;
 mod session_lifecycle;

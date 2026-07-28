@@ -37,6 +37,7 @@ pub(crate) fn parent_presence_verification_failure_reason(
         action_device_id: challenge.action_device_id.clone(),
         action_device_child_profile_id: challenge.action_device_child_profile_id.clone(),
         target_child_profile_id: challenge.target_child_profile_id.clone(),
+        target_child_device_id: challenge.target_child_device_id.clone(),
         action: challenge.privileged_action,
         observed_at: observed_at.to_string(),
         expected_nonce: Some(challenge.nonce_ref.clone()),

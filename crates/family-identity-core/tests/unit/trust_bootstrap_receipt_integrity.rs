@@ -51,6 +51,7 @@ fn challenge(scope: &str) -> ParentPresenceChallenge {
         action_device_id: format!("{scope}-device"),
         action_device_child_profile_id: Some(format!("{scope}-action-child")),
         target_child_profile_id: Some(format!("{scope}-target-child")),
+        target_child_device_id: None,
         expires_at: EXPIRY.to_owned(),
     }
 }
@@ -68,6 +69,7 @@ fn input(
             action_device_id: format!("{scope}-device"),
             action_device_child_profile_id: Some(format!("{scope}-action-child")),
             target_child_profile_id: Some(format!("{scope}-target-child")),
+            target_child_device_id: None,
             action: HouseholdAuthorityAction::PairChildDevice,
             nonce: format!("{scope}-nonce"),
             expires_at: EXPIRY.to_owned(),

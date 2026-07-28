@@ -2,6 +2,13 @@
   "schemaVersion": 2,
   "profileName": "ocentra-parent",
   "languages": ["rust", "typescript", "python", "common"],
+  "privateRustTestModuleAllowlist": [
+    {
+      "ownerFile": "crates/family-identity-core/src/household_authority.rs",
+      "moduleFile": "crates/family-identity-core/src/household_authority_device_trust_private_tests.rs",
+      "moduleName": "household_authority_device_trust_private_tests"
+    }
+  ],
   "failOn": ["error"],
   "ignoreDirs": [
     ".git",
