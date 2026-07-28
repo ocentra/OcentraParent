@@ -20,8 +20,9 @@ const SeedDatabaseOptions = Object.freeze({
 export function seedPortalNetworkActivityStore(activityDbPath) {
   let lastLockError;
   for (let attempt = 1; attempt <= SeedDatabaseOptions.maxLockAttempts; attempt += 1) {
-    const database = new DatabaseSync(activityDbPath, { timeout: SeedDatabaseOptions.busyTimeoutMs });
+    const database = new DatabaseSync(activityDbPath);
     try {
+      database.exec(`PRAGMA busy_timeout = ${SeedDatabaseOptions.busyTimeoutMs};`);
       seedNetworkActivityStore(database);
       return;
     } catch (error) {
