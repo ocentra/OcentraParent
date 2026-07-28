@@ -1,4 +1,9 @@
-use ::ocentra_child_runtime::runtime_gate_tombstone;
+use ::ocentra_child_runtime::{
+    child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow,
+    runtime_gate_tombstone::{
+        self, ChildRuntimeTombstoneMilestone, ChildRuntimeTombstonePublicationOutcome,
+    },
+};
 use ocentra_child_enforcement_core::enforcement_action::{
     EnforcementActionInput, EnforcementActionMode, EnforcementAdapterExecutionState,
     EnforcementAdapterState, EnforcementIdempotencyState, EnforcementRollbackState,
@@ -435,14 +440,17 @@ async fn child_runtime_rejects_a_journal_envelope_for_a_different_custody_action
     let envelope =
         EventEnvelope::from_event(different_action, retention_delete_metadata()?)?.store()?;
 
-    let error = runtime_gate_tombstone::persist_child_runtime_tombstone_action(
+    let error = match runtime_gate_tombstone::persist_child_runtime_tombstone_action(
         &journal,
         &store,
         &envelope,
         &delete_action,
     )
     .await
-    .expect_err("a journal envelope for another action must not create a tombstone intent");
+    {
+        Err(error) => error,
+        Ok(_) => return Err("mismatched custody action unexpectedly persisted".into()),
+    };
     assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
     assert!(store.records()?.is_empty());
     let _ = std::fs::remove_dir_all(&directory);
@@ -477,15 +485,120 @@ async fn child_runtime_rejects_a_journal_envelope_with_a_different_idempotency_i
         EventEnvelope::from_event(action.clone(), retention_delete_metadata()?)?.store()?;
     envelope.idempotency_key = IdempotencyKey::parse("storage-custody.action.planned:forged")?;
 
-    let error = runtime_gate_tombstone::persist_child_runtime_tombstone_action(
+    let error = match runtime_gate_tombstone::persist_child_runtime_tombstone_action(
         &journal, &store, &envelope, &action,
     )
     .await
-    .expect_err("a forged envelope identity must not create a tombstone intent");
+    {
+        Err(error) => error,
+        Ok(_) => return Err("forged custody envelope unexpectedly persisted".into()),
+    };
     assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
     assert!(store.records()?.is_empty());
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
+}
+
+#[tokio::test]
+async fn child_runtime_custody_event_flow_proves_correlated_outbox_and_journal_milestones(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-custody-flow-success-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    std::fs::create_dir_all(&directory)?;
+    let journal = NdjsonEventJournal::with_options(
+        directory.join("retention-delete.ndjson"),
+        NdjsonJournalOptions::hash_chain(),
+    );
+    let flow = ChildRuntimeTombstoneEventFlow::new(
+        journal,
+        RetentionDeleteTombstoneStore::open(&directory)?,
+    );
+    let action = expired_retention_delete_action("child-runtime-flow-success")?;
+    let metadata = retention_delete_metadata()?;
+    let correlation_id = metadata.correlation_id.clone();
+
+    let outcome = flow.publish_action(action, metadata).await?;
+
+    let ChildRuntimeTombstonePublicationOutcome::Journaled(report) = outcome else {
+        return Err("expected journaled custody event flow outcome".into());
+    };
+    assert_eq!(report.correlation_id, correlation_id);
+    assert_eq!(
+        report.milestones,
+        vec![
+            ChildRuntimeTombstoneMilestone::DurableOutboxWritten,
+            ChildRuntimeTombstoneMilestone::JournalAppendConfirmed,
+        ]
+    );
+    assert_eq!(report.append.map(|append| append.sequence), Some(1));
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[tokio::test]
+async fn child_runtime_custody_event_flow_keeps_correlated_pending_retry_evidence_after_journal_failure(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-custody-flow-retry-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    std::fs::create_dir_all(&directory)?;
+    let journal = NdjsonEventJournal::with_options(
+        directory.join("retention-delete.ndjson"),
+        NdjsonJournalOptions::hash_chain(),
+    );
+    journal.inject_next_sync_failure_for_debug();
+    let flow = ChildRuntimeTombstoneEventFlow::new(
+        journal,
+        RetentionDeleteTombstoneStore::open(&directory)?,
+    );
+    let action = expired_retention_delete_action("child-runtime-flow-retry")?;
+    let metadata = retention_delete_metadata()?;
+    let correlation_id = metadata.correlation_id.clone();
+
+    let outcome = flow.publish_action(action, metadata).await?;
+
+    let ChildRuntimeTombstonePublicationOutcome::PendingJournalRetry(report) = outcome else {
+        return Err("expected pending retry custody event flow outcome".into());
+    };
+    assert_eq!(report.correlation_id, correlation_id);
+    assert_eq!(
+        report.milestones,
+        vec![
+            ChildRuntimeTombstoneMilestone::DurableOutboxWritten,
+            ChildRuntimeTombstoneMilestone::JournalAppendPendingRetry,
+        ]
+    );
+    assert_eq!(report.append, None);
+    let records = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(records.len(), 1);
+    assert!(records[0].terminal_pending);
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+fn expired_retention_delete_action(
+    decision_id: &str,
+) -> Result<
+    ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent,
+    Box<dyn std::error::Error>,
+> {
+    Ok(storage_custody_action_planned_event(
+        storage_custody_decision_recorded_event(
+            StorageCustodyAggregateId::parse("child-runtime-custody-flow-family")?,
+            StorageCustodyDecisionId::parse(decision_id)?,
+            StorageCustodyInput {
+                location: StorageCustodyLocation::ParentDeviceLocal,
+                retention_window_state: RetentionWindowState::Expired,
+                parent_export_state: ParentExportState::NotRequested,
+                remote_sync_state: RemoteSyncState::Disabled,
+            },
+        ),
+    ))
 }
 
 fn retention_delete_metadata() -> Result<EventMetadata, Box<dyn std::error::Error>> {
