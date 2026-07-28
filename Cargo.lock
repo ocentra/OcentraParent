@@ -2716,8 +2716,10 @@ dependencies = [
 name = "ocentra-policy-control-core"
 version = "0.1.1"
 dependencies = [
+ "ed25519-dalek",
  "ocentra-eventing",
  "ocentra-evidence",
+ "ocentra-family-identity-core",
  "ocentra-parent-agent-protocol",
  "serde",
  "serde_json",
