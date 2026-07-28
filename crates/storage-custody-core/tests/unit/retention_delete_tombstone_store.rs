@@ -1,4 +1,9 @@
 use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
+use ocentra_storage_custody_core::storage_custody::{
+    storage_custody_action_planned_event, storage_custody_decision_recorded_event,
+    ParentExportState, RemoteSyncState, RetentionWindowState, StorageCustodyAggregateId,
+    StorageCustodyDecisionId, StorageCustodyInput, StorageCustodyLocation,
+};
 
 #[test]
 fn tombstone_outbox_recovers_intent_until_terminal_publish() {
@@ -85,4 +90,68 @@ fn tombstone_outbox_atomic_replacements_survive_reopen() {
     assert_eq!(records[0].deletion_ref, "delete:second");
     assert!(records[0].terminal_pending);
     let _ = std::fs::remove_dir_all(&directory);
+}
+
+#[test]
+fn tombstone_outbox_persists_only_a_typed_delete_action() -> Result<(), Box<dyn std::error::Error>>
+{
+    let directory =
+        std::env::temp_dir().join(format!("ocentra-tombstone-action-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&directory);
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let delete_action = action_for(RetentionWindowState::Expired)?;
+
+    store.persist_action_plan_intent(&delete_action)?;
+
+    let records = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(records.len(), 1);
+    assert_eq!(
+        records[0].deletion_ref,
+        "storage-custody-delete:retention-delete-decision"
+    );
+    assert_eq!(
+        records[0].proof_ref,
+        "storage-custody-action:retention-delete-decision"
+    );
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[test]
+fn tombstone_outbox_rejects_a_typed_non_delete_action() -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-tombstone-no-action-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let retain_action = action_for(RetentionWindowState::Active)?;
+
+    let error = store
+        .persist_action_plan_intent(&retain_action)
+        .expect_err("retain action must not enqueue a tombstone");
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+    assert!(store.records()?.is_empty());
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+fn action_for(
+    retention_window_state: RetentionWindowState,
+) -> Result<
+    ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent,
+    Box<dyn std::error::Error>,
+> {
+    Ok(storage_custody_action_planned_event(
+        storage_custody_decision_recorded_event(
+            StorageCustodyAggregateId::parse("retention-delete-family")?,
+            StorageCustodyDecisionId::parse("retention-delete-decision")?,
+            StorageCustodyInput {
+                location: StorageCustodyLocation::ParentDeviceLocal,
+                retention_window_state,
+                parent_export_state: ParentExportState::NotRequested,
+                remote_sync_state: RemoteSyncState::Disabled,
+            },
+        ),
+    ))
 }

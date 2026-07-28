@@ -1,3 +1,4 @@
+use ::ocentra_child_runtime::runtime_gate_tombstone;
 use ocentra_child_enforcement_core::enforcement_action::{
     EnforcementActionInput, EnforcementActionMode, EnforcementAdapterExecutionState,
     EnforcementAdapterState, EnforcementIdempotencyState, EnforcementRollbackState,
@@ -14,7 +15,11 @@ use ocentra_entitlement_core::entitlement_snapshot_values::{
     EntitlementPackageBuildState, EntitlementSnapshotBindingState,
     EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState,
 };
-use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::envelope::{DomainEvent, EventEnvelope, EventMetadata, EventSource};
+use ocentra_eventing::ids::{
+    CorrelationId, EventCustody, RuntimeInstanceId, RuntimeRole, SourceComponent, SourceService,
+};
+use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildDisclosureState, ChildProfileBindingState, DeviceOwnershipScope,
     DeviceScopeInput, DeviceTrustState, HouseholdMembershipState, HouseholdRole,
@@ -30,9 +35,12 @@ use ocentra_remote_access_core::remote_access_session::{
     RemoteAccessInputAuthorityState, RemoteAccessRelayState, RemoteAccessReplayState,
     RemoteAccessSessionAuthorizationState, RemoteAccessSessionRequest,
 };
+use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 use ocentra_storage_custody_core::storage_custody::{
+    storage_custody_action_planned_event, storage_custody_decision_recorded_event,
     ParentExportState, RemoteSyncState, RemoteUploadState, RetentionWindowState,
-    StorageCustodyInput, StorageCustodyLocation,
+    StorageCustodyAggregateId, StorageCustodyDecisionId, StorageCustodyInput,
+    StorageCustodyLocation,
 };
 
 trait ResultRequiredExt<T, E> {
@@ -273,6 +281,98 @@ fn child_runtime_preflight_request_records_typed_decision_event() {
             .as_str(),
         ocentra_child_runtime::CHILD_RUNTIME_PREFLIGHT_DECISION_RECORDED_EVENT_TYPE
     );
+}
+
+#[test]
+fn child_runtime_persists_and_recovers_typed_tombstone_action_before_acknowledgement(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-tombstone-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    let action = storage_custody_action_planned_event(storage_custody_decision_recorded_event(
+        StorageCustodyAggregateId::parse("child-runtime-retention-family")?,
+        StorageCustodyDecisionId::parse("child-runtime-retention-decision")?,
+        StorageCustodyInput {
+            location: StorageCustodyLocation::ParentDeviceLocal,
+            retention_window_state: RetentionWindowState::Expired,
+            parent_export_state: ParentExportState::NotRequested,
+            remote_sync_state: RemoteSyncState::Disabled,
+        },
+    ));
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+
+    runtime_gate_tombstone::persist_child_runtime_tombstone_action(&store, &action)?;
+
+    let recovered = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(recovered.len(), 1);
+    assert_eq!(
+        recovered[0].deletion_ref,
+        "storage-custody-delete:child-runtime-retention-decision"
+    );
+    runtime_gate_tombstone::acknowledge_child_runtime_tombstone_publication(
+        &store,
+        &recovered[0].deletion_ref,
+    )?;
+    assert!(RetentionDeleteTombstoneStore::open(&directory)?
+        .records()?
+        .is_empty());
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[tokio::test]
+async fn child_runtime_journals_a_delete_action_once_before_durable_tombstone_recovery(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-journal-tombstone-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    std::fs::create_dir_all(&directory)?;
+    let action = storage_custody_action_planned_event(storage_custody_decision_recorded_event(
+        StorageCustodyAggregateId::parse("child-runtime-journal-family")?,
+        StorageCustodyDecisionId::parse("child-runtime-journal-decision")?,
+        StorageCustodyInput {
+            location: StorageCustodyLocation::ParentDeviceLocal,
+            retention_window_state: RetentionWindowState::Expired,
+            parent_export_state: ParentExportState::NotRequested,
+            remote_sync_state: RemoteSyncState::Disabled,
+        },
+    ));
+    let journal = NdjsonEventJournal::with_options(
+        directory.join("retention-delete.ndjson"),
+        NdjsonJournalOptions::hash_chain(),
+    );
+    let envelope =
+        EventEnvelope::from_event(action.clone(), retention_delete_metadata()?)?.store()?;
+
+    let first = journal.append_idempotent(&envelope).await?;
+    let repeated = journal.append_idempotent(&envelope).await?;
+    assert_eq!(first, repeated);
+    assert_eq!(first.sequence, 1);
+
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    runtime_gate_tombstone::persist_child_runtime_tombstone_action(&store, &action)?;
+    let recovered = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(recovered.len(), 1);
+    assert_eq!(recovered[0].proof_ref, action.action_plan_id.as_str());
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+fn retention_delete_metadata() -> Result<EventMetadata, Box<dyn std::error::Error>> {
+    Ok(EventMetadata::new(
+        CorrelationId::parse("child-runtime-retention-delete-correlation")?,
+        EventSource::new(
+            EventCustody::parse("local-journal")?,
+            RuntimeRole::parse("controller")?,
+            SourceService::parse("child-runtime")?,
+            SourceComponent::parse("retention-delete-runtime")?,
+            RuntimeInstanceId::parse("child-runtime-test-instance")?,
+        ),
+    ))
 }
 
 fn valid_child_runtime_preflight_input() -> ocentra_child_runtime::ChildRuntimePreflightInput {
