@@ -417,8 +417,18 @@ fn delivery_rollback_requires_reason_and_reference_state() {
 #[test]
 fn delivery_rollback_with_valid_context_still_requires_trusted_execution_receipt() {
     let queued = queued_delivery();
+    let delivered = apply_policy_control_delivery_handoff(
+        &queued,
+        transition(
+            2,
+            PolicyDeliveryAttemptId::parse("attempt-delivered-before-rollback-receipt")
+                .expect_value("policy attempt id"),
+            PolicyDeliveryState::Delivered,
+        ),
+    )
+    .expect_value("delivery must reach a valid rollback source state");
     let mut rollback = transition(
-        2,
+        3,
         PolicyDeliveryAttemptId::parse("attempt-rollback-without-receipt")
             .expect_value("policy attempt id"),
         PolicyDeliveryState::RolledBack,
@@ -426,9 +436,9 @@ fn delivery_rollback_with_valid_context_still_requires_trusted_execution_receipt
     rollback.reason_code = Some(reason(
         PolicyReasonCode::parse("adapter-failed").expect_value("policy reason code"),
     ));
-    rollback.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+    rollback.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
 
-    let error = apply_policy_control_delivery_handoff(&queued, rollback)
+    let error = apply_policy_control_delivery_handoff(&delivered.delivery, rollback)
         .expect_err_value("rollback without trusted execution receipt must fail closed");
 
     assert_eq!(
