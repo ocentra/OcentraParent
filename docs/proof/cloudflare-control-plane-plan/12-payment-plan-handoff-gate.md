@@ -37,20 +37,21 @@ no_claim: this receipt does not unblock payment or prove production Cloudflare, 
 ## Current-head validation receipt
 
 The exact runtime and harness source tree validated for this receipt is
-`82445200637a7829c718f2a212c8c227b8b756dd`. The receipt commit is deliberately
+`00b0466fa61149c6a3e895fead08d19c757abfac`. The receipt commit is deliberately
 separate so its documentation edit does not change that tested source tree.
 
 | Gate | Result | Evidence boundary |
 | --- | --- | --- |
 | `npm --prefix infra/cloudflare run lint` | pass | TypeScript module lint only. |
-| `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` | 4/4 pass | Real local Wrangler D1 idempotency/isolation, bounded subprocess cleanup, and redacted proof-chain teardown only; not deployed production. |
-| `npm run lint:architecture -- --files infra/cloudflare/src/billing-binding-read-model.ts infra/cloudflare/src/index.ts infra/cloudflare/scripts/local-dev-workflow.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` | pass | Focused no-barrel architecture policy only. |
-| `npm run lint:enforcer:source-shape -- --files infra/cloudflare/src/billing-binding-read-model.ts infra/cloudflare/src/index.ts infra/cloudflare/scripts/local-dev-workflow.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` | pass | Focused source-shape policy only. |
+| `npm --prefix infra/cloudflare run test:unit` | 49/49 pass | Auth, binding, route, environment, redaction, request-limit, and kill-switch contracts. |
+| `npm --prefix infra/cloudflare run test:property` | 9/9 pass | Idempotent billing writes and route/auth invariants. |
+| `npm --prefix infra/cloudflare run test:integration` | 63/63 pass | Serializes local-runtime files that share Cloudflare state; includes real Wrangler D1 seed/readback and the real worker HTTP route suite. Not deployed production. |
+| `npm run lint:architecture -- --files <integrated Cloudflare source, scripts, and focused tests>` | pass | Focused no-barrel architecture policy only. |
 | `git diff --check` | pass | No whitespace errors in the validated change set. |
 
-The integration runner reported 4 passing subtests in 61.75 seconds. Its raw
-machine-local output remains diagnostic-only and is not retained repository proof
-or a reason to raise readiness.
+The integration runner reported 63 passing tests. Its raw machine-local output
+remains diagnostic-only and is not retained repository proof or a reason to
+raise readiness.
 
 ## Negative and rollback boundary
 
