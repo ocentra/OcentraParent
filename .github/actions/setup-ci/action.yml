@@ -10,6 +10,10 @@ inputs:
     description: Install the Rust toolchain pinned by rust-toolchain.toml.
     required: false
     default: 'true'
+  install-tauri-system-dependencies:
+    description: Install Linux system packages required to compile Tauri desktop targets.
+    required: false
+    default: 'true'
 
 runs:
   using: composite
@@ -42,7 +46,7 @@ runs:
         rustup default "$rust_channel"
 
     - name: Install Linux Tauri system dependencies
-      if: runner.os == 'Linux' && inputs.install-rust == 'true'
+      if: runner.os == 'Linux' && inputs.install-rust == 'true' && inputs.install-tauri-system-dependencies == 'true'
       shell: bash
       run: |
         sudo apt-get update
