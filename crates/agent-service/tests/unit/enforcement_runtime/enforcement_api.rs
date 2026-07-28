@@ -28,6 +28,7 @@ use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::activity_capture::record_activity_events_to_paths;
+use crate::enforcement_payload::trusted_delivery::TrustedDeliveryDirectory;
 use crate::enforcement_payload::{
     parse_enforcement_command_payload, EnforcementCommandPayload, EnforcementText,
 };
@@ -92,8 +93,10 @@ async fn execute_enforcement_command(
 ) -> Result<LogFields, TestText> {
     let observed_at = TestText::from_display(timestamp_now::<String>());
     let observed_at_text = EnforcementText::from(observed_at.to_string());
-    let request = parse_enforcement_command_payload(&command, &observed_at_text)
-        .map_err(|error| TestText::from_display(format!("{error:?}")))?;
+    let trusted_delivery_directory = TrustedDeliveryDirectory::from_store_path(&paths.store_path);
+    let request =
+        parse_enforcement_command_payload(&command, &observed_at_text, &trusted_delivery_directory)
+            .map_err(|error| TestText::from_display(error.protocol_reason()))?;
     let authorization = authorize_enforcement_boundary(request.input.clone())
         .map_err(|error| TestText::from_display(error.as_protocol_str()))?;
     let before_action_outcome =

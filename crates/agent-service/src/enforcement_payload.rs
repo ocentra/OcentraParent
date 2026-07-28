@@ -14,6 +14,12 @@ pub(crate) mod policy_action;
 pub(crate) mod policy_target_type;
 #[path = "enforcement_payload/process_id.rs"]
 pub(crate) mod process_id;
+#[path = "enforcement_payload/trusted_delivery.rs"]
+pub(crate) mod trusted_delivery;
+#[path = "enforcement_payload/trusted_delivery_error.rs"]
+pub(crate) mod trusted_delivery_error;
+#[path = "enforcement_payload/trusted_delivery_store.rs"]
+pub(crate) mod trusted_delivery_store;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnforcementDeviceRefText(pub(crate) String);
@@ -112,6 +118,11 @@ struct EnforcementPayloadIds {
 pub(crate) fn parse_enforcement_command_payload(
     command: &ocentra_parent_agent_protocol::transport::AgentCommandEnvelope,
     observed_at: &EnforcementText,
-) -> Result<EnforcementCommandPayload, EnforcementPayloadError> {
-    parsing::parse_enforcement_command_payload(command, observed_at)
+    trusted_delivery_directory: &trusted_delivery::TrustedDeliveryDirectory,
+) -> Result<EnforcementCommandPayload, trusted_delivery_error::TrustedDeliveryError> {
+    parsing::parse_trusted_enforcement_command_payload(
+        command,
+        observed_at,
+        trusted_delivery_directory,
+    )
 }

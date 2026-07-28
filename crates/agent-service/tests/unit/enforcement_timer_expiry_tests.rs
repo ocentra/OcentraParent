@@ -17,7 +17,8 @@ use super::test_text::TestResult;
 #[cfg(windows)]
 use super::test_text::{optional_log_string, test_ok, test_some, TestText};
 use crate::{
-    enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
+    enforcement_api::EnforcementJournalPaths,
+    enforcement_tests::build_trusted_enforcement_audit_report,
     enforcement_timer_api::build_enforcement_timer_report_with_paths,
 };
 
@@ -27,8 +28,7 @@ async fn timer_expiry_uses_persisted_time_limit_state_and_clears_it() -> TestRes
     cleanup_paths(&paths);
 
     let execute_event =
-        build_enforcement_audit_report_with_paths(time_limit_execute_command(), paths.clone())
-            .await;
+        build_trusted_enforcement_audit_report(time_limit_execute_command(), paths.clone()).await;
     assert_eq!(
         execute_event.event,
         AgentEventName::AgentEnforcementAuditReported

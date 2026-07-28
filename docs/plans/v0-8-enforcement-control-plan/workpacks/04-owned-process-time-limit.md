@@ -89,6 +89,18 @@ Focused validation should record:
 Owned-process terminate/time-limit proof exists in narrow form. It must remain
 clearly separate from broad app blocking.
 
+### Fail-closed trusted-delivery safety gate (2026-07-28)
+
+Agent-service now rejects a raw enforcement envelope before the pre-action
+journal or process adapter unless a locally persisted, consume-once delivery
+record matches its device, evidence references, process identity, policy
+decision, and intent. This is a safety gate only: there is no authenticated
+parent-runtime issuer or transport wired to persist that record in production.
+Until that producer bridge binds an authenticated delivery identity and
+sequence, every production enforcement request remains manual-required and no
+trusted-delivery execution claim is made. All five WP04 checklist rows remain
+open.
+
 ## Negative Cases
 
 - pid mismatch or stale process identity must reject rather than hit the wrong target

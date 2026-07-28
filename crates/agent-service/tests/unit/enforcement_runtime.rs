@@ -55,6 +55,8 @@ mod enforcement_pre_action_journal;
 mod enforcement_supported_adapter_runtime_proof_read_model;
 #[path = "enforcement_supported_adapter_runtime_proof_read_model_tests.rs"]
 mod enforcement_supported_adapter_runtime_proof_read_model_tests;
+#[path = "enforcement_tests.rs"]
+mod enforcement_tests;
 #[path = "../../src/enforcement_timer_api.rs"]
 mod enforcement_timer_api;
 #[path = "enforcement_timer_expiry_tests.rs"]
@@ -69,6 +71,8 @@ mod enforcement_timer_state_file;
 mod enforcement_timer_state_path;
 #[path = "enforcement_timer_tests.rs"]
 mod enforcement_timer_tests;
+#[path = "enforcement_runtime/enforcement_trusted_delivery_tests.rs"]
+mod enforcement_trusted_delivery_tests;
 #[path = "../../src/event_builder.rs"]
 mod event_builder;
 #[path = "../../src/fields.rs"]

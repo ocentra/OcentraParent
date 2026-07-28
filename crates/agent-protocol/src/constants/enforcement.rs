@@ -117,6 +117,16 @@ pub const TIMER_EVENT_ID_PREFIX: &str = "enforcement-timer-";
 pub const ROLLBACK_TOKEN_PREFIX: &str = "enforcement-rollback-";
 pub const TIMER_STATE_ID_PREFIX: &str = "enforcement-timer-state-";
 pub const TIMER_STATE_FILE_NAME: &str = "ocentra-parent-enforcement-timers.json";
+pub const TRUSTED_DELIVERY_DIRECTORY_EXTENSION: &str = "trusted-delivery";
+pub const TRUSTED_DELIVERY_RECORD_EXTENSION: &str = "json";
+pub const TRUSTED_DELIVERY_RECEIPT_EXTENSION: &str = "receipt";
+pub const TRUSTED_DELIVERY_ID_FIELD: &str = "delivery_id";
+pub const TRUSTED_DELIVERY_DEVICE_ID_FIELD: &str = "device_id";
+pub const TRUSTED_DELIVERY_EVIDENCE_REFERENCES_FIELD: &str = "evidence_references";
+pub const TRUSTED_DELIVERY_PROCESS_ID_FIELD: &str = "process_id";
+pub const TRUSTED_DELIVERY_PROCESS_NAME_FIELD: &str = "process_name";
+pub const TRUSTED_DELIVERY_POLICY_DECISION_ID_FIELD: &str = "policy_decision_id";
+pub const TRUSTED_DELIVERY_ENFORCEMENT_INTENT_ID_FIELD: &str = "enforcement_intent_id";
 
 pub const TEST_INTENT_ID: &str = "intent-1";
 pub const TEST_ACTION_ID: &str = "action-1";

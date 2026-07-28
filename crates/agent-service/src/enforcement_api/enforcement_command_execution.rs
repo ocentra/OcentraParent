@@ -21,6 +21,8 @@ use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
+use crate::enforcement_payload::trusted_delivery::TrustedDeliveryDirectory;
+use crate::enforcement_payload::trusted_delivery_error::TrustedDeliveryError;
 use crate::enforcement_payload::{
     parse_enforcement_command_payload, EnforcementCommandPayload, EnforcementPayloadError,
     EnforcementText,
@@ -70,8 +72,10 @@ async fn execute_enforcement_command(
     paths: EnforcementJournalPaths,
 ) -> Result<LogFields, EnforcementCommandExecutionError> {
     let observed_at = EnforcementText(timestamp_now());
-    let request = parse_enforcement_command_payload(&command, &observed_at)
-        .map_err(EnforcementCommandExecutionError::PayloadRejection)?;
+    let trusted_delivery_directory = TrustedDeliveryDirectory::from_store_path(&paths.store_path);
+    let request =
+        parse_enforcement_command_payload(&command, &observed_at, &trusted_delivery_directory)
+            .map_err(EnforcementCommandExecutionError::TrustedDeliveryRejection)?;
     let authorization = authorize_enforcement_boundary(request.input.clone())
         .map_err(EnforcementCommandExecutionError::BoundaryRejection)?;
     let before_action_outcome =
@@ -152,6 +156,7 @@ pub(super) enum EnforcementJournalBuildError {
 #[derive(Clone, Copy, Debug)]
 enum EnforcementCommandExecutionError {
     PayloadRejection(EnforcementPayloadError),
+    TrustedDeliveryRejection(TrustedDeliveryError),
     BoundaryRejection(EnforcementBoundaryRejection),
     Journal(EnforcementJournalBuildError),
 }
@@ -161,6 +166,7 @@ impl EnforcementCommandExecutionError {
         let value = match self {
             Self::PayloadRejection(reason) => reason.to_string(),
             Self::BoundaryRejection(reason) => reason.as_protocol_str().to_string(),
+            Self::TrustedDeliveryRejection(reason) => reason.protocol_reason().0,
             Self::Journal(EnforcementJournalBuildError::Serialize) => {
                 constants::error::AGENT_EVENT_SERIALIZES.to_string()
             }

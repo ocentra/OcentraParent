@@ -22,8 +22,8 @@ use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use super::test_text::{optional_log_string, test_ok, test_some, TestResult, TestText};
 use crate::{
-    enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
-    enforcement_payload::EnforcementPayloadError,
+    enforcement_api::EnforcementJournalPaths, enforcement_payload::EnforcementPayloadError,
+    enforcement_tests::build_trusted_enforcement_audit_report,
     enforcement_timer_api::build_enforcement_timer_report_with_paths,
 };
 
@@ -54,7 +54,7 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
     cleanup_paths(&paths);
 
     let execute_event =
-        build_enforcement_audit_report_with_paths(execute_command(), paths.clone()).await;
+        build_trusted_enforcement_audit_report(execute_command(), paths.clone()).await;
     let stored_state = read_state(&paths)?;
     let recovered_event =
         build_enforcement_timer_report_with_paths(recover_command(), paths.clone()).await;

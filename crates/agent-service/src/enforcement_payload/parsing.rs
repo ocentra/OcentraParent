@@ -18,6 +18,8 @@ use super::field_access::required_string_list;
 use super::policy_action::policy_action;
 use super::policy_target_type::policy_target_type;
 use super::process_id::optional_process_id;
+use super::trusted_delivery::{consume, TrustedDeliveryBinding, TrustedDeliveryDirectory};
+use super::trusted_delivery_error::TrustedDeliveryError;
 use super::EnforcementCommandPayload;
 use super::EnforcementDeviceRefText;
 use super::EnforcementFieldKey;
@@ -26,7 +28,7 @@ use super::EnforcementPayloadIds;
 use super::EnforcementPolicyPayload;
 use super::EnforcementText;
 
-pub(crate) fn parse_enforcement_command_payload(
+fn parse_candidate_enforcement_command_payload(
     command: &AgentCommandEnvelope,
     observed_at: &EnforcementText,
 ) -> Result<EnforcementCommandPayload, EnforcementPayloadError> {
@@ -66,6 +68,39 @@ pub(crate) fn parse_enforcement_command_payload(
         device_id: EnforcementDeviceRefText(command.target.device_id.clone()),
         platform: command.target.platform.clone(),
     })
+}
+
+pub(crate) fn parse_trusted_enforcement_command_payload(
+    command: &AgentCommandEnvelope,
+    observed_at: &EnforcementText,
+    directory: &TrustedDeliveryDirectory,
+) -> Result<EnforcementCommandPayload, TrustedDeliveryError> {
+    let candidate = parse_candidate_enforcement_command_payload(command, observed_at)
+        .map_err(TrustedDeliveryError::from)?;
+    let binding = trusted_delivery_binding(command, &candidate);
+    consume(directory, &binding)?;
+    Ok(candidate)
+}
+
+fn trusted_delivery_binding(
+    command: &AgentCommandEnvelope,
+    candidate: &EnforcementCommandPayload,
+) -> TrustedDeliveryBinding {
+    TrustedDeliveryBinding::new(
+        EnforcementText(command.message_id.clone()),
+        candidate.device_id.clone(),
+        candidate
+            .input
+            .decision
+            .evidence_references
+            .iter()
+            .map(|reference| EnforcementText(reference.evidence_reference_id.clone()))
+            .collect(),
+        candidate.process_id,
+        EnforcementText(candidate.input.intent.target.target_value.clone()),
+        EnforcementText(candidate.input.decision.decision_id.clone()),
+        EnforcementText(candidate.input.intent.intent_id.clone()),
+    )
 }
 
 fn parse_policy_payload(

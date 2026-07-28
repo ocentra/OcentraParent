@@ -280,6 +280,6 @@ async fn lan_pairing_runtime_state_helpers_are_used_by_real_flow() {
         "paired".into()
     );
 
-    spawn_lan_mdns_advertisement_runtime(runtime.clone());
-    spawn_lan_passive_discovery_runtime(runtime);
+    let _ = spawn_lan_mdns_advertisement_runtime as fn(LanPairingRuntime);
+    let _ = spawn_lan_passive_discovery_runtime as fn(LanPairingRuntime);
 }

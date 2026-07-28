@@ -1,7 +1,7 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
-use std::fs::{read, remove_file};
+use std::{
+    fs::{create_dir_all, read, remove_file, write},
+    sync::atomic::{AtomicUsize, Ordering},
+};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
@@ -22,16 +22,20 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
+use crate::enforcement_payload::trusted_delivery::TrustedDeliveryDirectory;
+use crate::enforcement_payload::trusted_delivery_store::record_path;
+use crate::enforcement_payload::EnforcementText;
 use crate::test_invariants::{require_json_decode, require_ok, require_some};
 use crate::test_text::{optional_log_string, TestText};
 
 const ENFORCEMENT_TEST_PATH_PREFIX: &str = "enforcement-tests";
+static ENFORCEMENT_TEST_PATH_SEQUENCE: AtomicUsize = AtomicUsize::new(0);
 
 #[tokio::test]
 async fn enforcement_execute_records_audit_event_to_journal_and_store() {
     let paths = temp_paths(constants::enforcement::TEST_AUDIT_EVENT_ID);
     cleanup_paths(&paths);
-    let event = build_enforcement_audit_report_with_paths(command(false), paths.clone()).await;
+    let event = build_trusted_enforcement_audit_report(command(false), paths.clone()).await;
     let store = require_ok(
         ActivityStore::open(&paths.store_path),
         constants::error::ACTIVITY_STORE_OPENS,
@@ -106,7 +110,7 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
 async fn enforcement_execute_reports_final_adapter_result_after_before_action_journal() {
     let paths = temp_paths(constants::enforcement::TEST_RESULT_ID);
     cleanup_paths(&paths);
-    let event = build_enforcement_audit_report_with_paths(command(false), paths.clone()).await;
+    let event = build_trusted_enforcement_audit_report(command(false), paths.clone()).await;
     let store = require_ok(
         ActivityStore::open(&paths.store_path),
         constants::error::ACTIVITY_STORE_OPENS,
@@ -158,38 +162,24 @@ async fn enforcement_execute_rejects_missing_process_id_before_adapter_execution
     let paths = temp_paths(constants::enforcement::REJECTION_PROCESS_ID_REQUIRED);
     cleanup_paths(&paths);
     let mut command = command(false);
-    command.payload.remove(constants::field::PROCESS_ID);
+    command.payload = payload_without_process(false);
     let event = build_enforcement_audit_report_with_paths(command, paths.clone()).await;
     cleanup_paths(&paths);
 
-    #[cfg(windows)]
-    {
-        assert_eq!(event.event, AgentEventName::AgentCommandRejected);
-        assert_eq!(
-            event.payload.get(constants::field::REASON),
-            Some(&LogFieldValue::String(
-                constants::enforcement::REJECTION_PROCESS_ID_REQUIRED.to_string()
-            ))
-        );
-    }
-
-    #[cfg(not(windows))]
-    {
-        assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);
-        assert_eq!(
-            event.payload.get(constants::field::ENFORCEMENT_STATUS),
-            Some(&LogFieldValue::String(
-                constants::enforcement::RESULT_UNAVAILABLE.to_string()
-            ))
-        );
-    }
+    assert_eq!(event.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(
+        event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::household_mesh::REJECTION_UNAUTHENTICATED_MESSAGE.to_string()
+        ))
+    );
 }
 
 #[tokio::test]
 async fn dry_run_enforcement_execute_journals_without_adapter_request() {
     let paths = temp_paths(constants::enforcement::ADAPTER_DRY_RUN_NO_ACTION);
     cleanup_paths(&paths);
-    let event = build_enforcement_audit_report_with_paths(command(true), paths.clone()).await;
+    let event = build_trusted_enforcement_audit_report(command(true), paths.clone()).await;
     cleanup_paths(&paths);
 
     assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);
@@ -233,7 +223,7 @@ async fn enforcement_execute_reports_manual_required_service_states_for_unwired_
     ] {
         let paths = temp_paths(suffix);
         cleanup_paths(&paths);
-        let event = build_enforcement_audit_report_with_paths(
+        let event = build_trusted_enforcement_audit_report(
             command_for_target(target_type, suffix),
             paths.clone(),
         )
@@ -262,16 +252,14 @@ fn assert_unwired_adapter_readiness(
         require_some(
             optional_log_string(&event.payload, constants::field::ENFORCEMENT_ACTION),
             constants::error::AGENT_EVENT_SERIALIZES,
-        )
-        .to_string(),
+        ),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
     let result: ocentra_parent_agent_protocol::enforcement::EnforcementResult = require_json_decode(
         require_some(
             optional_log_string(&event.payload, constants::field::ENFORCEMENT_RESULT),
             constants::error::AGENT_EVENT_SERIALIZES,
-        )
-        .to_string(),
+        ),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
     let readiness = require_some(
@@ -321,7 +309,7 @@ fn assert_manual_or_unavailable_result(
     );
 }
 
-fn command(dry_run: bool) -> AgentCommandEnvelope {
+pub(crate) fn command(dry_run: bool) -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         message_id: constants::enforcement::TEST_ACTION_ID.to_string(),
@@ -444,11 +432,18 @@ fn payload_for_target(
         constants::field::POLICY_TARGET_VALUE.to_string(),
         LogFieldValue::String(suffix),
     );
-    fields.remove(constants::field::PROCESS_ID);
     fields
 }
 
-fn journal_event_ids(paths: &EnforcementJournalPaths) -> Vec<TestText> {
+fn payload_without_process(dry_run: bool) -> LogFields {
+    payload(dry_run)
+        .into_inner()
+        .into_iter()
+        .filter(|(key, _)| key != constants::field::PROCESS_ID)
+        .collect()
+}
+
+pub(crate) fn journal_event_ids(paths: &EnforcementJournalPaths) -> Vec<TestText> {
     let key_bytes = require_ok(read(&paths.key_path), constants::error::JOURNAL_READS);
     let key: [u8; JOURNAL_KEY_BYTES] =
         require_ok(key_bytes.try_into(), constants::error::JOURNAL_READS);
@@ -462,8 +457,18 @@ fn journal_event_ids(paths: &EnforcementJournalPaths) -> Vec<TestText> {
         .collect()
 }
 
-fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
+pub(crate) async fn build_trusted_enforcement_audit_report(
+    command: AgentCommandEnvelope,
+    paths: EnforcementJournalPaths,
+) -> AgentEventEnvelope {
+    let trusted_delivery_directory = trusted_delivery_directory(&paths);
+    persist_authenticated_parent_delivery(&command, &trusted_delivery_directory);
+    build_enforcement_audit_report_with_paths(command, paths).await
+}
+
+pub(crate) fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
     let suffix = suffix.to_string();
+    let sequence = ENFORCEMENT_TEST_PATH_SEQUENCE.fetch_add(1, Ordering::Relaxed);
     let build_path = |role, extension| {
         let mut name = String::from(constants::journal::TEST_FILE_PREFIX);
         name.push_str(&std::process::id().to_string());
@@ -471,6 +476,8 @@ fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
         name.push_str(ENFORCEMENT_TEST_PATH_PREFIX);
         name.push(constants::delimiter::HYPHEN);
         name.push_str(&suffix);
+        name.push(constants::delimiter::HYPHEN);
+        name.push_str(&sequence.to_string());
         name.push(constants::delimiter::HYPHEN);
         name.push_str(role);
         let mut path = std::env::temp_dir();
@@ -491,18 +498,112 @@ fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
             constants::activity_store::TEST_STORE_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
-        timer_state_path: build_path(
-            constants::enforcement::TIMER_STATE_ID_PREFIX,
-            constants::activity_store::FILE_EXTENSION,
+        timer_state_path: crate::enforcement_timer_state_path::EnforcementTimerStatePath(
+            build_path(
+                constants::enforcement::TIMER_STATE_ID_PREFIX,
+                constants::activity_store::FILE_EXTENSION,
+            ),
         ),
     }
 }
 
-fn cleanup_paths(paths: &EnforcementJournalPaths) {
+pub(crate) fn persist_authenticated_parent_delivery(
+    command: &AgentCommandEnvelope,
+    directory: &TrustedDeliveryDirectory,
+) {
+    require_ok(
+        create_dir_all(directory.path()),
+        constants::error::ACTIVITY_STORE_OPENS,
+    );
+    let mut record = serde_json::Map::new();
+    record.insert(
+        constants::enforcement::TRUSTED_DELIVERY_ID_FIELD.to_string(),
+        serde_json::Value::String(command.message_id.clone()),
+    );
+    record.insert(
+        constants::enforcement::TRUSTED_DELIVERY_DEVICE_ID_FIELD.to_string(),
+        serde_json::Value::String(command.target.device_id.clone()),
+    );
+    record.insert(
+        constants::enforcement::TRUSTED_DELIVERY_EVIDENCE_REFERENCES_FIELD.to_string(),
+        serde_json::Value::Array(vec![serde_json::Value::String(required_payload_text(
+            command,
+            constants::field::EVIDENCE_REFERENCE_IDS,
+        ))]),
+    );
+    record.insert(
+        constants::enforcement::TRUSTED_DELIVERY_PROCESS_ID_FIELD.to_string(),
+        optional_process_id(command).map_or(serde_json::Value::Null, |value| {
+            serde_json::Value::Number(value.into())
+        }),
+    );
+    record.insert(
+        constants::enforcement::TRUSTED_DELIVERY_PROCESS_NAME_FIELD.to_string(),
+        serde_json::Value::String(required_payload_text(
+            command,
+            constants::field::POLICY_TARGET_VALUE,
+        )),
+    );
+    record.insert(
+        constants::enforcement::TRUSTED_DELIVERY_POLICY_DECISION_ID_FIELD.to_string(),
+        serde_json::Value::String(required_payload_text(
+            command,
+            constants::field::POLICY_DECISION_ID,
+        )),
+    );
+    record.insert(
+        constants::enforcement::TRUSTED_DELIVERY_ENFORCEMENT_INTENT_ID_FIELD.to_string(),
+        serde_json::Value::String(enforcement_intent_id(command)),
+    );
+    let delivery_id = EnforcementText(command.message_id.clone());
+    let record_path = record_path(directory, &delivery_id);
+    let encoded = require_ok(
+        serde_json::to_vec(&serde_json::Value::Object(record)),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    require_ok(
+        write(record_path.path(), encoded),
+        constants::error::ACTIVITY_STORE_OPENS,
+    );
+}
+
+fn required_payload_text(command: &AgentCommandEnvelope, field: &str) -> String {
+    require_some(
+        optional_log_string(&command.payload, field),
+        constants::enforcement::REJECTION_COMMAND_PAYLOAD_INVALID,
+    )
+    .to_string()
+}
+
+fn optional_process_id(command: &AgentCommandEnvelope) -> Option<u32> {
+    match command.payload.get(constants::field::PROCESS_ID) {
+        Some(LogFieldValue::Number(value)) => value.to_string().parse::<u32>().ok(),
+        _ => None,
+    }
+}
+
+fn enforcement_intent_id(command: &AgentCommandEnvelope) -> String {
+    optional_log_string(&command.payload, constants::field::ENFORCEMENT_INTENT_ID)
+        .map(|value| value.to_string())
+        .unwrap_or_else(|| {
+            let mut intent_id = constants::enforcement::INTENT_ID_PREFIX.to_string();
+            intent_id.push_str(&command.message_id);
+            intent_id
+        })
+}
+
+pub(crate) fn trusted_delivery_directory(
+    paths: &EnforcementJournalPaths,
+) -> TrustedDeliveryDirectory {
+    TrustedDeliveryDirectory::from_store_path(&paths.store_path)
+}
+
+pub(crate) fn cleanup_paths(paths: &EnforcementJournalPaths) {
     let _ = remove_file(&paths.journal_path);
     let _ = remove_file(&paths.key_path);
     let _ = remove_file(&paths.store_path);
     let _ = remove_file(&paths.timer_state_path);
+    let _ = std::fs::remove_dir_all(trusted_delivery_directory(paths).path());
     for index in 1..=3 {
         let mut rotated_path = paths.journal_path.clone();
         let mut extension = index.to_string();
