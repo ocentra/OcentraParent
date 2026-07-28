@@ -121,13 +121,13 @@ proof root.
 
 ### 2026-07-28 receipt persistence precondition
 
-The policy-delivery owner can now persist an `Applied` adapter receipt only
-through `apply_policy_delivery_transition_with_execution_receipt`; identity,
-sequence, audit references, and rollback source must match the prior delivery.
-The child-policy handoff exposes that path separately from the receiptless
-manual-required flow. This is a fail-closed receipt-persistence precondition,
-not a claim that a portal envelope has trusted authority or that an OS adapter
-has executed.
+The receipt-required policy-delivery transition currently fails closed on the
+ordinary handoff. A matching public receipt is not trusted-adapter authority
+and must not be used to claim persistence or execution. This workpack remains
+open until the parent-runtime-to-agent-service trusted dispatch ledger issues
+non-forgeable adapter authority, persists verified provenance, and supports an
+authenticated reload boundary. It is not a claim that a portal envelope has
+trusted authority or that an OS adapter has executed.
 
 The remaining execution boundary is explicit: agent-service currently rebuilds
 policy inputs from command payload fields and does not yet consume an
