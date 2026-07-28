@@ -6,22 +6,26 @@ use std::{
 
 use atomicwrites::{AllowOverwrite, AtomicFile};
 use fs2::FileExt;
+use ocentra_eventing::envelope::StoredEventEnvelope;
 use serde::{Deserialize, Serialize};
 
 use crate::storage_custody::{
     LocalPayloadRetentionAction, StorageCustodyActionPlannedEvent, StorageTombstoneState,
 };
 
-const STORE_VERSION: u16 = 1;
+const STORE_VERSION: u16 = 2;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RetentionDeleteOutboxRecord {
     pub version: u16,
     pub deletion_ref: String,
     pub proof_ref: String,
+    pub action: StorageCustodyActionPlannedEvent,
+    pub envelope: StoredEventEnvelope,
     pub terminal_pending: bool,
 }
 
+#[derive(Clone)]
 pub struct RetentionDeleteTombstoneStore {
     path: PathBuf,
 }
@@ -53,31 +57,10 @@ impl RetentionDeleteTombstoneStore {
         }
     }
 
-    pub fn persist_intent(&self, deletion_ref: String, proof_ref: String) -> io::Result<()> {
-        let lock = self.lock()?;
-        lock.lock_exclusive()?;
-        let mut records = self.records()?;
-        if !records
-            .iter()
-            .any(|record| record.deletion_ref == deletion_ref)
-        {
-            records.push(RetentionDeleteOutboxRecord {
-                version: STORE_VERSION,
-                deletion_ref,
-                proof_ref,
-                terminal_pending: true,
-            });
-        }
-        let result = self.write(&records);
-        FileExt::unlock(&lock)?;
-        result
-    }
-
-    /// Persists the terminal-publish obligation produced by the typed custody
-    /// action event. A non-delete action must never create a tombstone record.
     pub fn persist_action_plan_intent(
         &self,
-        action: &StorageCustodyActionPlannedEvent,
+        envelope: StoredEventEnvelope,
+        action: StorageCustodyActionPlannedEvent,
     ) -> io::Result<()> {
         if action.action_plan.tombstone_state != StorageTombstoneState::Write
             || action.action_plan.local_payload_retention_action
@@ -89,20 +72,41 @@ impl RetentionDeleteTombstoneStore {
             ));
         }
 
-        self.persist_intent(
-            format!(
-                "storage-custody-delete:{}",
-                action.source_decision_id.as_str()
-            ),
-            action.action_plan_id.as_str().to_owned(),
-        )
+        let deletion_ref = format!(
+            "storage-custody-delete:{}",
+            action.source_decision_id.as_str()
+        );
+        let proof_ref = action.action_plan_id.as_str().to_owned();
+        let lock = self.lock()?;
+        lock.lock_exclusive()?;
+        let mut records = self.records()?;
+        if !records
+            .iter()
+            .any(|record| record.deletion_ref == deletion_ref)
+        {
+            records.push(RetentionDeleteOutboxRecord {
+                version: STORE_VERSION,
+                deletion_ref,
+                proof_ref,
+                action,
+                envelope,
+                terminal_pending: true,
+            });
+        }
+        let result = self.write(&records);
+        FileExt::unlock(&lock)?;
+        result
     }
 
     pub fn mark_terminal_published(&self, deletion_ref: &str) -> io::Result<()> {
         let lock = self.lock()?;
         lock.lock_exclusive()?;
         let mut records = self.records()?;
-        records.retain(|record| record.deletion_ref != deletion_ref);
+        for record in &mut records {
+            if record.deletion_ref == deletion_ref {
+                record.terminal_pending = false;
+            }
+        }
         let result = self.write(&records);
         FileExt::unlock(&lock)?;
         result
