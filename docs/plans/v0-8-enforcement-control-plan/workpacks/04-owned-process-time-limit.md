@@ -66,6 +66,51 @@ dispatch-ready, receipt, and parent-visible action claims unavailable.
 Scoped process control is safe, explicit, auditable, restart-aware, and
 parent-visible as one narrow adapter capability.
 
+## WP04-S1: Authenticated Parent-Runtime Delivery
+
+This is the first required implementation slice for WP04. It closes the gap
+between an authorized policy decision and the agent-service guard: a test-only
+delivery record or a raw command envelope is not a production control path.
+
+The completed path must be:
+
+```text
+authorized policy decision
+-> durable parent-runtime outbox
+-> authenticated, target-bound delivery envelope with monotonic sequence
+-> agent-service verify and consume once
+-> adapter result and journal
+-> receipt bound to delivery/action/rollback state
+-> parent-runtime idempotent receipt transition or manual-required recovery
+```
+
+### Ownership and boundary
+
+- `policy-control-core` owns delivery and execution-receipt state validation.
+- `parent-runtime-core` owns durable issuance, retry, expiry, receipt ingest,
+  and must never mark an effect executed without the bound agent receipt.
+- `agent-protocol` owns the cross-process envelope and receipt DTOs.
+- `agent-service` owns authentication, target/evidence/PID binding, one-time
+  consume, adapter dispatch, and receipt emission. Raw envelopes stay rejected.
+- This workpack owns the assembled authority-to-effect proof. App/game keeps
+  process/session evidence ownership; portal consumes a later receipt-backed
+  read model and is not part of WP04-S1.
+
+### Required contract and failure conditions
+
+Each issued delivery needs a durable delivery id, strictly monotonic target
+sequence, issuer binding, decision reference, target/evidence/PID binding,
+issued/expiry time, and rollback reference where the adapter supports rollback.
+
+- A forged, expired, stale, target-mismatched, or replayed delivery must have
+  no adapter/journal effect.
+- Parent restart and lost-receipt retry must preserve the same delivery id and
+  sequence; retry must not duplicate the controlled effect.
+- A receipt with mismatched delivery, action, target, or rollback binding must
+  not advance parent state.
+- Unavailable transport, failed execution, or missing rollback support must
+  stay visible as failed/manual-required; they are not a success or ready claim.
+
 ## Required proof fields
 
 ```text
@@ -104,6 +149,8 @@ Focused validation should record:
 - [ ] Tie limits to policy decisions and app/game evidence refs.
 - [ ] Add rollback/recovery where the adapter supports it.
 - [ ] Keep broad app blocking manual-required.
+- [ ] WP04-S1: issue durable authenticated deliveries from parent runtime and
+      prove agent consume-once, receipt binding, restart/retry, and recovery.
 
 ## Where We Are
 
@@ -128,6 +175,9 @@ clearly separate from broad app blocking.
 - Platform-specific restart/rollback behavior remains manual-required where the
   adapter cannot prove it.
 - Mobile and non-Windows parity remain unclaimed.
+- WP04-S1 is not complete until a production parent-runtime issuer/outbox and
+  receipt transition exist. Test seeding and an agent-side rejection guard alone
+  do not satisfy this workpack.
 
 ## Fill This Before Reporting DONE Or PR-ready
 

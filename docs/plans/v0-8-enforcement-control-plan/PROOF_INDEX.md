@@ -109,6 +109,15 @@ parent-visible and child-visible state proof
 manual-required gaps
 ```
 
+## WP04-S1 authenticated delivery proof
+
+Before WP04 can close, its proof root must additionally record a parent-runtime
+restart/retry retaining one delivery id and sequence, forged/expired/mismatched
+delivery rejection, agent consume-once/replay rejection, receipt binding to the
+delivery/action/rollback state, and a lost-receipt idempotency case. A seeded
+test delivery record proves only the agent-side guard, not a production issuer
+or transport.
+
 ## Hard no-claim rule
 
 No AI result, portal click, screen result, browser observation, app/game

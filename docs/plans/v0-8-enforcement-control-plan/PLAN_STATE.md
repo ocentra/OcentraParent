@@ -175,7 +175,7 @@ parent-visible receipt claims are considered.
 
 ### Active/open workpacks
 
-- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md) - 0/5 checked, 5 open.
+- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md) - 0/6 checked, 6 open. WP04-S1 requires the production authenticated parent-runtime delivery/outbox and receipt path; agent-side test seeding or raw-envelope rejection alone is insufficient.
 - [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md) - 0/5 checked, 5 open.
 - [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md) - 0/5 checked, 5 open.
 - [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md) - 0/5 checked, 5 open.
