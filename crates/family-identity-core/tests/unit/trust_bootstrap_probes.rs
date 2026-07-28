@@ -6,8 +6,12 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, UNIX_EPOCH};
 
 use ocentra_eventing::ids::CorrelationId;
+use ocentra_family_identity_core::family_identity::{
+    ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
+    HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
+};
 use ocentra_family_identity_core::household_authority::{
-    HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
+    HouseholdAuthorityAction, HouseholdAuthorityInput, ParentStepUpAssertionSnapshot,
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceObservedAt, ParentPresenceStorageFailureReason,
@@ -15,13 +19,14 @@ use ocentra_family_identity_core::parent_presence::{
     ParentPresenceVerificationPort,
 };
 use ocentra_family_identity_core::trust_bootstrap::{
-    evaluate_trust_bootstrap, DeviceTrustRef, TrustBootstrapDecision, TrustBootstrapInput,
-    TrustBootstrapLifecycleIntent, TrustBootstrapManualRequirementReason,
+    current_parent_device_trust_authority, evaluate_trust_bootstrap, DeviceTrustRef,
+    TrustBootstrapDecision, TrustBootstrapInput, TrustBootstrapLifecycleIntent,
+    TrustBootstrapManualRequirementReason,
 };
 #[cfg(windows)]
 use ocentra_storage_custody_core::windows_dpapi_key_sealing::{
     seal_for_current_windows_user, unseal_for_current_windows_user, DpapiKeySealingContext,
-    DpapiKeySealingError,
+    DpapiSealedKey,
 };
 
 use super::open_parent_presence_test_port;
@@ -101,10 +106,10 @@ fn challenge_for(case: &TestCase, expires_at: &str) -> ParentPresenceChallenge {
         nonce_ref: case.nonce_ref.clone(),
         family_id: case.family_id.clone(),
         parent_account_id: case.parent_account_id.clone(),
-        privileged_action: HouseholdAuthorityAction::PairChildDevice,
+        privileged_action: HouseholdAuthorityAction::SealParentDeviceTrust,
         action_device_id: case.action_device_id.clone(),
-        action_device_child_profile_id: case.action_device_child_profile_id.clone(),
-        target_child_profile_id: case.target_child_profile_id.clone(),
+        action_device_child_profile_id: None,
+        target_child_profile_id: None,
         expires_at: expires_at.to_owned(),
     }
 }
@@ -114,12 +119,34 @@ fn assertion_for(case: &TestCase, expires_at: &str) -> ParentStepUpAssertionSnap
         family_id: case.family_id.clone(),
         parent_account_id: case.parent_account_id.clone(),
         action_device_id: case.action_device_id.clone(),
-        action_device_child_profile_id: case.action_device_child_profile_id.clone(),
-        target_child_profile_id: case.target_child_profile_id.clone(),
-        action: HouseholdAuthorityAction::PairChildDevice,
+        action_device_child_profile_id: None,
+        target_child_profile_id: None,
+        action: HouseholdAuthorityAction::SealParentDeviceTrust,
         nonce: case.nonce_ref.clone(),
         expires_at: expires_at.to_owned(),
     }
+}
+
+fn current_parent_authority(
+    device_trust_state: DeviceTrustState,
+) -> Result<
+    ocentra_family_identity_core::trust_bootstrap::CurrentParentDeviceTrustAuthority,
+    ParentPresenceStorageFailureReason,
+> {
+    current_parent_device_trust_authority(HouseholdAuthorityInput {
+        actor_role: HouseholdRole::ParentOwner,
+        same_family: true,
+        actor_account_state: ActorAccountState::Active,
+        membership_state: HouseholdMembershipState::Active,
+        child_profile_binding_state: ChildProfileBindingState::Missing,
+        device_ownership_scope: DeviceOwnershipScope::ParentControllerDevice,
+        device_trust_state,
+        session_freshness_state: SessionFreshnessState::Fresh,
+        capability_granted: false,
+        controller_lease_state: None,
+        action: HouseholdAuthorityAction::SealParentDeviceTrust,
+    })
+    .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
 }
 
 fn verification_input(
@@ -275,10 +302,11 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
             device_ref: "parent-device-opaque-1".to_string(),
             device_role: "trusted-parent".to_string(),
         };
-        let sealed = seal_for_current_windows_user(&request, context.clone(), b"trust-material")
+        let sealed = seal_for_current_windows_user(request, context.clone(), b"trust-material")
             .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+        let authority = current_parent_authority(DeviceTrustState::Trusted)?;
         assert_eq!(
-            unseal_for_current_windows_user(&sealed, &request, &context)
+            unseal_for_current_windows_user(&sealed, &authority, &context)
                 .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
             b"trust-material"
         );
@@ -288,28 +316,47 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
             "DpapiSealedKey { format_version: 1, context: \"[redacted]\", authorization_binding: \"[redacted]\", ciphertext: \"[redacted]\" }"
         );
 
-        let re_pair_case = test_case("re-pair-invalidates-sealed-key");
-        let re_pair_store = TestStore::new("re-pair-invalidates-sealed-key");
-        let mut re_pair_port = re_pair_store.port()?;
-        issue_valid_challenge(&mut re_pair_port, &re_pair_case, ACCEPTED_EXPIRY);
-        let re_pair_presence = re_pair_port
-            .verify_and_consume(verification_input(&re_pair_case, ACCEPTED_EXPIRY)?)
-            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-        let re_pair_decision = evaluate_trust_bootstrap(TrustBootstrapInput {
-            trust_bootstrap_ref: re_pair_case.trust_bootstrap_ref,
-            lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
-            parent_presence: re_pair_presence,
-        });
-        let TrustBootstrapDecision::AwaitingPlatformKeySealing(re_pair_request) = re_pair_decision
-        else {
-            return Err(ParentPresenceStorageFailureReason::CustodyUnavailable);
-        };
         assert_eq!(
-            unseal_for_current_windows_user(&sealed, &re_pair_request, &context),
-            Err(DpapiKeySealingError::AuthorizationMismatch)
+            unseal_for_current_windows_user(&sealed, &authority, &context),
+            Ok(b"trust-material".to_vec())
+        );
+        let persisted = serde_json::to_vec(&sealed)
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+        let recovered: DpapiSealedKey = serde_json::from_slice(&persisted)
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+        assert_eq!(
+            unseal_for_current_windows_user(&recovered, &authority, &context),
+            Ok(b"trust-material".to_vec())
         );
     }
     Ok(())
+}
+
+#[test]
+fn current_parent_unsealing_authority_rejects_revoked_reset_and_reinstall_lifecycle_states() {
+    for state in [
+        DeviceTrustState::Pending,
+        DeviceTrustState::ResetRequired,
+        DeviceTrustState::Revoked,
+        DeviceTrustState::Disabled,
+    ] {
+        assert_eq!(
+            current_parent_device_trust_authority(HouseholdAuthorityInput {
+                actor_role: HouseholdRole::ParentOwner,
+                same_family: true,
+                actor_account_state: ActorAccountState::Active,
+                membership_state: HouseholdMembershipState::Active,
+                child_profile_binding_state: ChildProfileBindingState::Missing,
+                device_ownership_scope: DeviceOwnershipScope::ParentControllerDevice,
+                device_trust_state: state,
+                session_freshness_state: SessionFreshnessState::Fresh,
+                capability_granted: false,
+                controller_lease_state: None,
+                action: HouseholdAuthorityAction::SealParentDeviceTrust,
+            }),
+            Err(ocentra_family_identity_core::trust_bootstrap::CurrentParentDeviceTrustAuthorityError::NotTrusted)
+        );
+    }
 }
 
 #[test]

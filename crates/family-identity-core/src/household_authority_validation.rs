@@ -116,7 +116,8 @@ pub(crate) fn elevated_confirmation_state(
 ) -> ElevatedConfirmationState {
     if matches!(
         action,
-        HouseholdAuthorityAction::RevokeChildDevice
+        HouseholdAuthorityAction::SealParentDeviceTrust
+            | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
             | HouseholdAuthorityAction::ManageBilling
@@ -131,6 +132,9 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
     matches!(
         (role, action),
         (
+            HouseholdRole::ParentOwner,
+            HouseholdAuthorityAction::SealParentDeviceTrust
+        ) | (
             HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian,
             HouseholdAuthorityAction::PairChildDevice
                 | HouseholdAuthorityAction::RevokeChildDevice
@@ -178,7 +182,8 @@ fn controller_lease_failure_reason(
 fn requires_fresh_session(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
-        HouseholdAuthorityAction::ChangePolicy
+        HouseholdAuthorityAction::SealParentDeviceTrust
+            | HouseholdAuthorityAction::ChangePolicy
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData

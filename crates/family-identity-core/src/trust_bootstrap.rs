@@ -1,6 +1,6 @@
 use std::fmt;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::household_authority::{
     validate_parent_step_up_assertion, HouseholdAuthorityAction,
@@ -11,7 +11,7 @@ use crate::parent_presence::ParentPresenceVerificationAccepted;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Default)]
 struct TrustBootstrapSealingMarker;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TrustBootstrapLifecycleIntent {
     #[serde(rename = "seal-parent-device-trust")]
     SealParentDeviceTrust,
@@ -33,12 +33,29 @@ pub struct AwaitingPlatformKeySealingRequest {
     sealing_marker: TrustBootstrapSealingMarker,
 }
 
+#[derive(PartialEq, Eq, Serialize, Deserialize)]
+pub struct PersistedPlatformKeyUnsealingCredential {
+    trust_bootstrap_ref: String,
+    device_trust_ref: DeviceTrustRef,
+    lifecycle_intent: TrustBootstrapLifecycleIntent,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CurrentParentDeviceTrustAuthority {
+    marker: TrustBootstrapSealingMarker,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum CurrentParentDeviceTrustAuthorityError {
+    NotTrusted,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct TrustBootstrapRejection {
     pub parent_step_up_failure_reason: ParentStepUpValidationFailureReason,
 }
 
-#[derive(PartialEq, Eq, Serialize)]
+#[derive(PartialEq, Eq, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct DeviceTrustRef(String);
 
@@ -109,6 +126,54 @@ impl fmt::Debug for AwaitingPlatformKeySealingRequest {
     }
 }
 
+impl fmt::Debug for PersistedPlatformKeyUnsealingCredential {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("PersistedPlatformKeyUnsealingCredential")
+            .field("trust_bootstrap_ref", &"[redacted]")
+            .field("device_trust_ref", &"[redacted]")
+            .field("lifecycle_intent", &self.lifecycle_intent)
+            .finish()
+    }
+}
+
+impl AwaitingPlatformKeySealingRequest {
+    pub fn consume_for_platform_key_sealing(self) -> PersistedPlatformKeyUnsealingCredential {
+        PersistedPlatformKeyUnsealingCredential {
+            trust_bootstrap_ref: self.trust_bootstrap_ref,
+            device_trust_ref: self.device_trust_ref,
+            lifecycle_intent: self.lifecycle_intent,
+        }
+    }
+}
+
+impl PersistedPlatformKeyUnsealingCredential {
+    pub fn lifecycle_intent(&self) -> TrustBootstrapLifecycleIntent {
+        self.lifecycle_intent
+    }
+
+    pub fn device_trust_ref(&self) -> &DeviceTrustRef {
+        &self.device_trust_ref
+    }
+
+    pub fn trust_bootstrap_ref(&self) -> &str {
+        &self.trust_bootstrap_ref
+    }
+}
+
+pub fn current_parent_device_trust_authority(
+    input: crate::household_authority::HouseholdAuthorityInput,
+) -> Result<CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError> {
+    let is_sealing_action = input.action == HouseholdAuthorityAction::SealParentDeviceTrust;
+    let decision = crate::household_authority::authorize_household_action(input);
+    (is_sealing_action
+        && decision.authorization_state
+            == crate::household_authority::HouseholdAuthorizationState::Authorized)
+        .then_some(CurrentParentDeviceTrustAuthority {
+            marker: TrustBootstrapSealingMarker,
+        })
+        .ok_or(CurrentParentDeviceTrustAuthorityError::NotTrusted)
+}
+
 pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDecision {
     let TrustBootstrapInput {
         trust_bootstrap_ref,
@@ -175,7 +240,7 @@ fn challenge_action_is_authorized_for_lifecycle_intent(
     challenge_action: HouseholdAuthorityAction,
 ) -> bool {
     const SEAL_PARENT_DEVICE_TRUST_ACTIONS: &[HouseholdAuthorityAction] =
-        &[HouseholdAuthorityAction::PairChildDevice];
+        &[HouseholdAuthorityAction::SealParentDeviceTrust];
     match lifecycle_intent {
         TrustBootstrapLifecycleIntent::SealParentDeviceTrust => {
             SEAL_PARENT_DEVICE_TRUST_ACTIONS.contains(&challenge_action)
