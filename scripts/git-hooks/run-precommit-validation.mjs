@@ -43,6 +43,7 @@ const prettierExtensions = new Set([
 const maxPrettierChunkChars = process.platform === 'win32' ? 4000 : 16000;
 const maxScopedFileChunkChars = process.platform === 'win32' ? 4000 : 14000;
 const defaultCommandTimeoutMs = 30 * 60 * 1000;
+let activeValidationChild = null;
 
 const fullValidations = [
   ['npm', ['run', 'format:check']],
@@ -97,7 +98,7 @@ function quoteWindowsCommandPart(value) {
   return quoted;
 }
 
-function commandDisplay(command, args) {
+function windowsCommandLine(command, args) {
   return [command, ...args].map(quoteWindowsCommandPart).join(' ');
 }
 
@@ -106,7 +107,7 @@ function commandTimeoutMs() {
   return Number.isSafeInteger(configured) && configured > 0 ? configured : defaultCommandTimeoutMs;
 }
 
-function terminateProcessTree(child) {
+function terminateProcessTree(child, signal = 'SIGTERM') {
   if (child.pid === undefined) {
     return;
   }
@@ -117,14 +118,14 @@ function terminateProcessTree(child) {
       windowsHide: true,
       shell: false,
     });
-    killer.once('error', () => child.kill());
+    killer.once('error', () => child.kill(signal));
     return;
   }
 
   try {
-    process.kill(-child.pid, 'SIGTERM');
+    process.kill(-child.pid, signal);
   } catch {
-    child.kill('SIGTERM');
+    child.kill(signal);
   }
 }
 
@@ -136,10 +137,8 @@ export function runCommand(command, args, { timeoutMs = commandTimeoutMs() } = {
 
   const isWindowsBatchCommand = process.platform === 'win32' && (command === 'npm' || command === 'npx');
   const file = isWindowsBatchCommand ? (process.env.ComSpec ?? 'cmd.exe') : executableFor(command);
-  const childArgs = isWindowsBatchCommand ? ['/d', '/s', '/c', commandDisplay(executableFor(command), args)] : args;
-  const display = commandDisplay(command, args);
-
-  console.log(`[validation] running: ${display}`);
+  const childArgs = isWindowsBatchCommand ? ['/d', '/s', '/c', windowsCommandLine(executableFor(command), args)] : args;
+  console.log(`[validation] running: ${command}`);
 
   return new Promise((resolve) => {
     let timedOut = false;
@@ -152,10 +151,14 @@ export function runCommand(command, args, { timeoutMs = commandTimeoutMs() } = {
       windowsHide: true,
       detached: process.platform !== 'win32',
     });
+    activeValidationChild = child;
     const timeout = setTimeout(() => {
       timedOut = true;
-      console.error(`[validation] timed out after ${timeoutMs}ms: ${display}`);
+      console.error(`[validation] timed out after ${timeoutMs}ms: ${command}`);
       terminateProcessTree(child);
+      setTimeout(() => {
+        if (settled === false) terminateProcessTree(child, 'SIGKILL');
+      }, 5_000).unref();
     }, timeoutMs);
 
     const finish = (result) => {
@@ -163,12 +166,19 @@ export function runCommand(command, args, { timeoutMs = commandTimeoutMs() } = {
         return;
       }
       settled = true;
+      if (activeValidationChild === child) activeValidationChild = null;
       clearTimeout(timeout);
       resolve(result);
     };
 
     child.once('error', (error) => finish({ status: 1, error, timedOut }));
     child.once('close', (status, signal) => finish({ status: status ?? 1, signal, timedOut }));
+  });
+}
+
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    if (activeValidationChild !== null) terminateProcessTree(activeValidationChild, signal);
   });
 }
 
@@ -466,7 +476,7 @@ async function main() {
   for (const [command, args] of validations) {
     const result = await runCommand(command, args);
     if (result.error) {
-      console.error(`[validation] failed to start ${commandDisplay(command, args)}: ${result.error.message}`);
+      console.error(`[validation] failed to start ${command}: ${result.error.message}`);
       process.exitCode = 1;
       return;
     }
@@ -475,7 +485,7 @@ async function main() {
       return;
     }
     if (result.status !== 0) {
-      console.error(`[validation] failed with exit ${result.status}: ${commandDisplay(command, args)}`);
+      console.error(`[validation] failed with exit ${result.status}: ${command}`);
       process.exitCode = result.status;
       return;
     }

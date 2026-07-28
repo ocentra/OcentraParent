@@ -6,6 +6,17 @@ import { test } from 'node:test';
 
 import { runCommand } from '../../scripts/git-hooks/run-precommit-validation.mjs';
 
+async function waitForFileContent(filePath, timeoutMs = 2_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      if (readFileSync(filePath).length > 0) return;
+    } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  throw new Error(`fixture did not write ${filePath}`);
+}
+
 test('pre-commit runner waits for a real child command to complete', async () => {
   const result = await runCommand(process.execPath, ['-e', "process.stdout.write('runner-complete')"], {
     timeoutMs: 5_000,
@@ -46,7 +57,9 @@ test('pre-commit runner timeout does not orphan a nested child process', async (
   );
 
   try {
-    const result = await runCommand(process.execPath, [fixturePath], { timeoutMs: 300 });
+    const completion = runCommand(process.execPath, [fixturePath], { timeoutMs: 300 });
+    await waitForFileContent(heartbeatPath);
+    const result = await completion;
     const sizeAfterTermination = readFileSync(heartbeatPath).length;
     await new Promise((resolve) => setTimeout(resolve, 300));
 
