@@ -80,9 +80,10 @@ pub async fn persist_child_runtime_tombstone_action_with_milestones(
         ));
     }
     persist_durable_tombstone_intent(store.clone(), envelope.clone(), action.clone()).await?;
+    let envelope = canonical_durable_envelope(store.clone(), action.clone()).await?;
     let correlation_id = envelope.correlation_id.clone();
     let mut milestones = vec![ChildRuntimeTombstoneMilestone::DurableOutboxWritten];
-    match journal.append_idempotent(envelope).await {
+    match journal.append_idempotent(&envelope).await {
         Ok(append) => {
             milestones.push(ChildRuntimeTombstoneMilestone::JournalAppendConfirmed);
             Ok(ChildRuntimeTombstonePublicationOutcome::Journaled(
@@ -129,4 +130,29 @@ async fn persist_durable_tombstone_intent(
     tokio::task::spawn_blocking(move || store.persist_action_plan_intent(envelope, action))
         .await
         .map_err(std::io::Error::other)?
+}
+
+async fn canonical_durable_envelope(
+    store: RetentionDeleteTombstoneStore,
+    action: StorageCustodyActionPlannedEvent,
+) -> std::io::Result<StoredEventEnvelope> {
+    tokio::task::spawn_blocking(move || {
+        store
+            .records()?
+            .into_iter()
+            .find_map(|record| {
+                record
+                    .typed_action_and_envelope()
+                    .filter(|(stored_action, _)| *stored_action == &action)
+                    .map(|(_, envelope)| envelope.clone())
+            })
+            .ok_or_else(|| {
+                std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    "durable custody tombstone intent was not available for journal publication",
+                )
+            })
+    })
+    .await
+    .map_err(std::io::Error::other)?
 }
