@@ -11,6 +11,8 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+ed25519-dalek = "2.2.0"
+ocentra-family-identity-core = { path = "../family-identity-core" }
 ocentra-evidence = { path = "../ocentra-evidence" }
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
