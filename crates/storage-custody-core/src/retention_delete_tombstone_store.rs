@@ -8,6 +8,8 @@ use atomicwrites::{AllowOverwrite, AtomicFile};
 use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 
+use crate::storage_custody::{StorageCustodyActionPlannedEvent, StorageTombstoneState};
+
 const STORE_VERSION: u16 = 1;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -67,6 +69,28 @@ impl RetentionDeleteTombstoneStore {
         let result = self.write(&records);
         FileExt::unlock(&lock)?;
         result
+    }
+
+    /// Persists the terminal-publish obligation produced by the typed custody
+    /// action event. A non-delete action must never create a tombstone record.
+    pub fn persist_action_plan_intent(
+        &self,
+        action: &StorageCustodyActionPlannedEvent,
+    ) -> io::Result<()> {
+        if action.action_plan.tombstone_state != StorageTombstoneState::Write {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "a non-delete custody action cannot create a tombstone intent",
+            ));
+        }
+
+        self.persist_intent(
+            format!(
+                "storage-custody-delete:{}",
+                action.source_decision_id.as_str()
+            ),
+            action.action_plan_id.as_str().to_owned(),
+        )
     }
 
     pub fn mark_terminal_published(&self, deletion_ref: &str) -> io::Result<()> {
