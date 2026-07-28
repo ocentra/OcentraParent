@@ -1,8 +1,8 @@
-export function buildCrateRustValidationCommands(crateDir) {
+export function buildCrateRustValidationCommands(crateDir, { testArgs = [] } = {}) {
   const manifestPath = `${crateDir}/Cargo.toml`;
   return [
     ['cargo', ['check', '--manifest-path', manifestPath]],
-    ['cargo', ['test', '--manifest-path', manifestPath]],
+    ['cargo', ['test', '--manifest-path', manifestPath, ...testArgs]],
   ];
 }
 

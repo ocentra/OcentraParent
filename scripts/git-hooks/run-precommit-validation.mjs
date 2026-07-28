@@ -421,7 +421,7 @@ function buildScopedValidations(scopeArgs, { prettierFiles: explicitPrettierFile
       ['scripts/enforcer/run-ocentra-enforcer.mjs', 'check', 'reexports', '--files', crateDirs.join(',')],
     ]);
     for (const [crateDir] of scope.crates) {
-      validations.push(...buildCrateRustValidationCommands(crateDir));
+      validations.push(...buildCrateRustValidationCommands(crateDir, { testArgs: ['--lib'] }));
     }
   }
 
