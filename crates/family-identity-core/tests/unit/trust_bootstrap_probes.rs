@@ -127,13 +127,8 @@ fn assertion_for(case: &TestCase, expires_at: &str) -> ParentStepUpAssertionSnap
     }
 }
 
-fn current_parent_authority(
-    device_trust_state: DeviceTrustState,
-) -> Result<
-    ocentra_family_identity_core::trust_bootstrap::CurrentParentDeviceTrustAuthority,
-    ParentPresenceStorageFailureReason,
-> {
-    current_parent_device_trust_authority(HouseholdAuthorityInput {
+fn parent_authority_input(device_trust_state: DeviceTrustState) -> HouseholdAuthorityInput {
+    HouseholdAuthorityInput {
         actor_role: HouseholdRole::ParentOwner,
         same_family: true,
         actor_account_state: ActorAccountState::Active,
@@ -145,8 +140,16 @@ fn current_parent_authority(
         capability_granted: false,
         controller_lease_state: None,
         action: HouseholdAuthorityAction::SealParentDeviceTrust,
-    })
-    .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
+    }
+}
+
+fn current_parent_authority(
+    device_trust_state: DeviceTrustState,
+) -> Result<HouseholdAuthorityInput, ParentPresenceStorageFailureReason> {
+    let input = parent_authority_input(device_trust_state);
+    current_parent_device_trust_authority(input)
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    Ok(input)
 }
 
 fn verification_input(
@@ -309,7 +312,7 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
             .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
         let authority = current_parent_authority(DeviceTrustState::Trusted)?;
         assert_eq!(
-            unseal_for_current_windows_user(&sealed, &authority, &context)
+            unseal_for_current_windows_user(&sealed, authority, &context)
                 .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
             b"trust-material"
         );
@@ -320,7 +323,7 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
         );
 
         assert_eq!(
-            unseal_for_current_windows_user(&sealed, &authority, &context),
+            unseal_for_current_windows_user(&sealed, authority, &context),
             Ok(b"trust-material".to_vec())
         );
         let persisted = serde_json::to_vec(&sealed)
@@ -328,8 +331,16 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
         let recovered: DpapiSealedKey = serde_json::from_slice(&persisted)
             .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
         assert_eq!(
-            unseal_for_current_windows_user(&recovered, &authority, &context),
+            unseal_for_current_windows_user(&recovered, authority, &context),
             Ok(b"trust-material".to_vec())
+        );
+        assert_eq!(
+            unseal_for_current_windows_user(
+                &recovered,
+                parent_authority_input(DeviceTrustState::Revoked),
+                &context,
+            ),
+            Err(ocentra_storage_custody_core::windows_dpapi_key_sealing::DpapiKeySealingError::CurrentAuthorityRequired)
         );
     }
     Ok(())

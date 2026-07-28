@@ -48,7 +48,7 @@ pub(crate) fn household_authority_failure_reason(
             HouseholdAuthorizationFailureReason::WrongDeviceScope,
         ),
         (
-            input.action == HouseholdAuthorityAction::SealParentDeviceTrust
+            requires_parent_controller_device_scope(input.action)
                 && input.device_ownership_scope != DeviceOwnershipScope::ParentControllerDevice,
             HouseholdAuthorizationFailureReason::WrongDeviceScope,
         ),
@@ -222,6 +222,10 @@ fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
     )
+}
+
+fn requires_parent_controller_device_scope(action: HouseholdAuthorityAction) -> bool {
+    matches!(action, HouseholdAuthorityAction::SealParentDeviceTrust)
 }
 
 fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {

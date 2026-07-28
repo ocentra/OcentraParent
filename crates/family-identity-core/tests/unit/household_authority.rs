@@ -475,6 +475,22 @@ fn parent_device_sealing_requires_parent_owner_and_parent_controller_scope() {
         guardian.failure_reason,
         Some(HouseholdAuthorizationFailureReason::RoleNotAuthorized)
     );
+
+    for device_ownership_scope in [
+        DeviceOwnershipScope::ChildProfileDevice,
+        DeviceOwnershipScope::OtherDevice,
+    ] {
+        let wrong_scope = authorize_household_action(HouseholdAuthorityInput {
+            child_profile_binding_state: ChildProfileBindingState::Missing,
+            device_ownership_scope,
+            action: HouseholdAuthorityAction::SealParentDeviceTrust,
+            ..trusted_parent_input(HouseholdAuthorityAction::SealParentDeviceTrust)
+        });
+        assert_eq!(
+            wrong_scope.failure_reason,
+            Some(HouseholdAuthorizationFailureReason::WrongDeviceScope)
+        );
+    }
 }
 
 #[test]

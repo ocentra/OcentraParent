@@ -6,8 +6,9 @@
 
 use std::fmt;
 
+use ocentra_family_identity_core::household_authority::HouseholdAuthorityInput;
 use ocentra_family_identity_core::trust_bootstrap::{
-    AwaitingPlatformKeySealingRequest, CurrentParentDeviceTrustAuthority,
+    current_parent_device_trust_authority, AwaitingPlatformKeySealingRequest,
     PersistedPlatformKeyUnsealingCredential,
 };
 use serde::{Deserialize, Serialize};
@@ -33,6 +34,7 @@ impl DpapiKeySealingContext {
         Ok(())
     }
 
+    #[cfg(windows)]
     fn entropy(&self, credential: &PersistedPlatformKeyUnsealingCredential) -> Vec<u8> {
         hex_encode(&authorization_binding(self, credential)).into_bytes()
     }
@@ -87,6 +89,7 @@ pub enum DpapiKeySealingError {
     UnsupportedFormat,
     BindingMismatch,
     AuthorizationMismatch,
+    CurrentAuthorityRequired,
     PlatformUnavailable,
     UnsealFailed,
 }
@@ -116,9 +119,11 @@ pub fn seal_for_current_windows_user(
 
 pub fn unseal_for_current_windows_user(
     sealed_key: &DpapiSealedKey,
-    _current_authority: &CurrentParentDeviceTrustAuthority,
+    current_authority_input: HouseholdAuthorityInput,
     expected_context: &DpapiKeySealingContext,
 ) -> Result<Vec<u8>, DpapiKeySealingError> {
+    current_parent_device_trust_authority(current_authority_input)
+        .map_err(|_error| DpapiKeySealingError::CurrentAuthorityRequired)?;
     expected_context.validate()?;
     if sealed_key.format_version != SEALED_KEY_FORMAT_VERSION {
         return Err(DpapiKeySealingError::UnsupportedFormat);
