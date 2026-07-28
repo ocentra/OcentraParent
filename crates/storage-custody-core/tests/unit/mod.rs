@@ -8,3 +8,4 @@ mod report_query_custody;
 mod retention_delete_tombstone;
 mod retention_delete_tombstone_store;
 mod support;
+mod windows_dpapi_key_sealing;
