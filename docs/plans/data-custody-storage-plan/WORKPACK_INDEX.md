@@ -27,7 +27,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | done | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 12/12 | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/` |
 | done | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/06-report-query-custody/` |
 | done | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 12/12 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/` |
-| in progress / limited lifecycle proven | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 0/14 | prior proof roots plus Rust retention lifecycle | `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/` |
+| in progress / limited lifecycle proven | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 3/14 | prior proof roots plus Rust retention lifecycle | `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/` |
 | source | [Migrated Data And AI UI Plan](workpacks/data and AI Ui plan.md) | 0/0 | source evidence only | n/a |
 
 ## Default execution order

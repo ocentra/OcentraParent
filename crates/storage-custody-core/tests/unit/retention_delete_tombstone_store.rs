@@ -1,8 +1,9 @@
 use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 use ocentra_storage_custody_core::storage_custody::{
     storage_custody_action_planned_event, storage_custody_decision_recorded_event,
-    ParentExportState, RemoteSyncState, RetentionWindowState, StorageCustodyAggregateId,
-    StorageCustodyDecisionId, StorageCustodyInput, StorageCustodyLocation,
+    LocalPayloadRetentionAction, ParentExportState, RemoteSyncState, RetentionWindowState,
+    StorageCustodyAggregateId, StorageCustodyDecisionId, StorageCustodyInput,
+    StorageCustodyLocation,
 };
 
 #[test]
@@ -130,6 +131,29 @@ fn tombstone_outbox_rejects_a_typed_non_delete_action() -> Result<(), Box<dyn st
     let error = store
         .persist_action_plan_intent(&retain_action)
         .expect_err("retain action must not enqueue a tombstone");
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
+    assert!(store.records()?.is_empty());
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[test]
+fn tombstone_outbox_rejects_an_incoherent_delete_plan() -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-tombstone-incoherent-action-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let mut incoherent_action = action_for(RetentionWindowState::Expired)?;
+    incoherent_action.action_plan.local_payload_retention_action =
+        LocalPayloadRetentionAction::Retain;
+
+    let error = store
+        .persist_action_plan_intent(&incoherent_action)
+        .expect_err(
+            "a retain action must not enqueue a tombstone even when the tombstone field is write",
+        );
     assert_eq!(error.kind(), std::io::ErrorKind::InvalidInput);
     assert!(store.records()?.is_empty());
     let _ = std::fs::remove_dir_all(&directory);
