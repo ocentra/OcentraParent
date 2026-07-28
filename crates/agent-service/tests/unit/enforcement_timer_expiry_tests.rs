@@ -25,8 +25,8 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 #[cfg(windows)]
-use super::test_text::{optional_log_string, test_some, TestText};
-use super::test_text::{test_ok, TestResult};
+use super::test_text::optional_log_string;
+use super::test_text::{test_ok, test_some, TestResult, TestText};
 use crate::{
     enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
     enforcement_timer_api::build_enforcement_timer_report_with_paths,
