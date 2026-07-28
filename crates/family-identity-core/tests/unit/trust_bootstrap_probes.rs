@@ -18,6 +18,11 @@ use ocentra_family_identity_core::trust_bootstrap::{
     evaluate_trust_bootstrap, DeviceTrustRef, TrustBootstrapDecision, TrustBootstrapInput,
     TrustBootstrapLifecycleIntent, TrustBootstrapManualRequirementReason,
 };
+#[cfg(windows)]
+use ocentra_storage_custody_core::windows_dpapi_key_sealing::{
+    seal_for_current_windows_user, unseal_for_current_windows_user, DpapiKeySealingContext,
+    DpapiKeySealingError,
+};
 
 use super::open_parent_presence_test_port;
 
@@ -242,10 +247,8 @@ fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
 }
 
 #[test]
-fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() -> TestResult {
-    let mut case = test_case("manual-seal");
-    case.action_device_child_profile_id = None;
-    case.target_child_profile_id = None;
+fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() -> TestResult {
+    let case = test_case("manual-seal");
     let store = TestStore::new("manual-seal");
     let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
@@ -265,12 +268,50 @@ fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() ->
         parent_presence: accepted,
     });
 
-    assert!(matches!(
-        decision,
-        TrustBootstrapDecision::ManualRequired(requirement)
-            if requirement.reason
-                == TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable
-    ));
+    let TrustBootstrapDecision::AwaitingPlatformKeySealing(request) = decision else {
+        return Err(ParentPresenceStorageFailureReason::CustodyUnavailable);
+    };
+    #[cfg(windows)]
+    {
+        let context = DpapiKeySealingContext {
+            trust_subject: "parent-account-opaque-1".to_string(),
+            device_ref: "parent-device-opaque-1".to_string(),
+            device_role: "trusted-parent".to_string(),
+        };
+        let sealed = seal_for_current_windows_user(&request, context.clone(), b"trust-material")
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+        assert_eq!(
+            unseal_for_current_windows_user(&sealed, &request, &context)
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
+            b"trust-material"
+        );
+        let debug = format!("{sealed:?}");
+        assert_eq!(
+            debug,
+            "DpapiSealedKey { format_version: 1, context: \"[redacted]\", authorization_binding: \"[redacted]\", ciphertext: \"[redacted]\" }"
+        );
+
+        let re_pair_case = test_case("re-pair-invalidates-sealed-key");
+        let re_pair_store = TestStore::new("re-pair-invalidates-sealed-key");
+        let mut re_pair_port = re_pair_store.port()?;
+        issue_valid_challenge(&mut re_pair_port, &re_pair_case, ACCEPTED_EXPIRY);
+        let re_pair_presence = re_pair_port
+            .verify_and_consume(verification_input(&re_pair_case, ACCEPTED_EXPIRY)?)
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+        let re_pair_decision = evaluate_trust_bootstrap(TrustBootstrapInput {
+            trust_bootstrap_ref: re_pair_case.trust_bootstrap_ref,
+            lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+            parent_presence: re_pair_presence,
+        });
+        let TrustBootstrapDecision::AwaitingPlatformKeySealing(re_pair_request) = re_pair_decision
+        else {
+            return Err(ParentPresenceStorageFailureReason::CustodyUnavailable);
+        };
+        assert_eq!(
+            unseal_for_current_windows_user(&sealed, &re_pair_request, &context),
+            Err(DpapiKeySealingError::AuthorizationMismatch)
+        );
+    }
     Ok(())
 }
 
