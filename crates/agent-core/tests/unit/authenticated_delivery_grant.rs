@@ -173,7 +173,7 @@ fn concurrent_consumers_allow_exactly_one_durable_consume() -> TestResult {
         let path = path.clone();
         let grant = grant.clone();
         let expected = expected.clone();
-        let barrier = barrier.clone();
+        let barrier = std::sync::Arc::clone(&barrier);
         let verifying_key = key.verifying_key();
         std::thread::spawn(move || {
             barrier.wait();
