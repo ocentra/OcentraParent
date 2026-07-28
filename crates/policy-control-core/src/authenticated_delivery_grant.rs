@@ -3,7 +3,7 @@
 use ed25519_dalek::{Signer, SigningKey, VerifyingKey};
 use ocentra_family_identity_core::household_authority::{
     authorize_household_action, HouseholdAuthorityAction, HouseholdAuthorityInput,
-    HouseholdAuthorizationState,
+    HouseholdAuthorizationState, ParentStepUpValidationInput,
 };
 use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
@@ -11,10 +11,13 @@ use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
 
 use crate::policy_authority::{
     PolicyActionAuthorizationState, PolicyControlDecision, PolicyEnforcementExecutionState,
+    PolicyManualReviewState,
 };
 use crate::policy_contract_helpers::authority::{
     PolicyContractAuthorityDecision, PolicyContractAuthoritySource, PolicyContractAuthorityState,
 };
+
+mod validation;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DeliveryGrantBindings {
@@ -36,12 +39,85 @@ pub struct DeliveryGrantBindings {
     pub revocation_version: String,
 }
 
+macro_rules! canonical_grant_identifier {
+    ($name:ident) => {
+        #[derive(Debug, Clone, PartialEq, Eq)]
+        pub struct $name(String);
+
+        impl $name {
+            pub fn parse(
+                value: impl Into<String>,
+            ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError> {
+                let value = value.into();
+                (!value.trim().is_empty())
+                    .then_some(Self(value))
+                    .ok_or(AuthenticatedDeliveryGrantIssuanceError::InvalidAuthorizationSnapshot)
+            }
+
+            fn as_str(&self) -> &str {
+                &self.0
+            }
+        }
+    };
+}
+
+canonical_grant_identifier!(GrantIssuerActorId);
+canonical_grant_identifier!(GrantHouseholdId);
+canonical_grant_identifier!(GrantParentDeviceId);
+canonical_grant_identifier!(GrantChildProfileId);
+canonical_grant_identifier!(GrantTargetDeviceId);
+canonical_grant_identifier!(GrantPolicyDecisionId);
+canonical_grant_identifier!(GrantPolicyVersion);
+canonical_grant_identifier!(GrantActionId);
+canonical_grant_identifier!(GrantCapabilityId);
+canonical_grant_identifier!(GrantEvidenceDigest);
+canonical_grant_identifier!(GrantPayloadDigest);
+canonical_grant_identifier!(GrantNonce);
+canonical_grant_identifier!(GrantRevocationVersion);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CanonicalDeliveryGrantAuthorization {
+    pub issuer_actor_id: GrantIssuerActorId,
+    pub household_id: GrantHouseholdId,
+    pub parent_device_id: GrantParentDeviceId,
+    pub child_profile_id: GrantChildProfileId,
+    pub target_device_id: GrantTargetDeviceId,
+    pub policy_decision_id: GrantPolicyDecisionId,
+    pub policy_version: GrantPolicyVersion,
+    pub action_id: GrantActionId,
+    pub capability_id: GrantCapabilityId,
+    pub evidence_digest: GrantEvidenceDigest,
+    pub payload_digest: GrantPayloadDigest,
+    pub nonce: GrantNonce,
+    pub revocation_version: GrantRevocationVersion,
+}
+
+#[derive(Debug, Clone)]
+pub struct ParentStepUpGrantAuthorization {
+    pub validation: ParentStepUpValidationInput,
+    pub target_device_id: GrantTargetDeviceId,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DeliveryGrantCapabilityState {
+    Available,
+    Unavailable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DeliveryGrantEvidenceState {
+    Stable,
+    Unstable,
+}
+
 pub struct AuthenticatedDeliveryGrantIssuance<'a> {
     pub household_authority: HouseholdAuthorityInput,
     pub policy_decision: &'a PolicyControlDecision,
     pub policy_authority: &'a PolicyContractAuthorityDecision,
-    pub capability_available: bool,
-    pub evidence_stable: bool,
+    pub canonical_authorization: CanonicalDeliveryGrantAuthorization,
+    pub parent_step_up: ParentStepUpGrantAuthorization,
+    pub capability_state: DeliveryGrantCapabilityState,
+    pub evidence_state: DeliveryGrantEvidenceState,
     pub bindings: DeliveryGrantBindings,
 }
 
@@ -49,10 +125,15 @@ pub struct AuthenticatedDeliveryGrantIssuance<'a> {
 pub enum AuthenticatedDeliveryGrantIssuanceError {
     InvalidIssuerKeyId,
     ParentAuthorityRejected,
+    ParentStepUpRejected,
     PolicyNotExecutable,
+    ManualReviewRequired,
     CapabilityUnavailable,
     EvidenceNotStable,
     DryRunForbidden,
+    AuthorizationBindingMismatch,
+    InvalidAuthorizationSnapshot,
+    InvalidTimestamp,
     InvalidBindings,
 }
 
@@ -134,15 +215,21 @@ fn validate_issuance(
     {
         return Err(AuthenticatedDeliveryGrantIssuanceError::PolicyNotExecutable);
     }
-    if !request.capability_available {
+    if request.policy_decision.manual_review_state != PolicyManualReviewState::NotRequired {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::ManualReviewRequired);
+    }
+    if request.capability_state != DeliveryGrantCapabilityState::Available {
         return Err(AuthenticatedDeliveryGrantIssuanceError::CapabilityUnavailable);
     }
-    if !request.evidence_stable {
+    if request.evidence_state != DeliveryGrantEvidenceState::Stable {
         return Err(AuthenticatedDeliveryGrantIssuanceError::EvidenceNotStable);
     }
     if request.bindings.dry_run {
         return Err(AuthenticatedDeliveryGrantIssuanceError::DryRunForbidden);
     }
+    validation::validate_canonical_authorization(request)?;
+    validation::validate_parent_step_up(request)?;
+    validation::validate_grant_timestamps(&request.bindings)?;
     let unsigned = AuthenticatedDeliveryGrant {
         schema_version: AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
         issuer_key_id: "issuer".to_owned(),
