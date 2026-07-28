@@ -25,6 +25,7 @@ mod activity_store_policy_preview_rows;
 mod activity_store_policy_preview_targets;
 mod activity_store_rows;
 mod activity_store_screen_evidence;
+pub mod authenticated_delivery_grant;
 pub mod browser_bridge_event;
 mod browser_bridge_fields;
 mod browser_bridge_http;
