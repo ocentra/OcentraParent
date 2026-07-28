@@ -6,23 +6,64 @@ use std::{
 
 use atomicwrites::{AllowOverwrite, AtomicFile};
 use fs2::FileExt;
+
+mod record;
+
 use ocentra_eventing::envelope::StoredEventEnvelope;
-use serde::{Deserialize, Serialize};
 
 use crate::storage_custody::{
     LocalPayloadRetentionAction, StorageCustodyActionPlannedEvent, StorageTombstoneState,
 };
 
-const STORE_VERSION: u16 = 2;
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct RetentionDeleteOutboxRecord {
     pub version: u16,
     pub deletion_ref: String,
     pub proof_ref: String,
-    pub action: StorageCustodyActionPlannedEvent,
-    pub envelope: StoredEventEnvelope,
     pub terminal_pending: bool,
+    payload: RetentionDeleteOutboxPayload,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub(super) enum RetentionDeleteOutboxPayload {
+    LegacyVersionOne,
+    Typed(Box<TypedTombstoneOutboxPayload>),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub(super) struct TypedTombstoneOutboxPayload {
+    pub(super) action: StorageCustodyActionPlannedEvent,
+    pub(super) envelope: StoredEventEnvelope,
+}
+
+impl RetentionDeleteOutboxRecord {
+    pub fn typed_action_and_envelope(
+        &self,
+    ) -> Option<(&StorageCustodyActionPlannedEvent, &StoredEventEnvelope)> {
+        match &self.payload {
+            RetentionDeleteOutboxPayload::LegacyVersionOne => None,
+            RetentionDeleteOutboxPayload::Typed(payload) => {
+                Some((&payload.action, &payload.envelope))
+            }
+        }
+    }
+
+    fn typed(
+        deletion_ref: String,
+        proof_ref: String,
+        action: StorageCustodyActionPlannedEvent,
+        envelope: StoredEventEnvelope,
+    ) -> Self {
+        record::typed(deletion_ref, proof_ref, action, envelope)
+    }
+
+    fn decode(value: serde_json::Value) -> Result<Self, serde_json::Error> {
+        record::decode(value)
+    }
+
+    fn encode(&self) -> Result<serde_json::Value, serde_json::Error> {
+        record::encode(self)
+    }
 }
 
 #[derive(Clone)]
@@ -50,8 +91,15 @@ impl RetentionDeleteTombstoneStore {
 
     pub fn records(&self) -> io::Result<Vec<RetentionDeleteOutboxRecord>> {
         match fs::read(&self.path) {
-            Ok(bytes) => serde_json::from_slice(&bytes)
-                .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error)),
+            Ok(bytes) => {
+                let values: Vec<serde_json::Value> = serde_json::from_slice(&bytes)
+                    .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+                values
+                    .into_iter()
+                    .map(RetentionDeleteOutboxRecord::decode)
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))
+            }
             Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(Vec::new()),
             Err(error) => Err(error),
         }
@@ -84,14 +132,12 @@ impl RetentionDeleteTombstoneStore {
             .iter()
             .any(|record| record.deletion_ref == deletion_ref)
         {
-            records.push(RetentionDeleteOutboxRecord {
-                version: STORE_VERSION,
+            records.push(RetentionDeleteOutboxRecord::typed(
                 deletion_ref,
                 proof_ref,
                 action,
                 envelope,
-                terminal_pending: true,
-            });
+            ));
         }
         let result = self.write(&records);
         FileExt::unlock(&lock)?;
@@ -113,9 +159,14 @@ impl RetentionDeleteTombstoneStore {
     }
 
     fn write(&self, records: &[RetentionDeleteOutboxRecord]) -> io::Result<()> {
+        let encoded = records
+            .iter()
+            .map(RetentionDeleteOutboxRecord::encode)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(io::Error::other)?;
         AtomicFile::new(&self.path, AllowOverwrite)
             .write(|file| {
-                serde_json::to_writer(&mut *file, records).map_err(io::Error::other)?;
+                serde_json::to_writer(&mut *file, &encoded).map_err(io::Error::other)?;
                 file.sync_all()
             })
             .map_err(|error| io::Error::other(error.to_string()))?;
