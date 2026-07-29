@@ -216,7 +216,11 @@ impl IssuanceFixture {
                 "signed authority provenance"
             ),
             verified_parent_step_up_proof: test_ok!(
-                step_up_signer.sign(self.parent_step_up.validation.clone(), assertions()),
+                step_up_signer.sign(
+                    self.parent_step_up.validation.clone(),
+                    self.bindings.target_device_id.clone(),
+                    assertions(),
+                ),
                 "bounded parent step-up proof"
             ),
         }
@@ -315,7 +319,11 @@ fn issuer_rejects_action_device_bound_to_a_different_child() -> TestResult {
     )
     .action_device_child_profile_id = Some("other-child".to_owned());
     request.verified_parent_step_up_proof = test_ok!(
-        step_up_signer.sign(request.parent_step_up.validation.clone(), assertions()),
+        step_up_signer.sign(
+            request.parent_step_up.validation.clone(),
+            request.bindings.target_device_id.clone(),
+            assertions(),
+        ),
         "bounded parent step-up proof"
     );
 
@@ -376,7 +384,11 @@ fn issuer_rejects_valid_signatures_from_unconfigured_provenance_keys() -> TestRe
         "unconfigured authority provenance"
     );
     request.verified_parent_step_up_proof = test_ok!(
-        step_up_signed_by_another_key.sign(fixture.parent_step_up.validation.clone(), assertions()),
+        step_up_signed_by_another_key.sign(
+            fixture.parent_step_up.validation.clone(),
+            fixture.bindings.target_device_id.clone(),
+            assertions(),
+        ),
         "bounded parent step-up proof"
     );
 
@@ -496,7 +508,11 @@ fn issuer_uses_dually_signed_assertions_instead_of_caller_claims() -> TestResult
         "unavailable capability provenance"
     );
     request.verified_parent_step_up_proof = test_ok!(
-        step_up_signer.sign(fixture.parent_step_up.validation.clone(), unavailable),
+        step_up_signer.sign(
+            fixture.parent_step_up.validation.clone(),
+            fixture.bindings.target_device_id.clone(),
+            unavailable,
+        ),
         "bounded parent step-up proof"
     );
     assert_eq!(
@@ -515,6 +531,7 @@ fn issuer_rejects_mismatched_dually_signed_assertions() -> TestResult {
     request.verified_parent_step_up_proof = test_ok!(
         step_up_signer.sign(
             fixture.parent_step_up.validation.clone(),
+            fixture.bindings.target_device_id.clone(),
             AuthenticatedDeliveryGrantAssertionSnapshot {
                 capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
                 evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Unstable,
@@ -574,6 +591,7 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
             rejected_request.verified_parent_step_up_proof = test_ok!(
                 step_up_signer.sign(
                     rejected_fixture.parent_step_up.validation.clone(),
+                    rejected_fixture.bindings.target_device_id.clone(),
                     unavailable,
                 ),
                 "bounded parent step-up proof"
