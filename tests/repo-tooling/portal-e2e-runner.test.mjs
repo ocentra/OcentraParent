@@ -47,6 +47,8 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
   assert.equal(runnerSource.includes('SIGKILL'), true);
   assert.equal(runnerSource.includes('resolveParentDevPort'), true);
   assert.equal(runnerSource.includes('assertAgentNetworkActivityReadModel'), true);
+  assert.equal(runnerSource.includes('OCENTRA_PARENT_ACTIVITY_CAPTURE_STARTUP_DISABLED'), true);
+  assert.equal(runnerSource.includes("[activityCaptureStartupDisabledEnv]: 'true'"), true);
   assert.equal(processSource.includes('child.exitCode !== null || child.signalCode !== null'), true);
   assert.equal(processSource.includes("taskkill', ['/IM', imageName, '/T', '/F']"), true);
   assert.equal(processSource.includes('ocentra-parent-dev-bridge.exe'), true);
