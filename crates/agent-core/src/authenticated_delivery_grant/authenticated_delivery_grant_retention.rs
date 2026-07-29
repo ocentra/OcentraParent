@@ -13,7 +13,7 @@ const DELETE_GRANT_AUDITS: &str =
     "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2";
 
 pub(super) fn purge_expired_replay_records(
-    connection: &mut Connection,
+    connection: &Connection,
     trusted_now: AuthenticatedDeliveryGrantInstant,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let mut statement = connection

@@ -94,19 +94,16 @@ impl AuthenticatedDeliveryGrantConsumer {
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
-        Self::open_at(
-            path,
-            trusted_issuer,
-            Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true),
-        )
+        let trusted_now = Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true);
+        Self::open_at(path, trusted_issuer, &trusted_now)
     }
 
     fn open_at(
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
-        trusted_now: String,
+        trusted_now: &str,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
-        let trusted_now = parse_observed_at(&trusted_now)?;
+        let trusted_now = parse_observed_at(trusted_now)?;
         let connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         connection
@@ -136,7 +133,8 @@ impl AuthenticatedDeliveryGrantConsumer {
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
         trusted_now: impl Into<String>,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
-        Self::open_at(path, trusted_issuer, trusted_now.into())
+        let trusted_now = trusted_now.into();
+        Self::open_at(path, trusted_issuer, &trusted_now)
     }
 
     pub fn consume(
@@ -148,7 +146,7 @@ impl AuthenticatedDeliveryGrantConsumer {
     {
         validate_grant(grant, expected, &self.trusted_issuer, self.trusted_now)?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
-            &mut self.connection,
+            &self.connection,
             self.trusted_now,
         )?;
         let correlation_id = correlation_id.into();
@@ -170,7 +168,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             .optional()
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         if let Some(stored) = stored {
-            return reject_replay(transaction, grant, correlation_id, stored);
+            return reject_replay(transaction, grant, correlation_id, &stored);
         }
         let audit = audit(
             grant,
@@ -207,9 +205,9 @@ fn reject_replay(
     transaction: Transaction<'_>,
     grant: &AuthenticatedDeliveryGrant,
     correlation_id: String,
-    stored: String,
+    stored: &str,
 ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError> {
-    let stored: AuthenticatedDeliveryGrant = serde_json::from_str(&stored)
+    let stored: AuthenticatedDeliveryGrant = serde_json::from_str(stored)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
     if stored.signing_bytes() != grant.signing_bytes() || stored.signature != grant.signature {
         return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
