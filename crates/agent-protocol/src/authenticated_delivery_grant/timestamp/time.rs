@@ -32,5 +32,8 @@ fn fraction_and_offset_index(value: &[u8]) -> Option<(i128, usize)> {
 }
 
 fn decimal_u8(value: &[u8]) -> Option<u8> {
+    if !value.iter().all(u8::is_ascii_digit) {
+        return None;
+    }
     std::str::from_utf8(value).ok()?.parse().ok()
 }

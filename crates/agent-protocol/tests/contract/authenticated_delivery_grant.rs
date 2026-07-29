@@ -75,6 +75,29 @@ fn authenticated_delivery_grant_compares_offset_timestamps_as_instants_and_rejec
 }
 
 #[test]
+fn authenticated_delivery_grant_rejects_signed_or_non_decimal_fixed_width_timestamp_parts() {
+    for malformed_timestamp in [
+        "2026-+1-01T00:00:00Z",
+        "2026-01-+1T00:00:00Z",
+        "2026-01-01T+0:00:00Z",
+        "2026-01-01T00:+0:00Z",
+        "2026-01-01T00:00:+0Z",
+        "2026-01-01T00:00:00++0:00",
+        "2026-01-01T00:00:00+0+:00",
+        "2026-01-01T00:00:00+00:+0",
+        "202a-01-01T00:00:00Z",
+    ] {
+        let mut malformed = grant();
+        malformed.expires_at = malformed_timestamp.to_owned();
+        assert_eq!(
+            malformed.validate_shape(),
+            Err(AuthenticatedDeliveryGrantValidationError::InvalidTimestamp),
+            "timestamp {malformed_timestamp} must be rejected"
+        );
+    }
+}
+
+#[test]
 fn authenticated_delivery_grant_preserves_fractional_second_ordering() {
     let mut fraction = grant();
     fraction.issued_at = "2026-07-28T00:00:00.900Z".to_owned();
