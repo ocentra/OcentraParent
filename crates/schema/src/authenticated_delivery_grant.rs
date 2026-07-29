@@ -97,12 +97,7 @@ impl AuthenticatedDeliveryGrant {
         {
             return Err(AuthenticatedDeliveryGrantValidationError::OversizedBinding);
         }
-        if self.payload_digest.len() != AUTHENTICATED_DELIVERY_GRANT_PAYLOAD_DIGEST_HEX_BYTES
-            || !self
-                .payload_digest
-                .bytes()
-                .all(|byte| byte.is_ascii_hexdigit())
-        {
+        if !is_canonical_sha256_digest(&self.payload_digest) {
             return Err(AuthenticatedDeliveryGrantValidationError::InvalidPayloadDigest);
         }
         if self.signature.len() != AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES {
@@ -186,6 +181,13 @@ impl AuthenticatedDeliveryGrant {
             .map(|length| length + std::mem::size_of::<u64>())
             .sum()
     }
+}
+
+fn is_canonical_sha256_digest(value: &str) -> bool {
+    value.len() == AUTHENTICATED_DELIVERY_GRANT_PAYLOAD_DIGEST_HEX_BYTES
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || byte.is_ascii_lowercase())
 }
 
 pub fn parse_authenticated_delivery_grant_instant(
