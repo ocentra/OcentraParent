@@ -7,6 +7,7 @@ use super::{
 use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAudit, AuthenticatedDeliveryGrantAuditOutcome,
     AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantConsumeOutcome,
+    AuthenticatedDeliveryGrantConsumer,
 };
 
 #[test]
@@ -114,6 +115,38 @@ fn post_lock_temporal_revalidation_rejects_both_newly_future_and_expired_grants(
             )
         ));
     }
+    Ok(())
+}
+
+#[test]
+fn debug_consume_refreshes_post_lock_clock_without_an_explicit_post_lock_override() -> TestResult {
+    let key = SigningKey::from_bytes(&[15; 32]);
+    let path = store_path("debug-post-lock-clock-refresh");
+    let grant = signed_grant(&key);
+    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:01:00.500Z",
+    ))?;
+
+    assert_eq!(
+        consumer.consume(
+            &grant,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "debug-post-lock-clock-refresh",
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::Expired)
+    );
+    drop(consumer);
+
+    let connection = Connection::open(path.as_ref())?;
+    let consumed_rows: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(consumed_rows, 0);
     Ok(())
 }
 

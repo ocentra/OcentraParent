@@ -111,7 +111,13 @@ pub(super) fn trusted_now_after_transaction(
     debug_trusted_now: Option<(AuthenticatedDeliveryGrantInstant, i64)>,
     fallback: (AuthenticatedDeliveryGrantInstant, i64),
 ) -> Result<(AuthenticatedDeliveryGrantInstant, i64), AuthenticatedDeliveryGrantConsumeError> {
-    Ok(debug_trusted_now.unwrap_or(fallback))
+    match debug_trusted_now {
+        Some(trusted_now) => Ok(trusted_now),
+        None => {
+            let _ = fallback;
+            trusted_now()
+        }
+    }
 }
 
 #[cfg(not(debug_assertions))]
