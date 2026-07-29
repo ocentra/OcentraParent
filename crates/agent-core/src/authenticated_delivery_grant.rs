@@ -36,7 +36,6 @@ pub struct AuthenticatedDeliveryGrantExpectation {
     pub action_id: String,
     pub capability_id: String,
     pub evidence_digest: String,
-    pub payload_digest: String,
     pub revocation_version: String,
     pub observed_at: String,
 }
@@ -153,11 +152,17 @@ impl AuthenticatedDeliveryGrantConsumer {
         &mut self,
         grant: &AuthenticatedDeliveryGrant,
         expected: &AuthenticatedDeliveryGrantExpectation,
+        delivered_payload: impl AsRef<[u8]>,
         correlation_id: impl Into<String>,
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
-        let trusted_now = self.debug_trusted_now.map_or_else(trusted_now, Ok)?;
-        self.consume_at(grant, expected, correlation_id, trusted_now)
+        self.consume_at(
+            grant,
+            expected,
+            delivered_payload.as_ref(),
+            correlation_id,
+            self.current_trusted_now()?,
+        )
     }
 
     #[cfg(debug_assertions)]
@@ -165,6 +170,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         &mut self,
         grant: &AuthenticatedDeliveryGrant,
         expected: &AuthenticatedDeliveryGrantExpectation,
+        delivered_payload: impl AsRef<[u8]>,
         correlation_id: impl Into<String>,
         trusted_now: impl AsRef<str>,
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
@@ -172,6 +178,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         self.consume_at(
             grant,
             expected,
+            delivered_payload.as_ref(),
             correlation_id,
             parse_trusted_now(trusted_now.as_ref())?,
         )
@@ -181,11 +188,18 @@ impl AuthenticatedDeliveryGrantConsumer {
         &mut self,
         grant: &AuthenticatedDeliveryGrant,
         expected: &AuthenticatedDeliveryGrantExpectation,
+        delivered_payload: &[u8],
         correlation_id: impl Into<String>,
         trusted_now: (AuthenticatedDeliveryGrantInstant, i64),
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
-        validate_grant(grant, expected, &self.trusted_issuer, trusted_now.0)?;
+        validate_grant(
+            grant,
+            expected,
+            &self.trusted_issuer,
+            &digest(delivered_payload),
+            trusted_now.0,
+        )?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
             &mut self.connection,
             trusted_now.1,
@@ -247,6 +261,18 @@ impl AuthenticatedDeliveryGrantConsumer {
     pub fn inject_next_commit_failure_for_debug(&mut self) {
         self.fail_next_commit = true;
     }
+
+    fn current_trusted_now(
+        &self,
+    ) -> Result<(AuthenticatedDeliveryGrantInstant, i64), AuthenticatedDeliveryGrantConsumeError>
+    {
+        #[cfg(debug_assertions)]
+        {
+            self.debug_trusted_now.map_or_else(trusted_now, Ok)
+        }
+        #[cfg(not(debug_assertions))]
+        trusted_now()
+    }
 }
 
 fn reject_replay(
@@ -295,6 +321,7 @@ fn validate_grant(
     grant: &AuthenticatedDeliveryGrant,
     expected: &AuthenticatedDeliveryGrantExpectation,
     trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
+    delivered_payload_digest: &str,
     trusted_now: AuthenticatedDeliveryGrantInstant,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     grant
@@ -335,7 +362,7 @@ fn validate_grant(
         || grant.action_id != expected.action_id
         || grant.capability_id != expected.capability_id
         || grant.evidence_digest != expected.evidence_digest
-        || grant.payload_digest != expected.payload_digest
+        || grant.payload_digest != delivered_payload_digest
     {
         return Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected);
     }
