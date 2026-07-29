@@ -1,12 +1,17 @@
 #![forbid(unsafe_code)]
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 pub const AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION: u16 = 1;
 pub const AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES: usize = 64;
 pub const AUTHENTICATED_DELIVERY_GRANT_PAYLOAD_DIGEST_HEX_BYTES: usize = 64;
+pub const AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES: usize = 512;
+pub const AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES: usize = 4_096;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct AuthenticatedDeliveryGrantInstant(i64);
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthenticatedDeliveryGrant {
     pub schema_version: u16,
@@ -36,6 +41,7 @@ pub enum AuthenticatedDeliveryGrantValidationError {
     MissingBinding,
     InvalidPayloadDigest,
     InvalidSignature,
+    InvalidTimestamp,
     InvalidTimeWindow,
 }
 
@@ -78,10 +84,22 @@ impl AuthenticatedDeliveryGrant {
         if self.signature.len() != AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES {
             return Err(AuthenticatedDeliveryGrantValidationError::InvalidSignature);
         }
-        if self.issued_at > self.expires_at {
+        if self.issued_at_instant()? > self.expires_at_instant()? {
             return Err(AuthenticatedDeliveryGrantValidationError::InvalidTimeWindow);
         }
         Ok(())
+    }
+
+    pub fn issued_at_instant(
+        &self,
+    ) -> Result<AuthenticatedDeliveryGrantInstant, AuthenticatedDeliveryGrantValidationError> {
+        parse_authenticated_delivery_grant_instant(&self.issued_at)
+    }
+
+    pub fn expires_at_instant(
+        &self,
+    ) -> Result<AuthenticatedDeliveryGrantInstant, AuthenticatedDeliveryGrantValidationError> {
+        parse_authenticated_delivery_grant_instant(&self.expires_at)
     }
 
     pub fn signing_bytes(&self) -> Vec<u8> {
@@ -113,3 +131,12 @@ impl AuthenticatedDeliveryGrant {
         bytes
     }
 }
+
+pub fn parse_authenticated_delivery_grant_instant(
+    value: &str,
+) -> Result<AuthenticatedDeliveryGrantInstant, AuthenticatedDeliveryGrantValidationError> {
+    timestamp::parse(value).ok_or(AuthenticatedDeliveryGrantValidationError::InvalidTimestamp)
+}
+
+mod timestamp;
+mod wire;
