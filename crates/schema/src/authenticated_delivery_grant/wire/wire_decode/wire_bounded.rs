@@ -72,7 +72,10 @@ where
             .map_err(|_error| {
                 E::custom("authenticated delivery grant field has the wrong wire type")
             })
-            .and_then(|value| bounded_string(value, signed_wire_bytes).map(GrantWireValue::String)),
+            .and_then(|value| {
+                bounded_string(&value, signed_wire_bytes)?;
+                Ok(GrantWireValue::String(value))
+            }),
         GrantWireFieldKind::Signature => serde_json::from_str::<Vec<u8>>(raw)
             .map_err(|_error| {
                 E::custom("authenticated delivery grant field has the wrong wire type")
@@ -83,7 +86,7 @@ where
     }
 }
 
-fn bounded_string<E>(value: String, total: &mut usize) -> Result<String, E>
+fn bounded_string<E>(value: &str, total: &mut usize) -> Result<(), E>
 where
     E: serde::de::Error,
 {
@@ -93,7 +96,7 @@ where
         ));
     }
     update_signed_wire_bytes(value.len(), total)?;
-    Ok(value.to_owned())
+    Ok(())
 }
 
 fn bounded_signature<E>(signature: Vec<u8>, total: &mut usize) -> Result<Vec<u8>, E>
