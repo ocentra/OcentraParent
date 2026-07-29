@@ -258,6 +258,26 @@ fn issuer_rejects_forged_or_substituted_signed_provenance() -> TestResult {
 }
 
 #[test]
+fn issuer_rejects_valid_signatures_from_unconfigured_provenance_keys() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = IssuanceFixture::new();
+    let authority_signed_by_another_key =
+        AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([9; 32]);
+    let step_up_signed_by_another_key = ParentStepUpProofSigner::from_platform_key([10; 32]);
+    let mut request = fixture.request();
+    request.signed_authority_bindings =
+        authority_signed_by_another_key.sign(fixture.bindings.clone());
+    request.verified_parent_step_up_proof =
+        step_up_signed_by_another_key.sign(fixture.parent_step_up.validation.clone());
+
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+    );
+    Ok(())
+}
+
+#[test]
 fn issuer_rejects_step_up_or_canonical_authorization_that_does_not_match_signed_bindings(
 ) -> TestResult {
     let issuer = test_ok!(issuer(), "valid test key id");
@@ -310,6 +330,19 @@ fn issuer_rejects_manual_review_and_invalid_or_chronologically_expired_timestamp
     .expires_at = "2026-07-28T04:00:00+05:00".to_owned();
     assert_eq!(
         issuer.issue(offset_expired.request()),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_a_grant_that_outlives_the_signed_parent_step_up_proof() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let mut fixture = IssuanceFixture::new();
+    fixture.bindings.expires_at = "2026-07-28T00:10:01Z".to_owned();
+
+    assert_eq!(
+        issuer.issue(fixture.request()),
         Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
     );
     Ok(())

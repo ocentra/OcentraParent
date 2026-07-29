@@ -64,6 +64,10 @@ pub(super) fn validate_parent_step_up(
     if assertion_expires_at <= observed_at {
         return Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected);
     }
+    let grant_expires_at = parse_rfc3339(&request.bindings.expires_at)?;
+    if grant_expires_at > assertion_expires_at {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected);
+    }
 
     let mut normalized_validation = validation.clone();
     normalized_validation.observed_at = observed_at.to_rfc3339();
