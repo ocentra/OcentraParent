@@ -419,6 +419,38 @@ fn validates_parent_step_up_assertions_as_action_device_and_target_bound() {
 }
 
 #[test]
+fn validates_parent_step_up_expiry_by_utc_instant_across_local_date_boundary() {
+    let decision = validate_parent_step_up_assertion(&ParentStepUpValidationInput {
+        assertion: Some(ParentStepUpAssertionSnapshot {
+            family_id: "family-main".to_owned(),
+            parent_account_id: "parent-account-1".to_owned(),
+            action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
+            action_device_child_profile_id: None,
+            target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+            action: HouseholdAuthorityAction::PairChildDevice,
+            nonce: "step-up-nonce-1".to_owned(),
+            expires_at: "2026-07-27T23:45:00-05:00".to_owned(),
+        }),
+        family_id: "family-main".to_owned(),
+        parent_account_id: "parent-account-1".to_owned(),
+        action_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
+        action_device_child_profile_id: None,
+        target_child_profile_id: Some(TARGET_CHILD_PROFILE_ID.to_owned()),
+        action: HouseholdAuthorityAction::PairChildDevice,
+        observed_at: "2026-07-28T00:00:00Z".to_owned(),
+        expected_nonce: Some("step-up-nonce-1".to_owned()),
+    });
+
+    assert_eq!(
+        decision,
+        ParentStepUpValidationDecision {
+            valid: true,
+            failure_reason: None,
+        }
+    );
+}
+
+#[test]
 fn rejects_expired_or_replayed_parent_step_up_assertions() {
     let expired = validate_parent_step_up_assertion(&ParentStepUpValidationInput {
         assertion: Some(ParentStepUpAssertionSnapshot {
