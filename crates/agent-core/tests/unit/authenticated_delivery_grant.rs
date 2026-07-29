@@ -13,6 +13,7 @@ use ocentra_parent_agent_core::authenticated_delivery_grant::{
 use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
+use rusqlite::Connection;
 
 type TestResult<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -238,17 +239,81 @@ fn consumer_uses_trusted_instant_expiry_and_ignores_caller_observed_time() -> Te
     grant.issued_at = "2026-07-27T23:00:00Z".to_owned();
     grant.expires_at = "2026-07-28T00:30:00+01:00".to_owned();
     grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
-    let mut consumer = open(store_path("instant-expiry"), trusted_issuer(&key))?;
+    let path = store_path("instant-expiry");
+    let mut consumer = open(&path, trusted_issuer(&key))?;
     assert_eq!(
-        consumer.consume(&grant, &expected(), "correlation-1"),
+        consumer.consume_at_for_debug_test(
+            &grant,
+            &expected(),
+            "correlation-1",
+            "2026-07-28T00:01:00Z",
+        ),
         Err(AuthenticatedDeliveryGrantConsumeError::Expired)
     );
     let mut malformed_observed_at = expected();
     malformed_observed_at.observed_at = "not-a-timestamp".to_owned();
     assert!(matches!(
-        must(consumer.consume(&signed_grant(&key), &malformed_observed_at, "correlation-1"))?,
+        must(consumer.consume_at_for_debug_test(
+            &signed_grant(&key),
+            &malformed_observed_at,
+            "correlation-1",
+            "2026-07-28T00:01:00Z",
+        ))?,
         AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
     ));
+    Ok(())
+}
+
+#[test]
+fn consumer_reads_trusted_time_at_each_consume_not_only_at_open() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let mut consumer = open(store_path("fresh-clock"), trusted_issuer(&key))?;
+    let grant = signed_grant(&key);
+    assert!(matches!(
+        must(consumer.consume_at_for_debug_test(
+            &grant,
+            &expected(),
+            "correlation-before-expiry",
+            "2026-07-28T00:04:59Z",
+        ))?,
+        AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
+    ));
+    let mut later_grant = signed_grant(&key);
+    later_grant.nonce = "nonce-2".to_owned();
+    later_grant.signature = key.sign(&later_grant.signing_bytes()).to_bytes().to_vec();
+    assert_eq!(
+        consumer.consume_at_for_debug_test(
+            &later_grant,
+            &expected(),
+            "correlation-after-expiry",
+            "2026-07-28T00:05:00Z",
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::Expired)
+    );
+    Ok(())
+}
+
+#[test]
+fn consumer_bounds_persisted_replay_audits_per_unexpired_grant() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("replay-audit-bound");
+    let grant = signed_grant(&key);
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    must(consumer.consume(&grant, &expected(), "initial-consume"))?;
+    for index in 0..24 {
+        assert!(matches!(
+            must(consumer.consume(&grant, &expected(), format!("replay-{index}")))?,
+            AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_)
+        ));
+    }
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let count: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        |row| row.get(0),
+    )?;
+    assert_eq!(count, 16);
     Ok(())
 }
 
