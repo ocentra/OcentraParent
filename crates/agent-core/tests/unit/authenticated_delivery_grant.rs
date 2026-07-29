@@ -317,7 +317,16 @@ fn consumer_bounds_persisted_replay_audits_per_unexpired_grant() -> TestResult {
         [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
         |row| row.get(0),
     )?;
+    let audit_plan: String = connection.query_row(
+        "EXPLAIN QUERY PLAN SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        |row| row.get(3),
+    )?;
     assert_eq!(count, 16);
+    assert_eq!(
+        audit_plan,
+        "SEARCH authenticated_delivery_grant_audits_v2 USING COVERING INDEX authenticated_delivery_grant_audits_v2_grant_idx (issuer_key_id=? AND nonce=?)"
+    );
     Ok(())
 }
 
@@ -332,7 +341,7 @@ fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_
         let issuer_key_id = format!("expired-issuer-{index}");
         let nonce = format!("expired-nonce-{index}");
         connection.execute(
-            "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_micros) VALUES (?1, ?2, ?3, ?4, ?5)",
+            "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
             params![issuer_key_id, nonce, "{}", "{}", 0_i64],
         )?;
         connection.execute(
@@ -341,13 +350,13 @@ fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_
         )?;
     }
     let plan: String = connection.query_row(
-        "EXPLAIN QUERY PLAN SELECT issuer_key_id, nonce FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_micros <= ?1 ORDER BY expires_at_micros LIMIT ?2",
+        "EXPLAIN QUERY PLAN SELECT issuer_key_id, nonce FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_nanos <= ?1 ORDER BY expires_at_nanos LIMIT ?2",
         params![1_i64, 128_i64],
         |row| row.get(3),
     )?;
     assert_eq!(
         plan,
-        "SEARCH authenticated_delivery_grant_consumes_v2 USING COVERING INDEX authenticated_delivery_grant_consumes_v2_expiry_idx (expires_at_micros<?)"
+        "SEARCH authenticated_delivery_grant_consumes_v2 USING COVERING INDEX authenticated_delivery_grant_consumes_v2_expiry_idx (expires_at_nanos<?)"
     );
     drop(connection);
     must(consumer.consume_at_for_debug_test(
@@ -359,7 +368,7 @@ fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_
     drop(consumer);
     let connection = Connection::open(path.as_ref())?;
     let remaining_expired: i64 = connection.query_row(
-        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_micros = 0",
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_nanos = 0",
         [],
         |row| row.get(0),
     )?;
@@ -370,6 +379,64 @@ fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_
     )?;
     assert_eq!(remaining_expired, 1);
     assert_eq!(remaining_expired_audits, 1);
+    Ok(())
+}
+
+#[test]
+fn consumer_preserves_nanosecond_expiry_precision_for_replay_retention() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("nanosecond-expiry-retention");
+    let mut grant = signed_grant(&key);
+    grant.expires_at = "2026-07-28T00:05:00.000000001Z".to_owned();
+    grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    let consumed = must(consumer.consume_at_for_debug_test(
+        &grant,
+        &expected(),
+        "nanosecond-expiry-consume",
+        "2026-07-28T00:05:00Z",
+    ))?;
+    assert!(matches!(
+        consumed,
+        AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
+    ));
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let stored_nanos: i64 = connection.query_row(
+        "SELECT expires_at_nanos FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        |row| row.get(0),
+    )?;
+    assert_eq!(stored_nanos.rem_euclid(1_000), 1);
+    Ok(())
+}
+
+#[test]
+fn consumer_backfills_legacy_microsecond_rows_from_signed_grant_nanos() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("legacy-microsecond-backfill");
+    let mut grant = signed_grant(&key);
+    grant.expires_at = "2026-07-28T00:05:00.000000001Z".to_owned();
+    grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
+    let connection = Connection::open(path.as_ref())?;
+    connection.execute(
+        "CREATE TABLE authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_micros INTEGER, PRIMARY KEY (issuer_key_id, nonce))",
+        [],
+    )?;
+    connection.execute(
+        "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_micros) VALUES (?1, ?2, ?3, ?4, ?5)",
+        params![grant.issuer_key_id, grant.nonce, serde_json::to_string(&grant)?, "{}", 1_i64],
+    )?;
+    drop(connection);
+    let consumer = open(&path, trusted_issuer(&key))?;
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let stored_nanos: i64 = connection.query_row(
+        "SELECT expires_at_nanos FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        |row| row.get(0),
+    )?;
+    assert_eq!(stored_nanos.rem_euclid(1_000), 1);
     Ok(())
 }
 
@@ -410,6 +477,97 @@ fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> Te
     )?;
     assert_eq!(retained_grants, 0);
     assert_eq!(retained_audits, 0);
+    Ok(())
+}
+
+#[test]
+fn consumer_open_drains_all_expired_replay_rows_in_bounded_batches() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("startup-expiry-drain");
+    let initial = open(&path, trusted_issuer(&key))?;
+    drop(initial);
+    let connection = Connection::open(path.as_ref())?;
+    for index in 0..257 {
+        let issuer_key_id = format!("expired-startup-issuer-{index}");
+        let nonce = format!("expired-startup-nonce-{index}");
+        connection.execute(
+            "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![issuer_key_id, nonce, "{}", "{}", 0_i64],
+        )?;
+        connection.execute(
+            "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)",
+            params![format!("expired-startup-issuer-{index}"), format!("expired-startup-nonce-{index}"), "{}"],
+        )?;
+    }
+    drop(connection);
+    let restarted = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:01:00Z",
+    ))?;
+    drop(restarted);
+    let connection = Connection::open(path.as_ref())?;
+    let expired_grants: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_nanos = 0",
+        [],
+        |row| row.get(0),
+    )?;
+    let expired_audits: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id LIKE 'expired-startup-issuer-%'",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(expired_grants, 0);
+    assert_eq!(expired_audits, 0);
+    Ok(())
+}
+
+#[test]
+fn consumer_keeps_expired_grant_when_audit_delete_fails_atomically() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("atomic-expiry-delete");
+    let initial = open(&path, trusted_issuer(&key))?;
+    drop(initial);
+    let connection = Connection::open(path.as_ref())?;
+    connection.execute(
+        "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
+        params!["atomic-issuer", "atomic-nonce", "{}", "{}", 0_i64],
+    )?;
+    connection.execute(
+        "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)",
+        params!["atomic-issuer", "atomic-nonce", "{}"],
+    )?;
+    connection.execute_batch(
+        "CREATE TRIGGER reject_atomic_audit_delete BEFORE DELETE ON authenticated_delivery_grant_audits_v2 WHEN OLD.issuer_key_id = 'atomic-issuer' BEGIN SELECT RAISE(ABORT, 'audit-delete-blocked'); END;",
+    )?;
+    drop(connection);
+    let error = AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:01:00Z",
+    );
+    let Err(error) = error else {
+        return Err(
+            std::io::Error::other("audit deletion trigger must reject startup purge").into(),
+        );
+    };
+    assert_eq!(
+        error,
+        AuthenticatedDeliveryGrantConsumeError::StorageUnavailable
+    );
+    let connection = Connection::open(path.as_ref())?;
+    let retained_grants: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        ["atomic-issuer", "atomic-nonce"],
+        |row| row.get(0),
+    )?;
+    let retained_audits: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        ["atomic-issuer", "atomic-nonce"],
+        |row| row.get(0),
+    )?;
+    assert_eq!(retained_grants, 1);
+    assert_eq!(retained_audits, 1);
     Ok(())
 }
 
