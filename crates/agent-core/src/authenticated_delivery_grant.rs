@@ -97,12 +97,14 @@ impl AuthenticatedDeliveryGrantConsumer {
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
-        Self::open_at(path, trusted_issuer)
+        let trusted_now = trusted_now()?;
+        Self::open_at(path, trusted_issuer, Some(trusted_now.1))
     }
 
     fn open_at(
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
+        startup_now_micros: Option<i64>,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
         let connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
@@ -119,6 +121,12 @@ impl AuthenticatedDeliveryGrantConsumer {
             .execute(CREATE_GRANT_AUDITS, [])
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         authenticated_delivery_grant_retention::ensure_expiry_index(&connection)?;
+        if let Some(startup_now_micros) = startup_now_micros {
+            authenticated_delivery_grant_retention::purge_expired_replay_records(
+                &connection,
+                startup_now_micros,
+            )?;
+        }
         Ok(Self {
             connection,
             trusted_issuer,
@@ -135,8 +143,9 @@ impl AuthenticatedDeliveryGrantConsumer {
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
         trusted_now: impl AsRef<str>,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
-        let mut consumer = Self::open_at(path, trusted_issuer)?;
-        consumer.debug_trusted_now = Some(parse_trusted_now(trusted_now.as_ref())?);
+        let trusted_now = parse_trusted_now(trusted_now.as_ref())?;
+        let mut consumer = Self::open_at(path, trusted_issuer, Some(trusted_now.1))?;
+        consumer.debug_trusted_now = Some(trusted_now);
         Ok(consumer)
     }
 
