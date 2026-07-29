@@ -87,7 +87,7 @@ cargo clippy -p ocentra-family-identity-core --all-targets -- -D warnings
 npm run lint:architecture -- --files crates/storage-custody-core/src/windows_dpapi_key_sealing.rs crates/family-identity-core/src/trust_bootstrap.rs crates/family-identity-core/src/trust_bootstrap/current_authority.rs crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs
 ```
 
-The Windows adapter must fail closed when the local machine binding cannot be read; no roaming, plaintext, or portable-key fallback is permitted.
+The Windows adapter must fail closed when the local machine binding cannot be read; no roaming, plaintext, or portable-key fallback is permitted. The current sealing capability derives subject/device binding only from the verified parent ceremony, while unseal requires a current runtime-owned lifecycle authority source rather than a caller-deserialized snapshot.
 
 ## Common commands
 
