@@ -572,7 +572,7 @@ fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> Te
     let inactive_restart = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         &path,
         trusted_issuer(&key),
-        "2026-07-28T00:05:00Z",
+        "2026-07-29T00:05:00Z",
     ))?;
     drop(inactive_restart);
     let connection = Connection::open(path.as_ref())?;

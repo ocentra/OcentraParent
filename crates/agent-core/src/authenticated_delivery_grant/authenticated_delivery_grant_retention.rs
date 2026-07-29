@@ -18,6 +18,9 @@ const DELETE_CONSUMED_GRANT: &str =
 const DELETE_REPLAY_AUDITS: &str =
     "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay'";
 const MAX_EXPIRED_REPLAY_RECORDS_PER_PURGE: i64 = 128;
+// Keep a consumed-grant tombstone beyond its grant validity window so a bounded
+// backward wall-clock correction cannot make the same signed grant consumable again.
+const REPLAY_TOMBSTONE_CLOCK_SKEW_RETENTION_NANOS: i64 = 86_400_000_000_000;
 
 pub(super) fn ensure_retention_indexes(
     connection: &Connection,
@@ -106,17 +109,22 @@ pub(super) fn purge_expired_replay_records(
     connection: &mut Connection,
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    purge_expired_replay_record_batch(connection, trusted_now_nanos).map(|_count| ())
+    purge_expired_replay_record_batch(connection, replay_tombstone_cutoff(trusted_now_nanos))
+        .map(|_count| ())
 }
 
 pub(super) fn drain_expired_replay_records_at_startup(
     connection: &mut Connection,
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    while purge_expired_replay_record_batch(connection, trusted_now_nanos)?
+    while purge_expired_replay_record_batch(connection, replay_tombstone_cutoff(trusted_now_nanos))?
         == MAX_EXPIRED_REPLAY_RECORDS_PER_PURGE as usize
     {}
     Ok(())
+}
+
+fn replay_tombstone_cutoff(trusted_now_nanos: i64) -> i64 {
+    trusted_now_nanos.saturating_sub(REPLAY_TOMBSTONE_CLOCK_SKEW_RETENTION_NANOS)
 }
 
 fn purge_expired_replay_record_batch(

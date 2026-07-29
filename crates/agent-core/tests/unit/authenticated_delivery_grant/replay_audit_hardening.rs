@@ -149,13 +149,13 @@ fn replay_expiry_purge_preserves_validation_audits_for_the_same_grant_identity()
     let connection = Connection::open(path.as_ref())?;
     connection.execute(
         "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope) VALUES (?1, ?2, ?3, ?4, 'validation-rejection')",
-        params![grant.issuer_key_id, grant.nonce, "{}", 1_785_196_799_000_000_000_i64],
+        params![grant.issuer_key_id, grant.nonce, "{}", 1_785_283_499_000_000_000_i64],
     )?;
     drop(connection);
     drop(must(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         &path,
         trusted_issuer(&key),
-        "2026-07-28T00:05:00Z",
+        "2026-07-29T00:05:00Z",
     ))?);
     let connection = Connection::open(path.as_ref())?;
     let replay_rows: i64 = connection.query_row(
@@ -168,5 +168,88 @@ fn replay_expiry_purge_preserves_validation_audits_for_the_same_grant_identity()
     )?;
     assert_eq!(replay_rows, 0);
     assert_eq!(validation_rows, 1);
+    Ok(())
+}
+
+#[test]
+fn replay_audit_trim_never_evicts_validation_evidence_for_the_same_grant() -> TestResult {
+    let key = SigningKey::from_bytes(&[13; 32]);
+    let path = store_path("replay-audit-trim-validation-evidence");
+    let grant = signed_grant(&key);
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    let mut rejected_expected = expected();
+    rejected_expected.action_id = "different-action".to_owned();
+    assert_eq!(
+        consumer.consume(
+            &grant,
+            &rejected_expected,
+            DELIVERED_PAYLOAD,
+            "validation-evidence",
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
+    );
+    must(consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, "initial-consume"))?;
+    for index in 0..24 {
+        assert!(matches!(
+            must(consumer.consume(
+                &grant,
+                &expected(),
+                DELIVERED_PAYLOAD,
+                format!("replay-{index}"),
+            ))?,
+            AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_)
+        ));
+    }
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let validation_rows: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'validation-rejection'",
+        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        |row| row.get(0),
+    )?;
+    let replay_rows: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay'",
+        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        |row| row.get(0),
+    )?;
+    assert_eq!(validation_rows, 1);
+    assert_eq!(replay_rows, 16);
+    Ok(())
+}
+
+#[test]
+fn replay_tombstone_survives_bounded_backward_wall_clock_correction() -> TestResult {
+    let key = SigningKey::from_bytes(&[14; 32]);
+    let path = store_path("replay-tombstone-clock-correction");
+    let grant = signed_grant(&key);
+    let mut trigger_grant = signed_grant(&key);
+    trigger_grant.nonce = "clock-trigger-nonce".to_owned();
+    trigger_grant.expires_at = "2026-07-30T00:05:00Z".to_owned();
+    trigger_grant.signature = key.sign(&trigger_grant.signing_bytes()).to_bytes().to_vec();
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    must(consumer.consume_at_for_debug_test(
+        &grant,
+        &expected(),
+        DELIVERED_PAYLOAD,
+        "consume-before-expiry",
+        "2026-07-28T00:04:59Z",
+    ))?;
+    must(consumer.consume_at_for_debug_test(
+        &trigger_grant,
+        &expected(),
+        DELIVERED_PAYLOAD,
+        "advance-wall-clock",
+        "2026-07-28T00:05:01Z",
+    ))?;
+    assert!(matches!(
+        must(consumer.consume_at_for_debug_test(
+            &grant,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "backward-clock-replay",
+            "2026-07-28T00:04:59Z",
+        ))?,
+        AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_)
+    ));
     Ok(())
 }
