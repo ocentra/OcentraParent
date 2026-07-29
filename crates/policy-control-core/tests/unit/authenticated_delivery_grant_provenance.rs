@@ -154,8 +154,10 @@ impl ProvenanceFixture {
                 ),
                 "authority provenance"
             ),
-            verified_parent_step_up_proof: step_up_signer
-                .sign(self.step_up.validation.clone(), assertions),
+            verified_parent_step_up_proof: test_ok!(
+                step_up_signer.sign(self.step_up.validation.clone(), assertions),
+                "bounded parent step-up proof"
+            ),
         }
     }
 }

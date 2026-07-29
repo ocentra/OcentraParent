@@ -1,6 +1,10 @@
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use ocentra_family_identity_core::household_authority::ParentStepUpValidationInput;
-use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrantAssertionSnapshot;
+use ocentra_schema::authenticated_delivery_grant::{
+    AuthenticatedDeliveryGrantAssertionSnapshot, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES,
+};
 use serde::{Deserialize, Serialize};
 
 use super::AuthenticatedDeliveryGrantIssuanceError;
@@ -30,13 +34,12 @@ impl ParentStepUpProofVerifier {
         ),
         AuthenticatedDeliveryGrantIssuanceError,
     > {
+        validate_proof_shape(proof)?;
         let signature = Signature::from_slice(&proof.signature)
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
+        let bytes = signing_bytes(&proof.validation, &proof.assertions)?;
         self.verifying_key
-            .verify_strict(
-                &signing_bytes(&proof.validation, &proof.assertions),
-                &signature,
-            )
+            .verify_strict(&bytes, &signature)
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
         Ok((proof.validation.clone(), proof.assertions.clone()))
     }
@@ -59,23 +62,75 @@ impl ParentStepUpProofSigner {
         &self,
         validation: ParentStepUpValidationInput,
         assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
-    ) -> VerifiedParentStepUpProof {
-        let signature = self
-            .signing_key
-            .sign(&signing_bytes(&validation, &assertions))
-            .to_bytes()
-            .to_vec();
-        VerifiedParentStepUpProof {
+    ) -> Result<VerifiedParentStepUpProof, AuthenticatedDeliveryGrantIssuanceError> {
+        validate_unsigned_shape(&validation)?;
+        let bytes = signing_bytes(&validation, &assertions)?;
+        let signature = self.signing_key.sign(&bytes).to_bytes().to_vec();
+        Ok(VerifiedParentStepUpProof {
             validation,
             assertions,
             signature,
-        }
+        })
     }
 }
 
 fn signing_bytes(
     validation: &ParentStepUpValidationInput,
     assertions: &AuthenticatedDeliveryGrantAssertionSnapshot,
-) -> Vec<u8> {
-    serde_json::to_vec(&(validation, assertions)).unwrap_or_default()
+) -> Result<Vec<u8>, AuthenticatedDeliveryGrantIssuanceError> {
+    serde_json::to_vec(&(validation, assertions))
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+}
+
+fn validate_proof_shape(
+    proof: &VerifiedParentStepUpProof,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    (proof.signature.len() == AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES)
+        .then_some(())
+        .ok_or(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
+    validate_unsigned_shape(&proof.validation)
+}
+
+fn validate_unsigned_shape(
+    validation: &ParentStepUpValidationInput,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    let assertion = validation
+        .assertion
+        .as_ref()
+        .ok_or(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
+    let fields = [
+        validation.family_id.as_str(),
+        validation.parent_account_id.as_str(),
+        validation.action_device_id.as_str(),
+        validation
+            .action_device_child_profile_id
+            .as_deref()
+            .unwrap_or_default(),
+        validation
+            .target_child_profile_id
+            .as_deref()
+            .unwrap_or_default(),
+        validation.observed_at.as_str(),
+        validation.expected_nonce.as_deref().unwrap_or_default(),
+        assertion.family_id.as_str(),
+        assertion.parent_account_id.as_str(),
+        assertion.action_device_id.as_str(),
+        assertion
+            .action_device_child_profile_id
+            .as_deref()
+            .unwrap_or_default(),
+        assertion
+            .target_child_profile_id
+            .as_deref()
+            .unwrap_or_default(),
+        assertion.nonce.as_str(),
+        assertion.expires_at.as_str(),
+    ];
+    let bounded = fields
+        .iter()
+        .all(|field| field.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES);
+    let wire_len = fields.iter().map(|field| field.len()).sum::<usize>();
+    (bounded && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
+        .then_some(())
+        .ok_or(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
 }
