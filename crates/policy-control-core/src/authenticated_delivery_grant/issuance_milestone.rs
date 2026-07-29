@@ -7,6 +7,7 @@ use ocentra_eventing::ids::{
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
 };
 use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrant;
+use sha2::{Digest, Sha256};
 
 use super::AuthenticatedDeliveryGrantIssuanceError;
 
@@ -20,7 +21,7 @@ const SOURCE_ROLE: &str = "policy-control";
 const SOURCE_SERVICE: &str = "policy-control-core";
 const SOURCE_COMPONENT: &str = "authenticated-delivery-grant-issuer";
 const SOURCE_INSTANCE: &str = "primary";
-const SCHEMA_VERSION: u16 = 1;
+const SCHEMA_VERSION: u16 = 2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AuthenticatedDeliveryGrantIssuanceOutcome {
@@ -49,6 +50,11 @@ pub enum AuthenticatedDeliveryGrantIssuanceRejection {
 pub struct AuthenticatedDeliveryGrantIssuanceMilestone {
     pub outcome: AuthenticatedDeliveryGrantIssuanceOutcome,
     pub rejection: Option<AuthenticatedDeliveryGrantIssuanceRejection>,
+    /// SHA-256 over the signed grant wire plus its signature. This is a
+    /// non-secret, stable audit join key: an auditor can derive it from the
+    /// returned signed grant without placing any grant binding in the journal.
+    #[serde(default)]
+    pub grant_fingerprint: Option<String>,
     pub redaction_state: bool,
 }
 
@@ -64,8 +70,10 @@ impl DomainEvent for AuthenticatedDeliveryGrantIssuanceMilestone {
     }
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         IdempotencyKey::parse(format!(
-            "{EVENT_TYPE}:{:?}:{:?}",
-            self.outcome, self.rejection
+            "{EVENT_TYPE}:{:?}:{:?}:{}",
+            self.outcome,
+            self.rejection,
+            self.grant_fingerprint.as_deref().unwrap_or("rejected")
         ))
     }
 }
@@ -194,15 +202,25 @@ pub(crate) fn issuance_milestone_for(
     result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
 ) -> AuthenticatedDeliveryGrantIssuanceMilestone {
     match result {
-        Ok(_grant) => AuthenticatedDeliveryGrantIssuanceMilestone {
+        Ok(grant) => AuthenticatedDeliveryGrantIssuanceMilestone {
             outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
             rejection: None,
+            grant_fingerprint: Some(signed_grant_audit_fingerprint(grant)),
             redaction_state: true,
         },
         Err(error) => AuthenticatedDeliveryGrantIssuanceMilestone {
             outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
             rejection: Some(rejection_for(*error)),
+            grant_fingerprint: None,
             redaction_state: true,
         },
     }
+}
+
+fn signed_grant_audit_fingerprint(grant: &AuthenticatedDeliveryGrant) -> String {
+    let mut digest = Sha256::new();
+    digest.update(b"ocentra.authenticated-delivery-grant.audit-fingerprint.v1\0");
+    digest.update(grant.signing_bytes());
+    digest.update(&grant.signature);
+    format!("{:x}", digest.finalize())
 }

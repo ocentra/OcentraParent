@@ -6,6 +6,7 @@ use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::ids::{EventId, EventType};
 use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
+use sha2::{Digest, Sha256};
 
 #[test]
 fn issuer_requires_current_parent_authority_and_produces_verifiable_grant() -> TestResult {
@@ -49,7 +50,7 @@ fn issuer_flushes_an_accepted_milestone_to_the_configured_durable_journal() -> T
             .build(),
         "durable journal runtime"
     );
-    runtime.block_on(async {
+    let grant = runtime.block_on(async {
         let event_type = test_ok!(
             EventType::parse("authenticated-delivery-grant.issuance.milestone"),
             "issuance milestone event type"
@@ -70,8 +71,13 @@ fn issuer_flushes_an_accepted_milestone_to_the_configured_durable_journal() -> T
             "accepted issuance must wait for durable milestone persistence"
         );
         assert_eq!(grant.target_device_id, "child-device-1");
-        Ok::<(), Box<dyn std::error::Error>>(())
+        Ok::<_, Box<dyn std::error::Error>>(grant)
     })?;
+    let mut fingerprint = Sha256::new();
+    fingerprint.update(b"ocentra.authenticated-delivery-grant.audit-fingerprint.v1\0");
+    fingerprint.update(grant.signing_bytes());
+    fingerprint.update(&grant.signature);
+    let expected_fingerprint = format!("{:x}", fingerprint.finalize());
     drop(runtime);
 
     let journal = std::fs::read_to_string(&journal_path)?;
@@ -83,6 +89,10 @@ fn issuer_flushes_an_accepted_milestone_to_the_configured_durable_journal() -> T
     assert!(
         journal.contains("authenticated-delivery-grant.issuance.milestone"),
         "the durable record must identify the issuance milestone contract"
+    );
+    assert!(
+        journal.contains(&expected_fingerprint),
+        "the durable milestone must bind exactly to the returned signed grant without storing raw bindings"
     );
     std::fs::remove_file(journal_path)?;
     Ok(())
