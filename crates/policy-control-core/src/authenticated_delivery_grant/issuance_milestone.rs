@@ -115,22 +115,25 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
             ),
         })
     }
-    pub(crate) fn publish(&self, milestone: AuthenticatedDeliveryGrantIssuanceMilestone) {
-        let Ok(correlation_id) = CorrelationId::parse(format!(
-            "authenticated-delivery-grant-issuance-{}",
-            ocentra_eventing::ids::EventId::generated().as_str()
-        )) else {
+    pub(crate) fn publish(
+        &self,
+        correlation_id: CorrelationId,
+        milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
+    ) {
+        let Ok(runtime) = tokio::runtime::Handle::try_current() else {
             return;
         };
         let milestone = AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
             attempt_id: EventId::generated(),
             milestone,
         };
-        let _publish = self.event_bus.publish_detached(
-            milestone,
-            EventMetadata::new(correlation_id, self.source.clone()),
-            DispatchMode::Sequential,
-        );
+        let event_bus = self.event_bus.clone();
+        let metadata = EventMetadata::new(correlation_id, self.source.clone());
+        let _publish = runtime.spawn(async move {
+            event_bus
+                .publish_with_mode(milestone, metadata, DispatchMode::Sequential)
+                .await
+        });
     }
 }
 
