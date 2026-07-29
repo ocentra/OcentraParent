@@ -173,6 +173,23 @@ fn authenticated_delivery_grant_wire_decode_denies_unknown_and_oversized_fields(
     Ok(())
 }
 
+#[test]
+fn authenticated_delivery_grant_wire_decode_rejects_escaped_oversize_before_unescaping() {
+    let encoded_oversize = r#"\u0061"#.repeat(AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES + 1);
+    let wire = format!(
+        r#"{{"schemaVersion":1,"issuerKeyId":"parent-key-1","issuerActorId":"{encoded_oversize}"}}"#,
+    );
+
+    let error = serde_json::from_str::<AuthenticatedDeliveryGrant>(&wire)
+        .expect_err("escaped field exceeding encoded bound must not deserialize");
+    assert!(
+        error
+            .to_string()
+            .starts_with("authenticated delivery grant encoded field exceeds its byte limit"),
+        "unexpected decode error: {error}"
+    );
+}
+
 fn grant_object(
     value: &mut serde_json::Value,
 ) -> TestResult<&mut serde_json::Map<String, serde_json::Value>> {

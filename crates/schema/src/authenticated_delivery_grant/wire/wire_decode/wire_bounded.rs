@@ -1,7 +1,5 @@
-use serde::{
-    de::{DeserializeSeed, Error as _, SeqAccess, Visitor},
-    Deserializer,
-};
+use serde::{de::DeserializeSeed, Deserialize, Deserializer};
+use serde_json::value::RawValue;
 
 use super::{GrantWireFieldKind, GrantWireValue};
 use crate::authenticated_delivery_grant::{
@@ -9,6 +7,9 @@ use crate::authenticated_delivery_grant::{
     AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES,
 };
+
+const AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_FIELD_BYTES: usize =
+    AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES * 6 + 2;
 
 pub(in crate::authenticated_delivery_grant::wire) struct BoundedWireValue<'a> {
     kind: GrantWireFieldKind,
@@ -34,79 +35,55 @@ impl<'de> DeserializeSeed<'de> for BoundedWireValue<'_> {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_any(BoundedWireValueVisitor {
-            kind: self.kind,
-            signed_wire_bytes: self.signed_wire_bytes,
-        })
-    }
-}
-
-struct BoundedWireValueVisitor<'a> {
-    kind: GrantWireFieldKind,
-    signed_wire_bytes: &'a mut usize,
-}
-
-impl<'de> Visitor<'de> for BoundedWireValueVisitor<'_> {
-    type Value = GrantWireValue;
-
-    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_str("a bounded authenticated delivery grant field")
-    }
-
-    fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        if self.kind != GrantWireFieldKind::SchemaVersion {
-            return Err(E::custom(
-                "authenticated delivery grant field has the wrong wire type",
+        let raw = Box::<RawValue>::deserialize(deserializer)?;
+        if raw.get().len() > AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_FIELD_BYTES {
+            return Err(serde::de::Error::custom(
+                "authenticated delivery grant encoded field exceeds its byte limit",
             ));
         }
-        u16::try_from(value)
+        decode_raw_value(raw.get(), self.kind, self.signed_wire_bytes)
+    }
+}
+
+fn decode_raw_value<E>(
+    raw: &str,
+    kind: GrantWireFieldKind,
+    signed_wire_bytes: &mut usize,
+) -> Result<GrantWireValue, E>
+where
+    E: serde::de::Error,
+{
+    match kind {
+        GrantWireFieldKind::SchemaVersion => serde_json::from_str::<u64>(raw)
+            .map_err(|_error| {
+                E::custom("authenticated delivery grant field has the wrong wire type")
+            })?
+            .try_into()
             .map(GrantWireValue::SchemaVersion)
             .map_err(|_error| {
                 E::custom("authenticated delivery grant schema version is out of range")
+            }),
+        GrantWireFieldKind::DryRun => serde_json::from_str::<bool>(raw)
+            .map(GrantWireValue::DryRun)
+            .map_err(|_error| {
+                E::custom("authenticated delivery grant field has the wrong wire type")
+            }),
+        GrantWireFieldKind::String => serde_json::from_str::<String>(raw)
+            .map_err(|_error| {
+                E::custom("authenticated delivery grant field has the wrong wire type")
             })
-    }
-
-    fn visit_bool<E>(self, value: bool) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        if self.kind != GrantWireFieldKind::DryRun {
-            return Err(E::custom(
-                "authenticated delivery grant field has the wrong wire type",
-            ));
-        }
-        Ok(GrantWireValue::DryRun(value))
-    }
-
-    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        if self.kind != GrantWireFieldKind::String {
-            return Err(E::custom(
-                "authenticated delivery grant field has the wrong wire type",
-            ));
-        }
-        bounded_string(value, self.signed_wire_bytes).map(GrantWireValue::String)
-    }
-
-    fn visit_seq<M>(self, sequence: M) -> Result<Self::Value, M::Error>
-    where
-        M: SeqAccess<'de>,
-    {
-        if self.kind != GrantWireFieldKind::Signature {
-            return Err(M::Error::custom(
-                "authenticated delivery grant field has the wrong wire type",
-            ));
-        }
-        bounded_signature(sequence, self.signed_wire_bytes).map(GrantWireValue::Signature)
+            .and_then(|value| bounded_string(value, signed_wire_bytes).map(GrantWireValue::String)),
+        GrantWireFieldKind::Signature => serde_json::from_str::<Vec<u8>>(raw)
+            .map_err(|_error| {
+                E::custom("authenticated delivery grant field has the wrong wire type")
+            })
+            .and_then(|signature| {
+                bounded_signature(signature, signed_wire_bytes).map(GrantWireValue::Signature)
+            }),
     }
 }
 
-fn bounded_string<E>(value: &str, total: &mut usize) -> Result<String, E>
+fn bounded_string<E>(value: String, total: &mut usize) -> Result<String, E>
 where
     E: serde::de::Error,
 {
@@ -119,18 +96,14 @@ where
     Ok(value.to_owned())
 }
 
-fn bounded_signature<'de, M>(mut sequence: M, total: &mut usize) -> Result<Vec<u8>, M::Error>
+fn bounded_signature<E>(signature: Vec<u8>, total: &mut usize) -> Result<Vec<u8>, E>
 where
-    M: SeqAccess<'de>,
+    E: serde::de::Error,
 {
-    let mut signature = Vec::with_capacity(AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES);
-    while let Some(byte) = sequence.next_element::<u8>()? {
-        if signature.len() == AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES {
-            return Err(M::Error::custom(
-                "authenticated delivery grant signature exceeds its byte limit",
-            ));
-        }
-        signature.push(byte);
+    if signature.len() > AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES {
+        return Err(E::custom(
+            "authenticated delivery grant signature exceeds its byte limit",
+        ));
     }
     update_signed_wire_bytes(signature.len(), total)?;
     Ok(signature)

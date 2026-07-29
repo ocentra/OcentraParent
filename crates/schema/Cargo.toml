@@ -13,7 +13,7 @@ path = "src/lib.rs"
 [dependencies]
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.145"
+serde_json = { version = "1.0.145", features = ["raw_value"] }
 
 [[test]]
 name = "contract"
