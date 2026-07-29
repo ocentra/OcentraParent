@@ -628,10 +628,10 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
 }
 
 #[test]
-fn issuer_with_event_bus_is_safe_without_a_tokio_runtime() -> TestResult {
+fn issuer_with_event_bus_preserves_audit_without_an_entered_tokio_runtime() -> TestResult {
     let event_bus = EventBus::new();
     let issuer = test_ok!(issuer(), "provenance-configured issuer")
-        .with_event_bus_issuance_publisher(event_bus)
+        .with_event_bus_issuance_publisher(event_bus.clone())
         .map_err(|error| format!("event publisher: {error:?}"))?;
 
     let grant = test_ok!(
@@ -640,5 +640,20 @@ fn issuer_with_event_bus_is_safe_without_a_tokio_runtime() -> TestResult {
     );
     assert_eq!(grant.issuer_key_id, "parent-key-1");
     assert_eq!(grant.target_device_id, "child-device-1");
+    let runtime = test_ok!(
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build(),
+        "event journal runtime"
+    );
+    let journal = runtime.block_on(event_bus.journal());
+    assert_eq!(journal.len(), 1, "accepted issuance audit must be retained");
+    let milestone = journal[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+    assert_eq!(
+        milestone.payload.outcome,
+        AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
+    );
+    assert_eq!(milestone.payload.rejection, None);
+    assert!(milestone.payload.redaction_state);
     Ok(())
 }
