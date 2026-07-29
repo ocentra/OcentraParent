@@ -66,7 +66,7 @@ pub async fn persist_consumed_authorized_custody_delete(
     let action = storage_custody_action_planned_event(storage_custody_decision_recorded_event(
         command.aggregate_id.clone(),
         command.decision_id.clone(),
-        command.custody_input.clone(),
+        command.custody_input,
     ));
     if action.action_plan.local_payload_retention_action != LocalPayloadRetentionAction::Delete
         || action.action_plan.tombstone_state != StorageTombstoneState::Write
