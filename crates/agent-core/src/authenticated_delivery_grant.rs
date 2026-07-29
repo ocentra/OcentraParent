@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 mod authenticated_delivery_grant_retention;
+mod rejection_audit;
 
 const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER, PRIMARY KEY (issuer_key_id, nonce))";
 const SELECT_CONSUMED_GRANT: &str =
@@ -49,7 +50,7 @@ pub struct AuthenticatedDeliveryGrantTrustedIssuer {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthenticatedDeliveryGrantAudit {
     pub correlation_id: String,
-    pub issuer_key_id: String,
+    pub issuer_key_id_digest: String,
     pub nonce_digest: String,
     pub grant_digest: String,
     pub outcome: AuthenticatedDeliveryGrantAuditOutcome,
@@ -61,6 +62,26 @@ pub enum AuthenticatedDeliveryGrantAuditOutcome {
     Consumed,
     #[serde(rename = "replay-rejected")]
     ReplayRejected,
+    #[serde(rename = "validation-rejected")]
+    ValidationRejected(AuthenticatedDeliveryGrantValidationRejection),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AuthenticatedDeliveryGrantValidationRejection {
+    #[serde(rename = "invalid-grant")]
+    InvalidGrant,
+    #[serde(rename = "signature-rejected")]
+    SignatureRejected,
+    #[serde(rename = "binding-rejected")]
+    BindingRejected,
+    #[serde(rename = "expired")]
+    Expired,
+    #[serde(rename = "not-yet-valid")]
+    NotYetValid,
+    #[serde(rename = "dry-run-rejected")]
+    DryRunRejected,
+    #[serde(rename = "revoked")]
+    Revoked,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -193,18 +214,19 @@ impl AuthenticatedDeliveryGrantConsumer {
         trusted_now: (AuthenticatedDeliveryGrantInstant, i64),
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
+        let correlation_id = correlation_id.into();
         validate_grant(
             grant,
             expected,
             &self.trusted_issuer,
             &digest(delivered_payload),
             trusted_now.0,
-        )?;
+        )
+        .map_err(|error| self.persist_validation_rejection(grant, &correlation_id, error))?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
             &mut self.connection,
             trusted_now.1,
         )?;
-        let correlation_id = correlation_id.into();
         if correlation_id.trim().is_empty()
             || correlation_id.len() > ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
         {
@@ -273,6 +295,15 @@ impl AuthenticatedDeliveryGrantConsumer {
         #[cfg(not(debug_assertions))]
         trusted_now()
     }
+
+    fn persist_validation_rejection(
+        &mut self,
+        grant: &AuthenticatedDeliveryGrant,
+        correlation_id: &str,
+        error: AuthenticatedDeliveryGrantConsumeError,
+    ) -> AuthenticatedDeliveryGrantConsumeError {
+        rejection_audit::persist(&mut self.connection, grant, correlation_id, error)
+    }
 }
 
 fn reject_replay(
@@ -291,7 +322,21 @@ fn reject_replay(
         correlation_id,
         AuthenticatedDeliveryGrantAuditOutcome::ReplayRejected,
     );
-    let audit_json = serde_json::to_string(&audit)
+    persist_audit_transaction(&transaction, grant, &audit)?;
+    transaction
+        .commit()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    Ok(AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(
+        audit,
+    ))
+}
+
+fn persist_audit_transaction(
+    transaction: &Transaction<'_>,
+    grant: &AuthenticatedDeliveryGrant,
+    audit: &AuthenticatedDeliveryGrantAudit,
+) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+    let audit_json = serde_json::to_string(audit)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
     transaction
         .execute(
@@ -309,12 +354,7 @@ fn reject_replay(
             ],
         )
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    transaction
-        .commit()
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    Ok(AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(
-        audit,
-    ))
+    Ok(())
 }
 
 fn validate_grant(
@@ -401,7 +441,7 @@ fn audit(
 ) -> AuthenticatedDeliveryGrantAudit {
     AuthenticatedDeliveryGrantAudit {
         correlation_id,
-        issuer_key_id: grant.issuer_key_id.clone(),
+        issuer_key_id_digest: digest(&grant.issuer_key_id),
         nonce_digest: digest(&grant.nonce),
         grant_digest: digest(grant.signing_bytes()),
         outcome,
