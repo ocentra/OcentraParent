@@ -4,9 +4,85 @@ use ocentra_family_identity_core::household_authority::{
 };
 
 use super::{
-    AuthenticatedDeliveryGrantIssuance, AuthenticatedDeliveryGrantIssuanceError,
-    DeliveryGrantBindings,
+    AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuance,
+    AuthenticatedDeliveryGrantIssuanceError, DeliveryGrantBindings, DeliveryGrantCapabilityState,
+    DeliveryGrantEvidenceState, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
+use crate::policy_authority::{
+    PolicyActionAuthorizationState, PolicyEnforcementExecutionState, PolicyManualReviewState,
+};
+use crate::policy_contract_helpers::authority::{
+    PolicyContractAuthoritySource, PolicyContractAuthorityState,
+};
+use ocentra_family_identity_core::household_authority::{
+    authorize_household_action, HouseholdAuthorizationState,
+};
+
+pub(super) fn validate_issuance(
+    request: &AuthenticatedDeliveryGrantIssuance<'_>,
+    issuer_key_id: &str,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    let authority = authorize_household_action(request.household_authority);
+    if authority.authorization_state != HouseholdAuthorizationState::Authorized
+        || request.household_authority.action != HouseholdAuthorityAction::ChangePolicy
+    {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::ParentAuthorityRejected);
+    }
+    if request.policy_decision.action_authorization_state
+        != PolicyActionAuthorizationState::Authorized
+        || request.policy_decision.enforcement_execution_state
+            != PolicyEnforcementExecutionState::MayExecute
+        || request.policy_authority.source != PolicyContractAuthoritySource::ParentPolicy
+        || request.policy_authority.state != PolicyContractAuthorityState::Authorized
+    {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::PolicyNotExecutable);
+    }
+    if request.policy_decision.manual_review_state != PolicyManualReviewState::NotRequired {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::ManualReviewRequired);
+    }
+    if request.capability_state != DeliveryGrantCapabilityState::Available {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::CapabilityUnavailable);
+    }
+    if request.evidence_state != DeliveryGrantEvidenceState::Stable {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::EvidenceNotStable);
+    }
+    if request.bindings.dry_run {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::DryRunForbidden);
+    }
+    validate_canonical_authorization(request)?;
+    validate_parent_step_up(request)?;
+    validate_grant_timestamps(&request.bindings)?;
+    unsigned_grant(request, issuer_key_id)
+        .validate_shape()
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::InvalidBindings)
+}
+
+fn unsigned_grant(
+    request: &AuthenticatedDeliveryGrantIssuance<'_>,
+    issuer_key_id: &str,
+) -> AuthenticatedDeliveryGrant {
+    AuthenticatedDeliveryGrant {
+        schema_version: AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
+        issuer_key_id: issuer_key_id.to_owned(),
+        issuer_actor_id: request.bindings.issuer_actor_id.clone(),
+        household_id: request.bindings.household_id.clone(),
+        parent_device_id: request.bindings.parent_device_id.clone(),
+        child_profile_id: request.bindings.child_profile_id.clone(),
+        target_device_id: request.bindings.target_device_id.clone(),
+        policy_decision_id: request.bindings.policy_decision_id.clone(),
+        policy_version: request.bindings.policy_version.clone(),
+        action_id: request.bindings.action_id.clone(),
+        capability_id: request.bindings.capability_id.clone(),
+        evidence_digest: request.bindings.evidence_digest.clone(),
+        payload_digest: request.bindings.payload_digest.clone(),
+        dry_run: request.bindings.dry_run,
+        nonce: request.bindings.nonce.clone(),
+        issued_at: request.bindings.issued_at.clone(),
+        expires_at: request.bindings.expires_at.clone(),
+        revocation_version: request.bindings.revocation_version.clone(),
+        signature: vec![0; 64],
+    }
+}
 
 pub(super) fn validate_canonical_authorization(
     request: &AuthenticatedDeliveryGrantIssuance<'_>,
