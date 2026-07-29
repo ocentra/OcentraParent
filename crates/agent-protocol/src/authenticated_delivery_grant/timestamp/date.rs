@@ -34,9 +34,15 @@ fn leap_year(year: i32) -> bool {
 }
 
 fn decimal_u8(value: &[u8]) -> Option<u8> {
+    if !value.iter().all(u8::is_ascii_digit) {
+        return None;
+    }
     std::str::from_utf8(value).ok()?.parse().ok()
 }
 
 fn decimal_i32(value: &[u8]) -> Option<i32> {
+    if !value.iter().all(u8::is_ascii_digit) {
+        return None;
+    }
     std::str::from_utf8(value).ok()?.parse().ok()
 }

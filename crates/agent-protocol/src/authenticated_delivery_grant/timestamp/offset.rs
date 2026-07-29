@@ -19,5 +19,8 @@ fn signed_seconds(sign: u8, hours: u8, minutes: u8) -> Option<i32> {
 }
 
 fn decimal_u8(value: &[u8; 2]) -> Option<u8> {
+    if !value.iter().all(u8::is_ascii_digit) {
+        return None;
+    }
     std::str::from_utf8(value).ok()?.parse().ok()
 }
