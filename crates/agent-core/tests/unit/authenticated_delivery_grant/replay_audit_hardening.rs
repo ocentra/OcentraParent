@@ -408,3 +408,26 @@ fn replay_tombstone_survives_bounded_backward_wall_clock_correction() -> TestRes
     ));
     Ok(())
 }
+
+#[test]
+fn consume_and_replay_audits_persist_post_lock_occurrence_times() -> TestResult {
+    let key = SigningKey::from_bytes(&[22; 32]);
+    let path = store_path("audit-occurrence-times");
+    let grant = signed_grant(&key);
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    must(consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, "consume-occurrence"))?;
+    must(consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, "replay-occurrence"))?;
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let recorded_at_nanos: Vec<i64> = connection
+        .prepare(
+            "SELECT recorded_at_nanos FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 ORDER BY rowid",
+        )?
+        .query_map([grant.issuer_key_id.as_str(), grant.nonce.as_str()], |row| row.get(0))?
+        .collect::<Result<_, _>>()?;
+    assert_eq!(
+        recorded_at_nanos,
+        vec![1_785_196_860_500_000_000, 1_785_196_860_500_000_000]
+    );
+    Ok(())
+}

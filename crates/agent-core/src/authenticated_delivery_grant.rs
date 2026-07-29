@@ -268,7 +268,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             .optional()
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         if let Some(stored) = stored {
-            return reject_replay(transaction, grant, correlation, &stored);
+            return reject_replay(transaction, grant, correlation, &stored, post_begin_now.1);
         }
         let audit = audit(
             grant,
@@ -293,6 +293,7 @@ impl AuthenticatedDeliveryGrantConsumer {
                 ],
             )
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+        persist_audit_transaction(&transaction, grant, &audit, Some(post_begin_now.1))?;
         #[cfg(debug_assertions)]
         if std::mem::take(&mut self.fail_next_commit) {
             return Err(AuthenticatedDeliveryGrantConsumeError::StorageUnavailable);
@@ -444,6 +445,7 @@ fn reject_replay(
     grant: &AuthenticatedDeliveryGrant,
     correlation_id: String,
     stored_fingerprint: &str,
+    recorded_at_nanos: i64,
 ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError> {
     let mut signed_grant = grant.signing_bytes();
     signed_grant.extend_from_slice(&grant.signature);
@@ -455,7 +457,7 @@ fn reject_replay(
         correlation_id,
         AuthenticatedDeliveryGrantAuditOutcome::ReplayRejected,
     );
-    persist_audit_transaction(&transaction, grant, &audit, None)?;
+    persist_audit_transaction(&transaction, grant, &audit, Some(recorded_at_nanos))?;
     transaction
         .commit()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
