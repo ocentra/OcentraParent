@@ -14,10 +14,10 @@ mod authenticated_delivery_grant_retention;
 mod rejection_audit;
 mod validation;
 
-const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER, PRIMARY KEY (issuer_key_id, nonce))";
+const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_fingerprint TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER NOT NULL, PRIMARY KEY (issuer_key_id, nonce))";
 const SELECT_CONSUMED_GRANT: &str =
-    "SELECT grant_json FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2";
-const INSERT_CONSUMED_GRANT: &str = "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)";
+    "SELECT grant_fingerprint FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2";
+const INSERT_CONSUMED_GRANT: &str = "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_fingerprint, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)";
 const CREATE_GRANT_AUDITS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_audits_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL, recorded_at_nanos INTEGER, audit_scope TEXT NOT NULL DEFAULT 'replay')";
 const INSERT_GRANT_AUDIT: &str = "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope) VALUES (?1, ?2, ?3, ?4, ?5)";
 const TRIM_GRANT_AUDITS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND rowid NOT IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 ORDER BY rowid DESC LIMIT ?3)";
@@ -142,6 +142,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             .execute(CREATE_GRANT_AUDITS, [])
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         rejection_audit::ensure_retention_schema(&connection)?;
+        authenticated_delivery_grant_retention::migrate_legacy_replay_records(&mut connection)?;
         authenticated_delivery_grant_retention::ensure_retention_indexes(&connection)?;
         if let Some(startup_now_nanos) = startup_now_nanos {
             rejection_audit::drain_expired_at_startup(&mut connection, startup_now_nanos)?;
@@ -237,7 +238,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        validation::validate_expiry_at(
+        validation::validate_temporal_window_at(
             grant,
             validation::trusted_now_after_transaction(
                 #[cfg(debug_assertions)]
@@ -262,8 +263,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             correlation_id,
             AuthenticatedDeliveryGrantAuditOutcome::Consumed,
         );
-        let grant_json = serde_json::to_string(grant)
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+        let grant_fingerprint = replay_fingerprint(grant);
         let expires_at_nanos = validation::instant_nanos(&grant.expires_at)?;
         let audit_json = serde_json::to_string(&audit)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
@@ -273,7 +273,7 @@ impl AuthenticatedDeliveryGrantConsumer {
                 params![
                     grant.issuer_key_id,
                     grant.nonce,
-                    grant_json,
+                    grant_fingerprint,
                     audit_json,
                     expires_at_nanos
                 ],
@@ -355,11 +355,9 @@ fn reject_replay(
     transaction: Transaction<'_>,
     grant: &AuthenticatedDeliveryGrant,
     correlation_id: String,
-    stored: &str,
+    stored_fingerprint: &str,
 ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError> {
-    let stored: AuthenticatedDeliveryGrant = serde_json::from_str(stored)
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
-    if stored.signing_bytes() != grant.signing_bytes() || stored.signature != grant.signature {
+    if stored_fingerprint != replay_fingerprint(grant) {
         return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
     }
     let audit = audit(
@@ -374,6 +372,12 @@ fn reject_replay(
     Ok(AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(
         audit,
     ))
+}
+
+fn replay_fingerprint(grant: &AuthenticatedDeliveryGrant) -> String {
+    let mut signed_grant = grant.signing_bytes();
+    signed_grant.extend_from_slice(&grant.signature);
+    digest(signed_grant)
 }
 
 fn persist_audit_transaction(

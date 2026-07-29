@@ -29,14 +29,7 @@ pub(super) fn validate_grant(
     if grant.dry_run {
         return Err(AuthenticatedDeliveryGrantConsumeError::DryRunRejected);
     }
-    if grant
-        .issued_at_instant()
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::InvalidGrant)?
-        > trusted_now
-    {
-        return Err(AuthenticatedDeliveryGrantConsumeError::NotYetValid);
-    }
-    validate_expiry_at(grant, trusted_now)?;
+    validate_temporal_window_at(grant, trusted_now)?;
     if grant.revocation_version != expected.revocation_version {
         return Err(AuthenticatedDeliveryGrantConsumeError::Revoked);
     }
@@ -92,6 +85,20 @@ pub(super) fn validate_expiry_at(
         return Err(AuthenticatedDeliveryGrantConsumeError::Expired);
     }
     Ok(())
+}
+
+pub(super) fn validate_temporal_window_at(
+    grant: &AuthenticatedDeliveryGrant,
+    trusted_now: AuthenticatedDeliveryGrantInstant,
+) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+    if grant
+        .issued_at_instant()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::InvalidGrant)?
+        > trusted_now
+    {
+        return Err(AuthenticatedDeliveryGrantConsumeError::NotYetValid);
+    }
+    validate_expiry_at(grant, trusted_now)
 }
 
 pub(super) fn trusted_now(
