@@ -2,8 +2,8 @@ use ocentra_eventing::bus::{DispatchMode, EventBus};
 use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{
-    AggregateKey, CorrelationId, EventCustody, EventType, IdempotencyKey, RuntimeInstanceId,
-    RuntimeRole, SchemaVersion, SourceComponent, SourceService,
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey,
+    RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
 };
 
 use super::AuthenticatedDeliveryGrantIssuanceError;
@@ -68,6 +68,34 @@ impl DomainEvent for AuthenticatedDeliveryGrantIssuanceMilestone {
     }
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+struct AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
+    /// Opaque, generated value used only to distinguish independent issuance attempts.
+    /// It carries no household, device, child, capability, or evidence data.
+    attempt_id: EventId,
+    #[serde(flatten)]
+    milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
+}
+
+impl DomainEvent for AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        self.milestone.contract()
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        self.milestone.aggregate_key()
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        IdempotencyKey::parse(format!(
+            "{EVENT_TYPE}:{}:{:?}:{:?}",
+            self.attempt_id.as_str(),
+            self.milestone.outcome,
+            self.milestone.rejection
+        ))
+    }
+}
+
 #[derive(Clone)]
 pub struct EventBusAuthenticatedDeliveryGrantIssuancePublisher {
     event_bus: EventBus,
@@ -93,6 +121,10 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
             ocentra_eventing::ids::EventId::generated().as_str()
         )) else {
             return;
+        };
+        let milestone = AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
+            attempt_id: EventId::generated(),
+            milestone,
         };
         let _publish = self.event_bus.publish_detached(
             milestone,
