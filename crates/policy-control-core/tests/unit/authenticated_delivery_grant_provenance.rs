@@ -162,7 +162,11 @@ impl ProvenanceFixture {
                 "authority provenance"
             ),
             verified_parent_step_up_proof: test_ok!(
-                step_up_signer.sign(self.step_up.validation.clone(), assertions),
+                step_up_signer.sign(
+                    self.step_up.validation.clone(),
+                    self.bindings.target_device_id.clone(),
+                    assertions,
+                ),
                 "bounded parent step-up proof"
             ),
         }
@@ -178,7 +182,11 @@ fn parent_step_up_proof_rejects_oversized_fields_before_signing_or_verification(
         evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
     };
     let valid_proof = test_ok!(
-        signer.sign(fixture.step_up.validation.clone(), assertions.clone()),
+        signer.sign(
+            fixture.step_up.validation.clone(),
+            fixture.bindings.target_device_id.clone(),
+            assertions.clone(),
+        ),
         "bounded valid parent step-up proof"
     );
     let verifier = ParentStepUpProofVerifier::new(signer.verifying_key());
@@ -187,12 +195,13 @@ fn parent_step_up_proof_rejects_oversized_fields_before_signing_or_verification(
         "verified valid parent step-up proof"
     );
     assert_eq!(verified.0, fixture.step_up.validation);
-    assert_eq!(verified.1, assertions);
+    assert_eq!(verified.1, fixture.bindings.target_device_id);
+    assert_eq!(verified.2, assertions);
 
     let mut oversized_validation = fixture.step_up.validation.clone();
     oversized_validation.expected_nonce = Some("x".repeat(513));
     assert_eq!(
-        signer.sign(oversized_validation, verified.1.clone()),
+        signer.sign(oversized_validation, verified.1.clone(), verified.2.clone()),
         Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
     );
 
@@ -204,6 +213,31 @@ fn parent_step_up_proof_rejects_oversized_fields_before_signing_or_verification(
     .nonce = "x".repeat(513);
     assert_eq!(
         verifier.verify(&oversized_proof),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_signed_step_up_target_that_differs_from_canonical_target() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = ProvenanceFixture::new();
+    let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let mut request = fixture.request();
+    request.verified_parent_step_up_proof = test_ok!(
+        step_up_signer.sign(
+            fixture.step_up.validation.clone(),
+            "other-child-device".to_owned(),
+            AuthenticatedDeliveryGrantAssertionSnapshot {
+                capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+                evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+            },
+        ),
+        "signed mismatched step-up target"
+    );
+
+    assert_eq!(
+        issuer.issue(request),
         Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
     );
     Ok(())

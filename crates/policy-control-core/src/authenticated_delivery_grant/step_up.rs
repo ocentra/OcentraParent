@@ -12,6 +12,7 @@ use super::AuthenticatedDeliveryGrantIssuanceError;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct VerifiedParentStepUpProof {
     pub validation: ParentStepUpValidationInput,
+    pub target_device_id: String,
     pub assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
     pub signature: Vec<u8>,
 }
@@ -30,6 +31,7 @@ impl ParentStepUpProofVerifier {
     ) -> Result<
         (
             ParentStepUpValidationInput,
+            String,
             AuthenticatedDeliveryGrantAssertionSnapshot,
         ),
         AuthenticatedDeliveryGrantIssuanceError,
@@ -37,11 +39,19 @@ impl ParentStepUpProofVerifier {
         validate_proof_shape(proof)?;
         let signature = Signature::from_slice(&proof.signature)
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
-        let bytes = signing_bytes(&proof.validation, &proof.assertions)?;
+        let bytes = signing_bytes(
+            &proof.validation,
+            &proof.target_device_id,
+            &proof.assertions,
+        )?;
         self.verifying_key
             .verify_strict(&bytes, &signature)
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
-        Ok((proof.validation.clone(), proof.assertions.clone()))
+        Ok((
+            proof.validation.clone(),
+            proof.target_device_id.clone(),
+            proof.assertions.clone(),
+        ))
     }
 }
 
@@ -61,13 +71,15 @@ impl ParentStepUpProofSigner {
     pub fn sign(
         &self,
         validation: ParentStepUpValidationInput,
+        target_device_id: String,
         assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
     ) -> Result<VerifiedParentStepUpProof, AuthenticatedDeliveryGrantIssuanceError> {
-        validate_unsigned_shape(&validation)?;
-        let bytes = signing_bytes(&validation, &assertions)?;
+        validate_unsigned_shape(&validation, &target_device_id)?;
+        let bytes = signing_bytes(&validation, &target_device_id, &assertions)?;
         let signature = self.signing_key.sign(&bytes).to_bytes().to_vec();
         Ok(VerifiedParentStepUpProof {
             validation,
+            target_device_id,
             assertions,
             signature,
         })
@@ -76,9 +88,10 @@ impl ParentStepUpProofSigner {
 
 fn signing_bytes(
     validation: &ParentStepUpValidationInput,
+    target_device_id: &str,
     assertions: &AuthenticatedDeliveryGrantAssertionSnapshot,
 ) -> Result<Vec<u8>, AuthenticatedDeliveryGrantIssuanceError> {
-    serde_json::to_vec(&(validation, assertions))
+    serde_json::to_vec(&(validation, target_device_id, assertions))
         .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
 }
 
@@ -88,11 +101,12 @@ fn validate_proof_shape(
     (proof.signature.len() == AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES)
         .then_some(())
         .ok_or(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
-    validate_unsigned_shape(&proof.validation)
+    validate_unsigned_shape(&proof.validation, &proof.target_device_id)
 }
 
 fn validate_unsigned_shape(
     validation: &ParentStepUpValidationInput,
+    target_device_id: &str,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     let assertion = validation
         .assertion
@@ -125,12 +139,15 @@ fn validate_unsigned_shape(
             .unwrap_or_default(),
         assertion.nonce.as_str(),
         assertion.expires_at.as_str(),
+        target_device_id,
     ];
     let bounded = fields
         .iter()
         .all(|field| field.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES);
     let wire_len = fields.iter().map(|field| field.len()).sum::<usize>();
-    (bounded && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
+    (!target_device_id.trim().is_empty()
+        && bounded
+        && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
         .then_some(())
         .ok_or(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
 }

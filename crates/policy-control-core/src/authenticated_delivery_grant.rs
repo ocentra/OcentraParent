@@ -216,7 +216,7 @@ impl AuthenticatedDeliveryGrantIssuer {
         ) = self
             .authority_verifier
             .verify(&request.signed_authority_bindings)?;
-        let (step_up_validation, step_up_assertions) = self
+        let (step_up_validation, step_up_target_device_id, step_up_assertions) = self
             .step_up_verifier
             .verify(&request.verified_parent_step_up_proof)?;
         if authority_assertions != step_up_assertions {
@@ -225,6 +225,9 @@ impl AuthenticatedDeliveryGrantIssuer {
         request.bindings = bindings;
         request.household_authority = household_authority;
         request.parent_step_up.validation = step_up_validation;
+        request.parent_step_up.target_device_id =
+            GrantTargetDeviceId::parse(step_up_target_device_id)
+                .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
         request.capability_state = match authority_assertions.capability {
             AuthenticatedDeliveryGrantCapabilityAssertion::Available => {
                 DeliveryGrantCapabilityState::Available
