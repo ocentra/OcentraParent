@@ -37,7 +37,8 @@ pub(super) fn issuance_rejection(
         AuthenticatedDeliveryGrantIssuanceError::InvalidAuthorizationSnapshot
         | AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp
         | AuthenticatedDeliveryGrantIssuanceError::InvalidBindings => authorization::from(error),
-        AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected => {
+        AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
+        | AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed => {
             AuthenticatedDeliveryGrantIssuanceRejection::AuthorityProvenance
         }
     }

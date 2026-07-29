@@ -119,30 +119,53 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
         &self,
         correlation_id: CorrelationId,
         milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
-    ) {
+    ) -> Result<(), EventingError> {
         let milestone = AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
             attempt_id: EventId::generated(),
             milestone,
         };
-        let event_bus = self.event_bus.clone();
         let metadata = EventMetadata::new(correlation_id, self.source.clone());
-        if let Ok(runtime) = tokio::runtime::Handle::try_current() {
-            let _publish = runtime.spawn(async move {
-                event_bus
-                    .publish_with_mode(milestone, metadata, DispatchMode::Sequential)
-                    .await
-            });
-            return;
+        if tokio::runtime::Handle::try_current().is_ok() {
+            return publish_from_entered_runtime(self.event_bus.clone(), milestone, metadata);
         }
-        let Ok(runtime) = tokio::runtime::Builder::new_current_thread().build() else {
-            return;
-        };
-        let _publish = runtime.block_on(async move {
+        publish_on_current_thread_runtime(self.event_bus.clone(), milestone, metadata)
+    }
+}
+
+fn publish_from_entered_runtime(
+    event_bus: EventBus,
+    milestone: AuthenticatedDeliveryGrantIssuanceAttemptMilestone,
+    metadata: EventMetadata,
+) -> Result<(), EventingError> {
+    let publisher = std::thread::Builder::new()
+        .spawn(move || publish_on_current_thread_runtime(event_bus, milestone, metadata))
+        .map_err(|error| EventingError::InvalidHandlerPolicy {
+            reason: error.to_string(),
+        })?;
+    publisher
+        .join()
+        .map_err(|_error| EventingError::InvalidHandlerPolicy {
+            reason: "issuance milestone publisher thread panicked".to_owned(),
+        })?
+}
+
+fn publish_on_current_thread_runtime(
+    event_bus: EventBus,
+    milestone: AuthenticatedDeliveryGrantIssuanceAttemptMilestone,
+    metadata: EventMetadata,
+) -> Result<(), EventingError> {
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .build()
+        .map_err(|error| EventingError::InvalidHandlerPolicy {
+            reason: error.to_string(),
+        })?;
+    runtime
+        .block_on(async move {
             event_bus
                 .publish_with_mode(milestone, metadata, DispatchMode::Sequential)
                 .await
-        });
-    }
+        })
+        .map(|_report| ())
 }
 
 pub(crate) fn rejection_for(

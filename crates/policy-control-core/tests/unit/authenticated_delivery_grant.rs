@@ -646,14 +646,15 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
 }
 
 #[test]
-fn issuer_with_event_bus_preserves_audit_without_an_entered_tokio_runtime() -> TestResult {
+fn issuer_with_event_bus_preserves_audit_inside_and_outside_an_entered_tokio_runtime() -> TestResult
+{
     let event_bus = EventBus::new();
-    let issuer = test_ok!(issuer(), "provenance-configured issuer")
+    let non_runtime_issuer = test_ok!(issuer(), "provenance-configured issuer")
         .with_event_bus_issuance_publisher(event_bus.clone())
         .map_err(|error| format!("event publisher: {error:?}"))?;
 
     let grant = test_ok!(
-        issuer.issue(IssuanceFixture::new().request()),
+        non_runtime_issuer.issue(IssuanceFixture::new().request()),
         "issuance without Tokio runtime must remain available"
     );
     assert_eq!(grant.issuer_key_id, "parent-key-1");
@@ -673,5 +674,52 @@ fn issuer_with_event_bus_preserves_audit_without_an_entered_tokio_runtime() -> T
     );
     assert_eq!(milestone.payload.rejection, None);
     assert!(milestone.payload.redaction_state);
+
+    let runtime = test_ok!(
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build(),
+        "event runtime"
+    );
+    let event_bus = EventBus::new();
+    let issuer = test_ok!(issuer(), "provenance-configured issuer")
+        .with_event_bus_issuance_publisher(event_bus.clone())
+        .map_err(|error| format!("event publisher: {error:?}"))?;
+
+    runtime.block_on(async {
+        let grant = test_ok!(
+            issuer.issue(IssuanceFixture::new().request()),
+            "entered runtime issuance must retain its audit milestone"
+        );
+        assert_eq!(grant.issuer_key_id, "parent-key-1");
+        let journal = event_bus.journal().await;
+        assert_eq!(
+            journal.len(),
+            1,
+            "issuance must not return before its milestone is retained"
+        );
+        let milestone = journal[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        assert_eq!(
+            milestone.payload.outcome,
+            AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
+        );
+        assert_eq!(milestone.payload.rejection, None);
+        assert!(milestone.payload.redaction_state);
+        Ok::<(), Box<dyn std::error::Error>>(())
+    })?;
+    drop(runtime);
+
+    let inspection_runtime = test_ok!(
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build(),
+        "post-shutdown journal inspection runtime"
+    );
+    let journal = inspection_runtime.block_on(event_bus.journal());
+    assert_eq!(
+        journal.len(),
+        1,
+        "runtime shutdown must not erase the milestone"
+    );
     Ok(())
 }
