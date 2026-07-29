@@ -5,6 +5,7 @@ use std::{path::Path, time::Duration};
 use ed25519_dalek::VerifyingKey;
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantInstant,
+    AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
 };
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::{Deserialize, Serialize};
@@ -23,6 +24,7 @@ const INSERT_GRANT_AUDIT: &str = "INSERT INTO authenticated_delivery_grant_audit
 const TRIM_GRANT_AUDITS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND rowid NOT IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 ORDER BY rowid DESC LIMIT ?3)";
 const CONSUME_BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 const MAX_REPLAY_AUDIT_ROWS_PER_GRANT: i64 = 16;
+const VALIDATION_REJECTION_AUDIT_SCOPE: &str = "validation-rejection";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AuthenticatedDeliveryGrantExpectation {
@@ -183,12 +185,18 @@ impl AuthenticatedDeliveryGrantConsumer {
         correlation_id: impl Into<String>,
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
+        #[cfg(debug_assertions)]
+        let trusted_now = self
+            .debug_trusted_now
+            .map_or_else(validation::trusted_now, Ok)?;
+        #[cfg(not(debug_assertions))]
+        let trusted_now = validation::trusted_now()?;
         self.consume_at(
             grant,
             expected,
             delivered_payload.as_ref(),
             correlation_id,
-            self.current_trusted_now()?,
+            trusted_now,
         )
     }
 
@@ -215,19 +223,13 @@ impl AuthenticatedDeliveryGrantConsumer {
         &mut self,
         grant: &AuthenticatedDeliveryGrant,
         expected: &AuthenticatedDeliveryGrantExpectation,
-        delivered_payload: &[u8],
+        payload: &[u8],
         correlation_id: impl Into<String>,
         trusted_now: (AuthenticatedDeliveryGrantInstant, i64),
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
-        let correlation_id = correlation_id.into();
-        self.validate_request(
-            grant,
-            expected,
-            delivered_payload,
-            &correlation_id,
-            trusted_now,
-        )?;
+        let correlation = correlation_id.into();
+        self.validate_request(grant, expected, payload, &correlation, trusted_now)?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
             &mut self.connection,
             trusted_now.1,
@@ -238,15 +240,20 @@ impl AuthenticatedDeliveryGrantConsumer {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        validation::validate_temporal_window_at(
-            grant,
-            validation::trusted_now_after_transaction(
-                #[cfg(debug_assertions)]
-                debug_trusted_now_after_transaction,
-                trusted_now,
-            )?
-            .0,
+        let post_begin_now = validation::trusted_now_after_transaction(
+            #[cfg(debug_assertions)]
+            debug_trusted_now_after_transaction,
+            trusted_now,
         )?;
+        if let Err(error) = validation::validate_temporal_window_at(grant, post_begin_now.0) {
+            return reject_post_begin_temporal_window(
+                transaction,
+                grant,
+                correlation,
+                post_begin_now.1,
+                error,
+            );
+        }
         let stored: Option<String> = transaction
             .query_row(
                 SELECT_CONSUMED_GRANT,
@@ -256,14 +263,16 @@ impl AuthenticatedDeliveryGrantConsumer {
             .optional()
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         if let Some(stored) = stored {
-            return reject_replay(transaction, grant, correlation_id, &stored);
+            return reject_replay(transaction, grant, correlation, &stored);
         }
         let audit = audit(
             grant,
-            correlation_id,
+            correlation,
             AuthenticatedDeliveryGrantAuditOutcome::Consumed,
         );
-        let grant_fingerprint = replay_fingerprint(grant);
+        let mut signed_grant = grant.signing_bytes();
+        signed_grant.extend_from_slice(&grant.signature);
+        let grant_fingerprint = digest(signed_grant);
         let expires_at_nanos = validation::instant_nanos(&grant.expires_at)?;
         let audit_json = serde_json::to_string(&audit)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
@@ -298,6 +307,9 @@ impl AuthenticatedDeliveryGrantConsumer {
         trusted_now: (AuthenticatedDeliveryGrantInstant, i64),
     ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
         validation::validate_correlation_id(correlation_id)?;
+        if grant.validate_shape().is_err() {
+            return Err(self.persist_bounded_shape_rejection(grant, correlation_id, trusted_now.1));
+        }
         validation::validate_grant(grant, expected, &self.trusted_issuer, trusted_now.0).map_err(
             |error| self.persist_validation_rejection(grant, correlation_id, trusted_now.1, error),
         )?;
@@ -321,19 +333,6 @@ impl AuthenticatedDeliveryGrantConsumer {
         Ok(())
     }
 
-    fn current_trusted_now(
-        &self,
-    ) -> Result<(AuthenticatedDeliveryGrantInstant, i64), AuthenticatedDeliveryGrantConsumeError>
-    {
-        #[cfg(debug_assertions)]
-        {
-            self.debug_trusted_now
-                .map_or_else(validation::trusted_now, Ok)
-        }
-        #[cfg(not(debug_assertions))]
-        validation::trusted_now()
-    }
-
     fn persist_validation_rejection(
         &mut self,
         grant: &AuthenticatedDeliveryGrant,
@@ -349,6 +348,78 @@ impl AuthenticatedDeliveryGrantConsumer {
             error,
         )
     }
+
+    fn persist_bounded_shape_rejection(
+        &mut self,
+        grant: &AuthenticatedDeliveryGrant,
+        correlation_id: &str,
+        trusted_now_nanos: i64,
+    ) -> AuthenticatedDeliveryGrantConsumeError {
+        let audit = bounded_shape_rejection_audit(grant, correlation_id);
+        let issuer_key_id = audit.issuer_key_id_digest.clone();
+        let nonce = audit.nonce_digest.clone();
+        let result = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
+            .and_then(|transaction| {
+                let audit_json = serde_json::to_string(&audit)
+                    .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+                transaction
+                    .execute(
+                        INSERT_GRANT_AUDIT,
+                        params![
+                            issuer_key_id,
+                            nonce,
+                            audit_json,
+                            trusted_now_nanos,
+                            VALIDATION_REJECTION_AUDIT_SCOPE,
+                        ],
+                    )
+                    .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+                transaction
+                    .execute(
+                        TRIM_GRANT_AUDITS,
+                        params![issuer_key_id, nonce, MAX_REPLAY_AUDIT_ROWS_PER_GRANT],
+                    )
+                    .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+                transaction
+                    .commit()
+                    .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
+            });
+        result.map_or(
+            AuthenticatedDeliveryGrantConsumeError::StorageUnavailable,
+            |_| AuthenticatedDeliveryGrantConsumeError::InvalidGrant,
+        )
+    }
+}
+
+fn reject_post_begin_temporal_window(
+    transaction: Transaction<'_>,
+    grant: &AuthenticatedDeliveryGrant,
+    correlation_id: String,
+    trusted_now_nanos: i64,
+    error: AuthenticatedDeliveryGrantConsumeError,
+) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError> {
+    let rejection = match error {
+        AuthenticatedDeliveryGrantConsumeError::Expired => {
+            AuthenticatedDeliveryGrantValidationRejection::Expired
+        }
+        AuthenticatedDeliveryGrantConsumeError::NotYetValid => {
+            AuthenticatedDeliveryGrantValidationRejection::NotYetValid
+        }
+        _ => return Err(error),
+    };
+    let audit = audit(
+        grant,
+        correlation_id,
+        AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(rejection),
+    );
+    persist_audit_transaction(&transaction, grant, &audit, Some(trusted_now_nanos))?;
+    transaction
+        .commit()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    Err(error)
 }
 
 fn reject_replay(
@@ -357,7 +428,9 @@ fn reject_replay(
     correlation_id: String,
     stored_fingerprint: &str,
 ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError> {
-    if stored_fingerprint != replay_fingerprint(grant) {
+    let mut signed_grant = grant.signing_bytes();
+    signed_grant.extend_from_slice(&grant.signature);
+    if stored_fingerprint != digest(signed_grant) {
         return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
     }
     let audit = audit(
@@ -424,6 +497,58 @@ fn audit(
         nonce_digest: digest(&grant.nonce),
         grant_digest: digest(grant.signing_bytes()),
         outcome,
+    }
+}
+
+fn bounded_shape_rejection_audit(
+    grant: &AuthenticatedDeliveryGrant,
+    correlation_id: &str,
+) -> AuthenticatedDeliveryGrantAudit {
+    let update_bounded_digest = |hasher: &mut Sha256, value: &[u8]| {
+        let bounded_len = value
+            .len()
+            .min(AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES);
+        hasher.update((value.len() as u64).to_be_bytes());
+        hasher.update((bounded_len as u64).to_be_bytes());
+        hasher.update(&value[..bounded_len]);
+    };
+    let bounded_digest = |value: &[u8]| {
+        let mut hasher = Sha256::new();
+        update_bounded_digest(&mut hasher, value);
+        digest(hasher.finalize())
+    };
+    let mut grant_hasher = Sha256::new();
+    grant_hasher.update(grant.schema_version.to_be_bytes());
+    grant_hasher.update([u8::from(grant.dry_run)]);
+    for value in [
+        grant.issuer_key_id.as_str(),
+        grant.issuer_actor_id.as_str(),
+        grant.household_id.as_str(),
+        grant.parent_device_id.as_str(),
+        grant.child_profile_id.as_str(),
+        grant.target_device_id.as_str(),
+        grant.policy_decision_id.as_str(),
+        grant.policy_version.as_str(),
+        grant.action_id.as_str(),
+        grant.capability_id.as_str(),
+        grant.evidence_digest.as_str(),
+        grant.payload_digest.as_str(),
+        grant.nonce.as_str(),
+        grant.issued_at.as_str(),
+        grant.expires_at.as_str(),
+        grant.revocation_version.as_str(),
+    ] {
+        update_bounded_digest(&mut grant_hasher, value.as_bytes());
+    }
+    update_bounded_digest(&mut grant_hasher, &grant.signature);
+    AuthenticatedDeliveryGrantAudit {
+        correlation_id: correlation_id.to_owned(),
+        issuer_key_id_digest: bounded_digest(grant.issuer_key_id.as_bytes()),
+        nonce_digest: bounded_digest(grant.nonce.as_bytes()),
+        grant_digest: digest(grant_hasher.finalize()),
+        outcome: AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            AuthenticatedDeliveryGrantValidationRejection::InvalidGrant,
+        ),
     }
 }
 
