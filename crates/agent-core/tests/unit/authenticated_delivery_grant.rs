@@ -24,6 +24,8 @@ const DELIVERED_PAYLOAD_DIGEST: &str =
     "6406b5682ab324971384904f5d776f211b8133cc7bb42910d55a3deff7a13303";
 
 mod ordering;
+#[path = "authenticated_delivery_grant/replay_audit_hardening.rs"]
+mod replay_audit_hardening;
 
 fn must<T, E: Debug>(result: Result<T, E>) -> TestResult<T> {
     result.map_err(|error| std::io::Error::other(format!("unexpected error: {error:?}")).into())
@@ -328,99 +330,6 @@ fn consumer_rejects_substituted_delivered_payload_even_when_context_matches() ->
     Ok(())
 }
 
-/*
-#[cfg(any())]
-removed consumer_rejects_oversized_correlation_before_validation_audit_persistence() -> TestResult {
-    let key = SigningKey::from_bytes(&[4; 32]);
-    let path = store_path("oversized-correlation-before-audit");
-    let mut consumer = open(&path, trusted_issuer(&key))?;
-    let mut invalid_grant = signed_grant(&key);
-    invalid_grant.target_device_id = "tampered-target-device".to_owned();
-    let oversized_correlation = "x".repeat(
-        ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
-            + 1,
-    );
-
-    assert_eq!(
-        consumer.consume(
-            &invalid_grant,
-            &expected(),
-            DELIVERED_PAYLOAD,
-            oversized_correlation,
-        ),
-        Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
-    );
-    drop(consumer);
-    let connection = Connection::open(path.as_ref())?;
-    let persisted_audits: i64 = connection.query_row(
-        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2",
-        [],
-        |row| row.get(0),
-    )?;
-    assert_eq!(persisted_audits, 0);
-    Ok(())
-}
-
-#[cfg(any())]
-removed consumer_authenticates_grant_before_rejecting_oversized_delivered_payload() -> TestResult {
-    let key = SigningKey::from_bytes(&[4; 32]);
-    let path = store_path("payload-authentication-order");
-    let mut consumer = open(&path, trusted_issuer(&key))?;
-    let mut invalid_grant = signed_grant(&key);
-    invalid_grant.target_device_id = "tampered-target-device".to_owned();
-    let oversized_payload = vec![0_u8; AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES + 1];
-
-    assert_eq!(
-        consumer.consume(
-            &invalid_grant,
-            &expected(),
-            &oversized_payload,
-            "invalid-grant-oversized-payload",
-        ),
-        Err(AuthenticatedDeliveryGrantConsumeError::SignatureRejected)
-    );
-    assert_eq!(
-        consumer.consume(
-            &signed_grant(&key),
-            &expected(),
-            &oversized_payload,
-            "authenticated-grant-oversized-payload",
-        ),
-        Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
-    );
-    Ok(())
-}
-
-#[cfg(any())]
-removed consumer_rechecks_expiry_after_acquiring_consume_transaction() -> TestResult {
-    let key = SigningKey::from_bytes(&[4; 32]);
-    let path = store_path("expiry-after-transaction");
-    let mut consumer = open(&path, trusted_issuer(&key))?;
-    let grant = signed_grant(&key);
-    must(consumer.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:05:00Z"))?;
-
-    assert_eq!(
-        consumer.consume_at_for_debug_test(
-            &grant,
-            &expected(),
-            DELIVERED_PAYLOAD,
-            "expiry-after-transaction",
-            "2026-07-28T00:04:59Z",
-        ),
-        Err(AuthenticatedDeliveryGrantConsumeError::Expired)
-    );
-    drop(consumer);
-    let connection = Connection::open(path.as_ref())?;
-    let consumed_rows: i64 = connection.query_row(
-        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2",
-        [],
-        |row| row.get(0),
-    )?;
-    assert_eq!(consumed_rows, 0);
-    Ok(())
-}
-*/
-
 #[test]
 fn consumer_uses_trusted_instant_expiry_and_ignores_caller_observed_time() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
@@ -536,7 +445,7 @@ fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_
         let issuer_key_id = format!("expired-issuer-{index}");
         let nonce = format!("expired-nonce-{index}");
         connection.execute(
-            "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
+            "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_fingerprint, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
             params![issuer_key_id, nonce, "{}", "{}", 0_i64],
         )?;
         connection.execute(
@@ -693,7 +602,7 @@ fn consumer_open_drains_all_expired_replay_rows_in_bounded_batches() -> TestResu
         let issuer_key_id = format!("expired-startup-issuer-{index}");
         let nonce = format!("expired-startup-nonce-{index}");
         connection.execute(
-            "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
+            "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_fingerprint, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
             params![issuer_key_id, nonce, "{}", "{}", 0_i64],
         )?;
         connection.execute(
@@ -732,7 +641,7 @@ fn consumer_keeps_expired_grant_when_audit_delete_fails_atomically() -> TestResu
     drop(initial);
     let connection = Connection::open(path.as_ref())?;
     connection.execute(
-        "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
+        "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_fingerprint, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
         params!["atomic-issuer", "atomic-nonce", "{}", "{}", 0_i64],
     )?;
     connection.execute(
