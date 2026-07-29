@@ -436,6 +436,22 @@ fn issuer_rejects_manual_review_and_invalid_or_chronologically_expired_timestamp
         issuer.issue(offset_expired.request()),
         Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
     );
+
+    let mut storage_unrepresentable_expiry = IssuanceFixture::new();
+    storage_unrepresentable_expiry.bindings.expires_at = "2500-01-01T00:00:00Z".to_owned();
+    test_some!(
+        storage_unrepresentable_expiry
+            .parent_step_up
+            .validation
+            .assertion
+            .as_mut(),
+        "step-up assertion"
+    )
+    .expires_at = "2500-01-01T00:00:01Z".to_owned();
+    assert_eq!(
+        issuer.issue(storage_unrepresentable_expiry.request()),
+        Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp)
+    );
     Ok(())
 }
 
@@ -576,42 +592,27 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
             4,
             "repeated accepted and rejected attempts must retain distinct idempotency keys"
         );
-        let accepted_event = journal[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
-        assert_eq!(
-            accepted_event.payload.outcome,
-            AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
-        );
-        assert_eq!(accepted_event.payload.rejection, None);
-        assert!(accepted_event.payload.redaction_state);
-        let second_accepted_event =
-            journal[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
-        assert_eq!(
-            second_accepted_event.payload.outcome,
-            AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
-        );
-        assert_eq!(second_accepted_event.payload.rejection, None);
-        assert!(second_accepted_event.payload.redaction_state);
-        let rejected_event = journal[2].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
-        assert_eq!(
-            rejected_event.payload.outcome,
-            AuthenticatedDeliveryGrantIssuanceOutcome::Rejected
-        );
-        assert_eq!(
-            rejected_event.payload.rejection,
-            Some(AuthenticatedDeliveryGrantIssuanceRejection::Capability)
-        );
-        assert!(rejected_event.payload.redaction_state);
-        let second_rejected_event =
-            journal[3].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
-        assert_eq!(
-            second_rejected_event.payload.outcome,
-            AuthenticatedDeliveryGrantIssuanceOutcome::Rejected
-        );
-        assert_eq!(
-            second_rejected_event.payload.rejection,
-            Some(AuthenticatedDeliveryGrantIssuanceRejection::Capability)
-        );
-        assert!(second_rejected_event.payload.redaction_state);
+        for event in &journal[..2] {
+            let accepted_event = event.decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+            assert_eq!(
+                accepted_event.payload.outcome,
+                AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
+            );
+            assert_eq!(accepted_event.payload.rejection, None);
+            assert!(accepted_event.payload.redaction_state);
+        }
+        for event in &journal[2..] {
+            let rejected_event = event.decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+            assert_eq!(
+                rejected_event.payload.outcome,
+                AuthenticatedDeliveryGrantIssuanceOutcome::Rejected
+            );
+            assert_eq!(
+                rejected_event.payload.rejection,
+                Some(AuthenticatedDeliveryGrantIssuanceRejection::Capability)
+            );
+            assert!(rejected_event.payload.redaction_state);
+        }
         Ok(())
     })
 }
