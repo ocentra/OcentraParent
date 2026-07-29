@@ -1,6 +1,7 @@
 use super::TestResult;
+use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::EventBus;
-use ocentra_eventing::ids::CorrelationId;
+use ocentra_eventing::ids::{CorrelationId, EventType, SubscriberId, TargetHandler};
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -29,7 +30,8 @@ use ocentra_schema::authenticated_delivery_grant::{
 };
 use std::collections::BTreeSet;
 
-fn issuer() -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
+pub(super) fn issuer(
+) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
     let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
     let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
     AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
@@ -38,6 +40,22 @@ fn issuer() -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGra
         authority.verifying_key(),
         step_up.verifying_key(),
     )
+}
+
+pub(super) async fn subscribe_issuance_milestone_persistence(
+    event_bus: &EventBus,
+) -> Result<(), ocentra_eventing::error::EventingError> {
+    event_bus
+        .subscribe::<AuthenticatedDeliveryGrantIssuanceMilestone, _, _>(
+            EventSubscriber::new(
+                SubscriberId::parse("policy-control.issuance-milestone-persistence")?,
+                EventType::parse("authenticated-delivery-grant.issuance.milestone")?,
+                TargetHandler::parse("policy-control.issuance-milestone-persistence")?,
+            ),
+            |_| async { Ok(()) },
+        )
+        .await
+        .map(|_| ())
 }
 
 use ocentra_policy_control_core::policy_authority::{
@@ -163,7 +181,7 @@ fn parent_step_up() -> ParentStepUpGrantAuthorization {
     }
 }
 
-struct IssuanceFixture {
+pub(super) struct IssuanceFixture {
     household_authority: HouseholdAuthorityInput,
     policy_decision: PolicyControlDecision,
     policy_authority: PolicyContractAuthorityDecision,
@@ -175,7 +193,7 @@ struct IssuanceFixture {
 }
 
 impl IssuanceFixture {
-    fn new() -> Self {
+    pub(super) fn new() -> Self {
         Self {
             household_authority: authority(),
             policy_decision: decision(),
@@ -188,7 +206,7 @@ impl IssuanceFixture {
         }
     }
 
-    fn request(&self) -> AuthenticatedDeliveryGrantIssuance<'_> {
+    pub(super) fn request(&self) -> AuthenticatedDeliveryGrantIssuance<'_> {
         let authority_signer =
             AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
         let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
@@ -225,24 +243,6 @@ impl IssuanceFixture {
             ),
         }
     }
-}
-
-#[test]
-fn issuer_requires_current_parent_authority_and_produces_verifiable_grant() -> TestResult {
-    let issuer = test_ok!(issuer(), "valid test key id");
-    let grant = test_ok!(
-        issuer.issue(IssuanceFixture::new().request()),
-        "current authority can issue"
-    );
-    let signature = test_ok!(
-        ed25519_dalek::Signature::from_slice(&grant.signature),
-        "signature bytes"
-    );
-    assert!(issuer
-        .verifying_key()
-        .verify_strict(&grant.signing_bytes(), &signature)
-        .is_ok());
-    Ok(())
 }
 
 #[test]
@@ -288,18 +288,6 @@ fn issuer_uses_verified_household_authority_instead_of_caller_claim() -> TestRes
         issuer.issue(request),
         Err(AuthenticatedDeliveryGrantIssuanceError::ParentAuthorityRejected)
     );
-    Ok(())
-}
-
-#[test]
-fn issuer_allows_unbound_action_device_when_signed_target_child_is_bound() -> TestResult {
-    let issuer = test_ok!(issuer(), "provenance-configured issuer");
-    let grant = test_ok!(
-        issuer.issue(IssuanceFixture::new().request()),
-        "unbound action device with separately bound target child can issue"
-    );
-    assert_eq!(grant.child_profile_id, "child-1");
-    assert_eq!(grant.target_device_id, "child-device-1");
     Ok(())
 }
 
@@ -556,6 +544,10 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
     );
     runtime.block_on(async {
         let event_bus = EventBus::new();
+        test_ok!(
+            subscribe_issuance_milestone_persistence(&event_bus).await,
+            "issuance milestone persistence subscriber registers"
+        );
         let issuer = test_ok!(issuer(), "provenance-configured issuer")
             .with_event_bus_issuance_publisher(event_bus.clone())
             .map_err(|error| format!("event publisher: {error:?}"))?;
@@ -646,25 +638,41 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
 }
 
 #[test]
-fn issuer_with_event_bus_preserves_audit_inside_and_outside_an_entered_tokio_runtime() -> TestResult
-{
-    let event_bus = EventBus::new();
-    let non_runtime_issuer = test_ok!(issuer(), "provenance-configured issuer")
-        .with_event_bus_issuance_publisher(event_bus.clone())
+fn issuer_requires_a_milestone_persistence_subscriber_inside_and_outside_an_entered_tokio_runtime(
+) -> TestResult {
+    let missing_subscriber_bus = EventBus::new();
+    let missing_subscriber_issuer = test_ok!(issuer(), "provenance-configured issuer")
+        .with_event_bus_issuance_publisher(missing_subscriber_bus.clone())
         .map_err(|error| format!("event publisher: {error:?}"))?;
-
-    let grant = test_ok!(
-        non_runtime_issuer.issue(IssuanceFixture::new().request()),
-        "issuance without Tokio runtime must remain available"
+    assert_eq!(
+        missing_subscriber_issuer.issue(IssuanceFixture::new().request()),
+        Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
+        "issuance must fail rather than report success when its milestone lacks a persistence subscriber"
     );
-    assert_eq!(grant.issuer_key_id, "parent-key-1");
-    assert_eq!(grant.target_device_id, "child-device-1");
+
     let runtime = test_ok!(
         tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build(),
-        "event journal runtime"
+        "event runtime"
     );
+    let event_bus = EventBus::new();
+    runtime.block_on(async {
+        test_ok!(
+            subscribe_issuance_milestone_persistence(&event_bus).await,
+            "issuance milestone persistence subscriber registers"
+        );
+    });
+    let issuer = test_ok!(issuer(), "provenance-configured issuer")
+        .with_event_bus_issuance_publisher(event_bus.clone())
+        .map_err(|error| format!("event publisher: {error:?}"))?;
+
+    let grant = test_ok!(
+        issuer.issue(IssuanceFixture::new().request()),
+        "issuance outside Tokio runtime retains its milestone through the enabled runtime"
+    );
+    assert_eq!(grant.issuer_key_id, "parent-key-1");
+    assert_eq!(grant.target_device_id, "child-device-1");
     let journal = runtime.block_on(event_bus.journal());
     assert_eq!(journal.len(), 1, "accepted issuance audit must be retained");
     let milestone = journal[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
@@ -675,17 +683,6 @@ fn issuer_with_event_bus_preserves_audit_inside_and_outside_an_entered_tokio_run
     assert_eq!(milestone.payload.rejection, None);
     assert!(milestone.payload.redaction_state);
 
-    let runtime = test_ok!(
-        tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build(),
-        "event runtime"
-    );
-    let event_bus = EventBus::new();
-    let issuer = test_ok!(issuer(), "provenance-configured issuer")
-        .with_event_bus_issuance_publisher(event_bus.clone())
-        .map_err(|error| format!("event publisher: {error:?}"))?;
-
     runtime.block_on(async {
         let grant = test_ok!(
             issuer.issue(IssuanceFixture::new().request()),
@@ -695,10 +692,10 @@ fn issuer_with_event_bus_preserves_audit_inside_and_outside_an_entered_tokio_run
         let journal = event_bus.journal().await;
         assert_eq!(
             journal.len(),
-            1,
-            "issuance must not return before its milestone is retained"
+            2,
+            "issuance must not return before each milestone is retained"
         );
-        let milestone = journal[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        let milestone = journal[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
         assert_eq!(
             milestone.payload.outcome,
             AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
@@ -718,8 +715,8 @@ fn issuer_with_event_bus_preserves_audit_inside_and_outside_an_entered_tokio_run
     let journal = inspection_runtime.block_on(event_bus.journal());
     assert_eq!(
         journal.len(),
-        1,
-        "runtime shutdown must not erase the milestone"
+        2,
+        "runtime shutdown must not erase retained milestones"
     );
     Ok(())
 }

@@ -1,3 +1,4 @@
+use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::bus::{DispatchMode, EventBus};
 use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
@@ -155,6 +156,7 @@ fn publish_on_current_thread_runtime(
     metadata: EventMetadata,
 ) -> Result<(), EventingError> {
     let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
         .build()
         .map_err(|error| EventingError::InvalidHandlerPolicy {
             reason: error.to_string(),
@@ -165,7 +167,17 @@ fn publish_on_current_thread_runtime(
                 .publish_with_mode(milestone, metadata, DispatchMode::Sequential)
                 .await
         })
-        .map(|_report| ())
+        .and_then(|report| require_durable_milestone(&report))
+}
+
+fn require_durable_milestone(report: &PublishReport) -> Result<(), EventingError> {
+    if report.subscriber_count == 0 {
+        return Err(EventingError::InvalidHandlerPolicy {
+            reason: "authenticated delivery grant issuance milestone requires a durable subscriber"
+                .to_owned(),
+        });
+    }
+    Ok(())
 }
 
 pub(crate) fn rejection_for(
