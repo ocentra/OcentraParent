@@ -182,6 +182,18 @@ impl AuthenticatedDeliveryGrantConsumer {
     }
 }
 
+pub fn validate_authenticated_delivery_grant(
+    grant: &AuthenticatedDeliveryGrant,
+    expected: &AuthenticatedDeliveryGrantExpectation,
+    trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
+) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+    validate_grant(grant, expected, trusted_issuer)
+}
+
+pub fn redacted_delivery_nonce_digest(nonce: &str) -> String {
+    digest(nonce)
+}
+
 fn validate_grant(
     grant: &AuthenticatedDeliveryGrant,
     expected: &AuthenticatedDeliveryGrantExpectation,
