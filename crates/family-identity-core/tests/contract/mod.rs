@@ -1,1 +1,2 @@
+mod device_trust_lifecycle;
 mod family_identity_contracts;
