@@ -152,9 +152,11 @@ pub struct AuthenticatedDeliveryGrantIssuer {
 }
 
 impl AuthenticatedDeliveryGrantIssuer {
-    pub fn from_platform_key(
+    pub fn from_platform_key_with_provenance_verifiers(
         issuer_key_id: impl Into<String>,
         platform_protected_key: [u8; 32],
+        authority_key: VerifyingKey,
+        step_up_key: VerifyingKey,
     ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError> {
         let issuer_key_id = issuer_key_id.into();
         if issuer_key_id.trim().is_empty() {
@@ -164,25 +166,9 @@ impl AuthenticatedDeliveryGrantIssuer {
         Ok(Self {
             issuer_key_id,
             signing_key,
-            authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier::new(
-                SigningKey::from_bytes(&[0; 32]).verifying_key(),
-            ),
-            step_up_verifier: ParentStepUpProofVerifier::new(
-                SigningKey::from_bytes(&[0; 32]).verifying_key(),
-            ),
+            authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier::new(authority_key),
+            step_up_verifier: ParentStepUpProofVerifier::new(step_up_key),
         })
-    }
-
-    pub fn from_platform_key_with_provenance_verifiers(
-        issuer_key_id: impl Into<String>,
-        platform_protected_key: [u8; 32],
-        authority_key: VerifyingKey,
-        step_up_key: VerifyingKey,
-    ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError> {
-        let mut issuer = Self::from_platform_key(issuer_key_id, platform_protected_key)?;
-        issuer.authority_verifier = AuthenticatedDeliveryGrantAuthorityVerifier::new(authority_key);
-        issuer.step_up_verifier = ParentStepUpProofVerifier::new(step_up_key);
-        Ok(issuer)
     }
 
     pub fn verifying_key(&self) -> VerifyingKey {
