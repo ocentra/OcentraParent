@@ -157,7 +157,8 @@ fn consumer_persists_atomic_consume_and_rejects_restart_replay() -> TestResult {
 #[test]
 fn consumer_rejects_tamper_wrong_target_expiry_and_revocation() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
-    let mut consumer = open(store_path("negative"), trusted_issuer(&key))?;
+    let path = store_path("negative");
+    let mut consumer = open(&path, trusted_issuer(&key))?;
     let grant = signed_grant(&key);
     let mut tampered = grant.clone();
     tampered.target_device_id = "other-device".to_owned();
@@ -192,7 +193,8 @@ fn consumer_rejects_tamper_wrong_target_expiry_and_revocation() -> TestResult {
 fn consumer_rejects_every_resigned_context_binding_and_wrong_issuer_key_pair() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let grant = signed_grant(&key);
-    let mut consumer = open(store_path("every-binding"), trusted_issuer(&key))?;
+    let path = store_path("every-binding");
+    let mut consumer = open(&path, trusted_issuer(&key))?;
     macro_rules! assert_binding_rejected {
         ($field:ident, $value:expr) => {{
             let mut wrong = grant.clone();
@@ -218,8 +220,9 @@ fn consumer_rejects_every_resigned_context_binding_and_wrong_issuer_key_pair() -
     assert_binding_rejected!(payload_digest, &"b".repeat(64));
 
     let other_key = SigningKey::from_bytes(&[5; 32]);
+    let wrong_key_path = store_path("wrong-key-pair");
     let mut other_key_consumer = open(
-        store_path("wrong-key-pair"),
+        &wrong_key_path,
         AuthenticatedDeliveryGrantTrustedIssuer {
             key_id: "parent-key-1".to_owned(),
             verifying_key: other_key.verifying_key(),
