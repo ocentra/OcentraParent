@@ -47,22 +47,40 @@ pub async fn publish_authorized_custody_delete(
     parent_presence: &mut ParentPresenceVerificationPort,
     command: AuthorizedCustodyDeleteCommand,
 ) -> Result<ChildRuntimeTombstonePublicationOutcome, AuthorizedCustodyDeleteError> {
+    // Reject a command that cannot produce a deletion before consuming its
+    // one-time parent-presence challenge. A rejection must leave the valid
+    // challenge available for the caller to correct and retry.
+    let action = validated_delete_action(&command)?;
     let consumed_presence = consume_authority(&command, parent_presence)?;
-    persist_consumed_authorized_custody_delete(flow, consumed_presence, command).await
+    persist_consumed_authorized_custody_delete(flow, consumed_presence, action, command.metadata)
+        .await
 }
 
 /// Internal command-runtime ingress. Callers must supply the opaque receipt
 /// returned by the sealed identity port after it atomically consumed the
 /// parent-presence challenge; this function is deliberately not a transport
 /// endpoint and cannot validate caller-supplied identity fields.
-pub async fn persist_consumed_authorized_custody_delete(
+pub(crate) async fn persist_consumed_authorized_custody_delete(
     flow: &ChildRuntimeTombstoneEventFlow,
     consumed_presence: ParentPresenceVerificationAccepted,
-    command: AuthorizedCustodyDeleteCommand,
+    action: ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent,
+    metadata: EventMetadata,
 ) -> Result<ChildRuntimeTombstonePublicationOutcome, AuthorizedCustodyDeleteError> {
-    if consumed_presence.assertion_snapshot() != &command.parent_presence.assertion {
-        return Err(AuthorizedCustodyDeleteError::ConsumedPresenceDoesNotMatchCommand);
-    }
+    // The receipt is intentionally consumed and used in the same module that
+    // performed household authorization.  No public caller can inject a
+    // receipt for an unrelated action or target.
+    let _consumed_presence = consumed_presence;
+    flow.publish_action(action, metadata)
+        .await
+        .map_err(|error| AuthorizedCustodyDeleteError::StorageUnavailable(error.kind()))
+}
+
+fn validated_delete_action(
+    command: &AuthorizedCustodyDeleteCommand,
+) -> Result<
+    ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent,
+    AuthorizedCustodyDeleteError,
+> {
     let action = storage_custody_action_planned_event(storage_custody_decision_recorded_event(
         command.aggregate_id.clone(),
         command.decision_id.clone(),
@@ -73,9 +91,7 @@ pub async fn persist_consumed_authorized_custody_delete(
     {
         return Err(AuthorizedCustodyDeleteError::CustodyActionIsNotDelete);
     }
-    flow.publish_action(action, command.metadata)
-        .await
-        .map_err(|error| AuthorizedCustodyDeleteError::StorageUnavailable(error.kind()))
+    Ok(action)
 }
 
 fn consume_authority(

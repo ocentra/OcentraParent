@@ -191,7 +191,7 @@ async fn untrusted_parent_or_non_delete_input_is_rejected_before_an_outbox_inten
     let non_delete = publish_authorized_custody_delete(
         &flow,
         &mut non_delete_parent_presence,
-        non_delete_command,
+        non_delete_command.clone(),
     )
     .await;
     assert_eq!(
@@ -201,6 +201,18 @@ async fn untrusted_parent_or_non_delete_input_is_rejected_before_an_outbox_inten
     assert!(RetentionDeleteTombstoneStore::open(&directory)?
         .records()?
         .is_empty());
+
+    // The rejected active-window request must not burn the one-time challenge:
+    // the same parent authority can correct the retention input and submit the
+    // intended deletion without redoing step-up.
+    let mut corrected = command("active", expired_input())?;
+    corrected.parent_presence = non_delete_command.parent_presence;
+    let corrected_outcome =
+        publish_authorized_custody_delete(&flow, &mut non_delete_parent_presence, corrected).await;
+    assert!(matches!(
+        corrected_outcome,
+        Ok(ChildRuntimeTombstonePublicationOutcome::Journaled(_))
+    ));
     let _ = fs::remove_dir_all(&directory);
     Ok(())
 }
