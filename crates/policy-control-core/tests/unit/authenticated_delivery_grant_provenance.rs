@@ -9,7 +9,9 @@ use ocentra_family_identity_core::household_authority::{
     ParentStepUpValidationInput,
 };
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
-use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
+use ocentra_policy_control_core::authenticated_delivery_grant::step_up::{
+    ParentStepUpProofSigner, ParentStepUpProofVerifier,
+};
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuance, AuthenticatedDeliveryGrantIssuanceError,
     AuthenticatedDeliveryGrantIssuer, CanonicalDeliveryGrantAuthorization, DeliveryGrantBindings,
@@ -159,10 +161,52 @@ impl ProvenanceFixture {
                 ),
                 "authority provenance"
             ),
-            verified_parent_step_up_proof: step_up_signer
-                .sign(self.step_up.validation.clone(), assertions),
+            verified_parent_step_up_proof: test_ok!(
+                step_up_signer.sign(self.step_up.validation.clone(), assertions),
+                "bounded parent step-up proof"
+            ),
         }
     }
+}
+
+#[test]
+fn parent_step_up_proof_rejects_oversized_fields_before_signing_or_verification() -> TestResult {
+    let signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let fixture = ProvenanceFixture::new();
+    let assertions = AuthenticatedDeliveryGrantAssertionSnapshot {
+        capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+        evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+    };
+    let valid_proof = test_ok!(
+        signer.sign(fixture.step_up.validation.clone(), assertions.clone()),
+        "bounded valid parent step-up proof"
+    );
+    let verifier = ParentStepUpProofVerifier::new(signer.verifying_key());
+    let verified = test_ok!(
+        verifier.verify(&valid_proof),
+        "verified valid parent step-up proof"
+    );
+    assert_eq!(verified.0, fixture.step_up.validation);
+    assert_eq!(verified.1, assertions);
+
+    let mut oversized_validation = fixture.step_up.validation.clone();
+    oversized_validation.expected_nonce = Some("x".repeat(513));
+    assert_eq!(
+        signer.sign(oversized_validation, verified.1.clone()),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+    );
+
+    let mut oversized_proof = valid_proof;
+    test_some!(
+        oversized_proof.validation.assertion.as_mut(),
+        "signed step-up assertion"
+    )
+    .nonce = "x".repeat(513);
+    assert_eq!(
+        verifier.verify(&oversized_proof),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+    );
+    Ok(())
 }
 
 fn authorized_decision() -> PolicyControlDecision {

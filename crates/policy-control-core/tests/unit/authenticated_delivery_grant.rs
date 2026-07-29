@@ -215,8 +215,10 @@ impl IssuanceFixture {
                 ),
                 "signed authority provenance"
             ),
-            verified_parent_step_up_proof: step_up_signer
-                .sign(self.parent_step_up.validation.clone(), assertions()),
+            verified_parent_step_up_proof: test_ok!(
+                step_up_signer.sign(self.parent_step_up.validation.clone(), assertions()),
+                "bounded parent step-up proof"
+            ),
         }
     }
 }
@@ -312,8 +314,10 @@ fn issuer_rejects_action_device_bound_to_a_different_child() -> TestResult {
         "signed step-up assertion"
     )
     .action_device_child_profile_id = Some("other-child".to_owned());
-    request.verified_parent_step_up_proof =
-        step_up_signer.sign(request.parent_step_up.validation.clone(), assertions());
+    request.verified_parent_step_up_proof = test_ok!(
+        step_up_signer.sign(request.parent_step_up.validation.clone(), assertions()),
+        "bounded parent step-up proof"
+    );
 
     assert_eq!(
         issuer.issue(request),
@@ -371,8 +375,10 @@ fn issuer_rejects_valid_signatures_from_unconfigured_provenance_keys() -> TestRe
         ),
         "unconfigured authority provenance"
     );
-    request.verified_parent_step_up_proof =
-        step_up_signed_by_another_key.sign(fixture.parent_step_up.validation.clone(), assertions());
+    request.verified_parent_step_up_proof = test_ok!(
+        step_up_signed_by_another_key.sign(fixture.parent_step_up.validation.clone(), assertions()),
+        "bounded parent step-up proof"
+    );
 
     assert_eq!(
         issuer.issue(request),
@@ -489,8 +495,10 @@ fn issuer_uses_dually_signed_assertions_instead_of_caller_claims() -> TestResult
         ),
         "unavailable capability provenance"
     );
-    request.verified_parent_step_up_proof =
-        step_up_signer.sign(fixture.parent_step_up.validation.clone(), unavailable);
+    request.verified_parent_step_up_proof = test_ok!(
+        step_up_signer.sign(fixture.parent_step_up.validation.clone(), unavailable),
+        "bounded parent step-up proof"
+    );
     assert_eq!(
         issuer.issue(request),
         Err(AuthenticatedDeliveryGrantIssuanceError::CapabilityUnavailable)
@@ -504,12 +512,15 @@ fn issuer_rejects_mismatched_dually_signed_assertions() -> TestResult {
     let fixture = IssuanceFixture::new();
     let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
     let mut request = fixture.request();
-    request.verified_parent_step_up_proof = step_up_signer.sign(
-        fixture.parent_step_up.validation.clone(),
-        AuthenticatedDeliveryGrantAssertionSnapshot {
-            capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
-            evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Unstable,
-        },
+    request.verified_parent_step_up_proof = test_ok!(
+        step_up_signer.sign(
+            fixture.parent_step_up.validation.clone(),
+            AuthenticatedDeliveryGrantAssertionSnapshot {
+                capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+                evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Unstable,
+            },
+        ),
+        "bounded parent step-up proof"
     );
     assert_eq!(
         issuer.issue(request),
@@ -560,9 +571,12 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
                 ),
                 "unavailable capability provenance"
             );
-            rejected_request.verified_parent_step_up_proof = step_up_signer.sign(
-                rejected_fixture.parent_step_up.validation.clone(),
-                unavailable,
+            rejected_request.verified_parent_step_up_proof = test_ok!(
+                step_up_signer.sign(
+                    rejected_fixture.parent_step_up.validation.clone(),
+                    unavailable,
+                ),
+                "bounded parent step-up proof"
             );
             assert_eq!(
                 issuer.issue(rejected_request),
@@ -592,26 +606,22 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
             4,
             "repeated accepted and rejected attempts must retain distinct idempotency keys"
         );
-        for event in &journal[..2] {
-            let accepted_event = event.decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
-            assert_eq!(
-                accepted_event.payload.outcome,
-                AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
-            );
-            assert_eq!(accepted_event.payload.rejection, None);
-            assert!(accepted_event.payload.redaction_state);
-        }
-        for event in &journal[2..] {
-            let rejected_event = event.decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
-            assert_eq!(
-                rejected_event.payload.outcome,
-                AuthenticatedDeliveryGrantIssuanceOutcome::Rejected
-            );
-            assert_eq!(
-                rejected_event.payload.rejection,
-                Some(AuthenticatedDeliveryGrantIssuanceRejection::Capability)
-            );
-            assert!(rejected_event.payload.redaction_state);
+        for (event, (outcome, rejection)) in journal.iter().zip([
+            (AuthenticatedDeliveryGrantIssuanceOutcome::Accepted, None),
+            (AuthenticatedDeliveryGrantIssuanceOutcome::Accepted, None),
+            (
+                AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
+                Some(AuthenticatedDeliveryGrantIssuanceRejection::Capability),
+            ),
+            (
+                AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
+                Some(AuthenticatedDeliveryGrantIssuanceRejection::Capability),
+            ),
+        ]) {
+            let milestone = event.decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+            assert_eq!(milestone.payload.outcome, outcome);
+            assert_eq!(milestone.payload.rejection, rejection);
+            assert!(milestone.payload.redaction_state);
         }
         Ok(())
     })
