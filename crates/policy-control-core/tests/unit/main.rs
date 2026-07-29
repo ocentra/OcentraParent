@@ -11,6 +11,8 @@ mod policy_control;
 mod authenticated_delivery_grant;
 #[path = "authenticated_delivery_grant_basics.rs"]
 mod authenticated_delivery_grant_basics;
+#[path = "authenticated_delivery_grant_fixture.rs"]
+mod authenticated_delivery_grant_fixture;
 #[path = "authenticated_delivery_grant_provenance.rs"]
 mod authenticated_delivery_grant_provenance;
 #[path = "policy_authority.rs"]

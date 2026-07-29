@@ -35,6 +35,7 @@ pub(super) fn issuance_rejection(
             AuthenticatedDeliveryGrantIssuanceRejection::AuthorizationBinding
         }
         AuthenticatedDeliveryGrantIssuanceError::InvalidAuthorizationSnapshot
+        | AuthenticatedDeliveryGrantIssuanceError::CorrelationIdRejected
         | AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp
         | AuthenticatedDeliveryGrantIssuanceError::InvalidBindings => authorization::from(error),
         AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected

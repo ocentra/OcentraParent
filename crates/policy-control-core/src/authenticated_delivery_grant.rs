@@ -10,7 +10,8 @@ use ocentra_family_identity_core::household_authority::{
 };
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantCapabilityAssertion,
-    AuthenticatedDeliveryGrantEvidenceAssertion, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
+    AuthenticatedDeliveryGrantEvidenceAssertion, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 
 use self::authority::{AuthenticatedDeliveryGrantAuthorityVerifier, SignedAuthorityBindings};
@@ -148,6 +149,7 @@ pub enum AuthenticatedDeliveryGrantIssuanceError {
     InvalidTimestamp,
     InvalidBindings,
     AuthorityProvenanceRejected,
+    CorrelationIdRejected,
     MilestonePublicationFailed,
 }
 
@@ -210,7 +212,8 @@ impl AuthenticatedDeliveryGrantIssuer {
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
         let correlation_id = request.correlation_id.clone();
-        let result = self.issue_inner(request);
+        let result = validate_issuance_correlation_id(&correlation_id)
+            .and_then(|()| self.issue_inner(request));
         self.publish_issuance_milestone(&correlation_id, &result)?;
         result
     }
@@ -220,7 +223,8 @@ impl AuthenticatedDeliveryGrantIssuer {
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
         let correlation_id = request.correlation_id.clone();
-        let result = self.issue_inner(request);
+        let result = validate_issuance_correlation_id(&correlation_id)
+            .and_then(|()| self.issue_inner(request));
         self.publish_issuance_milestone_async(&correlation_id, &result)
             .await?;
         result
@@ -333,7 +337,7 @@ impl AuthenticatedDeliveryGrantIssuer {
         result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
     ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
         let Some(publisher) = &self.issuance_publisher else {
-            return Ok(());
+            return require_publisher_for_accepted_result(result);
         };
         let milestone = issuance_milestone_for(result);
         publisher
@@ -347,7 +351,7 @@ impl AuthenticatedDeliveryGrantIssuer {
         result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
     ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
         let Some(publisher) = &self.issuance_publisher else {
-            return Ok(());
+            return require_publisher_for_accepted_result(result);
         };
         let milestone = issuance_milestone_for(result);
         publisher
@@ -355,4 +359,22 @@ impl AuthenticatedDeliveryGrantIssuer {
             .await
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
     }
+}
+
+fn validate_issuance_correlation_id(
+    correlation_id: &CorrelationId,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    (!correlation_id.as_str().trim().is_empty()
+        && correlation_id.as_str().len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES)
+        .then_some(())
+        .ok_or(AuthenticatedDeliveryGrantIssuanceError::CorrelationIdRejected)
+}
+
+fn require_publisher_for_accepted_result(
+    result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    result
+        .is_err()
+        .then_some(())
+        .ok_or(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
 }
