@@ -6,12 +6,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, UNIX_EPOCH};
 
 use ocentra_eventing::ids::CorrelationId;
-use ocentra_family_identity_core::family_identity::{
-    ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
-    HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
-};
 use ocentra_family_identity_core::household_authority::{
-    HouseholdAuthorityAction, HouseholdAuthorityInput, ParentStepUpAssertionSnapshot,
+    HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceObservedAt, ParentPresenceStorageFailureReason,
@@ -20,16 +16,15 @@ use ocentra_family_identity_core::parent_presence::{
 };
 use ocentra_family_identity_core::trust_bootstrap::{
     current_authority::{
-        current_parent_device_trust_authority, CurrentParentDeviceTrustAuthorityError,
-        CurrentParentDeviceTrustAuthorityInput,
+        CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError,
+        CurrentParentDeviceTrustAuthoritySource,
     },
     evaluate_trust_bootstrap, DeviceTrustRef, TrustBootstrapDecision, TrustBootstrapInput,
     TrustBootstrapLifecycleIntent, TrustBootstrapManualRequirementReason,
 };
 #[cfg(windows)]
 use ocentra_storage_custody_core::windows_dpapi_key_sealing::{
-    seal_for_current_windows_user, unseal_for_current_windows_user, DpapiKeySealingContext,
-    DpapiSealedKey,
+    seal_for_current_windows_user, unseal_for_current_windows_user, DpapiSealedKey,
 };
 
 use super::open_parent_presence_test_port;
@@ -130,31 +125,40 @@ fn assertion_for(case: &TestCase, expires_at: &str) -> ParentStepUpAssertionSnap
     }
 }
 
-fn parent_authority_input(device_trust_state: DeviceTrustState) -> HouseholdAuthorityInput {
-    HouseholdAuthorityInput {
-        actor_role: HouseholdRole::ParentOwner,
-        same_family: true,
-        actor_account_state: ActorAccountState::Active,
-        membership_state: HouseholdMembershipState::Active,
-        child_profile_binding_state: ChildProfileBindingState::Missing,
-        device_ownership_scope: DeviceOwnershipScope::ParentControllerDevice,
-        device_trust_state,
-        session_freshness_state: SessionFreshnessState::Fresh,
-        capability_granted: false,
-        controller_lease_state: None,
-        action: HouseholdAuthorityAction::SealParentDeviceTrust,
+struct CurrentAuthority<'a> {
+    trusted: bool,
+    trust_subject: &'a str,
+    device_ref: &'a str,
+    lifecycle_generation: u64,
+    installation_binding_generation: u64,
+}
+
+impl CurrentParentDeviceTrustAuthoritySource for CurrentAuthority<'_> {
+    fn current_authorized_parent_device(
+        &self,
+        trust_subject: &str,
+        device_ref: &str,
+    ) -> Result<CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError> {
+        (self.trusted && self.trust_subject == trust_subject && self.device_ref == device_ref)
+            .then_some(CurrentParentDeviceTrustAuthority {
+                lifecycle_generation: self.lifecycle_generation,
+                installation_binding_generation: self.installation_binding_generation,
+            })
+            .ok_or(CurrentParentDeviceTrustAuthorityError::NotTrusted)
     }
 }
 
-fn current_parent_authority_for_device(
-    device_trust_state: DeviceTrustState,
-    trust_subject: &str,
-    device_ref: &str,
-) -> CurrentParentDeviceTrustAuthorityInput {
-    CurrentParentDeviceTrustAuthorityInput {
-        household_authority_input: parent_authority_input(device_trust_state),
-        trust_subject: trust_subject.to_owned(),
-        device_ref: device_ref.to_owned(),
+fn current_parent_authority_for_device<'a>(
+    trusted: bool,
+    trust_subject: &'a str,
+    device_ref: &'a str,
+) -> CurrentAuthority<'a> {
+    CurrentAuthority {
+        trusted,
+        trust_subject,
+        device_ref,
+        lifecycle_generation: 1,
+        installation_binding_generation: 1,
     }
 }
 
@@ -306,20 +310,18 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
     };
     #[cfg(windows)]
     {
-        let context = DpapiKeySealingContext {
-            trust_subject: "parent-account-opaque-1".to_string(),
-            device_ref: "parent-device-opaque-1".to_string(),
-            device_role: "trusted-parent".to_string(),
-        };
-        let sealed = seal_for_current_windows_user(request, context.clone(), b"trust-material")
-            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
         let authority = current_parent_authority_for_device(
-            DeviceTrustState::Trusted,
-            &context.trust_subject,
-            &context.device_ref,
+            true,
+            case.parent_account_id.as_str(),
+            case.action_device_id.as_str(),
         );
+        let sealed = seal_for_current_windows_user(request, &authority, b"trust-material")
+            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+        let context = sealed.context().clone();
+        let authority =
+            current_parent_authority_for_device(true, &context.trust_subject, &context.device_ref);
         assert_eq!(
-            unseal_for_current_windows_user(&sealed, &authority, &context)
+            unseal_for_current_windows_user(&sealed, &authority)
                 .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
             b"trust-material"
         );
@@ -330,7 +332,7 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
         );
 
         assert_eq!(
-            unseal_for_current_windows_user(&sealed, &authority, &context),
+            unseal_for_current_windows_user(&sealed, &authority),
             Ok(b"trust-material".to_vec())
         );
         let persisted = serde_json::to_vec(&sealed)
@@ -338,35 +340,32 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
         let recovered: DpapiSealedKey = serde_json::from_slice(&persisted)
             .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
         assert_eq!(
-            unseal_for_current_windows_user(&recovered, &authority, &context),
+            unseal_for_current_windows_user(&recovered, &authority),
             Ok(b"trust-material".to_vec())
+        );
+        assert_eq!(
+            unseal_for_current_windows_user(
+                &recovered,
+                &CurrentAuthority {
+                    trusted: true,
+                    trust_subject: &context.trust_subject,
+                    device_ref: &context.device_ref,
+                    lifecycle_generation: 2,
+                    installation_binding_generation: 2,
+                },
+            ),
+            Err(ocentra_storage_custody_core::windows_dpapi_key_sealing::DpapiKeySealingError::CurrentAuthorityRequired)
         );
         assert!(
             !String::from_utf8_lossy(&persisted).contains("MachineGuid"),
             "machine-local binding must not be serialized with the sealed key"
         );
         assert_eq!(
-            unseal_for_current_windows_user(
-                &recovered,
-                &current_parent_authority_for_device(
-                    DeviceTrustState::Trusted,
-                    &context.trust_subject,
-                    "another-trusted-parent-device",
-                ),
-                &context,
-            ),
+            unseal_for_current_windows_user(&recovered, &current_parent_authority_for_device(true, &context.trust_subject, "another-trusted-parent-device")),
             Err(ocentra_storage_custody_core::windows_dpapi_key_sealing::DpapiKeySealingError::CurrentAuthorityRequired)
         );
         assert_eq!(
-            unseal_for_current_windows_user(
-                &recovered,
-                &current_parent_authority_for_device(
-                    DeviceTrustState::Revoked,
-                    &context.trust_subject,
-                    &context.device_ref,
-                ),
-                &context,
-            ),
+            unseal_for_current_windows_user(&recovered, &current_parent_authority_for_device(false, &context.trust_subject, &context.device_ref)),
             Err(ocentra_storage_custody_core::windows_dpapi_key_sealing::DpapiKeySealingError::CurrentAuthorityRequired)
         );
     }
@@ -375,26 +374,10 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
 
 #[test]
 fn current_parent_unsealing_authority_rejects_revoked_reset_and_reinstall_lifecycle_states() {
-    for state in [
-        DeviceTrustState::Pending,
-        DeviceTrustState::ResetRequired,
-        DeviceTrustState::Revoked,
-        DeviceTrustState::Disabled,
-    ] {
+    for trusted in [false, false, false, false] {
         assert_eq!(
-            current_parent_device_trust_authority(HouseholdAuthorityInput {
-                actor_role: HouseholdRole::ParentOwner,
-                same_family: true,
-                actor_account_state: ActorAccountState::Active,
-                membership_state: HouseholdMembershipState::Active,
-                child_profile_binding_state: ChildProfileBindingState::Missing,
-                device_ownership_scope: DeviceOwnershipScope::ParentControllerDevice,
-                device_trust_state: state,
-                session_freshness_state: SessionFreshnessState::Fresh,
-                capability_granted: false,
-                controller_lease_state: None,
-                action: HouseholdAuthorityAction::SealParentDeviceTrust,
-            }),
+            current_parent_authority_for_device(trusted, "parent", "device")
+                .current_authorized_parent_device("parent", "device"),
             Err(CurrentParentDeviceTrustAuthorityError::NotTrusted)
         );
     }

@@ -31,6 +31,7 @@ pub struct AwaitingPlatformKeySealingRequest {
     pub trust_bootstrap_ref: String,
     pub device_trust_ref: DeviceTrustRef,
     pub lifecycle_intent: TrustBootstrapLifecycleIntent,
+    approved_parent_device_ceremony: ApprovedParentDeviceCeremony,
     #[serde(skip)]
     sealing_marker: TrustBootstrapSealingMarker,
 }
@@ -40,6 +41,16 @@ pub struct PersistedPlatformKeyUnsealingCredential {
     trust_bootstrap_ref: String,
     device_trust_ref: DeviceTrustRef,
     lifecycle_intent: TrustBootstrapLifecycleIntent,
+    approved_parent_device_ceremony: ApprovedParentDeviceCeremony,
+}
+
+/// Identity binding taken only from the verified parent-presence ceremony.
+/// It is intentionally not caller-supplied at the platform sealing boundary.
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ApprovedParentDeviceCeremony {
+    trust_subject: String,
+    device_ref: String,
+    device_role: String,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -134,6 +145,7 @@ impl AwaitingPlatformKeySealingRequest {
             trust_bootstrap_ref: self.trust_bootstrap_ref,
             device_trust_ref: self.device_trust_ref,
             lifecycle_intent: self.lifecycle_intent,
+            approved_parent_device_ceremony: self.approved_parent_device_ceremony,
         }
     }
 }
@@ -149,6 +161,32 @@ impl PersistedPlatformKeyUnsealingCredential {
 
     pub fn trust_bootstrap_ref(&self) -> &str {
         &self.trust_bootstrap_ref
+    }
+
+    pub fn approved_parent_device_ceremony(&self) -> &ApprovedParentDeviceCeremony {
+        &self.approved_parent_device_ceremony
+    }
+}
+
+impl ApprovedParentDeviceCeremony {
+    pub fn trust_subject(&self) -> &str {
+        &self.trust_subject
+    }
+    pub fn device_ref(&self) -> &str {
+        &self.device_ref
+    }
+    pub fn device_role(&self) -> &str {
+        &self.device_role
+    }
+}
+
+impl fmt::Debug for ApprovedParentDeviceCeremony {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ApprovedParentDeviceCeremony")
+            .field("trust_subject", &"[redacted]")
+            .field("device_ref", &"[redacted]")
+            .field("device_role", &"[redacted]")
+            .finish()
     }
 }
 
@@ -168,14 +206,16 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
 
     let validation_input = ParentStepUpValidationInput {
         assertion: Some(parent_step_up_assertion),
-        family_id: parent_presence_challenge.family_id,
-        parent_account_id: parent_presence_challenge.parent_account_id,
-        action_device_id: parent_presence_challenge.action_device_id,
-        action_device_child_profile_id: parent_presence_challenge.action_device_child_profile_id,
-        target_child_profile_id: parent_presence_challenge.target_child_profile_id,
+        family_id: parent_presence_challenge.family_id.clone(),
+        parent_account_id: parent_presence_challenge.parent_account_id.clone(),
+        action_device_id: parent_presence_challenge.action_device_id.clone(),
+        action_device_child_profile_id: parent_presence_challenge
+            .action_device_child_profile_id
+            .clone(),
+        target_child_profile_id: parent_presence_challenge.target_child_profile_id.clone(),
         action: parent_presence_challenge.privileged_action,
         observed_at: observed_at.to_string(),
-        expected_nonce: Some(parent_presence_challenge.nonce_ref),
+        expected_nonce: Some(parent_presence_challenge.nonce_ref.clone()),
     };
 
     let validation = validate_parent_step_up_assertion(&validation_input);
@@ -186,10 +226,9 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
         });
     }
 
-    if !challenge_action_is_authorized_for_lifecycle_intent(
-        lifecycle_intent,
-        parent_presence_challenge.privileged_action,
-    ) {
+    if parent_presence_challenge.privileged_action
+        != HouseholdAuthorityAction::SealParentDeviceTrust
+    {
         return TrustBootstrapDecision::ManualRequired(TrustBootstrapManualRequirement {
             reason: TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable,
         });
@@ -205,24 +244,24 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
         }
     };
 
+    let approved_parent_device_ceremony =
+        ceremony_from_verified_parent_presence(&parent_presence_challenge);
     TrustBootstrapDecision::AwaitingPlatformKeySealing(AwaitingPlatformKeySealingRequest {
         device_trust_ref,
         trust_bootstrap_ref,
         lifecycle_intent,
+        approved_parent_device_ceremony,
         sealing_marker: TrustBootstrapSealingMarker,
     })
 }
 
-fn challenge_action_is_authorized_for_lifecycle_intent(
-    lifecycle_intent: TrustBootstrapLifecycleIntent,
-    challenge_action: HouseholdAuthorityAction,
-) -> bool {
-    const SEAL_PARENT_DEVICE_TRUST_ACTIONS: &[HouseholdAuthorityAction] =
-        &[HouseholdAuthorityAction::SealParentDeviceTrust];
-    match lifecycle_intent {
-        TrustBootstrapLifecycleIntent::SealParentDeviceTrust => {
-            SEAL_PARENT_DEVICE_TRUST_ACTIONS.contains(&challenge_action)
-        }
+fn ceremony_from_verified_parent_presence(
+    challenge: &crate::parent_presence::ParentPresenceChallenge,
+) -> ApprovedParentDeviceCeremony {
+    ApprovedParentDeviceCeremony {
+        trust_subject: challenge.parent_account_id.clone(),
+        device_ref: challenge.action_device_id.clone(),
+        device_role: "trusted-parent".to_owned(),
     }
 }
 

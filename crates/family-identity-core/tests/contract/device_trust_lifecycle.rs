@@ -30,7 +30,7 @@ fn revoke_invalidates_current_unseal_authority_and_writes_redacted_event() -> Re
         )
         .map_err(|_error| TestFailure)?;
     repository
-        .require_current_authorized_parent_device("parent-opaque", "device-opaque")
+        .current_authorized_parent_device("parent-opaque", "device-opaque")
         .map_err(|_error| TestFailure)?;
     repository
         .revoke_or_reset(
@@ -40,7 +40,7 @@ fn revoke_invalidates_current_unseal_authority_and_writes_redacted_event() -> Re
             "revoke-correlation",
         )
         .map_err(|_error| TestFailure)?;
-    assert_eq!(repository.require_current_authorized_parent_device("parent-opaque", "device-opaque"), Err(ocentra_family_identity_core::trust_bootstrap::current_authority::CurrentParentDeviceTrustAuthorityError::NotTrusted));
+    assert_eq!(repository.current_authorized_parent_device("parent-opaque", "device-opaque"), Err(ocentra_family_identity_core::trust_bootstrap::current_authority::CurrentParentDeviceTrustAuthorityError::NotTrusted));
     let events = repository.pending_events().map_err(|_error| TestFailure)?;
     assert_eq!(events.len(), 2);
     assert_eq!(events[1].kind, DeviceTrustLifecycleEventKind::Revoked);
@@ -68,8 +68,17 @@ fn re_pair_requires_new_non_restored_installation_generation() -> Result<(), Tes
         .repair_with_new_installation("parent", "device", 8, "re-pair")
         .map_err(|_error| TestFailure)?;
     repository
-        .require_current_authorized_parent_device("parent", "device")
+        .current_authorized_parent_device("parent", "device")
         .map_err(|_error| TestFailure)?;
+    assert_eq!(
+        repository
+            .current_authorized_parent_device("parent", "device")
+            .map_err(|_error| TestFailure)?,
+        ocentra_family_identity_core::trust_bootstrap::current_authority::CurrentParentDeviceTrustAuthority {
+            lifecycle_generation: 3,
+            installation_binding_generation: 8,
+        }
+    );
     let events = repository.pending_events().map_err(|_error| TestFailure)?;
     assert_eq!(events[2].kind, DeviceTrustLifecycleEventKind::Repaired);
     assert_eq!(events[2].lifecycle_generation, 3);

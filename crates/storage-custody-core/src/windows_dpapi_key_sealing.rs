@@ -8,8 +8,7 @@ use std::fmt;
 
 use ocentra_family_identity_core::trust_bootstrap::{
     current_authority::{
-        current_parent_device_trust_authority_for_sealed_device,
-        CurrentParentDeviceTrustAuthorityInput,
+        require_current_parent_device_trust_authority, CurrentParentDeviceTrustAuthoritySource,
     },
     AwaitingPlatformKeySealingRequest, PersistedPlatformKeyUnsealingCredential,
 };
@@ -27,13 +26,30 @@ pub struct DpapiKeySealingContext {
     pub trust_subject: String,
     pub device_ref: String,
     pub device_role: String,
+    pub lifecycle_generation: u64,
+    pub installation_binding_generation: u64,
 }
 
 impl DpapiKeySealingContext {
+    fn from_approved_ceremony(
+        credential: &PersistedPlatformKeyUnsealingCredential,
+        authority: ocentra_family_identity_core::trust_bootstrap::current_authority::CurrentParentDeviceTrustAuthority,
+    ) -> Self {
+        let ceremony = credential.approved_parent_device_ceremony();
+        Self {
+            trust_subject: ceremony.trust_subject().to_owned(),
+            device_ref: ceremony.device_ref().to_owned(),
+            device_role: ceremony.device_role().to_owned(),
+            lifecycle_generation: authority.lifecycle_generation,
+            installation_binding_generation: authority.installation_binding_generation,
+        }
+    }
     fn validate(&self) -> Result<(), DpapiKeySealingError> {
         if self.trust_subject.trim().is_empty()
             || self.device_ref.trim().is_empty()
             || self.device_role.trim().is_empty()
+            || self.lifecycle_generation == 0
+            || self.installation_binding_generation == 0
         {
             return Err(DpapiKeySealingError::InvalidBinding);
         }
@@ -62,6 +78,11 @@ impl fmt::Debug for DpapiKeySealingContext {
             .field("trust_subject", &"[redacted]")
             .field("device_ref", &"[redacted]")
             .field("device_role", &"[redacted]")
+            .field("lifecycle_generation", &self.lifecycle_generation)
+            .field(
+                "installation_binding_generation",
+                &self.installation_binding_generation,
+            )
             .finish()
     }
 }
@@ -111,15 +132,20 @@ pub enum DpapiKeySealingError {
 
 pub fn seal_for_current_windows_user(
     authorization: AwaitingPlatformKeySealingRequest,
-    context: DpapiKeySealingContext,
+    current_authority_source: &impl CurrentParentDeviceTrustAuthoritySource,
     trust_material: &[u8],
 ) -> Result<DpapiSealedKey, DpapiKeySealingError> {
-    context.validate()?;
     if trust_material.is_empty() {
         return Err(DpapiKeySealingError::EmptyTrustMaterial);
     }
 
     let unsealing_credential = authorization.consume_for_platform_key_sealing();
+    let ceremony = unsealing_credential.approved_parent_device_ceremony();
+    let authority = current_authority_source
+        .current_authorized_parent_device(ceremony.trust_subject(), ceremony.device_ref())
+        .map_err(|_error| DpapiKeySealingError::CurrentAuthorityRequired)?;
+    let context = DpapiKeySealingContext::from_approved_ceremony(&unsealing_credential, authority);
+    context.validate()?;
     let device_local_binding = current_windows_device_local_binding()?;
     let authorization_binding =
         authorization_binding(&context, &unsealing_credential, &device_local_binding);
@@ -140,26 +166,24 @@ pub fn seal_for_current_windows_user(
 
 pub fn unseal_for_current_windows_user(
     sealed_key: &DpapiSealedKey,
-    current_authority_input: &CurrentParentDeviceTrustAuthorityInput,
-    expected_context: &DpapiKeySealingContext,
+    current_authority_source: &impl CurrentParentDeviceTrustAuthoritySource,
 ) -> Result<Vec<u8>, DpapiKeySealingError> {
-    current_parent_device_trust_authority_for_sealed_device(
-        current_authority_input,
-        &expected_context.trust_subject,
-        &expected_context.device_ref,
+    require_current_parent_device_trust_authority(
+        current_authority_source,
+        &sealed_key.context.trust_subject,
+        &sealed_key.context.device_ref,
+        sealed_key.context.lifecycle_generation,
+        sealed_key.context.installation_binding_generation,
     )
     .map_err(|_error| DpapiKeySealingError::CurrentAuthorityRequired)?;
-    expected_context.validate()?;
+    sealed_key.context.validate()?;
     if sealed_key.format_version != SEALED_KEY_FORMAT_VERSION {
         return Err(DpapiKeySealingError::UnsupportedFormat);
-    }
-    if sealed_key.context != *expected_context {
-        return Err(DpapiKeySealingError::BindingMismatch);
     }
     let device_local_binding = current_windows_device_local_binding()?;
     if sealed_key.authorization_binding
         != authorization_binding(
-            expected_context,
+            &sealed_key.context,
             &sealed_key.unsealing_credential,
             &device_local_binding,
         )
@@ -172,7 +196,7 @@ pub fn unseal_for_current_windows_user(
 
     unseal_for_current_windows_user_inner(
         &sealed_key.ciphertext,
-        expected_context,
+        &sealed_key.context,
         &sealed_key.unsealing_credential,
         &device_local_binding,
     )
@@ -251,6 +275,8 @@ fn canonical_binding_bytes(
         context.trust_subject.clone(),
         context.device_ref.clone(),
         context.device_role.clone(),
+        context.lifecycle_generation.to_string(),
+        context.installation_binding_generation.to_string(),
         credential.trust_bootstrap_ref().to_owned(),
         credential.device_trust_ref().as_str().to_owned(),
         hex_encode(device_local_binding),

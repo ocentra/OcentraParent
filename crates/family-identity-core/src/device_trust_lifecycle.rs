@@ -10,7 +10,8 @@ use rusqlite::{params, Connection, OptionalExtension, TransactionBehavior};
 use serde::{Deserialize, Serialize};
 
 use crate::trust_bootstrap::current_authority::{
-    CurrentParentDeviceTrustAuthorityError, CurrentParentDeviceTrustAuthoritySource,
+    CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError,
+    CurrentParentDeviceTrustAuthoritySource,
 };
 
 const TRUSTED: &str = "trusted";
@@ -328,14 +329,23 @@ fn from_sql_generation(generation: i64) -> Result<u64, DeviceTrustLifecycleError
 }
 
 impl CurrentParentDeviceTrustAuthoritySource for DeviceTrustLifecycleRepository {
-    fn require_current_authorized_parent_device(
+    fn current_authorized_parent_device(
         &self,
         trust_subject: &str,
         device_ref: &str,
-    ) -> Result<(), CurrentParentDeviceTrustAuthorityError> {
-        let state = self.connection.query_row("SELECT lifecycle_state FROM device_trust_lifecycle WHERE trust_subject = ?1 AND device_ref = ?2", params![trust_subject, device_ref], |row| row.get::<_, String>(0)).optional().ok().flatten();
-        (state.as_deref() == Some(TRUSTED))
-            .then_some(())
-            .ok_or(CurrentParentDeviceTrustAuthorityError::NotTrusted)
+    ) -> Result<CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError> {
+        let row = self.connection.query_row("SELECT lifecycle_state, lifecycle_generation, installation_binding_generation FROM device_trust_lifecycle WHERE trust_subject = ?1 AND device_ref = ?2", params![trust_subject, device_ref], |row| Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?, row.get::<_, i64>(2)?))).optional().ok().flatten();
+        let Some((state, lifecycle_generation, installation_binding_generation)) = row else {
+            return Err(CurrentParentDeviceTrustAuthorityError::NotTrusted);
+        };
+        if state != TRUSTED {
+            return Err(CurrentParentDeviceTrustAuthorityError::NotTrusted);
+        }
+        Ok(CurrentParentDeviceTrustAuthority {
+            lifecycle_generation: u64::try_from(lifecycle_generation)
+                .map_err(|_error| CurrentParentDeviceTrustAuthorityError::NotTrusted)?,
+            installation_binding_generation: u64::try_from(installation_binding_generation)
+                .map_err(|_error| CurrentParentDeviceTrustAuthorityError::NotTrusted)?,
+        })
     }
 }
