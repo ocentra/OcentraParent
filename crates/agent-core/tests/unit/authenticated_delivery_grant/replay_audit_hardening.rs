@@ -198,6 +198,52 @@ fn oversized_direct_grant_is_audited_with_bounded_data_without_storing_the_untru
 }
 
 #[test]
+fn malformed_grant_audit_digest_binds_payload_length() -> TestResult {
+    let key = SigningKey::from_bytes(&[14; 32]);
+    let path = store_path("malformed-payload-length-audit-digest");
+    let mut first = signed_grant(&key);
+    first.payload_length = usize::MAX;
+    let mut second = first.clone();
+    second.payload_length = usize::MAX - 1;
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+
+    assert_eq!(
+        consumer.consume(
+            &first,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "malformed-payload-length-first",
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::InvalidGrant)
+    );
+    assert_eq!(
+        consumer.consume(
+            &second,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "malformed-payload-length-second",
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::InvalidGrant)
+    );
+    drop(consumer);
+
+    let connection = Connection::open(path.as_ref())?;
+    let grant_digests: Vec<String> = connection
+        .prepare(
+            "SELECT audit_json FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' ORDER BY rowid",
+        )?
+        .query_map([], |row| row.get::<_, String>(0))?
+        .map(|row| {
+            let audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&row?)?;
+            Ok::<_, Box<dyn std::error::Error + Send + Sync>>(audit.grant_digest)
+        })
+        .collect::<Result<_, _>>()?;
+    assert_eq!(grant_digests.len(), 2);
+    assert_ne!(grant_digests[0], grant_digests[1]);
+    Ok(())
+}
+
+#[test]
 fn malformed_shape_rejections_are_retained_without_blocking_valid_consumption() -> TestResult {
     let key = SigningKey::from_bytes(&[13; 32]);
     let path = store_path("malformed-shape-rejection-retention");
