@@ -203,7 +203,7 @@ impl AuthenticatedDeliveryGrantIssuer {
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
         let mut request = request;
-        let (bindings, authority_assertions) = self
+        let (bindings, authority_assertions, household_authority) = self
             .authority_verifier
             .verify(&request.signed_authority_bindings)?;
         let (step_up_validation, step_up_assertions) = self
@@ -213,6 +213,7 @@ impl AuthenticatedDeliveryGrantIssuer {
             return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
         }
         request.bindings = bindings;
+        request.household_authority = household_authority;
         request.parent_step_up.validation = step_up_validation;
         request.capability_state = match authority_assertions.capability {
             AuthenticatedDeliveryGrantCapabilityAssertion::Available => {
