@@ -85,6 +85,82 @@ fn post_lock_temporal_revalidation_rejects_both_newly_future_and_expired_grants(
         |row| row.get(0),
     )?;
     assert_eq!(rows, 0);
+    let audits: Vec<(String, String, i64)> = {
+        let mut statement = connection.prepare(
+            "SELECT audit_scope, audit_json, recorded_at_nanos FROM authenticated_delivery_grant_audits_v2 ORDER BY rowid",
+        )?;
+        let rows = statement
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))?
+            .collect::<Result<Vec<_>, _>>()?;
+        rows
+    };
+    assert_eq!(audits.len(), 2);
+    let recorded_at_nanos: Vec<i64> = audits
+        .iter()
+        .map(|(_, _, recorded_at_nanos)| *recorded_at_nanos)
+        .collect();
+    assert_eq!(
+        recorded_at_nanos,
+        vec![1_785_197_100_000_000_000, 1_785_197_099_000_000_000]
+    );
+    for (scope, audit_json, _) in audits {
+        assert_eq!(scope, "validation-rejection");
+        let audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&audit_json)?;
+        assert!(matches!(
+            audit.outcome,
+            AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+                ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::Expired
+                    | ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::NotYetValid
+            )
+        ));
+    }
+    Ok(())
+}
+
+#[test]
+fn oversized_direct_grant_is_audited_with_bounded_data_without_storing_the_untrusted_field(
+) -> TestResult {
+    let key = SigningKey::from_bytes(&[13; 32]);
+    let path = store_path("bounded-shape-rejection-audit");
+    let mut grant = signed_grant(&key);
+    grant.issuer_key_id = "x".repeat(8 * 1024 * 1024);
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    assert_eq!(
+        consumer.consume(
+            &grant,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "bounded-shape-rejection"
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::InvalidGrant)
+    );
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let (issuer_key_id, nonce, audit_json, scope): (String, String, String, String) = connection.query_row(
+        "SELECT issuer_key_id, nonce, audit_json, audit_scope FROM authenticated_delivery_grant_audits_v2",
+        [],
+        |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+    )?;
+    assert_eq!(issuer_key_id.len(), 64);
+    assert_eq!(nonce.len(), 64);
+    assert!(audit_json.len() < 1_024);
+    assert_eq!(scope, "validation-rejection");
+    let audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&audit_json)?;
+    assert_eq!(audit.issuer_key_id_digest.len(), 64);
+    assert_eq!(audit.nonce_digest.len(), 64);
+    assert_eq!(audit.grant_digest.len(), 64);
+    assert_eq!(
+        audit.outcome,
+        AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::InvalidGrant
+        )
+    );
+    let consumed_rows: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(consumed_rows, 0);
     Ok(())
 }
 
