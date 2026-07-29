@@ -6,6 +6,7 @@ use ocentra_eventing::ids::{
     AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey,
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
 };
+use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrant;
 
 use super::AuthenticatedDeliveryGrantIssuanceError;
 
@@ -127,27 +128,29 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
         };
         let metadata = EventMetadata::new(correlation_id, self.source.clone());
         if tokio::runtime::Handle::try_current().is_ok() {
-            return publish_from_entered_runtime(self.event_bus.clone(), milestone, metadata);
+            return Err(EventingError::InvalidHandlerPolicy {
+                reason: "authenticated delivery grant issuance must await durable publication inside a Tokio runtime"
+                    .to_owned(),
+            });
         }
         publish_on_current_thread_runtime(self.event_bus.clone(), milestone, metadata)
     }
-}
 
-fn publish_from_entered_runtime(
-    event_bus: EventBus,
-    milestone: AuthenticatedDeliveryGrantIssuanceAttemptMilestone,
-    metadata: EventMetadata,
-) -> Result<(), EventingError> {
-    let publisher = std::thread::Builder::new()
-        .spawn(move || publish_on_current_thread_runtime(event_bus, milestone, metadata))
-        .map_err(|error| EventingError::InvalidHandlerPolicy {
-            reason: error.to_string(),
-        })?;
-    publisher
-        .join()
-        .map_err(|_error| EventingError::InvalidHandlerPolicy {
-            reason: "issuance milestone publisher thread panicked".to_owned(),
-        })?
+    pub(crate) async fn publish_async(
+        &self,
+        correlation_id: CorrelationId,
+        milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
+    ) -> Result<(), EventingError> {
+        let milestone = AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
+            attempt_id: EventId::generated(),
+            milestone,
+        };
+        let metadata = EventMetadata::new(correlation_id, self.source.clone());
+        self.event_bus
+            .publish_with_mode(milestone, metadata, DispatchMode::Sequential)
+            .await
+            .and_then(|report| require_durable_milestone(&report))
+    }
 }
 
 fn publish_on_current_thread_runtime(
@@ -171,10 +174,11 @@ fn publish_on_current_thread_runtime(
 }
 
 fn require_durable_milestone(report: &PublishReport) -> Result<(), EventingError> {
-    if report.subscriber_count == 0 {
+    if report.journal_appends.is_empty() {
         return Err(EventingError::InvalidHandlerPolicy {
-            reason: "authenticated delivery grant issuance milestone requires a durable subscriber"
-                .to_owned(),
+            reason:
+                "authenticated delivery grant issuance milestone requires a durable journal append"
+                    .to_owned(),
         });
     }
     Ok(())
@@ -184,4 +188,21 @@ pub(crate) fn rejection_for(
     error: AuthenticatedDeliveryGrantIssuanceError,
 ) -> AuthenticatedDeliveryGrantIssuanceRejection {
     issuance_rejection(error)
+}
+
+pub(crate) fn issuance_milestone_for(
+    result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
+) -> AuthenticatedDeliveryGrantIssuanceMilestone {
+    match result {
+        Ok(_grant) => AuthenticatedDeliveryGrantIssuanceMilestone {
+            outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
+            rejection: None,
+            redaction_state: true,
+        },
+        Err(error) => AuthenticatedDeliveryGrantIssuanceMilestone {
+            outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
+            rejection: Some(rejection_for(*error)),
+            redaction_state: true,
+        },
+    }
 }

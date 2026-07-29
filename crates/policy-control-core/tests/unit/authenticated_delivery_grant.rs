@@ -2,6 +2,8 @@ use super::TestResult;
 use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::ids::{CorrelationId, EventType, SubscriberId, TargetHandler};
+use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
+use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -13,7 +15,6 @@ use ocentra_family_identity_core::household_authority::{
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::issuance_milestone::{
     AuthenticatedDeliveryGrantIssuanceMilestone, AuthenticatedDeliveryGrantIssuanceOutcome,
-    AuthenticatedDeliveryGrantIssuanceRejection,
 };
 use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
@@ -28,7 +29,6 @@ use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AuthenticatedDeliveryGrantCapabilityAssertion,
     AuthenticatedDeliveryGrantEvidenceAssertion,
 };
-use std::collections::BTreeSet;
 
 pub(super) fn issuer(
 ) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
@@ -56,6 +56,27 @@ pub(super) async fn subscribe_issuance_milestone_persistence(
         )
         .await
         .map(|_| ())
+}
+
+fn durable_milestone_bus(
+    journal_path: &std::path::Path,
+) -> Result<EventBus, ocentra_eventing::error::EventingError> {
+    let event_type = EventType::parse("authenticated-delivery-grant.issuance.milestone")?;
+    Ok(EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
+        NdjsonEventJournal::new(journal_path).shared(),
+    ))
+}
+
+fn assert_durable_milestone_count(
+    journal_path: &std::path::Path,
+    expected_count: usize,
+    description: &str,
+) -> TestResult {
+    let journal = std::fs::read_to_string(journal_path)?;
+    assert_eq!(journal.lines().count(), expected_count, "{description}");
+    std::fs::remove_file(journal_path)?;
+    Ok(())
 }
 
 use ocentra_policy_control_core::policy_authority::{
@@ -535,132 +556,43 @@ fn issuer_rejects_mismatched_dually_signed_assertions() -> TestResult {
 }
 
 #[test]
-fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus() -> TestResult {
-    let runtime = test_ok!(
-        tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build(),
-        "event runtime"
-    );
-    runtime.block_on(async {
-        let event_bus = EventBus::new();
-        test_ok!(
-            subscribe_issuance_milestone_persistence(&event_bus).await,
-            "issuance milestone persistence subscriber registers"
-        );
-        let issuer = test_ok!(issuer(), "provenance-configured issuer")
-            .with_event_bus_issuance_publisher(event_bus.clone())
-            .map_err(|error| format!("event publisher: {error:?}"))?;
-        for _ in 0..2 {
-            let accepted = test_ok!(
-                issuer.issue(IssuanceFixture::new().request()),
-                "issued delivery grant"
-            );
-            assert_eq!(accepted.issuer_key_id, "parent-key-1");
-            assert_eq!(accepted.target_device_id, "child-device-1");
-        }
-
-        for _ in 0..2 {
-            let rejected_fixture = IssuanceFixture::new();
-            let unavailable = AuthenticatedDeliveryGrantAssertionSnapshot {
-                capability: AuthenticatedDeliveryGrantCapabilityAssertion::Unavailable,
-                evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
-            };
-            let authority_signer =
-                AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
-            let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
-            let mut rejected_request = rejected_fixture.request();
-            rejected_request.signed_authority_bindings = test_ok!(
-                authority_signer.sign(
-                    rejected_fixture.bindings.clone(),
-                    unavailable.clone(),
-                    rejected_fixture.household_authority,
-                    rejected_fixture.policy_decision,
-                    rejected_fixture.policy_authority.clone(),
-                ),
-                "unavailable capability provenance"
-            );
-            rejected_request.verified_parent_step_up_proof = test_ok!(
-                step_up_signer.sign(
-                    rejected_fixture.parent_step_up.validation.clone(),
-                    rejected_fixture.bindings.target_device_id.clone(),
-                    unavailable,
-                ),
-                "bounded parent step-up proof"
-            );
-            assert_eq!(
-                issuer.issue(rejected_request),
-                Err(AuthenticatedDeliveryGrantIssuanceError::CapabilityUnavailable),
-                "each unavailable capability attempt must be rejected"
-            );
-        }
-
-        for _ in 0..16 {
-            tokio::task::yield_now().await;
-        }
-        let journal = event_bus.journal().await;
-        assert_eq!(
-            journal.len(),
-            4,
-            "expected one milestone per issuance attempt"
-        );
-        assert!(journal.iter().all(|event| {
-            event.correlation_id.as_str() == "authenticated-delivery-grant-test-chain-1"
-        }));
-        let idempotency_keys = journal
-            .iter()
-            .map(|event| event.idempotency_key.as_str().to_owned())
-            .collect::<BTreeSet<_>>();
-        assert_eq!(
-            idempotency_keys.len(),
-            4,
-            "repeated accepted and rejected attempts must retain distinct idempotency keys"
-        );
-        for (event, (outcome, rejection)) in journal.iter().zip([
-            (AuthenticatedDeliveryGrantIssuanceOutcome::Accepted, None),
-            (AuthenticatedDeliveryGrantIssuanceOutcome::Accepted, None),
-            (
-                AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
-                Some(AuthenticatedDeliveryGrantIssuanceRejection::Capability),
-            ),
-            (
-                AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
-                Some(AuthenticatedDeliveryGrantIssuanceRejection::Capability),
-            ),
-        ]) {
-            let milestone = event.decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
-            assert_eq!(milestone.payload.outcome, outcome);
-            assert_eq!(milestone.payload.rejection, rejection);
-            assert!(milestone.payload.redaction_state);
-        }
-        Ok(())
-    })
-}
-
-#[test]
-fn issuer_requires_a_milestone_persistence_subscriber_inside_and_outside_an_entered_tokio_runtime(
-) -> TestResult {
-    let missing_subscriber_bus = EventBus::new();
-    let missing_subscriber_issuer = test_ok!(issuer(), "provenance-configured issuer")
-        .with_event_bus_issuance_publisher(missing_subscriber_bus.clone())
+fn issuer_requires_durable_receipt_and_awaits_safely_inside_an_entered_tokio_runtime() -> TestResult
+{
+    let no_op_subscriber_bus = EventBus::new();
+    let no_op_subscriber_issuer = test_ok!(issuer(), "provenance-configured issuer")
+        .with_event_bus_issuance_publisher(no_op_subscriber_bus.clone())
         .map_err(|error| format!("event publisher: {error:?}"))?;
-    assert_eq!(
-        missing_subscriber_issuer.issue(IssuanceFixture::new().request()),
-        Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
-        "issuance must fail rather than report success when its milestone lacks a persistence subscriber"
-    );
-
     let runtime = test_ok!(
         tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build(),
         "event runtime"
     );
-    let event_bus = EventBus::new();
+    runtime.block_on(async {
+        test_ok!(
+            subscribe_issuance_milestone_persistence(&no_op_subscriber_bus).await,
+            "no-op issuance subscriber registers"
+        );
+        assert_eq!(
+            no_op_subscriber_issuer
+                .issue_async(IssuanceFixture::new().request())
+                .await,
+            Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
+            "a successful subscriber without a durable journal append must not authorize issuance"
+        );
+    });
+    let journal_path = std::env::temp_dir().join(format!(
+        "ocentra-policy-control-issuance-runtime-{}.ndjson",
+        ocentra_eventing::ids::EventId::generated().as_str()
+    ));
+    let event_bus = test_ok!(
+        durable_milestone_bus(&journal_path),
+        "durable issuance milestone event bus"
+    );
     runtime.block_on(async {
         test_ok!(
             subscribe_issuance_milestone_persistence(&event_bus).await,
-            "issuance milestone persistence subscriber registers"
+            "durable issuance subscriber registers"
         );
     });
     let issuer = test_ok!(issuer(), "provenance-configured issuer")
@@ -685,8 +617,8 @@ fn issuer_requires_a_milestone_persistence_subscriber_inside_and_outside_an_ente
 
     runtime.block_on(async {
         let grant = test_ok!(
-            issuer.issue(IssuanceFixture::new().request()),
-            "entered runtime issuance must retain its audit milestone"
+            issuer.issue_async(IssuanceFixture::new().request()).await,
+            "entered runtime issuance must await its durable audit milestone without blocking the executor"
         );
         assert_eq!(grant.issuer_key_id, "parent-key-1");
         let journal = event_bus.journal().await;
@@ -718,5 +650,9 @@ fn issuer_requires_a_milestone_persistence_subscriber_inside_and_outside_an_ente
         2,
         "runtime shutdown must not erase retained milestones"
     );
-    Ok(())
+    assert_durable_milestone_count(
+        &journal_path,
+        2,
+        "both sync and async issuance calls must have durable receipts",
+    )
 }

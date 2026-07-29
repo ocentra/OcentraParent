@@ -70,9 +70,14 @@ impl EventBus {
         if write_journal {
             self.record_stored_snapshot(&stored).await;
         }
-        self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
+        let mut journal_appends = Vec::new();
+        if let Some(append) = self
+            .append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
             .await
-            .map_err(DispatchStoredError::BeforeDispatch)?;
+            .map_err(DispatchStoredError::BeforeDispatch)?
+        {
+            journal_appends.push(append);
+        }
         let handler_reports = self
             .dispatch(stored.clone(), subscribers.clone(), dispatch_mode)
             .await;
@@ -81,9 +86,13 @@ impl EventBus {
         if !dead_letters.is_empty() {
             self.record_dead_letters(dead_letters.clone()).await;
         }
-        self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
+        if let Some(append) = self
+            .append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
             .await
-            .map_err(DispatchStoredError::AfterDispatch)?;
+            .map_err(DispatchStoredError::AfterDispatch)?
+        {
+            journal_appends.push(append);
+        }
         Ok(PublishReport {
             event_id: stored.event_id,
             event_type: stored.contract.event_type,
@@ -96,6 +105,7 @@ impl EventBus {
                 .count(),
             dead_letter_count: dead_letters.len(),
             handler_reports,
+            journal_appends,
         })
     }
 
