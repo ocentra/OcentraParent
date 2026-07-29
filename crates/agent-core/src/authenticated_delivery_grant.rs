@@ -425,6 +425,12 @@ fn reject_post_begin_temporal_window(
     );
     persist_audit_transaction(&transaction, grant, &audit, Some(trusted_now_nanos))?;
     transaction
+        .execute(
+            TRIM_VALIDATION_REJECTION_AUDITS,
+            [MAX_VALIDATION_REJECTION_AUDITS],
+        )
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    transaction
         .commit()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     Err(error)
