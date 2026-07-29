@@ -54,6 +54,7 @@ const GRANT_WIRE_FIELD_KINDS: &[GrantWireFieldKind] = &[
     GrantWireFieldKind::Signature,
 ];
 
+#[derive(Clone, Copy)]
 pub(super) struct GrantWireField(usize);
 
 impl GrantWireField {

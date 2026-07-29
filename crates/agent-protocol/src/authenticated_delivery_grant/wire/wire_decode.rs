@@ -24,8 +24,10 @@ pub(super) fn build_grant(
     mut fields: GrantWireFields,
     names: &[&'static str],
 ) -> Result<AuthenticatedDeliveryGrant, String> {
+    let schema_version_value = fields.required(0, names)?;
+    let dry_run_value = fields.required(13, names)?;
     Ok(AuthenticatedDeliveryGrant {
-        schema_version: schema_version(fields.required(0, names)?, names[0])?,
+        schema_version: schema_version(&schema_version_value, names[0])?,
         issuer_key_id: string(fields.required(1, names)?, names[1])?,
         issuer_actor_id: string(fields.required(2, names)?, names[2])?,
         household_id: string(fields.required(3, names)?, names[3])?,
@@ -38,7 +40,7 @@ pub(super) fn build_grant(
         capability_id: string(fields.required(10, names)?, names[10])?,
         evidence_digest: string(fields.required(11, names)?, names[11])?,
         payload_digest: string(fields.required(12, names)?, names[12])?,
-        dry_run: dry_run(fields.required(13, names)?, names[13])?,
+        dry_run: dry_run(&dry_run_value, names[13])?,
         nonce: string(fields.required(14, names)?, names[14])?,
         issued_at: string(fields.required(15, names)?, names[15])?,
         expires_at: string(fields.required(16, names)?, names[16])?,
@@ -47,9 +49,9 @@ pub(super) fn build_grant(
     })
 }
 
-fn schema_version(value: GrantWireValue, field: &str) -> Result<u16, String> {
+fn schema_version(value: &GrantWireValue, field: &str) -> Result<u16, String> {
     match value {
-        GrantWireValue::SchemaVersion(value) => Ok(value),
+        GrantWireValue::SchemaVersion(value) => Ok(*value),
         _ => Err(format!("field `{field}` has the wrong wire type")),
     }
 }
@@ -61,9 +63,9 @@ fn string(value: GrantWireValue, field: &str) -> Result<String, String> {
     }
 }
 
-fn dry_run(value: GrantWireValue, field: &str) -> Result<bool, String> {
+fn dry_run(value: &GrantWireValue, field: &str) -> Result<bool, String> {
     match value {
-        GrantWireValue::DryRun(value) => Ok(value),
+        GrantWireValue::DryRun(value) => Ok(*value),
         _ => Err(format!("field `{field}` has the wrong wire type")),
     }
 }
