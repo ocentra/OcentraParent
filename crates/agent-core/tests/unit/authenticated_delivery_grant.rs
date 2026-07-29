@@ -6,9 +6,10 @@ use std::{
 
 use ed25519_dalek::{Signer, SigningKey};
 use ocentra_parent_agent_core::authenticated_delivery_grant::{
-    AuthenticatedDeliveryGrantAuditOutcome, AuthenticatedDeliveryGrantConsumeError,
-    AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumer,
-    AuthenticatedDeliveryGrantExpectation, AuthenticatedDeliveryGrantTrustedIssuer,
+    AuthenticatedDeliveryGrantAudit, AuthenticatedDeliveryGrantAuditOutcome,
+    AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantConsumeOutcome,
+    AuthenticatedDeliveryGrantConsumer, AuthenticatedDeliveryGrantExpectation,
+    AuthenticatedDeliveryGrantTrustedIssuer,
 };
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
@@ -151,42 +152,113 @@ fn consumer_persists_atomic_consume_and_rejects_restart_replay() -> TestResult {
 }
 
 #[test]
-fn consumer_rejects_tamper_wrong_target_expiry_and_revocation() -> TestResult {
+fn consumer_persists_redacted_bounded_audits_for_validation_rejections() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
-    let path = store_path("negative");
-    let mut consumer = open(&path, trusted_issuer(&key))?;
+    let path = store_path("validation-rejection-audits");
     let grant = signed_grant(&key);
+    let mut consumer = open(&path, trusted_issuer(&key))?;
     let mut tampered = grant.clone();
-    tampered.target_device_id = "other-device".to_owned();
-    assert_eq!(
-        consumer.consume(&tampered, &expected(), DELIVERED_PAYLOAD, "correlation-1"),
-        Err(AuthenticatedDeliveryGrantConsumeError::SignatureRejected)
-    );
-    let mut wrong_target = grant.clone();
-    wrong_target.target_device_id = "other-device".to_owned();
-    wrong_target.signature = key.sign(&wrong_target.signing_bytes()).to_bytes().to_vec();
-    assert_eq!(
-        consumer.consume(
-            &wrong_target,
-            &expected(),
-            DELIVERED_PAYLOAD,
-            "correlation-1"
-        ),
-        Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
-    );
+    tampered.target_device_id = "tampered-target-device".to_owned();
+    let mut binding = grant.clone();
+    binding.target_device_id = "other-target-device".to_owned();
+    binding.signature = key.sign(&binding.signing_bytes()).to_bytes().to_vec();
+    let mut dry_run = grant.clone();
+    dry_run.dry_run = true;
+    dry_run.signature = key.sign(&dry_run.signing_bytes()).to_bytes().to_vec();
     let mut expired = grant.clone();
     expired.expires_at = "2026-07-28T00:00:30Z".to_owned();
     expired.signature = key.sign(&expired.signing_bytes()).to_bytes().to_vec();
-    assert_eq!(
-        consumer.consume(&expired, &expected(), DELIVERED_PAYLOAD, "correlation-1"),
-        Err(AuthenticatedDeliveryGrantConsumeError::Expired)
-    );
     let mut revoked = expected();
     revoked.revocation_version = "revocation-2".to_owned();
-    assert_eq!(
-        consumer.consume(&grant, &revoked, DELIVERED_PAYLOAD, "correlation-1"),
-        Err(AuthenticatedDeliveryGrantConsumeError::Revoked)
-    );
+    let attempts = [
+        (
+            &tampered,
+            expected(),
+            AuthenticatedDeliveryGrantConsumeError::SignatureRejected,
+        ),
+        (
+            &binding,
+            expected(),
+            AuthenticatedDeliveryGrantConsumeError::BindingRejected,
+        ),
+        (
+            &dry_run,
+            expected(),
+            AuthenticatedDeliveryGrantConsumeError::DryRunRejected,
+        ),
+        (
+            &expired,
+            expected(),
+            AuthenticatedDeliveryGrantConsumeError::Expired,
+        ),
+        (
+            &grant,
+            revoked,
+            AuthenticatedDeliveryGrantConsumeError::Revoked,
+        ),
+    ];
+    let expected_audits = [
+        AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::SignatureRejected,
+        ),
+        AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::BindingRejected,
+        ),
+        AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::DryRunRejected,
+        ),
+        AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::Expired,
+        ),
+        AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::Revoked,
+        ),
+    ];
+    for (index, (attempt, expected, error)) in attempts.into_iter().enumerate() {
+        assert_eq!(
+            consumer.consume(
+                attempt,
+                &expected,
+                DELIVERED_PAYLOAD,
+                format!("rejection-correlation-{index}"),
+            ),
+            Err(error)
+        );
+    }
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let audits = connection
+        .prepare("SELECT audit_json FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 ORDER BY rowid")?
+        .query_map([grant.issuer_key_id.as_str(), grant.nonce.as_str()], |row| row.get::<_, String>(0))?
+        .collect::<Result<Vec<_>, _>>()?;
+    assert_eq!(audits.len(), 5);
+    for (index, audit_json) in audits.into_iter().enumerate() {
+        let audit_keys = serde_json::from_str::<serde_json::Value>(&audit_json)?
+            .as_object()
+            .ok_or_else(|| std::io::Error::other("audit must be a JSON object"))?
+            .keys()
+            .cloned()
+            .collect::<Vec<_>>();
+        assert_eq!(
+            audit_keys,
+            vec![
+                "correlation_id".to_owned(),
+                "grant_digest".to_owned(),
+                "issuer_key_id_digest".to_owned(),
+                "nonce_digest".to_owned(),
+                "outcome".to_owned(),
+            ]
+        );
+        let audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&audit_json)?;
+        assert_eq!(
+            audit.correlation_id,
+            format!("rejection-correlation-{index}")
+        );
+        assert_eq!(audit.issuer_key_id_digest.len(), 64);
+        assert_eq!(audit.nonce_digest.len(), 64);
+        assert_eq!(audit.grant_digest.len(), 64);
+        assert_eq!(audit.outcome, expected_audits[index]);
+    }
     Ok(())
 }
 
