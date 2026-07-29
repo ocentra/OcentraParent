@@ -18,8 +18,8 @@ const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_d
 const SELECT_CONSUMED_GRANT: &str =
     "SELECT grant_json FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2";
 const INSERT_CONSUMED_GRANT: &str = "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)";
-const CREATE_GRANT_AUDITS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_audits_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL)";
-const INSERT_GRANT_AUDIT: &str = "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)";
+const CREATE_GRANT_AUDITS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_audits_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL, recorded_at_nanos INTEGER, audit_scope TEXT NOT NULL DEFAULT 'replay')";
+const INSERT_GRANT_AUDIT: &str = "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope) VALUES (?1, ?2, ?3, ?4, ?5)";
 const TRIM_GRANT_AUDITS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND rowid NOT IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 ORDER BY rowid DESC LIMIT ?3)";
 const CONSUME_BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 const MAX_REPLAY_AUDIT_ROWS_PER_GRANT: i64 = 16;
@@ -141,8 +141,10 @@ impl AuthenticatedDeliveryGrantConsumer {
         connection
             .execute(CREATE_GRANT_AUDITS, [])
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+        rejection_audit::ensure_retention_schema(&connection)?;
         authenticated_delivery_grant_retention::ensure_retention_indexes(&connection)?;
         if let Some(startup_now_nanos) = startup_now_nanos {
+            rejection_audit::drain_expired_at_startup(&mut connection, startup_now_nanos)?;
             authenticated_delivery_grant_retention::drain_expired_replay_records_at_startup(
                 &mut connection,
                 startup_now_nanos,
@@ -218,11 +220,13 @@ impl AuthenticatedDeliveryGrantConsumer {
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
         let correlation_id = correlation_id.into();
-        validation::validate_correlation_id(&correlation_id)?;
-        validation::validate_grant(grant, expected, &self.trusted_issuer, trusted_now.0)
-            .map_err(|error| self.persist_validation_rejection(grant, &correlation_id, error))?;
-        validation::validate_delivered_payload(grant, delivered_payload)
-            .map_err(|error| self.persist_validation_rejection(grant, &correlation_id, error))?;
+        self.validate_request(
+            grant,
+            expected,
+            delivered_payload,
+            &correlation_id,
+            trusted_now,
+        )?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
             &mut self.connection,
             trusted_now.1,
@@ -285,6 +289,23 @@ impl AuthenticatedDeliveryGrantConsumer {
         Ok(AuthenticatedDeliveryGrantConsumeOutcome::Consumed(audit))
     }
 
+    fn validate_request(
+        &mut self,
+        grant: &AuthenticatedDeliveryGrant,
+        expected: &AuthenticatedDeliveryGrantExpectation,
+        delivered_payload: &[u8],
+        correlation_id: &str,
+        trusted_now: (AuthenticatedDeliveryGrantInstant, i64),
+    ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+        validation::validate_correlation_id(correlation_id)?;
+        validation::validate_grant(grant, expected, &self.trusted_issuer, trusted_now.0).map_err(
+            |error| self.persist_validation_rejection(grant, correlation_id, trusted_now.1, error),
+        )?;
+        validation::validate_delivered_payload(grant, delivered_payload).map_err(|error| {
+            self.persist_validation_rejection(grant, correlation_id, trusted_now.1, error)
+        })
+    }
+
     #[cfg(debug_assertions)]
     pub fn inject_next_commit_failure_for_debug(&mut self) {
         self.fail_next_commit = true;
@@ -317,9 +338,16 @@ impl AuthenticatedDeliveryGrantConsumer {
         &mut self,
         grant: &AuthenticatedDeliveryGrant,
         correlation_id: &str,
+        trusted_now_nanos: i64,
         error: AuthenticatedDeliveryGrantConsumeError,
     ) -> AuthenticatedDeliveryGrantConsumeError {
-        rejection_audit::persist(&mut self.connection, grant, correlation_id, error)
+        rejection_audit::persist(
+            &mut self.connection,
+            grant,
+            correlation_id,
+            trusted_now_nanos,
+            error,
+        )
     }
 }
 
@@ -339,7 +367,7 @@ fn reject_replay(
         correlation_id,
         AuthenticatedDeliveryGrantAuditOutcome::ReplayRejected,
     );
-    persist_audit_transaction(&transaction, grant, &audit)?;
+    persist_audit_transaction(&transaction, grant, &audit, None)?;
     transaction
         .commit()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
@@ -352,13 +380,20 @@ fn persist_audit_transaction(
     transaction: &Transaction<'_>,
     grant: &AuthenticatedDeliveryGrant,
     audit: &AuthenticatedDeliveryGrantAudit,
+    recorded_at_nanos: Option<i64>,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let audit_json = serde_json::to_string(audit)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
     transaction
         .execute(
             INSERT_GRANT_AUDIT,
-            params![grant.issuer_key_id, grant.nonce, audit_json],
+            params![
+                grant.issuer_key_id,
+                grant.nonce,
+                audit_json,
+                recorded_at_nanos,
+                rejection_audit::audit_scope(audit),
+            ],
         )
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     transaction

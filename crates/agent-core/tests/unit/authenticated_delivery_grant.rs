@@ -30,7 +30,7 @@ fn must<T, E: Debug>(result: Result<T, E>) -> TestResult<T> {
 }
 
 #[derive(Clone)]
-struct TestDatabase(Arc<TestDatabasePath>);
+pub(super) struct TestDatabase(Arc<TestDatabasePath>);
 
 struct TestDatabasePath(PathBuf);
 
@@ -53,7 +53,7 @@ impl Drop for TestDatabasePath {
     }
 }
 
-fn store_path(name: &str) -> TestDatabase {
+pub(super) fn store_path(name: &str) -> TestDatabase {
     let mut path = std::env::temp_dir();
     path.push(format!(
         "ocentra-authenticated-delivery-{name}-{}-{}.sqlite",
@@ -65,7 +65,7 @@ fn store_path(name: &str) -> TestDatabase {
     TestDatabase(Arc::new(TestDatabasePath(path)))
 }
 
-fn signed_grant(key: &SigningKey) -> AuthenticatedDeliveryGrant {
+pub(super) fn signed_grant(key: &SigningKey) -> AuthenticatedDeliveryGrant {
     let mut grant = AuthenticatedDeliveryGrant {
         schema_version: AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
         issuer_key_id: "parent-key-1".to_owned(),
@@ -91,14 +91,14 @@ fn signed_grant(key: &SigningKey) -> AuthenticatedDeliveryGrant {
     grant
 }
 
-fn trusted_issuer(key: &SigningKey) -> AuthenticatedDeliveryGrantTrustedIssuer {
+pub(super) fn trusted_issuer(key: &SigningKey) -> AuthenticatedDeliveryGrantTrustedIssuer {
     AuthenticatedDeliveryGrantTrustedIssuer {
         key_id: "parent-key-1".to_owned(),
         verifying_key: key.verifying_key(),
     }
 }
 
-fn open(
+pub(super) fn open(
     path: impl AsRef<std::path::Path>,
     issuer: AuthenticatedDeliveryGrantTrustedIssuer,
 ) -> TestResult<AuthenticatedDeliveryGrantConsumer> {
@@ -109,7 +109,7 @@ fn open(
     ))
 }
 
-fn expected() -> AuthenticatedDeliveryGrantExpectation {
+pub(super) fn expected() -> AuthenticatedDeliveryGrantExpectation {
     AuthenticatedDeliveryGrantExpectation {
         issuer_actor_id: "parent-1".to_owned(),
         household_id: "household-1".to_owned(),
