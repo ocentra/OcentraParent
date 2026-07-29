@@ -120,16 +120,24 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
         correlation_id: CorrelationId,
         milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
     ) {
-        let Ok(runtime) = tokio::runtime::Handle::try_current() else {
-            return;
-        };
         let milestone = AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
             attempt_id: EventId::generated(),
             milestone,
         };
         let event_bus = self.event_bus.clone();
         let metadata = EventMetadata::new(correlation_id, self.source.clone());
-        let _publish = runtime.spawn(async move {
+        if let Ok(runtime) = tokio::runtime::Handle::try_current() {
+            let _publish = runtime.spawn(async move {
+                event_bus
+                    .publish_with_mode(milestone, metadata, DispatchMode::Sequential)
+                    .await
+            });
+            return;
+        }
+        let Ok(runtime) = tokio::runtime::Builder::new_current_thread().build() else {
+            return;
+        };
+        let _publish = runtime.block_on(async move {
             event_bus
                 .publish_with_mode(milestone, metadata, DispatchMode::Sequential)
                 .await
