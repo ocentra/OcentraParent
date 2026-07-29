@@ -18,7 +18,6 @@ pub mod app_game_platform_proof_status;
 pub mod app_game_policy_readiness;
 pub mod app_game_timer_parent_preference_setup_request;
 pub mod app_game_timer_parent_surface_read_model;
-pub mod authenticated_delivery_grant;
 pub mod browser;
 pub mod browser_intervention;
 mod browser_intervention_parse;

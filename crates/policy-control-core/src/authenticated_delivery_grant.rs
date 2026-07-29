@@ -5,7 +5,7 @@ use ocentra_family_identity_core::household_authority::{
     authorize_household_action, HouseholdAuthorityAction, HouseholdAuthorityInput,
     HouseholdAuthorizationState, ParentStepUpValidationInput,
 };
-use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
+use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 

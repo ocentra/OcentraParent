@@ -28,8 +28,6 @@ mod app_game_policy_readiness_tests;
 mod app_game_timer_parent_preference_setup_request_tests;
 #[path = "app_game_timer_parent_surface_read_model_tests.rs"]
 mod app_game_timer_parent_surface_read_model_tests;
-#[path = "authenticated_delivery_grant.rs"]
-mod authenticated_delivery_grant;
 #[path = "browser_inventory_tests.rs"]
 mod browser_inventory_tests;
 #[path = "browser_managed_tests.rs"]
