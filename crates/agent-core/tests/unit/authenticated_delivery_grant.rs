@@ -13,7 +13,7 @@ use ocentra_parent_agent_core::authenticated_delivery_grant::{
 use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
-use rusqlite::Connection;
+use rusqlite::{params, Connection};
 
 type TestResult<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -270,7 +270,8 @@ fn consumer_uses_trusted_instant_expiry_and_ignores_caller_observed_time() -> Te
 #[test]
 fn consumer_reads_trusted_time_at_each_consume_not_only_at_open() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
-    let mut consumer = open(store_path("fresh-clock"), trusted_issuer(&key))?;
+    let path = store_path("fresh-clock");
+    let mut consumer = open(&path, trusted_issuer(&key))?;
     let grant = signed_grant(&key);
     assert!(matches!(
         must(consumer.consume_at_for_debug_test(
@@ -317,6 +318,58 @@ fn consumer_bounds_persisted_replay_audits_per_unexpired_grant() -> TestResult {
         |row| row.get(0),
     )?;
     assert_eq!(count, 16);
+    Ok(())
+}
+
+#[test]
+fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_audits(
+) -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("indexed-expiry-purge");
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    let connection = Connection::open(path.as_ref())?;
+    for index in 0..129 {
+        let issuer_key_id = format!("expired-issuer-{index}");
+        let nonce = format!("expired-nonce-{index}");
+        connection.execute(
+            "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_micros) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![issuer_key_id, nonce, "{}", "{}", 0_i64],
+        )?;
+        connection.execute(
+            "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)",
+            params![format!("expired-issuer-{index}"), format!("expired-nonce-{index}"), "{}"],
+        )?;
+    }
+    let plan: String = connection.query_row(
+        "EXPLAIN QUERY PLAN SELECT issuer_key_id, nonce FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_micros <= ?1 ORDER BY expires_at_micros LIMIT ?2",
+        params![1_i64, 128_i64],
+        |row| row.get(3),
+    )?;
+    assert_eq!(
+        plan,
+        "SEARCH authenticated_delivery_grant_consumes_v2 USING COVERING INDEX authenticated_delivery_grant_consumes_v2_expiry_idx (expires_at_micros<?)"
+    );
+    drop(connection);
+    must(consumer.consume_at_for_debug_test(
+        &signed_grant(&key),
+        &expected(),
+        "trigger-indexed-expiry-purge",
+        "2026-07-28T00:01:00Z",
+    ))?;
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let remaining_expired: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_micros = 0",
+        [],
+        |row| row.get(0),
+    )?;
+    let remaining_expired_audits: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id LIKE 'expired-issuer-%'",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(remaining_expired, 1);
+    assert_eq!(remaining_expired_audits, 1);
     Ok(())
 }
 
