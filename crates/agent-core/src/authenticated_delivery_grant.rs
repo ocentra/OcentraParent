@@ -14,10 +14,10 @@ use sha2::{Digest, Sha256};
 
 mod authenticated_delivery_grant_retention;
 
-const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_micros INTEGER, PRIMARY KEY (issuer_key_id, nonce))";
+const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER, PRIMARY KEY (issuer_key_id, nonce))";
 const SELECT_CONSUMED_GRANT: &str =
     "SELECT grant_json FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2";
-const INSERT_CONSUMED_GRANT: &str = "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_micros) VALUES (?1, ?2, ?3, ?4, ?5)";
+const INSERT_CONSUMED_GRANT: &str = "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)";
 const CREATE_GRANT_AUDITS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_audits_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL)";
 const INSERT_GRANT_AUDIT: &str = "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)";
 const TRIM_GRANT_AUDITS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND rowid NOT IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 ORDER BY rowid DESC LIMIT ?3)";
@@ -104,9 +104,9 @@ impl AuthenticatedDeliveryGrantConsumer {
     fn open_at(
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
-        startup_now_micros: Option<i64>,
+        startup_now_nanos: Option<i64>,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
-        let connection = Connection::open(path)
+        let mut connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         connection
             .busy_timeout(CONSUME_BUSY_TIMEOUT)
@@ -120,11 +120,11 @@ impl AuthenticatedDeliveryGrantConsumer {
         connection
             .execute(CREATE_GRANT_AUDITS, [])
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        authenticated_delivery_grant_retention::ensure_expiry_index(&connection)?;
-        if let Some(startup_now_micros) = startup_now_micros {
-            authenticated_delivery_grant_retention::purge_expired_replay_records(
-                &connection,
-                startup_now_micros,
+        authenticated_delivery_grant_retention::ensure_retention_indexes(&connection)?;
+        if let Some(startup_now_nanos) = startup_now_nanos {
+            authenticated_delivery_grant_retention::drain_expired_replay_records_at_startup(
+                &mut connection,
+                startup_now_nanos,
             )?;
         }
         Ok(Self {
@@ -187,7 +187,7 @@ impl AuthenticatedDeliveryGrantConsumer {
     {
         validate_grant(grant, expected, &self.trusted_issuer, trusted_now.0)?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
-            &self.connection,
+            &mut self.connection,
             trusted_now.1,
         )?;
         let correlation_id = correlation_id.into();
@@ -218,7 +218,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         );
         let grant_json = serde_json::to_string(grant)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
-        let expires_at_micros = instant_micros(&grant.expires_at)?;
+        let expires_at_nanos = instant_nanos(&grant.expires_at)?;
         let audit_json = serde_json::to_string(&audit)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
         transaction
@@ -229,7 +229,7 @@ impl AuthenticatedDeliveryGrantConsumer {
                     grant.nonce,
                     grant_json,
                     audit_json,
-                    expires_at_micros
+                    expires_at_nanos
                 ],
             )
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
@@ -357,16 +357,14 @@ fn trusted_now(
 fn parse_trusted_now(
     trusted_now: &str,
 ) -> Result<(AuthenticatedDeliveryGrantInstant, i64), AuthenticatedDeliveryGrantConsumeError> {
-    Ok((
-        parse_observed_at(trusted_now)?,
-        instant_micros(trusted_now)?,
-    ))
+    Ok((parse_observed_at(trusted_now)?, instant_nanos(trusted_now)?))
 }
 
-fn instant_micros(value: &str) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
+fn instant_nanos(value: &str) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
     DateTime::parse_from_rfc3339(value)
-        .map(|instant| instant.timestamp_micros())
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::BindingRejected)
+        .ok()
+        .and_then(|instant| instant.timestamp_nanos_opt())
+        .ok_or(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
 }
 
 fn audit(
