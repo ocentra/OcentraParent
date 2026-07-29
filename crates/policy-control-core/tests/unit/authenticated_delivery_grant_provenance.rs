@@ -336,3 +336,30 @@ fn issuer_rejects_oversized_signed_authority_binding_before_verification() -> Te
     );
     Ok(())
 }
+
+#[test]
+fn issuer_fails_closed_without_a_durable_milestone_publisher() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = ProvenanceFixture::new();
+    assert_eq!(
+        issuer.issue(fixture.request()),
+        Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_an_oversized_correlation_before_publication() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = ProvenanceFixture::new();
+    let mut request = fixture.request();
+    request.correlation_id = test_ok!(
+        CorrelationId::parse("c".repeat(513)),
+        "oversized eventing correlation remains syntactically valid"
+    );
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::CorrelationIdRejected)
+    );
+    Ok(())
+}

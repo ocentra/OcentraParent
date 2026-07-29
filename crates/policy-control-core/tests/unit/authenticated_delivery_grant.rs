@@ -1,9 +1,10 @@
+use super::authenticated_delivery_grant_fixture::{
+    assert_durable_milestone_count, durable_milestone_bus, issuer,
+    subscribe_issuance_milestone_persistence,
+};
 use super::TestResult;
-use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::EventBus;
-use ocentra_eventing::ids::{CorrelationId, EventType, SubscriberId, TargetHandler};
-use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
-use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
+use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -19,66 +20,16 @@ use ocentra_policy_control_core::authenticated_delivery_grant::issuance_mileston
 use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuance, AuthenticatedDeliveryGrantIssuanceError,
-    AuthenticatedDeliveryGrantIssuer, CanonicalDeliveryGrantAuthorization, DeliveryGrantBindings,
-    DeliveryGrantCapabilityState, DeliveryGrantEvidenceState, GrantActionId, GrantCapabilityId,
-    GrantChildProfileId, GrantEvidenceDigest, GrantHouseholdId, GrantIssuerActorId, GrantNonce,
-    GrantParentDeviceId, GrantPayloadDigest, GrantPolicyDecisionId, GrantPolicyVersion,
-    GrantRevocationVersion, GrantTargetDeviceId, ParentStepUpGrantAuthorization,
+    CanonicalDeliveryGrantAuthorization, DeliveryGrantBindings, DeliveryGrantCapabilityState,
+    DeliveryGrantEvidenceState, GrantActionId, GrantCapabilityId, GrantChildProfileId,
+    GrantEvidenceDigest, GrantHouseholdId, GrantIssuerActorId, GrantNonce, GrantParentDeviceId,
+    GrantPayloadDigest, GrantPolicyDecisionId, GrantPolicyVersion, GrantRevocationVersion,
+    GrantTargetDeviceId, ParentStepUpGrantAuthorization,
 };
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AuthenticatedDeliveryGrantCapabilityAssertion,
     AuthenticatedDeliveryGrantEvidenceAssertion,
 };
-
-pub(super) fn issuer(
-) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
-    let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
-    let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
-    AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
-        "parent-key-1",
-        [3; 32],
-        authority.verifying_key(),
-        step_up.verifying_key(),
-    )
-    .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
-}
-
-pub(super) async fn subscribe_issuance_milestone_persistence(
-    event_bus: &EventBus,
-) -> Result<(), ocentra_eventing::error::EventingError> {
-    event_bus
-        .subscribe::<AuthenticatedDeliveryGrantIssuanceMilestone, _, _>(
-            EventSubscriber::new(
-                SubscriberId::parse("policy-control.issuance-milestone-persistence")?,
-                EventType::parse("authenticated-delivery-grant.issuance.milestone")?,
-                TargetHandler::parse("policy-control.issuance-milestone-persistence")?,
-            ),
-            |_| async { Ok(()) },
-        )
-        .await
-        .map(|_| ())
-}
-
-fn durable_milestone_bus(
-    journal_path: &std::path::Path,
-) -> Result<EventBus, ocentra_eventing::error::EventingError> {
-    let event_type = EventType::parse("authenticated-delivery-grant.issuance.milestone")?;
-    Ok(EventBus::with_journal(
-        JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-        NdjsonEventJournal::new(journal_path).shared(),
-    ))
-}
-
-fn assert_durable_milestone_count(
-    journal_path: &std::path::Path,
-    expected_count: usize,
-    description: &str,
-) -> TestResult {
-    let journal = std::fs::read_to_string(journal_path)?;
-    assert_eq!(journal.lines().count(), expected_count, "{description}");
-    std::fs::remove_file(journal_path)?;
-    Ok(())
-}
 
 use ocentra_policy_control_core::policy_authority::{
     PolicyActionAuthorizationState, PolicyControlDecision, PolicyEnforcementExecutionState,
@@ -479,6 +430,23 @@ fn issuer_rejects_manual_review_and_invalid_or_chronologically_expired_timestamp
     .expires_at = "2500-01-01T00:00:01Z".to_owned();
     assert_eq!(
         issuer.issue(storage_unrepresentable_expiry.request()),
+        Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp)
+    );
+
+    let mut future_issued_at = IssuanceFixture::new();
+    future_issued_at.bindings.issued_at = "2026-07-28T00:01:01Z".to_owned();
+    future_issued_at.parent_step_up.validation.observed_at = "2026-07-28T00:01:01Z".to_owned();
+    test_some!(
+        future_issued_at
+            .parent_step_up
+            .validation
+            .assertion
+            .as_mut(),
+        "step-up assertion"
+    )
+    .expires_at = "2026-07-28T00:10:00Z".to_owned();
+    assert_eq!(
+        issuer.issue(future_issued_at.request()),
         Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp)
     );
     Ok(())

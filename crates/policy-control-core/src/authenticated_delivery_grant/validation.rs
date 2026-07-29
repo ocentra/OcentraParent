@@ -207,7 +207,8 @@ pub(super) fn validate_freshness_at(
     trusted_now: &str,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     let trusted_now = parse_rfc3339(trusted_now)?;
-    if parse_rfc3339(&bindings.expires_at)? <= trusted_now {
+    let issued_at = parse_rfc3339(&bindings.issued_at)?;
+    if issued_at > trusted_now || parse_rfc3339(&bindings.expires_at)? <= trusted_now {
         return Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp);
     }
     Ok(())

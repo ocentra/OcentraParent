@@ -1,5 +1,6 @@
-use super::authenticated_delivery_grant::{
-    issuer, subscribe_issuance_milestone_persistence, IssuanceFixture,
+use super::authenticated_delivery_grant::IssuanceFixture;
+use super::authenticated_delivery_grant_fixture::{
+    issuer, issuer_without_milestone_publisher, subscribe_issuance_milestone_persistence,
 };
 use super::TestResult;
 use ocentra_eventing::bus::EventBus;
@@ -63,9 +64,12 @@ fn issuer_flushes_an_accepted_milestone_to_the_configured_durable_journal() -> T
             subscribe_issuance_milestone_persistence(&event_bus).await,
             "durable issuance milestone subscriber registers"
         );
-        let issuer = test_ok!(issuer(), "provenance-configured issuer")
-            .with_event_bus_issuance_publisher(event_bus)
-            .map_err(|error| format!("event publisher: {error:?}"))?;
+        let issuer = test_ok!(
+            issuer_without_milestone_publisher(),
+            "provenance-configured issuer"
+        )
+        .with_event_bus_issuance_publisher(event_bus)
+        .map_err(|error| format!("event publisher: {error:?}"))?;
         let grant = test_ok!(
             issuer.issue_async(IssuanceFixture::new().request()).await,
             "accepted issuance must wait for durable milestone persistence"
