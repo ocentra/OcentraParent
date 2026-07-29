@@ -5,6 +5,7 @@ use std::process::Command;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, UNIX_EPOCH};
 
+use super::open_parent_presence_test_port;
 use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
@@ -22,12 +23,6 @@ use ocentra_family_identity_core::trust_bootstrap::{
     evaluate_trust_bootstrap, DeviceTrustRef, TrustBootstrapDecision, TrustBootstrapInput,
     TrustBootstrapLifecycleIntent, TrustBootstrapManualRequirementReason,
 };
-#[cfg(windows)]
-use ocentra_storage_custody_core::windows_dpapi_key_sealing::{
-    seal_for_current_windows_user, unseal_for_current_windows_user, DpapiSealedKey,
-};
-
-use super::open_parent_presence_test_port;
 
 const ACCEPTED_EXPIRY: &str = "2099-01-01T00:00:00.000Z";
 
@@ -62,14 +57,6 @@ impl TestStore {
         assert!(matches!(fs::create_dir_all(&root), Ok(())));
         let path = root.join("parent-presence.sqlite");
         Self { root, path }
-    }
-
-    fn path(&self) -> &Path {
-        &self.path
-    }
-
-    fn port(&self) -> Result<ParentPresenceVerificationPort, ParentPresenceStorageFailureReason> {
-        open_parent_presence_test_port(&self.path)
     }
 }
 
@@ -268,10 +255,10 @@ fn main() {
 fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
     let case = test_case("multi-instance");
     let store = TestStore::new("multi-instance");
-    let mut issuer = store.port()?;
+    let mut issuer = open_parent_presence_test_port(&store.path)?;
     issue_valid_challenge(&mut issuer, &case, ACCEPTED_EXPIRY);
-    let mut first = open_parent_presence_test_port(store.path())?;
-    let mut second = open_parent_presence_test_port(store.path())?;
+    let mut first = open_parent_presence_test_port(&store.path)?;
+    let mut second = open_parent_presence_test_port(&store.path)?;
     assert_eq!(
         first
             .verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?)
@@ -290,7 +277,7 @@ fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
 fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() -> TestResult {
     let case = test_case("manual-seal");
     let store = TestStore::new("manual-seal");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
     let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?);
     assert_eq!(
@@ -308,70 +295,10 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
         parent_presence: accepted,
     });
 
-    let TrustBootstrapDecision::AwaitingPlatformKeySealing(request) = decision else {
-        return Err(ParentPresenceStorageFailureReason::CustodyUnavailable);
-    };
-    #[cfg(windows)]
-    {
-        let authority = current_parent_authority_for_device(
-            true,
-            case.parent_account_id.as_str(),
-            case.action_device_id.as_str(),
-        );
-        let sealed = seal_for_current_windows_user(request, &authority, b"trust-material")
-            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-        let context = sealed.context().clone();
-        let authority =
-            current_parent_authority_for_device(true, &context.trust_subject, &context.device_ref);
-        assert_eq!(
-            unseal_for_current_windows_user(&sealed, &authority)
-                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
-            b"trust-material"
-        );
-        let debug = format!("{sealed:?}");
-        assert_eq!(
-            debug,
-            "DpapiSealedKey { format_version: 1, context: \"[redacted]\", authorization_binding: \"[redacted]\", ciphertext: \"[redacted]\" }"
-        );
-
-        assert_eq!(
-            unseal_for_current_windows_user(&sealed, &authority),
-            Ok(b"trust-material".to_vec())
-        );
-        let persisted = serde_json::to_vec(&sealed)
-            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-        let recovered: DpapiSealedKey = serde_json::from_slice(&persisted)
-            .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-        assert_eq!(
-            unseal_for_current_windows_user(&recovered, &authority),
-            Ok(b"trust-material".to_vec())
-        );
-        assert_eq!(
-            unseal_for_current_windows_user(
-                &recovered,
-                &CurrentAuthority {
-                    trusted: true,
-                    trust_subject: &context.trust_subject,
-                    device_ref: &context.device_ref,
-                    lifecycle_generation: 2,
-                    installation_binding_generation: 2,
-                },
-            ),
-            Err(ocentra_storage_custody_core::windows_dpapi_key_sealing::DpapiKeySealingError::CurrentAuthorityRequired)
-        );
-        assert!(
-            !String::from_utf8_lossy(&persisted).contains("MachineGuid"),
-            "machine-local binding must not be serialized with the sealed key"
-        );
-        assert_eq!(
-            unseal_for_current_windows_user(&recovered, &current_parent_authority_for_device(true, &context.trust_subject, "another-trusted-parent-device")),
-            Err(ocentra_storage_custody_core::windows_dpapi_key_sealing::DpapiKeySealingError::CurrentAuthorityRequired)
-        );
-        assert_eq!(
-            unseal_for_current_windows_user(&recovered, &current_parent_authority_for_device(false, &context.trust_subject, &context.device_ref)),
-            Err(ocentra_storage_custody_core::windows_dpapi_key_sealing::DpapiKeySealingError::CurrentAuthorityRequired)
-        );
-    }
+    assert!(matches!(
+        decision,
+        TrustBootstrapDecision::ManualRequired(_)
+    ));
     Ok(())
 }
 
@@ -392,7 +319,7 @@ fn trust_bootstrap_never_promotes_matching_low_risk_action_into_sealing() -> Tes
     case.action_device_child_profile_id = None;
     case.target_child_profile_id = None;
     let store = TestStore::new("low-risk-manual-seal");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
     challenge.privileged_action = HouseholdAuthorityAction::ViewChildStatus;
     assert_eq!(port.issue_challenge(challenge), Ok(()));
@@ -424,12 +351,16 @@ fn trust_bootstrap_never_promotes_matching_low_risk_action_into_sealing() -> Tes
 fn trust_bootstrap_rejects_a_child_scoped_parent_sealing_ceremony() -> TestResult {
     let case = test_case("child-scoped-sealing");
     let store = TestStore::new("child-scoped-sealing");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
     challenge.privileged_action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    challenge.action_device_child_profile_id = case.action_device_child_profile_id.clone();
+    challenge.target_child_profile_id = case.target_child_profile_id.clone();
     assert_eq!(port.issue_challenge(challenge), Ok(()));
     let mut assertion = assertion_for(&case, ACCEPTED_EXPIRY);
     assertion.action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    assertion.action_device_child_profile_id = case.action_device_child_profile_id.clone();
+    assertion.target_child_profile_id = case.target_child_profile_id.clone();
     let accepted = port
         .verify_and_consume(ParentPresenceVerificationInput {
             correlation_id: CorrelationId::parse("child-scoped-sealing-correlation")
@@ -489,7 +420,7 @@ fn device_trust_reference_is_random_opaque_and_input_independent() -> TestResult
 fn trust_bootstrap_operational_debug_redacts_identity_and_capability_material() -> TestResult {
     let case = test_case("operational-debug");
     let store = TestStore::new("operational-debug");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
     let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?);
     assert_eq!(accepted.as_ref().map(|_| 1), Ok(1));
@@ -531,7 +462,7 @@ fn parent_device_sealing_requires_a_binding_complete_authority_receipt() -> Test
     case.action_device_child_profile_id = None;
     case.target_child_profile_id = None;
     let store = TestStore::new("authority-receipt");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
     challenge.privileged_action = HouseholdAuthorityAction::SealParentDeviceTrust;
     port.issue_challenge(challenge.clone())

@@ -1,9 +1,9 @@
 use crate::household_authority::{validate_parent_step_up_assertion, ParentStepUpValidationInput};
 use crate::trust_bootstrap::{
-    challenge_action_is_authorized_for_lifecycle_intent, AwaitingPlatformKeySealingRequest,
-    DeviceTrustRef, DeviceTrustRefGenerationFailure, SealParentDeviceTrustAuthorityReceipt,
-    TrustBootstrapDecision, TrustBootstrapInput, TrustBootstrapManualRequirement,
-    TrustBootstrapManualRequirementReason, TrustBootstrapRejection, TrustBootstrapSealingMarker,
+    AwaitingPlatformKeySealingRequest, DeviceTrustRef, DeviceTrustRefGenerationFailure,
+    SealParentDeviceTrustAuthorityReceipt, TrustBootstrapDecision, TrustBootstrapInput,
+    TrustBootstrapManualRequirement, TrustBootstrapManualRequirementReason,
+    TrustBootstrapRejection, TrustBootstrapSealingMarker,
 };
 
 pub(crate) fn evaluate(
@@ -38,9 +38,12 @@ pub(crate) fn evaluate(
     {
         return manual(TrustBootstrapManualRequirementReason::ChildScopedCeremonyRejected);
     }
-    if !challenge_action_is_authorized_for_lifecycle_intent(
-        lifecycle_intent,
-        challenge.privileged_action,
+    if !matches!(
+        (lifecycle_intent, challenge.privileged_action),
+        (
+            crate::trust_bootstrap::TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+            crate::household_authority::HouseholdAuthorityAction::SealParentDeviceTrust
+        )
     ) {
         return manual(TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable);
     }

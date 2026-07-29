@@ -116,7 +116,13 @@ impl DeviceTrustRef {
         let mut random = [0_u8; 32];
         getrandom::fill(&mut random)
             .map_err(|_error| DeviceTrustRefGenerationFailure::EntropyUnavailable)?;
-        Ok(Self(encode_hex(&random)))
+        const HEX: &[u8; 16] = b"0123456789abcdef";
+        let mut encoded = String::with_capacity(random.len() * 2);
+        for byte in random {
+            encoded.push(char::from(HEX[usize::from(byte >> 4)]));
+            encoded.push(char::from(HEX[usize::from(byte & 0x0f)]));
+        }
+        Ok(Self(encoded))
     }
 
     pub fn as_str(&self) -> &str {
@@ -247,14 +253,4 @@ impl SealParentDeviceTrustAuthorityReceipt {
             && self.action == challenge.privileged_action
             && self.action == HouseholdAuthorityAction::SealParentDeviceTrust
     }
-}
-
-fn encode_hex(bytes: &[u8]) -> String {
-    const HEX: &[u8; 16] = b"0123456789abcdef";
-    let mut encoded = String::with_capacity(bytes.len() * 2);
-    for byte in bytes {
-        encoded.push(char::from(HEX[usize::from(byte >> 4)]));
-        encoded.push(char::from(HEX[usize::from(byte & 0x0f)]));
-    }
-    encoded
 }
