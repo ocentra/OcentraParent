@@ -59,6 +59,11 @@ pub(crate) fn evaluate(
         device_trust_ref,
         trust_bootstrap_ref,
         lifecycle_intent,
+        approved_parent_device_ceremony: super::ApprovedParentDeviceCeremony {
+            trust_subject: challenge.parent_account_id.clone(),
+            device_ref: challenge.action_device_id.clone(),
+            device_role: "trusted-parent".to_owned(),
+        },
         family_id: challenge.family_id,
         parent_account_id: challenge.parent_account_id,
         device_ref: challenge.action_device_id,

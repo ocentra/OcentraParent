@@ -1,11 +1,4 @@
-use std::fmt;
-
-use serde::{Deserialize, Serialize};
-
-use crate::household_authority::{
-    authorize_household_action, HouseholdAuthorityAction, HouseholdAuthorityInput,
-    HouseholdAuthorizationState,
-};
+use serde::Serialize;
 
 /// Fresh authority presented at the local platform-key boundary.
 ///
@@ -13,55 +6,50 @@ use crate::household_authority::{
 /// the caller must obtain them again from current authority state before each
 /// unseal, and they must match the subject/device recorded when the key was
 /// sealed.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CurrentParentDeviceTrustAuthorityInput {
-    pub household_authority_input: HouseholdAuthorityInput,
-    pub trust_subject: String,
-    pub device_ref: String,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum CurrentParentDeviceTrustAuthorityError {
     NotTrusted,
     DeviceBindingMismatch,
 }
 
-impl fmt::Debug for CurrentParentDeviceTrustAuthorityInput {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("CurrentParentDeviceTrustAuthorityInput")
-            .field("household_authority_input", &self.household_authority_input)
-            .field("trust_subject", &"[redacted]")
-            .field("device_ref", &"[redacted]")
-            .finish()
-    }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct CurrentParentDeviceTrustAuthority {
+    pub lifecycle_generation: u64,
+    pub installation_binding_generation: u64,
 }
 
-pub fn current_parent_device_trust_authority(
-    input: HouseholdAuthorityInput,
-) -> Result<(), CurrentParentDeviceTrustAuthorityError> {
-    let is_sealing_action = input.action == HouseholdAuthorityAction::SealParentDeviceTrust;
-    let decision = authorize_household_action(input);
-    (is_sealing_action && decision.authorization_state == HouseholdAuthorizationState::Authorized)
-        .then_some(())
-        .ok_or(CurrentParentDeviceTrustAuthorityError::NotTrusted)
+/// Runtime-owned authority resolver.  Unsealing never accepts a deserializable
+/// caller DTO as proof of current lifecycle state: the product runtime must
+/// resolve the current device record at the moment of unseal.
+pub trait CurrentParentDeviceTrustAuthoritySource {
+    fn current_authorized_parent_device(
+        &self,
+        trust_subject: &str,
+        device_ref: &str,
+    ) -> Result<CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError>;
 }
 
-pub fn current_parent_device_trust_authority_for_sealed_device(
-    input: &CurrentParentDeviceTrustAuthorityInput,
+pub fn require_current_parent_device_trust_authority(
+    source: &impl CurrentParentDeviceTrustAuthoritySource,
     sealed_trust_subject: &str,
     sealed_device_ref: &str,
+    sealed_lifecycle_generation: u64,
+    sealed_installation_binding_generation: u64,
 ) -> Result<(), CurrentParentDeviceTrustAuthorityError> {
-    current_parent_device_trust_authority(input.household_authority_input)?;
     [
-        non_empty_identity(&input.trust_subject),
-        non_empty_identity(&input.device_ref),
-        input.trust_subject == sealed_trust_subject,
-        input.device_ref == sealed_device_ref,
+        non_empty_identity(sealed_trust_subject),
+        non_empty_identity(sealed_device_ref),
     ]
     .into_iter()
     .all(std::convert::identity)
     .then_some(())
-    .ok_or(CurrentParentDeviceTrustAuthorityError::DeviceBindingMismatch)
+    .ok_or(CurrentParentDeviceTrustAuthorityError::DeviceBindingMismatch)?;
+    let current =
+        source.current_authorized_parent_device(sealed_trust_subject, sealed_device_ref)?;
+    (current.lifecycle_generation == sealed_lifecycle_generation
+        && current.installation_binding_generation == sealed_installation_binding_generation)
+        .then_some(())
+        .ok_or(CurrentParentDeviceTrustAuthorityError::DeviceBindingMismatch)
 }
 
 fn non_empty_identity(value: &str) -> bool {

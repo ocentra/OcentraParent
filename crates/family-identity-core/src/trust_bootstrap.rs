@@ -50,6 +50,7 @@ pub struct AwaitingPlatformKeySealingRequest {
     pub trust_bootstrap_ref: String,
     pub device_trust_ref: DeviceTrustRef,
     pub lifecycle_intent: TrustBootstrapLifecycleIntent,
+    approved_parent_device_ceremony: ApprovedParentDeviceCeremony,
     pub family_id: String,
     pub parent_account_id: String,
     pub device_ref: String,
@@ -62,6 +63,16 @@ pub struct PersistedPlatformKeyUnsealingCredential {
     trust_bootstrap_ref: String,
     device_trust_ref: DeviceTrustRef,
     lifecycle_intent: TrustBootstrapLifecycleIntent,
+    approved_parent_device_ceremony: ApprovedParentDeviceCeremony,
+}
+
+/// Identity binding taken only from the verified parent-presence ceremony.
+/// It is intentionally not caller-supplied at the platform sealing boundary.
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ApprovedParentDeviceCeremony {
+    trust_subject: String,
+    device_ref: String,
+    device_role: String,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -158,6 +169,7 @@ impl AwaitingPlatformKeySealingRequest {
             trust_bootstrap_ref: self.trust_bootstrap_ref,
             device_trust_ref: self.device_trust_ref,
             lifecycle_intent: self.lifecycle_intent,
+            approved_parent_device_ceremony: self.approved_parent_device_ceremony,
         }
     }
 }
@@ -173,6 +185,32 @@ impl PersistedPlatformKeyUnsealingCredential {
 
     pub fn trust_bootstrap_ref(&self) -> &str {
         &self.trust_bootstrap_ref
+    }
+
+    pub fn approved_parent_device_ceremony(&self) -> &ApprovedParentDeviceCeremony {
+        &self.approved_parent_device_ceremony
+    }
+}
+
+impl ApprovedParentDeviceCeremony {
+    pub fn trust_subject(&self) -> &str {
+        &self.trust_subject
+    }
+    pub fn device_ref(&self) -> &str {
+        &self.device_ref
+    }
+    pub fn device_role(&self) -> &str {
+        &self.device_role
+    }
+}
+
+impl fmt::Debug for ApprovedParentDeviceCeremony {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ApprovedParentDeviceCeremony")
+            .field("trust_subject", &"[redacted]")
+            .field("device_ref", &"[redacted]")
+            .field("device_role", &"[redacted]")
+            .finish()
     }
 }
 
@@ -208,19 +246,6 @@ impl SealParentDeviceTrustAuthorityReceipt {
             && self.device_ref == challenge.action_device_id
             && self.action == challenge.privileged_action
             && self.action == HouseholdAuthorityAction::SealParentDeviceTrust
-    }
-}
-
-fn challenge_action_is_authorized_for_lifecycle_intent(
-    lifecycle_intent: TrustBootstrapLifecycleIntent,
-    challenge_action: HouseholdAuthorityAction,
-) -> bool {
-    const SEAL_PARENT_DEVICE_TRUST_ACTIONS: &[HouseholdAuthorityAction] =
-        &[HouseholdAuthorityAction::SealParentDeviceTrust];
-    match lifecycle_intent {
-        TrustBootstrapLifecycleIntent::SealParentDeviceTrust => {
-            SEAL_PARENT_DEVICE_TRUST_ACTIONS.contains(&challenge_action)
-        }
     }
 }
 
