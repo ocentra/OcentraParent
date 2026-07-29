@@ -59,6 +59,19 @@ fn authenticated_delivery_grant_rejects_malformed_digest_and_time_window() {
 }
 
 #[test]
+fn authenticated_delivery_grant_requires_a_canonical_lowercase_sha256_payload_digest() {
+    let lowercase = grant();
+    assert_eq!(lowercase.validate_shape(), Ok(()));
+
+    let mut uppercase = grant();
+    uppercase.payload_digest = "A".repeat(64);
+    assert_eq!(
+        uppercase.validate_shape(),
+        Err(AuthenticatedDeliveryGrantValidationError::InvalidPayloadDigest)
+    );
+}
+
+#[test]
 fn authenticated_delivery_grant_compares_offset_timestamps_as_instants_and_rejects_malformed_ones()
 {
     let mut offset_window = grant();
