@@ -1,4 +1,5 @@
 use super::TestResult;
+use ocentra_eventing::bus::EventBus;
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -8,6 +9,10 @@ use ocentra_family_identity_core::household_authority::{
     ParentStepUpValidationInput,
 };
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
+use ocentra_policy_control_core::authenticated_delivery_grant::issuance_milestone::{
+    AuthenticatedDeliveryGrantIssuanceMilestone, AuthenticatedDeliveryGrantIssuanceOutcome,
+    AuthenticatedDeliveryGrantIssuanceRejection,
+};
 use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuance, AuthenticatedDeliveryGrantIssuanceError,
@@ -16,6 +21,10 @@ use ocentra_policy_control_core::authenticated_delivery_grant::{
     GrantChildProfileId, GrantEvidenceDigest, GrantHouseholdId, GrantIssuerActorId, GrantNonce,
     GrantParentDeviceId, GrantPayloadDigest, GrantPolicyDecisionId, GrantPolicyVersion,
     GrantRevocationVersion, GrantTargetDeviceId, ParentStepUpGrantAuthorization,
+};
+use ocentra_schema::authenticated_delivery_grant::{
+    AuthenticatedDeliveryGrantAssertionSnapshot, AuthenticatedDeliveryGrantCapabilityAssertion,
+    AuthenticatedDeliveryGrantEvidenceAssertion,
 };
 
 fn issuer() -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
@@ -86,6 +95,13 @@ fn bindings() -> DeliveryGrantBindings {
         issued_at: "2026-07-28T00:00:00Z".to_owned(),
         expires_at: "2026-07-28T00:05:00Z".to_owned(),
         revocation_version: "revocation-1".to_owned(),
+    }
+}
+
+fn assertions() -> AuthenticatedDeliveryGrantAssertionSnapshot {
+    AuthenticatedDeliveryGrantAssertionSnapshot {
+        capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+        evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
     }
 }
 
@@ -183,9 +199,9 @@ impl IssuanceFixture {
             capability_state: self.capability_state,
             evidence_state: self.evidence_state,
             bindings: self.bindings.clone(),
-            signed_authority_bindings: authority_signer.sign(self.bindings.clone()),
+            signed_authority_bindings: authority_signer.sign(self.bindings.clone(), assertions()),
             verified_parent_step_up_proof: step_up_signer
-                .sign(self.parent_step_up.validation.clone()),
+                .sign(self.parent_step_up.validation.clone(), assertions()),
         }
     }
 }
@@ -266,9 +282,9 @@ fn issuer_rejects_valid_signatures_from_unconfigured_provenance_keys() -> TestRe
     let step_up_signed_by_another_key = ParentStepUpProofSigner::from_platform_key([10; 32]);
     let mut request = fixture.request();
     request.signed_authority_bindings =
-        authority_signed_by_another_key.sign(fixture.bindings.clone());
+        authority_signed_by_another_key.sign(fixture.bindings.clone(), assertions());
     request.verified_parent_step_up_proof =
-        step_up_signed_by_another_key.sign(fixture.parent_step_up.validation.clone());
+        step_up_signed_by_another_key.sign(fixture.parent_step_up.validation.clone(), assertions());
 
     assert_eq!(
         issuer.issue(request),
@@ -346,4 +362,110 @@ fn issuer_rejects_a_grant_that_outlives_the_signed_parent_step_up_proof() -> Tes
         Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
     );
     Ok(())
+}
+
+#[test]
+fn issuer_uses_dually_signed_assertions_instead_of_caller_claims() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = IssuanceFixture::new();
+    let authority_signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let unavailable = AuthenticatedDeliveryGrantAssertionSnapshot {
+        capability: AuthenticatedDeliveryGrantCapabilityAssertion::Unavailable,
+        evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+    };
+    let mut request = fixture.request();
+    request.signed_authority_bindings =
+        authority_signer.sign(fixture.bindings.clone(), unavailable.clone());
+    request.verified_parent_step_up_proof =
+        step_up_signer.sign(fixture.parent_step_up.validation.clone(), unavailable);
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::CapabilityUnavailable)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_mismatched_dually_signed_assertions() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = IssuanceFixture::new();
+    let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let mut request = fixture.request();
+    request.verified_parent_step_up_proof = step_up_signer.sign(
+        fixture.parent_step_up.validation.clone(),
+        AuthenticatedDeliveryGrantAssertionSnapshot {
+            capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+            evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Unstable,
+        },
+    );
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_journals_redacted_accepted_and_rejected_milestones_through_event_bus() -> TestResult {
+    let runtime = test_ok!(
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build(),
+        "event runtime"
+    );
+    runtime.block_on(async {
+        let event_bus = EventBus::new();
+        let issuer = test_ok!(issuer(), "provenance-configured issuer")
+            .with_event_bus_issuance_publisher(event_bus.clone())
+            .map_err(|error| format!("event publisher: {error:?}"))?;
+        let fixture = IssuanceFixture::new();
+        let accepted = test_ok!(issuer.issue(fixture.request()), "issued delivery grant");
+        assert_eq!(accepted.issuer_key_id, "parent-key-1");
+        assert_eq!(accepted.target_device_id, "child-device-1");
+
+        let rejected_fixture = IssuanceFixture::new();
+        let unavailable = AuthenticatedDeliveryGrantAssertionSnapshot {
+            capability: AuthenticatedDeliveryGrantCapabilityAssertion::Unavailable,
+            evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+        };
+        let authority_signer =
+            AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+        let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
+        let mut rejected_request = rejected_fixture.request();
+        rejected_request.signed_authority_bindings =
+            authority_signer.sign(rejected_fixture.bindings.clone(), unavailable.clone());
+        rejected_request.verified_parent_step_up_proof = step_up_signer.sign(
+            rejected_fixture.parent_step_up.validation.clone(),
+            unavailable,
+        );
+        let rejected = issuer.issue(rejected_request);
+        assert_eq!(
+            rejected,
+            Err(AuthenticatedDeliveryGrantIssuanceError::CapabilityUnavailable)
+        );
+
+        tokio::task::yield_now().await;
+        tokio::task::yield_now().await;
+        let journal = event_bus.journal().await;
+        assert_eq!(journal.len(), 2, "expected both issuance milestones");
+        let accepted_event = journal[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        assert_eq!(
+            accepted_event.payload.outcome,
+            AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
+        );
+        assert_eq!(accepted_event.payload.rejection, None);
+        assert!(accepted_event.payload.redaction_state);
+        let rejected_event = journal[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        assert_eq!(
+            rejected_event.payload.outcome,
+            AuthenticatedDeliveryGrantIssuanceOutcome::Rejected
+        );
+        assert_eq!(
+            rejected_event.payload.rejection,
+            Some(AuthenticatedDeliveryGrantIssuanceRejection::Capability)
+        );
+        assert!(rejected_event.payload.redaction_state);
+        Ok(())
+    })
 }

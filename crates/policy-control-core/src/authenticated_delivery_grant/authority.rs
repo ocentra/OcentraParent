@@ -1,11 +1,14 @@
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use serde::{Deserialize, Serialize};
 
+use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrantAssertionSnapshot;
+
 use super::{AuthenticatedDeliveryGrantIssuanceError, DeliveryGrantBindings};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SignedAuthorityBindings {
     pub bindings: DeliveryGrantBindings,
+    pub assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
     pub signature: Vec<u8>,
 }
 
@@ -21,17 +24,23 @@ impl AuthenticatedDeliveryGrantAuthorityVerifier {
     pub fn verify(
         &self,
         signed: &SignedAuthorityBindings,
-    ) -> Result<DeliveryGrantBindings, AuthenticatedDeliveryGrantIssuanceError> {
+    ) -> Result<
+        (
+            DeliveryGrantBindings,
+            AuthenticatedDeliveryGrantAssertionSnapshot,
+        ),
+        AuthenticatedDeliveryGrantIssuanceError,
+    > {
         let signature = Signature::from_slice(&signed.signature).map_err(|_error| {
             AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
         })?;
-        let bytes = signing_bytes(&signed.bindings)?;
+        let bytes = signing_bytes(signed)?;
         self.verifying_key
             .verify_strict(&bytes, &signature)
             .map_err(|_error| {
                 AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
             })?;
-        Ok(signed.bindings.clone())
+        Ok((signed.bindings.clone(), signed.assertions.clone()))
     }
 }
 
@@ -50,19 +59,25 @@ impl AuthenticatedDeliveryGrantAuthoritySigner {
         self.signing_key.verifying_key()
     }
 
-    pub fn sign(&self, bindings: DeliveryGrantBindings) -> SignedAuthorityBindings {
-        let bytes = serde_json::to_vec(&bindings).unwrap_or_else(|_error| Vec::new());
+    pub fn sign(
+        &self,
+        bindings: DeliveryGrantBindings,
+        assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
+    ) -> SignedAuthorityBindings {
+        let bytes = serde_json::to_vec(&(bindings.clone(), assertions.clone()))
+            .unwrap_or_else(|_error| Vec::new());
         let signature = self.signing_key.sign(&bytes).to_bytes().to_vec();
         SignedAuthorityBindings {
             bindings,
+            assertions,
             signature,
         }
     }
 }
 
 fn signing_bytes(
-    bindings: &DeliveryGrantBindings,
+    signed: &SignedAuthorityBindings,
 ) -> Result<Vec<u8>, AuthenticatedDeliveryGrantIssuanceError> {
-    serde_json::to_vec(bindings)
+    serde_json::to_vec(&(signed.bindings.clone(), signed.assertions.clone()))
         .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
 }

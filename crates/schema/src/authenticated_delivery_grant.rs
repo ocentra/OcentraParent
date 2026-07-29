@@ -3,6 +3,24 @@
 use serde::Serialize;
 
 pub const AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION: u16 = 1;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum AuthenticatedDeliveryGrantCapabilityAssertion {
+    Available,
+    Unavailable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum AuthenticatedDeliveryGrantEvidenceAssertion {
+    Stable,
+    Unstable,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct AuthenticatedDeliveryGrantAssertionSnapshot {
+    pub capability: AuthenticatedDeliveryGrantCapabilityAssertion,
+    pub evidence: AuthenticatedDeliveryGrantEvidenceAssertion,
+}
 pub const AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES: usize = 64;
 pub const AUTHENTICATED_DELIVERY_GRANT_PAYLOAD_DIGEST_HEX_BYTES: usize = 64;
 pub const AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES: usize = 512;
