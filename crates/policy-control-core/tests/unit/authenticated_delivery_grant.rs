@@ -200,10 +200,15 @@ impl IssuanceFixture {
             capability_state: self.capability_state,
             evidence_state: self.evidence_state,
             bindings: self.bindings.clone(),
-            signed_authority_bindings: authority_signer.sign(
-                self.bindings.clone(),
-                assertions(),
-                self.household_authority,
+            signed_authority_bindings: test_ok!(
+                authority_signer.sign(
+                    self.bindings.clone(),
+                    assertions(),
+                    self.household_authority,
+                    self.policy_decision,
+                    self.policy_authority.clone(),
+                ),
+                "signed authority provenance"
             ),
             verified_parent_step_up_proof: step_up_signer
                 .sign(self.parent_step_up.validation.clone(), assertions()),
@@ -256,10 +261,15 @@ fn issuer_uses_verified_household_authority_instead_of_caller_claim() -> TestRes
 
     let mut signed_untrusted_authority = fixture.household_authority;
     signed_untrusted_authority.device_trust_state = DeviceTrustState::Revoked;
-    request.signed_authority_bindings = authority_signer.sign(
-        fixture.bindings.clone(),
-        assertions(),
-        signed_untrusted_authority,
+    request.signed_authority_bindings = test_ok!(
+        authority_signer.sign(
+            fixture.bindings.clone(),
+            assertions(),
+            signed_untrusted_authority,
+            fixture.policy_decision,
+            fixture.policy_authority.clone(),
+        ),
+        "signed untrusted authority provenance"
     );
     request.household_authority = authority();
 
@@ -346,10 +356,15 @@ fn issuer_rejects_valid_signatures_from_unconfigured_provenance_keys() -> TestRe
         AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([9; 32]);
     let step_up_signed_by_another_key = ParentStepUpProofSigner::from_platform_key([10; 32]);
     let mut request = fixture.request();
-    request.signed_authority_bindings = authority_signed_by_another_key.sign(
-        fixture.bindings.clone(),
-        assertions(),
-        fixture.household_authority,
+    request.signed_authority_bindings = test_ok!(
+        authority_signed_by_another_key.sign(
+            fixture.bindings.clone(),
+            assertions(),
+            fixture.household_authority,
+            fixture.policy_decision,
+            fixture.policy_authority.clone(),
+        ),
+        "unconfigured authority provenance"
     );
     request.verified_parent_step_up_proof =
         step_up_signed_by_another_key.sign(fixture.parent_step_up.validation.clone(), assertions());
@@ -443,10 +458,15 @@ fn issuer_uses_dually_signed_assertions_instead_of_caller_claims() -> TestResult
         evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
     };
     let mut request = fixture.request();
-    request.signed_authority_bindings = authority_signer.sign(
-        fixture.bindings.clone(),
-        unavailable.clone(),
-        fixture.household_authority,
+    request.signed_authority_bindings = test_ok!(
+        authority_signer.sign(
+            fixture.bindings.clone(),
+            unavailable.clone(),
+            fixture.household_authority,
+            fixture.policy_decision,
+            fixture.policy_authority.clone(),
+        ),
+        "unavailable capability provenance"
     );
     request.verified_parent_step_up_proof =
         step_up_signer.sign(fixture.parent_step_up.validation.clone(), unavailable);
@@ -509,10 +529,15 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
                 AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
             let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
             let mut rejected_request = rejected_fixture.request();
-            rejected_request.signed_authority_bindings = authority_signer.sign(
-                rejected_fixture.bindings.clone(),
-                unavailable.clone(),
-                rejected_fixture.household_authority,
+            rejected_request.signed_authority_bindings = test_ok!(
+                authority_signer.sign(
+                    rejected_fixture.bindings.clone(),
+                    unavailable.clone(),
+                    rejected_fixture.household_authority,
+                    rejected_fixture.policy_decision,
+                    rejected_fixture.policy_authority.clone(),
+                ),
+                "unavailable capability provenance"
             );
             rejected_request.verified_parent_step_up_proof = step_up_signer.sign(
                 rejected_fixture.parent_step_up.validation.clone(),

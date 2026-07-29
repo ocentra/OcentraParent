@@ -9,10 +9,11 @@ use super::{
     DeliveryGrantEvidenceState, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 use crate::policy_authority::{
-    PolicyActionAuthorizationState, PolicyEnforcementExecutionState, PolicyManualReviewState,
+    PolicyActionAuthorizationState, PolicyControlDecision, PolicyEnforcementExecutionState,
+    PolicyManualReviewState,
 };
 use crate::policy_contract_helpers::authority::{
-    PolicyContractAuthoritySource, PolicyContractAuthorityState,
+    PolicyContractAuthorityDecision, PolicyContractAuthoritySource, PolicyContractAuthorityState,
 };
 use ocentra_family_identity_core::household_authority::{
     authorize_household_action, HouseholdAuthorizationState,
@@ -21,6 +22,8 @@ use ocentra_family_identity_core::household_authority::{
 pub(super) fn validate_issuance(
     request: &AuthenticatedDeliveryGrantIssuance<'_>,
     issuer_key_id: &str,
+    policy_decision: &PolicyControlDecision,
+    policy_authority: &PolicyContractAuthorityDecision,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     let authority = authorize_household_action(request.household_authority);
     if authority.authorization_state != HouseholdAuthorizationState::Authorized
@@ -28,16 +31,15 @@ pub(super) fn validate_issuance(
     {
         return Err(AuthenticatedDeliveryGrantIssuanceError::ParentAuthorityRejected);
     }
-    if request.policy_decision.action_authorization_state
-        != PolicyActionAuthorizationState::Authorized
-        || request.policy_decision.enforcement_execution_state
+    if policy_decision.action_authorization_state != PolicyActionAuthorizationState::Authorized
+        || policy_decision.enforcement_execution_state
             != PolicyEnforcementExecutionState::MayExecute
-        || request.policy_authority.source != PolicyContractAuthoritySource::ParentPolicy
-        || request.policy_authority.state != PolicyContractAuthorityState::Authorized
+        || policy_authority.source != PolicyContractAuthoritySource::ParentPolicy
+        || policy_authority.state != PolicyContractAuthorityState::Authorized
     {
         return Err(AuthenticatedDeliveryGrantIssuanceError::PolicyNotExecutable);
     }
-    if request.policy_decision.manual_review_state != PolicyManualReviewState::NotRequired {
+    if policy_decision.manual_review_state != PolicyManualReviewState::NotRequired {
         return Err(AuthenticatedDeliveryGrantIssuanceError::ManualReviewRequired);
     }
     if request.capability_state != DeliveryGrantCapabilityState::Available {

@@ -203,7 +203,13 @@ impl AuthenticatedDeliveryGrantIssuer {
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
         let mut request = request;
-        let (bindings, authority_assertions, household_authority) = self
+        let (
+            bindings,
+            authority_assertions,
+            household_authority,
+            policy_decision,
+            policy_authority,
+        ) = self
             .authority_verifier
             .verify(&request.signed_authority_bindings)?;
         let (step_up_validation, step_up_assertions) = self
@@ -231,7 +237,12 @@ impl AuthenticatedDeliveryGrantIssuer {
                 DeliveryGrantEvidenceState::Unstable
             }
         };
-        validation::validate_issuance(&request, &self.issuer_key_id)?;
+        validation::validate_issuance(
+            &request,
+            &self.issuer_key_id,
+            &policy_decision,
+            &policy_authority,
+        )?;
         let bindings = request.bindings;
         let mut grant = AuthenticatedDeliveryGrant {
             schema_version: AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
