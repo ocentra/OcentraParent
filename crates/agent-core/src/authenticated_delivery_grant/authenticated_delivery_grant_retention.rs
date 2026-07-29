@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
+use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantInstant,
 };
 use rusqlite::{params, Connection};

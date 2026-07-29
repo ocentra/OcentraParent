@@ -10,7 +10,7 @@ use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumer,
     AuthenticatedDeliveryGrantExpectation, AuthenticatedDeliveryGrantTrustedIssuer,
 };
-use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
+use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 use rusqlite::Connection;

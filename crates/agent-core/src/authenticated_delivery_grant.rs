@@ -4,7 +4,7 @@ use std::{path::Path, time::Duration};
 
 use chrono::{SecondsFormat, Utc};
 use ed25519_dalek::{Signature, VerifyingKey};
-use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
+use ocentra_schema::authenticated_delivery_grant::{
     parse_authenticated_delivery_grant_instant, AuthenticatedDeliveryGrant,
     AuthenticatedDeliveryGrantInstant,
 };
@@ -182,7 +182,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         )?;
         let correlation_id = correlation_id.into();
         if correlation_id.trim().is_empty()
-            || correlation_id.len() > ocentra_parent_agent_protocol::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+            || correlation_id.len() > ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
         {
             return Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected);
         }

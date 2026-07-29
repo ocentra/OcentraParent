@@ -16,6 +16,7 @@ ed25519-dalek = "2.2.0"
 ocentra-family-identity-core = { path = "../family-identity-core" }
 ocentra-evidence = { path = "../ocentra-evidence" }
 ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-schema = { path = "../schema" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 sha2 = "0.10.9"
 serde = { version = "1.0.228", features = ["derive"] }
