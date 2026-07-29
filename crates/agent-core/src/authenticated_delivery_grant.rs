@@ -532,6 +532,7 @@ fn bounded_shape_rejection_audit(
     };
     let mut grant_hasher = Sha256::new();
     grant_hasher.update(grant.schema_version.to_be_bytes());
+    grant_hasher.update((grant.payload_length as u64).to_be_bytes());
     grant_hasher.update([u8::from(grant.dry_run)]);
     for value in [
         grant.issuer_key_id.as_str(),
