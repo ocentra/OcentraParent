@@ -10,8 +10,8 @@ use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorizationFailureReason, HouseholdAuthorizationState,
 };
 use ocentra_family_identity_core::parent_presence::{
-    ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
-    ParentPresenceVerificationPort,
+    ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason,
+    ParentPresenceVerificationInput, ParentPresenceVerificationPort,
 };
 use ocentra_storage_custody_core::storage_custody::{
     storage_custody_action_planned_event, storage_custody_decision_recorded_event,
@@ -34,6 +34,7 @@ pub enum AuthorizedCustodyDeleteError {
     WrongAuthorityAction,
     HouseholdAuthorityRejected(HouseholdAuthorizationFailureReason),
     ParentPresenceRejected(ParentPresenceVerificationFailureReason),
+    ConsumedPresenceDoesNotMatchCommand,
     CustodyActionIsNotDelete,
     StorageUnavailable(std::io::ErrorKind),
 }
@@ -46,6 +47,22 @@ pub async fn publish_authorized_custody_delete(
     parent_presence: &mut ParentPresenceVerificationPort,
     command: AuthorizedCustodyDeleteCommand,
 ) -> Result<ChildRuntimeTombstonePublicationOutcome, AuthorizedCustodyDeleteError> {
+    let consumed_presence = consume_authority(&command, parent_presence)?;
+    persist_consumed_authorized_custody_delete(flow, consumed_presence, command).await
+}
+
+/// Internal command-runtime ingress. Callers must supply the opaque receipt
+/// returned by the sealed identity port after it atomically consumed the
+/// parent-presence challenge; this function is deliberately not a transport
+/// endpoint and cannot validate caller-supplied identity fields.
+pub async fn persist_consumed_authorized_custody_delete(
+    flow: &ChildRuntimeTombstoneEventFlow,
+    consumed_presence: ParentPresenceVerificationAccepted,
+    command: AuthorizedCustodyDeleteCommand,
+) -> Result<ChildRuntimeTombstonePublicationOutcome, AuthorizedCustodyDeleteError> {
+    if consumed_presence.assertion_snapshot() != &command.parent_presence.assertion {
+        return Err(AuthorizedCustodyDeleteError::ConsumedPresenceDoesNotMatchCommand);
+    }
     let action = storage_custody_action_planned_event(storage_custody_decision_recorded_event(
         command.aggregate_id.clone(),
         command.decision_id.clone(),
@@ -56,16 +73,15 @@ pub async fn publish_authorized_custody_delete(
     {
         return Err(AuthorizedCustodyDeleteError::CustodyActionIsNotDelete);
     }
-    validate_authority(&command, parent_presence)?;
     flow.publish_action(action, command.metadata)
         .await
         .map_err(|error| AuthorizedCustodyDeleteError::StorageUnavailable(error.kind()))
 }
 
-fn validate_authority(
+fn consume_authority(
     command: &AuthorizedCustodyDeleteCommand,
     parent_presence: &mut ParentPresenceVerificationPort,
-) -> Result<(), AuthorizedCustodyDeleteError> {
+) -> Result<ParentPresenceVerificationAccepted, AuthorizedCustodyDeleteError> {
     if command.authority.action != HouseholdAuthorityAction::ExportDeleteData
         || command.parent_presence.assertion.action != HouseholdAuthorityAction::ExportDeleteData
     {
@@ -84,6 +100,5 @@ fn validate_authority(
     }
     parent_presence
         .verify_and_consume(command.parent_presence.clone())
-        .map_err(AuthorizedCustodyDeleteError::ParentPresenceRejected)?;
-    Ok(())
+        .map_err(AuthorizedCustodyDeleteError::ParentPresenceRejected)
 }
