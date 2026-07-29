@@ -66,7 +66,7 @@ fn issuer_flushes_an_accepted_milestone_to_the_configured_durable_journal() -> T
             .with_event_bus_issuance_publisher(event_bus)
             .map_err(|error| format!("event publisher: {error:?}"))?;
         let grant = test_ok!(
-            issuer.issue(IssuanceFixture::new().request()),
+            issuer.issue_async(IssuanceFixture::new().request()).await,
             "accepted issuance must wait for durable milestone persistence"
         );
         assert_eq!(grant.target_device_id, "child-device-1");

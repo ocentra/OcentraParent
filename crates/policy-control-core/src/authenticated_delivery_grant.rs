@@ -14,8 +14,7 @@ use ocentra_schema::authenticated_delivery_grant::{
 
 use self::authority::{AuthenticatedDeliveryGrantAuthorityVerifier, SignedAuthorityBindings};
 use self::issuance_milestone::{
-    rejection_for, AuthenticatedDeliveryGrantIssuanceMilestone,
-    AuthenticatedDeliveryGrantIssuanceOutcome, EventBusAuthenticatedDeliveryGrantIssuancePublisher,
+    issuance_milestone_for, EventBusAuthenticatedDeliveryGrantIssuancePublisher,
 };
 use self::step_up::{ParentStepUpProofVerifier, VerifiedParentStepUpProof};
 use crate::policy_authority::PolicyControlDecision;
@@ -203,6 +202,17 @@ impl AuthenticatedDeliveryGrantIssuer {
         result
     }
 
+    pub async fn issue_async(
+        &self,
+        request: AuthenticatedDeliveryGrantIssuance<'_>,
+    ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
+        let correlation_id = request.correlation_id.clone();
+        let result = self.issue_inner(request);
+        self.publish_issuance_milestone_async(&correlation_id, &result)
+            .await?;
+        result
+    }
+
     fn issue_inner(
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
@@ -289,20 +299,24 @@ impl AuthenticatedDeliveryGrantIssuer {
         let Some(publisher) = &self.issuance_publisher else {
             return Ok(());
         };
-        let milestone = match result {
-            Ok(_grant) => AuthenticatedDeliveryGrantIssuanceMilestone {
-                outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
-                rejection: None,
-                redaction_state: true,
-            },
-            Err(error) => AuthenticatedDeliveryGrantIssuanceMilestone {
-                outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
-                rejection: Some(rejection_for(*error)),
-                redaction_state: true,
-            },
-        };
+        let milestone = issuance_milestone_for(result);
         publisher
             .publish(correlation_id.clone(), milestone)
+            .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
+    }
+
+    async fn publish_issuance_milestone_async(
+        &self,
+        correlation_id: &CorrelationId,
+        result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
+    ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+        let Some(publisher) = &self.issuance_publisher else {
+            return Ok(());
+        };
+        let milestone = issuance_milestone_for(result);
+        publisher
+            .publish_async(correlation_id.clone(), milestone)
+            .await
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
     }
 }
