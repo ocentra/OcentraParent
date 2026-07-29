@@ -12,8 +12,9 @@ use crate::authenticated_delivery_grant::{
     digest, AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantTrustedIssuer,
 };
 
+mod legacy_replay_rows;
+
 const CREATE_FINGERPRINT_REPLAY_TABLE: &str = "CREATE TABLE authenticated_delivery_grant_consumes_v3 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_fingerprint TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER NOT NULL, PRIMARY KEY (issuer_key_id, nonce))";
-const SELECT_LEGACY_REPLAY_ROWS: &str = "SELECT issuer_key_id, nonce, grant_json, audit_json FROM authenticated_delivery_grant_consumes_v2";
 const INSERT_FINGERPRINT_REPLAY_ROW: &str = "INSERT INTO authenticated_delivery_grant_consumes_v3 (issuer_key_id, nonce, grant_fingerprint, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)";
 const DROP_LEGACY_REPLAY_TABLE: &str = "DROP TABLE authenticated_delivery_grant_consumes_v2";
 const RENAME_FINGERPRINT_REPLAY_TABLE: &str = "ALTER TABLE authenticated_delivery_grant_consumes_v3 RENAME TO authenticated_delivery_grant_consumes_v2";
@@ -52,67 +53,7 @@ pub(super) fn migrate_legacy_replay_records(
     connection: &mut Connection,
     trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    let has_legacy_json = connection
-        .prepare("SELECT 1 FROM pragma_table_info('authenticated_delivery_grant_consumes_v2') WHERE name = ?1")
-        .and_then(|mut statement| statement.exists(["grant_json"]))
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    if !has_legacy_json {
-        return Ok(());
-    }
-    let legacy_rows = {
-        let mut statement = connection
-            .prepare(SELECT_LEGACY_REPLAY_ROWS)
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        let rows = statement
-            .query_map([], |row| {
-                Ok((
-                    row.get::<_, String>(0)?,
-                    row.get::<_, String>(1)?,
-                    row.get::<_, String>(2)?,
-                    row.get::<_, String>(3)?,
-                ))
-            })
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        rows.collect::<Result<Vec<_>, _>>()
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?
-    };
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    transaction
-        .execute(CREATE_FINGERPRINT_REPLAY_TABLE, [])
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    for (issuer_key_id, nonce, grant_json, audit_json) in legacy_rows {
-        let migration = parse_legacy_replay_grant(&grant_json, trusted_issuer)?;
-        if migration.issuer_key_id != issuer_key_id || migration.nonce != nonce {
-            return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
-        }
-        let expires_at_nanos = migration
-            .expires_at
-            .parse::<chrono::DateTime<chrono::FixedOffset>>()
-            .ok()
-            .and_then(|instant| instant.timestamp_nanos_opt())
-            .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
-        transaction
-            .execute(
-                INSERT_FINGERPRINT_REPLAY_ROW,
-                params![
-                    issuer_key_id,
-                    nonce,
-                    migration.replay_fingerprint,
-                    audit_json,
-                    expires_at_nanos
-                ],
-            )
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    }
-    transaction
-        .execute(DROP_LEGACY_REPLAY_TABLE, [])
-        .and_then(|_| transaction.execute(RENAME_FINGERPRINT_REPLAY_TABLE, []))
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    transaction
-        .commit()
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
+    legacy_replay_rows::migrate_legacy_replay_records(connection, trusted_issuer)
 }
 
 fn parse_legacy_replay_grant(
