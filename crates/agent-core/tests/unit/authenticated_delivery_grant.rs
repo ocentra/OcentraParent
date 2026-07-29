@@ -104,11 +104,13 @@ pub(super) fn open(
     path: impl AsRef<std::path::Path>,
     issuer: AuthenticatedDeliveryGrantTrustedIssuer,
 ) -> TestResult<AuthenticatedDeliveryGrantConsumer> {
-    must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         path,
         issuer,
         "2026-07-28T00:01:00.500Z",
-    ))
+    ))?;
+    must(consumer.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:01:00.500Z"))?;
+    Ok(consumer)
 }
 
 pub(super) fn expected() -> AuthenticatedDeliveryGrantExpectation {
@@ -556,6 +558,7 @@ fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> Te
         trusted_issuer(&key),
         "2026-07-28T00:01:00Z",
     ))?;
+    must(active.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:01:00Z"))?;
     must(active.consume(
         &grant,
         &expected(),
