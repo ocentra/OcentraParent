@@ -1,5 +1,6 @@
 use super::TestResult;
 use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -192,6 +193,10 @@ impl IssuanceFixture {
             AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
         let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
         AuthenticatedDeliveryGrantIssuance {
+            correlation_id: test_ok!(
+                CorrelationId::parse("authenticated-delivery-grant-test-chain-1"),
+                "issuance correlation id"
+            ),
             household_authority: self.household_authority,
             policy_decision: &self.policy_decision,
             policy_authority: &self.policy_authority,
@@ -534,6 +539,9 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
             4,
             "expected one milestone per issuance attempt"
         );
+        assert!(journal.iter().all(|event| {
+            event.correlation_id.as_str() == "authenticated-delivery-grant-test-chain-1"
+        }));
         let idempotency_keys = journal
             .iter()
             .map(|event| event.idempotency_key.as_str().to_owned())
@@ -581,4 +589,20 @@ fn issuer_journals_each_redacted_accepted_and_rejected_attempt_through_event_bus
         assert!(second_rejected_event.payload.redaction_state);
         Ok(())
     })
+}
+
+#[test]
+fn issuer_with_event_bus_is_safe_without_a_tokio_runtime() -> TestResult {
+    let event_bus = EventBus::new();
+    let issuer = test_ok!(issuer(), "provenance-configured issuer")
+        .with_event_bus_issuance_publisher(event_bus)
+        .map_err(|error| format!("event publisher: {error:?}"))?;
+
+    let grant = test_ok!(
+        issuer.issue(IssuanceFixture::new().request()),
+        "issuance without Tokio runtime must remain available"
+    );
+    assert_eq!(grant.issuer_key_id, "parent-key-1");
+    assert_eq!(grant.target_device_id, "child-device-1");
+    Ok(())
 }

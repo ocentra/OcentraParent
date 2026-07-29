@@ -3,6 +3,7 @@
 use ed25519_dalek::{Signer, SigningKey, VerifyingKey};
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityInput, ParentStepUpValidationInput,
 };
@@ -117,6 +118,8 @@ pub enum DeliveryGrantEvidenceState {
 }
 
 pub struct AuthenticatedDeliveryGrantIssuance<'a> {
+    /// Correlates this issuance attempt with its originating command chain.
+    pub correlation_id: CorrelationId,
     pub household_authority: HouseholdAuthorityInput,
     pub policy_decision: &'a PolicyControlDecision,
     pub policy_authority: &'a PolicyContractAuthorityDecision,
@@ -193,8 +196,9 @@ impl AuthenticatedDeliveryGrantIssuer {
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
+        let correlation_id = request.correlation_id.clone();
         let result = self.issue_inner(request);
-        self.publish_issuance_milestone(&result);
+        self.publish_issuance_milestone(&correlation_id, &result);
         result
     }
 
@@ -264,6 +268,7 @@ impl AuthenticatedDeliveryGrantIssuer {
 
     fn publish_issuance_milestone(
         &self,
+        correlation_id: &CorrelationId,
         result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
     ) {
         let Some(publisher) = &self.issuance_publisher else {
@@ -281,6 +286,6 @@ impl AuthenticatedDeliveryGrantIssuer {
                 redaction_state: true,
             },
         };
-        publisher.publish(milestone);
+        publisher.publish(correlation_id.clone(), milestone);
     }
 }
