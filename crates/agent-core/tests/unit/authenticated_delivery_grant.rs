@@ -374,6 +374,46 @@ fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_
 }
 
 #[test]
+fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("startup-expiry-purge");
+    let grant = signed_grant(&key);
+    let mut active = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:01:00Z",
+    ))?;
+    must(active.consume(&grant, &expected(), "consume-before-inactive"))?;
+    drop(active);
+    let connection = Connection::open(path.as_ref())?;
+    connection.execute(
+        "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)",
+        params![grant.issuer_key_id, grant.nonce, "{}"],
+    )?;
+    drop(connection);
+    let inactive_restart = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:05:00Z",
+    ))?;
+    drop(inactive_restart);
+    let connection = Connection::open(path.as_ref())?;
+    let retained_grants: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        |row| row.get(0),
+    )?;
+    let retained_audits: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        |row| row.get(0),
+    )?;
+    assert_eq!(retained_grants, 0);
+    assert_eq!(retained_audits, 0);
+    Ok(())
+}
+
+#[test]
 fn consumers_allow_the_same_nonce_from_distinct_trusted_issuers() -> TestResult {
     let first_key = SigningKey::from_bytes(&[4; 32]);
     let second_key = SigningKey::from_bytes(&[5; 32]);
