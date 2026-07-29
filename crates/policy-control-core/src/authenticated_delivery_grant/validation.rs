@@ -118,8 +118,10 @@ pub(super) fn validate_parent_step_up(
         && validation.family_id == authorization.household_id.as_str()
         && validation.parent_account_id == authorization.issuer_actor_id.as_str()
         && validation.action_device_id == authorization.parent_device_id.as_str()
-        && validation.action_device_child_profile_id.as_deref()
-            == Some(authorization.child_profile_id.as_str())
+        && action_device_child_profile_matches(
+            validation.action_device_child_profile_id.as_deref(),
+            authorization.child_profile_id.as_str(),
+        )
         && validation.target_child_profile_id.as_deref()
             == Some(authorization.child_profile_id.as_str())
         && validation.expected_nonce.as_deref() == Some(authorization.nonce.as_str())
@@ -154,6 +156,14 @@ pub(super) fn validate_parent_step_up(
         .valid
         .then_some(())
         .ok_or(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+}
+
+fn action_device_child_profile_matches(
+    action_device_child_profile_id: Option<&str>,
+    target_child_profile_id: &str,
+) -> bool {
+    action_device_child_profile_id.is_none()
+        || action_device_child_profile_id == Some(target_child_profile_id)
 }
 
 pub(super) fn validate_grant_timestamps(

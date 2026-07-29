@@ -139,7 +139,7 @@ fn parent_step_up() -> ParentStepUpGrantAuthorization {
                 family_id: "household-1".to_owned(),
                 parent_account_id: "parent-1".to_owned(),
                 action_device_id: "parent-device-1".to_owned(),
-                action_device_child_profile_id: Some("child-1".to_owned()),
+                action_device_child_profile_id: None,
                 target_child_profile_id: Some("child-1".to_owned()),
                 action: HouseholdAuthorityAction::ChangePolicy,
                 nonce: "nonce-1".to_owned(),
@@ -148,7 +148,7 @@ fn parent_step_up() -> ParentStepUpGrantAuthorization {
             family_id: "household-1".to_owned(),
             parent_account_id: "parent-1".to_owned(),
             action_device_id: "parent-device-1".to_owned(),
-            action_device_child_profile_id: Some("child-1".to_owned()),
+            action_device_child_profile_id: None,
             target_child_profile_id: Some("child-1".to_owned()),
             action: HouseholdAuthorityAction::ChangePolicy,
             observed_at: "2026-07-28T00:00:00Z".to_owned(),
@@ -199,7 +199,11 @@ impl IssuanceFixture {
             capability_state: self.capability_state,
             evidence_state: self.evidence_state,
             bindings: self.bindings.clone(),
-            signed_authority_bindings: authority_signer.sign(self.bindings.clone(), assertions()),
+            signed_authority_bindings: authority_signer.sign(
+                self.bindings.clone(),
+                assertions(),
+                self.household_authority,
+            ),
             verified_parent_step_up_proof: step_up_signer
                 .sign(self.parent_step_up.validation.clone(), assertions()),
         }
@@ -243,6 +247,66 @@ fn issuer_rejects_untrusted_parent_device_and_dry_run() -> TestResult {
 }
 
 #[test]
+fn issuer_uses_verified_household_authority_instead_of_caller_claim() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = IssuanceFixture::new();
+    let authority_signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let mut request = fixture.request();
+
+    let mut signed_untrusted_authority = fixture.household_authority;
+    signed_untrusted_authority.device_trust_state = DeviceTrustState::Revoked;
+    request.signed_authority_bindings = authority_signer.sign(
+        fixture.bindings.clone(),
+        assertions(),
+        signed_untrusted_authority,
+    );
+    request.household_authority = authority();
+
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentAuthorityRejected)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_allows_unbound_action_device_when_signed_target_child_is_bound() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let grant = test_ok!(
+        issuer.issue(IssuanceFixture::new().request()),
+        "unbound action device with separately bound target child can issue"
+    );
+    assert_eq!(grant.child_profile_id, "child-1");
+    assert_eq!(grant.target_device_id, "child-device-1");
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_action_device_bound_to_a_different_child() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = IssuanceFixture::new();
+    let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let mut request = fixture.request();
+    request
+        .parent_step_up
+        .validation
+        .action_device_child_profile_id = Some("other-child".to_owned());
+    test_some!(
+        request.parent_step_up.validation.assertion.as_mut(),
+        "signed step-up assertion"
+    )
+    .action_device_child_profile_id = Some("other-child".to_owned());
+    request.verified_parent_step_up_proof =
+        step_up_signer.sign(request.parent_step_up.validation.clone(), assertions());
+
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+    );
+    Ok(())
+}
+
+#[test]
 fn issuer_rejects_forged_or_substituted_signed_provenance() -> TestResult {
     let issuer = test_ok!(issuer(), "provenance-configured issuer");
     let fixture = IssuanceFixture::new();
@@ -281,8 +345,11 @@ fn issuer_rejects_valid_signatures_from_unconfigured_provenance_keys() -> TestRe
         AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([9; 32]);
     let step_up_signed_by_another_key = ParentStepUpProofSigner::from_platform_key([10; 32]);
     let mut request = fixture.request();
-    request.signed_authority_bindings =
-        authority_signed_by_another_key.sign(fixture.bindings.clone(), assertions());
+    request.signed_authority_bindings = authority_signed_by_another_key.sign(
+        fixture.bindings.clone(),
+        assertions(),
+        fixture.household_authority,
+    );
     request.verified_parent_step_up_proof =
         step_up_signed_by_another_key.sign(fixture.parent_step_up.validation.clone(), assertions());
 
@@ -375,8 +442,11 @@ fn issuer_uses_dually_signed_assertions_instead_of_caller_claims() -> TestResult
         evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
     };
     let mut request = fixture.request();
-    request.signed_authority_bindings =
-        authority_signer.sign(fixture.bindings.clone(), unavailable.clone());
+    request.signed_authority_bindings = authority_signer.sign(
+        fixture.bindings.clone(),
+        unavailable.clone(),
+        fixture.household_authority,
+    );
     request.verified_parent_step_up_proof =
         step_up_signer.sign(fixture.parent_step_up.validation.clone(), unavailable);
     assert_eq!(
@@ -433,8 +503,11 @@ fn issuer_journals_redacted_accepted_and_rejected_milestones_through_event_bus()
             AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
         let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
         let mut rejected_request = rejected_fixture.request();
-        rejected_request.signed_authority_bindings =
-            authority_signer.sign(rejected_fixture.bindings.clone(), unavailable.clone());
+        rejected_request.signed_authority_bindings = authority_signer.sign(
+            rejected_fixture.bindings.clone(),
+            unavailable.clone(),
+            rejected_fixture.household_authority,
+        );
         rejected_request.verified_parent_step_up_proof = step_up_signer.sign(
             rejected_fixture.parent_step_up.validation.clone(),
             unavailable,
