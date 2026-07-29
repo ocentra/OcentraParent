@@ -1,4 +1,5 @@
 use super::TestResult;
+use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -136,6 +137,10 @@ impl ProvenanceFixture {
             evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
         };
         AuthenticatedDeliveryGrantIssuance {
+            correlation_id: test_ok!(
+                CorrelationId::parse("authenticated-delivery-grant-provenance-1"),
+                "issuance correlation id"
+            ),
             household_authority: self.authority,
             policy_decision: &self.decision,
             policy_authority: &self.contract_authority,
