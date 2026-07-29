@@ -2,19 +2,24 @@
 
 use std::{path::Path, time::Duration};
 
+use chrono::{SecondsFormat, Utc};
 use ed25519_dalek::{Signature, VerifyingKey};
 use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
     parse_authenticated_delivery_grant_instant, AuthenticatedDeliveryGrant,
     AuthenticatedDeliveryGrantInstant,
 };
-use rusqlite::{params, Connection, OptionalExtension, TransactionBehavior};
+use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+
+mod authenticated_delivery_grant_retention;
 
 const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, PRIMARY KEY (issuer_key_id, nonce))";
 const SELECT_CONSUMED_GRANT: &str =
     "SELECT grant_json FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2";
 const INSERT_CONSUMED_GRANT: &str = "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json) VALUES (?1, ?2, ?3, ?4)";
+const CREATE_GRANT_AUDITS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_audits_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL)";
+const INSERT_GRANT_AUDIT: &str = "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)";
 const CONSUME_BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -79,6 +84,7 @@ pub enum AuthenticatedDeliveryGrantConsumeError {
 pub struct AuthenticatedDeliveryGrantConsumer {
     connection: Connection,
     trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
+    trusted_now: AuthenticatedDeliveryGrantInstant,
     #[cfg(debug_assertions)]
     fail_next_commit: bool,
 }
@@ -88,6 +94,19 @@ impl AuthenticatedDeliveryGrantConsumer {
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
+        Self::open_at(
+            path,
+            trusted_issuer,
+            Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true),
+        )
+    }
+
+    fn open_at(
+        path: impl AsRef<Path>,
+        trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
+        trusted_now: String,
+    ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
+        let trusted_now = parse_observed_at(&trusted_now)?;
         let connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         connection
@@ -99,12 +118,25 @@ impl AuthenticatedDeliveryGrantConsumer {
         connection
             .execute(CREATE_CONSUMED_GRANTS, [])
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+        connection
+            .execute(CREATE_GRANT_AUDITS, [])
+            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         Ok(Self {
             connection,
             trusted_issuer,
+            trusted_now,
             #[cfg(debug_assertions)]
             fail_next_commit: false,
         })
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn open_at_for_debug_test(
+        path: impl AsRef<Path>,
+        trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
+        trusted_now: impl Into<String>,
+    ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
+        Self::open_at(path, trusted_issuer, trusted_now.into())
     }
 
     pub fn consume(
@@ -114,9 +146,15 @@ impl AuthenticatedDeliveryGrantConsumer {
         correlation_id: impl Into<String>,
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
-        validate_grant(grant, expected, &self.trusted_issuer)?;
+        validate_grant(grant, expected, &self.trusted_issuer, self.trusted_now)?;
+        authenticated_delivery_grant_retention::purge_expired_replay_records(
+            &mut self.connection,
+            self.trusted_now,
+        )?;
         let correlation_id = correlation_id.into();
-        if correlation_id.trim().is_empty() {
+        if correlation_id.trim().is_empty()
+            || correlation_id.len() > ocentra_parent_agent_protocol::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+        {
             return Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected);
         }
         let transaction = self
@@ -132,24 +170,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             .optional()
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         if let Some(stored) = stored {
-            let stored: AuthenticatedDeliveryGrant = serde_json::from_str(&stored)
-                .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
-            if stored.signing_bytes() != grant.signing_bytes()
-                || stored.signature != grant.signature
-            {
-                return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
-            }
-            let audit = audit(
-                grant,
-                correlation_id,
-                AuthenticatedDeliveryGrantAuditOutcome::ReplayRejected,
-            );
-            transaction
-                .commit()
-                .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-            return Ok(AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(
-                audit,
-            ));
+            return reject_replay(transaction, grant, correlation_id, stored);
         }
         let audit = audit(
             grant,
@@ -182,10 +203,43 @@ impl AuthenticatedDeliveryGrantConsumer {
     }
 }
 
+fn reject_replay(
+    transaction: Transaction<'_>,
+    grant: &AuthenticatedDeliveryGrant,
+    correlation_id: String,
+    stored: String,
+) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError> {
+    let stored: AuthenticatedDeliveryGrant = serde_json::from_str(&stored)
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+    if stored.signing_bytes() != grant.signing_bytes() || stored.signature != grant.signature {
+        return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
+    }
+    let audit = audit(
+        grant,
+        correlation_id,
+        AuthenticatedDeliveryGrantAuditOutcome::ReplayRejected,
+    );
+    let audit_json = serde_json::to_string(&audit)
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+    transaction
+        .execute(
+            INSERT_GRANT_AUDIT,
+            params![grant.issuer_key_id, grant.nonce, audit_json],
+        )
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    transaction
+        .commit()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    Ok(AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(
+        audit,
+    ))
+}
+
 fn validate_grant(
     grant: &AuthenticatedDeliveryGrant,
     expected: &AuthenticatedDeliveryGrantExpectation,
     trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
+    trusted_now: AuthenticatedDeliveryGrantInstant,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     grant
         .validate_shape()
@@ -199,17 +253,16 @@ fn validate_grant(
     if grant.dry_run {
         return Err(AuthenticatedDeliveryGrantConsumeError::DryRunRejected);
     }
-    let observed_at = parse_observed_at(&expected.observed_at)?;
     let issued_at = grant
         .issued_at_instant()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::InvalidGrant)?;
-    if issued_at > observed_at {
+    if issued_at > trusted_now {
         return Err(AuthenticatedDeliveryGrantConsumeError::NotYetValid);
     }
     let expires_at = grant
         .expires_at_instant()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::InvalidGrant)?;
-    if expires_at <= observed_at {
+    if expires_at <= trusted_now {
         return Err(AuthenticatedDeliveryGrantConsumeError::Expired);
     }
     if grant.revocation_version != expected.revocation_version {

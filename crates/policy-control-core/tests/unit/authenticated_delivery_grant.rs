@@ -7,6 +7,8 @@ use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, HouseholdAuthorityInput, ParentStepUpAssertionSnapshot,
     ParentStepUpValidationInput,
 };
+use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
+use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuance, AuthenticatedDeliveryGrantIssuanceError,
     AuthenticatedDeliveryGrantIssuer, CanonicalDeliveryGrantAuthorization, DeliveryGrantBindings,
@@ -15,6 +17,18 @@ use ocentra_policy_control_core::authenticated_delivery_grant::{
     GrantParentDeviceId, GrantPayloadDigest, GrantPolicyDecisionId, GrantPolicyVersion,
     GrantRevocationVersion, GrantTargetDeviceId, ParentStepUpGrantAuthorization,
 };
+
+fn issuer() -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
+    let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
+        "parent-key-1",
+        [3; 32],
+        authority.verifying_key(),
+        step_up.verifying_key(),
+    )
+}
+
 use ocentra_policy_control_core::policy_authority::{
     PolicyActionAuthorizationState, PolicyControlDecision, PolicyEnforcementExecutionState,
     PolicyManualReviewState,
@@ -157,6 +171,9 @@ impl IssuanceFixture {
     }
 
     fn request(&self) -> AuthenticatedDeliveryGrantIssuance<'_> {
+        let authority_signer =
+            AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+        let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
         AuthenticatedDeliveryGrantIssuance {
             household_authority: self.household_authority,
             policy_decision: &self.policy_decision,
@@ -166,16 +183,16 @@ impl IssuanceFixture {
             capability_state: self.capability_state,
             evidence_state: self.evidence_state,
             bindings: self.bindings.clone(),
+            signed_authority_bindings: authority_signer.sign(self.bindings.clone()),
+            verified_parent_step_up_proof: step_up_signer
+                .sign(self.parent_step_up.validation.clone()),
         }
     }
 }
 
 #[test]
 fn issuer_requires_current_parent_authority_and_produces_verifiable_grant() -> TestResult {
-    let issuer = test_ok!(
-        AuthenticatedDeliveryGrantIssuer::from_platform_key("parent-key-1", [3; 32]),
-        "valid test key id"
-    );
+    let issuer = test_ok!(issuer(), "valid test key id");
     let grant = test_ok!(
         issuer.issue(IssuanceFixture::new().request()),
         "current authority can issue"
@@ -193,10 +210,7 @@ fn issuer_requires_current_parent_authority_and_produces_verifiable_grant() -> T
 
 #[test]
 fn issuer_rejects_untrusted_parent_device_and_dry_run() -> TestResult {
-    let issuer = test_ok!(
-        AuthenticatedDeliveryGrantIssuer::from_platform_key("parent-key-1", [3; 32]),
-        "valid test key id"
-    );
+    let issuer = test_ok!(issuer(), "valid test key id");
     let mut untrusted = IssuanceFixture::new();
     untrusted.household_authority.device_trust_state = DeviceTrustState::Revoked;
     assert_eq!(
@@ -213,12 +227,40 @@ fn issuer_rejects_untrusted_parent_device_and_dry_run() -> TestResult {
 }
 
 #[test]
+fn issuer_rejects_forged_or_substituted_signed_provenance() -> TestResult {
+    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = IssuanceFixture::new();
+
+    let mut forged_authority = fixture.request();
+    forged_authority.signed_authority_bindings.signature[0] ^= 1;
+    assert_eq!(
+        issuer.issue(forged_authority),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+    );
+
+    let mut substituted_binding = fixture.request();
+    substituted_binding
+        .signed_authority_bindings
+        .bindings
+        .target_device_id = "other-device".to_owned();
+    assert_eq!(
+        issuer.issue(substituted_binding),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+    );
+
+    let mut forged_step_up = fixture.request();
+    forged_step_up.verified_parent_step_up_proof.signature[0] ^= 1;
+    assert_eq!(
+        issuer.issue(forged_step_up),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+    );
+    Ok(())
+}
+
+#[test]
 fn issuer_rejects_step_up_or_canonical_authorization_that_does_not_match_signed_bindings(
 ) -> TestResult {
-    let issuer = test_ok!(
-        AuthenticatedDeliveryGrantIssuer::from_platform_key("parent-key-1", [3; 32]),
-        "valid test key id"
-    );
+    let issuer = test_ok!(issuer(), "valid test key id");
     let mut mismatched = IssuanceFixture::new();
     mismatched.canonical_authorization.target_device_id = test_ok!(
         GrantTargetDeviceId::parse("different-device"),
@@ -240,10 +282,7 @@ fn issuer_rejects_step_up_or_canonical_authorization_that_does_not_match_signed_
 
 #[test]
 fn issuer_rejects_manual_review_and_invalid_or_chronologically_expired_timestamps() -> TestResult {
-    let issuer = test_ok!(
-        AuthenticatedDeliveryGrantIssuer::from_platform_key("parent-key-1", [3; 32]),
-        "valid test key id"
-    );
+    let issuer = test_ok!(issuer(), "valid test key id");
     let mut manual_review = IssuanceFixture::new();
     manual_review.policy_decision = PolicyControlDecision {
         manual_review_state: PolicyManualReviewState::Required,

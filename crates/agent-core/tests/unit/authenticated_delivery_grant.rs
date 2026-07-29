@@ -1,4 +1,8 @@
-use std::{fmt::Debug, path::PathBuf};
+use std::{
+    fmt::Debug,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use ed25519_dalek::{Signer, SigningKey};
 use ocentra_parent_agent_core::authenticated_delivery_grant::{
@@ -16,13 +20,40 @@ fn must<T, E: Debug>(result: Result<T, E>) -> TestResult<T> {
     result.map_err(|error| std::io::Error::other(format!("unexpected error: {error:?}")).into())
 }
 
-fn store_path(name: &str) -> PathBuf {
+#[derive(Clone)]
+struct TestDatabase(Arc<TestDatabasePath>);
+
+struct TestDatabasePath(PathBuf);
+
+impl AsRef<Path> for TestDatabase {
+    fn as_ref(&self) -> &Path {
+        &self.0 .0
+    }
+}
+
+impl Drop for TestDatabasePath {
+    fn drop(&mut self) {
+        for suffix in ["", "-journal", "-shm", "-wal"] {
+            let path = if suffix.is_empty() {
+                self.0.clone()
+            } else {
+                PathBuf::from(format!("{}{}", self.0.display(), suffix))
+            };
+            let _ = std::fs::remove_file(path);
+        }
+    }
+}
+
+fn store_path(name: &str) -> TestDatabase {
     let mut path = std::env::temp_dir();
     path.push(format!(
-        "ocentra-authenticated-delivery-{name}-{}.sqlite",
-        std::process::id()
+        "ocentra-authenticated-delivery-{name}-{}-{}.sqlite",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_or(0, |duration| duration.as_nanos())
     ));
-    path
+    TestDatabase(Arc::new(TestDatabasePath(path)))
 }
 
 fn signed_grant(key: &SigningKey) -> AuthenticatedDeliveryGrant {
@@ -65,6 +96,17 @@ fn trusted_issuer(key: &SigningKey) -> AuthenticatedDeliveryGrantTrustedIssuer {
     }
 }
 
+fn open(
+    path: impl AsRef<std::path::Path>,
+    issuer: AuthenticatedDeliveryGrantTrustedIssuer,
+) -> TestResult<AuthenticatedDeliveryGrantConsumer> {
+    must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        path,
+        issuer,
+        "2026-07-28T00:01:00.500Z",
+    ))
+}
+
 fn expected() -> AuthenticatedDeliveryGrantExpectation {
     AuthenticatedDeliveryGrantExpectation {
         issuer_actor_id: "parent-1".to_owned(),
@@ -87,10 +129,7 @@ fn expected() -> AuthenticatedDeliveryGrantExpectation {
 fn consumer_persists_atomic_consume_and_rejects_restart_replay() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("restart-replay");
-    let mut first = must(AuthenticatedDeliveryGrantConsumer::open(
-        &path,
-        trusted_issuer(&key),
-    ))?;
+    let mut first = open(&path, trusted_issuer(&key))?;
     let grant = signed_grant(&key);
     let consumed = must(first.consume(&grant, &expected(), "correlation-1"))?;
     let AuthenticatedDeliveryGrantConsumeOutcome::Consumed(audit) = consumed else {
@@ -102,10 +141,7 @@ fn consumer_persists_atomic_consume_and_rejects_restart_replay() -> TestResult {
     );
     assert_ne!(audit.nonce_digest, grant.nonce);
     drop(first);
-    let mut reopened = must(AuthenticatedDeliveryGrantConsumer::open(
-        &path,
-        trusted_issuer(&key),
-    ))?;
+    let mut reopened = open(&path, trusted_issuer(&key))?;
     let replay = must(reopened.consume(&grant, &expected(), "correlation-2"))?;
     let AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(audit) = replay else {
         return Err(std::io::Error::other("restart replay must reject").into());
@@ -120,10 +156,7 @@ fn consumer_persists_atomic_consume_and_rejects_restart_replay() -> TestResult {
 #[test]
 fn consumer_rejects_tamper_wrong_target_expiry_and_revocation() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
-    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open(
-        store_path("negative"),
-        trusted_issuer(&key),
-    ))?;
+    let mut consumer = open(store_path("negative"), trusted_issuer(&key))?;
     let grant = signed_grant(&key);
     let mut tampered = grant.clone();
     tampered.target_device_id = "other-device".to_owned();
@@ -158,10 +191,7 @@ fn consumer_rejects_tamper_wrong_target_expiry_and_revocation() -> TestResult {
 fn consumer_rejects_every_resigned_context_binding_and_wrong_issuer_key_pair() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let grant = signed_grant(&key);
-    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open(
-        store_path("every-binding"),
-        trusted_issuer(&key),
-    ))?;
+    let mut consumer = open(store_path("every-binding"), trusted_issuer(&key))?;
     macro_rules! assert_binding_rejected {
         ($field:ident, $value:expr) => {{
             let mut wrong = grant.clone();
@@ -187,13 +217,13 @@ fn consumer_rejects_every_resigned_context_binding_and_wrong_issuer_key_pair() -
     assert_binding_rejected!(payload_digest, &"b".repeat(64));
 
     let other_key = SigningKey::from_bytes(&[5; 32]);
-    let mut other_key_consumer = must(AuthenticatedDeliveryGrantConsumer::open(
+    let mut other_key_consumer = open(
         store_path("wrong-key-pair"),
         AuthenticatedDeliveryGrantTrustedIssuer {
             key_id: "parent-key-1".to_owned(),
             verifying_key: other_key.verifying_key(),
         },
-    ))?;
+    )?;
     assert_eq!(
         other_key_consumer.consume(&grant, &expected(), "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::SignatureRejected)
@@ -202,26 +232,23 @@ fn consumer_rejects_every_resigned_context_binding_and_wrong_issuer_key_pair() -
 }
 
 #[test]
-fn consumer_uses_instant_expiry_and_rejects_malformed_observed_time() -> TestResult {
+fn consumer_uses_trusted_instant_expiry_and_ignores_caller_observed_time() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let mut grant = signed_grant(&key);
     grant.issued_at = "2026-07-27T23:00:00Z".to_owned();
     grant.expires_at = "2026-07-28T00:30:00+01:00".to_owned();
     grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
-    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open(
-        store_path("instant-expiry"),
-        trusted_issuer(&key),
-    ))?;
+    let mut consumer = open(store_path("instant-expiry"), trusted_issuer(&key))?;
     assert_eq!(
         consumer.consume(&grant, &expected(), "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::Expired)
     );
     let mut malformed_observed_at = expected();
     malformed_observed_at.observed_at = "not-a-timestamp".to_owned();
-    assert_eq!(
-        consumer.consume(&signed_grant(&key), &malformed_observed_at, "correlation-1"),
-        Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
-    );
+    assert!(matches!(
+        must(consumer.consume(&signed_grant(&key), &malformed_observed_at, "correlation-1"))?,
+        AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
+    ));
     Ok(())
 }
 
@@ -232,22 +259,19 @@ fn consumers_allow_the_same_nonce_from_distinct_trusted_issuers() -> TestResult 
     let path = store_path("issuer-namespaced-nonce");
     let first_grant = signed_grant(&first_key);
     let second_grant = signed_grant_for(&second_key, "parent-key-2");
-    let mut first_consumer = must(AuthenticatedDeliveryGrantConsumer::open(
-        &path,
-        trusted_issuer(&first_key),
-    ))?;
+    let mut first_consumer = open(&path, trusted_issuer(&first_key))?;
     assert!(matches!(
         must(first_consumer.consume(&first_grant, &expected(), "correlation-1"))?,
         AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
     ));
     drop(first_consumer);
-    let mut second_consumer = must(AuthenticatedDeliveryGrantConsumer::open(
+    let mut second_consumer = open(
         &path,
         AuthenticatedDeliveryGrantTrustedIssuer {
             key_id: "parent-key-2".to_owned(),
             verifying_key: second_key.verifying_key(),
         },
-    ))?;
+    )?;
     assert!(matches!(
         must(second_consumer.consume(&second_grant, &expected(), "correlation-2"))?,
         AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
@@ -260,20 +284,14 @@ fn failed_commit_rolls_back_consume_so_retry_after_reopen_is_safe() -> TestResul
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("commit-failure");
     let grant = signed_grant(&key);
-    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open(
-        &path,
-        trusted_issuer(&key),
-    ))?;
+    let mut consumer = open(&path, trusted_issuer(&key))?;
     consumer.inject_next_commit_failure_for_debug();
     assert_eq!(
         consumer.consume(&grant, &expected(), "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
     );
     drop(consumer);
-    let mut reopened = must(AuthenticatedDeliveryGrantConsumer::open(
-        &path,
-        trusted_issuer(&key),
-    ))?;
+    let mut reopened = open(&path, trusted_issuer(&key))?;
     let outcome = must(reopened.consume(&grant, &expected(), "correlation-2"))?;
     let AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_) = outcome else {
         return Err(std::io::Error::other("uncommitted consume must retry safely").into());
@@ -296,13 +314,13 @@ fn concurrent_consumers_allow_exactly_one_durable_consume() -> TestResult {
         let verifying_key = key.verifying_key();
         std::thread::spawn(move || {
             barrier.wait();
-            let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open(
+            let mut consumer = open(
                 path,
                 AuthenticatedDeliveryGrantTrustedIssuer {
                     key_id: "parent-key-1".to_owned(),
                     verifying_key,
                 },
-            ))?;
+            )?;
             must(consumer.consume(&grant, &expected, correlation))
         })
     });

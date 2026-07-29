@@ -9,6 +9,8 @@ use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 
+use self::authority::{AuthenticatedDeliveryGrantAuthorityVerifier, SignedAuthorityBindings};
+use self::step_up::{ParentStepUpProofVerifier, VerifiedParentStepUpProof};
 use crate::policy_authority::{
     PolicyActionAuthorizationState, PolicyControlDecision, PolicyEnforcementExecutionState,
     PolicyManualReviewState,
@@ -17,9 +19,11 @@ use crate::policy_contract_helpers::authority::{
     PolicyContractAuthorityDecision, PolicyContractAuthoritySource, PolicyContractAuthorityState,
 };
 
+pub mod authority;
+pub mod step_up;
 mod validation;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct DeliveryGrantBindings {
     pub issuer_actor_id: String,
     pub household_id: String,
@@ -119,6 +123,8 @@ pub struct AuthenticatedDeliveryGrantIssuance<'a> {
     pub capability_state: DeliveryGrantCapabilityState,
     pub evidence_state: DeliveryGrantEvidenceState,
     pub bindings: DeliveryGrantBindings,
+    pub signed_authority_bindings: SignedAuthorityBindings,
+    pub verified_parent_step_up_proof: VerifiedParentStepUpProof,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -135,11 +141,14 @@ pub enum AuthenticatedDeliveryGrantIssuanceError {
     InvalidAuthorizationSnapshot,
     InvalidTimestamp,
     InvalidBindings,
+    AuthorityProvenanceRejected,
 }
 
 pub struct AuthenticatedDeliveryGrantIssuer {
     issuer_key_id: String,
     signing_key: SigningKey,
+    authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier,
+    step_up_verifier: ParentStepUpProofVerifier,
 }
 
 impl AuthenticatedDeliveryGrantIssuer {
@@ -151,10 +160,29 @@ impl AuthenticatedDeliveryGrantIssuer {
         if issuer_key_id.trim().is_empty() {
             return Err(AuthenticatedDeliveryGrantIssuanceError::InvalidIssuerKeyId);
         }
+        let signing_key = SigningKey::from_bytes(&platform_protected_key);
         Ok(Self {
             issuer_key_id,
-            signing_key: SigningKey::from_bytes(&platform_protected_key),
+            signing_key,
+            authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier::new(
+                SigningKey::from_bytes(&[0; 32]).verifying_key(),
+            ),
+            step_up_verifier: ParentStepUpProofVerifier::new(
+                SigningKey::from_bytes(&[0; 32]).verifying_key(),
+            ),
         })
+    }
+
+    pub fn from_platform_key_with_provenance_verifiers(
+        issuer_key_id: impl Into<String>,
+        platform_protected_key: [u8; 32],
+        authority_key: VerifyingKey,
+        step_up_key: VerifyingKey,
+    ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError> {
+        let mut issuer = Self::from_platform_key(issuer_key_id, platform_protected_key)?;
+        issuer.authority_verifier = AuthenticatedDeliveryGrantAuthorityVerifier::new(authority_key);
+        issuer.step_up_verifier = ParentStepUpProofVerifier::new(step_up_key);
+        Ok(issuer)
     }
 
     pub fn verifying_key(&self) -> VerifyingKey {
@@ -165,7 +193,14 @@ impl AuthenticatedDeliveryGrantIssuer {
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        validate_issuance(&request)?;
+        let mut request = request;
+        request.bindings = self
+            .authority_verifier
+            .verify(&request.signed_authority_bindings)?;
+        request.parent_step_up.validation = self
+            .step_up_verifier
+            .verify(&request.verified_parent_step_up_proof)?;
+        validate_issuance(&request, &self.issuer_key_id)?;
         let bindings = request.bindings;
         let mut grant = AuthenticatedDeliveryGrant {
             schema_version: AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
@@ -199,6 +234,7 @@ impl AuthenticatedDeliveryGrantIssuer {
 
 fn validate_issuance(
     request: &AuthenticatedDeliveryGrantIssuance<'_>,
+    issuer_key_id: &str,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     let authority = authorize_household_action(request.household_authority);
     if authority.authorization_state != HouseholdAuthorizationState::Authorized
@@ -232,7 +268,7 @@ fn validate_issuance(
     validation::validate_grant_timestamps(&request.bindings)?;
     let unsigned = AuthenticatedDeliveryGrant {
         schema_version: AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
-        issuer_key_id: "issuer".to_owned(),
+        issuer_key_id: issuer_key_id.to_owned(),
         issuer_actor_id: request.bindings.issuer_actor_id.clone(),
         household_id: request.bindings.household_id.clone(),
         parent_device_id: request.bindings.parent_device_id.clone(),

@@ -1,4 +1,4 @@
-pub(super) fn parse(value: &[u8]) -> Option<(u8, u8, u8, &[u8])> {
+pub(super) fn parse(value: &[u8]) -> Option<(u8, u8, u8, i128, &[u8])> {
     if value.len() < 9 || value.get(2) != Some(&b':') || value.get(5) != Some(&b':') {
         return None;
     }
@@ -8,19 +8,27 @@ pub(super) fn parse(value: &[u8]) -> Option<(u8, u8, u8, &[u8])> {
     if hour > 23 || minute > 59 || second > 59 {
         return None;
     }
-    let offset_index = offset_index(value)?;
-    Some((hour, minute, second, value.get(offset_index..)?))
+    let (fraction, offset_index) = fraction_and_offset_index(value)?;
+    Some((hour, minute, second, fraction, value.get(offset_index..)?))
 }
 
-fn offset_index(value: &[u8]) -> Option<usize> {
+fn fraction_and_offset_index(value: &[u8]) -> Option<(i128, usize)> {
     if value.get(8) != Some(&b'.') {
-        return Some(8);
+        return Some((0, 8));
     }
     let mut index = 9;
     while value.get(index).is_some_and(u8::is_ascii_digit) {
         index += 1;
     }
-    (index > 9).then_some(index)
+    if index == 9 || index > 18 {
+        return None;
+    }
+    let digits = std::str::from_utf8(value.get(9..index)?)
+        .ok()?
+        .parse::<i128>()
+        .ok()?;
+    let scale = 10_i128.checked_pow(u32::try_from(index - 9).ok()?)?;
+    Some((digits.checked_mul(1_000_000_000)? / scale, index))
 }
 
 fn decimal_u8(value: &[u8]) -> Option<u8> {

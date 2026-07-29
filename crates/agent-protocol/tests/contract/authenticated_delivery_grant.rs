@@ -75,6 +75,17 @@ fn authenticated_delivery_grant_compares_offset_timestamps_as_instants_and_rejec
 }
 
 #[test]
+fn authenticated_delivery_grant_preserves_fractional_second_ordering() {
+    let mut fraction = grant();
+    fraction.issued_at = "2026-07-28T00:00:00.900Z".to_owned();
+    fraction.expires_at = "2026-07-28T00:00:00.100Z".to_owned();
+    assert_eq!(
+        fraction.validate_shape(),
+        Err(AuthenticatedDeliveryGrantValidationError::InvalidTimeWindow)
+    );
+}
+
+#[test]
 fn authenticated_delivery_grant_wire_decode_denies_unknown_and_oversized_fields() -> TestResult {
     let mut unknown = serde_json::to_value(grant())?;
     grant_object(&mut unknown)?.insert("unexpected".to_owned(), serde_json::Value::Bool(true));

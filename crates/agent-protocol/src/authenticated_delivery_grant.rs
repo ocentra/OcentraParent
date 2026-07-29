@@ -9,7 +9,7 @@ pub const AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES: usize = 512;
 pub const AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES: usize = 4_096;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub struct AuthenticatedDeliveryGrantInstant(i64);
+pub struct AuthenticatedDeliveryGrantInstant(i128);
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -43,6 +43,8 @@ pub enum AuthenticatedDeliveryGrantValidationError {
     InvalidSignature,
     InvalidTimestamp,
     InvalidTimeWindow,
+    OversizedBinding,
+    OversizedSignedWire,
 }
 
 impl AuthenticatedDeliveryGrant {
@@ -50,7 +52,7 @@ impl AuthenticatedDeliveryGrant {
         if self.schema_version != AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION {
             return Err(AuthenticatedDeliveryGrantValidationError::UnsupportedSchemaVersion);
         }
-        if ![
+        let bindings = [
             &self.issuer_key_id,
             &self.issuer_actor_id,
             &self.household_id,
@@ -67,11 +69,15 @@ impl AuthenticatedDeliveryGrant {
             &self.issued_at,
             &self.expires_at,
             &self.revocation_version,
-        ]
-        .into_iter()
-        .all(|value| !value.trim().is_empty())
-        {
+        ];
+        if !bindings.iter().all(|value| !value.trim().is_empty()) {
             return Err(AuthenticatedDeliveryGrantValidationError::MissingBinding);
+        }
+        if bindings
+            .iter()
+            .any(|value| value.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES)
+        {
+            return Err(AuthenticatedDeliveryGrantValidationError::OversizedBinding);
         }
         if self.payload_digest.len() != AUTHENTICATED_DELIVERY_GRANT_PAYLOAD_DIGEST_HEX_BYTES
             || !self
@@ -84,7 +90,10 @@ impl AuthenticatedDeliveryGrant {
         if self.signature.len() != AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES {
             return Err(AuthenticatedDeliveryGrantValidationError::InvalidSignature);
         }
-        if self.issued_at_instant()? > self.expires_at_instant()? {
+        if self.signing_wire_len() > AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES {
+            return Err(AuthenticatedDeliveryGrantValidationError::OversizedSignedWire);
+        }
+        if self.issued_at_instant()? >= self.expires_at_instant()? {
             return Err(AuthenticatedDeliveryGrantValidationError::InvalidTimeWindow);
         }
         Ok(())
@@ -103,32 +112,61 @@ impl AuthenticatedDeliveryGrant {
     }
 
     pub fn signing_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::new();
+        let mut bytes = Vec::with_capacity(self.signing_wire_len());
+        let schema_version = self.schema_version.to_string();
+        let dry_run = self.dry_run.to_string();
         for value in [
-            self.schema_version.to_string(),
-            self.issuer_key_id.clone(),
-            self.issuer_actor_id.clone(),
-            self.household_id.clone(),
-            self.parent_device_id.clone(),
-            self.child_profile_id.clone(),
-            self.target_device_id.clone(),
-            self.policy_decision_id.clone(),
-            self.policy_version.clone(),
-            self.action_id.clone(),
-            self.capability_id.clone(),
-            self.evidence_digest.clone(),
-            self.payload_digest.clone(),
-            self.dry_run.to_string(),
-            self.nonce.clone(),
-            self.issued_at.clone(),
-            self.expires_at.clone(),
-            self.revocation_version.clone(),
+            schema_version.as_str(),
+            self.issuer_key_id.as_str(),
+            self.issuer_actor_id.as_str(),
+            self.household_id.as_str(),
+            self.parent_device_id.as_str(),
+            self.child_profile_id.as_str(),
+            self.target_device_id.as_str(),
+            self.policy_decision_id.as_str(),
+            self.policy_version.as_str(),
+            self.action_id.as_str(),
+            self.capability_id.as_str(),
+            self.evidence_digest.as_str(),
+            self.payload_digest.as_str(),
+            dry_run.as_str(),
+            self.nonce.as_str(),
+            self.issued_at.as_str(),
+            self.expires_at.as_str(),
+            self.revocation_version.as_str(),
         ] {
             let length = value.len() as u64;
             bytes.extend_from_slice(&length.to_be_bytes());
             bytes.extend_from_slice(value.as_bytes());
         }
         bytes
+    }
+
+    fn signing_wire_len(&self) -> usize {
+        let values = [
+            self.schema_version.to_string().len(),
+            self.issuer_key_id.len(),
+            self.issuer_actor_id.len(),
+            self.household_id.len(),
+            self.parent_device_id.len(),
+            self.child_profile_id.len(),
+            self.target_device_id.len(),
+            self.policy_decision_id.len(),
+            self.policy_version.len(),
+            self.action_id.len(),
+            self.capability_id.len(),
+            self.evidence_digest.len(),
+            self.payload_digest.len(),
+            self.dry_run.to_string().len(),
+            self.nonce.len(),
+            self.issued_at.len(),
+            self.expires_at.len(),
+            self.revocation_version.len(),
+        ];
+        values
+            .into_iter()
+            .map(|length| length + std::mem::size_of::<u64>())
+            .sum()
     }
 }
 
