@@ -145,6 +145,6 @@
 - [ ] Privacy language review published from a clean checkout.
 - [ ] Manual-required gap register published from a clean checkout.
 - [ ] Adjacent handoff proof published from a clean checkout.
-- [x] Focused retention lifecycle validation passes. Proof: `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs`; `crates/child-runtime/tests/unit/runtime_gate.rs`.
+- [ ] Focused retention lifecycle validation command evidence is not published from a clean checkout. Source tests: `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs`; `crates/child-runtime/tests/unit/runtime_gate.rs`.
 - [x] PLAN_STATE and WORKPACK_INDEX reflect the limited lifecycle proof and aggregate blocker.
 - [x] No PR_READY claim is made without accepted aggregate proof roots.

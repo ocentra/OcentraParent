@@ -10,6 +10,7 @@ use super::{
 };
 
 const TYPED_STORE_VERSION: u16 = 2;
+const MANUAL_RESOLUTION_STORE_VERSION: u16 = 3;
 
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -31,6 +32,16 @@ struct TypedVersionTwoRecord {
     terminal_pending: bool,
 }
 
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct ManualResolutionVersionThreeRecord {
+    version: u16,
+    deletion_ref: String,
+    proof_ref: String,
+    terminal_pending: bool,
+    manual_resolution_required: bool,
+}
+
 pub(super) fn typed(
     deletion_ref: String,
     proof_ref: String,
@@ -42,10 +53,28 @@ pub(super) fn typed(
         deletion_ref,
         proof_ref,
         terminal_pending: true,
+        manual_resolution_required: false,
         payload: RetentionDeleteOutboxPayload::Typed(Box::new(TypedTombstoneOutboxPayload {
             action,
             envelope,
         })),
+    }
+}
+
+pub(super) fn require_legacy_manual_resolution(
+    record: &mut RetentionDeleteOutboxRecord,
+    deletion_ref: &str,
+) {
+    if record.deletion_ref == deletion_ref
+        && matches!(
+            &record.payload,
+            RetentionDeleteOutboxPayload::LegacyVersionOne
+        )
+    {
+        record.version = MANUAL_RESOLUTION_STORE_VERSION;
+        record.terminal_pending = false;
+        record.manual_resolution_required = true;
+        record.payload = RetentionDeleteOutboxPayload::ManualResolutionLegacyVersionOne;
     }
 }
 
@@ -55,6 +84,7 @@ pub(super) fn decode(
     match record_version(&value)? {
         1 => decode_legacy(value),
         TYPED_STORE_VERSION => decode_typed(value),
+        MANUAL_RESOLUTION_STORE_VERSION => decode_manual_resolution(value),
         _ => Err(unsupported_version_error()),
     }
 }
@@ -64,6 +94,9 @@ pub(super) fn encode(
 ) -> Result<serde_json::Value, serde_json::Error> {
     match &record.payload {
         RetentionDeleteOutboxPayload::LegacyVersionOne => encode_legacy(record),
+        RetentionDeleteOutboxPayload::ManualResolutionLegacyVersionOne => {
+            encode_manual_resolution(record)
+        }
         RetentionDeleteOutboxPayload::Typed(payload) => {
             encode_typed(record, &payload.action, &payload.envelope)
         }
@@ -87,6 +120,7 @@ fn decode_legacy(
         deletion_ref: legacy.deletion_ref,
         proof_ref: legacy.proof_ref,
         terminal_pending: legacy.terminal_pending,
+        manual_resolution_required: false,
         payload: RetentionDeleteOutboxPayload::LegacyVersionOne,
     })
 }
@@ -100,10 +134,31 @@ fn decode_typed(
         deletion_ref: typed.deletion_ref,
         proof_ref: typed.proof_ref,
         terminal_pending: typed.terminal_pending,
+        manual_resolution_required: false,
         payload: RetentionDeleteOutboxPayload::Typed(Box::new(TypedTombstoneOutboxPayload {
             action: typed.action,
             envelope: typed.envelope,
         })),
+    })
+}
+
+fn decode_manual_resolution(
+    value: serde_json::Value,
+) -> Result<RetentionDeleteOutboxRecord, serde_json::Error> {
+    let record: ManualResolutionVersionThreeRecord = serde_json::from_value(value)?;
+    if record.terminal_pending || !record.manual_resolution_required {
+        return Err(serde_json::Error::io(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "manual tombstone resolution record must be terminal and explicit",
+        )));
+    }
+    Ok(RetentionDeleteOutboxRecord {
+        version: record.version,
+        deletion_ref: record.deletion_ref,
+        proof_ref: record.proof_ref,
+        terminal_pending: false,
+        manual_resolution_required: true,
+        payload: RetentionDeleteOutboxPayload::ManualResolutionLegacyVersionOne,
     })
 }
 
@@ -115,6 +170,18 @@ fn encode_legacy(
         deletion_ref: record.deletion_ref.clone(),
         proof_ref: record.proof_ref.clone(),
         terminal_pending: record.terminal_pending,
+    })
+}
+
+fn encode_manual_resolution(
+    record: &RetentionDeleteOutboxRecord,
+) -> Result<serde_json::Value, serde_json::Error> {
+    serde_json::to_value(ManualResolutionVersionThreeRecord {
+        version: MANUAL_RESOLUTION_STORE_VERSION,
+        deletion_ref: record.deletion_ref.clone(),
+        proof_ref: record.proof_ref.clone(),
+        terminal_pending: false,
+        manual_resolution_required: true,
     })
 }
 

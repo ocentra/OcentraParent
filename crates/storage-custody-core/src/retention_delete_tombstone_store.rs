@@ -21,12 +21,14 @@ pub struct RetentionDeleteOutboxRecord {
     pub deletion_ref: String,
     pub proof_ref: String,
     pub terminal_pending: bool,
+    pub manual_resolution_required: bool,
     payload: RetentionDeleteOutboxPayload,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub(super) enum RetentionDeleteOutboxPayload {
     LegacyVersionOne,
+    ManualResolutionLegacyVersionOne,
     Typed(Box<TypedTombstoneOutboxPayload>),
 }
 
@@ -41,7 +43,8 @@ impl RetentionDeleteOutboxRecord {
         &self,
     ) -> Option<(&StorageCustodyActionPlannedEvent, &StoredEventEnvelope)> {
         match &self.payload {
-            RetentionDeleteOutboxPayload::LegacyVersionOne => None,
+            RetentionDeleteOutboxPayload::LegacyVersionOne
+            | RetentionDeleteOutboxPayload::ManualResolutionLegacyVersionOne => None,
             RetentionDeleteOutboxPayload::Typed(payload) => {
                 Some((&payload.action, &payload.envelope))
             }
@@ -153,6 +156,21 @@ impl RetentionDeleteTombstoneStore {
                 record.terminal_pending = false;
             }
         }
+        let result = self.write(&records);
+        FileExt::unlock(&lock)?;
+        result
+    }
+
+    /// A version-one record has no typed action/envelope to replay safely. Keep
+    /// its delete obligation durable, but make the required manual migration
+    /// visible instead of failing it forever on every restart.
+    pub fn mark_legacy_manual_resolution_required(&self, deletion_ref: &str) -> io::Result<()> {
+        let lock = self.lock()?;
+        lock.lock_exclusive()?;
+        let mut records = self.records()?;
+        records.iter_mut().for_each(|record| {
+            record::require_legacy_manual_resolution(record, deletion_ref);
+        });
         let result = self.write(&records);
         FileExt::unlock(&lock)?;
         result

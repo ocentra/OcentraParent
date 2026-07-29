@@ -10,12 +10,15 @@ use ocentra_storage_custody_core::retention_delete_tombstone_store::{
     RetentionDeleteOutboxRecord, RetentionDeleteTombstoneStore,
 };
 
-use crate::activity_store_path::{activity_db_path, activity_journal_path};
+use crate::activity_store_path::activity_db_path;
+
+const CUSTODY_TOMBSTONE_JOURNAL_FILE: &str = "custody-tombstone-events.ndjson";
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TombstoneRecoveryReport {
     pub recovered_count: usize,
     pub failed_count: usize,
+    pub manual_required_count: usize,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -36,14 +39,22 @@ impl From<PathBuf> for TombstoneJournalPath {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TombstoneDeletionRef(String);
+
+impl From<String> for TombstoneDeletionRef {
+    fn from(value: String) -> Self {
+        Self(value)
+    }
+}
+
 /// Retries only durable, non-terminal typed actions after the service owns its
 /// runtime path. A failed append stays pending for the next restart.
 pub(crate) fn spawn_startup_recovery() {
     tokio::spawn(async {
-        let journal_path: PathBuf = activity_journal_path().into();
         let _ = recover_pending_tombstone_actions(
             activity_store_directory(),
-            TombstoneJournalPath::from(journal_path),
+            custody_tombstone_journal_path(),
         )
         .await;
     });
@@ -64,12 +75,13 @@ pub async fn recover_pending_tombstone_actions(
     let mut report = TombstoneRecoveryReport {
         recovered_count: 0,
         failed_count: 0,
+        manual_required_count: 0,
     };
     for record in records.into_iter().filter(|record| record.terminal_pending) {
-        if recover_record(&journal, &store, &record).await {
-            report.recovered_count += 1;
-        } else {
-            report.failed_count += 1;
+        match recover_record(&journal, &store, &record).await {
+            TombstoneRecoveryOutcome::Recovered => report.recovered_count += 1,
+            TombstoneRecoveryOutcome::ManualRequired => report.manual_required_count += 1,
+            TombstoneRecoveryOutcome::Failed => report.failed_count += 1,
         }
     }
     report
@@ -79,19 +91,43 @@ async fn recover_record(
     journal: &NdjsonEventJournal,
     store: &RetentionDeleteTombstoneStore,
     record: &RetentionDeleteOutboxRecord,
-) -> bool {
+) -> TombstoneRecoveryOutcome {
     let Some((action, envelope)) = record.typed_action_and_envelope() else {
-        return false;
+        if !record.manual_resolution_required {
+            return if store
+                .mark_legacy_manual_resolution_required(&record.deletion_ref)
+                .is_ok()
+            {
+                TombstoneRecoveryOutcome::ManualRequired
+            } else {
+                TombstoneRecoveryOutcome::Failed
+            };
+        }
+        return TombstoneRecoveryOutcome::Failed;
     };
-    if persist_child_runtime_tombstone_action(journal, store, envelope, action)
+    persist_child_runtime_tombstone_action(journal, store, envelope, action)
         .await
-        .is_err()
-    {
-        return false;
-    }
-    acknowledge_child_runtime_tombstone_publication(store, &record.deletion_ref)
-        .await
-        .is_ok()
+        .map_or(TombstoneRecoveryOutcome::Failed, |_| {
+            // A local journal append proves only durable handoff. The record
+            // remains pending until its consumer reports acknowledgement.
+            TombstoneRecoveryOutcome::Recovered
+        })
+}
+
+enum TombstoneRecoveryOutcome {
+    Recovered,
+    ManualRequired,
+    Failed,
+}
+
+/// The delivery consumer calls this only after it has applied the typed delete
+/// action. Journal persistence alone is never terminal acknowledgement.
+pub async fn acknowledge_consumed_tombstone_action(
+    store_directory: TombstoneStoreDirectory,
+    deletion_ref: TombstoneDeletionRef,
+) -> std::io::Result<()> {
+    let store = RetentionDeleteTombstoneStore::open(store_directory.0)?;
+    acknowledge_child_runtime_tombstone_publication(&store, &deletion_ref.0).await
 }
 
 fn activity_store_directory() -> TombstoneStoreDirectory {
@@ -103,9 +139,18 @@ fn activity_store_directory() -> TombstoneStoreDirectory {
     )
 }
 
+fn custody_tombstone_journal_path() -> TombstoneJournalPath {
+    TombstoneJournalPath(
+        activity_store_directory()
+            .0
+            .join(CUSTODY_TOMBSTONE_JOURNAL_FILE),
+    )
+}
+
 fn failed_report() -> TombstoneRecoveryReport {
     TombstoneRecoveryReport {
         recovered_count: 0,
         failed_count: 1,
+        manual_required_count: 0,
     }
 }

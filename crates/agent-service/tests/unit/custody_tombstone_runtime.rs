@@ -19,7 +19,7 @@ use ocentra_storage_custody_core::{
 };
 
 #[tokio::test]
-async fn startup_recovery_replays_pending_typed_action_once_and_keeps_terminal_record_closed(
+async fn startup_recovery_replays_pending_typed_action_without_closing_before_consumer_acknowledgement(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let directory = temp_directory("recovery")?;
     let store = RetentionDeleteTombstoneStore::open(&directory)?;
@@ -36,7 +36,7 @@ async fn startup_recovery_replays_pending_typed_action_once_and_keeps_terminal_r
     .await;
     assert_eq!(report.recovered_count, 1);
     assert_eq!(report.failed_count, 0);
-    assert!(!RetentionDeleteTombstoneStore::open(&directory)?.records()?[0].terminal_pending);
+    assert!(RetentionDeleteTombstoneStore::open(&directory)?.records()?[0].terminal_pending);
     assert!(fs::metadata(&journal_path)?.len() > 0);
 
     let second = recover_pending_tombstone_actions(
@@ -44,9 +44,35 @@ async fn startup_recovery_replays_pending_typed_action_once_and_keeps_terminal_r
         TombstoneJournalPath::from(journal_path),
     )
     .await;
-    assert_eq!(second.recovered_count, 0);
+    assert_eq!(second.recovered_count, 1);
     assert_eq!(second.failed_count, 0);
-    assert!(!RetentionDeleteTombstoneStore::open(&directory)?.records()?[0].terminal_pending);
+    assert!(RetentionDeleteTombstoneStore::open(&directory)?.records()?[0].terminal_pending);
+    let _ = fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[tokio::test]
+async fn startup_recovery_moves_pending_version_one_tombstone_to_durable_manual_resolution(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = temp_directory("legacy-manual-resolution")?;
+    fs::write(
+        directory.join("retention-delete-tombstones.json"),
+        r#"[{"version":1,"deletion_ref":"storage-custody-delete:legacy","proof_ref":"storage-custody-action:legacy","terminal_pending":true}]"#,
+    )?;
+
+    let report = recover_pending_tombstone_actions(
+        TombstoneStoreDirectory::from(directory.clone()),
+        TombstoneJournalPath::from(directory.join("custody.ndjson")),
+    )
+    .await;
+    assert_eq!(report.recovered_count, 0);
+    assert_eq!(report.failed_count, 0);
+    assert_eq!(report.manual_required_count, 1);
+    let records = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(records.len(), 1);
+    assert_eq!(records[0].version, 3);
+    assert!(!records[0].terminal_pending);
+    assert!(records[0].manual_resolution_required);
     let _ = fs::remove_dir_all(&directory);
     Ok(())
 }

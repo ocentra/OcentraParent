@@ -171,10 +171,13 @@ fn tombstone_outbox_migrates_legacy_version_one_before_decoding_typed_records(
         Some((&action, &envelope))
     );
 
-    restarted.mark_terminal_published("storage-custody-delete:legacy-decision")?;
-    let after_acknowledgement = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
-    assert!(!after_acknowledgement[0].terminal_pending);
-    assert_eq!(after_acknowledgement[1].version, 2);
+    restarted.mark_legacy_manual_resolution_required("storage-custody-delete:legacy-decision")?;
+    let after_manual_resolution = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    assert_eq!(after_manual_resolution[0].version, 3);
+    assert!(!after_manual_resolution[0].terminal_pending);
+    assert!(after_manual_resolution[0].manual_resolution_required);
+    assert_eq!(after_manual_resolution[0].typed_action_and_envelope(), None);
+    assert_eq!(after_manual_resolution[1].version, 2);
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
 }
