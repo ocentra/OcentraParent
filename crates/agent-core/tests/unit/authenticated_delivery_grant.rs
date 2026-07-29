@@ -17,6 +17,10 @@ use rusqlite::{params, Connection};
 
 type TestResult<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
+const DELIVERED_PAYLOAD: &[u8] = b"canonical-delivered-action";
+const DELIVERED_PAYLOAD_DIGEST: &str =
+    "6406b5682ab324971384904f5d776f211b8133cc7bb42910d55a3deff7a13303";
+
 fn must<T, E: Debug>(result: Result<T, E>) -> TestResult<T> {
     result.map_err(|error| std::io::Error::other(format!("unexpected error: {error:?}")).into())
 }
@@ -71,7 +75,7 @@ fn signed_grant(key: &SigningKey) -> AuthenticatedDeliveryGrant {
         action_id: "action-1".to_owned(),
         capability_id: "process-control".to_owned(),
         evidence_digest: "evidence-1".to_owned(),
-        payload_digest: "a".repeat(64),
+        payload_digest: DELIVERED_PAYLOAD_DIGEST.to_owned(),
         dry_run: false,
         nonce: "nonce-1".to_owned(),
         issued_at: "2026-07-28T00:00:00Z".to_owned(),
@@ -79,13 +83,6 @@ fn signed_grant(key: &SigningKey) -> AuthenticatedDeliveryGrant {
         revocation_version: "revocation-1".to_owned(),
         signature: vec![0; 64],
     };
-    grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
-    grant
-}
-
-fn signed_grant_for(key: &SigningKey, key_id: &str) -> AuthenticatedDeliveryGrant {
-    let mut grant = signed_grant(key);
-    grant.issuer_key_id = key_id.to_owned();
     grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
     grant
 }
@@ -120,7 +117,6 @@ fn expected() -> AuthenticatedDeliveryGrantExpectation {
         action_id: "action-1".to_owned(),
         capability_id: "process-control".to_owned(),
         evidence_digest: "evidence-1".to_owned(),
-        payload_digest: "a".repeat(64),
         revocation_version: "revocation-1".to_owned(),
         observed_at: "2026-07-28T00:01:00Z".to_owned(),
     }
@@ -132,7 +128,7 @@ fn consumer_persists_atomic_consume_and_rejects_restart_replay() -> TestResult {
     let path = store_path("restart-replay");
     let mut first = open(&path, trusted_issuer(&key))?;
     let grant = signed_grant(&key);
-    let consumed = must(first.consume(&grant, &expected(), "correlation-1"))?;
+    let consumed = must(first.consume(&grant, &expected(), DELIVERED_PAYLOAD, "correlation-1"))?;
     let AuthenticatedDeliveryGrantConsumeOutcome::Consumed(audit) = consumed else {
         return Err(std::io::Error::other("first consume must apply").into());
     };
@@ -143,7 +139,7 @@ fn consumer_persists_atomic_consume_and_rejects_restart_replay() -> TestResult {
     assert_ne!(audit.nonce_digest, grant.nonce);
     drop(first);
     let mut reopened = open(&path, trusted_issuer(&key))?;
-    let replay = must(reopened.consume(&grant, &expected(), "correlation-2"))?;
+    let replay = must(reopened.consume(&grant, &expected(), DELIVERED_PAYLOAD, "correlation-2"))?;
     let AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(audit) = replay else {
         return Err(std::io::Error::other("restart replay must reject").into());
     };
@@ -163,27 +159,32 @@ fn consumer_rejects_tamper_wrong_target_expiry_and_revocation() -> TestResult {
     let mut tampered = grant.clone();
     tampered.target_device_id = "other-device".to_owned();
     assert_eq!(
-        consumer.consume(&tampered, &expected(), "correlation-1"),
+        consumer.consume(&tampered, &expected(), DELIVERED_PAYLOAD, "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::SignatureRejected)
     );
     let mut wrong_target = grant.clone();
     wrong_target.target_device_id = "other-device".to_owned();
     wrong_target.signature = key.sign(&wrong_target.signing_bytes()).to_bytes().to_vec();
     assert_eq!(
-        consumer.consume(&wrong_target, &expected(), "correlation-1"),
+        consumer.consume(
+            &wrong_target,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "correlation-1"
+        ),
         Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
     );
     let mut expired = grant.clone();
     expired.expires_at = "2026-07-28T00:00:30Z".to_owned();
     expired.signature = key.sign(&expired.signing_bytes()).to_bytes().to_vec();
     assert_eq!(
-        consumer.consume(&expired, &expected(), "correlation-1"),
+        consumer.consume(&expired, &expected(), DELIVERED_PAYLOAD, "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::Expired)
     );
     let mut revoked = expected();
     revoked.revocation_version = "revocation-2".to_owned();
     assert_eq!(
-        consumer.consume(&grant, &revoked, "correlation-1"),
+        consumer.consume(&grant, &revoked, DELIVERED_PAYLOAD, "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::Revoked)
     );
     Ok(())
@@ -201,7 +202,7 @@ fn consumer_rejects_every_resigned_context_binding_and_wrong_issuer_key_pair() -
             wrong.$field = $value.to_owned();
             wrong.signature = key.sign(&wrong.signing_bytes()).to_bytes().to_vec();
             assert_eq!(
-                consumer.consume(&wrong, &expected(), "correlation-1"),
+                consumer.consume(&wrong, &expected(), DELIVERED_PAYLOAD, "correlation-1"),
                 Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
             );
         }};
@@ -217,8 +218,6 @@ fn consumer_rejects_every_resigned_context_binding_and_wrong_issuer_key_pair() -
     assert_binding_rejected!(action_id, "other-action");
     assert_binding_rejected!(capability_id, "other-capability");
     assert_binding_rejected!(evidence_digest, "other-evidence");
-    assert_binding_rejected!(payload_digest, &"b".repeat(64));
-
     let other_key = SigningKey::from_bytes(&[5; 32]);
     let wrong_key_path = store_path("wrong-key-pair");
     let mut other_key_consumer = open(
@@ -229,8 +228,27 @@ fn consumer_rejects_every_resigned_context_binding_and_wrong_issuer_key_pair() -
         },
     )?;
     assert_eq!(
-        other_key_consumer.consume(&grant, &expected(), "correlation-1"),
+        other_key_consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::SignatureRejected)
+    );
+    Ok(())
+}
+
+#[test]
+fn consumer_rejects_substituted_delivered_payload_even_when_context_matches() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("substituted-payload");
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    let grant = signed_grant(&key);
+
+    assert_eq!(
+        consumer.consume(
+            &grant,
+            &expected(),
+            b"substituted-delivered-action",
+            "correlation-substituted-payload",
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
     );
     Ok(())
 }
@@ -248,6 +266,7 @@ fn consumer_uses_trusted_instant_expiry_and_ignores_caller_observed_time() -> Te
         consumer.consume_at_for_debug_test(
             &grant,
             &expected(),
+            DELIVERED_PAYLOAD,
             "correlation-1",
             "2026-07-28T00:01:00Z",
         ),
@@ -259,6 +278,7 @@ fn consumer_uses_trusted_instant_expiry_and_ignores_caller_observed_time() -> Te
         must(consumer.consume_at_for_debug_test(
             &signed_grant(&key),
             &malformed_observed_at,
+            DELIVERED_PAYLOAD,
             "correlation-1",
             "2026-07-28T00:01:00Z",
         ))?,
@@ -277,6 +297,7 @@ fn consumer_reads_trusted_time_at_each_consume_not_only_at_open() -> TestResult 
         must(consumer.consume_at_for_debug_test(
             &grant,
             &expected(),
+            DELIVERED_PAYLOAD,
             "correlation-before-expiry",
             "2026-07-28T00:04:59Z",
         ))?,
@@ -289,6 +310,7 @@ fn consumer_reads_trusted_time_at_each_consume_not_only_at_open() -> TestResult 
         consumer.consume_at_for_debug_test(
             &later_grant,
             &expected(),
+            DELIVERED_PAYLOAD,
             "correlation-after-expiry",
             "2026-07-28T00:05:00Z",
         ),
@@ -303,10 +325,15 @@ fn consumer_bounds_persisted_replay_audits_per_unexpired_grant() -> TestResult {
     let path = store_path("replay-audit-bound");
     let grant = signed_grant(&key);
     let mut consumer = open(&path, trusted_issuer(&key))?;
-    must(consumer.consume(&grant, &expected(), "initial-consume"))?;
+    must(consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, "initial-consume"))?;
     for index in 0..24 {
         assert!(matches!(
-            must(consumer.consume(&grant, &expected(), format!("replay-{index}")))?,
+            must(consumer.consume(
+                &grant,
+                &expected(),
+                DELIVERED_PAYLOAD,
+                format!("replay-{index}")
+            ))?,
             AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_)
         ));
     }
@@ -362,6 +389,7 @@ fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_
     must(consumer.consume_at_for_debug_test(
         &signed_grant(&key),
         &expected(),
+        DELIVERED_PAYLOAD,
         "trigger-indexed-expiry-purge",
         "2026-07-28T00:01:00Z",
     ))?;
@@ -393,6 +421,7 @@ fn consumer_preserves_nanosecond_expiry_precision_for_replay_retention() -> Test
     let consumed = must(consumer.consume_at_for_debug_test(
         &grant,
         &expected(),
+        DELIVERED_PAYLOAD,
         "nanosecond-expiry-consume",
         "2026-07-28T00:05:00Z",
     ))?;
@@ -450,7 +479,12 @@ fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> Te
         trusted_issuer(&key),
         "2026-07-28T00:01:00Z",
     ))?;
-    must(active.consume(&grant, &expected(), "consume-before-inactive"))?;
+    must(active.consume(
+        &grant,
+        &expected(),
+        DELIVERED_PAYLOAD,
+        "consume-before-inactive",
+    ))?;
     drop(active);
     let connection = Connection::open(path.as_ref())?;
     connection.execute(
@@ -577,10 +611,20 @@ fn consumers_allow_the_same_nonce_from_distinct_trusted_issuers() -> TestResult 
     let second_key = SigningKey::from_bytes(&[5; 32]);
     let path = store_path("issuer-namespaced-nonce");
     let first_grant = signed_grant(&first_key);
-    let second_grant = signed_grant_for(&second_key, "parent-key-2");
+    let mut second_grant = signed_grant(&second_key);
+    second_grant.issuer_key_id = "parent-key-2".to_owned();
+    second_grant.signature = second_key
+        .sign(&second_grant.signing_bytes())
+        .to_bytes()
+        .to_vec();
     let mut first_consumer = open(&path, trusted_issuer(&first_key))?;
     assert!(matches!(
-        must(first_consumer.consume(&first_grant, &expected(), "correlation-1"))?,
+        must(first_consumer.consume(
+            &first_grant,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "correlation-1"
+        ))?,
         AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
     ));
     drop(first_consumer);
@@ -592,7 +636,12 @@ fn consumers_allow_the_same_nonce_from_distinct_trusted_issuers() -> TestResult 
         },
     )?;
     assert!(matches!(
-        must(second_consumer.consume(&second_grant, &expected(), "correlation-2"))?,
+        must(second_consumer.consume(
+            &second_grant,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "correlation-2"
+        ))?,
         AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
     ));
     Ok(())
@@ -606,12 +655,12 @@ fn failed_commit_rolls_back_consume_so_retry_after_reopen_is_safe() -> TestResul
     let mut consumer = open(&path, trusted_issuer(&key))?;
     consumer.inject_next_commit_failure_for_debug();
     assert_eq!(
-        consumer.consume(&grant, &expected(), "correlation-1"),
+        consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
     );
     drop(consumer);
     let mut reopened = open(&path, trusted_issuer(&key))?;
-    let outcome = must(reopened.consume(&grant, &expected(), "correlation-2"))?;
+    let outcome = must(reopened.consume(&grant, &expected(), DELIVERED_PAYLOAD, "correlation-2"))?;
     let AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_) = outcome else {
         return Err(std::io::Error::other("uncommitted consume must retry safely").into());
     };
@@ -640,7 +689,7 @@ fn concurrent_consumers_allow_exactly_one_durable_consume() -> TestResult {
                     verifying_key,
                 },
             )?;
-            must(consumer.consume(&grant, &expected, correlation))
+            must(consumer.consume(&grant, &expected, DELIVERED_PAYLOAD, correlation))
         })
     });
     let mut outcomes = Vec::new();
