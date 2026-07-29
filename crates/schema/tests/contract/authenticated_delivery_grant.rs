@@ -60,13 +60,21 @@ fn authenticated_delivery_grant_rejects_malformed_digest_and_time_window() {
 
 #[test]
 fn authenticated_delivery_grant_requires_a_canonical_lowercase_sha256_payload_digest() {
-    let lowercase = grant();
-    assert_eq!(lowercase.validate_shape(), Ok(()));
+    let mut lowercase_hex = grant();
+    lowercase_hex.payload_digest = "0123456789abcdef".repeat(4);
+    assert_eq!(lowercase_hex.validate_shape(), Ok(()));
 
     let mut uppercase = grant();
     uppercase.payload_digest = "A".repeat(64);
     assert_eq!(
         uppercase.validate_shape(),
+        Err(AuthenticatedDeliveryGrantValidationError::InvalidPayloadDigest)
+    );
+
+    let mut non_hex_lowercase = grant();
+    non_hex_lowercase.payload_digest = "z".repeat(64);
+    assert_eq!(
+        non_hex_lowercase.validate_shape(),
         Err(AuthenticatedDeliveryGrantValidationError::InvalidPayloadDigest)
     );
 }

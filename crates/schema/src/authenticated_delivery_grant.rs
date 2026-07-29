@@ -187,7 +187,7 @@ fn is_canonical_sha256_digest(value: &str) -> bool {
     value.len() == AUTHENTICATED_DELIVERY_GRANT_PAYLOAD_DIGEST_HEX_BYTES
         && value
             .bytes()
-            .all(|byte| byte.is_ascii_digit() || byte.is_ascii_lowercase())
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
 }
 
 pub fn parse_authenticated_delivery_grant_instant(
