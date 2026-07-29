@@ -20,6 +20,7 @@ fn grant() -> AuthenticatedDeliveryGrant {
         capability_id: "process-control".to_owned(),
         evidence_digest: "evidence-digest-1".to_owned(),
         payload_digest: "a".repeat(64),
+        payload_length: 32,
         dry_run: false,
         nonce: "nonce-1".to_owned(),
         issued_at: "2026-07-28T00:00:00Z".to_owned(),

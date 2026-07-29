@@ -151,9 +151,13 @@ fn validate_signed_shape(
     let bounded = fields.iter().all(|field| {
         !field.trim().is_empty() && field.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
     });
+    let payload_length_bounded =
+        bindings.payload_length <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES;
     let wire_len = fields.iter().map(|field| field.len()).sum::<usize>()
         + AUTHORITY_BINDINGS_WIRE_OVERHEAD_BYTES;
-    (bounded && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
+    (bounded
+        && payload_length_bounded
+        && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
         .then_some(())
         .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
 }

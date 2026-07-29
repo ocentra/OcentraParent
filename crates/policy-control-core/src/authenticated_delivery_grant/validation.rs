@@ -25,12 +25,33 @@ pub(super) fn validate_issuance(
     policy_decision: &PolicyControlDecision,
     policy_authority: &PolicyContractAuthorityDecision,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    validate_household_authority(request)?;
+    validate_policy_execution(policy_decision, policy_authority)?;
+    validate_execution_constraints(request, policy_decision)?;
+    validate_canonical_authorization(request)?;
+    validate_parent_step_up(request)?;
+    validate_grant_timestamps(&request.bindings)?;
+    unsigned_grant(request, issuer_key_id)
+        .validate_shape()
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::InvalidBindings)
+}
+
+fn validate_household_authority(
+    request: &AuthenticatedDeliveryGrantIssuance<'_>,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     let authority = authorize_household_action(request.household_authority);
     if authority.authorization_state != HouseholdAuthorizationState::Authorized
         || request.household_authority.action != HouseholdAuthorityAction::ChangePolicy
     {
         return Err(AuthenticatedDeliveryGrantIssuanceError::ParentAuthorityRejected);
     }
+    Ok(())
+}
+
+fn validate_policy_execution(
+    policy_decision: &PolicyControlDecision,
+    policy_authority: &PolicyContractAuthorityDecision,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     if policy_decision.action_authorization_state != PolicyActionAuthorizationState::Authorized
         || policy_decision.enforcement_execution_state
             != PolicyEnforcementExecutionState::MayExecute
@@ -39,6 +60,13 @@ pub(super) fn validate_issuance(
     {
         return Err(AuthenticatedDeliveryGrantIssuanceError::PolicyNotExecutable);
     }
+    Ok(())
+}
+
+fn validate_execution_constraints(
+    request: &AuthenticatedDeliveryGrantIssuance<'_>,
+    policy_decision: &PolicyControlDecision,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     if policy_decision.manual_review_state != PolicyManualReviewState::NotRequired {
         return Err(AuthenticatedDeliveryGrantIssuanceError::ManualReviewRequired);
     }
@@ -48,15 +76,9 @@ pub(super) fn validate_issuance(
     if request.evidence_state != DeliveryGrantEvidenceState::Stable {
         return Err(AuthenticatedDeliveryGrantIssuanceError::EvidenceNotStable);
     }
-    if request.bindings.dry_run {
-        return Err(AuthenticatedDeliveryGrantIssuanceError::DryRunForbidden);
-    }
-    validate_canonical_authorization(request)?;
-    validate_parent_step_up(request)?;
-    validate_grant_timestamps(&request.bindings)?;
-    unsigned_grant(request, issuer_key_id)
-        .validate_shape()
-        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::InvalidBindings)
+    (!request.bindings.dry_run)
+        .then_some(())
+        .ok_or(AuthenticatedDeliveryGrantIssuanceError::DryRunForbidden)
 }
 
 fn unsigned_grant(
@@ -77,6 +99,7 @@ fn unsigned_grant(
         capability_id: request.bindings.capability_id.clone(),
         evidence_digest: request.bindings.evidence_digest.clone(),
         payload_digest: request.bindings.payload_digest.clone(),
+        payload_length: request.bindings.payload_length,
         dry_run: request.bindings.dry_run,
         nonce: request.bindings.nonce.clone(),
         issued_at: request.bindings.issued_at.clone(),
@@ -174,6 +197,17 @@ pub(super) fn validate_grant_timestamps(
     let issued_at = parse_rfc3339(&bindings.issued_at)?;
     let expires_at = parse_rfc3339(&bindings.expires_at)?;
     if expires_at <= issued_at || expires_at.timestamp_nanos_opt().is_none() {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp);
+    }
+    Ok(())
+}
+
+pub(super) fn validate_freshness_at(
+    bindings: &DeliveryGrantBindings,
+    trusted_now: &str,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    let trusted_now = parse_rfc3339(trusted_now)?;
+    if parse_rfc3339(&bindings.expires_at)? <= trusted_now {
         return Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp);
     }
     Ok(())

@@ -40,6 +40,7 @@ pub(super) fn issuer(
         authority.verifying_key(),
         step_up.verifying_key(),
     )
+    .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
 }
 
 pub(super) async fn subscribe_issuance_milestone_persistence(
@@ -131,6 +132,7 @@ fn bindings() -> DeliveryGrantBindings {
         capability_id: "process-control".to_owned(),
         evidence_digest: "evidence-1".to_owned(),
         payload_digest: "b".repeat(64),
+        payload_length: 32,
         dry_run: false,
         nonce: "nonce-1".to_owned(),
         issued_at: "2026-07-28T00:00:00Z".to_owned(),

@@ -23,6 +23,8 @@ const DELIVERED_PAYLOAD: &[u8] = b"canonical-delivered-action";
 const DELIVERED_PAYLOAD_DIGEST: &str =
     "6406b5682ab324971384904f5d776f211b8133cc7bb42910d55a3deff7a13303";
 
+#[path = "authenticated_delivery_grant/legacy_replay_migration.rs"]
+mod legacy_replay_migration;
 mod ordering;
 #[path = "authenticated_delivery_grant/replay_audit_hardening.rs"]
 mod replay_audit_hardening;
@@ -82,6 +84,7 @@ pub(super) fn signed_grant(key: &SigningKey) -> AuthenticatedDeliveryGrant {
         capability_id: "process-control".to_owned(),
         evidence_digest: "evidence-1".to_owned(),
         payload_digest: DELIVERED_PAYLOAD_DIGEST.to_owned(),
+        payload_length: DELIVERED_PAYLOAD.len(),
         dry_run: false,
         nonce: "nonce-1".to_owned(),
         issued_at: "2026-07-28T00:00:00Z".to_owned(),
@@ -508,35 +511,6 @@ fn consumer_preserves_nanosecond_expiry_precision_for_replay_retention() -> Test
         consumed,
         AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
     ));
-    drop(consumer);
-    let connection = Connection::open(path.as_ref())?;
-    let stored_nanos: i64 = connection.query_row(
-        "SELECT expires_at_nanos FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
-        |row| row.get(0),
-    )?;
-    assert_eq!(stored_nanos.rem_euclid(1_000), 1);
-    Ok(())
-}
-
-#[test]
-fn consumer_backfills_legacy_microsecond_rows_from_signed_grant_nanos() -> TestResult {
-    let key = SigningKey::from_bytes(&[4; 32]);
-    let path = store_path("legacy-microsecond-backfill");
-    let mut grant = signed_grant(&key);
-    grant.expires_at = "2026-07-28T00:05:00.000000001Z".to_owned();
-    grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
-    let connection = Connection::open(path.as_ref())?;
-    connection.execute(
-        "CREATE TABLE authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_micros INTEGER, PRIMARY KEY (issuer_key_id, nonce))",
-        [],
-    )?;
-    connection.execute(
-        "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_micros) VALUES (?1, ?2, ?3, ?4, ?5)",
-        params![grant.issuer_key_id, grant.nonce, serde_json::to_string(&grant)?, "{}", 1_i64],
-    )?;
-    drop(connection);
-    let consumer = open(&path, trusted_issuer(&key))?;
     drop(consumer);
     let connection = Connection::open(path.as_ref())?;
     let stored_nanos: i64 = connection.query_row(

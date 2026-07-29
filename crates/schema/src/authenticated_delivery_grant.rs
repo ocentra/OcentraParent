@@ -2,7 +2,7 @@
 
 use serde::Serialize;
 
-pub const AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION: u16 = 1;
+pub const AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION: u16 = 2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AuthenticatedDeliveryGrantCapabilityAssertion {
@@ -45,6 +45,7 @@ pub struct AuthenticatedDeliveryGrant {
     pub capability_id: String,
     pub evidence_digest: String,
     pub payload_digest: String,
+    pub payload_length: usize,
     pub dry_run: bool,
     pub nonce: String,
     pub issued_at: String,
@@ -100,6 +101,9 @@ impl AuthenticatedDeliveryGrant {
         if !is_canonical_sha256_digest(&self.payload_digest) {
             return Err(AuthenticatedDeliveryGrantValidationError::InvalidPayloadDigest);
         }
+        if self.payload_length > AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES {
+            return Err(AuthenticatedDeliveryGrantValidationError::OversizedBinding);
+        }
         if self.signature.len() != AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES {
             return Err(AuthenticatedDeliveryGrantValidationError::InvalidSignature);
         }
@@ -128,6 +132,7 @@ impl AuthenticatedDeliveryGrant {
         let mut bytes = Vec::with_capacity(self.signing_wire_len());
         let schema_version = self.schema_version.to_string();
         let dry_run = self.dry_run.to_string();
+        let payload_length = self.payload_length.to_string();
         for value in [
             schema_version.as_str(),
             self.issuer_key_id.as_str(),
@@ -142,6 +147,7 @@ impl AuthenticatedDeliveryGrant {
             self.capability_id.as_str(),
             self.evidence_digest.as_str(),
             self.payload_digest.as_str(),
+            payload_length.as_str(),
             dry_run.as_str(),
             self.nonce.as_str(),
             self.issued_at.as_str(),
@@ -170,6 +176,7 @@ impl AuthenticatedDeliveryGrant {
             self.capability_id.len(),
             self.evidence_digest.len(),
             self.payload_digest.len(),
+            self.payload_length.to_string().len(),
             self.dry_run.to_string().len(),
             self.nonce.len(),
             self.issued_at.len(),

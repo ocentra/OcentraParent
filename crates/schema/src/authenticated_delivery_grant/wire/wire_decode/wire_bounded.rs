@@ -63,6 +63,11 @@ where
             .map_err(|_error| {
                 E::custom("authenticated delivery grant schema version is out of range")
             }),
+        GrantWireFieldKind::PayloadLength => serde_json::from_str::<usize>(raw)
+            .map(GrantWireValue::PayloadLength)
+            .map_err(|_error| {
+                E::custom("authenticated delivery grant field has the wrong wire type")
+            }),
         GrantWireFieldKind::DryRun => serde_json::from_str::<bool>(raw)
             .map(GrantWireValue::DryRun)
             .map_err(|_error| {

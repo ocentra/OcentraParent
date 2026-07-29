@@ -2,7 +2,7 @@ use super::super::GrantWireField;
 use super::GrantWireValue;
 
 pub(in crate::authenticated_delivery_grant::wire) struct GrantWireFields {
-    values: [Option<GrantWireValue>; 19],
+    values: [Option<GrantWireValue>; 20],
 }
 
 impl GrantWireFields {

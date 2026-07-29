@@ -55,6 +55,7 @@ impl ProvenanceFixture {
             capability_id: "process-control".to_owned(),
             evidence_digest: "evidence-1".to_owned(),
             payload_digest: "b".repeat(64),
+            payload_length: 32,
             dry_run: false,
             nonce: "nonce-1".to_owned(),
             issued_at: "2026-07-28T00:00:00Z".to_owned(),
@@ -267,6 +268,7 @@ fn issuer() -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGra
         authority.verifying_key(),
         step_up.verifying_key(),
     )
+    .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
 }
 
 #[test]

@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+use chrono::{SecondsFormat, Utc};
 use ed25519_dalek::{Signer, SigningKey, VerifyingKey};
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::error::EventingError;
@@ -38,6 +39,7 @@ pub struct DeliveryGrantBindings {
     pub capability_id: String,
     pub evidence_digest: String,
     pub payload_digest: String,
+    pub payload_length: usize,
     pub dry_run: bool,
     pub nonce: String,
     pub issued_at: String,
@@ -155,6 +157,7 @@ pub struct AuthenticatedDeliveryGrantIssuer {
     authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier,
     step_up_verifier: ParentStepUpProofVerifier,
     issuance_publisher: Option<EventBusAuthenticatedDeliveryGrantIssuancePublisher>,
+    trusted_issuance_now: Option<String>,
 }
 
 impl AuthenticatedDeliveryGrantIssuer {
@@ -175,6 +178,7 @@ impl AuthenticatedDeliveryGrantIssuer {
             authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier::new(authority_key),
             step_up_verifier: ParentStepUpProofVerifier::new(step_up_key),
             issuance_publisher: None,
+            trusted_issuance_now: None,
         })
     }
 
@@ -190,6 +194,15 @@ impl AuthenticatedDeliveryGrantIssuer {
 
     pub fn verifying_key(&self) -> VerifyingKey {
         self.signing_key.verifying_key()
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn with_trusted_issuance_now_for_debug_test(
+        mut self,
+        trusted_now: impl Into<String>,
+    ) -> Self {
+        self.trusted_issuance_now = Some(trusted_now.into());
+        self
     }
 
     pub fn issue(
@@ -217,7 +230,32 @@ impl AuthenticatedDeliveryGrantIssuer {
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        let mut request = request;
+        let (request, policy_decision, policy_authority) = self.verify_and_bind_request(request)?;
+        validation::validate_issuance(
+            &request,
+            &self.issuer_key_id,
+            &policy_decision,
+            &policy_authority,
+        )?;
+        let trusted_now = self
+            .trusted_issuance_now
+            .clone()
+            .unwrap_or_else(|| Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true));
+        validation::validate_freshness_at(&request.bindings, &trusted_now)?;
+        Ok(self.sign_grant(request.bindings))
+    }
+
+    fn verify_and_bind_request<'a>(
+        &self,
+        mut request: AuthenticatedDeliveryGrantIssuance<'a>,
+    ) -> Result<
+        (
+            AuthenticatedDeliveryGrantIssuance<'a>,
+            PolicyControlDecision,
+            PolicyContractAuthorityDecision,
+        ),
+        AuthenticatedDeliveryGrantIssuanceError,
+    > {
         let (
             bindings,
             authority_assertions,
@@ -255,13 +293,10 @@ impl AuthenticatedDeliveryGrantIssuer {
                 DeliveryGrantEvidenceState::Unstable
             }
         };
-        validation::validate_issuance(
-            &request,
-            &self.issuer_key_id,
-            &policy_decision,
-            &policy_authority,
-        )?;
-        let bindings = request.bindings;
+        Ok((request, policy_decision, policy_authority))
+    }
+
+    fn sign_grant(&self, bindings: DeliveryGrantBindings) -> AuthenticatedDeliveryGrant {
         let mut grant = AuthenticatedDeliveryGrant {
             schema_version: AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
             issuer_key_id: self.issuer_key_id.clone(),
@@ -276,6 +311,7 @@ impl AuthenticatedDeliveryGrantIssuer {
             capability_id: bindings.capability_id,
             evidence_digest: bindings.evidence_digest,
             payload_digest: bindings.payload_digest,
+            payload_length: bindings.payload_length,
             dry_run: bindings.dry_run,
             nonce: bindings.nonce,
             issued_at: bindings.issued_at,
@@ -288,7 +324,7 @@ impl AuthenticatedDeliveryGrantIssuer {
             .sign(&grant.signing_bytes())
             .to_bytes()
             .to_vec();
-        Ok(grant)
+        grant
     }
 
     fn publish_issuance_milestone(

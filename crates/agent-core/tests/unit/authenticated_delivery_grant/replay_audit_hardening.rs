@@ -33,7 +33,7 @@ fn restart_replay_uses_non_reconstructable_fingerprint_without_raw_grant_storage
     assert_ne!(fingerprint.as_bytes(), grant.signing_bytes().as_slice());
     assert_eq!(
         fingerprint,
-        "18ca55dd5ea42830ff91cd6935bcc87b04eb0d6103e30ebca5354f86223177f8"
+        "81450ad3d6642b99eba5cb6a61d0792af4d422d42c9138f68685fe014bd44485"
     );
     assert!(!fingerprint.contains(&serde_json::to_string(&grant)?));
     drop(connection);

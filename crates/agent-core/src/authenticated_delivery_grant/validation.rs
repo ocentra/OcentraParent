@@ -65,7 +65,8 @@ pub(super) fn validate_delivered_payload(
     grant: &AuthenticatedDeliveryGrant,
     delivered_payload: &[u8],
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    if delivered_payload.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES
+    if delivered_payload.len() != grant.payload_length
+        || delivered_payload.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES
         || grant.payload_digest != digest(delivered_payload)
     {
         return Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected);

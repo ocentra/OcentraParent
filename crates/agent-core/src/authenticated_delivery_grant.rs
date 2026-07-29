@@ -146,7 +146,10 @@ impl AuthenticatedDeliveryGrantConsumer {
             .execute(CREATE_GRANT_AUDITS, [])
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         rejection_audit::ensure_retention_schema(&mut connection)?;
-        authenticated_delivery_grant_retention::migrate_legacy_replay_records(&mut connection)?;
+        authenticated_delivery_grant_retention::migrate_legacy_replay_records(
+            &mut connection,
+            &trusted_issuer,
+        )?;
         authenticated_delivery_grant_retention::ensure_retention_indexes(&connection)?;
         if let Some(startup_now_nanos) = startup_now_nanos {
             rejection_audit::drain_expired_at_startup(&mut connection, startup_now_nanos)?;
@@ -459,12 +462,6 @@ fn reject_replay(
     Ok(AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(
         audit,
     ))
-}
-
-fn replay_fingerprint(grant: &AuthenticatedDeliveryGrant) -> String {
-    let mut signed_grant = grant.signing_bytes();
-    signed_grant.extend_from_slice(&grant.signature);
-    digest(signed_grant)
 }
 
 fn persist_audit_transaction(
