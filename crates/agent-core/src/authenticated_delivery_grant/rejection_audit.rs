@@ -44,17 +44,17 @@ const ADD_AUDIT_RECORDED_AT_NANOS_COLUMN: &str =
     "ALTER TABLE authenticated_delivery_grant_audits_v2 ADD COLUMN recorded_at_nanos INTEGER";
 const ADD_AUDIT_SCOPE_COLUMN: &str =
     "ALTER TABLE authenticated_delivery_grant_audits_v2 ADD COLUMN audit_scope TEXT NOT NULL DEFAULT 'replay'";
-const SELECT_LEGACY_AUDIT_SCOPES: &str = "SELECT rowid, audit_json FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'replay'";
+const SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_SCOPES: &str = "SELECT rowid, audit_json FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'replay' AND recorded_at_nanos IS NULL AND audit_json LIKE '%\"validation-rejected\"%'";
 const UPDATE_LEGACY_AUDIT_SCOPE: &str = "UPDATE authenticated_delivery_grant_audits_v2 SET audit_scope = ?2, recorded_at_nanos = CASE WHEN ?2 = 'validation-rejection' THEN 0 ELSE recorded_at_nanos END WHERE rowid = ?1";
 const CREATE_VALIDATION_REJECTION_RETENTION_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_audits_v2_validation_rejection_retention_idx ON authenticated_delivery_grant_audits_v2 (audit_scope, recorded_at_nanos DESC)";
 const DELETE_EXPIRED_VALIDATION_REJECTIONS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE rowid IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' AND recorded_at_nanos <= ?1 ORDER BY recorded_at_nanos LIMIT ?2)";
-const DELETE_EXCESS_VALIDATION_REJECTIONS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE rowid IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' ORDER BY recorded_at_nanos DESC, rowid DESC LIMIT -1 OFFSET ?1)";
+const DELETE_EXCESS_VALIDATION_REJECTIONS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE rowid IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' ORDER BY rowid DESC LIMIT -1 OFFSET ?1)";
 const MAX_VALIDATION_REJECTION_AUDITS: i64 = 1_024;
 const MAX_VALIDATION_REJECTION_AUDITS_PER_PURGE: i64 = 128;
 const VALIDATION_REJECTION_AUDIT_RETENTION_NANOS: i64 = 86_400_000_000_000;
 
 pub(super) fn ensure_retention_schema(
-    connection: &Connection,
+    connection: &mut Connection,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     ensure_column(
         connection,
@@ -62,19 +62,19 @@ pub(super) fn ensure_retention_schema(
         ADD_AUDIT_RECORDED_AT_NANOS_COLUMN,
     )?;
     ensure_column(connection, "audit_scope", ADD_AUDIT_SCOPE_COLUMN)?;
-    backfill_legacy_audit_scopes(connection)?;
+    backfill_legacy_validation_rejection_audit_scopes(connection)?;
     connection
         .execute(CREATE_VALIDATION_REJECTION_RETENTION_INDEX, [])
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     Ok(())
 }
 
-fn backfill_legacy_audit_scopes(
-    connection: &Connection,
+fn backfill_legacy_validation_rejection_audit_scopes(
+    connection: &mut Connection,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let legacy_audits = {
         let mut statement = connection
-            .prepare(SELECT_LEGACY_AUDIT_SCOPES)
+            .prepare(SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_SCOPES)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         let rows = statement
             .query_map([], |row| {
@@ -84,18 +84,25 @@ fn backfill_legacy_audit_scopes(
         rows.collect::<Result<Vec<_>, _>>()
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?
     };
-    for (row_id, audit_json) in legacy_audits {
-        let Ok(audit) = serde_json::from_str::<AuthenticatedDeliveryGrantAudit>(&audit_json) else {
-            continue;
-        };
-        connection
+    if legacy_audits.is_empty() {
+        return Ok(());
+    }
+    let transaction = connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    for (row_id, _) in legacy_audits.into_iter().filter(|(_, audit_json)| {
+        rejection_audit_scope::is_legacy_validation_rejection_audit(audit_json)
+    }) {
+        transaction
             .execute(
                 UPDATE_LEGACY_AUDIT_SCOPE,
-                params![row_id, audit_scope(&audit)],
+                params![row_id, "validation-rejection"],
             )
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     }
-    Ok(())
+    transaction
+        .commit()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
 }
 
 pub(super) fn drain_expired_at_startup(
@@ -127,11 +134,10 @@ fn ensure_column(
         .prepare("SELECT 1 FROM pragma_table_info('authenticated_delivery_grant_audits_v2') WHERE name = ?1")
         .and_then(|mut statement| statement.exists([column]))
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    if !exists {
-        connection
-            .execute(add_column, [])
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    }
+    (!exists)
+        .then(|| connection.execute(add_column, []))
+        .transpose()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     Ok(())
 }
 
