@@ -165,6 +165,52 @@ fn oversized_direct_grant_is_audited_with_bounded_data_without_storing_the_untru
 }
 
 #[test]
+fn malformed_shape_rejections_are_retained_without_blocking_valid_consumption() -> TestResult {
+    let key = SigningKey::from_bytes(&[13; 32]);
+    let path = store_path("malformed-shape-rejection-retention");
+    let valid_grant = signed_grant(&key);
+    let mut malformed_grant = valid_grant.clone();
+    malformed_grant.schema_version = 0;
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    for attempt in 0..1_025 {
+        assert_eq!(
+            consumer.consume(
+                &malformed_grant,
+                &expected(),
+                DELIVERED_PAYLOAD,
+                format!("malformed-shape-retention-{attempt}"),
+            ),
+            Err(AuthenticatedDeliveryGrantConsumeError::InvalidGrant)
+        );
+    }
+    let consumed = must(consumer.consume(
+        &valid_grant,
+        &expected(),
+        DELIVERED_PAYLOAD,
+        "valid-after-malformed-shape-rejections",
+    ))?;
+    assert!(matches!(
+        consumed,
+        AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
+    ));
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let retained_rejections: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection'",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(retained_rejections, 1_024);
+    let consumed_rows: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        params![valid_grant.issuer_key_id, valid_grant.nonce],
+        |row| row.get(0),
+    )?;
+    assert_eq!(consumed_rows, 1);
+    Ok(())
+}
+
+#[test]
 fn restart_backfill_parses_audit_outcomes_without_substring_misclassification() -> TestResult {
     let key = SigningKey::from_bytes(&[11; 32]);
     let path = store_path("structured-audit-backfill");

@@ -22,8 +22,10 @@ const INSERT_CONSUMED_GRANT: &str = "INSERT INTO authenticated_delivery_grant_co
 const CREATE_GRANT_AUDITS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_audits_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL, recorded_at_nanos INTEGER, audit_scope TEXT NOT NULL DEFAULT 'replay')";
 const INSERT_GRANT_AUDIT: &str = "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope) VALUES (?1, ?2, ?3, ?4, ?5)";
 const TRIM_GRANT_AUDITS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay' AND rowid NOT IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay' ORDER BY rowid DESC LIMIT ?3)";
+const TRIM_VALIDATION_REJECTION_AUDITS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE rowid IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' ORDER BY recorded_at_nanos DESC, rowid DESC LIMIT -1 OFFSET ?1)";
 const CONSUME_BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 const MAX_REPLAY_AUDIT_ROWS_PER_GRANT: i64 = 16;
+const MAX_VALIDATION_REJECTION_AUDITS: i64 = 1_024;
 const VALIDATION_REJECTION_AUDIT_SCOPE: &str = "validation-rejection";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -381,6 +383,12 @@ impl AuthenticatedDeliveryGrantConsumer {
                     .execute(
                         TRIM_GRANT_AUDITS,
                         params![issuer_key_id, nonce, MAX_REPLAY_AUDIT_ROWS_PER_GRANT],
+                    )
+                    .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+                transaction
+                    .execute(
+                        TRIM_VALIDATION_REJECTION_AUDITS,
+                        [MAX_VALIDATION_REJECTION_AUDITS],
                     )
                     .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
                 transaction
