@@ -20,7 +20,9 @@ const SELECT_CONSUMED_GRANT: &str =
 const INSERT_CONSUMED_GRANT: &str = "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json) VALUES (?1, ?2, ?3, ?4)";
 const CREATE_GRANT_AUDITS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_audits_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL)";
 const INSERT_GRANT_AUDIT: &str = "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)";
+const TRIM_GRANT_AUDITS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND rowid NOT IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 ORDER BY rowid DESC LIMIT ?3)";
 const CONSUME_BUSY_TIMEOUT: Duration = Duration::from_secs(5);
+const MAX_REPLAY_AUDIT_ROWS_PER_GRANT: i64 = 16;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AuthenticatedDeliveryGrantExpectation {
@@ -84,7 +86,8 @@ pub enum AuthenticatedDeliveryGrantConsumeError {
 pub struct AuthenticatedDeliveryGrantConsumer {
     connection: Connection,
     trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
-    trusted_now: AuthenticatedDeliveryGrantInstant,
+    #[cfg(debug_assertions)]
+    debug_trusted_now: Option<AuthenticatedDeliveryGrantInstant>,
     #[cfg(debug_assertions)]
     fail_next_commit: bool,
 }
@@ -94,16 +97,13 @@ impl AuthenticatedDeliveryGrantConsumer {
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
-        let trusted_now = Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true);
-        Self::open_at(path, trusted_issuer, &trusted_now)
+        Self::open_at(path, trusted_issuer)
     }
 
     fn open_at(
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
-        trusted_now: &str,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
-        let trusted_now = parse_observed_at(trusted_now)?;
         let connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         connection
@@ -121,7 +121,8 @@ impl AuthenticatedDeliveryGrantConsumer {
         Ok(Self {
             connection,
             trusted_issuer,
-            trusted_now,
+            #[cfg(debug_assertions)]
+            debug_trusted_now: None,
             #[cfg(debug_assertions)]
             fail_next_commit: false,
         })
@@ -131,10 +132,11 @@ impl AuthenticatedDeliveryGrantConsumer {
     pub fn open_at_for_debug_test(
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
-        trusted_now: impl Into<String>,
+        trusted_now: impl AsRef<str>,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
-        let trusted_now = trusted_now.into();
-        Self::open_at(path, trusted_issuer, &trusted_now)
+        let mut consumer = Self::open_at(path, trusted_issuer)?;
+        consumer.debug_trusted_now = Some(parse_observed_at(trusted_now.as_ref())?);
+        Ok(consumer)
     }
 
     pub fn consume(
@@ -144,10 +146,39 @@ impl AuthenticatedDeliveryGrantConsumer {
         correlation_id: impl Into<String>,
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
-        validate_grant(grant, expected, &self.trusted_issuer, self.trusted_now)?;
+        let trusted_now = self.debug_trusted_now.map_or_else(trusted_now, Ok)?;
+        self.consume_at(grant, expected, correlation_id, trusted_now)
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn consume_at_for_debug_test(
+        &mut self,
+        grant: &AuthenticatedDeliveryGrant,
+        expected: &AuthenticatedDeliveryGrantExpectation,
+        correlation_id: impl Into<String>,
+        trusted_now: impl AsRef<str>,
+    ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
+    {
+        self.consume_at(
+            grant,
+            expected,
+            correlation_id,
+            parse_observed_at(trusted_now.as_ref())?,
+        )
+    }
+
+    fn consume_at(
+        &mut self,
+        grant: &AuthenticatedDeliveryGrant,
+        expected: &AuthenticatedDeliveryGrantExpectation,
+        correlation_id: impl Into<String>,
+        trusted_now: AuthenticatedDeliveryGrantInstant,
+    ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
+    {
+        validate_grant(grant, expected, &self.trusted_issuer, trusted_now)?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
             &self.connection,
-            self.trusted_now,
+            trusted_now,
         )?;
         let correlation_id = correlation_id.into();
         if correlation_id.trim().is_empty()
@@ -226,6 +257,16 @@ fn reject_replay(
         )
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     transaction
+        .execute(
+            TRIM_GRANT_AUDITS,
+            params![
+                grant.issuer_key_id,
+                grant.nonce,
+                MAX_REPLAY_AUDIT_ROWS_PER_GRANT
+            ],
+        )
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    transaction
         .commit()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     Ok(AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(
@@ -289,6 +330,11 @@ fn parse_observed_at(
 ) -> Result<AuthenticatedDeliveryGrantInstant, AuthenticatedDeliveryGrantConsumeError> {
     parse_authenticated_delivery_grant_instant(observed_at)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::BindingRejected)
+}
+
+fn trusted_now() -> Result<AuthenticatedDeliveryGrantInstant, AuthenticatedDeliveryGrantConsumeError>
+{
+    parse_observed_at(&Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true))
 }
 
 fn audit(
