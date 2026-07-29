@@ -173,9 +173,10 @@ pub(super) fn validate_grant_timestamps(
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     let issued_at = parse_rfc3339(&bindings.issued_at)?;
     let expires_at = parse_rfc3339(&bindings.expires_at)?;
-    (expires_at > issued_at)
-        .then_some(())
-        .ok_or(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp)
+    if expires_at <= issued_at || expires_at.timestamp_nanos_opt().is_none() {
+        return Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp);
+    }
+    Ok(())
 }
 
 fn parse_rfc3339(
