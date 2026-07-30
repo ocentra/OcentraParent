@@ -1,3 +1,4 @@
+use chrono::DateTime;
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use ocentra_family_identity_core::household_authority::ParentStepUpValidationInput;
 use ocentra_schema::authenticated_delivery_grant::{
@@ -8,6 +9,8 @@ use ocentra_schema::authenticated_delivery_grant::{
 use serde::{Deserialize, Serialize};
 
 use super::AuthenticatedDeliveryGrantIssuanceError;
+
+const MAX_PARENT_STEP_UP_PROOF_LIFETIME_SECONDS: i64 = 5 * 60;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct VerifiedParentStepUpProof {
@@ -145,9 +148,25 @@ fn validate_unsigned_shape(
         .iter()
         .all(|field| field.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES);
     let wire_len = fields.iter().map(|field| field.len()).sum::<usize>();
+    let lifetime_is_bounded = parent_step_up_lifetime_is_bounded(validation);
     (!target_device_id.trim().is_empty()
         && bounded
+        && lifetime_is_bounded
         && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
         .then_some(())
         .ok_or(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+}
+
+fn parent_step_up_lifetime_is_bounded(validation: &ParentStepUpValidationInput) -> bool {
+    let Some(assertion) = validation.assertion.as_ref() else {
+        return false;
+    };
+    let Ok(observed_at) = DateTime::parse_from_rfc3339(&validation.observed_at) else {
+        return false;
+    };
+    let Ok(expires_at) = DateTime::parse_from_rfc3339(&assertion.expires_at) else {
+        return false;
+    };
+    let lifetime_seconds = (expires_at - observed_at).num_seconds();
+    (0..=MAX_PARENT_STEP_UP_PROOF_LIFETIME_SECONDS).contains(&lifetime_seconds)
 }

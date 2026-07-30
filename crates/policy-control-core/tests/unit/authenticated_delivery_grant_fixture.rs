@@ -5,7 +5,9 @@ use ocentra_eventing::envelope::StoredEventEnvelope;
 use ocentra_eventing::ids::{EventType, SubscriberId, TargetHandler};
 use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
-use ocentra_eventing::journal::{EventJournal, JournalAppend, JournalAppendFuture};
+use ocentra_eventing::journal::{
+    EventJournal, JournalAppend, JournalAppendDurability, JournalAppendFuture,
+};
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::issuance_milestone::AuthenticatedDeliveryGrantIssuanceMilestone;
 use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
@@ -27,6 +29,7 @@ impl EventJournal for InMemoryMilestoneJournal {
                 sequence: self.next_sequence.fetch_add(1, Ordering::Relaxed) + 1,
                 previous_hash: None,
                 current_hash: None,
+                durability: JournalAppendDurability::Synchronized,
             })
         })
     }

@@ -84,7 +84,7 @@ impl ProvenanceFixture {
                 target_child_profile_id: Some("child-1".to_owned()),
                 action: HouseholdAuthorityAction::ChangePolicy,
                 nonce: "nonce-1".to_owned(),
-                expires_at: "2026-07-28T00:10:00Z".to_owned(),
+                expires_at: "2026-07-28T00:05:00Z".to_owned(),
             }),
             family_id: "household-1".to_owned(),
             parent_account_id: "parent-1".to_owned(),
@@ -215,6 +215,53 @@ fn parent_step_up_proof_rejects_oversized_fields_before_signing_or_verification(
     assert_eq!(
         verifier.verify(&oversized_proof),
         Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+    );
+    Ok(())
+}
+
+#[test]
+fn parent_step_up_proof_rejects_lifetimes_over_five_minutes_at_signing_and_verification(
+) -> TestResult {
+    let signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let fixture = ProvenanceFixture::new();
+    let assertions = AuthenticatedDeliveryGrantAssertionSnapshot {
+        capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+        evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+    };
+    let mut overlong_validation = fixture.step_up.validation.clone();
+    test_some!(
+        overlong_validation.assertion.as_mut(),
+        "step-up assertion must exist"
+    )
+    .expires_at = "2026-07-28T00:05:01Z".to_owned();
+    assert_eq!(
+        signer.sign(
+            overlong_validation,
+            fixture.bindings.target_device_id.clone(),
+            assertions.clone(),
+        ),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected),
+        "signing must reject a parent-presence proof longer than five minutes"
+    );
+
+    let mut proof = test_ok!(
+        signer.sign(
+            fixture.step_up.validation.clone(),
+            fixture.bindings.target_device_id.clone(),
+            assertions,
+        ),
+        "five-minute step-up proof signs"
+    );
+    test_some!(
+        proof.validation.assertion.as_mut(),
+        "signed step-up assertion"
+    )
+    .expires_at = "2026-07-28T00:05:01Z".to_owned();
+    let verifier = ParentStepUpProofVerifier::new(signer.verifying_key());
+    assert_eq!(
+        verifier.verify(&proof),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected),
+        "verification must reject an overlong signed step-up proof before signature acceptance"
     );
     Ok(())
 }
