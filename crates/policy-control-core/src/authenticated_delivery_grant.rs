@@ -211,7 +211,8 @@ impl AuthenticatedDeliveryGrantIssuer {
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        match self.prepare_issuance(request) {
+        let fallback_correlation_id = lifecycle::generated_issuance_correlation_id()?;
+        match self.prepare_issuance(request, fallback_correlation_id) {
             Ok((correlation_id, grant)) => self.finalize_accepted(&correlation_id, grant),
             Err((correlation_id, error)) => self.finalize_rejected(&correlation_id, error),
         }
@@ -221,7 +222,8 @@ impl AuthenticatedDeliveryGrantIssuer {
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        match self.prepare_issuance(request) {
+        let fallback_correlation_id = lifecycle::generated_issuance_correlation_id()?;
+        match self.prepare_issuance(request, fallback_correlation_id) {
             Ok((correlation_id, grant)) => {
                 self.finalize_accepted_async(&correlation_id, grant).await
             }

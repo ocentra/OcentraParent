@@ -24,11 +24,11 @@ impl AuthenticatedDeliveryGrantIssuer {
     pub(super) fn prepare_issuance(
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
+        fallback_correlation_id: CorrelationId,
     ) -> Result<
         (CorrelationId, AuthenticatedDeliveryGrant),
         (CorrelationId, AuthenticatedDeliveryGrantIssuanceError),
     > {
-        let fallback_correlation_id = generated_issuance_correlation_id();
         let (request, policy_decision, policy_authority, correlation_id) = self
             .verify_and_bind_request(request)
             .map_err(|error| (fallback_correlation_id, error))?;
@@ -215,12 +215,13 @@ impl AuthenticatedDeliveryGrantIssuer {
     }
 }
 
-fn generated_issuance_correlation_id() -> CorrelationId {
+pub(super) fn generated_issuance_correlation_id(
+) -> Result<CorrelationId, AuthenticatedDeliveryGrantIssuanceError> {
     CorrelationId::parse(format!(
         "authenticated-delivery-grant:issuance:rejection:{}",
         EventId::generated().as_str()
     ))
-    .expect("generated event identifiers always form a valid correlation id")
+    .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::CorrelationIdRejected)
 }
 
 fn validate_minimum_remaining_lifetime(
