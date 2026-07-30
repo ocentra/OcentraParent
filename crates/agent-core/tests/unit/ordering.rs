@@ -1,21 +1,61 @@
 use super::*;
 
 #[test]
-fn consumer_rejects_oversized_correlation_before_validation_audit_persistence() -> TestResult {
+fn consumer_persists_bounded_audit_for_oversized_correlation_before_grant_validation() -> TestResult
+{
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("oversized-correlation-before-audit");
     let mut consumer = open(&path, trusted_issuer(&key))?;
     let mut grant = signed_grant(&key);
     grant.target_device_id = "tampered-target-device".to_owned();
-    assert_eq!(consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, "x".repeat(ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES + 1)), Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected));
+    let oversized_correlation = "x".repeat(
+        ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+            + 1,
+    );
+    assert_eq!(
+        consumer.consume(
+            &grant,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            &oversized_correlation,
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
+    );
     drop(consumer);
     let connection = Connection::open(path.as_ref())?;
-    let count: i64 = connection.query_row(
-        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2",
+    let audit_json: String = connection.query_row(
+        "SELECT audit_json FROM authenticated_delivery_grant_audits_v2 ORDER BY rowid DESC LIMIT 1",
         [],
         |row| row.get(0),
     )?;
-    assert_eq!(count, 0);
+    let audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&audit_json)?;
+    assert_eq!(audit.correlation_id.len(), 64);
+    assert_ne!(audit.correlation_id, oversized_correlation);
+    assert_eq!(audit.issuer_key_id_digest.len(), 64);
+    assert_eq!(audit.nonce_digest.len(), 64);
+    assert_eq!(audit.grant_digest.len(), 64);
+    assert_eq!(
+        audit.outcome,
+        AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            AuthenticatedDeliveryGrantValidationRejection::BindingRejected,
+        )
+    );
+    let audit_keys = serde_json::from_str::<serde_json::Value>(&audit_json)?
+        .as_object()
+        .ok_or_else(|| std::io::Error::other("audit must be a JSON object"))?
+        .keys()
+        .cloned()
+        .collect::<Vec<_>>();
+    assert_eq!(
+        audit_keys,
+        vec![
+            "correlation_id".to_owned(),
+            "grant_digest".to_owned(),
+            "issuer_key_id_digest".to_owned(),
+            "nonce_digest".to_owned(),
+            "outcome".to_owned(),
+        ]
+    );
     Ok(())
 }
 
