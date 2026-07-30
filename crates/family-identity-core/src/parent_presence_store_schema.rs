@@ -100,7 +100,7 @@ pub(crate) fn open_initialized_store(
 fn initialize_temporary_store(path: &Path) -> Result<(), ParentPresenceStoreError> {
     let connection = open_connection(path)?;
     connection
-        .execute_batch("PRAGMA journal_mode = DELETE; PRAGMA synchronous = FULL;")
+        .execute_batch("PRAGMA journal_mode = WAL; PRAGMA synchronous = FULL;")
         .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
     connection
         .execute_batch(INITIALIZE_PARENT_PRESENCE_STORE)
@@ -131,7 +131,7 @@ fn open_connection(path: &Path) -> Result<Connection, ParentPresenceStoreError> 
 
 fn configure_runtime_durability(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
     connection
-        .execute_batch("PRAGMA journal_mode = WAL; PRAGMA synchronous = FULL;")
+        .execute_batch("PRAGMA synchronous = FULL;")
         .map_err(|_error| ParentPresenceStoreError::Unavailable)
 }
 
