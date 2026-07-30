@@ -72,6 +72,98 @@ fn consumer_persists_bounded_redacted_audits_for_invalid_correlation_before_gran
 }
 
 #[test]
+fn consumer_audits_distinct_oversized_correlation_suffixes_with_distinct_bounded_digests(
+) -> TestResult {
+    let key = SigningKey::from_bytes(&[25; 32]);
+    let path = store_path("oversized-correlation-tail-audit");
+    let shared_prefix = "x".repeat(
+        ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    );
+    let first = format!("{shared_prefix}a");
+    let second = format!("{shared_prefix}b");
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+
+    for correlation in [&first, &second] {
+        assert_eq!(
+            consumer.consume(
+                &signed_grant(&key),
+                &expected(),
+                DELIVERED_PAYLOAD,
+                correlation
+            ),
+            Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
+        );
+    }
+    drop(consumer);
+
+    let connection = Connection::open(path.as_ref())?;
+    let correlations: Vec<String> = connection
+        .prepare(
+            "SELECT audit_json FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' ORDER BY rowid",
+        )?
+        .query_map([], |row| row.get::<_, String>(0))?
+        .map(|row| {
+            let audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&row?)?;
+            Ok::<_, Box<dyn std::error::Error + Send + Sync>>(audit.correlation_id)
+        })
+        .collect::<Result<_, _>>()?;
+    assert_eq!(correlations.len(), 2);
+    assert!(correlations.iter().all(|value| value.len() == 64));
+    assert_ne!(correlations[0], correlations[1]);
+    assert_ne!(correlations[0], first);
+    assert_ne!(correlations[1], second);
+    Ok(())
+}
+
+#[test]
+fn consumer_audits_sqlite_out_of_range_expiry_before_consumption_and_on_retry() -> TestResult {
+    let key = SigningKey::from_bytes(&[26; 32]);
+    let path = store_path("expiry-outside-sqlite-nanos");
+    let mut grant = signed_grant(&key);
+    grant.expires_at = "2500-01-01T00:00:00Z".to_owned();
+    grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+
+    for correlation in ["out-of-range-expiry-first", "out-of-range-expiry-retry"] {
+        assert_eq!(
+            consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, correlation),
+            Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
+        );
+    }
+    drop(consumer);
+
+    let connection = Connection::open(path.as_ref())?;
+    let consumed_rows: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(consumed_rows, 0);
+    let audits: Vec<AuthenticatedDeliveryGrantAudit> = connection
+        .prepare(
+            "SELECT audit_json FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' ORDER BY rowid",
+        )?
+        .query_map([], |row| row.get::<_, String>(0))?
+        .map(|row| Ok::<_, Box<dyn std::error::Error + Send + Sync>>(serde_json::from_str(&row?)?))
+        .collect::<Result<_, _>>()?;
+    assert_eq!(audits.len(), 2);
+    assert_eq!(
+        audits
+            .iter()
+            .map(|audit| &audit.correlation_id)
+            .collect::<Vec<_>>(),
+        vec!["out-of-range-expiry-first", "out-of-range-expiry-retry"]
+    );
+    assert!(audits.iter().all(|audit| {
+        audit.outcome
+            == AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+                AuthenticatedDeliveryGrantValidationRejection::BindingRejected,
+            )
+    }));
+    Ok(())
+}
+
+#[test]
 fn consumer_authenticates_grant_before_rejecting_oversized_delivered_payload() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("payload-authentication-order");

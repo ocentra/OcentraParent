@@ -70,7 +70,16 @@ pub(super) fn bounded_correlation_id(correlation_id: &str) -> String {
     hasher.update((correlation_id.len() as u64).to_be_bytes());
     hasher.update((bounded_len as u64).to_be_bytes());
     hasher.update(&correlation_id.as_bytes()[..bounded_len]);
+    // Persist only a compact identifier, but bind it to the whole untrusted
+    // value so two values sharing a bounded prefix cannot collapse in audit.
+    hasher.update(Sha256::digest(correlation_id.as_bytes()));
     digest(hasher.finalize())
+}
+
+pub(super) fn validate_storage_range(
+    grant: &AuthenticatedDeliveryGrant,
+) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+    instant_nanos(&grant.expires_at).map(|_| ())
 }
 
 pub(super) fn validate_delivered_payload(
