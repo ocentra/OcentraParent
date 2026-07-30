@@ -1,10 +1,11 @@
 use ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES;
-use rusqlite::{params, Connection, Transaction, TransactionBehavior};
+use rusqlite::{params, Connection, Transaction};
 
 use super::{
-    audit, persist_audit_transaction, AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantAudit,
-    AuthenticatedDeliveryGrantAuditOutcome, AuthenticatedDeliveryGrantConsumeError,
-    AuthenticatedDeliveryGrantValidationRejection,
+    audit, persist_audit_transaction,
+    sqlite_contention::immediate_transaction_with_contention_retry, AuthenticatedDeliveryGrant,
+    AuthenticatedDeliveryGrantAudit, AuthenticatedDeliveryGrantAuditOutcome,
+    AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantValidationRejection,
 };
 
 #[path = "rejection_audit_scope.rs"]
@@ -25,8 +26,7 @@ pub(super) fn persist(
         correlation_id.to_owned(),
         AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(rejection),
     );
-    let result = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
+    let result = immediate_transaction_with_contention_retry(connection)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
         .and_then(|transaction| {
             persist_audit_transaction(&transaction, grant, &audit, Some(trusted_now_nanos))?;
@@ -98,8 +98,7 @@ fn backfill_legacy_validation_rejection_audit_scopes(
         let Some(batch_last_row_id) = legacy_audits.last().map(|(row_id, _)| *row_id) else {
             return Ok(());
         };
-        let transaction = connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)
+        let transaction = immediate_transaction_with_contention_retry(connection)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         for (row_id, audit_json_bytes) in legacy_audits {
             (0..=MAX_LEGACY_VALIDATION_REJECTION_AUDIT_BYTES)
@@ -134,8 +133,7 @@ pub(super) fn drain_expired_at_startup(
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let _ = trusted_now_nanos;
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
+    let transaction = immediate_transaction_with_contention_retry(connection)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     trim_validation_rejection_audits(&transaction, trusted_now_nanos)?;
     transaction
