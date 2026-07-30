@@ -72,7 +72,7 @@ pub(crate) fn parent_step_up_validation_failure_reason(
     };
     [
         (
-            assertion_expires_at < observed_at,
+            assertion_expires_at <= observed_at,
             ParentStepUpValidationFailureReason::Expired,
         ),
         (
