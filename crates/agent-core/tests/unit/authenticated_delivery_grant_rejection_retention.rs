@@ -188,10 +188,15 @@ fn consumer_bounds_distinct_validation_rejection_audits_across_restart() -> Test
 }
 
 #[test]
-fn consumer_bounds_post_lock_temporal_rejection_audits_in_their_write_transaction() -> TestResult {
+fn consumer_bounds_temporal_rejection_audits_without_allowing_clock_rollback() -> TestResult {
     let key = SigningKey::from_bytes(&[5; 32]);
     let path = store_path("bounded-post-lock-temporal-rejections");
-    let mut consumer = open(&path, trusted_issuer(&key))?;
+    let mut consumer = AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:04:59Z",
+    )
+    .map_err(|error| std::io::Error::other(format!("open failed: {error:?}")))?;
     let expired = signed_grant(&key);
     assert_eq!(
         consumer.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:05:00Z"),
@@ -211,7 +216,8 @@ fn consumer_bounds_post_lock_temporal_rejection_audits_in_their_write_transactio
 
     let mut not_yet_valid = signed_grant(&key);
     not_yet_valid.nonce = "post-lock-not-yet-valid".to_owned();
-    not_yet_valid.issued_at = "2026-07-28T00:00:30Z".to_owned();
+    not_yet_valid.issued_at = "2026-07-28T00:05:30Z".to_owned();
+    not_yet_valid.expires_at = "2026-07-28T00:10:00Z".to_owned();
     not_yet_valid.signature = key.sign(&not_yet_valid.signing_bytes()).to_bytes().to_vec();
     assert_eq!(
         consumer.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:00:00Z"),
@@ -261,5 +267,11 @@ fn consumer_bounds_post_lock_temporal_rejection_audits_in_their_write_transactio
     assert_eq!(audits.len(), 1_024);
     assert_eq!(expired_count, 511);
     assert_eq!(not_yet_valid_count, 513);
+    let persisted_trusted_now_nanos: i64 = connection.query_row(
+        "SELECT highest_trusted_now_nanos FROM authenticated_delivery_grant_replay_retention_v1 WHERE singleton = 1",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(persisted_trusted_now_nanos, 1_785_197_100_000_000_000);
     Ok(())
 }

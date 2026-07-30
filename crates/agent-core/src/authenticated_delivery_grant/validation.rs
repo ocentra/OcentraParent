@@ -151,6 +151,21 @@ pub(super) fn parse_trusted_now(
     ))
 }
 
+pub(super) fn trusted_now_at_least(
+    observed_now: (AuthenticatedDeliveryGrantInstant, i64),
+    minimum_now_nanos: i64,
+) -> Result<(AuthenticatedDeliveryGrantInstant, i64), AuthenticatedDeliveryGrantConsumeError> {
+    if observed_now.1 >= minimum_now_nanos {
+        return Ok(observed_now);
+    }
+    let seconds = minimum_now_nanos.div_euclid(1_000_000_000);
+    let nanos = minimum_now_nanos.rem_euclid(1_000_000_000) as u32;
+    let effective_now = chrono::DateTime::<Utc>::from_timestamp(seconds, nanos)
+        .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?
+        .to_rfc3339_opts(SecondsFormat::Nanos, true);
+    parse_trusted_now(&effective_now)
+}
+
 pub(super) fn instant_nanos(value: &str) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
     DateTime::parse_from_rfc3339(value)
         .ok()
