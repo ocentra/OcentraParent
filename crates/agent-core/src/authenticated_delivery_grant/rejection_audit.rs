@@ -1,3 +1,4 @@
+use ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES;
 use rusqlite::{params, Connection, Transaction, TransactionBehavior};
 
 use super::{
@@ -44,14 +45,16 @@ const ADD_AUDIT_RECORDED_AT_NANOS_COLUMN: &str =
     "ALTER TABLE authenticated_delivery_grant_audits_v2 ADD COLUMN recorded_at_nanos INTEGER";
 const ADD_AUDIT_SCOPE_COLUMN: &str =
     "ALTER TABLE authenticated_delivery_grant_audits_v2 ADD COLUMN audit_scope TEXT NOT NULL DEFAULT 'replay'";
-const SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_SCOPES: &str = "SELECT rowid, audit_json FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'replay' AND recorded_at_nanos IS NULL AND audit_json LIKE '%\"validation-rejected\"%'";
+const SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_SCOPE_METADATA: &str = "SELECT rowid, length(CAST(audit_json AS BLOB)) FROM authenticated_delivery_grant_audits_v2 WHERE rowid > ?1 AND audit_scope = 'replay' AND recorded_at_nanos IS NULL AND audit_json LIKE '%\"validation-rejected\"%' ORDER BY rowid LIMIT ?2";
+const SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_JSON: &str =
+    "SELECT audit_json FROM authenticated_delivery_grant_audits_v2 WHERE rowid = ?1";
 const UPDATE_LEGACY_AUDIT_SCOPE: &str = "UPDATE authenticated_delivery_grant_audits_v2 SET audit_scope = ?2, recorded_at_nanos = ?3 WHERE rowid = ?1";
 const CREATE_VALIDATION_REJECTION_RETENTION_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_audits_v2_validation_rejection_retention_idx ON authenticated_delivery_grant_audits_v2 (audit_scope, recorded_at_nanos DESC)";
-const DELETE_EXPIRED_VALIDATION_REJECTIONS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE rowid IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' AND recorded_at_nanos <= ?1 ORDER BY recorded_at_nanos LIMIT ?2)";
 const DELETE_EXCESS_VALIDATION_REJECTIONS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE rowid IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' ORDER BY rowid DESC LIMIT -1 OFFSET ?1)";
 const MAX_VALIDATION_REJECTION_AUDITS: i64 = 1_024;
-const MAX_VALIDATION_REJECTION_AUDITS_PER_PURGE: i64 = 128;
-const VALIDATION_REJECTION_AUDIT_RETENTION_NANOS: i64 = 86_400_000_000_000;
+const MAX_LEGACY_VALIDATION_REJECTION_AUDIT_ROWS_PER_BATCH: i64 = 128;
+const MAX_LEGACY_VALIDATION_REJECTION_AUDIT_BYTES: i64 =
+    (AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES * 8) as i64;
 
 pub(super) fn ensure_retention_schema(
     connection: &mut Connection,
@@ -74,46 +77,63 @@ fn backfill_legacy_validation_rejection_audit_scopes(
     connection: &mut Connection,
     startup_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    let legacy_audits = {
-        let mut statement = connection
-            .prepare(SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_SCOPES)
+    let mut last_row_id = i64::MIN;
+    loop {
+        let legacy_audits = {
+            let mut statement = connection
+                .prepare(SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_SCOPE_METADATA)
+                .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+            let rows = statement
+                .query_map(
+                    params![
+                        last_row_id,
+                        MAX_LEGACY_VALIDATION_REJECTION_AUDIT_ROWS_PER_BATCH
+                    ],
+                    |row| Ok((row.get::<_, i64>(0)?, row.get::<_, i64>(1)?)),
+                )
+                .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+            rows.collect::<Result<Vec<_>, _>>()
+                .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?
+        };
+        let Some(batch_last_row_id) = legacy_audits.last().map(|(row_id, _)| *row_id) else {
+            return Ok(());
+        };
+        let transaction = connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        let rows = statement
-            .query_map([], |row| {
-                Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?))
-            })
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        rows.collect::<Result<Vec<_>, _>>()
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?
-    };
-    if legacy_audits.is_empty() {
-        return Ok(());
-    }
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    for (row_id, _) in legacy_audits.into_iter().filter(|(_, audit_json)| {
-        rejection_audit_scope::is_legacy_validation_rejection_audit(audit_json)
-    }) {
+        for (row_id, audit_json_bytes) in legacy_audits {
+            (0..=MAX_LEGACY_VALIDATION_REJECTION_AUDIT_BYTES)
+                .contains(&audit_json_bytes)
+                .then_some(())
+                .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+            let audit_json: String = transaction
+                .query_row(
+                    SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_JSON,
+                    [row_id],
+                    |row| row.get(0),
+                )
+                .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+            if rejection_audit_scope::is_legacy_validation_rejection_audit(&audit_json) {
+                transaction
+                    .execute(
+                        UPDATE_LEGACY_AUDIT_SCOPE,
+                        params![row_id, "validation-rejection", startup_now_nanos],
+                    )
+                    .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+            }
+        }
         transaction
-            .execute(
-                UPDATE_LEGACY_AUDIT_SCOPE,
-                params![row_id, "validation-rejection", startup_now_nanos],
-            )
+            .commit()
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+        last_row_id = batch_last_row_id;
     }
-    transaction
-        .commit()
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
 }
 
 pub(super) fn drain_expired_at_startup(
     connection: &mut Connection,
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    while purge_expired_validation_rejections(connection, trusted_now_nanos)?
-        == MAX_VALIDATION_REJECTION_AUDITS_PER_PURGE as usize
-    {}
+    let _ = trusted_now_nanos;
     let transaction = connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
@@ -143,37 +163,11 @@ fn ensure_column(
     Ok(())
 }
 
-fn purge_expired_validation_rejections(
-    connection: &mut Connection,
-    trusted_now_nanos: i64,
-) -> Result<usize, AuthenticatedDeliveryGrantConsumeError> {
-    let cutoff_nanos = trusted_now_nanos.saturating_sub(VALIDATION_REJECTION_AUDIT_RETENTION_NANOS);
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    let count = transaction
-        .execute(
-            DELETE_EXPIRED_VALIDATION_REJECTIONS,
-            params![cutoff_nanos, MAX_VALIDATION_REJECTION_AUDITS_PER_PURGE],
-        )
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    transaction
-        .commit()
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    Ok(count)
-}
-
 fn trim_validation_rejection_audits(
     transaction: &Transaction<'_>,
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    let cutoff_nanos = trusted_now_nanos.saturating_sub(VALIDATION_REJECTION_AUDIT_RETENTION_NANOS);
-    transaction
-        .execute(
-            DELETE_EXPIRED_VALIDATION_REJECTIONS,
-            params![cutoff_nanos, MAX_VALIDATION_REJECTION_AUDITS_PER_PURGE],
-        )
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    let _ = trusted_now_nanos;
     transaction
         .execute(
             DELETE_EXCESS_VALIDATION_REJECTIONS,

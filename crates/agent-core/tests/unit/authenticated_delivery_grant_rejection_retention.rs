@@ -2,7 +2,7 @@ use ed25519_dalek::{Signer, SigningKey};
 use rusqlite::{params, Connection};
 
 use super::authenticated_delivery_grant::{
-    expected, open, signed_grant, store_path, trusted_issuer,
+    expected, must, open, signed_grant, store_path, stored_key, trusted_issuer,
 };
 use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAudit, AuthenticatedDeliveryGrantAuditOutcome,
@@ -110,13 +110,13 @@ fn consumer_backfills_only_legacy_validation_rejections_once() -> TestResult {
     );
     let connection = Connection::open(path.as_ref())?;
     let validation_scope: String = connection.query_row(
-        "SELECT audit_scope FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = 'legacy-validation-issuer'",
-        [],
+        "SELECT audit_scope FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1",
+        [stored_key("legacy-validation-issuer")],
         |row| row.get(0),
     )?;
     let validation_recorded_at: i64 = connection.query_row(
-        "SELECT recorded_at_nanos FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = 'legacy-validation-issuer'",
-        [],
+        "SELECT recorded_at_nanos FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1",
+        [stored_key("legacy-validation-issuer")],
         |row| row.get(0),
     )?;
     assert_eq!(validation_scope, "validation-rejection");
@@ -134,6 +134,90 @@ fn consumer_backfills_only_legacy_validation_rejections_once() -> TestResult {
         )
         .map_err(|error| std::io::Error::other(format!("unexpected error: {error:?}")))?,
     );
+    Ok(())
+}
+
+#[test]
+fn consumer_backfills_legacy_validation_rejections_in_bounded_batches() -> TestResult {
+    let key = SigningKey::from_bytes(&[25; 32]);
+    let path = store_path("legacy-validation-rejection-batches");
+    let connection = Connection::open(path.as_ref())?;
+    connection.execute(
+        "CREATE TABLE authenticated_delivery_grant_audits_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL)",
+        [],
+    )?;
+    let audit = AuthenticatedDeliveryGrantAudit {
+        correlation_id: "legacy-batch".to_owned(),
+        issuer_key_id_digest: "issuer".to_owned(),
+        nonce_digest: "nonce".to_owned(),
+        grant_digest: "grant".to_owned(),
+        outcome: AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            AuthenticatedDeliveryGrantValidationRejection::Expired,
+        ),
+    };
+    let audit_json = serde_json::to_string(&audit)?;
+    for index in 0..129 {
+        connection.execute(
+            "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)",
+            params![format!("legacy-batch-issuer-{index}"), format!("legacy-batch-nonce-{index}"), audit_json],
+        )?;
+    }
+    drop(connection);
+
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2026-07-28T00:05:00Z",
+        ),
+    )?);
+    let connection = Connection::open(path.as_ref())?;
+    let backfilled: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' AND recorded_at_nanos = ?1",
+        [1_785_197_100_000_000_000_i64],
+        |row| row.get(0),
+    )?;
+    assert_eq!(backfilled, 129);
+    Ok(())
+}
+
+#[test]
+fn consumer_keeps_rejection_audits_across_forward_clock_correction() -> TestResult {
+    let key = SigningKey::from_bytes(&[26; 32]);
+    let path = store_path("validation-rejection-forward-clock-correction");
+    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:01:00Z",
+    ))?;
+    let mut invalid = signed_grant(&key);
+    invalid.target_device_id = "other-device".to_owned();
+    invalid.signature = key.sign(&invalid.signing_bytes()).to_bytes().to_vec();
+    assert_eq!(
+        consumer.consume(
+            &invalid,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "forward-clock-audit"
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
+    );
+    drop(consumer);
+
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2030-07-28T00:01:00Z",
+        ),
+    )?);
+    let connection = Connection::open(path.as_ref())?;
+    let retained_after_forward_jump: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection'",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(retained_after_forward_jump, 1);
     Ok(())
 }
 

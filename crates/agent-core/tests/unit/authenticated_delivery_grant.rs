@@ -29,8 +29,11 @@ mod legacy_replay_migration;
 mod ordering;
 #[path = "authenticated_delivery_grant/replay_audit_hardening.rs"]
 mod replay_audit_hardening;
+#[path = "authenticated_delivery_grant/storage_keys.rs"]
+mod storage_keys;
+pub(super) use storage_keys::stored_key;
 
-fn must<T, E: Debug>(result: Result<T, E>) -> TestResult<T> {
+pub(super) fn must<T, E: Debug>(result: Result<T, E>) -> TestResult<T> {
     result.map_err(|error| std::io::Error::other(format!("unexpected error: {error:?}")).into())
 }
 
@@ -240,7 +243,7 @@ fn consumer_persists_redacted_bounded_audits_for_validation_rejections() -> Test
     let connection = Connection::open(path.as_ref())?;
     let audits = connection
         .prepare("SELECT audit_json FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 ORDER BY rowid")?
-        .query_map([grant.issuer_key_id.as_str(), grant.nonce.as_str()], |row| row.get::<_, String>(0))?
+        .query_map([stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)], |row| row.get::<_, String>(0))?
         .collect::<Result<Vec<_>, _>>()?;
     assert_eq!(audits.len(), 5);
     for (index, audit_json) in audits.into_iter().enumerate() {
@@ -479,12 +482,12 @@ fn consumer_bounds_persisted_replay_audits_per_unexpired_grant() -> TestResult {
     let connection = Connection::open(path.as_ref())?;
     let count: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
     let audit_plan: String = connection.query_row(
         "EXPLAIN QUERY PLAN SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(3),
     )?;
     assert_eq!(count, 16);
@@ -571,7 +574,7 @@ fn consumer_preserves_nanosecond_expiry_precision_for_replay_retention() -> Test
     let connection = Connection::open(path.as_ref())?;
     let stored_nanos: i64 = connection.query_row(
         "SELECT expires_at_nanos FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
     assert_eq!(stored_nanos.rem_euclid(1_000), 1);
@@ -599,7 +602,7 @@ fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> Te
     let connection = Connection::open(path.as_ref())?;
     connection.execute(
         "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json) VALUES (?1, ?2, ?3)",
-        params![grant.issuer_key_id, grant.nonce, "{}"],
+        params![stored_key(&grant.issuer_key_id), stored_key(&grant.nonce), "{}"],
     )?;
     drop(connection);
     let inactive_restart = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
@@ -611,12 +614,12 @@ fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> Te
     let connection = Connection::open(path.as_ref())?;
     let retained_grants: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
     let retained_audits: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
     assert_eq!(retained_grants, 0);

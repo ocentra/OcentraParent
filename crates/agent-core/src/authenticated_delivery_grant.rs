@@ -13,7 +13,10 @@ use sha2::{Digest, Sha256};
 
 mod authenticated_delivery_grant_retention;
 mod rejection_audit;
+mod storage_keys;
 mod validation;
+
+use storage_keys::{audit, storage_key_digest, validate_trusted_issuer};
 
 const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_fingerprint TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER NOT NULL, PRIMARY KEY (issuer_key_id, nonce))";
 const SELECT_CONSUMED_GRANT: &str =
@@ -133,6 +136,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
         startup_now_nanos: i64,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
+        validate_trusted_issuer(&trusted_issuer)?;
         let mut connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         connection
@@ -152,7 +156,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             &mut connection,
             &trusted_issuer,
         )?;
-        authenticated_delivery_grant_retention::ensure_retention_indexes(&connection)?;
+        authenticated_delivery_grant_retention::ensure_retention_indexes(&mut connection)?;
         let replay_retention_now_nanos =
             authenticated_delivery_grant_retention::advance_replay_retention_clock(
                 &mut connection,
@@ -293,7 +297,10 @@ impl AuthenticatedDeliveryGrantConsumer {
         let stored: Option<String> = transaction
             .query_row(
                 SELECT_CONSUMED_GRANT,
-                params![grant.issuer_key_id, grant.nonce],
+                params![
+                    storage_key_digest(&grant.issuer_key_id),
+                    storage_key_digest(&grant.nonce)
+                ],
                 |row| row.get(0),
             )
             .optional()
@@ -306,22 +313,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             correlation,
             AuthenticatedDeliveryGrantAuditOutcome::Consumed,
         );
-        let grant_fingerprint = authenticated_delivery_grant_audit_fingerprint(grant);
-        let expires_at_nanos = validation::instant_nanos(&grant.expires_at)?;
-        let audit_json = serde_json::to_string(&audit)
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
-        transaction
-            .execute(
-                INSERT_CONSUMED_GRANT,
-                params![
-                    grant.issuer_key_id,
-                    grant.nonce,
-                    grant_fingerprint,
-                    audit_json,
-                    expires_at_nanos
-                ],
-            )
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+        persist_consumed_grant(&transaction, grant, &audit)?;
         persist_audit_transaction(&transaction, grant, &audit, Some(post_begin_now.1))?;
         #[cfg(debug_assertions)]
         if std::mem::take(&mut self.fail_next_commit) {
@@ -530,8 +522,8 @@ fn persist_audit_transaction(
         .execute(
             INSERT_GRANT_AUDIT,
             params![
-                grant.issuer_key_id,
-                grant.nonce,
+                storage_key_digest(&grant.issuer_key_id),
+                storage_key_digest(&grant.nonce),
                 audit_json,
                 recorded_at_nanos,
                 rejection_audit::audit_scope(audit),
@@ -542,8 +534,8 @@ fn persist_audit_transaction(
         .execute(
             TRIM_GRANT_AUDITS,
             params![
-                grant.issuer_key_id,
-                grant.nonce,
+                storage_key_digest(&grant.issuer_key_id),
+                storage_key_digest(&grant.nonce),
                 MAX_REPLAY_AUDIT_ROWS_PER_GRANT
             ],
         )
@@ -551,18 +543,26 @@ fn persist_audit_transaction(
     Ok(())
 }
 
-fn audit(
+fn persist_consumed_grant(
+    transaction: &Transaction<'_>,
     grant: &AuthenticatedDeliveryGrant,
-    correlation_id: String,
-    outcome: AuthenticatedDeliveryGrantAuditOutcome,
-) -> AuthenticatedDeliveryGrantAudit {
-    AuthenticatedDeliveryGrantAudit {
-        correlation_id,
-        issuer_key_id_digest: digest(&grant.issuer_key_id),
-        nonce_digest: digest(&grant.nonce),
-        grant_digest: authenticated_delivery_grant_audit_fingerprint(grant),
-        outcome,
-    }
+    audit: &AuthenticatedDeliveryGrantAudit,
+) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+    let audit_json = serde_json::to_string(audit)
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+    transaction
+        .execute(
+            INSERT_CONSUMED_GRANT,
+            params![
+                storage_key_digest(&grant.issuer_key_id),
+                storage_key_digest(&grant.nonce),
+                authenticated_delivery_grant_audit_fingerprint(grant),
+                audit_json,
+                validation::instant_nanos(&grant.expires_at)?
+            ],
+        )
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    Ok(())
 }
 
 fn bounded_shape_rejection_audit(
@@ -577,6 +577,10 @@ fn bounded_shape_rejection_audit(
         hasher.update((value.len() as u64).to_be_bytes());
         hasher.update((bounded_len as u64).to_be_bytes());
         hasher.update(&value[..bounded_len]);
+        // The prefix remains useful for compact, bounded diagnostic structure,
+        // but the digest of the full value makes every omitted tail
+        // collision-resistant without persisting that sensitive tail.
+        hasher.update(Sha256::digest(value));
     };
     let bounded_digest = |value: &[u8]| {
         let mut hasher = Sha256::new();

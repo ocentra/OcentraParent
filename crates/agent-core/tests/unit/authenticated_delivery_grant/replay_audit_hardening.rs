@@ -2,7 +2,8 @@ use ed25519_dalek::{Signer, SigningKey};
 use rusqlite::{params, Connection};
 
 use super::{
-    expected, must, open, signed_grant, store_path, trusted_issuer, TestResult, DELIVERED_PAYLOAD,
+    expected, must, open, signed_grant, store_path, stored_key, trusted_issuer, TestResult,
+    DELIVERED_PAYLOAD,
 };
 use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAudit, AuthenticatedDeliveryGrantAuditOutcome,
@@ -10,6 +11,26 @@ use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantConsumer,
 };
 use ocentra_schema::authenticated_delivery_grant::authenticated_delivery_grant_audit_fingerprint;
+
+#[test]
+fn consumer_rejects_invalid_trusted_issuer_configuration_at_open() -> TestResult {
+    let key = SigningKey::from_bytes(&[3; 32]);
+    for key_id in ["".to_owned(), " \t\n".to_owned(), "x".repeat(513)] {
+        let path = store_path("invalid-trusted-issuer");
+        let mut issuer = trusted_issuer(&key);
+        issuer.key_id = key_id;
+        assert!(matches!(
+            AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+                &path,
+                issuer,
+                "2026-07-28T00:01:00Z",
+            ),
+            Err(AuthenticatedDeliveryGrantConsumeError::InvalidGrant)
+        ));
+        assert!(!path.as_ref().exists());
+    }
+    Ok(())
+}
 
 #[test]
 fn restart_replay_uses_non_reconstructable_fingerprint_without_raw_grant_storage() -> TestResult {
@@ -32,7 +53,7 @@ fn restart_replay_uses_non_reconstructable_fingerprint_without_raw_grant_storage
     let connection = Connection::open(path.as_ref())?;
     let fingerprint: String = connection.query_row(
         "SELECT grant_fingerprint FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
     assert_eq!(fingerprint, expected_fingerprint);
@@ -47,6 +68,29 @@ fn restart_replay_uses_non_reconstructable_fingerprint_without_raw_grant_storage
         return Err(std::io::Error::other("restart replay must reject").into());
     };
     assert_eq!(replay_audit.grant_digest, expected_fingerprint);
+    Ok(())
+}
+
+#[test]
+fn replay_and_audit_storage_never_persist_raw_issuer_or_nonce_keys() -> TestResult {
+    let key = SigningKey::from_bytes(&[27; 32]);
+    let path = store_path("private-replay-audit-storage-keys");
+    let grant = signed_grant(&key);
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    must(consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, "private-storage"))?;
+    drop(consumer);
+    let connection = Connection::open(path.as_ref())?;
+    let raw_key_rows: i64 = connection.query_row(
+        "SELECT (SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 OR nonce = ?2) + (SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 OR nonce = ?2)",
+        params![grant.issuer_key_id, grant.nonce],
+        |row| row.get(0),
+    )?;
+    let stored_key_lengths: Vec<(i64, i64)> = connection
+        .prepare("SELECT length(issuer_key_id), length(nonce) FROM authenticated_delivery_grant_consumes_v2 UNION ALL SELECT length(issuer_key_id), length(nonce) FROM authenticated_delivery_grant_audits_v2")?
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?
+        .collect::<Result<_, _>>()?;
+    assert_eq!(raw_key_rows, 0);
+    assert_eq!(stored_key_lengths, vec![(64, 64), (64, 64)]);
     Ok(())
 }
 
@@ -252,6 +296,44 @@ fn malformed_grant_audit_digest_binds_payload_length() -> TestResult {
 }
 
 #[test]
+fn malformed_grant_audit_digest_binds_oversized_field_tails() -> TestResult {
+    let key = SigningKey::from_bytes(&[24; 32]);
+    let path = store_path("malformed-field-tail-audit-digest");
+    let mut first = signed_grant(&key);
+    first.target_device_id = format!("{}a", "x".repeat(512));
+    let mut second = first.clone();
+    second.target_device_id.pop();
+    second.target_device_id.push('b');
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+
+    for (grant, correlation) in [
+        (&first, "malformed-field-tail-first"),
+        (&second, "malformed-field-tail-second"),
+    ] {
+        assert_eq!(
+            consumer.consume(grant, &expected(), DELIVERED_PAYLOAD, correlation),
+            Err(AuthenticatedDeliveryGrantConsumeError::InvalidGrant)
+        );
+    }
+    drop(consumer);
+
+    let connection = Connection::open(path.as_ref())?;
+    let grant_digests: Vec<String> = connection
+        .prepare(
+            "SELECT audit_json FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' ORDER BY rowid",
+        )?
+        .query_map([], |row| row.get::<_, String>(0))?
+        .map(|row| {
+            let audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&row?)?;
+            Ok::<_, Box<dyn std::error::Error + Send + Sync>>(audit.grant_digest)
+        })
+        .collect::<Result<_, _>>()?;
+    assert_eq!(grant_digests.len(), 2);
+    assert_ne!(grant_digests[0], grant_digests[1]);
+    Ok(())
+}
+
+#[test]
 fn malformed_shape_rejections_are_retained_without_blocking_valid_consumption() -> TestResult {
     let key = SigningKey::from_bytes(&[13; 32]);
     let path = store_path("malformed-shape-rejection-retention");
@@ -290,7 +372,7 @@ fn malformed_shape_rejections_are_retained_without_blocking_valid_consumption() 
     assert_eq!(retained_rejections, 1_024);
     let consumed_rows: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        params![valid_grant.issuer_key_id, valid_grant.nonce],
+        params![stored_key(&valid_grant.issuer_key_id), stored_key(&valid_grant.nonce)],
         |row| row.get(0),
     )?;
     assert_eq!(consumed_rows, 1);
@@ -358,7 +440,7 @@ fn replay_expiry_purge_preserves_validation_audits_for_the_same_grant_identity()
     let connection = Connection::open(path.as_ref())?;
     connection.execute(
         "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope) VALUES (?1, ?2, ?3, ?4, 'validation-rejection')",
-        params![grant.issuer_key_id, grant.nonce, "{}", 1_785_283_499_000_000_000_i64],
+        params![stored_key(&grant.issuer_key_id), stored_key(&grant.nonce), "{}", 1_785_283_499_000_000_000_i64],
     )?;
     drop(connection);
     drop(must(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
@@ -369,11 +451,11 @@ fn replay_expiry_purge_preserves_validation_audits_for_the_same_grant_identity()
     let connection = Connection::open(path.as_ref())?;
     let replay_rows: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()], |row| row.get(0),
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)], |row| row.get(0),
     )?;
     let validation_rows: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'validation-rejection'",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()], |row| row.get(0),
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)], |row| row.get(0),
     )?;
     assert_eq!(replay_rows, 0);
     assert_eq!(validation_rows, 1);
@@ -413,12 +495,12 @@ fn replay_audit_trim_never_evicts_validation_evidence_for_the_same_grant() -> Te
     let connection = Connection::open(path.as_ref())?;
     let validation_rows: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'validation-rejection'",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
     let replay_rows: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay'",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
     assert_eq!(validation_rows, 1);
@@ -509,7 +591,7 @@ fn replay_tombstone_purges_only_after_persisted_trusted_time_makes_rollback_repl
     let connection = Connection::open(path.as_ref())?;
     let retained_replays: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
     let persisted_trusted_now_nanos: i64 = connection.query_row(
@@ -536,7 +618,7 @@ fn consume_and_replay_audits_persist_post_lock_occurrence_times() -> TestResult 
         .prepare(
             "SELECT recorded_at_nanos FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 ORDER BY rowid",
         )?
-        .query_map([grant.issuer_key_id.as_str(), grant.nonce.as_str()], |row| row.get(0))?
+        .query_map([stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)], |row| row.get(0))?
         .collect::<Result<_, _>>()?;
     assert_eq!(
         recorded_at_nanos,

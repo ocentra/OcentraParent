@@ -6,7 +6,7 @@ use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrant;
 use ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES;
 use rusqlite::{params, Connection};
 
-use super::{must, signed_grant, store_path, trusted_issuer, TestResult};
+use super::{must, signed_grant, store_path, stored_key, trusted_issuer, TestResult};
 
 fn legacy_grant_json(grant: &AuthenticatedDeliveryGrant, key: &SigningKey) -> TestResult<String> {
     let mut legacy = serde_json::to_value(grant)?;
@@ -70,7 +70,7 @@ fn consumer_backfills_legacy_microsecond_rows_from_signed_grant_nanos() -> TestR
     let connection = Connection::open(path.as_ref())?;
     let stored_nanos: i64 = connection.query_row(
         "SELECT expires_at_nanos FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
     assert_eq!(stored_nanos.rem_euclid(1_000), 1);
@@ -124,7 +124,7 @@ fn consumer_preserves_legacy_replay_tombstone_across_trusted_issuer_rotation() -
     let connection = Connection::open(path.as_ref())?;
     let (fingerprint, expires_at_nanos): (String, i64) = connection.query_row(
         "SELECT grant_fingerprint, expires_at_nanos FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
-        [retired_grant.issuer_key_id.as_str(), retired_grant.nonce.as_str()],
+        [stored_key(&retired_grant.issuer_key_id), stored_key(&retired_grant.nonce)],
         |row| Ok((row.get(0)?, row.get(1)?)),
     )?;
     assert_eq!(fingerprint.len(), 64);
