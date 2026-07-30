@@ -8,8 +8,8 @@ use tokio::sync::{RwLock, Semaphore};
 
 use crate::{
     AggregateKey, DomainEvent, EventQueue, EventType, EventingError, ExpectValue,
-    HandlerExecutionPolicy, JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal,
-    StoredEventEnvelope,
+    HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestRegistry, SharedEventClock,
+    SharedEventJournal, StoredEventEnvelope,
 };
 
 mod active_dispatch;
@@ -96,6 +96,13 @@ pub struct EventBus {
 }
 
 impl EventBus {
+    /// Exposes the configured journal phase so a caller that treats a journal
+    /// receipt as an authorization boundary can reject ambiguous two-phase
+    /// delivery before it emits an event.
+    pub fn journal_mode(&self) -> JournalMode {
+        self.journal_policy.mode
+    }
+
     pub async fn subscribe<E, F, Fut>(
         &self,
         subscriber: EventSubscriber,

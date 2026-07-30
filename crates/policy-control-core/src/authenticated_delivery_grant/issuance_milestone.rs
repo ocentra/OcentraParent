@@ -6,6 +6,7 @@ use ocentra_eventing::ids::{
     AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey,
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
 };
+use ocentra_eventing::journal::policy::JournalMode;
 use ocentra_schema::authenticated_delivery_grant::{
     authenticated_delivery_grant_audit_fingerprint, AuthenticatedDeliveryGrant,
 };
@@ -117,6 +118,12 @@ pub struct EventBusAuthenticatedDeliveryGrantIssuancePublisher {
 
 impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
     pub fn new(event_bus: EventBus) -> Result<Self, EventingError> {
+        if event_bus.journal_mode() != JournalMode::BeforeDispatch {
+            return Err(EventingError::InvalidHandlerPolicy {
+                reason: "authenticated delivery grant issuance requires a before-dispatch-only journal policy so an accepted milestone cannot survive a failed after-dispatch phase"
+                    .to_owned(),
+            });
+        }
         Ok(Self {
             event_bus,
             source: EventSource::new(

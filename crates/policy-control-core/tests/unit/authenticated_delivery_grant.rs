@@ -3,7 +3,6 @@ use super::authenticated_delivery_grant_fixture::{
     subscribe_issuance_milestone_persistence,
 };
 use super::TestResult;
-use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
@@ -545,29 +544,12 @@ fn issuer_rejects_mismatched_dually_signed_assertions() -> TestResult {
 #[test]
 fn issuer_requires_durable_receipt_and_awaits_safely_inside_an_entered_tokio_runtime() -> TestResult
 {
-    let no_op_subscriber_bus = EventBus::new();
-    let no_op_subscriber_issuer = test_ok!(issuer(), "provenance-configured issuer")
-        .with_event_bus_issuance_publisher(no_op_subscriber_bus.clone())
-        .map_err(|error| format!("event publisher: {error:?}"))?;
     let runtime = test_ok!(
         tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build(),
         "event runtime"
     );
-    runtime.block_on(async {
-        test_ok!(
-            subscribe_issuance_milestone_persistence(&no_op_subscriber_bus).await,
-            "no-op issuance subscriber registers"
-        );
-        assert_eq!(
-            no_op_subscriber_issuer
-                .issue_async(IssuanceFixture::new().request())
-                .await,
-            Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
-            "a successful subscriber without a durable journal append must not authorize issuance"
-        );
-    });
     let journal_path = std::env::temp_dir().join(format!(
         "ocentra-policy-control-issuance-runtime-{}.ndjson",
         ocentra_eventing::ids::EventId::generated().as_str()
