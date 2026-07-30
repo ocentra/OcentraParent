@@ -15,7 +15,6 @@ use super::{
     AuthenticatedDeliveryGrantIssuer, DeliveryGrantBindings, DeliveryGrantCapabilityState,
     DeliveryGrantEvidenceState, GrantTargetDeviceId,
 };
-use crate::policy_authority::PolicyControlDecision;
 use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
 
 mod accepted;
@@ -31,13 +30,13 @@ impl AuthenticatedDeliveryGrantIssuer {
         (CorrelationId, AuthenticatedDeliveryGrant),
         (CorrelationId, AuthenticatedDeliveryGrantIssuanceError),
     > {
-        let (request, policy_decision, policy_authority, correlation_id) = self
+        let (request, resolved_decision, policy_authority, correlation_id) = self
             .verify_and_bind_request(request)
             .map_err(|error| (fallback_correlation_id, error))?;
         validation::validate_issuance(
             &request,
             &self.issuer_key_id,
-            &policy_decision,
+            &resolved_decision,
             &policy_authority,
         )
         .map_err(|error| (correlation_id.clone(), error))?;
@@ -52,13 +51,13 @@ impl AuthenticatedDeliveryGrantIssuer {
     ) -> Result<
         (
             AuthenticatedDeliveryGrantIssuance<'a>,
-            PolicyControlDecision,
+            crate::policy_authority_resolved_decision::ResolvedPolicyDecision,
             PolicyContractAuthorityDecision,
             CorrelationId,
         ),
         AuthenticatedDeliveryGrantIssuanceError,
     > {
-        let (bindings, assertions, household_authority, decision, policy_authority) = self
+        let (bindings, assertions, household_authority, resolved_decision, policy_authority) = self
             .authority_verifier
             .verify(&request.signed_authority_bindings)?;
         let correlation_id = request
@@ -71,8 +70,11 @@ impl AuthenticatedDeliveryGrantIssuer {
         if assertions != step_up_assertions {
             return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
         }
+        if resolved_decision.decision_id.as_str() != bindings.policy_decision_id {
+            return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
+        }
         request.bindings = bindings;
-        request.household_authority = household_authority;
+        request.household_authority = household_authority.input();
         request.parent_step_up.validation = step_up_validation;
         request.parent_step_up.target_device_id = GrantTargetDeviceId::parse(target_device_id)
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
@@ -92,7 +94,7 @@ impl AuthenticatedDeliveryGrantIssuer {
                 DeliveryGrantEvidenceState::Unstable
             }
         };
-        Ok((request, decision, policy_authority, correlation_id))
+        Ok((request, resolved_decision, policy_authority, correlation_id))
     }
 
     fn sign_grant(&self, bindings: DeliveryGrantBindings) -> AuthenticatedDeliveryGrant {

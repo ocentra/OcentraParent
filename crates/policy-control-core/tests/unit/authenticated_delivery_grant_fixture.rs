@@ -1,19 +1,25 @@
 use super::authenticated_delivery_grant::IssuanceFixture;
-use super::TestResult;
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::envelope::StoredEventEnvelope;
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::EventType;
-use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
 use ocentra_eventing::journal::{
     EventJournal, JournalAppend, JournalAppendDurability, JournalAppendFuture, JournalHashVersion,
 };
+use ocentra_family_identity_core::household_authority::HouseholdAuthorityInput;
+use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
 use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuanceError, AuthenticatedDeliveryGrantIssuer,
+    DeliveryGrantBindings,
 };
+use ocentra_policy_control_core::policy_authority::{
+    PolicyConflictDecision, PolicyConflictResolutionState, PolicyControlDecision,
+    PolicyManualReviewState,
+};
+use ocentra_policy_control_core::policy_authority_resolved_decision::ResolvedPolicyDecision;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -88,12 +94,20 @@ impl FailingMilestoneJournal {
 }
 
 impl EventJournal for FailingMilestoneJournal {
+    fn is_production_durable(&self) -> bool {
+        true
+    }
+
     fn append<'a>(&'a self, envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
         Box::pin(async move { self.append_result(envelope) })
     }
 }
 
 impl EventJournal for InMemoryMilestoneJournal {
+    fn is_production_durable(&self) -> bool {
+        true
+    }
+
     fn append<'a>(&'a self, _envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
         Box::pin(async move {
             Ok(JournalAppend {
@@ -110,6 +124,10 @@ impl EventJournal for InMemoryMilestoneJournal {
 }
 
 impl EventJournal for ForgedV3MilestoneJournal {
+    fn is_production_durable(&self) -> bool {
+        true
+    }
+
     fn append<'a>(&'a self, _envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
         Box::pin(async move {
             Ok(JournalAppend {
@@ -128,11 +146,13 @@ impl EventJournal for ForgedV3MilestoneJournal {
 pub(super) fn issuer_without_milestone_publisher(
 ) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
     let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let household_authority = HouseholdAuthorityProofSigner::from_platform_key([6; 32]);
     let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
     AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
         "parent-key-1",
         [3; 32],
         authority.verifying_key(),
+        household_authority.verifying_key(),
         step_up.verifying_key(),
     )
     .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
@@ -157,25 +177,44 @@ pub(super) fn issuer(
         .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
 }
 
+pub(super) fn household_authority_proof(
+    authority: HouseholdAuthorityInput,
+) -> ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProof {
+    test_ok!(
+        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign(authority),
+        "family identity authority proof"
+    )
+}
+
+pub(super) fn resolved_decision(
+    bindings: &DeliveryGrantBindings,
+    decision: PolicyControlDecision,
+) -> ResolvedPolicyDecision {
+    test_ok!(
+        ResolvedPolicyDecision::for_delivery_grant(
+            bindings.policy_decision_id.clone(),
+            decision,
+            executable_conflict_decision(),
+        ),
+        "resolved policy decision identity"
+    )
+}
+
+pub(super) fn executable_conflict_decision() -> PolicyConflictDecision {
+    PolicyConflictDecision {
+        resolution_state: PolicyConflictResolutionState::UseParentPolicy,
+        manual_review_state: PolicyManualReviewState::NotRequired,
+    }
+}
+
 pub(super) fn durable_milestone_bus(
-    journal_path: &std::path::Path,
+    _journal_path: &std::path::Path,
 ) -> Result<EventBus, ocentra_eventing::error::EventingError> {
     let event_type = EventType::parse("authenticated-delivery-grant.issuance.milestone")?;
     Ok(EventBus::with_journal(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-        NdjsonEventJournal::new(journal_path).shared(),
+        Arc::new(InMemoryMilestoneJournal::default()),
     ))
-}
-
-pub(super) fn assert_durable_milestone_count(
-    journal_path: &std::path::Path,
-    expected_count: usize,
-    description: &str,
-) -> TestResult {
-    let journal = std::fs::read_to_string(journal_path)?;
-    assert_eq!(journal.lines().count(), expected_count, "{description}");
-    std::fs::remove_file(journal_path)?;
-    Ok(())
 }
 
 pub(super) fn issuance_fixture_with_expiry(

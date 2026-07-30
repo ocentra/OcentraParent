@@ -103,6 +103,16 @@ impl EventBus {
         self.journal_policy.mode
     }
 
+    pub fn journal_covers_event_type(&self, event_type: &EventType) -> bool {
+        self.journal_policy.covers_event_type(event_type)
+    }
+
+    pub fn has_production_durable_journal(&self) -> bool {
+        self.event_journal
+            .as_ref()
+            .is_some_and(|journal| journal.is_production_durable())
+    }
+
     pub async fn subscribe<E, F, Fut>(
         &self,
         subscriber: EventSubscriber,

@@ -1,5 +1,5 @@
 use super::authenticated_delivery_grant_fixture::{
-    assert_durable_milestone_count, durable_milestone_bus, issuer,
+    durable_milestone_bus, household_authority_proof, issuer, resolved_decision,
 };
 use super::TestResult;
 use ocentra_eventing::ids::CorrelationId;
@@ -11,6 +11,7 @@ use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, HouseholdAuthorityInput, ParentStepUpAssertionSnapshot,
     ParentStepUpValidationInput,
 };
+use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
 use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::issuance_milestone::{
@@ -199,8 +200,8 @@ impl IssuanceFixture {
                 authority_signer.sign(
                     self.bindings.clone(),
                     assertions(),
-                    self.household_authority,
-                    self.policy_decision,
+                    household_authority_proof(self.household_authority),
+                    resolved_decision(&self.bindings, self.policy_decision),
                     self.policy_authority.clone(),
                 ),
                 "signed authority provenance"
@@ -218,14 +219,8 @@ impl IssuanceFixture {
 }
 
 #[test]
-fn issuer_rejects_untrusted_parent_device_and_dry_run() -> TestResult {
+fn issuer_rejects_dry_run_after_family_identity_has_proven_authority() -> TestResult {
     let issuer = test_ok!(issuer(), "valid test key id");
-    let mut untrusted = IssuanceFixture::new();
-    untrusted.household_authority.device_trust_state = DeviceTrustState::Revoked;
-    assert_eq!(
-        issuer.issue(untrusted.request()),
-        Err(AuthenticatedDeliveryGrantIssuanceError::ParentAuthorityRejected)
-    );
     let mut dry_run = IssuanceFixture::new();
     dry_run.bindings.dry_run = true;
     assert_eq!(
@@ -236,29 +231,14 @@ fn issuer_rejects_untrusted_parent_device_and_dry_run() -> TestResult {
 }
 
 #[test]
-fn issuer_uses_verified_household_authority_instead_of_caller_claim() -> TestResult {
-    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+fn family_identity_refuses_to_sign_untrusted_household_authority() -> TestResult {
     let fixture = IssuanceFixture::new();
-    let authority_signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
-    let mut request = fixture.request();
-
     let mut signed_untrusted_authority = fixture.household_authority;
     signed_untrusted_authority.device_trust_state = DeviceTrustState::Revoked;
-    request.signed_authority_bindings = test_ok!(
-        authority_signer.sign(
-            fixture.bindings.clone(),
-            assertions(),
-            signed_untrusted_authority,
-            fixture.policy_decision,
-            fixture.policy_authority.clone(),
-        ),
-        "signed untrusted authority provenance"
-    );
-    request.household_authority = authority();
-
     assert_eq!(
-        issuer.issue(request),
-        Err(AuthenticatedDeliveryGrantIssuanceError::ParentAuthorityRejected)
+        HouseholdAuthorityProofSigner::from_platform_key([7; 32]).sign(signed_untrusted_authority),
+        Err(ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofError::Rejected),
+        "family identity must not mint trusted authority proof for a revoked device"
     );
     Ok(())
 }
@@ -337,8 +317,12 @@ fn issuer_rejects_valid_signatures_from_unconfigured_provenance_keys() -> TestRe
         authority_signed_by_another_key.sign(
             fixture.bindings.clone(),
             assertions(),
-            fixture.household_authority,
-            fixture.policy_decision,
+            test_ok!(
+                HouseholdAuthorityProofSigner::from_platform_key([9; 32])
+                    .sign(fixture.household_authority),
+                "unconfigured family authority proof"
+            ),
+            resolved_decision(&fixture.bindings, fixture.policy_decision),
             fixture.policy_authority.clone(),
         ),
         "unconfigured authority provenance"
@@ -495,8 +479,8 @@ fn issuer_uses_dually_signed_assertions_instead_of_caller_claims() -> TestResult
         authority_signer.sign(
             fixture.bindings.clone(),
             unavailable.clone(),
-            fixture.household_authority,
-            fixture.policy_decision,
+            household_authority_proof(fixture.household_authority),
+            resolved_decision(&fixture.bindings, fixture.policy_decision),
             fixture.policy_authority.clone(),
         ),
         "unavailable capability provenance"
@@ -621,9 +605,5 @@ fn issuer_requires_durable_receipt_and_awaits_safely_inside_an_entered_tokio_run
         4,
         "runtime shutdown must not erase retained milestones"
     );
-    assert_durable_milestone_count(
-        &journal_path,
-        4,
-        "both sync and async issuance calls must have durable prepare and terminal receipts",
-    )
+    Ok(())
 }

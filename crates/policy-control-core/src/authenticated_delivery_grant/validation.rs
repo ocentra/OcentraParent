@@ -12,6 +12,7 @@ use crate::policy_authority::{
     PolicyActionAuthorizationState, PolicyControlDecision, PolicyEnforcementExecutionState,
     PolicyManualReviewState,
 };
+use crate::policy_authority_resolved_decision::ResolvedPolicyDecision;
 use crate::policy_contract_helpers::authority::{
     PolicyContractAuthorityDecision, PolicyContractAuthoritySource, PolicyContractAuthorityState,
 };
@@ -22,12 +23,16 @@ use ocentra_family_identity_core::household_authority::{
 pub(super) fn validate_issuance(
     request: &AuthenticatedDeliveryGrantIssuance<'_>,
     issuer_key_id: &str,
-    policy_decision: &PolicyControlDecision,
+    resolved_decision: &ResolvedPolicyDecision,
     policy_authority: &PolicyContractAuthorityDecision,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     validate_household_authority(request)?;
-    validate_policy_execution(policy_decision, policy_authority)?;
-    validate_execution_constraints(request, policy_decision)?;
+    validate_policy_execution(
+        &resolved_decision.decision,
+        policy_authority,
+        resolved_decision,
+    )?;
+    validate_execution_constraints(request, &resolved_decision.decision)?;
     validate_canonical_authorization(request)?;
     validate_parent_step_up(request)?;
     validate_grant_timestamps(&request.bindings)?;
@@ -51,12 +56,14 @@ fn validate_household_authority(
 fn validate_policy_execution(
     policy_decision: &PolicyControlDecision,
     policy_authority: &PolicyContractAuthorityDecision,
+    resolved_decision: &ResolvedPolicyDecision,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
     if policy_decision.action_authorization_state != PolicyActionAuthorizationState::Authorized
         || policy_decision.enforcement_execution_state
             != PolicyEnforcementExecutionState::MayExecute
         || policy_authority.source != PolicyContractAuthoritySource::ParentPolicy
         || policy_authority.state != PolicyContractAuthorityState::Authorized
+        || !resolved_decision.permits_execution()
     {
         return Err(AuthenticatedDeliveryGrantIssuanceError::PolicyNotExecutable);
     }

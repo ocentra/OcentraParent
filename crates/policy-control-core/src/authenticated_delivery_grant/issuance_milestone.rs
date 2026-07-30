@@ -46,12 +46,15 @@ pub enum AuthenticatedDeliveryGrantIssuanceRejection {
     Timestamp,
     Bindings,
     AuthorityProvenance,
+    MilestonePublication,
     IssuerKey,
     CorrelationId,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct AuthenticatedDeliveryGrantIssuanceMilestone {
+    /// Opaque lifecycle identity shared by Prepared and its terminal outcome.
+    pub attempt_id: EventId,
     pub outcome: AuthenticatedDeliveryGrantIssuanceOutcome,
     pub rejection: Option<AuthenticatedDeliveryGrantIssuanceRejection>,
     /// SHA-256 over the signed grant wire plus its signature. This is a
@@ -74,38 +77,11 @@ impl DomainEvent for AuthenticatedDeliveryGrantIssuanceMilestone {
     }
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         IdempotencyKey::parse(format!(
-            "{EVENT_TYPE}:{:?}:{:?}:{}",
+            "{EVENT_TYPE}:{}:{:?}:{:?}:{}",
+            self.attempt_id.as_str(),
             self.outcome,
             self.rejection,
             self.grant_fingerprint.as_deref().unwrap_or("rejected")
-        ))
-    }
-}
-
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-struct AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
-    /// Opaque, generated value used only to distinguish independent issuance attempts.
-    /// It carries no household, device, child, capability, or evidence data.
-    attempt_id: EventId,
-    #[serde(flatten)]
-    milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
-}
-
-impl DomainEvent for AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        self.milestone.contract()
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        self.milestone.aggregate_key()
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        IdempotencyKey::parse(format!(
-            "{EVENT_TYPE}:{}:{:?}:{:?}",
-            self.attempt_id.as_str(),
-            self.milestone.outcome,
-            self.milestone.rejection
         ))
     }
 }
@@ -121,6 +97,19 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
         if event_bus.journal_mode() != JournalMode::BeforeDispatch {
             return Err(EventingError::InvalidHandlerPolicy {
                 reason: "authenticated delivery grant issuance requires a before-dispatch-only journal policy so an accepted milestone cannot survive a failed after-dispatch phase"
+                    .to_owned(),
+            });
+        }
+        let event_type = EventType::parse(EVENT_TYPE)?;
+        if !event_bus.journal_covers_event_type(&event_type) {
+            return Err(EventingError::InvalidHandlerPolicy {
+                reason: "authenticated delivery grant issuance journal selector must cover issuance milestones"
+                    .to_owned(),
+            });
+        }
+        if !event_bus.has_production_durable_journal() {
+            return Err(EventingError::InvalidHandlerPolicy {
+                reason: "authenticated delivery grant issuance requires a production-durable journal capability"
                     .to_owned(),
             });
         }
@@ -141,9 +130,9 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
         attempt_id: EventId,
         milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
     ) -> Result<(), EventingError> {
-        let milestone = AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
+        let milestone = AuthenticatedDeliveryGrantIssuanceMilestone {
             attempt_id,
-            milestone,
+            ..milestone
         };
         let metadata = EventMetadata::new(correlation_id, self.source.clone());
         if tokio::runtime::Handle::try_current().is_ok() {
@@ -161,9 +150,9 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
         attempt_id: EventId,
         milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
     ) -> Result<(), EventingError> {
-        let milestone = AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
+        let milestone = AuthenticatedDeliveryGrantIssuanceMilestone {
             attempt_id,
-            milestone,
+            ..milestone
         };
         let metadata = EventMetadata::new(correlation_id, self.source.clone());
         self.event_bus
@@ -175,7 +164,7 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
 
 fn publish_on_current_thread_runtime(
     event_bus: EventBus,
-    milestone: AuthenticatedDeliveryGrantIssuanceAttemptMilestone,
+    milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
     metadata: EventMetadata,
 ) -> Result<(), EventingError> {
     let runtime = tokio::runtime::Builder::new_current_thread()
@@ -218,6 +207,7 @@ pub(crate) fn prepared_issuance_milestone_for(
     grant: &AuthenticatedDeliveryGrant,
 ) -> AuthenticatedDeliveryGrantIssuanceMilestone {
     AuthenticatedDeliveryGrantIssuanceMilestone {
+        attempt_id: EventId::generated(),
         outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Prepared,
         rejection: None,
         grant_fingerprint: Some(authenticated_delivery_grant_audit_fingerprint(grant)),
@@ -229,6 +219,7 @@ pub(crate) fn accepted_issuance_milestone_for(
     grant: &AuthenticatedDeliveryGrant,
 ) -> AuthenticatedDeliveryGrantIssuanceMilestone {
     AuthenticatedDeliveryGrantIssuanceMilestone {
+        attempt_id: EventId::generated(),
         outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
         rejection: None,
         grant_fingerprint: Some(authenticated_delivery_grant_audit_fingerprint(grant)),
@@ -240,6 +231,7 @@ pub(crate) fn rejected_issuance_milestone_for(
     error: AuthenticatedDeliveryGrantIssuanceError,
 ) -> AuthenticatedDeliveryGrantIssuanceMilestone {
     AuthenticatedDeliveryGrantIssuanceMilestone {
+        attempt_id: EventId::generated(),
         outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
         rejection: Some(rejection_for(error)),
         grant_fingerprint: None,

@@ -3,14 +3,16 @@ use ocentra_eventing::ids::CorrelationId;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use ocentra_family_identity_core::household_authority::HouseholdAuthorityInput;
+use ocentra_family_identity_core::household_authority_proof::{
+    HouseholdAuthorityProof, HouseholdAuthorityProofVerifier, VerifiedHouseholdAuthority,
+};
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
 };
 
 use super::{AuthenticatedDeliveryGrantIssuanceError, DeliveryGrantBindings};
-use crate::policy_authority::PolicyControlDecision;
+use crate::policy_authority_resolved_decision::ResolvedPolicyDecision;
 use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
 
 const AUTHORITY_BINDINGS_WIRE_OVERHEAD_BYTES: usize = 1_024;
@@ -19,11 +21,12 @@ const AUTHORITY_BINDINGS_WIRE_OVERHEAD_BYTES: usize = 1_024;
 pub struct SignedAuthorityBindings {
     pub bindings: DeliveryGrantBindings,
     pub assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
-    /// Current household authority is signed by the trusted authority producer.
-    /// The issuance caller's copy is never used as authorization evidence.
-    pub household_authority: HouseholdAuthorityInput,
-    /// The trusted producer's policy decision is signed before grant issuance.
-    pub policy_decision: PolicyControlDecision,
+    /// Household authority is minted and signed by family identity. Policy only
+    /// carries the opaque family-owned proof and consumes its verified material.
+    pub household_authority_proof: HouseholdAuthorityProof,
+    /// The trusted producer's resolved policy identity and decision are signed
+    /// before grant issuance.
+    pub resolved_policy_decision: ResolvedPolicyDecision,
     /// The trusted producer's policy contract authority is signed before grant issuance.
     pub policy_authority: PolicyContractAuthorityDecision,
     pub signature: Vec<u8>,
@@ -48,11 +51,17 @@ impl SignedAuthorityBindings {
 
 pub struct AuthenticatedDeliveryGrantAuthorityVerifier {
     verifying_key: VerifyingKey,
+    household_authority_verifier: HouseholdAuthorityProofVerifier,
 }
 
 impl AuthenticatedDeliveryGrantAuthorityVerifier {
-    pub fn new(verifying_key: VerifyingKey) -> Self {
-        Self { verifying_key }
+    pub fn new(verifying_key: VerifyingKey, household_authority_key: VerifyingKey) -> Self {
+        Self {
+            verifying_key,
+            household_authority_verifier: HouseholdAuthorityProofVerifier::new(
+                household_authority_key,
+            ),
+        }
     }
 
     pub fn verify(
@@ -62,8 +71,8 @@ impl AuthenticatedDeliveryGrantAuthorityVerifier {
         (
             DeliveryGrantBindings,
             AuthenticatedDeliveryGrantAssertionSnapshot,
-            HouseholdAuthorityInput,
-            PolicyControlDecision,
+            VerifiedHouseholdAuthority,
+            ResolvedPolicyDecision,
             PolicyContractAuthorityDecision,
         ),
         AuthenticatedDeliveryGrantIssuanceError,
@@ -78,11 +87,17 @@ impl AuthenticatedDeliveryGrantAuthorityVerifier {
             .map_err(|_error| {
                 AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
             })?;
+        let household_authority = self
+            .household_authority_verifier
+            .verify(&signed.household_authority_proof)
+            .map_err(|_error| {
+                AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
+            })?;
         Ok((
             signed.bindings.clone(),
             signed.assertions.clone(),
-            signed.household_authority,
-            signed.policy_decision,
+            household_authority,
+            signed.resolved_policy_decision.clone(),
             signed.policy_authority.clone(),
         ))
     }
@@ -107,15 +122,15 @@ impl AuthenticatedDeliveryGrantAuthoritySigner {
         &self,
         bindings: DeliveryGrantBindings,
         assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
-        household_authority: HouseholdAuthorityInput,
-        policy_decision: PolicyControlDecision,
+        household_authority_proof: HouseholdAuthorityProof,
+        resolved_policy_decision: ResolvedPolicyDecision,
         policy_authority: PolicyContractAuthorityDecision,
     ) -> Result<SignedAuthorityBindings, AuthenticatedDeliveryGrantIssuanceError> {
         let unsigned = SignedAuthorityBindings {
             bindings,
             assertions,
-            household_authority,
-            policy_decision,
+            household_authority_proof,
+            resolved_policy_decision,
             policy_authority,
             signature: Vec::new(),
         };
@@ -125,8 +140,8 @@ impl AuthenticatedDeliveryGrantAuthoritySigner {
         Ok(SignedAuthorityBindings {
             bindings: unsigned.bindings,
             assertions: unsigned.assertions,
-            household_authority: unsigned.household_authority,
-            policy_decision: unsigned.policy_decision,
+            household_authority_proof: unsigned.household_authority_proof,
+            resolved_policy_decision: unsigned.resolved_policy_decision,
             policy_authority: unsigned.policy_authority,
             signature,
         })
@@ -139,8 +154,8 @@ fn signing_bytes(
     serde_json::to_vec(&(
         &signed.bindings,
         &signed.assertions,
-        signed.household_authority,
-        signed.policy_decision,
+        &signed.household_authority_proof,
+        &signed.resolved_policy_decision,
         &signed.policy_authority,
     ))
     .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)

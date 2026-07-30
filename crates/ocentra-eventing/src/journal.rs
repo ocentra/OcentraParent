@@ -14,6 +14,12 @@ pub type JournalAppendFuture<'a> =
     Pin<Box<dyn Future<Output = Result<JournalAppend, EventingError>> + Send + 'a>>;
 
 pub trait EventJournal: Send + Sync {
+    /// Explicit capability boundary: proof/replay journals must not authorize
+    /// a production control grant merely because an append was synchronized.
+    fn is_production_durable(&self) -> bool {
+        false
+    }
+
     fn append<'a>(&'a self, envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a>;
 
     fn append_phase<'a>(
