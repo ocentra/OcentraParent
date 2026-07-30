@@ -23,14 +23,16 @@ const CREATE_EXPIRY_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_deli
 const CREATE_AUDIT_GRANT_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_audits_v2_grant_idx ON authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce)";
 const CREATE_VALIDATION_REJECTION_RETENTION_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_audits_v2_validation_rejection_retention_idx ON authenticated_delivery_grant_audits_v2 (audit_scope, recorded_at_nanos DESC)";
 const CREATE_REPLAY_RETENTION_CLOCK: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_replay_retention_v1 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), highest_trusted_now_nanos INTEGER NOT NULL)";
-const UPSERT_REPLAY_RETENTION_CLOCK: &str = "INSERT INTO authenticated_delivery_grant_replay_retention_v1 (singleton, highest_trusted_now_nanos) VALUES (1, ?1) ON CONFLICT(singleton) DO UPDATE SET highest_trusted_now_nanos = MAX(highest_trusted_now_nanos, excluded.highest_trusted_now_nanos)";
+const UPSERT_REPLAY_RETENTION_CLOCK: &str = "INSERT INTO authenticated_delivery_grant_replay_retention_v1 (singleton, highest_trusted_now_nanos) VALUES (1, ?1) ON CONFLICT(singleton) DO UPDATE SET highest_trusted_now_nanos = excluded.highest_trusted_now_nanos WHERE excluded.highest_trusted_now_nanos >= highest_trusted_now_nanos AND excluded.highest_trusted_now_nanos - highest_trusted_now_nanos <= ?2";
 const SELECT_REPLAY_RETENTION_CLOCK: &str = "SELECT highest_trusted_now_nanos FROM authenticated_delivery_grant_replay_retention_v1 WHERE singleton = 1";
+const SELECT_RECOVERABLE_REPLAY_RETENTION_NOW: &str = "SELECT CASE WHEN ?1 > highest_trusted_now_nanos + ?2 THEN ?1 ELSE MAX(highest_trusted_now_nanos, ?1) END FROM authenticated_delivery_grant_replay_retention_v1 WHERE singleton = 1";
 const SELECT_EXPIRED_GRANTS: &str = "SELECT issuer_key_id, nonce FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_nanos <= ?1 ORDER BY expires_at_nanos LIMIT ?2";
 const DELETE_CONSUMED_GRANT: &str =
     "DELETE FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2";
 const DELETE_REPLAY_AUDITS: &str =
     "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay'";
 const MAX_EXPIRED_REPLAY_RECORDS_PER_PURGE: i64 = 128;
+const MAX_RECOVERABLE_REPLAY_RETENTION_ADVANCE_NANOS: i64 = 366 * 24 * 60 * 60 * 1_000_000_000;
 const CREATE_STORAGE_PRIVACY_MARKER: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_storage_privacy_v1 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1))";
 const STORAGE_PRIVACY_MARKER_EXISTS: &str =
     "SELECT 1 FROM authenticated_delivery_grant_storage_privacy_v1 WHERE singleton = 1";
@@ -186,13 +188,24 @@ pub(super) fn advance_replay_retention_clock_transaction(
     observed_now_nanos: i64,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
     transaction
-        .execute(UPSERT_REPLAY_RETENTION_CLOCK, [observed_now_nanos])
+        .execute(
+            UPSERT_REPLAY_RETENTION_CLOCK,
+            [
+                observed_now_nanos,
+                MAX_RECOVERABLE_REPLAY_RETENTION_ADVANCE_NANOS,
+            ],
+        )
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     transaction
-        .query_row(SELECT_REPLAY_RETENTION_CLOCK, [], |row| row.get(0))
-        .optional()
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?
-        .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)
+        .query_row(
+            SELECT_RECOVERABLE_REPLAY_RETENTION_NOW,
+            [
+                observed_now_nanos,
+                MAX_RECOVERABLE_REPLAY_RETENTION_ADVANCE_NANOS,
+            ],
+            |row| row.get::<_, i64>(0),
+        )
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
 }
 
 pub(super) fn migrate_legacy_replay_records(
@@ -403,13 +416,21 @@ fn purge_expired_replay_record_batch(
     let transaction = connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    let purge_cutoff_nanos: i64 = transaction
+        .query_row(SELECT_REPLAY_RETENTION_CLOCK, [], |row| {
+            row.get::<_, i64>(0)
+        })
+        .optional()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?
+        .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?
+        .min(trusted_now_nanos);
     let expired = {
         let mut statement = transaction
             .prepare(SELECT_EXPIRED_GRANTS)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         let rows = statement
             .query_map(
-                params![trusted_now_nanos, MAX_EXPIRED_REPLAY_RECORDS_PER_PURGE],
+                params![purge_cutoff_nanos, MAX_EXPIRED_REPLAY_RECORDS_PER_PURGE],
                 |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
             )
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;

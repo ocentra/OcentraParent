@@ -222,6 +222,87 @@ fn consumer_keeps_rejection_audits_across_forward_clock_correction() -> TestResu
 }
 
 #[test]
+fn consumer_recovers_from_a_future_clock_jump_without_dropping_replay_tombstones() -> TestResult {
+    let key = SigningKey::from_bytes(&[27; 32]);
+    let path = store_path("recoverable-future-replay-retention-clock");
+    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:01:00Z",
+    ))?;
+    let mut tombstone = signed_grant(&key);
+    tombstone.nonce = "future-clock-tombstone".to_owned();
+    tombstone.expires_at = "2027-07-28T00:10:00Z".to_owned();
+    tombstone.signature = key.sign(&tombstone.signing_bytes()).to_bytes().to_vec();
+    let tombstone_outcome = consumer.consume_at_for_debug_test(
+        &tombstone,
+        &expected(),
+        DELIVERED_PAYLOAD,
+        "tombstone",
+        "2026-07-28T00:01:00Z",
+    );
+    assert!(matches!(
+        tombstone_outcome,
+        Ok(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_))
+    ), "{tombstone_outcome:?}");
+    let mut future_grant = signed_grant(&key);
+    future_grant.nonce = "future-clock-probe".to_owned();
+    future_grant.issued_at = "2030-07-28T00:00:00Z".to_owned();
+    future_grant.expires_at = "2030-07-28T00:05:00Z".to_owned();
+    future_grant.signature = key.sign(&future_grant.signing_bytes()).to_bytes().to_vec();
+    assert_eq!(
+        consumer.inject_trusted_now_after_transaction_for_debug("2030-07-28T00:01:00Z"),
+        Ok(())
+    );
+    let future_outcome = consumer.consume_at_for_debug_test(
+        &future_grant,
+        &expected(),
+        DELIVERED_PAYLOAD,
+        "future-clock-probe",
+        "2030-07-28T00:01:00Z",
+    );
+    assert!(matches!(
+        future_outcome,
+        Ok(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_))
+    ), "{future_outcome:?}");
+    drop(consumer);
+
+    let mut recovered = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:02:00Z",
+    ))?;
+    let mut ordinary_grant = signed_grant(&key);
+    ordinary_grant.nonce = "recovered-ordinary-grant".to_owned();
+    ordinary_grant.expires_at = "2027-07-28T00:30:00Z".to_owned();
+    ordinary_grant.signature = key
+        .sign(&ordinary_grant.signing_bytes())
+        .to_bytes()
+        .to_vec();
+    assert!(matches!(
+        recovered.consume_at_for_debug_test(
+            &ordinary_grant,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "recovered",
+            "2026-07-28T00:02:00Z",
+        ),
+        Ok(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_))
+    ));
+    assert!(matches!(
+        recovered.consume_at_for_debug_test(
+            &tombstone,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "replay",
+            "2026-07-28T00:02:00Z",
+        ),
+        Ok(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_))
+    ));
+    Ok(())
+}
+
+#[test]
 fn consumer_bounds_distinct_validation_rejection_audits_across_restart() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("bounded-distinct-validation-rejections");
