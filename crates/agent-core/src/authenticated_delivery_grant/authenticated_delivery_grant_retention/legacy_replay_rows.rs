@@ -2,9 +2,10 @@ use ocentra_schema::authenticated_delivery_grant::{
     AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
 };
-use rusqlite::{params, Connection, Transaction, TransactionBehavior};
+use rusqlite::{params, Connection, Transaction};
 
 use crate::authenticated_delivery_grant::{
+    sqlite_contention::immediate_transaction_with_contention_retry,
     AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantTrustedIssuer,
 };
 
@@ -32,8 +33,7 @@ pub(super) fn migrate_legacy_replay_records(
     if !has_legacy_json {
         return Ok(());
     }
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
+    let transaction = immediate_transaction_with_contention_retry(connection)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     transaction
         .execute(CREATE_FINGERPRINT_REPLAY_TABLE, [])

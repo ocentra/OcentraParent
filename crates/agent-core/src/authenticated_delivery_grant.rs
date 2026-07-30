@@ -7,15 +7,17 @@ use ocentra_schema::authenticated_delivery_grant::{
     authenticated_delivery_grant_audit_fingerprint, AuthenticatedDeliveryGrant,
     AuthenticatedDeliveryGrantInstant, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
 };
-use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
+use rusqlite::{params, Connection, OptionalExtension, Transaction};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 mod authenticated_delivery_grant_retention;
 mod rejection_audit;
+mod sqlite_contention;
 mod storage_keys;
 mod validation;
 
+use sqlite_contention::immediate_transaction_with_contention_retry;
 use storage_keys::{audit, storage_key_digest, validate_trusted_issuer};
 
 const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_fingerprint TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER NOT NULL, PRIMARY KEY (issuer_key_id, nonce))";
@@ -267,9 +269,7 @@ impl AuthenticatedDeliveryGrantConsumer {
     {
         #[cfg(debug_assertions)]
         let debug_trusted_now_after_transaction = self.debug_trusted_now_after_transaction;
-        let transaction = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)
+        let transaction = immediate_transaction_with_contention_retry(&self.connection)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         let post_begin_observed_now = validation::trusted_now_after_transaction(
             #[cfg(debug_assertions)]
@@ -401,9 +401,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         let audit = bounded_shape_rejection_audit(grant, correlation_id, rejection);
         let issuer_key_id = audit.issuer_key_id_digest.clone();
         let nonce = audit.nonce_digest.clone();
-        let result = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)
+        let result = immediate_transaction_with_contention_retry(&self.connection)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
             .and_then(|transaction| {
                 let audit_json = serde_json::to_string(&audit)

@@ -5,12 +5,13 @@ use ocentra_schema::authenticated_delivery_grant::{
     AUTHENTICATED_DELIVERY_GRANT_PAYLOAD_DIGEST_HEX_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES,
 };
-use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
+use rusqlite::{params, Connection, OptionalExtension, Transaction};
 use serde::Deserialize;
 
 use crate::authenticated_delivery_grant::storage_keys::storage_key_digest;
 use crate::authenticated_delivery_grant::{
-    digest, AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantTrustedIssuer,
+    digest, sqlite_contention::immediate_transaction_with_contention_retry,
+    AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantTrustedIssuer,
 };
 
 mod clock;
@@ -76,8 +77,7 @@ fn migrate_raw_storage_keys(
     connection
         .execute(CREATE_STORAGE_PRIVACY_MARKER, [])
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
+    let transaction = immediate_transaction_with_contention_retry(connection)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     let migrated = transaction
         .query_row(STORAGE_PRIVACY_MARKER_EXISTS, [], |_row| Ok(()))
@@ -177,8 +177,7 @@ pub(super) fn advance_replay_retention_clock(
     connection: &mut Connection,
     observed_now_nanos: i64,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
+    let transaction = immediate_transaction_with_contention_retry(connection)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     let effective_now_nanos =
         advance_replay_retention_clock_transaction(&transaction, observed_now_nanos)?;
@@ -400,8 +399,7 @@ fn purge_expired_replay_record_batch(
     connection: &mut Connection,
     trusted_now_nanos: i64,
 ) -> Result<usize, AuthenticatedDeliveryGrantConsumeError> {
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
+    let transaction = immediate_transaction_with_contention_retry(connection)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     let Some(purge_cutoff_nanos) = clock::confirmed_purge_cutoff(&transaction, trusted_now_nanos)?
     else {
