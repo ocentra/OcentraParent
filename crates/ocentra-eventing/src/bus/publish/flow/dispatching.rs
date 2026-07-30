@@ -19,6 +19,7 @@ pub(super) async fn publish_without_subscribers(
         .enqueue_no_subscriber(stored.clone(), bus.clock.now())?
     {
         NoSubscriberQueueDecision::Dispatch(queue_report) => {
+            let reservation = bus.queue.reserve_dispatch(&stored)?;
             bus.record_stored_snapshot(&stored).await;
             let mut report = empty_publish_report(&stored, dispatch_mode, queue_report, 0);
             if let Some(append) = bus
@@ -27,6 +28,7 @@ pub(super) async fn publish_without_subscribers(
             {
                 report.journal_appends.push(append);
             }
+            reservation.complete();
             Ok(report)
         }
         NoSubscriberQueueDecision::Queued(queue_report) => {
