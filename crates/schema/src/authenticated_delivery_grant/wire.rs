@@ -33,6 +33,8 @@ const GRANT_WIRE_FIELD_NAMES: &[&str] = &[
     "signature",
 ];
 
+const AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_FIELD_NAME_BYTES: usize = 128;
+
 const GRANT_WIRE_FIELD_KINDS: &[GrantWireFieldKind] = &[
     GrantWireFieldKind::SchemaVersion,
     GrantWireFieldKind::String,
@@ -87,6 +89,11 @@ impl Visitor<'_> for GrantWireFieldVisitor {
     where
         E: serde::de::Error,
     {
+        if value.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_FIELD_NAME_BYTES {
+            return Err(E::custom(
+                "authenticated delivery grant encoded field name exceeds its byte limit",
+            ));
+        }
         GRANT_WIRE_FIELD_NAMES
             .iter()
             .position(|name| *name == value)

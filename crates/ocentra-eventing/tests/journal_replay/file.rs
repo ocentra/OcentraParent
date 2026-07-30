@@ -552,6 +552,39 @@ async fn live_journal_rejects_same_length_hash_chain_tampering_before_append() {
     cleanup(path).await;
 }
 
+#[tokio::test]
+async fn hash_chain_rejects_tampered_append_durability() {
+    let path = journal_path(TestText("durability-hash-chain-tamper".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal
+        .append(&unique_stored_event("durable event", 56))
+        .await
+        .expect_value("synchronized append");
+    let original = tokio::fs::read_to_string(&path.0)
+        .await
+        .expect_value("journal reads");
+    let tampered = original.replace(
+        "\"durability\":\"Synchronized\"",
+        "\"durability\":\"Buffered\"",
+    );
+    assert_ne!(
+        tampered, original,
+        "fixture must alter the authenticated durability claim"
+    );
+    tokio::fs::write(&path.0, tampered)
+        .await
+        .expect_value("durability tamper writes");
+
+    let result = journal
+        .append(&unique_stored_event("after durability tamper", 57))
+        .await;
+    assert!(matches!(
+        result,
+        Err(EventingError::JournalCorruptLine { line: 1, .. })
+    ));
+    cleanup(path).await;
+}
+
 async fn cleanup_idempotent_journal(path: JournalPath) {
     let lock_path = append_lock_path(&path);
     cleanup(path).await;

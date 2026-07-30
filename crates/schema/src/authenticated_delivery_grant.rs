@@ -26,6 +26,7 @@ pub const AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES: usize = 64;
 pub const AUTHENTICATED_DELIVERY_GRANT_PAYLOAD_DIGEST_HEX_BYTES: usize = 64;
 pub const AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES: usize = 512;
 pub const AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES: usize = 4_096;
+pub const AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_WIRE_BYTES: usize = 65_536;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct AuthenticatedDeliveryGrantInstant(i128);
@@ -68,6 +69,15 @@ pub enum AuthenticatedDeliveryGrantValidationError {
 }
 
 impl AuthenticatedDeliveryGrant {
+    pub fn decode_json_wire(input: &str) -> Result<Self, String> {
+        if input.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_WIRE_BYTES {
+            return Err(
+                "authenticated delivery grant encoded wire exceeds its byte limit".to_owned(),
+            );
+        }
+        serde_json::from_str(input).map_err(|error| error.to_string())
+    }
+
     pub fn validate_shape(&self) -> Result<(), AuthenticatedDeliveryGrantValidationError> {
         if self.schema_version != AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION {
             return Err(AuthenticatedDeliveryGrantValidationError::UnsupportedSchemaVersion);

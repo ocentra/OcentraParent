@@ -3,15 +3,18 @@ use sha2::{Digest, Sha256};
 
 use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
-use super::ndjson::NdjsonJournalEntry;
+use super::{ndjson::NdjsonJournalEntry, JournalAppendDurability};
 
 const JOURNAL_HASH_PREFIX: &str = "journal-hash:";
+const JOURNAL_HASH_VERSION: u8 = 2;
 
 #[derive(Serialize)]
 struct JournalHashInput<'a> {
+    version: u8,
     sequence: u64,
     previous_hash: Option<&'a JournalHash>,
     phase: JournalDispatchPhase,
+    durability: JournalAppendDurability,
     envelope: &'a StoredEventEnvelope,
 }
 
@@ -20,11 +23,14 @@ pub(super) fn hash_entry(
     previous_hash: Option<&JournalHash>,
     envelope: &StoredEventEnvelope,
     phase: JournalDispatchPhase,
+    durability: JournalAppendDurability,
 ) -> Result<JournalHash, EventingError> {
     let input = JournalHashInput {
+        version: JOURNAL_HASH_VERSION,
         sequence,
         previous_hash,
         phase,
+        durability,
         envelope,
     };
     let bytes =
@@ -58,6 +64,7 @@ pub(crate) fn verify_hash_chain_entry(
         entry.append.previous_hash.as_ref(),
         &entry.envelope,
         entry.phase,
+        entry.append.durability,
     )
     .map_err(|error| error.to_string())?;
     match &entry.append.current_hash {
