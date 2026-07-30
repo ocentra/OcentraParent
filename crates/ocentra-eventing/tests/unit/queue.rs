@@ -115,6 +115,65 @@ async fn before_dispatch_journal_is_durable_without_a_subscriber() {
 }
 
 #[tokio::test]
+async fn no_subscriber_before_dispatch_reserves_idempotency_without_duplicate_journal_records() {
+    let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
+    let policy = EventQueuePolicy::default().with_idempotency_registry();
+    let event_journal: Arc<dyn EventJournal> = journal.clone();
+    let bus = EventBus::with_journal_and_queue_policy(
+        JournalPolicy::before_dispatch(JournalSelector::All),
+        event_journal,
+        policy,
+    );
+
+    bus.publish(
+        test_event_with_idempotency(
+            TestText("first no-subscriber dispatch".to_owned()),
+            TestText("no-subscriber-idempotency-key".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("no-subscriber-idempotency-event-1".to_owned()),
+        ),
+    )
+    .await
+    .expect_value("first no-subscriber dispatch journals once");
+
+    let duplicate = bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("duplicate no-subscriber dispatch".to_owned()),
+                TestText("no-subscriber-idempotency-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("no-subscriber-idempotency-event-2".to_owned()),
+            ),
+        )
+        .await;
+
+    assert!(matches!(
+        duplicate,
+        Err(EventingError::DuplicateIdempotencyKey { .. })
+    ));
+    assert_eq!(journal.calls(), 1);
+
+    bus.publish(
+        test_event_with_idempotency(
+            TestText("later no-subscriber dispatch".to_owned()),
+            TestText("no-subscriber-idempotency-key-later".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("no-subscriber-idempotency-event-3".to_owned()),
+        ),
+    )
+    .await
+    .expect_value("later no-subscriber dispatch continues after duplicate rejection");
+
+    assert_eq!(journal.calls(), 2);
+}
+
+#[tokio::test]
 async fn subscriber_auto_drain_only_drains_matching_event_type() {
     let bus = EventBus::with_queue_policy(
         EventQueuePolicy::no_subscriber_queue(4).expect_value("queue policy is valid"),
@@ -571,6 +630,10 @@ impl FailingJournal {
             calls: StdMutex::new(0),
             fail_once_on: call,
         }
+    }
+
+    fn calls(&self) -> usize {
+        *self.calls.lock().expect_value("failing journal lock")
     }
 }
 
