@@ -19,7 +19,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 #[derive(Default)]
-pub(super) struct InMemoryMilestoneJournal {
+pub(crate) struct InMemoryMilestoneJournal {
     next_sequence: AtomicU64,
 }
 
