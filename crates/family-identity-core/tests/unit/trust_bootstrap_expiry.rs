@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ocentra_eventing::ids::CorrelationId;
@@ -11,6 +11,7 @@ use ocentra_family_identity_core::parent_presence::{
     ParentPresenceStorageFailureReason, ParentPresenceVerificationFailureReason,
     ParentPresenceVerificationInput, ParentPresenceVerificationPort,
 };
+use rusqlite::Connection;
 
 use super::open_parent_presence_test_port;
 
@@ -79,7 +80,8 @@ fn port(
     prefix: &str,
 ) -> Result<(PathBuf, ParentPresenceVerificationPort), ParentPresenceStorageFailureReason> {
     let root = std::env::temp_dir().join(format!(
-        "ocentra-parent-presence-expiry-{prefix}-{}",
+        "ocentra-parent-presence-expiry-{prefix}-{}-{}",
+        std::process::id(),
         NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
     ));
     fs::create_dir_all(&root)
@@ -93,7 +95,8 @@ fn port_at(
     observed_at: &str,
 ) -> Result<(PathBuf, ParentPresenceVerificationPort), ParentPresenceStorageFailureReason> {
     let root = std::env::temp_dir().join(format!(
-        "ocentra-parent-presence-expiry-at-{prefix}-{}",
+        "ocentra-parent-presence-expiry-at-{prefix}-{}-{}",
+        std::process::id(),
         NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
     ));
     fs::create_dir_all(&root)
@@ -101,6 +104,26 @@ fn port_at(
     let path = root.join("parent-presence.sqlite");
     ParentPresenceVerificationPort::open_unsealed_test_custody_at(&path, observed_at)
         .map(|port| (root, port))
+}
+
+fn assert_challenge_not_reserved(
+    root: &Path,
+    case: &TestCase,
+) -> Result<(), ParentPresenceStorageFailureReason> {
+    let connection = Connection::open(root.join("parent-presence.sqlite"))
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let count: i64 = connection
+        .query_row(
+            "SELECT COUNT(*) FROM parent_presence_challenges WHERE challenge_ref = ?1 OR nonce_ref = ?2",
+            [&case.challenge_ref, &case.nonce_ref],
+            |row| row.get(0),
+        )
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_eq!(
+        count, 0,
+        "invalid expiry must not reserve challenge identities"
+    );
+    Ok(())
 }
 
 #[test]
@@ -117,6 +140,7 @@ fn parent_presence_issuance_rejects_invalid_expiry_without_reserving_identities(
             port.issue_challenge(challenge(&case, invalid)),
             Err(ParentPresenceChallengeIssuanceFailureReason::TimestampInvalid)
         );
+        assert_challenge_not_reserved(&root, &case)?;
         assert_eq!(
             port.issue_challenge(challenge(&case, ACCEPTED_EXPIRY)),
             Ok(())
