@@ -28,6 +28,12 @@ pub(super) async fn publish_without_subscribers(
             {
                 report.journal_appends.push(append);
             }
+            if let Some(append) = bus
+                .append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
+                .await?
+            {
+                report.journal_appends.push(append);
+            }
             reservation.complete();
             Ok(report)
         }

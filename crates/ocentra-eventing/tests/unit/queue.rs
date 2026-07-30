@@ -15,6 +15,7 @@ use crate::{
     JournalAppend, JournalPolicy, JournalSelector, QueueDisposition, StoredEventEnvelope,
 };
 use ocentra_eventing::bus::reports::dead_letter::DeadLetterReason;
+use ocentra_eventing::journal::policy::JournalDispatchPhase;
 use ocentra_eventing::journal::{JournalAppendDurability, JournalHashVersion};
 
 fn failing_journal_result(
@@ -95,7 +96,7 @@ async fn before_dispatch_journal_is_durable_without_a_subscriber() {
     let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
     let bus = EventBus::with_journal(
         JournalPolicy::before_dispatch(JournalSelector::All),
-        journal,
+        journal.clone(),
     );
 
     let report = bus
@@ -113,6 +114,127 @@ async fn before_dispatch_journal_is_durable_without_a_subscriber() {
     );
     assert_eq!(report.journal_appends.len(), 1);
     assert!(report.journal_appends[0].is_synchronized());
+    assert_eq!(journal.phases(), vec![JournalDispatchPhase::BeforeDispatch]);
+}
+
+#[tokio::test]
+async fn no_subscriber_after_dispatch_journal_records_the_after_phase() {
+    let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
+    let bus = EventBus::with_journal(
+        JournalPolicy::after_dispatch(JournalSelector::All),
+        journal.clone(),
+    );
+
+    let report = bus
+        .publish(
+            test_event(TestText("after-only no-subscriber".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("after-dispatch journal persists without a subscriber");
+
+    assert_eq!(report.subscriber_count, 0);
+    assert_eq!(report.journal_appends.len(), 1);
+    assert_eq!(journal.phases(), vec![JournalDispatchPhase::AfterDispatch]);
+}
+
+#[tokio::test]
+async fn no_subscriber_before_and_after_journal_completes_idempotency_after_both_phases() {
+    let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
+    let policy = EventQueuePolicy::default().with_idempotency_registry();
+    let bus = EventBus::with_journal_and_queue_policy(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        journal.clone(),
+        policy,
+    );
+
+    bus.publish(
+        test_event_with_idempotency(
+            TestText("both-phase no-subscriber".to_owned()),
+            TestText("both-phase-no-subscriber-key".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("both-phase-no-subscriber-event-1".to_owned()),
+        ),
+    )
+    .await
+    .expect_value("both phases persist before idempotency completion");
+
+    let duplicate = bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("both-phase duplicate".to_owned()),
+                TestText("both-phase-no-subscriber-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("both-phase-no-subscriber-event-2".to_owned()),
+            ),
+        )
+        .await;
+
+    assert!(matches!(
+        duplicate,
+        Err(EventingError::DuplicateIdempotencyKey { .. })
+    ));
+    assert_eq!(
+        journal.phases(),
+        vec![
+            JournalDispatchPhase::BeforeDispatch,
+            JournalDispatchPhase::AfterDispatch,
+        ]
+    );
+}
+
+#[tokio::test]
+async fn no_subscriber_after_phase_failure_releases_idempotency_for_full_phase_retry() {
+    let journal = Arc::new(FailingJournal::fail_once_on(2));
+    let policy = EventQueuePolicy::default().with_idempotency_registry();
+    let bus = EventBus::with_journal_and_queue_policy(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        journal.clone(),
+        policy,
+    );
+
+    let first = bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("retry both-phase no-subscriber".to_owned()),
+                TestText("retry-both-phase-no-subscriber-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("retry-both-phase-no-subscriber-event-1".to_owned()),
+            ),
+        )
+        .await;
+    assert!(matches!(first, Err(EventingError::JournalIo { .. })));
+
+    let replay = bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("retry both-phase no-subscriber".to_owned()),
+                TestText("retry-both-phase-no-subscriber-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("retry-both-phase-no-subscriber-event-2".to_owned()),
+            ),
+        )
+        .await
+        .expect_value("retry persists the previously missing after phase");
+
+    assert_eq!(replay.journal_appends.len(), 2);
+    assert_eq!(
+        journal.phases(),
+        vec![
+            JournalDispatchPhase::BeforeDispatch,
+            JournalDispatchPhase::AfterDispatch,
+            JournalDispatchPhase::BeforeDispatch,
+            JournalDispatchPhase::AfterDispatch,
+        ]
+    );
 }
 
 #[tokio::test]
@@ -622,6 +744,7 @@ async fn after_dispatch_journal_failure_does_not_replay_handler_work() {
 
 struct FailingJournal {
     calls: StdMutex<usize>,
+    phases: StdMutex<Vec<JournalDispatchPhase>>,
     fail_once_on: usize,
 }
 
@@ -629,12 +752,20 @@ impl FailingJournal {
     fn fail_once_on(call: usize) -> Self {
         Self {
             calls: StdMutex::new(0),
+            phases: StdMutex::new(Vec::new()),
             fail_once_on: call,
         }
     }
 
     fn calls(&self) -> usize {
         *self.calls.lock().expect_value("failing journal lock")
+    }
+
+    fn phases(&self) -> Vec<JournalDispatchPhase> {
+        self.phases
+            .lock()
+            .expect_value("failing journal phase lock")
+            .clone()
     }
 }
 
@@ -651,5 +782,17 @@ impl EventJournal for FailingJournal {
             };
             failing_journal_result(call, self.fail_once_on)
         })
+    }
+
+    fn append_phase<'a>(
+        &'a self,
+        envelope: &'a StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> Pin<Box<dyn Future<Output = Result<JournalAppend, EventingError>> + Send + 'a>> {
+        self.phases
+            .lock()
+            .expect_value("failing journal phase lock")
+            .push(phase);
+        self.append(envelope)
     }
 }
