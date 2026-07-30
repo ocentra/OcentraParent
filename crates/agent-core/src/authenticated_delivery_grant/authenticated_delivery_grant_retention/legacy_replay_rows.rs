@@ -14,8 +14,13 @@ use super::{
     INSERT_FINGERPRINT_REPLAY_ROW, RENAME_FINGERPRINT_REPLAY_TABLE,
 };
 
-const SELECT_LEGACY_REPLAY_ROW_METADATA: &str = "SELECT rowid, length(CAST(issuer_key_id AS BLOB)), length(CAST(nonce AS BLOB)), length(CAST(grant_json AS BLOB)), length(CAST(audit_json AS BLOB)) FROM authenticated_delivery_grant_consumes_v2 WHERE rowid > ?1 ORDER BY rowid LIMIT ?2";
-const SELECT_LEGACY_REPLAY_ROW: &str = "SELECT issuer_key_id, nonce, grant_json, audit_json FROM authenticated_delivery_grant_consumes_v2 WHERE rowid = ?1";
+const SELECT_LEGACY_REPLAY_ROW_METADATA: &str = "SELECT rowid, length(CAST(issuer_key_id AS BLOB)), length(CAST(nonce AS BLOB)), length(CAST(grant_json AS BLOB)) FROM authenticated_delivery_grant_consumes_v2 WHERE rowid > ?1 ORDER BY rowid LIMIT ?2";
+const SELECT_LEGACY_REPLAY_ROW: &str =
+    "SELECT issuer_key_id, nonce, grant_json FROM authenticated_delivery_grant_consumes_v2 WHERE rowid = ?1";
+const SELECT_LEGACY_REPLAY_AUDIT_JSON_BYTES: &str =
+    "SELECT length(CAST(audit_json AS BLOB)) FROM authenticated_delivery_grant_consumes_v2 WHERE rowid = ?1";
+const SELECT_LEGACY_REPLAY_AUDIT_JSON: &str =
+    "SELECT audit_json FROM authenticated_delivery_grant_consumes_v2 WHERE rowid = ?1";
 const MAX_LEGACY_REPLAY_ROWS_PER_MIGRATION_BATCH: i64 = 128;
 const MAX_LEGACY_REPLAY_GRANT_JSON_BYTES: usize = AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES
     * 6
@@ -46,7 +51,7 @@ pub(super) fn migrate_legacy_replay_records(
         }
         for legacy_row in legacy_rows {
             legacy_row.validate_raw_payload_bounds()?;
-            let (issuer_key_id, nonce, grant_json, audit_json) =
+            let (issuer_key_id, nonce, grant_json) =
                 legacy_replay_row(&transaction, legacy_row.row_id)?;
             last_row_id = legacy_row.row_id;
             let migration = parse_legacy_replay_grant(&grant_json, trusted_issuer)?;
@@ -59,6 +64,7 @@ pub(super) fn migrate_legacy_replay_records(
                 .ok()
                 .and_then(|instant| instant.timestamp_nanos_opt())
                 .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+            let audit_json = legacy_replay_audit_json(&transaction, legacy_row.row_id)?;
             transaction
                 .execute(
                     INSERT_FINGERPRINT_REPLAY_ROW,
@@ -98,7 +104,6 @@ pub(super) fn legacy_replay_row_metadata(
                     issuer_key_id_bytes: row.get(1)?,
                     nonce_bytes: row.get(2)?,
                     grant_json_bytes: row.get(3)?,
-                    audit_json_bytes: row.get(4)?,
                 })
             },
         )
@@ -110,11 +115,29 @@ pub(super) fn legacy_replay_row_metadata(
 pub(super) fn legacy_replay_row(
     transaction: &Transaction<'_>,
     row_id: i64,
-) -> Result<(String, String, String, String), AuthenticatedDeliveryGrantConsumeError> {
+) -> Result<(String, String, String), AuthenticatedDeliveryGrantConsumeError> {
     transaction
         .query_row(SELECT_LEGACY_REPLAY_ROW, [row_id], |row| {
-            Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+            Ok((row.get(0)?, row.get(1)?, row.get(2)?))
         })
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)
+}
+
+fn legacy_replay_audit_json(
+    transaction: &Transaction<'_>,
+    row_id: i64,
+) -> Result<String, AuthenticatedDeliveryGrantConsumeError> {
+    let bytes: i64 = transaction
+        .query_row(SELECT_LEGACY_REPLAY_AUDIT_JSON_BYTES, [row_id], |row| {
+            row.get(0)
+        })
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+    (0..=MAX_LEGACY_REPLAY_AUDIT_JSON_BYTES as i64)
+        .contains(&bytes)
+        .then_some(())
+        .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+    transaction
+        .query_row(SELECT_LEGACY_REPLAY_AUDIT_JSON, [row_id], |row| row.get(0))
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)
 }
 
@@ -123,7 +146,6 @@ pub(super) struct LegacyReplayRowMetadata {
     issuer_key_id_bytes: i64,
     nonce_bytes: i64,
     grant_json_bytes: i64,
-    audit_json_bytes: i64,
 }
 
 impl LegacyReplayRowMetadata {
@@ -134,13 +156,11 @@ impl LegacyReplayRowMetadata {
             self.issuer_key_id_bytes,
             self.nonce_bytes,
             self.grant_json_bytes,
-            self.audit_json_bytes,
         ];
         let payload_limits = [
             AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES as i64,
             AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES as i64,
             MAX_LEGACY_REPLAY_GRANT_JSON_BYTES as i64,
-            MAX_LEGACY_REPLAY_AUDIT_JSON_BYTES as i64,
         ];
         payload_sizes
             .into_iter()

@@ -3,7 +3,10 @@ use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantConsumer,
 };
 use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrant;
-use ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES;
+use ocentra_schema::authenticated_delivery_grant::{
+    AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
+};
 use rusqlite::{params, Connection};
 
 use super::{must, signed_grant, store_path, stored_key, trusted_issuer, TestResult};
@@ -227,6 +230,38 @@ fn consumer_rejects_oversized_legacy_replay_json_before_migration() -> TestResul
             grant.nonce,
             "x".repeat(AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES * 8),
             "{}",
+            1_i64
+        ],
+    )?;
+    drop(connection);
+    assert!(matches!(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2026-07-28T00:01:00Z",
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)
+    ));
+    Ok(())
+}
+
+#[test]
+fn consumer_rejects_oversized_legacy_replay_audit_before_materializing_it() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let grant = signed_grant(&key);
+    let path = store_path("oversized-legacy-replay-audit");
+    let connection = Connection::open(path.as_ref())?;
+    connection.execute(
+        "CREATE TABLE authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_micros INTEGER, PRIMARY KEY (issuer_key_id, nonce))",
+        [],
+    )?;
+    connection.execute(
+        "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_micros) VALUES (?1, ?2, ?3, ?4, ?5)",
+        params![
+            grant.issuer_key_id,
+            grant.nonce,
+            legacy_grant_json(&grant, &key)?,
+            "x".repeat(AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES * 8 + 1),
             1_i64
         ],
     )?;
