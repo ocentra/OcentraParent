@@ -1,5 +1,7 @@
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
+use ocentra_eventing::ids::CorrelationId;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use ocentra_family_identity_core::household_authority::HouseholdAuthorityInput;
 use ocentra_schema::authenticated_delivery_grant::{
@@ -25,6 +27,23 @@ pub struct SignedAuthorityBindings {
     /// The trusted producer's policy contract authority is signed before grant issuance.
     pub policy_authority: PolicyContractAuthorityDecision,
     pub signature: Vec<u8>,
+}
+
+impl SignedAuthorityBindings {
+    /// Derives the issuance audit chain identifier from authority material only
+    /// after the caller has verified this envelope's signature. The request's
+    /// correlation value is intentionally never an audit authority input.
+    pub(crate) fn trusted_issuance_correlation_id(
+        &self,
+    ) -> Result<CorrelationId, AuthenticatedDeliveryGrantIssuanceError> {
+        let mut hasher = Sha256::new();
+        hasher.update(signing_bytes(self)?);
+        CorrelationId::parse(format!(
+            "authenticated-delivery-grant:issuance:v1:{:x}",
+            hasher.finalize()
+        ))
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+    }
 }
 
 pub struct AuthenticatedDeliveryGrantAuthorityVerifier {

@@ -26,6 +26,7 @@ const SCHEMA_VERSION: u16 = 2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AuthenticatedDeliveryGrantIssuanceOutcome {
+    Prepared,
     Accepted,
     Rejected,
 }
@@ -204,21 +205,35 @@ pub(crate) fn rejection_for(
     issuance_rejection(error)
 }
 
-pub(crate) fn issuance_milestone_for(
-    result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
+pub(crate) fn prepared_issuance_milestone_for(
+    grant: &AuthenticatedDeliveryGrant,
 ) -> AuthenticatedDeliveryGrantIssuanceMilestone {
-    match result {
-        Ok(grant) => AuthenticatedDeliveryGrantIssuanceMilestone {
-            outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
-            rejection: None,
-            grant_fingerprint: Some(authenticated_delivery_grant_audit_fingerprint(grant)),
-            redaction_state: true,
-        },
-        Err(error) => AuthenticatedDeliveryGrantIssuanceMilestone {
-            outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
-            rejection: Some(rejection_for(*error)),
-            grant_fingerprint: None,
-            redaction_state: true,
-        },
+    AuthenticatedDeliveryGrantIssuanceMilestone {
+        outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Prepared,
+        rejection: None,
+        grant_fingerprint: Some(authenticated_delivery_grant_audit_fingerprint(grant)),
+        redaction_state: true,
+    }
+}
+
+pub(crate) fn accepted_issuance_milestone_for(
+    grant: &AuthenticatedDeliveryGrant,
+) -> AuthenticatedDeliveryGrantIssuanceMilestone {
+    AuthenticatedDeliveryGrantIssuanceMilestone {
+        outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
+        rejection: None,
+        grant_fingerprint: Some(authenticated_delivery_grant_audit_fingerprint(grant)),
+        redaction_state: true,
+    }
+}
+
+pub(crate) fn rejected_issuance_milestone_for(
+    error: AuthenticatedDeliveryGrantIssuanceError,
+) -> AuthenticatedDeliveryGrantIssuanceMilestone {
+    AuthenticatedDeliveryGrantIssuanceMilestone {
+        outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
+        rejection: Some(rejection_for(error)),
+        grant_fingerprint: None,
+        redaction_state: true,
     }
 }

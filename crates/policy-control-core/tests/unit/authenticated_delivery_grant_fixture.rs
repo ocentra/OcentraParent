@@ -1,3 +1,4 @@
+use super::authenticated_delivery_grant::IssuanceFixture;
 use super::TestResult;
 use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::EventBus;
@@ -109,4 +110,19 @@ pub(super) fn assert_durable_milestone_count(
     assert_eq!(journal.lines().count(), expected_count, "{description}");
     std::fs::remove_file(journal_path)?;
     Ok(())
+}
+
+pub(super) fn issuance_fixture_with_expiry(
+    mut fixture: IssuanceFixture,
+    expires_at: &str,
+) -> IssuanceFixture {
+    fixture.bindings.expires_at = expires_at.to_owned();
+    fixture
+        .parent_step_up
+        .validation
+        .assertion
+        .as_mut()
+        .expect("fixture always includes a step-up assertion")
+        .expires_at = expires_at.to_owned();
+    fixture
 }

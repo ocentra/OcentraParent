@@ -160,10 +160,10 @@ pub(super) struct IssuanceFixture {
     policy_decision: PolicyControlDecision,
     policy_authority: PolicyContractAuthorityDecision,
     canonical_authorization: CanonicalDeliveryGrantAuthorization,
-    parent_step_up: ParentStepUpGrantAuthorization,
+    pub(super) parent_step_up: ParentStepUpGrantAuthorization,
     capability_state: DeliveryGrantCapabilityState,
     evidence_state: DeliveryGrantEvidenceState,
-    bindings: DeliveryGrantBindings,
+    pub(super) bindings: DeliveryGrantBindings,
 }
 
 impl IssuanceFixture {
@@ -593,14 +593,23 @@ fn issuer_requires_durable_receipt_and_awaits_safely_inside_an_entered_tokio_run
     assert_eq!(grant.issuer_key_id, "parent-key-1");
     assert_eq!(grant.target_device_id, "child-device-1");
     let journal = runtime.block_on(event_bus.journal());
-    assert_eq!(journal.len(), 1, "accepted issuance audit must be retained");
+    assert_eq!(
+        journal.len(),
+        2,
+        "accepted issuance must retain prepare and terminal milestones"
+    );
     let milestone = journal[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
     assert_eq!(
         milestone.payload.outcome,
-        AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
+        AuthenticatedDeliveryGrantIssuanceOutcome::Prepared
     );
     assert_eq!(milestone.payload.rejection, None);
     assert!(milestone.payload.redaction_state);
+    let terminal = journal[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+    assert_eq!(
+        terminal.payload.outcome,
+        AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
+    );
 
     runtime.block_on(async {
         let grant = test_ok!(
@@ -611,10 +620,10 @@ fn issuer_requires_durable_receipt_and_awaits_safely_inside_an_entered_tokio_run
         let journal = event_bus.journal().await;
         assert_eq!(
             journal.len(),
-            2,
-            "issuance must not return before each milestone is retained"
+            4,
+            "issuance must not return before its prepare and terminal milestones are retained"
         );
-        let milestone = journal[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        let milestone = journal[3].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
         assert_eq!(
             milestone.payload.outcome,
             AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
@@ -634,12 +643,12 @@ fn issuer_requires_durable_receipt_and_awaits_safely_inside_an_entered_tokio_run
     let journal = inspection_runtime.block_on(event_bus.journal());
     assert_eq!(
         journal.len(),
-        2,
+        4,
         "runtime shutdown must not erase retained milestones"
     );
     assert_durable_milestone_count(
         &journal_path,
-        2,
-        "both sync and async issuance calls must have durable receipts",
+        4,
+        "both sync and async issuance calls must have durable prepare and terminal receipts",
     )
 }
