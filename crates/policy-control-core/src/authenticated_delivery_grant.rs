@@ -127,6 +127,8 @@ pub struct AuthenticatedDeliveryGrantIssuance<'a> {
     /// verified authority material and never trusts this value for that chain.
     pub correlation_id: CorrelationId,
     pub household_authority: HouseholdAuthorityInput,
+    /// Caller context only. The issuer replaces this with the signed resolved
+    /// decision; it is retained for request-shape compatibility.
     pub policy_decision: &'a PolicyControlDecision,
     pub policy_authority: &'a PolicyContractAuthorityDecision,
     pub canonical_authorization: CanonicalDeliveryGrantAuthorization,
@@ -173,6 +175,7 @@ impl AuthenticatedDeliveryGrantIssuer {
         issuer_key_id: impl Into<String>,
         platform_protected_key: [u8; 32],
         authority_key: VerifyingKey,
+        household_authority_key: VerifyingKey,
         step_up_key: VerifyingKey,
     ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError> {
         let issuer_key_id = issuer_key_id.into();
@@ -185,7 +188,10 @@ impl AuthenticatedDeliveryGrantIssuer {
         Ok(Self {
             issuer_key_id,
             signing_key,
-            authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier::new(authority_key),
+            authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier::new(
+                authority_key,
+                household_authority_key,
+            ),
             step_up_verifier: ParentStepUpProofVerifier::new(step_up_key),
             issuance_publisher: None,
             trusted_issuance_now: None,

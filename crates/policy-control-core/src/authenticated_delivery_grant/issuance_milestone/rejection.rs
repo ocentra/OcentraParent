@@ -2,6 +2,7 @@ use super::AuthenticatedDeliveryGrantIssuanceRejection;
 use crate::authenticated_delivery_grant::AuthenticatedDeliveryGrantIssuanceError;
 
 mod authorization;
+mod terminal;
 
 pub(super) fn issuance_rejection(
     error: AuthenticatedDeliveryGrantIssuanceError,
@@ -40,7 +41,7 @@ pub(super) fn issuance_rejection(
         | AuthenticatedDeliveryGrantIssuanceError::InvalidBindings => authorization::from(error),
         AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
         | AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed => {
-            AuthenticatedDeliveryGrantIssuanceRejection::AuthorityProvenance
+            terminal::from(error)
         }
     }
 }

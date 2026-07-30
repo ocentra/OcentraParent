@@ -9,6 +9,7 @@ mod family_identity_profiles;
 mod family_identity_profiles_validation;
 mod family_identity_setup_records;
 pub mod household_authority;
+pub mod household_authority_proof;
 mod household_authority_validation;
 pub mod parent_presence;
 mod parent_presence_event_delivery;

@@ -10,6 +10,7 @@ use ocentra_eventing::journal::ndjson::{
     JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions,
 };
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
+use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
 use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::issuance_milestone::{
@@ -19,7 +20,6 @@ use ocentra_policy_control_core::authenticated_delivery_grant::issuance_mileston
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuanceError, AuthenticatedDeliveryGrantIssuer,
 };
-use ocentra_schema::authenticated_delivery_grant::authenticated_delivery_grant_audit_fingerprint;
 use std::sync::Arc;
 
 #[test]
@@ -53,103 +53,50 @@ fn issuer_allows_unbound_action_device_when_signed_target_child_is_bound() -> Te
 }
 
 #[test]
-fn issuer_flushes_an_accepted_milestone_to_the_configured_durable_journal() -> TestResult {
+fn issuer_rejects_ndjson_proof_journal_before_issuance() -> TestResult {
     let journal_path = std::env::temp_dir().join(format!(
         "ocentra-policy-control-issuance-milestone-{}.ndjson",
         EventId::generated().as_str()
     ));
-    let runtime = test_ok!(
-        tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build(),
-        "durable journal runtime"
+    let event_type = test_ok!(
+        EventType::parse("authenticated-delivery-grant.issuance.milestone"),
+        "event type"
     );
-    let grant = runtime.block_on(async {
-        let event_type = test_ok!(
-            EventType::parse("authenticated-delivery-grant.issuance.milestone"),
-            "issuance milestone event type"
-        );
-        let event_bus = EventBus::with_journal(
-            JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-            NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain())
-                .shared(),
-        );
-        let issuer = test_ok!(
-            issuer_without_milestone_publisher(),
-            "provenance-configured issuer"
-        )
+    let event_bus = EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
+        NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain())
+            .shared(),
+    );
+    assert!(test_ok!(issuer_without_milestone_publisher(), "issuer")
         .with_event_bus_issuance_publisher(event_bus)
-        .map_err(|error| format!("event publisher: {error:?}"))?;
-        let grant = test_ok!(
-            issuer.issue_async(IssuanceFixture::new().request()).await,
-            "accepted issuance must wait for durable milestone persistence"
-        );
-        assert_eq!(grant.target_device_id, "child-device-1");
-        Ok::<_, Box<dyn std::error::Error>>(grant)
-    })?;
-    let expected_fingerprint = authenticated_delivery_grant_audit_fingerprint(&grant);
-    drop(runtime);
-
-    let journal = std::fs::read_to_string(&journal_path)?;
-    assert_eq!(
-        journal.lines().count(),
-        2,
-        "one accepted issuance must durably write prepare and terminal before-dispatch milestones"
-    );
-    assert!(
-        journal.contains("authenticated-delivery-grant.issuance.milestone"),
-        "the durable record must identify the issuance milestone contract"
-    );
-    assert!(
-        journal.contains(&expected_fingerprint),
-        "the durable milestone must bind exactly to the returned signed grant without storing raw bindings"
-    );
-    std::fs::remove_file(journal_path)?;
+        .is_err());
     Ok(())
 }
 
 #[test]
-fn issuer_rejects_a_buffered_milestone_receipt_before_returning_a_grant() -> TestResult {
+fn issuer_rejects_buffered_ndjson_proof_journal_before_issuance() -> TestResult {
     let journal_path = std::env::temp_dir().join(format!(
         "ocentra-policy-control-buffered-issuance-{}.ndjson",
         EventId::generated().as_str()
     ));
-    let runtime = test_ok!(
-        tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build(),
-        "buffered journal runtime"
+    let event_type = test_ok!(
+        EventType::parse("authenticated-delivery-grant.issuance.milestone"),
+        "event type"
     );
-    runtime.block_on(async {
-        let event_type = test_ok!(
-            EventType::parse("authenticated-delivery-grant.issuance.milestone"),
-            "issuance milestone event type"
-        );
-        let event_bus = EventBus::with_journal(
-            JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-            NdjsonEventJournal::with_options(
-                &journal_path,
-                NdjsonJournalOptions {
-                    hash_chain: JournalHashChain::Enabled,
-                    flush: JournalFlushPolicy::Buffered,
-                },
-            )
-            .shared(),
-        );
-        let issuer = test_ok!(
-            issuer_without_milestone_publisher(),
-            "provenance-configured issuer"
+    let event_bus = EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
+        NdjsonEventJournal::with_options(
+            &journal_path,
+            NdjsonJournalOptions {
+                hash_chain: JournalHashChain::Enabled,
+                flush: JournalFlushPolicy::Buffered,
+            },
         )
+        .shared(),
+    );
+    assert!(test_ok!(issuer_without_milestone_publisher(), "issuer")
         .with_event_bus_issuance_publisher(event_bus)
-        .map_err(|error| format!("event publisher: {error:?}"))?;
-        assert_eq!(
-            issuer.issue_async(IssuanceFixture::new().request()).await,
-            Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
-            "a buffered append cannot authorize a usable grant"
-        );
-        Ok::<_, Box<dyn std::error::Error>>(())
-    })?;
-    std::fs::remove_file(journal_path)?;
+        .is_err());
     Ok(())
 }
 
@@ -246,8 +193,8 @@ fn issuer_closes_a_prepared_attempt_when_accepted_terminal_append_fails() -> Tes
         assert_eq!(rejected.payload.outcome, AuthenticatedDeliveryGrantIssuanceOutcome::Rejected);
         assert_eq!(
             rejected.payload.rejection,
-            Some(AuthenticatedDeliveryGrantIssuanceRejection::AuthorityProvenance),
-            "publication failure is represented by the existing redacted authority-provenance rejection category"
+            Some(AuthenticatedDeliveryGrantIssuanceRejection::MilestonePublication),
+            "publication failure must not be misattributed to authority provenance"
         );
         assert_eq!(
             test_ok!(issuance_attempt_id(&persisted[0]), "prepared attempt id"),
@@ -261,12 +208,14 @@ fn issuer_closes_a_prepared_attempt_when_accepted_terminal_append_fails() -> Tes
 #[test]
 fn issuer_rejects_an_oversized_issuer_key_id_at_construction() -> TestResult {
     let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let household_authority = HouseholdAuthorityProofSigner::from_platform_key([6; 32]);
     let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
     assert!(matches!(
         AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
             "k".repeat(513),
             [3; 32],
             authority.verifying_key(),
+            household_authority.verifying_key(),
             step_up.verifying_key(),
         ),
         Err(AuthenticatedDeliveryGrantIssuanceError::InvalidIssuerKeyId)
@@ -325,7 +274,6 @@ fn issuer_records_prepare_then_rejection_when_durable_publish_exhausts_lifetime(
         );
         Ok::<(), Box<dyn std::error::Error>>(())
     })?;
-    std::fs::remove_file(journal_path)?;
     Ok(())
 }
 
@@ -412,14 +360,9 @@ fn issuer_derives_durable_correlation_from_verified_authority_not_caller_context
         "derived correlation journal runtime"
     );
     runtime.block_on(async {
-        let event_type = test_ok!(
-            EventType::parse("authenticated-delivery-grant.issuance.milestone"),
-            "issuance milestone event type"
-        );
-        let event_bus = EventBus::with_journal(
-            JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-            NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain())
-                .shared(),
+        let event_bus = test_ok!(
+            durable_milestone_bus(&journal_path),
+            "controlled durable bus"
         );
         let issuer = test_ok!(
             issuer_without_milestone_publisher(),
@@ -455,20 +398,12 @@ fn issuer_derives_durable_correlation_from_verified_authority_not_caller_context
         );
         Ok::<_, Box<dyn std::error::Error>>(())
     })?;
-    std::fs::remove_file(journal_path)?;
     Ok(())
 }
 
 fn issuance_attempt_id(
     envelope: &ocentra_eventing::envelope::StoredEventEnvelope,
-) -> Result<&str, ocentra_eventing::error::EventingError> {
-    envelope
-        .idempotency_key
-        .as_str()
-        .split(':')
-        .nth(1)
-        .ok_or_else(|| ocentra_eventing::error::EventingError::InvalidValue {
-            field: "issuance_milestone.idempotency_key",
-            value: envelope.idempotency_key.as_str().to_owned(),
-        })
+) -> Result<String, ocentra_eventing::error::EventingError> {
+    let milestone = envelope.decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+    Ok(milestone.payload.attempt_id.as_str().to_owned())
 }

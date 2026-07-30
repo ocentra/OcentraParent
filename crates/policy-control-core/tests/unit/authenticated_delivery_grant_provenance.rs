@@ -1,4 +1,6 @@
-use super::authenticated_delivery_grant_fixture::issuer as durable_issuer;
+use super::authenticated_delivery_grant_fixture::{
+    executable_conflict_decision, issuer as durable_issuer,
+};
 use super::TestResult;
 use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::family_identity::{
@@ -9,6 +11,7 @@ use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, HouseholdAuthorityInput, ParentStepUpAssertionSnapshot,
     ParentStepUpValidationInput,
 };
+use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
 use ocentra_family_identity_core::parent_step_up_proof::{
     ParentStepUpProofError, ParentStepUpProofSigner, ParentStepUpProofVerifier,
 };
@@ -22,9 +25,10 @@ use ocentra_policy_control_core::authenticated_delivery_grant::{
     GrantRevocationVersion, GrantTargetDeviceId, ParentStepUpGrantAuthorization,
 };
 use ocentra_policy_control_core::policy_authority::{
-    PolicyActionAuthorizationState, PolicyControlDecision, PolicyEnforcementExecutionState,
-    PolicyManualReviewState,
+    PolicyActionAuthorizationState, PolicyConflictDecision, PolicyConflictResolutionState,
+    PolicyControlDecision, PolicyEnforcementExecutionState, PolicyManualReviewState,
 };
+use ocentra_policy_control_core::policy_authority_resolved_decision::ResolvedPolicyDecision;
 use ocentra_policy_control_core::policy_contract_helpers::authority::{
     PolicyContractAuthorityDecision, PolicyContractAuthoritySource, PolicyContractAuthorityState,
 };
@@ -157,8 +161,8 @@ impl ProvenanceFixture {
                 authority_signer.sign(
                     self.bindings.clone(),
                     assertions.clone(),
-                    self.authority,
-                    self.decision,
+                    household_authority_proof(self.authority),
+                    resolved_decision(&self.bindings, self.decision),
                     self.contract_authority.clone(),
                 ),
                 "authority provenance"
@@ -200,10 +204,10 @@ fn parent_step_up_proof_rejects_oversized_fields_before_signing_or_verification(
     assert_eq!(verified.1, fixture.bindings.target_device_id);
     assert_eq!(verified.2, assertions);
 
-    let mut oversized_validation = fixture.step_up.validation.clone();
+    let mut oversized_validation = fixture.step_up.validation;
     oversized_validation.expected_nonce = Some("x".repeat(513));
     assert_eq!(
-        signer.sign(oversized_validation, verified.1.clone(), verified.2.clone()),
+        signer.sign(oversized_validation, verified.1.clone(), verified.2),
         Err(ParentStepUpProofError::Rejected)
     );
 
@@ -248,7 +252,7 @@ fn parent_step_up_proof_rejects_lifetimes_over_five_minutes_at_signing_and_verif
     let mut proof = test_ok!(
         signer.sign(
             fixture.step_up.validation.clone(),
-            fixture.bindings.target_device_id.clone(),
+            fixture.bindings.target_device_id,
             assertions,
         ),
         "five-minute step-up proof signs"
@@ -307,13 +311,38 @@ fn authorized_contract_authority() -> PolicyContractAuthorityDecision {
     }
 }
 
+fn household_authority_proof(
+    authority: HouseholdAuthorityInput,
+) -> ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProof {
+    test_ok!(
+        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign(authority),
+        "family identity authority proof"
+    )
+}
+
+fn resolved_decision(
+    bindings: &DeliveryGrantBindings,
+    decision: PolicyControlDecision,
+) -> ResolvedPolicyDecision {
+    test_ok!(
+        ResolvedPolicyDecision::for_delivery_grant(
+            bindings.policy_decision_id.clone(),
+            decision,
+            executable_conflict_decision(),
+        ),
+        "resolved policy decision identity"
+    )
+}
+
 fn issuer() -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
     let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let household_authority = HouseholdAuthorityProofSigner::from_platform_key([6; 32]);
     let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
     AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
         "parent-key-1",
         [3; 32],
         authority.verifying_key(),
+        household_authority.verifying_key(),
         step_up.verifying_key(),
     )
     .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
@@ -337,8 +366,8 @@ fn issuer_uses_verifier_backed_policy_decision_and_contract_authority() -> TestR
                 capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
                 evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
             },
-            fixture.authority,
-            blocked_decision,
+            household_authority_proof(fixture.authority),
+            resolved_decision(&fixture.bindings, blocked_decision),
             fixture.contract_authority.clone(),
         ),
         "blocked policy decision provenance"
@@ -359,14 +388,120 @@ fn issuer_uses_verifier_backed_policy_decision_and_contract_authority() -> TestR
                 capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
                 evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
             },
-            fixture.authority,
-            fixture.decision,
+            household_authority_proof(fixture.authority),
+            resolved_decision(&fixture.bindings, fixture.decision),
             evidence_only_authority,
         ),
         "evidence-only policy authority provenance"
     );
     assert_eq!(
         issuer.issue(forged_caller_authority),
+        Err(AuthenticatedDeliveryGrantIssuanceError::PolicyNotExecutable)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_a_validly_signed_decision_for_a_different_policy_id() -> TestResult {
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
+    let fixture = ProvenanceFixture::new();
+    let policy_signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let mut request = fixture.request();
+    request.signed_authority_bindings = test_ok!(
+        policy_signer.sign(
+            fixture.bindings.clone(),
+            AuthenticatedDeliveryGrantAssertionSnapshot {
+                capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+                evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+            },
+            household_authority_proof(fixture.authority),
+            test_ok!(
+                ResolvedPolicyDecision::for_delivery_grant(
+                    "different-decision",
+                    fixture.decision,
+                    executable_conflict_decision(),
+                ),
+                "separate resolved policy decision"
+            ),
+            fixture.contract_authority.clone(),
+        ),
+        "valid policy signature with mismatched decision identity"
+    );
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch),
+        "the signed resolved decision identity must equal the grant binding"
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_signed_conflict_provenance_that_forbids_execution() -> TestResult {
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
+    let fixture = ProvenanceFixture::new();
+    let signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let mut request = fixture.request();
+    request.signed_authority_bindings = test_ok!(
+        signer.sign(
+            fixture.bindings.clone(),
+            AuthenticatedDeliveryGrantAssertionSnapshot {
+                capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+                evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+            },
+            household_authority_proof(fixture.authority),
+            test_ok!(
+                ResolvedPolicyDecision::for_delivery_grant(
+                    fixture.bindings.policy_decision_id.clone(),
+                    fixture.decision,
+                    PolicyConflictDecision {
+                        resolution_state: PolicyConflictResolutionState::ObserveOnly,
+                        manual_review_state: PolicyManualReviewState::NotRequired,
+                    },
+                ),
+                "non-executable conflict provenance"
+            ),
+            fixture.contract_authority.clone(),
+        ),
+        "signed conflict provenance"
+    );
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::PolicyNotExecutable)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_signed_conflict_provenance_requiring_manual_review() -> TestResult {
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
+    let fixture = ProvenanceFixture::new();
+    let signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let mut request = fixture.request();
+    request.signed_authority_bindings = test_ok!(
+        signer.sign(
+            fixture.bindings.clone(),
+            AuthenticatedDeliveryGrantAssertionSnapshot {
+                capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+                evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+            },
+            household_authority_proof(fixture.authority),
+            test_ok!(
+                ResolvedPolicyDecision::for_delivery_grant(
+                    fixture.bindings.policy_decision_id.clone(),
+                    fixture.decision,
+                    PolicyConflictDecision {
+                        resolution_state: PolicyConflictResolutionState::UseParentPolicy,
+                        manual_review_state: PolicyManualReviewState::Required,
+                    },
+                ),
+                "manual-review conflict provenance"
+            ),
+            fixture.contract_authority.clone(),
+        ),
+        "signed manual-review conflict provenance"
+    );
+    assert_eq!(
+        issuer.issue(request),
         Err(AuthenticatedDeliveryGrantIssuanceError::PolicyNotExecutable)
     );
     Ok(())
