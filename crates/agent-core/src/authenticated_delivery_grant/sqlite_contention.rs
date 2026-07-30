@@ -1,26 +1,28 @@
-use std::{thread, time::Duration};
+use std::{
+    thread,
+    time::{Duration, Instant},
+};
 
 use rusqlite::{Connection, Error as SqliteError, ErrorCode, Transaction, TransactionBehavior};
 
-const TRANSACTION_ATTEMPTS: usize = 3;
+const CONTENTION_RETRY_DEADLINE: Duration = Duration::from_secs(5);
 const RETRY_BACKOFF: Duration = Duration::from_millis(25);
 
 pub(super) fn immediate_transaction_with_contention_retry(
     connection: &Connection,
 ) -> Result<Transaction<'_>, SqliteError> {
-    immediate_transaction_attempt(connection, TRANSACTION_ATTEMPTS)
+    immediate_transaction_attempt(connection, Instant::now() + CONTENTION_RETRY_DEADLINE)
 }
 
 fn immediate_transaction_attempt(
     connection: &Connection,
-    remaining_attempts: usize,
+    deadline: Instant,
 ) -> Result<Transaction<'_>, SqliteError> {
     match Transaction::new_unchecked(connection, TransactionBehavior::Immediate) {
         Ok(transaction) => Ok(transaction),
-        Err(error) if is_sqlite_contention(&error) && remaining_attempts > 1 => {
-            let completed_attempts = TRANSACTION_ATTEMPTS - remaining_attempts + 1;
-            thread::sleep(RETRY_BACKOFF * completed_attempts as u32);
-            immediate_transaction_attempt(connection, remaining_attempts - 1)
+        Err(error) if is_sqlite_contention(&error) && Instant::now() < deadline => {
+            thread::sleep(RETRY_BACKOFF.min(deadline.saturating_duration_since(Instant::now())));
+            immediate_transaction_attempt(connection, deadline)
         }
         Err(error) => Err(error),
     }
