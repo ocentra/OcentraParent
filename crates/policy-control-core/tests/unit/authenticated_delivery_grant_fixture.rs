@@ -1,26 +1,85 @@
 use super::authenticated_delivery_grant::IssuanceFixture;
 use super::TestResult;
-use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::envelope::StoredEventEnvelope;
-use ocentra_eventing::ids::{EventType, SubscriberId, TargetHandler};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::EventType;
 use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
 use ocentra_eventing::journal::{
     EventJournal, JournalAppend, JournalAppendDurability, JournalAppendFuture,
 };
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
-use ocentra_policy_control_core::authenticated_delivery_grant::issuance_milestone::AuthenticatedDeliveryGrantIssuanceMilestone;
 use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuanceError, AuthenticatedDeliveryGrantIssuer,
 };
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
+use std::sync::Mutex;
 
 #[derive(Default)]
 pub(crate) struct InMemoryMilestoneJournal {
     next_sequence: AtomicU64,
+}
+
+pub(crate) struct FailingMilestoneJournal {
+    calls: AtomicU64,
+    fail_once_on: u64,
+    persisted: Mutex<Vec<StoredEventEnvelope>>,
+}
+
+impl FailingMilestoneJournal {
+    pub(crate) fn fail_once_on(fail_once_on: u64) -> Self {
+        Self {
+            calls: AtomicU64::new(0),
+            fail_once_on,
+            persisted: Mutex::new(Vec::new()),
+        }
+    }
+
+    pub(crate) fn persisted(&self) -> Result<Vec<StoredEventEnvelope>, EventingError> {
+        let persisted = self
+            .persisted
+            .lock()
+            .map_err(|_error| EventingError::JournalIo {
+                path: "policy-control-failing-milestone-journal".to_owned(),
+                reason: "persisted-record lock unavailable".to_owned(),
+            })?;
+        Ok(persisted.clone())
+    }
+
+    fn append_result(
+        &self,
+        envelope: &StoredEventEnvelope,
+    ) -> Result<JournalAppend, EventingError> {
+        let call = self.calls.fetch_add(1, Ordering::Relaxed) + 1;
+        if call == self.fail_once_on {
+            return Err(EventingError::JournalIo {
+                path: "policy-control-failing-milestone-journal".to_owned(),
+                reason: "intentional terminal append failure".to_owned(),
+            });
+        }
+        self.persisted
+            .lock()
+            .map_err(|_error| EventingError::JournalIo {
+                path: "policy-control-failing-milestone-journal".to_owned(),
+                reason: "persisted-record lock unavailable".to_owned(),
+            })?
+            .push(envelope.clone());
+        Ok(JournalAppend {
+            sequence: call,
+            previous_hash: None,
+            current_hash: None,
+            durability: JournalAppendDurability::Synchronized,
+        })
+    }
+}
+
+impl EventJournal for FailingMilestoneJournal {
+    fn append<'a>(&'a self, envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
+        Box::pin(async move { self.append_result(envelope) })
+    }
 }
 
 impl EventJournal for InMemoryMilestoneJournal {
@@ -57,13 +116,6 @@ pub(super) fn issuer(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
         Arc::new(InMemoryMilestoneJournal::default()),
     );
-    let runtime = tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)?;
-    runtime
-        .block_on(subscribe_issuance_milestone_persistence(&event_bus))
-        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)?;
     issuer_without_milestone_publisher()
         .and_then(|issuer| {
             issuer
@@ -73,22 +125,6 @@ pub(super) fn issuer(
                 })
         })
         .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
-}
-
-pub(super) async fn subscribe_issuance_milestone_persistence(
-    event_bus: &EventBus,
-) -> Result<(), ocentra_eventing::error::EventingError> {
-    event_bus
-        .subscribe::<AuthenticatedDeliveryGrantIssuanceMilestone, _, _>(
-            EventSubscriber::new(
-                SubscriberId::parse("policy-control.issuance-milestone-persistence")?,
-                EventType::parse("authenticated-delivery-grant.issuance.milestone")?,
-                TargetHandler::parse("policy-control.issuance-milestone-persistence")?,
-            ),
-            |_| async { Ok(()) },
-        )
-        .await
-        .map(|_| ())
 }
 
 pub(super) fn durable_milestone_bus(
@@ -115,14 +151,14 @@ pub(super) fn assert_durable_milestone_count(
 pub(super) fn issuance_fixture_with_expiry(
     mut fixture: IssuanceFixture,
     expires_at: &str,
-) -> IssuanceFixture {
+) -> Result<IssuanceFixture, String> {
     fixture.bindings.expires_at = expires_at.to_owned();
-    fixture
+    let assertion = fixture
         .parent_step_up
         .validation
         .assertion
         .as_mut()
-        .expect("fixture always includes a step-up assertion")
-        .expires_at = expires_at.to_owned();
-    fixture
+        .ok_or_else(|| "fixture is missing its parent step-up assertion".to_owned())?;
+    assertion.expires_at = expires_at.to_owned();
+    Ok(fixture)
 }

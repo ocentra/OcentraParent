@@ -18,6 +18,8 @@ use super::{
 use crate::policy_authority::PolicyControlDecision;
 use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
 
+mod accepted;
+
 const MINIMUM_REMAINING_GRANT_LIFETIME_SECONDS: i64 = 30;
 
 impl AuthenticatedDeliveryGrantIssuer {
@@ -126,53 +128,44 @@ impl AuthenticatedDeliveryGrantIssuer {
     pub(super) fn finalize_accepted(
         &self,
         correlation_id: &CorrelationId,
+        attempt_id: &EventId,
         grant: AuthenticatedDeliveryGrant,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        self.publish_issuance_milestone(correlation_id, prepared_issuance_milestone_for(&grant))?;
-        if let Err(error) = validate_minimum_remaining_lifetime(&grant, &self.trusted_now()) {
-            return self.finalize_rejected(correlation_id, error);
-        }
-        self.publish_issuance_milestone(correlation_id, accepted_issuance_milestone_for(&grant))?;
-        Ok(grant)
+        accepted::finalize(self, correlation_id, attempt_id, grant)
     }
 
     pub(super) async fn finalize_accepted_async(
         &self,
         correlation_id: &CorrelationId,
+        attempt_id: &EventId,
         grant: AuthenticatedDeliveryGrant,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        self.publish_issuance_milestone_async(
-            correlation_id,
-            prepared_issuance_milestone_for(&grant),
-        )
-        .await?;
-        if let Err(error) = validate_minimum_remaining_lifetime(&grant, &self.trusted_now()) {
-            return self.finalize_rejected_async(correlation_id, error).await;
-        }
-        self.publish_issuance_milestone_async(
-            correlation_id,
-            accepted_issuance_milestone_for(&grant),
-        )
-        .await?;
-        Ok(grant)
+        accepted::finalize_async(self, correlation_id, attempt_id, grant).await
     }
 
     pub(super) fn finalize_rejected(
         &self,
         correlation_id: &CorrelationId,
+        attempt_id: &EventId,
         error: AuthenticatedDeliveryGrantIssuanceError,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        self.publish_issuance_milestone(correlation_id, rejected_issuance_milestone_for(error))?;
+        self.publish_issuance_milestone(
+            correlation_id,
+            attempt_id,
+            rejected_issuance_milestone_for(error),
+        )?;
         Err(error)
     }
 
     pub(super) async fn finalize_rejected_async(
         &self,
         correlation_id: &CorrelationId,
+        attempt_id: &EventId,
         error: AuthenticatedDeliveryGrantIssuanceError,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
         self.publish_issuance_milestone_async(
             correlation_id,
+            attempt_id,
             rejected_issuance_milestone_for(error),
         )
         .await?;
@@ -182,6 +175,7 @@ impl AuthenticatedDeliveryGrantIssuer {
     fn publish_issuance_milestone(
         &self,
         correlation_id: &CorrelationId,
+        attempt_id: &EventId,
         milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
     ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
         let publisher = self
@@ -189,13 +183,14 @@ impl AuthenticatedDeliveryGrantIssuer {
             .as_ref()
             .ok_or(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)?;
         publisher
-            .publish(correlation_id.clone(), milestone)
+            .publish(correlation_id.clone(), attempt_id.clone(), milestone)
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
     }
 
     async fn publish_issuance_milestone_async(
         &self,
         correlation_id: &CorrelationId,
+        attempt_id: &EventId,
         milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
     ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
         let publisher = self
@@ -203,15 +198,18 @@ impl AuthenticatedDeliveryGrantIssuer {
             .as_ref()
             .ok_or(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)?;
         publisher
-            .publish_async(correlation_id.clone(), milestone)
+            .publish_async(correlation_id.clone(), attempt_id.clone(), milestone)
             .await
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
     }
 
     fn trusted_now(&self) -> String {
-        self.trusted_issuance_now
-            .clone()
-            .unwrap_or_else(|| Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true))
+        self.next_trusted_issuance_now_for_debug_test()
+            .unwrap_or_else(|| {
+                self.trusted_issuance_now
+                    .clone()
+                    .unwrap_or_else(|| Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true))
+            })
     }
 }
 

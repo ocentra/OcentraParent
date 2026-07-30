@@ -1,6 +1,5 @@
 use super::authenticated_delivery_grant_fixture::{
     assert_durable_milestone_count, durable_milestone_bus, issuer,
-    subscribe_issuance_milestone_persistence,
 };
 use super::TestResult;
 use ocentra_eventing::ids::CorrelationId;
@@ -558,12 +557,6 @@ fn issuer_requires_durable_receipt_and_awaits_safely_inside_an_entered_tokio_run
         durable_milestone_bus(&journal_path),
         "durable issuance milestone event bus"
     );
-    runtime.block_on(async {
-        test_ok!(
-            subscribe_issuance_milestone_persistence(&event_bus).await,
-            "durable issuance subscriber registers"
-        );
-    });
     let issuer = test_ok!(issuer(), "provenance-configured issuer")
         .with_event_bus_issuance_publisher(event_bus.clone())
         .map_err(|error| format!("event publisher: {error:?}"))?;

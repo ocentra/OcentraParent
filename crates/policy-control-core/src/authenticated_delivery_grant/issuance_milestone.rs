@@ -138,10 +138,11 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
     pub(crate) fn publish(
         &self,
         correlation_id: CorrelationId,
+        attempt_id: EventId,
         milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
     ) -> Result<(), EventingError> {
         let milestone = AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
-            attempt_id: EventId::generated(),
+            attempt_id,
             milestone,
         };
         let metadata = EventMetadata::new(correlation_id, self.source.clone());
@@ -157,10 +158,11 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
     pub(crate) async fn publish_async(
         &self,
         correlation_id: CorrelationId,
+        attempt_id: EventId,
         milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
     ) -> Result<(), EventingError> {
         let milestone = AuthenticatedDeliveryGrantIssuanceAttemptMilestone {
-            attempt_id: EventId::generated(),
+            attempt_id,
             milestone,
         };
         let metadata = EventMetadata::new(correlation_id, self.source.clone());
