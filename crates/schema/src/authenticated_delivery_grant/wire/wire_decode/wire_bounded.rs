@@ -54,25 +54,32 @@ where
     E: serde::de::Error,
 {
     match kind {
-        GrantWireFieldKind::SchemaVersion => serde_json::from_str::<u64>(raw)
-            .map_err(|_error| {
+        GrantWireFieldKind::SchemaVersion => {
+            let value: u16 = serde_json::from_str::<u64>(raw)
+                .map_err(|_error| {
+                    E::custom("authenticated delivery grant field has the wrong wire type")
+                })?
+                .try_into()
+                .map_err(|_error| {
+                    E::custom("authenticated delivery grant schema version is out of range")
+                })?;
+            update_signing_wire_bytes(value.to_string().len(), signed_wire_bytes)?;
+            Ok(GrantWireValue::SchemaVersion(value))
+        }
+        GrantWireFieldKind::PayloadLength => {
+            let value = serde_json::from_str::<usize>(raw).map_err(|_error| {
                 E::custom("authenticated delivery grant field has the wrong wire type")
-            })?
-            .try_into()
-            .map(GrantWireValue::SchemaVersion)
-            .map_err(|_error| {
-                E::custom("authenticated delivery grant schema version is out of range")
-            }),
-        GrantWireFieldKind::PayloadLength => serde_json::from_str::<usize>(raw)
-            .map(GrantWireValue::PayloadLength)
-            .map_err(|_error| {
+            })?;
+            update_signing_wire_bytes(value.to_string().len(), signed_wire_bytes)?;
+            Ok(GrantWireValue::PayloadLength(value))
+        }
+        GrantWireFieldKind::DryRun => {
+            let value = serde_json::from_str::<bool>(raw).map_err(|_error| {
                 E::custom("authenticated delivery grant field has the wrong wire type")
-            }),
-        GrantWireFieldKind::DryRun => serde_json::from_str::<bool>(raw)
-            .map(GrantWireValue::DryRun)
-            .map_err(|_error| {
-                E::custom("authenticated delivery grant field has the wrong wire type")
-            }),
+            })?;
+            update_signing_wire_bytes(value.to_string().len(), signed_wire_bytes)?;
+            Ok(GrantWireValue::DryRun(value))
+        }
         GrantWireFieldKind::String => serde_json::from_str::<String>(raw)
             .map_err(|_error| {
                 E::custom("authenticated delivery grant field has the wrong wire type")
@@ -85,9 +92,7 @@ where
             .map_err(|_error| {
                 E::custom("authenticated delivery grant field has the wrong wire type")
             })
-            .and_then(|signature| {
-                bounded_signature(signature, signed_wire_bytes).map(GrantWireValue::Signature)
-            }),
+            .and_then(|signature| bounded_signature(signature).map(GrantWireValue::Signature)),
     }
 }
 
@@ -100,11 +105,11 @@ where
             "authenticated delivery grant field exceeds its byte limit",
         ));
     }
-    update_signed_wire_bytes(value.len(), total)?;
+    update_signing_wire_bytes(value.len(), total)?;
     Ok(())
 }
 
-fn bounded_signature<E>(signature: Vec<u8>, total: &mut usize) -> Result<Vec<u8>, E>
+fn bounded_signature<E>(signature: Vec<u8>) -> Result<Vec<u8>, E>
 where
     E: serde::de::Error,
 {
@@ -113,16 +118,16 @@ where
             "authenticated delivery grant signature exceeds its byte limit",
         ));
     }
-    update_signed_wire_bytes(signature.len(), total)?;
     Ok(signature)
 }
 
-fn update_signed_wire_bytes<E>(length: usize, total: &mut usize) -> Result<(), E>
+fn update_signing_wire_bytes<E>(value_length: usize, total: &mut usize) -> Result<(), E>
 where
     E: serde::de::Error,
 {
     *total = total
-        .checked_add(length)
+        .checked_add(std::mem::size_of::<u64>())
+        .and_then(|total| total.checked_add(value_length))
         .ok_or_else(|| E::custom("authenticated delivery grant aggregate length overflow"))?;
     if *total > AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES {
         return Err(E::custom(

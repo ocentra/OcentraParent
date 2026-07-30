@@ -1,6 +1,7 @@
 use ocentra_schema::authenticated_delivery_grant::{
     authenticated_delivery_grant_audit_fingerprint, AuthenticatedDeliveryGrant,
     AuthenticatedDeliveryGrantValidationError, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 
@@ -191,6 +192,23 @@ fn authenticated_delivery_grant_wire_decode_denies_unknown_and_oversized_fields(
 }
 
 #[test]
+fn authenticated_delivery_grant_wire_decode_matches_framed_signing_wire_limit() -> TestResult {
+    let accepted = grant_with_signing_wire_len(AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES);
+    let decoded: AuthenticatedDeliveryGrant =
+        serde_json::from_str(&serde_json::to_string(&accepted)?)?;
+    assert_eq!(decoded, accepted);
+    assert_eq!(decoded.validate_shape(), Ok(()));
+
+    let oversized =
+        grant_with_signing_wire_len(AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES + 1);
+    assert_eq!(
+        decode_failure_reason(serde_json::to_value(oversized)?)?,
+        "authenticated delivery grant signed wire fields exceed their byte limit"
+    );
+    Ok(())
+}
+
+#[test]
 fn authenticated_delivery_grant_wire_decode_rejects_escaped_oversize_before_unescaping(
 ) -> TestResult {
     let encoded_oversize = r#"\u0061"#.repeat(AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES + 1);
@@ -222,6 +240,41 @@ fn grant_object(
     value
         .as_object_mut()
         .ok_or_else(|| std::io::Error::other("test grant must encode as an object").into())
+}
+
+fn grant_with_signing_wire_len(target: usize) -> AuthenticatedDeliveryGrant {
+    let mut bounded = grant();
+    let mut remaining = target
+        .checked_sub(bounded.signing_bytes().len())
+        .expect("target must not be smaller than the baseline signing wire");
+    for field in [
+        &mut bounded.issuer_key_id,
+        &mut bounded.issuer_actor_id,
+        &mut bounded.household_id,
+        &mut bounded.parent_device_id,
+        &mut bounded.child_profile_id,
+        &mut bounded.target_device_id,
+        &mut bounded.policy_decision_id,
+        &mut bounded.policy_version,
+        &mut bounded.action_id,
+        &mut bounded.capability_id,
+        &mut bounded.evidence_digest,
+        &mut bounded.nonce,
+        &mut bounded.issued_at,
+        &mut bounded.expires_at,
+        &mut bounded.revocation_version,
+    ] {
+        let available = AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES - field.len();
+        let added = remaining.min(available);
+        field.push_str(&"a".repeat(added));
+        remaining -= added;
+    }
+    assert_eq!(
+        remaining, 0,
+        "test fields must reach the target signing wire length"
+    );
+    assert_eq!(bounded.signing_bytes().len(), target);
+    bounded
 }
 
 fn decode_failure_reason(value: serde_json::Value) -> TestResult<String> {
