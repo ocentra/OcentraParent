@@ -66,7 +66,8 @@ impl AuthenticatedDeliveryGrantIssuer {
             .trusted_issuance_correlation_id()?;
         let (step_up_validation, target_device_id, step_up_assertions) = self
             .step_up_verifier
-            .verify(&request.verified_parent_step_up_proof)?;
+            .verify(&request.verified_parent_step_up_proof)
+            .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
         if assertions != step_up_assertions {
             return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
         }

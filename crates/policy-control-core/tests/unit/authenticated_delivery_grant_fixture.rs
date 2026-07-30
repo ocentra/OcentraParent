@@ -7,10 +7,10 @@ use ocentra_eventing::ids::EventType;
 use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
 use ocentra_eventing::journal::{
-    EventJournal, JournalAppend, JournalAppendDurability, JournalAppendFuture,
+    EventJournal, JournalAppend, JournalAppendDurability, JournalAppendFuture, JournalHashVersion,
 };
+use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
-use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuanceError, AuthenticatedDeliveryGrantIssuer,
 };
@@ -71,6 +71,7 @@ impl FailingMilestoneJournal {
             sequence: call,
             previous_hash: None,
             current_hash: None,
+            hash_version: JournalHashVersion::V2,
             durability: JournalAppendDurability::Synchronized,
         })
     }
@@ -89,6 +90,7 @@ impl EventJournal for InMemoryMilestoneJournal {
                 sequence: self.next_sequence.fetch_add(1, Ordering::Relaxed) + 1,
                 previous_hash: None,
                 current_hash: None,
+                hash_version: JournalHashVersion::V2,
                 durability: JournalAppendDurability::Synchronized,
             })
         })
