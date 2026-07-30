@@ -6,7 +6,7 @@ use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrant;
 use ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES;
 use rusqlite::{params, Connection};
 
-use super::{signed_grant, store_path, trusted_issuer, TestResult};
+use super::{must, signed_grant, store_path, trusted_issuer, TestResult};
 
 fn legacy_grant_json(grant: &AuthenticatedDeliveryGrant, key: &SigningKey) -> TestResult<String> {
     let mut legacy = serde_json::to_value(grant)?;
@@ -74,6 +74,61 @@ fn consumer_backfills_legacy_microsecond_rows_from_signed_grant_nanos() -> TestR
         |row| row.get(0),
     )?;
     assert_eq!(stored_nanos.rem_euclid(1_000), 1);
+    Ok(())
+}
+
+#[test]
+fn consumer_preserves_legacy_replay_tombstone_across_trusted_issuer_rotation() -> TestResult {
+    let retired_key = SigningKey::from_bytes(&[4; 32]);
+    let current_key = SigningKey::from_bytes(&[5; 32]);
+    let path = store_path("legacy-replay-issuer-rotation");
+    let mut retired_grant = signed_grant(&retired_key);
+    retired_grant.issuer_key_id = "parent-key-retired".to_owned();
+    let grant_json = legacy_grant_json(&retired_grant, &retired_key)?;
+    let connection = Connection::open(path.as_ref())?;
+    connection.execute(
+        "CREATE TABLE authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_micros INTEGER, PRIMARY KEY (issuer_key_id, nonce))",
+        [],
+    )?;
+    connection.execute(
+        "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_micros) VALUES (?1, ?2, ?3, ?4, ?5)",
+        params![
+            retired_grant.issuer_key_id,
+            retired_grant.nonce,
+            grant_json,
+            "{}",
+            1_i64
+        ],
+    )?;
+    drop(connection);
+
+    let current_issuer = ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantTrustedIssuer {
+        key_id: "parent-key-current".to_owned(),
+        verifying_key: current_key.verifying_key(),
+    };
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            current_issuer.clone(),
+            "2026-07-28T00:01:00Z",
+        ),
+    )?);
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            current_issuer,
+            "2026-07-28T00:01:00Z",
+        ),
+    )?);
+
+    let connection = Connection::open(path.as_ref())?;
+    let (fingerprint, expires_at_nanos): (String, i64) = connection.query_row(
+        "SELECT grant_fingerprint, expires_at_nanos FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        [retired_grant.issuer_key_id.as_str(), retired_grant.nonce.as_str()],
+        |row| Ok((row.get(0)?, row.get(1)?)),
+    )?;
+    assert_eq!(fingerprint.len(), 64);
+    assert_eq!(expires_at_nanos, 1_785_197_100_000_000_000);
     Ok(())
 }
 

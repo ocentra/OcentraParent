@@ -63,23 +63,29 @@ fn parse_legacy_replay_grant(
     let grant: LegacyAuthenticatedDeliveryGrant = serde_json::from_str(grant_json)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
     grant.validate_shape()?;
-    if grant.issuer_key_id != trusted_issuer.key_id {
-        return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
-    }
-    let signature = Signature::from_slice(&grant.signature)
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
-    let signing_bytes = grant.signing_bytes();
-    trusted_issuer
-        .verifying_key
-        .verify_strict(&signing_bytes, &signature)
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
-    let mut replay_material = signing_bytes;
-    replay_material.extend_from_slice(&grant.signature);
+    let replay_fingerprint = if grant.issuer_key_id == trusted_issuer.key_id {
+        let signature = Signature::from_slice(&grant.signature)
+            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+        let signing_bytes = grant.signing_bytes();
+        trusted_issuer
+            .verifying_key
+            .verify_strict(&signing_bytes, &signature)
+            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+        let mut replay_material = signing_bytes;
+        replay_material.extend_from_slice(&grant.signature);
+        digest(replay_material)
+    } else {
+        // A rotated issuer cannot authenticate a retired key's historical signature.
+        // Keep this row as a fail-closed tombstone rather than deleting it or
+        // requiring the new issuer to have signed old grant material. Current
+        // issuer rows still require full signature verification above.
+        digest(grant_json)
+    };
     Ok(LegacyReplayGrantMigration {
         issuer_key_id: grant.issuer_key_id,
         nonce: grant.nonce,
         expires_at: grant.expires_at,
-        replay_fingerprint: digest(replay_material),
+        replay_fingerprint,
     })
 }
 
