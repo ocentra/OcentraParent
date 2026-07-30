@@ -29,6 +29,8 @@ mod legacy_replay_migration;
 mod ordering;
 #[path = "authenticated_delivery_grant/replay_audit_hardening.rs"]
 mod replay_audit_hardening;
+#[path = "authenticated_delivery_grant/sqlite_contention.rs"]
+mod sqlite_contention;
 #[path = "authenticated_delivery_grant/storage_keys.rs"]
 mod storage_keys;
 pub(super) use storage_keys::stored_key;
