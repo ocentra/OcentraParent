@@ -7,7 +7,7 @@ use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::ids::{EventId, EventType};
 use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
-use sha2::{Digest, Sha256};
+use ocentra_schema::authenticated_delivery_grant::authenticated_delivery_grant_audit_fingerprint;
 
 #[test]
 fn issuer_requires_current_parent_authority_and_produces_verifiable_grant() -> TestResult {
@@ -77,11 +77,7 @@ fn issuer_flushes_an_accepted_milestone_to_the_configured_durable_journal() -> T
         assert_eq!(grant.target_device_id, "child-device-1");
         Ok::<_, Box<dyn std::error::Error>>(grant)
     })?;
-    let mut fingerprint = Sha256::new();
-    fingerprint.update(b"ocentra.authenticated-delivery-grant.audit-fingerprint.v1\0");
-    fingerprint.update(grant.signing_bytes());
-    fingerprint.update(&grant.signature);
-    let expected_fingerprint = format!("{:x}", fingerprint.finalize());
+    let expected_fingerprint = authenticated_delivery_grant_audit_fingerprint(&grant);
     drop(runtime);
 
     let journal = std::fs::read_to_string(&journal_path)?;

@@ -9,19 +9,25 @@ use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantConsumeOutcome,
     AuthenticatedDeliveryGrantConsumer,
 };
+use ocentra_schema::authenticated_delivery_grant::authenticated_delivery_grant_audit_fingerprint;
 
 #[test]
 fn restart_replay_uses_non_reconstructable_fingerprint_without_raw_grant_storage() -> TestResult {
     let key = SigningKey::from_bytes(&[9; 32]);
     let path = store_path("fingerprint-restart-replay");
     let grant = signed_grant(&key);
+    let expected_fingerprint = authenticated_delivery_grant_audit_fingerprint(&grant);
     let mut consumer = open(&path, trusted_issuer(&key))?;
-    must(consumer.consume(
+    let consumed = must(consumer.consume(
         &grant,
         &expected(),
         DELIVERED_PAYLOAD,
         "fingerprint-consume",
     ))?;
+    let AuthenticatedDeliveryGrantConsumeOutcome::Consumed(consumed_audit) = consumed else {
+        return Err(std::io::Error::other("first consume must apply").into());
+    };
+    assert_eq!(consumed_audit.grant_digest, expected_fingerprint);
     drop(consumer);
     let connection = Connection::open(path.as_ref())?;
     let fingerprint: String = connection.query_row(
@@ -29,19 +35,18 @@ fn restart_replay_uses_non_reconstructable_fingerprint_without_raw_grant_storage
         [grant.issuer_key_id.as_str(), grant.nonce.as_str()],
         |row| row.get(0),
     )?;
-    assert_eq!(fingerprint.len(), 64);
+    assert_eq!(fingerprint, expected_fingerprint);
     assert_ne!(fingerprint.as_bytes(), grant.signing_bytes().as_slice());
-    assert_eq!(
-        fingerprint,
-        "81450ad3d6642b99eba5cb6a61d0792af4d422d42c9138f68685fe014bd44485"
-    );
+    assert_eq!(fingerprint, expected_fingerprint);
     assert!(!fingerprint.contains(&serde_json::to_string(&grant)?));
     drop(connection);
     let mut restarted = open(&path, trusted_issuer(&key))?;
-    assert!(matches!(
-        must(restarted.consume(&grant, &expected(), DELIVERED_PAYLOAD, "fingerprint-replay"))?,
-        AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_)
-    ));
+    let replay =
+        must(restarted.consume(&grant, &expected(), DELIVERED_PAYLOAD, "fingerprint-replay"))?;
+    let AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(replay_audit) = replay else {
+        return Err(std::io::Error::other("restart replay must reject").into());
+    };
+    assert_eq!(replay_audit.grant_digest, expected_fingerprint);
     Ok(())
 }
 

@@ -6,8 +6,9 @@ use ocentra_eventing::ids::{
     AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey,
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
 };
-use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrant;
-use sha2::{Digest, Sha256};
+use ocentra_schema::authenticated_delivery_grant::{
+    authenticated_delivery_grant_audit_fingerprint, AuthenticatedDeliveryGrant,
+};
 
 use super::AuthenticatedDeliveryGrantIssuanceError;
 
@@ -205,7 +206,7 @@ pub(crate) fn issuance_milestone_for(
         Ok(grant) => AuthenticatedDeliveryGrantIssuanceMilestone {
             outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
             rejection: None,
-            grant_fingerprint: Some(signed_grant_audit_fingerprint(grant)),
+            grant_fingerprint: Some(authenticated_delivery_grant_audit_fingerprint(grant)),
             redaction_state: true,
         },
         Err(error) => AuthenticatedDeliveryGrantIssuanceMilestone {
@@ -215,12 +216,4 @@ pub(crate) fn issuance_milestone_for(
             redaction_state: true,
         },
     }
-}
-
-fn signed_grant_audit_fingerprint(grant: &AuthenticatedDeliveryGrant) -> String {
-    let mut digest = Sha256::new();
-    digest.update(b"ocentra.authenticated-delivery-grant.audit-fingerprint.v1\0");
-    digest.update(grant.signing_bytes());
-    digest.update(&grant.signature);
-    format!("{:x}", digest.finalize())
 }
