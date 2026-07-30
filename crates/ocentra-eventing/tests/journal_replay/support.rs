@@ -4,7 +4,9 @@ use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{EventId, EventType};
 use ocentra_eventing::journal::policy::JournalPolicy;
-use ocentra_eventing::journal::{EventJournal, JournalAppend, JournalAppendDurability};
+use ocentra_eventing::journal::{
+    EventJournal, JournalAppend, JournalAppendDurability, JournalHashVersion,
+};
 use std::{
     ffi::OsStr,
     future::Future,
@@ -139,6 +141,7 @@ impl EventJournal for RecordingJournal {
                 sequence: log.len() as u64,
                 previous_hash: None,
                 current_hash: None,
+                hash_version: JournalHashVersion::V2,
                 durability: JournalAppendDurability::Synchronized,
             })
         })

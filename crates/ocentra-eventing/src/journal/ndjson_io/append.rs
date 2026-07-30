@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use crate::journal::{
     hash_chain::hash_entry, EventJournal, JournalAppendDurability, JournalAppendFuture,
+    JournalHashVersion,
 };
 use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
@@ -47,6 +48,7 @@ impl NdjsonEventJournal {
                 sequence: next_sequence,
                 previous_hash,
                 current_hash,
+                hash_version: JournalHashVersion::V2,
                 durability,
             }
         };

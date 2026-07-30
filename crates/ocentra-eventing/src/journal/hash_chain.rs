@@ -3,18 +3,26 @@ use sha2::{Digest, Sha256};
 
 use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
-use super::{ndjson::NdjsonJournalEntry, JournalAppendDurability};
+use super::{ndjson::NdjsonJournalEntry, JournalAppendDurability, JournalHashVersion};
 
 const JOURNAL_HASH_PREFIX: &str = "journal-hash:";
 const JOURNAL_HASH_VERSION: u8 = 2;
 
 #[derive(Serialize)]
-struct JournalHashInput<'a> {
+struct JournalHashInputV2<'a> {
     version: u8,
     sequence: u64,
     previous_hash: Option<&'a JournalHash>,
     phase: JournalDispatchPhase,
     durability: JournalAppendDurability,
+    envelope: &'a StoredEventEnvelope,
+}
+
+#[derive(Serialize)]
+struct JournalHashInputV1<'a> {
+    sequence: u64,
+    previous_hash: Option<&'a JournalHash>,
+    phase: JournalDispatchPhase,
     envelope: &'a StoredEventEnvelope,
 }
 
@@ -25,12 +33,30 @@ pub(super) fn hash_entry(
     phase: JournalDispatchPhase,
     durability: JournalAppendDurability,
 ) -> Result<JournalHash, EventingError> {
-    let input = JournalHashInput {
+    let input = JournalHashInputV2 {
         version: JOURNAL_HASH_VERSION,
         sequence,
         previous_hash,
         phase,
         durability,
+        envelope,
+    };
+    let bytes =
+        serde_json::to_vec(&input).map_err(|error| EventingError::journal_encode(&error))?;
+    let digest = Sha256::digest(&bytes);
+    JournalHash::parse(format!("{JOURNAL_HASH_PREFIX}{:x}", digest))
+}
+
+fn hash_legacy_entry(
+    sequence: u64,
+    previous_hash: Option<&JournalHash>,
+    envelope: &StoredEventEnvelope,
+    phase: JournalDispatchPhase,
+) -> Result<JournalHash, EventingError> {
+    let input = JournalHashInputV1 {
+        sequence,
+        previous_hash,
+        phase,
         envelope,
     };
     let bytes =
@@ -59,13 +85,21 @@ pub(crate) fn verify_hash_chain_entry(
             entry.append.sequence
         ));
     }
-    let expected_current = hash_entry(
-        entry.append.sequence,
-        entry.append.previous_hash.as_ref(),
-        &entry.envelope,
-        entry.phase,
-        entry.append.durability,
-    )
+    let expected_current = match entry.append.hash_version {
+        JournalHashVersion::LegacyV1 => hash_legacy_entry(
+            entry.append.sequence,
+            entry.append.previous_hash.as_ref(),
+            &entry.envelope,
+            entry.phase,
+        ),
+        JournalHashVersion::V2 => hash_entry(
+            entry.append.sequence,
+            entry.append.previous_hash.as_ref(),
+            &entry.envelope,
+            entry.phase,
+            entry.append.durability,
+        ),
+    }
     .map_err(|error| error.to_string())?;
     match &entry.append.current_hash {
         Some(current_hash) if current_hash == &expected_current => Ok(()),

@@ -32,6 +32,10 @@ pub struct JournalAppend {
     pub sequence: u64,
     pub previous_hash: Option<JournalHash>,
     pub current_hash: Option<JournalHash>,
+    /// Hash-input format used for this persisted append. Missing values are
+    /// legacy v1 entries, whose authenticated input predates durability.
+    #[serde(default)]
+    pub hash_version: JournalHashVersion,
     /// Whether the append is known to have been synchronized before it was
     /// reported. Missing values from older journal entries fail closed.
     #[serde(default)]
@@ -43,6 +47,13 @@ pub enum JournalAppendDurability {
     #[default]
     Buffered,
     Synchronized,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum JournalHashVersion {
+    #[default]
+    LegacyV1,
+    V2,
 }
 
 impl JournalAppend {
