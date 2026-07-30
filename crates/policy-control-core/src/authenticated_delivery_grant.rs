@@ -7,6 +7,9 @@ use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityInput, ParentStepUpValidationInput,
 };
+use ocentra_family_identity_core::parent_step_up_proof::{
+    ParentStepUpProofVerifier, VerifiedParentStepUpProof,
+};
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
@@ -14,7 +17,6 @@ use ocentra_schema::authenticated_delivery_grant::{
 
 use self::authority::{AuthenticatedDeliveryGrantAuthorityVerifier, SignedAuthorityBindings};
 use self::issuance_milestone::EventBusAuthenticatedDeliveryGrantIssuancePublisher;
-use self::step_up::{ParentStepUpProofVerifier, VerifiedParentStepUpProof};
 use crate::policy_authority::PolicyControlDecision;
 use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
 
@@ -26,7 +28,6 @@ use std::sync::{Arc, Mutex};
 pub mod authority;
 pub mod issuance_milestone;
 mod lifecycle;
-pub mod step_up;
 mod validation;
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

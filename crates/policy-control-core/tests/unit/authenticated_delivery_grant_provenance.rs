@@ -9,10 +9,10 @@ use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, HouseholdAuthorityInput, ParentStepUpAssertionSnapshot,
     ParentStepUpValidationInput,
 };
-use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
-use ocentra_policy_control_core::authenticated_delivery_grant::step_up::{
-    ParentStepUpProofSigner, ParentStepUpProofVerifier,
+use ocentra_family_identity_core::parent_step_up_proof::{
+    ParentStepUpProofError, ParentStepUpProofSigner, ParentStepUpProofVerifier,
 };
+use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuance, AuthenticatedDeliveryGrantIssuanceError,
     AuthenticatedDeliveryGrantIssuer, CanonicalDeliveryGrantAuthorization, DeliveryGrantBindings,
@@ -204,7 +204,7 @@ fn parent_step_up_proof_rejects_oversized_fields_before_signing_or_verification(
     oversized_validation.expected_nonce = Some("x".repeat(513));
     assert_eq!(
         signer.sign(oversized_validation, verified.1.clone(), verified.2.clone()),
-        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+        Err(ParentStepUpProofError::Rejected)
     );
 
     let mut oversized_proof = valid_proof;
@@ -215,7 +215,7 @@ fn parent_step_up_proof_rejects_oversized_fields_before_signing_or_verification(
     .nonce = "x".repeat(513);
     assert_eq!(
         verifier.verify(&oversized_proof),
-        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+        Err(ParentStepUpProofError::Rejected)
     );
     Ok(())
 }
@@ -241,7 +241,7 @@ fn parent_step_up_proof_rejects_lifetimes_over_five_minutes_at_signing_and_verif
             fixture.bindings.target_device_id.clone(),
             assertions.clone(),
         ),
-        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected),
+        Err(ParentStepUpProofError::Rejected),
         "signing must reject a parent-presence proof longer than five minutes"
     );
 
@@ -261,7 +261,7 @@ fn parent_step_up_proof_rejects_lifetimes_over_five_minutes_at_signing_and_verif
     let verifier = ParentStepUpProofVerifier::new(signer.verifying_key());
     assert_eq!(
         verifier.verify(&proof),
-        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected),
+        Err(ParentStepUpProofError::Rejected),
         "verification must reject an overlong signed step-up proof before signature acceptance"
     );
     Ok(())

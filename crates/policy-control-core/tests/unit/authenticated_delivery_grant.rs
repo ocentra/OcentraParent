@@ -11,11 +11,11 @@ use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, HouseholdAuthorityInput, ParentStepUpAssertionSnapshot,
     ParentStepUpValidationInput,
 };
+use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::issuance_milestone::{
     AuthenticatedDeliveryGrantIssuanceMilestone, AuthenticatedDeliveryGrantIssuanceOutcome,
 };
-use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuance, AuthenticatedDeliveryGrantIssuanceError,
     CanonicalDeliveryGrantAuthorization, DeliveryGrantBindings, DeliveryGrantCapabilityState,
