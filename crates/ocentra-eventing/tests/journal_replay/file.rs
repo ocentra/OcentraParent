@@ -1,10 +1,17 @@
+use ocentra_eventing::envelope::StoredEventEnvelope;
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
-use ocentra_eventing::ids::{EventId, IdempotencyKey};
+use ocentra_eventing::ids::{EventId, IdempotencyKey, JournalHash};
 use ocentra_eventing::journal::ndjson::{
     NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
 };
-use ocentra_eventing::journal::EventJournal;
+use ocentra_eventing::journal::policy::JournalDispatchPhase;
+use ocentra_eventing::journal::{
+    EventJournal, JournalAppend, JournalAppendDurability, JournalHashVersion,
+};
+use ocentra_eventing::replay::ReplayFilter;
+use serde::Serialize;
+use sha2::{Digest, Sha256};
 use std::sync::Arc;
 use tokio::sync::Barrier;
 
@@ -583,6 +590,88 @@ async fn hash_chain_rejects_tampered_append_durability() {
         Err(EventingError::JournalCorruptLine { line: 1, .. })
     ));
     cleanup(path).await;
+}
+
+#[tokio::test]
+async fn hash_chain_replays_and_appends_a_legacy_v1_ndjson_entry() {
+    let path = journal_path(TestText("legacy-v1-hash-chain".to_owned()));
+    let legacy_envelope = unique_stored_event("legacy journal event", 58);
+    let legacy_hash = legacy_hash_entry(
+        1,
+        None,
+        &legacy_envelope,
+        JournalDispatchPhase::AfterDispatch,
+    );
+    let legacy_entry = NdjsonJournalEntry {
+        append: JournalAppend {
+            sequence: 1,
+            previous_hash: None,
+            current_hash: Some(legacy_hash.clone()),
+            hash_version: JournalHashVersion::LegacyV1,
+            durability: JournalAppendDurability::Buffered,
+        },
+        phase: JournalDispatchPhase::AfterDispatch,
+        envelope: legacy_envelope.clone(),
+    };
+    let mut encoded = serde_json::to_value(legacy_entry).expect_value("legacy entry encodes");
+    encoded["append"]
+        .as_object_mut()
+        .expect_value("append remains an object")
+        .remove("hash_version");
+    tokio::fs::write(
+        &path.0,
+        format!(
+            "{}\n",
+            serde_json::to_string(&encoded).expect_value("legacy wire entry encodes")
+        ),
+    )
+    .await
+    .expect_value("legacy journal writes");
+
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let replay = journal
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value("legacy journal replays");
+    let append = journal
+        .append(&unique_stored_event("v2 journal event", 59))
+        .await
+        .expect_value("v2 append follows legacy journal");
+    let lines = read_lines(path.clone()).await;
+    let current_entry: NdjsonJournalEntry =
+        serde_json::from_str(&lines[1]).expect_value("current line decodes");
+
+    assert_eq!(replay.records.len(), 1);
+    assert_eq!(replay.records[0].envelope, legacy_envelope);
+    assert_eq!(append.previous_hash, Some(legacy_hash));
+    assert_eq!(current_entry.append.hash_version, JournalHashVersion::V2);
+    assert_eq!(current_entry.append.current_hash, append.current_hash);
+    cleanup(path).await;
+}
+
+#[derive(Serialize)]
+struct LegacyJournalHashInput<'a> {
+    sequence: u64,
+    previous_hash: Option<&'a JournalHash>,
+    phase: JournalDispatchPhase,
+    envelope: &'a StoredEventEnvelope,
+}
+
+fn legacy_hash_entry(
+    sequence: u64,
+    previous_hash: Option<&JournalHash>,
+    envelope: &StoredEventEnvelope,
+    phase: JournalDispatchPhase,
+) -> JournalHash {
+    let bytes = serde_json::to_vec(&LegacyJournalHashInput {
+        sequence,
+        previous_hash,
+        phase,
+        envelope,
+    })
+    .expect_value("legacy hash input encodes");
+    JournalHash::parse(format!("journal-hash:{:x}", Sha256::digest(bytes)))
+        .expect_value("legacy hash parses")
 }
 
 async fn cleanup_idempotent_journal(path: JournalPath) {

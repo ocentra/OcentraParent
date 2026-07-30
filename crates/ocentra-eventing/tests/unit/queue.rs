@@ -15,7 +15,7 @@ use crate::{
     JournalAppend, JournalPolicy, JournalSelector, QueueDisposition, StoredEventEnvelope,
 };
 use ocentra_eventing::bus::reports::dead_letter::DeadLetterReason;
-use ocentra_eventing::journal::JournalAppendDurability;
+use ocentra_eventing::journal::{JournalAppendDurability, JournalHashVersion};
 
 fn failing_journal_result(
     call: usize,
@@ -35,6 +35,7 @@ fn failing_journal_result(
             crate::JournalHash::parse(format!("journal-hash-{call}"))
                 .expect_value("journal hash parses"),
         ),
+        hash_version: JournalHashVersion::V2,
         durability: JournalAppendDurability::Synchronized,
     })
 }
